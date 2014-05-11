@@ -152,7 +152,6 @@ define [
     modulename = locations[typename]
 
     if not mod_cache[modulename]?
-      console.log("calling require", modulename)
       mod_cache[modulename] = require(modulename)
 
     return mod_cache[modulename].Collection

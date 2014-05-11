@@ -47,7 +47,6 @@ def curdoc():
         logger.debug("returning config from flask request")
         return doc
     except (ImportError, RuntimeError, AttributeError):
-        logger.debug("returning global config from bokeh.plotting")
         return _default_document
 
 def curplot():
@@ -159,7 +158,7 @@ def output_notebook(url=None, docname=None, session=None, name=None):
     global _default_notebook
     _default_notebook = True
 
-def output_file(filename, title="Bokeh Plot", autosave=True, mode="inline", rootdir=None):
+def output_file(filename, title="Bokeh Plot", autosave=True, mode="inline", root_dir=None):
     """ Outputs to a static HTML file.
 
     .. note:: This file will be overwritten each time show() or save() is invoked.
@@ -172,7 +171,7 @@ def output_file(filename, title="Bokeh Plot", autosave=True, mode="inline", root
 
         mode (str, optional) : how to inlude BokehJS (default: "inline")
             **mode** can be 'inline', 'cdn', 'relative(-dev)' or 'absolute(-dev)'.
-            In the 'relative(-dev)' case, **rootdir** can be specified to indicate the
+            In the 'relative(-dev)' case, **root_dir** can be specified to indicate the
             base directory from which the path to the various static files should be
             computed.
 
@@ -183,7 +182,7 @@ def output_file(filename, title="Bokeh Plot", autosave=True, mode="inline", root
     global _default_file
     _default_file = {
         'filename'  : filename,
-        'resources' : Resources(mode=mode, rootdir=rootdir, minified=False),
+        'resources' : Resources(mode=mode, root_dir=root_dir, minified=False),
         'autosave'  : autosave,
         'title'     : title,
     }
