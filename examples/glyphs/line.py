@@ -1,14 +1,17 @@
 from __future__ import print_function
 
-from numpy import pi, arange, sin, cos
+from numpy import pi, sin, cos
 import numpy as np
-import os.path
 
-from bokeh.objects import (Plot, DataRange1d, LinearAxis,
-    ColumnDataSource, Glyph, PanTool, WheelZoomTool,
-    PreviewSaveTool, ObjectExplorerTool)
+from bokeh.browserlib import view
+from bokeh.document import Document
+from bokeh.embed import file_html
 from bokeh.glyphs import Line
-from bokeh import session
+from bokeh.objects import (
+    Plot, DataRange1d, LinearAxis, ColumnDataSource, Glyph,
+    PanTool, WheelZoomTool, PreviewSaveTool, ObjectExplorerTool
+)
+from bokeh.resources import INLINE
 
 x = np.linspace(-2*pi, 2*pi, 1000)
 y = sin(x)
@@ -45,10 +48,12 @@ objectexplorer = ObjectExplorerTool()
 plot.renderers.append(renderer)
 plot.tools = [pantool, wheelzoomtool, previewsave, objectexplorer]
 
-sess = session.HTMLFileSession("line.html")
-sess.add_plot(plot)
+doc = Document()
+doc.add(plot)
 
 if __name__ == "__main__":
-    sess.save()
-    print("Wrote %s" % sess.filename)
-    sess.view()
+    filename = "line.html"
+    with open(filename, "w") as f:
+        f.write(file_html(doc, INLINE, "Line Glyph Example"))
+    print("Wrote %s" % filename)
+    view(filename)

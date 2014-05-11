@@ -1,15 +1,16 @@
 from __future__ import print_function
 
-import os
-
 import numpy as np
 import pandas as pd
 
+from bokeh.browserlib import view
+from bokeh.document import Document
+from bokeh.embed import file_html
+from bokeh.glyphs import Circle, Line
 from bokeh.objects import (
     ColumnDataSource, Glyph, Grid, GridPlot, LinearAxis, Plot, Range1d
 )
-from bokeh.glyphs import Circle, Line
-from bokeh import session
+from bokeh.resources import INLINE
 
 raw_columns=[
 [10.0,   8.04,   10.0,   9.14,   10.0,   7.46,   8.0,    6.58],
@@ -81,10 +82,12 @@ IV  = make_plot('IV',  'xiv',  'yiv')
 
 grid = GridPlot(children=[[I, II], [III, IV]], width=800)
 
-sess = session.HTMLFileSession("anscombe.html")
-sess.add_plot(grid)
+doc = Document( )
+doc.add(grid)
 
 if __name__ == "__main__":
-    sess.save()
-    print("Wrote %s" % sess.filename)
-    sess.view()
+    filename = "anscombe.html"
+    with open(filename, "w") as f:
+        f.write(file_html(doc, INLINE, "Anscombe's Quartet"))
+    print("Wrote %s" % filename)
+    view(filename)

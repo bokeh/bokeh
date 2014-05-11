@@ -34,4 +34,4 @@ ax.set_title('Successive data offsets')
 
 fig = plt.gcf()
 
-pyplot.show_bokeh(plt.gcf(), filename="lc_offsets.html")
+pyplot.show_bokeh(name="lc_offsets")

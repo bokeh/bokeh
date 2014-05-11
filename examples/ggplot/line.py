@@ -9,4 +9,4 @@ g.draw()
 
 plt.title("Line ggplot-based plot in Bokeh.")
 
-pyplot.show_bokeh(plt.gcf(), filename="line.html")
+pyplot.show_bokeh(name="line")

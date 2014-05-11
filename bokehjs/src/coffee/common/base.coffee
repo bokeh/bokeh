@@ -175,7 +175,6 @@ define [
     modulename = locations[typename]
 
     if not mod_cache[modulename]?
-      console.log("calling require", modulename)
       mod = require(modulename)
 
       if mod?

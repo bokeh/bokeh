@@ -1,13 +1,17 @@
 from __future__ import print_function
 
-from numpy import pi, arange, sin, cos, tan
+from numpy import pi, sin, cos, tan
 import numpy as np
-import os.path
 
-from bokeh.objects import (Plot, DataRange1d, LinearAxis,
-    ColumnDataSource, Glyph, PanTool, WheelZoomTool, GridPlot)
+from bokeh.browserlib import view
+from bokeh.document import Document
+from bokeh.embed import file_html
 from bokeh.glyphs import Line
-from bokeh import session
+from bokeh.objects import (
+    Plot, DataRange1d, LinearAxis, ColumnDataSource,
+    Glyph, PanTool, WheelZoomTool, GridPlot
+)
+from bokeh.resources import INLINE
 
 x = np.linspace(-2*pi, 2*pi, 1000)
 
@@ -50,10 +54,12 @@ plot4 = make_plot(source, "x", "y4", "black")
 
 grid = GridPlot(children=[[plot1, plot2], [plot3, plot4]])
 
-sess = session.HTMLFileSession("grid.html")
-sess.add_plot(grid)
+doc = Document()
+doc.add(grid)
 
 if __name__ == "__main__":
-    sess.save()
-    print("Wrote %s" % sess.filename)
-    sess.view()
+    filename = "grid.html"
+    with open(filename, "w") as f:
+        f.write(file_html(doc, INLINE, "Grid Plot Example"))
+    print("Wrote %s" % filename)
+    view(filename)

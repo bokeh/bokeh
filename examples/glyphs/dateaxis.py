@@ -1,14 +1,16 @@
 from __future__ import print_function
 
-from numpy import pi, arange, sin, cos
+from numpy import pi, arange, sin
 import numpy as np
-import os.path
 import time
 
+from bokeh.browserlib import view
+from bokeh.document import Document
+from bokeh.embed import file_html
+from bokeh.glyphs import Circle
 from bokeh.objects import (Plot, DataRange1d, LinearAxis, DatetimeAxis,
         ColumnDataSource, Glyph, PanTool, WheelZoomTool)
-from bokeh.glyphs import Circle
-from bokeh import session
+from bokeh.resources import INLINE
 
 x = arange(-2 * pi, 2 * pi, 0.1)
 y = sin(x)
@@ -43,10 +45,12 @@ wheelzoomtool = WheelZoomTool(dimensions=["width", "height"])
 plot.renderers.append(glyph_renderer)
 plot.tools = [pantool, wheelzoomtool]
 
-sess = session.HTMLFileSession("dateaxis.html")
-sess.add_plot(plot)
+doc = Document()
+doc.add(plot)
 
 if __name__ == "__main__":
-    sess.save()
-    print("Wrote %s" % sess.filename)
-    sess.view()
+    filename = "dateaxis.html"
+    with open(filename, "w") as f:
+        f.write(file_html(doc, INLINE, "Date Axis Example"))
+    print("Wrote %s" % filename)
+    view(filename)

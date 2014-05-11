@@ -299,7 +299,16 @@ define [
         # Create the map with above options in div
         @map = new google.maps.Map(@gmap_div[0], map_options)
         google.maps.event.addListener(@map, 'bounds_changed', @bounds_change)
-      _.defer(build_map)
+
+      if window.google? and window.google.maps?
+        _.defer(@build_map)
+      else
+        window['_bokeh_first_gmap_load'] = build_map
+        script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = 'https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&callback=_bokeh_first_gmap_load';
+        document.body.appendChild(script);
+
       if full_render
         @render()
 

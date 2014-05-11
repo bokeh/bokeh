@@ -1,17 +1,17 @@
 from __future__ import print_function
 
-import os
 from math import pi
 
-from bokeh.sampledata.iris import flowers
+from bokeh.browserlib import view
+from bokeh.document import Document
+from bokeh.embed import file_html
+from bokeh.glyphs import Circle, Text
 from bokeh.objects import (
     ColumnDataSource, Glyph, Grid, GridPlot, LinearAxis, Plot,
-    DataRange1d, DataRange1d, PanTool, WheelZoomTool
+    DataRange1d, PanTool, WheelZoomTool
 )
-from bokeh.glyphs import Circle, Text
-from bokeh import session
-
-
+from bokeh.resources import INLINE
+from bokeh.sampledata.iris import flowers
 
 colormap = {'setosa': 'red', 'versicolor': 'green', 'virginica': 'blue'}
 
@@ -35,19 +35,17 @@ text_source = ColumnDataSource(
 xdr = DataRange1d(sources=[source.columns("petal_length", "petal_width", "sepal_length", "sepal_width")])
 ydr = DataRange1d(sources=[source.columns("petal_length", "petal_width", "sepal_length", "sepal_width")])
 
-pan = PanTool(dimensions=["x","y"])
-zoom = WheelZoomTool(dimensions=["x","y"])
+pan = PanTool(dimensions=["width","height"])
+zoom = WheelZoomTool(dimensions=["width","height"])
 
 def make_plot(xname, yname, xax=False, yax=False, text=None):
     plot = Plot(
         x_range=xdr, y_range=ydr, data_sources=[source], background_fill="#efe8e2",
         width=250, height=250, border_fill='white', title="", min_border=2, border_symmetry=None)
-    if xax:
-        xaxis = LinearAxis(plot=plot, dimension=0, location="bottom")
-        xgrid = Grid(plot=plot, dimension=0, axis=xaxis)
-    if yax:
-        yaxis = LinearAxis(plot=plot, dimension=1, location="left")
-        ygrid = Grid(plot=plot, dimension=1, axis=yaxis)
+    xaxis = LinearAxis(plot=plot, dimension=0, location="bottom")
+    yaxis = LinearAxis(plot=plot, dimension=1, location="left")
+    xgrid = Grid(plot=plot, dimension=0, axis=xaxis)
+    ygrid = Grid(plot=plot, dimension=1, axis=yaxis)
     circle = Circle(x=xname, y=yname, fill_color="color", fill_alpha=0.2, size=4, line_color="color")
     circle_renderer = Glyph(
         data_source = source,
@@ -90,10 +88,12 @@ for y in yattrs:
 
 grid = GridPlot(children=plots, title="iris_splom")
 
-sess = session.HTMLFileSession("iris_splom.html")
-sess.add_plot(grid)
+doc = Document()
+doc.add(grid)
 
 if __name__ == "__main__":
-    sess.save()
-    print("Wrote %s" % sess.filename)
-    sess.view()
+    filename = "iris_splom.html"
+    with open(filename, "w") as f:
+        f.write(file_html(doc, INLINE, "Iris Data SPLOM"))
+    print("Wrote %s" % filename)
+    view(filename)

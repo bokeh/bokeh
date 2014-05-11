@@ -51,4 +51,4 @@ plt.ylabel('IV', fontsize=20)
 
 # We create the figure in matplotlib and then we "pass it" to Bokeh
 
-pyplot.show_bokeh(plt.gcf(), filename="subplots.html")
+pyplot.show_bokeh(name="subplots")

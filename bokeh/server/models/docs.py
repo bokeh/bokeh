@@ -1,36 +1,41 @@
 import uuid
 from .. import models
 from ...objects import PlotContext, PlotObject
-
+from ...document import get_ref
 import logging
 log = logging.getLogger(__name__)
 
-def prune_and_get_valid_models(session, delete=False):
-    """retrieve all models that the plot_context points to.
+"""This is the serverside model of a document.  we also use the same object
+the clients use to represent docs, and that is from ...document.  That is 
+referred to here as clientdoc
+"""
+def prune_and_get_valid_models(clientdoc, delete=False):
+    """
+    retrieve all models that the plot_context points to.
     if delete is True,
     wipe out any models that are orphaned.  Also call transform_models, which
     performs any backwards compatability data transformations.
     """
-    objs = session.plotcontext.references()
+    objs = clientdoc._plotcontext.references()
     log.info("num models: %d", len(objs))
     if delete:
-        for obj in session._models.values():
+        for obj in clientdoc._models.values():
             if obj not in objs:
                 #not impl yet...
-                session.del_obj(obj)
+                clientdoc.del_obj(obj)
     return objs
 
-def new_doc(flaskapp, docid, title, session, rw_users=None, r_users=None,
+def new_doc(flaskapp, docid, title, clientdoc, rw_users=None, r_users=None,
             apikey=None, readonlyapikey=None):
     if not apikey: apikey = str(uuid.uuid4())
     if not readonlyapikey: readonlyapikey = str(uuid.uuid4())
     plot_context = PlotContext()
-    session.add(plot_context)
-    session.store_all()
+    clientdoc.unset_context()
+    clientdoc.set_context(plot_context)
     if rw_users is None: rw_users = []
     if r_users is None: r_users = []
     doc = Doc(docid, title, rw_users, r_users,
-              session.get_ref(plot_context), apikey, readonlyapikey)
+              get_ref(plot_context), apikey, readonlyapikey)
     doc.save(flaskapp.servermodel_storage)
     return doc
 

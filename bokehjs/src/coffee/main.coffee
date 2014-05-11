@@ -5,7 +5,7 @@ define (require, exports, module) ->
     window.Float64Array = Array
 
   Bokeh = {}
-
+  Bokeh.require = require
   Bokeh.version = '0.4.4'
 
   #binding the libs that bokeh uses so others can reference them
@@ -97,6 +97,7 @@ define (require, exports, module) ->
 
   # server tools
   Bokeh.embed_core  = require("server/embed_core")
+  Bokeh.embed  = require("server/embed")
   Bokeh.serverrun   = require("server/serverrun")
   Bokeh.serverutils = require("server/serverutils")
 

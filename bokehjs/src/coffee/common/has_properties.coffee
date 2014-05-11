@@ -222,10 +222,10 @@ define [
       # ### method: HasProperties::resolve_ref
       #converts a reference into an object
       #also works vectorized now
-      if _.isArray(ref)
-        return _.map(ref, @resolve_ref)
       if not ref
         console.log('ERROR, null reference')
+      if _.isArray(ref)
+        return _.map(ref, @resolve_ref)
       #this way we can reference ourselves
       # even though we are not in any collection yet
       if ref['type'] == this.type and ref['id'] == this.id

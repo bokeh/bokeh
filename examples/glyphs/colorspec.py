@@ -1,12 +1,13 @@
 from __future__ import print_function
 
-""" Demonstrates data-dependent color """
-
-import os.path
-from bokeh.objects import (Plot, DataRange1d, LinearAxis,
-    ColumnDataSource, Glyph, PanTool, WheelZoomTool)
+from bokeh.browserlib import view
+from bokeh.document import Document
+from bokeh.embed import file_html
 from bokeh.glyphs import Circle
-from bokeh import session
+from bokeh.objects import (
+    Plot, DataRange1d, LinearAxis, ColumnDataSource, Glyph, PanTool, WheelZoomTool
+)
+from bokeh.resources import INLINE
 
 source = ColumnDataSource(
     data = dict(
@@ -53,10 +54,12 @@ wheelzoomtool = WheelZoomTool(dimensions=["width", "height"])
 plot.renderers.append(glyph_renderer)
 plot.tools = [pantool, wheelzoomtool]
 
-sess = session.HTMLFileSession("colorspec.html")
-sess.add_plot(plot)
+doc = Document()
+doc.add(plot)
 
 if __name__ == "__main__":
-    sess.save()
-    print("Wrote %s" % sess.filename)
-    sess.view()
+    filename = "colorspec.html"
+    with open(filename, "w") as f:
+        f.write(file_html(doc, INLINE, "Demonstration of ColorSpec"))
+    print("Wrote %s" % filename)
+    view(filename)

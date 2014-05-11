@@ -51,6 +51,10 @@ parser.add_argument("-D", "--no-dev", dest="dev", action="store_false", default=
                     help="don't use development JavaScript and CSS files")
 args = parser.parse_args()
 
+DEFAULT_NO_DEV = os.environ.get('BOKEH_DEFAULT_NO_DEV', False)
+if DEFAULT_NO_DEV:
+    args.dev = False
+
 def is_selected(example):
     if not args.patterns:
         return True
@@ -117,7 +121,7 @@ add_examples("ggplot")
 add_examples("seaborn")
 
 add_examples(os.path.join("plotting", "file"), example_type=Flags.file, skip=["image.py", "image_rgba.py"])
-add_examples(os.path.join("plotting", "server"), example_type=Flags.server, skip=["image.py", "image_rgba.py", "remote_image.py", "serversource.py", "server_source_upload.py"])
+add_examples(os.path.join("plotting", "server"), example_type=Flags.server, skip=["image.py", "image_rgba.py", "remote_image.py", "serversource.py", "server_source_upload.py", "embedding_example.py"])
 add_examples(os.path.join("plotting", "notebook"))
 
 def red(text):

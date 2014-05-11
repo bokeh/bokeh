@@ -1,16 +1,12 @@
 from __future__ import absolute_import, print_function
 
-import pandas
 import time
 import numpy as np
 import requests
 
 from . import protocol
-
-from .properties import (HasProps, MetaHasProps, Any, Dict, Enum,
-    Float, Instance, Int, List, String, Color, Percent, Size, Bool)
-
-from .objects import PlotObject, PlotContext, Plot, PlotList, ColumnDataSource
+from .objects import ColumnDataSource, PlotObject
+from .properties import (Bool, Dict, Instance, Int, List, String)
 
 # Hugo: this object model is still a bit half baked
 # we are probabyl storing some things on the plot source and

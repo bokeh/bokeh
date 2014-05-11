@@ -1,0 +1,6 @@
+commit 9d737670bf864c51246f6a95f24c2147f12584ca
+Author: Jake Vanderplas <vanderplas@astro.washington.edu>
+Date:   Sat Apr 19 08:18:20 2014 -0700
+
+    BUG: correctly handle color='none'
+
