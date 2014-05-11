@@ -138,7 +138,7 @@ def autoload_static(plot_object, resources, script_path):
         ValueError
 
     '''
-    if resources.mode != 'inline':
+    if resources.mode == 'inline':
         raise ValueError("autoload_static() requires non-inline resources")
 
     if resources.dev:
