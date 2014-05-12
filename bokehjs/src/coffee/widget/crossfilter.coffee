@@ -16,7 +16,7 @@ define [
   crossfiltertemplate,
   discretecolumntemplate, continuouscolumntemplate) ->
   ContinuumView = continuum_view.View
-
+  CloseWrapper = continuum_view.CloseWrapper
   class CrossFilterView extends ContinuumView
     tag : "div"
     attributes:
@@ -61,7 +61,7 @@ define [
     default_view : CrossFilterView
     defaults :
       height : 900
-      widht : 1100
+      width : 1100
 
   class CrossFilters extends Backbone.Collection
     model : CrossFilter
@@ -104,20 +104,31 @@ define [
 
     render_column_selectors : () ->
       _.map(@views, (view) -> view.$el.detach())
+      @$el.empty()
       filter_widget_dict = {}
       for own key, val of @mget('filter_widgets')
         filter_widget_dict[key] = @model.resolve_ref(val)
       filtering_columns = @mget('filtering_columns')
       filter_widgets = (filter_widget_dict[col] for col in filtering_columns \
         when filter_widget_dict[col]?)
-      build_views(@views, filter_widgets)
-      _.map(filter_widgets, (model) => @$el.append(@views[model.id].$el))
+      newviews =build_views(@views, filter_widgets)
+      _.map(newviews, (view)=>
+        @listenTo(view, 'remove', @child_remove)
+      )
+      _.map(filter_widgets, (model) =>
+        wrapper = new CloseWrapper(view : @views[model.id])
+        @$el.append(wrapper.$el)
+      )
 
-
-
-
-
-
+    child_remove : (view) ->
+      for own key, val of @mget('filter_widgets')
+        model = @model.resolve_ref(val)
+        if model == view.model
+          to_remove = key
+          break
+      newcolumns = _.filter(@mget('filtering_columns'), (x) -> x != to_remove)
+      @mset('filtering_columns', newcolumns)
+      @model.save()
 
   class ColumnCollection extends Backbone.Collection
     model : (attrs, options) ->

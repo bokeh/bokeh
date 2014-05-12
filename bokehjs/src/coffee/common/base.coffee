@@ -70,6 +70,7 @@ define [
   'widget/selectbox'
   'widget/slider'
   'widget/crossfilter'
+  'widget/multiselect'
 ], (_, require) ->
 
   # add some useful functions to underscore
@@ -142,6 +143,7 @@ define [
     Select:                   'widget/selectbox'
     Slider:                   'widget/slider'
     CrossFilter:              'widget/crossfilter'
+    MultiSelect:              'widget/multiselect'
   mod_cache = {}
   collection_overrides = {}
   Collections = (typename) ->

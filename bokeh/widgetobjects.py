@@ -155,6 +155,20 @@ class Select(InputWidget):
         kwargs['options'] = new_options
         return super(Select, self).create(*args, **kwargs)
 
+class MultiSelect(Select):
+    value = List(String)
+
+    @classmethod
+    def create(self, *args, **kwargs):
+        options = kwargs.pop('options', [])
+        new_options = []
+        for opt in options:
+            if isinstance(opt, six.string_types):
+                opt = {'name' : opt, 'value' : opt}
+            new_options.append(opt)
+        kwargs['options'] = new_options
+        return super(Select, self).create(*args, **kwargs)
+
 class Slider(InputWidget):
     value = Float()
     start = Float()
@@ -165,6 +179,7 @@ class Slider(InputWidget):
 class CrossFilter(PlotObject):
     columns = List(Dict(String, Any))
     data = Instance(ColumnDataSource)
+    filtered_data = Instance(ColumnDataSource)
     #list of datasources to use for filtering widgets
     filter_sources = Dict(String, Instance(ColumnDataSource))
     #list of columns we are filtering
@@ -179,6 +194,7 @@ class CrossFilter(PlotObject):
         if 'df' in kwargs:
             self._df = kwargs.pop('df')
             kwargs['data'] = ColumnDataSource(data=self.df)
+            kwargs['filtered_data'] = ColumnDataSource(data=self.df)
         super(CrossFilter, self).__init__(*args, **kwargs)
         
     def column_descriptor_dict(self):
@@ -201,19 +217,79 @@ class CrossFilter(PlotObject):
         
     def setup_events(self):
         self.on_change('filtering_columns', self, 'setup_filter_widgets')
+        for obj in self.filter_widgets.values():
+            if isinstance(obj, InputWidget):
+                obj.on_change('value', self, 'handle_filter_selection')
+        for obj in self.filter_sources.values():
+            obj.on_change('selected', self, 'handle_filter_selection')
 
+    def handle_filter_selection(self, obj, attrname, old, new):
+        column_descriptor_dict = self.column_descriptor_dict()
+        df = self.df
+        for descriptor in self.columns:
+            colname = descriptor['name']
+            print (descriptor)
+            if descriptor['type'] == 'DiscreteColumn' and \
+               colname in self.filter_widgets:
+                widget = self.filter_widgets[colname]
+                selected = self.filter_widgets[colname].value
+                if not selected:
+                    continue
+                if isinstance(selected, six.string_types):
+                    df = df[colname == selected]
+                else:
+                    df = df[np.in1d(df[colname], selected)]
+            elif descriptor['type'] in ('TimeColumn', 'ContinuousColumn') and \
+                colname in self.filter_widgets:                
+                obj = self.filter_sources[colname]
+                #hack because we don't have true range selection
+                if not obj.selected:
+                    continue
+                min_idx = np.min(obj.selected)
+                max_idx = np.max(obj.selected)
+                
+                min_val = obj.data['centers'][min_idx] - obj.data['widths'][min_idx]
+                max_val = obj.data['centers'][max_idx] + obj.data['widths'][max_idx]
+                df = df[(df[colname] >= min_val) & (df[colname] <= max_val)]
+        for colname in self.data.column_names:
+            self.filtered_data.data[colname] = df[colname]
+            self.filtered_data._dirty = True
+        print (df)
+        
+    def clear_selections(self, obj, attrname, old, new):
+        diff = set(old) - set(new)
+        column_descriptor_dict = self.column_descriptor_dict()
+        if len(diff) > 0:
+            for col in diff:
+                metadata = column_descriptor_dict[col]
+                if metadata['type'] != 'DiscreteColumn':
+                    del self.filter_sources[col]
+                del self.filter_widgets[col]
+        if diff:
+            self.handle_filter_selection(obj, attrname, old, new)
+
+            
     def setup_filter_widgets(self, obj, attrname, old, new):
+        print ('SETUPFILTER')
+        self.clear_selections(obj, attrname, old, new)
         column_descriptor_dict = self.column_descriptor_dict()
         for col in self.filtering_columns:
+            metadata = column_descriptor_dict[col]
             if not col in self.filter_widgets:
-                metadata = column_descriptor_dict[col]
-                if metadata['type'] == 'DiscreteColumn':
-                    pass
+                if metadata['type'] == 'DiscreteColumn':            
+                    select = MultiSelect.create(
+                        name=col,
+                        options=self.df[col].unique().tolist())
+                    self.filter_widgets[col] = select
                 else:
+                    source = make_histogram_source(self.df[col])
+                    self.filter_sources[col] = source
                     hist_plot = make_histogram(self.filter_sources[col],
                                                width=150, height=100)
                     self.filter_widgets[col] = hist_plot
+        print (self.filter_sources.keys())
         curdoc().add_all()
+        
     def set_metadata(self):
         descriptors = []
         columns = self.df.columns
@@ -229,8 +305,6 @@ class CrossFilter(PlotObject):
                     'top' : desc['top'],
                     'freq' : desc['freq'],
                 })
-                source = make_factor_source(self.df[c])
-                self.filter_sources[c] = source
 
             elif self.df[c].dtype == np.datetime64:
                 descriptors.append({
@@ -241,10 +315,6 @@ class CrossFilter(PlotObject):
                     'first' : desc['first'],
                     'last' : desc['last'],
                 })
-                
-                source = make_histogram_source(self.df[c])
-                self.filter_sources[c] = source
-                
             else:
                 descriptors.append({
                     'type' : "ContinuousColumn",
@@ -255,9 +325,6 @@ class CrossFilter(PlotObject):
                     'min' : "%.2f" % desc['min'],
                     'max' : "%.2f" % desc['max'],
                 })
-                
-                source = make_histogram_source(self.df[c])
-                self.filter_sources[c] = source
         self.columns = descriptors
         return None
                 
