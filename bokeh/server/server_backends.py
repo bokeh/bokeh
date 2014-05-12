@@ -373,6 +373,7 @@ def safe_user_url_join(data_directory, username, path):
     return safe_url_join(user_path, path)
 
 
+        
 
 class HDF5DataBackend(AbstractDataBackend):
     """Everything here is world readable, but only writeable by the user
@@ -405,11 +406,13 @@ class HDF5DataBackend(AbstractDataBackend):
     def list_data_sources(self, request_username, username):
         return self.client[username].descendant_urls(ignore_groups=True)
 
-    def line1d_downsample(self, request_username, request_docid, data_url, 
-                          downsample_function, downsample_parameters):
+    def line1d_downsample(self, request_username, request_docid, data_url, data_parameters):
         dataset = self.client[data_url]
-        (primary_column, domain_name, columns, 
-         domain_limit, domain_resolution) = downsample_parameters
+        (primary_column, domain_name, columns,
+         domain_limit, domain_resolution, input_params) = data_parameters
+       
+        method = input_params['method']
+
         if domain_limit == 'auto':
             domain = dataset.select(columns=[domain_name])[domain_name]
             domain_limit = [domain.min(), domain.max()]
@@ -431,20 +434,22 @@ class HDF5DataBackend(AbstractDataBackend):
                                             domain_name,
                                             primary_column,
                                             domain_limit,
-                                            domain_resolution)
+                                            domain_resolution,
+                                            method)
         print ('result', result.shape)
         result = {
             'data' : dict([(k, result[k]) for k in result.dtype.names]),
             'domain_limit' : domain_limit
         }
         return result
-    
+
     def heatmap_downsample(self, request_username, request_docid, data_url, 
-                          downsample_function, downsample_parameters):
+                          data_parameters):
         dataset = self.client[data_url].node
         (global_x_range, global_y_range, global_offset_x, global_offset_y,
          x_bounds, y_bounds, x_resolution, y_resolution,
-         index_slice, data_slice, transpose) = downsample_parameters
+         index_slice, data_slice, transpose) = data_parameters
+
         if data_slice:
             #not supported for z yet...
             pass
@@ -473,15 +478,17 @@ class HDF5DataBackend(AbstractDataBackend):
         output['dh'] = [result['dh']]
         return output
 
-    def get_data(self, request_username, request_docid, data_url, 
-                 downsample_function, downsample_parameters):
-        if downsample_function == 'line1d':
+    def get_data(self, request_username, request_docid, data_url, resample_parameters): 
+        resample_params = resample_parameters[-1]
+        resample_op = resample_params['resample'] 
+
+        if resample_op == 'line1d':
             return self.line1d_downsample(
                 request_username, request_docid, data_url, 
-                downsample_function, downsample_parameters)
-        elif downsample_function == 'heatmap':
+                resample_parameters)
+        elif resample_op == 'heatmap':
             return self.heatmap_downsample(
                 request_username, 
                 request_docid, data_url, 
-                downsample_function, downsample_parameters)
+                resample_parameters)
         

@@ -46,15 +46,16 @@ define [
           @stopListening.apply(this, entry)
 
     listen_for_line1d_updates : (column_data_source, domain_range, screen_range
-                                  primary_column, domain_name, columns) ->
+                                  primary_column, domain_name, columns, input_params) ->
       #ensure we only have one set of events bound
       @stoplistening_for_updates(column_data_source)
       @line1d_update(column_data_source, domain_range, screen_range
-          primary_column, domain_name, columns
-        )
+          primary_column, domain_name, columns, input_params)
+
       throttle = _.throttle(@line1d_update, 300)
+      console.log(input_params)
       callback = () => throttle(column_data_source, domain_range, screen_range
-        primary_column, domain_name, columns
+        primary_column, domain_name, columns, input_params
       )
       @listenTo(screen_range, 'change', callback)
       @listenTo(domain_range, 'change', callback)
@@ -64,7 +65,7 @@ define [
       ]
 
     line1d_update : (column_data_source, domain_range, screen_range,
-                     primary_column, domain_name, columns) =>
+                     primary_column, domain_name, columns, input_params) =>
       #console.log('calling update')
       data_url = @get('data_url')
       owner_username = @get('owner_username')
@@ -75,9 +76,9 @@ define [
       domain_limit = [domain_range.get('start'), domain_range.get('end')]
       if _.any(_.map(domain_limit, (x) -> _.isNaN(x)))
         domain_limit = 'auto'
+      console.log(input_params)
       params = [primary_column, domain_name, columns,
-          domain_limit
-        , domain_resolution]
+          domain_limit, domain_resolution, input_params]
       params = JSON.stringify(params)
       $.ajax(
         dataType: 'json'
@@ -96,21 +97,18 @@ define [
           column_data_source.set('data', data.data)
           #console.log('setting data', _.values(data.data)[0].length)
         data :
-          downsample_function : 'line1d'
-          downsample_parameters : params
+          resample_parameters : params
       )
 
     listen_for_heatmap_updates : (column_data_source, x_data_range,
-          y_data_range,
-          x_screen_range, y_screen_range,
-            ) ->
+          y_data_range, x_screen_range, y_screen_range, input_params) ->
       #ensure we only have one set of events bound
       @stoplistening_for_updates(column_data_source)
       #throttle = _.throttle(@heatmap_update, 300)
       callback = ajax_throttle(() =>
         @heatmap_update(column_data_source, x_data_range,
           y_data_range,
-          x_screen_range, y_screen_range)
+          x_screen_range, y_screen_range, input_params)
       )
       callback()
       @callbacks[column_data_source.get('id')] = []
@@ -126,8 +124,7 @@ define [
       return null
 
     heatmap_update : (column_data_source, x_data_range,
-          y_data_range,
-          x_screen_range, y_screen_range) =>
+          y_data_range, x_screen_range, y_screen_range, input_params) =>
       data_url = @get('data_url')
       owner_username = @get('owner_username')
       prefix = @get_base().Config.prefix
@@ -146,7 +143,8 @@ define [
         global_offset_x, global_offset_y,
         x_bounds, y_bounds, x_resolution,
         y_resolution, index_slice, data_slice,
-        @get('transpose')
+        @get('transpose'),
+        input_params
       ]
       params = JSON.stringify(params)
       #console.log(y_bounds)
@@ -162,8 +160,7 @@ define [
           column_data_source.set('data', new_data)
           #console.log('setting data', data.image.length, data.image[0].length)
         data :
-          downsample_function : 'heatmap'
-          downsample_parameters : params
+          resample_parameters : params
       )
 
   class ServerDataSources extends Backbone.Collection

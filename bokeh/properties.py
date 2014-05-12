@@ -524,7 +524,7 @@ class HasProps(object):
             if key in props:
                 setattr(self, key, value)
             else:
-                raise AttributeError("unexpected attribute %s to %s, possible attributes are %s" %
+                raise AttributeError("unexpected attribute '%s' to %s, possible attributes are %s" %
                     (key, self.__class__.__name__, nice_join(props)))
 
         super(HasProps, self).__init__()

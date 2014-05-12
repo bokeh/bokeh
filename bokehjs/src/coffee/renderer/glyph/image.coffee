@@ -13,22 +13,6 @@ define [
 
     _properties: []
 
-    setup_server_data : () ->
-      serversource = @mget_obj('server_data_source')
-      # hack, call set data, becuase there are some attrs that we need
-      # that are in it
-      data = _.extend({}, @mget_obj('data_source').get('data'), serversource.get('data'))
-      @mget_obj('data_source').set('data', data)
-      @set_data(false)
-
-      serversource.listen_for_heatmap_updates(@mget_obj('data_source'),
-        @plot_view.x_range,
-        @plot_view.y_range,
-        @plot_view.view_state.get('inner_range_horizontal'),
-        @plot_view.view_state.get('inner_range_vertical'),
-      )
-
-
     initialize: (options) ->
       # the point of this is to support both efficient ArrayBuffers as well as dumb
       # arrays of arrays that the python interface currently uses. If the glyphspec

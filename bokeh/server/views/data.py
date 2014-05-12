@@ -24,11 +24,8 @@ def get_data(username, data_url):
     bokehuser = bokeh_app.authentication.current_user()
     request_username = bokehuser.username
     #handle docid later...
-    downsample_function = request.values.get('downsample_function')
-    downsample_parameters = request.values.get('downsample_parameters')
-    downsample_parameters = json.loads(downsample_parameters)
-    result = bokeh_app.datamanager.get_data(request_username, None, data_url,
-                                            downsample_function, downsample_parameters)
+    data_parameters = json.loads(request.values.get('resample_parameters'))
+    result = bokeh_app.datamanager.get_data(request_username, None, data_url, data_parameters)
     result = make_json(protocol.serialize_json(result))
     return result
 

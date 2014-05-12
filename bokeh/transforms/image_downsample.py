@@ -1,10 +1,26 @@
 import numpy as np
+from ..objects import ServerDataSource
 
 try:
     import scipy
     import scipy.misc
 except ImportError as e:
     print(e)
+
+
+def source(**kwargs):
+  kwargs['transform'] = {'resample':'image'}
+  kwargs['data'] = {'x': [0], 
+                                'y': [0],
+                                'global_x_range' : [0, 10],
+                                'global_y_range' : [0, 10],
+                                'global_offset_x' : [0],
+                                'global_offset_y' : [0],
+                                'dw' : [10], 
+                                'dh' : [10], 
+                                'palette': ["Spectral-11"]
+                            }
+  return ServerDataSource(**kwargs)
 
 
 def downsample(image, image_x_axis, image_y_axis,

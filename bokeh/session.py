@@ -16,6 +16,7 @@ from .exceptions import DataIntegrityException
 from .document import merge, Document
 from . import utils, browserlib
 from bokeh.objects import ServerDataSource
+from bokeh.transforms.ar_downsample import Resample
 import logging
 
 logger = logging.getLogger(__name__)
