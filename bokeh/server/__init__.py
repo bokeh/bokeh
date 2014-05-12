@@ -154,7 +154,8 @@ data-directory : %s
             handler.addFilter(StaticFilter())
     settings.set_args(args)
     if args.debug :
-        start_with_reloader(args, settings.js_files(), args.robust_reload)
+        extra_files = settings.js_files() + settings.css_files()
+        start_with_reloader(args, extra_files, args.robust_reload)
     else:
         start_server(args)
 
