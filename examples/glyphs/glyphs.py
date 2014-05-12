@@ -5,7 +5,10 @@ from bokeh.widgetobjects import VBox, Tabs, Panel
 from bokeh.glyphs import (AnnularWedge, Annulus, Arc, Bezier, Circle, Line, MultiLine, Oval,
     Patch, Patches, Quad, Quadratic, Ray, Rect, Segment, Square, Wedge, CircleX, Triangle,
     Cross, Diamond, InvertedTriangle, SquareX, Asterisk, SquareCross, DiamondCross, CircleCross)
-from bokeh.session import HTMLFileSession
+from bokeh.document import Document
+from bokeh.embed import file_html
+from bokeh.resources import INLINE
+from bokeh.browserlib import view
 
 N = 9
 
@@ -84,10 +87,12 @@ def make_tabs(objs):
 
 layout = VBox(children=[make_tabs(glyphs), make_tabs(markers)])
 
-session = HTMLFileSession("glyphs.html")
-session.add_plot(layout)
+doc = Document()
+doc.add(layout)
 
 if __name__ == "__main__":
-    session.save()
-    print("Wrote %s" % session.filename)
-    session.view()
+    filename = "glyphs.html"
+    with open(filename, "w") as f:
+        f.write(file_html(doc, INLINE, "Glyphs"))
+    print("Wrote %s" % filename)
+    view(filename)

@@ -12,7 +12,13 @@ import sympy as sy
 from bokeh.objects import Plot, DataRange1d, LinearAxis, ColumnDataSource, Glyph, Grid, Legend
 from bokeh.widgetobjects import Slider, TextInput, HBox, VBox, Dialog
 from bokeh.glyphs import Patch, Line, Text
-from bokeh.session import PlotServerSession
+from bokeh.document import Document
+from bokeh.session import Session
+
+document = Document()
+session = Session()
+session.use_doc('taylor_server')
+session.load_document(document)
 
 xs = sy.Symbol('x')
 expr = sy.exp(-xs)*sy.sin(xs)
@@ -44,7 +50,7 @@ def update_data():
     source.data = dict(x=x, fy=fy, ty=ty)
     slider.value = order
 
-    session.store_all()
+    session.store_document(document)
 
 source = ColumnDataSource(data=dict(
     x  = [],
@@ -86,7 +92,7 @@ def on_text_value_change(obj, attr, old, new):
     except (sy.SympifyError, TypeError, ValueError) as exception:
         dialog.content = str(exception)
         dialog.visible = True
-        session.store_obj(dialog)
+        session.store_objects(dialog)
     else:
         update_data()
 
@@ -101,24 +107,18 @@ text.on_change('value', on_text_value_change)
 inputs = HBox(children=[slider, text])
 layout = VBox(children=[inputs, plot, dialog])
 
-try:
-    session = PlotServerSession(serverloc="http://localhost:5006")
-except ConnectionError:
-    print("ERROR: This example requires the plot server. Please make sure plot server is running, by executing 'bokeh-server'")
-    sys.exit(1)
-
-session.use_doc('taylor_server')
-session.add_plot(layout)
-
+document.add(layout)
 update_data()
 
-try:
-    to_pull = [slider, text]
-    while True:
-        for obj in to_pull:
-            obj.pull()
-        time.sleep(0.1)
-except KeyboardInterrupt:
-    print()
-except ConnectionError:
-    print("Connection to bokeh-server was terminated")
+if __name__ == "__main__":
+    link = session.object_link(document._plotcontext)
+    print("Please visit %s to see the plots" % link)
+
+    try:
+        while True:
+            session.pull()
+            time.sleep(0.1)
+    except KeyboardInterrupt:
+        print()
+    except ConnectionError:
+        print("Connection to bokeh-server was terminated")

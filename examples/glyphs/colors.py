@@ -5,7 +5,10 @@ import pandas as pd
 
 from bokeh.objects import Plot, ColumnDataSource, FactorRange, CategoricalAxis, Glyph
 from bokeh.glyphs import Circle, Rect
-from bokeh.session import HTMLFileSession
+from bokeh.document import Document
+from bokeh.embed import file_html
+from bokeh.resources import INLINE
+from bokeh.browserlib import view
 
 css3_colors = pd.DataFrame([
     ("Pink",                  "#FFC0CB", "Pink"),
@@ -159,7 +162,7 @@ source = ColumnDataSource(dict(
 xdr = FactorRange(factors=list(css3_colors.Group.unique()))
 ydr = FactorRange(factors=list(reversed(css3_colors.Name)))
 
-plot = Plot(title="CSS3 color names", data_sources=[source], x_range=xdr, y_range=ydr, width=600, height=2000)
+plot = Plot(title="CSS3 Color Names", data_sources=[source], x_range=xdr, y_range=ydr, width=600, height=2000)
 
 xaxis_top    = CategoricalAxis(plot=plot, dimension=0, major_label_orientation=pi/4, location="top")
 xaxis_bottom = CategoricalAxis(plot=plot, dimension=0, major_label_orientation=pi/4, location="bottom")
@@ -172,10 +175,12 @@ yaxis        = CategoricalAxis(plot=plot, dimension=1)
 rect = Rect(x="groups", y="names", width=1, height=1, fill_color="colors", line_color=None)
 plot.renderers.append(Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=rect))
 
-session = HTMLFileSession("colors.html")
-session.add_plot(plot)
+doc = Document()
+doc.add(plot)
 
 if __name__ == "__main__":
-    session.save()
-    print("Wrote %s" % session.filename)
-    session.view()
+    filename = "colors.html"
+    with open(filename, "w") as f:
+        f.write(file_html(doc, INLINE, "CSS3 Color Names"))
+    print("Wrote %s" % filename)
+    view(filename)

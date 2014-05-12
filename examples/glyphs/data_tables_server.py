@@ -2,8 +2,14 @@ from __future__ import print_function
 
 from bokeh.objects import ColumnDataSource
 from bokeh.widgetobjects import TableColumn, HandsonTable, PivotTable, HBox
-from bokeh.session import PlotServerSession
+from bokeh.document import Document
+from bokeh.session import Session
 from bokeh.sampledata.autompg import autompg
+
+document = Document()
+session = Session()
+session.use_doc('data_tables_server')
+session.load_document(document)
 
 source = ColumnDataSource(autompg)
 
@@ -15,15 +21,9 @@ pivot_table = PivotTable(source=source, fields=[ dict(name=field, dtype=dtype) f
 
 hbox = HBox(children=[data_table, pivot_table])
 
-try:
-    session = PlotServerSession(serverloc="http://localhost:5006", username="defaultuser", userapikey="nokey")
-except requests.exceptions.ConnectionError:
-    print("ERROR: This example requires the plot server. Please make sure plot server is running, by executing 'bokeh-server'")
-    sys.exit(1)
-
-session.use_doc('data_tables_server')
-session.add_plot(hbox)
-session.store_all()
+document.add(hbox)
+session.store_document(document)
 
 if __name__ == "__main__":
-    print("\nPlease visit http://localhost:5006/bokeh to see the plots")
+    link = session.object_link(document._plotcontext)
+    print("Please visit %s to see the plots" % link)

@@ -7,7 +7,13 @@ from datetime import date
 from bokeh.widgetobjects import HBox, VBox, TableColumn, HandsonTable, ObjectExplorer
 from bokeh.objects import Plot, ColumnDataSource, DataRange1d, Glyph, LinearAxis, DatetimeAxis, Grid, HoverTool
 from bokeh.glyphs import Line, Circle
-from bokeh.session import PlotServerSession
+from bokeh.document import Document
+from bokeh.session import Session
+
+document = Document()
+session = Session()
+session.use_doc('widgets_server')
+session.load_document(document)
 
 def make_plot():
     source = ColumnDataSource(dict(
@@ -43,15 +49,9 @@ def make_ui():
     hbox = HBox(children=[obj_explorer, vbox])
     return hbox
 
-try:
-    session = PlotServerSession(serverloc="http://localhost:5006", username="defaultuser", userapikey="nokey")
-except requests.exceptions.ConnectionError:
-    print("ERROR: This example requires the plot server. Please make sure plot server is running, by executing 'bokeh-server'")
-    sys.exit(1)
-
-session.use_doc('widgets_server')
-session.add_plot(make_ui())
-session.store_all()
+document.add(make_ui())
+session.store_document(document)
 
 if __name__ == "__main__":
-    print("\nPlease visit http://localhost:5006/bokeh to see the plots")
+    link = session.object_link(document._plotcontext)
+    print("Please visit %s to see the plots" % link)

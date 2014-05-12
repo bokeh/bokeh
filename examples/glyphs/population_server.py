@@ -12,8 +12,14 @@ from bokeh.objects import (Plot, ColumnDataSource, DataRange1d, FactorRange,
     LinearAxis, CategoricalAxis, Grid, Glyph, Legend, SingleIntervalTicker, HoverTool)
 from bokeh.widgetobjects import Select, HBox, VBox
 from bokeh.glyphs import Line, Quad
-from bokeh.session import PlotServerSession
+from bokeh.document import Document
+from bokeh.session import Session
 from bokeh.sampledata.population import load_population
+
+document = Document()
+session = Session()
+session.use_doc('population_server')
+session.load_document(document)
 
 df = load_population()
 revision = 2012
@@ -110,7 +116,7 @@ def update_population():
 def update_data():
     update_population()
     update_pyramid()
-    session.store_all()
+    session.store_document(document)
 
 def on_year_change(obj, attr, old, new):
     global year
@@ -134,13 +140,9 @@ def layout():
 
     return layout
 
-try:
-    session = PlotServerSession(serverloc="http://localhost:5006")
-except ConnectionError:
-    print("ERROR: This example requires the plot server. Please make sure plot server is running, by executing 'bokeh-server'")
-    sys.exit(1)
-
-session.use_doc('population_server')
-session.add_plot(layout())
-
+document.add(layout())
 update_data()
+
+if __name__ == "__main__":
+    link = session.object_link(document._plotcontext)
+    print("Please visit %s to see the plots" % link)
