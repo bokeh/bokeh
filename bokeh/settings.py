@@ -3,7 +3,7 @@ import os
 
 class Settings(object):
     _prefix = "BOKEH_"
-
+    debugjs = False
     @property
     def _environ(self):
         return os.environ
@@ -49,21 +49,18 @@ class Settings(object):
     """
     Server settings go here:
     """
-    def set_args(self, args):
-        self.args = args #command line args from arg parser
-        
     def serverdir(self):
         return join(dirname(abspath(__file__)), 'server')
         
     def bokehjssrcdir(self):
-        if self.args.debugjs:
+        if self.debugjs:
             basedir = dirname(dirname(self.serverdir()))
             return join(basedir, 'bokehjs', 'src')
         else:
             return None
 
     def bokehjsdir(self):
-        if self.args.debugjs:
+        if self.debugjs:
             basedir = dirname(dirname(self.serverdir()))
             return join(basedir, 'bokehjs', 'build')
         else:
