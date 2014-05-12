@@ -152,7 +152,7 @@ data-directory : %s
 
         for handler in logging.getLogger().handlers:
             handler.addFilter(StaticFilter())
-    settings.set_args(args)
+    settings.debugjs = args.debugjs
     if args.debug :
         extra_files = settings.js_files() + settings.css_files()
         start_with_reloader(args, extra_files, args.robust_reload)
