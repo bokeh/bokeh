@@ -64,8 +64,9 @@ module.exports = (grunt) ->
         src: 'build/js/bokeh.js'
         dest: 'build/demo/spectrogram/static/bokeh.js'
 
-    clean: ['build']
-
+    clean:
+      all : ['build'],
+      css : ['build/css/*.css']
     less:
       development:
         options:
@@ -182,7 +183,7 @@ module.exports = (grunt) ->
           spawn: false
       less:
         files: ["<%= less.development.files[0].cwd %>/<%= less.development.files[0].src %>"]
-        tasks: ['less']
+        tasks: ['clean:css', 'less', 'concat:css']
         options:
           spawn: false
       eco:
