@@ -1,9 +1,14 @@
 import six
+from .objects import ColumnDataSource
+from .utils.plotting import (make_histogram_source, make_factor_source,
+                             make_histogram)
 from .plot_object import PlotObject
 from .properties import (HasProps, Dict, Enum,
                          Either, Float, Instance, Int,
                          List, String, Color, Include, Bool,
                          Tuple, Any, lookup_descriptor)
+from bokeh.plotting import curdoc, cursession
+import numpy as np
 import copy
 import logging
 logger = logging.getLogger(__name__)
@@ -97,7 +102,6 @@ class BokehApplet(PlotObject):
     def add_route(cls, route, bokeh_url):
         from bokeh.server.app import bokeh_app
         from bokeh.pluginutils import app_document
-        from bokeh.plotting import curdoc, cursession
         from flask import render_template
         @app_document(cls.__view_model__, bokeh_url)
         def make_app():
@@ -159,4 +163,102 @@ class Slider(InputWidget):
     orientation = Enum("horizontal", "vertical")
     
 class CrossFilter(PlotObject):
-    pass
+    columns = List(Dict(String, Any))
+    data = Instance(ColumnDataSource)
+    #list of datasources to use for filtering widgets
+    filter_sources = Dict(String, Instance(ColumnDataSource))
+    #list of columns we are filtering
+    filtering_columns = List(String)
+    #Dict of column name to filtering widgets
+    filter_widgets = Dict(String, Instance(PlotObject))
+    #Dict which aggregates all the selections from the different filtering widgets
+    filtered_selections = Dict(String, Dict(String, Any))
+
+    def __init__(self, *args, **kwargs):
+        print (kwargs)
+        if 'df' in kwargs:
+            self._df = kwargs.pop('df')
+            kwargs['data'] = ColumnDataSource(data=self.df)
+        super(CrossFilter, self).__init__(*args, **kwargs)
+        
+    def column_descriptor_dict(self):
+        column_descriptors = {}
+        for x in self.columns:
+            column_descriptors[x['name']] = x
+        return column_descriptors
+
+    @property
+    def df(self):
+        if hasattr(self, '_df'):
+            return self._df
+        else:
+            if self.data:
+                return self.data.to_df()
+                
+    def update(self, **kwargs):
+        super(CrossFilter, self).update(**kwargs)
+        self.setup_events()
+        
+    def setup_events(self):
+        self.on_change('filtering_columns', self, 'setup_filter_widgets')
+
+    def setup_filter_widgets(self, obj, attrname, old, new):
+        column_descriptor_dict = self.column_descriptor_dict()
+        for col in self.filtering_columns:
+            if not col in self.filter_widgets:
+                metadata = column_descriptor_dict[col]
+                if metadata['type'] == 'DiscreteColumn':
+                    pass
+                else:
+                    hist_plot = make_histogram(self.filter_sources[col],
+                                               width=150, height=100)
+                    self.filter_widgets[col] = hist_plot
+        curdoc().add_all()
+    def set_metadata(self):
+        descriptors = []
+        columns = self.df.columns
+        for c in columns:
+            desc = self.df[c].describe()
+            print (desc)
+            if self.df[c].dtype == object:
+                descriptors.append({
+                    'type' : "DiscreteColumn",
+                    'name' : c,
+                    'count' : desc['count'],
+                    'unique' : desc['unique'],
+                    'top' : desc['top'],
+                    'freq' : desc['freq'],
+                })
+                source = make_factor_source(self.df[c])
+                self.filter_sources[c] = source
+
+            elif self.df[c].dtype == np.datetime64:
+                descriptors.append({
+                    'type' : "TimeColumn",
+                    'name' : c,
+                    'count' : desc['count'],
+                    'unique' : desc['unique'],
+                    'first' : desc['first'],
+                    'last' : desc['last'],
+                })
+                
+                source = make_histogram_source(self.df[c])
+                self.filter_sources[c] = source
+                
+            else:
+                descriptors.append({
+                    'type' : "ContinuousColumn",
+                    'name' : c,
+                    'count' : desc['count'],
+                    'mean' : "%.2f" % desc['mean'],
+                    'std' : "%.2f" % desc['std'],
+                    'min' : "%.2f" % desc['min'],
+                    'max' : "%.2f" % desc['max'],
+                })
+                
+                source = make_histogram_source(self.df[c])
+                self.filter_sources[c] = source
+        self.columns = descriptors
+        return None
+                
+                

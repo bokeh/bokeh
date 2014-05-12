@@ -1,0 +1,22 @@
+<div class="bk-crossfilter-top-bar">
+    <div class="bk-filters">
+      <div class="bk-filters-heading">
+        Filter
+      </div>
+      <div class="bk-filters-selections">
+      </div>
+    </div>
+    <div class="bk-facets">
+      <div class="bk-facets-heading">
+        Facets
+      </div>
+      <div class="bk-facets-selections">
+      </div>
+    </div>
+</div>
+<div class="bk-column-list">
+</div>
+<div class="bk-attribute-selection">
+</div>
+<div class="bk-plot">
+</div>

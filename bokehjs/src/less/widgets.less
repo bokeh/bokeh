@@ -1,4 +1,6 @@
 @import (reference) "flexbox.less";
+@import (reference) "../vendor/bootstrap-3.1.1/less/panels.less";        
+@import (reference) "../vendor/bootstrap-3.1.1/less/tables.less";    
 @import (reference) "../vendor/bootstrap-3.1.1/less/forms.less";
 @import (reference) "../vendor/bootstrap-3.1.1/less/variables.less";
 @import (reference) "../vendor/bootstrap-3.1.1/less/mixins.less";
@@ -32,4 +34,93 @@
     height : 100%;
     min-height : 200px;
     width : 50px;
+}
+
+.bk-crossfilter-top-bar{
+  height : 150px;
+  width : 100%;
+  .hbox;
+  overflow-x : auto;
+  margin-bottom : 0px;
+}
+
+.bk-facets,
+.bk-filters{
+  min-width : 200px;
+  height : 100%;
+  overflow : hidden;
+  .panel;
+  .panel-primary;
+  padding-bottom : 1px;
+}
+
+.bk-facets-heading,
+.bk-filters-heading{
+  .panel-heading;
+  padding : 0px;
+}
+
+.bk-facets-selections,
+.bk-filters-selections{
+  .hbox;
+  height : 135px;
+  padding-left : 10px;
+  padding-right : 10px;
+}
+
+.bk-filter-content{
+    width : 30px;
+    height : 100%;
+    background-color : red;
+}
+.bk-facet-content{
+    width : 30px;
+    height : 100%;
+    background-color : green;
+}
+.bk-crossfilter{
+  overflow : hidden;
+  .panel;
+  .panel-primary;
+    
+}
+
+.bk-table{
+ .table;   
+ .table-condensed;
+ border-top : none;
+ margin-bottom : 0px;
+ text-algin : left;
+}
+
+.bk-table thead tr th,
+.bk-table thead tr,
+.bk-table thead{
+  border : none;
+  text-align : left;
+}
+
+.bk-crossfilter-column-entry{
+  .panel;
+  .panel-primary;
+  margin-bottom : 0px;
+}
+
+.bk-panel-heading{
+ .panel-heading;   
+}
+
+.bk-panel-title{
+ .panel-title;   
+}
+
+.bk-panel-body{
+ .panel;   
+  margin-bottom : 0px;
+}
+.bk-column-list{
+  width : 200px;
+  height : 100%;
+  overflow-x : auto;
+  overflow-y : auto;
 }

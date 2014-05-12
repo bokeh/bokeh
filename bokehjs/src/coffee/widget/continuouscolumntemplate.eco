@@ -1,0 +1,53 @@
+<table class="bk-table">
+  <thead>
+    <tr>
+      <th colspan=2>
+        Continuous: <%= @name %>
+      </th>
+      <th>
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        count
+      </td>
+      <td>
+        <%= @count %>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        mean
+      </td>
+      <td>
+        <%= @mean %>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        std
+      </td>
+      <td>
+        <%= @std %>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        max
+      </td>
+      <td>
+        <%= @max %>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        min
+      </td>
+      <td>
+        <%= @min %>
+      </td>
+    </tr>
+  </tbody>
+</table>

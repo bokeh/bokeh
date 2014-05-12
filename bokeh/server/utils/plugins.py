@@ -41,10 +41,10 @@ def object_page(prefix):
             ## initialize our plotting APIs to use that document
             
             init_bokeh(clientdoc)
-            
             obj = func(*args, **kwargs)
             clientdoc.add(obj)
-            bokeh_app.backbone_storage.store_document(clientdoc)
+            changed = bokeh_app.backbone_storage.store_document(clientdoc)
+            
             return render_template("oneobj.html",
                                    docid=docid,
                                    objid=obj._id,
