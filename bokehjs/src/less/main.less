@@ -1,3 +1,8 @@
+@import (reference) "../vendor/bootstrap-3.1.1/less/buttons.less";        
+@import (reference) "../vendor/bootstrap-3.1.1/less/button-groups.less";    
+@import (reference) "../vendor/bootstrap-3.1.1/less/variables.less";
+@import (reference) "../vendor/bootstrap-3.1.1/less/mixins.less";
+
 svg {
   font: 12px sans-serif;
   margin: 0;
@@ -7,13 +12,21 @@ svg {
   height : 16px
 }
 
-.button_bar{
+
+.bk-button-bar{
   overflow : hidden;
   margin-top: 0px;
   margin-bottom: 0px;
   padding-top: 0px;
   padding-bottom: 0px;
+  .btn-group;
 }
+
+.bk-toolbar-button{
+  .btn;
+  .btn-xs;
+}
+
 .grid_plot .button_bar {
  display:none;
 }

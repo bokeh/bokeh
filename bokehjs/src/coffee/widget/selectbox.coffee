@@ -12,6 +12,7 @@ define [
     change_input : () ->
       @mset('value', @$('select').val())
       console.log('set', @model.attributes)
+      @model.save()
 
     tagName : "div"
 

@@ -7,7 +7,8 @@ from .properties import (HasProps, Dict, Enum,
                          Either, Float, Instance, Int,
                          List, String, Color, Include, Bool,
                          Tuple, Any, lookup_descriptor)
-from bokeh.plotting import curdoc, cursession
+from bokeh.plotting import (curdoc, cursession, line,
+                            scatter)
 import numpy as np
 import copy
 import logging
@@ -188,21 +189,114 @@ class CrossFilter(PlotObject):
     filter_widgets = Dict(String, Instance(PlotObject))
     #Dict which aggregates all the selections from the different filtering widgets
     filtered_selections = Dict(String, Dict(String, Any))
-
+    
+    # list of facet vars
+    facet_x = List(String, default=[])
+    facet_y = List(String, default=[])
+    facet_tab = List(String, default=[])
+    
+    plot_type = Enum("line", "scatter", "bar")
+    x = String
+    y = String
+    color = String
+    plot = Instance(PlotObject)
+    plot_selector = Instance(Select)
+    x_selector = Instance(Select)
+    y_selector = Instance(Select)
+    
     def __init__(self, *args, **kwargs):
         print (kwargs)
         if 'df' in kwargs:
             self._df = kwargs.pop('df')
             kwargs['data'] = ColumnDataSource(data=self.df)
             kwargs['filtered_data'] = ColumnDataSource(data=self.df)
+        if 'plot_type' not in kwargs:
+            kwargs['plot_type'] = "scatter"
         super(CrossFilter, self).__init__(*args, **kwargs)
         
+    @classmethod
+    def create(cls, **kwargs):
+        obj = cls(**kwargs)
+        obj.set_metadata()
+        choices = obj.make_plot_choices()
+        obj.update_plot_choices(choices)
+        obj.set_plot()
+        obj.set_input_selector()
+        return obj
+        
+    def set_input_selector(self):
+        select = Select.create(
+            name="PlotType",
+            value=self.plot_type,
+            options=["line", "scatter", "bar"])
+        self.plot_selector = select
+        col_names = [x['name'] for x in self.columns]
+        select = Select.create(
+            name="x",
+            value=self.x,
+            options=col_names)
+        self.x_selector = select
+        print ('X', self.x_selector.value)
+        select = Select.create(
+            name="y",
+            value=self.y,
+            options=col_names)
+        self.y_selector = select
+        print ('Y', self.y_selector.value)
+    def update_plot_choices(self, input_dict):
+        for k,v in input_dict.iteritems():
+            if getattr(self, k) is None:
+                setattr(self, k, v)
+
     def column_descriptor_dict(self):
         column_descriptors = {}
         for x in self.columns:
             column_descriptors[x['name']] = x
         return column_descriptors
+        
+    def continuous_columns(self):
+        return [x for x in self.columns if x['type'] != 'DiscreteColumn']
+        
+    def discrete_columns(self):
+        return [x for x in self.columns if x['type'] == 'DiscreteColumn']
 
+    def make_plot_choices(self):
+        x, y = [x['name'] for x in self.continuous_columns()[:2]]
+        return {'x' : x, 'y' : y, 'plot_type' : scatter}
+        
+    def set_plot(self):
+        plot = self.make_plot()
+        self.plot = plot
+        curdoc().add_all()
+
+    def make_plot(self):
+        if len(self.facet_x) ==0 and len(self.facet_y) == 0 and len(self.facet_tab) == 0:
+            return self.make_single_plot()
+        
+    def make_all_facet_plot(self):
+        pass
+        
+    def make_single_facet_plot(self):
+        pass
+        
+    def make_xy_facet_plot(self):
+        pass
+        
+    def make_single_plot(self):
+        title ="%s by %s" % (self.x, self.y)        
+        if self.plot_type == "scatter":
+            plot = scatter(self.x, self.y, source=self.filtered_data, 
+                          title=title)
+            return plot
+        elif self.plot_type == "line":
+            plot = line(self.x, self.y, source=self.filtered_data, 
+                          title=title)
+            return plot
+            
+    def plot_attribute_change(self, obj, attrname, old, new):
+        setattr(self, obj.name, new)
+        self.set_plot()
+        
     @property
     def df(self):
         if hasattr(self, '_df'):
@@ -222,13 +316,18 @@ class CrossFilter(PlotObject):
                 obj.on_change('value', self, 'handle_filter_selection')
         for obj in self.filter_sources.values():
             obj.on_change('selected', self, 'handle_filter_selection')
-
+        if self.plot_selector:
+            self.plot_selector.on_change('value', self, 'plot_attribute_change')
+        if self.x_selector:
+            self.x_selector.on_change('value', self, 'plot_attribute_change')
+        if self.y_selector:
+            self.y_selector.on_change('value', self, 'plot_attribute_change')
+            
     def handle_filter_selection(self, obj, attrname, old, new):
         column_descriptor_dict = self.column_descriptor_dict()
         df = self.df
         for descriptor in self.columns:
             colname = descriptor['name']
-            print (descriptor)
             if descriptor['type'] == 'DiscreteColumn' and \
                colname in self.filter_widgets:
                 widget = self.filter_widgets[colname]
@@ -254,7 +353,6 @@ class CrossFilter(PlotObject):
         for colname in self.data.column_names:
             self.filtered_data.data[colname] = df[colname]
             self.filtered_data._dirty = True
-        print (df)
         
     def clear_selections(self, obj, attrname, old, new):
         diff = set(old) - set(new)
@@ -270,7 +368,6 @@ class CrossFilter(PlotObject):
 
             
     def setup_filter_widgets(self, obj, attrname, old, new):
-        print ('SETUPFILTER')
         self.clear_selections(obj, attrname, old, new)
         column_descriptor_dict = self.column_descriptor_dict()
         for col in self.filtering_columns:
@@ -287,7 +384,6 @@ class CrossFilter(PlotObject):
                     hist_plot = make_histogram(self.filter_sources[col],
                                                width=150, height=100)
                     self.filter_widgets[col] = hist_plot
-        print (self.filter_sources.keys())
         curdoc().add_all()
         
     def set_metadata(self):
@@ -295,7 +391,6 @@ class CrossFilter(PlotObject):
         columns = self.df.columns
         for c in columns:
             desc = self.df[c].describe()
-            print (desc)
             if self.df[c].dtype == object:
                 descriptors.append({
                     'type' : "DiscreteColumn",

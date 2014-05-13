@@ -4,7 +4,8 @@
 @import (reference) "../vendor/bootstrap-3.1.1/less/forms.less";
 @import (reference) "../vendor/bootstrap-3.1.1/less/variables.less";
 @import (reference) "../vendor/bootstrap-3.1.1/less/mixins.less";
-    
+@import (reference) "../vendor/bootstrap-3.1.1/less/labels.less";
+
 .bk-hbox{
   .hbox;
 }
@@ -44,23 +45,57 @@
   margin-bottom : 0px;
 }
 
-.bk-facets,
 .bk-filters{
-  min-width : 200px;
-  height : 100%;
+  position : absolute;
+  top : 0px;
+  height : 150px;
+  left : 0px;
+  right : 300px;
+  overflow-y : hidden;
+  overflow-x : auto;
+  .panel;
+  .panel-primary;
+  margin-bottom : 0px;
+}
+
+.bk-facet-x,
+.bk-facet-y,
+.bk-facet-tab{
+  min-width : 2z00px;
+  height : 98%;
   overflow : hidden;
   .panel;
   .panel-primary;
-  padding-bottom : 1px;
+  margin-bottom : 0px;
+  .hbox;
+  height : 32%;
+}
+.bk-droppable-hover {
+    background-color : #ccc !important;
+}
+.bk-facets{
+  position : absolute;
+  top : 0px;
+  right : 0px;
+  width : 300px;
+  height : 150px;
+  .panel;
+  .panel-primary;
+  margin-bottom : 0px;
 }
 
-.bk-facets-heading,
+.bk-facets-heading{
+  padding : 0px;    
+}
+
 .bk-filters-heading{
   .panel-heading;
   padding : 0px;
 }
 
-.bk-facets-selections,
+.bk-facets-selections{
+ .hbox;    
+}
 .bk-filters-selections{
   .hbox;
   height : 135px;
@@ -128,4 +163,35 @@
   bottom : 0px;
   left : 0px;
   right : 200px;
+}
+
+.bk-crossfilter-heading{
+  .label;
+  .label-info;
+  margin : 5px;
+}
+
+.bk-facet-label{
+  .label;
+  .label-info;
+  margin : 5px;
+}
+.bk-table thead:hover{
+    background-color : #ccc !important;   
+}
+.bk-plot{
+    position : absolute;
+    top : 150px;
+    left : 200px;
+    right : 200px;
+    bottom : 0px;
+}
+.bk-attribute-selection{
+  width : 200px;
+  overflow-x : auto;
+  overflow-y : auto;
+  position : absolute;
+  top : 150px;
+  bottom : 0px;
+  right : 0px;
 }

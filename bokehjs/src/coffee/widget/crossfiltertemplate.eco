@@ -1,22 +1,44 @@
-<div class="bk-crossfilter-top-bar">
-    <div class="bk-filters">
-      <div class="bk-filters-heading">
-        Filter
-      </div>
-      <div class="bk-filters-selections">
-      </div>
+<div class="bk-filters">
+  <div class="bk-filters-heading">
+    Filter
+  </div>
+  <div class="bk-filters-selections">
+  </div>
+</div>
+<div class="bk-facets">
+  <div class="bk-facet-x">
+    <div class="bk-facets-heading">
+      Facet X
     </div>
-    <div class="bk-facets">
-      <div class="bk-facets-heading">
-        Facets
-      </div>
-      <div class="bk-facets-selections">
-      </div>
+    <div class="bk-facets-selections">
     </div>
+  </div>
+  <div class="bk-facet-y">
+    <div class="bk-facets-heading">
+      Facet Y
+    </div>
+    <div class="bk-facets-selections">
+    </div>
+  </div>
+  <div class="bk-facet-tab">
+    <div class="bk-facets-heading">
+      Facet Tab
+    </div>
+    <div class="bk-facets-selections">
+    </div>
+  </div>
 </div>
 <div class="bk-column-list">
 </div>
 <div class="bk-attribute-selection">
+  <form class="bk-widget-form">
+    <div class="bk-plot-selector">
+    </div>
+    <div class="bk-x-selector">
+    </div>
+    <div class="bk-y-selector">
+    </div>
+  </form>
 </div>
 <div class="bk-plot">
 </div>
