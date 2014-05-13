@@ -126,7 +126,11 @@ define [
 
     ar_update : (column_data_source, input_params) ->
       #TODO: Share the x/y range information back to the server in some way...
-      params = JSON.stringify(input_params)
+      data_url = @get('data_url')
+      owner_username = @get('owner_username')
+      prefix = @get_base().Config.prefix
+      url = "#{prefix}/bokeh/data/#{owner_username}#{data_url}"
+      params = JSON.stringify([input_params])
       $.ajax(
         dataType: 'json'
         url : url

@@ -22,20 +22,25 @@ class Proxy(object):
   def reify(self, **kwargs):
     raise Error("Unipmlemented")
 
-class Count(object): 
+class Count(Proxy): 
   def reify(self, **kwargs):
     return arpy.numeric.Count()
 
-class Const(object):
+class Const(Proxy):
   def reify(self, **kwargs):
-    return arpy.infos.Const(1)
+    return arpy.infos.const(1)
 
-class Id(object): 
+class Id(Proxy): 
+  out = "image"
   def reify(self, **kwargs):
-    return arpy.infos.Id()
+    return arpy.infos.id()
 
 
-def source(**kwargs):
+def source(datasource, **kwargs):
+  #Transfer raw source information
+  kwargs['data_url'] = datasource.data_url
+  kwargs['owner_username'] = datasource.owner_username
+  
   shader = Id()
 
   if (shader.out == "image"): 
@@ -52,21 +57,30 @@ def source(**kwargs):
   else: 
     raise ValueError("Can only work with image-shaders...for now")
 
-  transform = Dict()
-  transform['resample'] = "abstract rendering"
-  transform['aggregator'] = Count().serialize()
-  transform['info'] = Const().serialize() 
-  transform['shader'] = shader.serialize() 
+  transform = {'resample' : 'abstract rendering',
+               'aggregator': Count().serialize(),
+               'info': Const().serialize(),
+               'shader': shader.serialize()}
 
   kwargs['transform'] = transform
   return ServerDataSource(**kwargs)
 
 def downsample(data, resample):
-  agg = locals()[resample['aggregator']]()
-  info = locals()[resample['info']]()
-  #select = locals()[resample['select']]()
-  shader = locals()[resample['shader']]()
+  screen = (100,100) #TODO: Derive from passed parameters
 
-  logger.info("Called AR Downsample! ----------------------------------------------------------")
-  return data
+  import pdb; pdb.set_trace()
+
+  agg = globals()[resample['aggregator']['name']]().reify()
+  info = globals()[resample['info']['name']]().reify()
+  #select = globals()[resample['select']]()
+  shader = globals()[resample['shader']['name']]().reify()
+
+  #table = data.table
+  #
+  #glyphs = ????(table)
+  #ivt = ar.zoom_fit(screen, ar.bounds(glyphs))  #TODO: Derive from passed parameters
+
+  #image = ar.render(glyphs, info, agg, shader, 100, 100, ivt)
+ 
+  return table
 

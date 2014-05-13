@@ -492,6 +492,9 @@ class HDF5DataBackend(AbstractDataBackend):
                 request_username, 
                 request_docid, data_url, 
                 resample_parameters)
+        elif resample_op == 'abstract rendering':
+          dataset = self.client[data_url]
+          return ar_downsample.downsample(dataset, resample_params)
         else:
           raise ValueError("Unknown resample op '{}'".format(resample_op))
         
