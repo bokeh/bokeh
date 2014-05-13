@@ -34,17 +34,25 @@ define [
           )
         else
           throw new Error("Domains other than 'x' not supported yet.")
-      else if (resample_op == 'image')
-        serversource.listen_for_heatmap_updates(@mget_obj('data_source'),
-          @plot_view.x_range,
-          @plot_view.y_range,
-          @plot_view.view_state.get('inner_range_horizontal'),
-          @plot_view.view_state.get('inner_range_vertical'),
-          transform_params
+      else if (resample_op == 'heatmap')
+        serversource.listen_for_heatmap_updates(
+           @mget_obj('data_source'),
+           @plot_view.x_range,
+           @plot_view.y_range,
+           @plot_view.view_state.get('inner_range_horizontal'),
+           @plot_view.view_state.get('inner_range_vertical'),
+           transform_params
         )
-      else 
-        console.log("unkonwn resample op '" + resample_op + "'")
-        throw new Error("Unkown op...")
+      #else if (resample_op == 'abstract rendering')
+      #  serversource.listen_for_ar_updates(
+      #     @mget_obj('data_source'), 
+      #     @plot_view.x_range,
+      #     @plot_view.y_range,
+      #     @plot_view.view_state.get('inner_range_horizontal'),
+      #     @plot_view.view_state.get('inner_range_vertical'),
+      #     transform_params)
+      else
+        throw new Error("Unkonwn resample op '{resample_op}'")
 
 
 

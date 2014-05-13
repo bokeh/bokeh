@@ -13,6 +13,7 @@ from ..exceptions import DataIntegrityException
 from ..utils import encode_utf8, decode_utf8
 from ..transforms import line_downsample
 from ..transforms import image_downsample
+from ..transforms import ar_downsample
 
 import logging
 import numpy as np
@@ -448,7 +449,7 @@ class HDF5DataBackend(AbstractDataBackend):
         dataset = self.client[data_url].node
         (global_x_range, global_y_range, global_offset_x, global_offset_y,
          x_bounds, y_bounds, x_resolution, y_resolution,
-         index_slice, data_slice, transpose) = data_parameters
+         index_slice, data_slice, transpose, input_params) = data_parameters
 
         if data_slice:
             #not supported for z yet...
@@ -491,4 +492,6 @@ class HDF5DataBackend(AbstractDataBackend):
                 request_username, 
                 request_docid, data_url, 
                 resample_parameters)
+        else:
+          raise ValueError("Unknown resample op '{}'".format(resample_op))
         

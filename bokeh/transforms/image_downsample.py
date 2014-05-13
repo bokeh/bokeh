@@ -9,7 +9,7 @@ except ImportError as e:
 
 
 def source(**kwargs):
-  kwargs['transform'] = {'resample':'image'}
+  kwargs['transform'] = {'resample':'heatmap'}
   kwargs['data'] = {'x': [0], 
                                 'y': [0],
                                 'global_x_range' : [0, 10],

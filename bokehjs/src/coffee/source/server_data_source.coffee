@@ -45,6 +45,8 @@ define [
         for entry in @callbacks[column_data_source.get('id')]
           @stopListening.apply(this, entry)
 
+    
+    
     listen_for_line1d_updates : (column_data_source, domain_range, screen_range
                                   primary_column, domain_name, columns, input_params) ->
       #ensure we only have one set of events bound
@@ -99,6 +101,47 @@ define [
         data :
           resample_parameters : params
       )
+
+    listen_for_ar_updates : (column_data_source, x_data_range,
+          y_data_range, x_screen_range, y_screen_range, input_params) ->
+      #TODO: Can this ar_updates be merged with line1d_updates and heatmap_updates?
+      #TODO: Do we need other descriptors for AR or are these data and view parameters sufficient?
+      @stoplistening_for_updates(column_data_source)
+      callback = ajax_throttle(() =>
+        @ar_update(column_data_source, input_params)
+      )
+      callback()
+      @callbacks[column_data_source.get('id')] = []
+      for range in [x_data_range, y_data_range, x_screen_range, y_screen_range]
+        @listenTo(range, 'change', callback)
+        @callbacks[column_data_source.get('id')].push([range, 'change', callback])
+      @listenTo(this, 'change:index_slice', callback)
+      @callbacks[column_data_source.get('id')].push(
+        [this, 'change:index_slice', callback])
+      @listenTo(this, 'change:data_slice', callback)
+      @callbacks[column_data_source.get('id')].push(
+        [this, 'change:data_slice', callback])
+      return null
+
+
+    ar_update : (column_data_source, input_params) ->
+      #TODO: Share the x/y range information back to the server in some way...
+      params = JSON.stringify(input_params)
+      $.ajax(
+        dataType: 'json'
+        url : url
+        xhrField :
+          withCredentials : true
+        success : (data) ->
+          #hack
+          new_data = _.clone(column_data_source.get('data'))
+          _.extend(new_data, data)
+          column_data_source.set('data', new_data)
+          #console.log('setting data', data.image.length, data.image[0].length)
+        data :
+          resample_parameters : params
+      )
+
 
     listen_for_heatmap_updates : (column_data_source, x_data_range,
           y_data_range, x_screen_range, y_screen_range, input_params) ->
