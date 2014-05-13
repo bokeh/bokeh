@@ -226,7 +226,8 @@ class CrossFilter(PlotObject):
         
     def set_input_selector(self):
         select = Select.create(
-            name="PlotType",
+            title="PlotType",
+            name="plot_type",
             value=self.plot_type,
             options=["line", "scatter", "bar"])
         self.plot_selector = select
@@ -383,6 +384,7 @@ class CrossFilter(PlotObject):
                     self.filter_sources[col] = source
                     hist_plot = make_histogram(self.filter_sources[col],
                                                width=150, height=100)
+                    hist_plot.title = col
                     self.filter_widgets[col] = hist_plot
         curdoc().add_all()
         

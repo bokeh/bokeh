@@ -56,7 +56,7 @@ def make_histogram(datasource, counts_name="counts",
                 title=" " ,
                 plot_width=width, plot_height=height,
                 tools="select",
-                title_text_font_size="1pt",
+                title_text_font_size="8pt",
                 x_range=Range1d(start=start, end=end),
                 y_range=Range1d(start=0, end=top),
                 source=datasource,
@@ -66,4 +66,6 @@ def make_histogram(datasource, counts_name="counts",
     select_tool = _get_select_tool(plot)
     select_tool.select_y = False
     return plot
+    
+    
     
