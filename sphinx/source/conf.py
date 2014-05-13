@@ -48,7 +48,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Bokeh'
-copyright = u'2013, Continuum Anaytics'
+copyright = u'2013, Continuum Analytics'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
