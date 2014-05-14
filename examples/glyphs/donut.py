@@ -9,7 +9,7 @@ from bokeh.embed import file_html
 from bokeh.resources import INLINE
 from bokeh.browserlib import view
 
-from bokeh.glyphs import Wedge, AnnularWedge, ImageURL
+from bokeh.glyphs import Wedge, AnnularWedge, ImageURL, Text
 from bokeh.objects import ColumnDataSource, Plot, Glyph, Range1d
 from bokeh.colors import skyblue, limegreen, orange, purple, orangered, lightgray
 from bokeh.sampledata.browsers import browsers_nov_2013, icons
@@ -25,13 +25,14 @@ plot = Plot(title=title, x_range=xdr, y_range=ydr, width=800, height=800)
 colors = {"Chrome": limegreen, "Firefox": orange, "Safari": purple, "Opera": orangered, "IE": skyblue, "Other": lightgray}
 
 aggregated = df.groupby("Browser").agg(sum)
-selected = aggregated[aggregated.Share >= 1]
-browsers = selected.index.tolist() + ["Other"]
+selected = aggregated[aggregated.Share >= 1].copy()
+selected.loc["Other"] = aggregated[aggregated.Share < 1].sum()
+browsers = selected.index.tolist()
 
 radians = lambda x: 2*pi*(x/100)
 angles = selected.Share.map(radians).cumsum()
 
-end_angles = angles.tolist() + [2*pi]
+end_angles = angles.tolist()
 start_angles = [0] + end_angles[:-1]
 
 browsers_source = ColumnDataSource(dict(
@@ -77,6 +78,21 @@ plot.data_sources.append(icons_source)
 
 glyph = ImageURL(url="urls", x="x", y="y", angle=0.0, anchor="center")
 renderer = Glyph(data_source=icons_source, xdata_range=xdr, ydata_range=ydr, glyph=glyph)
+plot.renderers.append(renderer)
+
+r, points = 0.7, []
+
+for start, end in zip(start_angles, end_angles):
+    points.append(polar_to_cartesian(r, (end - start)/2 + start))
+
+text = [ "%.02f%%" % value for value in selected.Share ]
+x, y = zip(*points)
+
+text_source = ColumnDataSource(dict(text=text, x=x, y=y))
+plot.data_sources.append(text_source)
+
+glyph = Text(x="x", y="y", text="text", angle=0, text_align="center", text_baseline="middle")
+renderer = Glyph(data_source=text_source, xdata_range=xdr, ydata_range=ydr, glyph=glyph)
 plot.renderers.append(renderer)
 
 doc = Document()
