@@ -383,6 +383,8 @@ class ColorSpec(DataSpec):
                 pass
             else:
                 raise RuntimeError("Invalid tuple being assigned to ColorSpec; must be length 2, 3, or 4.")
+        elif hasattr(arg, "toCSS"):
+            arg = arg.toCSS()
         super(ColorSpec, self).__set__(obj, arg)
 
     def to_dict(self, obj):
