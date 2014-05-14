@@ -881,6 +881,11 @@ class Range(ParameterizedProperty):
     def __str__(self):
         return "%s(%s, %r, %r)" % (self.__class__.__name__, self.range_type, self.start, self.end)
 
+class Byte(Range):
+
+    def __init__(self, default=0):
+        super(Byte, self).__init__(Int, 0, 255, default=default)
+
 class Either(ParameterizedProperty):
     """ Takes a list of valid properties and validates against them in succession. """
 
@@ -941,7 +946,6 @@ class Color(Either):
     """
 
     def __init__(self, default=None):
-        Byte = Range(Int, 0, 255)
         types = (Enum(enums.NamedColor),
                  Regex("^#[0-9a-fA-F]{6}$"),
                  Tuple(Byte, Byte, Byte),
