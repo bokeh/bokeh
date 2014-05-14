@@ -47,7 +47,7 @@ define [
 
 
       @filterview = new FilterView(
-        el : @$('.bk-filters-selections')
+        el : @$('.bk-filters')
         collection : @model.columns
         model : @model
       )
@@ -93,9 +93,11 @@ define [
       @listenTo(@model, "change:plot_selector", @render_plot_selector)
       @listenTo(@model, "change:x_selector", @render_x_selector)
       @listenTo(@model, "change:y_selector", @render_y_selector)
+      @listenTo(@model, "change:agg_selector", @render_agg_selector)
       @render_plot_selector()
       @render_x_selector()
       @render_y_selector()
+      @render_agg_selector()
 
     render_selector : (node, model) ->
       node.empty()
@@ -118,6 +120,11 @@ define [
       model = @mget_obj('y_selector')
       @render_selector(node, model)
 
+    render_agg_selector : () ->
+      node = @$('.bk-agg-selector')
+      model = @mget_obj('agg_selector')
+      @render_selector(node, model)
+
   class ColumnsView extends Backbone.View
     initialize : (options) ->
       super(options)
@@ -135,7 +142,9 @@ define [
   class FacetView extends ContinuumView
     events:
       "click" : "remove"
-
+    tagName: "span"
+    attributes:
+      class : "bk-facet-label"
     initialize : (options) ->
       super(options)
       @name = options.name
@@ -241,7 +250,7 @@ define [
 
     render_column_selectors : () ->
       _.map(@views, (view) -> view.$el.detach())
-      @$el.empty()
+      @$el.find('bk-filters-selections').empty()
       filter_widget_dict = {}
       for own key, val of @mget('filter_widgets')
         filter_widget_dict[key] = @model.resolve_ref(val)
@@ -254,7 +263,7 @@ define [
       )
       _.map(filter_widgets, (model) =>
         wrapper = new CloseWrapper(view : @views[model.id])
-        @$el.append(wrapper.$el)
+        @$el.find('.bk-filters-selections').append(wrapper.$el)
       )
 
     child_remove : (view) ->
@@ -284,15 +293,15 @@ define [
       @render()
     dragging_helper : () =>
       node = @$el.clone()
-      node.find('tbody').detach()
+      #node.find('tbody').detach()
       return node
 
     render : () ->
       @$el.html(@template(@model.attributes))
-      @$el.find('thead').draggable(
+      @$el.draggable(
         appendTo: 'body',
         containment : 'document',
-        helper : @dragging_helper,
+        helper : 'clone',#@dragging_helper,
         start : (e, ui) =>
           ui.helper.data('model', @model)
       )

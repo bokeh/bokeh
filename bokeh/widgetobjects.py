@@ -1,7 +1,9 @@
 import six
-from .objects import ColumnDataSource
+from .objects import ColumnDataSource, Range1d
 from .utils.plotting import (make_histogram_source, make_factor_source,
-                             make_histogram)
+                             make_histogram, make_continuous_bar_source,
+                             make_bar_plot
+                         )
 from .plot_object import PlotObject
 from .properties import (HasProps, Dict, Enum,
                          Either, Float, Instance, Int,
@@ -176,7 +178,7 @@ class Slider(InputWidget):
     end = Float()
     steps = Int(default=50)
     orientation = Enum("horizontal", "vertical")
-    
+
 class CrossFilter(PlotObject):
     columns = List(Dict(String, Any))
     data = Instance(ColumnDataSource)
@@ -198,11 +200,13 @@ class CrossFilter(PlotObject):
     plot_type = Enum("line", "scatter", "bar")
     x = String
     y = String
+    agg = String
     color = String
     plot = Instance(PlotObject)
     plot_selector = Instance(Select)
     x_selector = Instance(Select)
     y_selector = Instance(Select)
+    agg_selector = Instance(Select)
     
     def __init__(self, *args, **kwargs):
         print (kwargs)
@@ -212,6 +216,8 @@ class CrossFilter(PlotObject):
             kwargs['filtered_data'] = ColumnDataSource(data=self.df)
         if 'plot_type' not in kwargs:
             kwargs['plot_type'] = "scatter"
+        if 'agg' not in kwargs:
+            kwargs['agg'] = 'sum'
         super(CrossFilter, self).__init__(*args, **kwargs)
         
     @classmethod
@@ -244,6 +250,13 @@ class CrossFilter(PlotObject):
             options=col_names)
         self.y_selector = select
         print ('Y', self.y_selector.value)
+        select = Select.create(
+            name='agg',
+            value=self.agg,
+            options=['sum', 'mean', 'last']
+            )
+        self.agg_selector = select
+        
     def update_plot_choices(self, input_dict):
         for k,v in input_dict.iteritems():
             if getattr(self, k) is None:
@@ -266,6 +279,8 @@ class CrossFilter(PlotObject):
         return {'x' : x, 'y' : y, 'plot_type' : scatter}
         
     def set_plot(self):
+        if self.x == self.y:
+            return
         plot = self.make_plot()
         self.plot = plot
         curdoc().add_all()
@@ -284,15 +299,29 @@ class CrossFilter(PlotObject):
         pass
         
     def make_single_plot(self):
+        column_descriptor_dict = self.column_descriptor_dict()        
         title ="%s by %s" % (self.x, self.y)        
         if self.plot_type == "scatter":
-            plot = scatter(self.x, self.y, source=self.filtered_data, 
-                           plot_width=1000, plot_height=1000, title=title)
+            plot = scatter(self.x, self.y, source=self.filtered_data,
+                           title_text_font_size="12pt",
+                           title=title)
             return plot
         elif self.plot_type == "line":
-            plot = line(self.x, self.y, source=self.filtered_data, 
+            plot = line(self.x, self.y, source=self.filtered_data,
+                        title_text_font_size="12pt",
                           title=title)
             return plot
+        elif self.plot_type == 'bar':
+            if column_descriptor_dict[self.x]['type'] != 'DiscreteColumn':
+                source = make_continuous_bar_source(
+                    self.filtered_df, self.x, self.y, self.agg)
+                x_range = Range1d(start=self.filtered_df[self.x].min() - 0.7, 
+                                  end=self.filtered_df[self.x].max() - 0.7)
+                plot = make_bar_plot(source, counts_name=self.y,
+                                     centers_name=self.x,
+                                     x_range=x_range)
+                return plot
+                
             
     def plot_attribute_change(self, obj, attrname, old, new):
         setattr(self, obj.name, new)
@@ -305,6 +334,14 @@ class CrossFilter(PlotObject):
         else:
             if self.data:
                 return self.data.to_df()
+                
+    @property
+    def filtered_df(self):
+        if hasattr(self, '_df'):
+            return self._df
+        else:
+            if self.filtered_data:
+                return self.filtered_data.to_df()
                 
     def update(self, **kwargs):
         super(CrossFilter, self).update(**kwargs)
@@ -323,7 +360,9 @@ class CrossFilter(PlotObject):
             self.x_selector.on_change('value', self, 'plot_attribute_change')
         if self.y_selector:
             self.y_selector.on_change('value', self, 'plot_attribute_change')
-            
+        if self.agg_selector:
+            self.agg_selector.on_change('value', self, 'plot_attribute_change')
+    
     def handle_filter_selection(self, obj, attrname, old, new):
         column_descriptor_dict = self.column_descriptor_dict()
         df = self.df
@@ -348,13 +387,14 @@ class CrossFilter(PlotObject):
                 min_idx = np.min(obj.selected)
                 max_idx = np.max(obj.selected)
                 
-                min_val = obj.data['centers'][min_idx] - obj.data['widths'][min_idx]
-                max_val = obj.data['centers'][max_idx] + obj.data['widths'][max_idx]
+                min_val = obj.data['centers'][min_idx]
+                max_val = obj.data['centers'][max_idx]
                 df = df[(df[colname] >= min_val) & (df[colname] <= max_val)]
         for colname in self.data.column_names:
             self.filtered_data.data[colname] = df[colname]
             self.filtered_data._dirty = True
-        
+        self.set_plot()
+
     def clear_selections(self, obj, attrname, old, new):
         diff = set(old) - set(new)
         column_descriptor_dict = self.column_descriptor_dict()
@@ -383,7 +423,10 @@ class CrossFilter(PlotObject):
                     source = make_histogram_source(self.df[col])
                     self.filter_sources[col] = source
                     hist_plot = make_histogram(self.filter_sources[col],
-                                               width=150, height=100)
+                                               width=150, height=100,
+                                               title_text_font_size='8pt',
+                                               tools='select'
+                    )
                     hist_plot.title = col
                     self.filter_widgets[col] = hist_plot
         curdoc().add_all()

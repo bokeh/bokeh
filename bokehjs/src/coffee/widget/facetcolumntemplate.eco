@@ -1,1 +1,1 @@
-<div class="bk-facet-label"><%= @name %> &nbsp; [x]</div>
+<%= @name %> &nbsp; [x]
