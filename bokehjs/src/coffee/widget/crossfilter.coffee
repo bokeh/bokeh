@@ -22,7 +22,7 @@ define [
   class CrossFilterView extends ContinuumView
     tag : "div"
     attributes:
-      class : "bk-crossfilter"
+      class : "bk container-fluid bk-crossfilter"
     initialize : (options) ->
       super(options)
       @views = {}
@@ -79,8 +79,8 @@ define [
     type : "CrossFilter"
     default_view : CrossFilterView
     defaults :
-      height : 900
-      width : 1100
+      height : 700
+      width : 1300
 
   class CrossFilters extends Backbone.Collection
     model : CrossFilter
@@ -278,7 +278,7 @@ define [
 
   class ColumnView extends ContinuumView
     attributes :
-      class : "bk-crossfilter-column-entry"
+      class : "bk bk-crossfilter-column-entry panel panel-primary"
     initialize : (options) ->
       super(options)
       @render()

@@ -287,7 +287,7 @@ class CrossFilter(PlotObject):
         title ="%s by %s" % (self.x, self.y)        
         if self.plot_type == "scatter":
             plot = scatter(self.x, self.y, source=self.filtered_data, 
-                          title=title)
+                           plot_width=1000, plot_height=1000, title=title)
             return plot
         elif self.plot_type == "line":
             plot = line(self.x, self.y, source=self.filtered_data, 

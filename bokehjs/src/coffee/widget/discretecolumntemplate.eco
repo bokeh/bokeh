@@ -1,45 +1,42 @@
-<table class="bk-table">
-  <thead>
-    <tr>
-      <th colspan=2>
-        Factor: <%= @name %>
-      </th>
-      <th>
-      </th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>
-        count
-      </td>
-      <td>
-        <%= @count %>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        unique
-      </td>
-      <td>
-        <%= @unique %>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        top
-      </td>
-      <td>
-        <%= @top %>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        freq
-      </td>
-      <td>
-        <%= @freq %>
-      </td>
-    </tr>
-  </tbody>
-</table>
+<div class="bk panel-heading">
+  Factor: <%= @name %>
+</div>
+<div class="bk panel-body">
+  <table class="bk-table">
+    <tbody>
+      <tr>
+        <td>
+          count
+        </td>
+        <td>
+          <%= @count %>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          unique
+        </td>
+        <td>
+          <%= @unique %>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          top
+        </td>
+        <td>
+          <%= @top %>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          freq
+        </td>
+        <td>
+          <%= @freq %>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</div>
