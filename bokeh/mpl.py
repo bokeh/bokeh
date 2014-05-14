@@ -35,11 +35,6 @@ from .plotting import (curdoc, output_file, output_notebook, output_server,
 # Classes and functions
 #-----------------------------------------------------------------------------
 
-# This is used to accumulate plots generated via the plotting methods in this
-# module.  It is used by build_gallery.py.  To activate this feature, simply
-# set _PLOTLIST to an empty list; to turn it off, set it back to None.
-_PLOTLIST = None
-
 
 class BokehRenderer(Renderer):
 
@@ -79,10 +74,6 @@ class BokehRenderer(Renderer):
                            #boxzoom,
                            #select_tool,
                            reset, previewsave]
-
-        # Gallery list
-        if _PLOTLIST is not None:
-            _PLOTLIST.append(self.plot)
 
         # Simple or Grid plot setup
         if len(fig.axes) <= 1:

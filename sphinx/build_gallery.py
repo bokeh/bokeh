@@ -1,54 +1,52 @@
 from __future__ import print_function
 
 import os
-import re
 import webbrowser
 from pygments import highlight
 from pygments.lexers import PythonLexer
 from pygments.formatters import HtmlFormatter
-from bokeh import plotting
-from bokeh import plotting_helpers
-from bokeh import mpl
 
-# patch open and show to be no-ops
+from bokeh import plotting
+from bokeh.document import Document
+from bokeh.embed import autoload_static
+from bokeh.resources import Resources
+
+# patch open and show and save to be no-ops
 def noop(*args, **kwargs):
     pass
 webbrowser.open = noop
-plotting.show= noop
-
+plotting.save = noop
+plotting.show = noop
 
 def page_desc(module_desc):
     module_path, name = module_desc['file'], module_desc['name']
     var_name = module_desc.get('var_name', None)
 
-    plotting_helpers._PLOTLIST = []
-    mpl._PLOTLIST = []
+    plotting._default_document = Document()
 
     namespace = {}
     execfile(module_path, namespace)
 
     if var_name:
-        objects = [namespace[var_name]]
+        objs = [namespace[var_name]]
     else:
-        if plotting_helpers._PLOTLIST:
-            objects = plotting_helpers._PLOTLIST
-        else:
-            objects = mpl._PLOTLIST
+        objs = plotting.curdoc().get_context().children
 
     embed_snippet = ""
-    for i, obj in enumerate(objects):
-        # this _id business is just to have nice readable names for
-        # the embed snippet files
-        obj._id = name if len(objects) == 1 else name + "." + str(i)
-        embed_snippet += obj.create_html_snippet(
-            embed_save_loc= SNIPPET_BUILD_DIR,
-            static_path=HOSTED_STATIC_ROOT,
-            embed_base_url=DETAIL_URL_ROOT
+    for i, obj in enumerate(objs):
+        filename = name + "." + str(i) + ".js"
+        js, tag = autoload_static(
+            obj,
+            Resources(mode="server", root_url=HOSTED_STATIC_ROOT),
+            os.path.join(DETAIL_URL_ROOT, filename)
         )
+        embed_snippet += tag
+        with open(os.path.join(SNIPPET_BUILD_DIR, filename), "w'") as f:
+            f.write(js)
 
-    detail_snippet = highlight(
-        open(module_path).read(), PythonLexer(), HtmlFormatter()
-    )
+        detail_snippet = highlight(
+            open(module_path).read(), PythonLexer(), HtmlFormatter()
+        )
 
     return  dict(
         name = name,
@@ -118,12 +116,7 @@ if __name__ == "__main__":
     GALLERY_RST_PATH = gallery_info['gallery_rst_path']
     if len(sys.argv) >= 5:
         GALLERY_RST_PATH = os.path.join(BASE_DIR, GALLERY_RST_PATH)
-    HOSTED_STATIC_ROOT="/docs/bokehjs-static/"
+    HOSTED_STATIC_ROOT="/docs/"
     DETAIL_URL_ROOT="./"
 
     make_gallery(gallery_info['details'])
-
-    try:
-        webbrowser.open(HOSTED_STATIC_ROOT + "index.html")
-    except:
-        pass
