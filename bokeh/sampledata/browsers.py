@@ -9,9 +9,11 @@ _data_dir = dirname(__file__)
 
 # http://gs.statcounter.com/#browser_version-ww-monthly-201311-201311-bar
 _csv_path = join(_data_dir, "browsers_nov_2013.csv")
-
 browsers_nov_2013 = pd.read_csv(_csv_path, names=["Version", "Share"], skiprows=1)
-browsers_nov_2013["Browser"] = browsers_nov_2013.Version.map(lambda x: x.rsplit(" ", 1)[0])
+
+_versions = browsers_nov_2013.Version.map(lambda x: x.rsplit(" ", 1))
+browsers_nov_2013["Browser"] = _versions.map(lambda x: x[0])
+browsers_nov_2013["VersionNumber"] = _versions.map(lambda x: x[1] if len(x) == 2 else "0")
 
 # https://github.com/alrra/browser-logos
 _browsers = ["Chrome", "Firefox", "Safari", "Opera", "IE"]
