@@ -59,7 +59,7 @@ for browser, start_angle, end_angle in zip(browsers, start_angles, end_angles):
     plot.renderers.append(renderer)
 
 def to_base64(png):
-    return "data:image/png;base64," + base64.b64encode(png)
+    return "data:image/png;base64," + base64.b64encode(png).decode("utf-8")
 
 def polar_to_cartesian(r, alpha):
     return r*cos(alpha), r*sin(alpha)
@@ -69,7 +69,7 @@ r, points = 1.7, []
 for start, end in zip(start_angles, end_angles):
     points.append(polar_to_cartesian(r, (end - start)/2 + start))
 
-urls = [ to_base64(icons.get(browser, "")) for browser in browsers ]
+urls = [ to_base64(icons.get(browser, b"")) for browser in browsers ]
 x, y = zip(*points)
 
 icons_source = ColumnDataSource(dict(urls=urls, x=x, y=y))

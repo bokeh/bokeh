@@ -20,5 +20,5 @@ icons = {}
 for browser in _browsers:
     icon_path = join(_data_dir, "icons", browser.lower() + "_32x32.png")
 
-    with open(icon_path, "r") as icon:
+    with open(icon_path, "rb") as icon:
         icons[browser] = icon.read()
