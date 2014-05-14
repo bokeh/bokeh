@@ -37,7 +37,7 @@ start_angles = [0] + end_angles[:-1]
 browsers_source = ColumnDataSource(dict(
     start  = start_angles,
     end    = end_angles,
-    colors = [colors[browser].toCSS() for browser in browsers ],
+    colors = [colors[browser] for browser in browsers ],
 ))
 plot.data_sources.append(browsers_source)
 
@@ -51,7 +51,7 @@ for browser, start_angle, end_angle in zip(browsers, start_angles, end_angles):
     end = angles.tolist() + [end_angle]
     start = [start_angle] + end[:-1]
     base_color = colors[browser]
-    fill = [ base_color.lighten(i*0.05).toCSS() for i in range(len(versions) + 1) ]
+    fill = [ base_color.lighten(i*0.05) for i in range(len(versions) + 1) ]
     source = ColumnDataSource(dict(start=start, end=end, fill=fill))
     glyph = AnnularWedge(x=0, y=0, inner_radius=1, outer_radius=1.5, start_angle="start", end_angle="end", fill_color="fill")
     renderer = Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=glyph)
