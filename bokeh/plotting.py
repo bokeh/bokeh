@@ -530,3 +530,8 @@ def grid():
     """
     return _list_attr_splat(xgrid() + ygrid())
 
+def load_object(obj):
+    """updates object from the server
+    """
+    cursession().load_object(obj, curdoc())
+    

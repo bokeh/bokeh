@@ -367,6 +367,20 @@ class Session(object):
         merge(new_doc, doc)
         doc.__dict__.update(new_doc.__dict__)
         doc.docid = self.docid
+        
+    def load_object(self, obj, document):
+        """pulls an objects json from the server,
+        loads it into the document. the object should be updated
+        since it's inside document._models
+        Args:
+            obj : object to be updated.. this is used just for typename and id
+            docuemnt : document instance.  object should be inside the document
+        """
+        assert obj._id in document._models
+        attrs = self.pull(typename=obj.__view_model__, id=obj._id)
+        document.load(attrs)
+        return
+
 
     def store_document(self, doc, dirty_only=True):
         """higher level function for storing a doc on the server
