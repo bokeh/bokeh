@@ -65,6 +65,7 @@ def notebook_div(plot_object):
 
     '''
     ref = plot_object.get_ref()
+    resources = Resources()
     elementid = str(uuid.uuid4())
 
     js = PLOT_JS.render(
@@ -74,7 +75,7 @@ def notebook_div(plot_object):
         all_models = serialize_json(plot_object.dump()),
     )
     script = PLOT_SCRIPT.render(
-        plot_js = js,
+        plot_js = resources.js_wrapper(js),
     )
     div = PLOT_DIV.render(elementid=elementid)
     html = NOTEBOOK_DIV.render(
