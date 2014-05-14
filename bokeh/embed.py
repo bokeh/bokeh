@@ -180,7 +180,7 @@ def autoload_server(plot_object, session):
 
     '''
     elementid = str(uuid.uuid4())
-    resources = Resources(root_url=session.root_url, mode=mode)
+    resources = Resources(root_url=session.root_url, mode="server")
     tag = AUTOLOAD_SERVER.render(
         src_path = resources._autoload_path(elementid),
         elementid = elementid,
