@@ -293,6 +293,9 @@ class CrossFilter(PlotObject):
         if len(self.facet_x) !=0 and len(self.facet_y) == 0 and len(self.facet_tab) == 0:
             return self.make_all_facet_plot()
             
+        if len(self.facet_x) !=0 and len(self.facet_y) != 0 and len(self.facet_tab) == 0:
+            return self.make_xy_facet_plot()
+            
     def make_facet(self, field):
         if field == 'x':
             facets = self.facet_x
@@ -300,7 +303,7 @@ class CrossFilter(PlotObject):
             facets = self.facet_y
         column_descriptor_dict = self.column_descriptor_dict()
         start = [[]]
-        for field in self.facet_x:
+        for field in facets:
             assert column_descriptor_dict[field]['type'] == 'DiscreteColumn'
             start = cross(start, field, self.df[field].unique())
         return start
@@ -338,11 +341,27 @@ class CrossFilter(PlotObject):
         grid = GridPlot(children=grid_plots, width=200 * chunk_size)
         return grid
 
-    def make_single_facet_plot(self):
-        pass
-        
     def make_xy_facet_plot(self):
-        pass
+        facets_x = self.make_facet('x')
+        facets_y = self.make_facet('y')
+        grid_plots = []
+        for facet_y in facets_y:
+            row = []            
+            for facet_x in facets_x:
+                facet = facet_x + facet_y
+                title = self.facet_title(facet)
+                df = self.facet_data(facet, self.filtered_df)
+                plot = self.make_single_plot(
+                    df=df, title=title, plot_height=300, plot_width=300,
+                    tools="pan,wheel_zoom"
+                )
+                plot.min_border = 0
+                plot.border_symmetry = "none"
+                row.append(plot)
+            grid_plots.append(row)
+        grid = GridPlot(children=grid_plots)
+        return grid
+        
         
     def make_single_plot(self, df=None, title=None, 
                          plot_width=500, plot_height=500,
@@ -451,6 +470,7 @@ class CrossFilter(PlotObject):
             self.agg_selector.on_change('value', self, 'plot_attribute_change')
             
         self.on_change('facet_x', self, 'facet_change')
+        self.on_change('facet_y', self, 'facet_change')
 
     def handle_filter_selection(self, obj, attrname, old, new):
         column_descriptor_dict = self.column_descriptor_dict()
