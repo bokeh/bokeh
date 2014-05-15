@@ -21,7 +21,7 @@ source = ServerDataSource(data_url="/defaultuser/AAPL.hdf5", owner_username="def
 #spec = ar.glyphspec('date','close',color='#FF00FF',source=source)
 
 # Simple heat-map: bin the counts
-heatmap =ar.source(source)
+heatmap =ar.source(source, 'date', 'close')
 #heatmap = ar.Resample(glyphs=spec)  #Temporary...until we work out chaining...
 #heatmap = ar.Resample(glyphs=plot, agg=ar.Count(), info=ar.Const(1), select=ar.Touches(), shader=ar.Interpolate(0,9)+ar.Floor())
 #heatmap = ar.Resample(glyphs=plot, shader=ar.Interpolate(0,9) + ar.Floor())

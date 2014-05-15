@@ -36,7 +36,8 @@ class Id(Proxy):
     return arpy.infos.id()
 
 
-def source(datasource, **kwargs):
+###TODO: Get the x/y/shape/etc from a glyphspec (also to derive guides)
+def source(datasource, x, y, shape='square', **kwargs):
   #Transfer raw source information
   kwargs['data_url'] = datasource.data_url
   kwargs['owner_username'] = datasource.owner_username
@@ -60,7 +61,10 @@ def source(datasource, **kwargs):
   transform = {'resample' : 'abstract rendering',
                'aggregator': Count().serialize(),
                'info': Const().serialize(),
-               'shader': shader.serialize()}
+               'shader': shader.serialize(),
+               'x' : x,
+               'y' : y,
+               'shape' : shape}
 
   kwargs['transform'] = transform
   return ServerDataSource(**kwargs)
@@ -75,12 +79,25 @@ def downsample(data, resample):
   #select = globals()[resample['select']]()
   shader = globals()[resample['shader']['name']]().reify()
 
-  #table = data.table
-  #
-  #glyphs = ????(table)
-  #ivt = ar.zoom_fit(screen, ar.bounds(glyphs))  #TODO: Derive from passed parameters
+  table = data.table  ### Sometimes might need data.table.node
 
-  #image = ar.render(glyphs, info, agg, shader, 100, 100, ivt)
+  ###Translate the resample paramteres to server-side rendering....
+  glyphs = ar.Glyphset()
+  xcol=table[transform['x']]
+  ycol=table[transform['y']]
+  for (x,y) in zip(xcol, ycol):
+    glyphs.append(ar.Glyph(x,y,0,0,1))
+
+  code = transform['shape'].lower()
+  if code == 'square':
+    glyphs.shapecode = ar.Shapecodes.RECT
+  else:
+    raise ValueError("Only recognizing 'square' received " + code)
+
+  ivt = ar.zoom_fit(screen, ar.bounds(glyphs))  #TODO: Derive transform from passed parameters
+  image = ar.render(glyphs, info, agg, shader, screen, ivt)
  
-  return table
+  return image
+
+
 
