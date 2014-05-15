@@ -1,8 +1,9 @@
 import six
-from .objects import ColumnDataSource, Range1d
+from .objects import ColumnDataSource, Range1d, FactorRange, GridPlot
 from .utils.plotting import (make_histogram_source, make_factor_source,
                              make_histogram, make_continuous_bar_source,
-                             make_bar_plot
+                             make_categorical_bar_source,
+                             make_bar_plot, cross
                          )
 from .plot_object import PlotObject
 from .properties import (HasProps, Dict, Enum,
@@ -288,43 +289,129 @@ class CrossFilter(PlotObject):
     def make_plot(self):
         if len(self.facet_x) ==0 and len(self.facet_y) == 0 and len(self.facet_tab) == 0:
             return self.make_single_plot()
+            
+        if len(self.facet_x) !=0 and len(self.facet_y) == 0 and len(self.facet_tab) == 0:
+            return self.make_all_facet_plot()
+            
+    def make_facet(self, field):
+        if field == 'x':
+            facets = self.facet_x
+        else:
+            facets = self.facet_y
+        column_descriptor_dict = self.column_descriptor_dict()
+        start = [[]]
+        for field in self.facet_x:
+            assert column_descriptor_dict[field]['type'] == 'DiscreteColumn'
+            start = cross(start, field, self.df[field].unique())
+        return start
         
+    def facet_title(self, facet):
+        title = ["%s:%s" % x for x in facet]
+        title = ",".join(title)
+        return title
+
+    def facet_data(self, facet, df=None):
+        if df is None:
+            df = self.filtered_df
+        for k,v in facet:
+            df = df[df[k] == v]
+        return df
+
     def make_all_facet_plot(self):
-        pass
-        
+        facets = self.make_facet('x')
+        plots = []
+        for facet in facets:
+            title = self.facet_title(facet)
+            df = self.facet_data(facet, self.filtered_df)
+            plot = self.make_single_plot(
+                df=df, title=title, plot_height=300, plot_width=300,
+                tools="pan,wheel_zoom"
+            )
+            plot.min_border = 0
+            plot.border_symmetry = "none"
+            plots.append(plot)
+        chunk_size = int(np.ceil(np.sqrt(len(plots))))
+        grid_plots = []
+        for i in xrange(0, len(plots), chunk_size):
+            chunk =  plots[i:i+chunk_size]
+            grid_plots.append(chunk)
+        grid = GridPlot(children=grid_plots, width=200 * chunk_size)
+        return grid
+
     def make_single_facet_plot(self):
         pass
         
     def make_xy_facet_plot(self):
         pass
         
-    def make_single_plot(self):
+    def make_single_plot(self, df=None, title=None, 
+                         plot_width=500, plot_height=500,
+                         tools="pan,wheel_zoom,box_zoom,save,resize,select,reset"
+                     ):
         column_descriptor_dict = self.column_descriptor_dict()        
-        title ="%s by %s" % (self.x, self.y)        
+        if title is None:
+            title ="%s by %s" % (self.x, self.y)
+            
         if self.plot_type == "scatter":
-            plot = scatter(self.x, self.y, source=self.filtered_data,
+            if df is None:
+                source = self.filtered_data
+            else:
+                source = ColumnDataSource(data=df)
+            plot = scatter(self.x, self.y, source=source,
                            title_text_font_size="12pt",
+                           plot_height=plot_height,
+                           plot_width=plot_width,
+                           tools=tools,
                            title=title)
             return plot
         elif self.plot_type == "line":
-            plot = line(self.x, self.y, source=self.filtered_data,
+            if df is None:
+                source = self.filtered_data
+            else:
+                source = ColumnDataSource(data=df)
+            source = ColumnDataSource(data=df)
+            plot = line(self.x, self.y, source=source,
                         title_text_font_size="12pt",
-                          title=title)
+                        plot_height=plot_height,
+                        plot_width=plot_width,
+                        tools=tools,
+                        title=title)
             return plot
         elif self.plot_type == 'bar':
+            if df is None:
+                df = self.filtered_df
             if column_descriptor_dict[self.x]['type'] != 'DiscreteColumn':
                 source = make_continuous_bar_source(
-                    self.filtered_df, self.x, self.y, self.agg)
-                x_range = Range1d(start=self.filtered_df[self.x].min() - 0.7, 
-                                  end=self.filtered_df[self.x].max() - 0.7)
+                    df, self.x, self.y, self.agg)
+                x_range = Range1d(start=df[self.x].min() - 0.7, 
+                                  end=df[self.x].max() - 0.7)
                 plot = make_bar_plot(source, counts_name=self.y,
                                      centers_name=self.x,
+                                     plot_height=plot_height,
+                                     plot_width=plot_width,
+                                     tools=tools,
                                      x_range=x_range)
                 return plot
+            else:
+                source = make_categorical_bar_source(
+                    df, self.x, self.y, self.agg
+                    )
+                x_range = FactorRange(source[self.x])
+                plot = make_bar_plot(source, counts_name=self.y,
+                                     centers_name=self.x,
+                                     plot_height=plot_height,
+                                     plot_width=plot_width,
+                                     tools=tools,
+                                     x_range=x_range)
+                return plot
+                
                 
             
     def plot_attribute_change(self, obj, attrname, old, new):
         setattr(self, obj.name, new)
+        self.set_plot()
+        
+    def facet_change(self, obj, attrname, old, new):
         self.set_plot()
         
     @property
@@ -362,7 +449,9 @@ class CrossFilter(PlotObject):
             self.y_selector.on_change('value', self, 'plot_attribute_change')
         if self.agg_selector:
             self.agg_selector.on_change('value', self, 'plot_attribute_change')
-    
+            
+        self.on_change('facet_x', self, 'facet_change')
+
     def handle_filter_selection(self, obj, attrname, old, new):
         column_descriptor_dict = self.column_descriptor_dict()
         df = self.df
@@ -423,7 +512,7 @@ class CrossFilter(PlotObject):
                     source = make_histogram_source(self.df[col])
                     self.filter_sources[col] = source
                     hist_plot = make_histogram(self.filter_sources[col],
-                                               width=150, height=100,
+                                               plot_width=150, plot_height=100,
                                                title_text_font_size='8pt',
                                                tools='select'
                     )

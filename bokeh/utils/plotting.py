@@ -4,6 +4,15 @@ import pandas as pd
 from ..plotting import rect
 from ..objects import Range1d
 from ..plotting_helpers import _get_select_tool
+
+def cross(start, field, values):
+    new = [[(field, x)] for x in values]
+    result = []
+    for x in start:
+        for n in new:
+            result.append(x + n)
+    return result
+    
 def make_histogram_source(series):
     counts, bins = np.histogram(series, bins=50)
     bin_centers = pd.rolling_mean(bins, 2)[1:]
