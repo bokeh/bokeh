@@ -1,4 +1,5 @@
 from flask import abort, render_template
+from ...exceptions import DataIntegrityException
 from ..app import bokeh_app
 from ..views.main import _makedoc
 from ..views.backbone import init_bokeh

@@ -5,8 +5,8 @@ from ..plotting import rect
 from ..objects import Range1d
 from ..plotting_helpers import _get_select_tool
 
-def cross(start, field, values):
-    new = [[(field, x)] for x in values]
+def cross(start, facets):
+    new = [[facet] for facet in facets]
     result = []
     for x in start:
         for n in new:

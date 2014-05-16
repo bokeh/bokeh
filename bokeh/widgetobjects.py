@@ -1,4 +1,5 @@
 import six
+import pandas as pd
 from .objects import ColumnDataSource, Range1d, FactorRange, GridPlot
 from .utils.plotting import (make_histogram_source, make_factor_source,
                              make_histogram, make_continuous_bar_source,
@@ -180,6 +181,33 @@ class Slider(InputWidget):
     steps = Int(default=50)
     orientation = Enum("horizontal", "vertical")
 
+class DiscreteFacet(object):
+    def __init__(self, field, value, label=None):
+        if label is None:
+            label = str(value)
+        self.field = field
+        self.label = label
+        self._value = value
+        
+    def __str__(self):
+        return "%s:%s" % (self.field, self.label)
+        
+    def filter(self, df):
+        return df[df[self.field] == self._value]
+    __repr__ = __str__
+
+class ContinuousFacet(DiscreteFacet):
+    def __init__(self, field, value, bins, label=None):
+        super(ContinuousFacet, self).__init__(field, value, label=label)
+        self.bins = bins
+        
+    def filter(self, df):
+        if self.bins[0] is not None:
+            df = df[df[self.field] > self.bins[0]]
+        if self.bins[1] is not None:
+            df = df[df[self.field] <= self.bins[1]]
+        return df
+
 class CrossFilter(PlotObject):
     columns = List(Dict(String, Any))
     data = Instance(ColumnDataSource)
@@ -210,7 +238,6 @@ class CrossFilter(PlotObject):
     agg_selector = Instance(Select)
     
     def __init__(self, *args, **kwargs):
-        print (kwargs)
         if 'df' in kwargs:
             self._df = kwargs.pop('df')
             kwargs['data'] = ColumnDataSource(data=self.df)
@@ -244,13 +271,11 @@ class CrossFilter(PlotObject):
             value=self.x,
             options=col_names)
         self.x_selector = select
-        print ('X', self.x_selector.value)
         select = Select.create(
             name="y",
             value=self.y,
             options=col_names)
         self.y_selector = select
-        print ('Y', self.y_selector.value)
         select = Select.create(
             name='agg',
             value=self.agg,
@@ -296,36 +321,44 @@ class CrossFilter(PlotObject):
         if len(self.facet_x) !=0 and len(self.facet_y) != 0 and len(self.facet_tab) == 0:
             return self.make_xy_facet_plot()
             
-    def make_facet(self, field):
-        if field == 'x':
+    def make_facets(self, dimension):
+        if dimension == 'x':
             facets = self.facet_x
         else:
             facets = self.facet_y
         column_descriptor_dict = self.column_descriptor_dict()
         start = [[]]
         for field in facets:
-            assert column_descriptor_dict[field]['type'] == 'DiscreteColumn'
-            start = cross(start, field, self.df[field].unique())
+            if column_descriptor_dict[field]['type'] == 'DiscreteColumn':
+                facets = [DiscreteFacet(field, val) for val in self.df[field].unique()]
+                start = cross(start, facets)
+            else:
+                categorical, bins = pd.qcut(self.df[field], 4, retbins=True)
+                values = categorical.levels
+                bins = [[bins[idx], bins[idx+1]] for idx in range(len(bins) - 1)]
+                bins[0][0] = None
+                facets = [ContinuousFacet(field, value, bin) for bin, value in zip(bins, values)]
+                start = cross(start, facets)
+                
         return start
         
-    def facet_title(self, facet):
-        title = ["%s:%s" % x for x in facet]
-        title = ",".join(title)
+    def facet_title(self, facets):
+        title = ",".join([str(x) for x in facets])
         return title
 
-    def facet_data(self, facet, df=None):
+    def facet_data(self, facets, df=None):
         if df is None:
             df = self.filtered_df
-        for k,v in facet:
-            df = df[df[k] == v]
+        for f in facets:
+            df = f.filter(df)
         return df
 
     def make_all_facet_plot(self):
-        facets = self.make_facet('x')
+        all_facets = self.make_facets('x')
         plots = []
-        for facet in facets:
-            title = self.facet_title(facet)
-            df = self.facet_data(facet, self.filtered_df)
+        for facets in all_facets:
+            title = self.facet_title(facets)
+            df = self.facet_data(facets, self.filtered_df)
             plot = self.make_single_plot(
                 df=df, title=title, plot_height=200, plot_width=200,
                 tools="pan,wheel_zoom"
@@ -342,17 +375,17 @@ class CrossFilter(PlotObject):
         return grid
 
     def make_xy_facet_plot(self):
-        facets_x = self.make_facet('x')
-        facets_y = self.make_facet('y')
+        all_facets_x = self.make_facets('x')
+        all_facets_y = self.make_facets('y')
         grid_plots = []
-        for facet_y in facets_y:
+        for facets_y in all_facets_y:
             row = []            
-            for facet_x in facets_x:
-                facet = facet_x + facet_y
-                title = self.facet_title(facet)
-                df = self.facet_data(facet, self.filtered_df)
+            for facets_x in all_facets_x:
+                facets = facets_x + facets_y
+                title = self.facet_title(facets)
+                df = self.facet_data(facets, self.filtered_df)
                 plot = self.make_single_plot(
-                    df=df, title=title, plot_height=300, plot_width=300,
+                    df=df, title=title, plot_height=200, plot_width=200,
                     tools="pan,wheel_zoom"
                 )
                 plot.min_border = 0

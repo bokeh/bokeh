@@ -164,17 +164,21 @@ def update(docid, typename, id):
     namely in writing, we shouldn't remove unspecified attrs
     (we currently don't handle this correctly)
     """
-    
+    log.info("loading models")
     doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
     clientdoc = bokeh_app.backbone_storage.get_document(docid)
+    log.info("loading done %s", len(clientdoc._models.values()))
     prune(clientdoc)
     init_bokeh(clientdoc)
+    log.info("updating")
     modeldata = protocol.deserialize_json(request.data.decode('utf-8'))
     #patch id is not passed...
     modeldata['id'] = id
     modeldata = {'type' : typename,
                  'attributes' : modeldata}
     clientdoc.load(modeldata, events='existing', dirty=True)
+    log.info("done")
+    log.info("saving")
     changed = bokeh_app.backbone_storage.store_document(clientdoc)
     model = clientdoc._models[id]
     try:
@@ -184,10 +188,13 @@ def update(docid, typename, id):
         #this is strange but ok, that means the model didn't change
         pass
     log.debug("changed, %s", str(changed))
+    log.info("done")
+    log.info("publishing")
     ws_update(clientdoc, changed, exclude_self=False)
     ws_update(clientdoc, [model], exclude_self=True)
     log.debug("update, %s, %s", docid, typename)
     attrs = clientdoc.dump(model)[0]['attributes']
+    log.info("done")
     return make_json(protocol.serialize_json(attrs))
 
 @check_write_authentication_and_create_client
