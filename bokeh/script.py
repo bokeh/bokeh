@@ -9,7 +9,7 @@ class Expr(object):
     def parenthesize(self, expr, level=None):
         js = expr.toJS()
 
-        if expr._precedence <= level or self._precedence:
+        if expr._precedence <= (level or self._precedence):
             return "(%s)" % js
         else:
             return js
