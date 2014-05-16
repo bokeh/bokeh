@@ -1,4 +1,5 @@
 import abstract_rendering.numeric as numeric
+import abstract_rendering.general as general
 import abstract_rendering.infos as infos
 import abstract_rendering.core as ar
 
@@ -34,7 +35,7 @@ class Const(Proxy):
 class Id(Proxy): 
   out = "image"
   def reify(self, **kwargs):
-    return infos.id()
+    return general.Id()
 
 
 ###TODO: Get the x/y/shape/etc from a glyphspec (also to derive guides)
