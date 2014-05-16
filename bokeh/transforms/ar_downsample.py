@@ -1,5 +1,6 @@
-import arpy.numeric
-import arpy.infos
+import abstract_rendering.numeric as numeric
+import abstract_rendering.infos as infos
+import abstract_rendering.core as ar
 
 from ..objects import ColumnDataSource, ServerDataSource, Plot, Renderer, Glyph
 from bokeh.properties import (HasProps, Dict, Enum, Either, Float, Instance, Int,
@@ -24,16 +25,16 @@ class Proxy(object):
 
 class Count(Proxy): 
   def reify(self, **kwargs):
-    return arpy.numeric.Count()
+    return numeric.Count()
 
 class Const(Proxy):
   def reify(self, **kwargs):
-    return arpy.infos.const(1)
+    return infos.const(1)
 
 class Id(Proxy): 
   out = "image"
   def reify(self, **kwargs):
-    return arpy.infos.id()
+    return infos.id()
 
 
 ###TODO: Get the x/y/shape/etc from a glyphspec (also to derive guides)
@@ -69,28 +70,28 @@ def source(datasource, x, y, shape='square', **kwargs):
   kwargs['transform'] = transform
   return ServerDataSource(**kwargs)
 
-def downsample(data, resample):
+def downsample(data, transform):
   screen = (100,100) #TODO: Derive from passed parameters
 
-  import pdb; pdb.set_trace()
-
-  agg = globals()[resample['aggregator']['name']]().reify()
-  info = globals()[resample['info']['name']]().reify()
-  #select = globals()[resample['select']]()
-  shader = globals()[resample['shader']['name']]().reify()
-
-  table = data.table  ### Sometimes might need data.table.node
+  agg = globals()[transform['aggregator']['name']]().reify()
+  info = globals()[transform['info']['name']]().reify()
+  #select = globals()[transform['select']]()
+  shader = globals()[transform['shader']['name']]().reify()
 
   ###Translate the resample paramteres to server-side rendering....
   glyphs = ar.Glyphset()
-  xcol=table[transform['x']]
-  ycol=table[transform['y']]
+  ###TODO: Actual access routine varies depending on the input data type... 
+  table = data.select(columns=[transform['x'], transform['y']])
+  xcol = table[transform['x']]
+  ycol = table[transform['y']]
+  import pdb; pdb.set_trace()
+  
   for (x,y) in zip(xcol, ycol):
     glyphs.append(ar.Glyph(x,y,0,0,1))
 
   code = transform['shape'].lower()
   if code == 'square':
-    glyphs.shapecode = ar.Shapecodes.RECT
+    glyphs.shapecode = ar.ShapeCodes.RECT
   else:
     raise ValueError("Only recognizing 'square' received " + code)
 
