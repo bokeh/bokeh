@@ -92,7 +92,7 @@ def prepare_app(backend, single_user_mode=True, data_directory=None):
     if not app.secret_key:
         app.secret_key = str(uuid.uuid4())
         
-def register_blueprint(prefix):
+def register_blueprint(prefix=None):
     app.register_blueprint(bokeh_app, url_prefix=prefix)
     bokeh_app.url_prefix = prefix
 
