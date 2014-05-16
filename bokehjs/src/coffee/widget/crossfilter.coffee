@@ -22,7 +22,7 @@ define [
   class CrossFilterView extends ContinuumView
     tag : "div"
     attributes:
-      class : "bk container-fluid bk-crossfilter"
+      class : "bk-crossfilter"
     initialize : (options) ->
       super(options)
       @views = {}
@@ -61,8 +61,9 @@ define [
       )
       @columnview = new ColumnsView(collection : @model.columns)
       @$('.bk-column-list').append(@columnview.el)
-      @$el.height(@mget('height'))
-      @$el.width(@mget('width'))
+
+      @$('.bk-crossfilter-configuration').height(@mget('height'))
+      @$('.bk-crossfilter-configuration').width(500)
       return this
 
   class CrossFilter extends HasParent
@@ -287,7 +288,7 @@ define [
 
   class ColumnView extends ContinuumView
     attributes :
-      class : "bk bk-crossfilter-column-entry panel panel-primary"
+      class : "bk-crossfilter-column-entry panel panel-primary"
     initialize : (options) ->
       super(options)
       @render()

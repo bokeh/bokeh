@@ -4,13 +4,30 @@
     padding-top : 5px;
     padding-bottom : 5px;    
 }
-
-.bk-crossfilter{
-    overflow-x : auto;
-    padding-right : 0px;
-    padding-left : 0px;
+    
+.aligntable{
+    vertical-align: top;
 }
-.bk .row{
+
+.bk-crossfilter-container{
+    height : 100%;
+    width : 100%;
+    whitespace : nowrap;
+    display : inline-block;
+    overflow : auto;
+}
+.bk-crossfilter-configuration{
+    overflow : auto;
+    float : left;
+    padding-right : 0px !important;
+    padding-left : 15px !important;
+    margin-left : 0px !important;
+    margin-right : 0px !important;
+}
+
+
+.bk-row{
+    .bk .row;
     height : 100%;
     width : 100%;
     margin : 0px;
@@ -69,25 +86,8 @@
     padding-right : 0px;
     padding-left : 0px;
 }
-.bk-plot-col{
-    height : 100%;
-    padding-right : 0px;
-    padding-left : 0px;
-     
-}
-.bk-plot-panel{
-    height : 100%;
-    margin-bottom:0px !important;
-}
-.bk-plot-container{
-    .bk .panel;
-    .bk .panel-body;
-    padding : 0px !important;
-    height : 95%;
-    width : 100%;
-    overflow : scroll;
-}
 .bk-plot{
+    float : left;
     display : inline-block;
 }
 
