@@ -219,7 +219,7 @@ def show(browser=None, new="tab", url=None):
 
     plot = curplot()
     if not plot:
-        warnings.warn("No current plot to show. Use renderer functions (circle, rect, etc.) to create a current plot")
+        warnings.warn("No current plot to show. Use renderer functions (circle, rect, etc.) to create a current plot (see http://bokeh.pydata.org/index.html)")
         return
 
     if notebook and session:
@@ -276,7 +276,7 @@ def save(filename=None, resources=None):
         return
 
     if not curplot():
-        warnings.warn("No current plot to save. Use renderer functions (circle, rect, etc.) to create a current plot")
+        warnings.warn("No current plot to save. Use renderer functions (circle, rect, etc.) to create a current plot (see http://bokeh.pydata.org/index.html)")
         return
 
     html = file_html(curdoc(), resources, _default_file['title'])
@@ -305,7 +305,7 @@ def push(session=None, document=None):
     if session:
         return session.store_document(curdoc())
     else:
-        warnings.warn("push() called but no session was supplied and output_server(...) was never called, nothing pushd")
+        warnings.warn("push() called but no session was supplied and output_server(...) was never called, nothing pushed")
 
 
 def _doc_wrap(func):

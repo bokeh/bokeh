@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.collections import LineCollection
-from bokeh import pyplot
+from bokeh import mpl
 
 # In order to efficiently plot many lines in a single set of axes,
 # add the lines all at once. Here is a simple example showing how it is done.
@@ -21,4 +21,4 @@ ax = plt.axes()
 ax.add_collection(line_segments)
 ax.set_title('Line Collection with dashed colors')
 
-pyplot.show_bokeh(name="lc_dashed")
+mpl.to_bokeh(name="lc_dashed")

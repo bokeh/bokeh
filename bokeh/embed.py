@@ -65,6 +65,7 @@ def notebook_div(plot_object):
 
     '''
     ref = plot_object.get_ref()
+    resources = Resources()
     elementid = str(uuid.uuid4())
 
     js = PLOT_JS.render(
@@ -74,7 +75,7 @@ def notebook_div(plot_object):
         all_models = serialize_json(plot_object.dump()),
     )
     script = PLOT_SCRIPT.render(
-        plot_js = js,
+        plot_js = resources.js_wrapper(js),
     )
     div = PLOT_DIV.render(elementid=elementid)
     html = NOTEBOOK_DIV.render(
@@ -180,7 +181,7 @@ def autoload_server(plot_object, session):
 
     '''
     elementid = str(uuid.uuid4())
-    resources = Resources(root_url=session.root_url, mode=mode)
+    resources = Resources(root_url=session.root_url, mode="server")
     tag = AUTOLOAD_SERVER.render(
         src_path = resources._autoload_path(elementid),
         elementid = elementid,

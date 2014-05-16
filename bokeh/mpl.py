@@ -11,22 +11,30 @@
 # Imports
 #-----------------------------------------------------------------------------
 
+import itertools
 import warnings
-import numpy as np
+
 import matplotlib as mpl
+import matplotlib.pyplot as plt
+import numpy as np
 
+from .glyphs import (Asterisk, Circle, Cross, Diamond, InvertedTriangle, Line,
+                     MultiLine, Patches, Square, Text, Triangle, Xmarker)
+from .mplexporter.exporter import Exporter
 from .mplexporter.renderers import Renderer
-
 from .mpl_helpers import (convert_dashes, delete_last_col, get_props_cycled,
-                          xkcd_line)
-from .objects import (Plot, DataRange1d, LinearAxis, ColumnDataSource, Glyph,
-                      Grid, PanTool, WheelZoomTool, PreviewSaveTool)
-from .glyphs import (Line, Circle, Square, Cross, Triangle, InvertedTriangle,
-                     Xmarker, Diamond, Asterisk, MultiLine, Patches, Text)
+                          is_ax_end, xkcd_line)
+from .objects import (BoxSelectionOverlay, BoxSelectTool, BoxZoomTool,
+                      ColumnDataSource, DataRange1d, Glyph, Grid, GridPlot,
+                      LinearAxis, PanTool, Plot, PreviewSaveTool, ResetTool,
+                      WheelZoomTool)
+from .plotting import (curdoc, output_file, output_notebook, output_server,
+                       show)
 
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
+
 
 class BokehRenderer(Renderer):
 
@@ -54,10 +62,37 @@ class BokehRenderer(Renderer):
         # Add tools
         pantool = PanTool(dimensions=["width", "height"])
         wheelzoom = WheelZoomTool(dimensions=["width", "height"])
+        #boxzoom = BoxZoomTool(plot=self.plot)
+        #boxoverlay = BoxSelectionOverlay(tool=boxzoom)
+        #self.plot.renderers.append(boxoverlay)
+        #select_tool = BoxSelectTool()
+        #selectoverlay = BoxSelectionOverlay(tool=select_tool)
+        #self.plot.renderers.append(selectoverlay)
+        reset = ResetTool(plot=self.plot)
         previewsave = PreviewSaveTool(plot=self.plot)
-        self.plot.tools = [pantool, wheelzoom, previewsave]
+        self.plot.tools = [pantool, wheelzoom,
+                           #boxzoom,
+                           #select_tool,
+                           reset, previewsave]
 
-        self.fig = self.plot
+        # Simple or Grid plot setup
+        if len(fig.axes) <= 1:
+            self.fig = self.plot
+        else:
+            # This list comprehension splits the plot.renderers list at the "marker"
+            # points returning small sublists corresponding with each subplot.
+            subrends = [list(x[1]) for x in itertools.groupby(
+                        self.plot.renderers, lambda x: is_ax_end(x)) if not x[0]]
+            plots = []
+            for i, axes in enumerate(fig.axes):
+                _plot = self.plot.clone()
+                _plot.renderers = subrends[i]
+                plots.append(_plot)
+            (a, b, c) = fig.axes[0].get_geometry()
+            p = np.array(plots)
+            n = np.resize(p, (a, b))
+            grid = GridPlot(children=n.tolist())
+            self.fig = grid
 
     def open_axes(self, ax, props):
         "Get axes data and create the axes and grids"
@@ -92,6 +127,10 @@ class BokehRenderer(Renderer):
             self.plot.title_text_font = "Comic Sans MS, Textile, cursive"
             self.plot.title_text_font_style = "bold"
             self.plot.title_text_color = "black"
+
+        # Add a "marker" Glyph to help the plot.renderers splitting in the GridPlot build
+        dummy_source = ColumnDataSource(data=dict(name="ax_end"))
+        self.plot.renderers.append(Glyph(data_source=dummy_source, glyph=Xmarker()))
 
     def open_legend(self, legend, props):
         pass
@@ -339,3 +378,68 @@ class BokehRenderer(Renderer):
             on_off = map(int,col.get_linestyle()[0][1])
         patches.line_dash_offset = convert_dashes(offset)
         patches.line_dash = list(convert_dashes(tuple(on_off)))
+
+
+def to_bokeh(fig=None, name=None, server=None, notebook=False, xkcd=False):
+    """ Uses bokeh to display a Matplotlib Figure.
+
+    You can store a bokeh plot in a standalone HTML file, as a document in
+    a Bokeh plot server, or embedded directly into an IPython Notebook
+    output cell.
+
+    Parameters
+    ----------
+
+    fig: matplotlib.figure.Figure
+        The figure to display. If None or not specified, then the current figure
+        will be used.
+
+    name: str (default=None)
+        If this option is provided, then the Bokeh figure will be saved into
+        this HTML file, and then a web browser will used to display it.
+
+    server: str (default=None)
+        Fully specified URL of bokeh plot server. Default bokeh plot server
+        URL is "http://localhost:5006" or simply "deault"
+
+    notebook: bool (default=False)
+        Return an output value from this function which represents an HTML
+        object that the IPython notebook can display. You can also use it with
+        a bokeh plot server just specifying the URL.
+
+    xkcd: bool (default=False)
+        If this option is True, then the Bokeh figure will be saved with a
+        xkcd style.
+    """
+
+    if fig is None:
+        fig = plt.gcf()
+
+    if any([name, server, notebook]):
+        if name:
+            if not server:
+                filename = name + ".html"
+                output_file(filename)
+            else:
+                output_server(name, url=server)
+        elif server:
+            if not notebook:
+                output_server("unnameuuuuuuuuuuuuuud", url=server)
+            else:
+                output_notebook(url=server)
+        elif notebook:
+            output_notebook()
+    else:
+        output_file("Unnamed.html")
+
+    doc = curdoc()
+
+    renderer = BokehRenderer(xkcd)
+    exporter = Exporter(renderer)
+
+    exporter.run(fig)
+
+    doc._current_plot = renderer.fig  # TODO (bev) do not rely on private attrs
+    doc.add(renderer.fig)
+
+    show()
