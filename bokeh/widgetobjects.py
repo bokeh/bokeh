@@ -327,7 +327,7 @@ class CrossFilter(PlotObject):
             title = self.facet_title(facet)
             df = self.facet_data(facet, self.filtered_df)
             plot = self.make_single_plot(
-                df=df, title=title, plot_height=300, plot_width=300,
+                df=df, title=title, plot_height=200, plot_width=200,
                 tools="pan,wheel_zoom"
             )
             plot.min_border = 0

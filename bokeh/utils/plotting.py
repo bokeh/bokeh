@@ -56,7 +56,7 @@ def make_bar_plot(datasource, counts_name="counts",
                   centery_name='centery',
                   centers_name="centers", 
                   x_range=None,
-                  width=500, height=500,
+                  plot_width=500, plot_height=500,
                   tools=None,
                   title_text_font_size="12pt"
               ):
@@ -65,7 +65,7 @@ def make_bar_plot(datasource, counts_name="counts",
     top = np.max(datasource.data[counts_name])
     plot = rect(centers_name, centery_name, 0.7, counts_name,
                 title=" " ,
-                plot_width=width, plot_height=height,
+                plot_width=plot_width, plot_height=plot_height,
                 tools=tools,
                 title_text_font_size=title_text_font_size,
                 x_range=x_range,
@@ -83,7 +83,7 @@ def make_histogram(datasource, counts_name="counts",
                   centery_name='centery',
                   centers_name="centers", 
                   x_range=None,
-                  width=500, height=500,
+                  plot_width=500, plot_height=500,
                   min_border=40,
                   tools=None,
                   title_text_font_size="12pt"):
@@ -93,7 +93,7 @@ def make_histogram(datasource, counts_name="counts",
     x_range = Range1d(start=start, end=end)
     plot = make_bar_plot(datasource, counts_name=counts_name,
                          centery_name=centery_name, centers_name=centers_name,
-                         x_range=x_range, width=width, height=height,
+                         x_range=x_range, plot_width=plot_width, plot_height=plot_height,
                          tools=tools,
                          title_text_font_size=title_text_font_size)
     return plot
@@ -103,7 +103,7 @@ def bar_plot(datasource, counts_name="counts",
              centery_name='centery',
              centers_name="centers", 
              max=None, min=None,
-             width=500, height=500,
+             plot_width=500, plot_height=500,
              min_border=40):
     
     if max is None:
@@ -113,7 +113,7 @@ def bar_plot(datasource, counts_name="counts",
     top = np.max(datasource.data[counts_name])
     plot = rect(centers_name, centery_name, widths_name, counts_name,
                 title=" " ,
-                plot_width=width, plot_height=height,
+                plot_width=plot_width, plot_height=plot_height,
                 tools="select",
                 title_text_font_size="8pt",
                 x_range=Range1d(start=start, end=end),
