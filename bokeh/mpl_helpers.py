@@ -16,6 +16,8 @@ import numpy as np
 from itertools import cycle, islice
 from scipy import interpolate, signal
 
+from .objects import Glyph
+
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
@@ -82,6 +84,18 @@ def get_props_cycled(col, prop, fx=lambda x: x):
     t_prop = [fx(x) for x in prop]
     sliced = islice(cycle(t_prop), None, n)
     return list(sliced)
+
+
+def is_ax_end(r):
+    "Check if the 'name' (if it exists) in the Glyph's datasource is 'ax_end'"
+    if isinstance(r, Glyph):
+        try:
+            if r.data_source.data["name"] == "ax_end":
+                return True
+        except KeyError as e:
+            return False
+    else:
+        return False
 
 
 def xkcd_line(x, y, xlim=None, ylim=None, mag=1.0, f1=30, f2=0.001, f3=5):

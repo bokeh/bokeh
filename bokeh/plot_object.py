@@ -11,7 +11,9 @@ logger = logging.getLogger(__file__)
 from six import add_metaclass, iteritems
 from six.moves.urllib.parse import urlsplit
 
+from .embed import autoload_static, autoload_server
 from .properties import HasProps, MetaHasProps, Instance
+from .protocol import serialize_json
 from .utils import get_ref, convert_references, dump
 
 class Viewable(MetaHasProps):
@@ -248,13 +250,13 @@ class PlotObject(HasProps):
         attrs = self.vm_props()
         attrs['id'] = self._id
         return attrs
-        
+
     def dump(self, docid=None):
         """convert all references to json
         """
         models = self.references()
         return dump(models, docid=docid)
-        
+
     def update(self, **kwargs):
         for k,v in kwargs.items():
             setattr(self, k, v)
@@ -284,9 +286,10 @@ class PlotObject(HasProps):
                     self, attrname, old, new)
 
 
+    # TODO: deprecation warnign about args change (static_path)
     def create_html_snippet(
             self, server=False, embed_base_url="", embed_save_loc=".",
-            static_path="http://localhost:5006/bokeh/static/"):
+            static_path="http://localhost:5006/bokehjs/static"):
         """create_html_snippet is used to embed a plot in an html page.
 
         create_html_snippet returns the embed string to be put in html.
@@ -304,16 +307,40 @@ class PlotObject(HasProps):
         bokeh.js and the other resources it needs for bokeh.
         """
         if server:
-            if embed_base_url == "":
-                embed_base_url = False
-            return self._build_server_snippet(embed_base_url)[1]
-        embed_filename = "%s.embed.js" % self._id
-        full_embed_save_loc = os.path.join(embed_save_loc, embed_filename)
-        js_code, embed_snippet = self._build_static_embed_snippet(
-            static_path, embed_base_url)
-        with open(full_embed_save_loc,"w") as f:
-            f.write(js_code)
-        return embed_snippet
+            from .session import Session
+            if embed_base_url:
+                session = Session(root_url=server_url)
+            else:
+                session = Session()
+            return autoload_server(self, session)
+
+        from .templates import AUTOLOAD, AUTOLOAD_STATIC
+        import uuid
+
+        js_filename = "%s.embed.js" % self._id
+        script_path = embed_base_url + js_filename
+
+        elementid = str(uuid.uuid4())
+
+        js = AUTOLOAD.render(
+            all_models = serialize_json(self.dump()),
+            js_url = static_path + "js/bokeh.min.js",
+            css_files = [static_path + "css/bokeh.min.css"],
+            elementid = elementid,
+        )
+
+        tag = AUTOLOAD_STATIC.render(
+            src_path = script_path,
+            elementid = elementid,
+            modelid = self._id,
+            modeltype = self.__view_model__,
+        )
+
+        save_path = os.path.join(embed_save_loc, js_filename)
+        with open(save_path,"w") as f:
+            f.write(js)
+
+        return tag
 
     def inject_snippet(
             self, server=False, embed_base_url="", embed_save_loc=".",

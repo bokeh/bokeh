@@ -39,13 +39,13 @@
   {%- else %}
   var all_models = null;
   {%- endif %}
-  console.log('bokeh is', window.Bokeh);
+
   if(typeof(Bokeh) !== "undefined") {
     console.log("BokehJS loaded, going straight to plotting");
     Bokeh.embed.inject_plot("{{ elementid }}", all_models);
   } else {
     load_lib(bokehjs_url, function() {
-      console.log("BokehJS load callback run at ", new Date(), ", going to plotting")
+      console.log("BokehJS plotting callback run at", new Date())
       Bokeh.embed.inject_plot("{{ elementid }}", all_models);
     });
   }
