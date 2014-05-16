@@ -5,7 +5,7 @@ from pandas.tools.util import cartesian_product
 from pandas.compat import range, lrange, zip
 from pandas import compat
 import numpy as np
-from six import string_types
+from six import string_types, iteritems
 
 _aggregates = {
     "count": len,
@@ -169,7 +169,7 @@ def _add_margins(table, data, values, rows, cols, aggfunc):
 def _compute_grand_margin(data, values, aggfunc):
     if values:
         grand_margin = {}
-        for k, v in data[values].iteritems():
+        for k, v in iteritems(data[values]):
             try:
                 if isinstance(aggfunc, compat.string_types):
                     grand_margin[k] = getattr(v, aggfunc)()
