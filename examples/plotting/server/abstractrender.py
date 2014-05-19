@@ -27,8 +27,8 @@ heatmap =ar.source(source, 'volume', 'close')
 #heatmap = ar.Resample(glyphs=plot, shader=ar.Interpolate(0,9) + ar.Floor())
 #heatmap = ar.Resample(glyphs=plot) + ar.Interpolate(0,9) + ar.Floor()
 image(source=heatmap, image="image", x='x', y='y', dw='dw', dh='dh', palette=["reds-9"],
-    x_range=Range1d(start=0, end=10), 
-    y_range=Range1d(start=0, end=10))
+    x_range=Range1d(start=0, end=100), 
+    y_range=Range1d(start=0, end=100))
 #
 #
 ###Perceptually corrected heat-map.  Cube-root then bin

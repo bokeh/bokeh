@@ -24,6 +24,8 @@ class Proxy(object):
   def reify(self, **kwargs):
     raise Error("Unipmlemented")
 
+
+
 class Count(Proxy): 
   def reify(self, **kwargs):
     return numeric.Count()
@@ -80,26 +82,39 @@ def downsample(data, transform):
   shader = globals()[transform['shader']['name']]().reify()
 
   ###Translate the resample paramteres to server-side rendering....
-  glyphs = ar.Glyphset()
   ###TODO: Actual access routine varies depending on the input data type... 
   table = data.select(columns=[transform['x'], transform['y']])
   xcol = table[transform['x']]
   ycol = table[transform['y']]
-  import pdb; pdb.set_trace()
-  
-  for (x,y) in zip(xcol, ycol):
-    glyphs.append(ar.Glyph(x,y,0,0,1))
+ 
 
-  code = transform['shape'].lower()
-  if code == 'square':
-    glyphs.shapecode = ar.ShapeCodes.RECT
-  else:
-    raise ValueError("Only recognizing 'square' received " + code)
+  glyphs = ar.Glyphset()
+  glyphs.shapecode = _shapecode(transform['shape'])
+  for (x,y) in zip(xcol, ycol):
+    glyphs.append(ar.Glyph(x,y,1,1))  #TODO: This copy is...unfortunate.  AR needs to just take the zip iterator....
 
   ivt = ar.zoom_fit(screen, ar.bounds(glyphs))  #TODO: Derive transform from passed parameters
   image = ar.render(glyphs, info, agg, shader, screen, ivt)
  
-  return image
+  #import numpy as np
+  #image._aggregates = np.random.randint(10, size=image._aggregates.shape)
 
+  return {'image': [image._aggregates],
+          'x': [0],
+          'y': [0],
+          'dw': [image._aggregates.shape[0]],
+          'dh': [image._aggregates.shape[1]],
+  }
+
+
+
+def _shapecode(code):
+  """Convert a string to an AR shapecode."""
+
+  code = code.lower()
+  if code == 'square':
+    return ar.ShapeCodes.RECT
+  else:
+    raise ValueError("Only recognizing 'square' received " + code)
 
 
