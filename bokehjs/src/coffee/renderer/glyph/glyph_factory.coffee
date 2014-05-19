@@ -14,6 +14,7 @@ define (require, exports, module) ->
   circle_cross      = require("./circle_cross")
   diamond           = require("./diamond")
   diamond_cross     = require("./diamond_cross")
+  gear              = require("./gear")
   image             = require("./image")
   image_rgba        = require("./image_rgba")
   image_url         = require("./image_url")
@@ -48,6 +49,7 @@ define (require, exports, module) ->
     "circle_cross"      : circle_cross.Model,
     "diamond"           : diamond.Model,
     "diamond_cross"     : diamond_cross.Model,
+    "gear"              : gear.Model,
     "image"             : image.Model,
     "image_rgba"        : image_rgba.Model,
     "image_url"         : image_url.Model,
