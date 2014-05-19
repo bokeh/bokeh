@@ -299,7 +299,67 @@ just the y-axis. For this, there are tool names ``'xwheel_zoom'`` and ``'ywheel_
 
 Embedding
 ---------
-Coming soon!
+
+Bokeh provides a variety of ways to embed plots and data into HTML documents.
+
+
+Standalone HTML
+'''''''''''''''
+
+Bokeh can generate standalone HTML documents, from its own generic template,
+or a template you provide. These files contain the data for the plot inline
+and are completely transportable, while still providing interactive tools
+(pan, zoom, etc.) for your plot.
+
+Components
+''''''''''
+
+It is also possible to ask Bokeh to return the individual components for a
+inline embedding: a ``<script>`` that contains the data for your plot,
+together with an accompanying ``<div>`` tag that the plot view is loaded
+into. These tags can be used in HTML documents however you like.
+
+.. note:: using these components assums that BokehJS has been loaded already.
+
+IPython Notebook
+''''''''''''''''
+
+Bokeh can also generate ``<div>`` tags suitable for inline display in the
+IPython notebook using the ``notebook_div`` function.
+
+.. note:: Typically users will probably use the higher-level function
+          ``plotting.output_notebook()`` in conjuction with ``%bokeh``
+          magic in the IPython notebook.
+
+Autoload ``<script>``
+'''''''''''''''''''''
+
+Finally it is possible to ask Bokeh to return a ``<script>`` tag that will
+replace itself with a Bokeh plot, wherever happens to be located. The script
+will also check for BokehJS and load it, if necessary, so it is possible to
+embed a plot by placing this script tag alone in your document.
+
+There are two cases:
+
+server data
+***********
+
+The simplest case is to use the Bokeh server to persist your plot and data.
+Additionally, the Bokeh server affords the opportunity of animated plots or
+updating plots with streaming data. The ``autoload_server`` function accepts
+a plot object and a Bokeh server ``Session`` object. It returns a ``<script>``
+tag that will load your plot from the
+
+static data
+***********
+
+If you do not need or want to use the Bokeh server, then the you can use the
+``autoload_static`` function. This function takes the plot object you want to
+display together with a resources specification and path to load a script
+from. It will return a self-contained ``<script>`` tag, together with some
+JavaScript code that contains the data for your plot. This code should be
+saved to the script path you provided. The ``<script>`` tag will load this
+separate script to realize your plot.
 
 Animated Plots
 --------------
