@@ -80,6 +80,15 @@ def build_parser():
                         help="data directory",
                         type=str
                         )
+
+    class DevAction(argparse.Action):
+        def __call__(self, parser, namespace, values, option_string=None):
+            namespace.splitjs = True
+            namespace.debugjs = True
+            namespace.backend = 'memory'
+
+    parser.add_argument("--dev", action=DevAction, nargs=0, help="run server in development mode")
+
     return parser
 
 def run():
