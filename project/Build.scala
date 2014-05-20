@@ -75,6 +75,7 @@ object ProjectBuild extends Build {
                 baseUrl        = jsDir,
                 mainConfigFile = jsDir / "config.js",
                 include        = List("underscore", "main"),
+                wrapShim       = true,
                 wrap           = RequireJSWrap(
                     startFile  = srcDir / "js" / "_start.js.frag",
                     endFile    = srcDir / "js" / "_end.js.frag"

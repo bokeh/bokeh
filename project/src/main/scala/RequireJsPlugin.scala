@@ -25,6 +25,7 @@ case class RequireJSConfig(
     mainConfigFile: File,
     name: String,
     include: List[String],
+    wrapShim: Boolean,
     wrap: RequireJSWrap,
     optimize: String,
     out: File) {
@@ -38,6 +39,7 @@ case class RequireJSConfig(
         ScriptableObject.defineProperty(obj, "mainConfigFile", mainConfigFile.getPath, READONLY)
         ScriptableObject.defineProperty(obj, "name", name, READONLY)
         ScriptableObject.defineProperty(obj, "include", include, READONLY)
+        ScriptableObject.defineProperty(obj, "wrapShim", wrapShim, READONLY)
         ScriptableObject.defineProperty(obj, "wrap", wrap.toJsObject(scope), READONLY)
         ScriptableObject.defineProperty(obj, "optimize", optimize, READONLY)
         ScriptableObject.defineProperty(obj, "out", out.getPath, READONLY)

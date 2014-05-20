@@ -121,6 +121,7 @@ module.exports = (grunt) ->
         mainConfigFile: 'build/js/config.js'
         include: ['underscore', 'main']
         fileExclusionRegExp: /^test/
+        wrapShim: true
         wrap:
           startFile: 'src/js/_start.js.frag'
           endFile: 'src/js/_end.js.frag'
