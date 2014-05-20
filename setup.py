@@ -21,7 +21,7 @@ import shutil
 import site
 import subprocess
 import sys
-from distutils.core import setup
+from setuptools import setup
 from os.path import abspath, exists, join, dirname
 
 # Our own imports
@@ -190,7 +190,7 @@ if '--build_js' in sys.argv:
     build_js = True
     try:
         print("building bokehjs...")
-        out = subprocess.check_output(['grunt', 'deploy'])
+        out = subprocess.check_output([join('node_modules', '.bin', 'grunt'), 'deploy'])
         sys.argv.remove('--build_js')
     except subprocess.CalledProcessError:
         print("ERROR: could not build bokehjs")

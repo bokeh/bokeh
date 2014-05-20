@@ -9,7 +9,7 @@ conda install --yes --force -c wakari grunt-cli
 ls
 pushd bokehjs
 ls
-npm --loglevel warn install -g
+npm install
 popd
 
 $PYTHON setup.py install --build_js --single-version-externally-managed --record=record.txt

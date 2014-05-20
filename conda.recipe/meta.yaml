@@ -9,6 +9,7 @@ requirements:
   build:
     - python
     - distribute
+    - setuptools
 
   run:
     - python
