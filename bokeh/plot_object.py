@@ -54,10 +54,15 @@ class Viewable(MetaHasProps):
         return newcls
 
     @classmethod
+    def _preload_models(cls):
+        from . import objects, widgetobjects
+
+    @classmethod
     def get_class(cls, view_model_name):
         """ Given a __view_model__ name, returns the corresponding class
         object
         """
+        cls._preload_models()
         d = Viewable.model_class_reverse_map
         if view_model_name in d:
             return d[view_model_name]
