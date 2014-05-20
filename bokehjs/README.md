@@ -1,5 +1,5 @@
-BokehJS
-=======
+<img src="http://i.imgur.com/TMKcgIV.png" width="35" height="35"> BokehJS
+=========================================================================
 
 BokehJS is a front-end library for [Bokeh](http://github.com/ContinuumIO/bokeh).
 
