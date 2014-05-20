@@ -361,13 +361,16 @@ class Session(object):
         """
 
         json_objs = self.pull()
+        plot_contexts = [x for x in json_objs if x['type'] == 'PlotContext']
+        other_objects = [x for x in json_objs if x['type'] != 'PlotContext']
+        plot_context_json = plot_contexts[0]
+        plot_context_json['attributes']['children'] += [x.get_ref() for x in doc._plotcontext.children]
 
-        # hugo : I don't like this
-        new_doc = doc.__class__(json_objs=json_objs)
-        merge(new_doc, doc)
-        doc.__dict__.update(new_doc.__dict__)
         doc.docid = self.docid
-
+        doc._plotcontext._id = plot_context_json['id']
+        doc.load(plot_context_json, *other_objects)
+        
+        
     def store_document(self, doc, dirty_only=True):
         """higher level function for storing a doc on the server
         """

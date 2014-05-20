@@ -116,7 +116,8 @@ if __name__ == "__main__":
 
     try:
         while True:
-            session.pull()
+            session.load_document(document)
+            print 
             time.sleep(0.1)
     except KeyboardInterrupt:
         print()
