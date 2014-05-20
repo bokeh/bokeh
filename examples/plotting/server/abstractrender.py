@@ -3,6 +3,7 @@ from bokeh.plotting import *
 from bokeh.objects import Range1d, ServerDataSource
 
 import bokeh.transforms.ar_downsample as ar
+from bokeh.transforms import line_downsample
 
 """
 In order to run this example, you have to execute
@@ -14,21 +15,24 @@ In addition, you must install ArrayManagement from this branch (soon to be maste
 https://github.com/ContinuumIO/ArrayManagement
 """
 output_server("Abstract rendering")
-source = ServerDataSource(data_url="/defaultuser/AAPL.hdf5", owner_username="defaultuser")
+#source = ServerDataSource(data_url="/defaultuser/AAPL.hdf5", owner_username="defaultuser")
+source = line_downsample.source(data_url="/defaultuser/AAPL.hdf5", 
+                                owner_username="defaultuser",
+                               domain='x')
 
 
-#plot = square('date','close',color='#FF00FF',source=source)
+plot = square('volume','close',color='#FF00FF',source=source)
 #spec = ar.glyphspec('date','close',color='#FF00FF',source=source)
 
 # Simple heat-map: bin the counts
-heatmap =ar.source(source, 'volume', 'close')
+heatmap =ar.source(plot, 'volume', 'close')
 #heatmap = ar.Resample(glyphs=spec)  #Temporary...until we work out chaining...
 #heatmap = ar.Resample(glyphs=plot, agg=ar.Count(), info=ar.Const(1), select=ar.Touches(), shader=ar.Interpolate(0,9)+ar.Floor())
 #heatmap = ar.Resample(glyphs=plot, shader=ar.Interpolate(0,9) + ar.Floor())
 #heatmap = ar.Resample(glyphs=plot) + ar.Interpolate(0,9) + ar.Floor()
 image(source=heatmap, image="image", x='x', y='y', dw='dw', dh='dh', palette=["reds-9"],
-    x_range=Range1d(start=0, end=100), 
-    y_range=Range1d(start=0, end=100))
+    x_range=Range1d(start=0, end=520), 
+    y_range=Range1d(start=0, end=520))
 #
 #
 ###Perceptually corrected heat-map.  Cube-root then bin

@@ -40,9 +40,14 @@ class Id(Proxy):
     return general.Id()
 
 
-###TODO: Get the x/y/shape/etc from a glyphspec (also to derive guides)
-def source(datasource, x, y, shape='square', **kwargs):
-  #Transfer raw source information
+#TODO: Pass the 'rend' defintiion through (minus the data_source references), unpack in 'downsample' instead of here...
+def source(plot, x, y, shape='square', **kwargs):
+  #Acquire information from renderer...
+  rend = [r for r in plot.renderers if isinstance(r, Glyph)][0]
+  xcol = rend.glyph.x['field']
+  ycol = rend.glyph.y['field']
+  size = rend.glyph.size['default'] ##TODO: Will not work for data-derived sizes...
+  datasource = rend.server_data_source
   kwargs['data_url'] = datasource.data_url
   kwargs['owner_username'] = datasource.owner_username
   
@@ -66,8 +71,9 @@ def source(datasource, x, y, shape='square', **kwargs):
                'aggregator': Count().serialize(),
                'info': Const().serialize(),
                'shader': shader.serialize(),
-               'x' : x,
-               'y' : y,
+               'x' : xcol,
+               'y' : ycol,
+               'size' : size,
                'shape' : shape}
 
   kwargs['transform'] = transform
@@ -79,20 +85,23 @@ def downsample(data, transform, plot_size):
   info = globals()[transform['info']['name']]().reify()
   #select = globals()[transform['select']]()
   shader = globals()[transform['shader']['name']]().reify()
+  size = transform['size']
+
 
   ###Translate the resample paramteres to server-side rendering....
   ###TODO: Actual access routine varies depending on the input data type... 
   table = data.select(columns=[transform['x'], transform['y']])
   xcol = table[transform['x']]
   ycol = table[transform['y']]
- 
-
+    
   glyphs = ar.Glyphset()
   glyphs.shapecode = _shapecode(transform['shape'])
   for (x,y) in zip(xcol, ycol):
-    glyphs.append(ar.Glyph(x,y,1,1))  #TODO: This copy is...unfortunate.  AR needs to just take the zip iterator....
+    #TODO: This copy is...unfortunate.  AR needs to just take the zip iterator....
+    glyphs.append(ar.Glyph(x,y,size,size))  
 
-  ivt = ar.zoom_fit(plot_size, ar.bounds(glyphs))  #TODO: Derive transform from passed parameters
+  bounds = ar.bounds(glyphs)
+  ivt = ar.zoom_fit(plot_size, bounds)  #TODO: Derive transform from passed parameters
   image = ar.render(glyphs, info, agg, shader, plot_size, ivt)
  
   #import numpy as np
