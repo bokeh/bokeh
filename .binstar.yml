@@ -5,6 +5,7 @@ platform:
 
 engine:
    - python=2
+   - python=3
 
 before_script:
   - python -V
