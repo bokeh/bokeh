@@ -1,0 +1,39 @@
+package:
+  name: bokeh
+  version: 'nightly'
+
+build:
+  number: {{environ.get('BINSTAR_BUILD', 1)}}
+
+source:
+  git_url: git@github.com:quasiben/bokeh.git
+  git_tag: feature/CI
+
+requirements:
+  build:
+    - python
+  run:
+    - python
+    - numpy
+    - gevent-websocket       [py2k]
+    - flask
+    - pandasi
+    - six
+    - pyyaml
+    - requests
+
+test:
+  requires:
+    - mock
+    - nose
+    - gevent_zeromq          [py2k]
+    - zeromq
+    - pyzmq
+  commands:
+    - bokeh-server -h        [linux64 or osx]
+  imports:
+    - bokeh
+
+about:
+  home: https://github.com/ContinuumIO/Bokeh
+  license: New BSD
