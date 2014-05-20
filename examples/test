@@ -51,9 +51,11 @@ parser.add_argument("-D", "--no-dev", dest="dev", action="store_false", default=
                     help="don't use development JavaScript and CSS files")
 args = parser.parse_args()
 
-DEFAULT_NO_DEV = os.environ.get('BOKEH_DEFAULT_NO_DEV', False)
-if DEFAULT_NO_DEV:
+DEFAULT_NO_DEV = os.environ.get('BOKEH_DEFAULT_NO_DEV', 'false')
+if DEFAULT_NO_DEV.lower() in ["true", "yes", "on", "1"]:
     args.dev = False
+elif DEFAULT_NO_DEV.lower() not in ["false", "no", "off", "0"]:
+    raise ValueError("unexpected value for BOKEH_DEFAULT_NO_DEV environmental variable, %s" % DEFAULT_NO_DEV)
 
 def is_selected(example):
     if not args.patterns:
