@@ -24,8 +24,9 @@ def get_data(username, data_url):
     bokehuser = bokeh_app.authentication.current_user()
     request_username = bokehuser.username
     #handle docid later...
-    data_parameters = json.loads(request.values.get('resample_parameters'))
-    result = bokeh_app.datamanager.get_data(request_username, None, data_url, data_parameters)
+    parameters = json.loads(request.values.get('resample_parameters'))
+    plot_size = json.loads(request.values.get('plot_size'))
+    result = bokeh_app.datamanager.get_data(request_username, None, data_url, parameters, plot_size)
     result = make_json(protocol.serialize_json(result))
     return result
 

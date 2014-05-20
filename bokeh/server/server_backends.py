@@ -445,11 +445,11 @@ class HDF5DataBackend(AbstractDataBackend):
         return result
 
     def heatmap_downsample(self, request_username, request_docid, data_url, 
-                          data_parameters):
+                           parameters, plot_size):
         dataset = self.client[data_url].node
         (global_x_range, global_y_range, global_offset_x, global_offset_y,
-         x_bounds, y_bounds, x_resolution, y_resolution,
-         index_slice, data_slice, transpose, input_params) = data_parameters
+         x_bounds, y_bounds, index_slice, data_slice, transpose, input_params) = parameters
+        (x_resolution, y_resolution) = plot_size
 
         if data_slice:
             #not supported for z yet...
@@ -479,22 +479,21 @@ class HDF5DataBackend(AbstractDataBackend):
         output['dh'] = [result['dh']]
         return output
 
-    def get_data(self, request_username, request_docid, data_url, resample_parameters): 
-        resample_params = resample_parameters[-1]
-        resample_op = resample_params['resample'] 
+    def get_data(self, request_username, request_docid, data_url, parameters, plot_size): 
+        resample_op = parameters[-1]['resample'] 
 
         if resample_op == 'line1d':
             return self.line1d_downsample(
                 request_username, request_docid, data_url, 
-                resample_parameters)
+                parameters)
         elif resample_op == 'heatmap':
             return self.heatmap_downsample(
                 request_username, 
                 request_docid, data_url, 
-                resample_parameters)
+                parameters, plot_size)
         elif resample_op == 'abstract rendering':
           dataset = self.client[data_url]
-          result = ar_downsample.downsample(dataset, resample_params)
+          result = ar_downsample.downsample(dataset, parameters[-1], plot_size)
           return result
         else:
           raise ValueError("Unknown resample op '{}'".format(resample_op))

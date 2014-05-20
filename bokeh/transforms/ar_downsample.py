@@ -73,8 +73,7 @@ def source(datasource, x, y, shape='square', **kwargs):
   kwargs['transform'] = transform
   return ServerDataSource(**kwargs)
 
-def downsample(data, transform):
-  screen = (100,100) #TODO: Derive from passed parameters
+def downsample(data, transform, plot_size):
 
   agg = globals()[transform['aggregator']['name']]().reify()
   info = globals()[transform['info']['name']]().reify()
@@ -93,12 +92,12 @@ def downsample(data, transform):
   for (x,y) in zip(xcol, ycol):
     glyphs.append(ar.Glyph(x,y,1,1))  #TODO: This copy is...unfortunate.  AR needs to just take the zip iterator....
 
-  ivt = ar.zoom_fit(screen, ar.bounds(glyphs))  #TODO: Derive transform from passed parameters
-  image = ar.render(glyphs, info, agg, shader, screen, ivt)
+  ivt = ar.zoom_fit(plot_size, ar.bounds(glyphs))  #TODO: Derive transform from passed parameters
+  image = ar.render(glyphs, info, agg, shader, plot_size, ivt)
  
   #import numpy as np
   #image._aggregates = np.random.randint(10, size=image._aggregates.shape)
-
+  #import pdb; pdb.set_trace()
   return {'image': [image._aggregates],
           'x': [0],
           'y': [0],

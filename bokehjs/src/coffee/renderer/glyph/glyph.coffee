@@ -7,8 +7,7 @@ define [
 ], (_, HasParent, PlotWidget, Properties) ->
 
   class GlyphView extends PlotWidget
-    
-    
+ 
     #TODO: There are glyph sub-type-vs-resample_op concordance issues...
     setup_server_data : () ->
       serversource = @mget_obj('server_data_source')
@@ -19,12 +18,16 @@ define [
       @set_data(false)
 
       transform_params = serversource.attributes['transform']
-      resample_op = transform_params['resample']
+      resample_op = transform_params['resample']  
+      x_range = @plot_view.view_state.get('inner_range_horizontal')
+      y_range = @plot_view.view_state.get('inner_range_vertical')
+
       if (resample_op == 'line1d')
         domain = transform_params['domain']
         if domain == 'x'
           serversource.listen_for_line1d_updates(
             @mget_obj('data_source'),
+            x_range,  y_range,
             @plot_view.x_range,
             @plot_view.view_state.get('inner_range_horizontal'),
             @glyph_props.y.field,
@@ -37,19 +40,17 @@ define [
       else if (resample_op == 'heatmap')
         serversource.listen_for_heatmap_updates(
            @mget_obj('data_source'),
+           x_range,  y_range,
            @plot_view.x_range,
            @plot_view.y_range,
-           @plot_view.view_state.get('inner_range_horizontal'),
-           @plot_view.view_state.get('inner_range_vertical'),
            transform_params
         )
       else if (resample_op == 'abstract rendering')
         serversource.listen_for_ar_updates(
            @mget_obj('data_source'), 
+           x_range,  y_range,
            @plot_view.x_range,
            @plot_view.y_range,
-           @plot_view.view_state.get('inner_range_horizontal'),
-           @plot_view.view_state.get('inner_range_vertical'),
            transform_params)
       else
         throw new Error("Unkonwn resample op '#{resample_op}'")
