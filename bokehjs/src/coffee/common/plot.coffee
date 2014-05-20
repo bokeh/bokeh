@@ -21,7 +21,7 @@ define [
   text_properties = Properties.text_properties
 
   LEVELS = ['image', 'underlay', 'glyph', 'overlay', 'annotation', 'tool']
-	pan_value = {}
+  pan_value = {} 
   delay_animation = (f) ->
     return f()
 
