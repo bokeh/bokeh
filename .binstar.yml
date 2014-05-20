@@ -1,4 +1,4 @@
-package: bokeh
+package: bokeh_nightly
 
 platform:
   - linux-64
@@ -12,7 +12,7 @@ before_script:
 script: |
   conda build conda.recipe;
   mkdir -p dist_osx dist_win;
-  mkdir -p /opt/anaconda/conda-bld/win-64 /opt/anaconda/conda-bld/osx-64 ;
+  mkdir -p /opt/anaconda/conda-bld/win-64 /opt/anaconda/conda-bld/osx-64;
   conda convert -o dist_win -p win-64 -f /opt/anaconda/conda-bld/linux-64/bokeh*.tar.bz2;
   filename=`ls dist_win/bokeh*.tar.bz2 | xargs -n 1 basename`;
   echo $filename;
