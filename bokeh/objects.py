@@ -432,10 +432,10 @@ class Tool(PlotObject):
     plot = Instance(Plot)
 
 class PanTool(Tool):
-    dimensions = List(Enum(Dimension))
+    dimensions = List(Enum(Dimension), default=["width", "height"])
 
 class WheelZoomTool(Tool):
-    dimensions = List(Enum(Dimension))
+    dimensions = List(Enum(Dimension), default=["width", "height"])
 
 class PreviewSaveTool(Tool):
     pass
