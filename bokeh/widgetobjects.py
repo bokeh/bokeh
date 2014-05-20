@@ -1,6 +1,6 @@
 import six
 from .plot_object import PlotObject
-#from .objects import DataSource
+from .objects import Widget, DataSource
 from .properties import (HasProps, Dict, Enum, Either, Float, Instance, Int, List,
     String, Color, Include, Bool, Tuple, Any, Date, RelativeDelta, lookup_descriptor)
 from .pivot_table import pivot_table
@@ -9,9 +9,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 import pandas as pd
-
-class Widget(PlotObject):
-    pass
 
 class Panel(Widget):
     title = String
@@ -214,16 +211,14 @@ class TableColumn(Widget):
     strict = Bool(True)   # only 'autocomplete'
 
 class HandsonTable(TableWidget):
-    #source = Instance(DataSource)
-    source = Instance(".objects.DataSource")
+    source = Instance(DataSource)
     columns = List(Instance(TableColumn))
 
 class ObjectExplorer(Widget):
     data_widget = Instance(TableWidget)
 
 class DataTable(Widget):
-    #source = Instance(DataSource)
-    source = Instance(".objects.DataSource")
+    source = Instance(DataSource)
     sort = List(String)
     group = List(String)
     offset = Int(default=0)
@@ -272,8 +267,7 @@ class DataTable(Widget):
         self.tabledata = data
 
 class PivotTable(Widget):
-    #source = Instance(DataSource)
-    source = Instance(".objects.DataSource")
+    source = Instance(DataSource)
     title = String("Pivot Table")
     description = String("")
     data = Dict(String, Any)

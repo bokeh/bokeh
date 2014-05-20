@@ -17,7 +17,6 @@ from .mixins import LineProps, TextProps
 from .enums import BorderSymmetry, DatetimeUnits, Dimension, Location, Orientation, Units
 from .plot_object import PlotObject
 from .glyphs import BaseGlyph
-from .widgetobjects import *
 
 class DataSource(PlotObject):
     """ Base class for data sources """
@@ -235,6 +234,9 @@ class Glyph(Renderer):
                 props['nonselection_glyph'] = cls(**nonselection_glyphspec)
 
         return props
+
+class Widget(PlotObject):
+    pass
 
 class Plot(Widget):
     """ Object representing a plot, containing glyphs, guides, annotations.
