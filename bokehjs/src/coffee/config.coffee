@@ -21,5 +21,5 @@ require.config
             deps: ["numeral"]
             exports: "$.fn.handsontable"
         jqrangeslider:
-            deps: ["jquery_ui/core", "jquery_ui/widget", "jquery_mousewheel"]
+            deps: ["jquery_ui/core", "jquery_ui/widget", "jquery_ui/mouse", "jquery_mousewheel"]
             exports: "$.fn.rangeSlider"
