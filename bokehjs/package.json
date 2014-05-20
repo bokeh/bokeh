@@ -2,7 +2,7 @@
   "name": "bokehjs",
   "version": "0.4.4",
   "description": "Interactive, novel data visualization",
-  "keywords": ["bokeh", "datavis", "dataviz", "visualization", "plotting", "plot", "graph"]
+  "keywords": ["bokeh", "datavis", "dataviz", "visualization", "plotting", "plot", "graph"],
   "license": "BSD-3-Clause",
   "devDependencies": {
     "requirejs": "^2.1.11",
