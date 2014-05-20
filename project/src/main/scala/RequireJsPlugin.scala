@@ -94,8 +94,8 @@ class RequireJS(log: Logger) extends Rhino {
             result.errors.foreach(error => log.error(error.toString))
             sys.error(s"${result.errors.length} errors compiling $input")
         } else {
-            val warnings = result.warnings.filter(_.getType().key != "JSC_BAD_JSDOC_ANNOTATION")
-            warnings.foreach(warning => log.warn(warning.toString))
+            // val warnings = result.warnings.filter(_.getType().key != "JSC_BAD_JSDOC_ANNOTATION")
+            // warnings.foreach(warning => log.warn(warning.toString))
             IO.write(output, compiler.toSource)
             output
         }
