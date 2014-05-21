@@ -50,10 +50,15 @@ class Property(object):
         return cls()
 
     def matches(self, new, old):
+        # XXX: originally this code warned about not being able to compare values, but that
+        # doesn't make sense, because most comparisons involving numpy arrays will fail with
+        # ValueError exception, thus warning about inevitable.
         try:
             return new == old
+        except (KeyboardInterrupt, SystemExit):
+            raise
         except Exception as e:
-            logger.warning("could not compare %s and %s for property %s (Reason: %s)", new, old, self.name, e)
+            logger.debug("could not compare %s and %s for property %s (Reason: %s)", new, old, self.name, e)
         return False
 
     def transform(self, value):
