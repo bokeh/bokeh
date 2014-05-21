@@ -37,7 +37,11 @@ define [
       if row.length == 0
         return 0
       else
-        return _.max(_.map(row, ((x) -> return x.get(dim))))
+        return _.max(_.map(row, (x) ->
+          if x?
+            return x.get(dim)
+          return 0
+        ))
 
     layout_heights: () =>
       row_heights = (@maxdim('outer_height',row) for row in @get('childviewstates'))

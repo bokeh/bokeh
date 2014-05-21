@@ -1,14 +1,11 @@
-@import (reference) "flexbox.less";
-@import (reference) "../vendor/bootstrap-3.1.1/less/forms.less";
-@import (reference) "../vendor/bootstrap-3.1.1/less/variables.less";
-@import (reference) "../vendor/bootstrap-3.1.1/less/mixins.less";
-    
+@import "bk.less";
+
 .bk-hbox{
-  .hbox;
+  .bk .hbox; 
 }
 
 .bk-vbox{
-  .vbox;
+  .bk .vbox;
 }
 
 .bk-widget-form{
@@ -16,11 +13,11 @@
   overflow : hidden;
 }
 .bk-widget-form-group{
-    .form-group
+    .bk .form-group;
 }
 
 .bk-widget-form-input{
-    .form-control
+    .bk .form-control;
 }
 
 .bk-slider-horizontal{
@@ -33,3 +30,5 @@
     min-height : 200px;
     width : 50px;
 }
+
+
