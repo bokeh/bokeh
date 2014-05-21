@@ -26,6 +26,7 @@ define [
 
     onSelect: (dateText, ui) =>
       @mset('value', new Date(dateText))
+      @model.save()
 
   class DatePicker extends HasProperties
     type: "DatePicker"
