@@ -25,9 +25,9 @@ from .mplexporter.renderers import Renderer
 from .mpl_helpers import (convert_dashes, delete_last_col, get_props_cycled,
                           is_ax_end, xkcd_line)
 from .objects import (BoxSelectionOverlay, BoxSelectTool, BoxZoomTool,
-                      ColumnDataSource, DataRange1d, Glyph, Grid, GridPlot,
-                      LinearAxis, PanTool, Plot, PreviewSaveTool, ResetTool,
-                      WheelZoomTool)
+                      ColumnDataSource, DataRange1d, DatetimeTickFormatter,
+                      DatetimeAxis, Glyph, Grid, GridPlot, LinearAxis, PanTool,
+                      Plot, PreviewSaveTool, ResetTool, WheelZoomTool)
 from .plotting import (curdoc, output_file, output_notebook, output_server,
                        show)
 
@@ -38,9 +38,10 @@ from .plotting import (curdoc, output_file, output_notebook, output_server,
 
 class BokehRenderer(Renderer):
 
-    def __init__(self, xkcd):
+    def __init__(self, pd_obj, xkcd):
         "Initial setup."
         self.fig = None
+        self.pd_obj = pd_obj
         self.xkcd = xkcd
         self.source = ColumnDataSource()
         self.xdr = DataRange1d()
@@ -101,8 +102,8 @@ class BokehRenderer(Renderer):
         self.grid = ax.get_xgridlines()[0]
 
         # Add axis
-        bxaxis = self.make_axis(ax.xaxis, 0)
-        byaxis = self.make_axis(ax.yaxis, 1)
+        bxaxis = self.make_axis(ax.xaxis, 0, props['xscale'])
+        byaxis = self.make_axis(ax.yaxis, 1, props['yscale'])
 
         # Add grids
         self.make_grid(bxaxis, 0)
@@ -140,7 +141,12 @@ class BokehRenderer(Renderer):
 
     def draw_line(self, data, coordinates, style, label, mplobj=None):
         "Given a mpl line2d instance create a Bokeh Line glyph."
-        x = data[:, 0]
+        # If there is a pandas object available, uses obj.index as x values
+        if self.pd_obj is not None:
+            x = self.pd_obj.index
+        else:
+            x = data[:, 0]
+
         y = data[:, 1]
         if self.xkcd:
             x, y = xkcd_line(x, y)
@@ -250,19 +256,26 @@ class BokehRenderer(Renderer):
     def draw_image(self, imdata, extent, coordinates, style, mplobj=None):
         pass
 
-    def make_axis(self, ax, dimension):
+    def make_axis(self, ax, dimension, scale):
         "Given a mpl axes instance, returns a Bokeh LinearAxis object."
         # TODO:
-        #  * handle `axis_date`, which treats axis as dates
         #  * handle log scaling
         #  * map `labelpad` to `major_label_standoff`
         #  * deal with minor ticks once BokehJS supports them
         #  * handle custom tick locations once that is added to bokehJS
-
-        laxis = LinearAxis(plot=self.plot,
-                           dimension=dimension,
-                           location="min",
-                           axis_label=ax.get_label_text())
+        if scale == "linear":
+            laxis = LinearAxis(plot=self.plot,
+                               dimension=dimension,
+                               location="min",
+                               axis_label=ax.get_label_text())
+        elif scale == "date":
+            #formatter = DatetimeTickFormatter(formats=dict(months=["%b %Y"]))
+            laxis = DatetimeAxis(plot=self.plot,
+                                 dimension=dimension,
+                                 location="min",
+                                 axis_label=ax.get_label_text(),
+                                 #formatter=formatter
+                                 )
 
         # First get the label properties by getting an mpl.Text object
         #label = ax.get_label()
@@ -380,7 +393,8 @@ class BokehRenderer(Renderer):
         patches.line_dash = list(convert_dashes(tuple(on_off)))
 
 
-def to_bokeh(fig=None, name=None, server=None, notebook=False, xkcd=False):
+def to_bokeh(fig=None, name=None, server=None, notebook=False, pd_obj=None,
+             xkcd=False):
     """ Uses bokeh to display a Matplotlib Figure.
 
     You can store a bokeh plot in a standalone HTML file, as a document in
@@ -406,6 +420,9 @@ def to_bokeh(fig=None, name=None, server=None, notebook=False, xkcd=False):
         Return an output value from this function which represents an HTML
         object that the IPython notebook can display. You can also use it with
         a bokeh plot server just specifying the URL.
+
+    pd_obj: pandas Series (default=None)
+        If you want to plot a pandas Series, you have to pass the Series itself.
 
     xkcd: bool (default=False)
         If this option is True, then the Bokeh figure will be saved with a
@@ -434,7 +451,7 @@ def to_bokeh(fig=None, name=None, server=None, notebook=False, xkcd=False):
 
     doc = curdoc()
 
-    renderer = BokehRenderer(xkcd)
+    renderer = BokehRenderer(pd_obj, xkcd)
     exporter = Exporter(renderer)
 
     exporter.run(fig)
