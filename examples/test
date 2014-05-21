@@ -116,6 +116,7 @@ add_examples("glyphs")
 add_examples("mpl")
 add_examples("ggplot")
 add_examples("seaborn")
+add_examples("pandas")
 
 add_examples(os.path.join("plotting", "file"), example_type=Flags.file, skip=["image.py", "image_rgba.py"])
 add_examples(os.path.join("plotting", "server"), example_type=Flags.server, skip=["image.py", "image_rgba.py", "remote_image.py", "serversource.py", "server_source_upload.py", "embedding_example.py"])
