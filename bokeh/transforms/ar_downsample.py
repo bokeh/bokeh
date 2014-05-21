@@ -18,41 +18,71 @@ logger = logging.getLogger(__file__)
 
 
 class Proxy(object):
+  def __init__(self, *args): pass
   def serialize(self):
-    return {"name":self.__class__.__name__}
+    return {'name':self.__class__.__name__, 'args':[]}
 
   def reify(self, **kwargs):
     raise Error("Unipmlemented")
 
 
+#### Aggregators -------------
+class Sum(Proxy): 
+  def __init__(self, *args): pass
+  def reify(self, **kwargs):
+    return numeric.Sum()
 
 class Count(Proxy): 
+  def __init__(self, *args): pass
   def reify(self, **kwargs):
     return numeric.Count()
 
+### Infos ---------
 class Const(Proxy):
+  def __init__(self, *vls):
+    self.val=vls[0]
+
   def reify(self, **kwargs):
-    return infos.const(1)
+    return infos.const(self.val)
+
+  def serialize(self):
+    return {'name':self.__class__.__name__, 'args':[self.val]}
+
+#### Transfers ---------
 
 class Id(Proxy): 
   out = "image"
+  def __init__(self, *args): pass
   def reify(self, **kwargs):
     return general.Id()
 
+class Interpolate(Proxy):
+  out = "image"
+  def __init__(self, *args): pass
+  def reify(self, **kwargs):
+    return numeric.Interpolate(kwargs['low'], kwargs['high'])
+
+class Sqrt(Proxy):
+  out = "image"
+  def __init__(self, *args): pass
+  def reify(self, **kwargs):
+    return numeric.Sqrt()
+
+class Cuberoot(Proxy):
+  out = "image"
+  def __init__(self, *args): pass
+  def reify(self, **kwargs):
+    return numeric.Cuberoot()
+
 
 #TODO: Pass the 'rend' defintiion through (minus the data_source references), unpack in 'downsample' instead of here...
-def source(plot, x, y, shape='square', **kwargs):
+def source(plot, agg=Count(), info=Const(1), shader=Id(), **kwargs):
   #Acquire information from renderer...
   rend = [r for r in plot.renderers if isinstance(r, Glyph)][0]
-  xcol = rend.glyph.x['field']
-  ycol = rend.glyph.y['field']
-  size = rend.glyph.size['default'] ##TODO: Will not work for data-derived sizes...
   datasource = rend.server_data_source
   kwargs['data_url'] = datasource.data_url
   kwargs['owner_username'] = datasource.owner_username
   
-  shader = Id()
-
   if (shader.out == "image"): 
     kwargs['data'] = {'x': [0], 
                       'y': [0],
@@ -67,46 +97,52 @@ def source(plot, x, y, shape='square', **kwargs):
   else: 
     raise ValueError("Can only work with image-shaders...for now")
 
+  spec = rend.vm_serialize()['glyphspec']
+
   transform = {'resample' : 'abstract rendering',
-               'aggregator': Count().serialize(),
-               'info': Const().serialize(),
+               'aggregator': agg.serialize(),
+               'info': info.serialize(),
                'shader': shader.serialize(),
-               'x' : xcol,
-               'y' : ycol,
-               'size' : size,
-               'shape' : shape}
+               'glyphspec': spec
+               }
 
   kwargs['transform'] = transform
   return ServerDataSource(**kwargs)
 
+
 def downsample(data, transform, plot_size):
+  def _reify(key):
+    return globals()[transform[key]['name']](*transform[key]['args']).reify()
 
-  agg = globals()[transform['aggregator']['name']]().reify()
-  info = globals()[transform['info']['name']]().reify()
-  #select = globals()[transform['select']]()
-  shader = globals()[transform['shader']['name']]().reify()
-  size = transform['size']
+  agg = _reify('aggregator')
+  info = _reify('info')
+  #select = globals()[transform['select']['name']](**transform['select'])
+  shader = _reify('shader') 
 
+  glyphspec = transform['glyphspec']
+  xcol = glyphspec['x']['field']
+  ycol = glyphspec['y']['field']
+  size = glyphspec['size']['default'] ##TODO: Will not work for data-derived sizes...
 
   ###Translate the resample paramteres to server-side rendering....
-  ###TODO: Actual access routine varies depending on the input data type... 
-  table = data.select(columns=[transform['x'], transform['y']])
-  xcol = table[transform['x']]
-  ycol = table[transform['y']]
+  table = data.select(columns=[xcol, ycol])
+  xcol = table[xcol]
+  ycol = table[ycol]
     
   glyphs = ar.Glyphset()
-  glyphs.shapecode = _shapecode(transform['shape'])
+  glyphs.shapecode = _shapecode(glyphspec['type'])
   for (x,y) in zip(xcol, ycol):
     #TODO: This copy is...unfortunate.  AR needs to just take the zip iterator....
+    #TODO: May also need something like 'implicit geometry' to handle data transformations...
     glyphs.append(ar.Glyph(x,y,size,size))  
 
   bounds = ar.bounds(glyphs)
   ivt = ar.zoom_fit(plot_size, bounds)  #TODO: Derive transform from passed parameters
   image = ar.render(glyphs, info, agg, shader, plot_size, ivt)
- 
-  #import numpy as np
-  #image._aggregates = np.random.randint(10, size=image._aggregates.shape)
-  #import pdb; pdb.set_trace()
+  
+  logger.info("Max %s ----------" % [image._aggregates.max()])
+  logger.info("Min %s ----------" % [image._aggregates.min()])
+
   return {'image': [image._aggregates],
           'x': [0],
           'y': [0],
