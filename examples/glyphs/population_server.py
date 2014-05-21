@@ -1,6 +1,6 @@
 from __future__ import print_function
 
-import sys
+import time
 from math import pi
 
 import requests
@@ -146,3 +146,12 @@ update_data()
 if __name__ == "__main__":
     link = session.object_link(document._plotcontext)
     print("Please visit %s to see the plots" % link)
+
+    try:
+        while True:
+            session.load_document(document)
+            time.sleep(0.5)
+    except KeyboardInterrupt:
+        print()
+    except ConnectionError:
+        print("Connection to bokeh-server was terminated")

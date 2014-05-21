@@ -3,9 +3,6 @@ from __future__ import print_function
 import sys
 import time
 
-import requests
-from requests.exceptions import ConnectionError
-
 import numpy as np
 import sympy as sy
 
@@ -117,8 +114,7 @@ if __name__ == "__main__":
     try:
         while True:
             session.load_document(document)
-            print 
-            time.sleep(0.1)
+            time.sleep(0.5)
     except KeyboardInterrupt:
         print()
     except ConnectionError:
