@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.collections import LineCollection
-from bokeh import pyplot
+from bokeh import mpl
 
 # Simulate a series of ocean current profiles, successively
 # offset by 0.1 m/s so that they form what is sometimes called
@@ -34,4 +34,4 @@ ax.set_title('Successive data offsets')
 
 fig = plt.gcf()
 
-pyplot.show_bokeh(name="lc_offsets")
+mpl.to_bokeh(name="lc_offsets")

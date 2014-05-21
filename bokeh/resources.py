@@ -81,7 +81,7 @@ class Resources(object):
 
             Only valid with the ``'cdn'`` mode
 
-        rootdir (str, optional) : root directory for loading BokehJS resources
+        root_dir (str, optional) : root directory for loading BokehJS resources
 
             Only valid with ``'relative'`` and ``'relative-dev'`` modes
 
@@ -123,14 +123,15 @@ class Resources(object):
     _default_js_files_dev = ['js/vendor/requirejs/require.js', 'js/config.js']
     _default_css_files_dev = ['css/bokeh-vendor.css', 'css/continuum.css', 'css/main.css']
 
-    _default_rootdir = "."
-    _default_url = "http://127.0.0.1:5006"
+    _default_root_dir = "."
+    _default_root_url = "http://127.0.0.1:5006"
+
     logo_url = "http://bokeh.pydata.org/_static/bokeh-transparent.png"
 
-    def __init__(self, mode='inline', version=None, rootdir=None,
+    def __init__(self, mode='inline', version=None, root_dir=None,
                  minified=True, root_url=None):
         self.mode = settings.resources(mode)
-        self.rootdir = settings.rootdir(rootdir)
+        self.root_dir = settings.rootdir(root_dir)
         self.version = settings.version(version)
         self.minified = settings.minified(minified)
         self._root_url = root_url
@@ -138,8 +139,8 @@ class Resources(object):
         if mode not in ['inline', 'cdn', 'server', 'server-dev', 'relative', 'relative-dev', 'absolute', 'absolute-dev']:
             raise ValueError("wrong value for 'mode' parameter, expected 'inline', 'cdn', 'server', 'server-dev', 'relative(-dev)' or 'absolute(-dev)', got %r" % self.mode)
 
-        if self.rootdir and not mode.startswith("relative"):
-            raise ValueError("setting 'rootdir' makes sense only when 'mode' is set to 'relative'")
+        if self.root_dir and not mode.startswith("relative"):
+            raise ValueError("setting 'root_dir' makes sense only when 'mode' is set to 'relative'")
 
         if self.version and not mode.startswith('cdn'):
             raise ValueError("setting 'version' makes sense only when 'mode' is set to 'cdn'")
@@ -165,10 +166,10 @@ class Resources(object):
             self.js_raw = _inline(js_paths)
             self.css_raw = _inline(css_paths)
         elif self.mode == "relative":
-            rootdir = self.rootdir or self._default_rootdir
-            self.js_files = [ relpath(p, rootdir) for p in js_paths ]
-            self.css_files = [ relpath(p, rootdir) for p in css_paths ]
-            base_url = relpath(base_url, rootdir)
+            root_dir = self.root_dir or self._default_root_dir
+            self.js_files = [ relpath(p, root_dir) for p in js_paths ]
+            self.css_files = [ relpath(p, root_dir) for p in css_paths ]
+            base_url = relpath(base_url, root_dir)
         elif self.mode == "absolute":
             self.js_files = list(js_paths)
             self.css_files = list(css_paths)
@@ -192,7 +193,7 @@ class Resources(object):
         if self._root_url:
             return self._root_url
         else:
-            return self._default_url
+            return self._default_root_url
 
     @property
     def conn_string(self):

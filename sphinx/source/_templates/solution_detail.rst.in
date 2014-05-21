@@ -8,12 +8,12 @@ solution
     <table>
       <tr>
         <td>
-        {{ embed_snippet }}
+        {{ embed_snippet|indent(8) }}
         </td>
       </tr>
     </table>
 
-.. literalinclude:: ../{{name}}.py
+.. literalinclude:: ../{{ name }}.py
    :language: python
    :linenos:
 
