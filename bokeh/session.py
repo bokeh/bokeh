@@ -14,6 +14,7 @@ except ImportError as e:
 from six.moves.urllib.parse import urljoin, urlencode
 from .exceptions import DataIntegrityException
 from .document import merge, Document
+from .embed import autoload_server
 from . import utils, browserlib
 from bokeh.objects import ServerDataSource
 import logging
@@ -405,6 +406,11 @@ class Session(object):
         """
         link = "/bokeh/doc/%s/%s" % (self.docid, obj._id)
         return utils.urljoin(self.base_url, link)
+
+    def show(self, plot_object):
+        """Display an object as HTML in IPython using its display protocol. """
+        import IPython.core.displaypub as displaypub
+        displaypub.publish_display_data('bokeh', {'text/html': autoload_server(plot_object, self)})
 
 class Cloud(Session):
     def __init__(self):
