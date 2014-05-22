@@ -121,16 +121,84 @@ del Settings
 from . import sampledata
 from .serverconfig import Server, Cloud
 
+def _print_versions():
+    """Returns all the versions of software that Bokeh relies on."""
+    import platform as pt
+    import sys
+
+    message = """
+    %s
+    Bokeh version: %s
+    %s
+    Python version: %s-%s-%s-%s
+    Python exec bin path: %s
+    %s
+    Platform: %s
+              %s
+    %s
+    """ % ("*" * 76, __version__, "-" * 76, pt.python_version(),
+           pt.python_implementation(), pt.python_build(), pt.python_compiler(),
+           sys.executable, "-" * 76, pt.platform(), pt.uname()[3], "*" * 76)
+    return(message)
+
 def print_versions():
     """Print all the versions of software that Bokeh relies on."""
-    import sys, platform
-    print("-=" * 38)
-    print("Bokeh version: %s" % __version__)
-    print("Python version: %s" % sys.version)
-    (sysname, nodename, release, version, machine, processor) = \
-        platform.uname()
-    print("Platform: %s-%s-%s (%s)" % (sysname, release, machine, version))
-    print("-=" * 38)
+    print(_print_versions())
+
+def report_bug(title, body=None, ghuser=None, ghpass=None):
+    """Opens a new Github issue programmatically and pass the
+    print_versions content into the body of the first comment.
+
+    Parameters
+    ----------
+
+    title: str
+        The Github issue title, you need to provide one.
+
+    body: str (default=None)
+        By default, `report_bug` adds the `print_versions` content
+        into the body of the first comment, but you can also pass
+        a string as an intro text for your first comment.
+
+    ghuser: str (default=None)
+        You can pass your Github username here. Optionally you can
+        add your GH username as an environment variable: GHUSER
+
+    ghpass: str (default=None)
+        You can pass your GitHub password here. Optionally you can
+        add your GH password as an environment variable: GHUSER
+    """
+
+    import requests
+    import json
+    import os
+    from urlparse import urljoin
+
+    if ghuser is None and ghpass is not None:
+        print("You need to provide your Github username.")
+        return
+    elif ghpass is None and ghuser is not None:
+        print("You need to provide your Github password.")
+        return
+    elif ghuser is None and ghpass is None:
+        print("We are reading GHUSER and GHPASS from the environment.")
+        ghuser, ghpass = (os.environ.get(x) for x in ["GHUSER", "GHPASS"])
+        if ghuser is None and ghpass is None:
+            print("You need to add your GHUSER and GHPASS to the environment "
+                  "or pass them as parameters.")
+            return
+
+    if body is None:
+        body = ""
+
+    base = "https://api.github.com"
+    url = "/".join(["repos", "ContinuumIO", "bokeh", "issues"])
+    issues_url = urljoin(base, url)
+    data = {"title": title, "body": body + "\n" + _print_versions()}
+    return requests.post(issues_url,
+                         auth=(ghuser, ghpass),
+                         headers={'Content-Type': 'application/json'},
+                         data=json.dumps(data))
 
 def test(verbosity=1, xunitfile=None, exit=False):
     """
