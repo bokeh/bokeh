@@ -137,20 +137,21 @@ def print_versions():
     """Print all the versions of software that Bokeh relies on."""
     print(_print_versions())
 
-def report_issue(browser=True, owner="ContinuumIO", repo="bokeh",
-                 versions=True):
+def report_issue(number=None , owner="ContinuumIO", repo="bokeh",
+                 versions=True, browser=True):
     """Opens a new Github issue programmatically.
 
     This "interactive" function will ask you for some minimal content
     to finally submit a new Github issue, adding essential info about
-    the current setup.
+    the current setup. You can also call it with one specific issue
+    number to add the essential info to an already opened issue.
 
     Parameters
     ----------
 
-    browser: bool (default=True)
-        After submitting the new issue, it opens the issue webpage in
-        your default web browser.
+    number: int (default=None)
+        The issue number if you want to add a new comment to an issue
+        already created.
 
     owner: str (default="ContinuumIO")
         The owner's repository name.
@@ -161,6 +162,10 @@ def report_issue(browser=True, owner="ContinuumIO", repo="bokeh",
     versions: bool (default=True)
         Adds the `_print_versions` content information at the end of
         the body text.
+
+    browser: bool (default=True)
+        After submitting the new issue, it opens the issue webpage in
+        your default web browser.
 
     Notes:
         * You can add the GHUSER (Github username) and
@@ -180,9 +185,11 @@ def report_issue(browser=True, owner="ContinuumIO", repo="bokeh",
     print("This is the Bokeh reporting engine.\n\n"
           "Please answer the next questions:")
 
-    title = raw_input('Write the title for the intended issue: ')  # Make it py3 compat
-
-    body = raw_input('Write the body for the intended issue: ')  # Make it py3 compat
+    if number is None:
+        title = raw_input('Write the title for the intended issue: ')  # Make it py3 compat
+        body = raw_input('Write the body for the intended issue: ')  # Make it py3 compat
+    else:
+        body = raw_input('Write your comment here: ')  # Make it py3 compat
 
     ghuser, ghpass = (os.environ.get(x) for x in ["GHUSER", "GHPASS"])
     if ghuser is None and ghpass is None:
@@ -202,26 +209,40 @@ def report_issue(browser=True, owner="ContinuumIO", repo="bokeh",
         return
 
     base = "https://api.github.com"
-    url = "/".join(["repos", owner, repo, "issues"])
-    issues_url = urljoin(base, url)
-    if versions:
-        data = {"title": title, "body": body + "\n" + _print_versions()}
+    if number is None:
+        url = "/".join(["repos", owner, repo, "issues"])
+        if versions:
+            data = {"title": title, "body": body + "\n" + _print_versions()}
+        else:
+            data = {"title": title, "body": body}
     else:
-        data = {"title": title, "body": body}
+        url = "/".join(["repos", owner, repo, "issues", str(number), "comments"])
+        if versions:
+            data = {"body": body + "\n" + _print_versions()}
+        else:
+            data = {"body": body}
+    issues_url = urljoin(base, url)
+
     print("\nPreview:\n")
     for label, content in sorted(data.items(), reverse=True):
         print('{0}: {1}'.format(label, content))
-    value = raw_input('Submit the intended issue? ')  # Make it py3 compat
+    value = raw_input('Submit the intended issue/comment? ')  # Make it py3 compat
     if value.lower() in ["true", "yes", "y", "on", "1"]:
         r = requests.post(issues_url,
                           auth=(ghuser, ghpass),
                           headers={'Content-Type': 'application/json'},
                           data=json.dumps(data))
         if r.status_code == 201:
-            print("Issue successfully submitted.")
             g = requests.get(issues_url)
-            if browser:
-                webbrowser.open_new(g.json()[0].get("html_url"))
+            if number is None:
+                print("Issue successfully submitted.")
+                if browser:
+                    webbrowser.open_new(g.json()[0].get("html_url"))
+            else:
+                print("Comment successfully submitted.")
+                g = requests.get(issues_url)
+                if browser:
+                    webbrowser.open_new(g.json()[-1].get("html_url"))
         else:
             print("Something failed, please check your GHUSER and GHPASS.")
     else:
