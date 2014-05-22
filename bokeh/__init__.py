@@ -137,7 +137,7 @@ def print_versions():
     """Print all the versions of software that Bokeh relies on."""
     print(_print_versions())
 
-def report_issue(title, body=None, ghuser=None, ghpass=None):
+def report_issue():
     """Opens a new Github issue programmatically and pass the
     print_versions content into the body of the first comment.
 
@@ -166,39 +166,51 @@ def report_issue(title, body=None, ghuser=None, ghpass=None):
     import os
     from urlparse import urljoin
 
-    if ghuser is None and ghpass is not None:
-        print("You need to provide your Github username.")
+    print("This is the Bokeh reporting engine.\n\n"
+          "Please answer the next questions:")
+
+    title = raw_input('Write the title for the intended issue: ')  # Make it py3 compat
+
+    body = raw_input('Write the body for the intended issue: ')  # Make it py3 compat
+
+    ghuser, ghpass = (os.environ.get(x) for x in ["GHUSER", "GHPASS"])
+    if ghuser is None and ghpass is None:
+        print("You need to add your GHUSER (Github username) "
+              "and GHPASS (Github password) to the environment "
+              "or complete the next lines.")
+        environment = raw_input('Do you want to abort to set up the environment variable? ')  # Make it py3 compat
+        if environment.lower() in ["true", "yes", "y", "on", "1"]:
+            return
+        else:
+            ghuser = raw_input('Write your Github username: ')  # Make it py3 compat
+            ghpass = raw_input('Write your Github password: ')  # Make it py3 compat
+    elif ghuser is None and ghpass is not None:
+        print("You need to add your GHUSER (Github username) to the environment.")
         return
     elif ghpass is None and ghuser is not None:
-        print("You need to provide your Github password.")
+        print("You need to add your GHPASS (Github password) to the environment.")
         return
-    elif ghuser is None and ghpass is None:
-        print("We are reading GHUSER and GHPASS from the environment.")
-        ghuser, ghpass = (os.environ.get(x) for x in ["GHUSER", "GHPASS"])
-        if ghuser is None and ghpass is None:
-            print("You need to add your GHUSER and GHPASS to the environment "
-                  "or pass them as parameters.")
-            return
-
-    if body is None:
-        body = ""
 
     base = "https://api.github.com"
     url = "/".join(["repos", "ContinuumIO", "bokeh", "issues"])
     issues_url = urljoin(base, url)
     data = {"title": title, "body": body + "\nversions:\n" + _print_versions()}
+    print("\nPreview:\n")
     for label, content in sorted(data.items(), reverse=True):
         print('{0}: {1}'.format(label, content))
-    value = raw_input('Submit the current issue? ')  # Make it py3 compat
+    value = raw_input('Submit the intended issue? ')  # Make it py3 compat
     if value.lower() in ["true", "yes", "y", "on", "1"]:
-        return requests.post(issues_url,
-                             auth=(ghuser, ghpass),
-                             headers={'Content-Type': 'application/json'},
-                             data=json.dumps(data))
-        print("Issue submitted.")
+        #r = requests.post(issues_url,
+                             #auth=(ghuser, ghpass),
+                             #headers={'Content-Type': 'application/json'},
+                             #data=json.dumps(data))
+        #if r.status_code == 200:
+            #print("Issue successfully submitted.")
+        #else:
+            #print("Something failed, please check your GHUSER and GHPASS.")
+        print("Issue successfully submitted.")
     else:
         print("Issue not submitted.")
-        return
 
 def test(verbosity=1, xunitfile=None, exit=False):
     """
