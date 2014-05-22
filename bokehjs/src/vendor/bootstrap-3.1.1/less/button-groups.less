@@ -3,19 +3,19 @@
 // --------------------------------------------------
 
 // Make the div behave like a button
-.btn-group,
-.btn-group-vertical {
+.bk-btn-group,
+.bk-btn-group-vertical {
   position: relative;
   display: inline-block;
-  vertical-align: middle; // match .btn alignment given font-size hack above
-  > .btn {
+  vertical-align: middle; // match .bk-btn alignment given font-size hack above
+  > .bk-btn {
     position: relative;
     float: left;
     // Bring the "active" button to the front
     &:hover,
     &:focus,
     &:active,
-    &.active {
+    &.bk-active {
       z-index: 2;
     }
     &:focus {
@@ -26,68 +26,68 @@
 }
 
 // Prevent double borders when buttons are next to each other
-.btn-group {
-  .btn + .btn,
-  .btn + .btn-group,
-  .btn-group + .btn,
-  .btn-group + .btn-group {
+.bk-btn-group {
+  .bk-btn + .bk-btn,
+  .bk-btn + .bk-btn-group,
+  .bk-btn-group + .bk-btn,
+  .bk-btn-group + .bk-btn-group {
     margin-left: -1px;
   }
 }
 
 // Optional: Group multiple button groups together for a toolbar
-.btn-toolbar {
+.bk-btn-toolbar {
   margin-left: -5px; // Offset the first child's margin
-  &:extend(.clearfix all);
+  &:extend(.bk-clearfix all);
 
-  .btn-group,
-  .input-group {
+  .bk-btn-group,
+  .bk-input-group {
     float: left;
   }
-  > .btn,
-  > .btn-group,
-  > .input-group {
+  > .bk-btn,
+  > .bk-btn-group,
+  > .bk-input-group {
     margin-left: 5px;
   }
 }
 
-.btn-group > .btn:not(:first-child):not(:last-child):not(.dropdown-toggle) {
+.bk-btn-group > .bk-btn:not(:first-child):not(:last-child):not(.bk-dropdown-toggle) {
   border-radius: 0;
 }
 
-// Set corners individual because sometimes a single button can be in a .btn-group and we need :first-child and :last-child to both match
-.btn-group > .btn:first-child {
+// Set corners individual because sometimes a single button can be in a .bk-btn-group and we need :first-child and :last-child to both match
+.bk-btn-group > .bk-btn:first-child {
   margin-left: 0;
-  &:not(:last-child):not(.dropdown-toggle) {
-    .border-right-radius(0);
+  &:not(:last-child):not(.bk-dropdown-toggle) {
+    .bk-border-right-radius(0);
   }
 }
-// Need .dropdown-toggle since :last-child doesn't apply given a .dropdown-menu immediately after it
-.btn-group > .btn:last-child:not(:first-child),
-.btn-group > .dropdown-toggle:not(:first-child) {
-  .border-left-radius(0);
+// Need .bk-dropdown-toggle since :last-child doesn't apply given a .bk-dropdown-menu immediately after it
+.bk-btn-group > .bk-btn:last-child:not(:first-child),
+.bk-btn-group > .bk-dropdown-toggle:not(:first-child) {
+  .bk-border-left-radius(0);
 }
 
 // Custom edits for including btn-groups within btn-groups (useful for including dropdown buttons within a btn-group)
-.btn-group > .btn-group {
+.bk-btn-group > .bk-btn-group {
   float: left;
 }
-.btn-group > .btn-group:not(:first-child):not(:last-child) > .btn {
+.bk-btn-group > .bk-btn-group:not(:first-child):not(:last-child) > .bk-btn {
   border-radius: 0;
 }
-.btn-group > .btn-group:first-child {
-  > .btn:last-child,
-  > .dropdown-toggle {
-    .border-right-radius(0);
+.bk-btn-group > .bk-btn-group:first-child {
+  > .bk-btn:last-child,
+  > .bk-dropdown-toggle {
+    .bk-border-right-radius(0);
   }
 }
-.btn-group > .btn-group:last-child > .btn:first-child {
-  .border-left-radius(0);
+.bk-btn-group > .bk-btn-group:last-child > .bk-btn:first-child {
+  .bk-border-left-radius(0);
 }
 
 // On active and open, don't show outline
-.btn-group .dropdown-toggle:active,
-.btn-group.open .dropdown-toggle {
+.bk-btn-group .bk-dropdown-toggle:active,
+.bk-btn-group.bk-open .bk-dropdown-toggle {
   outline: 0;
 }
 
@@ -96,47 +96,47 @@
 //
 // Remix the default button sizing classes into new ones for easier manipulation.
 
-.btn-group-xs > .btn { &:extend(.btn-xs); }
-.btn-group-sm > .btn { &:extend(.btn-sm); }
-.btn-group-lg > .btn { &:extend(.btn-lg); }
+.bk-btn-group-xs > .bk-btn { &:extend(.bk-btn-xs); }
+.bk-btn-group-sm > .bk-btn { &:extend(.bk-btn-sm); }
+.bk-btn-group-lg > .bk-btn { &:extend(.bk-btn-lg); }
 
 
 // Split button dropdowns
 // ----------------------
 
 // Give the line between buttons some depth
-.btn-group > .btn + .dropdown-toggle {
+.bk-btn-group > .bk-btn + .bk-dropdown-toggle {
   padding-left: 8px;
   padding-right: 8px;
 }
-.btn-group > .btn-lg + .dropdown-toggle {
+.bk-btn-group > .bk-btn-lg + .bk-dropdown-toggle {
   padding-left: 12px;
   padding-right: 12px;
 }
 
 // The clickable button for toggling the menu
 // Remove the gradient and set the same inset shadow as the :active state
-.btn-group.open .dropdown-toggle {
-  .box-shadow(inset 0 3px 5px rgba(0,0,0,.125));
+.bk-btn-group.bk-open .bk-dropdown-toggle {
+  .bk-box-shadow(inset 0 3px 5px rgba(0,0,0,.125));
 
-  // Show no shadow for `.btn-link` since it has no other button styles.
-  &.btn-link {
-    .box-shadow(none);
+  // Show no shadow for `.bk-btn-link` since it has no other button styles.
+  &.bk-btn-link {
+    .bk-box-shadow(none);
   }
 }
 
 
 // Reposition the caret
-.btn .caret {
+.bk-btn .bk-caret {
   margin-left: 0;
 }
 // Carets in other button sizes
-.btn-lg .caret {
+.bk-btn-lg .bk-caret {
   border-width: @caret-width-large @caret-width-large 0;
   border-bottom-width: 0;
 }
-// Upside down carets for .dropup
-.dropup .btn-lg .caret {
+// Upside down carets for .bk-dropup
+.bk-dropup .bk-btn-lg .bk-caret {
   border-width: 0 @caret-width-large @caret-width-large;
 }
 
@@ -144,10 +144,10 @@
 // Vertical button groups
 // ----------------------
 
-.btn-group-vertical {
-  > .btn,
-  > .btn-group,
-  > .btn-group > .btn {
+.bk-btn-group-vertical {
+  > .bk-btn,
+  > .bk-btn-group,
+  > .bk-btn-group > .bk-btn {
     display: block;
     float: none;
     width: 100%;
@@ -155,46 +155,46 @@
   }
 
   // Clear floats so dropdown menus can be properly placed
-  > .btn-group {
-    &:extend(.clearfix all);
-    > .btn {
+  > .bk-btn-group {
+    &:extend(.bk-clearfix all);
+    > .bk-btn {
       float: none;
     }
   }
 
-  > .btn + .btn,
-  > .btn + .btn-group,
-  > .btn-group + .btn,
-  > .btn-group + .btn-group {
+  > .bk-btn + .bk-btn,
+  > .bk-btn + .bk-btn-group,
+  > .bk-btn-group + .bk-btn,
+  > .bk-btn-group + .bk-btn-group {
     margin-top: -1px;
     margin-left: 0;
   }
 }
 
-.btn-group-vertical > .btn {
+.bk-btn-group-vertical > .bk-btn {
   &:not(:first-child):not(:last-child) {
     border-radius: 0;
   }
   &:first-child:not(:last-child) {
     border-top-right-radius: @border-radius-base;
-    .border-bottom-radius(0);
+    .bk-border-bottom-radius(0);
   }
   &:last-child:not(:first-child) {
     border-bottom-left-radius: @border-radius-base;
-    .border-top-radius(0);
+    .bk-border-top-radius(0);
   }
 }
-.btn-group-vertical > .btn-group:not(:first-child):not(:last-child) > .btn {
+.bk-btn-group-vertical > .bk-btn-group:not(:first-child):not(:last-child) > .bk-btn {
   border-radius: 0;
 }
-.btn-group-vertical > .btn-group:first-child:not(:last-child) {
-  > .btn:last-child,
-  > .dropdown-toggle {
-    .border-bottom-radius(0);
+.bk-btn-group-vertical > .bk-btn-group:first-child:not(:last-child) {
+  > .bk-btn:last-child,
+  > .bk-dropdown-toggle {
+    .bk-border-bottom-radius(0);
   }
 }
-.btn-group-vertical > .btn-group:last-child:not(:first-child) > .btn:first-child {
-  .border-top-radius(0);
+.bk-btn-group-vertical > .bk-btn-group:last-child:not(:first-child) > .bk-btn:first-child {
+  .bk-border-top-radius(0);
 }
 
 
@@ -202,25 +202,25 @@
 // Justified button groups
 // ----------------------
 
-.btn-group-justified {
+.bk-btn-group-justified {
   display: table;
   width: 100%;
   table-layout: fixed;
   border-collapse: separate;
-  > .btn,
-  > .btn-group {
+  > .bk-btn,
+  > .bk-btn-group {
     float: none;
     display: table-cell;
     width: 1%;
   }
-  > .btn-group .btn {
+  > .bk-btn-group .bk-btn {
     width: 100%;
   }
 }
 
 
 // Checkbox and radio options
-[data-toggle="buttons"] > .btn > input[type="radio"],
-[data-toggle="buttons"] > .btn > input[type="checkbox"] {
+[data-toggle="buttons"] > .bk-btn > input[type="radio"],
+[data-toggle="buttons"] > .bk-btn > input[type="checkbox"] {
   display: none;
 }

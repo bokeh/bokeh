@@ -4,26 +4,26 @@
 
 // Heads up!
 //
-// We don't use the `.opacity()` mixin here since it causes a bug with text
-// fields in IE7-8. Source: https://github.com/twitter/bootstrap/pull/3552.
+// We don't use the `.bk-opacity()` mixin here since it causes a bug with text
+// fields in IE7-8. Source: https://github.bk-com/twitter/bootstrap/pull/3552.
 
-.fade {
+.bk-fade {
   opacity: 0;
-  .transition(opacity .15s linear);
-  &.in {
+  .bk-transition(opacity .15s linear);
+  &.bk-in {
     opacity: 1;
   }
 }
 
-.collapse {
+.bk-collapse {
   display: none;
-  &.in {
+  &.bk-in {
     display: block;
   }
 }
-.collapsing {
+.bk-collapsing {
   position: relative;
   height: 0;
   overflow: hidden;
-  .transition(height .35s ease);
+  .bk-transition(height .35s ease);
 }

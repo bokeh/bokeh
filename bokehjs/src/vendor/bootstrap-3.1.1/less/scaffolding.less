@@ -7,13 +7,13 @@
 //
 // Heads up! This reset may cause conflicts with some third-party widgets.
 // For recommendations on resolving such conflicts, see
-// http://getbootstrap.com/getting-started/#third-box-sizing
+// http://getbootstrap.bk-com/getting-started/#third-box-sizing
 * {
-  .box-sizing(border-box);
+  .bk-box-sizing(border-box);
 }
 *:before,
 *:after {
-  .box-sizing(border-box);
+  .bk-box-sizing(border-box);
 }
 
 
@@ -56,7 +56,7 @@ a {
   }
 
   &:focus {
-    .tab-focus();
+    .bk-tab-focus();
   }
 }
 
@@ -78,32 +78,32 @@ img {
 }
 
 // Responsive images (ensure images don't scale beyond their parents)
-.img-responsive {
-  .img-responsive();
+.bk-img-responsive {
+  .bk-img-responsive();
 }
 
 // Rounded corners
-.img-rounded {
+.bk-img-rounded {
   border-radius: @border-radius-large;
 }
 
 // Image thumbnails
 //
-// Heads up! This is mixin-ed into thumbnails.less for `.thumbnail`.
-.img-thumbnail {
+// Heads up! This is mixin-ed into thumbnails.bk-less for `.bk-thumbnail`.
+.bk-img-thumbnail {
   padding: @thumbnail-padding;
   line-height: @line-height-base;
   background-color: @thumbnail-bg;
   border: 1px solid @thumbnail-border;
   border-radius: @thumbnail-border-radius;
-  .transition(all .2s ease-in-out);
+  .bk-transition(all .2s ease-in-out);
 
   // Keep them at most 100% wide
-  .img-responsive(inline-block);
+  .bk-img-responsive(inline-block);
 }
 
 // Perfect circle
-.img-circle {
+.bk-img-circle {
   border-radius: 50%; // set radius in percents
 }
 
@@ -120,9 +120,9 @@ hr {
 
 // Only display content to screen readers
 //
-// See: http://a11yproject.com/posts/how-to-hide-content/
+// See: http://a11yproject.bk-com/posts/how-to-hide-content/
 
-.sr-only {
+.bk-sr-only {
   position: absolute;
   width: 1px;
   height: 1px;

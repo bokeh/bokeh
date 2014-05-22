@@ -6,24 +6,24 @@
 // Base styles
 // --------------------------------------------------
 
-.btn {
+.bk-btn {
   display: inline-block;
-  margin-bottom: 0; // For input.btn
+  margin-bottom: 0; // For input.bk-btn
   font-weight: @btn-font-weight;
   text-align: center;
   vertical-align: middle;
   cursor: pointer;
-  background-image: none; // Reset unusual Firefox-on-Android default style; see https://github.com/necolas/normalize.css/issues/214
+  background-image: none; // Reset unusual Firefox-on-Android default style; see https://github.bk-com/necolas/normalize.bk-css/issues/214
   border: 1px solid transparent;
   white-space: nowrap;
-  .button-size(@padding-base-vertical; @padding-base-horizontal; @font-size-base; @line-height-base; @border-radius-base);
-  .user-select(none);
+  .bk-button-size(@padding-base-vertical; @padding-base-horizontal; @font-size-base; @line-height-base; @border-radius-base);
+  .bk-user-select(none);
 
   &,
   &:active,
-  &.active {
+  &.bk-active {
     &:focus {
-      .tab-focus();
+      .bk-tab-focus();
     }
   }
 
@@ -34,19 +34,19 @@
   }
 
   &:active,
-  &.active {
+  &.bk-active {
     outline: 0;
     background-image: none;
-    .box-shadow(inset 0 3px 5px rgba(0,0,0,.125));
+    .bk-box-shadow(inset 0 3px 5px rgba(0,0,0,.125));
   }
 
-  &.disabled,
+  &.bk-disabled,
   &[disabled],
   fieldset[disabled] & {
     cursor: not-allowed;
     pointer-events: none; // Future-proof disabling of clicks
-    .opacity(.65);
-    .box-shadow(none);
+    .bk-opacity(.65);
+    .bk-box-shadow(none);
   }
 }
 
@@ -54,27 +54,27 @@
 // Alternate buttons
 // --------------------------------------------------
 
-.btn-default {
-  .button-variant(@btn-default-color; @btn-default-bg; @btn-default-border);
+.bk-btn-default {
+  .bk-button-variant(@btn-default-color; @btn-default-bg; @btn-default-border);
 }
-.btn-primary {
-  .button-variant(@btn-primary-color; @btn-primary-bg; @btn-primary-border);
+.bk-btn-primary {
+  .bk-button-variant(@btn-primary-color; @btn-primary-bg; @btn-primary-border);
 }
 // Success appears as green
-.btn-success {
-  .button-variant(@btn-success-color; @btn-success-bg; @btn-success-border);
+.bk-btn-success {
+  .bk-button-variant(@btn-success-color; @btn-success-bg; @btn-success-border);
 }
 // Info appears as blue-green
-.btn-info {
-  .button-variant(@btn-info-color; @btn-info-bg; @btn-info-border);
+.bk-btn-info {
+  .bk-button-variant(@btn-info-color; @btn-info-bg; @btn-info-border);
 }
 // Warning appears as orange
-.btn-warning {
-  .button-variant(@btn-warning-color; @btn-warning-bg; @btn-warning-border);
+.bk-btn-warning {
+  .bk-button-variant(@btn-warning-color; @btn-warning-bg; @btn-warning-border);
 }
 // Danger and error appear as red
-.btn-danger {
-  .button-variant(@btn-danger-color; @btn-danger-bg; @btn-danger-border);
+.bk-btn-danger {
+  .bk-button-variant(@btn-danger-color; @btn-danger-bg; @btn-danger-border);
 }
 
 
@@ -82,7 +82,7 @@
 // -------------------------
 
 // Make a button look and behave like a link
-.btn-link {
+.bk-btn-link {
   color: @link-color;
   font-weight: normal;
   cursor: pointer;
@@ -93,7 +93,7 @@
   &[disabled],
   fieldset[disabled] & {
     background-color: transparent;
-    .box-shadow(none);
+    .bk-box-shadow(none);
   }
   &,
   &:hover,
@@ -121,23 +121,23 @@
 // Button Sizes
 // --------------------------------------------------
 
-.btn-lg {
+.bk-btn-lg {
   // line-height: ensure even-numbered height of button next to large input
-  .button-size(@padding-large-vertical; @padding-large-horizontal; @font-size-large; @line-height-large; @border-radius-large);
+  .bk-button-size(@padding-large-vertical; @padding-large-horizontal; @font-size-large; @line-height-large; @border-radius-large);
 }
-.btn-sm {
+.bk-btn-sm {
   // line-height: ensure proper height of button next to small input
-  .button-size(@padding-small-vertical; @padding-small-horizontal; @font-size-small; @line-height-small; @border-radius-small);
+  .bk-button-size(@padding-small-vertical; @padding-small-horizontal; @font-size-small; @line-height-small; @border-radius-small);
 }
-.btn-xs {
-  .button-size(@padding-xs-vertical; @padding-xs-horizontal; @font-size-small; @line-height-small; @border-radius-small);
+.bk-btn-xs {
+  .bk-button-size(@padding-xs-vertical; @padding-xs-horizontal; @font-size-small; @line-height-small; @border-radius-small);
 }
 
 
 // Block button
 // --------------------------------------------------
 
-.btn-block {
+.bk-btn-block {
   display: block;
   width: 100%;
   padding-left: 0;
@@ -145,7 +145,7 @@
 }
 
 // Vertically space out multiple block buttons
-.btn-block + .btn-block {
+.bk-btn-block + .bk-btn-block {
   margin-top: 5px;
 }
 
@@ -153,7 +153,7 @@
 input[type="submit"],
 input[type="reset"],
 input[type="button"] {
-  &.btn-block {
+  &.bk-btn-block {
     width: 100%;
   }
 }

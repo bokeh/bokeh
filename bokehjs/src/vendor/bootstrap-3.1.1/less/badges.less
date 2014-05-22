@@ -4,7 +4,7 @@
 
 
 // Base classes
-.badge {
+.bk-badge {
   display: inline-block;
   min-width: 10px;
   padding: 3px 7px;
@@ -24,18 +24,18 @@
   }
 
   // Quick fix for badges in buttons
-  .btn & {
+  .bk-btn & {
     position: relative;
     top: -1px;
   }
-  .btn-xs & {
+  .bk-btn-xs & {
     top: 0;
     padding: 1px 5px;
   }
 }
 
 // Hover state, but only for links
-a.badge {
+a.bk-badge {
   &:hover,
   &:focus {
     color: @badge-link-hover-color;
@@ -45,11 +45,11 @@ a.badge {
 }
 
 // Account for counters in navs
-a.list-group-item.active > .badge,
-.nav-pills > .active > a > .badge {
+a.bk-list-group-item.bk-active > .bk-badge,
+.bk-nav-pills > .bk-active > a > .bk-badge {
   color: @badge-active-color;
   background-color: @badge-active-bg;
 }
-.nav-pills > li > a > .badge {
+.bk-nav-pills > li > a > .bk-badge {
   margin-left: 3px;
 }
