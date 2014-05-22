@@ -1,5 +1,4 @@
-@import (reference) "../vendor/bootstrap-3.1.1/less/variables.less";
-@import (reference) "../vendor/bootstrap-3.1.1/less/mixins.less";
+@import (reference) "bootstrap.less";
 
 .bk-pivot {
     font-family: arial;
@@ -23,7 +22,7 @@
     }
 
     li {
-        .clearfix();
+        .bk-clearfix();
         padding: 5px;
         list-style-type: none;
     }
@@ -49,7 +48,7 @@
                 color: @gray-light;
             }
 
-            .close {
+            .bk-close {
                 font-size: 16px;
             }
         }
