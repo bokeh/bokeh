@@ -12,17 +12,19 @@ before_script:
 
 script: |
   conda build conda.recipe;
-  mkdir -p /opt/anaconda/conda-bld/win-64 /opt/anaconda/conda-bld/osx-64;
   ls -al;
+  mkdir -p /opt/anaconda/conda-bld/win-64 /opt/anaconda/conda-bld/osx-64;
   ls -al /opt/anaconda/conda-bld/*;
   conda convert -p win-64 -f /opt/anaconda/conda-bld/linux-64/bokeh*.tar.bz2;
   ls -al win-64;
   filename=`ls win-64/bokeh*.tar.bz2 | xargs -n 1 basename`;
+  conda convert -p win-64 -f /opt/anaconda/conda-bld/linux-64/bokeh*.tar.bz2;
   echo $filename;
   cp -r win-64/$filename /opt/anaconda/conda-bld/win-64/$filename;
   conda convert -p osx-64 -f /opt/anaconda/conda-bld/linux-64/bokeh*.tar.bz2;
   ls -al osx-64/;
   filename=`ls osx-64/bokeh*.tar.bz2 | xargs -n 1 basename`;
+  conda convert -p osx-64 -f /opt/anaconda/conda-bld/linux-64/bokeh*.tar.bz2;
   echo $filename
   cp -r osx-64/$filename /opt/anaconda/conda-bld/osx-64/$filename;
 
