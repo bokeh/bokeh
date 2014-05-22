@@ -1,4 +1,4 @@
-package: bokeh_nightly
+package: bokeh
 
 platform:
   - linux-64
