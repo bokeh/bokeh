@@ -1,10 +1,12 @@
 
 define [
   "underscore",
+  "jquery",
+  "bootstrap/modal",
   "backbone",
   "./tool",
   "./event_generators",
-], (_, Backbone, Tool, EventGenerators) ->
+], (_, $, $$1, Backbone, Tool, EventGenerators) ->
 
   ButtonEventGenerator = EventGenerators.ButtonEventGenerator
 
@@ -36,30 +38,15 @@ define [
       baseurl = @plot_model.get('baseurl')
 
       script_inject_escaped = escapeHTML(@plot_model.get('script_inject_snippet'))
-      modal = """
-        <div id="embedModal" class="bokeh">
-          <div  class="modal" role="dialog" aria-labelledby="embedLabel" aria-hidden="true">
-            <div class="modal-header">
-              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-              <h3 id="dataConfirmLabel"> HTML Embed code</h3></div><div class="modal-body">
-              <div class="modal-body">
-                #{script_inject_escaped}
-              </div>
-            </div>
-            <div class="modal-footer">
-              <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
-            </div>
-          </div>
-        </div>
-      """  #FIXME: this quote hack makes my text editor happy"
-      $('body').append(modal)
-      $('#embedModal > .modal').on('hidden', () =>
-        @plot_view.eventSink.trigger("clear_active_tool"))
-      $('#embedModal > .modal').modal({show:true});
-    
+
+      @$modal = $(object_explorer_template({script_inject_escaped: script_inject_escaped}))
+      $('body').append(@$modal)
+      @$modal.on 'hidden', () =>
+        @plot_view.eventSink.trigger("clear_active_tool")
+      @$modal.modal({show: true})
+
     _close_modal : () ->
-      $('#embedModal').remove()
-      $('#embedModal > .modal').remove()
+      @$modal.remove()
 
   class EmbedTool extends Tool.Model
      default_view: EmbedToolView
@@ -72,9 +59,9 @@ define [
       super()
 
   return {
-    "Model": EmbedTool,
-    "Collection": new EmbedTools(),
-    "View": EmbedToolView,
+    Model: EmbedTool,
+    Collection: new EmbedTools(),
+    View: EmbedToolView,
   }
 
 

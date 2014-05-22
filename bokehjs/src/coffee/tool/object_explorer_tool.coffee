@@ -1,12 +1,13 @@
 define [
   "underscore",
   "jquery",
-  "modal",
+  "bootstrap/modal",
   "backbone",
   "./tool",
   "./event_generators",
+  "./object_explorer_template",
   "widget/object_explorer",
-], (_, $, $$1, Backbone, Tool, EventGenerators, ObjectExplorer) ->
+], (_, $, $$1, Backbone, Tool, EventGenerators, object_explorer_template, ObjectExplorer) ->
 
   ButtonEventGenerator = EventGenerators.ButtonEventGenerator
 
@@ -23,32 +24,17 @@ define [
     }
 
     _activated: (e) ->
-      modal = $("""
-      <div id='objectExplorerModal' class='bokeh'>
-        <div class="modal" role="dialog" aria-labelledby="objectExplorerLabel" aria-hidden="true">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-            <h3 id="dataConfirmLabel">Object Explorer</h3>
-          </div>
-          <div class="modal-body">
-          </div>
-          <div class="modal-footer">
-            <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
-          </div>
-        </div>
-      </div>
-      """)
+      @$modal = $(object_explorer_template({}))
       @$object_explorer_view = new ObjectExplorer.View({
-        el: modal.find(".modal-body")
+        el: @$modal.find(".bk-modal-body")
       })
-      $('body').append(modal)
-      $('#objectExplorerModal .modal').on 'hidden', () =>
+      $('body').append(@$modal)
+      @$modal.on 'hidden', () =>
         @plot_view.eventSink.trigger("clear_active_tool")
-      $('#objectExplorerModal > .modal').modal({show: true})
+      @$modal.modal({show: true})
 
     _close_modal : () ->
-        $('#objectExplorerModal').remove()
-        $('#objectExplorerModal > .modal').remove()
+      @$modal.remove()
 
   class ObjectExplorerTool extends Tool.Model
     default_view: ObjectExplorerToolView
@@ -61,7 +47,7 @@ define [
     model: ObjectExplorerTool
 
   return {
-    "Model": ObjectExplorerTool,
-    "Collection": new ObjectExplorerTools(),
-    "View": ObjectExplorerToolView,
+    Model: ObjectExplorerTool,
+    Collection: new ObjectExplorerTools(),
+    View: ObjectExplorerToolView,
   }

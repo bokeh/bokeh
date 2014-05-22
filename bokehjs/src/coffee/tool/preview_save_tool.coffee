@@ -2,7 +2,7 @@
 define [
   "underscore",
   "jquery",
-  "modal",
+  "bootstrap/modal",
   "backbone",
   "common/bulk_save",
   "./tool",
