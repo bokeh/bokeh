@@ -1,6 +1,5 @@
 from __future__ import print_function
 
-import sys
 import time
 
 import numpy as np
@@ -11,6 +10,8 @@ from bokeh.widgetobjects import Slider, TextInput, HBox, VBox, Dialog
 from bokeh.glyphs import Patch, Line, Text
 from bokeh.document import Document
 from bokeh.session import Session
+
+from requests.exceptions import ConnectionError
 
 document = Document()
 session = Session()
