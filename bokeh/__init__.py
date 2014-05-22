@@ -137,7 +137,7 @@ def print_versions():
     """Print all the versions of software that Bokeh relies on."""
     print(_print_versions())
 
-def report_bug(title, body=None, ghuser=None, ghpass=None):
+def report_issue(title, body=None, ghuser=None, ghpass=None):
     """Opens a new Github issue programmatically and pass the
     print_versions content into the body of the first comment.
 
@@ -148,7 +148,7 @@ def report_bug(title, body=None, ghuser=None, ghpass=None):
         The Github issue title, you need to provide one.
 
     body: str (default=None)
-        By default, `report_bug` adds the `print_versions` content
+        By default, `report_issue` adds the `print_versions` content
         into the body of the first comment, but you can also pass
         a string as an intro text for your first comment.
 
@@ -186,11 +186,19 @@ def report_bug(title, body=None, ghuser=None, ghpass=None):
     base = "https://api.github.com"
     url = "/".join(["repos", "ContinuumIO", "bokeh", "issues"])
     issues_url = urljoin(base, url)
-    data = {"title": title, "body": body + "\n" + _print_versions()}
-    return requests.post(issues_url,
-                         auth=(ghuser, ghpass),
-                         headers={'Content-Type': 'application/json'},
-                         data=json.dumps(data))
+    data = {"title": title, "body": body + "\nversions:\n" + _print_versions()}
+    for label, content in sorted(data.items(), reverse=True):
+        print('{0}: {1}'.format(label, content))
+    value = raw_input('Submit the current issue? ')  # Make it py3 compat
+    if value.lower() in ["true", "yes", "y", "on", "1"]:
+        return requests.post(issues_url,
+                             auth=(ghuser, ghpass),
+                             headers={'Content-Type': 'application/json'},
+                             data=json.dumps(data))
+        print("Issue submitted.")
+    else:
+        print("Issue not submitted.")
+        return
 
 def test(verbosity=1, xunitfile=None, exit=False):
     """
