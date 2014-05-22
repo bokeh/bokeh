@@ -7,7 +7,8 @@ define [
   "common/bulk_save",
   "./tool",
   "./event_generators",
-], (_, $, $$1, Backbone, bulk_save, Tool, EventGenerators) ->
+  "./preview_save_tool_template",
+], (_, $, $$1, Backbone, bulk_save, Tool, EventGenerators, preview_save_tool_template) ->
 
   ButtonEventGenerator = EventGenerators.ButtonEventGenerator
 
@@ -16,40 +17,26 @@ define [
       super(options)
 
     eventGeneratorClass: ButtonEventGenerator
-    evgen_options: { buttonText:"Preview/Save" }
+    evgen_options: { buttonText: "Preview/Save" }
     toolType: "PreviewSaveTool"
     tool_events: {
-       activated: "_activated"
-       deactivated: "_close_modal"
+      activated: "_activated"
+      deactivated: "_close_modal"
     }
 
     _activated: (e) ->
       data_uri = @plot_view.canvas[0].toDataURL()
       @plot_model.set('png', @plot_view.canvas[0].toDataURL())
-      modal = """
-      <div id='previewModal' class='bokeh'>
-        <div class="modal" role="dialog" aria-labelledby="previewLabel" aria-hidden="true">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-            <h3 id="dataConfirmLabel">Image Preview (right click -> 'Save As' to save PNG)</h3>
-          </div>
-          <div class="modal-body">
-            <img src="#{data_uri}" style="max-height: 300px; max-width: 400px">
-          </div>
-          <div class="modal-footer">
-            <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
-          </div>
-        </div>
-      </div>
-      """ # hack to keep my text editor happy "
-      $('body').append(modal)
-      $('#previewModal .modal').on('hidden', () =>
+
+      @$modal = $(preview_save_tool_template({data_uri: data_uri}))
+      $('body').append(@$modal)
+
+      @$modal.on('hidden', () =>
         @plot_view.eventSink.trigger("clear_active_tool"))
-      $('#previewModal > .modal').modal({show:true});
+      @$modal.modal({show: true})
 
     _close_modal : () ->
-        $('#previewModal').remove()
-        $('#previewModal > .modal').remove()
+      @$modal.remove()
 
   class PreviewSaveTool extends Tool.Model
     default_view: PreviewSaveToolView
@@ -62,7 +49,7 @@ define [
     model: PreviewSaveTool
 
   return {
-    "Model": PreviewSaveTool,
-    "Collection": new PreviewSaveTools(),
-    "View": PreviewSaveToolView,
+    Model: PreviewSaveTool,
+    Collection: new PreviewSaveTools(),
+    View: PreviewSaveToolView,
   }
