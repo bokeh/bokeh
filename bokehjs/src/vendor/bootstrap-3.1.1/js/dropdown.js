@@ -13,36 +13,36 @@
   // DROPDOWN CLASS DEFINITION
   // =========================
 
-  var backdrop = '.dropdown-backdrop'
-  var toggle   = '[data-toggle=dropdown]'
+  var backdrop = '.bk-dropdown-backdrop'
+  var toggle   = '[data-bk-toggle=dropdown]'
   var Dropdown = function (element) {
-    $(element).on('click.bs.dropdown', this.toggle)
+    $(element).on('click.bk-bs.dropdown', this.toggle)
   }
 
   Dropdown.prototype.toggle = function (e) {
     var $this = $(this)
 
-    if ($this.is('.disabled, :disabled')) return
+    if ($this.is('.bk-disabled, :disabled')) return
 
     var $parent  = getParent($this)
-    var isActive = $parent.hasClass('open')
+    var isActive = $parent.hasClass('bk-open')
 
     clearMenus()
 
     if (!isActive) {
-      if ('ontouchstart' in document.documentElement && !$parent.closest('.navbar-nav').length) {
+      if ('ontouchstart' in document.documentElement && !$parent.closest('.bk-navbar-nav').length) {
         // if mobile we use a backdrop because click events don't delegate
-        $('<div class="dropdown-backdrop"/>').insertAfter($(this)).on('click', clearMenus)
+        $('<div class="bk-dropdown-backdrop"/>').insertAfter($(this)).on('click', clearMenus)
       }
 
       var relatedTarget = { relatedTarget: this }
-      $parent.trigger(e = $.Event('show.bs.dropdown', relatedTarget))
+      $parent.trigger(e = $.Event('show.bk-bs.dropdown', relatedTarget))
 
       if (e.isDefaultPrevented()) return
 
       $parent
-        .toggleClass('open')
-        .trigger('shown.bs.dropdown', relatedTarget)
+        .toggleClass('bk-open')
+        .trigger('shown.bk-bs.dropdown', relatedTarget)
 
       $this.focus()
     }
@@ -58,17 +58,17 @@
     e.preventDefault()
     e.stopPropagation()
 
-    if ($this.is('.disabled, :disabled')) return
+    if ($this.is('.bk-disabled, :disabled')) return
 
     var $parent  = getParent($this)
-    var isActive = $parent.hasClass('open')
+    var isActive = $parent.hasClass('bk-open')
 
     if (!isActive || (isActive && e.keyCode == 27)) {
       if (e.which == 27) $parent.find(toggle).focus()
       return $this.click()
     }
 
-    var desc = ' li:not(.divider):visible a'
+    var desc = ' li:not(.bk-divider):visible a'
     var $items = $parent.find('[role=menu]' + desc + ', [role=listbox]' + desc)
 
     if (!$items.length) return
@@ -87,15 +87,15 @@
     $(toggle).each(function () {
       var $parent = getParent($(this))
       var relatedTarget = { relatedTarget: this }
-      if (!$parent.hasClass('open')) return
-      $parent.trigger(e = $.Event('hide.bs.dropdown', relatedTarget))
+      if (!$parent.hasClass('bk-open')) return
+      $parent.trigger(e = $.Event('hide.bk-bs.dropdown', relatedTarget))
       if (e.isDefaultPrevented()) return
-      $parent.removeClass('open').trigger('hidden.bs.dropdown', relatedTarget)
+      $parent.removeClass('bk-open').trigger('hidden.bk-bs.dropdown', relatedTarget)
     })
   }
 
   function getParent($this) {
-    var selector = $this.attr('data-target')
+    var selector = $this.attr('data-bk-target')
 
     if (!selector) {
       selector = $this.attr('href')
@@ -116,9 +116,9 @@
   $.fn.dropdown = function (option) {
     return this.each(function () {
       var $this = $(this)
-      var data  = $this.data('bs.dropdown')
+      var data  = $this.data('bk-bs.dropdown')
 
-      if (!data) $this.data('bs.dropdown', (data = new Dropdown(this)))
+      if (!data) $this.data('bk-bs.dropdown', (data = new Dropdown(this)))
       if (typeof option == 'string') data[option].call($this)
     })
   }
@@ -139,9 +139,9 @@
   // ===================================
 
   $(document)
-    .on('click.bs.dropdown.data-api', clearMenus)
-    .on('click.bs.dropdown.data-api', '.dropdown form', function (e) { e.stopPropagation() })
-    .on('click.bs.dropdown.data-api', toggle, Dropdown.prototype.toggle)
-    .on('keydown.bs.dropdown.data-api', toggle + ', [role=menu], [role=listbox]', Dropdown.prototype.keydown)
+    .on('click.bk-bs.dropdown.data-api', clearMenus)
+    .on('click.bk-bs.dropdown.data-api', '.bk-dropdown form', function (e) { e.stopPropagation() })
+    .on('click.bk-bs.dropdown.data-api', toggle, Dropdown.prototype.toggle)
+    .on('keydown.bk-bs.dropdown.data-api', toggle + ', [role=menu], [role=listbox]', Dropdown.prototype.keydown)
 
 }(jQuery);

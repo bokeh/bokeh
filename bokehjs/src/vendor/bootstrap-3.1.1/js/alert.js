@@ -13,14 +13,14 @@
   // ALERT CLASS DEFINITION
   // ======================
 
-  var dismiss = '[data-dismiss="alert"]'
+  var dismiss = '[data-bk-dismiss="alert"]'
   var Alert   = function (el) {
     $(el).on('click', dismiss, this.close)
   }
 
   Alert.prototype.close = function (e) {
     var $this    = $(this)
-    var selector = $this.attr('data-target')
+    var selector = $this.attr('data-bk-target')
 
     if (!selector) {
       selector = $this.attr('href')
@@ -32,20 +32,20 @@
     if (e) e.preventDefault()
 
     if (!$parent.length) {
-      $parent = $this.hasClass('alert') ? $this : $this.parent()
+      $parent = $this.hasClass('bk-alert') ? $this : $this.parent()
     }
 
-    $parent.trigger(e = $.Event('close.bs.alert'))
+    $parent.trigger(e = $.Event('close.bk-bs.alert'))
 
     if (e.isDefaultPrevented()) return
 
-    $parent.removeClass('in')
+    $parent.removeClass('bk-in')
 
     function removeElement() {
-      $parent.trigger('closed.bs.alert').remove()
+      $parent.trigger('closed.bk-bs.alert').remove()
     }
 
-    $.support.transition && $parent.hasClass('fade') ?
+    $.support.transition && $parent.hasClass('bk-fade') ?
       $parent
         .one($.support.transition.end, removeElement)
         .emulateTransitionEnd(150) :
@@ -61,9 +61,9 @@
   $.fn.alert = function (option) {
     return this.each(function () {
       var $this = $(this)
-      var data  = $this.data('bs.alert')
+      var data  = $this.data('bk-bs.alert')
 
-      if (!data) $this.data('bs.alert', (data = new Alert(this)))
+      if (!data) $this.data('bk-bs.alert', (data = new Alert(this)))
       if (typeof option == 'string') data[option].call($this)
     })
   }
@@ -83,6 +83,6 @@
   // ALERT DATA-API
   // ==============
 
-  $(document).on('click.bs.alert.data-api', dismiss, Alert.prototype.close)
+  $(document).on('click.bk-bs.alert.data-api', dismiss, Alert.prototype.close)
 
 }(jQuery);

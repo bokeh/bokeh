@@ -19,18 +19,18 @@
 
   Tab.prototype.show = function () {
     var $this    = this.element
-    var $ul      = $this.closest('ul:not(.dropdown-menu)')
-    var selector = $this.data('target')
+    var $ul      = $this.closest('ul:not(.bk-dropdown-menu)')
+    var selector = $this.data('bk-target')
 
     if (!selector) {
       selector = $this.attr('href')
       selector = selector && selector.replace(/.*(?=#[^\s]*$)/, '') //strip for ie7
     }
 
-    if ($this.parent('li').hasClass('active')) return
+    if ($this.parent('li').hasClass('bk-active')) return
 
-    var previous = $ul.find('.active:last a')[0]
-    var e        = $.Event('show.bs.tab', {
+    var previous = $ul.find('.bk-active:last a')[0]
+    var e        = $.Event('show.bk-bs.tab', {
       relatedTarget: previous
     })
 
@@ -43,35 +43,35 @@
     this.activate($this.parent('li'), $ul)
     this.activate($target, $target.parent(), function () {
       $this.trigger({
-        type: 'shown.bs.tab',
+        type: 'shown.bk-bs.tab',
         relatedTarget: previous
       })
     })
   }
 
   Tab.prototype.activate = function (element, container, callback) {
-    var $active    = container.find('> .active')
+    var $active    = container.find('> .bk-active')
     var transition = callback
       && $.support.transition
-      && $active.hasClass('fade')
+      && $active.hasClass('bk-fade')
 
     function next() {
       $active
-        .removeClass('active')
-        .find('> .dropdown-menu > .active')
-        .removeClass('active')
+        .removeClass('bk-active')
+        .find('> .bk-dropdown-menu > .bk-active')
+        .removeClass('bk-active')
 
-      element.addClass('active')
+      element.addClass('bk-active')
 
       if (transition) {
         element[0].offsetWidth // reflow for transition
-        element.addClass('in')
+        element.addClass('bk-in')
       } else {
-        element.removeClass('fade')
+        element.removeClass('bk-fade')
       }
 
-      if (element.parent('.dropdown-menu')) {
-        element.closest('li.dropdown').addClass('active')
+      if (element.parent('.bk-dropdown-menu')) {
+        element.closest('li.bk-dropdown').addClass('bk-active')
       }
 
       callback && callback()
@@ -83,7 +83,7 @@
         .emulateTransitionEnd(150) :
       next()
 
-    $active.removeClass('in')
+    $active.removeClass('bk-in')
   }
 
 
@@ -95,9 +95,9 @@
   $.fn.tab = function ( option ) {
     return this.each(function () {
       var $this = $(this)
-      var data  = $this.data('bs.tab')
+      var data  = $this.data('bk-bs.tab')
 
-      if (!data) $this.data('bs.tab', (data = new Tab(this)))
+      if (!data) $this.data('bk-bs.tab', (data = new Tab(this)))
       if (typeof option == 'string') data[option]()
     })
   }
@@ -117,7 +117,7 @@
   // TAB DATA-API
   // ============
 
-  $(document).on('click.bs.tab.data-api', '[data-toggle="tab"], [data-toggle="pill"]', function (e) {
+  $(document).on('click.bk-bs.tab.data-api', '[data-bk-toggle="tab"], [data-bk-toggle="pill"]', function (e) {
     e.preventDefault()
     $(this).tab('show')
   })
