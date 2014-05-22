@@ -124,21 +124,13 @@ from .serverconfig import Server, Cloud
 def _print_versions():
     """Returns all the versions of software that Bokeh relies on."""
     import platform as pt
-    import sys
 
     message = """
-    %s
     Bokeh version: %s
-    %s
-    Python version: %s-%s-%s-%s
-    Python exec bin path: %s
-    %s
+    Python version: %s-%s
     Platform: %s
-              %s
-    %s
-    """ % ("*" * 76, __version__, "-" * 76, pt.python_version(),
-           pt.python_implementation(), pt.python_build(), pt.python_compiler(),
-           sys.executable, "-" * 76, pt.platform(), pt.uname()[3], "*" * 76)
+    """ % (__version__, pt.python_version(),
+           pt.python_implementation(), pt.platform())
     return(message)
 
 def print_versions():
