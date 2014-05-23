@@ -132,7 +132,8 @@ object ProjectBuild extends Build {
             log.info(s"Writing $vendorCss")
             IO.write(vendorCss, vendorOnly)
             log.info(s"Minifying $vendorMinCss")
-            minify(vendorCss, vendorMinCss)
+            // minify(vendorCss, vendorMinCss)
+            IO.write(vendorMinCss, vendorOnly)
 
             val bokehCss = cssDir / "bokeh.css"
             val bokehMinCss = cssDir / "bokeh.min.css"
@@ -140,7 +141,8 @@ object ProjectBuild extends Build {
             log.info(s"Writing $bokehCss")
             IO.write(bokehCss, vendorAndBokeh)
             log.info(s"Minifying $bokehMinCss")
-            minify(bokehCss, bokehMinCss)
+            // minify(bokehCss, bokehMinCss)
+            IO.write(bokehMinCss, vendorAndBokeh)
 
             Seq(vendorCss, vendorMinCss, bokehCss, bokehMinCss)
         } dependsOn (LessKeys.less in Compile),
