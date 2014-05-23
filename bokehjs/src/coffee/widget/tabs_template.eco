@@ -1,7 +1,7 @@
 <ul class="nav nav-tabs">
   <% for tab, i in @tabs: %>
     <li class="<%= @active(i) %>">
-      <a href="#tab-<%= tab.get('id') %>" data-toggle="tab"><%= tab.get('title') %></a>
+      <a href="#tab-<%= tab.get('id') %>"><%= tab.get('title') %></a>
     </li>
   <% end %>
 </ul>

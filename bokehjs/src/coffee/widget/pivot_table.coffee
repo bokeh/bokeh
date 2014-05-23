@@ -78,7 +78,7 @@ define [
 
     renderAdd: (exclude, handler) ->
       dropdown = $('<div class="dropdown pull-right"></div>')
-      button = $('<button class="btn btn-link btn-xs dropdown-toggle" data-toggle="dropdown">Add</button>')
+      button = $('<button class="btn btn-link btn-xs dropdown-toggle">Add</button>')
       dropdown.append([button.dropdown(), @renderFields(exclude, handler)])
       dropdown
 
@@ -107,7 +107,7 @@ define [
       menu.append(items)
       menu.click (event) => handler($(event.target).text())
       dropdown = $('<span class="dropdown"></span>')
-      button = $('<button class="btn btn-link btn-xs dropdown-toggle" data-toggle="dropdown"></button>')
+      button = $('<button class="btn btn-link btn-xs dropdown-toggle"></button>')
       text = if typeof(value) == 'number' then options[value] else value
       button.text(text)
       button.append('&nbsp;')
