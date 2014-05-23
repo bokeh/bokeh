@@ -1,4 +1,7 @@
 define [
+    "underscore",
+    "jquery",
+    "bootstrap/collapse",
     "common/base",
     "../serverutils",
     "common/continuum_view",
@@ -8,10 +11,10 @@ define [
     "common/has_parent",
     "common/build_views",
     "common/load_models",
-],  (base, serverutils, continuum_view,
+], (_, $, $1, base, serverutils, continuum_view,
     userdocstemplate, documentationtemplate,
-    wrappertemplate, HasParent, build_views, load_models
-    ) ->
+    wrappertemplate, HasParent, build_views, load_models) ->
+
   exports = {}
   ContinuumView = continuum_view.View
   utility = serverutils.utility
