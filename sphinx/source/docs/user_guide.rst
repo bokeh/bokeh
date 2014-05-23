@@ -361,6 +361,9 @@ JavaScript code that contains the data for your plot. This code should be
 saved to the script path you provided. The ``<script>`` tag will load this
 separate script to realize your plot.
 
+.. note:: In both cases the ``<script>`` tag loads a ``<div>`` in place, so
+it must be placed under ``<head>``.
+
 Animated Plots
 --------------
 
