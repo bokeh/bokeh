@@ -74,7 +74,7 @@ module.exports = (grunt) ->
           expand: true,        # enable dynamic expansion
           concat: false        # do not concatenate
           cwd: 'src/less',     # src matches are relative to this path
-          src: ['*.less'],     # actual pattern(s) to match
+          src: ['main.less'],  # actual pattern(s) to match
           dest: 'build/css',   # destination path prefix
           ext: '.css',         # dest filepaths will have this extension
           filter: hasChanged("less.development.files.0")
@@ -144,7 +144,6 @@ module.exports = (grunt) ->
           "build/js/vendor/jstree/dist/themes/default/style.min.css"
           "build/js/vendor/handsontable/jquery.handsontable.css"
           "build/js/vendor/jqrangeslider/classic.css"
-          "build/css/continuum.css"
           "build/css/main.css"
         ]
         dest: 'build/css/bokeh.css'

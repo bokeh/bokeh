@@ -58,7 +58,8 @@ object ProjectBuild extends Build {
     lazy val lessSettings = pluginLessSettings ++ Seq(
         sourceDirectory in (Compile, LessKeys.less) <<= (sourceDirectory in Compile)(_ / "less"),
         resourceManaged in (Compile, LessKeys.less) <<= (resourceManaged in Compile)(_ / "css"),
-        compile in Compile <<= compile in Compile dependsOn (LessKeys.less in Compile))
+        compile in Compile <<= compile in Compile dependsOn (LessKeys.less in Compile),
+        includeFilter in (Compile, LessKeys.less) := "main.less")
 
     lazy val ecoSettings = pluginEcoSettings ++ Seq(
         sourceDirectory in (Compile, EcoKeys.eco) <<= (sourceDirectory in Compile)(_ / "coffee"),
@@ -103,14 +104,10 @@ object ProjectBuild extends Build {
             IO.copy(toCopy, overwrite=true).toSeq
         },
         vendorStyles := List(
-            "bootstrap/bootstrap-bokeh-2.0.4.css",
-            "bootstrap-3.1.1/dist/css/bootstrap.css",
             "jstree/dist/themes/default/style.min.css",
             "handsontable/jquery.handsontable.css",
             "jqrangeslider/classic.css"),
-        bokehStyles := List(
-            "continuum.css",
-            "main.css"),
+        bokehStyles := List("main.css"),
         resourceGenerators in Compile <+= Def.task {
             def concat(files: Seq[File]): String =
                 files.map(file => IO.read(file)).mkString("\n")
