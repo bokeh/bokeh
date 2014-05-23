@@ -1,12 +1,16 @@
-<div  class="modal" role="dialog" aria-labelledby="embedLabel" aria-hidden="true">
-  <div class="modal-header">
-    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-    <h3 id="dataConfirmLabel"> HTML Embed code</h3></div><div class="modal-body">
-    <div class="modal-body">
-      <%= @script_inject_escaped %>
+<div class="modal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">HTML Embed code</h4>
+      </div>
+      <div class="modal-body">
+        <%= @script_inject_escaped %>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
     </div>
-  </div>
-  <div class="modal-footer">
-    <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
   </div>
 </div>
