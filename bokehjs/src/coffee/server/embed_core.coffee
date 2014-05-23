@@ -56,9 +56,7 @@ define [
         _.delay(-> $(element).replaceWith(view.$el)))
 
   injectCss = (static_root_url) ->
-    css_urls = ["#{static_root_url}css/bokeh.css",
-                "#{static_root_url}js/vendor/bootstrap/bootstrap-bokeh-2.0.4.css"]
-
+    css_urls = ["#{static_root_url}css/bokeh.css"]
 
     load_css = (url) ->
       link = document.createElement('link');
