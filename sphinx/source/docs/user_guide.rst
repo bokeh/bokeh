@@ -348,7 +348,7 @@ The simplest case is to use the Bokeh server to persist your plot and data.
 Additionally, the Bokeh server affords the opportunity of animated plots or
 updating plots with streaming data. The ``autoload_server`` function accepts
 a plot object and a Bokeh server ``Session`` object. It returns a ``<script>``
-tag that will load your plot from the
+tag that will load both your plot and data from the Bokeh server.
 
 static data
 ***********
