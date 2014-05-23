@@ -241,7 +241,7 @@ class MultiUserAuthentication(AbstractAuthentication):
         password_confirm = request.values['password_confirm']
         if password != password_confirm:
             flash("password and confirmation do not match")
-            return redirect(url_for('bokeh.server.register_get'))
+            return redirect(url_for('.register_get'))
         try:
             bokehuser = user.new_user(
                 bokeh_app.servermodel_storage, username, password
@@ -250,8 +250,8 @@ class MultiUserAuthentication(AbstractAuthentication):
             self.print_connection_info(bokehuser)
         except UnauthorizedException:
             flash("user already exists")
-            return redirect(url_for('bokeh.server.register_get'))
-        return redirect("/bokeh")
+            return redirect(url_for('.register_get'))
+        return redirect(url_for(".index"))
 
     def login_post_api(self):
         username = request.values['username']
@@ -282,8 +282,8 @@ class MultiUserAuthentication(AbstractAuthentication):
             self.print_connection_info(bokehuser)
         except UnauthorizedException:
             flash("incorrect login exists")
-            return redirect(url_for('bokeh.server.login_get'))
-        return redirect("/bokeh")
+            return redirect(url_for('.login_get'))
+        return redirect(url_for(".index"))
 
     def login_from_apikey(self):
         username = request.values.get('username')
@@ -297,11 +297,11 @@ class MultiUserAuthentication(AbstractAuthentication):
             self.print_connection_info(bokehuser)
         except UnauthorizedException:
             flash("incorrect login")
-            return redirect(url_for('bokeh.server.login_get'))
-        return redirect("/bokeh")
+            return redirect(url_for('.login_get'))
+        return redirect(url_for(".index"))
     def logout(self):
         session.pop('username', None)
-        return redirect("/")
+        return redirect(url_for(".index"))
 
 class AbstractDataBackend(object):
     """These functions take a request_username parameter,

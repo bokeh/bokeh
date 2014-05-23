@@ -143,7 +143,7 @@ define [
     fetch : (options) ->
       if _.isUndefined(options )
         options = {}
-      url = base.Config.prefix + "/bokeh/userinfo/"
+      url = base.Config.prefix + "bokeh/userinfo/"
       resp = response = $.get(url, {})
       resp.done((data) =>
         docs = data['docs']
