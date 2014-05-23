@@ -62,7 +62,7 @@ define [
       tab_names = {}
       for modelref, index in @mget('children')
         view = @views[modelref.id]
-        node = $("<div class='jsp bokeh-widgets' data-plot_num='#{index}'></div>")
+        node = $("<div class='jsp' data-plot_num='#{index}'></div>")
         @$el.append(node)
         node.append(view.el)
       _.defer(() =>
