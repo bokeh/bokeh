@@ -1,15 +1,15 @@
-<div class="modal" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h4 class="modal-title">Image Preview (right click -> 'Save As' to save PNG)</h4>
+<div class="bk-modal" tabindex="-1">
+  <div class="bk-modal-dialog">
+    <div class="bk-modal-content">
+      <div class="bk-modal-header">
+        <button type="button" class="bk-close" data-bk-dismiss="modal">&times;</button>
+        <h4 class="bk-modal-title">Image Preview (right click -> 'Save As' to save PNG)</h4>
       </div>
-      <div class="modal-body">
+      <div class="bk-modal-body">
         <img src="<%= @data_uri %>" style="max-height: 300px; max-width: 400px">
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      <div class="bk-modal-footer">
+        <button type="button" class="bk-btn bk-btn-primary" data-bk-dismiss="modal">Close</button>
       </div>
     </div>
   </div>
