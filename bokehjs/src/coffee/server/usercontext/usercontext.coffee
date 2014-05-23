@@ -22,7 +22,7 @@ define [
   class DocView extends ContinuumView
     template : wrappertemplate
     attributes :
-      class : 'accordion-group'
+      class : 'bk-panel-group'
     events :
       "click .bokehdoclabel" : "loaddoc"
       "click .bokehdelete" : "deldoc"
@@ -44,7 +44,8 @@ define [
       @listenTo(@model, 'loaded', @render)
 
     render_init : () ->
-      html = @template(model : @model, bodyid : _.uniqueId())
+      html = $(@template({model: @model, bodyid: _.uniqueId()}))
+      html.find(".bk-collapse").collapse({parent: @$el})
       @$el.html(html)
 
     render : () ->
