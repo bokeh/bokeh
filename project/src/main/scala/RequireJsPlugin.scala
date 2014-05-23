@@ -75,7 +75,9 @@ class RequireJS(log: Logger) extends Rhino {
             val args = Array[AnyRef](config.toJsObject(scope))
             optimize.call(ctx, scope, scope, args)
             val output = config.out
-            val outputMin = minify(output)
+            val outputMin = file(output.getPath.stripSuffix("js") + "min.js")
+            IO.copyFile(output, outputMin)
+            // val outputMin = minify(output)
             (output, outputMin)
         }
     }
