@@ -140,4 +140,11 @@ Underlying Object System
 .. automodule:: bokeh.templates
 
 
+Plot Embedding
+==============
+
+.. automodule:: bokeh.embed
+    :members:
+
+
 
