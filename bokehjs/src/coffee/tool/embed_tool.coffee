@@ -6,7 +6,8 @@ define [
   "backbone",
   "./tool",
   "./event_generators",
-], (_, $, $$1, Backbone, Tool, EventGenerators) ->
+  "./embed_tool_template",
+], (_, $, $$1, Backbone, Tool, EventGenerators, embed_tool_template) ->
 
   ButtonEventGenerator = EventGenerators.ButtonEventGenerator
 
@@ -39,7 +40,7 @@ define [
 
       script_inject_escaped = escapeHTML(@plot_model.get('script_inject_snippet'))
 
-      @$modal = $(object_explorer_template({script_inject_escaped: script_inject_escaped}))
+      @$modal = $(embed_tool_template({script_inject_escaped: script_inject_escaped}))
       $('body').append(@$modal)
       @$modal.on 'hidden', () =>
         @plot_view.eventSink.trigger("clear_active_tool")

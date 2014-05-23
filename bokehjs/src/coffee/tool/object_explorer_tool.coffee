@@ -5,9 +5,9 @@ define [
   "backbone",
   "./tool",
   "./event_generators",
-  "./object_explorer_template",
+  "./object_explorer_tool_template",
   "widget/object_explorer",
-], (_, $, $$1, Backbone, Tool, EventGenerators, object_explorer_template, ObjectExplorer) ->
+], (_, $, $$1, Backbone, Tool, EventGenerators, object_explorer_tool_template, ObjectExplorer) ->
 
   ButtonEventGenerator = EventGenerators.ButtonEventGenerator
 
@@ -24,7 +24,7 @@ define [
     }
 
     _activated: (e) ->
-      @$modal = $(object_explorer_template({}))
+      @$modal = $(object_explorer_tool_template({}))
       @$object_explorer_view = new ObjectExplorer.View({
         el: @$modal.find(".bk-modal-body")
       })
