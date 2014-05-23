@@ -5,9 +5,8 @@
     <title>{% block title %}{% endblock %}</title>
     <!-- Vendor Styles -->
     <script src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>
-    <link href="{{ url_for('bokeh.server.bokehjs_file', filename='css/bokeh.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='vendor/bootstrap/css/bootstrap-orig-2.2.2.css') }}" rel="stylesheet">
-    <link href="{{ url_for('bokeh.server.bokehjs_file', filename='js/vendor/jquery-ui-amd/jquery-ui-1.10.0/themes/base/jquery-ui.css') }}" rel="stylesheet">
+    <link href="{{ url_for('bokeh.server.bokehjs_file', filename='css/bokeh.css') }}" rel="stylesheet">
     <script src="{{ url_for('static', filename='js/vendor/jquery/jquery.js') }}"></script>
     {% block extra_scripts %}
     {% endblock %}
