@@ -26,7 +26,6 @@ class Document(object):
         self._hold = False
         self._autostore = True
         self._autoadd = True
-        self._models = {}
         self.docid = str(uuid.uuid4())
         self._plotcontext = None
         if json_objs:
@@ -38,7 +37,7 @@ class Document(object):
 
     def get_ref(self):
         return get_ref(self._plotcontext)
-        
+
     def _set_context(self, plotcontext):
         """sets the plot context.
         unsets the context first if one is present
@@ -47,9 +46,8 @@ class Document(object):
         pcs = [x for x in self._models.values() if x.__view_model__ == 'PlotContext']
         if len(pcs) != 0:
             raise DataIntegrityException("too many plot contexts found")
-        self._add(plotcontext)
         self._plotcontext = plotcontext
-            
+
     def _autoset_context(self):
         """autosets context from what's already in this document
         If no plotcontext exists, creates one
@@ -62,7 +60,6 @@ class Document(object):
             self._plotcontext = pcs[0]
         else:
             raise DataIntegrityException("too many plot contexts found")
-        self._add(self._plotcontext)
 
     def set_context(self, plotcontext=None):
         """finds the plot context and sets it
@@ -175,16 +172,22 @@ class Document(object):
         self._current_plot = plot
         return plot
 
-    def _add(self, *objects):
-        '''Adds objects to the session
-        '''
-        for obj in objects:
-            self._models[obj._id] = obj
+    @property
+    def _models(self):
+        result = {}
+        if not self._plotcontext:
+            return {}
+        result[self._plotcontext._id] = self._plotcontext
+        for obj in self._plotcontext.children:
+            result[obj._id] = obj
+            for ref in obj.references():
+                result[ref._id] = ref
+        return result
 
     def add(self, *objects):
         ''' Add top level objects to this Document.  Also traverses
         references and adds those as well.  This function should only
-        be called on top level objects.  lower level objects are 
+        be called on top level objects.  lower level objects are
         added using _add
 
         Args:
@@ -197,14 +200,6 @@ class Document(object):
             if obj not in self._plotcontext.children:
                 self._plotcontext.children.append(obj)
                 self._plotcontext._dirty = True
-            self._add(*obj.references())
-
-    def add_all(self):
-        """ensures everything in a plot context is added to the
-        session and ready to be pushed/stored/etc...
-        """
-        objs = self._plotcontext.references()
-        self._add(*objs)
 
     def remove(self, obj_or_id):
         ''' Remove and object from this Document.
@@ -229,17 +224,17 @@ class Document(object):
     # functions for turning json objects into json models
     def load(self, *attrs, **kwargs):
         """loads json attributes into models.
-        
+
         Args:
-        
+
             *attrs : any attributes to load
             **kwargs : the only kwarg here is events, which can be set to
-                'existing' or None. 'existing' means trigger events only 
+                'existing' or None. 'existing' means trigger events only
                 for existing (not new objects). None means don't trigger any events.
-        
+
         Returns:
             models that were loaded, as models, not as json
-        
+
         """
         events = kwargs.pop('events', 'existing')
         dirty = kwargs.pop('dirty', False)
@@ -260,7 +255,6 @@ class Document(object):
                 m = cls.load_json(attr)
                 if m is None:
                     raise RuntimeError('Error loading object from JSON')
-                self._add(m)
                 created.add(m)
             models.append(m)
         for m in models:
@@ -280,7 +274,7 @@ class Document(object):
 
     def dump(self, *to_store):
         """ Manually convert our top-level models into json objects
-        
+
         Args:
             *to_store : models that we want to dump.  If this is empty
                 we dump everything in the document
