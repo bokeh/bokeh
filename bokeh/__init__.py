@@ -183,7 +183,7 @@ def report_issue(number=None , owner="ContinuumIO", repo="bokeh",
     from urlparse import urljoin
 
     print("This is the Bokeh reporting engine.\n\n"
-          "Please answer the next questions:")
+          "Next, you will be guided to build the report")
 
     if number is None:
         title = raw_input('Write the title for the intended issue: ')  # Make it py3 compat
