@@ -11,7 +11,7 @@ from .objects import (BoxSelectionOverlay, BoxSelectTool, BoxZoomTool,
         Grid, HoverTool, Legend, LinearAxis, PanTool, Plot, PreviewSaveTool,
         ResetTool, ResizeTool, WheelZoomTool, CategoricalAxis, FactorRange,
         ObjectExplorerTool, BasicTicker, BasicTickFormatter, CategoricalTicker,
-        CategoricalTickFormatter, DatetimeTicker, DatetimeTickFormatter)
+        CategoricalTickFormatter, DatetimeTicker, DatetimeTickFormatter, Tool)
 from .properties import ColorSpec
 
 # This is used to accumulate plots generated via the plotting methods in this
@@ -290,12 +290,17 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
                 setattr(p, k, kw.pop(k))
 
     tool_objs = []
+    temp_tool_str = str()
     
-    #If tools arg is set as a list..
-    #converting it to a comma delimited string
-    if isinstance(tools,list):
-        tools = str(tools)
-        tools = tools.translate(None, ''' '[]"''')
+    if isinstance(tools, list):
+		for tool in tools:
+			if isinstance(tool, Tool): #If Tool object
+				tool_objs.append(tool)
+			elif isinstance(tool, str): #If str object
+				temp_tool_str+=tool + ','
+		tools = temp_tool_str			
+				
+        
 		
     for tool in re.split(r"\s*,\s*", tools.strip()):
         # re.split will return empty strings; ignore them.
