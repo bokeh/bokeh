@@ -294,8 +294,8 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
     #If tools arg is set as a list..
     #converting it to a comma delimited string
     if isinstance(tools,list):
-		tools = str(tools)
-		tools = tools.translate(None, ''' '[]"''')
+        tools = str(tools)
+        tools = tools.translate(None, ''' '[]"''')
 		
     for tool in re.split(r"\s*,\s*", tools.strip()):
         # re.split will return empty strings; ignore them.
