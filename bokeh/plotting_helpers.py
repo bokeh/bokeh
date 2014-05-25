@@ -293,15 +293,15 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
     temp_tool_str = str()
     
     if isinstance(tools, list):
-		for tool in tools:
-			if isinstance(tool, Tool): #If Tool object
-				tool_objs.append(tool)
-			elif isinstance(tool, str): #If str object
-				temp_tool_str+=tool + ','
-		tools = temp_tool_str			
-				
+        for tool in tools:
+            if isinstance(tool, Tool): #If Tool object
+                tool_objs.append(tool)
+            elif isinstance(tool, str): #If str object
+                temp_tool_str+=tool + ','
+        tools = temp_tool_str           
+                
         
-		
+        
     for tool in re.split(r"\s*,\s*", tools.strip()):
         # re.split will return empty strings; ignore them.
         if tool == "":
