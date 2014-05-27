@@ -104,6 +104,7 @@ object ProjectBuild extends Build {
             IO.copy(toCopy, overwrite=true).toSeq
         },
         vendorStyles := List(
+            "jquery-ui-amd/jquery-ui-1.10.0/themes/base/jquery-ui.css",
             "jstree/dist/themes/default/style.min.css",
             "handsontable/jquery.handsontable.css",
             "jqrangeslider/classic.css"),

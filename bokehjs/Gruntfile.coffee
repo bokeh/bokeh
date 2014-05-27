@@ -139,6 +139,7 @@ module.exports = (grunt) ->
         separator: ""
       css:
         src: [
+          "build/js/vendor/jquery-ui-amd/jquery-ui-1.10.0/themes/base/jquery-ui.css"
           "build/js/vendor/jstree/dist/themes/default/style.min.css"
           "build/js/vendor/handsontable/jquery.handsontable.css"
           "build/js/vendor/jqrangeslider/classic.css"
@@ -147,6 +148,7 @@ module.exports = (grunt) ->
         dest: 'build/css/bokeh.css'
       vendor:
         src: [
+          "build/js/vendor/jquery-ui-amd/jquery-ui-1.10.0/themes/base/jquery-ui.css"
           "build/js/vendor/jstree/dist/themes/default/style.min.css"
           "build/js/vendor/handsontable/jquery.handsontable.css"
           "build/js/vendor/jqrangeslider/classic.css"
