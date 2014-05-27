@@ -107,9 +107,9 @@ class DownloadsApp(BokehApplet):
     downloads_plot = Instance(Plot)
     punchcard_plot = Instance(Plot)
 
-    def create(self, session):
+    def create(self, doc):
         self.modelform = InstallersModel()
-        self.modelform.create_inputs(session)
+        self.modelform.create_inputs(doc)
 
         self.downloads_source = ColumnDataSource(dict(
             dates       = [],
@@ -128,7 +128,6 @@ class DownloadsApp(BokehApplet):
 
         self.children.append(self.modelform)
         self.children.append(VBox(children=[self.downloads_plot, self.punchcard_plot]))
-        self.add_all(session)
 
     def make_downloads_plot(self, source):
         xdr = DataRange1d(sources=[source.columns("dates")])
