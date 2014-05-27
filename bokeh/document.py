@@ -38,7 +38,7 @@ class Document(object):
 
     def get_ref(self):
         return get_ref(self._plotcontext)
-        
+
     def _set_context(self, plotcontext):
         """sets the plot context.
         unsets the context first if one is present
@@ -49,7 +49,7 @@ class Document(object):
             raise DataIntegrityException("too many plot contexts found")
         self._add(plotcontext)
         self._plotcontext = plotcontext
-            
+
     def _autoset_context(self):
         """autosets context from what's already in this document
         If no plotcontext exists, creates one
@@ -184,7 +184,7 @@ class Document(object):
     def add(self, *objects):
         ''' Add top level objects to this Document.  Also traverses
         references and adds those as well.  This function should only
-        be called on top level objects.  lower level objects are 
+        be called on top level objects.  lower level objects are
         added using _add
 
         Args:
@@ -229,17 +229,17 @@ class Document(object):
     # functions for turning json objects into json models
     def load(self, *attrs, **kwargs):
         """loads json attributes into models.
-        
+
         Args:
-        
+
             *attrs : any attributes to load
             **kwargs : the only kwarg here is events, which can be set to
-                'existing' or None. 'existing' means trigger events only 
+                'existing' or None. 'existing' means trigger events only
                 for existing (not new objects). None means don't trigger any events.
-        
+
         Returns:
             models that were loaded, as models, not as json
-        
+
         """
         events = kwargs.pop('events', 'existing')
         dirty = kwargs.pop('dirty', False)
@@ -280,11 +280,12 @@ class Document(object):
 
     def dump(self, *to_store):
         """ Manually convert our top-level models into json objects
-        
+
         Args:
             *to_store : models that we want to dump.  If this is empty
                 we dump everything in the document
         """
+        self.add_all()
         if not to_store:
             to_store = self._models.values()
         return dump(to_store, docid=self.docid)

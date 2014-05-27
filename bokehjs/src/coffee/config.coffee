@@ -13,6 +13,7 @@ require.config
         sprintf:           "vendor/sprintf/src/sprintf"
         rbush:             "vendor/rbush/rbush"
         jstree:            "vendor/jstree/dist/jstree"
+        gear_utils:        "vendor/gear-utils/gear-utils"
     shim:
         sprintf:
             exports: 'sprintf'

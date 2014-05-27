@@ -52,6 +52,9 @@ class Session(object):
         ):
 
         self.name = name
+        if not root_url.endswith("/"):
+            logger.warning("root_url should end with a /, adding one")
+            root_url = root_url + "/"
         self.root_url = root_url
         #single user mode case
         self.userapikey = userapikey
@@ -404,8 +407,8 @@ class Session(object):
     def object_link(self, obj):
         """webpage link which should render a given object
         """
-        link = "/bokeh/doc/%s/%s" % (self.docid, obj._id)
-        return utils.urljoin(self.base_url, link)
+        link = "bokeh/doc/%s/%s" % (self.docid, obj._id)
+        return utils.urljoin(self.root_url, link)
 
     def show(self, plot_object):
         """Display an object as HTML in IPython using its display protocol. """

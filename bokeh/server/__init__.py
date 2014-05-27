@@ -80,6 +80,10 @@ def build_parser():
                         help="data directory",
                         type=str
                         )
+    parser.add_argument("--url-prefix",
+                        help="url prefix",
+                        type=str
+                        )
 
     class DevAction(argparse.Action):
         def __call__(self, parser, namespace, values, option_string=None):
@@ -157,7 +161,7 @@ data-directory : %s
 
     start.prepare_app(backend, single_user_mode=not args.multi_user,
                       data_directory=args.data_directory)
-    start.register_blueprint()
+    start.register_blueprint(args.url_prefix)
     if args.debug:
         start.bokeh_app.debug = True
 
