@@ -277,7 +277,7 @@ define [
     render_init: () ->
       # TODO use template
       @$el.append($("""
-        <div class='button_bar btn-group pull-top'/>
+        <div class='button_bar bk-btn-group pull-top'/>
         <div class='plotarea'>
         <div class='bokeh_canvas_wrapper'>
           <canvas class='bokeh_canvas'></canvas>
