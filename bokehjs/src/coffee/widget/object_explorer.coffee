@@ -133,8 +133,8 @@ define [
       state: { open: open or false }
 
     renderToolbar: () ->
-      $toolbar = $('<div class="btn-group"></div>')
-      $refresh = $('<button type="button" class="btn btn-default">Refresh</button>')
+      $toolbar = $('<div class="bk-btn-group"></div>')
+      $refresh = $('<button type="button" class="bk-btn bk-btn-default">Refresh</button>')
       $refresh.click (event) => @reRender()
       $toolbar.append($refresh)
       if not @showToolbar

@@ -29,14 +29,14 @@ define [
 
       html = $(tabs_template({
         tabs: tabs
-        active: (i) -> if i == active then 'active' else ''
+        active: (i) -> if i == active then 'bk-active' else ''
       }))
 
       html.find("> li > a").click (event) ->
         event.preventDefault()
         $(this).tab('show')
 
-      $panels = html.children(".tab-pane")
+      $panels = html.children(".bk-tab-pane")
 
       for [child, panel] in _.zip(children, $panels)
         $(panel).html(@views[child.id].$el)

@@ -77,14 +77,14 @@ define [
       toolbox
 
     renderAdd: (exclude, handler) ->
-      dropdown = $('<div class="dropdown pull-right"></div>')
-      button = $('<button class="btn btn-link btn-xs dropdown-toggle">Add</button>')
+      dropdown = $('<div class="bk-dropdown bk-pull-right"></div>')
+      button = $('<button class="bk-btn bk-btn-link bk-btn-xs" data-bk-toggle="dropdown">Add</button>')
       dropdown.append([button.dropdown(), @renderFields(exclude, handler)])
       dropdown
 
     renderFields: (exclude, handler) ->
       fields = _.difference(@fieldNames(), exclude)
-      menu = $('<ul class="dropdown-menu"></ul>')
+      menu = $('<ul class="bk-dropdown-menu"></ul>')
       items = _.map fields, (field) ->
         link = $('<a tabindex="-1" href="javascript://"></a>')
         link.text(field)
@@ -95,10 +95,10 @@ define [
 
     renderRemove: (attr, field) ->
       handler = (event) => @mset(attr, _.reject(@mget(attr), (item) -> item.field == field))
-      $('<span class="close pull-right">&times;</span>').click(handler)
+      $('<span class="bk-close bk-pull-right">&times;</span>').click(handler)
 
     renderOptions: (options, value, handler) ->
-      menu = $('<ul class="dropdown-menu"></ul>')
+      menu = $('<ul class="bk-dropdown-menu"></ul>')
       items = _.map options, (option) =>
         link = $('<a tabindex="-1" href="javascript://"></a>')
         link.text(option)
@@ -106,12 +106,12 @@ define [
         item.append(link)
       menu.append(items)
       menu.click (event) => handler($(event.target).text())
-      dropdown = $('<span class="dropdown"></span>')
-      button = $('<button class="btn btn-link btn-xs dropdown-toggle"></button>')
+      dropdown = $('<span class="bk-dropdown"></span>')
+      button = $('<button class="bk-btn bk-btn-link bk-btn-xs" data-bk-toggle="dropdown"></button>')
       text = if typeof(value) == 'number' then options[value] else value
       button.text(text)
       button.append('&nbsp;')
-      button.append($('<span class="caret"></span>'))
+      button.append($('<span class="bk-caret"></span>'))
       dropdown.append([button.dropdown(), menu])
 
     makeSortable: (attr, $el) ->
@@ -252,7 +252,7 @@ define [
         (value) => @mset("manual_update", if value == "Manual" then true else false)))
       el.append(update)
       if manual_update
-        button = $('<button type="button" class="btn btn-primary">Update</button>')
+        button = $('<button type="button" class="bk-btn bk-btn-primary">Update</button>')
         button.click (event) => @model.save()
         el.append(button)
       el

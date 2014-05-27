@@ -1,12 +1,12 @@
-<ul class="nav nav-tabs">
+<ul class="bk-nav bk-nav-tabs">
   <% for tab, i in @tabs: %>
     <li class="<%= @active(i) %>">
       <a href="#tab-<%= tab.get('id') %>"><%= tab.get('title') %></a>
     </li>
   <% end %>
 </ul>
-<div class="tab-content">
+<div class="bk-tab-content">
   <% for tab, i in @tabs: %>
-    <div class="tab-pane <%= @active(i) %>" id="tab-<%= tab.get('id') %>"></div>
+    <div class="bk-tab-pane <%= @active(i) %>" id="tab-<%= tab.get('id') %>"></div>
   <% end %>
 </div>

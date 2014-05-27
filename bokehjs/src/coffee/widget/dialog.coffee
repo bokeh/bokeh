@@ -20,7 +20,7 @@ define [
     render: () ->
       @$modal = $(dialog_template(@model.attributes))
       @$modal.modal({show: @mget("visible")})
-      @$modal.on('hidden.bs.modal', @onHide)
+      @$modal.on('hidden.bk-bs.modal', @onHide)
       @$el.html(@$modal)
 
     onHide: (event) =>
@@ -30,7 +30,7 @@ define [
       @$modal.modal(if @mget("visible") then "show" else "hide")
 
     changeContent: () =>
-      @$modal.find(".modal-body").text(@mget("content"))
+      @$modal.find(".bk-modal-body").text(@mget("content"))
 
   class Dialog extends HasProperties
     type: "Dialog"

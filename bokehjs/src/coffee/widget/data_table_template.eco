@@ -1,4 +1,4 @@
-<table class="table table-bordered">
+<table class="bk-table bk-table-bordered">
   <thead>
     <% if @counts: %>
       <th>counts</th>

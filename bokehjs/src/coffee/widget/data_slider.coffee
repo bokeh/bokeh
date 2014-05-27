@@ -7,7 +7,7 @@ define [
 
   class DataSliderView extends PlotWidget
     attributes:
-      class: "dataslider pull-left"
+      class: "dataslider bk-pull-left"
 
     initialize: (options) ->
       super(options)
