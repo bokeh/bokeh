@@ -1,0 +1,1 @@
+../source/tutorial/quick_install.rst

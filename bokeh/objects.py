@@ -10,11 +10,12 @@ import warnings
 import logging
 logger = logging.getLogger(__file__)
 
+from . import _glyph_functions
 from .properties import (HasProps, Dict, Enum, Either, Float, Instance, Int,
     List, String, Color, Include, Bool, Tuple, Any)
-from .mixins import FillProps, LineProps, TextProps
-from .enums import Units, Orientation, Location, Dimension, BorderSymmetry
-from .plotobject import PlotObject
+from .mixins import LineProps, TextProps
+from .enums import BorderSymmetry, DatetimeUnits, Dimension, Location, Orientation, Units
+from .plot_object import PlotObject
 from .glyphs import BaseGlyph
 
 class DataSource(PlotObject):
@@ -31,7 +32,7 @@ class DataSource(PlotObject):
         return ColumnsRef(source=self, columns=list(columns))
 
 class ColumnsRef(HasProps):
-    source = Instance(DataSource, has_ref=True)
+    source = Instance(DataSource)
     columns = List(String)
 
 class ColumnDataSource(DataSource):
@@ -111,7 +112,7 @@ class Range1d(Range):
     end = Float()
 
 class DataRange(Range):
-    sources = List(Instance(ColumnsRef), has_ref=True)
+    sources = List(Instance(ColumnsRef))
 
     def finalize(self, models):
         props = super(DataRange, self).finalize(models)
@@ -179,13 +180,13 @@ class CategoricalTickFormatter(TickFormatter):
 
 class DatetimeTickFormatter(TickFormatter):
     """ Represents a categorical tick formatter for an axis object """
-    pass
+    formats = Dict(Enum(DatetimeUnits), List(String))
 
 class Glyph(Renderer):
-    server_data_source = Instance(ServerDataSource, has_ref=True)
-    data_source = Instance(DataSource, has_ref=True)
-    xdata_range = Instance(Range, has_ref=True)
-    ydata_range = Instance(Range, has_ref=True)
+    server_data_source = Instance(ServerDataSource)
+    data_source = Instance(DataSource)
+    xdata_range = Instance(Range)
+    ydata_range = Instance(Range)
 
     # How to intepret the values in the data_source
     units = Enum(Units)
@@ -238,10 +239,10 @@ class Plot(PlotObject):
     """ Object representing a plot, containing glyphs, guides, annotations.
     """
 
-    data_sources = List(Instance(DataSource), has_ref=True)
+    data_sources = List(Instance(DataSource))
 
-    x_range = Instance(Range, has_ref=True)
-    y_range = Instance(Range, has_ref=True)
+    x_range = Instance(Range)
+    y_range = Instance(Range)
     png = String('')
     title = String('')
     title_props = Include(TextProps, prefix="title")
@@ -249,12 +250,12 @@ class Plot(PlotObject):
 
     # A list of all renderers on this plot; this includes guides as well
     # as glyph renderers
-    renderers = List(Instance(Renderer), has_ref=True)
-    tools = List(Instance(".objects.Tool"), has_ref=True)
+    renderers = List(Instance(Renderer))
+    tools = List(Instance(".objects.Tool"))
 
     # TODO: These don't appear in the CS source, but are created by mpl.py, so
     # I'm leaving them here for initial compatibility testing.
-    # axes = List(has_ref=True)
+    # axes = List()
 
     # TODO: How do we want to handle syncing of the different layers?
     # image = List()
@@ -297,6 +298,39 @@ class Plot(PlotObject):
             self.outer_height = self.height
         return super(Plot, self).vm_props()
 
+    annular_wedge     = _glyph_functions.annular_wedge
+    annulus           = _glyph_functions.annulus
+    arc               = _glyph_functions.arc
+    asterisk          = _glyph_functions.asterisk
+    bezier            = _glyph_functions.bezier
+    circle            = _glyph_functions.circle
+    circle_cross      = _glyph_functions.circle_cross
+    circle_x          = _glyph_functions.circle_x
+    cross             = _glyph_functions.cross
+    diamond           = _glyph_functions.diamond
+    diamond_cross     = _glyph_functions.diamond_cross
+    image             = _glyph_functions.image
+    image_rgba        = _glyph_functions.image_rgba
+    image_url         = _glyph_functions.image_url
+    inverted_triangle = _glyph_functions.inverted_triangle
+    line              = _glyph_functions.line
+    multi_line        = _glyph_functions.multi_line
+    oval              = _glyph_functions.oval
+    patch             = _glyph_functions.patch
+    patches           = _glyph_functions.patches
+    quad              = _glyph_functions.quad
+    quadratic         = _glyph_functions.quadratic
+    ray               = _glyph_functions.ray
+    rect              = _glyph_functions.rect
+    segment           = _glyph_functions.segment
+    square            = _glyph_functions.square
+    square_cross      = _glyph_functions.square_cross
+    square_x          = _glyph_functions.square_x
+    text              = _glyph_functions.text
+    triangle          = _glyph_functions.triangle
+    wedge             = _glyph_functions.wedge
+    x                 = _glyph_functions.x
+
 class MapOptions(HasProps):
     lat = Float
     lng = Float
@@ -305,22 +339,14 @@ class MapOptions(HasProps):
 class GMapPlot(Plot):
     map_options = Instance(MapOptions)
 
-    def vm_serialize(self):
-        data = super(GMapPlot, self).vm_serialize()
-        self._session.raw_js_snippets(self)
-        return data
-
-    def get_raw_js(self):
-        return '<script src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>'
-
 class GridPlot(Plot):
     """ A 2D grid of plots """
 
-    children = List(List(Instance(Plot), has_ref=True), has_ref=True)
+    children = List(List(Instance(Plot)))
     border_space = Int(0)
 
 class GuideRenderer(Renderer):
-    plot = Instance(Plot, has_ref=True)
+    plot = Instance(Plot)
 
     def __init__(self, **kwargs):
         super(GuideRenderer, self).__init__(**kwargs)
@@ -336,8 +362,8 @@ class Axis(GuideRenderer):
     location = Either(Enum(Location), Float)
     bounds = Either(Enum('auto'), Tuple(Float, Float))
 
-    ticker = Instance(Ticker, has_ref=True)
-    formatter = Instance(TickFormatter, has_ref=True)
+    ticker = Instance(Ticker)
+    formatter = Instance(TickFormatter)
 
     axis_label = String
     axis_label_standoff = Int
@@ -382,7 +408,6 @@ class DatetimeAxis(LinearAxis):
     num_labels = Int(8)
     char_width = Int(10)
     fill_ratio = Float(0.3)
-    formats = Dict(String, List(String), {"days": ["%m/%d/%Y"]})
 
     def __init__(self, **kwargs):
         if 'ticker' not in kwargs:
@@ -398,19 +423,19 @@ class Grid(GuideRenderer):
     dimension = Int(0)
     bounds = String('auto')
 
-    axis = Instance(Axis, has_ref=True)
+    axis = Instance(Axis)
 
     # Line props
     grid_props = Include(LineProps, prefix="grid")
 
 class Tool(PlotObject):
-    plot = Instance(Plot, has_ref=True)
+    plot = Instance(Plot)
 
 class PanTool(Tool):
-    dimensions = List(Enum(Dimension))
+    dimensions = List(Enum(Dimension), default=["width", "height"])
 
 class WheelZoomTool(Tool):
-    dimensions = List(Enum(Dimension))
+    dimensions = List(Enum(Dimension), default=["width", "height"])
 
 class PreviewSaveTool(Tool):
     pass
@@ -431,26 +456,26 @@ class BoxZoomTool(Tool):
     pass
 
 class BoxSelectTool(Tool):
-    renderers = List(Instance(Renderer), has_ref=True)
+    renderers = List(Instance(Renderer))
     select_every_mousemove = Bool(True)
 
 class BoxSelectionOverlay(Renderer):
     __view_model__ = 'BoxSelection'
-    tool = Instance(Tool, has_ref=True)
+    tool = Instance(Tool)
 
 class HoverTool(Tool):
-    renderers = List(Instance(Renderer), has_ref=True)
+    renderers = List(Instance(Renderer))
     tooltips = Dict(String, String)
 
 class ObjectExplorerTool(Tool):
     pass
 
 class DataRangeBoxSelectTool(Tool):
-    xselect = List(Instance(Range), has_ref=True)
-    yselect = List(Instance(Range), has_ref=True)
+    xselect = List(Instance(Range))
+    yselect = List(Instance(Range))
 
 class Legend(Renderer):
-    plot = Instance(Plot, has_ref=True)
+    plot = Instance(Plot)
     orientation = Enum(Orientation)
     border = Include(LineProps, prefix="border")
 
@@ -464,15 +489,15 @@ class Legend(Renderer):
 
     legend_padding = Int(10)
     legend_spacing = Int(3)
-    legends = Dict(String, Any)
+    legends = Dict(String, List(Instance(Glyph)))
 
 class DataSlider(Renderer):
-    plot = Instance(Plot, has_ref=True)
-    data_source = Instance(DataSource, has_ref=True)
+    plot = Instance(Plot)
+    data_source = Instance(DataSource)
     field = String()
 
 class PlotContext(PlotObject):
-    children = List(Instance(PlotObject, has_ref=True), has_ref=True)
+    children = List(Instance(PlotObject))
 
 class PlotList(PlotContext):
     # just like plot context, except plot context has special meaning

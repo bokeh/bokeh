@@ -1,5 +1,5 @@
 from ggplot import *
-from bokeh import pyplot
+from bokeh import mpl
 import matplotlib.pyplot as plt
 
 g = ggplot(aes(x='date', y='beef'), data=meat) + \
@@ -9,4 +9,4 @@ g.draw()
 
 plt.title("Line ggplot-based plot in Bokeh.")
 
-pyplot.show_bokeh(plt.gcf(), filename="line.html")
+mpl.to_bokeh(name="line")

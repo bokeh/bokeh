@@ -1,23 +1,21 @@
 
 from collections import Iterable, Sequence
+import itertools
 from numbers import Number
 import numpy as np
 import re
 from six import string_types
 
 from . import glyphs
-from .objects import (BoxSelectionOverlay, BoxSelectTool, BoxZoomTool,
-        ColumnDataSource, CrosshairTool, DataRange1d, DatetimeAxis, EmbedTool,
-        Grid, HoverTool, Legend, LinearAxis, PanTool, Plot, PreviewSaveTool,
-        ResetTool, ResizeTool, WheelZoomTool, CategoricalAxis, FactorRange,
-        ObjectExplorerTool, BasicTicker, BasicTickFormatter, CategoricalTicker,
-        CategoricalTickFormatter, DatetimeTicker, DatetimeTickFormatter, Tool)
-from .properties import ColorSpec
 
-# This is used to accumulate plots generated via the plotting methods in this
-# module.  It is used by build_gallery.py.  To activate this feature, simply
-# set _PLOTLIST to an empty list; to turn it off, set it back to None.
-_PLOTLIST = None
+from .objects import (
+    BoxSelectionOverlay, BoxSelectTool, BoxZoomTool, CategoricalAxis,
+    ColumnDataSource, CrosshairTool, DataRange1d, DatetimeAxis,
+    EmbedTool, FactorRange, Grid, HoverTool, Legend, LinearAxis,
+    ObjectExplorerTool, PanTool, Plot, PreviewSaveTool, ResetTool,
+    ResizeTool, WheelZoomTool, Tool
+)
+from .properties import ColorSpec
 
 def get_default_color(plot=None):
     colors = [
@@ -227,8 +225,6 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
     # Accept **kw to absorb other arguments which the actual factory functions
     # might pass in, but that we don't care about
     p = Plot()
-    if _PLOTLIST is not None:
-        _PLOTLIST.append(p)
 
     p.title = kw.pop("title", "Plot")
     if plot_width is not None:

@@ -5,8 +5,8 @@ define (require, exports, module) ->
     window.Float64Array = Array
 
   Bokeh = {}
-
-  Bokeh.version = '0.4.2'
+  Bokeh.require = require
+  Bokeh.version = '0.4.4'
 
   #binding the libs that bokeh uses so others can reference them
   Bokeh.Backbone          = require("backbone")
@@ -64,7 +64,7 @@ define (require, exports, module) ->
   Bokeh.DiamondCross     = glyph_factory.diamond_cross
   Bokeh.Image            = glyph_factory.image
   Bokeh.ImageRGBA        = glyph_factory.image_rgba
-  Bokeh.ImageURI         = glyph_factory.image_uri
+  Bokeh.ImageURL         = glyph_factory.image_url
   Bokeh.InvertedTriangle = glyph_factory.inverted_triangle
   Bokeh.Line             = glyph_factory.line
   Bokeh.MultiLine        = glyph_factory.multi_line
@@ -97,6 +97,7 @@ define (require, exports, module) ->
 
   # server tools
   Bokeh.embed_core  = require("server/embed_core")
+  Bokeh.embed  = require("server/embed")
   Bokeh.serverrun   = require("server/serverrun")
   Bokeh.serverutils = require("server/serverutils")
 

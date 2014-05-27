@@ -2,10 +2,11 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 from scipy import optimize
-from bokeh import pyplot
+from bokeh import mpl
 
 # Set the palette colors.
 sns.set(palette="Set2")
+
 
 # Build the sin wave
 def sine_wave(n_x, obs_err_sd=1.5, tp_err_sd=.3):
@@ -26,4 +27,4 @@ plt.plot(xx, np.sin(xx / b) + a, c="#444444")
 
 plt.title("Seaborn tsplot with CI in bokeh.")
 
-pyplot.show_bokeh(plt.gcf(), filename="sinerror.html")
+mpl.to_bokeh(name="sinerror")

@@ -6,7 +6,7 @@
       window.Float64Array = Array;
     }
     Bokeh = {};
-    Bokeh.version = '0.4.2';
+    Bokeh.version = '0.4.4';
     Bokeh.Backbone = require("backbone");
     Bokeh._ = require("underscore");
     Bokeh.Collections = require("common/base").Collections;
@@ -29,7 +29,6 @@
     Bokeh.Random = require("common/random");
     Bokeh.safebind = require("common/safebind");
     Bokeh.SVGColors = require("common/svg_colors");
-    Bokeh.ticking = require("common/ticking");
     Bokeh.ViewState = require("common/view_state");
     Bokeh.LinearMapper = require("mapper/1d/linear_mapper");
     Bokeh.CategoricalMapper = require("mapper/1d/categorical_mapper");
@@ -93,6 +92,7 @@
     Bokeh.DaysTicker = require("ticking/days_ticker");
     Bokeh.MonthsTicker = require("ticking/months_ticker");
     Bokeh.SingleIntervalTicker = require("ticking/single_interval_ticker");
+    Bokeh.YearsTicker = require("ticking/years_ticker");
     Bokeh.BoxSelectTool = require("tool/box_select_tool");
     Bokeh.BoxZoomTool = require("tool/box_zoom_tool");
     Bokeh.CrosshairTool = require("tool/crosshair_tool");
@@ -105,10 +105,11 @@
     Bokeh.ResizeTool = require("tool/resize_tool");
     Bokeh.WheelZoomTool = require("tool/wheel_zoom_tool");
     Bokeh.ObjectExplorerTool = require("tool/object_explorer_tool");
-    Bokeh.DataSlider = require("widget/data_slider");
+    Bokeh.one_object_page = require("server/serverrun").load_one_object;
     Bokeh.server_page = require("server/serverrun").load;
+    Bokeh.DataSlider = require("widget/data_slider");
     Bokeh.HBox = require("widget/hbox");
-    Bokeh.VBox = require("widget/hbox");
+    Bokeh.VBox = require("widget/vbox");
     Bokeh.VBoxModelForm = require("widget/vboxmodelform");
     Bokeh.TextInput = require("widget/textinput");
     Bokeh.ObjectExplorer = require("util/object_explorer");

@@ -31,7 +31,7 @@ define [
         <div class="modal" role="dialog" aria-labelledby="previewLabel" aria-hidden="true">
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-            <h3 id="dataConfirmLabel">Image Preview (right click to save)</h3>
+            <h3 id="dataConfirmLabel">Image Preview (right click -> 'Save As' to save PNG)</h3>
           </div>
           <div class="modal-body">
             <img src="#{data_uri}" style="max-height: 300px; max-width: 400px">

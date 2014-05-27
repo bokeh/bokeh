@@ -74,8 +74,13 @@ define [
   # add some useful functions to underscore
   require("common/custom").monkey_patch()
 
-  Config =
-    prefix : ''
+  Config = {}
+  url = window.location.href
+  if url.indexOf('/bokeh') > 0
+    Config.prefix = url.slice(0, url.indexOf('/bokeh')) + "/" #keep trailing slash
+  else
+    Config.prefix = '/'
+  console.log('setting prefix to', Config.prefix)
 
   locations =
 
@@ -152,7 +157,6 @@ define [
     modulename = locations[typename]
 
     if not mod_cache[modulename]?
-      console.log("calling require", modulename)
       mod_cache[modulename] = require(modulename)
 
     return mod_cache[modulename].Collection

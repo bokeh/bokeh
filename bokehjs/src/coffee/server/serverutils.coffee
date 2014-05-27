@@ -2,8 +2,10 @@ define [
   "common/base",
   "server/serverutils",
   "common/socket",
-  "common/load_models"
-], (base, serverutils, socket, load_models) ->
+  "common/load_models",
+  "backbone",
+  "common/has_properties"
+], (base, serverutils, socket, load_models, Backbone, HasProperties) ->
 
   #not proud of this refactor... but we can make it better later
   Deferreds = {}
@@ -25,8 +27,11 @@ define [
 
   utility =
     load_one_object_chain : (docid, objid) ->
+      if not exports.wswrapper?
+        utility.make_websocket();
+        HasProperties.prototype.sync = Backbone.sync
       Config = require("common/base").Config
-      url = "#{Config.prefix}/bokeh/objinfo/#{docid}/#{objid}"
+      url = "#{Config.prefix}bokeh/objinfo/#{docid}/#{objid}"
       console.log(url)
       resp = $.get(url)
       resp.done((data) ->
@@ -54,7 +59,7 @@ define [
     load_doc_by_title: (title) ->
       Config = require("common/base").Config
 
-      response = $.get(Config.prefix + "/bokeh/doc", {title : title})
+      response = $.get(Config.prefix + "bokeh/doc", {title : title})
         .done((data) ->
           all_models = data['all_models']
           load_models(all_models)
@@ -74,7 +79,7 @@ define [
     load_doc: (docid) ->
       wswrapper = utility.make_websocket();
       Config = require("common/base").Config
-      response = $.get(Config.prefix + "/bokeh/bokehinfo/#{docid}/", {})
+      response = $.get(Config.prefix + "bokeh/bokehinfo/#{docid}/", {})
         .done((data) ->
           all_models = data['all_models']
           load_models(all_models)

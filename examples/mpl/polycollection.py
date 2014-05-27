@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.collections import PolyCollection
-from bokeh import pyplot
+from bokeh import mpl
 
 # Generate data. In this case, we'll make a bunch of center-points and generate
 # verticies by subtracting random offsets from those center-points
@@ -34,4 +34,4 @@ plt.ylim([-60, 60])
 
 plt.title("MPL-PolyCollection support in Bokeh")
 
-pyplot.show_bokeh(plt.gcf(), filename="polycollection.html")
+mpl.to_bokeh(name="polycollection")

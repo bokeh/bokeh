@@ -26,6 +26,7 @@ High Level Plotting Interface
 
 Glyphs Functions
 ----------------
+
 .. autofunction:: bokeh.plotting.annular_wedge(x,y,inner_radius,outer_radius,start_angle,end_angle, **kwargs)
 .. autofunction:: bokeh.plotting.annulus(x, y, inner_radius, outer_radius, **kwargs)
 .. autofunction:: bokeh.plotting.arc(x, y, radius, start_angle, end_angle, **kwargs)
@@ -39,6 +40,7 @@ Glyphs Functions
 .. autofunction:: bokeh.plotting.diamond_cross(x, y, size=5, **kwargs)
 .. autofunction:: bokeh.plotting.image(image, x, y, dw, dh, palette, dilate=False)
 .. autofunction:: bokeh.plotting.image_rgba(image, x, y, dw, dh, dilate=False)
+.. autofunction:: bokeh.plotting.image_url(url, x, y, angle)
 .. autofunction:: bokeh.plotting.inverted_triangle(x, y, size=5, **kwargs)
 .. autofunction:: bokeh.plotting.line(x, y, *kwargs)
 .. autofunction:: bokeh.plotting.multi_line(xs, ys, **kwargs)
@@ -62,16 +64,18 @@ Glyphs Functions
 
 Session Management
 ------------------
+
 .. autofunction:: bokeh.plotting.output_cloud
 .. autofunction:: bokeh.plotting.output_file
 .. autofunction:: bokeh.plotting.output_notebook
 .. autofunction:: bokeh.plotting.output_server
-.. autofunction:: bokeh.plotting.session
+.. autofunction:: bokeh.plotting.cursession
 
 .. _bokeh_plotting_plots:
 
 Plot Manipulation
 -----------------
+
 .. autofunction:: bokeh.plotting.curplot
 .. autofunction:: bokeh.plotting.figure
 .. autofunction:: bokeh.plotting.hold
@@ -84,6 +88,7 @@ Plot Manipulation
 
 Styling Accessors
 -----------------
+
 .. autofunction:: bokeh.plotting.legend
 .. autofunction:: bokeh.plotting.axis
 .. autofunction:: bokeh.plotting.xaxis
@@ -92,11 +97,6 @@ Styling Accessors
 .. autofunction:: bokeh.plotting.xgrid
 .. autofunction:: bokeh.plotting.ygrid
 
-Advanced Functions
-------------------
-
-.. autofunction:: bokeh.plotting.visual
-
 Compatibility Layers
 ====================
 
@@ -104,17 +104,6 @@ Coming Soon.
 
 Underlying Object System
 ========================
-
-`bokeh.session`
----------------
-
-.. autoclass:: bokeh.session.Session
-.. autoclass:: bokeh.session.BaseHTMLSession
-.. autoclass:: bokeh.session.HTMLFileSession
-.. autoclass:: bokeh.session.PlotServerSession
-.. autoclass:: bokeh.session.NotebookSessionMixin
-.. autoclass:: bokeh.session.NotebookSession
-.. autoclass:: bokeh.session.NotebookServerSession
 
 `bokeh.objects`
 ---------------
@@ -137,3 +126,25 @@ Underlying Object System
               Tuple, Array, Class, Instance, This, Any, Function, Event,
               Either, Enum, Sequence, Mapping, Iterable, Color, Align,
               DashPattern, Size, Angle, Percent, FillProps, LineProps, TextProps
+
+`bokeh.resources`
+-----------------
+
+.. automodule:: bokeh.resources
+  :members:
+
+
+`bokeh.templates`
+-----------------
+
+.. automodule:: bokeh.templates
+
+
+Plot Embedding
+==============
+
+.. automodule:: bokeh.embed
+    :members:
+
+
+

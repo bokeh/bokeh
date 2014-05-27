@@ -15,11 +15,11 @@ window.Bokeh = Bokeh;
 {% for modulename, classname, parentname in extra_generated_classes %}
 window.{{modulename}}.main();
 {% endfor %}
-Bokeh.server_page("{{ docname }}");
+Bokeh.one_object_page("{{docid}}", "{{objid}}")
 {% endblock %}
 
 {% block content %}
 <div class="span12">
-  <div id="PlotPane">Plots</div>
+  <div id="PlotPane"></div>
 </div>
 {% endblock %}

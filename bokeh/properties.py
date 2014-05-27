@@ -51,7 +51,7 @@ class Property(object):
         try:
             return new == old
         except Exception as e:
-            logger.warning("could not compare %s and %s for property %s", new, old, self.name)
+            logger.warning("could not compare %s and %s for property %s (Reason: %s)", new, old, self.name, e)
         return False
 
     def transform(self, value):
@@ -90,6 +90,9 @@ class Property(object):
         if hasattr(obj, self._name):
             delattr(obj, self._name)
 
+    @property
+    def has_ref(self):
+        return False
 
 class Include(Property):
 
@@ -279,10 +282,10 @@ class ColorSpec(DataSpec):
     There are two common use cases for ColorSpec: setting a constant value,
     and indicating a field name to look for on the datasource::
 
-        class Bar(HasProps):
-            col = ColorSpec("green")
-            col2 = ColorSpec("colorfield")
-            col3 = ColorSpec("colorfield", default="aqua")
+    >>> class Bar(HasProps):
+    ...     col = ColorSpec("green")
+    ...     col2 = ColorSpec("colorfield")
+    ...     col3 = ColorSpec("colorfield", default="aqua")
 
     >>> b = Bar()
     >>> b.col = "red"  # sets a fixed value of red
@@ -466,7 +469,7 @@ class MetaHasProps(type):
         for name, prop in class_dict.items():
             if isinstance(prop, Property):
                 prop.name = name
-                if hasattr(prop, 'has_ref') and prop.has_ref:
+                if prop.has_ref:
                     names_with_refs.add(name)
                 elif isinstance(prop, ContainerProperty):
                     container_names.add(name)
@@ -675,6 +678,14 @@ class ParameterizedProperty(Property):
 
         raise ValueError("expected a property as type parameter, got %s" % type_param)
 
+    @property
+    def type_params(self):
+        raise NotImplementedError("abstract method")
+
+    @property
+    def has_ref(self):
+        return any(type_param.has_ref for type_param in self.type_params)
+
 class ContainerProperty(ParameterizedProperty):
     # Base class for container-like things; this helps the auto-serialization
     # and attribute change detection code
@@ -687,16 +698,15 @@ class List(ContainerProperty):
     People will also frequently pass in some other kind of property or a
     class (to indicate a list of instances).  In those cases, we want to
     just create an empty list
-
-    has_ref parameter tells us whether the json representation of this
-    list contains references to other objects
     """
 
-    def __init__(self, item_type, default=None, has_ref=False):
+    def __init__(self, item_type, default=None):
         self.item_type = self._validate_type_param(item_type)
-        self.has_ref = has_ref
-
         super(List, self).__init__(default=default)
+
+    @property
+    def type_params(self):
+        return [self.item_type]
 
     def validate(self, value):
         super(List, self).validate(value)
@@ -724,16 +734,16 @@ class List(ContainerProperty):
 class Dict(ContainerProperty):
     """ If a default value is passed in, then a shallow copy of it will be
     used for each new use of this property.
-
-    has_ref parameter tells us whether the json representation of this
-    list contains references to other objects
     """
 
-    def __init__(self, keys_type, values_type, default={}, has_ref=False):
+    def __init__(self, keys_type, values_type, default={}):
         self.keys_type = self._validate_type_param(keys_type)
         self.values_type = self._validate_type_param(values_type)
-        self.has_ref = has_ref
         super(Dict, self).__init__(default=default)
+
+    @property
+    def type_params(self):
+        return [self.keys_type, self.values_type]
 
     def __get__(self, obj, type=None):
         if not hasattr(obj, self._name) and isinstance(self.default, dict):
@@ -756,11 +766,12 @@ class Dict(ContainerProperty):
 class Tuple(ContainerProperty):
 
     def __init__(self, tp1, tp2, *type_params, **kwargs):
-        type_params = list(map(self._validate_type_param, (tp1, tp2) + type_params))
-        default = kwargs.get("default", None)
+        self._type_params = list(map(self._validate_type_param, (tp1, tp2) + type_params))
+        super(Tuple, self).__init__(default=kwargs.get("default", None))
 
-        self.type_params = type_params
-        super(Tuple, self).__init__(default=default)
+    @property
+    def type_params(self):
+        return self._type_params
 
     def validate(self, value):
         super(Tuple, self).validate(value)
@@ -778,6 +789,15 @@ class Array(ContainerProperty):
     called on it to create a copy for the default value for each use of
     this property.
     """
+
+    def __init__(self, item_type, default=None):
+        self.item_type = self._validate_type_param(item_type)
+        super(Array, self).__init__(default=default)
+
+    @property
+    def type_params(self):
+        return [self.item_type]
+
     def __get__(self, obj, type=None):
         if not hasattr(obj, self._name) and self.default is not None:
             setattr(obj, self._name, np.asarray(self.default))
@@ -786,15 +806,14 @@ class Array(ContainerProperty):
             return getattr(obj, self._name, self.default)
 
 class Instance(Property):
-    def __init__(self, instance_type, default=None, has_ref=False):
-        """has_ref : whether the json for this is a reference to
-        another object or not
-        """
-        if not isinstance(instance_type, (type, str)):
-            raise ValueError("expected a type, got %s" % instance_type)
+    def __init__(self, instance_type, default=None):
+        if not isinstance(instance_type, (type,) + string_types):
+            raise ValueError("expected a type or string, got %s" % instance_type)
+
+        if isinstance(instance_type, type) and not issubclass(instance_type, HasProps):
+            raise ValueError("expected a subclass of HasProps, got %s" % instance_type)
 
         self._instance_type = instance_type
-        self.has_ref = has_ref
 
         super(Instance, self).__init__(default=default)
 
@@ -805,6 +824,10 @@ class Instance(Property):
             self._instance_type = getattr(import_module(module, "bokeh"), name)
 
         return self._instance_type
+
+    @property
+    def has_ref(self):
+        return True
 
     def __get__(self, obj, type=None):
         # If the constructor for Instance() supplied a class name, we should
@@ -845,6 +868,10 @@ class Range(ParameterizedProperty):
         self.end = end
         super(Range, self).__init__(default=default)
 
+    @property
+    def type_params(self):
+        return [self.range_type]
+
     def validate(self, value):
         super(Range, self).validate(value)
 
@@ -858,11 +885,13 @@ class Either(ParameterizedProperty):
     """ Takes a list of valid properties and validates against them in succession. """
 
     def __init__(self, tp1, tp2, *type_params, **kwargs):
-        type_params = list(map(self._validate_type_param, (tp1, tp2) + type_params))
-        default = kwargs.get("default", type_params[0].default)
-
-        self.type_params = type_params
+        self._type_params = list(map(self._validate_type_param, (tp1, tp2) + type_params))
+        default = kwargs.get("default", self._type_params[0].default)
         super(Either, self).__init__(default=default)
+
+    @property
+    def type_params(self):
+        return self._type_params
 
     def validate(self, value):
         super(Either, self).validate(value)
@@ -958,7 +987,7 @@ class DashPattern(Either):
             try:
                 return self._dash_patterns[value]
             except KeyError:
-                return map(int, value.split())
+                return [int(x) for x in  value.split()]
         else:
             return value
 

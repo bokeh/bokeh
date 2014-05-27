@@ -8,6 +8,50 @@ Developer Guide
     :local:
     :depth: 2
 
+Testing
+=======
+
+There is a TravisCI project configured to execute on every GitHub push, it can
+be viewed at: https://travis-ci.org/ContinuumIO/bokeh.
+
+To run the python unit tests manually, you can execute::
+
+    $ python -c "import bokeh; bokeh.test()"
+
+Additionally, there are "examples tests" that check whether all the examples
+produce outputs. This script is in the `examples` directory and can be run by
+executing::
+
+    $ test -D
+
+You can also run all the available test (unit tests and example tests) from the
+top level directory following the next steps::
+
+    $ export BOKEH_DEFAULT_NO_DEV=True (just do it once!)
+
+and then::
+
+    $ nosetests
+
+or::
+
+    $ nosetests --with-coverage
+
+Currently this script does not support Windows. When adding new examples, make
+sure to place them in appropriate location under `examples/` directory and use
+special keywords (`server`, `animate`) in their names, if required. This will
+help test script to properly classify examples and use correct test runner. If
+new examples are placed under `plotting/` directory, only `animate` keyword is
+required for animated examples. Placing examples elsewhere, e.g. in `glyphs/`,
+may also require `server` keyword for server examples, because otherwise they
+will be classified as `file` (`*.py` extension) or `notebook` examples (`*.ipynb`
+extension).
+
+There is also a bokehjs unit test suite, it can be run by changing directories
+to the `bokehjs` subdirectory and executing::
+
+    $ grunt test
+
 Architecture Overview
 =====================
 
@@ -205,26 +249,35 @@ CoffeeScript in Bokeh itself, and there is CoffeeScript in BokehJS.
 It is possible to set up just for development on Bokeh, without having a
 development install of BokehJS.  To do this, just run ``python setup.py install``.
 This will copy the pre-built ``bokeh.js`` from the ``bokehjs/release`` directory
-into the correct place in the source tree.
+into the correct place in the source tree, and then install Bokeh into your
+``site-packages``.
+
+You can also use a "develop" install (one that points at your source checkout) by
+running ``python setup.py develop``. This will place a ``bokeh.pth`` file in
+``site-packages`` that points to your source checkout, and also  copy the pre-built
+``bokeh.js`` from the ``bokehjs/release`` directory into the correct place in the
+source tree. This mode is suitabe fordoing development on just Bokeh (but not BokehJS)
 
 If you want to do development on BokehJS as well, then modify the CoffeeScript
 source in the ``bokehjs/`` directory, and follow the instructions below for
-building/installing CoffeeScript.  Then run ``python setup.py devjs``.
-ONLY DO THIS IF YOU KNOW WHAT YOU ARE DOING!
+building/installing CoffeeScript.  Then run ``python setup.py develop --build_js``.
+
+.. warning:: It is not guaranteed that the previously released BokehJS and the
+             current python Bokeh library in GitHub master will always be compatible.
+             The ``--build_js`` option may be **required** in some circumstances.
 
 If you have any problems with the steps here, please contact the developers
 (see :ref:`contact`).
 
-CoffeeScript
-------------
+BokehJS
+-------
 
-Building the CoffeeScript BokehJS library has a number of requirements:
+Building the BokehJS library requires you to have `node.js` and `npm` (node
+package manager) installed. We're using Grunt for building BokehJS. Grunt will
+compile CoffeeScript, Less and Eco sources, combine JavaScript files, and
+generate optimized and minified `bokeh.js` and `bokeh.css`.
 
-You need to have node.js and the node package manager (npm) installed.
-
-We're using Grunt for our CoffeeScript build tool.  Grunt will compile
-CoffeeScript, combine js files, and support node.js require syntax on the
-client side.  Install grunt by executing::
+Install Grunt by executing::
 
     $ npm install -g grunt-cli
 
@@ -236,21 +289,44 @@ necessary dependencies::
 
     $ npm install
 
-This command will install build dependencies in the node_modules subdirectory.
+This command will install build dependencies in the `node_modules/` subdirectory.
 
-To compile the CoffeeScript into JavaScript, execute grunt::
+To compile the CoffeeScript, Less and Eco sources, issue::
 
     $ grunt build
 
-At this point bokeh can be be used as an `AMD module together with
-require.js <http://requirejs.org/docs/whyamd.html>`_. To build a single
-``bokeh.js`` that may be included as a script, see below.
+At this point BokehJS can be be used as an `AMD module together with require.js
+<http://requirejs.org/docs/whyamd.html>`_. To build a single ``bokeh.js`` that may
+be included as a script, see below.
 
-Grunt can concatenate the JavaScript files into a single JavaScript file,
-either minified or unminified. To generate both minified and un-minified 
-libraries, execute the command::
+Grunt can concatenate the JavaScript files into a single JavaScript file, either
+minified or unminified. To generate both minified and unminified libraries, issue::
 
     $ grunt deploy
 
-The resulting scripts will have the filenames 'bokeh.js' and 'bokeh.min.js' and
+The resulting scripts will have the filenames `bokeh.js` and `bokeh.min.js` and
 be located in the ``build/js`` subdirectory.
+
+Alternative build system
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Alternatively to `grunt`, you can use `sbt <http://www.scala-sbt.org` to build BokehJS.
+To start, issue `./sbt` in the root directory. This will download `sbt` itself, its
+dependencies and configure the build system. Due to this, the first run will be slow.
+In general you should see (more or less) the following output::
+
+    $ ./sbt
+    [info] Loading project definition from /home/user/continuum/bokeh/project
+    [info] Set current project to bokeh (in build file:/home/user/continuum/bokeh/)
+    continuum (bokeh)>
+
+There are two main commands available: `build` and `deploy`. `build` compiles CoffeeScript,
+Less and Eco sources, and copies other resources to the build directory. `deploy` does the
+same and additionally generates optimized and minified `bokeh.js` and `bokeh.css`. You can
+also run any specific subtask if you want, e.g. `compile` to compile CoffeeScript, Less and
+Eco sources, but not copy resources. You can prefix any command with `~`, which enables
+incremental compilation, so e.g. `~less` will watch `*.less` sources and compile the subset
+of files that changed. To stop watching sources, press ENTER (note that pressing Ctrl+C will
+terminate `sbt`).
+
+Note that `sbt`-based build system is experimental and should be used with caution.

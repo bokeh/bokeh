@@ -222,10 +222,10 @@ define [
       # ### method: HasProperties::resolve_ref
       #converts a reference into an object
       #also works vectorized now
-      if _.isArray(ref)
-        return _.map(ref, @resolve_ref)
       if not ref
         console.log('ERROR, null reference')
+      if _.isArray(ref)
+        return _.map(ref, @resolve_ref)
       #this way we can reference ourselves
       # even though we are not in any collection yet
       if ref['type'] == this.type and ref['id'] == this.id
@@ -252,9 +252,10 @@ define [
       #model where our API processes this model
       doc = @get('doc')
       if not doc?
-        throw new Error("Unset 'doc' in " + this)
+        console.log("WARN: Unset 'doc' in " + this)
+        # throw new Error("Unset 'doc' in " + this)
 
-      url = @get_base().Config.prefix + "/bokeh/bb/" + doc + "/" + @type + "/"
+      url = @get_base().Config.prefix + "bokeh/bb/" + doc + "/" + @type + "/"
       if (@isNew())
         return url
       return url + @get('id') + "/"
@@ -277,7 +278,7 @@ define [
         throw new Error("Unset 'doc' in " + this)
       id = @get('id')
       type = @type
-      url = "#{prefix}/bokeh/bb/rpc/#{doc}/#{type}/#{id}/#{funcname}/"
+      url = "#{prefix}bokeh/bb/rpc/#{doc}/#{type}/#{id}/#{funcname}/"
       data =
         args: args
         kwargs: kwargs

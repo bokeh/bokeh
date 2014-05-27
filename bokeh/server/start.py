@@ -1,5 +1,6 @@
 from __future__ import absolute_import, print_function
 
+import re
 import logging
 log = logging.getLogger(__name__)
 
@@ -16,8 +17,10 @@ else:
         logger = log
 
     class BokehWSGIHandler(WebSocketHandler):
+        _http_suffix = re.compile("\s*HTTP/\d+\.\d+$")
+
         def format_request(self):
-            request = getattr(self, 'requestline', '-')
+            request = self._http_suffix.sub("", getattr(self, 'requestline', '-'))
             status = getattr(self, 'status', '-')
             length = self.response_length or '-'
             time = "%.1f%s" % scale_delta(self.time_finish - self.time_start) if self.time_finish else '-'
@@ -40,12 +43,13 @@ from .app import bokeh_app
 from .models import user
 from . import services
 from .server_backends import (
-    RedisBackboneStorage, RedisServerModelStorage,
-    InMemoryBackboneStorage, InMemoryServerModelStorage,
-    ShelveBackboneStorage, ShelveServerModelStorage,
+    RedisServerModelStorage,
+    InMemoryServerModelStorage,
+    ShelveServerModelStorage,
     SingleUserAuthentication, MultiUserAuthentication,
     HDF5DataBackend
 )
+from .serverbb import RedisBackboneStorage, ShelveBackboneStorage, InMemoryBackboneStorage
 from .flask_gzip import Gzip
 
 PORT = 5006
@@ -88,8 +92,9 @@ def prepare_app(backend, single_user_mode=True, data_directory=None):
     if not app.secret_key:
         app.secret_key = str(uuid.uuid4())
         
-def register_blueprint():
-    app.register_blueprint(bokeh_app)
+def register_blueprint(prefix=None):
+    app.register_blueprint(bokeh_app, url_prefix=prefix)
+    bokeh_app.url_prefix = prefix
 
 def make_default_user(bokeh_app):
     bokehuser = user.new_user(bokeh_app.servermodel_storage, "defaultuser",

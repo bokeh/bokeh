@@ -1,8 +1,9 @@
-from .properties import (Instance, Enum, Float, Int, Color, Percent,
-    Size, Bool, DashPattern, Align, Angle, String, DataSpec, ColorSpec)
+from .properties import Align, Bool, DataSpec, Enum, HasProps, Size
 from .mixins import FillProps, LineProps, TextProps
 from .enums import Units, AngleUnits, Direction
-from .plotobject import PlotObject
+from .plot_object import Viewable
+
+from six import add_metaclass, iteritems
 
 # Size is a way to preserve a data-space-related metric all the way until
 #   render time, when the screen dimensions are known
@@ -10,8 +11,8 @@ from .plotobject import PlotObject
 #   of a random distribution to draw random samples from. Defaults to uniform
 #   but gaussian could certainly be useful.
 
-
-class BaseGlyph(PlotObject):
+@add_metaclass(Viewable)
+class BaseGlyph(HasProps):
     """ Base class for all glyphs/marks/geoms/whatever-you-call-'em in Bokeh.
     """
 
@@ -33,16 +34,15 @@ class BaseGlyph(PlotObject):
         """ Returns a dict mapping attributes to values, that is amenable for
         inclusion in a Glyph definition.
         """
-        d = self.vm_props()
-        d["type"] = self.__view_model__
+        props = self.changed_properties_with_values()
+        props["type"] = self.__view_model__
 
         # Iterate over all the DataSpec properties and convert them, using the
         # fact that DataSpecs store the dict-ified version on the object.
-        for attrname, dspec in self.dataspecs_with_refs().items():
-            d[attrname] = dspec.to_dict(self)
+        for attr, spec in iteritems(self.dataspecs_with_refs()):
+            props[attr] = spec.to_dict(self)
 
-        return d
-
+        return props
 
 class Marker(BaseGlyph, FillProps, LineProps):
     """ Base class for glyphs which are just simple markers placed at (x,y)
@@ -52,6 +52,11 @@ class Marker(BaseGlyph, FillProps, LineProps):
     x = DataSpec
     y = DataSpec
     size = DataSpec(units="screen", default=4, min_value=0)
+
+
+
+class Asterisk(Marker):
+    __view_model__ = "asterisk"
 
 class Circle(Marker):
     __view_model__ = "circle"
@@ -72,47 +77,40 @@ class Circle(Marker):
 
         return d
 
+class CircleCross(Marker):
+    __view_model__ = "circle_cross"
 
-# Other kinds of Markers, to match what GGplot provides
-class Square(Marker):
-    __view_model__ = "square"
-    angle = DataSpec
-
-class Triangle(Marker):
-    __view_model__ = "triangle"
+class CircleX(Marker):
+    __view_model__ = "circle_x"
 
 class Cross(Marker):
     __view_model__ = "cross"
 
-class Xmarker(Marker):
-    __view_model__ = "x"
-
 class Diamond(Marker):
     __view_model__ = "diamond"
-
-class InvertedTriangle(Marker):
-    __view_model__ = "inverted_triangle"
-
-class SquareX(Marker):
-    __view_model__ = "square_x"
-
-class Asterisk(Marker):
-    __view_model__ = "asterisk"
 
 class DiamondCross(Marker):
     __view_model__ = "diamond_cross"
 
-class CircleCross(Marker):
-    __view_model__ = "circle_cross"
+class InvertedTriangle(Marker):
+    __view_model__ = "inverted_triangle"
 
-class HexStar(Marker):
-    __view_model__ = "hexstar"
+class Square(Marker):
+    __view_model__ = "square"
+    angle = DataSpec
 
 class SquareCross(Marker):
     __view_model__ = "square_cross"
 
-class CircleX(Marker):
-    __view_model__ = "circle_x"
+class SquareX(Marker):
+    __view_model__ = "square_x"
+
+class Triangle(Marker):
+    __view_model__ = "triangle"
+
+class Xmarker(Marker):
+    __view_model__ = "x"
+
 
 
 class AnnularWedge(BaseGlyph, FillProps, LineProps):
@@ -162,11 +160,17 @@ class Image(BaseGlyph):
     palette = DataSpec
     dilate = Bool(False)
 
-class ImageURI(BaseGlyph):
-    __view_model__ = 'image_uri'
+class ImageURL(BaseGlyph):
+    __view_model__ = 'image_url'
+    url = DataSpec
     x = DataSpec
     y = DataSpec
+    w = DataSpec
+    h = DataSpec
     angle = DataSpec
+    dilate = Bool(False)
+    anchor = Enum("top_left", "top_center", "top_right", "right_center", "bottom_right",
+                  "bottom_center", "bottom_left", "left_center", "center")
 
 class ImageRGBA(BaseGlyph):
     __view_model__ = 'image_rgba'
@@ -259,3 +263,14 @@ class Wedge(BaseGlyph, FillProps, LineProps):
     start_angle = DataSpec
     end_angle = DataSpec
     direction = Enum(Direction)
+
+class Gear(BaseGlyph, LineProps, FillProps):
+    __view_model__ = 'gear'
+    x = DataSpec                          # Float (mm, data)
+    y = DataSpec                          # Float (mm, data)
+    angle = DataSpec(default=0)           # Float (rad)
+    module = DataSpec                     # Float (mm, data)
+    teeth = DataSpec                      # Int
+    pressure_angle = DataSpec(default=20) # Angle (deg)
+    shaft_size = DataSpec(default=0.3)    # Percent
+    internal = DataSpec(default=False)    # Bool

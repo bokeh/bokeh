@@ -1,5 +1,5 @@
 from ggplot import *
-from bokeh import pyplot
+from bokeh import mpl
 import matplotlib.pyplot as plt
 
 g = ggplot(diamonds, aes(x='price', color='cut')) + \
@@ -9,4 +9,4 @@ g.draw()
 
 plt.title("Density ggplot-based plot in Bokeh.")
 
-pyplot.show_bokeh(plt.gcf(), filename="density.html")
+mpl.to_bokeh(name="density")

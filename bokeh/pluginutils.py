@@ -1,4 +1,4 @@
-from bokeh.plotting import output_server, session
+from bokeh.plotting import output_server, curdoc, push
 import uuid
 import logging
 logger = logging.getLogger(__name__)
@@ -8,11 +8,12 @@ def app_document(prefix, url="default"):
         def wrapper(*args, **kwargs):
             docname = prefix + str(uuid.uuid4())
             output_server(docname, url=url)
+            curdoc().autoadd(False)
             app = func(*args, **kwargs)
-            session().add(app)
-            session().plotcontext.children=[app]
-            session().plotcontext._dirty = True
-            logger.debug("stored: %s", str(session().store_all()))
+            curdoc()._plotcontext.children = [app]
+            curdoc().add_all()
+            changed = push()
+            logger.debug("stored: %s", str(changed))
             app.docname = docname
             return app
         return wrapper
