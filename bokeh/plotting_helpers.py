@@ -16,6 +16,7 @@ from .objects import (
     ResizeTool, WheelZoomTool, Tool
 )
 from .properties import ColorSpec
+import warnings
 
 def get_default_color(plot=None):
     colors = [
@@ -347,6 +348,13 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
             raise ValueError("invalid tool: %s (expected one of %s)" % (tool, known_tools))
 
         tool_objs.append(tool_obj)
+
+        #Checking for repeated tools
+        _tools_in_list = [i.__str__().split(" ")[0][:-1] for i in tool_objs]
+        repeat_tool = [_tools_in_list.count(i)>1 for i in _tools_in_list]
+
+        if any(repeat_tool):
+            warnings.warn("one or some tools are being repeated!")
 
     p.tools.extend(tool_objs)
     return p
