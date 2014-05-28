@@ -19,17 +19,17 @@
 
   Tab.prototype.show = function () {
     var $this    = this.element
-    var $ul      = $this.closest('ul:not(.bk-dropdown-menu)')
-    var selector = $this.data('bk-target')
+    var $ul      = $this.closest('ul:not(.bk-bs-dropdown-menu)')
+    var selector = $this.data('bk-bs-target')
 
     if (!selector) {
       selector = $this.attr('href')
       selector = selector && selector.replace(/.*(?=#[^\s]*$)/, '') //strip for ie7
     }
 
-    if ($this.parent('li').hasClass('bk-active')) return
+    if ($this.parent('li').hasClass('bk-bs-active')) return
 
-    var previous = $ul.find('.bk-active:last a')[0]
+    var previous = $ul.find('.bk-bs-active:last a')[0]
     var e        = $.Event('show.bk-bs.tab', {
       relatedTarget: previous
     })
@@ -50,28 +50,28 @@
   }
 
   Tab.prototype.activate = function (element, container, callback) {
-    var $active    = container.find('> .bk-active')
+    var $active    = container.find('> .bk-bs-active')
     var transition = callback
       && $.support.transition
-      && $active.hasClass('bk-fade')
+      && $active.hasClass('bk-bs-fade')
 
     function next() {
       $active
-        .removeClass('bk-active')
-        .find('> .bk-dropdown-menu > .bk-active')
-        .removeClass('bk-active')
+        .removeClass('bk-bs-active')
+        .find('> .bk-bs-dropdown-menu > .bk-bs-active')
+        .removeClass('bk-bs-active')
 
-      element.addClass('bk-active')
+      element.addClass('bk-bs-active')
 
       if (transition) {
         element[0].offsetWidth // reflow for transition
-        element.addClass('bk-in')
+        element.addClass('bk-bs-in')
       } else {
-        element.removeClass('bk-fade')
+        element.removeClass('bk-bs-fade')
       }
 
-      if (element.parent('.bk-dropdown-menu')) {
-        element.closest('li.bk-dropdown').addClass('bk-active')
+      if (element.parent('.bk-bs-dropdown-menu')) {
+        element.closest('li.bk-bs-dropdown').addClass('bk-bs-active')
       }
 
       callback && callback()
@@ -83,7 +83,7 @@
         .emulateTransitionEnd(150) :
       next()
 
-    $active.removeClass('bk-in')
+    $active.removeClass('bk-bs-in')
   }
 
 
@@ -117,7 +117,7 @@
   // TAB DATA-API
   // ============
 
-  $(document).on('click.bk-bs.tab.data-api', '[data-bk-toggle="tab"], [data-bk-toggle="pill"]', function (e) {
+  $(document).on('click.bk-bs.tab.data-api', '[data-bk-bs-toggle="tab"], [data-bk-bs-toggle="pill"]', function (e) {
     e.preventDefault()
     $(this).tab('show')
   })

@@ -30,7 +30,7 @@ define [
       @$modal.modal(if @mget("visible") then "show" else "hide")
 
     changeContent: () =>
-      @$modal.find(".bk-modal-body").text(@mget("content"))
+      @$modal.find(".bk-bs-modal-body").text(@mget("content"))
 
   class Dialog extends HasProperties
     type: "Dialog"

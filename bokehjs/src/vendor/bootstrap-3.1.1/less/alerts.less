@@ -6,7 +6,7 @@
 // Base styles
 // -------------------------
 
-.bk-alert {
+.bk-bs-alert {
   padding: @alert-padding;
   margin-bottom: @line-height-computed;
   border: 1px solid transparent;
@@ -19,7 +19,7 @@
     color: inherit;
   }
   // Provide class for links that match alerts
-  .bk-alert-link {
+  .bk-bs-alert-link {
     font-weight: @alert-link-font-weight;
   }
 
@@ -37,11 +37,11 @@
 //
 // Expand the right padding and account for the close button's positioning.
 
-.bk-alert-dismissable {
+.bk-bs-alert-dismissable {
  padding-right: (@alert-padding + 20);
 
   // Adjust close link position
-  .bk-close {
+  .bk-bs-close {
     position: relative;
     top: -2px;
     right: -21px;
@@ -53,15 +53,15 @@
 //
 // Generate contextual modifier classes for colorizing the alert.
 
-.bk-alert-success {
-  .bk-alert-variant(@alert-success-bg; @alert-success-border; @alert-success-text);
+.bk-bs-alert-success {
+  .bk-bs-alert-variant(@alert-success-bg; @alert-success-border; @alert-success-text);
 }
-.bk-alert-info {
-  .bk-alert-variant(@alert-info-bg; @alert-info-border; @alert-info-text);
+.bk-bs-alert-info {
+  .bk-bs-alert-variant(@alert-info-bg; @alert-info-border; @alert-info-text);
 }
-.bk-alert-warning {
-  .bk-alert-variant(@alert-warning-bg; @alert-warning-border; @alert-warning-text);
+.bk-bs-alert-warning {
+  .bk-bs-alert-variant(@alert-warning-bg; @alert-warning-border; @alert-warning-text);
 }
-.bk-alert-danger {
-  .bk-alert-variant(@alert-danger-bg; @alert-danger-border; @alert-danger-text);
+.bk-bs-alert-danger {
+  .bk-bs-alert-variant(@alert-danger-bg; @alert-danger-border; @alert-danger-text);
 }

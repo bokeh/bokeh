@@ -21,7 +21,7 @@
 
     if (this.options.remote) {
       this.$element
-        .find('.bk-modal-content')
+        .find('.bk-bs-modal-content')
         .load(this.options.remote, $.proxy(function () {
           this.$element.trigger('loaded.bk-bs.modal')
         }, this))
@@ -50,10 +50,10 @@
 
     this.escape()
 
-    this.$element.on('click.dismiss.bk-bs.modal', '[data-bk-dismiss="modal"]', $.proxy(this.hide, this))
+    this.$element.on('click.dismiss.bk-bs.modal', '[data-bk-bs-dismiss="modal"]', $.proxy(this.hide, this))
 
     this.backdrop(function () {
-      var transition = $.support.transition && that.$element.hasClass('bk-fade')
+      var transition = $.support.transition && that.$element.hasClass('bk-bs-fade')
 
       if (!that.$element.parent().length) {
         that.$element.appendTo(document.body) // don't move modals dom position
@@ -68,7 +68,7 @@
       }
 
       that.$element
-        .addClass('bk-in')
+        .addClass('bk-bs-in')
         .attr('aria-hidden', false)
 
       that.enforceFocus()
@@ -76,7 +76,7 @@
       var e = $.Event('shown.bk-bs.modal', { relatedTarget: _relatedTarget })
 
       transition ?
-        that.$element.find('.bk-modal-dialog') // wait for modal to slide in
+        that.$element.find('.bk-bs-modal-dialog') // wait for modal to slide in
           .one($.support.transition.end, function () {
             that.$element.focus().trigger(e)
           })
@@ -101,11 +101,11 @@
     $(document).off('focusin.bk-bs.modal')
 
     this.$element
-      .removeClass('bk-in')
+      .removeClass('bk-bs-in')
       .attr('aria-hidden', true)
       .off('click.dismiss.bk-bs.modal')
 
-    $.support.transition && this.$element.hasClass('bk-fade') ?
+    $.support.transition && this.$element.hasClass('bk-bs-fade') ?
       this.$element
         .one($.support.transition.end, $.proxy(this.hideModal, this))
         .emulateTransitionEnd(300) :
@@ -147,12 +147,12 @@
   }
 
   Modal.prototype.backdrop = function (callback) {
-    var animate = this.$element.hasClass('bk-fade') ? 'bk-fade' : ''
+    var animate = this.$element.hasClass('bk-bs-fade') ? 'bk-bs-fade' : ''
 
     if (this.isShown && this.options.backdrop) {
       var doAnimate = $.support.transition && animate
 
-      this.$backdrop = $('<div class="bk-modal-backdrop ' + animate + '" />')
+      this.$backdrop = $('<div class="bk-bs-modal-backdrop ' + animate + '" />')
         .appendTo(document.body)
 
       this.$element.on('click.dismiss.bk-bs.modal', $.proxy(function (e) {
@@ -164,7 +164,7 @@
 
       if (doAnimate) this.$backdrop[0].offsetWidth // force reflow
 
-      this.$backdrop.addClass('bk-in')
+      this.$backdrop.addClass('bk-bs-in')
 
       if (!callback) return
 
@@ -175,9 +175,9 @@
         callback()
 
     } else if (!this.isShown && this.$backdrop) {
-      this.$backdrop.removeClass('bk-in')
+      this.$backdrop.removeClass('bk-bs-in')
 
-      $.support.transition && this.$element.hasClass('bk-fade') ?
+      $.support.transition && this.$element.hasClass('bk-bs-fade') ?
         this.$backdrop
           .one($.support.transition.end, callback)
           .emulateTransitionEnd(150) :
@@ -221,10 +221,10 @@
   // MODAL DATA-API
   // ==============
 
-  $(document).on('click.bk-bs.modal.data-api', '[data-bk-toggle="modal"]', function (e) {
+  $(document).on('click.bk-bs.modal.data-api', '[data-bk-bs-toggle="modal"]', function (e) {
     var $this   = $(this)
     var href    = $this.attr('href')
-    var $target = $($this.attr('data-bk-target') || (href && href.replace(/.*(?=#[^\s]+$)/, ''))) //strip for ie7
+    var $target = $($this.attr('data-bk-bs-target') || (href && href.replace(/.*(?=#[^\s]+$)/, ''))) //strip for ie7
     var option  = $target.data('bk-bs.modal') ? 'toggle' : $.extend({ remote: !/#/.test(href) && href }, $target.data(), $this.data())
 
     if ($this.is('a')) e.preventDefault()
@@ -237,7 +237,7 @@
   })
 
   $(document)
-    .on('show.bk-bs.modal', '.bk-modal', function () { $(document.body).addClass('bk-modal-open') })
-    .on('hidden.bk-bs.modal', '.bk-modal', function () { $(document.body).removeClass('bk-modal-open') })
+    .on('show.bk-bs.modal', '.bk-bs-modal', function () { $(document.body).addClass('bk-bs-modal-open') })
+    .on('hidden.bk-bs.modal', '.bk-bs-modal', function () { $(document.body).removeClass('bk-bs-modal-open') })
 
 }(jQuery);

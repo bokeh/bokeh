@@ -7,7 +7,7 @@
 // -------------------------
 
 // Clearfix
-// Source: http://nicolasgallagher.bk-com/micro-clearfix-hack/
+// Source: http://nicolasgallagher.bk-bs-com/micro-clearfix-hack/
 //
 // For modern browsers
 // 1. The space content is one way to avoid an Opera bug when the
@@ -16,7 +16,7 @@
 //    that are clearfixed.
 // 2. The use of `table` rather than `block` is only necessary if using
 //    `:before` to contain the top-margins of child elements.
-.bk-clearfix() {
+.bk-bs-clearfix() {
   &:before,
   &:after {
     content: " "; // 1
@@ -28,7 +28,7 @@
 }
 
 // WebKit-style focus
-.bk-tab-focus() {
+.bk-bs-tab-focus() {
   // Default
   outline: thin dotted;
   // WebKit
@@ -37,32 +37,32 @@
 }
 
 // Center-align a block level element
-.bk-center-block() {
+.bk-bs-center-block() {
   display: block;
   margin-left: auto;
   margin-right: auto;
 }
 
 // Sizing shortcuts
-.bk-size(@width; @height) {
+.bk-bs-size(@width; @height) {
   width: @width;
   height: @height;
 }
-.bk-square(@size) {
-  .bk-size(@size; @size);
+.bk-bs-square(@size) {
+  .bk-bs-size(@size; @size);
 }
 
 // Placeholder text
-.bk-placeholder(@color: @input-color-placeholder) {
+.bk-bs-placeholder(@color: @input-color-placeholder) {
   &::-moz-placeholder           { color: @color;   // Firefox
-                                  opacity: 1; } // See https://github.bk-com/twbs/bootstrap/pull/11526
+                                  opacity: 1; } // See https://github.bk-bs-com/twbs/bootstrap/pull/11526
   &:-ms-input-placeholder       { color: @color; } // Internet Explorer 10+
   &::-webkit-input-placeholder  { color: @color; } // Safari and Chrome
 }
 
 // Text overflow
 // Requires inline-block or block for proper styling
-.bk-text-overflow() {
+.bk-bs-text-overflow() {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -70,15 +70,15 @@
 
 // CSS image replacement
 //
-// Heads up! v3 launched with with only `.bk-hide-text()`, but per our pattern for
+// Heads up! v3 launched with with only `.bk-bs-hide-text()`, but per our pattern for
 // mixins being reused as classes with the same name, this doesn't hold up. As
-// of v3.0.1 we have added `.bk-text-hide()` and deprecated `.bk-hide-text()`. Note
+// of v3.0.1 we have added `.bk-bs-text-hide()` and deprecated `.bk-bs-hide-text()`. Note
 // that we cannot chain the mixins together in Less, so they are repeated.
 //
-// Source: https://github.bk-com/h5bp/html5-boilerplate/commit/aa0396eae757
+// Source: https://github.bk-bs-com/h5bp/html5-boilerplate/commit/aa0396eae757
 
 // Deprecated as of v3.0.1 (will be removed in v4)
-.bk-hide-text() {
+.bk-bs-hide-text() {
   font: ~"0/0" a;
   color: transparent;
   text-shadow: none;
@@ -86,8 +86,8 @@
   border: 0;
 }
 // New mixin to use as of v3.0.1
-.bk-text-hide() {
-  .bk-hide-text();
+.bk-bs-text-hide() {
+  .bk-bs-hide-text();
 }
 
 
@@ -96,51 +96,51 @@
 // --------------------------------------------------
 
 // Single side border-radius
-.bk-border-top-radius(@radius) {
+.bk-bs-border-top-radius(@radius) {
   border-top-right-radius: @radius;
    border-top-left-radius: @radius;
 }
-.bk-border-right-radius(@radius) {
+.bk-bs-border-right-radius(@radius) {
   border-bottom-right-radius: @radius;
      border-top-right-radius: @radius;
 }
-.bk-border-bottom-radius(@radius) {
+.bk-bs-border-bottom-radius(@radius) {
   border-bottom-right-radius: @radius;
    border-bottom-left-radius: @radius;
 }
-.bk-border-left-radius(@radius) {
+.bk-bs-border-left-radius(@radius) {
   border-bottom-left-radius: @radius;
      border-top-left-radius: @radius;
 }
 
 // Drop shadows
 //
-// Note: Deprecated `.bk-box-shadow()` as of v3.1.0 since all of Bootstrap's
+// Note: Deprecated `.bk-bs-box-shadow()` as of v3.1.0 since all of Bootstrap's
 //   supported browsers that have box shadow capabilities now support the
 //   standard `box-shadow` property.
-.bk-box-shadow(@shadow) {
+.bk-bs-box-shadow(@shadow) {
   -webkit-box-shadow: @shadow; // iOS <4.3 & Android <4.1
           box-shadow: @shadow;
 }
 
 // Transitions
-.bk-transition(@transition) {
+.bk-bs-transition(@transition) {
   -webkit-transition: @transition;
           transition: @transition;
 }
-.bk-transition-property(@transition-property) {
+.bk-bs-transition-property(@transition-property) {
   -webkit-transition-property: @transition-property;
           transition-property: @transition-property;
 }
-.bk-transition-delay(@transition-delay) {
+.bk-bs-transition-delay(@transition-delay) {
   -webkit-transition-delay: @transition-delay;
           transition-delay: @transition-delay;
 }
-.bk-transition-duration(@transition-duration) {
+.bk-bs-transition-duration(@transition-duration) {
   -webkit-transition-duration: @transition-duration;
           transition-duration: @transition-duration;
 }
-.bk-transition-transform(@transition) {
+.bk-bs-transition-transform(@transition) {
   -webkit-transition: -webkit-transform @transition;
      -moz-transition: -moz-transform @transition;
        -o-transition: -o-transform @transition;
@@ -148,52 +148,52 @@
 }
 
 // Transformations
-.bk-rotate(@degrees) {
+.bk-bs-rotate(@degrees) {
   -webkit-transform: rotate(@degrees);
       -ms-transform: rotate(@degrees); // IE9 only
           transform: rotate(@degrees);
 }
-.bk-scale(@ratio; @ratio-y...) {
+.bk-bs-scale(@ratio; @ratio-y...) {
   -webkit-transform: scale(@ratio, @ratio-y);
       -ms-transform: scale(@ratio, @ratio-y); // IE9 only
           transform: scale(@ratio, @ratio-y);
 }
-.bk-translate(@x; @y) {
+.bk-bs-translate(@x; @y) {
   -webkit-transform: translate(@x, @y);
       -ms-transform: translate(@x, @y); // IE9 only
           transform: translate(@x, @y);
 }
-.bk-skew(@x; @y) {
+.bk-bs-skew(@x; @y) {
   -webkit-transform: skew(@x, @y);
-      -ms-transform: skewX(@x) skewY(@y); // See https://github.bk-com/twbs/bootstrap/issues/4885; IE9+
+      -ms-transform: skewX(@x) skewY(@y); // See https://github.bk-bs-com/twbs/bootstrap/issues/4885; IE9+
           transform: skew(@x, @y);
 }
-.bk-translate3d(@x; @y; @z) {
+.bk-bs-translate3d(@x; @y; @z) {
   -webkit-transform: translate3d(@x, @y, @z);
           transform: translate3d(@x, @y, @z);
 }
 
-.bk-rotateX(@degrees) {
+.bk-bs-rotateX(@degrees) {
   -webkit-transform: rotateX(@degrees);
       -ms-transform: rotateX(@degrees); // IE9 only
           transform: rotateX(@degrees);
 }
-.bk-rotateY(@degrees) {
+.bk-bs-rotateY(@degrees) {
   -webkit-transform: rotateY(@degrees);
       -ms-transform: rotateY(@degrees); // IE9 only
           transform: rotateY(@degrees);
 }
-.bk-perspective(@perspective) {
+.bk-bs-perspective(@perspective) {
   -webkit-perspective: @perspective;
      -moz-perspective: @perspective;
           perspective: @perspective;
 }
-.bk-perspective-origin(@perspective) {
+.bk-bs-perspective-origin(@perspective) {
   -webkit-perspective-origin: @perspective;
      -moz-perspective-origin: @perspective;
           perspective-origin: @perspective;
 }
-.bk-transform-origin(@origin) {
+.bk-bs-transform-origin(@origin) {
   -webkit-transform-origin: @origin;
      -moz-transform-origin: @origin;
       -ms-transform-origin: @origin; // IE9 only
@@ -201,31 +201,31 @@
 }
 
 // Animations
-.bk-animation(@animation) {
+.bk-bs-animation(@animation) {
   -webkit-animation: @animation;
           animation: @animation;
 }
-.bk-animation-name(@name) {
+.bk-bs-animation-name(@name) {
   -webkit-animation-name: @name;
           animation-name: @name;
 }
-.bk-animation-duration(@duration) {
+.bk-bs-animation-duration(@duration) {
   -webkit-animation-duration: @duration;
           animation-duration: @duration;
 }
-.bk-animation-timing-function(@timing-function) {
+.bk-bs-animation-timing-function(@timing-function) {
   -webkit-animation-timing-function: @timing-function;
           animation-timing-function: @timing-function;
 }
-.bk-animation-delay(@delay) {
+.bk-bs-animation-delay(@delay) {
   -webkit-animation-delay: @delay;
           animation-delay: @delay;
 }
-.bk-animation-iteration-count(@iteration-count) {
+.bk-bs-animation-iteration-count(@iteration-count) {
   -webkit-animation-iteration-count: @iteration-count;
           animation-iteration-count: @iteration-count;
 }
-.bk-animation-direction(@direction) {
+.bk-bs-animation-direction(@direction) {
   -webkit-animation-direction: @direction;
           animation-direction: @direction;
 }
@@ -233,14 +233,14 @@
 // Backface visibility
 // Prevent browsers from flickering when using CSS 3D transforms.
 // Default value is `visible`, but can be changed to `hidden`
-.bk-backface-visibility(@visibility){
+.bk-bs-backface-visibility(@visibility){
   -webkit-backface-visibility: @visibility;
      -moz-backface-visibility: @visibility;
           backface-visibility: @visibility;
 }
 
 // Box sizing
-.bk-box-sizing(@boxmodel) {
+.bk-bs-box-sizing(@boxmodel) {
   -webkit-box-sizing: @boxmodel;
      -moz-box-sizing: @boxmodel;
           box-sizing: @boxmodel;
@@ -248,7 +248,7 @@
 
 // User select
 // For selecting text on the page
-.bk-user-select(@select) {
+.bk-bs-user-select(@select) {
   -webkit-user-select: @select;
      -moz-user-select: @select;
       -ms-user-select: @select; // IE10+
@@ -256,13 +256,13 @@
 }
 
 // Resize anything
-.bk-resizable(@direction) {
+.bk-bs-resizable(@direction) {
   resize: @direction; // Options: horizontal, vertical, both
   overflow: auto; // Safari fix
 }
 
 // CSS3 Content Columns
-.bk-content-columns(@column-count; @column-gap: @grid-gutter-width) {
+.bk-bs-content-columns(@column-count; @column-gap: @grid-gutter-width) {
   -webkit-column-count: @column-count;
      -moz-column-count: @column-count;
           column-count: @column-count;
@@ -272,7 +272,7 @@
 }
 
 // Optional hyphenation
-.bk-hyphens(@mode: auto) {
+.bk-bs-hyphens(@mode: auto) {
   word-wrap: break-word;
   -webkit-hyphens: @mode;
      -moz-hyphens: @mode;
@@ -282,7 +282,7 @@
 }
 
 // Opacity
-.bk-opacity(@opacity) {
+.bk-bs-opacity(@opacity) {
   opacity: @opacity;
   // IE8 filter
   @opacity-ie: (@opacity * 100);
@@ -300,47 +300,47 @@
   //
   // Creates two color stops, start and end, by specifying a color and position for each color stop.
   // Color stops are not available in IE9 and below.
-  .bk-horizontal(@start-color: #555; @end-color: #333; @start-percent: 0%; @end-percent: 100%) {
+  .bk-bs-horizontal(@start-color: #555; @end-color: #333; @start-percent: 0%; @end-percent: 100%) {
     background-image: -webkit-linear-gradient(left, color-stop(@start-color @start-percent), color-stop(@end-color @end-percent)); // Safari 5.1-6, Chrome 10+
     background-image:  linear-gradient(to right, @start-color @start-percent, @end-color @end-percent); // Standard, IE10, Firefox 16+, Opera 12.10+, Safari 7+, Chrome 26+
     background-repeat: repeat-x;
-    filter: e(%("progid:DXImageTransform.bk-Microsoft.bk-gradient(startColorstr='%d', endColorstr='%d', GradientType=1)",argb(@start-color),argb(@end-color))); // IE9 and down
+    filter: e(%("progid:DXImageTransform.bk-bs-Microsoft.bk-bs-gradient(startColorstr='%d', endColorstr='%d', GradientType=1)",argb(@start-color),argb(@end-color))); // IE9 and down
   }
 
   // Vertical gradient, from top to bottom
   //
   // Creates two color stops, start and end, by specifying a color and position for each color stop.
   // Color stops are not available in IE9 and below.
-  .bk-vertical(@start-color: #555; @end-color: #333; @start-percent: 0%; @end-percent: 100%) {
+  .bk-bs-vertical(@start-color: #555; @end-color: #333; @start-percent: 0%; @end-percent: 100%) {
     background-image: -webkit-linear-gradient(top, @start-color @start-percent, @end-color @end-percent);  // Safari 5.1-6, Chrome 10+
     background-image: linear-gradient(to bottom, @start-color @start-percent, @end-color @end-percent); // Standard, IE10, Firefox 16+, Opera 12.10+, Safari 7+, Chrome 26+
     background-repeat: repeat-x;
-    filter: e(%("progid:DXImageTransform.bk-Microsoft.bk-gradient(startColorstr='%d', endColorstr='%d', GradientType=0)",argb(@start-color),argb(@end-color))); // IE9 and down
+    filter: e(%("progid:DXImageTransform.bk-bs-Microsoft.bk-bs-gradient(startColorstr='%d', endColorstr='%d', GradientType=0)",argb(@start-color),argb(@end-color))); // IE9 and down
   }
 
-  .bk-directional(@start-color: #555; @end-color: #333; @deg: 45deg) {
+  .bk-bs-directional(@start-color: #555; @end-color: #333; @deg: 45deg) {
     background-repeat: repeat-x;
     background-image: -webkit-linear-gradient(@deg, @start-color, @end-color); // Safari 5.1-6, Chrome 10+
     background-image: linear-gradient(@deg, @start-color, @end-color); // Standard, IE10, Firefox 16+, Opera 12.10+, Safari 7+, Chrome 26+
   }
-  .bk-horizontal-three-colors(@start-color: #00b3ee; @mid-color: #7a43b6; @color-stop: 50%; @end-color: #c3325f) {
+  .bk-bs-horizontal-three-colors(@start-color: #00b3ee; @mid-color: #7a43b6; @color-stop: 50%; @end-color: #c3325f) {
     background-image: -webkit-linear-gradient(left, @start-color, @mid-color @color-stop, @end-color);
     background-image: linear-gradient(to right, @start-color, @mid-color @color-stop, @end-color);
     background-repeat: no-repeat;
-    filter: e(%("progid:DXImageTransform.bk-Microsoft.bk-gradient(startColorstr='%d', endColorstr='%d', GradientType=1)",argb(@start-color),argb(@end-color))); // IE9 and down, gets no color-stop at all for proper fallback
+    filter: e(%("progid:DXImageTransform.bk-bs-Microsoft.bk-bs-gradient(startColorstr='%d', endColorstr='%d', GradientType=1)",argb(@start-color),argb(@end-color))); // IE9 and down, gets no color-stop at all for proper fallback
   }
-  .bk-vertical-three-colors(@start-color: #00b3ee; @mid-color: #7a43b6; @color-stop: 50%; @end-color: #c3325f) {
+  .bk-bs-vertical-three-colors(@start-color: #00b3ee; @mid-color: #7a43b6; @color-stop: 50%; @end-color: #c3325f) {
     background-image: -webkit-linear-gradient(@start-color, @mid-color @color-stop, @end-color);
     background-image: linear-gradient(@start-color, @mid-color @color-stop, @end-color);
     background-repeat: no-repeat;
-    filter: e(%("progid:DXImageTransform.bk-Microsoft.bk-gradient(startColorstr='%d', endColorstr='%d', GradientType=0)",argb(@start-color),argb(@end-color))); // IE9 and down, gets no color-stop at all for proper fallback
+    filter: e(%("progid:DXImageTransform.bk-bs-Microsoft.bk-bs-gradient(startColorstr='%d', endColorstr='%d', GradientType=0)",argb(@start-color),argb(@end-color))); // IE9 and down, gets no color-stop at all for proper fallback
   }
-  .bk-radial(@inner-color: #555; @outer-color: #333) {
+  .bk-bs-radial(@inner-color: #555; @outer-color: #333) {
     background-image: -webkit-radial-gradient(circle, @inner-color, @outer-color);
     background-image: radial-gradient(circle, @inner-color, @outer-color);
     background-repeat: no-repeat;
   }
-  .bk-striped(@color: rgba(255,255,255,.15); @angle: 45deg) {
+  .bk-bs-striped(@color: rgba(255,255,255,.15); @angle: 45deg) {
     background-image: -webkit-linear-gradient(@angle, @color 25%, transparent 25%, transparent 50%, @color 50%, @color 75%, transparent 75%, transparent);
     background-image: linear-gradient(@angle, @color 25%, transparent 25%, transparent 50%, @color 50%, @color 75%, transparent 75%, transparent);
   }
@@ -350,8 +350,8 @@
 //
 // When you need to remove a gradient background, do not forget to use this to reset
 // the IE filter for IE9 and below.
-.bk-reset-filter() {
-  filter: e(%("progid:DXImageTransform.bk-Microsoft.bk-gradient(enabled = false)"));
+.bk-bs-reset-filter() {
+  filter: e(%("progid:DXImageTransform.bk-bs-Microsoft.bk-bs-gradient(enabled = false)"));
 }
 
 
@@ -360,7 +360,7 @@
 //
 // Short retina mixin for setting background-image and -size
 
-.bk-img-retina(@file-1x; @file-2x; @width-1x; @height-1x) {
+.bk-bs-img-retina(@file-1x; @file-2x; @width-1x; @height-1x) {
   background-image: url("@{file-1x}");
 
   @media
@@ -380,7 +380,7 @@
 //
 // Keep images from scaling beyond the width of their parents.
 
-.bk-img-responsive(@display: block) {
+.bk-bs-img-responsive(@display: block) {
   display: @display;
   max-width: 100%; // Part 1: Set a maximum relative to the parent
   height: auto; // Part 2: Scale the height according to the width, otherwise you get stretching
@@ -393,7 +393,7 @@
 // Horizontal dividers
 // -------------------------
 // Dividers (basically an hr) within dropdowns and nav lists
-.bk-nav-divider(@color: #e5e5e5) {
+.bk-bs-nav-divider(@color: #e5e5e5) {
   height: 1px;
   margin: ((@line-height-computed / 2) - 1) 0;
   overflow: hidden;
@@ -402,20 +402,20 @@
 
 // Panels
 // -------------------------
-.bk-panel-variant(@border; @heading-text-color; @heading-bg-color; @heading-border) {
+.bk-bs-panel-variant(@border; @heading-text-color; @heading-bg-color; @heading-border) {
   border-color: @border;
 
-  & > .bk-panel-heading {
+  & > .bk-bs-panel-heading {
     color: @heading-text-color;
     background-color: @heading-bg-color;
     border-color: @heading-border;
 
-    + .bk-panel-collapse .bk-panel-body {
+    + .bk-bs-panel-collapse .bk-bs-panel-body {
       border-top-color: @border;
     }
   }
-  & > .bk-panel-footer {
-    + .bk-panel-collapse .bk-panel-body {
+  & > .bk-bs-panel-footer {
+    + .bk-bs-panel-collapse .bk-bs-panel-body {
       border-bottom-color: @border;
     }
   }
@@ -423,7 +423,7 @@
 
 // Alerts
 // -------------------------
-.bk-alert-variant(@background; @border; @text-color) {
+.bk-bs-alert-variant(@background; @border; @text-color) {
   background-color: @background;
   border-color: @border;
   color: @text-color;
@@ -431,19 +431,19 @@
   hr {
     border-top-color: darken(@border, 5%);
   }
-  .bk-alert-link {
+  .bk-bs-alert-link {
     color: darken(@text-color, 10%);
   }
 }
 
 // Tables
 // -------------------------
-.bk-table-row-variant(@state; @background) {
-  // Exact selectors below required to override `.bk-table-striped` and prevent
+.bk-bs-table-row-variant(@state; @background) {
+  // Exact selectors below required to override `.bk-bs-table-striped` and prevent
   // inheritance to nested tables.
-  .bk-table > thead > tr,
-  .bk-table > tbody > tr,
-  .bk-table > tfoot > tr {
+  .bk-bs-table > thead > tr,
+  .bk-bs-table > tbody > tr,
+  .bk-bs-table > tfoot > tr {
     > td.@{state},
     > th.@{state},
     &.@{state} > td,
@@ -452,9 +452,9 @@
     }
   }
 
-  // Hover states for `.bk-table-hover`
+  // Hover states for `.bk-bs-table-hover`
   // Note: this is not available for cells or rows within `thead` or `tfoot`.
-  .bk-table-hover > tbody > tr {
+  .bk-bs-table-hover > tbody > tr {
     > td.@{state}:hover,
     > th.@{state}:hover,
     &.@{state}:hover > td,
@@ -466,24 +466,24 @@
 
 // List Groups
 // -------------------------
-.bk-list-group-item-variant(@state; @background; @color) {
-  .bk-list-group-item-@{state} {
+.bk-bs-list-group-item-variant(@state; @background; @color) {
+  .bk-bs-list-group-item-@{state} {
     color: @color;
     background-color: @background;
 
     a& {
       color: @color;
 
-      .bk-list-group-item-heading { color: inherit; }
+      .bk-bs-list-group-item-heading { color: inherit; }
 
       &:hover,
       &:focus {
         color: @color;
         background-color: darken(@background, 5%);
       }
-      &.bk-active,
-      &.bk-active:hover,
-      &.bk-active:focus {
+      &.bk-bs-active,
+      &.bk-bs-active:hover,
+      &.bk-bs-active:focus {
         color: #fff;
         background-color: @color;
         border-color: @color;
@@ -496,7 +496,7 @@
 // -------------------------
 // Easily pump out default styles, as well as :hover, :focus, :active,
 // and disabled options for all buttons
-.bk-button-variant(@color; @background; @border) {
+.bk-bs-button-variant(@color; @background; @border) {
   color: @color;
   background-color: @background;
   border-color: @border;
@@ -504,31 +504,31 @@
   &:hover,
   &:focus,
   &:active,
-  &.bk-active,
-  .bk-open .bk-dropdown-toggle& {
+  &.bk-bs-active,
+  .bk-bs-open .bk-bs-dropdown-toggle& {
     color: @color;
     background-color: darken(@background, 8%);
         border-color: darken(@border, 12%);
   }
   &:active,
-  &.bk-active,
-  .bk-open .bk-dropdown-toggle& {
+  &.bk-bs-active,
+  .bk-bs-open .bk-bs-dropdown-toggle& {
     background-image: none;
   }
-  &.bk-disabled,
+  &.bk-bs-disabled,
   &[disabled],
   fieldset[disabled] & {
     &,
     &:hover,
     &:focus,
     &:active,
-    &.bk-active {
+    &.bk-bs-active {
       background-color: @background;
           border-color: @border;
     }
   }
 
-  .bk-badge {
+  .bk-bs-badge {
     color: @background;
     background-color: @color;
   }
@@ -536,7 +536,7 @@
 
 // Button sizes
 // -------------------------
-.bk-button-size(@padding-vertical; @padding-horizontal; @font-size; @line-height; @border-radius) {
+.bk-bs-button-size(@padding-vertical; @padding-horizontal; @font-size; @line-height; @border-radius) {
   padding: @padding-vertical @padding-horizontal;
   font-size: @font-size;
   line-height: @line-height;
@@ -545,7 +545,7 @@
 
 // Pagination
 // -------------------------
-.bk-pagination-size(@padding-vertical; @padding-horizontal; @font-size; @border-radius) {
+.bk-bs-pagination-size(@padding-vertical; @padding-horizontal; @font-size; @border-radius) {
   > li {
     > a,
     > span {
@@ -555,13 +555,13 @@
     &:first-child {
       > a,
       > span {
-        .bk-border-left-radius(@border-radius);
+        .bk-bs-border-left-radius(@border-radius);
       }
     }
     &:last-child {
       > a,
       > span {
-        .bk-border-right-radius(@border-radius);
+        .bk-bs-border-right-radius(@border-radius);
       }
     }
   }
@@ -569,7 +569,7 @@
 
 // Labels
 // -------------------------
-.bk-label-variant(@color) {
+.bk-bs-label-variant(@color) {
   background-color: @color;
   &[href] {
     &:hover,
@@ -581,7 +581,7 @@
 
 // Contextual backgrounds
 // -------------------------
-.bk-bg-variant(@color) {
+.bk-bs-bg-variant(@color) {
   background-color: @color;
   a&:hover {
     background-color: darken(@color, 10%);
@@ -590,7 +590,7 @@
 
 // Typography
 // -------------------------
-.bk-text-emphasis-variant(@color) {
+.bk-bs-text-emphasis-variant(@color) {
   color: @color;
   a&:hover {
     color: darken(@color, 10%);
@@ -600,25 +600,25 @@
 // Navbar vertical align
 // -------------------------
 // Vertically center elements in the navbar.
-// Example: an element has a height of 30px, so write out `.bk-navbar-vertical-align(30px);` to calculate the appropriate top margin.
-.bk-navbar-vertical-align(@element-height) {
+// Example: an element has a height of 30px, so write out `.bk-bs-navbar-vertical-align(30px);` to calculate the appropriate top margin.
+.bk-bs-navbar-vertical-align(@element-height) {
   margin-top: ((@navbar-height - @element-height) / 2);
   margin-bottom: ((@navbar-height - @element-height) / 2);
 }
 
 // Progress bars
 // -------------------------
-.bk-progress-bar-variant(@color) {
+.bk-bs-progress-bar-variant(@color) {
   background-color: @color;
-  .bk-progress-striped & {
-    #gradient > .bk-striped();
+  .bk-bs-progress-striped & {
+    #gradient > .bk-bs-striped();
   }
 }
 
 // Responsive utilities
 // -------------------------
-// More easily include all the states for responsive-utilities.bk-less.
-.bk-responsive-visibility() {
+// More easily include all the states for responsive-utilities.bk-bs-less.
+.bk-bs-responsive-visibility() {
   display: block !important;
   table&  { display: table; }
   tr&     { display: table-row !important; }
@@ -626,7 +626,7 @@
   td&     { display: table-cell !important; }
 }
 
-.bk-responsive-invisibility() {
+.bk-bs-responsive-invisibility() {
   display: none !important;
 }
 
@@ -635,23 +635,23 @@
 // -----------
 
 // Centered container element
-.bk-container-fixed() {
+.bk-bs-container-fixed() {
   margin-right: auto;
   margin-left: auto;
   padding-left:  (@grid-gutter-width / 2);
   padding-right: (@grid-gutter-width / 2);
-  &:extend(.bk-clearfix all);
+  &:extend(.bk-bs-clearfix all);
 }
 
 // Creates a wrapper for a series of columns
-.bk-make-row(@gutter: @grid-gutter-width) {
+.bk-bs-make-row(@gutter: @grid-gutter-width) {
   margin-left:  (@gutter / -2);
   margin-right: (@gutter / -2);
-  &:extend(.bk-clearfix all);
+  &:extend(.bk-bs-clearfix all);
 }
 
 // Generate the extra small columns
-.bk-make-xs-column(@columns; @gutter: @grid-gutter-width) {
+.bk-bs-make-xs-column(@columns; @gutter: @grid-gutter-width) {
   position: relative;
   float: left;
   width: percentage((@columns / @grid-columns));
@@ -659,17 +659,17 @@
   padding-left:  (@gutter / 2);
   padding-right: (@gutter / 2);
 }
-.bk-make-xs-column-offset(@columns) {
+.bk-bs-make-xs-column-offset(@columns) {
   @media (min-width: @screen-xs-min) {
     margin-left: percentage((@columns / @grid-columns));
   }
 }
-.bk-make-xs-column-push(@columns) {
+.bk-bs-make-xs-column-push(@columns) {
   @media (min-width: @screen-xs-min) {
     left: percentage((@columns / @grid-columns));
   }
 }
-.bk-make-xs-column-pull(@columns) {
+.bk-bs-make-xs-column-pull(@columns) {
   @media (min-width: @screen-xs-min) {
     right: percentage((@columns / @grid-columns));
   }
@@ -677,7 +677,7 @@
 
 
 // Generate the small columns
-.bk-make-sm-column(@columns; @gutter: @grid-gutter-width) {
+.bk-bs-make-sm-column(@columns; @gutter: @grid-gutter-width) {
   position: relative;
   min-height: 1px;
   padding-left:  (@gutter / 2);
@@ -688,17 +688,17 @@
     width: percentage((@columns / @grid-columns));
   }
 }
-.bk-make-sm-column-offset(@columns) {
+.bk-bs-make-sm-column-offset(@columns) {
   @media (min-width: @screen-sm-min) {
     margin-left: percentage((@columns / @grid-columns));
   }
 }
-.bk-make-sm-column-push(@columns) {
+.bk-bs-make-sm-column-push(@columns) {
   @media (min-width: @screen-sm-min) {
     left: percentage((@columns / @grid-columns));
   }
 }
-.bk-make-sm-column-pull(@columns) {
+.bk-bs-make-sm-column-pull(@columns) {
   @media (min-width: @screen-sm-min) {
     right: percentage((@columns / @grid-columns));
   }
@@ -706,7 +706,7 @@
 
 
 // Generate the medium columns
-.bk-make-md-column(@columns; @gutter: @grid-gutter-width) {
+.bk-bs-make-md-column(@columns; @gutter: @grid-gutter-width) {
   position: relative;
   min-height: 1px;
   padding-left:  (@gutter / 2);
@@ -717,17 +717,17 @@
     width: percentage((@columns / @grid-columns));
   }
 }
-.bk-make-md-column-offset(@columns) {
+.bk-bs-make-md-column-offset(@columns) {
   @media (min-width: @screen-md-min) {
     margin-left: percentage((@columns / @grid-columns));
   }
 }
-.bk-make-md-column-push(@columns) {
+.bk-bs-make-md-column-push(@columns) {
   @media (min-width: @screen-md-min) {
     left: percentage((@columns / @grid-columns));
   }
 }
-.bk-make-md-column-pull(@columns) {
+.bk-bs-make-md-column-pull(@columns) {
   @media (min-width: @screen-md-min) {
     right: percentage((@columns / @grid-columns));
   }
@@ -735,7 +735,7 @@
 
 
 // Generate the large columns
-.bk-make-lg-column(@columns; @gutter: @grid-gutter-width) {
+.bk-bs-make-lg-column(@columns; @gutter: @grid-gutter-width) {
   position: relative;
   min-height: 1px;
   padding-left:  (@gutter / 2);
@@ -746,17 +746,17 @@
     width: percentage((@columns / @grid-columns));
   }
 }
-.bk-make-lg-column-offset(@columns) {
+.bk-bs-make-lg-column-offset(@columns) {
   @media (min-width: @screen-lg-min) {
     margin-left: percentage((@columns / @grid-columns));
   }
 }
-.bk-make-lg-column-push(@columns) {
+.bk-bs-make-lg-column-push(@columns) {
   @media (min-width: @screen-lg-min) {
     left: percentage((@columns / @grid-columns));
   }
 }
-.bk-make-lg-column-pull(@columns) {
+.bk-bs-make-lg-column-pull(@columns) {
   @media (min-width: @screen-lg-min) {
     right: percentage((@columns / @grid-columns));
   }
@@ -768,17 +768,17 @@
 // Used only by Bootstrap to generate the correct number of grid classes given
 // any value of `@grid-columns`.
 
-.bk-make-grid-columns() {
+.bk-bs-make-grid-columns() {
   // Common styles for all sizes of grid columns, widths 1-12
-  .bk-col(@index) when (@index = 1) { // initial
-    @item: ~".bk-col-xs-@{index}, .bk-col-sm-@{index}, .bk-col-md-@{index}, .bk-col-lg-@{index}";
-    .bk-col((@index + 1), @item);
+  .bk-bs-col(@index) when (@index = 1) { // initial
+    @item: ~".bk-bs-col-xs-@{index}, .bk-bs-col-sm-@{index}, .bk-bs-col-md-@{index}, .bk-bs-col-lg-@{index}";
+    .bk-bs-col((@index + 1), @item);
   }
-  .bk-col(@index, @list) when (@index =< @grid-columns) { // general; "=<" isn't a typo
-    @item: ~".bk-col-xs-@{index}, .bk-col-sm-@{index}, .bk-col-md-@{index}, .bk-col-lg-@{index}";
-    .bk-col((@index + 1), ~"@{list}, @{item}");
+  .bk-bs-col(@index, @list) when (@index =< @grid-columns) { // general; "=<" isn't a typo
+    @item: ~".bk-bs-col-xs-@{index}, .bk-bs-col-sm-@{index}, .bk-bs-col-md-@{index}, .bk-bs-col-lg-@{index}";
+    .bk-bs-col((@index + 1), ~"@{list}, @{item}");
   }
-  .bk-col(@index, @list) when (@index > @grid-columns) { // terminal
+  .bk-bs-col(@index, @list) when (@index > @grid-columns) { // terminal
     @{list} {
       position: relative;
       // Prevent columns from collapsing when empty
@@ -788,96 +788,96 @@
       padding-right: (@grid-gutter-width / 2);
     }
   }
-  .bk-col(1); // kickstart it
+  .bk-bs-col(1); // kickstart it
 }
 
-.bk-float-grid-columns(@class) {
-  .bk-col(@index) when (@index = 1) { // initial
-    @item: ~".bk-col-@{class}-@{index}";
-    .bk-col((@index + 1), @item);
+.bk-bs-float-grid-columns(@class) {
+  .bk-bs-col(@index) when (@index = 1) { // initial
+    @item: ~".bk-bs-col-@{class}-@{index}";
+    .bk-bs-col((@index + 1), @item);
   }
-  .bk-col(@index, @list) when (@index =< @grid-columns) { // general
-    @item: ~".bk-col-@{class}-@{index}";
-    .bk-col((@index + 1), ~"@{list}, @{item}");
+  .bk-bs-col(@index, @list) when (@index =< @grid-columns) { // general
+    @item: ~".bk-bs-col-@{class}-@{index}";
+    .bk-bs-col((@index + 1), ~"@{list}, @{item}");
   }
-  .bk-col(@index, @list) when (@index > @grid-columns) { // terminal
+  .bk-bs-col(@index, @list) when (@index > @grid-columns) { // terminal
     @{list} {
       float: left;
     }
   }
-  .bk-col(1); // kickstart it
+  .bk-bs-col(1); // kickstart it
 }
 
-.bk-calc-grid-column(@index, @class, @type) when (@type = width) and (@index > 0) {
-  .bk-col-@{class}-@{index} {
+.bk-bs-calc-grid-column(@index, @class, @type) when (@type = width) and (@index > 0) {
+  .bk-bs-col-@{class}-@{index} {
     width: percentage((@index / @grid-columns));
   }
 }
-.bk-calc-grid-column(@index, @class, @type) when (@type = push) {
-  .bk-col-@{class}-push-@{index} {
+.bk-bs-calc-grid-column(@index, @class, @type) when (@type = push) {
+  .bk-bs-col-@{class}-push-@{index} {
     left: percentage((@index / @grid-columns));
   }
 }
-.bk-calc-grid-column(@index, @class, @type) when (@type = pull) {
-  .bk-col-@{class}-pull-@{index} {
+.bk-bs-calc-grid-column(@index, @class, @type) when (@type = pull) {
+  .bk-bs-col-@{class}-pull-@{index} {
     right: percentage((@index / @grid-columns));
   }
 }
-.bk-calc-grid-column(@index, @class, @type) when (@type = offset) {
-  .bk-col-@{class}-offset-@{index} {
+.bk-bs-calc-grid-column(@index, @class, @type) when (@type = offset) {
+  .bk-bs-col-@{class}-offset-@{index} {
     margin-left: percentage((@index / @grid-columns));
   }
 }
 
 // Basic looping in LESS
-.bk-loop-grid-columns(@index, @class, @type) when (@index >= 0) {
-  .bk-calc-grid-column(@index, @class, @type);
+.bk-bs-loop-grid-columns(@index, @class, @type) when (@index >= 0) {
+  .bk-bs-calc-grid-column(@index, @class, @type);
   // next iteration
-  .bk-loop-grid-columns((@index - 1), @class, @type);
+  .bk-bs-loop-grid-columns((@index - 1), @class, @type);
 }
 
 // Create grid for specific class
-.bk-make-grid(@class) {
-  .bk-float-grid-columns(@class);
-  .bk-loop-grid-columns(@grid-columns, @class, width);
-  .bk-loop-grid-columns(@grid-columns, @class, pull);
-  .bk-loop-grid-columns(@grid-columns, @class, push);
-  .bk-loop-grid-columns(@grid-columns, @class, offset);
+.bk-bs-make-grid(@class) {
+  .bk-bs-float-grid-columns(@class);
+  .bk-bs-loop-grid-columns(@grid-columns, @class, width);
+  .bk-bs-loop-grid-columns(@grid-columns, @class, pull);
+  .bk-bs-loop-grid-columns(@grid-columns, @class, push);
+  .bk-bs-loop-grid-columns(@grid-columns, @class, offset);
 }
 
 // Form validation states
 //
-// Used in forms.bk-less to generate the form validation CSS for warnings, errors,
+// Used in forms.bk-bs-less to generate the form validation CSS for warnings, errors,
 // and successes.
 
-.bk-form-control-validation(@text-color: #555; @border-color: #ccc; @background-color: #f5f5f5) {
+.bk-bs-form-control-validation(@text-color: #555; @border-color: #ccc; @background-color: #f5f5f5) {
   // Color the label and help text
-  .bk-help-block,
-  .bk-control-label,
-  .bk-radio,
-  .bk-checkbox,
-  .bk-radio-inline,
-  .bk-checkbox-inline  {
+  .bk-bs-help-block,
+  .bk-bs-control-label,
+  .bk-bs-radio,
+  .bk-bs-checkbox,
+  .bk-bs-radio-inline,
+  .bk-bs-checkbox-inline  {
     color: @text-color;
   }
   // Set the border and box shadow on specific inputs to match
-  .bk-form-control {
+  .bk-bs-form-control {
     border-color: @border-color;
-    .bk-box-shadow(inset 0 1px 1px rgba(0,0,0,.075)); // Redeclare so transitions work
+    .bk-bs-box-shadow(inset 0 1px 1px rgba(0,0,0,.075)); // Redeclare so transitions work
     &:focus {
       border-color: darken(@border-color, 10%);
       @shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 6px lighten(@border-color, 20%);
-      .bk-box-shadow(@shadow);
+      .bk-bs-box-shadow(@shadow);
     }
   }
   // Set validation states also for addons
-  .bk-input-group-addon {
+  .bk-bs-input-group-addon {
     color: @text-color;
     border-color: @border-color;
     background-color: @background-color;
   }
   // Optional feedback icon
-  .bk-form-control-feedback {
+  .bk-bs-form-control-feedback {
     color: @text-color;
   }
 }
@@ -895,12 +895,12 @@
 // Example usage: change the default blue border and shadow to white for better
 // contrast against a dark gray background.
 
-.bk-form-control-focus(@color: @input-border-focus) {
+.bk-bs-form-control-focus(@color: @input-border-focus) {
   @color-rgba: rgba(red(@color), green(@color), blue(@color), .6);
   &:focus {
     border-color: @color;
     outline: 0;
-    .bk-box-shadow(~"inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px @{color-rgba}");
+    .bk-bs-box-shadow(~"inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px @{color-rgba}");
   }
 }
 
@@ -910,7 +910,7 @@
 // horizontal sizing, wrap controls in the predefined grid classes. `<select>`
 // element gets special love because it's special, and that's a fact!
 
-.bk-input-size(@input-height; @padding-vertical; @padding-horizontal; @font-size; @line-height; @border-radius) {
+.bk-bs-input-size(@input-height; @padding-vertical; @padding-horizontal; @font-size; @line-height; @border-radius) {
   height: @input-height;
   padding: @padding-vertical @padding-horizontal;
   font-size: @font-size;

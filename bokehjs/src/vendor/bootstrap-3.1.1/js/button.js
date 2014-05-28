@@ -24,7 +24,7 @@
   }
 
   Button.prototype.setState = function (state) {
-    var d    = 'bk-disabled'
+    var d    = 'bk-bs-disabled'
     var $el  = this.$element
     var val  = $el.is('input') ? 'val' : 'html'
     var data = $el.data()
@@ -49,18 +49,18 @@
 
   Button.prototype.toggle = function () {
     var changed = true
-    var $parent = this.$element.closest('[data-bk-toggle="buttons"]')
+    var $parent = this.$element.closest('[data-bk-bs-toggle="buttons"]')
 
     if ($parent.length) {
       var $input = this.$element.find('input')
       if ($input.prop('type') == 'radio') {
-        if ($input.prop('checked') && this.$element.hasClass('bk-active')) changed = false
-        else $parent.find('.bk-active').removeClass('bk-active')
+        if ($input.prop('checked') && this.$element.hasClass('bk-bs-active')) changed = false
+        else $parent.find('.bk-bs-active').removeClass('bk-bs-active')
       }
-      if (changed) $input.prop('checked', !this.$element.hasClass('bk-active')).trigger('change')
+      if (changed) $input.prop('checked', !this.$element.hasClass('bk-bs-active')).trigger('change')
     }
 
-    if (changed) this.$element.toggleClass('bk-active')
+    if (changed) this.$element.toggleClass('bk-bs-active')
   }
 
 
@@ -97,9 +97,9 @@
   // BUTTON DATA-API
   // ===============
 
-  $(document).on('click.bk-bs.button.data-api', '[data-bk-toggle^=button]', function (e) {
+  $(document).on('click.bk-bs.button.data-api', '[data-bk-bs-toggle^=button]', function (e) {
     var $btn = $(e.target)
-    if (!$btn.hasClass('bk-btn')) $btn = $btn.closest('.bk-btn')
+    if (!$btn.hasClass('bk-bs-btn')) $btn = $btn.closest('.bk-bs-btn')
     $btn.button('toggle')
     e.preventDefault()
   })

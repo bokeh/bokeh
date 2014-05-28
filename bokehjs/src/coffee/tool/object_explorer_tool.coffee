@@ -26,7 +26,7 @@ define [
     _activated: (e) ->
       @$modal = $(object_explorer_tool_template({}))
       @$object_explorer_view = new ObjectExplorer.View({
-        el: @$modal.find(".bk-modal-body")
+        el: @$modal.find(".bk-bs-modal-body")
       })
       $('body').append(@$modal)
       @$modal.on 'hidden', () =>

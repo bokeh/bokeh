@@ -27,18 +27,18 @@
   }
 
   Collapse.prototype.dimension = function () {
-    var hasWidth = this.$element.hasClass('bk-width')
+    var hasWidth = this.$element.hasClass('bk-bs-width')
     return hasWidth ? 'width' : 'height'
   }
 
   Collapse.prototype.show = function () {
-    if (this.transitioning || this.$element.hasClass('bk-in')) return
+    if (this.transitioning || this.$element.hasClass('bk-bs-in')) return
 
     var startEvent = $.Event('show.bk-bs.collapse')
     this.$element.trigger(startEvent)
     if (startEvent.isDefaultPrevented()) return
 
-    var actives = this.$parent && this.$parent.find('> .bk-panel > .bk-in')
+    var actives = this.$parent && this.$parent.find('> .bk-bs-panel > .bk-bs-in')
 
     if (actives && actives.length) {
       var hasData = actives.data('bk-bs.collapse')
@@ -50,16 +50,16 @@
     var dimension = this.dimension()
 
     this.$element
-      .removeClass('bk-collapse')
-      .addClass('bk-collapsing')
+      .removeClass('bk-bs-collapse')
+      .addClass('bk-bs-collapsing')
       [dimension](0)
 
     this.transitioning = 1
 
     var complete = function () {
       this.$element
-        .removeClass('bk-collapsing')
-        .addClass('bk-collapse bk-in')
+        .removeClass('bk-bs-collapsing')
+        .addClass('bk-bs-collapse bk-bs-in')
         [dimension]('auto')
       this.transitioning = 0
       this.$element.trigger('shown.bk-bs.collapse')
@@ -76,7 +76,7 @@
   }
 
   Collapse.prototype.hide = function () {
-    if (this.transitioning || !this.$element.hasClass('bk-in')) return
+    if (this.transitioning || !this.$element.hasClass('bk-bs-in')) return
 
     var startEvent = $.Event('hide.bk-bs.collapse')
     this.$element.trigger(startEvent)
@@ -89,9 +89,9 @@
       [0].offsetHeight
 
     this.$element
-      .addClass('bk-collapsing')
-      .removeClass('bk-collapse')
-      .removeClass('bk-in')
+      .addClass('bk-bs-collapsing')
+      .removeClass('bk-bs-collapse')
+      .removeClass('bk-bs-in')
 
     this.transitioning = 1
 
@@ -99,8 +99,8 @@
       this.transitioning = 0
       this.$element
         .trigger('hidden.bk-bs.collapse')
-        .removeClass('bk-collapsing')
-        .addClass('bk-collapse')
+        .removeClass('bk-bs-collapsing')
+        .addClass('bk-bs-collapse')
     }
 
     if (!$.support.transition) return complete.call(this)
@@ -112,7 +112,7 @@
   }
 
   Collapse.prototype.toggle = function () {
-    this[this.$element.hasClass('bk-in') ? 'hide' : 'show']()
+    this[this.$element.hasClass('bk-bs-in') ? 'hide' : 'show']()
   }
 
 
@@ -148,20 +148,20 @@
   // COLLAPSE DATA-API
   // =================
 
-  $(document).on('click.bk-bs.collapse.data-api', '[data-bk-toggle=collapse]', function (e) {
+  $(document).on('click.bk-bs.collapse.data-api', '[data-bk-bs-toggle=collapse]', function (e) {
     var $this   = $(this), href
-    var target  = $this.attr('data-bk-target')
+    var target  = $this.attr('data-bk-bs-target')
         || e.preventDefault()
         || (href = $this.attr('href')) && href.replace(/.*(?=#[^\s]+$)/, '') //strip for ie7
     var $target = $(target)
     var data    = $target.data('bk-bs.collapse')
     var option  = data ? 'toggle' : $this.data()
-    var parent  = $this.attr('data-bk-parent')
+    var parent  = $this.attr('data-bk-bs-parent')
     var $parent = parent && $(parent)
 
     if (!data || !data.transitioning) {
-      if ($parent) $parent.find('[data-bk-toggle=collapse][data-bk-parent="' + parent + '"]').not($this).addClass('bk-collapsed')
-      $this[$target.hasClass('bk-in') ? 'addClass' : 'removeClass']('bk-collapsed')
+      if ($parent) $parent.find('[data-bk-bs-toggle=collapse][data-bk-bs-parent="' + parent + '"]').not($this).addClass('bk-bs-collapsed')
+      $this[$target.hasClass('bk-bs-in') ? 'addClass' : 'removeClass']('bk-bs-collapsed')
     }
 
     $target.collapse(option)

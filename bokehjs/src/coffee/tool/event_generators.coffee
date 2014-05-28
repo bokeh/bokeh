@@ -98,7 +98,7 @@ define [], () ->
           @_stop_drag(e)
           return false)
 
-      @$tool_button = $("<button class='bk-btn bk-btn-default bk-btn-sm'> #{@options.buttonText} </button>")
+      @$tool_button = $("<button class='bk-bs-btn bk-bs-btn-default bk-bs-btn-sm'> #{@options.buttonText} </button>")
       @plotview
       @plotview.$el.find('.button_bar').append(@$tool_button)
 
@@ -197,7 +197,7 @@ define [], () ->
       @plotview.$el.bind("mouseover", (e) =>
         @mouseover_count += 1)
 
-      @$tool_button = $("<button class='bk-btn bk-btn-default bk-btn-sm'> #{@options.buttonText} </button>")
+      @$tool_button = $("<button class='bk-bs-btn bk-bs-btn-default bk-bs-btn-sm'> #{@options.buttonText} </button>")
       @plotview.$el.find('.button_bar').append(@$tool_button)
 
       @$tool_button.click(=>
@@ -266,7 +266,7 @@ define [], () ->
       @plotview.$el.bind("mouseover", (e) =>
         @mouseover_count += 1)
 
-      @$tool_button = $("<button class='bk-btn bk-btn-default bk-btn-sm'> #{@options.buttonText} </button>")
+      @$tool_button = $("<button class='bk-bs-btn bk-bs-btn-default bk-bs-btn-sm'> #{@options.buttonText} </button>")
 
       @plotview.$el.find('.button_bar').append(@$tool_button)
 
