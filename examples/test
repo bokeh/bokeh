@@ -34,6 +34,11 @@ else:
 
 from bokeh import __version__
 
+if os.environ.get("TRAVIS_PYTHON_VERSION") is not None:
+    default_timeout = 30
+else:
+    default_timeout = 10
+
 parser = argparse.ArgumentParser(description="Automated testing of Bokeh's examples")
 parser.add_argument("patterns", type=str, nargs="*",
                     help="select a subset of examples to test")
@@ -43,7 +48,7 @@ parser.add_argument("-n", "--ipython-port", type=int, default=8888,
                     help="port on which IPython Notebook server resides")
 parser.add_argument("-j", "--phantomjs", type=str, default="phantomjs",
                     help="phantomjs executable")
-parser.add_argument("-t", "--timeout", type=int, default=10,
+parser.add_argument("-t", "--timeout", type=int, default=default_timeout,
                     help="how long can an example run (in seconds)")
 parser.add_argument("-v", "--verbose", action="store_true", default=False,
                     help="show console messages")
