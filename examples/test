@@ -12,6 +12,8 @@ import argparse
 import traceback
 import subprocess
 
+import yaml
+
 import requests
 import requests.exceptions
 
@@ -121,15 +123,21 @@ def add_examples(examples_dir, example_type=None, skip=None):
 
         examples.append((os.path.join(examples_path, file), flags))
 
-add_examples("glyphs")
+def detect_examples():
+    with open(os.path.join(os.path.dirname(__file__), "test.yaml"), "r") as f:
+        examples = yaml.load(f.read())
 
-add_examples("mpl")
-add_examples("ggplot")
-add_examples("seaborn")
+    for example in examples:
+        path = example["path"]
 
-add_examples(os.path.join("plotting", "file"), example_type=Flags.file, skip=["image.py", "image_rgba.py"])
-add_examples(os.path.join("plotting", "server"), example_type=Flags.server, skip=["image.py", "image_rgba.py", "remote_image.py", "serversource.py", "server_source_upload.py", "embedding_example.py"])
-add_examples(os.path.join("plotting", "notebook"))
+        try:
+            example_type = getattr(Flags, example["type"])
+        except KeyError:
+            example_type = None
+
+        skip = example.get("skip")
+
+        add_examples(path, example_type=example_type, skip=skip)
 
 def red(text):
     return "%s%s%s" % (colorama.Fore.RED, text, colorama.Style.RESET_ALL)
@@ -304,6 +312,8 @@ def start_bokeh_server():
 
 def start_ipython_notebook():
     return None
+
+detect_examples()
 
 selected_examples = [ (example, flags) for (example, flags) in examples if is_selected(example) ]
 
