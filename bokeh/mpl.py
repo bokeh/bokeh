@@ -17,6 +17,7 @@ import warnings
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 
 from .glyphs import (Asterisk, Circle, Cross, Diamond, InvertedTriangle, Line,
                      MultiLine, Patches, Square, Text, Triangle, Xmarker)
@@ -142,10 +143,15 @@ class BokehRenderer(Renderer):
     def draw_line(self, data, coordinates, style, label, mplobj=None):
         "Given a mpl line2d instance create a Bokeh Line glyph."
         # If there is a pandas object available, uses obj.index as x values
-        if self.pd_obj is not None:
-            x = self.pd_obj.index
+
+        _x = data[:, 0]
+        if self.pd_obj is True:
+            try:
+                x = [pd.Period(ordinal=int(i), freq=self.ax.xaxis.freq).to_timestamp() for i in _x]
+            except AttributeError as e: #  we probably can make this one more intelligent later
+                x = _x
         else:
-            x = data[:, 0]
+            x = _x
 
         y = data[:, 1]
         if self.xkcd:
@@ -393,7 +399,7 @@ class BokehRenderer(Renderer):
         patches.line_dash = list(convert_dashes(tuple(on_off)))
 
 
-def to_bokeh(fig=None, name=None, server=None, notebook=False, pd_obj=None,
+def to_bokeh(fig=None, name=None, server=None, notebook=False, pd_obj=True,
              xkcd=False):
     """ Uses bokeh to display a Matplotlib Figure.
 
@@ -421,8 +427,10 @@ def to_bokeh(fig=None, name=None, server=None, notebook=False, pd_obj=None,
         object that the IPython notebook can display. You can also use it with
         a bokeh plot server just specifying the URL.
 
-    pd_obj: pandas Series (default=None)
-        If you want to plot a pandas Series, you have to pass the Series itself.
+    pd_obj: bool (default=True)
+        The implementation asumes you are plotting using the pandas interface.
+        You have the option to turn off (False) to plot datetime xaxis with other
+        non-pandas interfaces.
 
     xkcd: bool (default=False)
         If this option is True, then the Bokeh figure will be saved with a
