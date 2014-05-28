@@ -290,9 +290,9 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
     
     if isinstance(tools, list):
         for tool in tools:
-            if isinstance(tool, Tool): #If Tool object
+            if isinstance(tool, Tool): 
                 tool_objs.append(tool)
-            elif isinstance(tool, str): #If str object
+            elif isinstance(tool, string_types):
                 temp_tool_str+=tool + ','
             else:
                 raise ValueError("tool should be a valid str or Tool Object")
