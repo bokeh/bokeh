@@ -15,6 +15,7 @@ define [
       "change input" : "change_input"
     change_input : () ->
       @mset('value', @$('input').val())
+      @model.save()
       console.log('set', @model.attributes)
     initialize : (options) ->
       super(options)

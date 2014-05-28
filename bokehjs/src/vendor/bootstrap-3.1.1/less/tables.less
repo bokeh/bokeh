@@ -14,7 +14,7 @@ th {
 
 // Baseline styles
 
-.table {
+.bk-bs-table {
   width: 100%;
   margin-bottom: @line-height-computed;
   // Cells
@@ -53,7 +53,7 @@ th {
   }
 
   // Nesting
-  .table {
+  .bk-bs-table {
     background-color: @body-bg;
   }
 }
@@ -61,7 +61,7 @@ th {
 
 // Condensed table w/ half padding
 
-.table-condensed {
+.bk-bs-table-condensed {
   > thead,
   > tbody,
   > tfoot {
@@ -79,7 +79,7 @@ th {
 //
 // Add borders all around the table and between all the columns.
 
-.table-bordered {
+.bk-bs-table-bordered {
   border: 1px solid @table-border-color;
   > thead,
   > tbody,
@@ -104,7 +104,7 @@ th {
 //
 // Default zebra-stripe styles (alternating gray and transparent backgrounds)
 
-.table-striped {
+.bk-bs-table-striped {
   > tbody > tr:nth-child(odd) {
     > td,
     > th {
@@ -118,7 +118,7 @@ th {
 //
 // Placed here since it has to come after the potential zebra striping
 
-.table-hover {
+.bk-bs-table-hover {
   > tbody > tr:hover {
     > td,
     > th {
@@ -133,7 +133,7 @@ th {
 // Reset default table behavior
 
 table col[class*="col-"] {
-  position: static; // Prevent border hiding in Firefox and IE9/10 (see https://github.com/twbs/bootstrap/issues/11623)
+  position: static; // Prevent border hiding in Firefox and IE9/10 (see https://github.bk-bs-com/twbs/bootstrap/issues/11623)
   float: none;
   display: table-column;
 }
@@ -141,7 +141,7 @@ table {
   td,
   th {
     &[class*="col-"] {
-      position: static; // Prevent border hiding in Firefox and IE9/10 (see https://github.com/twbs/bootstrap/issues/11623)
+      position: static; // Prevent border hiding in Firefox and IE9/10 (see https://github.bk-bs-com/twbs/bootstrap/issues/11623)
       float: none;
       display: table-cell;
     }
@@ -151,25 +151,25 @@ table {
 
 // Table backgrounds
 //
-// Exact selectors below required to override `.table-striped` and prevent
+// Exact selectors below required to override `.bk-bs-table-striped` and prevent
 // inheritance to nested tables.
 
 // Generate the contextual variants
-.table-row-variant(active; @table-bg-active);
-.table-row-variant(success; @state-success-bg);
-.table-row-variant(info; @state-info-bg);
-.table-row-variant(warning; @state-warning-bg);
-.table-row-variant(danger; @state-danger-bg);
+.bk-bs-table-row-variant(active; @table-bg-active);
+.bk-bs-table-row-variant(success; @state-success-bg);
+.bk-bs-table-row-variant(info; @state-info-bg);
+.bk-bs-table-row-variant(warning; @state-warning-bg);
+.bk-bs-table-row-variant(danger; @state-danger-bg);
 
 
 // Responsive tables
 //
-// Wrap your tables in `.table-responsive` and we'll make them mobile friendly
+// Wrap your tables in `.bk-bs-table-responsive` and we'll make them mobile friendly
 // by enabling horizontal scrolling. Only applies <768px. Everything above that
 // will display normally.
 
 @media (max-width: @screen-xs-max) {
-  .table-responsive {
+  .bk-bs-table-responsive {
     width: 100%;
     margin-bottom: (@line-height-computed * 0.75);
     overflow-y: hidden;
@@ -179,7 +179,7 @@ table {
     -webkit-overflow-scrolling: touch;
 
     // Tighten up spacing
-    > .table {
+    > .bk-bs-table {
       margin-bottom: 0;
 
       // Ensure the content doesn't wrap
@@ -196,7 +196,7 @@ table {
     }
 
     // Special overrides for the bordered tables
-    > .table-bordered {
+    > .bk-bs-table-bordered {
       border: 0;
 
       // Nuke the appropriate borders so that the parent can handle them

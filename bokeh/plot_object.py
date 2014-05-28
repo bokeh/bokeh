@@ -54,10 +54,15 @@ class Viewable(MetaHasProps):
         return newcls
 
     @classmethod
+    def _preload_models(cls):
+        from . import objects, widgetobjects
+
+    @classmethod
     def get_class(cls, view_model_name):
         """ Given a __view_model__ name, returns the corresponding class
         object
         """
+        cls._preload_models()
         d = Viewable.model_class_reverse_map
         if view_model_name in d:
             return d[view_model_name]
@@ -265,13 +270,12 @@ class PlotObject(HasProps):
         return "%s, ViewModel:%s, ref _id: %s" % (self.__class__.__name__,
                 self.__view_model__, getattr(self, "_id", None))
 
-    def on_change(self, attrname, obj, callbackname):
+    def on_change(self, attrname, obj, callbackname=None):
         """when attrname of self changes, call callbackname
         on obj
         """
         callbacks = self._callbacks.setdefault(attrname, [])
-        callback = dict(obj=obj,
-                        callbackname=callbackname)
+        callback = dict(obj=obj, callbackname=callbackname)
         if callback not in callbacks:
             callbacks.append(callback)
         self._callbacks_dirty = True
@@ -282,8 +286,10 @@ class PlotObject(HasProps):
         callbacks = self._callbacks.get(attrname)
         if callbacks:
             for callback in callbacks:
-                getattr(callback['obj'], callback['callbackname'])(
-                    self, attrname, old, new)
+                obj = callback.get('obj')
+                callbackname = callback.get('callbackname')
+                fn = obj if callbackname is None else getattr(obj, callbackname)
+                fn(self, attrname, old, new)
 
 
     # TODO: deprecation warnign about args change (static_path)

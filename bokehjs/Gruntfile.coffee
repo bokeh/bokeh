@@ -74,7 +74,7 @@ module.exports = (grunt) ->
           expand: true,        # enable dynamic expansion
           concat: false        # do not concatenate
           cwd: 'src/less',     # src matches are relative to this path
-          src: ['*.less'],     # actual pattern(s) to match
+          src: ['main.less'],  # actual pattern(s) to match
           dest: 'build/css',   # destination path prefix
           ext: '.css',         # dest filepaths will have this extension
           filter: hasChanged("less.development.files.0")
@@ -121,6 +121,7 @@ module.exports = (grunt) ->
         mainConfigFile: 'build/js/config.js'
         include: ['underscore', 'main']
         fileExclusionRegExp: /^test/
+        wrapShim: true
         wrap:
           startFile: 'src/js/_start.js.frag'
           endFile: 'src/js/_end.js.frag'
@@ -138,16 +139,19 @@ module.exports = (grunt) ->
         separator: ""
       css:
         src: [
-          "build/js/vendor/bootstrap/bootstrap-bokeh-2.0.4.css"
+          "build/js/vendor/jquery-ui-amd/jquery-ui-1.10.0/themes/base/jquery-ui.css"
           "build/js/vendor/jstree/dist/themes/default/style.min.css"
-          "build/css/continuum.css"
+          "build/js/vendor/handsontable/jquery.handsontable.css"
+          "build/js/vendor/jqrangeslider/classic.css"
           "build/css/main.css"
         ]
         dest: 'build/css/bokeh.css'
       vendor:
         src: [
-          "build/js/vendor/bootstrap/bootstrap-bokeh-2.0.4.css"
+          "build/js/vendor/jquery-ui-amd/jquery-ui-1.10.0/themes/base/jquery-ui.css"
           "build/js/vendor/jstree/dist/themes/default/style.min.css"
+          "build/js/vendor/handsontable/jquery.handsontable.css"
+          "build/js/vendor/jqrangeslider/classic.css"
         ]
         dest: 'build/css/bokeh-vendor.css'
 

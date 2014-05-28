@@ -14,6 +14,7 @@ except ImportError as e:
 from six.moves.urllib.parse import urljoin, urlencode
 from .exceptions import DataIntegrityException
 from .document import merge, Document
+from .embed import autoload_server
 from . import utils, browserlib
 from bokeh.objects import ServerDataSource
 import logging
@@ -364,13 +365,16 @@ class Session(object):
         """
 
         json_objs = self.pull()
+        plot_contexts = [x for x in json_objs if x['type'] == 'PlotContext']
+        other_objects = [x for x in json_objs if x['type'] != 'PlotContext']
+        plot_context_json = plot_contexts[0]
+        plot_context_json['attributes']['children'] += [x.get_ref() for x in doc._plotcontext.children]
 
-        # hugo : I don't like this
-        new_doc = doc.__class__(json_objs=json_objs)
-        merge(new_doc, doc)
-        doc.__dict__.update(new_doc.__dict__)
         doc.docid = self.docid
-
+        doc._plotcontext._id = plot_context_json['id']
+        doc.load(plot_context_json, *other_objects)
+        
+        
     def store_document(self, doc, dirty_only=True):
         """higher level function for storing a doc on the server
         """
@@ -405,6 +409,11 @@ class Session(object):
         """
         link = "bokeh/doc/%s/%s" % (self.docid, obj._id)
         return utils.urljoin(self.root_url, link)
+
+    def show(self, plot_object):
+        """Display an object as HTML in IPython using its display protocol. """
+        import IPython.core.displaypub as displaypub
+        displaypub.publish_display_data('bokeh', {'text/html': autoload_server(plot_object, self)})
 
 class Cloud(Session):
     def __init__(self):
