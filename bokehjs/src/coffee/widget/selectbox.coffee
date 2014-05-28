@@ -10,8 +10,9 @@ define [
     events :
       "change select" : "change_input"
     change_input : () ->
-      @mset('value', @$('select').val())
       console.log('set', @model.attributes)
+      @mset('value', @$('select').val())
+      @model.save()
 
     tagName : "div"
 

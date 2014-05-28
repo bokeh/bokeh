@@ -69,7 +69,7 @@ object LessPlugin extends sbt.Plugin {
                     val scope = lessScope(ctx)
                     val lessCompiler = scope.get("compile", scope).asInstanceOf[Callable]
                     val args = Array[AnyRef](IO.read(src), src.getParent)
-                    val output = withError { lessCompiler.call(ctx, scope, scope, args) }.asInstanceOf[String]
+                    val output = withError { lessCompiler.call(ctx, scope, scope, args) }.toString
                     IO.write(des, output)
                     des
                 }
@@ -84,7 +84,7 @@ object LessPlugin extends sbt.Plugin {
                     val error   = exception.getValue.asInstanceOf[Scriptable]
                     val line    = ScriptableObject.getProperty(error, "line"   ).asInstanceOf[Double].intValue
                     val column  = ScriptableObject.getProperty(error, "column" ).asInstanceOf[Double].intValue
-                    val message = ScriptableObject.getProperty(error, "message").asInstanceOf[String]
+                    val message = ScriptableObject.getProperty(error, "message").toString
                     sys.error("%s error: %s [%s,%s]: %s".format(graph.pluginName, src.getName, line, column, message))
             }
         }

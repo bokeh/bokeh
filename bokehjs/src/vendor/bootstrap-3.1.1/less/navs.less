@@ -6,11 +6,11 @@
 // Base class
 // --------------------------------------------------
 
-.nav {
+.bk-bs-nav {
   margin-bottom: 0;
   padding-left: 0; // Override default ul/ol
   list-style: none;
-  &:extend(.clearfix all);
+  &:extend(.bk-bs-clearfix all);
 
   > li {
     position: relative;
@@ -28,7 +28,7 @@
     }
 
     // Disabled state sets text to gray and nukes hover/tab effects
-    &.disabled > a {
+    &.bk-bs-disabled > a {
       color: @nav-disabled-link-color;
 
       &:hover,
@@ -42,7 +42,7 @@
   }
 
   // Open dropdowns
-  .open > a {
+  .bk-bs-open > a {
     &,
     &:hover,
     &:focus {
@@ -53,16 +53,16 @@
 
   // Nav dividers (deprecated with v3.0.1)
   //
-  // This should have been removed in v3 with the dropping of `.nav-list`, but
+  // This should have been removed in v3 with the dropping of `.bk-bs-nav-list`, but
   // we missed it. We don't currently support this anywhere, but in the interest
   // of maintaining backward compatibility in case you use it, it's deprecated.
-  .nav-divider {
-    .nav-divider();
+  .bk-bs-nav-divider {
+    .bk-bs-nav-divider();
   }
 
   // Prevent IE8 from misplacing imgs
   //
-  // See https://github.com/h5bp/html5-boilerplate/issues/984#issuecomment-3985989
+  // See https://github.bk-bs-com/h5bp/html5-boilerplate/issues/984#issuecomment-3985989
   > li > a > img {
     max-width: none;
   }
@@ -73,7 +73,7 @@
 // -------------------------
 
 // Give the tabs something to sit on
-.nav-tabs {
+.bk-bs-nav-tabs {
   border-bottom: 1px solid @nav-tabs-border-color;
   > li {
     float: left;
@@ -92,7 +92,7 @@
     }
 
     // Active state, and its :hover to override normal :hover
-    &.active > a {
+    &.bk-bs-active > a {
       &,
       &:hover,
       &:focus {
@@ -105,16 +105,16 @@
     }
   }
   // pulling this in mainly for less shorthand
-  &.nav-justified {
-    .nav-justified();
-    .nav-tabs-justified();
+  &.bk-bs-nav-justified {
+    .bk-bs-nav-justified();
+    .bk-bs-nav-tabs-justified();
   }
 }
 
 
 // Pills
 // -------------------------
-.nav-pills {
+.bk-bs-nav-pills {
   > li {
     float: left;
 
@@ -127,7 +127,7 @@
     }
 
     // Active state
-    &.active > a {
+    &.bk-bs-active > a {
       &,
       &:hover,
       &:focus {
@@ -140,7 +140,7 @@
 
 
 // Stacked pills
-.nav-stacked {
+.bk-bs-nav-stacked {
   > li {
     float: none;
     + li {
@@ -157,7 +157,7 @@
 // Justified nav links
 // -------------------------
 
-.nav-justified {
+.bk-bs-nav-justified {
   width: 100%;
 
   > li {
@@ -168,7 +168,7 @@
     }
   }
 
-  > .dropdown .dropdown-menu {
+  > .bk-bs-dropdown .bk-bs-dropdown-menu {
     top: auto;
     left: auto;
   }
@@ -186,19 +186,19 @@
 
 // Move borders to anchors instead of bottom of list
 //
-// Mixin for adding on top the shared `.nav-justified` styles for our tabs
-.nav-tabs-justified {
+// Mixin for adding on top the shared `.bk-bs-nav-justified` styles for our tabs
+.bk-bs-nav-tabs-justified {
   border-bottom: 0;
 
   > li > a {
-    // Override margin from .nav-tabs
+    // Override margin from .bk-bs-nav-tabs
     margin-right: 0;
     border-radius: @border-radius-base;
   }
 
-  > .active > a,
-  > .active > a:hover,
-  > .active > a:focus {
+  > .bk-bs-active > a,
+  > .bk-bs-active > a:hover,
+  > .bk-bs-active > a:focus {
     border: 1px solid @nav-tabs-justified-link-border-color;
   }
 
@@ -207,9 +207,9 @@
       border-bottom: 1px solid @nav-tabs-justified-link-border-color;
       border-radius: @border-radius-base @border-radius-base 0 0;
     }
-    > .active > a,
-    > .active > a:hover,
-    > .active > a:focus {
+    > .bk-bs-active > a,
+    > .bk-bs-active > a:hover,
+    > .bk-bs-active > a:focus {
       border-bottom-color: @nav-tabs-justified-active-link-border-color;
     }
   }
@@ -219,12 +219,12 @@
 // Tabbable tabs
 // -------------------------
 
-// Hide tabbable panes to start, show them when `.active`
-.tab-content {
-  > .tab-pane {
+// Hide tabbable panes to start, show them when `.bk-bs-active`
+.bk-bs-tab-content {
+  > .bk-bs-tab-pane {
     display: none;
   }
-  > .active {
+  > .bk-bs-active {
     display: block;
   }
 }
@@ -234,9 +234,9 @@
 // -------------------------
 
 // Specific dropdowns
-.nav-tabs .dropdown-menu {
+.bk-bs-nav-tabs .bk-bs-dropdown-menu {
   // make dropdown border overlap tab border
   margin-top: -1px;
   // Remove the top rounded corners here since there is a hard edge above the menu
-  .border-top-radius(0);
+  .bk-bs-border-top-radius(0);
 }

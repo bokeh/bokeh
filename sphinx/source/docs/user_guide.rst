@@ -299,7 +299,70 @@ just the y-axis. For this, there are tool names ``'xwheel_zoom'`` and ``'ywheel_
 
 Embedding
 ---------
-Coming soon!
+
+Bokeh provides a variety of ways to embed plots and data into HTML documents.
+
+
+Standalone HTML
+'''''''''''''''
+
+Bokeh can generate standalone HTML documents, from its own generic template,
+or a template you provide. These files contain the data for the plot inline
+and are completely transportable, while still providing interactive tools
+(pan, zoom, etc.) for your plot.
+
+Components
+''''''''''
+
+It is also possible to ask Bokeh to return the individual components for a
+inline embedding: a ``<script>`` that contains the data for your plot,
+together with an accompanying ``<div>`` tag that the plot view is loaded
+into. These tags can be used in HTML documents however you like.
+
+.. note:: using these components assums that BokehJS has been loaded already.
+
+IPython Notebook
+''''''''''''''''
+
+Bokeh can also generate ``<div>`` tags suitable for inline display in the
+IPython notebook using the ``notebook_div`` function.
+
+.. note:: Typically users will probably use the higher-level function
+          ``plotting.output_notebook()`` in conjuction with ``%bokeh``
+          magic in the IPython notebook.
+
+Autoload ``<script>``
+'''''''''''''''''''''
+
+Finally it is possible to ask Bokeh to return a ``<script>`` tag that will
+replace itself with a Bokeh plot, wherever happens to be located. The script
+will also check for BokehJS and load it, if necessary, so it is possible to
+embed a plot by placing this script tag alone in your document.
+
+There are two cases:
+
+server data
+***********
+
+The simplest case is to use the Bokeh server to persist your plot and data.
+Additionally, the Bokeh server affords the opportunity of animated plots or
+updating plots with streaming data. The ``autoload_server`` function accepts
+a plot object and a Bokeh server ``Session`` object. It returns a ``<script>``
+tag that will load both your plot and data from the Bokeh server.
+
+static data
+***********
+
+If you do not need or want to use the Bokeh server, then the you can use the
+``autoload_static`` function. This function takes the plot object you want to
+display together with a resources specification and path to load a script
+from. It will return a self-contained ``<script>`` tag, together with some
+JavaScript code that contains the data for your plot. This code should be
+saved to the script path you provided. The ``<script>`` tag will load this
+separate script to realize your plot.
+
+.. note:: In both cases the ``<script>`` tag loads a ``<div>`` in place, so
+it must be placed under ``<head>``.
 
 Animated Plots
 --------------
@@ -312,27 +375,27 @@ plot in the ipython notebook (which may be found in ``examples/plotting/notebook
 .. image:: /_images/animated.gif
     :align: center
 
-Note that all the tools, zoom, pan, resize function normally and the plot continues to animate while
-the tools are used. Currently in order to animate, you must grab the glyph renderer off a plot, update
-its data source and set the dirty flag, then store the data source on the session. The code to animate
-the above plot is shown here::
+Note that all the tools, zoom, pan, resize function normally and the plot
+continues to animate while the tools are used. Currently in order to animate,
+you must grab the glyph renderer off a plot, update its data source, then
+store the data source on the session. The code to animate the above plot is
+shown here::
 
     renderer = [r for r in curplot().renderers if isinstance(r, Glyph)][0]
     ds = renderer.data_source
     while True:
         for i in linspace(-2*pi, 2*pi, 50):
+
             rmin = ds.data["inner_radius"]
             rmin = roll(rmin, 1)
             ds.data["inner_radius"] = rmin
+
             rmax = ds.data["outer_radius"]
             rmax = roll(rmax, -1)
             ds.data["outer_radius"] = rmax
-            ds._dirty = True
-            session().store_obj(ds)
-            time.sleep(.5)
 
-This is somewhat clunky, but improvements and simplifications are planned for the 0.4 release and after.
-
+            cursession().store_objects(ds)
+            time.sleep(.10)
 
 Novel Plots
 -----------
