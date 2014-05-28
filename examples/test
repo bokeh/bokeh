@@ -238,20 +238,28 @@ def test_example(example, flags):
                 else:
                     print("%s:%s: %s" % (source, line, msg))
 
-        if resources or errors:
-            for resource in resources:
-                print("%s: %s (%s)" % (
-                    resource['url'], resource['status'], resource['statusText']))
+        resource_errors = False
 
-            for error in errors:
-                print(error['msg'])
+        for resource in resources:
+            url = resource['url']
 
-                for item in error['trace']:
-                    print("    %s: %d" % (item['file'], item['line']))
-            fail()
+            if url.endswith(".png"):
+                fn, color = warn, yellow
+            else:
+                fn, color, resource_errors = fail, red, True
+
+            fn("%s: %s (%s)" % (url, color(resource['status']), resource['statusText']))
+
+        for error in errors:
+            print(error['msg'])
+
+            for item in error['trace']:
+                print("    %s: %d" % (item['file'], item['line']))
+
+        if resource_errors or errors:
+            fail(example)
         else:
-            global ok_examples
-            ok()
+            ok(example)
             return True
 
     return False
@@ -317,7 +325,7 @@ try:
             print("%s Skipping %s" % (yellow(">>>"), example))
             skip_examples.append(example)
         else:
-            print("%s Testing %s ..." % (yellow(">>>"), example))
+            print("%s Testing %s ..." % (green(">>>"), example))
             result = False
 
             if flags & (Flags.file|Flags.server):
