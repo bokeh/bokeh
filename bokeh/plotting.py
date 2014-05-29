@@ -410,17 +410,21 @@ def scatter(*args, **kwargs):
         >>> scatter("data1", "data2", source=data_source, ...)
 
     """
+    kwargs_list = ['source', 'color', 'marker', 'name']
     ds = kwargs.get("source", None)
     names, datasource = _handle_1d_data_args(args, datasource=ds)
     kwargs["source"] = datasource
-
     markertype = kwargs.get("marker", "circle")
-
+    
     # TODO: How to handle this? Just call curplot()?
     if not len(_color_fields.intersection(set(kwargs.keys()))):
         kwargs['color'] = get_default_color()
     if not len(_alpha_fields.intersection(set(kwargs.keys()))):
         kwargs['alpha'] = get_default_alpha()
+    
+    for key in kwargs.keys():
+        if key not in kwargs_list:
+            warnings.warn("%s keyword argument is not required for this plot!" % key)
 
     if markertype not in _marker_types:
         raise ValueError("Invalid marker type '%s'. Use markers() to see a list of valid marker types." % markertype)
