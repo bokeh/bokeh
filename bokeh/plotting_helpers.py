@@ -350,7 +350,7 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
         tool_objs.append(tool_obj)
 
         #Checking for repeated tools
-        _tools_in_list = [i.__str__().split(" ")[0][:-1] for i in tool_objs]
+        _tools_in_list = [i.__class__.__name__ for i in tool_objs]
         repeat_tool = [_tools_in_list.count(i)>1 for i in _tools_in_list]
 
         if any(repeat_tool):
