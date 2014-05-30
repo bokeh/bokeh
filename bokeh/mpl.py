@@ -142,8 +142,6 @@ class BokehRenderer(Renderer):
 
     def draw_line(self, data, coordinates, style, label, mplobj=None):
         "Given a mpl line2d instance create a Bokeh Line glyph."
-        # If there is a pandas object available, uses obj.index as x values
-
         _x = data[:, 0]
         if self.pd_obj is True:
             try:
@@ -428,9 +426,9 @@ def to_bokeh(fig=None, name=None, server=None, notebook=False, pd_obj=True,
         a bokeh plot server just specifying the URL.
 
     pd_obj: bool (default=True)
-        The implementation asumes you are plotting using the pandas interface.
-        You have the option to turn off (False) to plot datetime xaxis with other
-        non-pandas interfaces.
+        The implementation asumes you are plotting using the pandas.
+        You have the option to turn it off (False) to plot the datetime xaxis
+        with other non-pandas interfaces.
 
     xkcd: bool (default=False)
         If this option is True, then the Bokeh figure will be saved with a
