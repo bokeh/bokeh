@@ -255,7 +255,7 @@ define [
         console.log("WARN: Unset 'doc' in " + this)
         # throw new Error("Unset 'doc' in " + this)
 
-      url = @get_base().Config.prefix + "/bokeh/bb/" + doc + "/" + @type + "/"
+      url = @get_base().Config.prefix + "bokeh/bb/" + doc + "/" + @type + "/"
       if (@isNew())
         return url
       return url + @get('id') + "/"
@@ -278,7 +278,7 @@ define [
         throw new Error("Unset 'doc' in " + this)
       id = @get('id')
       type = @type
-      url = "#{prefix}/bokeh/bb/rpc/#{doc}/#{type}/#{id}/#{funcname}/"
+      url = "#{prefix}bokeh/bb/rpc/#{doc}/#{type}/#{id}/#{funcname}/"
       data =
         args: args
         kwargs: kwargs

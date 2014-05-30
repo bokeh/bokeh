@@ -58,7 +58,8 @@ object ProjectBuild extends Build {
     lazy val lessSettings = pluginLessSettings ++ Seq(
         sourceDirectory in (Compile, LessKeys.less) <<= (sourceDirectory in Compile)(_ / "less"),
         resourceManaged in (Compile, LessKeys.less) <<= (resourceManaged in Compile)(_ / "css"),
-        compile in Compile <<= compile in Compile dependsOn (LessKeys.less in Compile))
+        compile in Compile <<= compile in Compile dependsOn (LessKeys.less in Compile),
+        includeFilter in (Compile, LessKeys.less) := "main.less")
 
     lazy val ecoSettings = pluginEcoSettings ++ Seq(
         sourceDirectory in (Compile, EcoKeys.eco) <<= (sourceDirectory in Compile)(_ / "coffee"),
@@ -75,6 +76,7 @@ object ProjectBuild extends Build {
                 baseUrl        = jsDir,
                 mainConfigFile = jsDir / "config.js",
                 include        = List("underscore", "main"),
+                wrapShim       = true,
                 wrap           = RequireJSWrap(
                     startFile  = srcDir / "js" / "_start.js.frag",
                     endFile    = srcDir / "js" / "_end.js.frag"
@@ -102,11 +104,11 @@ object ProjectBuild extends Build {
             IO.copy(toCopy, overwrite=true).toSeq
         },
         vendorStyles := List(
-            "bootstrap/bootstrap-bokeh-2.0.4.css",
-            "jstree/dist/themes/default/style.min.css"),
-        bokehStyles := List(
-            "continuum.css",
-            "main.css"),
+            "jquery-ui-amd/jquery-ui-1.10.0/themes/base/jquery-ui.css",
+            "jstree/dist/themes/default/style.min.css",
+            "handsontable/jquery.handsontable.css",
+            "jqrangeslider/classic.css"),
+        bokehStyles := List("main.css"),
         resourceGenerators in Compile <+= Def.task {
             def concat(files: Seq[File]): String =
                 files.map(file => IO.read(file)).mkString("\n")
@@ -131,7 +133,8 @@ object ProjectBuild extends Build {
             log.info(s"Writing $vendorCss")
             IO.write(vendorCss, vendorOnly)
             log.info(s"Minifying $vendorMinCss")
-            minify(vendorCss, vendorMinCss)
+            // minify(vendorCss, vendorMinCss)
+            IO.write(vendorMinCss, vendorOnly)
 
             val bokehCss = cssDir / "bokeh.css"
             val bokehMinCss = cssDir / "bokeh.min.css"
@@ -139,7 +142,8 @@ object ProjectBuild extends Build {
             log.info(s"Writing $bokehCss")
             IO.write(bokehCss, vendorAndBokeh)
             log.info(s"Minifying $bokehMinCss")
-            minify(bokehCss, bokehMinCss)
+            // minify(bokehCss, bokehMinCss)
+            IO.write(bokehMinCss, vendorAndBokeh)
 
             Seq(vendorCss, vendorMinCss, bokehCss, bokehMinCss)
         } dependsOn (LessKeys.less in Compile),

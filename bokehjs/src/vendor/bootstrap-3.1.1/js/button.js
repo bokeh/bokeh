@@ -24,7 +24,7 @@
   }
 
   Button.prototype.setState = function (state) {
-    var d    = 'disabled'
+    var d    = 'bk-bs-disabled'
     var $el  = this.$element
     var val  = $el.is('input') ? 'val' : 'html'
     var data = $el.data()
@@ -49,18 +49,18 @@
 
   Button.prototype.toggle = function () {
     var changed = true
-    var $parent = this.$element.closest('[data-toggle="buttons"]')
+    var $parent = this.$element.closest('[data-bk-bs-toggle="buttons"]')
 
     if ($parent.length) {
       var $input = this.$element.find('input')
       if ($input.prop('type') == 'radio') {
-        if ($input.prop('checked') && this.$element.hasClass('active')) changed = false
-        else $parent.find('.active').removeClass('active')
+        if ($input.prop('checked') && this.$element.hasClass('bk-bs-active')) changed = false
+        else $parent.find('.bk-bs-active').removeClass('bk-bs-active')
       }
-      if (changed) $input.prop('checked', !this.$element.hasClass('active')).trigger('change')
+      if (changed) $input.prop('checked', !this.$element.hasClass('bk-bs-active')).trigger('change')
     }
 
-    if (changed) this.$element.toggleClass('active')
+    if (changed) this.$element.toggleClass('bk-bs-active')
   }
 
 
@@ -72,10 +72,10 @@
   $.fn.button = function (option) {
     return this.each(function () {
       var $this   = $(this)
-      var data    = $this.data('bs.button')
+      var data    = $this.data('bk-bs.button')
       var options = typeof option == 'object' && option
 
-      if (!data) $this.data('bs.button', (data = new Button(this, options)))
+      if (!data) $this.data('bk-bs.button', (data = new Button(this, options)))
 
       if (option == 'toggle') data.toggle()
       else if (option) data.setState(option)
@@ -97,9 +97,9 @@
   // BUTTON DATA-API
   // ===============
 
-  $(document).on('click.bs.button.data-api', '[data-toggle^=button]', function (e) {
+  $(document).on('click.bk-bs.button.data-api', '[data-bk-bs-toggle^=button]', function (e) {
     var $btn = $(e.target)
-    if (!$btn.hasClass('btn')) $btn = $btn.closest('.btn')
+    if (!$btn.hasClass('bk-bs-btn')) $btn = $btn.closest('.bk-bs-btn')
     $btn.button('toggle')
     e.preventDefault()
   })

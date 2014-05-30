@@ -6,10 +6,13 @@ import os
 import sys
 import time
 import json
+import signal
 import fnmatch
 import argparse
 import traceback
 import subprocess
+
+import yaml
 
 import requests
 import requests.exceptions
@@ -33,6 +36,11 @@ else:
 
 from bokeh import __version__
 
+if os.environ.get("TRAVIS_PYTHON_VERSION") is not None:
+    default_timeout = 30
+else:
+    default_timeout = 10
+
 parser = argparse.ArgumentParser(description="Automated testing of Bokeh's examples")
 parser.add_argument("patterns", type=str, nargs="*",
                     help="select a subset of examples to test")
@@ -42,15 +50,19 @@ parser.add_argument("-n", "--ipython-port", type=int, default=8888,
                     help="port on which IPython Notebook server resides")
 parser.add_argument("-j", "--phantomjs", type=str, default="phantomjs",
                     help="phantomjs executable")
+parser.add_argument("-t", "--timeout", type=int, default=default_timeout,
+                    help="how long can an example run (in seconds)")
 parser.add_argument("-v", "--verbose", action="store_true", default=False,
                     help="show console messages")
 parser.add_argument("-D", "--no-dev", dest="dev", action="store_false", default=True,
                     help="don't use development JavaScript and CSS files")
 args = parser.parse_args()
 
-DEFAULT_NO_DEV = os.environ.get('BOKEH_DEFAULT_NO_DEV', False)
-if DEFAULT_NO_DEV:
+DEFAULT_NO_DEV = os.environ.get('BOKEH_DEFAULT_NO_DEV', 'false')
+if DEFAULT_NO_DEV.lower() in ["true", "yes", "on", "1"]:
     args.dev = False
+elif DEFAULT_NO_DEV.lower() not in ["false", "no", "off", "0"]:
+    raise ValueError("unexpected value for BOKEH_DEFAULT_NO_DEV environmental variable, %s" % DEFAULT_NO_DEV)
 
 def is_selected(example):
     if not args.patterns:
@@ -111,16 +123,21 @@ def add_examples(examples_dir, example_type=None, skip=None):
 
         examples.append((os.path.join(examples_path, file), flags))
 
-add_examples("glyphs")
+def detect_examples():
+    with open(os.path.join(os.path.dirname(__file__), "test.yaml"), "r") as f:
+        examples = yaml.load(f.read())
 
-add_examples("mpl")
-add_examples("ggplot")
-add_examples("seaborn")
-add_examples("pandas")
+    for example in examples:
+        path = example["path"]
 
-add_examples(os.path.join("plotting", "file"), example_type=Flags.file, skip=["image.py", "image_rgba.py"])
-add_examples(os.path.join("plotting", "server"), example_type=Flags.server, skip=["image.py", "image_rgba.py", "remote_image.py", "serversource.py", "server_source_upload.py", "embedding_example.py"])
-add_examples(os.path.join("plotting", "notebook"))
+        try:
+            example_type = getattr(Flags, example["type"])
+        except KeyError:
+            example_type = None
+
+        skip = example.get("skip")
+
+        add_examples(path, example_type=example_type, skip=skip)
 
 def red(text):
     return "%s%s%s" % (colorama.Fore.RED, text, colorama.Style.RESET_ALL)
@@ -152,18 +169,34 @@ def make_env():
         env['BOKEH_PRETTY'] = 'yes'
     return env
 
+class Timeout(Exception):
+    pass
+
 def run_example(example):
     cmd = ["python", os.path.basename(example)]
     cwd = os.path.dirname(example)
     env = make_env()
 
-    proc = subprocess.Popen(cmd, cwd=cwd, env=env)
+    def alarm_handler(sig, frame):
+        raise Timeout
+
+    signal.signal(signal.SIGALRM, alarm_handler)
+    signal.alarm(args.timeout)
 
     try:
-        return proc.wait()
-    except KeyboardInterrupt:
+        proc = subprocess.Popen(cmd, cwd=cwd, env=env)
+
+        try:
+            return proc.wait()
+        except KeyboardInterrupt:
+            proc.kill()
+            raise
+    except Timeout:
+        warn("Timeout")
         proc.kill()
-        raise
+        return 0
+    finally:
+        signal.alarm(0)
 
 def test_example(example, flags):
     no_ext = os.path.splitext(os.path.abspath(example))[0]
@@ -213,20 +246,28 @@ def test_example(example, flags):
                 else:
                     print("%s:%s: %s" % (source, line, msg))
 
-        if resources or errors:
-            for resource in resources:
-                print("%s: %s (%s)" % (
-                    resource['url'], resource['status'], resource['statusText']))
+        resource_errors = False
 
-            for error in errors:
-                print(error['msg'])
+        for resource in resources:
+            url = resource['url']
 
-                for item in error['trace']:
-                    print("    %s: %d" % (item['file'], item['line']))
-            fail()
+            if url.endswith(".png"):
+                fn, color = warn, yellow
+            else:
+                fn, color, resource_errors = fail, red, True
+
+            fn("%s: %s (%s)" % (url, color(resource['status']), resource['statusText']))
+
+        for error in errors:
+            print(error['msg'])
+
+            for item in error['trace']:
+                print("    %s: %d" % (item['file'], item['line']))
+
+        if resource_errors or errors:
+            fail(example)
         else:
-            global ok_examples
-            ok()
+            ok(example)
             return True
 
     return False
@@ -272,6 +313,8 @@ def start_bokeh_server():
 def start_ipython_notebook():
     return None
 
+detect_examples()
+
 selected_examples = [ (example, flags) for (example, flags) in examples if is_selected(example) ]
 
 need_server = any(flags & Flags.server for _, flags in selected_examples)
@@ -286,13 +329,13 @@ skip_examples = []
 
 try:
     for example, flags in sorted(selected_examples):
-        if (flags & (Flags.skip|Flags.animated) or
+        if (flags & Flags.skip or
             flags & Flags.server and not bokeh_server or
             flags & Flags.notebook and not ipython_notebook):
             print("%s Skipping %s" % (yellow(">>>"), example))
             skip_examples.append(example)
         else:
-            print("%s Testing %s ..." % (yellow(">>>"), example))
+            print("%s Testing %s ..." % (green(">>>"), example))
             result = False
 
             if flags & (Flags.file|Flags.server):
