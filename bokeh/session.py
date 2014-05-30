@@ -383,8 +383,8 @@ class Session(object):
             docuemnt : document instance.  object should be inside the document
         """
         assert obj._id in document._models
-        attrs = self.pull(typename=obj.__view_model__, id=obj._id)
-        document.load(attrs)
+        attrs = self.pull(typename=obj.__view_model__, objid=obj._id)
+        document.load(*attrs)
         return
 
     def store_document(self, doc, dirty_only=True):
