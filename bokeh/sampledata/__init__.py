@@ -2,6 +2,7 @@ from __future__ import absolute_import, print_function
 
 from os import mkdir
 from os.path import exists, expanduser, isdir, join
+from sys import stdout
 from six.moves.urllib.request import urlopen
 
 def _bokeh_dir(create=False):
@@ -18,7 +19,7 @@ def _bokeh_dir(create=False):
             raise RuntimeError("%s exists but is not a directory" % bokeh_dir)
     return bokeh_dir
 
-def _data_dir(create=False):
+def _data_dir(file_name=None, create=False):
     try:
         import yaml
     except ImportError:
@@ -41,30 +42,32 @@ def _data_dir(create=False):
     else:
         if not isdir(data_dir):
             raise RuntimeError("%s exists but is not a directory" % data_dir)
-    return data_dir
+    if file_name is not None:
+        return join(data_dir, file_name)
+    else:
+        return data_dir
 
 def download(progress=True):
     '''
     Download larger data sets for various Bokeh examples.
     '''
-
     data_dir = _data_dir(create=True)
-
     print("Using data directory: %s" % data_dir)
 
-    base_url = 'https://s3.amazonaws.com/bokeh_data/'
+    s3 = 'https://s3.amazonaws.com/bokeh_data/'
     files = [
-        'CGM.csv',
-        'US_Counties.csv',
-        'unemployment09.csv',
-        'AAPL.csv',
-        'FB.csv',
-        'GOOG.csv',
-        'IBM.csv',
-        'MSFT.csv',
+        (s3, 'CGM.csv'),
+        (s3, 'US_Counties.csv'),
+        (s3, 'unemployment09.csv'),
+        (s3, 'AAPL.csv'),
+        (s3, 'FB.csv'),
+        (s3, 'GOOG.csv'),
+        (s3, 'IBM.csv'),
+        (s3, 'MSFT.csv'),
+        ('http://esa.un.org/unpd/wpp/SpecialAggregates/ASCII_FILES', 'WPP2012_SA_DB03_POPULATION_QUINQUENNIAL.CSV'),
     ]
 
-    for file_name in files:
+    for base_url, file_name in files:
         _getfile(base_url, file_name, data_dir, progress=progress)
 
 def _getfile(base_url, file_name, data_dir, progress=True):
@@ -73,7 +76,7 @@ def _getfile(base_url, file_name, data_dir, progress=True):
     f = open(join(data_dir, file_name), 'wb')
     meta = u.headers
     file_size = int(meta["Content-Length"])
-    print("Downloading: %s Bytes: %s" % (file_name, file_size))
+    print("Downloading: %s (%d bytes)" % (file_name, file_size))
 
     file_size_dl = 0
     block_sz = 8192
@@ -87,8 +90,9 @@ def _getfile(base_url, file_name, data_dir, progress=True):
         f.write(buffer)
 
         if progress:
-            status = r"%10d  [%3.2f%%]" % (file_size_dl, file_size_dl * 100. / file_size)
-            status += chr(8) * (len(status) + 1)
-            print(status,)
+            status = "\r%10d [%6.2f%%]" % (file_size_dl, file_size_dl * 100. / file_size)
+            stdout.write(status)
+            stdout.flush()
 
     f.close()
+    print()

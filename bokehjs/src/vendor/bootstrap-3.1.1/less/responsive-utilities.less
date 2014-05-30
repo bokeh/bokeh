@@ -13,9 +13,9 @@
 //
 // For more information, see the following:
 //
-// Issue: https://github.com/twbs/bootstrap/issues/10497
-// Docs: http://getbootstrap.com/getting-started/#browsers
-// Source: http://timkadlec.com/2012/10/ie10-snap-mode-and-responsive-design/
+// Issue: https://github.bk-bs-com/twbs/bootstrap/issues/10497
+// Docs: http://getbootstrap.bk-bs-com/getting-started/#browsers
+// Source: http://timkadlec.bk-bs-com/2012/10/ie10-snap-mode-and-responsive-design/
 
 @-ms-viewport {
   width: device-width;
@@ -23,52 +23,52 @@
 
 
 // Visibility utilities
-.visible-xs,
-.visible-sm,
-.visible-md,
-.visible-lg {
-  .responsive-invisibility();
+.bk-bs-visible-xs,
+.bk-bs-visible-sm,
+.bk-bs-visible-md,
+.bk-bs-visible-lg {
+  .bk-bs-responsive-invisibility();
 }
 
-.visible-xs {
+.bk-bs-visible-xs {
   @media (max-width: @screen-xs-max) {
-    .responsive-visibility();
+    .bk-bs-responsive-visibility();
   }
 }
-.visible-sm {
+.bk-bs-visible-sm {
   @media (min-width: @screen-sm-min) and (max-width: @screen-sm-max) {
-    .responsive-visibility();
+    .bk-bs-responsive-visibility();
   }
 }
-.visible-md {
+.bk-bs-visible-md {
   @media (min-width: @screen-md-min) and (max-width: @screen-md-max) {
-    .responsive-visibility();
+    .bk-bs-responsive-visibility();
   }
 }
-.visible-lg {
+.bk-bs-visible-lg {
   @media (min-width: @screen-lg-min) {
-    .responsive-visibility();
+    .bk-bs-responsive-visibility();
   }
 }
 
-.hidden-xs {
+.bk-bs-hidden-xs {
   @media (max-width: @screen-xs-max) {
-    .responsive-invisibility();
+    .bk-bs-responsive-invisibility();
   }
 }
-.hidden-sm {
+.bk-bs-hidden-sm {
   @media (min-width: @screen-sm-min) and (max-width: @screen-sm-max) {
-    .responsive-invisibility();
+    .bk-bs-responsive-invisibility();
   }
 }
-.hidden-md {
+.bk-bs-hidden-md {
   @media (min-width: @screen-md-min) and (max-width: @screen-md-max) {
-    .responsive-invisibility();
+    .bk-bs-responsive-invisibility();
   }
 }
-.hidden-lg {
+.bk-bs-hidden-lg {
   @media (min-width: @screen-lg-min) {
-    .responsive-invisibility();
+    .bk-bs-responsive-invisibility();
   }
 }
 
@@ -77,16 +77,16 @@
 //
 // Media queries are placed on the inside to be mixin-friendly.
 
-.visible-print {
-  .responsive-invisibility();
+.bk-bs-visible-print {
+  .bk-bs-responsive-invisibility();
 
   @media print {
-    .responsive-visibility();
+    .bk-bs-responsive-visibility();
   }
 }
 
-.hidden-print {
+.bk-bs-hidden-print {
   @media print {
-    .responsive-invisibility();
+    .bk-bs-responsive-invisibility();
   }
 }

@@ -3,7 +3,7 @@ import unittest
 from mock import patch, Mock
 from six import add_metaclass
 from six.moves import xrange
-
+import copy
 
 def large_plot(n):
     from bokeh.objects import (Plot, PlotContext, LinearAxis, Grid, Glyph,
@@ -47,9 +47,10 @@ class TestViewable(unittest.TestCase):
     def setUp(self):
         from bokeh.plot_object import Viewable
         self.viewable = Viewable
+        self.old_map = copy.copy(self.viewable.model_class_reverse_map)
 
     def tearDown(self):
-        self.viewable.model_class_reverse_map = {}
+        self.viewable.model_class_reverse_map = self.old_map
 
     def mkclass(self):
         @add_metaclass(self.viewable)

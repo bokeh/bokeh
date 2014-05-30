@@ -2,6 +2,7 @@
 =========================================================================
 
 BokehJS is a front-end library for [Bokeh](http://github.com/ContinuumIO/bokeh).
+
 The architecture of the library facilitates easy manipulation of the components
 and configuration of a plot from the server-side.
 
