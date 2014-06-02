@@ -21,7 +21,14 @@ import shutil
 import site
 import subprocess
 import sys
-from setuptools import setup
+
+if 'nightly' in sys.argv:
+    from setuptools import setup
+    assert 'nightly' == sys.argv.pop(2)
+    sys.argv.insert(2,"install")
+else:
+    from distutils.core import setup
+
 from os.path import abspath, exists, join, dirname
 
 # Our own imports
