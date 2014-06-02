@@ -17,10 +17,13 @@ before_install:
     - export PATH="$HOME/miniconda/bin:$PATH"
     - export MINICONDA_VERSION="3.3.0"
     - export PHANTOMJS_VERSION="1.9.7"
-
+    - pip install sphinx numpydoc
+    - pip freeze
 install: scripts/travis_install
 
-script: scripts/travis_test
+script: 
+    - scripts/travis_test
+    - cd sphinx && make clean all && cd ..
 
 notifications:
   flowdock: bd0fcd603797aa02273421678c1268e8
