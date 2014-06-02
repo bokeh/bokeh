@@ -169,7 +169,7 @@ class TickFormatter(PlotObject):
 
 class BasicTickFormatter(TickFormatter):
     """ Represents a basic tick formatter for an axis object """
-    precision = Any('auto')
+    precision = Either(Enum('auto'), Int)
     use_scientific = Bool(True)
     power_limit_high = Int(5)
     power_limit_low = Int(-3)
@@ -235,7 +235,10 @@ class Glyph(Renderer):
 
         return props
 
-class Plot(PlotObject):
+class Widget(PlotObject):
+    pass
+
+class Plot(Widget):
     """ Object representing a plot, containing glyphs, guides, annotations.
     """
 
@@ -432,10 +435,10 @@ class Tool(PlotObject):
     plot = Instance(Plot)
 
 class PanTool(Tool):
-    dimensions = List(Enum(Dimension))
+    dimensions = List(Enum(Dimension), default=["width", "height"])
 
 class WheelZoomTool(Tool):
-    dimensions = List(Enum(Dimension))
+    dimensions = List(Enum(Dimension), default=["width", "height"])
 
 class PreviewSaveTool(Tool):
     pass

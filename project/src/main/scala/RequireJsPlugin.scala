@@ -25,6 +25,7 @@ case class RequireJSConfig(
     mainConfigFile: File,
     name: String,
     include: List[String],
+    wrapShim: Boolean,
     wrap: RequireJSWrap,
     optimize: String,
     out: File) {
@@ -38,6 +39,7 @@ case class RequireJSConfig(
         ScriptableObject.defineProperty(obj, "mainConfigFile", mainConfigFile.getPath, READONLY)
         ScriptableObject.defineProperty(obj, "name", name, READONLY)
         ScriptableObject.defineProperty(obj, "include", include, READONLY)
+        ScriptableObject.defineProperty(obj, "wrapShim", wrapShim, READONLY)
         ScriptableObject.defineProperty(obj, "wrap", wrap.toJsObject(scope), READONLY)
         ScriptableObject.defineProperty(obj, "optimize", optimize, READONLY)
         ScriptableObject.defineProperty(obj, "out", out.getPath, READONLY)
@@ -73,7 +75,9 @@ class RequireJS(log: Logger) extends Rhino {
             val args = Array[AnyRef](config.toJsObject(scope))
             optimize.call(ctx, scope, scope, args)
             val output = config.out
-            val outputMin = minify(output)
+            val outputMin = file(output.getPath.stripSuffix("js") + "min.js")
+            IO.copyFile(output, outputMin)
+            // val outputMin = minify(output)
             (output, outputMin)
         }
     }
@@ -92,8 +96,8 @@ class RequireJS(log: Logger) extends Rhino {
             result.errors.foreach(error => log.error(error.toString))
             sys.error(s"${result.errors.length} errors compiling $input")
         } else {
-            val warnings = result.warnings.filter(_.getType().key != "JSC_BAD_JSDOC_ANNOTATION")
-            warnings.foreach(warning => log.warn(warning.toString))
+            // val warnings = result.warnings.filter(_.getType().key != "JSC_BAD_JSDOC_ANNOTATION")
+            // warnings.foreach(warning => log.warn(warning.toString))
             IO.write(output, compiler.toSource)
             output
         }

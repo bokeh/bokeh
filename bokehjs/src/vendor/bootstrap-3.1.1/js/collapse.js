@@ -27,42 +27,42 @@
   }
 
   Collapse.prototype.dimension = function () {
-    var hasWidth = this.$element.hasClass('width')
+    var hasWidth = this.$element.hasClass('bk-bs-width')
     return hasWidth ? 'width' : 'height'
   }
 
   Collapse.prototype.show = function () {
-    if (this.transitioning || this.$element.hasClass('in')) return
+    if (this.transitioning || this.$element.hasClass('bk-bs-in')) return
 
-    var startEvent = $.Event('show.bs.collapse')
+    var startEvent = $.Event('show.bk-bs.collapse')
     this.$element.trigger(startEvent)
     if (startEvent.isDefaultPrevented()) return
 
-    var actives = this.$parent && this.$parent.find('> .panel > .in')
+    var actives = this.$parent && this.$parent.find('> .bk-bs-panel > .bk-bs-in')
 
     if (actives && actives.length) {
-      var hasData = actives.data('bs.collapse')
+      var hasData = actives.data('bk-bs.collapse')
       if (hasData && hasData.transitioning) return
       actives.collapse('hide')
-      hasData || actives.data('bs.collapse', null)
+      hasData || actives.data('bk-bs.collapse', null)
     }
 
     var dimension = this.dimension()
 
     this.$element
-      .removeClass('collapse')
-      .addClass('collapsing')
+      .removeClass('bk-bs-collapse')
+      .addClass('bk-bs-collapsing')
       [dimension](0)
 
     this.transitioning = 1
 
     var complete = function () {
       this.$element
-        .removeClass('collapsing')
-        .addClass('collapse in')
+        .removeClass('bk-bs-collapsing')
+        .addClass('bk-bs-collapse bk-bs-in')
         [dimension]('auto')
       this.transitioning = 0
-      this.$element.trigger('shown.bs.collapse')
+      this.$element.trigger('shown.bk-bs.collapse')
     }
 
     if (!$.support.transition) return complete.call(this)
@@ -76,9 +76,9 @@
   }
 
   Collapse.prototype.hide = function () {
-    if (this.transitioning || !this.$element.hasClass('in')) return
+    if (this.transitioning || !this.$element.hasClass('bk-bs-in')) return
 
-    var startEvent = $.Event('hide.bs.collapse')
+    var startEvent = $.Event('hide.bk-bs.collapse')
     this.$element.trigger(startEvent)
     if (startEvent.isDefaultPrevented()) return
 
@@ -89,18 +89,18 @@
       [0].offsetHeight
 
     this.$element
-      .addClass('collapsing')
-      .removeClass('collapse')
-      .removeClass('in')
+      .addClass('bk-bs-collapsing')
+      .removeClass('bk-bs-collapse')
+      .removeClass('bk-bs-in')
 
     this.transitioning = 1
 
     var complete = function () {
       this.transitioning = 0
       this.$element
-        .trigger('hidden.bs.collapse')
-        .removeClass('collapsing')
-        .addClass('collapse')
+        .trigger('hidden.bk-bs.collapse')
+        .removeClass('bk-bs-collapsing')
+        .addClass('bk-bs-collapse')
     }
 
     if (!$.support.transition) return complete.call(this)
@@ -112,7 +112,7 @@
   }
 
   Collapse.prototype.toggle = function () {
-    this[this.$element.hasClass('in') ? 'hide' : 'show']()
+    this[this.$element.hasClass('bk-bs-in') ? 'hide' : 'show']()
   }
 
 
@@ -124,11 +124,11 @@
   $.fn.collapse = function (option) {
     return this.each(function () {
       var $this   = $(this)
-      var data    = $this.data('bs.collapse')
+      var data    = $this.data('bk-bs.collapse')
       var options = $.extend({}, Collapse.DEFAULTS, $this.data(), typeof option == 'object' && option)
 
       if (!data && options.toggle && option == 'show') option = !option
-      if (!data) $this.data('bs.collapse', (data = new Collapse(this, options)))
+      if (!data) $this.data('bk-bs.collapse', (data = new Collapse(this, options)))
       if (typeof option == 'string') data[option]()
     })
   }
@@ -148,20 +148,20 @@
   // COLLAPSE DATA-API
   // =================
 
-  $(document).on('click.bs.collapse.data-api', '[data-toggle=collapse]', function (e) {
+  $(document).on('click.bk-bs.collapse.data-api', '[data-bk-bs-toggle=collapse]', function (e) {
     var $this   = $(this), href
-    var target  = $this.attr('data-target')
+    var target  = $this.attr('data-bk-bs-target')
         || e.preventDefault()
         || (href = $this.attr('href')) && href.replace(/.*(?=#[^\s]+$)/, '') //strip for ie7
     var $target = $(target)
-    var data    = $target.data('bs.collapse')
+    var data    = $target.data('bk-bs.collapse')
     var option  = data ? 'toggle' : $this.data()
-    var parent  = $this.attr('data-parent')
+    var parent  = $this.attr('data-bk-bs-parent')
     var $parent = parent && $(parent)
 
     if (!data || !data.transitioning) {
-      if ($parent) $parent.find('[data-toggle=collapse][data-parent="' + parent + '"]').not($this).addClass('collapsed')
-      $this[$target.hasClass('in') ? 'addClass' : 'removeClass']('collapsed')
+      if ($parent) $parent.find('[data-bk-bs-toggle=collapse][data-bk-bs-parent="' + parent + '"]').not($this).addClass('bk-bs-collapsed')
+      $this[$target.hasClass('bk-bs-in') ? 'addClass' : 'removeClass']('bk-bs-collapsed')
     }
 
     $target.collapse(option)

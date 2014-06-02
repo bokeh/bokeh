@@ -92,6 +92,8 @@ Args:
     modeltype (str) : the type of the model to render
         used to reference the appropriate Backbone collection
 
+.. note:: This script injects a ``<div>`` in place, so must be placed under ``<body>``.
+
 '''
 
 from os.path import abspath, join, split

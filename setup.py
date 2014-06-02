@@ -29,6 +29,7 @@ if 'nightly' in sys.argv:
 else:
     from distutils.core import setup
 
+from distutils import dir_util
 from os.path import abspath, exists, join, dirname
 
 # Our own imports
@@ -257,6 +258,9 @@ if 'devjs' in sys.argv or 'develop' in sys.argv:
         print("  - using RELEASED bokehjs (version %s) from bokehjs/release" % v)
     print()
     sys.exit()
+elif 'clean' in sys.argv:
+    print("Removing prior-built items...")
+    dir_util.remove_tree('build/lib/bokeh')
 elif 'install' in sys.argv:
     if exists(path_file):
         os.remove(path_file)
