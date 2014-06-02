@@ -1,9 +1,17 @@
 #!/bin/bash
 
+BLD_DIR=`pwd`
+
 # Recipe and source are stored together
 SRC_DIR=$RECIPE_DIR/..
 pushd $SRC_DIR
-ls
+
+# X.X.X.dev.YYYYMMDD builds
+version=`$PYTHON build_scripts/get_bump_version.py`
+date=`date "+%Y%m%d"`
+echo $version.dev.$date > __conda_version__.txt
+mv __conda_version__.txt $BLD_DIR
+
 conda install --yes --force -c wakari nodejs
 conda install --yes --force -c wakari grunt-cli
 ls
@@ -18,3 +26,4 @@ popd
 cd $PREFIX
 echo $PREFIX
 find . -name '*.pyc' -delete
+

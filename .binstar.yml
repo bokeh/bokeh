@@ -12,7 +12,7 @@ before_script:
 
 script: |
   export c_env=/opt/anaconda/conda-bld/
-  conda build conda.recipe;
+  conda build conda.recipe  --quiet;
   mkdir -p c_env/win-64 c_env/osx-64;
   ls -al;
   ls -al c_env/*;
