@@ -10,10 +10,9 @@ define [
   "./has_parent",
   "./view_state",
   "mapper/1d/linear_mapper",
-  "mapper/2d/grid_mapper",
   "renderer/properties",
   "tool/active_tool_manager",
-], (_, $, Backbone, build_views, safebind, bulk_save, ContinuumView, HasParent, ViewState, LinearMapper, GridMapper, Properties, ActiveToolManager) ->
+], (_, $, Backbone, build_views, safebind, bulk_save, ContinuumView, HasParent, ViewState, LinearMapper, Properties, ActiveToolManager) ->
 
   LEVELS = ['image', 'underlay', 'glyph', 'overlay', 'annotation', 'tool']
 
@@ -95,10 +94,6 @@ define [
         target_range: @view_state.get('inner_range_vertical')
       })
 
-      @mapper = new GridMapper.Model({
-        domain_mapper: @xmapper
-        codomain_mapper: @ymapper
-      })
       for tool in @mget_obj('tools')
         if tool.type == "PanTool" or tool.type == "WheelZoomTool"
           tool.set_obj('dataranges', [@x_range, @y_range])
@@ -138,29 +133,28 @@ define [
       @bind_bokeh_events()
       return this
 
-    map_to_screen: (x, x_units, y, y_units, units) ->
+    map_to_screen: (x, x_units, y, y_units) ->
       if x_units == 'screen'
-        sx = x[..]
-        sy = y[..]
+        if _.isArray(x)
+          sx = x[..]
+        else
+          sx = new Float64Array(x.length)
+          sx.set(x)
       else
-        [sx, sy] = @mapper.v_map_to_target(x, y)
+        sx = @xmapper.v_map_to_target(x)
+      if y_units == 'screen'
+        if _.isArray(y)
+          sy = y[..]
+        else
+          sy = new Float64Array(y.length)
+          sy.set(y)
+      else
+        sy = @ymapper.v_map_to_target(y)
 
       sx = @view_state.v_vx_to_sx(sx)
       sy = @view_state.v_vy_to_sy(sy)
 
       return [sx, sy]
-
-    map_from_screen: (sx, sy, units) ->
-      sx = @view_state.v_sx_to_vx(sx[..])
-      sy = @view_state.v_sy_to_vy(sy[..])
-
-      if units == 'screen'
-        x = sx
-        y = sy
-      else
-        [x, y] = @mapper.v_map_from_target(sx, sy)  # TODO: in-place?
-
-      return [x, y]
 
     update_range: (range_info) ->
       if not range_info?

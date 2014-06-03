@@ -179,7 +179,7 @@ define [
       if not @rule_props.do_stroke
         return
       [x, y] = coords = @mget('rule_coords')
-      [sx, sy] = @plot_view.map_to_screen(x, "data", y, "data")
+      [sx, sy] = @plot_view.map_to_screen(x, "data", y, "data", @x_range_name, @y_range_name)
       [nx, ny] = @mget('normals')
 
       @rule_props.set(ctx, @)
@@ -193,7 +193,7 @@ define [
       if not @major_tick_props.do_stroke
         return
       [x, y] = coords = @mget('major_coords')
-      [sx, sy] = @plot_view.map_to_screen(x, "data", y, "data")
+      [sx, sy] = @plot_view.map_to_screen(x, "data", y, "data", @x_range_name, @y_range_name)
       [nx, ny] = @mget('normals')
 
       tin = @mget('major_tick_in')
@@ -207,7 +207,7 @@ define [
 
     _draw_major_labels: (ctx) ->
       [x, y] = coords = @mget('major_coords')
-      [sx, sy] = @plot_view.map_to_screen(x, "data", y, "data")
+      [sx, sy] = @plot_view.map_to_screen(x, "data", y, "data", @x_range_name, @y_range_name)
       [nx, ny] = @mget('normals')
       dim = @mget('dimension')
       side = @mget('side')
@@ -242,7 +242,7 @@ define [
         return
 
       [x, y] = @mget('rule_coords')
-      [sx, sy] = @plot_view.map_to_screen(x, "data", y, "data")
+      [sx, sy] = @plot_view.map_to_screen(x, "data", y, "data", @x_range_name, @y_range_name)
       [nx, ny] = @mget('normals')
       side = @mget('side')
       orient = 'parallel'
@@ -577,6 +577,12 @@ define [
       else if n[0] == 1
         side = 'right'
       return side
+
+    defaults: () ->
+      return {
+        x_range_name: "default"
+        y_range_name: "default"
+      }
 
     display_defaults: () ->
       return {

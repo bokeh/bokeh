@@ -31,7 +31,7 @@ define [
       [xs, ys] = @mget('grid_coords')
       @grid_props.set(ctx, @)
       for i in [0...xs.length]
-        [sx, sy] = @plot_view.map_to_screen(xs[i], "data", ys[i], "data")
+        [sx, sy] = @plot_view.map_to_screen(xs[i], "data", ys[i], "data", @x_range_name, @y_range_name)
         ctx.beginPath()
         ctx.moveTo(Math.round(sx[0]), Math.round(sy[0]))
         for i in [1...sx.length]
@@ -113,6 +113,12 @@ define [
         coords[j].push(dim_j)
 
       return coords
+
+    defaults: () ->
+      return {
+        x_range_name: "default"
+        y_range_name: "default"
+      }
 
     display_defaults: () ->
       return {

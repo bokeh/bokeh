@@ -33,7 +33,7 @@ define [
       @index.load(pts)
 
     _map_data: () ->
-      [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
+      [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units, @x_range_name, @y_range_name)
       if @size
         @radius = (s/2 for s in @distance_vector('x', 'size', 'edge'))
         @radius_units = @glyph_props.size.units
@@ -47,22 +47,22 @@ define [
       if @radius_units == "screen"
         sx0 = hr.get('start') - @max_radius
         sx1 = hr.get('end') - @max_radius
-        [x0, x1] = @plot_view.xmapper.v_map_from_target([sx0, sx1])
+        [x0, x1] = @x_mapper.v_map_from_target([sx0, sx1])
 
         sy0 = vr.get('start') - @max_radius
         sy1 = vr.get('end') - @max_radius
-        [y0, y1] = @plot_view.ymapper.v_map_from_target([sy0, sy1])
+        [y0, y1] = @y_mapper.v_map_from_target([sy0, sy1])
 
       else
         sx0 = hr.get('start')
         sx1 = hr.get('end')
-        [x0, x1] = @plot_view.xmapper.v_map_from_target([sx0, sx1])
+        [x0, x1] = @x_mapper.v_map_from_target([sx0, sx1])
         x0 -= @max_radius
         x1 += @max_radius
 
         sy0 = vr.get('start')
         sy1 = vr.get('end')
-        [y0, y1] = @plot_view.ymapper.v_map_from_target([sy0, sy1])
+        [y0, y1] = @y_mapper.v_map_from_target([sy0, sy1])
         y0 -= @max_radius
         y1 += @max_radius
 
@@ -87,17 +87,17 @@ define [
 
     _hit_point: (geometry) ->
       [vx, vy] = [geometry.vx, geometry.vy]
-      x = @plot_view.xmapper.map_from_target(vx)
-      y = @plot_view.ymapper.map_from_target(vy)
+      x = @x_mapper.map_from_target(vx)
+      y = @y_mapper.map_from_target(vy)
 
       if @radius_units == "screen"
         vx0 = vx - @max_radius
         vx1 = vx + @max_radius
-        [x0, x1] = @plot_view.xmapper.v_map_from_target([vx0, vx1])
+        [x0, x1] = @x_mapper.v_map_from_target([vx0, vx1])
 
         vy0 = vy - @max_radius
         vy1 = vy + @max_radius
-        [y0, y1] = @plot_view.ymapper.v_map_from_target([vy0, vy1])
+        [y0, y1] = @y_mapper.v_map_from_target([vy0, vy1])
 
       else
         x0 = x - @max_radius
@@ -120,10 +120,10 @@ define [
       else
         for i in candidates
           r2 = Math.pow(@radius[i], 2)
-          sx0 = @plot_view.xmapper.map_to_target(x)
-          sx1 = @plot_view.xmapper.map_to_target(@x[i])
-          sy0 = @plot_view.ymapper.map_to_target(y)
-          sy1 = @plot_view.ymapper.map_to_target(@y[i])
+          sx0 = @x_mapper.map_to_target(x)
+          sx1 = @x_mapper.map_to_target(@x[i])
+          sy0 = @y_mapper.map_to_target(y)
+          sy1 = @y_mapper.map_to_target(@y[i])
           dist = Math.pow(sx0-sx1, 2) + Math.pow(sy0-sy1, 2)
           if dist <= r2
             hits.push([i, dist])
@@ -134,8 +134,8 @@ define [
       return hits
 
     _hit_rect: (geometry) ->
-      [x0, x1] = @plot_view.xmapper.v_map_from_target([geometry.vx0, geometry.vx1])
-      [y0, y1] = @plot_view.ymapper.v_map_from_target([geometry.vy0, geometry.vy1])
+      [x0, x1] = @x_mapper.v_map_from_target([geometry.vx0, geometry.vx1])
+      [y0, y1] = @y_mapper.v_map_from_target([geometry.vy0, geometry.vy1])
 
       return (x[4].i for x in @index.search([x0, y0, x1, y1]))
 

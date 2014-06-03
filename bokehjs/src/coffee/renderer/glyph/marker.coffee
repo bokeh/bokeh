@@ -35,7 +35,7 @@ define [
       @index.load(pts)
 
     _map_data: () ->
-      [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
+      [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units, @x_range_name, @y_range_name)
 
     _mask_data: () ->
       # dilate the inner screen region by max_size and map back to data space for use in
@@ -43,12 +43,12 @@ define [
       hr = @plot_view.view_state.get('inner_range_horizontal')
       vx0 = hr.get('start') - @max_size
       vx1 = hr.get('end') + @max_size
-      [x0, x1] = @plot_view.xmapper.v_map_from_target([vx0, vx1])
+      [x0, x1] = @x_mapper.v_map_from_target([vx0, vx1])
 
       vr = @plot_view.view_state.get('inner_range_vertical')
       vy0 = vr.get('start') - @max_size
       vy1 = vr.get('end') + @max_size
-      [y0, y1] = @plot_view.ymapper.v_map_from_target([vy0, vy1])
+      [y0, y1] = @y_mapper.v_map_from_target([vy0, vy1])
 
       return (x[4].i for x in @index.search([x0, y0, x1, y1]))
 
@@ -59,11 +59,11 @@ define [
 
       vx0 = vx - @max_size
       vx1 = vx + @max_size
-      [x0, x1] = @plot_view.xmapper.v_map_from_target([vx0, vx1])
+      [x0, x1] = @x_mapper.v_map_from_target([vx0, vx1])
 
       vy0 = vy - @max_size
       vy1 = vy + @max_size
-      [y0, y1] = @plot_view.ymapper.v_map_from_target([vy0, vy1])
+      [y0, y1] = @y_mapper.v_map_from_target([vy0, vy1])
 
       candidates = (x[4].i for x in @index.search([x0, y0, x1, y1]))
 
@@ -80,8 +80,8 @@ define [
       return hits
 
     _hit_rect: (geometry) ->
-      [x0, x1] = @plot_view.xmapper.v_map_from_target([geometry.vx0, geometry.vx1])
-      [y0, y1] = @plot_view.ymapper.v_map_from_target([geometry.vy0, geometry.vy1])
+      [x0, x1] = @x_mapper.v_map_from_target([geometry.vx0, geometry.vx1])
+      [y0, y1] = @y_mapper.v_map_from_target([geometry.vy0, geometry.vy1])
 
       return (x[4].i for x in @index.search([x0, y0, x1, y1]))
 

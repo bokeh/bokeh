@@ -80,12 +80,19 @@ define [
       if not @basepoint_set
         return
 
-      [xstart, xend] = @plot_view.xmapper.v_map_from_target([@xrange[0], @xrange[1]])
-      [ystart, yend] = @plot_view.ymapper.v_map_from_target([@yrange[0], @yrange[1]])
+      xrs = {}
+      for name, mapper of @plot_view.x_mappers
+        [start, end] = mapper.v_map_from_target([@xrange[0], @xrange[1]])
+        xrs[name] = {start: start, end: end}
+
+      yrs = {}
+      for name, mapper of @plot_view.y_mappers
+        [start, end] = mapper.v_map_from_target([@yrange[0], @yrange[1]])
+        yrs[name] = {start: start, end: end}
 
       zoom_info = {
-        xr: {start: xstart, end: xend}
-        yr: {start: ystart, end: yend}
+        xrs: xrs
+        yrs: yrs
       }
       @plot_view.update_range(zoom_info)
 

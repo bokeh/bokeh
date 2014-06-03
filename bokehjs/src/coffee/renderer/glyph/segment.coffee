@@ -11,8 +11,8 @@ define [
     _properties: ['line']
 
     _map_data: () ->
-      [@sx0, @sy0] = @plot_view.map_to_screen(@x0, @glyph_props.x0.units, @y0, @glyph_props.y0.units)
-      [@sx1, @sy1] = @plot_view.map_to_screen(@x1, @glyph_props.x1.units, @y1, @glyph_props.y1.units)
+      [@sx0, @sy0] = @plot_view.map_to_screen(@x0, @glyph_props.x0.units, @y0, @glyph_props.y0.units, @x_range_name, @y_range_name)
+      [@sx1, @sy1] = @plot_view.map_to_screen(@x1, @glyph_props.x1.units, @y1, @glyph_props.y1.units, @x_range_name, @y_range_name)
 
     _render: (ctx, indices, glyph_props) ->
       if glyph_props.line_properties.do_stroke
