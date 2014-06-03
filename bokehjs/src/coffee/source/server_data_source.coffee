@@ -69,7 +69,7 @@ define [
       data_url = @get('data_url')
       owner_username = @get('owner_username')
       prefix = @get_base().Config.prefix
-      url = "#{prefix}/bokeh/data/#{owner_username}#{data_url}"
+      url = "#{prefix}bokeh/data/#{owner_username}#{data_url}"
       domain_resolution = (screen_range.get('end') - screen_range.get('start')) / 2
       domain_resolution = Math.floor(domain_resolution)
       domain_limit = [domain_range.get('start'), domain_range.get('end')]
@@ -131,7 +131,7 @@ define [
       data_url = @get('data_url')
       owner_username = @get('owner_username')
       prefix = @get_base().Config.prefix
-      url = "#{prefix}/bokeh/data/#{owner_username}#{data_url}"
+      url = "#{prefix}bokeh/data/#{owner_username}#{data_url}"
       x_resolution = x_screen_range.get('end') - x_screen_range.get('start')
       y_resolution = y_screen_range.get('end') - y_screen_range.get('start')
       x_bounds = [x_data_range.get('start'), x_data_range.get('end')]

@@ -97,6 +97,19 @@ def build_parser():
                         default=None,
                         type=str
                        )
+    parser.add_argument("--url-prefix",
+                        help="url prefix",
+                        type=str
+                        )
+
+    class DevAction(argparse.Action):
+        def __call__(self, parser, namespace, values, option_string=None):
+            namespace.splitjs = True
+            namespace.debugjs = True
+            namespace.backend = 'memory'
+
+    parser.add_argument("--dev", action=DevAction, nargs=0, help="run server in development mode")
+
     return parser
     
 def run():
@@ -176,7 +189,7 @@ def start_server(args):
             sys.path.append(script_dir)
         print ("importing %s" % args.script)
         imp.load_source("_bokeh_app", args.script)
-    start.register_blueprint()
+    start.register_blueprint(args.url_prefix)
     start.start_app(host=args.ip, port=args.bokeh_port, verbose=args.verbose)
 
 def start_with_reloader(args, js_files, robust):

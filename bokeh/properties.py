@@ -4,6 +4,8 @@ classes and implement convenience behaviors like default values, etc.
 from __future__ import print_function
 
 import re
+import datetime
+import dateutil.parser
 from importlib import import_module
 from copy import copy
 import inspect
@@ -48,10 +50,15 @@ class Property(object):
         return cls()
 
     def matches(self, new, old):
+        # XXX: originally this code warned about not being able to compare values, but that
+        # doesn't make sense, because most comparisons involving numpy arrays will fail with
+        # ValueError exception, thus warning about inevitable.
         try:
             return new == old
+        except (KeyboardInterrupt, SystemExit):
+            raise
         except Exception as e:
-            logger.warning("could not compare %s and %s for property %s (Reason: %s)", new, old, self.name, e)
+            logger.debug("could not compare %s and %s for property %s (Reason: %s)", new, old, self.name, e)
         return False
 
     def transform(self, value):
@@ -383,6 +390,8 @@ class ColorSpec(DataSpec):
                 pass
             else:
                 raise RuntimeError("Invalid tuple being assigned to ColorSpec; must be length 2, 3, or 4.")
+        elif hasattr(arg, "toCSS"):
+            arg = arg.toCSS()
         super(ColorSpec, self).__set__(obj, arg)
 
     def to_dict(self, obj):
@@ -777,7 +786,7 @@ class Tuple(ContainerProperty):
         super(Tuple, self).validate(value)
 
         if value is not None:
-            if not (isinstance(value, tuple) and len(self.type_params) == len(value) and \
+            if not (isinstance(value, (tuple, list)) and len(self.type_params) == len(value) and \
                     all(type_param.is_valid(item) for type_param, item in zip(self.type_params, value))):
                 raise ValueError("expected an element of %s, got %r" % (self, value))
 
@@ -881,6 +890,11 @@ class Range(ParameterizedProperty):
     def __str__(self):
         return "%s(%s, %r, %r)" % (self.__class__.__name__, self.range_type, self.start, self.end)
 
+class Byte(Range):
+
+    def __init__(self, default=0):
+        super(Byte, self).__init__(Int, 0, 255, default=default)
+
 class Either(ParameterizedProperty):
     """ Takes a list of valid properties and validates against them in succession. """
 
@@ -941,7 +955,6 @@ class Color(Either):
     """
 
     def __init__(self, default=None):
-        Byte = Range(Int, 0, 255)
         types = (Enum(enums.NamedColor),
                  Regex("^#[0-9a-fA-F]{6}$"),
                  Tuple(Byte, Byte, Byte),
@@ -1014,3 +1027,35 @@ class Percent(Float):
 
 class Angle(Float):
     pass
+
+class Date(Property):
+    def __init__(self, default=datetime.date.today()):
+        super(Date, self).__init__(default=default)
+
+    def validate(self, value):
+        super(Date, self).validate(value)
+
+        if not (value is None or isinstance(value, (datetime.date,) + string_types + (float,) + integer_types)):
+            raise ValueError("expected a date, string or timestamp, got %r" % value)
+
+    def transform(self, value):
+        value = super(Date, self).transform(value)
+
+        if isinstance(value, (float,) + integer_types):
+            try:
+                value = datetime.date.fromtimestamp(value)
+            except ValueError:
+                value = datetime.date.fromtimestamp(value/1000)
+        elif isinstance(value, string_types):
+            value = dateutil.parser.parse(value).date()
+
+        return value
+
+class RelativeDelta(Dict):
+    def __init__(self, default={}):
+        keys = Enum("years", "months", "days", "hours", "minutes", "seconds", "microseconds")
+        values = Int
+        super(RelativeDelta, self).__init__(keys, values, default=default)
+
+    def __str__(self):
+        return self.__class__.__name__

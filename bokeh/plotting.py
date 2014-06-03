@@ -39,7 +39,7 @@ def curdoc():
     try:
         """This is used when we need to call the plotting API from within
         the server, within a request context.  (Applets do this for example)
-        in this case you still want the API to work but you don't want 
+        in this case you still want the API to work but you don't want
         to use the global module level document
         """
         from flask import request
@@ -47,7 +47,6 @@ def curdoc():
         logger.debug("returning config from flask request")
         return doc
     except (ImportError, RuntimeError, AttributeError):
-        logger.debug("returning global config from bokeh.plotting")
         return _default_document
 
 def curplot():
@@ -159,7 +158,7 @@ def output_notebook(url=None, docname=None, session=None, name=None):
     global _default_notebook
     _default_notebook = True
 
-def output_file(filename, title="Bokeh Plot", autosave=True, mode="inline", rootdir=None):
+def output_file(filename, title="Bokeh Plot", autosave=True, mode="inline", root_dir=None):
     """ Outputs to a static HTML file.
 
     .. note:: This file will be overwritten each time show() or save() is invoked.
@@ -172,7 +171,7 @@ def output_file(filename, title="Bokeh Plot", autosave=True, mode="inline", root
 
         mode (str, optional) : how to inlude BokehJS (default: "inline")
             **mode** can be 'inline', 'cdn', 'relative(-dev)' or 'absolute(-dev)'.
-            In the 'relative(-dev)' case, **rootdir** can be specified to indicate the
+            In the 'relative(-dev)' case, **root_dir** can be specified to indicate the
             base directory from which the path to the various static files should be
             computed.
 
@@ -183,7 +182,7 @@ def output_file(filename, title="Bokeh Plot", autosave=True, mode="inline", root
     global _default_file
     _default_file = {
         'filename'  : filename,
-        'resources' : Resources(mode=mode, rootdir=rootdir, minified=False),
+        'resources' : Resources(mode=mode, root_dir=root_dir, minified=False),
         'autosave'  : autosave,
         'title'     : title,
     }
@@ -218,15 +217,20 @@ def show(browser=None, new="tab", url=None):
 
     controller = browserlib.get_browser_controller(browser=browser)
 
+    plot = curplot()
+    if not plot:
+        warnings.warn("No current plot to show. Use renderer functions (circle, rect, etc.) to create a current plot (see http://bokeh.pydata.org/index.html)")
+        return
+
     if notebook and session:
         import IPython.core.displaypub as displaypub
         push(session=session)
-        snippet = autoload_server(curplot(), cursession())
+        snippet = autoload_server(plot, cursession())
         displaypub.publish_display_data('bokeh', {'text/html': snippet})
 
     elif notebook:
         import IPython.core.displaypub as displaypub
-        plot = curplot()
+
         displaypub.publish_display_data('bokeh', {'text/html': notebook_div(plot)})
 
     elif session:
@@ -266,11 +270,16 @@ def save(filename=None, resources=None):
     if not filename:
         warnings.warn("save() called but no filename was supplied and output_file(...) was never called, nothing saved")
         return
+
     if not resources:
         warnings.warn("save() called but no resources was supplied and output_file(...) was never called, nothing saved")
         return
 
-    html = file_html(curplot(), resources, _default_file['title'])
+    if not curplot():
+        warnings.warn("No current plot to save. Use renderer functions (circle, rect, etc.) to create a current plot (see http://bokeh.pydata.org/index.html)")
+        return
+
+    html = file_html(curdoc(), resources, _default_file['title'])
     with open(filename, "w") as f:
         f.write(html)
 
@@ -296,7 +305,7 @@ def push(session=None, document=None):
     if session:
         return session.store_document(curdoc())
     else:
-        warnings.warn("push() called but no session was supplied and output_server(...) was never called, nothing pushd")
+        warnings.warn("push() called but no session was supplied and output_server(...) was never called, nothing pushed")
 
 
 def _doc_wrap(func):

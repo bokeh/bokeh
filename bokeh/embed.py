@@ -65,6 +65,7 @@ def notebook_div(plot_object):
 
     '''
     ref = plot_object.get_ref()
+    resources = Resources()
     elementid = str(uuid.uuid4())
 
     js = PLOT_JS.render(
@@ -74,7 +75,7 @@ def notebook_div(plot_object):
         all_models = serialize_json(plot_object.dump()),
     )
     script = PLOT_SCRIPT.render(
-        plot_js = js,
+        plot_js = resources.js_wrapper(js),
     )
     div = PLOT_DIV.render(elementid=elementid)
     html = NOTEBOOK_DIV.render(
@@ -138,7 +139,7 @@ def autoload_static(plot_object, resources, script_path):
         ValueError
 
     '''
-    if resources.mode != 'inline':
+    if resources.mode == 'inline':
         raise ValueError("autoload_static() requires non-inline resources")
 
     if resources.dev:
@@ -147,6 +148,7 @@ def autoload_static(plot_object, resources, script_path):
     elementid = str(uuid.uuid4())
 
     js = AUTOLOAD.render(
+        all_models = serialize_json(plot_object.dump()),
         js_url = resources.js_files[0],
         css_files = resources.css_files,
         elementid = elementid,
@@ -162,7 +164,7 @@ def autoload_static(plot_object, resources, script_path):
     return encode_utf8(js), encode_utf8(tag)
 
 
-def autoload_server(plot_object, session, mode="server"):
+def autoload_server(plot_object, session):
     ''' Return a script tag that can be used to embed Bokeh Plots from
     a Bokeh Server.
 
@@ -179,7 +181,7 @@ def autoload_server(plot_object, session, mode="server"):
 
     '''
     elementid = str(uuid.uuid4())
-    resources = Resources(root_url=session.root_url, mode=mode)
+    resources = Resources(root_url=session.root_url, mode="server")
     tag = AUTOLOAD_SERVER.render(
         src_path = resources._autoload_path(elementid),
         elementid = elementid,

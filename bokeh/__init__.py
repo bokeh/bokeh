@@ -73,16 +73,132 @@ from .settings import settings
 from . import sampledata
 from .serverconfig import Server, Cloud
 
+def _print_versions():
+    """Returns all the versions of software that Bokeh relies on."""
+    import platform as pt
+
+    message = """
+    Bokeh version: %s
+    Python version: %s-%s
+    Platform: %s
+    """ % (__version__, pt.python_version(),
+           pt.python_implementation(), pt.platform())
+    return(message)
+
 def print_versions():
     """Print all the versions of software that Bokeh relies on."""
-    import sys, platform
-    print("-=" * 38)
-    print("Bokeh version: %s" % __version__)
-    print("Python version: %s" % sys.version)
-    (sysname, nodename, release, version, machine, processor) = \
-        platform.uname()
-    print("Platform: %s-%s-%s (%s)" % (sysname, release, machine, version))
-    print("-=" * 38)
+    print(_print_versions())
+
+def report_issue(number=None , owner="ContinuumIO", repo="bokeh",
+                 versions=True, browser=True):
+    """Opens a new Github issue programmatically.
+
+    This "interactive" function will ask you for some minimal content
+    to finally submit a new Github issue, adding essential info about
+    the current setup. You can also call it with one specific issue
+    number to add the essential info to an already opened issue.
+
+    Parameters
+    ----------
+
+    number: int (default=None)
+        The issue number if you want to add a new comment to an issue
+        already created.
+
+    owner: str (default="ContinuumIO")
+        The owner's repository name.
+
+    repo: str (default="bokeh")
+        The name of the repository.
+
+    versions: bool (default=True)
+        Adds the `_print_versions` content information at the end of
+        the body text.
+
+    browser: bool (default=True)
+        After submitting the new issue, it opens the issue webpage in
+        your default web browser.
+
+    Notes:
+        * You can add the GHUSER (Github username) and
+        GHPASS (Github password) to your environment to avoid
+        filling this info in the interactive prompt.
+        * Additionally, you can use this same function to report to any
+        other project, just changing the parameters.
+    """
+
+    import requests
+    import json
+    import os
+    import webbrowser
+
+    from urlparse import urljoin
+
+    print("This is the Bokeh reporting engine.\n\n"
+          "Next, you will be guided to build the report")
+
+    if number is None:
+        title = raw_input('Write the title for the intended issue: ')  # Make it py3 compat
+        body = raw_input('Write the body for the intended issue: ')  # Make it py3 compat
+    else:
+        body = raw_input('Write your comment here: ')  # Make it py3 compat
+
+    ghuser, ghpass = (os.environ.get(x) for x in ["GHUSER", "GHPASS"])
+    if ghuser is None and ghpass is None:
+        print("You need to add your GHUSER (Github username) and GHPASS (Github password)\n"
+              "to the environmentor complete the next lines.")
+        environment = raw_input('Do you want to abort to set up the environment variable? ')  # Make it py3 compat
+        if environment.lower() in ["true", "yes", "y", "on", "1"]:
+            return
+        else:
+            ghuser = raw_input('Write your Github username: ')  # Make it py3 compat
+            ghpass = raw_input('Write your Github password: ')  # Make it py3 compat
+    elif ghuser is None and ghpass is not None:
+        print("You need to add your GHUSER (Github username) to the environment.")
+        return
+    elif ghpass is None and ghuser is not None:
+        print("You need to add your GHPASS (Github password) to the environment.")
+        return
+
+    base = "https://api.github.com"
+    if number is None:
+        url = "/".join(["repos", owner, repo, "issues"])
+        if versions:
+            data = {"title": title, "body": body + "\n" + _print_versions()}
+        else:
+            data = {"title": title, "body": body}
+    else:
+        url = "/".join(["repos", owner, repo, "issues", str(number), "comments"])
+        if versions:
+            data = {"body": body + "\n" + _print_versions()}
+        else:
+            data = {"body": body}
+    issues_url = urljoin(base, url)
+
+    print("\nPreview:\n")
+    for label, content in sorted(data.items(), reverse=True):
+        print('{0}: {1}'.format(label, content))
+    value = raw_input('Submit the intended issue/comment? ')  # Make it py3 compat
+    if value.lower() in ["true", "yes", "y", "on", "1"]:
+        r = requests.post(issues_url,
+                          auth=(ghuser, ghpass),
+                          headers={'Content-Type': 'application/json'},
+                          data=json.dumps(data))
+        if r.status_code == 201:
+            g = requests.get(issues_url)
+            if number is None:
+                print("Issue successfully submitted.")
+                if browser:
+                    webbrowser.open_new(g.json()[0].get("html_url"))
+            else:
+                print("Comment successfully submitted.")
+                g = requests.get(issues_url)
+                if browser:
+                    webbrowser.open_new(g.json()[-1].get("html_url"))
+        else:
+            print("Something failed, please check your GHUSER and GHPASS.")
+    else:
+        print("Issue not submitted.")
 
 def test(verbosity=1, xunitfile=None, exit=False):
     """

@@ -19,28 +19,24 @@ define [
     #   the views constructor here, as an 'options' field in the dict
     # * options: any additional option to be used in the construction of views
     # * view_option: array, optional view specific options passed in to the construction of the view
-    "use strict";
+
     created_views = []
-    #debugger
-    try
-      newmodels = _.filter(view_models, (x) -> return not _.has(view_storage, x.id))
-    catch error
-      debugger
-      console.log(error)
-      throw error
+    newmodels = _.filter(view_models, (x) -> return not _.has(view_storage, x.id))
+
     for model, i_model in newmodels
       view_specific_option = _.extend({}, options, {'model': model})
-      try
-        if i_model < view_types.length
-          view_storage[model.id] = new view_types[i_model](view_specific_option)
-        else
-          view_storage[model.id] = new model.default_view(view_specific_option)
-      catch error
-        console.log("error on model of", model, error)
-        throw error
+
+      if i_model < view_types.length
+        view_storage[model.id] = new view_types[i_model](view_specific_option)
+      else
+        view_storage[model.id] = new model.default_view(view_specific_option)
+
       created_views.push(view_storage[model.id])
+
     to_remove = _.difference(_.keys(view_storage), _.pluck(view_models, 'id'))
+
     for key in to_remove
       view_storage[key].remove()
       delete view_storage[key]
+
     return created_views

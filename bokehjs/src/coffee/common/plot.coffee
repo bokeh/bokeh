@@ -249,7 +249,6 @@ define [
       old_renderers = _.keys(@renderers)
       views = @build_views()
       renderers_to_remove = _.difference(old_renderers, _.pluck(@mget_obj('renderers'), 'id'))
-      console.log('renderers_to_remove', renderers_to_remove)
       for id_ in renderers_to_remove
         delete @levels.glyph[id_]
       tools = @build_tools()
@@ -278,7 +277,7 @@ define [
     render_init: () ->
       # TODO use template
       @$el.append($("""
-        <div class='button_bar btn-group pull-top'/>
+        <div class='button_bar bk-bs-btn-group pull-top'/>
         <div class='plotarea'>
         <div class='bokeh_canvas_wrapper'>
           <canvas class='bokeh_canvas'></canvas>

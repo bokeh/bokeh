@@ -29,16 +29,14 @@ class TestPrintVersions(unittest.TestCase):
 
     def test_print(self):
         import bokeh
-        # remove nodename and processor from the system info
-        sysinfo = list(platform.uname())
-        del sysinfo[1]
-        del sysinfo[-1]
         bokeh.print_versions()
         # check the correct info is present
+        sysinfo = [platform.python_version(),
+                   platform.python_implementation(),
+                   platform.platform(),
+                   bokeh.__version__]
         for info in sysinfo:
             self.assertIn(info, self.out.value)
-        self.assertIn(sys.version, self.out.value)
-        self.assertIn(bokeh.__version__, self.out.value)
 
     def test_version_defined(self):
         import bokeh
