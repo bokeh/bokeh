@@ -9,43 +9,37 @@
     <link href="{{ url_for('static', filename='css/bokeh.css') }}" rel="stylesheet">
   </head>
   <body>
-  <div class="container">
-    <div class="row">
-      <div class="navbar">
-        <div class="navbar-inner">
-          <a class="brand"> {{ title }} </a>
-          <ul class="nav pull-right">
-              <li>
-                <a href="{{ url_for('bokeh.server.register_get') }}">register </a>
-              </li>
-              <li>
-                <a href="{{ url_for('bokeh.server.login_get') }}">login </a>
-              </li>
-              <li>
-                <a href="{{ url_for('bokeh.server.logout') }}">logout </a>
-              </li>
+    <div class="container">
+      <div class="row">
+        <div class="navbar navbar-default">
+          <div class="navbar-header">
+            <a class="navbar-brand">{{ title }}</a>
+          </div>
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="{{ url_for('bokeh.server.register_get') }}">register</a></li>
+            <li><a href="{{ url_for('bokeh.server.login_get') }}">login</a></li>
+            <li><a href="{{ url_for('bokeh.server.logout') }}">logout</a></li>
           </ul>
         </div>
       </div>
-    </div>
-    <div class="row">
-      <div class="col-md-12">
-        <div class="messages">
-          {% with messages = get_flashed_messages(with_categories=true) %}
-          {% if messages %}
-          {% for category, message in messages %}
-          <div class="alert alert-{{ category }}">
-            <button type="button" class="close" data-dismiss="alert">&times;</button>
-            {{ message }}
+      <div class="row">
+        <div class="col-md-12">
+          <div class="messages">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">
+              <button type="button" class="close" data-dismiss="alert">&times;</button>
+              {{ message }}
+            </div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
           </div>
-          {% endfor %}
-          {% endif %}
-          {% endwith %}
         </div>
       </div>
+      {% block main %}
+      {% endblock %}
     </div>
-    {% block main %}
-    {% endblock %}
-  </div>
   </body>
 </html>

@@ -27,25 +27,23 @@
     {% endif %}
   </head>
   <body>
-  <div class="container">
-    {% if not hide_navbar %}
-    <div class="row">
-      <div class="navbar">
-        <div class="navbar-inner">
-          <a class="brand"> {{ title }} </a>
-          <ul class="nav pull-right">
-              <li>
-                <a href="{{ url_for('bokeh.server.logout') }}">logout </a>
-              </li>
+    <div class="container">
+      {% if not hide_navbar %}
+      <div class="row">
+        <div class="navbar navbar-default">
+          <div class="navbar-header">
+            <a class="navbar-brand">{{ title }}</a>
+          </div>
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="{{ url_for('bokeh.server.logout') }}">logout</a></li>
           </ul>
         </div>
       </div>
+      {% endif %}
+      <div class="row">
+        {% block content %}
+        {% endblock %}
+      </div>
     </div>
-    {% endif %}
-    <div class="row">
-      {% block content %}
-      {% endblock %}
-    </div>
-  </div>
   </body>
 </html>
