@@ -380,7 +380,7 @@ class Session(object):
         since it's inside document._models
         Args:
             obj : object to be updated.. this is used just for typename and id
-            docuemnt : document instance.  object should be inside the document
+            document : document instance.  object should be inside the document
         """
         assert obj._id in document._models
         attrs = self.pull(typename=obj.__view_model__, objid=obj._id)
