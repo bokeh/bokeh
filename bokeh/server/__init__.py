@@ -87,19 +87,16 @@ def build_parser():
                         help="data directory",
                         type=str
                         )
-    parser.add_argument(
-        "--robust-reload",
-        help="whether to protect debug server reloading from syntax errors",
-        default=False,
-        action="store_true",
-        )
-    parser.add_argument(
-        "--script",
-        help="script to load(for applets)",
-        default=None,
-        type=str
-        )
-    
+    parser.add_argument("--robust-reload",
+                        help="whether to protect debug server reloading from syntax errors",
+                        default=False,
+                        action="store_true",
+                       )
+    parser.add_argument("--script",
+                        help="script to load(for applets)",
+                        default=None,
+                        type=str
+                       )
     return parser
     
 def run():
@@ -153,7 +150,7 @@ data-directory : %s
         for handler in logging.getLogger().handlers:
             handler.addFilter(StaticFilter())
     settings.debugjs = args.debugjs
-    if args.debug :
+    if args.debug:
         start_with_reloader(args, settings.js_files(), args.robust_reload)
     else:
         start_server(args)
@@ -161,8 +158,7 @@ data-directory : %s
 def start_server(args):
     from . import start
     
-    bokeh_app.debug = False
-    bokeh_app.debug = False
+    bokeh_app.debug = args.debug
     bokeh_app.splitjs = args.splitjs
     bokeh_app.debugjs = args.debugjs
 
@@ -171,8 +167,6 @@ def start_server(args):
         "redis_port": args.redis_port,
         "start_redis": args.start_redis,
     }
-    if args.debug:
-        bokeh_app.debug = True
     start.prepare_app(backend, single_user_mode=not args.multi_user,
                       data_directory=args.data_directory)
     if args.script:
