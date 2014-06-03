@@ -13,6 +13,12 @@ define [
 
       @need_set_data = true
 
+      # TODO (bev) this is clunks
+      if @mget('glyphspec').x_range_name
+        @mset('x_range_name', @mget('glyphspec').x_range_name)
+      if @mget('glyphspec').y_range_name
+        @mset('y_range_name', @mget('glyphspec').y_range_name)
+
       @glyph_props = @init_glyph(@mget('glyphspec'))
 
       @have_selection_props = false
