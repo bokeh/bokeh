@@ -107,13 +107,24 @@ define [
           xaxes.push(axis)
       else
         for loc in xaxes_spec
-          axis = LinearAxis.Collection.create(
-            dimension: 0
-            axis_label: 'x'
-            location: loc
-            parent: plot.ref()
-            plot: plot.ref()
-          )
+          if loc.indexOf(":") > -1
+            [loc, x_range_name] = loc.split(":")
+            axis = LinearAxis.Collection.create(
+              dimension: 0
+              axis_label: 'x'
+              location: loc
+              parent: plot.ref()
+              plot: plot.ref()
+              x_range_name: x_range_name
+            )
+          else
+            axis = LinearAxis.Collection.create(
+              dimension: 0
+              axis_label: 'x'
+              location: loc
+              parent: plot.ref()
+              plot: plot.ref()
+            )
           xaxes.push(axis)
     yaxes = []
     if yaxes_spec
@@ -142,13 +153,24 @@ define [
           yaxes.push(axis)
       else
         for loc in yaxes_spec
-          axis = LinearAxis.Collection.create(
-            dimension: 1
-            axis_label: 'y'
-            location: loc
-            parent: plot.ref()
-            plot: plot.ref()
-          )
+          if loc.indexOf(":") > -1
+            [loc, y_range_name] = loc.split(":")
+            axis = LinearAxis.Collection.create(
+              dimension: 1
+              axis_label: 'y'
+              location: loc
+              parent: plot.ref()
+              plot: plot.ref()
+              y_range_name: y_range_name
+            )
+          else
+            axis = LinearAxis.Collection.create(
+              dimension: 1
+              axis_label: 'y'
+              location: loc
+              parent: plot.ref()
+              plot: plot.ref()
+            )
           yaxes.push(axis)
 
     plot.add_renderers(a.ref() for a in xaxes)
@@ -252,7 +274,7 @@ define [
       })
       plot.add_renderers([legend_renderer.ref()])
 
-  make_plot = (glyphspecs, data, {nonselected, title, dims, xrange, yrange, xaxes, yaxes, xgrid, ygrid, xdr, ydr, tools, legend}) ->
+  make_plot = (glyphspecs, data, {nonselected, title, dims, xrange, yrange, xaxes, yaxes, xgrid, ygrid, xdr, ydr, tools, legend, extra_x_ranges, extra_y_ranges}) ->
     nonselected ?= null
     title  ?= ""
     dims   ?= [400, 400]
@@ -264,11 +286,21 @@ define [
     ygrid  ?= true
     tools  ?= true
     legend ?= false
+    extra_x_ranges ?= null
+    extra_y_ranges ?= null
 
     sources = create_sources(data)
 
     xdr = create_range(xrange, sources, ['x'])
     ydr = create_range(yrange, sources, ['y'])
+
+    if extra_x_ranges?
+      for name, rng of extra_x_ranges
+        extra_x_ranges[name] = create_range(rng)
+
+    if extra_y_ranges?
+      for name, rng of extra_y_ranges
+        extra_y_ranges[name] = create_range(rng)
 
     plot = Plot.Collection.create(
       x_range: xdr.ref()
@@ -277,6 +309,8 @@ define [
       canvas_height: dims[1]
       outer_width: dims[0]
       outer_height: dims[1]
+      extra_x_ranges: extra_x_ranges
+      extra_y_ranges: extra_y_ranges
       title: title
     )
 

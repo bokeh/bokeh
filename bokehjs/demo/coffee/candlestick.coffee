@@ -60,9 +60,10 @@ options = {
   xrange: [0, 100]
   yrange: [5500, 6500]
   xaxes: "min"
-  yaxes: "min"
+  yaxes: ["left", "right:foo"]
   tools: "pan,wheel_zoom,resize,preview"
   legend: false
+  extra_y_ranges: { foo: [-100, 100] }
 }
 
 plot = Bokeh.Plotting.make_plot([upperlower, bars], data, options)

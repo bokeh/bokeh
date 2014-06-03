@@ -148,8 +148,9 @@ define [
       @y_ranges['default'] = y_range
       @y_mappers['default'] = y_mapper
 
-      if options.extra_x_ranges?
-        for name, rng in options.extra_x_ranges
+      extra_x_ranges = options.extra_x_ranges ? @mget('extra_x_ranges')
+      if extra_x_ranges?
+        for name, rng of extra_x_ranges
           mapper_type = LinearMapper.Model
           if rng.type == "FactorRange"
             mapper_type = CategoricalMapper.Model
@@ -160,14 +161,15 @@ define [
           @x_ranges[name] = rng
           @x_mappers[name] = mapper
 
-      if options.extra_y_ranges?
-        for name, rng in options.extra_y_ranges
+      extra_y_ranges = options.extra_y_ranges ? @mget('extra_y_ranges')
+      if extra_y_ranges?
+        for name, rng of extra_y_ranges
           mapper_type = LinearMapper.Model
           if rng.type == "FactorRange"
             mapper_type = CategoricalMapper.Model
           mapper = new x_mapper_type({
             source_range: rng
-            target_range: @view_state.get('inner_range_horizontal')
+            target_range: @view_state.get('inner_range_vertical')
           })
           @y_ranges[name] = rng
           @y_mappers[name] = mapper
