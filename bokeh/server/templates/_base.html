@@ -3,10 +3,8 @@
   <head>
     <meta charset="utf-8">
     <title>{% block title %}{% endblock %}</title>
-    <!-- Vendor Styles -->
     <script src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>
     <link href="{{ url_for('bokeh.server.bokehjs_file', filename='css/bokeh.css') }}" rel="stylesheet">
-    <script src="{{ url_for('static', filename='js/vendor/jquery/jquery.js') }}"></script>
     {% block extra_scripts %}
     {% endblock %}
     {% if splitjs %}
