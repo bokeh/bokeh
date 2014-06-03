@@ -2,6 +2,7 @@ import abstract_rendering.numeric as numeric
 import abstract_rendering.general as general
 import abstract_rendering.infos as infos
 import abstract_rendering.core as ar
+import abstract_rendering.glyphset as glyphset
 
 from ..objects import ColumnDataSource, ServerDataSource, Plot, Renderer, Glyph
 from bokeh.properties import (HasProps, Dict, Enum, Either, Float, Instance, Int,
@@ -128,37 +129,29 @@ def downsample(data, transform, plot_size):
   table = data.select(columns=[xcol, ycol])
   xcol = table[xcol]
   ycol = table[ycol]
-    
-  glyphs = ar.Glyphset()
-  glyphs.shapecode = _shapecode(glyphspec['type'])
-  for (x,y) in zip(xcol, ycol):
-    #TODO: This copy is...unfortunate.  AR needs to just take the zip iterator....
-    #TODO: May also need something like 'implicit geometry' to handle data transformations...
-    glyphs.append(ar.Glyph(x,y,size,size))  
 
-  bounds = ar.bounds(glyphs)
+  glyphs = glyphset.Glyphset([xcol, ycol], ar.EmptyList(), _shaper(glyphspec['type'], size), colMajor=True)
+  bounds = glyphs.bounds()
   ivt = ar.zoom_fit(plot_size, bounds)  #TODO: Derive transform from passed parameters
   image = ar.render(glyphs, info, agg, shader, plot_size, ivt)
   
-  logger.info("Max %s ----------" % [image._aggregates.max()])
-  logger.info("Min %s ----------" % [image._aggregates.min()])
+  logger.info("Max %s ----------" % [image.max()])
+  logger.info("Min %s ----------" % [image.min()])
 
-  return {'image': [image._aggregates],
+  return {'image': [image],
           'x': [0],
           'y': [0],
-          'dw': [image._aggregates.shape[0]],
-          'dh': [image._aggregates.shape[1]],
+          'dw': [image.shape[0]],
+          'dh': [image.shape[1]],
   }
 
 
-
-def _shapecode(code):
-  """Convert a string to an AR shapecode."""
-
+def _shaper(code, size):
   code = code.lower()
-  if code == 'square':
-    return ar.ShapeCodes.RECT
-  else:
+  if not code == 'square':
     raise ValueError("Only recognizing 'square' received " + code)
-
-
+  
+  tox = glyphset.idx(0)
+  toy = glyphset.idx(1)
+  sizer = glyphset.const(size)
+  return glyphset.ToRect(tox, toy, sizer, sizer)
