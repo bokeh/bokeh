@@ -10,7 +10,7 @@ pushd $SRC_DIR
 version=`$PYTHON build_scripts/get_bump_version.py`
 date=`date "+%Y%m%d"`
 echo $version.dev.$date > __conda_version__.txt
-mv __conda_version__.txt $BLD_DIR
+cp __conda_version__.txt $BLD_DIR
 
 conda install --yes --force -c wakari nodejs
 conda install --yes --force -c wakari grunt-cli
@@ -25,5 +25,4 @@ popd
 
 cd $PREFIX
 echo $PREFIX
-find . -name '*.pyc' -delete
 

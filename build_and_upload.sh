@@ -6,6 +6,9 @@ conda build conda.recipe --quiet;
 #buid py33 pkg
 CONDA_PY=33 conda build conda.recipe --quiet;
 
+#buid py34 pkg
+CONDA_PY=34 conda build conda.recipe --quiet;
+
 CONDA_ENV=`conda info --json | jsawk 'return this.root_prefix'`
 PLATFORM=`conda info --json | jsawk 'return this.platform'`
 BUILD_PATH=$CONDA_ENV/conda-bld/$PLATFORM
@@ -25,7 +28,10 @@ done
 
 #create and upload pypi pkgs to binstar
 version=`python build_scripts/get_bump_version.py`
-BOKEH_DEV_VERSION=$version.dev.$date python setup.py sdist --formats=gztar,zip
+
+#zip is currently not working
+
+BOKEH_DEV_VERSION=$version.dev.$date python setup.py sdist --formats=gztar
 binstar upload -u bokeh dist/bokeh*$date* --package-type pypi -c dev --force;
 
 echo "I'm done uploading"

@@ -25,7 +25,21 @@ import sys
 if 'nightly' in sys.argv:
     from setuptools import setup
     assert 'nightly' == sys.argv.pop(2)
+    subprocess
     sys.argv.insert(2,"install")
+
+    #need to create py dev version file for __init__.py __version__ setting
+    vers_file = os.path.join('bokeh','__conda_version__.py')
+    with open('__conda_version__.txt','r') as f:
+        version = f.read().rstrip()
+
+    #create valid py file
+    with open(vers_file,'w') as f:
+        f.write("conda_version="+"'"+version+"'")
+
+    # subprocess.call(["ls bokeh/", "-l"])
+    # import time
+    # time.sleep(10)
 else:
     from distutils.core import setup
 
@@ -321,7 +335,7 @@ from distutils.command.build_py import build_py as _build_py
 class build_py(_build_py):
     pass
 
-if os.environ['BOKEH_DEV_VERSION']:
+if 'BOKEH_DEV_VERSION' in os.environ:
     _version = os.environ['BOKEH_DEV_VERSION']
     _cmdclass = {'build_py': build_py}
 else:
