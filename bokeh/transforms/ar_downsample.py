@@ -63,11 +63,16 @@ class Cuberoot(Proxy):
     return numeric.Cuberoot()
 
 class Transform(PlotObject):
-  resample = String("abstract rendering")
-  agg = Any() 
-  info = Any()
-  shader = Any()
+  resample = String()
+  agg = Instance(Proxy) 
+  info = Instance(Proxy) 
+  shader = Instance(Proxy) 
   spec = Dict(String, Any)
+
+  def __init__(self, **kwargs):
+    super(Transform,self).__init__(**kwargs)
+    self.resample="abstract rendering"
+
 
 #TODO: Pass the 'rend' defintiion through (minus the data_source references), unpack in 'downsample' instead of here...
 def source(plot, agg=Count(), info=Const(val=1), shader=Id(), **kwargs):
@@ -95,7 +100,7 @@ def source(plot, agg=Count(), info=Const(val=1), shader=Id(), **kwargs):
 
 
   transform = Transform(agg=agg, info=info, shader=shader, spec=spec)
-  kwargs['transform'] = transform.to_dict()
+  kwargs['transform'] = transform.vm_serialize()
   return ServerDataSource(**kwargs)
 
 
