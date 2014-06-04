@@ -454,8 +454,6 @@ class HDF5DataBackend(AbstractDataBackend):
 
         x_resolution = plot_state['screen_x'].end - plot_state['screen_x'].start
         y_resolution = plot_state['screen_y'].end - plot_state['screen_y'].start
-        x_bounds = plot_state['data_x'].end - plot_sate['data_x'].start
-        y_bounds = plot_state['data_y'].end - plot_sate['data_y'].start
 
         if data_slice:
             #not supported for z yet...
@@ -475,7 +473,7 @@ class HDF5DataBackend(AbstractDataBackend):
                                    global_y_range[1],
                                    dataset.shape[0])
         result = image_downsample.downsample(dataset, image_x_axis, image_y_axis,
-                                             x_bounds, y_bounds, x_resolution,
+                                             plot_state['data_x'], plot_state['data_y'], x_resolution,
                                              y_resolution)
         output = {}
         output['image'] = [result['data']]

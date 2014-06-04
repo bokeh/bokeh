@@ -84,6 +84,8 @@ def source(plot, agg=Count(), info=Const(1), shader=Id(), **kwargs):
   kwargs['data_url'] = datasource.data_url
   kwargs['owner_username'] = datasource.owner_username
   
+  spec = rend.vm_serialize()['glyphspec']
+
   if (shader.out == "image"): 
     kwargs['data'] = {'x': [0], 
                       'y': [0],
@@ -97,8 +99,6 @@ def source(plot, agg=Count(), info=Const(1), shader=Id(), **kwargs):
                     }
   else: 
     raise ValueError("Can only work with image-shaders...for now")
-
-  spec = rend.vm_serialize()['glyphspec']
 
   transform = {'resample' : 'abstract rendering',
                'aggregator': agg.serialize(),
@@ -118,6 +118,7 @@ def downsample(data, transform, plot_state):
   plot_size = [plot_state['screen_x'].end - plot_state['screen_x'].start,
                plot_state['screen_y'].end - plot_state['screen_y'].start]
 
+
   agg = _reify('aggregator')
   info = _reify('info')
   #select = globals()[transform['select']['name']](**transform['select'])
@@ -132,8 +133,9 @@ def downsample(data, transform, plot_state):
   table = data.select(columns=[xcol, ycol])
   xcol = table[xcol]
   ycol = table[ycol]
-
-  glyphs = glyphset.Glyphset([xcol, ycol], ar.EmptyList(), _shaper(glyphspec['type'], size), colMajor=True)
+  
+  shaper = _shaper(glyphspec['type'], size)
+  glyphs = glyphset.Glyphset([xcol, ycol], ar.EmptyList(), shaper, colMajor=True)
   bounds = glyphs.bounds()
   ivt = ar.zoom_fit(plot_size, bounds)  #TODO: Derive transform from passed parameters
   image = ar.render(glyphs, info, agg, shader, plot_size, ivt)
