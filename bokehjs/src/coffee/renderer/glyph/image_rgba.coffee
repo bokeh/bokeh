@@ -22,6 +22,7 @@ define [
       else
         @_fields = ['image:array', 'x', 'y', 'dw', 'dh']
       super(options)
+      return
 
     _set_data: () ->
       if not @image_data? or @image_data.length != @image.length
@@ -57,11 +58,13 @@ define [
           image_data.data.set(buf8)
         ctx.putImageData(image_data, 0, 0);
         @image_data[i] = canvas
+      return
 
     _map_data: () ->
       [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
       @sw = @distance_vector('x', 'dw', 'edge', @mget('glyphspec')['dilate'])
       @sh = @distance_vector('y', 'dh', 'edge', @mget('glyphspec')['dilate'])
+      return
 
     _render: (ctx, indices, glyph_props) ->
       old_smoothing = ctx.getImageSmoothingEnabled()
@@ -83,6 +86,7 @@ define [
         ctx.translate(0, -y_offset)
 
       ctx.setImageSmoothingEnabled(old_smoothing)
+      return
 
   # name Image conflicts with js Image
   class ImageRGBAGlyph extends Glyph.Model

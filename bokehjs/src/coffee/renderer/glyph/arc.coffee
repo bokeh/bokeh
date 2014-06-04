@@ -13,6 +13,7 @@ define [
     _map_data: () ->
       [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
       @radius = @distance_vector('x', 'radius', 'edge')
+      return
 
     _render: (ctx, indices, glyph_props, sx=@sx, sy=@sy, radius=@radius) ->
       if glyph_props.line_properties.do_stroke
@@ -26,6 +27,7 @@ define [
 
           glyph_props.line_properties.set_vectorize(ctx, i)
           ctx.stroke()
+      return
 
     draw_legend: (ctx, x0, x1, y0, y1) ->
       reference_point = @get_reference_point() ? 0
@@ -40,6 +42,7 @@ define [
       radius[reference_point] = Math.min(Math.abs(x1-x0), Math.abs(y1-y0))*0.4
 
       @_render(ctx, indices, @glyph_props, sx, sy, radius)
+      return
 
   class Arc extends Glyph.Model
     default_view: ArcView

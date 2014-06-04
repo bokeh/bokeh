@@ -30,6 +30,7 @@ define [
           ctx.moveTo(sx[i]-r, sy[i])
           ctx.lineTo(sx[i]+r, sy[i])
           ctx.stroke()
+      return
 
   class CircleCross extends Marker.Model
     default_view: CircleCrossView

@@ -7,24 +7,12 @@ define [
 
   class LineView extends Glyph.View
 
-    setup_server_data : () ->
-      server_source = @mget_obj('server_data_source')
-      @server_source = server_source
-      #need to parameterize these some how, assume domain=x for now
-      domain = 'x'
-      if domain == 'x'
-        server_source.listen_for_line1d_updates(@mget_obj('data_source'),
-          @plot_view.x_range,
-          @plot_view.view_state.get('inner_range_horizontal'),
-          @glyph_props.y.field,
-          @glyph_props.x.field,
-          [@glyph_props.y.field]
-        )
     _fields: ['x', 'y']
     _properties: ['line']
 
     _map_data: () ->
       [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
+      return
 
     _render: (ctx, indices, glyph_props) ->
 
@@ -49,8 +37,11 @@ define [
       if drawing
         ctx.stroke()
 
+      return
+
     draw_legend: (ctx, x0, x1, y0, y1) ->
       @_generic_line_legend(ctx, x0, x1, y0, y1)
+      return
 
   class Line extends Glyph.Model
     default_view: LineView

@@ -14,6 +14,7 @@ define [
       [@sx0, @sy0] = @plot_view.map_to_screen(@x0, @glyph_props.x0.units, @y0, @glyph_props.y0.units)
       [@sx1, @sy1] = @plot_view.map_to_screen(@x1, @glyph_props.x1.units, @y1, @glyph_props.y1.units)
       [@scx, @scy] = @plot_view.map_to_screen(@cx, @glyph_props.cx.units, @cy, @glyph_props.cy.units)
+      return
 
     _render: (ctx, indices, glyph_props) ->
       if glyph_props.line_properties.do_stroke
@@ -29,9 +30,11 @@ define [
 
           glyph_props.line_properties.set_vectorize(ctx, i)
           ctx.stroke()
+      return
 
     draw_legend: (ctx, x0, x1, y0, y1) ->
       @_generic_line_legend(ctx, x0, x1, y0, y1)
+      return
 
   class Quadratic extends Glyph.Model
     default_view: QuadraticView

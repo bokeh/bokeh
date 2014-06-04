@@ -15,6 +15,7 @@ define [
       [@sx1,  @sy1]  = @plot_view.map_to_screen(@x1,  @glyph_props.x1.units,  @y1, @glyph_props.y1.units)
       [@scx0, @scy0] = @plot_view.map_to_screen(@cx0, @glyph_props.cx0.units, @cy0, @glyph_props.cy0.units)
       [@scx1, @scy1] = @plot_view.map_to_screen(@cx1, @glyph_props.cx1.units, @cy1, @glyph_props.cy1.units)
+      return
 
     _render: (ctx, indices, glyph_props) ->
       if glyph_props.line_properties.do_stroke
@@ -30,9 +31,11 @@ define [
 
           glyph_props.line_properties.set_vectorize(ctx, i)
           ctx.stroke()
+      return
 
     draw_legend: (ctx, x0, x1, y0, y1) ->
       @_generic_line_legend(ctx, x0, x1, y0, y1)
+      return
 
   class Bezier extends Glyph.Model
     default_view: BezierView

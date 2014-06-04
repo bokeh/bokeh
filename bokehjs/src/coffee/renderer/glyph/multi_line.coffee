@@ -10,9 +10,6 @@ define [
     _fields: ['xs', 'ys']
     _properties: ['line']
 
-    _map_data: () ->
-      null
-
     _render: (ctx, indices, glyph_props) ->
 
       for i in indices
@@ -34,9 +31,11 @@ define [
           else
             ctx.lineTo(sx[j], sy[j])
         ctx.stroke()
+      return
 
     draw_legend: (ctx, x0, x1, y0, y1) ->
       @_generic_line_legend(ctx, x0, x1, y0, y1)
+      return
 
   class MultiLine extends Glyph.Model
     default_view: MultiLineView

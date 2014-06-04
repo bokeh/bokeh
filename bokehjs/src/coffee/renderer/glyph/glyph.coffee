@@ -33,6 +33,7 @@ define [
       if @mget('server_data_source')
         @setup_server_data()
       @listenTo(this, 'change:server_data_source', @setup_server_data)
+      return
 
     init_glyph: (glyphspec) ->
       props = {}
@@ -79,6 +80,7 @@ define [
 
       if request_render
         @request_render()
+      return
 
     render: (have_new_mapper_state=true) ->
       if @need_set_data
@@ -135,6 +137,7 @@ define [
       @have_new_data = false
 
       ctx.restore()
+      return
 
     xrange: () ->
       return @plot_view.x_range
@@ -145,6 +148,7 @@ define [
     bind_bokeh_events: () ->
       @listenTo(@model, 'change', @request_render)
       @listenTo(@mget_obj('data_source'), 'change', @set_data)
+      return
 
     distance_vector: (pt, span_prop_name, position, dilate=false) ->
       """ returns an array """
@@ -194,7 +198,7 @@ define [
         return reference_point
 
     draw_legend: (ctx, x0, x1, y0, y1) ->
-      null
+      return null
 
     _generic_line_legend: (ctx, x0, x1, y0, y1) ->
       reference_point = @get_reference_point() ? 0
@@ -207,6 +211,7 @@ define [
         line_props.set_vectorize(ctx, reference_point)
         ctx.stroke()
       ctx.restore()
+      return
 
     _generic_area_legend: (ctx, x0, x1, y0, y1) ->
       reference_point = @get_reference_point() ? 0
@@ -233,6 +238,7 @@ define [
         ctx.rect(sx0, sy0, sx1-sx0, sy1-sy0)
         @glyph_props.line_properties.set_vectorize(ctx, reference_point)
         ctx.stroke()
+      return
 
     hit_test: (geometry) ->
       if geometry.type == "point"

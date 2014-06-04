@@ -33,6 +33,7 @@ define [
         if glyph_props.line_properties.do_stroke
           glyph_props.line_properties.set_vectorize(ctx, i)
           ctx.stroke()
+      return
 
   class InvertedTriangle extends Marker.Model
     default_view: InvertedTriangleView

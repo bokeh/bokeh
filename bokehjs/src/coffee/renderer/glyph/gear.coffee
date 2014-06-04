@@ -14,6 +14,7 @@ define [
     _map_data: () ->
       [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
       @smodule = @distance_vector('x', 'module', 'edge')
+      return
 
     _render: (ctx, indices, glyph_props) ->
       for i in indices

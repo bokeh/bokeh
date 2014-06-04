@@ -10,9 +10,6 @@ define [
     _fields: ['xs', 'ys']
     _properties: ['line', 'fill']
 
-    _map_data: () ->
-      null
-
     _render: (ctx, indices, glyph_props) ->
       ctx = @plot_view.ctx
 
@@ -53,9 +50,11 @@ define [
               ctx.lineTo(sx[j], sy[j])
           ctx.closePath()
           ctx.stroke()
+      return
 
     draw_legend: (ctx, x0, x1, y0, y1) ->
       @_generic_area_legend(ctx, x0, x1, y0, y1)
+      return
 
   class Patches extends Glyph.Model
     default_view: PatchesView

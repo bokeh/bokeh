@@ -15,6 +15,7 @@ define [
       [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
       @sw = @distance_vector('x', 'width', 'center')
       @sh = @distance_vector('y', 'height', 'center')
+      return
 
     _render: (ctx, indices, glyph_props, sx=@sx, sy=@sy, sw=@sw, sh=@sh) ->
       for i in indices
@@ -41,6 +42,7 @@ define [
 
         ctx.rotate(-@angle[i])
         ctx.translate(-sx[i], -sy[i])
+      return
 
     draw_legend: (ctx, x0, x1, y0, y1) ->
       reference_point = @get_reference_point() ? 0
@@ -63,6 +65,7 @@ define [
         sh[reference_point] = d
 
       @_render(ctx, indices, @glyph_props, sx, sy, sw, sh)
+      return
 
   class Oval extends Glyph.Model
     default_view: OvalView

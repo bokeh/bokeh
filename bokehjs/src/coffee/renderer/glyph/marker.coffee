@@ -24,6 +24,7 @@ define [
       size[reference_point] = Math.min(Math.abs(x1-x0), Math.abs(y1-y0))*0.4
 
       @_render(ctx, indices, @glyph_props, sx, sy, size)
+      return
 
     _set_data: () ->
       @max_size = _.max(@size)
@@ -33,9 +34,11 @@ define [
         if not isNaN(@x[i] + @y[i])
           pts.push([@x[i], @y[i], @x[i], @y[i], {'i': i}])
       @index.load(pts)
+      return
 
     _map_data: () ->
       [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
+      return
 
     _mask_data: () ->
       # dilate the inner screen region by max_size and map back to data space for use in

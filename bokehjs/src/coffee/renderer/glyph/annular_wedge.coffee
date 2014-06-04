@@ -20,6 +20,7 @@ define [
         if not isNaN(@x[i] + @y[i])
           pts.push([@x[i], @y[i], @x[i], @y[i], {'i': i}])
       @index.load(pts)
+      return
 
     _map_data: () ->
       [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
@@ -28,6 +29,7 @@ define [
       @angle = new Float32Array(@start_angle.length)
       for i in [0...@start_angle.length]
         @angle[i] = @end_angle[i] - @start_angle[i]
+      return
 
     _render: (ctx, indices, glyph_props, sx=@sx, sy=@sy, inner_radius=@inner_radius, outer_radius=@outer_radius) ->
       for i in indices
@@ -56,6 +58,8 @@ define [
         if glyph_props.line_properties.do_stroke
           glyph_props.line_properties.set_vectorize(ctx, i)
           ctx.stroke()
+
+      return
 
     _hit_point: (geometry) ->
       [vx, vy] = [geometry.vx, geometry.vy]
@@ -149,6 +153,7 @@ define [
       outer_radius[reference_point] = r*0.8
 
       @_render(ctx, indices, @glyph_props, sx, sy, inner_radius, outer_radius)
+      return
 
   class AnnularWedge extends Glyph.Model
     default_view: AnnularWedgeView
