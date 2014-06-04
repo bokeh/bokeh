@@ -350,12 +350,17 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
         tool_objs.append(tool_obj)
 
         #Checking for repeated tools
-        repeated_tools = str(" ")
-        for typ, grp in itertools.groupby(sorted(type(i) for i in tool_objs)):
-            if len(list(grp)) > 1: repeated_tools+=str(typ)
+        repeated_tools = []
+        
+        for typname, grp in itertools.groupby(sorted(str(type(i)) for i in tool_objs)):
+            if len(list(grp)) > 1: repeated_tools+=typname
+        
 
-        if not repeated_tools.isspace():
-            warnings.warn("tools:%s are being repeated!"%repeated_tools)
+        if repeated_tools:
+            repeated = str()
+            for tools in repeated_tools:
+                repeated += tools
+            warnings.warn("tools:%s are being repeated!"%repeated)
 
     p.tools.extend(tool_objs)
     return p
