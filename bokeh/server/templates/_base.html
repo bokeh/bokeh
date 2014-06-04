@@ -10,19 +10,18 @@
     {% if splitjs %}
     <script src="{{ url_for('bokeh.server.bokehjs_file', filename='js/vendor/requirejs/require.js') }}"></script>
     <script src="{{ url_for('bokeh.server.bokehjs_file', filename='js/config.js') }}"></script>
-    <script>
+    <script type="text/javascript">
       require.config({ baseUrl: "{{ url_for('bokeh.server.bokehjs_file', filename='js') }}" });
-      require(["main"], function(Bokeh) {
-          {% block script %}
-          {% endblock %}
-      });
     </script>
     {% else %}
     <script src="{{ url_for('bokeh.server.bokehjs_file', filename='js/bokeh.js') }}"> </script>
-    <script type="text/javascript">
-      {{ self.script() }}
-    </script>
     {% endif %}
+    <script type="text/javascript">
+      require(["main"], function(Bokeh) {
+        {% block script %}
+        {% endblock %}
+      });
+    </script>
   </head>
   <body>
     <div class="container">

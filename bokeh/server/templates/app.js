@@ -10,6 +10,5 @@ window.{{ modulename }} = {};
   {{ classname }}s = Backbone.Collection.extend({
     model : {{ classname }}
   });
-  Bokeh.Collections.register("{{ classname }}", 
-                             new {{classname}}s ())
+  Bokeh.Collections.register("{{ classname }}", new {{classname}}s ());
 }
