@@ -6,8 +6,10 @@ child = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=sub
 
 
 vers,err = child.communicate()
-vers = vers.split('-')[0]
 
+#needed for py3/py2
+vers = vers.decode(encoding='utf-8')
+vers = vers.split('-')[0]
 vals = vers.split('.')
 
 #check for X.X and increment to X.X.1

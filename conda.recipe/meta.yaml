@@ -28,6 +28,7 @@ test:
     - gevent_zeromq          [py2k]
     - zeromq
     - pyzmq
+    - redis
   commands:
     - bokeh-server -h        [linux64 or osx]
   imports:
