@@ -44,6 +44,7 @@ define [
         if _.isFunction(@display_defaults)
           return @display_defaults()[attr]
         return @display_defaults[attr]
+      return
 
     get: (attr) ->
       ## no fallback for 'parent'
@@ -52,6 +53,8 @@ define [
         return normalval
       else if not (attr == 'parent')
         return @get_fallback(attr)
+      return
 
     display_defaults: {}
+
   return HasParent

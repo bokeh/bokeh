@@ -15,6 +15,7 @@ define [
       @child_models = []
       super(options)
       @render()
+      return
 
     delegateEvents: () ->
       safebind(this, @model, 'destroy', @remove)
@@ -33,10 +34,12 @@ define [
     size_textarea: (textarea) ->
       scrollHeight = $(textarea).height(0).prop('scrollHeight')
       $(textarea).height(scrollHeight)
+      return
 
     closeall: (e) =>
       @mset('children', [])
       @model.save()
+      return
 
     removeplot: (e) =>
       plotnum = parseInt($(e.currentTarget).parent().attr('data-plot_num'))
@@ -69,7 +72,7 @@ define [
         for textarea in @$el.find('.plottitle')
           @size_textarea($(textarea))
       )
-      return null
+      return
 
   class PlotContext extends HasParent
     type: 'PlotContext',

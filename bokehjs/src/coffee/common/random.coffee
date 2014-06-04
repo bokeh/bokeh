@@ -11,24 +11,30 @@ define [], () ->
       @offset = 1013904223
       unless @seed? && 0 <= seed < @modulo
         @seed = (new Date().valueOf() * new Date().getMilliseconds()) % @modulo
+      return
 
     # sets new seed value
     seed: (seed) ->
       @seed = seed
+      return
 
     # return a random integer 0 <= n < @modulo
     randn: () ->
       # new_seed = (a * seed + c) % m
       @seed = (@multiplier*@seed + @offset) % @modulo
+      return
 
    # return a random float 0 <= f < 1.0
     randf: () ->
       this.randn() / @modulo
+      return
 
     # return a random int 0 <= f < n
     rand: (n) ->
       Math.floor(this.randf() * n)
+      return
 
     # return a random int min <= f < max
     rand2: (min, max) ->
       min + this.rand(max-min)
+      return

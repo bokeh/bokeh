@@ -22,6 +22,7 @@ define [
         viewstaterow = (@childviews[x.id].view_state for x in row)
         viewstates.push(viewstaterow)
       @viewstate.set('childviewstates', viewstates)
+      return
 
     initialize: (options) ->
       super(_.defaults(options, @default_options))
@@ -38,6 +39,7 @@ define [
       safebind(this, @model, 'change', @render)
       safebind(this, @viewstate, 'change', @render)
       safebind(this, @model, 'destroy', () => @remove())
+      return
 
     #FIXME make binding of this style equivalent to above safebind calls
     # document semantics of when these events should be bound
@@ -56,6 +58,7 @@ define [
           childmodels.push(plot)
       build_views(@childviews, childmodels, {})
       @set_child_view_states()
+      return
 
     makeButton: (eventSink, constructor, toolbar_div, button_name) ->
 
@@ -84,9 +87,9 @@ define [
         _.each(specific_tools, (t) ->
           t_name = t.evgen.toolName
           t.evgen.eventSink.trigger("#{t_name}:activated")))
+      return
 
-    addGridToolbar: ->
-
+    addGridToolbar: () ->
       @button_bar = $("<div class='grid_button_bar'/>")
       @button_bar.attr('style',     "position:absolute; left:10px; top:0px; ")
       @toolEventSink = _.extend({}, Backbone.Events)
@@ -105,6 +108,7 @@ define [
         @makeButton(@toolEventSink, klass, @button_bar, button_text))
       _.map(all_tools, (t) ->
         t.evgen.hide_button())
+      return
 
     render: () ->
       super()
@@ -158,6 +162,7 @@ define [
       @$el.attr('style', "position:relative; height:#{height}px;width:#{width}px")
 
       @render_end()
+      return
 
   class GridPlot extends HasParent
     type: 'GridPlot'

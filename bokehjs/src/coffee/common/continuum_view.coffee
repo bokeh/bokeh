@@ -9,11 +9,12 @@ define [
     initialize: (options) ->
       #autogenerates id
       if not _.has(options, 'id')
-        this.id = _.uniqueId('ContinuumView')
+        @id = _.uniqueId('ContinuumView')
+      return
 
     #bind_bokeh_events is always called after initialize has run
     bind_bokeh_events: () ->
-      'pass'
+      return
 
     delegateEvents: (events) ->
       super(events)
@@ -33,16 +34,14 @@ define [
 
     mset: ()->
       # convenience function, calls set on the associated model
-
       return @model.set.apply(@model, arguments)
 
     mget_obj: (fld) ->
       # convenience function, calls get_obj on the associated model
-
       return @model.get_obj(fld)
 
     render_end: () ->
-      "pass"
+      return
 
   return {
     "View": ContinuumView

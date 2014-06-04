@@ -66,17 +66,21 @@ define [
 
     view_options: () ->
       _.extend({plot_model: @model, plot_view: @}, @options)
+      return
 
     _mousedown: (e) =>
       for f in @mousedownCallbacks
         f(e, e.layerX, e.layerY)
+      return
 
     _mousemove: (e) =>
       for f in @moveCallbacks
         f(e, e.layerX, e.layerY)
+      return
 
     pause: () ->
       @is_paused = true
+      return
 
     unpause: (render_canvas=false) ->
       @is_paused = false
@@ -84,6 +88,7 @@ define [
         @request_render_canvas(true)
       else
         @request_render()
+      return
 
     request_render: () ->
       if not @is_paused
@@ -273,6 +278,7 @@ define [
       safebind(this, @model, 'change:tool', @build_levels)
       safebind(this, @model, 'change', @request_render)
       safebind(this, @model, 'destroy', () => @remove())
+      return
 
     render_init: () ->
       # TODO use template
@@ -287,6 +293,7 @@ define [
       @button_bar = @$el.find('.button_bar')
       @canvas_wrapper = @$el.find('.bokeh_canvas_wrapper')
       @canvas = @$el.find('canvas.bokeh_canvas')
+      return
 
     render_canvas: (full_render=true) ->
       @ctx = @canvas[0].getContext('2d')
@@ -320,12 +327,14 @@ define [
 
       if full_render
         @render()
+      return
 
     save_png: () ->
       @render()
       data_uri = @canvas[0].toDataURL()
       @model.set('png', @canvas[0].toDataURL())
       bulk_save([@model])
+      return
 
     set_initial_range : () ->
       #check for good values for ranges before setting initial range
@@ -338,6 +347,7 @@ define [
           xr: { start: @x_range.get('start'), end: @x_range.get('end') }
           yr: { start: @y_range.get('start'), end: @y_range.get('end') }
         }
+      return
 
     render: (force) ->
       super()
@@ -431,12 +441,14 @@ define [
         sy = th
         @title_props.set(@ctx, {})
         @ctx.fillText(title, sx, sy)
+      return
 
     render_overlays: (have_new_mapper_state) ->
       for level in ['overlay', 'annotation', 'tool']
         renderers = @levels[level]
         for k, v of renderers
           v.render(have_new_mapper_state)
+      return
 
   class Plot extends HasParent
     type: 'Plot'

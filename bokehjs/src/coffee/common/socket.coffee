@@ -4,10 +4,13 @@ define [
   "common/base",
   "common/load_models"
 ], (Backbone, _, base, load_models) ->
+
   Config = base.Config
+
   class WebSocketWrapper
+
     _.extend(@prototype, Backbone.Events)
-    # ### method :
+
     constructor : (ws_conn_string) ->
       @auth = {}
       @ws_conn_string = ws_conn_string
@@ -17,12 +20,11 @@ define [
         @s = new MozWebSocket(ws_conn_string)
       else
         @s = new WebSocket(ws_conn_string)
-      # catch error
-      #   console.log(ws_conn_string, error)
 
       @s.onopen = () =>
         @_connected.resolve()
       @s.onmessage = @onmessage
+      return
 
     onmessage : (msg) =>
       data = msg.data
@@ -37,6 +39,7 @@ define [
       $.when(@connected).done(() =>
         @s.send(msg)
       )
+      return
 
     subscribe : (topic, auth) ->
       @auth[topic] = auth
@@ -44,6 +47,7 @@ define [
         {msgtype : 'subscribe', topic : topic, auth : auth}
       )
       @send(msg)
+      return
 
   # ###function : submodels
 
@@ -72,8 +76,9 @@ define [
         console.log(msgobj)
       return null
     )
+    return
 
-  result =
+  return {
     WebSocketWrapper : WebSocketWrapper
     submodels : submodels
-  return result
+  }

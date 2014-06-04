@@ -35,6 +35,7 @@ define [
       if (!ctx.getLineDash)
         ctx.getLineDash = () ->
           return ctx.mozDash
+      return
 
     _fixup_line_dash_offset: (ctx) ->
       ctx.setLineDashOffset = (dash_offset) ->
@@ -43,6 +44,7 @@ define [
         ctx.webkitLineDashOffset = dash_offset
       ctx.getLineDashOffset = () ->
         return ctx.mozDashOffset
+      return
 
     _fixup_image_smoothing: (ctx) ->
       ctx.setImageSmoothingEnabled = (value) ->
@@ -52,6 +54,7 @@ define [
         ctx.webkitImageSmoothingEnabled = value;
       ctx.getImageSmoothingEnabled = () ->
         return ctx.imageSmoothingEnabled ? true
+      return
 
     _fixup_measure_text: (ctx) ->
       if ctx.measureText and not ctx.html5MeasureText?
@@ -69,9 +72,12 @@ define [
           # fake it 'til you make it
           textMetrics.ascent = ctx.html5MeasureText("m").width * 1.6
           return textMetrics
+      return
 
     bind_bokeh_events: () ->
       #safebind(this, @plot_view.viewstate, 'change', ()-> @request_render())
+      return
 
     request_render: () ->
       @plot_view.request_render()
+      return
