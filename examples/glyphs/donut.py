@@ -11,7 +11,7 @@ from bokeh.browserlib import view
 
 from bokeh.glyphs import Wedge, AnnularWedge, ImageURL, Text
 from bokeh.objects import ColumnDataSource, Plot, Glyph, Range1d
-from bokeh.colors import skyblue, limegreen, orange, purple, orangered, lightgray
+from bokeh.colors import skyblue, seagreen, tomato, orchid, firebrick, lightgray
 from bokeh.sampledata.browsers import browsers_nov_2013, icons
 
 df = browsers_nov_2013
@@ -22,7 +22,7 @@ ydr = Range1d(start=-2, end=2)
 title = "Web browser market share (November 2013)"
 plot = Plot(title=title, x_range=xdr, y_range=ydr, width=800, height=800)
 
-colors = {"Chrome": limegreen, "Firefox": orange, "Safari": purple, "Opera": orangered, "IE": skyblue, "Other": lightgray}
+colors = {"Chrome": seagreen, "Firefox": tomato, "Safari": orchid, "Opera": firebrick, "IE": skyblue, "Other": lightgray}
 
 aggregated = df.groupby("Browser").agg(sum)
 selected = aggregated[aggregated.Share >= 1].copy()
@@ -42,7 +42,8 @@ browsers_source = ColumnDataSource(dict(
 ))
 plot.data_sources.append(browsers_source)
 
-glyph = Wedge(x=0, y=0, radius=1, start_angle="start", end_angle="end", fill_color="colors")
+glyph = Wedge(x=0, y=0, radius=1, line_color="white",
+    line_width=2, start_angle="start", end_angle="end", fill_color="colors")
 renderer = Glyph(data_source=browsers_source, xdata_range=xdr, ydata_range=ydr, glyph=glyph)
 plot.renderers.append(renderer)
 
@@ -54,6 +55,8 @@ def polar_to_cartesian(r, start_angles, end_angles):
         points.append(cartesian(r, (end + start)/2))
 
     return zip(*points)
+
+first = True
 
 for browser, start_angle, end_angle in zip(browsers, start_angles, end_angles):
     versions = df[(df.Browser == browser) & (df.Share >= 0.5)]
@@ -67,13 +70,28 @@ for browser, start_angle, end_angle in zip(browsers, start_angles, end_angles):
 
     source = ColumnDataSource(dict(start=start, end=end, fill=fill))
     plot.data_sources.append(source)
-    glyph = AnnularWedge(x=0, y=0, inner_radius=1, outer_radius=1.5, start_angle="start", end_angle="end", fill_color="fill")
+    glyph = AnnularWedge(x=0, y=0,
+        inner_radius=1, outer_radius=1.5, start_angle="start", end_angle="end",
+        line_color="white", line_width=2, fill_color="fill")
     renderer = Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=glyph)
     plot.renderers.append(renderer)
 
-    text_source = ColumnDataSource(dict(text=text, x=x, y=y))
+    text_angle = [(start[i]+end[i])/2 for i in range(len(start))]
+    text_angle = [angle + pi if pi/2 < angle < 3*pi/2 else angle for angle in text_angle]
+
+    if first and text:
+        text.insert(0, '(version)')
+        offset = pi / 48
+        text_angle.insert(0, text_angle[0] - offset)
+        start.insert(0, start[0] - offset)
+        end.insert(0, end[0] - offset)
+        x, y = polar_to_cartesian(1.25, start, end)
+        first = False
+
+    text_source = ColumnDataSource(dict(text=text, x=x, y=y, angle=text_angle))
     plot.data_sources.append(text_source)
-    glyph = Text(x="x", y="y", text="text", angle=0, text_align="center", text_baseline="middle")
+    glyph = Text(x="x", y="y", text="text", angle="angle",
+        text_align="center", text_baseline="middle")
     renderer = Glyph(data_source=text_source, xdata_range=xdr, ydata_range=ydr, glyph=glyph)
     plot.renderers.append(renderer)
 
