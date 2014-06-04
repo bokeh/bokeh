@@ -156,6 +156,7 @@ define [
       @major_tick_props = new line_properties(@, null, 'major_tick_')
       @major_label_props = new text_properties(@, null, 'major_label_')
       @axis_label_props = new text_properties(@, null, 'axis_label_')
+      return
 
     render: () ->
       ctx = @plot_view.ctx
@@ -168,9 +169,11 @@ define [
       @_draw_axis_label(ctx)
 
       ctx.restore()
+      return
 
     bind_bokeh_events: () ->
       safebind(this, @model, 'change', @request_render)
+      return
 
     padding_request: () ->
       return @_padding_request()
@@ -188,6 +191,7 @@ define [
       for i in [1...sx.length]
         ctx.lineTo(Math.round(sx[i]), Math.round(sy[i]))
       ctx.stroke()
+      return
 
     _draw_major_ticks: (ctx) ->
       if not @major_tick_props.do_stroke
@@ -204,6 +208,7 @@ define [
         ctx.moveTo(Math.round(sx[i]+nx*tout), Math.round(sy[i]+ny*tout))
         ctx.lineTo(Math.round(sx[i]-nx*tin),  Math.round(sy[i]-ny*tin))
         ctx.stroke()
+      return
 
     _draw_major_labels: (ctx) ->
       [x, y] = coords = @mget('major_coords')
@@ -234,6 +239,7 @@ define [
           ctx.translate(-sx[i]-nx*standoff, -sy[i]-ny*standoff)
         else
           ctx.fillText(labels[i], Math.round(sx[i] + nx*standoff), Math.round(sy[i] + ny*standoff))
+      return
 
     _draw_axis_label: (ctx) ->
       label = @mget('axis_label')
@@ -265,6 +271,7 @@ define [
         ctx.translate(-sx-nx*standoff, -sy-ny*standoff)
       else
         ctx.fillText(label, sx+nx*standoff, sy+ny*standoff)
+      return
 
     _apply_location_heuristics: (ctx, side, orient) ->
       if _.isString(orient)
@@ -285,6 +292,7 @@ define [
 
       ctx.textBaseline = baseline
       ctx.textAlign = align
+      return
 
     _tick_extent: () ->
       return @mget('major_tick_out')
@@ -400,9 +408,11 @@ define [
       @add_dependencies('side', this, ['normals'])
 
       @register_property('padding_request', @_padding_request, false)
+      return
 
     dinitialize: (attrs, options)->
       @add_dependencies('computed_bounds', @get_obj('plot'), ['x_range', 'y_range'])
+      return
 
     _bounds: () ->
       i = @get('dimension')

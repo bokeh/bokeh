@@ -13,7 +13,6 @@ define [
 
     _properties: []
 
-
     initialize: (options) ->
       # the point of this is to support both efficient ArrayBuffers as well as dumb
       # arrays of arrays that the python interface currently uses. If the glyphspec

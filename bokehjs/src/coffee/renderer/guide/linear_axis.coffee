@@ -19,6 +19,7 @@ define [
         @set_obj('ticker', BasicTicker.Collection.create())
       if not @get_obj('formatter')?
         @set_obj('formatter', BasicTickFormatter.Collection.create())
+      return
 
   class LinearAxes extends Backbone.Collection
      model: LinearAxis

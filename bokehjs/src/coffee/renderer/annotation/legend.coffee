@@ -41,10 +41,12 @@ define [
         @legends = @mget('legends')
         @legend_names =_.keys(@mget('legends'))
       @calc_dims()
+      return
 
     delegateEvents: (events) ->
       super(events)
       @listenTo(@plot_view.view_state, 'change', @calc_dims)
+      return
 
     calc_dims: (options) ->
       label_height = @mget('label_height')
@@ -87,6 +89,7 @@ define [
       x = @plot_view.view_state.vx_to_sx(x)
       y = @plot_view.view_state.vy_to_sy(y)
       @box_coords = [x,y]
+      return
 
     render: () ->
       ctx = @plot_view.ctx
@@ -117,6 +120,7 @@ define [
           view.draw_legend(ctx, x1,x2,y1,y2)
 
       ctx.restore()
+      return
 
   class Legend extends HasParent
     default_view: LegendView
