@@ -445,11 +445,17 @@ class HDF5DataBackend(AbstractDataBackend):
         return result
 
     def heatmap_downsample(self, request_username, request_docid, data_url, 
-                           parameters, plot_size):
+                           parameters, plot_state):
         dataset = self.client[data_url].node
-        (global_x_range, global_y_range, global_offset_x, global_offset_y,
-         x_bounds, y_bounds, index_slice, data_slice, transpose, input_params) = parameters
-        (x_resolution, y_resolution) = plot_size
+        (global_x_range, global_y_range, 
+         global_offset_x, global_offset_y,
+         index_slice, data_slice, 
+         transpose, input_params) = parameters
+
+        x_resolution = plot_state['screen_x'].end - plot_state['screen_x'].start
+        y_resolution = plot_state['screen_y'].end - plot_state['screen_y'].start
+        x_bounds = plot_state['data_x'].end - plot_sate['data_x'].start
+        y_bounds = plot_state['data_y'].end - plot_sate['data_y'].start
 
         if data_slice:
             #not supported for z yet...
@@ -479,7 +485,7 @@ class HDF5DataBackend(AbstractDataBackend):
         output['dh'] = [result['dh']]
         return output
 
-    def get_data(self, request_username, request_docid, data_url, parameters, plot_size): 
+    def get_data(self, request_username, request_docid, data_url, parameters, plot_state): 
         resample_op = parameters[-1]['resample'] 
 
         if resample_op == 'line1d':
@@ -490,10 +496,10 @@ class HDF5DataBackend(AbstractDataBackend):
             return self.heatmap_downsample(
                 request_username, 
                 request_docid, data_url, 
-                parameters, plot_size)
+                parameters, plot_state)
         elif resample_op == 'abstract rendering':
           dataset = self.client[data_url]
-          result = ar_downsample.downsample(dataset, parameters[-1], plot_size)
+          result = ar_downsample.downsample(dataset, parameters[-1], plot_state)
           return result
         else:
           raise ValueError("Unknown resample op '{}'".format(resample_op))

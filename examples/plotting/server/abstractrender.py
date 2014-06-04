@@ -50,4 +50,4 @@ image(source=heatmap, image="image", x='x', y='y', dw='dw', dh='dh', palette=["r
 #aggregator = ar.source(ar.count(), ar.const(1), ar.touches())  ### Aggregator is incomplete without shader and glyphs.  Can add either to it
 #shader = ar.Cuberoot()+ar.Interpolate(0,9) + ar.Floor()
 #image(source=plot+aggregator+shader, palette=["reds-9"])   ###Implement aggregator.__radd__ to get a plot and .__add__ to get a shader
-
+show()

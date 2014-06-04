@@ -111,9 +111,12 @@ def source(plot, agg=Count(), info=Const(1), shader=Id(), **kwargs):
   return ServerDataSource(**kwargs)
 
 
-def downsample(data, transform, plot_size):
+def downsample(data, transform, plot_state):
   def _reify(key):
     return globals()[transform[key]['name']](*transform[key]['args']).reify()
+
+  plot_size = [plot_state['screen_x'].end - plot_state['screen_x'].start,
+               plot_state['screen_y'].end - plot_state['screen_y'].start]
 
   agg = _reify('aggregator')
   info = _reify('info')
@@ -144,7 +147,6 @@ def downsample(data, transform, plot_size):
           'dw': [image.shape[0]],
           'dh': [image.shape[1]],
   }
-
 
 def _shaper(code, size):
   code = code.lower()
