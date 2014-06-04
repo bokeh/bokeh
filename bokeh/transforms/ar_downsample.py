@@ -7,21 +7,20 @@ import abstract_rendering.glyphset as glyphset
 from ..objects import ColumnDataSource, ServerDataSource, Plot, Renderer, Glyph
 from bokeh.properties import (HasProps, Dict, Enum, Either, Float, Instance, Int,
     List, String, Color, Include, Bool, Tuple, Any)
+from ..plot_object import Viewable
 import bokeh.glyphs as glyphs
 from ..plotting_helpers import (get_default_color, get_default_alpha,
         _glyph_doc, _match_data_params, _update_plot_data_ranges,
         _materialize_colors_and_alpha, _get_legend, _make_legend,
         _get_select_tool, _new_xy_plot, _handle_1d_data_args, _list_attr_splat)
 
-from six import iteritems
+from six import add_metaclass, iteritems
 import logging
 logger = logging.getLogger(__file__)
 
 
-class Proxy(object):
+class Proxy(HasProps):
   def __init__(self, *args): pass
-  def serialize(self):
-    return {'name':self.__class__.__name__, 'args':[]}
 
   def reify(self, **kwargs):
     raise Error("Unipmlemented")
@@ -40,14 +39,9 @@ class Count(Proxy):
 
 ### Infos ---------
 class Const(Proxy):
-  def __init__(self, *vls):
-    self.val=vls[0]
-
+  val = Any()
   def reify(self, **kwargs):
     return infos.const(self.val)
-
-  def serialize(self):
-    return {'name':self.__class__.__name__, 'args':[self.val]}
 
 #### Transfers ---------
 
@@ -75,6 +69,12 @@ class Cuberoot(Proxy):
   def reify(self, **kwargs):
     return numeric.Cuberoot()
 
+class Transform(HasProps):
+  resample = String("abstract rendering")
+  agg = Any(Proxy)
+  info = Any(Proxy)
+  shader = Any(Proxy)
+  spec = Dict(String, Any)
 
 #TODO: Pass the 'rend' defintiion through (minus the data_source references), unpack in 'downsample' instead of here...
 def source(plot, agg=Count(), info=Const(1), shader=Id(), **kwargs):
@@ -100,14 +100,9 @@ def source(plot, agg=Count(), info=Const(1), shader=Id(), **kwargs):
   else: 
     raise ValueError("Can only work with image-shaders...for now")
 
-  transform = {'resample' : 'abstract rendering',
-               'aggregator': agg.serialize(),
-               'info': info.serialize(),
-               'shader': shader.serialize(),
-               'glyphspec': spec
-               }
 
-  kwargs['transform'] = transform
+  transform = Transform(agg=agg, info=info, shader=shader, spec=spec)
+  kwargs['transform'] = transform.to_dict()
   return ServerDataSource(**kwargs)
 
 
