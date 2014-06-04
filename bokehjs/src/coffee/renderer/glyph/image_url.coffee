@@ -68,7 +68,7 @@ define [
         when "bottom_left"   then (i) => [@sx[i]           , @sy[i] - @sh[i]  ]
         when "left_center"   then (i) => [@sx[i]           , @sy[i] - @sh[i]/2]
         when "center"        then (i) => [@sx[i] - @sw[i]/2, @sy[i] - @sh[i]/2]
-      return
+      # implicitly return switch value
 
     _render_image: (ctx, vs, i, img) ->
       if isNaN(@sw[i]) then @sw[i] = img.width
