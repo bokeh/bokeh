@@ -10,6 +10,9 @@ define [
     _fields: ['xs', 'ys']
     _properties: ['line']
 
+    _map_data: () ->
+      return null
+
     _render: (ctx, indices, glyph_props) ->
 
       for i in indices
