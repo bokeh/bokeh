@@ -4,6 +4,7 @@ import abstract_rendering.infos as infos
 import abstract_rendering.core as ar
 import abstract_rendering.glyphset as glyphset
 
+from ..plot_object import PlotObject
 from ..objects import ColumnDataSource, ServerDataSource, Plot, Renderer, Glyph
 from bokeh.properties import (HasProps, Dict, Enum, Either, Float, Instance, Int,
     List, String, Color, Include, Bool, Tuple, Any)
@@ -19,21 +20,17 @@ import logging
 logger = logging.getLogger(__file__)
 
 
-class Proxy(HasProps):
-  def __init__(self, *args): pass
-
+class Proxy(PlotObject):
   def reify(self, **kwargs):
     raise Error("Unipmlemented")
 
 
 #### Aggregators -------------
 class Sum(Proxy): 
-  def __init__(self, *args): pass
   def reify(self, **kwargs):
     return numeric.Sum()
 
 class Count(Proxy): 
-  def __init__(self, *args): pass
   def reify(self, **kwargs):
     return numeric.Count()
 
@@ -47,37 +44,33 @@ class Const(Proxy):
 
 class Id(Proxy): 
   out = "image"
-  def __init__(self, *args): pass
   def reify(self, **kwargs):
     return general.Id()
 
 class Interpolate(Proxy):
   out = "image"
-  def __init__(self, *args): pass
   def reify(self, **kwargs):
     return numeric.Interpolate(kwargs['low'], kwargs['high'])
 
 class Sqrt(Proxy):
   out = "image"
-  def __init__(self, *args): pass
   def reify(self, **kwargs):
     return numeric.Sqrt()
 
 class Cuberoot(Proxy):
   out = "image"
-  def __init__(self, *args): pass
   def reify(self, **kwargs):
     return numeric.Cuberoot()
 
-class Transform(HasProps):
+class Transform(PlotObject):
   resample = String("abstract rendering")
-  agg = Any(Proxy)
-  info = Any(Proxy)
-  shader = Any(Proxy)
+  agg = Any() 
+  info = Any()
+  shader = Any()
   spec = Dict(String, Any)
 
 #TODO: Pass the 'rend' defintiion through (minus the data_source references), unpack in 'downsample' instead of here...
-def source(plot, agg=Count(), info=Const(1), shader=Id(), **kwargs):
+def source(plot, agg=Count(), info=Const(val=1), shader=Id(), **kwargs):
   #Acquire information from renderer...
   rend = [r for r in plot.renderers if isinstance(r, Glyph)][0]
   datasource = rend.server_data_source
