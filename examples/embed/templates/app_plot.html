@@ -34,8 +34,8 @@ if( window.location.search.match( /print-pdf/gi ) ) {
 .bokeh_canvas_wrapper {
   width: 10em !important;
 }
-.bokeh .btn-group {
-  margin-left: 9em;
+.bk-bs-btn-group, .bk-bs-btn-group-vertical {
+  margin-left: 5.2em !important;
 }
 </style>
 
@@ -55,6 +55,11 @@ if( window.location.search.match( /print-pdf/gi ) ) {
 <section>
     <div id={{ id2 }}>
         {{ tag2 | safe }}
+    </div>
+</section>
+<section>
+    <div id={{ id3 }}>
+        {{ tag3 | safe }}
     </div>
 </section>
 </div>
