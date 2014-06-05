@@ -4,16 +4,17 @@ import abstract_rendering.infos as infos
 import abstract_rendering.core as ar
 import abstract_rendering.glyphset as glyphset
 
+from ..plotting import curdoc
 from ..plot_object import PlotObject
 from ..objects import ColumnDataSource, ServerDataSource, Plot, Renderer, Glyph
 from bokeh.properties import (HasProps, Dict, Enum, Either, Float, Instance, Int,
     List, String, Color, Include, Bool, Tuple, Any)
-from ..plot_object import Viewable
 import bokeh.glyphs as glyphs
 from ..plotting_helpers import (get_default_color, get_default_alpha,
         _glyph_doc, _match_data_params, _update_plot_data_ranges,
         _materialize_colors_and_alpha, _get_legend, _make_legend,
         _get_select_tool, _new_xy_plot, _handle_1d_data_args, _list_attr_splat)
+
 
 from six import add_metaclass, iteritems
 import logging
@@ -62,18 +63,6 @@ class Cuberoot(Proxy):
   def reify(self, **kwargs):
     return numeric.Cuberoot()
 
-class Transform(PlotObject):
-  resample = String()
-  agg = Instance(Proxy) 
-  info = Instance(Proxy) 
-  shader = Instance(Proxy) 
-  spec = Dict(String, Any)
-
-  def __init__(self, **kwargs):
-    super(Transform,self).__init__(**kwargs)
-    self.resample="abstract rendering"
-
-
 #TODO: Pass the 'rend' defintiion through (minus the data_source references), unpack in 'downsample' instead of here...
 def source(plot, agg=Count(), info=Const(val=1), shader=Id(), **kwargs):
   #Acquire information from renderer...
@@ -98,16 +87,16 @@ def source(plot, agg=Count(), info=Const(val=1), shader=Id(), **kwargs):
   else: 
     raise ValueError("Can only work with image-shaders...for now")
 
-
-  transform = Transform(agg=agg, info=info, shader=shader, spec=spec)
-  kwargs['transform'] = transform.vm_serialize()
+  curdoc().add(agg, info, shader)  #TODO: Do I really need to add these myself, or can I add them to the ServerData source and it takes care of them?
+  kwargs['transform'] = {'resample':"abstract rendering", 'agg':agg, 'info':info, 'shader':shader}
   return ServerDataSource(**kwargs)
 
 
 def downsample(data, transform, plot_state):
   def _reify(key):
     return globals()[transform[key]['name']](*transform[key]['args']).reify()
-
+  
+  import pdb; pdb.set_trace()
   plot_size = [plot_state['screen_x'].end - plot_state['screen_x'].start,
                plot_state['screen_y'].end - plot_state['screen_y'].start]
 
