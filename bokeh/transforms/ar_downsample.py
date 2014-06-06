@@ -22,6 +22,13 @@ logger = logging.getLogger(__file__)
 
 
 class Proxy(PlotObject):
+  """Proxy objects stand in for the abstract rendering (AR) configuration classes.
+     Basically, the AR implementation doesn't rely on Bokeh, so
+     it doesn't know about the properties BUT the Bokeh needs be able to
+     construct/modify/inspect AR configurations.  Proxy classes hold the relevant
+     parameters for constructing AR classes in a way that Bokeh can inspect.
+     Furthermore, 'reify' produces an AR class from a proxy instance.
+  """
   def reify(self, **kwargs):
     raise Error("Unipmlemented")
 
@@ -64,7 +71,7 @@ class Cuberoot(Proxy):
     return numeric.Cuberoot()
 
 #TODO: Pass the 'rend' defintiion through (minus the data_source references), unpack in 'downsample' instead of here...
-def source(plot, agg=Count(), info=Const(val=1), shader=Id(), **kwargs):
+def source(plot, agg=Count(), info=Const(val=1), shader=Id(), remove_original=True, **kwargs):
   #Acquire information from renderer...
   rend = [r for r in plot.renderers if isinstance(r, Glyph)][0]
   datasource = rend.server_data_source
@@ -86,6 +93,10 @@ def source(plot, agg=Count(), info=Const(val=1), shader=Id(), **kwargs):
                     }
   else: 
     raise ValueError("Can only work with image-shaders...for now")
+  
+  ##Remove the base plot (if requested)
+  if remove_original: 
+    curdoc()._plotcontext.children.remove(plot)  
 
   kwargs['transform'] = {'resample':"abstract rendering", 'agg':agg, 'info':info, 'shader':shader, 'glyphspec': spec}
   return ServerDataSource(**kwargs)
@@ -129,6 +140,8 @@ def downsample(data, transform, plot_state):
           'dw': [image.shape[0]],
           'dh': [image.shape[1]],
   }
+
+
 
 def _shaper(code, size):
   code = code.lower()
