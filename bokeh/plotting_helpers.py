@@ -7,14 +7,16 @@ import re
 from six import string_types
 
 from . import glyphs
+
 from .objects import (
     BoxSelectionOverlay, BoxSelectTool, BoxZoomTool, CategoricalAxis,
     ColumnDataSource, CrosshairTool, DataRange1d, DatetimeAxis,
     EmbedTool, FactorRange, Grid, HoverTool, Legend, LinearAxis,
     ObjectExplorerTool, PanTool, Plot, PreviewSaveTool, ResetTool,
-    ResizeTool, WheelZoomTool
+    ResizeTool, WheelZoomTool, Tool
 )
 from .properties import ColorSpec
+import warnings
 
 def get_default_color(plot=None):
     colors = [
@@ -285,7 +287,18 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
                 setattr(p, k, kw.pop(k))
 
     tool_objs = []
-
+    temp_tool_str = str()
+    
+    if isinstance(tools, list):
+        for tool in tools:
+            if isinstance(tool, Tool): 
+                tool_objs.append(tool)
+            elif isinstance(tool, string_types):
+                temp_tool_str+=tool + ','
+            else:
+                raise ValueError("tool should be a valid str or Tool Object")
+        tools = temp_tool_str           
+                
     for tool in re.split(r"\s*,\s*", tools.strip()):
         # re.split will return empty strings; ignore them.
         if tool == "":
@@ -335,6 +348,19 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
             raise ValueError("invalid tool: %s (expected one of %s)" % (tool, known_tools))
 
         tool_objs.append(tool_obj)
+
+        #Checking for repeated tools
+        repeated_tools = []
+        
+        for typname, grp in itertools.groupby(sorted(str(type(i)) for i in tool_objs)):
+            if len(list(grp)) > 1: repeated_tools+=typname
+        
+
+        if repeated_tools:
+            repeated = str()
+            for tools in repeated_tools:
+                repeated += tools
+            warnings.warn("tools:%s are being repeated!"%repeated)
 
     p.tools.extend(tool_objs)
     return p
