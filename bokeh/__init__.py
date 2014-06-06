@@ -187,27 +187,28 @@ def report_issue(number=None , owner="ContinuumIO", repo="bokeh",
     import os
     import webbrowser
 
-    from urlparse import urljoin
+    from six.moves import input
+    from six.moves.urllib.parse import urljoin
 
     print("This is the Bokeh reporting engine.\n\n"
           "Next, you will be guided to build the report")
 
     if number is None:
-        title = raw_input('Write the title for the intended issue: ')  # Make it py3 compat
-        body = raw_input('Write the body for the intended issue: ')  # Make it py3 compat
+        title = input('Write the title for the intended issue: ')
+        body = input('Write the body for the intended issue: ')
     else:
-        body = raw_input('Write your comment here: ')  # Make it py3 compat
+        body = input('Write your comment here: ')
 
     ghuser, ghpass = (os.environ.get(x) for x in ["GHUSER", "GHPASS"])
     if ghuser is None and ghpass is None:
         print("You need to add your GHUSER (Github username) and GHPASS (Github password)\n"
               "to the environmentor complete the next lines.")
-        environment = raw_input('Do you want to abort to set up the environment variable? ')  # Make it py3 compat
+        environment = input('Do you want to abort to set up the environment variable? ')
         if environment.lower() in ["true", "yes", "y", "on", "1"]:
             return
         else:
-            ghuser = raw_input('Write your Github username: ')  # Make it py3 compat
-            ghpass = raw_input('Write your Github password: ')  # Make it py3 compat
+            ghuser = input('Write your Github username: ')
+            ghpass = input('Write your Github password: ')
     elif ghuser is None and ghpass is not None:
         print("You need to add your GHUSER (Github username) to the environment.")
         return
@@ -233,7 +234,7 @@ def report_issue(number=None , owner="ContinuumIO", repo="bokeh",
     print("\nPreview:\n")
     for label, content in sorted(data.items(), reverse=True):
         print('{0}: {1}'.format(label, content))
-    value = raw_input('Submit the intended issue/comment? ')  # Make it py3 compat
+    value = input('Submit the intended issue/comment? ')
     if value.lower() in ["true", "yes", "y", "on", "1"]:
         r = requests.post(issues_url,
                           auth=(ghuser, ghpass),
