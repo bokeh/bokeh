@@ -1,10 +1,11 @@
 
 import flask
 from os.path import join, dirname, abspath
-
+from os import walk
 from . import wsmanager
 from .models import convenience as mconv
 from .models import docs
+from bokeh.settings import settings
 
 class BokehBlueprint(flask.Blueprint):
 
@@ -26,19 +27,21 @@ class BokehBlueprint(flask.Blueprint):
             status = mconv.can_write_doc_api(doc, auth, self)
             return status
         self.wsmanager.register_auth("bokehplot", auth)
-
-        server_dir = dirname(abspath(__file__))
-        if self.debugjs:
-            basedir = dirname(dirname(server_dir))
-            self.bokehjsdir = join(basedir, "bokehjs", "build")
-            self.bokehjssrcdir = join(basedir, "bokehjs", "src")
-        else:
-            self.bokehjsdir = join(server_dir, 'static')
-            self.bokehjssrcdir = None
+        self.bokehjsdir = settings.bokehjsdir()
+        self.bokehjssrcdir = settings.bokehjssrcdir()
 
     def current_user(self):
         return self.authentication.current_user()
-
+        
+    def js_files(self):
+        bokehjsdir = self.bokehjsdir
+        js_files = []
+        for root, dirnames, files in walk(bokehjsdir):
+            for fname in files:
+                if fname.endswith(".js") and 'vendor' not in root:
+                    js_files.append(join(root, fname))
+        return js_files
+        
 bokeh_app = BokehBlueprint(
     'bokeh.server',
     'bokeh.server',

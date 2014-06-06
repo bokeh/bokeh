@@ -6,6 +6,16 @@ define ["common/base",
   Config = base.Config
   Promises = serverutils.Promises
   Config.ws_conn_string = "ws://#{window.location.host}/bokeh/sub"
+  reload = () ->
+    Config = require("common/base").Config
+    ping_url = "#{Config.prefix}/bokeh/ping"
+    $.get(ping_url)
+      .success(() ->
+        console.log('reloading')
+        window.location.reload())
+      .fail(_.delay((() -> reload()), 1000))
+    return null
+
   load_one_object = (docid, objid) ->
     HasProperties.prototype.sync = Backbone.sync
     $(() ->
@@ -16,6 +26,11 @@ define ["common/base",
         view = new model.default_view(model : model)
         _render(view.el)
 
+      )
+      wswrapper.subscribe("debug:debug", "")
+      wswrapper.on('msg:debug:debug', (msg) ->
+        if msg == 'reload'
+          reload()
       )
     )
   load = (title) ->
@@ -34,6 +49,12 @@ define ["common/base",
           _render_one(userdocs, title)
         else
           _render_all(userdocs)
+      console.log('subscribing to debug')
+      wswrapper.subscribe("debug:debug", "")
+      wswrapper.on('msg:debug:debug', (msg) ->
+        if msg == 'reload'
+          reload()
+      )
     )
 
   _render_all = (userdocs) ->
