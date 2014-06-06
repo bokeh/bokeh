@@ -14,6 +14,7 @@ define [
       super(attrs, options)
 
       @grid_props = new line_properties(@, null, 'grid_')
+      return
 
     render: () ->
       ctx = @plot_view.ctx
@@ -21,9 +22,11 @@ define [
       ctx.save()
       @_draw_grids(ctx)
       ctx.restore()
+      return
 
     bind_bokeh_events: () ->
       safebind(this, @model, 'change', @request_render)
+      return
 
     _draw_grids: (ctx) ->
       if not @grid_props.do_stroke
@@ -51,6 +54,7 @@ define [
 
       @register_property('grid_coords', @_grid_coords, false)
       @add_dependencies('grid_coords', this, ['computed_bounds', 'dimension', 'ticker'])
+      return
 
      _bounds: () ->
       i = @get('dimension')

@@ -27,6 +27,7 @@ define [
 
         ctx.rotate(-@angle[i])
         ctx.translate(-@sx[i], -@sy[i])
+      return
 
     draw_legend: (ctx, x1, x2, y1, y2) ->
       glyph_props = @glyph_props
@@ -45,6 +46,7 @@ define [
       ctx.fillText("txt", x2, (y1+y2)/2)
 
       ctx.restore()
+      return
 
   class Text extends Glyph.Model
     default_view: TextView

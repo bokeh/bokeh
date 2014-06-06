@@ -20,6 +20,7 @@ define [
         return prefix + "-" + uuid
       else
         return uuid;
+      return
 
   _.isNullOrUndefined = (x) ->
     return _.isNull(x) || _.isUndefined(x)
@@ -30,6 +31,7 @@ define [
     else
       obj[key] = value
       return value
+    return
 
   return {
     "monkey_patch": monkey_patch

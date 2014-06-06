@@ -29,6 +29,7 @@ define [
           ctx.stroke()
 
         ctx.translate(-sx[i], -sy[i])
+      return
 
   class Square extends Marker.Model
     default_view: SquareView

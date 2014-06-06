@@ -30,6 +30,7 @@ define [
           ctx.rect(sx0[i], sy0[i], sx1[i]-sx0[i], sy1[i]-sy0[i])
           glyph_props.line_properties.set_vectorize(ctx, i)
           ctx.stroke()
+      return
 
     _hit_point: (geometry) ->
       [vx, vy] = [geometry.vx, geometry.vy]
@@ -44,6 +45,7 @@ define [
 
     draw_legend: (ctx, x0, x1, y0, y1) ->
       @_generic_area_legend(ctx, x0, x1, y0, y1)
+      return
 
   class Quad extends Glyph.Model
     default_view: QuadView

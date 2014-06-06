@@ -19,6 +19,7 @@ define [
         @set_obj('ticker', CategoricalTicker.Collection.create())
       if not @get_obj('formatter')?
         @set_obj('formatter', CategoricalTickFormatter.Collection.create())
+      return
 
     _bounds: () ->
       i = @get('dimension')

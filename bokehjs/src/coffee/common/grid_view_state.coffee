@@ -13,6 +13,7 @@ define [
         for viewstate in row
           @add_dependencies('layout_heights', viewstate, 'outer_height')
           @add_dependencies('layout_widths', viewstate, 'outer_width')
+      return
 
     initialize: (attrs, options) ->
       super(attrs, options)
@@ -26,10 +27,12 @@ define [
           return _.reduce(@get('layout_widths'), ((x, y) -> x + y), 0)
         , true)
       @add_dependencies('width', @, 'layout_widths')
+      return
 
     #compute a childs position in the underlying device
     position_child_x: (offset, childsize) ->
       return offset
+
     position_child_y: (offset, childsize) ->
       return @get('height') - offset - childsize
 
@@ -38,6 +41,7 @@ define [
         return 0
       else
         return _.max(_.map(row, ((x) -> return x.get(dim))))
+      return
 
     layout_heights: () =>
       row_heights = (@maxdim('outer_height',row) for row in @get('childviewstates'))

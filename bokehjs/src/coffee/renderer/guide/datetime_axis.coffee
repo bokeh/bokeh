@@ -18,6 +18,7 @@ define [
         @set_obj('ticker', DatetimeTicker.Collection.create())
       if not @get_obj('formatter')?
         @set_obj('formatter', DatetimeTickFormatter.Collection.create())
+      return
 
   class DatetimeAxes extends Backbone.Collection
     model: DatetimeAxis

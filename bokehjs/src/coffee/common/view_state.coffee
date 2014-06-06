@@ -134,6 +134,7 @@ define [
             return _inner_range_vertical
         , true)
       @add_dependencies('inner_range_vertical', this, ['border_bottom', 'inner_height'])
+      return
 
     # transform view coordinates to underlying screen coordinates
     vx_to_sx: (x) ->

@@ -178,6 +178,7 @@ define [
       )
       grids.push(grid)
       plot.add_renderers(g.ref() for g in grids)
+    return
 
   add_tools = (plot, tools, glyphs, xdr, ydr) ->
     if tools == false
@@ -238,6 +239,7 @@ define [
       plot.add_renderers([box_zoom_overlay.ref()])
 
     plot.set_obj('tools', added_tools)
+    return
 
   add_legend = (plot, legend, glyphs) ->
     if legend
@@ -251,6 +253,7 @@ define [
         legends: legends
       })
       plot.add_renderers([legend_renderer.ref()])
+    return
 
   make_plot = (glyphspecs, data, {nonselected, title, dims, xrange, yrange, xaxes, yaxes, xgrid, ygrid, xdr, ydr, tools, legend}) ->
     nonselected ?= null
@@ -290,7 +293,6 @@ define [
 
     return plot
 
-
   show = (plot, target_div=false) ->
     div = $('<div class="plotdiv"></div>')
     if target_div
@@ -304,7 +306,7 @@ define [
       div.append(view.$el)
       console.log("added plot: " + plot.get('title'))
     _.defer(myrender)
-
+    return
 
   return {
     "make_plot": make_plot,

@@ -21,6 +21,7 @@ define [
       if _.has(this, 'eventers')
         for own target, val of @eventers
           val.off(null, null, this)
+      return
 
     isNew: () ->
       return false
@@ -44,6 +45,7 @@ define [
       _.defer(() =>
         if not @inited
           @dinitialize(attrs, options))
+      return
 
     dinitialize: (attrs, options) ->
       # deferred initialization - this is important so we can separate object
@@ -52,6 +54,7 @@ define [
       # first, and then call deferred intialization so they can setup dependencies
       # on each other
       @inited = true
+      return
 
     set_obj: (key, value, options) ->
       if _.isObject(key) or key == null
@@ -99,6 +102,7 @@ define [
       else
         if value instanceof HasProperties
           return value.ref()
+      return
 
     # ### method: HasProperties::add_dependencies
     add_dependencies:  (prop_name, object, fields) ->
@@ -117,11 +121,13 @@ define [
       for fld in fields
         safebind(this, object, "change:" + fld,
             prop_spec['callbacks']['changedep'])
+      return
 
     # ### method: HasProperties::register_setter
     register_setter: (prop_name, setter) ->
       prop_spec = @properties[prop_name]
       prop_spec.setter = setter
+      return
 
     # ### method: HasProperties::register_property
     register_property:  (prop_name, getter, use_cache) ->
@@ -166,6 +172,7 @@ define [
         safebind(this, this, "changedep:" + prop_name,
           prop_spec['callbacks']['propchange'])
         return prop_spec
+      return
 
     remove_property: (prop_name) ->
       # removes the property,
@@ -180,12 +187,14 @@ define [
       delete @properties[prop_name]
       if prop_spec.use_cache
         @clear_cache(prop_name)
+      return
 
     has_cache: (prop_name) ->
       return _.has(@property_cache, prop_name)
 
     add_cache: (prop_name, val) ->
       @property_cache[prop_name] = val
+      return
 
     clear_cache: (prop_name, val) ->
       delete @property_cache[prop_name]
@@ -211,6 +220,7 @@ define [
           return computed
       else
         return super(prop_name)
+      return
 
     ref: ->
       # ### method: HasProperties::ref
@@ -232,6 +242,7 @@ define [
         return this
       else
         return @get_base().Collections(ref['type']).get(ref['id'])
+      return
 
     get_obj: (ref_name) =>
       # ### method: HasProperties::get_obj
@@ -241,6 +252,7 @@ define [
       ref = @get(ref_name)
       if ref
         return @resolve_ref(ref)
+      return
 
     get_base: ()->
       if not @_base

@@ -13,6 +13,18 @@ define [
 
     _properties: []
 
+    initialize: (options) ->
+      # the point of this is to support both efficient ArrayBuffers as well as dumb
+      # arrays of arrays that the python interface currently uses. If the glyphspec
+      # contains "rows" then it is assumed to be an ArrayBuffer with explicitly
+      # provided number of rows/cols, otherwise treat as a "list of lists".
+      spec = @mget('glyphspec')
+      if spec.rows?
+        @_fields = ['image:array', 'rows', 'cols', 'x', 'y', 'dw', 'dh', 'palette:string']
+      else
+        @_fields = ['image:array', 'x', 'y', 'dw', 'dh', 'palette:string']
+      super(options)
+
     setup_server_data : () ->
       serversource = @mget_obj('server_data_source')
       # hack, call set data, becuase there are some attrs that we need
@@ -27,19 +39,7 @@ define [
         @plot_view.view_state.get('inner_range_horizontal'),
         @plot_view.view_state.get('inner_range_vertical'),
       )
-
-
-    initialize: (options) ->
-      # the point of this is to support both efficient ArrayBuffers as well as dumb
-      # arrays of arrays that the python interface currently uses. If the glyphspec
-      # contains "rows" then it is assumed to be an ArrayBuffer with explicitly
-      # provided number of rows/cols, otherwise treat as a "list of lists".
-      spec = @mget('glyphspec')
-      if spec.rows?
-        @_fields = ['image:array', 'rows', 'cols', 'x', 'y', 'dw', 'dh', 'palette:string']
-      else
-        @_fields = ['image:array', 'x', 'y', 'dw', 'dh', 'palette:string']
-      super(options)
+      return
 
     _set_data: (@data) ->
       if not @image_data? or @image_data.length != @image.length
@@ -75,11 +75,13 @@ define [
         image_data.data.set(buf8)
         ctx.putImageData(image_data, 0, 0);
         @image_data[i] = canvas
+      return
 
     _map_data: () ->
       [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
       @sw = @distance_vector('x', 'dw', 'edge',  @mget('glyphspec')['dilate'])
       @sh = @distance_vector('y', 'dh', 'edge',  @mget('glyphspec')['dilate'])
+      return
 
     _render: (ctx, indices, glyph_props) ->
       old_smoothing = ctx.getImageSmoothingEnabled()
@@ -102,6 +104,7 @@ define [
         ctx.translate(0, -y_offset)
 
       ctx.setImageSmoothingEnabled(old_smoothing)
+      return
 
   # name Image conflicts with js Image
   class ImageGlyph extends Glyph.Model

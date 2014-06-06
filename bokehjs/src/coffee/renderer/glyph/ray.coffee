@@ -19,6 +19,7 @@ define [
       inf_len = 2 * (width + height)
       for i in [0...@length.length]
         if @length[i] == 0 then @length[i] = inf_len
+      return
 
     _render: (ctx, indices, glyph_props) ->
       if glyph_props.line_properties.do_stroke
@@ -40,9 +41,11 @@ define [
 
           ctx.rotate(-@angle[i])
           ctx.translate(-@sx[i], -@sy[i])
+      return
 
     draw_legend: (ctx, x0, x1, y0, y1) ->
       @_generic_line_legend(ctx, x0, x1, y0, y1)
+      return
 
   class Ray extends Glyph.Model
     default_view: RayView

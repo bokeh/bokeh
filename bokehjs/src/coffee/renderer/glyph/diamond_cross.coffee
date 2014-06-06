@@ -34,6 +34,7 @@ define [
           ctx.moveTo(sx[i]-r, sy[i])
           ctx.lineTo(sx[i]+r, sy[i])
           ctx.stroke()
+      return
 
   class DiamondCross extends Marker.Model
     default_view: DiamondCrossView

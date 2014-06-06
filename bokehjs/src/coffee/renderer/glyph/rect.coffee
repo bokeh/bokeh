@@ -29,6 +29,7 @@ define [
           @sy[i] = syi[i]
       @max_width = _.max(@width)
       @max_height = _.max(@height)
+      return
 
     _set_data: () ->
       @index = rbush()
@@ -37,6 +38,7 @@ define [
         if not isNaN(@x[i] + @y[i])
           pts.push([@x[i], @y[i], @x[i], @y[i], {'i': i}])
       @index.load(pts)
+      return
 
     _render: (ctx, indices, glyph_props, sx=@sx, sy=@sy, sw=@sw, sh=@sh) ->
       if glyph_props.fill_properties.do_fill
@@ -82,6 +84,7 @@ define [
           ctx.beginPath()
 
         ctx.stroke()
+      return
 
     _hit_point: (geometry) ->
       [vx, vy] = [geometry.vx, geometry.vy]
@@ -171,6 +174,7 @@ define [
         sh[reference_point] = d
 
       @_render(ctx, indices, @glyph_props, sx, sy, sw, sh)
+      return
 
   class Rect extends Glyph.Model
     default_view: RectView

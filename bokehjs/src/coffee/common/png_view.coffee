@@ -17,4 +17,5 @@ define [
       png = @model.get('png')
       @$el.append($("<p> #{@model.get('title')} </p>"))
       @$el.append($("<img modeltype='#{@model.type}' modelid='#{@model.get('id')}' class='pngview' width='#{@thumb_x}'  height='#{@thumb_y}'  src='#{png}'/>"))
+        return
 

@@ -13,29 +13,34 @@ define [
       @yrange = [null, null]
       super(options)
       @plot_view.$el.find('.bokeh_canvas_wrapper').append(@$el)
+      return
 
     boxselect: (xrange, yrange) ->
       @xrange = xrange
       @yrange = yrange
       @request_render()
+      return
 
     startselect: () ->
       @selecting = true
       @xrange = [null, null]
       @yrange = [null, null]
       @request_render()
+      return
 
     stopselect: () ->
       @selecting = false
       @xrange = [null, null]
       @yrange = [null, null]
       @request_render()
+      return
 
     bind_bokeh_events: (options) ->
       @toolview = @plot_view.tools[@mget('tool').id]
       @listenTo(@toolview, 'boxselect', @boxselect)
       @listenTo(@toolview, 'startselect', @startselect)
       @listenTo(@toolview, 'stopselect', @stopselect)
+      return
 
     render: () ->
       if not @selecting
@@ -64,6 +69,7 @@ define [
       @$el.addClass('shading')
       style_string += "top:#{ypos}px; height:#{height}px"
       @$el.attr('style', style_string)
+      return
 
   class BoxSelection extends HasParent
     default_view: BoxSelectionView

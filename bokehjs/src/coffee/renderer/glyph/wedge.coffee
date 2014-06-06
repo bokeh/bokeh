@@ -20,10 +20,12 @@ define [
         if not isNaN(@x[i] + @y[i])
           pts.push([@x[i], @y[i], @x[i], @y[i], {'i': i}])
       @index.load(pts)
+      return
 
     _map_data: () ->
       [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
       @radius = @distance_vector('x', 'radius', 'edge')
+      return
 
     _render: (ctx, indices, glyph_props, sx=@sx, sy=@sy, radius=@radius) ->
       for i in indices
@@ -43,6 +45,7 @@ define [
         if glyph_props.line_properties.do_stroke
           glyph_props.line_properties.set_vectorize(ctx, i)
           ctx.stroke()
+      return
 
     _hit_point: (geometry) ->
       [vx, vy] = [geometry.vx, geometry.vy]
@@ -115,6 +118,7 @@ define [
       radius[reference_point] = Math.min(Math.abs(x1-x0), Math.abs(y1-y0)) * 0.4
 
       @_render(ctx, indices, @glyph_props, sx, sy, radius)
+      return
 
   class Wedge extends Glyph.Model
     default_view: WedgeView

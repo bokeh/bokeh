@@ -12,6 +12,7 @@ define [
 
     _map_data: () ->
       [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
+      return
 
     _render: (ctx, indices, glyph_props) ->
 
@@ -48,9 +49,11 @@ define [
             ctx.lineTo(@sx[i], @sy[i])
         ctx.closePath()
         ctx.stroke()
+      return
 
     draw_legend: (ctx, x0, x1, y0, y1) ->
       @_generic_area_legend(ctx, x0, x1, y0, y1)
+      return
 
   class Patch extends Glyph.Model
     default_view: PatchView

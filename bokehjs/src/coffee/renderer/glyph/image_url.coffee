@@ -16,12 +16,13 @@ define [
       @image = (null for img in @url)
       @need_load = (true for img in @url)
       @loaded = (false for img in @url)
+      return
 
     _map_data: () ->
       [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
-
       @sw = @distance_vector('x', 'w', 'edge', @mget('glyphspec')['dilate'])
       @sh = @distance_vector('y', 'h', 'edge', @mget('glyphspec')['dilate'])
+      return
 
     _render: (ctx, indices, glyph_props) ->
       for i in indices
@@ -52,6 +53,7 @@ define [
         else if @loaded[i]
           vs = @plot_view.view_state
           @_render_image(ctx, vs, i, @image[i])
+      return
 
     _final_sx_sy: () ->
       anchor = @mget('glyphspec').anchor or "top_left"
@@ -66,6 +68,7 @@ define [
         when "bottom_left"   then (i) => [@sx[i]           , @sy[i] - @sh[i]  ]
         when "left_center"   then (i) => [@sx[i]           , @sy[i] - @sh[i]/2]
         when "center"        then (i) => [@sx[i] - @sw[i]/2, @sy[i] - @sh[i]/2]
+      # implicitly return switch value
 
     _render_image: (ctx, vs, i, img) ->
       if isNaN(@sw[i]) then @sw[i] = img.width
@@ -81,6 +84,7 @@ define [
         ctx.translate(-sx, -sy)
       else
         ctx.drawImage(img, sx, sy, @sw[i], @sh[i])
+      return
 
   # name Image conflicts with js Image
   class ImageURLGlyph extends Glyph.Model
