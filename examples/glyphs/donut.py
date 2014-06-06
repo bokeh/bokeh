@@ -20,7 +20,7 @@ xdr = Range1d(start=-2, end=2)
 ydr = Range1d(start=-2, end=2)
 
 title = "Web browser market share (November 2013)"
-plot = Plot(title=title, x_range=xdr, y_range=ydr, width=800, height=800)
+plot = Plot(title=title, x_range=xdr, y_range=ydr, plot_width=800, plot_height=800)
 
 colors = {"Chrome": seagreen, "Firefox": tomato, "Safari": orchid, "Opera": firebrick, "IE": skyblue, "Other": lightgray}
 

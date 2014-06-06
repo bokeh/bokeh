@@ -52,7 +52,7 @@ ydr = Range1d(start=-0.5, end=20.5)
 def make_plot(title, xname, yname):
     plot = Plot(
         x_range=xdr, y_range=ydr, data_sources=[lines_source, circles_source],
-        title=title, width=400, height=400, border_fill='white', background_fill='#e9e0db')
+        title=title, plot_width=400, plot_height=400, border_fill='white', background_fill='#e9e0db')
     xaxis = LinearAxis(plot=plot, dimension=0, location="bottom", axis_line_color=None)
     yaxis = LinearAxis(plot=plot, dimension=1, location="left", axis_line_color=None)
     xgrid = Grid(plot=plot, dimension=0, axis=xaxis)

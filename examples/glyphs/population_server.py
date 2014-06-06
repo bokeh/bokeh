@@ -36,7 +36,7 @@ def pyramid():
     xdr = DataRange1d(sources=[source_pyramid.columns("male"), source_pyramid.columns("female")])
     ydr = DataRange1d(sources=[source_pyramid.columns("groups")])
 
-    plot = Plot(title=None, data_sources=[source_pyramid], x_range=xdr, y_range=ydr, width=600, height=600)
+    plot = Plot(title=None, data_sources=[source_pyramid], x_range=xdr, y_range=ydr, plot_width=600, plot_height=600)
 
     xaxis = LinearAxis(plot=plot, dimension=0)
     yaxis = LinearAxis(plot=plot, dimension=1, ticker=SingleIntervalTicker(interval=5))

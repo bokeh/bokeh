@@ -55,8 +55,8 @@ class BokehRenderer(Renderer):
         self.plot = Plot(data_sources=[self.source],
                          x_range=self.xdr,
                          y_range=self.ydr,
-                         width=self.width,
-                         height=self.height)
+                         plot_width=self.width,
+                         plot_height=self.height)
 
     def close_figure(self, fig):
         "Complete the plot: add tools."
