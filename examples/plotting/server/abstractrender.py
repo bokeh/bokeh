@@ -21,17 +21,15 @@ source = line_downsample.source(data_url="/defaultuser/AAPL.hdf5",
                                domain='x')
 
 
-plot = square('volume','close',color='#FF00FF',source=source)
+spec = square('volume','close',color='#FF00FF',source=source)
 #spec = ar.glyphspec('date','close',color='#FF00FF',source=source)
 
 # Simple heat-map: bin the counts
-heatmap =ar.source(plot)
+heatmap =ar.source(spec)
+ar.plot(heatmap)
 #heatmap = ar.source(glyphs=plot, agg=ar.Count(), info=ar.Const(1), select=ar.Touches(), shader=ar.Interpolate(0,9)+ar.Floor())
 #heatmap = ar.source(glyphs=plot, shader=ar.Interpolate(0,9) + ar.Floor())
 #heatmap = ar.source(glyphs=plot) + ar.Interpolate(0,9) + ar.Floor()
-image(source=heatmap, image="image", x='x', y='y', dw='dw', dh='dh', palette=["reds-9"],
-    x_range=Range1d(start=0, end=520), 
-    y_range=Range1d(start=0, end=520))
 #
 #
 ###Perceptually corrected heat-map.  Cube-root then bin
