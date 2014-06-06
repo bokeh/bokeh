@@ -38,9 +38,7 @@ def get_data(username, docid, datasourceid):
     #TODO: Desserializing directly to ranges....awk-ward.  There is probably a better way via the properties system that detects type...probably... 
     plot_state=dict([(k, Range1d.load_json(r)) for k,r in plot_state.iteritems()])
 
-    #TODO: Remove 2nd None, part of data_url remove test
-    import pdb; pdb.set_trace()
-    result = bokeh_app.datamanager.get_data(request_username, None, None, parameters, plot_state)
+    result = bokeh_app.datamanager.get_data(request_username, serverdatasource, parameters, plot_state)
     result = make_json(protocol.serialize_json(result))
     return result
 

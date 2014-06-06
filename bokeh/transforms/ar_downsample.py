@@ -87,23 +87,13 @@ def source(plot, agg=Count(), info=Const(val=1), shader=Id(), **kwargs):
   else: 
     raise ValueError("Can only work with image-shaders...for now")
 
-  kwargs['transform'] = {'resample':"abstract rendering", 'agg':agg, 'info':info, 'shader':shader}
+  kwargs['transform'] = {'resample':"abstract rendering", 'agg':agg, 'info':info, 'shader':shader, 'glyphspec': spec}
   return ServerDataSource(**kwargs)
 
 
 def downsample(data, transform, plot_state):
-  def _reify(key):
-    return globals()[transform[key]['name']](*transform[key]['args']).reify()
-  
-  import pdb; pdb.set_trace()
   plot_size = [plot_state['screen_x'].end - plot_state['screen_x'].start,
                plot_state['screen_y'].end - plot_state['screen_y'].start]
-
-
-  agg = _reify('aggregator')
-  info = _reify('info')
-  #select = globals()[transform['select']['name']](**transform['select'])
-  shader = _reify('shader') 
 
   glyphspec = transform['glyphspec']
   xcol = glyphspec['x']['field']
@@ -119,7 +109,12 @@ def downsample(data, transform, plot_state):
   glyphs = glyphset.Glyphset([xcol, ycol], ar.EmptyList(), shaper, colMajor=True)
   bounds = glyphs.bounds()
   ivt = ar.zoom_fit(plot_size, bounds)  #TODO: Derive transform from passed parameters
-  image = ar.render(glyphs, info, agg, shader, plot_size, ivt)
+
+  image = ar.render(glyphs, 
+                    transform['info'].reify(), 
+                    transform['agg'].reify(), 
+                    transform['shader'].reify(), 
+                    plot_size, ivt)
   
   logger.info("Max %s ----------" % [image.max()])
   logger.info("Min %s ----------" % [image.min()])
