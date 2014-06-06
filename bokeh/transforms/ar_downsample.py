@@ -87,7 +87,6 @@ def source(plot, agg=Count(), info=Const(val=1), shader=Id(), **kwargs):
   else: 
     raise ValueError("Can only work with image-shaders...for now")
 
-  curdoc().add(agg, info, shader)  #TODO: Do I really need to add these myself, or can I add them to the ServerData source and it takes care of them?
   kwargs['transform'] = {'resample':"abstract rendering", 'agg':agg, 'info':info, 'shader':shader}
   return ServerDataSource(**kwargs)
 

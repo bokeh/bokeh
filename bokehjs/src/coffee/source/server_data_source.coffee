@@ -45,7 +45,11 @@ define [
         for entry in @callbacks[column_data_source.get('id')]
           @stopListening.apply(this, entry)
     
-    
+    update_url : () ->
+      owner_username = @get('owner_username')
+      prefix = @get_base().Config.prefix     
+      url = "#{prefix}bokeh/data/#{owner_username}/#{@get('doc')}/#{@get('id')}"    
+
     listen_for_line1d_updates : (column_data_source, 
                                   plot_x_range, plot_y_range, 
                                   domain_range, screen_range
@@ -73,10 +77,6 @@ define [
     line1d_update : (column_data_source, plot_state, domain_range, screen_range,
                      primary_column, domain_name, columns, input_params) =>
       #console.log('calling update')
-      data_url = @get('data_url')
-      owner_username = @get('owner_username')
-      prefix = @get_base().Config.prefix
-      url = "#{prefix}bokeh/data/#{owner_username}#{data_url}"
       domain_resolution = (screen_range.get('end') - screen_range.get('start')) / 2
       domain_resolution = Math.floor(domain_resolution)
       domain_limit = [domain_range.get('start'), domain_range.get('end')]
@@ -87,7 +87,7 @@ define [
           domain_limit, domain_resolution, input_params]
       $.ajax(
         dataType: 'json'
-        url : url
+        url : @update_url()
         xhrField :
           withCredentials : true
         success : (data) ->
@@ -130,13 +130,9 @@ define [
 
     ar_update : (column_data_source, plot_state, input_params) ->
       #TODO: Share the x/y range information back to the server in some way...
-      data_url = @get('data_url')
-      owner_username = @get('owner_username')
-      prefix = @get_base().Config.prefix
-      url = "#{prefix}/bokeh/data/#{owner_username}#{data_url}"
       $.ajax(
         dataType: 'json'
-        url : url
+        url : @update_url()
         xhrField :
           withCredentials : true
         success : (data) ->
@@ -179,12 +175,6 @@ define [
       return null
 
     heatmap_update : (column_data_source, plot_state, input_params) =>
-
-      data_url = @get('data_url')
-      owner_username = @get('owner_username')
-      prefix = @get_base().Config.prefix
-      url = "#{prefix}/bokeh/data/#{owner_username}#{data_url}"
-
       #TODO: Are these 'globals' really a part of plot_state?  Are they 'valid' in other plot types?
       global_x_range = @get('data').global_x_range
       global_y_range = @get('data').global_y_range
@@ -201,7 +191,7 @@ define [
       #console.log(y_bounds)
       $.ajax(
         dataType: 'json'
-        url : url
+        url : @update_url()
         xhrField :
           withCredentials : true
         success : (data) ->
