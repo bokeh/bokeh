@@ -369,12 +369,24 @@ class Session(object):
         other_objects = [x for x in json_objs if x['type'] != 'PlotContext']
         plot_context_json = plot_contexts[0]
         plot_context_json['attributes']['children'] += [x.get_ref() for x in doc._plotcontext.children]
-
         doc.docid = self.docid
         doc._plotcontext._id = plot_context_json['id']
         doc.load(plot_context_json, *other_objects)
+
         
-        
+    def load_object(self, obj, document):
+        """pulls an objects json from the server,
+        loads it into the document. the object should be updated
+        since it's inside document._models
+        Args:
+            obj : object to be updated.. this is used just for typename and id
+            document : document instance.  object should be inside the document
+        """
+        assert obj._id in document._models
+        attrs = self.pull(typename=obj.__view_model__, objid=obj._id)
+        document.load(*attrs)
+        return
+
     def store_document(self, doc, dirty_only=True):
         """higher level function for storing a doc on the server
         """
