@@ -115,9 +115,15 @@ def downsample(data, transform, plot_state):
   def _reify(key):
     return globals()[transform[key]['name']](*transform[key]['args']).reify()
 
-  plot_size = [plot_state['screen_x'].end - plot_state['screen_x'].start,
-               plot_state['screen_y'].end - plot_state['screen_y'].start]
+  screen_size = [plot_state['screen_x'].span(),
+                 plot_state['screen_y'].span()]
 
+  scale_x = plot_state['data_x'].span()/plot_state['screen_x'].span()
+  scale_y = plot_state['data_y'].span()/plot_state['screen_y'].span()
+  
+  #How big would a full plot of the data be at the current resolution 
+  plot_size = [screen_size[0] / scale_x,  screen_size[1] / scale_y]
+  logger.info(plot_size)
 
   agg = _reify('aggregator')
   info = _reify('info')
@@ -137,12 +143,9 @@ def downsample(data, transform, plot_state):
   shaper = _shaper(glyphspec['type'], size)
   glyphs = glyphset.Glyphset([xcol, ycol], ar.EmptyList(), shaper, colMajor=True)
   bounds = glyphs.bounds()
-  ivt = ar.zoom_fit(plot_size, bounds)  #TODO: Derive transform from passed parameters
+  ivt = ar.zoom_fit(plot_size, bounds, balanced=False)  
   image = ar.render(glyphs, info, agg, shader, plot_size, ivt)
   
-  logger.info("Max %s ----------" % [image.max()])
-  logger.info("Min %s ----------" % [image.min()])
-
   return {'image': [image],
           'x': [0],
           'y': [0],
