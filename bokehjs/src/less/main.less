@@ -50,7 +50,7 @@ svg {
   font-size: 12pt;
 }
 
-.bokeh_tooltip:before {
+.bokeh_tooltip.left::before {
   position: absolute;
   top: 40%;
   width: 0px;
@@ -59,6 +59,19 @@ svg {
   border-style: solid;
   border-width: 7px 10px 7px 0;
   border-color: transparent #1e4B6c transparent transparent;
+  content: " ";
+  display: block;
+}
+
+.bokeh_tooltip.right::after {
+  position: absolute;
+  top: 40%;
+  width: 0px;
+  height: 0px;
+  right: -9px;
+  border-style: solid;
+  border-width: 7px 0 7px 10px; 
+  border-color: transparent transparent transparent #1e4B6c;
   content: " ";
   display: block;
 }
