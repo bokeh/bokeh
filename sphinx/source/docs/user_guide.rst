@@ -579,7 +579,7 @@ But ``Bokeh`` also provides a programmatic way to open an issue. You only need t
 
 Then, `Bokeh` will push the issue to our issue tracker and it will open a new browser tab
 showing your submitted issue, if you want to add more comments.
-As you an see, this function will also append some important information about versions
+As you can see, this function will also append some important information about versions
 and your arcuitecture to help us to reproduce the intended bug.
 
 Finally, can even comment in any issue using this tool just passing the issue number as
