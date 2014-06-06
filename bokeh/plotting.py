@@ -20,6 +20,7 @@ from .plotting_helpers import (
 )
 from .resources import Resources
 from .session import Cloud, DEFAULT_SERVER_URL, Session
+from .utils import decode_utf8
 
 logger = logging.getLogger(__name__)
 
@@ -159,8 +160,7 @@ def output_notebook(url=None, docname=None, session=None, name=None):
     global _default_notebook
     _default_notebook = True
 
-def output_file(filename, title="Bokeh Plot", autosave=True, mode="inline",
-                root_dir=None, encoding="utf-8"):
+def output_file(filename, title="Bokeh Plot", autosave=True, mode="inline", root_dir=None):
     """ Outputs to a static HTML file.
 
     .. note:: This file will be overwritten each time show() or save() is invoked.
@@ -176,8 +176,6 @@ def output_file(filename, title="Bokeh Plot", autosave=True, mode="inline",
             In the 'relative(-dev)' case, **root_dir** can be specified to indicate the
             base directory from which the path to the various static files should be
             computed.
-        enconding (str, optional) : the encoding to be used to write the file.
-            Defaults to "utf-8".
 
     .. note:: Generally, this should be called at the beginning of an
               interactive session or the top of a script.
@@ -189,7 +187,6 @@ def output_file(filename, title="Bokeh Plot", autosave=True, mode="inline",
         'resources' : Resources(mode=mode, root_dir=root_dir, minified=False),
         'autosave'  : autosave,
         'title'     : title,
-        'encoding' : encoding,
     }
 
     if os.path.isfile(filename):
@@ -285,8 +282,8 @@ def save(filename=None, resources=None):
         return
 
     html = file_html(curdoc(), resources, _default_file['title'])
-    with io.open(filename, "w", encoding=_default_file['encoding']) as f:
-        f.write(html.decode(_default_file['encoding']))
+    with io.open(filename, "w", encoding="utf-8") as f:
+        f.write(decode_utf8(html))
 
 def push(session=None, document=None):
     """ Updates the server with the data for the current document.
