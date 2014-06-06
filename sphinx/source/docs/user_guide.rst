@@ -541,3 +541,52 @@ Legends (by hand, for now) using ``circle``, ``text``, and ``rect``::
 Finally, show the plot::
 
     show()
+
+Reporting bugs
+--------------
+
+You can report any possible bug, start discussions or ask for features at our
+`issue tracker https://github.com/ContinuumIO/bokeh/issues?state=open`_ list.
+To start a new issue, you will find a "New issue" green button at the top right area of the page.
+
+But ``Bokeh`` also provides a programmatic way to open an issue. You only need to use the
+`bokeh.report_issue` interactive function:
+
+    In [1]: import bokeh
+    
+    In [2]: bokeh.report_issue()
+    This is the Bokeh reporting engine.
+    
+    Next, you will be guided to build the report
+    Write the title for the intended issue: This is a text.
+    Write the body for the intended issue: And this is the problem.
+    You need to add your GHUSER (Github username) and GHPASS (Github password)
+    to the environmentor complete the next lines.
+    Do you want to abort to set up the environment variable? no
+    Write your Github username: damianavila
+    Write your Github password: xxxxxxxxxxx
+    
+    Preview:
+    
+    title: This is a text.
+    body: And this is the problem.
+    
+        Bokeh version: 0.4.4-455-gc3324df-dirty
+        Python version: 2.7.4-CPython
+        Platform: Linux-3.11.0-031100rc7-generic-x86_64-with-Ubuntu-13.04-raring
+        
+    Submit the intended issue/comment? y
+
+Then, `Bokeh` will push the issue to our issue tracker and it will open a new browser tab
+showing your submitted issue, if you want to add more comments.
+As you an see, this function will also append some important information about versions
+and your arcuitecture to help us to reproduce the intended bug.
+
+Finally, can even comment in any issue using this tool just passing the issue number as
+an argument:
+
+    In [3]: bokeh.report_issue(555)
+    This is the Bokeh reporting engine.
+    
+    Next, you will be guided to build the report
+    Write your comment here: Adding a new comment to an already opened issue.
