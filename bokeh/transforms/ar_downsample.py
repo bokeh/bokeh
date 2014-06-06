@@ -4,6 +4,8 @@ import abstract_rendering.infos as infos
 import abstract_rendering.core as ar
 import abstract_rendering.glyphset as glyphset
 
+from ..plotting import curdoc
+from ..plot_object import PlotObject
 from ..objects import ColumnDataSource, ServerDataSource, Plot, Renderer, Glyph
 from bokeh.properties import (HasProps, Dict, Enum, Either, Float, Instance, Int,
     List, String, Color, Include, Bool, Tuple, Any)
@@ -13,71 +15,56 @@ from ..plotting_helpers import (get_default_color, get_default_alpha,
         _materialize_colors_and_alpha, _get_legend, _make_legend,
         _get_select_tool, _new_xy_plot, _handle_1d_data_args, _list_attr_splat)
 
-from six import iteritems
+
+from six import add_metaclass, iteritems
 import logging
 logger = logging.getLogger(__file__)
 
 
-class Proxy(object):
-  def __init__(self, *args): pass
-  def serialize(self):
-    return {'name':self.__class__.__name__, 'args':[]}
-
+class Proxy(PlotObject):
   def reify(self, **kwargs):
     raise Error("Unipmlemented")
 
 
 #### Aggregators -------------
 class Sum(Proxy): 
-  def __init__(self, *args): pass
   def reify(self, **kwargs):
     return numeric.Sum()
 
 class Count(Proxy): 
-  def __init__(self, *args): pass
   def reify(self, **kwargs):
     return numeric.Count()
 
 ### Infos ---------
 class Const(Proxy):
-  def __init__(self, *vls):
-    self.val=vls[0]
-
+  val = Any()
   def reify(self, **kwargs):
     return infos.const(self.val)
-
-  def serialize(self):
-    return {'name':self.__class__.__name__, 'args':[self.val]}
 
 #### Transfers ---------
 
 class Id(Proxy): 
   out = "image"
-  def __init__(self, *args): pass
   def reify(self, **kwargs):
     return general.Id()
 
 class Interpolate(Proxy):
   out = "image"
-  def __init__(self, *args): pass
   def reify(self, **kwargs):
     return numeric.Interpolate(kwargs['low'], kwargs['high'])
 
 class Sqrt(Proxy):
   out = "image"
-  def __init__(self, *args): pass
   def reify(self, **kwargs):
     return numeric.Sqrt()
 
 class Cuberoot(Proxy):
   out = "image"
-  def __init__(self, *args): pass
   def reify(self, **kwargs):
     return numeric.Cuberoot()
 
-
 #TODO: Pass the 'rend' defintiion through (minus the data_source references), unpack in 'downsample' instead of here...
-def source(plot, agg=Count(), info=Const(1), shader=Id(), **kwargs):
+def source(plot, agg=Count(), info=Const(val=1), shader=Id(), **kwargs):
   #Acquire information from renderer...
   rend = [r for r in plot.renderers if isinstance(r, Glyph)][0]
   datasource = rend.server_data_source
@@ -100,36 +87,21 @@ def source(plot, agg=Count(), info=Const(1), shader=Id(), **kwargs):
   else: 
     raise ValueError("Can only work with image-shaders...for now")
 
-  transform = {'resample' : 'abstract rendering',
-               'aggregator': agg.serialize(),
-               'info': info.serialize(),
-               'shader': shader.serialize(),
-               'glyphspec': spec
-               }
-
-  kwargs['transform'] = transform
+  kwargs['transform'] = {'resample':"abstract rendering", 'agg':agg, 'info':info, 'shader':shader, 'glyphspec': spec}
   return ServerDataSource(**kwargs)
 
 
 def downsample(data, transform, plot_state):
-  def _reify(key):
-    return globals()[transform[key]['name']](*transform[key]['args']).reify()
-
   screen_size = [plot_state['screen_x'].span(),
                  plot_state['screen_y'].span()]
 
   scale_x = plot_state['data_x'].span()/plot_state['screen_x'].span()
   scale_y = plot_state['data_y'].span()/plot_state['screen_y'].span()
   
-  #How big would a full plot of the data be at the current resolution 
+  #How big would a full plot of the data be at the current resolution?
   plot_size = [screen_size[0] / scale_x,  screen_size[1] / scale_y]
-  logger.info(plot_size)
-
-  agg = _reify('aggregator')
-  info = _reify('info')
-  #select = globals()[transform['select']['name']](**transform['select'])
-  shader = _reify('shader') 
-
+  
+  
   glyphspec = transform['glyphspec']
   xcol = glyphspec['x']['field']
   ycol = glyphspec['y']['field']
@@ -144,7 +116,12 @@ def downsample(data, transform, plot_state):
   glyphs = glyphset.Glyphset([xcol, ycol], ar.EmptyList(), shaper, colMajor=True)
   bounds = glyphs.bounds()
   ivt = ar.zoom_fit(plot_size, bounds, balanced=False)  
-  image = ar.render(glyphs, info, agg, shader, plot_size, ivt)
+
+  image = ar.render(glyphs, 
+                    transform['info'].reify(), 
+                    transform['agg'].reify(), 
+                    transform['shader'].reify(), 
+                    plot_size, ivt)
   
   return {'image': [image],
           'x': [0],

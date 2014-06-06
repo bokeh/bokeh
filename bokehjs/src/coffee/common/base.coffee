@@ -80,6 +80,10 @@ define [
   'widget/panel'
   'widget/tabs'
   'widget/dialog'
+
+  'transforms/const'
+  'transforms/id'
+  'transforms/count'
 ], (_, require) ->
 
   # add some useful functions to underscore
@@ -168,6 +172,9 @@ define [
     Tabs:                     'widget/tabs'
     Dialog:                   'widget/dialog'
 
+    Const:                    'transforms/const'
+    Count:                    'transforms/count'
+    Id:                       'transforms/id'
   mod_cache = {}
   collection_overrides = {}
   Collections = (typename) ->

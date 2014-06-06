@@ -92,7 +92,7 @@ class ServerDataSource(DataSource):
     data = Dict(String, Any)
 
     # Paramters of data transformation operations 
-    transform = Dict(String,Any) 
+    transform = Dict(String,Either(Instance(PlotObject), Any))
 
 
 class PandasDataSource(DataSource):

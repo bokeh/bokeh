@@ -348,8 +348,7 @@ class AbstractDataBackend(object):
         """
         
     #parameters for this are undefined at the moment
-    def get_data(self, request_username, request_docid, data_url, 
-                 downsample_function, downsample_parameters):
+    def get_data(self, request_username, request_docid, downsample_params, plot_state):
         raise NotImplementedError        
     
     def append_data(self, request_username, request_docid, data_url, datafile):
@@ -407,7 +406,7 @@ class HDF5DataBackend(AbstractDataBackend):
     def list_data_sources(self, request_username, username):
         return self.client[username].descendant_urls(ignore_groups=True)
 
-    def line1d_downsample(self, request_username, request_docid, data_url, data_parameters):
+    def line1d_downsample(self, request_username, data_url, data_parameters):
         dataset = self.client[data_url]
         (primary_column, domain_name, columns,
          domain_limit, domain_resolution, input_params) = data_parameters
@@ -444,7 +443,7 @@ class HDF5DataBackend(AbstractDataBackend):
         }
         return result
 
-    def heatmap_downsample(self, request_username, request_docid, data_url, 
+    def heatmap_downsample(self, request_username, data_url, 
                            parameters, plot_state):
         dataset = self.client[data_url].node
         (global_x_range, global_y_range, 
@@ -483,21 +482,21 @@ class HDF5DataBackend(AbstractDataBackend):
         output['dh'] = [result['dh']]
         return output
 
-    def get_data(self, request_username, request_docid, data_url, parameters, plot_state): 
-        resample_op = parameters[-1]['resample'] 
+    def get_data(self, request_username, datasource, parameters, plot_state): 
+        data_url = datasource.data_url
+        resample_op = datasource.transform['resample']
 
         if resample_op == 'line1d':
             return self.line1d_downsample(
-                request_username, request_docid, data_url, 
+                request_username, data_url, 
                 parameters)
         elif resample_op == 'heatmap':
             return self.heatmap_downsample(
-                request_username, 
-                request_docid, data_url, 
+                request_username, data_url, 
                 parameters, plot_state)
         elif resample_op == 'abstract rendering':
           dataset = self.client[data_url]
-          result = ar_downsample.downsample(dataset, parameters[-1], plot_state)
+          result = ar_downsample.downsample(dataset, datasource.transform, plot_state)
           return result
         else:
           raise ValueError("Unknown resample op '{}'".format(resample_op))
