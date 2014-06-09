@@ -9,7 +9,7 @@ define [
   class RectView extends Glyph.View
 
     _fields: ['x', 'y', 'width', 'height', 'angle']
-    _properties: ['line', 'fill']
+    _properties: ['line', 'fill', 'anchor_point']
 
     _map_data: () ->
       [sxi, syi] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units, @x_range_name, @y_range_name)
@@ -18,6 +18,7 @@ define [
       @sh = @distance_vector('y', 'height', 'center', @mget('glyphspec')['dilate'])
       @sx = new Array(sxi.length)
       @sy = new Array(sxi.length)
+      @anchor = @mget('glyphspec')['anchor_point'] || 'center'
       for i in [0...sxi.length]
         if Math.abs(sxi[i]-@sw[i]) < 2
           @sx[i] = Math.round(sxi[i])
@@ -36,46 +37,66 @@ define [
       for i in [0...@x.length]
         if not isNaN(@x[i] + @y[i])
           pts.push([@x[i], @y[i], @x[i], @y[i], {'i': i}])
-      @index.load(pts)
+        @index.load(pts)
 
     _render: (ctx, indices, glyph_props, sx=@sx, sy=@sy, sw=@sw, sh=@sh) ->
+      console.log('anchor', @anchor);
+      ax = []; ay=[]; aax=[]; aay=[]; h=[];
+      for i in indices
+        if @anchor == "center"
+          ax.push(sx[i]-sw[i]/2)
+          ay.push(sy[i]-sh[i]/2)
+          h.push(sh[i])
+          aax.push(-sw[i]/2)
+          aay.push(-sh[i]/2)
+        else if @anchor == "bottom_left"
+          ax.push(sx[i])
+          ay.push(sy[i])
+          h.push(-sh[i])
+          aax.push(0)
+          aay.push(0)
+        else if @anchor == "bottom_center"
+          ax.push(sx[i]-sw[i]/2)
+          ay.push(sy[i])
+          h.push(-sh[i])
+          aax.push(-sw[i]/2)
+          aay.push(0)
+
       if glyph_props.fill_properties.do_fill
-
-        for i in indices
-
+        for i in indices            
           if isNaN(sx[i] + sy[i] + sw[i] + sh[i] + @angle[i])
             continue
-
           #no need to test the return value, we call fillRect for every glyph anyway
           glyph_props.fill_properties.set_vectorize(ctx, i)
-
+          #set the anchor points
           if @angle[i]
             ctx.translate(sx[i], sy[i])
             ctx.rotate(@angle[i])
-            ctx.fillRect(-sw[i]/2, -sh[i]/2, sw[i], sh[i])
+            #ctx.fillRect(-sw[i]/2, -sh[i]/2, sw[i], sh[i])
+            ctx.fillRect(aax[i], aay[i], sw[i], sh[i])
             ctx.rotate(-@angle[i])
             ctx.translate(-sx[i], -sy[i])
           else
-            ctx.fillRect(sx[i]-sw[i]/2, sy[i]-sh[i]/2, sw[i], sh[i])
-            ctx.rect(sx[i]-sw[i]/2, sy[i]-sh[i]/2, sw[i], sh[i])
+            ctx.fillRect(ax[i], ay[i], sw[i], h[i])
+            ctx.rect(ax[i], ay[i], sw[i], h[i])
 
       if glyph_props.line_properties.do_stroke
 
         ctx.beginPath()
 
         for i in indices
-
+  
           if isNaN(sx[i] + sy[i] + sw[i] + sh[i] + @angle[i])
             continue
 
           if @angle[i]
             ctx.translate(sx[i], sy[i])
             ctx.rotate(@angle[i])
-            ctx.rect(-sw[i]/2, -sh[i]/2, sw[i], sh[i])
+            ctx.rect(aax[i], aay[i], sw[i], sh[i])
             ctx.rotate(-@angle[i])
             ctx.translate(-sx[i], -sy[i])
           else
-            ctx.rect(sx[i]-sw[i]/2, sy[i]-sh[i]/2, sw[i], sh[i])
+            ctx.rect(ax[i], ay[i], sw[i], sh[i])
 
           glyph_props.line_properties.set_vectorize(ctx, i)
           ctx.stroke()
@@ -187,6 +208,7 @@ define [
         line_cap: 'butt'
         line_dash: []
         line_dash_offset: 0
+        #anchor_point:'center'
         angle: 0.0
         dilate: false
       })

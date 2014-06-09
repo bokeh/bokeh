@@ -21601,7 +21601,7 @@ return { create_gear_tooth: createGearTooth, create_internal_gear_tooth: createI
 
       RectView.prototype._fields = ['x', 'y', 'width', 'height', 'angle'];
 
-      RectView.prototype._properties = ['line', 'fill'];
+      RectView.prototype._properties = ['line', 'fill', 'anchor_point'];
 
       RectView.prototype._map_data = function() {
         var i, sxi, syi, _i, _ref1, _ref2;
@@ -21610,6 +21610,7 @@ return { create_gear_tooth: createGearTooth, create_internal_gear_tooth: createI
         this.sh = this.distance_vector('y', 'height', 'center', this.mget('glyphspec')['dilate']);
         this.sx = new Array(sxi.length);
         this.sy = new Array(sxi.length);
+        this.anchor = this.mget('glyphspec')['anchor_point'] || 'center';
         for (i = _i = 0, _ref2 = sxi.length; 0 <= _ref2 ? _i < _ref2 : _i > _ref2; i = 0 <= _ref2 ? ++_i : --_i) {
           if (Math.abs(sxi[i] - this.sw[i]) < 2) {
             this.sx[i] = Math.round(sxi[i]);
@@ -21627,9 +21628,10 @@ return { create_gear_tooth: createGearTooth, create_internal_gear_tooth: createI
       };
 
       RectView.prototype._set_data = function() {
-        var i, pts, _i, _ref1;
+        var i, pts, _i, _ref1, _results;
         this.index = rbush();
         pts = [];
+        _results = [];
         for (i = _i = 0, _ref1 = this.x.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
           if (!isNaN(this.x[i] + this.y[i])) {
             pts.push([
@@ -21638,12 +21640,13 @@ return { create_gear_tooth: createGearTooth, create_internal_gear_tooth: createI
               }
             ]);
           }
+          _results.push(this.index.load(pts));
         }
-        return this.index.load(pts);
+        return _results;
       };
 
       RectView.prototype._render = function(ctx, indices, glyph_props, sx, sy, sw, sh) {
-        var i, _i, _j, _len, _len1;
+        var aax, aay, ax, ay, h, i, _i, _j, _k, _len, _len1, _len2;
         if (sx == null) {
           sx = this.sx;
         }
@@ -21656,9 +21659,37 @@ return { create_gear_tooth: createGearTooth, create_internal_gear_tooth: createI
         if (sh == null) {
           sh = this.sh;
         }
+        console.log('anchor', this.anchor);
+        ax = [];
+        ay = [];
+        aax = [];
+        aay = [];
+        h = [];
+        for (_i = 0, _len = indices.length; _i < _len; _i++) {
+          i = indices[_i];
+          if (this.anchor === "center") {
+            ax.push(sx[i] - sw[i] / 2);
+            ay.push(sy[i] - sh[i] / 2);
+            h.push(sh[i]);
+            aax.push(-sw[i] / 2);
+            aay.push(-sh[i] / 2);
+          } else if (this.anchor === "bottom_left") {
+            ax.push(sx[i]);
+            ay.push(sy[i]);
+            h.push(-sh[i]);
+            aax.push(0);
+            aay.push(0);
+          } else if (this.anchor === "bottom_center") {
+            ax.push(sx[i] - sw[i] / 2);
+            ay.push(sy[i]);
+            h.push(-sh[i]);
+            aax.push(-sw[i] / 2);
+            aay.push(0);
+          }
+        }
         if (glyph_props.fill_properties.do_fill) {
-          for (_i = 0, _len = indices.length; _i < _len; _i++) {
-            i = indices[_i];
+          for (_j = 0, _len1 = indices.length; _j < _len1; _j++) {
+            i = indices[_j];
             if (isNaN(sx[i] + sy[i] + sw[i] + sh[i] + this.angle[i])) {
               continue;
             }
@@ -21666,30 +21697,30 @@ return { create_gear_tooth: createGearTooth, create_internal_gear_tooth: createI
             if (this.angle[i]) {
               ctx.translate(sx[i], sy[i]);
               ctx.rotate(this.angle[i]);
-              ctx.fillRect(-sw[i] / 2, -sh[i] / 2, sw[i], sh[i]);
+              ctx.fillRect(aax[i], aay[i], sw[i], sh[i]);
               ctx.rotate(-this.angle[i]);
               ctx.translate(-sx[i], -sy[i]);
             } else {
-              ctx.fillRect(sx[i] - sw[i] / 2, sy[i] - sh[i] / 2, sw[i], sh[i]);
-              ctx.rect(sx[i] - sw[i] / 2, sy[i] - sh[i] / 2, sw[i], sh[i]);
+              ctx.fillRect(ax[i], ay[i], sw[i], h[i]);
+              ctx.rect(ax[i], ay[i], sw[i], h[i]);
             }
           }
         }
         if (glyph_props.line_properties.do_stroke) {
           ctx.beginPath();
-          for (_j = 0, _len1 = indices.length; _j < _len1; _j++) {
-            i = indices[_j];
+          for (_k = 0, _len2 = indices.length; _k < _len2; _k++) {
+            i = indices[_k];
             if (isNaN(sx[i] + sy[i] + sw[i] + sh[i] + this.angle[i])) {
               continue;
             }
             if (this.angle[i]) {
               ctx.translate(sx[i], sy[i]);
               ctx.rotate(this.angle[i]);
-              ctx.rect(-sw[i] / 2, -sh[i] / 2, sw[i], sh[i]);
+              ctx.rect(aax[i], aay[i], sw[i], sh[i]);
               ctx.rotate(-this.angle[i]);
               ctx.translate(-sx[i], -sy[i]);
             } else {
-              ctx.rect(sx[i] - sw[i] / 2, sy[i] - sh[i] / 2, sw[i], sh[i]);
+              ctx.rect(ax[i], ay[i], sw[i], sh[i]);
             }
             glyph_props.line_properties.set_vectorize(ctx, i);
             ctx.stroke();
