@@ -1,4 +1,4 @@
-
+console.log("multirange2.js");
 define [
   "underscore",
   "jquery",
@@ -288,7 +288,31 @@ define [
     legend ?= false
     extra_x_ranges ?= null
     extra_y_ranges ?= null
+    
+    plot = Plot.Collection.create()
+    update_plot(plot, glyphspecs, data,
+                {nonselected:nonselected, title: title, dims: dims, xrange: xrange,
+                yrange: yrange, xaxes: xaxes, yaxes: yaxes, xgrid: xgrid,
+                ygrid: ygrid, xdr: xdr, ydr: ydr, tools: tools,
+                legend: legend, extra_x_ranges: extra_x_ranges, extra_y_ranges: extra_y_ranges})
 
+    return plot
+
+  update_plot = (plot, glyphspecs, data, {nonselected, title, dims, xrange, yrange, xaxes, yaxes, xgrid, ygrid, xdr, ydr, tools, legend, extra_x_ranges, extra_y_ranges}) ->
+    nonselected ?= null
+    title  ?= ""
+    dims   ?= [400, 400]
+    xrange ?= 'auto'
+    yrange ?= 'auto'
+    xaxes  ?= true
+    yaxes  ?= true
+    xgrid  ?= true
+    ygrid  ?= true
+    tools  ?= true
+    legend ?= false
+    extra_x_ranges ?= null
+    extra_y_ranges ?= null
+    
     sources = create_sources(data)
 
     xdr = create_range(xrange, sources, ['x'])
@@ -301,22 +325,26 @@ define [
     if extra_y_ranges?
       for name, rng of extra_y_ranges
         extra_y_ranges[name] = create_range(rng)
-
-    plot = Plot.Collection.create(
-      x_range: xdr.ref()
-      y_range: ydr.ref()
-      canvas_width: dims[0]
-      canvas_height: dims[1]
-      outer_width: dims[0]
-      outer_height: dims[1]
-      extra_x_ranges: extra_x_ranges
-      extra_y_ranges: extra_y_ranges
-      title: title
-    )
-
+    console.log("before each loop")
+    _.each({
+        x_range: xdr.ref()
+        y_range: ydr.ref()
+        canvas_width: dims[0]
+        canvas_height: dims[1]
+        outer_width: dims[0]
+        outer_height: dims[1]
+        
+        extra_x_ranges: extra_x_ranges
+        extra_y_ranges: extra_y_ranges
+        glyphs:[]
+        tools:[]
+        title: title}, (val, key) ->
+                console.log(val, key);
+                plot.set(key, val));
+    console.log("after  each loop")
     glyphs = create_glyphs(plot, glyphspecs, sources, nonselected)
     plot.add_renderers(g.ref() for g in glyphs)
-
+    
     [xaxes, yaxes] = add_axes(plot, xaxes, yaxes, xdr, ydr)
     add_grids(plot, xgrid, ygrid, xaxes, yaxes)
     add_tools(plot, tools, glyphs, xdr, ydr)
@@ -342,6 +370,8 @@ define [
 
   return {
     "make_plot": make_plot,
+    "update_plot": update_plot,        
     "create_glyphs": create_glyphs,
+    "create_sources": create_sources,
     "show": show,
   }

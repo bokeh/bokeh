@@ -298,7 +298,8 @@ define [
       ctx.lineJoin    = @select(@line_join_name,  obj)
       ctx.lineCap     = @select(@line_cap_name,   obj)
       ctx.setLineDash(@select(@line_dash_name, obj))
-      ctx.setLineDashOffset(@select(@line_dash_offset_name, obj))
+      if ctx.setLineDashOffset
+        ctx.setLineDashOffset(@select(@line_dash_offset_name, obj))
 
     set_prop_cache: (datasource) ->
       @cache = {}

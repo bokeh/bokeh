@@ -257,8 +257,10 @@ define [
       old_renderers = _.keys(@renderers)
       views = @build_views()
       renderers_to_remove = _.difference(old_renderers, _.pluck(@mget_obj('renderers'), 'id'))
+      console.log('renderers_to_remove', renderers_to_remove)
       for id_ in renderers_to_remove
         delete @levels.glyph[id_]
+        
       tools = @build_tools()
       for v in views
         level = v.mget('level')
@@ -394,7 +396,7 @@ define [
         hpadding = Math.max(@requested_padding['top'], @requested_padding['bottom'])
         @requested_padding['top'] = hpadding
         @requested_padding['bottom'] = hpadding
-
+      console.log("plot.render padding", @requested_padding)
       @is_paused = true
       for k, v of @requested_padding
         @view_state.set("requested_border_#{k}", v)
