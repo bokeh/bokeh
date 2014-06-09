@@ -122,10 +122,8 @@ class Session(object):
         """loads server configuration information from disk
         """
         config_info = self.load_dict().get(self.name, {})
-        print("found config for %s" % self.name)
-        print(str(config_info))
-        print("loading it!")
-        print("if you don't wish to load this config, please pass load_from_config=False")
+        print("Using saved session configuration for %s" % self.name)
+        print(To override, pass 'load_from_config=False' to Session")
         self.root_url = config_info.get('root_url', self.root_url)
         self.userapikey = config_info.get('userapikey', self.userapikey)
         self.username = config_info.get('username', self.username)
@@ -178,7 +176,7 @@ class Session(object):
         self.save()
 
     def browser_login(self):
-        """Opens a web browser with a token that logs you 
+        """Opens a web browser with a token that logs you
         in to a bokeh server (for multi-user mode)
         """
         controller = browserlib.get_browser_controller()
@@ -284,7 +282,7 @@ class Session(object):
             apikey = apikey['readonlyapikey']
             logger.info('got read only apikey')
         return apikey
-        
+
     def find_doc(self, name):
         """Finds the document with a title matching name and returns the docid
         Creates a document with the given title if one is not found
@@ -293,7 +291,7 @@ class Session(object):
         Returns:
             docid (string)
         """
-        
+
         docs = self.userinfo.get('docs')
         matching = [x for x in docs if x.get('title') == name]
         if len(matching) == 0:
@@ -307,7 +305,7 @@ class Session(object):
 
     def use_doc(self, name=None, docid=None):
         """configures the session to use a document.  you can pass in
-        a title, or a docid, but not both.  Creates a document for 
+        a title, or a docid, but not both.  Creates a document for
         title if one is not present on the server
         """
         if docid:
@@ -325,7 +323,7 @@ class Session(object):
         self.userinfo = self.post_json(url, data=data)
 
     def pull(self, typename=None, objid=None):
-        """lowever level function for pulling json objects, 
+        """lowever level function for pulling json objects,
         you need to call this with either typename AND objid
         or leave out both
         """
@@ -348,7 +346,7 @@ class Session(object):
         return attrs
 
     def push(self, *jsonobjs):
-        """Lower level function for pushing raw json objects 
+        """Lower level function for pushing raw json objects
         to the server
         """
         data = protocol.serialize_json(jsonobjs)
@@ -373,8 +371,8 @@ class Session(object):
         doc.docid = self.docid
         doc._plotcontext._id = plot_context_json['id']
         doc.load(plot_context_json, *other_objects)
-        
-        
+
+
     def store_document(self, doc, dirty_only=True):
         """higher level function for storing a doc on the server
         """
@@ -396,7 +394,7 @@ class Session(object):
         for obj in objs:
             models.update(obj.references())
         if dirty_only:
-            models = list(models)            
+            models = list(models)
 
         json_objs = utils.dump(models, self.docid)
         self.push(*json_objs)
