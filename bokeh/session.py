@@ -123,7 +123,7 @@ class Session(object):
         """
         config_info = self.load_dict().get(self.name, {})
         print("Using saved session configuration for %s" % self.name)
-        print(To override, pass 'load_from_config=False' to Session")
+        print("To override, pass 'load_from_config=False' to Session")
         self.root_url = config_info.get('root_url', self.root_url)
         self.userapikey = config_info.get('userapikey', self.userapikey)
         self.username = config_info.get('username', self.username)
