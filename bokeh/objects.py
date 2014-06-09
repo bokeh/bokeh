@@ -269,8 +269,8 @@ class Plot(Widget):
     #
     # annotation = List()
 
-    height = Int(600)
-    width = Int(600)
+    plot_height = Int(600)
+    plot_width = Int(600)
 
     background_fill = Color("white")
     border_fill = Color("white")
@@ -294,13 +294,13 @@ class Plot(Widget):
         if hasattr(self.session, "root_url"):
             self.script_inject_snippet = self.create_html_snippet(server=True)
         if "canvas_width" not in self._changed_vars:
-            self.canvas_width = self.width
+            self.canvas_width = self.plot_width
         if "outer_width" not in self._changed_vars:
-            self.outer_width = self.width
+            self.outer_width = self.plot_width
         if "canvas_height" not in self._changed_vars:
-            self.canvas_height = self.height
+            self.canvas_height = self.plot_height
         if "outer_height" not in self._changed_vars:
-            self.outer_height = self.height
+            self.outer_height = self.plot_height
         return super(Plot, self).vm_props()
 
     annular_wedge     = _glyph_functions.annular_wedge
