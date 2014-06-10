@@ -228,7 +228,7 @@ def _get_range(range_input):
     if isinstance(range_input, Sequence):
         if all(isinstance(x, string_types) for x in range_input):
             return FactorRange(factors=range_input)
-        if len(range_input) ==2 and all(isinstance(x, Number) for x in range_input):
+        if len(range_input) == 2 and all(isinstance(x, Number) for x in range_input):
             return Range1d(start=range_input[0], end=range_input[1])
     raise ValueError("Unrecognized range input: '%s'" % range_input)
 

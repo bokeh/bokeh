@@ -40,7 +40,8 @@ Numerical Ranges
 To set the range on a plot that has numerical range values, you can pass a sequence of
 numbers with length two:
 ::
-    figure(xrange=[0,100])
+
+    figure(xrange=[0, 100])
 
 This will prepare a new plot that has an x-axis range that spans the interval `[0, 100]`.
 You can also pass a :class:`bokeh.objects.Range1D` object explicitly:
