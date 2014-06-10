@@ -1,7 +1,6 @@
 
 import numpy as np
 from bokeh.plotting import *
-from bokeh.objects import Range1d
 
 N = 1000
 
@@ -17,7 +16,5 @@ image(
     x_range=[0, 10], y_range=[0, 10],
     tools="pan,wheel_zoom,box_zoom,reset,previewsave", name="image_example"
 )
-
-curplot().x_range = [5, 10]
 
 show()  # open a browser
