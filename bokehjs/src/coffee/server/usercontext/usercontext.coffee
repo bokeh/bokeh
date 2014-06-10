@@ -48,10 +48,14 @@ define [
       # use this instead of 'bootstrap/collapse', because server's
       # styles aren't prefixed with bs-bk-, as bokehjs does for
       # widgets, etc.
-      jquery = window.$
+      #jquery = window.$
 
-      html = jquery(@template({model: @model, bodyid: _.uniqueId()}))
-      html.find(".collapse").collapse()
+      #html = jquery(@template({model: @model, bodyid: _.uniqueId()}))
+      #html.find(".collapse")
+      #    .collapse({toggle: false})
+      #    .on("show.bs.collapse", () => @loaddoc())
+
+      html = @template({model: @model, bodyid: _.uniqueId()})
       @$el.html(html)
 
     render : () ->

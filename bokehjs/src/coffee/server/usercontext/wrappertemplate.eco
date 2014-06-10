@@ -1,7 +1,7 @@
 <div class="panel panel-default">
   <div class="panel-heading">
     <h4 class="panel-title">
-      <a class="bokehdoclabel" href="#<%= @bodyid %>">
+      <a class="bokehdoclabel" href="#<%= @bodyid %>" data-toggle="collapse">
         Document: <%= @model.get('title') %> <span class="bokehdelete glyphicon glyphicon-trash"></i>
       </a>
     </h4>
