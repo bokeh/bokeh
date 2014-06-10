@@ -73,7 +73,7 @@ define [
             ctx.translate(sx[i], sy[i])
             ctx.rotate(@angle[i])
             #ctx.fillRect(-sw[i]/2, -sh[i]/2, sw[i], sh[i])
-            ctx.fillRect(aax[i], aay[i], sw[i], sh[i])
+            ctx.fillRect(aax[i], aay[i], sw[i], h[i])
             ctx.rotate(-@angle[i])
             ctx.translate(-sx[i], -sy[i])
           else
@@ -92,11 +92,11 @@ define [
           if @angle[i]
             ctx.translate(sx[i], sy[i])
             ctx.rotate(@angle[i])
-            ctx.rect(aax[i], aay[i], sw[i], sh[i])
+            ctx.rect(aax[i], aay[i], sw[i], h[i])
             ctx.rotate(-@angle[i])
             ctx.translate(-sx[i], -sy[i])
           else
-            ctx.rect(ax[i], ay[i], sw[i], sh[i])
+            ctx.rect(ax[i], ay[i], sw[i], h[i])
 
           glyph_props.line_properties.set_vectorize(ctx, i)
           ctx.stroke()
