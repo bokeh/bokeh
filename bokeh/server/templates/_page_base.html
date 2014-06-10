@@ -31,9 +31,11 @@
         <div class="navbar-header">
           <a class="navbar-brand">{{ title }}</a>
         </div>
-        <ul class="nav navbar-nav navbar-right">
-          <li><a href="{{ url_for('bokeh.server.logout') }}">logout</a></li>
-        </ul>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="{{ url_for('bokeh.server.logout') }}">logout</a></li>
+          </ul>
+        </div>
       </div>
     </div>
     {% endif %}
