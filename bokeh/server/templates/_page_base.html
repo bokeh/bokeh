@@ -1,46 +1,44 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>{% block title %}{% endblock %}</title>
-    <script src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>
-    <link href="{{ url_for('bokeh.server.bokehjs_file', filename='css/bokeh.css') }}" rel="stylesheet">
-    {% block extra_scripts %}
-    {% endblock %}
-    {% if splitjs %}
-    <script src="{{ url_for('bokeh.server.bokehjs_file', filename='js/vendor/requirejs/require.js') }}"></script>
-    <script src="{{ url_for('bokeh.server.bokehjs_file', filename='js/config.js') }}"></script>
-    <script type="text/javascript">
-      require.config({ baseUrl: "{{ url_for('bokeh.server.bokehjs_file', filename='js') }}" });
-    </script>
-    {% else %}
-    <script src="{{ url_for('bokeh.server.bokehjs_file', filename='js/bokeh.js') }}"> </script>
-    {% endif %}
-    <script type="text/javascript">
-      require(["main"], function(Bokeh) {
-        {% block script %}
-        {% endblock %}
-      });
-    </script>
-  </head>
-  <body>
-    <div class="container">
-      {% if not hide_navbar %}
-      <div class="row">
-        <div class="navbar navbar-default">
-          <div class="navbar-header">
-            <a class="navbar-brand">{{ title }}</a>
-          </div>
-          <ul class="nav navbar-nav navbar-right">
-            <li><a href="{{ url_for('bokeh.server.logout') }}">logout</a></li>
-          </ul>
+{% extends "_base.html" %}
+
+{% block head %}
+  <script src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>
+  <link href="{{ url_for('bokeh.server.bokehjs_file', filename='css/bokeh.css') }}" rel="stylesheet">
+  {% block extra_scripts %}
+  {% endblock %}
+  {% if splitjs %}
+  <script src="{{ url_for('bokeh.server.bokehjs_file', filename='js/vendor/requirejs/require.js') }}"></script>
+  <script src="{{ url_for('bokeh.server.bokehjs_file', filename='js/config.js') }}"></script>
+  <script type="text/javascript">
+    require.config({ baseUrl: "{{ url_for('bokeh.server.bokehjs_file', filename='js') }}" });
+  </script>
+  {% else %}
+  <script src="{{ url_for('bokeh.server.bokehjs_file', filename='js/bokeh.js') }}"> </script>
+  {% endif %}
+  <script type="text/javascript">
+    require(["main"], function(Bokeh) {
+      {% block script %}
+      {% endblock %}
+    });
+  </script>
+{% endblock %}
+
+{% block body %}
+  <div class="container">
+    {% if not hide_navbar %}
+    <div class="row">
+      <div class="navbar navbar-default">
+        <div class="navbar-header">
+          <a class="navbar-brand">{{ title }}</a>
         </div>
-      </div>
-      {% endif %}
-      <div class="row">
-        {% block content %}
-        {% endblock %}
+        <ul class="nav navbar-nav navbar-right">
+          <li><a href="{{ url_for('bokeh.server.logout') }}">logout</a></li>
+        </ul>
       </div>
     </div>
-  </body>
-</html>
+    {% endif %}
+    <div class="row">
+      {% block content %}
+      {% endblock %}
+    </div>
+  </div>
+{% endblock %}
