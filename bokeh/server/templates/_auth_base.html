@@ -2,20 +2,12 @@
 
 {% block body %}
   <div class="container">
-    <div class="row">
-      <div class="navbar navbar-default">
-        <div class="navbar-header">
-          <a class="navbar-brand">{{ title }}</a>
-        </div>
-        <div class="navbar-collapse collapse">
-          <ul class="nav navbar-nav navbar-right">
-            <li><a href="{{ url_for('bokeh.server.register_get') }}">register</a></li>
-            <li><a href="{{ url_for('bokeh.server.login_get') }}">login</a></li>
-            <li><a href="{{ url_for('bokeh.server.logout') }}">logout</a></li>
-          </ul>
-        </div>
-      </div>
-    </div>
+    {% from "_navbar.html" import navbar %}
+    {% call navbar(title) %}
+      <li><a href="{{ url_for('bokeh.server.register_get') }}">register</a></li>
+      <li><a href="{{ url_for('bokeh.server.login_get') }}">login</a></li>
+      <li><a href="{{ url_for('bokeh.server.logout') }}">logout</a></li>
+    {% endcall %}
     <div class="row">
       <div class="col-md-12">
         <div class="messages">
