@@ -162,7 +162,7 @@ source = ColumnDataSource(dict(
 xdr = FactorRange(factors=list(css3_colors.Group.unique()))
 ydr = FactorRange(factors=list(reversed(css3_colors.Name)))
 
-plot = Plot(title="CSS3 Color Names", data_sources=[source], x_range=xdr, y_range=ydr, width=600, height=2000)
+plot = Plot(title="CSS3 Color Names", data_sources=[source], x_range=xdr, y_range=ydr, plot_width=600, plot_height=2000)
 
 xaxis_top    = CategoricalAxis(plot=plot, dimension=0, major_label_orientation=pi/4, location="top")
 xaxis_bottom = CategoricalAxis(plot=plot, dimension=0, major_label_orientation=pi/4, location="bottom")

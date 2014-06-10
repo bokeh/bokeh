@@ -174,10 +174,21 @@ define [
             table.append(row)
 
           @div.append(table)
-          @div.css({
-            top: e.pageY - @div.height()/2,
-            left: e.pageX + 18,
-          })
+          ow = @plot_view.view_state.get('outer_width')
+          if vx < ow/2
+            @div.removeClass('right')
+            @div.addClass('left')
+            @div.css({
+              top: e.pageY - @div.height()/2,
+              left: e.pageX + 18,
+            })
+          else
+            @div.removeClass('left')
+            @div.addClass('right')
+            @div.css({
+              top: e.pageY - @div.height()/2,
+              left: e.pageX - @div.width() - 23,
+            })
           @div.show()
           break
         else

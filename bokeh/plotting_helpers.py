@@ -229,9 +229,9 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
 
     p.title = kw.pop("title", "Plot")
     if plot_width is not None:
-        p.width = plot_width
+        p.plot_width = plot_width
     if plot_height is not None:
-        p.height = plot_height
+        p.plot_height = plot_height
 
     if x_range is None:
         x_range = DataRange1d()

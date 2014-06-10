@@ -25,7 +25,6 @@ from ..serverbb import prune
 from ...templates import AUTOLOAD
 from ...resources import Resources
 
-
 @bokeh_app.route('/bokeh/ping')
 def ping():
     #test route, to know if the server is up
