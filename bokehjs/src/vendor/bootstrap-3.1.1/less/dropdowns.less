@@ -4,7 +4,7 @@
 
 
 // Dropdown arrow/caret
-.caret {
+.bk-bs-caret {
   display: inline-block;
   width: 0;
   height: 0;
@@ -16,17 +16,17 @@
 }
 
 // The dropdown wrapper (div)
-.dropdown {
+.bk-bs-dropdown {
   position: relative;
 }
 
 // Prevent the focus on the dropdown toggle when closing dropdowns
-.dropdown-toggle:focus {
+.bk-bs-dropdown-toggle:focus {
   outline: 0;
 }
 
 // The dropdown menu (ul)
-.dropdown-menu {
+.bk-bs-dropdown-menu {
   position: absolute;
   top: 100%;
   left: 0;
@@ -42,20 +42,20 @@
   border: 1px solid @dropdown-fallback-border; // IE8 fallback
   border: 1px solid @dropdown-border;
   border-radius: @border-radius-base;
-  .box-shadow(0 6px 12px rgba(0,0,0,.175));
+  .bk-bs-box-shadow(0 6px 12px rgba(0,0,0,.175));
   background-clip: padding-box;
 
   // Aligns the dropdown menu to right
   //
-  // Deprecated as of 3.1.0 in favor of `.dropdown-menu-[dir]`
-  &.pull-right {
+  // Deprecated as of 3.1.0 in favor of `.bk-bs-dropdown-menu-[dir]`
+  &.bk-bs-pull-right {
     right: 0;
     left: auto;
   }
 
   // Dividers (basically an hr) within the dropdown
-  .divider {
-    .nav-divider(@dropdown-divider-bg);
+  .bk-bs-divider {
+    .bk-bs-nav-divider(@dropdown-divider-bg);
   }
 
   // Links within the dropdown menu
@@ -71,7 +71,7 @@
 }
 
 // Hover/Focus state
-.dropdown-menu > li > a {
+.bk-bs-dropdown-menu > li > a {
   &:hover,
   &:focus {
     text-decoration: none;
@@ -81,7 +81,7 @@
 }
 
 // Active state
-.dropdown-menu > .active > a {
+.bk-bs-dropdown-menu > .bk-bs-active > a {
   &,
   &:hover,
   &:focus {
@@ -96,7 +96,7 @@
 //
 // Gray out text and ensure the hover/focus state remains gray
 
-.dropdown-menu > .disabled > a {
+.bk-bs-dropdown-menu > .bk-bs-disabled > a {
   &,
   &:hover,
   &:focus {
@@ -104,21 +104,21 @@
   }
 }
 // Nuke hover/focus effects
-.dropdown-menu > .disabled > a {
+.bk-bs-dropdown-menu > .bk-bs-disabled > a {
   &:hover,
   &:focus {
     text-decoration: none;
     background-color: transparent;
     background-image: none; // Remove CSS gradient
-    .reset-filter();
+    .bk-bs-reset-filter();
     cursor: not-allowed;
   }
 }
 
 // Open state for the dropdown
-.open {
+.bk-bs-open {
   // Show the menu
-  > .dropdown-menu {
+  > .bk-bs-dropdown-menu {
     display: block;
   }
 
@@ -130,25 +130,25 @@
 
 // Menu positioning
 //
-// Add extra class to `.dropdown-menu` to flip the alignment of the dropdown
+// Add extra class to `.bk-bs-dropdown-menu` to flip the alignment of the dropdown
 // menu with the parent.
-.dropdown-menu-right {
-  left: auto; // Reset the default from `.dropdown-menu`
+.bk-bs-dropdown-menu-right {
+  left: auto; // Reset the default from `.bk-bs-dropdown-menu`
   right: 0;
 }
 // With v3, we enabled auto-flipping if you have a dropdown within a right
 // aligned nav component. To enable the undoing of that, we provide an override
 // to restore the default dropdown menu alignment.
 //
-// This is only for left-aligning a dropdown menu within a `.navbar-right` or
-// `.pull-right` nav component.
-.dropdown-menu-left {
+// This is only for left-aligning a dropdown menu within a `.bk-bs-navbar-right` or
+// `.bk-bs-pull-right` nav component.
+.bk-bs-dropdown-menu-left {
   left: 0;
   right: auto;
 }
 
 // Dropdown section headers
-.dropdown-header {
+.bk-bs-dropdown-header {
   display: block;
   padding: 3px 20px;
   font-size: @font-size-small;
@@ -157,7 +157,7 @@
 }
 
 // Backdrop to catch body clicks on mobile, etc.
-.dropdown-backdrop {
+.bk-bs-dropdown-backdrop {
   position: fixed;
   left: 0;
   right: 0;
@@ -167,26 +167,26 @@
 }
 
 // Right aligned dropdowns
-.pull-right > .dropdown-menu {
+.bk-bs-pull-right > .bk-bs-dropdown-menu {
   right: 0;
   left: auto;
 }
 
 // Allow for dropdowns to go bottom up (aka, dropup-menu)
 //
-// Just add .dropup after the standard .dropdown class and you're set, bro.
+// Just add .bk-bs-dropup after the standard .bk-bs-dropdown class and you're set, bro.
 // TODO: abstract this so that the navbar fixed styles are not placed here?
 
-.dropup,
-.navbar-fixed-bottom .dropdown {
+.bk-bs-dropup,
+.bk-bs-navbar-fixed-bottom .bk-bs-dropdown {
   // Reverse the caret
-  .caret {
+  .bk-bs-caret {
     border-top: 0;
     border-bottom: @caret-width-base solid;
     content: "";
   }
   // Different positioning for bottom up menu
-  .dropdown-menu {
+  .bk-bs-dropdown-menu {
     top: auto;
     bottom: 100%;
     margin-bottom: 1px;
@@ -196,17 +196,17 @@
 
 // Component alignment
 //
-// Reiterate per navbar.less and the modified component alignment there.
+// Reiterate per navbar.bk-bs-less and the modified component alignment there.
 
 @media (min-width: @grid-float-breakpoint) {
-  .navbar-right {
-    .dropdown-menu {
-      .dropdown-menu-right();
+  .bk-bs-navbar-right {
+    .bk-bs-dropdown-menu {
+      .bk-bs-dropdown-menu-right();
     }
     // Necessary for overrides of the default right aligned menu.
     // Will remove come v4 in all likelihood.
-    .dropdown-menu-left {
-      .dropdown-menu-left();
+    .bk-bs-dropdown-menu-left {
+      .bk-bs-dropdown-menu-left();
     }
   }
 }

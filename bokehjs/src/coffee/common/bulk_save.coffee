@@ -15,7 +15,7 @@ define [
       throw new Error("Unset 'doc' in " + models[0])
     jsondata = ({type: m.type, attributes:_.clone(m.attributes)} for m in models)
     jsondata = JSON.stringify(jsondata)
-    url = Config.prefix + "/bokeh/bb/" + doc + "/bulkupsert"
+    url = Config.prefix + "bokeh/bb/" + doc + "/bulkupsert"
     xhr = $.ajax(
       type: 'POST'
       url: url

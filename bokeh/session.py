@@ -14,6 +14,7 @@ except ImportError as e:
 from six.moves.urllib.parse import urljoin, urlencode
 from .exceptions import DataIntegrityException
 from .document import merge, Document
+from .embed import autoload_server
 from . import utils, browserlib
 from bokeh.objects import ServerDataSource
 import logging
@@ -51,6 +52,9 @@ class Session(object):
         ):
 
         self.name = name
+        if not root_url.endswith("/"):
+            logger.warning("root_url should end with a /, adding one")
+            root_url = root_url + "/"
         self.root_url = root_url
         #single user mode case
         self.userapikey = userapikey
@@ -118,10 +122,8 @@ class Session(object):
         """loads server configuration information from disk
         """
         config_info = self.load_dict().get(self.name, {})
-        print("found config for %s" % self.name)
-        print(str(config_info))
-        print("loading it!")
-        print("if you don't wish to load this config, please pass load_from_config=False")
+        print("Using saved session configuration for %s" % self.name)
+        print("To override, pass 'load_from_config=False' to Session")
         self.root_url = config_info.get('root_url', self.root_url)
         self.userapikey = config_info.get('userapikey', self.userapikey)
         self.username = config_info.get('username', self.username)
@@ -174,7 +176,7 @@ class Session(object):
         self.save()
 
     def browser_login(self):
-        """Opens a web browser with a token that logs you 
+        """Opens a web browser with a token that logs you
         in to a bokeh server (for multi-user mode)
         """
         controller = browserlib.get_browser_controller()
@@ -280,7 +282,7 @@ class Session(object):
             apikey = apikey['readonlyapikey']
             logger.info('got read only apikey')
         return apikey
-        
+
     def find_doc(self, name):
         """Finds the document with a title matching name and returns the docid
         Creates a document with the given title if one is not found
@@ -289,7 +291,7 @@ class Session(object):
         Returns:
             docid (string)
         """
-        
+
         docs = self.userinfo.get('docs')
         matching = [x for x in docs if x.get('title') == name]
         if len(matching) == 0:
@@ -303,7 +305,7 @@ class Session(object):
 
     def use_doc(self, name=None, docid=None):
         """configures the session to use a document.  you can pass in
-        a title, or a docid, but not both.  Creates a document for 
+        a title, or a docid, but not both.  Creates a document for
         title if one is not present on the server
         """
         if docid:
@@ -321,7 +323,7 @@ class Session(object):
         self.userinfo = self.post_json(url, data=data)
 
     def pull(self, typename=None, objid=None):
-        """lowever level function for pulling json objects, 
+        """lowever level function for pulling json objects,
         you need to call this with either typename AND objid
         or leave out both
         """
@@ -344,7 +346,7 @@ class Session(object):
         return attrs
 
     def push(self, *jsonobjs):
-        """Lower level function for pushing raw json objects 
+        """Lower level function for pushing raw json objects
         to the server
         """
         data = protocol.serialize_json(jsonobjs)
@@ -361,12 +363,26 @@ class Session(object):
         """
 
         json_objs = self.pull()
-
-        # hugo : I don't like this
-        new_doc = doc.__class__(json_objs=json_objs)
-        merge(new_doc, doc)
-        doc.__dict__.update(new_doc.__dict__)
+        plot_contexts = [x for x in json_objs if x['type'] == 'PlotContext']
+        other_objects = [x for x in json_objs if x['type'] != 'PlotContext']
+        plot_context_json = plot_contexts[0]
+        plot_context_json['attributes']['children'] += [x.get_ref() for x in doc._plotcontext.children]
         doc.docid = self.docid
+        doc._plotcontext._id = plot_context_json['id']
+        doc.load(plot_context_json, *other_objects)
+
+    def load_object(self, obj, document):
+        """pulls an objects json from the server,
+        loads it into the document. the object should be updated
+        since it's inside document._models
+        Args:
+            obj : object to be updated.. this is used just for typename and id
+            document : document instance.  object should be inside the document
+        """
+        assert obj._id in document._models
+        attrs = self.pull(typename=obj.__view_model__, objid=obj._id)
+        document.load(*attrs)
+        return
 
     def store_document(self, doc, dirty_only=True):
         """higher level function for storing a doc on the server
@@ -389,7 +405,7 @@ class Session(object):
         for obj in objs:
             models.update(obj.references())
         if dirty_only:
-            models = list(models)            
+            models = list(models)
 
         json_objs = utils.dump(models, self.docid)
         self.push(*json_objs)
@@ -400,8 +416,13 @@ class Session(object):
     def object_link(self, obj):
         """webpage link which should render a given object
         """
-        link = "/bokeh/doc/%s/%s" % (self.docid, obj._id)
-        return utils.urljoin(self.base_url, link)
+        link = "bokeh/doc/%s/%s" % (self.docid, obj._id)
+        return utils.urljoin(self.root_url, link)
+
+    def show(self, plot_object):
+        """Display an object as HTML in IPython using its display protocol. """
+        import IPython.core.displaypub as displaypub
+        displaypub.publish_display_data('bokeh', {'text/html': autoload_server(plot_object, self)})
 
 class Cloud(Session):
     def __init__(self):

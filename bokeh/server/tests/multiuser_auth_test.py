@@ -25,7 +25,7 @@ class TestRegister(test_utils.BokehServerTestCase):
         assert result.status_code == 302
         # we redirect to bokeh on success, but we redirect to
         # /bokeh/register on errror
-        assert result.headers["location"] == 'http://localhost:5006/bokeh'
+        assert result.headers["location"] == 'http://localhost:5006/bokeh/'
         url = "http://localhost:5006/bokeh/userinfo"
         userinfo = session.get(url).json()
         assert userinfo['username'] == 'testuser1'
@@ -43,7 +43,7 @@ class TestRegister(test_utils.BokehServerTestCase):
         assert result.status_code == 302
         # we redirect to bokeh on success, but we redirect to
         # /bokeh/register on errror
-        assert result.headers["location"] == 'http://localhost:5006/bokeh'
+        assert result.headers["location"] == 'http://localhost:5006/bokeh/'
 
         result = session.post(url, data={'username': 'testuser1',
                                          'password': 'mypassword',

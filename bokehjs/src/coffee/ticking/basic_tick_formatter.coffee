@@ -39,14 +39,14 @@ define [
 
       precision = @get('precision')
 
-      if _.isNumber(precision)
+      if not precision? or _.isNumber(precision)
         labels = new Array(ticks.length)
         if need_sci
           for i in [0...ticks.length]
-            labels[i] = ticks[i].toExponential(precision)
+            labels[i] = ticks[i].toExponential(precision or undefined)
         else
           for i in [0...ticks.length]
-            labels[i] = ticks[i].toPrecision(precision).replace(/(\.[0-9]*?)0+$/, "$1").replace(/\.$/, "")
+            labels[i] = ticks[i].toPrecision(precision or undefined).replace(/(\.[0-9]*?)0+$/, "$1").replace(/\.$/, "")
         return labels
 
       else if precision == 'auto'
