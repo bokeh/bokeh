@@ -6,6 +6,7 @@ import datetime as dt
 import numpy as np
 from six.moves import cPickle as pickle
 from .utils import get_ref
+
 try:
     import pandas as pd
     is_pandas = True
@@ -75,6 +76,7 @@ class BokehJSONEncoder(json.JSONEncoder):
         #argh! local import!
         from .plot_object import PlotObject
         from .properties import HasProps
+        from .colors import Color
         ## array types
         if is_pandas and isinstance(obj, (pd.Series, pd.Index)):
             return self.transform_series(obj)
@@ -84,9 +86,8 @@ class BokehJSONEncoder(json.JSONEncoder):
             return get_ref(obj)
         elif isinstance(obj, HasProps):
             return obj.to_dict()
-        elif isinstance(obj, HasProps):
-            return get_ref(obj)
-            
+        elif isinstance(obj, Color):
+            return obj.toCSS()
         else:
             return self.transform_python_types(obj)
 

@@ -13,7 +13,7 @@ from bokeh.objects import ColumnDataSource, Range1d, Plot, Glyph
 xdr = Range1d(start=-1.25, end=1.25)
 ydr = Range1d(start=-1.25, end=1.25)
 
-plot = Plot(title="Speedometer", data_sources=[], x_range=xdr, y_range=ydr, width=600, height=600)
+plot = Plot(title="Speedometer", data_sources=[], x_range=xdr, y_range=ydr, plot_width=600, plot_height=600)
 
 global_source = ColumnDataSource(dict(dummy=[0]))
 plot.data_sources.append(global_source)
