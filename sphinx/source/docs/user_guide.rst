@@ -25,17 +25,32 @@ To control the ranges that Bokeh plots show, there are two keyword parameters `x
 of the high-level plotting :ref:`bokeh_plotting_glyphs`. They may also be set as attributes on
 a plot object.
 
+Automatic Ranges
+''''''''''''''''
+
+If `None` is passed in as the value of `x_range` or `y_range`, then the plot will be configured
+with a `DataRange1d` which computes the envelope of all the plot data to determine the range.
+This is the default behavior.
+
+.. note:: For non-scatter glyphs with spatial extent, the `DataRange1d` may not compute the necessary bounds fully.
+
 Numerical Ranges
 ''''''''''''''''
 
-To set the range on a plot that has numerical range values, use a :class:`bokeh.objects.Range1D` object.
-For example, the following code:
+To set the range on a plot that has numerical range values, you can pass a sequence of
+numbers with length two:
+::
+
+    figure(xrange=[0, 100])
+
+This will prepare a new plot that has an x-axis range that spans the interval `[0, 100]`.
+You can also pass a :class:`bokeh.objects.Range1D` object explicitly:
 ::
 
     figure(xrange=Range1d(start=2, end=8))
 
-will prepare a new plot that has an x-axis range that spans the interval `[2, 8]`. Alternatively,
-you can set the range as a property on a Plot object:
+This will prepare a new plot that has an x-axis range that spans the interval `[2, 8]`.
+Alternatively, you can set the range as a property on a Plot object:
 ::
 
     plot = curplot()
@@ -53,6 +68,8 @@ that give the categories in the desired order. For example:
 will prepare a plot whose y-axis range is categorical, with the categories "foo", "bar", and "baz".
 Please see `this categorical example <http://bokeh.pydata.org/docs/gallery/categorical.html>`_ from
 the gallery for a concrete example.
+
+You can also pass in a `FactorRange` explicitly as well.
 
 Styling
 -------
@@ -299,7 +316,70 @@ just the y-axis. For this, there are tool names ``'xwheel_zoom'`` and ``'ywheel_
 
 Embedding
 ---------
-Coming soon!
+
+Bokeh provides a variety of ways to embed plots and data into HTML documents.
+
+
+Standalone HTML
+'''''''''''''''
+
+Bokeh can generate standalone HTML documents, from its own generic template,
+or a template you provide. These files contain the data for the plot inline
+and are completely transportable, while still providing interactive tools
+(pan, zoom, etc.) for your plot.
+
+Components
+''''''''''
+
+It is also possible to ask Bokeh to return the individual components for a
+inline embedding: a ``<script>`` that contains the data for your plot,
+together with an accompanying ``<div>`` tag that the plot view is loaded
+into. These tags can be used in HTML documents however you like.
+
+.. note:: using these components assums that BokehJS has been loaded already.
+
+IPython Notebook
+''''''''''''''''
+
+Bokeh can also generate ``<div>`` tags suitable for inline display in the
+IPython notebook using the ``notebook_div`` function.
+
+.. note:: Typically users will probably use the higher-level function
+          ``plotting.output_notebook()`` in conjuction with ``%bokeh``
+          magic in the IPython notebook.
+
+Autoload ``<script>``
+'''''''''''''''''''''
+
+Finally it is possible to ask Bokeh to return a ``<script>`` tag that will
+replace itself with a Bokeh plot, wherever happens to be located. The script
+will also check for BokehJS and load it, if necessary, so it is possible to
+embed a plot by placing this script tag alone in your document.
+
+There are two cases:
+
+server data
+***********
+
+The simplest case is to use the Bokeh server to persist your plot and data.
+Additionally, the Bokeh server affords the opportunity of animated plots or
+updating plots with streaming data. The ``autoload_server`` function accepts
+a plot object and a Bokeh server ``Session`` object. It returns a ``<script>``
+tag that will load both your plot and data from the Bokeh server.
+
+static data
+***********
+
+If you do not need or want to use the Bokeh server, then the you can use the
+``autoload_static`` function. This function takes the plot object you want to
+display together with a resources specification and path to load a script
+from. It will return a self-contained ``<script>`` tag, together with some
+JavaScript code that contains the data for your plot. This code should be
+saved to the script path you provided. The ``<script>`` tag will load this
+separate script to realize your plot.
+
+.. note:: In both cases the ``<script>`` tag loads a ``<div>`` in place, so
+it must be placed under ``<head>``.
 
 Animated Plots
 --------------
@@ -312,27 +392,27 @@ plot in the ipython notebook (which may be found in ``examples/plotting/notebook
 .. image:: /_images/animated.gif
     :align: center
 
-Note that all the tools, zoom, pan, resize function normally and the plot continues to animate while
-the tools are used. Currently in order to animate, you must grab the glyph renderer off a plot, update
-its data source and set the dirty flag, then store the data source on the session. The code to animate
-the above plot is shown here::
+Note that all the tools, zoom, pan, resize function normally and the plot
+continues to animate while the tools are used. Currently in order to animate,
+you must grab the glyph renderer off a plot, update its data source, then
+store the data source on the session. The code to animate the above plot is
+shown here::
 
     renderer = [r for r in curplot().renderers if isinstance(r, Glyph)][0]
     ds = renderer.data_source
     while True:
         for i in linspace(-2*pi, 2*pi, 50):
+
             rmin = ds.data["inner_radius"]
             rmin = roll(rmin, 1)
             ds.data["inner_radius"] = rmin
+
             rmax = ds.data["outer_radius"]
             rmax = roll(rmax, -1)
             ds.data["outer_radius"] = rmax
-            ds._dirty = True
-            session().store_obj(ds)
-            time.sleep(.5)
 
-This is somewhat clunky, but improvements and simplifications are planned for the 0.4 release and after.
-
+            cursession().store_objects(ds)
+            time.sleep(.10)
 
 Novel Plots
 -----------
@@ -478,3 +558,52 @@ Legends (by hand, for now) using ``circle``, ``text``, and ``rect``::
 Finally, show the plot::
 
     show()
+
+Reporting bugs
+--------------
+
+You can report any possible bug, start discussions or ask for features at our
+`issue tracker https://github.com/ContinuumIO/bokeh/issues?state=open`_ list.
+To start a new issue, you will find a "New issue" green button at the top right area of the page.
+
+But ``Bokeh`` also provides a programmatic way to open an issue. You only need to use the
+`bokeh.report_issue` interactive function:
+
+    In [1]: import bokeh
+    
+    In [2]: bokeh.report_issue()
+    This is the Bokeh reporting engine.
+    
+    Next, you will be guided to build the report
+    Write the title for the intended issue: This is a text.
+    Write the body for the intended issue: And this is the problem.
+    You need to add your GHUSER (Github username) and GHPASS (Github password)
+    to the environmentor complete the next lines.
+    Do you want to abort to set up the environment variable? no
+    Write your Github username: damianavila
+    Write your Github password: xxxxxxxxxxx
+    
+    Preview:
+    
+    title: This is a text.
+    body: And this is the problem.
+    
+        Bokeh version: 0.4.4-455-gc3324df-dirty
+        Python version: 2.7.4-CPython
+        Platform: Linux-3.11.0-031100rc7-generic-x86_64-with-Ubuntu-13.04-raring
+        
+    Submit the intended issue/comment? y
+
+Then, `Bokeh` will push the issue to our issue tracker and it will open a new browser tab
+showing your submitted issue, if you want to add more comments.
+As you can see, this function will also append some important information about versions
+and your arcuitecture to help us to reproduce the intended bug.
+
+Finally, can even comment in any issue using this tool just passing the issue number as
+an argument:
+
+    In [3]: bokeh.report_issue(555)
+    This is the Bokeh reporting engine.
+    
+    Next, you will be guided to build the report
+    Write your comment here: Adding a new comment to an already opened issue.

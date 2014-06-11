@@ -87,19 +87,29 @@ def build_parser():
                         help="data directory",
                         type=str
                         )
-    parser.add_argument(
-        "--robust-reload",
-        help="whether to protect debug server reloading from syntax errors",
-        default=False,
-        action="store_true",
-        )
-    parser.add_argument(
-        "--script",
-        help="script to load(for applets)",
-        default=None,
-        type=str
-        )
-    
+    parser.add_argument("--robust-reload",
+                        help="whether to protect debug server reloading from syntax errors",
+                        default=False,
+                        action="store_true",
+                       )
+    parser.add_argument("--script",
+                        help="script to load(for applets)",
+                        default=None,
+                        type=str
+                       )
+    parser.add_argument("--url-prefix",
+                        help="url prefix",
+                        type=str
+                        )
+
+    class DevAction(argparse.Action):
+        def __call__(self, parser, namespace, values, option_string=None):
+            namespace.splitjs = True
+            namespace.debugjs = True
+            namespace.backend = 'memory'
+
+    parser.add_argument("--dev", action=DevAction, nargs=0, help="run server in development mode")
+
     return parser
     
 def run():
@@ -162,8 +172,7 @@ data-directory : %s
 def start_server(args):
     from . import start
     
-    bokeh_app.debug = False
-    bokeh_app.debug = False
+    bokeh_app.debug = args.debug
     bokeh_app.splitjs = args.splitjs
     bokeh_app.debugjs = args.debugjs
 
@@ -172,8 +181,6 @@ def start_server(args):
         "redis_port": args.redis_port,
         "start_redis": args.start_redis,
     }
-    if args.debug:
-        bokeh_app.debug = True
     start.prepare_app(backend, single_user_mode=not args.multi_user,
                       data_directory=args.data_directory)
     if args.script:
@@ -183,7 +190,7 @@ def start_server(args):
             sys.path.append(script_dir)
         print ("importing %s" % args.script)
         imp.load_source("_bokeh_app", args.script)
-    start.register_blueprint()
+    start.register_blueprint(args.url_prefix)
     start.start_app(host=args.ip, port=args.bokeh_port, verbose=args.verbose)
 
 def start_with_reloader(args, js_files, robust):

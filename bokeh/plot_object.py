@@ -11,7 +11,9 @@ logger = logging.getLogger(__file__)
 from six import add_metaclass, iteritems
 from six.moves.urllib.parse import urlsplit
 
+from .embed import autoload_static, autoload_server
 from .properties import HasProps, MetaHasProps, Instance
+from .protocol import serialize_json
 from .utils import get_ref, convert_references, dump
 
 class Viewable(MetaHasProps):
@@ -52,10 +54,15 @@ class Viewable(MetaHasProps):
         return newcls
 
     @classmethod
+    def _preload_models(cls):
+        from . import objects, widgetobjects
+
+    @classmethod
     def get_class(cls, view_model_name):
         """ Given a __view_model__ name, returns the corresponding class
         object
         """
+        cls._preload_models()
         d = Viewable.model_class_reverse_map
         if view_model_name in d:
             return d[view_model_name]
@@ -248,13 +255,13 @@ class PlotObject(HasProps):
         attrs = self.vm_props()
         attrs['id'] = self._id
         return attrs
-        
+
     def dump(self, docid=None):
         """convert all references to json
         """
         models = self.references()
         return dump(models, docid=docid)
-        
+
     def update(self, **kwargs):
         for k,v in kwargs.items():
             setattr(self, k, v)
@@ -263,13 +270,12 @@ class PlotObject(HasProps):
         return "%s, ViewModel:%s, ref _id: %s" % (self.__class__.__name__,
                 self.__view_model__, getattr(self, "_id", None))
 
-    def on_change(self, attrname, obj, callbackname):
+    def on_change(self, attrname, obj, callbackname=None):
         """when attrname of self changes, call callbackname
         on obj
         """
         callbacks = self._callbacks.setdefault(attrname, [])
-        callback = dict(obj=obj,
-                        callbackname=callbackname)
+        callback = dict(obj=obj, callbackname=callbackname)
         if callback not in callbacks:
             callbacks.append(callback)
         self._callbacks_dirty = True
@@ -280,13 +286,16 @@ class PlotObject(HasProps):
         callbacks = self._callbacks.get(attrname)
         if callbacks:
             for callback in callbacks:
-                getattr(callback['obj'], callback['callbackname'])(
-                    self, attrname, old, new)
+                obj = callback.get('obj')
+                callbackname = callback.get('callbackname')
+                fn = obj if callbackname is None else getattr(obj, callbackname)
+                fn(self, attrname, old, new)
 
 
+    # TODO: deprecation warnign about args change (static_path)
     def create_html_snippet(
             self, server=False, embed_base_url="", embed_save_loc=".",
-            static_path="http://localhost:5006/bokeh/static/"):
+            static_path="http://localhost:5006/bokehjs/static"):
         """create_html_snippet is used to embed a plot in an html page.
 
         create_html_snippet returns the embed string to be put in html.
@@ -304,16 +313,40 @@ class PlotObject(HasProps):
         bokeh.js and the other resources it needs for bokeh.
         """
         if server:
-            if embed_base_url == "":
-                embed_base_url = False
-            return self._build_server_snippet(embed_base_url)[1]
-        embed_filename = "%s.embed.js" % self._id
-        full_embed_save_loc = os.path.join(embed_save_loc, embed_filename)
-        js_code, embed_snippet = self._build_static_embed_snippet(
-            static_path, embed_base_url)
-        with open(full_embed_save_loc,"w") as f:
-            f.write(js_code)
-        return embed_snippet
+            from .session import Session
+            if embed_base_url:
+                session = Session(root_url=server_url)
+            else:
+                session = Session()
+            return autoload_server(self, session)
+
+        from .templates import AUTOLOAD, AUTOLOAD_STATIC
+        import uuid
+
+        js_filename = "%s.embed.js" % self._id
+        script_path = embed_base_url + js_filename
+
+        elementid = str(uuid.uuid4())
+
+        js = AUTOLOAD.render(
+            all_models = serialize_json(self.dump()),
+            js_url = static_path + "js/bokeh.min.js",
+            css_files = [static_path + "css/bokeh.min.css"],
+            elementid = elementid,
+        )
+
+        tag = AUTOLOAD_STATIC.render(
+            src_path = script_path,
+            elementid = elementid,
+            modelid = self._id,
+            modeltype = self.__view_model__,
+        )
+
+        save_path = os.path.join(embed_save_loc, js_filename)
+        with open(save_path,"w") as f:
+            f.write(js)
+
+        return tag
 
     def inject_snippet(
             self, server=False, embed_base_url="", embed_save_loc=".",
@@ -341,7 +374,7 @@ class PlotObject(HasProps):
             root_url = base_url,
             modelid = modelid,
             modeltype = typename,
-            script_url = base_url + "/bokeh/embed.js")
+            script_url = base_url + "bokeh/embed.js")
         e_str = '''<script src="%(script_url)s" bokeh_plottype="serverconn"
         bokeh_docid="%(docid)s" bokeh_ws_conn_string="%(ws_conn_string)s"
         bokeh_docapikey="%(docapikey)s" bokeh_root_url="%(root_url)s"

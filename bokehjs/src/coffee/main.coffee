@@ -143,7 +143,7 @@ define (require, exports, module) ->
   Bokeh.TextInput = require("widget/textinput")
   Bokeh.CrossFilter = require("widget/crossfilter")
   # utils
-  Bokeh.ObjectExplorer = require("util/object_explorer")
+  Bokeh.ObjectExplorer = require("widget/object_explorer")
 
   exports.Bokeh = Bokeh
 

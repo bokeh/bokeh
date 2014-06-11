@@ -1,31 +1,52 @@
 import six
 import pandas as pd
-from .objects import ColumnDataSource, Range1d, FactorRange, GridPlot
+import numpy as np
+
+from .objects import ColumnDataSource, Range1d, FactorRange, GridPlot, Widget, DataSource
 from .utils.plotting import (make_histogram_source, make_factor_source,
                              make_histogram, make_continuous_bar_source,
                              make_categorical_bar_source,
                              make_bar_plot, cross
                          )
 from .plot_object import PlotObject
-from .properties import (HasProps, Dict, Enum,
-                         Either, Float, Instance, Int,
-                         List, String, Color, Include, Bool,
-                         Tuple, Any, lookup_descriptor)
 from bokeh.plotting import (curdoc, cursession, line,
                             scatter)
-import numpy as np
+from .properties import (HasProps, Dict, Enum, Either, Float, Instance, Int, List,
+    String, Color, Include, Bool, Tuple, Any, Date, RelativeDelta, lookup_descriptor)
+from .pivot_table import pivot_table
 import copy
 import logging
 logger = logging.getLogger(__name__)
 
-class HBox(PlotObject):
-    children = List(Instance(PlotObject))
-class VBox(PlotObject):
-    children = List(Instance(PlotObject))
+import pandas as pd
+
+class Panel(Widget):
+    title = String
+    child = Instance(Widget)
+    closable = Bool(False)
+
+class Tabs(Widget):
+    tabs = List(Instance(Panel))
+    active = Int(0)
+
+class Dialog(Widget):
+    visible = Bool(False)
+    closable = Bool(True)
+    title = String
+    content = String
+    buttons = List(String)
+
+class Layout(Widget):
+    pass
+
+class HBox(Layout):
+    children = List(Instance(Widget))
+class VBox(Layout):
+    children = List(Instance(Widget))
 
 #parent class only, you need to set the fields you want
-class VBoxModelForm(PlotObject):
-    _children  = List(Instance(PlotObject))
+class VBoxModelForm(Widget):
+    _children  = List(Instance(Widget))
     _field_defs = Dict(String, Any)
     input_specs = None
     jsmodel = "VBoxModelForm"
@@ -48,7 +69,7 @@ class VBoxModelForm(PlotObject):
                 self._children.append(widget)
 
 
-class InputWidget(PlotObject):
+class InputWidget(Widget):
     title = String()
     name = String()
     value = String()
@@ -57,10 +78,12 @@ class InputWidget(PlotObject):
         prop_obj = lookup_descriptor(cls, 'value')
         if isinstance(prop_obj, Float):
             return float(val)
-        if isinstance(prop_obj, Int):
+        elif isinstance(prop_obj, Int):
             return int(val)
-        if isinstance(prop_obj, String):
+        elif isinstance(prop_obj, String):
             return str(val)
+        else:
+            return val
 
     @classmethod
     def create(cls, *args, **kwargs):
@@ -76,9 +99,9 @@ class InputWidget(PlotObject):
 class TextInput(InputWidget):
     value = String()
 
-class BokehApplet(PlotObject):
+class BokehApplet(Widget):
     modelform = Instance(VBoxModelForm)
-    children = List(Instance(PlotObject))
+    children = List(Instance(Widget))
     jsmodel = "HBox"
     # Change to List because json unpacks tuples into lists
     extra_generated_classes = List(List(String))
@@ -102,7 +125,7 @@ class BokehApplet(PlotObject):
 
     def create(self):
         pass
-        
+
     @classmethod
     def add_route(cls, route, bokeh_url):
         from bokeh.server.app import bokeh_app
@@ -139,15 +162,15 @@ class BokehApplet(PlotObject):
         exampleapp.__name__ = cls.__view_model__
         bokeh_app.route(route)(exampleapp)
 
-class Paragraph(PlotObject):
+class Paragraph(Widget):
     text = String()
 
 class PreText(Paragraph):
     pass
 
 class Select(InputWidget):
-    options = List(Either(String(), Dict(String(), String())))
-    value = String()
+    options = List(Either(String, Dict(String, String)))
+    value = String
 
     @classmethod
     def create(self, *args, **kwargs):
@@ -178,7 +201,7 @@ class Slider(InputWidget):
     value = Float()
     start = Float()
     end = Float()
-    steps = Int(default=50)
+    step = Int()
     orientation = Enum("horizontal", "vertical")
 
 class DiscreteFacet(object):
@@ -611,3 +634,164 @@ class CrossFilter(PlotObject):
         return None
                 
                 
+class DateRangeSlider(InputWidget):
+    value = Tuple(Date, Date)
+    bounds = Tuple(Date, Date)
+    range = Tuple(RelativeDelta, RelativeDelta)
+    step = RelativeDelta
+    # formatter = Either(String, Function(Date))
+    # scales = DateRangeSliderScales ... # first, next, stop, label, format
+    enabled = Bool(True)
+    arrows = Bool(True)
+    value_labels = Enum("show", "hide", "change")
+    wheel_mode = Enum("scroll", "zoom", default=None) # nullable=True
+
+class DatePicker(InputWidget):
+    value = Date
+    min_date = Date(default=None)
+    max_date = Date(default=None)
+
+class TableWidget(Widget):
+    pass
+
+class TableColumn(Widget):
+    type = Enum("text", "numeric", "date", "autocomplete")
+    data = String
+    header = String
+
+    # TODO: splic TableColumn into multiple classes
+    source = List(String) # only 'autocomplete'
+    strict = Bool(True)   # only 'autocomplete'
+
+class HandsonTable(TableWidget):
+    source = Instance(DataSource)
+    columns = List(Instance(TableColumn))
+
+class ObjectExplorer(Widget):
+    data_widget = Instance(TableWidget)
+
+class DataTable(Widget):
+    source = Instance(DataSource)
+    sort = List(String)
+    group = List(String)
+    offset = Int(default=0)
+    length = Int(default=100)
+    maxlength = Int
+    totallength = Int
+    tabledata = Dict(String, Any)
+    filterselected = Bool(default=False)
+
+    def setup_events(self):
+        self.on_change('sort', self, 'get_data')
+        self.on_change('group', self, 'get_data')
+        self.on_change('length', self, 'get_data')
+        self.on_change('offset', self, 'get_data')
+        self.on_change('filterselected', self, 'get_data')
+        self.source.on_change('selected', self, 'get_data')
+        self.source.on_change('data', self, 'get_data')
+        self.source.on_change('computed_columns', self, 'get_data')
+        if not self.tabledata:
+            self.get_data()
+
+    def transform(self):
+        return dict(sort=self.sort,
+                    group=self.group,
+                    offset=self.offset,
+                    length=self.length,
+                    filterselected=self.filterselected,
+                    )
+
+    def setselect(self, select):
+        self.source.setselect(select, self.transform())
+        self.get_data()
+
+    def select(self, select):
+        self.source.select(select, self.transform())
+        self.get_data()
+
+    def deselect(self, deselect):
+        self.source.deselect(deselect, self.transform())
+        self.get_data()
+
+    def get_data(self, obj=None, attrname=None, old=None, new=None):
+        data = self.source.get_data(self.transform())
+        self.maxlength = data.pop('maxlength')
+        self.totallength = data.pop('totallength')
+        self.tabledata = data
+
+class PivotTable(Widget):
+    source = Instance(DataSource)
+    title = String("Pivot Table")
+    description = String("")
+    data = Dict(String, Any)
+    fields = List(Any) # List[{name: String, dtype: String}]
+    rows = List(Any)
+    columns = List(Any)
+    values = List(Any)
+    filters = List(Any)
+    manual_update = Bool(True)
+
+    def setup_events(self):
+        self.on_change('rows', self, 'get_data')
+        self.on_change('columns', self, 'get_data')
+        self.on_change('values', self, 'get_data')
+        self.on_change('filters', self, 'get_data')
+
+        if not self.data:
+            self.get_data()
+
+    def get_data(self, obj=None, attrname=None, old=None, new=None):
+        self.data = self.pivot_table()
+
+    def _pivot_table(self, rows, cols, values, aggfunc=None):
+        dataset = pd.DataFrame(self.source.data)
+
+        try:
+            if not rows and not cols:
+                table = pd.DataFrame()
+            else:
+                table = pivot_table(dataset, rows=rows, cols=cols, values=values, aggfunc=aggfunc)
+        except:
+            table = pd.DataFrame()
+
+        if isinstance(table, pd.DataFrame):
+            if len(rows) == 1:
+                _rows = [ [x] for x in table.index.tolist() ]
+            else:
+                _rows = table.index.tolist()
+            if len(cols) == 1:
+                _cols = [ [x] for x in table.columns.tolist() ]
+            else:
+                _cols = table.columns.tolist()
+            _values = table.values.tolist()
+            _attrs = dataset.columns.tolist()
+        elif isinstance(table, pd.Series):
+            raise ValueError("series")
+        else:
+            raise ValueError("???")
+
+        return table, (_attrs, _rows, _cols, _values)
+
+    def pivot_table(self):
+        def fields(items):
+           return [ item["field"] for item in items ]
+
+        row_fields = fields(self.rows)
+        column_fields = fields(self.columns)
+        value_fields = fields(self.values)
+        filter_fields = fields(self.filters)
+
+        if len(self.values) > 0:
+            aggfunc = values[0]["aggregate"]
+        else:
+            aggfunc = len
+
+        _, (_attrs, _rows, _cols, _values) = self._pivot_table(row_fields, column_fields, value_fields, aggfunc)
+
+        return dict(
+            attrs  = _attrs,
+            rows   = _rows,
+            cols   = _cols,
+            values = _values,
+        )
+

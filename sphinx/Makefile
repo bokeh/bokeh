@@ -71,9 +71,9 @@ tutorial_gallery:
 	python build_gallery.py tutorial_gallery.json
 
 bokehjs_static:
-	rm -rf $(BUILDDIR)/html/docs/bokehjs-static
-	mkdir -p $(BUILDDIR)/html/docs/bokehjs-static
-	cp -r ../bokeh/server/static/* $(BUILDDIR)/html/docs/bokehjs-static
+	rm -rf $(BUILDDIR)/html/docs/bokehjs/static
+	mkdir -p $(BUILDDIR)/html/docs/bokehjs/static
+	cp -r ../bokeh/server/static/* $(BUILDDIR)/html/docs/bokehjs/static
 
 serve: html
 	python docserver.py

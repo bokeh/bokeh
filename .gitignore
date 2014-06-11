@@ -92,3 +92,8 @@ bokeh.sets.*
 remotedata
 target/
 /.idea/
+
+osx-64
+linux-64
+win-64
+

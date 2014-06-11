@@ -58,6 +58,12 @@ define [
   "tool/object_explorer_tool",
 
   "widget/data_slider",
+  "widget/data_table",
+  "widget/handson_table",
+  "widget/table_column"
+  "widget/pivot_table",
+  "widget/object_explorer",
+
   "widget/pandas/ipython_remote_data",
   "widget/pandas/pandas_pivot_table",
   "widget/pandas/pandas_plot_source",
@@ -71,13 +77,23 @@ define [
   'widget/slider'
   'widget/crossfilter'
   'widget/multiselect'
+  'widget/date_range_slider'
+  'widget/date_picker'
+  'widget/panel'
+  'widget/tabs'
+  'widget/dialog'
 ], (_, require) ->
 
   # add some useful functions to underscore
   require("common/custom").monkey_patch()
 
-  Config =
-    prefix : ''
+  Config = {}
+  url = window.location.href
+  if url.indexOf('/bokeh') > 0
+    Config.prefix = url.slice(0, url.indexOf('/bokeh')) + "/" #keep trailing slash
+  else
+    Config.prefix = '/'
+  console.log('setting prefix to', Config.prefix)
 
   locations =
 
@@ -131,6 +147,12 @@ define [
     ObjectExplorerTool:       'tool/object_explorer_tool'
 
     DataSlider:               'widget/data_slider'
+    DataTable:                'widget/data_table'
+    HandsonTable:             'widget/handson_table'
+    TableColumn:              'widget/table_column'
+    PivotTable:               'widget/pivot_table'
+    ObjectExplorer:           'widget/object_explorer'
+
     IPythonRemoteData:        'widget/pandas/ipython_remote_data'
     PandasPivotTable:         'widget/pandas/pandas_pivot_table'
     PandasPlotSource:         'widget/pandas/pandas_plot_source'
@@ -144,6 +166,12 @@ define [
     Slider:                   'widget/slider'
     CrossFilter:              'widget/crossfilter'
     MultiSelect:              'widget/multiselect'
+    DateRangeSlider:          'widget/date_range_slider'
+    DatePicker:               'widget/date_picker'
+    Panel:                    'widget/panel'
+    Tabs:                     'widget/tabs'
+    Dialog:                   'widget/dialog'
+
   mod_cache = {}
   collection_overrides = {}
   Collections = (typename) ->
@@ -156,8 +184,12 @@ define [
     modulename = locations[typename]
 
     if not mod_cache[modulename]?
-      console.log("calling require", modulename)
-      mod_cache[modulename] = require(modulename)
+      mod = require(modulename)
+
+      if mod?
+          mod_cache[modulename] = mod
+      else
+          throw Error("improperly implemented collection: #{modulename}")
 
     return mod_cache[modulename].Collection
   Collections.register = (name, collection) ->

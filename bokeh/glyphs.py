@@ -263,3 +263,14 @@ class Wedge(BaseGlyph, FillProps, LineProps):
     start_angle = DataSpec
     end_angle = DataSpec
     direction = Enum(Direction)
+
+class Gear(BaseGlyph, LineProps, FillProps):
+    __view_model__ = 'gear'
+    x = DataSpec                          # Float (mm, data)
+    y = DataSpec                          # Float (mm, data)
+    angle = DataSpec(default=0)           # Float (rad)
+    module = DataSpec                     # Float (mm, data)
+    teeth = DataSpec                      # Int
+    pressure_angle = DataSpec(default=20) # Angle (deg)
+    shaft_size = DataSpec(default=0.3)    # Percent
+    internal = DataSpec(default=False)    # Bool

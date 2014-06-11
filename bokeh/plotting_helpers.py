@@ -7,19 +7,16 @@ import re
 from six import string_types
 
 from . import glyphs
+
 from .objects import (
     BoxSelectionOverlay, BoxSelectTool, BoxZoomTool, CategoricalAxis,
     ColumnDataSource, CrosshairTool, DataRange1d, DatetimeAxis,
     EmbedTool, FactorRange, Grid, HoverTool, Legend, LinearAxis,
-    ObjectExplorerTool, PanTool, Plot, PreviewSaveTool, ResetTool,
-    ResizeTool, WheelZoomTool
+    ObjectExplorerTool, PanTool, Plot, PreviewSaveTool, Range, Range1d,
+    ResetTool, ResizeTool, WheelZoomTool, Tool
 )
 from .properties import ColorSpec
-
-# This is used to accumulate plots generated via the plotting methods in this
-# module.  It is used by build_gallery.py.  To activate this feature, simply
-# set _PLOTLIST to an empty list; to turn it off, set it back to None.
-_PLOTLIST = None
+import warnings
 
 def get_default_color(plot=None):
     colors = [
@@ -223,31 +220,33 @@ def _get_select_tool(plot):
         select_tool = None
     return select_tool
 
+def _get_range(range_input):
+    if range_input is None:
+        return DataRange1d()
+    if isinstance(range_input, Range):
+        return range_input
+    if isinstance(range_input, Sequence):
+        if all(isinstance(x, string_types) for x in range_input):
+            return FactorRange(factors=range_input)
+        if len(range_input) == 2 and all(isinstance(x, Number) for x in range_input):
+            return Range1d(start=range_input[0], end=range_input[1])
+    raise ValueError("Unrecognized range input: '%s'" % range_input)
+
 def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
                  x_axis_type="linear", y_axis_type="linear",
                  tools="pan,wheel_zoom,box_zoom,save,resize,select,reset", **kw):
     # Accept **kw to absorb other arguments which the actual factory functions
     # might pass in, but that we don't care about
     p = Plot()
-    if _PLOTLIST is not None:
-        _PLOTLIST.append(p)
 
     p.title = kw.pop("title", "Plot")
     if plot_width is not None:
-        p.width = plot_width
+        p.plot_width = plot_width
     if plot_height is not None:
-        p.height = plot_height
+        p.plot_height = plot_height
 
-    if x_range is None:
-        x_range = DataRange1d()
-    elif isinstance(x_range, Sequence) and isinstance(x_range[0], string_types):
-        x_range = FactorRange(factors=x_range)
-    p.x_range = x_range
-    if y_range is None:
-        y_range = DataRange1d()
-    elif isinstance(y_range, Sequence) and isinstance(y_range[0], string_types):
-        y_range = FactorRange(factors=y_range)
-    p.y_range = y_range
+    p.x_range = _get_range(x_range)
+    p.y_range = _get_range(y_range)
 
     axiscls = None
     if x_axis_type is None:
@@ -292,6 +291,17 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
                 setattr(p, k, kw.pop(k))
 
     tool_objs = []
+    temp_tool_str = str()
+
+    if isinstance(tools, list):
+        for tool in tools:
+            if isinstance(tool, Tool):
+                tool_objs.append(tool)
+            elif isinstance(tool, string_types):
+                temp_tool_str+=tool + ','
+            else:
+                raise ValueError("tool should be a valid str or Tool Object")
+        tools = temp_tool_str
 
     for tool in re.split(r"\s*,\s*", tools.strip()):
         # re.split will return empty strings; ignore them.
@@ -342,6 +352,19 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
             raise ValueError("invalid tool: %s (expected one of %s)" % (tool, known_tools))
 
         tool_objs.append(tool_obj)
+
+        #Checking for repeated tools
+        repeated_tools = []
+
+        for typname, grp in itertools.groupby(sorted(str(type(i)) for i in tool_objs)):
+            if len(list(grp)) > 1: repeated_tools+=typname
+
+
+        if repeated_tools:
+            repeated = str()
+            for tools in repeated_tools:
+                repeated += tools
+            warnings.warn("tools:%s are being repeated!"%repeated)
 
     p.tools.extend(tool_objs)
     return p

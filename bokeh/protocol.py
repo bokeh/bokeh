@@ -6,11 +6,18 @@ import datetime as dt
 import numpy as np
 from six.moves import cPickle as pickle
 from .utils import get_ref
+
 try:
     import pandas as pd
     is_pandas = True
-except ImportError as e:
+except ImportError:
     is_pandas = False
+
+try:
+    from dateutil.relativedelta import relativedelta
+    is_dateutil = True
+except ImportError:
+    is_dateutil = False
 
 log = logging.getLogger(__name__)
 
@@ -59,6 +66,9 @@ class BokehJSONEncoder(json.JSONEncoder):
             return time.mktime(obj.timetuple()) * 1000.
         elif isinstance(obj, dt.time):
             return (obj.hour*3600 + obj.minute*60 + obj.second)*1000 + obj.microsecond
+        elif is_dateutil and isinstance(obj, relativedelta):
+            return dict(years=obj.years, months=obj.months, days=obj.days, hours=obj.hours,
+                minutes=obj.minutes, seconds=obj.seconds, microseconds=obj.microseconds)
         else:
             return super(BokehJSONEncoder, self).default(obj)
 
@@ -66,6 +76,7 @@ class BokehJSONEncoder(json.JSONEncoder):
         #argh! local import!
         from .plot_object import PlotObject
         from .properties import HasProps
+        from .colors import Color
         ## array types
         if is_pandas and isinstance(obj, (pd.Series, pd.Index)):
             return self.transform_series(obj)
@@ -75,9 +86,8 @@ class BokehJSONEncoder(json.JSONEncoder):
             return get_ref(obj)
         elif isinstance(obj, HasProps):
             return obj.to_dict()
-        elif isinstance(obj, HasProps):
-            return get_ref(obj)
-            
+        elif isinstance(obj, Color):
+            return obj.toCSS()
         else:
             return self.transform_python_types(obj)
 

@@ -5,6 +5,7 @@ import os
 import atexit
 import traceback
 import time
+
 def broadcast_reload():
     from bokeh.server.app import bokeh_app
     if hasattr(bokeh_app, 'wsmanager'):

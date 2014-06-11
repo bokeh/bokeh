@@ -127,7 +127,7 @@ def bulkget(docid, typename=None):
     if typename is not None:
         attrs = clientdoc.dump(*[x for x in all_models \
                                 if x.__view_model__==typename])
-        attrs = [x['attributes'] for x in atttrs]
+        attrs = [x['attributes'] for x in attrs]
         return make_json(protocol.serialize_json(attrs))
     else:
         attrs = clientdoc.dump(*all_models)
@@ -155,7 +155,7 @@ def getbyid(docid, typename, id):
     doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
     clientdoc = bokeh_app.backbone_storage.get_document(docid)
     prune(clientdoc)
-    attr = clientdoc.dump(clientdoc._models[id])['attributes']
+    attr = clientdoc.dump(clientdoc._models[id])[0]['attributes']
     return make_json(protocol.serialize_json(attr))
 
 @check_write_authentication_and_create_client

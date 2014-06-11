@@ -40,9 +40,8 @@ define [
 
       tool_name = "hover_tool"
 
-      @tool_button = $("<button class='bk-toolbar-button'> Hover </button>")
-      @plot_view.$el.find('.bk-button-bar').append(@tool_button)
-
+      @tool_button = $("<button class='bk-bs-btn bk-bs-btn-default bk-bs-btn-sm'> Hover </button>")
+      @plot_view.$el.find('.button_bar').append(@tool_button)
       @tool_button.click(=>
         if @active
           @plot_view.eventSink.trigger("clear_active_tool")
@@ -174,10 +173,21 @@ define [
             table.append(row)
 
           @div.append(table)
-          @div.css({
-            top: e.pageY - @div.height()/2,
-            left: e.pageX + 18,
-          })
+          ow = @plot_view.view_state.get('outer_width')
+          if vx < ow/2
+            @div.removeClass('right')
+            @div.addClass('left')
+            @div.css({
+              top: e.pageY - @div.height()/2,
+              left: e.pageX + 18,
+            })
+          else
+            @div.removeClass('left')
+            @div.addClass('right')
+            @div.css({
+              top: e.pageY - @div.height()/2,
+              left: e.pageX - @div.width() - 23,
+            })
           @div.show()
           break
         else

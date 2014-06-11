@@ -4,7 +4,7 @@
 
 
 // Mixin and adjust the regular image class
-.thumbnail {
+.bk-bs-thumbnail {
   display: block;
   padding: @thumbnail-padding;
   margin-bottom: @line-height-computed;
@@ -12,11 +12,11 @@
   background-color: @thumbnail-bg;
   border: 1px solid @thumbnail-border;
   border-radius: @thumbnail-border-radius;
-  .transition(all .2s ease-in-out);
+  .bk-bs-transition(all .2s ease-in-out);
 
   > img,
   a > img {
-    &:extend(.img-responsive);
+    &:extend(.bk-bs-img-responsive);
     margin-left: auto;
     margin-right: auto;
   }
@@ -24,12 +24,12 @@
   // Add a hover state for linked versions only
   a&:hover,
   a&:focus,
-  a&.active {
+  a&.bk-bs-active {
     border-color: @link-color;
   }
 
   // Image captions
-  .caption {
+  .bk-bs-caption {
     padding: @thumbnail-caption-padding;
     color: @thumbnail-caption-color;
   }
