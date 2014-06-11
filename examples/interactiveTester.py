@@ -108,5 +108,5 @@ if __name__ == '__main__':
         # # This is kept necessarily explicit so that you don't
         # accidentally provide a directory that has .html files
         # you don't want to have deleted.
-        print("Please choose an examples directory to test in ('python bokehTest.py <plotting/server/file>)")
+        print("Please choose an examples directory to test in ('python bokehTest.py <notebook/server/file>)")
         sys.exit(1)
