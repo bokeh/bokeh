@@ -11,7 +11,7 @@ class Population(object):
 
         self.document = Document()
         self.session = Session()
-        self.session.use_doc('population_server')
+        self.session.use_doc('population')
         self.session.load_document(self.document)
 
         self.df = load_population()
@@ -28,10 +28,12 @@ class Population(object):
                                    Legend, SingleIntervalTicker)
         from bokeh.glyphs import Quad
 
-        xdr = DataRange1d(sources=[self.source_pyramid.columns("male"), self.source_pyramid.columns("female")])
+        xdr = DataRange1d(sources=[self.source_pyramid.columns("male"),
+                          self.source_pyramid.columns("female")])
         ydr = DataRange1d(sources=[self.source_pyramid.columns("groups")])
 
-        self.plot = Plot(title=None, data_sources=[self.source_pyramid], x_range=xdr, y_range=ydr, plot_width=600, plot_height=600)
+        self.plot = Plot(title=None, data_sources=[self.source_pyramid],
+                         x_range=xdr, y_range=ydr, plot_width=600, plot_height=600)
 
         xaxis = LinearAxis(plot=self.plot, dimension=0)
         yaxis = LinearAxis(plot=self.plot, dimension=1, ticker=SingleIntervalTicker(interval=5))
@@ -40,14 +42,18 @@ class Population(object):
         ygrid = Grid(plot=self.plot, dimension=1, axis=yaxis)
 
         male_quad = Quad(left="male", right=0, bottom="groups", top="shifted", fill_color="blue")
-        male_quad_glyph = Glyph(data_source=self.source_pyramid, xdata_range=xdr, ydata_range=ydr, glyph=male_quad)
+        male_quad_glyph = Glyph(data_source=self.source_pyramid,
+                                xdata_range=xdr, ydata_range=ydr, glyph=male_quad)
         self.plot.renderers.append(male_quad_glyph)
 
-        female_quad = Quad(left=0, right="female", bottom="groups", top="shifted", fill_color="violet")
-        female_quad_glyph = Glyph(data_source=self.source_pyramid, xdata_range=xdr, ydata_range=ydr, glyph=female_quad)
+        female_quad = Quad(left=0, right="female", bottom="groups", top="shifted",
+                           fill_color="violet")
+        female_quad_glyph = Glyph(data_source=self.source_pyramid,
+                                  xdata_range=xdr, ydata_range=ydr, glyph=female_quad)
         self.plot.renderers.append(female_quad_glyph)
 
-        legend = Legend(plot=self.plot, legends=dict(Male=[male_quad_glyph], Female=[female_quad_glyph]))
+        legend = Legend(plot=self.plot, legends=dict(Male=[male_quad_glyph],
+                        Female=[female_quad_glyph]))
         self.plot.renderers.append(legend)
 
     def on_year_change(self, obj, attr, old, new):
@@ -111,15 +117,16 @@ html = """
 </html>
 """
 html = html % (tag)
-with open("embed.html", "w+") as f:
+with open("population_embed.html", "w+") as f:
     f.write(html)
 print("To view this example, start the python simple http server in this directory "
-"with `python -m SimpleHTTPServer' and then navigate to `http://localhost:8000/embed.html'")
+      "with `python -m SimpleHTTPServer' and then navigate to "
+      "`http://localhost:8000/population_embed.html'")
 
 import time
 
 link = pop.session.object_link(pop.document._plotcontext)
-print("Please visit %s to see the plots" % link)
+print("You can also go to %s to see the plots" % link)
 
 try:
     while True:

@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 
+import time
 from threading import Thread
 
 import numpy as np
-import pandas as pd
 import scipy.special
-from bokeh.embed import autoload_static, autoload_server
+
+from bokeh.embed import autoload_server, autoload_static
 from bokeh.objects import Glyph, Range1d
-from bokeh.plotting import (hold, figure, quad, line, xgrid, ygrid,
-                            legend, curplot, patches, annular_wedge,
-                            cursession, output_server)
+from bokeh.plotting import (annular_wedge, curplot, cursession, figure, hold,
+                            legend, line, output_server, quad, xgrid, ygrid)
 from bokeh.resources import Resources
 
 from flask import Flask, render_template
@@ -18,27 +18,20 @@ app = Flask(__name__)
 
 @app.route('/')
 def render_plot():
-    tag1, id1 = make_snippet(distribution(), "static")
-    tag2, id2 = make_snippet(brewer(), "static")
-    tag3, id3 = make_snippet(animated()[0], "server", animated()[1], update_animation)
-    tag4, id4 = make_snippet(pop.layout, "widget", pop.session, update_population)
+    tag1, id1 = make_snippet("static", distribution())
+    tag2, id2 = make_snippet("server", animated()[0], animated()[1], update_animation)
+    tag3, id3 = make_snippet("widget", pop.layout, pop.session, update_population)
 
     return render_template('app_plot.html',
                            tag1=tag1, id1=id1,
                            tag2=tag2, id2=id2,
-                           tag3=tag3, id3=id3,
-                           tag4=tag4, id4=id4)
+                           tag3=tag3, id3=id3)
 
 
-def make_snippet(plot, kind, session=None, target=None, document=None):
-    js_static_js = "static/js/"
-    #js_static_css = "static/css/"
-    js_filename = plot._id + ".js"
-    js_path = js_static_js + js_filename
+def make_snippet(kind, plot, session=None, target=None):
+    js_path = "static/" + plot._id + ".js"
 
     res = Resources("server")
-    #res.js_files = [js_static_js + "bokeh.min.js"]
-    #res.css_files = [js_static_css + "bokeh.min.css"]
 
     if kind == "static":
         js, tag = autoload_static(plot, res, js_path)
@@ -69,7 +62,7 @@ def distribution():
 
     hold()
 
-    figure(title="Normal Distribution (μ=0, σ=0.5)",
+    figure(title="Interactive plots",
            tools="pan, wheel_zoom, box_zoom, reset, previewsave",
            background_fill="#E5E5E5")
     quad(top=hist, bottom=np.zeros(len(hist)), left=edges[:-1], right=edges[1:],
@@ -85,43 +78,6 @@ def distribution():
     ygrid().grid_line_width = 3
 
     legend().orientation = "top_left"
-
-    return curplot()
-
-
-def brewer():
-
-    from collections import OrderedDict
-    from bokeh.palettes import brewer
-
-    N = 20
-    categories = ['y' + str(x) for x in range(10)]
-    data = {}
-    data['x'] = np.arange(N)
-    for cat in categories:
-        data[cat] = np.random.randint(10, 100, size=N)
-
-    df = pd.DataFrame(data)
-    df = df.set_index(['x'])
-
-    def stacked(df, categories):
-        areas = OrderedDict()
-        last = np.zeros(len(df[categories[0]]))
-        for cat in categories:
-            nnext = last + df[cat]
-            areas[cat] = np.hstack((last[::-1], nnext))
-            last = nnext
-        return areas
-
-    figure(title="Brewer showcase.",
-           tools="pan, wheel_zoom, box_zoom, reset, previewsave")
-
-    areas = stacked(df, categories)
-
-    colors = brewer["Spectral"][len(areas)]
-
-    x2 = np.hstack((data['x'][::-1], data['x']))
-    patches([x2 for a in areas], list(areas.values()), color=colors, alpha=0.8, line_color=None)
 
     return curplot()
 
@@ -142,9 +98,9 @@ def animated():
 
     cx = cy = zeros_like(rmin)
 
-    output_server("animated_embed")
+    output_server("animated_reveal")
 
-    figure(title="Animated.")
+    figure(title="Animations")
 
     hold()
 
@@ -164,7 +120,6 @@ def animated():
 
 def update_animation(plot, session):
 
-    import time
     from numpy import pi, linspace, roll
 
     renderer = [r for r in plot.renderers if isinstance(r, Glyph)][0]
@@ -196,7 +151,7 @@ class Population(object):
 
         self.document = Document()
         self.session = Session()
-        self.session.use_doc('population_server')
+        self.session.use_doc('population_reveal')
         self.session.load_document(self.document)
 
         self.df = load_population()
@@ -213,10 +168,12 @@ class Population(object):
                                    Legend, SingleIntervalTicker)
         from bokeh.glyphs import Quad
 
-        xdr = DataRange1d(sources=[self.source_pyramid.columns("male"), self.source_pyramid.columns("female")])
+        xdr = DataRange1d(sources=[self.source_pyramid.columns("male"),
+                                   self.source_pyramid.columns("female")])
         ydr = DataRange1d(sources=[self.source_pyramid.columns("groups")])
 
-        self.plot = Plot(title=None, data_sources=[self.source_pyramid], x_range=xdr, y_range=ydr, plot_width=600, plot_height=600)
+        self.plot = Plot(title="Widgets", data_sources=[self.source_pyramid],
+                         x_range=xdr, y_range=ydr, plot_width=600, plot_height=600)
 
         xaxis = LinearAxis(plot=self.plot, dimension=0)
         yaxis = LinearAxis(plot=self.plot, dimension=1, ticker=SingleIntervalTicker(interval=5))
@@ -225,14 +182,18 @@ class Population(object):
         ygrid = Grid(plot=self.plot, dimension=1, axis=yaxis)
 
         male_quad = Quad(left="male", right=0, bottom="groups", top="shifted", fill_color="blue")
-        male_quad_glyph = Glyph(data_source=self.source_pyramid, xdata_range=xdr, ydata_range=ydr, glyph=male_quad)
+        male_quad_glyph = Glyph(data_source=self.source_pyramid,
+                                xdata_range=xdr, ydata_range=ydr, glyph=male_quad)
         self.plot.renderers.append(male_quad_glyph)
 
-        female_quad = Quad(left=0, right="female", bottom="groups", top="shifted", fill_color="violet")
-        female_quad_glyph = Glyph(data_source=self.source_pyramid, xdata_range=xdr, ydata_range=ydr, glyph=female_quad)
+        female_quad = Quad(left=0, right="female", bottom="groups", top="shifted",
+                           fill_color="violet")
+        female_quad_glyph = Glyph(data_source=self.source_pyramid,
+                                  xdata_range=xdr, ydata_range=ydr, glyph=female_quad)
         self.plot.renderers.append(female_quad_glyph)
 
-        legend = Legend(plot=self.plot, legends=dict(Male=[male_quad_glyph], Female=[female_quad_glyph]))
+        legend = Legend(plot=self.plot, legends=dict(Male=[male_quad_glyph],
+                        Female=[female_quad_glyph]))
         self.plot.renderers.append(legend)
 
     def on_year_change(self, obj, attr, old, new):
@@ -280,19 +241,13 @@ class Population(object):
         )
         self.session.store_document(self.document)
 
-pop = Population()
-pop.render()
-
 
 def update_population(pop):
-    import time
-
-    try:
-        while True:
-            pop.session.load_document(pop.document)
-            time.sleep(0.5)
-    except KeyboardInterrupt:
-        print()
+    while True:
+        pop.session.load_document(pop.document)
+        time.sleep(0.5)
 
 if __name__ == '__main__':
+    pop = Population()
+    pop.render()
     app.run(debug=True)
