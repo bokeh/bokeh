@@ -78,7 +78,6 @@ def load_notebook(resources=None, verbose=False, force=False):
 
 from .settings import settings
 from . import sampledata
-from .serverconfig import Server, Cloud
 
 def _print_versions():
     """Returns all the versions of software that Bokeh relies on."""
