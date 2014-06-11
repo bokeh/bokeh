@@ -57,6 +57,12 @@ and have :ref:`bokehjs_line_properties` and :ref:`bokehjs_fill_properties` as ap
 Glyphs
 ******
 
+Bokeh plots are centered around glyphs, which generally have some combination of line, fill, or
+text properties, depending on what is appropriate for a given glyph. For example, the ``Circle``
+glyph has both line and fill properties, but the ``Bezier`` glyph only has line properties.
+
+.. note:: Each of the glyph images below links to a live JSFiddle.
+
 .. _bokehjs_annular_wedge:
 
 ``annular_wedge``
