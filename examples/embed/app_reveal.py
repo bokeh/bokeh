@@ -6,11 +6,10 @@ from threading import Thread
 import numpy as np
 import scipy.special
 
-from bokeh.embed import autoload_server, autoload_static
+from bokeh.embed import autoload_server
 from bokeh.objects import Glyph, Range1d
 from bokeh.plotting import (annular_wedge, curplot, cursession, figure, hold,
                             legend, line, output_server, quad, xgrid, ygrid)
-from bokeh.resources import Resources
 
 from flask import Flask, render_template
 app = Flask(__name__)
@@ -18,8 +17,8 @@ app = Flask(__name__)
 
 @app.route('/')
 def render_plot():
-    tag1, id1 = make_snippet("static", distribution())
-    tag2, id2 = make_snippet("server", animated()[0], animated()[1], update_animation)
+    tag1, id1 = make_snippet("plot", distribution()[0], distribution()[1])
+    tag2, id2 = make_snippet("animated", animated()[0], animated()[1], update_animation)
     tag3, id3 = make_snippet("widget", pop.layout, pop.session, update_population)
 
     return render_template('app_plot.html',
@@ -29,15 +28,11 @@ def render_plot():
 
 
 def make_snippet(kind, plot, session=None, target=None):
-    js_path = "static/" + plot._id + ".js"
-
-    res = Resources("server")
-
-    if kind == "static":
-        js, tag = autoload_static(plot, res, js_path)
-        with open(js_path, "w") as f:
-            f.write(js)
-    elif kind == "server":
+    if kind == "plot":
+        tag = autoload_server(plot, session)
+        thread = Thread()
+        thread.start()
+    if kind == "animated":
         tag = autoload_server(plot, session)
         thread = Thread(target=target, args=(plot, session))
         thread.start()
@@ -60,6 +55,8 @@ def distribution():
     pdf = 1 / (sigma * np.sqrt(2 * np.pi)) * np.exp(-(x - mu) ** 2 / (2 * sigma ** 2))
     cdf = (1 + scipy.special.erf((x - mu) / np.sqrt(2 * sigma ** 2))) / 2
 
+    output_server("distribution_reveal")
+
     hold()
 
     figure(title="Interactive plots",
@@ -79,7 +76,7 @@ def distribution():
 
     legend().orientation = "top_left"
 
-    return curplot()
+    return curplot(), cursession()
 
 
 def animated():
