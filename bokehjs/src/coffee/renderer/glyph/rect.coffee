@@ -57,7 +57,6 @@ define [
             ctx.translate(-sx[i], -sy[i])
           else
             ctx.fillRect(sx[i]-sw[i]/2, sy[i]-sh[i]/2, sw[i], sh[i])
-            ctx.rect(sx[i]-sw[i]/2, sy[i]-sh[i]/2, sw[i], sh[i])
 
       if glyph_props.line_properties.do_stroke
 
@@ -66,6 +65,12 @@ define [
         for i in indices
 
           if isNaN(sx[i] + sy[i] + sw[i] + sh[i] + @angle[i])
+            continue
+
+          # fillRect does not fill zero-height or -width rects, but rect(...)
+          # does seem to stroke them (1px wide or tall). Explicitly ignore rects
+          # with zero width or height to be consistent
+          if sw[i]==0 or sh[i]==0
             continue
 
           if @angle[i]
