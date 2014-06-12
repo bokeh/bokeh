@@ -17,8 +17,8 @@ patch(band_x, band_y, color='#7570B3', fill_alpha=0.2)
 
 # Define plot parameters.
 curplot().title = 'Bollinger Bands'
-curplot().height = 600
-curplot().width = 800
+curplot().plot_height = 600
+curplot().plot_width = 800
 grid().grid_line_alpha = 0.4
 
 show()
