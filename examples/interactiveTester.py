@@ -3,7 +3,9 @@
 import bokeh
 import glob
 import os
+from six.moves import input
 import sys
+
 
 # TODO: --no-log option
 #       --test-all option (run through tests on every file in a given directory, rather than a small subset)
@@ -13,39 +15,31 @@ import sys
 
 def tester(TestingGround, HomeDir):
     """
-    Collect and run all .py files in an examples directory, ignoring __init__.py
+    Collect and run all .py or .ipynb files in an examples directory, ignoring __init__.py
 
     User input is collected to determine a properly or improperly displayed page
     """
 
     os.chdir(TestingGround)
 
-    if 'notebook' in TestingGround:
-        command = "ipython notebook"
-        suffix = ".ipynb"
-    else:
-        command = "python"
-        suffix = ".py"
-
     TestFiles = [
-        fileName for fileName in os.listdir('.') if fileName.endswith(suffix) and fileName != '__init__.py'
+        fileName for fileName in os.listdir('.')
+        if fileName.endswith(('.py', '.ipynb')) and fileName != '__init__.py'
     ]
 
     Log = []
 
-    get_input = check_py_ver()
-
     for fileName in TestFiles:
         try:
             print("\nOpening %s.\n" % fileName)
-            os.system("%s %s" % (command, fileName))
+            runner(fileName)
 
-            TestStatus = get_input("Did the plot(s) in %s display correctly? (y/n) " % fileName)
+            TestStatus = input("Did the plot(s) in %s display correctly? (y/n) " % fileName)
             while not TestStatus.startswith(('y', 'n')):
                 print()
-                TestStatus = get_input("Unexpected answer.  Please type y or n.  ")
+                TestStatus = input("Unexpected answer.  Please type y or n.  ")
             if TestStatus.startswith('n'):
-                ErrorReport = get_input("Please describe the problem: ")
+                ErrorReport = input("Please describe the problem: ")
                 Log.append("\n\n%s: \n %s" % (fileName, ErrorReport))
         except KeyboardInterrupt:
             break
@@ -57,17 +51,17 @@ def tester(TestingGround, HomeDir):
         logger(Log)
 
 
-def check_py_ver():
-    """
-    Check the version of Python to find the correct user input function.
+def runner(someFile):
+    """Determines how to open a file depending
+    on whether it is a .py or a .ipynb file
     """
 
-    if sys.version_info[0] >= 3:
-        get_input = input
-    else:
-        get_input = raw_input
+    if someFile.endswith('.py'):
+        command = "python"
+    elif someFile.endswith('.ipynb'):
+        command = "ipython notebook"
 
-    return get_input
+    os.system("%s %s" % (command, someFile))
 
 
 def cleaner():
