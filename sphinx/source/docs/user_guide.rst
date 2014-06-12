@@ -25,17 +25,32 @@ To control the ranges that Bokeh plots show, there are two keyword parameters `x
 of the high-level plotting :ref:`bokeh_plotting_glyphs`. They may also be set as attributes on
 a plot object.
 
+Automatic Ranges
+''''''''''''''''
+
+If `None` is passed in as the value of `x_range` or `y_range`, then the plot will be configured
+with a `DataRange1d` which computes the envelope of all the plot data to determine the range.
+This is the default behavior.
+
+.. note:: For non-scatter glyphs with spatial extent, the `DataRange1d` may not compute the necessary bounds fully.
+
 Numerical Ranges
 ''''''''''''''''
 
-To set the range on a plot that has numerical range values, use a :class:`bokeh.objects.Range1D` object.
-For example, the following code:
+To set the range on a plot that has numerical range values, you can pass a sequence of
+numbers with length two:
+::
+
+    figure(xrange=[0, 100])
+
+This will prepare a new plot that has an x-axis range that spans the interval `[0, 100]`.
+You can also pass a :class:`bokeh.objects.Range1D` object explicitly:
 ::
 
     figure(xrange=Range1d(start=2, end=8))
 
-will prepare a new plot that has an x-axis range that spans the interval `[2, 8]`. Alternatively,
-you can set the range as a property on a Plot object:
+This will prepare a new plot that has an x-axis range that spans the interval `[2, 8]`.
+Alternatively, you can set the range as a property on a Plot object:
 ::
 
     plot = curplot()
@@ -53,6 +68,8 @@ that give the categories in the desired order. For example:
 will prepare a plot whose y-axis range is categorical, with the categories "foo", "bar", and "baz".
 Please see `this categorical example <http://bokeh.pydata.org/docs/gallery/categorical.html>`_ from
 the gallery for a concrete example.
+
+You can also pass in a `FactorRange` explicitly as well.
 
 Styling
 -------
