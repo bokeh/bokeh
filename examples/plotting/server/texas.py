@@ -1,3 +1,6 @@
+# The plot server must be running
+# Go to http://localhost:5006/bokeh to view this plot
+
 from bokeh.sampledata import us_counties, unemployment
 from bokeh.plotting import *
 
