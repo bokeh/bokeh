@@ -5,6 +5,8 @@ from bokeh.properties import (Instance, Any)
 import logging
 logger = logging.getLogger(__file__)
 
+from future
+
 try:
   import abstract_rendering.numeric as numeric
   import abstract_rendering.general as general
@@ -19,7 +21,7 @@ except Exception as e:
   print "Install from the ./python directory with 'python setup.py install' (may require admin privledges)" 
   print "Questions and feedback can be directed to Joseph Cottam (jcottam@indiana.edu)"
   print "-----------------------------------------------------------------------\n\n"
-  raise e
+  raise
 
 class Proxy(PlotObject):
   """Proxy objects stand in for the abstract rendering (AR) configuration classes.
