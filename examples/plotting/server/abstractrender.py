@@ -22,15 +22,16 @@ plot = square('volume','close',color='#FF00FF',source=source)
 
 
 # Simple heat-map: bin the counts ('tis the default configuration....)
-#heatmap =ar.source(plot, palette=["Reds-9"])
-#image(source=heatmap, **ar.mapping(heatmap))
+heatmap =ar.source(plot, palette=["Reds-9"])
+image(source=heatmap, title="Heatmap", **ar.mapping(heatmap))
 #image(source=heatmap, reserve_val=0, reserve_color=0xaaaaaa, **ar.mapping(heatmap))
 #image(source=heatmap, reserve_val=0, **ar.mapping(heatmap))
 
 
 ###Perceptually corrected heat-map.  Cube-root then bin
-percepmap = ar.source(plot, shader=ar.Cuberoot()+ar.Interpolate(low=0,high=9))
-image(source=percepmap, **ar.mapping(percepmap))
+percepmap = ar.source(plot, shader=ar.Cuberoot()+ar.Interpolate(low=0,high=9), palette=["Reds-9"])
+image(source=percepmap, title="Perceptually corrected", **ar.mapping(percepmap))
+#percepmap could technically be just ar.source(plot, shader=ar.Cuberoot(), palette=["Reds-9"]) but I'm testing shader sequences...
 
 
 ### Contours come in the same framework, but since the results of the shader are lines you use a different plotting function... 
