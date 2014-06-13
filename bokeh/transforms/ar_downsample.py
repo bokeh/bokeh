@@ -1,3 +1,4 @@
+from __future__ import print_function
 from ..plotting import curdoc
 from ..plot_object import PlotObject
 from ..objects import  ServerDataSource,  Glyph, Range1d
@@ -11,15 +12,16 @@ try:
   import abstract_rendering.infos as infos
   import abstract_rendering.core as ar
   import abstract_rendering.glyphset as glyphset
-except Exception as e:
-  print "\n\n-----------------------------------------------------------------------"
-  print "Error loading the abstract rendering package.\n"
-  print "To use the ar_downsample module, you must install the abstract rendering framework."
-  print "This can be cloned from github at https://github.com/JosephCottam/AbstractRendering"
-  print "Install from the ./python directory with 'python setup.py install' (may require admin privledges)" 
-  print "Questions and feedback can be directed to Joseph Cottam (jcottam@indiana.edu)"
-  print "-----------------------------------------------------------------------\n\n"
+except:
+  print("\n\n-----------------------------------------------------------------------")
+  print("Error loading the abstract rendering package.\n")
+  print("To use the ar_downsample module, you must install the abstract rendering framework.")
+  print("This can be cloned from github at https://github.com/JosephCottam/AbstractRendering")
+  print("Install from the ./python directory with 'python setup.py install' (may require admin privledges)")
+  print("Questions and feedback can be directed to Joseph Cottam (jcottam@indiana.edu)")
+  print("-----------------------------------------------------------------------\n\n")
   raise
+
 
 class Proxy(PlotObject):
   """Proxy objects stand in for the abstract rendering (AR) configuration classes.
