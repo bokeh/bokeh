@@ -6,7 +6,7 @@ import abstract_rendering.glyphset as glyphset
 
 from ..plotting import curdoc
 from ..plot_object import PlotObject
-from ..objects import ColumnDataSource, ServerDataSource, Plot, Renderer, Glyph
+from ..objects import ColumnDataSource, ServerDataSource, Plot, Renderer, Glyph, Range1d
 from bokeh.properties import (HasProps, Dict, Enum, Either, Float, Instance, Int,
     List, String, Color, Include, Bool, Tuple, Any)
 import bokeh.glyphs as glyphs
@@ -101,13 +101,17 @@ def source(plot, agg=Count(), info=Const(val=1), shader=Id(), remove_original=Tr
   kwargs['transform'] = {'resample':"abstract rendering", 'agg':agg, 'info':info, 'shader':shader, 'glyphspec': spec}
   return ServerDataSource(**kwargs)
 
+def mapping(source):
+  x_range = Range1d(start=0, end=500)
+  y_range = Range1d(start=0, end=500)
+  return {'x':'x', 'y':'y', 'image':'image', 'dw': 'dw', 'dh': 'dh', 'x_range': x_range, 'y_range': y_range}
 
 def downsample(data, transform, plot_state):
-  screen_size = [plot_state['screen_x'].span(),
-                 plot_state['screen_y'].span()]
+  screen_size = [span(plot_state['screen_x']),
+                 span(plot_state['screen_y'])]
 
-  scale_x = plot_state['data_x'].span()/plot_state['screen_x'].span()
-  scale_y = plot_state['data_y'].span()/plot_state['screen_y'].span()
+  scale_x = span(plot_state['data_x'])/float(span(plot_state['screen_x']))
+  scale_y = span(plot_state['data_y'])/float(span(plot_state['screen_y']))
   
   #How big would a full plot of the data be at the current resolution?
   plot_size = [screen_size[0] / scale_x,  screen_size[1] / scale_y]
@@ -142,6 +146,8 @@ def downsample(data, transform, plot_state):
   }
 
 
+def span(r):
+    return r.end - r.start
 
 def _shaper(code, size):
   code = code.lower()

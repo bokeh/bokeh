@@ -111,8 +111,6 @@ class Range1d(Range):
     start = Float()
     end = Float()
 
-    def span(self): return self.end - self.start
-
 class DataRange(Range):
     sources = List(Instance(ColumnsRef))
 
