@@ -11,6 +11,8 @@ from ...objects import Range1d
 from ..models import docs
 from ..serverbb import prune
 
+from six import iteritems
+
 @bokeh_app.route("/bokeh/data/<username>", methods=['GET', 'OPTIONS'])
 @crossdomain(origin="*", headers=['BOKEH-API-KEY', 'Continuum-Clientid'])
 def list_sources(username):
@@ -36,7 +38,7 @@ def get_data(username, docid, datasourceid):
     plot_state = json.loads(request.values.get('plot_state'))
 
     #TODO: Desserializing directly to ranges....awk-ward.  There is probably a better way via the properties system that detects type...probably... 
-    plot_state=dict([(k, Range1d.load_json(r)) for k,r in plot_state.iteritems()])
+    plot_state=dict([(k, Range1d.load_json(r)) for k,r in iteritems(plot_state)])
 
     result = bokeh_app.datamanager.get_data(request_username, serverdatasource, parameters, plot_state)
     result = make_json(protocol.serialize_json(result))
