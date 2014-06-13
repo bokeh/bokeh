@@ -160,9 +160,12 @@ class Image(BaseGlyph):
     dilate = Bool(False)
 
     #TODO: Consider converting palette in to a first-class object, then wrap the color list and reserve values into it instead of here
-    #Reserve represents a color/value outside of the normal range.  Commonly used for 'background'
+    #Reserve represents a color/value outside of the normal range.  Commonly used to setup a 'background' color for the image
     palette = DataSpec
-    reserve_val = Any(default=False)
+    
+    #TODO: Using 'False' to indicate no reserve value is not great.  A flag field or sentinel is probably better, but that can be worked out when/if palette becomes its own object
+    #The actual type of reserve_val is an instance of whatever is held in the image array, so the exact type will depend on the type of values in the dataspec of the image field.  
+    reserve_val = Any(default=False)  
     reserve_color = DataSpec(default=0xffffff) #TODO: Why doesn't type Color work here?? (Came through as 'undefined' on the JS side)
                                                #TODO: What is the color code for transparent???
 

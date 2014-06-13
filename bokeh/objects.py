@@ -92,6 +92,8 @@ class ServerDataSource(DataSource):
     data = Dict(String, Any)
 
     # Paramters of data transformation operations 
+    # The 'Any' is used to pass primtives around.  Minimally, a tag to say which downsample routine to use.  In some downsamplers, parameters are passed this way too.
+    # TODO: Find/create a property type for 'any primitive/atomic value'
     transform = Dict(String,Either(Instance(PlotObject), Any))
 
 
