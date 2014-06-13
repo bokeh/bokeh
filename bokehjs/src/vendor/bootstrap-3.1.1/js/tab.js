@@ -1,3 +1,5 @@
+define(["jquery"], function(jQuery) {
+
 /* ========================================================================
  * Bootstrap: tab.js v3.1.1
  * http://getbootstrap.com/javascript/#tabs
@@ -123,3 +125,5 @@
   })
 
 }(jQuery);
+
+});

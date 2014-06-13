@@ -1,3 +1,5 @@
+define(["jquery"], function(jQuery) {
+
 /* ========================================================================
  * Bootstrap: collapse.js v3.1.1
  * http://getbootstrap.com/javascript/#collapse
@@ -168,3 +170,5 @@
   })
 
 }(jQuery);
+
+});

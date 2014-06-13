@@ -1,3 +1,5 @@
+define(["jquery"], function(jQuery) {
+
 /* ========================================================================
  * Bootstrap: modal.js v3.1.1
  * http://getbootstrap.com/javascript/#modals
@@ -241,3 +243,5 @@
     .on('hidden.bk-bs.modal', '.bk-bs-modal', function () { $(document.body).removeClass('bk-bs-modal-open') })
 
 }(jQuery);
+
+});

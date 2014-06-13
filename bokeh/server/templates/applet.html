@@ -1,15 +1,15 @@
-{% extends "_base.html" %}
+{% extends "_page_base.html" %}
 
 {% block title %}
 Bokeh Plot Server &mdash; {{ title }}
 {% endblock %}
+
 {% block extra_scripts %}
-
-{% for modulename, classname, parentname in extra_generated_classes %}
-<script src="{{url_for('bokeh.server.generatejs', modulename=modulename, classname=classname, parentname=parentname) }}"></script>
-{% endfor %}
-
+  {% for modulename, classname, parentname in extra_generated_classes %}
+  <script src="{{url_for('bokeh.server.generatejs', modulename=modulename, classname=classname, parentname=parentname) }}"></script>
+  {% endfor %}
 {% endblock %}
+
 {% block script %}
 window.Bokeh = Bokeh;
 {% for modulename, classname, parentname in extra_generated_classes %}
@@ -19,7 +19,7 @@ Bokeh.one_object_page("{{docid}}", "{{objid}}")
 {% endblock %}
 
 {% block content %}
-<div class="span12">
+<div class="col-md-12">
   <div id="PlotPane"></div>
 </div>
 {% endblock %}
