@@ -5,8 +5,6 @@ from bokeh.properties import (Instance, Any)
 import logging
 logger = logging.getLogger(__file__)
 
-from future
-
 try:
   import abstract_rendering.numeric as numeric
   import abstract_rendering.general as general

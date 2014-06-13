@@ -1,5 +1,5 @@
 import numpy as np
-from bokeh.plotting import *
+from bokeh.plotting import square, output_server, image, show
 from bokeh.objects import Range1d, ServerDataSource
 
 import bokeh.transforms.ar_downsample as ar
