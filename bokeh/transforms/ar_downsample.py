@@ -71,7 +71,7 @@ class Cuberoot(Proxy):
     return numeric.Cuberoot()
 
 #TODO: Pass the 'rend' defintiion through (minus the data_source references), unpack in 'downsample' instead of here...
-def source(plot, agg=Count(), info=Const(val=1), shader=Id(), remove_original=True, **kwargs):
+def source(plot, agg=Count(), info=Const(val=1), shader=Id(), remove_original=True, palette=["Spectral-11"], **kwargs):
   #Acquire information from renderer...
   rend = [r for r in plot.renderers if isinstance(r, Glyph)][0]
   datasource = rend.server_data_source
@@ -89,7 +89,7 @@ def source(plot, agg=Count(), info=Const(val=1), shader=Id(), remove_original=Tr
                       'global_offset_y' : [0],
                       'dw' : [10], 
                       'dh' : [10], 
-                      'palette': ["Spectral-11"]
+                      'palette': palette
                     }
   else: 
     raise ValueError("Can only work with image-shaders...for now")
@@ -104,7 +104,7 @@ def source(plot, agg=Count(), info=Const(val=1), shader=Id(), remove_original=Tr
 def mapping(source):
   x_range = Range1d(start=0, end=500)
   y_range = Range1d(start=0, end=500)
-  return {'x':'x', 'y':'y', 'image':'image', 'dw': 'dw', 'dh': 'dh', 'x_range': x_range, 'y_range': y_range}
+  return {'x':'x', 'y':'y', 'image':'image', 'dw': 'dw', 'dh': 'dh', 'x_range': x_range, 'y_range': y_range, 'palette':'palette'}
 
 def downsample(data, transform, plot_state):
   screen_size = [span(plot_state['screen_x']),

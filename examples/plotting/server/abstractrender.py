@@ -22,11 +22,11 @@ plot = square('volume','close',color='#FF00FF',source=source)
 
 
 # Simple heat-map: bin the counts
-heatmap =ar.source(plot)
+heatmap =ar.source(plot, palette=["Reds-9"])
 #heatmap = ar.source(glyphs=plot, agg=ar.Count(), info=ar.Const(1), select=ar.Touches(), shader=ar.Interpolate(0,9)+ar.Floor())
 #heatmap = ar.source(glyphs=plot, shader=ar.Interpolate(0,9) + ar.Floor())
 #heatmap = ar.source(glyphs=plot) + ar.Interpolate(0,9) + ar.Floor()
-image(source=heatmap, palette=["reds-9"], reserve_val=0, reserve_color=0xffffff, **ar.mapping(heatmap))
+image(source=heatmap, reserve_val=0, reserve_color=0xffffff, **ar.mapping(heatmap))
 #
 ###Perceptually corrected heat-map.  Cube-root then bin
 #percepmap = ar.source(glyphs=plot, agg=ar.count(), info=ar.const(1), select=ar.touches(), shader=ar.Cuberoot()+ar.Interpolate(0,9)+ar.Floor())
