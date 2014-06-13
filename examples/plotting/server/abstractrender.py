@@ -24,17 +24,18 @@ plot = square('volume','close',color='#FF00FF',source=source)
 # Simple heat-map: bin the counts ('tis the default configuration....)
 heatmap =ar.source(plot, palette=["Reds-9"])
 image(source=heatmap, **ar.mapping(heatmap))
-image(source=heatmap, reserve_val=0, reserve_color=0xaaaaaa, **ar.mapping(heatmap))
-image(source=heatmap, reserve_val=0, **ar.mapping(heatmap))
+#image(source=heatmap, reserve_val=0, reserve_color=0xaaaaaa, **ar.mapping(heatmap))
+#image(source=heatmap, reserve_val=0, **ar.mapping(heatmap))
+
 
 ###Perceptually corrected heat-map.  Cube-root then bin
-percepmap = ar.source(glyphs=plot, shader=ar.Cuberoot()+ar.Interpolate(0,9)+ar.Floor())
-image(source=percepmap, palette=["Reds-9"])
-#
-#
+#percepmap = ar.source(plot, shader=ar.Cuberoot()+ar.Interpolate(low=0,high=9))
+percepmap = ar.source(plot, shader=ar.Cuberoot(), palette=["Reds-9"])
+image(source=percepmap, **ar.mapping(percepmap))
+
+
 ### Contours come in the same framework, but since the results of the shader are lines you use a different plotting function... 
-#contour = ar.source(glyphs=plot, agg=ar.Count(), info=ar.Const(1), select=ar.touches(), shader=ar.Contour(9))
-#contour = ar.source(glyphs=plot) + shader=ar.Contour(9))
+#contour = ar.source(glyphs=plot, agg=ar.Count(), info=ar.Const(1), shader=ar.Contour(9))
 #multi_line(source=countour, palette=["reds-9"])
 #
 #

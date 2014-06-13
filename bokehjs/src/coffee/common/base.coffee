@@ -84,6 +84,7 @@ define [
   'transforms/const'
   'transforms/id'
   'transforms/count'
+  'transforms/cuberoot'
 ], (_, require) ->
 
   # add some useful functions to underscore
@@ -172,6 +173,7 @@ define [
     Tabs:                     'widget/tabs'
     Dialog:                   'widget/dialog'
 
+    Cuberoot:                 'transforms/cuberoot'
     Const:                    'transforms/const'
     Count:                    'transforms/count'
     Id:                       'transforms/id'

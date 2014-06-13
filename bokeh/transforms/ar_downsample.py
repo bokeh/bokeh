@@ -6,17 +6,9 @@ import abstract_rendering.glyphset as glyphset
 
 from ..plotting import curdoc
 from ..plot_object import PlotObject
-from ..objects import ColumnDataSource, ServerDataSource, Plot, Renderer, Glyph, Range1d
-from bokeh.properties import (HasProps, Dict, Enum, Either, Float, Instance, Int,
-    List, String, Color, Include, Bool, Tuple, Any)
-import bokeh.glyphs as glyphs
-from ..plotting_helpers import (get_default_color, get_default_alpha,
-        _glyph_doc, _match_data_params, _update_plot_data_ranges,
-        _materialize_colors_and_alpha, _get_legend, _make_legend,
-        _get_select_tool, _new_xy_plot, _handle_1d_data_args, _list_attr_splat)
+from ..objects import  ServerDataSource,  Glyph, Range1d
+from bokeh.properties import (Instance, Any)
 
-
-from six import add_metaclass, iteritems
 import logging
 logger = logging.getLogger(__file__)
 
@@ -29,7 +21,7 @@ class Proxy(PlotObject):
      Furthermore, 'reify' produces an AR class from a proxy instance.
   """
   def reify(self, **kwargs):
-    raise Error("Unipmlemented")
+    raise NotImplementedError("Unipmlemented")
 
 
 #### Aggregators -------------
@@ -54,22 +46,38 @@ class Const(Proxy):
 # rgb_image -- grid of colors
 # poly_line -- multi-segment lines (for ISO contours...)
 
-class Id(Proxy): 
+class Transfer(Proxy):
+  def __add__(self, other): 
+    return Seq(first=self, second=other)
+
+class Seq(Transfer):
+  first = Instance(Transfer)
+  second = Instance(Transfer)
+  def __init__(self,**kwargs):
+    super(Seq,self).__init__(**kwargs)
+    self.out = self.second.out
+
+  def reify(self, **kwargs):
+    return self.first.reify(**kwargs) + self.second.reify(**kwargs)
+
+class Id(Transfer): 
   out = "image"
   def reify(self, **kwargs):
     return general.Id()
 
-class Interpolate(Proxy):
+class Interpolate(Transfer):
   out = "image"
+  high = Any ##TODO: Restrict to numbers... 
+  low = Any 
   def reify(self, **kwargs):
     return numeric.Interpolate(kwargs['low'], kwargs['high'])
 
-class Sqrt(Proxy):
+class Sqrt(Transfer):
   out = "image"
   def reify(self, **kwargs):
     return numeric.Sqrt()
 
-class Cuberoot(Proxy):
+class Cuberoot(Transfer):
   out = "image"
   def reify(self, **kwargs):
     return numeric.Cuberoot()
@@ -101,7 +109,7 @@ def source(plot, agg=Count(), info=Const(val=1), shader=Id(), remove_original=Tr
     raise ValueError("Can only work with image-shaders...for now")
   
   ##Remove the base plot (if requested)
-  if remove_original: 
+  if remove_original and plot in curdoc()._plotcontext.children: 
     curdoc()._plotcontext.children.remove(plot)  
 
   kwargs['transform'] = {'resample':"abstract rendering", 'agg':agg, 'info':info, 'shader':shader, 'glyphspec': spec}
