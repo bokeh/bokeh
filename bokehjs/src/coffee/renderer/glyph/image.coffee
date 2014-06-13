@@ -20,9 +20,9 @@ define [
       # provided number of rows/cols, otherwise treat as a "list of lists".
       spec = @mget('glyphspec')
       if spec.rows?
-        @_fields = ['image:array', 'rows', 'cols', 'x', 'y', 'dw', 'dh', 'palette:string']
+        @_fields = ['image:array', 'rows', 'cols', 'x', 'y', 'dw', 'dh', 'palette:string', 'reserve_val', 'reserve_color']
       else
-        @_fields = ['image:array', 'x', 'y', 'dw', 'dh', 'palette:string']
+        @_fields = ['image:array', 'x', 'y', 'dw', 'dh', 'palette:string', 'reserve_val', 'reserve_color']
       super(options)
 
     _set_data: (@data) ->
@@ -49,6 +49,8 @@ define [
         image_data = ctx.getImageData(0, 0, @width[i], @height[i])
         cmap = new LinearColorMapper.Model({
           palette: all_palettes[@palette[i]]
+          reserve_val: @reserve_val
+          reserve_color: @reserve_color
         })
         if @rows?
           img = @image[i]

@@ -1,4 +1,4 @@
-from .properties import Align, Bool, DataSpec, Enum, HasProps, Size
+from .properties import Align, Bool, DataSpec, Enum, HasProps, Size, Any, Color
 from .mixins import FillProps, LineProps, TextProps
 from .enums import Units, AngleUnits, Direction
 from .plot_object import Viewable
@@ -159,6 +159,10 @@ class Image(BaseGlyph):
     dh = DataSpec
     palette = DataSpec
     dilate = Bool(False)
+
+    #TODO: Consider convert palette in to a first-class object, then wrap the color list and reserve values into it instead of here
+    reserve_val = Any 
+    reserve_color = DataSpec #TODO: Why doesn't type Color work here?? (Came through as 'undefined' on the JS side)
 
 class ImageURL(BaseGlyph):
     __view_model__ = 'image_url'

@@ -14,25 +14,19 @@ the remote data directory in the bokeh checkout has the sample data for this exa
 In addition, you must install ArrayManagement from this branch (soon to be master)
 https://github.com/ContinuumIO/ArrayManagement
 """
+
+
 output_server("Abstract rendering")
-#source = ServerDataSource(data_url="/defaultuser/AAPL.hdf5", owner_username="defaultuser")
-source = line_downsample.source(data_url="/defaultuser/AAPL.hdf5", 
-                                owner_username="defaultuser",
-                               domain='x')
-
-
+source = ServerDataSource(data_url="/defaultuser/AAPL.hdf5", owner_username="defaultuser")
 plot = square('volume','close',color='#FF00FF',source=source)
-#spec = ar.glyphspec('date','close',color='#FF00FF',source=source)
+
 
 # Simple heat-map: bin the counts
 heatmap =ar.source(plot)
 #heatmap = ar.source(glyphs=plot, agg=ar.Count(), info=ar.Const(1), select=ar.Touches(), shader=ar.Interpolate(0,9)+ar.Floor())
 #heatmap = ar.source(glyphs=plot, shader=ar.Interpolate(0,9) + ar.Floor())
 #heatmap = ar.source(glyphs=plot) + ar.Interpolate(0,9) + ar.Floor()
-image(source=heatmap, image="image", x='x', y='y', dw='dw', dh='dh', palette=["reds-9"],
-    x_range=Range1d(start=0, end=520), 
-    y_range=Range1d(start=0, end=520))
-#
+image(source=heatmap, palette=["reds-9"], reserve_val=0, reserve_color=0xffffff, **ar.mapping(heatmap))
 #
 ###Perceptually corrected heat-map.  Cube-root then bin
 #percepmap = ar.source(glyphs=plot, agg=ar.count(), info=ar.const(1), select=ar.touches(), shader=ar.Cuberoot()+ar.Interpolate(0,9)+ar.Floor())

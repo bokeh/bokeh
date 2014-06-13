@@ -287,7 +287,7 @@ class ColorSpec(DataSpec):
     or a dict of (field, default).
 
     There are two common use cases for ColorSpec: setting a constant value,
-    and indicating a field name to look for on the datasource::
+    and indicating a field name to look for on the datasource:
 
     >>> class Bar(HasProps):
     ...     col = ColorSpec("green")
