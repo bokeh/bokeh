@@ -1,16 +1,25 @@
-import abstract_rendering.numeric as numeric
-import abstract_rendering.general as general
-import abstract_rendering.infos as infos
-import abstract_rendering.core as ar
-import abstract_rendering.glyphset as glyphset
-
 from ..plotting import curdoc
 from ..plot_object import PlotObject
 from ..objects import  ServerDataSource,  Glyph, Range1d
 from bokeh.properties import (Instance, Any)
-
 import logging
 logger = logging.getLogger(__file__)
+
+try:
+  import abstract_rendering.numeric as numeric
+  import abstract_rendering.general as general
+  import abstract_rendering.infos as infos
+  import abstract_rendering.core as ar
+  import abstract_rendering.glyphset as glyphset
+except Exception as e:
+  print "\n\n-----------------------------------------------------------------------"
+  print "Error loading the abstract rendering package.\n"
+  print "To use the ar_downsample module, you must install the abstract rendering framework."
+  print "This can be cloned from github at https://github.com/JosephCottam/AbstractRendering"
+  print "Install from the ./python directory with 'python setup.py install' (may require admin privledges)" 
+  print "Questions and feedback can be directed to Joseph Cottam (jcottam@indiana.edu)"
+  print "-----------------------------------------------------------------------\n\n"
+  raise e
 
 class Proxy(PlotObject):
   """Proxy objects stand in for the abstract rendering (AR) configuration classes.
