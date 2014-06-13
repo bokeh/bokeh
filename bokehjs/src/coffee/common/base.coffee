@@ -84,6 +84,8 @@ define [
   'transforms/const'
   'transforms/id'
   'transforms/count'
+  'transforms/seq'
+  'transforms/interpolate'
   'transforms/cuberoot'
 ], (_, require) ->
 
@@ -174,7 +176,9 @@ define [
     Dialog:                   'widget/dialog'
 
     Cuberoot:                 'transforms/cuberoot'
-    Const:                    'transforms/const'
+    Seq:                      'transforms/seq'
+    Interpolate:              'transforms/const'
+    Const:                    'transforms/interpolate'
     Count:                    'transforms/count'
     Id:                       'transforms/id'
   mod_cache = {}

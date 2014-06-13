@@ -53,12 +53,18 @@ class Transfer(Proxy):
 class Seq(Transfer):
   first = Instance(Transfer)
   second = Instance(Transfer)
-  def __init__(self,**kwargs):
-    super(Seq,self).__init__(**kwargs)
-    self.out = self.second.out
 
   def reify(self, **kwargs):
     return self.first.reify(**kwargs) + self.second.reify(**kwargs)
+
+  def __getattr__(self, name):
+    if (name == 'out'):
+      self.out = self.second.out
+      return self.out
+    else:
+      raise AttributeError(name)
+
+
 
 class Id(Transfer): 
   out = "image"
@@ -70,7 +76,7 @@ class Interpolate(Transfer):
   high = Any ##TODO: Restrict to numbers... 
   low = Any 
   def reify(self, **kwargs):
-    return numeric.Interpolate(kwargs['low'], kwargs['high'])
+    return numeric.Interpolate(self.low, self.high)
 
 class Sqrt(Transfer):
   out = "image"
