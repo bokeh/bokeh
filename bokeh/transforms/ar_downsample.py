@@ -56,7 +56,7 @@ class Id(Proxy):
     return general.Id()
 
 class Interpolate(Proxy):
-  out = "image"
+  out = "rgb_image"
   def reify(self, **kwargs):
     return numeric.Interpolate(kwargs['low'], kwargs['high'])
 
@@ -71,6 +71,7 @@ class Cuberoot(Proxy):
     return numeric.Cuberoot()
 
 #TODO: Pass the 'rend' defintiion through (minus the data_source references), unpack in 'downsample' instead of here...
+#TODO: Move reserve control up here or palette control down.  Probably related to refactoring palette into a model-backed type
 def source(plot, agg=Count(), info=Const(val=1), shader=Id(), remove_original=True, palette=["Spectral-11"], **kwargs):
   #Acquire information from renderer...
   rend = [r for r in plot.renderers if isinstance(r, Glyph)][0]
@@ -81,7 +82,8 @@ def source(plot, agg=Count(), info=Const(val=1), shader=Id(), remove_original=Tr
   spec = rend.vm_serialize()['glyphspec']
 
   if (shader.out == "image"): 
-    kwargs['data'] = {'x': [0], 
+    kwargs['data'] = {'image': [],
+                      'x': [0], 
                       'y': [0],
                       'global_x_range' : [0, 10],
                       'global_y_range' : [0, 10],
@@ -102,9 +104,22 @@ def source(plot, agg=Count(), info=Const(val=1), shader=Id(), remove_original=Tr
   return ServerDataSource(**kwargs)
 
 def mapping(source):
-  x_range = Range1d(start=0, end=500)
-  y_range = Range1d(start=0, end=500)
-  return {'x':'x', 'y':'y', 'image':'image', 'dw': 'dw', 'dh': 'dh', 'x_range': x_range, 'y_range': y_range, 'palette':'palette'}
+  """Setup property mapping dictionary from source to output glyph type.
+  """
+
+  trans = source.transform
+  out = trans['shader'].out
+
+  if (out == 'image'):
+    keys = source.data.keys() 
+    m = dict(zip(keys, keys))
+    x_range = Range1d(start=0, end=500)
+    y_range = Range1d(start=0, end=500)
+    m['x_range'] = x_range
+    m['y_range'] = y_range
+    return m
+  else:
+    raise ValueError("Only handling image type in property mapping...")
 
 def downsample(data, transform, plot_state):
   screen_size = [span(plot_state['screen_x']),
