@@ -157,12 +157,14 @@ class Image(BaseGlyph):
     y = DataSpec
     dw = DataSpec
     dh = DataSpec
-    palette = DataSpec
     dilate = Bool(False)
 
-    #TODO: Consider convert palette in to a first-class object, then wrap the color list and reserve values into it instead of here
-    reserve_val = Any 
-    reserve_color = DataSpec #TODO: Why doesn't type Color work here?? (Came through as 'undefined' on the JS side)
+    #TODO: Consider converting palette in to a first-class object, then wrap the color list and reserve values into it instead of here
+    #Reserve represents a color/value outside of the normal range.  Commonly used for 'background'
+    palette = DataSpec
+    reserve_val = Any(default=False)
+    reserve_color = DataSpec(default=0xffffff) #TODO: Why doesn't type Color work here?? (Came through as 'undefined' on the JS side)
+                                               #TODO: What is the color code for transparent???
 
 class ImageURL(BaseGlyph):
     __view_model__ = 'image_url'

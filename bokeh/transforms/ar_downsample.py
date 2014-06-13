@@ -20,7 +20,6 @@ from six import add_metaclass, iteritems
 import logging
 logger = logging.getLogger(__file__)
 
-
 class Proxy(PlotObject):
   """Proxy objects stand in for the abstract rendering (AR) configuration classes.
      Basically, the AR implementation doesn't rely on Bokeh, so
@@ -50,13 +49,18 @@ class Const(Proxy):
 
 #### Transfers ---------
 
+#Out types to support ---
+# image -- grid of values
+# rgb_image -- grid of colors
+# poly_line -- multi-segment lines (for ISO contours...)
+
 class Id(Proxy): 
   out = "image"
   def reify(self, **kwargs):
     return general.Id()
 
 class Interpolate(Proxy):
-  out = "rgb_image"
+  out = "image"
   def reify(self, **kwargs):
     return numeric.Interpolate(kwargs['low'], kwargs['high'])
 
