@@ -82,11 +82,11 @@ define [
   'widget/dialog'
 
   'transforms/const'
-  'transforms/id'
   'transforms/count'
-  'transforms/seq'
-  'transforms/interpolate'
   'transforms/cuberoot'
+  'transforms/id'
+  'transforms/interpolate'
+  'transforms/seq'
 ], (_, require) ->
 
   # add some useful functions to underscore
@@ -175,12 +175,13 @@ define [
     Tabs:                     'widget/tabs'
     Dialog:                   'widget/dialog'
 
-    Cuberoot:                 'transforms/cuberoot'
-    Seq:                      'transforms/seq'
-    Interpolate:              'transforms/const'
-    Const:                    'transforms/interpolate'
+    Const:                    'transforms/const'
     Count:                    'transforms/count'
+    Cuberoot:                 'transforms/cuberoot'
     Id:                       'transforms/id'
+    Interpolate:              'transforms/interpolate'
+    Seq:                      'transforms/seq'
+
   mod_cache = {}
   collection_overrides = {}
   Collections = (typename) ->
