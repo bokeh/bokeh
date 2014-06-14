@@ -352,6 +352,7 @@ setup(
         'bokeh.server',
         'bokeh.server.models',
         'bokeh.server.views',
+        'bokeh.server.utils',
         'bokeh.server.tests',
         'bokeh.tests',
         'bokeh.transforms'
