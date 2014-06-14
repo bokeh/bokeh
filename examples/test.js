@@ -53,13 +53,9 @@ page.open(url, function(status) {
         document.body.bgColor = 'white';
     });
 
-    if (tpe === 'notebook') {
-        page.evaluate(function() {
-            // TODO:
-            // $([IPython.events]).on('notebook_loaded.Notebook', function() { ... });
-            // IPython.notebook.execute_all_cells();
-        });
-    }
+    //if (tpe === 'notebook') {
+        //window.setTimeout(console.log("Waiting for notebooks rendering"), 10000);
+    //}
 
     // TODO: get notified when Bokeh finished rendering
     window.setTimeout(function() {
@@ -75,5 +71,5 @@ page.open(url, function(status) {
         }));
 
         phantom.exit();
-    }, 1000);
+    }, 5000);
 });
