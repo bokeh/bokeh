@@ -1,12 +1,15 @@
 #!/bin/bash
 
 #buld py27 pkg
+echo "Building py27 pkg"
 conda build conda.recipe --quiet;
 
 #buid py33 pkg
+echo "Building py33 pkg"
 CONDA_PY=33 conda build conda.recipe --quiet;
 
 #buid py34 pkg
+echo "Building py34 pkg"
 CONDA_PY=34 conda build conda.recipe --quiet;
 
 CONDA_ENV=`conda info --json | jsawk 'return this.root_prefix'`
@@ -44,9 +47,9 @@ done
 
 rm -rf dist/
 
-###################
-Removing on binstar
-###################
+#####################
+#Removing on binstar#
+#####################
 
 
 # remove entire release
@@ -59,4 +62,4 @@ Removing on binstar
 
 # show files
 # binstar show user[/package[/release/[file]]]
-$ binstar show bokeh/bokeh/0.4.5.dev.20140604
+# binstar show bokeh/bokeh/0.4.5.dev.20140604
