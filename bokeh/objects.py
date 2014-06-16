@@ -111,6 +111,20 @@ class Range1d(Range):
     start = Float()
     end = Float()
 
+    def __init__(self, **kwargs):
+        try:
+            import datetime
+            epoch = dt.utcfromtimestamp(0)
+            for arg in ('start', 'end'):
+                if isinstance(kwargs[arg], datetime.datetime):
+                     delta = date - epoch
+                     kwargs[arg] = delta.total_seconds() * 1000.
+        except KeyError:
+            pass
+
+               
+        super(Range1d, self).__init__(**kwargs)
+
 class DataRange(Range):
     sources = List(Instance(ColumnsRef))
 
