@@ -322,15 +322,22 @@ def start_bokeh_server():
 
         return proc
 
-
-def create_ipython_profile():  
-    
+def create_ipython_profile():
     create = ["ipython", "profile", "create", "bokeh_test"]
-    proc = subprocess.Popen(create)
-    
+    try:
+        proc = subprocess.Popen(create)
+    except OSError:
+        print("Failed to run: %s" % " ".join(create))
+        sys.exit(1)
+
     locate = ["ipython", "locate", "profile", "bokeh_test"]
-    loc = subprocess.check_output(locate)
-        
+    if proc:
+        try:
+            loc = subprocess.check_output(locate)
+        except OSError:
+            print("Failed to run: %s" % " ".join(loc))
+            sys.exit(1)
+
     body = """
 $([IPython.events]).on('status_started.Kernel', function(){
   IPython.notebook.execute_all_cells();
@@ -338,18 +345,23 @@ $([IPython.events]).on('status_started.Kernel', function(){
 """
     customjs = os.path.join(loc[:-1], "static", "custom", "custom.js")
     open(customjs, "w").write(body.encode('utf-8'))
-    
-    
-def start_ipython_notebook():  
+
+    return True
+
+def start_ipython_notebook():
+
+    profile = create_ipython_profile()
+
     cmd = ["ipython", "notebook"]
     argv = ["--no-browser","--profile=bokeh_test", "--port=%s" % args.ipython_port]
 
-    try:
-        proc = subprocess.Popen(cmd + argv)
-    except OSError:
-        print("Failed to run: %s" % " ".join(cmd + argv))
-        sys.exit(1)
-        
+    if profile:
+        try:
+            proc = subprocess.Popen(cmd + argv)
+        except OSError:
+            print("Failed to run: %s" % " ".join(cmd + argv))
+            sys.exit(1)
+
     return proc
 
 detect_examples()
@@ -361,7 +373,6 @@ need_notebook = any(flags & Flags.notebook for _, flags in selected_examples)
 
 bokeh_server = start_bokeh_server() if use_server and need_server else None
 
-create_ipython_profile()
 ipython_notebook = start_ipython_notebook() if use_notebook and need_notebook else None
 
 run_examples = 0

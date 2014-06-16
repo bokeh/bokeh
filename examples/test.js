@@ -46,7 +46,11 @@ page.onResourceReceived = function(response) {
 };
 
 // TODO: fit viewport's size to content
-page.viewportSize = { width: 1000, height: 1000 };
+if (tpe === 'notebook') {
+        page.viewportSize = { width: 1000, height: 2000 };
+    } else {
+        page.viewportSize = { width: 1000, height: 1000 };
+    }
 
 page.open(url, function(status) {
     page.evaluate(function() {
