@@ -330,8 +330,15 @@ def create_ipython_profile():
         print("Failed to run: %s" % " ".join(create))
         sys.exit(1)
 
+    return proc
+
+def locate_ipython_profile():
+
     locate = ["ipython", "locate", "profile", "bokeh_test"]
-    if proc:
+
+    created_profile = create_ipython_profile()
+
+    if created_profile:
         try:
             loc = subprocess.check_output(locate)
         except OSError:
@@ -345,17 +352,17 @@ $([IPython.events]).on('status_started.Kernel', function(){
 """
     customjs = os.path.join(loc[:-1], "static", "custom", "custom.js")
     open(customjs, "w").write(body.encode('utf-8'))
-
-    return True
+    print(loc)
+    return loc
 
 def start_ipython_notebook():
 
-    profile = create_ipython_profile()
+    located_profile = locate_ipython_profile()
 
     cmd = ["ipython", "notebook"]
     argv = ["--no-browser","--profile=bokeh_test", "--port=%s" % args.ipython_port]
 
-    if profile:
+    if located_profile:
         try:
             proc = subprocess.Popen(cmd + argv)
         except OSError:
