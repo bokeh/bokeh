@@ -12,7 +12,7 @@ logger = logging.getLogger(__file__)
 
 from . import _glyph_functions
 from .properties import (HasProps, Dict, Enum, Either, Float, Instance, Int,
-    List, String, Color, Include, Bool, Tuple, Any)
+    List, String, Color, Date, Include, Bool, Tuple, Any)
 from .mixins import LineProps, TextProps
 from .enums import BorderSymmetry, DatetimeUnits, Dimension, Location, Orientation, Units
 from .plot_object import PlotObject
@@ -108,22 +108,8 @@ class Range(PlotObject):
 
 class Range1d(Range):
     """ Represents a fixed range [start, end] in a scalar dimension. """
-    start = Float()
-    end = Float()
-
-    def __init__(self, **kwargs):
-        try:
-            import datetime
-            epoch = dt.utcfromtimestamp(0)
-            for arg in ('start', 'end'):
-                if isinstance(kwargs[arg], datetime.datetime):
-                     delta = date - epoch
-                     kwargs[arg] = delta.total_seconds() * 1000.
-        except KeyError:
-            pass
-
-               
-        super(Range1d, self).__init__(**kwargs)
+    start = Either(Float, Date)
+    end = Either(Float, Date)
 
 class DataRange(Range):
     sources = List(Instance(ColumnsRef))
