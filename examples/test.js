@@ -53,10 +53,6 @@ page.open(url, function(status) {
         document.body.bgColor = 'white';
     });
 
-    //if (tpe === 'notebook') {
-        //window.setTimeout(console.log("Waiting for notebooks rendering"), 10000);
-    //}
-
     // TODO: get notified when Bokeh finished rendering
     window.setTimeout(function() {
         if (png !== undefined) {
@@ -71,5 +67,13 @@ page.open(url, function(status) {
         }));
 
         phantom.exit();
-    }, 5000);
+    }, timer());
 });
+
+function timer() {
+    if (tpe === 'notebook') {
+        return 15000;
+    } else {
+        return 1000;
+    }
+}

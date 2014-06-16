@@ -198,10 +198,21 @@ def run_example(example):
     finally:
         signal.alarm(0)
 
+def get_path_parts(path):
+    parts = []
+    while True:
+        newpath, tail = os.path.split(path)
+        parts.append(tail)
+        path = newpath
+        if tail == 'examples':
+            break
+    parts.reverse()
+    return parts
+
 def test_example(example, flags):
     no_ext = os.path.splitext(os.path.abspath(example))[0]
-    parent = os.path.split(os.path.dirname(no_ext))[1]
-    
+    url_path = os.path.join(*get_path_parts(os.path.abspath(example)))
+
     if flags & Flags.file:
         html_file = "%s.html" % no_ext
         url = 'file://' + html_file
@@ -209,8 +220,8 @@ def test_example(example, flags):
         server_url = 'http://localhost:%d/bokeh/doc/%s/show'
         url = server_url % (args.bokeh_port, os.path.basename(no_ext))
     elif flags & Flags.notebook:
-        notebook_url = 'http://localhost:%d/notebooks/examples/%s/%s.ipynb'
-        url = notebook_url % (args.ipython_port, parent, os.path.basename(no_ext))
+        notebook_url = 'http://localhost:%d/notebooks/%s'
+        url = notebook_url % (args.ipython_port, url_path)
     else:
         raise ValueError("invalid example type: %s" % example_type(flags))
 
