@@ -11,6 +11,7 @@ import fnmatch
 import argparse
 import traceback
 import subprocess
+from subprocess import CalledProcessError
 
 import yaml
 
@@ -325,25 +326,22 @@ def start_bokeh_server():
 def create_ipython_profile():
     create = ["ipython", "profile", "create", "bokeh_test"]
     try:
-        proc = subprocess.Popen(create)
+        subprocess.check_call(create)
     except OSError:
         print("Failed to run: %s" % " ".join(create))
         sys.exit(1)
-
-    return proc
 
 def locate_ipython_profile():
 
     locate = ["ipython", "locate", "profile", "bokeh_test"]
 
-    created_profile = create_ipython_profile()
-
-    if created_profile:
-        try:
-            loc = subprocess.check_output(locate)
-        except OSError:
-            print("Failed to run: %s" % " ".join(loc))
-            sys.exit(1)
+    try:
+        loc = subprocess.check_output(locate)
+        print("bokeh_test profile found.")
+    except CalledProcessError:
+        print("bokeh_test profile not found. Creating one...")
+        create_ipython_profile()
+        loc = subprocess.check_output(locate)
 
     body = """
 $([IPython.events]).on('status_started.Kernel', function(){
@@ -352,7 +350,7 @@ $([IPython.events]).on('status_started.Kernel', function(){
 """
     customjs = os.path.join(loc[:-1], "static", "custom", "custom.js")
     open(customjs, "w").write(body.encode('utf-8'))
-    print(loc)
+
     return loc
 
 def start_ipython_notebook():
