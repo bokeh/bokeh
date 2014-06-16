@@ -104,7 +104,7 @@ if __name__ == '__main__':
         target = sys.argv[1]
 
         if sys.argv[1] == 'server':
-            print("Server examples require bokeh-server to run.  Make sure you've typed 'bokeh-server' in another terminal tab.")
+            print("Server examples require bokeh-server to run. Make sure you've typed 'bokeh-server' in another terminal tab.")
             time.sleep(5)
 
         logfile = "%sExamplesTestlog.txt" % target
