@@ -111,6 +111,29 @@ class Range1d(Range):
     start = Either(Float, Date)
     end = Either(Float, Date)
 
+    @property
+    def has_datetime(self):
+        import datetime
+        props = (self.start, self.end)
+        if (any(isinstance(prop, datetime.datetime) for prop in props) or
+            any(isinstance(prop, datetime.date) for prop in props)):
+            return True
+        else:
+            try:
+                from pandas import tslib
+                if any(isinstance(prop, tslib.Timestamp) for prop in props):
+                    return True
+            except ImportError:
+                pass
+            try:
+                import numpy
+                if any(isinstance(prop, numpy.datetime64) for prop in props):
+                    return True
+            except ImportError:
+                pass
+
+        return False
+
 class DataRange(Range):
     sources = List(Instance(ColumnsRef))
 

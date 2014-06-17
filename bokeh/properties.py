@@ -913,6 +913,15 @@ class Either(ParameterizedProperty):
         if not (value is None or any(param.is_valid(value) for param in self.type_params)):
             raise ValueError("expected an element of either %s, got %r" % (nice_join(self.type_params), value))
 
+    def transform(self, value):
+        for param in self.type_params:
+            try:
+                return param.transform(value)
+            except ValueError:
+                pass
+
+        raise ValueError("Could not transform %r" % value)
+
     def __str__(self):
         return "%s(%s)" % (self.__class__.__name__, ", ".join(map(str, self.type_params)))
 
@@ -1027,6 +1036,9 @@ class Percent(Float):
 
 class Angle(Float):
     pass
+
+
+# talking points
 
 class Date(Property):
     def __init__(self, default=datetime.date.today()):
