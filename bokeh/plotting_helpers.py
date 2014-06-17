@@ -233,7 +233,7 @@ def _get_range(range_input):
                 return Range1d(start=range_input[0], end=range_input[1])
             except:
                 pass
-    raise ValueError("Unrecognized range input: '%r'" % str(range_input))
+    raise ValueError("Unrecognized range input: '%s'" % str(range_input))
 
 def _get_axis_class(axis_type, range_input):
     if axis_type is None:

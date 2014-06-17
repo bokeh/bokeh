@@ -115,8 +115,8 @@ class Range1d(Range):
     def has_datetime(self):
         import datetime
         props = (self.start, self.end)
-        if (any(isinstance(prop, datetime.datetime) for prop in props) or
-            any(isinstance(prop, datetime.date) for prop in props)):
+        if any(isinstance(prop, (datetime.datetime, datetime.date))
+          for prop in props):
             return True
         else:
             try:
