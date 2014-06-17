@@ -265,7 +265,11 @@ define [
     if legend
       legends = {}
       for g, idx in glyphs
-        legends[legend + String(idx)] = [g.ref()]
+        if legend == "renderer"
+          legends[g.get('glyphspec').name] = [g.ref()]
+        else
+          legends[legend + String(idx)] = [g.ref()]
+
       legend_renderer = Legend.Collection.create({
         parent: plot.ref()
         plot: plot.ref()
