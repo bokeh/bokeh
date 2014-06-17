@@ -47,7 +47,7 @@ parser.add_argument("patterns", type=str, nargs="*",
                     help="select a subset of examples to test")
 parser.add_argument("-p", "--bokeh-port", type=int, default=5006,
                     help="port on which Bokeh server resides")
-parser.add_argument("-n", "--ipython-port", type=int, default=5007,
+parser.add_argument("-n", "--ipython-port", type=int, default=6007,
                     help="port on which IPython Notebook server resides")
 parser.add_argument("-j", "--phantomjs", type=str, default="phantomjs",
                     help="phantomjs executable")
