@@ -348,8 +348,9 @@ $([IPython.events]).on('status_started.Kernel', function(){
   IPython.notebook.execute_all_cells();
 });
 """
-    customjs = os.path.join(loc[:-1], "static", "custom", "custom.js")
-    open(customjs, "w").write(body.encode('utf-8'))
+
+    customjs = os.path.join(loc[:-1].decode("utf-8"), "static", "custom", "custom.js")
+    open(customjs, "w").write(body)
 
     return loc
 
