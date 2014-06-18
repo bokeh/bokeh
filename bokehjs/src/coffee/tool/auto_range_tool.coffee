@@ -27,27 +27,59 @@ define [
     toolType: "AutoRangeTool"
     tool_events: {
        activated: "_activated"
-       deactivated: "_close_modal"
     }
 
     _activated: (e) ->
-      console.log("EmbedToolView._activated")
-      window.tool_view = @
-      model_id = @plot_model.get('id')
-      doc_id = @plot_model.get('doc')
-      doc_apikey = @plot_model.get('docapikey')
-      baseurl = @plot_model.get('baseurl')
+      PADDING_PERCENTAGE = 0.02
+      start_x = @plot_view.x_ranges.default.get('start')
+      end_x = @plot_view.x_ranges.default.get('end')
 
-      script_inject_escaped = escapeHTML(@plot_model.get('script_inject_snippet'))
+      renderers = _.values(@plot_view.renderers)
+      glyph_renderers = _.filter(renderers,  (x) ->  x.model.type == "Glyph")
+      console.log('glyph_renderers', glyph_renderers)
+      yranges = {}
+      ds = ""  #data_source
+      x_col = "\"\""
+      for gr in glyph_renderers
+        ds = gr.model.get_obj('data_source')
+        yr = gr.y_range_name
+        x_col = gr.x
+        y_extents = gr.model.get('glyphspec').y_extents
+        if _.has(yranges, yr)
+          yranges[yr].concat(yranges[yr], y_extents)
+        else
+          yranges[yr] = y_extents
 
-      @$modal = $(embed_tool_template({script_inject_escaped: script_inject_escaped}))
-      $('body').append(@$modal)
-      @$modal.on 'hidden', () =>
-        @plot_view.eventSink.trigger("clear_active_tool")
-      @$modal.modal({show: true})
+      data = ds.get('data')
+      x_index = x_col
+      # start_index = x_index.indexOf(start_x)
+      # end_index = x_index.indexOf(end_x)
+      start_index = _.sortedIndex(x_index, start_x)
+      end_index = _.sortedIndex(x_index, end_x)
+      console.log('start_index, end_index', start_index, end_index, start_x, end_x)
+      _.each(yranges, (y_columns, range_name) =>
+        extents =  _.map(_.uniq(y_columns), (colName) ->
+          if typeof(colName) == "number"
+            return 0
+          else
+            y_arr = data[colName].slice(_.max([0, start_index - 1]), end_index)
+            return [_.min(y_arr), _.max(y_arr)]
+          )
+        f_extents = _.flatten(extents)
+        min_y = _.min(f_extents)
+        max_y = _.max(f_extents)
+        diff = max_y - min_y
+        padding = diff * PADDING_PERCENTAGE
+        min_y2 = min_y - padding
+        max_y2 = max_y + padding
+        yrange_obj = @plot_view.y_ranges[range_name]
+        console.log('old start and end y', yrange_obj.get('start'), yrange_obj.get('end'))
+        console.log('setting range', range_name,  min_y, max_y, min_y2, max_y2)
 
-    _close_modal : () ->
-      @$modal.remove()
+        yrange_obj.set('start', min_y2)
+        yrange_obj.set('end', max_y2)
+      )
+
 
   class AutoRangeTool extends Tool.Model
      default_view: AutoRangeToolView
