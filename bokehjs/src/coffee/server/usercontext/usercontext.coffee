@@ -1,7 +1,6 @@
 define [
     "underscore",
     "jquery",
-    "bootstrap/collapse",
     "common/base",
     "../serverutils",
     "common/continuum_view",
@@ -11,7 +10,7 @@ define [
     "common/has_parent",
     "common/build_views",
     "common/load_models",
-], (_, $, $1, base, serverutils, continuum_view,
+], (_, $, base, serverutils, continuum_view,
     userdocstemplate, documentationtemplate,
     wrappertemplate, HasParent, build_views, load_models) ->
 
@@ -22,7 +21,7 @@ define [
   class DocView extends ContinuumView
     template : wrappertemplate
     attributes :
-      class : 'bk-bs-panel-group'
+      class : 'panel-group'
     events :
       "click .bokehdoclabel" : "loaddoc"
       "click .bokehdelete" : "deldoc"
@@ -44,8 +43,19 @@ define [
       @listenTo(@model, 'loaded', @render)
 
     render_init : () ->
-      html = $(@template({model: @model, bodyid: _.uniqueId()}))
-      html.find(".bk-bs-collapse").collapse({parent: @$el})
+      # XXX: this code is executed only by server so we can safely
+      # assume that window.$ points to server's jquery. We have to
+      # use this instead of 'bootstrap/collapse', because server's
+      # styles aren't prefixed with bs-bk-, as bokehjs does for
+      # widgets, etc.
+      #jquery = window.$
+
+      #html = jquery(@template({model: @model, bodyid: _.uniqueId()}))
+      #html.find(".collapse")
+      #    .collapse({toggle: false})
+      #    .on("show.bs.collapse", () => @loaddoc())
+
+      html = @template({model: @model, bodyid: _.uniqueId()})
       @$el.html(html)
 
     render : () ->

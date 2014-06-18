@@ -9,9 +9,16 @@ except ImportError:
     pass
 else:
     gevent.monkey.patch_all()
-
+from os.path import join, dirname
 import argparse, os, sys
 import logging
+import werkzeug.serving
+import imp
+import sys
+
+from bokeh.server.utils.reload import robust_reloader
+from bokeh.server.app import bokeh_app
+from bokeh.settings import settings
 
 DEFAULT_BACKEND = os.environ.get('BOKEH_SERVER_DEFAULT_BACKEND', 'shelve')
 if DEFAULT_BACKEND not in ['redis', 'shelve', 'memory']:
@@ -80,6 +87,16 @@ def build_parser():
                         help="data directory",
                         type=str
                         )
+    parser.add_argument("--robust-reload",
+                        help="whether to protect debug server reloading from syntax errors",
+                        default=False,
+                        action="store_true",
+                       )
+    parser.add_argument("--script",
+                        help="script to load(for applets)",
+                        default=None,
+                        type=str
+                       )
     parser.add_argument("--url-prefix",
                         help="url prefix",
                         type=str
@@ -94,7 +111,7 @@ def build_parser():
     parser.add_argument("--dev", action=DevAction, nargs=0, help="run server in development mode")
 
     return parser
-
+    
 def run():
     parser = build_parser()
     args = parser.parse_args(sys.argv[1:])
@@ -145,29 +162,41 @@ data-directory : %s
 
         for handler in logging.getLogger().handlers:
             handler.addFilter(StaticFilter())
+    settings.debugjs = args.debugjs
+    if args.debug:
+        start_with_reloader(args, settings.js_files(), args.robust_reload)
+    else:
+        start_server(args)
 
+def start_server(args):
     from . import start
-
-    start.bokeh_app.debug = False
-    start.app.debug = False
-    start.bokeh_app.splitjs = args.splitjs
-    start.bokeh_app.debugjs = args.debugjs
+    
+    bokeh_app.debug = args.debug
+    bokeh_app.splitjs = args.splitjs
+    bokeh_app.debugjs = args.debugjs
 
     backend = {
         "type": args.backend,
         "redis_port": args.redis_port,
         "start_redis": args.start_redis,
     }
-
     start.prepare_app(backend, single_user_mode=not args.multi_user,
                       data_directory=args.data_directory)
+    if args.script:
+        script_dir = dirname(args.script)
+        if script_dir not in sys.path:
+            print ("adding %s to python path" % script_dir)
+            sys.path.append(script_dir)
+        print ("importing %s" % args.script)
+        imp.load_source("_bokeh_app", args.script)
     start.register_blueprint(args.url_prefix)
-    if args.debug:
-        start.bokeh_app.debug = True
+    start.start_app(host=args.ip, port=args.bokeh_port, verbose=args.verbose)
 
-        import werkzeug.serving
-        @werkzeug.serving.run_with_reloader
-        def helper():
-            start.start_app(host=args.ip, port=args.bokeh_port, verbose=True)
-    else:
-        start.start_app(host=args.ip, port=args.bokeh_port, verbose=args.verbose)
+def start_with_reloader(args, js_files, robust):
+    def helper():
+        start_server(args)
+    if robust:
+        helper = robust_reloader(helper)
+    werkzeug.serving.run_with_reloader(
+        helper, extra_files=js_files)
+

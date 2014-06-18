@@ -1,3 +1,5 @@
+define(["jquery"], function(jQuery) {
+
 /* ========================================================================
  * Bootstrap: dropdown.js v3.1.1
  * http://getbootstrap.com/javascript/#dropdowns
@@ -145,3 +147,5 @@
     .on('keydown.bk-bs.dropdown.data-api', toggle + ', [role=menu], [role=listbox]', Dropdown.prototype.keydown)
 
 }(jQuery);
+
+});
