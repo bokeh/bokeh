@@ -46,7 +46,7 @@ define [
         x_col = gr.x
         y_extents = gr.model.get('glyphspec').y_extents
         if _.has(yranges, yr)
-          yranges[yr].concat(yranges[yr], y_extents)
+          yranges[yr] = yranges[yr].concat( y_extents)
         else
           yranges[yr] = y_extents
 
@@ -58,13 +58,15 @@ define [
       end_index = _.sortedIndex(x_index, end_x)
       console.log('start_index, end_index', start_index, end_index, start_x, end_x)
       _.each(yranges, (y_columns, range_name) =>
-        extents =  _.map(_.uniq(y_columns), (colName) ->
+        extents =  _.filter(_.map(_.uniq(y_columns), (colName) ->
           if typeof(colName) == "number"
             return 0
           else
-            y_arr = data[colName].slice(_.max([0, start_index - 1]), end_index)
+            y_arr = _.reject(data[colName].slice(_.max([0, start_index - 1]), end_index), isNaN)
+            if(y_arr.length == 0)
+              return false
             return [_.min(y_arr), _.max(y_arr)]
-          )
+          ), _.identity)
         f_extents = _.flatten(extents)
         min_y = _.min(f_extents)
         max_y = _.max(f_extents)

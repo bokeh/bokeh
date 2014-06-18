@@ -35108,34 +35108,67 @@ define('tool/object_explorer_tool_template',[],function(){
       AutoRangeToolView.prototype.toolType = "AutoRangeTool";
 
       AutoRangeToolView.prototype.tool_events = {
-        activated: "_activated",
-        deactivated: "_close_modal"
+        activated: "_activated"
       };
 
       AutoRangeToolView.prototype._activated = function(e) {
-        var baseurl, doc_apikey, doc_id, model_id, script_inject_escaped,
+        var PADDING_PERCENTAGE, data, ds, end_index, end_x, glyph_renderers, gr, renderers, start_index, start_x, x_col, x_index, y_extents, yr, yranges, _i, _len,
           _this = this;
-        console.log("EmbedToolView._activated");
-        window.tool_view = this;
-        model_id = this.plot_model.get('id');
-        doc_id = this.plot_model.get('doc');
-        doc_apikey = this.plot_model.get('docapikey');
-        baseurl = this.plot_model.get('baseurl');
-        script_inject_escaped = escapeHTML(this.plot_model.get('script_inject_snippet'));
-        this.$modal = $(embed_tool_template({
-          script_inject_escaped: script_inject_escaped
-        }));
-        $('body').append(this.$modal);
-        this.$modal.on('hidden', function() {
-          return _this.plot_view.eventSink.trigger("clear_active_tool");
+        PADDING_PERCENTAGE = 0.02;
+        start_x = this.plot_view.x_ranges["default"].get('start');
+        end_x = this.plot_view.x_ranges["default"].get('end');
+        renderers = _.values(this.plot_view.renderers);
+        glyph_renderers = _.filter(renderers, function(x) {
+          return x.model.type === "Glyph";
         });
-        return this.$modal.modal({
-          show: true
+        console.log('glyph_renderers', glyph_renderers);
+        yranges = {};
+        ds = "";
+        x_col = "\"\"";
+        for (_i = 0, _len = glyph_renderers.length; _i < _len; _i++) {
+          gr = glyph_renderers[_i];
+          ds = gr.model.get_obj('data_source');
+          yr = gr.y_range_name;
+          x_col = gr.x;
+          y_extents = gr.model.get('glyphspec').y_extents;
+          if (_.has(yranges, yr)) {
+            yranges[yr] = yranges[yr].concat(y_extents);
+          } else {
+            yranges[yr] = y_extents;
+          }
+        }
+        data = ds.get('data');
+        x_index = x_col;
+        start_index = _.sortedIndex(x_index, start_x);
+        end_index = _.sortedIndex(x_index, end_x);
+        console.log('start_index, end_index', start_index, end_index, start_x, end_x);
+        return _.each(yranges, function(y_columns, range_name) {
+          var diff, extents, f_extents, max_y, max_y2, min_y, min_y2, padding, yrange_obj;
+          extents = _.filter(_.map(_.uniq(y_columns), function(colName) {
+            var y_arr;
+            if (typeof colName === "number") {
+              return 0;
+            } else {
+              y_arr = _.reject(data[colName].slice(_.max([0, start_index - 1]), end_index), isNaN);
+              if (y_arr.length === 0) {
+                return false;
+              }
+              return [_.min(y_arr), _.max(y_arr)];
+            }
+          }), _.identity);
+          f_extents = _.flatten(extents);
+          min_y = _.min(f_extents);
+          max_y = _.max(f_extents);
+          diff = max_y - min_y;
+          padding = diff * PADDING_PERCENTAGE;
+          min_y2 = min_y - padding;
+          max_y2 = max_y + padding;
+          yrange_obj = _this.plot_view.y_ranges[range_name];
+          console.log('old start and end y', yrange_obj.get('start'), yrange_obj.get('end'));
+          console.log('setting range', range_name, min_y, max_y, min_y2, max_y2);
+          yrange_obj.set('start', min_y2);
+          return yrange_obj.set('end', max_y2);
         });
-      };
-
-      AutoRangeToolView.prototype._close_modal = function() {
-        return this.$modal.remove();
       };
 
       return AutoRangeToolView;
