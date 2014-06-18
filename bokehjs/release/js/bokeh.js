@@ -21697,12 +21697,11 @@ return { create_gear_tooth: createGearTooth, create_internal_gear_tooth: createI
             if (this.angle[i]) {
               ctx.translate(sx[i], sy[i]);
               ctx.rotate(this.angle[i]);
-              ctx.fillRect(aax[i], aay[i], sw[i], sh[i]);
+              ctx.fillRect(aax[i], aay[i], sw[i], h[i]);
               ctx.rotate(-this.angle[i]);
               ctx.translate(-sx[i], -sy[i]);
             } else {
               ctx.fillRect(ax[i], ay[i], sw[i], h[i]);
-              ctx.rect(ax[i], ay[i], sw[i], h[i]);
             }
           }
         }
@@ -21713,14 +21712,17 @@ return { create_gear_tooth: createGearTooth, create_internal_gear_tooth: createI
             if (isNaN(sx[i] + sy[i] + sw[i] + sh[i] + this.angle[i])) {
               continue;
             }
+            if (sw[i] === 0 || sh[i] === 0) {
+              continue;
+            }
             if (this.angle[i]) {
               ctx.translate(sx[i], sy[i]);
               ctx.rotate(this.angle[i]);
-              ctx.rect(aax[i], aay[i], sw[i], sh[i]);
+              ctx.rect(aax[i], aay[i], sw[i], h[i]);
               ctx.rotate(-this.angle[i]);
               ctx.translate(-sx[i], -sy[i]);
             } else {
-              ctx.rect(ax[i], ay[i], sw[i], sh[i]);
+              ctx.rect(ax[i], ay[i], sw[i], h[i]);
             }
             glyph_props.line_properties.set_vectorize(ctx, i);
             ctx.stroke();
@@ -25694,7 +25696,7 @@ return root.sprintf = sprintf;
           for (_i = 0, _len = ticks.length; _i < _len; _i++) {
             tick = ticks[_i];
             tick_abs = Math.abs(tick);
-            if (tick_abs > zero_eps && (tick_abs >= this.scientific_limit_high || tick_abs <= this.scientific_limit_low)) {
+            if (tick_abs > zero_eps && (tick_abs >= this.get('scientific_limit_high') || tick_abs <= this.get('scientific_limit_low'))) {
               need_sci = true;
               break;
             }
@@ -25709,7 +25711,7 @@ return root.sprintf = sprintf;
             }
           } else {
             for (i = _k = 0, _ref2 = ticks.length; 0 <= _ref2 ? _k < _ref2 : _k > _ref2; i = 0 <= _ref2 ? ++_k : --_k) {
-              labels[i] = ticks[i].toPrecision(precision || void 0).replace(/(\.[0-9]*?)0+$/, "$1").replace(/\.$/, "");
+              labels[i] = ticks[i].toFixed(precision || void 0).replace(/(\.[0-9]*?)0+$/, "$1").replace(/\.$/, "");
             }
           }
           return labels;
@@ -25732,7 +25734,7 @@ return root.sprintf = sprintf;
               }
             } else {
               for (i = _n = 0, _ref5 = ticks.length; 0 <= _ref5 ? _n < _ref5 : _n > _ref5; i = 0 <= _ref5 ? ++_n : --_n) {
-                labels[i] = ticks[i].toPrecision(x).replace(/(\.[0-9]*?)0+$/, "$1").replace(/\.$/, "");
+                labels[i] = ticks[i].toFixed(x).replace(/(\.[0-9]*?)0+$/, "$1").replace(/\.$/, "");
                 if (i > 0) {
                   if (labels[i] === labels[i - 1]) {
                     is_ok = false;
@@ -27343,6 +27345,8 @@ return root.sprintf = sprintf;
 /*
 //@ sourceMappingURL=data_range_box_select_tool.js.map
 */;
+define('bootstrap/modal',["jquery"], function(jQuery) {
+
 /* ========================================================================
  * Bootstrap: modal.js v3.1.1
  * http://getbootstrap.com/javascript/#modals
@@ -27587,7 +27591,7 @@ return root.sprintf = sprintf;
 
 }(jQuery);
 
-define("bootstrap/modal", function(){});
+});
 
 define('tool/embed_tool_template',[],function(){
   var template = function(__obj) {
@@ -27846,7 +27850,7 @@ define('tool/embed_tool_template',[],function(){
       };
 
       HoverToolView.prototype._select = function(vx, vy, e) {
-        var colname, color, column, column_name, datasource, datasource_id, datasource_selections, datasources, ds, dsvalue, geometry, hex, i, label, match, opts, renderer, row, selected, span, swatch, table, td, unused, value, x, y, _i, _j, _len, _len1, _ref1, _ref2, _ref3, _ref4, _ref5;
+        var colname, color, column, column_name, datasource, datasource_id, datasource_selections, datasources, ds, dsvalue, geometry, hex, i, label, match, opts, ow, renderer, row, selected, span, swatch, table, td, unused, value, x, y, _i, _j, _len, _len1, _ref1, _ref2, _ref3, _ref4, _ref5;
         geometry = {
           type: 'point',
           vx: vx,
@@ -27940,10 +27944,22 @@ define('tool/embed_tool_template',[],function(){
               table.append(row);
             }
             this.div.append(table);
-            this.div.css({
-              top: e.pageY - this.div.height() / 2,
-              left: e.pageX + 18
-            });
+            ow = this.plot_view.view_state.get('outer_width');
+            if (vx < ow / 2) {
+              this.div.removeClass('right');
+              this.div.addClass('left');
+              this.div.css({
+                top: e.pageY - this.div.height() / 2,
+                left: e.pageX + 18
+              });
+            } else {
+              this.div.removeClass('left');
+              this.div.addClass('right');
+              this.div.css({
+                top: e.pageY - this.div.height() / 2,
+                left: e.pageX - this.div.width() - 23
+              });
+            }
             this.div.show();
             break;
           } else {
@@ -35060,6 +35076,114 @@ define('tool/object_explorer_tool_template',[],function(){
 
 /*
 //@ sourceMappingURL=object_explorer_tool.js.map
+*/;
+(function() {
+  var __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  define('tool/auto_range_tool',["underscore", "jquery", "bootstrap/modal", "backbone", "./tool", "./event_generators", "./embed_tool_template"], function(_, $, $$1, Backbone, Tool, EventGenerators, embed_tool_template) {
+    var AutoRangeTool, AutoRangeToolView, AutoRangeTools, ButtonEventGenerator, escapeHTML, _ref, _ref1, _ref2;
+    ButtonEventGenerator = EventGenerators.ButtonEventGenerator;
+    escapeHTML = function(unsafe_str) {
+      return unsafe_str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\"/g, '&quot;').replace(/\'/g, '&#39;');
+    };
+    AutoRangeToolView = (function(_super) {
+      __extends(AutoRangeToolView, _super);
+
+      function AutoRangeToolView() {
+        _ref = AutoRangeToolView.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      AutoRangeToolView.prototype.initialize = function(options) {
+        return AutoRangeToolView.__super__.initialize.call(this, options);
+      };
+
+      AutoRangeToolView.prototype.eventGeneratorClass = ButtonEventGenerator;
+
+      AutoRangeToolView.prototype.evgen_options = {
+        buttonText: "Auto Range"
+      };
+
+      AutoRangeToolView.prototype.toolType = "AutoRangeTool";
+
+      AutoRangeToolView.prototype.tool_events = {
+        activated: "_activated",
+        deactivated: "_close_modal"
+      };
+
+      AutoRangeToolView.prototype._activated = function(e) {
+        var baseurl, doc_apikey, doc_id, model_id, script_inject_escaped,
+          _this = this;
+        console.log("EmbedToolView._activated");
+        window.tool_view = this;
+        model_id = this.plot_model.get('id');
+        doc_id = this.plot_model.get('doc');
+        doc_apikey = this.plot_model.get('docapikey');
+        baseurl = this.plot_model.get('baseurl');
+        script_inject_escaped = escapeHTML(this.plot_model.get('script_inject_snippet'));
+        this.$modal = $(embed_tool_template({
+          script_inject_escaped: script_inject_escaped
+        }));
+        $('body').append(this.$modal);
+        this.$modal.on('hidden', function() {
+          return _this.plot_view.eventSink.trigger("clear_active_tool");
+        });
+        return this.$modal.modal({
+          show: true
+        });
+      };
+
+      AutoRangeToolView.prototype._close_modal = function() {
+        return this.$modal.remove();
+      };
+
+      return AutoRangeToolView;
+
+    })(Tool.View);
+    AutoRangeTool = (function(_super) {
+      __extends(AutoRangeTool, _super);
+
+      function AutoRangeTool() {
+        _ref1 = AutoRangeTool.__super__.constructor.apply(this, arguments);
+        return _ref1;
+      }
+
+      AutoRangeTool.prototype.default_view = AutoRangeToolView;
+
+      AutoRangeTool.prototype.type = "AutoRangeTool";
+
+      return AutoRangeTool;
+
+    })(Tool.Model);
+    AutoRangeTools = (function(_super) {
+      __extends(AutoRangeTools, _super);
+
+      function AutoRangeTools() {
+        _ref2 = AutoRangeTools.__super__.constructor.apply(this, arguments);
+        return _ref2;
+      }
+
+      AutoRangeTools.prototype.model = AutoRangeTool;
+
+      AutoRangeTools.prototype.display_defaults = function() {
+        return AutoRangeTools.__super__.display_defaults.call(this);
+      };
+
+      return AutoRangeTools;
+
+    })(Backbone.Collection);
+    return {
+      Model: AutoRangeTool,
+      Collection: new AutoRangeTools(),
+      View: AutoRangeToolView
+    };
+  });
+
+}).call(this);
+
+/*
+//@ sourceMappingURL=auto_range_tool.js.map
 */;
 (function() {
   var __hasProp = {}.hasOwnProperty,
@@ -53011,6 +53135,8 @@ $.widget("ui.sortable", $.ui.mouse, {
 })(jQuery);
 
 });
+define('bootstrap/dropdown',["jquery"], function(jQuery) {
+
 /* ========================================================================
  * Bootstrap: dropdown.js v3.1.1
  * http://getbootstrap.com/javascript/#dropdowns
@@ -53159,7 +53285,7 @@ $.widget("ui.sortable", $.ui.mouse, {
 
 }(jQuery);
 
-define("bootstrap/dropdown", function(){});
+});
 
 (function() {
   var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
@@ -58734,6 +58860,8 @@ window["DP_jQuery_" + dpuuid] = $;
 /*
 //@ sourceMappingURL=panel.js.map
 */;
+define('bootstrap/tab',["jquery"], function(jQuery) {
+
 /* ========================================================================
  * Bootstrap: tab.js v3.1.1
  * http://getbootstrap.com/javascript/#tabs
@@ -58860,7 +58988,7 @@ window["DP_jQuery_" + dpuuid] = $;
 
 }(jQuery);
 
-define("bootstrap/tab", function(){});
+});
 
 define('widget/tabs_template',[],function(){
   var template = function(__obj) {
@@ -59232,7 +59360,7 @@ define('widget/dialog_template',[],function(){
 //@ sourceMappingURL=dialog.js.map
 */;
 (function() {
-  define('common/base',["underscore", "require", "common/custom", "common/gmap_plot", "common/grid_plot", "common/plot", "common/plot_context", "mapper/1d/categorical_mapper", "mapper/1d/linear_mapper", "mapper/2d/grid_mapper", "mapper/color/linear_color_mapper", "range/data_factor_range", "range/data_range1d", "range/factor_range", "range/range1d", "renderer/annotation/legend", "renderer/glyph/glyph_factory", "renderer/guide/categorical_axis", "renderer/guide/datetime_axis", "renderer/guide/grid", "renderer/guide/linear_axis", "renderer/overlay/box_selection", "source/column_data_source", "source/server_data_source", "ticking/abstract_ticker", "ticking/adaptive_ticker", "ticking/basic_tick_formatter", "ticking/basic_ticker", "ticking/categorical_tick_formatter", "ticking/categorical_ticker", "ticking/composite_ticker", "ticking/datetime_tick_formatter", "ticking/datetime_ticker", "ticking/days_ticker", "ticking/months_ticker", "ticking/single_interval_ticker", "ticking/years_ticker", "tool/box_select_tool", "tool/box_zoom_tool", "tool/crosshair_tool", "tool/data_range_box_select_tool", "tool/embed_tool", "tool/hover_tool", "tool/pan_tool", "tool/preview_save_tool", "tool/reset_tool", "tool/resize_tool", "tool/wheel_zoom_tool", "tool/object_explorer_tool", "widget/data_slider", "widget/data_table", "widget/handson_table", "widget/table_column", "widget/pivot_table", "widget/object_explorer", "widget/pandas/ipython_remote_data", "widget/pandas/pandas_pivot_table", "widget/pandas/pandas_plot_source", 'widget/paragraph', 'widget/hbox', 'widget/vbox', 'widget/textinput', 'widget/vboxmodelform', 'widget/pretext', 'widget/selectbox', 'widget/slider', 'widget/date_range_slider', 'widget/date_picker', 'widget/panel', 'widget/tabs', 'widget/dialog'], function(_, require) {
+  define('common/base',["underscore", "require", "common/custom", "common/gmap_plot", "common/grid_plot", "common/plot", "common/plot_context", "mapper/1d/categorical_mapper", "mapper/1d/linear_mapper", "mapper/2d/grid_mapper", "mapper/color/linear_color_mapper", "range/data_factor_range", "range/data_range1d", "range/factor_range", "range/range1d", "renderer/annotation/legend", "renderer/glyph/glyph_factory", "renderer/guide/categorical_axis", "renderer/guide/datetime_axis", "renderer/guide/grid", "renderer/guide/linear_axis", "renderer/overlay/box_selection", "source/column_data_source", "source/server_data_source", "ticking/abstract_ticker", "ticking/adaptive_ticker", "ticking/basic_tick_formatter", "ticking/basic_ticker", "ticking/categorical_tick_formatter", "ticking/categorical_ticker", "ticking/composite_ticker", "ticking/datetime_tick_formatter", "ticking/datetime_ticker", "ticking/days_ticker", "ticking/months_ticker", "ticking/single_interval_ticker", "ticking/years_ticker", "tool/box_select_tool", "tool/box_zoom_tool", "tool/crosshair_tool", "tool/data_range_box_select_tool", "tool/embed_tool", "tool/hover_tool", "tool/pan_tool", "tool/preview_save_tool", "tool/reset_tool", "tool/resize_tool", "tool/wheel_zoom_tool", "tool/object_explorer_tool", "tool/auto_range_tool", "widget/data_slider", "widget/data_table", "widget/handson_table", "widget/table_column", "widget/pivot_table", "widget/object_explorer", "widget/pandas/ipython_remote_data", "widget/pandas/pandas_pivot_table", "widget/pandas/pandas_plot_source", 'widget/paragraph', 'widget/hbox', 'widget/vbox', 'widget/textinput', 'widget/vboxmodelform', 'widget/pretext', 'widget/selectbox', 'widget/slider', 'widget/date_range_slider', 'widget/date_picker', 'widget/panel', 'widget/tabs', 'widget/dialog'], function(_, require) {
     var Collections, Config, collection_overrides, locations, mod_cache, url;
     require("common/custom").monkey_patch();
     Config = {};
@@ -59287,6 +59415,7 @@ define('widget/dialog_template',[],function(){
       EmbedTool: 'tool/embed_tool',
       ResetTool: 'tool/reset_tool',
       ObjectExplorerTool: 'tool/object_explorer_tool',
+      AutoRangeTool: 'tool/auto_range_tool',
       DataSlider: 'widget/data_slider',
       DataTable: 'widget/data_table',
       HandsonTable: 'widget/handson_table',
@@ -59351,7 +59480,7 @@ define('widget/dialog_template',[],function(){
 (function() {
   console.log("multirange2.js");
 
-  define('common/plotting',["underscore", "jquery", "./plot", "range/data_range1d", "range/factor_range", "range/range1d", "renderer/annotation/legend", "renderer/glyph/glyph_factory", "renderer/guide/categorical_axis", "renderer/guide/linear_axis", "renderer/guide/grid", "renderer/overlay/box_selection", "source/column_data_source", "tool/box_select_tool", "tool/box_zoom_tool", "tool/hover_tool", "tool/pan_tool", "tool/preview_save_tool", "tool/resize_tool", "tool/wheel_zoom_tool", "tool/reset_tool", "renderer/guide/datetime_axis"], function(_, $, Plot, DataRange1d, FactorRange, Range1d, Legend, GlyphFactory, CategoricalAxis, LinearAxis, Grid, BoxSelection, ColumnDataSource, BoxSelectTool, BoxZoomTool, HoverTool, PanTool, PreviewSaveTool, ResizeTool, WheelZoomTool, ResetTool, DatetimeAxis) {
+  define('common/plotting',["underscore", "jquery", "./plot", "range/data_range1d", "range/factor_range", "range/range1d", "renderer/annotation/legend", "renderer/glyph/glyph_factory", "renderer/guide/categorical_axis", "renderer/guide/linear_axis", "renderer/guide/grid", "renderer/overlay/box_selection", "source/column_data_source", "tool/box_select_tool", "tool/box_zoom_tool", "tool/hover_tool", "tool/pan_tool", "tool/preview_save_tool", "tool/resize_tool", "tool/wheel_zoom_tool", "tool/reset_tool", "renderer/guide/datetime_axis", "tool/auto_range_tool"], function(_, $, Plot, DataRange1d, FactorRange, Range1d, Legend, GlyphFactory, CategoricalAxis, LinearAxis, Grid, BoxSelection, ColumnDataSource, BoxSelectTool, BoxZoomTool, HoverTool, PanTool, PreviewSaveTool, ResizeTool, WheelZoomTool, ResetTool, DatetimeAxis, AutoRangeTool) {
     var add_axes, add_grids, add_legend, add_tools, create_glyphs, create_range, create_sources, make_plot, show, update_plot;
     create_sources = function(data) {
       var d, sources, _i, _len;
@@ -59615,12 +59744,12 @@ define('widget/dialog_template',[],function(){
       }
     };
     add_tools = function(plot, tools, glyphs, xdr, ydr) {
-      var added_tools, box_zoom_overlay, box_zoom_tool, g, hover_tool, pan_tool, preview_tool, reset_tool, resize_tool, select_overlay, select_tool, wheel_zoom_tool;
+      var added_tools, auto_range_tool, box_zoom_overlay, box_zoom_tool, g, hover_tool, pan_tool, preview_tool, reset_tool, resize_tool, select_overlay, select_tool, wheel_zoom_tool;
       if (tools === false) {
         return;
       }
       if (tools === true) {
-        tools = "pan,wheel_zoom,select,resize,preview,reset,box_zoom";
+        tools = "pan,wheel_zoom,select,resize,preview,reset,box_zoom,auto_range";
       }
       added_tools = [];
       if (tools.indexOf("pan") > -1) {
@@ -59673,6 +59802,10 @@ define('widget/dialog_template',[],function(){
         reset_tool = ResetTool.Collection.create();
         added_tools.push(reset_tool);
       }
+      if (tools.indexOf("auto_range") > -1) {
+        auto_range_tool = AutoRangeTool.Collection.create();
+        added_tools.push(auto_range_tool);
+      }
       if (tools.indexOf("box_zoom") > -1) {
         box_zoom_tool = BoxZoomTool.Collection.create();
         box_zoom_overlay = BoxSelection.Collection.create({
@@ -59689,7 +59822,11 @@ define('widget/dialog_template',[],function(){
         legends = {};
         for (idx = _i = 0, _len = glyphs.length; _i < _len; idx = ++_i) {
           g = glyphs[idx];
-          legends[legend + String(idx)] = [g.ref()];
+          if (legend === "renderer") {
+            legends[g.get('glyphspec').name] = [g.ref()];
+          } else {
+            legends[legend + String(idx)] = [g.ref()];
+          }
         }
         legend_renderer = Legend.Collection.create({
           parent: plot.ref(),
@@ -60584,179 +60721,6 @@ define('widget/dialog_template',[],function(){
 /*
 //@ sourceMappingURL=embed.js.map
 */;
-/* ========================================================================
- * Bootstrap: collapse.js v3.1.1
- * http://getbootstrap.com/javascript/#collapse
- * ========================================================================
- * Copyright 2011-2014 Twitter, Inc.
- * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
- * ======================================================================== */
-
-
-+function ($) {
-  
-
-  // COLLAPSE PUBLIC CLASS DEFINITION
-  // ================================
-
-  var Collapse = function (element, options) {
-    this.$element      = $(element)
-    this.options       = $.extend({}, Collapse.DEFAULTS, options)
-    this.transitioning = null
-
-    if (this.options.parent) this.$parent = $(this.options.parent)
-    if (this.options.toggle) this.toggle()
-  }
-
-  Collapse.DEFAULTS = {
-    toggle: true
-  }
-
-  Collapse.prototype.dimension = function () {
-    var hasWidth = this.$element.hasClass('bk-bs-width')
-    return hasWidth ? 'width' : 'height'
-  }
-
-  Collapse.prototype.show = function () {
-    if (this.transitioning || this.$element.hasClass('bk-bs-in')) return
-
-    var startEvent = $.Event('show.bk-bs.collapse')
-    this.$element.trigger(startEvent)
-    if (startEvent.isDefaultPrevented()) return
-
-    var actives = this.$parent && this.$parent.find('> .bk-bs-panel > .bk-bs-in')
-
-    if (actives && actives.length) {
-      var hasData = actives.data('bk-bs.collapse')
-      if (hasData && hasData.transitioning) return
-      actives.collapse('hide')
-      hasData || actives.data('bk-bs.collapse', null)
-    }
-
-    var dimension = this.dimension()
-
-    this.$element
-      .removeClass('bk-bs-collapse')
-      .addClass('bk-bs-collapsing')
-      [dimension](0)
-
-    this.transitioning = 1
-
-    var complete = function () {
-      this.$element
-        .removeClass('bk-bs-collapsing')
-        .addClass('bk-bs-collapse bk-bs-in')
-        [dimension]('auto')
-      this.transitioning = 0
-      this.$element.trigger('shown.bk-bs.collapse')
-    }
-
-    if (!$.support.transition) return complete.call(this)
-
-    var scrollSize = $.camelCase(['scroll', dimension].join('-'))
-
-    this.$element
-      .one($.support.transition.end, $.proxy(complete, this))
-      .emulateTransitionEnd(350)
-      [dimension](this.$element[0][scrollSize])
-  }
-
-  Collapse.prototype.hide = function () {
-    if (this.transitioning || !this.$element.hasClass('bk-bs-in')) return
-
-    var startEvent = $.Event('hide.bk-bs.collapse')
-    this.$element.trigger(startEvent)
-    if (startEvent.isDefaultPrevented()) return
-
-    var dimension = this.dimension()
-
-    this.$element
-      [dimension](this.$element[dimension]())
-      [0].offsetHeight
-
-    this.$element
-      .addClass('bk-bs-collapsing')
-      .removeClass('bk-bs-collapse')
-      .removeClass('bk-bs-in')
-
-    this.transitioning = 1
-
-    var complete = function () {
-      this.transitioning = 0
-      this.$element
-        .trigger('hidden.bk-bs.collapse')
-        .removeClass('bk-bs-collapsing')
-        .addClass('bk-bs-collapse')
-    }
-
-    if (!$.support.transition) return complete.call(this)
-
-    this.$element
-      [dimension](0)
-      .one($.support.transition.end, $.proxy(complete, this))
-      .emulateTransitionEnd(350)
-  }
-
-  Collapse.prototype.toggle = function () {
-    this[this.$element.hasClass('bk-bs-in') ? 'hide' : 'show']()
-  }
-
-
-  // COLLAPSE PLUGIN DEFINITION
-  // ==========================
-
-  var old = $.fn.collapse
-
-  $.fn.collapse = function (option) {
-    return this.each(function () {
-      var $this   = $(this)
-      var data    = $this.data('bk-bs.collapse')
-      var options = $.extend({}, Collapse.DEFAULTS, $this.data(), typeof option == 'object' && option)
-
-      if (!data && options.toggle && option == 'show') option = !option
-      if (!data) $this.data('bk-bs.collapse', (data = new Collapse(this, options)))
-      if (typeof option == 'string') data[option]()
-    })
-  }
-
-  $.fn.collapse.Constructor = Collapse
-
-
-  // COLLAPSE NO CONFLICT
-  // ====================
-
-  $.fn.collapse.noConflict = function () {
-    $.fn.collapse = old
-    return this
-  }
-
-
-  // COLLAPSE DATA-API
-  // =================
-
-  $(document).on('click.bk-bs.collapse.data-api', '[data-bk-bs-toggle=collapse]', function (e) {
-    var $this   = $(this), href
-    var target  = $this.attr('data-bk-bs-target')
-        || e.preventDefault()
-        || (href = $this.attr('href')) && href.replace(/.*(?=#[^\s]+$)/, '') //strip for ie7
-    var $target = $(target)
-    var data    = $target.data('bk-bs.collapse')
-    var option  = data ? 'toggle' : $this.data()
-    var parent  = $this.attr('data-bk-bs-parent')
-    var $parent = parent && $(parent)
-
-    if (!data || !data.transitioning) {
-      if ($parent) $parent.find('[data-bk-bs-toggle=collapse][data-bk-bs-parent="' + parent + '"]').not($this).addClass('bk-bs-collapsed')
-      $this[$target.hasClass('bk-bs-in') ? 'addClass' : 'removeClass']('bk-bs-collapsed')
-    }
-
-    $target.collapse(option)
-  })
-
-}(jQuery);
-
-define("bootstrap/collapse", function(){});
-
 define('server/usercontext/userdocstemplate',[],function(){
   var template = function(__obj) {
   var _safe = function(value) {
@@ -60824,7 +60788,7 @@ define('server/usercontext/documentationtemplate',[],function(){
       return _safe(result);
     };
     (function() {
-      _print(_safe('<p>\n  <b>\n    You have no Plots.  Follow the intsructions\n    below to create some\n  </b>\n</p>\n'));
+      _print(_safe('<p>\n  <b>\n    You have no Plots. Follow the instructions below to create some.\n  </b>\n</p>\n'));
     
     }).call(this);
     
@@ -60869,19 +60833,19 @@ define('server/usercontext/wrappertemplate',[],function(){
       return _safe(result);
     };
     (function() {
-      _print(_safe('<div class="bk-bs-panel bk-bs-panel-default">\n  <div class="bk-bs-panel-heading">\n    <h4 class="bk-bs-panel-title">\n      <a class="bokehdoclabel" href="#'));
+      _print(_safe('<div class="panel panel-default">\n  <div class="panel-heading">\n    <h4 class="panel-title">\n      <a class="bokehdoclabel" href="#'));
     
       _print(this.bodyid);
     
-      _print(_safe('">\n        Document: '));
+      _print(_safe('" data-toggle="collapse">\n        Document: '));
     
       _print(this.model.get('title'));
     
-      _print(_safe(' <i class="bokehdelete icon-trash"></i>\n      </a>\n    </h4>\n  </div>\n  <div id="'));
+      _print(_safe(' <span class="bokehdelete glyphicon glyphicon-trash"></i>\n      </a>\n    </h4>\n  </div>\n  <div id="'));
     
       _print(this.bodyid);
     
-      _print(_safe('" class="bk-bs-panel-collapse bk-bs-collapse bk-bs-in">\n    <div class="bk-bs-panel-body plots"></div>\n  </div>\n</div>\n'));
+      _print(_safe('" class="panel-collapse collapse">\n    <div class="panel-body plots"></div>\n  </div>\n</div>\n'));
     
     }).call(this);
     
@@ -60908,7 +60872,7 @@ define('server/usercontext/wrappertemplate',[],function(){
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  define('server/usercontext/usercontext',["underscore", "jquery", "bootstrap/collapse", "common/base", "../serverutils", "common/continuum_view", "./userdocstemplate", "./documentationtemplate", "./wrappertemplate", "common/has_parent", "common/build_views", "common/load_models"], function(_, $, $1, base, serverutils, continuum_view, userdocstemplate, documentationtemplate, wrappertemplate, HasParent, build_views, load_models) {
+  define('server/usercontext/usercontext',["underscore", "jquery", "common/base", "../serverutils", "common/continuum_view", "./userdocstemplate", "./documentationtemplate", "./wrappertemplate", "common/has_parent", "common/build_views", "common/load_models"], function(_, $, base, serverutils, continuum_view, userdocstemplate, documentationtemplate, wrappertemplate, HasParent, build_views, load_models) {
     var ContinuumView, Doc, DocView, UserDocs, UserDocsView, exports, utility, _ref, _ref1, _ref2, _ref3;
     exports = {};
     ContinuumView = continuum_view.View;
@@ -60924,7 +60888,7 @@ define('server/usercontext/wrappertemplate',[],function(){
       DocView.prototype.template = wrappertemplate;
 
       DocView.prototype.attributes = {
-        "class": 'bk-bs-panel-group'
+        "class": 'panel-group'
       };
 
       DocView.prototype.events = {
@@ -60954,12 +60918,9 @@ define('server/usercontext/wrappertemplate',[],function(){
 
       DocView.prototype.render_init = function() {
         var html;
-        html = $(this.template({
+        html = this.template({
           model: this.model,
           bodyid: _.uniqueId()
-        }));
-        html.find(".bk-bs-collapse").collapse({
-          parent: this.$el
         });
         return this.$el.html(html);
       };
@@ -61162,23 +61123,41 @@ define('server/usercontext/wrappertemplate',[],function(){
 */;
 (function() {
   define('server/serverrun',["common/base", "./serverutils", "./usercontext/usercontext", "common/has_properties"], function(base, serverutils, usercontext, HasProperties) {
-    var Config, Promises, load, load_one_object, _render, _render_all, _render_one;
+    var Config, Promises, load, load_one_object, reload, _render, _render_all, _render_one;
     Config = base.Config;
     Promises = serverutils.Promises;
     Config.ws_conn_string = "ws://" + window.location.host + "/bokeh/sub";
+    reload = function() {
+      var ping_url;
+      Config = require("common/base").Config;
+      ping_url = "" + Config.prefix + "/bokeh/ping";
+      $.get(ping_url).success(function() {
+        console.log('reloading');
+        return window.location.reload();
+      }).fail(_.delay((function() {
+        return reload();
+      }), 1000));
+      return null;
+    };
     load_one_object = function(docid, objid) {
       HasProperties.prototype.sync = Backbone.sync;
       return $(function() {
         var resp, wswrapper;
         wswrapper = serverutils.utility.make_websocket();
         resp = serverutils.utility.load_one_object_chain(docid, objid);
-        return resp.done(function(data) {
+        resp.done(function(data) {
           var model, view;
           model = base.Collections(data.type).get(objid);
           view = new model.default_view({
             model: model
           });
           return _render(view.el);
+        });
+        wswrapper.subscribe("debug:debug", "");
+        return wswrapper.on('msg:debug:debug', function(msg) {
+          if (msg === 'reload') {
+            return reload();
+          }
         });
       });
     };
@@ -61191,11 +61170,18 @@ define('server/usercontext/wrappertemplate',[],function(){
         userdocs.subscribe(wswrapper, 'defaultuser');
         window.userdocs = userdocs;
         load = userdocs.fetch();
-        return load.done(function() {
+        load.done(function() {
           if (title != null) {
             return _render_one(userdocs, title);
           } else {
             return _render_all(userdocs);
+          }
+        });
+        console.log('subscribing to debug');
+        wswrapper.subscribe("debug:debug", "");
+        return wswrapper.on('msg:debug:debug', function(msg) {
+          if (msg === 'reload') {
+            return reload();
           }
         });
       });
@@ -61243,8 +61229,8 @@ define('server/usercontext/wrappertemplate',[],function(){
 //@ sourceMappingURL=serverrun.js.map
 */;
 (function() {
-  define('main',['require','exports','module','backbone','underscore','common/base','common/base','common/gmap_plot','common/grid_plot','common/has_parent','common/has_properties','common/plot','common/plotting','common/affine','common/build_views','common/bulk_save','common/continuum_view','common/grid_view_state','common/load_models','common/plot_context','common/plot_widget','common/png_view','common/random','common/safebind','common/svg_colors','common/view_state','mapper/1d/linear_mapper','mapper/1d/categorical_mapper','mapper/2d/grid_mapper','mapper/color/linear_color_mapper','palettes/palettes','renderer/annotation/legend','renderer/glyph/glyph','renderer/glyph/glyph_factory','renderer/guide/categorical_axis','renderer/guide/datetime_axis','renderer/guide/grid','renderer/guide/linear_axis','renderer/overlay/box_selection','renderer/properties','server/embed_core','server/embed','server/serverrun','server/serverutils','source/column_data_source','ticking/abstract_ticker','ticking/adaptive_ticker','ticking/basic_ticker','ticking/basic_tick_formatter','ticking/categorical_ticker','ticking/categorical_tick_formatter','ticking/composite_ticker','ticking/datetime_ticker','ticking/datetime_tick_formatter','ticking/days_ticker','ticking/months_ticker','ticking/single_interval_ticker','ticking/years_ticker','tool/box_select_tool','tool/box_zoom_tool','tool/crosshair_tool','tool/data_range_box_select_tool','tool/embed_tool','tool/hover_tool','tool/pan_tool','tool/preview_save_tool','tool/reset_tool','tool/resize_tool','tool/wheel_zoom_tool','tool/object_explorer_tool','server/serverrun','server/serverrun','widget/data_slider','widget/hbox','widget/vbox','widget/vboxmodelform','widget/textinput','widget/object_explorer'],function(require, exports, module) {
-    var Bokeh, glyph_factory;
+  define('main',['require','exports','module','underscore','jquery','backbone','common/base','common/base','common/gmap_plot','common/grid_plot','common/has_parent','common/has_properties','common/plot','common/plotting','common/affine','common/build_views','common/bulk_save','common/continuum_view','common/grid_view_state','common/load_models','common/plot_context','common/plot_widget','common/png_view','common/random','common/safebind','common/svg_colors','common/view_state','mapper/1d/linear_mapper','mapper/1d/categorical_mapper','mapper/2d/grid_mapper','mapper/color/linear_color_mapper','palettes/palettes','renderer/annotation/legend','renderer/glyph/glyph','renderer/glyph/glyph_factory','renderer/guide/categorical_axis','renderer/guide/datetime_axis','renderer/guide/grid','renderer/guide/linear_axis','renderer/overlay/box_selection','renderer/properties','server/embed_core','server/embed','server/serverrun','server/serverutils','source/column_data_source','ticking/abstract_ticker','ticking/adaptive_ticker','ticking/basic_ticker','ticking/basic_tick_formatter','ticking/categorical_ticker','ticking/categorical_tick_formatter','ticking/composite_ticker','ticking/datetime_ticker','ticking/datetime_tick_formatter','ticking/days_ticker','ticking/months_ticker','ticking/single_interval_ticker','ticking/years_ticker','tool/box_select_tool','tool/box_zoom_tool','tool/crosshair_tool','tool/data_range_box_select_tool','tool/embed_tool','tool/hover_tool','tool/pan_tool','tool/preview_save_tool','tool/reset_tool','tool/resize_tool','tool/wheel_zoom_tool','tool/object_explorer_tool','tool/auto_range_tool','server/serverrun','server/serverrun','widget/data_slider','widget/hbox','widget/vbox','widget/vboxmodelform','widget/textinput','widget/object_explorer'],function(require, exports, module) {
+    var Bokeh, glyph_factory, _oldJQ;
     if (!window.Float64Array) {
       console.warn("Float64Array is not supported. Using generic Array instead.");
       window.Float64Array = Array;
@@ -61252,8 +61238,14 @@ define('server/usercontext/wrappertemplate',[],function(){
     Bokeh = {};
     Bokeh.require = require;
     Bokeh.version = '0.4.4';
-    Bokeh.Backbone = require("backbone");
     Bokeh._ = require("underscore");
+    Bokeh.$ = require("jquery");
+    Bokeh.Backbone = require("backbone");
+    _oldJQ = window.$;
+    window.jQuery.noConflict();
+    if (typeof $ === "undefined") {
+      window.$ = _oldJQ;
+    }
     Bokeh.Collections = require("common/base").Collections;
     Bokeh.Config = require("common/base").Config;
     Bokeh.GMapPlot = require("common/gmap_plot");
@@ -61351,6 +61343,7 @@ define('server/usercontext/wrappertemplate',[],function(){
     Bokeh.ResizeTool = require("tool/resize_tool");
     Bokeh.WheelZoomTool = require("tool/wheel_zoom_tool");
     Bokeh.ObjectExplorerTool = require("tool/object_explorer_tool");
+    Bokeh.AutoRangeTool = require("tool/auto_range_tool");
     Bokeh.one_object_page = require("server/serverrun").load_one_object;
     Bokeh.server_page = require("server/serverrun").load;
     Bokeh.DataSlider = require("widget/data_slider");
@@ -61375,12 +61368,3 @@ define('server/usercontext/wrappertemplate',[],function(){
   //value to use for the public API for the built file.
   return require('main');
 }));
-
-// Make sure that we don't clobber any existing definition of $ (most
-// likely a previous version of jQuery.
-var _oldJQ = $;
-jQuery.noConflict();
-if(typeof($)=="undefined"){
-  // if there was no previous definition of $, put our definition into window.$.
-  $=_oldJQ;
-}

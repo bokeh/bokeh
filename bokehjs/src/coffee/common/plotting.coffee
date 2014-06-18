@@ -22,10 +22,12 @@ define [
   "tool/wheel_zoom_tool",
   "tool/reset_tool",
   "renderer/guide/datetime_axis",
+  "tool/auto_range_tool",
 ], (_, $, Plot, DataRange1d, FactorRange, Range1d, Legend,
   GlyphFactory, CategoricalAxis, LinearAxis, Grid, BoxSelection,
   ColumnDataSource, BoxSelectTool, BoxZoomTool, HoverTool, PanTool,
-  PreviewSaveTool, ResizeTool, WheelZoomTool, ResetTool, DatetimeAxis) ->
+  PreviewSaveTool, ResizeTool, WheelZoomTool,
+  ResetTool, DatetimeAxis, AutoRangeTool) ->
 
   create_sources = (data) ->
     if not _.isArray(data)
@@ -206,7 +208,7 @@ define [
       return
 
     if tools == true
-      tools = "pan,wheel_zoom,select,resize,preview,reset,box_zoom"
+      tools = "pan,wheel_zoom,select,resize,preview,reset,box_zoom,auto_range"
     added_tools = []
 
     if tools.indexOf("pan") > -1
@@ -250,6 +252,10 @@ define [
     if tools.indexOf("reset") > -1
       reset_tool = ResetTool.Collection.create()
       added_tools.push(reset_tool)
+
+    if tools.indexOf("auto_range") > -1
+      auto_range_tool = AutoRangeTool.Collection.create()
+      added_tools.push(auto_range_tool)
 
     if tools.indexOf("box_zoom") > -1
       box_zoom_tool = BoxZoomTool.Collection.create()

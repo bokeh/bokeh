@@ -1,6 +1,6 @@
 (function() {
   define(function(require, exports, module) {
-    var Bokeh, glyph_factory;
+    var Bokeh, glyph_factory, _oldJQ;
     if (!window.Float64Array) {
       console.warn("Float64Array is not supported. Using generic Array instead.");
       window.Float64Array = Array;
@@ -8,8 +8,14 @@
     Bokeh = {};
     Bokeh.require = require;
     Bokeh.version = '0.4.4';
-    Bokeh.Backbone = require("backbone");
     Bokeh._ = require("underscore");
+    Bokeh.$ = require("jquery");
+    Bokeh.Backbone = require("backbone");
+    _oldJQ = window.$;
+    window.jQuery.noConflict();
+    if (typeof $ === "undefined") {
+      window.$ = _oldJQ;
+    }
     Bokeh.Collections = require("common/base").Collections;
     Bokeh.Config = require("common/base").Config;
     Bokeh.GMapPlot = require("common/gmap_plot");
@@ -107,6 +113,7 @@
     Bokeh.ResizeTool = require("tool/resize_tool");
     Bokeh.WheelZoomTool = require("tool/wheel_zoom_tool");
     Bokeh.ObjectExplorerTool = require("tool/object_explorer_tool");
+    Bokeh.AutoRangeTool = require("tool/auto_range_tool");
     Bokeh.one_object_page = require("server/serverrun").load_one_object;
     Bokeh.server_page = require("server/serverrun").load;
     Bokeh.DataSlider = require("widget/data_slider");
