@@ -305,8 +305,8 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
 
 
     # Remove pan/zoom tools in case of categorical axes
-    remove_pan_zoom = (isinstance(xaxis, CategoricalAxis) or
-                       isinstance(yaxis, CategoricalAxis))
+    remove_pan_zoom = (isinstance(p.x_range, FactorRange) or
+                       isinstance(p.y_range, FactorRange))
     removing = []
 
     for tool in re.split(r"\s*,\s*", tools.strip()):
