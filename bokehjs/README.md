@@ -73,8 +73,11 @@ Demoing
 -------
 
 Running `grunt build` will also cause the demo files to be built and copied
-over to the **build/demo** directory. To run the demos, simply open any of the
-HTML files located there in a browser.
+over to the **build/demo** directory. You must also run `grunt deploy` in order to run the demos. 
+
+To run the demos, simply run `grunt serve` and click on the **demo** subdirectory. Alternatively, you can manually open any of the HTML files located in the **build/demo** directory in a browser.
+
+**Note:** You must run the demos from the **build/demo** directory. This is not to be confused with the **demo** folder in the BokehJS top-level directory.
 
 **Note:** Alternatively, run `$ ./bokeh-server -j ` and navigate to
 [Glyphs Demo](http://localhost:5006/bokehjs/static/demo/glyphs.html).
