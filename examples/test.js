@@ -5,6 +5,7 @@ var fs = require('fs');
 var tpe = system.args[1];
 var url = system.args[2];
 var png = system.args[3];
+var timeout = system.args[4];
 
 var errors = [];
 var messages = [];
@@ -76,7 +77,7 @@ page.open(url, function(status) {
 
 function timer() {
     if (tpe === 'notebook') {
-        return 15000;
+        return timeout * 1000;
     } else {
         return 1000;
     }
