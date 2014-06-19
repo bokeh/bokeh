@@ -365,8 +365,11 @@ def start_ipython_notebook():
 
     located_profile = locate_ipython_profile()
 
+    notebook_dir = os.path.split(os.path.dirname(os.path.realpath(__file__)))[0]
+
     cmd = ["ipython", "notebook"]
-    argv = ["--no-browser","--profile=bokeh_test", "--port=%s" % args.ipython_port]
+    argv = ["--no-browser","--profile=bokeh_test", "--port=%s" % args.ipython_port,
+            "--notebook-dir=%s" % notebook_dir]
 
     if located_profile:
         try:
