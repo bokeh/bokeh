@@ -81,105 +81,53 @@ define [
 
     return glyphs
 
-  add_axes = (plot, xaxes_spec, yaxes_spec, xdr, ydr) ->
-    xaxes = []
-    if xaxes_spec
-      if xaxes_spec == true
-        xaxes_spec = ['min', 'max']
-      if not _.isArray(xaxes_spec)
-        xaxes_spec = [xaxes_spec]
-      if xaxes_spec[0]=="datetime"
-        axis = DatetimeAxis.Collection.create(
-          dimension: 0
-          axis_label: 'x'
-          location: 'min'
-          parent: plot.ref()
-          plot: plot.ref()
-        )
-        xaxes.push(axis)
-      else if xdr.type == "FactorRange"
-        for loc in xaxes_spec
-          axis = CategoricalAxis.Collection.create(
-            dimension: 0
-            axis_label: 'x'
-            location: loc
-            parent: plot.ref()
-            plot: plot.ref()
-          )
-          xaxes.push(axis)
-      else
-        for loc in xaxes_spec
-          if loc.indexOf(":") > -1
-            [loc, x_range_name] = loc.split(":")
-            axis = LinearAxis.Collection.create(
-              dimension: 0
-              axis_label: 'x'
-              location: loc
-              parent: plot.ref()
-              plot: plot.ref()
-              x_range_name: x_range_name
-            )
-          else
-            axis = LinearAxis.Collection.create(
-              dimension: 0
-              axis_label: 'x'
-              location: loc
-              parent: plot.ref()
-              plot: plot.ref()
-            )
-          xaxes.push(axis)
-    yaxes = []
-    if yaxes_spec
-      if yaxes_spec == true
-        yaxes_spec = ['min', 'max']
-      if not _.isArray(yaxes_spec)
-        yaxes_spec = [yaxes_spec]
-      if yaxes_spec[0]=="datetime"
-        axis = DatetimeAxis.Collection.create(
-          dimension: 1
-          axis_label: 'y'
-          location: 'min'
-          parent: plot.ref()
-          plot: plot.ref()
-        )
-        yaxes.push(axis)
-      else if ydr.type == "FactorRange"
-        for loc in yaxes_spec
-          axis = CategoricalAxis.Collection.create(
-            dimension: 1
-            axis_label: 'y'
-            location: loc
-            parent: plot.ref()
-            plot: plot.ref()
-          )
-          yaxes.push(axis)
-      else
-        for loc in yaxes_spec
-          if loc.indexOf(":") > -1
-            [loc, y_range_name] = loc.split(":")
-            axis = LinearAxis.Collection.create(
-              dimension: 1
-              axis_label: 'y'
-              location: loc
-              parent: plot.ref()
-              plot: plot.ref()
-              y_range_name: y_range_name
-            )
-          else
-            axis = LinearAxis.Collection.create(
-              dimension: 1
-              axis_label: 'y'
-              location: loc
-              parent: plot.ref()
-              plot: plot.ref()
-            )
-          yaxes.push(axis)
+  
+  interpret_axis= (axis_spec, plot) ->
+    defaults =  {
+      type: 'linear',
+      _axis_label: false,
+      parent: plot.ref(),
+      plot: plot.ref(),
+      dimension: 0,
+      location: 'min'
+    }
+    merged_spec = _.defaults({}, axis_spec, defaults)
+    if merged_spec.type == 'linear'
+      return LinearAxis.Collection.create(merged_spec)
+    else if merged_spec.type == 'factor_range'
+      return CategoricalAxis.Collection.create(merged_spec)
+    else if merged_spec.type == 'datetime'
+      return DatetimeAxis.Collection.create(merged_spec)
+    else
+      1/0 # an invalid type wwas specified, throw an error
 
+  _axis_api = (plot, axes_spec, dim) ->
+    axes = []
+    if typeof(axes_spec) == "string"
+      #the user specified min or max, and wants a LinearAxis
+      if axes_spec == "min" || axes_spec == "max"
+        axes.push(interpret_axis({location: axes_spec, dimension:dim}, plot))
+      else  # here the user wants to specify the axis type
+        axes.push(interpret_axis({type:axes_spec, dimension:dim}, plot))
+    else if _.isArray(axes_spec)
+      for yspec in axes_spec
+        axes.push(interpret_axis(_.defaults(yspec, {dimension:dim}), plot))
+    else if typeof(axes_spec)=="boolean"
+      if axes_spec
+        axes.push(interpret_axis({location: 'min', dimension:dim}, plot))
+    else if typeof(axes_spec) == "object"
+      axes.push(interpret_axis(_.defaults(axes_spec, {dimension:dim}), plot))
+    else
+      1/0  # I don't know what else there is, but this API doesn't
+           # know how to deal with it
+    return axes
+  
+  add_axes = (plot, xaxes_spec, yaxes_spec) ->
+    xaxes = _axis_api(plot, xaxes_spec, 0)
+    yaxes = _axis_api(plot, yaxes_spec, 1)
     plot.add_renderers(a.ref() for a in xaxes)
     plot.add_renderers(a.ref() for a in yaxes)
-
     return [xaxes, yaxes]
-
   # FIXME The xaxis_is_datetime argument is a huge hack, but for now I want to
   # make as small a change as possible.  Doing it right will require a larger
   # refactoring.
@@ -363,7 +311,7 @@ define [
         glyphs:[]
         tools:[]
         title: title}, (val, key) ->
-                console.log(val, key);
+                #console.log(val, key);
                 plot.set(key, val));
     console.log("after  each loop")
     glyphs = create_glyphs(plot, glyphspecs, sources, nonselected)
