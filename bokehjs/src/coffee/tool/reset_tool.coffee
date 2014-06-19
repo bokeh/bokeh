@@ -13,7 +13,10 @@ define [
       super(options)
 
     eventGeneratorClass: ButtonEventGenerator
-    evgen_options: { buttonText:"Reset View" }
+    evgen_options:
+      buttonText:"Reset View"
+      showButton: true
+      
     toolType: "ResetTool"
     tool_events: {
        activated: "_activated"

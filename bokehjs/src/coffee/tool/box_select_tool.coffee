@@ -29,6 +29,7 @@ define [
       buttonText: "Select"
       cursor: "crosshair"
       restrict_to_innercanvas: true
+      showButton: true
 
     tool_events:
       SetBasepoint: "_start_selecting"

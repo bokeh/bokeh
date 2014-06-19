@@ -17,7 +17,9 @@ define [
       super(options)
 
     eventGeneratorClass: ButtonEventGenerator
-    evgen_options: { buttonText: "Preview/Save" }
+    evgen_options:
+      buttonText: "Preview/Save"
+      showButton: true
     toolType: "PreviewSaveTool"
     tool_events: {
       activated: "_activated"

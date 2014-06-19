@@ -22,6 +22,7 @@ define [
       keyName: "ctrlKey"
       buttonText: "Box Zoom"
       cursor: "crosshair"
+      showButton: true 
       auto_deactivate: true
       restrict_to_innercanvas: true
 

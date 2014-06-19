@@ -39,6 +39,7 @@ define [
       keyName: null
       buttonText: "Pan"
       cursor: "move"
+      showButton: false
       auto_deactivate: true
       restrict_to_innercanvas: true
 

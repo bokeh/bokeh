@@ -26477,7 +26477,9 @@ return root.sprintf = sprintf;
         });
         this.$tool_button = $("<button class='bk-bs-btn bk-bs-btn-default bk-bs-btn-sm'> " + this.options.buttonText + " </button>");
         this.plotview;
-        this.plotview.$el.find('.button_bar').append(this.$tool_button);
+        if (this.options.showButton) {
+          this.plotview.$el.find('.button_bar').append(this.$tool_button);
+        }
         this.$tool_button.click(function() {
           if (_this.button_activated) {
             return eventSink.trigger("clear_active_tool");
@@ -26575,7 +26577,9 @@ return root.sprintf = sprintf;
           return _this.mouseover_count += 1;
         });
         this.$tool_button = $("<button class='bk-bs-btn bk-bs-btn-default bk-bs-btn-sm'> " + this.options.buttonText + " </button>");
-        this.plotview.$el.find('.button_bar').append(this.$tool_button);
+        if (this.options.showButton) {
+          this.plotview.$el.find('.button_bar').append(this.$tool_button);
+        }
         this.$tool_button.click(function() {
           if (_this.button_activated) {
             return eventSink.trigger("clear_active_tool");
@@ -26644,7 +26648,9 @@ return root.sprintf = sprintf;
           return _this.mouseover_count += 1;
         });
         this.$tool_button = $("<button class='bk-bs-btn bk-bs-btn-default bk-bs-btn-sm'> " + this.options.buttonText + " </button>");
-        this.plotview.$el.find('.button_bar').append(this.$tool_button);
+        if (this.options.showButton) {
+          this.plotview.$el.find('.button_bar').append(this.$tool_button);
+        }
         this.$tool_button.click(function() {
           if (_this.button_activated) {
             return eventSink.trigger("clear_active_tool");
@@ -26743,7 +26749,8 @@ return root.sprintf = sprintf;
         keyName: "shiftKey",
         buttonText: "Select",
         cursor: "crosshair",
-        restrict_to_innercanvas: true
+        restrict_to_innercanvas: true,
+        showButton: true
       };
 
       BoxSelectToolView.prototype.tool_events = {
@@ -26951,6 +26958,7 @@ return root.sprintf = sprintf;
         keyName: "ctrlKey",
         buttonText: "Box Zoom",
         cursor: "crosshair",
+        showButton: true,
         auto_deactivate: true,
         restrict_to_innercanvas: true
       };
@@ -27142,7 +27150,8 @@ return root.sprintf = sprintf;
       CrosshairToolView.prototype.evgen_options = {
         keyName: "",
         buttonText: "Crosshair",
-        cursor: "crosshair"
+        cursor: "crosshair",
+        showButton: true
       };
 
       CrosshairToolView.prototype.tool_events = {
@@ -27667,7 +27676,8 @@ define('tool/embed_tool_template',[],function(){
       EmbedToolView.prototype.eventGeneratorClass = ButtonEventGenerator;
 
       EmbedToolView.prototype.evgen_options = {
-        buttonText: "Embed Html"
+        buttonText: "Embed Html",
+        showButton: true
       };
 
       EmbedToolView.prototype.toolType = "EmbedTool";
@@ -28096,6 +28106,7 @@ define('tool/embed_tool_template',[],function(){
         keyName: null,
         buttonText: "Pan",
         cursor: "move",
+        showButton: false,
         auto_deactivate: true,
         restrict_to_innercanvas: true
       };
@@ -28302,7 +28313,8 @@ define('tool/preview_save_tool_template',[],function(){
       PreviewSaveToolView.prototype.eventGeneratorClass = ButtonEventGenerator;
 
       PreviewSaveToolView.prototype.evgen_options = {
-        buttonText: "Preview/Save"
+        buttonText: "Preview/Save",
+        showButton: true
       };
 
       PreviewSaveToolView.prototype.toolType = "PreviewSaveTool";
@@ -28402,7 +28414,8 @@ define('tool/preview_save_tool_template',[],function(){
       ResetToolView.prototype.eventGeneratorClass = ButtonEventGenerator;
 
       ResetToolView.prototype.evgen_options = {
-        buttonText: "Reset View"
+        buttonText: "Reset View",
+        showButton: true
       };
 
       ResetToolView.prototype.toolType = "ResetTool";
@@ -28497,7 +28510,8 @@ define('tool/preview_save_tool_template',[],function(){
       ResizeToolView.prototype.evgen_options = {
         keyName: "",
         buttonText: "Resize",
-        cursor: "move"
+        cursor: "move",
+        showButton: true
       };
 
       ResizeToolView.prototype.tool_events = {
@@ -28685,7 +28699,9 @@ define('tool/preview_save_tool_template',[],function(){
       WheelZoomToolView.prototype.eventGeneratorClass = OnePointWheelEventGenerator;
 
       WheelZoomToolView.prototype.evgen_options = {
-        buttonText: "Wheel Zoom"
+        buttonText: "Wheel Zoom",
+        showButton: true,
+        auto_deactivate: true
       };
 
       WheelZoomToolView.prototype.tool_events = {

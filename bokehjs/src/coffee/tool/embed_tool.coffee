@@ -23,7 +23,9 @@ define [
       super(options)
 
     eventGeneratorClass: ButtonEventGenerator
-    evgen_options: { buttonText:"Embed Html" }
+    evgen_options: 
+      buttonText:"Embed Html"
+      showButton: true
     toolType: "EmbedTool"
     tool_events: {
        activated: "_activated"

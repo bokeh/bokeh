@@ -24,7 +24,7 @@ define [
       keyName: ""
       buttonText: "Crosshair"
       cursor: "crosshair"
-
+      showButton: true
     tool_events:
       activated: "_activate"
       deactivated: "_deactivate"

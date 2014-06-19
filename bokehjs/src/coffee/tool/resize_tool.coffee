@@ -23,6 +23,7 @@ define [
       keyName: ""
       buttonText: "Resize"
       cursor: "move"
+      showButton: true
 
     tool_events:
       activated: "_activate"
