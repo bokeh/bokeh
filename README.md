@@ -1,5 +1,4 @@
 Bokeh [![Build Status](https://travis-ci.org/ContinuumIO/bokeh.svg?branch=master)](https://travis-ci.org/ContinuumIO/bokeh) [![Monthly Conda downloads](http://pubbadges.s3-website-us-east-1.amazonaws.com/pkgs-downloads-bokeh.png)](http://bokeh.pydata.org/docs/installation.html) [![Monthly PyPI downloads](https://pypip.in/download/bokeh/badge.png?period=month)](https://pypi.python.org/pypi/bokeh/)
-
 =====
 
 Bokeh is a Python interactive visualization library that targets modern 
