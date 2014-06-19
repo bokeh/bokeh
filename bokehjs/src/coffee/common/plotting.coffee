@@ -270,16 +270,30 @@ define [
   add_legend = (plot, legend, glyphs) ->
     if legend
       legends = {}
-      for g, idx in glyphs
+      default_legend_options = {
+        read_name_from_renderer: false
+        legend_text: legend
+        orientation: "top_right"}
+
+      if typeof(legend) == "string"
+        legend_options = default_legend_options
         if legend == "renderer"
+          legend_options.read_name_from_renderer = true
+      else if typeof(legend) == "object"
+        legend_options = _.defaults(legend, default_legend_options)
+      else
+        1/0 #hack to force an exception.
+        
+      for g, idx in glyphs
+        if legend_options.read_name_from_renderer
           legends[g.get('glyphspec').name] = [g.ref()]
         else
-          legends[legend + String(idx)] = [g.ref()]
+          legends[legend_options.legend_text + String(idx)] = [g.ref()]
 
       legend_renderer = Legend.Collection.create({
         parent: plot.ref()
         plot: plot.ref()
-        orientation: "top_right"
+        orientation: legend_options.orientation
         legends: legends
       })
       plot.add_renderers([legend_renderer.ref()])
