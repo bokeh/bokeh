@@ -199,7 +199,7 @@ module.exports = (grunt) ->
       server:
         options:
           port: 8000,
-          base: '.'
+          base: 'build/'
 
     qunit:
       all:
