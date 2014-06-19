@@ -1,7 +1,13 @@
-Bokeh [![Build Status](https://travis-ci.org/ContinuumIO/bokeh.svg?branch=master)](https://travis-ci.org/ContinuumIO/bokeh)
+Bokeh [![Build Status](https://travis-ci.org/ContinuumIO/bokeh.svg?branch=master)](https://travis-ci.org/ContinuumIO/bokeh) [![Monthly Conda downloads](http://pubbadges.s3-website-us-east-1.amazonaws.com/pkgs-downloads-bokeh.png)](http://bokeh.pydata.org/docs/installation.html) [![Monthly PyPI downloads](https://pypip.in/download/bokeh/badge.png?period=month)](https://pypi.python.org/pypi/bokeh/)
+
 =====
 
-Bokeh is a Python interactive visualization library for large datasets that natively uses the latest web technologies. Its goal is to provide elegant, concise construction of novel graphics in the style of Protovis/D3, while delivering high-performance interactivity over large data to thin clients.
+Bokeh is a Python interactive visualization library that targets modern 
+web browsers for presentation. Its goal is to provide elegant, concise 
+construction of novel graphics in the style of D3.js, but also deliver this 
+capability with high-performance interactivity over very large or streaming 
+datasets. Bokeh can help anyone who would like to quickly and easily create
+interactive plots, dashboards, and data applications.
 
 Please visit the [Bokeh web page](http://bokeh.pydata.org) for more information and full documentation.
 
