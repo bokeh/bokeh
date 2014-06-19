@@ -304,17 +304,16 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
         tools = temp_tool_str
 
 
-    # Remove pan/zoom tools in case of categorical axes:
-    #   https://github.com/ContinuumIO/bokeh/issues/464
-
-    # I don't really know a better way to catch this - @kdodia
+    # Remove pan/zoom tools in case of categorical axes
     remove_pan_zoom = (isinstance(xaxis, CategoricalAxis) or
                        isinstance(yaxis, CategoricalAxis))
+    removing = []
 
     for tool in re.split(r"\s*,\s*", tools.strip()):
         # re.split will return empty strings; ignore them.
 
         if remove_pan_zoom and ("pan" in tool or "zoom" in tool):
+            removing.append(tool)
             continue
 
         if tool == "":
@@ -380,6 +379,11 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
             warnings.warn("tools:%s are being repeated!"%repeated)
 
     p.tools.extend(tool_objs)
+
+    if removing:
+        warnings.warn("Categorical plots do not support pan and zoom operations.\n"
+                      "Removing tool(s): %s" %', '.join(removing))
+
     return p
 
 
