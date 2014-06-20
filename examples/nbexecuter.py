@@ -1,8 +1,8 @@
-#!/usr/bin/env python
 """
-Script for running and save notebooks from command line.
-
-by @damianavila
+Script for running notebooks and output nbconverted html files from the
+command line, by @damianavila
+To be replaced by IPython.nbconvert execute preprocessor in the future:
+https://github.com/ipython/ipython/pull/5639
 """
 from __future__ import print_function
 
