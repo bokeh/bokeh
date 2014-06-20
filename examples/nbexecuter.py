@@ -2,10 +2,6 @@
 """
 Script for running and save notebooks from command line.
 
-How to use: `ipynb_run_save.py foo.ipynb
-
-Some tweaks over ipydoctest.py from minrk
-
 by @damianavila
 """
 from __future__ import print_function
@@ -14,14 +10,18 @@ import io
 import os
 import sys
 
+from six import iteritems
+
 try:
-    from queue import Empty  # Py 3
+    from queue import Empty
 except ImportError:
-    from Queue import Empty  # Py 2
+    from Queue import Empty
 
 from IPython.kernel import KernelManager
 from IPython.nbformat.current import read, NotebookNode
 from IPython.nbconvert.exporters import HTMLExporter
+
+from bokeh.utils import encode_utf8
 
 
 def run_cell(shell, iopub, cell):
@@ -50,7 +50,7 @@ def run_cell(shell, iopub, cell):
             out.stream = content['name']
             out.text = content['data']
         elif msg_type in ('display_data', 'pyout'):
-            for mime, data in content['data'].iteritems():
+            for mime, data in iteritems(content['data']):
                 attr = mime.split('/')[-1].lower()
                 # this gets most right, but fix svg+html, plain
                 attr = attr.replace('+xml', '').replace('plain', 'text')
@@ -121,7 +121,7 @@ def main(ipynb):
     exportHtml = HTMLExporter()
     (body, resources) = exportHtml.from_notebook_node(nb)
 
-    open(outfile, 'w').write(body.encode('utf-8'))
+    open(outfile, 'w').write(encode_utf8(body))
     print("wrote %s" % outfile)
 
 if __name__ == '__main__':
