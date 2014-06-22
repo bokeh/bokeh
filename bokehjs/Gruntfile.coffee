@@ -186,7 +186,7 @@ module.exports = (grunt) ->
         options:
           spawn: false
       less:
-        files: ["<%= less.development.files[0].cwd %>/<%= less.development.files[0].src %>"]
+        files: ["src/less/*"]
         tasks: ['clean:css', 'less', 'concat:css']
         options:
           spawn: false
