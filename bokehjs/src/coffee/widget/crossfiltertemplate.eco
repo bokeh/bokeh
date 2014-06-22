@@ -3,33 +3,33 @@
     <tr>
       <td class="aligntable">
         <div class="bk-crossfilter-configuration bk-bs-container">
-          <div class="bk-bs-row">
+          <div class="bk-crossfilter-row">
             <div class="col-md-4 bk-column-list">
             </div>
             <div class="col-md-4 bk-filters-facets">
-              <div class="panel panel-primary bk-filters">
-                <div class="panel-heading">
+              <div class="bk-bs-panel bk-bs-panel-primary bk-filters">
+                <div class="bk-bs-panel-heading">
                   Filter
                 </div>
-                <div class="panel-body bk-filters-selections">
+                <div class="bk-bs-panel-body bk-filters-selections">
                 </div>
               </div>
-              <div class="panel panel-primary bk-facet bk-facet-x">
-                <div class="panel-heading">
+              <div class="bk-bs-panel bk-bs-panel-primary bk-facet bk-facet-x">
+                <div class="bk-bs-panel-heading">
                   Facet X
                 </div>
                 <div class="bk-facets-selections ">
                 </div>
               </div>
-              <div class="panel panel-primary bk-facet bk-facet-y">
-                <div class="panel-heading">
+              <div class="bk-bs-panel bk-bs-panel-primary bk-facet bk-facet-y">
+                <div class="bk-bs-panel-heading">
                   Facet Y
                 </div>
                 <div class="bk-facets-selections ">
                 </div>
               </div>
-              <div class="panel panel-primary bk-facet bk-facet-tab">
-                <div class="panel-heading">
+              <div class="bk-bs-panel bk-bs-panel-primary bk-facet bk-facet-tab">
+                <div class="bk-bs-panel-heading">
                   Facet Tab
                 </div>
                 <div class="bk-facets-selections ">
