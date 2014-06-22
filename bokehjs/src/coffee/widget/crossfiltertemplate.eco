@@ -1,9 +1,9 @@
-<div class="bk bk-crossfilter-container">
+<div class="bk-crossfilter-container">
   <table>
     <tr>
       <td class="aligntable">
-        <div class="bk-crossfilter-configuration container">
-          <div class="row bk-row">
+        <div class="bk-crossfilter-configuration bk-bs-container">
+          <div class="bk-bs-row">
             <div class="col-md-4 bk-column-list">
             </div>
             <div class="col-md-4 bk-filters-facets">
