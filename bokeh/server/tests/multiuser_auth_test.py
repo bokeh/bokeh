@@ -5,7 +5,7 @@ import requests
 from . import test_utils
 from ..app import bokeh_app
 from ..models import user
-from ...serverconfig import Server
+from ...session import Session
 from ...tests.test_utils import skipIfPy3, skipIfPyPy
 
 
@@ -105,7 +105,7 @@ class ServerConfigTestCase(test_utils.BokehServerTestCase):
         #create a dummy config file
         config = tempfile.mkdtemp()
         #create server
-        server = Server(name="foo", root_url="http://localhost:5006/",
+        server = Session(name="foo", root_url="http://localhost:5006/",
                         configdir=config
                         )
         assert server.userapikey == "nokey"
@@ -114,7 +114,7 @@ class ServerConfigTestCase(test_utils.BokehServerTestCase):
         assert server.userapikey and server.userapikey != "nokey"
         #create a second server configuration
         #make sure it loads the proper api key
-        server2 = Server(name="foo",
+        server2 = Session(name="foo",
                          configdir=config
                          )
         assert server2.userapikey == server.userapikey
@@ -125,7 +125,7 @@ class ServerConfigTestCase(test_utils.BokehServerTestCase):
     def test_login(self):
         #create a server config, register a user
         config1 = tempfile.mkdtemp()
-        server = Server(name="foo", root_url="http://localhost:5006/",
+        server = Session(name="foo", root_url="http://localhost:5006/",
                         configdir=config1
                         )
         assert server.userapikey == "nokey"
@@ -134,7 +134,7 @@ class ServerConfigTestCase(test_utils.BokehServerTestCase):
 
         #create a separate server config, login a user
         config2 = tempfile.mkdtemp()
-        server2 = Server(name="foo", root_url="http://localhost:5006/",
+        server2 = Session(name="foo", root_url="http://localhost:5006/",
                          configdir=config2
                          )
         assert server2.userapikey == "nokey"

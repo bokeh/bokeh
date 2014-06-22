@@ -1,4 +1,4 @@
-{% extends "_base.html" %}
+{% extends "_page_base.html" %}
 
 {% block title %}
 Bokeh Plot Server &mdash; {{ title }}
@@ -9,7 +9,7 @@ Bokeh.server_page("{{ title }}");
 {% endblock %}
 
 {% block content %}
-<div class="span12">
+<div class="col-md-12">
   <div id="PlotPane"></div>
 </div>
 {% endblock %}

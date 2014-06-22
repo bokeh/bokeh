@@ -251,7 +251,7 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
     axiscls = None
     if x_axis_type is None:
         pass
-    elif isinstance(x_range, FactorRange):
+    elif isinstance(p.x_range, FactorRange):
         axiscls = CategoricalAxis
     elif x_axis_type is "linear":
         axiscls = LinearAxis
@@ -264,7 +264,7 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
     axiscls = None
     if y_axis_type is None:
         pass
-    elif isinstance(y_range, FactorRange):
+    elif isinstance(p.y_range, FactorRange):
         axiscls = CategoricalAxis
     elif y_axis_type is "linear":
         axiscls = LinearAxis

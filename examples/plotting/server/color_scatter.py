@@ -1,3 +1,6 @@
+# The plot server must be running
+# Go to http://localhost:5006/bokeh to view this plot
+
 import numpy as np
 from six.moves import zip
 from bokeh.plotting import *

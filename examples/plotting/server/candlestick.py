@@ -1,3 +1,5 @@
+# The plot server must be running
+# Go to http://localhost:5006/bokeh to view this plot
 
 from math import pi
 import pandas as pd
@@ -18,7 +20,7 @@ w = 12*60*60*1000 # half day in ms
 output_server("candlestick")
 
 figure(x_axis_type = "datetime", tools="pan,wheel_zoom,box_zoom,reset,previewsave",
-       width=1000, name="candlestick")
+       plot_width=1000, name="candlestick")
 
 hold()
 

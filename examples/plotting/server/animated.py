@@ -1,3 +1,6 @@
+# The plot server must be running
+# Go to http://localhost:5006/bokeh to view this plot
+
 import time
 import numpy as np
 from numpy import pi, cos, sin, linspace, roll, zeros_like

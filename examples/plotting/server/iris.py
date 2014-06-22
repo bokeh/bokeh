@@ -1,3 +1,5 @@
+# The plot server must be running
+# Go to http://localhost:5006/bokeh to view this plot
 
 from bokeh.sampledata.iris import flowers
 from bokeh.plotting import *

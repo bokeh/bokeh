@@ -1,5 +1,6 @@
 # The plot server must be running
 # Go to http://localhost:5006/bokeh to view this plot
+
 from __future__ import print_function
 import numpy as np
 from bokeh.plotting import *
