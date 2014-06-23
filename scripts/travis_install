@@ -34,7 +34,7 @@ DEPS_DOCS="sphinx pygments" # sphinx-bootstrap-theme sphinxcontrib-napoleon
 DEPS_EXAMPLES="scipy matplotlib statsmodels sympy" # ggplot seaborn
 DEPS_TESTS="nose mock colorama coverage" # websocket
 DEPS_IPYTHON="ipython ipython-notebook"
-DEPS_PIP="sphinx-bootstrap-theme sphinxcontrib-napoleon ggplot seaborn"
+DEPS_PIP="sphinx-bootstrap-theme sphinxcontrib-napoleon ggplot seaborn abstract_rendering"
 
 if [[ "$TRAVIS_PYTHON_VERSION" == 2* ]]; then
     DEPS_SERVER="$DEPS_SERVER gevent gevent-websocket"
