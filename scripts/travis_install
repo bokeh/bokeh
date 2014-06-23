@@ -27,7 +27,7 @@ INSTALL_DIR="$HOME/.local/lib/python$TRAVIS_PYTHON_VERSION/site-packages"
 mkdir -p $INSTALL_DIR
 ln -s $(readlink -f bokeh) $INSTALL_DIR/bokeh
 
-DEPS_BOKEH="numpy pandas six requests dateutil abstract_rendering"
+DEPS_BOKEH="numpy pandas six requests dateutil abstract-rendering"
 DEPS_SERVER="flask werkzeug greenlet redis redis-py"
 DEPS_DATA="PyYAML"
 DEPS_DOCS="sphinx pygments" # sphinx-bootstrap-theme sphinxcontrib-napoleon
