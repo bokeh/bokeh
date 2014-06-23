@@ -19,10 +19,11 @@ define [
     toolType: "BoxZoomTool"
 
     evgen_options:
-      keyName: "ctrlKey"
+      #keyName: "ctrlKey"
+      keyName: null
       buttonText: "Box Zoom"
+      showButton: false
       cursor: "crosshair"
-      showButton: true 
       auto_deactivate: true
       restrict_to_innercanvas: true
 
