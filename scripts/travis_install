@@ -27,7 +27,7 @@ INSTALL_DIR="$HOME/.local/lib/python$TRAVIS_PYTHON_VERSION/site-packages"
 mkdir -p $INSTALL_DIR
 ln -s $(readlink -f bokeh) $INSTALL_DIR/bokeh
 
-DEPS_BOKEH="numpy pandas six requests dateutil abstract-rendering"
+DEPS_BOKEH="numpy pandas six requests dateutil"
 DEPS_SERVER="flask werkzeug greenlet redis redis-py"
 DEPS_DATA="PyYAML"
 DEPS_DOCS="sphinx pygments" # sphinx-bootstrap-theme sphinxcontrib-napoleon
@@ -45,6 +45,7 @@ DEPS="$DEPS_BOKEH $DEPS_SERVER $DEPS_DATA $DEPS_DOCS $DEPS_EXAMPLES $DEPS_TESTS 
 
 conda install --yes pip $DEPS || exit 1
 pip install $DEPS_PIP || exit 1
+conda install -c https://conda.binstar.org/ilan abstract-rendering
 
 cd bokehjs
 npm install && node_modules/.bin/grunt deploy || exit 1
