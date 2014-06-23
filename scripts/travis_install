@@ -27,14 +27,14 @@ INSTALL_DIR="$HOME/.local/lib/python$TRAVIS_PYTHON_VERSION/site-packages"
 mkdir -p $INSTALL_DIR
 ln -s $(readlink -f bokeh) $INSTALL_DIR/bokeh
 
-DEPS_BOKEH="numpy pandas six requests dateutil"
+DEPS_BOKEH="numpy pandas six requests dateutil abstract_rendering"
 DEPS_SERVER="flask werkzeug greenlet redis redis-py"
 DEPS_DATA="PyYAML"
 DEPS_DOCS="sphinx pygments" # sphinx-bootstrap-theme sphinxcontrib-napoleon
 DEPS_EXAMPLES="scipy matplotlib statsmodels sympy" # ggplot seaborn
 DEPS_TESTS="nose mock colorama coverage" # websocket
 DEPS_IPYTHON="ipython ipython-notebook"
-DEPS_PIP="sphinx-bootstrap-theme sphinxcontrib-napoleon ggplot seaborn abstract_rendering"
+DEPS_PIP="sphinx-bootstrap-theme sphinxcontrib-napoleon ggplot seaborn"
 
 if [[ "$TRAVIS_PYTHON_VERSION" == 2* ]]; then
     DEPS_SERVER="$DEPS_SERVER gevent gevent-websocket"
