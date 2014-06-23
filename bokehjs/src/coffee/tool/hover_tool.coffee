@@ -99,8 +99,15 @@ define [
         vx: vx
         vy: vy
       }
-      x = @plot_view.xmapper.map_from_target(vx)
-      y = @plot_view.ymapper.map_from_target(vy)
+      xs = {}
+      ys = {}
+      for name, mapper of @plot_view.x_mappers
+        xs[name] = mapper.map_from_target(vx)
+      for name, mapper of @plot_view.y_mappers
+        ys[name] = mapper.map_from_target(vy)
+      
+        x = @plot_view.xmapper.map_from_target(vx)
+        y = @plot_view.ymapper.map_from_target(vy)
       datasources = {}
       datasource_selections = {}
       for renderer in @mget_obj('renderers')
@@ -149,6 +156,8 @@ define [
 
             else
               value = value.replace("$index", "#{ i }")
+              x = xs.default
+              y = ys.default
               value = value.replace("$x", "#{ _format_number(x) }")
               value = value.replace("$y", "#{ _format_number(y) }")
               value = value.replace("$vx", "#{ vx }")
