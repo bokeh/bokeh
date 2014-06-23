@@ -293,25 +293,21 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
     tool_objs = []
     temp_tool_str = str()
 
-    # Remove pan/zoom tools in case of categorical axes
-    remove_pan_zoom = (isinstance(p.x_range, FactorRange) or
-                       isinstance(p.y_range, FactorRange))
-
-    removing = []
-
     if isinstance(tools, list):
         for tool in tools:
             if isinstance(tool, Tool):
-                if remove_pan_zoom and isinstance(tool,
-                    (BoxZoomTool, PanTool, WheelZoomTool)):
-                    removing.append(tool.__view_model__) 
-                    continue
                 tool_objs.append(tool)
             elif isinstance(tool, string_types):
                 temp_tool_str+=tool + ','
             else:
                 raise ValueError("tool should be a valid str or Tool Object")
         tools = temp_tool_str
+
+
+    # Remove pan/zoom tools in case of categorical axes
+    remove_pan_zoom = (isinstance(p.x_range, FactorRange) or
+                       isinstance(p.y_range, FactorRange))
+    removing = []
 
     for tool in re.split(r"\s*,\s*", tools.strip()):
         # re.split will return empty strings; ignore them.
