@@ -7,15 +7,16 @@ define [
 ], (_, Backbone, Tool, EventGenerators) ->
 
   ButtonEventGenerator = EventGenerators.ButtonEventGenerator
+  RightClickEventGenerator = EventGenerators.RightClickEventGenerator
 
   class ResetToolView extends Tool.View
     initialize: (options) ->
       super(options)
 
-    eventGeneratorClass: ButtonEventGenerator
+    eventGeneratorClass: RightClickEventGenerator
     evgen_options:
       buttonText:"Reset View"
-      showButton: true
+      showButton: false
       
     toolType: "ResetTool"
     tool_events: {
