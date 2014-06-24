@@ -351,15 +351,16 @@ define [
       if good_vals
         yrs = {}
         for name, rng of @y_ranges
-          if not rng.get('start')? or not rng.get('end')? or _.isNaN(rng.get('start') + rng.get('end'))
-            good_vals = false
-            break
+          # if not rng.get('start')? or not rng.get('end')? or _.isNaN(rng.get('start') + rng.get('end'))
+          #   good_vals = false
+          #   break
           yrs[name] = { start: rng.get('start'), end: rng.get('end') }
       if good_vals
         @initial_range_info = {
           xrs: xrs
           yrs: yrs
         }
+
 
     render: (force) ->
       super()
