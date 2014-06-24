@@ -1,3 +1,4 @@
+
 module.exports = (grunt) ->
   fs = require("fs")
 
@@ -199,7 +200,7 @@ module.exports = (grunt) ->
       server:
         options:
           port: 8000,
-          base: 'build/'
+          base: 'docs/'
 
     qunit:
       all:
