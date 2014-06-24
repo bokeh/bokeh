@@ -15317,10 +15317,6 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
           _ref2 = this.y_ranges;
           for (name in _ref2) {
             rng = _ref2[name];
-            if ((rng.get('start') == null) || (rng.get('end') == null) || _.isNaN(rng.get('start') + rng.get('end'))) {
-              good_vals = false;
-              break;
-            }
             yrs[name] = {
               start: rng.get('start'),
               end: rng.get('end')
@@ -20658,9 +20654,6 @@ return { create_gear_tooth: createGearTooth, create_internal_gear_tooth: createI
         for (_i = 0, _len = indices.length; _i < _len; _i++) {
           i = indices[_i];
           if (isNaN(this.sx[i] + this.sy[i]) && drawing) {
-            ctx.stroke();
-            ctx.beginPath();
-            drawing = false;
             continue;
           }
           if (drawing) {
@@ -21629,6 +21622,9 @@ return { create_gear_tooth: createGearTooth, create_internal_gear_tooth: createI
 
       RectView.prototype._set_data = function() {
         var i, pts, _i, _ref1, _results;
+        if (true) {
+          return;
+        }
         this.index = rbush();
         pts = [];
         _results = [];
@@ -25928,12 +25924,13 @@ return root.sprintf = sprintf;
           width = this.plot_view.view_state.get('width');
         }
         style_string += "; left:" + xpos + "px; width:" + width + "px; ";
+        yrange = false;
         if (yrange) {
           ypos = this.plot_view.view_state.vy_to_sy(Math.max(yrange[0], yrange[1]));
           height = Math.abs(yrange[1] - yrange[0]);
         } else {
           ypos = 0;
-          height = this.plot_view.view_state.get('height');
+          height = this.plot_view.view_state.attributes.canvas_height;
         }
         this.$el.addClass('shading');
         style_string += "top:" + ypos + "px; height:" + height + "px";
@@ -26363,7 +26360,7 @@ return root.sprintf = sprintf;
 */;
 (function() {
   define('tool/event_generators',[], function() {
-    var ButtonEventGenerator, OnePointWheelEventGenerator, TwoPointEventGenerator, set_bokehXY;
+    var ButtonEventGenerator, OnePointWheelEventGenerator, RightClickEventGenerator, TwoPointEventGenerator, set_bokehXY;
     set_bokehXY = function(event) {
       var left, offset, top;
       offset = $(event.currentTarget).offset();
@@ -26696,10 +26693,83 @@ return root.sprintf = sprintf;
       return ButtonEventGenerator;
 
     })();
+    RightClickEventGenerator = (function() {
+      function RightClickEventGenerator(options) {
+        this.options = options;
+        this.toolName = this.options.eventBasename;
+        this.button_activated = false;
+        this.tool_active = false;
+      }
+
+      RightClickEventGenerator.prototype.bind_bokeh_events = function(plotview, eventSink) {
+        var no_scroll, restore_scroll, toolName,
+          _this = this;
+        toolName = this.toolName;
+        this.plotview = plotview;
+        this.eventSink = eventSink;
+        $(document).bind('keydown', function(e) {
+          if (e.keyCode === 27) {
+            return eventSink.trigger("clear_active_tool");
+          }
+        });
+        this.plotview.$el.bind("mouseover", function(e) {
+          return _this.mouseover_count += 1;
+        });
+        this.$tool_button = $("<button class='bk-bs-btn bk-bs-btn-default bk-bs-btn-sm'> " + this.options.buttonText + " </button>");
+        if (this.options.showButton) {
+          this.plotview.$el.find('.button_bar').append(this.$tool_button);
+        }
+        this.plotview.canvas_wrapper.bind('contextmenu', function(e) {
+          if (_this.button_activated) {
+            eventSink.trigger("clear_active_tool");
+          } else {
+            eventSink.trigger("active_tool", toolName);
+            _this.button_activated = true;
+          }
+          return false;
+        });
+        no_scroll = function(el) {
+          el.setAttribute("old_overflow", el.style.overflow);
+          el.style.overflow = "hidden";
+          if (el === document.body) {
+
+          } else {
+            return no_scroll(el.parentNode);
+          }
+        };
+        restore_scroll = function(el) {
+          el.style.overflow = el.getAttribute("old_overflow");
+          if (el === document.body) {
+
+          } else {
+            return restore_scroll(el.parentNode);
+          }
+        };
+        eventSink.on("" + toolName + ":deactivated", function() {
+          _this.tool_active = false;
+          _this.button_activated = false;
+          _this.$tool_button.removeClass('active');
+          return document.body.style.overflow = _this.old_overflow;
+        });
+        eventSink.on("" + toolName + ":activated", function() {
+          _this.tool_active = true;
+          return _this.$tool_button.addClass('active');
+        });
+        return eventSink;
+      };
+
+      RightClickEventGenerator.prototype.hide_button = function() {
+        return this.$tool_button.hide();
+      };
+
+      return RightClickEventGenerator;
+
+    })();
     return {
       "TwoPointEventGenerator": TwoPointEventGenerator,
       "OnePointWheelEventGenerator": OnePointWheelEventGenerator,
-      "ButtonEventGenerator": ButtonEventGenerator
+      "ButtonEventGenerator": ButtonEventGenerator,
+      "RightClickEventGenerator": RightClickEventGenerator
     };
   });
 
@@ -26955,10 +27025,10 @@ return root.sprintf = sprintf;
       BoxZoomToolView.prototype.toolType = "BoxZoomTool";
 
       BoxZoomToolView.prototype.evgen_options = {
-        keyName: "ctrlKey",
+        keyName: null,
         buttonText: "Box Zoom",
+        showButton: false,
         cursor: "crosshair",
-        showButton: true,
         auto_deactivate: true,
         restrict_to_innercanvas: true
       };
@@ -27860,25 +27930,37 @@ define('tool/embed_tool_template',[],function(){
       };
 
       HoverToolView.prototype._select = function(vx, vy, e) {
-        var colname, color, column, column_name, datasource, datasource_id, datasource_selections, datasources, ds, dsvalue, geometry, hex, i, label, match, opts, ow, renderer, row, selected, span, swatch, table, td, unused, value, x, y, _i, _j, _len, _len1, _ref1, _ref2, _ref3, _ref4, _ref5;
+        var colname, color, column, column_name, datasource, datasource_id, datasource_selections, datasources, ds, dsvalue, geometry, hex, i, label, mapper, match, name, opts, ow, renderer, row, selected, span, swatch, table, td, unused, value, x, xs, y, ys, _i, _j, _len, _len1, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7;
         geometry = {
           type: 'point',
           vx: vx,
           vy: vy
         };
-        x = this.plot_view.xmapper.map_from_target(vx);
-        y = this.plot_view.ymapper.map_from_target(vy);
+        xs = {};
+        ys = {};
+        _ref1 = this.plot_view.x_mappers;
+        for (name in _ref1) {
+          mapper = _ref1[name];
+          xs[name] = mapper.map_from_target(vx);
+        }
+        _ref2 = this.plot_view.y_mappers;
+        for (name in _ref2) {
+          mapper = _ref2[name];
+          ys[name] = mapper.map_from_target(vy);
+          x = this.plot_view.xmapper.map_from_target(vx);
+          y = this.plot_view.ymapper.map_from_target(vy);
+        }
         datasources = {};
         datasource_selections = {};
-        _ref1 = this.mget_obj('renderers');
-        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-          renderer = _ref1[_i];
+        _ref3 = this.mget_obj('renderers');
+        for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
+          renderer = _ref3[_i];
           datasource = renderer.get_obj('data_source');
           datasources[datasource.id] = datasource;
         }
-        _ref2 = this.mget_obj('renderers');
-        for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
-          renderer = _ref2[_j];
+        _ref4 = this.mget_obj('renderers');
+        for (_j = 0, _len1 = _ref4.length; _j < _len1; _j++) {
+          renderer = _ref4[_j];
           datasource_id = renderer.get_obj('data_source').id;
           _.setdefault(datasource_selections, datasource_id, []);
           selected = this.plot_view.renderers[renderer.id].hit_test(geometry);
@@ -27890,14 +27972,14 @@ define('tool/embed_tool_template',[],function(){
             i = selected[0];
             this.div.empty();
             table = $('<table></table>');
-            _ref3 = this.mget("tooltips");
-            for (label in _ref3) {
-              value = _ref3[label];
+            _ref5 = this.mget("tooltips");
+            for (label in _ref5) {
+              value = _ref5[label];
               row = $("<tr></tr>");
               row.append($("<td class='bokeh_tooltip_row_label'>" + label + ": </td>"));
               td = $("<td class='bokeh_tooltip_row_value'></td>");
               if (value.indexOf("$color") >= 0) {
-                _ref4 = value.match(/\$color(\[.*\])?:(\w*)/), match = _ref4[0], opts = _ref4[1], colname = _ref4[2];
+                _ref6 = value.match(/\$color(\[.*\])?:(\w*)/), match = _ref6[0], opts = _ref6[1], colname = _ref6[2];
                 column = ds.getcolumn(colname);
                 if (column == null) {
                   span = $("<span>" + colname + " unknown</span>");
@@ -27926,6 +28008,8 @@ define('tool/embed_tool_template',[],function(){
                 td.append(span);
               } else {
                 value = value.replace("$index", "" + i);
+                x = xs["default"];
+                y = ys["default"];
                 value = value.replace("$x", "" + (_format_number(x)));
                 value = value.replace("$y", "" + (_format_number(y)));
                 value = value.replace("$vx", "" + vx);
@@ -27933,7 +28017,7 @@ define('tool/embed_tool_template',[],function(){
                 value = value.replace("$sx", "" + e.bokehX);
                 value = value.replace("$sy", "" + e.bokehY);
                 while (value.indexOf("@") >= 0) {
-                  _ref5 = value.match(/(@)(\w*)/), match = _ref5[0], unused = _ref5[1], column_name = _ref5[2];
+                  _ref7 = value.match(/(@)(\w*)/), match = _ref7[0], unused = _ref7[1], column_name = _ref7[2];
                   column = ds.getcolumn(column_name);
                   if (column == null) {
                     value = value.replace(column_name, "" + column_name + " unknown");
@@ -28397,8 +28481,9 @@ define('tool/preview_save_tool_template',[],function(){
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('tool/reset_tool',["underscore", "backbone", "./tool", "./event_generators"], function(_, Backbone, Tool, EventGenerators) {
-    var ButtonEventGenerator, ResetTool, ResetToolView, ResetTools, _ref, _ref1, _ref2;
+    var ButtonEventGenerator, ResetTool, ResetToolView, ResetTools, RightClickEventGenerator, _ref, _ref1, _ref2;
     ButtonEventGenerator = EventGenerators.ButtonEventGenerator;
+    RightClickEventGenerator = EventGenerators.RightClickEventGenerator;
     ResetToolView = (function(_super) {
       __extends(ResetToolView, _super);
 
@@ -28411,11 +28496,11 @@ define('tool/preview_save_tool_template',[],function(){
         return ResetToolView.__super__.initialize.call(this, options);
       };
 
-      ResetToolView.prototype.eventGeneratorClass = ButtonEventGenerator;
+      ResetToolView.prototype.eventGeneratorClass = RightClickEventGenerator;
 
       ResetToolView.prototype.evgen_options = {
         buttonText: "Reset View",
-        showButton: true
+        showButton: false
       };
 
       ResetToolView.prototype.toolType = "ResetTool";
@@ -35097,7 +35182,7 @@ define('tool/object_explorer_tool_template',[],function(){
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  define('tool/auto_range_tool',["underscore", "jquery", "bootstrap/modal", "backbone", "./tool", "./event_generators", "./embed_tool_template"], function(_, $, $$1, Backbone, Tool, EventGenerators, embed_tool_template) {
+  define('tool/auto_range_tool',["underscore", "jquery", "bootstrap/modal", "backbone", "./tool", "./event_generators", "./embed_tool_template", "common/safebind"], function(_, $, $$1, Backbone, Tool, EventGenerators, embed_tool_template, safebind) {
     var AutoRangeTool, AutoRangeToolView, AutoRangeTools, ButtonEventGenerator, escapeHTML, _ref, _ref1, _ref2;
     ButtonEventGenerator = EventGenerators.ButtonEventGenerator;
     escapeHTML = function(unsafe_str) {
@@ -35112,79 +35197,87 @@ define('tool/object_explorer_tool_template',[],function(){
       }
 
       AutoRangeToolView.prototype.initialize = function(options) {
-        return AutoRangeToolView.__super__.initialize.call(this, options);
+        var update_ranges,
+          _this = this;
+        AutoRangeToolView.__super__.initialize.call(this, options);
+        update_ranges = function(e) {
+          var PADDING_PERCENTAGE, data, ds, end_index, end_x, glyph_renderers, gr, renderers, start_index, start_x, x_col, x_index, y_extents, yr, yranges, _i, _len;
+          PADDING_PERCENTAGE = 0.02;
+          start_x = _this.plot_view.x_ranges["default"].get('start');
+          end_x = _this.plot_view.x_ranges["default"].get('end');
+          renderers = _.values(_this.plot_view.renderers);
+          glyph_renderers = _.filter(renderers, function(x) {
+            return x.model.type === "Glyph";
+          });
+          console.log('glyph_renderers', glyph_renderers);
+          yranges = {};
+          ds = "";
+          x_col = "";
+          for (_i = 0, _len = glyph_renderers.length; _i < _len; _i++) {
+            gr = glyph_renderers[_i];
+            ds = gr.model.get_obj('data_source');
+            yr = gr.y_range_name;
+            x_col = gr.x;
+            y_extents = gr.model.get('glyphspec').y_extents;
+            if (_.has(yranges, yr)) {
+              yranges[yr] = yranges[yr].concat(y_extents);
+            } else {
+              yranges[yr] = y_extents;
+            }
+          }
+          data = ds.get('data');
+          x_index = x_col;
+          start_index = _.sortedIndex(x_index, start_x);
+          end_index = _.sortedIndex(x_index, end_x);
+          console.log('start_index, end_index', start_index, end_index, start_x, end_x);
+          return _.each(yranges, function(y_columns, range_name) {
+            var diff, extents, f_extents, max_y, max_y2, min_y, min_y2, padding, yrange_obj;
+            extents = _.filter(_.map(_.uniq(y_columns), function(colName) {
+              var y_arr;
+              if (typeof colName === "number") {
+                return 0;
+              } else {
+                y_arr = _.reject(data[colName].slice(_.max([0, start_index - 1]), end_index), isNaN);
+                if (y_arr.length === 0) {
+                  return false;
+                }
+                return [_.min(y_arr), _.max(y_arr)];
+              }
+            }), _.identity);
+            f_extents = _.flatten(extents);
+            min_y = _.min(f_extents);
+            max_y = _.max(f_extents);
+            diff = max_y - min_y;
+            if (diff === 0) {
+              console.log("exiting because diff == 0 ");
+              return;
+            }
+            padding = diff * PADDING_PERCENTAGE;
+            min_y2 = min_y - padding;
+            max_y2 = max_y + padding;
+            yrange_obj = _this.plot_view.y_ranges[range_name];
+            console.log('old start and end y', yrange_obj.get('start'), yrange_obj.get('end'));
+            console.log('setting range', range_name, min_y, max_y, min_y2, max_y2);
+            return _.defer((function() {
+              yrange_obj.set('start', min_y2);
+              return yrange_obj.set('end', max_y2);
+            }), 100);
+          });
+        };
+        return safebind(this, this.plot_view.x_ranges["default"], 'change', update_ranges);
       };
 
       AutoRangeToolView.prototype.eventGeneratorClass = ButtonEventGenerator;
 
       AutoRangeToolView.prototype.evgen_options = {
-        buttonText: "Auto Range"
+        buttonText: "Auto Range",
+        showButton: false
       };
 
       AutoRangeToolView.prototype.toolType = "AutoRangeTool";
 
       AutoRangeToolView.prototype.tool_events = {
         activated: "_activated"
-      };
-
-      AutoRangeToolView.prototype._activated = function(e) {
-        var PADDING_PERCENTAGE, data, ds, end_index, end_x, glyph_renderers, gr, renderers, start_index, start_x, x_col, x_index, y_extents, yr, yranges, _i, _len,
-          _this = this;
-        PADDING_PERCENTAGE = 0.02;
-        start_x = this.plot_view.x_ranges["default"].get('start');
-        end_x = this.plot_view.x_ranges["default"].get('end');
-        renderers = _.values(this.plot_view.renderers);
-        glyph_renderers = _.filter(renderers, function(x) {
-          return x.model.type === "Glyph";
-        });
-        console.log('glyph_renderers', glyph_renderers);
-        yranges = {};
-        ds = "";
-        x_col = "\"\"";
-        for (_i = 0, _len = glyph_renderers.length; _i < _len; _i++) {
-          gr = glyph_renderers[_i];
-          ds = gr.model.get_obj('data_source');
-          yr = gr.y_range_name;
-          x_col = gr.x;
-          y_extents = gr.model.get('glyphspec').y_extents;
-          if (_.has(yranges, yr)) {
-            yranges[yr] = yranges[yr].concat(y_extents);
-          } else {
-            yranges[yr] = y_extents;
-          }
-        }
-        data = ds.get('data');
-        x_index = x_col;
-        start_index = _.sortedIndex(x_index, start_x);
-        end_index = _.sortedIndex(x_index, end_x);
-        console.log('start_index, end_index', start_index, end_index, start_x, end_x);
-        return _.each(yranges, function(y_columns, range_name) {
-          var diff, extents, f_extents, max_y, max_y2, min_y, min_y2, padding, yrange_obj;
-          extents = _.filter(_.map(_.uniq(y_columns), function(colName) {
-            var y_arr;
-            if (typeof colName === "number") {
-              return 0;
-            } else {
-              y_arr = _.reject(data[colName].slice(_.max([0, start_index - 1]), end_index), isNaN);
-              if (y_arr.length === 0) {
-                return false;
-              }
-              return [_.min(y_arr), _.max(y_arr)];
-            }
-          }), _.identity);
-          f_extents = _.flatten(extents);
-          min_y = _.min(f_extents);
-          max_y = _.max(f_extents);
-          diff = max_y - min_y;
-          padding = diff * PADDING_PERCENTAGE;
-          min_y2 = min_y - padding;
-          max_y2 = max_y + padding;
-          yrange_obj = _this.plot_view.y_ranges[range_name];
-          console.log('old start and end y', yrange_obj.get('start'), yrange_obj.get('end'));
-          console.log('setting range', range_name, min_y, max_y, min_y2, max_y2);
-          yrange_obj.set('start', min_y2);
-          return yrange_obj.set('end', max_y2);
-        });
       };
 
       return AutoRangeToolView;
@@ -59530,7 +59623,7 @@ define('widget/dialog_template',[],function(){
   console.log("multirange2.js");
 
   define('common/plotting',["underscore", "jquery", "./plot", "range/data_range1d", "range/factor_range", "range/range1d", "renderer/annotation/legend", "renderer/glyph/glyph_factory", "renderer/guide/categorical_axis", "renderer/guide/linear_axis", "renderer/guide/grid", "renderer/overlay/box_selection", "source/column_data_source", "tool/box_select_tool", "tool/box_zoom_tool", "tool/hover_tool", "tool/pan_tool", "tool/preview_save_tool", "tool/resize_tool", "tool/wheel_zoom_tool", "tool/reset_tool", "renderer/guide/datetime_axis", "tool/auto_range_tool"], function(_, $, Plot, DataRange1d, FactorRange, Range1d, Legend, GlyphFactory, CategoricalAxis, LinearAxis, Grid, BoxSelection, ColumnDataSource, BoxSelectTool, BoxZoomTool, HoverTool, PanTool, PreviewSaveTool, ResizeTool, WheelZoomTool, ResetTool, DatetimeAxis, AutoRangeTool) {
-    var add_axes, add_grids, add_legend, add_tools, create_glyphs, create_range, create_sources, make_plot, show, update_plot;
+    var add_axes, add_grids, add_legend, add_tools, create_glyphs, create_range, create_sources, interpret_axis, make_plot, show, update_plot, _axis_api;
     create_sources = function(data) {
       var d, sources, _i, _len;
       if (!_.isArray(data)) {
@@ -59629,132 +59722,83 @@ define('widget/dialog_template',[],function(){
       }
       return glyphs;
     };
-    add_axes = function(plot, xaxes_spec, yaxes_spec, xdr, ydr) {
-      var a, axis, loc, x_range_name, xaxes, y_range_name, yaxes, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref, _ref1;
-      xaxes = [];
-      if (xaxes_spec) {
-        if (xaxes_spec === true) {
-          xaxes_spec = ['min', 'max'];
-        }
-        if (!_.isArray(xaxes_spec)) {
-          xaxes_spec = [xaxes_spec];
-        }
-        if (xaxes_spec[0] === "datetime") {
-          axis = DatetimeAxis.Collection.create({
-            dimension: 0,
-            axis_label: 'x',
-            location: 'min',
-            parent: plot.ref(),
-            plot: plot.ref()
-          });
-          xaxes.push(axis);
-        } else if (xdr.type === "FactorRange") {
-          for (_i = 0, _len = xaxes_spec.length; _i < _len; _i++) {
-            loc = xaxes_spec[_i];
-            axis = CategoricalAxis.Collection.create({
-              dimension: 0,
-              axis_label: 'x',
-              location: loc,
-              parent: plot.ref(),
-              plot: plot.ref()
-            });
-            xaxes.push(axis);
-          }
-        } else {
-          for (_j = 0, _len1 = xaxes_spec.length; _j < _len1; _j++) {
-            loc = xaxes_spec[_j];
-            if (loc.indexOf(":") > -1) {
-              _ref = loc.split(":"), loc = _ref[0], x_range_name = _ref[1];
-              axis = LinearAxis.Collection.create({
-                dimension: 0,
-                axis_label: 'x',
-                location: loc,
-                parent: plot.ref(),
-                plot: plot.ref(),
-                x_range_name: x_range_name
-              });
-            } else {
-              axis = LinearAxis.Collection.create({
-                dimension: 0,
-                axis_label: 'x',
-                location: loc,
-                parent: plot.ref(),
-                plot: plot.ref()
-              });
-            }
-            xaxes.push(axis);
-          }
-        }
+    interpret_axis = function(axis_spec, plot) {
+      var defaults, merged_spec;
+      defaults = {
+        type: 'linear',
+        _axis_label: false,
+        parent: plot.ref(),
+        plot: plot.ref(),
+        dimension: 0,
+        location: 'min'
+      };
+      merged_spec = _.defaults({}, axis_spec, defaults);
+      if (merged_spec.type === 'linear') {
+        return LinearAxis.Collection.create(merged_spec);
+      } else if (merged_spec.type === 'factor_range') {
+        return CategoricalAxis.Collection.create(merged_spec);
+      } else if (merged_spec.type === 'datetime') {
+        return DatetimeAxis.Collection.create(merged_spec);
+      } else {
+        return 1 / 0;
       }
-      yaxes = [];
-      if (yaxes_spec) {
-        if (yaxes_spec === true) {
-          yaxes_spec = ['min', 'max'];
-        }
-        if (!_.isArray(yaxes_spec)) {
-          yaxes_spec = [yaxes_spec];
-        }
-        if (yaxes_spec[0] === "datetime") {
-          axis = DatetimeAxis.Collection.create({
-            dimension: 1,
-            axis_label: 'y',
-            location: 'min',
-            parent: plot.ref(),
-            plot: plot.ref()
-          });
-          yaxes.push(axis);
-        } else if (ydr.type === "FactorRange") {
-          for (_k = 0, _len2 = yaxes_spec.length; _k < _len2; _k++) {
-            loc = yaxes_spec[_k];
-            axis = CategoricalAxis.Collection.create({
-              dimension: 1,
-              axis_label: 'y',
-              location: loc,
-              parent: plot.ref(),
-              plot: plot.ref()
-            });
-            yaxes.push(axis);
-          }
+    };
+    _axis_api = function(plot, axes_spec, dim) {
+      var axes, yspec, _i, _len;
+      axes = [];
+      if (typeof axes_spec === "string") {
+        if (axes_spec === "min" || axes_spec === "max") {
+          axes.push(interpret_axis({
+            location: axes_spec,
+            dimension: dim
+          }, plot));
         } else {
-          for (_l = 0, _len3 = yaxes_spec.length; _l < _len3; _l++) {
-            loc = yaxes_spec[_l];
-            if (loc.indexOf(":") > -1) {
-              _ref1 = loc.split(":"), loc = _ref1[0], y_range_name = _ref1[1];
-              axis = LinearAxis.Collection.create({
-                dimension: 1,
-                axis_label: 'y',
-                location: loc,
-                parent: plot.ref(),
-                plot: plot.ref(),
-                y_range_name: y_range_name
-              });
-            } else {
-              axis = LinearAxis.Collection.create({
-                dimension: 1,
-                axis_label: 'y',
-                location: loc,
-                parent: plot.ref(),
-                plot: plot.ref()
-              });
-            }
-            yaxes.push(axis);
-          }
+          axes.push(interpret_axis({
+            type: axes_spec,
+            dimension: dim
+          }, plot));
         }
+      } else if (_.isArray(axes_spec)) {
+        for (_i = 0, _len = axes_spec.length; _i < _len; _i++) {
+          yspec = axes_spec[_i];
+          axes.push(interpret_axis(_.defaults(yspec, {
+            dimension: dim
+          }), plot));
+        }
+      } else if (typeof axes_spec === "boolean") {
+        if (axes_spec) {
+          axes.push(interpret_axis({
+            location: 'min',
+            dimension: dim
+          }, plot));
+        }
+      } else if (typeof axes_spec === "object") {
+        axes.push(interpret_axis(_.defaults(axes_spec, {
+          dimension: dim
+        }), plot));
+      } else {
+        1 / 0;
       }
+      return axes;
+    };
+    add_axes = function(plot, xaxes_spec, yaxes_spec) {
+      var a, xaxes, yaxes;
+      xaxes = _axis_api(plot, xaxes_spec, 0);
+      yaxes = _axis_api(plot, yaxes_spec, 1);
       plot.add_renderers((function() {
-        var _len4, _m, _results;
+        var _i, _len, _results;
         _results = [];
-        for (_m = 0, _len4 = xaxes.length; _m < _len4; _m++) {
-          a = xaxes[_m];
+        for (_i = 0, _len = xaxes.length; _i < _len; _i++) {
+          a = xaxes[_i];
           _results.push(a.ref());
         }
         return _results;
       })());
       plot.add_renderers((function() {
-        var _len4, _m, _results;
+        var _i, _len, _results;
         _results = [];
-        for (_m = 0, _len4 = yaxes.length; _m < _len4; _m++) {
-          a = yaxes[_m];
+        for (_i = 0, _len = yaxes.length; _i < _len; _i++) {
+          a = yaxes[_i];
           _results.push(a.ref());
         }
         return _results;
@@ -59866,21 +59910,36 @@ define('widget/dialog_template',[],function(){
       return plot.set_obj('tools', added_tools);
     };
     add_legend = function(plot, legend, glyphs) {
-      var g, idx, legend_renderer, legends, _i, _len;
+      var default_legend_options, g, idx, legend_options, legend_renderer, legends, _i, _len;
       if (legend) {
         legends = {};
+        default_legend_options = {
+          read_name_from_renderer: false,
+          legend_text: legend,
+          orientation: "top_right"
+        };
+        if (typeof legend === "string") {
+          legend_options = default_legend_options;
+          if (legend === "renderer") {
+            legend_options.read_name_from_renderer = true;
+          }
+        } else if (typeof legend === "object") {
+          legend_options = _.defaults(legend, default_legend_options);
+        } else {
+          1 / 0;
+        }
         for (idx = _i = 0, _len = glyphs.length; _i < _len; idx = ++_i) {
           g = glyphs[idx];
-          if (legend === "renderer") {
+          if (legend_options.read_name_from_renderer) {
             legends[g.get('glyphspec').name] = [g.ref()];
           } else {
-            legends[legend + String(idx)] = [g.ref()];
+            legends[legend_options.legend_text + String(idx)] = [g.ref()];
           }
         }
         legend_renderer = Legend.Collection.create({
           parent: plot.ref(),
           plot: plot.ref(),
-          orientation: "top_right",
+          orientation: legend_options.orientation,
           legends: legends
         });
         return plot.add_renderers([legend_renderer.ref()]);
@@ -60019,7 +60078,6 @@ define('widget/dialog_template',[],function(){
         tools: [],
         title: title
       }, function(val, key) {
-        console.log(val, key);
         return plot.set(key, val);
       });
       console.log("after  each loop");

@@ -34,9 +34,9 @@ define [
       for i in indices
 
         if isNaN(@sx[i] + @sy[i]) and drawing
-          ctx.stroke()
-          ctx.beginPath()
-          drawing = false
+          # ctx.stroke()
+          # ctx.beginPath()
+          # drawing = false
           continue
 
         if drawing
