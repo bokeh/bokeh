@@ -16,7 +16,7 @@ https://github.com/ContinuumIO/ArrayManagement
 """
 
 
-output_server("abstractrendering")
+output_server("abstractrender")
 source = ServerDataSource(data_url="/defaultuser/AAPL.hdf5", owner_username="defaultuser")
 plot = square('volume','close',color='#FF00FF',source=source)
 
