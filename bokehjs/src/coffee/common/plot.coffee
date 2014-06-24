@@ -360,8 +360,9 @@ define [
           xrs: xrs
           yrs: yrs
         }
+    
 
-
+      @trigger('set_initial_range')
     render: (force) ->
       super()
 
