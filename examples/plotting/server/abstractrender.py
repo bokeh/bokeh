@@ -3,7 +3,7 @@ from bokeh.plotting import square, output_server, image, show
 from bokeh.objects import Range1d, ServerDataSource
 
 import bokeh.transforms.ar_downsample as ar
-from bokeh.transforms import line_downsample
+#from bokeh.transforms import line_downsample
 
 """
 In order to run this example, you have to execute
@@ -16,7 +16,7 @@ https://github.com/ContinuumIO/ArrayManagement
 """
 
 
-output_server("Abstract rendering")
+output_server("abstractrender")
 source = ServerDataSource(data_url="/defaultuser/AAPL.hdf5", owner_username="defaultuser")
 plot = square('volume','close',color='#FF00FF',source=source)
 
