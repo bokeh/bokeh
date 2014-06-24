@@ -16,23 +16,17 @@ complex plot is a simple way.
 import itertools
 import warnings
 
-import matplotlib as mpl
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
 from .glyphs import (Asterisk, Circle, Cross, Diamond, InvertedTriangle, Line,
-                     MultiLine, Patches, Square, Text, Triangle, Xmarker, Quad)
-from .mplexporter.exporter import Exporter
-from .mplexporter.renderers import Renderer
-from .mpl_helpers import (convert_dashes, delete_last_col, get_props_cycled,
-                          is_ax_end, xkcd_line)
-from .objects import (BoxSelectionOverlay, BoxSelectTool, BoxZoomTool,
+                     MultiLine, Patches, Rect, Square, Text, Triangle, Xmarker, Quad)
+from .objects import (BoxSelectionOverlay, BoxSelectTool, BoxZoomTool, CategoricalAxis,
                       ColumnDataSource, DataRange1d, DatetimeTickFormatter,
-                      DatetimeAxis, Glyph, Grid, GridPlot, LinearAxis, PanTool,
-                      Plot, PreviewSaveTool, ResetTool, WheelZoomTool)
-from .plotting import (curdoc, output_file, output_notebook, output_server,
-                       show)
+                      DatetimeAxis, FactorRange, Glyph, Grid, GridPlot, LinearAxis, PanTool,
+                      Plot, PreviewSaveTool, Range1d, ResetTool, WheelZoomTool)
+#from .plotting import (curdoc, output_file, output_notebook, output_server,
+                       #show)
 
 from bokeh import load_notebook
 from .document import Document
@@ -51,27 +45,72 @@ class Chart(object):
 
     def __init__(self, title, xname, yname, xscale, yscale, width, height, filename, notebook):
         "Initial setup."
-        self.doc = Document()
-        self.source = ColumnDataSource()
-        self.xdr = DataRange1d()
-        self.ydr = DataRange1d()
         self.title = title
         self.xname = xname
         self.yname = yname
         self.xscale = xscale
         self.yscale = yscale
-        self.width = width
-        self.height = height
+        self.plot_width = width
+        self.plot_height = height
         self.filename = filename
         self.notebook = notebook
+        self.source = None
+        self.xdr = None
+        self.ydr = None
+
+    def get_data_histogram(self, measured, bins, mu, sigma):
+        # calculate hist properties
+        import scipy.special
+        self.hist, self.edges = np.histogram(measured, density=True, bins=bins)
+
+        # compute ideal values
+        self.xval = np.linspace(-2, 2, len(measured))
+        self.pdf = 1/(sigma * np.sqrt(2*np.pi)) * np.exp(-(self.xval-mu)**2 / (2*sigma**2))
+        self.cdf = (1+scipy.special.erf((self.xval-mu)/np.sqrt(2*sigma**2)))/2
+
+        # get quad properties
+        self.top = self.hist
+        self.bottom = np.zeros(len(self.hist))
+        self.left = self.edges[:-1]
+        self.right = self.edges[1:]
+
+    def get_data_bar(self, cat, value):
+        self.cat = cat
+        self.height = value
+        self.midheight = self.height / 2
+        self.width = [0.8] * len(cat)
+
+    def get_source_histogram(self):
+        self.source = ColumnDataSource(data=dict(hist=self.hist,
+                                                 edges=self.edges,
+                                                 xval=self.xval,
+                                                 pdf=self.pdf,
+                                                 cdf=self.cdf,
+                                                 top=self.top,
+                                                 bottom=self.bottom,
+                                                 left=self.left,
+                                                 right=self.right))
+        self.xdr = DataRange1d(sources=[self.source.columns("edges")])
+        self.ydr = DataRange1d(sources=[self.source.columns("hist")])
+
+    def get_source_bar(self):
+        self.source = ColumnDataSource(data=dict(cat=self.cat,
+                                                 midheight=self.midheight,
+                                                 width=self.width,
+                                                 height=self.height))
+        self.xdr = FactorRange(factors=self.source.data["cat"])
+        #self.ydr = Range1d(start=0, end=30)
+        self.ydr = DataRange1d(sources=[self.source.columns("height")])
+
+    def start_plot(self):
         self.plot = Plot(title=self.title,
                          #self.xname
                          #self.yname
                          data_sources=[self.source],
                          x_range=self.xdr,
                          y_range=self.ydr,
-                         plot_width=self.width,
-                         plot_height=self.height)
+                         plot_width=self.plot_width,
+                         plot_height=self.plot_height)
 
         # Add axis
         xaxis = self.make_axis(0, self.xscale)
@@ -88,7 +127,9 @@ class Chart(object):
         #previewsave = PreviewSaveTool(plot=self.plot)
         #self.plot.tools = [pantool, wheelzoom, reset, previewsave]
 
+    def end_plot(self):
         # Add to document
+        self.doc = Document()
         self.doc.add(self.plot)
 
     def make_axis(self, dimension, scale):
@@ -100,6 +141,10 @@ class Chart(object):
             axis = DatetimeAxis(plot=self.plot,
                                  dimension=dimension,
                                  location="min")
+        elif scale == "categorical":
+            axis = CategoricalAxis(plot=self.plot,
+                                   dimension=dimension,
+                                   major_label_orientation=np.pi / 4)
 
         return axis
 
@@ -110,28 +155,9 @@ class Chart(object):
 
         return grid
 
-    def get_data(self):
-        #self.x = np.linspace(-2 * np.pi, 2 * np.pi, 1000)
-        #self.y = np.sin(self.x)
+    def make_line(self, x, y):
 
-        import scipy.special
-
-        self.mu, self.sigma = 0, 0.5
-        self.measured = np.random.normal(self.mu, self.sigma, 1000)
-        self.hist, self.edges = np.histogram(self.measured, density=True, bins=50)
-
-        # compute ideal values
-        self.xval = np.linspace(-2, 2, 1000)
-        self.pdf = 1/(self.sigma * np.sqrt(2*np.pi)) * np.exp(-(self.xval-self.mu)**2 / (2*self.sigma**2))
-        self.cdf = (1+scipy.special.erf((self.xval-self.mu)/np.sqrt(2*self.sigma**2)))/2
-
-    def make_line(self):
-
-        line = Line()
-        line.x = self.source.add(self.x)
-        line.y = self.source.add(self.y)
-        self.xdr.sources.append(self.source.columns(line.x))
-        self.ydr.sources.append(self.source.columns(line.y))
+        line = Line(x=x, y=y)
 
         line_glyph = Glyph(data_source=self.source,
                            xdata_range=self.xdr,
@@ -140,17 +166,9 @@ class Chart(object):
 
         self.plot.renderers.append(line_glyph)
 
-    def make_quad(self):
+    def make_quad(self, top, bottom, left, right):
 
-        quad = Quad()
-        quad.top = self.source.add(self.top)
-        quad.bottom = self.source.add(self.bottom)
-        quad.left = self.source.add(self.left)
-        quad.right = self.source.add(self.right)
-        self.xdr.sources.append(self.source.columns(quad.left))
-        self.xdr.sources.append(self.source.columns(quad.right))
-        self.ydr.sources.append(self.source.columns(quad.top))
-        self.ydr.sources.append(self.source.columns(quad.bottom))
+        quad = Quad(top=top, bottom=bottom, left=left, right=right)
 
         quad_glyph = Glyph(data_source=self.source,
                            xdata_range=self.xdr,
@@ -159,27 +177,38 @@ class Chart(object):
 
         self.plot.renderers.append(quad_glyph)
 
+    def make_rect(self, x, y, width, height):
+
+        rect = Rect(x=x, y=y, width=width, height=height, fill_color="#CD7F32", fill_alpha=0.6)
+
+        rect_glyph = Glyph(data_source=self.source,
+                           xdata_range=self.xdr,
+                           ydata_range=self.ydr,
+                           glyph=rect)
+
+        self.plot.renderers.append(rect_glyph)
+
     def histogram(self):
         # Use the `quad` renderer to display the histogram bars.
-        self.top = self.hist
-        self.bottom = np.zeros(len(self.hist))
-        self.left = self.edges[:-1]
-        self.right = self.edges[1:]
-        self.make_quad()
+        self.make_quad("top", "bottom", "left", "right")
+        # Add theoretical lines
+        self.make_line("xval", "pdf")
+        self.make_line("xval", "cdf")
 
-        self.x = self.xval
-        self.y = self.pdf
-        self.make_line()
+    def bar(self):
+        # Use the `rect` renderer to display the bars.
+        self.make_rect("cat", "midheight", "width", "height")
+        #self.make_line("cat", "midheight")
+        #self.make_line("cat", "height")
 
-        self.x = self.xval
-        self.y = self.cdf
-        self.make_line()
+        #rect(x=countries, y=bronze/2, width=0.8, height=bronze, x_range=countries, color="#CD7F32", alpha=0.6,
+             #background_fill='#59636C', title="Olympic Medals by Country (stacked)", tools="",
+             #y_range=Range1d(start=0, end=max(gold+silver+bronze)), plot_width=800)
+        #rect(x=countries, y=bronze+silver/2, width=0.8, height=silver, x_range=countries, color="silver", alpha=0.6)
+        #rect(x=countries, y=bronze+silver+gold/2, width=0.8, height=gold, x_range=countries, color="gold", alpha=0.6)
 
     def draw(self):
         global notebook_loaded
-
-        self.get_data()
-        self.histogram()
 
         if self.filename:
             with open(self.filename, "w") as f:
@@ -195,215 +224,16 @@ class Chart(object):
             from bokeh.embed import notebook_div
             displaypub.publish_display_data('bokeh', {'text/html': notebook_div(self.plot)})
 
-    #def draw_line(self, data, coordinates, style, label, mplobj=None):
-        #"Given a mpl line2d instance create a Bokeh Line glyph."
-        #_x = data[:, 0]
-        #if self.pd_obj is True:
-            #try:
-                #x = [pd.Period(ordinal=int(i), freq=self.ax.xaxis.freq).to_timestamp() for i in _x]
-            #except AttributeError as e: #  we probably can make this one more intelligent later
-                #x = _x
-        #else:
-            #x = _x
-
-        #y = data[:, 1]
-        #if self.xkcd:
-            #x, y = xkcd_line(x, y)
-
-        #line = Line()
-        #line.x = self.source.add(x)
-        #line.y = self.source.add(y)
-        #self.xdr.sources.append(self.source.columns(line.x))
-        #self.ydr.sources.append(self.source.columns(line.y))
-
-        #line.line_color = style['color']
-        #line.line_width = style['linewidth']
-        #line.line_alpha = style['alpha']
-        #line.line_dash = [int(i) for i in style['dasharray'].split(",")]  # str2list(int)
-        ##style['zorder'] # not in Bokeh
-        ##line.line_join = line2d.get_solid_joinstyle() # not in mplexporter
-        ##line.line_cap = cap_style_map[line2d.get_solid_capstyle()] # not in mplexporter
-        #if self.xkcd:
-            #line.line_width = 3
-
-        #line_glyph = Glyph(data_source=self.source,
-                           #xdata_range=self.xdr,
-                           #ydata_range=self.ydr,
-                           #glyph=line)
-
-        #self.plot.renderers.append(line_glyph)
-
-    #def draw_markers(self, data, coordinates, style, label, mplobj=None):
-        #"Given a mpl line2d instance create a Bokeh Marker glyph."
-        #x = data[:, 0]
-        #y = data[:, 1]
-
-        #marker_map = {
-            #"o": Circle,
-            #"s": Square,
-            #"+": Cross,
-            #"^": Triangle,
-            #"v": InvertedTriangle,
-            #"x": Xmarker,
-            #"D": Diamond,
-            #"*": Asterisk,
-        #}
-        #if style['marker'] not in marker_map:
-            #warnings.warn("Unable to handle marker: %s" % style['marker'])
-
-        #marker = marker_map[style['marker']]()
-        #marker.x = self.source.add(x)
-        #marker.y = self.source.add(y)
-        #self.xdr.sources.append(self.source.columns(marker.x))
-        #self.ydr.sources.append(self.source.columns(marker.y))
-
-        #marker.line_color = style['edgecolor']
-        #marker.fill_color = style['facecolor']
-        #marker.line_width = style['edgewidth']
-        #marker.size = style['markersize']
-        #marker.fill_alpha = marker.line_alpha = style['alpha']
-        ##style['zorder'] # not in Bokeh
-
-        #marker_glyph = Glyph(data_source=self.source,
-                             #xdata_range=self.xdr,
-                             #ydata_range=self.ydr,
-                             #glyph=marker)
-
-        #self.plot.renderers.append(marker_glyph)
-
-    #def draw_path_collection(self, paths, path_coordinates, path_transforms,
-                             #offsets, offset_coordinates, offset_order,
-                             #styles, mplobj=None):
-        #"""Path not implemented in Bokeh, but we have our own line ans poly
-        #collection implementations, so passing here to avoid the NonImplemented
-        #error.
-        #"""
-        #pass
-
-    #def draw_text(self, text, position, coordinates, style,
-                  #text_type=None, mplobj=None):
-        #"Given a mpl text instance create a Bokeh Text glyph."
-        #x, y = position
-        #text = Text(x=x, y=y, text=text)
-
-        #alignment_map = {"center": "middle", "top": "top", "bottom": "bottom", "baseline": "bottom"}
-        ## baseline not implemented in Bokeh, deafulting to bottom.
-        #text.text_alpha = style['alpha']
-        #text.text_font_size = "%dpx" % style['fontsize']
-        #text.text_color = style['color']
-        #text.text_align = style['halign']
-        #text.text_baseline = alignment_map[style['valign']]
-        #text.text_angle = style['rotation']
-        ##style['zorder'] # not in Bokeh
-
-        ### Using get_fontname() works, but it's oftentimes not available in the browser,
-        ### so it's better to just use the font family here.
-        ##text.text_font = mplText.get_fontname()) not in mplexporter
-        ##text.text_font = mplText.get_fontfamily()[0] # not in mplexporter
-        ##text.text_font_style = fontstyle_map[mplText.get_fontstyle()] # not in mplexporter
-        ### we don't really have the full range of font weights, but at least handle bold
-        ##if mplText.get_weight() in ("bold", "heavy"):
-            ##text.text_font_style = bold
-
-        #text_glyph = Glyph(data_source=self.source,
-                           #xdata_range=self.xdr,
-                           #ydata_range=self.ydr,
-                           #glyph=text)
-
-        #self.plot.renderers.append(text_glyph)
-
-    #def draw_image(self, imdata, extent, coordinates, style, mplobj=None):
-        #pass
-
-
-
-    #def make_line_collection(self, col):
-        #"Given a mpl collection instance create a Bokeh MultiLine glyph."
-        #xydata = col.get_segments()
-        #t_xydata = [np.transpose(seg) for seg in xydata]
-        #xs = [t_xydata[x][0] for x in range(len(t_xydata))]
-        #ys = [t_xydata[x][1] for x in range(len(t_xydata))]
-        #if self.xkcd:
-            #xkcd_xs = [xkcd_line(xs[i], ys[i])[0] for i in range(len(xs))]
-            #xkcd_ys = [xkcd_line(xs[i], ys[i])[1] for i in range(len(ys))]
-            #xs = xkcd_xs
-            #ys = xkcd_ys
-
-        #multiline = MultiLine()
-        #multiline.xs = self.source.add(xs)
-        #multiline.ys = self.source.add(ys)
-        #self.xdr.sources.append(self.source.columns(multiline.xs))
-        #self.ydr.sources.append(self.source.columns(multiline.ys))
-
-        #self.multiline_props(multiline, col)
-
-        #multiline_glyph = Glyph(data_source=self.source,
-                                #xdata_range=self.xdr,
-                                #ydata_range=self.ydr,
-                                #glyph=multiline)
-
-        #self.plot.renderers.append(multiline_glyph)
-
-    #def make_poly_collection(self, col):
-        #"Given a mpl collection instance create a Bokeh Patches glyph."
-        #paths = col.get_paths()
-        #polygons = [paths[i].to_polygons() for i in range(len(paths))]
-        #polygons = [np.transpose(delete_last_col(polygon)) for polygon in polygons]
-        #xs = [polygons[i][0] for i in range(len(polygons))]
-        #ys = [polygons[i][1] for i in range(len(polygons))]
-
-        #patches = Patches()
-        #patches.xs = self.source.add(xs)
-        #patches.ys = self.source.add(ys)
-        #self.xdr.sources.append(self.source.columns(patches.xs))
-        #self.ydr.sources.append(self.source.columns(patches.ys))
-
-        #self.patches_props(patches, col)
-
-        #patches_glyph = Glyph(data_source=self.source,
-                              #xdata_range=self.xdr,
-                              #ydata_range=self.ydr,
-                              #glyph=patches)
-
-        #self.plot.renderers.append(patches_glyph)
-
-    #def multiline_props(self, multiline, col):
-        #"Takes a mpl collection object to extract and set up some Bokeh multiline properties."
-        #colors = get_props_cycled(col, col.get_colors(), fx=lambda x: mpl.colors.rgb2hex(x))
-        #widths = get_props_cycled(col, col.get_linewidth())
-        #multiline.line_color = self.source.add(colors)
-        #multiline.line_width = self.source.add(widths)
-        #multiline.line_alpha = col.get_alpha()
-        #offset = col.get_linestyle()[0][0]
-        #if not col.get_linestyle()[0][1]:
-            #on_off = []
-        #else:
-            #on_off = map(int,col.get_linestyle()[0][1])
-        #multiline.line_dash_offset = convert_dashes(offset)
-        #multiline.line_dash = list(convert_dashes(tuple(on_off)))
-
-    #def patches_props(self, patches, col):
-        #"Takes a mpl collection object to extract and set up some Bokeh patches properties."
-        #face_colors = get_props_cycled(col, col.get_facecolors(), fx=lambda x: mpl.colors.rgb2hex(x))
-        #patches.fill_color = self.source.add(face_colors)
-        #edge_colors = get_props_cycled(col, col.get_edgecolors(), fx=lambda x: mpl.colors.rgb2hex(x))
-        #patches.line_color = self.source.add(edge_colors)
-        #widths = get_props_cycled(col, col.get_linewidth())
-        #patches.line_width = self.source.add(widths)
-        #patches.line_alpha = col.get_alpha()
-        #offset = col.get_linestyle()[0][0]
-        #if not col.get_linestyle()[0][1]:
-            #on_off = []
-        #else:
-            #on_off = map(int,col.get_linestyle()[0][1])
-        #patches.line_dash_offset = convert_dashes(offset)
-        #patches.line_dash = list(convert_dashes(tuple(on_off)))
-
 
 class Histogram(object):
 
-    def __init__(self, title=None, xname=None, yname=None, xscale="linear", yscale="linear",
-                 width=800, height=600, filename=False, notebook=False):
+    def __init__(self, measured, bins, mu=None, sigma=None, title=None, xname=None, yname=None,
+                 xscale="linear", yscale="linear", width=800, height=600,
+                 filename=False, notebook=False):
+        self.measured = measured
+        self.bins = bins
+        self.mu = mu
+        self.sigma = sigma
         self.__title = title
         self.xname = xname
         self.yname = yname
@@ -426,6 +256,8 @@ class Histogram(object):
         self._height = height
         return self
 
+    # TODO: make more chain methods
+
     def draw(self):
         if not hasattr(self, '_title'):
             self._title = self.__title
@@ -436,6 +268,58 @@ class Histogram(object):
 
         chart = Chart(self._title, self.xname, self.yname, self.xscale, self.yscale,
                       self._width, self._height, self.filename, self.notebook)
+        chart.get_data_histogram(self.measured, self.bins, self.mu, self.sigma)
+        chart.get_source_histogram()
+        chart.start_plot()
+        chart.histogram()
+        chart.end_plot()
         chart.draw()
 
 
+class Bar(object):
+
+    def __init__(self, cat, value, title=None, xname=None, yname=None,
+                 xscale="categorical", yscale="linear", width=800, height=600,
+                 filename=False, notebook=False):
+        self.cat = cat
+        self.value = value
+        self.__title = title
+        self.xname = xname
+        self.yname = yname
+        self.xscale = xscale
+        self.yscale = yscale
+        self.__width = width
+        self.__height = height
+        self.filename = filename
+        self.notebook = notebook
+
+    def title(self, title):
+        self._title = title
+        return self
+
+    def width(self, width):
+        self._width = width
+        return self
+
+    def height(self, height):
+        self._height = height
+        return self
+
+    # TODO: make more chain methods
+
+    def draw(self):
+        if not hasattr(self, '_title'):
+            self._title = self.__title
+        if not hasattr(self, '_width'):
+            self._width = self.__width
+        if not hasattr(self, '_height'):
+            self._height = self.__height
+
+        chart = Chart(self._title, self.xname, self.yname, self.xscale, self.yscale,
+                      self._width, self._height, self.filename, self.notebook)
+        chart.get_data_bar(self.cat, self.value)
+        chart.get_source_bar()
+        chart.start_plot()
+        chart.bar()
+        chart.end_plot()
+        chart.draw()
