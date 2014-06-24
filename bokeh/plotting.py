@@ -1,6 +1,7 @@
 from __future__ import print_function
 
 from functools import wraps
+import io
 import itertools
 import time
 import logging
@@ -19,6 +20,7 @@ from .plotting_helpers import (
 )
 from .resources import Resources
 from .session import Cloud, DEFAULT_SERVER_URL, Session
+from .utils import decode_utf8
 
 logger = logging.getLogger(__name__)
 
@@ -280,8 +282,8 @@ def save(filename=None, resources=None):
         return
 
     html = file_html(curdoc(), resources, _default_file['title'])
-    with open(filename, "w") as f:
-        f.write(html)
+    with io.open(filename, "w", encoding="utf-8") as f:
+        f.write(decode_utf8(html))
 
 def push(session=None, document=None):
     """ Updates the server with the data for the current document.
