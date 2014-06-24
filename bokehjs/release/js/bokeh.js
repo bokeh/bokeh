@@ -15324,11 +15324,12 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
           }
         }
         if (good_vals) {
-          return this.initial_range_info = {
+          this.initial_range_info = {
             xrs: xrs,
             yrs: yrs
           };
         }
+        return this.trigger('set_initial_range');
       };
 
       PlotView.prototype.render = function(force) {
@@ -35201,70 +35202,77 @@ define('tool/object_explorer_tool_template',[],function(){
           _this = this;
         AutoRangeToolView.__super__.initialize.call(this, options);
         update_ranges = function(e) {
-          var PADDING_PERCENTAGE, data, ds, end_index, end_x, glyph_renderers, gr, renderers, start_index, start_x, x_col, x_index, y_extents, yr, yranges, _i, _len;
-          PADDING_PERCENTAGE = 0.02;
-          start_x = _this.plot_view.x_ranges["default"].get('start');
-          end_x = _this.plot_view.x_ranges["default"].get('end');
-          renderers = _.values(_this.plot_view.renderers);
-          glyph_renderers = _.filter(renderers, function(x) {
-            return x.model.type === "Glyph";
-          });
-          console.log('glyph_renderers', glyph_renderers);
-          yranges = {};
-          ds = "";
-          x_col = "";
-          for (_i = 0, _len = glyph_renderers.length; _i < _len; _i++) {
-            gr = glyph_renderers[_i];
-            ds = gr.model.get_obj('data_source');
-            yr = gr.y_range_name;
-            x_col = gr.x;
-            y_extents = gr.model.get('glyphspec').y_extents;
-            if (_.has(yranges, yr)) {
-              yranges[yr] = yranges[yr].concat(y_extents);
-            } else {
-              yranges[yr] = y_extents;
-            }
-          }
-          data = ds.get('data');
-          x_index = x_col;
-          start_index = _.sortedIndex(x_index, start_x);
-          end_index = _.sortedIndex(x_index, end_x);
-          console.log('start_index, end_index', start_index, end_index, start_x, end_x);
-          return _.each(yranges, function(y_columns, range_name) {
-            var diff, extents, f_extents, max_y, max_y2, min_y, min_y2, padding, yrange_obj;
-            extents = _.filter(_.map(_.uniq(y_columns), function(colName) {
-              var y_arr;
-              if (typeof colName === "number") {
-                return 0;
+          var PADDING_PERCENTAGE, data, ds, end_index, end_x, error, glyph_renderers, gr, renderers, start_index, start_x, x_col, x_index, y_extents, yr, yranges, _i, _len;
+          try {
+            PADDING_PERCENTAGE = 0.02;
+            start_x = _this.plot_view.x_ranges["default"].get('start');
+            end_x = _this.plot_view.x_ranges["default"].get('end');
+            renderers = _.values(_this.plot_view.renderers);
+            glyph_renderers = _.filter(renderers, function(x) {
+              return x.model.type === "Glyph";
+            });
+            console.log('glyph_renderers', glyph_renderers);
+            yranges = {};
+            ds = "";
+            x_col = "";
+            for (_i = 0, _len = glyph_renderers.length; _i < _len; _i++) {
+              gr = glyph_renderers[_i];
+              ds = gr.model.get_obj('data_source');
+              yr = gr.y_range_name;
+              x_col = gr.x;
+              y_extents = gr.model.get('glyphspec').y_extents;
+              if (_.has(yranges, yr)) {
+                yranges[yr] = yranges[yr].concat(y_extents);
               } else {
-                y_arr = _.reject(data[colName].slice(_.max([0, start_index - 1]), end_index), isNaN);
-                if (y_arr.length === 0) {
-                  return false;
-                }
-                return [_.min(y_arr), _.max(y_arr)];
+                yranges[yr] = y_extents;
               }
-            }), _.identity);
-            f_extents = _.flatten(extents);
-            min_y = _.min(f_extents);
-            max_y = _.max(f_extents);
-            diff = max_y - min_y;
-            if (diff === 0) {
-              console.log("exiting because diff == 0 ");
-              return;
             }
-            padding = diff * PADDING_PERCENTAGE;
-            min_y2 = min_y - padding;
-            max_y2 = max_y + padding;
-            yrange_obj = _this.plot_view.y_ranges[range_name];
-            console.log('old start and end y', yrange_obj.get('start'), yrange_obj.get('end'));
-            console.log('setting range', range_name, min_y, max_y, min_y2, max_y2);
-            return _.defer((function() {
-              yrange_obj.set('start', min_y2);
-              return yrange_obj.set('end', max_y2);
-            }), 100);
-          });
+            data = ds.get('data');
+            x_index = x_col;
+            start_index = _.sortedIndex(x_index, start_x);
+            end_index = _.sortedIndex(x_index, end_x);
+            console.log('start_index, end_index', start_index, end_index, start_x, end_x);
+            return _.each(yranges, function(y_columns, range_name) {
+              var diff, extents, f_extents, max_y, max_y2, min_y, min_y2, padding, yrange_obj;
+              extents = _.filter(_.map(_.uniq(y_columns), function(colName) {
+                var y_arr;
+                if (typeof colName === "number") {
+                  return colName;
+                } else {
+                  y_arr = _.reject(data[colName].slice(_.max([0, start_index - 1]), end_index), isNaN);
+                  if (y_arr.length === 0) {
+                    return false;
+                  }
+                  return [_.min(y_arr), _.max(y_arr)];
+                }
+              }), _.identity);
+              f_extents = _.flatten(extents);
+              min_y = _.min(f_extents);
+              max_y = _.max(f_extents);
+              diff = max_y - min_y;
+              if (diff === 0) {
+                console.log("exiting because diff == 0 ");
+                return;
+              }
+              padding = diff * PADDING_PERCENTAGE;
+              min_y2 = min_y - padding;
+              max_y2 = max_y + padding;
+              yrange_obj = _this.plot_view.y_ranges[range_name];
+              console.log('old start and end y', yrange_obj.get('start'), yrange_obj.get('end'));
+              console.log('setting range', range_name, min_y, max_y, min_y2, max_y2);
+              return _.defer((function() {
+                yrange_obj.set('start', min_y2);
+                return yrange_obj.set('end', max_y2);
+              }), 100);
+            });
+          } catch (_error) {
+            error = _error;
+            return console.log("error");
+          }
         };
-        return safebind(this, this.plot_view.x_ranges["default"], 'change', update_ranges);
+        safebind(this, this.plot_view.x_ranges["default"], 'change', update_ranges);
+        console.log("about to call safebind inside of auto_range_tool");
+        return safebind(this, this.plot_view, 'set_initial_range', update_ranges);
       };
 
       AutoRangeToolView.prototype.eventGeneratorClass = ButtonEventGenerator;
@@ -59931,7 +59939,9 @@ define('widget/dialog_template',[],function(){
         for (idx = _i = 0, _len = glyphs.length; _i < _len; idx = ++_i) {
           g = glyphs[idx];
           if (legend_options.read_name_from_renderer) {
-            legends[g.get('glyphspec').name] = [g.ref()];
+            if (g.get('glyphspec').show_legend) {
+              legends[g.get('glyphspec').name] = [g.ref()];
+            }
           } else {
             legends[legend_options.legend_text + String(idx)] = [g.ref()];
           }
