@@ -200,7 +200,7 @@ module.exports = (grunt) ->
       server:
         options:
           port: 8000,
-          base: 'docs/'
+          base: '.'
 
     qunit:
       all:
