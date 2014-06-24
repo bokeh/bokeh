@@ -234,7 +234,8 @@ define [
         
       for g, idx in glyphs
         if legend_options.read_name_from_renderer
-          legends[g.get('glyphspec').name] = [g.ref()]
+          if g.get('glyphspec').show_legend
+            legends[g.get('glyphspec').name] = [g.ref()]
         else
           legends[legend_options.legend_text + String(idx)] = [g.ref()]
 
