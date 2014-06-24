@@ -32,6 +32,8 @@ define [
       @max_height = _.max(@height)
 
     _set_data: () ->
+      if true
+        return
       @index = rbush()
       pts = []
       for i in [0...@x.length]
