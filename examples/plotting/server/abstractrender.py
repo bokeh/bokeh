@@ -5,20 +5,10 @@ from bokeh.objects import Range1d, ServerDataSource
 import bokeh.transforms.ar_downsample as ar
 #from bokeh.transforms import line_downsample
 
-"""
-In order to run this example, you have to execute
-./bokeh-server -D remotedata
-
-the remote data directory in the bokeh checkout has the sample data for this example
-
-In addition, you must install ArrayManagement from this branch (soon to be master)
-https://github.com/ContinuumIO/ArrayManagement
-"""
-
 
 output_server("abstractrender")
-source = ServerDataSource(data_url="/defaultuser/AAPL.hdf5", owner_username="defaultuser")
-plot = square('volume','close',color='#FF00FF',source=source)
+source = ServerDataSource(data_url="gauss", owner_username="defaultuser")
+plot = square('oneA','oneB',color='#FF00FF',source=source)
 
 
 # Simple heat-map: bin the counts ('tis the default configuration....)

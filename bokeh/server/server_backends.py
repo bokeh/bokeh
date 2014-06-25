@@ -348,7 +348,7 @@ class AbstractDataBackend(object):
         """
         
     #parameters for this are undefined at the moment
-    def get_data(self, request_username, request_docid, downsample_params, plot_state):
+    def get_data(self, request_username, datasource, parameters, plot_state): 
         raise NotImplementedError        
     
     def append_data(self, request_username, request_docid, data_url, datafile):
@@ -374,6 +374,42 @@ def safe_user_url_join(data_directory, username, path):
 
 
         
+class FunctionBackend(AbstractDataBackend):
+
+    def __init__(self):
+      N = 1000
+      x = np.linspace(0, 10, N)
+      y = np.linspace(0, 10, N)
+      xx, yy = np.meshgrid(x, y)
+      self.sin_cos = np.sin(xx)*np.cos(yy)
+
+      self.gauss = {'oneA': np.random.rand(1000), 
+                    'oneB': np.random.rand(1000), 
+                    'hundred': np.random.rand(1000)*100, 
+                    'ints': np.random.randint(low=0, high=100, size=1000)}
+      
+
+    def list_data_sources(self, request_username, username):
+      return ["sin_cos", "guass"]
+    
+    def get_data(self, request_username, datasource, parameters, plot_state): 
+        data_url = datasource.data_url
+        resample_op = datasource.transform['resample']
+
+        if (data_url == "sin_cos"): 
+          dataset = self.sin_cos
+        elif (data_url == "gauss"):
+          dataset = self.gauss
+        else: 
+          raise ValueError("Unknown (function-defined) dataset '{}'".format(data_url))
+        
+        if resample_op == 'abstract rendering':
+          result = ar_downsample.downsample(dataset, datasource.transform, plot_state)
+          return result
+        else:
+          raise ValueError("Unknown resample op '{}'".format(resample_op))
+        
+    
 
 class HDF5DataBackend(AbstractDataBackend):
     """Everything here is world readable, but only writeable by the user

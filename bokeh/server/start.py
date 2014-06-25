@@ -47,7 +47,7 @@ from .server_backends import (
     InMemoryServerModelStorage,
     ShelveServerModelStorage,
     SingleUserAuthentication, MultiUserAuthentication,
-    HDF5DataBackend
+    HDF5DataBackend, FunctionBackend
 )
 from .serverbb import RedisBackboneStorage, ShelveBackboneStorage, InMemoryBackboneStorage
 from .flask_gzip import Gzip
@@ -83,7 +83,7 @@ def prepare_app(backend, single_user_mode=True, data_directory=None):
     if data_directory:
         datamanager = HDF5DataBackend(data_directory)
     else:
-        datamanager = None
+        datamanager = FunctionBackend()
 
     bokeh_app.setup(backend, bbstorage, servermodel_storage, 
                     authentication, datamanager)

@@ -160,16 +160,20 @@ def downsample(data, transform, plot_state):
   #How big would a full plot of the data be at the current resolution?
   plot_size = [screen_size[0] / scale_x,  screen_size[1] / scale_y]
   
-  
   glyphspec = transform['glyphspec']
   xcol = glyphspec['x']['field']
   ycol = glyphspec['y']['field']
   size = glyphspec['size']['default'] ##TODO: Will not work for data-derived sizes...
 
   ###Translate the resample paramteres to server-side rendering....
-  table = data.select(columns=[xcol, ycol])
-  xcol = table[xcol]
-  ycol = table[ycol]
+  ###TODO: Should probalby handle this in server_backend so downsamples get a consistent view of the data
+  if type(data) is dict:
+    xcol = data[xcol]
+    ycol = data[ycol]
+  else:
+    table = data.select(columns=[xcol, ycol])
+    xcol = table[xcol]
+    ycol = table[ycol]
   
   shaper = _shaper(glyphspec['type'], size)
   glyphs = glyphset.Glyphset([xcol, ycol], ar.EmptyList(), shaper, colMajor=True)
