@@ -3,49 +3,14 @@
   <head>
     <meta charset="utf-8">
     <title>{% block title %}{% endblock %}</title>
-    <!-- Vendor Styles -->
-    <script src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>
-    <link href="{{ url_for('bokeh.server.bokehjs_file', filename='css/bokeh.css') }}" rel="stylesheet">
-    <script src="{{ url_for('static', filename='js/vendor/jquery/jquery.js') }}"></script>
-    {% block extra_scripts %}
+    <link href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+    <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bootstrap/js/bootstrap.min.js') }}"></script>
+    {% block head %}
     {% endblock %}
-    {% if splitjs %}
-    <script src="{{ url_for('bokeh.server.bokehjs_file', filename='js/vendor/requirejs/require.js') }}"></script>
-    <script src="{{ url_for('bokeh.server.bokehjs_file', filename='js/config.js') }}"></script>
-    <script>
-      require.config({ baseUrl: "{{ url_for('bokeh.server.bokehjs_file', filename='js') }}" });
-      require(["main"], function(Bokeh) {
-          {% block script %}
-          {% endblock %}
-      });
-    </script>
-    {% else %}
-    <script src="{{ url_for('bokeh.server.bokehjs_file', filename='js/bokeh.js') }}"> </script>
-    <script type="text/javascript">
-      {{ self.script() }}
-    </script>
-    {% endif %}
   </head>
   <body>
-  <div class="container">
-    {% if not hide_navbar %}
-    <div class="row">
-      <div class="navbar">
-        <div class="navbar-inner">
-          <a class="brand"> {{ title }} </a>
-          <ul class="nav pull-right">
-              <li>
-                <a href="{{ url_for('bokeh.server.logout') }}">logout </a>
-              </li>
-          </ul>
-        </div>
-      </div>
-    </div>
-    {% endif %}
-    <div class="row">
-      {% block content %}
-      {% endblock %}
-    </div>
-  </div>
+    {% block body %}
+    {% endblock %}
   </body>
 </html>

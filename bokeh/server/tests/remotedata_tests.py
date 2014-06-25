@@ -11,7 +11,7 @@ from six.moves.urllib.parse import urlencode
 from unittest import skip
 
 from . import test_utils
-from ...serverconfig import Server
+from ...session import Session
 from ...tests.test_utils import skipIfPyPy
 from unittest import skipIf
 arraymanagement_missing = False
@@ -33,7 +33,7 @@ class RemoteDataTestCase(test_utils.BokehServerTestCase):
     @skipIfPyPy("gevent requires pypycore and pypy-hacks branch of gevent.")
     def test_list(self):
         config = tempfile.mkdtemp()
-        s = Server(configdir=config)
+        s = Session(configdir=config)
         sources = s.list_data()
         result = set(['/defaultuser/GOOG.hdf5',
                       '/defaultuser/FB.hdf5',
@@ -48,7 +48,7 @@ class RemoteDataTestCase(test_utils.BokehServerTestCase):
     @skipIfPyPy("gevent requires pypycore and pypy-hacks branch of gevent.")
     def test_line_downsample(self):
         config = tempfile.mkdtemp()
-        s = Server(configdir=config)
+        s = Session(configdir=config)
         url = "http://localhost:5006/bokeh/data/defaultuser/defaultuser/AAPL.hdf5"
         params = ('close', 'date', ['close', 'open', 'date'], 
                   [1000 * time.mktime(dt.datetime(2012,1,1).timetuple()),
@@ -78,7 +78,7 @@ class RemoteDataTestCase(test_utils.BokehServerTestCase):
         
     @skipIf(arraymanagement_missing, "array management not installed")
     def test_client(self):
-        s = Server()
+        s = Session()
         fname = s._prep_data_source_numpy("foo", np.array([1,2,3,4,5]))
         assert exists(fname)
         data = pd.DataFrame({'a' : [1,2,3,4,5], 'b' :[1,2,3,4,5]})

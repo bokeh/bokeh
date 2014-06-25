@@ -5,6 +5,7 @@ var fs = require('fs');
 var tpe = system.args[1];
 var url = system.args[2];
 var png = system.args[3];
+var timeout = system.args[4];
 
 var errors = [];
 var messages = [];
@@ -46,20 +47,16 @@ page.onResourceReceived = function(response) {
 };
 
 // TODO: fit viewport's size to content
-page.viewportSize = { width: 1000, height: 1000 };
+if (tpe === 'notebook') {
+        page.viewportSize = { width: 1000, height: 2000 };
+    } else {
+        page.viewportSize = { width: 1000, height: 1000 };
+    }
 
 page.open(url, function(status) {
     page.evaluate(function() {
         document.body.bgColor = 'white';
     });
-
-    if (tpe === 'notebook') {
-        page.evaluate(function() {
-            // TODO:
-            // $([IPython.events]).on('notebook_loaded.Notebook', function() { ... });
-            // IPython.notebook.execute_all_cells();
-        });
-    }
 
     // TODO: get notified when Bokeh finished rendering
     window.setTimeout(function() {
@@ -75,5 +72,13 @@ page.open(url, function(status) {
         }));
 
         phantom.exit();
-    }, 1000);
+    }, timer());
 });
+
+function timer() {
+    if (tpe === 'notebook') {
+        return timeout * 1000;
+    } else {
+        return 1000;
+    }
+}

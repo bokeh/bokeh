@@ -126,7 +126,7 @@ class Resources(object):
     _default_css_files_dev = ['css/bokeh-vendor.css', 'css/main.css']
 
     _default_root_dir = "."
-    _default_root_url = "http://127.0.0.1:5006"
+    _default_root_url = "http://127.0.0.1:5006/"
 
     logo_url = "http://bokeh.pydata.org/_static/bokeh-transparent.png"
 

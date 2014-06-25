@@ -251,7 +251,7 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
     axiscls = None
     if x_axis_type is None:
         pass
-    elif isinstance(x_range, FactorRange):
+    elif isinstance(p.x_range, FactorRange):
         axiscls = CategoricalAxis
     elif x_axis_type is "linear":
         axiscls = LinearAxis
@@ -264,7 +264,7 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
     axiscls = None
     if y_axis_type is None:
         pass
-    elif isinstance(y_range, FactorRange):
+    elif isinstance(p.y_range, FactorRange):
         axiscls = CategoricalAxis
     elif y_axis_type is "linear":
         axiscls = LinearAxis
@@ -303,10 +303,22 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
                 raise ValueError("tool should be a valid str or Tool Object")
         tools = temp_tool_str
 
+
+    # Remove pan/zoom tools in case of categorical axes
+    remove_pan_zoom = (isinstance(p.x_range, FactorRange) or
+                       isinstance(p.y_range, FactorRange))
+    removing = []
+
     for tool in re.split(r"\s*,\s*", tools.strip()):
         # re.split will return empty strings; ignore them.
+
+        if remove_pan_zoom and ("pan" in tool or "zoom" in tool):
+            removing.append(tool)
+            continue
+
         if tool == "":
             continue
+
         if tool == "pan":
             tool_obj = PanTool(plot=p, dimensions=["width", "height"])
         elif tool == "xpan":
@@ -367,6 +379,11 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
             warnings.warn("tools:%s are being repeated!"%repeated)
 
     p.tools.extend(tool_objs)
+
+    if removing:
+        warnings.warn("Categorical plots do not support pan and zoom operations.\n"
+                      "Removing tool(s): %s" %', '.join(removing))
+
     return p
 
 

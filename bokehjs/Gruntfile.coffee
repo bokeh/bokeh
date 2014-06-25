@@ -1,3 +1,4 @@
+
 module.exports = (grunt) ->
   fs = require("fs")
 
@@ -77,7 +78,6 @@ module.exports = (grunt) ->
           src: ['main.less'],  # actual pattern(s) to match
           dest: 'build/css',   # destination path prefix
           ext: '.css',         # dest filepaths will have this extension
-          filter: hasChanged("less.development.files.0")
         }]
 
     coffee:

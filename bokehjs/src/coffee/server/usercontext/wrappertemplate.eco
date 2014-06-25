@@ -1,12 +1,12 @@
-<div class="bk-bs-panel bk-bs-panel-default">
-  <div class="bk-bs-panel-heading">
-    <h4 class="bk-bs-panel-title">
-      <a class="bokehdoclabel" href="#<%= @bodyid %>">
-        Document: <%= @model.get('title') %> <i class="bokehdelete icon-trash"></i>
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h4 class="panel-title">
+      <a class="bokehdoclabel" href="#<%= @bodyid %>" data-toggle="collapse">
+        Document: <%= @model.get('title') %> <span class="bokehdelete glyphicon glyphicon-trash"></i>
       </a>
     </h4>
   </div>
-  <div id="<%= @bodyid %>" class="bk-bs-panel-collapse bk-bs-collapse bk-bs-in">
-    <div class="bk-bs-panel-body plots"></div>
+  <div id="<%= @bodyid %>" class="panel-collapse collapse">
+    <div class="panel-body plots"></div>
   </div>
 </div>

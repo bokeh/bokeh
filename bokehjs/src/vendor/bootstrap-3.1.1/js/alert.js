@@ -1,3 +1,5 @@
+define(["jquery"], function(jQuery) {
+
 /* ========================================================================
  * Bootstrap: alert.js v3.1.1
  * http://getbootstrap.com/javascript/#alerts
@@ -86,3 +88,5 @@
   $(document).on('click.bk-bs.alert.data-api', dismiss, Alert.prototype.close)
 
 }(jQuery);
+
+});
