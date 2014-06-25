@@ -20,7 +20,7 @@ except:
   print("Install from the ./python directory with 'python setup.py install' (may require admin privledges)")
   print("Questions and feedback can be directed to Joseph Cottam (jcottam@indiana.edu)")
   print("-----------------------------------------------------------------------\n\n")
-  raise
+#  raise
 
 
 class Proxy(PlotObject):
