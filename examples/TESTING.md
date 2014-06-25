@@ -59,3 +59,17 @@ Testing glyphs/glyph1.py ...
 Wrote glyph1.html
 [OK]
 ```
+
+
+Manual Testing
+====================
+
+Abstract Rendering
+--------------------
+
+1. Start the Bokeh server.  (Use '-D remotedata' to get all examples)
+2. Run ./plotting/server/abstractrender.py
+3. The screen should display three plot areas.  
+   The top two showing a 2D gausian.  
+   The bottom one with stock price vs. volume (if server was started with '-D ...')
+
