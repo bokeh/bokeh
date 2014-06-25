@@ -7,14 +7,16 @@ import bokeh.transforms.ar_downsample as ar
 
 
 output_server("abstractrender")
-source = ServerDataSource(data_url="gauss", owner_username="defaultuser")
+source = ServerDataSource(data_url="fn://gauss", owner_username="defaultuser")
 plot = square('oneA','oneB',color='#FF00FF',source=source)
+
+#source = ServerDataSource(data_url="/defaultuser/AAPL.hdf5", owner_username="defaultuser")
+#plot = square('volume','close',color='#FF00FF',source=source)
 
 
 # Simple heat-map: bin the counts ('tis the default configuration....)
 heatmap =ar.source(plot, palette=["Reds-9"])
-image(source=heatmap, title="Heatmap", **ar.mapping(heatmap))
-image(source=heatmap, reserve_val=0, **ar.mapping(heatmap))
+image(source=heatmap, title="Heatmap", reserve_val=0, **ar.mapping(heatmap))
 #image(source=heatmap, reserve_val=0, reserve_color=0xaaaaaa, **ar.mapping(heatmap))
 
 ###Perceptually corrected heat-map.  Cube-root then bin

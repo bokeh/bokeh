@@ -166,7 +166,7 @@ def downsample(data, transform, plot_state):
   size = glyphspec['size']['default'] ##TODO: Will not work for data-derived sizes...
 
   ###Translate the resample paramteres to server-side rendering....
-  ###TODO: Should probalby handle this in server_backend so downsamples get a consistent view of the data
+  ###TODO: Should probably handle this type-based-unpacking server_backend so downsamples get a consistent view of the data
   if type(data) is dict:
     xcol = data[xcol]
     ycol = data[ycol]

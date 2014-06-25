@@ -375,6 +375,9 @@ def safe_user_url_join(data_directory, username, path):
 
         
 class FunctionBackend(AbstractDataBackend):
+    """ Collection of datasets defined by functions.  
+        Datasets are accessed by a URL starting with 'fn://'
+    """
 
     def __init__(self):
       N = 1000
@@ -388,20 +391,25 @@ class FunctionBackend(AbstractDataBackend):
                     'hundred': np.random.rand(1000)*100, 
                     'ints': np.random.randint(low=0, high=100, size=1000)}
       
+    def get_dataset(self, dataset):
+      """Get a known dataset by name.  The dataset may start with fn://, but does not need to."""
 
-    def list_data_sources(self, request_username, username):
-      return ["sin_cos", "guass"]
+      if (dataset.startswith("fn://")): 
+        dataset = dataset[5:]
+
+      if dataset in self.list_data_sources():
+        return self.__getattribute__(dataset)
+      else:
+        raise ValueError("Unknown (function-defined) dataset '{}'".format(dataset))
+
+    def list_data_sources(self, *args):
+      return ["sin_cos", "gauss"]
     
     def get_data(self, request_username, datasource, parameters, plot_state): 
         data_url = datasource.data_url
         resample_op = datasource.transform['resample']
 
-        if (data_url == "sin_cos"): 
-          dataset = self.sin_cos
-        elif (data_url == "gauss"):
-          dataset = self.gauss
-        else: 
-          raise ValueError("Unknown (function-defined) dataset '{}'".format(data_url))
+        dataset = self.get_dataset(data_url)
         
         if resample_op == 'abstract rendering':
           result = ar_downsample.downsample(dataset, datasource.transform, plot_state)
@@ -531,7 +539,10 @@ class HDF5DataBackend(AbstractDataBackend):
                 request_username, data_url, 
                 parameters, plot_state)
         elif resample_op == 'abstract rendering':
-          dataset = self.client[data_url]
+          if (data_url.startswith("fn://")):
+            dataset = FunctionBackend().get_dataset(data_url)
+          else:
+            dataset = self.client[data_url]
           result = ar_downsample.downsample(dataset, datasource.transform, plot_state)
           return result
         else:
