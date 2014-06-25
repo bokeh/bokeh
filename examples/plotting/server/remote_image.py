@@ -4,6 +4,7 @@
 import numpy as np
 from bokeh.plotting import *
 from bokeh.objects import Range1d, ServerDataSource
+from bokeh.transforms import image_downsample
 """
 In order to run this example, you have to execute
 ./bokeh-server -D remotedata
@@ -22,19 +23,8 @@ xx, yy = np.meshgrid(x, y)
 d = np.sin(xx)*np.cos(yy)
 
 output_server("remote_image")
-source = ServerDataSource(data_url="/defaultuser/array.table/array", 
-                          owner_username="defaultuser",
-                          data={'x': [0], 
-                                'y': [0],
-                                'global_x_range' : [0, 10],
-                                'global_y_range' : [0, 10],
-                                'global_offset_x' : [0],
-                                'global_offset_y' : [0],
-                                'dw' : [10], 
-                                'dh' : [10], 
-                                'palette': ["Spectral-11"]
-                            }
-)
+source = image_downsample.source(data_url="/defaultuser/array.table/array", 
+                                 owner_username="defaultuser")
 
 image(
     source=source,
