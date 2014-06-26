@@ -287,7 +287,7 @@ class ColorSpec(DataSpec):
     or a dict of (field, default).
 
     There are two common use cases for ColorSpec: setting a constant value,
-    and indicating a field name to look for on the datasource::
+    and indicating a field name to look for on the datasource:
 
     >>> class Bar(HasProps):
     ...     col = ColorSpec("green")
@@ -533,7 +533,7 @@ class HasProps(object):
             if key in props:
                 setattr(self, key, value)
             else:
-                raise AttributeError("unexpected attribute %s to %s, possible attributes are %s" %
+                raise AttributeError("unexpected attribute '%s' to %s, possible attributes are %s" %
                     (key, self.__class__.__name__, nice_join(props)))
 
         super(HasProps, self).__init__()

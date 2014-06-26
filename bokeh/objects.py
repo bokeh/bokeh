@@ -99,14 +99,16 @@ class ColumnDataSource(DataSource):
 class ServerDataSource(DataSource):
     data_url = String()
     owner_username = String()
+    
     # allow us to add some data that isn't on the remote source
     # and join it to the remote data
     data = Dict(String, Any)
-    # allow us to specify slicing of data on updates
-    index_slice = List(Any)
-    data_slice = List(Any)
-    # allow us to transpose data on updates (for image data)
-    transpose = Bool(False)
+
+    # Paramters of data transformation operations 
+    # The 'Any' is used to pass primtives around.  Minimally, a tag to say which downsample routine to use.  In some downsamplers, parameters are passed this way too.
+    # TODO: Find/create a property type for 'any primitive/atomic value'
+    transform = Dict(String,Either(Instance(PlotObject), Any))
+
 
 class PandasDataSource(DataSource):
     """ Represents serverside data.  This gets stored into the plot server's

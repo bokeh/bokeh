@@ -13,6 +13,7 @@ from ..exceptions import DataIntegrityException
 from ..utils import encode_utf8, decode_utf8
 from ..transforms import line_downsample
 from ..transforms import image_downsample
+from ..transforms import ar_downsample
 
 import logging
 import numpy as np
@@ -347,8 +348,7 @@ class AbstractDataBackend(object):
         """
         
     #parameters for this are undefined at the moment
-    def get_data(self, request_username, request_docid, data_url, 
-                 downsample_function, downsample_parameters):
+    def get_data(self, request_username, datasource, parameters, plot_state): 
         raise NotImplementedError        
     
     def append_data(self, request_username, request_docid, data_url, datafile):
@@ -373,6 +373,51 @@ def safe_user_url_join(data_directory, username, path):
     return safe_url_join(user_path, path)
 
 
+        
+class FunctionBackend(AbstractDataBackend):
+    """ Collection of datasets defined by functions.  
+        Datasets are accessed by a URL starting with 'fn://'
+    """
+
+    def __init__(self):
+      N = 1000
+      x = np.linspace(0, 10, N)
+      y = np.linspace(0, 10, N)
+      xx, yy = np.meshgrid(x, y)
+      self.sin_cos = np.sin(xx)*np.cos(yy)
+
+      self.gauss = {'oneA': np.random.rand(1000), 
+                    'oneB': np.random.rand(1000), 
+                    'hundred': np.random.rand(1000)*100, 
+                    'ints': np.random.randint(low=0, high=100, size=1000)}
+      
+    def get_dataset(self, dataset):
+      """Get a known dataset by name.  The dataset may start with fn://, but does not need to."""
+
+      if (dataset.startswith("fn://")): 
+        dataset = dataset[5:]
+
+      if dataset in self.list_data_sources():
+        return self.__getattribute__(dataset)
+      else:
+        raise ValueError("Unknown (function-defined) dataset '{}'".format(dataset))
+
+    def list_data_sources(self, *args):
+      return ["sin_cos", "gauss"]
+    
+    def get_data(self, request_username, datasource, parameters, plot_state): 
+        data_url = datasource.data_url
+        resample_op = datasource.transform['resample']
+
+        dataset = self.get_dataset(data_url)
+        
+        if resample_op == 'abstract rendering':
+          result = ar_downsample.downsample(dataset, datasource.transform, plot_state)
+          return result
+        else:
+          raise ValueError("Unknown resample op '{}'".format(resample_op))
+        
+    
 
 class HDF5DataBackend(AbstractDataBackend):
     """Everything here is world readable, but only writeable by the user
@@ -405,11 +450,13 @@ class HDF5DataBackend(AbstractDataBackend):
     def list_data_sources(self, request_username, username):
         return self.client[username].descendant_urls(ignore_groups=True)
 
-    def line1d_downsample(self, request_username, request_docid, data_url, 
-                          downsample_function, downsample_parameters):
+    def line1d_downsample(self, request_username, data_url, data_parameters):
         dataset = self.client[data_url]
-        (primary_column, domain_name, columns, 
-         domain_limit, domain_resolution) = downsample_parameters
+        (primary_column, domain_name, columns,
+         domain_limit, domain_resolution, input_params) = data_parameters
+       
+        method = input_params['method']
+
         if domain_limit == 'auto':
             domain = dataset.select(columns=[domain_name])[domain_name]
             domain_limit = [domain.min(), domain.max()]
@@ -431,20 +478,26 @@ class HDF5DataBackend(AbstractDataBackend):
                                             domain_name,
                                             primary_column,
                                             domain_limit,
-                                            domain_resolution)
+                                            domain_resolution,
+                                            method)
         print ('result', result.shape)
         result = {
             'data' : dict([(k, result[k]) for k in result.dtype.names]),
             'domain_limit' : domain_limit
         }
         return result
-    
-    def heatmap_downsample(self, request_username, request_docid, data_url, 
-                          downsample_function, downsample_parameters):
+
+    def heatmap_downsample(self, request_username, data_url, 
+                           parameters, plot_state):
         dataset = self.client[data_url].node
-        (global_x_range, global_y_range, global_offset_x, global_offset_y,
-         x_bounds, y_bounds, x_resolution, y_resolution,
-         index_slice, data_slice, transpose) = downsample_parameters
+        (global_x_range, global_y_range, 
+         global_offset_x, global_offset_y,
+         index_slice, data_slice, 
+         transpose, input_params) = parameters
+
+        x_resolution = plot_state['screen_x'].end - plot_state['screen_x'].start
+        y_resolution = plot_state['screen_y'].end - plot_state['screen_y'].start
+
         if data_slice:
             #not supported for z yet...
             pass
@@ -463,7 +516,7 @@ class HDF5DataBackend(AbstractDataBackend):
                                    global_y_range[1],
                                    dataset.shape[0])
         result = image_downsample.downsample(dataset, image_x_axis, image_y_axis,
-                                             x_bounds, y_bounds, x_resolution,
+                                             plot_state['data_x'], plot_state['data_y'], x_resolution,
                                              y_resolution)
         output = {}
         output['image'] = [result['data']]
@@ -473,15 +526,25 @@ class HDF5DataBackend(AbstractDataBackend):
         output['dh'] = [result['dh']]
         return output
 
-    def get_data(self, request_username, request_docid, data_url, 
-                 downsample_function, downsample_parameters):
-        if downsample_function == 'line1d':
+    def get_data(self, request_username, datasource, parameters, plot_state): 
+        data_url = datasource.data_url
+        resample_op = datasource.transform['resample']
+
+        if resample_op == 'line1d':
             return self.line1d_downsample(
-                request_username, request_docid, data_url, 
-                downsample_function, downsample_parameters)
-        elif downsample_function == 'heatmap':
+                request_username, data_url, 
+                parameters)
+        elif resample_op == 'heatmap':
             return self.heatmap_downsample(
-                request_username, 
-                request_docid, data_url, 
-                downsample_function, downsample_parameters)
+                request_username, data_url, 
+                parameters, plot_state)
+        elif resample_op == 'abstract rendering':
+          if (data_url.startswith("fn://")):
+            dataset = FunctionBackend().get_dataset(data_url)
+          else:
+            dataset = self.client[data_url]
+          result = ar_downsample.downsample(dataset, datasource.transform, plot_state)
+          return result
+        else:
+          raise ValueError("Unknown resample op '{}'".format(resample_op))
         
