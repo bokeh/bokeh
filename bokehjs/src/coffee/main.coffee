@@ -60,38 +60,6 @@ define (require, exports, module) ->
   # glyphs
   Bokeh.Glyph = require("renderer/glyph/glyph")
   glyph_factory = require("renderer/glyph/glyph_factory")
-  Bokeh.AnnularWedge     = glyph_factory.annular_wedge
-  Bokeh.Annulus          = glyph_factory.annulus
-  Bokeh.Arc              = glyph_factory.arc
-  Bokeh.Asterisk         = glyph_factory.asterisk
-  Bokeh.Bezier           = glyph_factory.bezier
-  Bokeh.Circle           = glyph_factory.circle
-  Bokeh.CircleCross      = glyph_factory.circle_cross
-  Bokeh.CircleX          = glyph_factory.circle_x
-  Bokeh.Cross            = glyph_factory.cross
-  Bokeh.Diamond          = glyph_factory.diamond
-  Bokeh.DiamondCross     = glyph_factory.diamond_cross
-  Bokeh.Image            = glyph_factory.image
-  Bokeh.ImageRGBA        = glyph_factory.image_rgba
-  Bokeh.ImageURL         = glyph_factory.image_url
-  Bokeh.InvertedTriangle = glyph_factory.inverted_triangle
-  Bokeh.Line             = glyph_factory.line
-  Bokeh.MultiLine        = glyph_factory.multi_line
-  Bokeh.Oval             = glyph_factory.oval
-  Bokeh.Patch            = glyph_factory.patch
-  Bokeh.Patches          = glyph_factory.patches
-  Bokeh.Quad             = glyph_factory.quad
-  Bokeh.Quadratic        = glyph_factory.quadratic
-  Bokeh.Ray              = glyph_factory.ray
-  Bokeh.Rect             = glyph_factory.rect
-  Bokeh.Segment          = glyph_factory.segment
-  Bokeh.Square           = glyph_factory.square
-  Bokeh.SquareCross      = glyph_factory.square_cross
-  Bokeh.SquareX          = glyph_factory.square_x
-  Bokeh.Text             = glyph_factory.text
-  Bokeh.Triangle         = glyph_factory.triangle
-  Bokeh.Wedge            = glyph_factory.wedge
-  Bokeh.X                = glyph_factory.x
 
   # guides
   Bokeh.CategoricalAxis = require("renderer/guide/categorical_axis")
