@@ -25,6 +25,7 @@ from .objects import (BoxSelectionOverlay, BoxSelectTool, BoxZoomTool, Categoric
                       ColumnDataSource, DataRange1d, DatetimeTickFormatter,
                       DatetimeAxis, FactorRange, Glyph, Grid, GridPlot, LinearAxis, PanTool,
                       Plot, PreviewSaveTool, Range1d, ResetTool, WheelZoomTool)
+from .palettes import brewer
 #from .plotting import (curdoc, output_file, output_notebook, output_server,
                        #show)
 
@@ -74,12 +75,6 @@ class Chart(object):
         self.left = self.edges[:-1]
         self.right = self.edges[1:]
 
-    def get_data_bar(self, cat, value):
-        self.cat = cat
-        self.height = value
-        self.midheight = self.height / 2
-        self.width = [0.8] * len(cat)
-
     def get_source_histogram(self):
         self.source = ColumnDataSource(data=dict(hist=self.hist,
                                                  edges=self.edges,
@@ -93,14 +88,49 @@ class Chart(object):
         self.xdr = DataRange1d(sources=[self.source.columns("edges")])
         self.ydr = DataRange1d(sources=[self.source.columns("hist")])
 
-    def get_source_bar(self):
-        self.source = ColumnDataSource(data=dict(cat=self.cat,
-                                                 midheight=self.midheight,
-                                                 width=self.width,
-                                                 height=self.height))
+    def get_data_bar(self, cat, **value):
+        self.cat = cat
+        self.width = [0.8] * len(self.cat)
+        self.width_cat = [0.2] * len(self.cat)
+        self.zero = np.zeros(len(self.cat))
+        self.data = dict(cat=self.cat, width=self.width, width_cat=self.width_cat, zero=self.zero)
+
+        # assuming value is a dict, ordered dict
+        self.value = value
+
+        # list to save all the attributes we are going to create
+        self.attr = []
+
+        # Grouping
+        step = np.linspace(0, 1.0, len(self.value.keys()) + 1, endpoint=False)
+
+        for i, val in enumerate(self.value.keys()):
+            setattr(self, val, self.value[val])
+            self.data[val] = getattr(self, val)
+            self.attr.append(val)
+            setattr(self, "mid" + val, self.value[val] / 2)
+            self.data["mid" + val] = getattr(self, "mid" + val)
+            self.attr.append("mid" + val)
+            setattr(self, "stacked" + val, self.zero + self.value[val] / 2)
+            self.data["stacked" + val] = getattr(self, "stacked" + val)
+            self.attr.append("stacked" + val)
+            # Grouped
+            setattr(self, "cat" + val, [c + ":" + str(step[i + 1]) for c in self.cat])
+            self.data["cat" + val] = getattr(self, "cat" + val)
+            self.attr.append("cat" + val)
+            # Stacked
+            self.zero += self.value[val]
+
+    def get_source_bar(self, stacked):
+        self.source = ColumnDataSource(self.data)
         self.xdr = FactorRange(factors=self.source.data["cat"])
-        #self.ydr = Range1d(start=0, end=30)
-        self.ydr = DataRange1d(sources=[self.source.columns("height")])
+        #self.ydr = DataRange1d(sources=[self.source.columns("height")])
+        if stacked:
+            self.ydr = Range1d(start=0, end=1.1 * max(self.zero))
+        else:
+            cat = [i for i in self.attr if not i.startswith(("mid", "stacked", "cat"))]
+            end = 1.1 * max(max(self.data[i]) for i in cat)
+            self.ydr = Range1d(start=0, end=end)
 
     def start_plot(self):
         self.plot = Plot(title=self.title,
@@ -177,9 +207,9 @@ class Chart(object):
 
         self.plot.renderers.append(quad_glyph)
 
-    def make_rect(self, x, y, width, height):
+    def make_rect(self, x, y, width, height, color):
 
-        rect = Rect(x=x, y=y, width=width, height=height, fill_color="#CD7F32", fill_alpha=0.6)
+        rect = Rect(x=x, y=y, width=width, height=height, fill_color=color)
 
         rect_glyph = Glyph(data_source=self.source,
                            xdata_range=self.xdr,
@@ -195,17 +225,26 @@ class Chart(object):
         self.make_line("xval", "pdf")
         self.make_line("xval", "cdf")
 
-    def bar(self):
+    def bar(self, stacked):
         # Use the `rect` renderer to display the bars.
-        self.make_rect("cat", "midheight", "width", "height")
-        #self.make_line("cat", "midheight")
-        #self.make_line("cat", "height")
+        # self.make_rect("cat", self.attr[1], "width", self.attr[0])
 
-        #rect(x=countries, y=bronze/2, width=0.8, height=bronze, x_range=countries, color="#CD7F32", alpha=0.6,
-             #background_fill='#59636C', title="Olympic Medals by Country (stacked)", tools="",
-             #y_range=Range1d(start=0, end=max(gold+silver+bronze)), plot_width=800)
-        #rect(x=countries, y=bronze+silver/2, width=0.8, height=silver, x_range=countries, color="silver", alpha=0.6)
-        #rect(x=countries, y=bronze+silver+gold/2, width=0.8, height=gold, x_range=countries, color="gold", alpha=0.6)
+        def chunks(l, n):
+            "Yield successive n-sized chunks from l."
+            for i in range(0, len(l), n):
+                yield l[i:i + n]
+
+        self.quartet = list(chunks(self.attr, 4))
+        if len(self.quartet) < 3:
+            colors = brewer["YlGnBu"][3]
+        else:
+            colors = brewer["YlGnBu"][len(self.quartet)]
+
+        for i, quartet in enumerate(self.quartet):
+            if stacked:
+                self.make_rect("cat", quartet[2], "width", quartet[0], colors[i])
+            else:  # Grouped
+                self.make_rect(quartet[3], quartet[1], "width_cat", quartet[0], colors[i])
 
     def draw(self):
         global notebook_loaded
@@ -278,11 +317,12 @@ class Histogram(object):
 
 class Bar(object):
 
-    def __init__(self, cat, value, title=None, xname=None, yname=None,
+    def __init__(self, cat, value, stacked=False, title=None, xname=None, yname=None,
                  xscale="categorical", yscale="linear", width=800, height=600,
                  filename=False, notebook=False):
         self.cat = cat
         self.value = value
+        self.stacked = stacked
         self.__title = title
         self.xname = xname
         self.yname = yname
@@ -317,9 +357,9 @@ class Bar(object):
 
         chart = Chart(self._title, self.xname, self.yname, self.xscale, self.yscale,
                       self._width, self._height, self.filename, self.notebook)
-        chart.get_data_bar(self.cat, self.value)
-        chart.get_source_bar()
+        chart.get_data_bar(self.cat, **self.value)
+        chart.get_source_bar(self.stacked)
         chart.start_plot()
-        chart.bar()
+        chart.bar(self.stacked)
         chart.end_plot()
         chart.draw()
