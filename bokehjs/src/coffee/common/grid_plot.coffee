@@ -61,7 +61,7 @@ define [
 
       all_tools = _.flatten(_.map(_.pluck(this.childviews, 'tools'), _.values))
       specific_tools = _.where(all_tools, {constructor:constructor})
-      button = $("<button class='bk-bs-btn bk-bs-btn-default bk-bs-btn-sm'>#{button_name}</button>")
+      button = $("<button class='bk-toolbar-button'>#{button_name}</button>")
       toolbar_div.append(button)
       tool_active = false;
       button_activated = false;

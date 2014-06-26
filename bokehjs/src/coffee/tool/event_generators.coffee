@@ -98,7 +98,7 @@ define [], () ->
           @_stop_drag(e)
           return false)
 
-      @$tool_button = $("<button class='bk-bs-btn bk-bs-btn-default bk-bs-btn-sm'> #{@options.buttonText} </button>")
+      @$tool_button = $("<button class='bk-toolbar-button'> #{@options.buttonText} </button>")
       @plotview
       @plotview.$el.find('.bk-button-bar').append(@$tool_button)
 
