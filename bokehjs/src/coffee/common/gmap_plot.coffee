@@ -4,6 +4,7 @@ define [
   "jquery",
   "backbone",
   "./build_views",
+  "./plot_utils",
   "./safebind",
   "./bulk_save",
   "./continuum_view",
@@ -13,9 +14,7 @@ define [
   "mapper/2d/grid_mapper",
   "renderer/properties",
   "tool/active_tool_manager",
-], (_, $, Backbone, build_views, safebind, bulk_save, ContinuumView, HasParent, ViewState, LinearMapper, GridMapper, Properties, ActiveToolManager) ->
-
-  LEVELS = ['image', 'underlay', 'glyph', 'overlay', 'annotation', 'tool']
+], (_, $, Backbone, build_views, safebind, plot_utils, bulk_save, ContinuumView, HasParent, ViewState, LinearMapper, GridMapper, Properties, ActiveToolManager) ->
 
   class GMapPlotView extends ContinuumView.View
     events:
@@ -130,7 +129,7 @@ define [
       @render_canvas(false)
       @atm = new ActiveToolManager(@eventSink)
       @levels = {}
-      for level in LEVELS
+      for level in plot_utils.LEVELS
         @levels[level] = {}
       @build_levels()
       @request_render()

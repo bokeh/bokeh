@@ -4,6 +4,7 @@ define [
   "backbone",
   "require",
   "./build_views",
+  "./plot_utils",
   "./safebind",
   "./bulk_save",
   "./continuum_view",
@@ -14,49 +15,10 @@ define [
   "mapper/2d/grid_mapper",
   "renderer/properties",
   "tool/active_tool_manager",
-], (_, Backbone, require, build_views, safebind, bulk_save, ContinuumView, HasParent, ViewState, LinearMapper, CategoricalMapper, GridMapper, Properties, ActiveToolManager) ->
+], (_, Backbone, require, build_views, plot_utils, safebind, bulk_save, ContinuumView, HasParent, ViewState, LinearMapper, CategoricalMapper, GridMapper, Properties, ActiveToolManager) ->
 
   line_properties = Properties.line_properties
   text_properties = Properties.text_properties
-
-  LEVELS = ['image', 'underlay', 'glyph', 'overlay', 'annotation', 'tool']
-
-  delay_animation = (f) ->
-    return f()
-
-  delay_animation = window.requestAnimationFrame ||
-          window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame ||
-          window.msRequestAnimationFrame || delay_animation
-
-  # Returns a function, that, when invoked, will only be triggered at
-  # most once during a given window of time.  If the browser supports
-  # requestAnimationFrame, in addition the throttled function will be run
-  # no more frequently than request animation frame allow
-  throttle_animation = (func, wait) ->
-    [context , args, timeout, result] = [null,null,null,null]
-    previous = 0
-    pending = false
-    later = ->
-      previous = new Date
-      timeout = null
-      pending = false
-      result = func.apply(context, args)
-
-    return ->
-      now = new Date
-      remaining = wait - (now - previous)
-      context = this
-      args = arguments
-      if (remaining <= 0 and !pending)
-        clearTimeout(timeout)
-        pending = true
-        delay_animation(later)
-      else if (!timeout)
-        timeout = setTimeout(
-         (->
-            delay_animation(later)),
-         remaining)
-      return result
 
   class PlotView extends ContinuumView.View
     className: "bokeh plotview"
@@ -99,8 +61,8 @@ define [
       super(_.defaults(options, @default_options))
 
       #@throttled_render = _.throttle(@render, 15)
-      @throttled_render = throttle_animation(@render, 15)
-      @throttled_render_canvas = throttle_animation(@render_canvas, 15)
+      @throttled_render = plot_utils.throttle_animation(@render, 15)
+      @throttled_render_canvas = plot_utils.throttle_animation(@render_canvas, 15)
       @outline_props = new line_properties(@, {}, 'outline_')
       @title_props = new text_properties(@, {}, 'title_')
 
@@ -172,7 +134,7 @@ define [
       @render_canvas(false)
       @atm = new ActiveToolManager(@eventSink)
       @levels = {}
-      for level in LEVELS
+      for level in plot_utils.LEVELS
         @levels[level] = {}
       @build_levels()
       @request_render()
@@ -180,7 +142,6 @@ define [
       @bind_bokeh_events()
       return this
 
-    # TODO (bev) why is this ignoring y units? why does it also take units as last arg?
     map_to_screen: (x, x_units, y, y_units) ->
       if x_units == 'screen'
         if _.isArray(x)
