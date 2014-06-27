@@ -9,11 +9,11 @@ from six import string_types
 from . import glyphs
 
 from .objects import (
-    BoxSelectionOverlay, BoxSelectTool, BoxZoomTool, CategoricalAxis,
-    ColumnDataSource, CrosshairTool, DataRange1d, DatetimeAxis,
-    EmbedTool, FactorRange, Grid, HoverTool, Legend, LinearAxis,
-    ObjectExplorerTool, PanTool, Plot, PreviewSaveTool, Range, Range1d,
-    ResetTool, ResizeTool, WheelZoomTool, Tool
+    BoxSelectionOverlay, BoxSelectTool, BoxZoomTool, Canvas,
+    CategoricalAxis, ColumnDataSource, CrosshairTool, DataRange1d,
+    DatetimeAxis, EmbedTool, FactorRange, Grid, HoverTool, Legend,
+    LinearAxis, ObjectExplorerTool, PanTool, Plot, PreviewSaveTool,
+    Range, Range1d, ResetTool, ResizeTool, WheelZoomTool, Tool
 )
 from .properties import ColorSpec
 import warnings
@@ -237,13 +237,15 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
                  tools="pan,wheel_zoom,box_zoom,save,resize,select,reset", **kw):
     # Accept **kw to absorb other arguments which the actual factory functions
     # might pass in, but that we don't care about
-    p = Plot()
+    c = Canvas()
 
-    p.title = kw.pop("title", "Plot")
     if plot_width is not None:
-        p.plot_width = plot_width
+        c.canvas_width = plot_width
     if plot_height is not None:
-        p.plot_height = plot_height
+        c.canvas_height = plot_height
+
+    p = Plot(canvas=c)
+    p.title = kw.pop("title", "Plot")
 
     p.x_range = _get_range(x_range)
     p.y_range = _get_range(y_range)

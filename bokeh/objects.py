@@ -239,6 +239,11 @@ class Widget(PlotObject):
     pass
 
 class Canvas(PlotObject):
+    # TODO (bev) remove default dims here, see #561
+    def __init__(self, canvas_height=600, canvas_width=600, **kwargs):
+        kwargs['canvas_width'] = canvas_width
+        kwargs['canvas_height'] = canvas_height
+        super(Canvas, self).__init__(**kwargs)
     botton_bar = Bool(True)
     canvas_height = Int(600)
     canvas_width = Int(600)
@@ -336,7 +341,8 @@ class MapOptions(HasProps):
 class GMapPlot(Plot):
     def __init__(self, **kwargs):
         if 'canvas' not in kwargs:
-            kwargs['canvas'] = Canvas(map=True, canvas_width=600, canvas_height=600)
+            kwargs['canvas'] = Canvas()
+        kwargs['canvas'].map = True
         super(Plot, self).__init__(**kwargs)
 
     map_options = Instance(MapOptions)
