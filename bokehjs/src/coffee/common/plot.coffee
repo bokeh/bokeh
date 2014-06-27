@@ -8,17 +8,20 @@ define [
   "./continuum_view",
   "./has_parent",
   "./view_state",
+  "./plot_template"
   "mapper/1d/linear_mapper",
   "mapper/1d/categorical_mapper",
   "mapper/2d/grid_mapper",
   "renderer/properties",
   "tool/active_tool_manager",
-], (_, Backbone, build_views, plot_utils, safebind, ContinuumView, HasParent, ViewState, LinearMapper, CategoricalMapper, GridMapper, Properties, ActiveToolManager) ->
+], (_, Backbone, build_views, plot_utils, safebind, ContinuumView, HasParent, ViewState, plot_template, LinearMapper, CategoricalMapper, GridMapper, Properties, ActiveToolManager) ->
 
   line_properties = Properties.line_properties
   text_properties = Properties.text_properties
 
   class PlotView extends ContinuumView.View
+    className: "bokeh plotview"
+    template: plot_template
 
     view_options: () ->
       _.extend({plot_model: @model, plot_view: @}, @options)
@@ -40,7 +43,17 @@ define [
 
       @canvas = @mget_obj('canvas')
       @canvas_view = new @canvas.default_view({'model': @canvas})
+
+      template_data = {
+        button_bar: @mget('button_bar')
+      }
+      html = @template(template_data)
+      @$el.html(html)
+
+      @button_bar?.attr('style', "width:#{@canvas.get('canvas_width')}px;")
+
       @$el.append(@canvas_view.$el)
+      @canvas_view.render()
 
       @throttled_render = plot_utils.throttle_animation(@render, 15)
       @throttled_render_canvas = plot_utils.throttle_animation(@canvas_view.render, 15)
@@ -342,6 +355,7 @@ define [
 
     defaults: () ->
       return {
+        button_bar: true
         data_sources: {},
         renderers: [],
         tools: [],

@@ -19,7 +19,6 @@ define [
       super(options)
 
       template_data = {
-        button_bar: @mget('button_bar')
         map: @mget('map')
       }
       html = @template(template_data)
@@ -27,7 +26,6 @@ define [
 
       @canvas_wrapper = @$el.find('.bokeh_canvas_wrapper')
       @canvas = @$el.find('canvas.bokeh_canvas')
-      @button_bar = @$el.find('.button_bar') ? null
       @map_div = @$el.find('.bokeh_gmap') ? null
 
     render: () ->
@@ -49,8 +47,6 @@ define [
 
       @canvas.width = width * @dpi_ratio
       @canvas.height = height * @dpi_ratio
-
-      @button_bar?.attr('style', "width:#{width}px;")
 
       @canvas_wrapper.attr('style', "width:#{width}px; height:#{height}px")
       @canvas.attr('style', "width:#{width}px;")
@@ -117,7 +113,6 @@ define [
 
     defaults: () ->
       return {
-        button_bar: true
         canvas_width: 300
         canvas_height: 300
         map: false

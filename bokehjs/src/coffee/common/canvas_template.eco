@@ -1,11 +1,6 @@
-<% if @button_bar: %>
-<div class='button_bar bk-bs-btn-group'/>
-<% end %>
-  <div class='plotarea'>
-  <div class='bokeh_canvas_wrapper'>
-    <% if @map: %>
-    <div class="bokeh_gmap"></div>
-    <% end %>
-    <canvas class='bokeh_canvas'></canvas>
-  </div>
+<div class='bokeh_canvas_wrapper'>
+  <% if @map: %>
+  <div class="bokeh_gmap"></div>
+  <% end %>
+  <canvas class='bokeh_canvas'></canvas>
 </div>

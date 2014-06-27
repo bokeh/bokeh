@@ -1,0 +1,4 @@
+<% if @button_bar: %>
+<div class='button_bar bk-bs-btn-group'/>
+<% end %>
+<div class='plotarea' />
