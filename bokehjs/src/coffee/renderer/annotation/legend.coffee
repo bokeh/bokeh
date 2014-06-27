@@ -56,7 +56,7 @@ define [
       @legend_height = @label_height
       #add legend spacing
       @legend_height = @legend_names.length * @legend_height + (1 + @legend_names.length) * legend_spacing
-      ctx = @plot_view.ctx
+      ctx = @plot_view.canvas_view.ctx
 
       ctx.save()
       @label_props.set(ctx, @)
@@ -89,7 +89,7 @@ define [
       @box_coords = [x,y]
 
     render: () ->
-      ctx = @plot_view.ctx
+      ctx = @plot_view.canvas_view.ctx
       ctx.save()
 
       ctx.fillStyle = @plot_model.get('background_fill')

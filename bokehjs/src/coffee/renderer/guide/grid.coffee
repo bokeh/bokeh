@@ -16,7 +16,7 @@ define [
       @grid_props = new line_properties(@, null, 'grid_')
 
     render: () ->
-      ctx = @plot_view.ctx
+      ctx = @plot_view.canvas_view.ctx
 
       ctx.save()
       @_draw_grids(ctx)

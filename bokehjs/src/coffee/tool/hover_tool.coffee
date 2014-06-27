@@ -61,7 +61,7 @@ define [
         @tool_button.addClass('active')
       )
 
-      @plot_view.canvas.bind("mousemove", (e) =>
+      @plot_view.canvas_view.canvas.bind("mousemove", (e) =>
         if not @active
           return
         offset = $(e.currentTarget).offset()
@@ -84,7 +84,7 @@ define [
 
         @_select(vx, vy, e)
       )
-      @plot_view.canvas_wrapper.css('cursor', 'crosshair')
+      @plot_view.canvas_view.canvas_wrapper.css('cursor', 'crosshair')
 
     view_coords: (sx, sy) ->
       [vx, vy] = [

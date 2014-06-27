@@ -9,7 +9,7 @@ def large_plot(n):
     from bokeh.objects import (Plot, PlotContext, LinearAxis, Grid, Glyph,
         ColumnDataSource, DataRange1d, PanTool, WheelZoomTool, BoxZoomTool,
         BoxSelectTool, BoxSelectionOverlay, ResizeTool, PreviewSaveTool,
-        ResetTool)
+        ResetTool, Canvas)
     from bokeh.glyphs import Line
 
     context = PlotContext()
@@ -19,7 +19,8 @@ def large_plot(n):
         source = ColumnDataSource(data=dict(x=[0, i + 1], y=[0, i + 1]))
         xdr = DataRange1d(sources=[source.columns("x")])
         ydr = DataRange1d(sources=[source.columns("y")])
-        plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source])
+        canv = Canvas()
+        plot = Plot(x_range=xdr, y_range=ydr, canvas=canv, data_sources=[source])
         xaxis = LinearAxis(plot=plot, dimension=0)
         yaxis = LinearAxis(plot=plot, dimension=1)
         xgrid = Grid(plot=plot, dimension=0)
@@ -38,7 +39,7 @@ def large_plot(n):
         tools = [pan, wheel_zoom, box_zoom, box_select, box_selection, resize, previewsave, reset]
         plot.tools.append(tools)
         context.children.append(plot)
-        objects |= set([source, xdr, ydr, plot, xaxis, yaxis, xgrid, ygrid, renderer] + tickers + tools)
+        objects |= set([source, xdr, ydr, plot, xaxis, yaxis, xgrid, ygrid, renderer, canv] + tickers + tools)
 
     return context, objects
 

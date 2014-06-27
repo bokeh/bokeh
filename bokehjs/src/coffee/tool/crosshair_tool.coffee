@@ -35,7 +35,7 @@ define [
       if not @active
         return
 
-      ctx = @plot_view.ctx
+      ctx = @plot_view.canvas_view.ctx
 
       cw = @plot_view.view_state.get('canvas_width')
       ch = @plot_view.view_state.get('canvas_height')

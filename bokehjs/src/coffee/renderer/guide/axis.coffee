@@ -158,7 +158,7 @@ define [
       @axis_label_props = new text_properties(@, null, 'axis_label_')
 
     render: () ->
-      ctx = @plot_view.ctx
+      ctx = @plot_view.canvas_view.ctx
 
       ctx.save()
 
@@ -299,7 +299,7 @@ define [
 
       labels = @mget_obj('formatter').format(coords[dim])
 
-      @major_label_props.set(@plot_view.ctx, @)
+      @major_label_props.set(@plot_view.canvas_view.ctx, @)
 
       if _.isString(orient)
         factor = 1
@@ -315,8 +315,8 @@ define [
         for i in [0...labels.length]
           if not labels[i]?
             continue
-          w = @plot_view.ctx.measureText(labels[i]).width * 1.1
-          h = @plot_view.ctx.measureText(labels[i]).ascent * 0.9
+          w = @plot_view.canvas_view.ctx.measureText(labels[i]).width * 1.1
+          h = @plot_view.canvas_view.ctx.measureText(labels[i]).ascent * 0.9
           val = w*s + (h/factor)*c
           if val > extent
             extent = val
@@ -324,8 +324,8 @@ define [
         for i in [0...labels.length]
           if not labels[i]?
             continue
-          w = @plot_view.ctx.measureText(labels[i]).width * 1.1
-          h = @plot_view.ctx.measureText(labels[i]).ascent * 0.9
+          w = @plot_view.canvas_view.ctx.measureText(labels[i]).width * 1.1
+          h = @plot_view.canvas_view.ctx.measureText(labels[i]).ascent * 0.9
           val = w*c + (h/factor)*s
           if val > extent
             extent = val
@@ -341,7 +341,7 @@ define [
       side = @mget('side')
       orient = 'parallel'
 
-      @major_label_props.set(@plot_view.ctx, @)
+      @major_label_props.set(@plot_view.canvas_view.ctx, @)
 
       angle = Math.abs(_angle_lookup[side][orient])
       c = Math.cos(angle)
@@ -349,9 +349,9 @@ define [
 
       if @mget('axis_label')
         extent += @mget('axis_label_standoff')
-        @axis_label_props.set(@plot_view.ctx, @)
-        w = @plot_view.ctx.measureText(@mget('axis_label')).width * 1.1
-        h = @plot_view.ctx.measureText(@mget('axis_label')).ascent * 0.9
+        @axis_label_props.set(@plot_view.canvas_view.ctx, @)
+        w = @plot_view.canvas_view.ctx.measureText(@mget('axis_label')).width * 1.1
+        h = @plot_view.canvas_view.ctx.measureText(@mget('axis_label')).ascent * 0.9
         if side == "top" or side == "bottom"
           extent += w*s + h*c
         else

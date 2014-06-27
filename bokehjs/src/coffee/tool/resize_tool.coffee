@@ -34,7 +34,7 @@ define [
       if not @active
         return
 
-      ctx = @plot_view.ctx
+      ctx = @plot_view.canvas_view.ctx
 
       cw = @plot_view.view_state.get('canvas_width')
       ch = @plot_view.view_state.get('canvas_height')
@@ -113,6 +113,9 @@ define [
       @plot_view.view_state.trigger('change:canvas_height', ch+ydiff)
       @plot_view.view_state.trigger('change:canvas_width', cw+xdiff)
       @plot_view.view_state.trigger('change', @plot_view.view_state)
+      @plot_view.canvas.set('canvas_height', ch+ydiff)
+      @plot_view.canvas.set('canvas_width', cw+xdiff)
+      @plot_view.canvas_view.render()
       @plot_view.unpause(true)
 
       return null

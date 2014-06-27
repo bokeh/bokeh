@@ -4,8 +4,8 @@ define [
   "jquery",
   "backbone",
   "./build_views",
-  "./plot_utils",
   "./safebind",
+  "./plot_utils",
   "./bulk_save",
   "./continuum_view",
   "./has_parent",
@@ -17,59 +17,43 @@ define [
 ], (_, $, Backbone, build_views, safebind, plot_utils, bulk_save, ContinuumView, HasParent, ViewState, LinearMapper, GridMapper, Properties, ActiveToolManager) ->
 
   class GMapPlotView extends ContinuumView.View
-    events:
-      "mousemove .bokeh_canvas_wrapper": "_mousemove"
-      "mousedown .bokeh_canvas_wrapper": "_mousedown"
-    className: "bokeh"
 
     view_options: () ->
       _.extend({plot_model: @model, plot_view: @}, @options)
 
-    _mousedown: (e) =>
-      for f in @mousedownCallbacks
-        f(e, e.layerX, e.layerY)
-
-    _mousemove: (e) =>
-      for f in @moveCallbacks
-        f(e, e.layerX, e.layerY)
-
     pause: () ->
       @is_paused = true
 
-    unpause: (render_canvas=false) ->
+    unpause: () ->
       @is_paused = false
-      if render_canvas
-        @request_render_canvas(true)
-      else
-        @request_render()
+      @request_render()
 
     request_render: () ->
       if not @is_paused
         @throttled_render()
       return
 
-    request_render_canvas: (full_render) ->
-      if not @is_paused
-        @throttled_render_canvas(full_render)
-      return
-
     initialize: (options) ->
       super(_.defaults(options, @default_options))
 
+      @canvas = @mget_obj('canvas')
+      @canvas_view = new @canvas.default_view({'model': @canvas})
+      @$el.append(@canvas_view.$el)
+
       # TODO (bryanv) investigate (turn off?) throttling for gmap plots
       @throttled_render = _.throttle(@render, 100)
-      @throttled_render_canvas = _.throttle(@render_canvas, 100)
+      @throttled_render_canvas = _.throttle(@canvas_view.render, 100)
 
-      @outline_props = new Properties.line_properties(@, {}, 'title_')
+      @outline_props = new Properties.line_properties(@, {}, 'outline_')
       @title_props = new Properties.text_properties(@, {}, 'title_')
 
       @view_state = new ViewState({
-        canvas_width:      options.canvas_width       ? @mget('canvas_width')
-        canvas_height:     options.canvas_height      ? @mget('canvas_height')
-        x_offset:          options.x_offset           ? @mget('x_offset')
-        y_offset:          options.y_offset           ? @mget('y_offset')
-        outer_width:       options.outer_width        ? @mget('outer_width')
-        outer_height:      options.outer_height       ? @mget('outer_height')
+        canvas_width:      @canvas.get('canvas_width')
+        canvas_height:     @canvas.get('canvas_height')
+        outer_width:       @canvas.get('canvas_width')
+        outer_height:      @canvas.get('canvas_height')
+        x_offset:          0
+        y_offset:          0
         min_border_top:    (options.min_border_top    ? @mget('min_border_top'))    ? @mget('min_border')
         min_border_bottom: (options.min_border_bottom ? @mget('min_border_bottom')) ? @mget('min_border')
         min_border_left:   (options.min_border_left   ? @mget('min_border_left'))   ? @mget('min_border')
@@ -79,8 +63,6 @@ define [
         requested_border_left: 0
         requested_border_right: 0
       })
-
-      @hidpi = options.hidpi ? @mget('hidpi')
 
       @x_range = options.x_range ? @mget_obj('x_range')
       @y_range = options.y_range ? @mget_obj('y_range')
@@ -122,11 +104,7 @@ define [
       @zoom_count = null
 
       @eventSink = _.extend({}, Backbone.Events)
-      @moveCallbacks = []
-      @mousedownCallbacks = []
-      @keydownCallbacks = []
-      @render_init()
-      @render_canvas(false)
+      @canvas_view.render()
       @atm = new ActiveToolManager(@eventSink)
       @levels = {}
       for level in plot_utils.LEVELS
@@ -218,11 +196,6 @@ define [
       return this
 
     bind_bokeh_events: () ->
-      safebind(this, @view_state, 'change', () =>
-        @request_render_canvas()
-        @request_render()
-      )
-
       safebind(this, @x_range, 'change', @request_render)
       safebind(this, @y_range, 'change', @request_render)
       safebind(this, @model, 'change:renderers', @build_levels)
@@ -230,61 +203,15 @@ define [
       safebind(this, @model, 'change', @request_render)
       safebind(this, @model, 'destroy', () => @remove())
 
-    render_init: () ->
-      # TODO use template
-      @$el.append($("""
-        <div class='button_bar bk-bs-btn-group'/>
-        <div class='plotarea'>
-        <div class='bokeh_canvas_wrapper'>
-          <div class="bokeh_gmap"></div>
-          <canvas class='bokeh_canvas'></canvas>
-        </div>
-        </div>
-        """))
-      @button_bar = @$el.find('.button_bar')
-      @canvas_wrapper = @$el.find('.bokeh_canvas_wrapper')
-      @canvas = @$el.find('canvas.bokeh_canvas')
-      @gmap_div = @$el.find('.bokeh_gmap')
-
-    render_canvas: (full_render=true) ->
-      @ctx = @canvas[0].getContext('2d')
-
-      if @hidpi
-        devicePixelRatio = window.devicePixelRatio || 1
-        backingStoreRatio = @ctx.webkitBackingStorePixelRatio ||
-                            @ctx.mozBackingStorePixelRatio ||
-                            @ctx.msBackingStorePixelRatio ||
-                            @ctx.oBackingStorePixelRatio ||
-                            @ctx.backingStorePixelRatio || 1
-        ratio = devicePixelRatio / backingStoreRatio
-      else
-        ratio = 1
-
-      oh = @view_state.get('outer_height')
-      ow = @view_state.get('outer_width')
-
-      @canvas.width = ow * ratio
-      @canvas.height = oh * ratio
-
-      @button_bar.attr('style', "width:#{ow}px;")
-      @canvas_wrapper.attr('style', "width:#{ow}px; height:#{oh}px")
-      @canvas.attr('style', "width:#{ow}px;")
-      @canvas.attr('style', "height:#{oh}px;")
-      @canvas.attr('width', ow*ratio).attr('height', oh*ratio)
-      @$el.attr("width", ow).attr('height', oh)
-
-      @ctx.scale(ratio, ratio)
-      @ctx.translate(0.5, 0.5)
-
       iw = @view_state.get('inner_width')
       ih = @view_state.get('inner_height')
       top = @view_state.get('border_top')
       left = @view_state.get('border_left')
 
-      @gmap_div.attr("style", "top: #{top}px; left: #{left}px; position: absolute")
-      @gmap_div.attr('style', "width:#{iw}px;")
-      @gmap_div.attr('style', "height:#{ih}px;")
-      @gmap_div.width("#{iw}px").height("#{ih}px")
+      @canvas_view.map_div.attr("style", "top: #{top}px; left: #{left}px; position: absolute")
+      @canvas_view.map_div.attr('style', "width:#{iw}px;")
+      @canvas_view.map_div.attr('style', "height:#{ih}px;")
+      @canvas_view.map_div.width("#{iw}px").height("#{ih}px")
       @initial_zoom = @mget('map_options').zoom
 
       build_map = () =>
@@ -296,7 +223,7 @@ define [
           mapTypeId: google.maps.MapTypeId.SATELLITE
 
         # Create the map with above options in div
-        @map = new google.maps.Map(@gmap_div[0], map_options)
+        @map = new google.maps.Map(@canvas_view.map_div[0], map_options)
         google.maps.event.addListener(@map, 'bounds_changed', @bounds_change)
 
       if window.google? and window.google.maps?
@@ -307,9 +234,6 @@ define [
         script.type = 'text/javascript';
         script.src = 'https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&callback=_bokeh_first_gmap_load';
         document.body.appendChild(script);
-
-      if full_render
-        @render()
 
     bounds_change: () =>
       bds = @map.getBounds()
@@ -323,13 +247,9 @@ define [
           yr: { start: @y_range.get('start'), end: @y_range.get('end') }
         }
 
-    save_png: () ->
-      @render()
-      data_uri = @canvas[0].toDataURL()
-      @model.set('png', @canvas[0].toDataURL())
-      bulk_save([@model])
-
     render: (force) ->
+      ctx = @canvas_view.ctx
+
       @requested_padding = {
         top: 0
         bottom: 0
@@ -347,8 +267,8 @@ define [
 
       title = @mget('title')
       if title
-        @title_props.set(@ctx, {})
-        th = @ctx.measureText(@mget('title')).ascent
+        @title_props.set(ctx, {})
+        th = ctx.measureText(@mget('title')).ascent
         @requested_padding['top'] += (th + @mget('title_standoff'))
 
       sym = @mget('border_symmetry') or ""
@@ -373,31 +293,31 @@ define [
       top = @view_state.get('border_top')
       left = @view_state.get('border_left')
 
-      @gmap_div.attr("style", "top: #{top}px; left: #{left}px;")
-      @gmap_div.width("#{iw}px").height("#{ih}px")
+      @canvas_view.map_div.attr("style", "top: #{top}px; left: #{left}px;")
+      @canvas_view.map_div.width("#{iw}px").height("#{ih}px")
 
-      @ctx.clearRect(0, 0, ow, oh)
+      ctx.clearRect(0, 0, ow, oh)
 
-      @ctx.beginPath()
-      @ctx.moveTo(0,  0)
-      @ctx.lineTo(0,  oh)
-      @ctx.lineTo(ow, oh)
-      @ctx.lineTo(ow, 0)
-      @ctx.lineTo(0,  0)
+      ctx.beginPath()
+      ctx.moveTo(0,  0)
+      ctx.lineTo(0,  oh)
+      ctx.lineTo(ow, oh)
+      ctx.lineTo(ow, 0)
+      ctx.lineTo(0,  0)
 
-      @ctx.moveTo(left,    top)
-      @ctx.lineTo(left+iw, top)
-      @ctx.lineTo(left+iw, top+ih)
-      @ctx.lineTo(left,    top+ih)
-      @ctx.lineTo(left,    top)
-      @ctx.closePath()
+      ctx.moveTo(left,    top)
+      ctx.lineTo(left+iw, top)
+      ctx.lineTo(left+iw, top+ih)
+      ctx.lineTo(left,    top+ih)
+      ctx.lineTo(left,    top)
+      ctx.closePath()
 
-      @ctx.fillStyle = @mget('border_fill')
-      @ctx.fill()
+      ctx.fillStyle = @mget('border_fill')
+      ctx.fill()
 
       if @outline_props.do_stroke
-        @outline_props.set(@ctx, {})
-        @ctx.strokeRect(
+        @outline_props.set(ctx, {})
+        ctx.strokeRect(
           @view_state.get('border_left'), @view_state.get('border_top'),
           @view_state.get('inner_width'), @view_state.get('inner_height'),
         )
@@ -410,22 +330,22 @@ define [
         @old_mapper_state.y = yms
         have_new_mapper_state = true
 
-      @ctx.save()
+      ctx.save()
 
-      @ctx.beginPath()
-      @ctx.rect(
+      ctx.beginPath()
+      ctx.rect(
         @view_state.get('border_left'), @view_state.get('border_top'),
         @view_state.get('inner_width'), @view_state.get('inner_height'),
       )
-      @ctx.clip()
-      @ctx.beginPath()
+      ctx.clip()
+      ctx.beginPath()
 
       for level in ['image', 'underlay', 'glyph']
         renderers = @levels[level]
         for k, v of renderers
           v.render(have_new_mapper_state)
 
-      @ctx.restore()
+      ctx.restore()
 
       for level in ['overlay', 'annotation', 'tool']
         renderers = @levels[level]
@@ -435,8 +355,8 @@ define [
       if title
         sx = @view_state.get('outer_width')/2
         sy = th
-        @title_props.set(@ctx, {})
-        @ctx.fillText(title, sx, sy)
+        @title_props.set(ctx, {})
+        ctx.fillText(title, sx, sy)
 
   class GMapPlot extends HasParent
     type: 'GMapPlot'
@@ -475,12 +395,6 @@ define [
         border_fill: "#eee",
         border_symmetry: 'h',
         min_border: 40,
-        x_offset: 0,
-        y_offset: 0,
-        canvas_width: 300,
-        canvas_height: 300,
-        outer_width: 300,
-        outer_height: 300,
 
         title_standoff: 8,
         title_text_font: "helvetica",

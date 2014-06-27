@@ -24,26 +24,29 @@ define (require, exports, module) ->
   # common
   Bokeh.Collections       = require("common/base").Collections
   Bokeh.Config            = require("common/base").Config
+  Bokeh.CartesianFrame    = require("common/cartesian_frame")
+  Bokeh.Canvas            = require("common/canvas")
   Bokeh.GMapPlot          = require("common/gmap_plot")
   Bokeh.GridPlot          = require("common/grid_plot")
   Bokeh.HasParent         = require("common/has_parent")
   Bokeh.HasProperties     = require("common/has_properties")
+  Bokeh.Panel             = require("common/panel")
   Bokeh.Plot              = require("common/plot")
   Bokeh.Plotting          = require("common/plotting")
 
-  Bokeh.Affine = require("common/affine")
-  Bokeh.build_views = require("common/build_views")
-  Bokeh.bulk_save = require("common/bulk_save")
+  Bokeh.Affine        = require("common/affine")
+  Bokeh.build_views   = require("common/build_views")
+  Bokeh.bulk_save     = require("common/bulk_save")
   Bokeh.ContinuumView = require("common/continuum_view")
   Bokeh.GridViewState = require("common/grid_view_state")
-  Bokeh.load_models = require("common/load_models")
-  Bokeh.PlotContext = require("common/plot_context")
-  Bokeh.PlotWidget = require("common/plot_widget")
-  Bokeh.PNGView = require("common/png_view")
-  Bokeh.Random = require("common/random")
-  Bokeh.safebind = require("common/safebind")
-  Bokeh.SVGColors = require("common/svg_colors")
-  Bokeh.ViewState = require("common/view_state")
+  Bokeh.load_models   = require("common/load_models")
+  Bokeh.PlotContext   = require("common/plot_context")
+  Bokeh.PlotWidget    = require("common/plot_widget")
+  Bokeh.PNGView       = require("common/png_view")
+  Bokeh.Random        = require("common/random")
+  Bokeh.safebind      = require("common/safebind")
+  Bokeh.SVGColors     = require("common/svg_colors")
+  Bokeh.ViewState     = require("common/view_state")
 
   # mappers
   Bokeh.LinearMapper      = require("mapper/1d/linear_mapper")
@@ -58,7 +61,7 @@ define (require, exports, module) ->
   Bokeh.Legend = require("renderer/annotation/legend")
 
   # glyphs
-  Bokeh.Glyph = require("renderer/glyph/glyph")
+  Bokeh.Glyph   = require("renderer/glyph/glyph")
   glyph_factory = require("renderer/glyph/glyph_factory")
 
   # guides
@@ -70,16 +73,17 @@ define (require, exports, module) ->
   # overlays
   Bokeh.BoxSelection = require("renderer/overlay/box_selection")
 
+  # properties
   Bokeh.Properties = require("renderer/properties")
 
   # server tools
   Bokeh.embed_core  = require("server/embed_core")
-  Bokeh.embed  = require("server/embed")
+  Bokeh.embed       = require("server/embed")
   Bokeh.serverrun   = require("server/serverrun")
   Bokeh.serverutils = require("server/serverutils")
 
   # data sources
-  Bokeh.ColumnDataSource      = require("source/column_data_source")
+  Bokeh.ColumnDataSource = require("source/column_data_source")
 
   # tickers and tick formatters
   Bokeh.AbstractTicker           = require("ticking/abstract_ticker")
@@ -110,16 +114,16 @@ define (require, exports, module) ->
   Bokeh.WheelZoomTool          = require("tool/wheel_zoom_tool")
   Bokeh.ObjectExplorerTool     = require("tool/object_explorer_tool")
 
-  #page functions
+  # page functions
   Bokeh.one_object_page = require("server/serverrun").load_one_object
-  Bokeh.server_page = require("server/serverrun").load
+  Bokeh.server_page     = require("server/serverrun").load
 
   # widgets
-  Bokeh.DataSlider = require("widget/data_slider")
-  Bokeh.HBox = require("widget/hbox")
-  Bokeh.VBox = require("widget/vbox")
+  Bokeh.DataSlider    = require("widget/data_slider")
+  Bokeh.HBox          = require("widget/hbox")
+  Bokeh.VBox          = require("widget/vbox")
   Bokeh.VBoxModelForm = require("widget/vboxmodelform")
-  Bokeh.TextInput = require("widget/textinput")
+  Bokeh.TextInput     = require("widget/textinput")
 
   # utils
   Bokeh.ObjectExplorer = require("widget/object_explorer")

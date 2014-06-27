@@ -21,58 +21,41 @@ define [
   text_properties = Properties.text_properties
 
   class PlotView extends ContinuumView.View
-    className: "bokeh plotview"
-    events:
-      "mousemove .bokeh_canvas_wrapper": "_mousemove"
-      "mousedown .bokeh_canvas_wrapper": "_mousedown"
 
     view_options: () ->
       _.extend({plot_model: @model, plot_view: @}, @options)
 
-    _mousedown: (e) =>
-      for f in @mousedownCallbacks
-        f(e, e.layerX, e.layerY)
-
-    _mousemove: (e) =>
-      for f in @moveCallbacks
-        f(e, e.layerX, e.layerY)
-
     pause: () ->
       @is_paused = true
 
-    unpause: (render_canvas=false) ->
+    unpause: () ->
       @is_paused = false
-      if render_canvas
-        @request_render_canvas(true)
-      else
-        @request_render()
+      @request_render()
 
     request_render: () ->
       if not @is_paused
         @throttled_render()
       return
 
-    request_render_canvas: (full_render) ->
-      if not @is_paused
-        @throttled_render_canvas(full_render)
-      return
-
     initialize: (options) ->
       super(_.defaults(options, @default_options))
 
-      #@throttled_render = _.throttle(@render, 15)
+      @canvas = @mget_obj('canvas')
+      @canvas_view = new @canvas.default_view({'model': @canvas})
+      @$el.append(@canvas_view.$el)
+
       @throttled_render = plot_utils.throttle_animation(@render, 15)
-      @throttled_render_canvas = plot_utils.throttle_animation(@render_canvas, 15)
+      @throttled_render_canvas = plot_utils.throttle_animation(@canvas_view.render, 15)
       @outline_props = new line_properties(@, {}, 'outline_')
       @title_props = new text_properties(@, {}, 'title_')
 
       @view_state = new ViewState({
-        canvas_width:      options.canvas_width       ? @mget('canvas_width')
-        canvas_height:     options.canvas_height      ? @mget('canvas_height')
-        x_offset:          options.x_offset           ? @mget('x_offset')
-        y_offset:          options.y_offset           ? @mget('y_offset')
-        outer_width:       options.outer_width        ? @mget('outer_width')
-        outer_height:      options.outer_height       ? @mget('outer_height')
+        canvas_width:      @canvas.get('canvas_width')
+        canvas_height:     @canvas.get('canvas_height')
+        outer_width:       @canvas.get('canvas_width')
+        outer_height:      @canvas.get('canvas_height')
+        x_offset:          0
+        y_offset:          0
         min_border_top:    (options.min_border_top    ? @mget('min_border_top'))    ? @mget('min_border')
         min_border_bottom: (options.min_border_bottom ? @mget('min_border_bottom')) ? @mget('min_border')
         min_border_left:   (options.min_border_left   ? @mget('min_border_left'))   ? @mget('min_border')
@@ -82,8 +65,6 @@ define [
         requested_border_left: 0
         requested_border_right: 0
       })
-
-      @hidpi = options.hidpi ? @mget('hidpi')
 
       @x_range = options.x_range ? @mget_obj('x_range')
       @y_range = options.y_range ? @mget_obj('y_range')
@@ -127,11 +108,7 @@ define [
       @tools = {}
 
       @eventSink = _.extend({}, Backbone.Events)
-      @moveCallbacks = []
-      @mousedownCallbacks = []
-      @keydownCallbacks = []
-      @render_init()
-      @render_canvas(false)
+      @canvas_view.render()
       @atm = new ActiveToolManager(@eventSink)
       @levels = {}
       for level in plot_utils.LEVELS
@@ -224,69 +201,12 @@ define [
       return this
 
     bind_bokeh_events: () ->
-      safebind(this, @view_state, 'change', () =>
-        @request_render_canvas()
-        @request_render()
-      )
       safebind(this, @x_range, 'change', @request_render)
       safebind(this, @y_range, 'change', @request_render)
       safebind(this, @model, 'change:renderers', @build_levels)
       safebind(this, @model, 'change:tool', @build_levels)
       safebind(this, @model, 'change', @request_render)
       safebind(this, @model, 'destroy', () => @remove())
-
-    render_init: () ->
-      # TODO use template
-      @$el.append($("""
-        <div class='button_bar bk-bs-btn-group pull-top'/>
-        <div class='plotarea'>
-        <div class='bokeh_canvas_wrapper'>
-          <canvas class='bokeh_canvas'></canvas>
-        </div>
-        </div>
-        """))
-      @button_bar = @$el.find('.button_bar')
-      @canvas_wrapper = @$el.find('.bokeh_canvas_wrapper')
-      @canvas = @$el.find('canvas.bokeh_canvas')
-
-    render_canvas: (full_render=true) ->
-      @ctx = @canvas[0].getContext('2d')
-
-      if @hidpi
-        devicePixelRatio = window.devicePixelRatio || 1
-        backingStoreRatio = @ctx.webkitBackingStorePixelRatio ||
-                            @ctx.mozBackingStorePixelRatio ||
-                            @ctx.msBackingStorePixelRatio ||
-                            @ctx.oBackingStorePixelRatio ||
-                            @ctx.backingStorePixelRatio || 1
-        ratio = devicePixelRatio / backingStoreRatio
-      else
-        ratio = 1
-
-      ow = @view_state.get('outer_width')
-      oh = @view_state.get('outer_height')
-
-      @canvas.width = ow * ratio
-      @canvas.height = oh * ratio
-
-      @button_bar.attr('style', "width:#{ow}px;")
-      @canvas_wrapper.attr('style', "width:#{ow}px; height:#{oh}px")
-      @canvas.attr('style', "width:#{ow}px;")
-      @canvas.attr('style', "height:#{oh}px;")
-      @canvas.attr('width', ow*ratio).attr('height', oh*ratio)
-      @$el.attr("width", ow).attr('height', oh)
-
-      @ctx.scale(ratio, ratio)
-      @ctx.translate(0.5, 0.5)
-
-      if full_render
-        @render()
-
-    save_png: () ->
-      @render()
-      data_uri = @canvas[0].toDataURL()
-      @model.set('png', @canvas[0].toDataURL())
-      bulk_save([@model])
 
     set_initial_range : () ->
       #check for good values for ranges before setting initial range
@@ -307,6 +227,8 @@ define [
       #   console.log(newtime - @last_render)
       # @last_render = newtime
 
+      ctx = @canvas_view.ctx
+
       if not @initial_range_info?
         @set_initial_range()
 
@@ -326,8 +248,8 @@ define [
 
       title = @mget('title')
       if title
-        @title_props.set(@ctx, {})
-        th = @ctx.measureText(@mget('title')).ascent
+        @title_props.set(@canvas_view.ctx, {})
+        th = ctx.measureText(@mget('title')).ascent
         @requested_padding['top'] += (th + @mget('title_standoff'))
 
       sym = @mget('border_symmetry') or ""
@@ -345,17 +267,17 @@ define [
         @view_state.set("requested_border_#{k}", v)
       @is_paused = false
 
-      @ctx.fillStyle = @mget('border_fill')
-      @ctx.fillRect(0, 0,  @view_state.get('canvas_width'), @view_state.get('canvas_height')) # TODO
-      @ctx.fillStyle = @mget('background_fill')
-      @ctx.fillRect(
+      ctx.fillStyle = @mget('border_fill')
+      ctx.fillRect(0, 0,  @canvas_view.mget('canvas_width'), @canvas_view.mget('canvas_height')) # TODO
+      ctx.fillStyle = @mget('background_fill')
+      ctx.fillRect(
         @view_state.get('border_left'), @view_state.get('border_top'),
         @view_state.get('inner_width'), @view_state.get('inner_height'),
       )
 
       if @outline_props.do_stroke
-        @outline_props.set(@ctx, {})
-        @ctx.strokeRect(
+        @outline_props.set(ctx, {})
+        ctx.strokeRect(
           @view_state.get('border_left'), @view_state.get('border_top'),
           @view_state.get('inner_width'), @view_state.get('inner_height'),
         )
@@ -368,30 +290,30 @@ define [
         @old_mapper_state.y = yms
         have_new_mapper_state = true
 
-      @ctx.save()
+      ctx.save()
 
-      @ctx.beginPath()
-      @ctx.rect(
+      ctx.beginPath()
+      ctx.rect(
         @view_state.get('border_left'), @view_state.get('border_top'),
         @view_state.get('inner_width'), @view_state.get('inner_height'),
       )
-      @ctx.clip()
-      @ctx.beginPath()
+      ctx.clip()
+      ctx.beginPath()
 
       for level in ['image', 'underlay', 'glyph']
         renderers = @levels[level]
         for k, v of renderers
           v.render(have_new_mapper_state)
 
-      @ctx.restore()
+      ctx.restore()
 
       @render_overlays(have_new_mapper_state)
 
       if title
         sx = @view_state.get('outer_width')/2
         sy = th
-        @title_props.set(@ctx, {})
-        @ctx.fillText(title, sx, sy)
+        @title_props.set(ctx, {})
+        ctx.fillText(title, sx, sy)
 
     render_overlays: (have_new_mapper_state) ->
       for level in ['overlay', 'annotation', 'tool']
@@ -411,8 +333,6 @@ define [
     parent_properties: [
       'background_fill',
       'border_fill',
-      'canvas_width',
-      'canvas_height',
       'outer_width',
       'outer_height',
       'min_border',
@@ -437,12 +357,6 @@ define [
         border_fill: "#fff",
         border_symmetry: "h",
         min_border: 40,
-        x_offset: 0,
-        y_offset: 0,
-        canvas_width: 300,
-        canvas_height: 300,
-        outer_width: 300,
-        outer_height: 300,
 
         title_standoff: 8,
         title_text_font: "helvetica",
