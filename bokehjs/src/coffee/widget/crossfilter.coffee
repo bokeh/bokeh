@@ -288,7 +288,7 @@ define [
 
   class ColumnView extends ContinuumView
     attributes :
-      class : "bk-crossfilter-column-entry panel panel-primary"
+      class : "bk-crossfilter-column-entry bk-bs-panel bk-bs-panel-primary"
     initialize : (options) ->
       super(options)
       @render()

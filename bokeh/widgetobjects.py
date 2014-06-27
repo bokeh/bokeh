@@ -211,10 +211,10 @@ class DiscreteFacet(object):
         self.field = field
         self.label = label
         self._value = value
-        
+
     def __str__(self):
         return "%s:%s" % (self.field, self.label)
-        
+
     def filter(self, df):
         return df[df[self.field] == self._value]
     __repr__ = __str__
@@ -223,7 +223,7 @@ class ContinuousFacet(DiscreteFacet):
     def __init__(self, field, value, bins, label=None):
         super(ContinuousFacet, self).__init__(field, value, label=label)
         self.bins = bins
-        
+
     def filter(self, df):
         if self.bins[0] is not None:
             df = df[df[self.field] > self.bins[0]]
@@ -243,12 +243,12 @@ class CrossFilter(PlotObject):
     filter_widgets = Dict(String, Instance(PlotObject))
     #Dict which aggregates all the selections from the different filtering widgets
     filtered_selections = Dict(String, Dict(String, Any))
-    
+
     # list of facet vars
     facet_x = List(String, default=[])
     facet_y = List(String, default=[])
     facet_tab = List(String, default=[])
-    
+
     plot_type = Enum("line", "scatter", "bar")
     x = String
     y = String
@@ -259,7 +259,7 @@ class CrossFilter(PlotObject):
     x_selector = Instance(Select)
     y_selector = Instance(Select)
     agg_selector = Instance(Select)
-    
+
     def __init__(self, *args, **kwargs):
         if 'df' in kwargs:
             self._df = kwargs.pop('df')
@@ -270,7 +270,7 @@ class CrossFilter(PlotObject):
         if 'agg' not in kwargs:
             kwargs['agg'] = 'sum'
         super(CrossFilter, self).__init__(*args, **kwargs)
-        
+
     @classmethod
     def create(cls, **kwargs):
         obj = cls(**kwargs)
@@ -280,7 +280,7 @@ class CrossFilter(PlotObject):
         obj.set_plot()
         obj.set_input_selector()
         return obj
-        
+
     def set_input_selector(self):
         select = Select.create(
             title="PlotType",
@@ -305,7 +305,7 @@ class CrossFilter(PlotObject):
             options=['sum', 'mean', 'last']
             )
         self.agg_selector = select
-        
+
     def update_plot_choices(self, input_dict):
         for k,v in input_dict.iteritems():
             if getattr(self, k) is None:
@@ -316,17 +316,17 @@ class CrossFilter(PlotObject):
         for x in self.columns:
             column_descriptors[x['name']] = x
         return column_descriptors
-        
+
     def continuous_columns(self):
         return [x for x in self.columns if x['type'] != 'DiscreteColumn']
-        
+
     def discrete_columns(self):
         return [x for x in self.columns if x['type'] == 'DiscreteColumn']
 
     def make_plot_choices(self):
         x, y = [x['name'] for x in self.continuous_columns()[:2]]
         return {'x' : x, 'y' : y, 'plot_type' : scatter}
-        
+
     def set_plot(self):
         if self.x == self.y:
             return
@@ -337,13 +337,13 @@ class CrossFilter(PlotObject):
     def make_plot(self):
         if len(self.facet_x) ==0 and len(self.facet_y) == 0 and len(self.facet_tab) == 0:
             return self.make_single_plot()
-            
+
         if len(self.facet_x) !=0 and len(self.facet_y) == 0 and len(self.facet_tab) == 0:
             return self.make_all_facet_plot()
-            
+
         if len(self.facet_x) !=0 and len(self.facet_y) != 0 and len(self.facet_tab) == 0:
             return self.make_xy_facet_plot()
-            
+
     def make_facets(self, dimension):
         if dimension == 'x':
             facets = self.facet_x
@@ -362,9 +362,9 @@ class CrossFilter(PlotObject):
                 bins[0][0] = None
                 facets = [ContinuousFacet(field, value, bin) for bin, value in zip(bins, values)]
                 start = cross(start, facets)
-                
+
         return start
-        
+
     def facet_title(self, facets):
         title = ",".join([str(x) for x in facets])
         return title
@@ -394,7 +394,7 @@ class CrossFilter(PlotObject):
         for i in xrange(0, len(plots), chunk_size):
             chunk =  plots[i:i+chunk_size]
             grid_plots.append(chunk)
-        grid = GridPlot(children=grid_plots, width=200 * chunk_size)
+        grid = GridPlot(children=grid_plots, plot_width=200 * chunk_size)
         return grid
 
     def make_xy_facet_plot(self):
@@ -402,7 +402,7 @@ class CrossFilter(PlotObject):
         all_facets_y = self.make_facets('y')
         grid_plots = []
         for facets_y in all_facets_y:
-            row = []            
+            row = []
             for facets_x in all_facets_x:
                 facets = facets_x + facets_y
                 title = self.facet_title(facets)
@@ -415,18 +415,18 @@ class CrossFilter(PlotObject):
                 plot.border_symmetry = "none"
                 row.append(plot)
             grid_plots.append(row)
-        grid = GridPlot(children=grid_plots)
+        grid = GridPlot(children=grid_plots, plot_width=200 * len(all_facets_x))
         return grid
-        
-        
-    def make_single_plot(self, df=None, title=None, 
+
+
+    def make_single_plot(self, df=None, title=None,
                          plot_width=500, plot_height=500,
                          tools="pan,wheel_zoom,box_zoom,save,resize,select,reset"
                      ):
-        column_descriptor_dict = self.column_descriptor_dict()        
+        column_descriptor_dict = self.column_descriptor_dict()
         if title is None:
             title ="%s by %s" % (self.x, self.y)
-            
+
         if self.plot_type == "scatter":
             if df is None:
                 source = self.filtered_data
@@ -458,7 +458,7 @@ class CrossFilter(PlotObject):
             if column_descriptor_dict[self.x]['type'] != 'DiscreteColumn':
                 source = make_continuous_bar_source(
                     df, self.x, self.y, self.agg)
-                x_range = Range1d(start=df[self.x].min() - 0.7, 
+                x_range = Range1d(start=df[self.x].min() - 0.7,
                                   end=df[self.x].max() - 0.7)
                 plot = make_bar_plot(source, counts_name=self.y,
                                      centers_name=self.x,
@@ -479,16 +479,16 @@ class CrossFilter(PlotObject):
                                      tools=tools,
                                      x_range=x_range)
                 return plot
-                
-                
-            
+
+
+
     def plot_attribute_change(self, obj, attrname, old, new):
         setattr(self, obj.name, new)
         self.set_plot()
-        
+
     def facet_change(self, obj, attrname, old, new):
         self.set_plot()
-        
+
     @property
     def df(self):
         if hasattr(self, '_df'):
@@ -496,7 +496,7 @@ class CrossFilter(PlotObject):
         else:
             if self.data:
                 return self.data.to_df()
-                
+
     @property
     def filtered_df(self):
         if hasattr(self, '_df'):
@@ -504,11 +504,11 @@ class CrossFilter(PlotObject):
         else:
             if self.filtered_data:
                 return self.filtered_data.to_df()
-                
+
     def update(self, **kwargs):
         super(CrossFilter, self).update(**kwargs)
         self.setup_events()
-        
+
     def setup_events(self):
         self.on_change('filtering_columns', self, 'setup_filter_widgets')
         for obj in self.filter_widgets.values():
@@ -524,7 +524,7 @@ class CrossFilter(PlotObject):
             self.y_selector.on_change('value', self, 'plot_attribute_change')
         if self.agg_selector:
             self.agg_selector.on_change('value', self, 'plot_attribute_change')
-            
+
         self.on_change('facet_x', self, 'facet_change')
         self.on_change('facet_y', self, 'facet_change')
 
@@ -544,14 +544,14 @@ class CrossFilter(PlotObject):
                 else:
                     df = df[np.in1d(df[colname], selected)]
             elif descriptor['type'] in ('TimeColumn', 'ContinuousColumn') and \
-                colname in self.filter_widgets:                
+                colname in self.filter_widgets:
                 obj = self.filter_sources[colname]
                 #hack because we don't have true range selection
                 if not obj.selected:
                     continue
                 min_idx = np.min(obj.selected)
                 max_idx = np.max(obj.selected)
-                
+
                 min_val = obj.data['centers'][min_idx]
                 max_val = obj.data['centers'][max_idx]
                 df = df[(df[colname] >= min_val) & (df[colname] <= max_val)]
@@ -572,14 +572,14 @@ class CrossFilter(PlotObject):
         if diff:
             self.handle_filter_selection(obj, attrname, old, new)
 
-            
+
     def setup_filter_widgets(self, obj, attrname, old, new):
         self.clear_selections(obj, attrname, old, new)
         column_descriptor_dict = self.column_descriptor_dict()
         for col in self.filtering_columns:
             metadata = column_descriptor_dict[col]
             if not col in self.filter_widgets:
-                if metadata['type'] == 'DiscreteColumn':            
+                if metadata['type'] == 'DiscreteColumn':
                     select = MultiSelect.create(
                         name=col,
                         options=self.df[col].unique().tolist())
@@ -595,7 +595,7 @@ class CrossFilter(PlotObject):
                     hist_plot.title = col
                     self.filter_widgets[col] = hist_plot
         curdoc().add_all()
-        
+
     def set_metadata(self):
         descriptors = []
         columns = self.df.columns
@@ -632,8 +632,8 @@ class CrossFilter(PlotObject):
                 })
         self.columns = descriptors
         return None
-                
-                
+
+
 class DateRangeSlider(InputWidget):
     value = Tuple(Date, Date)
     bounds = Tuple(Date, Date)
@@ -794,4 +794,3 @@ class PivotTable(Widget):
             cols   = _cols,
             values = _values,
         )
-

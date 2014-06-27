@@ -1,7 +1,7 @@
-<div class="bk panel-heading">
+<div class="bk-bs-panel-heading bk-crossfilter-panel-heading">
   Continuous: <%= @name %>
 </div>
-<div class="bk panel-body">
+<div class="bk-bs-panel-body">
   <table class="bk-table">
     <tbody>
       <tr>
