@@ -56,7 +56,7 @@ define [
       @canvas_view.render()
 
       @throttled_render = plot_utils.throttle_animation(@render, 15)
-      @throttled_render_canvas = plot_utils.throttle_animation(@canvas_view.render, 15)
+
       @outline_props = new line_properties(@, {}, 'outline_')
       @title_props = new text_properties(@, {}, 'title_')
 
@@ -119,7 +119,6 @@ define [
       @tools = {}
 
       @eventSink = _.extend({}, Backbone.Events)
-      @canvas_view.render()
       @atm = new ActiveToolManager(@eventSink)
       @levels = {}
       for level in plot_utils.LEVELS
