@@ -12,7 +12,7 @@ logger = logging.getLogger(__file__)
 
 from . import _glyph_functions
 from .properties import (HasProps, Dict, Enum, Either, Float, Instance, Int,
-    List, String, Color, Include, Bool, Tuple, Any)
+    List, String, Color, Include, Bool, Tuple, Function, Any)
 from .mixins import LineProps, TextProps
 from .enums import BorderSymmetry, DatetimeUnits, Dimension, Location, Orientation, Units
 from .plot_object import PlotObject
@@ -500,6 +500,13 @@ class DataSlider(Renderer):
     plot = Instance(Plot)
     data_source = Instance(DataSource)
     field = String()
+
+class Script(PlotObject):
+    pass
+
+class Timer(Script):
+    interval = Int(1000)            # milliseconds
+    callback = Function
 
 class PlotContext(PlotObject):
     children = List(Instance(PlotObject))

@@ -30,6 +30,8 @@ define [
   "source/column_data_source",
   "source/server_data_source",
 
+  "script/timer",
+
   "ticking/abstract_ticker",
   "ticking/adaptive_ticker",
   "ticking/basic_tick_formatter",
@@ -123,6 +125,8 @@ define [
 
     ColumnDataSource:         'source/column_data_source'
     ServerDataSource:         'source/server_data_source'
+
+    Timer:                    'script/timer',
 
     AbstractTicker:           'ticking/abstract_ticker'
     AdaptiveTicker:           'ticking/adaptive_ticker'

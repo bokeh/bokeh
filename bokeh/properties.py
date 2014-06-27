@@ -16,6 +16,7 @@ from six import integer_types, string_types, add_metaclass, iteritems
 import numpy as np
 
 from . import enums
+from . import script
 
 def nice_join(seq, sep=", "):
     seq = [str(x) for x in seq]
@@ -863,9 +864,27 @@ class This(Property):
     pass
 
 # Fake types, ABCs
-class Any(Property): pass
-class Function(Property): pass
-class Event(Property): pass
+class Any(Property):
+    pass
+
+class Function(Property):
+
+    def validate(self, value):
+        super(Function, self).validate(value)
+
+        if not (value is None or isinstance(value, (script.Function,) + string_types)):
+            raise ValueError("expected a string or Function, got %r" % value)
+
+    def transform(self, value):
+        value = super(Function, self).transform(value)
+
+        if isinstance(value, script.Function):
+            value = value.toJS()
+
+        return value
+
+class Event(Property):
+    pass
 
 class Range(ParameterizedProperty):
 
