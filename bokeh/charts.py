@@ -281,7 +281,7 @@ class Histogram(object):
         self.__width = width
         self.__height = height
         self.filename = filename
-        self.notebook = notebook
+        self.__notebook = notebook
 
     def title(self, title):
         self._title = title
@@ -295,6 +295,10 @@ class Histogram(object):
         self._height = height
         return self
 
+    def notebook(self, notebook=True):
+        self._notebook = notebook
+        return self
+
     # TODO: make more chain methods
 
     def draw(self):
@@ -304,9 +308,11 @@ class Histogram(object):
             self._width = self.__width
         if not hasattr(self, '_height'):
             self._height = self.__height
+        if not hasattr(self, '_notebook'):
+            self._notebook = self.__notebook
 
         chart = Chart(self._title, self.xname, self.yname, self.xscale, self.yscale,
-                      self._width, self._height, self.filename, self.notebook)
+                      self._width, self._height, self.filename, self._notebook)
         chart.get_data_histogram(self.measured, self.bins, self.mu, self.sigma)
         chart.get_source_histogram()
         chart.start_plot()
@@ -322,7 +328,7 @@ class Bar(object):
                  filename=False, notebook=False):
         self.cat = cat
         self.value = value
-        self.stacked = stacked
+        self.__stacked = stacked
         self.__title = title
         self.xname = xname
         self.yname = yname
@@ -331,7 +337,11 @@ class Bar(object):
         self.__width = width
         self.__height = height
         self.filename = filename
-        self.notebook = notebook
+        self.__notebook = notebook
+
+    def stacked(self, stacked=True):
+        self._stacked = stacked
+        return self
 
     def title(self, title):
         self._title = title
@@ -345,21 +355,29 @@ class Bar(object):
         self._height = height
         return self
 
+    def notebook(self, notebook=True):
+        self._notebook = notebook
+        return self
+
     # TODO: make more chain methods
 
     def draw(self):
+        if not hasattr(self, '_stacked'):
+            self._stacked = self.__stacked
         if not hasattr(self, '_title'):
             self._title = self.__title
         if not hasattr(self, '_width'):
             self._width = self.__width
         if not hasattr(self, '_height'):
             self._height = self.__height
+        if not hasattr(self, '_notebook'):
+            self._notebook = self.__notebook
 
         chart = Chart(self._title, self.xname, self.yname, self.xscale, self.yscale,
-                      self._width, self._height, self.filename, self.notebook)
+                      self._width, self._height, self.filename, self._notebook)
         chart.get_data_bar(self.cat, **self.value)
-        chart.get_source_bar(self.stacked)
+        chart.get_source_bar(self._stacked)
         chart.start_plot()
-        chart.bar(self.stacked)
+        chart.bar(self._stacked)
         chart.end_plot()
         chart.draw()
