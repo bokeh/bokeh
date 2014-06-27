@@ -264,15 +264,11 @@ class Chart(object):
             displaypub.publish_display_data('bokeh', {'text/html': notebook_div(self.plot)})
 
 
-class Histogram(object):
+class ChartObject(object):
 
-    def __init__(self, measured, bins, mu=None, sigma=None, title=None, xname=None, yname=None,
+    def __init__(self, title=None, xname=None, yname=None,
                  xscale="linear", yscale="linear", width=800, height=600,
                  filename=False, notebook=False):
-        self.measured = measured
-        self.bins = bins
-        self.mu = mu
-        self.sigma = sigma
         self.__title = title
         self.xname = xname
         self.yname = yname
@@ -301,7 +297,7 @@ class Histogram(object):
 
     # TODO: make more chain methods
 
-    def draw(self):
+    def check_attr(self):
         if not hasattr(self, '_title'):
             self._title = self.__title
         if not hasattr(self, '_width'):
@@ -310,6 +306,27 @@ class Histogram(object):
             self._height = self.__height
         if not hasattr(self, '_notebook'):
             self._notebook = self.__notebook
+
+    def draw(self):
+        pass
+
+
+class Histogram(ChartObject):
+
+    def __init__(self, measured, bins, mu=None, sigma=None,
+                 title=None, xname=None, yname=None,
+                 xscale="linear", yscale="linear", width=800, height=600,
+                 filename=False, notebook=False):
+        self.measured = measured
+        self.bins = bins
+        self.mu = mu
+        self.sigma = sigma
+        super(Histogram, self).__init__(title, xname, yname,
+                                        xscale, yscale, width, height,
+                                        filename, notebook)
+
+    def draw(self):
+        super(Histogram, self).check_attr()
 
         chart = Chart(self._title, self.xname, self.yname, self.xscale, self.yscale,
                       self._width, self._height, self.filename, self._notebook)
@@ -321,57 +338,31 @@ class Histogram(object):
         chart.draw()
 
 
-class Bar(object):
+class Bar(ChartObject):
 
-    def __init__(self, cat, value, stacked=False, title=None, xname=None, yname=None,
-                 xscale="categorical", yscale="linear", width=800, height=600,
+    def __init__(self, cat, value, stacked=False,
+                 title=None, xname=None, yname=None,
+                 xscale="linear", yscale="linear", width=800, height=600,
                  filename=False, notebook=False):
         self.cat = cat
         self.value = value
         self.__stacked = stacked
-        self.__title = title
-        self.xname = xname
-        self.yname = yname
-        self.xscale = xscale
-        self.yscale = yscale
-        self.__width = width
-        self.__height = height
-        self.filename = filename
-        self.__notebook = notebook
+        super(Bar, self).__init__(title, xname, yname,
+                                  xscale, yscale, width, height,
+                                  filename, notebook)
 
     def stacked(self, stacked=True):
         self._stacked = stacked
         return self
 
-    def title(self, title):
-        self._title = title
-        return self
+    def check_attr(self):
+        super(Bar, self).check_attr()
 
-    def width(self, width):
-        self._width = width
-        return self
-
-    def height(self, height):
-        self._height = height
-        return self
-
-    def notebook(self, notebook=True):
-        self._notebook = notebook
-        return self
-
-    # TODO: make more chain methods
-
-    def draw(self):
         if not hasattr(self, '_stacked'):
             self._stacked = self.__stacked
-        if not hasattr(self, '_title'):
-            self._title = self.__title
-        if not hasattr(self, '_width'):
-            self._width = self.__width
-        if not hasattr(self, '_height'):
-            self._height = self.__height
-        if not hasattr(self, '_notebook'):
-            self._notebook = self.__notebook
+
+    def draw(self):
+        self.check_attr()
 
         chart = Chart(self._title, self.xname, self.yname, self.xscale, self.yscale,
                       self._width, self._height, self.filename, self._notebook)
