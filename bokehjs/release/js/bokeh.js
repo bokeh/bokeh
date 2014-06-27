@@ -21672,8 +21672,14 @@ return { create_gear_tooth: createGearTooth, create_internal_gear_tooth: createI
             aay.push(-sh[i] / 2);
           } else if (this.anchor === "bottom_left") {
             ax.push(sx[i]);
-            ay.push(sy[i]);
-            h.push(-sh[i]);
+            if (this.height[i] < 0) {
+              ay.push(sy[i] + sh[i]);
+              h.push(-sh[i]);
+            } else {
+              ay.push(sy[i]);
+              h.push(-sh[i]);
+            }
+            console.log(sy[i], sh[i], ay[i], h[i]);
             aax.push(0);
             aay.push(0);
           } else if (this.anchor === "bottom_center") {
