@@ -3,6 +3,7 @@
 }(this, function () {
   //almond, and your modules will be inlined here
 
+
 /**
  * @license almond 0.2.9 Copyright (c) 2011-2014, The Dojo Foundation All Rights Reserved.
  * Available via the MIT or new BSD license.
@@ -12358,7 +12359,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('common/continuum_view',["underscore", "backbone"], function(_, Backbone) {
-    var CloseWrapper, ContinuumView, _ref, _ref1;
+    var ContinuumView, _ref;
     ContinuumView = (function(_super) {
       __extends(ContinuumView, _super);
 
@@ -12391,7 +12392,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
             val.off(null, null, this);
           }
         }
-        this.trigger('remove', this);
+        this.trigger('remove');
         return ContinuumView.__super__.remove.call(this);
       };
 
@@ -12414,50 +12415,8 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       return ContinuumView;
 
     })(Backbone.View);
-    CloseWrapper = (function(_super) {
-      __extends(CloseWrapper, _super);
-
-      function CloseWrapper() {
-        _ref1 = CloseWrapper.__super__.constructor.apply(this, arguments);
-        return _ref1;
-      }
-
-      CloseWrapper.prototype.attributes = {
-        "class": "bk-closewrapper"
-      };
-
-      CloseWrapper.prototype.delegateEvents = function(events) {
-        return CloseWrapper.__super__.delegateEvents.call(this, events);
-      };
-
-      CloseWrapper.prototype.events = {
-        "click .bk-close": "close"
-      };
-
-      CloseWrapper.prototype.close = function(options) {
-        this.view.remove();
-        return this.remove();
-      };
-
-      CloseWrapper.prototype.initialize = function(options) {
-        CloseWrapper.__super__.initialize.call(this, options);
-        this.view = options.view;
-        return this.render();
-      };
-
-      CloseWrapper.prototype.render = function() {
-        this.view.$el.detach();
-        this.$el.empty();
-        this.$el.html("<div class='bk-close'>X</div>");
-        return this.$el.append(this.view.$el);
-      };
-
-      return CloseWrapper;
-
-    })(ContinuumView);
     return {
-      "View": ContinuumView,
-      "CloseWrapper": CloseWrapper
+      "View": ContinuumView
     };
   });
 
@@ -12720,11 +12679,11 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       };
 
       HasProperties.prototype.resolve_ref = function(ref) {
-        if (!ref) {
-          console.log('ERROR, null reference');
-        }
         if (_.isArray(ref)) {
           return _.map(ref, this.resolve_ref);
+        }
+        if (!ref) {
+          console.log('ERROR, null reference');
         }
         if (ref['type'] === this.type && ref['id'] === this.id) {
           return this;
@@ -14242,7 +14201,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       };
 
       GMapPlotView.prototype.render_canvas = function(full_render) {
-        var backingStoreRatio, build_map, devicePixelRatio, ih, iw, left, oh, ow, ratio, script, top,
+        var backingStoreRatio, build_map, devicePixelRatio, ih, iw, left, oh, ow, ratio, top,
           _this = this;
         if (full_render == null) {
           full_render = true;
@@ -14288,15 +14247,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
           _this.map = new google.maps.Map(_this.gmap_div[0], map_options);
           return google.maps.event.addListener(_this.map, 'bounds_changed', _this.bounds_change);
         };
-        if ((window.google != null) && (window.google.maps != null)) {
-          _.defer(this.build_map);
-        } else {
-          window['_bokeh_first_gmap_load'] = build_map;
-          script = document.createElement('script');
-          script.type = 'text/javascript';
-          script.src = 'https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&callback=_bokeh_first_gmap_load';
-          document.body.appendChild(script);
-        }
+        _.defer(build_map);
         if (full_render) {
           return this.render();
         }
@@ -14613,12 +14564,9 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         if (row.length === 0) {
           return 0;
         } else {
-          return _.max(_.map(row, function(x) {
-            if (x != null) {
-              return x.get(dim);
-            }
-            return 0;
-          }));
+          return _.max(_.map(row, (function(x) {
+            return x.get(dim);
+          })));
         }
       };
 
@@ -14889,7 +14837,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         };
         total_height = _.reduce(row_heights, add, 0);
         height = total_height + this.toolbar_height;
-        width = _.reduce(col_widths, add, 0);
+        width = this.viewstate.get('outerwidth');
         this.$el.attr('style', "position:relative; height:" + height + "px;width:" + width + "px");
         return this.render_end();
       };
@@ -15344,7 +15292,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       };
 
       PlotView.prototype.render_init = function() {
-        this.$el.append($("<div class='bk-button-bar'/>\n<div class='plotarea'>\n<div class='bokeh_canvas_wrapper'>\n  <canvas class='bokeh_canvas'></canvas>\n</div>\n</div>"));
+        this.$el.append($("<div class='button_bar btn-group pull-top'/>\n<div class='plotarea'>\n<div class='bokeh_canvas_wrapper'>\n  <canvas class='bokeh_canvas'></canvas>\n</div>\n</div>"));
         this.button_bar = this.$el.find('.button_bar');
         this.canvas_wrapper = this.$el.find('.bokeh_canvas_wrapper');
         return this.canvas = this.$el.find('canvas.bokeh_canvas');
@@ -18077,7 +18025,7 @@ if (typeof define === 'function' && define.amd) {
         sy = {};
         sy[reference_point] = (y0 + y1) / 2;
         size = {};
-        size[reference_point] = Math.min(Math.abs(x1 - x0), Math.abs(y1 - y0)) * 0.4;
+        size[reference_point] = Math.min(Math.abs(x1 - x0), Math.abs(y1 - y0)) * 0.8;
         return this._render(ctx, indices, this.glyph_props, sx, sy, size);
       };
 
@@ -18612,7 +18560,7 @@ if (typeof define === 'function' && define.amd) {
         sy = {};
         sy[reference_point] = (y0 + y1) / 2;
         radius = {};
-        radius[reference_point] = Math.min(Math.abs(x1 - x0), Math.abs(y1 - y0)) * 0.2;
+        radius[reference_point] = Math.min(Math.abs(x1 - x0), Math.abs(y1 - y0)) * 0.4;
         return this._render(ctx, indices, this.glyph_props, sx, sy, radius);
       };
 
@@ -19633,22 +19581,22 @@ if (typeof define === 'function' && define.amd) {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  define('renderer/glyph/image_url',["underscore", "renderer/properties", "./glyph"], function(_, Properties, Glyph) {
-    var ImageURLGlyph, ImageURLView, glyph_properties, _ref, _ref1;
+  define('renderer/glyph/image_uri',["underscore", "renderer/properties", "./glyph"], function(_, Properties, Glyph) {
+    var ImageURIGlyph, ImageURIView, glyph_properties, _ref, _ref1;
     glyph_properties = Properties.glyph_properties;
-    ImageURLView = (function(_super) {
-      __extends(ImageURLView, _super);
+    ImageURIView = (function(_super) {
+      __extends(ImageURIView, _super);
 
-      function ImageURLView() {
-        _ref = ImageURLView.__super__.constructor.apply(this, arguments);
+      function ImageURIView() {
+        _ref = ImageURIView.__super__.constructor.apply(this, arguments);
         return _ref;
       }
 
-      ImageURLView.prototype._fields = ['url:string', 'x', 'y', 'w', 'h', 'angle'];
+      ImageURIView.prototype._fields = ['url:string', 'x', 'y', 'angle'];
 
-      ImageURLView.prototype._properties = [];
+      ImageURIView.prototype._properties = [];
 
-      ImageURLView.prototype._set_data = function(data) {
+      ImageURIView.prototype._set_data = function(data) {
         var img;
         this.data = data;
         this.image = (function() {
@@ -19683,15 +19631,13 @@ if (typeof define === 'function' && define.amd) {
         }).call(this);
       };
 
-      ImageURLView.prototype._map_data = function() {
+      ImageURIView.prototype._map_data = function() {
         var _ref1;
-        _ref1 = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref1[0], this.sy = _ref1[1];
-        this.sw = this.distance_vector('x', 'w', 'edge', this.mget('glyphspec')['dilate']);
-        return this.sh = this.distance_vector('y', 'h', 'edge', this.mget('glyphspec')['dilate']);
+        return _ref1 = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref1[0], this.sy = _ref1[1], _ref1;
       };
 
-      ImageURLView.prototype._render = function(ctx, indices, glyph_props) {
-        var i, img, vs, _i, _len, _results,
+      ImageURIView.prototype._render = function(ctx, indices, glyph_props) {
+        var i, img, _i, _len, _results,
           _this = this;
         _results = [];
         for (_i = 0, _len = indices.length; _i < _len; _i++) {
@@ -19703,12 +19649,10 @@ if (typeof define === 'function' && define.amd) {
             img = new Image();
             img.onload = (function(img, i) {
               return function() {
-                var vs;
                 _this.loaded[i] = true;
                 _this.image[i] = img;
                 ctx.save();
                 ctx.beginPath();
-                vs = _this.plot_view.view_state;
                 ctx.rect(vs.get('border_left') + 1, vs.get('border_top') + 1, vs.get('inner_width') - 2, vs.get('inner_height') - 2);
                 ctx.clip();
                 _this._render_image(ctx, vs, i, img);
@@ -19718,7 +19662,6 @@ if (typeof define === 'function' && define.amd) {
             img.src = this.url[i];
             _results.push(this.need_load[i] = false);
           } else if (this.loaded[i]) {
-            vs = this.plot_view.view_state;
             _results.push(this._render_image(ctx, vs, i, this.image[i]));
           } else {
             _results.push(void 0);
@@ -19727,104 +19670,52 @@ if (typeof define === 'function' && define.amd) {
         return _results;
       };
 
-      ImageURLView.prototype._final_sx_sy = function() {
-        var anchor,
-          _this = this;
-        anchor = this.mget('glyphspec').anchor || "top_left";
-        switch (anchor) {
-          case "top_left":
-            return function(i) {
-              return [_this.sx[i], _this.sy[i]];
-            };
-          case "top_center":
-            return function(i) {
-              return [_this.sx[i] - _this.sw[i] / 2, _this.sy[i]];
-            };
-          case "top_right":
-            return function(i) {
-              return [_this.sx[i] - _this.sw[i], _this.sy[i]];
-            };
-          case "right_center":
-            return function(i) {
-              return [_this.sx[i] - _this.sw[i], _this.sy[i] - _this.sh[i] / 2];
-            };
-          case "bottom_right":
-            return function(i) {
-              return [_this.sx[i] - _this.sw[i], _this.sy[i] - _this.sh[i]];
-            };
-          case "bottom_center":
-            return function(i) {
-              return [_this.sx[i] - _this.sw[i] / 2, _this.sy[i] - _this.sh[i]];
-            };
-          case "bottom_left":
-            return function(i) {
-              return [_this.sx[i], _this.sy[i] - _this.sh[i]];
-            };
-          case "left_center":
-            return function(i) {
-              return [_this.sx[i], _this.sy[i] - _this.sh[i] / 2];
-            };
-          case "center":
-            return function(i) {
-              return [_this.sx[i] - _this.sw[i] / 2, _this.sy[i] - _this.sh[i] / 2];
-            };
-        }
-      };
-
-      ImageURLView.prototype._render_image = function(ctx, vs, i, img) {
-        var sx, sy, _ref1;
-        if (isNaN(this.sw[i])) {
-          this.sw[i] = img.width;
-        }
-        if (isNaN(this.sh[i])) {
-          this.sh[i] = img.height;
-        }
-        _ref1 = this._final_sx_sy()(i), sx = _ref1[0], sy = _ref1[1];
+      ImageURIView.prototype._render_image = function(ctx, vs, i, img) {
         if (this.angle[i]) {
-          ctx.translate(sx, sy);
+          ctx.translate(this.sx[i], this.sy[i]);
           ctx.rotate(this.angle[i]);
-          ctx.drawImage(img, 0, 0, this.sw[i], this.sh[i]);
+          ctx.drawImage(img, 0, 0);
           ctx.rotate(-this.angle[i]);
-          return ctx.translate(-sx, -sy);
+          return ctx.translate(-this.sx[i], -this.sy[i]);
         } else {
-          return ctx.drawImage(img, sx, sy, this.sw[i], this.sh[i]);
+          return ctx.drawImage(img, this.sx[i], this.sy[i]);
         }
       };
 
-      return ImageURLView;
+      return ImageURIView;
 
     })(Glyph.View);
-    ImageURLGlyph = (function(_super) {
-      __extends(ImageURLGlyph, _super);
+    ImageURIGlyph = (function(_super) {
+      __extends(ImageURIGlyph, _super);
 
-      function ImageURLGlyph() {
-        _ref1 = ImageURLGlyph.__super__.constructor.apply(this, arguments);
+      function ImageURIGlyph() {
+        _ref1 = ImageURIGlyph.__super__.constructor.apply(this, arguments);
         return _ref1;
       }
 
-      ImageURLGlyph.prototype.default_view = ImageURLView;
+      ImageURIGlyph.prototype.default_view = ImageURIView;
 
-      ImageURLGlyph.prototype.type = 'Glyph';
+      ImageURIGlyph.prototype.type = 'Glyph';
 
-      ImageURLGlyph.prototype.display_defaults = function() {
-        return _.extend(ImageURLGlyph.__super__.display_defaults.call(this), {
+      ImageURIGlyph.prototype.display_defaults = function() {
+        return _.extend(ImageURIGlyph.__super__.display_defaults.call(this), {
           level: 'underlay'
         });
       };
 
-      return ImageURLGlyph;
+      return ImageURIGlyph;
 
     })(Glyph.Model);
     return {
-      "Model": ImageURLGlyph,
-      "View": ImageURLView
+      "Model": ImageURIGlyph,
+      "View": ImageURIView
     };
   });
 
 }).call(this);
 
 /*
-//@ sourceMappingURL=image_url.js.map
+//@ sourceMappingURL=image_uri.js.map
 */;
 (function() {
   var __hasProp = {}.hasOwnProperty,
@@ -21006,22 +20897,6 @@ if (typeof define === 'function' && define.amd) {
         }
       };
 
-      RectView.prototype._hit_rect = function(geometry) {
-        var x, x0, x1, y0, y1, _ref1, _ref2;
-        _ref1 = this.plot_view.xmapper.v_map_from_target([geometry.vx0, geometry.vx1]), x0 = _ref1[0], x1 = _ref1[1];
-        _ref2 = this.plot_view.ymapper.v_map_from_target([geometry.vy0, geometry.vy1]), y0 = _ref2[0], y1 = _ref2[1];
-        return (function() {
-          var _i, _len, _ref3, _results;
-          _ref3 = this.index.search([x0, y0, x1, y1]);
-          _results = [];
-          for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
-            x = _ref3[_i];
-            _results.push(x[4].i);
-          }
-          return _results;
-        }).call(this);
-      };
-
       RectView.prototype._hit_point = function(geometry) {
         var c, candidates, d, height_in, hits, i, max_height, max_width, pt, px, py, s, sx, sy, vx, vx0, vx1, vy, vy0, vy1, width_in, x, x0, x1, xcat, y, y0, y1, ycat, _i, _len, _ref1, _ref2, _ref3;
         _ref1 = [geometry.vx, geometry.vy], vx = _ref1[0], vy = _ref1[1];
@@ -22048,8 +21923,8 @@ if (typeof define === 'function' && define.amd) {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  define('renderer/glyph/glyph_factory',['require','exports','module','underscore','common/has_parent','common/plot_widget','./annular_wedge','./annulus','./arc','./asterisk','./bezier','./circle','./circle_x','./circle_cross','./diamond','./diamond_cross','./image','./image_rgba','./image_url','./inverted_triangle','./line','./multi_line','./oval','./patch','./patches','./cross','./quad','./quadratic','./ray','./rect','./square','./square_x','./square_cross','./segment','./text','./triangle','./wedge','./x'],function(require, exports, module) {
-    var Glyph, HasParent, PlotWidget, annular_wedge, annulus, arc, asterisk, bezier, circle, circle_cross, circle_x, cross, diamond, diamond_cross, glyphs, image, image_rgba, image_url, inverted_triangle, line, multi_line, oval, patch, patches, quad, quadratic, ray, rect, segment, square, square_cross, square_x, text, triangle, wedge, x, _, _ref;
+  define('renderer/glyph/glyph_factory',['require','exports','module','underscore','common/has_parent','common/plot_widget','./annular_wedge','./annulus','./arc','./asterisk','./bezier','./circle','./circle_x','./circle_cross','./diamond','./diamond_cross','./image','./image_rgba','./image_uri','./inverted_triangle','./line','./multi_line','./oval','./patch','./patches','./cross','./quad','./quadratic','./ray','./rect','./square','./square_x','./square_cross','./segment','./text','./triangle','./wedge','./x'],function(require, exports, module) {
+    var Glyph, HasParent, PlotWidget, annular_wedge, annulus, arc, asterisk, bezier, circle, circle_cross, circle_x, cross, diamond, diamond_cross, glyphs, image, image_rgba, image_uri, inverted_triangle, line, multi_line, oval, patch, patches, quad, quadratic, ray, rect, segment, square, square_cross, square_x, text, triangle, wedge, x, _, _ref;
     _ = require("underscore");
     HasParent = require("common/has_parent");
     PlotWidget = require("common/plot_widget");
@@ -22065,7 +21940,7 @@ if (typeof define === 'function' && define.amd) {
     diamond_cross = require("./diamond_cross");
     image = require("./image");
     image_rgba = require("./image_rgba");
-    image_url = require("./image_url");
+    image_uri = require("./image_uri");
     inverted_triangle = require("./inverted_triangle");
     line = require("./line");
     multi_line = require("./multi_line");
@@ -22098,7 +21973,7 @@ if (typeof define === 'function' && define.amd) {
       "diamond_cross": diamond_cross.Model,
       "image": image.Model,
       "image_rgba": image_rgba.Model,
-      "image_url": image_url.Model,
+      "image_uri": image_uri.Model,
       "inverted_triangle": inverted_triangle.Model,
       "line": line.Model,
       "multi_line": multi_line.Model,
@@ -24443,47 +24318,35 @@ define("sprintf", (function (global) {
 
       DatetimeTickFormatter.prototype.format_order = ['microseconds', 'milliseconds', 'seconds', 'minsec', 'minutes', 'hourmin', 'hours', 'days', 'months', 'years'];
 
-      DatetimeTickFormatter.prototype._formats = {
-        'microseconds': [_us, _ms_dot_us],
-        'milliseconds': ['%3Nms', '%S.%3Ns'],
-        'seconds': ['%Ss'],
-        'minsec': [':%M:%S'],
-        'minutes': [':%M', '%Mm'],
-        'hourmin': ['%H:%M'],
-        'hours': ['%Hh', '%H:%M'],
-        'days': ['%m/%d', '%a%d'],
-        'months': ['%m/%Y', '%b%y'],
-        'years': ['%Y', _two_digit_year, _four_digit_year]
-      };
-
       DatetimeTickFormatter.prototype.strip_leading_zeros = true;
 
       DatetimeTickFormatter.prototype.initialize = function(attrs, options) {
-        var fmt, fmt_name, fmt_string, fmt_strings, now, sizes, sorted, _results;
+        var fmt, fmt_name, fmt_strings, size, sizes, tmptime, _i, _len;
         DatetimeTickFormatter.__super__.initialize.call(this, attrs, options);
-        fmt = _.extend({}, this._formats, this.get("formats"));
-        now = tz(new Date());
+        this._formats = {
+          'microseconds': [_us, _ms_dot_us],
+          'milliseconds': ['%3Nms', '%S.%3Ns'],
+          'seconds': ['%Ss'],
+          'minsec': [':%M:%S'],
+          'minutes': [':%M', '%Mm'],
+          'hourmin': ['%H:%M'],
+          'hours': ['%Hh', '%H:%M'],
+          'days': ['%m/%d', '%a%d'],
+          'months': ['%m/%Y', '%b%y'],
+          'years': ['%Y', _two_digit_year, _four_digit_year]
+        };
         this.formats = {};
-        _results = [];
-        for (fmt_name in fmt) {
-          fmt_strings = fmt[fmt_name];
-          sizes = (function() {
-            var _i, _len, _results1;
-            _results1 = [];
-            for (_i = 0, _len = fmt_strings.length; _i < _len; _i++) {
-              fmt_string = fmt_strings[_i];
-              _results1.push(_strftime(now, fmt_string).length);
-            }
-            return _results1;
-          })();
-          sorted = _.sortBy(_.zip(sizes, fmt_strings), function(_arg) {
-            var fmt, size;
-            size = _arg[0], fmt = _arg[1];
-            return size;
-          });
-          _results.push(this.formats[fmt_name] = _.zip.apply(_, sorted));
+        for (fmt_name in this._formats) {
+          fmt_strings = this._formats[fmt_name];
+          sizes = [];
+          tmptime = tz(new Date());
+          for (_i = 0, _len = fmt_strings.length; _i < _len; _i++) {
+            fmt = fmt_strings[_i];
+            size = (_strftime(tmptime, fmt)).length;
+            sizes.push(size);
+          }
+          this.formats[fmt_name] = [sizes, fmt_strings];
         }
-        return _results;
       };
 
       DatetimeTickFormatter.prototype._get_resolution_str = function(resolution_secs, span_secs) {
@@ -24612,9 +24475,7 @@ define("sprintf", (function (global) {
       };
 
       DatetimeTickFormatter.prototype.defaults = function() {
-        return _.extend(DatetimeTickFormatter.__super__.defaults.call(this), {
-          formats: {}
-        });
+        return DatetimeTickFormatter.__super__.defaults.call(this);
       };
 
       return DatetimeTickFormatter;
@@ -25708,9 +25569,9 @@ define("sprintf", (function (global) {
             return false;
           }
         });
-        this.$tool_button = $("<button class='bk-toolbar-button'> " + this.options.buttonText + " </button>");
+        this.$tool_button = $("<button class='btn btn-small'> " + this.options.buttonText + " </button>");
         this.plotview;
-        this.plotview.$el.find('.bk-button-bar').append(this.$tool_button);
+        this.plotview.$el.find('.button_bar').append(this.$tool_button);
         this.$tool_button.click(function() {
           if (_this.button_activated) {
             return eventSink.trigger("clear_active_tool");
@@ -25807,8 +25668,8 @@ define("sprintf", (function (global) {
         this.plotview.$el.bind("mouseover", function(e) {
           return _this.mouseover_count += 1;
         });
-        this.$tool_button = $("<button class='bk-toolbar-button'> " + this.options.buttonText + " </button>");
-        this.plotview.$el.find('.bk-button-bar').append(this.$tool_button);
+        this.$tool_button = $("<button class='btn btn-small'> " + this.options.buttonText + " </button>");
+        this.plotview.$el.find('.button_bar').append(this.$tool_button);
         this.$tool_button.click(function() {
           if (_this.button_activated) {
             return eventSink.trigger("clear_active_tool");
@@ -25876,8 +25737,8 @@ define("sprintf", (function (global) {
         this.plotview.$el.bind("mouseover", function(e) {
           return _this.mouseover_count += 1;
         });
-        this.$tool_button = $("<button class='bk-toolbar-button'> " + this.options.buttonText + " </button>");
-        this.plotview.$el.find('.bk-button-bar').append(this.$tool_button);
+        this.$tool_button = $("<button class='btn btn-small'> " + this.options.buttonText + " </button>");
+        this.plotview.$el.find('.button_bar').append(this.$tool_button);
         this.$tool_button.click(function() {
           if (_this.button_activated) {
             return eventSink.trigger("clear_active_tool");
@@ -26019,20 +25880,18 @@ define("sprintf", (function (global) {
       };
 
       BoxSelectToolView.prototype._get_selection_range = function() {
-        var range, xrange, yrange;
+        var xrange, yrange;
         if (this.mget('select_x')) {
           xrange = [this.mget('start_vx'), this.mget('current_vx')];
           xrange = [_.min(xrange), _.max(xrange)];
         } else {
-          range = this.plot_view.view_state.get('inner_range_horizontal');
-          xrange = [range.get('start'), range.get('end')];
+          xrange = null;
         }
         if (this.mget('select_y')) {
           yrange = [this.mget('start_vy'), this.mget('current_vy')];
           yrange = [_.min(yrange), _.max(yrange)];
         } else {
-          range = this.plot_view.view_state.get('inner_range_vertical');
-          yrange = [range.get('start'), range.get('end')];
+          yrange = null;
         }
         return [xrange, yrange];
       };
@@ -26726,8 +26585,8 @@ define("sprintf", (function (global) {
         var tool_name,
           _this = this;
         tool_name = "hover_tool";
-        this.tool_button = $("<button class='bk-toolbar-button'> Hover </button>");
-        this.plot_view.$el.find('.bk-button-bar').append(this.tool_button);
+        this.tool_button = $("<button class='btn btn-small'> Hover </button>");
+        this.plot_view.$el.find('.button_bar').append(this.tool_button);
         this.tool_button.click(function() {
           if (_this.active) {
             return _this.plot_view.eventSink.trigger("clear_active_tool");
@@ -27369,7 +27228,7 @@ define('modal',["jquery"], function($) {
           _this = this;
         data_uri = this.plot_view.canvas[0].toDataURL();
         this.plot_model.set('png', this.plot_view.canvas[0].toDataURL());
-        modal = "<div id='previewModal' class='bokeh'>\n  <div class=\"modal\" role=\"dialog\" aria-labelledby=\"previewLabel\" aria-hidden=\"true\">\n    <div class=\"modal-header\">\n      <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">&times;</button>\n      <h3 id=\"dataConfirmLabel\">Image Preview (right click -> 'Save As' to save PNG)</h3>\n    </div>\n    <div class=\"modal-body\">\n      <img src=\"" + data_uri + "\" style=\"max-height: 300px; max-width: 400px\">\n    </div>\n    <div class=\"modal-footer\">\n      <button class=\"btn\" data-dismiss=\"modal\" aria-hidden=\"true\">Close</button>\n    </div>\n  </div>\n</div>";
+        modal = "<div id='previewModal' class='bokeh'>\n  <div class=\"modal\" role=\"dialog\" aria-labelledby=\"previewLabel\" aria-hidden=\"true\">\n    <div class=\"modal-header\">\n      <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">&times;</button>\n      <h3 id=\"dataConfirmLabel\">Image Preview (right click to save)</h3>\n    </div>\n    <div class=\"modal-body\">\n      <img src=\"" + data_uri + "\" style=\"max-height: 300px; max-width: 400px\">\n    </div>\n    <div class=\"modal-footer\">\n      <button class=\"btn\" data-dismiss=\"modal\" aria-hidden=\"true\">Close</button>\n    </div>\n  </div>\n</div>";
         $('body').append(modal);
         $('#previewModal .modal').on('hidden', function() {
           return _this.plot_view.eventSink.trigger("clear_active_tool");
@@ -35664,8 +35523,7 @@ define('widget/selecttemplate',[],function(){
 
       SelectView.prototype.change_input = function() {
         this.mset('value', this.$('select').val());
-        console.log('set', this.model.attributes);
-        return this.model.save();
+        return console.log('set', this.model.attributes);
       };
 
       SelectView.prototype.tagName = "div";
@@ -37585,2413 +37443,8 @@ $.widget( "ui.slider", $.ui.mouse, {
 /*
 //@ sourceMappingURL=slider.js.map
 */;
-define('jquery_ui/draggable',['jquery','./core','./mouse','./widget'], function (jQuery) {
-/*!
- * jQuery UI Draggable 1.10.0
- * http://jqueryui.com
- *
- * Copyright 2013 jQuery Foundation and other contributors
- * Released under the MIT license.
- * http://jquery.org/license
- *
- * http://api.jqueryui.com/draggable/
- *
- * Depends:
- *	jquery.ui.core.js
- *	jquery.ui.mouse.js
- *	jquery.ui.widget.js
- */
-(function( $, undefined ) {
-
-$.widget("ui.draggable", $.ui.mouse, {
-	version: "1.10.0",
-	widgetEventPrefix: "drag",
-	options: {
-		addClasses: true,
-		appendTo: "parent",
-		axis: false,
-		connectToSortable: false,
-		containment: false,
-		cursor: "auto",
-		cursorAt: false,
-		grid: false,
-		handle: false,
-		helper: "original",
-		iframeFix: false,
-		opacity: false,
-		refreshPositions: false,
-		revert: false,
-		revertDuration: 500,
-		scope: "default",
-		scroll: true,
-		scrollSensitivity: 20,
-		scrollSpeed: 20,
-		snap: false,
-		snapMode: "both",
-		snapTolerance: 20,
-		stack: false,
-		zIndex: false,
-
-		// callbacks
-		drag: null,
-		start: null,
-		stop: null
-	},
-	_create: function() {
-
-		if (this.options.helper === "original" && !(/^(?:r|a|f)/).test(this.element.css("position"))) {
-			this.element[0].style.position = "relative";
-		}
-		if (this.options.addClasses){
-			this.element.addClass("ui-draggable");
-		}
-		if (this.options.disabled){
-			this.element.addClass("ui-draggable-disabled");
-		}
-
-		this._mouseInit();
-
-	},
-
-	_destroy: function() {
-		this.element.removeClass( "ui-draggable ui-draggable-dragging ui-draggable-disabled" );
-		this._mouseDestroy();
-	},
-
-	_mouseCapture: function(event) {
-
-		var o = this.options;
-
-		// among others, prevent a drag on a resizable-handle
-		if (this.helper || o.disabled || $(event.target).closest(".ui-resizable-handle").length > 0) {
-			return false;
-		}
-
-		//Quit if we're not on a valid handle
-		this.handle = this._getHandle(event);
-		if (!this.handle) {
-			return false;
-		}
-
-		$(o.iframeFix === true ? "iframe" : o.iframeFix).each(function() {
-			$("<div class='ui-draggable-iframeFix' style='background: #fff;'></div>")
-			.css({
-				width: this.offsetWidth+"px", height: this.offsetHeight+"px",
-				position: "absolute", opacity: "0.001", zIndex: 1000
-			})
-			.css($(this).offset())
-			.appendTo("body");
-		});
-
-		return true;
-
-	},
-
-	_mouseStart: function(event) {
-
-		var o = this.options;
-
-		//Create and append the visible helper
-		this.helper = this._createHelper(event);
-
-		this.helper.addClass("ui-draggable-dragging");
-
-		//Cache the helper size
-		this._cacheHelperProportions();
-
-		//If ddmanager is used for droppables, set the global draggable
-		if($.ui.ddmanager) {
-			$.ui.ddmanager.current = this;
-		}
-
-		/*
-		 * - Position generation -
-		 * This block generates everything position related - it's the core of draggables.
-		 */
-
-		//Cache the margins of the original element
-		this._cacheMargins();
-
-		//Store the helper's css position
-		this.cssPosition = this.helper.css("position");
-		this.scrollParent = this.helper.scrollParent();
-
-		//The element's absolute position on the page minus margins
-		this.offset = this.positionAbs = this.element.offset();
-		this.offset = {
-			top: this.offset.top - this.margins.top,
-			left: this.offset.left - this.margins.left
-		};
-
-		$.extend(this.offset, {
-			click: { //Where the click happened, relative to the element
-				left: event.pageX - this.offset.left,
-				top: event.pageY - this.offset.top
-			},
-			parent: this._getParentOffset(),
-			relative: this._getRelativeOffset() //This is a relative to absolute position minus the actual position calculation - only used for relative positioned helper
-		});
-
-		//Generate the original position
-		this.originalPosition = this.position = this._generatePosition(event);
-		this.originalPageX = event.pageX;
-		this.originalPageY = event.pageY;
-
-		//Adjust the mouse offset relative to the helper if "cursorAt" is supplied
-		(o.cursorAt && this._adjustOffsetFromHelper(o.cursorAt));
-
-		//Set a containment if given in the options
-		if(o.containment) {
-			this._setContainment();
-		}
-
-		//Trigger event + callbacks
-		if(this._trigger("start", event) === false) {
-			this._clear();
-			return false;
-		}
-
-		//Recache the helper size
-		this._cacheHelperProportions();
-
-		//Prepare the droppable offsets
-		if ($.ui.ddmanager && !o.dropBehaviour) {
-			$.ui.ddmanager.prepareOffsets(this, event);
-		}
-
-
-		this._mouseDrag(event, true); //Execute the drag once - this causes the helper not to be visible before getting its correct position
-
-		//If the ddmanager is used for droppables, inform the manager that dragging has started (see #5003)
-		if ( $.ui.ddmanager ) {
-			$.ui.ddmanager.dragStart(this, event);
-		}
-
-		return true;
-	},
-
-	_mouseDrag: function(event, noPropagation) {
-
-		//Compute the helpers position
-		this.position = this._generatePosition(event);
-		this.positionAbs = this._convertPositionTo("absolute");
-
-		//Call plugins and callbacks and use the resulting position if something is returned
-		if (!noPropagation) {
-			var ui = this._uiHash();
-			if(this._trigger("drag", event, ui) === false) {
-				this._mouseUp({});
-				return false;
-			}
-			this.position = ui.position;
-		}
-
-		if(!this.options.axis || this.options.axis !== "y") {
-			this.helper[0].style.left = this.position.left+"px";
-		}
-		if(!this.options.axis || this.options.axis !== "x") {
-			this.helper[0].style.top = this.position.top+"px";
-		}
-		if($.ui.ddmanager) {
-			$.ui.ddmanager.drag(this, event);
-		}
-
-		return false;
-	},
-
-	_mouseStop: function(event) {
-
-		//If we are using droppables, inform the manager about the drop
-		var element,
-			that = this,
-			elementInDom = false,
-			dropped = false;
-		if ($.ui.ddmanager && !this.options.dropBehaviour) {
-			dropped = $.ui.ddmanager.drop(this, event);
-		}
-
-		//if a drop comes from outside (a sortable)
-		if(this.dropped) {
-			dropped = this.dropped;
-			this.dropped = false;
-		}
-
-		//if the original element is no longer in the DOM don't bother to continue (see #8269)
-		element = this.element[0];
-		while ( element && (element = element.parentNode) ) {
-			if (element === document ) {
-				elementInDom = true;
-			}
-		}
-		if ( !elementInDom && this.options.helper === "original" ) {
-			return false;
-		}
-
-		if((this.options.revert === "invalid" && !dropped) || (this.options.revert === "valid" && dropped) || this.options.revert === true || ($.isFunction(this.options.revert) && this.options.revert.call(this.element, dropped))) {
-			$(this.helper).animate(this.originalPosition, parseInt(this.options.revertDuration, 10), function() {
-				if(that._trigger("stop", event) !== false) {
-					that._clear();
-				}
-			});
-		} else {
-			if(this._trigger("stop", event) !== false) {
-				this._clear();
-			}
-		}
-
-		return false;
-	},
-
-	_mouseUp: function(event) {
-		//Remove frame helpers
-		$("div.ui-draggable-iframeFix").each(function() {
-			this.parentNode.removeChild(this);
-		});
-
-		//If the ddmanager is used for droppables, inform the manager that dragging has stopped (see #5003)
-		if( $.ui.ddmanager ) {
-			$.ui.ddmanager.dragStop(this, event);
-		}
-
-		return $.ui.mouse.prototype._mouseUp.call(this, event);
-	},
-
-	cancel: function() {
-
-		if(this.helper.is(".ui-draggable-dragging")) {
-			this._mouseUp({});
-		} else {
-			this._clear();
-		}
-
-		return this;
-
-	},
-
-	_getHandle: function(event) {
-
-		var handle = !this.options.handle || !$(this.options.handle, this.element).length ? true : false;
-		$(this.options.handle, this.element)
-			.find("*")
-			.addBack()
-			.each(function() {
-				if(this === event.target) {
-					handle = true;
-				}
-			});
-
-		return handle;
-
-	},
-
-	_createHelper: function(event) {
-
-		var o = this.options,
-			helper = $.isFunction(o.helper) ? $(o.helper.apply(this.element[0], [event])) : (o.helper === "clone" ? this.element.clone().removeAttr("id") : this.element);
-
-		if(!helper.parents("body").length) {
-			helper.appendTo((o.appendTo === "parent" ? this.element[0].parentNode : o.appendTo));
-		}
-
-		if(helper[0] !== this.element[0] && !(/(fixed|absolute)/).test(helper.css("position"))) {
-			helper.css("position", "absolute");
-		}
-
-		return helper;
-
-	},
-
-	_adjustOffsetFromHelper: function(obj) {
-		if (typeof obj === "string") {
-			obj = obj.split(" ");
-		}
-		if ($.isArray(obj)) {
-			obj = {left: +obj[0], top: +obj[1] || 0};
-		}
-		if ("left" in obj) {
-			this.offset.click.left = obj.left + this.margins.left;
-		}
-		if ("right" in obj) {
-			this.offset.click.left = this.helperProportions.width - obj.right + this.margins.left;
-		}
-		if ("top" in obj) {
-			this.offset.click.top = obj.top + this.margins.top;
-		}
-		if ("bottom" in obj) {
-			this.offset.click.top = this.helperProportions.height - obj.bottom + this.margins.top;
-		}
-	},
-
-	_getParentOffset: function() {
-
-		//Get the offsetParent and cache its position
-		this.offsetParent = this.helper.offsetParent();
-		var po = this.offsetParent.offset();
-
-		// This is a special case where we need to modify a offset calculated on start, since the following happened:
-		// 1. The position of the helper is absolute, so it's position is calculated based on the next positioned parent
-		// 2. The actual offset parent is a child of the scroll parent, and the scroll parent isn't the document, which means that
-		//    the scroll is included in the initial calculation of the offset of the parent, and never recalculated upon drag
-		if(this.cssPosition === "absolute" && this.scrollParent[0] !== document && $.contains(this.scrollParent[0], this.offsetParent[0])) {
-			po.left += this.scrollParent.scrollLeft();
-			po.top += this.scrollParent.scrollTop();
-		}
-
-		//This needs to be actually done for all browsers, since pageX/pageY includes this information
-		//Ugly IE fix
-		if((this.offsetParent[0] === document.body) ||
-			(this.offsetParent[0].tagName && this.offsetParent[0].tagName.toLowerCase() === "html" && $.ui.ie)) {
-			po = { top: 0, left: 0 };
-		}
-
-		return {
-			top: po.top + (parseInt(this.offsetParent.css("borderTopWidth"),10) || 0),
-			left: po.left + (parseInt(this.offsetParent.css("borderLeftWidth"),10) || 0)
-		};
-
-	},
-
-	_getRelativeOffset: function() {
-
-		if(this.cssPosition === "relative") {
-			var p = this.element.position();
-			return {
-				top: p.top - (parseInt(this.helper.css("top"),10) || 0) + this.scrollParent.scrollTop(),
-				left: p.left - (parseInt(this.helper.css("left"),10) || 0) + this.scrollParent.scrollLeft()
-			};
-		} else {
-			return { top: 0, left: 0 };
-		}
-
-	},
-
-	_cacheMargins: function() {
-		this.margins = {
-			left: (parseInt(this.element.css("marginLeft"),10) || 0),
-			top: (parseInt(this.element.css("marginTop"),10) || 0),
-			right: (parseInt(this.element.css("marginRight"),10) || 0),
-			bottom: (parseInt(this.element.css("marginBottom"),10) || 0)
-		};
-	},
-
-	_cacheHelperProportions: function() {
-		this.helperProportions = {
-			width: this.helper.outerWidth(),
-			height: this.helper.outerHeight()
-		};
-	},
-
-	_setContainment: function() {
-
-		var over, c, ce,
-			o = this.options;
-
-		if(o.containment === "parent") {
-			o.containment = this.helper[0].parentNode;
-		}
-		if(o.containment === "document" || o.containment === "window") {
-			this.containment = [
-				o.containment === "document" ? 0 : $(window).scrollLeft() - this.offset.relative.left - this.offset.parent.left,
-				o.containment === "document" ? 0 : $(window).scrollTop() - this.offset.relative.top - this.offset.parent.top,
-				(o.containment === "document" ? 0 : $(window).scrollLeft()) + $(o.containment === "document" ? document : window).width() - this.helperProportions.width - this.margins.left,
-				(o.containment === "document" ? 0 : $(window).scrollTop()) + ($(o.containment === "document" ? document : window).height() || document.body.parentNode.scrollHeight) - this.helperProportions.height - this.margins.top
-			];
-		}
-
-		if(!(/^(document|window|parent)$/).test(o.containment) && o.containment.constructor !== Array) {
-			c = $(o.containment);
-			ce = c[0];
-
-			if(!ce) {
-				return;
-			}
-
-			over = ($(ce).css("overflow") !== "hidden");
-
-			this.containment = [
-				(parseInt($(ce).css("borderLeftWidth"),10) || 0) + (parseInt($(ce).css("paddingLeft"),10) || 0),
-				(parseInt($(ce).css("borderTopWidth"),10) || 0) + (parseInt($(ce).css("paddingTop"),10) || 0),
-				(over ? Math.max(ce.scrollWidth,ce.offsetWidth) : ce.offsetWidth) - (parseInt($(ce).css("borderLeftWidth"),10) || 0) - (parseInt($(ce).css("paddingRight"),10) || 0) - this.helperProportions.width - this.margins.left - this.margins.right,
-				(over ? Math.max(ce.scrollHeight,ce.offsetHeight) : ce.offsetHeight) - (parseInt($(ce).css("borderTopWidth"),10) || 0) - (parseInt($(ce).css("paddingBottom"),10) || 0) - this.helperProportions.height - this.margins.top  - this.margins.bottom
-			];
-			this.relative_container = c;
-
-		} else if(o.containment.constructor === Array) {
-			this.containment = o.containment;
-		}
-
-	},
-
-	_convertPositionTo: function(d, pos) {
-
-		if(!pos) {
-			pos = this.position;
-		}
-
-		var mod = d === "absolute" ? 1 : -1,
-			scroll = this.cssPosition === "absolute" && !(this.scrollParent[0] !== document && $.contains(this.scrollParent[0], this.offsetParent[0])) ? this.offsetParent : this.scrollParent, scrollIsRootNode = (/(html|body)/i).test(scroll[0].tagName);
-
-		return {
-			top: (
-				pos.top	+																// The absolute mouse position
-				this.offset.relative.top * mod +										// Only for relative positioned nodes: Relative offset from element to offset parent
-				this.offset.parent.top * mod -										// The offsetParent's offset without borders (offset + border)
-				( ( this.cssPosition === "fixed" ? -this.scrollParent.scrollTop() : ( scrollIsRootNode ? 0 : scroll.scrollTop() ) ) * mod)
-			),
-			left: (
-				pos.left +																// The absolute mouse position
-				this.offset.relative.left * mod +										// Only for relative positioned nodes: Relative offset from element to offset parent
-				this.offset.parent.left * mod	-										// The offsetParent's offset without borders (offset + border)
-				( ( this.cssPosition === "fixed" ? -this.scrollParent.scrollLeft() : scrollIsRootNode ? 0 : scroll.scrollLeft() ) * mod)
-			)
-		};
-
-	},
-
-	_generatePosition: function(event) {
-
-		var containment, co, top, left,
-			o = this.options,
-			scroll = this.cssPosition === "absolute" && !(this.scrollParent[0] !== document && $.contains(this.scrollParent[0], this.offsetParent[0])) ? this.offsetParent : this.scrollParent,
-			scrollIsRootNode = (/(html|body)/i).test(scroll[0].tagName),
-			pageX = event.pageX,
-			pageY = event.pageY;
-
-		/*
-		 * - Position constraining -
-		 * Constrain the position to a mix of grid, containment.
-		 */
-
-		if(this.originalPosition) { //If we are not dragging yet, we won't check for options
-			if(this.containment) {
-			if (this.relative_container){
-				co = this.relative_container.offset();
-				containment = [ this.containment[0] + co.left,
-					this.containment[1] + co.top,
-					this.containment[2] + co.left,
-					this.containment[3] + co.top ];
-			}
-			else {
-				containment = this.containment;
-			}
-
-				if(event.pageX - this.offset.click.left < containment[0]) {
-					pageX = containment[0] + this.offset.click.left;
-				}
-				if(event.pageY - this.offset.click.top < containment[1]) {
-					pageY = containment[1] + this.offset.click.top;
-				}
-				if(event.pageX - this.offset.click.left > containment[2]) {
-					pageX = containment[2] + this.offset.click.left;
-				}
-				if(event.pageY - this.offset.click.top > containment[3]) {
-					pageY = containment[3] + this.offset.click.top;
-				}
-			}
-
-			if(o.grid) {
-				//Check for grid elements set to 0 to prevent divide by 0 error causing invalid argument errors in IE (see ticket #6950)
-				top = o.grid[1] ? this.originalPageY + Math.round((pageY - this.originalPageY) / o.grid[1]) * o.grid[1] : this.originalPageY;
-				pageY = containment ? ((top - this.offset.click.top >= containment[1] || top - this.offset.click.top > containment[3]) ? top : ((top - this.offset.click.top >= containment[1]) ? top - o.grid[1] : top + o.grid[1])) : top;
-
-				left = o.grid[0] ? this.originalPageX + Math.round((pageX - this.originalPageX) / o.grid[0]) * o.grid[0] : this.originalPageX;
-				pageX = containment ? ((left - this.offset.click.left >= containment[0] || left - this.offset.click.left > containment[2]) ? left : ((left - this.offset.click.left >= containment[0]) ? left - o.grid[0] : left + o.grid[0])) : left;
-			}
-
-		}
-
-		return {
-			top: (
-				pageY -																	// The absolute mouse position
-				this.offset.click.top	-												// Click offset (relative to the element)
-				this.offset.relative.top -												// Only for relative positioned nodes: Relative offset from element to offset parent
-				this.offset.parent.top +												// The offsetParent's offset without borders (offset + border)
-				( ( this.cssPosition === "fixed" ? -this.scrollParent.scrollTop() : ( scrollIsRootNode ? 0 : scroll.scrollTop() ) ))
-			),
-			left: (
-				pageX -																	// The absolute mouse position
-				this.offset.click.left -												// Click offset (relative to the element)
-				this.offset.relative.left -												// Only for relative positioned nodes: Relative offset from element to offset parent
-				this.offset.parent.left +												// The offsetParent's offset without borders (offset + border)
-				( ( this.cssPosition === "fixed" ? -this.scrollParent.scrollLeft() : scrollIsRootNode ? 0 : scroll.scrollLeft() ))
-			)
-		};
-
-	},
-
-	_clear: function() {
-		this.helper.removeClass("ui-draggable-dragging");
-		if(this.helper[0] !== this.element[0] && !this.cancelHelperRemoval) {
-			this.helper.remove();
-		}
-		this.helper = null;
-		this.cancelHelperRemoval = false;
-	},
-
-	// From now on bulk stuff - mainly helpers
-
-	_trigger: function(type, event, ui) {
-		ui = ui || this._uiHash();
-		$.ui.plugin.call(this, type, [event, ui]);
-		//The absolute position has to be recalculated after plugins
-		if(type === "drag") {
-			this.positionAbs = this._convertPositionTo("absolute");
-		}
-		return $.Widget.prototype._trigger.call(this, type, event, ui);
-	},
-
-	plugins: {},
-
-	_uiHash: function() {
-		return {
-			helper: this.helper,
-			position: this.position,
-			originalPosition: this.originalPosition,
-			offset: this.positionAbs
-		};
-	}
-
-});
-
-$.ui.plugin.add("draggable", "connectToSortable", {
-	start: function(event, ui) {
-
-		var inst = $(this).data("ui-draggable"), o = inst.options,
-			uiSortable = $.extend({}, ui, { item: inst.element });
-		inst.sortables = [];
-		$(o.connectToSortable).each(function() {
-			var sortable = $.data(this, "ui-sortable");
-			if (sortable && !sortable.options.disabled) {
-				inst.sortables.push({
-					instance: sortable,
-					shouldRevert: sortable.options.revert
-				});
-				sortable.refreshPositions();	// Call the sortable's refreshPositions at drag start to refresh the containerCache since the sortable container cache is used in drag and needs to be up to date (this will ensure it's initialised as well as being kept in step with any changes that might have happened on the page).
-				sortable._trigger("activate", event, uiSortable);
-			}
-		});
-
-	},
-	stop: function(event, ui) {
-
-		//If we are still over the sortable, we fake the stop event of the sortable, but also remove helper
-		var inst = $(this).data("ui-draggable"),
-			uiSortable = $.extend({}, ui, { item: inst.element });
-
-		$.each(inst.sortables, function() {
-			if(this.instance.isOver) {
-
-				this.instance.isOver = 0;
-
-				inst.cancelHelperRemoval = true; //Don't remove the helper in the draggable instance
-				this.instance.cancelHelperRemoval = false; //Remove it in the sortable instance (so sortable plugins like revert still work)
-
-				//The sortable revert is supported, and we have to set a temporary dropped variable on the draggable to support revert: "valid/invalid"
-				if(this.shouldRevert) {
-					this.instance.options.revert = true;
-				}
-
-				//Trigger the stop of the sortable
-				this.instance._mouseStop(event);
-
-				this.instance.options.helper = this.instance.options._helper;
-
-				//If the helper has been the original item, restore properties in the sortable
-				if(inst.options.helper === "original") {
-					this.instance.currentItem.css({ top: "auto", left: "auto" });
-				}
-
-			} else {
-				this.instance.cancelHelperRemoval = false; //Remove the helper in the sortable instance
-				this.instance._trigger("deactivate", event, uiSortable);
-			}
-
-		});
-
-	},
-	drag: function(event, ui) {
-
-		var inst = $(this).data("ui-draggable"), that = this;
-
-		$.each(inst.sortables, function() {
-
-			var innermostIntersecting = false,
-				thisSortable = this;
-
-			//Copy over some variables to allow calling the sortable's native _intersectsWith
-			this.instance.positionAbs = inst.positionAbs;
-			this.instance.helperProportions = inst.helperProportions;
-			this.instance.offset.click = inst.offset.click;
-
-			if(this.instance._intersectsWith(this.instance.containerCache)) {
-				innermostIntersecting = true;
-				$.each(inst.sortables, function () {
-					this.instance.positionAbs = inst.positionAbs;
-					this.instance.helperProportions = inst.helperProportions;
-					this.instance.offset.click = inst.offset.click;
-					if (this !== thisSortable &&
-						this.instance._intersectsWith(this.instance.containerCache) &&
-						$.ui.contains(thisSortable.instance.element[0], this.instance.element[0])
-					) {
-						innermostIntersecting = false;
-					}
-					return innermostIntersecting;
-				});
-			}
-
-
-			if(innermostIntersecting) {
-				//If it intersects, we use a little isOver variable and set it once, so our move-in stuff gets fired only once
-				if(!this.instance.isOver) {
-
-					this.instance.isOver = 1;
-					//Now we fake the start of dragging for the sortable instance,
-					//by cloning the list group item, appending it to the sortable and using it as inst.currentItem
-					//We can then fire the start event of the sortable with our passed browser event, and our own helper (so it doesn't create a new one)
-					this.instance.currentItem = $(that).clone().removeAttr("id").appendTo(this.instance.element).data("ui-sortable-item", true);
-					this.instance.options._helper = this.instance.options.helper; //Store helper option to later restore it
-					this.instance.options.helper = function() { return ui.helper[0]; };
-
-					event.target = this.instance.currentItem[0];
-					this.instance._mouseCapture(event, true);
-					this.instance._mouseStart(event, true, true);
-
-					//Because the browser event is way off the new appended portlet, we modify a couple of variables to reflect the changes
-					this.instance.offset.click.top = inst.offset.click.top;
-					this.instance.offset.click.left = inst.offset.click.left;
-					this.instance.offset.parent.left -= inst.offset.parent.left - this.instance.offset.parent.left;
-					this.instance.offset.parent.top -= inst.offset.parent.top - this.instance.offset.parent.top;
-
-					inst._trigger("toSortable", event);
-					inst.dropped = this.instance.element; //draggable revert needs that
-					//hack so receive/update callbacks work (mostly)
-					inst.currentItem = inst.element;
-					this.instance.fromOutside = inst;
-
-				}
-
-				//Provided we did all the previous steps, we can fire the drag event of the sortable on every draggable drag, when it intersects with the sortable
-				if(this.instance.currentItem) {
-					this.instance._mouseDrag(event);
-				}
-
-			} else {
-
-				//If it doesn't intersect with the sortable, and it intersected before,
-				//we fake the drag stop of the sortable, but make sure it doesn't remove the helper by using cancelHelperRemoval
-				if(this.instance.isOver) {
-
-					this.instance.isOver = 0;
-					this.instance.cancelHelperRemoval = true;
-
-					//Prevent reverting on this forced stop
-					this.instance.options.revert = false;
-
-					// The out event needs to be triggered independently
-					this.instance._trigger("out", event, this.instance._uiHash(this.instance));
-
-					this.instance._mouseStop(event, true);
-					this.instance.options.helper = this.instance.options._helper;
-
-					//Now we remove our currentItem, the list group clone again, and the placeholder, and animate the helper back to it's original size
-					this.instance.currentItem.remove();
-					if(this.instance.placeholder) {
-						this.instance.placeholder.remove();
-					}
-
-					inst._trigger("fromSortable", event);
-					inst.dropped = false; //draggable revert needs that
-				}
-
-			}
-
-		});
-
-	}
-});
-
-$.ui.plugin.add("draggable", "cursor", {
-	start: function() {
-		var t = $("body"), o = $(this).data("ui-draggable").options;
-		if (t.css("cursor")) {
-			o._cursor = t.css("cursor");
-		}
-		t.css("cursor", o.cursor);
-	},
-	stop: function() {
-		var o = $(this).data("ui-draggable").options;
-		if (o._cursor) {
-			$("body").css("cursor", o._cursor);
-		}
-	}
-});
-
-$.ui.plugin.add("draggable", "opacity", {
-	start: function(event, ui) {
-		var t = $(ui.helper), o = $(this).data("ui-draggable").options;
-		if(t.css("opacity")) {
-			o._opacity = t.css("opacity");
-		}
-		t.css("opacity", o.opacity);
-	},
-	stop: function(event, ui) {
-		var o = $(this).data("ui-draggable").options;
-		if(o._opacity) {
-			$(ui.helper).css("opacity", o._opacity);
-		}
-	}
-});
-
-$.ui.plugin.add("draggable", "scroll", {
-	start: function() {
-		var i = $(this).data("ui-draggable");
-		if(i.scrollParent[0] !== document && i.scrollParent[0].tagName !== "HTML") {
-			i.overflowOffset = i.scrollParent.offset();
-		}
-	},
-	drag: function( event ) {
-
-		var i = $(this).data("ui-draggable"), o = i.options, scrolled = false;
-
-		if(i.scrollParent[0] !== document && i.scrollParent[0].tagName !== "HTML") {
-
-			if(!o.axis || o.axis !== "x") {
-				if((i.overflowOffset.top + i.scrollParent[0].offsetHeight) - event.pageY < o.scrollSensitivity) {
-					i.scrollParent[0].scrollTop = scrolled = i.scrollParent[0].scrollTop + o.scrollSpeed;
-				} else if(event.pageY - i.overflowOffset.top < o.scrollSensitivity) {
-					i.scrollParent[0].scrollTop = scrolled = i.scrollParent[0].scrollTop - o.scrollSpeed;
-				}
-			}
-
-			if(!o.axis || o.axis !== "y") {
-				if((i.overflowOffset.left + i.scrollParent[0].offsetWidth) - event.pageX < o.scrollSensitivity) {
-					i.scrollParent[0].scrollLeft = scrolled = i.scrollParent[0].scrollLeft + o.scrollSpeed;
-				} else if(event.pageX - i.overflowOffset.left < o.scrollSensitivity) {
-					i.scrollParent[0].scrollLeft = scrolled = i.scrollParent[0].scrollLeft - o.scrollSpeed;
-				}
-			}
-
-		} else {
-
-			if(!o.axis || o.axis !== "x") {
-				if(event.pageY - $(document).scrollTop() < o.scrollSensitivity) {
-					scrolled = $(document).scrollTop($(document).scrollTop() - o.scrollSpeed);
-				} else if($(window).height() - (event.pageY - $(document).scrollTop()) < o.scrollSensitivity) {
-					scrolled = $(document).scrollTop($(document).scrollTop() + o.scrollSpeed);
-				}
-			}
-
-			if(!o.axis || o.axis !== "y") {
-				if(event.pageX - $(document).scrollLeft() < o.scrollSensitivity) {
-					scrolled = $(document).scrollLeft($(document).scrollLeft() - o.scrollSpeed);
-				} else if($(window).width() - (event.pageX - $(document).scrollLeft()) < o.scrollSensitivity) {
-					scrolled = $(document).scrollLeft($(document).scrollLeft() + o.scrollSpeed);
-				}
-			}
-
-		}
-
-		if(scrolled !== false && $.ui.ddmanager && !o.dropBehaviour) {
-			$.ui.ddmanager.prepareOffsets(i, event);
-		}
-
-	}
-});
-
-$.ui.plugin.add("draggable", "snap", {
-	start: function() {
-
-		var i = $(this).data("ui-draggable"),
-			o = i.options;
-
-		i.snapElements = [];
-
-		$(o.snap.constructor !== String ? ( o.snap.items || ":data(ui-draggable)" ) : o.snap).each(function() {
-			var $t = $(this),
-				$o = $t.offset();
-			if(this !== i.element[0]) {
-				i.snapElements.push({
-					item: this,
-					width: $t.outerWidth(), height: $t.outerHeight(),
-					top: $o.top, left: $o.left
-				});
-			}
-		});
-
-	},
-	drag: function(event, ui) {
-
-		var ts, bs, ls, rs, l, r, t, b, i, first,
-			inst = $(this).data("ui-draggable"),
-			o = inst.options,
-			d = o.snapTolerance,
-			x1 = ui.offset.left, x2 = x1 + inst.helperProportions.width,
-			y1 = ui.offset.top, y2 = y1 + inst.helperProportions.height;
-
-		for (i = inst.snapElements.length - 1; i >= 0; i--){
-
-			l = inst.snapElements[i].left;
-			r = l + inst.snapElements[i].width;
-			t = inst.snapElements[i].top;
-			b = t + inst.snapElements[i].height;
-
-			//Yes, I know, this is insane ;)
-			if(!((l-d < x1 && x1 < r+d && t-d < y1 && y1 < b+d) || (l-d < x1 && x1 < r+d && t-d < y2 && y2 < b+d) || (l-d < x2 && x2 < r+d && t-d < y1 && y1 < b+d) || (l-d < x2 && x2 < r+d && t-d < y2 && y2 < b+d))) {
-				if(inst.snapElements[i].snapping) {
-					(inst.options.snap.release && inst.options.snap.release.call(inst.element, event, $.extend(inst._uiHash(), { snapItem: inst.snapElements[i].item })));
-				}
-				inst.snapElements[i].snapping = false;
-				continue;
-			}
-
-			if(o.snapMode !== "inner") {
-				ts = Math.abs(t - y2) <= d;
-				bs = Math.abs(b - y1) <= d;
-				ls = Math.abs(l - x2) <= d;
-				rs = Math.abs(r - x1) <= d;
-				if(ts) {
-					ui.position.top = inst._convertPositionTo("relative", { top: t - inst.helperProportions.height, left: 0 }).top - inst.margins.top;
-				}
-				if(bs) {
-					ui.position.top = inst._convertPositionTo("relative", { top: b, left: 0 }).top - inst.margins.top;
-				}
-				if(ls) {
-					ui.position.left = inst._convertPositionTo("relative", { top: 0, left: l - inst.helperProportions.width }).left - inst.margins.left;
-				}
-				if(rs) {
-					ui.position.left = inst._convertPositionTo("relative", { top: 0, left: r }).left - inst.margins.left;
-				}
-			}
-
-			first = (ts || bs || ls || rs);
-
-			if(o.snapMode !== "outer") {
-				ts = Math.abs(t - y1) <= d;
-				bs = Math.abs(b - y2) <= d;
-				ls = Math.abs(l - x1) <= d;
-				rs = Math.abs(r - x2) <= d;
-				if(ts) {
-					ui.position.top = inst._convertPositionTo("relative", { top: t, left: 0 }).top - inst.margins.top;
-				}
-				if(bs) {
-					ui.position.top = inst._convertPositionTo("relative", { top: b - inst.helperProportions.height, left: 0 }).top - inst.margins.top;
-				}
-				if(ls) {
-					ui.position.left = inst._convertPositionTo("relative", { top: 0, left: l }).left - inst.margins.left;
-				}
-				if(rs) {
-					ui.position.left = inst._convertPositionTo("relative", { top: 0, left: r - inst.helperProportions.width }).left - inst.margins.left;
-				}
-			}
-
-			if(!inst.snapElements[i].snapping && (ts || bs || ls || rs || first)) {
-				(inst.options.snap.snap && inst.options.snap.snap.call(inst.element, event, $.extend(inst._uiHash(), { snapItem: inst.snapElements[i].item })));
-			}
-			inst.snapElements[i].snapping = (ts || bs || ls || rs || first);
-
-		}
-
-	}
-});
-
-$.ui.plugin.add("draggable", "stack", {
-	start: function() {
-
-		var min,
-			o = $(this).data("ui-draggable").options,
-			group = $.makeArray($(o.stack)).sort(function(a,b) {
-				return (parseInt($(a).css("zIndex"),10) || 0) - (parseInt($(b).css("zIndex"),10) || 0);
-			});
-
-		if (!group.length) { return; }
-
-		min = parseInt(group[0].style.zIndex, 10) || 0;
-		$(group).each(function(i) {
-			this.style.zIndex = min + i;
-		});
-
-		this[0].style.zIndex = min + group.length;
-
-	}
-});
-
-$.ui.plugin.add("draggable", "zIndex", {
-	start: function(event, ui) {
-		var t = $(ui.helper), o = $(this).data("ui-draggable").options;
-		if(t.css("zIndex")) {
-			o._zIndex = t.css("zIndex");
-		}
-		t.css("zIndex", o.zIndex);
-	},
-	stop: function(event, ui) {
-		var o = $(this).data("ui-draggable").options;
-		if(o._zIndex) {
-			$(ui.helper).css("zIndex", o._zIndex);
-		}
-	}
-});
-
-})(jQuery);
-
-});
-define('jquery_ui/droppable',['jquery','./core','./widget','./mouse','./draggable'], function (jQuery) {
-/*!
- * jQuery UI Droppable 1.10.0
- * http://jqueryui.com
- *
- * Copyright 2013 jQuery Foundation and other contributors
- * Released under the MIT license.
- * http://jquery.org/license
- *
- * http://api.jqueryui.com/droppable/
- *
- * Depends:
- *	jquery.ui.core.js
- *	jquery.ui.widget.js
- *	jquery.ui.mouse.js
- *	jquery.ui.draggable.js
- */
-(function( $, undefined ) {
-
-function isOverAxis( x, reference, size ) {
-	return ( x > reference ) && ( x < ( reference + size ) );
-}
-
-$.widget("ui.droppable", {
-	version: "1.10.0",
-	widgetEventPrefix: "drop",
-	options: {
-		accept: "*",
-		activeClass: false,
-		addClasses: true,
-		greedy: false,
-		hoverClass: false,
-		scope: "default",
-		tolerance: "intersect",
-
-		// callbacks
-		activate: null,
-		deactivate: null,
-		drop: null,
-		out: null,
-		over: null
-	},
-	_create: function() {
-
-		var o = this.options,
-			accept = o.accept;
-
-		this.isover = false;
-		this.isout = true;
-
-		this.accept = $.isFunction(accept) ? accept : function(d) {
-			return d.is(accept);
-		};
-
-		//Store the droppable's proportions
-		this.proportions = { width: this.element[0].offsetWidth, height: this.element[0].offsetHeight };
-
-		// Add the reference and positions to the manager
-		$.ui.ddmanager.droppables[o.scope] = $.ui.ddmanager.droppables[o.scope] || [];
-		$.ui.ddmanager.droppables[o.scope].push(this);
-
-		(o.addClasses && this.element.addClass("ui-droppable"));
-
-	},
-
-	_destroy: function() {
-		var i = 0,
-			drop = $.ui.ddmanager.droppables[this.options.scope];
-
-		for ( ; i < drop.length; i++ ) {
-			if ( drop[i] === this ) {
-				drop.splice(i, 1);
-			}
-		}
-
-		this.element.removeClass("ui-droppable ui-droppable-disabled");
-	},
-
-	_setOption: function(key, value) {
-
-		if(key === "accept") {
-			this.accept = $.isFunction(value) ? value : function(d) {
-				return d.is(value);
-			};
-		}
-		$.Widget.prototype._setOption.apply(this, arguments);
-	},
-
-	_activate: function(event) {
-		var draggable = $.ui.ddmanager.current;
-		if(this.options.activeClass) {
-			this.element.addClass(this.options.activeClass);
-		}
-		if(draggable){
-			this._trigger("activate", event, this.ui(draggable));
-		}
-	},
-
-	_deactivate: function(event) {
-		var draggable = $.ui.ddmanager.current;
-		if(this.options.activeClass) {
-			this.element.removeClass(this.options.activeClass);
-		}
-		if(draggable){
-			this._trigger("deactivate", event, this.ui(draggable));
-		}
-	},
-
-	_over: function(event) {
-
-		var draggable = $.ui.ddmanager.current;
-
-		// Bail if draggable and droppable are same element
-		if (!draggable || (draggable.currentItem || draggable.element)[0] === this.element[0]) {
-			return;
-		}
-
-		if (this.accept.call(this.element[0],(draggable.currentItem || draggable.element))) {
-			if(this.options.hoverClass) {
-				this.element.addClass(this.options.hoverClass);
-			}
-			this._trigger("over", event, this.ui(draggable));
-		}
-
-	},
-
-	_out: function(event) {
-
-		var draggable = $.ui.ddmanager.current;
-
-		// Bail if draggable and droppable are same element
-		if (!draggable || (draggable.currentItem || draggable.element)[0] === this.element[0]) {
-			return;
-		}
-
-		if (this.accept.call(this.element[0],(draggable.currentItem || draggable.element))) {
-			if(this.options.hoverClass) {
-				this.element.removeClass(this.options.hoverClass);
-			}
-			this._trigger("out", event, this.ui(draggable));
-		}
-
-	},
-
-	_drop: function(event,custom) {
-
-		var draggable = custom || $.ui.ddmanager.current,
-			childrenIntersection = false;
-
-		// Bail if draggable and droppable are same element
-		if (!draggable || (draggable.currentItem || draggable.element)[0] === this.element[0]) {
-			return false;
-		}
-
-		this.element.find(":data(ui-droppable)").not(".ui-draggable-dragging").each(function() {
-			var inst = $.data(this, "ui-droppable");
-			if(
-				inst.options.greedy &&
-				!inst.options.disabled &&
-				inst.options.scope === draggable.options.scope &&
-				inst.accept.call(inst.element[0], (draggable.currentItem || draggable.element)) &&
-				$.ui.intersect(draggable, $.extend(inst, { offset: inst.element.offset() }), inst.options.tolerance)
-			) { childrenIntersection = true; return false; }
-		});
-		if(childrenIntersection) {
-			return false;
-		}
-
-		if(this.accept.call(this.element[0],(draggable.currentItem || draggable.element))) {
-			if(this.options.activeClass) {
-				this.element.removeClass(this.options.activeClass);
-			}
-			if(this.options.hoverClass) {
-				this.element.removeClass(this.options.hoverClass);
-			}
-			this._trigger("drop", event, this.ui(draggable));
-			return this.element;
-		}
-
-		return false;
-
-	},
-
-	ui: function(c) {
-		return {
-			draggable: (c.currentItem || c.element),
-			helper: c.helper,
-			position: c.position,
-			offset: c.positionAbs
-		};
-	}
-
-});
-
-$.ui.intersect = function(draggable, droppable, toleranceMode) {
-
-	if (!droppable.offset) {
-		return false;
-	}
-
-	var draggableLeft, draggableTop,
-		x1 = (draggable.positionAbs || draggable.position.absolute).left, x2 = x1 + draggable.helperProportions.width,
-		y1 = (draggable.positionAbs || draggable.position.absolute).top, y2 = y1 + draggable.helperProportions.height,
-		l = droppable.offset.left, r = l + droppable.proportions.width,
-		t = droppable.offset.top, b = t + droppable.proportions.height;
-
-	switch (toleranceMode) {
-		case "fit":
-			return (l <= x1 && x2 <= r && t <= y1 && y2 <= b);
-		case "intersect":
-			return (l < x1 + (draggable.helperProportions.width / 2) && // Right Half
-				x2 - (draggable.helperProportions.width / 2) < r && // Left Half
-				t < y1 + (draggable.helperProportions.height / 2) && // Bottom Half
-				y2 - (draggable.helperProportions.height / 2) < b ); // Top Half
-		case "pointer":
-			draggableLeft = ((draggable.positionAbs || draggable.position.absolute).left + (draggable.clickOffset || draggable.offset.click).left);
-			draggableTop = ((draggable.positionAbs || draggable.position.absolute).top + (draggable.clickOffset || draggable.offset.click).top);
-			return isOverAxis( draggableTop, t, droppable.proportions.height ) && isOverAxis( draggableLeft, l, droppable.proportions.width );
-		case "touch":
-			return (
-				(y1 >= t && y1 <= b) ||	// Top edge touching
-				(y2 >= t && y2 <= b) ||	// Bottom edge touching
-				(y1 < t && y2 > b)		// Surrounded vertically
-			) && (
-				(x1 >= l && x1 <= r) ||	// Left edge touching
-				(x2 >= l && x2 <= r) ||	// Right edge touching
-				(x1 < l && x2 > r)		// Surrounded horizontally
-			);
-		default:
-			return false;
-		}
-
-};
-
-/*
-	This manager tracks offsets of draggables and droppables
-*/
-$.ui.ddmanager = {
-	current: null,
-	droppables: { "default": [] },
-	prepareOffsets: function(t, event) {
-
-		var i, j,
-			m = $.ui.ddmanager.droppables[t.options.scope] || [],
-			type = event ? event.type : null, // workaround for #2317
-			list = (t.currentItem || t.element).find(":data(ui-droppable)").addBack();
-
-		droppablesLoop: for (i = 0; i < m.length; i++) {
-
-			//No disabled and non-accepted
-			if(m[i].options.disabled || (t && !m[i].accept.call(m[i].element[0],(t.currentItem || t.element)))) {
-				continue;
-			}
-
-			// Filter out elements in the current dragged item
-			for (j=0; j < list.length; j++) {
-				if(list[j] === m[i].element[0]) {
-					m[i].proportions.height = 0;
-					continue droppablesLoop;
-				}
-			}
-
-			m[i].visible = m[i].element.css("display") !== "none";
-			if(!m[i].visible) {
-				continue;
-			}
-
-			//Activate the droppable if used directly from draggables
-			if(type === "mousedown") {
-				m[i]._activate.call(m[i], event);
-			}
-
-			m[i].offset = m[i].element.offset();
-			m[i].proportions = { width: m[i].element[0].offsetWidth, height: m[i].element[0].offsetHeight };
-
-		}
-
-	},
-	drop: function(draggable, event) {
-
-		var dropped = false;
-		$.each($.ui.ddmanager.droppables[draggable.options.scope] || [], function() {
-
-			if(!this.options) {
-				return;
-			}
-			if (!this.options.disabled && this.visible && $.ui.intersect(draggable, this, this.options.tolerance)) {
-				dropped = this._drop.call(this, event) || dropped;
-			}
-
-			if (!this.options.disabled && this.visible && this.accept.call(this.element[0],(draggable.currentItem || draggable.element))) {
-				this.isout = true;
-				this.isover = false;
-				this._deactivate.call(this, event);
-			}
-
-		});
-		return dropped;
-
-	},
-	dragStart: function( draggable, event ) {
-		//Listen for scrolling so that if the dragging causes scrolling the position of the droppables can be recalculated (see #5003)
-		draggable.element.parentsUntil( "body" ).bind( "scroll.droppable", function() {
-			if( !draggable.options.refreshPositions ) {
-				$.ui.ddmanager.prepareOffsets( draggable, event );
-			}
-		});
-	},
-	drag: function(draggable, event) {
-
-		//If you have a highly dynamic page, you might try this option. It renders positions every time you move the mouse.
-		if(draggable.options.refreshPositions) {
-			$.ui.ddmanager.prepareOffsets(draggable, event);
-		}
-
-		//Run through all droppables and check their positions based on specific tolerance options
-		$.each($.ui.ddmanager.droppables[draggable.options.scope] || [], function() {
-
-			if(this.options.disabled || this.greedyChild || !this.visible) {
-				return;
-			}
-
-			var parentInstance, scope, parent,
-				intersects = $.ui.intersect(draggable, this, this.options.tolerance),
-				c = !intersects && this.isover ? "isout" : (intersects && !this.isover ? "isover" : null);
-			if(!c) {
-				return;
-			}
-
-			if (this.options.greedy) {
-				// find droppable parents with same scope
-				scope = this.options.scope;
-				parent = this.element.parents(":data(ui-droppable)").filter(function () {
-					return $.data(this, "ui-droppable").options.scope === scope;
-				});
-
-				if (parent.length) {
-					parentInstance = $.data(parent[0], "ui-droppable");
-					parentInstance.greedyChild = (c === "isover");
-				}
-			}
-
-			// we just moved into a greedy child
-			if (parentInstance && c === "isover") {
-				parentInstance.isover = false;
-				parentInstance.isout = true;
-				parentInstance._out.call(parentInstance, event);
-			}
-
-			this[c] = true;
-			this[c === "isout" ? "isover" : "isout"] = false;
-			this[c === "isover" ? "_over" : "_out"].call(this, event);
-
-			// we just moved out of a greedy child
-			if (parentInstance && c === "isout") {
-				parentInstance.isout = false;
-				parentInstance.isover = true;
-				parentInstance._over.call(parentInstance, event);
-			}
-		});
-
-	},
-	dragStop: function( draggable, event ) {
-		draggable.element.parentsUntil( "body" ).unbind( "scroll.droppable" );
-		//Call prepareOffsets one final time since IE does not fire return scroll events when overflow was caused by drag (see #5003)
-		if( !draggable.options.refreshPositions ) {
-			$.ui.ddmanager.prepareOffsets( draggable, event );
-		}
-	}
-};
-
-})(jQuery);
-
-});
-define('widget/crossfiltertemplate',[],function(){
-  var template = function(__obj) {
-  var _safe = function(value) {
-    if (typeof value === 'undefined' && value == null)
-      value = '';
-    var result = new String(value);
-    result.ecoSafe = true;
-    return result;
-  };
-  return (function() {
-    var __out = [], __self = this, _print = function(value) {
-      if (typeof value !== 'undefined' && value != null)
-        __out.push(value.ecoSafe ? value : __self.escape(value));
-    }, _capture = function(callback) {
-      var out = __out, result;
-      __out = [];
-      callback.call(this);
-      result = __out.join('');
-      __out = out;
-      return _safe(result);
-    };
-    (function() {
-      _print(_safe('<div class="bk bk-crossfilter-container">\n  <table>\n    <tr>\n      <td class="aligntable">\n        <div class="bk-crossfilter-configuration container">\n          <div class="row bk-row">\n            <div class="col-md-4 bk-column-list">\n            </div>\n            <div class="col-md-4 bk-filters-facets">\n              <div class="panel panel-primary bk-filters">\n                <div class="panel-heading">\n                  Filter\n                </div>\n                <div class="panel-body bk-filters-selections">\n                </div>\n              </div>\n              <div class="panel panel-primary bk-facet bk-facet-x">\n                <div class="panel-heading">\n                  Facet X\n                </div>\n                <div class="bk-facets-selections ">\n                </div>\n              </div>\n              <div class="panel panel-primary bk-facet bk-facet-y">\n                <div class="panel-heading">\n                  Facet Y\n                </div>\n                <div class="bk-facets-selections ">\n                </div>\n              </div>\n              <div class="panel panel-primary bk-facet bk-facet-tab">\n                <div class="panel-heading">\n                  Facet Tab\n                </div>\n                <div class="bk-facets-selections ">\n                </div>\n              </div>\n            </div>\n            <div class="col-md-4 bk-plot-selection">\n              <form class="bk-widget-form">\n                <div class="bk-plot-selector">\n                </div>\n                <div class="bk-x-selector">\n                </div>\n                <div class="bk-y-selector">\n                </div>\n                <div class="bk-agg-selector">\n                </div>\n              </form>\n            </div>\n          </div>\n        </div>\n      </td>\n      <td class="aligntable">\n        <div class="bk-plot">\n        </div>\n      </td>\n    </tr>\n  </table>\n</div>\n'));
-    
-    }).call(this);
-    
-    return __out.join('');
-  }).call((function() {
-    var obj = {
-      escape: function(value) {
-        return ('' + value)
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;');
-      },
-      safe: _safe
-    }, key;
-    for (key in __obj) obj[key] = __obj[key];
-    return obj;
-  })());
-};
-  return template;
-});
-
-define('widget/discretecolumntemplate',[],function(){
-  var template = function(__obj) {
-  var _safe = function(value) {
-    if (typeof value === 'undefined' && value == null)
-      value = '';
-    var result = new String(value);
-    result.ecoSafe = true;
-    return result;
-  };
-  return (function() {
-    var __out = [], __self = this, _print = function(value) {
-      if (typeof value !== 'undefined' && value != null)
-        __out.push(value.ecoSafe ? value : __self.escape(value));
-    }, _capture = function(callback) {
-      var out = __out, result;
-      __out = [];
-      callback.call(this);
-      result = __out.join('');
-      __out = out;
-      return _safe(result);
-    };
-    (function() {
-      _print(_safe('<div class="bk panel-heading">\n  Factor: '));
-    
-      _print(this.name);
-    
-      _print(_safe('\n</div>\n<div class="bk panel-body">\n  <table class="bk-table">\n    <tbody>\n      <tr>\n        <td>\n          count\n        </td>\n        <td>\n          '));
-    
-      _print(this.count);
-    
-      _print(_safe('\n        </td>\n      </tr>\n      <tr>\n        <td>\n          unique\n        </td>\n        <td>\n          '));
-    
-      _print(this.unique);
-    
-      _print(_safe('\n        </td>\n      </tr>\n      <tr>\n        <td>\n          top\n        </td>\n        <td>\n          '));
-    
-      _print(this.top);
-    
-      _print(_safe('\n        </td>\n      </tr>\n      <tr>\n        <td>\n          freq\n        </td>\n        <td>\n          '));
-    
-      _print(this.freq);
-    
-      _print(_safe('\n        </td>\n      </tr>\n    </tbody>\n  </table>\n</div>\n</div>\n'));
-    
-    }).call(this);
-    
-    return __out.join('');
-  }).call((function() {
-    var obj = {
-      escape: function(value) {
-        return ('' + value)
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;');
-      },
-      safe: _safe
-    }, key;
-    for (key in __obj) obj[key] = __obj[key];
-    return obj;
-  })());
-};
-  return template;
-});
-
-define('widget/continuouscolumntemplate',[],function(){
-  var template = function(__obj) {
-  var _safe = function(value) {
-    if (typeof value === 'undefined' && value == null)
-      value = '';
-    var result = new String(value);
-    result.ecoSafe = true;
-    return result;
-  };
-  return (function() {
-    var __out = [], __self = this, _print = function(value) {
-      if (typeof value !== 'undefined' && value != null)
-        __out.push(value.ecoSafe ? value : __self.escape(value));
-    }, _capture = function(callback) {
-      var out = __out, result;
-      __out = [];
-      callback.call(this);
-      result = __out.join('');
-      __out = out;
-      return _safe(result);
-    };
-    (function() {
-      _print(_safe('<div class="bk panel-heading">\n  Continuous: '));
-    
-      _print(this.name);
-    
-      _print(_safe('\n</div>\n<div class="bk panel-body">\n  <table class="bk-table">\n    <tbody>\n      <tr>\n        <td>\n          count\n        </td>\n        <td>\n          '));
-    
-      _print(this.count);
-    
-      _print(_safe('\n        </td>\n      </tr>\n      <tr>\n        <td>\n          mean\n        </td>\n        <td>\n          '));
-    
-      _print(this.mean);
-    
-      _print(_safe('\n        </td>\n      </tr>\n      <tr>\n        <td>\n          std\n        </td>\n        <td>\n          '));
-    
-      _print(this.std);
-    
-      _print(_safe('\n        </td>\n      </tr>\n      <tr>\n        <td>\n          max\n        </td>\n        <td>\n          '));
-    
-      _print(this.max);
-    
-      _print(_safe('\n        </td>\n      </tr>\n      <tr>\n        <td>\n          min\n        </td>\n        <td>\n          '));
-    
-      _print(this.min);
-    
-      _print(_safe('\n        </td>\n      </tr>\n    </tbody>\n  </table>\n</div>\n'));
-    
-    }).call(this);
-    
-    return __out.join('');
-  }).call((function() {
-    var obj = {
-      escape: function(value) {
-        return ('' + value)
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;');
-      },
-      safe: _safe
-    }, key;
-    for (key in __obj) obj[key] = __obj[key];
-    return obj;
-  })());
-};
-  return template;
-});
-
-define('widget/facetcolumntemplate',[],function(){
-  var template = function(__obj) {
-  var _safe = function(value) {
-    if (typeof value === 'undefined' && value == null)
-      value = '';
-    var result = new String(value);
-    result.ecoSafe = true;
-    return result;
-  };
-  return (function() {
-    var __out = [], __self = this, _print = function(value) {
-      if (typeof value !== 'undefined' && value != null)
-        __out.push(value.ecoSafe ? value : __self.escape(value));
-    }, _capture = function(callback) {
-      var out = __out, result;
-      __out = [];
-      callback.call(this);
-      result = __out.join('');
-      __out = out;
-      return _safe(result);
-    };
-    (function() {
-      _print(this.name);
-    
-      _print(_safe(' &nbsp; [x]'));
-    
-    }).call(this);
-    
-    return __out.join('');
-  }).call((function() {
-    var obj = {
-      escape: function(value) {
-        return ('' + value)
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;');
-      },
-      safe: _safe
-    }, key;
-    for (key in __obj) obj[key] = __obj[key];
-    return obj;
-  })());
-};
-  return template;
-});
-
 (function() {
-  var __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
-
-  define('widget/crossfilter',["common/has_parent", "common/has_properties", "common/continuum_view", "common/build_views", "backbone", "underscore", "jquery_ui/draggable", "jquery_ui/droppable", "./crossfiltertemplate", "./discretecolumntemplate", "./continuouscolumntemplate", "./facetcolumntemplate"], function(HasParent, HasProperties, continuum_view, build_views, Backbone, _, draggable, droppable, crossfiltertemplate, discretecolumntemplate, continuouscolumntemplate, facetcolumntemplate) {
-    var CloseWrapper, ColumnCollection, ColumnView, ColumnsView, ContinuousColumn, ContinuousColumnView, ContinuumView, CrossFilter, CrossFilterView, CrossFilters, DiscreteColumn, DiscreteColumnView, FacetView, FacetsView, FilterView, PlotAttributeSelector, TimeColumn, TimeColumnView, crossfilters, _ref, _ref1, _ref10, _ref11, _ref12, _ref13, _ref14, _ref15, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9;
-    ContinuumView = continuum_view.View;
-    CloseWrapper = continuum_view.CloseWrapper;
-    CrossFilterView = (function(_super) {
-      __extends(CrossFilterView, _super);
-
-      function CrossFilterView() {
-        _ref = CrossFilterView.__super__.constructor.apply(this, arguments);
-        return _ref;
-      }
-
-      CrossFilterView.prototype.tag = "div";
-
-      CrossFilterView.prototype.attributes = {
-        "class": "bk-crossfilter"
-      };
-
-      CrossFilterView.prototype.initialize = function(options) {
-        CrossFilterView.__super__.initialize.call(this, options);
-        this.views = {};
-        this.listenTo(this.model, 'change:plot', this.render_plot);
-        this.render();
-        this.render_plot();
-        return this;
-      };
-
-      CrossFilterView.prototype.render_plot = function() {
-        var plot, plot_view;
-        plot = this.mget_obj('plot');
-        plot_view = new plot.default_view({
-          model: plot
-        });
-        this.$el.find('.bk-plot').empty();
-        return this.$el.find('.bk-plot').append(plot_view.$el);
-      };
-
-      CrossFilterView.prototype.render = function() {
-        var html;
-        if (this.columnview != null) {
-          this.columnview.$el.detach();
-        }
-        this.$el.empty();
-        html = crossfiltertemplate();
-        this.$el.html(html);
-        this.filterview = new FilterView({
-          el: this.$('.bk-filters'),
-          collection: this.model.columns,
-          model: this.model
-        });
-        this.facetsview = new FacetsView({
-          el: this.$el,
-          model: this.model
-        });
-        this.plotattributeview = new PlotAttributeSelector({
-          el: this.$el,
-          model: this.model
-        });
-        this.columnview = new ColumnsView({
-          collection: this.model.columns
-        });
-        this.$('.bk-column-list').append(this.columnview.el);
-        this.$('.bk-crossfilter-configuration').height(this.mget('height'));
-        this.$('.bk-crossfilter-configuration').width(500);
-        return this;
-      };
-
-      return CrossFilterView;
-
-    })(ContinuumView);
-    CrossFilter = (function(_super) {
-      __extends(CrossFilter, _super);
-
-      function CrossFilter() {
-        this._set_columns = __bind(this._set_columns, this);
-        _ref1 = CrossFilter.__super__.constructor.apply(this, arguments);
-        return _ref1;
-      }
-
-      CrossFilter.prototype.initialize = function(attrs, options) {
-        CrossFilter.__super__.initialize.call(this, attrs, options);
-        this.columns = new ColumnCollection();
-        this._set_columns();
-        this.listenTo(this, 'change:columns', this._set_columns);
-        return console.log(this.columns.models);
-      };
-
-      CrossFilter.prototype._set_columns = function() {
-        return this.columns.reset(this.get('columns'));
-      };
-
-      CrossFilter.prototype.type = "CrossFilter";
-
-      CrossFilter.prototype.default_view = CrossFilterView;
-
-      CrossFilter.prototype.defaults = {
-        height: 700,
-        width: 1300
-      };
-
-      return CrossFilter;
-
-    })(HasParent);
-    CrossFilters = (function(_super) {
-      __extends(CrossFilters, _super);
-
-      function CrossFilters() {
-        _ref2 = CrossFilters.__super__.constructor.apply(this, arguments);
-        return _ref2;
-      }
-
-      CrossFilters.prototype.model = CrossFilter;
-
-      return CrossFilters;
-
-    })(Backbone.Collection);
-    crossfilters = new CrossFilters();
-    PlotAttributeSelector = (function(_super) {
-      __extends(PlotAttributeSelector, _super);
-
-      function PlotAttributeSelector() {
-        _ref3 = PlotAttributeSelector.__super__.constructor.apply(this, arguments);
-        return _ref3;
-      }
-
-      PlotAttributeSelector.prototype.initialize = function(options) {
-        PlotAttributeSelector.__super__.initialize.call(this, options);
-        this.listenTo(this.model, "change:plot_selector", this.render_plot_selector);
-        this.listenTo(this.model, "change:x_selector", this.render_x_selector);
-        this.listenTo(this.model, "change:y_selector", this.render_y_selector);
-        this.listenTo(this.model, "change:agg_selector", this.render_agg_selector);
-        this.render_plot_selector();
-        this.render_x_selector();
-        this.render_y_selector();
-        return this.render_agg_selector();
-      };
-
-      PlotAttributeSelector.prototype.render_selector = function(node, model) {
-        node.empty();
-        if (model) {
-          this.plot_selector_view = new model.default_view({
-            model: model
-          });
-          return node.append(this.plot_selector_view.$el);
-        }
-      };
-
-      PlotAttributeSelector.prototype.render_plot_selector = function() {
-        var model, node;
-        node = this.$('.bk-plot-selector');
-        model = this.mget_obj('plot_selector');
-        return this.render_selector(node, model);
-      };
-
-      PlotAttributeSelector.prototype.render_x_selector = function() {
-        var model, node;
-        node = this.$('.bk-x-selector');
-        model = this.mget_obj('x_selector');
-        return this.render_selector(node, model);
-      };
-
-      PlotAttributeSelector.prototype.render_y_selector = function() {
-        var model, node;
-        node = this.$('.bk-y-selector');
-        model = this.mget_obj('y_selector');
-        return this.render_selector(node, model);
-      };
-
-      PlotAttributeSelector.prototype.render_agg_selector = function() {
-        var model, node;
-        node = this.$('.bk-agg-selector');
-        model = this.mget_obj('agg_selector');
-        return this.render_selector(node, model);
-      };
-
-      return PlotAttributeSelector;
-
-    })(ContinuumView);
-    ColumnsView = (function(_super) {
-      __extends(ColumnsView, _super);
-
-      function ColumnsView() {
-        _ref4 = ColumnsView.__super__.constructor.apply(this, arguments);
-        return _ref4;
-      }
-
-      ColumnsView.prototype.initialize = function(options) {
-        ColumnsView.__super__.initialize.call(this, options);
-        this.views = {};
-        this.listenTo(this.collection, 'all', this.render);
-        this.render();
-        return this;
-      };
-
-      ColumnsView.prototype.render = function() {
-        var _this = this;
-        _.map(this.views, function(view) {
-          return view.$el.detach();
-        });
-        build_views(this.views, this.collection.models);
-        _.map(this.collection.models, function(model) {
-          return _this.$el.append(_this.views[model.id].$el);
-        });
-        return this;
-      };
-
-      return ColumnsView;
-
-    })(Backbone.View);
-    FacetView = (function(_super) {
-      __extends(FacetView, _super);
-
-      function FacetView() {
-        _ref5 = FacetView.__super__.constructor.apply(this, arguments);
-        return _ref5;
-      }
-
-      FacetView.prototype.events = {
-        "click": "remove"
-      };
-
-      FacetView.prototype.tagName = "span";
-
-      FacetView.prototype.attributes = {
-        "class": "bk-facet-label"
-      };
-
-      FacetView.prototype.initialize = function(options) {
-        FacetView.__super__.initialize.call(this, options);
-        this.name = options.name;
-        return this.render();
-      };
-
-      FacetView.prototype.render = function() {
-        return this.$el.html(facetcolumntemplate({
-          name: this.name
-        }));
-      };
-
-      return FacetView;
-
-    })(ContinuumView);
-    FacetsView = (function(_super) {
-      __extends(FacetsView, _super);
-
-      function FacetsView() {
-        this.drop_tab = __bind(this.drop_tab, this);
-        this.drop_y = __bind(this.drop_y, this);
-        this.drop_x = __bind(this.drop_x, this);
-        this.drop = __bind(this.drop, this);
-        this.add_facet = __bind(this.add_facet, this);
-        this.remove_facet = __bind(this.remove_facet, this);
-        _ref6 = FacetsView.__super__.constructor.apply(this, arguments);
-        return _ref6;
-      }
-
-      FacetsView.prototype.initialize = function(options) {
-        FacetsView.__super__.initialize.call(this, options);
-        this.render_init();
-        this.render_all_facets();
-        this.listenTo(this.model, 'change:facet_x', this.render_all_facets);
-        this.listenTo(this.model, 'change:facet_y', this.render_all_facets);
-        return this.listenTo(this.model, 'change:facet_tab', this.render_all_facets);
-      };
-
-      FacetsView.prototype.render_init = function() {
-        this.facet_x_node = this.$('.bk-facet-x');
-        this.facet_y_node = this.$('.bk-facet-y');
-        this.facet_tab_node = this.$('.bk-facet-tab');
-        this.facet_x_node.droppable({
-          drop: this.drop_x,
-          tolerance: 'pointer',
-          hoverClass: 'bk-droppable-hover'
-        });
-        this.facet_y_node.droppable({
-          drop: this.drop_y,
-          tolerance: 'pointer',
-          hoverClass: 'bk-droppable-hover'
-        });
-        return this.facet_tab_node.droppable({
-          drop: this.drop_tab,
-          tolerance: 'pointer',
-          hoverClass: 'bk-droppable-hover'
-        });
-      };
-
-      FacetsView.prototype.render_all_facets = function() {
-        this.render_facets(this.facet_x_node, 'facet_x', this.model.get('facet_x'));
-        this.render_facets(this.facet_y_node, 'facet_y', this.model.get('facet_y'));
-        this.render_facets(this.facet_tab_node, 'facet_tab', this.model.get('facet_tab'));
-      };
-
-      FacetsView.prototype.render_facets = function(node, type, facets) {
-        var facet, view, _i, _len, _results;
-        node = node.find('.bk-facets-selections');
-        node.empty();
-        _results = [];
-        for (_i = 0, _len = facets.length; _i < _len; _i++) {
-          facet = facets[_i];
-          view = new FacetView({
-            name: facet
-          });
-          this.listenTo(view, 'remove', function() {
-            var save;
-            return this.remove_facet(facet, save = true);
-          });
-          _results.push(node.append(view.$el));
-        }
-        return _results;
-      };
-
-      FacetsView.prototype.remove_facet = function(facet, save) {
-        var facets, type, x, _i, _len, _ref7;
-        if (save == null) {
-          save = true;
-        }
-        _ref7 = ['facet_x', 'facet_y', 'facet_tab'];
-        for (_i = 0, _len = _ref7.length; _i < _len; _i++) {
-          type = _ref7[_i];
-          facets = _.clone(this.model.get(type));
-          facets = (function() {
-            var _j, _len1, _results;
-            _results = [];
-            for (_j = 0, _len1 = facets.length; _j < _len1; _j++) {
-              x = facets[_j];
-              if (x !== facet) {
-                _results.push(x);
-              }
-            }
-            return _results;
-          })();
-          this.model.set(type, facets);
-        }
-        if (save) {
-          return this.model.save();
-        }
-      };
-
-      FacetsView.prototype.add_facet = function(type, facet) {
-        var facets, save;
-        this.remove_facet(facet, save = false);
-        facets = _.clone(this.model.get(type));
-        if (facets.indexOf(facet) < 0) {
-          facets.push(facet);
-          this.model.set(type, facets);
-        }
-        return this.model.save();
-      };
-
-      FacetsView.prototype.drop = function(type, e, ui) {
-        var column_model, name;
-        column_model = ui.helper.data('model');
-        name = column_model.get('name');
-        return this.add_facet(type, name);
-      };
-
-      FacetsView.prototype.drop_x = function(e, ui) {
-        return this.drop('facet_x', e, ui);
-      };
-
-      FacetsView.prototype.drop_y = function(e, ui) {
-        return this.drop('facet_y', e, ui);
-      };
-
-      FacetsView.prototype.drop_tab = function(e, ui) {
-        return this.drop('facet_tab', e, ui);
-      };
-
-      return FacetsView;
-
-    })(ContinuumView);
-    FilterView = (function(_super) {
-      __extends(FilterView, _super);
-
-      function FilterView() {
-        this.drop = __bind(this.drop, this);
-        _ref7 = FilterView.__super__.constructor.apply(this, arguments);
-        return _ref7;
-      }
-
-      FilterView.prototype.initialize = function(options) {
-        FilterView.__super__.initialize.call(this, options);
-        this.views = {};
-        this.render();
-        this.render_columns_selectors;
-        return this.listenTo(this.model, 'change:filter_widgets', this.render_column_selectors);
-      };
-
-      FilterView.prototype.drop = function(e, ui) {
-        var column_model, filtering_columns;
-        column_model = ui.helper.data('model');
-        filtering_columns = _.clone(this.model.get('filtering_columns'));
-        filtering_columns.push(column_model.get('name'));
-        this.model.set('filtering_columns', filtering_columns);
-        return this.model.save();
-      };
-
-      FilterView.prototype.render = function() {
-        return this.$el.droppable({
-          drop: this.drop,
-          tolerance: 'pointer',
-          hoverClass: 'bk-droppable-hover'
-        });
-      };
-
-      FilterView.prototype.render_column_selectors = function() {
-        var col, filter_widget_dict, filter_widgets, filtering_columns, key, newviews, val, _ref8,
-          _this = this;
-        _.map(this.views, function(view) {
-          return view.$el.detach();
-        });
-        this.$el.find('bk-filters-selections').empty();
-        filter_widget_dict = {};
-        _ref8 = this.mget('filter_widgets');
-        for (key in _ref8) {
-          if (!__hasProp.call(_ref8, key)) continue;
-          val = _ref8[key];
-          filter_widget_dict[key] = this.model.resolve_ref(val);
-        }
-        filtering_columns = this.mget('filtering_columns');
-        filter_widgets = (function() {
-          var _i, _len, _results;
-          _results = [];
-          for (_i = 0, _len = filtering_columns.length; _i < _len; _i++) {
-            col = filtering_columns[_i];
-            if (filter_widget_dict[col] != null) {
-              _results.push(filter_widget_dict[col]);
-            }
-          }
-          return _results;
-        })();
-        newviews = build_views(this.views, filter_widgets);
-        _.map(newviews, function(view) {
-          return _this.listenTo(view, 'remove', _this.child_remove);
-        });
-        return _.map(filter_widgets, function(model) {
-          var wrapper;
-          wrapper = new CloseWrapper({
-            view: _this.views[model.id]
-          });
-          return _this.$el.find('.bk-filters-selections').append(wrapper.$el);
-        });
-      };
-
-      FilterView.prototype.child_remove = function(view) {
-        var key, model, newcolumns, to_remove, val, _ref8;
-        _ref8 = this.mget('filter_widgets');
-        for (key in _ref8) {
-          if (!__hasProp.call(_ref8, key)) continue;
-          val = _ref8[key];
-          model = this.model.resolve_ref(val);
-          if (model === view.model) {
-            to_remove = key;
-            break;
-          }
-        }
-        newcolumns = _.filter(this.mget('filtering_columns'), function(x) {
-          return x !== to_remove;
-        });
-        this.mset('filtering_columns', newcolumns);
-        return this.model.save();
-      };
-
-      return FilterView;
-
-    })(ContinuumView);
-    ColumnCollection = (function(_super) {
-      __extends(ColumnCollection, _super);
-
-      function ColumnCollection() {
-        _ref8 = ColumnCollection.__super__.constructor.apply(this, arguments);
-        return _ref8;
-      }
-
-      ColumnCollection.prototype.model = function(attrs, options) {
-        if (attrs.type === 'DiscreteColumn') {
-          return new DiscreteColumn(attrs);
-        } else if (attrs.type === 'TimeColumn') {
-          return new TimeColumn(attrs);
-        } else {
-          return new ContinuousColumn(attrs);
-        }
-      };
-
-      return ColumnCollection;
-
-    })(Backbone.Collection);
-    ColumnView = (function(_super) {
-      __extends(ColumnView, _super);
-
-      function ColumnView() {
-        this.dragging_helper = __bind(this.dragging_helper, this);
-        _ref9 = ColumnView.__super__.constructor.apply(this, arguments);
-        return _ref9;
-      }
-
-      ColumnView.prototype.attributes = {
-        "class": "bk-crossfilter-column-entry panel panel-primary"
-      };
-
-      ColumnView.prototype.initialize = function(options) {
-        ColumnView.__super__.initialize.call(this, options);
-        return this.render();
-      };
-
-      ColumnView.prototype.dragging_helper = function() {
-        var node;
-        node = this.$el.clone();
-        return node;
-      };
-
-      ColumnView.prototype.render = function() {
-        var _this = this;
-        this.$el.html(this.template(this.model.attributes));
-        this.$el.draggable({
-          appendTo: 'body',
-          containment: 'document',
-          helper: 'clone',
-          start: function(e, ui) {
-            return ui.helper.data('model', _this.model);
-          }
-        });
-        return this;
-      };
-
-      return ColumnView;
-
-    })(ContinuumView);
-    TimeColumnView = (function(_super) {
-      __extends(TimeColumnView, _super);
-
-      function TimeColumnView() {
-        _ref10 = TimeColumnView.__super__.constructor.apply(this, arguments);
-        return _ref10;
-      }
-
-      return TimeColumnView;
-
-    })(ColumnView);
-    DiscreteColumnView = (function(_super) {
-      __extends(DiscreteColumnView, _super);
-
-      function DiscreteColumnView() {
-        _ref11 = DiscreteColumnView.__super__.constructor.apply(this, arguments);
-        return _ref11;
-      }
-
-      DiscreteColumnView.prototype.template = discretecolumntemplate;
-
-      return DiscreteColumnView;
-
-    })(ColumnView);
-    ContinuousColumnView = (function(_super) {
-      __extends(ContinuousColumnView, _super);
-
-      function ContinuousColumnView() {
-        _ref12 = ContinuousColumnView.__super__.constructor.apply(this, arguments);
-        return _ref12;
-      }
-
-      ContinuousColumnView.prototype.template = continuouscolumntemplate;
-
-      return ContinuousColumnView;
-
-    })(ColumnView);
-    TimeColumn = (function(_super) {
-      __extends(TimeColumn, _super);
-
-      function TimeColumn() {
-        _ref13 = TimeColumn.__super__.constructor.apply(this, arguments);
-        return _ref13;
-      }
-
-      TimeColumn.prototype.idAttribute = "name";
-
-      TimeColumn.prototype.default_view = TimeColumnView;
-
-      TimeColumn.prototype.defaults = {
-        type: "TimeColumn",
-        name: "",
-        count: 0,
-        unique: 0,
-        first: 0,
-        last: 0
-      };
-
-      return TimeColumn;
-
-    })(HasProperties);
-    DiscreteColumn = (function(_super) {
-      __extends(DiscreteColumn, _super);
-
-      function DiscreteColumn() {
-        _ref14 = DiscreteColumn.__super__.constructor.apply(this, arguments);
-        return _ref14;
-      }
-
-      DiscreteColumn.prototype.idAttribute = "name";
-
-      DiscreteColumn.prototype.default_view = DiscreteColumnView;
-
-      DiscreteColumn.prototype.defaults = {
-        type: "DiscreteColumn",
-        name: "",
-        count: 0,
-        unique: 0,
-        top: 0,
-        freq: 0
-      };
-
-      return DiscreteColumn;
-
-    })(HasProperties);
-    ContinuousColumn = (function(_super) {
-      __extends(ContinuousColumn, _super);
-
-      function ContinuousColumn() {
-        _ref15 = ContinuousColumn.__super__.constructor.apply(this, arguments);
-        return _ref15;
-      }
-
-      ContinuousColumn.prototype.idAttribute = "name";
-
-      ContinuousColumn.prototype.default_view = ContinuousColumnView;
-
-      ContinuousColumn.prototype.defaults = {
-        type: "ContinuousColumn",
-        name: "",
-        count: 0,
-        mean: 0,
-        std: 0,
-        min: 0,
-        max: 0
-      };
-
-      return ContinuousColumn;
-
-    })(HasProperties);
-    return {
-      "Model": CrossFilter,
-      "Collection": crossfilters,
-      "View": CrossFilterView
-    };
-  });
-
-}).call(this);
-
-/*
-//@ sourceMappingURL=crossfilter.js.map
-*/;
-define('widget/multiselecttemplate',[],function(){
-  var template = function(__obj) {
-  var _safe = function(value) {
-    if (typeof value === 'undefined' && value == null)
-      value = '';
-    var result = new String(value);
-    result.ecoSafe = true;
-    return result;
-  };
-  return (function() {
-    var __out = [], __self = this, _print = function(value) {
-      if (typeof value !== 'undefined' && value != null)
-        __out.push(value.ecoSafe ? value : __self.escape(value));
-    }, _capture = function(callback) {
-      var out = __out, result;
-      __out = [];
-      callback.call(this);
-      result = __out.join('');
-      __out = out;
-      return _safe(result);
-    };
-    (function() {
-      var option, _i, _len, _ref;
-    
-      _print(_safe('<label for="'));
-    
-      _print(this.id);
-    
-      _print(_safe('"> '));
-    
-      _print(this.title);
-    
-      _print(_safe(' </label>\n<select multiple class="bk-widget-form-input" id="'));
-    
-      _print(this.id);
-    
-      _print(_safe('" name="'));
-    
-      _print(this.name);
-    
-      _print(_safe('">\n  '));
-    
-      _ref = this.options;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        option = _ref[_i];
-        _print(_safe('\n  '));
-        if (option.value === this.value) {
-          _print(_safe('\n  <option selected="selected" value="'));
-          _print(option.value);
-          _print(_safe('">'));
-          _print(option.name);
-          _print(_safe('</option>\n  '));
-        } else {
-          _print(_safe('\n  <option value="'));
-          _print(option.value);
-          _print(_safe('">'));
-          _print(option.name);
-          _print(_safe('</option> \n  '));
-        }
-        _print(_safe('\n\n  '));
-      }
-    
-      _print(_safe('\n</select>\n'));
-    
-    }).call(this);
-    
-    return __out.join('');
-  }).call((function() {
-    var obj = {
-      escape: function(value) {
-        return ('' + value)
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;');
-      },
-      safe: _safe
-    }, key;
-    for (key in __obj) obj[key] = __obj[key];
-    return obj;
-  })());
-};
-  return template;
-});
-
-(function() {
-  var __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-  define('widget/multiselect',["common/has_parent", "common/continuum_view", "backbone", "underscore", "./multiselecttemplate"], function(HasParent, continuum_view, Backbone, _, multiselecttemplate) {
-    var ContinuumView, MultiSelect, MultiSelectView, MultiSelects, multiselectboxes, _ref, _ref1, _ref2;
-    ContinuumView = continuum_view.View;
-    MultiSelectView = (function(_super) {
-      __extends(MultiSelectView, _super);
-
-      function MultiSelectView() {
-        _ref = MultiSelectView.__super__.constructor.apply(this, arguments);
-        return _ref;
-      }
-
-      MultiSelectView.prototype.events = {
-        "change select": "change_input"
-      };
-
-      MultiSelectView.prototype.change_input = function() {
-        this.mset('value', this.$('select').val(), {
-          'silent': true
-        });
-        return this.model.save();
-      };
-
-      MultiSelectView.prototype.tagName = "div";
-
-      MultiSelectView.prototype.template = multiselecttemplate;
-
-      MultiSelectView.prototype.initialize = function(options) {
-        MultiSelectView.__super__.initialize.call(this, options);
-        this.render();
-        this.listenTo(this.model, 'change:value', this.render_selection);
-        this.listenTo(this.model, 'change:options', this.render);
-        this.listenTo(this.model, 'change:name', this.render);
-        return this.listenTo(this.model, 'change:title', this.render);
-      };
-
-      MultiSelectView.prototype.render = function() {
-        var html;
-        this.$el.empty();
-        html = this.template(this.model.attributes);
-        this.$el.html(html);
-        this.render_selection();
-        return this;
-      };
-
-      MultiSelectView.prototype.render_selection = function() {
-        var values;
-        values = {};
-        _.map(this.mget('value'), function(x) {
-          return values[x] = true;
-        });
-        return this.$('option').each(function(el) {
-          el = $(el);
-          if (values[el.attr('value')]) {
-            return el.attr('selected', 'selected');
-          }
-        });
-      };
-
-      return MultiSelectView;
-
-    })(ContinuumView);
-    MultiSelect = (function(_super) {
-      __extends(MultiSelect, _super);
-
-      function MultiSelect() {
-        _ref1 = MultiSelect.__super__.constructor.apply(this, arguments);
-        return _ref1;
-      }
-
-      MultiSelect.prototype.type = "MultiSelect";
-
-      MultiSelect.prototype.default_view = MultiSelectView;
-
-      MultiSelect.prototype.defaults = function() {
-        var def;
-        def = {
-          title: '',
-          value: [],
-          options: []
-        };
-        return def;
-      };
-
-      return MultiSelect;
-
-    })(HasParent);
-    MultiSelects = (function(_super) {
-      __extends(MultiSelects, _super);
-
-      function MultiSelects() {
-        _ref2 = MultiSelects.__super__.constructor.apply(this, arguments);
-        return _ref2;
-      }
-
-      MultiSelects.prototype.model = MultiSelect;
-
-      return MultiSelects;
-
-    })(Backbone.Collection);
-    multiselectboxes = new MultiSelects();
-    return {
-      "Model": MultiSelect,
-      "Collection": multiselectboxes,
-      "View": MultiSelectView
-    };
-  });
-
-}).call(this);
-
-/*
-//@ sourceMappingURL=multiselect.js.map
-*/;
-(function() {
-  define('common/base',["underscore", "require", "common/custom", "common/gmap_plot", "common/grid_plot", "common/plot", "common/plot_context", "mapper/1d/categorical_mapper", "mapper/1d/linear_mapper", "mapper/2d/grid_mapper", "mapper/color/linear_color_mapper", "range/data_factor_range", "range/data_range1d", "range/factor_range", "range/range1d", "renderer/annotation/legend", "renderer/glyph/glyph_factory", "renderer/guide/categorical_axis", "renderer/guide/datetime_axis", "renderer/guide/grid", "renderer/guide/linear_axis", "renderer/overlay/box_selection", "source/column_data_source", "source/server_data_source", "ticking/abstract_ticker", "ticking/adaptive_ticker", "ticking/basic_tick_formatter", "ticking/basic_ticker", "ticking/categorical_tick_formatter", "ticking/categorical_ticker", "ticking/composite_ticker", "ticking/datetime_tick_formatter", "ticking/datetime_ticker", "ticking/days_ticker", "ticking/months_ticker", "ticking/single_interval_ticker", "ticking/years_ticker", "tool/box_select_tool", "tool/box_zoom_tool", "tool/crosshair_tool", "tool/data_range_box_select_tool", "tool/embed_tool", "tool/hover_tool", "tool/pan_tool", "tool/preview_save_tool", "tool/reset_tool", "tool/resize_tool", "tool/wheel_zoom_tool", "tool/object_explorer_tool", "widget/data_slider", "widget/pandas/ipython_remote_data", "widget/pandas/pandas_pivot_table", "widget/pandas/pandas_plot_source", 'widget/paragraph', 'widget/hbox', 'widget/vbox', 'widget/textinput', 'widget/vboxmodelform', 'widget/pretext', 'widget/selectbox', 'widget/slider', 'widget/crossfilter', 'widget/multiselect'], function(_, require) {
+  define('common/base',["underscore", "require", "common/custom", "common/gmap_plot", "common/grid_plot", "common/plot", "common/plot_context", "mapper/1d/categorical_mapper", "mapper/1d/linear_mapper", "mapper/2d/grid_mapper", "mapper/color/linear_color_mapper", "range/data_factor_range", "range/data_range1d", "range/factor_range", "range/range1d", "renderer/annotation/legend", "renderer/glyph/glyph_factory", "renderer/guide/categorical_axis", "renderer/guide/datetime_axis", "renderer/guide/grid", "renderer/guide/linear_axis", "renderer/overlay/box_selection", "source/column_data_source", "source/server_data_source", "ticking/abstract_ticker", "ticking/adaptive_ticker", "ticking/basic_tick_formatter", "ticking/basic_ticker", "ticking/categorical_tick_formatter", "ticking/categorical_ticker", "ticking/composite_ticker", "ticking/datetime_tick_formatter", "ticking/datetime_ticker", "ticking/days_ticker", "ticking/months_ticker", "ticking/single_interval_ticker", "ticking/years_ticker", "tool/box_select_tool", "tool/box_zoom_tool", "tool/crosshair_tool", "tool/data_range_box_select_tool", "tool/embed_tool", "tool/hover_tool", "tool/pan_tool", "tool/preview_save_tool", "tool/reset_tool", "tool/resize_tool", "tool/wheel_zoom_tool", "tool/object_explorer_tool", "widget/data_slider", "widget/pandas/ipython_remote_data", "widget/pandas/pandas_pivot_table", "widget/pandas/pandas_plot_source", 'widget/paragraph', 'widget/hbox', 'widget/vbox', 'widget/textinput', 'widget/vboxmodelform', 'widget/pretext', 'widget/selectbox', 'widget/slider'], function(_, require) {
     var Collections, Config, collection_overrides, locations, mod_cache;
     require("common/custom").monkey_patch();
     Config = {
@@ -40052,9 +37505,7 @@ define('widget/multiselecttemplate',[],function(){
       TextInput: 'widget/textinput',
       PreText: 'widget/pretext',
       Select: 'widget/selectbox',
-      Slider: 'widget/slider',
-      CrossFilter: 'widget/crossfilter',
-      MultiSelect: 'widget/multiselect'
+      Slider: 'widget/slider'
     };
     mod_cache = {};
     collection_overrides = {};
@@ -40838,7 +38289,7 @@ define('widget/multiselecttemplate',[],function(){
 //@ sourceMappingURL=socket.js.map
 */;
 (function() {
-  define('server/serverutils',["common/base", "server/serverutils", "common/socket", "common/load_models", "backbone", "common/has_properties"], function(base, serverutils, socket, load_models, Backbone, HasProperties) {
+  define('server/serverutils',["common/base", "server/serverutils", "common/socket", "common/load_models"], function(base, serverutils, socket, load_models) {
     var Deferreds, Promises, WebSocketWrapper, exports, submodels, utility;
     Deferreds = {};
     Promises = {};
@@ -40857,10 +38308,6 @@ define('widget/multiselecttemplate',[],function(){
     utility = {
       load_one_object_chain: function(docid, objid) {
         var Config, resp, url;
-        if (exports.wswrapper == null) {
-          utility.make_websocket();
-          HasProperties.prototype.sync = Backbone.sync;
-        }
         Config = require("common/base").Config;
         url = "" + Config.prefix + "/bokeh/objinfo/" + docid + "/" + objid;
         console.log(url);
@@ -41130,71 +38577,6 @@ define('widget/multiselecttemplate',[],function(){
 
 /*
 //@ sourceMappingURL=embed_core.js.map
-*/;
-(function() {
-  define('server/embed',["jquery", "common/base", "common/load_models", "server/serverutils"], function($, base, load_models, serverutils) {
-    var add_plot, add_plot_server, exports, inject_css, inject_plot;
-    inject_css = function(url) {
-      var link;
-      link = $("<link href='" + url + "' rel='stylesheet' type='text/css'>");
-      return $('body').append(link);
-    };
-    add_plot = function(element, info, all_models) {
-      var model, modelid, modeltype, view;
-      modelid = info['bokehModelid'];
-      load_models(all_models);
-      modeltype = info['bokehModeltype'];
-      model = base.Collections(modeltype).get(modelid);
-      view = new model.default_view({
-        model: model
-      });
-      return _.delay(function() {
-        return $(element).replaceWith(view.$el);
-      });
-    };
-    add_plot_server = function(element, info) {
-      var resp;
-      resp = serverutils.utility.load_one_object_chain(info["bokehDocid"], info["bokehModelid"]);
-      return resp.done(function(data) {
-        var model, view;
-        model = base.Collections(info["bokehModeltype"]).get(info["bokehModelid"]);
-        view = new model.default_view({
-          model: model
-        });
-        return _.delay(function() {
-          return $(element).replaceWith(view.$el);
-        });
-      });
-    };
-    inject_plot = function(element_id, all_models) {
-      var container, info, script;
-      script = $("#" + element_id);
-      info = script.data();
-      base.Config.ws_conn_string = info['bokehConnString'];
-      base.Config.prefix = info['bokehRootUrl'];
-      container = $('<div>', {
-        "class": 'bokeh-container'
-      });
-      container.insertBefore(script);
-      if (info.bokehData === "static") {
-        return add_plot(container, info, all_models);
-      } else if (info.bokehData === "server") {
-        return add_plot_server(container, info);
-      }
-    };
-    exports = {
-      inject_plot: inject_plot,
-      add_plot_server: add_plot_server,
-      add_plot: add_plot,
-      inject_css: inject_css
-    };
-    return exports;
-  });
-
-}).call(this);
-
-/*
-//@ sourceMappingURL=embed.js.map
 */;
 define('server/usercontext/userdocstemplate',[],function(){
   var template = function(__obj) {
@@ -41598,41 +38980,23 @@ define('server/usercontext/wrappertemplate',[],function(){
 */;
 (function() {
   define('server/serverrun',["common/base", "./serverutils", "./usercontext/usercontext", "common/has_properties"], function(base, serverutils, usercontext, HasProperties) {
-    var Config, Promises, load, load_one_object, reload, _render, _render_all, _render_one;
+    var Config, Promises, load, load_one_object, _render, _render_all, _render_one;
     Config = base.Config;
     Promises = serverutils.Promises;
     Config.ws_conn_string = "ws://" + window.location.host + "/bokeh/sub";
-    reload = function() {
-      var ping_url;
-      Config = require("common/base").Config;
-      ping_url = "" + Config.prefix + "/bokeh/ping";
-      $.get(ping_url).success(function() {
-        console.log('reloading');
-        return window.location.reload();
-      }).fail(_.delay((function() {
-        return reload();
-      }), 1000));
-      return null;
-    };
     load_one_object = function(docid, objid) {
       HasProperties.prototype.sync = Backbone.sync;
       return $(function() {
         var resp, wswrapper;
         wswrapper = serverutils.utility.make_websocket();
         resp = serverutils.utility.load_one_object_chain(docid, objid);
-        resp.done(function(data) {
+        return resp.done(function(data) {
           var model, view;
           model = base.Collections(data.type).get(objid);
           view = new model.default_view({
             model: model
           });
           return _render(view.el);
-        });
-        wswrapper.subscribe("debug:debug", "");
-        return wswrapper.on('msg:debug:debug', function(msg) {
-          if (msg === 'reload') {
-            return reload();
-          }
         });
       });
     };
@@ -41645,18 +39009,11 @@ define('server/usercontext/wrappertemplate',[],function(){
         userdocs.subscribe(wswrapper, 'defaultuser');
         window.userdocs = userdocs;
         load = userdocs.fetch();
-        load.done(function() {
+        return load.done(function() {
           if (title != null) {
             return _render_one(userdocs, title);
           } else {
             return _render_all(userdocs);
-          }
-        });
-        console.log('subscribing to debug');
-        wswrapper.subscribe("debug:debug", "");
-        return wswrapper.on('msg:debug:debug', function(msg) {
-          if (msg === 'reload') {
-            return reload();
           }
         });
       });
@@ -41704,14 +39061,13 @@ define('server/usercontext/wrappertemplate',[],function(){
 //@ sourceMappingURL=serverrun.js.map
 */;
 (function() {
-  define('main',['require','exports','module','backbone','underscore','common/base','common/base','common/gmap_plot','common/grid_plot','common/has_parent','common/has_properties','common/plot','common/plotting','common/affine','common/build_views','common/bulk_save','common/continuum_view','common/grid_view_state','common/load_models','common/plot_context','common/plot_widget','common/png_view','common/random','common/safebind','common/svg_colors','common/view_state','mapper/1d/linear_mapper','mapper/1d/categorical_mapper','mapper/2d/grid_mapper','mapper/color/linear_color_mapper','palettes/palettes','renderer/annotation/legend','renderer/glyph/glyph','renderer/glyph/glyph_factory','renderer/guide/categorical_axis','renderer/guide/datetime_axis','renderer/guide/grid','renderer/guide/linear_axis','renderer/overlay/box_selection','renderer/properties','server/embed_core','server/embed','server/serverrun','server/serverutils','source/column_data_source','ticking/abstract_ticker','ticking/adaptive_ticker','ticking/basic_ticker','ticking/basic_tick_formatter','ticking/categorical_ticker','ticking/categorical_tick_formatter','ticking/composite_ticker','ticking/datetime_ticker','ticking/datetime_tick_formatter','ticking/days_ticker','ticking/months_ticker','ticking/single_interval_ticker','ticking/years_ticker','tool/box_select_tool','tool/box_zoom_tool','tool/crosshair_tool','tool/data_range_box_select_tool','tool/embed_tool','tool/hover_tool','tool/pan_tool','tool/preview_save_tool','tool/reset_tool','tool/resize_tool','tool/wheel_zoom_tool','tool/object_explorer_tool','server/serverrun','server/serverrun','widget/data_slider','widget/hbox','widget/vbox','widget/vboxmodelform','widget/textinput','widget/crossfilter','util/object_explorer'],function(require, exports, module) {
+  define('main',['require','exports','module','backbone','underscore','common/base','common/base','common/gmap_plot','common/grid_plot','common/has_parent','common/has_properties','common/plot','common/plotting','common/affine','common/build_views','common/bulk_save','common/continuum_view','common/grid_view_state','common/load_models','common/plot_context','common/plot_widget','common/png_view','common/random','common/safebind','common/svg_colors','common/view_state','mapper/1d/linear_mapper','mapper/1d/categorical_mapper','mapper/2d/grid_mapper','mapper/color/linear_color_mapper','palettes/palettes','renderer/annotation/legend','renderer/glyph/glyph','renderer/glyph/glyph_factory','renderer/guide/categorical_axis','renderer/guide/datetime_axis','renderer/guide/grid','renderer/guide/linear_axis','renderer/overlay/box_selection','renderer/properties','server/embed_core','server/serverrun','server/serverutils','source/column_data_source','ticking/abstract_ticker','ticking/adaptive_ticker','ticking/basic_ticker','ticking/basic_tick_formatter','ticking/categorical_ticker','ticking/categorical_tick_formatter','ticking/composite_ticker','ticking/datetime_ticker','ticking/datetime_tick_formatter','ticking/days_ticker','ticking/months_ticker','ticking/single_interval_ticker','ticking/years_ticker','tool/box_select_tool','tool/box_zoom_tool','tool/crosshair_tool','tool/data_range_box_select_tool','tool/embed_tool','tool/hover_tool','tool/pan_tool','tool/preview_save_tool','tool/reset_tool','tool/resize_tool','tool/wheel_zoom_tool','tool/object_explorer_tool','server/serverrun','server/serverrun','widget/data_slider','widget/hbox','widget/vbox','widget/vboxmodelform','widget/textinput','util/object_explorer'],function(require, exports, module) {
     var Bokeh, glyph_factory;
     if (!window.Float64Array) {
       console.warn("Float64Array is not supported. Using generic Array instead.");
       window.Float64Array = Array;
     }
     Bokeh = {};
-    Bokeh.require = require;
     Bokeh.version = '0.4.4';
     Bokeh.Backbone = require("backbone");
     Bokeh._ = require("underscore");
@@ -41757,7 +39113,7 @@ define('server/usercontext/wrappertemplate',[],function(){
     Bokeh.DiamondCross = glyph_factory.diamond_cross;
     Bokeh.Image = glyph_factory.image;
     Bokeh.ImageRGBA = glyph_factory.image_rgba;
-    Bokeh.ImageURL = glyph_factory.image_url;
+    Bokeh.ImageURI = glyph_factory.image_uri;
     Bokeh.InvertedTriangle = glyph_factory.inverted_triangle;
     Bokeh.Line = glyph_factory.line;
     Bokeh.MultiLine = glyph_factory.multi_line;
@@ -41783,7 +39139,6 @@ define('server/usercontext/wrappertemplate',[],function(){
     Bokeh.BoxSelection = require("renderer/overlay/box_selection");
     Bokeh.Properties = require("renderer/properties");
     Bokeh.embed_core = require("server/embed_core");
-    Bokeh.embed = require("server/embed");
     Bokeh.serverrun = require("server/serverrun");
     Bokeh.serverutils = require("server/serverutils");
     Bokeh.ColumnDataSource = require("source/column_data_source");
@@ -41819,7 +39174,6 @@ define('server/usercontext/wrappertemplate',[],function(){
     Bokeh.VBox = require("widget/vbox");
     Bokeh.VBoxModelForm = require("widget/vboxmodelform");
     Bokeh.TextInput = require("widget/textinput");
-    Bokeh.CrossFilter = require("widget/crossfilter");
     Bokeh.ObjectExplorer = require("util/object_explorer");
     exports.Bokeh = Bokeh;
     return Bokeh;
@@ -41830,7 +39184,6 @@ define('server/usercontext/wrappertemplate',[],function(){
 /*
 //@ sourceMappingURL=main.js.map
 */;
-
   //The modules for your project will be inlined above
   //this snippet. Ask almond to synchronously require the
   //module value for 'main' here and return it as the

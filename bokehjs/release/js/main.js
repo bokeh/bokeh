@@ -6,7 +6,6 @@
       window.Float64Array = Array;
     }
     Bokeh = {};
-    Bokeh.require = require;
     Bokeh.version = '0.4.4';
     Bokeh.Backbone = require("backbone");
     Bokeh._ = require("underscore");
@@ -52,7 +51,7 @@
     Bokeh.DiamondCross = glyph_factory.diamond_cross;
     Bokeh.Image = glyph_factory.image;
     Bokeh.ImageRGBA = glyph_factory.image_rgba;
-    Bokeh.ImageURL = glyph_factory.image_url;
+    Bokeh.ImageURI = glyph_factory.image_uri;
     Bokeh.InvertedTriangle = glyph_factory.inverted_triangle;
     Bokeh.Line = glyph_factory.line;
     Bokeh.MultiLine = glyph_factory.multi_line;
@@ -78,7 +77,6 @@
     Bokeh.BoxSelection = require("renderer/overlay/box_selection");
     Bokeh.Properties = require("renderer/properties");
     Bokeh.embed_core = require("server/embed_core");
-    Bokeh.embed = require("server/embed");
     Bokeh.serverrun = require("server/serverrun");
     Bokeh.serverutils = require("server/serverutils");
     Bokeh.ColumnDataSource = require("source/column_data_source");
@@ -114,7 +112,6 @@
     Bokeh.VBox = require("widget/vbox");
     Bokeh.VBoxModelForm = require("widget/vboxmodelform");
     Bokeh.TextInput = require("widget/textinput");
-    Bokeh.CrossFilter = require("widget/crossfilter");
     Bokeh.ObjectExplorer = require("util/object_explorer");
     exports.Bokeh = Bokeh;
     return Bokeh;
