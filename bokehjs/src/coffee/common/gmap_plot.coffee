@@ -6,7 +6,6 @@ define [
   "./build_views",
   "./safebind",
   "./plot_utils",
-  "./bulk_save",
   "./continuum_view",
   "./has_parent",
   "./view_state",
@@ -14,7 +13,7 @@ define [
   "mapper/2d/grid_mapper",
   "renderer/properties",
   "tool/active_tool_manager",
-], (_, $, Backbone, build_views, safebind, plot_utils, bulk_save, ContinuumView, HasParent, ViewState, LinearMapper, GridMapper, Properties, ActiveToolManager) ->
+], (_, $, Backbone, build_views, safebind, plot_utils, ContinuumView, HasParent, ViewState, LinearMapper, GridMapper, Properties, ActiveToolManager) ->
 
   class GMapPlotView extends ContinuumView.View
 

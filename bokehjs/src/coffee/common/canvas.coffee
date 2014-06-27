@@ -1,10 +1,9 @@
 define [
-  "underscore",
   "backbone",
   "common/continuum_view",
   "common/has_parent",
   "./canvas_template"
-], (_, Backbone, ContinuumView, HasParent, canvas_template) ->
+], (Backbone, ContinuumView, HasParent, canvas_template) ->
 
   class CanvasView extends ContinuumView.View
 

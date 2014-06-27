@@ -2,11 +2,9 @@
 define [
   "underscore",
   "backbone",
-  "require",
   "./build_views",
   "./plot_utils",
   "./safebind",
-  "./bulk_save",
   "./continuum_view",
   "./has_parent",
   "./view_state",
@@ -15,7 +13,7 @@ define [
   "mapper/2d/grid_mapper",
   "renderer/properties",
   "tool/active_tool_manager",
-], (_, Backbone, require, build_views, plot_utils, safebind, bulk_save, ContinuumView, HasParent, ViewState, LinearMapper, CategoricalMapper, GridMapper, Properties, ActiveToolManager) ->
+], (_, Backbone, build_views, plot_utils, safebind, ContinuumView, HasParent, ViewState, LinearMapper, CategoricalMapper, GridMapper, Properties, ActiveToolManager) ->
 
   line_properties = Properties.line_properties
   text_properties = Properties.text_properties
