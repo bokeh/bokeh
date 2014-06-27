@@ -1,6 +1,7 @@
-from bokeh.objects import ColumnDataSource
 import numpy as np
 import pandas as pd
+
+from bokeh.objects import ColumnDataSource
 from ..plotting import rect
 from ..objects import Range1d
 from ..plotting_helpers import _get_select_tool
@@ -12,19 +13,19 @@ def cross(start, facets):
         for n in new:
             result.append(x + n)
     return result
-    
+
 def make_histogram_source(series):
     counts, bins = np.histogram(series, bins=50)
     bin_centers = pd.rolling_mean(bins, 2)[1:]
     #hacky - we need to center the rect around
     #height/2
-    source = ColumnDataSource(data={'counts':counts, 
+    source = ColumnDataSource(data={'counts':counts,
                                     'centery' : counts /2.,
                                     'centers' : bin_centers},
                               column_names = ['counts', 'centers', 'centery']
     )
     return source
-    
+
 def make_continuous_bar_source(df, x_field, y_field, agg):
     labels, edges = pd.cut(df[x_field], 50, retbins=True, labels=False)
     centers = pd.rolling_mean(edges, 2)[1:]
@@ -34,27 +35,27 @@ def make_continuous_bar_source(df, x_field, y_field, agg):
     result = getattr(result, agg)()
     result = result.reset_index()
     result['centery'] = result[y_field] / 2.0
-    
+
     return ColumnDataSource(data=result)
-    
+
 def make_categorical_bar_source(df, x_field, y_field, agg):
     result = df.groupby(x_field)[y_field]
     result = getattr(result, agg)()
     result = result.reset_index()
     result['centery'] = result[y_field] / 2.0
-    
+
     return ColumnDataSource(data=result)
-    
+
 def make_factor_source(series):
     unique_vals = np.unique(series)
-    source = ColumnDataSource(data={'factors':unique_vals}, 
+    source = ColumnDataSource(data={'factors':unique_vals},
                               column_names = ['factors']
                           )
     return source
 
-def make_bar_plot(datasource, counts_name="counts", 
+def make_bar_plot(datasource, counts_name="counts",
                   centery_name='centery',
-                  centers_name="centers", 
+                  centers_name="centers",
                   x_range=None,
                   plot_width=500, plot_height=500,
                   tools=None,
@@ -78,10 +79,10 @@ def make_bar_plot(datasource, counts_name="counts",
     if select_tool:
         select_tool.select_y = False
     return plot
-    
-def make_histogram(datasource, counts_name="counts", 
+
+def make_histogram(datasource, counts_name="counts",
                   centery_name='centery',
-                  centers_name="centers", 
+                  centers_name="centers",
                   x_range=None,
                   plot_width=500, plot_height=500,
                   min_border=40,
@@ -97,15 +98,15 @@ def make_histogram(datasource, counts_name="counts",
                          tools=tools,
                          title_text_font_size=title_text_font_size)
     return plot
-                         
-    
-def bar_plot(datasource, counts_name="counts", 
+
+
+def bar_plot(datasource, counts_name="counts",
              centery_name='centery',
-             centers_name="centers", 
+             centers_name="centers",
              max=None, min=None,
              plot_width=500, plot_height=500,
              min_border=40):
-    
+
     if max is None:
         end = np.max(datasource.data[centers_name])
     if min is None:
@@ -125,4 +126,3 @@ def bar_plot(datasource, counts_name="counts",
     select_tool = _get_select_tool(plot)
     select_tool.select_y = False
     return plot
-    
