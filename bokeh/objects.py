@@ -259,8 +259,9 @@ class Plot(Widget):
             kwargs['canvas'] = Canvas()
         if 'border_symmetry' in kwargs:
             border_symmetry = kwargs.pop('border_symmetry')
-            kwargs.set_default('h_symmetry', 'h' in border_symmetry or 'H' in border_symmetry)
-            kwargs.set_default('v_symmetry', 'v' in border_symmetry or 'V' in border_symmetry)
+            if border_symmetry is None: border_symmetry = ""
+            kwargs.setdefault('h_symmetry', 'h' in border_symmetry or 'H' in border_symmetry)
+            kwargs.setdefault('v_symmetry', 'v' in border_symmetry or 'V' in border_symmetry)
         super(Plot, self).__init__(**kwargs)
 
     data_sources = List(Instance(DataSource))
