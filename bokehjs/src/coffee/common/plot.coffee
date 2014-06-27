@@ -218,12 +218,8 @@ define [
           yr: { start: @y_range.get('start'), end: @y_range.get('end') }
         }
 
-    render: (force) ->
+    render: () ->
       super()
-      #newtime = new Date()
-      # if @last_render
-      #   console.log(newtime - @last_render)
-      # @last_render = newtime
 
       ctx = @canvas_view.ctx
 
@@ -265,13 +261,9 @@ define [
         @view_state.set("requested_border_#{k}", v)
       @is_paused = false
 
-      ctx.fillStyle = @mget('border_fill')
-      ctx.fillRect(0, 0,  @canvas_view.mget('canvas_width'), @canvas_view.mget('canvas_height')) # TODO
-      ctx.fillStyle = @mget('background_fill')
-      ctx.fillRect(
-        @view_state.get('border_left'), @view_state.get('border_top'),
-        @view_state.get('inner_width'), @view_state.get('inner_height'),
-      )
+      @_map_hook()
+
+      @_paint_empty(ctx)
 
       if @outline_props.do_stroke
         @outline_props.set(ctx, {})
@@ -313,6 +305,17 @@ define [
         @title_props.set(ctx, {})
         ctx.fillText(title, sx, sy)
 
+    _map_hook: () ->
+
+    _paint_empty: (ctx) ->
+      ctx.fillStyle = @mget('border_fill')
+      ctx.fillRect(0, 0,  @canvas_view.mget('canvas_width'), @canvas_view.mget('canvas_height')) # TODO
+      ctx.fillStyle = @mget('background_fill')
+      ctx.fillRect(
+        @view_state.get('border_left'), @view_state.get('border_top'),
+        @view_state.get('inner_width'), @view_state.get('inner_height'),
+      )
+
     render_overlays: (have_new_mapper_state) ->
       for level in ['overlay', 'annotation', 'tool']
         renderers = @levels[level]
@@ -331,8 +334,6 @@ define [
     parent_properties: [
       'background_fill',
       'border_fill',
-      'outer_width',
-      'outer_height',
       'min_border',
       'min_border_top',
       'min_border_bottom'
