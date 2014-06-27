@@ -14,7 +14,7 @@ from . import _glyph_functions
 from .properties import (HasProps, Dict, Enum, Either, Float, Instance, Int,
     List, String, Color, Include, Bool, Tuple, Any)
 from .mixins import LineProps, TextProps
-from .enums import BorderSymmetry, DatetimeUnits, Dimension, Location, Orientation, Units
+from .enums import DatetimeUnits, Dimension, Location, Orientation, Units
 from .plot_object import PlotObject
 from .glyphs import BaseGlyph
 
@@ -257,6 +257,10 @@ class Plot(Widget):
     def __init__(self, **kwargs):
         if 'canvas' not in kwargs:
             kwargs['canvas'] = Canvas()
+        if 'border_symmetry' in kwargs:
+            border_symmetry = kwargs.pop('border_symmetry')
+            kwargs.set_default('h_symmetry', 'h' in border_symmetry or 'H' in border_symmetry)
+            kwargs.set_default('v_symmetry', 'v' in border_symmetry or 'V' in border_symmetry)
         super(Plot, self).__init__(**kwargs)
 
     data_sources = List(Instance(DataSource))
@@ -298,7 +302,9 @@ class Plot(Widget):
     min_border_left = Int(50)
     min_border_right = Int(50)
     min_border = Int(50)
-    border_symmetry = Enum(BorderSymmetry)
+
+    h_symmetry = Bool(True)
+    v_symmetry = Bool(False)
 
     annular_wedge     = _glyph_functions.annular_wedge
     annulus           = _glyph_functions.annulus
@@ -343,7 +349,7 @@ class GMapPlot(Plot):
         if 'canvas' not in kwargs:
             kwargs['canvas'] = Canvas()
         kwargs['canvas'].map = True
-        super(Plot, self).__init__(**kwargs)
+        super(GMapPlot, self).__init__(**kwargs)
 
     map_options = Instance(MapOptions)
 
