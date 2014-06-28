@@ -50,7 +50,7 @@ define [
       html = @template(template_data)
       @$el.html(html)
 
-      @button_bar?.attr('style', "width:#{@canvas.get('canvas_width')}px;")
+      @button_bar?.attr('style', "width:#{@canvas.get('width')}px;")
 
       @$el.append(@canvas_view.$el)
       @canvas_view.render()
@@ -61,10 +61,10 @@ define [
       @title_props = new text_properties(@, {}, 'title_')
 
       @view_state = new ViewState({
-        canvas_width:      @canvas.get('canvas_width')
-        canvas_height:     @canvas.get('canvas_height')
-        outer_width:       @canvas.get('canvas_width')
-        outer_height:      @canvas.get('canvas_height')
+        canvas_width:      @canvas.get('width')
+        canvas_height:     @canvas.get('height')
+        outer_width:       @canvas.get('width')
+        outer_height:      @canvas.get('height')
         x_offset:          0
         y_offset:          0
         min_border_top:    (options.min_border_top    ? @mget('min_border_top'))    ? @mget('min_border')
@@ -320,7 +320,7 @@ define [
 
     _paint_empty: (ctx) ->
       ctx.fillStyle = @mget('border_fill')
-      ctx.fillRect(0, 0,  @canvas_view.mget('canvas_width'), @canvas_view.mget('canvas_height')) # TODO
+      ctx.fillRect(0, 0,  @canvas.get('width'), @canvas.get('height')) # TODO
       ctx.fillStyle = @mget('background_fill')
       ctx.fillRect(
         @view_state.get('border_left'), @view_state.get('border_top'),
