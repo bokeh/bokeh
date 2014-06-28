@@ -5,7 +5,7 @@ define [
 ], (Backbone, HasProperties) ->
 
 
-  class LinearMapper extends HasProperties
+  class LogMapper extends HasProperties
     initialize: (attrs, options) ->
       super(attrs, options)
 
@@ -19,10 +19,40 @@ define [
       return scale * x + offset
 
     v_map_to_target: (xs) ->
-      [scale, offset] = @get('mapper_state')
+      [scale, offset, inter_scale, inter_offset] = @get('mapper_state')
+      
+      intermediate = new Float64Array(xs.length)
       result = new Float64Array(xs.length)
+
+      if inter_scale == 0
+        intermediate = xs.map (i) -> i * 0
+      else
+          
+        try
+          mask1 = xs.map (i) -> i <= 0
+          mask2 = xs.map (i) -> isNaN(i)
+
+          mask = (mask1[i] | mask2[i] for i in [0...xs.length])
+
+          mask = mask.reduce (x, y) -> x || y
+          
+          if mask == 1
+            xs[mask] = 1
+
+          intermediate = xs.map (i) -> (Math.log(i) - inter_offset) / inter_scale
+          
+          for x, idx in intermediate
+            if isNaN(intermediate[idx])
+              throw "NaN"
+            if isFinite(intermediate[idx]) == False
+              throw "Infinite"
+
+        catch error
+          intermediate = xs.map (i) -> i * 0
+
       for x, idx in xs
-        result[idx] = scale * x + offset
+        result[idx] = intermediate[idx] * scale + offset
+      
       return result
 
     map_from_target: (xprime) ->
@@ -36,6 +66,32 @@ define [
         result[idx] = (xprime - offset) / scale
       return result
 
+    _get_safe_scale: (orig_start, orig_end) ->
+      if orig_start < 0
+        start = 0
+      else
+        start = orig_start
+
+      if orig_end < 0
+        end = 0
+      else
+        end = orig_end
+
+      if start == end
+        if start == 0
+          start = 1
+          end = 10
+        else
+          log_val = Math.log(start) / Math.log(10)
+          start = Math.pow(10, Math.floor(log_val))
+
+          if Math.ceil(log_val) != Math.floor(log_val)
+            end = Math.pow(10, Math.ceil(log_val))
+          else
+            end = Math.pow(10, Math.ceil(log_val) + 1)
+
+      return [start, end]
+
     _mapper_state: () ->
       #
       #  (t1 - t0)       (t1 - t0)
@@ -48,14 +104,30 @@ define [
       source_end   = @get('source_range').get('end')
       target_start = @get('target_range').get('start')
       target_end   = @get('target_range').get('end')
-      scale = (target_end - target_start)/(source_end - source_start)
-      offset = -(scale * source_start) + target_start
-      return [scale, offset]
 
-  class LinearMappers extends Backbone.Collection
-    model: LinearMapper
+      #scale = (target_end - target_start)/(source_end - source_start)
+      #offset = -(scale * source_start) + target_start
+      
+      screen_range = target_start - target_end
+
+      [start, end] = @_get_safe_scale(source_start, source_end)
+      
+      if start == 0
+        inter_scale = Math.log(end)
+        inter_offset = 0
+      else
+        inter_scale = Math.log(end) - Math.log(start)
+        inter_offset = Math.log(start)
+
+      scale = screen_range
+      offset = target_start
+      return [scale, offset, inter_scale, inter_offset]
+
+
+  class LogMappers extends Backbone.Collection
+    model: LogMapper
 
   return {
-    "Model": LinearMapper,
-    "Collection": new LinearMappers()
+    "Model": LogMapper,
+    "Collection": new LogMappers()
   }
