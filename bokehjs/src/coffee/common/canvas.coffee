@@ -1,9 +1,14 @@
 define [
   "backbone",
-  "common/continuum_view",
-  "common/has_parent",
+  "kiwi",
   "./canvas_template"
-], (Backbone, ContinuumView, HasParent, canvas_template) ->
+  "./continuum_view",
+  "./panel"
+], (Backbone, kiwi, canvas_template, ContinuumView, Panel) ->
+
+  Expr = kiwi.Expression
+  Constraint = kiwi.Constraint
+  EQ = kiwi.Operator.Eq
 
   class CanvasView extends ContinuumView.View
 
@@ -42,8 +47,8 @@ define [
       else
         ratio = 1
 
-      width = @mget('canvas_width')
-      height = @mget('canvas_height')
+      width = @mget('width')
+      height = @mget('height')
 
       @canvas.width = width * @dpi_ratio
       @canvas.height = height * @dpi_ratio
@@ -107,9 +112,44 @@ define [
       for f in @mget('mousemove_callbacks')
         f(e, e.layerX, e.layerY)
 
-  class Canvas extends HasParent
+  class Canvas extends Panel.Model
     type: 'Canvas'
     default_view: CanvasView
+
+    initialize: (attr, options) ->
+      super(attr, options)
+
+      solver = @get('solver')
+      solver.addConstraint(new Constraint(new Expr(@_left), EQ))
+      solver.addConstraint(new Constraint(new Expr(@_bottom), EQ))
+
+      # @register_setter('width', @_set_width)
+      # @register_setter('height', @_set_height)
+      #@register_setter('dimensions', @_set_dims)
+
+      @_set_dims([@get('canvas_width'), @get('canvas_height')])
+
+    _set_width: (width, update=true) ->
+      solver = @get('solver')
+      solver.removeConstraint(@_width_constraint)
+      @_width_constraint = new Constraint(new Expr(@_right, [-1, width]), EQ)
+      solver.addConstraint(@_width_constraint, EQ)
+      if update
+        solver.updateVariables()
+
+    _set_height: (height, update=true) ->
+      solver = @get('solver')
+      solver.removeConstraint(@_height_constraint)
+      @_height_constraint = new Constraint(new Expr(@_right, [-1, height]), EQ)
+      solver.addConstraint(@_height_constraint, EQ)
+      if update
+        solver.updateVariables()
+
+    _set_dims: (dims) ->
+      solver = @get('solver')
+      @set('width', dims[0])
+      @set('height', dims[1])
+      solver.updateVariables()
 
     defaults: () ->
       return {
@@ -118,6 +158,7 @@ define [
         map: false
         mousedown_callbacks: []
         mousemove_callbacks: []
+        solver: new kiwi.Solver()
         use_hidpi: true
       }
 
