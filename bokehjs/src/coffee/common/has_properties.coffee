@@ -6,6 +6,7 @@ define [
   "./base"
   "./safebind",
 ], (_, Backbone, require, base, safebind) ->
+
   class HasProperties extends Backbone.Model
     # Our property system
     # we support python style computed properties, with getters

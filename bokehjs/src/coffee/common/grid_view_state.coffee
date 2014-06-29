@@ -1,11 +1,12 @@
 
 define [
   "underscore",
+  "./has_properties",
   "./safebind",
-  "./view_state",
-], (_, safebind, ViewState) ->
+], (_, HasProperties, safebind) ->
 
-  class GridViewState extends ViewState
+  class GridViewState extends HasProperties
+
     setup_layout_properties: () =>
       @register_property('layout_heights', @layout_heights, true)
       @register_property('layout_widths', @layout_widths, true)
