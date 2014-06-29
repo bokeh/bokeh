@@ -11,8 +11,8 @@ define [
       @register_property('layout_widths', @layout_widths, true)
       for row in @get('childviewstates')
         for viewstate in row
-          @add_dependencies('layout_heights', viewstate, 'outer_height')
-          @add_dependencies('layout_widths', viewstate, 'outer_width')
+          @add_dependencies('layout_heights', viewstate, 'height')
+          @add_dependencies('layout_widths', viewstate, 'width')
 
     initialize: (attrs, options) ->
       super(attrs, options)
@@ -40,13 +40,13 @@ define [
         return _.max(_.map(row, ((x) -> return x.get(dim))))
 
     layout_heights: () =>
-      row_heights = (@maxdim('outer_height',row) for row in @get('childviewstates'))
+      row_heights = (@maxdim('height',row) for row in @get('childviewstates'))
       return row_heights
 
     layout_widths: () =>
       num_cols = @get('childviewstates')[0].length
       columns = ((row[n] for row in @get('childviewstates')) for n in _.range(num_cols))
-      col_widths = (@maxdim('outer_width', col) for col in columns)
+      col_widths = (@maxdim('width', col) for col in columns)
       return col_widths
 
     defaults: () ->

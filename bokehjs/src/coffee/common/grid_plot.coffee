@@ -19,7 +19,7 @@ define [
     set_child_view_states: () ->
       viewstates = []
       for row in @mget('children')
-        viewstaterow = (@childviews[x.id].view_state for x in row)
+        viewstaterow = (@childviews[x.id].canvas for x in row)
         viewstates.push(viewstaterow)
       @viewstate.set('childviewstates', viewstates)
 
@@ -140,9 +140,9 @@ define [
         for plotspec, cidx in row
           view = @childviews[plotspec.id]
           ypos = @viewstate.position_child_y(y_coords[ridx],
-            view.view_state.get('outer_height') -  @toolbar_height)
+            view.canvas.get('height') -  @toolbar_height)
 
-          xpos = @viewstate.position_child_x(x_coords[cidx], view.view_state.get('outer_width'))
+          xpos = @viewstate.position_child_x(x_coords[cidx], view.canvas.get('width'))
           plot_wrapper = $("<div class='gp_plotwrapper'></div>")
           plot_wrapper.attr(
             'style',
@@ -152,7 +152,6 @@ define [
 
       add = (a,b) -> a+b
       total_height = _.reduce(row_heights, add, 0)
-      #height = @viewstate.get('outerheight', total_height)
       height = total_height + @toolbar_height
       width = @viewstate.get('outerwidth')
       @$el.attr('style', "position:relative; height:#{height}px;width:#{width}px")
