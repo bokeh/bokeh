@@ -99,12 +99,12 @@ define [
     _get_mappers: (ranges, frame_range) ->
       mappers = {}
       for name, range of ranges
-        if range.type == "Range1D" or range.type == "DataRange1d"
+        if range.type == "Range1d" or range.type == "DataRange1d"
           mapper_type = LinearMapper.Model
         else if range.type == "FactorRange"
           mapper_type = CategoricalMapper.Model
         else
-          console.log "Unknown range type: '#{name}':#{range}"
+          console.log "Unknown range type for range '#{name}': #{range}"
           return null
         mappers[name] = new mapper_type({
           source_range: range

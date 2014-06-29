@@ -46,10 +46,10 @@ define [
     bind_bokeh_events: () ->
       super()
 
-      iw = @view_state.get('inner_width')
-      ih = @view_state.get('inner_height')
-      top = @view_state.get('border_top')
-      left = @view_state.get('border_left')
+      iw = @frame.get('width')
+      ih = @frame.get('height')
+      top = @frame.get('bottom')  # TODO (bev) view/screen
+      left = @frame.get('left')
 
       @canvas_view.map_div.attr("style", "top: #{top}px; left: #{left}px; position: absolute")
       @canvas_view.map_div.attr('style', "width:#{iw}px;")
@@ -70,7 +70,7 @@ define [
         google.maps.event.addListener(@map, 'bounds_changed', @bounds_change)
 
       if window.google? and window.google.maps?
-        _.defer(@build_map)
+        _.defer(build_map)
       else
         window['_bokeh_first_gmap_load'] = build_map
         script = document.createElement('script');
@@ -78,6 +78,7 @@ define [
         script.src = 'https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&callback=_bokeh_first_gmap_load';
         document.body.appendChild(script);
 
+    # used as callback, need fat arrow
     bounds_change: () =>
       bds = @map.getBounds()
       ne = bds.getNorthEast()
@@ -91,21 +92,21 @@ define [
         }
 
     _map_hook: () ->
-      iw = @view_state.get('inner_width')
-      ih = @view_state.get('inner_height')
-      top = @view_state.get('border_top')
-      left = @view_state.get('border_left')
+      iw = @frame.get('width')
+      ih = @frame.get('height')
+      top = @frame.get('bottom')  # TODO (bev) view/screen
+      left = @frame.get('left')
 
       @canvas_view.map_div.attr("style", "top: #{top}px; left: #{left}px;")
       @canvas_view.map_div.width("#{iw}px").height("#{ih}px")
 
     _paint_empty: (ctx) ->
-      ow = @view_state.get('outer_width')
-      oh = @view_state.get('outer_height')
-      iw = @view_state.get('inner_width')
-      ih = @view_state.get('inner_height')
-      top = @view_state.get('border_top')
-      left = @view_state.get('border_left')
+      ow = @canvas.get('width')
+      oh = @canvas.get('height')
+      iw = @frame.get('width')
+      ih = @frame.get('height')
+      top = @frame.get('bottom')  # TODO (bev) view/screen
+      left = @frame.get('left')
 
       ctx.clearRect(0, 0, ow, oh)
 
