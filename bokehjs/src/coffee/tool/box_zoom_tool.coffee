@@ -21,6 +21,7 @@ define [
     evgen_options:
       keyName: "ctrlKey"
       buttonText: "Box Zoom"
+      buttonIcon: "<span class='bk-bs-btn-box-zoom'/>"
       cursor: "crosshair"
       auto_deactivate: true
       restrict_to_innercanvas: true

@@ -277,17 +277,27 @@ define [
     render_init: () ->
       # TODO use template
       @$el.append($("""
-        <div class='button_bar bk-bs-btn-group pull-top'/>
         <div class='plotarea'>
-        <div class='bokeh_canvas_wrapper'>
-          <canvas class='bokeh_canvas'></canvas>
+          <div class='bokeh_canvas_wrapper'>
+            <canvas class='bokeh_canvas'></canvas>
+          </div>
+          <div class='sidebar'>
+            <div class='button_bar bk-bs-btn-group pull-top'/>
+          </div>
+          
         </div>
-        </div>
+        <div class='bottombar'>
+            <a href='http://bokeh.pydata.org/' class='logo'>
+              <div class='logo-img'/>
+            </a>
+            <!--button type='button' id='lila'>Hide nav</button--> 
+          </div>
+          
         """))
-      @button_bar = @$el.find('.button_bar')
       @canvas_wrapper = @$el.find('.bokeh_canvas_wrapper')
       @canvas = @$el.find('canvas.bokeh_canvas')
-
+      @button_bar = @$el.find('.button_bar')
+      
     render_canvas: (full_render=true) ->
       @ctx = @canvas[0].getContext('2d')
 

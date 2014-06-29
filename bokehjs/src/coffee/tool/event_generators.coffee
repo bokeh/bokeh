@@ -75,6 +75,8 @@ define [], () ->
           @_stop_drag(e))
 
       @plotview.canvas_wrapper.bind 'mousedown', (e) =>
+        console.log("mouse down?")
+        console.log("Tool Type: "+@options.buttonText)
         start = false
 
         if @button_activated or @eventSink.active == @toolName
@@ -98,7 +100,7 @@ define [], () ->
           @_stop_drag(e)
           return false)
 
-      @$tool_button = $("<button class='bk-bs-btn bk-bs-btn-default bk-bs-btn-sm'> #{@options.buttonText} </button>")
+      @$tool_button = $("<button class='bk-bs-btn bk-bs-btn-default bk-bs-btn-sm' title='#{@options.buttonText}'>#{@options.buttonIcon}  </button>")
       @plotview
       @plotview.$el.find('.button_bar').append(@$tool_button)
 
@@ -183,7 +185,7 @@ define [], () ->
 
       # @mouseover_count = 0
       #waiting 500 ms and testing mouseover countmakes sure that
-      # #mouseouts that occur because of going over element borders don't
+      # #mouseouts that occur because of going over element borders don`t
       # #trigger the mouseout
       # @plotview.$el.bind("mouseout", (e) =>
       #   @mouseover_count -=1
@@ -197,7 +199,7 @@ define [], () ->
       @plotview.$el.bind("mouseover", (e) =>
         @mouseover_count += 1)
 
-      @$tool_button = $("<button class='bk-bs-btn bk-bs-btn-default bk-bs-btn-sm'> #{@options.buttonText} </button>")
+      @$tool_button = $("<button class='bk-bs-btn bk-bs-btn-default bk-bs-btn-sm' title='#{@options.buttonText}'>#{@options.buttonIcon}  </button>")
       @plotview.$el.find('.button_bar').append(@$tool_button)
 
       @$tool_button.click(=>
@@ -255,7 +257,7 @@ define [], () ->
 
       # @mouseover_count = 0
       # #waiting 500 ms and testing mouseover countmakes sure that
-      # #mouseouts that occur because of going over element borders don't
+      # #mouseouts that occur because of going over element borders don`t
       # #trigger the mouseout
       # @plotview.$el.bind("mouseout", (e) =>
       #   @mouseover_count -=1
@@ -266,7 +268,7 @@ define [], () ->
       @plotview.$el.bind("mouseover", (e) =>
         @mouseover_count += 1)
 
-      @$tool_button = $("<button class='bk-bs-btn bk-bs-btn-default bk-bs-btn-sm'> #{@options.buttonText} </button>")
+      @$tool_button = $("<button class='bk-bs-btn bk-bs-btn-default bk-bs-btn-sm' title='#{@options.buttonText}'>#{@options.buttonIcon}  </button>")
 
       @plotview.$el.find('.button_bar').append(@$tool_button)
 

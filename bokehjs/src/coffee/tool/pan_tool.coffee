@@ -38,6 +38,7 @@ define [
     evgen_options:
       keyName: null
       buttonText: "Pan"
+      buttonIcon: "<span class='bk-bs-btn-pan'/>"
       cursor: "move"
       auto_deactivate: true
       restrict_to_innercanvas: true

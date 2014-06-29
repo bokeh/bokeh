@@ -27,6 +27,7 @@ define [
     evgen_options:
       keyName: "shiftKey"
       buttonText: "Select"
+      buttonIcon: "<span class='bk-bs-btn-box-select'/>"
       cursor: "crosshair"
       restrict_to_innercanvas: true
 

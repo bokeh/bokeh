@@ -11,7 +11,7 @@ define [
   class ResizeToolView extends Tool.View
     initialize: (options) ->
       super(options)
-      @active = false
+      @active = false 
 
     bind_events: (plotview) ->
       super(plotview)
@@ -22,6 +22,7 @@ define [
     evgen_options:
       keyName: ""
       buttonText: "Resize"
+      buttonIcon: "<span class='bk-bs-btn-resize'/>"
       cursor: "move"
 
     tool_events:
@@ -43,7 +44,7 @@ define [
 
       ctx.save()
 
-      ctx.strokeStyle = 'grey'
+      ctx.strokeStyle = 'transparent'
       ctx.globalAlpha = 0.7
       ctx.lineWidth   = line_width
       ctx.setLineDash([])
@@ -66,15 +67,14 @@ define [
         return
       @active = true
       @popup = $(
-        '''<div class="resize_popup pull-right"
-          style="border-radius: 10px; background-color: lightgrey; padding:3px 8px; font-size: 14px;
-          position:absolute; right:20px; top: 20px; "></div>''')
+        '''<div class="resize_bokeh_plot pull-right"></div>''')
       bbar = @plot_view.$el.find('.bokeh_canvas_wrapper')
+      plotarea = @plot_view.$el.find('.plotarea')
+      popupHtml = @plot_view.$el.find('.resize_popup')
       @popup.appendTo(bbar)
       ch = @plot_view.view_state.get('outer_height')
       cw = @plot_view.view_state.get('outer_width')
-      @popup.text("width: #{cw} height: #{ch}")
-
+      
       @request_render()
       @plot_view.request_render()
       return null
@@ -101,7 +101,7 @@ define [
       ch = @plot_view.view_state.get('outer_height')
       cw = @plot_view.view_state.get('outer_width')
 
-      @popup.text("width: #{cw} height: #{ch}")
+      #@popup.text("width: #{cw} height: #{ch}")
 
       @plot_view.view_state.set('outer_height', ch+ydiff, {'silent': true})
       @plot_view.view_state.set('outer_width', cw+xdiff, {'silent': true})
