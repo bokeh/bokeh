@@ -2,22 +2,27 @@
 define [
   "underscore",
   "backbone",
+  "kiwi",
   "./build_views",
   "./plot_utils",
   "./safebind",
   "./continuum_view",
   "./has_parent",
-  "./view_state",
+  "./cartesian_frame",
   "./plot_template"
-  "mapper/1d/linear_mapper",
-  "mapper/1d/categorical_mapper",
-  "mapper/2d/grid_mapper",
   "renderer/properties",
   "tool/active_tool_manager",
-], (_, Backbone, build_views, plot_utils, safebind, ContinuumView, HasParent, ViewState, plot_template, LinearMapper, CategoricalMapper, GridMapper, Properties, ActiveToolManager) ->
+], (_, Backbone, kiwi, build_views, plot_utils, safebind, ContinuumView, HasParent, CartesianFrame, plot_template, Properties, ActiveToolManager) ->
 
   line_properties = Properties.line_properties
   text_properties = Properties.text_properties
+
+  Var = kiwi.Variable
+  Expr = kiwi.Expression
+  Constraint = kiwi.Constraint
+  EQ = kiwi.Operator.Eq
+  LE = kiwi.Operator.Le
+  GE = kiwi.Operator.Ge
 
   class PlotView extends ContinuumView.View
     className: "bokeh plotview"
@@ -39,18 +44,23 @@ define [
       return
 
     initialize: (options) ->
-      super(_.defaults(options, @default_options))
+      super(options)
 
       @canvas = @mget_obj('canvas')
       @canvas_view = new @canvas.default_view({'model': @canvas})
+
+      # compat, to be removed
+      @frame = @mget('frame')
+      @x_range = @frame.get('x_ranges')['default']
+      @y_range = @frame.get('y_ranges')['default']
+      @xmapper = @frame.get('x_mappers')['default']
+      @ymapper = @frame.get('y_mappers')['default']
 
       template_data = {
         button_bar: @mget('button_bar')
       }
       html = @template(template_data)
       @$el.html(html)
-
-      @button_bar?.attr('style', "width:#{@canvas.get('width')}px;")
 
       @$el.append(@canvas_view.$el)
       @canvas_view.render()
@@ -59,47 +69,6 @@ define [
 
       @outline_props = new line_properties(@, {}, 'outline_')
       @title_props = new text_properties(@, {}, 'title_')
-
-      @view_state = new ViewState({
-        canvas_width:      @canvas.get('width')
-        canvas_height:     @canvas.get('height')
-        outer_width:       @canvas.get('width')
-        outer_height:      @canvas.get('height')
-        x_offset:          0
-        y_offset:          0
-        min_border_top:    (options.min_border_top    ? @mget('min_border_top'))    ? @mget('min_border')
-        min_border_bottom: (options.min_border_bottom ? @mget('min_border_bottom')) ? @mget('min_border')
-        min_border_left:   (options.min_border_left   ? @mget('min_border_left'))   ? @mget('min_border')
-        min_border_right:  (options.min_border_right  ? @mget('min_border_right'))  ? @mget('min_border')
-        requested_border_top: 0
-        requested_border_bottom: 0
-        requested_border_left: 0
-        requested_border_right: 0
-      })
-
-      @x_range = options.x_range ? @mget_obj('x_range')
-      @y_range = options.y_range ? @mget_obj('y_range')
-
-      xmapper_type = LinearMapper.Model
-      if @x_range.type == "FactorRange"
-        xmapper_type = CategoricalMapper.Model
-      @xmapper = new xmapper_type({
-        source_range: @x_range
-        target_range: @view_state.get('inner_range_horizontal')
-      })
-
-      ymapper_type = LinearMapper.Model
-      if @y_range.type == "FactorRange"
-        ymapper_type = CategoricalMapper.Model
-      @ymapper = new ymapper_type({
-        source_range: @y_range
-        target_range: @view_state.get('inner_range_vertical')
-      })
-
-      @mapper = new GridMapper.Model({
-        domain_mapper: @xmapper
-        codomain_mapper: @ymapper
-      })
 
       @requested_padding = {
         top: 0
@@ -112,8 +81,6 @@ define [
         x: null
         y: null
       }
-
-      @am_rendering = false
 
       @renderers = {}
       @tools = {}
@@ -130,49 +97,10 @@ define [
       return this
 
     map_to_screen: (x, x_units, y, y_units) ->
-      if x_units == 'screen'
-        if _.isArray(x)
-          sx = x[..]
-        else
-          sx = new Float64Array(x.length)
-          sx.set(x)
-      else
-        sx = @xmapper.v_map_to_target(x)
-      if y_units == 'screen'
-        if _.isArray(y)
-          sy = y[..]
-        else
-          sy = new Float64Array(y.length)
-          sy.set(y)
-      else
-        sy = @ymapper.v_map_to_target(y)
-
-      sx = @view_state.v_vx_to_sx(sx)
-      sy = @view_state.v_vy_to_sy(sy)
-
-      return [sx, sy]
+      @frame.map_to_screen(x, x_units, y, y_units, @canvas)
 
     map_from_screen: (sx, sy, units) ->
-      if _.isArray(sx)
-        dx = sx[..]
-      else
-        dx = new Float64Array(sx.length)
-        dx.set(x)
-      if _.isArray(sy)
-        dy = sy[..]
-      else
-        dy = new Float64Array(sy.length)
-        dy.set(y)
-      sx = @view_state.v_sx_to_vx(dx)
-      sy = @view_state.v_sy_to_vy(dy)
-
-      if units == 'screen'
-        x = sx
-        y = sy
-      else
-        [x, y] = @mapper.v_map_from_target(sx, sy)  # TODO: in-place?
-
-      return [x, y]
+      @frame.map_from_screen(sx, sy, units, @canvas)
 
     update_range: (range_info) ->
       if not range_info?
@@ -182,12 +110,6 @@ define [
       @y_range.set(range_info.yr)
       @unpause()
 
-    build_tools: () ->
-      return build_views(@tools, @mget_obj('tools'), @view_options())
-
-    build_views: () ->
-      return build_views(@renderers, @mget_obj('renderers'), @view_options())
-
     build_levels: () ->
       # need to separate renderer/tool creation from event binding
       # because things like box selection overlay needs to bind events
@@ -195,11 +117,11 @@ define [
       #
       # should only bind events on NEW views and tools
       old_renderers = _.keys(@renderers)
-      views = @build_views()
+      views = build_views(@renderers, @mget_obj('renderers'), @view_options())
       renderers_to_remove = _.difference(old_renderers, _.pluck(@mget_obj('renderers'), 'id'))
       for id_ in renderers_to_remove
         delete @levels.glyph[id_]
-      tools = @build_tools()
+      tools = build_views(@tools, @mget_obj('tools'), @view_options())
       for v in views
         level = v.mget('level')
         @levels[level][v.model.id] = v
@@ -267,20 +189,16 @@ define [
         @requested_padding['top'] = vpadding
         @requested_padding['bottom'] = vpadding
 
-      @is_paused = true
-      for k, v of @requested_padding
-        @view_state.set("requested_border_#{k}", v)
-      @is_paused = false
-
       @_map_hook()
 
       @_paint_empty(ctx)
 
+      # use bottom here because frames are in view coords
       if @outline_props.do_stroke
         @outline_props.set(ctx, {})
         ctx.strokeRect(
-          @view_state.get('border_left'), @view_state.get('border_top'),
-          @view_state.get('inner_width'), @view_state.get('inner_height'),
+          @frame.get('left'), @frame.get('bottom'),
+          @frame.get('width'), @frame.get('height'),
         )
 
       have_new_mapper_state = false
@@ -293,10 +211,11 @@ define [
 
       ctx.save()
 
+      # use bottom here because frames are in view coords
       ctx.beginPath()
       ctx.rect(
-        @view_state.get('border_left'), @view_state.get('border_top'),
-        @view_state.get('inner_width'), @view_state.get('inner_height'),
+        @frame.get('left'), @frame.get('bottom'),
+        @frame.get('width'), @frame.get('height'),
       )
       ctx.clip()
       ctx.beginPath()
@@ -311,7 +230,7 @@ define [
       @render_overlays(have_new_mapper_state)
 
       if title
-        sx = @view_state.get('outer_width')/2
+        sx = @canvas.get('canvas_width')/2
         sy = th
         @title_props.set(ctx, {})
         ctx.fillText(title, sx, sy)
@@ -320,11 +239,11 @@ define [
 
     _paint_empty: (ctx) ->
       ctx.fillStyle = @mget('border_fill')
-      ctx.fillRect(0, 0,  @canvas.get('width'), @canvas.get('height')) # TODO
+      ctx.fillRect(0, 0,  @canvas_view.mget('canvas_width'), @canvas_view.mget('canvas_height')) # TODO
       ctx.fillStyle = @mget('background_fill')
       ctx.fillRect(
-        @view_state.get('border_left'), @view_state.get('border_top'),
-        @view_state.get('inner_width'), @view_state.get('inner_height'),
+        @frame.get('border_left'), @frame.get('border_top'),
+        @frame.get('inner_width'), @frame.get('inner_height'),
       )
 
     render_overlays: (have_new_mapper_state) ->
@@ -336,6 +255,31 @@ define [
   class Plot extends HasParent
     type: 'Plot'
     default_view: PlotView
+
+    dinitialize: (attrs, options) ->
+
+      canvas = @get_obj('canvas')
+      solver = canvas.get('solver')
+
+      frame = new CartesianFrame.Model({
+        x_range: @get_obj('x_range'), y_range: @get_obj('y_range'), solver: solver
+      })
+
+      @set('frame', frame)
+
+      min_border_top    = @get('min_border_top')    ? @get('min_border')
+      min_border_bottom = @get('min_border_bottom') ? @get('min_border')
+      min_border_left   = @get('min_border_left')   ? @get('min_border')
+      min_border_right  = @get('min_border_right')  ? @get('min_border')
+
+      solver.addConstraint(new Constraint(new Expr(frame._left, -min_border_left), GE), kiwi.Strength.strong)
+      solver.addConstraint(new Constraint(new Expr(canvas._right, [-1, frame._right], -min_border_right), GE), kiwi.Strength.strong)
+      solver.addConstraint(new Constraint(new Expr(frame._bottom, -min_border_bottom), GE), kiwi.Strength.strong)
+      solver.addConstraint(new Constraint(new Expr(canvas._top, [-1, frame._top], -min_border_top), GE), kiwi.Strength.strong)
+      solver.suggestValue(frame._width, canvas._width)
+      solver.suggestValue(frame._height, canvas._height)
+
+      solver.updateVariables()
 
     add_renderers: (new_renderers) ->
       renderers = @get('renderers')

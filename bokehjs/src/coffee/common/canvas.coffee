@@ -116,39 +116,71 @@ define [
     type: 'Canvas'
     default_view: CanvasView
 
-    initialize: (attr, options) ->
+    dinitialize: (attr, options) ->
       super(attr, options)
 
       solver = @get('solver')
       solver.addConstraint(new Constraint(new Expr(@_left), EQ))
       solver.addConstraint(new Constraint(new Expr(@_bottom), EQ))
 
-      # @register_setter('width', @_set_width)
-      # @register_setter('height', @_set_height)
-      #@register_setter('dimensions', @_set_dims)
-
       @_set_dims([@get('canvas_width'), @get('canvas_height')])
+
+    # transform view coordinates to underlying screen coordinates
+    vx_to_sx: (x) ->
+      return x
+    vy_to_sy: (y) ->
+      return @get('height') - y
+
+    # vectorized versions of vx_to_sx/vy_to_sy, these are mutating, in-place operations
+    v_vx_to_sx: (xx) ->
+      for x, idx in xx
+        xx[idx] = x
+      return xx
+    v_vy_to_sy: (yy) ->
+      canvas_height = @get('height')
+      for y, idx in yy
+        yy[idx] = canvas_height - y
+      return yy
+
+    # transform underlying screen coordinates to view coordinates
+    sx_to_vx: (x) ->
+      return x
+    sy_to_vy: (y) ->
+      return @get('height') - y
+
+    # vectorized versions of sx_to_vx/sy_to_vy, these are mutating, in-place operations
+    v_sx_to_vx: (xx) ->
+      for x, idx in xx
+        xx[idx] = x
+      return xx
+    v_sy_to_vy: (yy) ->
+      canvas_height = @get('height')
+      for y, idx in yy
+        yy[idx] = canvas_height - y
+      return yy
 
     _set_width: (width, update=true) ->
       solver = @get('solver')
-      solver.removeConstraint(@_width_constraint)
-      @_width_constraint = new Constraint(new Expr(@_right, [-1, width]), EQ)
-      solver.addConstraint(@_width_constraint, EQ)
+      if @_width_constraint?
+        solver.removeConstraint(@_width_constraint)
+      @_width_constraint = new Constraint(new Expr(@_right, -width), EQ)
+      solver.addConstraint(@_width_constraint)
       if update
         solver.updateVariables()
 
     _set_height: (height, update=true) ->
       solver = @get('solver')
-      solver.removeConstraint(@_height_constraint)
-      @_height_constraint = new Constraint(new Expr(@_right, [-1, height]), EQ)
-      solver.addConstraint(@_height_constraint, EQ)
+      if @_height_constraint?
+        solver.removeConstraint(@_height_constraint)
+      @_height_constraint = new Constraint(new Expr(@_top, -height), EQ)
+      solver.addConstraint(@_height_constraint)
       if update
         solver.updateVariables()
 
     _set_dims: (dims) ->
       solver = @get('solver')
-      @set('width', dims[0])
-      @set('height', dims[1])
+      @_set_width(dims[0], false)
+      @_set_height(dims[1], false)
       solver.updateVariables()
 
     defaults: () ->

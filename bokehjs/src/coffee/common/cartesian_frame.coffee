@@ -24,14 +24,14 @@ define [
       @add_dependencies('y_ranges', this, ['y_range', 'extra_y_ranges'])
 
       @register_property('x_mappers',
-          () -> @_get_mappers(@get('x_ranges'), @get('h_range'))
+          () -> @_get_mappers(@get('x_ranges'), @get('inner_range_horizontal'))
         , true)
-      @add_dependencies('x_ranges', this, ['x_ranges', 'h_range'])
+      @add_dependencies('x_ranges', this, ['x_ranges', 'inner_range_horizontal'])
 
       @register_property('y_mappers',
-          () -> @_get_mappers(@get('y_ranges'), @get('v_range'))
+          () -> @_get_mappers(@get('y_ranges'), @get('inner_range_vertical'))
         , true)
-      @add_dependencies('y_ranges', this, ['y_ranges', 'v_range'])
+      @add_dependencies('y_ranges', this, ['y_ranges', 'inner_range_vertical'])
 
       @register_property('mapper',
         () ->
@@ -42,10 +42,55 @@ define [
         , true)
       @add_dependencies('mapper', this, ['x_mapper', 'y_mapper'])
 
+    map_to_screen: (x, x_units, y, y_units, canvas, name='default') ->
+      if x_units == 'screen'
+        if _.isArray(x)
+          vx = x[..]
+        else
+          vx = new Float64Array(x.length)
+          vx.set(x)
+      else
+        vx = @get('x_mappers')[name].v_map_to_target(x)
+      if y_units == 'screen'
+        if _.isArray(y)
+          vy = y[..]
+        else
+          vy = new Float64Array(y.length)
+          vy.set(y)
+      else
+        vy = @get('y_mappers')[name].v_map_to_target(y)
+
+      sx = canvas.v_vx_to_sx(vx)
+      sy = canvas.v_vy_to_sy(vy)
+
+      return [sx, sy]
+
+    map_from_screen: (sx, sy, units, canvas) ->
+      if _.isArray(sx)
+        dx = sx[..]
+      else
+        dx = new Float64Array(sx.length)
+        dx.set(sx)
+      if _.isArray(sy)
+        dy = sy[..]
+      else
+        dy = new Float64Array(sy.length)
+        dy.set(sy)
+      sx = canvas.v_sx_to_vx(dx)
+      sy = canvas.v_sy_to_vy(dy)
+
+      if units == 'screen'
+        x = sx
+        y = sy
+      else
+        [x, y] = @mapper.v_map_from_target(sx, sy)  # TODO: inplace?
+
+      return [x, y]
+
     _get_ranges: (dim) ->
       ranges = {}
-      ranges['default'] = @get('#{dim}_range')
-      extra_ranges = @get('extra_#{dim}_ranges')
+      ranges['default'] = @get("#{dim}_range")
+      extra_ranges = @get("extra_#{dim}_ranges")
       if extra_ranges?
         for name, range of extra_ranges
           ranges[name] = range

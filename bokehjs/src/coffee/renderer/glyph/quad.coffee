@@ -33,8 +33,8 @@ define [
 
     _hit_point: (geometry) ->
       [vx, vy] = [geometry.vx, geometry.vy]
-      sx = @plot_view.view_state.vx_to_sx(vx)
-      sy = @plot_view.view_state.vy_to_sy(vy)
+      sx = @plot_view.canvas.vx_to_sx(vx)
+      sy = @plot_view.canvas.vy_to_sy(vy)
 
       hits = []
       for i in [0...@sx0.length]

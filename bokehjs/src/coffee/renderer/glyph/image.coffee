@@ -24,8 +24,8 @@ define [
       serversource.listen_for_heatmap_updates(@mget_obj('data_source'),
         @plot_view.x_range,
         @plot_view.y_range,
-        @plot_view.view_state.get('inner_range_horizontal'),
-        @plot_view.view_state.get('inner_range_vertical'),
+        @plot_view.frame.get('inner_range_horizontal'),
+        @plot_view.frame.get('inner_range_vertical'),
       )
 
 

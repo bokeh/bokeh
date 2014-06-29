@@ -44,7 +44,8 @@ define [
 
     delegateEvents: (events) ->
       super(events)
-      @listenTo(@plot_view.view_state, 'change', @calc_dims)
+      # TODO I think this is wrong now
+      #@listenTo(@plot_view.canvas, 'change', @calc_dims)
 
     calc_dims: (options) ->
       label_height = @mget('label_height')
@@ -68,8 +69,8 @@ define [
       @legend_width = @label_width + @glyph_width + 3 * legend_spacing
       orientation = @mget('orientation')
       legend_padding = @mget('legend_padding')
-      h_range = @plot_view.view_state.get('inner_range_horizontal')
-      v_range = @plot_view.view_state.get('inner_range_vertical')
+      h_range = @plot_view.frame.get('inner_range_horizontal')
+      v_range = @plot_view.frame.get('inner_range_vertical')
       if orientation == "top_right"
         x = h_range.get('end') - legend_padding - @legend_width
         y = v_range.get('end') - legend_padding
@@ -84,8 +85,8 @@ define [
         y = v_range.get('start') + legend_padding + @legend_height
       else if orientation == "absolute"
         [x,y] = @absolute_coords
-      x = @plot_view.view_state.vx_to_sx(x)
-      y = @plot_view.view_state.vy_to_sy(y)
+      x = @plot_view.canvas.vx_to_sx(x)
+      y = @plot_view.canvas.vy_to_sy(y)
       @box_coords = [x,y]
 
     render: () ->

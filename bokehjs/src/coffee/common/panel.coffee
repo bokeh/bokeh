@@ -20,7 +20,7 @@ define [
     initialize: (attrs, options) ->
       super(attrs, options)
 
-      @solver = @get('solver')
+      solver = @get('solver')
 
       @var_constraints = {}
 
@@ -36,14 +36,14 @@ define [
       for v in vars
         name = '_'+v
         @[name] = new Var()
-        @register_property(name, @_get_var, false)
-        @register_setter(name, @_set_var)
-        @solver.addEditVariable(@[name], kiwi.Strength.strong)
+        @register_property(v, @_get_var, false)
+        @register_setter(v, @_set_var)
+        solver.addEditVariable(@[name], kiwi.Strength.strong)
 
-      @solver.addConstraint(new Constraint(new Expr(@_width), GE))
-      @solver.addConstraint(new Constraint(new Expr(@_height), GE))
-      @solver.addConstraint(new Constraint(new Expr(@_left, @_width, [-1, @_right]), EQ))
-      @solver.addConstraint(new Constraint(new Expr(@_bottom, @_height, [-1, @_top]), EQ))
+      solver.addConstraint(new Constraint(new Expr(@_width), GE))
+      solver.addConstraint(new Constraint(new Expr(@_height), GE))
+      solver.addConstraint(new Constraint(new Expr(@_left, @_width, [-1, @_right]), EQ))
+      solver.addConstraint(new Constraint(new Expr(@_bottom, @_height, [-1, @_top]), EQ))
 
       @_h_range = new Range1d.Model({
         start: @get('left'),
@@ -77,6 +77,7 @@ define [
       @add_dependencies('aspect', this, ['width', 'height'])
 
     _set_var: (value, prop_name) ->
+      solver = @get('solver')
       v = @['_' + prop_name]
       if typeof value == 'number'
         solver.suggestValue(v, value);
@@ -87,19 +88,20 @@ define [
         if not @var_constraints[prop_name]?
           @var_constraints[prop_name] = []
         @var_constraints[prop_name].push(c)
-        @solver.addConstraint(c)
-      @solver.updateVariables();
+        solver.addConstraint(c)
+      solver.updateVariables();
 
     _get_var: (prop_name) ->
-      return @['_' + prop_name].value
+      return @['_' + prop_name].value()
 
     _set_aspect: (aspect) ->
+      solver = @get('solver')
       if @_aspect_constraint?
-        @solver.removeConstraint(@aspect_constraint)
+        solver.removeConstraint(@aspect_constraint)
         c = new Constraint(new Expr([aspect, @_height], [-1, @_width]), EQ)
         @_aspect_constraint = c
-        @solver.addConstraint(c)
-        @solver.updateVariables()
+        solver.addConstraint(c)
+        solver.updateVariables()
 
     defaults: () ->
       return { }

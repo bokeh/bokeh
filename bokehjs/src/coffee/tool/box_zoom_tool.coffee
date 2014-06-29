@@ -35,8 +35,8 @@ define [
 
     view_coords: (sx, sy) ->
       [vx, vy] = [
-        @plot_view.view_state.sx_to_vx(sx),
-        @plot_view.view_state.sy_to_vy(sy)
+        @plot_view.canvas.sx_to_vx(sx),
+        @plot_view.canvas.sy_to_vy(sy)
       ]
       return [vx, vy]
 

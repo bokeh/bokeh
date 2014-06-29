@@ -15,7 +15,7 @@ define [
       if domain == 'x'
         server_source.listen_for_line1d_updates(@mget_obj('data_source'),
           @plot_view.x_range,
-          @plot_view.view_state.get('inner_range_horizontal'),
+          @plot_view.frame.get('inner_range_horizontal'),
           @glyph_props.y.field,
           @glyph_props.x.field,
           [@glyph_props.y.field]

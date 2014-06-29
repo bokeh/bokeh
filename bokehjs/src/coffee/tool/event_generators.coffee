@@ -43,12 +43,12 @@ define [], () ->
       @plotview.canvas.get('mousemove_callbacks').push((e, x, y) =>
         if @dragging
           set_bokehXY(e)
-          inner_range_horizontal = @plotview.view_state.get(
+          inner_range_horizontal = @plotview.frame.get(
             'inner_range_horizontal')
-          inner_range_vertical = @plotview.view_state.get(
+          inner_range_vertical = @plotview.frame.get(
             'inner_range_vertical')
-          x = @plotview.view_state.sx_to_vx(e.bokehX)
-          y = @plotview.view_state.sy_to_vy(e.bokehY)
+          x = @plotview.canvas.sx_to_vx(e.bokehX)
+          y = @plotview.canvas.sy_to_vy(e.bokehY)
           if @restrict_to_innercanvas
             xstart = inner_range_horizontal.get('start')
             xend = inner_range_horizontal.get('end')
@@ -56,9 +56,9 @@ define [], () ->
             yend = inner_range_vertical.get('end')
           else
             xstart = 0
-            xend = @plotview.view_state.get('outer_width')
+            xend = @plotview.canvas.get('width')
             ystart = 0
-            yend = @plotview.view_state.get('outer_height')
+            yend = @plotview.canvas.get('height')
           if x < xstart  or x > xend
             @_stop_drag(e)
             return false

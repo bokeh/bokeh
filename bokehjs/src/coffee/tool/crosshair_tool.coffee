@@ -37,8 +37,8 @@ define [
 
       ctx = @plot_view.canvas_view.ctx
 
-      cw = @plot_view.view_state.get('canvas_width')
-      ch = @plot_view.view_state.get('canvas_height')
+      cw = @plot_view.canvas.get('width')
+      ch = @plot_view.canvas.get('height')
 
       line_width = 1
 
@@ -72,8 +72,8 @@ define [
           position:absolute; right:20px; top: 20px; "></div>''')
       bbar = @plot_view.$el.find('.bokeh_canvas_wrapper')
       @popup.appendTo(bbar)
-      ch = @plot_view.view_state.get('outer_height')
-      cw = @plot_view.view_state.get('outer_width')
+      ch = @plot_view.canvas.get('height')
+      cw = @plot_view.canvas.get('width')
       @popup.text("x: 0 y:0")
       @plot_view.$el.css("cursor", "crosshair")
       return null

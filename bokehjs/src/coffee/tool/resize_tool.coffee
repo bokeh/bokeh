@@ -36,8 +36,8 @@ define [
 
       ctx = @plot_view.canvas_view.ctx
 
-      cw = @plot_view.view_state.get('canvas_width')
-      ch = @plot_view.view_state.get('canvas_height')
+      cw = @plot_view.canvas.get('width')
+      ch = @plot_view.canvas.get('height')
 
       line_width = 8
 
@@ -71,8 +71,8 @@ define [
           position:absolute; right:20px; top: 20px; "></div>''')
       bbar = @plot_view.$el.find('.bokeh_canvas_wrapper')
       @popup.appendTo(bbar)
-      ch = @plot_view.view_state.get('outer_height')
-      cw = @plot_view.view_state.get('outer_width')
+      ch = @plot_view.canvas.get('height')
+      cw = @plot_view.canvas.get('width')
       @popup.text("width: #{cw} height: #{ch}")
 
       @request_render()
@@ -98,21 +98,11 @@ define [
       ydiff = y - @y
       [@x, @y] = [x, y]
 
-      ch = @plot_view.view_state.get('outer_height')
-      cw = @plot_view.view_state.get('outer_width')
+      ch = @plot_view.canvas.get('height')
+      cw = @plot_view.canvas.get('width')
 
       @popup.text("width: #{cw} height: #{ch}")
 
-      @plot_view.view_state.set('outer_height', ch+ydiff, {'silent': true})
-      @plot_view.view_state.set('outer_width', cw+xdiff, {'silent': true})
-      @plot_view.view_state.set('canvas_height', ch+ydiff, {'silent': true})
-      @plot_view.view_state.set('canvas_width', cw+xdiff, {'silent': true})
-
-      @plot_view.view_state.trigger('change:outer_height', ch+ydiff)
-      @plot_view.view_state.trigger('change:outer_width', cw+xdiff)
-      @plot_view.view_state.trigger('change:canvas_height', ch+ydiff)
-      @plot_view.view_state.trigger('change:canvas_width', cw+xdiff)
-      @plot_view.view_state.trigger('change', @plot_view.view_state)
       @plot_view.canvas._set_dims([cw+xdiff, ch+ydiff])
       @plot_view.canvas_view.render()
       @plot_view.unpause(true)
