@@ -8,11 +8,13 @@ define [
   "./safebind",
   "./continuum_view",
   "./has_parent",
+  "./canvas",
+  "./solver",
   "./cartesian_frame",
   "./plot_template"
   "renderer/properties",
   "tool/active_tool_manager",
-], (_, Backbone, kiwi, build_views, plot_utils, safebind, ContinuumView, HasParent, CartesianFrame, plot_template, Properties, ActiveToolManager) ->
+], (_, Backbone, kiwi, build_views, plot_utils, safebind, ContinuumView, HasParent, Canvas, Solver, CartesianFrame, plot_template, Properties, ActiveToolManager) ->
 
   line_properties = Properties.line_properties
   text_properties = Properties.text_properties
@@ -46,8 +48,10 @@ define [
     initialize: (options) ->
       super(options)
 
-      @canvas = @mget_obj('canvas')
+      @canvas = @mget('canvas')
       @canvas_view = new @canvas.default_view({'model': @canvas})
+
+      @listenTo(@model.solver, 'layout_update', @request_render)
 
       # compat, to be removed
       @frame = @mget('frame')
@@ -155,6 +159,8 @@ define [
     render: () ->
       super()
 
+      @canvas_view.render()
+
       ctx = @canvas_view.ctx
 
       if not @initial_range_info?
@@ -256,15 +262,31 @@ define [
     type: 'Plot'
     default_view: PlotView
 
-    dinitialize: (attrs, options) ->
+    initialize: (attrs, options) ->
+      super(attrs, options)
 
-      canvas = @get_obj('canvas')
-      solver = canvas.get('solver')
+      @solver = new Solver()
+
+      canvas = new Canvas.Model({
+        map: false,
+        canvas_width: @get('plot_width'),
+        canvas_height: @get('plot_height'),
+        hidpi: @get('hidpi')
+      }, {
+        solver: @solver
+      })
+      @set('canvas', canvas)
+
+    dinitialize: (attrs, options) ->
+      super(attrs, options)
+
+      canvas = @get('canvas')
 
       frame = new CartesianFrame.Model({
-        x_range: @get_obj('x_range'), y_range: @get_obj('y_range'), solver: solver
+        x_range: @get_obj('x_range'), y_range: @get_obj('y_range')
+      }, {
+        solver: @solver
       })
-
       @set('frame', frame)
 
       min_border_top    = @get('min_border_top')    ? @get('min_border')
@@ -272,14 +294,14 @@ define [
       min_border_left   = @get('min_border_left')   ? @get('min_border')
       min_border_right  = @get('min_border_right')  ? @get('min_border')
 
-      solver.addConstraint(new Constraint(new Expr(frame._left, -min_border_left), GE), kiwi.Strength.strong)
-      solver.addConstraint(new Constraint(new Expr(canvas._right, [-1, frame._right], -min_border_right), GE), kiwi.Strength.strong)
-      solver.addConstraint(new Constraint(new Expr(frame._bottom, -min_border_bottom), GE), kiwi.Strength.strong)
-      solver.addConstraint(new Constraint(new Expr(canvas._top, [-1, frame._top], -min_border_top), GE), kiwi.Strength.strong)
-      solver.suggestValue(frame._width, canvas._width)
-      solver.suggestValue(frame._height, canvas._height)
+      @solver.add_constraint(new Constraint(new Expr(frame._left, -min_border_left), GE), kiwi.Strength.strong)
+      @solver.add_constraint(new Constraint(new Expr(canvas._right, [-1, frame._right], -min_border_right), GE), kiwi.Strength.strong)
+      @solver.add_constraint(new Constraint(new Expr(frame._bottom, -min_border_bottom), GE), kiwi.Strength.strong)
+      @solver.add_constraint(new Constraint(new Expr(canvas._top, [-1, frame._top], -min_border_top), GE), kiwi.Strength.strong)
+      @solver.suggest_value(frame._width, canvas._width)
+      @solver.suggest_value(frame._height, canvas._height)
 
-      solver.updateVariables()
+      @solver.update_variables()
 
     add_renderers: (new_renderers) ->
       renderers = @get('renderers')
@@ -304,6 +326,8 @@ define [
         tools: [],
         h_symmetry: true,
         v_symmetry: false,
+        plot_width: 600,
+        plot_height: 600,
         title: 'Plot',
       }
 

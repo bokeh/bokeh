@@ -9,7 +9,7 @@ from six import string_types
 from . import glyphs
 
 from .objects import (
-    BoxSelectionOverlay, BoxSelectTool, BoxZoomTool, Canvas,
+    BoxSelectionOverlay, BoxSelectTool, BoxZoomTool,
     CategoricalAxis, ColumnDataSource, CrosshairTool, DataRange1d,
     DatetimeAxis, EmbedTool, FactorRange, Grid, HoverTool, Legend,
     LinearAxis, ObjectExplorerTool, PanTool, Plot, PreviewSaveTool,
@@ -237,14 +237,8 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
                  tools="pan,wheel_zoom,box_zoom,save,resize,select,reset", **kw):
     # Accept **kw to absorb other arguments which the actual factory functions
     # might pass in, but that we don't care about
-    c = Canvas()
 
-    if plot_width is not None:
-        c.canvas_width = plot_width
-    if plot_height is not None:
-        c.canvas_height = plot_height
-
-    p = Plot(canvas=c)
+    p = Plot()
     p.title = kw.pop("title", "Plot")
 
     p.x_range = _get_range(x_range)

@@ -255,8 +255,6 @@ class Plot(Widget):
     """
 
     def __init__(self, **kwargs):
-        if 'canvas' not in kwargs:
-            kwargs['canvas'] = Canvas()
         if 'border_symmetry' in kwargs:
             border_symmetry = kwargs.pop('border_symmetry')
             if border_symmetry is None: border_symmetry = ""
@@ -289,15 +287,11 @@ class Plot(Widget):
     #
     # annotation = List()
 
-    canvas = Instance(Canvas)
-
     plot_height = Int(600)
     plot_width = Int(600)
 
     background_fill = Color("white")
     border_fill = Color("white")
-    outer_width = Int(400)
-    outer_height = Int(400)
     min_border_top = Int(50)
     min_border_bottom = Int(50)
     min_border_left = Int(50)
@@ -346,12 +340,6 @@ class MapOptions(HasProps):
     zoom = Int(12)
 
 class GMapPlot(Plot):
-    def __init__(self, **kwargs):
-        if 'canvas' not in kwargs:
-            kwargs['canvas'] = Canvas()
-        kwargs['canvas'].map = True
-        super(GMapPlot, self).__init__(**kwargs)
-
     map_options = Instance(MapOptions)
 
 class GridPlot(Plot):

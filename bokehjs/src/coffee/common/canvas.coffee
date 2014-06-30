@@ -119,9 +119,10 @@ define [
     dinitialize: (attr, options) ->
       super(attr, options)
 
-      solver = @get('solver')
-      solver.addConstraint(new Constraint(new Expr(@_left), EQ))
-      solver.addConstraint(new Constraint(new Expr(@_bottom), EQ))
+      @solver = options.solver
+      @solver.add_constraint(new Constraint(new Expr(@_left), EQ))
+      @solver.add_constraint(new Constraint(new Expr(@_bottom), EQ))
+      @solver.update_variables()
 
       @_set_dims([@get('canvas_width'), @get('canvas_height')])
 
@@ -160,28 +161,25 @@ define [
       return yy
 
     _set_width: (width, update=true) ->
-      solver = @get('solver')
       if @_width_constraint?
-        solver.removeConstraint(@_width_constraint)
+        @solver.removeConstraint(@_width_constraint)
       @_width_constraint = new Constraint(new Expr(@_right, -width), EQ)
-      solver.addConstraint(@_width_constraint)
+      @solver.add_constraint(@_width_constraint)
       if update
-        solver.updateVariables()
+        @solver.update_variables()
 
     _set_height: (height, update=true) ->
-      solver = @get('solver')
       if @_height_constraint?
-        solver.removeConstraint(@_height_constraint)
+        @solver.removeConstraint(@_height_constraint)
       @_height_constraint = new Constraint(new Expr(@_top, -height), EQ)
-      solver.addConstraint(@_height_constraint)
+      @solver.add_constraint(@_height_constraint)
       if update
-        solver.updateVariables()
+        @solver.update_variables()
 
     _set_dims: (dims) ->
-      solver = @get('solver')
       @_set_width(dims[0], false)
       @_set_height(dims[1], false)
-      solver.updateVariables()
+      @solver.update_variables()
 
     defaults: () ->
       return {
@@ -190,7 +188,6 @@ define [
         map: false
         mousedown_callbacks: []
         mousemove_callbacks: []
-        solver: new kiwi.Solver()
         use_hidpi: true
       }
 
