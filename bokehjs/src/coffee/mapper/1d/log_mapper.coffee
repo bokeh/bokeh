@@ -44,7 +44,7 @@ define [
           for x, idx in intermediate
             if isNaN(intermediate[idx])
               throw "NaN"
-            if isFinite(intermediate[idx]) == False
+            if isFinite(intermediate[idx]) == false
               throw "Infinite"
 
         catch error
@@ -56,15 +56,18 @@ define [
       return result
 
     map_from_target: (xprime) ->
-      [scale, offset] = @get('mapper_state')
-      return (xprime - offset) / scale
+      [scale, offset, inter_scale, inter_offset] = @get('mapper_state')
+      intermediate = (xprime - offset) / scale
+      intermediate = Math.exp(inter_scale * intermediate + inter_offset)
+
+      return intermediate
 
     v_map_from_target: (xprimes) ->
-      [scale, offset] = @get('mapper_state')
-      result = new Float64Array(xprimes.length)
-      for xprime, idx in xprimes
-        result[idx] = (xprime - offset) / scale
-      return result
+      [scale, offset, inter_scale, inter_offset] = @get('mapper_state')
+      intermediate = xprimes.map (i) -> (i - offset) / scale
+      intermediate = intermediate.map (i) -> Math.exp(inter_scale * i + inter_offset)
+
+      return intermediate
 
     _get_safe_scale: (orig_start, orig_end) ->
       if orig_start < 0
@@ -108,7 +111,7 @@ define [
       #scale = (target_end - target_start)/(source_end - source_start)
       #offset = -(scale * source_start) + target_start
       
-      screen_range = target_start - target_end
+      screen_range = target_end - target_start
 
       [start, end] = @_get_safe_scale(source_start, source_end)
       
@@ -122,7 +125,6 @@ define [
       scale = screen_range
       offset = target_start
       return [scale, offset, inter_scale, inter_offset]
-
 
   class LogMappers extends Backbone.Collection
     model: LogMapper
