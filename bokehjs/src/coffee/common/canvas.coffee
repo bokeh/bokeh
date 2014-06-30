@@ -34,6 +34,9 @@ define [
       @map_div = @$el.find('.bokeh_gmap') ? null
 
     render: () ->
+      if not @model.new_bounds
+        return
+
       @ctx = @canvas[0].getContext('2d')
 
       if @mget('use_hidpi')
@@ -67,6 +70,8 @@ define [
       @_fixup_line_dash_offset(@ctx)
       @_fixup_image_smoothing(@ctx)
       @_fixup_measure_text(@ctx)
+
+      @model.new_bounds = false
 
     _fixup_line_dash: (ctx) ->
       if (!ctx.setLineDash)
@@ -126,6 +131,8 @@ define [
 
       @_set_dims([@get('canvas_width'), @get('canvas_height')])
 
+      @new_bounds = true
+
     # transform view coordinates to underlying screen coordinates
     vx_to_sx: (x) ->
       return x
@@ -167,6 +174,7 @@ define [
       @solver.add_constraint(@_width_constraint)
       if update
         @solver.update_variables()
+      @new_bounds = true
 
     _set_height: (height, update=true) ->
       if @_height_constraint?
@@ -175,6 +183,7 @@ define [
       @solver.add_constraint(@_height_constraint)
       if update
         @solver.update_variables()
+      @new_bounds = true
 
     _set_dims: (dims) ->
       @_set_width(dims[0], false)

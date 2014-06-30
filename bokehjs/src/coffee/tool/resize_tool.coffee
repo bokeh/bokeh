@@ -104,7 +104,7 @@ define [
       @popup.text("width: #{cw} height: #{ch}")
 
       @plot_view.canvas._set_dims([cw+xdiff, ch+ydiff])
-      @plot_view.canvas_view.render()
+      @plot_view.request_render()
       @plot_view.unpause(true)
 
       return null
