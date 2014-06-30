@@ -17,6 +17,9 @@ define [
     add_constraint: (constraint) ->
       @solver.addConstraint(constraint)
 
+    remove_constraint: (constraint) ->
+      @solver.removeConstraint(constraint)
+
     add_edit_variable: (variable, strength=kiwi.Strength.strong) ->
       @solver.addEditVariable(variable, strength)
 

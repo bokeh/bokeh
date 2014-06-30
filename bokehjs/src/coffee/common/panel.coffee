@@ -98,7 +98,7 @@ define [
 
     _set_aspect: (aspect) ->
       if @_aspect_constraint?
-        @solver.removeConstraint(@aspect_constraint)
+        @solver.remove_constraint(@aspect_constraint)
         c = new Constraint(new Expr([aspect, @_height], [-1, @_width]), EQ)
         @_aspect_constraint = c
         @solver.add_constraint(c)

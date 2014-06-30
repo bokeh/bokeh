@@ -162,7 +162,7 @@ define [
 
     _set_width: (width, update=true) ->
       if @_width_constraint?
-        @solver.removeConstraint(@_width_constraint)
+        @solver.remove_constraint(@_width_constraint)
       @_width_constraint = new Constraint(new Expr(@_right, -width), EQ)
       @solver.add_constraint(@_width_constraint)
       if update
@@ -170,7 +170,7 @@ define [
 
     _set_height: (height, update=true) ->
       if @_height_constraint?
-        @solver.removeConstraint(@_height_constraint)
+        @solver.remove_constraint(@_height_constraint)
       @_height_constraint = new Constraint(new Expr(@_top, -height), EQ)
       @solver.add_constraint(@_height_constraint)
       if update
