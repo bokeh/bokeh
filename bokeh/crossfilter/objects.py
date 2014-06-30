@@ -21,8 +21,6 @@ from ..properties import (HasProps, Dict, Enum, Either, Float, Instance, Int, Li
 
 logger = logging.getLogger(__name__)
 
-import pandas as pd
-
 class DiscreteFacet(object):
     def __init__(self, field, value, label=None):
         if label is None:
@@ -126,7 +124,7 @@ class CrossFilter(PlotObject):
         self.agg_selector = select
 
     def update_plot_choices(self, input_dict):
-        for k,v in input_dict.iteritems():
+        for k,v in input_dict.items():
             if getattr(self, k) is None:
                 setattr(self, k, v)
 
@@ -154,13 +152,19 @@ class CrossFilter(PlotObject):
         curdoc().add_all()
 
     def make_plot(self):
-        if len(self.facet_x) ==0 and len(self.facet_y) == 0 and len(self.facet_tab) == 0:
+        if all(len(self.facet_x) ==0,
+               len(self.facet_y) == 0,
+               len(self.facet_tab) == 0)):
             return self.make_single_plot()
 
-        if len(self.facet_x) !=0 and len(self.facet_y) == 0 and len(self.facet_tab) == 0:
+        if all(len(self.facet_x) !=0,
+               len(self.facet_y) == 0,
+               len(self.facet_tab) == 0)):
             return self.make_all_facet_plot()
 
-        if len(self.facet_x) !=0 and len(self.facet_y) != 0 and len(self.facet_tab) == 0:
+        if all(len(self.facet_x) !=0,
+               len(self.facet_y) != 0,
+               len(self.facet_tab) == 0):
             return self.make_xy_facet_plot()
 
     def make_facets(self, dimension):
