@@ -67,7 +67,7 @@ define [
         return
       @active = true
       @popup = $(
-        '''<div class="resize_bokeh_plot pull-right"></div>''')
+        '''''')
       bbar = @plot_view.$el.find('.bokeh_canvas_wrapper')
       plotarea = @plot_view.$el.find('.plotarea')
       popupHtml = @plot_view.$el.find('.resize_popup')
