@@ -281,10 +281,12 @@ class CrossFilter(PlotObject):
             if column_descriptor_dict[self.x]['type'] != 'DiscreteColumn':
                 source = make_continuous_bar_source(
                     df, self.x, self.y, self.agg)
-                x_range = Range1d(start=df[self.x].min() - 0.7,
-                                  end=df[self.x].max() - 0.7)
+                bar_width = 0.7
+                x_range = Range1d(start=df[self.x].min() - bar_width,
+                                  end=df[self.x].max() - bar_width)
                 plot = make_bar_plot(source, counts_name=self.y,
                                      centers_name=self.x,
+                                     bar_width=bar_width,
                                      plot_height=plot_height,
                                      plot_width=plot_width,
                                      tools=tools,

@@ -56,6 +56,7 @@ def make_factor_source(series):
 def make_bar_plot(datasource, counts_name="counts",
                   centery_name='centery',
                   centers_name="centers",
+                  bar_width=0.7
                   x_range=None,
                   plot_width=500, plot_height=500,
                   tools=None,
@@ -64,7 +65,7 @@ def make_bar_plot(datasource, counts_name="counts",
     if tools is None:
         tools="pan,wheel_zoom,box_zoom,save,resize,select,reset"
     top = np.max(datasource.data[counts_name])
-    plot = rect(centers_name, centery_name, 0.7, counts_name,
+    plot = rect(centers_name, centery_name, bar_width, counts_name,
                 title=" " ,
                 plot_width=plot_width, plot_height=plot_height,
                 tools=tools,
@@ -84,13 +85,14 @@ def make_histogram(datasource, counts_name="counts",
                   centery_name='centery',
                   centers_name="centers",
                   x_range=None,
+                  bar_width=0.7
                   plot_width=500, plot_height=500,
                   min_border=40,
                   tools=None,
                   title_text_font_size="12pt"):
     top = np.max(datasource.data[counts_name])
-    start = np.min(datasource.data[centers_name]) - 0.7
-    end = np.max(datasource.data[centers_name]) - 0.7
+    start = np.min(datasource.data[centers_name]) - bar_width
+    end = np.max(datasource.data[centers_name]) - bar_width
     x_range = Range1d(start=start, end=end)
     plot = make_bar_plot(datasource, counts_name=counts_name,
                          centery_name=centery_name, centers_name=centers_name,
