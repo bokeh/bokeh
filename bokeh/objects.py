@@ -158,6 +158,9 @@ class YearsTicker(Ticker):
 class BasicTicker(Ticker):
     pass
 
+class LogTicker(Ticker):
+    pass
+
 class CategoricalTicker(Ticker):
     pass
 
@@ -173,6 +176,10 @@ class BasicTickFormatter(TickFormatter):
     use_scientific = Bool(True)
     power_limit_high = Int(5)
     power_limit_low = Int(-3)
+
+class LogTickFormatter(TickFormatter):
+    """ Represents a log tick formatter for an axis object """
+    pass
 
 class CategoricalTickFormatter(TickFormatter):
     """ Represents a categorical tick formatter for an axis object """
@@ -383,7 +390,10 @@ class Axis(GuideRenderer):
     major_tick_in = Int
     major_tick_out = Int
 
-class LinearAxis(Axis):
+class ContinuousAxis(Axis):
+    pass
+
+class LinearAxis(ContinuousAxis):
     type = String("linear_axis")
 
     def __init__(self, **kwargs):
@@ -392,6 +402,16 @@ class LinearAxis(Axis):
         if 'formatter' not in kwargs:
             kwargs['formatter'] = BasicTickFormatter()
         super(LinearAxis, self).__init__(**kwargs)
+
+class LogAxis(ContinuousAxis):
+    type = String("log_axis")
+
+    def __init__(self, **kwargs):
+        if 'ticker' not in kwargs:
+            kwargs['ticker'] = LogTicker()
+        if 'formatter' not in kwargs:
+            kwargs['formatter'] = LogTickFormatter()
+        super(LogAxis, self).__init__(**kwargs)
 
 class CategoricalAxis(Axis):
     type = String("categorical_axis")
