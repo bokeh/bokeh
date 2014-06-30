@@ -38,7 +38,7 @@ def large_plot(n):
         tools = [pan, wheel_zoom, box_zoom, box_select, box_selection, resize, previewsave, reset]
         plot.tools.append(tools)
         context.children.append(plot)
-        objects |= set([source, xdr, ydr, plot, xaxis, yaxis, xgrid, ygrid, renderer, canv] + tickers + tools)
+        objects |= set([source, xdr, ydr, plot, xaxis, yaxis, xgrid, ygrid, renderer] + tickers + tools)
 
     return context, objects
 

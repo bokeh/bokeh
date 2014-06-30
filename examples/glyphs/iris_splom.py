@@ -7,7 +7,7 @@ from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.glyphs import Circle, Text
 from bokeh.objects import (
-    Canvas, ColumnDataSource, Glyph, Grid, GridPlot, LinearAxis, Plot,
+    ColumnDataSource, Glyph, Grid, GridPlot, LinearAxis, Plot,
     DataRange1d, PanTool, WheelZoomTool
 )
 from bokeh.resources import INLINE
@@ -39,10 +39,10 @@ pan = PanTool(dimensions=["width","height"])
 zoom = WheelZoomTool(dimensions=["width","height"])
 
 def make_plot(xname, yname, xax=False, yax=False, text=None):
-    c = Canvas(canvas_width=250, canvas_height=250)
     plot = Plot(
         x_range=xdr, y_range=ydr, data_sources=[source], background_fill="#efe8e2",
-        canvas=c, border_fill='white', title="", min_border=2, border_symmetry=None)
+        border_fill='white', title="", min_border=2, border_symmetry=None,
+        plot_width=250, plot_height=250)
     xaxis = LinearAxis(plot=plot, dimension=0, location="bottom")
     xgrid = Grid(plot=plot, dimension=0, axis=xaxis)
     yaxis = LinearAxis(plot=plot, dimension=1, location="left")
