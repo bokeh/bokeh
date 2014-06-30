@@ -101,13 +101,10 @@ define [
       @canvas_view.map_div.attr("style", "top: #{top}px; left: #{left}px;")
       @canvas_view.map_div.width("#{iw}px").height("#{ih}px")
 
-    _paint_empty: (ctx) ->
+    _paint_empty: (ctx, frame_box) ->
       ow = @canvas.get('width')
       oh = @canvas.get('height')
-      iw = @frame.get('width')
-      ih = @frame.get('height')
-      top = @frame.get('bottom')  # TODO (bev) view/screen
-      left = @frame.get('left')
+      [left, top, iw, ih] = frame_box
 
       ctx.clearRect(0, 0, ow, oh)
 

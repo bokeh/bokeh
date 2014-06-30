@@ -195,17 +195,19 @@ define [
         @requested_padding['top'] = vpadding
         @requested_padding['bottom'] = vpadding
 
+      frame_box = [
+        @canvas.vx_to_sx(@frame.get('left')),
+        @canvas.vy_to_sy(@frame.get('top')),
+        @frame.get('width'),
+        @frame.get('height'),
+      ]
+
       @_map_hook()
+      @_paint_empty(ctx, frame_box)
 
-      @_paint_empty(ctx)
-
-      # use bottom here because frames are in view coords
       if @outline_props.do_stroke
         @outline_props.set(ctx, {})
-        ctx.strokeRect(
-          @frame.get('left'), @frame.get('bottom'),
-          @frame.get('width'), @frame.get('height'),
-        )
+        ctx.strokeRect.apply(ctx, frame_box)
 
       have_new_mapper_state = false
       xms = @xmapper.get('mapper_state')[0]
@@ -215,25 +217,8 @@ define [
         @old_mapper_state.y = yms
         have_new_mapper_state = true
 
-      ctx.save()
-
-      # use bottom here because frames are in view coords
-      ctx.beginPath()
-      ctx.rect(
-        @frame.get('left'), @frame.get('bottom'),
-        @frame.get('width'), @frame.get('height'),
-      )
-      ctx.clip()
-      ctx.beginPath()
-
-      for level in ['image', 'underlay', 'glyph']
-        renderers = @levels[level]
-        for k, v of renderers
-          v.render(have_new_mapper_state)
-
-      ctx.restore()
-
-      @render_overlays(have_new_mapper_state)
+      @_render_levels(ctx, ['image', 'underlay', 'glyph'], have_new_mapper_state, frame_box)
+      @_render_levels(ctx, ['overlay', 'annotation', 'tool'], have_new_mapper_state)
 
       if title
         sx = @canvas.get('canvas_width')/2
@@ -241,22 +226,29 @@ define [
         @title_props.set(ctx, {})
         ctx.fillText(title, sx, sy)
 
-    _map_hook: () ->
+    _render_levels: (ctx, levels, have_new_mapper_state, clip_region) ->
+      if clip_region?
+        ctx.save()
+        ctx.beginPath()
+        ctx.rect.apply(ctx, clip_region)
+        ctx.clip()
+        ctx.beginPath()
 
-    _paint_empty: (ctx) ->
-      ctx.fillStyle = @mget('border_fill')
-      ctx.fillRect(0, 0,  @canvas_view.mget('canvas_width'), @canvas_view.mget('canvas_height')) # TODO
-      ctx.fillStyle = @mget('background_fill')
-      ctx.fillRect(
-        @frame.get('border_left'), @frame.get('border_top'),
-        @frame.get('inner_width'), @frame.get('inner_height'),
-      )
-
-    render_overlays: (have_new_mapper_state) ->
-      for level in ['overlay', 'annotation', 'tool']
+      for level in levels
         renderers = @levels[level]
         for k, v of renderers
           v.render(have_new_mapper_state)
+
+      if clip_region?
+        ctx.restore()
+
+    _map_hook: () ->
+
+    _paint_empty: (ctx, frame_box) ->
+      ctx.fillStyle = @mget('border_fill')
+      ctx.fillRect(0, 0,  @canvas_view.mget('canvas_width'), @canvas_view.mget('canvas_height')) # TODO
+      ctx.fillStyle = @mget('background_fill')
+      ctx.fillRect.apply(ctx, frame_box)
 
   class Plot extends HasParent
     type: 'Plot'
