@@ -268,7 +268,7 @@ define [
       @solver = new Solver()
 
       canvas = new Canvas.Model({
-        map: false,
+        map: options.map ? false,
         canvas_width: @get('plot_width'),
         canvas_height: @get('plot_height'),
         hidpi: @get('hidpi')

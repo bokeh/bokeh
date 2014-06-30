@@ -2,8 +2,9 @@
 define [
   "underscore",
   "backbone",
+  "./solver",
   "./plot",
-], (_, Backbone, Plot) ->
+], (_, Backbone, Solver, Plot) ->
 
   class GMapPlotView extends Plot.View
 
@@ -130,6 +131,10 @@ define [
   class GMapPlot extends Plot.Model
     type: 'GMapPlot'
     default_view: GMapPlotView
+
+    initialize: (attrs, options) ->
+      options.map = true
+      super(attrs, options)
 
     parent_properties: [
       'border_fill',
