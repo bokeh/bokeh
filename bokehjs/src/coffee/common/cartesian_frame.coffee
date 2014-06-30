@@ -42,6 +42,8 @@ define [
         , true)
       @add_dependencies('mapper', this, ['x_mapper', 'y_mapper'])
 
+      @listenTo(@solver, 'layout_update', @_update_mappers)
+
     map_to_screen: (x, x_units, y, y_units, canvas, name='default') ->
       if x_units == 'screen'
         if _.isArray(x)
@@ -111,6 +113,12 @@ define [
           target_range: frame_range
         })
       return mappers
+
+    _update_mappers: () ->
+      for name, mapper of @get('x_mappers')
+        mapper.set('target_range', @get('inner_range_horizontal'))
+      for name, mapper of @get('y_mappers')
+        mapper.set('target_range', @get('inner_range_vertical'))
 
     defaults: () ->
       return {

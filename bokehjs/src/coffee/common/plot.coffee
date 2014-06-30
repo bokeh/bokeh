@@ -137,12 +137,12 @@ define [
       return this
 
     bind_bokeh_events: () ->
-      safebind(this, @x_range, 'change', @request_render)
-      safebind(this, @y_range, 'change', @request_render)
-      safebind(this, @model, 'change:renderers', @build_levels)
-      safebind(this, @model, 'change:tool', @build_levels)
-      safebind(this, @model, 'change', @request_render)
-      safebind(this, @model, 'destroy', () => @remove())
+      @listenTo(@mget('frame').get('x_range'), 'change', @request_render)
+      @listenTo(@mget('frame').get('y_range'), 'change', @request_render)
+      safebind(@, @model, 'change:renderers', @build_levels)
+      safebind(@, @model, 'change:tool', @build_levels)
+      safebind(@, @model, 'change', @request_render)
+      safebind(@, @model, 'destroy', () => @remove())
 
     set_initial_range : () ->
       #check for good values for ranges before setting initial range
