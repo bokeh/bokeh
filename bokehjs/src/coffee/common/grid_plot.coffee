@@ -54,6 +54,7 @@ define [
       for row in @mget_obj('children')
         for plot in row
           childmodels.push(plot)
+          @listenTo(plot.solver, 'layout_update', @render)
       build_views(@childviews, childmodels, {})
       @set_child_view_states()
 
@@ -141,7 +142,6 @@ define [
           view = @childviews[plotspec.id]
           ypos = @viewstate.position_child_y(y_coords[ridx],
             view.canvas.get('height') -  @toolbar_height)
-
           xpos = @viewstate.position_child_x(x_coords[cidx], view.canvas.get('width'))
           plot_wrapper = $("<div class='gp_plotwrapper'></div>")
           plot_wrapper.attr(

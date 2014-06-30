@@ -8,8 +8,8 @@ define [
   class GridViewState extends HasProperties
 
     setup_layout_properties: () =>
-      @register_property('layout_heights', @layout_heights, true)
-      @register_property('layout_widths', @layout_widths, true)
+      @register_property('layout_heights', @layout_heights, false)
+      @register_property('layout_widths', @layout_widths, false)
       for row in @get('childviewstates')
         for viewstate in row
           @add_dependencies('layout_heights', viewstate, 'height')
@@ -21,11 +21,11 @@ define [
       safebind(this, this, 'change:childviewstates', @setup_layout_properties)
       @register_property('height', () ->
           return _.reduce(@get('layout_heights'), ((x, y) -> x + y), 0)
-        , true)
+        , false)
       @add_dependencies('height', @, 'layout_heights')
       @register_property('width', () ->
           return _.reduce(@get('layout_widths'), ((x, y) -> x + y), 0)
-        , true)
+        , false)
       @add_dependencies('width', @, 'layout_widths')
 
     #compute a childs position in the underlying device

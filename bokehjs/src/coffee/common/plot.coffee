@@ -95,9 +95,9 @@ define [
       for level in plot_utils.LEVELS
         @levels[level] = {}
       @build_levels()
-      @request_render()
       @atm.bind_bokeh_events()
       @bind_bokeh_events()
+      @request_render()
       return this
 
     map_to_screen: (x, x_units, y, y_units) ->
