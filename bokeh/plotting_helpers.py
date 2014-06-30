@@ -15,7 +15,7 @@ from .objects import (
     ObjectExplorerTool, PanTool, Plot, PreviewSaveTool, Range, Range1d,
     ResetTool, ResizeTool, WheelZoomTool, Tool
 )
-from .properties import ColorSpec, Date
+from .properties import ColorSpec, Date, Datetime
 import warnings
 
 def get_default_color(plot=None):
@@ -246,8 +246,12 @@ def _get_axis_class(axis_type, range_input):
         if isinstance(range_input, FactorRange):
             return CategoricalAxis
         elif isinstance(range_input, Range1d):
-            if range_input.has_datetime():
+            try:
+                # Easier way to validate type of Range1d parameters
+                Datetime.validate(Datetime(), range_input.start)
                 return DatetimeAxis
+            except ValueError:
+                pass
         return LinearAxis
     else:
         raise ValueError("Unrecognized axis_type: '%r'" % axis_type)

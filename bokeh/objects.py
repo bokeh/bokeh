@@ -12,6 +12,7 @@ logger = logging.getLogger(__file__)
 
 from . import _glyph_functions
 from .properties import (HasProps, Dict, Enum, Either, Float, Instance, Int,
+    Datetime,
     List, String, Color, Date, Include, Bool, Tuple, Any)
 from .mixins import LineProps, TextProps
 from .enums import BorderSymmetry, DatetimeUnits, Dimension, Location, Orientation, Units
@@ -108,31 +109,8 @@ class Range(PlotObject):
 
 class Range1d(Range):
     """ Represents a fixed range [start, end] in a scalar dimension. """
-    start = Either(Float, Date)
-    end = Either(Float, Date)
-
-    @property
-    def has_datetime(self):
-        import datetime
-        props = (self.start, self.end)
-        if any(isinstance(prop, (datetime.datetime, datetime.date))
-          for prop in props):
-            return True
-        else:
-            try:
-                from pandas import tslib
-                if any(isinstance(prop, tslib.Timestamp) for prop in props):
-                    return True
-            except ImportError:
-                pass
-            try:
-                import numpy
-                if any(isinstance(prop, numpy.datetime64) for prop in props):
-                    return True
-            except ImportError:
-                pass
-
-        return False
+    start = Either(Float, Datetime)
+    end = Either(Float, Datetime)
 
 class DataRange(Range):
     sources = List(Instance(ColumnsRef))

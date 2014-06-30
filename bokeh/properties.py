@@ -1038,8 +1038,6 @@ class Angle(Float):
     pass
 
 
-# talking points
-
 class Date(Property):
     def __init__(self, default=datetime.date.today()):
         super(Date, self).__init__(default=default)
@@ -1062,6 +1060,33 @@ class Date(Property):
             value = dateutil.parser.parse(value).date()
 
         return value
+
+class Datetime(Property):
+    def __init__(self, default=datetime.date.today()):
+        super(Datetime, self).__init__(default=default)
+
+    def validate(self, value):
+        super(Datetime, self).validate(value)
+
+        if (isinstance(value, (datetime.datetime, datetime.date, np.datetime64))):
+            return
+        try:
+            import pandas
+            if isinstance(value, (pandas.Timestamp)):
+                return
+        except ImportError:
+            pass
+
+        raise ValueError("Expected a datetime instance, got %r" % value)
+
+    def transform(self, value):
+        value = super(Datetime, self).transform(value)
+
+        epoch = datetime.datetime.utcfromtimestamp(0)
+        delta = value - epoch
+        return delta.total_seconds() * 1000.0
+        # TODO add other types
+
 
 class RelativeDelta(Dict):
     def __init__(self, default={}):
