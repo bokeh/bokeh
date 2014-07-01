@@ -59,34 +59,73 @@ class Chart(object):
         self.xdr = None
         self.ydr = None
 
-    def get_data_histogram(self, measured, bins, mu, sigma):
+    def get_data_histogram(self, bins, mu, sigma, **value):
         # calculate hist properties
         import scipy.special
-        self.hist, self.edges = np.histogram(measured, density=True, bins=bins)
 
-        # compute ideal values
-        self.xval = np.linspace(-2, 2, len(measured))
-        self.pdf = 1/(sigma * np.sqrt(2*np.pi)) * np.exp(-(self.xval-mu)**2 / (2*sigma**2))
-        self.cdf = (1+scipy.special.erf((self.xval-mu)/np.sqrt(2*sigma**2)))/2
+        self.data = dict()
 
-        # get quad properties
-        self.top = self.hist
-        self.bottom = np.zeros(len(self.hist))
-        self.left = self.edges[:-1]
-        self.right = self.edges[1:]
+        self.value = value
+
+        self.attr = []
+
+        for i, val in enumerate(self.value.keys()):
+            setattr(self, val, self.value[val])
+            self.data[val] = getattr(self, val)
+
+            hist, edges = np.histogram(self.data[val], density=True, bins=bins)
+            setattr(self, "hist" + val, hist)
+            self.data["hist" + val] = getattr(self, "hist" + val)
+            self.attr.append("hist" + val)
+            setattr(self, "edges" + val, edges)
+            self.data["edges" + val] = getattr(self, "edges" + val)
+            self.attr.append("edges" + val)
+            setattr(self, "left" + val, edges[:-1])
+            self.data["left" + val] = getattr(self, "left" + val)
+            self.attr.append("left" + val)
+            setattr(self, "rigth" + val, edges[1:])
+            self.data["rigth" + val] = getattr(self, "rigth" + val)
+            self.attr.append("rigth" + val)
+            setattr(self, "bottom" + val, np.zeros(len(hist)))
+            self.data["bottom" + val] = getattr(self, "bottom" + val)
+            self.attr.append("bottom" + val)
+
+            self.muandsigma = False
+
+            if mu is not None and sigma is not None:
+                self.muandsigma = True
+
+                setattr(self, "x" + val, np.linspace(-2, 2, len(self.data[val])))
+                self.data["x" + val] = getattr(self, "x" + val)
+                self.attr.append("x" + val)
+
+                pdf = 1/(sigma * np.sqrt(2*np.pi)) * np.exp(-(self.data["x" + val]-mu)**2 / (2*sigma**2))
+                setattr(self, "pdf" + val, pdf)
+                self.data["pdf" + val] = getattr(self, "pdf" + val)
+                self.attr.append("pdf" + val)
+
+                cdf = (1+scipy.special.erf((self.data["x" + val]-mu)/np.sqrt(2*sigma**2)))/2
+                setattr(self, "cdf" + val, cdf)
+                self.data["cdf" + val] = getattr(self, "cdf" + val)
+                self.attr.append("cdf" + val)
 
     def get_source_histogram(self):
-        self.source = ColumnDataSource(data=dict(hist=self.hist,
-                                                 edges=self.edges,
-                                                 xval=self.xval,
-                                                 pdf=self.pdf,
-                                                 cdf=self.cdf,
-                                                 top=self.top,
-                                                 bottom=self.bottom,
-                                                 left=self.left,
-                                                 right=self.right))
-        self.xdr = DataRange1d(sources=[self.source.columns("edges")])
-        self.ydr = DataRange1d(sources=[self.source.columns("hist")])
+        self.source = ColumnDataSource(data=self.data)
+
+        if not self.muandsigma:
+            x_names, y_names = self.attr[1::5], self.attr[::5]
+        else:
+            x_names, y_names = self.attr[1::8], self.attr[::8]
+
+        endx = max(max(self.data[i]) for i in x_names)
+        startx = min(min(self.data[i]) for i in x_names)
+        self.xdr = Range1d(start=startx - 0.1 * (endx - startx),
+                           end=endx + 0.1 * (endx - startx))
+
+        endy = max(max(self.data[i]) for i in y_names)
+        if endy < 1.0:
+            endy = 1.0
+        self.ydr = Range1d(start=0, end=1.1 * endy)
 
     def get_data_bar(self, cat, **value):
         self.cat = cat
@@ -143,8 +182,7 @@ class Chart(object):
 
         # Grouping
         for i, val in enumerate(self.pairs.keys()):
-            # if xy is a pandas dataframe
-            xy = self.pairs[val].values
+            xy = self.pairs[val]
             setattr(self, val + "_x", xy[:, 0])
             self.data[val + "_x"] = getattr(self, val + "_x")
             self.attr.append(val + "_x")
@@ -229,9 +267,10 @@ class Chart(object):
 
         self.plot.renderers.append(line_glyph)
 
-    def make_quad(self, top, bottom, left, right):
+    def make_quad(self, top, bottom, left, right, color):
 
-        quad = Quad(top=top, bottom=bottom, left=left, right=right, fill_color="green")
+        quad = Quad(top=top, bottom=bottom, left=left, right=right,
+                    fill_color=color, fill_alpha=0.5)
 
         quad_glyph = Glyph(data_source=self.source,
                            xdata_range=self.xdr,
@@ -278,7 +317,11 @@ class Chart(object):
         g = itertools.cycle(_marker_types.keys())
         for i in range(markertype):
             shape = next(g)
-        scatter = _marker_types[shape](x=x, y=y, size=10, fill_color=color)
+        scatter = _marker_types[shape](x=x, y=y, size=10,
+                                       fill_color=color,
+                                       line_color=color,
+                                       fill_alpha=0.2,
+                                       line_alpha=1.0)
 
         scatter_glyph = Glyph(data_source=self.source,
                            xdata_range=self.xdr,
@@ -289,25 +332,25 @@ class Chart(object):
 
     def histogram(self):
         # Use the `quad` renderer to display the histogram bars.
-        self.make_quad("top", "bottom", "left", "right")
-        # Add theoretical lines
-        self.make_line("xval", "pdf")
-        self.make_line("xval", "cdf")
+        if not self.muandsigma:
+            self.quintet = list(self.chunker(self.attr, 5))
+            colors = self.set_colors(self.quintet)
+
+            for i, quintet in enumerate(self.quintet):
+                self.make_quad(quintet[0], quintet[4], quintet[2], quintet[3], colors[i])
+        else:
+            self.octet = list(self.chunker(self.attr, 8))
+            colors = self.set_colors(self.octet)
+
+            for i, octet in enumerate(self.octet):
+                self.make_quad(octet[0], octet[4], octet[2], octet[3], colors[i])
+                self.make_line(octet[5], octet[6])
+                self.make_line(octet[5], octet[7])
 
     def bar(self, stacked):
         # Use the `rect` renderer to display the bars.
-        # self.make_rect("cat", self.attr[1], "width", self.attr[0])
-
-        def chunks(l, n):
-            "Yield successive n-sized chunks from l."
-            for i in range(0, len(l), n):
-                yield l[i:i + n]
-
-        self.quartet = list(chunks(self.attr, 4))
-        if len(self.quartet) < 3:
-            colors = brewer["YlGnBu"][3]
-        else:
-            colors = brewer["YlGnBu"][len(self.quartet)]
+        self.quartet = list(self.chunker(self.attr, 4))
+        colors = self.set_colors(self.quartet)
 
         for i, quartet in enumerate(self.quartet):
             if stacked:
@@ -316,17 +359,9 @@ class Chart(object):
                 self.make_rect(quartet[3], quartet[1], "width_cat", quartet[0], colors[i])
 
     def scatter(self):
-
-        def chunks(l, n):
-            "Yield successive n-sized chunks from l."
-            for i in range(0, len(l), n):
-                yield l[i:i + n]
-
-        self.duplet = list(chunks(self.attr, 2))
-        if len(self.duplet) < 3:
-            colors = brewer["YlGnBu"][3]
-        else:
-            colors = brewer["YlGnBu"][len(self.duplet)]
+        # Use the several "marker" renderers depending of the incomming groups
+        self.duplet = list(self.chunker(self.attr, 2))
+        colors = self.set_colors(self.duplet)
 
         for i, duplet in enumerate(self.duplet, start=1):
             self.make_scatter(duplet[0], duplet[1], i, colors[i - 1])
@@ -347,6 +382,25 @@ class Chart(object):
             import IPython.core.displaypub as displaypub
             from bokeh.embed import notebook_div
             displaypub.publish_display_data('bokeh', {'text/html': notebook_div(self.plot)})
+
+    # Some helper methods
+
+    def chunker(self, l, n):
+        "Yield successive n-sized chunks from l."
+        for i in range(0, len(l), n):
+            yield l[i:i + n]
+
+    def set_colors(self, chunk):
+        # TODO: change to a generator to cycle the pallete
+        colors = []
+
+        pal = ["#f22c40", "#5ab738", "#407ee7", "#c33ff3"]
+        #g = itertools.cycle(brewer["Spectral"][11])
+        g = itertools.cycle(pal)
+        for i in range(len(chunk)):
+            colors.append(next(g))
+
+        return colors
 
 
 class ChartObject(object):
@@ -398,7 +452,7 @@ class ChartObject(object):
 
 class Histogram(ChartObject):
 
-    def __init__(self, measured, bins, mu=None, sigma=None,
+    def __init__(self, measured, bins=None, mu=None, sigma=None,
                  title=None, xname=None, yname=None,
                  xscale="linear", yscale="linear", width=800, height=600,
                  filename=False, notebook=False):
@@ -410,12 +464,15 @@ class Histogram(ChartObject):
                                         xscale, yscale, width, height,
                                         filename, notebook)
 
-    def draw(self):
+    def check_attr(self):
         super(Histogram, self).check_attr()
+
+    def draw(self):
+        self.check_attr()
 
         chart = Chart(self._title, self.xname, self.yname, self.xscale, self.yscale,
                       self._width, self._height, self.filename, self._notebook)
-        chart.get_data_histogram(self.measured, self.bins, self.mu, self.sigma)
+        chart.get_data_histogram(self.bins, self.mu, self.sigma, **self.measured)
         chart.get_source_histogram()
         chart.start_plot()
         chart.histogram()
@@ -461,25 +518,17 @@ class Bar(ChartObject):
 
 class Scatter(ChartObject):
 
-    def __init__(self, pairs,# stacked=False,
+    def __init__(self, pairs,
                  title=None, xname=None, yname=None,
                  xscale="linear", yscale="linear", width=800, height=600,
                  filename=False, notebook=False):
         self.pairs = pairs
-        #self.__stacked = stacked
         super(Scatter, self).__init__(title, xname, yname,
                                   xscale, yscale, width, height,
                                   filename, notebook)
 
-    #def stacked(self, stacked=True):
-        #self._stacked = stacked
-        #return self
-
     def check_attr(self):
         super(Scatter, self).check_attr()
-
-        #if not hasattr(self, '_stacked'):
-            #self._stacked = self.__stacked
 
     def draw(self):
         self.check_attr()
