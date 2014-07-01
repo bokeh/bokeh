@@ -1081,11 +1081,8 @@ class Datetime(Property):
 
     def transform(self, value):
         value = super(Datetime, self).transform(value)
-
-        epoch = datetime.datetime.utcfromtimestamp(0)
-        delta = value - epoch
-        return delta.total_seconds() * 1000.0
-        # TODO add other types
+        return value
+        # Handled by serialization in protocol.py for now
 
 
 class RelativeDelta(Dict):

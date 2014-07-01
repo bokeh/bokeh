@@ -109,8 +109,8 @@ class Range(PlotObject):
 
 class Range1d(Range):
     """ Represents a fixed range [start, end] in a scalar dimension. """
-    start = Either(Float, Datetime)
-    end = Either(Float, Datetime)
+    start = Either(Datetime, Float)
+    end = Either(Datetime, Float)
 
 class DataRange(Range):
     sources = List(Instance(ColumnsRef))
