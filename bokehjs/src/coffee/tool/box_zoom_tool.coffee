@@ -67,7 +67,7 @@ define [
       [@xrange, @yrange] = @_get_selection_range()
       @trigger('boxselect', @xrange, @yrange)
 
-      @plot_view.render_overlays(true)
+      @plot_view._render_levels(@plot_view.ctx, ['overlay'], true)
       return null
 
     _dragend : () ->

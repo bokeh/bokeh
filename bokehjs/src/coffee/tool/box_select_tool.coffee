@@ -81,7 +81,7 @@ define [
       if @select_every_mousemove
         @_select_data()
 
-      @plot_view.render_overlays(true)
+      @plot_view._render_levels(@plot_view.ctx, ['overlay'], true)
       return null
 
     _dragend : () ->
