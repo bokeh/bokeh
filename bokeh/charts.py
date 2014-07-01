@@ -19,8 +19,8 @@ import warnings
 import numpy as np
 import pandas as pd
 
-from .glyphs import (Asterisk, Circle, Cross, Diamond, InvertedTriangle, Line,
-                     MultiLine, Patches, Rect, Square, Text, Triangle, Xmarker, Quad)
+from .glyphs import (Asterisk, Circle, CircleCross, CircleX, Cross, Diamond, DiamondCross, InvertedTriangle, Line,
+                     MultiLine, Patches, Rect, Square, SquareCross, SquareX, Text, Triangle, Xmarker, Quad)
 from .objects import (BoxSelectionOverlay, BoxSelectTool, BoxZoomTool, CategoricalAxis,
                       ColumnDataSource, DataRange1d, DatetimeTickFormatter,
                       DatetimeAxis, FactorRange, Glyph, Grid, GridPlot, LinearAxis, PanTool,
@@ -132,6 +132,39 @@ class Chart(object):
             end = 1.1 * max(max(self.data[i]) for i in cat)
             self.ydr = Range1d(start=0, end=end)
 
+    def get_data_scatter(self, **pairs):
+        self.data = dict()
+
+        # assuming value is a dict, ordered dict
+        self.pairs = pairs
+
+        # list to save all the attributes we are going to create
+        self.attr = []
+
+        # Grouping
+        for i, val in enumerate(self.pairs.keys()):
+            # if xy is a pandas dataframe
+            xy = self.pairs[val].values
+            setattr(self, val + "_x", xy[:, 0])
+            self.data[val + "_x"] = getattr(self, val + "_x")
+            self.attr.append(val + "_x")
+            setattr(self, val + "_y", xy[:, 1])
+            self.data[val + "_y"] = getattr(self, val + "_y")
+            self.attr.append(val + "_y")
+
+    def get_source_scatter(self):
+        self.source = ColumnDataSource(self.data)
+
+        x_names, y_names = self.attr[::2], self.attr[1::2]
+
+        endx = max(max(self.data[i]) for i in x_names)
+        startx = min(min(self.data[i]) for i in x_names)
+        self.xdr = Range1d(start=startx - 0.1 * (endx - startx), end=endx + 0.1 * (endx - startx))
+
+        endy = max(max(self.data[i]) for i in y_names)
+        starty = min(min(self.data[i]) for i in y_names)
+        self.ydr = Range1d(start=starty - 0.1 * (endy - starty), end=endy + 0.1 * (endy - starty))
+
     def start_plot(self):
         self.plot = Plot(title=self.title,
                          #self.xname
@@ -198,7 +231,7 @@ class Chart(object):
 
     def make_quad(self, top, bottom, left, right):
 
-        quad = Quad(top=top, bottom=bottom, left=left, right=right)
+        quad = Quad(top=top, bottom=bottom, left=left, right=right, fill_color="green")
 
         quad_glyph = Glyph(data_source=self.source,
                            xdata_range=self.xdr,
@@ -217,6 +250,42 @@ class Chart(object):
                            glyph=rect)
 
         self.plot.renderers.append(rect_glyph)
+
+    def make_scatter(self, x, y, markertype, color):
+        from collections import OrderedDict
+
+        _marker_types = OrderedDict([
+            ("circle", Circle),
+            ("square", Square),
+            ("triangle", Triangle),
+            ("diamond", Diamond),
+            ("inverted_triangle", InvertedTriangle),
+            ("asterisk", Asterisk),
+            ("cross", Cross),
+            ("x", Xmarker),
+            ("circle_cross", CircleCross),
+            ("circle_x", CircleX),
+            ("square_x", SquareX),
+            ("square_cross", SquareCross),
+            ("diamond_cross", DiamondCross),
+            ])
+            #"*": Asterisk,
+            #"+": Cross,
+            #"o": Circle,
+            #"ox": CircleX,
+            #"o+": CircleCross)
+
+        g = itertools.cycle(_marker_types.keys())
+        for i in range(markertype):
+            shape = next(g)
+        scatter = _marker_types[shape](x=x, y=y, size=10, fill_color=color)
+
+        scatter_glyph = Glyph(data_source=self.source,
+                           xdata_range=self.xdr,
+                           ydata_range=self.ydr,
+                           glyph=scatter)
+
+        self.plot.renderers.append(scatter_glyph)
 
     def histogram(self):
         # Use the `quad` renderer to display the histogram bars.
@@ -245,6 +314,22 @@ class Chart(object):
                 self.make_rect("cat", quartet[2], "width", quartet[0], colors[i])
             else:  # Grouped
                 self.make_rect(quartet[3], quartet[1], "width_cat", quartet[0], colors[i])
+
+    def scatter(self):
+
+        def chunks(l, n):
+            "Yield successive n-sized chunks from l."
+            for i in range(0, len(l), n):
+                yield l[i:i + n]
+
+        self.duplet = list(chunks(self.attr, 2))
+        if len(self.duplet) < 3:
+            colors = brewer["YlGnBu"][3]
+        else:
+            colors = brewer["YlGnBu"][len(self.duplet)]
+
+        for i, duplet in enumerate(self.duplet, start=1):
+            self.make_scatter(duplet[0], duplet[1], i, colors[i - 1])
 
     def draw(self):
         global notebook_loaded
@@ -342,7 +427,7 @@ class Bar(ChartObject):
 
     def __init__(self, cat, value, stacked=False,
                  title=None, xname=None, yname=None,
-                 xscale="linear", yscale="linear", width=800, height=600,
+                 xscale="categorical", yscale="linear", width=800, height=600,
                  filename=False, notebook=False):
         self.cat = cat
         self.value = value
@@ -370,5 +455,40 @@ class Bar(ChartObject):
         chart.get_source_bar(self._stacked)
         chart.start_plot()
         chart.bar(self._stacked)
+        chart.end_plot()
+        chart.draw()
+
+
+class Scatter(ChartObject):
+
+    def __init__(self, pairs,# stacked=False,
+                 title=None, xname=None, yname=None,
+                 xscale="linear", yscale="linear", width=800, height=600,
+                 filename=False, notebook=False):
+        self.pairs = pairs
+        #self.__stacked = stacked
+        super(Scatter, self).__init__(title, xname, yname,
+                                  xscale, yscale, width, height,
+                                  filename, notebook)
+
+    #def stacked(self, stacked=True):
+        #self._stacked = stacked
+        #return self
+
+    def check_attr(self):
+        super(Scatter, self).check_attr()
+
+        #if not hasattr(self, '_stacked'):
+            #self._stacked = self.__stacked
+
+    def draw(self):
+        self.check_attr()
+
+        chart = Chart(self._title, self.xname, self.yname, self.xscale, self.yscale,
+                      self._width, self._height, self.filename, self._notebook)
+        chart.get_data_scatter(**self.pairs)
+        chart.get_source_scatter()
+        chart.start_plot()
+        chart.scatter()
         chart.end_plot()
         chart.draw()
