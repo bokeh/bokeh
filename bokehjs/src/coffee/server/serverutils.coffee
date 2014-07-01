@@ -119,7 +119,17 @@ define [
           load_models(data['all_models'])
           Deferreds._doc_loaded.resolve(data)
         )
+  # Hugo: Todo, lift utility functions outside of utility object
+  # and into this module
+
+  configure_server = (ws_conn_string, prefix) ->
+    Config = require("common/base").Config
+    Config.ws_conn_string = ws_conn_string,
+    Config.prefix = prefix
+    console.log('setting prefix to', Config.prefix)
+    console.log('setting ws_conn_string to', Config.ws_conn_string)
 
   exports.utility = utility
+  exports.configure_server = configure_server
 
   return exports

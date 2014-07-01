@@ -5,7 +5,26 @@ define ["common/base",
 ],  (base, serverutils, usercontext, HasProperties) ->
   Config = base.Config
   Promises = serverutils.Promises
-  Config.ws_conn_string = "ws://#{window.location.host}/bokeh/sub"
+
+  # auto detect prefix
+  # window.bokeh_prefix, and window.bokeh_ws_conn_string can be set inside
+  # templates from the server
+
+  if window.bokeh_prefix?
+    prefix = window.bokeh_prefix
+  else
+    url = window.location.href
+    if url.indexOf('/bokeh') > 0
+      prefix = url.slice(0, url.indexOf('/bokeh')) + "/" #keep trailing slash
+    else
+      prefix = '/'
+  if window.bokeh_ws_conn_string?
+    ws_conn_string = window.bokeh_ws_conn_string
+  else
+    ws_conn_string = "ws://#{window.location.host}/bokeh/sub"
+
+  serverutils.configure_server(ws_conn_string, prefix)
+
   reload = () ->
     Config = require("common/base").Config
     ping_url = "#{Config.prefix}/bokeh/ping"
