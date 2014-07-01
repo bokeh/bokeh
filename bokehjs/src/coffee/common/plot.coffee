@@ -74,13 +74,6 @@ define [
       @outline_props = new line_properties(@, {}, 'outline_')
       @title_props = new text_properties(@, {}, 'title_')
 
-      @requested_padding = {
-        top: 0
-        bottom: 0
-        left: 0
-        right: 0
-      }
-
       @old_mapper_state = {
         x: null
         y: null
@@ -97,6 +90,7 @@ define [
       @build_levels()
       @atm.bind_bokeh_events()
       @bind_bokeh_events()
+      @model.add_layout()
       @request_render()
       return this
 
@@ -163,37 +157,18 @@ define [
 
       ctx = @canvas_view.ctx
 
+      for m, v of @renderers
+        if m.update_layout?
+          m.update_layout(v)
+        @model.solver.update_variables(false)
+
       if not @initial_range_info?
         @set_initial_range()
-
-      @requested_padding = {
-        top: 0
-        bottom: 0
-        left: 0
-        right: 0
-      }
-      for level in ['image', 'underlay', 'glyph', 'overlay', 'annotation', 'tool']
-        renderers = @levels[level]
-        for k, v of renderers
-          if v.padding_request?
-            pr = v.padding_request()
-            for k, v of pr
-              @requested_padding[k] += v
 
       title = @mget('title')
       if title
         @title_props.set(@canvas_view.ctx, {})
         th = ctx.measureText(@mget('title')).ascent
-        @requested_padding['top'] += (th + @mget('title_standoff'))
-
-      if @mget('h_symmetry')
-        hpadding = Math.max(@requested_padding['left'], @requested_padding['right'])
-        @requested_padding['left'] = hpadding
-        @requested_padding['right'] = hpadding
-      if @mget('v_symmetry')
-        vpadding = Math.max(@requested_padding['top'], @requested_padding['bottom'])
-        @requested_padding['top'] = vpadding
-        @requested_padding['bottom'] = vpadding
 
       frame_box = [
         @canvas.vx_to_sx(@frame.get('left')),
@@ -295,6 +270,32 @@ define [
 
       @solver.update_variables()
 
+    add_layout: () ->
+
+      frame = @get('frame')
+
+      last = frame
+      for r in @get_obj('above')
+        @solver.add_constraint(new Constraint(new Expr(last._top, [-1, r._anchor]), EQ), kiwi.Strength.strong)
+        last = r
+
+      last = frame
+      for r in @get_obj('below')
+        @solver.add_constraint(new Constraint(new Expr(last._bottom, [-1, r._anchor]), EQ), kiwi.Strength.strong)
+        last = r
+
+      last = frame
+      for r in @get_obj('left')
+        @solver.add_constraint(new Constraint(new Expr(last._left, [-1, r._anchor]), EQ), kiwi.Strength.strong)
+        last = r
+
+      last = frame
+      for r in @get_obj('right')
+        @solver.add_constraint(new Constraint(new Expr(last._right, [-1, r._anchor]), EQ), kiwi.Strength.strong)
+        last = r
+
+      @solver.update_variables()
+
     add_renderers: (new_renderers) ->
       renderers = @get('renderers')
       renderers = renderers.concat(new_renderers)
@@ -321,6 +322,10 @@ define [
         plot_width: 600,
         plot_height: 600,
         title: 'Plot',
+        above: [],
+        below: [],
+        left: [],
+        right: []
       }
 
     display_defaults: () ->

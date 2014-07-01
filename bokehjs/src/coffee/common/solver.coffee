@@ -10,9 +10,10 @@ define [
     constructor: () ->
       @solver = new kiwi.Solver()
 
-    update_variables: () ->
+    update_variables: (trigger=true) ->
       @solver.updateVariables()
-      @trigger('layout_update')
+      if trigger
+        @trigger('layout_update')
 
     add_constraint: (constraint) ->
       @solver.addConstraint(constraint)

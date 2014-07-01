@@ -276,6 +276,11 @@ class Plot(Widget):
     renderers = List(Instance(Renderer))
     tools = List(Instance(".objects.Tool"))
 
+    left = List(Instance(PlotObject))
+    right = List(Instance(PlotObject))
+    above = List(Instance(PlotObject))
+    below = List(Instance(PlotObject))
+
     # TODO: These don't appear in the CS source, but are created by mpl.py, so
     # I'm leaving them here for initial compatibility testing.
     # axes = List()
@@ -362,7 +367,7 @@ class Axis(GuideRenderer):
     type = String("axis")
 
     dimension = Int(0)
-    location = Either(Enum(Location), Float)
+    side = Enum(Location)
     bounds = Either(Enum('auto'), Tuple(Float, Float))
 
     ticker = Instance(Ticker)
