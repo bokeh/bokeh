@@ -231,7 +231,7 @@ def _get_range(range_input):
         if len(range_input) == 2:
             try:
                 return Range1d(start=range_input[0], end=range_input[1])
-            except:
+            except ValueError: # @mattpap suggests ValidationError instead
                 pass
     raise ValueError("Unrecognized range input: '%s'" % str(range_input))
 
