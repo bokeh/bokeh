@@ -121,6 +121,11 @@ define [
     type: 'Canvas'
     default_view: CanvasView
 
+    initialize: (attr, options) ->
+      super(attr, options)
+
+      @new_bounds = true
+
     dinitialize: (attr, options) ->
       super(attr, options)
 
@@ -130,8 +135,6 @@ define [
       @solver.update_variables()
 
       @_set_dims([@get('canvas_width'), @get('canvas_height')])
-
-      @new_bounds = true
 
     # transform view coordinates to underlying screen coordinates
     vx_to_sx: (x) ->
