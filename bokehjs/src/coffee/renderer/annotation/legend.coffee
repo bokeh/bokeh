@@ -40,12 +40,8 @@ define [
       else
         @legends = @mget('legends')
         @legend_names =_.keys(@mget('legends'))
-      @calc_dims()
-
-    delegateEvents: (events) ->
-      super(events)
-      # TODO I think this is wrong now
-      #@listenTo(@plot_view.canvas, 'change', @calc_dims)
+      @need_calc_dims = true
+      @listenTo(@plot_model.solver, 'layout_update', () -> @need_calc_dims = true)
 
     calc_dims: (options) ->
       label_height = @mget('label_height')
@@ -58,7 +54,6 @@ define [
       #add legend spacing
       @legend_height = @legend_names.length * @legend_height + (1 + @legend_names.length) * legend_spacing
       ctx = @plot_view.canvas_view.ctx
-
       ctx.save()
       @label_props.set(ctx, @)
       text_widths = _.map(@legend_names, (txt) -> ctx.measureText(txt).width)
@@ -90,6 +85,9 @@ define [
       @box_coords = [x,y]
 
     render: () ->
+      if @need_calc_dims
+        @calc_dims()
+        @need_calc_dims = false
       ctx = @plot_view.canvas_view.ctx
       ctx.save()
 
