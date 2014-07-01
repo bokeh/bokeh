@@ -74,13 +74,21 @@ define [], () ->
         if not e[@options.keyName]
           @_stop_drag(e))
 
+      @plotview.canvas.bind 'mouseover', (e) =>
+        if @options.buttonText == 'Resize'
+          @plotview.$el.find('.resize_bokeh_plot').removeClass  'hide'
+
+      @plotview.canvas.bind 'mouseout', (e) =>
+        if @options.buttonText == 'Resize'
+          @plotview.$el.find('.resize_bokeh_plot').addClass  'hide'
+
       @plotview.canvas_wrapper.bind 'mousedown', (e) =>
-        console.log("mouse down?")
-        console.log("Tool Type: "+@options.buttonText)
+        
         start = false
 
         if @button_activated or @eventSink.active == @toolName
           start = true
+
         else if not @eventSink.active
           if @options.keyName is null and not e.ctrlKey and not e.altKey and not e.metaKey and not e.shiftKey
             start = true
@@ -100,8 +108,7 @@ define [], () ->
           @_stop_drag(e)
           return false)
 
-      @$tool_button = $("<button class='bk-bs-btn bk-bs-btn-default bk-bs-btn-sm' title='#{@options.buttonText}'>#{@options.buttonIcon}  </button>")
-      @plotview
+      @$tool_button = $("<button class='bk-bs-btn bk-bs-btn-default bk-bs-btn-sm' title='#{@options.buttonText}'>#{@options.buttonIcon}</button>")
       @plotview.$el.find('.button_bar').append(@$tool_button)
 
       # Paddy: I want to remove all this checking for @button_activated,
@@ -110,9 +117,12 @@ define [], () ->
       #
       # What is the difference between tool_active and button_activated?
       # I once knew, but now I forget
+        
       @$tool_button.click(=>
         if @button_activated
           eventSink.trigger("clear_active_tool")
+          if @option.buttonText=='Resize'
+            console.log("click 1 - resize")
         else
           eventSink.trigger("active_tool", toolName))
 
@@ -199,10 +209,11 @@ define [], () ->
       @plotview.$el.bind("mouseover", (e) =>
         @mouseover_count += 1)
 
-      @$tool_button = $("<button class='bk-bs-btn bk-bs-btn-default bk-bs-btn-sm' title='#{@options.buttonText}'>#{@options.buttonIcon}  </button>")
+      @$tool_button = $("<button class='bk-bs-btn bk-bs-btn-default bk-bs-btn-sm' title='#{@options.buttonText}'>#{@options.buttonIcon}</button>")
       @plotview.$el.find('.button_bar').append(@$tool_button)
 
       @$tool_button.click(=>
+        console.log("click 2")
         if @button_activated
           eventSink.trigger("clear_active_tool")
         else
@@ -268,11 +279,12 @@ define [], () ->
       @plotview.$el.bind("mouseover", (e) =>
         @mouseover_count += 1)
 
-      @$tool_button = $("<button class='bk-bs-btn bk-bs-btn-default bk-bs-btn-sm' title='#{@options.buttonText}'>#{@options.buttonIcon}  </button>")
+      @$tool_button = $("<button class='bk-bs-btn bk-bs-btn-default bk-bs-btn-sm' title='#{@options.buttonText}'>#{@options.buttonIcon}</button>")
 
       @plotview.$el.find('.button_bar').append(@$tool_button)
 
       @$tool_button.click(=>
+        console.log("click 3")
         if @button_activated
           eventSink.trigger("clear_active_tool")
         else

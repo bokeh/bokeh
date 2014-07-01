@@ -24,11 +24,8 @@
 	height: 0;
 	display: block;
 	clear: both;
+}
 
-}
-.bokeh_canvas_wrapper_outer {
-	border: 2px solid red;
-}
 .bokeh_canvas_wrapper_outer:after {
 	content: " ";
 	display: block;
@@ -46,13 +43,9 @@
 	display: block;
 	clear: both;
 }
-.bokeh_canvas {
-
-}
 .sidebar {
 	float: left;
 	padding: 0;
-	border: 1px solid blue;
 	position: relative;
 }
 .sidebar .menu_expand {
@@ -83,6 +76,7 @@
 	clear: both;
 }
 .logo {
+	margin: 0 auto;
 	width: 35px;
 	height: 35px;
 	display: block;
@@ -102,7 +96,7 @@
 	-webkit-box-shadow: 1px 1px 2px rgba(0,0,0, .4);
 	-moz-box-shadow: 1px 1px 2px rgba(0,0,0, .4);
 }
-.bk-bs-btn-group > .bk-bs-btn:hover {
+.bk-bs-btn-group > .bk-bs-btn:hover, .bk-bs-btn-group > .bk-bs-btn.active {
 	background-color: #A8A8A8;
 }
 

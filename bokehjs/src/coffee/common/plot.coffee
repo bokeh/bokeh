@@ -278,22 +278,16 @@ define [
       # TODO use template
       @$el.append($("""
         <div class='plotarea'>
-        <div class='bokeh_canvas_wrapper_outer'>
-          <div class='bokeh_canvas_wrapper'>
-            <canvas class='bokeh_canvas'></canvas>
-            <div class='resize_bokeh_plot pull-right'></div>
-          </div>
-          <div class='sidebar'>
-            <a href='http://bokeh.pydata.org/' class='logo'/>
-            <div class='button_bar bk-bs-btn-group pull-top'>
-              <button class='bk-bs-btn bk-bs-btn-default bk-bs-btn-sm menu_expand'/>
+            <div class='bokeh_canvas_wrapper_outer'>
+            <div class='bokeh_canvas_wrapper'>
+              <canvas class='bokeh_canvas'></canvas>
+            </div>
+            <div class='sidebar'>
+              <a href='http://bokeh.pydata.org/' class='logo'/>    
+              <div class='button_bar bk-bs-btn-group pull-top'>
+              </div>
             </div>
           </div>
-          
-        </div>
-        </div>
-        <div class='bottombar'>
-          
         </div>
         """))
       @canvas_wrapper = @$el.find('.bokeh_canvas_wrapper')
@@ -320,7 +314,7 @@ define [
       @canvas.width = ow * ratio
       @canvas.height = oh * ratio
 
-      @button_bar.attr('style', "width:#{ow}px;")
+      #@button_bar.attr('style', "width:#{ow}px;")
       @canvas_wrapper.attr('style', "width:#{ow}px; height:#{oh}px")
       @canvas.attr('style', "width:#{ow}px;")
       @canvas.attr('style', "height:#{oh}px;")
