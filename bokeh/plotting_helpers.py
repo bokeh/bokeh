@@ -1,4 +1,3 @@
-
 from collections import Iterable, Sequence
 import itertools
 from numbers import Number
@@ -238,7 +237,7 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
     # Accept **kw to absorb other arguments which the actual factory functions
     # might pass in, but that we don't care about
     p = Plot()
-
+    print y_axis_type
     p.title = kw.pop("title", "Plot")
     if plot_width is not None:
         p.plot_width = plot_width
@@ -257,6 +256,7 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
         axiscls = LinearAxis
     elif x_axis_type is "log":
         axiscls = LogAxis
+        p.x_mapper_type = "log"
     elif x_axis_type == "datetime":
         axiscls = DatetimeAxis
     if axiscls:
@@ -272,6 +272,7 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
         axiscls = LinearAxis
     elif y_axis_type is "log":
         axiscls = LogAxis
+        p.y_mapper_type = "log"
     elif y_axis_type == "datetime":
         axiscls = DatetimeAxis
     if axiscls:
@@ -445,3 +446,4 @@ class _list_attr_splat(list):
     def __setattr__(self, attr, value):
         for x in self:
             setattr(x, attr, value)
+
