@@ -98,9 +98,9 @@ define [], () ->
           @_stop_drag(e)
           return false)
 
-      @$tool_button = $("<button class='bk-bs-btn bk-bs-btn-default bk-bs-btn-sm'> #{@options.buttonText} </button>")
+      @$tool_button = $("<button class='bk-toolbar-button'> #{@options.buttonText} </button>")
       @plotview
-      @plotview.$el.find('.button_bar').append(@$tool_button)
+      @plotview.$el.find('.bk-button-bar').append(@$tool_button)
 
       # Paddy: I want to remove all this checking for @button_activated,
       # is there some way we can do this in a more declarative way,
@@ -197,8 +197,8 @@ define [], () ->
       @plotview.$el.bind("mouseover", (e) =>
         @mouseover_count += 1)
 
-      @$tool_button = $("<button class='bk-bs-btn bk-bs-btn-default bk-bs-btn-sm'> #{@options.buttonText} </button>")
-      @plotview.$el.find('.button_bar').append(@$tool_button)
+      @$tool_button = $("<button class='bk-toolbar-button'> #{@options.buttonText} </button>")
+      @plotview.$el.find('.bk-button-bar').append(@$tool_button)
 
       @$tool_button.click(=>
         if @button_activated
@@ -266,9 +266,9 @@ define [], () ->
       @plotview.$el.bind("mouseover", (e) =>
         @mouseover_count += 1)
 
-      @$tool_button = $("<button class='bk-bs-btn bk-bs-btn-default bk-bs-btn-sm'> #{@options.buttonText} </button>")
+      @$tool_button = $("<button class='bk-toolbar-button'> #{@options.buttonText} </button>")
 
-      @plotview.$el.find('.button_bar').append(@$tool_button)
+      @plotview.$el.find('.bk-button-bar').append(@$tool_button)
 
       @$tool_button.click(=>
         if @button_activated

@@ -34,7 +34,7 @@ DatetimeUnits = enumeration("microseconds", "milliseconds", "seconds", "minsec",
 Dimension = enumeration("width", "height", "x", "y")
 Location = enumeration("top", "bottom", "left", "right", "min", "max")
 Orientation = enumeration("top_right", "top_left", "bottom_left", "bottom_right")
-BorderSymmetry = enumeration("h", "v", "hv", "vh")
+BorderSymmetry = enumeration("h", "v", "hv", "vh", "none")
 DashPattern = enumeration("solid", "dashed", "dotted", "dotdash", "dashdot")
 NamedColor = enumeration(
     "indigo", "gold", "firebrick", "indianred", "yellow",

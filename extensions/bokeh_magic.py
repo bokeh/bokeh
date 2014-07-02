@@ -28,7 +28,7 @@ class BokehMagics(Magics):
     """Magic to embed Bokeh into the IPython notebook."""
 
     ipyones = ['1.0.0', '1.1.1', '1.1.2', '1.2.0', '1.2.1']
-    ipytwos = ['2.0.0-dev', '2.0.0-b1', '2.0.0', '2.1.0', '3.0.0-dev']
+    ipytwos = ['2.0.0-dev', '2.0.0-b1', '2.0.0-wakari', '2.0.0', '2.1.0', '3.0.0-dev']
     if IPython.__version__ in ipyones:
         is_ipytwo = False
     elif IPython.__version__ in ipytwos:

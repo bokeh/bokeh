@@ -1,6 +1,11 @@
 import six
+import pandas as pd
+import numpy as np
+
+from .objects import ColumnDataSource, Range1d, FactorRange, GridPlot, Widget, DataSource
 from .plot_object import PlotObject
-from .objects import Widget, DataSource
+from bokeh.plotting import (curdoc, cursession, line,
+                            scatter)
 from .properties import (HasProps, Dict, Enum, Either, Float, Instance, Int, List,
     String, Color, Include, Bool, Tuple, Any, Date, RelativeDelta, lookup_descriptor)
 from .pivot_table import pivot_table
@@ -120,7 +125,6 @@ class BokehApplet(Widget):
     def add_route(cls, route, bokeh_url):
         from bokeh.server.app import bokeh_app
         from bokeh.pluginutils import app_document
-        from bokeh.plotting import curdoc, cursession
         from flask import render_template
         @app_document(cls.__view_model__, bokeh_url)
         def make_app():
@@ -174,12 +178,28 @@ class Select(InputWidget):
         kwargs['options'] = new_options
         return super(Select, self).create(*args, **kwargs)
 
+class MultiSelect(Select):
+    value = List(String)
+
+    @classmethod
+    def create(self, *args, **kwargs):
+        options = kwargs.pop('options', [])
+        new_options = []
+        for opt in options:
+            if isinstance(opt, six.string_types):
+                opt = {'name' : opt, 'value' : opt}
+            new_options.append(opt)
+        kwargs['options'] = new_options
+        return super(Select, self).create(*args, **kwargs)
+
 class Slider(InputWidget):
     value = Float()
     start = Float()
     end = Float()
     step = Int()
     orientation = Enum("horizontal", "vertical")
+
+
 
 class DateRangeSlider(InputWidget):
     value = Tuple(Date, Date)

@@ -63,12 +63,14 @@ define [
         xrange = [@mget('start_vx'), @mget('current_vx')]
         xrange = [_.min(xrange), _.max(xrange)]
       else
-        xrange = null
+        range = @plot_view.view_state.get('inner_range_horizontal')
+        xrange = [range.get('start'), range.get('end')]
       if @mget('select_y')
         yrange = [@mget('start_vy'), @mget('current_vy')]
         yrange = [_.min(yrange), _.max(yrange)]
       else
-        yrange = null
+        range = @plot_view.view_state.get('inner_range_vertical')
+        yrange = [range.get('start'), range.get('end')]
       return [xrange, yrange]
 
     _selecting: (e, x_, y_) ->
