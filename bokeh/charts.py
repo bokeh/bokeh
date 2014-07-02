@@ -174,7 +174,7 @@ class Chart(object):
     def get_data_scatter(self, **pairs):
         self.data = dict()
 
-        # assuming value is a dict, ordered dict
+        # assuming value is an ordered dict
         self.pairs = pairs
 
         # list to save all the attributes we are going to create
@@ -452,7 +452,7 @@ class ChartObject(object):
 
 class Histogram(ChartObject):
 
-    def __init__(self, measured, bins=None, mu=None, sigma=None,
+    def __init__(self, measured, bins, mu=None, sigma=None,
                  title=None, xname=None, yname=None,
                  xscale="linear", yscale="linear", width=800, height=600,
                  filename=False, notebook=False):
@@ -482,7 +482,7 @@ class Histogram(ChartObject):
 
 class Bar(ChartObject):
 
-    def __init__(self, cat, value, stacked=False,
+    def __init__(self, value, cat=None, stacked=False,
                  title=None, xname=None, yname=None,
                  xscale="categorical", yscale="linear", width=800, height=600,
                  filename=False, notebook=False):
@@ -504,6 +504,9 @@ class Bar(ChartObject):
             self._stacked = self.__stacked
 
     def draw(self):
+        if isinstance(self.value, pd.DataFrame):
+            self.cat = self.value.index.values.tolist()
+
         self.check_attr()
 
         chart = Chart(self._title, self.xname, self.yname, self.xscale, self.yscale,
@@ -531,6 +534,30 @@ class Scatter(ChartObject):
         super(Scatter, self).check_attr()
 
     def draw(self):
+        # asumming we get an hierchiral pandas object
+        if isinstance(self.pairs, pd.DataFrame):
+            from collections import OrderedDict
+            pdict = OrderedDict()
+
+            for i in self.pairs.columns.levels[0].values:
+                pdict[i] = self.pairs[i].dropna().values
+
+            self.pairs = pdict
+
+        # asumming we get an groupby object
+        if isinstance(self.pairs, pd.core.groupby.DataFrameGroupBy):
+            from collections import OrderedDict
+            pdict = OrderedDict()
+
+            for i in self.pairs.groups.keys():
+                xname = self.pairs.get_group(i).columns[0]
+                yname = self.pairs.get_group(i).columns[1]
+                x = getattr(self.pairs.get_group(i), xname)
+                y = getattr(self.pairs.get_group(i), yname)
+                pdict[i] = np.array([x.values, y.values]).T
+
+            self.pairs = pdict
+
         self.check_attr()
 
         chart = Chart(self._title, self.xname, self.yname, self.xscale, self.yscale,
