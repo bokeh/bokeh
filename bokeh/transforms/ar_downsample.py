@@ -3,8 +3,6 @@ from ..plotting import curdoc
 from ..plot_object import PlotObject
 from ..objects import  ServerDataSource,  Glyph, Range1d
 from bokeh.properties import (Instance, Any)
-import math
-import numpy as np 
 
 import logging
 logger = logging.getLogger(__file__)
@@ -101,6 +99,13 @@ class Cuberoot(Transfer):
   out = "image"
   def reify(self, **kwargs):
     return numeric.Cuberoot()
+
+class Spread(Transfer):
+  out = "image"
+  factor = Any #TODO: Restrict to numbers... 
+  def reify(self, **kwargs):
+    return numeric.Spread(self.factor)
+
 
 #TODO: Pass the 'rend' defintiion through (minus the data_source references), unpack in 'downsample' instead of here...
 #TODO: Move reserve control up here or palette control down.  Probably related to refactoring palette into a model-backed type

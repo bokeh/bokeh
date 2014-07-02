@@ -87,6 +87,7 @@ define [
   'transforms/id'
   'transforms/interpolate'
   'transforms/seq'
+  'transforms/spread'
 ], (_, require) ->
 
   # add some useful functions to underscore
@@ -181,7 +182,7 @@ define [
     Id:                       'transforms/id'
     Interpolate:              'transforms/interpolate'
     Seq:                      'transforms/seq'
-
+    Spread:                   'transforms/spread'
   mod_cache = {}
   collection_overrides = {}
   Collections = (typename) ->
