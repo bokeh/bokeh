@@ -290,7 +290,7 @@ define [
       do_side('left', '_left', GE)
       do_side('right', '_right', LE)
 
-      @solver.update_variables()
+      @solver.update_variables(false)
 
     add_renderers: (new_renderers) ->
       renderers = @get('renderers')

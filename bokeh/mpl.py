@@ -103,8 +103,8 @@ class BokehRenderer(Renderer):
         self.grid = ax.get_xgridlines()[0]
 
         # Add axis
-        bxaxis = self.make_axis(ax.xaxis, 0, props['xscale'])
-        byaxis = self.make_axis(ax.yaxis, 1, props['yscale'])
+        bxaxis = self.make_axis(ax.xaxis, "bottom", props['xscale'])
+        byaxis = self.make_axis(ax.yaxis, "left", props['yscale'])
 
         # Add grids
         self.make_grid(bxaxis, 0)
@@ -260,7 +260,7 @@ class BokehRenderer(Renderer):
     def draw_image(self, imdata, extent, coordinates, style, mplobj=None):
         pass
 
-    def make_axis(self, ax, dimension, scale):
+    def make_axis(self, ax, location, scale):
         "Given a mpl axes instance, returns a Bokeh LinearAxis object."
         # TODO:
         #  * handle log scaling
@@ -269,14 +269,12 @@ class BokehRenderer(Renderer):
         #  * handle custom tick locations once that is added to bokehJS
         if scale == "linear":
             laxis = LinearAxis(plot=self.plot,
-                               dimension=dimension,
-                               location="min",
+                               location=location,
                                axis_label=ax.get_label_text())
         elif scale == "date":
             #formatter = DatetimeTickFormatter(formats=dict(months=["%b %Y"]))
             laxis = DatetimeAxis(plot=self.plot,
-                                 dimension=dimension,
-                                 location="min",
+                                 location=location,
                                  axis_label=ax.get_label_text(),
                                  #formatter=formatter
                                  )
