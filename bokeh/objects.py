@@ -12,7 +12,8 @@ logger = logging.getLogger(__file__)
 
 from . import _glyph_functions
 from .properties import (HasProps, Dict, Enum, Either, Float, Instance, Int,
-    List, String, Color, Include, Bool, Tuple, Any)
+    Datetime,
+    List, String, Color, Date, Include, Bool, Tuple, Any)
 from .mixins import LineProps, TextProps
 from .enums import BorderSymmetry, DatetimeUnits, Dimension, Location, Orientation, Units
 from .plot_object import PlotObject
@@ -123,8 +124,8 @@ class Range(PlotObject):
 
 class Range1d(Range):
     """ Represents a fixed range [start, end] in a scalar dimension. """
-    start = Float()
-    end = Float()
+    start = Either(Datetime, Float)
+    end = Either(Datetime, Float)
 
 class DataRange(Range):
     sources = List(Instance(ColumnsRef))
