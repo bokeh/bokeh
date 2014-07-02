@@ -152,19 +152,19 @@ class CrossFilter(PlotObject):
         curdoc().add_all()
 
     def make_plot(self):
-        if all(len(self.facet_x) ==0,
-               len(self.facet_y) == 0,
-               len(self.facet_tab) == 0):
+        if all([len(self.facet_x) ==0,
+                len(self.facet_y) == 0,
+                len(self.facet_tab) == 0]):
             return self.make_single_plot()
 
-        if all(len(self.facet_x) !=0,
-               len(self.facet_y) == 0,
-               len(self.facet_tab) == 0):
+        if all([len(self.facet_x) !=0,
+                len(self.facet_y) == 0,
+                len(self.facet_tab) == 0]):
             return self.make_all_facet_plot()
 
-        if all(len(self.facet_x) !=0,
-               len(self.facet_y) != 0,
-               len(self.facet_tab) == 0):
+        if all([len(self.facet_x) !=0,
+                len(self.facet_y) != 0,
+                len(self.facet_tab) == 0]):
             return self.make_xy_facet_plot()
 
     def make_facets(self, dimension):

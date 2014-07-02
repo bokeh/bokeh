@@ -56,7 +56,7 @@ def make_factor_source(series):
 def make_bar_plot(datasource, counts_name="counts",
                   centery_name='centery',
                   centers_name="centers",
-                  bar_width=0.7
+                  bar_width=0.7,
                   x_range=None,
                   plot_width=500, plot_height=500,
                   tools=None,
@@ -85,7 +85,7 @@ def make_histogram(datasource, counts_name="counts",
                   centery_name='centery',
                   centers_name="centers",
                   x_range=None,
-                  bar_width=0.7
+                  bar_width=0.7,
                   plot_width=500, plot_height=500,
                   min_border=40,
                   tools=None,
