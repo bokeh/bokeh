@@ -33,7 +33,7 @@ define [
       if @get('use_scientific')
         for tick in ticks
           tick_abs = Math.abs(tick)
-          if tick_abs > zero_eps and (tick_abs >= @scientific_limit_high or tick_abs <= @scientific_limit_low)
+          if tick_abs > zero_eps and (tick_abs >= @get('scientific_limit_high') or tick_abs <= @get('scientific_limit_low'))
             need_sci = true
             break
 
@@ -46,7 +46,7 @@ define [
             labels[i] = ticks[i].toExponential(precision or undefined)
         else
           for i in [0...ticks.length]
-            labels[i] = ticks[i].toPrecision(precision or undefined).replace(/(\.[0-9]*?)0+$/, "$1").replace(/\.$/, "")
+            labels[i] = ticks[i].toFixed(precision or undefined).replace(/(\.[0-9]*?)0+$/, "$1").replace(/\.$/, "")
         return labels
 
       else if precision == 'auto'
@@ -64,7 +64,7 @@ define [
               break
           else
             for i in [0...ticks.length]
-              labels[i] = ticks[i].toPrecision(x).replace(/(\.[0-9]*?)0+$/, "$1").replace(/\.$/, "")
+              labels[i] = ticks[i].toFixed(x).replace(/(\.[0-9]*?)0+$/, "$1").replace(/\.$/, "")
               if i > 0
                 if labels[i] == labels[i-1]
                   is_ok = false

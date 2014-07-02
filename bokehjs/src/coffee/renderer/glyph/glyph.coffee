@@ -7,6 +7,57 @@ define [
 ], (_, HasParent, PlotWidget, Properties) ->
 
   class GlyphView extends PlotWidget
+ 
+    #TODO: There are glyph sub-type-vs-resample_op concordance issues...
+    setup_server_data : () ->
+      serversource = @mget_obj('server_data_source')
+      # hack, call set data, becuase there are some attrs that we need
+      # that are in it
+      data = _.extend({}, @mget_obj('data_source').get('data'), serversource.get('data'))
+      @mget_obj('data_source').set('data', data)
+      @set_data(false)
+
+      transform_params = serversource.attributes['transform']
+      resample_op = transform_params['resample']  
+      x_range = @plot_view.view_state.get('inner_range_horizontal')
+      y_range = @plot_view.view_state.get('inner_range_vertical')
+
+      if (resample_op == 'line1d')
+        domain = transform_params['domain']
+        if domain == 'x'
+          serversource.listen_for_line1d_updates(
+            @mget_obj('data_source'),
+            x_range,  y_range,
+            @plot_view.x_range,
+            @plot_view.view_state.get('inner_range_horizontal'),
+            @glyph_props.y.field,
+            @glyph_props.x.field,
+            [@glyph_props.y.field],
+            transform_params
+          )
+        else
+          throw new Error("Domains other than 'x' not supported yet.")
+      else if (resample_op == 'heatmap')
+        serversource.listen_for_heatmap_updates(
+           @mget_obj('data_source'),
+           x_range,  y_range,
+           @plot_view.x_range,
+           @plot_view.y_range,
+           transform_params
+        )
+      else if (resample_op == 'abstract rendering')
+        serversource.listen_for_ar_updates(
+           @mget_obj('data_source'), 
+           x_range,  y_range,
+           @plot_view.x_range,
+           @plot_view.y_range,
+           transform_params)
+      else
+        throw new Error("Unkonwn resample op '#{resample_op}'")
+
+
+
+
 
     initialize: (options) ->
       super(options)
