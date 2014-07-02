@@ -7,21 +7,29 @@ from bokeh.properties import (Instance, Any)
 import logging
 logger = logging.getLogger(__file__)
 
-try:
-  import abstract_rendering.numeric as numeric
-  import abstract_rendering.general as general
-  import abstract_rendering.infos as infos
-  import abstract_rendering.core as ar
-  import abstract_rendering.glyphset as glyphset
-except:
-  print("\n\n-----------------------------------------------------------------------")
-  print("Error loading the abstract_rendering package.\n")
-  print("To use the ar_downsample module, you must install the abstract rendering framework.")
-  print("This can be installed with conda, pip or by")
-  print("cloning from https://github.com/JosephCottam/AbstractRendering")
-  print("Questions and feedback can be directed to Joseph Cottam (jcottam@indiana.edu)")
-  print("-----------------------------------------------------------------------\n\n")
-#  raise
+
+def _loadAR():
+  """Utility to load abstract rendering.  Keeps the import from occuring
+     unless you actually try to use AR.
+  """
+  try:
+    from importlib import import_module
+
+    globals()["numeric"] = import_module("abstract_rendering.numeric")
+    globals()["general"] = import_module("abstract_rendering.general")
+    globals()["infos"] = import_module("abstract_rendering.infos")
+    globals()["ar"] = import_module("abstract_rendering.core")
+    globals()["glyphset"] = import_module("abstract_rendering.glyphset")
+
+  except:
+    print("\n\n-----------------------------------------------------------------------")
+    print("Error loading the abstract_rendering package.\n")
+    print("To use the ar_downsample module, you must install the abstract rendering framework.")
+    print("This can be installed with conda, pip or by")
+    print("cloning from https://github.com/JosephCottam/AbstractRendering")
+    print("Questions and feedback can be directed to Joseph Cottam (jcottam@indiana.edu)")
+    print("-----------------------------------------------------------------------\n\n")
+  #  raise
 
 
 class Proxy(PlotObject):
@@ -102,7 +110,7 @@ class Cuberoot(Transfer):
 
 class Spread(Transfer):
   out = "image"
-  factor = Any #TODO: Restrict to numbers... 
+  factor = Any #TODO: Restrict to numbers; Add shape parameter
   def reify(self, **kwargs):
     return numeric.Spread(self.factor)
 
@@ -157,6 +165,7 @@ def mapping(source):
     raise ValueError("Only handling image type in property mapping...")
 
 def downsample(data, transform, plot_state):
+  _loadAR()  #Must be called before any attempts to use AR proper
   glyphspec = transform['glyphspec']
   xcol = glyphspec['x']['field']
   ycol = glyphspec['y']['field']
@@ -172,24 +181,25 @@ def downsample(data, transform, plot_state):
     xcol = table[xcol]
     ycol = table[ycol]
   
+  #TODO: Do more detection to find if it is an area implantation.  If so, make a selector with the right shape pattern and use a point shaper
   shaper = _shaper(glyphspec['type'], size)
   glyphs = glyphset.Glyphset([xcol, ycol], ar.EmptyList(), shaper, colMajor=True)
   bounds = glyphs.bounds()
   
-  scale_x = span(plot_state['data_x'])/float(span(plot_state['screen_x']))
-  scale_y = span(plot_state['data_y'])/float(span(plot_state['screen_y']))
+  scale_x = _span(plot_state['data_x'])/float(_span(plot_state['screen_x']))
+  scale_y = _span(plot_state['data_y'])/float(_span(plot_state['screen_y']))
 
   #How big would a full plot of the data be at the current resolution?
   if (scale_x == 0 or scale_y == 0):
     #If scale is zero for either axis, just zoom fit
-    plot_size = [span(plot_state['screen_x']), span(plot_state['screen_y'])]
+    plot_size = [_span(plot_state['screen_x']), _span(plot_state['screen_y'])]
     scale_x = 1
     scale_y = 1
   else:
     plot_size = [bounds[2]/scale_x, bounds[3]/scale_y] 
   
   ivt = ar.zoom_fit(plot_size, bounds, balanced=False)  
-
+  
   image = ar.render(glyphs, 
                     transform['info'].reify(), 
                     transform['agg'].reify(), 
@@ -220,10 +230,12 @@ def downsample(data, transform, plot_state):
   
   return rslt;
 
-def span(r):
-    return r.end - r.start
+def _span(r):
+  """Distance in a Range1D"""
+  return r.end - r.start
 
 def _shaper(code, size):
+  """Construct the AR shaper to match the given shape code."""
   code = code.lower()
   if not code == 'square':
     raise ValueError("Only recognizing 'square', received " + code)

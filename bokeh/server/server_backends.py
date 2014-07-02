@@ -13,7 +13,7 @@ from ..exceptions import DataIntegrityException
 from ..utils import encode_utf8, decode_utf8
 from ..transforms import line_downsample
 from ..transforms import image_downsample
-
+from ..transforms import ar_downsample
 import logging
 import numpy as np
 
