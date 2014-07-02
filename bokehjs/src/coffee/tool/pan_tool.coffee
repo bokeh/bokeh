@@ -71,26 +71,36 @@ define [
       dims = @mget('dimensions')
 
       if dims.indexOf('width') > -1
-        xstart = @plot_view.xmapper.map_from_target(sx_low)
-        xend   = @plot_view.xmapper.map_from_target(sx_high)
-        sdx    = -xdiff
+        sx0 = sx_low
+        sx1 = sx_high
+        sdx = -xdiff
       else
-        xstart = @plot_view.xmapper.map_from_target(xr.get('start'))
-        xend   = @plot_view.xmapper.map_from_target(xr.get('end'))
-        sdx    = 0
+        sx0 = xr.get('start')
+        sx1 = xr.get('end')
+        sdx = 0
 
       if dims.indexOf('height') > -1
-        ystart = @plot_view.ymapper.map_from_target(sy_low)
-        yend   = @plot_view.ymapper.map_from_target(sy_high)
-        sdy    = ydiff
+        sy0 = sy_low
+        sy1 = sy_high
+        sdy = ydiff
       else
-        ystart = @plot_view.ymapper.map_from_target(yr.get('start'))
-        yend   = @plot_view.ymapper.map_from_target(yr.get('end'))
-        sdy    = 0
+        sy0 = yr.get('start')
+        sy1 = yr.get('end')
+        sdy = 0
+
+      xrs = {}
+      for name, mapper of @plot_view.x_mappers
+        [start, end] = mapper.v_map_from_target([sx0, sx1])
+        xrs[name] = {start: start, end: end}
+
+      yrs = {}
+      for name, mapper of @plot_view.y_mappers
+        [start, end] = mapper.v_map_from_target([sy0, sy1])
+        yrs[name] = {start: start, end: end}
 
       pan_info = {
-        xr: {start: xstart, end: xend}
-        yr: {start: ystart, end: yend}
+        xrs: xrs
+        yrs: yrs
         sdx: sdx
         sdy: sdy
       }

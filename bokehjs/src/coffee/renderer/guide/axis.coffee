@@ -179,7 +179,7 @@ define [
       if not @rule_props.do_stroke
         return
       [x, y] = coords = @mget('rule_coords')
-      [sx, sy] = @plot_view.map_to_screen(x, "data", y, "data")
+      [sx, sy] = @plot_view.map_to_screen(x, "data", y, "data", @mget('x_range_name'), @mget('y_range_name'))
       [nx, ny] = @mget('normals')
 
       @rule_props.set(ctx, @)
@@ -193,7 +193,7 @@ define [
       if not @major_tick_props.do_stroke
         return
       [x, y] = coords = @mget('major_coords')
-      [sx, sy] = @plot_view.map_to_screen(x, "data", y, "data")
+      [sx, sy] = @plot_view.map_to_screen(x, "data", y, "data", @mget('x_range_name'), @mget('y_range_name'))
       [nx, ny] = @mget('normals')
 
       tin = @mget('major_tick_in')
@@ -207,7 +207,7 @@ define [
 
     _draw_major_labels: (ctx) ->
       [x, y] = coords = @mget('major_coords')
-      [sx, sy] = @plot_view.map_to_screen(x, "data", y, "data")
+      [sx, sy] = @plot_view.map_to_screen(x, "data", y, "data", @mget('x_range_name'), @mget('y_range_name'))
       [nx, ny] = @mget('normals')
       dim = @mget('dimension')
       side = @mget('side')
@@ -242,7 +242,7 @@ define [
         return
 
       [x, y] = @mget('rule_coords')
-      [sx, sy] = @plot_view.map_to_screen(x, "data", y, "data")
+      [sx, sy] = @plot_view.map_to_screen(x, "data", y, "data", @mget('x_range_name'), @mget('y_range_name'))
       [nx, ny] = @mget('normals')
       side = @mget('side')
       orient = 'parallel'
@@ -408,7 +408,18 @@ define [
       i = @get('dimension')
       j = (i + 1) % 2
 
-      ranges = [@get_obj('plot').get_obj('x_range'), @get_obj('plot').get_obj('y_range')]
+      # TODO (bev) this is crap
+      if @get('x_range_name') != "default"
+        xr = @get_obj('plot').get('extra_x_ranges')[@get('x_range_name')]
+      else
+        xr = @get_obj('plot').get_obj('x_range')
+
+      if @get('y_range_name') != "default"
+        yr = @get_obj('plot').get('extra_y_ranges')[@get('y_range_name')]
+      else
+        yr = @get_obj('plot').get_obj('y_range')
+
+      ranges = [ xr, yr ]
 
       user_bounds = @get('bounds') ? 'auto'
       range_bounds = [ranges[i].get('min'), ranges[i].get('max')]
@@ -429,7 +440,19 @@ define [
       i = @get('dimension')
       j = (i + 1) % 2
 
-      ranges = [@get_obj('plot').get_obj('x_range'), @get_obj('plot').get_obj('y_range')]
+      # TODO (bev) this is crap
+      if @get('x_range_name') != "default"
+        xr = @get_obj('plot').get('extra_x_ranges')[@get('x_range_name')]
+      else
+        xr = @get_obj('plot').get_obj('x_range')
+
+      if @get('y_range_name') != "default"
+        yr = @get_obj('plot').get('extra_y_ranges')[@get('y_range_name')]
+      else
+        yr = @get_obj('plot').get_obj('y_range')
+
+      ranges = [ xr, yr ]
+
       range = ranges[i]
       cross_range = ranges[j]
 
@@ -470,7 +493,19 @@ define [
       i = @get('dimension')
       j = (i + 1) % 2
 
-      ranges = [@get_obj('plot').get_obj('x_range'), @get_obj('plot').get_obj('y_range')]
+      # TODO (bev) this is crap
+      if @get('x_range_name') != "default"
+        xr = @get_obj('plot').get('extra_x_ranges')[@get('x_range_name')]
+      else
+        xr = @get_obj('plot').get_obj('x_range')
+
+      if @get('y_range_name') != "default"
+        yr = @get_obj('plot').get('extra_y_ranges')[@get('y_range_name')]
+      else
+        yr = @get_obj('plot').get_obj('y_range')
+
+      ranges = [ xr, yr ]
+
       range = ranges[i]
       cross_range = ranges[j]
 
@@ -518,7 +553,19 @@ define [
       i = @get('dimension')
       j = (i + 1) % 2
 
-      ranges = [@get_obj('plot').get_obj('x_range'), @get_obj('plot').get_obj('y_range')]
+      # TODO (bev) this is crap
+      if @get('x_range_name') != "default"
+        xr = @get_obj('plot').get('extra_x_ranges')[@get('x_range_name')]
+      else
+        xr = @get_obj('plot').get_obj('x_range')
+
+      if @get('y_range_name') != "default"
+        yr = @get_obj('plot').get('extra_y_ranges')[@get('y_range_name')]
+      else
+        yr = @get_obj('plot').get_obj('y_range')
+
+      ranges = [ xr, yr ]
+
       range = ranges[i]
       cross_range = ranges[j]
 
@@ -577,6 +624,12 @@ define [
       else if n[0] == 1
         side = 'right'
       return side
+
+    defaults: () ->
+      return {
+        x_range_name: "default"
+        y_range_name: "default"
+      }
 
     display_defaults: () ->
       return {

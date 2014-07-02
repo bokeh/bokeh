@@ -17,8 +17,8 @@ define [
       super()
       for renderer in @mget_obj('renderers')
         rendererview = @plot_view.renderers[renderer.id]
-        @listenTo(rendererview.xrange(), 'change', @select_callback)
-        @listenTo(rendererview.yrange(), 'change', @select_callback)
+        #@listenTo(rendererview.xrange(), 'change', @select_callback)
+        #@listenTo(rendererview.yrange(), 'change', @select_callback)
         @listenTo(renderer, 'change', @select_callback)
 
     eventGeneratorClass: TwoPointEventGenerator

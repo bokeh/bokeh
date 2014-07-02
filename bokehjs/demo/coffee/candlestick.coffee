@@ -9,6 +9,7 @@ high = new Array(len)
 low = new Array(len)
 close = new Array(len)
 y = new Array(len)
+line_y = new Array(len)
 dy = new Array(len)
 color = new Array(len)
 
@@ -19,6 +20,7 @@ for i in [0..len-1]
   low[i] = tick['data'][i][3]
   close[i] = tick['data'][i][4]
   y[i] = (open[i] + close[i])/2
+  line_y[i] = Math.sin(i) * 100.0
   dy[i] = Math.abs(open[i] - close[i])
   if open[i] >= close[i]
     color[i] = 'white'
@@ -54,16 +56,30 @@ upperlower = {
   line_color: 'red'
 }
 
+line_data = {
+  x: date
+  y: line_y
+}
+
+line = {
+  type: 'line',
+  x: 'x'
+  y: 'y'
+  line_color: 'blue'
+  y_range_name: 'foo'
+}
+
 options = {
   title: "Candlestick Demo"
   dims: [800, 500]
   xrange: [0, 100]
   yrange: [5500, 6500]
   xaxes: "min"
-  yaxes: "min"
+  yaxes: ["left", "right:foo"]
   tools: "pan,wheel_zoom,resize,preview"
   legend: false
+  extra_y_ranges: { foo: [-100, 100] }
 }
 
-plot = Bokeh.Plotting.make_plot([upperlower, bars], data, options)
+plot = Bokeh.Plotting.make_plot([upperlower, bars, line], [data, data, line_data], options)
 Bokeh.Plotting.show(plot)

@@ -11,10 +11,9 @@ define [
   "./view_state",
   "mapper/1d/linear_mapper",
   "mapper/1d/categorical_mapper",
-  "mapper/2d/grid_mapper",
   "renderer/properties",
   "tool/active_tool_manager",
-], (_, Backbone, require, build_views, safebind, bulk_save, ContinuumView, HasParent, ViewState, LinearMapper, CategoricalMapper, GridMapper, Properties, ActiveToolManager) ->
+], (_, Backbone, require, build_views, safebind, bulk_save, ContinuumView, HasParent, ViewState, LinearMapper, CategoricalMapper, Properties, ActiveToolManager) ->
 
   line_properties = Properties.line_properties
   text_properties = Properties.text_properties
@@ -123,29 +122,57 @@ define [
 
       @hidpi = options.hidpi ? @mget('hidpi')
 
-      @x_range = options.x_range ? @mget_obj('x_range')
-      @y_range = options.y_range ? @mget_obj('y_range')
-
-      xmapper_type = LinearMapper.Model
-      if @x_range.type == "FactorRange"
-        xmapper_type = CategoricalMapper.Model
-      @xmapper = new xmapper_type({
-        source_range: @x_range
+      @x_ranges = {}
+      @x_mappers = {}
+      x_range = options.x_range ? @mget_obj('x_range')
+      x_mapper_type = LinearMapper.Model
+      if x_range.type == "FactorRange"
+        x_mapper_type = CategoricalMapper.Model
+      x_mapper = new x_mapper_type({
+        source_range: x_range
         target_range: @view_state.get('inner_range_horizontal')
       })
+      @x_ranges['default'] = x_range
+      @x_mappers['default'] = x_mapper
 
-      ymapper_type = LinearMapper.Model
-      if @y_range.type == "FactorRange"
-        ymapper_type = CategoricalMapper.Model
-      @ymapper = new ymapper_type({
-        source_range: @y_range
+      @y_ranges = {}
+      @y_mappers = {}
+      y_range = options.y_range ? @mget_obj('y_range')
+      y_mapper_type = LinearMapper.Model
+      if y_range.type == "FactorRange"
+        y_mapper_type = CategoricalMapper.Model
+      y_mapper = new y_mapper_type({
+        source_range: y_range
         target_range: @view_state.get('inner_range_vertical')
       })
+      @y_ranges['default'] = y_range
+      @y_mappers['default'] = y_mapper
 
-      @mapper = new GridMapper.Model({
-        domain_mapper: @xmapper
-        codomain_mapper: @ymapper
-      })
+      extra_x_ranges = options.extra_x_ranges ? @mget('extra_x_ranges')
+      if extra_x_ranges?
+        for name, rng of extra_x_ranges
+          mapper_type = LinearMapper.Model
+          if rng.type == "FactorRange"
+            mapper_type = CategoricalMapper.Model
+          mapper = new x_mapper_type({
+            source_range: rng
+            target_range: @view_state.get('inner_range_horizontal')
+          })
+          @x_ranges[name] = rng
+          @x_mappers[name] = mapper
+
+      extra_y_ranges = options.extra_y_ranges ? @mget('extra_y_ranges')
+      if extra_y_ranges?
+        for name, rng of extra_y_ranges
+          mapper_type = LinearMapper.Model
+          if rng.type == "FactorRange"
+            mapper_type = CategoricalMapper.Model
+          mapper = new x_mapper_type({
+            source_range: rng
+            target_range: @view_state.get('inner_range_vertical')
+          })
+          @y_ranges[name] = rng
+          @y_mappers[name] = mapper
 
       @requested_padding = {
         top: 0
@@ -180,8 +207,9 @@ define [
       @bind_bokeh_events()
       return this
 
-    # TODO (bev) why is this ignoring y units? why does it also take units as last arg?
-    map_to_screen: (x, x_units, y, y_units) ->
+    map_to_screen: (x, x_units, y, y_units, x_range_name="default", y_range_name="default") ->
+      x_mapper = @x_mappers[x_range_name]
+      y_mapper = @y_mappers[y_range_name]
       if x_units == 'screen'
         if _.isArray(x)
           sx = x[..]
@@ -189,7 +217,7 @@ define [
           sx = new Float64Array(x.length)
           sx.set(x)
       else
-        sx = @xmapper.v_map_to_target(x)
+        sx = x_mapper.v_map_to_target(x)
       if y_units == 'screen'
         if _.isArray(y)
           sy = y[..]
@@ -197,41 +225,21 @@ define [
           sy = new Float64Array(y.length)
           sy.set(y)
       else
-        sy = @ymapper.v_map_to_target(y)
+        sy = y_mapper.v_map_to_target(y)
 
       sx = @view_state.v_vx_to_sx(sx)
       sy = @view_state.v_vy_to_sy(sy)
 
       return [sx, sy]
 
-    map_from_screen: (sx, sy, units) ->
-      if _.isArray(sx)
-        dx = sx[..]
-      else
-        dx = new Float64Array(sx.length)
-        dx.set(x)
-      if _.isArray(sy)
-        dy = sy[..]
-      else
-        dy = new Float64Array(sy.length)
-        dy.set(y)
-      sx = @view_state.v_sx_to_vx(dx)
-      sy = @view_state.v_sy_to_vy(dy)
-
-      if units == 'screen'
-        x = sx
-        y = sy
-      else
-        [x, y] = @mapper.v_map_from_target(sx, sy)  # TODO: in-place?
-
-      return [x, y]
-
     update_range: (range_info) ->
       if not range_info?
         range_info = @initial_range_info
       @pause()
-      @x_range.set(range_info.xr)
-      @y_range.set(range_info.yr)
+      for name, rng of range_info.xrs
+        @x_ranges[name].set(rng)
+      for name, rng of range_info.yrs
+        @y_ranges[name].set(rng)
       @unpause()
 
     build_tools: () ->
@@ -267,8 +275,10 @@ define [
         @request_render_canvas()
         @request_render()
       )
-      safebind(this, @x_range, 'change', @request_render)
-      safebind(this, @y_range, 'change', @request_render)
+      for name, rng of @x_ranges
+        safebind(this, rng, 'change', @request_render)
+      for name, rng of @y_ranges
+        safebind(this, rng, 'change', @request_render)
       safebind(this, @model, 'change:renderers', @build_levels)
       safebind(this, @model, 'change:tool', @build_levels)
       safebind(this, @model, 'change', @request_render)
@@ -329,22 +339,28 @@ define [
 
     set_initial_range : () ->
       #check for good values for ranges before setting initial range
-      range_vals = [@x_range.get('start'), @x_range.get('end'),
-        @y_range.get('start'), @y_range.get('end')]
-      good_vals = _.map(range_vals, (val) -> val? and not _.isNaN(val))
-      good_vals = _.all(good_vals)
+      good_vals = true
+      xrs = {}
+      for name, rng of @x_ranges
+        if not rng.get('start')? or not rng.get('end')? or _.isNaN(rng.get('start') + rng.get('end'))
+          good_vals = false
+          break
+        xrs[name] = { start: rng.get('start'), end: rng.get('end') }
+      if good_vals
+        yrs = {}
+        for name, rng of @y_ranges
+          if not rng.get('start')? or not rng.get('end')? or _.isNaN(rng.get('start') + rng.get('end'))
+            good_vals = false
+            break
+          yrs[name] = { start: rng.get('start'), end: rng.get('end') }
       if good_vals
         @initial_range_info = {
-          xr: { start: @x_range.get('start'), end: @x_range.get('end') }
-          yr: { start: @y_range.get('start'), end: @y_range.get('end') }
+          xrs: xrs
+          yrs: yrs
         }
 
     render: (force) ->
       super()
-      #newtime = new Date()
-      # if @last_render
-      #   console.log(newtime - @last_render)
-      # @last_render = newtime
 
       if not @initial_range_info?
         @set_initial_range()
@@ -400,8 +416,8 @@ define [
         )
 
       have_new_mapper_state = false
-      xms = @xmapper.get('mapper_state')[0]
-      yms = @ymapper.get('mapper_state')[0]
+      xms = @x_mappers['default'].get('mapper_state')[0]
+      yms = @y_mappers['default'].get('mapper_state')[0]
       if Math.abs(@old_mapper_state.x-xms) > 1e-8 or Math.abs(@old_mapper_state.y - yms) > 1e-8
         @old_mapper_state.x = xms
         @old_mapper_state.y = yms

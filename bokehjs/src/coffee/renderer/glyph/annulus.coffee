@@ -21,7 +21,7 @@ define [
       @index.load(pts)
 
     _map_data: () ->
-      [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
+      [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units, @x_range_name, @y_range_name)
       @inner_radius = @distance_vector('x', 'inner_radius', 'edge')
       @outer_radius = @distance_vector('x', 'outer_radius', 'edge')
 
@@ -46,17 +46,17 @@ define [
 
     _hit_point: (geometry) ->
       [vx, vy] = [geometry.vx, geometry.vy]
-      x = @plot_view.xmapper.map_from_target(vx)
-      y = @plot_view.ymapper.map_from_target(vy)
+      x = @x_mapper.map_from_target(vx)
+      y = @y_mapper.map_from_target(vy)
 
       if @outer_radius_units == "screen"
         vx0 = vx - @max_radius
         vx1 = vx + @max_radius
-        [x0, x1] = @plot_view.xmapper.v_map_from_target([vx0, vx1])
+        [x0, x1] = @x_mapper.v_map_from_target([vx0, vx1])
 
         vy0 = vy - @max_radius
         vy1 = vy + @max_radius
-        [y0, y1] = @plot_view.ymapper.v_map_from_target([vy0, vy1])
+        [y0, y1] = @y_mapper.v_map_from_target([vy0, vy1])
 
       else
         x0 = x - @max_radius
@@ -79,10 +79,10 @@ define [
       else
         for i in candidates
           r2 = Math.pow(@outer_radius[i], 2)
-          sx0 = @plot_view.xmapper.map_to_target(x)
-          sx1 = @plot_view.xmapper.map_to_target(@x[i])
-          sy0 = @plot_view.ymapper.map_to_target(y)
-          sy1 = @plot_view.ymapper.map_to_target(@y[i])
+          sx0 = @x_mapper.map_to_target(x)
+          sx1 = @x_mapper.map_to_target(@x[i])
+          sy0 = @y_mapper.map_to_target(y)
+          sy1 = @y_mapper.map_to_target(@y[i])
           dist = Math.pow(sx0-sx1, 2) + Math.pow(sy0-sy1, 2)
           if dist <= r2
             candidates2.push([i, dist])
@@ -98,10 +98,10 @@ define [
       else
         for [i, dist] in candidates2
           r2 = Math.pow(@inner_radius[i], 2)
-          sx0 = @plot_view.xmapper.map_to_target(x)
-          sx1 = @plot_view.xmapper.map_to_target(@x[i])
-          sy0 = @plot_view.ymapper.map_to_target(y)
-          sy1 = @plot_view.ymapper.map_to_target(@y[i])
+          sx0 = @x_mapper.map_to_target(x)
+          sx1 = @x_mapper.map_to_target(@x[i])
+          sy0 = @y_mapper.map_to_target(y)
+          sy1 = @y_mapper.map_to_target(@y[i])
           if dist >= r2
             hits.push([i, dist])
 
