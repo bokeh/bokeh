@@ -270,7 +270,7 @@ class Chart(object):
     def make_quad(self, top, bottom, left, right, color):
 
         quad = Quad(top=top, bottom=bottom, left=left, right=right,
-                    fill_color=color, fill_alpha=0.5)
+                    fill_color=color, fill_alpha=0.7, line_color="white", line_alpha=1.0)
 
         quad_glyph = Glyph(data_source=self.source,
                            xdata_range=self.xdr,
@@ -281,7 +281,8 @@ class Chart(object):
 
     def make_rect(self, x, y, width, height, color):
 
-        rect = Rect(x=x, y=y, width=width, height=height, fill_color=color)
+        rect = Rect(x=x, y=y, width=width, height=height,
+                    fill_color=color, fill_alpha=0.7, line_color="white", line_alpha=1.0)
 
         rect_glyph = Glyph(data_source=self.source,
                            xdata_range=self.xdr,
@@ -319,8 +320,8 @@ class Chart(object):
             shape = next(g)
         scatter = _marker_types[shape](x=x, y=y, size=10,
                                        fill_color=color,
-                                       line_color=color,
                                        fill_alpha=0.2,
+                                       line_color=color,
                                        line_alpha=1.0)
 
         scatter_glyph = Glyph(data_source=self.source,
