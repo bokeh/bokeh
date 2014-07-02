@@ -38,8 +38,8 @@ image3 = ImageURL(url=dict(value=url), x=200, y=-100, angle=0.0, anchor="bottom_
 image3_glyph = Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=image3)
 plot.renderers.append(image3_glyph)
 
-xaxis = LinearAxis(plot=plot, dimension=0)
-yaxis = LinearAxis(plot=plot, dimension=1)
+xaxis = LinearAxis(plot=plot, location="bottom")
+yaxis = LinearAxis(plot=plot, location="left")
 xgrid = Grid(plot=plot, dimension=0, axis=xaxis)
 ygrid = Grid(plot=plot, dimension=1, axis=yaxis)
 

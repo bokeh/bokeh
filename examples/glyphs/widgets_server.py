@@ -31,8 +31,8 @@ def make_plot():
     plot.renderers.append(circle_glyph)
     hover = HoverTool(plot=plot, tooltips=dict(downloads="@downloads"))
     plot.tools.append(hover)
-    xaxis = DatetimeAxis(plot=plot, dimension=0)
-    yaxis = LinearAxis(plot=plot, dimension=1)
+    xaxis = DatetimeAxis(plot=plot, location="bottom")
+    yaxis = LinearAxis(plot=plot, location="left")
     xgrid = Grid(plot=plot, dimension=0, axis=xaxis)
     ygrid = Grid(plot=plot, dimension=1, axis=yaxis)
     return plot, source
