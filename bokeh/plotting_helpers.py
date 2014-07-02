@@ -15,7 +15,7 @@ from .objects import (
     ObjectExplorerTool, PanTool, Plot, PreviewSaveTool, Range, Range1d,
     ResetTool, ResizeTool, WheelZoomTool, Tool
 )
-from .properties import ColorSpec, Date, DateTime
+from .properties import ColorSpec, Date, Datetime
 import warnings
 
 def get_default_color(plot=None):
