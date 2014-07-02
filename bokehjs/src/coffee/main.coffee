@@ -1,9 +1,7 @@
 define (require, exports, module) ->
-
   if not window.Float64Array
     console.warn("Float64Array is not supported. Using generic Array instead.")
     window.Float64Array = Array
-
   Bokeh = {}
   Bokeh.require = require
   Bokeh.version = '0.4.4'
@@ -152,7 +150,7 @@ define (require, exports, module) ->
   Bokeh.VBox = require("widget/vbox")
   Bokeh.VBoxModelForm = require("widget/vboxmodelform")
   Bokeh.TextInput = require("widget/textinput")
-
+  Bokeh.CrossFilter = require("widget/crossfilter")
   # utils
   Bokeh.ObjectExplorer = require("widget/object_explorer")
 

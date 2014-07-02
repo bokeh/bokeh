@@ -40,9 +40,8 @@ define [
 
       tool_name = "hover_tool"
 
-      @tool_button = $("<button class='bk-bs-btn bk-bs-btn-default bk-bs-btn-sm'> Hover </button>")
+      @tool_button = $("<button class='bk-toolbar-button'> Hover </button>")
       @plot_view.$el.find('.button_bar').append(@tool_button)
-
       @tool_button.click(=>
         if @active
           @plot_view.eventSink.trigger("clear_active_tool")

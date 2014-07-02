@@ -234,7 +234,7 @@ define [
     render_init: () ->
       # TODO use template
       @$el.append($("""
-        <div class='button_bar bk-bs-btn-group'/>
+        <div class='bk-button-bar'/>
         <div class='plotarea'>
         <div class='bokeh_canvas_wrapper'>
           <div class="bokeh_gmap"></div>
@@ -242,7 +242,7 @@ define [
         </div>
         </div>
         """))
-      @button_bar = @$el.find('.button_bar')
+      @button_bar = @$el.find('.bk-button-bar')
       @canvas_wrapper = @$el.find('.bokeh_canvas_wrapper')
       @canvas = @$el.find('canvas.bokeh_canvas')
       @gmap_div = @$el.find('.bokeh_gmap')
@@ -510,4 +510,3 @@ define [
     "Collection": new GMapPlots(),
     "View": GMapPlotView,
   }
-
