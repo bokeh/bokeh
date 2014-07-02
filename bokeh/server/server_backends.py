@@ -13,7 +13,6 @@ from ..exceptions import DataIntegrityException
 from ..utils import encode_utf8, decode_utf8
 from ..transforms import line_downsample
 from ..transforms import image_downsample
-from ..transforms import ar_downsample
 
 import logging
 import numpy as np
@@ -416,6 +415,7 @@ class FunctionBackend(AbstractDataBackend):
         dataset = self.get_dataset(data_url)
         
         if resample_op == 'abstract rendering':
+          from ..transforms import ar_downsample
           result = ar_downsample.downsample(dataset, datasource.transform, plot_state)
           return result
         else:
@@ -543,6 +543,7 @@ class HDF5DataBackend(AbstractDataBackend):
                 request_username, data_url, 
                 parameters, plot_state)
         elif resample_op == 'abstract rendering':
+          from ..transforms import ar_downsample
           if (data_url.startswith("fn://")):
             dataset = FunctionBackend().get_dataset(data_url)
           else:

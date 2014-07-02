@@ -15,10 +15,10 @@ try:
   import abstract_rendering.glyphset as glyphset
 except:
   print("\n\n-----------------------------------------------------------------------")
-  print("Error loading the abstract rendering package.\n")
+  print("Error loading the abstract_rendering package.\n")
   print("To use the ar_downsample module, you must install the abstract rendering framework.")
-  print("This can be cloned from github at https://github.com/JosephCottam/AbstractRendering")
-  print("Install from the ./python directory with 'python setup.py install' (may require admin privledges)")
+  print("This can be installed with conda, pip or by")
+  print("cloning from https://github.com/JosephCottam/AbstractRendering")
   print("Questions and feedback can be directed to Joseph Cottam (jcottam@indiana.edu)")
   print("-----------------------------------------------------------------------\n\n")
 #  raise
