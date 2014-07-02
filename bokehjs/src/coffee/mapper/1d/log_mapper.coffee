@@ -15,8 +15,29 @@ define [
       @add_dependencies('mapper_state', @get('target_range'), ['start', 'end'])
 
     map_to_target: (x) ->
-      [scale, offset] = @get('mapper_state')
-      return scale * x + offset
+      [scale, offset, inter_scale, inter_offset] = @get('mapper_state')
+      
+      intermediate = 0
+      result = 0
+
+      if inter_scale == 0
+        intermediate = 0
+      else
+          
+        try
+          intermediate = (Math.log(x) - inter_offset) / inter_scale
+          
+          if isNaN(intermediate)
+            throw "NaN"
+          if isFinite(intermediate) == false
+            throw "Infinite"
+
+        catch error
+          intermediate = 0
+
+      result = intermediate * scale + offset
+      
+      return result
 
     v_map_to_target: (xs) ->
       [scale, offset, inter_scale, inter_offset] = @get('mapper_state')
