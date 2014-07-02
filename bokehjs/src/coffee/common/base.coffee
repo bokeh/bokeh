@@ -180,7 +180,7 @@ define [
   Collections = (typename) ->
     if collection_overrides[typename]
       return collection_overrides[typename]
-    console.log locations
+    
     if not locations[typename]
       throw "./base: Unknown Collection #{typename}"
 
