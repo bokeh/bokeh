@@ -19,7 +19,6 @@ define [
   line_properties = Properties.line_properties
   text_properties = Properties.text_properties
 
-  Var = kiwi.Variable
   Expr = kiwi.Expression
   Constraint = kiwi.Constraint
   EQ = kiwi.Operator.Eq
@@ -157,10 +156,10 @@ define [
 
       ctx = @canvas_view.ctx
 
-      for m, v of @renderers
-        if m.update_layout?
-          m.update_layout(v)
-        @model.solver.update_variables(false)
+      for k, v of @renderers
+        if v.model.update_layout?
+          v.model.update_layout(v, @model.solver)
+      @model.solver.update_variables(false)
 
       if not @initial_range_info?
         @set_initial_range()
@@ -262,37 +261,34 @@ define [
       min_border_right  = @get('min_border_right')  ? @get('min_border')
 
       @solver.add_constraint(new Constraint(new Expr(frame._left, -min_border_left), GE), kiwi.Strength.strong)
-      @solver.add_constraint(new Constraint(new Expr(canvas._right, [-1, frame._right], -min_border_right), GE), kiwi.Strength.strong)
+      @solver.add_constraint(new Constraint(new Expr(frame._right, min_border_right, [-1, canvas._right]), LE), kiwi.Strength.strong)
       @solver.add_constraint(new Constraint(new Expr(frame._bottom, -min_border_bottom), GE), kiwi.Strength.strong)
-      @solver.add_constraint(new Constraint(new Expr(canvas._top, [-1, frame._top], -min_border_top), GE), kiwi.Strength.strong)
-      @solver.suggest_value(frame._width, canvas._width)
-      @solver.suggest_value(frame._height, canvas._height)
+      @solver.add_constraint(new Constraint(new Expr(frame._top, min_border_top, [-1, canvas._top]), LE), kiwi.Strength.strong)
+      @solver.update_variables()
+      @solver.suggest_value(frame._width, canvas.get('width'))
+      @solver.suggest_value(frame._height, canvas.get('height'))
 
       @solver.update_variables()
 
     add_layout: () ->
 
-      frame = @get('frame')
+      do_side = (side, cname, op) =>
+        canvas = @get('canvas')
+        frame = @get('frame')
+        last = frame
+        elts = @get_obj(side)
+        if elts.length == 0
+          return
+        for r in elts
+          @solver.add_constraint(new Constraint(new Expr(last[cname], [-1, r._anchor]), EQ), kiwi.Strength.strong)
+          last = r
+        @solver.add_constraint(new Constraint(new Expr(last[cname], [-1, canvas[cname]]), op), kiwi.Strength.required)
+        @solver.suggest_value(last["_width"] , 100)
 
-      last = frame
-      for r in @get_obj('above')
-        @solver.add_constraint(new Constraint(new Expr(last._top, [-1, r._anchor]), EQ), kiwi.Strength.strong)
-        last = r
-
-      last = frame
-      for r in @get_obj('below')
-        @solver.add_constraint(new Constraint(new Expr(last._bottom, [-1, r._anchor]), EQ), kiwi.Strength.strong)
-        last = r
-
-      last = frame
-      for r in @get_obj('left')
-        @solver.add_constraint(new Constraint(new Expr(last._left, [-1, r._anchor]), EQ), kiwi.Strength.strong)
-        last = r
-
-      last = frame
-      for r in @get_obj('right')
-        @solver.add_constraint(new Constraint(new Expr(last._right, [-1, r._anchor]), EQ), kiwi.Strength.strong)
-        last = r
+      do_side('above', '_top', LE)
+      do_side('below', '_bottom', GE)
+      do_side('left', '_left', GE)
+      do_side('right', '_right', LE)
 
       @solver.update_variables()
 

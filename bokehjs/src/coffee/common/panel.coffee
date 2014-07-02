@@ -35,10 +35,10 @@ define [
 
       for v in vars
         name = '_'+v
-        @[name] = new Var()
+        @[name] = new Var(v)
         @register_property(v, @_get_var, false)
         @register_setter(v, @_set_var)
-        @solver.add_edit_variable(@[name], kiwi.Strength.strong)
+        @solver.add_edit_variable(@[name], kiwi.Strength.weak)
 
       @solver.add_constraint(new Constraint(new Expr(@_width), GE))
       @solver.add_constraint(new Constraint(new Expr(@_height), GE))
@@ -105,7 +105,14 @@ define [
         @solver.update_variables()
 
     defaults: () ->
-      return { }
+      return {
+        'top_strength': kiwi.Strength.strong,
+        'bottom_strength': kiwi.Strength.strong,
+        'left_strength': kiwi.Strength.strong,
+        'right_strength': kiwi.Strength.strong,
+        'width_strength': kiwi.Strength.strong,
+        'height_strength': kiwi.Strength.strong
+      }
 
   class Panels extends Backbone.Collection
     model: Panel

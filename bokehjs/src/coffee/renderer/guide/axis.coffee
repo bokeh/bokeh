@@ -2,11 +2,12 @@
 define [
   "underscore",
   "backbone",
+  "kiwi",
   "common/has_parent",
   "common/panel",
   "common/plot_widget",
   "renderer/properties",
-], (_, Backbone, HasParent, Panel, PlotWidget, Properties) ->
+], (_, Backbone, kiwi, HasParent, Panel, PlotWidget, Properties) ->
 
   glyph_properties = Properties.glyph_properties
   line_properties  = Properties.line_properties
@@ -41,7 +42,7 @@ define [
   #         [angle > 0]   middle     left              width * cos + height * sin
   #         [angle < 0]   middle     left              width * cos + height + sin
 
-  pi2 = pi2
+  pi2 = Math.PI/2
   ALPHABETIC = 'alphabetic'
   MIDDLE = 'middle'
   HANGING = 'hanging'
@@ -212,7 +213,7 @@ define [
       [sx, sy] = @plot_view.map_to_screen(x, "data", y, "data")
       [nx, ny] = @mget('normals')
       dim = @mget('dimension')
-      side = @mget('side')
+      side = @mget('location')
       orient = @mget('major_label_orientation')
 
       if _.isString(orient)
@@ -245,7 +246,7 @@ define [
       [x, y] = @mget('rule_coords')
       [sx, sy] = @plot_view.map_to_screen(x, "data", y, "data")
       [nx, ny] = @mget('normals')
-      side = @mget('side')
+      side = @mget('location')
       orient = 'parallel'
 
       angle = _angle_lookup[side][orient]
@@ -277,7 +278,16 @@ define [
       panel = new Panel.Model({}, {solver: plot.solver})
       @set('panel', panel)
 
-      side = @get('side')
+      # Yuck. The issues is that frames and canvases *are* panels, but axes are not but
+      # should be (no multiple inheritnce in CoffeeScript)
+      @_top = panel._top
+      @_bottom = panel._bottom
+      @_left = panel._left
+      @_right = panel._right
+      @_width = panel._width
+      @_height = panel._height
+
+      side = @get('location')
       if side == "top"
         @_size = panel._height
         @_anchor = panel._bottom
@@ -315,9 +325,17 @@ define [
       @register_property('normals', (() -> @_normals), true)
       @register_property('dimension', (() -> @_dim), true)
 
-    update_layout: (view) ->
-      size = _tick_extent(view) + _tick_label_extent(view) + _axis_label_extent(view)
-      @plot.solver.suggest_value(@_size, size)
+    update_layout: (view, solver) ->
+      size = @_tick_extent(view) + @_tick_label_extent(view) + @_axis_label_extent(view)
+      if not @_last_size?
+        @_last_size = -1
+      if size == @_last_size
+        return
+      @_last_size = size
+      if @_size_constraint?
+        solver.remove_constraint(@_size_constraint)
+      @_size_constraint = new kiwi.Constraint(new kiwi.Expression(@_size, -size), kiwi.Operator.EQ)
+      solver.add_constraint(@_size_constraint)
 
     _ranges: () ->
       i = @get('dimension')
@@ -401,7 +419,7 @@ define [
     _get_loc: (cross_range) ->
       cstart = cross_range.get('start')
       cend = cross_range.get('end')
-      side = @get('side')
+      side = @get('location')
 
       if side == 'left' or side == 'bottom'
         if cstart < cend
@@ -425,7 +443,7 @@ define [
       ctx = view.plot_view.canvas_view.ctx
 
       coords = @get('major_coords')
-      side = @get('side')
+      side = @get('location')
       orient = @get('major_label_orientation')
 
       labels = @get_obj('formatter').format(coords[dim])
@@ -466,7 +484,7 @@ define [
     _axis_label_extent: (view) ->
       extent = 0
 
-      side = @get('side')
+      side = @get('location')
       orient = 'parallel'
       ctx = view.plot_view.canvas_view.ctx
 

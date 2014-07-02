@@ -244,6 +244,9 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
     p.x_range = _get_range(x_range)
     p.y_range = _get_range(y_range)
 
+    if plot_width: p.plot_width = plot_width
+    if plot_height: p.plot_height = plot_height
+
     axiscls = None
     if x_axis_type is None:
         pass
@@ -254,7 +257,7 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
     elif x_axis_type == "datetime":
         axiscls = DatetimeAxis
     if axiscls:
-        xaxis = axiscls(plot=p, side="bottom", bounds="auto")
+        xaxis = axiscls(plot=p, location="bottom", bounds="auto")
         p.below.append(xaxis)
         xgrid = Grid(plot=p, dimension=0, axis=xaxis)
 
@@ -268,7 +271,7 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
     elif y_axis_type == "datetime":
         axiscls = DatetimeAxis
     if axiscls:
-        yaxis = axiscls(plot=p, side="left", bounds="auto")
+        yaxis = axiscls(plot=p, location="left", bounds="auto")
         p.left.append(yaxis)
         ygrid = Grid(plot=p, dimension=1, axis=yaxis)
 

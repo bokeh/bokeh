@@ -126,14 +126,12 @@ define [
 
       @new_bounds = true
 
-    dinitialize: (attr, options) ->
+    initialize: (attr, options) ->
       super(attr, options)
 
       @solver = options.solver
       @solver.add_constraint(new Constraint(new Expr(@_left), EQ))
       @solver.add_constraint(new Constraint(new Expr(@_bottom), EQ))
-      @solver.update_variables()
-
       @_set_dims([@get('canvas_width'), @get('canvas_height')])
 
     # transform view coordinates to underlying screen coordinates
@@ -173,7 +171,7 @@ define [
     _set_width: (width, update=true) ->
       if @_width_constraint?
         @solver.remove_constraint(@_width_constraint)
-      @_width_constraint = new Constraint(new Expr(@_right, -width), EQ)
+      @_width_constraint = new Constraint(new Expr(@_width, -width), EQ)
       @solver.add_constraint(@_width_constraint)
       if update
         @solver.update_variables()
@@ -182,7 +180,7 @@ define [
     _set_height: (height, update=true) ->
       if @_height_constraint?
         @solver.remove_constraint(@_height_constraint)
-      @_height_constraint = new Constraint(new Expr(@_top, -height), EQ)
+      @_height_constraint = new Constraint(new Expr(@_height, -height), EQ)
       @solver.add_constraint(@_height_constraint)
       if update
         @solver.update_variables()
