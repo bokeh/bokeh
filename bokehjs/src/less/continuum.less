@@ -86,6 +86,7 @@
 
 .bk-bs-btn-group > .bk-bs-btn {
 	clear: both;
+	position: relative;
 	display: block;
 	border-radius: 3px !important;
 	-moz-border-radius: 3px !important;
@@ -100,6 +101,15 @@
 	background-color: #A8A8A8;
 }
 
+.bk-bs-btn span.tip {
+	display: none;
+}
+.bk-bs-btn:hover span.tip {
+	display: inline-block;
+	position: absolute;
+	top: 7px;
+	left: 50px;
+}
 .bk-bs-btn-pan, .bk-bs-btn-wheel-zoom, .bk-bs-btn-box-zoom, .bk-bs-btn-preview-save, .bk-bs-btn-resize, .bk-bs-btn-box-select, .bk-bs-btn-reset-view { 
 	width: 20px;
 	height: 20px;
@@ -145,8 +155,9 @@
 		background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAABVUlEQVQ4T62UgW3CQAxFuQ1ggpYNYIKGCUonACYoG7QbtBtAJiiZoDABMAF0AzpB+n9kR+aI0wMRyYpy/n7553MSOglXWZZjyCaIDNFFnBBrxCqEkFtEaOMBxOIvAXnSHRIzgHnvuECBfUMzENIvHSGO4pKuHyRHxyNC24AsfpYCbmuOAhbWF146x8OHLOyQHzYCIaSrrQgLCOmm8YL2HYk3Sc484CcEryLqxc5iMqBsA7dfeMA1kk+IDWCZ507XAVQDp3sB623/B6waneBwCQ3n9McD2kb3AWWPvEPhrB4QvOceUN9ISKtL9M9qRxfASKCu+BW8WKfQPWKNM6gjVR3gGdCB2a0SrMNtT3+P9YzjVQMTYF4bCySmOqsVMAHGT4/u7BfD56X+FPRtIQWGoqlnL14nkOKFU5BfAyNDt9wEvRpWA6WPFnoT7AxooDz+5J7FrfoD0CScvlbpnGoAAAAASUVORK5CYII=);
 }
 .resize_bokeh_plot {
-	height: 25px;
-	width: 25px;
+	height: 40px;
+	width: 40px;
+	border: 1px solid red;
 	padding: 10px 0 0 10px;
 	bottom: 40px;
 	cursor: se-resize;
@@ -157,24 +168,9 @@
 	background-position: bottom right;
 	background-repeat: no-repeat;
 }
-.resize_bokeh_plot:hover {
+.resize_bokeh_plot2 {
 	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAAZCAYAAADE6YVjAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEgAACxIB0t1+/AAAABx0RVh0U29mdHdhcmUAQWRvYmUgRmlyZXdvcmtzIENTNui8sowAAAEjSURBVEiJzdUxcoUgEAbgP5lgY4O1jafQxkZOa6+FNB7AS2BjLY0UbJEUb+KIUfMi+iZb4cD4zcKyvJVl+Ymb4/1u4GXIx/Ijz3PEcewsmKYJUkoQ0WnEyWQNAEAQBKd/vomsg4jQtq1XFr8ijDFwzr2AXcQYM4+zLEOSJNchxhhordE0DbquuwxyqktKCeBxFkopAECapjMEAH3f+yHWWmdyCRERtNZ/Bn4gW/ENaa3vQ5bQ2fj/vYtz/lTVPbVdWxFFEYqiAGMMwHHVnc6Ecz4D63sUhuE8B3hksnePtNYQQsBai7qu/ZA9yFoLxpiTiXd1KaWcFrT1NFxSwuM4Hj4H3kgYhhBCONtzOUJEm1kMwzCPvQ4eeDTVqqoO17ykrXwBj+p4+ygPCzgAAAAASUVORK5CYII=);
 	background-position: bottom right;
 	background-repeat: no-repeat;
-}
-
-.bottombar {
-	position: relative;
-	z-index: 100;
-	float: left;
-	margin: -20px 0 0 10px;
-}
-.bottombar:after {
-	content: " ";
-	height: 0;
-	display: block;
-	clear: both;
-}
-.bottombar a {
-	float: left;
+	outline: 5px solid orange;
 }
