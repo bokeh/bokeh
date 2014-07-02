@@ -3,6 +3,9 @@ from ..plotting import curdoc
 from ..plot_object import PlotObject
 from ..objects import  ServerDataSource,  Glyph, Range1d
 from bokeh.properties import (Instance, Any)
+import math
+import numpy as np 
+
 import logging
 logger = logging.getLogger(__file__)
 
@@ -114,12 +117,12 @@ def source(plot, agg=Count(), info=Const(val=1), shader=Id(), remove_original=Tr
     kwargs['data'] = {'image': [],
                       'x': [0], 
                       'y': [0],
-                      'global_x_range' : [0, 10],
-                      'global_y_range' : [0, 10],
+                      'global_x_range' : [0, 50],
+                      'global_y_range' : [0, 50],
                       'global_offset_x' : [0],
                       'global_offset_y' : [0],
-                      'dw' : [10], 
-                      'dh' : [10], 
+                      'dw' : [1], 
+                      'dh' : [1], 
                       'palette': palette
                     }
   else: 
@@ -142,24 +145,13 @@ def mapping(source):
   if (out == 'image'):
     keys = source.data.keys() 
     m = dict(zip(keys, keys))
-    x_range = Range1d(start=0, end=500)
-    y_range = Range1d(start=0, end=500)
-    m['x_range'] = x_range
-    m['y_range'] = y_range
+    m['x_range'] = Range1d(start=0, end=0)
+    m['y_range'] = Range1d(start=0, end=0)
     return m
   else:
     raise ValueError("Only handling image type in property mapping...")
 
 def downsample(data, transform, plot_state):
-  screen_size = [span(plot_state['screen_x']),
-                 span(plot_state['screen_y'])]
-
-  scale_x = span(plot_state['data_x'])/float(span(plot_state['screen_x']))
-  scale_y = span(plot_state['data_y'])/float(span(plot_state['screen_y']))
-  
-  #How big would a full plot of the data be at the current resolution?
-  plot_size = [screen_size[0] / scale_x,  screen_size[1] / scale_y]
-  
   glyphspec = transform['glyphspec']
   xcol = glyphspec['x']['field']
   ycol = glyphspec['y']['field']
@@ -178,6 +170,19 @@ def downsample(data, transform, plot_state):
   shaper = _shaper(glyphspec['type'], size)
   glyphs = glyphset.Glyphset([xcol, ycol], ar.EmptyList(), shaper, colMajor=True)
   bounds = glyphs.bounds()
+  
+  scale_x = span(plot_state['data_x'])/float(span(plot_state['screen_x']))
+  scale_y = span(plot_state['data_y'])/float(span(plot_state['screen_y']))
+
+  #How big would a full plot of the data be at the current resolution?
+  if (scale_x == 0 or scale_y == 0):
+    #If scale is zero for either axis, just zoom fit
+    plot_size = [span(plot_state['screen_x']), span(plot_state['screen_y'])]
+    scale_x = 1
+    scale_y = 1
+  else:
+    plot_size = [bounds[2]/scale_x, bounds[3]/scale_y] 
+  
   ivt = ar.zoom_fit(plot_size, bounds, balanced=False)  
 
   image = ar.render(glyphs, 
@@ -185,14 +190,30 @@ def downsample(data, transform, plot_state):
                     transform['agg'].reify(), 
                     transform['shader'].reify(), 
                     plot_size, ivt)
-  
-  return {'image': [image],
-          'x': [0],
-          'y': [0],
-          'dw': [image.shape[0]],
-          'dh': [image.shape[1]],
-  }
 
+  (xmin, xmax) = (xcol.min(), xcol.max())
+  (ymin, ymax) = (ycol.min(), ycol.max())
+
+  rslt = {'image': [image],
+          'global_offset_x' : [0],
+          'global_offset_y' : [0],
+
+          #Screen-mapping values.
+          #x_range is the left and right data space values coordsponding to the bottom left and bottom right of the plot
+          #y_range is the bottom and top data space values corresponding to the bottom left and top left of the plot
+          'x_range' : {'start': xmin, 'end':(xmax-xmin)*scale_x},
+          'y_range' : {'start': ymin, 'end':(ymax-ymin)*scale_y},
+          
+          #Data-image parameters.  
+          #x/y are lower left data-space coord of the image.  
+          #dw/dh are the width and height in data space
+          'x' : [xmin],
+          'y' : [ymin],
+          'dw' : [xmax],
+          'dh' : [ymax],
+  }
+  
+  return rslt;
 
 def span(r):
     return r.end - r.start
@@ -200,7 +221,7 @@ def span(r):
 def _shaper(code, size):
   code = code.lower()
   if not code == 'square':
-    raise ValueError("Only recognizing 'square' received " + code)
+    raise ValueError("Only recognizing 'square', received " + code)
   
   tox = glyphset.idx(0)
   toy = glyphset.idx(1)
