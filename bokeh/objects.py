@@ -253,6 +253,8 @@ class Plot(Widget):
 
     x_range = Instance(Range)
     y_range = Instance(Range)
+    x_mapper_type = String('auto')
+    y_mapper_type = String('auto') 
     png = String('')
     title = String('')
     title_props = Include(TextProps, prefix="title")
@@ -394,7 +396,7 @@ class ContinuousAxis(Axis):
     pass
 
 class LinearAxis(ContinuousAxis):
-    type = String("linear_axis")
+    type = String("continuous_axis")
 
     def __init__(self, **kwargs):
         if 'ticker' not in kwargs:
@@ -404,7 +406,7 @@ class LinearAxis(ContinuousAxis):
         super(LinearAxis, self).__init__(**kwargs)
 
 class LogAxis(ContinuousAxis):
-    type = String("log_axis")
+    type = String("continuous_axis")
 
     def __init__(self, **kwargs):
         if 'ticker' not in kwargs:
