@@ -56,11 +56,7 @@ define [
            @plot_view.y_range,
            transform_params)
       else
-        throw new Error("Unkonwn resample op '#{resample_op}'")
-
-
-
-
+        console.log("Unkonwn resample op '#{resample_op}'")
 
     initialize: (options) ->
       super(options)
