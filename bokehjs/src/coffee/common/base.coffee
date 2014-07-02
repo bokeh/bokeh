@@ -137,7 +137,7 @@ define [
     BasicTickFormatter:       'ticking/basic_tick_formatter'
     LogTicker:                'ticking/log_ticker'
     LogTickFormatter:         'ticking/log_tick_formatter'
-    CategoricalTicker:        'ticking/categGorical_ticker'
+    CategoricalTicker:        'ticking/categorical_ticker'
     CategoricalTickFormatter: 'ticking/categorical_tick_formatter'
     CompositeTicker:          'ticking/composite_ticker'
     DatetimeTicker:           'ticking/datetime_ticker'
