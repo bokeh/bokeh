@@ -1,5 +1,6 @@
 @import "overrides.less";
 @import "continuum.less";
+@import "bootstrap.less";
 @import "widgets.less";
 
 svg {
@@ -11,12 +12,21 @@ svg {
   height: 16px;
 }
 
-.button_bar {
-  overflow: hidden;
-  margin-top: 5px;
-  margin-bottom: 5px;
-  padding-top: 5px;
-  padding-bottom: 5px;
+
+.bk-button-bar{
+  overflow : hidden;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  padding-top: 0px;
+  padding-bottom: 2px;
+  .bk-bs-btn-group;
+
+}
+
+.bk-toolbar-button{
+  .bk-bs-btn;
+  .bk-bs-btn-sm;
+  .bk-bs-btn-default;
 }
 
 .grid_plot .button_bar {
@@ -283,6 +293,8 @@ button.active {
   background-position: center !important;
 }
 
+@import "widgets.less";
+@import "crossfilter.less";
 .bk-icon-type-date {
   background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAActJREFUeNqkU81OU1EQ/i5tGpAfo2KEBDcSFoS48FVQYwyGB3DhS/AkFRYkqGEpL4FpTHRDZGOgBXUhhd7ec2bGb05vrxAgmjDNnHtO2+9n5szNzAw3ibovh296DT5Wmc/ELAQVKSSiL4IYBT3fKzPGWiHSKKJsqWnzxfZSqJdEr4BsTWEzZlzpSmlMuUSexZN7UaSnQh/zPzlxGyMlAdVtRlRRMPMYU7qLXgwXzoUEBLVZAVaqEmj7RKkaadlt1+aA6cVRRGUJOorDVhdne32CeaazbCDarQj4gxiM4JjyHsEPn0/i934f9VsjWHh5B18//MBus32+f+pLKsGVirJRruKleHzZ+ImPr7+h0zrF4vI0GhO1oXoViSAnKGe32V068BoHBELiQNKDVnKLu/NjV1+jA8WcJJQOBrMRTBJZY3zQ626nuJrAVf2q3ImX4nuP24/GUi49vY82XXTb1xA40O/f1QNTS4Inqw8SaG/nFz697Vw/iex8zWg1UN0JPr87Zh4Bl1p2uX+JgMApnz6/jZDUs/T5R0xWLByeZi7xIKTm/QcU+O5jXDlgA9bpgNOJZYKL4ZD8DRuW44L+4r1nbvoX2U1f5z8CDABL2U5/8w9HlQAAAABJRU5ErkJggg==") !important;
   background-position: center !important;

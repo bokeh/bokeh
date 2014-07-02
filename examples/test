@@ -11,6 +11,7 @@ import fnmatch
 import argparse
 import traceback
 import subprocess
+from subprocess import CalledProcessError
 
 import yaml
 
@@ -46,7 +47,7 @@ parser.add_argument("patterns", type=str, nargs="*",
                     help="select a subset of examples to test")
 parser.add_argument("-p", "--bokeh-port", type=int, default=5006,
                     help="port on which Bokeh server resides")
-parser.add_argument("-n", "--ipython-port", type=int, default=8888,
+parser.add_argument("-n", "--ipython-port", type=int, default=6007,
                     help="port on which IPython Notebook server resides")
 parser.add_argument("-j", "--phantomjs", type=str, default="phantomjs",
                     help="phantomjs executable")
@@ -56,6 +57,8 @@ parser.add_argument("-v", "--verbose", action="store_true", default=False,
                     help="show console messages")
 parser.add_argument("-D", "--no-dev", dest="dev", action="store_false", default=True,
                     help="don't use development JavaScript and CSS files")
+parser.add_argument("-all-n", "--all-notebooks", action="store_true", default=False,
+                    help="test all the notebooks inside examples/plotting/notebook folder.")
 args = parser.parse_args()
 
 DEFAULT_NO_DEV = os.environ.get('BOKEH_DEFAULT_NO_DEV', 'false')
@@ -135,7 +138,11 @@ def detect_examples():
         except KeyError:
             example_type = None
 
-        skip = example.get("skip")
+        if not args.all_notebooks:
+            skip = example.get("skip") or example.get("skip_travis")
+        else:
+            skip = example.get("skip")
+
 
         add_examples(path, example_type=example_type, skip=skip)
 
@@ -198,8 +205,20 @@ def run_example(example):
     finally:
         signal.alarm(0)
 
+def get_path_parts(path):
+    parts = []
+    while True:
+        newpath, tail = os.path.split(path)
+        parts.append(tail)
+        path = newpath
+        if tail == 'examples':
+            break
+    parts.reverse()
+    return parts
+
 def test_example(example, flags):
     no_ext = os.path.splitext(os.path.abspath(example))[0]
+    url_path = os.path.join(*get_path_parts(os.path.abspath(example)))
 
     if flags & Flags.file:
         html_file = "%s.html" % no_ext
@@ -208,13 +227,14 @@ def test_example(example, flags):
         server_url = 'http://localhost:%d/bokeh/doc/%s/show'
         url = server_url % (args.bokeh_port, os.path.basename(no_ext))
     elif flags & Flags.notebook:
-        notebook_url = 'http://localhost:%d/notebooks/%s.ipynb'
-        url = notebook_url % (args.ipython_port, os.path.basename(no_ext))
+        notebook_url = 'http://localhost:%d/notebooks/%s'
+        url = notebook_url % (args.ipython_port, url_path)
     else:
         raise ValueError("invalid example type: %s" % example_type(flags))
 
     png_file = "%s-%s.png" % (no_ext, __version__)
-    cmd = [args.phantomjs, os.path.join(base_dir, "test.js"), example_type(flags), url, png_file]
+    cmd = [args.phantomjs, os.path.join(base_dir, "test.js"), example_type(flags),
+           url, png_file, str(args.timeout)]
 
     try:
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
@@ -310,8 +330,55 @@ def start_bokeh_server():
 
         return proc
 
+def create_ipython_profile():
+    create = ["ipython", "profile", "create", "bokeh_test"]
+    try:
+        subprocess.check_call(create)
+    except OSError:
+        print("Failed to run: %s" % " ".join(create))
+        sys.exit(1)
+
+def locate_ipython_profile():
+
+    locate = ["ipython", "locate", "profile", "bokeh_test"]
+
+    try:
+        loc = subprocess.check_output(locate)
+        print("bokeh_test profile found.")
+    except CalledProcessError:
+        print("bokeh_test profile not found. Creating one...")
+        create_ipython_profile()
+        loc = subprocess.check_output(locate)
+
+    body = """
+$([IPython.events]).on('status_started.Kernel', function(){
+  IPython.notebook.execute_all_cells();
+});
+"""
+
+    customjs = os.path.join(loc[:-1].decode("utf-8"), "static", "custom", "custom.js")
+    open(customjs, "w").write(body)
+
+    return loc
+
 def start_ipython_notebook():
-    return None
+
+    located_profile = locate_ipython_profile()
+
+    notebook_dir = os.path.split(os.path.dirname(os.path.realpath(__file__)))[0]
+
+    cmd = ["ipython", "notebook"]
+    argv = ["--no-browser","--profile=bokeh_test", "--port=%s" % args.ipython_port,
+            "--notebook-dir=%s" % notebook_dir]
+
+    if located_profile:
+        try:
+            proc = subprocess.Popen(cmd + argv)
+        except OSError:
+            print("Failed to run: %s" % " ".join(cmd + argv))
+            sys.exit(1)
+
+    return proc
 
 detect_examples()
 
@@ -321,7 +388,14 @@ need_server = any(flags & Flags.server for _, flags in selected_examples)
 need_notebook = any(flags & Flags.notebook for _, flags in selected_examples)
 
 bokeh_server = start_bokeh_server() if use_server and need_server else None
+
 ipython_notebook = start_ipython_notebook() if use_notebook and need_notebook else None
+
+if use_notebook:
+    import nbexecuter
+    example_nbconverted = os.path.join("examples", "glyphs", "glyph.ipynb")
+    print(example_nbconverted) 
+    nbexecuter.main(example_nbconverted)
 
 run_examples = 0
 fail_examples = []

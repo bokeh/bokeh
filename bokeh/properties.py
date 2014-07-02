@@ -287,7 +287,7 @@ class ColorSpec(DataSpec):
     or a dict of (field, default).
 
     There are two common use cases for ColorSpec: setting a constant value,
-    and indicating a field name to look for on the datasource::
+    and indicating a field name to look for on the datasource:
 
     >>> class Bar(HasProps):
     ...     col = ColorSpec("green")
@@ -533,7 +533,7 @@ class HasProps(object):
             if key in props:
                 setattr(self, key, value)
             else:
-                raise AttributeError("unexpected attribute %s to %s, possible attributes are %s" %
+                raise AttributeError("unexpected attribute '%s' to %s, possible attributes are %s" %
                     (key, self.__class__.__name__, nice_join(props)))
 
         super(HasProps, self).__init__()
@@ -913,6 +913,15 @@ class Either(ParameterizedProperty):
         if not (value is None or any(param.is_valid(value) for param in self.type_params)):
             raise ValueError("expected an element of either %s, got %r" % (nice_join(self.type_params), value))
 
+    def transform(self, value):
+        for param in self.type_params:
+            try:
+                return param.transform(value)
+            except ValueError:
+                pass
+
+        raise ValueError("Could not transform %r" % value)
+
     def __str__(self):
         return "%s(%s)" % (self.__class__.__name__, ", ".join(map(str, self.type_params)))
 
@@ -1028,6 +1037,7 @@ class Percent(Float):
 class Angle(Float):
     pass
 
+
 class Date(Property):
     def __init__(self, default=datetime.date.today()):
         super(Date, self).__init__(default=default)
@@ -1050,6 +1060,30 @@ class Date(Property):
             value = dateutil.parser.parse(value).date()
 
         return value
+
+class Datetime(Property):
+    def __init__(self, default=datetime.date.today()):
+        super(Datetime, self).__init__(default=default)
+
+    def validate(self, value):
+        super(Datetime, self).validate(value)
+
+        if (isinstance(value, (datetime.datetime, datetime.date, np.datetime64))):
+            return
+        try:
+            import pandas
+            if isinstance(value, (pandas.Timestamp)):
+                return
+        except ImportError:
+            pass
+
+        raise ValueError("Expected a datetime instance, got %r" % value)
+
+    def transform(self, value):
+        value = super(Datetime, self).transform(value)
+        return value
+        # Handled by serialization in protocol.py for now
+
 
 class RelativeDelta(Dict):
     def __init__(self, default={}):

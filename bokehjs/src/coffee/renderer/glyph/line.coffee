@@ -7,19 +7,6 @@ define [
 
   class LineView extends Glyph.View
 
-    setup_server_data : () ->
-      server_source = @mget_obj('server_data_source')
-      @server_source = server_source
-      #need to parameterize these some how, assume domain=x for now
-      domain = 'x'
-      if domain == 'x'
-        server_source.listen_for_line1d_updates(@mget_obj('data_source'),
-          @plot_view.x_range,
-          @plot_view.view_state.get('inner_range_horizontal'),
-          @glyph_props.y.field,
-          @glyph_props.x.field,
-          [@glyph_props.y.field]
-        )
     _fields: ['x', 'y']
     _properties: ['line']
 

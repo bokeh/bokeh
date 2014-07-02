@@ -7,6 +7,17 @@ BokehJS Interface Reference
     :local:
     :depth: 2
 
+.. _bokehjs_data_source:
+
+Data Sources
+************
+Data is typically passed to bokehjs through a ``ColumnDataSource`` which has named columns
+of data that are available to glyph renderers. Note that all the columns in a given
+``ColumnDataSource`` should have the same length. It is possible and often necessary to have
+different data sources for different renderers.
+
+.. warning:: JavaScript ``null`` values are not valid inputs to BokehJS renderers. Please be aware that they will be silently interpreted as zero.
+
 .. _bokehjs_line_properties:
 
 Line Properties

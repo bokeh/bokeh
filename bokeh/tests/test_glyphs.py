@@ -601,7 +601,15 @@ class TestImage(unittest.TestCase):
         self.assertEqual(self.test_image.__view_model__, 'image')
 
     def test_to_glyphspec(self):
-        self.assertEqual(self.test_image.to_glyphspec(), {'dh': {'units': 'data', 'field': 'dh'}, 'image': {'units': 'data', 'field': 'image'}, 'dw': {'units': 'data', 'field': 'dw'}, 'y': {'units': 'data', 'field': 'y'}, 'x': {'units': 'data', 'field': 'x'}, 'palette': {'field': 'palette', 'units': 'data'}, 'type': 'image'})
+        self.assertEqual(self.test_image.to_glyphspec(), 
+                         {'dh': {'units': 'data', 'field': 'dh'}, 
+                          'image': {'units': 'data', 'field': 'image'}, 
+                          'dw': {'units': 'data', 'field': 'dw'}, 
+                          'y': {'units': 'data', 'field': 'y'}, 
+                          'x': {'units': 'data', 'field': 'x'}, 
+                          'palette': {'field': 'palette', 'units': 'data'}, 
+                          'reserve_color':{'default': 0xffffff, 'field':None, 'units':'data'},
+                          'type': 'image'})
         self.test_image.image = 'image image image'
         self.test_image.width = 500
         self.test_image.height = 600
@@ -609,7 +617,15 @@ class TestImage(unittest.TestCase):
         self.test_image.y = 51
         self.test_image.dw = 53
         self.test_image.dh = 54
-        self.assertEqual(self.test_image.to_glyphspec(), {'dh': {'units': 'data', 'value': 54}, 'image': {'units': 'data', 'field': 'image image image'}, 'x': {'units': 'data', 'value': 50}, 'y': {'units': 'data', 'value': 51}, 'dw': {'units': 'data', 'value': 53}, 'palette': {'field': 'palette', 'units': 'data'}, 'type': 'image'})
+        self.assertEqual(self.test_image.to_glyphspec(), 
+                         {'dh': {'units': 'data', 'value': 54}, 
+                          'image': {'units': 'data', 'field': 'image image image'}, 
+                          'x': {'units': 'data', 'value': 50}, 
+                          'y': {'units': 'data', 'value': 51}, 
+                          'dw': {'units': 'data', 'value': 53}, 
+                          'palette': {'field': 'palette', 'units': 'data'}, 
+                          'reserve_color':{'default': 0xffffff, 'field':None, 'units':'data'},
+                          'type': 'image'})
 
 
 class TestImageRGBA(unittest.TestCase):
