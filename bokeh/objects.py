@@ -472,7 +472,6 @@ class ResizeTool(Tool):
 class ClickTool(Tool):
     names = List(String)
     always_active = Bool(True)
-    pass
 
 class CrosshairTool(Tool):
     pass
