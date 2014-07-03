@@ -48,7 +48,6 @@ class TornadoWebSocketApplication(Application):
         self.wsmanager = WebSocketManager()
         zmqaddrs = settings.pop('zmqaddrs')
         self.subscriber = Subscriber(zmqaddrs, self.wsmanager)
-        self.subscriber.start()
 
     def stop(self):
         ioloop.IOLoop.instance().stop()
@@ -60,6 +59,7 @@ class TornadoWebSocketApplication(Application):
 
     def start(self, thread=False):
         def helper():
+            self.subscriber.start()
             ioloop.IOLoop.instance().start()
             print('websocket app exiting')
         if thread:
