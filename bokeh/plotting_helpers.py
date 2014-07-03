@@ -259,6 +259,7 @@ def _get_axis_class(axis_type, range_input):
 
 def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
                  x_axis_type="auto", y_axis_type="auto",
+                 x_minor_ticks=5, y_minor_ticks=5,
                  tools="pan,wheel_zoom,box_zoom,save,resize,select,reset", **kw):
     # Accept **kw to absorb other arguments which the actual factory functions
     # might pass in, but that we don't care about
@@ -275,12 +276,16 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
 
     x_axiscls = _get_axis_class(x_axis_type, p.x_range)
     if x_axiscls:
-        xaxis = x_axiscls(plot=p, dimension=0, location="min", bounds="auto")
+        if x_minor_ticks is None:
+            x_minor_ticks = 0
+        xaxis = x_axiscls(plot=p, dimension=0, location="min", bounds="auto", num_minor_ticks=x_minor_ticks)
         xgrid = Grid(plot=p, dimension=0, axis=xaxis)
 
     y_axiscls = _get_axis_class(y_axis_type, p.y_range)
     if y_axiscls:
-        yaxis = y_axiscls(plot=p, dimension=1, location="min", bounds="auto")
+        if y_minor_ticks is None:
+            y_minor_ticks = 0
+        yaxis = y_axiscls(plot=p, dimension=1, location="min", bounds="auto", num_minor_ticks=y_minor_ticks)
         ygrid = Grid(plot=p, dimension=1, axis=yaxis)
 
     border_args = ["min_border", "min_border_top", "min_border_bottom", "min_border_left", "min_border_right"]

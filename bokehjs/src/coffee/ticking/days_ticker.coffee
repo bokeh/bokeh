@@ -39,6 +39,7 @@ define [
     type: 'DaysTicker'
 
     initialize: (attrs, options) ->
+      attrs.num_minor_ticks = 0
       super(attrs, options)
       days = @get('days')
       interval = if days.length > 1
@@ -74,7 +75,10 @@ define [
       ticks_in_range = _.filter(all_ticks,
                                 ((tick) -> data_low <= tick <= data_high))
 
-      return ticks_in_range
+      return {
+        "major": ticks_in_range,
+        "minor": []
+      }
 
     defaults: () ->
       return _.extend(super(), {
