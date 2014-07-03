@@ -11,7 +11,7 @@ from . import glyphs
 from .objects import (
     BoxSelectionOverlay, BoxSelectTool, BoxZoomTool, CategoricalAxis,
     ColumnDataSource, CrosshairTool, DataRange1d, DatetimeAxis,
-    EmbedTool, FactorRange, Grid, HoverTool, Legend, LinearAxis, LogAxis,
+    EmbedTool, FactorRange, Grid, HoverTool, Legend, LinearAxis,
     ObjectExplorerTool, PanTool, Plot, PreviewSaveTool, Range, Range1d,
     ResetTool, ResizeTool, WheelZoomTool, Tool
 )
@@ -240,8 +240,6 @@ def _get_axis_class(axis_type, range_input):
         return None
     elif axis_type is "linear":
         return LinearAxis
-    elif axis_type is "log":
-        return LogAxis
     elif axis_type == "datetime":
         return DatetimeAxis
     elif axis_type == "auto":
@@ -277,20 +275,13 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
 
     x_axiscls = _get_axis_class(x_axis_type, p.x_range)
     if x_axiscls:
-        if x_axiscls is LogAxis:
-            xaxis = x_axiscls(plot=p, dimension=0, location="min", bounds="auto", x_mapper_type="log")
-        else:
-            xaxis = x_axiscls(plot=p, dimension=0, location="min", bounds="auto")
+        xaxis = x_axiscls(plot=p, dimension=0, location="min", bounds="auto")
         xgrid = Grid(plot=p, dimension=0, axis=xaxis)
 
     y_axiscls = _get_axis_class(y_axis_type, p.y_range)
     if y_axiscls:
-        if y_axiscls is LogAxis:
-            yaxis = y_axiscls(plot=p, dimension=1, location="min", bounds="auto", y_mapper_type="log")
-        else:
-            yaxis = y_axiscls(plot=p, dimension=1, location="min", bounds="auto")
+        yaxis = y_axiscls(plot=p, dimension=1, location="min", bounds="auto")
         ygrid = Grid(plot=p, dimension=1, axis=yaxis)
-
 
     border_args = ["min_border", "min_border_top", "min_border_bottom", "min_border_left", "min_border_right"]
     for arg in border_args:

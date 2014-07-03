@@ -174,9 +174,6 @@ class YearsTicker(Ticker):
 class BasicTicker(Ticker):
     pass
 
-class LogTicker(Ticker):
-    pass
-
 class CategoricalTicker(Ticker):
     pass
 
@@ -192,10 +189,6 @@ class BasicTickFormatter(TickFormatter):
     use_scientific = Bool(True)
     power_limit_high = Int(5)
     power_limit_low = Int(-3)
-
-class LogTickFormatter(TickFormatter):
-    """ Represents a log tick formatter for an axis object """
-    pass
 
 class CategoricalTickFormatter(TickFormatter):
     """ Represents a categorical tick formatter for an axis object """
@@ -269,8 +262,6 @@ class Plot(Widget):
 
     x_range = Instance(Range)
     y_range = Instance(Range)
-    x_mapper_type = String('auto')
-    y_mapper_type = String('auto') 
     png = String('')
     title = String('')
     title_props = Include(TextProps, prefix="title")
@@ -408,11 +399,8 @@ class Axis(GuideRenderer):
     major_tick_in = Int
     major_tick_out = Int
 
-class ContinuousAxis(Axis):
-    pass
-
-class LinearAxis(ContinuousAxis):
-    type = String("continuous_axis")
+class LinearAxis(Axis):
+    type = String("linear_axis")
 
     def __init__(self, **kwargs):
         if 'ticker' not in kwargs:
@@ -420,16 +408,6 @@ class LinearAxis(ContinuousAxis):
         if 'formatter' not in kwargs:
             kwargs['formatter'] = BasicTickFormatter()
         super(LinearAxis, self).__init__(**kwargs)
-
-class LogAxis(ContinuousAxis):
-    type = String("continuous_axis")
-
-    def __init__(self, **kwargs):
-        if 'ticker' not in kwargs:
-            kwargs['ticker'] = LogTicker()
-        if 'formatter' not in kwargs:
-            kwargs['formatter'] = LogTickFormatter()
-        super(LogAxis, self).__init__(**kwargs)
 
 class CategoricalAxis(Axis):
     type = String("categorical_axis")

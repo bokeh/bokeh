@@ -10,12 +10,11 @@ define [
   "./has_parent",
   "./view_state",
   "mapper/1d/linear_mapper",
-  "mapper/1d/log_mapper",
   "mapper/1d/categorical_mapper",
   "mapper/2d/grid_mapper",
   "renderer/properties",
   "tool/active_tool_manager",
-], (_, Backbone, require, build_views, safebind, bulk_save, ContinuumView, HasParent, ViewState, LinearMapper, LogMapper, CategoricalMapper, GridMapper, Properties, ActiveToolManager) ->
+], (_, Backbone, require, build_views, safebind, bulk_save, ContinuumView, HasParent, ViewState, LinearMapper, CategoricalMapper, GridMapper, Properties, ActiveToolManager) ->
 
   line_properties = Properties.line_properties
   text_properties = Properties.text_properties
@@ -127,41 +126,21 @@ define [
       @x_range = options.x_range ? @mget_obj('x_range')
       @y_range = options.y_range ? @mget_obj('y_range')
 
-      xmt = @mget('x_mapper_type')
-      if xmt == 'auto'
-        xmapper_type = LinearMapper.Model
-        if @x_range.type == "FactorRange"
-          xmapper_type = CategoricalMapper.Model
-        @xmapper = new xmapper_type({
-          source_range: @x_range
-          target_range: @view_state.get('inner_range_horizontal')
-        })
-      else
-        if xmt == 'log'
-          xmapper_type = LogMapper.Model
-        @xmapper = new xmapper_type({
-          source_range: @x_range
-          target_range: @view_state.get('inner_range_horizontal')
-        })
+      xmapper_type = LinearMapper.Model
+      if @x_range.type == "FactorRange"
+        xmapper_type = CategoricalMapper.Model
+      @xmapper = new xmapper_type({
+        source_range: @x_range
+        target_range: @view_state.get('inner_range_horizontal')
+      })
 
-
-      ymt = @mget('y_mapper_type')
-      if ymt == 'auto'
-        ymapper_type = LinearMapper.Model
-        if @y_range.type == "FactorRange"
-          ymapper_type = CategoricalMapper.Model
-        @ymapper = new ymapper_type({
-          source_range: @y_range
-          target_range: @view_state.get('inner_range_vertical')
-        })
-      else 
-        if ymt == 'log'
-          ymapper_type = LogMapper.Model
-
-        @ymapper = new ymapper_type({
-          source_range: @y_range
-          target_range: @view_state.get('inner_range_vertical')
-        })
+      ymapper_type = LinearMapper.Model
+      if @y_range.type == "FactorRange"
+        ymapper_type = CategoricalMapper.Model
+      @ymapper = new ymapper_type({
+        source_range: @y_range
+        target_range: @view_state.get('inner_range_vertical')
+      })
 
       @mapper = new GridMapper.Model({
         domain_mapper: @xmapper
@@ -488,8 +467,6 @@ define [
         renderers: [],
         tools: [],
         title: 'Plot',
-        x_mapper_type: 'auto',
-        y_mapper_type: 'auto'
       }
 
     display_defaults: () ->
