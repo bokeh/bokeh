@@ -27,6 +27,7 @@ from .objects import (CategoricalAxis, ColumnDataSource, DatetimeAxis,
 
 from bokeh import load_notebook
 from .document import Document
+from .session import Session
 from .embed import file_html
 from .resources import INLINE
 from .browserlib import view
@@ -41,7 +42,7 @@ notebook_loaded = False
 class Chart(object):
 
     def __init__(self, title, xname, yname, legend, xscale, yscale, width, height,
-                 filename, notebook):
+                 filename, server, notebook):
         "Initial setup."
         self.title = title
         self.xname = xname
@@ -52,6 +53,7 @@ class Chart(object):
         self.plot_width = width
         self.plot_height = height
         self.filename = filename
+        self.server = server
         self.notebook = notebook
         self.source = None
         self.xdr = None
@@ -238,7 +240,6 @@ class Chart(object):
         if self.legend:
             listed_glyphs = [[glyph] for glyph in self.glyphs]
             self.legends = dict(zip(self.groups, listed_glyphs))
-            print self.legends
             if self.legend is True:
                 orientation = "top_right"
             else:
@@ -249,6 +250,15 @@ class Chart(object):
         # Add to document
         self.doc = Document()
         self.doc.add(self.plot)
+        if self.server:
+            if self.server is True:
+                self.servername = "untitled"
+            else:
+                self.servername = self.server
+            self.session = Session()
+            self.session.use_doc(self.servername)
+            self.session.load_document(self.doc)
+            self.session.store_document(self.doc)
 
     def make_axis(self, dimension, scale, name):
         if scale == "linear":
@@ -395,13 +405,22 @@ class Chart(object):
         global notebook_loaded
 
         if self.filename:
-            with open(self.filename, "w") as f:
+            if self.filename is True:
+                filename = "untitled"
+            else:
+                filename = self.filename
+            with open(filename, "w") as f:
                 f.write(file_html(self.doc, INLINE, self.title))
-            print("Wrote %s" % self.filename)
-            view(self.filename)
-        elif self.filename is False and self.notebook is False:
+            print("Wrote %s" % filename)
+            view(filename)
+        elif self.filename is False and self.server is False and self.notebook is False:
             print("You have a provide a filename (filename='blablabla' or"
                   " .filename('blablabla')) to save your plot.")
+
+        if self.server:
+            self.session.use_doc(self.servername)
+            self.session.load_document(self.doc)
+            self.session.show(self.plot)
 
         if self.notebook:
             if notebook_loaded is False:
@@ -413,6 +432,10 @@ class Chart(object):
             displaypub.publish_display_data('bokeh', {'text/html': notebook_div(self.plot)})
 
     # Some helper methods
+    #def setandget(self):
+        #setattr(self, "hist" + val, hist)
+        #self.data["hist" + val] = getattr(self, "hist" + val)
+        #self.attr.append("hist" + val)
 
     def chunker(self, l, n):
         "Yield successive n-sized chunks from l."
@@ -436,7 +459,7 @@ class ChartObject(object):
 
     def __init__(self, title=None, xname=None, yname=None, legend=False,
                  xscale="linear", yscale="linear", width=800, height=600,
-                 filename=False, notebook=False):
+                 filename=False, server=False, notebook=False):
         self.__title = title
         self.__xname = xname
         self.__yname = yname
@@ -446,6 +469,7 @@ class ChartObject(object):
         self.__width = width
         self.__height = height
         self.__filename = filename
+        self.__server = server
         self.__notebook = notebook
 
     def title(self, title):
@@ -476,6 +500,10 @@ class ChartObject(object):
         self._filename = filename
         return self
 
+    def server(self, server):
+        self._server = server
+        return self
+
     def notebook(self, notebook=True):
         self._notebook = notebook
         return self
@@ -497,6 +525,8 @@ class ChartObject(object):
             self._height = self.__height
         if not hasattr(self, '_filename'):
             self._filename = self.__filename
+        if not hasattr(self, '_server'):
+            self._server = self.__server
         if not hasattr(self, '_notebook'):
             self._notebook = self.__notebook
 
@@ -509,14 +539,14 @@ class Histogram(ChartObject):
     def __init__(self, measured, bins, mu=None, sigma=None,
                  title=None, xname=None, yname=None, legend=False,
                  xscale="linear", yscale="linear", width=800, height=600,
-                 filename=False, notebook=False):
+                 filename=False, server=False, notebook=False):
         self.measured = measured
         self.bins = bins
         self.mu = mu
         self.sigma = sigma
         super(Histogram, self).__init__(title, xname, yname, legend,
                                         xscale, yscale, width, height,
-                                        filename, notebook)
+                                        filename, server, notebook)
 
     def check_attr(self):
         super(Histogram, self).check_attr()
@@ -526,7 +556,7 @@ class Histogram(ChartObject):
 
         chart = Chart(self._title, self._xname, self._yname, self._legend,
                       self.xscale, self.yscale, self._width, self._height,
-                      self._filename, self._notebook)
+                      self._filename, self._server, self._notebook)
         chart.get_data_histogram(self.bins, self.mu, self.sigma, **self.measured)
         chart.get_source_histogram()
         chart.start_plot()
@@ -540,13 +570,13 @@ class Bar(ChartObject):
     def __init__(self, value, cat=None, stacked=False,
                  title=None, xname=None, yname=None, legend=False,
                  xscale="categorical", yscale="linear", width=800, height=600,
-                 filename=False, notebook=False):
+                 filename=False, server=False, notebook=False):
         self.cat = cat
         self.value = value
         self.__stacked = stacked
         super(Bar, self).__init__(title, xname, yname, legend,
                                   xscale, yscale, width, height,
-                                  filename, notebook)
+                                  filename, server, notebook)
 
     def stacked(self, stacked=True):
         self._stacked = stacked
@@ -566,7 +596,7 @@ class Bar(ChartObject):
 
         chart = Chart(self._title, self._xname, self._yname, self._legend,
                       self.xscale, self.yscale, self._width, self._height,
-                      self._filename, self._notebook)
+                      self._filename, self._server, self._notebook)
         chart.get_data_bar(self.cat, **self.value)
         chart.get_source_bar(self._stacked)
         chart.start_plot()
@@ -580,11 +610,11 @@ class Scatter(ChartObject):
     def __init__(self, pairs,
                  title=None, xname=None, yname=None, legend=False,
                  xscale="linear", yscale="linear", width=800, height=600,
-                 filename=False, notebook=False):
+                 filename=False, server=False, notebook=False):
         self.pairs = pairs
         super(Scatter, self).__init__(title, xname, yname, legend,
-                                  xscale, yscale, width, height,
-                                  filename, notebook)
+                                      xscale, yscale, width, height,
+                                      filename, server, notebook)
 
     def check_attr(self):
         super(Scatter, self).check_attr()
@@ -618,7 +648,7 @@ class Scatter(ChartObject):
 
         chart = Chart(self._title, self._xname, self._yname, self._legend,
                       self.xscale, self.yscale, self._width, self._height,
-                      self._filename, self._notebook)
+                      self._filename, self._server, self._notebook)
         chart.get_data_scatter(**self.pairs)
         chart.get_source_scatter()
         chart.start_plot()
