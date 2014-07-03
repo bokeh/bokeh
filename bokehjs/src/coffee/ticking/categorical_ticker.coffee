@@ -7,7 +7,10 @@ define [
     type: 'CategoricalTicker'
 
     get_ticks: (start, end, range, {desired_n_ticks}) ->
-      return range.get("factors")
+      return {
+        "major": range.get("factors")
+        "minor": []
+      }
 
     defaults: () ->
       super()

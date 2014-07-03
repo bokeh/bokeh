@@ -70,7 +70,20 @@ define [
       else
         factors = _.range(start_factor, end_factor + 1)
       ticks = (factor * interval for factor in factors)
-      return ticks
+      num_minor_ticks = @get("num_minor_ticks")
+      minor_ticks = []
+      if num_minor_ticks > 1
+        minor_interval = interval / num_minor_ticks
+        minor_offsets = (i*minor_interval for i in [1..num_minor_ticks])
+        for x in minor_offsets
+          minor_ticks.push(ticks[0]-x)
+        for tick in ticks
+          for x in minor_offsets
+            minor_ticks.push(tick+x)
+      return {
+        "major": ticks
+        "minor": minor_ticks
+      }
 
     # Given min and max values and a number of ticks, returns a tick interval
     # that produces approximately the right number of nice ticks.  (If you just
@@ -106,6 +119,7 @@ define [
     defaults: () ->
       return _.extend(super(), {
         toString_properties: []
+        num_minor_ticks: 5
       })
 
   class AbstractTickers extends Backbone.Collection
