@@ -88,7 +88,7 @@ class WebSocketManager(object):
                 continue
             socket = self.sockets[clientid]
             try:
-                socket.send(topic + ":" + msg)
+                socket.write_message(topic + ":" + msg)
             except Exception as e: #what exception is this?if a client disconnects
                 log.exception(e)
                 self.remove_socket(clientid)

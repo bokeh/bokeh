@@ -1,3 +1,4 @@
+import threading
 import tempfile
 import time
 import unittest
@@ -68,7 +69,6 @@ class RedisBokehServerTestCase(BaseBokehServerTestCase):
 
     @skipIfPy3("gevent does not work in py3.")
     def setUp(self):
-        import gevent
         start.prepare_app({"type": "redis", "redis_port": 6899}, **self.options)
         start.register_blueprint()
         fname = tempfile.NamedTemporaryFile().name
@@ -76,31 +76,38 @@ class RedisBokehServerTestCase(BaseBokehServerTestCase):
         bokeh_app.stdout = None
         bokeh_app.stderr = None
         bokeh_app.redis_save = False
-        self.server = gevent.spawn(start.start_app)
+        self.server = threading.Thread(target = start.start_app).start()
         wait_redis_start(6899)
         redis.Redis(port=6899).flushall()
         start.make_default_user(bokeh_app)
         wait_flask()
 
     def tearDown(self):
-        self.server.kill()
-        bokeh_app.redis_proc.close()
+        start.stop()
         wait_redis_gone(6899)
+        self.server.join()
 
 class MemoryBokehServerTestCase(BaseBokehServerTestCase):
 
     @skipIfPy3("gevent does not work in py3.")
     def setUp(self):
-        import gevent
         start.prepare_app({"type": "memory"}, **self.options)
+        websocket = {
+            "zmqaddr" : "tcp://127.0.0.1:6010",
+            "no_ws_start" : False,
+            "ws_port" : 6009,
+        }
+        start.configure_websocket(websocket)
         start.register_blueprint()
         bokeh_app.stdout = None
         bokeh_app.stderr = None
-        self.server = gevent.spawn(start.start_app)
+        self.serverthread = threading.Thread(target=start.start_app)
+        self.serverthread.start()
         start.make_default_user(bokeh_app)
         wait_flask()
 
     def tearDown(self):
-        self.server.kill()
+        start.stop()
+        self.serverthread.join()
 
 BokehServerTestCase = MemoryBokehServerTestCase

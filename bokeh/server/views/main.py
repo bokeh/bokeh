@@ -357,3 +357,13 @@ def show_obj(docid, objid):
                   hide_navbar=True,
                   splitjs=bokeh_app.splitjs,
                   username=bokehuser.username)
+
+@bokeh_app.route('/bokeh/wsurl/', methods=['GET'])
+def wsurl():
+    if bokeh_app.websocket.get('ws_conn_string'):
+        return bokeh_app.websocket.get('ws_conn_string')
+    else:
+        prefix = bokeh_app.url_prefix
+        ws_port = bokeh_app.websocket_params['ws_port']
+        #TODO:ssl..?
+        return "ws://%s%d%s/bokeh/sub/" % (request.host, ws_port, prefix)

@@ -57,6 +57,31 @@ def build_parser():
                         type=str,
                         default="127.0.0.1"
                         )
+    ## websockets
+    parser.add_argument("--ws-conn-string",
+                        help="conn string for websocket, unnecessary if autostarting",
+                        default=None
+    )
+
+    parser.add_argument("--zmqaddr",
+                        help="zmq url",
+                        default="tcp://127.0.0.1:5555"
+    )
+
+    parser.add_argument("--no-ws-start",
+                        help="auto start a websocket worker",
+                        default=False,
+                        action="store_true"
+    )
+
+    parser.add_argument("--ws-port",
+                        help="port for websocket worker",
+                        default=False,
+                        action="store_true"
+    )
+
+    ## end websockets
+
     parser.add_argument("--bokeh-port",
                         help="port for bokeh server",
                         type=int,
@@ -111,7 +136,7 @@ def build_parser():
     parser.add_argument("--dev", action=DevAction, nargs=0, help="run server in development mode")
 
     return parser
-    
+
 def run():
     parser = build_parser()
     args = parser.parse_args(sys.argv[1:])
@@ -170,7 +195,7 @@ data-directory : %s
 
 def start_server(args):
     from . import start
-    
+
     bokeh_app.debug = args.debug
     bokeh_app.splitjs = args.splitjs
     bokeh_app.debugjs = args.debugjs
@@ -180,8 +205,15 @@ def start_server(args):
         "redis_port": args.redis_port,
         "start_redis": args.start_redis,
     }
+    websocket = {
+        "ws_conn_string" : args.ws_conn_string,
+        "zmqaddr" : args.zmqaddr,
+        "no_ws_start" : args.no_ws_start,
+        "ws_port" : args.ws_port,
+    }
     start.prepare_app(backend, single_user_mode=not args.multi_user,
                       data_directory=args.data_directory)
+    start.configure_websocket(websocket)
     if args.script:
         script_dir = dirname(args.script)
         if script_dir not in sys.path:
@@ -199,4 +231,3 @@ def start_with_reloader(args, js_files, robust):
         helper = robust_reloader(helper)
     werkzeug.serving.run_with_reloader(
         helper, extra_files=js_files)
-

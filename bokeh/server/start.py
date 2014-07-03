@@ -1,14 +1,16 @@
 from __future__ import absolute_import, print_function
-
+from Queue import Queue
 import re
 import logging
 log = logging.getLogger(__name__)
 
 from bokeh.utils import scale_delta
+from .zmqpub import Publisher
+from . import websocket
 
 try:
-    from gevent.pywsgi import WSGIServer
-    from geventwebsocket.handler import WebSocketHandler
+    from gevent.pywsgi import WSGIServer, WSGIHandler
+    #from geventwebsocket.handler import WebSocketHanler
 except ImportError:
     log.info("no gevent - your websockets won't work")
     from wsgiref.simple_server import make_server
@@ -16,7 +18,7 @@ else:
     class BokehWSGIServer(WSGIServer):
         logger = log
 
-    class BokehWSGIHandler(WebSocketHandler):
+    class BokehWSGIHandler(WSGIHandler):
         _http_suffix = re.compile("\s*HTTP/\d+\.\d+$")
 
         def format_request(self):
@@ -25,6 +27,11 @@ else:
             length = self.response_length or '-'
             time = "%.1f%s" % scale_delta(self.time_finish - self.time_start) if self.time_finish else '-'
             return '%s %s %s %s' % (request, status, length, time)
+
+        def log_request(self):
+            log = self.server.log
+            if log:
+                log.debug(self.format_request() + '\n')
 
     def make_server(host, port, app):
         http_server = BokehWSGIServer((host, port), app, handler_class=BokehWSGIHandler, log=log)
@@ -57,7 +64,16 @@ REDIS_PORT = 6379
 
 app = Flask("bokeh.server")
 
+## TODO: split out configuration into multiple sections
+
+def configure_websocket(websocket_params):
+    zmqaddr = websocket_params.get('zmqaddr')
+    bokeh_app.publisher = Publisher(zmqaddr, Queue())
+    bokeh_app.websocket_params = websocket_params
+
+
 def prepare_app(backend, single_user_mode=True, data_directory=None):
+
     # must import views before running apps
     from .views import deps
 
@@ -85,13 +101,13 @@ def prepare_app(backend, single_user_mode=True, data_directory=None):
     else:
         datamanager = FunctionBackend()
 
-    bokeh_app.setup(backend, bbstorage, servermodel_storage, 
+    bokeh_app.setup(backend, bbstorage, servermodel_storage,
                     authentication, datamanager)
 
     # where should we be setting the secret key....?
     if not app.secret_key:
         app.secret_key = str(uuid.uuid4())
-        
+
 def register_blueprint(prefix=None):
     app.register_blueprint(bokeh_app, url_prefix=prefix)
     bokeh_app.url_prefix = prefix
@@ -105,7 +121,8 @@ def make_default_user(bokeh_app):
 http_server = None
 
 def start_services():
-    if bokeh_app.backend['type'] == 'redis' and bokeh_app.backend.get('start_redis', True):
+    if bokeh_app.backend['type'] == 'redis' and \
+       bokeh_app.backend.get('start_redis', True):
         work_dir = getattr(bokeh_app, 'work_dir', os.getcwd())
         data_file = getattr(bokeh_app, 'data_file', 'redis.db')
         stdout = getattr(bokeh_app, 'stdout', sys.stdout)
@@ -119,11 +136,24 @@ def start_services():
                                      stderr=stderr,
                                      save=redis_save)
         bokeh_app.redis_proc = mproc
+
+    bokeh_app.publisher.start()
+    if not bokeh_app.websocket_params['no_ws_start']:
+        bokeh_app.subscriber = websocket.make_app(bokeh_app.url_prefix,
+                                                  [bokeh_app.publisher.zmqaddr],
+                                                  bokeh_app.websocket_params['ws_port']
+        )
+        bokeh_app.subscriber.start(thread=True)
     atexit.register(stop_services)
 
 def stop_services():
+    print('stop services')
+    bokeh_app.publisher.kill = True
     if hasattr(bokeh_app, 'redis_proc'):
         bokeh_app.redis_proc.close()
+    if hasattr(bokeh_app, 'subscriber'):
+        bokeh_app.subscriber.stop()
+    bokeh_app.publisher.stop()
 
 def start_app(host="127.0.0.1", port=PORT, verbose=False):
     global http_server
@@ -133,3 +163,13 @@ def start_app(host="127.0.0.1", port=PORT, verbose=False):
     print("\nStarting Bokeh plot server on port %d..." % port)
     print("View http://%s:%d/bokeh to see plots\n" % (host, port))
     http_server.serve_forever()
+    stop_services()
+
+def stop():
+    stop_services()
+    if hasattr(http_server, 'shutdown'):
+        print ('shutdown')
+        http_server.server_close()
+        http_server.shutdown()
+    elif hasattr(http_server, 'stop'):
+        http_server.stop()

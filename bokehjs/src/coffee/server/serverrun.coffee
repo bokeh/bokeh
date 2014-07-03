@@ -38,7 +38,6 @@ define ["common/base",
   load_one_object = (docid, objid) ->
     HasProperties.prototype.sync = Backbone.sync
     $(() ->
-      wswrapper = serverutils.utility.make_websocket()
       resp = serverutils.utility.load_one_object_chain(docid, objid)
       resp.done((data) ->
         model = base.Collections(data.type).get(objid)
@@ -55,24 +54,22 @@ define ["common/base",
   load = (title) ->
     HasProperties.prototype.sync = Backbone.sync
     $(() ->
-      wswrapper = serverutils.utility.make_websocket()
-
-      userdocs = new usercontext.UserDocs()
-      userdocs.subscribe(wswrapper, 'defaultuser')
-
-      window.userdocs = userdocs
-
-      load = userdocs.fetch()
-      load.done () ->
-        if title?
-          _render_one(userdocs, title)
-        else
-          _render_all(userdocs)
-      console.log('subscribing to debug')
-      wswrapper.subscribe("debug:debug", "")
-      wswrapper.on('msg:debug:debug', (msg) ->
-        if msg == 'reload'
-          reload()
+      resp = serverutils.utility.make_websocket()
+      resp.then(() ->
+        userdocs = new usercontext.UserDocs()
+        userdocs.subscribe(wswrapper, 'defaultuser')
+        load = userdocs.fetch()
+        load.done () ->
+          if title?
+            _render_one(userdocs, title)
+          else
+            _render_all(userdocs)
+        console.log('subscribing to debug')
+        wswrapper.subscribe("debug:debug", "")
+        wswrapper.on('msg:debug:debug', (msg) ->
+          if msg == 'reload'
+            reload()
+        )
       )
     )
 
