@@ -78,41 +78,22 @@ class Chart(object):
             self.data[val] = getattr(self, val)
 
             hist, edges = np.histogram(self.data[val], density=True, bins=bins)
-            setattr(self, "hist" + val, hist)
-            self.data["hist" + val] = getattr(self, "hist" + val)
-            self.attr.append("hist" + val)
-            setattr(self, "edges" + val, edges)
-            self.data["edges" + val] = getattr(self, "edges" + val)
-            self.attr.append("edges" + val)
-            setattr(self, "left" + val, edges[:-1])
-            self.data["left" + val] = getattr(self, "left" + val)
-            self.attr.append("left" + val)
-            setattr(self, "rigth" + val, edges[1:])
-            self.data["rigth" + val] = getattr(self, "rigth" + val)
-            self.attr.append("rigth" + val)
-            setattr(self, "bottom" + val, np.zeros(len(hist)))
-            self.data["bottom" + val] = getattr(self, "bottom" + val)
-            self.attr.append("bottom" + val)
+            self.set_and_get("hist", val, hist)
+            self.set_and_get("edges", val, edges)
+            self.set_and_get("left", val, edges[:-1])
+            self.set_and_get("rigth", val, edges[1:])
+            self.set_and_get("bottom", val, np.zeros(len(hist)))
 
             self.muandsigma = False
 
             if mu is not None and sigma is not None:
                 self.muandsigma = True
-
-                setattr(self, "x" + val, np.linspace(-2, 2, len(self.data[val])))
-                self.data["x" + val] = getattr(self, "x" + val)
-                self.attr.append("x" + val)
-
+                self.set_and_get("x", val, np.linspace(-2, 2, len(self.data[val])))
                 pdf = 1 / (sigma * np.sqrt(2 * np.pi)) * np.exp(-(self.data["x" + val] - mu) ** 2 / (2 * sigma ** 2))
-                setattr(self, "pdf" + val, pdf)
-                self.data["pdf" + val] = getattr(self, "pdf" + val)
-                self.attr.append("pdf" + val)
+                self.set_and_get("pdf", val, pdf)
                 self.groups.append("pdf")
-
                 cdf = (1 + scipy.special.erf((self.data["x" + val] - mu) / np.sqrt(2 * sigma ** 2))) / 2
-                setattr(self, "cdf" + val, cdf)
-                self.data["cdf" + val] = getattr(self, "cdf" + val)
-                self.attr.append("cdf" + val)
+                self.set_and_get("cdf", val, cdf)
                 self.groups.append("cdf")
 
     def get_source_histogram(self):
@@ -152,19 +133,11 @@ class Chart(object):
         self.groups.extend(self.value.keys())
 
         for i, val in enumerate(self.value.keys()):
-            setattr(self, val, self.value[val])
-            self.data[val] = getattr(self, val)
-            self.attr.append(val)
-            setattr(self, "mid" + val, self.value[val] / 2)
-            self.data["mid" + val] = getattr(self, "mid" + val)
-            self.attr.append("mid" + val)
-            setattr(self, "stacked" + val, self.zero + self.value[val] / 2)
-            self.data["stacked" + val] = getattr(self, "stacked" + val)
-            self.attr.append("stacked" + val)
+            self.set_and_get("", val, self.value[val])
+            self.set_and_get("mid", val, self.value[val] / 2)
+            self.set_and_get("stacked", val, self.zero + self.value[val] / 2)
             # Grouped
-            setattr(self, "cat" + val, [c + ":" + str(step[i + 1]) for c in self.cat])
-            self.data["cat" + val] = getattr(self, "cat" + val)
-            self.attr.append("cat" + val)
+            self.set_and_get("cat", val, [c + ":" + str(step[i + 1]) for c in self.cat])
             # Stacked
             self.zero += self.value[val]
 
@@ -192,12 +165,8 @@ class Chart(object):
         # Grouping
         for i, val in enumerate(self.pairs.keys()):
             xy = self.pairs[val]
-            setattr(self, val + "_x", xy[:, 0])
-            self.data[val + "_x"] = getattr(self, val + "_x")
-            self.attr.append(val + "_x")
-            setattr(self, val + "_y", xy[:, 1])
-            self.data[val + "_y"] = getattr(self, val + "_y")
-            self.attr.append(val + "_y")
+            self.set_and_get("x_", val, xy[:, 0])
+            self.set_and_get("y_", val, xy[:, 1])
 
     def get_source_scatter(self):
         self.source = ColumnDataSource(self.data)
@@ -351,11 +320,6 @@ class Chart(object):
             ("square_cross", SquareCross),
             ("diamond_cross", DiamondCross),
             ])
-            #"*": Asterisk,
-            #"+": Cross,
-            #"o": Circle,
-            #"ox": CircleX,
-            #"o+": CircleCross)
 
         g = itertools.cycle(_marker_types.keys())
         for i in range(markertype):
@@ -455,8 +419,7 @@ class Chart(object):
         # TODO: change to a generator to cycle the pallete
         colors = []
 
-        pal = ["#f22c40", "#5ab738", "#407ee7", "#c33ff3"]
-        #g = itertools.cycle(brewer["Spectral"][11])
+        pal = ["#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33ff3"]
         g = itertools.cycle(pal)
         for i in range(len(chunk)):
             colors.append(next(g))
