@@ -220,6 +220,9 @@ class Chart(object):
                          plot_width=self.plot_width,
                          plot_height=self.plot_height)
 
+        # To prevent adding a wheelzoom to a categorical plot
+        self.wheel = True
+
         # Add axis
         xaxis = self.make_axis(0, self.xscale, self.xname)
         yaxis = self.make_axis(1, self.yscale, self.yname)
@@ -229,11 +232,16 @@ class Chart(object):
         self.make_grid(yaxis, 1)
 
         # Add tools
+        self.plot.tools = []
         pantool = PanTool(dimensions=['width', 'height'])
-        wheelzoom = WheelZoomTool(dimensions=['width', 'height'])
+        self.plot.tools.append(pantool)
+        if self.wheel:
+            wheelzoom = WheelZoomTool(dimensions=['width', 'height'])
+            self.plot.tools.append(wheelzoom)
         reset = ResetTool(plot=self.plot)
+        self.plot.tools.append(reset)
         previewsave = PreviewSaveTool(plot=self.plot)
-        self.plot.tools = [pantool, wheelzoom, reset, previewsave]
+        self.plot.tools.append(previewsave)
 
     def end_plot(self):
         # Add legend
@@ -245,7 +253,6 @@ class Chart(object):
             else:
                 orientation = self.legend
             legend = Legend(plot=self.plot, orientation=orientation, legends=self.legends)
-            print legend.legends
             self.plot.renderers.append(legend)
 
         # Add to document
@@ -277,6 +284,7 @@ class Chart(object):
                                    dimension=dimension,
                                    major_label_orientation=np.pi / 4,
                                    axis_label=name)
+            self.wheel = False
 
         return axis
 
@@ -433,10 +441,10 @@ class Chart(object):
             displaypub.publish_display_data('bokeh', {'text/html': notebook_div(self.plot)})
 
     # Some helper methods
-    #def setandget(self):
-        #setattr(self, "hist" + val, hist)
-        #self.data["hist" + val] = getattr(self, "hist" + val)
-        #self.attr.append("hist" + val)
+    def set_and_get(self, prefix, val, content):
+        setattr(self, prefix + val, content)
+        self.data[prefix + val] = getattr(self, prefix + val)
+        self.attr.append(prefix + val)
 
     def chunker(self, l, n):
         "Yield successive n-sized chunks from l."
