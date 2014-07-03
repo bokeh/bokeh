@@ -22,7 +22,7 @@ from .glyphs import (Asterisk, Circle, CircleCross, CircleX, Cross, Diamond,
                      DiamondCross, InvertedTriangle, Line, Rect, Square,
                      SquareCross, SquareX, Triangle, Xmarker, Quad)
 from .objects import (CategoricalAxis, ColumnDataSource, DatetimeAxis,
-                      FactorRange, Glyph, Grid, LinearAxis, PanTool,
+                      FactorRange, Glyph, Grid, Legend, LinearAxis, PanTool,
                       Plot, PreviewSaveTool, Range1d, ResetTool, WheelZoomTool)
 
 from bokeh import load_notebook
@@ -40,11 +40,13 @@ notebook_loaded = False
 
 class Chart(object):
 
-    def __init__(self, title, xname, yname, xscale, yscale, width, height, filename, notebook):
+    def __init__(self, title, xname, yname, legend, xscale, yscale, width, height,
+                 filename, notebook):
         "Initial setup."
         self.title = title
         self.xname = xname
         self.yname = yname
+        self.legend = legend
         self.xscale = xscale
         self.yscale = yscale
         self.plot_width = width
@@ -54,6 +56,8 @@ class Chart(object):
         self.source = None
         self.xdr = None
         self.ydr = None
+        self.groups = []
+        self.glyphs = []
 
     def get_data_histogram(self, bins, mu, sigma, **value):
         # calculate hist properties
@@ -64,6 +68,8 @@ class Chart(object):
         self.value = value
 
         self.attr = []
+
+        self.groups.extend(self.value.keys())
 
         for i, val in enumerate(self.value.keys()):
             setattr(self, val, self.value[val])
@@ -99,11 +105,13 @@ class Chart(object):
                 setattr(self, "pdf" + val, pdf)
                 self.data["pdf" + val] = getattr(self, "pdf" + val)
                 self.attr.append("pdf" + val)
+                self.groups.append("pdf")
 
                 cdf = (1 + scipy.special.erf((self.data["x" + val] - mu) / np.sqrt(2 * sigma ** 2))) / 2
                 setattr(self, "cdf" + val, cdf)
                 self.data["cdf" + val] = getattr(self, "cdf" + val)
                 self.attr.append("cdf" + val)
+                self.groups.append("cdf")
 
     def get_source_histogram(self):
         self.source = ColumnDataSource(data=self.data)
@@ -138,6 +146,8 @@ class Chart(object):
 
         # Grouping
         step = np.linspace(0, 1.0, len(self.value.keys()) + 1, endpoint=False)
+
+        self.groups.extend(self.value.keys())
 
         for i, val in enumerate(self.value.keys()):
             setattr(self, val, self.value[val])
@@ -174,6 +184,8 @@ class Chart(object):
 
         # list to save all the attributes we are going to create
         self.attr = []
+
+        self.groups.extend(self.pairs.keys())
 
         # Grouping
         for i, val in enumerate(self.pairs.keys()):
@@ -222,6 +234,18 @@ class Chart(object):
         self.plot.tools = [pantool, wheelzoom, reset, previewsave]
 
     def end_plot(self):
+        # Add legend
+        if self.legend:
+            listed_glyphs = [[glyph] for glyph in self.glyphs]
+            self.legends = dict(zip(self.groups, listed_glyphs))
+            print self.legends
+            if self.legend is True:
+                orientation = "top_right"
+            else:
+                orientation = self.legend
+            legend = Legend(plot=self.plot, orientation=orientation, legends=self.legends)
+            self.plot.renderers.append(legend)
+
         # Add to document
         self.doc = Document()
         self.doc.add(self.plot)
@@ -262,6 +286,7 @@ class Chart(object):
                            glyph=line)
 
         self.plot.renderers.append(line_glyph)
+        self.glyphs.append(line_glyph)
 
     def make_quad(self, top, bottom, left, right, color):
 
@@ -274,6 +299,7 @@ class Chart(object):
                            glyph=quad)
 
         self.plot.renderers.append(quad_glyph)
+        self.glyphs.append(quad_glyph)
 
     def make_rect(self, x, y, width, height, color):
 
@@ -286,6 +312,7 @@ class Chart(object):
                            glyph=rect)
 
         self.plot.renderers.append(rect_glyph)
+        self.glyphs.append(rect_glyph)
 
     def make_scatter(self, x, y, markertype, color):
         from collections import OrderedDict
@@ -326,6 +353,7 @@ class Chart(object):
                            glyph=scatter)
 
         self.plot.renderers.append(scatter_glyph)
+        self.glyphs.append(scatter_glyph)
 
     def histogram(self):
         # Use the `quad` renderer to display the histogram bars.
@@ -406,12 +434,13 @@ class Chart(object):
 
 class ChartObject(object):
 
-    def __init__(self, title=None, xname=None, yname=None,
+    def __init__(self, title=None, xname=None, yname=None, legend=False,
                  xscale="linear", yscale="linear", width=800, height=600,
                  filename=False, notebook=False):
         self.__title = title
         self.__xname = xname
         self.__yname = yname
+        self.__legend = legend
         self.xscale = xscale
         self.yscale = yscale
         self.__width = width
@@ -429,6 +458,10 @@ class ChartObject(object):
 
     def yname(self, yname):
         self._yname = yname
+        return self
+
+    def legend(self, legend):
+        self._legend = legend
         return self
 
     def width(self, width):
@@ -456,6 +489,8 @@ class ChartObject(object):
             self._xname = self.__xname
         if not hasattr(self, '_yname'):
             self._yname = self.__yname
+        if not hasattr(self, '_legend'):
+            self._legend = self.__legend
         if not hasattr(self, '_width'):
             self._width = self.__width
         if not hasattr(self, '_height'):
@@ -472,14 +507,14 @@ class ChartObject(object):
 class Histogram(ChartObject):
 
     def __init__(self, measured, bins, mu=None, sigma=None,
-                 title=None, xname=None, yname=None,
+                 title=None, xname=None, yname=None, legend=False,
                  xscale="linear", yscale="linear", width=800, height=600,
                  filename=False, notebook=False):
         self.measured = measured
         self.bins = bins
         self.mu = mu
         self.sigma = sigma
-        super(Histogram, self).__init__(title, xname, yname,
+        super(Histogram, self).__init__(title, xname, yname, legend,
                                         xscale, yscale, width, height,
                                         filename, notebook)
 
@@ -489,8 +524,9 @@ class Histogram(ChartObject):
     def draw(self):
         self.check_attr()
 
-        chart = Chart(self._title, self._xname, self._yname, self.xscale, self.yscale,
-                      self._width, self._height, self._filename, self._notebook)
+        chart = Chart(self._title, self._xname, self._yname, self._legend,
+                      self.xscale, self.yscale, self._width, self._height,
+                      self._filename, self._notebook)
         chart.get_data_histogram(self.bins, self.mu, self.sigma, **self.measured)
         chart.get_source_histogram()
         chart.start_plot()
@@ -502,13 +538,13 @@ class Histogram(ChartObject):
 class Bar(ChartObject):
 
     def __init__(self, value, cat=None, stacked=False,
-                 title=None, xname=None, yname=None,
+                 title=None, xname=None, yname=None, legend=False,
                  xscale="categorical", yscale="linear", width=800, height=600,
                  filename=False, notebook=False):
         self.cat = cat
         self.value = value
         self.__stacked = stacked
-        super(Bar, self).__init__(title, xname, yname,
+        super(Bar, self).__init__(title, xname, yname, legend,
                                   xscale, yscale, width, height,
                                   filename, notebook)
 
@@ -528,8 +564,9 @@ class Bar(ChartObject):
 
         self.check_attr()
 
-        chart = Chart(self._title, self._xname, self._yname, self.xscale, self.yscale,
-                      self._width, self._height, self._filename, self._notebook)
+        chart = Chart(self._title, self._xname, self._yname, self._legend,
+                      self.xscale, self.yscale, self._width, self._height,
+                      self._filename, self._notebook)
         chart.get_data_bar(self.cat, **self.value)
         chart.get_source_bar(self._stacked)
         chart.start_plot()
@@ -541,11 +578,11 @@ class Bar(ChartObject):
 class Scatter(ChartObject):
 
     def __init__(self, pairs,
-                 title=None, xname=None, yname=None,
+                 title=None, xname=None, yname=None, legend=False,
                  xscale="linear", yscale="linear", width=800, height=600,
                  filename=False, notebook=False):
         self.pairs = pairs
-        super(Scatter, self).__init__(title, xname, yname,
+        super(Scatter, self).__init__(title, xname, yname, legend,
                                   xscale, yscale, width, height,
                                   filename, notebook)
 
@@ -579,8 +616,9 @@ class Scatter(ChartObject):
 
         self.check_attr()
 
-        chart = Chart(self._title, self._xname, self._yname, self.xscale, self.yscale,
-                      self._width, self._height, self._filename, self._notebook)
+        chart = Chart(self._title, self._xname, self._yname, self._legend,
+                      self.xscale, self.yscale, self._width, self._height,
+                      self._filename, self._notebook)
         chart.get_data_scatter(**self.pairs)
         chart.get_source_scatter()
         chart.start_plot()
