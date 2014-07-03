@@ -14,20 +14,16 @@ complex plot is a simple way.
 #-----------------------------------------------------------------------------
 
 import itertools
-import warnings
 
 import numpy as np
 import pandas as pd
 
-from .glyphs import (Asterisk, Circle, CircleCross, CircleX, Cross, Diamond, DiamondCross, InvertedTriangle, Line,
-                     MultiLine, Patches, Rect, Square, SquareCross, SquareX, Text, Triangle, Xmarker, Quad)
-from .objects import (BoxSelectionOverlay, BoxSelectTool, BoxZoomTool, CategoricalAxis,
-                      ColumnDataSource, DataRange1d, DatetimeTickFormatter,
-                      DatetimeAxis, FactorRange, Glyph, Grid, GridPlot, LinearAxis, PanTool,
+from .glyphs import (Asterisk, Circle, CircleCross, CircleX, Cross, Diamond,
+                     DiamondCross, InvertedTriangle, Line, Rect, Square,
+                     SquareCross, SquareX, Triangle, Xmarker, Quad)
+from .objects import (CategoricalAxis, ColumnDataSource, DatetimeAxis,
+                      FactorRange, Glyph, Grid, LinearAxis, PanTool,
                       Plot, PreviewSaveTool, Range1d, ResetTool, WheelZoomTool)
-from .palettes import brewer
-#from .plotting import (curdoc, output_file, output_notebook, output_server,
-                       #show)
 
 from bokeh import load_notebook
 from .document import Document
@@ -99,12 +95,12 @@ class Chart(object):
                 self.data["x" + val] = getattr(self, "x" + val)
                 self.attr.append("x" + val)
 
-                pdf = 1/(sigma * np.sqrt(2*np.pi)) * np.exp(-(self.data["x" + val]-mu)**2 / (2*sigma**2))
+                pdf = 1 / (sigma * np.sqrt(2 * np.pi)) * np.exp(-(self.data["x" + val] - mu) ** 2 / (2 * sigma ** 2))
                 setattr(self, "pdf" + val, pdf)
                 self.data["pdf" + val] = getattr(self, "pdf" + val)
                 self.attr.append("pdf" + val)
 
-                cdf = (1+scipy.special.erf((self.data["x" + val]-mu)/np.sqrt(2*sigma**2)))/2
+                cdf = (1 + scipy.special.erf((self.data["x" + val] - mu) / np.sqrt(2 * sigma ** 2))) / 2
                 setattr(self, "cdf" + val, cdf)
                 self.data["cdf" + val] = getattr(self, "cdf" + val)
                 self.attr.append("cdf" + val)
@@ -163,7 +159,6 @@ class Chart(object):
     def get_source_bar(self, stacked):
         self.source = ColumnDataSource(self.data)
         self.xdr = FactorRange(factors=self.source.data["cat"])
-        #self.ydr = DataRange1d(sources=[self.source.columns("height")])
         if stacked:
             self.ydr = Range1d(start=0, end=1.1 * max(self.zero))
         else:
