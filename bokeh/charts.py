@@ -429,9 +429,9 @@ class Chart(object):
 
 class ChartObject(object):
 
-    def __init__(self, title=None, xname=None, yname=None, legend=False,
-                 xscale="linear", yscale="linear", width=800, height=600,
-                 filename=False, server=False, notebook=False):
+    def __init__(self, title, xname, yname, legend,
+                 xscale, yscale, width, height,
+                 filename, server, notebook):
         self.__title = title
         self.__xname = xname
         self.__yname = yname
