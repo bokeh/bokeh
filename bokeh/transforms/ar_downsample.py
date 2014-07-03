@@ -11,6 +11,16 @@ logger = logging.getLogger(__file__)
 def _loadAR():
   """Utility to load abstract rendering.  Keeps the import from occuring
      unless you actually try to use AR.
+
+     This is more complex than just an import because
+     AR is exposed as several backbone modules.  If the AR modules
+     were directly imported, then errors would occur whenever ar_downsample
+     is imported.  This casues error messages on python client side (where AR isn't
+     actually needed) and on the server side even when AR isn't used.
+     Since the AR modules are used throughout this module, just importing at
+     use point inside this module is cumbersome.  Using 'globals()' and
+     importlib allows this method to be called before any AR proper itmes are used
+     but still have the imports appear at the module level.
   """
   try:
     from importlib import import_module
@@ -29,7 +39,7 @@ def _loadAR():
     print("cloning from https://github.com/JosephCottam/AbstractRendering")
     print("Questions and feedback can be directed to Joseph Cottam (jcottam@indiana.edu)")
     print("-----------------------------------------------------------------------\n\n")
-  #  raise
+    raise
 
 
 class Proxy(PlotObject):
@@ -115,7 +125,7 @@ class Spread(Transfer):
     return numeric.Spread(self.factor)
 
 
-#TODO: Pass the 'rend' defintiion through (minus the data_source references), unpack in 'downsample' instead of here...
+#TODO: Pass the 'rend' definition through (minus the data_source references), unpack in 'downsample' instead of here...
 #TODO: Move reserve control up here or palette control down.  Probably related to refactoring palette into a model-backed type
 def source(plot, agg=Count(), info=Const(val=1), shader=Id(), remove_original=True, palette=["Spectral-11"], **kwargs):
   #Acquire information from renderer...

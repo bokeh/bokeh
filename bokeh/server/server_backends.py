@@ -383,9 +383,9 @@ class FunctionBackend(AbstractDataBackend):
              'hundredB': np.random.randn(1000)*100}
     
     uniform = {'oneA': np.random.rand(1000), 
-             'oneB': np.random.rand(1000), 
-             'hundredA': np.random.rand(1000)*100,
-             'hundredB': np.random.rand(1000)*100}
+               'oneB': np.random.rand(1000), 
+               'hundredA': np.random.rand(1000)*100,
+               'hundredB': np.random.rand(1000)*100}
 
     def __init__(self):
       N = 1000
@@ -397,7 +397,7 @@ class FunctionBackend(AbstractDataBackend):
     def get_dataset(self, dataset):
       """Get a known dataset by name.  The dataset may start with fn://, but does not need to."""
 
-      if (dataset.startswith("fn://")): 
+      if (dataset.startswith("fn://")):
         dataset = dataset[5:]
 
       if dataset in self.list_data_sources():
@@ -543,7 +543,6 @@ class HDF5DataBackend(AbstractDataBackend):
                 request_username, data_url, 
                 parameters, plot_state)
         elif resample_op == 'abstract rendering':
-          from ..transforms import ar_downsample
           if (data_url.startswith("fn://")):
             dataset = FunctionBackend().get_dataset(data_url)
           else:
