@@ -12,7 +12,8 @@ logger = logging.getLogger(__file__)
 
 from . import _glyph_functions
 from .properties import (HasProps, Dict, Enum, Either, Float, Instance, Int,
-    List, String, Color, Include, Bool, Tuple, Any)
+    Datetime,
+    List, String, Color, Date, Include, Bool, Tuple, Any)
 from .mixins import LineProps, TextProps
 from .enums import BorderSymmetry, DatetimeUnits, Dimension, Location, Orientation, Units
 from .plot_object import PlotObject
@@ -43,7 +44,7 @@ class ColumnDataSource(DataSource):
     # field is not in the dict, then a range is created automatically.
     cont_ranges = Dict(String, Instance(".objects.Range"))
     discrete_ranges = Dict(String, Instance(".objects.Range"))
-
+    
     def __init__(self, *args, **kw):
         """ Modify the basic DataSource/PlotObj constructor so that if we
         are called with a single argument that is a dict, then we treat
@@ -62,7 +63,20 @@ class ColumnDataSource(DataSource):
         for name, data in raw_data.items():
             self.add(data, name)
         super(ColumnDataSource, self).__init__(**kw)
-
+        
+    def to_df(self):
+        """convert data source to pandas dataframe
+        local import of pandas because of possible compatability issues (pypy?)
+        if we have column_names set, we use those, otherwise we let 
+        pandas infer the column names.  column_names can be used to
+        either order or filter the columns here.
+        """
+        import pandas as pd
+        if self.column_names:
+            return pd.DataFrame(self.data, columns=self.column_names)
+        else:
+            return pd.DataFrame(self.data)
+            
     def add(self, data, name=None):
         """ Appends the data to the list of columns.  Returns the name
         that was inserted.
@@ -110,8 +124,8 @@ class Range(PlotObject):
 
 class Range1d(Range):
     """ Represents a fixed range [start, end] in a scalar dimension. """
-    start = Float()
-    end = Float()
+    start = Either(Datetime, Float)
+    end = Either(Datetime, Float)
 
 class DataRange(Range):
     sources = List(Instance(ColumnsRef))
@@ -463,6 +477,8 @@ class BoxZoomTool(Tool):
 class BoxSelectTool(Tool):
     renderers = List(Instance(Renderer))
     select_every_mousemove = Bool(True)
+    select_x = Bool(True)
+    select_y = Bool(True)    
 
 class BoxSelectionOverlay(Renderer):
     __view_model__ = 'BoxSelection'

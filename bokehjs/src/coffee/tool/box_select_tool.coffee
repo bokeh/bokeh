@@ -27,7 +27,7 @@ define [
     evgen_options:
       keyName: "shiftKey"
       buttonText: "Select"
-      buttonIcon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAcCAYAAAByDd+UAAABBklEQVRIS2NkoDNgRLfv////BkCxfiq4o5CRkfECujnYLHQAKtpPBQsdgRYeINXCRiwWKwDF4oEYnxxIG+kWAl2IMwTwyUEdOWohJCCAqRSeaIZ/kAI9jJGsgWICQAzKq/jkyEulBJL+aLYYzYeDIB8OhWyBXLksAJZUD0iqnkgt2oipQ/FWwIPSQmBhnwD0mTwQTwQ68AMhX1LsQ6CFoBbAfSAGWTaBkMUUWwit0kCNJX2o7/BaTKgRhbNGQI5foC8LgJaBWnoLgXgBzGKqttrQLIQFayBQfAO+eMTVLgXFBV4ANNgBWQHQl6BgdSCUcDAsJGQRLnlQ0wRbO5RgxifXQmL1AQCyTAwsT/hKhwAAAABJRU5ErkJggg=="
+      buttonIcon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAcCAYAAAByDd+UAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEgAACxIB0t1+/AAAABx0RVh0U29mdHdhcmUAQWRvYmUgRmlyZXdvcmtzIENTNui8sowAAAE1SURBVEiJ7ZXNUcQwDIU/7VDA3rnkQAF0QEpJCZSQEihhSxEFMLMlmA44cH8col2CsVlCfmYPvJlMLMnjJ8mSbJLYErtN2a6BsAPczM5roAvZJ9ruS4Q3BV0a/X0ke7anZvMgLcLGRRMeLoZSQe6yDZ2kpwWIXFIxpfkdNlRyPxEPwL7mzfhrap5NgaRW0j47G0nbt0XuQS/JFzhTEeXFCBNwnEsIPANvJcN/W/wV19MWpVk6G2bmQfzNVnotZt1h1IHXaiGPMDG/LRqGOyziC6GZHWaSXYRlee6A1sw6SQ2Dt8nMkqQ2nPKCrePzDbwDboF34CV0R+ARKI42hb6PEdWHrB9sJ7kGP3EsMmki+jbEluEOX4FD6NJ5PY5wCYyidf1ieK+ONRrf459KxrxKV8fmKf0AQEJj/A0qfJ8AAAAASUVORK5CYII="
       cursor: "crosshair"
       restrict_to_innercanvas: true
 
@@ -64,12 +64,14 @@ define [
         xrange = [@mget('start_vx'), @mget('current_vx')]
         xrange = [_.min(xrange), _.max(xrange)]
       else
-        xrange = null
+        range = @plot_view.view_state.get('inner_range_horizontal')
+        xrange = [range.get('start'), range.get('end')]
       if @mget('select_y')
         yrange = [@mget('start_vy'), @mget('current_vy')]
         yrange = [_.min(yrange), _.max(yrange)]
       else
-        yrange = null
+        range = @plot_view.view_state.get('inner_range_vertical')
+        yrange = [range.get('start'), range.get('end')]
       return [xrange, yrange]
 
     _selecting: (e, x_, y_) ->

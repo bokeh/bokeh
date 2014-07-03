@@ -163,9 +163,11 @@ class RedisBackboneStorage(PersistentBackboneStorage):
     """
     def __init__(self, redis):
         self.redis = redis
-        super(RedisBackboneStorage).__init__()
+        super(RedisBackboneStorage, self).__init__()
 
     def mget(self, doc_keys):
+        if not doc_keys:
+            return []
         vals = self.redis.mget(doc_keys)
         return [None if val is None else val.decode('utf-8') for val in vals]
 

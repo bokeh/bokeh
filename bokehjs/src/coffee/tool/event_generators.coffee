@@ -100,6 +100,7 @@ define [], () ->
           return false)
 
       @$tool_button = $("<button class='bk-toolbar-button' title='#{@options.buttonText}'><img class='bk-btn-icon' src='#{@options.buttonIcon}'/><span class='tip'>#{@options.buttonText}</span></button>")
+      @plotview
       @plotview.$el.find('.bk-button-bar').append(@$tool_button)
 
       # Paddy: I want to remove all this checking for @button_activated,
@@ -268,7 +269,6 @@ define [], () ->
         @mouseover_count += 1)
 
       @$tool_button = $("<button class='bk-toolbar-button' title='#{@options.buttonText}'><img class='bk-btn-icon' src='#{@options.buttonIcon}'/><span class='tip'>#{@options.buttonText}</span></button>")
-
       @plotview.$el.find('.bk-button-bar').append(@$tool_button)
 
       @$tool_button.click(=>

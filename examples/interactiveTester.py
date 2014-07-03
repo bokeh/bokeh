@@ -3,6 +3,7 @@ import argparse
 # which is required for many (but not all) examples to run properly.
 import bokeh
 import glob
+import importlib
 import os
 from six.moves import input
 import sys
@@ -55,6 +56,19 @@ directories = {
 }
 
 
+def depend_check(dependency):
+    """
+    Make sure a given dependency necessary to run examples is installed before trying to run
+    any files.
+    """
+
+    try:
+        importlib.import_module(dependency)
+    except ImportError as e:
+        print "%s\nPlease use conda or pip to install the necessary dependency." % (e)
+        sys.exit(1)
+
+
 def tester(TestingGround, HomeDir):
     """
     Collect and run all .py or .ipynb files in an examples directory, ignoring __init__.py
@@ -84,7 +98,7 @@ def tester(TestingGround, HomeDir):
             else:
                 TestStatus = input("Did the plot(s) in %s display correctly? (y/n) " % fileName)
                 while not TestStatus.startswith(('y', 'n')):
-                    print()
+                    print("")
                     TestStatus = input("Unexpected answer. Please type y or n. ")
                 if TestStatus.startswith('n'):
                     ErrorReport = input("Please describe the problem: ")
@@ -130,7 +144,7 @@ def logger(ErrorArray):
     """
 
     with open(logfile, 'a') as f:
-        print()
+        print("")
         print("\nWriting error log to %s" % logfile)
         f.write("%s\n" % base_dir)
         for error in ErrorArray:
@@ -142,8 +156,13 @@ if __name__ == '__main__':
         target = results.location
 
         if target == 'server':
-            print("Server examples require bokeh-server to run. Make sure you've typed 'bokeh-server' in another terminal tab.")
+            print(
+                "Server examples require bokeh-server. Make sure you've typed 'bokeh-server' in another terminal tab."
+            )
             time.sleep(5)
+
+        if target in ['ggplot', 'pandas', 'seaborn']:
+            depend_check(target)
 
         if results.nolog:
             pass
@@ -159,5 +178,5 @@ if __name__ == '__main__':
         # # This is kept necessarily explicit so that you don't
         # accidentally provide a directory that has .html files
         # you don't want to have deleted.
-        print("Please choose an examples directory to test in ('python interactiveTester.py <plotting/file>")
+        print("Please choose an examples directory to test in ('python interactiveTester.py <plotting/file>)")
         sys.exit(1)

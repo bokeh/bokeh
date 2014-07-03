@@ -278,16 +278,15 @@ define [
       # TODO use template
       @$el.append($("""
         <div class='plotarea'>
-            <div class='bokeh_canvas_wrapper_outer'>
+          <div class='bokeh_canvas_wrapper_outer'>
             <div class='bokeh_canvas_wrapper'>
               <canvas class='bokeh_canvas'></canvas>
             </div>
             <div class='bk-sidebar'>
-              <a href='http://bokeh.pydata.org/' class='bk-logo'/>    
+              <a href='http://bokeh.pydata.org/' class='bk-logo bk-logo-medium'/>
               <div class='bk-button-bar'/>
-              </div>
             </div>
-          </div>
+          </div> 
         </div>
         """))
       @canvas_wrapper = @$el.find('.bokeh_canvas_wrapper')
