@@ -15,7 +15,7 @@ from .objects import (
     ObjectExplorerTool, PanTool, Plot, PreviewSaveTool, Range, Range1d,
     ResetTool, ResizeTool, WheelZoomTool, Tool
 )
-from .properties import ColorSpec
+from .properties import ColorSpec, Date, Datetime
 import warnings
 
 def get_default_color(plot=None):
@@ -228,12 +228,37 @@ def _get_range(range_input):
     if isinstance(range_input, Sequence):
         if all(isinstance(x, string_types) for x in range_input):
             return FactorRange(factors=range_input)
-        if len(range_input) == 2 and all(isinstance(x, Number) for x in range_input):
-            return Range1d(start=range_input[0], end=range_input[1])
-    raise ValueError("Unrecognized range input: '%s'" % range_input)
+        if len(range_input) == 2:
+            try:
+                return Range1d(start=range_input[0], end=range_input[1])
+            except ValueError: # @mattpap suggests ValidationError instead
+                pass
+    raise ValueError("Unrecognized range input: '%s'" % str(range_input))
+
+def _get_axis_class(axis_type, range_input):
+    if axis_type is None:
+        return None
+    elif axis_type is "linear":
+        return LinearAxis
+    elif axis_type == "datetime":
+        return DatetimeAxis
+    elif axis_type == "auto":
+        if isinstance(range_input, FactorRange):
+            return CategoricalAxis
+        elif isinstance(range_input, Range1d):
+            try:
+                # Easier way to validate type of Range1d parameters
+                Datetime.validate(Datetime(), range_input.start)
+                return DatetimeAxis
+            except ValueError:
+                pass
+        return LinearAxis
+    else:
+        raise ValueError("Unrecognized axis_type: '%r'" % axis_type)
+
 
 def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
-                 x_axis_type="linear", y_axis_type="linear",
+                 x_axis_type="auto", y_axis_type="auto",
                  tools="pan,wheel_zoom,box_zoom,save,resize,select,reset", **kw):
     # Accept **kw to absorb other arguments which the actual factory functions
     # might pass in, but that we don't care about
@@ -248,30 +273,14 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
     p.x_range = _get_range(x_range)
     p.y_range = _get_range(y_range)
 
-    axiscls = None
-    if x_axis_type is None:
-        pass
-    elif isinstance(p.x_range, FactorRange):
-        axiscls = CategoricalAxis
-    elif x_axis_type is "linear":
-        axiscls = LinearAxis
-    elif x_axis_type == "datetime":
-        axiscls = DatetimeAxis
-    if axiscls:
-        xaxis = axiscls(plot=p, dimension=0, location="min", bounds="auto")
+    x_axiscls = _get_axis_class(x_axis_type, p.x_range)
+    if x_axiscls:
+        xaxis = x_axiscls(plot=p, dimension=0, location="min", bounds="auto")
         xgrid = Grid(plot=p, dimension=0, axis=xaxis)
 
-    axiscls = None
-    if y_axis_type is None:
-        pass
-    elif isinstance(p.y_range, FactorRange):
-        axiscls = CategoricalAxis
-    elif y_axis_type is "linear":
-        axiscls = LinearAxis
-    elif y_axis_type == "datetime":
-        axiscls = DatetimeAxis
-    if axiscls:
-        yaxis = axiscls(plot=p, dimension=1, location="min", bounds="auto")
+    y_axiscls = _get_axis_class(y_axis_type, p.y_range)
+    if y_axiscls:
+        yaxis = y_axiscls(plot=p, dimension=1, location="min", bounds="auto")
         ygrid = Grid(plot=p, dimension=1, axis=yaxis)
 
     border_args = ["min_border", "min_border_top", "min_border_bottom", "min_border_left", "min_border_right"]
