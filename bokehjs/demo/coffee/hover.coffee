@@ -13,6 +13,7 @@ require(['main', 'underscore'], (Bokeh, _) ->
     y: y
     radius: (r.randf()*2 + 2 for i in _.range(N))
     color: ("rgb(#{ Math.floor(50+2*val[0]) }, #{ Math.floor(30+2*val[1]) }, 150)" for val in _.zip(x, y))
+    link: ("http://www.google.com?s=" + x[i] + " " + y[i] for i in _.range(N))
     text: t
   }
 

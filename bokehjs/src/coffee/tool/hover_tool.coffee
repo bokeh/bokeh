@@ -86,6 +86,30 @@ define [
       )
       @plot_view.canvas_wrapper.css('cursor', 'crosshair')
 
+      @plot_view.canvas.bind("click", (e) =>
+        if not @active
+          return
+        offset = $(e.currentTarget).offset()
+        left = if offset? then offset.left else 0
+        top = if offset? then offset.top else 0
+        e.bokehX = e.pageX - left
+        e.bokehY = e.pageY - top
+
+        [vx, vy] = @view_coords(e.bokehX, e.bokehY)
+
+        irh = @plot_view.view_state.get( 'inner_range_horizontal')
+        irv = @plot_view.view_state.get( 'inner_range_vertical')
+        xstart = irh.get('start')
+        xend = irh.get('end')
+        ystart = irv.get('start')
+        yend = irv.get('end')
+        if vx < xstart  or vx > xend or vy < ystart or vy > yend
+          @div.hide()
+          return
+
+        @_link(vx, vy, e)
+      )
+
     view_coords: (sx, sy) ->
       [vx, vy] = [
         @plot_view.view_state.sx_to_vx(sx),
@@ -195,6 +219,34 @@ define [
           @div.hide()
         datasource_selections[datasource_id].push(selected)
 
+      return null
+
+    _link: (vx, vy, e) ->
+      geometry = {
+        type: 'point'
+        vx: vx
+        vy: vy
+      }
+      x = @plot_view.xmapper.map_from_target(vx)
+      y = @plot_view.ymapper.map_from_target(vy)
+      datasources = {}
+      datasource_selections = {}
+      for renderer in @mget_obj('renderers')
+        datasource = renderer.get_obj('data_source')
+        datasources[datasource.id] = datasource
+      for renderer in @mget_obj('renderers')
+        datasource_id = renderer.get_obj('data_source').id
+        _.setdefault(datasource_selections, datasource_id, [])
+        selected = @plot_view.renderers[renderer.id].hit_test(geometry)
+        ds = datasources[datasource_id]
+        if selected == null
+          continue
+        if selected.length > 0
+          _urls = ds.getcolumn('link')
+          if (_urls != null)
+            _url = _urls[selected[0]];
+            window.open(_url);
+            break
       return null
 
   class HoverTool extends Tool.Model
