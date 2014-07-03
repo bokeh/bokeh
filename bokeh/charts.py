@@ -245,6 +245,7 @@ class Chart(object):
             else:
                 orientation = self.legend
             legend = Legend(plot=self.plot, orientation=orientation, legends=self.legends)
+            print legend.legends
             self.plot.renderers.append(legend)
 
         # Add to document
@@ -286,9 +287,9 @@ class Chart(object):
 
         return grid
 
-    def make_line(self, x, y):
+    def make_line(self, x, y, color):
 
-        line = Line(x=x, y=y)
+        line = Line(x=x, y=y, line_color=color)
 
         line_glyph = Glyph(data_source=self.source,
                            xdata_range=self.xdr,
@@ -379,8 +380,8 @@ class Chart(object):
 
             for i, octet in enumerate(self.octet):
                 self.make_quad(octet[0], octet[4], octet[2], octet[3], colors[i])
-                self.make_line(octet[5], octet[6])
-                self.make_line(octet[5], octet[7])
+                self.make_line(octet[5], octet[6], colors[i])
+                self.make_line(octet[5], octet[7], colors[i])
 
     def bar(self, stacked):
         # Use the `rect` renderer to display the bars.
