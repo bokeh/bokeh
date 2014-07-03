@@ -160,17 +160,20 @@ def update(docid, typename, id):
     namely in writing, we shouldn't remove unspecified attrs
     (we currently don't handle this correctly)
     """
-
     doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
     clientdoc = bokeh_app.backbone_storage.get_document(docid)
+    log.info("loading done %s", len(clientdoc._models.values()))
     prune(clientdoc)
     init_bokeh(clientdoc)
+    log.info("updating")
     modeldata = protocol.deserialize_json(request.data.decode('utf-8'))
     #patch id is not passed...
     modeldata['id'] = id
     modeldata = {'type' : typename,
                  'attributes' : modeldata}
     clientdoc.load(modeldata, events='existing', dirty=True)
+    log.info("done")
+    log.info("saving")
     changed = bokeh_app.backbone_storage.store_document(clientdoc)
     model = clientdoc._models[id]
     try:

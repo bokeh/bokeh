@@ -2,6 +2,7 @@ import json
 import logging
 import time
 import datetime as dt
+import calendar
 
 import numpy as np
 from six.moves import cPickle as pickle
@@ -56,16 +57,23 @@ class BokehJSONEncoder(json.JSONEncoder):
     def transform_python_types(self, obj):
         """handle special scalars, default to default json encoder
         """
+        # Pandas Timestamp
         if is_pandas and isinstance(obj, pd.tslib.Timestamp):
-            return obj.value / millifactor
+            return obj.value / millifactor  #nanosecond to millisecond
         elif isinstance(obj, np.float):
             return float(obj)
         elif isinstance(obj, np.int):
             return int(obj)
+        # Datetime, Date
         elif isinstance(obj, (dt.datetime, dt.date)):
-            return time.mktime(obj.timetuple()) * 1000.
+            return calendar.timegm(obj.timetuple()) * 1000.
+        # Numpy datetime64
+        elif isinstance(obj, np.datetime64):
+            epoch_delta = obj - np.datetime64('1970-01-01T00:00:00Z')
+            return (epoch_delta / np.timedelta64(1, 'ms'))
+        # Time
         elif isinstance(obj, dt.time):
-            return (obj.hour*3600 + obj.minute*60 + obj.second)*1000 + obj.microsecond
+            return (obj.hour*3600 + obj.minute*60 + obj.second)*1000 + obj.microsecond / 1000.
         elif is_dateutil and isinstance(obj, relativedelta):
             return dict(years=obj.years, months=obj.months, days=obj.days, hours=obj.hours,
                 minutes=obj.minutes, seconds=obj.seconds, microseconds=obj.microseconds)

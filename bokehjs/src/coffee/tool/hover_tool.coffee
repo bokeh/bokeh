@@ -40,29 +40,29 @@ define [
 
       tool_name = "hover_tool"
 
-      @tool_button = $("<button class='bk-bs-btn bk-bs-btn-default bk-bs-btn-sm'> Hover </button>")
-      @plot_view.$el.find('.button_bar').append(@tool_button)
+      if not @mget('always_active')
+        @tool_button = $("<button class='bk-toolbar-button'> Hover </button>")
+        @plot_view.$el.find('.bk-button-bar').append(@tool_button)
+        @tool_button.click(=>
+          if @active
+            @plot_view.eventSink.trigger("clear_active_tool")
+          else
+            @plot_view.eventSink.trigger("active_tool", tool_name)
+          )
 
-      @tool_button.click(=>
-        if @active
-          @plot_view.eventSink.trigger("clear_active_tool")
-        else
-          @plot_view.eventSink.trigger("active_tool", tool_name)
+        @plot_view.eventSink.on("#{tool_name}:deactivated", =>
+          @active=false;
+          @tool_button.removeClass('active')
+          @div.hide()
         )
 
-      @plot_view.eventSink.on("#{tool_name}:deactivated", =>
-        @active=false;
-        @tool_button.removeClass('active')
-        @div.hide()
-      )
-
-      @plot_view.eventSink.on("#{tool_name}:activated", =>
-        @active=true;
-        @tool_button.addClass('active')
-      )
+        @plot_view.eventSink.on("#{tool_name}:activated", =>
+          @active=true;
+          @tool_button.addClass('active')
+        )
 
       @plot_view.canvas.bind("mousemove", (e) =>
-        if not @active
+        if not @active and not @mget('always_active')
           return
         offset = $(e.currentTarget).offset()
         left = if offset? then offset.left else 0
@@ -103,10 +103,10 @@ define [
       y = @plot_view.ymapper.map_from_target(vy)
       datasources = {}
       datasource_selections = {}
-      for renderer in @mget_obj('renderers')
+      for renderer in @mget('renderers')
         datasource = renderer.get_obj('data_source')
         datasources[datasource.id] = datasource
-      for renderer in @mget_obj('renderers')
+      for renderer in @mget('renderers')
         datasource_id = renderer.get_obj('data_source').id
         _.setdefault(datasource_selections, datasource_id, [])
         selected = @plot_view.renderers[renderer.id].hit_test(geometry)
@@ -203,13 +203,17 @@ define [
 
     dinitialize: (attrs, options) ->
       super(attrs, options)
-      @set('renderers',
-        (r for r in @get_obj('plot').get('renderers') when r.type == "Glyph")
-      )
+      names = @get('names')
+      all_renderers = @get_obj('plot').get_obj('renderers')
+      renderers = (r for r in all_renderers when r.type == "Glyph")
+      if names.length > 0
+        renderers = (r for r in renderers when names.indexOf(r.get('name')) >= 0)
+      @set('renderers', renderers)
 
     defaults: () ->
       return _.extend(super(), {
         renderers: []
+        names: []
         tooltips: {
           "index": "$index"
           "data (x, y)": "($x, $y)"

@@ -39,8 +39,9 @@ def _glyph_function(glyphclass, argnames, docstring, xfields=["x"], yfields=["y"
         else:
             raise ValueError("expected document or plot object for first argument")
 
-        if 'name' in kwargs:
-            plot._id = kwargs['name']
+        name = kwargs.pop('name', None)
+        if name:
+            plot._id = name
 
         select_tool = _get_select_tool(plot)
 
@@ -73,7 +74,8 @@ def _glyph_function(glyphclass, argnames, docstring, xfields=["x"], yfields=["y"
             data_source=datasource,
             server_data_source=serversource,
             glyph=glyph,
-            nonselection_glyph=nonselection_glyph)
+            nonselection_glyph=nonselection_glyph,
+            name=name)
 
         if legend_name:
             legend = _get_legend(plot)

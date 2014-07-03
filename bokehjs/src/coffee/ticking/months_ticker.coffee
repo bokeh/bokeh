@@ -59,7 +59,10 @@ define [
       ticks_in_range = _.filter(all_ticks,
                                 ((tick) -> data_low <= tick <= data_high))
 
-      return ticks_in_range
+      return {
+        "major": ticks_in_range,
+        "minor": []
+      }
 
     defaults: () ->
       return _.extend(super(), {
