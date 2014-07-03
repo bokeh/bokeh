@@ -267,7 +267,7 @@ define [
       @canvas.width = ow * ratio
       @canvas.height = oh * ratio
 
-      @button_bar.attr('style', "width:#{ow}px;")
+      #@button_bar.attr('style', "width:#{ow}px;")
       @canvas_wrapper.attr('style', "width:#{ow}px; height:#{oh}px")
       @canvas.attr('style', "width:#{ow}px;")
       @canvas.attr('style', "height:#{oh}px;")
