@@ -283,7 +283,7 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
             xaxis = x_axiscls(plot=p, dimension=0, location="min", bounds="auto")
         xgrid = Grid(plot=p, dimension=0, axis=xaxis)
 
-    y_axiscls, p.y_mapper_type = _get_axis_class(y_axis_type, p.y_range)
+    y_axiscls = _get_axis_class(y_axis_type, p.y_range)
     if y_axiscls:
         if y_axiscls is LogAxis:
             yaxis = y_axiscls(plot=p, dimension=1, location="min", bounds="auto", y_mapper_type="log")
