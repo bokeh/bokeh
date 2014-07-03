@@ -15,20 +15,23 @@ define [
     initialize: (attrs, options) ->
       super(attrs, options)
       @set('interval', ONE_YEAR)
-      @basic_ticker = new BasicTicker.Model()
+      @basic_ticker = new BasicTicker.Model({num_minor_ticks:0})
 
     get_ticks_no_defaults: (data_low, data_high, desired_n_ticks) ->
       start_year = last_year_no_later_than(new Date(data_low)).getUTCFullYear()
       end_year = last_year_no_later_than(new Date(data_high)).getUTCFullYear()
 
-      years = @basic_ticker.get_ticks_no_defaults(start_year, end_year, desired_n_ticks)
+      years = @basic_ticker.get_ticks_no_defaults(start_year, end_year, desired_n_ticks).major
 
       all_ticks = (Date.UTC(year, 0, 1) for year in years)
 
       ticks_in_range = _.filter(all_ticks,
                                 ((tick) -> data_low <= tick <= data_high))
 
-      return ticks_in_range
+      return {
+        "major": ticks_in_range,
+        "minor": []
+      }
 
     defaults: () ->
       return _.extend(super(), {
