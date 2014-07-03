@@ -30,7 +30,10 @@ define [
 
 
     eventGeneratorClass: OnePointWheelEventGenerator
-    evgen_options: { buttonText: "Wheel Zoom" }
+    evgen_options: { 
+      buttonText: "Wheel Zoom", 
+      buttonIcon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAcCAYAAAByDd+UAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEgAACxIB0t1+/AAAABx0RVh0U29mdHdhcmUAQWRvYmUgRmlyZXdvcmtzIENTNui8sowAAAHFSURBVEiJ7ZbRceIwEIb/vbkCUgIl0EFcAlfBuYOkBHfApALTQUgF0AF0AFcBdPDlwStnsSXD3MA93OSf0ciWdveTrJVkA2RmeqSA/vnHQ0kZfQPvr7igoa0K5enGOBXwzqVOQAvMRkDgCVi60VDvF05j2DLjMwTPe6DDdt5Rx1kBi9A3z8DqEHiX/IEZ0IQJnIBZArYxoDts0qzC+yEDPAXY6PMD82DTJiBAHYLvhkF8xADVYN2SRrMPdk0yill69Hoh6Sxp6/WrJJlZ6o+Be7iZ7UtAjyVJ+jnsMbOVpNWEc/xsx5JRSaN9CLwOMmw54b8PfvWE3Us/wLCGVXBu+0W+HAxAM2jbhCysNNBgAk0W6IZNxjkHjFkI3Z5tvOxCe5eAJWBOOWCAHihrg2f7KGn+Rma2B94kpfXeer2X9GFm6f0+QNdvr9dm9qtkdJfbgu5ESvvzY8o2AidvBb6OrdwGr70+S1pfG508gzZX7NLxlDsvU8K0Od8cMJ2JbSFg2ktNpm8esnFxE9Drhe+ndGk2dPfcoQRzv9b7T1dhCllqZmtgq+7wfvZylvSmLvOOhRh/3G51C9DI/GI8Uv//X9s/B34CxIm8SDsIdkgAAAAASUVORK5CYII=" 
+    }
     tool_events: { zoom: "_zoom" }
 
     mouse_coords: (e, x, y) ->
