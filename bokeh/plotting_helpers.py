@@ -278,7 +278,8 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
     if x_axiscls:
         if x_minor_ticks is None:
             x_minor_ticks = 0
-        xaxis = x_axiscls(plot=p, dimension=0, location="min", bounds="auto", num_minor_ticks=x_minor_ticks)
+        xaxis = x_axiscls(plot=p, dimension=0, location="min", bounds="auto")
+        xaxis.ticker.num_minor_ticks = x_minor_ticks
         axis_label = kw.pop('x_axis_label', None)
         if axis_label:
             xaxis.axis_label = axis_label
@@ -288,7 +289,8 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
     if y_axiscls:
         if y_minor_ticks is None:
             y_minor_ticks = 0
-        yaxis = y_axiscls(plot=p, dimension=1, location="min", bounds="auto", num_minor_ticks=y_minor_ticks)
+        yaxis = y_axiscls(plot=p, dimension=1, location="min", bounds="auto")
+        yaxis.ticker.num_minor_ticks = y_minor_ticks
         axis_label = kw.pop('y_axis_label', None)
         if axis_label:
             yaxis.axis_label = axis_label

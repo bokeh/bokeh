@@ -405,8 +405,7 @@ class LinearAxis(Axis):
 
     def __init__(self, **kwargs):
         if 'ticker' not in kwargs:
-            num_minor_ticks = kwargs.pop('num_minor_ticks', 5)
-            kwargs['ticker'] = BasicTicker(num_minor_ticks=num_minor_ticks)
+            kwargs['ticker'] = BasicTicker()
         if 'formatter' not in kwargs:
             kwargs['formatter'] = BasicTickFormatter()
         super(LinearAxis, self).__init__(**kwargs)
