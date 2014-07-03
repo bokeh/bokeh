@@ -17,7 +17,10 @@ define [
       super(options)
 
     eventGeneratorClass: ButtonEventGenerator
-    evgen_options: { buttonText: "Preview/Save", buttonIcon: "<span class='bk-bs-btn-preview-save'/>" }
+    evgen_options: { 
+      buttonText: "Preview/Save", 
+      buttonIcon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAcCAYAAAByDd+UAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEgAACxIB0t1+/AAAABx0RVh0U29mdHdhcmUAQWRvYmUgRmlyZXdvcmtzIENTNui8sowAAAE4SURBVEiJ5ZbhTcMwEIW/h/hPN6AbUCagbNANKJNQJqiYgI7SbpARygRNJ3j8iFOq1E6s0BSpPClK4rPv+XzvbMs2l8TNRdn+gvA20jYCHvo4k7RJ2Q6ps918CvfHzvYsRWgbRURj4AtYAVPgKTL+AyjD94xqRTbABLgDXiWtciO07XWwLWJhNBzVfaa2J7bL8D+PRXhW0UgqqFZlD3w2SWEAlXaRDlIWDdKl7dGvCI8dUJVRinQR7AflxurwGGWifZe5JRbhPc4lXFFJfdzejULSOmcGrYSSSmCe4ygX/3PzPiCocUl3Dpt4T+W0SzRz+uVQVHV4gq4lrWvsWZnomsn1i+b6CVMqvbf9xs9p/2I7dvKnUI8fNw2xK0ZBz0tUCx6D31NCSdienpFsK2lb88QiHBQXF803MWL34Bj7qCQAAAAASUVORK5CYII=" 
+    }
     toolType: "PreviewSaveTool"
     tool_events: {
       activated: "_activated"

@@ -41,7 +41,7 @@ define [
       tool_name = "hover_tool"
 
       @tool_button = $("<button class='bk-bs-btn bk-bs-btn-default bk-bs-btn-sm'> Hover </button>")
-      @plot_view.$el.find('.button_bar').append(@tool_button)
+      @plot_view.$el.find('.bk-button-bar').append(@tool_button)
 
       @tool_button.click(=>
         if @active

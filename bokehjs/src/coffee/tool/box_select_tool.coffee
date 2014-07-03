@@ -15,7 +15,7 @@ define [
 
     bind_bokeh_events: () ->
       super()
-      for renderer in @mget_obj('renderers')
+      for renderer in @mget_obj ('renderers')
         rendererview = @plot_view.renderers[renderer.id]
         @listenTo(rendererview.xrange(), 'change', @select_callback)
         @listenTo(rendererview.yrange(), 'change', @select_callback)
@@ -27,7 +27,7 @@ define [
     evgen_options:
       keyName: "shiftKey"
       buttonText: "Select"
-      buttonIcon: "<span class='bk-bs-btn-box-select'/>"
+      buttonIcon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAcCAYAAAByDd+UAAABBklEQVRIS2NkoDNgRLfv////BkCxfiq4o5CRkfECujnYLHQAKtpPBQsdgRYeINXCRiwWKwDF4oEYnxxIG+kWAl2IMwTwyUEdOWohJCCAqRSeaIZ/kAI9jJGsgWICQAzKq/jkyEulBJL+aLYYzYeDIB8OhWyBXLksAJZUD0iqnkgt2oipQ/FWwIPSQmBhnwD0mTwQTwQ68AMhX1LsQ6CFoBbAfSAGWTaBkMUUWwit0kCNJX2o7/BaTKgRhbNGQI5foC8LgJaBWnoLgXgBzGKqttrQLIQFayBQfAO+eMTVLgXFBV4ANNgBWQHQl6BgdSCUcDAsJGQRLnlQ0wRbO5RgxifXQmL1AQCyTAwsT/hKhwAAAABJRU5ErkJggg=="
       cursor: "crosshair"
       restrict_to_innercanvas: true
 

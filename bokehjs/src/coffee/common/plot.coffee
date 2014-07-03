@@ -282,9 +282,9 @@ define [
             <div class='bokeh_canvas_wrapper'>
               <canvas class='bokeh_canvas'></canvas>
             </div>
-            <div class='sidebar'>
-              <a href='http://bokeh.pydata.org/' class='logo'/>    
-              <div class='button_bar bk-bs-btn-group pull-top'>
+            <div class='bk-sidebar'>
+              <a href='http://bokeh.pydata.org/' class='bk-logo'/>    
+              <div class='bk-button-bar'/>
               </div>
             </div>
           </div>
@@ -292,7 +292,7 @@ define [
         """))
       @canvas_wrapper = @$el.find('.bokeh_canvas_wrapper')
       @canvas = @$el.find('canvas.bokeh_canvas')
-      @button_bar = @$el.find('.button_bar')
+      @button_bar = @$el.find('.bk-button-bar')
       
     render_canvas: (full_render=true) ->
       @ctx = @canvas[0].getContext('2d')

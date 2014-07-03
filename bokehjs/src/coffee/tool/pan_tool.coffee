@@ -38,7 +38,7 @@ define [
     evgen_options:
       keyName: null
       buttonText: "Pan"
-      buttonIcon: "<span class='bk-bs-btn-pan'/>"
+      buttonIcon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAcCAYAAAByDd+UAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEgAACxIB0t1+/AAAABx0RVh0U29mdHdhcmUAQWRvYmUgRmlyZXdvcmtzIENTNui8sowAAAEwSURBVEiJ5ZbtUcMwDIZfcR0gGxAmICNkhI5QJiEb9DpB2QA2KBskG8AGZYOHH3XAl+bDjpMed7y/fD5Jj2VJTgToFgIE6G6mc55EjrTPgA9gH8sB4oAOVvOr3drAI9cqVwEC+x4YwDmkprMydI5lS4r0m9+lKfqnQGCbEhTIB2P4tffm7DQSbLJpPJvK5wDaeBuFpJOkTFIzMl+FH3jC5hl4lPQk6csnbwdmbCnV3bF4l/Q2dEUL6PCz6tSwcidaqoZnV6r+wTezSv59p6mR9GBmTfc0fSfMhqIEZnjl35thKzNLynDM/2+8NGtqM21yEZevey7p3tur3PLFzD5DA4XaFa7Nu3oN5TDjF6PswOqxjk4GOsedN9RBsCSgc67aFyQWaIDMLBoaC2t187H4BqwdDXMWZF/nAAAAAElFTkSuQmCC"
       cursor: "move"
       auto_deactivate: true
       restrict_to_innercanvas: true

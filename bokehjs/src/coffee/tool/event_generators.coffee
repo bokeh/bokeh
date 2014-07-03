@@ -74,23 +74,7 @@ define [], () ->
         if not e[@options.keyName]
           @_stop_drag(e))
 
-      @plotview.canvas.bind 'mouseover', (e) =>
-        if @options.buttonText == 'Resize'
-          @plotview.$el.find('.resize_bokeh_plot').removeClass  'hide'
-          #@plotview.$el.find('.resize_bokeh_plot').addClass 'hoverState'
-          #@plotview.canvas.bind 'mouseleave', (e) =>
-          #  console.log("mouse leave?")
-          #  @plotview.$el.find('.resize_bokeh_plot').addClass  'hide'
-
-      
-        
-      #@plotview.canvas.bind 'mouseup', (e) =>
-      #  if @options.buttonText == 'Resize'
-      #    console.log("mouse up")
-      #    @plotview.$el.find('.resize_bokeh_plot').addClass  'hide'
-
       @plotview.canvas_wrapper.bind 'mousedown', (e) =>
-        
         start = false
 
         if @button_activated or @eventSink.active == @toolName
@@ -115,8 +99,8 @@ define [], () ->
           @_stop_drag(e)
           return false)
 
-      @$tool_button = $("<button class='bk-bs-btn bk-bs-btn-default bk-bs-btn-sm' title='#{@options.buttonText}'>#{@options.buttonIcon}<span class='tip'>#{@options.buttonText}</span></button>")
-      @plotview.$el.find('.button_bar').append(@$tool_button)
+      @$tool_button = $("<button class='bk-toolbar-button' title='#{@options.buttonText}'><img class='bk-btn-icon' src='#{@options.buttonIcon}'/><span class='tip'>#{@options.buttonText}</span></button>")
+      @plotview.$el.find('.bk-button-bar').append(@$tool_button)
 
       # Paddy: I want to remove all this checking for @button_activated,
       # is there some way we can do this in a more declarative way,
@@ -128,8 +112,6 @@ define [], () ->
       @$tool_button.click(=>
         if @button_activated
           eventSink.trigger("clear_active_tool")
-          if @option.buttonText=='Resize'
-            console.log("click 1 - resize")
         else
           eventSink.trigger("active_tool", toolName))
 
@@ -202,7 +184,7 @@ define [], () ->
 
       # @mouseover_count = 0
       #waiting 500 ms and testing mouseover countmakes sure that
-      # #mouseouts that occur because of going over element borders don`t
+      # #mouseouts that occur because of going over element borders don't
       # #trigger the mouseout
       # @plotview.$el.bind("mouseout", (e) =>
       #   @mouseover_count -=1
@@ -216,11 +198,10 @@ define [], () ->
       @plotview.$el.bind("mouseover", (e) =>
         @mouseover_count += 1)
 
-      @$tool_button = $("<button class='bk-bs-btn bk-bs-btn-default bk-bs-btn-sm' title='#{@options.buttonText}'>#{@options.buttonIcon}<span class='tip'>#{@options.buttonText}</span></button>")
-      @plotview.$el.find('.button_bar').append(@$tool_button)
+      @$tool_button = $("<button class='bk-toolbar-button' title='#{@options.buttonText}'><img class='bk-btn-icon' src='#{@options.buttonIcon}'/><span class='tip'>#{@options.buttonText}</span></button>")
+      @plotview.$el.find('.bk-button-bar').append(@$tool_button)
 
       @$tool_button.click(=>
-        console.log("click 2")
         if @button_activated
           eventSink.trigger("clear_active_tool")
         else
@@ -275,7 +256,7 @@ define [], () ->
 
       # @mouseover_count = 0
       # #waiting 500 ms and testing mouseover countmakes sure that
-      # #mouseouts that occur because of going over element borders don`t
+      # #mouseouts that occur because of going over element borders don't
       # #trigger the mouseout
       # @plotview.$el.bind("mouseout", (e) =>
       #   @mouseover_count -=1
@@ -286,12 +267,11 @@ define [], () ->
       @plotview.$el.bind("mouseover", (e) =>
         @mouseover_count += 1)
 
-      @$tool_button = $("<button class='bk-bs-btn bk-bs-btn-default bk-bs-btn-sm' title='#{@options.buttonText}'>#{@options.buttonIcon}<span class='tip'>#{@options.buttonText}</span></button>")
+      @$tool_button = $("<button class='bk-toolbar-button' title='#{@options.buttonText}'><img class='bk-btn-icon' src='#{@options.buttonIcon}'/><span class='tip'>#{@options.buttonText}</span></button>")
 
-      @plotview.$el.find('.button_bar').append(@$tool_button)
+      @plotview.$el.find('.bk-button-bar').append(@$tool_button)
 
       @$tool_button.click(=>
-        console.log("click 3")
         if @button_activated
           eventSink.trigger("clear_active_tool")
         else

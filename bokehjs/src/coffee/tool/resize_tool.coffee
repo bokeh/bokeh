@@ -11,7 +11,7 @@ define [
   class ResizeToolView extends Tool.View
     initialize: (options) ->
       super(options)
-      @active = false 
+      @active = false
 
     bind_events: (plotview) ->
       super(plotview)
@@ -22,7 +22,7 @@ define [
     evgen_options:
       keyName: ""
       buttonText: "Resize"
-      buttonIcon: "<span class='bk-bs-btn-resize'/>"
+      buttonIcon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAcCAYAAAByDd+UAAABO0lEQVRIS+2W3RHCIBCEpQNLsAQ7UCvREmIF2oG2YCVqB0kHlmAHeHvDzVz40QQyjA9hhpcA98Fy3MYsKjdTmbeoD7TWruiU+8hJb8aYV44CFPNM66y3luMZGtzSwD0SeEcTHplAH4YwHE8DO/rYKEBLE96ZQBxC2sEpGACfBNATc1jBGifvKXZCBtIEyLiZgCbxcJ894Jo+XKlDwkYBIXGWpG7DAoSk6A3Fb4NnoYClSRO9op/ARIqnFOfUpzXI0mxgLMVTQFZlBvbk8ZPGyTP0lcyShvb0D5KOqa9c8IuexdBs0fO+AmkQtfRCvfNqaVtQS6GKrqUw+CPXUmXAMgGFHJsobWIGgVtgN3D86n4ICbXjQ+Ise3KqSQ0Wewoc35ew1J6i8XCHy8SdTfVPI2COV/+/tDQVx67/AE3wMizROWPwAAAAAElFTkSuQmCC"
       cursor: "move"
 
     tool_events:
