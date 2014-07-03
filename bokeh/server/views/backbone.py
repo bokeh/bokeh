@@ -176,17 +176,14 @@ def update(docid, typename, id):
     log.info("saving")
     changed = bokeh_app.backbone_storage.store_document(clientdoc)
     model = clientdoc._models[id]
-    try:
-        idx = changed.index(model)
-        del changed[idx]
-    except ValueError as e:
-        #this is strange but ok, that means the model didn't change
-        pass
     log.debug("changed, %s", str(changed))
     ws_update(clientdoc, changed)
     log.debug("update, %s, %s", docid, typename)
     attrs = clientdoc.dump(model)[0]['attributes']
-    return ""
+    #backbone expects us to send back attrs of this model, but it doesn't
+    #make sense to do so because we modify other models, and we want this to
+    #all go out over the websocket channel
+    return make_json(protocol.serialize_json({'noop' : True}))
 
 @check_write_authentication_and_create_client
 def delete(docid, typename, id):
