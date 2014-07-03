@@ -84,9 +84,11 @@ define [
 
     make_websocket: () ->
       if exports.wswrapper?
-        return true
+        return exports._wswrapper_deferred
       else
-        resp = $.get(Config.prefix + "bokeh/wsurl/")
+        Config = require("common/base").Config
+        exports._wswrapper_deferred = $.get(Config.prefix + "bokeh/wsurl/")
+        resp = exports._wswrapper_deferred
         resp.done((data) ->
           Config = require("common/base").Config
           configure_server(data, null)
@@ -131,7 +133,7 @@ define [
 
     Config = require("common/base").Config
     if ws_conn_string
-      Config.ws_conn_string = ws_conn_string,
+      Config.ws_conn_string = ws_conn_string
       console.log('setting ws_conn_string to', Config.ws_conn_string)
     if prefix
       Config.prefix = prefix

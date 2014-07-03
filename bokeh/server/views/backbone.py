@@ -67,7 +67,7 @@ def bulk_upsert(docid):
     # callbacks here
     client = request.headers.get('client', 'python')
     doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
-    
+
     clientdoc = bokeh_app.backbone_storage.get_document(docid)
     prune(clientdoc)
     data = protocol.deserialize_json(request.data.decode('utf-8'))
@@ -79,27 +79,23 @@ def bulk_upsert(docid):
     msg = ws_update(clientdoc, changed)
     return make_json(msg)
 
-def ws_update(clientdoc, models, exclude_self=True):
+def ws_update(clientdoc, models):
     attrs = clientdoc.dump(*models)
-    if exclude_self:
-        clientid = request.headers.get('Continuum-Clientid', None)
-    else:
-        clientid = None
     msg = protocol.serialize_json({'msgtype' : 'modelpush',
                                    'modelspecs' : attrs
                                })
-    bokeh_app.wsmanager.send("bokehplot:" + clientdoc.docid, msg, exclude=set([clientid]))
+    bokeh_app.publisher.send("bokehplot:" + clientdoc.docid, msg)
     return msg
-        
+
 def ws_delete(clientdoc, models):
-    attrs = clientdoc.dump(*models)    
+    attrs = clientdoc.dump(*models)
     msg = {'msgtype' : 'modeldel',
            'modelspecs' : attrs
            }
     msg = protocol.serialize_json(msg)
     bokeh_app.wsmanager.send("bokehplot:" + clientdoc.docid, msg, exclude=set([clientid]))
     return msg
-    
+
 #backbone functionality
 @bokeh_app.route("/bokeh/bb/<docid>/<typename>/", methods=['POST'])
 @check_write_authentication_and_create_client
@@ -147,7 +143,7 @@ def handle_specific_model(docid, typename, id):
         return getbyid(docid, typename, id)
     elif request.method =='DELETE':
         return delete(docid, typename, id)
-    
+
 ##individual model methods
 @check_read_authentication_and_create_client
 def getbyid(docid, typename, id):
@@ -164,7 +160,7 @@ def update(docid, typename, id):
     namely in writing, we shouldn't remove unspecified attrs
     (we currently don't handle this correctly)
     """
-    
+
     doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
     clientdoc = bokeh_app.backbone_storage.get_document(docid)
     prune(clientdoc)
@@ -184,11 +180,10 @@ def update(docid, typename, id):
         #this is strange but ok, that means the model didn't change
         pass
     log.debug("changed, %s", str(changed))
-    ws_update(clientdoc, changed, exclude_self=False)
-    ws_update(clientdoc, [model], exclude_self=True)
+    ws_update(clientdoc, changed)
     log.debug("update, %s, %s", docid, typename)
     attrs = clientdoc.dump(model)[0]['attributes']
-    return make_json(protocol.serialize_json(attrs))
+    return ""
 
 @check_write_authentication_and_create_client
 def delete(docid, typename, id):
@@ -217,5 +212,5 @@ def rpc(docid, typename, id, funcname):
     result = getattr(model, funcname)(*args, **kwargs)
     log.debug("rpc, %s, %s", docid, typename)
     changed = bokeh_app.backbone_storage.store_document(clientdoc)
-    ws_update(clientdoc, changed, exclude_self=False)
+    ws_update(clientdoc, changed)
     return make_json(protocol.serialize_json(result))

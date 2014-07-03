@@ -27,7 +27,7 @@ class WebSocketHandler(websocket.WebSocketHandler):
         self.manager.remove_socket(self.clientid)
 
     def on_message(self, message):
-        message = protocol.deserialize_json(message)
+        msgobj = protocol.deserialize_json(message)
         msgtype = msgobj.get('msgtype')
         if msgtype == 'subscribe':
             auth = msgobj['auth']
@@ -35,7 +35,7 @@ class WebSocketHandler(websocket.WebSocketHandler):
             if self.manager.auth(auth, topic):
                 self.manager.subscribe(self.clientid, topic)
                 msg = protocol.serialize_json(
-                    protocol.status_obj(['subscribesuccess', topic, clientid])
+                    protocol.status_obj(['subscribesuccess', topic, self.clientid])
                 )
                 self.write_message(topic + ":" + msg)
             else:
@@ -76,7 +76,14 @@ class TornadoWebSocketApplication(Application):
         self.server.listen(port, address)
 
 def make_app(url_prefix, zmqaddrs, port):
-    url = url_prefix = "bokeh/sub/"
+    if url_prefix is None or url_prefix == "/":
+        url = "/bokeh/sub/"
+    else:
+        if not url_prefix.startswith("/"):
+            url_prefix = "/" + url_prefix
+        if not url_prefix.endswith("/"):
+            url_prefix = url_prefix + "/"
+        url = url_prefix + "bokeh/sub/"
     application = TornadoWebSocketApplication([(url, WebSocketHandler)],
                                               zmqaddrs=zmqaddrs
     )

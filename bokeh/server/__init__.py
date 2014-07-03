@@ -76,8 +76,8 @@ def build_parser():
 
     parser.add_argument("--ws-port",
                         help="port for websocket worker",
-                        default=False,
-                        action="store_true"
+                        default=5007,
+                        type=int
     )
 
     ## end websockets

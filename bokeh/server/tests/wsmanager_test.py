@@ -9,25 +9,21 @@ from ..app import bokeh_app
 from ..models import docs
 from ... import protocol
 from ...tests.test_utils import skipIfPy3, skipIfPyPy
-
-
-
-ws_address = "ws://localhost:5006/bokeh/sub"
-
+from bokeh.widgetobjects import VBox
+import bokeh.document as document
+import bokeh.session as session
+ws_address = "ws://localhost:6009/bokeh/sub"
 
 class TestSubscribeWebSocket(test_utils.BokehServerTestCase):
     def setUp(self):
         super(TestSubscribeWebSocket, self).setUp()
-        sess = bokeh_app.backbone_storage.get_session('defaultdoc')
-        doc = docs.new_doc(bokeh_app, "defaultdoc",
-                           'main', sess, rw_users=["defaultuser"],
-                           apikey='nokey')
-        sess = bokeh_app.backbone_storage.get_session('defaultdocs')
-        doc2 = docs.new_doc(bokeh_app, "defaultdoc2",
-                            'main', sess, rw_users=["defaultuser"],
-                            apikey='nokey')
+        self.doc1 = document.Document()
+        self.sess1 = session.Session()
+        self.sess1.use_doc('first')
+        self.doc2 = document.Document()
+        self.sess2 = session.Session()
+        self.sess2.use_doc('second')
 
-    # TODO (bev) fix or improve this test
     @skipIfPy3("gevent does not work in py3.")
     @skipIfPyPy("gevent requires pypycore and pypy-hacks branch of gevent.")
     def test_basic_subscribe(self):
@@ -63,8 +59,7 @@ class TestSubscribeWebSocket(test_utils.BokehServerTestCase):
 
 
 def connect(sock, addr, topic, auth):
-    sock.sock.settimeout(1.0)
-    sock.connect(addr)
+    sock.connect(addr, timeout=1.0)
     msgobj = dict(msgtype='subscribe',
                   topic=topic,
                   auth=auth

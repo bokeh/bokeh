@@ -39,9 +39,7 @@ def request_resources():
 def render(fname, **kwargs):
     resources = request_resources()
     bokeh_prefix = resources.root_url
-    bokeh_ws_conn_string = resources.conn_string
     return render_template(fname, bokeh_prefix=bokeh_prefix,
-                           bokeh_ws_conn_string=bokeh_ws_conn_string,
                            **kwargs)
 
 
@@ -360,10 +358,13 @@ def show_obj(docid, objid):
 
 @bokeh_app.route('/bokeh/wsurl/', methods=['GET'])
 def wsurl():
-    if bokeh_app.websocket.get('ws_conn_string'):
-        return bokeh_app.websocket.get('ws_conn_string')
+    if bokeh_app.websocket_params.get('ws_conn_string'):
+        return bokeh_app.websocket_params.get('ws_conn_string')
     else:
         prefix = bokeh_app.url_prefix
+        if prefix is None or prefix == "/":
+            prefix = ""
         ws_port = bokeh_app.websocket_params['ws_port']
+        host = request.host.split(":")[0]
         #TODO:ssl..?
-        return "ws://%s%d%s/bokeh/sub/" % (request.host, ws_port, prefix)
+        return "ws://%s:%d%s/bokeh/sub/" % (host, ws_port, prefix)

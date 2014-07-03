@@ -1,4 +1,6 @@
 from threading import Thread
+import json
+
 try:
     import gevent
     import zmq.green as zmq
@@ -20,13 +22,14 @@ class Subscriber(object):
         for addr in self.addrs:
             socket = ctx.socket(zmq.SUB)
             socket.connect(addr)
+            socket.setsockopt(zmq.SUBSCRIBE, "")
             sockets.append(socket)
             poller.register(socket, zmq.POLLIN)
         try:
             while not self.kill:
                 socks = dict(poller.poll(timeout * 1000))
                 for socket, v in socks.items():
-                    msg = socket.recv()
+                    msg = socket.recv_json()
                     topic, msg, exclude = msg['topic'], msg['msg'], msg['exclude']
                     self.wsmanager.send(topic, msg, exclude=exclude)
         finally:

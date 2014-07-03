@@ -10,20 +10,12 @@ define ["common/base",
   # window.bokeh_prefix, and window.bokeh_ws_conn_string can be set inside
   # templates from the server
 
-  if window.bokeh_prefix?
-    prefix = window.bokeh_prefix
+  url = window.location.href
+  if url.indexOf('/bokeh') > 0
+    prefix = url.slice(0, url.indexOf('/bokeh')) + "/" #keep trailing slash
   else
-    url = window.location.href
-    if url.indexOf('/bokeh') > 0
-      prefix = url.slice(0, url.indexOf('/bokeh')) + "/" #keep trailing slash
-    else
-      prefix = '/'
-  if window.bokeh_ws_conn_string?
-    ws_conn_string = window.bokeh_ws_conn_string
-  else
-    ws_conn_string = "ws://#{window.location.host}/bokeh/sub"
-
-  serverutils.configure_server(ws_conn_string, prefix)
+    prefix = '/'
+  serverutils.configure_server(null, prefix)
 
   reload = () ->
     Config = require("common/base").Config
@@ -43,12 +35,12 @@ define ["common/base",
         model = base.Collections(data.type).get(objid)
         view = new model.default_view(model : model)
         _render(view.el)
-
-      )
-      wswrapper.subscribe("debug:debug", "")
-      wswrapper.on('msg:debug:debug', (msg) ->
-        if msg == 'reload'
-          reload()
+        wswrapper = serverutils.wswrapper
+        wswrapper.subscribe("debug:debug", "")
+        wswrapper.on('msg:debug:debug', (msg) ->
+          if msg == 'reload'
+            reload()
+        )
       )
     )
   load = (title) ->
@@ -56,6 +48,7 @@ define ["common/base",
     $(() ->
       resp = serverutils.utility.make_websocket()
       resp.then(() ->
+        wswrapper = serverutils.wswrapper
         userdocs = new usercontext.UserDocs()
         userdocs.subscribe(wswrapper, 'defaultuser')
         load = userdocs.fetch()

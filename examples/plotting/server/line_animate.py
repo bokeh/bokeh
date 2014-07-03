@@ -28,4 +28,4 @@ while True:
         ds.data["y"] = y * i
         ds._dirty = True
         cursession().store_objects(ds)
-        time.sleep(0.05)
+        time.sleep(1.0)
