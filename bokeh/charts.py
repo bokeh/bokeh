@@ -205,8 +205,6 @@ class Chart(object):
 
     def start_plot(self):
         self.plot = Plot(title=self.title,
-                         #self.xname
-                         #self.yname
                          data_sources=[self.source],
                          x_range=self.xdr,
                          y_range=self.ydr,
@@ -214,38 +212,41 @@ class Chart(object):
                          plot_height=self.plot_height)
 
         # Add axis
-        xaxis = self.make_axis(0, self.xscale)
-        yaxis = self.make_axis(1, self.yscale)
+        xaxis = self.make_axis(0, self.xscale, self.xname)
+        yaxis = self.make_axis(1, self.yscale, self.yname)
 
         # Add grids
         self.make_grid(xaxis, 0)
         self.make_grid(yaxis, 1)
 
         # Add tools
-        #pantool = PanTool(dimensions=['width', 'height'])
-        #wheelzoom = WheelZoomTool(dimensions=['width', 'height'])
-        #reset = ResetTool(plot=self.plot)
-        #previewsave = PreviewSaveTool(plot=self.plot)
-        #self.plot.tools = [pantool, wheelzoom, reset, previewsave]
+        pantool = PanTool(dimensions=['width', 'height'])
+        wheelzoom = WheelZoomTool(dimensions=['width', 'height'])
+        reset = ResetTool(plot=self.plot)
+        previewsave = PreviewSaveTool(plot=self.plot)
+        self.plot.tools = [pantool, wheelzoom, reset, previewsave]
 
     def end_plot(self):
         # Add to document
         self.doc = Document()
         self.doc.add(self.plot)
 
-    def make_axis(self, dimension, scale):
+    def make_axis(self, dimension, scale, name):
         if scale == "linear":
             axis = LinearAxis(plot=self.plot,
-                               dimension=dimension,
-                               location="min")
+                              dimension=dimension,
+                              location="min",
+                              axis_label=name)
         elif scale == "date":
             axis = DatetimeAxis(plot=self.plot,
-                                 dimension=dimension,
-                                 location="min")
+                                dimension=dimension,
+                                location="min",
+                                axis_label=name)
         elif scale == "categorical":
             axis = CategoricalAxis(plot=self.plot,
                                    dimension=dimension,
-                                   major_label_orientation=np.pi / 4)
+                                   major_label_orientation=np.pi / 4,
+                                   axis_label=name)
 
         return axis
 
@@ -375,6 +376,10 @@ class Chart(object):
                 f.write(file_html(self.doc, INLINE, self.title))
             print("Wrote %s" % self.filename)
             view(self.filename)
+        elif self.filename is False and self.notebook is False:
+            print("You have a provide a filename (filename='blablabla' or"
+                  " .filename('blablabla')) to save your plot.")
+
         if self.notebook:
             if notebook_loaded is False:
                 load_notebook()
@@ -410,17 +415,25 @@ class ChartObject(object):
                  xscale="linear", yscale="linear", width=800, height=600,
                  filename=False, notebook=False):
         self.__title = title
-        self.xname = xname
-        self.yname = yname
+        self.__xname = xname
+        self.__yname = yname
         self.xscale = xscale
         self.yscale = yscale
         self.__width = width
         self.__height = height
-        self.filename = filename
+        self.__filename = filename
         self.__notebook = notebook
 
     def title(self, title):
         self._title = title
+        return self
+
+    def xname(self, xname):
+        self._xname = xname
+        return self
+
+    def yname(self, yname):
+        self._yname = yname
         return self
 
     def width(self, width):
@@ -429,6 +442,10 @@ class ChartObject(object):
 
     def height(self, height):
         self._height = height
+        return self
+
+    def filename(self, filename):
+        self._filename = filename
         return self
 
     def notebook(self, notebook=True):
@@ -440,10 +457,16 @@ class ChartObject(object):
     def check_attr(self):
         if not hasattr(self, '_title'):
             self._title = self.__title
+        if not hasattr(self, '_xname'):
+            self._xname = self.__xname
+        if not hasattr(self, '_yname'):
+            self._yname = self.__yname
         if not hasattr(self, '_width'):
             self._width = self.__width
         if not hasattr(self, '_height'):
             self._height = self.__height
+        if not hasattr(self, '_filename'):
+            self._filename = self.__filename
         if not hasattr(self, '_notebook'):
             self._notebook = self.__notebook
 
@@ -471,8 +494,8 @@ class Histogram(ChartObject):
     def draw(self):
         self.check_attr()
 
-        chart = Chart(self._title, self.xname, self.yname, self.xscale, self.yscale,
-                      self._width, self._height, self.filename, self._notebook)
+        chart = Chart(self._title, self._xname, self._yname, self.xscale, self.yscale,
+                      self._width, self._height, self._filename, self._notebook)
         chart.get_data_histogram(self.bins, self.mu, self.sigma, **self.measured)
         chart.get_source_histogram()
         chart.start_plot()
@@ -510,8 +533,8 @@ class Bar(ChartObject):
 
         self.check_attr()
 
-        chart = Chart(self._title, self.xname, self.yname, self.xscale, self.yscale,
-                      self._width, self._height, self.filename, self._notebook)
+        chart = Chart(self._title, self._xname, self._yname, self.xscale, self.yscale,
+                      self._width, self._height, self._filename, self._notebook)
         chart.get_data_bar(self.cat, **self.value)
         chart.get_source_bar(self._stacked)
         chart.start_plot()
@@ -561,8 +584,8 @@ class Scatter(ChartObject):
 
         self.check_attr()
 
-        chart = Chart(self._title, self.xname, self.yname, self.xscale, self.yscale,
-                      self._width, self._height, self.filename, self._notebook)
+        chart = Chart(self._title, self._xname, self._yname, self.xscale, self.yscale,
+                      self._width, self._height, self._filename, self._notebook)
         chart.get_data_scatter(**self.pairs)
         chart.get_source_scatter()
         chart.start_plot()
