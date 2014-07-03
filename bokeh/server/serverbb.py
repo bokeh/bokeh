@@ -166,11 +166,7 @@ class RedisBackboneStorage(PersistentBackboneStorage):
         super(RedisBackboneStorage, self).__init__()
 
     def mget(self, doc_keys):
-<<<<<<< HEAD
-        if len(doc_keys) == 0:
-=======
         if not doc_keys:
->>>>>>> origin/master
             return []
         vals = self.redis.mget(doc_keys)
         return [None if val is None else val.decode('utf-8') for val in vals]
