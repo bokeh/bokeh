@@ -10,10 +10,10 @@ from . import glyphs
 
 from .objects import (
     BoxSelectionOverlay, BoxSelectTool, BoxZoomTool, CategoricalAxis,
-    ColumnDataSource, CrosshairTool, DataRange1d, DatetimeAxis,
+    ColumnDataSource, ClickTool, CrosshairTool, DataRange1d, DatetimeAxis,
     EmbedTool, FactorRange, Grid, HoverTool, Legend, LinearAxis,
     ObjectExplorerTool, PanTool, Plot, PreviewSaveTool, Range, Range1d,
-    ResetTool, ResizeTool, WheelZoomTool, Tool
+    ResetTool, ResizeTool, Tool, WheelZoomTool,
 )
 from .properties import ColorSpec, Date, Datetime
 import warnings
@@ -349,6 +349,8 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
             tool_obj = PreviewSaveTool(plot=p)
         elif tool == "resize":
             tool_obj = ResizeTool(plot=p)
+        elif tool == "click":
+            tool_obj = ClickTool(plot=p, always_active=True)
         elif tool == "crosshair":
             tool_obj = CrosshairTool(plot=p)
         elif tool == "select":
@@ -360,7 +362,7 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
             overlay = BoxSelectionOverlay(tool=tool_obj)
             p.renderers.append(overlay)
         elif tool == "hover":
-            tool_obj = HoverTool(plot=p, tooltips={
+            tool_obj = HoverTool(plot=p, always_active=True, tooltips={
                 "index": "$index",
                 "data (x, y)": "($x, $y)",
                 "canvas (x, y)": "($sx, $sy)",

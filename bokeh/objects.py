@@ -222,7 +222,8 @@ class Glyph(Renderer):
                  "server_data_source" : self.server_data_source,
                  "xdata_range": self.xdata_range,
                  "ydata_range": self.ydata_range,
-                 "glyphspec": self.glyph.to_glyphspec()
+                 "glyphspec": self.glyph.to_glyphspec(),
+                 "name": self.name,
                  }
         if self.selection_glyph:
             data['selection_glyphspec'] = self.selection_glyph.to_glyphspec()
@@ -469,6 +470,10 @@ class ResetTool(Tool):
 class ResizeTool(Tool):
     pass
 
+class ClickTool(Tool):
+    names = List(String)
+    always_active = Bool(True)
+
 class CrosshairTool(Tool):
     pass
 
@@ -488,6 +493,7 @@ class BoxSelectionOverlay(Renderer):
 class HoverTool(Tool):
     renderers = List(Instance(Renderer))
     tooltips = Dict(String, String)
+    always_active = Bool(True)
 
 class ObjectExplorerTool(Tool):
     pass
