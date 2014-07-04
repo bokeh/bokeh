@@ -12,7 +12,8 @@ logger = logging.getLogger(__file__)
 
 from . import _glyph_functions
 from .properties import (HasProps, Dict, Enum, Either, Float, Instance, Int,
-    List, String, Color, Include, Bool, Tuple, Any)
+    Datetime,
+    List, String, Color, Date, Include, Bool, Tuple, Any)
 from .mixins import LineProps, TextProps
 from .enums import DatetimeUnits, Dimension, Location, Orientation, Units
 from .plot_object import PlotObject
@@ -63,6 +64,19 @@ class ColumnDataSource(DataSource):
             self.add(data, name)
         super(ColumnDataSource, self).__init__(**kw)
 
+    def to_df(self):
+        """convert data source to pandas dataframe
+        local import of pandas because of possible compatability issues (pypy?)
+        if we have column_names set, we use those, otherwise we let
+        pandas infer the column names.  column_names can be used to
+        either order or filter the columns here.
+        """
+        import pandas as pd
+        if self.column_names:
+            return pd.DataFrame(self.data, columns=self.column_names)
+        else:
+            return pd.DataFrame(self.data)
+
     def add(self, data, name=None):
         """ Appends the data to the list of columns.  Returns the name
         that was inserted.
@@ -86,14 +100,16 @@ class ColumnDataSource(DataSource):
 class ServerDataSource(DataSource):
     data_url = String()
     owner_username = String()
+
     # allow us to add some data that isn't on the remote source
     # and join it to the remote data
     data = Dict(String, Any)
-    # allow us to specify slicing of data on updates
-    index_slice = List(Any)
-    data_slice = List(Any)
-    # allow us to transpose data on updates (for image data)
-    transpose = Bool(False)
+
+    # Paramters of data transformation operations
+    # The 'Any' is used to pass primtives around.  Minimally, a tag to say which downsample routine to use.  In some downsamplers, parameters are passed this way too.
+    # TODO: Find/create a property type for 'any primitive/atomic value'
+    transform = Dict(String,Either(Instance(PlotObject), Any))
+
 
 class PandasDataSource(DataSource):
     """ Represents serverside data.  This gets stored into the plot server's
@@ -108,8 +124,8 @@ class Range(PlotObject):
 
 class Range1d(Range):
     """ Represents a fixed range [start, end] in a scalar dimension. """
-    start = Float()
-    end = Float()
+    start = Either(Datetime, Float)
+    end = Either(Datetime, Float)
 
 class DataRange(Range):
     sources = List(Instance(ColumnsRef))
@@ -133,7 +149,7 @@ class Renderer(PlotObject):
     pass
 
 class Ticker(PlotObject):
-    pass
+    num_minor_ticks = Int(5)
 
 class AdaptiveTicker(Ticker):
     base = Float(10.0)
@@ -206,7 +222,8 @@ class Glyph(Renderer):
                  "server_data_source" : self.server_data_source,
                  "xdata_range": self.xdata_range,
                  "ydata_range": self.ydata_range,
-                 "glyphspec": self.glyph.to_glyphspec()
+                 "glyphspec": self.glyph.to_glyphspec(),
+                 "name": self.name,
                  }
         if self.selection_glyph:
             data['selection_glyphspec'] = self.selection_glyph.to_glyphspec()
@@ -457,6 +474,10 @@ class ResetTool(Tool):
 class ResizeTool(Tool):
     pass
 
+class ClickTool(Tool):
+    names = List(String)
+    always_active = Bool(True)
+
 class CrosshairTool(Tool):
     pass
 
@@ -466,6 +487,8 @@ class BoxZoomTool(Tool):
 class BoxSelectTool(Tool):
     renderers = List(Instance(Renderer))
     select_every_mousemove = Bool(True)
+    select_x = Bool(True)
+    select_y = Bool(True)
 
 class BoxSelectionOverlay(Renderer):
     __view_model__ = 'BoxSelection'
@@ -474,6 +497,7 @@ class BoxSelectionOverlay(Renderer):
 class HoverTool(Tool):
     renderers = List(Instance(Renderer))
     tooltips = Dict(String, String)
+    always_active = Bool(True)
 
 class ObjectExplorerTool(Tool):
     pass

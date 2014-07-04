@@ -88,6 +88,12 @@ define [
 
         ctx.stroke()
 
+    _hit_rect: (geometry) ->
+      [x0, x1] = @plot_view.xmapper.v_map_from_target([geometry.vx0, geometry.vx1])
+      [y0, y1] = @plot_view.ymapper.v_map_from_target([geometry.vy0, geometry.vy1])
+
+      return (x[4].i for x in @index.search([x0, y0, x1, y1]))
+
     _hit_point: (geometry) ->
       [vx, vy] = [geometry.vx, geometry.vy]
       x = @plot_view.xmapper.map_from_target(vx)

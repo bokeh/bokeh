@@ -160,4 +160,3 @@ define [
     "Collection": new GMapPlots(),
     "View": GMapPlotView,
   }
-

@@ -21,6 +21,7 @@ define [
     evgen_options:
       keyName: "ctrlKey"
       buttonText: "Box Zoom"
+      buttonIcon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAcCAYAAAByDd+UAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEgAACxIB0t1+/AAAABx0RVh0U29mdHdhcmUAQWRvYmUgRmlyZXdvcmtzIENTNui8sowAAAFKSURBVEiJ7ZZhecMgEIZhzwRUAhIigTmYhEiJg0mIhElAQiWkDlIH737saCnlgLTNr+37UyjHvbl8XBILGGut2VPAZfy2K6mgPwbkV0HGkzL/zPY4YAZWrlqAL+BgjLk9I6mhQMgT1gSM1LUCQ+QAt8AtAnyWeJL/vFSXrrkiUDa5TmDIq8jWhwQ6a0AA3wFzSbKxEhcrXTVgKF1tIdHldvbGReB7GmCt/WjBnlXeFr0enpI9tVPt5fecQtJxl4cSu0j8gvRbtj5w7U310HR5KLHxQRChoxwmJ2sRprdFr2g3fNQa75hWYdPDDLbK/LsAm9NcGhAqHhZgQ7buNUs2e9iCtbTJw2dhKlDzEDgK7NjyuHChvgYseggc5BDc9VsDGICpBlQ9fETNCvdUBD76LO2FjHcWFTxsfdO05sg8vpqmtELL/4fwi/UDzP86Q6mEI4kAAAAASUVORK5CYII="
       cursor: "crosshair"
       auto_deactivate: true
       restrict_to_innercanvas: true

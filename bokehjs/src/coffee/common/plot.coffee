@@ -65,7 +65,7 @@ define [
       html = @template(template_data)
       @$el.html(html)
 
-      @$el.append(@canvas_view.$el)
+      @$el.prepend(@canvas_view.$el)
       @canvas_view.render()
 
       @throttled_render = plot_utils.throttle_animation(@render, 15)

@@ -1,9 +1,7 @@
 define (require, exports, module) ->
-
   if not window.Float64Array
     console.warn("Float64Array is not supported. Using generic Array instead.")
     window.Float64Array = Array
-
   Bokeh = {}
   Bokeh.require = require
   Bokeh.version = '0.4.4'
@@ -102,6 +100,7 @@ define (require, exports, module) ->
   # tools
   Bokeh.BoxSelectTool          = require("tool/box_select_tool")
   Bokeh.BoxZoomTool            = require("tool/box_zoom_tool")
+  Bokeh.ClickTool              = require("tool/click_tool")
   Bokeh.CrosshairTool          = require("tool/crosshair_tool")
   Bokeh.DataRangeBoxSelectTool = require("tool/data_range_box_select_tool")
   Bokeh.EmbedTool              = require("tool/embed_tool")
@@ -118,13 +117,12 @@ define (require, exports, module) ->
   Bokeh.server_page     = require("server/serverrun").load
 
   # widgets
-  Bokeh.DataSlider    = require("widget/data_slider")
-  Bokeh.HBox          = require("widget/hbox")
-  Bokeh.VBox          = require("widget/vbox")
-  Bokeh.VBoxModelForm = require("widget/vboxmodelform")
-  Bokeh.TextInput     = require("widget/textinput")
-
-  # utils
+  Bokeh.DataSlider     = require("widget/data_slider")
+  Bokeh.HBox           = require("widget/hbox")
+  Bokeh.VBox           = require("widget/vbox")
+  Bokeh.VBoxModelForm  = require("widget/vboxmodelform")
+  Bokeh.TextInput      = require("widget/textinput")
+  Bokeh.CrossFilter    = require("widget/crossfilter")
   Bokeh.ObjectExplorer = require("widget/object_explorer")
 
   exports.Bokeh = Bokeh

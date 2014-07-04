@@ -22,6 +22,7 @@ define [
     evgen_options:
       keyName: ""
       buttonText: "Resize"
+      buttonIcon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAcCAYAAAByDd+UAAABO0lEQVRIS+2W3RHCIBCEpQNLsAQ7UCvREmIF2oG2YCVqB0kHlmAHeHvDzVz40QQyjA9hhpcA98Fy3MYsKjdTmbeoD7TWruiU+8hJb8aYV44CFPNM66y3luMZGtzSwD0SeEcTHplAH4YwHE8DO/rYKEBLE96ZQBxC2sEpGACfBNATc1jBGifvKXZCBtIEyLiZgCbxcJ894Jo+XKlDwkYBIXGWpG7DAoSk6A3Fb4NnoYClSRO9op/ARIqnFOfUpzXI0mxgLMVTQFZlBvbk8ZPGyTP0lcyShvb0D5KOqa9c8IuexdBs0fO+AmkQtfRCvfNqaVtQS6GKrqUw+CPXUmXAMgGFHJsobWIGgVtgN3D86n4ICbXjQ+Ise3KqSQ0Wewoc35ew1J6i8XCHy8SdTfVPI2COV/+/tDQVx67/AE3wMizROWPwAAAAAElFTkSuQmCC"
       cursor: "move"
 
     tool_events:
@@ -43,7 +44,7 @@ define [
 
       ctx.save()
 
-      ctx.strokeStyle = 'grey'
+      ctx.strokeStyle = 'transparent'
       ctx.globalAlpha = 0.7
       ctx.lineWidth   = line_width
       ctx.setLineDash([])
@@ -66,16 +67,12 @@ define [
         return
       @active = true
       @popup = $(
-        '''<div class="resize_popup pull-right"
-          style="border-radius: 10px; background-color: lightgrey; padding:3px 8px; font-size: 14px;
-          position:absolute; right:20px; top: 20px; "></div>''')
+        '''<div class="resize_bokeh_plot pull-right hide"/>''')
       bbar = @plot_view.$el.find('.bokeh_canvas_wrapper')
+      plotarea = @plot_view.$el.find('.plotarea')
       @popup.appendTo(bbar)
       ch = @plot_view.canvas.get('height')
       cw = @plot_view.canvas.get('width')
-      @popup.text("width: #{cw} height: #{ch}")
-
-      @request_render()
       @plot_view.request_render(true)
       return null
 
@@ -100,8 +97,6 @@ define [
 
       ch = @plot_view.canvas.get('height')
       cw = @plot_view.canvas.get('width')
-
-      @popup.text("width: #{cw} height: #{ch}")
 
       @plot_view.canvas._set_dims([cw+xdiff, ch+ydiff])
       @plot_view.request_render()

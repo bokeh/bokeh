@@ -12,7 +12,7 @@ from six import add_metaclass, iteritems
 from six.moves.urllib.parse import urlsplit
 
 from .embed import autoload_static, autoload_server
-from .properties import HasProps, MetaHasProps, Instance
+from .properties import HasProps, MetaHasProps, Instance, String
 from .protocol import serialize_json
 from .utils import get_ref, convert_references, dump
 
@@ -56,6 +56,7 @@ class Viewable(MetaHasProps):
     @classmethod
     def _preload_models(cls):
         from . import objects, widgetobjects
+        from .crossfilter import objects
 
     @classmethod
     def get_class(cls, view_model_name):
@@ -126,6 +127,7 @@ class PlotObject(HasProps):
     """ Base class for all plot-related objects """
 
     session = Instance(".session.Session")
+    name = String()
 
     def __init__(self, **kwargs):
         # Eventually should use our own memo instead of storing
