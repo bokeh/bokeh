@@ -253,4 +253,4 @@ def _shaper(code, size):
   tox = glyphset.idx(0)
   toy = glyphset.idx(1)
   sizer = glyphset.const(size)
-  return glyphset.ToRect(tox, toy, sizer, sizer)
+  return glyphset.ToPoint(tox, toy, sizer, sizer)

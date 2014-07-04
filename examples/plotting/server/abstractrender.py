@@ -12,13 +12,13 @@ output_server("abstractrender")
 
 
 # Simple heat-map: bin the counts ('tis the default configuration....)
-#heatmap =ar.source(plot, palette=["Reds-9"])
-#image(source=heatmap, title="Heatmap", reserve_val=0, **ar.mapping(heatmap))
+heatmap =ar.source(plot, palette=["Reds-9"])
+image(source=heatmap, title="Heatmap", reserve_val=0, **ar.mapping(heatmap))
 #image(source=heatmap, reserve_val=0, reserve_color=0xaaaaaa, **ar.mapping(heatmap))
 
 ###Perceptually corrected heat-map.  Cube-root then bin
-#percepmap = ar.source(plot, shader=ar.Cuberoot(), palette=["Reds-9"])
-#image(source=percepmap, title="Perceptually corrected", reserve_val=0, **ar.mapping(percepmap))
+percepmap = ar.source(plot, shader=ar.Cuberoot(), palette=["Reds-9"])
+image(source=percepmap, title="Perceptually corrected", reserve_val=0, **ar.mapping(percepmap))
 
 
 ### Contours come in the same framework, but since the results of the shader are lines you use a different plotting function... 
@@ -42,15 +42,17 @@ In addition, you must install ArrayManagement from this branch (soon to be maste
 https://github.com/ContinuumIO/ArrayManagement
 """
 
-#source = ServerDataSource(data_url="/defaultuser/AAPL.hdf5", owner_username="defaultuser")
-#plot = square('volume','close',color='#FF00FF',source=source)
-#percepmap = ar.source(plot, shader=ar.Cuberoot(), palette=["Reds-9"])
-#image(source=percepmap, title="Perceptually corrected (Stocks)", reserve_val=0, **ar.mapping(percepmap))
+#Stock-data plotting
+source = ServerDataSource(data_url="/defaultuser/AAPL.hdf5", owner_username="defaultuser")
+plot = square('volume','close',color='#FF00FF',source=source)
+percepmap = ar.source(plot, shader=ar.Cuberoot(), palette=["Reds-9"])
+image(source=percepmap, title="Perceptually corrected (Stocks)", reserve_val=0, **ar.mapping(percepmap))
 
+#2010 US Census tracts
 source = ServerDataSource(data_url="/defaultuser/RaceTracts.hdf5", owner_username="defaultuser")
-plot = square('INTPTLONG', 'INTPTLAT',source=source)
+plot = square('INTPTLAT', 'INTPTLONG',source=source)
 heatmap = ar.source(plot, palette=["Reds-9"])
-image(source=heatmap, title="Census Tracts", **ar.mapping(heatmap))
+image(source=heatmap, title="Census Tracts", reserve_val=0, **ar.mapping(heatmap))
 
 show()
 
