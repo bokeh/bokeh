@@ -101,6 +101,9 @@ class ServerDataSource(DataSource):
     data_url = String()
     owner_username = String()
 
+    #represents a slice, must be ints or None
+    index_slice = List(Any)
+
     # allow us to add some data that isn't on the remote source
     # and join it to the remote data
     data = Dict(String, Any)

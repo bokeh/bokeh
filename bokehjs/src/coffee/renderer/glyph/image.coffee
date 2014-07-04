@@ -78,7 +78,6 @@ define [
           continue
 
         y_offset = @sy[i]
-
         ctx.translate(0, y_offset)
         ctx.scale(1, -1)
         ctx.translate(0, -y_offset)

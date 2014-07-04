@@ -1,0 +1,50 @@
+<table>
+  <tbody>
+    <tr>
+      <td>
+        <div style="height:320px;width:50px;margin-top:40px">
+          <div class="app_slider" style="height:100%">
+          </div>
+        </div>
+      </td>
+      <td>
+        <div class="main_plot"></div>
+      </td>
+      <td>
+        <div style="height:320px;width:50px;margin-top:40px">
+          <div class="vert_slider" style="height:100%">
+          </div>
+        </div>
+      </td>
+      <td>
+        <div class="vert_plot"></div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+      </td>
+      <td>
+        <div style="height:40;width:510px;margin-left:40px">
+          <div class="horiz_slider" style="width:100%">
+          </div>
+        </div>
+      </td>
+      <td>
+      </td>
+      <td>
+      </td>
+    </tr>
+
+    </tr>
+      <td>
+      </td>
+      <td>
+        <div class="horiz_plot"></div>
+      </td>
+      <td>
+      </td>
+      <td>
+      </td>
+    </tr>
+  </tbody>
+</table>

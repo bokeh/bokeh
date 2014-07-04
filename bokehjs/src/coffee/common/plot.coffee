@@ -286,13 +286,13 @@ define [
               <a href='http://bokeh.pydata.org/' class='bk-logo bk-logo-medium'/>
               <div class='bk-button-bar'/>
             </div>
-          </div> 
+          </div>
         </div>
         """))
       @canvas_wrapper = @$el.find('.bokeh_canvas_wrapper')
       @canvas = @$el.find('canvas.bokeh_canvas')
       @button_bar = @$el.find('.bk-button-bar')
-      
+
     render_canvas: (full_render=true) ->
       @ctx = @canvas[0].getContext('2d')
 
@@ -318,7 +318,9 @@ define [
       @canvas.attr('style', "width:#{ow}px;")
       @canvas.attr('style', "height:#{oh}px;")
       @canvas.attr('width', ow*ratio).attr('height', oh*ratio)
-      @$el.attr("width", ow).attr('height', oh)
+      #FOR THE SIDEBAR
+      @$el.width(ow + 100)
+      @$el.height(oh)
 
       @ctx.scale(ratio, ratio)
       @ctx.translate(0.5, 0.5)
