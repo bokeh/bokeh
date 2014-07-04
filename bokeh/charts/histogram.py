@@ -29,14 +29,14 @@ class Histogram(ChartObject):
     def __init__(self, measured, bins, mu=None, sigma=None,
                  title=None, xname=None, yname=None, legend=False,
                  xscale="linear", yscale="linear", width=800, height=600,
-                 filename=False, server=False, notebook=False):
+                 tools=True, filename=False, server=False, notebook=False):
         self.measured = measured
         self.bins = bins
         self.mu = mu
         self.sigma = sigma
         super(Histogram, self).__init__(title, xname, yname, legend,
                                         xscale, yscale, width, height,
-                                        filename, server, notebook)
+                                        tools, filename, server, notebook)
 
     def check_attr(self):
         super(Histogram, self).check_attr()
@@ -46,7 +46,7 @@ class Histogram(ChartObject):
 
         chart = Chart(self._title, self._xname, self._yname, self._legend,
                       self.xscale, self.yscale, self._width, self._height,
-                      self._filename, self._server, self._notebook)
+                      self._tools, self._filename, self._server, self._notebook)
         chart.get_data_histogram(self.bins, self.mu, self.sigma, **self.measured)
         chart.get_source_histogram()
         chart.start_plot()

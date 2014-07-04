@@ -46,7 +46,7 @@ _notebook_loaded = False
 class Chart(object):
 
     def __init__(self, title, xname, yname, legend, xscale, yscale, width, height,
-                 filename, server, notebook):
+                 tools, filename, server, notebook):
         "Initial setup."
         self.title = title
         self.xname = xname
@@ -56,6 +56,7 @@ class Chart(object):
         self.yscale = yscale
         self.plot_width = width
         self.plot_height = height
+        self.tools = tools
         self.filename = filename
         self.server = server
         self.notebook = notebook
@@ -205,16 +206,17 @@ class Chart(object):
         self.make_grid(yaxis, 1)
 
         # Add tools
-        if not self.categorical:
-            self.plot.tools = []
-            pantool = PanTool(dimensions=['width', 'height'])
-            self.plot.tools.append(pantool)
-            wheelzoom = WheelZoomTool(dimensions=['width', 'height'])
-            self.plot.tools.append(wheelzoom)
-            reset = ResetTool(plot=self.plot)
-            self.plot.tools.append(reset)
-        previewsave = PreviewSaveTool(plot=self.plot)
-        self.plot.tools.append(previewsave)
+        if self.tools:
+            if not self.categorical:
+                self.plot.tools = []
+                pantool = PanTool(dimensions=['width', 'height'])
+                self.plot.tools.append(pantool)
+                wheelzoom = WheelZoomTool(dimensions=['width', 'height'])
+                self.plot.tools.append(wheelzoom)
+                reset = ResetTool(plot=self.plot)
+                self.plot.tools.append(reset)
+            previewsave = PreviewSaveTool(plot=self.plot)
+            self.plot.tools.append(previewsave)
 
     def end_plot(self):
         # Add legend

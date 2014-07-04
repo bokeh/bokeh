@@ -26,7 +26,7 @@ class ChartObject(object):
 
     def __init__(self, title, xname, yname, legend,
                  xscale, yscale, width, height,
-                 filename, server, notebook):
+                 tools, filename, server, notebook):
         self.__title = title
         self.__xname = xname
         self.__yname = yname
@@ -35,6 +35,7 @@ class ChartObject(object):
         self.yscale = yscale
         self.__width = width
         self.__height = height
+        self.__tools = tools
         self.__filename = filename
         self.__server = server
         self.__notebook = notebook
@@ -61,6 +62,10 @@ class ChartObject(object):
 
     def height(self, height):
         self._height = height
+        return self
+
+    def tools(self, tools=True):
+        self._tools = tools
         return self
 
     def filename(self, filename):
@@ -90,6 +95,8 @@ class ChartObject(object):
             self._width = self.__width
         if not hasattr(self, '_height'):
             self._height = self.__height
+        if not hasattr(self, '_tools'):
+            self._tools = self.__tools
         if not hasattr(self, '_filename'):
             self._filename = self.__filename
         if not hasattr(self, '_server'):
