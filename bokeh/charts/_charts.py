@@ -194,7 +194,7 @@ class Chart(object):
                          plot_height=self.plot_height)
 
         # To prevent adding a wheelzoom to a categorical plot
-        self.wheel = True
+        self.categorical = False
 
         # Add axis
         xaxis = self.make_axis(0, self.xscale, self.xname)
@@ -205,14 +205,14 @@ class Chart(object):
         self.make_grid(yaxis, 1)
 
         # Add tools
-        self.plot.tools = []
-        pantool = PanTool(dimensions=['width', 'height'])
-        self.plot.tools.append(pantool)
-        if self.wheel:
+        if not self.categorical:
+            self.plot.tools = []
+            pantool = PanTool(dimensions=['width', 'height'])
+            self.plot.tools.append(pantool)
             wheelzoom = WheelZoomTool(dimensions=['width', 'height'])
             self.plot.tools.append(wheelzoom)
-        reset = ResetTool(plot=self.plot)
-        self.plot.tools.append(reset)
+            reset = ResetTool(plot=self.plot)
+            self.plot.tools.append(reset)
         previewsave = PreviewSaveTool(plot=self.plot)
         self.plot.tools.append(previewsave)
 
@@ -257,7 +257,7 @@ class Chart(object):
                                    dimension=dimension,
                                    major_label_orientation=np.pi / 4,
                                    axis_label=name)
-            self.wheel = False
+            self.categorical = True
 
         return axis
 
