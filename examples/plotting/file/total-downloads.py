@@ -1,11 +1,11 @@
 import os
 import sys
 import gzip
-import datetime
 import argparse
 import pandas as pd
 
 from os.path import join, expanduser, abspath
+from datetime import datetime as dt
 from bokeh.plotting import *
 
 parser = argparse.ArgumentParser()
@@ -32,8 +32,8 @@ def load_dataset(dataset_name):
 
 df = load_dataset(args.data_set)
 
-newdf = df.date.apply(lambda x: str('%s-%s-%s' % (x.year, str(x.month).zfill(2), str(x.day).zfill(2))))
-series = newdf.value_counts()
+series = df.date.apply(lambda x: dt(x.year, x.month, x.day))
+series = series.value_counts()
 series = series.sort_index()
 
 x = []
@@ -43,7 +43,7 @@ prev = 0
 
 for a, b in series.iteritems():
     prev = prev + b
-    x.append(datetime.datetime.strptime(a, '%Y-%m-%d'))
+    x.append(a)
     y.append(prev)
 
 output_file("total-downloads.html", title="total-downloads.py example")
