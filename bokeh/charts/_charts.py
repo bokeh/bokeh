@@ -1,5 +1,10 @@
 """This is the Bokeh charts interface. It gives you a high level API to build
 complex plot is a simple way.
+
+This is the main Chart class which is able to build several plots using the low
+level Bokeh API. It setups all the plot characteristics and let you plot 
+different chart types, taking OrderedDict as the main input. It also supports
+the generation of several outputs (file, server, notebook).
 """
 #-----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2014, Continuum Analytics, Inc. All rights reserved.
@@ -16,27 +21,26 @@ complex plot is a simple way.
 import itertools
 
 import numpy as np
-import pandas as pd
 
-from .glyphs import (Asterisk, Circle, CircleCross, CircleX, Cross, Diamond,
+from ..glyphs import (Asterisk, Circle, CircleCross, CircleX, Cross, Diamond,
                      DiamondCross, InvertedTriangle, Line, Rect, Square,
                      SquareCross, SquareX, Triangle, Xmarker, Quad)
-from .objects import (CategoricalAxis, ColumnDataSource, DatetimeAxis,
+from ..objects import (CategoricalAxis, ColumnDataSource, DatetimeAxis,
                       FactorRange, Glyph, Grid, Legend, LinearAxis, PanTool,
                       Plot, PreviewSaveTool, Range1d, ResetTool, WheelZoomTool)
 
 from bokeh import load_notebook
-from .document import Document
-from .session import Session
-from .embed import file_html
-from .resources import INLINE
-from .browserlib import view
+from ..document import Document
+from ..session import Session
+from ..embed import file_html
+from ..resources import INLINE
+from ..browserlib import view
 
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
 
-notebook_loaded = False
+_notebook_loaded = False
 
 
 class Chart(object):
@@ -84,10 +88,10 @@ class Chart(object):
             self.set_and_get("rigth", val, edges[1:])
             self.set_and_get("bottom", val, np.zeros(len(hist)))
 
-            self.muandsigma = False
+            self.mu_and_sigma = False
 
             if mu is not None and sigma is not None:
-                self.muandsigma = True
+                self.mu_and_sigma = True
                 self.set_and_get("x", val, np.linspace(-2, 2, len(self.data[val])))
                 pdf = 1 / (sigma * np.sqrt(2 * np.pi)) * np.exp(-(self.data["x" + val] - mu) ** 2 / (2 * sigma ** 2))
                 self.set_and_get("pdf", val, pdf)
@@ -99,7 +103,7 @@ class Chart(object):
     def get_source_histogram(self):
         self.source = ColumnDataSource(data=self.data)
 
-        if not self.muandsigma:
+        if not self.mu_and_sigma:
             x_names, y_names = self.attr[1::5], self.attr[::5]
         else:
             x_names, y_names = self.attr[1::8], self.attr[::8]
@@ -340,7 +344,7 @@ class Chart(object):
 
     def histogram(self):
         # Use the `quad` renderer to display the histogram bars.
-        if not self.muandsigma:
+        if not self.mu_and_sigma:
             self.quintet = list(self.chunker(self.attr, 5))
             colors = self.set_colors(self.quintet)
 
@@ -375,7 +379,7 @@ class Chart(object):
             self.make_scatter(duplet[0], duplet[1], i, colors[i - 1])
 
     def draw(self):
-        global notebook_loaded
+        global _notebook_loaded
 
         if self.filename:
             if self.filename is True:
@@ -387,8 +391,8 @@ class Chart(object):
             print("Wrote %s" % filename)
             view(filename)
         elif self.filename is False and self.server is False and self.notebook is False:
-            print("You have a provide a filename (filename='blablabla' or"
-                  " .filename('blablabla')) to save your plot.")
+            print("You have a provide a filename (filename='foo' or"
+                  " .filename('foo')) to save your plot.")
 
         if self.server:
             self.session.use_doc(self.servername)
@@ -396,9 +400,9 @@ class Chart(object):
             self.session.show(self.plot)
 
         if self.notebook:
-            if notebook_loaded is False:
+            if _notebook_loaded is False:
                 load_notebook()
-                notebook_loaded = True
+                _notebook_loaded = True
 
             import IPython.core.displaypub as displaypub
             from bokeh.embed import notebook_div
@@ -416,7 +420,7 @@ class Chart(object):
             yield l[i:i + n]
 
     def set_colors(self, chunk):
-        # TODO: change to a generator to cycle the pallete
+        "Build the proper color list just cycling in a defined palette"
         colors = []
 
         pal = ["#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33ff3"]
@@ -425,205 +429,3 @@ class Chart(object):
             colors.append(next(g))
 
         return colors
-
-
-class ChartObject(object):
-
-    def __init__(self, title, xname, yname, legend,
-                 xscale, yscale, width, height,
-                 filename, server, notebook):
-        self.__title = title
-        self.__xname = xname
-        self.__yname = yname
-        self.__legend = legend
-        self.xscale = xscale
-        self.yscale = yscale
-        self.__width = width
-        self.__height = height
-        self.__filename = filename
-        self.__server = server
-        self.__notebook = notebook
-
-    def title(self, title):
-        self._title = title
-        return self
-
-    def xname(self, xname):
-        self._xname = xname
-        return self
-
-    def yname(self, yname):
-        self._yname = yname
-        return self
-
-    def legend(self, legend):
-        self._legend = legend
-        return self
-
-    def width(self, width):
-        self._width = width
-        return self
-
-    def height(self, height):
-        self._height = height
-        return self
-
-    def filename(self, filename):
-        self._filename = filename
-        return self
-
-    def server(self, server):
-        self._server = server
-        return self
-
-    def notebook(self, notebook=True):
-        self._notebook = notebook
-        return self
-
-    # TODO: make more chain methods
-
-    def check_attr(self):
-        if not hasattr(self, '_title'):
-            self._title = self.__title
-        if not hasattr(self, '_xname'):
-            self._xname = self.__xname
-        if not hasattr(self, '_yname'):
-            self._yname = self.__yname
-        if not hasattr(self, '_legend'):
-            self._legend = self.__legend
-        if not hasattr(self, '_width'):
-            self._width = self.__width
-        if not hasattr(self, '_height'):
-            self._height = self.__height
-        if not hasattr(self, '_filename'):
-            self._filename = self.__filename
-        if not hasattr(self, '_server'):
-            self._server = self.__server
-        if not hasattr(self, '_notebook'):
-            self._notebook = self.__notebook
-
-    def draw(self):
-        pass
-
-
-class Histogram(ChartObject):
-
-    def __init__(self, measured, bins, mu=None, sigma=None,
-                 title=None, xname=None, yname=None, legend=False,
-                 xscale="linear", yscale="linear", width=800, height=600,
-                 filename=False, server=False, notebook=False):
-        self.measured = measured
-        self.bins = bins
-        self.mu = mu
-        self.sigma = sigma
-        super(Histogram, self).__init__(title, xname, yname, legend,
-                                        xscale, yscale, width, height,
-                                        filename, server, notebook)
-
-    def check_attr(self):
-        super(Histogram, self).check_attr()
-
-    def draw(self):
-        self.check_attr()
-
-        chart = Chart(self._title, self._xname, self._yname, self._legend,
-                      self.xscale, self.yscale, self._width, self._height,
-                      self._filename, self._server, self._notebook)
-        chart.get_data_histogram(self.bins, self.mu, self.sigma, **self.measured)
-        chart.get_source_histogram()
-        chart.start_plot()
-        chart.histogram()
-        chart.end_plot()
-        chart.draw()
-
-
-class Bar(ChartObject):
-
-    def __init__(self, value, cat=None, stacked=False,
-                 title=None, xname=None, yname=None, legend=False,
-                 xscale="categorical", yscale="linear", width=800, height=600,
-                 filename=False, server=False, notebook=False):
-        self.cat = cat
-        self.value = value
-        self.__stacked = stacked
-        super(Bar, self).__init__(title, xname, yname, legend,
-                                  xscale, yscale, width, height,
-                                  filename, server, notebook)
-
-    def stacked(self, stacked=True):
-        self._stacked = stacked
-        return self
-
-    def check_attr(self):
-        super(Bar, self).check_attr()
-
-        if not hasattr(self, '_stacked'):
-            self._stacked = self.__stacked
-
-    def draw(self):
-        if isinstance(self.value, pd.DataFrame):
-            self.cat = self.value.index.values.tolist()
-
-        self.check_attr()
-
-        chart = Chart(self._title, self._xname, self._yname, self._legend,
-                      self.xscale, self.yscale, self._width, self._height,
-                      self._filename, self._server, self._notebook)
-        chart.get_data_bar(self.cat, **self.value)
-        chart.get_source_bar(self._stacked)
-        chart.start_plot()
-        chart.bar(self._stacked)
-        chart.end_plot()
-        chart.draw()
-
-
-class Scatter(ChartObject):
-
-    def __init__(self, pairs,
-                 title=None, xname=None, yname=None, legend=False,
-                 xscale="linear", yscale="linear", width=800, height=600,
-                 filename=False, server=False, notebook=False):
-        self.pairs = pairs
-        super(Scatter, self).__init__(title, xname, yname, legend,
-                                      xscale, yscale, width, height,
-                                      filename, server, notebook)
-
-    def check_attr(self):
-        super(Scatter, self).check_attr()
-
-    def draw(self):
-        # asumming we get an hierchiral pandas object
-        if isinstance(self.pairs, pd.DataFrame):
-            from collections import OrderedDict
-            pdict = OrderedDict()
-
-            for i in self.pairs.columns.levels[0].values:
-                pdict[i] = self.pairs[i].dropna().values
-
-            self.pairs = pdict
-
-        # asumming we get an groupby object
-        if isinstance(self.pairs, pd.core.groupby.DataFrameGroupBy):
-            from collections import OrderedDict
-            pdict = OrderedDict()
-
-            for i in self.pairs.groups.keys():
-                xname = self.pairs.get_group(i).columns[0]
-                yname = self.pairs.get_group(i).columns[1]
-                x = getattr(self.pairs.get_group(i), xname)
-                y = getattr(self.pairs.get_group(i), yname)
-                pdict[i] = np.array([x.values, y.values]).T
-
-            self.pairs = pdict
-
-        self.check_attr()
-
-        chart = Chart(self._title, self._xname, self._yname, self._legend,
-                      self.xscale, self.yscale, self._width, self._height,
-                      self._filename, self._server, self._notebook)
-        chart.get_data_scatter(**self.pairs)
-        chart.get_source_scatter()
-        chart.start_plot()
-        chart.scatter()
-        chart.end_plot()
-        chart.draw()
