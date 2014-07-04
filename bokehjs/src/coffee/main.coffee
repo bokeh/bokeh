@@ -103,7 +103,6 @@ define (require, exports, module) ->
   Bokeh.Properties = require("renderer/properties")
 
   # server tools
-  Bokeh.embed_core  = require("server/embed_core")
   Bokeh.embed  = require("server/embed")
   Bokeh.serverrun   = require("server/serverrun")
   Bokeh.serverutils = require("server/serverutils")
