@@ -8,7 +8,7 @@ define ["common/base",
   Config.ws_conn_string = "ws://#{window.location.host}/bokeh/sub"
   reload = () ->
     Config = require("common/base").Config
-    ping_url = "#{Config.prefix}/bokeh/ping"
+    ping_url = "#{Config.prefix}bokeh/ping"
     $.get(ping_url)
       .success(() ->
         console.log('reloading')

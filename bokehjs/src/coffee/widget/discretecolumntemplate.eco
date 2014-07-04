@@ -1,0 +1,42 @@
+<div class="bk-bs-panel-heading bk-crossfilter-panel-heading">
+  Factor: <%= @name %>
+</div>
+<div class="bk-bs-panel-body">
+  <table class="bk-table">
+    <tbody>
+      <tr>
+        <td>
+          count
+        </td>
+        <td>
+          <%= @count %>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          unique
+        </td>
+        <td>
+          <%= @unique %>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          top
+        </td>
+        <td>
+          <%= @top %>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          freq
+        </td>
+        <td>
+          <%= @freq %>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</div>

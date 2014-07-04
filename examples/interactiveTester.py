@@ -1,17 +1,48 @@
+import argparse
 # bokeh is imported and unused as a quick way to check for directory bokeh/bokeh/static/js
 # which is required for many (but not all) examples to run properly.
 import bokeh
 import glob
+import importlib
 import os
 from six.moves import input
 import sys
+import textwrap
 import time
 
 
-# TODO: --no-log option
+# TODO:
 #       --test-all option (run through tests on every file in a given directory, rather than a small subset)
 #           - This is currently the default behavior
-#       --clean option (remove .html files created by running examples)
+#
+#       Improve error message when a location isn't provided
+#
+#       catch and log exceptions in examples files that fail to open
+
+
+parser = argparse.ArgumentParser(description=textwrap.dedent("""
+                Collect and run all .py or .ipynb files in an examples subdirectory,
+                ignoring __init__.py
+
+                Location arguments you can choose:
+                    - file
+                    - notebook
+                    - server
+                    - ggplot
+                    - glyphs
+                    - mpl
+                    - pandas
+                    - seaborn
+                """), formatter_class=argparse.RawTextHelpFormatter)
+
+parser.add_argument('--clean', action='store_true', default=False,
+                    help='remove all .html files created by running each of these python files')
+parser.add_argument('--no-log', action='store_true', dest='nolog', default=False,
+                    help="don't save a log of any errors discovered")
+parser.add_argument('location', action='store',
+                    help="example directory in which you wish to test")
+
+results = parser.parse_args()
 
 directories = {
     'file'    : 'plotting/file',
@@ -23,6 +54,19 @@ directories = {
     'pandas'  : 'pandas',
     'seaborn' : 'seaborn'
 }
+
+
+def depend_check(dependency):
+    """
+    Make sure a given dependency necessary to run examples is installed before trying to run
+    any files.
+    """
+
+    try:
+        importlib.import_module(dependency)
+    except ImportError as e:
+        print "%s\nPlease use conda or pip to install the necessary dependency." % (e)
+        sys.exit(1)
 
 
 def tester(TestingGround, HomeDir):
@@ -41,22 +85,30 @@ def tester(TestingGround, HomeDir):
 
     Log = []
 
-    for fileName in TestFiles:
+    for index, fileName in enumerate(TestFiles):
         try:
             print("\nOpening %s\n" % fileName)
+
             runner(fileName)
 
-            TestStatus = input("Did the plot(s) in %s display correctly? (y/n) " % fileName)
-            while not TestStatus.startswith(('y', 'n')):
-                print()
-                TestStatus = input("Unexpected answer. Please type y or n. ")
-            if TestStatus.startswith('n'):
-                ErrorReport = input("Please describe the problem: ")
-                Log.append("\n\n%s: \n %s" % (fileName, ErrorReport))
+            if results.nolog:
+                # Don't display 'next file' message after opening final file in a dir
+                if index != len(TestFiles)-1:
+                    input("\nPress enter to open next file ")
+            else:
+                TestStatus = input("Did the plot(s) in %s display correctly? (y/n) " % fileName)
+                while not TestStatus.startswith(('y', 'n')):
+                    print("")
+                    TestStatus = input("Unexpected answer. Please type y or n. ")
+                if TestStatus.startswith('n'):
+                    ErrorReport = input("Please describe the problem: ")
+                    Log.append("\n\n%s: \n %s" % (fileName, ErrorReport))
         except KeyboardInterrupt:
             break
 
-    cleaner()
+    if results.clean:
+        cleaner()
+
     os.chdir(HomeDir)
 
     if Log:
@@ -92,7 +144,7 @@ def logger(ErrorArray):
     """
 
     with open(logfile, 'a') as f:
-        print()
+        print("")
         print("\nWriting error log to %s" % logfile)
         f.write("%s\n" % base_dir)
         for error in ErrorArray:
@@ -100,16 +152,24 @@ def logger(ErrorArray):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) == 2 and sys.argv[1] in directories:
-        target = sys.argv[1]
+    if results.location and results.location in directories:
+        target = results.location
 
-        if sys.argv[1] == 'server':
-            print("Server examples require bokeh-server to run. Make sure you've typed 'bokeh-server' in another terminal tab.")
+        if target == 'server':
+            print(
+                "Server examples require bokeh-server. Make sure you've typed 'bokeh-server' in another terminal tab."
+            )
             time.sleep(5)
 
-        logfile = "%sExamplesTestlog.txt" % target
-        if os.path.exists(logfile):
-            os.remove(logfile)
+        if target in ['ggplot', 'pandas', 'seaborn']:
+            depend_check(target)
+
+        if results.nolog:
+            pass
+        else:
+            logfile = "%sExamplesTestlog.txt" % target
+            if os.path.exists(logfile):
+                os.remove(logfile)
 
         base_dir = os.getcwd()
         test_dir = os.path.join(base_dir, directories[target])
@@ -118,5 +178,5 @@ if __name__ == '__main__':
         # # This is kept necessarily explicit so that you don't
         # accidentally provide a directory that has .html files
         # you don't want to have deleted.
-        print("Please choose an examples directory to test in ('python interactiveTester.py <plotting/file>")
+        print("Please choose an examples directory to test in ('python interactiveTester.py <plotting/file>)")
         sys.exit(1)

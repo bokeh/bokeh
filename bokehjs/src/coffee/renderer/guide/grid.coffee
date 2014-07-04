@@ -90,7 +90,7 @@ define [
       end = Math.max(start, end)
       start = tmp
 
-      ticks = @get_obj('axis').get_obj('ticker').get_ticks(start, end, range, {})
+      ticks = @get_obj('axis').get_obj('ticker').get_ticks(start, end, range, {}).major
 
       min = range.get('min')
       max = range.get('max')

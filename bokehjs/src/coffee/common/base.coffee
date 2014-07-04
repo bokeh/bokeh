@@ -46,6 +46,7 @@ define [
 
   "tool/box_select_tool",
   "tool/box_zoom_tool",
+  "tool/click_tool",
   "tool/crosshair_tool",
   "tool/data_range_box_select_tool",
   "tool/embed_tool",
@@ -75,11 +76,20 @@ define [
   'widget/pretext'
   'widget/selectbox'
   'widget/slider'
+  'widget/crossfilter'
+  'widget/multiselect'
   'widget/date_range_slider'
   'widget/date_picker'
   'widget/panel'
   'widget/tabs'
   'widget/dialog'
+
+  'transforms/const'
+  'transforms/count'
+  'transforms/cuberoot'
+  'transforms/id'
+  'transforms/interpolate'
+  'transforms/seq'
 ], (_, require) ->
 
   # add some useful functions to underscore
@@ -134,6 +144,7 @@ define [
     PanTool:                  'tool/pan_tool'
     WheelZoomTool:            'tool/wheel_zoom_tool'
     ResizeTool:               'tool/resize_tool'
+    ClickTool:                'tool/click_tool'
     CrosshairTool:            'tool/crosshair_tool'
     BoxSelectTool:            'tool/box_select_tool'
     BoxZoomTool:              'tool/box_zoom_tool'
@@ -162,11 +173,20 @@ define [
     PreText:                  'widget/pretext'
     Select:                   'widget/selectbox'
     Slider:                   'widget/slider'
+    CrossFilter:              'widget/crossfilter'
+    MultiSelect:              'widget/multiselect'
     DateRangeSlider:          'widget/date_range_slider'
     DatePicker:               'widget/date_picker'
     Panel:                    'widget/panel'
     Tabs:                     'widget/tabs'
     Dialog:                   'widget/dialog'
+
+    Const:                    'transforms/const'
+    Count:                    'transforms/count'
+    Cuberoot:                 'transforms/cuberoot'
+    Id:                       'transforms/id'
+    Interpolate:              'transforms/interpolate'
+    Seq:                      'transforms/seq'
 
   mod_cache = {}
   collection_overrides = {}
