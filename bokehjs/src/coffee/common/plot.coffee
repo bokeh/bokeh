@@ -41,7 +41,7 @@ define [
 
     request_render: () ->
       if not @is_paused
-        @throttled_render()
+        @throttled_render(true)
       return
 
     initialize: (options) ->
@@ -149,13 +149,17 @@ define [
           yr: { start: @y_range.get('start'), end: @y_range.get('end') }
         }
 
-    render: () ->
+    render: (force_canvas=false) ->
       super()
 
-      @canvas_view.render()
+      @canvas_view.render(force_canvas)
 
       ctx = @canvas_view.ctx
 
+      frame = @model.get('frame')
+      canvas = @model.get('canvas')
+      @model.solver.suggest_value(frame._width, canvas.get('width'))
+      @model.solver.suggest_value(frame._height, canvas.get('height'))
       for k, v of @renderers
         if v.model.update_layout?
           v.model.update_layout(v, @model.solver)
@@ -243,6 +247,7 @@ define [
       })
       @set('canvas', canvas)
 
+
     dinitialize: (attrs, options) ->
       super(attrs, options)
 
@@ -264,11 +269,10 @@ define [
       @solver.add_constraint(new Constraint(new Expr(frame._right, min_border_right, [-1, canvas._right]), LE), kiwi.Strength.strong)
       @solver.add_constraint(new Constraint(new Expr(frame._bottom, -min_border_bottom), GE), kiwi.Strength.strong)
       @solver.add_constraint(new Constraint(new Expr(frame._top, min_border_top, [-1, canvas._top]), LE), kiwi.Strength.strong)
-      @solver.update_variables()
       @solver.suggest_value(frame._width, canvas.get('width'))
       @solver.suggest_value(frame._height, canvas.get('height'))
 
-      @solver.update_variables()
+      @solver.update_variables(false)
 
     add_layout: () ->
 

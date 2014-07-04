@@ -76,7 +76,7 @@ define [
       @popup.text("width: #{cw} height: #{ch}")
 
       @request_render()
-      @plot_view.request_render()
+      @plot_view.request_render(true)
       return null
 
     _deactivate: (e) ->

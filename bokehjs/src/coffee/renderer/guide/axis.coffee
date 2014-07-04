@@ -157,7 +157,6 @@ define [
   class AxisView extends PlotWidget
     initialize: (options) ->
       super(options)
-
       @rule_props = new line_properties(@, null, 'axis_')
       @major_tick_props = new line_properties(@, null, 'major_tick_')
       @major_label_props = new text_properties(@, null, 'major_label_')
@@ -273,7 +272,6 @@ define [
 
     dinitialize: (attrs, options)->
       super(attrs, options)
-
       plot = @get_obj('plot')
       panel = new Panel.Model({}, {solver: plot.solver})
       @set('panel', panel)
@@ -334,7 +332,7 @@ define [
       @_last_size = size
       if @_size_constraint?
         solver.remove_constraint(@_size_constraint)
-      @_size_constraint = new kiwi.Constraint(new kiwi.Expression(@_size, -size), kiwi.Operator.EQ)
+      @_size_constraint = new kiwi.Constraint(new kiwi.Expression(@_size, -size), kiwi.Operator.Eq)
       solver.add_constraint(@_size_constraint)
 
     _ranges: () ->

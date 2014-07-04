@@ -19,7 +19,6 @@ define [
 
     initialize: (attrs, options) ->
       super(attrs, options)
-
       @solver = options.solver
 
       @var_constraints = {}
@@ -45,7 +44,7 @@ define [
       @solver.add_constraint(new Constraint(new Expr(@_left, @_width, [-1, @_right]), EQ))
       @solver.add_constraint(new Constraint(new Expr(@_bottom, @_height, [-1, @_top]), EQ))
 
-      @solver.update_variables()
+      @solver.update_variables(false)
 
       @_h_range = new Range1d.Model({
         start: @get('left'),

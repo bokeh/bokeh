@@ -33,8 +33,8 @@ define [
       @canvas = @$el.find('canvas.bokeh_canvas')
       @map_div = @$el.find('.bokeh_gmap') ? null
 
-    render: () ->
-      if not @model.new_bounds
+    render: (force=false) ->
+      if not @model.new_bounds and not force
         return
 
       @ctx = @canvas[0].getContext('2d')
