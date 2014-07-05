@@ -48,7 +48,10 @@ DEPS="$DEPS_BOKEH $DEPS_SERVER $DEPS_DATA $DEPS_DOCS $DEPS_EXAMPLES $DEPS_TESTS 
 
 conda install --yes --quiet pip $DEPS || exit 1
 pip install $DEPS_PIP || exit 1
-conda install --yes --quiet -c https://conda.binstar.org/ilan abstract-rendering
+
+if [[ "$TRAVIS_PYTHON_VERSION" == 2* ]]; then # to be deleted when we have py3 support
+    conda install --yes --quiet -c https://conda.binstar.org/ilan abstract-rendering
+fi
 
 cd bokehjs
 npm install && node_modules/.bin/grunt deploy || exit 1
