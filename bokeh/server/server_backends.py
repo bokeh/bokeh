@@ -415,7 +415,6 @@ class FunctionBackend(AbstractDataBackend):
         dataset = self.get_dataset(data_url)
         
         if resample_op == 'abstract rendering':
-          from ..transforms import ar_downsample
           result = ar_downsample.downsample(dataset, datasource.transform, plot_state)
           return result
         else:

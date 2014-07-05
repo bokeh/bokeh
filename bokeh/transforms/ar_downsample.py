@@ -226,23 +226,23 @@ def downsample(data, transform, plot_state):
           #Screen-mapping values.
           #x_range is the left and right data space values coordsponding to the bottom left and bottom right of the plot
           #y_range is the bottom and top data space values corresponding to the bottom left and top left of the plot
-          'x_range' : {'start': xmin, 'end':(xmax-xmin)*scale_x},
-          'y_range' : {'start': ymin, 'end':(ymax-ymin)*scale_y},
+          'x_range' : {'start': xmin*scale_x, 'end':(xmax-xmin)*scale_x},
+          'y_range' : {'start': ymin*scale_x, 'end':(ymax-ymin)*scale_y},
           
           #Data-image parameters.  
           #x/y are lower left data-space coord of the image.  
           #dw/dh are the width and height in data space
           'x' : [xmin],
           'y' : [ymin],
-          'dw' : [xmax],
-          'dh' : [ymax],
+          'dw' : [xmax-xmin],
+          'dh' : [ymax-ymin],
   }
   
   return rslt;
 
 def _span(r):
   """Distance in a Range1D"""
-  return r.end - r.start
+  return abs(r.end - r.start)
 
 def _shaper(code, size):
   """Construct the AR shaper to match the given shape code."""
@@ -253,4 +253,4 @@ def _shaper(code, size):
   tox = glyphset.idx(0)
   toy = glyphset.idx(1)
   sizer = glyphset.const(size)
-  return glyphset.ToPoint(tox, toy, sizer, sizer)
+  return glyphset.ToPoint(toy, tox, sizer, sizer)
