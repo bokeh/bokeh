@@ -1,5 +1,6 @@
     {{ plot_resources|indent(8) }}
 
+    {%- if not skip %}
     <div>
         <a href="http://bokeh.pydata.org" target="_blank" style="text-decoration:none;">
             <img src={{ logo_url }} alt="Bokeh logo" width="20" style="vertical-align:text-bottom;" />
@@ -52,3 +53,4 @@
     {%- for warning in warnings %}
     <p style="background-color: #f2d7dc;">{{ warning }}</p>
     {%- endfor %}
+    {%- endif %}
