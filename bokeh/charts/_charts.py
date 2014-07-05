@@ -400,7 +400,6 @@ class Chart(object):
             self.session.show(self.plot)
 
         if self.notebook:
-            bokeh.load_notebook(skip=True)
             import IPython.core.displaypub as displaypub
             from bokeh.embed import notebook_div
             displaypub.publish_display_data('bokeh', {'text/html': notebook_div(self.plot)})

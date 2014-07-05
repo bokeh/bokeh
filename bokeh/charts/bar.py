@@ -58,7 +58,7 @@ class Bar(ChartObject):
 
         chart = Chart(self._title, self._xname, self._yname, self._legend,
                       self.xscale, self.yscale, self._width, self._height,
-                      self.tools, self._filename, self._server, self._notebook)
+                      self._tools, self._filename, self._server, self._notebook)
         chart.get_data_bar(self.cat, **self.value)
         chart.get_source_bar(self._stacked)
         chart.start_plot()
