@@ -12,7 +12,7 @@ except ImportError:
 
 _notebook_loaded = None
 
-def load_notebook(resources=None, verbose=False, force=False):
+def load_notebook(resources=None, verbose=False, force=False, skip=False):
     ''' Prepare the IPython notebook for displaying Bokeh plots.
 
     Args:
@@ -73,6 +73,7 @@ def load_notebook(resources=None, verbose=False, force=False):
         css_info = css_info,
         bokeh_version = __version__,
         warnings = warnings,
+        skip = skip,
     )
     displaypub.publish_display_data('bokeh', {'text/html': html})
 

@@ -2,7 +2,7 @@
 complex plot is a simple way.
 
 This is the main Chart class which is able to build several plots using the low
-level Bokeh API. It setups all the plot characteristics and let you plot 
+level Bokeh API. It setups all the plot characteristics and let you plot
 different chart types, taking OrderedDict as the main input. It also supports
 the generation of several outputs (file, server, notebook).
 """
@@ -29,7 +29,7 @@ from ..objects import (CategoricalAxis, ColumnDataSource, DatetimeAxis,
                       FactorRange, Glyph, Grid, Legend, LinearAxis, PanTool,
                       Plot, PreviewSaveTool, Range1d, ResetTool, WheelZoomTool)
 
-from bokeh import load_notebook
+import bokeh
 from ..document import Document
 from ..session import Session
 from ..embed import file_html
@@ -39,8 +39,6 @@ from ..browserlib import view
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
-
-_notebook_loaded = False
 
 
 class Chart(object):
@@ -402,10 +400,7 @@ class Chart(object):
             self.session.show(self.plot)
 
         if self.notebook:
-            if _notebook_loaded is False:
-                load_notebook()
-                _notebook_loaded = True
-
+            bokeh.load_notebook(skip=True)
             import IPython.core.displaypub as displaypub
             from bokeh.embed import notebook_div
             displaypub.publish_display_data('bokeh', {'text/html': notebook_div(self.plot)})
