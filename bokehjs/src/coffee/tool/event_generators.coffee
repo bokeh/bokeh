@@ -79,6 +79,7 @@ define [], () ->
 
         if @button_activated or @eventSink.active == @toolName
           start = true
+
         else if not @eventSink.active
           if @options.keyName is null and not e.ctrlKey and not e.altKey and not e.metaKey and not e.shiftKey
             start = true
@@ -98,7 +99,7 @@ define [], () ->
           @_stop_drag(e)
           return false)
 
-      @$tool_button = $("<button class='bk-toolbar-button'> #{@options.buttonText} </button>")
+      @$tool_button = $("<button class='bk-toolbar-button' title='#{@options.buttonText}'><img class='bk-btn-icon' src='#{@options.buttonIcon}'/><span class='tip'>#{@options.buttonText}</span></button>")
       @plotview
       @plotview.$el.find('.bk-button-bar').append(@$tool_button)
 
@@ -108,6 +109,7 @@ define [], () ->
       #
       # What is the difference between tool_active and button_activated?
       # I once knew, but now I forget
+        
       @$tool_button.click(=>
         if @button_activated
           eventSink.trigger("clear_active_tool")
@@ -197,7 +199,7 @@ define [], () ->
       @plotview.$el.bind("mouseover", (e) =>
         @mouseover_count += 1)
 
-      @$tool_button = $("<button class='bk-toolbar-button'> #{@options.buttonText} </button>")
+      @$tool_button = $("<button class='bk-toolbar-button' title='#{@options.buttonText}'><img class='bk-btn-icon' src='#{@options.buttonIcon}'/><span class='tip'>#{@options.buttonText}</span></button>")
       @plotview.$el.find('.bk-button-bar').append(@$tool_button)
 
       @$tool_button.click(=>
@@ -266,8 +268,7 @@ define [], () ->
       @plotview.$el.bind("mouseover", (e) =>
         @mouseover_count += 1)
 
-      @$tool_button = $("<button class='bk-toolbar-button'> #{@options.buttonText} </button>")
-
+      @$tool_button = $("<button class='bk-toolbar-button' title='#{@options.buttonText}'><img class='bk-btn-icon' src='#{@options.buttonIcon}'/><span class='tip'>#{@options.buttonText}</span></button>")
       @plotview.$el.find('.bk-button-bar').append(@$tool_button)
 
       @$tool_button.click(=>

@@ -1,5 +1,8 @@
 #!/bin/bash
 
+set -e # exit on error
+set -x # echo commands
+
 sudo apt-get install -qq -y --force-yes nodejs npm
 
 case "$TRAVIS_PYTHON_VERSION" in
@@ -43,9 +46,9 @@ fi
 
 DEPS="$DEPS_BOKEH $DEPS_SERVER $DEPS_DATA $DEPS_DOCS $DEPS_EXAMPLES $DEPS_TESTS $DEPS_IPYTHON"
 
-conda install --yes pip $DEPS || exit 1
+conda install --yes --quiet pip $DEPS || exit 1
 pip install $DEPS_PIP || exit 1
-conda install --yes -c https://conda.binstar.org/ilan abstract-rendering
+conda install --yes --quiet -c https://conda.binstar.org/ilan abstract-rendering
 
 cd bokehjs
 npm install && node_modules/.bin/grunt deploy || exit 1

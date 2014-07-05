@@ -154,6 +154,7 @@ define [
 
       @rule_props = new line_properties(@, null, 'axis_')
       @major_tick_props = new line_properties(@, null, 'major_tick_')
+      @minor_tick_props = new line_properties(@, null, 'minor_tick_')
       @major_label_props = new text_properties(@, null, 'major_label_')
       @axis_label_props = new text_properties(@, null, 'axis_label_')
 
@@ -164,6 +165,7 @@ define [
 
       @_draw_rule(ctx)
       @_draw_major_ticks(ctx)
+      @_draw_minor_ticks(ctx)
       @_draw_major_labels(ctx)
       @_draw_axis_label(ctx)
 
@@ -192,7 +194,8 @@ define [
     _draw_major_ticks: (ctx) ->
       if not @major_tick_props.do_stroke
         return
-      [x, y] = coords = @mget('major_coords')
+      coords = @mget('tick_coords')
+      [x, y] = coords.major
       [sx, sy] = @plot_view.map_to_screen(x, "data", y, "data")
       [nx, ny] = @mget('normals')
 
@@ -205,8 +208,26 @@ define [
         ctx.lineTo(Math.round(sx[i]-nx*tin),  Math.round(sy[i]-ny*tin))
         ctx.stroke()
 
+    _draw_minor_ticks: (ctx) ->
+      if not @minor_tick_props.do_stroke
+        return
+      coords = @mget('tick_coords')
+      [x, y] = coords.minor
+      [sx, sy] = @plot_view.map_to_screen(x, "data", y, "data")
+      [nx, ny] = @mget('normals')
+
+      tin = @mget('minor_tick_in')
+      tout = @mget('minor_tick_out')
+      @minor_tick_props.set(ctx, @)
+      for i in [0...sx.length]
+        ctx.beginPath()
+        ctx.moveTo(Math.round(sx[i]+nx*tout), Math.round(sy[i]+ny*tout))
+        ctx.lineTo(Math.round(sx[i]-nx*tin),  Math.round(sy[i]-ny*tin))
+        ctx.stroke()
+
     _draw_major_labels: (ctx) ->
-      [x, y] = coords = @mget('major_coords')
+      coords = @mget('tick_coords')
+      [x, y] = coords.major
       [sx, sy] = @plot_view.map_to_screen(x, "data", y, "data")
       [nx, ny] = @mget('normals')
       dim = @mget('dimension')
@@ -219,7 +240,7 @@ define [
         angle = -orient
       standoff = @_tick_extent() + @mget('major_label_standoff')
 
-      labels = @mget_obj('formatter').format(coords[dim])
+      labels = @mget_obj('formatter').format(coords.major[dim])
 
       # override baseline and alignment with heuristics for tick labels
       @major_label_props.set(ctx, @)
@@ -287,13 +308,13 @@ define [
       ctx.textAlign = align
 
     _tick_extent: () ->
-      return @mget('major_tick_out')
+      return Math.max(@mget('major_tick_out'), @mget('minor_tick_out'))
 
     _tick_label_extent: () ->
       extent = 0
       dim = @mget('dimension')
 
-      coords = @mget('major_coords')
+      coords = @mget('tick_coords').major
       side = @mget('side')
       orient = @mget('major_label_orientation')
 
@@ -390,8 +411,8 @@ define [
       @register_property('rule_coords', @_rule_coords, false)
       @add_dependencies('rule_coords', this, ['computed_bounds', 'dimension', 'location'])
 
-      @register_property('major_coords', @_major_coords, false)
-      @add_dependencies('major_coords', this, ['computed_bounds', 'dimension', 'location'])
+      @register_property('tick_coords', @_tick_coords, false)
+      @add_dependencies('tick_coords', this, ['computed_bounds', 'dimension', 'location'])
 
       @register_property('normals', @_normals, true)
       @add_dependencies('normals', this, ['computed_bounds', 'dimension', 'location'])
@@ -466,7 +487,7 @@ define [
 
       return coords
 
-    _major_coords: () ->
+    _tick_coords: () ->
       i = @get('dimension')
       j = (i + 1) % 2
 
@@ -477,6 +498,8 @@ define [
       [start, end] = @get('computed_bounds')
 
       ticks = @get_obj('ticker').get_ticks(start, end, range, {})
+      majors = ticks.major
+      minors = ticks.minor
 
       cstart = cross_range.get('start')
       cend = cross_range.get('end')
@@ -499,20 +522,33 @@ define [
       ys = []
       coords = [xs, ys]
 
+      minor_xs = []
+      minor_ys = []
+      minor_coords = [minor_xs, minor_ys]
+
       if range.type == "FactorRange"
-        for ii in [0...ticks.length]
-          coords[i].push(ticks[ii])
+        for ii in [0...majors.length]
+          coords[i].push(majors[ii])
           coords[j].push(loc)
       else
         [range_min, range_max] = [range.get('min'), range.get('max')]
 
-        for ii in [0...ticks.length]
-          if ticks[ii] < range_min or ticks[ii] > range_max
+        for ii in [0...majors.length]
+          if majors[ii] < range_min or majors[ii] > range_max
             continue
-          coords[i].push(ticks[ii])
+          coords[i].push(majors[ii])
           coords[j].push(loc)
 
-      return coords
+        for ii in [0...minors.length]
+          if minors[ii] < range_min or minors[ii] > range_max
+            continue
+          minor_coords[i].push(minors[ii])
+          minor_coords[j].push(loc)
+
+      return {
+        "major": coords,
+        "minor": minor_coords
+      }
 
     _normals: () ->
       i = @get('dimension')
@@ -597,6 +633,16 @@ define [
         major_tick_line_cap: 'butt'
         major_tick_line_dash: []
         major_tick_line_dash_offset: 0
+        major_label_standoff: 5
+        minor_tick_in: 0
+        minor_tick_out: 4
+        minor_tick_line_color: 'black'
+        minor_tick_line_width: 1
+        minor_tick_line_alpha: 1.0
+        minor_tick_line_join: 'miter'
+        minor_tick_line_cap: 'butt'
+        minor_tick_line_dash: []
+        minor_tick_line_dash_offset: 0
         major_label_standoff: 5
         major_label_orientation: "horizontal"
         major_label_text_font: "helvetica"

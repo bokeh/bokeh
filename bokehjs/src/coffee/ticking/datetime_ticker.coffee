@@ -24,6 +24,7 @@ define [
 
     defaults: () ->
       return _.extend(super(), {
+        num_minor_ticks: 0
         tickers: [
           # Sub-second.
           new AdaptiveTicker.Model({
@@ -31,6 +32,7 @@ define [
             base: 10,
             min_interval: 0,
             max_interval: 500 * ONE_MILLI
+            num_minor_ticks: 0
           }),
 
           # Seconds, minutes.
@@ -39,6 +41,7 @@ define [
             base: 60,
             min_interval: ONE_SECOND,
             max_interval: 30 * ONE_MINUTE
+            num_minor_ticks: 0
           }),
 
           # Hours.
@@ -47,6 +50,7 @@ define [
             base: 24.0,
             min_interval: ONE_HOUR,
             max_interval: 12 * ONE_HOUR
+            num_minor_ticks: 0
           }),
 
           # Days.
