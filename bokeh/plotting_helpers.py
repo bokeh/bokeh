@@ -11,7 +11,7 @@ from . import glyphs
 from .objects import (
     BoxSelectionOverlay, BoxSelectTool, BoxZoomTool, CategoricalAxis,
     ColumnDataSource, ClickTool, CrosshairTool, DataRange1d, DatetimeAxis,
-    EmbedTool, FactorRange, Grid, HoverTool, Legend, LinearAxis,
+    EmbedTool, FactorRange, Grid, HoverTool, Legend, LinearAxis, LogAxis,
     ObjectExplorerTool, PanTool, Plot, PreviewSaveTool, Range, Range1d,
     ResetTool, ResizeTool, Tool, WheelZoomTool,
 )
@@ -240,6 +240,8 @@ def _get_axis_class(axis_type, range_input):
         return None
     elif axis_type is "linear":
         return LinearAxis
+    elif axis_type is "log":
+        return LogAxis
     elif axis_type == "datetime":
         return DatetimeAxis
     elif axis_type == "auto":
@@ -276,6 +278,8 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
 
     x_axiscls = _get_axis_class(x_axis_type, p.x_range)
     if x_axiscls:
+        if x_axiscls is LogAxis:
+            p.x_mapper_type = 'log'
         if x_minor_ticks is None:
             x_minor_ticks = 0
         xaxis = x_axiscls(plot=p, dimension=0, location="min", bounds="auto")
@@ -287,6 +291,8 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
 
     y_axiscls = _get_axis_class(y_axis_type, p.y_range)
     if y_axiscls:
+        if y_axiscls is LogAxis:
+            p.y_mapper_type = 'log'
         if y_minor_ticks is None:
             y_minor_ticks = 0
         yaxis = y_axiscls(plot=p, dimension=1, location="min", bounds="auto")
