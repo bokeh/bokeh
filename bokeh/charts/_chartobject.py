@@ -24,12 +24,12 @@ methods.
 
 class ChartObject(object):
 
-    def __init__(self, title, xname, yname, legend,
+    def __init__(self, title, xlabel, ylabel, legend,
                  xscale, yscale, width, height,
                  tools, filename, server, notebook):
         self.__title = title
-        self.__xname = xname
-        self.__yname = yname
+        self.__xlabel = xlabel
+        self.__ylabel = ylabel
         self.__legend = legend
         self.xscale = xscale
         self.yscale = yscale
@@ -44,12 +44,12 @@ class ChartObject(object):
         self._title = title
         return self
 
-    def xname(self, xname):
-        self._xname = xname
+    def xlabel(self, xlabel):
+        self._xlabel = xlabel
         return self
 
-    def yname(self, yname):
-        self._yname = yname
+    def ylabel(self, ylabel):
+        self._ylabel = ylabel
         return self
 
     def legend(self, legend):
@@ -85,10 +85,10 @@ class ChartObject(object):
     def check_attr(self):
         if not hasattr(self, '_title'):
             self._title = self.__title
-        if not hasattr(self, '_xname'):
-            self._xname = self.__xname
-        if not hasattr(self, '_yname'):
-            self._yname = self.__yname
+        if not hasattr(self, '_xlabel'):
+            self._xlabel = self.__xlabel
+        if not hasattr(self, '_ylabel'):
+            self._ylabel = self.__ylabel
         if not hasattr(self, '_legend'):
             self._legend = self.__legend
         if not hasattr(self, '_width'):
