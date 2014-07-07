@@ -9,7 +9,7 @@ import json
 import urllib2
 
 from datetime import datetime
-from itertools import groupby
+from itertools import count, groupby
 from collections import OrderedDict
 
 
@@ -19,8 +19,6 @@ API_PARAMS = {
     'repo': 'bokeh',
     'pagination': '100',
 }
-ISSUES_URL = '{url}/{owner}/{repo}/issues?state=closed&per_page={pagination}'.format(**API_PARAMS)
-TAGS_URL = '{url}/{owner}/{repo}/tags'.format(**API_PARAMS)
 CHANGEKIND_NAME = OrderedDict([  # issue label -> change kind name (or None to ignore)
     ('', 'unlabeled'),  # special "label" to indicate issue has no labels
     ('enhancement', 'enhancements'),
@@ -41,6 +39,17 @@ CHANGEKIND_NAME = OrderedDict([  # issue label -> change kind name (or None to i
     ('upstream', None),
     ('wontfix', None)
 ])
+
+
+def get_issues_url(page):
+    """Returns github API URL for querying tags."""
+    return '{url}/{owner}/{repo}/issues?state=closed&page={page}&per_page={pagination}'.format(
+        page=page, **API_PARAMS)
+
+
+def get_tags_url():
+    """Returns github API URL for querying tags."""
+    return '{url}/{owner}/{repo}/tags'.format(**API_PARAMS)
 
 
 def changekind_order(issue):
@@ -83,14 +92,26 @@ def relevant_issues(issues, after):
 
 def query_tags():
     """Hits the github API for repository tags and returns the data."""
-    r = urllib2.urlopen(TAGS_URL).read()
+    r = urllib2.urlopen(get_tags_url()).read()
     return json.loads(r)
 
 
-def query_issues():
-    """Hits the github API for closed issues and returns the data."""
-    r = urllib2.urlopen(ISSUES_URL).read()
+def query_issues(page):
+    """Hits the github API for a single page of closed issues and returns the data."""
+    r = urllib2.urlopen(get_issues_url(page)).read()
     return json.loads(r)
+
+
+def query_all_issues():
+    """Hits the github API for all closed issues and returns the data."""
+    page = count(1)
+    data = []
+    while True:
+        page_data = query_issues(get_issues_url(next(page)))
+        if not page_data:
+            break
+        data.extend(page_data)
+    return data
 
 
 def dateof(tag_name, tags):
@@ -129,7 +150,7 @@ if __name__ == '__main__':
     sort_key = lambda issue: (changekind_order(issue), int(issue['number']))
     by_kind = lambda issue: changekind(issue)
 
-    issues = query_issues()
+    issues = query_all_issues()
     issues = relevant_issues(issues, after)
     issues = sorted(issues, key=sort_key)
 
