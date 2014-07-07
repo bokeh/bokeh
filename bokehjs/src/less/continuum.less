@@ -15,7 +15,6 @@
 .bokehtable form table tr td {
   padding: 2px;
 }
-
 .bokehtable form table tr td input {
   padding: 0px;
 }
@@ -50,15 +49,20 @@
 .bk-sidebar {
   float: left;
   padding: 0;
-  margin: 0 0 0 40px;
   position: relative;
 }
 .bk-sidebar .bk-logo {
   margin: 0 auto;
+  float: none;
+  clear: both;
 }
 .bk-logo {
   display: block;
+  float: left;
   background-repeat: no-repeat; 
+}
+.bk-logo-notebook {
+  margin-right: 10px;
 }
 .bk-logo-small {
   width: 20px;
@@ -98,6 +102,9 @@
 .bk-toolbar-button > .bk-btn-icon {
   width: 28px;
   height: 28px;
+  margin: 0 !important;
+  border: none !important;
+  background: transparent !important;
   display: block;
   position: relative;
   z-index: 10;
@@ -121,4 +128,11 @@
   left: 60px; 
   z-index: 20;
   font-size: 125%;
+}
+.slides .bk-sidebar {
+  float: right;
+}
+
+.slides .bk-toolbar-button > span.tip {
+  color: #fff;
 }
