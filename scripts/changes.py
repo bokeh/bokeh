@@ -6,18 +6,19 @@ import argparse
 import dateutil.parser
 import dateutil.tz
 import json
+import logging
 import urllib2
 
 from datetime import datetime
 from itertools import count, groupby
 from collections import OrderedDict
 
+logging.basicConfig(level=logging.INFO)
 
 API_PARAMS = {
-    'url': 'https://api.github.com/repos',
+    'base_url': 'https://api.github.com/repos',
     'owner': 'ContinuumIO',
     'repo': 'bokeh',
-    'pagination': '100',
 }
 CHANGEKIND_NAME = OrderedDict([  # issue label -> change kind name (or None to ignore)
     ('', 'unlabeled'),  # special "label" to indicate issue has no labels
@@ -41,15 +42,15 @@ CHANGEKIND_NAME = OrderedDict([  # issue label -> change kind name (or None to i
 ])
 
 
-def get_issues_url(page):
+def get_issues_url(page, after):
     """Returns github API URL for querying tags."""
-    return '{url}/{owner}/{repo}/issues?state=closed&page={page}&per_page={pagination}'.format(
-        page=page, **API_PARAMS)
+    return '{base_url}/{owner}/{repo}/issues?state=closed&per_page=100&page={page}&since={after}'.format(
+        page=page, after=after.isoformat(), **API_PARAMS)
 
 
 def get_tags_url():
     """Returns github API URL for querying tags."""
-    return '{url}/{owner}/{repo}/tags'.format(**API_PARAMS)
+    return '{base_url}/{owner}/{repo}/tags'.format(**API_PARAMS)
 
 
 def changekind_order(issue):
@@ -93,22 +94,26 @@ def relevant_issues(issues, after):
 
 def query_tags():
     """Hits the github API for repository tags and returns the data."""
-    r = urllib2.urlopen(get_tags_url()).read()
+    url = get_tags_url()
+    logging.debug('reading {url} ...'.format(url=url))
+    r = urllib2.urlopen(url).read()
     return json.loads(r)
 
 
-def query_issues(page):
+def query_issues(page, after):
     """Hits the github API for a single page of closed issues and returns the data."""
-    r = urllib2.urlopen(get_issues_url(page)).read()
+    url = get_issues_url(page, after)
+    logging.debug('reading {url} ...'.format(url=url))
+    r = urllib2.urlopen(url).read()
     return json.loads(r)
 
 
-def query_all_issues():
-    """Hits the github API for all closed issues and returns the data."""
+def query_all_issues(after):
+    """Hits the github API for all closed issues after the given date, returns the data."""
     page = count(1)
     data = []
     while True:
-        page_data = query_issues(get_issues_url(next(page)))
+        page_data = query_issues(next(page), after)
         if not page_data:
             break
         data.extend(page_data)
@@ -119,7 +124,9 @@ def dateof(tag_name, tags):
     """Given a list of tags, returns the datetime of the tag with the given name; Otherwise None."""
     for tag in tags:
         if tag['name'] == tag_name:
-            r = urllib2.urlopen(tag['commit']['url']).read()
+            url = tag['commit']['url']
+            logging.debug('reading {url} ...'.format(url=url))
+            r = urllib2.urlopen(url).read()
             commit = json.loads(r)
             return parse_timestamp(commit['commit']['committer']['date'])
     return None
@@ -151,7 +158,7 @@ if __name__ == '__main__':
     sort_key = lambda issue: (changekind_order(issue), int(issue['number']))
     by_kind = lambda issue: changekind(issue)
 
-    issues = query_all_issues()
+    issues = query_all_issues(after)
     issues = relevant_issues(issues, after)
     issues = sorted(issues, key=sort_key)
 
