@@ -29,7 +29,7 @@ output_file("scatter.html")
 TOOLS="pan,wheel_zoom,box_zoom,reset,previewsave"
 
 # EXERCISE: create two Range1d objects to reuse in the plots. Use the [-20, 20]
-# for the bounds.
+# for the bounds. Note: Range1d's are initialized like: Range1d(start=0, end=1)
 xr = Range1d(start=-20, end=20)
 yr = Range1d(start=-20, end=20)
 

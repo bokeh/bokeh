@@ -69,7 +69,7 @@ define [
     render : () ->
       @view.$el.detach()
       @$el.empty()
-      @$el.html("<div class='bk-close'>X</div>")
+      @$el.html("<a href='#' class='bk-close'>[x]</a>")
       @$el.append(@view.$el)
 
   return {

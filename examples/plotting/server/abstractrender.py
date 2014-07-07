@@ -1,6 +1,6 @@
 import numpy as np
 from bokeh.plotting import square, output_server, image, show
-from bokeh.objects import Range1d, ServerDataSource
+from bokeh.objects import ServerDataSource
 
 import bokeh.transforms.ar_downsample as ar
 #from bokeh.transforms import line_downsample
@@ -21,7 +21,7 @@ output_server("abstractrender")
 #image(source=percepmap, title="Perceptually corrected", reserve_val=0, **ar.mapping(percepmap))
 
 
-### Contours come in the same framework, but since the results of the shader are lines you use a different plotting function... 
+### Contours come in the same framework, but since the results of the shader are lines you use a different plotting function...
 #contour = ar.source(glyphs=plot, agg=ar.Count(), info=ar.Const(1), shader=ar.Contour(9))
 #multi_line(source=countour, palette=["reds-9"])
 #

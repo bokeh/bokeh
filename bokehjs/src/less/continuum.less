@@ -24,11 +24,8 @@
   display: block;
   clear: both;
 }
-.bokeh_canvas_wrapper_outer {
-  overflow: scroll;
-}
-.bokeh_canvas_wrapper {
-  margin: 0 0 0 45px;
+.bokeh_canvas_wrapper_outer, .bokeh_canvas_wrapper {
+  overflow: auto;
 }
 .bokeh_canvas_wrapper .resize_bokeh_plot {
   position: absolute;
@@ -59,7 +56,7 @@
 .bk-logo {
   display: block;
   float: left;
-  background-repeat: no-repeat; 
+  background-repeat: no-repeat;
 }
 .bk-logo-notebook {
   margin-right: 10px;

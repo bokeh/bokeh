@@ -4,7 +4,7 @@ import numpy as np
 from six.moves import zip
 from collections import OrderedDict
 from bokeh.plotting import *
-from bokeh.objects import ClickTool, Range1d
+from bokeh.objects import ClickTool
 
 TOOLS="pan,wheel_zoom,box_zoom,reset,click,previewsave"
 

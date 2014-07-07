@@ -3,8 +3,6 @@
 import numpy as np
 import scipy.special
 from bokeh.plotting import *
-from bokeh.objects import Range1d
-
 
 mu, sigma = 0, 0.5
 

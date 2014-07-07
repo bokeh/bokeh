@@ -426,7 +426,7 @@ class LogAxis(ContinuousAxis):
 
     def __init__(self, **kwargs):
         if 'ticker' not in kwargs:
-            kwargs['ticker'] = LogTicker()
+            kwargs['ticker'] = LogTicker(num_minor_ticks=10)
         if 'formatter' not in kwargs:
             kwargs['formatter'] = LogTickFormatter()
         super(LogAxis, self).__init__(**kwargs)

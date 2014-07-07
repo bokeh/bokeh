@@ -28,7 +28,7 @@ y3 = 2*f3*np.sin(theta3)
 TOOLS="pan,wheel_zoom,box_zoom,reset,previewsave"
 
 # EXERCISE: create two Range1d objects to reuse in the plots. Use the [-20, 20]
-# for the bounds.
+# for the bounds. Note: Range1d's are initialized like: Range1d(start=0, end=1)
 
 # EXERCISE: Plot all the sets of points on different plots. Use the ranges above
 # for x_range and y_range. Set different colors as well. Try setting line_color
