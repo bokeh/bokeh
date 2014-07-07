@@ -348,6 +348,7 @@ setup(
     cmdclass=_cmdclass,
     packages=[
         'bokeh',
+        'bokeh.charts',
         'bokeh.crossfilter',
         'bokeh.sampledata',
         'bokeh.server',
