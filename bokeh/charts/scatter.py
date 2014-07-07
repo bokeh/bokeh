@@ -44,6 +44,7 @@ class Scatter(ChartObject):
         super(Scatter, self).check_attr()
 
     def draw(self):
+        "This is the main Scatter draw function."
         # asumming we get an hierchiral pandas object
         if isinstance(self.pairs, pd.DataFrame):
             from collections import OrderedDict

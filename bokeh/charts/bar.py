@@ -51,6 +51,7 @@ class Bar(ChartObject):
             self._stacked = self.__stacked
 
     def draw(self):
+        "This is the main Bar draw function."
         if isinstance(self.value, pd.DataFrame):
             self.cat = self.value.index.values.tolist()
 

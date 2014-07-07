@@ -42,6 +42,7 @@ class Histogram(ChartObject):
         super(Histogram, self).check_attr()
 
     def draw(self):
+        "This is the main Histogram draw function."
         self.check_attr()
 
         chart = Chart(self._title, self._xname, self._yname, self._legend,
