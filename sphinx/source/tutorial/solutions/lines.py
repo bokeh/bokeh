@@ -2,7 +2,6 @@ from __future__ import division
 
 import numpy as np
 from bokeh.plotting import *
-from bokeh.objects import Range1d
 
 # Skip the first point because it can be troublesome
 theta = np.linspace(0, 8*np.pi, 10000)[1:]
@@ -52,17 +51,16 @@ line(arch_x,   arch_y,   color="#F8CA00", line_width=2, legend="Archimedean")
 line(fermat_x, fermat_y, color="#8A9B0F", line_width=2, legend="Fermat")
 
 # OK, so that doesn't look so good because Bokeh tried to autoscale to
-# accomodate all the data. We can use the Range1d object to set the plot range
-# explicitly
+# accomodate all the data. We can set the plot range explicitly
 
 # EXERCISE: create a new figure
 figure()
 
 # EXERCISE: add x_range and y_range parameters to the first `line`, to set the
-# range to [-10, 10]. NOTE: Range1d are created like: Range1d(start=0, end-10)
+# range to [-10, 10].
 line(golden_x, golden_y, color="#BD1550", line_width=2,
      legend="golden", title="Various Spirals",
-     x_range=Range1d(start=-10, end=10), y_range=Range1d(start=-10, end=10))
+     x_range=[-10, 10], y_range=[-10, 10])
 line(lituus_x, lituus_y, color="#E97F02", line_width=2, legend="lituus")
 line(arch_x,   arch_y,   color="#F8CA00", line_width=2, legend="Archimedean")
 line(fermat_x, fermat_y, color="#8A9B0F", line_width=2, legend="Fermat")
