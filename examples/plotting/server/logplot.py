@@ -5,7 +5,7 @@ N = 100
 
 x = np.linspace(0.1, 5, N)
 
-output_file("logplot.html", title="log axis example")
+output_server("log axis example")
 
 hold()
 

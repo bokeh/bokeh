@@ -9,7 +9,7 @@ import json
 import urllib2
 
 from datetime import datetime
-from itertools import groupby
+from itertools import count, groupby
 from collections import OrderedDict
 
 
@@ -19,7 +19,7 @@ API_PARAMS = {
     'repo': 'bokeh',
     'pagination': '100',
 }
-ISSUES_URL = '{url}/{owner}/{repo}/issues?state=closed&per_page={pagination}'.format(**API_PARAMS)
+ISSUES_URL = '{url}/{owner}/{repo}/issues?state=closed&page={page}&per_page={pagination}'
 TAGS_URL = '{url}/{owner}/{repo}/tags'.format(**API_PARAMS)
 CHANGEKIND_NAME = OrderedDict([  # issue label -> change kind name (or None to ignore)
     ('', 'unlabeled'),  # special "label" to indicate issue has no labels
@@ -74,6 +74,7 @@ def relevent_issue(issue, after):
 
 def relevant_issues(issues, after):
     """Yields relevant closed issues (closed after a given datetime) given a list of issues."""
+    print('finding relevant issues after {}...'.format(after))
     seen = set()
     for issue in issues:
         if relevent_issue(issue, after) and not issue['title'] in seen:
@@ -87,10 +88,21 @@ def query_tags():
     return json.loads(r)
 
 
+def query_issues_page(page):
+    """Hits the github API for closed issues for the given pagination page and returns the data."""
+    print('getting data for page {}'.format(page))
+    r = urllib2.urlopen(ISSUES_URL.format(page=page, **API_PARAMS)).read()
+    return json.loads(r)
+
+
 def query_issues():
     """Hits the github API for closed issues and returns the data."""
-    r = urllib2.urlopen(ISSUES_URL).read()
-    return json.loads(r)
+    page = count(1)
+    page_data = query_issues_page(next(page))
+    while page_data:
+        data.extend(page_data)
+        page_data = query_issues_page(next(page))
+    return data
 
 
 def dateof(tag_name, tags):
