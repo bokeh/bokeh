@@ -7,7 +7,7 @@ import numpy as np
 import scipy.special
 
 from bokeh.embed import autoload_server
-from bokeh.objects import Glyph, Range1d
+from bokeh.objects import Glyph
 from bokeh.plotting import (annular_wedge, curplot, cursession, figure, hold,
                             legend, line, output_server, quad, xgrid, ygrid)
 
@@ -103,8 +103,8 @@ def animated():
 
     annular_wedge(
         cx, cy, rmin, rmax, theta[:-1], theta[1:],
-        x_range=Range1d(start=-11, end=11),
-        y_range=Range1d(start=-11, end=11),
+        x_range=[-11, 11],
+        y_range=[-11, 11],
         inner_radius_units="data",
         outer_radius_units="data",
         fill_color=colors,

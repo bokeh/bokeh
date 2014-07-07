@@ -1,7 +1,6 @@
 
 import numpy as np
 from bokeh.plotting import *
-from bokeh.objects import Range1d
 
 N = 4000
 
@@ -13,7 +12,7 @@ output_file("categorical.html", title="categorical.py example")
 
 hold()
 
-segment(x0, factors, x, factors, y_range=factors, x_range=Range1d(start=0, end=100), 
+segment(x0, factors, x, factors, y_range=factors, x_range=[0,100],
         line_width=2, line_color="green", tools="resize,previewsave", title="Dot Plot")
 circle(x, factors, size=15, fill_color="orange", line_color="green", line_width=3, Name="categorical example")
 

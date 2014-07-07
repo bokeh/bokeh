@@ -3,7 +3,6 @@
 
 import numpy as np
 from bokeh.plotting import *
-from bokeh.objects import Range1d
 
 d = [[0,1,2,3,4],
      [2,3,4,5,6],
@@ -12,7 +11,7 @@ d = [[0,1,2,3,4],
 output_server('image')
 image(
     image=[d], x=[1], y=[2], dw=[10], dh=[10], palette=["Reds-9"],
-    x_range=[0, 10], y_range=[0, 10],
+    x_range=[1, 11], y_range=[2, 11],
     tools="pan,wheel_zoom,box_zoom,reset,previewsave", name="image_example"
 )
 
