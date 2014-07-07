@@ -562,16 +562,16 @@ Finally, show the plot::
 Bokeh charts
 ------------
 
-The main idea behind the `bokeh.charts` interface is to help the users to easily get their plot
+The main idea behind the ``bokeh.charts`` interface is to help the users to easily get their plot
 using a very high level API.
 
-Currently the interface is supporting:
+Currently the ``bokeh.charts`` interface supports:
 
-* Histograms (grouped)
-* Bar plots (grouped and stacked)
-* Scatter plots (grouped and stacked)
+* ``Histograms`` (grouped)
+* ``Bar plots`` (grouped and stacked)
+* ``Scatter plots`` (grouped and stacked)
 
-To use it, you only have to import the ``Bokeh`` chart of interest from `bokeh.charts`:
+To use it, you only have to import the ``Bokeh`` chart of interest from ``bokeh.charts``:
 ::
 
     from bokeh.charts import Histogram
@@ -583,7 +583,7 @@ initialize your plot with some specific arguments (for chart customization):
                      title="kwargs, dict_input", ylabel="frequency", legend="top_left",
                      width=400, height=350, notebook=True)
 
-and finally call the `show` method.
+and finally call the ``show()`` method:
 ::
 
     hist.show()
@@ -594,36 +594,35 @@ and finally call the `show` method.
 Arguments and chained methods
 '''''''''''''''''''''''''''''
 
-You can pass arguments when you instantiate the class, as we shown you before, or you can use
-chained methods in this way:
+You can pass some arguments when you instantiate the class, as we shown you before, or you can use
+chained methods as we shown below:
 ::
 
     hist = Histogram(distributions, bins=50, notebook=True)
     hist.title("chained_methods, dict_input").ylabel("frequency").legend(True).width(400).height(350).show()
 
-.. note:: Be aware that the `show` method can not be chained. It has to be called at the end of your chain.
+.. note:: Be aware that the ``show()`` method can not be chained. It has to be called at the end of your chain.
 
-The `bokeh.charts` interface is ready to get your input as, essentially, OrderedDict and pandas dataframe objects
-(also pandas groupby objects in some cases). The idea behind this canonical format is to easily represent groups of
-data and easily plot them through the interface.
+Available arguments and chained methods are:
 
-Available arguments and chained methods
-***************************************
-
-* title (string type, self explanatory)
-* xlabel (string type, label in the x axis)
-* ylabel (string type, label in the y axis)
-* legend (string type, `top_left`, `top_right`, `bottom_left`, `bottom_right`. The legend content is inferred from incoming input)
-* width (int type, plot width)
-* height (int type, plot height)
-* tools (bool type, to setup (or avoid) the tools in your chart)
+* ``title``, string type, to add a title to your chart
+* ``xlabel``, string type, to label the x axis
+* ``ylabel``, string type, to label the y axis
+* ``legend``, string type, it can be `top_left`, `top_right`, `bottom_left`, `bottom_right`. The legend content is inferred from incoming input.
+* ``width``, int type, to set the chart width
+* ``height``, int type, to set the chart height
+* ``tools``, bool type, to setup (or avoid) the tools in your chart
 
 Interface inputs
 ''''''''''''''''
 
+The ``bokeh.charts`` interface is ready to get your input as, essentially, ``OrderedDict`` and pandas ``dataframe objects``
+(also pandas ``groupby objects`` in some cases). The idea behind this canonical format is to easily represent groups of
+data and easily plot them through the interface.
+
 Let see some examples using different kind of inputs.
 
-* Using OrderedDict:
+* Using ``OrderedDict``:
 ::
 
     from collections import OrderedDict
@@ -643,7 +642,7 @@ Let see some examples using different kind of inputs.
 .. image:: /_images/scatter.png
     :align: center
 
-* Using a hierarchical pandas dataframe:
+* Using a ``hierarchical`` pandas ``dataframe``:
 ::
 
     import pandas as pd
@@ -655,7 +654,7 @@ Let see some examples using different kind of inputs.
     scatter = Scatter(df)
     scatter.title("iris dataset, df_input").legend("top_left").width(600).height(400).notebook().show()
 
-* Using a groupby pandas object:
+* Using a pandas ``groupby`` object:
 ::
 
     from bokeh.charts import Scatter
@@ -667,10 +666,10 @@ Let see some examples using different kind of inputs.
     scatter = Scatter(g)
     scatter.title("iris dataset, gp_by_input").legend("top_left").width(600).height(400).notebook().show()
 
-As you can see, in the last two cases, we inferred the x and y labels from the pandas object, so you have not to be aware
-of specifying them yourself.
+As you can see, in the last two cases, we inferred the ``x`` and ``y`` labels from the pandas object, so you have not to be aware
+of specifying them by yourself.
 
-.. note:: For plotting just one group you can build a simple OrderedDict having the group of interest and pass this object to the interface, ie:
+.. note:: For plotting just one group you can build a simple ``OrderedDict`` having the group of interest and pass this object to the interface, ie:
 ::
 
     mu, sigma = 0, 0.5
@@ -680,45 +679,45 @@ of specifying them yourself.
 Interface outputs
 '''''''''''''''''
 
-As with the low and middle level ``Bokeh`` plotting APIs, in `bokeh.charts`, we also support the plot output to a file:
+As with the low and middle level ``Bokeh`` plotting APIs, in ``bokeh.charts``, we also support the chart output to a file:
 ::
 
     hist = Histogram(distributions, bins=50, filename="my_plot")
 
-* filename (string type, the name of your chart. If you pass True to this argument - or chained method - it will use "untitled" as a filename)
+* ``filename``, string type, the name of your chart. If you pass ``True`` to this argument (or chained method) it will use ``untitled`` as a filename)
 
-to the bokeh-server:
+to the ``bokeh-server``:
 ::
 
-hist = Histogram(distributions, bins=50, server=True)
+    hist = Histogram(distributions, bins=50, server=True)
 
-* server (string type, the name of your chart. If you pass True to this argument - or chained method - it will use "untitled" as a server name)
+* ``server``, string type, the name of your chart in the server. If you pass ``True`` to this argument (or chained method) it will use ``untitled`` as a server name)
 
 and to the IPython notebook:
 ::
 
-hist = Histogram(distributions, bins=50, notebook=True)
+    hist = Histogram(distributions, bins=50, notebook=True)
 
-* notebook (bool type, if you want to output (or not) to the notebook).
+* ``notebook``, bool type, if you want to output (or not) to the notebook.
 
-Keep in mind, as with any other ``Bokeh`` plot in the IPython notebook, you have to load the ``BokehJS`` library
-into the notebook just doing:
+Keep in mind that, as with any other ``Bokeh`` plots in the IPython notebook, you have to load the ``BokehJS`` library into the notebook just doing:
 ::
 
     import bokeh
     bokeh.load_notebook()
 
-.. note:: You can output to any or all of these possibility because right now they are not mutually exclusive.
+.. note:: You can output to any or all of these 3 possibilities because, right now, they are not mutually exclusive.
 
 Reporting bugs
 --------------
 
 You can report any possible bug, start discussions or ask for features at our
 `issue tracker https://github.com/ContinuumIO/bokeh/issues?state=open`_ list.
-To start a new issue, you will find a "New issue" green button at the top right area of the page.
+To start a new issue, you will find a ``New issue`` green button at the top right area of the page.
 
 But ``Bokeh`` also provides a programmatic way to open an issue. You only need to use the
-`bokeh.report_issue` interactive function:
+``bokeh.report_issue()`` interactive function:
+::
 
     In [1]: import bokeh
     
@@ -745,13 +744,14 @@ But ``Bokeh`` also provides a programmatic way to open an issue. You only need t
         
     Submit the intended issue/comment? y
 
-Then, `Bokeh` will push the issue to our issue tracker and it will open a new browser tab
+Then, ``Bokeh`` will push the issue to our issue tracker and it will open a new browser tab
 showing your submitted issue, if you want to add more comments.
 As you can see, this function will also append some important information about versions
 and your arcuitecture to help us to reproduce the intended bug.
 
-Finally, can even comment in any issue using this tool just passing the issue number as
+Finally, you can even make a comment in any issue using this tool just passing the issue number as
 an argument:
+::
 
     In [3]: bokeh.report_issue(555)
     This is the Bokeh reporting engine.
