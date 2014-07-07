@@ -15,7 +15,7 @@ Drawing Lines
 .. literalinclude:: exercises/lines.py
    :language: python
    :linenos:
-   :emphasize-lines: 34,44-45,51,53-54
+   :emphasize-lines: 33,43,44,49,51,52
 
 See the :doc:`solutions/gallery/lines`.
 
@@ -29,7 +29,7 @@ Scattering Points
 .. literalinclude:: exercises/scatter.py
    :language: python
    :linenos:
-   :emphasize-lines: 25,30-31,33-38,42-43,45,58-61
+   :emphasize-lines: 25,30,31,33,34,35,36,37,38,42,43,45,58,59,60,61
 
 See the :doc:`solutions/gallery/scatter`.
 
@@ -43,7 +43,7 @@ Displaying Images
 .. literalinclude:: exercises/image.py
    :language: python
    :linenos:
-   :emphasize-lines: 56,58-65,80,94-96
+   :emphasize-lines: 55,57,58,59,60,61,62,63,64,79,93,94,95
 
 See the :doc:`solutions/gallery/image`.
 
@@ -57,7 +57,7 @@ Styling your plots
 .. literalinclude:: exercises/style.py
    :language: python
    :linenos:
-   :emphasize-lines: 37,39,51
+   :emphasize-lines: 36,38,39,40,41,42,43,44,45,50
 
 See the :doc:`solutions/gallery/style`.
 
@@ -71,7 +71,7 @@ Linking your Brushing
 .. literalinclude:: exercises/brushing.py
    :language: python
    :linenos:
-   :emphasize-lines: 25-27,29-31
+   :emphasize-lines: 25,26,27,29,30,31
 
 See the :doc:`solutions/gallery/brushing`.
 
@@ -85,7 +85,7 @@ Hovering above the Data
 .. literalinclude:: exercises/hover.py
    :language: python
    :linenos:
-   :emphasize-lines: 22-23,39,48-49,51,57-65
+   :emphasize-lines: 22,23,39,51,57,58,59,60,61,62,63,64,65
 
 See the :doc:`solutions/gallery/hover`.
 

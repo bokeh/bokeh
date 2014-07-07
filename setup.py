@@ -254,8 +254,11 @@ else:
 
 bokeh_path = join(site_packages, "bokeh")
 if exists(bokeh_path) and isdir(bokeh_path):
-    print ("removing old bokeh install")
-    shutil.rmtree(bokeh_path)
+    val = raw_input("found existing bokeh install, remove it?[y|N]")
+    if val == "y":
+        print ("removing old bokeh install")
+        shutil.rmtree(bokeh_path)
+    print ("not removing old bokeh install")
 
 path_file = join(site_packages, "bokeh.pth")
 path = abspath(dirname(__file__))

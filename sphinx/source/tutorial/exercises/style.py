@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 from bokeh.plotting import *
-from bokeh.objects import Range1d
 
 # Define some categories
 categories = [
@@ -44,7 +43,7 @@ colors = brewer["Spectral"][len(ys)]
 #   - fill_color
 #   - fill_alpha
 #   - background_fill
-patches(xs, ys, x_range=categories, y_range=Range1d(start=0, end=800),
+patches(xs, ys, x_range=categories, y_range=[0, 800],
         color=colors, alpha=0.8, line_color=None, background_fill="lightgrey",
         title="Categories of Brewering")
 

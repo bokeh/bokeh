@@ -29,7 +29,6 @@ from ..objects import (CategoricalAxis, ColumnDataSource, DatetimeAxis,
                       FactorRange, Glyph, Grid, Legend, LinearAxis, PanTool,
                       Plot, PreviewSaveTool, Range1d, ResetTool, WheelZoomTool)
 
-import bokeh
 from ..document import Document
 from ..session import Session
 from ..embed import file_html
@@ -43,12 +42,12 @@ from ..browserlib import view
 
 class Chart(object):
 
-    def __init__(self, title, xname, yname, legend, xscale, yscale, width, height,
+    def __init__(self, title, xlabel, ylabel, legend, xscale, yscale, width, height,
                  tools, filename, server, notebook):
         "Initial setup."
         self.title = title
-        self.xname = xname
-        self.yname = yname
+        self.xlabel = xlabel
+        self.ylabel = ylabel
         self.legend = legend
         self.xscale = xscale
         self.yscale = yscale
@@ -65,15 +64,18 @@ class Chart(object):
         self.glyphs = []
 
     def get_data_histogram(self, bins, mu, sigma, **value):
-        # calculate hist properties
+        "Take the histogram data from the input and calculate the parameters accordingly."
         import scipy.special
 
         self.data = dict()
 
+        # assuming value is a dict, ordered dict
         self.value = value
 
+        # list to save all the attributes we are going to create
         self.attr = []
 
+        # list to save all the groups available in the incomming input
         self.groups.extend(self.value.keys())
 
         for i, val in enumerate(self.value.keys()):
@@ -100,6 +102,7 @@ class Chart(object):
                 self.groups.append("cdf")
 
     def get_source_histogram(self):
+        "Get the histogram data into the ColumnDataSource and calculate the proper ranges."
         self.source = ColumnDataSource(data=self.data)
 
         if not self.mu_and_sigma:
@@ -118,6 +121,7 @@ class Chart(object):
         self.ydr = Range1d(start=0, end=1.1 * endy)
 
     def get_data_bar(self, cat, **value):
+        "Take the bar data from the input and calculate the parameters accordingly."
         self.cat = cat
         self.width = [0.8] * len(self.cat)
         self.width_cat = [0.2] * len(self.cat)
@@ -130,6 +134,7 @@ class Chart(object):
         # list to save all the attributes we are going to create
         self.attr = []
 
+        # list to save all the groups available in the incomming input
         # Grouping
         step = np.linspace(0, 1.0, len(self.value.keys()) + 1, endpoint=False)
 
@@ -145,6 +150,7 @@ class Chart(object):
             self.zero += self.value[val]
 
     def get_source_bar(self, stacked):
+        "Get the bar data into the ColumnDataSource and calculate the proper ranges."
         self.source = ColumnDataSource(self.data)
         self.xdr = FactorRange(factors=self.source.data["cat"])
         if stacked:
@@ -155,6 +161,7 @@ class Chart(object):
             self.ydr = Range1d(start=0, end=end)
 
     def get_data_scatter(self, **pairs):
+        "Take the scatter data from the input and calculate the parameters accordingly."
         self.data = dict()
 
         # assuming value is an ordered dict
@@ -163,6 +170,7 @@ class Chart(object):
         # list to save all the attributes we are going to create
         self.attr = []
 
+        # list to save all the groups available in the incomming input
         self.groups.extend(self.pairs.keys())
 
         # Grouping
@@ -172,6 +180,7 @@ class Chart(object):
             self.set_and_get("y_", val, xy[:, 1])
 
     def get_source_scatter(self):
+        "Get the scatter data into the ColumnDataSource and calculate the proper ranges."
         self.source = ColumnDataSource(self.data)
 
         x_names, y_names = self.attr[::2], self.attr[1::2]
@@ -196,8 +205,8 @@ class Chart(object):
         self.categorical = False
 
         # Add axis
-        xaxis = self.make_axis(0, self.xscale, self.xname)
-        yaxis = self.make_axis(1, self.yscale, self.yname)
+        xaxis = self.make_axis(0, self.xscale, self.xlabel)
+        yaxis = self.make_axis(1, self.yscale, self.ylabel)
 
         # Add grids
         self.make_grid(xaxis, 0)
@@ -228,7 +237,7 @@ class Chart(object):
             legend = Legend(plot=self.plot, orientation=orientation, legends=self.legends)
             self.plot.renderers.append(legend)
 
-        # Add to document
+        # Add to document and session if server output is asked
         self.doc = Document()
         self.doc.add(self.plot)
         if self.server:
@@ -241,27 +250,29 @@ class Chart(object):
             self.session.load_document(self.doc)
             self.session.store_document(self.doc)
 
-    def make_axis(self, dimension, scale, name):
+    def make_axis(self, dimension, scale, label):
+        "Create linear, date or categorical axis depending on the scale and dimension."
         if scale == "linear":
             axis = LinearAxis(plot=self.plot,
                               dimension=dimension,
                               location="min",
-                              axis_label=name)
+                              axis_label=label)
         elif scale == "date":
             axis = DatetimeAxis(plot=self.plot,
                                 dimension=dimension,
                                 location="min",
-                                axis_label=name)
+                                axis_label=label)
         elif scale == "categorical":
             axis = CategoricalAxis(plot=self.plot,
                                    dimension=dimension,
                                    major_label_orientation=np.pi / 4,
-                                   axis_label=name)
+                                   axis_label=label)
             self.categorical = True
 
         return axis
 
     def make_grid(self, axis, dimension):
+        "Create the gris just passing the axis and dimension."
         grid = Grid(plot=self.plot,
                     dimension=dimension,
                     axis=axis)
@@ -269,7 +280,7 @@ class Chart(object):
         return grid
 
     def make_line(self, x, y, color):
-
+        "Create a line glyph and append it to the renderers list."
         line = Line(x=x, y=y, line_color=color)
 
         line_glyph = Glyph(data_source=self.source,
@@ -281,7 +292,7 @@ class Chart(object):
         self.glyphs.append(line_glyph)
 
     def make_quad(self, top, bottom, left, right, color):
-
+        "Create a quad glyph and append it to the renderers list."
         quad = Quad(top=top, bottom=bottom, left=left, right=right,
                     fill_color=color, fill_alpha=0.7, line_color="white", line_alpha=1.0)
 
@@ -294,7 +305,7 @@ class Chart(object):
         self.glyphs.append(quad_glyph)
 
     def make_rect(self, x, y, width, height, color):
-
+        "Create a rect glyph and append it to the renderers list."
         rect = Rect(x=x, y=y, width=width, height=height,
                     fill_color=color, fill_alpha=0.7, line_color="white", line_alpha=1.0)
 
@@ -307,6 +318,7 @@ class Chart(object):
         self.glyphs.append(rect_glyph)
 
     def make_scatter(self, x, y, markertype, color):
+        "Create a marker glyph and append it to the renderers list."
         from collections import OrderedDict
 
         _marker_types = OrderedDict([
@@ -343,7 +355,7 @@ class Chart(object):
         self.glyphs.append(scatter_glyph)
 
     def histogram(self):
-        # Use the `quad` renderer to display the histogram bars.
+        "Use the `quad` renderer to display the histogram bars."
         if not self.mu_and_sigma:
             self.quintet = list(self.chunker(self.attr, 5))
             colors = self.set_colors(self.quintet)
@@ -360,7 +372,7 @@ class Chart(object):
                 self.make_line(octet[5], octet[7], colors[i])
 
     def bar(self, stacked):
-        # Use the `rect` renderer to display the bars.
+        "Use the `rect` renderer to display the bars."
         self.quartet = list(self.chunker(self.attr, 4))
         colors = self.set_colors(self.quartet)
 
@@ -371,14 +383,15 @@ class Chart(object):
                 self.make_rect(quartet[3], quartet[1], "width_cat", quartet[0], colors[i])
 
     def scatter(self):
-        # Use the several "marker" renderers depending of the incomming groups
+        "Use different marker renderers to display the incomming groups."
         self.duplet = list(self.chunker(self.attr, 2))
         colors = self.set_colors(self.duplet)
 
         for i, duplet in enumerate(self.duplet, start=1):
             self.make_scatter(duplet[0], duplet[1], i, colors[i - 1])
 
-    def draw(self):
+    def show(self):
+        "Main show function, it shows the plot in file, server and notebook outputs."
         global _notebook_loaded
 
         if self.filename:
@@ -406,6 +419,7 @@ class Chart(object):
 
     # Some helper methods
     def set_and_get(self, prefix, val, content):
+        "Set a new attr and then get it to fill the self.data dict."
         setattr(self, prefix + val, content)
         self.data[prefix + val] = getattr(self, prefix + val)
         self.attr.append(prefix + val)
