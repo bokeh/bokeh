@@ -30,13 +30,13 @@ from ._chartobject import ChartObject
 class Bar(ChartObject):
 
     def __init__(self, value, cat=None, stacked=False,
-                 title=None, xname=None, yname=None, legend=False,
+                 title=None, xlabel=None, ylabel=None, legend=False,
                  xscale="categorical", yscale="linear", width=800, height=600,
                  tools=True, filename=False, server=False, notebook=False):
         self.cat = cat
         self.value = value
         self.__stacked = stacked
-        super(Bar, self).__init__(title, xname, yname, legend,
+        super(Bar, self).__init__(title, xlabel, ylabel, legend,
                                   xscale, yscale, width, height,
                                   tools, filename, server, notebook)
 
@@ -57,7 +57,7 @@ class Bar(ChartObject):
 
         self.check_attr()
 
-        chart = Chart(self._title, self._xname, self._yname, self._legend,
+        chart = Chart(self._title, self._xlabel, self._ylabel, self._legend,
                       self.xscale, self.yscale, self._width, self._height,
                       self._tools, self._filename, self._server, self._notebook)
         chart.get_data_bar(self.cat, **self.value)

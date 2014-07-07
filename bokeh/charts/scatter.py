@@ -32,11 +32,11 @@ from ._chartobject import ChartObject
 class Scatter(ChartObject):
 
     def __init__(self, pairs,
-                 title=None, xname=None, yname=None, legend=False,
+                 title=None, xlabel=None, ylabel=None, legend=False,
                  xscale="linear", yscale="linear", width=800, height=600,
                  tools=True, filename=False, server=False, notebook=False):
         self.pairs = pairs
-        super(Scatter, self).__init__(title, xname, yname, legend,
+        super(Scatter, self).__init__(title, xlabel, ylabel, legend,
                                       xscale, yscale, width, height,
                                       tools, filename, server, notebook)
 
@@ -71,7 +71,7 @@ class Scatter(ChartObject):
 
         self.check_attr()
 
-        chart = Chart(self._title, self._xname, self._yname, self._legend,
+        chart = Chart(self._title, self._xlabel, self._ylabel, self._legend,
                       self.xscale, self.yscale, self._width, self._height,
                       self._tools, self._filename, self._server, self._notebook)
         chart.get_data_scatter(**self.pairs)

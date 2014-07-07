@@ -42,12 +42,12 @@ from ..browserlib import view
 
 class Chart(object):
 
-    def __init__(self, title, xname, yname, legend, xscale, yscale, width, height,
+    def __init__(self, title, xlabel, ylabel, legend, xscale, yscale, width, height,
                  tools, filename, server, notebook):
         "Initial setup."
         self.title = title
-        self.xname = xname
-        self.yname = yname
+        self.xlabel = xlabel
+        self.ylabel = ylabel
         self.legend = legend
         self.xscale = xscale
         self.yscale = yscale
@@ -205,8 +205,8 @@ class Chart(object):
         self.categorical = False
 
         # Add axis
-        xaxis = self.make_axis(0, self.xscale, self.xname)
-        yaxis = self.make_axis(1, self.yscale, self.yname)
+        xaxis = self.make_axis(0, self.xscale, self.xlabel)
+        yaxis = self.make_axis(1, self.yscale, self.ylabel)
 
         # Add grids
         self.make_grid(xaxis, 0)
@@ -250,23 +250,23 @@ class Chart(object):
             self.session.load_document(self.doc)
             self.session.store_document(self.doc)
 
-    def make_axis(self, dimension, scale, name):
+    def make_axis(self, dimension, scale, label):
         "Create linear, date or categorical axis depending on the scale and dimension."
         if scale == "linear":
             axis = LinearAxis(plot=self.plot,
                               dimension=dimension,
                               location="min",
-                              axis_label=name)
+                              axis_label=label)
         elif scale == "date":
             axis = DatetimeAxis(plot=self.plot,
                                 dimension=dimension,
                                 location="min",
-                                axis_label=name)
+                                axis_label=label)
         elif scale == "categorical":
             axis = CategoricalAxis(plot=self.plot,
                                    dimension=dimension,
                                    major_label_orientation=np.pi / 4,
-                                   axis_label=name)
+                                   axis_label=label)
             self.categorical = True
 
         return axis
