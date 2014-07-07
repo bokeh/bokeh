@@ -83,6 +83,7 @@ def relevent_issue(issue, after):
 
 def relevant_issues(issues, after):
     """Yields relevant closed issues (closed after a given datetime) given a list of issues."""
+    print('finding relevant issues after {}...'.format(after))
     seen = set()
     for issue in issues:
         if relevent_issue(issue, after) and not issue['title'] in seen:

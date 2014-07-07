@@ -259,9 +259,21 @@ def _get_axis_class(axis_type, range_input):
         raise ValueError("Unrecognized axis_type: '%r'" % axis_type)
 
 
+def _get_num_minor_ticks(axis_class, num_minor_ticks):
+    if isinstance(num_minor_ticks, int):
+        if num_minor_ticks <= 1:
+            raise ValueError("num_minor_ticks must be > 1")
+        return num_minor_ticks
+    if num_minor_ticks is None:
+        return 0
+    if num_minor_ticks == 'auto':
+        if axis_class is LogAxis:
+            return 10
+        return 5
+
 def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
                  x_axis_type="auto", y_axis_type="auto",
-                 x_minor_ticks=5, y_minor_ticks=5,
+                 x_minor_ticks='auto', y_minor_ticks='auto',
                  tools="pan,wheel_zoom,box_zoom,save,resize,select,reset", **kw):
     # Accept **kw to absorb other arguments which the actual factory functions
     # might pass in, but that we don't care about
@@ -280,10 +292,8 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
     if x_axiscls:
         if x_axiscls is LogAxis:
             p.x_mapper_type = 'log'
-        if x_minor_ticks is None:
-            x_minor_ticks = 0
         xaxis = x_axiscls(plot=p, dimension=0, location="min", bounds="auto")
-        xaxis.ticker.num_minor_ticks = x_minor_ticks
+        xaxis.ticker.num_minor_ticks = _get_num_minor_ticks(x_axiscls, x_minor_ticks)
         axis_label = kw.pop('x_axis_label', None)
         if axis_label:
             xaxis.axis_label = axis_label
@@ -293,10 +303,8 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
     if y_axiscls:
         if y_axiscls is LogAxis:
             p.y_mapper_type = 'log'
-        if y_minor_ticks is None:
-            y_minor_ticks = 0
         yaxis = y_axiscls(plot=p, dimension=1, location="min", bounds="auto")
-        yaxis.ticker.num_minor_ticks = y_minor_ticks
+        yaxis.ticker.num_minor_ticks = _get_num_minor_ticks(y_axiscls, y_minor_ticks)
         axis_label = kw.pop('y_axis_label', None)
         if axis_label:
             yaxis.axis_label = axis_label
