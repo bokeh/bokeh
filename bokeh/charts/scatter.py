@@ -43,8 +43,8 @@ class Scatter(ChartObject):
     def check_attr(self):
         super(Scatter, self).check_attr()
 
-    def draw(self):
-        "This is the main Scatter draw function."
+    def show(self):
+        "This is the main Scatter show function."
         # asumming we get an hierchiral pandas object
         if isinstance(self.pairs, pd.DataFrame):
             from collections import OrderedDict
@@ -79,4 +79,4 @@ class Scatter(ChartObject):
         chart.start_plot()
         chart.scatter()
         chart.end_plot()
-        chart.draw()
+        chart.show()

@@ -390,8 +390,8 @@ class Chart(object):
         for i, duplet in enumerate(self.duplet, start=1):
             self.make_scatter(duplet[0], duplet[1], i, colors[i - 1])
 
-    def draw(self):
-        "Main draw function, it shows the plot in file, server and notebook outputs."
+    def show(self):
+        "Main show function, it shows the plot in file, server and notebook outputs."
         global _notebook_loaded
 
         if self.filename:

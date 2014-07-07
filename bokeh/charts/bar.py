@@ -50,8 +50,8 @@ class Bar(ChartObject):
         if not hasattr(self, '_stacked'):
             self._stacked = self.__stacked
 
-    def draw(self):
-        "This is the main Bar draw function."
+    def show(self):
+        "This is the main Bar show function."
         if isinstance(self.value, pd.DataFrame):
             self.cat = self.value.index.values.tolist()
 
@@ -65,4 +65,4 @@ class Bar(ChartObject):
         chart.start_plot()
         chart.bar(self._stacked)
         chart.end_plot()
-        chart.draw()
+        chart.show()
