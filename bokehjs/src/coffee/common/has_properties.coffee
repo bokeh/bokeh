@@ -25,33 +25,41 @@ define [
     isNew: () ->
       return false
 
-    initialize: (attrs, options) ->
-      # auto generates ids if we need to, calls deferred initialize if we have
-      # not done so already.   sets up datastructures for computed properties
-      if not attrs
-         attrs = {}
+    constructor : (attributes, options) ->
+      ## straight from backbone.js
+      attrs = attributes || {}
       if not options
         options = {}
-      super(attrs, options)
+      this.cid = _.uniqueId('c')
+      this.attributes = {}
+      if options.collection
+        this.collection = options.collection
+      if options.parse
+        attrs = this.parse(attrs, options) || {}
+      attrs = _.defaults({}, attrs, _.result(this, 'defaults'))
+      this.set(attrs, options)
+      this.changed = {}
 
-      #cheap memoization, requirejs doesn't seem to do it
+      ## bokeh custom constructor code
+
+      #cheap memoization, for storing the base module, requirejs doesn't seem to do it
       @_base = false
+
+      # setting up data structures for properties
       @properties = {}
       @property_cache = {}
+
+      # auto generating ID
       if not _.has(attrs, @idAttribute)
         this.id = _.uniqueId(this.type)
         this.attributes[@idAttribute] = this.id
-      _.defer(() =>
-        if not @inited
-          @dinitialize(attrs, options))
 
-    dinitialize: (attrs, options) ->
-      # deferred initialization - this is important so we can separate object
-      # creation from object initialization.  We need this if we receive a group
-      # of objects, that need to bind events to each other.  Then we create them all
-      # first, and then call deferred intialization so they can setup dependencies
-      # on each other
-      @inited = true
+      # allowing us to defer initialization when loading many models
+      # when loading a bunch of models, we want to do initialization as a second pass
+      # because other objects that this one depends on might not be loaded yet
+
+      if not options.defer_initialization
+        this.initialize.apply(this, arguments)
 
     set_obj: (key, value, options) ->
       if _.isObject(key) or key == null
