@@ -6,7 +6,7 @@
           <div class="bk-crossfilter-row">
             <div class="col-md-4 bk-column-list">
             </div>
-            <div class="col-md-4 bk-filters-facets">
+            <div class="col-md-5 bk-filters-facets">
               <div class="bk-bs-panel bk-bs-panel-primary bk-filters">
                 <div class="bk-bs-panel-heading bk-crossfilter-panel-heading">
                   Filter
@@ -36,7 +36,7 @@
                 </div>
               </div>
             </div>
-            <div class="col-md-4 bk-plot-selection">
+            <div class="col-md-3 bk-plot-selection">
               <form class="bk-widget-form">
                 <div class="bk-plot-selector">
                 </div>

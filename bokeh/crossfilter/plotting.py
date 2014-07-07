@@ -75,7 +75,7 @@ def make_bar_plot(datasource, counts_name="counts",
                 source=datasource,
     )
     plot.min_border = 0
-    plot.border_symmetry = "hv"
+    plot.border_symmetry = "none"
     select_tool = _get_select_tool(plot)
     if select_tool:
         select_tool.select_y = False
