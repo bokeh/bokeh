@@ -47,6 +47,8 @@ class Scatter(ChartObject):
         "This is the main Scatter show function."
         # asumming we get an hierchiral pandas object
         if isinstance(self.pairs, pd.DataFrame):
+            self.labels = self.pairs.columns.levels[1].values
+
             from collections import OrderedDict
             pdict = OrderedDict()
 
@@ -61,6 +63,7 @@ class Scatter(ChartObject):
             pdict = OrderedDict()
 
             for i in self.pairs.groups.keys():
+                self.labels = self.pairs.get_group(i).columns
                 xname = self.pairs.get_group(i).columns[0]
                 yname = self.pairs.get_group(i).columns[1]
                 x = getattr(self.pairs.get_group(i), xname)
@@ -70,6 +73,11 @@ class Scatter(ChartObject):
             self.pairs = pdict
 
         self.check_attr()
+
+        if self._xlabel is None:
+            self._xlabel = self.labels[0]
+        if self._ylabel is None:
+            self._ylabel = self.labels[1]
 
         chart = Chart(self._title, self._xlabel, self._ylabel, self._legend,
                       self.xscale, self.yscale, self._width, self._height,
