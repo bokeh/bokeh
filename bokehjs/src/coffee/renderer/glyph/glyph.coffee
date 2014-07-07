@@ -22,6 +22,7 @@ define [
       x_range = @plot_view.view_state.get('inner_range_horizontal')
       y_range = @plot_view.view_state.get('inner_range_vertical')
 
+      #TODO: This is weird.  For example, inner_range_horizontal is passed in twice.  Hugo or Joseph should clean it up
       if (resample_op == 'line1d')
         domain = transform_params['domain']
         if domain == 'x'
@@ -47,17 +48,15 @@ define [
         )
       else if (resample_op == 'abstract rendering')
         serversource.listen_for_ar_updates(
+           @plot_view
            @mget_obj('data_source'),
+             #TODO: Joseph -- Get rid of the next four params because we're passing in the plot_view
            x_range,  y_range,
            @plot_view.x_range,
            @plot_view.y_range,
            transform_params)
       else
-        throw new Error("Unkonwn resample op '#{resample_op}'")
-
-
-
-
+        console.log("Unkonwn resample op '#{resample_op}'")
 
     initialize: (options) ->
       super(options)

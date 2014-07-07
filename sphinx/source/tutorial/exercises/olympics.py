@@ -1,7 +1,7 @@
 import json
 import numpy as np
 from bokeh.plotting import *
-from bokeh.objects import ColumnDataSource, Range1d
+from bokeh.objects import ColumnDataSource
 
 olympics = json.load(open('../data/olympics.json'))
 data = { d['abbr']: d['medals'] for d in olympics['data'] if d['medals']['total'] > 0}
@@ -20,10 +20,10 @@ bronze = np.array([data[abbr]['bronze'] for abbr in countries], dtype=np.float)
 # EXERCISE: turn on plot hold
 
 # use the `rect` renderer to display stacked bars of the medal results. Note
-# that we set y_range explicitly on the first renderer with a `Range1d` object
+# that we set y_range explicitly on the first renderer
 rect(x=countries, y=bronze/2, width=0.8, height=bronze, x_range=countries, color="#CD7F32", alpha=0.6,
      background_fill='#59636C', title="Olympic Medals by Country (stacked)", tools="",
-     y_range=Range1d(start=0, end=max(gold+silver+bronze)), plot_width=800)
+     y_range=[0, end=max(gold+silver+bronze)], plot_width=800)
 rect(x=countries, y=bronze+silver/2, width=0.8, height=silver, x_range=countries, color="silver", alpha=0.6)
 
 # EXERCISE: add a `rect` renderer to stack the gold medal results

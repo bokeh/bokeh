@@ -105,15 +105,18 @@ define [
           plot_state: JSON.stringify(plot_state)
       )
 
-    listen_for_ar_updates : (column_data_source, plot_x_range, plot_y_range, x_data_range, y_data_range, input_params) ->
+    listen_for_ar_updates : (plot_view,
+                             column_data_source, 
+                             plot_x_range, plot_y_range, 
+                             x_data_range, y_data_range, 
+                             input_params) ->
       plot_state = {data_x: x_data_range, data_y:y_data_range, screen_x: plot_x_range, screen_y: plot_y_range}
 
       #TODO: Can this ar_updates be merged with line1d_updates and heatmap_updates?
       #TODO: Do we need other descriptors for AR or are these data and view parameters sufficient?
       @stoplistening_for_updates(column_data_source)
-      callback = ajax_throttle(() =>
-        @ar_update(column_data_source, plot_state, input_params)
-      )
+      callback =ajax_throttle( () => return @ar_update(plot_view, column_data_source, plot_state, input_params))
+      
       callback()
       @callbacks[column_data_source.get('id')] = []
       for param in [x_data_range, y_data_range, plot_x_range, plot_y_range]
@@ -128,23 +131,40 @@ define [
       return null
 
 
-    ar_update : (column_data_source, plot_state, input_params) ->
+    ar_update : (plot_view, column_data_source, plot_state, input_params, x_data_range, y_data_range) ->
       #TODO: Share the x/y range information back to the server in some way...
-      $.ajax(
+      domain_limit = 'not auto'
+        
+      if (plot_view.x_range.get('start') == plot_view.x_range.get('end') or
+          plot_view.y_range.get('start') == plot_view.y_range.get('end'))
+        domain_limit = 'auto'
+
+      resp = $.ajax(
         dataType: 'json'
         url : @update_url()
         xhrField :
           withCredentials : true
         success : (data) ->
+          #use x_range to set domain_range ...similar to line1d_update
+          if (domain_limit == 'auto')
+            plot_state['data_x'].set(
+              {start : data.x_range.start, end : data.x_range.end},
+            )
+           
+            plot_state['data_y'].set(
+              {start : data.y_range.start, end : data.y_range.end},
+            )
+          
           #hack
           new_data = _.clone(column_data_source.get('data'))
           _.extend(new_data, data)
           column_data_source.set('data', new_data)
-          #console.log('setting data', data.image.length, data.image[0].length)
+          plot_view.request_render()
         data :
           resample_parameters : JSON.stringify([input_params])
           plot_state: JSON.stringify(plot_state)
       )
+      return resp
 
 
     listen_for_heatmap_updates : (column_data_source,

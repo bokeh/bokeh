@@ -1,9 +1,8 @@
     {{ plot_resources|indent(8) }}
 
+    {%- if not skip %}
     <div>
-        <a href="http://bokeh.pydata.org" target="_blank" style="text-decoration:none;">
-            <img src={{ logo_url }} alt="Bokeh logo" width="20" style="vertical-align:text-bottom;" />
-        </a>
+        <a href="http://bokeh.pydata.org" target="_blank" class="bk-logo bk-logo-small bk-logo-notebook"/>
         <span>BokehJS successfully loaded.</span>
     </div>
 
@@ -52,3 +51,4 @@
     {%- for warning in warnings %}
     <p style="background-color: #f2d7dc;">{{ warning }}</p>
     {%- endfor %}
+    {%- endif %}

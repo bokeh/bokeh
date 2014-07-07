@@ -44,7 +44,7 @@ else:
     from distutils.core import setup
 
 from distutils import dir_util
-from os.path import abspath, exists, join, dirname
+from os.path import abspath, exists, join, dirname, isdir
 
 # Our own imports
 import versioneer
@@ -252,6 +252,14 @@ if '--user' in sys.argv:
 else:
     site_packages = getsitepackages()[0]
 
+bokeh_path = join(site_packages, "bokeh")
+if exists(bokeh_path) and isdir(bokeh_path):
+    val = raw_input("found existing bokeh install, remove it?[y|N]")
+    if val == "y":
+        print ("removing old bokeh install")
+        shutil.rmtree(bokeh_path)
+    print ("not removing old bokeh install")
+
 path_file = join(site_packages, "bokeh.pth")
 path = abspath(dirname(__file__))
 
@@ -348,6 +356,9 @@ setup(
     cmdclass=_cmdclass,
     packages=[
         'bokeh',
+        'bokeh.charts',
+        'bokeh.crossfilter',
+        'bokeh.mplexporter',
         'bokeh.sampledata',
         'bokeh.server',
         'bokeh.server.models',

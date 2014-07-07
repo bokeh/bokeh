@@ -14,7 +14,6 @@ from ..utils import encode_utf8, decode_utf8
 from ..transforms import line_downsample
 from ..transforms import image_downsample
 from ..transforms import ar_downsample
-
 import logging
 import numpy as np
 
@@ -378,6 +377,15 @@ class FunctionBackend(AbstractDataBackend):
     """ Collection of datasets defined by functions.
         Datasets are accessed by a URL starting with 'fn://'
     """
+    gauss = {'oneA': np.random.randn(1000),
+             'oneB': np.random.randn(1000),
+             'hundredA': np.random.randn(1000)*100,
+             'hundredB': np.random.randn(1000)*100}
+
+    uniform = {'oneA': np.random.rand(1000),
+               'oneB': np.random.rand(1000),
+               'hundredA': np.random.rand(1000)*100,
+               'hundredB': np.random.rand(1000)*100}
 
     def __init__(self):
       N = 1000
@@ -385,11 +393,6 @@ class FunctionBackend(AbstractDataBackend):
       y = np.linspace(0, 10, N)
       xx, yy = np.meshgrid(x, y)
       self.sin_cos = np.sin(xx)*np.cos(yy)
-
-      self.gauss = {'oneA': np.random.rand(1000),
-                    'oneB': np.random.rand(1000),
-                    'hundred': np.random.rand(1000)*100,
-                    'ints': np.random.randint(low=0, high=100, size=1000)}
 
     def get_dataset(self, dataset):
       """Get a known dataset by name.  The dataset may start with fn://, but does not need to."""

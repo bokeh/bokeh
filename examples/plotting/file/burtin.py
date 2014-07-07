@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 from bokeh.plotting import *
-from bokeh.objects import Range1d
 from six.moves import cStringIO as StringIO
 from math import log, sqrt
 from collections import OrderedDict
@@ -62,15 +61,14 @@ hold()
 x = np.zeros(len(df))
 y = np.zeros(len(df))
 
-line(x+1, y+1, alpha=0, plot_width=width, plot_height=height, title="", tools="pan,wheel_zoom,box_zoom,reset,previewsave", x_axis_type=None, y_axis_type=None)
+figure(plot_width=width, plot_height=height, title="",
+       tools="pan,wheel_zoom,box_zoom,reset,previewsave",
+       x_axis_type=None, y_axis_type=None,
+       x_range=[-420, 420], y_range=[-420, 420],
+       min_border=0, outline_line_color=None,
+       background_fill="#f0e1d2", border_fill="#f0e1d2")
 
-plot = curplot()
-plot.x_range = Range1d(start=-420, end=420)
-plot.y_range = Range1d(start=-420, end=420)
-plot.min_border = 0
-plot.background_fill = "#f0e1d2"
-plot.border_fill = "#f0e1d2"
-plot.outline_line_color = None
+line(x+1, y+1, alpha=0)
 
 # annular wedges
 angles = np.pi/2 - big_angle/2 - df.index*big_angle

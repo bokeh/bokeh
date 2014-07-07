@@ -2,7 +2,6 @@ from __future__ import division
 
 import numpy as np
 from bokeh.plotting import *
-from bokeh.objects import Range1d
 
 # Skip the first point because it can be troublesome
 theta = np.linspace(0, 8*np.pi, 10000)[1:]
@@ -45,12 +44,11 @@ figure()
 # and legend values. NOTE: title only set on the first renderer.
 
 # OK, so that doesn't look so good because Bokeh tried to autoscale to
-# accomodate all the data. We can use the Range1d object to set the plot range
-# explicitly
+# accomodate all the data. We can use set the plot range explicitly
 
 # EXERCISE: create a new figure
 
 # EXERCISE: add x_range and y_range parameters to the first `line`, to set the
-# range to [-10, 10]. NOTE: Range1d are created like: Range1d(start=0, end=10)
+# range to [-10, 10].
 
 show()      # show the plot

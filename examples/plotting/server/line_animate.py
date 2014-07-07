@@ -3,7 +3,6 @@
 
 import numpy as np
 from bokeh.plotting import *
-from bokeh.objects import Range1d
 
 N = 80
 
@@ -26,6 +25,5 @@ ds = renderer.data_source
 while True:
     for i in np.hstack((np.linspace(1, -1, 100), np.linspace(-1, 1, 100))):
         ds.data["y"] = y * i
-        ds._dirty = True
         cursession().store_objects(ds)
         time.sleep(1.0)

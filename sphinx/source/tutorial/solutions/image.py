@@ -2,7 +2,6 @@ from __future__ import division
 
 import numpy as np
 from bokeh.plotting import *
-from bokeh.objects import Range1d
 
 # NOTE: if you do have numba installed, uncomment out this import,
 # and the 'autojit' lines below (the example will run more quickly).
@@ -70,8 +69,8 @@ image(image=[img],
       dw=[max_x-min_x],
       dh=[max_y-min_y],
       palette=["Spectral-11"],
-      x_range = Range1d(start=min_x, end=max_x),
-      y_range = Range1d(start=min_y, end=max_x),
+      x_range = [min_x, max_x],
+      y_range = [min_y, max_y],
       title="Mandelbrot",
       tools="pan,wheel_zoom,box_zoom,reset,previewsave",
       plot_width=900,
@@ -98,7 +97,7 @@ for i in range(N):
 # x_range and y_range explicitly as above.
 image_rgba(
     image=[img], x=[0], y=[0], dw=[10], dh=[10],
-    x_range = Range1d(start=0, end=10), y_range = Range1d(start=0, end=10),
+    x_range = [0, 10], y_range = [0, 10],
     tools="pan,wheel_zoom,box_zoom,reset,previewsave", name="image_example")
 
 show()      # show the plot

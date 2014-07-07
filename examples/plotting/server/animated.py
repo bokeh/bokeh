@@ -5,7 +5,7 @@ import time
 import numpy as np
 from numpy import pi, cos, sin, linspace, roll, zeros_like
 from bokeh.plotting import *
-from bokeh.objects import Glyph, Range1d
+from bokeh.objects import Glyph
 
 N = 50 + 1
 r_base = 8
@@ -20,17 +20,16 @@ cx = cy = zeros_like(rmin)
 
 output_server("animated")
 
+figure(x_range=[-11, 11], y_range=[-11, 11], tools="pan,wheel_zoom,box_zoom,reset,previewsave")
+
 hold()
 
 annular_wedge(
     cx, cy, rmin, rmax, theta[:-1], theta[1:],
-    x_range = Range1d(start=-11, end=11),
-    y_range = Range1d(start=-11, end=11),
     inner_radius_units="data",
     outer_radius_units="data",
     fill_color = colors,
     line_color="black",
-    tools="pan,wheel_zoom,box_zoom,reset,previewsave"
 )
 
 renderer = [r for r in curplot().renderers if isinstance(r, Glyph)][0]
@@ -44,6 +43,5 @@ while True:
         rmax = ds.data["outer_radius"]
         rmax = roll(rmax, -1)
         ds.data["outer_radius"] = rmax
-        ds._dirty = True
         cursession().store_objects(ds)
         time.sleep(.10)
