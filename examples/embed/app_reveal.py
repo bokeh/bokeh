@@ -17,8 +17,12 @@ app = Flask(__name__)
 
 @app.route('/')
 def render_plot():
-    tag1, id1 = make_snippet("plot", distribution()[0], distribution()[1])
-    tag2, id2 = make_snippet("animated", animated()[0], animated()[1], update_animation)
+    distribution_plot = distribution()
+    tag1, id1 = make_snippet("plot", distribution_plot[0], distribution_plot[1])
+
+    animated_plot = animated()
+    tag2, id2 = make_snippet("animated", animated_plot[0], animated_plot[1], update_animation)
+
     tag3, id3 = make_snippet("widget", pop.layout, pop.session, update_population)
 
     return render_template('app_plot.html',
