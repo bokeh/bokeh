@@ -5,7 +5,6 @@ from __future__ import division
 
 import numpy as np
 from bokeh.plotting import *
-from bokeh.objects import Range1d
 
 N = 20
 
@@ -23,7 +22,7 @@ output_server("image_rgba")
 
 image_rgba(
     image=[img], x=[0], y=[0], dw=[10], dh=[10],
-    x_range = Range1d(start=0, end=10), y_range = Range1d(start=0, end=10),
+    x_range=[0, 10], y_range=[0,10],
     tools="pan,wheel_zoom,box_zoom,reset,previewsave", name="image_example")
 
 show()  # open a browser

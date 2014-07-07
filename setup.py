@@ -348,7 +348,9 @@ setup(
     cmdclass=_cmdclass,
     packages=[
         'bokeh',
+        'bokeh.charts',
         'bokeh.crossfilter',
+        'bokeh.mplexporter',
         'bokeh.sampledata',
         'bokeh.server',
         'bokeh.server.models',

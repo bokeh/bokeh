@@ -119,14 +119,25 @@ html = """
 html = html % (tag)
 with open("population_embed.html", "w+") as f:
     f.write(html)
-print("To view this example, start the python simple http server in this directory "
-      "with `python -m SimpleHTTPServer' and then navigate to "
-      "`http://localhost:8000/population_embed.html'")
+
+print("""
+To view this example, run
+
+    python -m SimpleHTTPServer
+
+in this directory, then navigate to
+
+    http://localhost:8000/population_embed.html
+""")
 
 import time
 
 link = pop.session.object_link(pop.document._plotcontext)
-print("You can also go to %s to see the plots" % link)
+print("""You can also go to
+
+    %s
+
+to see the plots on the Bokeh server directly""" % link)
 
 try:
     while True:
