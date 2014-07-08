@@ -267,7 +267,6 @@ class CrossFilter(PlotObject):
                 source = self.filtered_data
             else:
                 source = ColumnDataSource(data=df)
-            source = ColumnDataSource(data=df)
             plot = line(self.x, self.y, source=source,
                         title_text_font_size="12pt",
                         plot_height=plot_height,
