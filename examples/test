@@ -61,6 +61,9 @@ parser.add_argument("-all-n", "--all-notebooks", action="store_true", default=Fa
                     help="test all the notebooks inside examples/plotting/notebook folder.")
 parser.add_argument("-o", "--output-cells", type=str, choices=['complain', 'remove', 'ignore'], default='complain',
                     help="what to do with notebooks' output cells")
+parser.add_argument("-l", "--log-file", type=argparse.FileType('w'), default='examples.log',
+                    help="where to write the complete log")
+
 args = parser.parse_args()
 
 DEFAULT_NO_DEV = os.environ.get('BOKEH_DEFAULT_NO_DEV', 'false')
@@ -148,6 +151,10 @@ def detect_examples():
 
         add_examples(path, example_type=example_type, skip=skip)
 
+def write(*values):
+    print(*values)
+    print(*values, file=args.log_file)
+
 def red(text):
     return "%s%s%s" % (colorama.Fore.RED, text, colorama.Style.RESET_ALL)
 
@@ -159,15 +166,15 @@ def green(text):
 
 def fail(msg=None):
     msg = " " + msg if msg is not None else ""
-    print("%s%s" % (red("[FAIL]"), msg))
+    write("%s%s" % (red("[FAIL]"), msg))
 
 def warn(msg=None):
     msg = " " + msg if msg is not None else ""
-    print("%s%s" % (yellow("[WARN]"), msg))
+    write("%s%s" % (yellow("[WARN]"), msg))
 
 def ok(msg=None):
     msg = " " + msg if msg is not None else ""
-    print("%s%s" % (green("[OK]"), msg))
+    write("%s%s" % (green("[OK]"), msg))
 
 def make_env():
     env = os.environ.copy()
@@ -193,7 +200,7 @@ def run_example(example):
     signal.alarm(args.timeout)
 
     try:
-        proc = subprocess.Popen(cmd, cwd=cwd, env=env)
+        proc = subprocess.Popen(cmd, cwd=cwd, env=env, stdout=args.log_file, stderr=args.log_file)
 
         try:
             return proc.wait()
@@ -242,7 +249,7 @@ def test_example(example, flags):
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
         code = proc.wait()
     except OSError:
-        print("Failed to run: %s" % " ".join(cmd))
+        write("Failed to run: %s" % " ".join(cmd))
         sys.exit(1)
 
     result = json.loads(proc.stdout.read().decode("utf-8"))
@@ -262,11 +269,11 @@ def test_example(example, flags):
                 source = message.get('source')
 
                 if source is None:
-                    print(msg)
+                    write(msg)
                 elif line is None:
-                    print("%s: %s" % (source, msg))
+                    write("%s: %s" % (source, msg))
                 else:
-                    print("%s:%s: %s" % (source, line, msg))
+                    write("%s:%s: %s" % (source, line, msg))
 
         resource_errors = False
 
@@ -281,10 +288,10 @@ def test_example(example, flags):
             fn("%s: %s (%s)" % (url, color(resource['status']), resource['statusText']))
 
         for error in errors:
-            print(error['msg'])
+            write(error['msg'])
 
             for item in error['trace']:
-                print("    %s: %d" % (item['file'], item['line']))
+                write("    %s: %d" % (item['file'], item['line']))
 
         if resource_errors or errors:
             fail(example)
@@ -302,9 +309,9 @@ def start_bokeh_server():
         argv.extend(["--splitjs", "--debugjs", "--filter-logs"])
 
     try:
-        proc = subprocess.Popen(cmd + argv)
+        proc = subprocess.Popen(cmd + argv, stdout=args.log_file, stderr=args.log_file)
     except OSError:
-        print("Failed to run: %s" % " ".join(cmd + argv))
+        write("Failed to run: %s" % " ".join(cmd + argv))
         sys.exit(1)
     else:
         def wait_until(func, timeout=5.0, interval=0.01):
@@ -327,7 +334,7 @@ def start_bokeh_server():
             return wait_until(helper)
 
         if not wait_for_bokeh_server():
-            print("Timeout when running: %s" % " ".join(cmd + argv))
+            write("Timeout when running: %s" % " ".join(cmd + argv))
             sys.exit(1)
 
         return proc
@@ -378,7 +385,7 @@ def create_ipython_profile():
     try:
         subprocess.check_call(create)
     except OSError:
-        print("Failed to run: %s" % " ".join(create))
+        write("Failed to run: %s" % " ".join(create))
         sys.exit(1)
 
 def locate_ipython_profile():
@@ -386,9 +393,9 @@ def locate_ipython_profile():
 
     try:
         loc = subprocess.check_output(locate)
-        print("bokeh_test profile found.")
+        write("bokeh_test profile found.")
     except CalledProcessError:
-        print("bokeh_test profile not found. Creating one...")
+        write("bokeh_test profile not found. Creating one...")
         create_ipython_profile()
         loc = subprocess.check_output(locate)
 
@@ -414,9 +421,9 @@ def start_ipython_notebook():
 
     if located_profile:
         try:
-            proc = subprocess.Popen(cmd + argv)
+            proc = subprocess.Popen(cmd + argv, stdout=args.log_file, stderr=args.log_file)
         except OSError:
-            print("Failed to run: %s" % " ".join(cmd + argv))
+            write("Failed to run: %s" % " ".join(cmd + argv))
             sys.exit(1)
 
     return proc
@@ -435,22 +442,27 @@ ipython_notebook = start_ipython_notebook() if use_notebook and need_notebook el
 if use_notebook:
     import nbexecuter
     example_nbconverted = os.path.join("examples", "glyphs", "glyph.ipynb")
-    print(example_nbconverted)
+    write(example_nbconverted)
     nbexecuter.main(example_nbconverted)
 
 run_examples = 0
 fail_examples = []
 skip_examples = []
 
+def skip(example, reason):
+    write("%s Skipping %s (because %s)" % (yellow(">>>"), example, reason))
+    skip_examples.append(example)
+
 try:
     for example, flags in sorted(selected_examples):
-        if (flags & Flags.skip or
-            flags & Flags.server and not bokeh_server or
-            flags & Flags.notebook and not ipython_notebook):
-            print("%s Skipping %s" % (yellow(">>>"), example))
-            skip_examples.append(example)
+        if flags & Flags.skip:
+            skip(example, "requested to skip")
+        elif flags & Flags.server and not bokeh_server:
+            skip(example, "bokeh server not available")
+        elif flags & Flags.notebook and not ipython_notebook:
+            skip(example, "ipython notebook not available")
         else:
-            print("%s Testing %s ..." % (green(">>>"), example))
+            write("%s Testing %s ..." % (green(">>>"), example))
             result = False
 
             if flags & (Flags.file|Flags.server):
@@ -467,16 +479,16 @@ try:
                 fail_examples.append(example)
             run_examples += 1
 
-        print()
+        write()
 except KeyboardInterrupt:
-    print(yellow("INTERRUPTED"))
+    write(yellow("INTERRUPTED"))
 finally:
     if bokeh_server is not None:
-        print("Shutting down bokeh-server ...")
+        write("Shutting down bokeh-server ...")
         bokeh_server.kill()
 
     if ipython_notebook is not None:
-        print("Shutting down ipython-notebook ...")
+        write("Shutting down ipython-notebook ...")
         ipython_notebook.kill()
 
 num_examples = len(selected_examples)
