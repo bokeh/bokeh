@@ -52,5 +52,6 @@ def object_page(prefix):
                                    hide_navbar=True,
                                    splitjs=bokeh_app.splitjs,
                                    username=bokehuser.username)
+        wrapper.__name__ = func.__name__
         return wrapper
     return decorator
