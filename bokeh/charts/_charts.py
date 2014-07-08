@@ -368,8 +368,8 @@ class Chart(object):
 
             for i, octet in enumerate(self.octet):
                 self.make_quad(octet[0], octet[4], octet[2], octet[3], colors[i])
-                self.make_line(octet[5], octet[6], colors[i])
-                self.make_line(octet[5], octet[7], colors[i])
+                self.make_line(octet[5], octet[6], "black")
+                self.make_line(octet[5], octet[7], "blue")
 
     def bar(self, stacked):
         "Use the `rect` renderer to display the bars."
