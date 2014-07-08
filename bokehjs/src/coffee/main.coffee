@@ -4,7 +4,7 @@ define (require, exports, module) ->
     window.Float64Array = Array
   Bokeh = {}
   Bokeh.require = require
-  Bokeh.version = '0.5.0rc2'
+  Bokeh.version = '0.5.0'
 
   # binding the libs that bokeh uses so others can reference them
   Bokeh._                 = require("underscore")
