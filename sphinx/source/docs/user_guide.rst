@@ -129,6 +129,8 @@ Plots can be configured with several keyword arguments that control appearance:
 
 * ``x_axis_type``, ``y_axis_type`` can be set to ``"datetime"`` to create datetime axis
 
+* ``x_mapper_type``, ``y_mapper_type`` can be set to ``"log"`` to specifically set the mapper used for the axis
+
 These parameters can be passed to glyph functions such a ``circle`` or ``rect`` but it is often useful
 to pass them to a call to ``figure``:
 ::
