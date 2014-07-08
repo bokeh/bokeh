@@ -59,6 +59,8 @@ parser.add_argument("-D", "--no-dev", dest="dev", action="store_false", default=
                     help="don't use development JavaScript and CSS files")
 parser.add_argument("-all-n", "--all-notebooks", action="store_true", default=False,
                     help="test all the notebooks inside examples/plotting/notebook folder.")
+parser.add_argument("-o", "--output-cells", type=str, choices=['complain', 'remove', 'ignore'], default='complain',
+                    help="what to do with notebooks' output cells")
 args = parser.parse_args()
 
 DEFAULT_NO_DEV = os.environ.get('BOKEH_DEFAULT_NO_DEV', 'false')
@@ -330,6 +332,47 @@ def start_bokeh_server():
 
         return proc
 
+def deal_with_output_cells(example):
+    def load_nb(example):
+        with open(example, "r") as f:
+            return json.load(f)
+
+    def save_nb(example, nb):
+        with open(example, "w") as f:
+            json.dump(nb, f, ident=2, sort_keys=True)
+
+    def bad_code_cells(nb):
+        for worksheet in nb.get("worksheets", []):
+            for cell in worksheet.get("cells", []):
+                if cell.get("cell_type") == "code":
+                    outputs = cell.get("outputs")
+
+                    if isinstance(outputs, list) and len(outputs) > 0:
+                        yield cell, outputs
+
+    def complain(fn):
+        fn("%s notebook contains output cells" % example)
+
+    if args.output_cells == 'complain':
+        nb = load_nb(example)
+
+        for _, _ in bad_code_cells(nb):
+            complain(fail)
+            return False
+    elif args.output_cells == 'remove':
+        nb = load_nb(example)
+        changes = False
+
+        for cell, _ in bad_code_cells(nb):
+            cell["outputs"] = []
+            changes = True
+
+        if changes:
+            complain(warn)
+            save_nb(example, nb)
+
+    return True
+
 def create_ipython_profile():
     create = ["ipython", "profile", "create", "bokeh_test"]
     try:
@@ -339,7 +382,6 @@ def create_ipython_profile():
         sys.exit(1)
 
 def locate_ipython_profile():
-
     locate = ["ipython", "locate", "profile", "bokeh_test"]
 
     try:
@@ -362,7 +404,6 @@ $([IPython.events]).on('status_started.Kernel', function(){
     return loc
 
 def start_ipython_notebook():
-
     located_profile = locate_ipython_profile()
 
     notebook_dir = os.path.split(os.path.dirname(os.path.realpath(__file__)))[0]
@@ -394,7 +435,7 @@ ipython_notebook = start_ipython_notebook() if use_notebook and need_notebook el
 if use_notebook:
     import nbexecuter
     example_nbconverted = os.path.join("examples", "glyphs", "glyph.ipynb")
-    print(example_nbconverted) 
+    print(example_nbconverted)
     nbexecuter.main(example_nbconverted)
 
 run_examples = 0
@@ -418,7 +459,7 @@ try:
                 else:
                     fail()
             elif flags & Flags.notebook:
-                result = test_example(example, flags)
+                result = deal_with_output_cells(example) and test_example(example, flags)
             else:
                 raise ValueError("invalid example type: %s" % example_type(flags))
 
