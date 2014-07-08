@@ -64730,7 +64730,7 @@ define('server/usercontext/wrappertemplate',[],function(){
     }
     Bokeh = {};
     Bokeh.require = require;
-    Bokeh.version = '0.5.0rc2';
+    Bokeh.version = '0.5.0';
     Bokeh._ = require("underscore");
     Bokeh.$ = require("jquery");
     Bokeh.Backbone = require("backbone");

@@ -1917,6 +1917,13 @@ input.ui-editRangeSlider-inputValue{
   z-index: 20;
   font-size: 125%;
 }
+.slides .bokeh_canvas_wrapper_outer {
+  overflow: visible;
+}
+.slides canvas {
+  left: 0;
+  top: 0;
+}
 .slides .bk-sidebar {
   float: right;
 }
