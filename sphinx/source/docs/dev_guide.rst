@@ -131,15 +131,6 @@ Several live examples that demonstrate the BokehJS interface are available as JS
 Click on "CoffeeScript" to see the code that generates these plots, or on "Edit in
 JSFiddle" to fork and create your own examples.
 
-Scatter
-*******
-
-This example shows a scatter plot where every circle has its own radius and color.
-
-.. raw:: html
-
-    <iframe width="100%" height="700" src="http://jsfiddle.net/bokeh/Tw5Sm/embedded/result,js/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
-
 Lorenz
 ******
 
