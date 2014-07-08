@@ -591,8 +591,8 @@ and finally call the ``show()`` method:
 .. image:: /_images/histogram.png
     :align: center
 
-Arguments and chained methods
-'''''''''''''''''''''''''''''
+Generic arguments and chained methods
+'''''''''''''''''''''''''''''''''''''
 
 You can pass some arguments when you instantiate the class, as we shown you before, or you can use
 chained methods as we shown below:
@@ -612,6 +612,24 @@ Available arguments and chained methods are:
 * ``width``, int type, to set the chart width
 * ``height``, int type, to set the chart height
 * ``tools``, bool type, to setup (or avoid) the tools in your chart
+
+Specific arguments
+''''''''''''''''''
+
+In some charts, you can pass specific arguments which only makes sense in an specific chart context.
+
+For instance, in the Histogram chart, you need to set up the ``bins`` and, additionally, you can pass a ``mu`` and ``sigma``
+to get the ``pdf`` and the ``cdf`` line plots of theoretical normal distributions for these parameters.
+
+In the Bar charts case, if you pass several groups, they will be shown ``grouped`` by default:
+
+.. image:: /_images/bargrouped.png
+    :align: center
+
+But if you specify the argument ``stacked`` as True, it will be shown as stacked bars as follow:
+
+.. image:: /_images/barstacked.png
+    :align: center
 
 Interface inputs
 ''''''''''''''''
