@@ -10,11 +10,11 @@ import EcoPlugin.{EcoKeys,ecoSettings=>pluginEcoSettings}
 object ProjectBuild extends Build {
     override lazy val settings = super.settings ++ Seq(
         organization := "org.continuumio",
-        version := "0.4.2-SNAPSHOT",
+        version := "0.5.0-SNAPSHOT",
         description := "Bokeh plotting library",
         homepage := Some(url("http://bokeh.pydata.org")),
         licenses := Seq("BSD-style" -> url("http://www.opensource.org/licenses/bsd-license.php")),
-        scalaVersion := "2.10.3",
+        scalaVersion := "2.10.4",
         scalacOptions ++= Seq("-Xlint", "-deprecation", "-unchecked", "-feature"),
         shellPrompt := { state =>
             "continuum (%s)> ".format(Project.extract(state).currentProject.id)
@@ -27,13 +27,11 @@ object ProjectBuild extends Build {
             Resolver.typesafeRepo("snapshots"))
     )
 
-    val eco = taskKey[Seq[File]]("Compile ECO templates")
-
     val requirejs = taskKey[(File, File)]("Run RequireJS optimizer")
     val requirejsConfig = settingKey[RequireJSConfig]("RequireJS configuration")
 
-    val vendorStyles = settingKey[Seq[String]]("Paths to vendor styles")
-    val bokehStyles = settingKey[Seq[String]]("Paths to Bokeh styles")
+    val copyVendor = taskKey[Seq[File]]("Copy vendor/** from src to build")
+    val minifyCSS = taskKey[Seq[File]]("Minify generated *.css files")
 
     val build = taskKey[Unit]("Build CoffeeScript, LESS, ECO, etc.")
     val deploy = taskKey[Unit]("Generate bokeh(.min).{js,css}")
@@ -59,7 +57,7 @@ object ProjectBuild extends Build {
         sourceDirectory in (Compile, LessKeys.less) <<= (sourceDirectory in Compile)(_ / "less"),
         resourceManaged in (Compile, LessKeys.less) <<= (resourceManaged in Compile)(_ / "css"),
         compile in Compile <<= compile in Compile dependsOn (LessKeys.less in Compile),
-        includeFilter in (Compile, LessKeys.less) := "main.less")
+        includeFilter in (Compile, LessKeys.less) := "bokeh.less")
 
     lazy val ecoSettings = pluginEcoSettings ++ Seq(
         sourceDirectory in (Compile, EcoKeys.eco) <<= (sourceDirectory in Compile)(_ / "coffee"),
@@ -95,7 +93,7 @@ object ProjectBuild extends Build {
     lazy val bokehjsSettings = Project.defaultSettings ++ pluginSettings ++ Seq(
         sourceDirectory in Compile := baseDirectory.value / "src",
         resourceManaged in Compile := baseDirectory.value / "build",
-        resourceGenerators in Compile <+= Def.task {
+        copyVendor in Compile <<= Def.task {
             val srcDir = sourceDirectory in Compile value
             val resDir = resourceManaged in (Compile, JsKeys.js) value
             val source = srcDir / "vendor"
@@ -103,50 +101,20 @@ object ProjectBuild extends Build {
             val toCopy = (PathFinder(source) ***) pair Path.rebase(source, target)
             IO.copy(toCopy, overwrite=true).toSeq
         },
-        vendorStyles := List(
-            "jquery-ui-amd/jquery-ui-1.10.0/themes/base/jquery-ui.css",
-            "jstree/dist/themes/default/style.min.css",
-            "handsontable/jquery.handsontable.css",
-            "jqrangeslider/classic.css"),
-        bokehStyles := List("main.css"),
-        resourceGenerators in Compile <+= Def.task {
-            def concat(files: Seq[File]): String =
-                files.map(file => IO.read(file)).mkString("\n")
-
-            def minify(in: File, out: File) {
-                import com.yahoo.platform.yui.compressor.CssCompressor
-                val css = new CssCompressor(new java.io.FileReader(in))
-                css.compress(new java.io.FileWriter(out), 80)
-            }
-
-            val log = streams.value.log
-
-            val vendorDir = (sourceDirectory in Compile value) / "vendor"
+        minifyCSS in Compile <<= Def.task {
             val cssDir = resourceManaged in (Compile, LessKeys.less) value
+            val (in, out) = ("bokeh.css", "bokeh.min.css")
 
-            val vendor = vendorStyles.value.map(vendorDir / _)
-            val bokeh = bokehStyles.value.map(cssDir / _)
+            streams.value.log.info(s"Minifying $cssDir/{$in -> $out}")
 
-            val vendorCss = cssDir / "bokeh-vendor.css"
-            val vendorMinCss = cssDir / "bokeh-vendor.min.css"
-            val vendorOnly = concat(vendor)
-            log.info(s"Writing $vendorCss")
-            IO.write(vendorCss, vendorOnly)
-            log.info(s"Minifying $vendorMinCss")
-            // minify(vendorCss, vendorMinCss)
-            IO.write(vendorMinCss, vendorOnly)
+            import com.yahoo.platform.yui.compressor.CssCompressor
+            val css = new CssCompressor(new java.io.FileReader(cssDir / in))
+            css.compress(new java.io.FileWriter(cssDir / out), 80)
 
-            val bokehCss = cssDir / "bokeh.css"
-            val bokehMinCss = cssDir / "bokeh.min.css"
-            val vendorAndBokeh = concat(vendor ++ bokeh)
-            log.info(s"Writing $bokehCss")
-            IO.write(bokehCss, vendorAndBokeh)
-            log.info(s"Minifying $bokehMinCss")
-            // minify(bokehCss, bokehMinCss)
-            IO.write(bokehMinCss, vendorAndBokeh)
-
-            Seq(vendorCss, vendorMinCss, bokehCss, bokehMinCss)
+            Seq(cssDir / out)
         } dependsOn (LessKeys.less in Compile),
+        resourceGenerators in Compile <+= copyVendor in Compile,
+        resourceGenerators in Compile <+= minifyCSS in Compile,
         build in Compile <<= Def.task {} dependsOn (resources in Compile),
         deploy in Compile <<= Def.task {} dependsOn (requirejs in Compile))
 

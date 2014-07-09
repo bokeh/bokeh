@@ -123,7 +123,7 @@ class Resources(object):
     _default_css_files = ["css/bokeh.css"]
 
     _default_js_files_dev = ['js/vendor/requirejs/require.js', 'js/config.js']
-    _default_css_files_dev = ['css/bokeh-vendor.css', 'css/main.css']
+    _default_css_files_dev = ['css/bokeh.css']
 
     _default_root_dir = "."
     _default_root_url = "http://127.0.0.1:5006/"
@@ -139,7 +139,7 @@ class Resources(object):
         if root_url and not root_url.endswith("/"):
             logger.warning("root_url should end with a /, adding one")
             root_url = root_url + "/"
-                                 
+
         self._root_url = root_url
 
         if mode not in ['inline', 'cdn', 'server', 'server-dev', 'relative', 'relative-dev', 'absolute', 'absolute-dev']:
