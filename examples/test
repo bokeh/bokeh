@@ -446,7 +446,7 @@ bokeh_server = start_bokeh_server() if use_server and need_server else None
 
 ipython_notebook = start_ipython_notebook() if use_notebook and need_notebook else None
 
-if use_notebook:
+if use_notebook and need_notebook:
     import nbexecuter
     example_nbconverted = os.path.join("examples", "glyphs", "glyph.ipynb")
     write(example_nbconverted)
