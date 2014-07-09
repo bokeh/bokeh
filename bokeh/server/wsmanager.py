@@ -99,39 +99,3 @@ class WebSocketManager(object):
                 log.exception(e)
                 self.remove_socket(clientid)
                 self.remove_clientid(clientid)
-
-def run_socket(socket, manager, clientid=None):
-    clientid = clientid if clientid is not None else str(uuid.uuid4())
-
-    log.debug("CLIENTID: %s" % clientid)
-    manager.add_socket(socket, clientid)
-
-    while True:
-        msg = socket.receive()
-
-        if msg is None:
-            manager.remove_socket(clientid)
-            manager.remove_clientid(clientid)
-            break
-
-        msgobj = protocol.deserialize_web(msg)
-        msgtype = msgobj.get('msgtype')
-
-        if msgtype == 'subscribe':
-            auth = msgobj['auth']
-            topic = msgobj['topic']
-
-            if manager.auth(auth, topic):
-                manager.subscribe(clientid, topic)
-                msg = protocol.serialize_web(protocol.status_obj(['subscribesuccess', topic, clientid]))
-                socket.send(topic + ":" + msg)
-            else:
-                msg = protocol.serialize_web(protcol.error_obj('unauthorized'))
-                socket.send(topic + ":" + msg)
-                break
-
-def pub_from_redis(redisconn, wsmanager):
-    ps = redisconn.pubsub()
-    ps.psubscribe("*")
-    for message in ps.listen():
-        wsmanager.send(message['channel'], message['data'])
