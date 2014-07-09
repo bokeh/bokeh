@@ -148,12 +148,12 @@ def detect_examples():
         else:
             skip = example.get("skip")
 
-
         add_examples(path, example_type=example_type, skip=skip)
 
 def write(*values):
     print(*values)
     print(*values, file=args.log_file)
+    args.log_file.flush()
 
 def red(text):
     return "%s%s%s" % (colorama.Fore.RED, text, colorama.Style.RESET_ALL)
