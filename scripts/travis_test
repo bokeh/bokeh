@@ -1,3 +1,10 @@
 #!/bin/bash
 
 nosetests --with-coverage --cover-package=bokeh && ( cd sphinx; make all; cd .. )
+EXIT_CODE="$?"
+
+if [[ -e examples.log ]]; then
+    cat examples.log
+fi
+
+exit $EXIT_CODE
