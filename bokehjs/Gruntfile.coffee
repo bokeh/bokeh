@@ -1,4 +1,3 @@
-
 module.exports = (grunt) ->
   fs = require("fs")
 
@@ -40,7 +39,7 @@ module.exports = (grunt) ->
           cwd: 'demo'
           src: ['**/*.html', '**/*.js', '**/*.css', '**/*.png', '**/*.py']
           dest: 'build/demo'
-          filter: ['isFile'], #, hasChanged("copy.demo")]
+          filter: ['isFile']
         ]
       vendor:
         files: [
@@ -97,7 +96,6 @@ module.exports = (grunt) ->
         src: '**/*.coffee'     # traverse *.coffee files relative to cwd
         dest: 'build/test'     # destination for compiled js files
         ext: '.js'             # file extension for compiled files
-        filter: hasChanged("coffee.test")
         options:
           sourceMap : true
       demo:
@@ -106,7 +104,6 @@ module.exports = (grunt) ->
         src: '**/*.coffee'     # traverse *.coffee files relative to cwd
         dest: 'build/demo/js'  # destination for compiled js files
         ext: '.js'             # file extension for compiled files
-        filter: hasChanged("coffee.demo")
         options:
           sourceMap : true
       spectrogram:
@@ -217,14 +214,14 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks("grunt-contrib-copy")
   grunt.loadNpmTasks("grunt-contrib-clean")
   grunt.loadNpmTasks("grunt-contrib-qunit")
-  grunt.loadNpmTasks('grunt-contrib-connect')
+  grunt.loadNpmTasks("grunt-contrib-connect")
   grunt.loadNpmTasks("grunt-eco")
-  grunt.loadNpmTasks('grunt-groc')
+  grunt.loadNpmTasks("grunt-groc")
 
-  grunt.registerTask("default",     ["build", "test"])
-  grunt.registerTask("buildcopy",   ["copy:template", "copy:test", "copy:demo", "copy:vendor"]) # better way??
-  grunt.registerTask("build",       ["coffee", "less", "buildcopy", "eco"])
-  grunt.registerTask("deploy",      ["build",  "requirejs", "cssmin", "copy:spectrogram"])
-  grunt.registerTask("test",        ["build", "connect", "qunit"])
-  grunt.registerTask("serve",       ["connect:server:keepalive"])
-  grunt.registerTask("release", ["deploy", "copy:release"])
+  grunt.registerTask("default",   ["build", "test"])
+  grunt.registerTask("buildcopy", ["copy:template", "copy:test", "copy:demo", "copy:vendor"]) # better way??
+  grunt.registerTask("build",     ["coffee", "less", "buildcopy", "eco"])
+  grunt.registerTask("deploy",    ["build",  "requirejs", "cssmin", "copy:spectrogram"])
+  grunt.registerTask("test",      ["build", "connect", "qunit"])
+  grunt.registerTask("serve",     ["connect:server:keepalive"])
+  grunt.registerTask("release",   ["deploy", "copy:release"])
