@@ -150,9 +150,10 @@ def detect_examples():
 
         add_examples(path, example_type=example_type, skip=skip)
 
-def write(*values):
-    print(*values)
-    print(*values, file=args.log_file)
+def write(*values, **kwargs):
+    end = kwargs.get('end', '\n')
+    print(*values, end=end)
+    print(*values, end=end, file=args.log_file)
     args.log_file.flush()
 
 def red(text):
@@ -200,9 +201,15 @@ def run_example(example):
     signal.alarm(args.timeout)
 
     try:
-        proc = subprocess.Popen(cmd, cwd=cwd, env=env, stdout=args.log_file, stderr=args.log_file)
+        proc = subprocess.Popen(cmd, cwd=cwd, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
         try:
+            for line in iter(proc.stdout.readline, ""):
+                write(line, end="")
+
+            for line in iter(proc.stderr.readline, ""):
+                write(line, end="")
+
             return proc.wait()
         except KeyboardInterrupt:
             proc.kill()
@@ -469,7 +476,7 @@ try:
                 if run_example(example) == 0:
                     result = test_example(example, flags)
                 else:
-                    fail()
+                    fail(example)
             elif flags & Flags.notebook:
                 result = deal_with_output_cells(example) and test_example(example, flags)
             else:
