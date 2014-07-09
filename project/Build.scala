@@ -3,7 +3,6 @@ import Keys._
 
 import com.untyped.sbtjs.Plugin.{JsKeys,jsSettings=>pluginJsSettings,CompilationLevel,VariableRenamingPolicy}
 
-import WorkbenchPlugin.{WorkbenchKeys,workbenchSettings=>pluginWorkbenchSettings}
 import LessPlugin.{LessKeys,lessSettings=>pluginLessSettings}
 import EcoPlugin.{EcoKeys,ecoSettings=>pluginEcoSettings}
 
@@ -35,15 +34,6 @@ object ProjectBuild extends Build {
 
     val build = taskKey[Unit]("Build CoffeeScript, LESS, ECO, etc.")
     val deploy = taskKey[Unit]("Generate bokeh(.min).{js,css}")
-
-    lazy val workbenchSettings = pluginWorkbenchSettings ++ Seq(
-        WorkbenchKeys.reloadBrowsers <<= WorkbenchKeys.reloadBrowsers triggeredBy (compile in Compile),
-        resourceGenerators in Compile <+= Def.task {
-            val output = (resourceManaged in (Compile, JsKeys.js) value) / "workbench.js"
-            val script = WorkbenchKeys.renderScript.value
-            IO.write(output, script)
-            Seq(output)
-        })
 
     lazy val jsSettings = pluginJsSettings ++ Seq(
         sourceDirectory in (Compile, JsKeys.js) <<= (sourceDirectory in Compile)(_ / "coffee"),
@@ -88,7 +78,7 @@ object ProjectBuild extends Build {
             rjs.optimize(config)
         } dependsOn (build in Compile))
 
-    lazy val pluginSettings = /*workbenchSettings ++*/ jsSettings ++ lessSettings ++ ecoSettings ++ requirejsSettings
+    lazy val pluginSettings = jsSettings ++ lessSettings ++ ecoSettings ++ requirejsSettings
 
     lazy val bokehjsSettings = Project.defaultSettings ++ pluginSettings ++ Seq(
         sourceDirectory in Compile := baseDirectory.value / "src",
