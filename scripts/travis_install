@@ -45,8 +45,7 @@ fi
 
 DEPS="$DEPS_TRAVIS $DEPS_BOKEH $DEPS_SERVER $DEPS_DOCS $DEPS_EXAMPLES $DEPS_TESTS"
 
-conda create -n travis --yes --quiet $DEPS || exit 1
-source activate travis
+conda install --yes --quiet $DEPS || exit 1
 pip install $DEPS_PIP || exit 1
 
 if [[ "$TRAVIS_PYTHON_VERSION" == 2* ]]; then # to be deleted when we have py3 support
