@@ -3,6 +3,7 @@ import tempfile
 import time
 import unittest
 
+from tornado import ioloop
 import redis
 import requests
 from requests.exceptions import ConnectionError
@@ -91,6 +92,9 @@ class MemoryBokehServerTestCase(BaseBokehServerTestCase):
 
     @skipIfPy3("gevent does not work in py3.")
     def setUp(self):
+        #clear tornado ioloop instance
+        if hasattr(ioloop.IOLoop, '_instance'):
+            del ioloop.IOLoop._instance
         start.prepare_app({"type": "memory"}, **self.options)
         websocket = {
             "zmqaddr" : "tcp://127.0.0.1:6010",

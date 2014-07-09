@@ -1,5 +1,6 @@
 import unittest
 from unittest import skip
+import time
 
 import mock
 
@@ -12,7 +13,7 @@ from ...tests.test_utils import skipIfPy3, skipIfPyPy
 from bokeh.widgetobjects import VBox
 import bokeh.document as document
 import bokeh.session as session
-ws_address = "ws://localhost:6009/bokeh/sub"
+ws_address = "ws://localhost:6009/bokeh/sub/"
 
 class TestSubscribeWebSocket(test_utils.BokehServerTestCase):
     def setUp(self):
@@ -23,7 +24,6 @@ class TestSubscribeWebSocket(test_utils.BokehServerTestCase):
         self.doc2 = document.Document()
         self.sess2 = session.Session()
         self.sess2.use_doc('second')
-
     @skipIfPy3("gevent does not work in py3.")
     @skipIfPyPy("gevent requires pypycore and pypy-hacks branch of gevent.")
     def test_basic_subscribe(self):
@@ -35,21 +35,20 @@ class TestSubscribeWebSocket(test_utils.BokehServerTestCase):
         connect(sock, ws_address, 'bokehplot:defaultdoc', 'nokey')
         sock2 = websocket.WebSocket()
         connect(sock2, ws_address, 'bokehplot:defaultdoc', 'nokey')
+
         sock3 = websocket.WebSocket()
         connect(sock3, ws_address, 'bokehplot:defaultdoc2', 'nokey')
-
         #make sure sock and sock2 receive message
-        bokeh_app.wsmanager.send('bokehplot:defaultdoc', 'hello!')
+        bokeh_app.publisher.send('bokehplot:defaultdoc', 'hello!')
         msg = sock.recv()
-        import pdb; pdb.set_trace()
         assert msg == 'bokehplot:defaultdoc:hello!'
         msg = sock2.recv()
         assert msg == 'bokehplot:defaultdoc:hello!'
 
         # send messages on 2 topics, make sure that sockets receive
         # the right messages
-        bokeh_app.wsmanager.send('bokehplot:defaultdoc', 'hello2!')
-        bokeh_app.wsmanager.send('bokehplot:defaultdoc2', 'hello3!')
+        bokeh_app.publisher.send('bokehplot:defaultdoc', 'hello2!')
+        bokeh_app.publisher.send('bokehplot:defaultdoc2', 'hello3!')
         msg = sock.recv()
         assert msg == 'bokehplot:defaultdoc:hello2!'
         msg = sock2.recv()
@@ -59,7 +58,8 @@ class TestSubscribeWebSocket(test_utils.BokehServerTestCase):
 
 
 def connect(sock, addr, topic, auth):
-    sock.connect(addr, timeout=1.0)
+    sock.timeout = 2.0
+    sock.connect(addr)
     msgobj = dict(msgtype='subscribe',
                   topic=topic,
                   auth=auth
