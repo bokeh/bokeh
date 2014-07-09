@@ -96,7 +96,7 @@ def makedoc():
         return abort(409, e.message)
     jsonstring = protocol.serialize_web(bokehuser.to_public_json())
     msg = protocol.serialize_web({'msgtype' : 'docchange'})
-    bokeh_app.wsmanager.send("bokehuser:" + bokehuser.username, msg)
+    bokeh_app.publisher.send("bokehuser:" + bokehuser.username, msg)
     return make_json(jsonstring)
 
 @bokeh_app.route('/bokeh/doc/<docid>', methods=['delete'])
@@ -110,7 +110,7 @@ def deletedoc(docid):
         return abort(409, e.message)
     jsonstring = protocol.serialize_web(bokehuser.to_public_json())
     msg = protocol.serialize_web({'msgtype' : 'docchange'})
-    bokeh_app.wsmanager.send("bokehuser:" + bokehuser.username, msg)
+    bokeh_app.publisher.send("bokehuser:" + bokehuser.username, msg)
     return make_json(jsonstring)
 
 @bokeh_app.route('/bokeh/getdocapikey/<docid>')
@@ -187,7 +187,7 @@ def doc_by_title():
         except DataIntegrityException as e:
             return abort(409, e.message)
         msg = protocol.serialize_web({'msgtype' : 'docchange'})
-        bokeh_app.wsmanager.send("bokehuser:" + bokehuser.username, msg)
+        bokeh_app.publisher.send("bokehuser:" + bokehuser.username, msg)
     else:
         doc = docs[0]
         docid = doc['docid']
