@@ -30,7 +30,7 @@ object ProjectBuild extends Build {
     val requirejsConfig = settingKey[RequireJSConfig]("RequireJS configuration")
 
     val copyVendor = taskKey[Seq[File]]("Copy vendor/** from src to build")
-    val minifyCSS = taskKey[Seq[File]]("Minify generated *.css files")
+    val copyCSS = taskKey[Seq[File]]("Generate bokeh.min.css")
 
     val build = taskKey[Unit]("Build CoffeeScript, LESS, ECO, etc.")
     val deploy = taskKey[Unit]("Generate bokeh(.min).{js,css}")
@@ -91,20 +91,15 @@ object ProjectBuild extends Build {
             val toCopy = (PathFinder(source) ***) pair Path.rebase(source, target)
             IO.copy(toCopy, overwrite=true).toSeq
         },
-        minifyCSS in Compile <<= Def.task {
+        copyCSS in Compile <<= Def.task {
             val cssDir = resourceManaged in (Compile, LessKeys.less) value
-            val (in, out) = ("bokeh.css", "bokeh.min.css")
-
-            streams.value.log.info(s"Minifying $cssDir/{$in -> $out}")
-
-            import com.yahoo.platform.yui.compressor.CssCompressor
-            val css = new CssCompressor(new java.io.FileReader(cssDir / in))
-            css.compress(new java.io.FileWriter(cssDir / out), 80)
-
-            Seq(cssDir / out)
+            val inFile = cssDir / "bokeh.css"
+            val outFile = cssDir / "bokeh.min.css"
+            IO.copyFile(inFile, outFile)
+            Seq(outFile)
         } dependsOn (LessKeys.less in Compile),
         resourceGenerators in Compile <+= copyVendor in Compile,
-        resourceGenerators in Compile <+= minifyCSS in Compile,
+        resourceGenerators in Compile <+= copyCSS in Compile,
         build in Compile <<= Def.task {} dependsOn (resources in Compile),
         deploy in Compile <<= Def.task {} dependsOn (requirejs in Compile))
 
