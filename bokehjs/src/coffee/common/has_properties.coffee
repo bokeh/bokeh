@@ -26,6 +26,7 @@ define [
       return false
 
     initialize: (attrs, options) ->
+
       # auto generates ids if we need to, calls deferred initialize if we have
       # not done so already.   sets up datastructures for computed properties
       if not attrs
@@ -238,6 +239,10 @@ define [
       #convenience function, gets the backbone attribute ref_name, which is assumed
       #to be a reference, then resolves the reference and returns the model
 
+      # protect ourselves from resolving references if we're inside initialize.  get_obj
+      # should only work in the second pass of initialize(inside dinitialize, and after)
+      if not @inited
+        throw "Cannot call get_obj until we've done initialized.  this should be set in dinitialize of the parent class"
       ref = @get(ref_name)
       if ref
         return @resolve_ref(ref)

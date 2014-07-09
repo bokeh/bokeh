@@ -423,6 +423,7 @@ define [
       @register_property('padding_request', @_padding_request, false)
 
     dinitialize: (attrs, options)->
+      super(attrs, options)
       @add_dependencies('computed_bounds', @get_obj('plot'), ['x_range', 'y_range'])
 
     _bounds: () ->
