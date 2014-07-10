@@ -359,6 +359,7 @@ setup(
         'bokeh.charts',
         'bokeh.crossfilter',
         'bokeh.mplexporter',
+        'bokeh.mplexporter.renderers',
         'bokeh.sampledata',
         'bokeh.server',
         'bokeh.server.models',
