@@ -73,7 +73,7 @@ any directory, but it will create temporary files in the directory in which
 you are running it.  You may want to create a ``~/bokehtemp/`` directory or
 some such, and run the command there::
 
-    $ ./bokeh-server
+    $ bokeh-server
 
 If you have Bokeh installed for development mode (see :ref:`developer_install`),
 then you should go into the checked-out source directory and run::
