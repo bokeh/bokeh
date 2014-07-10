@@ -4,6 +4,14 @@
 Release Notes
 #############
 
+v0.5.0 (Jul 2014)
+=================
+* Widgets
+* Initial AR integration
+* bokeh.charts (scatter, bar, histogram)
+* improved embedding API
+* minor ticks, plot frame,  and log axes
+
 v0.4.4 (Apr 2014)
 =================
 
@@ -85,40 +93,30 @@ v0.1 (Apr 2013)
 Roadmap & TODO List
 ###################
 
-v0.5 (Goal: March 2014)
-=======================
 
-* StreamDataSource which automatically, periodically polls a datasource (need to some way highlight data APIs which support CORS; consider using JSONP?)
-* Better grid-based layout system; use Cassowary.js for layout solver, and initially just directly implement schematized layouts
-* Integrate Abstract Rendering into bokeh server
-* New event and interactor architecture
-* Data selection architecture, add various inspectors and data selectors (accessible from Python interface)
-* Improved annotations and legends
-* Frame around plots for consistent look & feel on all Bokeh plots
-* More widgets
-* Better map projections
-* Better integration with Matplotlib pylab plotting functions
-* Improve ggplot interface / integrate with ggplot python lib
-* Touch events
-* CSS styling/theming mechanism
-* Hot corner for resize tool
-
-v0.6 (Goal: May 2014)
+v0.6 Goals
 =====================
-
-* Improve rendering loop performance in BokehJS
-* Animation framework
+* tighten and document events in bokeh
+* integrate kiwi.js for layout
+* line and patch point hit testing
+* New event and interactor architecture
+* Improved annotations and legends
+* More widgets
+* Object query API
 
 Long-term TODO List
 ===================
 
 Core Plotting
 -------------
+* CSS styling/theming mechanism
+* Better map projections
+* Animation framework
+* Improve rendering loop performance in BokehJS
 
 * Axis improvements
 
   * Improved datetime axis
-  * minor ticks
   * good ticking & tick formatting for lat/long axes
 
 * Annotations
@@ -152,16 +150,11 @@ Backends
 Interactions
 ------------
 
+* Touch events
 * additional selection and inspection tools
 * decouple selection reporting from highlighting or other policies
 * more general selections (point, line, box, poly, circle)
 
-
-Code Cleanup
-------------
-
-* should use html templates in some places
-* css files have lots of cruft
 
 Docs & Testing
 --------------
