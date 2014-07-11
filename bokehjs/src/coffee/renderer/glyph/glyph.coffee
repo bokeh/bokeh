@@ -7,7 +7,7 @@ define [
 ], (_, HasParent, PlotWidget, Properties) ->
 
   class GlyphView extends PlotWidget
- 
+
     #TODO: There are glyph sub-type-vs-resample_op concordance issues...
     setup_server_data : () ->
       serversource = @mget_obj('server_data_source')
@@ -17,8 +17,8 @@ define [
       @mget_obj('data_source').set('data', data)
       @set_data(false)
 
-      transform_params = serversource.attributes['transform']
-      resample_op = transform_params['resample']  
+      transform_params = serversource.get('transform')
+      resample_op = transform_params['resample']
       x_range = @plot_view.view_state.get('inner_range_horizontal')
       y_range = @plot_view.view_state.get('inner_range_vertical')
 
@@ -49,7 +49,7 @@ define [
       else if (resample_op == 'abstract rendering')
         serversource.listen_for_ar_updates(
            @plot_view
-           @mget_obj('data_source'), 
+           @mget_obj('data_source'),
              #TODO: Joseph -- Get rid of the next four params because we're passing in the plot_view
            x_range,  y_range,
            @plot_view.x_range,

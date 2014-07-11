@@ -12,7 +12,6 @@ import logging
 log = logging.getLogger(__name__)
 
 from .bbauth import check_read_authentication_and_create_client
-from ... import resources
 from ..app import bokeh_app
 from ..models import user
 from ..models import docs
@@ -25,6 +24,25 @@ from ..serverbb import prune
 from ...templates import AUTOLOAD
 from ...resources import Resources
 
+def request_resources():
+    """Creates resources instance based on url info from
+    current app/request context
+    """
+    if bokeh_app.url_prefix:
+        # strip of leading slash
+        root_url  = request.url_root + bokeh_app.url_prefix[1:]
+    else:
+        root_url  = request.url_root
+    resources = Resources(root_url=root_url, mode='server')
+    return resources
+
+def render(fname, **kwargs):
+    resources = request_resources()
+    bokeh_prefix = resources.root_url
+    return render_template(fname, bokeh_prefix=bokeh_prefix,
+                           **kwargs)
+
+
 @bokeh_app.route('/bokeh/ping')
 def ping():
     #test route, to know if the server is up
@@ -35,11 +53,11 @@ def index(*unused_all, **kwargs):
     bokehuser = bokeh_app.current_user()
     if not bokehuser:
         return redirect(url_for('.login_get'))
-    return render_template('bokeh.html',
-                           splitjs=bokeh_app.splitjs,
-                           username=bokehuser.username,
-                           title="Bokeh Documents for %s" % bokehuser.username
-                           )
+    return render('bokeh.html',
+                  splitjs=bokeh_app.splitjs,
+                  username=bokehuser.username,
+                  title="Bokeh Documents for %s" % bokehuser.username
+    )
 
 @bokeh_app.route('/')
 def welcome(*unused_all, **kwargs):
@@ -151,7 +169,7 @@ def show_doc_by_title(title):
     docs = [ doc for doc in bokehuser.docs if doc['title'] == title ]
     doc = docs[0] if len(docs) != 0 else abort(404)
     docid = doc['docid']
-    return render_template('show.html', title=title, docid=docid, splitjs=bokeh_app.splitjs)
+    return render('show.html', title=title, docid=docid, splitjs=bokeh_app.splitjs)
 
 @bokeh_app.route('/bokeh/doc/', methods=['GET', 'OPTIONS'])
 @crossdomain(origin="*", headers=['BOKEH-API-KEY', 'Continuum-Clientid'])
@@ -295,11 +313,7 @@ def embed_js():
 
 @bokeh_app.route("/bokeh/autoload.js/<elementid>")
 def autoload_js(elementid):
-    if bokeh_app.url_prefix:
-        root_url  = request.url_root + bokeh_app.url_prefix[1:] # strip of leading slash
-    else:
-        root_url  = request.url_root
-    resources = Resources(root_url=root_url, mode='server')
+    resources = request_resources()
     rendered = AUTOLOAD.render(
         js_url = resources.js_files[0],
         css_files = resources.css_files,
@@ -335,11 +349,22 @@ def show_obj(docid, objid):
     bokehuser = bokeh_app.current_user()
     if not bokehuser:
         return redirect(url_for(".login_get", next=request.url))
-    return render_template("oneobj.html",
-                           docid=docid,
-                           objid=objid,
-                           hide_navbar=True,
-                           splitjs=bokeh_app.splitjs,
-                           username=bokehuser.username)
+    return render("oneobj.html",
+                  docid=docid,
+                  objid=objid,
+                  hide_navbar=True,
+                  splitjs=bokeh_app.splitjs,
+                  username=bokehuser.username)
 
-
+@bokeh_app.route('/bokeh/wsurl/', methods=['GET'])
+def wsurl():
+    if bokeh_app.websocket_params.get('ws_conn_string'):
+        return bokeh_app.websocket_params.get('ws_conn_string')
+    else:
+        prefix = bokeh_app.url_prefix
+        if prefix is None or prefix == "/":
+            prefix = ""
+        ws_port = bokeh_app.websocket_params['ws_port']
+        host = request.host.split(":")[0]
+        #TODO:ssl..?
+        return "ws://%s:%d%s/bokeh/sub/" % (host, ws_port, prefix)

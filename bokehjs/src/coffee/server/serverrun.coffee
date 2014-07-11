@@ -5,7 +5,18 @@ define ["common/base",
 ],  (base, serverutils, usercontext, HasProperties) ->
   Config = base.Config
   Promises = serverutils.Promises
-  Config.ws_conn_string = "ws://#{window.location.host}/bokeh/sub"
+
+  # auto detect prefix
+  # window.bokeh_prefix, and window.bokeh_ws_conn_string can be set inside
+  # templates from the server
+
+  url = window.location.href
+  if url.indexOf('/bokeh') > 0
+    prefix = url.slice(0, url.indexOf('/bokeh')) + "/" #keep trailing slash
+  else
+    prefix = '/'
+  serverutils.configure_server(null, prefix)
+
   reload = () ->
     Config = require("common/base").Config
     ping_url = "#{Config.prefix}bokeh/ping"
@@ -19,41 +30,39 @@ define ["common/base",
   load_one_object = (docid, objid) ->
     HasProperties.prototype.sync = Backbone.sync
     $(() ->
-      wswrapper = serverutils.utility.make_websocket()
       resp = serverutils.utility.load_one_object_chain(docid, objid)
       resp.done((data) ->
         model = base.Collections(data.type).get(objid)
         view = new model.default_view(model : model)
         _render(view.el)
-
-      )
-      wswrapper.subscribe("debug:debug", "")
-      wswrapper.on('msg:debug:debug', (msg) ->
-        if msg == 'reload'
-          reload()
+        wswrapper = serverutils.wswrapper
+        wswrapper.subscribe("debug:debug", "")
+        wswrapper.on('msg:debug:debug', (msg) ->
+          if msg == 'reload'
+            reload()
+        )
       )
     )
   load = (title) ->
     HasProperties.prototype.sync = Backbone.sync
     $(() ->
-      wswrapper = serverutils.utility.make_websocket()
-
-      userdocs = new usercontext.UserDocs()
-      userdocs.subscribe(wswrapper, 'defaultuser')
-
-      window.userdocs = userdocs
-
-      load = userdocs.fetch()
-      load.done () ->
-        if title?
-          _render_one(userdocs, title)
-        else
-          _render_all(userdocs)
-      console.log('subscribing to debug')
-      wswrapper.subscribe("debug:debug", "")
-      wswrapper.on('msg:debug:debug', (msg) ->
-        if msg == 'reload'
-          reload()
+      resp = serverutils.utility.make_websocket()
+      resp.then(() ->
+        wswrapper = serverutils.wswrapper
+        userdocs = new usercontext.UserDocs()
+        userdocs.subscribe(wswrapper, 'defaultuser')
+        load = userdocs.fetch()
+        load.done () ->
+          if title?
+            _render_one(userdocs, title)
+          else
+            _render_all(userdocs)
+        console.log('subscribing to debug')
+        wswrapper.subscribe("debug:debug", "")
+        wswrapper.on('msg:debug:debug', (msg) ->
+          if msg == 'reload'
+            reload()
+        )
       )
     )
 

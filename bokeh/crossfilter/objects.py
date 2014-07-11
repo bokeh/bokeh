@@ -412,7 +412,7 @@ class CrossFilter(PlotObject):
                     source = make_histogram_source(self.df[col])
                     self.filter_sources[col] = source
                     hist_plot = make_histogram(self.filter_sources[col],
-                                               plot_width=150, plot_height=100,
+                                               plot_width=100, plot_height=100,
                                                title_text_font_size='8pt',
                                                tools='select'
                     )

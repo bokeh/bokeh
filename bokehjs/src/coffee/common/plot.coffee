@@ -340,11 +340,9 @@ define [
       @canvas.attr('style', "width:#{ow}px;")
       @canvas.attr('style', "height:#{oh}px;")
       @canvas.attr('width', ow*ratio).attr('height', oh*ratio)
-
       #FOR THE SIDEBAR
-      @$el.width(ow + 150)
+      @$el.width(ow + 100)
       @$el.height(oh)
-
 
       @ctx.scale(ratio, ratio)
       @ctx.translate(0.5, 0.5)

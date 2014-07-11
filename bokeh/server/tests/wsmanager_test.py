@@ -9,42 +9,21 @@ from ..app import bokeh_app
 from ..models import docs
 from ... import protocol
 from ...tests.test_utils import skipIfPy3, skipIfPyPy
-
-
-class WSmanagerTestCase(unittest.TestCase):
-    @skipIfPy3("gevent does not work in py3.")
-    @skipIfPyPy("gevent requires pypycore and pypy-hacks branch of gevent.")
-    def test_some_topics(self):
-        manager = wsmanager.WebSocketManager()
-        s1 = mock.Mock()
-        s2 = mock.Mock()
-        manager.subscribe_socket(s1, '1', clientid='11')
-        manager.subscribe_socket(s2, '1', clientid='12')
-        manager.send('1', 'hello')
-        assert s1.send.call_count == 1
-        assert s2.send.call_count == 1
-        manager.remove_clientid('11')
-        manager.send('1', 'hello')
-        assert s2.send.call_count == 2
-        assert s1.send.call_count == 1
-
-ws_address = "ws://localhost:5006/bokeh/sub"
-
+from bokeh.widgetobjects import VBox
+import bokeh.document as document
+import bokeh.session as session
+ws_address = "ws://localhost:6009/bokeh/sub"
 
 class TestSubscribeWebSocket(test_utils.BokehServerTestCase):
     def setUp(self):
         super(TestSubscribeWebSocket, self).setUp()
-        sess = bokeh_app.backbone_storage.get_session('defaultdoc')
-        doc = docs.new_doc(bokeh_app, "defaultdoc",
-                           'main', sess, rw_users=["defaultuser"],
-                           apikey='nokey')
-        sess = bokeh_app.backbone_storage.get_session('defaultdocs')
-        doc2 = docs.new_doc(bokeh_app, "defaultdoc2",
-                            'main', sess, rw_users=["defaultuser"],
-                            apikey='nokey')
+        self.doc1 = document.Document()
+        self.sess1 = session.Session()
+        self.sess1.use_doc('first')
+        self.doc2 = document.Document()
+        self.sess2 = session.Session()
+        self.sess2.use_doc('second')
 
-    # TODO (bev) fix or improve this test
-    @skip
     @skipIfPy3("gevent does not work in py3.")
     @skipIfPyPy("gevent requires pypycore and pypy-hacks branch of gevent.")
     def test_basic_subscribe(self):
@@ -62,6 +41,7 @@ class TestSubscribeWebSocket(test_utils.BokehServerTestCase):
         #make sure sock and sock2 receive message
         bokeh_app.wsmanager.send('bokehplot:defaultdoc', 'hello!')
         msg = sock.recv()
+        import pdb; pdb.set_trace()
         assert msg == 'bokehplot:defaultdoc:hello!'
         msg = sock2.recv()
         assert msg == 'bokehplot:defaultdoc:hello!'
@@ -79,8 +59,7 @@ class TestSubscribeWebSocket(test_utils.BokehServerTestCase):
 
 
 def connect(sock, addr, topic, auth):
-    sock.sock.settimeout(1.0)
-    sock.connect(addr)
+    sock.connect(addr, timeout=1.0)
     msgobj = dict(msgtype='subscribe',
                   topic=topic,
                   auth=auth

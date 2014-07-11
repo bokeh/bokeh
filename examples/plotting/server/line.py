@@ -9,6 +9,6 @@ N = 80
 x = np.linspace(0, 4*np.pi, N)
 y = np.sin(x)
 
-output_server("line")
+output_server("line", url="http://localhost:6060/v5.0/")
 plot = line(x,y, color="#0000FF", tools="pan,wheel_zoom,box_zoom,reset,previewsave")
 show()

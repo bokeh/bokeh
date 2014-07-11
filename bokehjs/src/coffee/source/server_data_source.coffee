@@ -44,17 +44,17 @@ define [
       if @callbacks[column_data_source.get('id')]
         for entry in @callbacks[column_data_source.get('id')]
           @stopListening.apply(this, entry)
-    
+
     update_url : () ->
       owner_username = @get('owner_username')
-      prefix = @get_base().Config.prefix     
-      url = "#{prefix}bokeh/data/#{owner_username}/#{@get('doc')}/#{@get('id')}"    
+      prefix = @get_base().Config.prefix
+      url = "#{prefix}bokeh/data/#{owner_username}/#{@get('doc')}/#{@get('id')}"
 
-    listen_for_line1d_updates : (column_data_source, 
-                                  plot_x_range, plot_y_range, 
+    listen_for_line1d_updates : (column_data_source,
+                                  plot_x_range, plot_y_range,
                                   domain_range, screen_range
                                   primary_column, domain_name, columns, input_params) ->
-      
+
       plot_state = {screen_x: plot_x_range, screen_y: plot_y_range}
       #ensure we only have one set of events bound
       @stoplistening_for_updates(column_data_source)
@@ -167,10 +167,10 @@ define [
       return resp
 
 
-    listen_for_heatmap_updates : (column_data_source, 
+    listen_for_heatmap_updates : (column_data_source,
         plot_x_range, plot_y_range,
         x_data_range, y_data_range, input_params) ->
-      
+
       plot_state = {data_x: x_data_range, data_y:y_data_range, screen_x: plot_x_range, screen_y: plot_y_range}
 
       #ensure we only have one set of events bound
@@ -205,7 +205,7 @@ define [
       params = [global_x_range, global_y_range,
         global_offset_x, global_offset_y,
         index_slice, data_slice,
-        @get('transpose'),
+        @get('transform').transpose,
         input_params
       ]
       #console.log(y_bounds)

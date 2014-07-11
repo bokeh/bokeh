@@ -71,24 +71,30 @@ class WebSocketManager(object):
 
     def subscribe(self, clientid, topic):
         if self.can_subscribe(clientid, topic):
+            log.debug("subscribe %s, %s", topic, clientid)
             self.topic_clientid_map.add(topic, clientid)
             self.clientid_topic_map.add(clientid, topic)
 
     def add_socket(self, socket, clientid):
+        log.debug("add socket %s", clientid)
         self.sockets[clientid] = socket
 
     def remove_socket(self, clientid):
-        del self.sockets[clientid]
+        log.debug("remove socket %s", clientid)
+        self.sockets.pop(clientid, None)
 
     def send(self, topic, msg, exclude=None):
         if exclude is None:
             exclude = set()
+        log.debug("sending to %s", self.topic_clientid_map.get(topic, []))
         for clientid in tuple(self.topic_clientid_map.get(topic, [])):
+            socket = self.sockets.get(clientid, None)
+            if not socket:
+                continue
             if clientid in exclude:
                 continue
-            socket = self.sockets[clientid]
             try:
-                socket.send(topic + ":" + msg)
+                socket.write_message(topic + ":" + msg)
             except Exception as e: #what exception is this?if a client disconnects
                 log.exception(e)
                 self.remove_socket(clientid)
