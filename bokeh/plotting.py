@@ -280,8 +280,8 @@ def save(filename=None, resources=None):
         return
 
     html = file_html(curdoc(), resources, _default_file['title'])
-    with open(filename, "w") as f:
-        f.write(html)
+    with open(filename, "wb") as f:
+        f.write(html.encode('utf-8'))
 
 def push(session=None, document=None):
     """ Updates the server with the data for the current document.
