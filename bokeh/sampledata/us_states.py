@@ -18,7 +18,7 @@ from os.path import dirname, join
 nan = float('NaN')
 
 data = {}
-with gzip.open(join(dirname(__file__), 'US Regions State Boundaries.csv.gz')) as f:
+with gzip.open(join(dirname(__file__), 'US_Regions_State_Boundaries.csv.gz')) as f:
     decoded = codecs.iterdecode(f, "utf-8")
     next(decoded)
     reader = csv.reader(decoded, delimiter=',', quotechar='"')
