@@ -272,7 +272,7 @@ class XRequireJS(log: Logger, settings: RequireJSSettings) {
 
     def optimizeAndMinify: (String, String) = {
         val output = optimize
-        (output, output) // TODO: minify(output))
+        (output, minify(output))
     }
 }
 
