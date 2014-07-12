@@ -42,19 +42,15 @@ object BokehJS {
     lazy val requirejsSettings = Seq(
         requirejsConfig in Compile := {
             val srcDir = sourceDirectory in Compile value;
-            val jsDir = resourceManaged in (Compile, JsKeys.js) value;
+            val jsDir = resourceManaged in (Compile, JsKeys.js) value
+            def frag(name: String) = srcDir / "js" / s"_$name.js.frag"
             RequireJSSettings(
-                logLevel       = 2,
-                name           = "vendor/almond/almond",
                 baseUrl        = jsDir,
                 mainConfigFile = jsDir / "config.js",
+                name           = "vendor/almond/almond",
                 include        = List("main"),
                 wrapShim       = true,
-                wrap           = Some(RequireJSWrap(
-                    startFile  = srcDir / "js" / "_start.js.frag",
-                    endFile    = srcDir / "js" / "_end.js.frag"
-                )),
-                optimize       = "none",
+                wrap           = Some((frag("start"), frag("end"))),
                 out            = jsDir / "bokeh.js")
         },
         requirejs in Compile <<= Def.task {
@@ -62,7 +58,7 @@ object BokehJS {
             val settings = (requirejsConfig in Compile).value
 
             log.info(s"Optimizing and minifying sbt-requirejs source ${settings.out}")
-            val rjs = new XRequireJS(streams.value.log, settings)
+            val rjs = new RequireJS(log, settings)
             val (opt, min) = rjs.optimizeAndMinify
 
             val optFile = settings.out
