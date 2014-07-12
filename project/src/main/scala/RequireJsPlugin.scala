@@ -9,8 +9,8 @@ import scala.io.Source
 import scala.collection.mutable
 import scala.collection.JavaConverters._
 
-import com.google.javascript.jscomp.{Compiler,CompilerOptions,SourceFile,VariableRenamingPolicy}
-import org.mozilla.javascript.{Parser,ast}
+import com.google.javascript.jscomp.{Compiler,CompilerOptions,SourceFile,VariableRenamingPolicy,NodeTraversal}
+import com.google.javascript.rhino.Node
 
 import org.jgrapht.experimental.dag.DirectedAcyclicGraph
 import org.jgrapht.graph.DefaultEdge
@@ -44,9 +44,15 @@ class XRequireJS(log: Logger, settings: RequireJSSettings) {
         )
     )
 
+    lazy val shim = config.shim.map { case (name, Shim(deps, _)) =>
+        (canonicalName(name), deps.map(canonicalName).toSet)
+    }
+
     def getFile(name: String): File = new File(settings.baseUrl, name + ".js")
 
     def readFile(file: File): String = Source.fromFile(file).mkString
+
+    def readModule(name: String): String = readFile(getFile(name))
 
     def readResource(path: String): String = {
         val resource = getClass.getClassLoader.getResourceAsStream(path)
@@ -80,94 +86,99 @@ class XRequireJS(log: Logger, settings: RequireJSSettings) {
         else sys.error(s"Not found: ${file.getPath} (requested from $parent)")
     }
 
-    class ModuleCollector(moduleName: String) extends ast.NodeVisitor {
+    class ModuleCollector(moduleName: String) extends NodeTraversal.Callback {
+        private var defineNode: Option[Node] = None
+
         val names = mutable.Set[String]()
-        var defineNode: Option[ast.FunctionCall] = None
 
-        override def visit(node: ast.AstNode) = {
-            node match {
-                case node: ast.FunctionCall =>
-                    val name = node.getTarget
-                    val args = node.getArguments.asScala.toList
+        def shouldTraverse(traversal: NodeTraversal, node: Node, parent: Node) = true
 
-                    def suspiciousCall() {
-                        log.warn(s"$moduleName#${node.getLineno}: suspicious call to ${name.toSource}()")
-                    }
+        def visit(traversal: NodeTraversal, node: Node, parent: Node) {
+            if (node.isCall) {
+                val children = node.children.asScala.toList
 
-                    name match {
-                        case name: ast.Name if name.getIdentifier == "require" =>
-                            args match {
-                                case (arg: ast.StringLiteral) :: Nil =>
-                                    names += arg.getValue
-                                case _ =>
-                                    suspiciousCall()
+                val fn = children.head.getQualifiedName
+                val args = children.tail
+
+                def suspiciousCall() {
+                    log.warn(s"$moduleName#${node.getLineno}: suspicious call to $fn()")
+                }
+
+                fn match {
+                    case "require" =>
+                        args match {
+                            case name :: Nil if name.isString =>
+                                names += name.getString
+                            case _ =>
+                                suspiciousCall()
+                        }
+                    case "define" =>
+                        def getNames(array: Node) = {
+                            array.children.asScala.filter(_.isString).map(_.getString)
+                        }
+
+                        def updateDefine() {
+                            defineNode match {
+                                case Some(_) =>
+                                    sys.error(s"$moduleName defines multiple anonymous modules")
+                                case None =>
+                                    val moduleNode = Node.newString(moduleName)
+                                    node.addChildAfter(moduleNode, children.head)
+                                    defineNode = Some(node)
                             }
-                        case name: ast.Name if name.getIdentifier == "define" =>
-                            def getNames(array: ast.ArrayLiteral) = {
-                                array.getElements.asScala.collect {
-                                    case elem: ast.StringLiteral =>
-                                        elem.getValue
-                                }
-                            }
+                        }
 
-                            def updateDefine() {
-                                defineNode match {
-                                    case Some(define) =>
-                                        sys.error(s"$moduleName defines multiple anonymous modules (#${define.getLineno} and #${node.getLineno})")
-                                    case None =>
-                                        val moduleNode = new ast.StringLiteral()
-                                        moduleNode.setValue(moduleName)
-                                        moduleNode.setQuoteCharacter('"')
-                                        node.setArguments((moduleNode :: args).asJava)
-                                        defineNode = Some(node)
-                                }
-                            }
-
-                            args match {
-                                case (_: ast.StringLiteral) :: (array: ast.ArrayLiteral) :: _ :: Nil =>
-                                    names ++= getNames(array)
-                                case (array: ast.ArrayLiteral) :: _ :: Nil =>
-                                    updateDefine()
-                                    names ++= getNames(array)
-                                case (_: ast.StringLiteral) :: _ :: Nil =>
-                                    ()
-                                case (_: ast.StringLiteral) :: Nil =>
-                                    ()
-                                case _ :: Nil =>
-                                    updateDefine()
-                                case _ =>
-                                    suspiciousCall()
-                            }
-                        case _ =>
-                    }
-                case _ =>
+                        args match {
+                            case name :: deps :: _ :: Nil if name.isString && deps.isArrayLit =>
+                                names ++= getNames(deps)
+                            case deps :: _ :: Nil if deps.isArrayLit =>
+                                updateDefine()
+                                names ++= getNames(deps)
+                            case name :: _ :: Nil if name.isString =>
+                                ()
+                            case name :: Nil if name.isString =>
+                                ()
+                            case _ :: Nil =>
+                                updateDefine()
+                            case _ =>
+                                suspiciousCall()
+                        }
+                    case _ =>
+                }
             }
-
-            true
         }
     }
 
     val reservedNames = List("require", "module", "exports")
 
     def collectDependencies(name: String): (String, Set[String]) = {
-        val reader = new java.io.FileReader(getFile(name))
-        val collector = new ModuleCollector(name)
+        val options = new CompilerOptions
+        options.setLanguageIn(CompilerOptions.LanguageMode.ECMASCRIPT5)
+        options.prettyPrint = true
 
-        val root = try {
-            log.debug(s"Parsing module $name")
-            new Parser().parse(reader, name, 1)
-        } finally {
-            reader.close()
+        val compiler = new Compiler
+        compiler.initOptions(options)
+
+        log.debug(s"Parsing module $name")
+        val input = SourceFile.fromFile(getFile(name))
+        val root = compiler.parse(input)
+
+        val collector = new ModuleCollector(name)
+        val traversal = new NodeTraversal(compiler, collector)
+        traversal.traverse(root)
+
+        val deps = shim.get(name).map(_.toSet) getOrElse {
+            collector.names
+                .filterNot(reservedNames contains _)
+                .map(canonicalName(_, Some(name)))
+                .toSet
         }
 
-        root.visitAll(collector)
-
-        val source = root.toSource()
-        val deps = collector
-            .names
-            .filterNot(reservedNames contains _)
-            .map(canonicalName(_, Some(name)))
-            .toSet
+        val source = {
+            val cb = new Compiler.CodeBuilder()
+            compiler.toSource(cb, 1, root)
+            cb.toString
+        }
 
         (source, deps)
     }
@@ -187,16 +198,10 @@ class XRequireJS(log: Logger, settings: RequireJSSettings) {
         val pending = mutable.Set[String](include: _*)
         val modules = mutable.ListBuffer[Module]()
 
-        val shim = config.shim.map { case (name, Shim(deps, _)) =>
-            (canonicalName(name), deps.map(canonicalName).toSet)
-        }
-
         while (pending.nonEmpty) {
             val name = pending.head
             pending.remove(name)
-            val (source, deps) = shim.get(name).map { deps =>
-                (readFile(getFile(name)), deps)
-            } getOrElse collectDependencies(name)
+            val (source, deps) = collectDependencies(name)
             visited += name
             modules += Module(name, deps.toList.sorted, source)
             pending ++= deps -- visited
@@ -249,12 +254,13 @@ class XRequireJS(log: Logger, settings: RequireJSSettings) {
     def optimize: String = {
         val modules = sortModules(collectModules)
         val contents = (requirejs :: modules).map(_.annotatedSource)
+        log.info(s"Collected ${modules.length+1} requirejs modules")
         wrap(contents mkString "\n")
     }
 
     def optimizeAndMinify: (String, String) = {
         val output = optimize
-        (output, output) // minify(output))
+        (output, output) // TODO: minify(output))
     }
 }
 
