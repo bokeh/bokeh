@@ -189,8 +189,6 @@ class XRequireJS(log: Logger, settings: RequireJSSettings) {
         }
     }
 
-    object requirejs extends Module("require", Nil, readResource("require.js"))
-
     def collectModules(): List[Module] = {
         val include = settings.include.map(canonicalName)
 
@@ -251,9 +249,15 @@ class XRequireJS(log: Logger, settings: RequireJSSettings) {
         } getOrElse input
     }
 
+    def moduleLoader: Module = {
+        val source = readModule(settings.name)
+        val define = s"define('${settings.name}', function(){});"
+        Module(settings.name, Nil, s"$source\n$define")
+    }
+
     def optimize: String = {
         val modules = sortModules(collectModules)
-        val contents = (requirejs :: modules).map(_.annotatedSource)
+        val contents = (moduleLoader :: modules).map(_.annotatedSource)
         log.info(s"Collected ${modules.length+1} requirejs modules")
         wrap(contents mkString "\n")
     }
