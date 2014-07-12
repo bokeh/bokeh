@@ -9,7 +9,7 @@ import EcoPlugin.{EcoKeys,ecoSettings=>pluginEcoSettings}
 object BokehJS {
     object BokehJSKeys {
         val requirejs = taskKey[(File, File)]("Run RequireJS optimizer")
-        val requirejsConfig = settingKey[RequireJSConfig]("RequireJS configuration")
+        val requirejsConfig = settingKey[RequireJSSettings]("RequireJS settings")
 
         val copyVendor = taskKey[Seq[File]]("Copy vendor/** from src to build")
         val copyCSS = taskKey[Seq[File]]("Generate bokeh.min.css")
@@ -43,24 +43,35 @@ object BokehJS {
         requirejsConfig in Compile := {
             val srcDir = sourceDirectory in Compile value;
             val jsDir = resourceManaged in (Compile, JsKeys.js) value;
-            RequireJSConfig(
+            RequireJSSettings(
                 logLevel       = 2,
                 name           = "vendor/almond/almond",
                 baseUrl        = jsDir,
                 mainConfigFile = jsDir / "config.js",
-                include        = List("underscore", "main"),
+                include        = List("main"),
                 wrapShim       = true,
-                wrap           = RequireJSWrap(
+                wrap           = Some(RequireJSWrap(
                     startFile  = srcDir / "js" / "_start.js.frag",
                     endFile    = srcDir / "js" / "_end.js.frag"
-                ),
+                )),
                 optimize       = "none",
                 out            = jsDir / "bokeh.js")
         },
         requirejs in Compile <<= Def.task {
-            val config = (requirejsConfig in Compile).value
-            val rjs = new RequireJS(streams.value.log)
-            rjs.optimize(config)
+            val log = streams.value.log
+            val settings = (requirejsConfig in Compile).value
+
+            log.info(s"Optimizing and minifying sbt-requirejs source ${settings.out}")
+            val rjs = new XRequireJS(streams.value.log, settings)
+            val (opt, min) = rjs.optimizeAndMinify
+
+            val optFile = settings.out
+            val minFile = file(optFile.getPath.stripSuffix("js") + "min.js")
+
+            IO.write(optFile, opt)
+            IO.write(minFile, min)
+
+            (optFile, minFile)
         } dependsOn (build in Compile))
 
     lazy val pluginSettings = jsSettings ++ lessSettings ++ ecoSettings ++ requirejsSettings
