@@ -44,46 +44,48 @@ class XRequireJS(log: Logger, settings: RequireJSSettings) {
         )
     )
 
-    lazy val shim = config.shim.map { case (name, Shim(deps, _)) =>
-        (canonicalName(name), deps.map(canonicalName).toSet)
-    }
-
-    def getFile(name: String): File = new File(settings.baseUrl, name + ".js")
-
     def readFile(file: File): String = Source.fromFile(file).mkString
-
-    def readModule(name: String): String = readFile(getFile(name))
 
     def readResource(path: String): String = {
         val resource = getClass.getClassLoader.getResourceAsStream(path)
         Source.fromInputStream(resource).mkString
     }
 
-    def canonicalName(name: String): String = canonicalName(name, None)
-
-    def canonicalName(name: String, parent: Option[String]): String = {
-        val nameParts = name.split("/").toList
-
-        val here = name.startsWith("./")
-        val back = name.startsWith("../")
-        val relative = here || back
-
-        val parts = (parent, relative) match {
-            case (None,         true) =>
-                sys.error(s"Relative module $name is not allowed in this context")
-            case (Some(parent), true) =>
-                val parentParts = parent.split("/").toList
-                if (here) parentParts.init      ++ nameParts.tail
-                else      parentParts.init.init ++ nameParts.tail
+    def getModule(name: String): File = {
+        val path = name.split("/").toList match {
+            case prefix :: suffix =>
+                val canonicalPrefix = config.paths.get(prefix) getOrElse prefix
+                canonicalPrefix :: suffix mkString("/")
             case _ =>
-                config.paths.get(nameParts.head).map(_ :: nameParts.tail).getOrElse(nameParts)
+                name
         }
 
-        val canonical = parts.mkString("/")
-        val file = getFile(canonical)
+        new File(settings.baseUrl, path + ".js")
+    }
 
-        if (file.exists) canonical
-        else sys.error(s"Not found: ${file.getPath} (requested from $parent)")
+    def readModule(name: String): String = readFile(getModule(name))
+
+    def canonicalName(name: String, origin: String): String = {
+        val nameParts = name.split("/").toList
+        val parentParts = origin.split("/").toList.init
+
+        val parts = if (name.startsWith("./")) {
+            parentParts ++ nameParts.tail
+        } else if (name.startsWith("../")) {
+            if (parentParts.isEmpty) {
+                sys.error(s"Can't reference $name from $origin")
+            } else {
+                parentParts.init ++ nameParts.tail
+            }
+        } else {
+            nameParts
+        }
+
+        val canonicalName = parts.mkString("/")
+        val moduleFile = getModule(canonicalName)
+
+        if (moduleFile.exists) canonicalName
+        else sys.error(s"Not found: ${moduleFile.getPath} (requested from $origin)")
     }
 
     class ModuleCollector(moduleName: String) extends NodeTraversal.Callback {
@@ -149,9 +151,15 @@ class XRequireJS(log: Logger, settings: RequireJSSettings) {
         }
     }
 
+    case class Module(name: String, deps: Set[String], source: String) {
+        def annotatedSource: String = {
+            s"// module: $name\n$source"
+        }
+    }
+
     val reservedNames = List("require", "module", "exports")
 
-    def collectDependencies(name: String): (String, Set[String]) = {
+    def collectDependencies(name: String): Module = {
         val options = new CompilerOptions
         options.setLanguageIn(CompilerOptions.LanguageMode.ECMASCRIPT5)
         options.prettyPrint = true
@@ -160,17 +168,17 @@ class XRequireJS(log: Logger, settings: RequireJSSettings) {
         compiler.initOptions(options)
 
         log.debug(s"Parsing module $name")
-        val input = SourceFile.fromFile(getFile(name))
+        val input = SourceFile.fromFile(getModule(name))
         val root = compiler.parse(input)
 
         val collector = new ModuleCollector(name)
         val traversal = new NodeTraversal(compiler, collector)
         traversal.traverse(root)
 
-        val deps = shim.get(name).map(_.toSet) getOrElse {
+        val deps = config.shim.get(name).map(_.deps.toSet) getOrElse {
             collector.names
                 .filterNot(reservedNames contains _)
-                .map(canonicalName(_, Some(name)))
+                .map(canonicalName(_, name))
                 .toSet
         }
 
@@ -180,29 +188,21 @@ class XRequireJS(log: Logger, settings: RequireJSSettings) {
             cb.toString
         }
 
-        (source, deps)
-    }
-
-    case class Module(name: String, dependencies: List[String], source: String) {
-        def annotatedSource: String = {
-            s"// module: $name\n$source"
-        }
+        Module(name, deps, source)
     }
 
     def collectModules(): List[Module] = {
-        val include = settings.include.map(canonicalName)
-
         val visited = mutable.Set[String]()
-        val pending = mutable.Set[String](include: _*)
+        val pending = mutable.Set[String](settings.include: _*)
         val modules = mutable.ListBuffer[Module]()
 
         while (pending.nonEmpty) {
             val name = pending.head
             pending.remove(name)
-            val (source, deps) = collectDependencies(name)
+            val module = collectDependencies(name)
             visited += name
-            modules += Module(name, deps.toList.sorted, source)
-            pending ++= deps -- visited
+            modules += module
+            pending ++= module.deps -- visited
         }
 
         modules.toList
@@ -214,7 +214,7 @@ class XRequireJS(log: Logger, settings: RequireJSSettings) {
 
         for {
             module <- modules
-            dependency <- module.dependencies
+            dependency <- module.deps
         } try {
             graph.addEdge(dependency, module.name)
         } catch {
@@ -252,7 +252,7 @@ class XRequireJS(log: Logger, settings: RequireJSSettings) {
     def moduleLoader: Module = {
         val source = readModule(settings.name)
         val define = s"define('${settings.name}', function(){});"
-        Module(settings.name, Nil, s"$source\n$define")
+        Module(settings.name, Set.empty, s"$source\n$define")
     }
 
     def optimize: String = {
