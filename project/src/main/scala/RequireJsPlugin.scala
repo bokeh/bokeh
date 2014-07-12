@@ -15,40 +15,6 @@ import org.mozilla.javascript.{Parser,ast}
 import org.jgrapht.experimental.dag.DirectedAcyclicGraph
 import org.jgrapht.graph.DefaultEdge
 
-class ModuleCollector extends ast.NodeVisitor {
-    val names = mutable.Set[String]()
-
-    override def visit(node: ast.AstNode) = {
-        node match {
-            case node: ast.FunctionCall =>
-                val name = node.getTarget
-                val args = node.getArguments.asScala.toList
-
-                name match {
-                    case name: ast.Name if name.getIdentifier == "require" =>
-                        args match {
-                            case (arg: ast.StringLiteral) :: _ =>
-                                names += arg.getValue
-                            case _ =>
-                        }
-                    case name: ast.Name if name.getIdentifier == "define" =>
-                        args match {
-                            case (arg: ast.ArrayLiteral) :: _ =>
-                                names ++= arg.getElements.asScala.collect {
-                                    case elem: ast.StringLiteral =>
-                                        elem.getValue
-                                }
-                            case _ =>
-                        }
-                    case _ =>
-                }
-            case _ =>
-        }
-
-        true
-    }
-}
-
 class XRequireJS(log: Logger, settings: RequireJSSettings) {
 
     case class Shim(deps: List[String], exports: Option[String])
@@ -114,29 +80,105 @@ class XRequireJS(log: Logger, settings: RequireJSSettings) {
         else sys.error(s"Not found: ${file.getPath} (requested from $parent)")
     }
 
+    class ModuleCollector(moduleName: String) extends ast.NodeVisitor {
+        val names = mutable.Set[String]()
+        var defineNode: Option[ast.FunctionCall] = None
+
+        override def visit(node: ast.AstNode) = {
+            node match {
+                case node: ast.FunctionCall =>
+                    val name = node.getTarget
+                    val args = node.getArguments.asScala.toList
+
+                    def suspiciousCall() {
+                        log.warn(s"$moduleName#${node.getLineno}: suspicious call to ${name.toSource}()")
+                    }
+
+                    name match {
+                        case name: ast.Name if name.getIdentifier == "require" =>
+                            args match {
+                                case (arg: ast.StringLiteral) :: Nil =>
+                                    names += arg.getValue
+                                case _ =>
+                                    suspiciousCall()
+                            }
+                        case name: ast.Name if name.getIdentifier == "define" =>
+                            def getNames(array: ast.ArrayLiteral) = {
+                                array.getElements.asScala.collect {
+                                    case elem: ast.StringLiteral =>
+                                        elem.getValue
+                                }
+                            }
+
+                            def updateDefine() {
+                                defineNode match {
+                                    case Some(define) =>
+                                        sys.error(s"$moduleName defines multiple anonymous modules (#${define.getLineno} and #${node.getLineno})")
+                                    case None =>
+                                        val moduleNode = new ast.StringLiteral()
+                                        moduleNode.setValue(moduleName)
+                                        moduleNode.setQuoteCharacter('"')
+                                        node.setArguments((moduleNode :: args).asJava)
+                                        defineNode = Some(node)
+                                }
+                            }
+
+                            args match {
+                                case (_: ast.StringLiteral) :: (array: ast.ArrayLiteral) :: _ :: Nil =>
+                                    names ++= getNames(array)
+                                case (array: ast.ArrayLiteral) :: _ :: Nil =>
+                                    updateDefine()
+                                    names ++= getNames(array)
+                                case (_: ast.StringLiteral) :: _ :: Nil =>
+                                    ()
+                                case (_: ast.StringLiteral) :: Nil =>
+                                    ()
+                                case _ :: Nil =>
+                                    updateDefine()
+                                case _ =>
+                                    suspiciousCall()
+                            }
+                        case _ =>
+                    }
+                case _ =>
+            }
+
+            true
+        }
+    }
+
     val reservedNames = List("require", "module", "exports")
 
-    def collectDependencies(name: String): Set[String] = {
+    def collectDependencies(name: String): (String, Set[String]) = {
         val reader = new java.io.FileReader(getFile(name))
-        val collector = new ModuleCollector()
+        val collector = new ModuleCollector(name)
 
-        try {
+        val root = try {
             log.debug(s"Parsing module $name")
-            val node = new Parser().parse(reader, name, 1)
-            node.visitAll(collector)
+            new Parser().parse(reader, name, 1)
         } finally {
             reader.close()
         }
 
-        collector.names
-                 .filterNot(reservedNames contains _)
-                 .map(canonicalName(_, Some(name)))
-                 .toSet
+        root.visitAll(collector)
+
+        val source = root.toSource()
+        val deps = collector
+            .names
+            .filterNot(reservedNames contains _)
+            .map(canonicalName(_, Some(name)))
+            .toSet
+
+        (source, deps)
     }
 
-    case class Module(name: String, dependencies: List[String]) {
-        def content: String = readFile(getFile(name))
+    case class Module(name: String, dependencies: List[String], source: String) {
+        def annotatedSource: String = {
+            s"// module: $name\n$source"
+        }
     }
+
+    object requirejs extends Module("require", Nil, readResource("require.js"))
 
     def collectModules(): List[Module] = {
         val include = settings.include.map(canonicalName)
@@ -152,16 +194,18 @@ class XRequireJS(log: Logger, settings: RequireJSSettings) {
         while (pending.nonEmpty) {
             val name = pending.head
             pending.remove(name)
-            val deps = shim.get(name).getOrElse(collectDependencies(name))
+            val (source, deps) = shim.get(name).map { deps =>
+                (readFile(getFile(name)), deps)
+            } getOrElse collectDependencies(name)
             visited += name
-            modules += Module(name, deps.toList.sorted)
+            modules += Module(name, deps.toList.sorted, source)
             pending ++= deps -- visited
         }
 
         modules.toList
     }
 
-    def sortModules(modules: Seq[Module]): List[String] = {
+    def sortModules(modules: List[Module]): List[Module] = {
         val graph = new DirectedAcyclicGraph[String, DefaultEdge](classOf[DefaultEdge])
         modules.map(_.name).foreach(graph.addVertex)
 
@@ -175,7 +219,8 @@ class XRequireJS(log: Logger, settings: RequireJSSettings) {
                 log.warn(s"${module.name} depending on $dependency introduces a cycle")
         }
 
-        graph.iterator.asScala.toList
+        val modulesMap = modules.map(module => (module.name, module)).toMap
+        graph.iterator.asScala.toList.map(modulesMap(_))
     }
 
     def minify(input: String): String = {
@@ -201,23 +246,15 @@ class XRequireJS(log: Logger, settings: RequireJSSettings) {
         } getOrElse input
     }
 
-    def annotate(name: String, content: String): String = {
-        s"// module: $name\n$content"
-    }
-
     def optimize: String = {
-        val modules = collectModules
-        val requirejs = readResource("require.js")
-
-        val contents = annotate("require", requirejs) ::
-            sortModules(modules).map { name => annotate(name, readFile(getFile(name))) }
-
+        val modules = sortModules(collectModules)
+        val contents = (requirejs :: modules).map(_.annotatedSource)
         wrap(contents mkString "\n")
     }
 
     def optimizeAndMinify: (String, String) = {
         val output = optimize
-        (output, minify(output))
+        (output, output) // minify(output))
     }
 }
 
