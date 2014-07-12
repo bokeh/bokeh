@@ -153,7 +153,15 @@ class XRequireJS(log: Logger, settings: RequireJSSettings) {
 
     case class Module(name: String, deps: Set[String], source: String) {
         def annotatedSource: String = {
-            s"// module: $name\n$source"
+            s"// module: $name\n${shimmedSource}"
+        }
+
+        def shimmedSource: String = {
+            if (settings.wrapShim && (config.shim contains name)) {
+                val deps = this.deps.map(dep => s"'$dep'").mkString(", ")
+                s"define('$name', [$deps], function() {\n$source\n});"
+            } else
+                source
         }
     }
 
