@@ -21,33 +21,81 @@ case class RequireJSSettings(
 
 class RequireJS(log: Logger, settings: RequireJSSettings) {
 
-    case class Shim(deps: List[String], exports: Option[String])
+    case class Config(paths: Map[String, String], shim: Map[String, List[String]])
 
-    case class Config(paths: Map[String, String], shim: Map[String, Shim])
+    class ConfigReader extends NodeTraversal.Callback {
+        val paths = mutable.Map.empty[String, String]
+        val shim = mutable.Map.empty[String, List[String]]
 
-    val config = Config(
-        Map(
-            ("jquery",            "vendor/jquery/jquery"),
-            ("jquery_ui",         "vendor/jquery-ui-amd/jquery-ui-1.10.0/jqueryui"),
-            ("jquery_mousewheel", "vendor/jquery-mousewheel/jquery.mousewheel"),
-            ("jqrangeslider",     "vendor/jqrangeslider/jQAllRangeSliders-withRuler-min"),
-            ("handsontable",      "vendor/handsontable/jquery.handsontable"),
-            ("numeral",           "vendor/numeral/numeral"),
-            ("underscore",        "vendor/underscore-amd/underscore"),
-            ("backbone",          "vendor/backbone-amd/backbone"),
-            ("bootstrap",         "vendor/bootstrap-3.1.1/js"),
-            ("timezone",          "vendor/timezone/src/timezone"),
-            ("sprintf",           "vendor/sprintf/src/sprintf"),
-            ("rbush",             "vendor/rbush/rbush"),
-            ("jstree",            "vendor/jstree/dist/jstree"),
-            ("gear_utils",        "vendor/gear-utils/gear-utils")
-        ),
-        Map(
-            ("sprintf", Shim(Nil, Some("sprintf"))),
-            ("handsontable", Shim(List("numeral"), Some("$.fn.handsontable"))),
-            ("jqrangeslider", Shim(List("jquery_ui/core", "jquery_ui/widget", "jquery_ui/mouse", "jquery_mousewheel"), Some("$.fn.rangeSlider")))
-        )
-    )
+        def shouldTraverse(traversal: NodeTraversal, node: Node, parent: Node) = true
+
+        def visit(traversal: NodeTraversal, node: Node, parent: Node) {
+            if (node.isCall) {
+                node.children.asScala.toList match {
+                    case fn :: config :: Nil if fn.getQualifiedName == "require.config" && config.isObjectLit =>
+                        config.children().asScala.toList.filter(_.isStringKey).foreach { key =>
+                            key.getString match {
+                                case "paths" =>
+                                    key.children().asScala.toList match {
+                                        case obj :: Nil if obj.isObjectLit =>
+                                            obj.children().asScala.filter(_.isStringKey).foreach { name =>
+                                                val moduleName = name.getString
+                                                name.children.asScala.toList match {
+                                                    case path :: Nil if path.isString =>
+                                                        paths += moduleName -> path.getString
+                                                    case _ =>
+                                                }
+                                            }
+                                        case _ =>
+                                    }
+                                case "shim" =>
+                                    key.children().asScala.toList match {
+                                        case obj :: Nil if obj.isObjectLit =>
+                                            obj.children().asScala.filter(_.isStringKey).foreach { key =>
+                                                val moduleName = key.getString
+                                                shim += moduleName -> Nil
+                                                key.children.asScala.toList match {
+                                                    case obj :: Nil if obj.isObjectLit =>
+                                                        obj.children().asScala.filter(_.isStringKey).foreach { key =>
+                                                            key.getString match {
+                                                                case "deps" =>
+                                                                    key.children().asScala.toList match {
+                                                                        case deps :: Nil if deps.isArrayLit =>
+                                                                            shim += moduleName ->
+                                                                                deps.children().asScala.toList.filter(_.isString).map(_.getString)
+                                                                        case _ =>
+                                                                    }
+                                                                case _ =>
+                                                            }
+                                                        }
+                                                    case _ =>
+                                                }
+                                            }
+                                        case _ =>
+                                    }
+                                case _ =>
+                            }
+                        }
+                    case _ =>
+                }
+            }
+        }
+    }
+
+    def readConfig: Config = {
+        val compiler = new Compiler
+
+        val input = SourceFile.fromFile(settings.mainConfigFile)
+        val root = compiler.parse(input)
+
+        val reader = new ConfigReader()
+        val traversal = new NodeTraversal(compiler, reader)
+        traversal.traverse(root)
+
+        Config(reader.paths.toMap, reader.shim.toMap)
+    }
+
+    val config = readConfig
 
     def readFile(file: File): String = Source.fromFile(file).mkString
 
@@ -188,7 +236,7 @@ class RequireJS(log: Logger, settings: RequireJSSettings) {
         val traversal = new NodeTraversal(compiler, collector)
         traversal.traverse(root)
 
-        val deps = config.shim.get(name).map(_.deps.toSet) getOrElse {
+        val deps = config.shim.get(name).map(_.toSet) getOrElse {
             collector.names
                 .filterNot(reservedNames contains _)
                 .map(canonicalName(_, name))
