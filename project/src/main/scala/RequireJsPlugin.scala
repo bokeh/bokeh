@@ -209,9 +209,21 @@ class RequireJS(log: Logger, settings: RequireJSSettings) {
         }
 
         def shimmedSource: String = {
-            if (settings.wrapShim && (config.shim contains name)) {
+            if (config.shim contains name) {
+                // TODO: exports
                 val deps = this.deps.map(dep => s"'$dep'").mkString(", ")
-                s"define('$name', [$deps], function() {\n$source\n});"
+                if (settings.wrapShim)
+                    s"""
+                    |(function(root) {
+                    |    define("$name", [$deps], function() {
+                    |        return (function() {
+                    |            $source
+                    |        }).apply(root, arguments);
+                    |    });
+                    |}(this));
+                    """.stripMargin.trim
+                else
+                    s"define('$name', [$deps], function() {\n$source\n});"
             } else
                 source
         }
