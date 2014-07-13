@@ -152,58 +152,53 @@ class RequireJS(log: Logger, settings: RequireJSSettings) {
     }
 
     class ModuleCollector(moduleName: String) extends NodeTraversal.Callback {
-        private var defineNode: Option[Node] = None
+        import AST._
 
         val names = mutable.Set[String]()
+
+        private var defineNode: Option[Node] = None
+
+        private def updateDefine(node: Node) {
+            if (defineNode.isDefined)
+                sys.error(s"$moduleName defines multiple anonymous modules")
+            else {
+                val moduleNode = Node.newString(moduleName)
+                node.addChildAfter(moduleNode, node.getFirstChild)
+                defineNode = Some(node)
+            }
+        }
+
+        private def suspiciousCall(node: Node) {
+            val Call(name, _) = node
+            log.warn(s"$moduleName#${node.getLineno}: suspicious call to $name()")
+        }
 
         def shouldTraverse(traversal: NodeTraversal, node: Node, parent: Node) = true
 
         def visit(traversal: NodeTraversal, node: Node, parent: Node) {
-            import AST._
-            if (node.isCall) {
-                val children = node.children.asScala.toList
-
-                val fn = children.head.getQualifiedName
-                val args = children.tail
-
-                def suspiciousCall() {
-                    log.warn(s"$moduleName#${node.getLineno}: suspicious call to $fn()")
-                }
-
-                fn match {
-                    case "require" =>
-                        args match {
-                            case Str(name) :: Nil => names += name
-                            case _ =>                suspiciousCall()
-                        }
-                    case "define" =>
-                        def updateDefine() {
-                            if (defineNode.isDefined)
-                                sys.error(s"$moduleName defines multiple anonymous modules")
-                            else {
-                                val moduleNode = Node.newString(moduleName)
-                                node.addChildAfter(moduleNode, children.head)
-                                defineNode = Some(node)
-                            }
-                        }
-
-                        args match {
-                            case Str(_) :: Arr(deps) :: _ :: Nil =>
-                                names ++= deps.collect { case Str(name) => name }
-                            case Arr(deps) :: _ :: Nil =>
-                                updateDefine()
-                                names ++= deps.collect { case Str(name) => name }
-                            case Str(_) :: _ :: Nil =>
-                                ()
-                            case Str(_) :: Nil =>
-                                ()
-                            case _ :: Nil =>
-                                updateDefine()
-                            case _ =>
-                                suspiciousCall()
-                        }
+            node match {
+                case Call("require", args) => args match {
+                    case Str(name) :: Nil =>
+                        names += name
                     case _ =>
+                        suspiciousCall(node)
                 }
+                case Call("define", args) => args match {
+                    case Str(_) :: Arr(deps) :: _ :: Nil =>
+                        names ++= deps.collect { case Str(name) => name }
+                    case Arr(deps) :: _ :: Nil =>
+                        updateDefine(node)
+                        names ++= deps.collect { case Str(name) => name }
+                    case Str(_) :: _ :: Nil =>
+                        ()
+                    case Str(_) :: Nil =>
+                        ()
+                    case _ :: Nil =>
+                        updateDefine(node)
+                    case _ =>
+                        suspiciousCall(node)
+                }
+                case _ =>
             }
         }
     }
