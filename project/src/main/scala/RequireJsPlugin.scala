@@ -159,6 +159,7 @@ class RequireJS(log: Logger, settings: RequireJSSettings) {
         def shouldTraverse(traversal: NodeTraversal, node: Node, parent: Node) = true
 
         def visit(traversal: NodeTraversal, node: Node, parent: Node) {
+            import AST._
             if (node.isCall) {
                 val children = node.children.asScala.toList
 
@@ -172,36 +173,29 @@ class RequireJS(log: Logger, settings: RequireJSSettings) {
                 fn match {
                     case "require" =>
                         args match {
-                            case name :: Nil if name.isString =>
-                                names += name.getString
-                            case _ =>
-                                suspiciousCall()
+                            case Str(name) :: Nil => names += name
+                            case _ =>                suspiciousCall()
                         }
                     case "define" =>
-                        def getNames(array: Node) = {
-                            array.children.asScala.filter(_.isString).map(_.getString)
-                        }
-
                         def updateDefine() {
-                            defineNode match {
-                                case Some(_) =>
-                                    sys.error(s"$moduleName defines multiple anonymous modules")
-                                case None =>
-                                    val moduleNode = Node.newString(moduleName)
-                                    node.addChildAfter(moduleNode, children.head)
-                                    defineNode = Some(node)
+                            if (defineNode.isDefined)
+                                sys.error(s"$moduleName defines multiple anonymous modules")
+                            else {
+                                val moduleNode = Node.newString(moduleName)
+                                node.addChildAfter(moduleNode, children.head)
+                                defineNode = Some(node)
                             }
                         }
 
                         args match {
-                            case name :: deps :: _ :: Nil if name.isString && deps.isArrayLit =>
-                                names ++= getNames(deps)
-                            case deps :: _ :: Nil if deps.isArrayLit =>
+                            case Str(_) :: Arr(deps) :: _ :: Nil =>
+                                names ++= deps.collect { case Str(name) => name }
+                            case Arr(deps) :: _ :: Nil =>
                                 updateDefine()
-                                names ++= getNames(deps)
-                            case name :: _ :: Nil if name.isString =>
+                                names ++= deps.collect { case Str(name) => name }
+                            case Str(_) :: _ :: Nil =>
                                 ()
-                            case name :: Nil if name.isString =>
+                            case Str(_) :: Nil =>
                                 ()
                             case _ :: Nil =>
                                 updateDefine()
