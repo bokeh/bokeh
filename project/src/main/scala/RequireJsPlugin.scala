@@ -10,6 +10,45 @@ import com.google.javascript.rhino.Node
 import org.jgrapht.experimental.dag.DirectedAcyclicGraph
 import org.jgrapht.graph.DefaultEdge
 
+object AST {
+    object Call {
+        def unapply(node: Node): Option[(String, List[Node])] = {
+            if (node.isCall) {
+                val fn :: args = node.children.asScala.toList
+                Some((fn.getQualifiedName, args))
+            } else
+                None
+        }
+    }
+
+    object Obj {
+        def unapply(node: Node): Option[List[(String, Node)]] = {
+            if (node.isObjectLit) {
+                val keys = node.children().asScala.toList
+                Some(keys.map { key =>
+                    key.getString -> key.getFirstChild
+                })
+            } else
+                None
+        }
+    }
+
+    object Arr {
+        def unapply(node: Node): Option[List[Node]] = {
+            if (node.isArrayLit)
+                Some(node.children().asScala.toList)
+            else
+                None
+        }
+    }
+
+    object Str {
+        def unapply(node: Node): Option[String] = {
+            if (node.isString) Some(node.getString) else None
+        }
+    }
+}
+
 case class RequireJSSettings(
     baseUrl: File,
     mainConfigFile: File,
@@ -30,54 +69,25 @@ class RequireJS(log: Logger, settings: RequireJSSettings) {
         def shouldTraverse(traversal: NodeTraversal, node: Node, parent: Node) = true
 
         def visit(traversal: NodeTraversal, node: Node, parent: Node) {
-            if (node.isCall) {
-                node.children.asScala.toList match {
-                    case fn :: config :: Nil if fn.getQualifiedName == "require.config" && config.isObjectLit =>
-                        config.children().asScala.toList.filter(_.isStringKey).foreach { key =>
-                            key.getString match {
-                                case "paths" =>
-                                    key.children().asScala.toList match {
-                                        case obj :: Nil if obj.isObjectLit =>
-                                            obj.children().asScala.filter(_.isStringKey).foreach { name =>
-                                                val moduleName = name.getString
-                                                name.children.asScala.toList match {
-                                                    case path :: Nil if path.isString =>
-                                                        paths += moduleName -> path.getString
-                                                    case _ =>
-                                                }
-                                            }
-                                        case _ =>
-                                    }
-                                case "shim" =>
-                                    key.children().asScala.toList match {
-                                        case obj :: Nil if obj.isObjectLit =>
-                                            obj.children().asScala.filter(_.isStringKey).foreach { key =>
-                                                val moduleName = key.getString
-                                                shim += moduleName -> Nil
-                                                key.children.asScala.toList match {
-                                                    case obj :: Nil if obj.isObjectLit =>
-                                                        obj.children().asScala.filter(_.isStringKey).foreach { key =>
-                                                            key.getString match {
-                                                                case "deps" =>
-                                                                    key.children().asScala.toList match {
-                                                                        case deps :: Nil if deps.isArrayLit =>
-                                                                            shim += moduleName ->
-                                                                                deps.children().asScala.toList.filter(_.isString).map(_.getString)
-                                                                        case _ =>
-                                                                    }
-                                                                case _ =>
-                                                            }
-                                                        }
-                                                    case _ =>
-                                                }
-                                            }
-                                        case _ =>
-                                    }
-                                case _ =>
+            import AST._
+            node match {
+                case Call("require.config", Obj(keys) :: Nil) =>
+                    keys.foreach {
+                        case ("paths", Obj(keys)) =>
+                            paths ++= keys.collect {
+                                case (name, Str(path)) => name -> path
                             }
-                        }
-                    case _ =>
-                }
+                        case ("shim", Obj(keys)) =>
+                            shim ++= keys.collect {
+                                case (name, Obj(keys)) =>
+                                    name -> (keys.collect {
+                                        case ("deps", Arr(items)) =>
+                                            items.collect { case Str(item) => item }
+                                    }).flatten
+                            }
+                        case _ =>
+                    }
+                case _ =>
             }
         }
     }
