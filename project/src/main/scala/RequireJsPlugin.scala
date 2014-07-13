@@ -60,16 +60,19 @@ case class RequireJSSettings(
 
 class RequireJS(log: Logger, settings: RequireJSSettings) {
 
-    case class Config(paths: Map[String, String], shim: Map[String, List[String]])
+    case class Shim(deps: List[String], exports: Option[String])
+
+    case class Config(paths: Map[String, String], shim: Map[String, Shim])
 
     class ConfigReader extends NodeTraversal.Callback {
+        import AST._
+
         val paths = mutable.Map.empty[String, String]
-        val shim = mutable.Map.empty[String, List[String]]
+        val shim = mutable.Map.empty[String, Shim]
 
         def shouldTraverse(traversal: NodeTraversal, node: Node, parent: Node) = true
 
         def visit(traversal: NodeTraversal, node: Node, parent: Node) {
-            import AST._
             node match {
                 case Call("require.config", Obj(keys) :: Nil) =>
                     keys.foreach {
@@ -80,10 +83,16 @@ class RequireJS(log: Logger, settings: RequireJSSettings) {
                         case ("shim", Obj(keys)) =>
                             shim ++= keys.collect {
                                 case (name, Obj(keys)) =>
-                                    name -> (keys.collect {
-                                        case ("deps", Arr(items)) =>
-                                            items.collect { case Str(item) => item }
-                                    }).flatten
+                                    val deps = keys.collectFirst {
+                                        case ("deps", Arr(deps)) =>
+                                            deps.collect { case Str(dep) => dep }
+                                    } getOrElse Nil
+
+                                    val exports = keys.collectFirst {
+                                        case ("exports", Str(exports)) => exports
+                                    }
+
+                                    name -> Shim(deps, exports)
                             }
                         case _ =>
                     }
@@ -209,23 +218,24 @@ class RequireJS(log: Logger, settings: RequireJSSettings) {
         }
 
         def shimmedSource: String = {
-            if (config.shim contains name) {
-                // TODO: exports
+            config.shim.get(name).map { shim =>
+                val exports = shim.exports.map { name =>
+                    s"\nreturn root.$name = $name;"
+                } getOrElse ""
                 val deps = this.deps.map(dep => s"'$dep'").mkString(", ")
                 if (settings.wrapShim)
                     s"""
                     |(function(root) {
                     |    define("$name", [$deps], function() {
                     |        return (function() {
-                    |            $source
+                    |            $source$exports
                     |        }).apply(root, arguments);
                     |    });
                     |}(this));
                     """.stripMargin.trim
                 else
-                    s"define('$name', [$deps], function() {\n$source\n});"
-            } else
-                source
+                    s"define('$name', [$deps], function() {\n$source$exports\n});"
+            } getOrElse source
         }
     }
 
@@ -247,7 +257,7 @@ class RequireJS(log: Logger, settings: RequireJSSettings) {
         val traversal = new NodeTraversal(compiler, collector)
         traversal.traverse(root)
 
-        val deps = config.shim.get(name).map(_.toSet) getOrElse {
+        val deps = config.shim.get(name).map(_.deps.toSet) getOrElse {
             collector.names
                 .filterNot(reservedNames contains _)
                 .map(canonicalName(_, name))
