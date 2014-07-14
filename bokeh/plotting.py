@@ -65,6 +65,16 @@ def cursession():
     '''
     return _default_session
 
+def reset():
+    global _default_document
+    global _default_session
+    global _default_file
+    global _default_notebook
+    _default_document = Document()
+    _default_session = None
+    _default_file = None
+    _default_notebook = None
+
 def hold(value=True):
     ''' Set or clear the plot hold status on the current document.
 
@@ -221,7 +231,6 @@ def show(browser=None, new="tab", url=None):
     if not plot:
         warnings.warn("No current plot to show. Use renderer functions (circle, rect, etc.) to create a current plot (see http://bokeh.pydata.org/index.html)")
         return
-
     if notebook and session:
         import IPython.core.displaypub as displaypub
         push(session=session)
@@ -534,4 +543,3 @@ def load_object(obj):
     """updates object from the server
     """
     cursession().load_object(obj, curdoc())
-    
