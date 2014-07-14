@@ -164,7 +164,10 @@ class BokehRenderer(Renderer):
         line.line_color = style['color']
         line.line_width = style['linewidth']
         line.line_alpha = style['alpha']
-        line.line_dash = [int(i) for i in style['dasharray'].split(",")]  # str2list(int)
+        if style['dasharray'] == 'none':
+            line.line_dash = []
+        else:
+            line.line_dash = [int(i) for i in style['dasharray'].split(",")]  # str2list(int)
         #style['zorder'] # not in Bokeh
         #line.line_join = line2d.get_solid_joinstyle() # not in mplexporter
         #line.line_cap = cap_style_map[line2d.get_solid_capstyle()] # not in mplexporter
