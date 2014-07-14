@@ -34,13 +34,18 @@ DEPS_TRAVIS="python=$TRAVIS_PYTHON_VERSION pip"
 DEPS_BOKEH="numpy pandas openpyxl<2.0 six requests dateutil"
 DEPS_SERVER="flask werkzeug greenlet redis redis-py"
 DEPS_DOCS="sphinx pygments" # sphinx-bootstrap-theme sphinxcontrib-napoleon
-DEPS_EXAMPLES="scipy matplotlib statsmodels sympy" # ggplot seaborn
+DEPS_EXAMPLES="scipy matplotlib sympy" # ggplot seaborn
 DEPS_TESTS="PyYAML nose mock colorama coverage ipython ipython-notebook" # websocket
-DEPS_PIP="sphinx-bootstrap-theme sphinxcontrib-napoleon ggplot seaborn"
+DEPS_PIP="sphinx-bootstrap-theme sphinxcontrib-napoleon"
 
 if [[ "$TRAVIS_PYTHON_VERSION" == 2* ]]; then
     DEPS_SERVER="$DEPS_SERVER gevent gevent-websocket"
     DEPS_PIP="$DEPS_PIP websocket"
+fi
+
+if [[ "$TRAVIS_PYTHON_VERSION" != 3.4* ]]; then
+    DEPS_EXAMPLES="$DEPS_EXAMPLES statsmodels"
+    DEPS_PIP="$DEPS_PIP ggplot seaborn"
 fi
 
 DEPS="$DEPS_TRAVIS $DEPS_BOKEH $DEPS_SERVER $DEPS_DOCS $DEPS_EXAMPLES $DEPS_TESTS"
