@@ -62,7 +62,7 @@ class BoxPlot(ChartObject):
         chart = Chart(self._title, self._xlabel, self._ylabel, self._legend,
                       self.xscale, self.yscale, self._width, self._height,
                       self._tools, self._filename, self._server, self._notebook)
-        chart.get_data_boxplot(self.cat, marker=self.marker, outliers=self.outliers, **self.value)
+        chart.get_data_boxplot(self.cat, self.marker, self.outliers, **self.value)
         chart.get_source_boxplot()
         chart.start_plot()
         chart.boxplot()

@@ -83,22 +83,22 @@ class Chart(object):
             self.data[val] = getattr(self, val)
 
             hist, edges = np.histogram(self.data[val], density=True, bins=bins)
-            self.set_and_get("hist", val, hist)
-            self.set_and_get("edges", val, edges)
-            self.set_and_get("left", val, edges[:-1])
-            self.set_and_get("right", val, edges[1:])
-            self.set_and_get("bottom", val, np.zeros(len(hist)))
+            self._set_and_get("hist", val, hist)
+            self._set_and_get("edges", val, edges)
+            self._set_and_get("left", val, edges[:-1])
+            self._set_and_get("right", val, edges[1:])
+            self._set_and_get("bottom", val, np.zeros(len(hist)))
 
             self.mu_and_sigma = False
 
             if mu is not None and sigma is not None:
                 self.mu_and_sigma = True
-                self.set_and_get("x", val, np.linspace(-2, 2, len(self.data[val])))
+                self._set_and_get("x", val, np.linspace(-2, 2, len(self.data[val])))
                 pdf = 1 / (sigma * np.sqrt(2 * np.pi)) * np.exp(-(self.data["x" + val] - mu) ** 2 / (2 * sigma ** 2))
-                self.set_and_get("pdf", val, pdf)
+                self._set_and_get("pdf", val, pdf)
                 self.groups.append("pdf")
                 cdf = (1 + scipy.special.erf((self.data["x" + val] - mu) / np.sqrt(2 * sigma ** 2))) / 2
-                self.set_and_get("cdf", val, cdf)
+                self._set_and_get("cdf", val, cdf)
                 self.groups.append("cdf")
 
     def get_source_histogram(self):
@@ -141,11 +141,11 @@ class Chart(object):
         self.groups.extend(self.value.keys())
 
         for i, val in enumerate(self.value.keys()):
-            self.set_and_get("", val, self.value[val])
-            self.set_and_get("mid", val, self.value[val] / 2)
-            self.set_and_get("stacked", val, self.zero + self.value[val] / 2)
+            self._set_and_get("", val, self.value[val])
+            self._set_and_get("mid", val, self.value[val] / 2)
+            self._set_and_get("stacked", val, self.zero + self.value[val] / 2)
             # Grouped
-            self.set_and_get("cat", val, [c + ":" + str(step[i + 1]) for c in self.cat])
+            self._set_and_get("cat", val, [c + ":" + str(step[i + 1]) for c in self.cat])
             # Stacked
             self.zero += self.value[val]
 
@@ -176,8 +176,8 @@ class Chart(object):
         # Grouping
         for i, val in enumerate(self.pairs.keys()):
             xy = self.pairs[val]
-            self.set_and_get("x_", val, xy[:, 0])
-            self.set_and_get("y_", val, xy[:, 1])
+            self._set_and_get("x_", val, xy[:, 0])
+            self._set_and_get("y_", val, xy[:, 1])
 
     def get_source_scatter(self):
         "Get the scatter data into the ColumnDataSource and calculate the proper ranges."
@@ -193,7 +193,7 @@ class Chart(object):
         starty = min(min(self.data[i]) for i in y_names)
         self.ydr = Range1d(start=starty - 0.1 * (endy - starty), end=endy + 0.1 * (endy - starty))
 
-    def get_data_boxplot(self, cat, marker="circle", outliers=True, **value):
+    def get_data_boxplot(self, cat, marker, outliers, **value):
         "Take the boxplot data from the input and calculate the parameters accordingly."
         self.cat = cat
         self.marker = marker
@@ -225,12 +225,12 @@ class Chart(object):
             outliers = np.where((level_vals > upper) | (level_vals < lower))[0]
 
             # Store
-            self.set_and_get("", level, level_vals)
-            self.set_and_get("quantiles", level, q)
-            self.set_and_get("outliers", level, outliers)
-            self.set_and_get("cat", level, [level + ':' + str(step[i])])
-            self.set_and_get("line_y", level, [lower, upper])
-            self.set_and_get("x", level, step[i])
+            self._set_and_get("", level, level_vals)
+            self._set_and_get("quantiles", level, q)
+            self._set_and_get("outliers", level, outliers)
+            self._set_and_get("cat", level, [level + ':' + str(step[i])])
+            self._set_and_get("line_y", level, [lower, upper])
+            self._set_and_get("x", level, step[i])
 
     def get_source_boxplot(self):
         "Get the boxplot data into the ColumnDataSource and calculate the proper ranges."
@@ -323,25 +323,15 @@ class Chart(object):
         return axis
 
     def make_grid(self, axis, dimension):
-        "Create the gris just passing the axis and dimension."
+        "Create the grid just passing the axis and dimension."
         grid = Grid(plot=self.plot,
                     dimension=dimension,
                     axis=axis)
 
         return grid
 
-    def _append_glyph(self, glyph):
-
-        glyph = Glyph(data_source=self.source,
-                      xdata_range=self.xdr,
-                      ydata_range=self.ydr,
-                      glyph=glyph)
-
-        self.plot.renderers.append(glyph)
-        
-        self.glyphs.append(glyph)
-
-    def make_segment(self, x0, y0, x1, y1, color, width=1):
+    def make_segment(self, x0, y0, x1, y1, color, width):
+        """ Create a segment """
         segment = Segment(x0=x0, y0=y0, x1=x1, y1=y1, line_color=color, line_width=width)
         
         self._append_glyph(segment)
@@ -352,25 +342,17 @@ class Chart(object):
         
         self._append_glyph(line)
 
-    def make_quad(self, top, bottom, left, right, color, fill_color=None, fill_alpha=0.7, 
-                    line_color='white', line_alpha=1.0):
+    def make_quad(self, top, bottom, left, right, color):
         "Create a quad glyph and append it to the renderers list."
-        if fill_color is None:
-            fill_color = color
-
         quad = Quad(top=top, bottom=bottom, left=left, right=right,
                     fill_color=color, fill_alpha=0.7, line_color="white", line_alpha=1.0)
         
         self._append_glyph(quad)
 
-    def make_rect(self, x, y, width, height, color, fill_color=None, fill_alpha=0.7, 
-                    line_color='white', line_alpha=1.0):
+    def make_rect(self, x, y, width, height, color):
         "Create a rect glyph and append it to the renderers list."
-        if fill_color is None:
-            fill_color = color
-
-        rect = Rect(x=x, y=y, width=width, height=height, fill_color=fill_color, 
-                    fill_alpha=fill_alpha, line_color=line_color, line_alpha=line_alpha)
+        rect = Rect(x=x, y=y, width=width, height=height, fill_color=color, 
+                    fill_alpha=0.7, line_color='white', line_alpha=1.0)
         
         self._append_glyph(rect)
 
@@ -417,14 +399,14 @@ class Chart(object):
     def histogram(self):
         "Use the `quad` renderer to display the histogram bars."
         if not self.mu_and_sigma:
-            self.quintet = list(self.chunker(self.attr, 5))
-            colors = self.set_colors(self.quintet)
+            self.quintet = list(self._chunker(self.attr, 5))
+            colors = self._set_colors(self.quintet)
 
             for i, quintet in enumerate(self.quintet):
                 self.make_quad(quintet[0], quintet[4], quintet[2], quintet[3], colors[i])
         else:
-            self.octet = list(self.chunker(self.attr, 8))
-            colors = self.set_colors(self.octet)
+            self.octet = list(self._chunker(self.attr, 8))
+            colors = self._set_colors(self.octet)
 
             for i, octet in enumerate(self.octet):
                 self.make_quad(octet[0], octet[4], octet[2], octet[3], colors[i])
@@ -433,8 +415,8 @@ class Chart(object):
 
     def bar(self, stacked):
         "Use the `rect` renderer to display the bars."
-        self.quartet = list(self.chunker(self.attr, 4))
-        colors = self.set_colors(self.quartet)
+        self.quartet = list(self._chunker(self.attr, 4))
+        colors = self._set_colors(self.quartet)
 
         # quartet elements are: [data, mid, stacked, cat]
         for i, quartet in enumerate(self.quartet):
@@ -445,23 +427,23 @@ class Chart(object):
 
     def scatter(self):
         "Use different marker renderers to display the incomming groups."
-        self.duplet = list(self.chunker(self.attr, 2))
-        colors = self.set_colors(self.duplet)
+        self.duplet = list(self._chunker(self.attr, 2))
+        colors = self._set_colors(self.duplet)
 
         for i, duplet in enumerate(self.duplet, start=1):
             self.make_scatter(duplet[0], duplet[1], i, colors[i - 1])
 
     def boxplot(self):
-        " Use the `rect`, `scatter`, and `line` renderers to display the boxplot. "
-        self.quintet = list(self.chunker(self.attr, 6))
-        colors = self.set_colors(self.quintet)
+        " Use the `rect`, `scatter`, and `segment` renderers to display the boxplot. "
+        self.sextet = list(self._chunker(self.attr, 6))
+        colors = self._set_colors(self.sextet)
 
         # quintet elements are: [data, quantiles, outliers, cat, line_y]
-        for i, quintet in enumerate(self.quintet):
-            [d, q, outliers, cat, line_y, x] = [self.data[x] for x in quintet]
-            self.make_segment(x, line_y[0], x, line_y[1], 'black', width=2)
-            self.make_quad(q[1], q[0], x-self.width[0]/2., x+self.width[0]/2., colors[i], line_color='black')
-            self.make_quad(q[2], q[1], x-self.width[0]/2., x+self.width[0]/2., colors[i], line_color='black')
+        for i, sextet in enumerate(self.sextet):
+            [d, q, outliers, cat, line_y, x] = [self.data[x] for x in sextet]
+            self.make_segment(x, line_y[0], x, line_y[1], 'black', 2)
+            self.make_quad(q[1], q[0], x-self.width[0]/2., x+self.width[0]/2., colors[i])
+            self.make_quad(q[2], q[1], x-self.width[0]/2., x+self.width[0]/2., colors[i])
             if self.outliers and outliers.any():
                 for o in d[outliers]:
                     self.make_scatter(x, o, self.marker, colors[i])
@@ -494,18 +476,18 @@ class Chart(object):
             displaypub.publish_display_data('bokeh', {'text/html': notebook_div(self.plot)})
 
     # Some helper methods
-    def set_and_get(self, prefix, val, content):
+    def _set_and_get(self, prefix, val, content):
         "Set a new attr and then get it to fill the self.data dict."
         setattr(self, prefix + val, content)
         self.data[prefix + val] = getattr(self, prefix + val)
         self.attr.append(prefix + val)
 
-    def chunker(self, l, n):
+    def _chunker(self, l, n):
         "Yield successive n-sized chunks from l."
         for i in range(0, len(l), n):
             yield l[i:i + n]
 
-    def set_colors(self, chunk):
+    def _set_colors(self, chunk):
         "Build the proper color list just cycling in a defined palette"
         colors = []
 
@@ -515,3 +497,14 @@ class Chart(object):
             colors.append(next(g))
 
         return colors
+
+    def _append_glyph(self, glyph):
+        """ Appends the passed glyph to the renderer. """
+        glyph = Glyph(data_source=self.source,
+                      xdata_range=self.xdr,
+                      ydata_range=self.ydr,
+                      glyph=glyph)
+
+        self.plot.renderers.append(glyph)
+        
+        self.glyphs.append(glyph)
