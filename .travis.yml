@@ -10,20 +10,25 @@ env:
     - BOKEH_DEFAULT_NO_DEV=true
 
 matrix:
-  exclude:
-    - python: 3.3
-      env: BOKEH_DEFAULT_NO_DEV=true
-    - python: 3.4
-      env: BOKEH_DEFAULT_NO_DEV=true
+    exclude:
+        - python: 3.3
+            env: BOKEH_DEFAULT_NO_DEV=true
+        - python: 3.4
+            env: BOKEH_DEFAULT_NO_DEV=true
 
 before_install:
     - export PATH="$HOME/miniconda/bin:$PATH"
     - export MINICONDA_VERSION="3.5.5"
     - export PHANTOMJS_VERSION="1.9.7"
 
-install: scripts/travis_install
+install:
+    - scripts/travis_install
 
-script: scripts/travis_test
+script:
+    - nosetests --with-coverage --cover-package=bokeh && ( cd sphinx; make all; cd .. )
+
+after_script:
+    - if [[ -e examples.log ]]; then cat examples.log fi
 
 notifications:
-  flowdock: bd0fcd603797aa02273421678c1268e8
+    flowdock: bd0fcd603797aa02273421678c1268e8
