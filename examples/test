@@ -458,7 +458,8 @@ fail_examples = []
 skip_examples = []
 
 def skip(example, reason):
-    write("%s Skipping %s (because %s)" % (yellow(">>>"), example, reason))
+    write("%s Skipping %s" % (yellow(">>>"), example))
+    write("%s because %s" % (yellow("---"), reason))
     skip_examples.append(example)
 
 try:
@@ -466,9 +467,9 @@ try:
         if flags & Flags.skip:
             skip(example, "requested to skip")
         elif flags & Flags.server and not bokeh_server:
-            skip(example, "bokeh server not available")
+            skip(example, "bokeh server is not available")
         elif flags & Flags.notebook and not ipython_notebook:
-            skip(example, "ipython notebook not available")
+            skip(example, "ipython notebook is not available")
         else:
             write("%s Testing %s ..." % (green(">>>"), example))
             result = False
