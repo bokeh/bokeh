@@ -28,7 +28,7 @@ script:
     - nosetests --with-coverage --cover-package=bokeh && ( cd sphinx; make all; cd .. )
 
 after_script:
-    - if [[ -e examples.log ]]; then cat examples.log fi
+    - if [[ -e examples.log ]]; then cat examples.log; fi
 
 notifications:
     flowdock: bd0fcd603797aa02273421678c1268e8
