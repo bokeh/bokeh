@@ -450,8 +450,12 @@ ipython_notebook = start_ipython_notebook() if use_notebook and need_notebook el
 if use_notebook and need_notebook:
     import nbexecuter
     example_nbconverted = os.path.join("examples", "glyphs", "glyph.ipynb")
+    try:
+        nbexecuter.main(example_nbconverted)
+    except IOError as e:
+        example_nbconverted = example_nbconverted[example_nbconverted.find('glyphs'):]
+        nbexecuter.main(example_nbconverted)
     write(example_nbconverted)
-    nbexecuter.main(example_nbconverted)
 
 run_examples = 0
 fail_examples = []
