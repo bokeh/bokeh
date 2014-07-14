@@ -31,7 +31,7 @@ mkdir -p $INSTALL_DIR
 ln -s $(readlink -f bokeh) $INSTALL_DIR/bokeh
 
 DEPS_TRAVIS="python=$TRAVIS_PYTHON_VERSION pip"
-DEPS_BOKEH="numpy pandas six requests dateutil"
+DEPS_BOKEH="numpy pandas openpyxl<2.0 six requests dateutil"
 DEPS_SERVER="flask werkzeug greenlet redis redis-py"
 DEPS_DOCS="sphinx pygments" # sphinx-bootstrap-theme sphinxcontrib-napoleon
 DEPS_EXAMPLES="scipy matplotlib statsmodels sympy" # ggplot seaborn
