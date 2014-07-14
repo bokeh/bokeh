@@ -1,3 +1,0 @@
-#!/bin/bash
-
-nosetests --with-coverage --cover-package=bokeh && ( cd sphinx; make all; cd .. )

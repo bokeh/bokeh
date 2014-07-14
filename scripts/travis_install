@@ -30,23 +30,27 @@ INSTALL_DIR="$HOME/.local/lib/python$TRAVIS_PYTHON_VERSION/site-packages"
 mkdir -p $INSTALL_DIR
 ln -s $(readlink -f bokeh) $INSTALL_DIR/bokeh
 
-DEPS_BOKEH="numpy pandas six requests dateutil"
+DEPS_TRAVIS="python=$TRAVIS_PYTHON_VERSION pip"
+DEPS_BOKEH="numpy pandas openpyxl<2.0 six requests dateutil"
 DEPS_SERVER="flask werkzeug greenlet redis redis-py"
-DEPS_DATA="PyYAML"
 DEPS_DOCS="sphinx pygments" # sphinx-bootstrap-theme sphinxcontrib-napoleon
-DEPS_EXAMPLES="scipy matplotlib statsmodels sympy" # ggplot seaborn
-DEPS_TESTS="nose mock colorama coverage" # websocket
-DEPS_IPYTHON="ipython ipython-notebook"
-DEPS_PIP="sphinx-bootstrap-theme sphinxcontrib-napoleon ggplot seaborn"
+DEPS_EXAMPLES="scipy matplotlib sympy" # ggplot seaborn
+DEPS_TESTS="PyYAML nose mock colorama coverage ipython ipython-notebook" # websocket
+DEPS_PIP="sphinx-bootstrap-theme sphinxcontrib-napoleon"
 
 if [[ "$TRAVIS_PYTHON_VERSION" == 2* ]]; then
     DEPS_SERVER="$DEPS_SERVER gevent gevent-websocket"
     DEPS_PIP="$DEPS_PIP websocket"
 fi
 
-DEPS="$DEPS_BOKEH $DEPS_SERVER $DEPS_DATA $DEPS_DOCS $DEPS_EXAMPLES $DEPS_TESTS $DEPS_IPYTHON"
+if [[ "$TRAVIS_PYTHON_VERSION" != 3.4* ]]; then
+    DEPS_EXAMPLES="$DEPS_EXAMPLES statsmodels"
+    DEPS_PIP="$DEPS_PIP ggplot seaborn"
+fi
 
-conda install --yes --quiet pip $DEPS || exit 1
+DEPS="$DEPS_TRAVIS $DEPS_BOKEH $DEPS_SERVER $DEPS_DOCS $DEPS_EXAMPLES $DEPS_TESTS"
+
+conda install --yes --quiet $DEPS || exit 1
 pip install $DEPS_PIP || exit 1
 
 if [[ "$TRAVIS_PYTHON_VERSION" == 2* ]]; then # to be deleted when we have py3 support
