@@ -33,4 +33,5 @@ after_script:
     - if [[ -e examples.log ]]; then cat examples.log; fi
 
 notifications:
-    flowdock: bd0fcd603797aa02273421678c1268e8
+    flowdock:
+        secure: "ZisceYtV2b7LWNUz0wEtiR9TRk+i8x5m/N6+Htn4IFr+bBcBi79ESO0u6DWiJA5rHt+Yq7Yf49vl7UO9HZCF+8n5B1nKpfivJKngVuMYLnhYifNmwCD7vQ8aaF9DTfOqvm2hJrHwtieX8BUGs2KWd8igt3f8LCXVWVBBvkqc2L0="
