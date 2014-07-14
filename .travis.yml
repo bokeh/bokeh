@@ -12,9 +12,9 @@ env:
 matrix:
     exclude:
         - python: 3.3
-            env: BOKEH_DEFAULT_NO_DEV=true
+          env: BOKEH_DEFAULT_NO_DEV=true
         - python: 3.4
-            env: BOKEH_DEFAULT_NO_DEV=true
+          env: BOKEH_DEFAULT_NO_DEV=true
 
 before_install:
     - export PATH="$HOME/miniconda/bin:$PATH"
