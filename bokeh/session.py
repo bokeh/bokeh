@@ -238,7 +238,13 @@ class Session(object):
         if headers is None:
             headers={'content-type':'application/json'}
         func = getattr(self.http_session, method)
-        resp = func(url, headers=headers, **kwargs)
+        import requests
+        import warnings
+        try:
+            resp = func(url, headers=headers, **kwargs)
+        except requests.exceptions.ConnectionError as e:
+            warnings.warn("You need to start the bokeh-server to see this example.")
+            raise e
         if resp.status_code == 409:
             raise DataIntegrityException
         if resp.status_code == 401:
