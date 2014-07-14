@@ -44,11 +44,11 @@ def pyramid():
     xgrid = Grid(plot=plot, dimension=0, axis=xaxis)
     ygrid = Grid(plot=plot, dimension=1, axis=yaxis)
 
-    male_quad = Quad(left="male", right=0, bottom="groups", top="shifted", fill_color="blue")
+    male_quad = Quad(left="male", right=0, bottom="groups", top="shifted", fill_color="#3B8686")
     male_quad_glyph = Glyph(data_source=source_pyramid, xdata_range=xdr, ydata_range=ydr, glyph=male_quad)
     plot.renderers.append(male_quad_glyph)
 
-    female_quad = Quad(left=0, right="female", bottom="groups", top="shifted", fill_color="violet")
+    female_quad = Quad(left=0, right="female", bottom="groups", top="shifted", fill_color="#CFF09E")
     female_quad_glyph = Glyph(data_source=source_pyramid, xdata_range=xdr, ydata_range=ydr, glyph=female_quad)
     plot.renderers.append(female_quad_glyph)
 
