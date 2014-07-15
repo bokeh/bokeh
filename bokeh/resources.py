@@ -125,7 +125,7 @@ class Resources(object):
     _default_css_files = ["css/bokeh.css"]
 
     _default_js_files_dev = ['js/vendor/requirejs/require.js', 'js/config.js']
-    _default_css_files_dev = ['css/bokeh-vendor.css', 'css/main.css']
+    _default_css_files_dev = ['css/bokeh.css']
 
     _default_root_dir = "."
     _default_root_url = "http://127.0.0.1:5006/"
