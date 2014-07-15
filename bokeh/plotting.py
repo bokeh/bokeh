@@ -7,6 +7,7 @@ import logging
 import os
 import uuid
 import warnings
+import io
 
 from . import browserlib
 from . import _glyph_functions as gf
@@ -19,6 +20,7 @@ from .plotting_helpers import (
 )
 from .resources import Resources
 from .session import Cloud, DEFAULT_SERVER_URL, Session
+from .utils import decode_utf8
 
 logger = logging.getLogger(__name__)
 
@@ -280,8 +282,8 @@ def save(filename=None, resources=None):
         return
 
     html = file_html(curdoc(), resources, _default_file['title'])
-    with open(filename, "wb") as f:
-        f.write(html.encode('utf-8'))
+    with io.open(filename, "w", encoding="utf-8") as f:
+        f.write(decode_utf8(html))
 
 def push(session=None, document=None):
     """ Updates the server with the data for the current document.
