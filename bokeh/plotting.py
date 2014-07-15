@@ -245,7 +245,7 @@ def show(browser=None, new="tab", url=None):
         controller.open("file://" + os.path.abspath(filename), new=new_param)
 
 
-def save(filename=None, resources=None):
+def save(filename=None, resources=None, encoding='utf-8', decoding='utf-8'):
     """ Updates the file with the data for the current document.
 
     If a filename is supplied, or output_file(...) has been called, this will
@@ -256,6 +256,9 @@ def save(filename=None, resources=None):
             if `filename` is None, the current output_file(...) filename is used if present
         resources (Resources, optional) : BokehJS resource config to use
             if `resources` is None, the current default resource config is used
+        encoding (str, optional): the specified encoding to write the file, defaults to utf-8
+        decoding (str, optional): the specified encoding to decode the generated html in python2,
+            defaults to utf-8.
 
     Returns:
         None
@@ -280,7 +283,12 @@ def save(filename=None, resources=None):
         return
 
     html = file_html(curdoc(), resources, _default_file['title'])
-    with open(filename, "w") as f:
+    import io
+    import sys
+
+    with io.open(filename, "w", encoding=encoding) as f:
+        if sys.version_info[0] == 2:
+            html = html.decode(decoding)
         f.write(html)
 
 def push(session=None, document=None):
