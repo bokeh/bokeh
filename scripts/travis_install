@@ -4,7 +4,6 @@ set -e # exit on error
 set -x # echo commands
 
 MINICONDA="Miniconda-$MINICONDA_VERSION-Linux-x86_64"
-
 MINICONDA_URL="http://repo.continuum.io/miniconda/$MINICONDA.sh"
 
 wget $MINICONDA_URL
@@ -38,11 +37,11 @@ fi
 
 DEPS="$DEPS_TRAVIS $DEPS_BOKEH $DEPS_SERVER $DEPS_DOCS $DEPS_EXAMPLES $DEPS_TESTS"
 
-conda install --yes --quiet -c bokeh $DEPS || exit 1
-pip install -i https://pypi.binstar.org/pypi/simple $DEPS_PIP || exit 1
+conda install --yes --quiet -c bokeh $DEPS
+pip install -i https://pypi.binstar.org/pypi/simple $DEPS_PIP
 
 cd bokehjs
-npm install && node_modules/.bin/grunt deploy || exit 1
+npm install && node_modules/.bin/grunt deploy
 cd ..
 
 ln -s $(readlink -f bokehjs/build/js) bokeh/server/static/js
@@ -50,4 +49,4 @@ ln -s $(readlink -f bokehjs/build/css) bokeh/server/static/css
 
 sed -i 's/^backend\s*:.*$/backend: agg/' `python -c "import matplotlib; print(matplotlib.matplotlib_fname())"`
 
-python -c 'import bokeh; bokeh.sampledata.download(progress=False)' || exit 1
+python -c 'import bokeh; bokeh.sampledata.download(progress=False)'
