@@ -12,7 +12,7 @@ rm -rf $MINICONDA.sh
 
 python -V
 
-DEPS_TRAVIS="python=$TRAVIS_PYTHON_VERSION pip nodejs"
+DEPS_TRAVIS="python=$TRAVIS_PYTHON_VERSION pip nodejs conda-build jinja2"
 DEPS_BOKEH="numpy pandas openpyxl<2.0 six requests dateutil"
 DEPS_SERVER="flask werkzeug greenlet redis redis-py"
 DEPS_DOCS="sphinx pygments" # sphinx-bootstrap-theme sphinxcontrib-napoleon
@@ -36,16 +36,8 @@ DEPS="$DEPS_TRAVIS $DEPS_BOKEH $DEPS_SERVER $DEPS_DOCS $DEPS_EXAMPLES $DEPS_TEST
 conda install --quiet --yes -c bokeh $DEPS
 pip install --quiet -i https://pypi.binstar.org/pypi/simple $DEPS_PIP
 
-INSTALL_DIR="$HOME/.local/lib/python$TRAVIS_PYTHON_VERSION/site-packages"
-mkdir -p $INSTALL_DIR
-ln -s $(readlink -f bokeh) $INSTALL_DIR/bokeh
-
-cd bokehjs
-npm install && node_modules/.bin/grunt deploy
-cd ..
-
-ln -s $(readlink -f bokehjs/build/js) bokeh/server/static/js
-ln -s $(readlink -f bokehjs/build/css) bokeh/server/static/css
+conda build --no-test conda.recipe
+conda install --use-local bokeh
 
 sed -i 's/^backend\s*:.*$/backend: agg/' `python -c "import matplotlib; print(matplotlib.matplotlib_fname())"`
 
