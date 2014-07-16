@@ -195,18 +195,6 @@ build_js = False
 if sys.version_info[:2] < (2, 6):
     raise RuntimeError("Bokeh requires python >= 2.6")
 
-# TODO (bev) remove 'devjs' in 0.5
-if 'devjs' in sys.argv:
-    print("WARNING: 'devjs' is deprecated and will be removed in Bokeh 0.5, please use 'develop'")
-    sys.argv.remove("devjs")
-    sys.argv.append("develop")
-
-# TODO (bev) remove '--deploy' in 0.5
-if '--deploy' in sys.argv:
-    print("WARNING: '--deploy' is deprecated and will be removed in Bokeh 0.5, please use '--build_js'")
-    sys.argv.remove("--deploy")
-    sys.argv.append("--build_js")
-
 if '--build_js' in sys.argv:
     os.chdir('bokehjs')
     build_js = True
@@ -272,7 +260,7 @@ pat = re.compile("Bokeh.version = '(.*)'")
 v = pat.search(f.read()).group(1)
 
 print()
-if 'devjs' in sys.argv or 'develop' in sys.argv:
+if 'develop' in sys.argv:
     with open(path_file, "w+") as f:
         f.write(path)
     print("Developing bokeh.")
