@@ -3,8 +3,6 @@
 set -e # exit on error
 set -x # echo commands
 
-sudo apt-get install -qq -y --force-yes nodejs npm
-
 case "$TRAVIS_PYTHON_VERSION" in
     2*) MINICONDA="Miniconda"  ;;
     3*) MINICONDA="Miniconda3" ;;
@@ -30,7 +28,7 @@ INSTALL_DIR="$HOME/.local/lib/python$TRAVIS_PYTHON_VERSION/site-packages"
 mkdir -p $INSTALL_DIR
 ln -s $(readlink -f bokeh) $INSTALL_DIR/bokeh
 
-DEPS_TRAVIS="python=$TRAVIS_PYTHON_VERSION pip"
+DEPS_TRAVIS="python=$TRAVIS_PYTHON_VERSION pip nodejs"
 DEPS_BOKEH="numpy pandas openpyxl<2.0 six requests dateutil"
 DEPS_SERVER="flask werkzeug greenlet redis redis-py"
 DEPS_DOCS="sphinx pygments" # sphinx-bootstrap-theme sphinxcontrib-napoleon
@@ -39,6 +37,7 @@ DEPS_TESTS="PyYAML nose mock colorama coverage ipython ipython-notebook" # webso
 DEPS_PIP="sphinx-bootstrap-theme sphinxcontrib-napoleon"
 
 if [[ "$TRAVIS_PYTHON_VERSION" == 2* ]]; then
+    DEPS_BOKEH="$DEPS_BOKEH abstract-rendering"
     DEPS_SERVER="$DEPS_SERVER gevent gevent-websocket"
     DEPS_PIP="$DEPS_PIP websocket"
 fi
@@ -50,12 +49,8 @@ fi
 
 DEPS="$DEPS_TRAVIS $DEPS_BOKEH $DEPS_SERVER $DEPS_DOCS $DEPS_EXAMPLES $DEPS_TESTS"
 
-conda install --yes --quiet $DEPS || exit 1
-pip install $DEPS_PIP || exit 1
-
-if [[ "$TRAVIS_PYTHON_VERSION" == 2* ]]; then # to be deleted when we have py3 support
-    conda install --yes --quiet -c https://conda.binstar.org/ilan abstract-rendering
-fi
+conda install --yes --quiet -c bokeh $DEPS || exit 1
+pip install -i https://pypi.binstar.org/pypi/simple $DEPS_PIP || exit 1
 
 cd bokehjs
 npm install && node_modules/.bin/grunt deploy || exit 1
