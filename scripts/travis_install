@@ -4,17 +4,12 @@ set -e # exit on error
 set -x # echo commands
 
 MINICONDA="Miniconda-$MINICONDA_VERSION-Linux-x86_64"
-PHANTOMJS="phantomjs-$PHANTOMJS_VERSION-linux-x86_64"
 
 MINICONDA_URL="http://repo.continuum.io/miniconda/$MINICONDA.sh"
-PHANTOMJS_URL="https://bitbucket.org/ariya/phantomjs/downloads/$PHANTOMJS.tar.bz2"
 
 wget $MINICONDA_URL
 bash $MINICONDA.sh -b -p $HOME/miniconda
 rm -rf $MINICONDA.sh
-
-mkdir $HOME/phantomjs
-wget -O - $PHANTOMJS_URL | tar xj --strip-components 1 -C $HOME/phantomjs
 
 python -V
 
