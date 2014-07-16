@@ -33,8 +33,8 @@ fi
 
 DEPS="$DEPS_TRAVIS $DEPS_BOKEH $DEPS_SERVER $DEPS_DOCS $DEPS_EXAMPLES $DEPS_TESTS"
 
-conda install --yes --quiet -c bokeh $DEPS
-pip install -i https://pypi.binstar.org/pypi/simple $DEPS_PIP
+conda install --quiet --yes -c bokeh $DEPS
+pip install --quiet -i https://pypi.binstar.org/pypi/simple $DEPS_PIP
 
 INSTALL_DIR="$HOME/.local/lib/python$TRAVIS_PYTHON_VERSION/site-packages"
 mkdir -p $INSTALL_DIR
