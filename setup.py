@@ -57,8 +57,7 @@ BOKEHJSREL = join(BOKEHJSROOT, 'release')
 
 SERVER = 'bokeh/server'
 
-APP = [join(BOKEHJSREL, 'js', 'bokeh.js'),
-       join(BOKEHJSREL, 'js', 'bokeh.min.js')]
+JS  = join(BOKEHJSREL, 'js')
 CSS = join(BOKEHJSREL, 'css')
 
 #-----------------------------------------------------------------------------
@@ -194,29 +193,26 @@ if sys.version_info[:2] < (2, 6):
     raise RuntimeError("Bokeh requires python >= 2.6")
 
 if '--build_js' in sys.argv:
-    print("building bokehjs...")
     sys.argv.remove('--build_js')
-    os.chdir('bokehjs')
     build_js = True
 
-    proc = subprocess.Popen([join('node_modules', '.bin', 'grunt'), 'deploy'])
-    if proc.wait() != 0:
-        print("ERROR: could not build bokehjs")
-        sys.exit(1)
+    print("building bokehjs...")
+    os.chdir('bokehjs')
 
-    APP = [join(BOKEHJSBUILD, 'js', 'bokeh.js'),
-           join(BOKEHJSBUILD, 'js', 'bokeh.min.js')]
+    try:
+        proc = subprocess.Popen([join('node_modules', '.bin', 'grunt'), 'deploy'])
+        if proc.wait() != 0:
+            print("ERROR: could not build bokehjs")
+            sys.exit(1)
+    finally:
+        os.chdir('..')
+
+    JS  = join(BOKEHJSBUILD, 'js')
     CSS = join(BOKEHJSBUILD, 'css')
-    os.chdir('..')
 
 if exists(join(SERVER, 'static', 'js')):
     shutil.rmtree(join(SERVER, 'static', 'js'))
-os.mkdir(join(SERVER, 'static', 'js'))
-
-for app in APP:
-    shutil.copy(app, join(SERVER, 'static', 'js'))
-shutil.copytree(join(BOKEHJSROOT, 'src', 'vendor'),
-                join(SERVER, 'static', 'js', 'vendor'))
+shutil.copytree(JS, join(SERVER, 'static', 'js'))
 
 if exists(join(SERVER, 'static', 'css')):
     shutil.rmtree(join(SERVER, 'static', 'css'))
