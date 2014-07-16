@@ -24,9 +24,7 @@ import sys
 
 if 'nightly' in sys.argv:
     from setuptools import setup
-    assert 'nightly' == sys.argv.pop(2)
-    subprocess
-    sys.argv.insert(2,"install")
+    sys.argv.remove('nightly')
 
     #need to create py dev version file for __init__.py __version__ setting
     vers_file = os.path.join('bokeh','__conda_version__.py')
