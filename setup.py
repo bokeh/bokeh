@@ -196,15 +196,16 @@ if sys.version_info[:2] < (2, 6):
     raise RuntimeError("Bokeh requires python >= 2.6")
 
 if '--build_js' in sys.argv:
+    print("building bokehjs...")
+    sys.argv.remove('--build_js')
     os.chdir('bokehjs')
     build_js = True
-    try:
-        print("building bokehjs...")
-        out = subprocess.check_output([join('node_modules', '.bin', 'grunt'), 'deploy'])
-        sys.argv.remove('--build_js')
-    except subprocess.CalledProcessError:
+
+    proc = subprocess.Popen([join('node_modules', '.bin', 'grunt'), 'deploy'])
+    if proc.wait() != 0:
         print("ERROR: could not build bokehjs")
         sys.exit(1)
+
     APP = [join(BOKEHJSBUILD, 'js', 'bokeh.js'),
            join(BOKEHJSBUILD, 'js', 'bokeh.min.js')]
     CSS = join(BOKEHJSBUILD, 'css')
