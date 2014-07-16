@@ -3,13 +3,7 @@
 set -e # exit on error
 set -x # echo commands
 
-case "$TRAVIS_PYTHON_VERSION" in
-    2*) MINICONDA="Miniconda"  ;;
-    3*) MINICONDA="Miniconda3" ;;
-     *) exit 1
-esac
-
-MINICONDA="$MINICONDA-$MINICONDA_VERSION-Linux-x86_64"
+MINICONDA="Miniconda-$MINICONDA_VERSION-Linux-x86_64"
 PHANTOMJS="phantomjs-$PHANTOMJS_VERSION-linux-x86_64"
 
 MINICONDA_URL="http://repo.continuum.io/miniconda/$MINICONDA.sh"
