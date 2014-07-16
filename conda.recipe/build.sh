@@ -1,8 +1,10 @@
 #!/bin/bash
 
+set -e
+set -x
+
 BLD_DIR=`pwd`
 
-# Recipe and source are stored together
 SRC_DIR=$RECIPE_DIR/..
 pushd $SRC_DIR
 
@@ -17,10 +19,9 @@ date=`date "+%Y%m%d"`
 echo $version.dev.$date > __conda_version__.txt
 cp __conda_version__.txt $BLD_DIR
 
-conda install --yes --force -c bokeh nodejs
-ls
+conda install --yes -c bokeh nodejs
+
 pushd bokehjs
-ls
 npm install
 popd
 
@@ -29,4 +30,3 @@ popd
 
 cd $PREFIX
 echo $PREFIX
-
