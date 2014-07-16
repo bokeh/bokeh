@@ -12,10 +12,6 @@ rm -rf $MINICONDA.sh
 
 python -V
 
-INSTALL_DIR="$HOME/.local/lib/python$TRAVIS_PYTHON_VERSION/site-packages"
-mkdir -p $INSTALL_DIR
-ln -s $(readlink -f bokeh) $INSTALL_DIR/bokeh
-
 DEPS_TRAVIS="python=$TRAVIS_PYTHON_VERSION pip nodejs"
 DEPS_BOKEH="numpy pandas openpyxl<2.0 six requests dateutil"
 DEPS_SERVER="flask werkzeug greenlet redis redis-py"
@@ -39,6 +35,10 @@ DEPS="$DEPS_TRAVIS $DEPS_BOKEH $DEPS_SERVER $DEPS_DOCS $DEPS_EXAMPLES $DEPS_TEST
 
 conda install --yes --quiet -c bokeh $DEPS
 pip install -i https://pypi.binstar.org/pypi/simple $DEPS_PIP
+
+INSTALL_DIR="$HOME/.local/lib/python$TRAVIS_PYTHON_VERSION/site-packages"
+mkdir -p $INSTALL_DIR
+ln -s $(readlink -f bokeh) $INSTALL_DIR/bokeh
 
 cd bokehjs
 npm install && node_modules/.bin/grunt deploy
