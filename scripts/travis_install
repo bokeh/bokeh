@@ -37,7 +37,7 @@ conda install --quiet --yes -c bokeh $DEPS
 pip install --quiet -i https://pypi.binstar.org/pypi/simple $DEPS_PIP
 
 conda build --no-test conda.recipe
-conda install --use-local bokeh
+conda install --use-local --yes bokeh
 
 sed -i 's/^backend\s*:.*$/backend: agg/' `python -c "import matplotlib; print(matplotlib.matplotlib_fname())"`
 
