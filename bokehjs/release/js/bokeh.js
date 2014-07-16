@@ -21679,7 +21679,6 @@ return { create_gear_tooth: createGearTooth, create_internal_gear_tooth: createI
               ay.push(sy[i]);
               h.push(-sh[i]);
             }
-            console.log(sy[i], sh[i], ay[i], h[i]);
             aax.push(0);
             aay.push(0);
           } else if (this.anchor === "bottom_center") {
