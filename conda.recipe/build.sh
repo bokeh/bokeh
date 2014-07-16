@@ -25,7 +25,7 @@ pushd bokehjs
 npm install
 popd
 
-$PYTHON setup.py install nightly --build_js --single-version-externally-managed --record=record.txt
+$PYTHON setup.py --quiet install nightly --build_js --single-version-externally-managed --record=record.txt
 popd
 
 cd $PREFIX
