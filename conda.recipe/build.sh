@@ -18,7 +18,6 @@ echo $version.dev.$date > __conda_version__.txt
 cp __conda_version__.txt $BLD_DIR
 
 conda install --yes --force -c bokeh nodejs
-conda install --yes --force -c bokeh grunt-cli
 ls
 pushd bokehjs
 ls
