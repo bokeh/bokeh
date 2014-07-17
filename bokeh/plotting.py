@@ -212,12 +212,14 @@ def output_file(filename, title="Bokeh Plot", autosave=True, mode="inline", root
         print("Session output file '%s' already exists, will be overwritten." % filename)
 
 
-def show(browser=None, new="tab", url=None):
-    """ 'shows' the current plot, by auto-raising the window or tab
+def show(obj=None, browser=None, new="tab", url=None):
+    """ 'shows' a plot object or the current plot, by auto-raising the window or tab
     displaying the current plot (for file/server output modes) or displaying
     it in an output cell (IPython notebook).
 
     Args:
+        obj (plot object, optional): it accepts a plot object and just shows it.
+
         browser (str, optional) : browser to show with (default: None)
             For systems that support it, the **browser** argument allows specifying
             which browser to display in, e.g. "safari", "firefox", "opera",
@@ -237,8 +239,10 @@ def show(browser=None, new="tab", url=None):
     new_param = {'tab': 2, 'window': 1}[new]
 
     controller = browserlib.get_browser_controller(browser=browser)
-
-    plot = curplot()
+    if obj is None:
+        plot = curplot()
+    else:
+        plot = obj
     if not plot:
         warnings.warn("No current plot to show. Use renderer functions (circle, rect, etc.) to create a current plot (see http://bokeh.pydata.org/index.html)")
         return
