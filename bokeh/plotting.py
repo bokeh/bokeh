@@ -65,7 +65,16 @@ def cursession():
     '''
     return _default_session
 
-def reset():
+def reset_output():
+    ''' Deactivate all currently active output modes.
+
+    Subsequent calls to show() will not render until a new output mode is
+    activated.
+
+    Returns:
+        None
+
+    '''
     global _default_document
     global _default_session
     global _default_file
