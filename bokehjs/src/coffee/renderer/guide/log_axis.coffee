@@ -13,7 +13,7 @@ define [
     default_view: LogAxisView
     type: 'LogAxis'
 
-    dinitialize: (attrs, objects) ->
+    initialize: (attrs, objects) ->
       super(attrs, objects)
       if not @get_obj('ticker')?
         @set_obj('ticker', LogTicker.Collection.create())
