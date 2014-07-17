@@ -94,7 +94,13 @@ class Seq(Transfer):
     else:
       raise AttributeError(name)
 
-
+class BinarySegment(Transfer):
+  out = "image"
+  high = Any
+  low = Any
+  divider = Any #TODO: Restrict to numbers...
+  def reify(self, **kwargs):
+    return numeric.BinarySegment(self.low, self.high, self.divider)
 
 class Id(Transfer): 
   out = "image"
@@ -127,7 +133,7 @@ class Spread(Transfer):
 
 #TODO: Pass the 'rend' definition through (minus the data_source references), unpack in 'downsample' instead of here...
 #TODO: Move reserve control up here or palette control down.  Probably related to refactoring palette into a model-backed type
-def source(plot, agg=Count(), info=Const(val=1), shader=Id(), remove_original=True, palette=["Spectral-11"], **kwargs):
+def source(plot, agg=Count(), info=Const(val=1), shader=Id(), remove_original=True, palette=["Spectral-11"], points=False, **kwargs):
   #Acquire information from renderer...
   rend = [r for r in plot.renderers if isinstance(r, Glyph)][0]
   datasource = rend.server_data_source
@@ -155,7 +161,13 @@ def source(plot, agg=Count(), info=Const(val=1), shader=Id(), remove_original=Tr
   if remove_original and plot in curdoc()._plotcontext.children: 
     curdoc()._plotcontext.children.remove(plot)  
 
-  kwargs['transform'] = {'resample':"abstract rendering", 'agg':agg, 'info':info, 'shader':shader, 'glyphspec': spec}
+  kwargs['transform'] = {
+      'resample':"abstract rendering",
+      'agg':agg,
+      'info':info,
+      'shader':shader,
+      'glyphspec': spec,
+      'points': points}
   return ServerDataSource(**kwargs)
 
 def mapping(source):
@@ -192,7 +204,7 @@ def downsample(data, transform, plot_state):
     ycol = table[ycol]
   
   #TODO: Do more detection to find if it is an area implantation.  If so, make a selector with the right shape pattern and use a point shaper
-  shaper = _shaper(glyphspec['type'], size)
+  shaper = _shaper(glyphspec['type'], size, transform['points'])
   glyphs = glyphset.Glyphset([xcol, ycol], ar.EmptyList(), shaper, colMajor=True)
   bounds = glyphs.bounds()
   
@@ -219,6 +231,7 @@ def downsample(data, transform, plot_state):
   (xmin, xmax) = (xcol.min(), xcol.max())
   (ymin, ymax) = (ycol.min(), ycol.max())
 
+
   rslt = {'image': [image],
           'global_offset_x' : [0],
           'global_offset_y' : [0],
@@ -228,6 +241,8 @@ def downsample(data, transform, plot_state):
           #y_range is the bottom and top data space values corresponding to the bottom left and top left of the plot
           'x_range' : {'start': xmin*scale_x, 'end':(xmax-xmin)*scale_x},
           'y_range' : {'start': ymin*scale_x, 'end':(ymax-ymin)*scale_y},
+          #'x_range' : {'start': 0, 'end':100},
+          #'y_range' : {'start': 0, 'end':100},
           
           #Data-image parameters.  
           #x/y are lower left data-space coord of the image.  
@@ -244,7 +259,7 @@ def _span(r):
   """Distance in a Range1D"""
   return abs(r.end - r.start)
 
-def _shaper(code, size):
+def _shaper(code, size, points):
   """Construct the AR shaper to match the given shape code."""
   code = code.lower()
   if not code == 'square':
@@ -253,4 +268,7 @@ def _shaper(code, size):
   tox = glyphset.idx(0)
   toy = glyphset.idx(1)
   sizer = glyphset.const(size)
-  return glyphset.ToPoint(toy, tox, sizer, sizer)
+  if (points): 
+    return glyphset.ToPoint(tox, toy, sizer, sizer)
+  else: 
+    return glyphset.ToRect(tox,toy, sizer,sizer)
