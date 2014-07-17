@@ -88,6 +88,7 @@ define [
   'widget/tabs'
   'widget/dialog'
 
+  'transforms/binarysegment'
   'transforms/const'
   'transforms/count'
   'transforms/cuberoot'
@@ -189,6 +190,7 @@ define [
     Tabs:                     'widget/tabs'
     Dialog:                   'widget/dialog'
 
+    BinarySegment:            'transforms/binarysegment'
     Const:                    'transforms/const'
     Count:                    'transforms/count'
     Cuberoot:                 'transforms/cuberoot'
