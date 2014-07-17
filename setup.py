@@ -42,7 +42,7 @@ else:
     from distutils.core import setup
 
 from distutils import dir_util
-from os.path import abspath, exists, join, dirname, isdir
+from os.path import abspath, relpath, exists, join, dirname, isdir
 
 # Our own imports
 import versioneer
@@ -73,30 +73,24 @@ versioneer.parentdir_prefix = 'Bokeh-'  # dirname like 'myproject-1.2.0'
 # Classes and functions
 #-----------------------------------------------------------------------------
 
+package_data = []
 
-def package_path(path, package_data_dirs):
-    for dirname, _, files in os.walk(path):
-        dirname = os.path.relpath(dirname, 'bokeh')
-        for f in files:
-            package_data_dirs.append(join(dirname, f))
-
-
-def get_sample_data():
-    """Scan sampledata for files with the above extensions and add to
-    pkg_data_dirs."""
-    data_files = []
-    root = join("bokeh", "sampledata")
-    for path, dirs, files in os.walk(root):
-        for fs in files:
-            if fs.endswith(suffix_list):
-                data_files.append(join("sampledata", fs))
-    return data_files
+def package_path(path, filters=()):
+    if not os.path.exists(path):
+        raise RuntimeError("packaging non-existent path: %s" % path)
+    elif os.path.isfile(path):
+        package_data.append(relpath(path, 'bokeh'))
+    else:
+        for dirname, _, files in os.walk(path):
+            dirname = relpath(dirname, 'bokeh')
+            for f in files:
+                if not filters or f.endswith(filters):
+                    package_data.append(join(dirname, f))
 
 # You can't install Bokeh in a virtualenv because the lack of getsitepackages()
 # This is an open bug: https://github.com/pypa/virtualenv/issues/355
 # And this is an intended PR to fix it: https://github.com/pypa/virtualenv/pull/508
 # Workaround to fix our issue: https://github.com/ContinuumIO/bokeh/issues/378
-
 
 def getsitepackages():
     """Returns a list containing all global site-packages directories
@@ -218,15 +212,13 @@ if exists(join(SERVER, 'static', 'css')):
     shutil.rmtree(join(SERVER, 'static', 'css'))
 shutil.copytree(CSS, join(SERVER, 'static', 'css'))
 
-package_data_dirs = []
-package_path(join(SERVER, 'static'), package_data_dirs)
-package_path(join(SERVER, 'templates'), package_data_dirs)
-package_path(join('bokeh', '_templates'), package_data_dirs)
-package_data_dirs.append('server/redis.conf')
+sampledata_suffixes = ('.csv', '.conf', '.gz', '.json', '.png')
 
-suffix_list = ('.csv', '.conf', '.gz', '.json', '.png')
-
-package_data_dirs = package_data_dirs + get_sample_data()
+package_path(join(SERVER, 'static'))
+package_path(join(SERVER, 'templates'))
+package_path(join('bokeh', '_templates'))
+package_path(join('bokeh', 'sampledata'), sampledata_suffixes)
+package_path(join('bokeh', 'server', 'redis.conf'))
 
 scripts = ['bokeh-server']
 
@@ -355,7 +347,7 @@ setup(
         'bokeh.tests',
         'bokeh.transforms'
     ],
-    package_data={'bokeh': package_data_dirs},
+    package_data={'bokeh': package_data},
     author='Continuum Analytics',
     author_email='info@continuum.io',
     url='http://github.com/ContinuumIO/Bokeh',
