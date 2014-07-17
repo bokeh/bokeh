@@ -46,11 +46,12 @@ define [
 
     initialize: (options) ->
       super(options)
+      @pause()
+
+      @model.initialize_layout(@model.solver)
 
       @canvas = @mget('canvas')
       @canvas_view = new @canvas.default_view({'model': @canvas})
-
-      @listenTo(@model.solver, 'layout_update', @request_render)
 
       # compat, to be removed
       @frame = @mget('frame')
@@ -89,7 +90,14 @@ define [
       @build_levels()
       @atm.bind_bokeh_events()
       @bind_bokeh_events()
-      @model.add_layout()
+
+      for k, v of @renderers
+        if v.model.initialize_layout?
+          v.model.initialize_layout(@canvas.solver)
+
+      @listenTo(@canvas.solver, 'layout_update', @request_render)
+
+      @unpause()
       @request_render()
       return this
 
@@ -151,19 +159,19 @@ define [
 
     render: (force_canvas=false) ->
       super()
-
       @canvas_view.render(force_canvas)
 
       ctx = @canvas_view.ctx
 
       frame = @model.get('frame')
       canvas = @model.get('canvas')
-      @model.solver.suggest_value(frame._width, canvas.get('width'))
-      @model.solver.suggest_value(frame._height, canvas.get('height'))
+      @canvas.solver.suggest_value(frame._width, canvas.get('width'))
+      @canvas.solver.suggest_value(frame._height, canvas.get('height'))
+
       for k, v of @renderers
         if v.model.update_layout?
-          v.model.update_layout(v, @model.solver)
-      @model.solver.update_variables(false)
+          v.model.update_layout(v, @canvas.solver)
+      @canvas.solver.update_variables(false)
 
       if not @initial_range_info?
         @set_initial_range()
@@ -235,22 +243,24 @@ define [
     initialize: (attrs, options) ->
       super(attrs, options)
 
-      @solver = new Solver()
-
       canvas = new Canvas.Model({
-        map: options.map ? false,
+        map: false #options.map ? false,
         canvas_width: @get('plot_width'),
         canvas_height: @get('plot_height'),
         hidpi: @get('hidpi')
-      }, {
-        solver: @solver
+        solver: new Solver()
       })
       @set('canvas', canvas)
 
+      @solver = canvas.get('solver')
+
+    initialize_layout: (solver) ->
+
+      canvas = @get('canvas')
       frame = new CartesianFrame.Model({
-        x_range: @get_obj('x_range'), y_range: @get_obj('y_range')
-      }, {
-        solver: @solver
+        x_range: @get_obj('x_range'),
+        y_range: @get_obj('y_range')
+        solver: solver
       })
       @set('frame', frame)
 
@@ -259,16 +269,12 @@ define [
       min_border_left   = @get('min_border_left')   ? @get('min_border')
       min_border_right  = @get('min_border_right')  ? @get('min_border')
 
-      @solver.add_constraint(new Constraint(new Expr(frame._left, -min_border_left), GE), kiwi.Strength.strong)
-      @solver.add_constraint(new Constraint(new Expr(frame._right, min_border_right, [-1, canvas._right]), LE), kiwi.Strength.strong)
-      @solver.add_constraint(new Constraint(new Expr(frame._bottom, -min_border_bottom), GE), kiwi.Strength.strong)
-      @solver.add_constraint(new Constraint(new Expr(frame._top, min_border_top, [-1, canvas._top]), LE), kiwi.Strength.strong)
-      @solver.suggest_value(frame._width, canvas.get('width'))
-      @solver.suggest_value(frame._height, canvas.get('height'))
-
-      @solver.update_variables(false)
-
-    add_layout: () ->
+      solver.add_constraint(new Constraint(new Expr(frame._left, -min_border_left), GE), kiwi.Strength.strong)
+      solver.add_constraint(new Constraint(new Expr(frame._right, min_border_right, [-1, canvas._right]), LE), kiwi.Strength.strong)
+      solver.add_constraint(new Constraint(new Expr(frame._bottom, -min_border_bottom), GE), kiwi.Strength.strong)
+      solver.add_constraint(new Constraint(new Expr(frame._top, min_border_top, [-1, canvas._top]), LE), kiwi.Strength.strong)
+      solver.suggest_value(frame._width, canvas.get('width'))
+      solver.suggest_value(frame._height, canvas.get('height'))
 
       do_side = (side, cname, op) =>
         canvas = @get('canvas')
@@ -287,8 +293,6 @@ define [
       do_side('below', '_bottom', GE)
       do_side('left', '_left', GE)
       do_side('right', '_right', LE)
-
-      @solver.update_variables(false)
 
     add_renderers: (new_renderers) ->
       renderers = @get('renderers')

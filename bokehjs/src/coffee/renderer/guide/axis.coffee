@@ -293,42 +293,6 @@ define [
 
     initialize: (attrs, options)->
       super(attrs, options)
-      plot = @get_obj('plot')
-      panel = new Panel.Model({}, {solver: plot.solver})
-      @set('panel', panel)
-
-      # Yuck. The issues is that frames and canvases *are* panels, but axes are not but
-      # should be (no multiple inheritnce in CoffeeScript)
-      @_top = panel._top
-      @_bottom = panel._bottom
-      @_left = panel._left
-      @_right = panel._right
-      @_width = panel._width
-      @_height = panel._height
-
-      side = @get('location')
-      if side == "top"
-        @_size = panel._height
-        @_anchor = panel._bottom
-        @_dim = 0
-        @_normals = [0, -1]
-      else if side == "bottom"
-        @_size = panel._height
-        @_anchor = panel._top
-        @_dim = 0
-        @_normals = [0, 1]
-      else if side == "left"
-        @_size = panel._width
-        @_anchor = panel._right
-        @_dim = 1
-        @_normals = [-1, 0]
-      else if side == "right"
-        @_size = panel._width
-        @_anchor = panel._left
-        @_dim = 1
-        @_normals = [1, 0]
-      else
-        console.log("ERROR: unrecognized side: '#{ side }'")
 
       @register_property('computed_bounds', @_computed_bounds, false)
       @add_dependencies('computed_bounds', this, ['bounds'])
@@ -343,6 +307,52 @@ define [
       @register_property('ranges', @_ranges, true)
       @register_property('normals', (() -> @_normals), true)
       @register_property('dimension', (() -> @_dim), true)
+
+      side = @get('location')
+      if side == "top"
+        @_dim = 0
+        @_normals = [0, -1]
+      else if side == "bottom"
+        @_dim = 0
+        @_normals = [0, 1]
+      else if side == "left"
+        @_dim = 1
+        @_normals = [-1, 0]
+      else if side == "right"
+        @_dim = 1
+        @_normals = [1, 0]
+      else
+        console.log("ERROR: unrecognized side: '#{ side }'")
+
+    initialize_layout: (solver) ->
+      panel = new Panel.Model({solver: solver})
+      @panel = panel
+      #@set('panel', panel)
+
+      # Yuck. The issues is that frames and canvases *are* panels, but axes are not but
+      # should be (no multiple inheritnce in CoffeeScript)
+      @_top = panel._top
+      @_bottom = panel._bottom
+      @_left = panel._left
+      @_right = panel._right
+      @_width = panel._width
+      @_height = panel._height
+
+      side = @get('location')
+      if side == "top"
+        @_size = panel._height
+        @_anchor = panel._bottom
+      else if side == "bottom"
+        @_size = panel._height
+        @_anchor = panel._top
+      else if side == "left"
+        @_size = panel._width
+        @_anchor = panel._right
+      else if side == "right"
+        @_dim = 1
+        @_normals = [1, 0]
+      else
+        console.log("ERROR: unrecognized side: '#{ side }'")
 
     update_layout: (view, solver) ->
       size = @_tick_extent(view) + @_tick_label_extent(view) + @_axis_label_extent(view)
@@ -360,7 +370,7 @@ define [
       i = @get('dimension')
       j = (i + 1) % 2
 
-      ranges = [@get_obj('plot').get_obj('x_range'), @get_obj('plot').get_obj('y_range')]
+      ranges = [@get_obj('plot').get('frame').get_obj('x_range'), @get_obj('plot').get('frame').get_obj('y_range')]
       return [ranges[i], ranges[j]]
 
     _computed_bounds: () ->

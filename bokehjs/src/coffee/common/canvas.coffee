@@ -4,7 +4,8 @@ define [
   "./canvas_template"
   "./continuum_view",
   "./panel"
-], (Backbone, kiwi, canvas_template, ContinuumView, Panel) ->
+  "./solver",
+], (Backbone, kiwi, canvas_template, ContinuumView, Panel, Solver) ->
 
   Expr = kiwi.Expression
   Constraint = kiwi.Constraint
@@ -34,6 +35,8 @@ define [
       @map_div = @$el.find('.bokeh_gmap') ? null
 
     render: (force=false) ->
+      # normally we only want to render the canvas when the canvas itself
+      # should be configured with new bounds.
       if not @model.new_bounds and not force
         return
 
@@ -122,16 +125,14 @@ define [
     default_view: CanvasView
 
     initialize: (attr, options) ->
+      solver = new Solver()
+      @set('solver', solver)
       super(attr, options)
 
       @new_bounds = true
 
-    initialize: (attr, options) ->
-      super(attr, options)
-
-      @solver = options.solver
-      @solver.add_constraint(new Constraint(new Expr(@_left), EQ))
-      @solver.add_constraint(new Constraint(new Expr(@_bottom), EQ))
+      solver.add_constraint(new Constraint(new Expr(@_left), EQ))
+      solver.add_constraint(new Constraint(new Expr(@_bottom), EQ))
       @_set_dims([@get('canvas_width'), @get('canvas_height')])
 
     # transform view coordinates to underlying screen coordinates

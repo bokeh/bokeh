@@ -19,7 +19,7 @@ define [
 
     initialize: (attrs, options) ->
       super(attrs, options)
-      @solver = options.solver
+      @solver = @get('solver')
 
       @var_constraints = {}
 
