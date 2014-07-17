@@ -16,6 +16,7 @@ from bokeh.resources import Resources
 # patch open and show and save to be no-ops
 def noop(*args, **kwargs):
     pass
+
 webbrowser.open = noop
 plotting.save = noop
 plotting.show = noop
@@ -28,7 +29,8 @@ def page_desc(module_desc):
 
     namespace = {}
     with open(module_path, "r") as module_file:
-        six.exec_(module_file.read(), namespace)
+        code = compile(module_file.read(), module_path, "exec")
+        eval(code, namespace)
 
     if var_name:
         objs = [namespace[var_name]]
