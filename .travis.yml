@@ -27,7 +27,7 @@ install:
 
 script:
     - nosetests --with-coverage --cover-package=bokeh
-    - pushd sphinx; make all; popd
+    - ( cd sphinx; make all )
 
 after_script:
     - if [[ -e examples.log ]]; then cat examples.log; fi
