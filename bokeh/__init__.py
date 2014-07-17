@@ -33,7 +33,6 @@ def load_notebook(resources=None, verbose=False, force=None, skip=False):
         warnings.warn("force is deprecated, don't call load_notebook from "
                       "outside an IPython notebook")
 
-    import IPython.core.displaypub as displaypub
     from .resources import INLINE
     from .templates import NOTEBOOK_LOAD, RESOURCES
 
