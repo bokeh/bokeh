@@ -3,6 +3,8 @@
 set -e # exit on error
 set -x # echo commands
 
+sudo apt-get install -qq -y --force-yes graphviz perceptualdiff
+
 MINICONDA="Miniconda-$MINICONDA_VERSION-Linux-x86_64"
 MINICONDA_URL="http://repo.continuum.io/miniconda/$MINICONDA.sh"
 
