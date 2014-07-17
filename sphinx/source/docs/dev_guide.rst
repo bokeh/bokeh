@@ -139,7 +139,7 @@ This example shows a scatter plot where every circle has its own radius and colo
 .. raw:: html
 
     <iframe width="100%" height="700" src="http://jsfiddle.net/bokeh/Tw5Sm/embedded/result,js/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
- 
+
 Lorenz
 ******
 
@@ -308,7 +308,7 @@ The resulting scripts will have the filenames `bokeh.js` and `bokeh.min.js` and
 be located in the ``build/js`` subdirectory.
 
 Alternative build system
-~~~~~~~~~~~~~~~~~~~~~~~~
+************************
 
 Alternatively to `grunt`, you can use `sbt <http://www.scala-sbt.org` to build BokehJS.
 To start, issue `./sbt` in the root directory. This will download `sbt` itself, its
