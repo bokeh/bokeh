@@ -35,12 +35,13 @@ fi
 
 DEPS="$DEPS_TRAVIS $DEPS_BOKEH $DEPS_SERVER $DEPS_DOCS $DEPS_EXAMPLES $DEPS_TESTS"
 
-conda install --quiet --yes -c bokeh $DEPS
+conda install -c bokeh --quiet --yes $DEPS
 pip install --quiet -i https://pypi.binstar.org/pypi/simple $DEPS_PIP
 
 CONDA_PY="${TRAVIS_PYTHON_VERSION/./}" conda build --no-test conda.recipe
 conda install --use-local --yes bokeh
 
-sed -i 's/^backend\s*:.*$/backend: agg/' `python -c "import matplotlib; print(matplotlib.matplotlib_fname())"`
+MATPLOTLIB_RC=$(python -c "import matplotlib; print(matplotlib.matplotlib_fname())")
+sed -i 's/^backend\s*:.*$/backend: agg/' $MATPLOTLIB_RC
 
 python -c 'import bokeh; bokeh.sampledata.download(progress=False)'
