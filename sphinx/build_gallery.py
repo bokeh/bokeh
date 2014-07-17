@@ -44,7 +44,7 @@ def page_desc(module_desc):
             os.path.join(DETAIL_URL_ROOT, filename)
         )
         embed_snippet += tag
-        with open(os.path.join(SNIPPET_BUILD_DIR, filename), "w'") as f:
+        with open(os.path.join(SNIPPET_BUILD_DIR, filename), "w") as f:
             f.write(js)
 
         detail_snippet = highlight(
