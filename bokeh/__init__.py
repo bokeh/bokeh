@@ -13,7 +13,7 @@ except ImportError:
 
 _notebook_loaded = None
 
-def load_notebook(resources=None, verbose=False, force=None, skip=False):
+def load_notebook(resources=None, verbose=False, force=False, skip=False):
     ''' Prepare the IPython notebook for displaying Bokeh plots.
 
     Args:
