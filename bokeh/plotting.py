@@ -20,7 +20,7 @@ from .plotting_helpers import (
 )
 from .resources import Resources
 from .session import Cloud, DEFAULT_SERVER_URL, Session
-from .utils import decode_utf8
+from .utils import decode_utf8, publish_display_data
 
 logger = logging.getLogger(__name__)
 
@@ -225,15 +225,12 @@ def show(browser=None, new="tab", url=None):
         return
 
     if notebook and session:
-        import IPython.core.displaypub as displaypub
         push(session=session)
         snippet = autoload_server(plot, cursession())
-        displaypub.publish_display_data('bokeh', {'text/html': snippet})
+        publish_display_data({'text/html': snippet})
 
     elif notebook:
-        import IPython.core.displaypub as displaypub
-
-        displaypub.publish_display_data('bokeh', {'text/html': notebook_div(plot)})
+        publish_display_data({'text/html': notebook_div(plot)})
 
     elif session:
         push()

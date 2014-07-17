@@ -1,6 +1,7 @@
 from __future__ import absolute_import, print_function
+import warnings
 from ._version import get_versions
-import os
+from . import utils
 try:
     from .__conda_version__ import conda_version
     __version__ = conda_version.replace("'","")
@@ -12,7 +13,7 @@ except ImportError:
 
 _notebook_loaded = None
 
-def load_notebook(resources=None, verbose=False, force=False, skip=False):
+def load_notebook(resources=None, verbose=False, force=None, skip=False):
     ''' Prepare the IPython notebook for displaying Bokeh plots.
 
     Args:
@@ -28,14 +29,9 @@ def load_notebook(resources=None, verbose=False, force=False, skip=False):
 
     # It's possible the IPython folks will chance things in the future, `force` parameter
     # provides an escape hatch as long as `displaypub` works
-    if not force:
-        notebook = False
-        try:
-            notebook = 'notebook' in get_ipython().config['IPKernelApp']['parent_appname']
-        except Exception:
-            pass
-        if not notebook:
-            raise RuntimeError('load_notebook() only works inside an IPython Notebook.')
+    if force is not None:
+        warnings.warn("force is deprecated, don't call load_notebook from "
+                      "outside an IPython notebook")
 
     import IPython.core.displaypub as displaypub
     from .resources import INLINE
@@ -75,7 +71,7 @@ def load_notebook(resources=None, verbose=False, force=False, skip=False):
         warnings = warnings,
         skip = skip,
     )
-    displaypub.publish_display_data('bokeh', {'text/html': html})
+    utils.publish_display_data({'text/html': html})
 
 from .settings import settings
 from . import sampledata
