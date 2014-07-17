@@ -38,18 +38,25 @@ plot = annular_wedge(
 tag = embed.autoload_server(plot, cursession())
 html = """
 <html>
-<head></head>
-<body>
-%s
-</body>
+  <head></head>
+  <body>
+    %s
+  </body>
 </html>
 """
 html = html % (tag)
 with open("animated_embed.html", "w+") as f:
     f.write(html)
-print("To view this example, start the python simple http server in this directory "
-      "with `python -m SimpleHTTPServer' and then navigate to "
-      "`http://localhost:8000/animated_embed.html'")
+
+print("""
+To view this example, run
+
+    python -m SimpleHTTPServer
+
+in this directory, then navigate to
+
+    http://localhost:8000/animated_embed.html
+""")
 
 renderer = [r for r in plot.renderers if isinstance(r, Glyph)][0]
 ds = renderer.data_source

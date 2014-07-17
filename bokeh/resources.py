@@ -15,6 +15,8 @@ import sys
 import logging
 logger = logging.getLogger(__name__)
 
+import six
+
 from . import __version__, settings
 
 def _server_static_dir():
@@ -123,7 +125,7 @@ class Resources(object):
     _default_css_files = ["css/bokeh.css"]
 
     _default_js_files_dev = ['js/vendor/requirejs/require.js', 'js/config.js']
-    _default_css_files_dev = ['css/bokeh-vendor.css', 'css/main.css']
+    _default_css_files_dev = ['css/bokeh.css']
 
     _default_root_dir = "."
     _default_root_url = "http://127.0.0.1:5006/"
@@ -139,11 +141,11 @@ class Resources(object):
         if root_url and not root_url.endswith("/"):
             logger.warning("root_url should end with a /, adding one")
             root_url = root_url + "/"
-                                 
+
         self._root_url = root_url
 
         if mode not in ['inline', 'cdn', 'server', 'server-dev', 'relative', 'relative-dev', 'absolute', 'absolute-dev']:
-            raise ValueError("wrong value for 'mode' parameter, expected 'inline', 'cdn', 'server', 'server-dev', 'relative(-dev)' or 'absolute(-dev)', got %r" % self.mode)
+            raise ValueError("wrong value for 'mode' parameter, expected 'inline', 'cdn', 'server(-dev)', 'relative(-dev)' or 'absolute(-dev)', got %r" % self.mode)
 
         if self.root_dir and not mode.startswith("relative"):
             raise ValueError("setting 'root_dir' makes sense only when 'mode' is set to 'relative'")
@@ -162,15 +164,15 @@ class Resources(object):
         css_paths = self._css_paths(dev=self.dev, minified=self.minified)
         base_url = _static_path("js")
 
-        self.js_raw = []
-        self.css_raw = []
+        self._js_raw = []
+        self._css_raw = []
         self.js_files = []
         self.css_files = []
         self.messages = []
 
         if self.mode == "inline":
-            self.js_raw = _inline(js_paths)
-            self.css_raw = _inline(css_paths)
+            self._js_raw = lambda: _inline(js_paths)
+            self._css_raw = lambda: _inline(css_paths)
         elif self.mode == "relative":
             root_dir = self.root_dir or self._default_root_dir
             self.js_files = [ relpath(p, root_dir) for p in js_paths ]
@@ -192,7 +194,19 @@ class Resources(object):
 
         if self.dev:
             require = 'require.config({ baseUrl: "%s" });' % base_url
-            self.js_raw.append(require)
+            self._js_raw.append(require)
+
+    @property
+    def js_raw(self):
+        if six.callable(self._js_raw):
+            self._js_raw = self._js_raw()
+        return self._js_raw
+
+    @property
+    def css_raw(self):
+        if six.callable(self._css_raw):
+            self._css_raw = self._css_raw()
+        return self._css_raw
 
     @property
     def root_url(self):
@@ -234,9 +248,3 @@ class Resources(object):
 CDN = Resources(mode="cdn")
 
 INLINE = Resources(mode="inline")
-
-
-
-
-
-

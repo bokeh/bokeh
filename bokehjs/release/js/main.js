@@ -1,14 +1,21 @@
 (function() {
   define(function(require, exports, module) {
-    var Bokeh, glyph_factory;
+    var Bokeh, glyph_factory, _oldJQ;
     if (!window.Float64Array) {
       console.warn("Float64Array is not supported. Using generic Array instead.");
       window.Float64Array = Array;
     }
     Bokeh = {};
-    Bokeh.version = '0.4.4';
-    Bokeh.Backbone = require("backbone");
+    Bokeh.require = require;
+    Bokeh.version = '0.5.0';
     Bokeh._ = require("underscore");
+    Bokeh.$ = require("jquery");
+    Bokeh.Backbone = require("backbone");
+    _oldJQ = window.$;
+    window.jQuery.noConflict();
+    if (typeof $ === "undefined") {
+      window.$ = _oldJQ;
+    }
     Bokeh.Collections = require("common/base").Collections;
     Bokeh.Config = require("common/base").Config;
     Bokeh.GMapPlot = require("common/gmap_plot");
@@ -31,6 +38,7 @@
     Bokeh.SVGColors = require("common/svg_colors");
     Bokeh.ViewState = require("common/view_state");
     Bokeh.LinearMapper = require("mapper/1d/linear_mapper");
+    Bokeh.LogMapper = require("mapper/1d/log_mapper");
     Bokeh.CategoricalMapper = require("mapper/1d/categorical_mapper");
     Bokeh.GridMapper = require("mapper/2d/grid_mapper");
     Bokeh.LinearColorMapper = require("mapper/color/linear_color_mapper");
@@ -51,7 +59,7 @@
     Bokeh.DiamondCross = glyph_factory.diamond_cross;
     Bokeh.Image = glyph_factory.image;
     Bokeh.ImageRGBA = glyph_factory.image_rgba;
-    Bokeh.ImageURI = glyph_factory.image_uri;
+    Bokeh.ImageURL = glyph_factory.image_url;
     Bokeh.InvertedTriangle = glyph_factory.inverted_triangle;
     Bokeh.Line = glyph_factory.line;
     Bokeh.MultiLine = glyph_factory.multi_line;
@@ -74,9 +82,11 @@
     Bokeh.DatetimeAxis = require("renderer/guide/datetime_axis");
     Bokeh.Grid = require("renderer/guide/grid");
     Bokeh.LinearAxis = require("renderer/guide/linear_axis");
+    Bokeh.LogAxis = require("renderer/guide/log_axis");
     Bokeh.BoxSelection = require("renderer/overlay/box_selection");
     Bokeh.Properties = require("renderer/properties");
     Bokeh.embed_core = require("server/embed_core");
+    Bokeh.embed = require("server/embed");
     Bokeh.serverrun = require("server/serverrun");
     Bokeh.serverutils = require("server/serverutils");
     Bokeh.ColumnDataSource = require("source/column_data_source");
@@ -84,6 +94,8 @@
     Bokeh.AdaptiveTicker = require("ticking/adaptive_ticker");
     Bokeh.BasicTicker = require("ticking/basic_ticker");
     Bokeh.BasicTickFormatter = require("ticking/basic_tick_formatter");
+    Bokeh.LogTicker = require("ticking/log_ticker");
+    Bokeh.LogTickFormatter = require("ticking/log_tick_formatter");
     Bokeh.CategoricalTicker = require("ticking/categorical_ticker");
     Bokeh.CategoricalTickFormatter = require("ticking/categorical_tick_formatter");
     Bokeh.CompositeTicker = require("ticking/composite_ticker");
@@ -95,6 +107,7 @@
     Bokeh.YearsTicker = require("ticking/years_ticker");
     Bokeh.BoxSelectTool = require("tool/box_select_tool");
     Bokeh.BoxZoomTool = require("tool/box_zoom_tool");
+    Bokeh.ClickTool = require("tool/click_tool");
     Bokeh.CrosshairTool = require("tool/crosshair_tool");
     Bokeh.DataRangeBoxSelectTool = require("tool/data_range_box_select_tool");
     Bokeh.EmbedTool = require("tool/embed_tool");
@@ -112,7 +125,8 @@
     Bokeh.VBox = require("widget/vbox");
     Bokeh.VBoxModelForm = require("widget/vboxmodelform");
     Bokeh.TextInput = require("widget/textinput");
-    Bokeh.ObjectExplorer = require("util/object_explorer");
+    Bokeh.CrossFilter = require("widget/crossfilter");
+    Bokeh.ObjectExplorer = require("widget/object_explorer");
     exports.Bokeh = Bokeh;
     return Bokeh;
   });

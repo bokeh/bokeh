@@ -247,12 +247,6 @@ define [
       })
       @set('canvas', canvas)
 
-
-    dinitialize: (attrs, options) ->
-      super(attrs, options)
-
-      canvas = @get('canvas')
-
       frame = new CartesianFrame.Model({
         x_range: @get_obj('x_range'), y_range: @get_obj('y_range')
       }, {

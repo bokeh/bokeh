@@ -7,7 +7,7 @@ import numpy as np
 import scipy.special
 
 from bokeh.embed import autoload_server
-from bokeh.objects import Glyph, Range1d
+from bokeh.objects import Glyph
 from bokeh.plotting import (annular_wedge, curplot, cursession, figure, hold,
                             legend, line, output_server, quad, xgrid, ygrid)
 
@@ -17,8 +17,12 @@ app = Flask(__name__)
 
 @app.route('/')
 def render_plot():
-    tag1, id1 = make_snippet("plot", distribution()[0], distribution()[1])
-    tag2, id2 = make_snippet("animated", animated()[0], animated()[1], update_animation)
+    distribution_plot = distribution()
+    tag1, id1 = make_snippet("plot", distribution_plot[0], distribution_plot[1])
+
+    animated_plot = animated()
+    tag2, id2 = make_snippet("animated", animated_plot[0], animated_plot[1], update_animation)
+
     tag3, id3 = make_snippet("widget", pop.layout, pop.session, update_population)
 
     return render_template('app_plot.html',
@@ -103,8 +107,8 @@ def animated():
 
     annular_wedge(
         cx, cy, rmin, rmax, theta[:-1], theta[1:],
-        x_range=Range1d(start=-11, end=11),
-        y_range=Range1d(start=-11, end=11),
+        x_range=[-11, 11],
+        y_range=[-11, 11],
         inner_radius_units="data",
         outer_radius_units="data",
         fill_color=colors,

@@ -14,6 +14,7 @@ define [
 
   "mapper/1d/categorical_mapper",
   "mapper/1d/linear_mapper",
+  "mapper/1d/log_mapper",
   "mapper/2d/grid_mapper",
   "mapper/color/linear_color_mapper",
 
@@ -28,6 +29,7 @@ define [
   "renderer/guide/datetime_axis",
   "renderer/guide/grid",
   "renderer/guide/linear_axis",
+  "renderer/guide/log_axis",
   "renderer/overlay/box_selection",
 
   "source/column_data_source",
@@ -37,6 +39,8 @@ define [
   "ticking/adaptive_ticker",
   "ticking/basic_tick_formatter",
   "ticking/basic_ticker",
+  "ticking/log_ticker",
+  "ticking/log_tick_formatter",
   "ticking/categorical_tick_formatter",
   "ticking/categorical_ticker",
   "ticking/composite_ticker",
@@ -93,6 +97,7 @@ define [
   'transforms/id'
   'transforms/interpolate'
   'transforms/seq'
+  'transforms/spread'
 ], (_, require) ->
 
   # add some useful functions to underscore
@@ -124,6 +129,7 @@ define [
 
     Glyph:                    'renderer/glyph/glyph_factory'
     LinearAxis:               'renderer/guide/linear_axis'
+    LogAxis:                  'renderer/guide/log_axis'
     CategoricalAxis:          'renderer/guide/categorical_axis'
     DatetimeAxis:             'renderer/guide/datetime_axis'
     Grid:                     'renderer/guide/grid'
@@ -137,6 +143,8 @@ define [
     AdaptiveTicker:           'ticking/adaptive_ticker'
     BasicTicker:              'ticking/basic_ticker'
     BasicTickFormatter:       'ticking/basic_tick_formatter'
+    LogTicker:                'ticking/log_ticker'
+    LogTickFormatter:         'ticking/log_tick_formatter'
     CategoricalTicker:        'ticking/categorical_ticker'
     CategoricalTickFormatter: 'ticking/categorical_tick_formatter'
     CompositeTicker:          'ticking/composite_ticker'
@@ -193,7 +201,7 @@ define [
     Id:                       'transforms/id'
     Interpolate:              'transforms/interpolate'
     Seq:                      'transforms/seq'
-
+    Spread:                   'transforms/spread'
   mod_cache = {}
   collection_overrides = {}
   Collections = (typename) ->

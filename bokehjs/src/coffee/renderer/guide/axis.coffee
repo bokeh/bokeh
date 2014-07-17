@@ -291,7 +291,7 @@ define [
     default_view: AxisView
     type: 'Axis'
 
-    dinitialize: (attrs, options)->
+    initialize: (attrs, options)->
       super(attrs, options)
       plot = @get_obj('plot')
       panel = new Panel.Model({}, {solver: plot.solver})

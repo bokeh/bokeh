@@ -2,7 +2,6 @@ from __future__ import division
 
 import numpy as np
 from bokeh.plotting import *
-from bokeh.objects import Range1d
 
 # NOTE: if you do not have numba installed, comment out this import,
 # and the 'autojit' lines below (the example will run more slowly).
@@ -64,17 +63,17 @@ create_fractal(min_x, max_x, min_y, max_y, img, 20)
 # **lists** of images, coordinates, and palettes. Remember to supply sequences
 # for these parameters, even if you are just supply one.
 image(image=
-      x=                                          # lower left x coord
-      y=                                          # lower left y coord
-      dw=                                         # *data* width of image
-      dh=                                         # *data* height of image
-      palette=                                    # palette to colormap with
-      x_range = Range1d(start=min_x, end=max_x),  # fix the X range
-      y_range = Range1d(start=min_y, end=max_x),  # fix the Y range
-      title=                                      # give the plot a title
-      tools="pan,wheel_zoom,box_zoom,reset",      # add some tools
-      plot_width=900,                             # set a width for the plot
-      plot_height=600                             # and a height
+      x=                                     # lower left x coord
+      y=                                     # lower left y coord
+      dw=                                    # *data* width of image
+      dh=                                    # *data* height of image
+      palette=                               # palette to colormap with
+      x_range = [min_x, max_y),              # fix the X range
+      y_range = [min_y, max_y],              # fix the Y range
+      title=                                 # give the plot a title
+      tools="pan,wheel_zoom,box_zoom,reset", # add some tools
+      plot_width=900,                        # set a width for the plot
+      plot_height=600                        # and a height
 )
 
 # EXERCISE: create a new figure

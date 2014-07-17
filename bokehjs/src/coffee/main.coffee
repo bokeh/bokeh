@@ -4,7 +4,7 @@ define (require, exports, module) ->
     window.Float64Array = Array
   Bokeh = {}
   Bokeh.require = require
-  Bokeh.version = '0.4.4'
+  Bokeh.version = '0.5.0'
 
   # binding the libs that bokeh uses so others can reference them
   Bokeh._                 = require("underscore")
@@ -47,6 +47,7 @@ define (require, exports, module) ->
 
   # mappers
   Bokeh.LinearMapper      = require("mapper/1d/linear_mapper")
+  Bokeh.LogMapper         = require("mapper/1d/log_mapper")
   Bokeh.CategoricalMapper = require("mapper/1d/categorical_mapper")
   Bokeh.GridMapper        = require("mapper/2d/grid_mapper")
   Bokeh.LinearColorMapper = require("mapper/color/linear_color_mapper")
@@ -66,6 +67,7 @@ define (require, exports, module) ->
   Bokeh.DatetimeAxis    = require("renderer/guide/datetime_axis")
   Bokeh.Grid            = require("renderer/guide/grid")
   Bokeh.LinearAxis      = require("renderer/guide/linear_axis")
+  Bokeh.LogAxis         = require("renderer/guide/log_axis")
 
   # overlays
   Bokeh.BoxSelection = require("renderer/overlay/box_selection")
@@ -87,6 +89,8 @@ define (require, exports, module) ->
   Bokeh.AdaptiveTicker           = require("ticking/adaptive_ticker")
   Bokeh.BasicTicker              = require("ticking/basic_ticker")
   Bokeh.BasicTickFormatter       = require("ticking/basic_tick_formatter")
+  Bokeh.LogTicker                = require("ticking/log_ticker")
+  Bokeh.LogTickFormatter         = require("ticking/log_tick_formatter")
   Bokeh.CategoricalTicker        = require("ticking/categorical_ticker")
   Bokeh.CategoricalTickFormatter = require("ticking/categorical_tick_formatter")
   Bokeh.CompositeTicker          = require("ticking/composite_ticker")

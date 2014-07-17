@@ -101,7 +101,7 @@ define [
     default_view: ClickToolView
     type: "ClickTool"
 
-    dinitialize: (attrs, options) ->
+    initialize: (attrs, options) ->
       super(attrs, options)
       names = @get('names')
       all_renderers = @get_obj('plot').get_obj('renderers')

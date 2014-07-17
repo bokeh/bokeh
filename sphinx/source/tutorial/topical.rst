@@ -41,7 +41,7 @@ coordinates for left, right, top, and bottom.
 .. literalinclude:: exercises/histogram.py
    :language: python
    :linenos:
-   :emphasize-lines: 20,22,34,50,65-67
+   :emphasize-lines: 19,21,33,49,62,63,64,65,66
 
 See the :doc:`solutions/gallery/histogram`.
 
@@ -55,7 +55,7 @@ Boxplots
 .. literalinclude:: exercises/boxplot.py
    :language: python
    :linenos:
-   :emphasize-lines: 35,37,44,50,58,60-62
+   :emphasize-lines: 35,37,44,50,58,60,61,62
 
 See the :doc:`solutions/gallery/boxplot`.
 
@@ -72,7 +72,7 @@ using Bokeh. This data may be obtained from `The Bureau of Labor Statistics <htt
 .. literalinclude:: exercises/unemployment.py
    :language: python
    :linenos:
-   :emphasize-lines: 34,36,38,40-45,56-60,62
+   :emphasize-lines: 34,36,38,40,41,42,43,44,45,56,57,58,59,60,62
 
 See the :doc:`solutions/gallery/unemployment`.
 
@@ -90,7 +90,7 @@ bar charts of medals won by country. The data for this exercise was obtained usi
 .. literalinclude:: exercises/olympics.py
    :language: python
    :linenos:
-   :emphasize-lines: 18,20,29,31-35,37,44-46,48-52
+   :emphasize-lines: 18,20,29,31,32,33,34,35,37,44,45,46,48,49,50,51,52
 
 See the :doc:`solutions/gallery/olympics`.
 

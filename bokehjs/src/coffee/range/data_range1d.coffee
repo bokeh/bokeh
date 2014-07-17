@@ -47,7 +47,7 @@ define [
     _set_end: (end) ->
       @set('_end', end)
 
-    dinitialize: (attrs, options) ->
+    initialize: (attrs, options) ->
       @register_property('minmax', @_get_minmax, true)
       @add_dependencies('minmax', this, ['sources'], ['rangepadding'])
       for columns_ref in @get('sources')

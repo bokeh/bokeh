@@ -210,9 +210,6 @@ define [
       super(attrs, options)
       @throttled_fetch = _.throttle((() => @fetch()), 500)
 
-    dinitialize: (attrs, options) =>
-      super(attrs, options)
-
     fetch: (options) ->
       super(options)
 
