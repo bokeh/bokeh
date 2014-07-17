@@ -29,9 +29,15 @@ def load_notebook(resources=None, verbose=False, force=None, skip=False):
 
     # It's possible the IPython folks will chance things in the future, `force` parameter
     # provides an escape hatch as long as `displaypub` works
-    if force is not None:
-        warnings.warn("force is deprecated, don't call load_notebook from "
-                      "outside an IPython notebook")
+    if not force:
+        notebook = False
+        try:
+            notebook = 'notebook' in get_ipython().config.IPKernelApp.parent_appname
+        except Exception:
+            pass
+        if not notebook:
+            raise RuntimeError('load_notebook only works inside an '
+                               'IPython notebook, try using force=True.')
 
     from .resources import INLINE
     from .templates import NOTEBOOK_LOAD, RESOURCES
