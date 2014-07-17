@@ -1,7 +1,9 @@
 from __future__ import print_function
 
 import os
+import six
 import webbrowser
+
 from pygments import highlight
 from pygments.lexers import PythonLexer
 from pygments.formatters import HtmlFormatter
@@ -25,7 +27,8 @@ def page_desc(module_desc):
     plotting._default_document = Document()
 
     namespace = {}
-    execfile(module_path, namespace)
+    with open(module_path, "r") as module_file:
+        six.exec_(module_file.read(), namespace)
 
     if var_name:
         objs = [namespace[var_name]]
