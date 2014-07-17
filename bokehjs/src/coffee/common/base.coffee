@@ -61,6 +61,7 @@ define [
   "tool/resize_tool",
   "tool/wheel_zoom_tool",
   "tool/object_explorer_tool",
+  "tool/auto_range_tool",
 
   "widget/data_slider",
   "widget/data_table",
@@ -162,6 +163,7 @@ define [
     EmbedTool:                'tool/embed_tool'
     ResetTool:                'tool/reset_tool'
     ObjectExplorerTool:       'tool/object_explorer_tool'
+    AutoRangeTool:            'tool/auto_range_tool'
 
     DataSlider:               'widget/data_slider'
     DataTable:                'widget/data_table'

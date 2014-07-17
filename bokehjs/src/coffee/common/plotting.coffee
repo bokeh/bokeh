@@ -1,4 +1,4 @@
-
+console.log("multirange2.js");
 define [
   "underscore",
   "jquery",
@@ -22,10 +22,12 @@ define [
   "tool/wheel_zoom_tool",
   "tool/reset_tool",
   "renderer/guide/datetime_axis",
+  "tool/auto_range_tool",
 ], (_, $, Plot, DataRange1d, FactorRange, Range1d, Legend,
   GlyphFactory, CategoricalAxis, LinearAxis, Grid, BoxSelection,
   ColumnDataSource, BoxSelectTool, BoxZoomTool, HoverTool, PanTool,
-  PreviewSaveTool, ResizeTool, WheelZoomTool, ResetTool, DatetimeAxis) ->
+  PreviewSaveTool, ResizeTool, WheelZoomTool,
+  ResetTool, DatetimeAxis, AutoRangeTool) ->
 
   create_sources = (data) ->
     if not _.isArray(data)
@@ -79,83 +81,53 @@ define [
 
     return glyphs
 
-  add_axes = (plot, xaxes_spec, yaxes_spec, xdr, ydr) ->
-    xaxes = []
-    if xaxes_spec
-      if xaxes_spec == true
-        xaxes_spec = ['min', 'max']
-      if not _.isArray(xaxes_spec)
-        xaxes_spec = [xaxes_spec]
-      if xaxes_spec[0]=="datetime"
-        axis = DatetimeAxis.Collection.create(
-          dimension: 0
-          axis_label: 'x'
-          location: 'min'
-          parent: plot.ref()
-          plot: plot.ref()
-        )
-        xaxes.push(axis)
-      else if xdr.type == "FactorRange"
-        for loc in xaxes_spec
-          axis = CategoricalAxis.Collection.create(
-            dimension: 0
-            axis_label: 'x'
-            location: loc
-            parent: plot.ref()
-            plot: plot.ref()
-          )
-          xaxes.push(axis)
-      else
-        for loc in xaxes_spec
-          axis = LinearAxis.Collection.create(
-            dimension: 0
-            axis_label: 'x'
-            location: loc
-            parent: plot.ref()
-            plot: plot.ref()
-          )
-          xaxes.push(axis)
-    yaxes = []
-    if yaxes_spec
-      if yaxes_spec == true
-        yaxes_spec = ['min', 'max']
-      if not _.isArray(yaxes_spec)
-        yaxes_spec = [yaxes_spec]
-      if yaxes_spec[0]=="datetime"
-        axis = DatetimeAxis.Collection.create(
-          dimension: 1
-          axis_label: 'y'
-          location: 'min'
-          parent: plot.ref()
-          plot: plot.ref()
-        )
-        yaxes.push(axis)
-      else if ydr.type == "FactorRange"
-        for loc in yaxes_spec
-          axis = CategoricalAxis.Collection.create(
-            dimension: 1
-            axis_label: 'y'
-            location: loc
-            parent: plot.ref()
-            plot: plot.ref()
-          )
-          yaxes.push(axis)
-      else
-        for loc in yaxes_spec
-          axis = LinearAxis.Collection.create(
-            dimension: 1
-            axis_label: 'y'
-            location: loc
-            parent: plot.ref()
-            plot: plot.ref()
-          )
-          yaxes.push(axis)
+  
+  interpret_axis= (axis_spec, plot) ->
+    defaults =  {
+      type: 'linear',
+      _axis_label: false,
+      parent: plot.ref(),
+      plot: plot.ref(),
+      dimension: 0,
+      location: 'min'
+    }
+    merged_spec = _.defaults({}, axis_spec, defaults)
+    if merged_spec.type == 'linear'
+      return LinearAxis.Collection.create(merged_spec)
+    else if merged_spec.type == 'factor_range'
+      return CategoricalAxis.Collection.create(merged_spec)
+    else if merged_spec.type == 'datetime'
+      return DatetimeAxis.Collection.create(merged_spec)
+    else
+      1/0 # an invalid type wwas specified, throw an error
 
+  _axis_api = (plot, axes_spec, dim) ->
+    axes = []
+    if typeof(axes_spec) == "string"
+      #the user specified min or max, and wants a LinearAxis
+      if axes_spec == "min" || axes_spec == "max"
+        axes.push(interpret_axis({location: axes_spec, dimension:dim}, plot))
+      else  # here the user wants to specify the axis type
+        axes.push(interpret_axis({type:axes_spec, dimension:dim}, plot))
+    else if _.isArray(axes_spec)
+      for yspec in axes_spec
+        axes.push(interpret_axis(_.defaults(yspec, {dimension:dim}), plot))
+    else if typeof(axes_spec)=="boolean"
+      if axes_spec
+        axes.push(interpret_axis({location: 'min', dimension:dim}, plot))
+    else if typeof(axes_spec) == "object"
+      axes.push(interpret_axis(_.defaults(axes_spec, {dimension:dim}), plot))
+    else
+      1/0  # I don't know what else there is, but this API doesn't
+           # know how to deal with it
+    return axes
+  
+  add_axes = (plot, xaxes_spec, yaxes_spec) ->
+    xaxes = _axis_api(plot, xaxes_spec, 0)
+    yaxes = _axis_api(plot, yaxes_spec, 1)
     plot.add_renderers(a.ref() for a in xaxes)
     plot.add_renderers(a.ref() for a in yaxes)
-
     return [xaxes, yaxes]
-
   # FIXME The xaxis_is_datetime argument is a huge hack, but for now I want to
   # make as small a change as possible.  Doing it right will require a larger
   # refactoring.
@@ -184,7 +156,7 @@ define [
       return
 
     if tools == true
-      tools = "pan,wheel_zoom,select,resize,preview,reset,box_zoom"
+      tools = "pan,wheel_zoom,select,resize,preview,reset,box_zoom,auto_range"
     added_tools = []
 
     if tools.indexOf("pan") > -1
@@ -229,6 +201,10 @@ define [
       reset_tool = ResetTool.Collection.create()
       added_tools.push(reset_tool)
 
+    if tools.indexOf("auto_range") > -1
+      auto_range_tool = AutoRangeTool.Collection.create()
+      added_tools.push(auto_range_tool)
+
     if tools.indexOf("box_zoom") > -1
       box_zoom_tool = BoxZoomTool.Collection.create()
       box_zoom_overlay = BoxSelection.Collection.create(
@@ -242,17 +218,36 @@ define [
   add_legend = (plot, legend, glyphs) ->
     if legend
       legends = {}
+      default_legend_options = {
+        read_name_from_renderer: false
+        legend_text: legend
+        orientation: "top_right"}
+
+      if typeof(legend) == "string"
+        legend_options = default_legend_options
+        if legend == "renderer"
+          legend_options.read_name_from_renderer = true
+      else if typeof(legend) == "object"
+        legend_options = _.defaults(legend, default_legend_options)
+      else
+        1/0 #hack to force an exception.
+        
       for g, idx in glyphs
-        legends[legend + String(idx)] = [g.ref()]
+        if legend_options.read_name_from_renderer
+          if g.get('glyphspec').show_legend
+            legends[g.get('glyphspec').name] = [g.ref()]
+        else
+          legends[legend_options.legend_text + String(idx)] = [g.ref()]
+
       legend_renderer = Legend.Collection.create({
         parent: plot.ref()
         plot: plot.ref()
-        orientation: "top_right"
+        orientation: legend_options.orientation
         legends: legends
       })
       plot.add_renderers([legend_renderer.ref()])
 
-  make_plot = (glyphspecs, data, {nonselected, title, dims, xrange, yrange, xaxes, yaxes, xgrid, ygrid, xdr, ydr, tools, legend}) ->
+  make_plot = (glyphspecs, data, {nonselected, title, dims, xrange, yrange, xaxes, yaxes, xgrid, ygrid, xdr, ydr, tools, legend, extra_x_ranges, extra_y_ranges}) ->
     nonselected ?= null
     title  ?= ""
     dims   ?= [400, 400]
@@ -264,25 +259,65 @@ define [
     ygrid  ?= true
     tools  ?= true
     legend ?= false
+    extra_x_ranges ?= null
+    extra_y_ranges ?= null
+    
+    plot = Plot.Collection.create()
+    update_plot(plot, glyphspecs, data,
+                {nonselected:nonselected, title: title, dims: dims, xrange: xrange,
+                yrange: yrange, xaxes: xaxes, yaxes: yaxes, xgrid: xgrid,
+                ygrid: ygrid, xdr: xdr, ydr: ydr, tools: tools,
+                legend: legend, extra_x_ranges: extra_x_ranges, extra_y_ranges: extra_y_ranges})
 
+    return plot
+
+  update_plot = (plot, glyphspecs, data, {nonselected, title, dims, xrange, yrange, xaxes, yaxes, xgrid, ygrid, xdr, ydr, tools, legend, extra_x_ranges, extra_y_ranges}) ->
+    nonselected ?= null
+    title  ?= ""
+    dims   ?= [400, 400]
+    xrange ?= 'auto'
+    yrange ?= 'auto'
+    xaxes  ?= true
+    yaxes  ?= true
+    xgrid  ?= true
+    ygrid  ?= true
+    tools  ?= true
+    legend ?= false
+    extra_x_ranges ?= null
+    extra_y_ranges ?= null
+    
     sources = create_sources(data)
 
     xdr = create_range(xrange, sources, ['x'])
     ydr = create_range(yrange, sources, ['y'])
 
-    plot = Plot.Collection.create(
-      x_range: xdr.ref()
-      y_range: ydr.ref()
-      canvas_width: dims[0]
-      canvas_height: dims[1]
-      outer_width: dims[0]
-      outer_height: dims[1]
-      title: title
-    )
+    if extra_x_ranges?
+      for name, rng of extra_x_ranges
+        extra_x_ranges[name] = create_range(rng)
 
+    if extra_y_ranges?
+      for name, rng of extra_y_ranges
+        extra_y_ranges[name] = create_range(rng)
+    console.log("before each loop")
+    _.each({
+        x_range: xdr.ref()
+        y_range: ydr.ref()
+        canvas_width: dims[0]
+        canvas_height: dims[1]
+        outer_width: dims[0]
+        outer_height: dims[1]
+        
+        extra_x_ranges: extra_x_ranges
+        extra_y_ranges: extra_y_ranges
+        glyphs:[]
+        tools:[]
+        title: title}, (val, key) ->
+                #console.log(val, key);
+                plot.set(key, val));
+    console.log("after  each loop")
     glyphs = create_glyphs(plot, glyphspecs, sources, nonselected)
     plot.add_renderers(g.ref() for g in glyphs)
-
+    
     [xaxes, yaxes] = add_axes(plot, xaxes, yaxes, xdr, ydr)
     add_grids(plot, xgrid, ygrid, xaxes, yaxes)
     add_tools(plot, tools, glyphs, xdr, ydr)
@@ -308,6 +343,8 @@ define [
 
   return {
     "make_plot": make_plot,
+    "update_plot": update_plot,        
     "create_glyphs": create_glyphs,
+    "create_sources": create_sources,
     "show": show,
   }

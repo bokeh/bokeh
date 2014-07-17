@@ -6,16 +6,21 @@ define [
   "./build_views",
   "./safebind",
   "./bulk_save",
+
   "./continuum_view",
   "./has_parent",
   "./view_state",
   "mapper/1d/linear_mapper",
   "mapper/1d/log_mapper",
+
   "mapper/1d/categorical_mapper",
   "mapper/2d/grid_mapper",
   "renderer/properties",
   "tool/active_tool_manager",
-], (_, Backbone, require, build_views, safebind, bulk_save, ContinuumView, HasParent, ViewState, LinearMapper, LogMapper, CategoricalMapper, GridMapper, Properties, ActiveToolManager) ->
+], (_, Backbone, require, build_views, safebind, bulk_save,
+  ContinuumView, HasParent, ViewState, LinearMapper, LogMapper,
+  CategoricalMapper, GridMapper, Properties, ActiveToolManager) ->
+
 
   line_properties = Properties.line_properties
   text_properties = Properties.text_properties
@@ -124,45 +129,55 @@ define [
 
       @hidpi = options.hidpi ? @mget('hidpi')
 
-      @x_range = options.x_range ? @mget_obj('x_range')
-      @y_range = options.y_range ? @mget_obj('y_range')
+      @x_ranges = {}
+      @x_mappers = {}
 
+      get_range_mapper = (mt, range, view_state, inner_range_name) ->
+        if mt == 'auto'
+          mapper_type = LinearMapper.Model
+          if range.type == "FactorRange"
+            mapper_type = CategoricalMapper.Model
+          mapper = new mapper_type({
+            source_range: range
+            target_range: view_state.get(inner_range_name)
+          })
+        else
+          if mt == 'log'
+            console.log('log mapper')
+            mapper_type = LogMapper.Model
+            mapper = new mapper_type({
+              source_range: range
+              target_range: view_state.get(inner_range_name)
+            })
+        return mapper
+
+      x_range = options.x_range ? @mget_obj('x_range')
       xmt = @mget('x_mapper_type')
-      if xmt == 'auto'
-        xmapper_type = LinearMapper.Model
-        if @x_range.type == "FactorRange"
-          xmapper_type = CategoricalMapper.Model
-        @xmapper = new xmapper_type({
-          source_range: @x_range
-          target_range: @view_state.get('inner_range_horizontal')
-        })
-      else
-        if xmt == 'log'
-          xmapper_type = LogMapper.Model
-        @xmapper = new xmapper_type({
-          source_range: @x_range
-          target_range: @view_state.get('inner_range_horizontal')
-        })
+      @xmapper = get_range_mapper(xmt, x_range, @view_state, 'inner_range_horizontal')
+      @x_ranges['default'] = x_range
+      @x_mappers['default'] = @xmapper
 
-
+      @y_ranges = {}
+      @y_mappers = {}
+      y_range = options.y_range ? @mget_obj('y_range')
       ymt = @mget('y_mapper_type')
-      if ymt == 'auto'
-        ymapper_type = LinearMapper.Model
-        if @y_range.type == "FactorRange"
-          ymapper_type = CategoricalMapper.Model
-        @ymapper = new ymapper_type({
-          source_range: @y_range
-          target_range: @view_state.get('inner_range_vertical')
-        })
-      else
-        if ymt == 'log'
-          ymapper_type = LogMapper.Model
 
-        @ymapper = new ymapper_type({
-          source_range: @y_range
-          target_range: @view_state.get('inner_range_vertical')
-        })
+      @ymapper = get_range_mapper(ymt, y_range, @view_state, 'inner_range_vertical')
+      @y_ranges['default'] = y_range
+      @y_mappers['default'] = @ymapper
 
+      extra_x_ranges = options.extra_x_ranges ? @mget('extra_x_ranges')
+      if extra_x_ranges?
+        for name, rng of extra_x_ranges
+          @x_ranges[name] = rng          
+          @x_mappers[name] = get_range_mapper(xmt, rng, @view_state, 'inner_range_horizontal')
+
+      extra_y_ranges = options.extra_y_ranges ? @mget('extra_y_ranges')
+      if extra_y_ranges?
+        
+        for name, rng of extra_y_ranges
+            @y_ranges[name] = rng          
+            @y_mappers[name] = get_range_mapper(ymt, rng, @view_state, 'inner_range_vertical')
 
       @mapper = new GridMapper.Model({
         domain_mapper: @xmapper
@@ -202,8 +217,9 @@ define [
       @bind_bokeh_events()
       return this
 
-    # TODO (bev) why is this ignoring y units? why does it also take units as last arg?
-    map_to_screen: (x, x_units, y, y_units) ->
+    map_to_screen: (x, x_units, y, y_units, x_range_name="default", y_range_name="default") ->
+      x_mapper = @x_mappers[x_range_name]
+      y_mapper = @y_mappers[y_range_name]
       if x_units == 'screen'
         if _.isArray(x)
           sx = x[..]
@@ -211,7 +227,7 @@ define [
           sx = new Float64Array(x.length)
           sx.set(x)
       else
-        sx = @xmapper.v_map_to_target(x)
+        sx = x_mapper.v_map_to_target(x)
       if y_units == 'screen'
         if _.isArray(y)
           sy = y[..]
@@ -219,41 +235,21 @@ define [
           sy = new Float64Array(y.length)
           sy.set(y)
       else
-        sy = @ymapper.v_map_to_target(y)
+        sy = y_mapper.v_map_to_target(y)
 
       sx = @view_state.v_vx_to_sx(sx)
       sy = @view_state.v_vy_to_sy(sy)
 
       return [sx, sy]
 
-    map_from_screen: (sx, sy, units) ->
-      if _.isArray(sx)
-        dx = sx[..]
-      else
-        dx = new Float64Array(sx.length)
-        dx.set(x)
-      if _.isArray(sy)
-        dy = sy[..]
-      else
-        dy = new Float64Array(sy.length)
-        dy.set(y)
-      sx = @view_state.v_sx_to_vx(dx)
-      sy = @view_state.v_sy_to_vy(dy)
-
-      if units == 'screen'
-        x = sx
-        y = sy
-      else
-        [x, y] = @mapper.v_map_from_target(sx, sy)  # TODO: in-place?
-
-      return [x, y]
-
     update_range: (range_info) ->
       if not range_info?
         range_info = @initial_range_info
       @pause()
-      @x_range.set(range_info.xr)
-      @y_range.set(range_info.yr)
+      for name, rng of range_info.xrs
+        @x_ranges[name].set(rng)
+      for name, rng of range_info.yrs
+        @y_ranges[name].set(rng)
       @unpause()
 
     build_tools: () ->
@@ -271,8 +267,10 @@ define [
       old_renderers = _.keys(@renderers)
       views = @build_views()
       renderers_to_remove = _.difference(old_renderers, _.pluck(@mget_obj('renderers'), 'id'))
+      console.log('renderers_to_remove', renderers_to_remove)
       for id_ in renderers_to_remove
         delete @levels.glyph[id_]
+        
       tools = @build_tools()
       for v in views
         level = v.mget('level')
@@ -289,8 +287,10 @@ define [
         @request_render_canvas()
         @request_render()
       )
-      safebind(this, @x_range, 'change', @request_render)
-      safebind(this, @y_range, 'change', @request_render)
+      for name, rng of @x_ranges
+        safebind(this, rng, 'change', @request_render)
+      for name, rng of @y_ranges
+        safebind(this, rng, 'change', @request_render)
       safebind(this, @model, 'change:renderers', @build_levels)
       safebind(this, @model, 'change:tool', @build_levels)
       safebind(this, @model, 'change', @request_render)
@@ -360,22 +360,35 @@ define [
 
     set_initial_range : () ->
       #check for good values for ranges before setting initial range
-      range_vals = [@x_range.get('start'), @x_range.get('end'),
-        @y_range.get('start'), @y_range.get('end')]
-      good_vals = _.map(range_vals, (val) -> val? and not _.isNaN(val))
-      good_vals = _.all(good_vals)
+      good_vals = true
+      xrs = {}
+      for name, rng of @x_ranges
+        if not rng
+          continue
+        if not rng.get('start')? or not rng.get('end')? or _.isNaN(rng.get('start') + rng.get('end'))
+          good_vals = false
+          break
+        xrs[name] = { start: rng.get('start'), end: rng.get('end') }
+      if good_vals
+  
+        yrs = {}
+        for name, rng of @y_ranges
+          if not rng
+            continue
+          # if not rng.get('start')? or not rng.get('end')? or _.isNaN(rng.get('start') + rng.get('end'))
+          #   good_vals = false
+          #   break
+          yrs[name] = { start: rng.get('start'), end: rng.get('end') }
       if good_vals
         @initial_range_info = {
-          xr: { start: @x_range.get('start'), end: @x_range.get('end') }
-          yr: { start: @y_range.get('start'), end: @y_range.get('end') }
+          xrs: xrs
+          yrs: yrs
         }
+    
 
+      @trigger('set_initial_range')
     render: (force) ->
       super()
-      #newtime = new Date()
-      # if @last_render
-      #   console.log(newtime - @last_render)
-      # @last_render = newtime
 
       if not @initial_range_info?
         @set_initial_range()
@@ -409,7 +422,7 @@ define [
         hpadding = Math.max(@requested_padding['top'], @requested_padding['bottom'])
         @requested_padding['top'] = hpadding
         @requested_padding['bottom'] = hpadding
-
+      console.log("plot.render padding", @requested_padding)
       @is_paused = true
       for k, v of @requested_padding
         @view_state.set("requested_border_#{k}", v)
@@ -431,8 +444,8 @@ define [
         )
 
       have_new_mapper_state = false
-      xms = @xmapper.get('mapper_state')[0]
-      yms = @ymapper.get('mapper_state')[0]
+      xms = @x_mappers['default'].get('mapper_state')[0]
+      yms = @y_mappers['default'].get('mapper_state')[0]
       if Math.abs(@old_mapper_state.x-xms) > 1e-8 or Math.abs(@old_mapper_state.y - yms) > 1e-8
         @old_mapper_state.x = xms
         @old_mapper_state.y = yms
@@ -511,7 +524,7 @@ define [
         min_border: 40,
         x_offset: 0,
         y_offset: 0,
-        canvas_width: 300,
+        canovas_width: 300,
         canvas_height: 300,
         outer_width: 300,
         outer_height: 300,

@@ -7,7 +7,11 @@
     }
     Bokeh = {};
     Bokeh.require = require;
+<<<<<<< HEAD
     Bokeh.version = '0.5.0';
+=======
+    Bokeh.version = '0.4.4';
+>>>>>>> auto_range_tool
     Bokeh._ = require("underscore");
     Bokeh.$ = require("jquery");
     Bokeh.Backbone = require("backbone");
@@ -118,6 +122,7 @@
     Bokeh.ResizeTool = require("tool/resize_tool");
     Bokeh.WheelZoomTool = require("tool/wheel_zoom_tool");
     Bokeh.ObjectExplorerTool = require("tool/object_explorer_tool");
+    Bokeh.AutoRangeTool = require("tool/auto_range_tool");
     Bokeh.one_object_page = require("server/serverrun").load_one_object;
     Bokeh.server_page = require("server/serverrun").load;
     Bokeh.DataSlider = require("widget/data_slider");
@@ -125,7 +130,10 @@
     Bokeh.VBox = require("widget/vbox");
     Bokeh.VBoxModelForm = require("widget/vboxmodelform");
     Bokeh.TextInput = require("widget/textinput");
+<<<<<<< HEAD
     Bokeh.CrossFilter = require("widget/crossfilter");
+=======
+>>>>>>> auto_range_tool
     Bokeh.ObjectExplorer = require("widget/object_explorer");
     exports.Bokeh = Bokeh;
     return Bokeh;

@@ -9,15 +9,16 @@ define [
   class RectView extends Glyph.View
 
     _fields: ['x', 'y', 'width', 'height', 'angle']
-    _properties: ['line', 'fill']
+    _properties: ['line', 'fill', 'anchor_point']
 
     _map_data: () ->
-      [sxi, syi] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
+      [sxi, syi] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units, @x_range_name, @y_range_name)
 
       @sw = @distance_vector('x', 'width', 'center', @mget('glyphspec')['dilate'])
       @sh = @distance_vector('y', 'height', 'center', @mget('glyphspec')['dilate'])
       @sx = new Array(sxi.length)
       @sy = new Array(sxi.length)
+      @anchor = @mget('glyphspec')['anchor_point'] || 'center'
       for i in [0...sxi.length]
         if Math.abs(sxi[i]-@sw[i]) < 2
           @sx[i] = Math.round(sxi[i])
@@ -31,39 +32,68 @@ define [
       @max_height = _.max(@height)
 
     _set_data: () ->
+      if true
+        return
       @index = rbush()
       pts = []
       for i in [0...@x.length]
         if not isNaN(@x[i] + @y[i])
           pts.push([@x[i], @y[i], @x[i], @y[i], {'i': i}])
-      @index.load(pts)
+        @index.load(pts)
 
     _render: (ctx, indices, glyph_props, sx=@sx, sy=@sy, sw=@sw, sh=@sh) ->
+      console.log('anchor', @anchor);
+      ax = []; ay=[]; aax=[]; aay=[]; h=[];
+      for i in indices
+        if @anchor == "center"
+          ax.push(sx[i]-sw[i]/2)
+          ay.push(sy[i]-sh[i]/2)
+          h.push(sh[i])
+          aax.push(-sw[i]/2)
+          aay.push(-sh[i]/2)
+        else if @anchor == "bottom_left"
+          ax.push(sx[i])
+
+          if(@height[i] < 0) 
+            ay.push(sy[i] + sh[i]);
+            h.push(-sh[i]);
+          else 
+            ay.push(sy[i]);
+            h.push(-sh[i]);
+          #console.log(sy[i], sh[i], ay[i], h[i]);
+          aax.push(0)
+          aay.push(0)
+        else if @anchor == "bottom_center"
+          ax.push(sx[i]-sw[i]/2)
+          ay.push(sy[i])
+          h.push(-sh[i])
+          aax.push(-sw[i]/2)
+          aay.push(0)
+
       if glyph_props.fill_properties.do_fill
-
-        for i in indices
-
+        for i in indices            
           if isNaN(sx[i] + sy[i] + sw[i] + sh[i] + @angle[i])
             continue
-
           #no need to test the return value, we call fillRect for every glyph anyway
           glyph_props.fill_properties.set_vectorize(ctx, i)
-
+          #set the anchor points
           if @angle[i]
             ctx.translate(sx[i], sy[i])
             ctx.rotate(@angle[i])
-            ctx.fillRect(-sw[i]/2, -sh[i]/2, sw[i], sh[i])
+            #ctx.fillRect(-sw[i]/2, -sh[i]/2, sw[i], sh[i])
+            ctx.fillRect(aax[i], aay[i], sw[i], h[i])
             ctx.rotate(-@angle[i])
             ctx.translate(-sx[i], -sy[i])
           else
-            ctx.fillRect(sx[i]-sw[i]/2, sy[i]-sh[i]/2, sw[i], sh[i])
+            ctx.fillRect(ax[i], ay[i], sw[i], h[i])
+            #ctx.rect(ax[i], ay[i], sw[i], h[i])
 
       if glyph_props.line_properties.do_stroke
 
         ctx.beginPath()
 
         for i in indices
-
+  
           if isNaN(sx[i] + sy[i] + sw[i] + sh[i] + @angle[i])
             continue
 
@@ -76,11 +106,11 @@ define [
           if @angle[i]
             ctx.translate(sx[i], sy[i])
             ctx.rotate(@angle[i])
-            ctx.rect(-sw[i]/2, -sh[i]/2, sw[i], sh[i])
+            ctx.rect(aax[i], aay[i], sw[i], h[i])
             ctx.rotate(-@angle[i])
             ctx.translate(-sx[i], -sy[i])
           else
-            ctx.rect(sx[i]-sw[i]/2, sy[i]-sh[i]/2, sw[i], sh[i])
+            ctx.rect(ax[i], ay[i], sw[i], h[i])
 
           glyph_props.line_properties.set_vectorize(ctx, i)
           ctx.stroke()
@@ -96,8 +126,8 @@ define [
 
     _hit_point: (geometry) ->
       [vx, vy] = [geometry.vx, geometry.vy]
-      x = @plot_view.xmapper.map_from_target(vx)
-      y = @plot_view.ymapper.map_from_target(vy)
+      x = @x_mapper.map_from_target(vx)
+      y = @y_mapper.map_from_target(vy)
 
       # handle categorical cases
       xcat = (typeof(x) == "string")
@@ -112,10 +142,10 @@ define [
         if @width_units == "screen" or xcat
           max_width = @max_width
           if xcat
-            max_width = @plot_view.xmapper.map_to_target(max_width)
+            max_width = @x_mapper.map_to_target(max_width)
           vx0 = vx - 2*max_width
           vx1 = vx + 2*max_width
-          [x0, x1] = @plot_view.xmapper.v_map_from_target([vx0, vx1])
+          [x0, x1] = @x_mapper.v_map_from_target([vx0, vx1])
         else
           x0 = x - 2*@max_width
           x1 = x + 2*@max_width
@@ -123,10 +153,10 @@ define [
         if @height_units == "screen" or ycat
           max_height = @max_height
           if ycat
-            max_height = @plot_view.ymapper.map_to_target(max_height)
+            max_height = @y_mapper.map_to_target(max_height)
           vy0 = vy - 2*max_height
           vy1 = vy + 2*max_height
-          [y0, y1] = @plot_view.ymapper.v_map_from_target([vy0, vy1])
+          [y0, y1] = @y_mapper.v_map_from_target([vy0, vy1])
         else
           y0 = y - 2*@max_height
           y1 = y + 2*@max_height
@@ -138,12 +168,12 @@ define [
         if @width_units == "screen" or xcat
           sx = @plot_view.view_state.vx_to_sx(vx)
         else
-          sx = @plot_view.view_state.vx_to_sx(@plot_view.xmapper.map_to_target(x))
+          sx = @plot_view.view_state.vx_to_sx(@x_mapper.map_to_target(x))
 
         if @height_units == "screen" or ycat
           sy = @plot_view.view_state.vy_to_sy(vy)
         else
-          sy = @plot_view.view_state.vy_to_sy(@plot_view.ymapper.map_to_target(y))
+          sy = @plot_view.view_state.vy_to_sy(@y_mapper.map_to_target(y))
 
         if @angle[i]
           d = Math.sqrt(Math.pow((sx - @sx[i]), 2) + Math.pow((sy - @sy[i]),2))
@@ -180,6 +210,7 @@ define [
         line_cap: 'butt'
         line_dash: []
         line_dash_offset: 0
+        #anchor_point:'center'
         angle: 0.0
         dilate: false
       })

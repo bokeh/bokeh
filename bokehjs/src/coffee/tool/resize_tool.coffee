@@ -24,6 +24,7 @@ define [
       buttonText: "Resize"
       buttonIcon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAcCAYAAAByDd+UAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEgAACxIB0t1+/AAAABx0RVh0U29mdHdhcmUAQWRvYmUgRmlyZXdvcmtzIENTNui8sowAAAB7SURBVEiJ7ZZLDsAgCESdxvtfmW5aUpAQE6gmhtnpgsdHM4CI2kpdS2k7gF2dub8AEAlMclYcSwPDoG+chykeyQA0sgtx9YWYYVZ1HtSsMJqA16Hzv0UBC1jAAh4IdN0i0RdZosI/AG3G8bOM2Mp/AL5VJi9RLNQinK0b0hcrObYWZu0AAAAASUVORK5CYII="
       cursor: "move"
+      showButton: true
 
     tool_events:
       activated: "_activate"

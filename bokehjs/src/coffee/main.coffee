@@ -144,6 +144,7 @@ define (require, exports, module) ->
   Bokeh.ResizeTool             = require("tool/resize_tool")
   Bokeh.WheelZoomTool          = require("tool/wheel_zoom_tool")
   Bokeh.ObjectExplorerTool     = require("tool/object_explorer_tool")
+  Bokeh.AutoRangeTool          = require("tool/auto_range_tool")
 
   #page functions
   Bokeh.one_object_page = require("server/serverrun").load_one_object

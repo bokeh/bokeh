@@ -55,13 +55,16 @@ define [
         xpos = 0
         width = @plot_view.view_state.get('width')
       style_string += "; left:#{xpos}px; width:#{width}px; "
+      yrange = false
       if yrange
         ypos = @plot_view.view_state.vy_to_sy(Math.max(yrange[0], yrange[1]))
         height = Math.abs(yrange[1] - yrange[0])
       else
         ypos = 0
-        height = @plot_view.view_state.get('height')
+        height = @plot_view.view_state.attributes.canvas_height
+
       @$el.addClass('shading')
+
       style_string += "top:#{ypos}px; height:#{height}px"
       @$el.attr('style', style_string)
 
