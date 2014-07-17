@@ -93,7 +93,7 @@ def make_gallery(module_descs):
             fname = os.path.join(DETAIL_BUILD_DIR, info['name'] + ".rst")
         else:
             raise ValueError("unexpected template filename format: '%s'" % DETAIL_TEMPLATE)
-        with open(fname, "w") as f:
+        with open(fname, "wb") as f:
             f.write(detail_template.render(info).encode('utf-8'))
         print("wrote", fname)
 
