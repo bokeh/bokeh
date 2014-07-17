@@ -224,7 +224,7 @@ package_path(join(SERVER, 'templates'), package_data_dirs)
 package_path(join('bokeh', '_templates'), package_data_dirs)
 package_data_dirs.append('server/redis.conf')
 
-suffix_list = ('.csv', '.conf', '.gz', '.json')
+suffix_list = ('.csv', '.conf', '.gz', '.json', '.png')
 
 package_data_dirs = package_data_dirs + get_sample_data()
 
