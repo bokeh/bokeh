@@ -14,23 +14,13 @@ rm -rf $MINICONDA.sh
 
 python -V
 
-DEPS_TRAVIS="python=$TRAVIS_PYTHON_VERSION nodejs conda-build jinja2"
-DEPS_BOKEH="numpy pandas openpyxl<2.0 six requests dateutil"
-DEPS_SERVER="flask werkzeug greenlet redis redis-py"
-DEPS_DOCS="sphinx pygments sphinx-bootstrap-theme sphinxcontrib-napoleon"
-DEPS_EXAMPLES="scipy matplotlib sympy ggplot seaborn"
-DEPS_TESTS="PyYAML nose mock colorama coverage ipython ipython-notebook pdiff websocket"
+DEPS_TRAVIS="python=$TRAVIS_PYTHON_VERSION conda-build jinja2"
+conda install --yes $DEPS_TRAVIS
 
-if [[ "$TRAVIS_PYTHON_VERSION" == 2* ]]; then
-    DEPS_BOKEH="$DEPS_BOKEH abstract-rendering"
-    DEPS_SERVER="$DEPS_SERVER gevent gevent-websocket"
-fi
+conda config --add channels bokeh
+conda config --add channels mutirri   # TODO: remove when packages are moved to bokeh
 
-DEPS="$DEPS_TRAVIS $DEPS_BOKEH $DEPS_SERVER $DEPS_DOCS $DEPS_EXAMPLES $DEPS_TESTS"
-
-conda install -c bokeh -c mutirri --yes $DEPS
-
-CONDA_PY="${TRAVIS_PYTHON_VERSION/./}" conda build --no-test conda.recipe
+CONDA_PY="${TRAVIS_PYTHON_VERSION/./}" conda build conda.recipe
 conda install --use-local --yes bokeh
 
 MATPLOTLIB_RC=$(python -c "import matplotlib; print(matplotlib.matplotlib_fname())")
