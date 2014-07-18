@@ -3,34 +3,65 @@ package:
   version: 'nightly'
 
 build:
-  number: {{environ.get('BINSTAR_BUILD', 1)}}
+  number: {{ environ.get('BINSTAR_BUILD', 1) }}
 
 requirements:
   build:
+    # code
     - python
     - distribute
     - setuptools
+    - nodejs
+
+    # docs
+    - sphinx
+    - pygments
+    - sphinx-bootstrap-theme
+    - sphinxcontrib-napoleon
 
   run:
+    # bokeh
     - python
     - numpy
-    - gevent-websocket       [py2k]
-    - flask
     - pandas
     - six
-    - pyyaml
     - requests
+    - dateutil
+    - pyyaml
+
+    # server
+    - flask
+    - werkzeug
+    - greenlet
+    - redis
+    - redis-py
+    - gevent               [py2k]
+    - gevent-websocket     [py2k]
+    - abstract-rendering   [py2k]
 
 test:
   requires:
-    - mock
+    # tests
+    - pyyaml
     - nose
-    - gevent_zeromq          [py2k]
-    - zeromq
-    - pyzmq
-    - redis
+    - mock
+    - colorama
+    - coverage
+    - ipython
+    - ipython-notebook
+    - pdiff
+    - websocket
+
+    # examples
+    - scipy
+    - matplotlib
+    - sympy
+    - ggplot
+    - seaborn
+
   commands:
     - bokeh-server -h        [linux64 or osx]
+
   imports:
     - bokeh
 
