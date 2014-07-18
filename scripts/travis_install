@@ -3,7 +3,7 @@
 set -e # exit on error
 set -x # echo commands
 
-sudo apt-get install -qq -y --force-yes graphviz perceptualdiff
+sudo apt-get install -qq -y --force-yes graphviz
 
 MINICONDA="Miniconda-$MINICONDA_VERSION-Linux-x86_64"
 MINICONDA_URL="http://repo.continuum.io/miniconda/$MINICONDA.sh"
@@ -14,29 +14,21 @@ rm -rf $MINICONDA.sh
 
 python -V
 
-DEPS_TRAVIS="python=$TRAVIS_PYTHON_VERSION pip nodejs conda-build jinja2"
+DEPS_TRAVIS="python=$TRAVIS_PYTHON_VERSION nodejs conda-build jinja2"
 DEPS_BOKEH="numpy pandas openpyxl<2.0 six requests dateutil"
 DEPS_SERVER="flask werkzeug greenlet redis redis-py"
-DEPS_DOCS="sphinx pygments" # sphinx-bootstrap-theme sphinxcontrib-napoleon
-DEPS_EXAMPLES="scipy matplotlib sympy" # ggplot seaborn
-DEPS_TESTS="PyYAML nose mock colorama coverage ipython ipython-notebook" # websocket
-DEPS_PIP="sphinx-bootstrap-theme sphinxcontrib-napoleon"
+DEPS_DOCS="sphinx pygments sphinx-bootstrap-theme sphinxcontrib-napoleon"
+DEPS_EXAMPLES="scipy matplotlib sympy ggplot seaborn"
+DEPS_TESTS="PyYAML nose mock colorama coverage ipython ipython-notebook pdiff websocket"
 
 if [[ "$TRAVIS_PYTHON_VERSION" == 2* ]]; then
     DEPS_BOKEH="$DEPS_BOKEH abstract-rendering"
     DEPS_SERVER="$DEPS_SERVER gevent gevent-websocket"
-    DEPS_PIP="$DEPS_PIP websocket"
-fi
-
-if [[ "$TRAVIS_PYTHON_VERSION" != 3.4* ]]; then
-    DEPS_EXAMPLES="$DEPS_EXAMPLES statsmodels"
-    DEPS_PIP="$DEPS_PIP ggplot seaborn"
 fi
 
 DEPS="$DEPS_TRAVIS $DEPS_BOKEH $DEPS_SERVER $DEPS_DOCS $DEPS_EXAMPLES $DEPS_TESTS"
 
-conda install -c bokeh --quiet --yes $DEPS
-pip install --quiet -i https://pypi.binstar.org/pypi/simple $DEPS_PIP
+conda install -c bokeh -c mutirri --quiet --yes $DEPS
 
 CONDA_PY="${TRAVIS_PYTHON_VERSION/./}" conda build --no-test conda.recipe
 conda install --use-local --yes bokeh
