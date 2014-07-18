@@ -65,6 +65,10 @@ parser.add_argument("-o", "--output-cells", type=str, choices=['complain', 'remo
                     help="what to do with notebooks' output cells")
 parser.add_argument("-l", "--log-file", type=argparse.FileType('w'), default='examples.log',
                     help="where to write the complete log")
+parser.add_argument("-d", "--diff", action="store_true", default=False,
+                    help="compare generated and reference images using pdiff")
+parser.add_argument("-r", "--reference-dir", type=str, default=dirname(__file__),
+                    help="location of reference images")
 
 args = parser.parse_args()
 
@@ -307,6 +311,25 @@ def test_example(example, flags):
         if resource_errors or errors:
             fail(example)
         else:
+            if args.diff:
+                ref_png_file = splitext(join(args.reference_dir, example))[0] + ".png"
+                diff_png_file = splitext(png_file)[0] + "-diff.png"
+
+                if not os.path.exists(ref_png_file):
+                    warn("no reference image available to compare")
+                else:
+                    cmd = ["perceptualdiff", "-output", diff_png_file, png_file, ref_png_file]
+
+                    try:
+                        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                        code = proc.wait()
+                    except OSError:
+                        write("Failed to run: %s" % " ".join(cmd))
+                        sys.exit(1)
+
+                    if proc.code != 0:
+                        warn("generated and reference images differ")
+
             ok(example)
             return True
 
