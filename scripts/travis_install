@@ -28,7 +28,7 @@ fi
 
 DEPS="$DEPS_TRAVIS $DEPS_BOKEH $DEPS_SERVER $DEPS_DOCS $DEPS_EXAMPLES $DEPS_TESTS"
 
-conda install -c bokeh -c mutirri --quiet --yes $DEPS
+conda install -c bokeh -c mutirri --yes $DEPS
 
 CONDA_PY="${TRAVIS_PYTHON_VERSION/./}" conda build --no-test conda.recipe
 conda install --use-local --yes bokeh
