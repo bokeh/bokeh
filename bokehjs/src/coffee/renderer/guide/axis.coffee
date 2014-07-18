@@ -327,7 +327,6 @@ define [
     initialize_layout: (solver) ->
       panel = new Panel.Model({solver: solver})
       @panel = panel
-      #@set('panel', panel)
 
       # Yuck. The issues is that frames and canvases *are* panels, but axes are not but
       # should be (no multiple inheritnce in CoffeeScript)
@@ -349,8 +348,8 @@ define [
         @_size = panel._width
         @_anchor = panel._right
       else if side == "right"
-        @_dim = 1
-        @_normals = [1, 0]
+        @_size = panel._width
+        @_anchor = panel._left
       else
         console.log("ERROR: unrecognized side: '#{ side }'")
 

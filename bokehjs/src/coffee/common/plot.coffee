@@ -94,7 +94,7 @@ define [
       for k, v of @renderers
         if v.model.initialize_layout?
           v.model.initialize_layout(@canvas.solver)
-
+      @model.add_constraints(@canvas.solver)
       @listenTo(@canvas.solver, 'layout_update', @request_render)
 
       @unpause()
@@ -276,6 +276,7 @@ define [
       solver.suggest_value(frame._width, canvas.get('width'))
       solver.suggest_value(frame._height, canvas.get('height'))
 
+    add_constraints: (solver) ->
       do_side = (side, cname, op) =>
         canvas = @get('canvas')
         frame = @get('frame')
@@ -287,7 +288,6 @@ define [
           @solver.add_constraint(new Constraint(new Expr(last[cname], [-1, r._anchor]), EQ), kiwi.Strength.strong)
           last = r
         @solver.add_constraint(new Constraint(new Expr(last[cname], [-1, canvas[cname]]), op), kiwi.Strength.required)
-        @solver.suggest_value(last["_width"] , 100)
 
       do_side('above', '_top', LE)
       do_side('below', '_bottom', GE)

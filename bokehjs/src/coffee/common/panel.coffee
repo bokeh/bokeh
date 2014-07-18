@@ -39,6 +39,10 @@ define [
         @register_setter(v, @_set_var)
         @solver.add_edit_variable(@[name], kiwi.Strength.weak)
 
+      @solver.add_constraint(new Constraint(new Expr(@_top), GE))
+      @solver.add_constraint(new Constraint(new Expr(@_bottom), GE))
+      @solver.add_constraint(new Constraint(new Expr(@_left), GE))
+      @solver.add_constraint(new Constraint(new Expr(@_right), GE))
       @solver.add_constraint(new Constraint(new Expr(@_width), GE))
       @solver.add_constraint(new Constraint(new Expr(@_height), GE))
       @solver.add_constraint(new Constraint(new Expr(@_left, @_width, [-1, @_right]), EQ))

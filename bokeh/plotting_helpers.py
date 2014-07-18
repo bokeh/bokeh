@@ -297,6 +297,7 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
         if axis_label:
             xaxis.axis_label = axis_label
         xgrid = Grid(plot=p, dimension=0, axis=xaxis)
+        p.below.append(xaxis)
 
     y_axiscls = _get_axis_class(y_axis_type, p.y_range)
     if y_axiscls:
@@ -308,6 +309,7 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
         if axis_label:
             yaxis.axis_label = axis_label
         ygrid = Grid(plot=p, dimension=1, axis=yaxis)
+        p.left.append(yaxis)
 
     border_args = ["min_border", "min_border_top", "min_border_bottom", "min_border_left", "min_border_right"]
     for arg in border_args:
