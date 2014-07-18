@@ -11,7 +11,9 @@ import fnmatch
 import argparse
 import traceback
 import subprocess
+
 from subprocess import CalledProcessError
+from os.path import abspath, realpath, dirname, basename, join, split, splitext
 
 import yaml
 
@@ -82,7 +84,7 @@ def is_selected(example):
     else:
         return False
 
-base_dir = os.path.dirname(__file__)
+base_dir = dirname(__file__)
 examples = []
 
 class Flags(object):
@@ -98,7 +100,7 @@ def example_type(flags):
     elif flags & Flags.notebook: return "notebook"
 
 def add_examples(examples_dir, example_type=None, skip=None):
-    examples_path = os.path.join(base_dir, examples_dir)
+    examples_path = join(base_dir, examples_dir)
 
     if skip is not None:
         skip = set(skip)
@@ -129,10 +131,10 @@ def add_examples(examples_dir, example_type=None, skip=None):
         if skip and file in skip:
             flags |= Flags.skip
 
-        examples.append((os.path.join(examples_path, file), flags))
+        examples.append((join(examples_path, file), flags))
 
 def detect_examples():
-    with open(os.path.join(os.path.dirname(__file__), "test.yaml"), "r") as f:
+    with open(join(dirname(__file__), "test.yaml"), "r") as f:
         examples = yaml.load(f.read())
 
     for example in examples:
@@ -190,8 +192,8 @@ class Timeout(Exception):
     pass
 
 def run_example(example):
-    cmd = ["python", os.path.basename(example)]
-    cwd = os.path.dirname(example)
+    cmd = ["python", basename(example)]
+    cwd = dirname(example)
     env = make_env()
 
     def alarm_handler(sig, frame):
@@ -225,7 +227,7 @@ def run_example(example):
 def get_path_parts(path):
     parts = []
     while True:
-        newpath, tail = os.path.split(path)
+        newpath, tail = split(path)
         parts.append(tail)
         path = newpath
         if tail == 'examples':
@@ -234,15 +236,15 @@ def get_path_parts(path):
     return parts
 
 def test_example(example, flags):
-    no_ext = os.path.splitext(os.path.abspath(example))[0]
-    url_path = os.path.join(*get_path_parts(os.path.abspath(example)))
+    no_ext = splitext(abspath(example))[0]
+    url_path = join(*get_path_parts(abspath(example)))
 
     if flags & Flags.file:
         html_file = "%s.html" % no_ext
         url = 'file://' + html_file
     elif flags & Flags.server:
         server_url = 'http://localhost:%d/bokeh/doc/%s/show'
-        url = server_url % (args.bokeh_port, os.path.basename(no_ext))
+        url = server_url % (args.bokeh_port, basename(no_ext))
     elif flags & Flags.notebook:
         notebook_url = 'http://localhost:%d/notebooks/%s'
         url = notebook_url % (args.ipython_port, url_path)
@@ -250,8 +252,9 @@ def test_example(example, flags):
         raise ValueError("invalid example type: %s" % example_type(flags))
 
     png_file = "%s-%s.png" % (no_ext, __version__)
-    cmd = [args.phantomjs, os.path.join(base_dir, "test.js"), example_type(flags),
-           url, png_file, str(args.timeout)]
+
+    cmd = [args.phantomjs, join(base_dir, "test.js"),
+           example_type(flags), url, png_file, str(args.timeout)]
 
     try:
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
@@ -413,7 +416,7 @@ $([IPython.events]).on('status_started.Kernel', function(){
 });
 """
 
-    customjs = os.path.join(loc[:-1].decode("utf-8"), "static", "custom", "custom.js")
+    customjs = join(loc[:-1].decode("utf-8"), "static", "custom", "custom.js")
     open(customjs, "w").write(body)
 
     return loc
@@ -421,7 +424,7 @@ $([IPython.events]).on('status_started.Kernel', function(){
 def start_ipython_notebook():
     located_profile = locate_ipython_profile()
 
-    notebook_dir = os.path.split(os.path.dirname(os.path.realpath(__file__)))[0]
+    notebook_dir = split(dirname(realpath(__file__)))[0]
 
     cmd = ["ipython", "notebook"]
     argv = ["--no-browser","--profile=bokeh_test", "--port=%s" % args.ipython_port,
@@ -449,7 +452,7 @@ ipython_notebook = start_ipython_notebook() if use_notebook and need_notebook el
 
 if use_notebook and need_notebook:
     import nbexecuter
-    example_nbconverted = os.path.join("examples", "glyphs", "glyph.ipynb")
+    example_nbconverted = join("examples", "glyphs", "glyph.ipynb")
     try:
         nbexecuter.main(example_nbconverted)
     except IOError as e:
