@@ -239,8 +239,8 @@ def downsample(data, transform, plot_state):
           #Screen-mapping values.
           #x_range is the left and right data space values coordsponding to the bottom left and bottom right of the plot
           #y_range is the bottom and top data space values corresponding to the bottom left and top left of the plot
-          'x_range' : {'start': xmin*scale_x, 'end':(xmax-xmin)*scale_x},
-          'y_range' : {'start': ymin*scale_x, 'end':(ymax-ymin)*scale_y},
+          'x_range' : {'start': xmin*scale_x, 'end':xmax*scale_x},
+          'y_range' : {'start': ymin*scale_y, 'end':ymax*scale_y},
           #'x_range' : {'start': 0, 'end':100},
           #'y_range' : {'start': 0, 'end':100},
           
