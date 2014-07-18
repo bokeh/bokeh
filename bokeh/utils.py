@@ -99,3 +99,18 @@ def nice_join(seq, sep=", "):
         return sep.join(seq)
     else:
         return "%s or %s" % (sep.join(seq[:-1]), seq[-1])
+
+def publish_display_data(data, source='bokeh'):
+    """Compatibility wrapper for IPython publish_display_data which removes the
+    `source` (first) argument in later versions.
+
+    Parameters
+    ----------
+    source : str
+    data : dict
+    """
+    import IPython.core.displaypub as displaypub
+    try:
+        displaypub.publish_display_data(source, data)
+    except TypeError:
+        displaypub.publish_display_data(data)

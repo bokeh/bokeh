@@ -201,7 +201,7 @@ define [
     default_view: HoverToolView
     type: "HoverTool"
 
-    dinitialize: (attrs, options) ->
+    initialize: (attrs, options) ->
       super(attrs, options)
       names = @get('names')
       all_renderers = @get_obj('plot').get_obj('renderers')

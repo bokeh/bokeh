@@ -18,7 +18,7 @@ define [
       uniques = _.sortBy(uniques, ((x) -> return x))
       return uniques
 
-    dinitialize: (attrs, options) ->
+    initialize: (attrs, options) ->
       super(attrs, options)
       @register_property
       @register_property('values', @_get_values, true)

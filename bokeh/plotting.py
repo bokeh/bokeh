@@ -20,7 +20,7 @@ from .plotting_helpers import (
 )
 from .resources import Resources
 from .session import Cloud, DEFAULT_SERVER_URL, Session
-from .utils import decode_utf8
+from .utils import decode_utf8, publish_display_data
 
 logger = logging.getLogger(__name__)
 
@@ -66,6 +66,25 @@ def cursession():
         session : the current default session object (or None)
     '''
     return _default_session
+
+def reset_output():
+    ''' Deactivate all currently active output modes.
+
+    Subsequent calls to show() will not render until a new output mode is
+    activated.
+
+    Returns:
+        None
+
+    '''
+    global _default_document
+    global _default_session
+    global _default_file
+    global _default_notebook
+    _default_document = Document()
+    _default_session = None
+    _default_file = None
+    _default_notebook = None
 
 def hold(value=True):
     ''' Set or clear the plot hold status on the current document.
@@ -149,14 +168,15 @@ def output_cloud(docname):
     """
     output_server(docname, session=Cloud())
 
-def output_notebook(url=None, docname=None, session=None, name=None):
+def output_notebook(url=None, docname=None, session=None, name=None,
+                    force=False):
     if session or url or name:
         if docname is None:
             docname = "IPython Session at %s" % time.ctime()
         output_server(docname, url=url, session=session, name=name)
     else:
         from . import load_notebook
-        load_notebook()
+        load_notebook(force=force)
     global _default_notebook
     _default_notebook = True
 
@@ -193,12 +213,14 @@ def output_file(filename, title="Bokeh Plot", autosave=True, mode="inline", root
         print("Session output file '%s' already exists, will be overwritten." % filename)
 
 
-def show(browser=None, new="tab", url=None):
-    """ 'shows' the current plot, by auto-raising the window or tab
+def show(obj=None, browser=None, new="tab", url=None):
+    """ 'shows' a plot object or the current plot, by auto-raising the window or tab
     displaying the current plot (for file/server output modes) or displaying
     it in an output cell (IPython notebook).
 
     Args:
+        obj (plot object, optional): it accepts a plot object and just shows it.
+
         browser (str, optional) : browser to show with (default: None)
             For systems that support it, the **browser** argument allows specifying
             which browser to display in, e.g. "safari", "firefox", "opera",
@@ -218,22 +240,20 @@ def show(browser=None, new="tab", url=None):
     new_param = {'tab': 2, 'window': 1}[new]
 
     controller = browserlib.get_browser_controller(browser=browser)
-
-    plot = curplot()
+    if obj is None:
+        plot = curplot()
+    else:
+        plot = obj
     if not plot:
         warnings.warn("No current plot to show. Use renderer functions (circle, rect, etc.) to create a current plot (see http://bokeh.pydata.org/index.html)")
         return
-
     if notebook and session:
-        import IPython.core.displaypub as displaypub
         push(session=session)
         snippet = autoload_server(plot, cursession())
-        displaypub.publish_display_data('bokeh', {'text/html': snippet})
+        publish_display_data({'text/html': snippet})
 
     elif notebook:
-        import IPython.core.displaypub as displaypub
-
-        displaypub.publish_display_data('bokeh', {'text/html': notebook_div(plot)})
+        publish_display_data({'text/html': notebook_div(plot)})
 
     elif session:
         push()

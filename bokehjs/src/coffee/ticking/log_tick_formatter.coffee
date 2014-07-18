@@ -9,7 +9,7 @@ define [
   class LogTickFormatter extends HasProperties
     type: 'LogTickFormatter'
 
-    dinitialize: (attrs, options) ->
+    initialize: (attrs, options) ->
       super(attrs, options)
       @basic_formatter = new BasicTickFormatter.Model()
 

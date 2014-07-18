@@ -12,7 +12,7 @@ define [
     default_view: DatetimeAxisView
     type: 'DatetimeAxis'
 
-    dinitialize: (attrs, objects) ->
+    initialize: (attrs, objects) ->
       super(attrs, objects)
       if not @get_obj('ticker')?
         @set_obj('ticker', DatetimeTicker.Collection.create())
