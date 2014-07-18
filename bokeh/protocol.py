@@ -62,7 +62,7 @@ class BokehJSONEncoder(json.JSONEncoder):
             return obj.value / millifactor  #nanosecond to millisecond
         elif isinstance(obj, np.float):
             return float(obj)
-        elif isinstance(obj, np.integer):
+        elif isinstance(obj, (np.int, np.integer)):
             return int(obj)
         # Datetime, Date
         elif isinstance(obj, (dt.datetime, dt.date)):
