@@ -46,8 +46,9 @@ def make_ui():
     data_table = HandsonTable(source=source, columns=columns)
     obj_explorer = ObjectExplorer(data_widget=data_table)
     vbox = VBox(children=[plot, data_table])
-    hbox = HBox(children=[obj_explorer, vbox])
-    return hbox
+    #hbox = HBox(children=[obj_explorer, vbox])
+    #return hbox
+    return vbox
 
 document.add(make_ui())
 session.store_document(document)
