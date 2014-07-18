@@ -130,7 +130,7 @@ define [
     default_view: GMapPlotView
 
     initialize: (attrs, options) ->
-      options.map = true
+      @use_map = true
       super(attrs, options)
 
     parent_properties: [

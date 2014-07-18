@@ -244,7 +244,7 @@ define [
       super(attrs, options)
 
       canvas = new Canvas.Model({
-        map: false #options.map ? false,
+        map: @use_map ? false
         canvas_width: @get('plot_width'),
         canvas_height: @get('plot_height'),
         hidpi: @get('hidpi')
@@ -255,7 +255,6 @@ define [
       @solver = canvas.get('solver')
 
     initialize_layout: (solver) ->
-
       canvas = @get('canvas')
       frame = new CartesianFrame.Model({
         x_range: @get_obj('x_range'),
