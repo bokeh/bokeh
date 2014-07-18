@@ -90,6 +90,8 @@ class BokehRenderer(Renderer):
                 self.plot.renderers = subrends[i]
                 if i < len(fig.axes) - 1:
                     _plot = self.plot.clone()
+                    for x in _plot.renderers:
+                        x.plot = _plot
                     plots.append(_plot)
                 else:
                     plots.append(self.plot)
