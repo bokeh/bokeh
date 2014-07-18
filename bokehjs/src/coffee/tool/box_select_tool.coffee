@@ -17,8 +17,8 @@ define [
       super()
       for renderer in @mget_obj ('renderers')
         rendererview = @plot_view.renderers[renderer.id]
-        @listenTo(rendererview.xrange(), 'change', @select_callback)
-        @listenTo(rendererview.yrange(), 'change', @select_callback)
+        #@listenTo(rendererview.xrange(), 'change', @select_callback)
+        #@listenTo(rendererview.yrange(), 'change', @select_callback)
         @listenTo(renderer, 'change', @select_callback)
 
     eventGeneratorClass: TwoPointEventGenerator
@@ -30,6 +30,7 @@ define [
       buttonIcon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAcCAYAAAByDd+UAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEgAACxIB0t1+/AAAABx0RVh0U29mdHdhcmUAQWRvYmUgRmlyZXdvcmtzIENTNui8sowAAAE1SURBVEiJ7ZXNUcQwDIU/7VDA3rnkQAF0QEpJCZSQEihhSxEFMLMlmA44cH8col2CsVlCfmYPvJlMLMnjJ8mSbJLYErtN2a6BsAPczM5roAvZJ9ruS4Q3BV0a/X0ke7anZvMgLcLGRRMeLoZSQe6yDZ2kpwWIXFIxpfkdNlRyPxEPwL7mzfhrap5NgaRW0j47G0nbt0XuQS/JFzhTEeXFCBNwnEsIPANvJcN/W/wV19MWpVk6G2bmQfzNVnotZt1h1IHXaiGPMDG/LRqGOyziC6GZHWaSXYRlee6A1sw6SQ2Dt8nMkqQ2nPKCrePzDbwDboF34CV0R+ARKI42hb6PEdWHrB9sJ7kGP3EsMmki+jbEluEOX4FD6NJ5PY5wCYyidf1ieK+ONRrf459KxrxKV8fmKf0AQEJj/A0qfJ8AAAAASUVORK5CYII="
       cursor: "crosshair"
       restrict_to_innercanvas: true
+      showButton: true
 
     tool_events:
       SetBasepoint: "_start_selecting"

@@ -63,6 +63,12 @@ define [
 
       @need_set_data = true
 
+      # TODO (bev) this is clunks
+      if @mget('glyphspec').x_range_name
+        @mset('x_range_name', @mget('glyphspec').x_range_name)
+      if @mget('glyphspec').y_range_name
+        @mset('y_range_name', @mget('glyphspec').y_range_name)
+
       @glyph_props = @init_glyph(@mget('glyphspec'))
 
       @have_selection_props = false
@@ -131,13 +137,18 @@ define [
         @request_render()
 
     render: (have_new_mapper_state=true) ->
+      @x_range_name = @mget('x_range_name')
+      @x_mapper = @plot_view.x_mappers[@x_range_name]
+      @y_range_name = @mget('y_range_name')
+      @y_mapper = @plot_view.y_mappers[@y_range_name]
+
       if @need_set_data
         @set_data(false)
         @need_set_data = false
 
       @_map_data()
 
-      if @_mask_data? and (@plot_view.x_range.type != "FactorRange") and (@plot_view.y_range.type != "FactorRange")
+      if @_mask_data? and (@plot_view.x_ranges[@x_range_name].type != "FactorRange") and (@plot_view.y_ranges[@y_range_name].type != "FactorRange")
         indices = @_mask_data()
       else
         indices = @all_indices
@@ -186,12 +197,6 @@ define [
 
       ctx.restore()
 
-    xrange: () ->
-      return @plot_view.x_range
-
-    yrange: () ->
-      return @plot_view.y_range
-
     bind_bokeh_events: () ->
       @listenTo(@model, 'change', @request_render)
       @listenTo(@mget_obj('data_source'), 'change', @set_data)
@@ -201,8 +206,8 @@ define [
       pt_units = @glyph_props[pt].units
       span_units = @glyph_props[span_prop_name].units
 
-      if      pt == 'x' then mapper = @plot_view.xmapper
-      else if pt == 'y' then mapper = @plot_view.ymapper
+      if      pt == 'x' then mapper = @x_mapper
+      else if pt == 'y' then mapper = @y_mapper
 
       source = @mget_obj('data_source')
       local_select = (prop_name) =>
@@ -234,7 +239,6 @@ define [
         return (Math.ceil(Math.abs(spt1[i] - spt0[i])) for i in [0...spt0.length])
       else
         return (Math.abs(spt1[i] - spt0[i]) for i in [0...spt0.length])
-
 
     get_reference_point: () ->
       reference_point = @mget('reference_point')
@@ -310,6 +314,8 @@ define [
     defaults: () ->
       return {
         data_source: null
+        x_range_name: "default"
+        y_range_name: "default"
       }
 
     display_defaults: () ->

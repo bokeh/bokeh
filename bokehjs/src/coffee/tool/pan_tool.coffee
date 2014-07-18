@@ -40,6 +40,7 @@ define [
       buttonText: "Pan"
       buttonIcon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAcCAYAAAByDd+UAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEgAACxIB0t1+/AAAABx0RVh0U29mdHdhcmUAQWRvYmUgRmlyZXdvcmtzIENTNui8sowAAAEwSURBVEiJ5ZbtUcMwDIZfcR0gGxAmICNkhI5QJiEb9DpB2QA2KBskG8AGZYOHH3XAl+bDjpMed7y/fD5Jj2VJTgToFgIE6G6mc55EjrTPgA9gH8sB4oAOVvOr3drAI9cqVwEC+x4YwDmkprMydI5lS4r0m9+lKfqnQGCbEhTIB2P4tffm7DQSbLJpPJvK5wDaeBuFpJOkTFIzMl+FH3jC5hl4lPQk6csnbwdmbCnV3bF4l/Q2dEUL6PCz6tSwcidaqoZnV6r+wTezSv59p6mR9GBmTfc0fSfMhqIEZnjl35thKzNLynDM/2+8NGtqM21yEZevey7p3tur3PLFzD5DA4XaFa7Nu3oN5TDjF6PswOqxjk4GOsedN9RBsCSgc67aFyQWaIDMLBoaC2t187H4BqwdDXMWZF/nAAAAAElFTkSuQmCC"
       cursor: "move"
+      showButton: false
       auto_deactivate: true
       restrict_to_innercanvas: true
 
@@ -72,26 +73,36 @@ define [
       dims = @mget('dimensions')
 
       if dims.indexOf('width') > -1
-        xstart = @plot_view.xmapper.map_from_target(sx_low)
-        xend   = @plot_view.xmapper.map_from_target(sx_high)
-        sdx    = -xdiff
+        sx0 = sx_low
+        sx1 = sx_high
+        sdx = -xdiff
       else
-        xstart = @plot_view.xmapper.map_from_target(xr.get('start'))
-        xend   = @plot_view.xmapper.map_from_target(xr.get('end'))
-        sdx    = 0
+        sx0 = xr.get('start')
+        sx1 = xr.get('end')
+        sdx = 0
 
       if dims.indexOf('height') > -1
-        ystart = @plot_view.ymapper.map_from_target(sy_low)
-        yend   = @plot_view.ymapper.map_from_target(sy_high)
-        sdy    = ydiff
+        sy0 = sy_low
+        sy1 = sy_high
+        sdy = ydiff
       else
-        ystart = @plot_view.ymapper.map_from_target(yr.get('start'))
-        yend   = @plot_view.ymapper.map_from_target(yr.get('end'))
-        sdy    = 0
+        sy0 = yr.get('start')
+        sy1 = yr.get('end')
+        sdy = 0
+
+      xrs = {}
+      for name, mapper of @plot_view.x_mappers
+        [start, end] = mapper.v_map_from_target([sx0, sx1])
+        xrs[name] = {start: start, end: end}
+
+      yrs = {}
+      for name, mapper of @plot_view.y_mappers
+        [start, end] = mapper.v_map_from_target([sy0, sy1])
+        yrs[name] = {start: start, end: end}
 
       pan_info = {
-        xr: {start: xstart, end: xend}
-        yr: {start: ystart, end: yend}
+        xrs: xrs
+        yrs: yrs
         sdx: sdx
         sdy: sdy
       }
