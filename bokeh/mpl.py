@@ -87,9 +87,12 @@ class BokehRenderer(Renderer):
                         self.plot.renderers, lambda x: is_ax_end(x)) if not x[0]]
             plots = []
             for i, axes in enumerate(fig.axes):
-                _plot = self.plot.clone()
-                _plot.renderers = subrends[i]
-                plots.append(_plot)
+                self.plot.renderers = subrends[i]
+                if i < len(fig.axes) - 1:
+                    _plot = self.plot.clone()
+                    plots.append(_plot)
+                else:
+                    plots.append(self.plot)
             (a, b, c) = fig.axes[0].get_geometry()
             p = np.array(plots)
             n = np.resize(p, (a, b))
