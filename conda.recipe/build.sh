@@ -19,8 +19,6 @@ date=`date "+%Y%m%d"`
 echo $version.dev.$date > __conda_version__.txt
 cp __conda_version__.txt $BLD_DIR
 
-conda install --yes -c bokeh nodejs
-
 pushd bokehjs
 npm install
 popd
