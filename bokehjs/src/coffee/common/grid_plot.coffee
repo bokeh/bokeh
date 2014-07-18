@@ -54,9 +54,11 @@ define [
       for row in @mget_obj('children')
         for plot in row
           childmodels.push(plot)
-          @listenTo(plot.solver, 'layout_update', @render)
       build_views(@childviews, childmodels, {})
       @set_child_view_states()
+      for row in @mget_obj('children')
+        for plot in row
+          @listenTo(plot.solver, 'layout_update', @render)
 
     makeButton: (eventSink, constructor, toolbar_div, button_name) ->
 
