@@ -34,6 +34,7 @@ from ..session import Session
 from ..embed import file_html
 from ..resources import INLINE
 from ..browserlib import view
+from ..utils import publish_display_data
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -471,9 +472,8 @@ class Chart(object):
             self.session.show(self.plot)
 
         if self.notebook:
-            import IPython.core.displaypub as displaypub
             from bokeh.embed import notebook_div
-            displaypub.publish_display_data('bokeh', {'text/html': notebook_div(self.plot)})
+            publish_display_data({'text/html': notebook_div(self.plot)})
 
     # Some helper methods
     def _set_and_get(self, prefix, val, content):

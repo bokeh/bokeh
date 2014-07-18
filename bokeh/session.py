@@ -431,8 +431,8 @@ class Session(object):
 
     def show(self, plot_object):
         """Display an object as HTML in IPython using its display protocol. """
-        import IPython.core.displaypub as displaypub
-        displaypub.publish_display_data('bokeh', {'text/html': autoload_server(plot_object, self)})
+        data = {'text/html': autoload_server(plot_object, self)}
+        utils.publish_display_data(data)
 
 class Cloud(Session):
     def __init__(self):

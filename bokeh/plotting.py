@@ -20,7 +20,7 @@ from .plotting_helpers import (
 )
 from .resources import Resources
 from .session import Cloud, DEFAULT_SERVER_URL, Session
-from .utils import decode_utf8
+from .utils import decode_utf8, publish_display_data
 
 logger = logging.getLogger(__name__)
 
@@ -168,14 +168,15 @@ def output_cloud(docname):
     """
     output_server(docname, session=Cloud())
 
-def output_notebook(url=None, docname=None, session=None, name=None):
+def output_notebook(url=None, docname=None, session=None, name=None,
+                    force=False):
     if session or url or name:
         if docname is None:
             docname = "IPython Session at %s" % time.ctime()
         output_server(docname, url=url, session=session, name=name)
     else:
         from . import load_notebook
-        load_notebook()
+        load_notebook(force=force)
     global _default_notebook
     _default_notebook = True
 
@@ -247,15 +248,12 @@ def show(obj=None, browser=None, new="tab", url=None):
         warnings.warn("No current plot to show. Use renderer functions (circle, rect, etc.) to create a current plot (see http://bokeh.pydata.org/index.html)")
         return
     if notebook and session:
-        import IPython.core.displaypub as displaypub
         push(session=session)
         snippet = autoload_server(plot, cursession())
-        displaypub.publish_display_data('bokeh', {'text/html': snippet})
+        publish_display_data({'text/html': snippet})
 
     elif notebook:
-        import IPython.core.displaypub as displaypub
-
-        displaypub.publish_display_data('bokeh', {'text/html': notebook_div(plot)})
+        publish_display_data({'text/html': notebook_div(plot)})
 
     elif session:
         push()
