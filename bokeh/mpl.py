@@ -283,6 +283,10 @@ class BokehRenderer(Renderer):
                                  axis_label=ax.get_label_text(),
                                  #formatter=formatter
                                  )
+        if location == "left": self.plot.left.append(laxis)
+        elif location == "right": self.plot.right.append(laxis)
+        elif location == "top": self.plot.above.append(laxis)
+        elif location == "bottom": self.plot.below.append(laxis)
 
         # First get the label properties by getting an mpl.Text object
         #label = ax.get_label()
