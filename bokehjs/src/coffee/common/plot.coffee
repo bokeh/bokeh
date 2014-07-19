@@ -90,7 +90,6 @@ define [
       @build_levels()
       @atm.bind_bokeh_events()
       @bind_bokeh_events()
-
       for k, v of @renderers
         if v.model.initialize_layout?
           v.model.initialize_layout(@canvas.solver)
@@ -172,6 +171,10 @@ define [
         if v.model.update_layout?
           v.model.update_layout(v, @canvas.solver)
       @canvas.solver.update_variables(false)
+
+      # TODO (bev) OK this sucks, but the event from the solver update doesn't
+      # reach the frame in time (sometimes) so force an update here for now
+      @model.get('frame')._update_mappers()
 
       if not @initial_range_info?
         @set_initial_range()

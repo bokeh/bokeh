@@ -73,7 +73,6 @@ define [
             return @_v_range
         , false)
       @add_dependencies('inner_range_vertical', this, ['bottom', 'height'])
-      window.foo = @
 
       @_aspect_constraint = null
       @register_property('aspect',
