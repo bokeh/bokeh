@@ -36,6 +36,15 @@ from .plotting import (curdoc, output_file, output_notebook, output_server,
 # Classes and functions
 #-----------------------------------------------------------------------------
 
+def _layout_axes(plot):
+    for r in plot.renderers:
+        if not isinstance(r, (LinearAxis, DatetimeAxis)):
+            continue
+        location = r.location
+        if location == "left": plot.left.append(r)
+        elif location == "right": plot.right.append(r)
+        elif location == "top": plot.above.append(r)
+        elif location == "bottom": plot.below.append(r)
 
 class BokehRenderer(Renderer):
 
@@ -58,6 +67,7 @@ class BokehRenderer(Renderer):
                          plot_width=self.width,
                          plot_height=self.height)
 
+
     def close_figure(self, fig):
         "Complete the plot: add tools."
 
@@ -79,6 +89,7 @@ class BokehRenderer(Renderer):
 
         # Simple or Grid plot setup
         if len(fig.axes) <= 1:
+            _layout_axes(self.plot)
             self.fig = self.plot
         else:
             # This list comprehension splits the plot.renderers list at the "marker"
@@ -93,8 +104,10 @@ class BokehRenderer(Renderer):
                     for x in _plot.renderers:
                         x.plot = _plot
                     plots.append(_plot)
+                    _layout_axes(_plot)
                 else:
                     plots.append(self.plot)
+                    _layout_axes(self.plot)
             (a, b, c) = fig.axes[0].get_geometry()
             p = np.array(plots)
             n = np.resize(p, (a, b))
@@ -283,10 +296,6 @@ class BokehRenderer(Renderer):
                                  axis_label=ax.get_label_text(),
                                  #formatter=formatter
                                  )
-        if location == "left": self.plot.left.append(laxis)
-        elif location == "right": self.plot.right.append(laxis)
-        elif location == "top": self.plot.above.append(laxis)
-        elif location == "bottom": self.plot.below.append(laxis)
 
         # First get the label properties by getting an mpl.Text object
         #label = ax.get_label()
