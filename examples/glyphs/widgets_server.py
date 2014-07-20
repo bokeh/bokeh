@@ -32,7 +32,9 @@ def make_plot():
     hover = HoverTool(plot=plot, tooltips=dict(downloads="@downloads"))
     plot.tools.append(hover)
     xaxis = DatetimeAxis(plot=plot, location="bottom")
+    plot.below.append(xaxis)
     yaxis = LinearAxis(plot=plot, location="left")
+    plot.left.append(yaxis)
     xgrid = Grid(plot=plot, dimension=0, axis=xaxis)
     ygrid = Grid(plot=plot, dimension=1, axis=yaxis)
     return plot, source

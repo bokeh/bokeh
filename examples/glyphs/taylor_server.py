@@ -70,7 +70,9 @@ line_t_glyph = Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph
 plot.renderers.append(line_t_glyph)
 
 xaxis = LinearAxis(plot=plot, location="bottom")
+plot.below.append(xaxis)
 yaxis = LinearAxis(plot=plot, location="left")
+plot.left.append(yaxis)
 
 xgrid = Grid(plot=plot, dimension=0, axis=xaxis)
 ygrid = Grid(plot=plot, dimension=1, axis=yaxis)

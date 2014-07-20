@@ -39,7 +39,9 @@ def pyramid():
     plot = Plot(title=None, data_sources=[source_pyramid], x_range=xdr, y_range=ydr, plot_width=600, plot_height=600)
 
     xaxis = LinearAxis(plot=plot, location="bottom")
+    plot.below.append(xaxis)
     yaxis = LinearAxis(plot=plot, location="left", ticker=SingleIntervalTicker(interval=5))
+    plot.left.append(yaxis)
 
     xgrid = Grid(plot=plot, dimension=0, axis=xaxis)
     ygrid = Grid(plot=plot, dimension=1, axis=yaxis)

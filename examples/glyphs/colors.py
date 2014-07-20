@@ -164,9 +164,12 @@ ydr = FactorRange(factors=list(reversed(css3_colors.Name)))
 
 plot = Plot(title="CSS3 Color Names", data_sources=[source], x_range=xdr, y_range=ydr, plot_width=600, plot_height=2000)
 
-xaxis_top    = CategoricalAxis(plot=plot, dimension=0, major_label_orientation=pi/4, location="top")
-xaxis_bottom = CategoricalAxis(plot=plot, dimension=0, major_label_orientation=pi/4, location="bottom")
-yaxis        = CategoricalAxis(plot=plot, dimension=1, location="left")
+xaxis_top    = CategoricalAxis(plot=plot, major_label_orientation=pi/4, location="top")
+plot.above.append(xaxis_top)
+xaxis_bottom = CategoricalAxis(plot=plot, major_label_orientation=pi/4, location="bottom")
+plot.below.append(xaxis_bottom)
+yaxis        = CategoricalAxis(plot=plot, location="left")
+plot.left.append(yaxis)
 
 # XXX: Wrong radius. Doesn't respect 'radius'. 'line_color' on 'rect' affects 'circle'.
 # circle = Circle(x="groups", y="names", radius=1, fill_color="colors")

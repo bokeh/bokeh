@@ -32,7 +32,9 @@ glyph_renderer = Glyph(
 
 plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source], min_border=80)
 xaxis = LinearAxis(plot=plot, location="bottom")
+plot.below.append(xaxis)
 yaxis = LinearAxis(plot=plot, location="left")
+plot.left.append(yaxis)
 
 pantool = PanTool(dimensions=["width", "height"])
 wheelzoomtool = WheelZoomTool(dimensions=["width", "height"])
