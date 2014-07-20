@@ -191,7 +191,7 @@ define [
     MultiSelect:              'widget/multiselect'
     DateRangeSlider:          'widget/date_range_slider'
     DatePicker:               'widget/date_picker'
-    Panel:                    'widget/panel'
+    #Panel:                    'widget/panel'
     Tabs:                     'widget/tabs'
     Dialog:                   'widget/dialog'
 

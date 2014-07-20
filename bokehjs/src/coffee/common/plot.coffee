@@ -9,12 +9,13 @@ define [
   "./continuum_view",
   "./has_parent",
   "./canvas",
+  "./panel",
   "./solver",
   "./cartesian_frame",
   "./plot_template"
   "renderer/properties",
   "tool/active_tool_manager",
-], (_, Backbone, kiwi, build_views, plot_utils, safebind, ContinuumView, HasParent, Canvas, Solver, CartesianFrame, plot_template, Properties, ActiveToolManager) ->
+], (_, Backbone, kiwi, build_views, plot_utils, safebind, ContinuumView, HasParent, Canvas, Panel, Solver, CartesianFrame, plot_template, Properties, ActiveToolManager) ->
 
   line_properties = Properties.line_properties
   text_properties = Properties.text_properties
@@ -164,12 +165,21 @@ define [
 
       frame = @model.get('frame')
       canvas = @model.get('canvas')
-      @canvas.solver.suggest_value(frame._width, canvas.get('width'))
-      @canvas.solver.suggest_value(frame._height, canvas.get('height'))
 
       for k, v of @renderers
         if v.model.update_layout?
           v.model.update_layout(v, @canvas.solver)
+
+      title = @mget('title')
+      if title
+        @title_props.set(@canvas_view.ctx, {})
+        th = ctx.measureText(@mget('title')).ascent + @model.get('title_standoff')
+        if th != @model.title_panel.get('height')
+          @model.title_panel.set('height', th)
+
+      @model.get('frame').set('width', canvas.get('width'))
+      @model.get('frame').set('height', canvas.get('height'))
+
       @canvas.solver.update_variables(false)
 
       # TODO (bev) OK this sucks, but the event from the solver update doesn't
@@ -178,11 +188,6 @@ define [
 
       if not @initial_range_info?
         @set_initial_range()
-
-      title = @mget('title')
-      if title
-        @title_props.set(@canvas_view.ctx, {})
-        th = ctx.measureText(@mget('title')).ascent
 
       frame_box = [
         @canvas.vx_to_sx(@frame.get('left')),
@@ -210,8 +215,8 @@ define [
       @_render_levels(ctx, ['overlay', 'annotation', 'tool'], have_new_mapper_state)
 
       if title
-        sx = @canvas.get('canvas_width')/2
-        sy = th
+        sx = @canvas.vx_to_sx(@canvas.get('width')/2)
+        sy = @canvas.vy_to_sy(@model.title_panel.get('bottom') + @model.get('title_standoff'))
         @title_props.set(ctx, {})
         ctx.fillText(title, sx, sy)
 
@@ -266,35 +271,41 @@ define [
       })
       @set('frame', frame)
 
+      # TODO (bev) titles should probably be a proper guide, then they could go
+      # on any side, this will do to get the PR merged
+      @title_panel = new Panel.Model({solver: solver})
+      Panel.Collection.add(@title_panel)
+      @title_panel._anchor = @title_panel._bottom
+      @get('above').push(@title_panel.ref())
+
+    add_constraints: (solver) ->
       min_border_top    = @get('min_border_top')    ? @get('min_border')
       min_border_bottom = @get('min_border_bottom') ? @get('min_border')
       min_border_left   = @get('min_border_left')   ? @get('min_border')
       min_border_right  = @get('min_border_right')  ? @get('min_border')
 
-      solver.add_constraint(new Constraint(new Expr(frame._left, -min_border_left), GE), kiwi.Strength.strong)
-      solver.add_constraint(new Constraint(new Expr(frame._right, min_border_right, [-1, canvas._right]), LE), kiwi.Strength.strong)
-      solver.add_constraint(new Constraint(new Expr(frame._bottom, -min_border_bottom), GE), kiwi.Strength.strong)
-      solver.add_constraint(new Constraint(new Expr(frame._top, min_border_top, [-1, canvas._top]), LE), kiwi.Strength.strong)
-      solver.suggest_value(frame._width, canvas.get('width'))
-      solver.suggest_value(frame._height, canvas.get('height'))
-
-    add_constraints: (solver) ->
-      do_side = (side, cname, op) =>
+      do_side = (solver, min_size, side, cnames, dim, op) =>
         canvas = @get('canvas')
         frame = @get('frame')
+        box = new Panel.Model({solver: solver})
+        c0 = '_'+cnames[0]
+        c1 = '_'+cnames[1]
+        solver.add_constraint(new Constraint(new Expr(box['_'+dim], -min_size), GE), kiwi.Strength.strong)
+        solver.add_constraint(new Constraint(new Expr(frame[c0], [-1, box[c1]]), EQ))
+        solver.add_constraint(new Constraint(new Expr(box[c0], [-1, canvas[c0]]), EQ))
         last = frame
         elts = @get_obj(side)
-        if elts.length == 0
-          return
         for r in elts
-          @solver.add_constraint(new Constraint(new Expr(last[cname], [-1, r._anchor]), EQ), kiwi.Strength.strong)
+          solver.add_constraint(new Constraint(new Expr(last[c0], [-1, r[c1]]), EQ), kiwi.Strength.strong)
           last = r
-        @solver.add_constraint(new Constraint(new Expr(last[cname], [-1, canvas[cname]]), op), kiwi.Strength.required)
+        padding = new Panel.Model({solver: solver})
+        solver.add_constraint(new Constraint(new Expr(last[c0], [-1, padding[c1]]), EQ), kiwi.Strength.strong)
+        solver.add_constraint(new Constraint(new Expr(padding[c0], [-1, canvas[c0]]), EQ), kiwi.Strength.strong)
 
-      do_side('above', '_top', LE)
-      do_side('below', '_bottom', GE)
-      do_side('left', '_left', GE)
-      do_side('right', '_right', LE)
+      do_side(solver, min_border_top, 'above', ['top', 'bottom'], 'height', LE)
+      do_side(solver, min_border_bottom, 'below', ['bottom', 'top'], 'height', GE)
+      do_side(solver, min_border_left, 'left', ['left', 'right'], 'width', GE)
+      do_side(solver, min_border_right, 'right', ['right', 'left'], 'width', LE)
 
     add_renderers: (new_renderers) ->
       renderers = @get('renderers')

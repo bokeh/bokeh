@@ -194,8 +194,8 @@ define [
 
     defaults: () ->
       return {
-        canvas_width: 300
-        canvas_height: 300
+        width: 300
+        height: 300
         map: false
         mousedown_callbacks: []
         mousemove_callbacks: []
