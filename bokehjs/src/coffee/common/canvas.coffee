@@ -3,9 +3,9 @@ define [
   "kiwi",
   "./canvas_template"
   "./continuum_view",
-  "./panel"
+  "./layout_box"
   "./solver",
-], (Backbone, kiwi, canvas_template, ContinuumView, Panel, Solver) ->
+], (Backbone, kiwi, canvas_template, ContinuumView, LayoutBox, Solver) ->
 
   Expr = kiwi.Expression
   Constraint = kiwi.Constraint
@@ -120,7 +120,7 @@ define [
       for f in @mget('mousemove_callbacks')
         f(e, e.layerX, e.layerY)
 
-  class Canvas extends Panel.Model
+  class Canvas extends LayoutBox.Model
     type: 'Canvas'
     default_view: CanvasView
 

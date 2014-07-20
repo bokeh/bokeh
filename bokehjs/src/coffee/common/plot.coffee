@@ -9,13 +9,13 @@ define [
   "./continuum_view",
   "./has_parent",
   "./canvas",
-  "./panel",
+  "./layout_box",
   "./solver",
   "./cartesian_frame",
   "./plot_template"
   "renderer/properties",
   "tool/active_tool_manager",
-], (_, Backbone, kiwi, build_views, plot_utils, safebind, ContinuumView, HasParent, Canvas, Panel, Solver, CartesianFrame, plot_template, Properties, ActiveToolManager) ->
+], (_, Backbone, kiwi, build_views, plot_utils, safebind, ContinuumView, HasParent, Canvas, LayoutBox, Solver, CartesianFrame, plot_template, Properties, ActiveToolManager) ->
 
   line_properties = Properties.line_properties
   text_properties = Properties.text_properties
@@ -273,8 +273,8 @@ define [
 
       # TODO (bev) titles should probably be a proper guide, then they could go
       # on any side, this will do to get the PR merged
-      @title_panel = new Panel.Model({solver: solver})
-      Panel.Collection.add(@title_panel)
+      @title_panel = new LayoutBox.Model({solver: solver})
+      LayoutBox.Collection.add(@title_panel)
       @title_panel._anchor = @title_panel._bottom
       @get('above').push(@title_panel.ref())
 
@@ -287,7 +287,7 @@ define [
       do_side = (solver, min_size, side, cnames, dim, op) =>
         canvas = @get('canvas')
         frame = @get('frame')
-        box = new Panel.Model({solver: solver})
+        box = new LayoutBox.Model({solver: solver})
         c0 = '_'+cnames[0]
         c1 = '_'+cnames[1]
         solver.add_constraint(new Constraint(new Expr(box['_'+dim], -min_size), GE), kiwi.Strength.strong)
@@ -298,7 +298,7 @@ define [
         for r in elts
           solver.add_constraint(new Constraint(new Expr(last[c0], [-1, r[c1]]), EQ), kiwi.Strength.strong)
           last = r
-        padding = new Panel.Model({solver: solver})
+        padding = new LayoutBox.Model({solver: solver})
         solver.add_constraint(new Constraint(new Expr(last[c0], [-1, padding[c1]]), EQ), kiwi.Strength.strong)
         solver.add_constraint(new Constraint(new Expr(padding[c0], [-1, canvas[c0]]), EQ), kiwi.Strength.strong)
 

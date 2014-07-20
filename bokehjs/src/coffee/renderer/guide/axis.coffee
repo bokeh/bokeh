@@ -4,10 +4,10 @@ define [
   "backbone",
   "kiwi",
   "common/has_parent",
-  "common/panel",
+  "common/layout_box",
   "common/plot_widget",
   "renderer/properties",
-], (_, Backbone, kiwi, HasParent, Panel, PlotWidget, Properties) ->
+], (_, Backbone, kiwi, HasParent, LayoutBox, PlotWidget, Properties) ->
 
   glyph_properties = Properties.glyph_properties
   line_properties  = Properties.line_properties
@@ -325,7 +325,7 @@ define [
         console.log("ERROR: unrecognized side: '#{ side }'")
 
     initialize_layout: (solver) ->
-      panel = new Panel.Model({solver: solver})
+      panel = new LayoutBox.Model({solver: solver})
       @panel = panel
 
       # Yuck. The issues is that frames and canvases *are* panels, but axes are not but

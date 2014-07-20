@@ -14,8 +14,8 @@ define [
   LE = kiwi.Operator.Le
   GE = kiwi.Operator.Ge
 
-  class Panel extends HasProperties
-    type: 'Panel'
+  class LayoutBox extends HasProperties
+    type: 'LayoutBox'
 
     initialize: (attrs, options) ->
       super(attrs, options)
@@ -108,10 +108,10 @@ define [
         'height_strength': kiwi.Strength.strong
       }
 
-  class Panels extends Backbone.Collection
-    model: Panel
+  class LayoutBoxs extends Backbone.Collection
+    model: LayoutBox
 
   return {
-    "Model": Panel,
-    "Collection": new Panels(),
+    "Model": LayoutBox,
+    "Collection": new LayoutBoxs(),
   }

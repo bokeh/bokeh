@@ -119,7 +119,7 @@ define [
     PlotContext:              'common/plot_context'
     PlotList:                 'common/plot_context'
     Canvas:                   'common/canvas'
-    Panel:                    'common/panel'
+    LayoutBox:                'common/layout_box'
     CartesianFrame:           'common/cartesian_frame'
 
     DataFactorRange:          'range/data_factor_range'
@@ -191,7 +191,7 @@ define [
     MultiSelect:              'widget/multiselect'
     DateRangeSlider:          'widget/date_range_slider'
     DatePicker:               'widget/date_picker'
-    #Panel:                    'widget/panel'
+    Panel:                    'widget/panel'
     Tabs:                     'widget/tabs'
     Dialog:                   'widget/dialog'
 

@@ -1,13 +1,13 @@
 define [
   "underscore",
   "backbone",
-  "./panel",
+  "./layout_box",
   "mapper/1d/linear_mapper",
   "mapper/1d/categorical_mapper",
   "mapper/2d/grid_mapper",
-], (_, Backbone, Panel, LinearMapper, CategoricalMapper, GridMapper) ->
+], (_, Backbone, LayoutBox, LinearMapper, CategoricalMapper, GridMapper) ->
 
-  class CartesianFrame extends Panel.Model
+  class CartesianFrame extends LayoutBox.Model
     type: 'CartesianFrame'
 
     initialize: (attrs, options) ->
