@@ -8,7 +8,7 @@ define [
   "common/cartesian_frame",
   "common/gmap_plot",
   "common/grid_plot",
-  "common/panel",
+  "common/layout_box",
   "common/plot",
   "common/plot_context",
 
