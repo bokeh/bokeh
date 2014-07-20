@@ -28,7 +28,7 @@ define (require, exports, module) ->
   Bokeh.GridPlot          = require("common/grid_plot")
   Bokeh.HasParent         = require("common/has_parent")
   Bokeh.HasProperties     = require("common/has_properties")
-  Bokeh.Panel             = require("common/panel")
+  Bokeh.LayoutBox         = require("common/layout_box")
   Bokeh.Plot              = require("common/plot")
   Bokeh.Plotting          = require("common/plotting")
 
