@@ -142,7 +142,7 @@ define [
       else
         indices = @all_indices
 
-      ctx = @plot_view.ctx
+      ctx = @plot_view.canvas_view.ctx
       ctx.save()
 
       do_render = (ctx, indices, glyph_props) =>

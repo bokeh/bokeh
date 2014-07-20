@@ -48,7 +48,7 @@ define [
       SetBasepoint: "_set_base_point"
 
     mouse_coords: (e, x, y) ->
-      [x_, y_] = [@plot_view.view_state.sx_to_vx(x), @plot_view.view_state.sy_to_vy(y)]
+      [x_, y_] = [@plot_view.canvas.sx_to_vx(x), @plot_view.canvas.sy_to_vy(y)]
       return [x_, y_]
 
     _set_base_point: (e) ->
@@ -61,11 +61,11 @@ define [
       ydiff = y - @y
       [@x, @y] = [x, y]
 
-      xr = @plot_view.view_state.get('inner_range_horizontal')
+      xr = @plot_view.frame.get('inner_range_horizontal')
       sx_low  = xr.get('start') - xdiff
       sx_high = xr.get('end') - xdiff
 
-      yr = @plot_view.view_state.get('inner_range_vertical')
+      yr = @plot_view.frame.get('inner_range_vertical')
       sy_low  = yr.get('start') - ydiff
       sy_high = yr.get('end') - ydiff
 

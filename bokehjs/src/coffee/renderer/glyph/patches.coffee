@@ -14,7 +14,6 @@ define [
       null
 
     _render: (ctx, indices, glyph_props) ->
-      ctx = @plot_view.ctx
 
       for i in indices
 

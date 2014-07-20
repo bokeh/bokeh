@@ -15,7 +15,7 @@ from .properties import (HasProps, Dict, Enum, Either, Float, Instance, Int,
     Datetime,
     List, String, Color, Date, Include, Bool, Tuple, Any)
 from .mixins import LineProps, TextProps
-from .enums import BorderSymmetry, DatetimeUnits, Dimension, Location, Orientation, Units
+from .enums import DatetimeUnits, Dimension, Location, Orientation, Units
 from .plot_object import PlotObject
 from .glyphs import BaseGlyph
 
@@ -261,9 +261,29 @@ class Glyph(Renderer):
 class Widget(PlotObject):
     pass
 
+class Canvas(PlotObject):
+    # TODO (bev) remove default dims here, see #561
+    def __init__(self, canvas_height=600, canvas_width=600, **kwargs):
+        kwargs['canvas_width'] = canvas_width
+        kwargs['canvas_height'] = canvas_height
+        super(Canvas, self).__init__(**kwargs)
+    botton_bar = Bool(True)
+    canvas_height = Int(600)
+    canvas_width = Int(600)
+    map = Bool(False)
+    use_hdpi = Bool(True)
+
 class Plot(Widget):
     """ Object representing a plot, containing glyphs, guides, annotations.
     """
+
+    def __init__(self, **kwargs):
+        if 'border_symmetry' in kwargs:
+            border_symmetry = kwargs.pop('border_symmetry')
+            if border_symmetry is None: border_symmetry = ""
+            kwargs.setdefault('h_symmetry', 'h' in border_symmetry or 'H' in border_symmetry)
+            kwargs.setdefault('v_symmetry', 'v' in border_symmetry or 'V' in border_symmetry)
+        super(Plot, self).__init__(**kwargs)
 
     data_sources = List(Instance(DataSource))
 
@@ -281,6 +301,11 @@ class Plot(Widget):
     renderers = List(Instance(Renderer))
     tools = List(Instance(".objects.Tool"))
 
+    left = List(Instance(PlotObject))
+    right = List(Instance(PlotObject))
+    above = List(Instance(PlotObject))
+    below = List(Instance(PlotObject))
+
     # TODO: These don't appear in the CS source, but are created by mpl.py, so
     # I'm leaving them here for initial compatibility testing.
     # axes = List()
@@ -297,34 +322,14 @@ class Plot(Widget):
 
     background_fill = Color("white")
     border_fill = Color("white")
-    canvas_width = Int(400)
-    canvas_height = Int(400)
-    outer_width = Int(400)
-    outer_height = Int(400)
     min_border_top = Int(50)
     min_border_bottom = Int(50)
     min_border_left = Int(50)
     min_border_right = Int(50)
     min_border = Int(50)
-    border_symmetry = Enum(BorderSymmetry)
-    script_inject_snippet = String("")
 
-    def vm_props(self):
-        # FIXME: We need to duplicate the height and width into canvas and
-        # outer height/width.  This is a quick fix for the gorpiness, but this
-        # needs to be fixed more structurally on the JS side, and then this
-        # should be revisited on the Python side.
-        if hasattr(self.session, "root_url"):
-            self.script_inject_snippet = self.create_html_snippet(server=True)
-        if "canvas_width" not in self._changed_vars:
-            self.canvas_width = self.plot_width
-        if "outer_width" not in self._changed_vars:
-            self.outer_width = self.plot_width
-        if "canvas_height" not in self._changed_vars:
-            self.canvas_height = self.plot_height
-        if "outer_height" not in self._changed_vars:
-            self.outer_height = self.plot_height
-        return super(Plot, self).vm_props()
+    h_symmetry = Bool(True)
+    v_symmetry = Bool(False)
 
     annular_wedge     = _glyph_functions.annular_wedge
     annulus           = _glyph_functions.annulus
@@ -387,7 +392,7 @@ class Axis(GuideRenderer):
     type = String("axis")
 
     dimension = Int(0)
-    location = Either(Enum(Location), Float)
+    location = Enum(Location)
     bounds = Either(Enum('auto'), Tuple(Float, Float))
 
     ticker = Instance(Ticker)

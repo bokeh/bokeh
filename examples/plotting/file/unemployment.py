@@ -46,6 +46,7 @@ figure()
 
 rect('year', 'month', 1,1, source=source,
      x_range=years, y_range=list(reversed(months)),
+     x_axis_location="top",
      color='color', line_color=None,
      tools="resize,hover,previewsave", title="US Unemployment (1948 - 2013)",
      plot_width=900, plot_height=400)
@@ -55,7 +56,6 @@ axis().axis_line_color = None
 axis().major_tick_line_color = None
 axis().major_label_text_font_size = "5pt"
 axis().major_label_standoff = 0
-xaxis().location = "top"
 xaxis().major_label_orientation = np.pi/3
 
 hover = [t for t in curplot().tools if isinstance(t, HoverTool)][0]

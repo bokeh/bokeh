@@ -37,7 +37,7 @@ define [
     tool_events: { zoom: "_zoom" }
 
     mouse_coords: (e, x, y) ->
-      [x_, y_] = [@plot_view.view_state.sx_to_vx(x), @plot_view.view_state.sy_to_vy(y)]
+      [x_, y_] = [@plot_view.canvas.sx_to_vx(x), @plot_view.canvas.sy_to_vy(y)]
       return [x_, y_]
 
     _zoom: (e) ->
@@ -57,11 +57,11 @@ define [
       else if factor < -0.9
         factor = -0.9
 
-      xr = @plot_view.view_state.get('inner_range_horizontal')
+      xr = @plot_view.frame.get('inner_range_horizontal')
       sx_low  = xr.get('start')
       sx_high = xr.get('end')
 
-      yr = @plot_view.view_state.get('inner_range_vertical')
+      yr = @plot_view.frame.get('inner_range_vertical')
       sy_low  = yr.get('start')
       sy_high = yr.get('end')
 

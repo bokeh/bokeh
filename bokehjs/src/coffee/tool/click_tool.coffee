@@ -13,8 +13,8 @@ define [
 
     view_coords: (sx, sy) ->
       [vx, vy] = [
-        @plot_view.view_state.sx_to_vx(sx),
-        @plot_view.view_state.sy_to_vy(sy)
+        @plot_view.canvas.sx_to_vx(sx)
+        @plot_view.canvas.sy_to_vy(sy)
       ]
       return [vx, vy]
 
@@ -43,14 +43,14 @@ define [
           @tool_button.addClass('active')
         )
 
-      @plot_view.canvas.bind("mousedown", (e) =>
+      @plot_view.canvas_view.canvas_wrapper.bind("mousedown", (e) =>
         if not @active and not @mget('always_active')
           return
         @start_posx = e.pageX
         @start_posy = e.pageY
       )
 
-      @plot_view.canvas.bind("mouseup", (e) =>
+      @plot_view.canvas_view.canvas_wrapper.bind("mouseup", (e) =>
         if not @active and not @mget('always_active')
           return
         if @start_posx != e.pageX or @start_posy != e.pageY
@@ -65,7 +65,6 @@ define [
 
         @_select(vx, vy, e)
       )
-      @plot_view.canvas_wrapper.css('cursor', 'crosshair')
 
     _select: (vx, vy, e) ->
       geometry = {

@@ -31,8 +31,10 @@ def make_plot():
     plot.renderers.append(circle_glyph)
     hover = HoverTool(plot=plot, tooltips=dict(downloads="@downloads"))
     plot.tools.append(hover)
-    xaxis = DatetimeAxis(plot=plot, dimension=0)
-    yaxis = LinearAxis(plot=plot, dimension=1)
+    xaxis = DatetimeAxis(plot=plot, location="bottom")
+    plot.below.append(xaxis)
+    yaxis = LinearAxis(plot=plot, location="left")
+    plot.left.append(yaxis)
     xgrid = Grid(plot=plot, dimension=0, axis=xaxis)
     ygrid = Grid(plot=plot, dimension=1, axis=yaxis)
     return plot, source
@@ -46,8 +48,9 @@ def make_ui():
     data_table = HandsonTable(source=source, columns=columns)
     obj_explorer = ObjectExplorer(data_widget=data_table)
     vbox = VBox(children=[plot, data_table])
-    hbox = HBox(children=[obj_explorer, vbox])
-    return hbox
+    #hbox = HBox(children=[obj_explorer, vbox])
+    #return hbox
+    return vbox
 
 document.add(make_ui())
 session.store_document(document)

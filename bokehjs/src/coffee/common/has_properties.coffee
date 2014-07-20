@@ -6,6 +6,7 @@ define [
   "./base"
   "./safebind",
 ], (_, Backbone, require, base, safebind) ->
+
   class HasProperties extends Backbone.Model
     # Our property system
     # we support python style computed properties, with getters
@@ -90,7 +91,7 @@ define [
         if _.has(this, 'properties') and
            _.has(@properties, key) and
            @properties[key]['setter']
-          @properties[key]['setter'].call(this, val)
+          @properties[key]['setter'].call(this, val, key)
           toremove.push(key)
       if not _.isEmpty(toremove)
         attrs = _.clone(attrs)
@@ -213,7 +214,7 @@ define [
           return @property_cache[prop_name]
         else
           getter = prop_spec.getter
-          computed = getter.apply(this)
+          computed = getter.apply(this, [prop_name])
           if @properties[prop_name].use_cache
             @add_cache(prop_name, computed)
           return computed
