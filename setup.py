@@ -19,7 +19,6 @@ import os
 import platform
 import shutil
 import site
-from six.moves import input
 import subprocess
 import sys
 
@@ -256,13 +255,13 @@ else:
 bokeh_path = join(site_packages, "bokeh")
 if exists(bokeh_path) and isdir(bokeh_path):
     if sys.version_info[0] < 3:
-        val = input("found existing bokeh install, remove it?[y|N]")
+        val = raw_input("found existing bokeh install, remove it?[y|N]")
     else:
         val = input("found existing bokeh install, remove it?[y|N]")
     if val == "y":
-        print("removing old bokeh install")
+        print ("removing old bokeh install")
         shutil.rmtree(bokeh_path)
-    print("not removing old bokeh install")
+    print ("not removing old bokeh install")
 
 path_file = join(site_packages, "bokeh.pth")
 path = abspath(dirname(__file__))
