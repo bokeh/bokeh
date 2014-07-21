@@ -65,7 +65,7 @@ def download(progress=True):
         (s3, 'GOOG.csv'),
         (s3, 'IBM.csv'),
         (s3, 'MSFT.csv'),
-        ('http://esa.un.org/unpd/wpp/SpecialAggregates/ASCII_FILES', 'WPP2012_SA_DB03_POPULATION_QUINQUENNIAL.CSV'),
+        (s3, 'WPP2012_SA_DB03_POPULATION_QUINQUENNIAL.zip'),
     ]
 
     for base_url, file_name in files:
