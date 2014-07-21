@@ -69,8 +69,8 @@ define [
 
       candidates2 = []
       if @outer_radius_units == "screen"
-        sx = @plot_view.view_state.vx_to_sx(vx)
-        sy = @plot_view.view_state.vy_to_sy(vy)
+        sx = @plot_view.canvas.vx_to_sx(vx)
+        sy = @plot_view.canvas.vy_to_sy(vy)
         for i in candidates
           r2 = Math.pow(@outer_radius[i], 2)
           dist = Math.pow(@sx[i]-sx, 2) + Math.pow(@sy[i]-sy, 2)
@@ -89,8 +89,8 @@ define [
 
       hits = []
       if @inner_radius_units == "screen"
-        sx = @plot_view.view_state.vx_to_sx(vx)
-        sy = @plot_view.view_state.vy_to_sy(vy)
+        sx = @plot_view.canvas.vx_to_sx(vx)
+        sy = @plot_view.canvas.vy_to_sy(vy)
         for [i, dist] in candidates2
           r2 = Math.pow(@inner_radius[i], 2)
           if dist >= r2

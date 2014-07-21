@@ -38,20 +38,20 @@ define [
               ctx.save()
               ctx.beginPath()
               # TODO should take the real axis rule width into account, for now shrink region by 1 px
-              vs = @plot_view.view_state
+              frame = @plot_view.frame
+              # use bottom here because frame is view coords
               ctx.rect(
-                vs.get('border_left')+1, vs.get('border_top')+1,
-                vs.get('inner_width')-2, vs.get('inner_height')-2,
+                frame.get('left')+1, frame.get('bottom')+1,
+                frame.get('width')-2, frame.get('height')-2,
               )
               ctx.clip()
-              @_render_image(ctx, vs, i, img)
+              @_render_image(ctx, i, img)
               ctx.restore()
           img.src = @url[i]
           @need_load[i] = false
 
         else if @loaded[i]
-          vs = @plot_view.view_state
-          @_render_image(ctx, vs, i, @image[i])
+          @_render_image(ctx, i, @image[i])
 
     _final_sx_sy: () ->
       anchor = @mget('glyphspec').anchor or "top_left"
@@ -67,7 +67,7 @@ define [
         when "left_center"   then (i) => [@sx[i]           , @sy[i] - @sh[i]/2]
         when "center"        then (i) => [@sx[i] - @sw[i]/2, @sy[i] - @sh[i]/2]
 
-    _render_image: (ctx, vs, i, img) ->
+    _render_image: (ctx, i, img) ->
       if isNaN(@sw[i]) then @sw[i] = img.width
       if isNaN(@sh[i]) then @sh[i] = img.height
 

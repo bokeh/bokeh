@@ -11,7 +11,6 @@ define [
   class PlotContextView extends ContinuumView.View
     initialize: (options) ->
       @views = {}
-      @views_rendered = [false]
       @child_models = []
       super(options)
       @render()
@@ -26,9 +25,6 @@ define [
       window.pc_created_views = created_views
       window.pc_views = @views
       return null
-
-    events:
-      'click .closeall': 'closeall'
 
     size_textarea: (textarea) ->
       scrollHeight = $(textarea).height(0).prop('scrollHeight')
@@ -55,9 +51,6 @@ define [
         val.$el.detach()
       @$el.html('')
       numplots = _.keys(@views).length
-      @$el.append("<div>You have #{numplots} plots</div>")
-      @$el.append("<div><a class='closeall' href='#'>Close All Plots</a></div>")
-      @$el.append("<br/>")
       to_render = []
       tab_names = {}
       for modelref, index in @mget('children')
@@ -81,7 +74,6 @@ define [
     defaults: () ->
       return {
         children: []
-        render_loop: true
       }
 
   class PlotContexts extends Backbone.Collection

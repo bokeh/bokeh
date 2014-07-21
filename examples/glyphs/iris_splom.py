@@ -41,10 +41,11 @@ zoom = WheelZoomTool(dimensions=["width","height"])
 def make_plot(xname, yname, xax=False, yax=False, text=None):
     plot = Plot(
         x_range=xdr, y_range=ydr, data_sources=[source], background_fill="#efe8e2",
-        plot_width=250, plot_height=250, border_fill='white', title="", min_border=2, border_symmetry=None)
+        border_fill='white', title="", min_border=2, border_symmetry=None,
+        plot_width=250, plot_height=250)
     xaxis = LinearAxis(plot=plot, dimension=0, location="bottom")
-    yaxis = LinearAxis(plot=plot, dimension=1, location="left")
     xgrid = Grid(plot=plot, dimension=0, axis=xaxis)
+    yaxis = LinearAxis(plot=plot, dimension=1, location="left")
     ygrid = Grid(plot=plot, dimension=1, axis=yaxis)
     circle = Circle(x=xname, y=yname, fill_color="color", fill_alpha=0.2, size=4, line_color="color")
     circle_renderer = Glyph(

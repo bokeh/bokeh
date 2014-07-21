@@ -273,42 +273,50 @@ def _get_num_minor_ticks(axis_class, num_minor_ticks):
 
 def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
                  x_axis_type="auto", y_axis_type="auto",
+                 x_axis_location="bottom", y_axis_location="left",
                  x_minor_ticks='auto', y_minor_ticks='auto',
                  tools="pan,wheel_zoom,box_zoom,save,resize,select,reset", **kw):
     # Accept **kw to absorb other arguments which the actual factory functions
     # might pass in, but that we don't care about
-    p = Plot()
 
+    p = Plot()
     p.title = kw.pop("title", "Plot")
-    if plot_width is not None:
-        p.plot_width = plot_width
-    if plot_height is not None:
-        p.plot_height = plot_height
 
     p.x_range = _get_range(x_range)
     p.y_range = _get_range(y_range)
+
+    if plot_width: p.plot_width = plot_width
+    if plot_height: p.plot_height = plot_height
 
     x_axiscls = _get_axis_class(x_axis_type, p.x_range)
     if x_axiscls:
         if x_axiscls is LogAxis:
             p.x_mapper_type = 'log'
-        xaxis = x_axiscls(plot=p, dimension=0, location="min", bounds="auto")
+        xaxis = x_axiscls(plot=p, location=x_axis_location, bounds="auto")
         xaxis.ticker.num_minor_ticks = _get_num_minor_ticks(x_axiscls, x_minor_ticks)
         axis_label = kw.pop('x_axis_label', None)
         if axis_label:
             xaxis.axis_label = axis_label
         xgrid = Grid(plot=p, dimension=0, axis=xaxis)
+        if x_axis_location == "top":
+            p.above.append(xaxis)
+        elif x_axis_location == "bottom":
+            p.below.append(xaxis)
 
     y_axiscls = _get_axis_class(y_axis_type, p.y_range)
     if y_axiscls:
         if y_axiscls is LogAxis:
             p.y_mapper_type = 'log'
-        yaxis = y_axiscls(plot=p, dimension=1, location="min", bounds="auto")
+        yaxis = y_axiscls(plot=p, location=y_axis_location, bounds="auto")
         yaxis.ticker.num_minor_ticks = _get_num_minor_ticks(y_axiscls, y_minor_ticks)
         axis_label = kw.pop('y_axis_label', None)
         if axis_label:
             yaxis.axis_label = axis_label
         ygrid = Grid(plot=p, dimension=1, axis=yaxis)
+        if y_axis_location == "left":
+            p.left.append(yaxis)
+        elif y_axis_location == "right":
+            p.right.append(yaxis)
 
     border_args = ["min_border", "min_border_top", "min_border_bottom", "min_border_left", "min_border_right"]
     for arg in border_args:

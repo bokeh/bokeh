@@ -52,6 +52,7 @@ figure()
 
 rect('xname', 'yname', 0.9, 0.9, source=source,
      x_range=list(reversed(names)), y_range=names,
+     x_axis_location="top",
      color='colors', alpha='alphas', line_color=None,
      tools="resize,hover,previewsave", title="Les Mis Occurrences (one at a time)",
      plot_width=800, plot_height=800)
@@ -61,7 +62,6 @@ axis().axis_line_color = None
 axis().major_tick_line_color = None
 axis().major_label_text_font_size = "5pt"
 axis().major_label_standoff = 0
-xaxis().location = "top"
 xaxis().major_label_orientation = np.pi/3
 
 hover = [t for t in curplot().tools if isinstance(t, HoverTool)][0]

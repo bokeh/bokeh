@@ -79,8 +79,11 @@ text_glyph = Glyph(data_source=text_source, xdata_range=xdr, ydata_range=ydr, gl
 plot.renderers.append(text_glyph)
 
 xformatter = DatetimeTickFormatter(formats=dict(months=["%b %Y"]))
-xaxis = DatetimeAxis(plot=plot, dimension=0, formatter=xformatter)
-yaxis = DatetimeAxis(plot=plot, dimension=1)
+xaxis = DatetimeAxis(plot=plot, location="bottom", formatter=xformatter)
+plot.below.append(xaxis)
+yaxis = DatetimeAxis(plot=plot, location="left")
+plot.left.append(yaxis)
+yaxis = DatetimeAxis(plot=plot, location="left")
 xgrid = Grid(plot=plot, dimension=0, axis=xaxis)
 ygrid = Grid(plot=plot, dimension=1, axis=yaxis)
 

@@ -42,7 +42,7 @@ define [
           @select(event, ui)
       )
       @label(min, max)
-      @$el.find(".slider").height(@plot_view.view_state.get('inner_height'))
+      @$el.find(".slider").height(@plot_view.frame.get('height'))
 
     set_selection_range: (event, ui) ->
       min = _.min(ui.values)
