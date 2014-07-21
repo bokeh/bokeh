@@ -176,7 +176,7 @@ def _materialize_colors_and_alpha(kwargs, prefix="", default_alpha=1.0):
     color and alpha fields of the given prefix, and fills in the default value
     if it doesn't exist.
     """
-    kwargs = kwargs.copy()
+    return_kwargs = kwargs.copy()
 
     # TODO: The need to do this and the complexity of managing this kind of
     # thing throughout the codebase really suggests that we need to have
@@ -184,17 +184,17 @@ def _materialize_colors_and_alpha(kwargs, prefix="", default_alpha=1.0):
     # substitute for this kind of imperative logic.
     color = kwargs.pop(prefix+"color", get_default_color())
     for argname in ("fill_color", "line_color"):
-        kwargs[argname] = kwargs.get(prefix + argname, color)
+        return_kwargs[argname] = kwargs.get(prefix + argname, color)
 
     # NOTE: text fill color should really always default to black, hard coding
     # this here now untils the stylesheet solution exists
-    kwargs["text_color"] = kwargs.get(prefix + "text_color", "black")
+    return_kwargs["text_color"] = kwargs.pop(prefix + "text_color", "black")
 
     alpha = kwargs.pop(prefix+"alpha", default_alpha)
     for argname in ("fill_alpha", "line_alpha", "text_alpha"):
-        kwargs[argname] = kwargs.get(prefix + argname, alpha)
+        return_kwargs[argname] = kwargs.pop(prefix + argname, alpha)
 
-    return kwargs
+    return return_kwargs
 
 def _get_legend(plot):
     legend = [x for x in plot.renderers if x.__view_model__ == "Legend"]
