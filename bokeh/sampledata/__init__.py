@@ -71,28 +71,30 @@ def download(progress=True):
         _getfile(base_url, file_name, data_dir, progress=progress)
 
 def _getfile(base_url, file_name, data_dir, progress=True):
-    url = join(base_url, file_name)
-    u = urlopen(url)
-    f = open(join(data_dir, file_name), 'wb')
-    meta = u.headers
-    file_size = int(meta["Content-Length"])
-    print("Downloading: %s (%d bytes)" % (file_name, file_size))
+    file_url = join(base_url, file_name)
+    file_path = join(data_dir, file_name)
 
-    file_size_dl = 0
-    block_sz = 8192
+    url = urlopen(file_url)
 
-    while True:
-        buffer = u.read(block_sz)
-        if not buffer:
-            break
+    with open(file_path, 'wb') as file:
+        file_size = int(url.headers["Content-Length"])
+        print("Downloading: %s (%d bytes)" % (file_name, file_size))
 
-        file_size_dl += len(buffer)
-        f.write(buffer)
+        fetch_size = 0
+        block_size = 16384
 
-        if progress:
-            status = "\r%10d [%6.2f%%]" % (file_size_dl, file_size_dl * 100. / file_size)
-            stdout.write(status)
-            stdout.flush()
+        while True:
+            data = url.read(block_size)
+            if not data:
+                break
 
-    f.close()
-    print()
+            fetch_size += len(data)
+            file.write(data)
+
+            if progress:
+                status = "\r%10d [%6.2f%%]" % (fetch_size, fetch_size*100.0/file_size)
+                stdout.write(status)
+                stdout.flush()
+
+    if progress:
+        print()
