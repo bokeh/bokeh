@@ -1,8 +1,9 @@
 from __future__ import absolute_import, print_function
 
-from os import mkdir
-from os.path import exists, expanduser, isdir, join
+from os import mkdir, remove
+from os.path import exists, expanduser, isdir, join, splitext
 from sys import stdout
+from zipfile import ZipFile
 from six.moves.urllib.request import urlopen
 
 def _bokeh_dir(create=False):
@@ -57,7 +58,7 @@ def download(progress=True):
     s3 = 'https://s3.amazonaws.com/bokeh_data/'
     files = [
         (s3, 'CGM.csv'),
-        (s3, 'US_Counties.csv'),
+        (s3, 'US_Counties.zip'),
         (s3, 'unemployment09.csv'),
         (s3, 'AAPL.csv'),
         (s3, 'FB.csv'),
@@ -98,3 +99,16 @@ def _getfile(base_url, file_name, data_dir, progress=True):
 
     if progress:
         print()
+
+    real_name, ext = splitext(file_name)
+
+    if ext == '.zip':
+        if not splitext(real_name)[1]:
+            real_name += ".csv"
+
+        print("Unpacking: %s" % real_name)
+
+        with ZipFile(file_path, 'r') as zip_file:
+            zip_file.extract(real_name, data_dir)
+
+        remove(file_path)
