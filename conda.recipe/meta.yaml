@@ -7,17 +7,10 @@ build:
 
 requirements:
   build:
-    # code
     - python
     - distribute
     - setuptools
     - nodejs
-
-    # docs
-    - sphinx
-    - pygments
-    - sphinx-bootstrap-theme
-    - sphinxcontrib-napoleon
 
   run:
     # bokeh
@@ -41,6 +34,12 @@ requirements:
 
 test:
   requires:
+    # docs
+    - sphinx
+    - pygments
+    - sphinx-bootstrap-theme
+    - sphinxcontrib-napoleon
+
     # tests
     - pyyaml
     - nose
