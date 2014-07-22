@@ -23,6 +23,16 @@ conda config --add channels mutirri   # TODO: remove when packages are moved to 
 CONDA_PY="${TRAVIS_PYTHON_VERSION/./}" conda build conda.recipe
 conda install --use-local --yes bokeh
 
+DEPS_TEST=$(cat <<EOF | python -
+import re, yaml
+with open("conda.recipe/meta.yaml") as file:
+    meta = yaml.load(re.sub("{{.*}}", "", file.read()))
+    print(" ".join(meta['test']['requires']))
+EOF
+)
+
+conda install --yes $DEPS_TEST
+
 MATPLOTLIB_RC=$(python -c "import matplotlib; print(matplotlib.matplotlib_fname())")
 sed -i 's/^backend\s*:.*$/backend: agg/' $MATPLOTLIB_RC
 
