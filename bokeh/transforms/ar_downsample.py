@@ -10,13 +10,13 @@ logger = logging.getLogger(__file__)
 
 def _loadAR():
     """
-    Utility to load abstract rendering.  Keeps the import from occuring
+    Utility to load abstract rendering.  Keeps the import from occurring
     unless you actually try to use AR.
 
     This is more complex than just an import because
     AR is exposed as several backbone modules.  If the AR modules
     were directly imported, then errors would occur whenever ar_downsample
-    is imported.  This casues error messages on python client side (where
+    is imported.  This causes error messages on python client side (where
     AR isn't actually needed) and on the server side even when AR isn't used.
     Since the AR modules are used throughout this module, just importing at
     use point inside this module is cumbersome.  Using 'globals()' and
@@ -31,15 +31,16 @@ def _loadAR():
         globals()["ar"] = import_module("abstract_rendering.core")
         globals()["glyphset"] = import_module("abstract_rendering.glyphset")
     except:
-        print("\n\n----------------------------------------------------------")
-        print("Error loading the abstract_rendering package.\n")
-        print("To use the ar_downsample module, you must install the")
-        print("abstract rendering framework.")
-        print("This can be installed with conda, pip or by")
-        print("cloning from https://github.com/JosephCottam/AbstractRendering")
-        print("Questions and feedback can be directed to")
-        print("Joseph Cottam (jcottam@indiana.edu)")
-        print("----------------------------------------------------------\n\n")
+        print("\n".join(
+              ["\n\n---------------------------------------------------",
+               "Error loading the abstract_rendering package.\n",
+               "To use the ar_downsample module, you must install the",
+               "abstract rendering framework.",
+               "This can be installed with conda, pip or by",
+               "cloning from https://github.com/JosephCottam/AbstractRendering",
+               "Questions and feedback can be directed to",
+               "Joseph Cottam (jcottam@indiana.edu)",
+               "-------------------------------------------------------\n\n"]))
         raise
 
 
@@ -54,7 +55,7 @@ class Proxy(PlotObject):
     proxy instance.
     """
     def reify(self, **kwargs):
-        raise NotImplementedError("Unipmlemented")
+        raise NotImplementedError("Unimplemented")
 
 
 # ------ Aggregators -------------
@@ -95,7 +96,7 @@ class Seq(Transfer):
         return self.first.reify(**kwargs) + self.second.reify(**kwargs)
 
     def __getattr__(self, name):
-        if (name == 'out'):
+        if name == 'out':
             self.out = self.second.out
             return self.out
         else:
@@ -163,7 +164,7 @@ def source(plot, agg=Count(), info=Const(val=1), shader=Id(),
 
     spec = rend.vm_serialize()['glyphspec']
 
-    if (shader.out == "image"):
+    if shader.out == "image":
         kwargs['data'] = {'image': [],
                           'x': [0],
                           'y': [0],
@@ -192,13 +193,12 @@ def source(plot, agg=Count(), info=Const(val=1), shader=Id(),
 
 
 def mapping(source):
-    """Setup property mapping dictionary from source to output glyph type.
-    """
+    "Setup property mapping dictionary from source to output glyph type."
 
     trans = source.transform
     out = trans['shader'].out
 
-    if (out == 'image'):
+    if out == 'image':
         keys = source.data.keys()
         m = dict(zip(keys, keys))
         m['x_range'] = Range1d(start=0, end=0)
@@ -217,7 +217,7 @@ def downsample(data, transform, plot_state):
 
     # Translate the resample paramteres to server-side rendering....
     # TODO: Should probably handle this type-based-unpacking server_backend so downsamples get a consistent view of the data
-    if type(data) is dict:
+    if isinstance(data, dict):
         xcol = data[xcol]
         ycol = data[ycol]
     else:
@@ -235,7 +235,7 @@ def downsample(data, transform, plot_state):
     scale_y = _span(plot_state['data_y'])/float(_span(plot_state['screen_y']))
 
     # How big would a full plot of the data be at the current resolution?
-    if (scale_x == 0 or scale_y == 0):
+    if scale_x == 0 or scale_y == 0:
         # If scale is zero for either axis, just zoom fit
         plot_size = [_span(plot_state['screen_x']),
                      _span(plot_state['screen_y'])]
@@ -260,7 +260,7 @@ def downsample(data, transform, plot_state):
             'global_offset_y': [0],
 
             # Screen-mapping values.
-            # x_range is the left and right data space values coordsponding to
+            # x_range is the left and right data space values corresponding to
             #     the bottom left and bottom right of the plot
             # y_range is the bottom and top data space values corresponding to
             #     the bottom left and top left of the plot
@@ -292,7 +292,7 @@ def _shaper(code, size, points):
     tox = glyphset.idx(0)
     toy = glyphset.idx(1)
     sizer = glyphset.const(size)
-    if (points):
+    if points:
         return glyphset.ToPoint(tox, toy, sizer, sizer)
     else:
         return glyphset.ToRect(tox, toy, sizer, sizer)
