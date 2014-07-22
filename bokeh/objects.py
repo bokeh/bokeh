@@ -153,6 +153,7 @@ class Ticker(PlotObject):
 
 class AdaptiveTicker(Ticker):
     base = Float(10.0)
+    mantissas = List(Float, [2, 5, 10])
     min_interval = Float(0.0)
     max_interval = Float(100.0)
 
