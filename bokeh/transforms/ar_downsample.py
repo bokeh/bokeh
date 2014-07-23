@@ -7,6 +7,19 @@ from bokeh.properties import (Instance, Any)
 import logging
 logger = logging.getLogger(__file__)
 
+_AR_MESSAGE = """
+---------------------------------------------------
+Error loading the abstract_rendering package.
+
+To use the ar_downsample module, you must install the
+abstract rendering framework.
+This can be installed with conda, pip or by
+cloning from https://github.com/JosephCottam/AbstractRendering
+Questions and feedback can be directed to
+Joseph Cottam (jcottam@indiana.edu)
+-------------------------------------------------------
+"""
+
 
 def _loadAR():
     """
@@ -31,16 +44,7 @@ def _loadAR():
         globals()["ar"] = import_module("abstract_rendering.core")
         globals()["glyphset"] = import_module("abstract_rendering.glyphset")
     except:
-        print("\n".join(
-              ["\n\n---------------------------------------------------",
-               "Error loading the abstract_rendering package.\n",
-               "To use the ar_downsample module, you must install the",
-               "abstract rendering framework.",
-               "This can be installed with conda, pip or by",
-               "cloning from https://github.com/JosephCottam/AbstractRendering",
-               "Questions and feedback can be directed to",
-               "Joseph Cottam (jcottam@indiana.edu)",
-               "-------------------------------------------------------\n\n"]))
+        print(_AR_MESSAGE)
         raise
 
 
