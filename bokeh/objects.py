@@ -235,20 +235,35 @@ class DatetimeTicker(Ticker):
     pass
 
 class TickFormatter(PlotObject):
+    """ Base class for all tick formatter types. """
     pass
 
 class BasicTickFormatter(TickFormatter):
-    """ Represents a basic tick formatter for an axis object """
+    """ Format ticks as generic numbers from a continuous numeric range
+
+    Attributes:
+        precision ('auto' or int) : how many digits of precision to display
+        use_scientific (bool) : whether to switch to scientific notation
+            when to switch controlled by `power_limit_low` and `power_limit_high`
+        power_limit_high (int) : use scientific notation on numbers this large
+        power_limit_low (int) : use scientific notation on numbers this small
+
+    """
     precision = Either(Enum('auto'), Int)
     use_scientific = Bool(True)
     power_limit_high = Int(5)
     power_limit_low = Int(-3)
 
 class LogTickFormatter(TickFormatter):
+    """ Format ticks as powers of 10.
+
+    Often useful in conjuction with a `LogTicker`
+
+    """
     pass
 
 class CategoricalTickFormatter(TickFormatter):
-    """ Represents a categorical tick formatter for an axis object """
+    """ Format ticks as categories from categorical ranges"""
     pass
 
 class DatetimeTickFormatter(TickFormatter):
@@ -601,6 +616,7 @@ class DataSlider(Renderer):
     field = String()
 
 class PlotContext(PlotObject):
+    """ A container for multiple plot objects. """
     children = List(Instance(PlotObject))
 
 class PlotList(PlotContext):
