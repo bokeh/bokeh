@@ -14,7 +14,7 @@ Error loading the abstract_rendering package.
 To use the ar_downsample module, you must install the
 abstract rendering framework.
 This can be installed with conda, pip or by
-cloning from https://github.com/JosephCottam/AbstractRendering
+cloning from https://github.com/ContinuumIO/abstract_rendering
 Questions and feedback can be directed to
 Joseph Cottam (jcottam@indiana.edu)
 -------------------------------------------------------
