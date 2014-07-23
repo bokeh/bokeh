@@ -193,13 +193,19 @@ if '--build_js' in sys.argv:
     print("building bokehjs...")
     os.chdir('bokehjs')
 
+    cmd = [join('node_modules', '.bin', 'grunt'), 'deploy']
+
     try:
-        proc = subprocess.Popen([join('node_modules', '.bin', 'grunt'), 'deploy'])
-        if proc.wait() != 0:
-            print("ERROR: could not build bokehjs")
-            sys.exit(1)
+        proc = subprocess.Popen(cmd)
+    except OSError:
+        print("Failed to run: %s. Did you run `npm install` before?" % " ".join(cmd))
+        sys.exit(1)
     finally:
         os.chdir('..')
+
+    if proc.wait() != 0:
+        print("ERROR: could not build bokehjs")
+        sys.exit(1)
 
     JS  = join(BOKEHJSBUILD, 'js')
     CSS = join(BOKEHJSBUILD, 'css')
