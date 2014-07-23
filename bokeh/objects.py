@@ -149,55 +149,121 @@ class Renderer(PlotObject):
     pass
 
 class Ticker(PlotObject):
+    """ Base class for all ticker types. """
     num_minor_ticks = Int(5)
 
 class AdaptiveTicker(Ticker):
+    """ Generate nice round ticks at any magnitude.
+
+    Creates ticks that are `base` multiples of a set of given
+    mantissas. For example, with base=10 and mantissas=[1, 2, 5] this
+    ticker will generate the sequence:
+
+            ..., 0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100, ...
+
+    Attributes:
+        base (float) : multiplier for scaling mantissas
+        mantissas list(float) : numbers to generate multiples of
+        min_interval (float) : smallest interval between two ticks
+        max_interval (float) : largest interval between two ticks
+
+    """
     base = Float(10.0)
+    mantissas = List(Float, [2, 5, 10])
     min_interval = Float(0.0)
     max_interval = Float(100.0)
 
 class CompositeTicker(Ticker):
+    """ Combine different tickers at different scales.
+
+    Uses the `min_interval` and `max_interval` interval attributes of the
+    tickers to order the tickers. The supplied tickers should be in order.
+    Specifically, if S comes before T, then it should be the case that:
+
+        S.get_max_interval() < T.get_min_interval()
+
+    Attributes:
+        tickers (Ticker) : a list of tickers in increasing interval size
+
+    """
     tickers = List(Instance(Ticker))
 
 class SingleIntervalTicker(Ticker):
+    """ Generate evenly spaced ticks at a fixed interval regardless of scale.
+
+    Attributes:
+        interval (float) : interval between two ticks
+    """
     interval = Float
 
 class DaysTicker(Ticker):
+    """ Generate ticks spaced apart by specific, even multiples of days.
+
+    Attributes:
+        days (int) : intervals of days to use
+
+    """
     days = List(Int)
 
 class MonthsTicker(Ticker):
+    """ Generate ticks spaced apart by specific, even multiples of months.
+
+    Attributes:
+        months (int) : intervals of months to use
+
+    """
     months = List(Int)
 
 class YearsTicker(Ticker):
+    """ Generate ticks spaced even numbers of years apart. """
     pass
 
 class BasicTicker(Ticker):
+    """ Generate ticks on a linear scale. """
     pass
 
 class LogTicker(Ticker):
+    """ Generate ticks on a log scale. """
     pass
 
 class CategoricalTicker(Ticker):
+    """ Generate ticks for categorical ranges. """
     pass
 
 class DatetimeTicker(Ticker):
+    """ Generate nice ticks across different date and time scales. """
     pass
 
 class TickFormatter(PlotObject):
+    """ Base class for all tick formatter types. """
     pass
 
 class BasicTickFormatter(TickFormatter):
-    """ Represents a basic tick formatter for an axis object """
+    """ Format ticks as generic numbers from a continuous numeric range
+
+    Attributes:
+        precision ('auto' or int) : how many digits of precision to display
+        use_scientific (bool) : whether to switch to scientific notation
+            when to switch controlled by `power_limit_low` and `power_limit_high`
+        power_limit_high (int) : use scientific notation on numbers this large
+        power_limit_low (int) : use scientific notation on numbers this small
+
+    """
     precision = Either(Enum('auto'), Int)
     use_scientific = Bool(True)
     power_limit_high = Int(5)
     power_limit_low = Int(-3)
 
 class LogTickFormatter(TickFormatter):
+    """ Format ticks as powers of 10.
+
+    Often useful in conjuction with a `LogTicker`
+
+    """
     pass
 
 class CategoricalTickFormatter(TickFormatter):
-    """ Represents a categorical tick formatter for an axis object """
+    """ Format ticks as categories from categorical ranges"""
     pass
 
 class DatetimeTickFormatter(TickFormatter):
@@ -550,6 +616,7 @@ class DataSlider(Renderer):
     field = String()
 
 class PlotContext(PlotObject):
+    """ A container for multiple plot objects. """
     children = List(Instance(PlotObject))
 
 class PlotList(PlotContext):
