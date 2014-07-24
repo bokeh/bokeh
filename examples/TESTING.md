@@ -70,6 +70,7 @@ Abstract Rendering
 1. Start the Bokeh server.  (Use '-D remotedata' to get all examples)
 2. Run ./plotting/server/abstractrender.py
 3. The screen should display three plot areas.  
-   The top two showing a 2D gausian.  
+   The top two showing a 2D Gaussian.  
    The bottom one with stock price vs. volume (if server was started with '-D ...')
-
+4. If you have the census tract dataset, also run ./plotting/server/census.py
+   You should have a plot of the contiguous US (requires the '-D ...' switch as well)
