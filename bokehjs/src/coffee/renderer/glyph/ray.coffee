@@ -14,8 +14,8 @@ define [
       [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
       @length = @distance_vector('x', 'length', 'edge')
 
-      width = @plot_view.view_state.get('width')
-      height = @plot_view.view_state.get('height')
+      width = @plot_view.frame.get('width')
+      height = @plot_view.frame.get('height')
       inf_len = 2 * (width + height)
       for i in [0...@length.length]
         if @length[i] == 0 then @length[i] = inf_len

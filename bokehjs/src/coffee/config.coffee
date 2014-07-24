@@ -14,6 +14,7 @@ require.config
         rbush:             "vendor/rbush/rbush"
         jstree:            "vendor/jstree/dist/jstree"
         gear_utils:        "vendor/gear-utils/gear-utils"
+        kiwi:              "vendor/kiwi/kiwi"
     shim:
         sprintf:
             exports: 'sprintf'
@@ -23,3 +24,5 @@ require.config
         jqrangeslider:
             deps: ["jquery_ui/core", "jquery_ui/widget", "jquery_ui/mouse", "jquery_mousewheel"]
             exports: "$.fn.rangeSlider"
+        kiwi:
+            exports: 'kiwi'
