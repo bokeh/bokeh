@@ -231,7 +231,7 @@ def downsample(data, transform, plot_state):
 
     # TODO: Do more detection to find if it is an area implantation.  If so, make a selector with the right shape pattern and use a point shaper
     shaper = _shaper(glyphspec['type'], size, transform['points'])
-    glyphs = glyphset.Glyphset([xcol, ycol], ar.EmptyList(),
+    glyphs = glyphset.Glyphset([xcol, ycol], general.EmptyList(),
                                shaper, colMajor=True)
     bounds = glyphs.bounds()
 
