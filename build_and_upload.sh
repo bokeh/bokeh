@@ -49,7 +49,7 @@ do
 done
 
 if [ "$tag_flag" = "1" ]; then
-    version=`git describe`
+    version=`git describe --tags`
 else
     version=`python build_scripts/get_bump_version.py`
 fi

@@ -8,7 +8,7 @@ pushd $SRC_DIR
 
 # X.X.X.dev.YYYYMMDD builds
 if [ -e using_tags.txt ]; then
-    version=`git describe`
+    version=`git describe --tags`
 else
     version=`$PYTHON build_scripts/get_bump_version.py`
 fi
