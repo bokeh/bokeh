@@ -4,13 +4,22 @@
 Release Notes
 #############
 
+v0.5.1 (Jul 2014)
+=================
+* Hover activated by default
+* Boxplot in bokeh.charts
+* Better messages when you forgot to start the bokeh-server
+* Fixed some packaging bugs
+* Fixed NBviewer rendering
+* Fixed some Unicodeencodeerror
+
 v0.5.0 (Jul 2014)
 =================
 * Widgets
 * Initial AR integration
 * bokeh.charts (scatter, bar, histogram)
 * improved embedding API
-* minor ticks, plot frame,  and log axes
+* minor ticks, plot frame, and log axes
 
 v0.4.4 (Apr 2014)
 =================
