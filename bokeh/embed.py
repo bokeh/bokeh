@@ -13,7 +13,7 @@ from .templates import (
 )
 from .utils import encode_utf8
 
-def components(plot_object, resources):
+def components(plot_object, resources, window_name=None):
     ''' Return HTML components to embed a Bokeh plot.
 
     The data for the plot is stored directly in the returned HTML.
@@ -25,6 +25,8 @@ def components(plot_object, resources):
         plot_object (PlotObject) : Bokeh object to render
             typically a Plot or PlotContext
         resources (Resources, optional) : BokehJS resources config
+        window_name (str, optional) : name for storing plot_object on window
+            variable name has form ``"bokeh_" + window_name``
 
     Returns:
         (script, div)
@@ -38,6 +40,7 @@ def components(plot_object, resources):
         modelid = ref["id"],
         modeltype = ref["type"],
         all_models = serialize_json(plot_object.dump()),
+        window_name = window_name,
     )
     script = PLOT_SCRIPT.render(
         plot_js = resources.js_wrapper(js),
