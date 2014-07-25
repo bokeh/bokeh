@@ -137,10 +137,10 @@ to pass them to a call to ``figure``:
 
     figure(
         title="My Plot",
-        title_font_size="20pt"
+        title_text_font_size="20pt",
         plot_width=200,
         plot_height=300,
-        outline_line_color="red"
+        outline_line_color="red",
         x_axis_type="datetime"
     )
 
