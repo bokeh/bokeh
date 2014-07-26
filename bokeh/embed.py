@@ -1,6 +1,14 @@
 ''' This module provides functions for embedding Bokeh plots in various
 different ways.
 
+There are a number of different combinations of options when embedding
+Bokeh plots. The data for the plot can be contained in the document,
+or on a Bokeh server, or in a sidecar JavaScript file. Likewise, BokehJS
+may be inlined in the document, or loaded from CDN or a Bokeh server.
+
+The functions in ``bokeh.embed`` provide functionality to embed in all
+these different cases.
+
 '''
 
 import uuid
