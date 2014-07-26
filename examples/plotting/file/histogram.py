@@ -19,7 +19,7 @@ hold()
 
 figure(title="Normal Distribution (μ=0, σ=0.5)",tools="previewsave",
        background_fill="#E8DDCB")
-quad(top=hist, bottom=np.zeros(len(hist)), left=edges[:-1], right=edges[1:],
+quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:],
      fill_color="#036564", line_color="#033649",\
 )
 
@@ -42,7 +42,7 @@ x = np.linspace(0, 8.0, 1000)
 pdf = 1/(x* sigma * np.sqrt(2*np.pi)) * np.exp(-(np.log(x)-mu)**2 / (2*sigma**2))
 cdf = (1+scipy.special.erf((np.log(x)-mu)/(np.sqrt(2)*sigma)))/2
 
-quad(top=hist, bottom=np.zeros(len(hist)), left=edges[:-1], right=edges[1:],
+quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:],
      fill_color="#036564", line_color="#033649"
     )
 line(x, pdf, line_color="#D95B43", line_width=8, alpha=0.7, legend="PDF")
@@ -63,7 +63,7 @@ x = np.linspace(0, 20.0, 1000)
 pdf = x**(k-1) * np.exp(-x/theta) / (theta**k * scipy.special.gamma(k))
 cdf = scipy.special.gammainc(k, x/theta) / scipy.special.gamma(k)
 
-quad(top=hist, bottom=np.zeros(len(hist)), left=edges[:-1], right=edges[1:],
+quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:],
      fill_color="#036564", line_color="#033649"
      )
 line(x, pdf, line_color="#D95B43", line_width=8, alpha=0.7, legend="PDF")
@@ -83,7 +83,7 @@ x = np.linspace(0, 1, 1000)
 pdf = x**(alpha-1) * (1-x)**(beta-1) / scipy.special.beta(alpha, beta)
 cdf = scipy.special.btdtr(alpha, beta, x)
 
-quad(top=hist, bottom=np.zeros(len(hist)), left=edges[:-1], right=edges[1:],
+quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:],
      fill_color="#036564", line_color="#033649"
      )
 line(x, pdf, line_color="#D95B43", line_width=8, alpha=0.7, legend="PDF")
@@ -103,7 +103,7 @@ x = np.linspace(0, 8, 1000)
 pdf = (k/lam)*(x/lam)**(k-1) * np.exp(-(x/lam)**k)
 cdf = 1 - np.exp(-(x/lam)**k)
 
-quad(top=hist, bottom=np.zeros(len(hist)), left=edges[:-1], right=edges[1:],
+quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:],
      fill_color="#036564", line_color="#033649"
      )
 line(x, pdf, line_color="#D95B43", line_width=8, alpha=0.7, legend="PDF")
