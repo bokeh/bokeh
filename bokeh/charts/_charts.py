@@ -305,14 +305,15 @@ class Chart(object):
     def make_axis(self, dimension, scale, label):
         "Create linear, date or categorical axis depending on the scale and dimension."
         if scale == "linear":
+            dim_loc_map = {0: "bottom", 1: "left"}
             axis = LinearAxis(plot=self.plot,
                               dimension=dimension,
-                              location="min",
+                              location=dim_loc_map[dimension],
                               axis_label=label)
         elif scale == "date":
             axis = DatetimeAxis(plot=self.plot,
                                 dimension=dimension,
-                                location="min",
+                                location=dim_loc_map[dimension],
                                 axis_label=label)
         elif scale == "categorical":
             axis = CategoricalAxis(plot=self.plot,
