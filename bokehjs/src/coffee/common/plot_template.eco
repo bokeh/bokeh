@@ -1,10 +1,8 @@
-<div class='plotarea'>
-  <div class='bokeh_canvas_wrapper_outer'>
+<div class='bokeh_canvas_wrapper_outer'>
 
-    <div class='bk-sidebar'>
-      <a href='http://bokeh.pydata.org/' class='bk-logo bk-logo-medium'/>
-      <div class='bk-button-bar'/>
-    </div>
-
+  <div class='bk-sidebar'>
+    <a href='http://bokeh.pydata.org/' class='bk-logo bk-logo-medium'/>
+    <div class='bk-button-bar'/>
   </div>
+
 </div>

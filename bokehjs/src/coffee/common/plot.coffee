@@ -27,7 +27,7 @@ define [
   GE = kiwi.Operator.Ge
 
   class PlotView extends ContinuumView.View
-    className: "bokeh plotview"
+    className: "bokeh plotview plotarea"
     template: plot_template
 
     view_options: () ->
