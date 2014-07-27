@@ -43,10 +43,12 @@ define [
     _zoom: (e) ->
       # voodoo to handle Firefox's inordinate stupidity
       if e.originalEvent?
+        # chrome and safari seem to take this branch
         if e.originalEvent.wheelDelta?
           delta = e.originalEvent.wheelDelta / -40
+        # various versions of FF apparently use these two
         else if e.originalEvent.deltaY?
-          delta = e.originalEvent.deltaY
+          delta = -e.originalEvent.deltaY
         else if e.originalEvent.detail?
           delta = e.originalEvent.detail
       screenX = e.bokehX
