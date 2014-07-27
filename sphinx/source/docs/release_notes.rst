@@ -103,22 +103,54 @@ Roadmap & TODO List
 ###################
 
 
-v0.6 Goals
-=====================
-* tighten and document events in bokeh
-* integrate kiwi.js for layout
-* line and patch point hit testing
+v0.6 Goals (September 2014)
+===========================
+* Python -> JS function reflection
+
+  - tool callbacks
+  - animation
+  - computed columns (e.g., jitter, colormapping, offsets)
+
+* Line and patch point hit testing
 * New event and interactor architecture
-* Improved annotations and legends
+* New layout capabilities
+
+  - mulitple axes
+  - colorbar axes
+  - plot (e.g., historgram axes)
+  - better grid plots
+  - improved annotations and legends
+
+* New tools
 * More widgets
+* More charts
 * Object query API
+
+v0.7 Goals (October 2014)
+=========================
+* CSS styling/theming mechanism
+* Design polish and improvement
+* R language binding
+* Blaze integration
+
+  - volume slicer
+  - line downsampling
+  - abstract rendering
+  - crossfilter
+
+* GIS integrations
+* Bokeh App builder
+* Tighter Wakari integrations
+* Hosted Bokeh servers
+
+  - server/widget/AR examples in gallery
+  - public cloud service
 
 Long-term TODO List
 ===================
 
 Core Plotting
 -------------
-* CSS styling/theming mechanism
 * Better map projections
 * Animation framework
 * Improve rendering loop performance in BokehJS
@@ -131,7 +163,6 @@ Core Plotting
 * Annotations
 
   * Arrows, text boxes
-  * Improve legend
 
 * graphs/trees
 * map projections
