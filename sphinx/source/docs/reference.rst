@@ -97,6 +97,31 @@ Styling Accessors
 .. autofunction:: bokeh.plotting.xgrid
 .. autofunction:: bokeh.plotting.ygrid
 
+BokehJS Resources
+=================
+
+.. automodule:: bokeh.resources
+  :members:
+
+Embedding Options
+=================
+
+The high level interface for embedding is located in :mod:`bokeh.embed`:
+
+`bokeh.embed`
+-------------
+
+
+.. automodule:: bokeh.embed
+  :members:
+
+The underlying templates for embedding are exposed in :mod:`bokeh.templates`:
+
+`bokeh.templates`
+-----------------
+
+.. automodule:: bokeh.templates
+
 Compatibility Layers
 ====================
 
@@ -126,25 +151,5 @@ Underlying Object System
               Tuple, Array, Class, Instance, This, Any, Function, Event,
               Either, Enum, Sequence, Mapping, Iterable, Color, Align,
               DashPattern, Size, Angle, Percent, FillProps, LineProps, TextProps
-
-`bokeh.resources`
------------------
-
-.. automodule:: bokeh.resources
-  :members:
-
-
-`bokeh.templates`
------------------
-
-.. automodule:: bokeh.templates
-
-
-Plot Embedding
-==============
-
-.. automodule:: bokeh.embed
-    :members:
-
 
 

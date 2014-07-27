@@ -137,10 +137,10 @@ to pass them to a call to ``figure``:
 
     figure(
         title="My Plot",
-        title_font_size="20pt"
+        title_text_font_size="20pt",
         plot_width=200,
         plot_height=300,
-        outline_line_color="red"
+        outline_line_color="red",
         x_axis_type="datetime"
     )
 
@@ -189,15 +189,15 @@ Some examples::
     axis.bounds = (3, 7)
     axis.major_label_orientation = pi/4
 
-Axes for the current plot may be conveniently obtained using the ``plotting.xaxis()``, ``plotting.yaxis()``,
-and ``plotting.axis()`` functions. These return collections of axes that can be indexed to retrieve
+Axes for the current plot may be conveniently obtained using the :func:`bokeh.plotting.xaxis`, :func:`bokeh.plotting.yaxis`,
+and :func:`bokeh.plotting.axis` functions. These return collections of axes that can be indexed to retrieve
 individual axes, or can that have attributes set directly on them to update all axes. Examples::
 
     xaxis().axis_line_width = 2 # update all x-axes
     yaxis()[0].axis_line_color = "red" # only updates the first y-axis
     axis().bounds = (2, 8) # set bounds for all axes
 
-Typically after updating these attributes, a call to ``plotting.show()`` will be required.
+Typically after updating these attributes, a call to :func:`bokeh.plotting.show` will be required.
 
 .. note:: The ``bounds`` attribute here controls only the extent of the axis! It does not set the range of the plot. For that, see :ref:`userguide_plot_ranges`. As an example, a plot window may extend from 0 to 10, but you may only want the axis to render between 4 and 8, in order to highlight a particular sub-area of the plot.
 
@@ -205,14 +205,14 @@ Grids
 '''''
 
 Grids are styled very similarly to axes in Bokeh. Grids have identical ``dimension`` and ``bounds`` properties
-as well as line properties, prefixed with ``grid_``. There are also ``plotting.xgrid()``, ``plotting.ygrid()``,
-and ``plotting.grid()`` functions available to obtain grids for the current plot. Examples::
+as well as line properties, prefixed with ``grid_``. There are also :func:`bokeh.plotting.xgrid`, :func:`bokeh.plotting.ygrid`,
+and :func:`bokeh.plotting.grid` functions available to obtain grids for the current plot. Examples::
 
     xgrid().axis_line_dash = "3 3" # update all x-grids
     ygrid()[0].axis_line_color = None # only updates the first y-grid
     grid().bounds = (2, 8) # set bounds for all grids
 
-Typically after updating these attributes, a call to ``plotting.show()`` will be required.
+Typically after updating these attributes, a call to :func:`bokeh.plotting.show` will be required.
 
 .. note:: The ``bounds`` attribute here controls only the extent of the grid! It does not set the range of the plot. For that, see :ref:`userguide_plot_ranges`. As an example, a plot window may extend from 0 to 10, but you may only want the grid to render between 4 and 8, in order to highlight a particular sub-area of the plot.
 
@@ -365,20 +365,70 @@ server data
 
 The simplest case is to use the Bokeh server to persist your plot and data.
 Additionally, the Bokeh server affords the opportunity of animated plots or
-updating plots with streaming data. The ``autoload_server`` function accepts
+updating plots with streaming data. The :func:`bokeh.embed.autoload_server` function accepts
 a plot object and a Bokeh server ``Session`` object. It returns a ``<script>``
 tag that will load both your plot and data from the Bokeh server.
+
+As a concrete example, here is some simple code using :func:`bokeh.embed.autoload_server`
+with the ``plotting.py`` interface::
+
+    from bokeh.plotting import circle, cursession, output_server
+    from bokeh.embed import autoload_server
+    output_server("mydoc")
+    plot = circle([1,2], [3,4])
+    script = autoload_server(plot, cursession())
+
+The resulting ``<script>`` tag that you can use to embed the plot inside
+a document looks like::
+
+    <script
+        src="http://localhost:5006/bokeh/autoload.js/7b6e5722-b7e1-4b9e-b8d9-84e1059f7dea"
+        id="7b6e5722-b7e1-4b9e-b8d9-84e1059f7dea"
+        async="true"
+        data-bokeh-data="server"
+        data-bokeh-modelid="da023ae3-b88b-45b5-8fc1-f45c53f09fa2"
+        data-bokeh-modeltype="Plot"
+        data-bokeh-root-url="http://localhost:5006/"
+        data-bokeh-docid="db499b59-c06e-4415-a482-af9802512ede"
+        data-bokeh-docapikey="45959c87-3120-4ce5-a1ec-ca0720023951"
+        data-bokeh-conn-string="ws://localhost:5006/bokeh/sub"
+    ></script>
 
 static data
 ***********
 
 If you do not need or want to use the Bokeh server, then the you can use the
-``autoload_static`` function. This function takes the plot object you want to
-display together with a resources specification and path to load a script
+:func:`bokeh.embed.autoload_static` function. This function takes the plot object you want
+to display together with a resources specification and path to load a script
 from. It will return a self-contained ``<script>`` tag, together with some
 JavaScript code that contains the data for your plot. This code should be
 saved to the script path you provided. The ``<script>`` tag will load this
 separate script to realize your plot.
+
+Here is how you might use :func:`bokeh.embed.autoload_static` with a simple plot::
+
+    from bokeh.resources import CDN
+    from bokeh.plotting import circle, output_server
+    from bokeh.embed import autoload_static
+    from bokeh.resources import CDN
+    output_server("mydoc")
+    plot = circle([1,2], [3,4])
+    js, tag = autoload_static(plot, CDN, "some/path")
+
+The resulting ``<script>`` tag looks like::
+
+    <script
+        src="some/path"
+        id="f1a5ad43-8d26-4199-8916-6405fe53b143"
+        async="true"
+        data-bokeh-data="static"
+        data-bokeh-modelid="5dd89f11-1f06-4408-a6be-281933ee3e0c"
+        data-bokeh-modeltype="Plot"
+    ></script>
+
+The resulting JavaScript code should be saved to a file that can be reached
+on the server at `"some/path", from the document that has the plot embedded.
+
 
 .. note:: In both cases the ``<script>`` tag loads a ``<div>`` in place, so
 it must be placed under ``<head>``.
@@ -646,16 +696,16 @@ Let see some examples using different kind of inputs.
 ::
 
     from collections import OrderedDict
-    
+
     from bokeh.charts import Scatter
     from bokeh.sampledata.iris import flowers
-    
+
     setosa = flowers[(flowers.species == "setosa")][["petal_length", "petal_width"]]
     versicolor = flowers[(flowers.species == "versicolor")][["petal_length", "petal_width"]]
     virginica = flowers[(flowers.species == "virginica")][["petal_length", "petal_width"]]
-    
+
     xyvalues = OrderedDict([("setosa", setosa.values), ("versicolor", versicolor.values), ("virginica", virginica.values)])
-    
+
     scatter = Scatter(xyvalues)
     scatter.title("iris dataset, dict_input").xlabel("petal_length").ylabel("petal_width").legend("top_left").width(600).height(400).notebook().show()
 
@@ -666,11 +716,11 @@ Let see some examples using different kind of inputs.
 ::
 
     import pandas as pd
-    
+
     xyvalues = OrderedDict([("setosa", setosa), ("versicolor", versicolor), ("virginica", virginica)])
-    
+
     df = pd.concat(xyvalues, axis=1, names=["l0", "l1"])
-    
+
     scatter = Scatter(df)
     scatter.title("iris dataset, df_input").legend("top_left").width(600).height(400).notebook().show()
 
@@ -679,10 +729,10 @@ Let see some examples using different kind of inputs.
 
     from bokeh.charts import Scatter
     from bokeh.sampledata.iris import flowers
-    
+
     df = flowers[["petal_length", "petal_width", "species"]]
     g = df.groupby("species")
-    
+
     scatter = Scatter(g)
     scatter.title("iris dataset, gp_by_input").legend("top_left").width(600).height(400).notebook().show()
 
@@ -740,10 +790,10 @@ But ``Bokeh`` also provides a programmatic way to open an issue. You only need t
 ::
 
     In [1]: import bokeh
-    
+
     In [2]: bokeh.report_issue()
     This is the Bokeh reporting engine.
-    
+
     Next, you will be guided to build the report
     Write the title for the intended issue: This is a text.
     Write the body for the intended issue: And this is the problem.
@@ -752,16 +802,16 @@ But ``Bokeh`` also provides a programmatic way to open an issue. You only need t
     Do you want to abort to set up the environment variable? no
     Write your Github username: damianavila
     Write your Github password: xxxxxxxxxxx
-    
+
     Preview:
-    
+
     title: This is a text.
     body: And this is the problem.
-    
+
         Bokeh version: 0.4.4-455-gc3324df-dirty
         Python version: 2.7.4-CPython
         Platform: Linux-3.11.0-031100rc7-generic-x86_64-with-Ubuntu-13.04-raring
-        
+
     Submit the intended issue/comment? y
 
 Then, ``Bokeh`` will push the issue to our issue tracker and it will open a new browser tab
@@ -775,6 +825,6 @@ an argument:
 
     In [3]: bokeh.report_issue(555)
     This is the Bokeh reporting engine.
-    
+
     Next, you will be guided to build the report
     Write your comment here: Adding a new comment to an already opened issue.
