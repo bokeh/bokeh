@@ -109,7 +109,7 @@ define [], () ->
       #
       # What is the difference between tool_active and button_activated?
       # I once knew, but now I forget
-        
+
       @$tool_button.click(=>
         if @button_activated
           eventSink.trigger("clear_active_tool")
@@ -168,7 +168,7 @@ define [], () ->
       toolName = @toolName
       @plotview = plotview
       @eventSink = eventSink
-      @plotview.canvas_view.canvas_wrapper.bind("mousewheel",
+      @plotview.canvas_view.canvas_wrapper.bind("mousewheel wheel DOMMouseScroll MozMousePixelScroll",
         (e, delta, dX, dY) =>
           if @tool_active or (not @eventSink.active and e.shiftKey)
             set_bokehXY(e)
