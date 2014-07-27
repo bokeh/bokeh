@@ -22,7 +22,7 @@ output_file('histogram.html')
 hold()
 
 # Use the `quad` renderer to display the histogram bars.
-quad(top=hist, bottom=np.zeros(len(hist)), left=edges[:-1], right=edges[1:],
+quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:],
      fill_color="#036564", line_color="#033649",
 
      # NOTE: these are only needed on the first renderer
@@ -54,7 +54,7 @@ pdf = 1/(x* sigma * np.sqrt(2*np.pi)) * np.exp(-(np.log(x)-mu)**2 / (2*sigma**2)
 cdf = (1+scipy.special.erf((np.log(x)-mu)/(np.sqrt(2)*sigma)))/2
 
 # EXERCISE: recreate the first plot for this new data
-quad(top=hist, bottom=np.zeros(len(hist)), left=edges[:-1], right=edges[1:],
+quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:],
      fill_color="#036564", line_color="#033649", background_fill="#E8DDCB",
      title="Log Normal Distribution (μ=0, σ=0.5)", tools="")
 line(x, pdf, line_color="#D95B43", line_width=8, alpha=0.7, legend="PDF")
@@ -79,7 +79,7 @@ x = np.linspace(0, 20.0, 1000)
 pdf = x**(k-1) * np.exp(-x/theta) / (theta**k * scipy.special.gamma(k))
 cdf = scipy.special.gammainc(k, x/theta) / scipy.special.gamma(k)
 
-quad(top=hist, bottom=np.zeros(len(hist)), left=edges[:-1], right=edges[1:],
+quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:],
      fill_color="#036564", line_color="#033649", background_fill="#E8DDCB",
      title="Gamma Distribution (k=1, θ=2)", tools="")
 line(x, pdf, line_color="#D95B43", line_width=8, alpha=0.7, legend="PDF")
@@ -100,7 +100,7 @@ x = np.linspace(0, 1, 1000)
 pdf = x**(alpha-1) * (1-x)**(beta-1) / scipy.special.beta(alpha, beta)
 cdf = scipy.special.btdtr(alpha, beta, x)
 
-quad(top=hist, bottom=np.zeros(len(hist)), left=edges[:-1], right=edges[1:],
+quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:],
      fill_color="#036564", line_color="#033649", background_fill="#E8DDCB",
      title="Beta Distribution (α=2, β=2)", tools="")
 line(x, pdf, line_color="#D95B43", line_width=8, alpha=0.7, legend="PDF")
@@ -121,7 +121,7 @@ x = np.linspace(0, 8, 1000)
 pdf = (k/lam)*(x/lam)**(k-1) * np.exp(-(x/lam)**k)
 cdf = 1 - np.exp(-(x/lam)**k)
 
-quad(top=hist, bottom=np.zeros(len(hist)), left=edges[:-1], right=edges[1:],
+quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:],
      fill_color="#036564", line_color="#033649", background_fill="#E8DDCB",
      title="Weibull Distribution (λ=1, k=1.25)", tools="")
 line(x, pdf, line_color="#D95B43", line_width=8, alpha=0.7, legend="PDF")
