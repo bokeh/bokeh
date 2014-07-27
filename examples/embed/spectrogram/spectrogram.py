@@ -2,8 +2,12 @@
 import json
 from threading import Thread, RLock
 
+from bokeh.embed import components
 from bokeh.objects import ColumnDataSource
 from bokeh.plotting import image_rgba, line, annular_wedge
+from bokeh.resources import Resources
+from bokeh.templates import RESOURCES
+from bokeh.utils import encode_utf8
 from bokeh.widgetobjects import HBox, Paragraph, Slider, VBox
 import flask
 import pyaudio
@@ -32,6 +36,7 @@ def root():
 
     spectrogram = make_spectrogram()
 
+    resources = Resources("inline")
     plot_resources = RESOURCES.render(
         js_raw = resources.js_raw,
         css_raw = resources.css_raw,
@@ -39,17 +44,17 @@ def root():
         css_files = resources.css_files,
     )
 
-    plot_script, plot_div = embed.components(
+    plot_script, plot_div = components(
         spectrogram, resources, "spectrogram"
     )
 
-    return flask.render_template(
+    html = flask.render_template(
         "spectrogram.html",
         plot_resources = plot_resources,
         plot_script = plot_script,
         plot_div = plot_div,
     )
-
+    return encode_utf8(html)
 
 @app.route("/params")
 def params():
@@ -104,7 +109,9 @@ def main():
 
 def make_spectrogram():
 
-    Freq = VBox(
+    TOOLS = ""
+
+    freq = VBox(
         children=[
             Paragraph(text="Freq Range"),
             #Slider(orientation="vertical", start=1, end=MAX_FREQ, value=MAX_FREQ, step=1)
@@ -121,13 +128,16 @@ def make_spectrogram():
     spec_source = ColumnDataSource(data=dict(image=[], x=[]))
     spec = image_rgba(
         x='x', y=0, image='image', dw=TILE_WIDTH, dh=MAX_FREQ,
-        cols=TILE_WIDTH, rows=SPECTROGRAM_LENGTH, source=spec_source)
+        cols=TILE_WIDTH, rows=SPECTROGRAM_LENGTH, tools=TOOLS,
+        source=spec_source, plot_width=1000, plot_height=400)
 
     fft_source = ColumnDataSource(data=dict(idx=[], y=[]))
-    fft = line(x="idx", y="y", line_color="darkblue", source=fft_source)
+    fft = line(x="idx", y="y", line_color="darkblue", tools=TOOLS,
+        source=fft_source, plot_width=600, plot_height=200)
 
     power_source = ColumnDataSource(data=dict(idx=[], y=[]))
-    power = line(x="idx", y="y", line_color="darkblue", source=power_source, x_axis_type="log")
+    power = line(x="idx", y="y", line_color="darkblue", x_axis_type="log", tools=TOOLS,
+        source=power_source, plot_width=600, plot_height=200)
 
     radial_source = ColumnDataSource(data=dict(
         inner_radius=[], outer_radius=[], start_angle=[], end_angle=[], fill_alpha=[]
@@ -135,16 +145,17 @@ def make_spectrogram():
     radial = annular_wedge(
         x=0, y=0, fill_color="#688AB9", fill_alpha="fill_alpha", line_color=None,
         inner_radius="inner_radius", outer_radius="outer_radius",
-        start_angle="start_angle", end_angle="end_angle", source=radial_source)
+        start_angle="start_angle", end_angle="end_angle", tools=TOOLS,
+        source=radial_source, plot_width=500, plot_height=500)
 
-    plots = VBox(
+    lines = VBox(
         children=[fft, power]
     )
 
     layout = VBox(
         children = [
             HBox(children=[freq, gain, spec]),
-            HBox(children=[plots, radial])
+            HBox(children=[lines, radial])
         ]
     )
 
