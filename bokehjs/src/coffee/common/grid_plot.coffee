@@ -3,13 +3,12 @@ define [
   "underscore",
   "backbone",
   "./build_views",
-  "./safebind",
   "./continuum_view",
   "./has_parent",
   "./grid_view_state",
   "renderer/properties",
   "tool/active_tool_manager",
-], (_, Backbone, build_views, safebind, ContinuumView, HasParent, GridViewState, Properties, ActiveToolManager) ->
+], (_, Backbone, build_views, ContinuumView, HasParent, GridViewState, Properties, ActiveToolManager) ->
 
   class GridPlotView extends ContinuumView.View
     tagName: 'div'
@@ -34,20 +33,10 @@ define [
       return this
 
     bind_bokeh_events: () ->
-      safebind(this, @model, 'change:children', @build_children)
-      safebind(this, @model, 'change', @render)
-      safebind(this, @viewstate, 'change', @render)
-      safebind(this, @model, 'destroy', () => @remove())
-
-    #FIXME make binding of this style equivalent to above safebind calls
-    # document semantics of when these events should be bound
-    #bokeh events
-    b_events: {
-      "change:children model": "build_children",
-      "change model":          "render",
-      "change viewstate":      "render",
-      "destroy model":         "remove",
-    }
+      @listenTo(@model, 'change:children', @build_children)
+      @listenTo(@model, 'change', @render)
+      @listenTo(@viewstate, 'change', @render)
+      @listenTo(@model, 'destroy', () => @remove())
 
     build_children: () ->
       childmodels = []

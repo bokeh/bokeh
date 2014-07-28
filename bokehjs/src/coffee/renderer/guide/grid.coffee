@@ -1,11 +1,10 @@
 
 define [
   "underscore",
-  "common/safebind",
   "common/has_parent",
   "renderer/properties",
   "common/plot_widget",
-], (_, safebind, HasParent, Properties, PlotWidget) ->
+], (_, HasParent, Properties, PlotWidget) ->
 
   line_properties = Properties.line_properties
 
@@ -23,7 +22,7 @@ define [
       ctx.restore()
 
     bind_bokeh_events: () ->
-      safebind(this, @model, 'change', @request_render)
+      @listenTo(@model, 'change', @request_render)
 
     _draw_grids: (ctx) ->
       if not @grid_props.do_stroke

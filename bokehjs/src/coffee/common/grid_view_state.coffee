@@ -2,8 +2,7 @@
 define [
   "underscore",
   "./has_properties",
-  "./safebind",
-], (_, HasProperties, safebind) ->
+], (_, HasProperties) ->
 
   class GridViewState extends HasProperties
 
@@ -18,7 +17,7 @@ define [
     initialize: (attrs, options) ->
       super(attrs, options)
       @setup_layout_properties()
-      safebind(this, this, 'change:childviewstates', @setup_layout_properties)
+      @listenTo(this, 'change:childviewstates', @setup_layout_properties)
       @register_property('height', () ->
           return _.reduce(@get('layout_heights'), ((x, y) -> x + y), 0)
         , false)
