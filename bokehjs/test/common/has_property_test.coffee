@@ -5,9 +5,8 @@ require [
   "common/base",
   "common/continuum_view",
   "common/has_properties",
-  "common/safebind",
   "../test/common/test_object",
-], (_, Backbone, base, ContinuumView, HasProperties, safebind, test_object) ->
+], (_, Backbone, base, ContinuumView, HasProperties, test_object) ->
 
   testobjects = test_object.Collection
   base.locations['TestObject'] = "../test/common/test_object"
@@ -45,7 +44,7 @@ require [
     model = testobjects.create({'a': 1, 'b': 1})
     model2 = testobjects.create({'a': 1, 'b': 1})
     triggered = false
-    safebind(model, model2, 'change', () -> triggered = true)
+    model.listenTo(model2, 'change', () -> triggered = true)
     model2.set({'a': 2})
     ok(triggered)
     triggered = false
@@ -64,7 +63,7 @@ require [
     view = new ContinuumView.View({'model': model2})
 
     triggered = false
-    safebind(view, model, 'change', () -> triggered = true)
+    view.listenTo(model, 'change', () -> triggered = true)
     model.set({'a': 2})
     ok(triggered)
     triggered = false

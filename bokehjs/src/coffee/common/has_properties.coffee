@@ -18,9 +18,7 @@ define [
     destroy: (options)->
       # calls super, also unbinds any events bound by listenTo
       super(options)
-      if _.has(this, 'eventers')
-        for own target, val of @eventers
-          val.off(null, null, this)
+      @stopListening()
 
     isNew: () ->
       return false
