@@ -28,7 +28,7 @@ define [
       @$el.append("<div class='slider'></div>")
       @$el.append("<div class='minlabel'></div>")
       @plot_view.$(".plotarea").append(@$el)
-      column = @mget_obj('data_source').getcolumn(@mget('field'))
+      column = @mget_obj('data_source').get_column(@mget('field'))
       [min, max] = [_.min(column), _.max(column)]
       @$el.find(".slider").slider(
         orientation: "vertical",
@@ -59,7 +59,7 @@ define [
       columns = {}
       numrows = 0
       for own colname, value of data_source.range_selections
-        columns[colname] = data_source.getcolumn(colname)
+        columns[colname] = data_source.get_column(colname)
         numrows = columns[colname].length
       selected = []
       for i in [0...numrows]
