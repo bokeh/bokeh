@@ -41,7 +41,6 @@ define (require, exports, module) ->
   Bokeh.PlotContext   = require("common/plot_context")
   Bokeh.PlotWidget    = require("common/plot_widget")
   Bokeh.Random        = require("common/random")
-  Bokeh.safebind      = require("common/safebind")
   Bokeh.SVGColors     = require("common/svg_colors")
 
   # mappers
