@@ -40,7 +40,6 @@ define (require, exports, module) ->
   Bokeh.load_models   = require("common/load_models")
   Bokeh.PlotContext   = require("common/plot_context")
   Bokeh.PlotWidget    = require("common/plot_widget")
-  Bokeh.PNGView       = require("common/png_view")
   Bokeh.Random        = require("common/random")
   Bokeh.safebind      = require("common/safebind")
   Bokeh.SVGColors     = require("common/svg_colors")
