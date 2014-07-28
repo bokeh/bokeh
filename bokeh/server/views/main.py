@@ -43,7 +43,7 @@ def index(*unused_all, **kwargs):
 
 @bokeh_app.route('/')
 def welcome(*unused_all, **kwargs):
-    redirect(url_for('.index'))
+    return redirect(url_for('.index'))
 
 @bokeh_app.route('/bokeh/favicon.ico')
 def favicon():
