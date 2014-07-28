@@ -27,7 +27,7 @@ define [
   GE = kiwi.Operator.Ge
 
   class PlotView extends ContinuumView.View
-    className: "bokeh plotview"
+    className: "bokeh plotview plotarea"
     template: plot_template
 
     view_options: () ->
@@ -51,9 +51,6 @@ define [
 
       @model.initialize_layout(@model.solver)
 
-      @canvas = @mget('canvas')
-      @canvas_view = new @canvas.default_view({'model': @canvas})
-
       # compat, to be removed
       @frame = @mget('frame')
       @x_range = @frame.get('x_ranges')['default']
@@ -67,7 +64,10 @@ define [
       html = @template(template_data)
       @$el.html(html)
 
-      @$el.prepend(@canvas_view.$el)
+      @canvas = @mget('canvas')
+      @canvas_view = new @canvas.default_view({'model': @canvas})
+
+      @$('.bokeh_canvas_wrapper_outer').prepend(@canvas_view.el)
       @canvas_view.render()
 
       @throttled_render = plot_utils.throttle_animation(@render, 15)
