@@ -335,6 +335,17 @@ def test_example(example, flags):
 
     return False
 
+def test_nbexecuter():
+    if use_notebook and need_notebook:
+        import nbexecuter
+        example_nbconverted = join("examples", "glyphs", "glyph.ipynb")
+        try:
+            nbexecuter.main(example_nbconverted)
+        except IOError as e:
+            example_nbconverted = example_nbconverted[example_nbconverted.find('glyphs'):]
+            nbexecuter.main(example_nbconverted)
+        write(example_nbconverted)
+
 def start_bokeh_server():
     cmd = ["python", "-c", "import bokeh.server; bokeh.server.run()"]
     argv = ["--bokeh-port=%s" % args.bokeh_port, "--backend=memory"]
@@ -473,16 +484,6 @@ bokeh_server = start_bokeh_server() if use_server and need_server else None
 
 ipython_notebook = start_ipython_notebook() if use_notebook and need_notebook else None
 
-if use_notebook and need_notebook:
-    import nbexecuter
-    example_nbconverted = join("examples", "glyphs", "glyph.ipynb")
-    try:
-        nbexecuter.main(example_nbconverted)
-    except IOError as e:
-        example_nbconverted = example_nbconverted[example_nbconverted.find('glyphs'):]
-        nbexecuter.main(example_nbconverted)
-    write(example_nbconverted)
-
 run_examples = 0
 fail_examples = []
 skip_examples = []
@@ -519,6 +520,8 @@ try:
             run_examples += 1
 
         write()
+
+    test_nbexecuter()
 except KeyboardInterrupt:
     write(yellow("INTERRUPTED"))
 finally:
