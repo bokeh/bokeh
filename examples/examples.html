@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Test results for Bokeh {{ version }}</title>
+    </head>
+    <style>
+    .header {
+        color: green;
+    }
+    .header.fail {
+        color: red;
+    }
+    .header.skip {
+        color: yellow;
+    }
+    .thumbnail {
+        width: 200px;
+        height: 200px;
+    }
+    </style>
+    <body>
+        <ul>
+            {% for (example, fail, skip, png, dif, ref) in entries %}
+            <li>
+                <span class="header {% if fail %}fail{% endif %} {% if skip %}skip{% endif %}">{{ example }}</span>
+                <div>
+                    <img class="thumbnail" src="{{ png }}"></img>
+                    <img class="thumbnail" src="{{ dif }}"></img>
+                    <img class="thumbnail" src="{{ ref }}"></img>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </body>
+</html>

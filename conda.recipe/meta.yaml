@@ -41,15 +41,16 @@ test:
     - sphinxcontrib-napoleon
 
     # tests
+    - colorama
     - pyyaml
+    - pdiff
+    - boto
     - nose
     - mock
-    - colorama
     - coverage
+    - websocket
     - ipython
     - ipython-notebook
-    - pdiff
-    - websocket
 
     # examples
     - scipy

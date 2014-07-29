@@ -2,6 +2,7 @@
 
 from __future__ import print_function
 
+import re
 import os
 import sys
 import time
@@ -13,12 +14,17 @@ import traceback
 import subprocess
 
 from subprocess import CalledProcessError
-from os.path import abspath, realpath, dirname, basename, join, split, splitext
+from os.path import exists, abspath, realpath, relpath, dirname, basename, join, split, splitext
 
 import yaml
+import jinja2
 
 import requests
-import requests.exceptions
+from requests.exceptions import ConnectionError
+
+import boto
+from boto.s3.key import Key as S3Key
+from boto.exception import NoAuthHandlerFound
 
 import colorama
 colorama.init()
@@ -65,18 +71,55 @@ parser.add_argument("-o", "--output-cells", type=str, choices=['complain', 'remo
                     help="what to do with notebooks' output cells")
 parser.add_argument("-l", "--log-file", type=argparse.FileType('w'), default='examples.log',
                     help="where to write the complete log")
-parser.add_argument("-d", "--diff", action="store_true", default=False,
-                    help="compare generated and reference images using pdiff")
-parser.add_argument("-r", "--reference-dir", type=str, default=dirname(__file__),
+parser.add_argument("-d", "--diff", type=str, default=None,
+                    help="compare generated images against this ref")
+parser.add_argument("-u", "--upload", dest="upload", action="store_true", default=False,
+                    help="upload generated images as reference images to S3")
+parser.add_argument("-r", "--reference-dir", type=str, default=".",
                     help="location of reference images")
 
 args = parser.parse_args()
+
+def write(*values, **kwargs):
+    end = kwargs.get('end', '\n')
+    print(*values, end=end)
+    print(*values, end=end, file=args.log_file)
+    args.log_file.flush()
 
 DEFAULT_NO_DEV = os.environ.get('BOKEH_DEFAULT_NO_DEV', 'false')
 if DEFAULT_NO_DEV.lower() in ["true", "yes", "on", "1"]:
     args.dev = False
 elif DEFAULT_NO_DEV.lower() not in ["false", "no", "off", "0"]:
     raise ValueError("unexpected value for BOKEH_DEFAULT_NO_DEV environmental variable, %s" % DEFAULT_NO_DEV)
+
+if args.diff:
+    cmd = ["git", "describe", "--tags", "--always", args.diff]
+
+    try:
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+        code = proc.wait()
+    except OSError:
+        write("Failed to run: %s" % " ".join(cmd))
+        sys.exit(1)
+
+    if code != 0:
+        write("Failed to process --diff=%s" % args.diff)
+        sys.exit(1)
+
+    args.diff = proc.stdout.read().strip()
+
+if args.upload:
+    try:
+        boto.connect_s3()
+    except NoAuthHandlerFound:
+        write("Upload (--upload) was requested but could not connect to S3.")
+        write("Fix your credentials or permissions and re-run tests.")
+        sys.exit(1)
+
+    if __version__.endswith("-dirty"):
+        write("Can't upload reference images when working directory is dirty.")
+        write("Make sure that __version__ doesn't contain -dirty suffix.")
+        sys.exit(1)
 
 def is_selected(example):
     if not args.patterns:
@@ -155,12 +198,6 @@ def detect_examples():
             skip = example.get("skip")
 
         add_examples(path, example_type=example_type, skip=skip)
-
-def write(*values, **kwargs):
-    end = kwargs.get('end', '\n')
-    print(*values, end=end)
-    print(*values, end=end, file=args.log_file)
-    args.log_file.flush()
 
 def red(text):
     return "%s%s%s" % (colorama.Fore.RED, text, colorama.Style.RESET_ALL)
@@ -373,7 +410,7 @@ def start_bokeh_server():
             def helper():
                 try:
                     return requests.get('http://localhost:%s/bokeh/ping' % args.bokeh_port)
-                except requests.exceptions.ConnectionError:
+                except ConnectionError:
                     return False
 
             return wait_until(helper)
@@ -532,6 +569,52 @@ finally:
     if ipython_notebook is not None:
         write("Shutting down ipython-notebook ...")
         ipython_notebook.kill()
+
+if args.upload:
+    write("%s Uploading data to S3 ..." % green(">>>"))
+
+    conn = boto.connect_s3()
+    bucket = conn.get_bucket("bokeh-travis")
+
+    def upload(key, filename):
+        if exists(filename):
+            key = S3Key(bucket, key)
+            key.set_contents_from_filename(filename, policy="public-read")
+
+    s3 = "https://s3.amazonaws.com/bokeh-travis"
+    entries = []
+
+    for example, _ in sorted(selected_examples):
+        no_ext = splitext(abspath(example))[0]
+        example_path = relpath(no_ext, base_dir)
+        s3_path = join(__version__, example_path)
+
+        png_file = "%s-%s.png" % (no_ext, __version__)
+        png_diff = "%s-%s-diff.png" % (no_ext, __version__)
+
+        s3_png_file = s3_path + ".png"
+        s3_png_diff = s3_path + "-diff.png"
+
+        upload(s3_png_file, png_file)
+        upload(s3_png_diff, png_diff)
+
+        failed = example in fail_examples
+        skipped = example in skip_examples
+
+        s3_png_file = join(s3, s3_png_file)
+        s3_png_diff = join(s3, s3_png_diff)
+        s3_ref_png = join(s3, args.diff, example_path) + ".png"
+
+        entries.append((example_path, failed, skipped, s3_png_file, s3_png_diff, s3_ref_png))
+
+    with open(join(dirname(__file__), "examples.html")) as f:
+        template = jinja2.Template(f.read())
+
+    html = template.render(version=__version__, entries=entries)
+
+    key = S3Key(bucket, join(__version__, "report.html"))
+    key.set_metadata("Content-Type", "text/html")
+    key.set_contents_from_string(html, policy="public-read")
 
 num_examples = len(selected_examples)
 
