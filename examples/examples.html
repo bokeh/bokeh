@@ -25,9 +25,9 @@
             <li>
                 <span class="header {% if fail %}fail{% endif %} {% if skip %}skip{% endif %}">{{ example }}</span>
                 <div>
-                    <img class="thumbnail" src="{{ png }}"></img>
-                    <img class="thumbnail" src="{{ dif }}"></img>
-                    <img class="thumbnail" src="{{ ref }}"></img>
+                    <a href="{{ png }}"><img class="thumbnail" src="{{ png }}"></img></a>
+                    <a href="{{ png }}"><img class="thumbnail" src="{{ dif }}"></img></a>
+                    <a href="{{ png }}"><img class="thumbnail" src="{{ ref }}"></img></a>
                 </div>
             </li>
             {% endfor %}
