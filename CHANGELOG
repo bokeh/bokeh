@@ -1,3 +1,33 @@
+2014-07-23    0.5.1:
+--------------------
+  * Hover activated by default
+  * Boxplot in bokeh.charts
+  * Better messages when you forgot to start the bokeh-server
+  * Fixed some packaging bugs
+  * Fixed NBviewer rendering
+  * Fixed some Unicodeencodeerror
+  * features:
+    - #631 Hover activated by default
+    - #706 Better message when the you have forgot to start the bokeh-server
+    - #777 Removing dinitialize
+    - #788 Load inline resources lazily (on render, not on init)
+    - #826 Added boxplot chart
+    - #840 Advice to the user about start the bokeh-server
+  * bugfixes:
+    - #463 Hover tool on categorical heatmap example on bokeh.pydata.org is broken
+    - #644 Can't import bokeh when resources aren't available
+    - #682 Trouble with encoding on windows
+    - #758 ./test -d is not finding example correctly
+    - #776 Feature/safeguards for deferred initialization
+    - #809 Nbviewer glitches on `output_notebook()`
+    - #811 Fixes bokeh logo repetition in nbviewer notebooks
+    - #812 Add mpl renderers to setup.py
+    - #815 Unicodeencodeerror
+    - #818 Fix python3 compat issue in setup.py
+    - #831 Multi-document plots
+    - #841 Fixed launching the tests suite from the examples folder
+    - #864 Log files still have dinitialize method
+
 2014-07-09    0.5.0:
 --------------------
   * Widgets

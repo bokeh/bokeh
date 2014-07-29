@@ -13,13 +13,13 @@ define [
 
   class CanvasView extends ContinuumView.View
 
-    className: "bokeh plotview"
+    className: "bokeh plotview bokeh_canvas_wrapper"
 
     template: canvas_template
 
     events:
-      "mousemove .bokeh_canvas_wrapper": "_mousemove"
-      "mousedown .bokeh_canvas_wrapper": "_mousedown"
+      "mousemove": "_mousemove"
+      "mousedown": "_mousedown"
 
     initialize: (options) ->
       super(options)
@@ -30,9 +30,11 @@ define [
       html = @template(template_data)
       @$el.html(html)
 
-      @canvas_wrapper = @$el.find('.bokeh_canvas_wrapper')
-      @canvas = @$el.find('canvas.bokeh_canvas')
-      @map_div = @$el.find('.bokeh_gmap') ? null
+      # for compat, to be removed
+      @canvas_wrapper = @$el
+
+      @canvas = @$('canvas.bokeh_canvas')
+      @map_div = @$('.bokeh_gmap') ? null
 
     render: (force=false) ->
       # normally we only want to render the canvas when the canvas itself
@@ -59,7 +61,7 @@ define [
       @canvas.width = width * @dpi_ratio
       @canvas.height = height * @dpi_ratio
 
-      @canvas_wrapper.attr('style', "width:#{width}px; height:#{height}px")
+      @$el.attr('style', "width:#{width}px; height:#{height}px")
       @canvas.attr('style', "width:#{width}px;")
       @canvas.attr('style', "height:#{height}px;")
       @canvas.attr('width', width*ratio).attr('height', height*ratio)

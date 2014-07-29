@@ -235,14 +235,21 @@ else:
 
 bokeh_path = join(site_packages, "bokeh")
 if exists(bokeh_path) and isdir(bokeh_path):
+    prompt = "\nFound existing bokeh install: %s\nRemove it? [y|N] " % bokeh_path
     if sys.version_info[0] < 3:
-        val = raw_input("found existing bokeh install, remove it?[y|N]")
+        val = raw_input(prompt)
     else:
-        val = input("found existing bokeh install, remove it?[y|N]")
+        val = input(prompt)
     if val == "y":
-        print ("removing old bokeh install")
-        shutil.rmtree(bokeh_path)
-    print ("not removing old bokeh install")
+        print ("Removing old bokeh install...")
+        try:
+            shutil.rmtree(bokeh_path)
+            print ("Removed.")
+        except (IOError, OSError):
+            print ("Unable to remove old bokeh at: %s" % bokeh_path)
+            sys.exit(-1)
+    else:
+        print ("Not removing old bokeh install")
 
 path_file = join(site_packages, "bokeh.pth")
 path = abspath(dirname(__file__))
@@ -256,7 +263,7 @@ print()
 if 'develop' in sys.argv:
     with open(path_file, "w+") as f:
         f.write(path)
-    print("Developing bokeh.")
+    print("Developing bokeh:")
     print("  - writing path '%s' to %s" % (path, path_file))
     if build_js:
         print("  - using BUILT bokehjs from bokehjs/build")

@@ -40,8 +40,7 @@ define [
 
     get_interval: (data_low, data_high, desired_n_ticks) ->
       data_range = data_high - data_low
-      ideal_interval = @get_ideal_interval(data_low, data_high,
-                                           desired_n_ticks)
+      ideal_interval = @get_ideal_interval(data_low, data_high, desired_n_ticks)
 
       interval_exponent = Math.floor(log(ideal_interval / @base_factor, @get('base')))
       ideal_magnitude = Math.pow(@get('base'), interval_exponent) * @base_factor
@@ -64,6 +63,7 @@ define [
       return _.extend(super(), {
         toString_properties: ['mantissas', 'base', 'min_magnitude', 'max_magnitude'],
         base: 10.0,
+        mantissas: [2, 5, 10]
         min_interval: 0.0,
         max_interval: Infinity,
       })

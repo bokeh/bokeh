@@ -60,9 +60,9 @@ class BokehJSONEncoder(json.JSONEncoder):
         # Pandas Timestamp
         if is_pandas and isinstance(obj, pd.tslib.Timestamp):
             return obj.value / millifactor  #nanosecond to millisecond
-        elif isinstance(obj, np.float):
+        elif np.issubdtype(type(obj), np.float):
             return float(obj)
-        elif isinstance(obj, (np.int, np.integer)):
+        elif np.issubdtype(type(obj), np.int):
             return int(obj)
         # Datetime, Date
         elif isinstance(obj, (dt.datetime, dt.date)):

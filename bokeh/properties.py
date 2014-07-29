@@ -358,7 +358,6 @@ class ColorSpec(DataSpec):
                     return {"field": setval, "default": self.default}
             elif setval is None:
                 return None
-                return {"value": None}
             else:
                 # setval should be a dict at this point
                 assert(isinstance(setval, dict))
@@ -412,11 +411,13 @@ class ColorSpec(DataSpec):
                 return d
         else:
             if self._isset:
-                return {"value": None}
-            # If the user never set a value
-            if self.value is not None:
-                return {"value": self.value}
+                if self.value is None:
+                    return {"value": None}
+                else:
+                    return {"value": getattr(obj, self._name, self.value)}
             else:
+                if self.value:
+                    return {"value": self.value}
                 d = {"field": self.field}
                 if self.default is not None:
                     d["default"] = self._formattuple(self.default)

@@ -2,7 +2,7 @@ from flask import jsonify, request
 from werkzeug.utils import secure_filename
 import json
 
-from backbone import init_bokeh
+from .backbone import init_bokeh
 from ..app import bokeh_app
 from ..views import make_json
 from ... import protocol

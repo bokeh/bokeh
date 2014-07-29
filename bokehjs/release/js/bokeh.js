@@ -12259,7 +12259,8 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         coll = coll_attrs[0], attrs = coll_attrs[1];
         if (coll) {
           coll.add(attrs, {
-            'silent': true
+            'silent': true,
+            'defer_initialization': true
           });
         }
       }
@@ -12267,7 +12268,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         coll_attrs = newspecs[_k];
         coll = coll_attrs[0], attrs = coll_attrs[1];
         if (coll) {
-          coll.get(attrs['id']).dinitialize(attrs);
+          coll.get(attrs['id']).initialize(attrs);
         }
       }
       for (_l = 0, _len3 = newspecs.length; _l < _len3; _l++) {
@@ -12458,32 +12459,23 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('common/has_properties',["underscore", "backbone", "require", "./base", "./safebind"], function(_, Backbone, require, base, safebind) {
-    var HasProperties, _ref;
+    var HasProperties;
     return HasProperties = (function(_super) {
       __extends(HasProperties, _super);
-
-      function HasProperties() {
-        this.rpc = __bind(this.rpc, this);
-        this.get_obj = __bind(this.get_obj, this);
-        this.resolve_ref = __bind(this.resolve_ref, this);
-        this.convert_to_ref = __bind(this.convert_to_ref, this);
-        _ref = HasProperties.__super__.constructor.apply(this, arguments);
-        return _ref;
-      }
 
       HasProperties.prototype.toString = function() {
         return "" + this.type + "(" + this.id + ")";
       };
 
       HasProperties.prototype.destroy = function(options) {
-        var target, val, _ref1, _results;
+        var target, val, _ref, _results;
         HasProperties.__super__.destroy.call(this, options);
         if (_.has(this, 'eventers')) {
-          _ref1 = this.eventers;
+          _ref = this.eventers;
           _results = [];
-          for (target in _ref1) {
-            if (!__hasProp.call(_ref1, target)) continue;
-            val = _ref1[target];
+          for (target in _ref) {
+            if (!__hasProp.call(_ref, target)) continue;
+            val = _ref[target];
             _results.push(val.off(null, null, this));
           }
           return _results;
@@ -12494,15 +12486,27 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         return false;
       };
 
-      HasProperties.prototype.initialize = function(attrs, options) {
-        var _this = this;
-        if (!attrs) {
-          attrs = {};
-        }
+      function HasProperties(attributes, options) {
+        this.rpc = __bind(this.rpc, this);
+        this.get_obj = __bind(this.get_obj, this);
+        this.resolve_ref = __bind(this.resolve_ref, this);
+        this.convert_to_ref = __bind(this.convert_to_ref, this);
+        var attrs;
+        attrs = attributes || {};
         if (!options) {
           options = {};
         }
-        HasProperties.__super__.initialize.call(this, attrs, options);
+        this.cid = _.uniqueId('c');
+        this.attributes = {};
+        if (options.collection) {
+          this.collection = options.collection;
+        }
+        if (options.parse) {
+          attrs = this.parse(attrs, options) || {};
+        }
+        attrs = _.defaults({}, attrs, _.result(this, 'defaults'));
+        this.set(attrs, options);
+        this.changed = {};
         this._base = false;
         this.properties = {};
         this.property_cache = {};
@@ -12510,16 +12514,10 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
           this.id = _.uniqueId(this.type);
           this.attributes[this.idAttribute] = this.id;
         }
-        return _.defer(function() {
-          if (!_this.inited) {
-            return _this.dinitialize(attrs, options);
-          }
-        });
-      };
-
-      HasProperties.prototype.dinitialize = function(attrs, options) {
-        return this.inited = true;
-      };
+        if (!options.defer_initialization) {
+          this.initialize.apply(this, arguments);
+        }
+      }
 
       HasProperties.prototype.set_obj = function(key, value, options) {
         var attrs, val;
@@ -12644,15 +12642,15 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       };
 
       HasProperties.prototype.remove_property = function(prop_name) {
-        var dep, dependencies, fld, obj, prop_spec, _i, _j, _len, _len1, _ref1;
+        var dep, dependencies, fld, obj, prop_spec, _i, _j, _len, _len1, _ref;
         prop_spec = this.properties[prop_name];
         dependencies = prop_spec.dependencies;
         for (_i = 0, _len = dependencies.length; _i < _len; _i++) {
           dep = dependencies[_i];
           obj = dep.obj;
-          _ref1 = dep['fields'];
-          for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-            fld = _ref1[_j];
+          _ref = dep['fields'];
+          for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+            fld = _ref[_j];
             obj.off('change:' + fld, prop_spec['callbacks']['changedep'], this);
           }
         }
@@ -16008,8 +16006,10 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         LinearColorMapper.__super__.initialize.call(this, attrs, options);
         this.palette = this._build_palette(this.get('palette'));
         this.little_endian = this._is_little_endian();
-        this.reserve_color = this.get('reserve_color')[0];
-        return this.reserve_val = this.get('reserve_val')[0];
+        if (this.get('reserve_color') != null) {
+          this.reserve_color = this.get('reserve_color')[0];
+          return this.reserve_val = this.get('reserve_val')[0];
+        }
       };
 
       LinearColorMapper.prototype.v_map_screen = function(data) {
@@ -16218,8 +16218,8 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         return uniques;
       };
 
-      DataFactorRange.prototype.dinitialize = function(attrs, options) {
-        DataFactorRange.__super__.dinitialize.call(this, attrs, options);
+      DataFactorRange.prototype.initialize = function(attrs, options) {
+        DataFactorRange.__super__.initialize.call(this, attrs, options);
         this.register_property;
         this.register_property('values', this._get_values, true);
         this.add_dependencies('values', this, ['data_source', 'columns']);
@@ -16336,7 +16336,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         return this.set('_end', end);
       };
 
-      DataRange1d.prototype.dinitialize = function(attrs, options) {
+      DataRange1d.prototype.initialize = function(attrs, options) {
         var columns_ref, source, _i, _len, _ref1;
         this.register_property('minmax', this._get_minmax, true);
         this.add_dependencies('minmax', this, ['sources'], ['rangepadding']);
@@ -16352,7 +16352,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         this.register_property('end', this._get_end, true);
         this.register_setter('end', this._set_end);
         this.add_dependencies('end', this, ['minmax', '_end']);
-        return DataRange1d.__super__.dinitialize.call(this, attrs, options);
+        return DataRange1d.__super__.initialize.call(this, attrs, options);
       };
 
       DataRange1d.prototype.defaults = function() {
@@ -23503,10 +23503,7 @@ return { create_gear_tooth: createGearTooth, create_internal_gear_tooth: createI
         this.add_dependencies('normals', this, ['computed_bounds', 'dimension', 'location']);
         this.register_property('side', this._side, false);
         this.add_dependencies('side', this, ['normals']);
-        return this.register_property('padding_request', this._padding_request, false);
-      };
-
-      Axis.prototype.dinitialize = function(attrs, options) {
+        this.register_property('padding_request', this._padding_request, false);
         return this.add_dependencies('computed_bounds', this.get_obj('plot'), ['x_range', 'y_range']);
       };
 
@@ -23906,8 +23903,8 @@ return { create_gear_tooth: createGearTooth, create_internal_gear_tooth: createI
 
       CategoricalAxis.prototype.type = 'CategoricalAxis';
 
-      CategoricalAxis.prototype.dinitialize = function(attrs, objects) {
-        CategoricalAxis.__super__.dinitialize.call(this, attrs, objects);
+      CategoricalAxis.prototype.initialize = function(attrs, objects) {
+        CategoricalAxis.__super__.initialize.call(this, attrs, objects);
         if (this.get_obj('ticker') == null) {
           this.set_obj('ticker', CategoricalTicker.Collection.create());
         }
@@ -25676,8 +25673,8 @@ return root.sprintf = sprintf;      }).apply(root, arguments);
 
       DatetimeAxis.prototype.type = 'DatetimeAxis';
 
-      DatetimeAxis.prototype.dinitialize = function(attrs, objects) {
-        DatetimeAxis.__super__.dinitialize.call(this, attrs, objects);
+      DatetimeAxis.prototype.initialize = function(attrs, objects) {
+        DatetimeAxis.__super__.initialize.call(this, attrs, objects);
         if (this.get_obj('ticker') == null) {
           this.set_obj('ticker', DatetimeTicker.Collection.create());
         }
@@ -26056,8 +26053,8 @@ return root.sprintf = sprintf;      }).apply(root, arguments);
 
       LinearAxis.prototype.type = 'LinearAxis';
 
-      LinearAxis.prototype.dinitialize = function(attrs, objects) {
-        LinearAxis.__super__.dinitialize.call(this, attrs, objects);
+      LinearAxis.prototype.initialize = function(attrs, objects) {
+        LinearAxis.__super__.initialize.call(this, attrs, objects);
         if (this.get_obj('ticker') == null) {
           this.set_obj('ticker', BasicTicker.Collection.create());
         }
@@ -26278,8 +26275,8 @@ return root.sprintf = sprintf;      }).apply(root, arguments);
 
       LogTickFormatter.prototype.type = 'LogTickFormatter';
 
-      LogTickFormatter.prototype.dinitialize = function(attrs, options) {
-        LogTickFormatter.__super__.dinitialize.call(this, attrs, options);
+      LogTickFormatter.prototype.initialize = function(attrs, options) {
+        LogTickFormatter.__super__.initialize.call(this, attrs, options);
         return this.basic_formatter = new BasicTickFormatter.Model();
       };
 
@@ -26359,8 +26356,8 @@ return root.sprintf = sprintf;      }).apply(root, arguments);
 
       LogAxis.prototype.type = 'LogAxis';
 
-      LogAxis.prototype.dinitialize = function(attrs, objects) {
-        LogAxis.__super__.dinitialize.call(this, attrs, objects);
+      LogAxis.prototype.initialize = function(attrs, objects) {
+        LogAxis.__super__.initialize.call(this, attrs, objects);
         if (this.get_obj('ticker') == null) {
           this.set_obj('ticker', LogTicker.Collection.create());
         }
@@ -27840,9 +27837,9 @@ return root.sprintf = sprintf;      }).apply(root, arguments);
 
       ClickTool.prototype.type = "ClickTool";
 
-      ClickTool.prototype.dinitialize = function(attrs, options) {
+      ClickTool.prototype.initialize = function(attrs, options) {
         var all_renderers, names, r, renderers;
-        ClickTool.__super__.dinitialize.call(this, attrs, options);
+        ClickTool.__super__.initialize.call(this, attrs, options);
         names = this.get('names');
         all_renderers = this.get_obj('plot').get_obj('renderers');
         renderers = (function() {
@@ -28788,9 +28785,9 @@ define('tool/embed_tool_template',[],function(){
 
       HoverTool.prototype.type = "HoverTool";
 
-      HoverTool.prototype.dinitialize = function(attrs, options) {
+      HoverTool.prototype.initialize = function(attrs, options) {
         var all_renderers, names, r, renderers;
-        HoverTool.__super__.dinitialize.call(this, attrs, options);
+        HoverTool.__super__.initialize.call(this, attrs, options);
         names = this.get('names');
         all_renderers = this.get_obj('plot').get_obj('renderers');
         renderers = (function() {
@@ -36475,7 +36472,6 @@ define('widget/data_table_template',[],function(){
 
       function DataTable() {
         this.toggle_column_sort = __bind(this.toggle_column_sort, this);
-        this.dinitialize = __bind(this.dinitialize, this);
         _ref1 = DataTable.__super__.constructor.apply(this, arguments);
         return _ref1;
       }
@@ -36488,10 +36484,6 @@ define('widget/data_table_template',[],function(){
         return this.throttled_fetch = _.throttle((function() {
           return _this.fetch();
         }), 500);
-      };
-
-      DataTable.prototype.dinitialize = function(attrs, options) {
-        return DataTable.__super__.dinitialize.call(this, attrs, options);
       };
 
       DataTable.prototype.fetch = function(options) {
@@ -55148,7 +55140,6 @@ define('widget/pandas/pandas_pivot_template',[],function(){
 
       function PandasPivotTable() {
         this.toggle_column_sort = __bind(this.toggle_column_sort, this);
-        this.dinitialize = __bind(this.dinitialize, this);
         _ref1 = PandasPivotTable.__super__.constructor.apply(this, arguments);
         return _ref1;
       }
@@ -55161,10 +55152,6 @@ define('widget/pandas/pandas_pivot_template',[],function(){
         return this.throttled_fetch = _.throttle((function() {
           return _this.fetch();
         }), 500);
-      };
-
-      PandasPivotTable.prototype.dinitialize = function(attrs, options) {
-        return PandasPivotTable.__super__.dinitialize.call(this, attrs, options);
       };
 
       PandasPivotTable.prototype.fetch = function(options) {
@@ -63843,7 +63830,7 @@ define('widget/dialog_template',[],function(){
 //@ sourceMappingURL=socket.js.map
 */;
 (function() {
-  define('server/serverutils',["common/base", "server/serverutils", "common/socket", "common/load_models", "backbone", "common/has_properties"], function(base, serverutils, socket, load_models, Backbone, HasProperties) {
+  define('server/serverutils',["common/base", "common/socket", "common/load_models", "backbone", "common/has_properties"], function(base, socket, load_models, Backbone, HasProperties) {
     var Deferreds, Promises, WebSocketWrapper, exports, submodels, utility;
     Deferreds = {};
     Promises = {};
@@ -64730,7 +64717,7 @@ define('server/usercontext/wrappertemplate',[],function(){
     }
     Bokeh = {};
     Bokeh.require = require;
-    Bokeh.version = '0.5.0';
+    Bokeh.version = '0.5.1';
     Bokeh._ = require("underscore");
     Bokeh.$ = require("jquery");
     Bokeh.Backbone = require("backbone");
