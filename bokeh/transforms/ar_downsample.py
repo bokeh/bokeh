@@ -1,7 +1,7 @@
 from __future__ import print_function
 from ..plotting import curdoc
 from ..plot_object import PlotObject
-from ..objects import ServerDataSource,  Glyph, Range1d
+from ..objects import ServerDataSource,  Glyph, Range1d, Color
 from bokeh.properties import (Instance, Any)
 import numpy as np
 
@@ -134,6 +134,16 @@ class Interpolate(Transfer):
         return numeric.Interpolate(self.low, self.high)
 
 
+class InterpolateColor(Transfer):
+    # TODO: Support bokeh color formats other than lists (such as named or hex)
+    out = "image_rgb"
+    high = Color
+    low = Color
+
+    def reify(self, **kwargs):
+        return numeric.InterpolateColors(self.low+[255], self.high+[255])
+
+
 class Sqrt(Transfer):
     out = "image"
 
@@ -169,7 +179,7 @@ def source(plot, agg=Count(), info=Const(val=1), shader=Id(),
 
     spec = rend.vm_serialize()['glyphspec']
 
-    if shader.out == "image":
+    if shader.out == "image" or shader.out == "image_rgb":
         kwargs['data'] = {'image': [],
                           'x': [0],
                           'y': [0],
@@ -203,7 +213,7 @@ def mapping(source):
     trans = source.transform
     out = trans['shader'].out
 
-    if out == 'image':
+    if out == 'image' or out == 'image_rgb':
         keys = source.data.keys()
         m = dict(zip(keys, keys))
         m['x_range'] = Range1d(start=0, end=0)
@@ -236,7 +246,6 @@ def downsample(data, transform, plot_state):
                                shaper, colMajor=True)
     bounds = glyphs.bounds()
 
-    
     screen_x_span = float(_span(plot_state['screen_x']))
     screen_y_span = float(_span(plot_state['screen_y']))
 
@@ -253,18 +262,21 @@ def downsample(data, transform, plot_state):
         plot_size = [bounds[2]/scale_x, bounds[3]/scale_y]
 
     ivt = ar.zoom_fit(plot_size, bounds, balanced=False)
-    (tx,ty,sx,sy) = ivt
+    (tx, ty, sx, sy) = ivt
 
     shader = transform['shader'].reify()
     if sx == 0 or sy == 0:
-        # If client canvas has no size yet, just make a 1,1 array with a default value 
-        image = np.array([[np.nan]]) 
+        # If client canvas has no size yet, just make a 1,1 array with a default value
+        image = np.array([[np.nan]])
     else:
         image = ar.render(glyphs,
                           transform['info'].reify(),
                           transform['agg'].reify(),
                           shader,
                           plot_size, ivt)
+
+    if transform['shader'].out == 'image_rgb' and len(image.shape) > 2:
+        image = image.view(dtype=np.int32).reshape(image.shape[0:2])
 
     (xmin, xmax) = (xcol.min(), xcol.max())
     (ymin, ymax) = (ycol.min(), ycol.max())

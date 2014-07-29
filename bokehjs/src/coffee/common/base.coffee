@@ -97,6 +97,7 @@ define [
   'transforms/cuberoot'
   'transforms/id'
   'transforms/interpolate'
+  'transforms/interpolatecolor'
   'transforms/seq'
   'transforms/spread'
 ], (_, require) ->
@@ -202,6 +203,7 @@ define [
     Cuberoot:                 'transforms/cuberoot'
     Id:                       'transforms/id'
     Interpolate:              'transforms/interpolate'
+    InterpolateColor:         'transforms/interpolatecolor'
     Seq:                      'transforms/seq'
     Spread:                   'transforms/spread'
   mod_cache = {}
