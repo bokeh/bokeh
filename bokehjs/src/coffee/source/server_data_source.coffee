@@ -80,9 +80,10 @@ define [
       domain_resolution = (screen_range.get('end') - screen_range.get('start')) / 2
       domain_resolution = Math.floor(domain_resolution)
       domain_limit = [domain_range.get('start'), domain_range.get('end')]
-      if _.any(_.map(domain_limit, (x) -> _.isNaN(x)))
+      if (_.any(_.map(domain_limit, (x) -> _.isNaN(x))) or
+         _.every(_.map(domain_limit, (x) -> _.isEqual(0,x))))
         domain_limit = 'auto'
-      console.log(input_params)
+      
       params = [primary_column, domain_name, columns,
           domain_limit, domain_resolution, input_params]
       $.ajax(

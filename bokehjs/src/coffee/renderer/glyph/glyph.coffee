@@ -19,8 +19,8 @@ define [
 
       transform_params = serversource.attributes['transform']
       resample_op = transform_params['resample']  
-      x_range = @plot_view.view_state.get('inner_range_horizontal')
-      y_range = @plot_view.view_state.get('inner_range_vertical')
+      x_range = @plot_view.frame.get('inner_range_horizontal')
+      y_range = @plot_view.frame.get('inner_range_vertical')
 
       #TODO: This is weird.  For example, inner_range_horizontal is passed in twice.  Hugo or Joseph should clean it up
       if (resample_op == 'line1d')
@@ -30,7 +30,7 @@ define [
             @mget_obj('data_source'),
             x_range,  y_range,
             @plot_view.x_range,
-            @plot_view.view_state.get('inner_range_horizontal'),
+            x_range,
             @glyph_props.y.field,
             @glyph_props.x.field,
             [@glyph_props.y.field],
