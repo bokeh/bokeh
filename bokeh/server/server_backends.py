@@ -477,13 +477,13 @@ class HDF5DataBackend(AbstractDataBackend):
         result = dataset.select(where=[(domain_name, ">=", domain_limit[0]),
                                        (domain_name, "<=", domain_limit[1])],
                                 columns=all_columns)
+
         result = line_downsample.downsample(result.to_records(),
                                             domain_name,
                                             primary_column,
                                             domain_limit,
                                             domain_resolution,
                                             method)
-        print ('result', result.shape)
         result = {
             'data' : dict([(k, result[k]) for k in result.dtype.names]),
             'domain_limit' : domain_limit
