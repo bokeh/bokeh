@@ -5,29 +5,40 @@
         <title>Test results for Bokeh {{ version }}</title>
     </head>
     <style>
-    .header {
+    .header > .ok {
         color: green;
     }
-    .header.fail {
+    .header > .fail {
         color: red;
     }
-    .header.skip {
+    .header > .skip {
         color: yellow;
     }
     .thumbnail {
-        width: 200px;
-        height: 200px;
+        width: 300px;
+        height: 300px;
     }
     </style>
     <body>
         <ul>
             {% for (example, fail, skip, png, dif, ref) in entries %}
             <li>
-                <span class="header {% if fail %}fail{% endif %} {% if skip %}skip{% endif %}">{{ example }}</span>
+                <span class="header">
+                    {{ example }}&nbsp;
+                    [{% if fail %}
+                    <span class="fail">FAIL</span>
+                    {% elif skip %}
+                    <span class="skip">SKIP</span>
+                    {% else %}
+                    <span class="ok">OK</span>
+                    {% endif %}]
+                </span>
                 <div>
+                    {% if not skip %}
                     <a href="{{ png }}"><img class="thumbnail" src="{{ png }}"></img></a>
                     <a href="{{ png }}"><img class="thumbnail" src="{{ dif }}"></img></a>
                     <a href="{{ png }}"><img class="thumbnail" src="{{ ref }}"></img></a>
+                    {% endif %}
                 </div>
             </li>
             {% endfor %}

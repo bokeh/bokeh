@@ -606,7 +606,7 @@ if args.upload:
         s3_ref_png = join(s3, args.diff, example_path) + ".png"
 
         entries.append((example_path, failed, skipped, s3_png_file, s3_png_diff, s3_ref_png))
-        write("--- " + example)
+        write(green("---") + " " + example)
 
     with open(join(dirname(__file__), "examples.html")) as f:
         template = jinja2.Template(f.read())
@@ -616,6 +616,8 @@ if args.upload:
     key = S3Key(bucket, join(__version__, "report.html"))
     key.set_metadata("Content-Type", "text/html")
     key.set_contents_from_string(html, policy="public-read")
+
+    write("%s Access report at: %s" % (green(">>>"), join(s3, key.name)))
 
 num_examples = len(selected_examples)
 

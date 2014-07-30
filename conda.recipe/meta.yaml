@@ -45,6 +45,7 @@ test:
     - pyyaml
     - pdiff
     - boto
+    - jinja2
     - nose
     - mock
     - coverage
