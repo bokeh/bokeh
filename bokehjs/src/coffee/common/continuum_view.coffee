@@ -19,10 +19,6 @@ define [
       super(events)
 
     remove: ->
-      #handles lifecycle of events bound by safebind
-      ##hugo : the eventers stuff with safebind should no longer be needed
-      ##because we should be using @listenTo
-      ## the remove event is good though
       if _.has(this, 'eventers')
         for own target, val of @eventers
           val.off(null, null, this)

@@ -3,10 +3,9 @@ define [
   "underscore",
   "backbone",
   "./build_views",
-  "./safebind",
   "./has_parent"
   "./continuum_view",
-], (_, Backbone, build_views, safebind, HasParent, ContinuumView) ->
+], (_, Backbone, build_views, HasParent, ContinuumView) ->
 
   class PlotContextView extends ContinuumView.View
     initialize: (options) ->
@@ -16,8 +15,8 @@ define [
       @render()
 
     delegateEvents: () ->
-      safebind(this, @model, 'destroy', @remove)
-      safebind(this, @model, 'change', @render)
+      @listenTo(@model, 'destroy', @remove)
+      @listenTo(@model, 'change', @render)
       super()
 
     build_children: () ->

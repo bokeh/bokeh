@@ -4,8 +4,7 @@ define [
   "backbone",
   "require",
   "./base"
-  "./safebind",
-], (_, Backbone, require, base, safebind) ->
+], (_, Backbone, require, base) ->
 
   class HasProperties extends Backbone.Model
     # Our property system
@@ -17,11 +16,9 @@ define [
     toString: () -> "#{@type}(#{@id})"
 
     destroy: (options)->
-      #calls super, also unbinds any events bound by safebind
+      # calls super, also unbinds any events bound by listenTo
       super(options)
-      if _.has(this, 'eventers')
-        for own target, val of @eventers
-          val.off(null, null, this)
+      @stopListening()
 
     isNew: () ->
       return false
@@ -43,7 +40,7 @@ define [
 
       ## bokeh custom constructor code
 
-      #cheap memoization, for storing the base module, requirejs doesn't seem to do it
+      # cheap memoization, for storing the base module, requirejs doesn't seem to do it
       @_base = false
 
       # setting up data structures for properties
@@ -124,8 +121,7 @@ define [
       )
       # bind depdencies to change dep callback
       for fld in fields
-        safebind(this, object, "change:" + fld,
-            prop_spec['callbacks']['changedep'])
+        @listenTo(object, "change:" + fld, prop_spec['callbacks']['changedep'])
 
     # ### method: HasProperties::register_setter
     register_setter: (prop_name, setter) ->
@@ -172,8 +168,7 @@ define [
             propchange: propchange
         @properties[prop_name] = prop_spec
         # bind propchange callback to change dep event
-        safebind(this, this, "changedep:" + prop_name,
-          prop_spec['callbacks']['propchange'])
+        @listenTo(this, "changedep:" + prop_name, prop_spec['callbacks']['propchange'])
         return prop_spec
 
     remove_property: (prop_name) ->
@@ -223,19 +218,19 @@ define [
 
     ref: ->
       # ### method: HasProperties::ref
-      #generates a reference to this model
+      # generates a reference to this model
       'type': this.type
       'id': this.id
 
     resolve_ref: (ref) =>
       # ### method: HasProperties::resolve_ref
-      #converts a reference into an object
-      #also works vectorized now
+      # converts a reference into an object
+      # also works vectorized now
       if not ref
         console.log('ERROR, null reference')
       if _.isArray(ref)
         return _.map(ref, @resolve_ref)
-      #this way we can reference ourselves
+      # this way we can reference ourselves
       # even though we are not in any collection yet
       if ref['type'] == this.type and ref['id'] == this.id
         return this
@@ -244,8 +239,8 @@ define [
 
     get_obj: (ref_name) =>
       # ### method: HasProperties::get_obj
-      #convenience function, gets the backbone attribute ref_name, which is assumed
-      #to be a reference, then resolves the reference and returns the model
+      # convenience function, gets the backbone attribute ref_name, which is assumed
+      # to be a reference, then resolves the reference and returns the model
 
       ref = @get(ref_name)
       if ref
@@ -258,7 +253,7 @@ define [
 
     url: () ->
       # ### method HasProperties::url
-      #model where our API processes this model
+      # model where our API processes this model
       doc = @get('doc')
       if not doc?
         console.log("WARN: Unset 'doc' in " + this)
