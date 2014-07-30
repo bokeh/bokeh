@@ -1,5 +1,7 @@
 
-define [], () ->
+define [
+  "jquery_mousewheel"
+], (mousewheel) ->
 
   set_bokehXY = (event) ->
     offset = $(event.currentTarget).offset()
@@ -168,8 +170,8 @@ define [], () ->
       toolName = @toolName
       @plotview = plotview
       @eventSink = eventSink
-      @plotview.canvas_view.canvas_wrapper.bind("mousewheel wheel DOMMouseScroll MozMousePixelScroll",
-        (e, delta, dX, dY) =>
+      @plotview.canvas_view.canvas_wrapper.mousewheel(
+        (e, delta) =>
           if @tool_active or (not @eventSink.active and e.shiftKey)
             set_bokehXY(e)
             e.delta = delta
