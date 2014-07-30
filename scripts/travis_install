@@ -54,7 +54,7 @@ conda install --yes --quiet $DEPS || exit 1
 pip install $DEPS_PIP || exit 1
 
 # TODO (bev) temp fix
-conda install --yes --quiet -c asmeurer beautifulsoup4
+conda install --yes --quiet -c travis beautifulsoup4
 
 if [[ "$TRAVIS_PYTHON_VERSION" == 2* ]]; then # to be deleted when we have py3 support
     conda install --yes --quiet -c https://conda.binstar.org/ilan abstract-rendering
