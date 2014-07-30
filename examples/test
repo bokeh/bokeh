@@ -47,8 +47,12 @@ from bokeh import __version__
 
 if os.environ.get("TRAVIS_PYTHON_VERSION") is not None:
     default_timeout = 30
+    default_diff = "origin/master"
+    default_upload = True
 else:
     default_timeout = 10
+    default_diff = None
+    default_upload = False
 
 parser = argparse.ArgumentParser(description="Automated testing of Bokeh's examples")
 parser.add_argument("patterns", type=str, nargs="*",
@@ -71,9 +75,9 @@ parser.add_argument("-o", "--output-cells", type=str, choices=['complain', 'remo
                     help="what to do with notebooks' output cells")
 parser.add_argument("-l", "--log-file", type=argparse.FileType('w'), default='examples.log',
                     help="where to write the complete log")
-parser.add_argument("-d", "--diff", type=str, default=None,
+parser.add_argument("-d", "--diff", type=str, default=default_diff,
                     help="compare generated images against this ref")
-parser.add_argument("-u", "--upload", dest="upload", action="store_true", default=False,
+parser.add_argument("-u", "--upload", dest="upload", action="store_true", default=default_upload,
                     help="upload generated images as reference images to S3")
 parser.add_argument("-r", "--reference-dir", type=str, default=".",
                     help="location of reference images")
