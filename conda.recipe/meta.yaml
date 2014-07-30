@@ -44,7 +44,7 @@ test:
     - colorama
     - pyyaml
     - pdiff
-    - boto
+    - boto                 [py2k]
     - jinja2
     - nose
     - mock

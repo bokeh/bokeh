@@ -22,10 +22,6 @@ import jinja2
 import requests
 from requests.exceptions import ConnectionError
 
-import boto
-from boto.s3.key import Key as S3Key
-from boto.exception import NoAuthHandlerFound
-
 import colorama
 colorama.init()
 
@@ -42,6 +38,13 @@ except ImportError:
     use_notebook = False
 else:
     use_notebook = True
+
+py2 = sys.version_info.major == 2
+
+if py2:
+    import boto
+    from boto.s3.key import Key as S3Key
+    from boto.exception import NoAuthHandlerFound
 
 from bokeh import __version__
 
@@ -90,11 +93,41 @@ def write(*values, **kwargs):
     print(*values, end=end, file=args.log_file)
     args.log_file.flush()
 
+def red(text):
+    return "%s%s%s" % (colorama.Fore.RED, text, colorama.Style.RESET_ALL)
+
+def yellow(text):
+    return "%s%s%s" % (colorama.Fore.YELLOW, text, colorama.Style.RESET_ALL)
+
+def blue(text):
+    return "%s%s%s" % (colorama.Fore.BLUE, text, colorama.Style.RESET_ALL)
+
+def green(text):
+    return "%s%s%s" % (colorama.Fore.GREEN, text, colorama.Style.RESET_ALL)
+
+def fail(msg=None):
+    msg = " " + msg if msg is not None else ""
+    write("%s%s" % (red("[FAIL]"), msg))
+
+def warn(msg=None):
+    msg = " " + msg if msg is not None else ""
+    write("%s%s" % (yellow("[WARN]"), msg))
+
+def info(msg=None):
+    msg = " " + msg if msg is not None else ""
+    write("%s%s" % ("[INFO]", msg))
+
+def ok(msg=None):
+    msg = " " + msg if msg is not None else ""
+    write("%s%s" % (green("[OK]"), msg))
+
+
 DEFAULT_NO_DEV = os.environ.get('BOKEH_DEFAULT_NO_DEV', 'false')
 if DEFAULT_NO_DEV.lower() in ["true", "yes", "on", "1"]:
     args.dev = False
 elif DEFAULT_NO_DEV.lower() not in ["false", "no", "off", "0"]:
-    raise ValueError("unexpected value for BOKEH_DEFAULT_NO_DEV environmental variable, %s" % DEFAULT_NO_DEV)
+    write("unexpected value for BOKEH_DEFAULT_NO_DEV environmental variable, %s" % DEFAULT_NO_DEV)
+    sys.exit(1)
 
 if args.diff:
     cmd = ["git", "describe", "--tags", "--always", args.diff]
@@ -111,6 +144,11 @@ if args.diff:
         sys.exit(1)
 
     args.diff = proc.stdout.read().strip()
+
+if args.upload and not py2:
+    warn("Can't upload to S3, becase boto is not available under Python 3.")
+    warn("Proceeding as --no-upload was specified on the command line.")
+    args.upload = False
 
 if args.upload:
     try:
@@ -202,34 +240,6 @@ def detect_examples():
             skip = example.get("skip")
 
         add_examples(path, example_type=example_type, skip=skip)
-
-def red(text):
-    return "%s%s%s" % (colorama.Fore.RED, text, colorama.Style.RESET_ALL)
-
-def yellow(text):
-    return "%s%s%s" % (colorama.Fore.YELLOW, text, colorama.Style.RESET_ALL)
-
-def blue(text):
-    return "%s%s%s" % (colorama.Fore.BLUE, text, colorama.Style.RESET_ALL)
-
-def green(text):
-    return "%s%s%s" % (colorama.Fore.GREEN, text, colorama.Style.RESET_ALL)
-
-def fail(msg=None):
-    msg = " " + msg if msg is not None else ""
-    write("%s%s" % (red("[FAIL]"), msg))
-
-def warn(msg=None):
-    msg = " " + msg if msg is not None else ""
-    write("%s%s" % (yellow("[WARN]"), msg))
-
-def info(msg=None):
-    msg = " " + msg if msg is not None else ""
-    write("%s%s" % ("[INFO]", msg))
-
-def ok(msg=None):
-    msg = " " + msg if msg is not None else ""
-    write("%s%s" % (green("[OK]"), msg))
 
 def make_env():
     env = os.environ.copy()
