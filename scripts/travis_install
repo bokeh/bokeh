@@ -35,7 +35,7 @@ DEPS_BOKEH="numpy pandas openpyxl<2.0 six requests dateutil"
 DEPS_SERVER="flask werkzeug greenlet redis redis-py"
 DEPS_DOCS="sphinx pygments" # sphinx-bootstrap-theme sphinxcontrib-napoleon
 DEPS_EXAMPLES="scipy matplotlib sympy" # ggplot seaborn
-DEPS_TESTS="PyYAML nose mock colorama coverage ipython ipython-notebook" # websocket
+DEPS_TESTS="PyYAML nose mock colorama coverage ipython ipython-notebook beautiful-soup" # websocket
 DEPS_PIP="sphinx-bootstrap-theme sphinxcontrib-napoleon"
 
 if [[ "$TRAVIS_PYTHON_VERSION" == 2* ]]; then
@@ -52,9 +52,6 @@ DEPS="$DEPS_TRAVIS $DEPS_BOKEH $DEPS_SERVER $DEPS_DOCS $DEPS_EXAMPLES $DEPS_TEST
 
 conda install --yes --quiet $DEPS || exit 1
 pip install $DEPS_PIP || exit 1
-
-# TODO (bev) temp fix
-conda install --yes --quiet -c travis beautifulsoup4
 
 if [[ "$TRAVIS_PYTHON_VERSION" == 2* ]]; then # to be deleted when we have py3 support
     conda install --yes --quiet -c https://conda.binstar.org/ilan abstract-rendering
