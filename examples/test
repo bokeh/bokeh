@@ -613,11 +613,16 @@ if args.upload:
 
     html = template.render(version=__version__, entries=entries)
 
-    key = S3Key(bucket, join(__version__, "report.html"))
+    report = join(__version__, "report.html")
+    key = S3Key(bucket, report)
     key.set_metadata("Content-Type", "text/html")
     key.set_contents_from_string(html, policy="public-read")
 
-    write("%s Access report at: %s" % (green(">>>"), join(s3, key.name)))
+    write("%s Access report at: %s" % (green(">>>"), join(s3, report)))
+
+    log = join(__version__, "examples.log")
+    upload(log, args.log_file.name)
+    write("%s Access logs at: %s" % (green(">>>"), join(s3, log)))
 
 num_examples = len(selected_examples)
 
