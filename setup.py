@@ -274,7 +274,7 @@ pat = re.compile("Bokeh.version = '(.*)'")
 v = pat.search(f.read()).group(1)
 
 print()
-if 'devjs' in sys.argv or 'develop' in sys.argv:
+if 'develop' in sys.argv:
     with open(path_file, "w+") as f:
         f.write(path)
     print("Developing bokeh:")
