@@ -45,6 +45,8 @@ else:
 
 from bokeh import __version__
 
+s3 = "https://s3.amazonaws.com/bokeh-travis"
+
 if os.environ.get("TRAVIS_PYTHON_VERSION") is not None:
     default_timeout = 30
     default_diff = "origin/master"
@@ -79,8 +81,6 @@ parser.add_argument("-d", "--diff", type=str, default=default_diff,
                     help="compare generated images against this ref")
 parser.add_argument("-u", "--upload", dest="upload", action="store_true", default=default_upload,
                     help="upload generated images as reference images to S3")
-parser.add_argument("-r", "--reference-dir", type=str, default=".",
-                    help="location of reference images")
 
 args = parser.parse_args()
 
@@ -209,6 +209,9 @@ def red(text):
 def yellow(text):
     return "%s%s%s" % (colorama.Fore.YELLOW, text, colorama.Style.RESET_ALL)
 
+def blue(text):
+    return "%s%s%s" % (colorama.Fore.BLUE, text, colorama.Style.RESET_ALL)
+
 def green(text):
     return "%s%s%s" % (colorama.Fore.GREEN, text, colorama.Style.RESET_ALL)
 
@@ -219,6 +222,10 @@ def fail(msg=None):
 def warn(msg=None):
     msg = " " + msg if msg is not None else ""
     write("%s%s" % (yellow("[WARN]"), msg))
+
+def info(msg=None):
+    msg = " " + msg if msg is not None else ""
+    write("%s%s" % ("[INFO]", msg))
 
 def ok(msg=None):
     msg = " " + msg if msg is not None else ""
@@ -353,12 +360,24 @@ def test_example(example, flags):
             fail(example)
         else:
             if args.diff:
-                ref_png_file = splitext(join(args.reference_dir, example))[0] + ".png"
-                diff_png_file = splitext(png_file)[0] + "-diff.png"
+                example_path = relpath(splitext(example)[0], base_dir)
+                ref_loc = join(args.diff, example_path + ".png")
+                ref_url = join(s3, ref_loc)
+                response = requests.get(ref_url)
 
-                if not os.path.exists(ref_png_file):
-                    warn("no reference image available to compare")
+                if not response.ok:
+                    info("referece image %s doesn't exist" % ref_url)
                 else:
+                    ref_png_file = join(dirname(__file__), "refs", ref_loc)
+                    diff_png_file = splitext(png_file)[0] + "-diff.png"
+
+                    ref_png_path = dirname(ref_png_file)
+                    if not exists(ref_png_path):
+                        os.makedirs(ref_png_path)
+
+                    with open(ref_png_file, "w") as f:
+                        f.write(response.content)
+
                     cmd = ["perceptualdiff", "-output", diff_png_file, png_file, ref_png_file]
 
                     try:
@@ -368,7 +387,7 @@ def test_example(example, flags):
                         write("Failed to run: %s" % " ".join(cmd))
                         sys.exit(1)
 
-                    if proc.code != 0:
+                    if code != 0:
                         warn("generated and reference images differ")
 
             ok(example)
@@ -585,7 +604,6 @@ if args.upload:
             key = S3Key(bucket, key)
             key.set_contents_from_filename(filename, policy="public-read")
 
-    s3 = "https://s3.amazonaws.com/bokeh-travis"
     entries = []
 
     for example, _ in sorted(selected_examples):
