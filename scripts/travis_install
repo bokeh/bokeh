@@ -24,10 +24,8 @@ CONDA_PY="${TRAVIS_PYTHON_VERSION/./}" conda build conda.recipe
 conda install --use-local --yes bokeh
 
 DEPS_TEST=$(cat <<EOF | python -
-import re, yaml
-with open("conda.recipe/meta.yaml") as file:
-    meta = yaml.load(re.sub("{{.*}}", "", file.read()))
-    print(" ".join(meta['test']['requires']))
+from conda_build.metadata import MetaData
+print(" ".join(MetaData("conda.recipe").get_value("test/requires")))
 EOF
 )
 
