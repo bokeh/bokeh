@@ -1,8 +1,9 @@
 from __future__ import print_function
-from ..plotting import curdoc
+import bokeh.plotting as plotting
 from ..plot_object import PlotObject
 from ..objects import ServerDataSource,  Glyph, Range1d, Color
 from bokeh.properties import (Instance, Any)
+import bokeh.colors as colors
 import numpy as np
 
 import logging
@@ -135,19 +136,37 @@ class Interpolate(Transfer):
 
 
 class InterpolateColor(Transfer):
-    # TODO: Support bokeh color formats other than lists (such as named or hex)
+    # TODO: Make color format conversion fluid...possibly by some change to properties.Color
     out = "image_rgb"
-    high = Color
-    low = Color
-    reserve = Color
-    empty = Any
+    high = Color((255, 0, 0, 1))
+    low = Color((255, 255, 255, 1))
+    reserve = Color((255, 255, 255, 0))
+    empty = Any(0)
 
     def reify(self, **kwargs):
         return numeric.InterpolateColors(
-                self.low+[255],
-                self.high+[255],
-                reserve=self.reserve,
+                self._reformatColor(self.low),
+                self._reformatColor(self.high),
+                reserve=self._reformatColor(self.reserve),
                 empty=self.empty)
+
+    def _reformatColor(self, color):
+        if isinstance(color, tuple) or isinstance(color, list):
+            parts = len(color)
+            if parts == 3:
+                return tuple(color)+(255,)
+            if parts == 4:
+                return tuple(color[0:3]) + (min(abs(color[3])*255, 255),)
+            raise ValueError("Improperty formatted tuple for color %s" % color)
+
+        if isinstance(color, str):
+            if color[0] == "#":
+                raise ValueError("Can't handle hex-format colors (yet)")
+            else:
+                try:
+                    getattr(colors, str)
+                except:
+                    raise ValueError("Unknown color string %s" % color)
 
 
 class Sqrt(Transfer):
@@ -170,6 +189,40 @@ class Spread(Transfer):
 
     def reify(self, **kwargs):
         return numeric.Spread(self.factor)
+
+
+def replot(plot, agg=Count(), info=Const(val=1), shader=Id(),
+        remove_original=True, palette=["Spectral-11"], points=False, **kwargs):
+    """
+    Treat the passed plot as an base plot for abstract rendering, generate the
+    proper Bokeh plot based on the passed parameters.
+
+    This is a conveience for:
+    > src=source(plot, ...)
+    > <plot-type>(source=src, <params>, **ar.mapping(src))
+
+    Transfers plot title, width, height from the original plot
+
+    **kwargs -- Arguments for the source function EXCEPT reserve_val and reserve_color (if present)
+    returns -- A new plot
+    """
+
+    props = dict()
+    props['plot_width'] = kwargs.pop('plot_width', plot.plot_width)
+    props['plot_height'] = kwargs.pop('plot_height', plot.plot_height)
+    props['title'] = kwargs.pop('title', plot.title)
+    if kwargs.has_key('reserve_val'): props['reserve_val'] = kwargs.pop('reserve_val')
+    if kwargs.has_key('reserve_color'): props['reserve_color'] = kwargs.pop('reserve_color')
+
+    src = source(plot, agg, info, shader, remove_original, palette, points, **kwargs)
+    props.update(mapping(src))
+
+    if shader.out == "image":
+        return plotting.image(source=src, **props)
+    elif shader.out == "image_rgb":
+        return plotting.image_rgba(source=src, **props)
+    else:
+        raise ValueError("Unhandled output type %s" % shader.out)
 
 
 # TODO: Pass the 'rend' definition through (minus the data_source references), unpack in 'downsample' instead of here...
@@ -200,8 +253,8 @@ def source(plot, agg=Count(), info=Const(val=1), shader=Id(),
         raise ValueError("Can only work with image-shaders...for now")
 
     # Remove the base plot (if requested)
-    if remove_original and plot in curdoc()._plotcontext.children:
-        curdoc()._plotcontext.children.remove(plot)
+    if remove_original and plot in plotting.curdoc()._plotcontext.children:
+        plotting.curdoc()._plotcontext.children.remove(plot)
 
     kwargs['transform'] = {
         'resample': "abstract rendering",
