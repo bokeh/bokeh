@@ -368,7 +368,7 @@ def test_example(example, flags):
                 if not response.ok:
                     info("referece image %s doesn't exist" % ref_url)
                 else:
-                    ref_png_file = join(dirname(__file__), "refs", ref_loc)
+                    ref_png_file = abspath(join(dirname(__file__), "refs", ref_loc))
                     diff_png_file = splitext(png_file)[0] + "-diff.png"
 
                     ref_png_path = dirname(ref_png_file)
@@ -389,6 +389,9 @@ def test_example(example, flags):
 
                     if code != 0:
                         warn("generated and reference images differ")
+                        warn("generated: " + png_file)
+                        warn("reference: " + ref_png_file)
+                        warn("diff: " + diff_png_file)
 
             ok(example)
             return True
