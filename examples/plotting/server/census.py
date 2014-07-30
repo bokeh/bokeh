@@ -6,13 +6,25 @@ output_server("Census")
 # 2010 US Census tracts
 source = ServerDataSource(data_url="/defaultuser/CensusTracts.hdf5", owner_username="defaultuser")
 plot = square('LON', 'LAT', source=source)
-#heatmap = ar.source(plot, palette=["Reds-9"], points=True)
-#image(source=heatmap, title="Census Tracts", reserve_val=0, plot_width=600, plot_height=400, **ar.mapping(heatmap))
+
+heatmap = ar.source(plot, palette=["Reds-9"], points=True)
+image(title="Census Tracts (Client Colors)",
+      source=heatmap,
+      reserve_val=0,
+      plot_width=600,
+      plot_height=400,
+      **ar.mapping(heatmap))
 
 heatmap2 = ar.source(
         plot,
-        shader=ar.Cuberoot()+ar.InterpolateColor(low=(255,255,255), high=(255,0,0)),
+        shader=ar.Cuberoot()
+               + ar.InterpolateColor(low=(255, 200, 200), high=(255, 0, 0), reserve=(255, 255, 255, 0), empty=0),
         points=True)
-image_rgba(source=heatmap2, title="Census Tracts", reserve_val=0, plot_width=600, plot_height=400, **ar.mapping(heatmap2))
+image_rgba(title="Census Tracts (Server Colors)",
+           source=heatmap2,
+           reserve_val=0,
+           plot_width=600,
+           plot_height=400,
+           **ar.mapping(heatmap2))
 
 show()

@@ -139,9 +139,15 @@ class InterpolateColor(Transfer):
     out = "image_rgb"
     high = Color
     low = Color
+    reserve = Color
+    empty = Any
 
     def reify(self, **kwargs):
-        return numeric.InterpolateColors(self.low+[255], self.high+[255])
+        return numeric.InterpolateColors(
+                self.low+[255],
+                self.high+[255],
+                reserve=self.reserve,
+                empty=self.empty)
 
 
 class Sqrt(Transfer):
