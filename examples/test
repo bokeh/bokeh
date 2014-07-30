@@ -582,6 +582,59 @@ try:
         write()
 
     test_nbexecuter()
+
+    if args.upload:
+        write("%s Uploading data to S3 ..." % green(">>>"))
+
+        conn = boto.connect_s3()
+        bucket = conn.get_bucket("bokeh-travis")
+
+        def upload(key, filename):
+            if exists(filename):
+                key = S3Key(bucket, key)
+                key.set_contents_from_filename(filename, policy="public-read")
+
+        entries = []
+
+        for example, _ in sorted(selected_examples):
+            no_ext = splitext(abspath(example))[0]
+            example_path = relpath(no_ext, base_dir)
+            s3_path = join(__version__, example_path)
+
+            png_file = "%s-%s.png" % (no_ext, __version__)
+            png_diff = "%s-%s-diff.png" % (no_ext, __version__)
+
+            s3_png_file = s3_path + ".png"
+            s3_png_diff = s3_path + "-diff.png"
+
+            upload(s3_png_file, png_file)
+            upload(s3_png_diff, png_diff)
+
+            failed = example in fail_examples
+            skipped = example in skip_examples
+
+            s3_png_file = join(s3, s3_png_file)
+            s3_png_diff = join(s3, s3_png_diff)
+            s3_ref_png = join(s3, args.diff, example_path) + ".png"
+
+            entries.append((example_path, failed, skipped, s3_png_file, s3_png_diff, s3_ref_png))
+            write(green("---") + " " + example)
+
+        with open(join(dirname(__file__), "examples.html")) as f:
+            template = jinja2.Template(f.read())
+
+        html = template.render(version=__version__, entries=entries)
+
+        report = join(__version__, "report.html")
+        key = S3Key(bucket, report)
+        key.set_metadata("Content-Type", "text/html")
+        key.set_contents_from_string(html, policy="public-read")
+
+        write("%s Access report at: %s" % (green(">>>"), join(s3, report)))
+
+        log = join(__version__, "examples.log")
+        upload(log, args.log_file.name)
+        write("%s Access logs at: %s" % (green(">>>"), join(s3, log)))
 except KeyboardInterrupt:
     write(yellow("INTERRUPTED"))
 finally:
@@ -592,59 +645,6 @@ finally:
     if ipython_notebook is not None:
         write("Shutting down ipython-notebook ...")
         ipython_notebook.kill()
-
-if args.upload:
-    write("%s Uploading data to S3 ..." % green(">>>"))
-
-    conn = boto.connect_s3()
-    bucket = conn.get_bucket("bokeh-travis")
-
-    def upload(key, filename):
-        if exists(filename):
-            key = S3Key(bucket, key)
-            key.set_contents_from_filename(filename, policy="public-read")
-
-    entries = []
-
-    for example, _ in sorted(selected_examples):
-        no_ext = splitext(abspath(example))[0]
-        example_path = relpath(no_ext, base_dir)
-        s3_path = join(__version__, example_path)
-
-        png_file = "%s-%s.png" % (no_ext, __version__)
-        png_diff = "%s-%s-diff.png" % (no_ext, __version__)
-
-        s3_png_file = s3_path + ".png"
-        s3_png_diff = s3_path + "-diff.png"
-
-        upload(s3_png_file, png_file)
-        upload(s3_png_diff, png_diff)
-
-        failed = example in fail_examples
-        skipped = example in skip_examples
-
-        s3_png_file = join(s3, s3_png_file)
-        s3_png_diff = join(s3, s3_png_diff)
-        s3_ref_png = join(s3, args.diff, example_path) + ".png"
-
-        entries.append((example_path, failed, skipped, s3_png_file, s3_png_diff, s3_ref_png))
-        write(green("---") + " " + example)
-
-    with open(join(dirname(__file__), "examples.html")) as f:
-        template = jinja2.Template(f.read())
-
-    html = template.render(version=__version__, entries=entries)
-
-    report = join(__version__, "report.html")
-    key = S3Key(bucket, report)
-    key.set_metadata("Content-Type", "text/html")
-    key.set_contents_from_string(html, policy="public-read")
-
-    write("%s Access report at: %s" % (green(">>>"), join(s3, report)))
-
-    log = join(__version__, "examples.log")
-    upload(log, args.log_file.name)
-    write("%s Access logs at: %s" % (green(">>>"), join(s3, log)))
 
 num_examples = len(selected_examples)
 
