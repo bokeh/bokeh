@@ -190,32 +190,27 @@ def getsitepackages():
 
 # Set up this checkout or source archive with the right BokehJS files.
 
-build_js = False
+build_js = True
 
 if sys.version_info[:2] < (2, 6):
     raise RuntimeError("Bokeh requires python >= 2.6")
 
-# TODO (bev) remove 'devjs' in 0.5
-if 'devjs' in sys.argv:
-    print("WARNING: 'devjs' is deprecated and will be removed in Bokeh 0.5, please use 'develop'")
-    sys.argv.remove("devjs")
-    sys.argv.append("develop")
-
-# TODO (bev) remove '--deploy' in 0.5
-if '--deploy' in sys.argv:
-    print("WARNING: '--deploy' is deprecated and will be removed in Bokeh 0.5, please use '--build_js'")
-    sys.argv.remove("--deploy")
-    sys.argv.append("--build_js")
+if '--no-build_js' in sys.argv:
+    sys.argv.remove('--no-build_js')
+    build_js = False
 
 if '--build_js' in sys.argv:
-    os.chdir('bokehjs')
+    sys.argv.remove('--build_js')
     build_js = True
+
+if build_js:
+    os.chdir('bokehjs')
     try:
         print("building bokehjs...")
         out = subprocess.check_output([join('node_modules', '.bin', 'grunt'), 'deploy'])
-        sys.argv.remove('--build_js')
     except subprocess.CalledProcessError:
         print("ERROR: could not build bokehjs")
+        print("See Developer Guide install instructions at http://bokeh.pydata.org/docs/dev_guide.html")
         sys.exit(1)
     APP = [join(BOKEHJSBUILD, 'js', 'bokeh.js'),
            join(BOKEHJSBUILD, 'js', 'bokeh.min.js')]
