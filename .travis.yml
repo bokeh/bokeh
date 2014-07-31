@@ -15,7 +15,7 @@ env:
 matrix:
     include:
         - python: 2.7
-          env: BOKEH_DEFAULT_NO_DEV=false BOKEH_DEFAULT_DIFF=origin/master
+          env: BOKEH_DEFAULT_NO_DEV=false BOKEH_DEFAULT_DIFF=FETCH_HEAD
         - python: 2.7
           env: BOKEH_DEFAULT_NO_DEV=true
         - python: 3.3

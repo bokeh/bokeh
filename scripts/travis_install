@@ -3,6 +3,8 @@
 set -e # exit on error
 set -x # echo commands
 
+git fetch origin master
+
 sudo apt-get install -qq -y --force-yes graphviz
 
 MINICONDA="Miniconda-$MINICONDA_VERSION-Linux-x86_64"
