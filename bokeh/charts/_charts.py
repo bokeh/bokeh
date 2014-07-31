@@ -19,6 +19,7 @@ the generation of several outputs (file, server, notebook).
 #-----------------------------------------------------------------------------
 
 import itertools
+from collections import OrderedDict
 
 import numpy as np
 
@@ -200,9 +201,7 @@ class Chart(object):
         self.marker = marker
         self.outliers = outliers
         self.width = [0.8] * len(self.cat)
-        self.width_cat = [0.2] * len(self.cat)
-        self.zero = np.zeros(len(self.cat))
-        self.data = dict(cat=self.cat, width=self.width, width_cat=self.width_cat, zero=self.zero)
+        self.data = dict(cat=self.cat, width=self.width)
 
         # assuming value is a dict for now
         self.value = value
@@ -210,39 +209,89 @@ class Chart(object):
         # list to save all the attributes we are going to create
         self.attr = []
 
-        n_levels = len(self.value.keys())
-        step = np.linspace(1, n_levels+1, n_levels, endpoint=False)
-
         self.groups.extend(self.value.keys())
+
+        self.q0 = []
+        self.q2 = []
+        self.u_cps = []
+        self.u_hes = []
+        self.l_cps = []
+        self.l_hes = []
+        self.iqrs_cp = []
+        self.iqrs = []
+        self.lowers = []
+        self.uppers = []
 
         for i, level in enumerate(self.value.keys()):
 
             # Compute quantiles, IQR, etc.
-            level_vals = self.value[level]
-            q = np.percentile(level_vals, [25, 50, 75])
+            q = np.percentile(self.value[level], [25, 50, 75])
+            self.q0.append(q[0])
+            self.q2.append(q[2])
+
+            u_cp = (q[2] + q[1]) / 2
+            u_he = q[2] - q[1]
+            l_cp = (q[1] + q[0]) / 2
+            l_he = q[1] - q[0]
+            self.u_cps.append(u_cp)
+            self.u_hes.append(u_he)
+            self.l_cps.append(l_cp)
+            self.l_hes.append(l_he)
+
+            iqr_cp = (q[2] + q[0]) / 2
             iqr = q[2] - q[0]
+            self.iqrs_cp.append(iqr_cp)
+            self.iqrs.append(iqr)
+
             # Store indices of outliers as list
-            lower, upper = q[1] - 1.5*iqr, q[1] + 1.5*iqr
-            outliers = np.where((level_vals > upper) | (level_vals < lower))[0]
+            lower = q[1] - 1.5 * iqr
+            upper = q[1] + 1.5 * iqr
+            self.lowers.append(lower)
+            self.uppers.append(upper)
+
+            outliers = np.where((self.value[level] > upper) | (self.value[level] < lower))[0]
+            out = self.value[level][outliers]
+            out_x = []
+            out_y = []
+            for o in out:
+                out_x.append(level)
+                out_y.append(o)
 
             # Store
-            self._set_and_get("", level, level_vals)
-            self._set_and_get("quantiles", level, q)
-            self._set_and_get("outliers", level, outliers)
-            self._set_and_get("cat", level, [level + ':' + str(step[i])])
-            self._set_and_get("line_y", level, [lower, upper])
-            self._set_and_get("x", level, step[i])
+            self._set_and_get("lower", level, lower)
+            self._set_and_get("upper", level, upper)
+            self._set_and_get("out_x", level, out_x)
+            self._set_and_get("out_y", level, out_y)
+
+        self.data["q0"] = self.q0
+        self.data["q2"] = self.q2
+        self.data["u_cps"] = self.u_cps
+        self.data["u_hes"] = self.u_hes
+        self.data["l_cps"] = self.l_cps
+        self.data["l_hes"] = self.l_hes
+        self.data["iqrs_cp"] = self.iqrs_cp
+        self.data["iqrs"] = self.iqrs
+        self.data["lowers"] = self.lowers
+        self.data["uppers"] = self.uppers
+
+        self.colors = self._set_colors(self.cat)
+        self.data["colors"] = self.colors
 
     def get_source_boxplot(self):
         "Get the boxplot data into the ColumnDataSource and calculate the proper ranges."
         self.source = ColumnDataSource(self.data)
         self.xdr = FactorRange(factors=self.source.data["cat"])
-        y_names = self.attr[::6]
-        start_y = min(min(self.data[i]) for i in y_names)
-        end_y = max(max(self.data[i]) for i in y_names)
-        # Expand min/max to encompass IQR line
-        start_y = min(end_y, min(self.data[x][0] for x in self.attr[4::6]))
-        end_y = max(end_y, max(self.data[x][1] for x in self.attr[4::6]))
+        lowers = self.attr[0::4]
+        uppers = self.attr[1::4]
+        start_y = min(self.data[i] for i in lowers)
+        end_y = max(self.data[i] for i in uppers)
+        ## Expand min/max to encompass outliers
+        if self.outliers:
+            outs = self.attr[3::4]
+            start_out_y = min(min(self.data[x]) for x in outs if len(self.data[x]) > 0)
+            end_out_y = max(max(self.data[x]) for x in outs if len(self.data[x]) > 0)
+            start_y = min(start_y, start_out_y)
+            end_y = max(end_y, end_out_y)
         self.ydr = Range1d(start=start_y - 0.1 * (end_y-start_y), end=end_y + 0.1 * (end_y-start_y))
 
     def start_plot(self):
@@ -281,7 +330,7 @@ class Chart(object):
         # Add legend
         if self.legend:
             listed_glyphs = [[glyph] for glyph in self.glyphs]
-            self.legends = dict(zip(self.groups, listed_glyphs))
+            self.legends = OrderedDict(zip(self.groups, listed_glyphs))
             if self.legend is True:
                 orientation = "top_right"
             else:
@@ -341,17 +390,17 @@ class Chart(object):
 
         self._append_glyph(line)
 
-    def make_quad(self, top, bottom, left, right, color):
+    def make_quad(self, top, bottom, left, right, color, line_color):
         "Create a quad glyph and append it to the renderers list."
         quad = Quad(top=top, bottom=bottom, left=left, right=right,
-                    fill_color=color, fill_alpha=0.7, line_color="white", line_alpha=1.0)
+                    fill_color=color, fill_alpha=0.7, line_color=line_color, line_alpha=1.0)
 
         self._append_glyph(quad)
 
-    def make_rect(self, x, y, width, height, color):
+    def make_rect(self, x, y, width, height, color, line_color, line_width):
         "Create a rect glyph and append it to the renderers list."
         rect = Rect(x=x, y=y, width=width, height=height, fill_color=color,
-                    fill_alpha=0.7, line_color='white', line_alpha=1.0)
+                    fill_alpha=0.7, line_color=line_color, line_alpha=1.0, line_width=line_width)
 
         self._append_glyph(rect)
 
@@ -363,7 +412,6 @@ class Chart(object):
             markertype (int/string): Marker type to use (e.g., 2, 'circle', etc.)
             color (string/?): color of point
         """
-        from collections import OrderedDict
 
         _marker_types = OrderedDict([
             ("circle", Circle),
@@ -402,13 +450,13 @@ class Chart(object):
             colors = self._set_colors(self.quintet)
 
             for i, quintet in enumerate(self.quintet):
-                self.make_quad(quintet[0], quintet[4], quintet[2], quintet[3], colors[i])
+                self.make_quad(quintet[0], quintet[4], quintet[2], quintet[3], colors[i], "white")
         else:
             self.octet = list(self._chunker(self.attr, 8))
             colors = self._set_colors(self.octet)
 
             for i, octet in enumerate(self.octet):
-                self.make_quad(octet[0], octet[4], octet[2], octet[3], colors[i])
+                self.make_quad(octet[0], octet[4], octet[2], octet[3], colors[i], "white")
                 self.make_line(octet[5], octet[6], "black")
                 self.make_line(octet[5], octet[7], "blue")
 
@@ -420,9 +468,9 @@ class Chart(object):
         # quartet elements are: [data, mid, stacked, cat]
         for i, quartet in enumerate(self.quartet):
             if stacked:
-                self.make_rect("cat", quartet[2], "width", quartet[0], colors[i])
+                self.make_rect("cat", quartet[2], "width", quartet[0], colors[i], "white", None)
             else:  # Grouped
-                self.make_rect(quartet[3], quartet[1], "width_cat", quartet[0], colors[i])
+                self.make_rect(quartet[3], quartet[1], "width_cat", quartet[0], colors[i], "white", None)
 
     def scatter(self):
         "Use different marker renderers to display the incomming groups."
@@ -434,18 +482,18 @@ class Chart(object):
 
     def boxplot(self):
         " Use the `rect`, `scatter`, and `segment` renderers to display the boxplot. "
-        self.sextet = list(self._chunker(self.attr, 6))
-        colors = self._set_colors(self.sextet)
+        self.make_rect("cat", "u_cps", "width", "u_hes", "colors", "black", None)
+        self.make_rect("cat", "l_cps", "width", "l_hes", "colors", "black", None)
+        self.make_rect("cat", "iqrs_cp", "width", "iqrs", None, "black", 2)
+        self.make_segment("cat", "q2", "cat", "uppers", "black", 2)
+        self.make_segment("cat", "lowers", "cat", "q0", "black", 2)
 
-        # quintet elements are: [data, quantiles, outliers, cat, line_y]
-        for i, sextet in enumerate(self.sextet):
-            [d, q, outliers, cat, line_y, x] = [self.data[x] for x in sextet]
-            self.make_segment(x, line_y[0], x, line_y[1], 'black', 2)
-            self.make_quad(q[1], q[0], x-self.width[0]/2., x+self.width[0]/2., colors[i])
-            self.make_quad(q[2], q[1], x-self.width[0]/2., x+self.width[0]/2., colors[i])
-            if self.outliers and outliers.any():
-                for o in d[outliers]:
-                    self.make_scatter(x, o, self.marker, colors[i])
+        self.quartet = list(self._chunker(self.attr, 4))
+        colors = self._set_colors(self.quartet)
+
+        if self.outliers:
+            for i, quartet in enumerate(self.quartet):
+                self.make_scatter(quartet[2], quartet[3], self.marker, colors[i])
 
     def show(self):
         "Main show function, it shows the plot in file, server and notebook outputs."
