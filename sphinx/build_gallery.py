@@ -1,7 +1,9 @@
 from __future__ import print_function
 
 import os
+import six
 import webbrowser
+
 from pygments import highlight
 from pygments.lexers import PythonLexer
 from pygments.formatters import HtmlFormatter
@@ -14,6 +16,7 @@ from bokeh.resources import Resources
 # patch open and show and save to be no-ops
 def noop(*args, **kwargs):
     pass
+
 webbrowser.open = noop
 plotting.save = noop
 plotting.show = noop
@@ -25,7 +28,9 @@ def page_desc(module_desc):
     plotting._default_document = Document()
 
     namespace = {}
-    execfile(module_path, namespace)
+    with open(module_path, "r") as module_file:
+        code = compile(module_file.read(), module_path, "exec")
+        eval(code, namespace)
 
     if var_name:
         objs = [namespace[var_name]]
@@ -41,7 +46,7 @@ def page_desc(module_desc):
             os.path.join(DETAIL_URL_ROOT, filename)
         )
         embed_snippet += tag
-        with open(os.path.join(SNIPPET_BUILD_DIR, filename), "w'") as f:
+        with open(os.path.join(SNIPPET_BUILD_DIR, filename), "w") as f:
             f.write(js)
 
         detail_snippet = highlight(
@@ -88,7 +93,7 @@ def make_gallery(module_descs):
             fname = os.path.join(DETAIL_BUILD_DIR, info['name'] + ".rst")
         else:
             raise ValueError("unexpected template filename format: '%s'" % DETAIL_TEMPLATE)
-        with open(fname, "w") as f:
+        with open(fname, "wb") as f:
             f.write(detail_template.render(info).encode('utf-8'))
         print("wrote", fname)
 

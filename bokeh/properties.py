@@ -16,14 +16,7 @@ from six import integer_types, string_types, add_metaclass, iteritems
 import numpy as np
 
 from . import enums
-
-def nice_join(seq, sep=", "):
-    seq = [str(x) for x in seq]
-
-    if len(seq) <= 1:
-        return sep.join(seq)
-    else:
-        return "%s or %s" % (sep.join(seq[:-1]), seq[-1])
+from .utils import nice_join
 
 class Property(object):
     def __init__(self, default=None):

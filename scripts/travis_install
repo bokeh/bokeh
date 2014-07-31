@@ -3,67 +3,37 @@
 set -e # exit on error
 set -x # echo commands
 
-sudo apt-get install -qq -y --force-yes nodejs npm
+git fetch origin master
 
-case "$TRAVIS_PYTHON_VERSION" in
-    2*) MINICONDA="Miniconda"  ;;
-    3*) MINICONDA="Miniconda3" ;;
-     *) exit 1
-esac
+sudo apt-get install -qq -y --force-yes graphviz
 
-MINICONDA="$MINICONDA-$MINICONDA_VERSION-Linux-x86_64"
-PHANTOMJS="phantomjs-$PHANTOMJS_VERSION-linux-x86_64"
-
+MINICONDA="Miniconda-$MINICONDA_VERSION-Linux-x86_64"
 MINICONDA_URL="http://repo.continuum.io/miniconda/$MINICONDA.sh"
-PHANTOMJS_URL="https://bitbucket.org/ariya/phantomjs/downloads/$PHANTOMJS.tar.bz2"
 
 wget $MINICONDA_URL
 bash $MINICONDA.sh -b -p $HOME/miniconda
 rm -rf $MINICONDA.sh
 
-mkdir $HOME/phantomjs
-wget -O - $PHANTOMJS_URL | tar xj --strip-components 1 -C $HOME/phantomjs
-
 python -V
 
-INSTALL_DIR="$HOME/.local/lib/python$TRAVIS_PYTHON_VERSION/site-packages"
-mkdir -p $INSTALL_DIR
-ln -s $(readlink -f bokeh) $INSTALL_DIR/bokeh
+DEPS_TRAVIS="python=$TRAVIS_PYTHON_VERSION conda-build jinja2"
+conda install --yes $DEPS_TRAVIS
 
-DEPS_TRAVIS="python=$TRAVIS_PYTHON_VERSION pip"
-DEPS_BOKEH="numpy pandas openpyxl<2.0 six requests dateutil"
-DEPS_SERVER="flask werkzeug greenlet redis redis-py"
-DEPS_DOCS="sphinx pygments" # sphinx-bootstrap-theme sphinxcontrib-napoleon
-DEPS_EXAMPLES="scipy matplotlib sympy" # ggplot seaborn
-DEPS_TESTS="PyYAML nose mock colorama coverage ipython ipython-notebook" # websocket
-DEPS_PIP="sphinx-bootstrap-theme sphinxcontrib-napoleon"
+conda config --add channels bokeh
+conda config --add channels mutirri   # TODO: remove when packages are moved to bokeh
 
-if [[ "$TRAVIS_PYTHON_VERSION" == 2* ]]; then
-    DEPS_SERVER="$DEPS_SERVER gevent gevent-websocket"
-    DEPS_PIP="$DEPS_PIP websocket"
-fi
+CONDA_PY="${TRAVIS_PYTHON_VERSION/./}" conda build conda.recipe
+conda install --use-local --yes bokeh
 
-if [[ "$TRAVIS_PYTHON_VERSION" != 3.4* ]]; then
-    DEPS_EXAMPLES="$DEPS_EXAMPLES statsmodels"
-    DEPS_PIP="$DEPS_PIP ggplot seaborn"
-fi
+DEPS_TEST=$(cat <<EOF | python -
+from conda_build.metadata import MetaData
+print(" ".join(MetaData("conda.recipe").get_value("test/requires")))
+EOF
+)
 
-DEPS="$DEPS_TRAVIS $DEPS_BOKEH $DEPS_SERVER $DEPS_DOCS $DEPS_EXAMPLES $DEPS_TESTS"
+conda install --yes $DEPS_TEST
 
-conda install --yes --quiet $DEPS || exit 1
-pip install $DEPS_PIP || exit 1
+MATPLOTLIB_RC=$(python -c "import matplotlib; print(matplotlib.matplotlib_fname())")
+sed -i 's/^backend\s*:.*$/backend: agg/' $MATPLOTLIB_RC
 
-if [[ "$TRAVIS_PYTHON_VERSION" == 2* ]]; then # to be deleted when we have py3 support
-    conda install --yes --quiet -c https://conda.binstar.org/ilan abstract-rendering
-fi
-
-cd bokehjs
-npm install && node_modules/.bin/grunt deploy || exit 1
-cd ..
-
-ln -s $(readlink -f bokehjs/build/js) bokeh/server/static/js
-ln -s $(readlink -f bokehjs/build/css) bokeh/server/static/css
-
-sed -i 's/^backend\s*:.*$/backend: agg/' `python -c "import matplotlib; print(matplotlib.matplotlib_fname())"`
-
-python -c 'import bokeh; bokeh.sampledata.download(progress=False)' || exit 1
+python -c 'import bokeh; bokeh.sampledata.download(progress=False)'

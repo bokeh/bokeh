@@ -48,7 +48,7 @@ quadratic(x, y, x+0.2, y, x+0.1, y+0.1, color="#4DAF4A", tools="pan,wheel_zoom,b
 
 ray(x, y, 45, -0.7, color="#FB8072", tools="pan,wheel_zoom,box_zoom,reset,previewsave", title="ray", line_width=2)
 
-rect(x, y, 10, 20, -0.7,
+rect(x, y, 10, 20,
      width_units="screen", height_units="screen",
      color="#CAB2D6", tools="pan,wheel_zoom,box_zoom,reset,previewsave", title="rect")
 
