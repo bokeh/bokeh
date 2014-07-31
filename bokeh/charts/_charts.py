@@ -211,20 +211,29 @@ class Chart(object):
 
         self.groups.extend(self.value.keys())
 
+        # lists to save q25 and q75
         self.q0 = []
         self.q2 = []
+
+        # lists to save the y center point and height for the upper rect
         self.u_cps = []
         self.u_hes = []
+
+        # lists to save the y center point and height for the lower rect
         self.l_cps = []
         self.l_hes = []
+
+        # lists to save the y center point and height for the upper+lower rect
         self.iqrs_cp = []
         self.iqrs = []
+
+        # lists to save the lowers and upper limits for segments
         self.lowers = []
         self.uppers = []
 
         for i, level in enumerate(self.value.keys()):
 
-            # Compute quantiles, IQR, etc.
+            # Compute and save quantiles, center points, heights, IQR, etc.
             q = np.percentile(self.value[level], [25, 50, 75])
             self.q0.append(q[0])
             self.q2.append(q[2])
@@ -243,12 +252,12 @@ class Chart(object):
             self.iqrs_cp.append(iqr_cp)
             self.iqrs.append(iqr)
 
-            # Store indices of outliers as list
             lower = q[1] - 1.5 * iqr
             upper = q[1] + 1.5 * iqr
             self.lowers.append(lower)
             self.uppers.append(upper)
 
+            # Store indices of outliers as list
             outliers = np.where((self.value[level] > upper) | (self.value[level] < lower))[0]
             out = self.value[level][outliers]
             out_x = []
@@ -263,6 +272,7 @@ class Chart(object):
             self._set_and_get("out_x", level, out_x)
             self._set_and_get("out_y", level, out_y)
 
+        # Fill te data dict with the calculated parameters
         self.data["q0"] = self.q0
         self.data["q2"] = self.q2
         self.data["u_cps"] = self.u_cps
@@ -274,6 +284,7 @@ class Chart(object):
         self.data["lowers"] = self.lowers
         self.data["uppers"] = self.uppers
 
+        # Set up the colors for the rects
         self.colors = self._set_colors(self.cat)
         self.data["colors"] = self.colors
 
