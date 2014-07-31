@@ -46,9 +46,8 @@ if py2:
     from boto.s3.key import Key as S3Key
     from boto.exception import NoAuthHandlerFound
 
-from bokeh import __version__
-
-s3 = "https://s3.amazonaws.com/bokeh-travis"
+s3_bucket = "bokeh-travis"
+s3 = "https://s3.amazonaws.com/%s" % s3_bucket
 
 default_timeout = int(os.environ.get("BOKEH_DEFAULT_TIMEOUT", 10))
 default_diff = os.environ.get("BOKEH_DEFAULT_DIFF", None)
@@ -137,6 +136,28 @@ write("%s log-file      = %s" % (green("---"), args.log_file.name))
 write("%s diff          = %s" % (green("---"), args.diff))
 write("%s upload        = %s" % (green("---"), args.upload))
 
+def get_version_from_git(ref=None):
+    cmd = ["git", "describe", "--tags", "--always"]
+
+    if ref is not None:
+        cmd += ref
+
+    try:
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+        code = proc.wait()
+    except OSError:
+        write("Failed to run: %s" % " ".join(cmd))
+        sys.exit(1)
+
+    if code != 0:
+        write("Failed to get version for %s" % ref)
+        sys.exit(1)
+
+    return proc.stdout.read().decode('utf-8').strip()
+
+__version__ = get_version_from_git()
+write("%s Bokeh version: %s" % (green(">>>"), __version__))
+
 if args.diff:
     cmd = ["git", "describe", "--tags", "--always", args.diff]
 
@@ -152,6 +173,7 @@ if args.diff:
         sys.exit(1)
 
     args.diff = proc.stdout.read().decode('utf-8').strip()
+    write("%s Reference version: %s" % (green(">>>"), args.diff))
 
 if args.upload and not py2:
     warn("Can't upload to S3, becase boto is not available under Python 3.")
@@ -605,10 +627,10 @@ try:
     test_nbexecuter()
 
     if args.upload:
-        write("%s Uploading data to S3 ..." % green(">>>"))
+        write("%s Uploading data to S3 to %s/%s ..." % (green(">>>"), s3_bucket, __version__))
 
         conn = boto.connect_s3()
-        bucket = conn.get_bucket("bokeh-travis")
+        bucket = conn.get_bucket(s3_bucket)
 
         def upload(key, filename):
             if exists(filename):
