@@ -41,8 +41,14 @@ define [
       return [x_, y_]
 
     _zoom: (e) ->
+      # we need a browser-specific multiplier to have similar experiences
+      if navigator.userAgent.toLowerCase().indexOf("firefox") > -1
+        multiplier = 20
+      else
+        multiplier = 1
+
       if e.originalEvent.deltaY?
-        delta = -e.originalEvent.deltaY
+        delta = -e.originalEvent.deltaY * multiplier
       else
         delta = e.delta
 
