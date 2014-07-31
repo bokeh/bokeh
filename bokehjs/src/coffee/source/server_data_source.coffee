@@ -29,6 +29,7 @@ define [
           busy = false
           resp = null
         )
+
     return callback
   class ServerDataSource extends HasProperties
     # Datasource where the data is defined column-wise, i.e. each key in the
@@ -132,14 +133,28 @@ define [
       return null
 
 
-    ar_update : (plot_view, column_data_source, plot_state, input_params, x_data_range, y_data_range) ->
+    ar_update : (plot_view, column_data_source, plot_state, input_params) ->
       #TODO: Share the x/y range information back to the server in some way...
       domain_limit = 'not auto'
+
+      console.log("data range")
+      console.log(plot_state['data_x'].get('start'), plot_state['data_x'].get('end'))
+      console.log(plot_state['data_y'].get('start'), plot_state['data_y'].get('end'))
         
+      console.log("screen range")
+      console.log(plot_state['screen_x'].get('start'), plot_state['screen_x'].get('end'))
+      console.log(plot_state['screen_y'].get('start'), plot_state['screen_y'].get('end'))
+
+      if plot_state['screen_x'].get('start') == plot_state['screen_x'].get('end') or
+         plot_state['screen_y'].get('start') == plot_state['screen_y'].get('end')
+       console.log("Skipping due to under-defined view state")
+       return $.ajax()
+
       if (plot_view.x_range.get('start') == plot_view.x_range.get('end') or
           plot_view.y_range.get('start') == plot_view.y_range.get('end'))
         domain_limit = 'auto'
 
+      console.log(domain_limit)
       resp = $.ajax(
         dataType: 'json'
         url : @update_url()
