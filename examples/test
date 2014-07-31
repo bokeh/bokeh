@@ -123,6 +123,20 @@ elif DEFAULT_NO_DEV.lower() not in ["false", "no", "off", "0"]:
     write("unexpected value for BOKEH_DEFAULT_NO_DEV environmental variable, %s" % DEFAULT_NO_DEV)
     sys.exit(1)
 
+write("%s Using configuration:" % green(">>>"))
+write("%s patterns      = %s" % (green("---"), args.patterns))
+write("%s bokeh-port    = %s" % (green("---"), args.bokeh_port))
+write("%s ipython-port  = %s" % (green("---"), args.ipython_port))
+write("%s phantomjs     = %s" % (green("---"), args.phantomjs))
+write("%s timeout       = %s" % (green("---"), args.timeout))
+write("%s verbose       = %s" % (green("---"), args.verbose))
+write("%s dev           = %s" % (green("---"), args.dev))
+write("%s all-notebooks = %s" % (green("---"), args.all_notebooks))
+write("%s output-cells  = %s" % (green("---"), args.output_cells))
+write("%s log-file      = %s" % (green("---"), args.log_file.name))
+write("%s diff          = %s" % (green("---"), args.diff))
+write("%s upload        = %s" % (green("---"), args.upload))
+
 if args.diff:
     cmd = ["git", "describe", "--tags", "--always", args.diff]
 
