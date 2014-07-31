@@ -764,8 +764,8 @@ Keep in mind that, as with any other ``Bokeh`` plots in the IPython notebook, yo
 Reporting bugs
 --------------
 
-You can report any possible bug, start discussions or ask for features at our
-`issue tracker <https://github.com/ContinuumIO/bokeh/issues?state=open>`_ list.
+You can report possible bugs, start discussions, or ask for features on our
+`issue tracker <https://github.com/ContinuumIO/bokeh/issues?state=open>`_.
 To start a new issue, you will find a ``New issue`` green button at the top right area of the page.
 
 But ``Bokeh`` also provides a programmatic way to open an issue. You only need to use the
