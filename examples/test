@@ -50,14 +50,9 @@ from bokeh import __version__
 
 s3 = "https://s3.amazonaws.com/bokeh-travis"
 
-if os.environ.get("TRAVIS_PYTHON_VERSION") is not None:
-    default_timeout = 30
-    default_diff = "origin/master"
-    default_upload = True
-else:
-    default_timeout = 10
-    default_diff = None
-    default_upload = False
+default_timeout = int(os.environ.get("BOKEH_DEFAULT_TIMEOUT", 10))
+default_diff = os.environ.get("BOKEH_DEFAULT_DIFF", None)
+default_upload = default_diff is not None
 
 parser = argparse.ArgumentParser(description="Automated testing of Bokeh's examples")
 parser.add_argument("patterns", type=str, nargs="*",
@@ -120,7 +115,6 @@ def info(msg=None):
 def ok(msg=None):
     msg = " " + msg if msg is not None else ""
     write("%s%s" % (green("[OK]"), msg))
-
 
 DEFAULT_NO_DEV = os.environ.get('BOKEH_DEFAULT_NO_DEV', 'false')
 if DEFAULT_NO_DEV.lower() in ["true", "yes", "on", "1"]:
