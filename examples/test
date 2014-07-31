@@ -635,10 +635,15 @@ try:
             skipped = example in skip_examples
 
             s3_png_file = join(s3, s3_png_file)
-            s3_png_diff = join(s3, s3_png_diff)
-            s3_ref_png = join(s3, args.diff, example_path) + ".png"
 
-            entries.append((example_path, failed, skipped, s3_png_file, s3_png_diff, s3_ref_png))
+            if args.diff:
+                s3_png_diff = join(s3, s3_png_diff)
+                s3_ref_png = join(s3, args.diff, example_path) + ".png"
+            else:
+                s3_png_diff = None
+                s3_ref_png = None
+
+            entries.append((example_path, args.diff, failed, skipped, s3_png_file, s3_png_diff, s3_ref_png))
             write(green("---") + " " + example)
 
         with open(join(dirname(__file__), "examples.html")) as f:
