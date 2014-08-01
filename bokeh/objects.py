@@ -59,6 +59,12 @@ class ColumnDataSource(DataSource):
                 new_data = {}
                 for colname in raw_data:
                     new_data[colname] = raw_data[colname].tolist()
+                if raw_data.index.name:
+                    new_data[raw_data.index.name] = raw_data.index.tolist()
+                elif raw_data.index.names:
+                    new_data["_".join(raw_data.index.names)] = raw_data.index.tolist()
+                else:
+                    new_data["index"] = raw_data.index.tolist()
                 raw_data = new_data
         for name, data in raw_data.items():
             self.add(data, name)
