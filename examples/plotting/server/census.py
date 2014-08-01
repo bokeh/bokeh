@@ -1,4 +1,4 @@
-from bokeh.plotting import square, output_server, image, image_rgba, show
+from bokeh.plotting import square, output_server, show
 from bokeh.objects import ServerDataSource
 import bokeh.transforms.ar_downsample as ar
 
@@ -6,8 +6,8 @@ output_server("Census")
 # 2010 US Census tracts
 source = ServerDataSource(data_url="/defaultuser/CensusTracts.hdf5", owner_username="defaultuser")
 plot = square(
-        'LON', 'LAT', 
-        source=source, 
+        'LON', 'LAT',
+        source=source,
         plot_width=600,
         plot_height=400,
         title="Census Tracts")
