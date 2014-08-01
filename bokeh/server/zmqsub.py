@@ -7,7 +7,7 @@ try:
 except ImportError:
     import zmq
 
-timeout = 1
+timeout = 0.1
 
 class Subscriber(object):
     def __init__(self, addrs, wsmanager):
@@ -35,9 +35,6 @@ class Subscriber(object):
         finally:
             for s in sockets:
                 s.close()
-
-    def send(self, msg):
-        self.queue.put(msg)
 
     def start(self):
         self.thread = Thread(target=self.run)

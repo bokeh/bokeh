@@ -8,7 +8,7 @@ try:
 except ImportError:
     import zmq
 
-timeout = 1
+timeout = 0.1
 
 class Publisher(object):
     def __init__(self, zmqaddr, queue):

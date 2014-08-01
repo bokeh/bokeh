@@ -1,7 +1,7 @@
 import uuid
 import json
 import threading
-
+import logging
 
 from tornado import websocket, ioloop
 from tornado.web import Application
@@ -12,6 +12,7 @@ from .zmqsub import Subscriber
 from .. import  protocol
 from wsmanager import WebSocketManager
 
+log = logging.getLogger(__name__)
 
 class WebSocketHandler(websocket.WebSocketHandler):
     @property
@@ -42,6 +43,7 @@ class WebSocketHandler(websocket.WebSocketHandler):
                 msg = protocol.serialize_web(protcol.error_obj('unauthorized'))
                 self.write_message(topic + ":" + msg)
 
+
 class TornadoWebSocketApplication(Application):
     def __init__(self, handlers, **settings):
         super(TornadoWebSocketApplication, self).__init__(handlers, **settings)
@@ -50,6 +52,9 @@ class TornadoWebSocketApplication(Application):
         self.subscriber = Subscriber(zmqaddrs, self.wsmanager)
 
     def stop(self):
+        ## Hugo:  not sure how this is supposed to work
+        ## but apparently you need to stop and then
+        ## start the tornado loop to get it to finish....
         ioloop.IOLoop.instance().stop()
         self.server.stop()
         self.subscriber.kill = True
@@ -61,7 +66,6 @@ class TornadoWebSocketApplication(Application):
         def helper():
             self.subscriber.start()
             ioloop.IOLoop.instance().start()
-            print('websocket app exiting')
         if thread:
             self.thread = threading.Thread(target=helper)
             self.thread.start()
