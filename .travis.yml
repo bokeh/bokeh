@@ -37,9 +37,6 @@ script:
     - nosetests --with-coverage --cover-package=bokeh
     - ( cd sphinx; make all )
 
-after_script:
-    - if [[ -e examples.log ]]; then cat examples.log; fi
-
 notifications:
     flowdock:
         secure: "ZisceYtV2b7LWNUz0wEtiR9TRk+i8x5m/N6+Htn4IFr+bBcBi79ESO0u6DWiJA5rHt+Yq7Yf49vl7UO9HZCF+8n5B1nKpfivJKngVuMYLnhYifNmwCD7vQ8aaF9DTfOqvm2hJrHwtieX8BUGs2KWd8igt3f8LCXVWVBBvkqc2L0="
