@@ -34,11 +34,13 @@ define [
       @index = rbush()
       pts = []
       for i in [0...@xs.length]
-        if @xs.length == 0
+        xs = (x for x in @xs[i] when not _.isNaN(x))
+        ys = (y for y in @ys[i] when not _.isNaN(y))
+        if xs.length == 0
           continue
         pts.push([
-          _.min(@xs[i]), _.min(@ys[i]),
-          _.max(@xs[i]), _.max(@ys[i]),
+          _.min(xs), _.min(ys),
+          _.max(xs), _.max(ys),
           {'i': i}
         ])
       @index.load(pts)
@@ -56,11 +58,11 @@ define [
       if @glyph_props.xs.units == "screen" or @glyph_props.ys.units == "screen"
         return @all_indices
 
-      hr = @plot_view.frame.get('inner_range_horizontal')
-      [x0, x1] = @plot_view.xmapper.v_map_from_target([hr.get('start'), hr.get('end')])
+      xr = @plot_view.x_range
+      [x0, x1] = [xr.get('start'), xr.get('end')]
 
-      vr = @plot_view.frame.get('inner_range_vertical')
-      [y0, y1] = @plot_view.ymapper.v_map_from_target([vr.get('start'), vr.get('end')])
+      yr = @plot_view.y_range
+      [y0, y1] = [yr.get('start'), yr.get('end')]
 
       return (x[4].i for x in @index.search([x0, y0, x1, y1]))
 
