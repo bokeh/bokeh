@@ -25,6 +25,8 @@ from requests.exceptions import ConnectionError
 import colorama
 colorama.init()
 
+from conda.utils import human_bytes
+
 try:
     import gevent
 except ImportError:
@@ -673,16 +675,19 @@ try:
 
         html = template.render(version=__version__, entries=entries)
 
+        report_size = len(html)
+        write("%s Uploading report (%s)" % (green(">>>"), human_bytes(report_size)))
         report = join(__version__, "report.html")
         key = S3Key(bucket, report)
         key.set_metadata("Content-Type", "text/html")
         key.set_contents_from_string(html, policy="public-read")
-
         write("%s Access report at: %s" % (green(">>>"), join(s3, report)))
 
-        #log = join(__version__, "examples.log")
-        #upload(log, args.log_file.name)
-        #write("%s Access logs at: %s" % (green(">>>"), join(s3, log)))
+        log_size = os.stat(args.log_file.name).st_size
+        write("%s Uploading log (%s)" % (green(">>>"), human_bytes(log_size)))
+        log = join(__version__, "examples.log")
+        upload(log, args.log_file.name)
+        write("%s Access log at: %s" % (green(">>>"), join(s3, log)))
 except KeyboardInterrupt:
     write(yellow("INTERRUPTED"))
 finally:
