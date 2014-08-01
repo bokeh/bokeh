@@ -124,7 +124,7 @@ require([
     title: "Scatter Demo"
     dims: [600, 600]
     xaxes: "datetime"
-    yaxes: "min"
+    yaxes: "left"
     tools: true
     legend: false
   }

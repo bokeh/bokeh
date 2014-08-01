@@ -83,14 +83,13 @@ define [
     xaxes = []
     if xaxes_spec
       if xaxes_spec == true
-        xaxes_spec = ['min', 'max']
+        xaxes_spec = ['bottom', 'top']
       if not _.isArray(xaxes_spec)
         xaxes_spec = [xaxes_spec]
       if xaxes_spec[0]=="datetime"
         axis = DatetimeAxis.Collection.create(
-          dimension: 0
           axis_label: 'x'
-          location: 'min'
+          location: 'bottom'
           parent: plot.ref()
           plot: plot.ref()
         )
@@ -98,7 +97,6 @@ define [
       else if xdr.type == "FactorRange"
         for loc in xaxes_spec
           axis = CategoricalAxis.Collection.create(
-            dimension: 0
             axis_label: 'x'
             location: loc
             parent: plot.ref()
@@ -108,24 +106,27 @@ define [
       else
         for loc in xaxes_spec
           axis = LinearAxis.Collection.create(
-            dimension: 0
             axis_label: 'x'
             location: loc
             parent: plot.ref()
             plot: plot.ref()
           )
           xaxes.push(axis)
+      for xax in xaxes
+        if xax.get('location') == "bottom"
+          plot.get('below').push(xax.ref())
+        else if xax.get('location') == "top"
+          plot.get('above').push(xax.ref())
     yaxes = []
     if yaxes_spec
       if yaxes_spec == true
-        yaxes_spec = ['min', 'max']
+        yaxes_spec = ['left', 'right']
       if not _.isArray(yaxes_spec)
         yaxes_spec = [yaxes_spec]
       if yaxes_spec[0]=="datetime"
         axis = DatetimeAxis.Collection.create(
-          dimension: 1
           axis_label: 'y'
-          location: 'min'
+          location: 'left'
           parent: plot.ref()
           plot: plot.ref()
         )
@@ -133,7 +134,6 @@ define [
       else if ydr.type == "FactorRange"
         for loc in yaxes_spec
           axis = CategoricalAxis.Collection.create(
-            dimension: 1
             axis_label: 'y'
             location: loc
             parent: plot.ref()
@@ -143,13 +143,17 @@ define [
       else
         for loc in yaxes_spec
           axis = LinearAxis.Collection.create(
-            dimension: 1
             axis_label: 'y'
             location: loc
             parent: plot.ref()
             plot: plot.ref()
           )
           yaxes.push(axis)
+      for yax in yaxes
+        if yax.get('location') == "left"
+          plot.get('left').push(yax.ref())
+        else if yax.get('location') == "right"
+          plot.get('right').push(yax.ref())
 
     plot.add_renderers(a.ref() for a in xaxes)
     plot.add_renderers(a.ref() for a in yaxes)
@@ -273,10 +277,8 @@ define [
     plot = Plot.Collection.create(
       x_range: xdr.ref()
       y_range: ydr.ref()
-      canvas_width: dims[0]
-      canvas_height: dims[1]
-      outer_width: dims[0]
-      outer_height: dims[1]
+      plot_width: dims[0]
+      plot_height: dims[1]
       title: title
     )
 
