@@ -31,8 +31,12 @@ CONDA_PY=33 conda build conda.recipe --quiet;
 echo "Building py34 pkg"
 CONDA_PY=34 conda build conda.recipe --quiet;
 
-CONDA_ENV=`conda info --json | jsawk 'return this.root_prefix'`
-PLATFORM=`conda info --json | jsawk 'return this.platform'`
+function conda_info {
+    conda info --json | python -c "import json, sys; print(json.load(sys.stdin)['$1'])"
+}
+
+CONDA_ENV=$(conda_info root_prefix)
+PLATFORM=$(conda_info platform)
 BUILD_PATH=$CONDA_ENV/conda-bld/$PLATFORM
 
 #echo build path: $BUILD_PATH
