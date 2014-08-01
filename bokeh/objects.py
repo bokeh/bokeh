@@ -15,7 +15,7 @@ from .properties import (HasProps, Dict, Enum, Either, Float, Instance, Int,
     Datetime,
     List, String, Color, Date, Include, Bool, Tuple, Any)
 from .mixins import LineProps, TextProps
-from .enums import BorderSymmetry, DatetimeUnits, Dimension, Location, Orientation, Units
+from .enums import DatetimeUnits, Dimension, Location, Orientation, Units
 from .plot_object import PlotObject
 from .glyphs import BaseGlyph
 
@@ -149,49 +149,121 @@ class Renderer(PlotObject):
     pass
 
 class Ticker(PlotObject):
+    """ Base class for all ticker types. """
     num_minor_ticks = Int(5)
 
 class AdaptiveTicker(Ticker):
+    """ Generate nice round ticks at any magnitude.
+
+    Creates ticks that are `base` multiples of a set of given
+    mantissas. For example, with base=10 and mantissas=[1, 2, 5] this
+    ticker will generate the sequence:
+
+            ..., 0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100, ...
+
+    Attributes:
+        base (float) : multiplier for scaling mantissas
+        mantissas list(float) : numbers to generate multiples of
+        min_interval (float) : smallest interval between two ticks
+        max_interval (float) : largest interval between two ticks
+
+    """
     base = Float(10.0)
+    mantissas = List(Float, [2, 5, 10])
     min_interval = Float(0.0)
     max_interval = Float(100.0)
 
 class CompositeTicker(Ticker):
+    """ Combine different tickers at different scales.
+
+    Uses the `min_interval` and `max_interval` interval attributes of the
+    tickers to order the tickers. The supplied tickers should be in order.
+    Specifically, if S comes before T, then it should be the case that:
+
+        S.get_max_interval() < T.get_min_interval()
+
+    Attributes:
+        tickers (Ticker) : a list of tickers in increasing interval size
+
+    """
     tickers = List(Instance(Ticker))
 
 class SingleIntervalTicker(Ticker):
+    """ Generate evenly spaced ticks at a fixed interval regardless of scale.
+
+    Attributes:
+        interval (float) : interval between two ticks
+    """
     interval = Float
 
 class DaysTicker(Ticker):
+    """ Generate ticks spaced apart by specific, even multiples of days.
+
+    Attributes:
+        days (int) : intervals of days to use
+
+    """
     days = List(Int)
 
 class MonthsTicker(Ticker):
+    """ Generate ticks spaced apart by specific, even multiples of months.
+
+    Attributes:
+        months (int) : intervals of months to use
+
+    """
     months = List(Int)
 
 class YearsTicker(Ticker):
+    """ Generate ticks spaced even numbers of years apart. """
     pass
 
 class BasicTicker(Ticker):
+    """ Generate ticks on a linear scale. """
+    pass
+
+class LogTicker(Ticker):
+    """ Generate ticks on a log scale. """
     pass
 
 class CategoricalTicker(Ticker):
+    """ Generate ticks for categorical ranges. """
     pass
 
 class DatetimeTicker(Ticker):
+    """ Generate nice ticks across different date and time scales. """
     pass
 
 class TickFormatter(PlotObject):
+    """ Base class for all tick formatter types. """
     pass
 
 class BasicTickFormatter(TickFormatter):
-    """ Represents a basic tick formatter for an axis object """
+    """ Format ticks as generic numbers from a continuous numeric range
+
+    Attributes:
+        precision ('auto' or int) : how many digits of precision to display
+        use_scientific (bool) : whether to switch to scientific notation
+            when to switch controlled by `power_limit_low` and `power_limit_high`
+        power_limit_high (int) : use scientific notation on numbers this large
+        power_limit_low (int) : use scientific notation on numbers this small
+
+    """
     precision = Either(Enum('auto'), Int)
     use_scientific = Bool(True)
     power_limit_high = Int(5)
     power_limit_low = Int(-3)
 
+class LogTickFormatter(TickFormatter):
+    """ Format ticks as powers of 10.
+
+    Often useful in conjuction with a `LogTicker`
+
+    """
+    pass
+
 class CategoricalTickFormatter(TickFormatter):
-    """ Represents a categorical tick formatter for an axis object """
+    """ Format ticks as categories from categorical ranges"""
     pass
 
 class DatetimeTickFormatter(TickFormatter):
@@ -255,14 +327,36 @@ class Glyph(Renderer):
 class Widget(PlotObject):
     pass
 
+class Canvas(PlotObject):
+    # TODO (bev) remove default dims here, see #561
+    def __init__(self, canvas_height=600, canvas_width=600, **kwargs):
+        kwargs['canvas_width'] = canvas_width
+        kwargs['canvas_height'] = canvas_height
+        super(Canvas, self).__init__(**kwargs)
+    botton_bar = Bool(True)
+    canvas_height = Int(600)
+    canvas_width = Int(600)
+    map = Bool(False)
+    use_hdpi = Bool(True)
+
 class Plot(Widget):
     """ Object representing a plot, containing glyphs, guides, annotations.
     """
+
+    def __init__(self, **kwargs):
+        if 'border_symmetry' in kwargs:
+            border_symmetry = kwargs.pop('border_symmetry')
+            if border_symmetry is None: border_symmetry = ""
+            kwargs.setdefault('h_symmetry', 'h' in border_symmetry or 'H' in border_symmetry)
+            kwargs.setdefault('v_symmetry', 'v' in border_symmetry or 'V' in border_symmetry)
+        super(Plot, self).__init__(**kwargs)
 
     data_sources = List(Instance(DataSource))
 
     x_range = Instance(Range)
     y_range = Instance(Range)
+    x_mapper_type = String('auto')
+    y_mapper_type = String('auto')
     png = String('')
     title = String('')
     title_props = Include(TextProps, prefix="title")
@@ -272,6 +366,11 @@ class Plot(Widget):
     # as glyph renderers
     renderers = List(Instance(Renderer))
     tools = List(Instance(".objects.Tool"))
+
+    left = List(Instance(PlotObject))
+    right = List(Instance(PlotObject))
+    above = List(Instance(PlotObject))
+    below = List(Instance(PlotObject))
 
     # TODO: These don't appear in the CS source, but are created by mpl.py, so
     # I'm leaving them here for initial compatibility testing.
@@ -289,34 +388,14 @@ class Plot(Widget):
 
     background_fill = Color("white")
     border_fill = Color("white")
-    canvas_width = Int(400)
-    canvas_height = Int(400)
-    outer_width = Int(400)
-    outer_height = Int(400)
     min_border_top = Int(50)
     min_border_bottom = Int(50)
     min_border_left = Int(50)
     min_border_right = Int(50)
     min_border = Int(50)
-    border_symmetry = Enum(BorderSymmetry)
-    script_inject_snippet = String("")
 
-    def vm_props(self):
-        # FIXME: We need to duplicate the height and width into canvas and
-        # outer height/width.  This is a quick fix for the gorpiness, but this
-        # needs to be fixed more structurally on the JS side, and then this
-        # should be revisited on the Python side.
-        if hasattr(self.session, "root_url"):
-            self.script_inject_snippet = self.create_html_snippet(server=True)
-        if "canvas_width" not in self._changed_vars:
-            self.canvas_width = self.plot_width
-        if "outer_width" not in self._changed_vars:
-            self.outer_width = self.plot_width
-        if "canvas_height" not in self._changed_vars:
-            self.canvas_height = self.plot_height
-        if "outer_height" not in self._changed_vars:
-            self.outer_height = self.plot_height
-        return super(Plot, self).vm_props()
+    h_symmetry = Bool(True)
+    v_symmetry = Bool(False)
 
     annular_wedge     = _glyph_functions.annular_wedge
     annulus           = _glyph_functions.annulus
@@ -379,7 +458,7 @@ class Axis(GuideRenderer):
     type = String("axis")
 
     dimension = Int(0)
-    location = Either(Enum(Location), Float)
+    location = Enum(Location)
     bounds = Either(Enum('auto'), Tuple(Float, Float))
 
     ticker = Instance(Ticker)
@@ -400,8 +479,11 @@ class Axis(GuideRenderer):
     major_tick_in = Int
     major_tick_out = Int
 
-class LinearAxis(Axis):
-    type = String("linear_axis")
+class ContinuousAxis(Axis):
+    pass
+
+class LinearAxis(ContinuousAxis):
+    type = String("continuous_axis")
 
     def __init__(self, **kwargs):
         if 'ticker' not in kwargs:
@@ -409,6 +491,16 @@ class LinearAxis(Axis):
         if 'formatter' not in kwargs:
             kwargs['formatter'] = BasicTickFormatter()
         super(LinearAxis, self).__init__(**kwargs)
+
+class LogAxis(ContinuousAxis):
+    type = String("continuous_axis")
+
+    def __init__(self, **kwargs):
+        if 'ticker' not in kwargs:
+            kwargs['ticker'] = LogTicker(num_minor_ticks=10)
+        if 'formatter' not in kwargs:
+            kwargs['formatter'] = LogTickFormatter()
+        super(LogAxis, self).__init__(**kwargs)
 
 class CategoricalAxis(Axis):
     type = String("categorical_axis")
@@ -524,6 +616,7 @@ class DataSlider(Renderer):
     field = String()
 
 class PlotContext(PlotObject):
+    """ A container for multiple plot objects. """
     children = List(Instance(PlotObject))
 
 class PlotList(PlotContext):

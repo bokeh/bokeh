@@ -251,7 +251,7 @@ define [
 
     render_column_selectors : () ->
       _.map(@views, (view) -> view.$el.detach())
-      @$el.find('bk-filters-selections').empty()
+      @$el.find('.bk-filters-selections').empty()
       filter_widget_dict = {}
       for own key, val of @mget('filter_widgets')
         filter_widget_dict[key] = @model.resolve_ref(val)

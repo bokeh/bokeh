@@ -1,5 +1,24 @@
 #!/bin/bash
 
+if [ "$1" == "-h" ]; then
+    usage="$(basename "$0") [-h] [--tags] -- program to build and upload bokeh pkgs to binstar
+
+    where:
+        -h  show this help text
+        --tags instructs the version number to be the tagged branch
+    "
+    echo "$usage"
+    exit 0
+elif [ "$1" == "--tags" ]; then
+    tag_flag=1
+
+    #needed for build.sh in conda build script
+    touch using_tags.txt
+else
+    tag_flag=0
+fi
+echo The tag flag: $tag_flag
+
 #buld py27 pkg
 echo "Building py27 pkg"
 conda build conda.recipe --quiet;
@@ -12,8 +31,12 @@ CONDA_PY=33 conda build conda.recipe --quiet;
 echo "Building py34 pkg"
 CONDA_PY=34 conda build conda.recipe --quiet;
 
-CONDA_ENV=`conda info --json | jsawk 'return this.root_prefix'`
-PLATFORM=`conda info --json | jsawk 'return this.platform'`
+function conda_info {
+    conda info --json | python -c "import json, sys; print(json.load(sys.stdin)['$1'])"
+}
+
+CONDA_ENV=$(conda_info root_prefix)
+PLATFORM=$(conda_info platform)
 BUILD_PATH=$CONDA_ENV/conda-bld/$PLATFORM
 
 #echo build path: $BUILD_PATH
@@ -29,8 +52,13 @@ do
 	binstar upload -u bokeh $i/bokeh*$date*.tar.bz2 -c dev --force;
 done
 
+if [ "$tag_flag" = "1" ]; then
+    version=`git describe --tags`
+else
+    version=`python build_scripts/get_bump_version.py`
+fi
+
 #create and upload pypi pkgs to binstar
-version=`python build_scripts/get_bump_version.py`
 
 #zip is currently not working
 
@@ -46,6 +74,7 @@ do
 done
 
 rm -rf dist/
+rm using_tags.txt
 
 #####################
 #Removing on binstar#

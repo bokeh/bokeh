@@ -7,6 +7,7 @@ import logging
 import os
 import uuid
 import warnings
+import io
 
 from . import browserlib
 from . import _glyph_functions as gf
@@ -19,6 +20,7 @@ from .plotting_helpers import (
 )
 from .resources import Resources
 from .session import Cloud, DEFAULT_SERVER_URL, Session
+from .utils import decode_utf8, publish_display_data
 
 logger = logging.getLogger(__name__)
 
@@ -64,6 +66,25 @@ def cursession():
         session : the current default session object (or None)
     '''
     return _default_session
+
+def reset_output():
+    ''' Deactivate all currently active output modes.
+
+    Subsequent calls to show() will not render until a new output mode is
+    activated.
+
+    Returns:
+        None
+
+    '''
+    global _default_document
+    global _default_session
+    global _default_file
+    global _default_notebook
+    _default_document = Document()
+    _default_session = None
+    _default_file = None
+    _default_notebook = None
 
 def hold(value=True):
     ''' Set or clear the plot hold status on the current document.
@@ -147,14 +168,15 @@ def output_cloud(docname):
     """
     output_server(docname, session=Cloud())
 
-def output_notebook(url=None, docname=None, session=None, name=None):
+def output_notebook(url=None, docname=None, session=None, name=None,
+                    force=False):
     if session or url or name:
         if docname is None:
             docname = "IPython Session at %s" % time.ctime()
         output_server(docname, url=url, session=session, name=name)
     else:
         from . import load_notebook
-        load_notebook()
+        load_notebook(force=force)
     global _default_notebook
     _default_notebook = True
 
@@ -191,12 +213,14 @@ def output_file(filename, title="Bokeh Plot", autosave=True, mode="inline", root
         print("Session output file '%s' already exists, will be overwritten." % filename)
 
 
-def show(browser=None, new="tab", url=None):
-    """ 'shows' the current plot, by auto-raising the window or tab
+def show(obj=None, browser=None, new="tab", url=None):
+    """ 'shows' a plot object or the current plot, by auto-raising the window or tab
     displaying the current plot (for file/server output modes) or displaying
     it in an output cell (IPython notebook).
 
     Args:
+        obj (plot object, optional): it accepts a plot object and just shows it.
+
         browser (str, optional) : browser to show with (default: None)
             For systems that support it, the **browser** argument allows specifying
             which browser to display in, e.g. "safari", "firefox", "opera",
@@ -216,22 +240,20 @@ def show(browser=None, new="tab", url=None):
     new_param = {'tab': 2, 'window': 1}[new]
 
     controller = browserlib.get_browser_controller(browser=browser)
-
-    plot = curplot()
+    if obj is None:
+        plot = curplot()
+    else:
+        plot = obj
     if not plot:
         warnings.warn("No current plot to show. Use renderer functions (circle, rect, etc.) to create a current plot (see http://bokeh.pydata.org/index.html)")
         return
-
     if notebook and session:
-        import IPython.core.displaypub as displaypub
         push(session=session)
         snippet = autoload_server(plot, cursession())
-        displaypub.publish_display_data('bokeh', {'text/html': snippet})
+        publish_display_data({'text/html': snippet})
 
     elif notebook:
-        import IPython.core.displaypub as displaypub
-
-        displaypub.publish_display_data('bokeh', {'text/html': notebook_div(plot)})
+        publish_display_data({'text/html': notebook_div(plot)})
 
     elif session:
         push()
@@ -280,8 +302,8 @@ def save(filename=None, resources=None):
         return
 
     html = file_html(curdoc(), resources, _default_file['title'])
-    with open(filename, "w") as f:
-        f.write(html)
+    with io.open(filename, "w", encoding="utf-8") as f:
+        f.write(decode_utf8(html))
 
 def push(session=None, document=None):
     """ Updates the server with the data for the current document.
@@ -307,52 +329,146 @@ def push(session=None, document=None):
     else:
         warnings.warn("push() called but no session was supplied and output_server(...) was never called, nothing pushed")
 
-
 def _doc_wrap(func):
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        retval = func(curdoc(), *args, **kwargs)
-        if cursession() and curdoc()._autostore:
-            push()
-        if _default_file and _default_file['autosave']:
-            save()
-        return retval
-    wrapper.__doc__ += "\nThis is a convenience function that acts on the current document, and is equivalent to curdoc().%s(...)" % func.__name__
-    return wrapper
+    extra_doc = "\nThis is a convenience function that acts on the current document, and is equivalent to curdoc().%s(...)" % func.__name__
+    func.__doc__ = getattr(gf, func.__name__).__doc__ + extra_doc
+    return func
 
+def _plot_function(__func__, *args, **kwargs):
+    retval = __func__(curdoc(), *args, **kwargs)
+    if cursession() and curdoc()._autostore:
+        push()
+    if _default_file and _default_file['autosave']:
+        save()
+    return retval
 
-annular_wedge     = _doc_wrap(gf.annular_wedge)
-annulus           = _doc_wrap(gf.annulus)
-arc               = _doc_wrap(gf.arc)
-asterisk          = _doc_wrap(gf.asterisk)
-bezier            = _doc_wrap(gf.bezier)
-circle            = _doc_wrap(gf.circle)
-circle_cross      = _doc_wrap(gf.circle_cross)
-circle_x          = _doc_wrap(gf.circle_x)
-cross             = _doc_wrap(gf.cross)
-diamond           = _doc_wrap(gf.diamond)
-diamond_cross     = _doc_wrap(gf.diamond_cross)
-image             = _doc_wrap(gf.image)
-image_rgba        = _doc_wrap(gf.image_rgba)
-image_url         = _doc_wrap(gf.image_url)
-inverted_triangle = _doc_wrap(gf.inverted_triangle)
-line              = _doc_wrap(gf.line)
-multi_line        = _doc_wrap(gf.multi_line)
-oval              = _doc_wrap(gf.oval)
-patch             = _doc_wrap(gf.patch)
-patches           = _doc_wrap(gf.patches)
-quad              = _doc_wrap(gf.quad)
-quadratic         = _doc_wrap(gf.quadratic)
-ray               = _doc_wrap(gf.ray)
-rect              = _doc_wrap(gf.rect)
-segment           = _doc_wrap(gf.segment)
-square            = _doc_wrap(gf.square)
-square_cross      = _doc_wrap(gf.square_cross)
-square_x          = _doc_wrap(gf.square_x)
-text              = _doc_wrap(gf.text)
-triangle          = _doc_wrap(gf.triangle)
-wedge             = _doc_wrap(gf.wedge)
-x                 = _doc_wrap(gf.x)
+@_doc_wrap
+def annular_wedge(x, y, inner_radius, outer_radius, start_angle, end_angle, **kwargs):
+    return _plot_function(gf.annular_wedge, x, y, inner_radius, outer_radius, start_angle, end_angle, **kwargs)
+
+@_doc_wrap
+def annulus(x, y, inner_radius, outer_radius, **kwargs):
+    return _plot_function(gf.annulus, x, y, inner_radius, outer_radius, **kwargs)
+
+@_doc_wrap
+def arc(x, y, radius, start_angle, end_angle, **kwargs):
+    return _plot_function(gf.arc, x, y, radius, start_angle, end_angle, **kwargs)
+
+@_doc_wrap
+def asterisk(x, y, **kwargs):
+    return _plot_function(gf.asterisk, x, y, **kwargs)
+
+@_doc_wrap
+def bezier(x0, y0, x1, y1, cx0, cy0, cx1, cy1, **kwargs):
+    return _plot_function(gf.bezier, x0, y0, x1, y1, cx0, cy0, cx1, cy1, **kwargs)
+
+@_doc_wrap
+def circle(x, y, **kwargs):
+    return _plot_function(gf.circle, x, y, **kwargs)
+
+@_doc_wrap
+def circle_cross(x, y, **kwargs):
+    return _plot_function(gf.circle_cross, x, y, **kwargs)
+
+@_doc_wrap
+def circle_x(x, y, **kwargs):
+    return _plot_function(gf.circle_x, x, y, **kwargs)
+
+@_doc_wrap
+def cross(x, y, **kwargs):
+    return _plot_function(gf.cross, x, y, **kwargs)
+
+@_doc_wrap
+def diamond(x, y, **kwargs):
+    return _plot_function(gf.diamond, x, y, **kwargs)
+
+@_doc_wrap
+def diamond_cross(x, y, **kwargs):
+    return _plot_function(gf.diamond_cross, x, y, **kwargs)
+
+@_doc_wrap
+def image(image, x, y, dw, dh, palette, **kwargs):
+    return _plot_function(gf.image, image, x, y, dw, dh, palette, **kwargs)
+
+@_doc_wrap
+def image_rgba(image, x, y, dw, dh, **kwargs):
+    return _plot_function(gf.image_rgba, image, x, y, dw, dh, **kwargs)
+
+@_doc_wrap
+def image_url(url, x, y, angle, **kwargs):
+    return _plot_function(gf.image_url, url, x, y, angle, **kwargs)
+
+@_doc_wrap
+def inverted_triangle(x, y, **kwargs):
+    return _plot_function(gf.inverted_triangle, x, y, **kwargs)
+
+@_doc_wrap
+def line(x, y, **kwargs):
+    return _plot_function(gf.line, x, y, **kwargs)
+
+@_doc_wrap
+def multi_line(xs, ys, **kwargs):
+    return _plot_function(gf.multi_line, xs, ys, **kwargs)
+
+@_doc_wrap
+def oval(x, y, width, height, **kwargs):
+    return _plot_function(gf.oval, x, y, width, height, **kwargs)
+
+@_doc_wrap
+def patch(x, y, **kwargs):
+    return _plot_function(gf.patch, x, y, **kwargs)
+
+@_doc_wrap
+def patches(xs, ys, **kwargs):
+    return _plot_function(gf.patches, xs, ys, **kwargs)
+
+@_doc_wrap
+def quad(left, right, top, bottom, **kwargs):
+    return _plot_function(gf.quad, left, right, top, bottom, **kwargs)
+
+@_doc_wrap
+def quadratic(x0, y0, x1, y1, cx, cy, **kwargs):
+    return _plot_function(gf.quadratic, x0, y0, x1, y1, cx, cy, **kwargs)
+
+@_doc_wrap
+def ray(x, y, length, angle, **kwargs):
+    return _plot_function(gf.ray, x, y, length, angle, **kwargs)
+
+@_doc_wrap
+def rect(x, y, width, height, **kwargs):
+    return _plot_function(gf.rect, x, y, width, height, **kwargs)
+
+@_doc_wrap
+def segment(x0, y0, x1, y1, **kwargs):
+    return _plot_function(gf.segment, x0, y0, x1, y1, **kwargs)
+
+@_doc_wrap
+def square(x, y, **kwargs):
+    return _plot_function(gf.square, x, y, **kwargs)
+
+@_doc_wrap
+def square_cross(x, y, **kwargs):
+    return _plot_function(gf.square_cross, x, y, **kwargs)
+
+@_doc_wrap
+def square_x(x, y, **kwargs):
+    return _plot_function(gf.square_x, x, y, **kwargs)
+
+@_doc_wrap
+def text(x, y, text, angle, **kwargs):
+    return _plot_function(gf.text, x, y, text, angle, **kwargs)
+
+@_doc_wrap
+def triangle(x, y, **kwargs):
+    return _plot_function(gf.triangle, x, y, **kwargs)
+
+@_doc_wrap
+def wedge(x, y, radius, start_angle, end_angle, **kwargs):
+    return _plot_function(gf.wedge, x, y, radius, start_angle, end_angle, **kwargs)
+
+@_doc_wrap
+def x(x, y, **kwargs):
+    return _plot_function(gf.x, x, y, **kwargs)
 
 _marker_types = {
     "asterisk": asterisk,
@@ -463,7 +579,7 @@ def xaxis():
     p = curplot()
     if p is None:
         return None
-    axis = [obj for obj in p.renderers if isinstance(obj, Axis) and obj.dimension==0]
+    axis = [obj for obj in p.renderers if isinstance(obj, Axis) and obj.location in ("top", "bottom")]
     return _list_attr_splat(axis)
 
 def yaxis():
@@ -475,7 +591,7 @@ def yaxis():
     p = curplot()
     if p is None:
         return None
-    axis = [obj for obj in p.renderers if isinstance(obj, Axis) and obj.dimension==1]
+    axis = [obj for obj in p.renderers if isinstance(obj, Axis) and obj.location in ("left", "right")]
     return _list_attr_splat(axis)
 
 def axis():
@@ -534,4 +650,3 @@ def load_object(obj):
     """updates object from the server
     """
     cursession().load_object(obj, curdoc())
-    

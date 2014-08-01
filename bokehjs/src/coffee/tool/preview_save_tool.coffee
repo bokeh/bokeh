@@ -28,8 +28,8 @@ define [
     }
 
     _activated: (e) ->
-      data_uri = @plot_view.canvas[0].toDataURL()
-      @plot_model.set('png', @plot_view.canvas[0].toDataURL())
+      data_uri = @plot_view.canvas_view.canvas[0].toDataURL()
+      @plot_model.set('png', @plot_view.canvas_view.canvas[0].toDataURL())
 
       @$modal = $(preview_save_tool_template({data_uri: data_uri}))
       $('body').append(@$modal)

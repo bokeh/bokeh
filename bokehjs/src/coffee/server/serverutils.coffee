@@ -1,11 +1,10 @@
 define [
   "common/base",
-  "server/serverutils",
   "common/socket",
   "common/load_models",
   "backbone",
   "common/has_properties"
-], (base, serverutils, socket, load_models, Backbone, HasProperties) ->
+], (base, socket, load_models, Backbone, HasProperties) ->
 
   #not proud of this refactor... but we can make it better later
   Deferreds = {}

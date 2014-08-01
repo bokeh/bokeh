@@ -1,92 +1,317 @@
 import sbt._
 
+import scala.io.Source
+import scala.collection.mutable
 import scala.collection.JavaConverters._
 
-import org.mozilla.javascript.tools.shell.{Global}
-import org.mozilla.javascript.{Context,Scriptable,ScriptableObject,Callable,NativeObject}
+import com.google.javascript.jscomp.{Compiler,CompilerOptions,SourceFile,VariableRenamingPolicy,NodeTraversal}
+import com.google.javascript.rhino.Node
 
-import ScriptableObject.READONLY
+import org.jgrapht.experimental.dag.DirectedAcyclicGraph
+import org.jgrapht.graph.DefaultEdge
 
-import com.google.javascript.jscomp.{Compiler,CompilerOptions,SourceFile,VariableRenamingPolicy}
+object AST {
+    object Call {
+        def unapply(node: Node): Option[(String, List[Node])] = {
+            if (node.isCall) {
+                val fn :: args = node.children.asScala.toList
+                Some((fn.getQualifiedName, args))
+            } else
+                None
+        }
+    }
 
-case class RequireJSWrap(startFile: File, endFile: File) {
-    def toJsObject(scope: Scriptable): Scriptable = {
-        val ctx = Context.getCurrentContext()
-        val obj = ctx.newObject(scope)
-        ScriptableObject.defineProperty(obj, "startFile", startFile.getPath, READONLY)
-        ScriptableObject.defineProperty(obj, "endFile", endFile.getPath, READONLY)
-        obj
+    object Obj {
+        def unapply(node: Node): Option[List[(String, Node)]] = {
+            if (node.isObjectLit) {
+                val keys = node.children().asScala.toList
+                Some(keys.map { key =>
+                    key.getString -> key.getFirstChild
+                })
+            } else
+                None
+        }
+    }
+
+    object Arr {
+        def unapply(node: Node): Option[List[Node]] = {
+            if (node.isArrayLit)
+                Some(node.children().asScala.toList)
+            else
+                None
+        }
+    }
+
+    object Str {
+        def unapply(node: Node): Option[String] = {
+            if (node.isString) Some(node.getString) else None
+        }
     }
 }
 
-case class RequireJSConfig(
-    logLevel: Int,
+case class RequireJSSettings(
     baseUrl: File,
     mainConfigFile: File,
     name: String,
     include: List[String],
     wrapShim: Boolean,
-    wrap: RequireJSWrap,
-    optimize: String,
-    out: File) {
+    wrap: Option[(File, File)],
+    out: File)
 
-    def toJsObject(scope: Scriptable): Scriptable = {
-        val ctx = Context.getCurrentContext()
-        val obj = ctx.newObject(scope)
-        val include = ctx.newArray(scope, this.include.toArray: Array[AnyRef])
-        ScriptableObject.defineProperty(obj, "logLevel", logLevel, READONLY)
-        ScriptableObject.defineProperty(obj, "baseUrl", baseUrl.getPath, READONLY)
-        ScriptableObject.defineProperty(obj, "mainConfigFile", mainConfigFile.getPath, READONLY)
-        ScriptableObject.defineProperty(obj, "name", name, READONLY)
-        ScriptableObject.defineProperty(obj, "include", include, READONLY)
-        ScriptableObject.defineProperty(obj, "wrapShim", wrapShim, READONLY)
-        ScriptableObject.defineProperty(obj, "wrap", wrap.toJsObject(scope), READONLY)
-        ScriptableObject.defineProperty(obj, "optimize", optimize, READONLY)
-        ScriptableObject.defineProperty(obj, "out", out.getPath, READONLY)
-        obj
-    }
-}
+class RequireJS(log: Logger, settings: RequireJSSettings) {
 
-class RequireJS(log: Logger) extends Rhino {
+    case class Shim(deps: List[String], exports: Option[String])
 
-    def rjsScope(ctx: Context): Scriptable = {
-        val global = new Global()
-        global.init(ctx)
+    case class Config(paths: Map[String, String], shim: Map[String, Shim])
 
-        val scope = ctx.initStandardObjects(global, true)
+    class ConfigReader extends NodeTraversal.Callback {
+        import AST._
 
-        val arguments = ctx.newArray(scope, Array[AnyRef]())
-        scope.defineProperty("arguments", arguments, ScriptableObject.DONTENUM)
-        scope.defineProperty("requirejsAsLib", true, ScriptableObject.DONTENUM)
+        val paths = mutable.Map.empty[String, String]
+        val shim = mutable.Map.empty[String, Shim]
 
-        val rjs = new java.io.InputStreamReader(
-            getClass.getClassLoader.getResourceAsStream("r.js"))
+        def shouldTraverse(traversal: NodeTraversal, node: Node, parent: Node) = true
 
-        ctx.evaluateReader(scope, rjs, "r.js", 1, null)
-        scope
-    }
+        def visit(traversal: NodeTraversal, node: Node, parent: Node) {
+            node match {
+                case Call("require.config", Obj(keys) :: Nil) =>
+                    keys.foreach {
+                        case ("paths", Obj(keys)) =>
+                            paths ++= keys.collect {
+                                case (name, Str(path)) => name -> path
+                            }
+                        case ("shim", Obj(keys)) =>
+                            shim ++= keys.collect {
+                                case (name, Obj(keys)) =>
+                                    val deps = keys.collectFirst {
+                                        case ("deps", Arr(deps)) =>
+                                            deps.collect { case Str(dep) => dep }
+                                    } getOrElse Nil
 
-    def optimize(config: RequireJSConfig): (File, File) = {
-        withContext { ctx =>
-            log.info(s"Optimizing and minifying sbt-requirejs source ${config.out}")
-            val scope = rjsScope(ctx)
-            val require = scope.get("require", scope).asInstanceOf[Scriptable]
-            val optimize = require.get("optimize", scope).asInstanceOf[Callable]
-            val args = Array[AnyRef](config.toJsObject(scope))
-            optimize.call(ctx, scope, scope, args)
-            val output = config.out
-            val outputMin = file(output.getPath.stripSuffix("js") + "min.js")
-            IO.copyFile(output, outputMin)
-            // val outputMin = minify(output)
-            (output, outputMin)
+                                    val exports = keys.collectFirst {
+                                        case ("exports", Str(exports)) => exports
+                                    }
+
+                                    name -> Shim(deps, exports)
+                            }
+                        case _ =>
+                    }
+                case _ =>
+            }
         }
     }
 
-    def minify(input: File): File = {
-        val output = file(input.getPath.stripSuffix("js") + "min.js")
+    def readConfig: Config = {
+        val compiler = new Compiler
+
+        val input = SourceFile.fromFile(settings.mainConfigFile)
+        val root = compiler.parse(input)
+
+        val reader = new ConfigReader()
+        val traversal = new NodeTraversal(compiler, reader)
+        traversal.traverse(root)
+
+        Config(reader.paths.toMap, reader.shim.toMap)
+    }
+
+    val config = readConfig
+
+    def readFile(file: File): String = Source.fromFile(file).mkString
+
+    def readResource(path: String): String = {
+        val resource = getClass.getClassLoader.getResourceAsStream(path)
+        Source.fromInputStream(resource).mkString
+    }
+
+    def getModule(name: String): File = {
+        val path = name.split("/").toList match {
+            case prefix :: suffix =>
+                val canonicalPrefix = config.paths.get(prefix) getOrElse prefix
+                canonicalPrefix :: suffix mkString("/")
+            case _ =>
+                name
+        }
+
+        new File(settings.baseUrl, path + ".js")
+    }
+
+    def readModule(name: String): String = readFile(getModule(name))
+
+    def canonicalName(name: String, origin: String): String = {
+        val nameParts = name.split("/").toList
+        val parentParts = origin.split("/").toList.init
+
+        val parts = if (name.startsWith("./")) {
+            parentParts ++ nameParts.tail
+        } else if (name.startsWith("../")) {
+            if (parentParts.isEmpty) {
+                sys.error(s"Can't reference $name from $origin")
+            } else {
+                parentParts.init ++ nameParts.tail
+            }
+        } else {
+            nameParts
+        }
+
+        val canonicalName = parts.mkString("/")
+        val moduleFile = getModule(canonicalName)
+
+        if (moduleFile.exists) canonicalName
+        else sys.error(s"Not found: ${moduleFile.getPath} (requested from $origin)")
+    }
+
+    class ModuleCollector(moduleName: String) extends NodeTraversal.Callback {
+        import AST._
+
+        val names = mutable.Set[String]()
+
+        private var defineNode: Option[Node] = None
+
+        private def updateDefine(node: Node) {
+            if (defineNode.isDefined)
+                sys.error(s"$moduleName defines multiple anonymous modules")
+            else {
+                val moduleNode = Node.newString(moduleName)
+                node.addChildAfter(moduleNode, node.getFirstChild)
+                defineNode = Some(node)
+            }
+        }
+
+        private def suspiciousCall(node: Node) {
+            val Call(name, _) = node
+            log.warn(s"$moduleName#${node.getLineno}: suspicious call to $name()")
+        }
+
+        def shouldTraverse(traversal: NodeTraversal, node: Node, parent: Node) = true
+
+        def visit(traversal: NodeTraversal, node: Node, parent: Node) {
+            node match {
+                case Call("require", args) => args match {
+                    case Str(name) :: Nil =>
+                        names += name
+                    case _ =>
+                        suspiciousCall(node)
+                }
+                case Call("define", args) => args match {
+                    case Str(_) :: Arr(deps) :: _ :: Nil =>
+                        names ++= deps.collect { case Str(name) => name }
+                    case Arr(deps) :: _ :: Nil =>
+                        updateDefine(node)
+                        names ++= deps.collect { case Str(name) => name }
+                    case Str(_) :: _ :: Nil =>
+                        ()
+                    case Str(_) :: Nil =>
+                        ()
+                    case _ :: Nil =>
+                        updateDefine(node)
+                    case _ =>
+                        suspiciousCall(node)
+                }
+                case _ =>
+            }
+        }
+    }
+
+    case class Module(name: String, deps: Set[String], source: String) {
+        def annotatedSource: String = {
+            s"// module: $name\n${shimmedSource}"
+        }
+
+        def shimmedSource: String = {
+            config.shim.get(name).map { shim =>
+                val exports = shim.exports.map { name =>
+                    s"\nreturn root.$name = $name;"
+                } getOrElse ""
+                val deps = this.deps.map(dep => s"'$dep'").mkString(", ")
+                if (settings.wrapShim)
+                    s"""
+                    |(function(root) {
+                    |    define("$name", [$deps], function() {
+                    |        return (function() {
+                    |            $source$exports
+                    |        }).apply(root, arguments);
+                    |    });
+                    |}(this));
+                    """.stripMargin.trim
+                else
+                    s"define('$name', [$deps], function() {\n$source$exports\n});"
+            } getOrElse source
+        }
+    }
+
+    val reservedNames = List("require", "module", "exports")
+
+    def collectDependencies(name: String): Module = {
+        val options = new CompilerOptions
+        options.setLanguageIn(CompilerOptions.LanguageMode.ECMASCRIPT5)
+        options.prettyPrint = true
+
+        val compiler = new Compiler
+        compiler.initOptions(options)
+
+        log.debug(s"Parsing module $name")
+        val input = SourceFile.fromFile(getModule(name))
+        val root = compiler.parse(input)
+
+        val collector = new ModuleCollector(name)
+        val traversal = new NodeTraversal(compiler, collector)
+        traversal.traverse(root)
+
+        val deps = config.shim.get(name).map(_.deps.toSet) getOrElse {
+            collector.names
+                .filterNot(reservedNames contains _)
+                .map(canonicalName(_, name))
+                .toSet
+        }
+
+        val source = {
+            val cb = new Compiler.CodeBuilder()
+            compiler.toSource(cb, 1, root)
+            cb.toString
+        }
+
+        Module(name, deps, source)
+    }
+
+    def collectModules(): List[Module] = {
+        val visited = mutable.Set[String]()
+        val pending = mutable.Set[String](settings.include: _*)
+        val modules = mutable.ListBuffer[Module]()
+
+        while (pending.nonEmpty) {
+            val name = pending.head
+            pending.remove(name)
+            val module = collectDependencies(name)
+            visited += name
+            modules += module
+            pending ++= module.deps -- visited
+        }
+
+        modules.toList
+    }
+
+    def sortModules(modules: List[Module]): List[Module] = {
+        val graph = new DirectedAcyclicGraph[String, DefaultEdge](classOf[DefaultEdge])
+        modules.map(_.name).foreach(graph.addVertex)
+
+        for {
+            module <- modules
+            dependency <- module.deps
+        } try {
+            graph.addEdge(dependency, module.name)
+        } catch {
+            case _: IllegalArgumentException =>
+                log.warn(s"${module.name} depending on $dependency introduces a cycle")
+        }
+
+        val modulesMap = modules.map(module => (module.name, module)).toMap
+        graph.iterator.asScala.toList.map(modulesMap(_))
+    }
+
+    def minify(input: String): String = {
         val compiler = new Compiler
         val externs = Nil: List[SourceFile]
-        val sources = SourceFile.fromFile(input) :: Nil
+        val sources = SourceFile.fromCode(settings.baseUrl.getPath, input) :: Nil
         val options = new CompilerOptions
         options.setLanguageIn(CompilerOptions.LanguageMode.ECMASCRIPT5)
         options.variableRenaming = VariableRenamingPolicy.ALL
@@ -94,12 +319,33 @@ class RequireJS(log: Logger) extends Rhino {
         val result = compiler.compile(externs.asJava, sources.asJava, options)
         if (result.errors.nonEmpty) {
             result.errors.foreach(error => log.error(error.toString))
-            sys.error(s"${result.errors.length} errors compiling $input")
+            sys.error(s"${result.errors.length} errors found")
         } else {
-            // val warnings = result.warnings.filter(_.getType().key != "JSC_BAD_JSDOC_ANNOTATION")
-            // warnings.foreach(warning => log.warn(warning.toString))
-            IO.write(output, compiler.toSource)
-            output
+            compiler.toSource
         }
+    }
+
+    def wrap(input: String): String = {
+        settings.wrap.map { case (start, end) =>
+            List(readFile(start), input, readFile(end)).mkString("\n")
+        } getOrElse input
+    }
+
+    def moduleLoader: Module = {
+        val source = readModule(settings.name)
+        val define = s"define('${settings.name}', function(){});"
+        Module(settings.name, Set.empty, s"$source\n$define")
+    }
+
+    def optimize: String = {
+        val modules = sortModules(collectModules)
+        val contents = (moduleLoader :: modules).map(_.annotatedSource)
+        log.info(s"Collected ${modules.length+1} requirejs modules")
+        wrap(contents mkString "\n")
+    }
+
+    def optimizeAndMinify: (String, String) = {
+        val output = optimize
+        (output, minify(output))
     }
 }

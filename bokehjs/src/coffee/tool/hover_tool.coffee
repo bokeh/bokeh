@@ -61,7 +61,7 @@ define [
           @tool_button.addClass('active')
         )
 
-      @plot_view.canvas.bind("mousemove", (e) =>
+      @plot_view.canvas_view.canvas.bind("mousemove", (e) =>
         if not @active and not @mget('always_active')
           return
         offset = $(e.currentTarget).offset()
@@ -72,8 +72,8 @@ define [
 
         [vx, vy] = @view_coords(e.bokehX, e.bokehY)
 
-        irh = @plot_view.view_state.get( 'inner_range_horizontal')
-        irv = @plot_view.view_state.get( 'inner_range_vertical')
+        irh = @plot_view.frame.get('inner_range_horizontal')
+        irv = @plot_view.frame.get('inner_range_vertical')
         xstart = irh.get('start')
         xend = irh.get('end')
         ystart = irv.get('start')
@@ -84,12 +84,12 @@ define [
 
         @_select(vx, vy, e)
       )
-      @plot_view.canvas_wrapper.css('cursor', 'crosshair')
+      @plot_view.canvas_view.canvas_wrapper.css('cursor', 'crosshair')
 
     view_coords: (sx, sy) ->
       [vx, vy] = [
-        @plot_view.view_state.sx_to_vx(sx),
-        @plot_view.view_state.sy_to_vy(sy)
+        @plot_view.canvas.sx_to_vx(sx),
+        @plot_view.canvas.sy_to_vy(sy)
       ]
       return [vx, vy]
 
@@ -174,7 +174,7 @@ define [
             table.append(row)
 
           @div.append(table)
-          ow = @plot_view.view_state.get('outer_width')
+          ow = @plot_view.frame.get('width')
           if vx < ow/2
             @div.removeClass('right')
             @div.addClass('left')
@@ -201,7 +201,7 @@ define [
     default_view: HoverToolView
     type: "HoverTool"
 
-    dinitialize: (attrs, options) ->
+    initialize: (attrs, options) ->
       super(attrs, options)
       names = @get('names')
       all_renderers = @get_obj('plot').get_obj('renderers')

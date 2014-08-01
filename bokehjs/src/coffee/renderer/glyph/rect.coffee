@@ -136,14 +136,14 @@ define [
       hits = []
       for i in candidates
         if @width_units == "screen" or xcat
-          sx = @plot_view.view_state.vx_to_sx(vx)
+          sx = @plot_view.canvas.vx_to_sx(vx)
         else
-          sx = @plot_view.view_state.vx_to_sx(@plot_view.xmapper.map_to_target(x))
+          sx = @plot_view.canvas.vx_to_sx(@plot_view.xmapper.map_to_target(x))
 
         if @height_units == "screen" or ycat
-          sy = @plot_view.view_state.vy_to_sy(vy)
+          sy = @plot_view.canvas.vy_to_sy(vy)
         else
-          sy = @plot_view.view_state.vy_to_sy(@plot_view.ymapper.map_to_target(y))
+          sy = @plot_view.canvas.vy_to_sy(@plot_view.ymapper.map_to_target(y))
 
         if @angle[i]
           d = Math.sqrt(Math.pow((sx - @sx[i]), 2) + Math.pow((sy - @sy[i]),2))
@@ -162,26 +162,8 @@ define [
       return hits
 
     draw_legend: (ctx, x0, x1, y0, y1) ->
-      reference_point = @get_reference_point() ? 0
+      @_generic_area_legend(ctx, x0, x1, y0, y1)
 
-      indices = [reference_point]
-      sx = { }
-      sx[reference_point] = (x0+x1)/2
-      sy = { }
-      sy[reference_point] = (y0+y1)/2
-
-      scale = @sw[reference_point] / @sh[reference_point]
-      d = Math.min(Math.abs(x1-x0), Math.abs(y1-y0)) * 0.8
-      sw = { }
-      sh = { }
-      if scale > 1
-        sw[reference_point] = d
-        sh[reference_point] = d/scale
-      else
-        sw[reference_point] = d*scale
-        sh[reference_point] = d
-
-      @_render(ctx, indices, @glyph_props, sx, sy, sw, sh)
 
   class Rect extends Glyph.Model
     default_view: RectView

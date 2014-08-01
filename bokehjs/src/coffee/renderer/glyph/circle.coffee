@@ -41,8 +41,8 @@ define [
         @radius = @distance_vector('x', 'radius', 'edge')
 
     _mask_data: () ->
-      hr = @plot_view.view_state.get('inner_range_horizontal')
-      vr = @plot_view.view_state.get('inner_range_vertical')
+      hr = @plot_view.frame.get('inner_range_horizontal')
+      vr = @plot_view.frame.get('inner_range_vertical')
 
       if @radius_units == "screen"
         sx0 = hr.get('start') - @max_radius
@@ -110,8 +110,8 @@ define [
 
       hits = []
       if @radius_units == "screen"
-        sx = @plot_view.view_state.vx_to_sx(vx)
-        sy = @plot_view.view_state.vy_to_sy(vy)
+        sx = @plot_view.canvas.vx_to_sx(vx)
+        sy = @plot_view.canvas.vy_to_sy(vy)
         for i in candidates
           r2 = Math.pow(@radius[i], 2)
           dist = Math.pow(@sx[i]-sx, 2) + Math.pow(@sy[i]-sy, 2)

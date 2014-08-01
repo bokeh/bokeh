@@ -22,7 +22,7 @@ define [
     evgen_options:
       keyName: ""
       buttonText: "Resize"
-      buttonIcon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAcCAYAAAByDd+UAAABO0lEQVRIS+2W3RHCIBCEpQNLsAQ7UCvREmIF2oG2YCVqB0kHlmAHeHvDzVz40QQyjA9hhpcA98Fy3MYsKjdTmbeoD7TWruiU+8hJb8aYV44CFPNM66y3luMZGtzSwD0SeEcTHplAH4YwHE8DO/rYKEBLE96ZQBxC2sEpGACfBNATc1jBGifvKXZCBtIEyLiZgCbxcJ894Jo+XKlDwkYBIXGWpG7DAoSk6A3Fb4NnoYClSRO9op/ARIqnFOfUpzXI0mxgLMVTQFZlBvbk8ZPGyTP0lcyShvb0D5KOqa9c8IuexdBs0fO+AmkQtfRCvfNqaVtQS6GKrqUw+CPXUmXAMgGFHJsobWIGgVtgN3D86n4ICbXjQ+Ise3KqSQ0Wewoc35ew1J6i8XCHy8SdTfVPI2COV/+/tDQVx67/AE3wMizROWPwAAAAAElFTkSuQmCC"
+      buttonIcon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAcCAYAAAByDd+UAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEgAACxIB0t1+/AAAABx0RVh0U29mdHdhcmUAQWRvYmUgRmlyZXdvcmtzIENTNui8sowAAAB7SURBVEiJ7ZZLDsAgCESdxvtfmW5aUpAQE6gmhtnpgsdHM4CI2kpdS2k7gF2dub8AEAlMclYcSwPDoG+chykeyQA0sgtx9YWYYVZ1HtSsMJqA16Hzv0UBC1jAAh4IdN0i0RdZosI/AG3G8bOM2Mp/AL5VJi9RLNQinK0b0hcrObYWZu0AAAAASUVORK5CYII="
       cursor: "move"
 
     tool_events:
@@ -35,10 +35,10 @@ define [
       if not @active
         return
 
-      ctx = @plot_view.ctx
+      ctx = @plot_view.canvas_view.ctx
 
-      cw = @plot_view.view_state.get('canvas_width')
-      ch = @plot_view.view_state.get('canvas_height')
+      cw = @plot_view.canvas.get('width')
+      ch = @plot_view.canvas.get('height')
 
       line_width = 8
 
@@ -70,13 +70,10 @@ define [
         '''<div class="resize_bokeh_plot pull-right hide"/>''')
       bbar = @plot_view.$el.find('.bokeh_canvas_wrapper')
       plotarea = @plot_view.$el.find('.plotarea')
-      popupHtml = @plot_view.$el.find('.resize_popup')
       @popup.appendTo(bbar)
-      ch = @plot_view.view_state.get('outer_height')
-      cw = @plot_view.view_state.get('outer_width')
-      
-      @request_render()
-      @plot_view.request_render()
+      ch = @plot_view.canvas.get('height')
+      cw = @plot_view.canvas.get('width')
+      @plot_view.request_render(true)
       return null
 
     _deactivate: (e) ->
@@ -98,21 +95,11 @@ define [
       ydiff = y - @y
       [@x, @y] = [x, y]
 
-      ch = @plot_view.view_state.get('outer_height')
-      cw = @plot_view.view_state.get('outer_width')
+      ch = @plot_view.canvas.get('height')
+      cw = @plot_view.canvas.get('width')
 
-      #@popup.text("width: #{cw} height: #{ch}")
-
-      @plot_view.view_state.set('outer_height', ch+ydiff, {'silent': true})
-      @plot_view.view_state.set('outer_width', cw+xdiff, {'silent': true})
-      @plot_view.view_state.set('canvas_height', ch+ydiff, {'silent': true})
-      @plot_view.view_state.set('canvas_width', cw+xdiff, {'silent': true})
-
-      @plot_view.view_state.trigger('change:outer_height', ch+ydiff)
-      @plot_view.view_state.trigger('change:outer_width', cw+xdiff)
-      @plot_view.view_state.trigger('change:canvas_height', ch+ydiff)
-      @plot_view.view_state.trigger('change:canvas_width', cw+xdiff)
-      @plot_view.view_state.trigger('change', @plot_view.view_state)
+      @plot_view.canvas._set_dims([cw+xdiff, ch+ydiff])
+      @plot_view.request_render()
       @plot_view.unpause(true)
 
       return null

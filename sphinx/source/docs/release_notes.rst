@@ -4,6 +4,23 @@
 Release Notes
 #############
 
+v0.5.1 (Jul 2014)
+=================
+* Hover activated by default
+* Boxplot in bokeh.charts
+* Better messages when you forgot to start the bokeh-server
+* Fixed some packaging bugs
+* Fixed NBviewer rendering
+* Fixed some Unicodeencodeerror
+
+v0.5.0 (Jul 2014)
+=================
+* Widgets
+* Initial AR integration
+* bokeh.charts (scatter, bar, histogram)
+* improved embedding API
+* minor ticks, plot frame, and log axes
+
 v0.4.4 (Apr 2014)
 =================
 
@@ -85,46 +102,67 @@ v0.1 (Apr 2013)
 Roadmap & TODO List
 ###################
 
-v0.5 (Goal: March 2014)
-=======================
 
-* StreamDataSource which automatically, periodically polls a datasource (need to some way highlight data APIs which support CORS; consider using JSONP?)
-* Better grid-based layout system; use Cassowary.js for layout solver, and initially just directly implement schematized layouts
-* Integrate Abstract Rendering into bokeh server
+v0.6 Goals (September 2014)
+===========================
+* Python -> JS function reflection
+
+  - tool callbacks
+  - animation
+  - computed columns (e.g., jitter, colormapping, offsets)
+
+* Line and patch point hit testing
 * New event and interactor architecture
-* Data selection architecture, add various inspectors and data selectors (accessible from Python interface)
-* Improved annotations and legends
-* Frame around plots for consistent look & feel on all Bokeh plots
+* New layout capabilities
+
+  - mulitple axes
+  - colorbar axes
+  - plot (e.g., historgram axes)
+  - better grid plots
+  - improved annotations and legends
+
+* New tools
 * More widgets
-* Better map projections
-* Better integration with Matplotlib pylab plotting functions
-* Improve ggplot interface / integrate with ggplot python lib
-* Touch events
+* More charts
+* Object query API
+
+v0.7 Goals (October 2014)
+=========================
 * CSS styling/theming mechanism
-* Hot corner for resize tool
+* Design polish and improvement
+* R language binding
+* Blaze integration
 
-v0.6 (Goal: May 2014)
-=====================
+  - volume slicer
+  - line downsampling
+  - abstract rendering
+  - crossfilter
 
-* Improve rendering loop performance in BokehJS
-* Animation framework
+* GIS integrations
+* Bokeh App builder
+* Tighter Wakari integrations
+* Hosted Bokeh servers
+
+  - server/widget/AR examples in gallery
+  - public cloud service
 
 Long-term TODO List
 ===================
 
 Core Plotting
 -------------
+* Better map projections
+* Animation framework
+* Improve rendering loop performance in BokehJS
 
 * Axis improvements
 
   * Improved datetime axis
-  * minor ticks
   * good ticking & tick formatting for lat/long axes
 
 * Annotations
 
   * Arrows, text boxes
-  * Improve legend
 
 * graphs/trees
 * map projections
@@ -152,16 +190,11 @@ Backends
 Interactions
 ------------
 
+* Touch events
 * additional selection and inspection tools
 * decouple selection reporting from highlighting or other policies
 * more general selections (point, line, box, poly, circle)
 
-
-Code Cleanup
-------------
-
-* should use html templates in some places
-* css files have lots of cruft
 
 Docs & Testing
 --------------

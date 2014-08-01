@@ -3,13 +3,12 @@ define [
   "underscore",
   "backbone",
   "./build_views",
-  "./safebind",
   "./continuum_view",
   "./has_parent",
   "./grid_view_state",
   "renderer/properties",
   "tool/active_tool_manager",
-], (_, Backbone, build_views, safebind, ContinuumView, HasParent, GridViewState, Properties, ActiveToolManager) ->
+], (_, Backbone, build_views, ContinuumView, HasParent, GridViewState, Properties, ActiveToolManager) ->
 
   class GridPlotView extends ContinuumView.View
     tagName: 'div'
@@ -19,7 +18,7 @@ define [
     set_child_view_states: () ->
       viewstates = []
       for row in @mget('children')
-        viewstaterow = (@childviews[x.id].view_state for x in row)
+        viewstaterow = (@childviews[x.id].canvas for x in row)
         viewstates.push(viewstaterow)
       @viewstate.set('childviewstates', viewstates)
 
@@ -34,20 +33,10 @@ define [
       return this
 
     bind_bokeh_events: () ->
-      safebind(this, @model, 'change:children', @build_children)
-      safebind(this, @model, 'change', @render)
-      safebind(this, @viewstate, 'change', @render)
-      safebind(this, @model, 'destroy', () => @remove())
-
-    #FIXME make binding of this style equivalent to above safebind calls
-    # document semantics of when these events should be bound
-    #bokeh events
-    b_events: {
-      "change:children model": "build_children",
-      "change model":          "render",
-      "change viewstate":      "render",
-      "destroy model":         "remove",
-    }
+      @listenTo(@model, 'change:children', @build_children)
+      @listenTo(@model, 'change', @render)
+      @listenTo(@viewstate, 'change', @render)
+      @listenTo(@model, 'destroy', () => @remove())
 
     build_children: () ->
       childmodels = []
@@ -56,6 +45,9 @@ define [
           childmodels.push(plot)
       build_views(@childviews, childmodels, {})
       @set_child_view_states()
+      for row in @mget_obj('children')
+        for plot in row
+          @listenTo(plot.solver, 'layout_update', @render)
 
     makeButton: (eventSink, constructor, toolbar_div, button_name) ->
 
@@ -140,9 +132,8 @@ define [
         for plotspec, cidx in row
           view = @childviews[plotspec.id]
           ypos = @viewstate.position_child_y(y_coords[ridx],
-            view.view_state.get('outer_height') -  @toolbar_height)
-
-          xpos = @viewstate.position_child_x(x_coords[cidx], view.view_state.get('outer_width'))
+            view.canvas.get('height') -  @toolbar_height)
+          xpos = @viewstate.position_child_x(x_coords[cidx], view.canvas.get('width'))
           plot_wrapper = $("<div class='gp_plotwrapper'></div>")
           plot_wrapper.attr(
             'style',
@@ -152,7 +143,6 @@ define [
 
       add = (a,b) -> a+b
       total_height = _.reduce(row_heights, add, 0)
-      #height = @viewstate.get('outerheight', total_height)
       height = total_height + @toolbar_height
       width = _.reduce(col_widths, add, 0)
       @$el.attr('style', "position:relative; height:#{height}px;width:#{width}px")

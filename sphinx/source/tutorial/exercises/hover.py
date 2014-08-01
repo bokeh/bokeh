@@ -4,12 +4,12 @@ import numpy as np
 from six.moves import zip
 from collections import OrderedDict
 from bokeh.plotting import *
-from bokeh.objects import HoverTool, Range1d
+from bokeh.objects import HoverTool
 
 # Create a set of tools to use
 TOOLS="pan,wheel_zoom,box_zoom,reset,hover"
 
-xx, yy = np.meshgrid(xrange(0,101,4), xrange(0,101,4))
+xx, yy = np.meshgrid(np.arange(0, 101, 4), np.arange(0, 101, 4))
 x = xx.flatten()
 y = yy.flatten()
 N = len(x)

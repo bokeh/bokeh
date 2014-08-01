@@ -1,3 +1,162 @@
+2014-07-23    0.5.1:
+--------------------
+  * Hover activated by default
+  * Boxplot in bokeh.charts
+  * Better messages when you forgot to start the bokeh-server
+  * Fixed some packaging bugs
+  * Fixed NBviewer rendering
+  * Fixed some Unicodeencodeerror
+  * features:
+    - #631 Hover activated by default
+    - #706 Better message when the you have forgot to start the bokeh-server
+    - #777 Removing dinitialize
+    - #788 Load inline resources lazily (on render, not on init)
+    - #826 Added boxplot chart
+    - #840 Advice to the user about start the bokeh-server
+  * bugfixes:
+    - #463 Hover tool on categorical heatmap example on bokeh.pydata.org is broken
+    - #644 Can't import bokeh when resources aren't available
+    - #682 Trouble with encoding on windows
+    - #758 ./test -d is not finding example correctly
+    - #776 Feature/safeguards for deferred initialization
+    - #809 Nbviewer glitches on `output_notebook()`
+    - #811 Fixes bokeh logo repetition in nbviewer notebooks
+    - #812 Add mpl renderers to setup.py
+    - #815 Unicodeencodeerror
+    - #818 Fix python3 compat issue in setup.py
+    - #831 Multi-document plots
+    - #841 Fixed launching the tests suite from the examples folder
+    - #864 Log files still have dinitialize method
+
+2014-07-09    0.5.0:
+--------------------
+  * Widgets
+  * Improved Embed API
+  * bokeh.charts
+  * Abstract Rendering
+  * features:
+    - #63 Flesh out pandasdatasource
+    - #79 Need to be able to specify plot range
+    - #133 Add nicer default frame around bokeh plots
+    - #159 Boheh dashboard app
+    - #174 Rename display_defaults - these props are more deferred lookups/inherited props
+    - #176 I need an htmlfilesession that gives me standalone div (htmlfragmentsession)
+    - #287 Output_notebook should accept kwargs to pass through to notebookserversession ctor
+    - #308 Remove event sinks
+    - #310 Bokeh/serverconfig.py is very verbose
+    - #339 Adding widgets?
+    - #340 Name for plots
+    - #438 Display pinch zoom and pinch box zoom button on touch devices
+    - #440 Pan drag working on touch devices
+    - #483 Experimental bokehjs build system using sbt (scala)
+    - #504 Include bokehjs tests in travisci
+    - #533 Example plot showing daylight hours
+    - #534 Updated package.json and bower.json
+    - #542 Default backend should be inmemory?
+    - #555 Use shelve for default, add some config printouts
+    - #564 Use types to compute value of has_ref attribute
+    - #566 Image_url enhacement request
+    - #571 Provide convenient way to set axis titles in the figure() or in glyph functions
+    - #575 Feature: datetime axis date format
+    - #577 Expose datetimetickformatter.formats in python api and add an example
+    - #591 Improve range1d constructor to take two numbers, or a length-2 iterable
+    - #592 "tools" kwarg should accept a list of strings as well as a comma-delimited string
+    - #600 We need a bug info function
+    - #614 Make an npm module for bokeh-js
+    - #622 Create bokeh nightly conda packages
+    - #635 Range1d for dates?
+    - #640 Testing bokeh.report_bug function
+    - #642 Continuous integration on bokeh
+    - #650 Better logging, docs, and error checkout for autoload_static
+    - #656  example for referencing links using the hover_tool
+    - #667 Made report_issue function py3 compatible and docs
+    - #670 Better styling in donut plot (web browser market share)
+    - #671 Bokeh.pydata.org/docs/bokehjs.html is *very* slow and resource intensive
+    - #674 Remove license comments from minified bokehjs
+    - #686 Added new ipython versions and raise exception if ipython versions do not match
+    - #689 More succinct server config message
+    - #691 Allow ranges to be specified as sequences
+    - #698 Remove serverconfig
+    - #703 Logarithmic axes for plots
+    - #707 Initial integration of abstract rendering
+    - #709 First working version of automated execution of notebooks in example folder
+    - #717 Feature/range1d datetime
+    - #720 Add support for log scale axes
+    - #733 Execute ipynb and write a nbconverted html
+    - #739 Feature/crossfilter
+    - #745 Frame improvements
+    - #752 Add click tool, allow click and hover tools to be always on
+    - #753 Add support for minor ticks
+    - #755 Feature/abstract rendering guides
+    - #757 Add support for minor ticks
+    - #759 Added total-downloads.py example
+    - #768 Bokeh charts
+    - #773 Log axes support
+    - #775 Add tags option for build and upload script
+    - #778 Minor improvements to log axes
+    - #783 Reduce the number of queries changes script makes
+  * bugfixes:
+    - #48 Ggplot gives error on aesthetic object
+    - #103 There is an error when trying to serialize script_inject_escaped
+    - #120 Axes/grid coords to do not recompute if underlyinge range is not datarange1d
+    - #309 Strange css errors on bokeh-server
+    - #464 Tools make plot disapears when x-axis is set to not numeric
+    - #466 Figure() kwargs don't match curplot() attributes
+    - #531 Get rid of "plots" div in default template
+    - #548 Potobject.references should return a set
+    - #551 Fix and expose imageuri
+    - #553 Expose, fix, rename image url
+    - #556 Scientific notation is always on
+    - #559 Nbviewer rendering broken
+    - #570 Scatter legend markers too large when combined with lines
+    - #595 Hover tooltip does not work in ipython notebook inline plotting
+    - #599 Datetime axis not rendering properly after multiple calls to line in tutorial example
+    - #603 Non helpful error message in case you don't have some object to plot yet
+    - #604 Test_objects fail - order dependent
+    - #610 Missing plotcontext?
+    - #613 Fix static embedding (and gallery build)
+    - #645 Compute self._models on the fly
+    - #662 Setup clean doesn't clean out directories
+    - #672 Precision error in stacked bar charts?
+    - #675 Hover is off the page
+    - #679 Need to include google maps api on demand.
+    - #682 Trouble with encoding on windows
+    - #684 Enforce utf-8 enconding in output_file
+    - #687 Bokeh server main page is broken
+    - #695 Widgets examples become unresponsive
+    - #697 Plot width and height attribute name breaks some examples
+    - #699 Explicitly ignore zero dim rects
+    - #727 Skip pan/zoom tool registration
+    - #729 "offsets to time due to json serialization implementation"
+    - #734 Enhance the settimeout for starting qunit. attempting to fix random failures in travis
+    - #743 Include version '2.0.0-wakari'
+    - #748 In merging docs, only merge new objects
+    - #769 Need to add new package to setup.py.. not sure why travis did not catch
+    - #770 Avoid abstract rendering package installation on py3
+    - #771 Fixes to build and upload script
+    - #779 Adding bokeh.charts to setup.py
+    - #780 Fix pagination issue in changes script
+    - #782 Removing old bokeh install path
+    - #784 Add missing mplexporter package to setup.py
+  * tests:
+    - #435 Test script does not execute notebooks
+    - #541 Nosetests errors when run locally
+    - #544 modified server unit tests to use in memory backend, switchable to use
+    - #549 Check plotobject.references test
+    - #560 Bokeh manual release testing
+    - #772 Test_references_by_ref_by_value (bokeh.tests.test_objects.testplotobject) fails randomly
+  * documentation:
+    - #316 Quickstart.md has to be integrated with the devel docs
+    - #532 Selection problem on gallery
+    - #565 Seaborn and ggplot examples misrender on deployed gallery
+    - #576 Autosave=true does not work (or is wrongly documented?)
+    - #639 Fix small typo in the tutorial
+    - #651 Docs refresh
+    - #661 Bokehjs handles nulls as 0
+    - #680 Periodic table example hover errors
+    - #694 Make it easier to run bokehjs demos
+    - #721 Bokehjs demo docs fix-ups
+
 2014-04-16    0.4.4:
 --------------------
   * Improved MPL interface, subplots, styling plus more examples
@@ -13,7 +172,7 @@
     - #429 Explose tick formatters as backbone objects to python
     - #430 [wip] expose bokehjs objects as backbone objects more consistently
     - #431 Subplots support in mpl
-    - #434 Pypy compatibility: 
+    - #434 Pypy compatibility:
     - #439 Option to dilate pixel distances on some glyphs
     - #441 Expose remaing tickers to python
     - #446 Feature/data directory

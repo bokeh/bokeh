@@ -1,6 +1,7 @@
 from __future__ import absolute_import, print_function
+import warnings
 from ._version import get_versions
-import os
+from . import utils
 try:
     from .__conda_version__ import conda_version
     __version__ = conda_version.replace("'","")
@@ -12,7 +13,7 @@ except ImportError:
 
 _notebook_loaded = None
 
-def load_notebook(resources=None, verbose=False, force=False):
+def load_notebook(resources=None, verbose=False, force=False, skip=False):
     ''' Prepare the IPython notebook for displaying Bokeh plots.
 
     Args:
@@ -31,13 +32,13 @@ def load_notebook(resources=None, verbose=False, force=False):
     if not force:
         notebook = False
         try:
-            notebook = 'notebook' in get_ipython().config['IPKernelApp']['parent_appname']
+            notebook = 'notebook' in get_ipython().config.IPKernelApp.parent_appname
         except Exception:
             pass
         if not notebook:
-            raise RuntimeError('load_notebook() only works inside an IPython Notebook.')
+            raise RuntimeError('load_notebook only works inside an '
+                               'IPython notebook, try using force=True.')
 
-    import IPython.core.displaypub as displaypub
     from .resources import INLINE
     from .templates import NOTEBOOK_LOAD, RESOURCES
 
@@ -73,8 +74,9 @@ def load_notebook(resources=None, verbose=False, force=False):
         css_info = css_info,
         bokeh_version = __version__,
         warnings = warnings,
+        skip = skip,
     )
-    displaypub.publish_display_data('bokeh', {'text/html': html})
+    utils.publish_display_data({'text/html': html})
 
 from .settings import settings
 from . import sampledata

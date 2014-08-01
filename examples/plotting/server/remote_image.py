@@ -3,7 +3,7 @@
 
 import numpy as np
 from bokeh.plotting import *
-from bokeh.objects import Range1d, ServerDataSource
+from bokeh.objects import ServerDataSource
 from bokeh.transforms import image_downsample
 """
 In order to run this example, you have to execute
@@ -23,7 +23,7 @@ xx, yy = np.meshgrid(x, y)
 d = np.sin(xx)*np.cos(yy)
 
 output_server("remote_image")
-source = image_downsample.source(data_url="/defaultuser/array.table/array", 
+source = image_downsample.source(data_url="/defaultuser/array.table/array",
                                  owner_username="defaultuser")
 
 image(
@@ -36,8 +36,8 @@ image(
     width=200,
     height=200,
     palette="palette",
-    x_range=Range1d(start=0, end=10), 
-    y_range=Range1d(start=0, end=10),
+    x_range=[0,10],
+    y_range=[0,10],
     tools="pan,wheel_zoom,box_zoom,reset,previewsave"
 )
 

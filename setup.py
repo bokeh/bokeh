@@ -24,9 +24,7 @@ import sys
 
 if 'nightly' in sys.argv:
     from setuptools import setup
-    assert 'nightly' == sys.argv.pop(2)
-    subprocess
-    sys.argv.insert(2,"install")
+    sys.argv.remove('nightly')
 
     #need to create py dev version file for __init__.py __version__ setting
     vers_file = os.path.join('bokeh','__conda_version__.py')
@@ -44,7 +42,7 @@ else:
     from distutils.core import setup
 
 from distutils import dir_util
-from os.path import abspath, exists, join, dirname
+from os.path import abspath, relpath, exists, join, dirname, isdir
 
 # Our own imports
 import versioneer
@@ -59,8 +57,7 @@ BOKEHJSREL = join(BOKEHJSROOT, 'release')
 
 SERVER = 'bokeh/server'
 
-APP = [join(BOKEHJSREL, 'js', 'bokeh.js'),
-       join(BOKEHJSREL, 'js', 'bokeh.min.js')]
+JS  = join(BOKEHJSREL, 'js')
 CSS = join(BOKEHJSREL, 'css')
 
 #-----------------------------------------------------------------------------
@@ -76,30 +73,24 @@ versioneer.parentdir_prefix = 'Bokeh-'  # dirname like 'myproject-1.2.0'
 # Classes and functions
 #-----------------------------------------------------------------------------
 
+package_data = []
 
-def package_path(path, package_data_dirs):
-    for dirname, _, files in os.walk(path):
-        dirname = os.path.relpath(dirname, 'bokeh')
-        for f in files:
-            package_data_dirs.append(join(dirname, f))
-
-
-def get_sample_data():
-    """Scan sampledata for files with the above extensions and add to
-    pkg_data_dirs."""
-    data_files = []
-    root = join("bokeh", "sampledata")
-    for path, dirs, files in os.walk(root):
-        for fs in files:
-            if fs.endswith(suffix_list):
-                data_files.append(join("sampledata", fs))
-    return data_files
+def package_path(path, filters=()):
+    if not os.path.exists(path):
+        raise RuntimeError("packaging non-existent path: %s" % path)
+    elif os.path.isfile(path):
+        package_data.append(relpath(path, 'bokeh'))
+    else:
+        for dirname, _, files in os.walk(path):
+            dirname = relpath(dirname, 'bokeh')
+            for f in files:
+                if not filters or f.endswith(filters):
+                    package_data.append(join(dirname, f))
 
 # You can't install Bokeh in a virtualenv because the lack of getsitepackages()
 # This is an open bug: https://github.com/pypa/virtualenv/issues/355
 # And this is an intended PR to fix it: https://github.com/pypa/virtualenv/pull/508
 # Workaround to fix our issue: https://github.com/ContinuumIO/bokeh/issues/378
-
 
 def getsitepackages():
     """Returns a list containing all global site-packages directories
@@ -195,55 +186,45 @@ build_js = False
 if sys.version_info[:2] < (2, 6):
     raise RuntimeError("Bokeh requires python >= 2.6")
 
-# TODO (bev) remove 'devjs' in 0.5
-if 'devjs' in sys.argv:
-    print("WARNING: 'devjs' is deprecated and will be removed in Bokeh 0.5, please use 'develop'")
-    sys.argv.remove("devjs")
-    sys.argv.append("develop")
-
-# TODO (bev) remove '--deploy' in 0.5
-if '--deploy' in sys.argv:
-    print("WARNING: '--deploy' is deprecated and will be removed in Bokeh 0.5, please use '--build_js'")
-    sys.argv.remove("--deploy")
-    sys.argv.append("--build_js")
-
 if '--build_js' in sys.argv:
-    os.chdir('bokehjs')
+    sys.argv.remove('--build_js')
     build_js = True
+
+    print("building bokehjs...")
+    os.chdir('bokehjs')
+
+    cmd = [join('node_modules', '.bin', 'grunt'), 'deploy']
+
     try:
-        print("building bokehjs...")
-        out = subprocess.check_output([join('node_modules', '.bin', 'grunt'), 'deploy'])
-        sys.argv.remove('--build_js')
-    except subprocess.CalledProcessError:
+        proc = subprocess.Popen(cmd)
+    except OSError:
+        print("Failed to run: %s. Did you run `npm install` before?" % " ".join(cmd))
+        sys.exit(1)
+    finally:
+        os.chdir('..')
+
+    if proc.wait() != 0:
         print("ERROR: could not build bokehjs")
         sys.exit(1)
-    APP = [join(BOKEHJSBUILD, 'js', 'bokeh.js'),
-           join(BOKEHJSBUILD, 'js', 'bokeh.min.js')]
+
+    JS  = join(BOKEHJSBUILD, 'js')
     CSS = join(BOKEHJSBUILD, 'css')
-    os.chdir('..')
 
 if exists(join(SERVER, 'static', 'js')):
     shutil.rmtree(join(SERVER, 'static', 'js'))
-os.mkdir(join(SERVER, 'static', 'js'))
-
-for app in APP:
-    shutil.copy(app, join(SERVER, 'static', 'js'))
-shutil.copytree(join(BOKEHJSROOT, 'src', 'vendor'),
-                join(SERVER, 'static', 'js', 'vendor'))
+shutil.copytree(JS, join(SERVER, 'static', 'js'))
 
 if exists(join(SERVER, 'static', 'css')):
     shutil.rmtree(join(SERVER, 'static', 'css'))
 shutil.copytree(CSS, join(SERVER, 'static', 'css'))
 
-package_data_dirs = []
-package_path(join(SERVER, 'static'), package_data_dirs)
-package_path(join(SERVER, 'templates'), package_data_dirs)
-package_path(join('bokeh', '_templates'), package_data_dirs)
-package_data_dirs.append('server/redis.conf')
+sampledata_suffixes = ('.csv', '.conf', '.gz', '.json', '.png')
 
-suffix_list = ('.csv', '.conf', '.gz', '.json')
-
-package_data_dirs = package_data_dirs + get_sample_data()
+package_path(join(SERVER, 'static'))
+package_path(join(SERVER, 'templates'))
+package_path(join('bokeh', '_templates'))
+package_path(join('bokeh', 'sampledata'), sampledata_suffixes)
+package_path(join('bokeh', 'server', 'redis.conf'))
 
 scripts = ['bokeh-server', 'websocket_worker.py']
 
@@ -251,6 +232,24 @@ if '--user' in sys.argv:
     site_packages = site.USER_SITE
 else:
     site_packages = getsitepackages()[0]
+
+bokeh_path = join(site_packages, "bokeh")
+if exists(bokeh_path) and isdir(bokeh_path):
+    prompt = "\nFound existing bokeh install: %s\nRemove it? [y|N] " % bokeh_path
+    if sys.version_info[0] < 3:
+        val = raw_input(prompt)
+    else:
+        val = input(prompt)
+    if val == "y":
+        print ("Removing old bokeh install...")
+        try:
+            shutil.rmtree(bokeh_path)
+            print ("Removed.")
+        except (IOError, OSError):
+            print ("Unable to remove old bokeh at: %s" % bokeh_path)
+            sys.exit(-1)
+    else:
+        print ("Not removing old bokeh install")
 
 path_file = join(site_packages, "bokeh.pth")
 path = abspath(dirname(__file__))
@@ -261,10 +260,10 @@ pat = re.compile("Bokeh.version = '(.*)'")
 v = pat.search(f.read()).group(1)
 
 print()
-if 'devjs' in sys.argv or 'develop' in sys.argv:
+if 'develop' in sys.argv:
     with open(path_file, "w+") as f:
         f.write(path)
-    print("Developing bokeh.")
+    print("Developing bokeh:")
     print("  - writing path '%s' to %s" % (path, path_file))
     if build_js:
         print("  - using BUILT bokehjs from bokehjs/build")
@@ -348,6 +347,10 @@ setup(
     cmdclass=_cmdclass,
     packages=[
         'bokeh',
+        'bokeh.charts',
+        'bokeh.crossfilter',
+        'bokeh.mplexporter',
+        'bokeh.mplexporter.renderers',
         'bokeh.sampledata',
         'bokeh.server',
         'bokeh.server.models',
@@ -357,7 +360,7 @@ setup(
         'bokeh.tests',
         'bokeh.transforms'
     ],
-    package_data={'bokeh': package_data_dirs},
+    package_data={'bokeh': package_data},
     author='Continuum Analytics',
     author_email='info@continuum.io',
     url='http://github.com/ContinuumIO/Bokeh',

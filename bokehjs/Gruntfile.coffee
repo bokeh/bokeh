@@ -1,4 +1,3 @@
-
 module.exports = (grunt) ->
   fs = require("fs")
 
@@ -40,7 +39,7 @@ module.exports = (grunt) ->
           cwd: 'demo'
           src: ['**/*.html', '**/*.js', '**/*.css', '**/*.png', '**/*.py']
           dest: 'build/demo'
-          filter: ['isFile'], #, hasChanged("copy.demo")]
+          filter: ['isFile']
         ]
       vendor:
         files: [
@@ -76,7 +75,7 @@ module.exports = (grunt) ->
           expand: true,        # enable dynamic expansion
           concat: false        # do not concatenate
           cwd: 'src/less',     # src matches are relative to this path
-          src: ['main.less'],  # actual pattern(s) to match
+          src: ['bokeh.less'], # actual pattern(s) to match
           dest: 'build/css',   # destination path prefix
           ext: '.css',         # dest filepaths will have this extension
         }]
@@ -97,7 +96,6 @@ module.exports = (grunt) ->
         src: '**/*.coffee'     # traverse *.coffee files relative to cwd
         dest: 'build/test'     # destination for compiled js files
         ext: '.js'             # file extension for compiled files
-        filter: hasChanged("coffee.test")
         options:
           sourceMap : true
       demo:
@@ -106,7 +104,6 @@ module.exports = (grunt) ->
         src: '**/*.coffee'     # traverse *.coffee files relative to cwd
         dest: 'build/demo/js'  # destination for compiled js files
         ext: '.js'             # file extension for compiled files
-        filter: hasChanged("coffee.demo")
         options:
           sourceMap : true
       spectrogram:
@@ -135,27 +132,6 @@ module.exports = (grunt) ->
         options:
           optimize: "none"
           out: 'build/js/bokeh.js'
-
-    concat:
-      options:
-        separator: ""
-      css:
-        src: [
-          "build/js/vendor/jquery-ui-amd/jquery-ui-1.10.0/themes/base/jquery-ui.css"
-          "build/js/vendor/jstree/dist/themes/default/style.min.css"
-          "build/js/vendor/handsontable/jquery.handsontable.css"
-          "build/js/vendor/jqrangeslider/classic.css"
-          "build/css/main.css"
-        ]
-        dest: 'build/css/bokeh.css'
-      vendor:
-        src: [
-          "build/js/vendor/jquery-ui-amd/jquery-ui-1.10.0/themes/base/jquery-ui.css"
-          "build/js/vendor/jstree/dist/themes/default/style.min.css"
-          "build/js/vendor/handsontable/jquery.handsontable.css"
-          "build/js/vendor/jqrangeslider/classic.css"
-        ]
-        dest: 'build/css/bokeh-vendor.css'
 
     cssmin:
       minify:
@@ -188,7 +164,7 @@ module.exports = (grunt) ->
           spawn: false
       less:
         files: ["src/less/*"]
-        tasks: ['clean:css', 'less', 'concat:css']
+        tasks: ['clean:css', 'less']
         options:
           spawn: false
       eco:
@@ -235,18 +211,17 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks("grunt-contrib-less")
   grunt.loadNpmTasks("grunt-contrib-requirejs")
   grunt.loadNpmTasks("grunt-contrib-cssmin")
-  grunt.loadNpmTasks("grunt-contrib-concat")
   grunt.loadNpmTasks("grunt-contrib-copy")
   grunt.loadNpmTasks("grunt-contrib-clean")
   grunt.loadNpmTasks("grunt-contrib-qunit")
-  grunt.loadNpmTasks('grunt-contrib-connect')
+  grunt.loadNpmTasks("grunt-contrib-connect")
   grunt.loadNpmTasks("grunt-eco")
-  grunt.loadNpmTasks('grunt-groc')
+  grunt.loadNpmTasks("grunt-groc")
 
-  grunt.registerTask("default",     ["build", "test"])
-  grunt.registerTask("buildcopy",   ["copy:template", "copy:test", "copy:demo", "copy:vendor"]) # better way??
-  grunt.registerTask("build",       ["coffee", "less", "buildcopy", "eco", "concat"])
-  grunt.registerTask("deploy",      ["build",  "requirejs", "cssmin", "copy:spectrogram"])
-  grunt.registerTask("test",        ["build", "connect", "qunit"])
-  grunt.registerTask("serve",       ["connect:server:keepalive"])
-  grunt.registerTask("release", ["deploy", "copy:release"])
+  grunt.registerTask("default",   ["build", "test"])
+  grunt.registerTask("buildcopy", ["copy:template", "copy:test", "copy:demo", "copy:vendor"]) # better way??
+  grunt.registerTask("build",     ["coffee", "less", "buildcopy", "eco"])
+  grunt.registerTask("deploy",    ["build",  "requirejs", "cssmin", "copy:spectrogram"])
+  grunt.registerTask("test",      ["build", "connect", "qunit"])
+  grunt.registerTask("serve",     ["connect:server:keepalive"])
+  grunt.registerTask("release",   ["deploy", "copy:release"])

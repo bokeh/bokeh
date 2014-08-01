@@ -23,7 +23,7 @@ define [], () ->
       toolName = @toolName
       @plotview = plotview
       @eventSink = eventSink
-      @plotview.moveCallbacks.push((e, x, y) =>
+      @plotview.canvas.get('mousemove_callbacks').push((e, x, y) =>
         if not @dragging
           return
         if not @tool_active
@@ -40,15 +40,15 @@ define [], () ->
           e.preventDefault()
           e.stopPropagation()
         )
-      @plotview.moveCallbacks.push((e, x, y) =>
+      @plotview.canvas.get('mousemove_callbacks').push((e, x, y) =>
         if @dragging
           set_bokehXY(e)
-          inner_range_horizontal = @plotview.view_state.get(
+          inner_range_horizontal = @plotview.frame.get(
             'inner_range_horizontal')
-          inner_range_vertical = @plotview.view_state.get(
+          inner_range_vertical = @plotview.frame.get(
             'inner_range_vertical')
-          x = @plotview.view_state.sx_to_vx(e.bokehX)
-          y = @plotview.view_state.sy_to_vy(e.bokehY)
+          x = @plotview.canvas.sx_to_vx(e.bokehX)
+          y = @plotview.canvas.sy_to_vy(e.bokehY)
           if @restrict_to_innercanvas
             xstart = inner_range_horizontal.get('start')
             xend = inner_range_horizontal.get('end')
@@ -56,9 +56,9 @@ define [], () ->
             yend = inner_range_vertical.get('end')
           else
             xstart = 0
-            xend = @plotview.view_state.get('outer_width')
+            xend = @plotview.canvas.get('width')
             ystart = 0
-            yend = @plotview.view_state.get('outer_height')
+            yend = @plotview.canvas.get('height')
           if x < xstart  or x > xend
             @_stop_drag(e)
             return false
@@ -74,7 +74,7 @@ define [], () ->
         if not e[@options.keyName]
           @_stop_drag(e))
 
-      @plotview.canvas_wrapper.bind 'mousedown', (e) =>
+      @plotview.canvas_view.canvas_wrapper.bind 'mousedown', (e) =>
         start = false
 
         if @button_activated or @eventSink.active == @toolName
@@ -90,11 +90,11 @@ define [], () ->
           @_start_drag()
           return false
 
-      @plotview.canvas_wrapper.bind('mouseup', (e) =>
+      @plotview.canvas_view.canvas_wrapper.bind('mouseup', (e) =>
         if @button_activated
           @_stop_drag(e)
           return false)
-      @plotview.canvas_wrapper.bind('mouseleave', (e) =>
+      @plotview.canvas_view.canvas_wrapper.bind('mouseleave', (e) =>
         if @button_activated
           @_stop_drag(e)
           return false)
@@ -138,7 +138,7 @@ define [], () ->
         if not @button_activated
           @$tool_button.addClass('active')
         if @options.cursor?
-          @plotview.canvas_wrapper.css('cursor', @options.cursor)
+          @plotview.canvas_view.canvas_wrapper.css('cursor', @options.cursor)
 
     _stop_drag: (e)->
       @basepoint_set = false
@@ -149,7 +149,7 @@ define [], () ->
         if not @button_activated
           @$tool_button.removeClass('active')
         if @options.cursor?
-          @plotview.canvas_wrapper.css('cursor', '')
+          @plotview.canvas_view.canvas_wrapper.css('cursor', '')
         set_bokehXY(e)
         @eventSink.trigger("#{@options.eventBasename}:DragEnd", e)
       @_activated_with_button = null
@@ -168,7 +168,7 @@ define [], () ->
       toolName = @toolName
       @plotview = plotview
       @eventSink = eventSink
-      @plotview.canvas_wrapper.bind("mousewheel",
+      @plotview.canvas_view.canvas_wrapper.bind("mousewheel",
         (e, delta, dX, dY) =>
           if @tool_active or (not @eventSink.active and e.shiftKey)
             set_bokehXY(e)
@@ -182,16 +182,6 @@ define [], () ->
         #disable the tool when ESC is pressed
         if e.keyCode == 27
           eventSink.trigger("clear_active_tool"))
-
-      # @mouseover_count = 0
-      #waiting 500 ms and testing mouseover countmakes sure that
-      # #mouseouts that occur because of going over element borders don't
-      # #trigger the mouseout
-      # @plotview.$el.bind("mouseout", (e) =>
-      #   @mouseover_count -=1
-      #   _.delay((=>
-      #     if @mouseover_count == 0
-      #       eventSink.trigger("clear_active_tool")), 500))
 
       @plotview.$el.bind("mousein", (e) =>
         eventSink.trigger("clear_active_tool"))
@@ -254,16 +244,6 @@ define [], () ->
         #disable the tool when ESC is pressed
         if e.keyCode == 27
           eventSink.trigger("clear_active_tool"))
-
-      # @mouseover_count = 0
-      # #waiting 500 ms and testing mouseover countmakes sure that
-      # #mouseouts that occur because of going over element borders don't
-      # #trigger the mouseout
-      # @plotview.$el.bind("mouseout", (e) =>
-      #   @mouseover_count -=1
-      #   _.delay((=>
-      #     if @mouseover_count == 0
-      #       eventSink.trigger("clear_active_tool")), 500))
 
       @plotview.$el.bind("mouseover", (e) =>
         @mouseover_count += 1)

@@ -1,13 +1,13 @@
 import numpy as np
 from bokeh.plotting import square, output_server, image, show
-from bokeh.objects import Range1d, ServerDataSource
+from bokeh.objects import ServerDataSource
 
 import bokeh.transforms.ar_downsample as ar
 #from bokeh.transforms import line_downsample
 
 
 output_server("abstractrender")
-source = ServerDataSource(data_url="fn://gauss", owner_username="defaultuser")
+source = ServerDataSource(data_url="fn://uniform", owner_username="defaultuser")
 plot = square('oneA','oneB',color='#FF00FF',source=source)
 
 
@@ -17,12 +17,11 @@ image(source=heatmap, title="Heatmap", reserve_val=0, **ar.mapping(heatmap))
 #image(source=heatmap, reserve_val=0, reserve_color=0xaaaaaa, **ar.mapping(heatmap))
 
 ###Perceptually corrected heat-map.  Cube-root then bin
-percepmap = ar.source(plot, shader=ar.Cuberoot()+ar.Interpolate(low=0,high=9), palette=["Reds-9"])
+percepmap = ar.source(plot, shader=ar.Cuberoot(), palette=["Reds-9"])
 image(source=percepmap, title="Perceptually corrected", reserve_val=0, **ar.mapping(percepmap))
-#percepmap could technically be just ar.source(plot, shader=ar.Cuberoot(), palette=["Reds-9"]) but I'm testing shader sequences...
 
 
-### Contours come in the same framework, but since the results of the shader are lines you use a different plotting function... 
+### Contours come in the same framework, but since the results of the shader are lines you use a different plotting function...
 #contour = ar.source(glyphs=plot, agg=ar.Count(), info=ar.Const(1), shader=ar.Contour(9))
 #multi_line(source=countour, palette=["reds-9"])
 #
@@ -43,13 +42,12 @@ In addition, you must install ArrayManagement from this branch (soon to be maste
 https://github.com/ContinuumIO/ArrayManagement
 """
 
-
+##Stock-data plotting
 source = ServerDataSource(data_url="/defaultuser/AAPL.hdf5", owner_username="defaultuser")
 plot = square('volume','close',color='#FF00FF',source=source)
-percepmap = ar.source(plot, shader=ar.Cuberoot()+ar.Interpolate(low=0,high=9), palette=["Reds-9"])
+percepmap = ar.source(plot, shader=ar.Cuberoot(), palette=["Reds-9"])
 image(source=percepmap, title="Perceptually corrected (Stocks)", reserve_val=0, **ar.mapping(percepmap))
 
 show()
-
 
 

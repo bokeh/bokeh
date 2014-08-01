@@ -38,4 +38,4 @@ if __name__ == '__main__':
 
     for path in glob(os.path.join(directory, '*.py')):
         lines = exercise_lines(path)
-        print('{}: {}'.format(path, ', '.join(str(line) for line in lines)))
+        print('{}: {}'.format(path, ','.join(str(line) for line in lines)))

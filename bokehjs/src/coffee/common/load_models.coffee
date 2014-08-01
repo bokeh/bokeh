@@ -7,8 +7,9 @@ define [
   load_models = (modelspecs)->
     # First we identify which model jsons correspond to new models,
     # and which ones are updates.
-    # For new models we instantiate the models, add them
-    # to their collections and call dinitialize.
+    # For new models we construct the models, add them
+    # to their collections (with option to defer initialization)
+    # and call initialize manually
     # For existing models we update
     # their attributes
     # ####Parameters
@@ -49,13 +50,13 @@ define [
     for coll_attrs in newspecs
       [coll, attrs] = coll_attrs
       if coll
-        coll.add(attrs, {'silent' : true})
+        coll.add(attrs, {'silent' : true, 'defer_initialization' : true})
 
-    # call deferred initialize on all new models
+    # call deferred initialization on all new models
     for coll_attrs in newspecs
       [coll, attrs] = coll_attrs
       if coll
-        coll.get(attrs['id']).dinitialize(attrs)
+        coll.get(attrs['id']).initialize(attrs)
 
     # trigger add events on all new models
     for coll_attrs in newspecs
@@ -64,10 +65,9 @@ define [
         model = coll.get(attrs.id)
         model.trigger('add', model, coll, {});
 
-    # set attributes on old models silently
+    # set attributes on old models
     for coll_attrs in oldspecs
       [coll, attrs] = coll_attrs
       if coll
         coll.get(attrs['id']).set(attrs)
     return null
-

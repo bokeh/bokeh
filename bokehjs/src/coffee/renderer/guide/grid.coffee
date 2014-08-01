@@ -1,11 +1,10 @@
 
 define [
   "underscore",
-  "common/safebind",
   "common/has_parent",
   "renderer/properties",
   "common/plot_widget",
-], (_, safebind, HasParent, Properties, PlotWidget) ->
+], (_, HasParent, Properties, PlotWidget) ->
 
   line_properties = Properties.line_properties
 
@@ -16,14 +15,14 @@ define [
       @grid_props = new line_properties(@, null, 'grid_')
 
     render: () ->
-      ctx = @plot_view.ctx
+      ctx = @plot_view.canvas_view.ctx
 
       ctx.save()
       @_draw_grids(ctx)
       ctx.restore()
 
     bind_bokeh_events: () ->
-      safebind(this, @model, 'change', @request_render)
+      @listenTo(@model, 'change', @request_render)
 
     _draw_grids: (ctx) ->
       if not @grid_props.do_stroke

@@ -2,7 +2,6 @@
 import numpy as np
 import pandas as pd
 from bokeh.plotting import *
-from bokeh.objects import Range1d
 
 # Define some categories
 categories = [
@@ -18,7 +17,7 @@ data = { cat : np.random.randint(10, 100, size=N) for cat in categories }
 # this will be built into Bokeh.
 def stacked(data, categories):
     ys = []
-    last = np.zeros(len(data.values()[0]))
+    last = np.zeros(len(list(data.values())[0]))
     for cat in categories:
         next = last + data[cat]
         ys.append(np.hstack((last[::-1], next)))
@@ -46,7 +45,7 @@ output_file("style.html")
 #   - fill_color
 #   - fill_alpha
 #   - background_fill
-patches(xs, ys, x_range=categories, y_range=Range1d(start=0, end=800),
+patches(xs, ys, x_range=categories, y_range=[0, 800],
         color=colors, alpha=0.8, line_color=None, background_fill="lightgrey",
         title="Categories of Brewering")
 

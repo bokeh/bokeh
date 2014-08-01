@@ -36,6 +36,15 @@ from .plotting import (curdoc, output_file, output_notebook, output_server,
 # Classes and functions
 #-----------------------------------------------------------------------------
 
+def _layout_axes(plot):
+    for r in plot.renderers:
+        if not isinstance(r, (LinearAxis, DatetimeAxis)):
+            continue
+        location = r.location
+        if location == "left": plot.left.append(r)
+        elif location == "right": plot.right.append(r)
+        elif location == "top": plot.above.append(r)
+        elif location == "bottom": plot.below.append(r)
 
 class BokehRenderer(Renderer):
 
@@ -58,6 +67,7 @@ class BokehRenderer(Renderer):
                          plot_width=self.width,
                          plot_height=self.height)
 
+
     def close_figure(self, fig):
         "Complete the plot: add tools."
 
@@ -79,6 +89,7 @@ class BokehRenderer(Renderer):
 
         # Simple or Grid plot setup
         if len(fig.axes) <= 1:
+            _layout_axes(self.plot)
             self.fig = self.plot
         else:
             # This list comprehension splits the plot.renderers list at the "marker"
@@ -87,9 +98,16 @@ class BokehRenderer(Renderer):
                         self.plot.renderers, lambda x: is_ax_end(x)) if not x[0]]
             plots = []
             for i, axes in enumerate(fig.axes):
-                _plot = self.plot.clone()
-                _plot.renderers = subrends[i]
-                plots.append(_plot)
+                self.plot.renderers = subrends[i]
+                if i < len(fig.axes) - 1:
+                    _plot = self.plot.clone()
+                    for x in _plot.renderers:
+                        x.plot = _plot
+                    plots.append(_plot)
+                    _layout_axes(_plot)
+                else:
+                    plots.append(self.plot)
+                    _layout_axes(self.plot)
             (a, b, c) = fig.axes[0].get_geometry()
             p = np.array(plots)
             n = np.resize(p, (a, b))
@@ -103,8 +121,8 @@ class BokehRenderer(Renderer):
         self.grid = ax.get_xgridlines()[0]
 
         # Add axis
-        bxaxis = self.make_axis(ax.xaxis, 0, props['xscale'])
-        byaxis = self.make_axis(ax.yaxis, 1, props['yscale'])
+        bxaxis = self.make_axis(ax.xaxis, "bottom", props['xscale'])
+        byaxis = self.make_axis(ax.yaxis, "left", props['yscale'])
 
         # Add grids
         self.make_grid(bxaxis, 0)
@@ -260,7 +278,7 @@ class BokehRenderer(Renderer):
     def draw_image(self, imdata, extent, coordinates, style, mplobj=None):
         pass
 
-    def make_axis(self, ax, dimension, scale):
+    def make_axis(self, ax, location, scale):
         "Given a mpl axes instance, returns a Bokeh LinearAxis object."
         # TODO:
         #  * handle log scaling
@@ -269,14 +287,12 @@ class BokehRenderer(Renderer):
         #  * handle custom tick locations once that is added to bokehJS
         if scale == "linear":
             laxis = LinearAxis(plot=self.plot,
-                               dimension=dimension,
-                               location="min",
+                               location=location,
                                axis_label=ax.get_label_text())
         elif scale == "date":
             #formatter = DatetimeTickFormatter(formats=dict(months=["%b %Y"]))
             laxis = DatetimeAxis(plot=self.plot,
-                                 dimension=dimension,
-                                 location="min",
+                                 location=location,
                                  axis_label=ax.get_label_text(),
                                  #formatter=formatter
                                  )

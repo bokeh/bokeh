@@ -40,11 +40,8 @@ define [
       else
         @legends = @mget('legends')
         @legend_names =_.keys(@mget('legends'))
-      @calc_dims()
-
-    delegateEvents: (events) ->
-      super(events)
-      @listenTo(@plot_view.view_state, 'change', @calc_dims)
+      @need_calc_dims = true
+      @listenTo(@plot_model.solver, 'layout_update', () -> @need_calc_dims = true)
 
     calc_dims: (options) ->
       label_height = @mget('label_height')
@@ -56,8 +53,7 @@ define [
       @legend_height = @label_height
       #add legend spacing
       @legend_height = @legend_names.length * @legend_height + (1 + @legend_names.length) * legend_spacing
-      ctx = @plot_view.ctx
-
+      ctx = @plot_view.canvas_view.ctx
       ctx.save()
       @label_props.set(ctx, @)
       text_widths = _.map(@legend_names, (txt) -> ctx.measureText(txt).width)
@@ -68,8 +64,8 @@ define [
       @legend_width = @label_width + @glyph_width + 3 * legend_spacing
       orientation = @mget('orientation')
       legend_padding = @mget('legend_padding')
-      h_range = @plot_view.view_state.get('inner_range_horizontal')
-      v_range = @plot_view.view_state.get('inner_range_vertical')
+      h_range = @plot_view.frame.get('inner_range_horizontal')
+      v_range = @plot_view.frame.get('inner_range_vertical')
       if orientation == "top_right"
         x = h_range.get('end') - legend_padding - @legend_width
         y = v_range.get('end') - legend_padding
@@ -84,12 +80,15 @@ define [
         y = v_range.get('start') + legend_padding + @legend_height
       else if orientation == "absolute"
         [x,y] = @absolute_coords
-      x = @plot_view.view_state.vx_to_sx(x)
-      y = @plot_view.view_state.vy_to_sy(y)
+      x = @plot_view.canvas.vx_to_sx(x)
+      y = @plot_view.canvas.vy_to_sy(y)
       @box_coords = [x,y]
 
     render: () ->
-      ctx = @plot_view.ctx
+      if @need_calc_dims
+        @calc_dims()
+        @need_calc_dims = false
+      ctx = @plot_view.canvas_view.ctx
       ctx.save()
 
       ctx.fillStyle = @plot_model.get('background_fill')

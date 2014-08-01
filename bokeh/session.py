@@ -238,7 +238,13 @@ class Session(object):
         if headers is None:
             headers={'content-type':'application/json'}
         func = getattr(self.http_session, method)
-        resp = func(url, headers=headers, **kwargs)
+        import requests
+        import warnings
+        try:
+            resp = func(url, headers=headers, **kwargs)
+        except requests.exceptions.ConnectionError as e:
+            warnings.warn("You need to start the bokeh-server to see this example.")
+            raise e
         if resp.status_code == 409:
             raise DataIntegrityException
         if resp.status_code == 401:
@@ -425,8 +431,8 @@ class Session(object):
 
     def show(self, plot_object):
         """Display an object as HTML in IPython using its display protocol. """
-        import IPython.core.displaypub as displaypub
-        displaypub.publish_display_data('bokeh', {'text/html': autoload_server(plot_object, self)})
+        data = {'text/html': autoload_server(plot_object, self)}
+        utils.publish_display_data(data)
 
 class Cloud(Session):
     def __init__(self):
