@@ -207,12 +207,16 @@ def replot(plot, agg=Count(), info=Const(val=1), shader=Id(),
     returns -- A new plot
     """
 
+    # Transfer relevant named arguments
     props = dict()
     props['plot_width'] = kwargs.pop('plot_width', plot.plot_width)
     props['plot_height'] = kwargs.pop('plot_height', plot.plot_height)
     props['title'] = kwargs.pop('title', plot.title)
-    if kwargs.has_key('reserve_val'): props['reserve_val'] = kwargs.pop('reserve_val')
-    if kwargs.has_key('reserve_color'): props['reserve_color'] = kwargs.pop('reserve_color')
+
+    if 'reserve_val' in kwargs: 
+        props['reserve_val'] = kwargs.pop('reserve_val')
+    if 'reserve_color' in kwargs: 
+        props['reserve_color'] = kwargs.pop('reserve_color')
 
     src = source(plot, agg, info, shader, remove_original, palette, points, **kwargs)
     props.update(mapping(src))
@@ -313,9 +317,10 @@ def downsample(data, transform, plot_state):
 
     # How big would a full plot of the data be at the current resolution?
     if data_x_span == 0 or data_y_span == 0:
-        # If scale is zero for either axis, just zoom fit
-        plot_size = [_span(plot_state['screen_x']),
-                     _span(plot_state['screen_y'])]
+        # If scale is zero for either axis, don't actual render,
+        # instead report back data bounds and wait for the next request
+        # This enales guide creation...which cahgnes the available plot size.
+        image = np.array([[np.nan]])
         scale_x = 1
         scale_y = 1
     else:
@@ -323,23 +328,23 @@ def downsample(data, transform, plot_state):
         scale_y = data_x_span/screen_y_span
         plot_size = [bounds[2]/scale_x, bounds[3]/scale_y]
 
-    ivt = ar.zoom_fit(plot_size, bounds, balanced=False)
-    (tx, ty, sx, sy) = ivt
+        ivt = ar.zoom_fit(plot_size, bounds, balanced=False)
+        (tx, ty, sx, sy) = ivt
 
-    shader = transform['shader'].reify()
+        shader = transform['shader'].reify()
 
-    if sx == 0 or sy == 0:
-        # If client canvas has no size yet, just make a 1,1 array with a default value
-        image = np.array([[np.nan]])
-    else:
-        image = ar.render(glyphs,
-                          transform['info'].reify(),
-                          transform['agg'].reify(),
-                          shader,
-                          plot_size, ivt)
+        if sx == 0 or sy == 0:
+            # If client canvas has no size yet, just make a 1,1 array with a default value
+            image = np.array([[np.nan]])
+        else:
+            image = ar.render(glyphs,
+                    transform['info'].reify(),
+                    transform['agg'].reify(),
+                    shader,
+                    plot_size, ivt)
 
-    if transform['shader'].out == 'image_rgb' and len(image.shape) > 2:
-        image = image.view(dtype=np.int32).reshape(image.shape[0:2])
+        if transform['shader'].out == 'image_rgb' and len(image.shape) > 2:
+            image = image.view(dtype=np.int32).reshape(image.shape[0:2])
 
     (xmin, xmax) = (xcol.min(), xcol.max())
     (ymin, ymax) = (ycol.min(), ycol.max())
