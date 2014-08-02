@@ -2,7 +2,7 @@ from __future__ import print_function
 import bokeh.plotting as plotting
 from ..plot_object import PlotObject
 from ..objects import ServerDataSource,  Glyph, Range1d, Color
-from bokeh.properties import (Instance, Any)
+from bokeh.properties import (Instance, Any, Either, Int, Float, List)
 import bokeh.colors as colors
 import numpy as np
 
@@ -45,6 +45,7 @@ def _loadAR():
         globals()["infos"] = import_module("abstract_rendering.infos")
         globals()["ar"] = import_module("abstract_rendering.core")
         globals()["glyphset"] = import_module("abstract_rendering.glyphset")
+        globals()["isocontour"] = import_module("abstract_rendering.isocontour")
     except:
         print(_AR_MESSAGE)
         raise
@@ -83,20 +84,21 @@ class Const(Proxy):
         return infos.const(self.val)
 
 
-# ----- Transfers ---------
+# ----- Shaders ---------
 # Out types to support:
 #   image -- grid of values
 #   rgb_image -- grid of colors
 #   poly_line -- multi-segment lines (for ISO contours...)
 
-class Transfer(Proxy):
+class Shader(Proxy):
     def __add__(self, other):
         return Seq(first=self, second=other)
 
 
-class Seq(Transfer):
-    first = Instance(Transfer)
-    second = Instance(Transfer)
+class Seq(Shader):
+    # TODO: Verify that firsts has an 'out' of 'image'
+    first = Instance(Shader)
+    second = Instance(Shader)
 
     def reify(self, **kwargs):
         return self.first.reify(**kwargs) + self.second.reify(**kwargs)
@@ -109,7 +111,7 @@ class Seq(Transfer):
             raise AttributeError(name)
 
 
-class BinarySegment(Transfer):
+class BinarySegment(Shader):
     out = "image"
     high = Any
     low = Any
@@ -119,14 +121,14 @@ class BinarySegment(Transfer):
         return numeric.BinarySegment(self.low, self.high, self.divider)
 
 
-class Id(Transfer):
+class Id(Shader):
     out = "image"
 
     def reify(self, **kwargs):
         return general.Id()
 
 
-class Interpolate(Transfer):
+class Interpolate(Shader):
     out = "image"
     high = Any     # TODO: Restrict to numbers...
     low = Any
@@ -135,7 +137,7 @@ class Interpolate(Transfer):
         return numeric.Interpolate(self.low, self.high)
 
 
-class InterpolateColor(Transfer):
+class InterpolateColor(Shader):
     # TODO: Make color format conversion fluid...possibly by some change to properties.Color
     out = "image_rgb"
     high = Color((255, 0, 0, 1))
@@ -169,26 +171,34 @@ class InterpolateColor(Transfer):
                     raise ValueError("Unknown color string %s" % color)
 
 
-class Sqrt(Transfer):
+class Sqrt(Shader):
     out = "image"
 
     def reify(self, **kwargs):
         return numeric.Sqrt()
 
 
-class Cuberoot(Transfer):
+class Cuberoot(Shader):
     out = "image"
 
     def reify(self, **kwargs):
         return numeric.Cuberoot()
 
 
-class Spread(Transfer):
+class Spread(Shader):
     out = "image"
     factor = Any    # TODO: Restrict to numbers; Add shape parameter
 
     def reify(self, **kwargs):
         return numeric.Spread(self.factor)
+
+
+class Contour(Shader):
+    out = "poly_line"
+    levels = Either(Int, List(Float), default=5)
+
+    def reify(self, **kwargs):
+        return isocontour.Contour(levels=self.levels, points=False)
 
 
 def replot(plot, agg=Count(), info=Const(val=1), shader=Id(),
@@ -213,9 +223,9 @@ def replot(plot, agg=Count(), info=Const(val=1), shader=Id(),
     props['plot_height'] = kwargs.pop('plot_height', plot.plot_height)
     props['title'] = kwargs.pop('title', plot.title)
 
-    if 'reserve_val' in kwargs: 
+    if 'reserve_val' in kwargs:
         props['reserve_val'] = kwargs.pop('reserve_val')
-    if 'reserve_color' in kwargs: 
+    if 'reserve_color' in kwargs:
         props['reserve_color'] = kwargs.pop('reserve_color')
 
     src = source(plot, agg, info, shader, remove_original, palette, points, **kwargs)
@@ -225,6 +235,8 @@ def replot(plot, agg=Count(), info=Const(val=1), shader=Id(),
         return plotting.image(source=src, **props)
     elif shader.out == "image_rgb":
         return plotting.image_rgba(source=src, **props)
+    elif shader.out == "poly_line":
+        return plotting.multi_line(source=src, **props)
     else:
         raise ValueError("Unhandled output type %s" % shader.out)
 
@@ -253,6 +265,9 @@ def source(plot, agg=Count(), info=Const(val=1), shader=Id(),
                           'dw': [1],
                           'dh': [1],
                           'palette': palette}
+    elif shader == "poly_line":
+        kwargs['data'] = {'xs': [[]],
+                          'ys': [[]]}
     else:
         raise ValueError("Can only work with image-shaders...for now")
 
@@ -282,8 +297,11 @@ def mapping(source):
         m['x_range'] = Range1d(start=0, end=0)
         m['y_range'] = Range1d(start=0, end=0)
         return m
+    elif out == 'poly_line':
+        keys = source.data.keys()
+
     else:
-        raise ValueError("Only handling image type in property mapping...")
+        raise ValueError("Only handles out types of image, image_rgb and poly_line")
 
 
 def downsample(data, transform, plot_state):
@@ -303,11 +321,90 @@ def downsample(data, transform, plot_state):
         xcol = table[xcol]
         ycol = table[ycol]
 
-    # TODO: Do more detection to find if it is an area implantation.  
+    # TODO: Do more detection to find if it is an area implantation.
     #       If so, make a selector with the right shape pattern and use a point shaper
     shaper = _shaper(glyphspec['type'], size, transform['points'])
     glyphs = glyphset.Glyphset([xcol, ycol], general.EmptyList(),
                                shaper, colMajor=True)
+
+    shader = transform['shader'].reify()
+
+    if shader.out == "image" or shader.out == "image_rgb":
+        return downsample_image(xcol, ycol, glyphs, transform, plot_state)
+    elif shader.out == "poly_line":
+        return downsample_line(xcol, ycol, glyphs, transform, plot_state)
+    else:
+        raise ValueError("Only handles out types of image, image_rgb and poly_line")
+
+
+def downsample_line(xcol, ycol, glyphs, transform, plot_state):
+    glyphs = glyphset.Glyphset([xcol, ycol], general.EmptyList(),
+                               shaper, colMajor=True)
+    bounds = glyphs.bounds()
+
+    screen_x_span = float(_span(plot_state['screen_x']))
+    screen_y_span = float(_span(plot_state['screen_y']))
+    data_x_span = float(_span(plot_state['data_x']))
+    data_y_span = float(_span(plot_state['data_y']))
+
+    # How big would a full plot of the data be at the current resolution?
+    if data_x_span == 0 or data_y_span == 0:
+        # If scale is zero for either axis, don't actual render,
+        # instead report back data bounds and wait for the next request
+        # This enales guide creation...which cahgnes the available plot size.
+        image = np.array([[np.nan]])
+        scale_x = 1
+        scale_y = 1
+    else:
+        scale_x = data_x_span/screen_x_span
+        scale_y = data_x_span/screen_y_span
+        plot_size = [bounds[2]/scale_x, bounds[3]/scale_y]
+
+        ivt = ar.zoom_fit(plot_size, bounds, balanced=False)
+        (tx, ty, sx, sy) = ivt
+
+        shader = transform['shader'].reify()
+
+        if sx == 0 or sy == 0:
+            # If client canvas has no size yet, just make a 1,1 array with a default value
+            image = np.array([[np.nan]])
+        else:
+            image = ar.render(glyphs,
+                    transform['info'].reify(),
+                    transform['agg'].reify(),
+                    shader,
+                    plot_size, ivt)
+
+        if transform['shader'].out == 'image_rgb' and len(image.shape) > 2:
+            image = image.view(dtype=np.int32).reshape(image.shape[0:2])
+
+    (xmin, xmax) = (xcol.min(), xcol.max())
+    (ymin, ymax) = (ycol.min(), ycol.max())
+
+    rslt = {'image': [image],
+            'global_offset_x': [0],
+            'global_offset_y': [0],
+
+            # Screen-mapping values.
+            # x_range is the left and right data space values corresponding to
+            #     the bottom left and bottom right of the plot
+            # y_range is the bottom and top data space values corresponding to
+            #     the bottom left and top left of the plot
+            'x_range': {'start': xmin*scale_x, 'end': xmax*scale_x},
+            'y_range': {'start': ymin*scale_y, 'end': ymax*scale_y},
+
+            # Data-image parameters.
+            # x/y are lower left data-space coord of the image.
+            # dw/dh are the width and height in data space
+            'x': [xmin],
+            'y': [ymin],
+            'dw': [xmax-xmin],
+            'dh': [ymax-ymin]}
+
+    return rslt
+
+
+def downsample_image(xcol, ycol, glyphs, transform, plot_state):
     bounds = glyphs.bounds()
 
     screen_x_span = float(_span(plot_state['screen_x']))
