@@ -34,11 +34,6 @@ define [
 
       return @model.set.apply(@model, arguments)
 
-    mget_obj: (fld) ->
-      # convenience function, calls get_obj on the associated model
-
-      return @model.get_obj(fld)
-
     render_end: () ->
       "pass"
 

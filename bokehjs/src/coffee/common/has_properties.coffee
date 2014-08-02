@@ -197,12 +197,11 @@ define [
     get_cache: (prop_name) ->
       return @property_cache[prop_name]
 
-    get: (prop_name) ->
+    get: (prop_name, resolve_refs=true) ->
       # ### method: HasProperties::get
       # overrides backbone get.  checks properties,
       # calls getter, or goes to cache
       # if necessary.  If it's not a property, then just call super
-
       if _.has(@properties, prop_name)
         prop_spec = @properties[prop_name]
         if prop_spec.use_cache and @has_cache(prop_name)
@@ -214,7 +213,16 @@ define [
             @add_cache(prop_name, computed)
           return computed
       else
-        return super(prop_name)
+        ref_or_obj = super(prop_name)
+        if _.isArray(ref_or_obj) and ref_or_obj.length > 0 and _.isObject(ref_or_obj[0])
+          keys = _.keys(ref_or_obj[0]).sort()
+          if keys.length==2 and keys[0]=='id' and keys[1]=='type' and resolve_refs
+            return _.map(ref_or_obj, @resolve_ref)
+        else if _.isObject(ref_or_obj)
+          keys = _.keys(ref_or_obj).sort()
+          if keys.length==2 and keys[0]=='id' and keys[1]=='type' and resolve_refs
+            return @resolve_ref(ref_or_obj)
+        return ref_or_obj
 
     ref: ->
       # ### method: HasProperties::ref
@@ -236,15 +244,6 @@ define [
         return this
       else
         return @get_base().Collections(ref['type']).get(ref['id'])
-
-    get_obj: (ref_name) =>
-      # ### method: HasProperties::get_obj
-      # convenience function, gets the backbone attribute ref_name, which is assumed
-      # to be a reference, then resolves the reference and returns the model
-
-      ref = @get(ref_name)
-      if ref
-        return @resolve_ref(ref)
 
     get_base: ()->
       if not @_base

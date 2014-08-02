@@ -36,10 +36,10 @@ define [
 
   class HasParent extends HasProperties
     get_fallback: (attr) ->
-      if (@get_obj('parent') and
-          _.indexOf(@get_obj('parent').parent_properties, attr) >= 0 and
-          not _.isUndefined(@get_obj('parent').get(attr)))
-        return @get_obj('parent').get(attr)
+      if (@get('parent') and
+          _.indexOf(@get('parent').parent_properties, attr) >= 0 and
+          not _.isUndefined(@get('parent').get(attr)))
+        return @get('parent').get(attr)
       else
         if _.isFunction(@display_defaults)
           return @display_defaults()[attr]
