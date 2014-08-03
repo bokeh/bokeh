@@ -263,37 +263,34 @@ class Chart(object):
                 out_y.append(o)
 
             # Store
-            self._set_and_get("lower", level, lower)
-            self._set_and_get("upper", level, upper)
-            self._set_and_get("out_x", level, out_x)
-            self._set_and_get("out_y", level, out_y)
             self._set_and_get("q0", level, q0_list)
             self._set_and_get("lower_list", level, lower_list)
             self._set_and_get("q2", level, q2_list)
             self._set_and_get("upper_list", level, upper_list)
             self._set_and_get("iqr_cp_list", level, iqr_cp_list)
             self._set_and_get("iqr_list", level, iqr_list)
-
             self._set_and_get("u_cp_list", level, u_cp_list)
             self._set_and_get("u_he_list", level, u_he_list)
             self._set_and_get("l_cp_list", level, l_cp_list)
             self._set_and_get("l_he_list", level, l_he_list)
-
-        # Set up the colors for the rects
-        self.colors = self._set_colors(self.cat)
-        self.data["colors"] = self.colors
+            self._set_and_get("out_x", level, out_x)
+            self._set_and_get("out_y", level, out_y)
 
     def get_source_boxplot(self):
         "Get the boxplot data into the ColumnDataSource and calculate the proper ranges."
         self.source = ColumnDataSource(self.data)
         self.xdr = FactorRange(factors=self.source.data["cat"])
-        lowers = self.attr[0::14]
-        uppers = self.attr[1::14]
-        start_y = min(self.data[i] for i in lowers)
-        end_y = max(self.data[i] for i in uppers)
+        lowers = self.attr[1::12]
+        uppers = self.attr[3::12]
+
+        def drop_none(l):
+            return [i for i in l if i is not None]
+
+        start_y = min(min(drop_none(self.data[i])) for i in lowers)
+        end_y = max(max(drop_none(self.data[i])) for i in uppers)
         ## Expand min/max to encompass outliers
         if self.outliers:
-            outs = self.attr[3::14]
+            outs = self.attr[11::12]
             start_out_y = min(min(self.data[x]) for x in outs if len(self.data[x]) > 0)
             end_out_y = max(max(self.data[x]) for x in outs if len(self.data[x]) > 0)
             start_y = min(start_y, start_out_y)
@@ -489,17 +486,17 @@ class Chart(object):
     def boxplot(self):
         " Use the `rect`, `scatter`, and `segment` renderers to display the boxplot. "
 
-        self.quartet = list(self._chunker(self.attr, 14))
+        self.quartet = list(self._chunker(self.attr, 12))
         colors = self._set_colors(self.quartet)
 
         for i, quartet in enumerate(self.quartet):
-            self.make_rect("cat", quartet[10], "width", quartet[11], "colors", "black", None)
-            self.make_rect("cat", quartet[12], "width", quartet[13], "colors", "black", None)
-            self.make_rect("cat", quartet[8], "width", quartet[9], None, "black", 2)
-            self.make_segment("cat", quartet[6], "cat", quartet[7], "black", 2)
-            self.make_segment("cat", quartet[5], "cat", quartet[4], "black", 2)
+            self.make_segment("cat", quartet[1], "cat", quartet[0], "black", 2)
+            self.make_segment("cat", quartet[2], "cat", quartet[3], "black", 2)
+            self.make_rect("cat", quartet[4], "width", quartet[5], None, "black", 2)
+            self.make_rect("cat", quartet[6], "width", quartet[7], colors[i], "black", None)
+            self.make_rect("cat", quartet[8], "width", quartet[9], colors[i], "black", None)
             if self.outliers:
-                self.make_scatter(quartet[2], quartet[3], self.marker, colors[i])
+                self.make_scatter(quartet[10], quartet[11], self.marker, colors[i])
 
     def show(self):
         "Main show function, it shows the plot in file, server and notebook outputs."
