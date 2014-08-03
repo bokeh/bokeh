@@ -29,26 +29,39 @@ from ._chartobject import ChartObject
 
 class BoxPlot(ChartObject):
 
-    def __init__(self, value, title=None, xlabel=None, ylabel=None, legend=False,
+    def __init__(self, value, marker="circle", outliers=True,
+                 title=None, xlabel=None, ylabel=None, legend=False,
                  xscale="categorical", yscale="linear", width=800, height=600,
-                 tools=True, filename=False, server=False, notebook=False, outliers=True,
-                 marker="circle", line_width=2):
+                 tools=True, filename=False, server=False, notebook=False):
         """ Initialize a new boxplot.
         Args:
             value (DataFrame/OrderedDict/dict): the data to plot
             outliers (bool): Whether or not to plot outliers
             marker (int/string): if outliers=True, the marker type to use (e.g., 'circle')
-            line_width: width of the inter-quantile range line
         """
         self.value = value
-        self.marker = marker
-        self.outliers = outliers
+        self.__marker = marker
+        self.__outliers = outliers
         super(BoxPlot, self).__init__(title, xlabel, ylabel, legend,
                                   xscale, yscale, width, height,
                                   tools, filename, server, notebook)
 
+    def marker(self, marker="circle"):
+        self._marker = marker
+        return self
+
+    def outliers(self, outliers=True):
+        self._outliers = outliers
+        return self
+
     def check_attr(self):
         super(BoxPlot, self).check_attr()
+
+        if not hasattr(self, '_marker'):
+            self._marker = self.__marker
+
+        if not hasattr(self, '_outliers'):
+            self._outliers = self.__outliers
 
     def show(self):
         "This is the main BoxPlot show function."
@@ -62,7 +75,7 @@ class BoxPlot(ChartObject):
         chart = Chart(self._title, self._xlabel, self._ylabel, self._legend,
                       self.xscale, self.yscale, self._width, self._height,
                       self._tools, self._filename, self._server, self._notebook)
-        chart.get_data_boxplot(self.cat, self.marker, self.outliers, **self.value)
+        chart.get_data_boxplot(self.cat, self._marker, self._outliers, **self.value)
         chart.get_source_boxplot()
         chart.start_plot()
         chart.boxplot()

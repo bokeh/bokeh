@@ -323,7 +323,6 @@ class Chart(object):
         if self.legend:
             listed_glyphs = [[glyph] for glyph in self.glyphs]
             self.legends = OrderedDict(zip(self.groups, listed_glyphs))
-            print self.legends
             if self.legend is True:
                 orientation = "top_right"
             else:
@@ -489,7 +488,10 @@ class Chart(object):
                 self.make_scatter(quartet[10], quartet[11], self.marker, colors[i])
 
         # We need to manually select the proper glyphsto be rendered as legends
-        indexes = [3, 9, 15]  # 1st rect, 2nd rect, 3rd rect
+        if self.outliers:
+            indexes = [3, 9, 15]  # 1st rect, 2nd rect, 3rd rect
+        else:
+            indexes = [3, 8, 13]  # 1st rect, 2nd rect, 3rd rect
         self.glyphs = [self.glyphs[i] for i in indexes]
 
     def show(self):
