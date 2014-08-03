@@ -215,49 +215,38 @@ class Chart(object):
 
         for i, level in enumerate(self.value.keys()):
 
-            # Compute and save quantiles, center points, heights, IQR, etc.
+            # Initialize all the list to be used to store data
+            (q0_list, q2_list, u_cp_list, u_he_list,
+            l_cp_list, l_he_list, iqr_cp_list, iqr_list,
+            lower_list, upper_list) = (list(self.nones) for i in range(10))
+
+            # Compute quantiles, center points, heights, IQR, etc.
+            # quantiles
             q = np.percentile(self.value[level], [25, 50, 75])
-            q0_list = list(self.nones)
             q0_list[i] = q[0]
-            q2_list = list(self.nones)
             q2_list[i] = q[2]
 
-            u_cp = (q[2] + q[1]) / 2
-            u_cp_list = list(self.nones)
-            u_cp_list[i] = u_cp
+            # rect center points and heights
+            u_cp_list[i] = (q[2] + q[1]) / 2
+            u_he_list[i] = q[2] - q[1]
+            l_cp_list[i] = (q[1] + q[0]) / 2
+            l_he_list[i] = q[1] - q[0]
 
-            u_he = q[2] - q[1]
-            u_he_list = list(self.nones)
-            u_he_list[i] = u_he
-
-            l_cp = (q[1] + q[0]) / 2
-            l_cp_list = list(self.nones)
-            l_cp_list[i] = l_cp
-
-            l_he = q[1] - q[0]
-            l_he_list = list(self.nones)
-            l_he_list[i] = l_he
-
-            iqr_cp = (q[2] + q[0]) / 2
-            iqr_cp_list = list(self.nones)
-            iqr_cp_list[i] = iqr_cp
-
+            # IQR related stuff...
+            iqr_cp_list[i] = (q[2] + q[0]) / 2
             iqr = q[2] - q[0]
-            iqr_list = list(self.nones)
             iqr_list[i] = iqr
 
             lower = q[1] - 1.5 * iqr
-            lower_list = list(self.nones)
             lower_list[i] = lower
+
             upper = q[1] + 1.5 * iqr
-            upper_list = list(self.nones)
             upper_list[i] = upper
 
             # Store indices of outliers as list
             outliers = np.where((self.value[level] > upper) | (self.value[level] < lower))[0]
             out = self.value[level][outliers]
-            out_x = []
-            out_y = []
+            out_x, out_y = ([], [])
             for o in out:
                 out_x.append(level)
                 out_y.append(o)
@@ -280,14 +269,14 @@ class Chart(object):
         "Get the boxplot data into the ColumnDataSource and calculate the proper ranges."
         self.source = ColumnDataSource(self.data)
         self.xdr = FactorRange(factors=self.source.data["cat"])
-        lowers = self.attr[1::12]
-        uppers = self.attr[3::12]
+        lowers, uppers = self.attr[1::12], self.attr[3::12]
 
         def drop_none(l):
             return [i for i in l if i is not None]
 
         start_y = min(min(drop_none(self.data[i])) for i in lowers)
         end_y = max(max(drop_none(self.data[i])) for i in uppers)
+
         ## Expand min/max to encompass outliers
         if self.outliers:
             outs = self.attr[11::12]
@@ -334,6 +323,7 @@ class Chart(object):
         if self.legend:
             listed_glyphs = [[glyph] for glyph in self.glyphs]
             self.legends = OrderedDict(zip(self.groups, listed_glyphs))
+            print self.legends
             if self.legend is True:
                 orientation = "top_right"
             else:
@@ -497,6 +487,10 @@ class Chart(object):
             self.make_rect("cat", quartet[8], "width", quartet[9], colors[i], "black", None)
             if self.outliers:
                 self.make_scatter(quartet[10], quartet[11], self.marker, colors[i])
+
+        # We need to manually select the proper glyphsto be rendered as legends
+        indexes = [3, 9, 15]  # 1st rect, 2nd rect, 3rd rect
+        self.glyphs = [self.glyphs[i] for i in indexes]
 
     def show(self):
         "Main show function, it shows the plot in file, server and notebook outputs."
