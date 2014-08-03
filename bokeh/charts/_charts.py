@@ -211,18 +211,6 @@ class Chart(object):
 
         self.groups.extend(self.value.keys())
 
-        # lists to save the y center point and height for the upper rect
-        self.u_cps = []
-        self.u_hes = []
-
-        # lists to save the y center point and height for the lower rect
-        self.l_cps = []
-        self.l_hes = []
-
-        # lists to save the y center point and height for the upper+lower rect
-        self.iqrs_cp = []
-        self.iqrs = []
-
         self.nones = [None] * len(self.cat)
 
         for i, level in enumerate(self.value.keys()):
@@ -235,18 +223,28 @@ class Chart(object):
             q2_list[i] = q[2]
 
             u_cp = (q[2] + q[1]) / 2
+            u_cp_list = list(self.nones)
+            u_cp_list[i] = u_cp
+
             u_he = q[2] - q[1]
+            u_he_list = list(self.nones)
+            u_he_list[i] = u_he
+
             l_cp = (q[1] + q[0]) / 2
+            l_cp_list = list(self.nones)
+            l_cp_list[i] = l_cp
+
             l_he = q[1] - q[0]
-            self.u_cps.append(u_cp)
-            self.u_hes.append(u_he)
-            self.l_cps.append(l_cp)
-            self.l_hes.append(l_he)
+            l_he_list = list(self.nones)
+            l_he_list[i] = l_he
 
             iqr_cp = (q[2] + q[0]) / 2
+            iqr_cp_list = list(self.nones)
+            iqr_cp_list[i] = iqr_cp
+
             iqr = q[2] - q[0]
-            self.iqrs_cp.append(iqr_cp)
-            self.iqrs.append(iqr)
+            iqr_list = list(self.nones)
+            iqr_list[i] = iqr
 
             lower = q[1] - 1.5 * iqr
             lower_list = list(self.nones)
@@ -273,14 +271,13 @@ class Chart(object):
             self._set_and_get("lower_list", level, lower_list)
             self._set_and_get("q2", level, q2_list)
             self._set_and_get("upper_list", level, upper_list)
+            self._set_and_get("iqr_cp_list", level, iqr_cp_list)
+            self._set_and_get("iqr_list", level, iqr_list)
 
-        # Fill te data dict with the calculated parameters
-        self.data["u_cps"] = self.u_cps
-        self.data["u_hes"] = self.u_hes
-        self.data["l_cps"] = self.l_cps
-        self.data["l_hes"] = self.l_hes
-        self.data["iqrs_cp"] = self.iqrs_cp
-        self.data["iqrs"] = self.iqrs
+            self._set_and_get("u_cp_list", level, u_cp_list)
+            self._set_and_get("u_he_list", level, u_he_list)
+            self._set_and_get("l_cp_list", level, l_cp_list)
+            self._set_and_get("l_he_list", level, l_he_list)
 
         # Set up the colors for the rects
         self.colors = self._set_colors(self.cat)
@@ -290,13 +287,13 @@ class Chart(object):
         "Get the boxplot data into the ColumnDataSource and calculate the proper ranges."
         self.source = ColumnDataSource(self.data)
         self.xdr = FactorRange(factors=self.source.data["cat"])
-        lowers = self.attr[0::8]
-        uppers = self.attr[1::8]
+        lowers = self.attr[0::14]
+        uppers = self.attr[1::14]
         start_y = min(self.data[i] for i in lowers)
         end_y = max(self.data[i] for i in uppers)
         ## Expand min/max to encompass outliers
         if self.outliers:
-            outs = self.attr[3::8]
+            outs = self.attr[3::14]
             start_out_y = min(min(self.data[x]) for x in outs if len(self.data[x]) > 0)
             end_out_y = max(max(self.data[x]) for x in outs if len(self.data[x]) > 0)
             start_y = min(start_y, start_out_y)
@@ -491,14 +488,14 @@ class Chart(object):
 
     def boxplot(self):
         " Use the `rect`, `scatter`, and `segment` renderers to display the boxplot. "
-        self.make_rect("cat", "u_cps", "width", "u_hes", "colors", "black", None)
-        self.make_rect("cat", "l_cps", "width", "l_hes", "colors", "black", None)
-        self.make_rect("cat", "iqrs_cp", "width", "iqrs", None, "black", 2)
 
-        self.quartet = list(self._chunker(self.attr, 8))
+        self.quartet = list(self._chunker(self.attr, 14))
         colors = self._set_colors(self.quartet)
 
         for i, quartet in enumerate(self.quartet):
+            self.make_rect("cat", quartet[10], "width", quartet[11], "colors", "black", None)
+            self.make_rect("cat", quartet[12], "width", quartet[13], "colors", "black", None)
+            self.make_rect("cat", quartet[8], "width", quartet[9], None, "black", 2)
             self.make_segment("cat", quartet[6], "cat", quartet[7], "black", 2)
             self.make_segment("cat", quartet[5], "cat", quartet[4], "black", 2)
             if self.outliers:
