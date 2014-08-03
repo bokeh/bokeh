@@ -211,10 +211,6 @@ class Chart(object):
 
         self.groups.extend(self.value.keys())
 
-        # lists to save q25 and q75
-        self.q0 = []
-        self.q2 = []
-
         # lists to save the y center point and height for the upper rect
         self.u_cps = []
         self.u_hes = []
@@ -227,16 +223,16 @@ class Chart(object):
         self.iqrs_cp = []
         self.iqrs = []
 
-        # lists to save the lowers and upper limits for segments
-        self.lowers = []
-        self.uppers = []
+        self.nones = [None] * len(self.cat)
 
         for i, level in enumerate(self.value.keys()):
 
             # Compute and save quantiles, center points, heights, IQR, etc.
             q = np.percentile(self.value[level], [25, 50, 75])
-            self.q0.append(q[0])
-            self.q2.append(q[2])
+            q0_list = list(self.nones)
+            q0_list[i] = q[0]
+            q2_list = list(self.nones)
+            q2_list[i] = q[2]
 
             u_cp = (q[2] + q[1]) / 2
             u_he = q[2] - q[1]
@@ -253,9 +249,11 @@ class Chart(object):
             self.iqrs.append(iqr)
 
             lower = q[1] - 1.5 * iqr
+            lower_list = list(self.nones)
+            lower_list[i] = lower
             upper = q[1] + 1.5 * iqr
-            self.lowers.append(lower)
-            self.uppers.append(upper)
+            upper_list = list(self.nones)
+            upper_list[i] = upper
 
             # Store indices of outliers as list
             outliers = np.where((self.value[level] > upper) | (self.value[level] < lower))[0]
@@ -271,18 +269,18 @@ class Chart(object):
             self._set_and_get("upper", level, upper)
             self._set_and_get("out_x", level, out_x)
             self._set_and_get("out_y", level, out_y)
+            self._set_and_get("q0", level, q0_list)
+            self._set_and_get("lower_list", level, lower_list)
+            self._set_and_get("q2", level, q2_list)
+            self._set_and_get("upper_list", level, upper_list)
 
         # Fill te data dict with the calculated parameters
-        self.data["q0"] = self.q0
-        self.data["q2"] = self.q2
         self.data["u_cps"] = self.u_cps
         self.data["u_hes"] = self.u_hes
         self.data["l_cps"] = self.l_cps
         self.data["l_hes"] = self.l_hes
         self.data["iqrs_cp"] = self.iqrs_cp
         self.data["iqrs"] = self.iqrs
-        self.data["lowers"] = self.lowers
-        self.data["uppers"] = self.uppers
 
         # Set up the colors for the rects
         self.colors = self._set_colors(self.cat)
@@ -292,13 +290,13 @@ class Chart(object):
         "Get the boxplot data into the ColumnDataSource and calculate the proper ranges."
         self.source = ColumnDataSource(self.data)
         self.xdr = FactorRange(factors=self.source.data["cat"])
-        lowers = self.attr[0::4]
-        uppers = self.attr[1::4]
+        lowers = self.attr[0::8]
+        uppers = self.attr[1::8]
         start_y = min(self.data[i] for i in lowers)
         end_y = max(self.data[i] for i in uppers)
         ## Expand min/max to encompass outliers
         if self.outliers:
-            outs = self.attr[3::4]
+            outs = self.attr[3::8]
             start_out_y = min(min(self.data[x]) for x in outs if len(self.data[x]) > 0)
             end_out_y = max(max(self.data[x]) for x in outs if len(self.data[x]) > 0)
             start_y = min(start_y, start_out_y)
@@ -496,14 +494,14 @@ class Chart(object):
         self.make_rect("cat", "u_cps", "width", "u_hes", "colors", "black", None)
         self.make_rect("cat", "l_cps", "width", "l_hes", "colors", "black", None)
         self.make_rect("cat", "iqrs_cp", "width", "iqrs", None, "black", 2)
-        self.make_segment("cat", "q2", "cat", "uppers", "black", 2)
-        self.make_segment("cat", "lowers", "cat", "q0", "black", 2)
 
-        self.quartet = list(self._chunker(self.attr, 4))
+        self.quartet = list(self._chunker(self.attr, 8))
         colors = self._set_colors(self.quartet)
 
-        if self.outliers:
-            for i, quartet in enumerate(self.quartet):
+        for i, quartet in enumerate(self.quartet):
+            self.make_segment("cat", quartet[6], "cat", quartet[7], "black", 2)
+            self.make_segment("cat", quartet[5], "cat", quartet[4], "black", 2)
+            if self.outliers:
                 self.make_scatter(quartet[2], quartet[3], self.marker, colors[i])
 
     def show(self):
