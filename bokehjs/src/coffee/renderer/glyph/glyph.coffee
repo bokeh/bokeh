@@ -29,7 +29,7 @@ define [
           serversource.listen_for_line1d_updates(
             @mget_obj('data_source'),
             x_range,  y_range,
-            @plot_view.x_range,
+            @plot_view.x_range, @plot_view.y_range,
             x_range,
             @glyph_props.y.field,
             @glyph_props.x.field,

@@ -51,48 +51,56 @@ define [
       url = "#{prefix}bokeh/data/#{owner_username}/#{@get('doc')}/#{@get('id')}"    
 
     listen_for_line1d_updates : (column_data_source, 
-                                  plot_x_range, plot_y_range, 
-                                  domain_range, screen_range
+                                  plot_x_span, plot_y_span, 
+                                  domain_span, range_span,
+                                  screen_span,
                                   primary_column, domain_name, columns, input_params) ->
       
-      plot_state = {screen_x: plot_x_range, screen_y: plot_y_range}
+      plot_state = {screen_x: plot_x_span, screen_y: plot_y_span}
       #ensure we only have one set of events bound
       @stoplistening_for_updates(column_data_source)
-      @line1d_update(column_data_source, plot_state, domain_range, screen_range
-          primary_column, domain_name, columns, input_params)
+      @line1d_update(column_data_source, plot_state, domain_span, range_span, screen_span,
+                     primary_column, domain_name, columns, input_params)
 
       throttle = _.throttle(@line1d_update, 300)
       console.log(input_params)
-      callback = () => throttle(column_data_source, plot_state, domain_range, screen_range
-        primary_column, domain_name, columns, input_params
-      )
-      @listenTo(screen_range, 'change', callback)
-      @listenTo(domain_range, 'change', callback)
+      callback = () => throttle(column_data_source, plot_state, domain_span, range_span, screen_span,
+                                primary_column, domain_name, columns, input_params)
+
+      @listenTo(screen_span, 'change', callback)
+      @listenTo(domain_span, 'change', callback)
       @callbacks[column_data_source.get('id')] = [
-        [screen_range, 'change', callback],
-        [domain_range, 'change', callback]
+        [screen_span, 'change', callback],
+        [domain_span, 'change', callback]
       ]
 
     #TODO: Move some of the passed paramters in to the plot_state object...when plot_state can handle more than just ranges
-    line1d_update : (column_data_source, plot_state, domain_range, screen_range,
+    line1d_update : (column_data_source, plot_state, 
+                     domain_span, range_span,
+                     screen_span,
                      primary_column, domain_name, columns, input_params) =>
       #console.log('calling update')
-      domain_resolution = (screen_range.get('end') - screen_range.get('start')) / 2
+      domain_resolution = (screen_span.get('end') - screen_span.get('start')) / 2
       domain_resolution = Math.floor(domain_resolution)
-      domain_limit = [domain_range.get('start'), domain_range.get('end')]
+      domain_limit = [domain_span.get('start'), domain_span.get('end')]
+      range_limit = [range_span.get('start'), range_span.get('end')]
   
       if plot_state['screen_x'].get('start') == plot_state['screen_x'].get('end') or
          plot_state['screen_y'].get('start') == plot_state['screen_y'].get('end') or
-         domain_limit[0] > domain_limit[1]
-       console.log("Skipping due to under-defined view state")
+         domain_limit[0] > domain_limit[1] or
+         range_limit[0] > range_limit[1]
        return $.ajax()
   
       if (_.any(_.map(domain_limit, (x) -> _.isNaN(x))) or
          _.every(_.map(domain_limit, (x) -> _.isEqual(0,x))))
         domain_limit = 'auto'
+
+      if (_.any(_.map(range_limit, (x) -> _.isNaN(x))) or
+         _.every(_.map(range_limit, (x) -> _.isEqual(0,x))))
+        range_limit = 'auto'
       
       params = [primary_column, domain_name, columns,
-          domain_limit, domain_resolution, input_params]
+          range_limit,domain_limit, domain_resolution, input_params]
       $.ajax(
         dataType: 'json'
         url : @update_url()
@@ -100,11 +108,17 @@ define [
           withCredentials : true
         success : (data) ->
           if domain_limit == 'auto'
-            domain_range.set(
+            domain_span.set(
                 start : data.domain_limit[0],
                 end : data.domain_limit[1],
             )
-            #console.log('setting range', data.domain_limit)
+
+          if range_limit == 'auto'
+            range_span.set(
+                start : data.range_limit[0],
+                end : data.range_limit[1],
+            )
+
           column_data_source.set('data', data.data)
           #console.log('setting data', _.values(data.data)[0].length)
         data :
