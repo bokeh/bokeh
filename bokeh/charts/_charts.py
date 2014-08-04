@@ -403,22 +403,22 @@ class Chart(object):
 
         self._append_glyph(scatter)
 
-    def histogram(self, mu_and_sigma, attr):
-        "Use the `quad` renderer to display the histogram bars."
-        if not mu_and_sigma:
-            self.quintet = list(self._chunker(attr, 5))
-            colors = self._set_colors(self.quintet)
+    #def histogram(self, mu_and_sigma, attr):
+        #"Use the `quad` renderer to display the histogram bars."
+        #if not mu_and_sigma:
+            #self.quintet = list(self._chunker(attr, 5))
+            #colors = self._set_colors(self.quintet)
 
-            for i, quintet in enumerate(self.quintet):
-                self.make_quad(quintet[0], quintet[4], quintet[2], quintet[3], colors[i])
-        else:
-            self.octet = list(self._chunker(attr, 8))
-            colors = self._set_colors(self.octet)
+            #for i, quintet in enumerate(self.quintet):
+                #self.make_quad(quintet[0], quintet[4], quintet[2], quintet[3], colors[i])
+        #else:
+            #self.octet = list(self._chunker(attr, 8))
+            #colors = self._set_colors(self.octet)
 
-            for i, octet in enumerate(self.octet):
-                self.make_quad(octet[0], octet[4], octet[2], octet[3], colors[i])
-                self.make_line(octet[5], octet[6], "black")
-                self.make_line(octet[5], octet[7], "blue")
+            #for i, octet in enumerate(self.octet):
+                #self.make_quad(octet[0], octet[4], octet[2], octet[3], colors[i])
+                #self.make_line(octet[5], octet[6], "black")
+                #self.make_line(octet[5], octet[7], "blue")
 
     def bar(self, stacked):
         "Use the `rect` renderer to display the bars."
@@ -488,21 +488,21 @@ class Chart(object):
         #self.data[prefix + val] = getattr(self, prefix + val)
         #self.attr.append(prefix + val)
 
-    def _chunker(self, l, n):
-        "Yield successive n-sized chunks from l."
-        for i in range(0, len(l), n):
-            yield l[i:i + n]
+    #def _chunker(self, l, n):
+        #"Yield successive n-sized chunks from l."
+        #for i in range(0, len(l), n):
+            #yield l[i:i + n]
 
-    def _set_colors(self, chunk):
-        "Build the proper color list just cycling in a defined palette"
-        colors = []
+    #def _set_colors(self, chunk):
+        #"Build the proper color list just cycling in a defined palette"
+        #colors = []
 
-        pal = ["#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33ff3"]
-        g = itertools.cycle(pal)
-        for i in range(len(chunk)):
-            colors.append(next(g))
+        #pal = ["#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33ff3"]
+        #g = itertools.cycle(pal)
+        #for i in range(len(chunk)):
+            #colors.append(next(g))
 
-        return colors
+        #return colors
 
     def _append_glyph(self, glyph):
         """ Appends the passed glyph to the renderer. """

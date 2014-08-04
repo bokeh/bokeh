@@ -15,6 +15,7 @@ the arguments to the Chart class and calling the proper functions.
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
+import scipy.special
 import numpy as np
 
 from ._charts import Chart
@@ -43,6 +44,7 @@ class Histogram(ChartObject):
         self.source = None
         self.xdr = None
         self.ydr = None
+        self.data = dict()
         self.groups = []
         self.attr = []
 
@@ -51,9 +53,6 @@ class Histogram(ChartObject):
 
     def get_data_histogram(self, bins, mu, sigma, **value):
         "Take the histogram data from the input and calculate the parameters accordingly."
-        import scipy.special
-
-        self.data = dict()
 
         # assuming value is a dict, ordered dict
         self.value = value
@@ -61,10 +60,9 @@ class Histogram(ChartObject):
         # list to save all the groups available in the incomming input
         self.groups.extend(self.value.keys())
 
+        # fill the data dictionary with the proper values
         for i, val in enumerate(self.value.keys()):
-            setattr(self, val, self.value[val])
-            self.data[val] = getattr(self, val)
-
+            self._set_and_get("", val, self.value[val])
             hist, edges = np.histogram(self.data[val], density=True, bins=bins)
             self._set_and_get("hist", val, hist)
             self._set_and_get("edges", val, edges)
@@ -89,9 +87,9 @@ class Histogram(ChartObject):
         self.source = ColumnDataSource(data=self.data)
 
         if not self.mu_and_sigma:
-            x_names, y_names = self.attr[1::5], self.attr[::5]
+            x_names, y_names = self.attr[2::6], self.attr[1::6]
         else:
-            x_names, y_names = self.attr[1::8], self.attr[::8]
+            x_names, y_names = self.attr[2::9], self.attr[1::9]
 
         endx = max(max(self.data[i]) for i in x_names)
         startx = min(min(self.data[i]) for i in x_names)
@@ -103,20 +101,44 @@ class Histogram(ChartObject):
             endy = 1.0
         self.ydr = Range1d(start=0, end=1.1 * endy)
 
+    def histogram(self):
+        "Use the `quad` renderer to display the histogram bars."
+        if not self.mu_and_sigma:
+            self.quintet = list(self._chunker(self.attr, 6))
+            colors = self._set_colors(self.quintet)
+
+            for i, quintet in enumerate(self.quintet):
+                self.chart.make_quad(quintet[1], quintet[5], quintet[3], quintet[4], colors[i])
+        else:
+            self.octet = list(self._chunker(self.attr, 9))
+            colors = self._set_colors(self.octet)
+
+            for i, octet in enumerate(self.octet):
+                self.chart.make_quad(octet[1], octet[5], octet[3], octet[4], colors[i])
+                self.chart.make_line(octet[6], octet[7], "black")
+                self.chart.make_line(octet[6], octet[8], "blue")
+
     def show(self):
         "This is the main Histogram show function."
+        # we need to check the chained method attr
         self.check_attr()
-
-        chart = Chart(self._title, self._xlabel, self._ylabel, self._legend,
+        # we create the chart object
+        self.chart = Chart(self._title, self._xlabel, self._ylabel, self._legend,
                       self.xscale, self.yscale, self._width, self._height,
                       self._tools, self._filename, self._server, self._notebook)
-        chart.start_plot()
+        # we start the plot (adds axis, grids and tools
+        self.chart.start_plot()
+        # we get the data from the incoming input
         self.get_data_histogram(self.bins, self.mu, self.sigma, **self.measured)
+        # we filled the source and ranges with the calculated data
         self.get_source_histogram()
-        chart.add_data_plot(self.source, self.xdr, self.ydr)
-        chart.histogram(self.mu_and_sigma, self.attr)
-        chart.end_plot(self.groups)
-        chart.show()
+        # we dinamically inject the source and ranges into the plot
+        self.chart.add_data_plot(self.source, self.xdr, self.ydr)
+        # we add the glyphs into the plot
+        self.histogram()
+        # finally we pass info to build the legend
+        self.chart.end_plot(self.groups)
+        self.chart.show()
 
     # Some helper methods
     def _set_and_get(self, prefix, val, content):
@@ -125,3 +147,19 @@ class Histogram(ChartObject):
         self.data[prefix + val] = getattr(self, prefix + val)
         self.attr.append(prefix + val)
 
+    def _chunker(self, l, n):
+        "Yield successive n-sized chunks from l."
+        for i in range(0, len(l), n):
+            yield l[i:i + n]
+
+    def _set_colors(self, chunk):
+        "Build the proper color list just cycling in a defined palette"
+        colors = []
+
+        pal = ["#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33ff3"]
+        import itertools
+        g = itertools.cycle(pal)
+        for i in range(len(chunk)):
+            colors.append(next(g))
+
+        return colors
