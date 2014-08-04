@@ -63,6 +63,14 @@ class Chart(object):
         self.ydr = None
         self.groups = []
         self.glyphs = []
+        self.plot = Plot(title=self.title,
+                         data_sources=[self.source],
+                         x_range=self.xdr,
+                         y_range=self.ydr,
+                         plot_width=self.plot_width,
+                         plot_height=self.plot_height)
+        # To prevent adding a wheelzoom to a categorical plot
+        self.categorical = False
 
     def get_data_histogram(self, bins, mu, sigma, **value):
         "Take the histogram data from the input and calculate the parameters accordingly."
@@ -246,16 +254,6 @@ class Chart(object):
         self.ydr = Range1d(start=start_y - 0.1 * (end_y-start_y), end=end_y + 0.1 * (end_y-start_y))
 
     def start_plot(self):
-        self.plot = Plot(title=self.title,
-                         data_sources=[self.source],
-                         x_range=self.xdr,
-                         y_range=self.ydr,
-                         plot_width=self.plot_width,
-                         plot_height=self.plot_height)
-
-        # To prevent adding a wheelzoom to a categorical plot
-        self.categorical = False
-
         # Add axis
         xaxis = self.make_axis("bottom", self.xscale, self.xlabel)
         yaxis = self.make_axis("left", self.yscale, self.ylabel)
@@ -276,6 +274,12 @@ class Chart(object):
                 self.plot.tools.append(reset)
             previewsave = PreviewSaveTool(plot=self.plot)
             self.plot.tools.append(previewsave)
+
+    def add_data_plot(self):
+        # Overwrite the source and ranges
+        self.plot.data_sources = [self.source]
+        self.plot.x_range = self.xdr
+        self.plot.y_range = self.ydr
 
     def end_plot(self):
         # Add legend

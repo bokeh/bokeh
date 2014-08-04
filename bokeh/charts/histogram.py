@@ -48,9 +48,10 @@ class Histogram(ChartObject):
         chart = Chart(self._title, self._xlabel, self._ylabel, self._legend,
                       self.xscale, self.yscale, self._width, self._height,
                       self._tools, self._filename, self._server, self._notebook)
+        chart.start_plot()
         chart.get_data_histogram(self.bins, self.mu, self.sigma, **self.measured)
         chart.get_source_histogram()
-        chart.start_plot()
+        chart.add_data_plot()
         chart.histogram()
         chart.end_plot()
         chart.show()
