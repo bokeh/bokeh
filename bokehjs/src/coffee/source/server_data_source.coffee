@@ -80,6 +80,13 @@ define [
       domain_resolution = (screen_range.get('end') - screen_range.get('start')) / 2
       domain_resolution = Math.floor(domain_resolution)
       domain_limit = [domain_range.get('start'), domain_range.get('end')]
+  
+      if plot_state['screen_x'].get('start') == plot_state['screen_x'].get('end') or
+         plot_state['screen_y'].get('start') == plot_state['screen_y'].get('end') or
+         domain_limit[0] > domain_limit[1]
+       console.log("Skipping due to under-defined view state")
+       return $.ajax()
+  
       if (_.any(_.map(domain_limit, (x) -> _.isNaN(x))) or
          _.every(_.map(domain_limit, (x) -> _.isEqual(0,x))))
         domain_limit = 'auto'
@@ -96,7 +103,6 @@ define [
             domain_range.set(
                 start : data.domain_limit[0],
                 end : data.domain_limit[1],
-                silent : true
             )
             #console.log('setting range', data.domain_limit)
           column_data_source.set('data', data.data)
