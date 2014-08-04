@@ -93,6 +93,7 @@ define [
 
   'transforms/binarysegment'
   'transforms/const'
+  'transforms/contour'
   'transforms/count'
   'transforms/cuberoot'
   'transforms/id'
@@ -199,6 +200,7 @@ define [
 
     BinarySegment:            'transforms/binarysegment'
     Const:                    'transforms/const'
+    Contour:                  'transforms/contour'
     Count:                    'transforms/count'
     Cuberoot:                 'transforms/cuberoot'
     Id:                       'transforms/id'

@@ -207,7 +207,7 @@ def replot(plot, agg=Count(), info=Const(val=1), shader=Id(),
     Treat the passed plot as an base plot for abstract rendering, generate the
     proper Bokeh plot based on the passed parameters.
 
-    This is a conveience for:
+    This is a convenience for:
     > src=source(plot, ...)
     > <plot-type>(source=src, <params>, **ar.mapping(src))
 
@@ -265,11 +265,11 @@ def source(plot, agg=Count(), info=Const(val=1), shader=Id(),
                           'dw': [1],
                           'dh': [1],
                           'palette': palette}
-    elif shader == "poly_line":
+    elif shader.out == "poly_line":
         kwargs['data'] = {'xs': [[]],
                           'ys': [[]]}
     else:
-        raise ValueError("Can only work with image-shaders...for now")
+        raise ValueError("Unrecognized shader output type %s" % shader.out)
 
     # Remove the base plot (if requested)
     if remove_original and plot in plotting.curdoc()._plotcontext.children:
@@ -297,11 +297,14 @@ def mapping(source):
         m['x_range'] = Range1d(start=0, end=0)
         m['y_range'] = Range1d(start=0, end=0)
         return m
+    
     elif out == 'poly_line':
         keys = source.data.keys()
+        m = dict(zip(keys, keys))
+        return m 
 
     else:
-        raise ValueError("Only handles out types of image, image_rgb and poly_line")
+        raise ValueError("Unrecognized shader output type %s" % out)
 
 
 def downsample(data, transform, plot_state):
@@ -311,7 +314,7 @@ def downsample(data, transform, plot_state):
     ycol = glyphspec['y']['field']
     size = glyphspec['size']['default']  # TODO: Inspect to get non-default val
 
-    # Translate the resample paramteres to server-side rendering....
+    # Translate the resample parameters to server-side rendering....
     # TODO: Should probably handle this type-based-unpacking server_backend so downsamples get a consistent view of the data
     if isinstance(data, dict):
         xcol = data[xcol]
@@ -327,7 +330,7 @@ def downsample(data, transform, plot_state):
     glyphs = glyphset.Glyphset([xcol, ycol], general.EmptyList(),
                                shaper, colMajor=True)
 
-    shader = transform['shader'].reify()
+    shader = transform['shader']
 
     if shader.out == "image" or shader.out == "image_rgb":
         return downsample_image(xcol, ycol, glyphs, transform, plot_state)
@@ -338,15 +341,15 @@ def downsample(data, transform, plot_state):
 
 
 def downsample_line(xcol, ycol, glyphs, transform, plot_state):
-    glyphs = glyphset.Glyphset([xcol, ycol], general.EmptyList(),
-                               shaper, colMajor=True)
     bounds = glyphs.bounds()
+    
+    import pdb; pdb.set_trace()
 
     screen_x_span = float(_span(plot_state['screen_x']))
     screen_y_span = float(_span(plot_state['screen_y']))
     data_x_span = float(_span(plot_state['data_x']))
     data_y_span = float(_span(plot_state['data_y']))
-
+    
     # How big would a full plot of the data be at the current resolution?
     if data_x_span == 0 or data_y_span == 0:
         # If scale is zero for either axis, don't actual render,
@@ -363,44 +366,16 @@ def downsample_line(xcol, ycol, glyphs, transform, plot_state):
         ivt = ar.zoom_fit(plot_size, bounds, balanced=False)
         (tx, ty, sx, sy) = ivt
 
-        shader = transform['shader'].reify()
-
-        if sx == 0 or sy == 0:
-            # If client canvas has no size yet, just make a 1,1 array with a default value
-            image = np.array([[np.nan]])
-        else:
-            image = ar.render(glyphs,
-                    transform['info'].reify(),
-                    transform['agg'].reify(),
-                    shader,
-                    plot_size, ivt)
-
-        if transform['shader'].out == 'image_rgb' and len(image.shape) > 2:
-            image = image.view(dtype=np.int32).reshape(image.shape[0:2])
+        xs, ys = ar.render(glyphs,
+                          transform['info'].reify(),
+                          transform['agg'].reify(),
+                          transform['shader'].reify(),
+                          plot_size, ivt)
 
     (xmin, xmax) = (xcol.min(), xcol.max())
     (ymin, ymax) = (ycol.min(), ycol.max())
 
-    rslt = {'image': [image],
-            'global_offset_x': [0],
-            'global_offset_y': [0],
-
-            # Screen-mapping values.
-            # x_range is the left and right data space values corresponding to
-            #     the bottom left and bottom right of the plot
-            # y_range is the bottom and top data space values corresponding to
-            #     the bottom left and top left of the plot
-            'x_range': {'start': xmin*scale_x, 'end': xmax*scale_x},
-            'y_range': {'start': ymin*scale_y, 'end': ymax*scale_y},
-
-            # Data-image parameters.
-            # x/y are lower left data-space coord of the image.
-            # dw/dh are the width and height in data space
-            'x': [xmin],
-            'y': [ymin],
-            'dw': [xmax-xmin],
-            'dh': [ymax-ymin]}
-
+    rslt = {'data': {'xs': xs, 'ys': ys}}
     return rslt
 
 
@@ -416,7 +391,7 @@ def downsample_image(xcol, ycol, glyphs, transform, plot_state):
     if data_x_span == 0 or data_y_span == 0:
         # If scale is zero for either axis, don't actual render,
         # instead report back data bounds and wait for the next request
-        # This enales guide creation...which cahgnes the available plot size.
+        # This enables guide creation...which changes the available plot size.
         image = np.array([[np.nan]])
         scale_x = 1
         scale_y = 1
@@ -430,15 +405,11 @@ def downsample_image(xcol, ycol, glyphs, transform, plot_state):
 
         shader = transform['shader'].reify()
 
-        if sx == 0 or sy == 0:
-            # If client canvas has no size yet, just make a 1,1 array with a default value
-            image = np.array([[np.nan]])
-        else:
-            image = ar.render(glyphs,
-                    transform['info'].reify(),
-                    transform['agg'].reify(),
-                    shader,
-                    plot_size, ivt)
+        image = ar.render(glyphs,
+                          transform['info'].reify(),
+                          transform['agg'].reify(),
+                          shader,
+                          plot_size, ivt)
 
         if transform['shader'].out == 'image_rgb' and len(image.shape) > 2:
             image = image.view(dtype=np.int32).reshape(image.shape[0:2])
