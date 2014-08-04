@@ -258,7 +258,9 @@ class Chart(object):
 
         # Add axis
         xaxis = self.make_axis("bottom", self.xscale, self.xlabel)
+        self.plot.below.append(xaxis)
         yaxis = self.make_axis("left", self.yscale, self.ylabel)
+        self.plot.left.append(yaxis)
 
         # Add grids
         self.make_grid(xaxis, 0)
