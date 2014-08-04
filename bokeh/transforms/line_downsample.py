@@ -75,7 +75,8 @@ def downsample(data,
     downsampled_data = downsampled_data[indexes]
 
     columns = dict([(k, downsampled_data[k]) for k in downsampled_data.dtype.names])
-    range_limit = [columns[primary_data_column].min(), columns[primary_data_column].max()]
+    if  range_limit == "auto":
+      range_limit = [columns[primary_data_column].min(), columns[primary_data_column].max()]
 
     result = {
         'data' : columns, 

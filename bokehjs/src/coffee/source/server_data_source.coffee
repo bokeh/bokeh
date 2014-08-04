@@ -84,7 +84,7 @@ define [
       domain_resolution = Math.floor(domain_resolution)
       domain_limit = [domain_span.get('start'), domain_span.get('end')]
       range_limit = [range_span.get('start'), range_span.get('end')]
-  
+
       if plot_state['screen_x'].get('start') == plot_state['screen_x'].get('end') or
          plot_state['screen_y'].get('start') == plot_state['screen_y'].get('end') or
          domain_limit[0] > domain_limit[1] or
@@ -100,7 +100,8 @@ define [
         range_limit = 'auto'
       
       params = [primary_column, domain_name, columns,
-          range_limit,domain_limit, domain_resolution, input_params]
+          domain_limit, range_limit, domain_resolution, input_params]
+
       $.ajax(
         dataType: 'json'
         url : @update_url()
@@ -166,7 +167,6 @@ define [
         xhrField :
           withCredentials : true
         success : (data) ->
-          #use x_range to set domain_range ...similar to line1d_update
           if (domain_limit == 'auto')
             plot_state['data_x'].set(
               {start : data.x_range.start, end : data.x_range.end},
