@@ -17,7 +17,7 @@ data = { cat : np.random.randint(10, 100, size=N) for cat in categories }
 # this will be built into Bokeh.
 def stacked(data, categories):
     ys = []
-    last = np.zeros(len(data.values()[0]))
+    last = np.zeros(len(list(data.values())[0]))
     for cat in categories:
         next = last + data[cat]
         ys.append(np.hstack((last[::-1], next)))

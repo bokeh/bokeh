@@ -329,52 +329,146 @@ def push(session=None, document=None):
     else:
         warnings.warn("push() called but no session was supplied and output_server(...) was never called, nothing pushed")
 
-
 def _doc_wrap(func):
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        retval = func(curdoc(), *args, **kwargs)
-        if cursession() and curdoc()._autostore:
-            push()
-        if _default_file and _default_file['autosave']:
-            save()
-        return retval
-    wrapper.__doc__ += "\nThis is a convenience function that acts on the current document, and is equivalent to curdoc().%s(...)" % func.__name__
-    return wrapper
+    extra_doc = "\nThis is a convenience function that acts on the current document, and is equivalent to curdoc().%s(...)" % func.__name__
+    func.__doc__ = getattr(gf, func.__name__).__doc__ + extra_doc
+    return func
 
+def _plot_function(__func__, *args, **kwargs):
+    retval = __func__(curdoc(), *args, **kwargs)
+    if cursession() and curdoc()._autostore:
+        push()
+    if _default_file and _default_file['autosave']:
+        save()
+    return retval
 
-annular_wedge     = _doc_wrap(gf.annular_wedge)
-annulus           = _doc_wrap(gf.annulus)
-arc               = _doc_wrap(gf.arc)
-asterisk          = _doc_wrap(gf.asterisk)
-bezier            = _doc_wrap(gf.bezier)
-circle            = _doc_wrap(gf.circle)
-circle_cross      = _doc_wrap(gf.circle_cross)
-circle_x          = _doc_wrap(gf.circle_x)
-cross             = _doc_wrap(gf.cross)
-diamond           = _doc_wrap(gf.diamond)
-diamond_cross     = _doc_wrap(gf.diamond_cross)
-image             = _doc_wrap(gf.image)
-image_rgba        = _doc_wrap(gf.image_rgba)
-image_url         = _doc_wrap(gf.image_url)
-inverted_triangle = _doc_wrap(gf.inverted_triangle)
-line              = _doc_wrap(gf.line)
-multi_line        = _doc_wrap(gf.multi_line)
-oval              = _doc_wrap(gf.oval)
-patch             = _doc_wrap(gf.patch)
-patches           = _doc_wrap(gf.patches)
-quad              = _doc_wrap(gf.quad)
-quadratic         = _doc_wrap(gf.quadratic)
-ray               = _doc_wrap(gf.ray)
-rect              = _doc_wrap(gf.rect)
-segment           = _doc_wrap(gf.segment)
-square            = _doc_wrap(gf.square)
-square_cross      = _doc_wrap(gf.square_cross)
-square_x          = _doc_wrap(gf.square_x)
-text              = _doc_wrap(gf.text)
-triangle          = _doc_wrap(gf.triangle)
-wedge             = _doc_wrap(gf.wedge)
-x                 = _doc_wrap(gf.x)
+@_doc_wrap
+def annular_wedge(x, y, inner_radius, outer_radius, start_angle, end_angle, **kwargs):
+    return _plot_function(gf.annular_wedge, x, y, inner_radius, outer_radius, start_angle, end_angle, **kwargs)
+
+@_doc_wrap
+def annulus(x, y, inner_radius, outer_radius, **kwargs):
+    return _plot_function(gf.annulus, x, y, inner_radius, outer_radius, **kwargs)
+
+@_doc_wrap
+def arc(x, y, radius, start_angle, end_angle, **kwargs):
+    return _plot_function(gf.arc, x, y, radius, start_angle, end_angle, **kwargs)
+
+@_doc_wrap
+def asterisk(x, y, **kwargs):
+    return _plot_function(gf.asterisk, x, y, **kwargs)
+
+@_doc_wrap
+def bezier(x0, y0, x1, y1, cx0, cy0, cx1, cy1, **kwargs):
+    return _plot_function(gf.bezier, x0, y0, x1, y1, cx0, cy0, cx1, cy1, **kwargs)
+
+@_doc_wrap
+def circle(x, y, **kwargs):
+    return _plot_function(gf.circle, x, y, **kwargs)
+
+@_doc_wrap
+def circle_cross(x, y, **kwargs):
+    return _plot_function(gf.circle_cross, x, y, **kwargs)
+
+@_doc_wrap
+def circle_x(x, y, **kwargs):
+    return _plot_function(gf.circle_x, x, y, **kwargs)
+
+@_doc_wrap
+def cross(x, y, **kwargs):
+    return _plot_function(gf.cross, x, y, **kwargs)
+
+@_doc_wrap
+def diamond(x, y, **kwargs):
+    return _plot_function(gf.diamond, x, y, **kwargs)
+
+@_doc_wrap
+def diamond_cross(x, y, **kwargs):
+    return _plot_function(gf.diamond_cross, x, y, **kwargs)
+
+@_doc_wrap
+def image(image, x, y, dw, dh, palette, **kwargs):
+    return _plot_function(gf.image, image, x, y, dw, dh, palette, **kwargs)
+
+@_doc_wrap
+def image_rgba(image, x, y, dw, dh, **kwargs):
+    return _plot_function(gf.image_rgba, image, x, y, dw, dh, **kwargs)
+
+@_doc_wrap
+def image_url(url, x, y, angle, **kwargs):
+    return _plot_function(gf.image_url, url, x, y, angle, **kwargs)
+
+@_doc_wrap
+def inverted_triangle(x, y, **kwargs):
+    return _plot_function(gf.inverted_triangle, x, y, **kwargs)
+
+@_doc_wrap
+def line(x, y, **kwargs):
+    return _plot_function(gf.line, x, y, **kwargs)
+
+@_doc_wrap
+def multi_line(xs, ys, **kwargs):
+    return _plot_function(gf.multi_line, xs, ys, **kwargs)
+
+@_doc_wrap
+def oval(x, y, width, height, **kwargs):
+    return _plot_function(gf.oval, x, y, width, height, **kwargs)
+
+@_doc_wrap
+def patch(x, y, **kwargs):
+    return _plot_function(gf.patch, x, y, **kwargs)
+
+@_doc_wrap
+def patches(xs, ys, **kwargs):
+    return _plot_function(gf.patches, xs, ys, **kwargs)
+
+@_doc_wrap
+def quad(left, right, top, bottom, **kwargs):
+    return _plot_function(gf.quad, left, right, top, bottom, **kwargs)
+
+@_doc_wrap
+def quadratic(x0, y0, x1, y1, cx, cy, **kwargs):
+    return _plot_function(gf.quadratic, x0, y0, x1, y1, cx, cy, **kwargs)
+
+@_doc_wrap
+def ray(x, y, length, angle, **kwargs):
+    return _plot_function(gf.ray, x, y, length, angle, **kwargs)
+
+@_doc_wrap
+def rect(x, y, width, height, **kwargs):
+    return _plot_function(gf.rect, x, y, width, height, **kwargs)
+
+@_doc_wrap
+def segment(x0, y0, x1, y1, **kwargs):
+    return _plot_function(gf.segment, x0, y0, x1, y1, **kwargs)
+
+@_doc_wrap
+def square(x, y, **kwargs):
+    return _plot_function(gf.square, x, y, **kwargs)
+
+@_doc_wrap
+def square_cross(x, y, **kwargs):
+    return _plot_function(gf.square_cross, x, y, **kwargs)
+
+@_doc_wrap
+def square_x(x, y, **kwargs):
+    return _plot_function(gf.square_x, x, y, **kwargs)
+
+@_doc_wrap
+def text(x, y, text, angle, **kwargs):
+    return _plot_function(gf.text, x, y, text, angle, **kwargs)
+
+@_doc_wrap
+def triangle(x, y, **kwargs):
+    return _plot_function(gf.triangle, x, y, **kwargs)
+
+@_doc_wrap
+def wedge(x, y, radius, start_angle, end_angle, **kwargs):
+    return _plot_function(gf.wedge, x, y, radius, start_angle, end_angle, **kwargs)
+
+@_doc_wrap
+def x(x, y, **kwargs):
+    return _plot_function(gf.x, x, y, **kwargs)
 
 _marker_types = {
     "asterisk": asterisk,

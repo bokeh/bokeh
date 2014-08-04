@@ -6,7 +6,6 @@ Reference Guide
     :local:
     :depth: 3
 
-
 Low Level Glyph Interface
 =========================
 
@@ -18,7 +17,6 @@ Detailed information about the Python and JavaScript glyph interfaces may be fou
    bokehjs
    glyphs_ref
 
-
 High Level Plotting Interface
 =============================
 
@@ -27,38 +25,38 @@ High Level Plotting Interface
 Glyphs Functions
 ----------------
 
-.. autofunction:: bokeh.plotting.annular_wedge(x,y,inner_radius,outer_radius,start_angle,end_angle, **kwargs)
-.. autofunction:: bokeh.plotting.annulus(x, y, inner_radius, outer_radius, **kwargs)
-.. autofunction:: bokeh.plotting.arc(x, y, radius, start_angle, end_angle, **kwargs)
-.. autofunction:: bokeh.plotting.asterisk(x, y, size=5, **kwargs)
-.. autofunction:: bokeh.plotting.bezier(x0, y0, x1, y1, cx0, cy0, cx1, cy1, **kwargs)
-.. autofunction:: bokeh.plotting.circle(x, y, **kwargs)
-.. autofunction:: bokeh.plotting.circle_cross(x, y, size=5, **kwargs)
-.. autofunction:: bokeh.plotting.circle_x(x, y, size=5, **kwargs)
-.. autofunction:: bokeh.plotting.cross(x, y, size=5, **kwargs)
-.. autofunction:: bokeh.plotting.diamond(x, y, size=5, **kwargs)
-.. autofunction:: bokeh.plotting.diamond_cross(x, y, size=5, **kwargs)
-.. autofunction:: bokeh.plotting.image(image, x, y, dw, dh, palette, dilate=False)
-.. autofunction:: bokeh.plotting.image_rgba(image, x, y, dw, dh, dilate=False)
-.. autofunction:: bokeh.plotting.image_url(url, x, y, angle)
-.. autofunction:: bokeh.plotting.inverted_triangle(x, y, size=5, **kwargs)
-.. autofunction:: bokeh.plotting.line(x, y, *kwargs)
-.. autofunction:: bokeh.plotting.multi_line(xs, ys, **kwargs)
-.. autofunction:: bokeh.plotting.oval(x, y, width, height, angle=0, **kwargs)
-.. autofunction:: bokeh.plotting.patch(x, y, **kwargs)
-.. autofunction:: bokeh.plotting.patches(xs, ys, **kwargs)
-.. autofunction:: bokeh.plotting.quad(left, right, top, bottom, **kwargs)
-.. autofunction:: bokeh.plotting.quadratic(x0, y0, x1, y1, cx, cy, **kwargs)
-.. autofunction:: bokeh.plotting.ray(x, y, length, angle, **kwargs)
-.. autofunction:: bokeh.plotting.rect(x, y, width, height, angle=0, dilate=False, **kwargs)
-.. autofunction:: bokeh.plotting.segment(x0, y0, x1, y1, *kwargs)
-.. autofunction:: bokeh.plotting.square(x, y, size=5, **kwargs)
-.. autofunction:: bokeh.plotting.square_cross(x, y, size=5, **kwargs)
-.. autofunction:: bokeh.plotting.square_x(x, y, size=5, **kwargs)
-.. autofunction:: bokeh.plotting.text(x, y, text, angle=0, *kwargs)
-.. autofunction:: bokeh.plotting.triangle(x, y, size=5, **kwargs)
-.. autofunction:: bokeh.plotting.wedge(x, y, radius, start_angle, end_angle, **kwargs)
-.. autofunction:: bokeh.plotting.x(x, y, size=5, **kwargs)
+.. autofunction:: bokeh.plotting.annular_wedge
+.. autofunction:: bokeh.plotting.annulus
+.. autofunction:: bokeh.plotting.arc
+.. autofunction:: bokeh.plotting.asterisk
+.. autofunction:: bokeh.plotting.bezier
+.. autofunction:: bokeh.plotting.circle
+.. autofunction:: bokeh.plotting.circle_cross
+.. autofunction:: bokeh.plotting.circle_x
+.. autofunction:: bokeh.plotting.cross
+.. autofunction:: bokeh.plotting.diamond
+.. autofunction:: bokeh.plotting.diamond_cross
+.. autofunction:: bokeh.plotting.image
+.. autofunction:: bokeh.plotting.image_rgba
+.. autofunction:: bokeh.plotting.image_url
+.. autofunction:: bokeh.plotting.inverted_triangle
+.. autofunction:: bokeh.plotting.line
+.. autofunction:: bokeh.plotting.multi_line
+.. autofunction:: bokeh.plotting.oval
+.. autofunction:: bokeh.plotting.patch
+.. autofunction:: bokeh.plotting.patches
+.. autofunction:: bokeh.plotting.quad
+.. autofunction:: bokeh.plotting.quadratic
+.. autofunction:: bokeh.plotting.ray
+.. autofunction:: bokeh.plotting.rect
+.. autofunction:: bokeh.plotting.segment
+.. autofunction:: bokeh.plotting.square
+.. autofunction:: bokeh.plotting.square_cross
+.. autofunction:: bokeh.plotting.square_x
+.. autofunction:: bokeh.plotting.text
+.. autofunction:: bokeh.plotting.triangle
+.. autofunction:: bokeh.plotting.wedge
+.. autofunction:: bokeh.plotting.x
 
 .. _bokeh_plotting_sessions:
 
@@ -146,10 +144,6 @@ Underlying Object System
   :parts: 1
 
 .. automodule:: bokeh.properties
-    :members: BaseProperty, DataSpec, ColorSpec, MetaHasProps, HasProps,
-              Int, Float, Complex, File, Bool, String, List, Dict,
-              Tuple, Array, Class, Instance, This, Any, Function, Event,
-              Either, Enum, Sequence, Mapping, Iterable, Color, Align,
-              DashPattern, Size, Angle, Percent, FillProps, LineProps, TextProps
+    :members:
 
 

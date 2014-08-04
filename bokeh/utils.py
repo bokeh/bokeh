@@ -62,7 +62,7 @@ def json_apply(json_obj, func):
 
 def get_ref(obj):
     return obj.get_ref()
-    
+
 def convert_references(json_obj):
     from .plot_object import PlotObject
     from .properties import HasProps
@@ -91,6 +91,14 @@ def dump(objs, docid):
         ref["attributes"].update({"id": ref["id"], "doc" : docid})
         json_objs.append(ref)
     return json_objs
+
+def nice_join(seq, sep=", "):
+    seq = [str(x) for x in seq]
+
+    if len(seq) <= 1:
+        return sep.join(seq)
+    else:
+        return "%s or %s" % (sep.join(seq[:-1]), seq[-1])
 
 def publish_display_data(data, source='bokeh'):
     """Compatibility wrapper for IPython publish_display_data which removes the
