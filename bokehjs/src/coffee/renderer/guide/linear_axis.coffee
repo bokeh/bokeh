@@ -15,9 +15,9 @@ define [
 
     initialize: (attrs, objects) ->
       super(attrs, objects)
-      if not @get_obj('ticker')?
+      if not @get('ticker')?
         @set_obj('ticker', BasicTicker.Collection.create())
-      if not @get_obj('formatter')?
+      if not @get('formatter')?
         @set_obj('formatter', BasicTickFormatter.Collection.create())
 
   class LinearAxes extends Backbone.Collection

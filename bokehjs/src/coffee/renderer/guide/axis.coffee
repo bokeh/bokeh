@@ -242,7 +242,7 @@ define [
         angle = -orient
       standoff = @model._tick_extent(@) + @mget('major_label_standoff')
 
-      labels = @mget_obj('formatter').format(coords.major[dim])
+      labels = @mget('formatter').format(coords.major[dim])
 
       @major_label_props.set(ctx, @)
       _apply_location_heuristics(ctx, side, orient)
@@ -296,7 +296,7 @@ define [
 
       @register_property('computed_bounds', @_computed_bounds, false)
       @add_dependencies('computed_bounds', this, ['bounds'])
-      @add_dependencies('computed_bounds', @get_obj('plot'), ['x_range', 'y_range'])
+      @add_dependencies('computed_bounds', @get('plot'), ['x_range', 'y_range'])
 
       @register_property('rule_coords', @_rule_coords, false)
       @add_dependencies('rule_coords', this, ['computed_bounds', 'side'])
@@ -369,7 +369,7 @@ define [
       i = @get('dimension')
       j = (i + 1) % 2
 
-      ranges = [@get_obj('plot').get('frame').get_obj('x_range'), @get_obj('plot').get('frame').get_obj('y_range')]
+      ranges = [@get('plot').get('frame').get('x_range'), @get('plot').get('frame').get('y_range')]
       return [ranges[i], ranges[j]]
 
     _computed_bounds: () ->
@@ -421,7 +421,7 @@ define [
       [range, cross_range] = @get('ranges')
       [start, end] = @get('computed_bounds')
 
-      ticks = @get_obj('ticker').get_ticks(start, end, range, {})
+      ticks = @get('ticker').get_ticks(start, end, range, {})
       majors = ticks.major
       minors = ticks.minor
 
@@ -489,7 +489,7 @@ define [
       side = @get('location')
       orient = @get('major_label_orientation')
 
-      labels = @get_obj('formatter').format(coords[dim])
+      labels = @get('formatter').format(coords[dim])
 
       view.major_label_props.set(ctx, view)
 

@@ -55,7 +55,7 @@ define [
       i = @get('dimension')
       j = (i + 1) % 2
 
-      ranges = [@get_obj('plot').get_obj('x_range'), @get_obj('plot').get_obj('y_range')]
+      ranges = [@get('plot').get('x_range'), @get('plot').get('y_range')]
 
       user_bounds = @get('bounds') ? 'auto'
       range_bounds = [ranges[i].get('min'), ranges[i].get('max')]
@@ -79,7 +79,7 @@ define [
     _grid_coords: () ->
       i = @get('dimension')
       j = (i + 1) % 2
-      ranges = [@get_obj('plot').get_obj('x_range'), @get_obj('plot').get_obj('y_range')]
+      ranges = [@get('plot').get('x_range'), @get('plot').get('y_range')]
       range = ranges[i]
       cross_range = ranges[j]
 
@@ -89,7 +89,7 @@ define [
       end = Math.max(start, end)
       start = tmp
 
-      ticks = @get_obj('axis').get_obj('ticker').get_ticks(start, end, range, {}).major
+      ticks = @get('axis').get('ticker').get_ticks(start, end, range, {}).major
 
       min = range.get('min')
       max = range.get('max')

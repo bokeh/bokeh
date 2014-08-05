@@ -14,12 +14,12 @@ define [
       @listenTo(@model, 'change:source', @render)
 
     render: () ->
-      source = @mget_obj("source")
+      source = @mget("source")
       if source?
         headers = []
         columns = []
 
-        for column in @mget_obj("columns")
+        for column in @mget("columns")
           headers.push(column.get("header"))
           data = column.get("data")
           type = column.get("type")
@@ -40,7 +40,7 @@ define [
         @$el.handsontable()
 
     editData: (changes) ->
-      source = @mget_obj("source")
+      source = @mget("source")
       data = source.get("data")
 
       for change in changes

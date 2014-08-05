@@ -121,11 +121,11 @@ define [
       #
       # should only bind events on NEW views and tools
       old_renderers = _.keys(@renderers)
-      views = build_views(@renderers, @mget_obj('renderers'), @view_options())
-      renderers_to_remove = _.difference(old_renderers, _.pluck(@mget_obj('renderers'), 'id'))
+      views = build_views(@renderers, @mget('renderers'), @view_options())
+      renderers_to_remove = _.difference(old_renderers, _.pluck(@mget('renderers'), 'id'))
       for id_ in renderers_to_remove
         delete @levels.glyph[id_]
-      tools = build_views(@tools, @mget_obj('tools'), @view_options())
+      tools = build_views(@tools, @mget('tools'), @view_options())
       for v in views
         level = v.mget('level')
         @levels[level][v.model.id] = v
@@ -261,11 +261,14 @@ define [
 
       @solver = canvas.get('solver')
 
+      for r in @get('renderers')
+        r.set('parent', @)
+
     initialize_layout: (solver) ->
       canvas = @get('canvas')
       frame = new CartesianFrame.Model({
-        x_range: @get_obj('x_range'),
-        y_range: @get_obj('y_range')
+        x_range: @get('x_range'),
+        y_range: @get('y_range')
         solver: solver
       })
       @set('frame', frame)
@@ -275,7 +278,9 @@ define [
       @title_panel = new LayoutBox.Model({solver: solver})
       LayoutBox.Collection.add(@title_panel)
       @title_panel._anchor = @title_panel._bottom
-      @get('above').push(@title_panel.ref())
+      elts = @get('above')
+      elts.push(@title_panel)
+      @set('above', elts)
 
     add_constraints: (solver) ->
       min_border_top    = @get('min_border_top')    ? @get('min_border')
@@ -293,7 +298,7 @@ define [
         solver.add_constraint(new Constraint(new Expr(frame[c0], [-1, box[c1]]), EQ))
         solver.add_constraint(new Constraint(new Expr(box[c0], [-1, canvas[c0]]), EQ))
         last = frame
-        elts = @get_obj(side)
+        elts = @get(side)
         for r in elts
           solver.add_constraint(new Constraint(new Expr(last[c0], [-1, r[c1]]), EQ), kiwi.Strength.strong)
           last = r
