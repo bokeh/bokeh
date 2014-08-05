@@ -6,6 +6,12 @@ define [
   "./base"
 ], (_, Backbone, require, base) ->
 
+  _is_ref = (arg) ->
+    if _.isObject(arg)
+      keys = _.keys(arg).sort()
+      return keys.length==2 and keys[0]=='id' and keys[1]=='type'
+    return false
+
   class HasProperties extends Backbone.Model
     # Our property system
     # we support python style computed properties, with getters
@@ -203,26 +209,23 @@ define [
       # calls getter, or goes to cache
       # if necessary.  If it's not a property, then just call super
       if _.has(@properties, prop_name)
-        prop_spec = @properties[prop_name]
-        if prop_spec.use_cache and @has_cache(prop_name)
-          return @property_cache[prop_name]
-        else
-          getter = prop_spec.getter
-          computed = getter.apply(this, [prop_name])
-          if @properties[prop_name].use_cache
-            @add_cache(prop_name, computed)
-          return computed
+        return @_get_prop(prop_name)
       else
-        ref_or_obj = super(prop_name)
-        if _.isArray(ref_or_obj) and ref_or_obj.length > 0 and _.isObject(ref_or_obj[0])
-          keys = _.keys(ref_or_obj[0]).sort()
-          if keys.length==2 and keys[0]=='id' and keys[1]=='type' and resolve_refs
-            return _.map(ref_or_obj, @resolve_ref)
-        else if _.isObject(ref_or_obj)
-          keys = _.keys(ref_or_obj).sort()
-          if keys.length==2 and keys[0]=='id' and keys[1]=='type' and resolve_refs
-            return @resolve_ref(ref_or_obj)
-        return ref_or_obj
+        ref_or_val = super(prop_name)
+        if not resolve_refs
+          return ref_or_val
+        return @resolve_ref(ref_or_val)
+
+    _get_prop: (prop_name) ->
+      prop_spec = @properties[prop_name]
+      if prop_spec.use_cache and @has_cache(prop_name)
+        return @property_cache[prop_name]
+      else
+        getter = prop_spec.getter
+        computed = getter.apply(this, [prop_name])
+        if @properties[prop_name].use_cache
+          @add_cache(prop_name, computed)
+        return computed
 
     ref: ->
       # ### method: HasProperties::ref
@@ -230,20 +233,22 @@ define [
       'type': this.type
       'id': this.id
 
-    resolve_ref: (ref) =>
+    resolve_ref: (arg) =>
       # ### method: HasProperties::resolve_ref
-      # converts a reference into an object
-      # also works vectorized now
-      if not ref
-        console.log('ERROR, null reference')
-      if _.isArray(ref)
-        return _.map(ref, @resolve_ref)
-      # this way we can reference ourselves
-      # even though we are not in any collection yet
-      if ref['type'] == this.type and ref['id'] == this.id
-        return this
-      else
-        return @get_base().Collections(ref['type']).get(ref['id'])
+      # converts references into an objects, leaving non-references alone
+      # also works "vectorized" on arrays and objects
+      if _.isUndefined(arg)
+        return arg
+      if _.isArray(arg)
+        return (@resolve_ref(x) for x in arg)
+      if _is_ref(arg)
+        # this way we can reference ourselves
+        # even though we are not in any collection yet
+        if arg['type'] == this.type and arg['id'] == this.id
+          return this
+        else
+          return @get_base().Collections(arg['type']).get(arg['id'])
+      return arg
 
     get_base: ()->
       if not @_base

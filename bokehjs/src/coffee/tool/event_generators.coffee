@@ -25,7 +25,8 @@ define [
       toolName = @toolName
       @plotview = plotview
       @eventSink = eventSink
-      @plotview.canvas.get('mousemove_callbacks').push((e, x, y) =>
+      callbacks = @plotview.canvas.get('mousemove_callbacks')
+      callbacks.push((e, x, y) =>
         if not @dragging
           return
         if not @tool_active
@@ -42,7 +43,7 @@ define [
           e.preventDefault()
           e.stopPropagation()
         )
-      @plotview.canvas.get('mousemove_callbacks').push((e, x, y) =>
+      callbacks.push((e, x, y) =>
         if @dragging
           set_bokehXY(e)
           inner_range_horizontal = @plotview.frame.get(
@@ -67,6 +68,7 @@ define [
           if y < ystart or y > yend
             @_stop_drag(e)
             return false
+        @plotview.canvas.set('mousemove_callbacks', callbacks)
       )
       $(document).bind('keydown', (e) =>
         if e.keyCode == 27 # ESC

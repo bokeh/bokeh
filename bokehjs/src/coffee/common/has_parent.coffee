@@ -35,23 +35,24 @@ define [
   # to store non-display related defaults here.
 
   class HasParent extends HasProperties
-    get_fallback: (attr) ->
-      if (@get('parent') and
-          _.indexOf(@get('parent').parent_properties, attr) >= 0 and
-          not _.isUndefined(@get('parent').get(attr)))
-        return @get('parent').get(attr)
-      else
+
+    initialize: (attrs, options) ->
+      super(attrs, options)
+      @_parent = HasProperties.prototype.get.apply(this, ['parent'])
+      @_display_defaults = {}
+      if @display_defaults?
         if _.isFunction(@display_defaults)
-          return @display_defaults()[attr]
-        return @display_defaults[attr]
+          @_display_defaults = @display_defaults()
+        else
+          @_display_defaults = @display_defaults
 
     get: (attr) ->
-      ## no fallback for 'parent'
-      normalval = super(attr)
-      if not _.isUndefined(normalval)
-        return normalval
-      else if not (attr == 'parent')
-        return @get_fallback(attr)
+      if attr == 'parent'
+        return @_parent
+      if parent and _.indexOf(parent.parent_properties, attr) >= 0
+        return parent.get(attr)
+      return @_display_defaults[attr] ? super(attr)
 
     display_defaults: {}
+
   return HasParent

@@ -261,6 +261,9 @@ define [
 
       @solver = canvas.get('solver')
 
+      for r in @get('renderers')
+        r.set('parent', @)
+
     initialize_layout: (solver) ->
       canvas = @get('canvas')
       frame = new CartesianFrame.Model({
@@ -275,7 +278,9 @@ define [
       @title_panel = new LayoutBox.Model({solver: solver})
       LayoutBox.Collection.add(@title_panel)
       @title_panel._anchor = @title_panel._bottom
-      @get('above').push(@title_panel.ref())
+      elts = @get('above')
+      elts.push(@title_panel)
+      @set('above', elts)
 
     add_constraints: (solver) ->
       min_border_top    = @get('min_border_top')    ? @get('min_border')
