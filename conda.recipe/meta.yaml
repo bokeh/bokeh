@@ -49,7 +49,7 @@ test:
     - nose
     - mock
     - coverage
-    - websocket
+    - websocket-client
     - ipython
     - ipython-notebook
 
