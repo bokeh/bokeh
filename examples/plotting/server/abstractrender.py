@@ -7,7 +7,7 @@ import bokeh.transforms.ar_downsample as ar
 
 
 output_server("abstractrender")
-source = ServerDataSource(data_url="fn://uniform", owner_username="defaultuser")
+source = ServerDataSource(data_url="fn://gauss", owner_username="defaultuser")
 plot = square('oneA','oneB',color='#FF00FF',source=source)
 
 
@@ -22,7 +22,7 @@ plot = square('oneA','oneB',color='#FF00FF',source=source)
 
 
 ### Contours come in the same framework, but since the results of the shader are lines you use a different plotting function...
-ar.replot(plot, shader=ar.Contour(levels=8), palette=["reds-9"])
+ar.replot(plot, shader=ar.Contour(levels=8), palette=["reds-9"], points=False)
 
 
 #"""

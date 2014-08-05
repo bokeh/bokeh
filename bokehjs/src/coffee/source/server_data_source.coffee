@@ -3,7 +3,8 @@ define [
   "underscore",
   "backbone",
   "common/has_properties",
-], (_, Backbone, HasProperties) ->
+  "range/range1d"
+], (_, Backbone, HasProperties, Range1d) ->
 
   ajax_throttle = (func) ->
     busy = false
@@ -143,14 +144,6 @@ define [
       #TODO: Share the x/y range information back to the server in some way...
       domain_limit = 'not auto'
 
-      console.log("data range")
-      console.log(plot_state['data_x'].get('start'), plot_state['data_x'].get('end'))
-      console.log(plot_state['data_y'].get('start'), plot_state['data_y'].get('end'))
-        
-      console.log("screen range")
-      console.log(plot_state['screen_x'].get('start'), plot_state['screen_x'].get('end'))
-      console.log(plot_state['screen_y'].get('start'), plot_state['screen_y'].get('end'))
-
       if plot_state['screen_x'].get('start') == plot_state['screen_x'].get('end') or
          plot_state['screen_y'].get('start') == plot_state['screen_y'].get('end')
        console.log("Skipping due to under-defined view state")
@@ -163,8 +156,19 @@ define [
          _.isNaN(plot_view.y_range.get('start')) or
          _.isNaN(plot_view.y_range.get('end')) 
         domain_limit = 'auto'
+      
+      sendable_plot_state = {}
+      for k,range of plot_state
+        # This copy is to reformat a datarange1d to a range1d without
+        # loosing the reference.  It is required because of weidness deserializing
+        # the datarange1d on the python side.  It can't be done in just
+        # plot_state becase we need the references still
+        # REMOVE when DataRange1D goes away.
+        proxy = new Range1d.Model()
+        proxy.set('start', range.get('start'))
+        proxy.set('end', range.get('end'))
+        sendable_plot_state[k] = proxy
 
-      console.log(domain_limit)
       resp = $.ajax(
         dataType: 'json'
         url : @update_url()
@@ -181,15 +185,16 @@ define [
               {start : data.y_range.start, end : data.y_range.end},
             )
           
+          console.log("X-range", data.x_range.start, data.x_range.end)
+          
           #hack
-          debugger
           new_data = _.clone(column_data_source.get('data'))
           _.extend(new_data, data)
           column_data_source.set('data', new_data)
           plot_view.request_render()
         data :
           resample_parameters : JSON.stringify([input_params])
-          plot_state: JSON.stringify(plot_state)
+          plot_state: JSON.stringify(sendable_plot_state)
       )
       return resp
 

@@ -347,38 +347,50 @@ def downsample_line(xcol, ycol, glyphs, transform, plot_state):
     screen_y_span = float(_span(plot_state['screen_y']))
     data_x_span = float(_span(plot_state['data_x']))
     data_y_span = float(_span(plot_state['data_y']))
-    
+
     # How big would a full plot of the data be at the current resolution?
     if data_x_span == 0 or data_y_span == 0:
         # If scale is zero for either axis, don't actual render,
         # instead report back data bounds and wait for the next request
         # This enales guide creation...which cahgnes the available plot size.
         image = np.array([[np.nan]])
+        plot_size = [screen_x_span, screen_y_span]
         scale_x = 1
         scale_y = 1
-        xs = []
-        ys = []
+        xxs = []
+        yys = []
+        levels = []
     else:
         scale_x = data_x_span/screen_x_span
         scale_y = data_x_span/screen_y_span
         plot_size = [bounds[2]/scale_x, bounds[3]/scale_y]
 
-        ivt = ar.zoom_fit(plot_size, bounds, balanced=False)
-        (tx, ty, sx, sy) = ivt
+        vt = ar.zoom_fit(plot_size, bounds, balanced=False)
+        
+        contours = ar.render(glyphs,
+                             transform['info'].reify(),
+                             transform['agg'].reify(),
+                             transform['shader'].reify(),
+                             plot_size, vt)
 
-        xs, ys = ar.render(glyphs,
-                          transform['info'].reify(),
-                          transform['agg'].reify(),
-                          transform['shader'].reify(),
-                          plot_size, ivt)
+        xxs = []
+        yys = []
+        levels = []
+ 
+        for (level,(xs,ys)) in contours.iteritems():
+            xxs.append(xs)
+            yys.append(ys)
+            levels.append(level)
 
     (xmin, xmax) = (xcol.min(), xcol.max())
     (ymin, ymax) = (ycol.min(), ycol.max())
 
-    rslt = {'xs': xs, 
-            'ys': ys,
-            'x_range': {'start': xmin*scale_x, 'end': xmax*scale_x},
-            'y_range': {'start': ymin*scale_y, 'end': ymax*scale_y}
+    rslt = {'xs': xxs, 
+            'ys': yys,
+            #'x_range': {'start': xmin*scale_x, 'end': xmax*scale_x},
+            #'y_range': {'start': ymin*scale_y, 'end': ymax*scale_y}
+            'x_range': {'start': 0, 'end': plot_size[0]},
+            'y_range': {'start': 0, 'end': plot_size[1]}
            }
     return rslt
 
