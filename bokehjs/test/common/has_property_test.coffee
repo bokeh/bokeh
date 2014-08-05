@@ -113,19 +113,17 @@ require [
       vectordata: [[model1.ref(), model2.ref()]]
     )
 
-    model3.resolve_refs()
     output = model3.get('vectordata')
     ok(output[0] == model1)
     ok(output[1] == model2)
 
-    model3.set('vectordata2', [model1, model1, model2])
-    output = model3.get('vectordata2')
+    model3.set_obj('vectordata2', [model1, model1, model2])
+    output = model3.get('vectordata2', false)
     ok(output[0].id == model1.ref().id)
     ok(output[1].id == model1.ref().id)
     ok(output[2].id == model2.ref().id)
     ok(not (output[0] instanceof HasProperties))
 
-    model4.resolve_refs()
     output = model4.get('vectordata')
     ok(output[0][0] == model1)
     ok(output[0][1] == model2)
