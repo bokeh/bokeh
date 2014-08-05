@@ -49,9 +49,14 @@ define [
     get: (attr) ->
       if attr == 'parent'
         return @_parent
+      val = super(attr)
+      if not _.isUndefined(val)
+        return val
       if parent and _.indexOf(parent.parent_properties, attr) >= 0
-        return parent.get(attr)
-      return @_display_defaults[attr] ? super(attr)
+        val = parent.get(attr)
+        if not _.isUndefined(val)
+          return val
+      return @_display_defaults[attr]
 
     display_defaults: {}
 
