@@ -343,8 +343,6 @@ def downsample(data, transform, plot_state):
 def downsample_line(xcol, ycol, glyphs, transform, plot_state):
     bounds = glyphs.bounds()
     
-    import pdb; pdb.set_trace()
-
     screen_x_span = float(_span(plot_state['screen_x']))
     screen_y_span = float(_span(plot_state['screen_y']))
     data_x_span = float(_span(plot_state['data_x']))
@@ -358,6 +356,8 @@ def downsample_line(xcol, ycol, glyphs, transform, plot_state):
         image = np.array([[np.nan]])
         scale_x = 1
         scale_y = 1
+        xs = []
+        ys = []
     else:
         scale_x = data_x_span/screen_x_span
         scale_y = data_x_span/screen_y_span
@@ -375,7 +375,11 @@ def downsample_line(xcol, ycol, glyphs, transform, plot_state):
     (xmin, xmax) = (xcol.min(), xcol.max())
     (ymin, ymax) = (ycol.min(), ycol.max())
 
-    rslt = {'data': {'xs': xs, 'ys': ys}}
+    rslt = {'xs': xs, 
+            'ys': ys,
+            'x_range': {'start': xmin*scale_x, 'end': xmax*scale_x},
+            'y_range': {'start': ymin*scale_y, 'end': ymax*scale_y}
+           }
     return rslt
 
 
@@ -442,7 +446,9 @@ def downsample_image(xcol, ycol, glyphs, transform, plot_state):
 
 def _span(r):
     """Distance in a Range1D"""
-    return abs(r.end - r.start)
+    end = r.end if r.end != None else 0
+    start = r.start if r.start != None else 0
+    return abs(end-start)
 
 
 def _shaper(code, size, points):

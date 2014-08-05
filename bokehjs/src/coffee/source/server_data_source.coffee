@@ -156,8 +156,12 @@ define [
        console.log("Skipping due to under-defined view state")
        return $.ajax()
 
-      if (plot_view.x_range.get('start') == plot_view.x_range.get('end') or
-          plot_view.y_range.get('start') == plot_view.y_range.get('end'))
+      if plot_view.x_range.get('start') == plot_view.x_range.get('end') or
+         _.isNaN(plot_view.x_range.get('start')) or
+         _.isNaN(plot_view.x_range.get('end')) or
+         plot_view.y_range.get('start') == plot_view.y_range.get('end') or
+         _.isNaN(plot_view.y_range.get('start')) or
+         _.isNaN(plot_view.y_range.get('end')) 
         domain_limit = 'auto'
 
       console.log(domain_limit)
@@ -178,6 +182,7 @@ define [
             )
           
           #hack
+          debugger
           new_data = _.clone(column_data_source.get('data'))
           _.extend(new_data, data)
           column_data_source.set('data', new_data)
