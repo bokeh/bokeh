@@ -52,8 +52,8 @@ define [
       val = super(attr)
       if not _.isUndefined(val)
         return val
-      if parent and _.indexOf(parent.parent_properties, attr) >= 0
-        val = parent.get(attr)
+      if @_parent and _.indexOf(@_parent.parent_properties, attr) >= 0
+        val = @_parent.get(attr)
         if not _.isUndefined(val)
           return val
       return @_display_defaults[attr]
