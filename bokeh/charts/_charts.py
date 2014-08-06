@@ -72,63 +72,6 @@ class Chart(object):
         # To prevent adding a wheelzoom to a categorical plot
         self.categorical = False
 
-    #def get_data_histogram(self, bins, mu, sigma, **value):
-        #"Take the histogram data from the input and calculate the parameters accordingly."
-        #import scipy.special
-
-        #self.data = dict()
-
-        ## assuming value is a dict, ordered dict
-        #self.value = value
-
-        ## list to save all the attributes we are going to create
-        #self.attr = []
-
-        ## list to save all the groups available in the incomming input
-        #self.groups.extend(self.value.keys())
-
-        #for i, val in enumerate(self.value.keys()):
-            #setattr(self, val, self.value[val])
-            #self.data[val] = getattr(self, val)
-
-            #hist, edges = np.histogram(self.data[val], density=True, bins=bins)
-            #self._set_and_get("hist", val, hist)
-            #self._set_and_get("edges", val, edges)
-            #self._set_and_get("left", val, edges[:-1])
-            #self._set_and_get("right", val, edges[1:])
-            #self._set_and_get("bottom", val, np.zeros(len(hist)))
-
-            #self.mu_and_sigma = False
-
-            #if mu is not None and sigma is not None:
-                #self.mu_and_sigma = True
-                #self._set_and_get("x", val, np.linspace(-2, 2, len(self.data[val])))
-                #pdf = 1 / (sigma * np.sqrt(2 * np.pi)) * np.exp(-(self.data["x" + val] - mu) ** 2 / (2 * sigma ** 2))
-                #self._set_and_get("pdf", val, pdf)
-                #self.groups.append("pdf")
-                #cdf = (1 + scipy.special.erf((self.data["x" + val] - mu) / np.sqrt(2 * sigma ** 2))) / 2
-                #self._set_and_get("cdf", val, cdf)
-                #self.groups.append("cdf")
-
-    #def get_source_histogram(self):
-        #"Get the histogram data into the ColumnDataSource and calculate the proper ranges."
-        #self.source = ColumnDataSource(data=self.data)
-
-        #if not self.mu_and_sigma:
-            #x_names, y_names = self.attr[1::5], self.attr[::5]
-        #else:
-            #x_names, y_names = self.attr[1::8], self.attr[::8]
-
-        #endx = max(max(self.data[i]) for i in x_names)
-        #startx = min(min(self.data[i]) for i in x_names)
-        #self.xdr = Range1d(start=startx - 0.1 * (endx - startx),
-                           #end=endx + 0.1 * (endx - startx))
-
-        #endy = max(max(self.data[i]) for i in y_names)
-        #if endy < 1.0:
-            #endy = 1.0
-        #self.ydr = Range1d(start=0, end=1.1 * endy)
-
     def get_data_bar(self, cat, **value):
         "Take the bar data from the input and calculate the parameters accordingly."
         self.cat = cat
@@ -403,23 +346,6 @@ class Chart(object):
 
         self._append_glyph(scatter)
 
-    #def histogram(self, mu_and_sigma, attr):
-        #"Use the `quad` renderer to display the histogram bars."
-        #if not mu_and_sigma:
-            #self.quintet = list(self._chunker(attr, 5))
-            #colors = self._set_colors(self.quintet)
-
-            #for i, quintet in enumerate(self.quintet):
-                #self.make_quad(quintet[0], quintet[4], quintet[2], quintet[3], colors[i])
-        #else:
-            #self.octet = list(self._chunker(attr, 8))
-            #colors = self._set_colors(self.octet)
-
-            #for i, octet in enumerate(self.octet):
-                #self.make_quad(octet[0], octet[4], octet[2], octet[3], colors[i])
-                #self.make_line(octet[5], octet[6], "black")
-                #self.make_line(octet[5], octet[7], "blue")
-
     def bar(self, stacked):
         "Use the `rect` renderer to display the bars."
         self.quartet = list(self._chunker(self.attr, 4))
@@ -482,28 +408,6 @@ class Chart(object):
             publish_display_data({'text/html': notebook_div(self.plot)})
 
     ## Some helper methods
-    #def _set_and_get(self, prefix, val, content):
-        #"Set a new attr and then get it to fill the self.data dict."
-        #setattr(self, prefix + val, content)
-        #self.data[prefix + val] = getattr(self, prefix + val)
-        #self.attr.append(prefix + val)
-
-    #def _chunker(self, l, n):
-        #"Yield successive n-sized chunks from l."
-        #for i in range(0, len(l), n):
-            #yield l[i:i + n]
-
-    #def _set_colors(self, chunk):
-        #"Build the proper color list just cycling in a defined palette"
-        #colors = []
-
-        #pal = ["#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33ff3"]
-        #g = itertools.cycle(pal)
-        #for i in range(len(chunk)):
-            #colors.append(next(g))
-
-        #return colors
-
     def _append_glyph(self, glyph):
         """ Appends the passed glyph to the renderer. """
         glyph = Glyph(data_source=self.source,
