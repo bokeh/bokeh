@@ -39,6 +39,9 @@ class ChartObject(object):
         self.__filename = filename
         self.__server = server
         self.__notebook = notebook
+        # attr used by the helper methods
+        self.data = dict()
+        self.attr = []
 
     def title(self, title):
         self._title = title
@@ -106,3 +109,27 @@ class ChartObject(object):
 
     def draw(self):
         pass
+
+    # Some helper methods
+    def _set_and_get(self, prefix, val, content):
+        "Set a new attr and then get it to fill the self.data dict."
+        setattr(self, prefix + val, content)
+        self.data[prefix + val] = getattr(self, prefix + val)
+        self.attr.append(prefix + val)
+
+    def _chunker(self, l, n):
+        "Yield successive n-sized chunks from l."
+        for i in range(0, len(l), n):
+            yield l[i:i + n]
+
+    def _set_colors(self, chunk):
+        "Build the proper color list just cycling in a defined palette"
+        colors = []
+
+        pal = ["#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33ff3"]
+        import itertools
+        g = itertools.cycle(pal)
+        for i in range(len(chunk)):
+            colors.append(next(g))
+
+        return colors
