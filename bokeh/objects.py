@@ -56,9 +56,16 @@ class ColumnDataSource(DataSource):
         if not isinstance(raw_data, dict):
             import pandas as pd
             if isinstance(raw_data, pd.DataFrame):
+                dfindex = raw_data.index
                 new_data = {}
                 for colname in raw_data:
                     new_data[colname] = raw_data[colname].tolist()
+                if dfindex.name:
+                    new_data[dfindex.name] = dfindex.tolist()
+                elif dfindex.names and not all([x is None for x in dfindex.names]):
+                    new_data["_".join(dfindex.names)] = dfindex.tolist()
+                else:
+                    new_data["index"] = dfindex.tolist()
                 raw_data = new_data
         for name, data in raw_data.items():
             self.add(data, name)
