@@ -1,3 +1,9 @@
+import os
+from os.path import join, dirname, splitext
+import logging
+
+import pandas as pd
+
 import bokeh.server
 from bokeh.server.app import bokeh_app
 from bokeh.server.utils.plugins import object_page
@@ -9,12 +15,16 @@ from bokeh.widgetobjects import (HBox, VBox, VBoxForm,
 from bokeh.objects import Plot, ColumnDataSource
 from bokeh.properties import (Dict, Float, String, Instance)
 import numpy as np
-import logging
-logging.basicConfig(level=logging.DEBUG)
 
-import os
-from os.path import join, dirname, splitext
-import pandas as pd
+
+logging.basicConfig(level=logging.DEBUG)
+"""
+This is an example applet run from the bokeh server.  you will need to download some sample data from quantquote, which
+can be executed from the download.py script
+
+Then, execute bokeh-server --script stock_example.py, and point your browser at http://localhost:5006/bokeh/stocks/
+"""
+
 data_dir = join(dirname(__file__), "daily")
 tickers = os.listdir(data_dir)
 tickers = [splitext(x)[0].split("table_")[-1] for x in tickers]
