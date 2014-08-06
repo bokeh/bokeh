@@ -223,10 +223,13 @@ def replot(plot, agg=Count(), info=Const(val=1), shader=Id(),
     props['plot_height'] = kwargs.pop('plot_height', plot.plot_height)
     props['title'] = kwargs.pop('title', plot.title)
 
-    if 'reserve_val' in kwargs:
-        props['reserve_val'] = kwargs.pop('reserve_val')
-    if 'reserve_color' in kwargs:
-        props['reserve_color'] = kwargs.pop('reserve_color')
+    # TODO: Find a list somewhere for plot-type-specific options and transfer out using that list.
+    #       Otherwise, this section will be horribly unmanageable.
+    options = ['reserve_val', 'reserve_color', 'line_color']
+    for opt in options:
+        if opt in kwargs:
+            props[opt] = kwargs.pop(opt)
+
 
     src = source(plot, agg, info, shader, remove_original, palette, points, **kwargs)
     props.update(mapping(src))
@@ -347,6 +350,10 @@ def downsample_line(xcol, ycol, glyphs, transform, plot_state):
     screen_y_span = float(_span(plot_state['screen_y']))
     data_x_span = float(_span(plot_state['data_x']))
     data_y_span = float(_span(plot_state['data_y']))
+    
+    (xmin, xmax) = (xcol.min(), xcol.max())
+    (ymin, ymax) = (ycol.min(), ycol.max())
+
 
     # How big would a full plot of the data be at the current resolution?
     if data_x_span == 0 or data_y_span == 0:
@@ -375,23 +382,29 @@ def downsample_line(xcol, ycol, glyphs, transform, plot_state):
 
         xxs = []
         yys = []
-        levels = []
- 
-        for (level,(xs,ys)) in contours.iteritems():
+        levels = sorted(contours.keys())
+
+        #Re-arrange results and project xs/ys back to the data space
+        for level in levels:
+            (xs, ys) = contours[level]
+            xs = (xs*scale_x)+xmin
+            ys = (ys*scale_y)+ymin
             xxs.append(xs)
             yys.append(ys)
-            levels.append(level)
-
-    (xmin, xmax) = (xcol.min(), xcol.max())
-    (ymin, ymax) = (ycol.min(), ycol.max())
 
     rslt = {'xs': xxs, 
             'ys': yys,
             #'x_range': {'start': xmin*scale_x, 'end': xmax*scale_x},
             #'y_range': {'start': ymin*scale_y, 'end': ymax*scale_y}
-            'x_range': {'start': 0, 'end': plot_size[0]},
-            'y_range': {'start': 0, 'end': plot_size[1]}
+            'x_range': {'start': xmin, 'end': xmax},
+            'y_range': {'start': ymin, 'end': ymax}
            }
+
+    #rslt = {'xs': [[1, 9, 9, 1, 1], [3,6,6,3,3]],
+    #        'ys': [[1, 1, 9, 9, 1], [3,3,6,6,3]],
+    #        'x_range': {'start': 0, 'end': 10},
+    #        'y_range': {'start': 0, 'end': 10}
+    #        }
     return rslt
 
 
