@@ -8,7 +8,7 @@ import bokeh.transforms.ar_downsample as ar
 
 output_server("abstractrender")
 source = ServerDataSource(data_url="fn://gauss", owner_username="defaultuser")
-plot = square('oneA','oneB',color='#FF00FF',source=source)
+plot = square('oneA', 'oneB', color='#FF00FF', source=source)
 
 
 # Simple heat-map: bin the counts ('tis the default configuration....)
@@ -22,8 +22,8 @@ image(source=percepmap, title="Perceptually corrected", reserve_val=0, **ar.mapp
 
 
 # Contours come in the same framework, but since the results of the shader are lines you use a different plotting function...
-#ar.replot(plot, shader=ar.Contour(levels=8), palette=["reds-9"], points=False)
-
+colors = ["#C6DBEF", "#9ECAE1", "#6BAED6", "#4292C6", "#2171B5", "#08519C", "#08306B"]
+ar.replot(plot, shader=ar.Contour(levels=8), line_color=colors)
 
 #"""
 #In order to run the 'stocks' example, you have to execute
@@ -42,5 +42,3 @@ image(source=percepmap, title="Perceptually corrected", reserve_val=0, **ar.mapp
 #image(source=percepmap, title="Perceptually corrected (Stocks)", reserve_val=0, **ar.mapping(percepmap))
 
 show()
-
-
