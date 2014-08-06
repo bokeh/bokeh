@@ -11,6 +11,7 @@ def downsample(data,
                domain_column,
                primary_data_column,
                domain_limit, 
+               range_limit,
                domain_resolution, 
                method):
     """
@@ -72,4 +73,16 @@ def downsample(data,
     #resort data
     indexes = np.argsort(downsampled_data[domain_column])
     downsampled_data = downsampled_data[indexes]
-    return downsampled_data
+
+    columns = dict([(k, downsampled_data[k]) for k in downsampled_data.dtype.names])
+    if  range_limit == "auto":
+      range_limit = [columns[primary_data_column].min(), columns[primary_data_column].max()]
+
+    result = {
+        'data' : columns, 
+        'domain_limit' : domain_limit,
+        'range_limit' : range_limit
+    }
+
+    return result
+
