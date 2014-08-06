@@ -24,6 +24,8 @@ import pandas as pd
 from ._charts import Chart
 from ._chartobject import ChartObject
 
+from ..objects import ColumnDataSource, Range1d
+
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
@@ -39,9 +41,54 @@ class Scatter(ChartObject):
         super(Scatter, self).__init__(title, xlabel, ylabel, legend,
                                       xscale, yscale, width, height,
                                       tools, filename, server, notebook)
+        self.source = None
+        self.xdr = None
+        self.ydr = None
+        self.groups = []
 
     def check_attr(self):
         super(Scatter, self).check_attr()
+
+    def get_data_scatter(self, **pairs):
+        "Take the scatter data from the input and calculate the parameters accordingly."
+        self.data = dict()
+
+        # assuming value is an ordered dict
+        self.pairs = pairs
+
+        # list to save all the attributes we are going to create
+        self.attr = []
+
+        # list to save all the groups available in the incomming input
+        self.groups.extend(self.pairs.keys())
+
+        # Grouping
+        for i, val in enumerate(self.pairs.keys()):
+            xy = self.pairs[val]
+            self._set_and_get("x_", val, xy[:, 0])
+            self._set_and_get("y_", val, xy[:, 1])
+
+    def get_source_scatter(self):
+        "Get the scatter data into the ColumnDataSource and calculate the proper ranges."
+        self.source = ColumnDataSource(self.data)
+
+        x_names, y_names = self.attr[::2], self.attr[1::2]
+
+        endx = max(max(self.data[i]) for i in x_names)
+        startx = min(min(self.data[i]) for i in x_names)
+        self.xdr = Range1d(start=startx - 0.1 * (endx - startx), end=endx + 0.1 * (endx - startx))
+
+        endy = max(max(self.data[i]) for i in y_names)
+        starty = min(min(self.data[i]) for i in y_names)
+        self.ydr = Range1d(start=starty - 0.1 * (endy - starty), end=endy + 0.1 * (endy - starty))
+
+    def scatter(self):
+        "Use different marker renderers to display the incomming groups."
+        self.duplet = list(self._chunker(self.attr, 2))
+        colors = self._set_colors(self.duplet)
+
+        for i, duplet in enumerate(self.duplet, start=1):
+            self.chart.make_scatter(duplet[0], duplet[1], i, colors[i - 1])
 
     def show(self):
         "This is the main Scatter show function."
@@ -79,13 +126,20 @@ class Scatter(ChartObject):
         if self._ylabel is None:
             self._ylabel = self.labels[1]
 
-        chart = Chart(self._title, self._xlabel, self._ylabel, self._legend,
+        # we create the chart object
+        self.chart = Chart(self._title, self._xlabel, self._ylabel, self._legend,
                       self.xscale, self.yscale, self._width, self._height,
                       self._tools, self._filename, self._server, self._notebook)
-        chart.start_plot()
-        chart.get_data_scatter(**self.pairs)
-        chart.get_source_scatter()
-        chart.add_data_plot()
-        chart.scatter()
-        chart.end_plot()
-        chart.show()
+        # we start the plot (adds axis, grids and tools
+        self.chart.start_plot()
+        # we get the data from the incoming input
+        self.get_data_scatter(**self.pairs)
+        # we filled the source and ranges with the calculated data
+        self.get_source_scatter()
+        # we dinamically inject the source and ranges into the plot
+        self.chart.add_data_plot(self.source, self.xdr, self.ydr)
+        # we add the glyphs into the plot
+        self.scatter()
+        # finally we pass info to build the legend
+        self.chart.end_plot(self.groups)
+        self.chart.show()

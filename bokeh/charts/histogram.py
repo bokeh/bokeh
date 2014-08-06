@@ -126,7 +126,7 @@ class Histogram(ChartObject):
         self.chart = Chart(self._title, self._xlabel, self._ylabel, self._legend,
                       self.xscale, self.yscale, self._width, self._height,
                       self._tools, self._filename, self._server, self._notebook)
-        # we start the plot (adds axis, grids and tools
+        # we start the plot (adds axis, grids and tools)
         self.chart.start_plot()
         # we get the data from the incoming input
         self.get_data_histogram(self.bins, self.mu, self.sigma, **self.measured)
