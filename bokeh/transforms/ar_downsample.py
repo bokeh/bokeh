@@ -190,7 +190,7 @@ class Spread(Shader):
     factor = Any    # TODO: Restrict to numbers; Add shape parameter
 
     def reify(self, **kwargs):
-        return numeric.Spread(self.factor)
+        return numeric.Spread(factor=self.factor)
 
 
 class Contour(Shader):
@@ -383,8 +383,8 @@ def downsample_line(xcol, ycol, glyphs, transform, plot_state):
         #Re-arrange results and project xs/ys back to the data space
         for level in levels:
             (xs, ys) = contours[level]
-            xs = xs+(xmin-1)  # TODO: Why is this -1 required?
-            ys = ys+(ymin-1) # TODO: Why is this -1 required?
+            xs = xs+(xmin-1)  # HACK: Why is this -1 required?
+            ys = ys+(ymin-1)  # HACK: Why is this -1 required?
             xxs.append(xs)
             yys.append(ys)
 
@@ -392,15 +392,8 @@ def downsample_line(xcol, ycol, glyphs, transform, plot_state):
             'ys': yys,
             'x_range': {'start': xmin, 'end': xmax},
             'y_range': {'start': ymin, 'end': ymax}
-            #'x_range': {'start': xmin, 'end': xmax},
-            #'y_range': {'start': ymin, 'end': ymax}
            }
 
-    #rslt = {'xs': [[1, 9, 9, 1, 1], [3,6,6,3,3]],
-    #        'ys': [[1, 1, 9, 9, 1], [3,3,6,6,3]],
-    #        'x_range': {'start': 0, 'end': 10},
-    #        'y_range': {'start': 0, 'end': 10}
-    #        }
     return rslt
 
 
