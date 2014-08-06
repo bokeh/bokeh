@@ -362,15 +362,11 @@ def downsample_line(xcol, ycol, glyphs, transform, plot_state):
         # This enales guide creation...which cahgnes the available plot size.
         image = np.array([[np.nan]])
         plot_size = [screen_x_span, screen_y_span]
-        scale_x = 1
-        scale_y = 1
         xxs = []
         yys = []
         levels = []
     else:
-        scale_x = data_x_span/screen_x_span
-        scale_y = data_x_span/screen_y_span
-        plot_size = [bounds[2]/scale_x, bounds[3]/scale_y]
+        plot_size = [bounds[2], bounds[3]]
 
         vt = ar.zoom_fit(plot_size, bounds, balanced=False)
         
@@ -387,17 +383,17 @@ def downsample_line(xcol, ycol, glyphs, transform, plot_state):
         #Re-arrange results and project xs/ys back to the data space
         for level in levels:
             (xs, ys) = contours[level]
-            xs = (xs*scale_x)+xmin
-            ys = (ys*scale_y)+ymin
+            xs = xs+(xmin-1)  # TODO: Why is this -1 required?
+            ys = ys+(ymin-1) # TODO: Why is this -1 required?
             xxs.append(xs)
             yys.append(ys)
 
     rslt = {'xs': xxs, 
             'ys': yys,
-            #'x_range': {'start': xmin*scale_x, 'end': xmax*scale_x},
-            #'y_range': {'start': ymin*scale_y, 'end': ymax*scale_y}
             'x_range': {'start': xmin, 'end': xmax},
             'y_range': {'start': ymin, 'end': ymax}
+            #'x_range': {'start': xmin, 'end': xmax},
+            #'y_range': {'start': ymin, 'end': ymax}
            }
 
     #rslt = {'xs': [[1, 9, 9, 1, 1], [3,6,6,3,3]],
