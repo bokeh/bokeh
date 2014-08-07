@@ -64,7 +64,6 @@ define [
           primary_column, domain_name, columns, input_params)
 
       throttle = _.throttle(@line1d_update, 300)
-      console.log(input_params)
       callback = () => throttle(column_data_source, plot_state, domain_range, screen_range
         primary_column, domain_name, columns, input_params
       )
@@ -78,7 +77,6 @@ define [
     #TODO: Move some of the passed paramters in to the plot_state object...when plot_state can handle more than just ranges
     line1d_update : (column_data_source, plot_state, domain_range, screen_range,
                      primary_column, domain_name, columns, input_params) =>
-      #console.log('calling update')
       domain_resolution = (screen_range.get('end') - screen_range.get('start')) / 2
       domain_resolution = Math.floor(domain_resolution)
       domain_limit = [domain_range.get('start'), domain_range.get('end')]
@@ -106,9 +104,7 @@ define [
                 start : data.domain_limit[0],
                 end : data.domain_limit[1],
             )
-            console.log('setting range', data.domain_limit)
           column_data_source.set('data', data.data)
-          console.log('setting data', _.values(data.data)[0].length)
         data :
           resample_parameters : JSON.stringify(params)
           plot_state: JSON.stringify(plot_state)
@@ -185,7 +181,6 @@ define [
               {start : data.y_range.start, end : data.y_range.end},
             )
           
-          console.log("X-range", data.x_range.start, data.x_range.end)
           
           #hack
           new_data = _.clone(column_data_source.get('data'))
@@ -246,7 +241,6 @@ define [
         @get('transpose'),
         input_params
       ]
-      #console.log(y_bounds)
       $.ajax(
         dataType: 'json'
         url : @update_url()
@@ -257,7 +251,6 @@ define [
           new_data = _.clone(column_data_source.get('data'))
           _.extend(new_data, data)
           column_data_source.set('data', new_data)
-          #console.log('setting data', data.image.length, data.image[0].length)
         data :
           resample_parameters : JSON.stringify(params)
           plot_state: JSON.stringify(plot_state)
