@@ -21,7 +21,6 @@ or a pandas groupby object.
 import numpy as np
 import pandas as pd
 
-from ._charts import Chart
 from ._chartobject import ChartObject
 
 from ..objects import ColumnDataSource, Range1d
@@ -118,6 +117,7 @@ class Scatter(ChartObject):
 
             self.pairs = pdict
 
+        # we need to check the chained method attr
         self.check_attr()
 
         if self._xlabel is None:
@@ -126,19 +126,18 @@ class Scatter(ChartObject):
             self._ylabel = self.labels[1]
 
         # we create the chart object
-        self.chart = Chart(self._title, self._xlabel, self._ylabel, self._legend,
-                      self.xscale, self.yscale, self._width, self._height,
-                      self._tools, self._filename, self._server, self._notebook)
-        # we start the plot (adds axis, grids and tools
-        self.chart.start_plot()
+        self.create_chart()
+        # we start the plot (adds axis, grids and tools)
+        self.start_plot()
         # we get the data from the incoming input
         self.get_data(**self.pairs)
         # we filled the source and ranges with the calculated data
         self.get_source()
         # we dinamically inject the source and ranges into the plot
-        self.chart.add_data_plot(self.source, self.xdr, self.ydr)
+        self.add_data_plot()
         # we add the glyphs into the plot
         self.draw()
-        # finally we pass info to build the legend
-        self.chart.end_plot(self.groups)
-        self.chart.show()
+        # we pass info to build the legend
+        self.end_plot()
+        # and finally we show it
+        self.show_chart()

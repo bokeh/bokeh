@@ -17,6 +17,8 @@ methods.
 # Imports
 #-----------------------------------------------------------------------------
 
+from ._charts import Chart
+
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
@@ -112,17 +114,32 @@ class ChartObject(object):
         if not hasattr(self, '_notebook'):
             self._notebook = self.__notebook
 
+    def create_chart(self):
+        # we create the chart object
+        self.chart = Chart(self._title, self._xlabel, self._ylabel, self._legend,
+                      self.xscale, self.yscale, self._width, self._height,
+                      self._tools, self._filename, self._server, self._notebook)
+
+    def start_plot(self):
+        self.chart.start_plot()
+
     def get_data(self):
         pass
 
     def get_source(self):
         pass
 
+    def add_data_plot(self):
+        self.chart.add_data_plot(self.source, self.xdr, self.ydr)
+
     def draw(self):
         pass
 
-    def show(self):
-        pass
+    def end_plot(self):
+        self.chart.end_plot(self.groups)
+
+    def show_chart(self):
+        self.chart.show()
 
     # Some helper methods
     def _set_and_get(self, prefix, val, content):
