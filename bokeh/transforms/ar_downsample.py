@@ -523,14 +523,15 @@ def _span(r):
 
 def _shaper(code, size, points):
     """Construct the AR shaper to match the given shape code."""
-    code = code.lower()
-    if not code == 'square':
-        raise ValueError("Only recognizing 'square', received " + code)
 
     tox = glyphset.idx(0)
     toy = glyphset.idx(1)
     sizer = glyphset.const(size)
+    code = code.lower()
+
     if points:
         return glyphset.ToPoint(tox, toy, sizer, sizer)
-    else:
+    elif code == 'square':
         return glyphset.ToRect(tox, toy, sizer, sizer)
+    else:
+        raise ValueError("Only recognizing 'square', received " + code)
