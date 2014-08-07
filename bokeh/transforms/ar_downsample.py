@@ -25,8 +25,10 @@ Joseph Cottam (jcottam@indiana.edu)
 
 def _loadAR():
     """
-    Utility to load abstract rendering.  Keeps the import from occurring
-    unless you actually try to use AR.
+    Utility to load abstract rendering (AR).  Keeps the import from occurring
+    unless you actually try to use AR.  MUST be called before actually
+    calling any AR package items (typically only invoked on the server 
+    in response to an AR-reliant plot request).
 
     This is more complex than just an import because
     AR is exposed as several backbone modules.  If the AR modules
@@ -67,17 +69,20 @@ class Proxy(PlotObject):
 
 # ------ Aggregators -------------
 class Sum(Proxy):
+    "Add up all incomming values"
     def reify(self, **kwargs):
         return numeric.Sum()
 
 
 class Count(Proxy):
+    "Count how many items there are (ignores values)"
     def reify(self, **kwargs):
         return numeric.Count()
 
 
 # ------ Infos ---------
 class Const(Proxy):
+    "Return a single value"
     val = Any()
 
     def reify(self, **kwargs):
@@ -88,15 +93,25 @@ class Const(Proxy):
 # Out types to support:
 #   image -- grid of values
 #   rgb_image -- grid of colors
-#   poly_line -- multi-segment lines 
+#   poly_line -- multi-segment lines
 
 class Shader(Proxy):
     def __add__(self, other):
+        "Build a sequence of shaders"
         return Seq(first=self, second=other)
 
+    def reformat(self, result, *args):
+        """
+        Modify the standard AR shader output to one that Bokeh can use.
+        Response to 'None' should produce an empty basic dataset.
+
+        The default behavior for None is [[0]] because most shaders produce images.
+        The default behavior for all other values is identity.
+        """
+        return np.array([[0]]) if result is None else result
 
 class Seq(Shader):
-    # TODO: Verify that firsts has an 'out' of 'image'
+    "Sequence of shaders"
     first = Instance(Shader)
     second = Instance(Shader)
 
@@ -110,8 +125,26 @@ class Seq(Shader):
         else:
             raise AttributeError(name)
 
+    def reformat(self, result, *args):
+        return self.second.reformat(result, *args)
+
+
+class Id(Shader):
+    "Identity shader.  A safe default."
+    out = "image"
+
+    def reify(self, **kwargs):
+        return general.Id()
+
 
 class BinarySegment(Shader):
+    """
+    Divide the input space into two regions.
+
+    divider - Value that divides the two regions
+    high - Value for regions equal to or above the divider
+    low - Value for cells below divider
+    """
     out = "image"
     high = Any
     low = Any
@@ -121,14 +154,8 @@ class BinarySegment(Shader):
         return numeric.BinarySegment(self.low, self.high, self.divider)
 
 
-class Id(Shader):
-    out = "image"
-
-    def reify(self, **kwargs):
-        return general.Id()
-
-
 class Interpolate(Shader):
+    "Interpolate between high and low number"
     out = "image"
     high = Any     # TODO: Restrict to numbers...
     low = Any
@@ -138,6 +165,15 @@ class Interpolate(Shader):
 
 
 class InterpolateColor(Shader):
+    """
+    Interpolate between a high and low color
+
+    * high - High color (default: red)
+    * low - Low color (default: white)
+    * reserve - Color for empty values (default: transparent)
+    * empty - Empty value (default: 0)
+
+    """
     # TODO: Make color format conversion fluid...possibly by some change to properties.Color
     out = "image_rgb"
     high = Color((255, 0, 0, 1))
@@ -170,8 +206,13 @@ class InterpolateColor(Shader):
                 except:
                     raise ValueError("Unknown color string %s" % color)
 
+    def reformat(self, image, *args):
+        if image is None: return np.array([[0]])
+        return image.view(dtype=np.int32).reshape(image.shape[0:2])
+
 
 class Sqrt(Shader):
+    "Square root of all values"
     out = "image"
 
     def reify(self, **kwargs):
@@ -179,6 +220,7 @@ class Sqrt(Shader):
 
 
 class Cuberoot(Shader):
+    "Cub eroot of all values"
     out = "image"
 
     def reify(self, **kwargs):
@@ -186,6 +228,8 @@ class Cuberoot(Shader):
 
 
 class Spread(Shader):
+    """Spread values out in a regular pattern from their origin."""
+
     out = "image"
     factor = Any    # TODO: Restrict to numbers; Add shape parameter
 
@@ -194,12 +238,41 @@ class Spread(Shader):
 
 
 class Contour(Shader):
+    """
+    ISO Contours
+
+    levels -- Either how many ISO contours to make (int)
+              or the exact contour levels (list).
+              Both cases indicate how many contour lines to create.
+    """
     out = "poly_line"
     levels = Either(Int, List(Float), default=5)
 
     def reify(self, **kwargs):
         return contour.Contour(levels=self.levels, points=False)
 
+    def reformat(self, contours, *args):
+        if contours is None:
+            return {'xxs': [], 'yys': [], 'levels': []}
+
+        xxs = []
+        yys = []
+        levels = sorted(contours.keys())
+        (xmin, ymin) = args
+
+        # Re-arrange results and project xs/ys back to the data space
+        for level in levels:
+            (xs, ys) = contours[level]
+            xs = xs+(xmin-1)  # HACK: Why is this -1 required?
+            ys = ys+(ymin-1)  # HACK: Why is this -1 required?
+            xxs.append(xs)
+            yys.append(ys)
+
+        return {'levels': levels,
+                'xs': xxs,
+                'ys': yys}
+
+# ------------------  Control Functions ----------------
 
 def replot(plot, agg=Count(), info=Const(val=1), shader=Id(),
         remove_original=True, palette=["Spectral-11"], points=False, **kwargs):
@@ -230,7 +303,6 @@ def replot(plot, agg=Count(), info=Const(val=1), shader=Id(),
         if opt in kwargs:
             props[opt] = kwargs.pop(opt)
 
-
     src = source(plot, agg, info, shader, remove_original, palette, points, **kwargs)
     props.update(mapping(src))
 
@@ -244,7 +316,6 @@ def replot(plot, agg=Count(), info=Const(val=1), shader=Id(),
         raise ValueError("Unhandled output type %s" % shader.out)
 
 
-# TODO: Pass the 'rend' definition through (minus the data_source references), unpack in 'downsample' instead of here...
 # TODO: Move reserve control up here or palette control down.  Probably related to refactoring palette into a model-backed type
 def source(plot, agg=Count(), info=Const(val=1), shader=Id(),
            remove_original=True, palette=["Spectral-11"],
@@ -256,6 +327,8 @@ def source(plot, agg=Count(), info=Const(val=1), shader=Id(),
     kwargs['owner_username'] = datasource.owner_username
 
     spec = rend.vm_serialize()['glyphspec']
+
+    # TODO: Use reformat here?
 
     if shader.out == "image" or shader.out == "image_rgb":
         kwargs['data'] = {'image': [],
@@ -300,11 +373,10 @@ def mapping(source):
         m['x_range'] = Range1d(start=0, end=0)
         m['y_range'] = Range1d(start=0, end=0)
         return m
-    
     elif out == 'poly_line':
         keys = source.data.keys()
         m = dict(zip(keys, keys))
-        return m 
+        return m
 
     else:
         raise ValueError("Unrecognized shader output type %s" % out)
@@ -345,56 +417,41 @@ def downsample(data, transform, plot_state):
 
 def downsample_line(xcol, ycol, glyphs, transform, plot_state):
     bounds = glyphs.bounds()
-    
+
     screen_x_span = float(_span(plot_state['screen_x']))
     screen_y_span = float(_span(plot_state['screen_y']))
     data_x_span = float(_span(plot_state['data_x']))
     data_y_span = float(_span(plot_state['data_y']))
-    
+
     (xmin, xmax) = (xcol.min(), xcol.max())
     (ymin, ymax) = (ycol.min(), ycol.max())
 
+    shader = transform['shader']
 
     # How big would a full plot of the data be at the current resolution?
     if data_x_span == 0 or data_y_span == 0:
         # If scale is zero for either axis, don't actual render,
         # instead report back data bounds and wait for the next request
         # This enales guide creation...which cahgnes the available plot size.
-        image = np.array([[np.nan]])
         plot_size = [screen_x_span, screen_y_span]
-        xxs = []
-        yys = []
-        levels = []
+        parts = shader.reformat(None)
     else:
         plot_size = [bounds[2], bounds[3]]
 
         vt = ar.zoom_fit(plot_size, bounds, balanced=False)
         
-        contours = ar.render(glyphs,
-                             transform['info'].reify(),
-                             transform['agg'].reify(),
-                             transform['shader'].reify(),
-                             plot_size, vt)
+        lines = ar.render(glyphs,
+                          transform['info'].reify(),
+                          transform['agg'].reify(),
+                          shader.reify(), 
+                          plot_size, vt)
 
-        xxs = []
-        yys = []
-        levels = sorted(contours.keys())
+        parts = shader.reformat(lines, xmin, ymin)
 
-        #Re-arrange results and project xs/ys back to the data space
-        for level in levels:
-            (xs, ys) = contours[level]
-            xs = xs+(xmin-1)  # HACK: Why is this -1 required?
-            ys = ys+(ymin-1)  # HACK: Why is this -1 required?
-            xxs.append(xs)
-            yys.append(ys)
+    parts['x_range'] = {'start': xmin, 'end': xmax}
+    parts['y_range'] = {'start': ymin, 'end': ymax}
 
-    rslt = {'xs': xxs, 
-            'ys': yys,
-            'x_range': {'start': xmin, 'end': xmax},
-            'y_range': {'start': ymin, 'end': ymax}
-           }
-
-    return rslt
+    return parts
 
 
 def downsample_image(xcol, ycol, glyphs, transform, plot_state):
@@ -405,12 +462,17 @@ def downsample_image(xcol, ycol, glyphs, transform, plot_state):
     data_x_span = float(_span(plot_state['data_x']))
     data_y_span = float(_span(plot_state['data_y']))
 
+    (xmin, xmax) = (xcol.min(), xcol.max())
+    (ymin, ymax) = (ycol.min(), ycol.max())
+    
+    shader = transform['shader']
+
     # How big would a full plot of the data be at the current resolution?
     if data_x_span == 0 or data_y_span == 0:
         # If scale is zero for either axis, don't actual render,
         # instead report back data bounds and wait for the next request
         # This enables guide creation...which changes the available plot size.
-        image = np.array([[np.nan]])
+        image = shader.reformat(None)
         scale_x = 1
         scale_y = 1
     else:
@@ -421,19 +483,13 @@ def downsample_image(xcol, ycol, glyphs, transform, plot_state):
         ivt = ar.zoom_fit(plot_size, bounds, balanced=False)
         (tx, ty, sx, sy) = ivt
 
-        shader = transform['shader'].reify()
-
         image = ar.render(glyphs,
                           transform['info'].reify(),
                           transform['agg'].reify(),
-                          shader,
+                          shader.reify(),
                           plot_size, ivt)
-
-        if transform['shader'].out == 'image_rgb' and len(image.shape) > 2:
-            image = image.view(dtype=np.int32).reshape(image.shape[0:2])
-
-    (xmin, xmax) = (xcol.min(), xcol.max())
-    (ymin, ymax) = (ycol.min(), ycol.max())
+        
+        image = shader.reformat(image)
 
     rslt = {'image': [image],
             'global_offset_x': [0],
@@ -460,8 +516,8 @@ def downsample_image(xcol, ycol, glyphs, transform, plot_state):
 
 def _span(r):
     """Distance in a Range1D"""
-    end = r.end if r.end != None else 0
-    start = r.start if r.start != None else 0
+    end = r.end if r.end is not None else 0
+    start = r.start if r.start is not None else 0
     return abs(end-start)
 
 
