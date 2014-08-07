@@ -42,7 +42,7 @@ define [
           eventSink.trigger("#{toolName}:UpdatingMouseMove", e)
           e.preventDefault()
           e.stopPropagation()
-        )
+      )
       callbacks.push((e, x, y) =>
         if @dragging
           set_bokehXY(e)
@@ -68,8 +68,8 @@ define [
           if y < ystart or y > yend
             @_stop_drag(e)
             return false
-        @plotview.canvas.set('mousemove_callbacks', callbacks)
       )
+      @plotview.canvas.set('mousemove_callbacks', callbacks)
       $(document).bind('keydown', (e) =>
         if e.keyCode == 27 # ESC
           eventSink.trigger("clear_active_tool"))
