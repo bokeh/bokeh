@@ -20,6 +20,6 @@ ar.replot(plot,
         title="Census Tracts (Server Colors)")
 
 colors = ["#C6DBEF", "#9ECAE1", "#6BAED6", "#4292C6", "#2171B5", "#08519C", "#08306B"]
-ar.replot(plot, shader=ar.Spread(factor=1) + ar.Contour(levels=7), line_color=colors, points=True, title="Census (Contours)")
+ar.replot(plot, shader=ar.Cuberoot() + ar.Spread(factor=2) + ar.Contour(levels=len(colors)), line_color=colors, points=True, title="Census (Contours)")
 
 show()

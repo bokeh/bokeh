@@ -22,7 +22,7 @@ image(source=percepmap, title="Perceptually corrected", reserve_val=0, **ar.mapp
 
 # Contours come in the same framework, but since the results of the shader are lines you use a different plotting function...
 colors = ["#C6DBEF", "#9ECAE1", "#6BAED6", "#4292C6", "#2171B5", "#08519C", "#08306B"]
-ar.replot(plot, title="ISO Contours", shader=ar.Contour(levels=7), line_color=colors)
+ar.replot(plot, title="ISO Contours", shader=ar.Contour(levels=len(colors)), line_color=colors)
 
 #"""
 #In order to run the 'stocks' example, you have to execute
