@@ -48,7 +48,7 @@ class Histogram(ChartObject):
     def check_attr(self):
         super(Histogram, self).check_attr()
 
-    def get_data_histogram(self, bins, mu, sigma, **value):
+    def get_data(self, bins, mu, sigma, **value):
         "Take the histogram data from the input and calculate the parameters accordingly."
 
         # assuming value is a dict, ordered dict
@@ -79,7 +79,7 @@ class Histogram(ChartObject):
                 self._set_and_get("cdf", val, cdf)
                 self.groups.append("cdf")
 
-    def get_source_histogram(self):
+    def get_source(self):
         "Get the histogram data into the ColumnDataSource and calculate the proper ranges."
         self.source = ColumnDataSource(data=self.data)
 
@@ -98,7 +98,7 @@ class Histogram(ChartObject):
             endy = 1.0
         self.ydr = Range1d(start=0, end=1.1 * endy)
 
-    def histogram(self):
+    def draw(self):
         "Use the `quad` renderer to display the histogram bars."
         if not self.mu_and_sigma:
             self.quintet = list(self._chunker(self.attr, 6))
@@ -126,13 +126,13 @@ class Histogram(ChartObject):
         # we start the plot (adds axis, grids and tools)
         self.chart.start_plot()
         # we get the data from the incoming input
-        self.get_data_histogram(self.bins, self.mu, self.sigma, **self.measured)
+        self.get_data(self.bins, self.mu, self.sigma, **self.measured)
         # we filled the source and ranges with the calculated data
-        self.get_source_histogram()
+        self.get_source()
         # we dinamically inject the source and ranges into the plot
         self.chart.add_data_plot(self.source, self.xdr, self.ydr)
         # we add the glyphs into the plot
-        self.histogram()
+        self.draw()
         # finally we pass info to build the legend
         self.chart.end_plot(self.groups)
         self.chart.show()

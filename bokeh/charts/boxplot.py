@@ -56,7 +56,7 @@ class BoxPlot(ChartObject):
     def check_attr(self):
         super(BoxPlot, self).check_attr()
 
-    def get_data_boxplot(self, cat, marker, outliers, **value):
+    def get_data(self, cat, marker, outliers, **value):
         "Take the boxplot data from the input and calculate the parameters accordingly."
         self.cat = cat
         self.marker = marker
@@ -95,7 +95,7 @@ class BoxPlot(ChartObject):
             self._set_and_get("line_y", level, [lower, upper])
             self._set_and_get("x", level, step[i])
 
-    def get_source_boxplot(self):
+    def get_source(self):
         "Get the boxplot data into the ColumnDataSource and calculate the proper ranges."
         self.source = ColumnDataSource(self.data)
         self.xdr = FactorRange(factors=self.source.data["cat"])
@@ -107,7 +107,7 @@ class BoxPlot(ChartObject):
         end_y = max(end_y, max(self.data[x][1] for x in self.attr[4::6]))
         self.ydr = Range1d(start=start_y - 0.1 * (end_y-start_y), end=end_y + 0.1 * (end_y-start_y))
 
-    def boxplot(self):
+    def draw(self):
         " Use the `rect`, `scatter`, and `segment` renderers to display the boxplot. "
         self.sextet = list(self._chunker(self.attr, 6))
         colors = self._set_colors(self.sextet)
@@ -138,13 +138,13 @@ class BoxPlot(ChartObject):
         # we start the plot (adds axis, grids and tools)
         self.chart.start_plot()
         # we get the data from the incoming input
-        self.get_data_boxplot(self.cat, self.marker, self.outliers, **self.value)
+        self.get_data(self.cat, self.marker, self.outliers, **self.value)
         # we filled the source and ranges with the calculated data
-        self.get_source_boxplot()
+        self.get_source()
         # we dinamically inject the source and ranges into the plot
         self.chart.add_data_plot(self.source, self.xdr, self.ydr)
         # we add the glyphs into the plot
-        self.boxplot()
+        self.draw()
         # finally we pass info to build the legend
         self.chart.end_plot(self.groups)
         self.chart.show()

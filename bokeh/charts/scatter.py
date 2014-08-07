@@ -48,7 +48,7 @@ class Scatter(ChartObject):
     def check_attr(self):
         super(Scatter, self).check_attr()
 
-    def get_data_scatter(self, **pairs):
+    def get_data(self, **pairs):
         "Take the scatter data from the input and calculate the parameters accordingly."
         self.data = dict()
 
@@ -67,7 +67,7 @@ class Scatter(ChartObject):
             self._set_and_get("x_", val, xy[:, 0])
             self._set_and_get("y_", val, xy[:, 1])
 
-    def get_source_scatter(self):
+    def get_source(self):
         "Get the scatter data into the ColumnDataSource and calculate the proper ranges."
         self.source = ColumnDataSource(self.data)
 
@@ -81,7 +81,7 @@ class Scatter(ChartObject):
         starty = min(min(self.data[i]) for i in y_names)
         self.ydr = Range1d(start=starty - 0.1 * (endy - starty), end=endy + 0.1 * (endy - starty))
 
-    def scatter(self):
+    def draw(self):
         "Use different marker renderers to display the incomming groups."
         self.duplet = list(self._chunker(self.attr, 2))
         colors = self._set_colors(self.duplet)
@@ -132,13 +132,13 @@ class Scatter(ChartObject):
         # we start the plot (adds axis, grids and tools
         self.chart.start_plot()
         # we get the data from the incoming input
-        self.get_data_scatter(**self.pairs)
+        self.get_data(**self.pairs)
         # we filled the source and ranges with the calculated data
-        self.get_source_scatter()
+        self.get_source()
         # we dinamically inject the source and ranges into the plot
         self.chart.add_data_plot(self.source, self.xdr, self.ydr)
         # we add the glyphs into the plot
-        self.scatter()
+        self.draw()
         # finally we pass info to build the legend
         self.chart.end_plot(self.groups)
         self.chart.show()

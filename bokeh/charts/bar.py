@@ -56,7 +56,7 @@ class Bar(ChartObject):
         if not hasattr(self, '_stacked'):
             self._stacked = self.__stacked
 
-    def get_data_bar(self, cat, **value):
+    def get_data(self, cat, **value):
         "Take the bar data from the input and calculate the parameters accordingly."
         self.cat = cat
         self.width = [0.8] * len(self.cat)
@@ -85,7 +85,7 @@ class Bar(ChartObject):
             # Stacked
             self.zero += self.value[val]
 
-    def get_source_bar(self, stacked):
+    def get_source(self, stacked):
         "Get the bar data into the ColumnDataSource and calculate the proper ranges."
         self.source = ColumnDataSource(self.data)
         self.xdr = FactorRange(factors=self.source.data["cat"])
@@ -96,7 +96,7 @@ class Bar(ChartObject):
             end = 1.1 * max(max(self.data[i]) for i in cat)
             self.ydr = Range1d(start=0, end=end)
 
-    def bar(self, stacked):
+    def draw(self, stacked):
         "Use the `rect` renderer to display the bars."
         self.quartet = list(self._chunker(self.attr, 4))
         colors = self._set_colors(self.quartet)
@@ -121,13 +121,13 @@ class Bar(ChartObject):
         # we start the plot (adds axis, grids and tools)
         self.chart.start_plot()
         # we get the data from the incoming input
-        self.get_data_bar(self.cat, **self.value)
+        self.get_data(self.cat, **self.value)
         # we filled the source and ranges with the calculated data
-        self.get_source_bar(self._stacked)
+        self.get_source(self._stacked)
         # we dinamically inject the source and ranges into the plot
         self.chart.add_data_plot(self.source, self.xdr, self.ydr)
         # we add the glyphs into the plot
-        self.bar(self._stacked)
+        self.draw(self._stacked)
         # finally we pass info to build the legend
         self.chart.end_plot(self.groups)
         self.chart.show()

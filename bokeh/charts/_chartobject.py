@@ -112,7 +112,16 @@ class ChartObject(object):
         if not hasattr(self, '_notebook'):
             self._notebook = self.__notebook
 
+    def get_data(self):
+        pass
+
+    def get_source(self):
+        pass
+
     def draw(self):
+        pass
+
+    def show(self):
         pass
 
     # Some helper methods
