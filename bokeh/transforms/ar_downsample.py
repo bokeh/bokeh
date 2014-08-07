@@ -45,7 +45,7 @@ def _loadAR():
         globals()["infos"] = import_module("abstract_rendering.infos")
         globals()["ar"] = import_module("abstract_rendering.core")
         globals()["glyphset"] = import_module("abstract_rendering.glyphset")
-        globals()["isocontour"] = import_module("abstract_rendering.isocontour")
+        globals()["contour"] = import_module("abstract_rendering.contour")
     except:
         print(_AR_MESSAGE)
         raise
@@ -88,7 +88,7 @@ class Const(Proxy):
 # Out types to support:
 #   image -- grid of values
 #   rgb_image -- grid of colors
-#   poly_line -- multi-segment lines (for ISO contours...)
+#   poly_line -- multi-segment lines 
 
 class Shader(Proxy):
     def __add__(self, other):
@@ -198,7 +198,7 @@ class Contour(Shader):
     levels = Either(Int, List(Float), default=5)
 
     def reify(self, **kwargs):
-        return isocontour.Contour(levels=self.levels, points=False)
+        return contour.Contour(levels=self.levels, points=False)
 
 
 def replot(plot, agg=Count(), info=Const(val=1), shader=Id(),
