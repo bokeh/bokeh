@@ -23,11 +23,11 @@ import itertools
 import numpy as np
 
 from ..glyphs import (Asterisk, Circle, CircleCross, CircleX, Cross, Diamond,
-                     DiamondCross, InvertedTriangle, Line, Rect, Segment, Square,
-                     SquareCross, SquareX, Triangle, Xmarker, Quad)
-from ..objects import (CategoricalAxis, ColumnDataSource, DatetimeAxis,
-                      FactorRange, Glyph, Grid, Legend, LinearAxis, PanTool,
-                      Plot, PreviewSaveTool, Range1d, ResetTool, WheelZoomTool)
+                      DiamondCross, InvertedTriangle, Line, Rect, Segment,
+                      Square, SquareCross, SquareX, Triangle, Xmarker, Quad)
+from ..objects import (CategoricalAxis, DatetimeAxis, Glyph, Grid, Legend,
+                       LinearAxis, PanTool, Plot, PreviewSaveTool, ResetTool,
+                       WheelZoomTool)
 
 from ..document import Document
 from ..session import Session
@@ -61,7 +61,6 @@ class Chart(object):
         self.source = None
         self.xdr = None
         self.ydr = None
-        #self.groups = []
         self.glyphs = []
         self.plot = Plot(title=self.title,
                          data_sources=[self.source],

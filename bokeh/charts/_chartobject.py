@@ -39,6 +39,11 @@ class ChartObject(object):
         self.__filename = filename
         self.__server = server
         self.__notebook = notebook
+        # attr used by the inherited classes
+        self.source = None
+        self.xdr = None
+        self.ydr = None
+        self.groups = []
         # attr used by the helper methods
         self.data = dict()
         self.attr = []

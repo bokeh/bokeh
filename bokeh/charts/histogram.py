@@ -41,10 +41,7 @@ class Histogram(ChartObject):
         super(Histogram, self).__init__(title, xlabel, ylabel, legend,
                                         xscale, yscale, width, height,
                                         tools, filename, server, notebook)
-        self.source = None
-        self.xdr = None
-        self.ydr = None
-        self.groups = []
+        # self.source, self.xdr, self.ydr, self.groups are inherited attr
         # self.data and self.attr are inheriteed from ChartObject where the
         # the helper method lives...
 
