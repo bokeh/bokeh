@@ -6,31 +6,36 @@ python:
     - 3.4
 
 env:
-    - BOKEH_DEFAULT_NO_DEV=false
-    - BOKEH_DEFAULT_NO_DEV=true
+    global:
+        - MINICONDA_VERSION="3.5.5"
+        - BOKEH_DEFAULT_TIMEOUT=30
+        - secure: "nLrUq2h59KN3k3hnid+Ub4RHDcVkZyrVmuMLoM6NbwKA0bwpDltaoSg5cj2dzdXKBwvv+3VP38oXLhEGLhVi7kDmyX3ICcza6Usy8zgK3s1NBgl6hFjqaJ7RjCu9OP1I42ThMTLfCQMRrYul7s74sGdZa+HfMCZcl+3Co5IzraI="
+        - secure: "oI7Up9HuHSBw8k9LBNC6pLEUJONj+5NeEGFpSLSVXvqPPmyXJZ4qRE/dZ/HxZp6xyBze5GLYmdXXAdhrZyNjmU1ZA0rbBLDWLXuAW8eJm5xAXZ0NRFlHMXMkwvbG9hPTOTFtxKNS4lG/Fo5AXwE4MgT5uzQS4I7HuuNkcZOoInY="
 
 matrix:
-    exclude:
+    include:
+        - python: 2.7
+          env: BOKEH_DEFAULT_NO_DEV=false BOKEH_DEFAULT_DIFF=FETCH_HEAD
+        - python: 2.7
+          env: BOKEH_DEFAULT_NO_DEV=true
         - python: 3.3
-          env: BOKEH_DEFAULT_NO_DEV=true
+          env: BOKEH_DEFAULT_NO_DEV=false
         - python: 3.4
-          env: BOKEH_DEFAULT_NO_DEV=true
-    allow_failures:
+          env: BOKEH_DEFAULT_NO_DEV=false
+    exclude:
+        - python: 2.7
+        - python: 3.3
         - python: 3.4
 
 before_install:
     - export PATH="$HOME/miniconda/bin:$PATH"
-    - export MINICONDA_VERSION="3.5.5"
-    - export PHANTOMJS_VERSION="1.9.7"
 
 install:
     - scripts/travis_install
 
 script:
-    - nosetests --with-coverage --cover-package=bokeh && ( cd sphinx; make all; cd .. )
-
-after_script:
-    - if [[ -e examples.log ]]; then cat examples.log; fi
+    - nosetests --with-coverage --cover-package=bokeh
+    - ( cd sphinx; make all )
 
 notifications:
     flowdock:

@@ -40,9 +40,7 @@ define (require, exports, module) ->
   Bokeh.load_models   = require("common/load_models")
   Bokeh.PlotContext   = require("common/plot_context")
   Bokeh.PlotWidget    = require("common/plot_widget")
-  Bokeh.PNGView       = require("common/png_view")
   Bokeh.Random        = require("common/random")
-  Bokeh.safebind      = require("common/safebind")
   Bokeh.SVGColors     = require("common/svg_colors")
 
   # mappers
@@ -76,7 +74,6 @@ define (require, exports, module) ->
   Bokeh.Properties = require("renderer/properties")
 
   # server tools
-  Bokeh.embed_core  = require("server/embed_core")
   Bokeh.embed       = require("server/embed")
   Bokeh.serverrun   = require("server/serverrun")
   Bokeh.serverutils = require("server/serverutils")

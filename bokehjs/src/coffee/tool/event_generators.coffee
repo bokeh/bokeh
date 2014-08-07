@@ -1,5 +1,7 @@
 
-define [], () ->
+define [
+  "jquery_mousewheel"
+], (mousewheel) ->
 
   set_bokehXY = (event) ->
     offset = $(event.currentTarget).offset()
@@ -23,7 +25,8 @@ define [], () ->
       toolName = @toolName
       @plotview = plotview
       @eventSink = eventSink
-      @plotview.canvas.get('mousemove_callbacks').push((e, x, y) =>
+      callbacks = @plotview.canvas.get('mousemove_callbacks')
+      callbacks.push((e, x, y) =>
         if not @dragging
           return
         if not @tool_active
@@ -39,8 +42,8 @@ define [], () ->
           eventSink.trigger("#{toolName}:UpdatingMouseMove", e)
           e.preventDefault()
           e.stopPropagation()
-        )
-      @plotview.canvas.get('mousemove_callbacks').push((e, x, y) =>
+      )
+      callbacks.push((e, x, y) =>
         if @dragging
           set_bokehXY(e)
           inner_range_horizontal = @plotview.frame.get(
@@ -66,6 +69,7 @@ define [], () ->
             @_stop_drag(e)
             return false
       )
+      @plotview.canvas.set('mousemove_callbacks', callbacks)
       $(document).bind('keydown', (e) =>
         if e.keyCode == 27 # ESC
           eventSink.trigger("clear_active_tool"))
@@ -109,7 +113,7 @@ define [], () ->
       #
       # What is the difference between tool_active and button_activated?
       # I once knew, but now I forget
-        
+
       @$tool_button.click(=>
         if @button_activated
           eventSink.trigger("clear_active_tool")
@@ -168,8 +172,8 @@ define [], () ->
       toolName = @toolName
       @plotview = plotview
       @eventSink = eventSink
-      @plotview.canvas_view.canvas_wrapper.bind("mousewheel",
-        (e, delta, dX, dY) =>
+      @plotview.canvas_view.canvas_wrapper.mousewheel(
+        (e, delta) =>
           if @tool_active or (not @eventSink.active and e.shiftKey)
             set_bokehXY(e)
             e.delta = delta

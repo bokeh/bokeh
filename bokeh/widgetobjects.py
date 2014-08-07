@@ -40,6 +40,9 @@ class VBox(Layout):
     children = List(Instance(Widget))
 
 #parent class only, you need to set the fields you want
+class VBoxForm(VBox):
+    pass
+
 class VBoxModelForm(Widget):
     _children  = List(Instance(Widget))
     _field_defs = Dict(String, Any)
@@ -159,6 +162,8 @@ class BokehApplet(Widget):
 
 class Paragraph(Widget):
     text = String()
+    width = Int(500)
+    height = Int(400)
 
 class PreText(Paragraph):
     pass
@@ -349,7 +354,7 @@ class PivotTable(Widget):
         filter_fields = fields(self.filters)
 
         if len(self.values) > 0:
-            aggfunc = values[0]["aggregate"]
+            aggfunc = self.values[0]["aggregate"]
         else:
             aggfunc = len
 

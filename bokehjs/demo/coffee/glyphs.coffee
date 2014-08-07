@@ -30,8 +30,8 @@ require(['main'], (Bokeh) ->
     dims: [400, 400]
     xrange: [0, 6]
     yrange: [0, 6]
-    xaxes: "min"
-    yaxes: "min"
+    xaxes: "bottom"
+    yaxes: "left"
     tools: false
     legend: "test"
   }

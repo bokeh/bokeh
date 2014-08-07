@@ -32,8 +32,8 @@ require(['main'], (Bokeh) ->
   options = {
     title: "Scatter Demo"
     dims: [800, 500]
-    xaxes: "min"
-    yaxes: "min"
+    xaxes: "bottom"
+    yaxes: "left"
     tools: "pan,wheel_zoom,resize,preview,select"
     legend: false
   }

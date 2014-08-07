@@ -12,7 +12,7 @@ plot = square(
         plot_height=400,
         title="Census Tracts")
 
- ar.replot(plot, palette=["Reds-9"], reserve_val=0, points=True)
+ar.replot(plot, palette=["Reds-9"], reserve_val=0, points=True)
 
 ar.replot(plot,
         shader=ar.Cuberoot() + ar.InterpolateColor(low=(255, 200, 200)),

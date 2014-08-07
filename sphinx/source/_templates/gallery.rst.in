@@ -9,8 +9,7 @@ All of these examples are located in the
 subdirectory of your Bokeh checkout.
 
 Click on an image below to see its code and interact with the live
-plot.  You can play with more interactive demos on the
-`BokehJS site <http://continuumio.github.io/bokehjs/>`_.
+plot.  
 
 .. cssclass:: gallery clearfix
 

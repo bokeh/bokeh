@@ -459,7 +459,7 @@ class HDF5DataBackend(AbstractDataBackend):
     def line1d_downsample(self, request_username, data_url, data_parameters):
         dataset = self.client[data_url]
         (primary_column, domain_name, columns,
-         domain_limit, domain_resolution, input_params) = data_parameters
+         domain_limit, range_limit, domain_resolution, input_params) = data_parameters
        
         method = input_params['method']
 
@@ -485,13 +485,12 @@ class HDF5DataBackend(AbstractDataBackend):
                                             domain_name,
                                             primary_column,
                                             domain_limit,
+                                            range_limit,
                                             domain_resolution,
                                             method)
-        result = {
-            'data' : dict([(k, result[k]) for k in result.dtype.names]),
-            'domain_limit' : domain_limit
-        }
-        return result
+
+        return result;
+
 
     def heatmap_downsample(self, request_username, data_url, 
                            parameters, plot_state):
@@ -537,6 +536,8 @@ class HDF5DataBackend(AbstractDataBackend):
         resample_op = datasource.transform['resample']
 
         if resample_op == 'line1d':
+
+
             return self.line1d_downsample(
                 request_username, data_url, 
                 parameters)

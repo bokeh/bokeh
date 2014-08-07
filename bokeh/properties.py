@@ -16,14 +16,7 @@ from six import integer_types, string_types, add_metaclass, iteritems
 import numpy as np
 
 from . import enums
-
-def nice_join(seq, sep=", "):
-    seq = [str(x) for x in seq]
-
-    if len(seq) <= 1:
-        return sep.join(seq)
-    else:
-        return "%s or %s" % (sep.join(seq[:-1]), seq[-1])
+from .utils import nice_join
 
 class Property(object):
     def __init__(self, default=None):
@@ -365,7 +358,6 @@ class ColorSpec(DataSpec):
                     return {"field": setval, "default": self.default}
             elif setval is None:
                 return None
-                return {"value": None}
             else:
                 # setval should be a dict at this point
                 assert(isinstance(setval, dict))
@@ -419,11 +411,13 @@ class ColorSpec(DataSpec):
                 return d
         else:
             if self._isset:
-                return {"value": None}
-            # If the user never set a value
-            if self.value is not None:
-                return {"value": self.value}
+                if self.value is None:
+                    return {"value": None}
+                else:
+                    return {"value": getattr(obj, self._name, self.value)}
             else:
+                if self.value:
+                    return {"value": self.value}
                 d = {"field": self.field}
                 if self.default is not None:
                     d["default"] = self._formattuple(self.default)
