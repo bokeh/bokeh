@@ -15,9 +15,63 @@ class TestReplot(unittest.TestCase):
 class TestSource(unittest.TestCase):
     pass
 
+class _SourceShim(object):
+    defVal = 'value'
+
+    def __init__(self, t, *k):
+        self.transform = {'shader': t}
+        self.data = dict(zip(k, [self.defVal]*len(k)))
+
 
 class TestMapping(unittest.TestCase):
-    pass
+    def test_Image(self):
+        source = _SourceShim(ar_downsample.Interpolate)
+        result = ar_downsample.mapping(source)
+        expected = {'x_range': Range1d(start=0, end=0),
+                    'y_range': Range1d(start=0, end=0)
+                   }
+
+        self.assertEquals(len(expected), len(result))
+        self.assertEquals(expected.keys(), result.keys())
+
+        source = _SourceShim(ar_downsample.Interpolate, "A","B","C")
+        result = ar_downsample.mapping(source)
+        expected['A'] = source.defVal 
+        expected['B'] = source.defVal 
+        expected['C'] = source.defVal 
+        self.assertEquals(expected.keys(), result.keys())
+
+    def test_ImageRGB(self):
+        source = _SourceShim(ar_downsample.InterpolateColor)
+        result = ar_downsample.mapping(source)
+        expected = {'x_range': Range1d(start=0, end=0),
+                    'y_range': Range1d(start=0, end=0)
+                   }
+
+        self.assertEquals(len(expected), len(result))
+        self.assertEquals(expected.keys(), result.keys())
+
+        source = _SourceShim(ar_downsample.InterpolateColor, "A","B","C")
+        result = ar_downsample.mapping(source)
+        expected['A'] = source.defVal 
+        expected['B'] = source.defVal 
+        expected['C'] = source.defVal 
+        self.assertEquals(expected.keys(), result.keys())
+
+    def test_PolyLine(self):
+        source = _SourceShim(ar_downsample.Contour)
+        result = ar_downsample.mapping(source)
+        expected = {} 
+
+        self.assertEquals(len(expected), len(result))
+        self.assertEquals(expected.keys(), result.keys())
+
+        source = _SourceShim(ar_downsample.Contour, "A","B","C")
+        result = ar_downsample.mapping(source)
+        expected['A'] = source.defVal 
+        expected['B'] = source.defVal 
+        expected['C'] = source.defVal 
+        self.assertEquals(expected.keys(), result.keys())
 
 
 class TestDownsample(unittest.TestCase):
