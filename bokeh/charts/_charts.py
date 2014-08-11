@@ -42,10 +42,50 @@ from ..utils import publish_display_data
 
 
 class Chart(object):
+    """This is the main Chart class, the core of the `Bokeh.charts` interface.
 
+    This class essentially set up a "universal" Plot object containing all the
+    needed attributes and methods to draw any of the Charts that you can build
+    subclassing the ChartObject class.
+    """
     def __init__(self, title, xlabel, ylabel, legend, xscale, yscale, width, height,
                  tools, filename, server, notebook):
-        "Initial setup."
+        """
+        Args:
+            title (str): the title of your plot.
+            xlabel (str): the x-axis label of your plot.
+            ylabel (str): the y-axis label of your plot.
+            legend (str): the legend of your plot. The legend content is
+                inferred from incoming input.It can be `top_left`,
+                `top_right`, `bottom_left`, `bottom_right`.
+            xscale (str): the x-axis type scale of your plot. It can be
+                `linear`, `date` or `categorical`.
+            yscale (str): the y-axis type scale of your plot. It can be
+                `linear`, `date` or `categorical`.
+            width (int): the width of your plot in pixels.
+            height (int): the height of you plot in pixels.
+            tools (bool): to enable or disable the tools in your plot
+            filename (str, bool): the name of the file where your plot
+                will be written. If you pass True to this argument, it will use
+                "untitled" as a filename.
+            server (str, bool): the name of your plot in the server.
+                If you pass True to this argument, it will use "untitled"
+                as the name in the server.
+            notebook (bool):if you want to output (or not) your plot into the
+                IPython notebook.
+
+        Attributes:
+            source (obj): datasource object for your plot,
+                initialized as a dummy None.
+            xdr (obj): x-associated datarange object for you plot,
+                initialized as a dummy None.
+            ydr (obj): y-associated datarange object for you plot,
+                initialized as a dummy None.
+            glyphs (list): to keep track of the glyphs added to the plot.
+            plot (obj): main Plot object.
+            categorical (bool): tag to prevent adding a wheelzoom to a
+                categorical plot
+        """
         self.title = title
         self.xlabel = xlabel
         self.ylabel = ylabel
@@ -68,10 +108,10 @@ class Chart(object):
                          y_range=self.ydr,
                          plot_width=self.plot_width,
                          plot_height=self.plot_height)
-        # To prevent adding a wheelzoom to a categorical plot
         self.categorical = False
 
     def start_plot(self):
+        "This method add the axis, grids and tools to self.plot"
         # Add axis
         xaxis = self.make_axis("bottom", self.xscale, self.xlabel)
         yaxis = self.make_axis("left", self.yscale, self.ylabel)
@@ -94,6 +134,14 @@ class Chart(object):
             self.plot.tools.append(previewsave)
 
     def add_data_plot(self, source, x_range, y_range):
+        """This method add source and range data to the initialized empty
+        attributes.
+
+        Args:
+            source (obj): datasource object for your `self.plot`.
+            xdr (obj): x-associated datarange object for your `self.plot`.
+            ydr (obj): y-associated datarange object for your `self.plot`.
+        """
         # Overwrite the source and ranges attributes
         self.source = source
         self.xdr = x_range
@@ -104,6 +152,13 @@ class Chart(object):
         self.plot.y_range = self.ydr
 
     def end_plot(self, groups):
+        """This method add the legend to your plot, and the plot to
+        a new Document (and Session in the case of server option use).
+
+        Args:
+            groups(list): keeping track of the incoming groups of data.
+                Useful to automatically setup the legend.
+        """
         # Add legend
         if self.legend:
             listed_glyphs = [[glyph] for glyph in self.glyphs]
@@ -129,7 +184,16 @@ class Chart(object):
             self.session.store_document(self.doc)
 
     def make_axis(self, location, scale, label):
-        "Create linear, date or categorical axis depending on the scale and dimension."
+        """Create linear, date or categorical axis depending on the location,
+        scale and with the proper labels.
+
+        Args:
+            location(str): the space localization of the axis. It can be
+                `left`, `right`, `below` or `above`.
+            scale (str): the scale on the axis. It can be `linear`, `date`
+                or `categorical`.
+            label (str): the label on the axis.
+        """
         if scale == "linear":
             axis = LinearAxis(plot=self.plot,
                               location=location,
@@ -148,7 +212,12 @@ class Chart(object):
         return axis
 
     def make_grid(self, axis, dimension):
-        "Create the grid just passing the axis and dimension."
+        """Create the grid just passing the axis and dimension.
+
+        Args:
+            axis (obj): the axis object
+            dimension(int): the dimension of the axis, ie. xaxis=0, yaxis=1.
+        """
         grid = Grid(plot=self.plot,
                     dimension=dimension,
                     axis=axis)
@@ -156,33 +225,58 @@ class Chart(object):
         return grid
 
     def make_segment(self, x0, y0, x1, y1, color, width):
-        """ Create a segment """
+        """ Creates a segment glyph with specified color and width,
+        and appends it to the plot.renderers list.
+
+        Same args as the Segment glyphs:
+            from bokeh._glyph_functions import segment
+            help(segment)
+        """
         segment = Segment(x0=x0, y0=y0, x1=x1, y1=y1, line_color=color, line_width=width)
 
         self._append_glyph(segment)
 
     def make_line(self, x, y, color):
-        "Create a line glyph and append it to the renderers list."
+        """Creates a line glyph with specified color,
+        and appends it to the plot.renderers list.
+
+        Same args as the Segment glyphs:
+            from bokeh._glyph_functions import line
+            help(line)
+        """
         line = Line(x=x, y=y, line_color=color)
 
         self._append_glyph(line)
 
     def make_quad(self, top, bottom, left, right, color):
-        "Create a quad glyph and append it to the renderers list."
+        """Creates a quad glyph with specified color,
+        and appends it to the plot.renderers list.
+
+        Same args as the Segment glyphs:
+            from bokeh._glyph_functions import quad
+            help(quad)
+        """
         quad = Quad(top=top, bottom=bottom, left=left, right=right,
                     fill_color=color, fill_alpha=0.7, line_color="white", line_alpha=1.0)
 
         self._append_glyph(quad)
 
     def make_rect(self, x, y, width, height, color):
-        "Create a rect glyph and append it to the renderers list."
+        """Creates a rect glyph with specified color,
+        and appends it to the renderers list.
+        Same args as the Segment glyphs:
+            from bokeh._glyph_functions import rect
+            help(rect)
+        """
         rect = Rect(x=x, y=y, width=width, height=height, fill_color=color,
                     fill_alpha=0.7, line_color='white', line_alpha=1.0)
 
         self._append_glyph(rect)
 
     def make_scatter(self, x, y, markertype, color):
-        """ Create a marker glyph (for a single point) and append it to the renderers list.
+        """ Creates a marker glyph (for a single point) with specified
+        markertype and color, and appends it to the renderers list.
+
         Args:
             x (int): x-pos of point
             y (int): y-pos of point
@@ -249,7 +343,7 @@ class Chart(object):
 
     ## Some helper methods
     def _append_glyph(self, glyph):
-        """ Appends the passed glyph to the renderer. """
+        """ Appends the pass glyphs to the plot.renderer."""
         glyph = Glyph(data_source=self.source,
                       xdata_range=self.xdr,
                       ydata_range=self.ydr,
