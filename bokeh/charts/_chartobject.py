@@ -96,12 +96,12 @@ class ChartObject(object):
         self.__filename = filename
         self.__server = server
         self.__notebook = notebook
-        # attr used by the inherited classes
+        # attr to be used by the inherited classes
         self.source = None
         self.xdr = None
         self.ydr = None
         self.groups = []
-        # attr used by the helper methods
+        # attr used by the helper methods and the inherited class
         self.data = dict()
         self.attr = []
 
@@ -273,7 +273,14 @@ class ChartObject(object):
 
     # Some helper methods
     def _set_and_get(self, prefix, val, content):
-        "Set a new attr and then get it to fill the self.data dict."
+        """Set a new attr and then get it to fill the self.data dict.
+        Keep track of the attributes created.
+
+        Args:
+            prefix (str): prefix of the new attribute
+            val (string): name of the new attribute
+            content (obj): content of the new attribute
+        """
         setattr(self, prefix + val, content)
         self.data[prefix + val] = getattr(self, prefix + val)
         self.attr.append(prefix + val)
