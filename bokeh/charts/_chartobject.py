@@ -88,8 +88,8 @@ class ChartObject(object):
         self.__xlabel = xlabel
         self.__ylabel = ylabel
         self.__legend = legend
-        self.xscale = xscale
-        self.yscale = yscale
+        self.__xscale = xscale
+        self.__yscale = yscale
         self.__width = width
         self.__height = height
         self.__tools = tools
@@ -128,6 +128,16 @@ class ChartObject(object):
         It is `top_right` is you set it as True.
         """
         self._legend = legend
+        return self
+
+    def xscale(self, xscale):
+        "xscale (str): the x-axis scale of your plot."
+        self._xscale = xscale
+        return self
+
+    def yscale(self, yscale):
+        "yscale (str): the y-axis scale of your plot."
+        self._yscale = yscale
         return self
 
     def width(self, width):
@@ -190,6 +200,10 @@ class ChartObject(object):
             self._ylabel = self.__ylabel
         if not hasattr(self, '_legend'):
             self._legend = self.__legend
+        if not hasattr(self, '_xscale'):
+            self._xscale = self.__xscale
+        if not hasattr(self, '_yscale'):
+            self._yscale = self.__yscale
         if not hasattr(self, '_width'):
             self._width = self.__width
         if not hasattr(self, '_height'):
@@ -210,7 +224,7 @@ class ChartObject(object):
         methods.
         """
         self.chart = Chart(self._title, self._xlabel, self._ylabel, self._legend,
-                      self.xscale, self.yscale, self._width, self._height,
+                      self._xscale, self._yscale, self._width, self._height,
                       self._tools, self._filename, self._server, self._notebook)
 
     def start_plot(self):

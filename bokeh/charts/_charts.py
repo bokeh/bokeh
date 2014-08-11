@@ -76,16 +76,16 @@ class Chart(object):
                 IPython notebook.
 
         Attributes:
-            source (obj): datasource object for your plot,
+            _source (obj): datasource object for your plot,
                 initialized as a dummy None.
-            xdr (obj): x-associated datarange object for you plot,
+            _xdr (obj): x-associated datarange object for you plot,
                 initialized as a dummy None.
-            ydr (obj): y-associated datarange object for you plot,
+            _ydr (obj): y-associated datarange object for you plot,
                 initialized as a dummy None.
-            glyphs (list): to keep track of the glyphs added to the plot.
             plot (obj): main Plot object.
             categorical (bool): tag to prevent adding a wheelzoom to a
-                categorical plot
+                categorical plot.
+            glyphs (list): to keep track of the glyphs added to the plot.
         """
         self.title = title
         self.xlabel = xlabel
@@ -99,17 +99,17 @@ class Chart(object):
         self.filename = filename
         self.server = server
         self.notebook = notebook
-        self.source = None
-        self.xdr = None
-        self.ydr = None
-        self.glyphs = []
+        self._source = None
+        self._xdr = None
+        self._ydr = None
         self.plot = Plot(title=self.title,
-                         data_sources=[self.source],
-                         x_range=self.xdr,
-                         y_range=self.ydr,
+                         data_sources=[self._source],
+                         x_range=self._xdr,
+                         y_range=self._ydr,
                          plot_width=self.plot_width,
                          plot_height=self.plot_height)
         self.categorical = False
+        self.glyphs = []
 
     def start_plot(self):
         "This method add the axis, grids and tools to self.plot"
@@ -143,14 +143,10 @@ class Chart(object):
             xdr (obj): x-associated datarange object for your `self.plot`.
             ydr (obj): y-associated datarange object for your `self.plot`.
         """
-        # Overwrite the source and ranges attributes
-        self.source = source
-        self.xdr = x_range
-        self.ydr = y_range
         # Overwrite the source and ranges in the plot
-        self.plot.data_sources = [self.source]
-        self.plot.x_range = self.xdr
-        self.plot.y_range = self.ydr
+        self.plot.data_sources = [source]
+        self.plot.x_range = x_range
+        self.plot.y_range = y_range
 
     def end_plot(self, groups):
         """This method add the legend to your plot, and the plot to
@@ -318,8 +314,6 @@ class Chart(object):
 
     def show(self):
         "Main show function, it shows the plot in file, server and notebook outputs."
-        global _notebook_loaded
-
         if self.filename:
             if self.filename is True:
                 filename = "untitled"
@@ -345,9 +339,9 @@ class Chart(object):
     ## Some helper methods
     def _append_glyph(self, glyph):
         """ Appends the pass glyphs to the plot.renderer."""
-        glyph = Glyph(data_source=self.source,
-                      xdata_range=self.xdr,
-                      ydata_range=self.ydr,
+        glyph = Glyph(data_source=self.plot.data_sources[0],
+                      xdata_range=self.plot.x_range,
+                      ydata_range=self.plot.y_range,
                       glyph=glyph)
 
         self.plot.renderers.append(glyph)
