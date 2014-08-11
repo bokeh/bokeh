@@ -30,17 +30,84 @@ from ..objects import ColumnDataSource, FactorRange, Range1d
 
 
 class BoxPlot(ChartObject):
+    """This is the BoxPlot class and it is in charge of plotting
+    scatter plots in an easy and intuitive way.
 
+    Essentially, we provide a way to ingest the data, make the proper
+    calculations and push the references into a source object.
+    We additionally make calculations for the ranges.
+    And finally add the needed glyphs (rects, lines and markers)
+    taking the references from the source.
+
+    Examples:
+
+        from collections import OrderedDict
+
+        import numpy as np
+
+        from bokeh.charts import BoxPlot
+        from bokeh.sampledata.olympics2014 import data
+
+        data = {d['abbr']: d['medals'] for d in data['data'] if d['medals']['total'] > 0}
+
+        countries = sorted(data.keys(), key=lambda x: data[x]['total'], reverse=True)
+
+        gold = np.array([data[abbr]['gold'] for abbr in countries], dtype=np.float)
+        silver = np.array([data[abbr]['silver'] for abbr in countries], dtype=np.float)
+        bronze = np.array([data[abbr]['bronze'] for abbr in countries], dtype=np.float)
+
+        medals = OrderedDict(bronze=bronze, silver=silver, gold=gold)
+
+        boxplot = BoxPlot(medals, marker="circle", outliers=True,
+                          title="boxplot, dict_input", xlabel="medal type", ylabel="medal count",
+                          width=800, height=600, notebook=True)
+        boxplot.show()
+    """
     def __init__(self, value, title=None, xlabel=None, ylabel=None, legend=False,
                  xscale="categorical", yscale="linear", width=800, height=600,
                  tools=True, filename=False, server=False, notebook=False, outliers=True,
                  marker="circle", line_width=2):
         """ Initialize a new boxplot.
         Args:
-            value (DataFrame/OrderedDict/dict): the data to plot
-            outliers (bool): Whether or not to plot outliers
-            marker (int/string): if outliers=True, the marker type to use (e.g., 'circle')
-            line_width: width of the inter-quantile range line
+            value (DataFrame/OrderedDict/dict): containing the data with names as a key
+                and the data as a value.
+            outliers (bool, optional): Whether or not to plot outliers.
+            marker (int/string, optional): if outliers=True, the marker type to use
+                e.g., `circle`.
+            line_width (int): width of the inter-quantile range line.
+            title (str, optional): the title of your plot. Defaults to None.
+            xlabel (str, optional): the x-axis label of your plot.
+                Defaults to None.
+            ylabel (str, optional): the y-axis label of your plot.
+                Defaults to None.
+            legend (str, optional): the legend of your plot. The legend content is
+                inferred from incoming input.It can be `top_left`,
+                `top_right`, `bottom_left`, `bottom_right`.
+                It is `top_right` is you set it as True.
+                Defaults to None.
+            xscale (str, optional): the x-axis type scale of your plot. It can be
+                `linear`, `date` or `categorical`.
+                Defaults to `linear`.
+            yscale (str, optional): the y-axis type scale of your plot. It can be
+                `linear`, `date` or `categorical`.
+                Defaults to `linear`.
+            width (int, optional): the width of your plot in pixels.
+                Defaults to 800.
+            height (int, optional): the height of you plot in pixels.
+                Defaults to 600.
+            tools (bool, optional): to enable or disable the tools in your plot.
+                Defaults to True
+            filename (str, bool, optional): the name of the file where your plot.
+                will be written. If you pass True to this argument, it will use
+                "untitled" as a filename.
+                Defaults to False.
+            server (str, bool, optional): the name of your plot in the server.
+                If you pass True to this argument, it will use "untitled"
+                as the name in the server.
+                Defaults to False.
+            notebook (bool, optional):if you want to output (or not) your plot into the
+                IPython notebook.
+                Defaults to False.
         """
         self.value = value
         self.marker = marker
@@ -53,10 +120,17 @@ class BoxPlot(ChartObject):
         # the helper method lives...
 
     def check_attr(self):
+        """This method checks if any of the chained method were used. If they were
+        not used, it assign the init params content by default.
+        """
         super(BoxPlot, self).check_attr()
 
     def get_data(self, cat, marker, outliers, **value):
-        "Take the boxplot data from the input and calculate the parameters accordingly."
+        """Take the data from the input **value and calculate the
+        parameters accordingly. Then build a dict containing references
+        to all the calculated point to be used by the quad glyph inside the
+        `draw` method.
+        """
         self.cat = cat
         self.marker = marker
         self.outliers = outliers
@@ -95,7 +169,8 @@ class BoxPlot(ChartObject):
             self._set_and_get("x", level, step[i])
 
     def get_source(self):
-        "Get the boxplot data into the ColumnDataSource and calculate the proper ranges."
+        """Get the boxplot data dict into the ColumnDataSource and
+        calculate the proper ranges."""
         self.source = ColumnDataSource(self.data)
         self.xdr = FactorRange(factors=self.source.data["cat"])
         y_names = self.attr[::6]
@@ -107,7 +182,10 @@ class BoxPlot(ChartObject):
         self.ydr = Range1d(start=start_y - 0.1 * (end_y-start_y), end=end_y + 0.1 * (end_y-start_y))
 
     def draw(self):
-        " Use the `rect`, `scatter`, and `segment` renderers to display the boxplot. "
+        """Use a selected marker glyph to display the points, segments to
+        display the iqr and rects to display the boxes, taking as reference
+        points the data loaded at the ColumnDataSurce.
+        """
         self.sextet = list(self._chunker(self.attr, 6))
         colors = self._set_colors(self.sextet)
 
@@ -122,7 +200,14 @@ class BoxPlot(ChartObject):
                     self.chart.make_scatter(x, o, self.marker, colors[i])
 
     def show(self):
-        "This is the main BoxPlot show function."
+        """This is the main boxPlot show function.
+        It essentially checks for chained methods, creates the chart,
+        pass data into the plot object, draws the glyphs according
+        to the data and shows the chart in the selected output.
+
+        Note: the show method can not be chained. It has to be called
+        at the end of the chain.
+        """
         if isinstance(self.value, pd.DataFrame):
             self.cat = self.value.columns
         else:

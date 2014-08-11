@@ -28,11 +28,79 @@ from ..objects import ColumnDataSource, Range1d
 
 
 class Histogram(ChartObject):
+    """This is the Histogram class and it is in charge of plotting
+    histograms in an easy and intuitive way.
 
+    Essentially, we provide a way to ingest the data, make the proper
+    calculations and push the references into a source object.
+    We additionally make calculations for the ranges.
+    And finally add the needed glyphs (quads and lines) taking the
+    references from the source.
+
+    Examples:
+
+        from collections import OrderedDict
+
+        import numpy as np
+        from bokeh.charts import Histogram
+
+        mu, sigma = 0, 0.5
+        normal = np.random.normal(mu, sigma, 1000)
+        lognormal = np.random.lognormal(mu, sigma, 1000)
+
+        distributions = OrderedDict(normal=normal, lognormal=lognormal)
+
+        hist = Histogram(distributions, bins=50, notebook=True)
+        hist.title("chained_methods, dict_input").ylabel("frequency")\
+.legend(True).width(400).height(350).show()
+    """
     def __init__(self, measured, bins, mu=None, sigma=None,
                  title=None, xlabel=None, ylabel=None, legend=False,
                  xscale="linear", yscale="linear", width=800, height=600,
                  tools=True, filename=False, server=False, notebook=False):
+        """
+        Args:
+            measured (dict): a dict containing the data with name as a key
+                and the data as a value.
+            bins (int): number of bins to use in the histogram building.
+            mu (float, optional): theoretical mean value for the normal
+                distribution. Defaults to None.
+            sigma (float, optional): theoretical sigma value for the normal
+                distribution. Defaults to None.
+            title (str, optional): the title of your plot. Defaults to None.
+            xlabel (str, optional): the x-axis label of your plot.
+                Defaults to None.
+            ylabel (str, optional): the y-axis label of your plot.
+                Defaults to None.
+            legend (str, optional): the legend of your plot. The legend content is
+                inferred from incoming input.It can be `top_left`,
+                `top_right`, `bottom_left`, `bottom_right`.
+                It is `top_right` is you set it as True.
+                Defaults to None.
+            xscale (str, optional): the x-axis type scale of your plot. It can be
+                `linear`, `date` or `categorical`.
+                Defaults to `linear`.
+            yscale (str, optional): the y-axis type scale of your plot. It can be
+                `linear`, `date` or `categorical`.
+                Defaults to `linear`.
+            width (int, optional): the width of your plot in pixels.
+                Defaults to 800.
+            height (int, optional): the height of you plot in pixels.
+                Defaults to 600.
+            tools (bool, optional): to enable or disable the tools in your plot.
+                Defaults to True
+            filename (str, bool, optional): the name of the file where your plot.
+                will be written. If you pass True to this argument, it will use
+                "untitled" as a filename.
+                Defaults to False.
+            server (str, bool, optional): the name of your plot in the server.
+                If you pass True to this argument, it will use "untitled"
+                as the name in the server.
+                Defaults to False.
+            notebook (bool, optional):if you want to output (or not) your plot into the
+                IPython notebook.
+                Defaults to False.
+        """
         self.measured = measured
         self.bins = bins
         self.mu = mu
@@ -40,16 +108,22 @@ class Histogram(ChartObject):
         super(Histogram, self).__init__(title, xlabel, ylabel, legend,
                                         xscale, yscale, width, height,
                                         tools, filename, server, notebook)
-        # self.source, self.xdr, self.ydr, self.groups are inherited attr
+        # self.source, self.xdr, self.ydr, self.groups are inherited attrs
         # self.data and self.attr are inheriteed from ChartObject where the
         # the helper method lives...
 
     def check_attr(self):
+        """This method checks if any of the chained method were used. If they were
+        not used, it assign the init params content by default.
+        """
         super(Histogram, self).check_attr()
 
     def get_data(self, bins, mu, sigma, **value):
-        "Take the histogram data from the input and calculate the parameters accordingly."
-
+        """Take the histogram data from the input **value and calculate
+        the parameters accordingly. Then build a dict containing references
+        to all the calculated point to be used by the quad glyph inside the
+        `draw` method.
+        """
         # assuming value is a dict, ordered dict
         self.value = value
 
@@ -79,7 +153,8 @@ class Histogram(ChartObject):
                 self.groups.append("cdf")
 
     def get_source(self):
-        "Get the histogram data into the ColumnDataSource and calculate the proper ranges."
+        """Get the histogram data dict into the ColumnDataSource
+        and calculate the proper ranges."""
         self.source = ColumnDataSource(data=self.data)
 
         if not self.mu_and_sigma:
@@ -98,7 +173,10 @@ class Histogram(ChartObject):
         self.ydr = Range1d(start=0, end=1.1 * endy)
 
     def draw(self):
-        "Use the `quad` renderer to display the histogram bars."
+        """Use the quad (and line) glyphs to display the histogram
+        bars, taking as reference points the data loaded at the
+        ColumnDataSurce.
+        """
         if not self.mu_and_sigma:
             self.quintet = list(self._chunker(self.attr, 6))
             colors = self._set_colors(self.quintet)
@@ -115,7 +193,14 @@ class Histogram(ChartObject):
                 self.chart.make_line(octet[6], octet[8], "blue")
 
     def show(self):
-        "This is the main Histogram show function."
+        """This is the main Histogram show function.
+        It essentially checks for chained methods, creates the chart,
+        pass data into the plot object, draws the glyphs according
+        to the data and shows the chart in the selected output.
+
+        Note: the show method can not be chained. It has to be called
+        at the end of the chain.
+        """
         # we need to check the chained method attr
         self.check_attr()
         # we create the chart object

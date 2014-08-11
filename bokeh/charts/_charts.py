@@ -58,14 +58,15 @@ class Chart(object):
             legend (str): the legend of your plot. The legend content is
                 inferred from incoming input.It can be `top_left`,
                 `top_right`, `bottom_left`, `bottom_right`.
+                It is `top_right` is you set it as True.
             xscale (str): the x-axis type scale of your plot. It can be
                 `linear`, `date` or `categorical`.
             yscale (str): the y-axis type scale of your plot. It can be
                 `linear`, `date` or `categorical`.
             width (int): the width of your plot in pixels.
             height (int): the height of you plot in pixels.
-            tools (bool): to enable or disable the tools in your plot
-            filename (str, bool): the name of the file where your plot
+            tools (bool): to enable or disable the tools in your plot.
+            filename (str, bool): the name of the file where your plot.
                 will be written. If you pass True to this argument, it will use
                 "untitled" as a filename.
             server (str, bool): the name of your plot in the server.

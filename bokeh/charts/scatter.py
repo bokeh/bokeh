@@ -31,11 +31,76 @@ from ..objects import ColumnDataSource, Range1d
 
 
 class Scatter(ChartObject):
+    """This is the Scatter class and it is in charge of plotting
+    scatter plots in an easy and intuitive way.
 
+    Essentially, we provide a way to ingest the data, make the proper
+    calculations and push the references into a source object.
+    We additionally make calculations for the ranges.
+    And finally add the needed glyphs (markers) taking the
+    references from the source.
+
+    Examples:
+
+        from collections import OrderedDict
+
+        from bokeh.charts import Scatter
+        from bokeh.sampledata.iris import flowers
+
+        setosa = flowers[(flowers.species == "setosa")][["petal_length", "petal_width"]]
+        versicolor = flowers[(flowers.species == "versicolor")][["petal_length", "petal_width"]]
+        virginica = flowers[(flowers.species == "virginica")][["petal_length", "petal_width"]]
+
+        xyvalues = OrderedDict([("setosa", setosa.values),
+                                ("versicolor", versicolor.values),
+                                ("virginica", virginica.values)])
+
+        scatter = Scatter(xyvalues)
+        scatter.title("iris dataset, dict_input").xlabel("petal_length").ylabel("petal_width")\
+.legend("top_left").width(600).height(400).notebook().show()
+    """
     def __init__(self, pairs,
                  title=None, xlabel=None, ylabel=None, legend=False,
                  xscale="linear", yscale="linear", width=800, height=600,
                  tools=True, filename=False, server=False, notebook=False):
+        """
+        Args:
+            pairs (dict): a dict containing the data with names as a key
+                and the data as a value.
+            title (str, optional): the title of your plot. Defaults to None.
+            xlabel (str, optional): the x-axis label of your plot.
+                Defaults to None.
+            ylabel (str, optional): the y-axis label of your plot.
+                Defaults to None.
+            legend (str, optional): the legend of your plot. The legend content is
+                inferred from incoming input.It can be `top_left`,
+                `top_right`, `bottom_left`, `bottom_right`.
+                It is `top_right` is you set it as True.
+                Defaults to None.
+            xscale (str, optional): the x-axis type scale of your plot. It can be
+                `linear`, `date` or `categorical`.
+                Defaults to `linear`.
+            yscale (str, optional): the y-axis type scale of your plot. It can be
+                `linear`, `date` or `categorical`.
+                Defaults to `linear`.
+            width (int, optional): the width of your plot in pixels.
+                Defaults to 800.
+            height (int, optional): the height of you plot in pixels.
+                Defaults to 600.
+            tools (bool, optional): to enable or disable the tools in your plot.
+                Defaults to True
+            filename (str, bool, optional): the name of the file where your plot.
+                will be written. If you pass True to this argument, it will use
+                "untitled" as a filename.
+                Defaults to False.
+            server (str, bool, optional): the name of your plot in the server.
+                If you pass True to this argument, it will use "untitled"
+                as the name in the server.
+                Defaults to False.
+            notebook (bool, optional):if you want to output (or not) your plot into the
+                IPython notebook.
+                Defaults to False.
+        """
         self.pairs = pairs
         super(Scatter, self).__init__(title, xlabel, ylabel, legend,
                                       xscale, yscale, width, height,
@@ -45,10 +110,17 @@ class Scatter(ChartObject):
         # the helper method lives...
 
     def check_attr(self):
+        """This method checks if any of the chained method were used. If they were
+        not used, it assign the init params content by default.
+        """
         super(Scatter, self).check_attr()
 
     def get_data(self, **pairs):
-        "Take the scatter data from the input and calculate the parameters accordingly."
+        """Take the points data from the input **pairs and calculate the
+        parameters accordingly. Then build a dict containing references
+        to all the calculated point to be used by the quad glyph inside the
+        `draw` method.
+        """
         self.data = dict()
 
         # assuming value is an ordered dict
@@ -67,7 +139,8 @@ class Scatter(ChartObject):
             self._set_and_get("y_", val, xy[:, 1])
 
     def get_source(self):
-        "Get the scatter data into the ColumnDataSource and calculate the proper ranges."
+        """Get the pairs data dict into the ColumnDataSource and
+        calculate the proper ranges."""
         self.source = ColumnDataSource(self.data)
 
         x_names, y_names = self.attr[::2], self.attr[1::2]
@@ -81,7 +154,10 @@ class Scatter(ChartObject):
         self.ydr = Range1d(start=starty - 0.1 * (endy - starty), end=endy + 0.1 * (endy - starty))
 
     def draw(self):
-        "Use different marker renderers to display the incomming groups."
+        """Use a selected marker glyph to display the points,
+        taking as reference points the data loaded at the
+        ColumnDataSurce.
+        """
         self.duplet = list(self._chunker(self.attr, 2))
         colors = self._set_colors(self.duplet)
 
@@ -89,7 +165,14 @@ class Scatter(ChartObject):
             self.chart.make_scatter(duplet[0], duplet[1], i, colors[i - 1])
 
     def show(self):
-        "This is the main Scatter show function."
+        """This is the main Scatter show function.
+        It essentially checks for chained methods, creates the chart,
+        pass data into the plot object, draws the glyphs according
+        to the data and shows the chart in the selected output.
+
+        Note: the show method can not be chained. It has to be called
+        at the end of the chain.
+        """
         # asumming we get an hierchiral pandas object
         if isinstance(self.pairs, pd.DataFrame):
             self.labels = self.pairs.columns.levels[1].values
