@@ -1,5 +1,5 @@
 from __future__ import absolute_import, print_function
-from Queue import Queue
+from six.moves.queue import Queue
 import re
 import logging
 log = logging.getLogger(__name__)

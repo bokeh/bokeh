@@ -1,5 +1,5 @@
 from threading import Thread
-from Queue import Empty
+from six.moves.queue import Empty
 import json
 
 try:
