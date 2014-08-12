@@ -19,10 +19,10 @@ define [
 
       transform_params = serversource.attributes['transform']
       resample_op = transform_params['resample']
-      x_range = @plot_view.frame.get('inner_range_horizontal')
-      y_range = @plot_view.frame.get('inner_range_vertical')
+      x_range = @plot_view.frame.get('h_range')
+      y_range = @plot_view.frame.get('v_range')
 
-      #TODO: This is weird.  For example, inner_range_horizontal is passed in twice.  Hugo or Joseph should clean it up
+      #TODO: This is weird.  For example, h_range is passed in twice.  Hugo or Joseph should clean it up
       if (resample_op == 'line1d')
         domain = transform_params['domain']
         if domain == 'x'

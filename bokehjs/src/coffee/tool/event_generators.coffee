@@ -46,17 +46,17 @@ define [
       callbacks.push((e, x, y) =>
         if @dragging
           set_bokehXY(e)
-          inner_range_horizontal = @plotview.frame.get(
-            'inner_range_horizontal')
-          inner_range_vertical = @plotview.frame.get(
-            'inner_range_vertical')
+          h_range = @plotview.frame.get(
+            'h_range')
+          v_range = @plotview.frame.get(
+            'v_range')
           x = @plotview.canvas.sx_to_vx(e.bokehX)
           y = @plotview.canvas.sy_to_vy(e.bokehY)
           if @restrict_to_innercanvas
-            xstart = inner_range_horizontal.get('start')
-            xend = inner_range_horizontal.get('end')
-            ystart = inner_range_vertical.get('start')
-            yend = inner_range_vertical.get('end')
+            xstart = h_range.get('start')
+            xend = h_range.get('end')
+            ystart = v_range.get('start')
+            yend = v_range.get('end')
           else
             xstart = 0
             xend = @plotview.canvas.get('width')

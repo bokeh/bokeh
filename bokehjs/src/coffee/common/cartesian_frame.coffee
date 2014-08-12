@@ -24,14 +24,14 @@ define [
       @add_dependencies('y_ranges', this, ['y_range', 'extra_y_ranges'])
 
       @register_property('x_mappers',
-          () -> @_get_mappers(@get('x_ranges'), @get('inner_range_horizontal'))
+          () -> @_get_mappers(@get('x_ranges'), @get('h_range'))
         , true)
-      @add_dependencies('x_ranges', this, ['x_ranges', 'inner_range_horizontal'])
+      @add_dependencies('x_ranges', this, ['x_ranges', 'h_range'])
 
       @register_property('y_mappers',
-          () -> @_get_mappers(@get('y_ranges'), @get('inner_range_vertical'))
+          () -> @_get_mappers(@get('y_ranges'), @get('v_range'))
         , true)
-      @add_dependencies('y_ranges', this, ['y_ranges', 'inner_range_vertical'])
+      @add_dependencies('y_ranges', this, ['y_ranges', 'v_range'])
 
       @register_property('mapper',
         () ->
@@ -116,9 +116,9 @@ define [
 
     _update_mappers: () ->
       for name, mapper of @get('x_mappers')
-        mapper.set('target_range', @get('inner_range_horizontal'))
+        mapper.set('target_range', @get('h_range'))
       for name, mapper of @get('y_mappers')
-        mapper.set('target_range', @get('inner_range_vertical'))
+        mapper.set('target_range', @get('v_range'))
 
     defaults: () ->
       return {
