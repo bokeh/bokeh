@@ -2,9 +2,9 @@ define [
   "underscore",
   "backbone",
   "./layout_box",
-  "mapper/1d/linear_mapper",
-  "mapper/1d/categorical_mapper",
-  "mapper/2d/grid_mapper",
+  "mapper/linear_mapper",
+  "mapper/categorical_mapper",
+  "mapper/grid_mapper",
 ], (_, Backbone, LayoutBox, LinearMapper, CategoricalMapper, GridMapper) ->
 
   class CartesianFrame extends LayoutBox.Model

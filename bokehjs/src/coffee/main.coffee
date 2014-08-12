@@ -44,11 +44,11 @@ define (require, exports, module) ->
   Bokeh.SVGColors     = require("common/svg_colors")
 
   # mappers
-  Bokeh.LinearMapper      = require("mapper/1d/linear_mapper")
-  Bokeh.LogMapper         = require("mapper/1d/log_mapper")
-  Bokeh.CategoricalMapper = require("mapper/1d/categorical_mapper")
-  Bokeh.GridMapper        = require("mapper/2d/grid_mapper")
-  Bokeh.LinearColorMapper = require("mapper/color/linear_color_mapper")
+  Bokeh.LinearMapper      = require("mapper/linear_mapper")
+  Bokeh.LogMapper         = require("mapper/log_mapper")
+  Bokeh.CategoricalMapper = require("mapper/categorical_mapper")
+  Bokeh.GridMapper        = require("mapper/grid_mapper")
+  Bokeh.LinearColorMapper = require("mapper/linear_color_mapper")
 
   # palettes
   Bokeh.Palettes = require("palettes/palettes")
