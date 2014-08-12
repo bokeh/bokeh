@@ -1,6 +1,8 @@
 
 from bokeh.sampledata import us_counties, unemployment
 from bokeh.plotting import *
+from bokeh.objects import HoverTool
+from collections import OrderedDict
 
 county_xs=[
     us_counties.data[code]['lons'] for code in us_counties.data
@@ -26,7 +28,17 @@ for county_id in us_counties.data:
 
 output_file("texas.html", title="texas.py example")
 
-patches(county_xs, county_ys, fill_color=county_colors, fill_alpha=0.7,
+TOOLS="pan,wheel_zoom,box_zoom,reset,hover,previewsave"
+
+patches(county_xs, county_ys, fill_color=county_colors, fill_alpha=0.7, tools=TOOLS,
         line_color="white", line_width=0.5, title="Texas Unemployment 2009")
+
+hover = [t for t in curplot().tools if isinstance(t, HoverTool)][0]
+
+hover.tooltips = OrderedDict([
+    ("index", "$index"),
+    ("(x,y)", "($x, $y)"),
+    ("fill color", "$color[hex, swatch]:fill_color"),
+])
 
 show()

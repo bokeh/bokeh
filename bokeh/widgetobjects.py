@@ -349,7 +349,7 @@ class PivotTable(Widget):
         filter_fields = fields(self.filters)
 
         if len(self.values) > 0:
-            aggfunc = values[0]["aggregate"]
+            aggfunc = self.values[0]["aggregate"]
         else:
             aggfunc = len
 

@@ -28,12 +28,12 @@ make_gmap_plot = (defaults, glyphspecs, {dims, tools, axes, legend, legend_name,
   plot_model.set(defaults)
 
   xaxis = Collections('LinearAxis').create(
-    dimension: 0
+    location: "bottom"
     axis_label: 'x'
     plot: plot_model.ref()
   )
   yaxis = Collections('LinearAxis').create(
-    dimension: 1
+    location: "left"
     axis_label: 'y'
     plot: plot_model.ref()
   )
