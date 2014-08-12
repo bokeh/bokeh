@@ -2,10 +2,17 @@ import unittest
 import bokeh.transforms.ar_downsample as ar_downsample
 from bokeh.transforms.ar_downsample import *
 from bokeh.objects import Range1d
-import abstract_rendering.glyphset as glyphset
-import abstract_rendering.core as ar
 import types
 from test_utils import skipIfPy3
+
+# Only import in python 2...
+try:
+    import abstract_rendering.glyphset as glyphset
+    import abstract_rendering.core as ar
+except:
+    import sys
+    if sys.version[0] == '2':
+        raise
 
 
 # -------------- Process and Utility Tests ----------
