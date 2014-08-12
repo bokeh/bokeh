@@ -74,11 +74,6 @@ define [
       @outline_props = new line_properties(@, {}, 'outline_')
       @title_props = new text_properties(@, {}, 'title_')
 
-      @old_mapper_state = {
-        x: null
-        y: null
-      }
-
       @renderers = {}
       @tools = {}
 
@@ -202,16 +197,8 @@ define [
         @outline_props.set(ctx, {})
         ctx.strokeRect.apply(ctx, frame_box)
 
-      have_new_mapper_state = false
-      xms = @xmapper.get('mapper_state')[0]
-      yms = @ymapper.get('mapper_state')[0]
-      if Math.abs(@old_mapper_state.x-xms) > 1e-8 or Math.abs(@old_mapper_state.y - yms) > 1e-8
-        @old_mapper_state.x = xms
-        @old_mapper_state.y = yms
-        have_new_mapper_state = true
-
-      @_render_levels(ctx, ['image', 'underlay', 'glyph'], have_new_mapper_state, frame_box)
-      @_render_levels(ctx, ['overlay', 'annotation', 'tool'], have_new_mapper_state)
+      @_render_levels(ctx, ['image', 'underlay', 'glyph'], frame_box)
+      @_render_levels(ctx, ['overlay', 'annotation', 'tool'])
 
       if title
         sx = @canvas.vx_to_sx(@canvas.get('width')/2)
@@ -219,9 +206,10 @@ define [
         @title_props.set(ctx, {})
         ctx.fillText(title, sx, sy)
 
-    _render_levels: (ctx, levels, have_new_mapper_state, clip_region) ->
+    _render_levels: (ctx, levels, clip_region) ->
+      ctx.save()
+
       if clip_region?
-        ctx.save()
         ctx.beginPath()
         ctx.rect.apply(ctx, clip_region)
         ctx.clip()
@@ -230,10 +218,9 @@ define [
       for level in levels
         renderers = @levels[level]
         for k, v of renderers
-          v.render(have_new_mapper_state)
+          v.render()
 
-      if clip_region?
-        ctx.restore()
+      ctx.restore()
 
     _map_hook: () ->
 
