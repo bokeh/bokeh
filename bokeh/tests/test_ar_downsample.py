@@ -5,16 +5,21 @@ from bokeh.objects import Range1d
 import abstract_rendering.glyphset as glyphset
 import abstract_rendering.core as ar
 import types
+from test_utils import skipIfPy3
 
 
 # -------------- Process and Utility Tests ----------
+@skipIfPy3("AR does not run in python 3")
 class TestReplot(unittest.TestCase):
     pass
 
 
+@skipIfPy3("AR does not run in python 3")
 class TestSource(unittest.TestCase):
     pass
 
+
+@skipIfPy3("AR does not run in python 3")
 class _SourceShim(object):
     defVal = 'value'
 
@@ -23,69 +28,73 @@ class _SourceShim(object):
         self.data = dict(zip(k, [self.defVal]*len(k)))
 
 
+@skipIfPy3("AR does not run in python 3")
 class TestMapping(unittest.TestCase):
     def test_Image(self):
         source = _SourceShim(ar_downsample.Interpolate)
         result = ar_downsample.mapping(source)
         expected = {'x_range': Range1d(start=0, end=0),
-                    'y_range': Range1d(start=0, end=0)
-                   }
+                    'y_range': Range1d(start=0, end=0)}
 
         self.assertEquals(len(expected), len(result))
         self.assertEquals(expected.keys(), result.keys())
 
-        source = _SourceShim(ar_downsample.Interpolate, "A","B","C")
+        source = _SourceShim(ar_downsample.Interpolate, "A", "B", "C")
         result = ar_downsample.mapping(source)
-        expected['A'] = source.defVal 
-        expected['B'] = source.defVal 
-        expected['C'] = source.defVal 
+        expected['A'] = source.defVal
+        expected['B'] = source.defVal
+        expected['C'] = source.defVal
         self.assertEquals(expected.keys(), result.keys())
 
     def test_ImageRGB(self):
         source = _SourceShim(ar_downsample.InterpolateColor)
         result = ar_downsample.mapping(source)
         expected = {'x_range': Range1d(start=0, end=0),
-                    'y_range': Range1d(start=0, end=0)
-                   }
+                    'y_range': Range1d(start=0, end=0)}
 
         self.assertEquals(len(expected), len(result))
         self.assertEquals(expected.keys(), result.keys())
 
-        source = _SourceShim(ar_downsample.InterpolateColor, "A","B","C")
+        source = _SourceShim(ar_downsample.InterpolateColor, "A", "B", "C")
         result = ar_downsample.mapping(source)
-        expected['A'] = source.defVal 
-        expected['B'] = source.defVal 
-        expected['C'] = source.defVal 
+        expected['A'] = source.defVal
+        expected['B'] = source.defVal
+        expected['C'] = source.defVal
         self.assertEquals(expected.keys(), result.keys())
 
     def test_PolyLine(self):
         source = _SourceShim(ar_downsample.Contour)
         result = ar_downsample.mapping(source)
-        expected = {} 
+        expected = {}
 
         self.assertEquals(len(expected), len(result))
         self.assertEquals(expected.keys(), result.keys())
 
-        source = _SourceShim(ar_downsample.Contour, "A","B","C")
+        source = _SourceShim(ar_downsample.Contour, "A", "B", "C")
         result = ar_downsample.mapping(source)
-        expected['A'] = source.defVal 
-        expected['B'] = source.defVal 
-        expected['C'] = source.defVal 
+        expected['A'] = source.defVal
+        expected['B'] = source.defVal
+        expected['C'] = source.defVal
         self.assertEquals(expected.keys(), result.keys())
 
 
+@skipIfPy3("AR does not run in python 3")
 class TestDownsample(unittest.TestCase):
     pass
 
-# Hack: The "AA" forces this test to run first 
-# "Note that the order in which the various test cases will be run is determined by sorting the test function names with respect to the built-in ordering for strings" 
+
+# Hack: The "AA" forces this test to run first
+# "Note that the order in which the various test cases will be run is determined by sorting the test function names with respect to the built-in ordering for strings"
 # https://docs.python.org/2/library/unittest.html
+@skipIfPy3("AR does not run in python 3")
 class AA_Test_loadAR(unittest.TestCase):
     def test(self):
         self.assertRaises(NameError, Id().reify)
         ar_downsample._loadAR()
         self.assertIsNotNone(Id().reify())
 
+
+@skipIfPy3("AR does not run in python 3")
 class Test_span(unittest.TestCase):
     def test(self):
         self.assertEquals(0, ar_downsample._span(Range1d(start=0, end=0)))
@@ -98,6 +107,7 @@ class Test_span(unittest.TestCase):
         self.assertEquals(0, ar_downsample._span(Range1d(start=None, end=None)))
 
 
+@skipIfPy3("AR does not run in python 3")
 class Test_shaper(unittest.TestCase):
     def testCreate(self):
         self.assertIsInstance(ar_downsample._shaper("square", 3, False), glyphset.ToRect)
@@ -111,6 +121,7 @@ class Test_shaper(unittest.TestCase):
 
 
 # ----------- Testing utilities ------------
+@skipIfPy3("AR does not run in python 3")
 class _ProxyTester(object):
     proxy = None
     reifyBase = None
@@ -122,6 +133,7 @@ class _ProxyTester(object):
         self.assertIsInstance(op, self.reifyBase)
 
 
+@skipIfPy3("AR does not run in python 3")
 class _ShaderTester(_ProxyTester):
     reifyBase = ar.Shader
 
@@ -137,31 +149,38 @@ class _ShaderTester(_ProxyTester):
         self.assertIsInstance(op2, Seq)
 
 
+@skipIfPy3("AR does not run in python 3")
 class _InfoTester(_ProxyTester):
     reifyBase = types.FunctionType
 
 
+@skipIfPy3("AR does not run in python 3")
 class _AggregatorTester(_ProxyTester):
     reifyBase = ar.Aggregator
 
 
 # ----------- Shader Tests -------------------
+@skipIfPy3("AR does not run in python 3")
 class TestSeq(_ShaderTester, unittest.TestCase):
     proxy = Seq(first=Id(), second=Sqrt())
 
 
+@skipIfPy3("AR does not run in python 3")
 class TestId(_ShaderTester, unittest.TestCase):
     proxy = Id()
 
 
+@skipIfPy3("AR does not run in python 3")
 class TestBinarySegment(_ShaderTester, unittest.TestCase):
     proxy = BinarySegment(low=1, high=2, divider=10)
 
 
+@skipIfPy3("AR does not run in python 3")
 class TestInterpolate(_ShaderTester, unittest.TestCase):
     proxy = Interpolate(low=0, high=10)
 
 
+@skipIfPy3("AR does not run in python 3")
 class TestInterpolateColor(_ShaderTester, unittest.TestCase):
     proxy = InterpolateColor(low=(10, 10, 10),
                              high=(200, 200, 200),
@@ -169,30 +188,37 @@ class TestInterpolateColor(_ShaderTester, unittest.TestCase):
                              empty=-1)
 
 
+@skipIfPy3("AR does not run in python 3")
 class TestSqrt(_ShaderTester, unittest.TestCase):
     proxy = Sqrt()
 
 
+@skipIfPy3("AR does not run in python 3")
 class TestCuberoot(_ShaderTester, unittest.TestCase):
     proxy = Cuberoot()
 
 
+@skipIfPy3("AR does not run in python 3")
 class TestSpread(_ShaderTester, unittest.TestCase):
     proxy = Spread(factor=2)
 
 
+@skipIfPy3("AR does not run in python 3")
 class TestContour(_ShaderTester, unittest.TestCase):
     proxy = Contour()
 
 
 # ----------- Info and Aggregator Tests -------------------
+@skipIfPy3("AR does not run in python 3")
 class TestConst(_InfoTester, unittest.TestCase):
     proxy = Const(val=3)
 
 
+@skipIfPy3("AR does not run in python 3")
 class TestSum(_AggregatorTester, unittest.TestCase):
     proxy = Sum()
 
 
+@skipIfPy3("AR does not run in python 3")
 class TestCount(_AggregatorTester, unittest.TestCase):
     proxy = Count()
