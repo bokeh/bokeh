@@ -83,7 +83,6 @@ xaxis = DatetimeAxis(plot=plot, location="bottom", formatter=xformatter)
 plot.below.append(xaxis)
 yaxis = DatetimeAxis(plot=plot, location="left")
 plot.left.append(yaxis)
-yaxis = DatetimeAxis(plot=plot, location="left")
 xgrid = Grid(plot=plot, dimension=0, axis=xaxis)
 ygrid = Grid(plot=plot, dimension=1, axis=yaxis)
 
