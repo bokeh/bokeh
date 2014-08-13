@@ -147,7 +147,7 @@ class _ProxyTester(object):
 class _ShaderTester(_ProxyTester):
     def __init__(self, *args):
         super(_ProxyTester, self).__init__(*args)
-        if sys.modules.has_key('abstract_rendering'):
+        if 'abstract_rendering' in sys.modules:
             self.reifyBase = ar.Shader
 
     def test_out(self):
@@ -173,7 +173,7 @@ class _InfoTester(_ProxyTester):
 class _AggregatorTester(_ProxyTester):
     def __init__(self, *args):
         super(_ProxyTester, self).__init__(*args)
-        if sys.modules.has_key('abstract_rendering'):
+        if 'abstract_rendering' in sys.modules:
             self.reifyBase = ar.Aggregator
 
 
