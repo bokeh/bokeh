@@ -222,12 +222,16 @@ class ChartObject(object):
         """
         pass
 
-    def add_data_plot(self):
+    def add_data_plot(self, source, xdr, ydr):
         """Wrapper to call the `chart.add_data_plot` method.
-        It internally pass source and ranges as parameters of the
-        `chart.add_data_plot` method.
+        It pass source and ranges as parameters of the `chart.add_data_plot` method.
+
+        Args:
+            source (obj): datasource object for your plot.
+            xdr (obj): x-associated datarange object for you plot.
+            ydr (obj): y-associated datarange object for you plot.
         """
-        self.chart.add_data_plot(self.source, self.xdr, self.ydr)
+        self.chart.add_data_plot(source, xdr, ydr)
 
     def draw(self):
         """Method to draw the glyphs into the plot.
@@ -236,12 +240,15 @@ class ChartObject(object):
         """
         pass
 
-    def end_plot(self):
+    def end_plot(self, groups):
         """Wrapper to call the `chart.end_plot` method.
-        It internally pass groups as parameters of the
-        `chart.end_plot` method.
+        It pass groups as parameters of the `chart.end_plot` method.
+
+        Args:
+            groups (list): to be filled with the incoming groups of data.
+                Useful for legend construction.
         """
-        self.chart.end_plot(self.groups)
+        self.chart.end_plot(groups)
 
     def show_chart(self):
         "Wrapper to call the `chart.show` method."

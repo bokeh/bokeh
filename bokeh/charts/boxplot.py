@@ -302,11 +302,11 @@ class BoxPlot(ChartObject):
         # we filled the source and ranges with the calculated data
         self.get_source()
         # we dinamically inject the source and ranges into the plot
-        self.add_data_plot()
+        self.add_data_plot(self.source, self.xdr, self.ydr)
         # we add the glyphs into the plot
         self.draw()
         # we pass info to build the legend
-        self.end_plot()
+        self.end_plot(self.groups)
         # and finally we show it
         self.show_chart()
 
