@@ -1,9 +1,8 @@
 from __future__ import print_function
-import bokeh.plotting as plotting
+from ..plotting import image_rgba, image, multi_line, curdoc
 from ..plot_object import PlotObject
 from ..objects import ServerDataSource,  Glyph, Range1d, Color
-from bokeh.properties import (Instance, Any, Either, Int, Float, List)
-import bokeh.colors as colors
+from ..properties import (Instance, Any, Either, Int, Float, List)
 import numpy as np
 
 import logging
@@ -27,7 +26,7 @@ def _loadAR():
     """
     Utility to load abstract rendering (AR).  Keeps the import from occurring
     unless you actually try to use AR.  MUST be called before actually
-    calling any AR package items (typically only invoked on the server 
+    calling any AR package items (typically only invoked on the server
     in response to an AR-reliant plot request).
 
     This is more complex than just an import because
@@ -110,6 +109,7 @@ class Shader(Proxy):
         """
         return np.array([[0]]) if result is None else result
 
+
 class Seq(Shader):
     "Sequence of shaders"
     first = Instance(Shader)
@@ -183,10 +183,10 @@ class InterpolateColor(Shader):
 
     def reify(self, **kwargs):
         return numeric.InterpolateColors(
-                self._reformatColor(self.low),
-                self._reformatColor(self.high),
-                reserve=self._reformatColor(self.reserve),
-                empty=self.empty)
+            self._reformatColor(self.low),
+            self._reformatColor(self.high),
+            reserve=self._reformatColor(self.reserve),
+            empty=self.empty)
 
     def _reformatColor(self, color):
         if isinstance(color, tuple) or isinstance(color, list):
@@ -272,10 +272,10 @@ class Contour(Shader):
                 'xs': xxs,
                 'ys': yys}
 
-# ------------------  Control Functions ----------------
 
+# ------------------  Control Functions ----------------
 def replot(plot, agg=Count(), info=Const(val=1), shader=Id(),
-        remove_original=True, palette=["Spectral-11"], points=False, **kwargs):
+           remove_original=True, palette=["Spectral-11"], points=False, **kwargs):
     """
     Treat the passed plot as an base plot for abstract rendering, generate the
     proper Bokeh plot based on the passed parameters.
@@ -307,11 +307,11 @@ def replot(plot, agg=Count(), info=Const(val=1), shader=Id(),
     props.update(mapping(src))
 
     if shader.out == "image":
-        return plotting.image(source=src, **props)
+        return image(source=src, **props)
     elif shader.out == "image_rgb":
-        return plotting.image_rgba(source=src, **props)
+        return image_rgba(source=src, **props)
     elif shader.out == "poly_line":
-        return plotting.multi_line(source=src, **props)
+        return multi_line(source=src, **props)
     else:
         raise ValueError("Unhandled output type %s" % shader.out)
 
@@ -348,8 +348,8 @@ def source(plot, agg=Count(), info=Const(val=1), shader=Id(),
         raise ValueError("Unrecognized shader output type %s" % shader.out)
 
     # Remove the base plot (if requested)
-    if remove_original and plot in plotting.curdoc()._plotcontext.children:
-        plotting.curdoc()._plotcontext.children.remove(plot)
+    if remove_original and plot in curdoc()._plotcontext.children:
+        curdoc()._plotcontext.children.remove(plot)
 
     kwargs['transform'] = {
         'resample': "abstract rendering",
@@ -439,11 +439,11 @@ def downsample_line(xcol, ycol, glyphs, transform, plot_state):
         plot_size = [bounds[2], bounds[3]]
 
         vt = ar.zoom_fit(plot_size, bounds, balanced=False)
-        
+
         lines = ar.render(glyphs,
                           transform['info'].reify(),
                           transform['agg'].reify(),
-                          shader.reify(), 
+                          shader.reify(),
                           plot_size, vt)
 
         parts = shader.reformat(lines, xmin, ymin)
@@ -464,7 +464,7 @@ def downsample_image(xcol, ycol, glyphs, transform, plot_state):
 
     (xmin, xmax) = (xcol.min(), xcol.max())
     (ymin, ymax) = (ycol.min(), ycol.max())
-    
+
     shader = transform['shader']
 
     # How big would a full plot of the data be at the current resolution?
@@ -488,7 +488,7 @@ def downsample_image(xcol, ycol, glyphs, transform, plot_state):
                           transform['agg'].reify(),
                           shader.reify(),
                           plot_size, ivt)
-        
+
         image = shader.reformat(image)
 
     rslt = {'image': [image],
