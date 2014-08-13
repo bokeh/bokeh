@@ -115,8 +115,6 @@ class BoxPlot(ChartObject):
                 initialized as a dummy None.
             ydr (obj): y-associated datarange object for you plot,
                 initialized as a dummy None.
-            groups (list): to be filled with the incoming groups of data.
-                Useful for legend construction.
             data (dict): to be filled with the incoming data and be passed
                 to the ColumnDataSource in each chart inherited class.
                 Needed for _set_And_get method.
@@ -130,18 +128,19 @@ class BoxPlot(ChartObject):
         self.source = None
         self.xdr = None
         self.ydr = None
-        self.groups = []
         self.data = dict()
         self.attr = []
         super(BoxPlot, self).__init__(title, xlabel, ylabel, legend,
-                                  xscale, yscale, width, height,
-                                  tools, filename, server, notebook)
+                                      xscale, yscale, width, height,
+                                      tools, filename, server, notebook)
 
     def marker(self, marker="circle"):
+        "marker (str, int): the marker type of your plot outliers."
         self._marker = marker
         return self
 
     def outliers(self, outliers=True):
+        "outliers (bool): to show (or not) the outliers in each group of your plot."
         self._outliers = outliers
         return self
 
@@ -157,29 +156,31 @@ class BoxPlot(ChartObject):
         if not hasattr(self, '_outliers'):
             self._outliers = self.__outliers
 
-    def get_data(self, cat, marker, outliers, **value):
+    def get_data(self, marker, outliers, **value):
         """Take the data from the input **value and calculate the
         parameters accordingly. Then build a dict containing references
         to all the calculated point to be used by the quad glyph inside the
         `draw` method.
         """
-        self.cat = cat
-        self.marker = marker
-        self.outliers = outliers
-        self.width = [0.8] * len(self.cat)
-        self.data = dict(cat=self.cat, width=self.width)
-
-        # assuming value is a dict for now
+        # assuming value is a OrdererDict
         self.value = value
 
-        # list to save all the attributes we are going to create
-        self.attr = []
+        if isinstance(self.value, pd.DataFrame):
+            self.groups = self.value.columns
+        else:
+            self.groups = self.value.keys()
 
-        self.groups.extend(self.value.keys())
+        self.marker = marker
+        self.outliers = outliers
 
-        self.nones = [None] * len(self.cat)
+        # add cat and witdh to the self.data dict
+        self.data["groups"] = self.groups
+        self.data["width"] = [0.8] * len(self.groups)
 
-        for i, level in enumerate(self.value.keys()):
+        self.nones = [None] * len(self.groups)
+        #self.groups = self.value.keys()
+
+        for i, level in enumerate(self.groups):
 
             # Initialize all the list to be used to store data
             (q0_list, q2_list, u_cp_list, u_he_list,
@@ -235,7 +236,7 @@ class BoxPlot(ChartObject):
         """Get the boxplot data dict into the ColumnDataSource and
         calculate the proper ranges."""
         self.source = ColumnDataSource(self.data)
-        self.xdr = FactorRange(factors=self.source.data["cat"])
+        self.xdr = FactorRange(factors=self.source.data["groups"])
         lowers, uppers = self.attr[1::12], self.attr[3::12]
 
         def drop_none(l):
@@ -262,11 +263,11 @@ class BoxPlot(ChartObject):
         colors = self._set_colors(self.quartet)
 
         for i, quartet in enumerate(self.quartet):
-            self.chart.make_segment("cat", quartet[1], "cat", quartet[0], "black", 2)
-            self.chart.make_segment("cat", quartet[2], "cat", quartet[3], "black", 2)
-            self.chart.make_rect("cat", quartet[4], "width", quartet[5], None, "black", 2)
-            self.chart.make_rect("cat", quartet[6], "width", quartet[7], colors[i], "black", None)
-            self.chart.make_rect("cat", quartet[8], "width", quartet[9], colors[i], "black", None)
+            self.chart.make_segment("groups", quartet[1], "groups", quartet[0], "black", 2)
+            self.chart.make_segment("groups", quartet[2], "groups", quartet[3], "black", 2)
+            self.chart.make_rect("groups", quartet[4], "width", quartet[5], None, "black", 2)
+            self.chart.make_rect("groups", quartet[6], "width", quartet[7], colors[i], "black", None)
+            self.chart.make_rect("groups", quartet[8], "width", quartet[9], colors[i], "black", None)
             if self.outliers:
                 self.chart.make_scatter(quartet[10], quartet[11], self.marker, colors[i])
 
@@ -286,11 +287,6 @@ class BoxPlot(ChartObject):
         Note: the show method can not be chained. It has to be called
         at the end of the chain.
         """
-        if isinstance(self.value, pd.DataFrame):
-            self.cat = self.value.columns
-        else:
-            self.cat = self.value.keys()
-
         # we need to check the chained method attr
         self.check_attr()
         # we create the chart object
@@ -298,7 +294,7 @@ class BoxPlot(ChartObject):
         # we start the plot (adds axis, grids and tools)
         self.start_plot()
         # we get the data from the incoming input
-        self.get_data(self.cat, self._marker, self._outliers, **self.value)
+        self.get_data(self._marker, self._outliers, **self.value)
         # we filled the source and ranges with the calculated data
         self.get_source()
         # we dinamically inject the source and ranges into the plot
