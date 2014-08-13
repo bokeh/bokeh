@@ -3,12 +3,14 @@ import bokeh.transforms.ar_downsample as ar_downsample
 from bokeh.transforms.ar_downsample import *
 from bokeh.objects import Range1d
 import types
-import sys
 from .test_utils import skipIfPy3
 from ..utils import is_py3
 
 # Only import in python 2...
 try:
+    import abstract_rendering.numeric as numeric
+    import abstract_rendering.contour as contour
+    import abstract_rendering.general as general
     import abstract_rendering.glyphset as glyphset
     import abstract_rendering.core as ar
 except:
@@ -16,18 +18,14 @@ except:
         raise
 
 
-# -------------- Process and Utility Tests ----------
-@skipIfPy3("AR does not run in python 3")
-class TestReplot(unittest.TestCase):
-    pass
+def sort_init_first(_, a, b):
+    if "_init_" in a: return -1
+    if "_init_" in b: return 1
+    return cmp(a, b)
+
+unittest.TestLoader.sortTestMethodsUsing = sort_init_first
 
 
-@skipIfPy3("AR does not run in python 3")
-class TestSource(unittest.TestCase):
-    pass
-
-
-@skipIfPy3("AR does not run in python 3")
 class _SourceShim(object):
     defVal = 'value'
 
@@ -37,7 +35,46 @@ class _SourceShim(object):
 
 
 @skipIfPy3("AR does not run in python 3")
-class TestMapping(unittest.TestCase):
+class Test_AR(unittest.TestCase):
+    # -------------- Process and Utility Tests ----------
+    def test_replot(self):
+        pass
+
+    def test_source(self):
+        pass
+
+    def test_downsample(self):
+        pass
+
+    def test_init_AR(self):
+        self.assertRaises(NameError, Id().reify)
+        ar_downsample._loadAR()
+        self.assertIsNotNone(Id().reify())
+
+    def test_span(self):
+        self.assertEquals(0, ar_downsample._span(Range1d(start=0, end=0)))
+        self.assertEquals(2, ar_downsample._span(Range1d(start=0, end=2)))
+        self.assertEquals(2, ar_downsample._span(Range1d(start=-2, end=0)))
+        self.assertEquals(4, ar_downsample._span(Range1d(start=-2, end=2)))
+        self.assertEquals(4, ar_downsample._span(Range1d(start=2, end=-2)))
+        self.assertEquals(3, ar_downsample._span(Range1d(start=None, end=3)))
+        self.assertEquals(3, ar_downsample._span(Range1d(start=3, end=None)))
+        self.assertEquals(0, ar_downsample._span(Range1d(start=None, end=None)))
+
+    # ------------ Shaper tests --------------
+    def test_shaper_create(self):
+        ar_downsample._loadAR()
+        self.assertIsInstance(ar_downsample._shaper("square", 3, False), glyphset.ToRect)
+        self.assertIsInstance(ar_downsample._shaper("square", 3, True), glyphset.ToPoint)
+        self.assertIsInstance(ar_downsample._shaper("circle", 3, True), glyphset.ToPoint)
+
+    def test_shaper_fail(self):
+        ar_downsample._loadAR()
+        with self.assertRaises(ValueError):
+            ar_downsample._shaper("circle", 3, False)
+            ar_downsample._shaper("blah", 3, False)
+
+    # -------------- Mapping tests ----------
     def test_Image(self):
         source = _SourceShim(ar_downsample.Interpolate)
         result = ar_downsample.mapping(source)
@@ -85,156 +122,46 @@ class TestMapping(unittest.TestCase):
         expected['C'] = source.defVal
         self.assertEquals(expected.keys(), result.keys())
 
-
-@skipIfPy3("AR does not run in python 3")
-class TestDownsample(unittest.TestCase):
-    pass
-
-
-# Hack: The "AA" forces this test to run first
-# "Note that the order in which the various test cases will be run is determined by sorting the test function names with respect to the built-in ordering for strings"
-# https://docs.python.org/2/library/unittest.html
-@skipIfPy3("AR does not run in python 3")
-class AA_Test_loadAR(unittest.TestCase):
-    def test(self):
-        self.assertRaises(NameError, Id().reify)
+    def _reify_tester(self, proxy, reifyBase):
         ar_downsample._loadAR()
-        self.assertIsNotNone(Id().reify())
+        op = proxy.reify()
+        self.assertIsNotNone(op, "Empty reification on %s" % type(proxy))
+        self.assertIsInstance(op, reifyBase, "Reify to unexpected type (%s) for %s" % (type(op), type(proxy)))
 
+    def _shader_tester(self, proxy, reifyBase):
+        self.assertIn(proxy.out, ["image", "image_rgb", "poly_line"],
+                      "Unknown output type.")
 
-@skipIfPy3("AR does not run in python 3")
-class Test_span(unittest.TestCase):
-    def test(self):
-        self.assertEquals(0, ar_downsample._span(Range1d(start=0, end=0)))
-        self.assertEquals(2, ar_downsample._span(Range1d(start=0, end=2)))
-        self.assertEquals(2, ar_downsample._span(Range1d(start=-2, end=0)))
-        self.assertEquals(4, ar_downsample._span(Range1d(start=-2, end=2)))
-        self.assertEquals(4, ar_downsample._span(Range1d(start=2, end=-2)))
-        self.assertEquals(3, ar_downsample._span(Range1d(start=None, end=3)))
-        self.assertEquals(3, ar_downsample._span(Range1d(start=3, end=None)))
-        self.assertEquals(0, ar_downsample._span(Range1d(start=None, end=None)))
+        self.assertIsNotNone(self.proxy.reformat(None),
+                             "No reformat provided")
 
-
-@skipIfPy3("AR does not run in python 3")
-class Test_shaper(unittest.TestCase):
-    def testCreate(self):
-        self.assertIsInstance(ar_downsample._shaper("square", 3, False), glyphset.ToRect)
-        self.assertIsInstance(ar_downsample._shaper("square", 3, True), glyphset.ToPoint)
-        self.assertIsInstance(ar_downsample._shaper("circle", 3, True), glyphset.ToPoint)
-
-    def testFail(self):
-        with self.assertRaises(ValueError):
-            ar_downsample._shaper("circle", 3, False)
-            ar_downsample._shaper("blah", 3, False)
-
-
-# ----------- Testing utilities ------------
-@skipIfPy3("AR does not run in python 3")
-class _ProxyTester(object):
-    proxy = None
-    reifyBase = None
-
-    def test_reify(self):
-        ar_downsample._loadAR()
-        op = self.proxy.reify()
-        self.assertIsNotNone(op)
-        self.assertIsInstance(op, self.reifyBase)
-
-
-@skipIfPy3("AR does not run in python 3")
-class _ShaderTester(_ProxyTester):
-    def __init__(self, *args):
-        super(_ProxyTester, self).__init__(*args)
-        if 'abstract_rendering' in sys.modules:
-            self.reifyBase = ar.Shader
-
-    def test_out(self):
-        self.assertIn(self.proxy.out, ["image", "image_rgb", "poly_line"])
-
-    def test_reformat_None(self):
-        self.assertIsNotNone(self.proxy.reformat(None))
-
-    def test_extend(self):
         op2 = self.proxy + Id()
         self.assertIsNotNone(op2)
-        self.assertIsInstance(op2, Seq)
+        self.assertIsInstance(op2, Seq, "Unexpected result from sequencing")
 
+        self._reify_tester(proxy, reify_base)
 
-@skipIfPy3("AR does not run in python 3")
-class _InfoTester(_ProxyTester):
-    def __init__(self, *args):
-        super(_ProxyTester, self).__init__(*args)
-        self.reifyBase = types.FunctionType
+    def test_infos(self):
+        infos = [Const(val=3)]
+        for info in infos:
+            self._reify_tester(info, types.FunctionType)
 
+    def test_aggregators(self):
+        aggregators = [Sum(), Count()]
+        targets = [numeric.Sum, numeric.Count]
+        for (agg, target) in zip(aggregators, targets):
+            self._reify_tester(agg, target)
 
-@skipIfPy3("AR does not run in python 3")
-class _AggregatorTester(_ProxyTester):
-    def __init__(self, *args):
-        super(_ProxyTester, self).__init__(*args)
-        if 'abstract_rendering' in sys.modules:
-            self.reifyBase = ar.Aggregator
+    def test_shaders(self):
+        shaders = [(Seq(first=Id(), second=Sqrt()), ar.Seq),
+                   (Id(), general.Id),
+                   (BinarySegment(low=1, high=2, divider=10), numeric.BinarySegment),
+                   (Interpolate(low=0, high=10), numeric.Interpolate),
+                   (InterpolateColor(low=(10, 10, 10), high=(200, 200, 200), reserve=(0, 0, 0), empty=-1), numeric.InterpolateColors),
+                   (Sqrt(), numeric.Sqrt),
+                   (Cuberoot(), numeric.Cuberoot),
+                   (Spread(factor=2), numeric.Spread),
+                   (Contour(), contour.Contour)]
 
-
-# ----------- Shader Tests -------------------
-@skipIfPy3("AR does not run in python 3")
-class TestSeq(_ShaderTester, unittest.TestCase):
-    proxy = Seq(first=Id(), second=Sqrt())
-
-
-@skipIfPy3("AR does not run in python 3")
-class TestId(_ShaderTester, unittest.TestCase):
-    proxy = Id()
-
-
-@skipIfPy3("AR does not run in python 3")
-class TestBinarySegment(_ShaderTester, unittest.TestCase):
-    proxy = BinarySegment(low=1, high=2, divider=10)
-
-
-@skipIfPy3("AR does not run in python 3")
-class TestInterpolate(_ShaderTester, unittest.TestCase):
-    proxy = Interpolate(low=0, high=10)
-
-
-@skipIfPy3("AR does not run in python 3")
-class TestInterpolateColor(_ShaderTester, unittest.TestCase):
-    proxy = InterpolateColor(low=(10, 10, 10),
-                             high=(200, 200, 200),
-                             reserve=(0, 0, 0),
-                             empty=-1)
-
-
-@skipIfPy3("AR does not run in python 3")
-class TestSqrt(_ShaderTester, unittest.TestCase):
-    proxy = Sqrt()
-
-
-@skipIfPy3("AR does not run in python 3")
-class TestCuberoot(_ShaderTester, unittest.TestCase):
-    proxy = Cuberoot()
-
-
-@skipIfPy3("AR does not run in python 3")
-class TestSpread(_ShaderTester, unittest.TestCase):
-    proxy = Spread(factor=2)
-
-
-@skipIfPy3("AR does not run in python 3")
-class TestContour(_ShaderTester, unittest.TestCase):
-    proxy = Contour()
-
-
-# ----------- Info and Aggregator Tests -------------------
-@skipIfPy3("AR does not run in python 3")
-class TestConst(_InfoTester, unittest.TestCase):
-    proxy = Const(val=3)
-
-
-@skipIfPy3("AR does not run in python 3")
-class TestSum(_AggregatorTester, unittest.TestCase):
-    proxy = Sum()
-
-
-@skipIfPy3("AR does not run in python 3")
-class TestCount(_AggregatorTester, unittest.TestCase):
-    proxy = Count()
+        for (shader, target) in shaders:
+            self._reify_tester(shader, target)
