@@ -10,9 +10,7 @@ from .test_utils import skipIfPy3
 try:
     import abstract_rendering.glyphset as glyphset
     import abstract_rendering.core as ar
-    print "IMPORTED MODULE AR -----------------------------"
 except:
-    print "IMPORTED MODULE AR FAIL-----------------------------"
     import sys
     if sys.version[0] != '3':
         raise
@@ -150,7 +148,6 @@ class _ShaderTester(_ProxyTester):
     def __init__(self, *args):
         super(_ProxyTester, self).__init__(*args)
         if sys.modules.has_key('abstract_rendering'):
-            print "FOUND MODULE AR ----------------------"
             self.reifyBase = ar.Shader
 
     def test_out(self):
