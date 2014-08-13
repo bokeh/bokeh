@@ -108,16 +108,35 @@ class BoxPlot(ChartObject):
             notebook (bool, optional):if you want to output (or not) your plot into the
                 IPython notebook.
                 Defaults to False.
+
+        Attributes:
+            source (obj): datasource object for your plot,
+                initialized as a dummy None.
+            xdr (obj): x-associated datarange object for you plot,
+                initialized as a dummy None.
+            ydr (obj): y-associated datarange object for you plot,
+                initialized as a dummy None.
+            groups (list): to be filled with the incoming groups of data.
+                Useful for legend construction.
+            data (dict): to be filled with the incoming data and be passed
+                to the ColumnDataSource in each chart inherited class.
+                Needed for _set_And_get method.
+            attr (list): to be filled with the new attributes created after
+                loading the data dict.
+                Needed for _set_And_get method.
         """
         self.value = value
         self.marker = marker
         self.outliers = outliers
+        self.source = None
+        self.xdr = None
+        self.ydr = None
+        self.groups = []
+        self.data = dict()
+        self.attr = []
         super(BoxPlot, self).__init__(title, xlabel, ylabel, legend,
                                   xscale, yscale, width, height,
                                   tools, filename, server, notebook)
-        # self.source, self.xdr, self.ydr, self.groups are inherited attr
-        # self.data and self.attr are inheriteed from ChartObject where the
-        # the helper method lives...
 
     def check_attr(self):
         """This method checks if any of the chained method were used. If they were
@@ -231,3 +250,17 @@ class BoxPlot(ChartObject):
         self.end_plot()
         # and finally we show it
         self.show_chart()
+
+    # Some helper methods
+    def _set_and_get(self, prefix, val, content):
+        """Set a new attr and then get it to fill the self.data dict.
+        Keep track of the attributes created.
+
+        Args:
+            prefix (str): prefix of the new attribute
+            val (string): name of the new attribute
+            content (obj): content of the new attribute
+        """
+        setattr(self, prefix + val, content)
+        self.data[prefix + val] = getattr(self, prefix + val)
+        self.attr.append(prefix + val)
