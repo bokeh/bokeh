@@ -43,18 +43,18 @@ def make_plot(xname, yname, xax=False, yax=False, text=None):
         x_range=xdr, y_range=ydr, data_sources=[source], background_fill="#efe8e2",
         border_fill='white', title="", min_border=2, border_symmetry=None,
         plot_width=250, plot_height=250)
+    xticker = BasicTicker()
     if xax:
         xaxis = LinearAxis(plot=plot)
         plot.below.append(xaxis)
-        xgrid = Grid(plot=plot, dimension=0, ticker=xaxis.ticker)
-    else:
-        xgrid = Grid(plot=plot, dimension=0, ticker=BasicTicker())
+        xticker = xaxis.ticker
+    xgrid = Grid(plot=plot, dimension=0, ticker=xticker)
+    yticker = BasicTicker()
     if yax:
         yaxis = LinearAxis(plot=plot)
         plot.left.append(yaxis)
-        ygrid = Grid(plot=plot, dimension=1, ticker=yaxis.ticker)
-    else:
-        ygrid = Grid(plot=plot, dimension=1, ticker=BasicTicker())
+        yticker = yaxis.ticker
+    ygrid = Grid(plot=plot, dimension=1, ticker=yticker)
     circle = Circle(x=xname, y=yname, fill_color="color", fill_alpha=0.2, size=4, line_color="color")
     circle_renderer = Glyph(
         data_source = source,
