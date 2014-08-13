@@ -182,13 +182,13 @@ class Histogram(ChartObject):
             colors = self._set_colors(self.quintet)
 
             for i, quintet in enumerate(self.quintet):
-                self.chart.make_quad(quintet[1], quintet[5], quintet[3], quintet[4], colors[i])
+                self.chart.make_quad(quintet[1], quintet[5], quintet[3], quintet[4], colors[i], "white")
         else:
             self.octet = list(self._chunker(self.attr, 9))
             colors = self._set_colors(self.octet)
 
             for i, octet in enumerate(self.octet):
-                self.chart.make_quad(octet[1], octet[5], octet[3], octet[4], colors[i])
+                self.chart.make_quad(octet[1], octet[5], octet[3], octet[4], colors[i], "white")
                 self.chart.make_line(octet[6], octet[7], "black")
                 self.chart.make_line(octet[6], octet[8], "blue")
 

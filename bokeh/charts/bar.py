@@ -191,9 +191,9 @@ class Bar(ChartObject):
         # quartet elements are: [data, mid, stacked, cat]
         for i, quartet in enumerate(self.quartet):
             if stacked:
-                self.chart.make_rect("cat", quartet[2], "width", quartet[0], colors[i])
+                self.chart.make_rect("cat", quartet[2], "width", quartet[0], colors[i], "white", None)
             else:  # Grouped
-                self.chart.make_rect(quartet[3], quartet[1], "width_cat", quartet[0], colors[i])
+                self.chart.make_rect(quartet[3], quartet[1], "width_cat", quartet[0], colors[i], "white", None)
 
     def show(self):
         """This is the main Bar show function.

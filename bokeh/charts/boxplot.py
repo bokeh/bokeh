@@ -71,10 +71,9 @@ class BoxPlot(ChartObject):
         Args:
             value (DataFrame/OrderedDict/dict): containing the data with names as a key
                 and the data as a value.
-            outliers (bool, optional): Whether or not to plot outliers.
             marker (int/string, optional): if outliers=True, the marker type to use
                 e.g., `circle`.
-            line_width (int): width of the inter-quantile range line.
+            outliers (bool, optional): Whether or not to plot outliers.
             title (str, optional): the title of your plot. Defaults to None.
             xlabel (str, optional): the x-axis label of your plot.
                 Defaults to None.
@@ -149,9 +148,7 @@ class BoxPlot(ChartObject):
         self.marker = marker
         self.outliers = outliers
         self.width = [0.8] * len(self.cat)
-        self.width_cat = [0.2] * len(self.cat)
-        self.zero = np.zeros(len(self.cat))
-        self.data = dict(cat=self.cat, width=self.width, width_cat=self.width_cat, zero=self.zero)
+        self.data = dict(cat=self.cat, width=self.width)
 
         # assuming value is a dict for now
         self.value = value
@@ -159,40 +156,82 @@ class BoxPlot(ChartObject):
         # list to save all the attributes we are going to create
         self.attr = []
 
-        n_levels = len(self.value.keys())
-        step = np.linspace(1, n_levels+1, n_levels, endpoint=False)
-
         self.groups.extend(self.value.keys())
+
+        self.nones = [None] * len(self.cat)
 
         for i, level in enumerate(self.value.keys()):
 
-            # Compute quantiles, IQR, etc.
-            level_vals = self.value[level]
-            q = np.percentile(level_vals, [25, 50, 75])
+            # Initialize all the list to be used to store data
+            (q0_list, q2_list, u_cp_list, u_he_list,
+            l_cp_list, l_he_list, iqr_cp_list, iqr_list,
+            lower_list, upper_list) = (list(self.nones) for i in range(10))
+
+            # Compute quantiles, center points, heights, IQR, etc.
+            # quantiles
+            q = np.percentile(self.value[level], [25, 50, 75])
+            q0_list[i] = q[0]
+            q2_list[i] = q[2]
+
+            # rect center points and heights
+            u_cp_list[i] = (q[2] + q[1]) / 2
+            u_he_list[i] = q[2] - q[1]
+            l_cp_list[i] = (q[1] + q[0]) / 2
+            l_he_list[i] = q[1] - q[0]
+
+            # IQR related stuff...
+            iqr_cp_list[i] = (q[2] + q[0]) / 2
             iqr = q[2] - q[0]
+            iqr_list[i] = iqr
+
+            lower = q[1] - 1.5 * iqr
+            lower_list[i] = lower
+
+            upper = q[1] + 1.5 * iqr
+            upper_list[i] = upper
+
             # Store indices of outliers as list
-            lower, upper = q[1] - 1.5*iqr, q[1] + 1.5*iqr
-            outliers = np.where((level_vals > upper) | (level_vals < lower))[0]
+            outliers = np.where((self.value[level] > upper) | (self.value[level] < lower))[0]
+            out = self.value[level][outliers]
+            out_x, out_y = ([], [])
+            for o in out:
+                out_x.append(level)
+                out_y.append(o)
 
             # Store
-            self._set_and_get("", level, level_vals)
-            self._set_and_get("quantiles", level, q)
-            self._set_and_get("outliers", level, outliers)
-            self._set_and_get("cat", level, [level + ':' + str(step[i])])
-            self._set_and_get("line_y", level, [lower, upper])
-            self._set_and_get("x", level, step[i])
+            self._set_and_get("q0", level, q0_list)
+            self._set_and_get("lower_list", level, lower_list)
+            self._set_and_get("q2", level, q2_list)
+            self._set_and_get("upper_list", level, upper_list)
+            self._set_and_get("iqr_cp_list", level, iqr_cp_list)
+            self._set_and_get("iqr_list", level, iqr_list)
+            self._set_and_get("u_cp_list", level, u_cp_list)
+            self._set_and_get("u_he_list", level, u_he_list)
+            self._set_and_get("l_cp_list", level, l_cp_list)
+            self._set_and_get("l_he_list", level, l_he_list)
+            self._set_and_get("out_x", level, out_x)
+            self._set_and_get("out_y", level, out_y)
 
     def get_source(self):
         """Get the boxplot data dict into the ColumnDataSource and
         calculate the proper ranges."""
         self.source = ColumnDataSource(self.data)
         self.xdr = FactorRange(factors=self.source.data["cat"])
-        y_names = self.attr[::6]
-        start_y = min(min(self.data[i]) for i in y_names)
-        end_y = max(max(self.data[i]) for i in y_names)
-        # Expand min/max to encompass IQR line
-        start_y = min(end_y, min(self.data[x][0] for x in self.attr[4::6]))
-        end_y = max(end_y, max(self.data[x][1] for x in self.attr[4::6]))
+        lowers, uppers = self.attr[1::12], self.attr[3::12]
+
+        def drop_none(l):
+            return [i for i in l if i is not None]
+
+        start_y = min(min(drop_none(self.data[i])) for i in lowers)
+        end_y = max(max(drop_none(self.data[i])) for i in uppers)
+
+        ## Expand min/max to encompass outliers
+        if self.outliers:
+            outs = self.attr[11::12]
+            start_out_y = min(min(self.data[x]) for x in outs if len(self.data[x]) > 0)
+            end_out_y = max(max(self.data[x]) for x in outs if len(self.data[x]) > 0)
+            start_y = min(start_y, start_out_y)
+            end_y = max(end_y, end_out_y)
         self.ydr = Range1d(start=start_y - 0.1 * (end_y-start_y), end=end_y + 0.1 * (end_y-start_y))
 
     def draw(self):
@@ -200,18 +239,24 @@ class BoxPlot(ChartObject):
         display the iqr and rects to display the boxes, taking as reference
         points the data loaded at the ColumnDataSurce.
         """
-        self.sextet = list(self._chunker(self.attr, 6))
-        colors = self._set_colors(self.sextet)
+        self.quartet = list(self._chunker(self.attr, 12))
+        colors = self._set_colors(self.quartet)
 
-        # quintet elements are: [data, quantiles, outliers, cat, line_y]
-        for i, sextet in enumerate(self.sextet):
-            [d, q, outliers, cat, line_y, x] = [self.data[x] for x in sextet]
-            self.chart.make_segment(x, line_y[0], x, line_y[1], 'black', 2)
-            self.chart.make_quad(q[1], q[0], x-self.width[0]/2., x+self.width[0]/2., colors[i])
-            self.chart.make_quad(q[2], q[1], x-self.width[0]/2., x+self.width[0]/2., colors[i])
-            if self.outliers and outliers.any():
-                for o in d[outliers]:
-                    self.chart.make_scatter(x, o, self.marker, colors[i])
+        for i, quartet in enumerate(self.quartet):
+            self.chart.make_segment("cat", quartet[1], "cat", quartet[0], "black", 2)
+            self.chart.make_segment("cat", quartet[2], "cat", quartet[3], "black", 2)
+            self.chart.make_rect("cat", quartet[4], "width", quartet[5], None, "black", 2)
+            self.chart.make_rect("cat", quartet[6], "width", quartet[7], colors[i], "black", None)
+            self.chart.make_rect("cat", quartet[8], "width", quartet[9], colors[i], "black", None)
+            if self.outliers:
+                self.chart.make_scatter(quartet[10], quartet[11], self.marker, colors[i])
+
+        # We need to manually select the proper glyphsto be rendered as legends
+        if self.outliers:
+            indexes = [3, 9, 15]  # 1st rect, 2nd rect, 3rd rect
+        else:
+            indexes = [3, 8, 13]  # 1st rect, 2nd rect, 3rd rect
+        self.chart.glyphs = [self.chart.glyphs[i] for i in indexes]
 
     def show(self):
         """This is the main boxPlot show function.
