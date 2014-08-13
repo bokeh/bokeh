@@ -38,8 +38,10 @@ def make_plot(name, glyph):
     wheelzoomtool = WheelZoomTool(dimensions=["width", "height"])
 
     plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source], min_border=80)
-    xaxis = LinearAxis(plot=plot, location="bottom")
-    yaxis = LinearAxis(plot=plot, location="left")
+    xaxis = LinearAxis(plot=plot)
+    plot.below.append(xaxis)
+    yaxis = LinearAxis(plot=plot)
+    plot.left.append(yaxis)
     xgrid = Grid(plot=plot, dimension=0, ticker=xaxis.ticker)
     ygrid = Grid(plot=plot, dimension=1, ticker=yaxis.ticker)
 

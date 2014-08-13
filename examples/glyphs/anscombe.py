@@ -53,9 +53,9 @@ def make_plot(title, xname, yname):
     plot = Plot(
         x_range=xdr, y_range=ydr, data_sources=[lines_source, circles_source],
         title=title, plot_width=400, plot_height=400, border_fill='white', background_fill='#e9e0db')
-    xaxis = LinearAxis(plot=plot, location="bottom", axis_line_color=None)
+    xaxis = LinearAxis(plot=plot, axis_line_color=None)
     plot.below.append(xaxis)
-    yaxis = LinearAxis(plot=plot, location="left", axis_line_color=None)
+    yaxis = LinearAxis(plot=plot, axis_line_color=None)
     plot.left.append(yaxis)
     xgrid = Grid(plot=plot, dimension=0, ticker=xaxis.ticker)
     ygrid = Grid(plot=plot, dimension=1, ticker=yaxis.ticker)

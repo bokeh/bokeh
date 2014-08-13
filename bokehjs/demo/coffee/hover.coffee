@@ -47,7 +47,7 @@ require(['main', 'underscore'], (Bokeh, _) ->
     dims: [600, 600]
     xrange: [0, 100]
     yrange: [0, 100]
-    xaxes: "bottom"
+    xaxes: "below"
     yaxes: "left"
     tools: "pan,wheel_zoom,select,resize,preview,reset,box_zoom,hover"
     legend: false

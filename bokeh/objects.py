@@ -464,7 +464,7 @@ class GuideRenderer(Renderer):
 class Axis(GuideRenderer):
     type = String("axis")
 
-    location = Enum(Location)
+    location = Either(Enum('auto'), Enum(Location))
     bounds = Either(Enum('auto'), Tuple(Float, Float))
 
     ticker = Instance(Ticker)

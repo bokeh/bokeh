@@ -44,13 +44,13 @@ def make_plot(xname, yname, xax=False, yax=False, text=None):
         border_fill='white', title="", min_border=2, border_symmetry=None,
         plot_width=250, plot_height=250)
     if xax:
-        xaxis = LinearAxis(plot=plot, location="bottom")
+        xaxis = LinearAxis(plot=plot)
         plot.below.append(xaxis)
         xgrid = Grid(plot=plot, dimension=0, ticker=xaxis.ticker)
     else:
         xgrid = Grid(plot=plot, dimension=0, ticker=BasicTicker())
     if yax:
-        yaxis = LinearAxis(plot=plot, location="left")
+        yaxis = LinearAxis(plot=plot)
         plot.left.append(yaxis)
         ygrid = Grid(plot=plot, dimension=1, ticker=yaxis.ticker)
     else:

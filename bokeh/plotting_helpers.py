@@ -273,7 +273,7 @@ def _get_num_minor_ticks(axis_class, num_minor_ticks):
 
 def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
                  x_axis_type="auto", y_axis_type="auto",
-                 x_axis_location="bottom", y_axis_location="left",
+                 x_axis_location="below", y_axis_location="left",
                  x_minor_ticks='auto', y_minor_ticks='auto',
                  tools="pan,wheel_zoom,box_zoom,save,resize,select,reset", **kw):
     # Accept **kw to absorb other arguments which the actual factory functions
@@ -292,22 +292,28 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
     if x_axiscls:
         if x_axiscls is LogAxis:
             p.x_mapper_type = 'log'
-        xaxis = x_axiscls(plot=p, location=x_axis_location, bounds="auto")
+        xaxis = x_axiscls(plot=p)
         xaxis.ticker.num_minor_ticks = _get_num_minor_ticks(x_axiscls, x_minor_ticks)
         axis_label = kw.pop('x_axis_label', None)
         if axis_label:
             xaxis.axis_label = axis_label
         xgrid = Grid(plot=p, dimension=0, ticker=xaxis.ticker)
         if x_axis_location == "top":
+            warnings.warn("'top' is deprecated, use 'above'")
             p.above.append(xaxis)
         elif x_axis_location == "bottom":
+            warnings.warn("'bottom' is deprecated, use 'below'")
+            p.below.append(xaxis)
+        elif x_axis_location == "above":
+            p.above.append(xaxis)
+        elif x_axis_location == "below":
             p.below.append(xaxis)
 
     y_axiscls = _get_axis_class(y_axis_type, p.y_range)
     if y_axiscls:
         if y_axiscls is LogAxis:
             p.y_mapper_type = 'log'
-        yaxis = y_axiscls(plot=p, location=y_axis_location, bounds="auto")
+        yaxis = y_axiscls(plot=p)
         yaxis.ticker.num_minor_ticks = _get_num_minor_ticks(y_axiscls, y_minor_ticks)
         axis_label = kw.pop('y_axis_label', None)
         if axis_label:

@@ -85,9 +85,6 @@ define [
       @build_levels()
       @atm.bind_bokeh_events()
       @bind_bokeh_events()
-      for k, v of @renderers
-        if v.model.initialize_layout?
-          v.model.initialize_layout(@canvas.solver)
       @model.add_constraints(@canvas.solver)
       @listenTo(@canvas.solver, 'layout_update', @request_render)
 
@@ -287,6 +284,10 @@ define [
         last = frame
         elts = @get(side)
         for r in elts
+          if r.get('location') ? 'auto' == 'auto'
+            r.set('location', side, {'silent' : true})
+          if r.initialize_layout?
+            r.initialize_layout(solver)
           solver.add_constraint(new Constraint(new Expr(last[c0], [-1, r[c1]]), EQ), kiwi.Strength.strong)
           last = r
         padding = new LayoutBox.Model({solver: solver})

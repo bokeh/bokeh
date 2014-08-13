@@ -99,7 +99,7 @@ options = {
   dims: [1200, 600]
   xrange: [-130, -60]
   yrange: [25, 50]
-  xaxes: "bottom"
+  xaxes: "below"
   yaxes: "left"
   xgrid: false
   ygrid: false

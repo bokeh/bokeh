@@ -38,9 +38,9 @@ image3 = ImageURL(url=dict(value=url), x=200, y=-100, angle=0.0, anchor="bottom_
 image3_glyph = Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=image3)
 plot.renderers.append(image3_glyph)
 
-xaxis = LinearAxis(plot=plot, location="bottom")
+xaxis = LinearAxis(plot=plot)
 plot.below.append(xaxis)
-yaxis = LinearAxis(plot=plot, location="left")
+yaxis = LinearAxis(plot=plot)
 plot.left.append(yaxis)
 xgrid = Grid(plot=plot, dimension=0, ticker=xaxis.ticker)
 ygrid = Grid(plot=plot, dimension=1, ticker=yaxis.ticker)

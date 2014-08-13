@@ -69,9 +69,9 @@ line_t = Line(x="x", y="ty", line_color="red", line_width=2)
 line_t_glyph = Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=line_t)
 plot.renderers.append(line_t_glyph)
 
-xaxis = LinearAxis(plot=plot, location="bottom")
+xaxis = LinearAxis(plot=plot)
 plot.below.append(xaxis)
-yaxis = LinearAxis(plot=plot, location="left")
+yaxis = LinearAxis(plot=plot)
 plot.left.append(yaxis)
 
 xgrid = Grid(plot=plot, dimension=0, ticker=xaxis.ticker)

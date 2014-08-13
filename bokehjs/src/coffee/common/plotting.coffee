@@ -70,7 +70,6 @@ define [
     for val in _.zip(glyphspecs, nonselection_glyphspecs, sources)
       [spec, non_spec, source] = val
       glyph = GlyphFactory.Collection.create({
-        parent: plot
         data_source: source
         glyphspec: spec
         nonselection_glyphspec: non_spec
@@ -83,14 +82,13 @@ define [
     xaxes = []
     if xaxes_spec
       if xaxes_spec == true
-        xaxes_spec = ['bottom', 'top']
+        xaxes_spec = ['below', 'above']
       if not _.isArray(xaxes_spec)
         xaxes_spec = [xaxes_spec]
       if xaxes_spec[0]=="datetime"
         axis = DatetimeAxis.Collection.create(
           axis_label: 'x'
-          location: 'bottom'
-          parent: plot
+          location: 'below'
           plot: plot
         )
         xaxes.push(axis)
@@ -99,7 +97,6 @@ define [
           axis = CategoricalAxis.Collection.create(
             axis_label: 'x'
             location: loc
-            parent: plot
             plot: plot
           )
           xaxes.push(axis)
@@ -108,16 +105,15 @@ define [
           axis = LinearAxis.Collection.create(
             axis_label: 'x'
             location: loc
-            parent: plot
             plot: plot
           )
           xaxes.push(axis)
       for xax in xaxes
-        if xax.get('location') == "bottom"
+        if xax.get('location') == "below"
           below = plot.get('below')
           below.push(xax)
           plot.set('below', below)
-        else if xax.get('location') == "top"
+        else if xax.get('location') == "above"
           above = plot.get('above')
           above.push(xax)
           plot.set('above', above)
@@ -131,7 +127,6 @@ define [
         axis = DatetimeAxis.Collection.create(
           axis_label: 'y'
           location: 'left'
-          parent: plot
           plot: plot
         )
         yaxes.push(axis)
@@ -140,7 +135,6 @@ define [
           axis = CategoricalAxis.Collection.create(
             axis_label: 'y'
             location: loc
-            parent: plot
             plot: plot
           )
           yaxes.push(axis)
@@ -149,7 +143,6 @@ define [
           axis = LinearAxis.Collection.create(
             axis_label: 'y'
             location: loc
-            parent: plot
             plot: plot
           )
           yaxes.push(axis)
@@ -176,7 +169,6 @@ define [
     if xgrid and xaxes.length > 0
       grid = Grid.Collection.create(
         dimension: 0
-        parent: plot
         plot: plot
         ticker: xaxes[0].get('ticker')
       )
@@ -184,7 +176,6 @@ define [
     if ygrid and yaxes.length > 0
       grid = Grid.Collection.create(
         dimension: 1
-        parent: plot
         plot: plot
         ticker: yaxes[0].get('ticker')
       )
@@ -257,7 +248,6 @@ define [
       for g, idx in glyphs
         legends[legend + String(idx)] = [g]
       legend_renderer = Legend.Collection.create({
-        parent: plot
         plot: plot
         orientation: "top_right"
         legends: legends

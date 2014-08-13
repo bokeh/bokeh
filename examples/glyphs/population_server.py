@@ -38,9 +38,9 @@ def pyramid():
 
     plot = Plot(title=None, data_sources=[source_pyramid], x_range=xdr, y_range=ydr, plot_width=600, plot_height=600)
 
-    xaxis = LinearAxis(plot=plot, location="bottom")
+    xaxis = LinearAxis(plot=plot)
     plot.below.append(xaxis)
-    yaxis = LinearAxis(plot=plot, location="left", ticker=SingleIntervalTicker(interval=5))
+    yaxis = LinearAxis(plot=plot, ticker=SingleIntervalTicker(interval=5))
     plot.left.append(yaxis)
 
     xgrid = Grid(plot=plot, dimension=0, ticker=xaxis.ticker)
@@ -68,7 +68,7 @@ def population():
 
     plot = Plot(title=None, data_sources=[source_known, source_predicted], x_range=xdr, y_range=ydr, plot_width=800, plot_height=200)
 
-    xaxis = CategoricalAxis(plot=plot, location="bottom", major_label_orientation=pi/4)
+    xaxis = CategoricalAxis(plot=plot, major_label_orientation=pi/4)
 
     line_known = Line(x="x", y="y", line_color="violet", line_width=2)
     line_known_glyph = Glyph(data_source=source_known, xdata_range=xdr, ydata_range=ydr, glyph=line_known)
