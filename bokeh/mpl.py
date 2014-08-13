@@ -36,16 +36,6 @@ from .plotting import (curdoc, output_file, output_notebook, output_server,
 # Classes and functions
 #-----------------------------------------------------------------------------
 
-def _layout_axes(plot):
-    for r in plot.renderers:
-        if not isinstance(r, (LinearAxis, DatetimeAxis)):
-            continue
-        location = r.location
-        if location == "left": plot.left.append(r)
-        elif location == "right": plot.right.append(r)
-        elif location == "top": plot.above.append(r)
-        elif location == "bottom": plot.below.append(r)
-
 class BokehRenderer(Renderer):
 
     def __init__(self, pd_obj, xkcd):
@@ -89,7 +79,6 @@ class BokehRenderer(Renderer):
 
         # Simple or Grid plot setup
         if len(fig.axes) <= 1:
-            _layout_axes(self.plot)
             self.fig = self.plot
         else:
             # This list comprehension splits the plot.renderers list at the "marker"
@@ -104,10 +93,8 @@ class BokehRenderer(Renderer):
                     for x in _plot.renderers:
                         x.plot = _plot
                     plots.append(_plot)
-                    _layout_axes(_plot)
                 else:
                     plots.append(self.plot)
-                    _layout_axes(self.plot)
             (a, b, c) = fig.axes[0].get_geometry()
             p = np.array(plots)
             n = np.resize(p, (a, b))
@@ -121,7 +108,7 @@ class BokehRenderer(Renderer):
         self.grid = ax.get_xgridlines()[0]
 
         # Add axis
-        bxaxis = self.make_axis(ax.xaxis, "bottom", props['xscale'])
+        bxaxis = self.make_axis(ax.xaxis, "below", props['xscale'])
         byaxis = self.make_axis(ax.yaxis, "left", props['yscale'])
 
         # Add grids
@@ -287,15 +274,18 @@ class BokehRenderer(Renderer):
         #  * handle custom tick locations once that is added to bokehJS
         if scale == "linear":
             laxis = LinearAxis(plot=self.plot,
-                               location=location,
                                axis_label=ax.get_label_text())
         elif scale == "date":
             #formatter = DatetimeTickFormatter(formats=dict(months=["%b %Y"]))
             laxis = DatetimeAxis(plot=self.plot,
-                                 location=location,
                                  axis_label=ax.get_label_text(),
                                  #formatter=formatter
                                  )
+        if location == "left": self.plot.left.append(laxis)
+        elif location == "right": self.plot.right.append(laxis)
+        elif location == "above": self.plot.above.append(laxis)
+        elif location == "below": self.plot.below.append(laxis)
+
 
         # First get the label properties by getting an mpl.Text object
         #label = ax.get_label()
@@ -325,7 +315,7 @@ class BokehRenderer(Renderer):
         "Given a mpl axes instance, returns a Bokeh Grid object."
         lgrid = Grid(plot=self.plot,
                      dimension=dimension,
-                     axis=baxis,
+                     ticker=baxis.ticker,
                      grid_line_color=self.grid.get_color(),
                      grid_line_width=self.grid.get_linewidth())
         return lgrid

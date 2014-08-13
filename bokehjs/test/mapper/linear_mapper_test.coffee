@@ -1,7 +1,7 @@
 
 require [
   "common/base",
-  "mapper/1d/linear_mapper",
+  "mapper/linear_mapper",
   "range/range1d",
   "range/factor_range",
 ], (base, LinearMapper, Range1d, FactorRange) ->
