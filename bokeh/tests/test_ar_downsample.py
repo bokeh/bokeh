@@ -3,7 +3,7 @@ import bokeh.transforms.ar_downsample as ar_downsample
 from bokeh.transforms.ar_downsample import *
 from bokeh.objects import Range1d
 import types
-from test_utils import skipIfPy3
+from .test_utils import skipIfPy3
 
 # Only import in python 2...
 try:
