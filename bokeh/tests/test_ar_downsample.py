@@ -11,8 +11,10 @@ try:
     import abstract_rendering.core as ar
 except:
     import sys
-    if sys.version[0] == '2':
+    if sys.version[0] != '3':
         raise
+
+    
 
 
 # -------------- Process and Utility Tests ----------
@@ -142,7 +144,9 @@ class _ProxyTester(object):
 
 @skipIfPy3("AR does not run in python 3")
 class _ShaderTester(_ProxyTester):
-    reifyBase = ar.Shader
+    def __init__(self, *args):
+        super(_ProxyTester, self).__init__(*args)
+        self.reifyBase = ar.Shader
 
     def test_out(self):
         self.assertIn(self.proxy.out, ["image", "image_rgb", "poly_line"])
@@ -158,12 +162,16 @@ class _ShaderTester(_ProxyTester):
 
 @skipIfPy3("AR does not run in python 3")
 class _InfoTester(_ProxyTester):
-    reifyBase = types.FunctionType
+    def __init__(self, *args):
+        super(_ProxyTester, self).__init__(*args)
+        self.reifyBase = types.FunctionType
 
 
 @skipIfPy3("AR does not run in python 3")
 class _AggregatorTester(_ProxyTester):
-    reifyBase = ar.Aggregator
+    def __init__(self, *args):
+        super(_ProxyTester, self).__init__(*args)
+        self.reifyBase = ar.Aggregator
 
 
 # ----------- Shader Tests -------------------
