@@ -67,22 +67,6 @@ class ChartObject(object):
             by default at the time of chart instantiation, except in the case
             we call any of the chained methods available, in that case the
             value used with the chained method will overwrite the default one.
-
-        Attributes:
-            source (obj): datasource object for your plot,
-                initialized as a dummy None.
-            xdr (obj): x-associated datarange object for you plot,
-                initialized as a dummy None.
-            ydr (obj): y-associated datarange object for you plot,
-                initialized as a dummy None.
-            groups (list): to be filled with the incoming groups of data.
-                Useful for legend construction.
-            data (dict): to be filled with the incoming data and be passed
-                to the ColumnDataSource in each chart inherited class.
-                Needed for _set_And_get method.
-            attr (list): to be filled with the new attributes created after
-                loading the data dict.
-                Needed for _set_And_get method.
         """
         self.__title = title
         self.__xlabel = xlabel
@@ -96,14 +80,6 @@ class ChartObject(object):
         self.__filename = filename
         self.__server = server
         self.__notebook = notebook
-        # attr to be used by the inherited classes
-        self.source = None
-        self.xdr = None
-        self.ydr = None
-        self.groups = []
-        # attr used by the helper methods and the inherited class
-        self.data = dict()
-        self.attr = []
 
     def title(self, title):
         "title (str): the title of your plot."
@@ -272,19 +248,6 @@ class ChartObject(object):
         self.chart.show()
 
     # Some helper methods
-    def _set_and_get(self, prefix, val, content):
-        """Set a new attr and then get it to fill the self.data dict.
-        Keep track of the attributes created.
-
-        Args:
-            prefix (str): prefix of the new attribute
-            val (string): name of the new attribute
-            content (obj): content of the new attribute
-        """
-        setattr(self, prefix + val, content)
-        self.data[prefix + val] = getattr(self, prefix + val)
-        self.attr.append(prefix + val)
-
     def _chunker(self, l, n):
         "Yield successive n-sized chunks from l."
         for i in range(0, len(l), n):
