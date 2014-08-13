@@ -79,8 +79,8 @@ def make_tab(title, glyph):
     plot.below.append(xaxis)
     yaxis = LinearAxis(plot=plot, location="left")
     plot.left.append(yaxis)
-    xgrid = Grid(plot=plot, dimension=0, axis=xaxis)
-    ygrid = Grid(plot=plot, dimension=1, axis=yaxis)
+    xgrid = Grid(plot=plot, dimension=0, ticker=xaxis.ticker)
+    ygrid = Grid(plot=plot, dimension=1, ticker=yaxis.ticker)
     tab = Panel(child=plot, title=title)
     return tab
 

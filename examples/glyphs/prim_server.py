@@ -40,8 +40,8 @@ def make_plot(name, glyph):
     plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source], min_border=80)
     xaxis = LinearAxis(plot=plot, location="bottom")
     yaxis = LinearAxis(plot=plot, location="left")
-    xgrid = Grid(plot=plot, dimension=0, axis=xaxis)
-    ygrid = Grid(plot=plot, dimension=1, axis=yaxis)
+    xgrid = Grid(plot=plot, dimension=0, ticker=xaxis.ticker)
+    ygrid = Grid(plot=plot, dimension=1, ticker=yaxis.ticker)
 
     plot.renderers.append(glyph_renderer)
     plot.tools = [pantool, wheelzoomtool]

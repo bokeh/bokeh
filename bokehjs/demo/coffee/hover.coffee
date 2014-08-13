@@ -54,7 +54,7 @@ require(['main', 'underscore'], (Bokeh, _) ->
   }
 
   plot = Bokeh.Plotting.make_plot([scatter, text], data, options)
-  hover = _.find(plot.get_obj('tools'), (t) -> return t.type == "HoverTool")
+  hover = _.find(plot.get('tools'), (t) -> return t.type == "HoverTool")
   hover.set('tooltips', {
     "index"         : "$index"
     "color"         : "$color[hex,swatch]:color"

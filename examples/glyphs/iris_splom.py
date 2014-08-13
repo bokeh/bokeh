@@ -7,8 +7,8 @@ from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.glyphs import Circle, Text
 from bokeh.objects import (
-    ColumnDataSource, Glyph, Grid, GridPlot, LinearAxis, Plot,
-    DataRange1d, PanTool, WheelZoomTool
+    BasicTicker, ColumnDataSource, Glyph, Grid, GridPlot, LinearAxis,
+    DataRange1d, PanTool, Plot, WheelZoomTool
 )
 from bokeh.resources import INLINE
 from bokeh.sampledata.iris import flowers
@@ -43,10 +43,18 @@ def make_plot(xname, yname, xax=False, yax=False, text=None):
         x_range=xdr, y_range=ydr, data_sources=[source], background_fill="#efe8e2",
         border_fill='white', title="", min_border=2, border_symmetry=None,
         plot_width=250, plot_height=250)
-    xaxis = LinearAxis(plot=plot, dimension=0, location="bottom")
-    xgrid = Grid(plot=plot, dimension=0, axis=xaxis)
-    yaxis = LinearAxis(plot=plot, dimension=1, location="left")
-    ygrid = Grid(plot=plot, dimension=1, axis=yaxis)
+    if xax:
+        xaxis = LinearAxis(plot=plot, location="bottom")
+        plot.below.append(xaxis)
+        xgrid = Grid(plot=plot, dimension=0, ticker=xaxis.ticker)
+    else:
+        xgrid = Grid(plot=plot, dimension=0, ticker=BasicTicker())
+    if yax:
+        yaxis = LinearAxis(plot=plot, location="left")
+        plot.left.append(yaxis)
+        ygrid = Grid(plot=plot, dimension=1, ticker=yaxis.ticker)
+    else:
+        ygrid = Grid(plot=plot, dimension=1, ticker=BasicTicker())
     circle = Circle(x=xname, y=yname, fill_color="color", fill_alpha=0.2, size=4, line_color="color")
     circle_renderer = Glyph(
         data_source = source,

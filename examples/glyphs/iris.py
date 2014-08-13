@@ -41,8 +41,8 @@ xaxis = LinearAxis(plot=plot, location="bottom", axis_label="petal length", boun
 plot.below.append(xaxis)
 yaxis = LinearAxis(plot=plot, location="left", axis_label="petal width", bounds=(0,2.5), major_tick_in=0)
 plot.left.append(yaxis)
-xgrid = Grid(plot=plot, dimension=0, axis=xaxis)
-ygrid = Grid(plot=plot, dimension=1, axis=yaxis)
+xgrid = Grid(plot=plot, dimension=0, ticker=xaxis.ticker)
+ygrid = Grid(plot=plot, dimension=1, ticker=yaxis.ticker)
 
 pantool = PanTool(dimensions=["width", "height"])
 wheelzoomtool = WheelZoomTool(dimensions=["width", "height"])

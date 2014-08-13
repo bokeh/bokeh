@@ -297,7 +297,7 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
         axis_label = kw.pop('x_axis_label', None)
         if axis_label:
             xaxis.axis_label = axis_label
-        xgrid = Grid(plot=p, dimension=0, axis=xaxis)
+        xgrid = Grid(plot=p, dimension=0, ticker=xaxis.ticker)
         if x_axis_location == "top":
             p.above.append(xaxis)
         elif x_axis_location == "bottom":
@@ -312,7 +312,7 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
         axis_label = kw.pop('y_axis_label', None)
         if axis_label:
             yaxis.axis_label = axis_label
-        ygrid = Grid(plot=p, dimension=1, axis=yaxis)
+        ygrid = Grid(plot=p, dimension=1, ticker=yaxis.ticker)
         if y_axis_location == "left":
             p.left.append(yaxis)
         elif y_axis_location == "right":

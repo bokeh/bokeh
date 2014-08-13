@@ -43,8 +43,8 @@ def pyramid():
     yaxis = LinearAxis(plot=plot, location="left", ticker=SingleIntervalTicker(interval=5))
     plot.left.append(yaxis)
 
-    xgrid = Grid(plot=plot, dimension=0, axis=xaxis)
-    ygrid = Grid(plot=plot, dimension=1, axis=yaxis)
+    xgrid = Grid(plot=plot, dimension=0, ticker=xaxis.ticker)
+    ygrid = Grid(plot=plot, dimension=1, ticker=yaxis.ticker)
 
     male_quad = Quad(left="male", right=0, bottom="groups", top="shifted", fill_color="#3B8686")
     male_quad_glyph = Glyph(data_source=source_pyramid, xdata_range=xdr, ydata_range=ydr, glyph=male_quad)
