@@ -3,6 +3,7 @@ from ..plotting import curdoc
 from ..plot_object import PlotObject
 from ..objects import ServerDataSource,  Glyph, Range1d
 from bokeh.properties import (Instance, Any)
+import numpy as np
 
 import logging
 logger = logging.getLogger(__file__)
@@ -235,26 +236,35 @@ def downsample(data, transform, plot_state):
                                shaper, colMajor=True)
     bounds = glyphs.bounds()
 
-    scale_x = _span(plot_state['data_x'])/float(_span(plot_state['screen_x']))
-    scale_y = _span(plot_state['data_y'])/float(_span(plot_state['screen_y']))
+    
+    screen_x_span = float(_span(plot_state['screen_x']))
+    screen_y_span = float(_span(plot_state['screen_y']))
 
     # How big would a full plot of the data be at the current resolution?
-    if scale_x == 0 or scale_y == 0:
+    if screen_x_span == 0 or screen_y_span == 0:
         # If scale is zero for either axis, just zoom fit
         plot_size = [_span(plot_state['screen_x']),
                      _span(plot_state['screen_y'])]
         scale_x = 1
         scale_y = 1
     else:
+        scale_x = _span(plot_state['data_x'])/screen_x_span
+        scale_y = _span(plot_state['data_y'])/screen_y_span
         plot_size = [bounds[2]/scale_x, bounds[3]/scale_y]
 
     ivt = ar.zoom_fit(plot_size, bounds, balanced=False)
+    (tx,ty,sx,sy) = ivt
 
-    image = ar.render(glyphs,
-                      transform['info'].reify(),
-                      transform['agg'].reify(),
-                      transform['shader'].reify(),
-                      plot_size, ivt)
+    shader = transform['shader'].reify()
+    if sx == 0 or sy == 0:
+        # If client canvas has no size yet, just make a 1,1 array with a default value 
+        image = np.array([[np.nan]]) 
+    else:
+        image = ar.render(glyphs,
+                          transform['info'].reify(),
+                          transform['agg'].reify(),
+                          shader,
+                          plot_size, ivt)
 
     (xmin, xmax) = (xcol.min(), xcol.max())
     (ymin, ymax) = (ycol.min(), ycol.max())

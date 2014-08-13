@@ -5,34 +5,39 @@ define [
   "backbone"
 ], (HasParent, continuum_view, build_views, Backbone) ->
   ContinuumView = continuum_view.View
-  class HBoxView extends ContinuumView
-    tag : "div"
+  class VBoxFormView extends ContinuumView
+    tagName : "form"
     attributes:
-      class : "bk-hbox"
+      class : "bk-widget-form"
+      role : "form"
+
     initialize : (options) ->
       super(options)
       @views = {}
       @render()
-      @listenTo(@model, 'change', @render)
+
     render: () ->
-      children = @mget('children')
+      children = @mget_obj('children')
       build_views(@views, children)
       for own key, val of @views
         val.$el.detach()
       @$el.empty()
       for child in children
+        @$el.append("<br/")
         @$el.append(@views[child.id].$el)
 
-  class HBox extends HasParent
-    type : "HBox"
-    default_view : HBoxView
+  class VBoxForm extends HasParent
+    type : "VBoxForm"
+    default_view : VBoxFormView
     defaults : () ->
-      return {'children' : []}
-  class HBoxes extends Backbone.Collection
-    model : HBox
-  hboxes = new HBoxes()
+      defaults =
+        children : []
+      return defaults
+  class VBoxForms extends Backbone.Collection
+    model : VBoxForm
+  vboxforms = new VBoxForms()
   return {
-    "Model" : HBox
-    "Collection" : hboxes
-    "View" : HBoxView
+    "Model" : VBoxForm
+    "Collection" : vboxforms
+    "View" : VBoxFormView
   }

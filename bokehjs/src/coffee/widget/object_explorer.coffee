@@ -159,7 +159,7 @@ define [
             obj = @resolve_ref(ref)
 
             if obj instanceof ColumnDataSource.Model and @mget("data_widget")?
-              @mget_obj("data_widget").set_obj("source", obj)
+              @mget("data_widget").set_obj("source", obj)
 
       tree.jstree
         core:

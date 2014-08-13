@@ -10,27 +10,27 @@ define [
  
     #TODO: There are glyph sub-type-vs-resample_op concordance issues...
     setup_server_data : () ->
-      serversource = @mget_obj('server_data_source')
+      serversource = @mget('server_data_source')
       # hack, call set data, becuase there are some attrs that we need
       # that are in it
-      data = _.extend({}, @mget_obj('data_source').get('data'), serversource.get('data'))
-      @mget_obj('data_source').set('data', data)
+      data = _.extend({}, @mget('data_source').get('data'), serversource.get('data'))
+      @mget('data_source').set('data', data)
       @set_data(false)
 
       transform_params = serversource.attributes['transform']
       resample_op = transform_params['resample']  
-      x_range = @plot_view.view_state.get('inner_range_horizontal')
-      y_range = @plot_view.view_state.get('inner_range_vertical')
+      x_range = @plot_view.frame.get('inner_range_horizontal')
+      y_range = @plot_view.frame.get('inner_range_vertical')
 
       #TODO: This is weird.  For example, inner_range_horizontal is passed in twice.  Hugo or Joseph should clean it up
       if (resample_op == 'line1d')
         domain = transform_params['domain']
         if domain == 'x'
           serversource.listen_for_line1d_updates(
-            @mget_obj('data_source'),
+            @mget('data_source'),
             x_range,  y_range,
-            @plot_view.x_range,
-            @plot_view.view_state.get('inner_range_horizontal'),
+            @plot_view.x_range, @plot_view.y_range,
+            x_range,
             @glyph_props.y.field,
             @glyph_props.x.field,
             [@glyph_props.y.field],
@@ -40,7 +40,7 @@ define [
           throw new Error("Domains other than 'x' not supported yet.")
       else if (resample_op == 'heatmap')
         serversource.listen_for_heatmap_updates(
-           @mget_obj('data_source'),
+           @mget('data_source'),
            x_range,  y_range,
            @plot_view.x_range,
            @plot_view.y_range,
@@ -49,7 +49,7 @@ define [
       else if (resample_op == 'abstract rendering')
         serversource.listen_for_ar_updates(
            @plot_view
-           @mget_obj('data_source'), 
+           @mget('data_source'), 
              #TODO: Joseph -- Get rid of the next four params because we're passing in the plot_view
            x_range,  y_range,
            @plot_view.x_range,
@@ -96,7 +96,7 @@ define [
       return glyph_props
 
     set_data: (request_render=true) ->
-      source = @mget_obj('data_source')
+      source = @mget('data_source')
 
       for field in @_fields
         if field.indexOf(":") > -1
@@ -146,7 +146,7 @@ define [
       ctx.save()
 
       do_render = (ctx, indices, glyph_props) =>
-        source = @mget_obj('data_source')
+        source = @mget('data_source')
 
         if @have_new_data
           if glyph_props.fill_properties? and glyph_props.fill_properties.do_fill
@@ -158,7 +158,7 @@ define [
 
         @_render(ctx, indices, glyph_props)
 
-      selected = @mget_obj('data_source').get('selected')
+      selected = @mget('data_source').get('selected')
 
       if selected and selected.length and @have_selection_props
 
@@ -194,7 +194,7 @@ define [
 
     bind_bokeh_events: () ->
       @listenTo(@model, 'change', @request_render)
-      @listenTo(@mget_obj('data_source'), 'change', @set_data)
+      @listenTo(@mget('data_source'), 'change', @set_data)
 
     distance_vector: (pt, span_prop_name, position, dilate=false) ->
       """ returns an array """
@@ -204,7 +204,7 @@ define [
       if      pt == 'x' then mapper = @plot_view.xmapper
       else if pt == 'y' then mapper = @plot_view.ymapper
 
-      source = @mget_obj('data_source')
+      source = @mget('data_source')
       local_select = (prop_name) =>
         return @glyph_props.source_v_select(prop_name, source)
       span = local_select(span_prop_name)

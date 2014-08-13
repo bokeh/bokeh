@@ -32,7 +32,7 @@ define [
       return this
 
     render_plot : () ->
-      plot = @mget_obj('plot')
+      plot = @mget('plot')
       plot_view = new plot.default_view(model : plot)
       @$el.find('.bk-plot').empty()
       @$el.find('.bk-plot').append(plot_view.$el)
@@ -108,22 +108,22 @@ define [
 
     render_plot_selector : () ->
       node = @$('.bk-plot-selector')
-      model = @mget_obj('plot_selector')
+      model = @mget('plot_selector')
       @render_selector(node, model)
 
     render_x_selector : () ->
       node = @$('.bk-x-selector')
-      model = @mget_obj('x_selector')
+      model = @mget('x_selector')
       @render_selector(node, model)
 
     render_y_selector : () ->
       node = @$('.bk-y-selector')
-      model = @mget_obj('y_selector')
+      model = @mget('y_selector')
       @render_selector(node, model)
 
     render_agg_selector : () ->
       node = @$('.bk-agg-selector')
-      model = @mget_obj('agg_selector')
+      model = @mget('agg_selector')
       @render_selector(node, model)
 
   class ColumnsView extends Backbone.View

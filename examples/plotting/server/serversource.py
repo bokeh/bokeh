@@ -26,4 +26,4 @@ line('date', 'close',
      color='#A6CEE3', tools="pan,wheel_zoom,box_zoom,reset,previewsave",
      source=source,
      legend='AAPL')
-#show()
+show()

@@ -20,7 +20,7 @@ define [
       super()
 
     build_children: () ->
-      created_views = build_views(@views, @mget_obj('children'), {})
+      created_views = build_views(@views, @mget('children'), {})
       window.pc_created_views = created_views
       window.pc_views = @views
       return null
@@ -35,7 +35,7 @@ define [
 
     removeplot: (e) =>
       plotnum = parseInt($(e.currentTarget).parent().attr('data-plot_num'))
-      s_pc = @model.resolve_ref(@mget('children')[plotnum])
+      s_pc = @mget('children')[plotnum]
       view = @views[s_pc.get('id')]
       view.remove();
       newchildren = (x for x in @mget('children') when x.id != view.model.id)

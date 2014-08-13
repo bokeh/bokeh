@@ -47,8 +47,8 @@ options = {
   title: "Scatter Demo"
   dims: [600, 600]
   xrange: xdr
-  xaxes: "min"
-  yaxes: "min"
+  xaxes: "bottom"
+  yaxes: "left"
   tools: true
   legend: false
 }

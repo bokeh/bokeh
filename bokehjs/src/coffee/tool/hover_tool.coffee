@@ -104,10 +104,10 @@ define [
       datasources = {}
       datasource_selections = {}
       for renderer in @mget('renderers')
-        datasource = renderer.get_obj('data_source')
+        datasource = renderer.get('data_source')
         datasources[datasource.id] = datasource
       for renderer in @mget('renderers')
-        datasource_id = renderer.get_obj('data_source').id
+        datasource_id = renderer.get('data_source').id
         _.setdefault(datasource_selections, datasource_id, [])
         selected = @plot_view.renderers[renderer.id].hit_test(geometry)
         ds = datasources[datasource_id]
@@ -204,7 +204,7 @@ define [
     initialize: (attrs, options) ->
       super(attrs, options)
       names = @get('names')
-      all_renderers = @get_obj('plot').get_obj('renderers')
+      all_renderers = @get('plot').get('renderers')
       renderers = (r for r in all_renderers when r.type == "Glyph")
       if names.length > 0
         renderers = (r for r in renderers when names.indexOf(r.get('name')) >= 0)

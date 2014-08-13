@@ -9,7 +9,7 @@ define [
     type: 'DataFactorRange'
 
     _get_values: () =>
-      columns = (@get_obj('data_source').get_column(x) for x in @get('columns'))
+      columns = (@get('data_source').get_column(x) for x in @get('columns'))
       columns = _.reduce(columns, ((x, y) -> return x.concat(y)), [])
       temp = {}
       for val in columns
@@ -23,7 +23,7 @@ define [
       @register_property
       @register_property('values', @_get_values, true)
       @add_dependencies('values', this, ['data_source', 'columns'])
-      @add_dependencies('values', @get_obj('data_source'),
+      @add_dependencies('values', @get('data_source'),
         ['data_source', 'columns'])
 
     defaults: () ->
