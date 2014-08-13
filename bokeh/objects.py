@@ -364,7 +364,7 @@ class Plot(Widget):
     y_range = Instance(Range)
     x_mapper_type = String('auto')
     y_mapper_type = String('auto')
-    png = String('')
+
     title = String('')
     title_props = Include(TextProps, prefix="title")
     outline_props = Include(LineProps, prefix="outline")
@@ -379,22 +379,12 @@ class Plot(Widget):
     above = List(Instance(PlotObject))
     below = List(Instance(PlotObject))
 
-    # TODO: These don't appear in the CS source, but are created by mpl.py, so
-    # I'm leaving them here for initial compatibility testing.
-    # axes = List()
-
-    # TODO: How do we want to handle syncing of the different layers?
-    # image = List()
-    # underlay = List()
-    # glyph = List()
-    #
-    # annotation = List()
-
     plot_height = Int(600)
     plot_width = Int(600)
 
     background_fill = Color("white")
     border_fill = Color("white")
+
     min_border_top = Int(50)
     min_border_bottom = Int(50)
     min_border_left = Int(50)

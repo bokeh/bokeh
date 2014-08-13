@@ -3,9 +3,10 @@ define [
   "backbone",
   "./layout_box",
   "mapper/linear_mapper",
+  "mapper/log_mapper",
   "mapper/categorical_mapper",
   "mapper/grid_mapper",
-], (_, Backbone, LayoutBox, LinearMapper, CategoricalMapper, GridMapper) ->
+], (_, Backbone, LayoutBox, LinearMapper, LogMapper, CategoricalMapper, GridMapper) ->
 
   class CartesianFrame extends LayoutBox.Model
     type: 'CartesianFrame'
@@ -24,12 +25,12 @@ define [
       @add_dependencies('y_ranges', this, ['y_range', 'extra_y_ranges'])
 
       @register_property('x_mappers',
-          () -> @_get_mappers(@get('x_ranges'), @get('h_range'))
+          () -> @_get_mappers('x', @get('x_ranges'), @get('h_range'))
         , true)
       @add_dependencies('x_ranges', this, ['x_ranges', 'h_range'])
 
       @register_property('y_mappers',
-          () -> @_get_mappers(@get('y_ranges'), @get('v_range'))
+          () -> @_get_mappers('y', @get('y_ranges'), @get('v_range'))
         , true)
       @add_dependencies('y_ranges', this, ['y_ranges', 'v_range'])
 
@@ -98,11 +99,14 @@ define [
           ranges[name] = range
       return ranges
 
-    _get_mappers: (ranges, frame_range) ->
+    _get_mappers: (dim, ranges, frame_range) ->
       mappers = {}
       for name, range of ranges
         if range.type == "Range1d" or range.type == "DataRange1d"
-          mapper_type = LinearMapper.Model
+          if @get("#{dim}_mapper_type") == "log"
+            mapper_type = LogMapper.Model
+          else
+            mapper_type = LinearMapper.Model
         else if range.type == "FactorRange"
           mapper_type = CategoricalMapper.Model
         else

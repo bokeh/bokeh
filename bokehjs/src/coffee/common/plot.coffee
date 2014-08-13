@@ -252,7 +252,9 @@ define [
       canvas = @get('canvas')
       frame = new CartesianFrame.Model({
         x_range: @get('x_range'),
-        y_range: @get('y_range')
+        x_mapper_type: @get('x_mapper_type'),
+        y_range: @get('y_range'),
+        y_mapper_type: @get('y_mapper_type'),
         solver: solver
       })
       @set('frame', frame)
@@ -322,6 +324,8 @@ define [
         tools: [],
         h_symmetry: true,
         v_symmetry: false,
+        x_mapper_type: 'auto',
+        y_mapper_type: 'auto',
         plot_width: 600,
         plot_height: 600,
         title: 'Plot',
