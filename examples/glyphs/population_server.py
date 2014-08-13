@@ -69,6 +69,7 @@ def population():
     plot = Plot(title=None, data_sources=[source_known, source_predicted], x_range=xdr, y_range=ydr, plot_width=800, plot_height=200)
 
     xaxis = CategoricalAxis(plot=plot, major_label_orientation=pi/4)
+    plot.below.append(xaxis)
 
     line_known = Line(x="x", y="y", line_color="violet", line_width=2)
     line_known_glyph = Glyph(data_source=source_known, xdata_range=xdr, ydata_range=ydr, glyph=line_known)
