@@ -48,7 +48,7 @@ options = {
   dims: [600, 600]
   xrange: [-2.1, 2.1]
   yrange: [-2.1, 2.1]
-  xaxes: "bottom"
+  xaxes: "below"
   yaxes: "left"
   tools: true
   legend: false
