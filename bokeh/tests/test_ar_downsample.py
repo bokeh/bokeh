@@ -5,17 +5,15 @@ from bokeh.objects import Range1d
 import types
 import sys
 from .test_utils import skipIfPy3
+from ..utils import is_py3
 
 # Only import in python 2...
 try:
     import abstract_rendering.glyphset as glyphset
     import abstract_rendering.core as ar
 except:
-    import sys
-    if sys.version[0] != '3':
+    if not is_py3():
         raise
-
-    
 
 
 # -------------- Process and Utility Tests ----------
