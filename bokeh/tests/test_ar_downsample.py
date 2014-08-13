@@ -3,13 +3,16 @@ import bokeh.transforms.ar_downsample as ar_downsample
 from bokeh.transforms.ar_downsample import *
 from bokeh.objects import Range1d
 import types
+import sys
 from .test_utils import skipIfPy3
 
 # Only import in python 2...
 try:
     import abstract_rendering.glyphset as glyphset
     import abstract_rendering.core as ar
+    print "IMPORTED MODULE AR -----------------------------"
 except:
+    print "IMPORTED MODULE AR FAIL-----------------------------"
     import sys
     if sys.version[0] != '3':
         raise
@@ -146,7 +149,9 @@ class _ProxyTester(object):
 class _ShaderTester(_ProxyTester):
     def __init__(self, *args):
         super(_ProxyTester, self).__init__(*args)
-        self.reifyBase = ar.Shader
+        if sys.modules.has_key('abstract_rendering'):
+            print "FOUND MODULE AR ----------------------"
+            self.reifyBase = ar.Shader
 
     def test_out(self):
         self.assertIn(self.proxy.out, ["image", "image_rgb", "poly_line"])
@@ -171,7 +176,8 @@ class _InfoTester(_ProxyTester):
 class _AggregatorTester(_ProxyTester):
     def __init__(self, *args):
         super(_ProxyTester, self).__init__(*args)
-        self.reifyBase = ar.Aggregator
+        if sys.modules.has_key('abstract_rendering'):
+            self.reifyBase = ar.Aggregator
 
 
 # ----------- Shader Tests -------------------
