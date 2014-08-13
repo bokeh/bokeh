@@ -20,8 +20,10 @@ except:
 
 def sort_init_first(_, a, b):
     if "_init_" in a: return -1
-    if "_init_" in b: return 1
-    return cmp(a, b)
+    elif "_init_" in b: return 1
+    elif a > b: return -1
+    elif a < b: return 1
+    else: return 0
 
 unittest.TestLoader.sortTestMethodsUsing = sort_init_first
 
