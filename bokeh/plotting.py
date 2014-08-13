@@ -241,7 +241,7 @@ def show(obj=None, browser=None, new="tab", url=None):
 
     controller = browserlib.get_browser_controller(browser=browser)
     if obj is None:
-        plot = curplot()
+        plot = curdoc()
     else:
         plot = obj
     if not plot:
