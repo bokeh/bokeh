@@ -94,10 +94,12 @@ define [
 
   'transforms/binarysegment'
   'transforms/const'
+  'transforms/contour'
   'transforms/count'
   'transforms/cuberoot'
   'transforms/id'
   'transforms/interpolate'
+  'transforms/interpolatecolor'
   'transforms/seq'
   'transforms/spread'
 ], (_, require) ->
@@ -200,10 +202,12 @@ define [
 
     BinarySegment:            'transforms/binarysegment'
     Const:                    'transforms/const'
+    Contour:                  'transforms/contour'
     Count:                    'transforms/count'
     Cuberoot:                 'transforms/cuberoot'
     Id:                       'transforms/id'
     Interpolate:              'transforms/interpolate'
+    InterpolateColor:         'transforms/interpolatecolor'
     Seq:                      'transforms/seq'
     Spread:                   'transforms/spread'
   mod_cache = {}
