@@ -234,7 +234,7 @@ class Chart(object):
 
         self._append_glyph(source, segment)
 
-    def make_line(self, x, y, color):
+    def make_line(self, source, x, y, color):
         """Creates a line glyph with specified color,
         and appends it to the plot.renderers list.
 
@@ -244,9 +244,9 @@ class Chart(object):
         """
         line = Line(x=x, y=y, line_color=color)
 
-        self._append_glyph(line)
+        self._append_glyph(source, line)
 
-    def make_quad(self, top, bottom, left, right, color, line_color):
+    def make_quad(self, source, top, bottom, left, right, color, line_color):
         """Creates a quad glyph with specified color,
         and appends it to the plot.renderers list.
 
@@ -257,7 +257,7 @@ class Chart(object):
         quad = Quad(top=top, bottom=bottom, left=left, right=right,
                     fill_color=color, fill_alpha=0.7, line_color=line_color, line_alpha=1.0)
 
-        self._append_glyph(quad)
+        self._append_glyph(source, quad)
 
     def make_rect(self, source, x, y, width, height, color, line_color, line_width):
         """Creates a rect glyph with specified color,
