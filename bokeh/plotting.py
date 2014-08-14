@@ -592,7 +592,7 @@ def xaxis():
     p = curplot()
     if p is None:
         return None
-    axis = [obj for obj in p.renderers if isinstance(obj, Axis) and obj.location in ("top", "bottom")]
+    axis = [obj for obj in p.above + p.below if isinstance(obj, Axis)]
     return _list_attr_splat(axis)
 
 def yaxis():
@@ -604,7 +604,7 @@ def yaxis():
     p = curplot()
     if p is None:
         return None
-    axis = [obj for obj in p.renderers if isinstance(obj, Axis) and obj.location in ("left", "right")]
+    axis = [obj for obj in p.left + p.right if isinstance(obj, Axis)]
     return _list_attr_splat(axis)
 
 def axis():
