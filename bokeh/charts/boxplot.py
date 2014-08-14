@@ -194,6 +194,9 @@ class BoxPlot(ChartObject):
         upper_height_boxes = []
         lower_center_boxes = []
         lower_height_boxes = []
+        out_x, out_y, out_color = ([], [], [])
+
+        colors = self._set_colors(self.groups)
 
         for i, level in enumerate(self.groups):
             # Compute quantiles, center points, heights, IQR, etc.
@@ -220,16 +223,15 @@ class BoxPlot(ChartObject):
             # Store indices of outliers as list
             outliers = np.where((self.value[level] > upper) | (self.value[level] < lower))[0]
             out = self.value[level][outliers]
-            out_x, out_y = ([], [])
             for o in out:
                 out_x.append(level)
                 out_y.append(o)
-
-            self._set_and_get(self.data_scatter, self.attr_scatter, "out_x", level, out_x)
-            self._set_and_get(self.data_scatter, self.attr_scatter, "out_y", level, out_y)
+                out_color.append(colors[i])
 
         # Store outside the loop
-        self.colors = self._set_colors(self.groups)
+        self._set_and_get(self.data_scatter, self.attr_scatter, "out_x", "", out_x)
+        self._set_and_get(self.data_scatter, self.attr_scatter, "out_y", "", out_y)
+        self._set_and_get(self.data_scatter, self.attr_scatter, "colors", "", out_color)
 
         self._set_and_get(self.data_segment, self.attr_segment, "q0", "", q0_points)
         self._set_and_get(self.data_segment, self.attr_segment, "lower", "", lower_points)
@@ -242,7 +244,7 @@ class BoxPlot(ChartObject):
         self._set_and_get(self.data_rect, self.attr_rect, "upper_height_boxes", "", upper_height_boxes)
         self._set_and_get(self.data_rect, self.attr_rect, "lower_center_boxes", "", lower_center_boxes)
         self._set_and_get(self.data_rect, self.attr_rect, "lower_height_boxes", "", lower_height_boxes)
-        self._set_and_get(self.data_rect, self.attr_rect, "colors", "", self.colors)
+        self._set_and_get(self.data_rect, self.attr_rect, "colors", "", colors)
 
     def get_source(self):
         """Get the boxplot data dict into the ColumnDataSource and
@@ -257,9 +259,9 @@ class BoxPlot(ChartObject):
 
         ## Expand min/max to encompass outliers
         if self.outliers:
-            outs = self.attr_scatter[1::2]
-            start_out_y = min(min(self.data_scatter[x]) for x in outs if len(self.data_scatter[x]) > 0)
-            end_out_y = max(max(self.data_scatter[x]) for x in outs if len(self.data_scatter[x]) > 0)
+            start_out_y = min(self.data_scatter[self.attr_scatter[1]])
+            end_out_y = max(self.data_scatter[self.attr_scatter[1]])
+            # it could be no outliers in some sides...
             start_y = min(start_y, start_out_y)
             end_y = max(end_y, end_out_y)
         self.ydr = Range1d(start=start_y - 0.1 * (end_y-start_y), end=end_y + 0.1 * (end_y-start_y))
@@ -276,14 +278,11 @@ class BoxPlot(ChartObject):
         self.chart.make_rect(self.source_rect, "groups", self.attr_rect[2], "width", self.attr_rect[3], self.attr_rect[6], "black", None)
         self.chart.make_rect(self.source_rect, "groups", self.attr_rect[4], "width", self.attr_rect[5], self.attr_rect[6], "black", None)
 
-        self.duplet = list(self._chunker(self.attr_scatter, 2))
-
-        for i, duplet in enumerate(self.duplet):
-            if self.outliers:
-                self.chart.make_scatter(self.source_scatter, duplet[0], duplet[1], self.marker, self.colors[i])
+        if self.outliers:
+            self.chart.make_scatter(self.source_scatter, self.attr_scatter[0], self.attr_scatter[1], self.marker, self.attr_scatter[2])
 
         # We need to manually select the proper glyphs to be rendered as legends
-        indexes = [5, 6, 7]  # 1st rect, 2nd rect, 3rd rect
+        indexes = [3, 4, 5]  # 1st rect, 2nd rect, 3rd rect
         self.chart.glyphs = [self.chart.glyphs[i] for i in indexes]
 
     def show(self):
