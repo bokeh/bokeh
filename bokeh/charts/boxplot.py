@@ -133,6 +133,7 @@ class BoxPlot(ChartObject):
         self.attr_rect = []
         self.data_scatter = dict()
         self.attr_scatter = []
+        self.data_legend = dict()
         super(BoxPlot, self).__init__(title, xlabel, ylabel, legend,
                                       xscale, yscale, width, height,
                                       tools, filename, server, notebook)
@@ -183,6 +184,12 @@ class BoxPlot(ChartObject):
         self.data_rect["groups"] = self.groups
         self.data_rect["width"] = [0.8] * len(self.groups)
 
+        # self.data_scatter does not need references to groups now,
+        # they will be added later.
+
+        # add group to the self.data_legend dict
+        self.data_legend["groups"] = self.groups
+
         # all the list we are going to use to save calculated values
         q0_points = []
         q2_points = []
@@ -196,7 +203,7 @@ class BoxPlot(ChartObject):
         lower_height_boxes = []
         out_x, out_y, out_color = ([], [], [])
 
-        colors = self._set_colors(self.groups)
+        self.palette = self._set_colors(self.groups)
 
         for i, level in enumerate(self.groups):
             # Compute quantiles, center points, heights, IQR, etc.
@@ -226,7 +233,7 @@ class BoxPlot(ChartObject):
             for o in out:
                 out_x.append(level)
                 out_y.append(o)
-                out_color.append(colors[i])
+                out_color.append(self.palette[i])
 
         # Store outside the loop
         self._set_and_get(self.data_scatter, self.attr_scatter, "out_x", "", out_x)
@@ -238,13 +245,20 @@ class BoxPlot(ChartObject):
         self._set_and_get(self.data_segment, self.attr_segment, "q2", "", q2_points)
         self._set_and_get(self.data_segment, self.attr_segment, "upper", "", upper_points)
 
-        self._set_and_get(self.data_rect, self.attr_rect, "iqr_centers", "", iqr_centers)
-        self._set_and_get(self.data_rect, self.attr_rect, "iqr_lengths", "", iqr_lengths)
-        self._set_and_get(self.data_rect, self.attr_rect, "upper_center_boxes", "", upper_center_boxes)
-        self._set_and_get(self.data_rect, self.attr_rect, "upper_height_boxes", "", upper_height_boxes)
-        self._set_and_get(self.data_rect, self.attr_rect, "lower_center_boxes", "", lower_center_boxes)
-        self._set_and_get(self.data_rect, self.attr_rect, "lower_height_boxes", "", lower_height_boxes)
-        self._set_and_get(self.data_rect, self.attr_rect, "colors", "", colors)
+        self._set_and_get(self.data_rect, self.attr_rect,
+                          "iqr_centers", "", iqr_centers)
+        self._set_and_get(self.data_rect, self.attr_rect,
+                          "iqr_lengths", "", iqr_lengths)
+        self._set_and_get(self.data_rect, self.attr_rect,
+                          "upper_center_boxes", "", upper_center_boxes)
+        self._set_and_get(self.data_rect, self.attr_rect,
+                          "upper_height_boxes", "", upper_height_boxes)
+        self._set_and_get(self.data_rect, self.attr_rect,
+                          "lower_center_boxes", "", lower_center_boxes)
+        self._set_and_get(self.data_rect, self.attr_rect,
+                          "lower_height_boxes", "", lower_height_boxes)
+        self._set_and_get(self.data_rect, self.attr_rect,
+                          "colors", "", self.palette)
 
     def get_source(self):
         """Get the boxplot data dict into the ColumnDataSource and
@@ -252,6 +266,7 @@ class BoxPlot(ChartObject):
         self.source_segment = ColumnDataSource(self.data_segment)
         self.source_scatter = ColumnDataSource(self.data_scatter)
         self.source_rect = ColumnDataSource(self.data_rect)
+        self.source_legend = ColumnDataSource(self.data_legend)
         self.xdr = FactorRange(factors=self.source_segment.data["groups"])
 
         start_y = min(self.data_segment[self.attr_segment[1]])
@@ -264,25 +279,36 @@ class BoxPlot(ChartObject):
             # it could be no outliers in some sides...
             start_y = min(start_y, start_out_y)
             end_y = max(end_y, end_out_y)
-        self.ydr = Range1d(start=start_y - 0.1 * (end_y-start_y), end=end_y + 0.1 * (end_y-start_y))
+        self.ydr = Range1d(start=start_y - 0.1 * (end_y - start_y),
+                           end=end_y + 0.1 * (end_y - start_y))
 
     def draw(self):
         """Use a selected marker glyph to display the points, segments to
         display the iqr and rects to display the boxes, taking as reference
         points the data loaded at the ColumnDataSurce.
         """
-        self.chart.make_segment(self.source_segment, "groups", self.attr_segment[1], "groups", self.attr_segment[0], "black", 2)
-        self.chart.make_segment(self.source_segment, "groups", self.attr_segment[2], "groups", self.attr_segment[3], "black", 2)
+        self.chart.make_segment(self.source_segment, "groups", self.attr_segment[1],
+                                "groups", self.attr_segment[0], "black", 2)
+        self.chart.make_segment(self.source_segment, "groups", self.attr_segment[2],
+                                "groups", self.attr_segment[3], "black", 2)
 
-        self.chart.make_rect(self.source_rect, "groups", self.attr_rect[0], "width", self.attr_rect[1], None, "black", 2)
-        self.chart.make_rect(self.source_rect, "groups", self.attr_rect[2], "width", self.attr_rect[3], self.attr_rect[6], "black", None)
-        self.chart.make_rect(self.source_rect, "groups", self.attr_rect[4], "width", self.attr_rect[5], self.attr_rect[6], "black", None)
+        self.chart.make_rect(self.source_rect, "groups", self.attr_rect[0],
+                             "width", self.attr_rect[1], None, "black", 2)
+        self.chart.make_rect(self.source_rect, "groups", self.attr_rect[2],
+                             "width", self.attr_rect[3], self.attr_rect[6], "black", None)
+        self.chart.make_rect(self.source_rect, "groups", self.attr_rect[4],
+                             "width", self.attr_rect[5], self.attr_rect[6], "black", None)
 
         if self.outliers:
-            self.chart.make_scatter(self.source_scatter, self.attr_scatter[0], self.attr_scatter[1], self.marker, self.attr_scatter[2])
+            self.chart.make_scatter(self.source_scatter, self.attr_scatter[0],
+                                    self.attr_scatter[1], self.marker, self.attr_scatter[2])
 
+        # We build the legend here using dummy glyphs
+        for i, level in enumerate(self.groups):
+            self.chart.make_rect(self.source_legend, "groups", None, None, None,
+                                 self.palette[i], "black", None)
         # We need to manually select the proper glyphs to be rendered as legends
-        indexes = [3, 4, 5]  # 1st rect, 2nd rect, 3rd rect
+        indexes = [6, 7, 8]  # 1st group, 2nd group, 3rd group
         self.chart.glyphs = [self.chart.glyphs[i] for i in indexes]
 
     def show(self):
@@ -305,7 +331,10 @@ class BoxPlot(ChartObject):
         # we filled the source and ranges with the calculated data
         self.get_source()
         # we dinamically inject the source and ranges into the plot
-        self.add_data_plot(self.xdr, self.ydr, [self.source_segment, self.source_rect, self.source_scatter])
+        self.add_data_plot(self.xdr, self.ydr, [self.source_segment,
+                                                self.source_rect,
+                                                self.source_scatter,
+                                                self.source_legend])
         # we add the glyphs into the plot
         self.draw()
         # we pass info to build the legend
