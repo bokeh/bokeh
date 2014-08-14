@@ -235,30 +235,23 @@ class BoxPlot(ChartObject):
                 out_y.append(o)
                 out_color.append(self.palette[i])
 
-        # Store outside the loop
-        self._set_and_get(self.data_scatter, self.attr_scatter, "out_x", "", out_x)
-        self._set_and_get(self.data_scatter, self.attr_scatter, "out_y", "", out_y)
-        self._set_and_get(self.data_scatter, self.attr_scatter, "colors", "", out_color)
+        # Store
+        self._set_and_get(self.data_scatter, self.attr_scatter, "out_x", out_x)
+        self._set_and_get(self.data_scatter, self.attr_scatter, "out_y", out_y)
+        self._set_and_get(self.data_scatter, self.attr_scatter, "colors", out_color)
 
-        self._set_and_get(self.data_segment, self.attr_segment, "q0", "", q0_points)
-        self._set_and_get(self.data_segment, self.attr_segment, "lower", "", lower_points)
-        self._set_and_get(self.data_segment, self.attr_segment, "q2", "", q2_points)
-        self._set_and_get(self.data_segment, self.attr_segment, "upper", "", upper_points)
+        self._set_and_get(self.data_segment, self.attr_segment, "q0", q0_points)
+        self._set_and_get(self.data_segment, self.attr_segment, "lower", lower_points)
+        self._set_and_get(self.data_segment, self.attr_segment, "q2", q2_points)
+        self._set_and_get(self.data_segment, self.attr_segment, "upper", upper_points)
 
-        self._set_and_get(self.data_rect, self.attr_rect,
-                          "iqr_centers", "", iqr_centers)
-        self._set_and_get(self.data_rect, self.attr_rect,
-                          "iqr_lengths", "", iqr_lengths)
-        self._set_and_get(self.data_rect, self.attr_rect,
-                          "upper_center_boxes", "", upper_center_boxes)
-        self._set_and_get(self.data_rect, self.attr_rect,
-                          "upper_height_boxes", "", upper_height_boxes)
-        self._set_and_get(self.data_rect, self.attr_rect,
-                          "lower_center_boxes", "", lower_center_boxes)
-        self._set_and_get(self.data_rect, self.attr_rect,
-                          "lower_height_boxes", "", lower_height_boxes)
-        self._set_and_get(self.data_rect, self.attr_rect,
-                          "colors", "", self.palette)
+        self._set_and_get(self.data_rect, self.attr_rect, "iqr_centers", iqr_centers)
+        self._set_and_get(self.data_rect, self.attr_rect, "iqr_lengths", iqr_lengths)
+        self._set_and_get(self.data_rect, self.attr_rect, "upper_center_boxes", upper_center_boxes)
+        self._set_and_get(self.data_rect, self.attr_rect, "upper_height_boxes", upper_height_boxes)
+        self._set_and_get(self.data_rect, self.attr_rect, "lower_center_boxes", lower_center_boxes)
+        self._set_and_get(self.data_rect, self.attr_rect, "lower_height_boxes", lower_height_boxes)
+        self._set_and_get(self.data_rect, self.attr_rect, "colors", self.palette)
 
     def get_source(self):
         """Get the boxplot data dict into the ColumnDataSource and
@@ -343,17 +336,16 @@ class BoxPlot(ChartObject):
         self.show_chart()
 
     # Some helper methods
-    def _set_and_get(self, data, attr, prefix, val, content):
+    def _set_and_get(self, data, attr, val, content):
         """Set a new attr and then get it to fill the self.data dict.
         Keep track of the attributes created.
 
         Args:
             data (dict): where to store the new attribute content
             attr (list): where to store the new attribute names
-            prefix (str): prefix of the new attribute
             val (string): name of the new attribute
             content (obj): content of the new attribute
         """
-        setattr(self, prefix + val, content)
-        data[prefix + val] = getattr(self, prefix + val)
-        attr.append(prefix + val)
+        setattr(self, val, content)
+        data[val] = getattr(self, val)
+        attr.append(val)
