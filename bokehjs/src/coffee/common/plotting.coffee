@@ -10,6 +10,7 @@ define [
   "renderer/glyph/glyph_factory",
   "renderer/guide/categorical_axis",
   "renderer/guide/linear_axis",
+  "renderer/guide/log_axis",
   "renderer/guide/grid",
   "renderer/overlay/box_selection",
   "source/column_data_source",
@@ -23,7 +24,7 @@ define [
   "tool/reset_tool",
   "renderer/guide/datetime_axis",
 ], (_, $, Plot, DataRange1d, FactorRange, Range1d, Legend,
-  GlyphFactory, CategoricalAxis, LinearAxis, Grid, BoxSelection,
+  GlyphFactory, CategoricalAxis, LinearAxis, LogAxis, Grid, BoxSelection,
   ColumnDataSource, BoxSelectTool, BoxZoomTool, HoverTool, PanTool,
   PreviewSaveTool, ResizeTool, WheelZoomTool, ResetTool, DatetimeAxis) ->
 
@@ -78,88 +79,59 @@ define [
 
     return glyphs
 
-  add_axes = (plot, xaxes_spec, yaxes_spec, xdr, ydr) ->
-    xaxes = []
-    if xaxes_spec
-      if xaxes_spec == true
-        xaxes_spec = ['below', 'above']
-      if not _.isArray(xaxes_spec)
-        xaxes_spec = [xaxes_spec]
-      if xaxes_spec[0]=="datetime"
+  add_axes = (plot, axes_spec, dr, axis_type, axis_tag) ->
+    axes = []
+
+    if axes_spec
+
+      if axis_tag == 'x'
+          locations = ['below', 'above']
+      else if axis_tag == 'y'
+          locations = ['left', 'right']
+
+      if axes_spec == true
+        axes_spec = locations
+      if not _.isArray(axes_spec)
+        axes_spec = [axes_spec]
+
+      if axes_spec[0] == "datetime"
+        axist = DatetimeAxis
+      else if dr.type == "FactorRange"
+        axist = CategoricalAxis
+      else if axis_type == "log"
+        axist = LogAxis
+      else
+        axist = LinearAxis
+
+      if axist == DatetimeAxis
         axis = DatetimeAxis.Collection.create(
-          axis_label: 'x'
-          location: 'below'
+          axis_label: axis_tag
+          location: locations[0]
           plot: plot
         )
-        xaxes.push(axis)
-      else if xdr.type == "FactorRange"
-        for loc in xaxes_spec
-          axis = CategoricalAxis.Collection.create(
-            axis_label: 'x'
-            location: loc
-            plot: plot
-          )
-          xaxes.push(axis)
+        axes.push(axis)
       else
-        for loc in xaxes_spec
-          axis = LinearAxis.Collection.create(
-            axis_label: 'x'
+        for loc in axes_spec
+          axis = axist.Collection.create(
+            axis_label: axis_tag
             location: loc
             plot: plot
           )
-          xaxes.push(axis)
-      for xax in xaxes
-        if xax.get('location') == "below"
-          below = plot.get('below')
-          below.push(xax)
-          plot.set('below', below)
-        else if xax.get('location') == "above"
-          above = plot.get('above')
-          above.push(xax)
-          plot.set('above', above)
-    yaxes = []
-    if yaxes_spec
-      if yaxes_spec == true
-        yaxes_spec = ['left', 'right']
-      if not _.isArray(yaxes_spec)
-        yaxes_spec = [yaxes_spec]
-      if yaxes_spec[0]=="datetime"
-        axis = DatetimeAxis.Collection.create(
-          axis_label: 'y'
-          location: 'left'
-          plot: plot
-        )
-        yaxes.push(axis)
-      else if ydr.type == "FactorRange"
-        for loc in yaxes_spec
-          axis = CategoricalAxis.Collection.create(
-            axis_label: 'y'
-            location: loc
-            plot: plot
-          )
-          yaxes.push(axis)
-      else
-        for loc in yaxes_spec
-          axis = LinearAxis.Collection.create(
-            axis_label: 'y'
-            location: loc
-            plot: plot
-          )
-          yaxes.push(axis)
-      for yax in yaxes
-        if yax.get('location') == "left"
-          left = plot.get('left')
-          left.push(yax)
-          plot.set('left', left)
-        else if yax.get('location') == "right"
-          right = plot.get('right')
-          right.push(yax)
-          plot.set('right', right)
+          axes.push(axis)
 
-    plot.add_renderers(a for a in xaxes)
-    plot.add_renderers(a for a in yaxes)
+      for ax in axes
+        if ax.get('location') == locations[0]
+          location0 = plot.get(locations[0])
+          location0.push(ax)
+          plot.set(locations[0], location0)
+        else if ax.get('location') == locations[1]
+          location1 = plot.get(locations[1])
+          location1.push(ax)
+          plot.set(locations[1], location1)
 
-    return [xaxes, yaxes]
+    plot.add_renderers(a for a in axes)
+
+    return axes
 
   # FIXME The xaxis_is_datetime argument is a huge hack, but for now I want to
   # make as small a change as possible.  Doing it right will require a larger
@@ -254,12 +226,14 @@ define [
       })
       plot.add_renderers([legend_renderer])
 
-  make_plot = (glyphspecs, data, {nonselected, title, dims, xrange, yrange, xaxes, yaxes, xgrid, ygrid, xdr, ydr, tools, legend}) ->
+  make_plot = (glyphspecs, data, {nonselected, title, dims, xrange, yrange, xaxes, yaxes, xgrid, ygrid, xdr, ydr, x_axis_type, y_axis_type, tools, legend}) ->
     nonselected ?= null
     title  ?= ""
     dims   ?= [400, 400]
     xrange ?= 'auto'
     yrange ?= 'auto'
+    x_axis_type ?= 'auto'
+    y_axis_type ?= 'auto'
     xaxes  ?= true
     yaxes  ?= true
     xgrid  ?= true
@@ -275,6 +249,8 @@ define [
     plot = Plot.Collection.create(
       x_range: xdr
       y_range: ydr
+      x_mapper_type: x_axis_type
+      y_mapper_type: y_axis_type
       plot_width: dims[0]
       plot_height: dims[1]
       title: title
@@ -283,7 +259,9 @@ define [
     glyphs = create_glyphs(plot, glyphspecs, sources, nonselected)
     plot.add_renderers(g for g in glyphs)
 
-    [xaxes, yaxes] = add_axes(plot, xaxes, yaxes, xdr, ydr)
+    xaxes = add_axes(plot, xaxes, xdr, x_axis_type, 'x')
+    yaxes = add_axes(plot, yaxes, ydr, y_axis_type, 'y')
+
     add_grids(plot, xgrid, ygrid, xaxes, yaxes)
     add_tools(plot, tools, glyphs, xdr, ydr)
     add_legend(plot, legend, glyphs)
