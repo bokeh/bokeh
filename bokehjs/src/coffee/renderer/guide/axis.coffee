@@ -18,13 +18,13 @@ define [
   #
   # side    orient        baseline   align     angle   normal-dist
   # -------------------------------------------------------------------------------
-  # top     parallel      bottom     center    0       height
+  # above   parallel      bottom     center    0       height
   #         normal        middle     left      -90     width
   #         horizontal    bottom     center    0       height
   #         [angle > 0]   middle     left              width * sin + height * cos
   #         [angle < 0]   middle     right             width * sin + height * cos
   #
-  # bottom  parallel      top        center    0       height
+  # below   parallel      top        center    0       height
   #         normal        middle     right     90      width
   #         horizontal    top        center    0       height
   #         [angle > 0]   middle     right             width * sin + height * cos
@@ -52,12 +52,12 @@ define [
 
 
   _angle_lookup = {
-    top:
+    above:
       parallel   : 0
       normal     : -pi2
       horizontal : 0
       vertical   : -pi2
-    bottom:
+    below:
       parallel   : 0
       normal     : pi2
       horizontal : 0
@@ -75,12 +75,12 @@ define [
   }
 
   _baseline_lookup = {
-    top:
+    above:
       parallel   : ALPHABETIC
       normal     : MIDDLE
       horizontal : ALPHABETIC
       vertical   : MIDDLE
-    bottom:
+    below:
       parallel   : HANGING
       normal     : MIDDLE
       horizontal : HANGING
@@ -98,12 +98,12 @@ define [
   }
 
   _align_lookup = {
-    top:
+    above:
       parallel   : CENTER
       normal     : LEFT
       horizontal : CENTER
       vertical   : LEFT
-    bottom:
+    below:
       parallel   : CENTER
       normal     : LEFT
       horizontal : CENTER
@@ -121,15 +121,15 @@ define [
   }
 
   _align_lookup_negative = {
-    top    : RIGHT
-    bottom : LEFT
+    above  : RIGHT
+    below  : LEFT
     left   : RIGHT
     right  : LEFT
   }
 
   _align_lookup_positive = {
-    top    : LEFT
-    bottom : RIGHT
+    above  : LEFT
+    below  : RIGHT
     left   : RIGHT
     right  : LEFT
   }
@@ -308,22 +308,6 @@ define [
       @register_property('normals', (() -> @_normals), true)
       @register_property('dimension', (() -> @_dim), true)
 
-      side = @get('location')
-      if side == "top"
-        @_dim = 0
-        @_normals = [0, -1]
-      else if side == "bottom"
-        @_dim = 0
-        @_normals = [0, 1]
-      else if side == "left"
-        @_dim = 1
-        @_normals = [-1, 0]
-      else if side == "right"
-        @_dim = 1
-        @_normals = [1, 0]
-      else
-        console.log("ERROR: unrecognized side: '#{ side }'")
-
     initialize_layout: (solver) ->
       panel = new LayoutBox.Model({solver: solver})
       @panel = panel
@@ -338,16 +322,24 @@ define [
       @_height = panel._height
 
       side = @get('location')
-      if side == "top"
+      if side == "above"
+        @_dim = 0
+        @_normals = [0, -1]
         @_size = panel._height
         @_anchor = panel._bottom
-      else if side == "bottom"
+      else if side == "below"
+        @_dim = 0
+        @_normals = [0, 1]
         @_size = panel._height
         @_anchor = panel._top
       else if side == "left"
+        @_dim = 1
+        @_normals = [-1, 0]
         @_size = panel._width
         @_anchor = panel._right
       else if side == "right"
+        @_dim = 1
+        @_normals = [1, 0]
         @_size = panel._width
         @_anchor = panel._left
       else
@@ -368,7 +360,6 @@ define [
     _ranges: () ->
       i = @get('dimension')
       j = (i + 1) % 2
-
       ranges = [@get('plot').get('frame').get('x_range'), @get('plot').get('frame').get('y_range')]
       return [ranges[i], ranges[j]]
 
@@ -464,12 +455,12 @@ define [
       cend = cross_range.get('end')
       side = @get('location')
 
-      if side == 'left' or side == 'bottom'
+      if side == 'left' or side == 'below'
         if cstart < cend
           loc = 'start'
         else
           loc = 'end'
-      else if side == 'right' or side == 'top'
+      else if side == 'right' or side == 'above'
         if cstart < cend
           loc = 'end'
         else
@@ -503,7 +494,7 @@ define [
       c = Math.cos(angle)
       s = Math.sin(angle)
 
-      if side == "top" or side == "bottom"
+      if side == "above" or side == "below"
         wfactor = s
         hfactor = c
       else
@@ -542,7 +533,7 @@ define [
         view.axis_label_props.set(ctx, view)
         w = ctx.measureText(@get('axis_label')).width * 1.1
         h = ctx.measureText(@get('axis_label')).ascent * 0.9
-        if side == "top" or side == "bottom"
+        if side == "above" or side == "below"
           extent += w*s + h*c
         else
           extent += w*c + h*s

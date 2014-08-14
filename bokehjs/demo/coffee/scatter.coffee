@@ -35,7 +35,7 @@ require(['main'], (Bokeh) ->
     dims: [600, 600]
     xrange: [0, 100]
     yrange: [0, 100]
-    xaxes: "bottom"
+    xaxes: "below"
     yaxes: "left"
     tools: true
     legend: false

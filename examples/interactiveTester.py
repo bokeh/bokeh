@@ -1,10 +1,8 @@
 import argparse
-# bokeh is imported and unused as a quick way to check for directory bokeh/bokeh/static/js
-# which is required for many (but not all) examples to run properly.
-import bokeh
 import glob
 import importlib
 import os
+from shutil import rmtree
 from six.moves import input
 import sys
 import textwrap
@@ -12,39 +10,9 @@ import time
 
 
 # TODO:
-#       --test-all option (run through tests on every file in a given directory, rather than a small subset)
-#           - This is currently the default behavior
-#
-#       Improve error message when a location isn't provided
-#
 #       catch and log exceptions in examples files that fail to open
 
-
-parser = argparse.ArgumentParser(description=textwrap.dedent("""
-                Collect and run all .py or .ipynb files in an examples subdirectory,
-                ignoring __init__.py
-
-                Location arguments you can choose:
-                    - file
-                    - notebook
-                    - server
-                    - ggplot
-                    - glyphs
-                    - mpl
-                    - pandas
-                    - seaborn
-                """), formatter_class=argparse.RawTextHelpFormatter)
-
-parser.add_argument('--clean', action='store_true', default=False,
-                    help='remove all .html files created by running each of these python files')
-parser.add_argument('--no-log', action='store_true', dest='nolog', default=False,
-                    help="don't save a log of any errors discovered")
-parser.add_argument('location', action='store',
-                    help="example directory in which you wish to test")
-
-results = parser.parse_args()
-
-directories = {
+DIRECTORIES = {
     'file'    : 'plotting/file',
     'notebook': 'plotting/notebook',
     'server'  : 'plotting/server',
@@ -55,128 +23,199 @@ directories = {
     'seaborn' : 'seaborn'
 }
 
+DEFAULT_TEST_FILES = [
+    '../plotting/file/stocks.py',
+    '../plotting/file/glucose.py',
+    '../ggplot/density.py',
+    '../plotting/server/stocks.py',
+    '../plotting/server/glucose.py',
+    '../plotting/notebook/candlestick.ipynb',
+    '../plotting/notebook/glucose.ipynb',
+    '../seaborn/violin.py'
+]
+
+
+def get_parser():
+    """Create the parser that will be used to add arguments to the script.
+    """
+
+    parser = argparse.ArgumentParser(description=textwrap.dedent("""
+                    Tests a selection of .py or .ipynb bokeh example files.
+
+                    The --location option allows you to select a specific examples subdirectory to test all files in,
+                    ignoring __init__.py
+
+                    Location arguments you can choose:
+                        - file
+                        - notebook
+                        - server
+                        - ggplot
+                        - glyphs
+                        - mpl
+                        - pandas
+                        - seaborn
+                    """), formatter_class=argparse.RawTextHelpFormatter)
+
+    parser.add_argument('--no-log', action='store_true', dest='nolog', default=False,
+                        help="don't save a log of any errors discovered")
+    parser.add_argument('-l', '--location', action='store', default=False,
+                        help="example directory in which you wish to test")
+
+    return parser
+
 
 def depend_check(dependency):
     """
-    Make sure a given dependency necessary to run examples is installed before trying to run
-    any files.
+    Make sure a given dependency is installed
     """
 
     try:
         importlib.import_module(dependency)
+        found = True
     except ImportError as e:
-        print "%s\nPlease use conda or pip to install the necessary dependency." % (e)
-        sys.exit(1)
+        print("%s\nPlease use conda or pip to install the necessary dependency." % (e))
+        found = False
+
+    return found
 
 
-def tester(TestingGround, HomeDir):
+def main(home_dir, testing_ground=None):
     """
-    Collect and run all .py or .ipynb files in an examples directory, ignoring __init__.py
+    Collect and run .py or .ipynb examples from a set list or given examples directory, ignoring __init__.py
     User input is collected to determine a properly or improperly displayed page
 
     """
 
-    os.chdir(TestingGround)
+    # Create a testing directory if one does not exist, then cd into it
 
-    TestFiles = [
-        fileName for fileName in os.listdir('.')
-        if fileName.endswith(('.py', '.ipynb')) and fileName != '__init__.py'
-    ]
+    testing_directory = 'tmp_test'
+
+    if not os.path.exists(testing_directory):
+        os.mkdir(testing_directory)
+
+    os.chdir(testing_directory)
+
+    if testing_ground:
+        log_name = results.location
+
+        TestFiles = [
+            fileName for fileName in os.listdir('%s/.' % testing_ground)
+            if fileName.endswith(('.py', '.ipynb')) and fileName != '__init__.py'
+        ]
+
+    else:
+        log_name = "fast"
+
+        TestFiles = DEFAULT_TEST_FILES
 
     Log = []
 
     for index, fileName in enumerate(TestFiles):
+        if testing_ground:
+            fileName = "%s/%s" % (testing_ground, fileName)
         try:
-            print("\nOpening %s\n" % fileName)
-
-            runner(fileName)
+            command = get_cmd(fileName)
+            opener(fileName, command)
 
             if results.nolog:
                 # Don't display 'next file' message after opening final file in a dir
                 if index != len(TestFiles)-1:
                     input("\nPress enter to open next file ")
             else:
-                TestStatus = input("Did the plot(s) in %s display correctly? (y/n) " % fileName)
-                while not TestStatus.startswith(('y', 'n')):
-                    print("")
-                    TestStatus = input("Unexpected answer. Please type y or n. ")
-                if TestStatus.startswith('n'):
-                    ErrorReport = input("Please describe the problem: ")
+                ErrorReport = test_status(fileName)
+                if ErrorReport:
                     Log.append("\n\n%s: \n %s" % (fileName, ErrorReport))
-        except KeyboardInterrupt:
+
+        except (KeyboardInterrupt, EOFError):
             break
 
-    if results.clean:
-        cleaner()
+    # exit the testing directory and delete it
 
-    os.chdir(HomeDir)
+    os.chdir(home_dir)
+    rmtree(testing_directory)
 
     if Log:
-        logger(Log)
+        logger(Log, home_dir, log_name)
 
 
-def runner(someFile):
+def get_cmd(some_file):
     """Determines how to open a file depending
     on whether it is a .py or a .ipynb file
     """
 
-    if someFile.endswith('.py'):
+    if some_file.endswith('.py'):
         command = "python"
-    elif someFile.endswith('.ipynb'):
+    elif some_file.endswith('.ipynb'):
         command = "ipython notebook"
 
-    os.system("%s %s" % (command, someFile))
+    return command
 
 
-def cleaner():
+def opener(some_file, command):
+    """Print to screen what file is being opened and then open the file using
+    the command method provided.
     """
-    Remove all .html files created by running each of these python files.
-    """
 
-    dustbin = glob.glob('*.html')
-    for dust in dustbin:
-        os.remove(dust)
+    print("\nOpening %s\n" % some_file)
+    os.system("%s %s" % (command, some_file))
 
 
-def logger(ErrorArray):
+def test_status(some_file):
+    """Collect user input to determine if a file displayed correctly or incorrectly.
+    In the case of incorrectly displayed plots, an 'ErrorReport' string is returned.
     """
-    Log errors by appending to a log.txt file.
+
+    status = input("Did the plot(s) in %s display correctly? (y/n) " % some_file)
+    while not status.startswith(('y', 'n')):
+        print("")
+        status = input("Unexpected answer. Please type y or n. ")
+    if status.startswith('n'):
+        ErrorReport = input("Please describe the problem: ")
+        return ErrorReport
+
+
+def logger(error_array, log_dir, name):
     """
+    Log errors by appending to a .txt file.  The name and directory the file is saved into
+    is provided by the name and log_dir args.
+    """
+
+    logfile = "%sExamplesTestlog.txt" % name
+    if os.path.exists(logfile):
+        os.remove(logfile)
 
     with open(logfile, 'a') as f:
         print("")
         print("\nWriting error log to %s" % logfile)
-        f.write("%s\n" % base_dir)
-        for error in ErrorArray:
+        f.write("%s\n" % log_dir)
+        for error in error_array:
             f.write("%s\n" % error)
 
 
 if __name__ == '__main__':
-    if results.location and results.location in directories:
-        target = results.location
 
-        if target == 'server':
-            print(
-                "Server examples require bokeh-server. Make sure you've typed 'bokeh-server' in another terminal tab."
-            )
-            time.sleep(5)
-
-        if target in ['ggplot', 'pandas', 'seaborn']:
-            depend_check(target)
-
-        if results.nolog:
-            pass
-        else:
-            logfile = "%sExamplesTestlog.txt" % target
-            if os.path.exists(logfile):
-                os.remove(logfile)
-
-        base_dir = os.getcwd()
-        test_dir = os.path.join(base_dir, directories[target])
-        tester(test_dir, base_dir)
-    else:
-        # # This is kept necessarily explicit so that you don't
-        # accidentally provide a directory that has .html files
-        # you don't want to have deleted.
-        print("Please choose an examples directory to test in ('python interactiveTester.py <plotting/file>)")
+    if not depend_check('bokeh'):
         sys.exit(1)
+
+    parser = get_parser()
+    results = parser.parse_args()
+
+    base_dir = os.getcwd()
+
+    if results.location:
+        if results.location and results.location in DIRECTORIES:
+            target = results.location
+
+            if target in ['ggplot', 'pandas', 'seaborn']:
+                if not depend_check(target):
+                    sys.exit(1)
+
+            test_dir = os.path.join(base_dir, DIRECTORIES[target])
+    else:
+        test_dir = None
+
+    if results.location == 'server' or test_dir is None:
+        print("Server examples require bokeh-server. Make sure you've typed 'bokeh-server' in another terminal tab.")
+        time.sleep(5)
+
+    main(base_dir, test_dir)

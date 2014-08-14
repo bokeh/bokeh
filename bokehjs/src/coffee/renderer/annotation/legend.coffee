@@ -64,8 +64,8 @@ define [
       @legend_width = @label_width + @glyph_width + 3 * legend_spacing
       orientation = @mget('orientation')
       legend_padding = @mget('legend_padding')
-      h_range = @plot_view.frame.get('inner_range_horizontal')
-      v_range = @plot_view.frame.get('inner_range_vertical')
+      h_range = @plot_view.frame.get('h_range')
+      v_range = @plot_view.frame.get('v_range')
       if orientation == "top_right"
         x = h_range.get('end') - legend_padding - @legend_width
         y = v_range.get('end') - legend_padding

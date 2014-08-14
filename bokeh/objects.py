@@ -364,7 +364,7 @@ class Plot(Widget):
     y_range = Instance(Range)
     x_mapper_type = String('auto')
     y_mapper_type = String('auto')
-    png = String('')
+
     title = String('')
     title_props = Include(TextProps, prefix="title")
     outline_props = Include(LineProps, prefix="outline")
@@ -379,22 +379,12 @@ class Plot(Widget):
     above = List(Instance(PlotObject))
     below = List(Instance(PlotObject))
 
-    # TODO: These don't appear in the CS source, but are created by mpl.py, so
-    # I'm leaving them here for initial compatibility testing.
-    # axes = List()
-
-    # TODO: How do we want to handle syncing of the different layers?
-    # image = List()
-    # underlay = List()
-    # glyph = List()
-    #
-    # annotation = List()
-
     plot_height = Int(600)
     plot_width = Int(600)
 
     background_fill = Color("white")
     border_fill = Color("white")
+
     min_border_top = Int(50)
     min_border_bottom = Int(50)
     min_border_left = Int(50)
@@ -464,8 +454,7 @@ class GuideRenderer(Renderer):
 class Axis(GuideRenderer):
     type = String("axis")
 
-    dimension = Int(0)
-    location = Enum(Location)
+    location = Either(Enum('auto'), Enum(Location))
     bounds = Either(Enum('auto'), Tuple(Float, Float))
 
     ticker = Instance(Ticker)
@@ -479,7 +468,6 @@ class Axis(GuideRenderer):
     major_label_orientation = Either(Enum("horizontal", "vertical"), Float)
     major_label_props = Include(TextProps, prefix="major_label")
 
-    # Line props
     axis_props = Include(LineProps, prefix="axis")
     tick_props = Include(LineProps, prefix="major_tick")
 
@@ -490,50 +478,26 @@ class ContinuousAxis(Axis):
     pass
 
 class LinearAxis(ContinuousAxis):
-    type = String("continuous_axis")
-
-    def __init__(self, **kwargs):
-        if 'ticker' not in kwargs:
-            kwargs['ticker'] = BasicTicker()
-        if 'formatter' not in kwargs:
-            kwargs['formatter'] = BasicTickFormatter()
-        super(LinearAxis, self).__init__(**kwargs)
+    def __init__(self, ticker=BasicTicker(), formatter=BasicTickFormatter(), **kwargs):
+        super(LinearAxis, self).__init__(ticker=ticker, formatter=formatter, **kwargs)
 
 class LogAxis(ContinuousAxis):
-    type = String("continuous_axis")
-
-    def __init__(self, **kwargs):
-        if 'ticker' not in kwargs:
-            kwargs['ticker'] = LogTicker(num_minor_ticks=10)
-        if 'formatter' not in kwargs:
-            kwargs['formatter'] = LogTickFormatter()
-        super(LogAxis, self).__init__(**kwargs)
+    def __init__(self, ticker=LogTicker(num_minor_ticks=10), formatter=LogTickFormatter(), **kwargs):
+        super(LogAxis, self).__init__(ticker=ticker, formatter=formatter, **kwargs)
 
 class CategoricalAxis(Axis):
-    type = String("categorical_axis")
-
-    def __init__(self, **kwargs):
-        if 'ticker' not in kwargs:
-            kwargs['ticker'] = CategoricalTicker()
-        if 'formatter' not in kwargs:
-            kwargs['formatter'] = CategoricalTickFormatter()
-        super(CategoricalAxis, self).__init__(**kwargs)
+    def __init__(self, ticker=CategoricalTicker(), formatter=CategoricalTickFormatter(), **kwargs):
+        super(CategoricalAxis, self).__init__(ticker=ticker, formatter=formatter, **kwargs)
 
 class DatetimeAxis(LinearAxis):
-    type = String("datetime_axis")
-
     axis_label = String("date")
     scale = String("time")
     num_labels = Int(8)
     char_width = Int(10)
     fill_ratio = Float(0.3)
 
-    def __init__(self, **kwargs):
-        if 'ticker' not in kwargs:
-            kwargs['ticker'] = DatetimeTicker()
-        if 'formatter' not in kwargs:
-            kwargs['formatter'] = DatetimeTickFormatter()
-        super(DatetimeAxis, self).__init__(**kwargs)
+    def __init__(self, ticker=DatetimeTicker(), formatter=DatetimeTickFormatter(), **kwargs):
+        super(DatetimeAxis, self).__init__(ticker=ticker, formatter=formatter, **kwargs)
 
 class Grid(GuideRenderer):
     """ 1D Grid component """
@@ -542,9 +506,8 @@ class Grid(GuideRenderer):
     dimension = Int(0)
     bounds = String('auto')
 
-    axis = Instance(Axis)
+    ticker = Instance(Ticker)
 
-    # Line props
     grid_props = Include(LineProps, prefix="grid")
 
 class Tool(PlotObject):

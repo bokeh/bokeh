@@ -62,11 +62,11 @@ define [
       else if factor < -0.9
         factor = -0.9
 
-      xr = @plot_view.frame.get('inner_range_horizontal')
+      xr = @plot_view.frame.get('h_range')
       sx_low  = xr.get('start')
       sx_high = xr.get('end')
 
-      yr = @plot_view.frame.get('inner_range_vertical')
+      yr = @plot_view.frame.get('v_range')
       sy_low  = yr.get('start')
       sy_high = yr.get('end')
 

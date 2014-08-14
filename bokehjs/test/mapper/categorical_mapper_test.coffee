@@ -1,7 +1,7 @@
 
 require [
   "common/base",
-  "mapper/1d/categorical_mapper",
+  "mapper/categorical_mapper",
   "range/range1d",
   "range/factor_range",
 ], (base, CategoricalMapper, Range1d, FactorRange) ->

@@ -13,7 +13,7 @@ from . import browserlib
 from . import _glyph_functions as gf
 from .document import Document
 from .embed import notebook_div, file_html, autoload_server
-from .objects import Axis, ColumnDataSource, Glyph, Grid, GridPlot, Legend
+from .objects import Axis, ColumnDataSource, Glyph, Grid, GridPlot, Legend, Plot
 from .palettes import brewer
 from .plotting_helpers import (
     get_default_color, get_default_alpha, _handle_1d_data_args, _list_attr_splat
@@ -241,7 +241,7 @@ def show(obj=None, browser=None, new="tab", url=None):
 
     controller = browserlib.get_browser_controller(browser=browser)
     if obj is None:
-        plot = curplot()
+        plot = curdoc()
     else:
         plot = obj
     if not plot:
@@ -263,11 +263,11 @@ def show(obj=None, browser=None, new="tab", url=None):
             controller.open(session.object_link(curdoc()._plotcontext))
 
     elif filename:
-        save(filename)
+        save(filename, obj=plot)
         controller.open("file://" + os.path.abspath(filename), new=new_param)
 
 
-def save(filename=None, resources=None):
+def save(filename=None, resources=None, obj=None):
     """ Updates the file with the data for the current document.
 
     If a filename is supplied, or output_file(...) has been called, this will
@@ -278,6 +278,10 @@ def save(filename=None, resources=None):
             if `filename` is None, the current output_file(...) filename is used if present
         resources (Resources, optional) : BokehJS resource config to use
             if `resources` is None, the current default resource config is used
+
+        obj (Document or Plot object, optional)
+            if provided, then this is the object to save instead of curdoc()
+            and its curplot()
 
     Returns:
         None
@@ -297,11 +301,20 @@ def save(filename=None, resources=None):
         warnings.warn("save() called but no resources was supplied and output_file(...) was never called, nothing saved")
         return
 
-    if not curplot():
-        warnings.warn("No current plot to save. Use renderer functions (circle, rect, etc.) to create a current plot (see http://bokeh.pydata.org/index.html)")
-        return
+    if obj is None:
+        if not curplot():
+            warnings.warn("No current plot to save. Use renderer functions (circle, rect, etc.) to create a current plot (see http://bokeh.pydata.org/index.html)")
+            return
+        doc = curdoc()
+    elif isinstance(obj, Plot):
+        doc = Document()
+        doc.add(obj)
+    elif isinstance(obj, Document):
+        doc = obj
+    else:
+        raise RuntimeError("Unable to save object of type '%s'" % type(obj))
 
-    html = file_html(curdoc(), resources, _default_file['title'])
+    html = file_html(doc, resources, _default_file['title'])
     with io.open(filename, "w", encoding="utf-8") as f:
         f.write(decode_utf8(html))
 

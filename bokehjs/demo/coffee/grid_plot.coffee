@@ -11,15 +11,15 @@ source = Bokeh.Collections('ColumnDataSource').create(
 )
 
 xdr = Bokeh.Collections('DataRange1d').create(
-  sources: [{ref: source.ref(), columns: ['x']}]
+  sources: [{source: source, columns: ['x']}]
 )
 
 ydr1 = Bokeh.Collections('DataRange1d').create(
-  sources: [{ref: source.ref(), columns: ['y1']}]
+  sources: [{source: source, columns: ['y1']}]
 )
 
 ydr2 = Bokeh.Collections('DataRange1d').create(
-  sources: [{ref: source.ref(), columns: ['y2']}]
+  sources: [{source: source, columns: ['y2']}]
 )
 
 scatter1 = {
@@ -47,7 +47,7 @@ options = {
   title: "Scatter Demo"
   dims: [600, 600]
   xrange: xdr
-  xaxes: "bottom"
+  xaxes: "below"
   yaxes: "left"
   tools: true
   legend: false
