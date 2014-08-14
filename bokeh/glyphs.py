@@ -51,7 +51,7 @@ class Marker(BaseGlyph, FillProps, LineProps):
 
     x = DataSpec
     y = DataSpec
-    size = DataSpec(units="screen", default=4, min_value=0)
+    size = DataSpec(units="screen", min_value=0, default=4)
 
 
 
@@ -60,7 +60,7 @@ class Asterisk(Marker):
 
 class Circle(Marker):
     __view_model__ = "circle"
-    radius = DataSpec(units="data", default=4, min_value=0)
+    radius = DataSpec(units="data", min_value=0)
 
     def to_glyphspec(self):
         """ Returns a dict mapping attributes to values, that is amenable for
@@ -162,10 +162,10 @@ class Image(BaseGlyph):
     #TODO: Consider converting palette in to a first-class object, then wrap the color list and reserve values into it instead of here
     #Reserve represents a color/value outside of the normal range.  Commonly used to setup a 'background' color for the image
     palette = DataSpec
-    
+
     #TODO: Using 'False' to indicate no reserve value is not great.  A flag field or sentinel is probably better, but that can be worked out when/if palette becomes its own object
-    #The actual type of reserve_val is an instance of whatever is held in the image array, so the exact type will depend on the type of values in the dataspec of the image field.  
-    reserve_val = Any(default=False)  
+    #The actual type of reserve_val is an instance of whatever is held in the image array, so the exact type will depend on the type of values in the dataspec of the image field.
+    reserve_val = Any(default=False)
     reserve_color = DataSpec(default=0xffffff) #TODO: Why doesn't type Color work here?? (Came through as 'undefined' on the JS side)
                                                #TODO: What is the color code for transparent???
 

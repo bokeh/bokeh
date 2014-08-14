@@ -41,7 +41,7 @@ GENERIC_GLYPH_DICT.update(GENERIC_LINE_DICT)
 GENERIC_GLYPH_DICT.update(GENERIC_FILL_DICT)
 
 GENERIC_MARKER_DICT = {
-    'size': {'units': 'screen', 'field': None, 'default': 4},
+    'size': {'units': 'screen', 'value': 4},
 }
 GENERIC_MARKER_DICT.update(GENERIC_XY_DICT)
 GENERIC_MARKER_DICT.update(GENERIC_LINE_DICT)
@@ -99,7 +99,7 @@ class TestMarker(unittest.TestCase):
         self.assertTrue(expected_properties.issubset(actual_properties))
 
     def test_expected_values(self):
-        self.assertEqual(self.test_marker.size, {'default': 4, 'field': None})
+        self.assertEqual(self.test_marker.size, 4)
         self.assertEqual(self.test_marker.x, 'x')
         self.assertEqual(self.test_marker.y, 'y')
 
@@ -128,13 +128,13 @@ class TestCircle(unittest.TestCase):
         self.assertTrue(expected_properties.issubset(actual_properties))
 
     def test_expected_values(self):
-        self.assertEqual(self.test_circle.radius, {'default': 4, 'field': None})
+        self.assertEqual(self.test_circle.radius, None)
         self.assertEqual(self.test_circle.__view_model__, 'circle')
 
     def test_to_glyphspec(self):
         expected = dict(GENERIC_GLYPH_DICT)
         expected['type'] = 'circle'
-        expected['size'] = {'default': 4, 'field': None, 'units': 'screen'}
+        expected['size'] = {'value': 4, 'units': 'screen'}
         self.assertEqual(self.test_circle.to_glyphspec(), expected)
         # self.test_circle.size = 6
         # expected['size'] = {'value': 6, 'units': 'screen'}
@@ -601,14 +601,14 @@ class TestImage(unittest.TestCase):
         self.assertEqual(self.test_image.__view_model__, 'image')
 
     def test_to_glyphspec(self):
-        self.assertEqual(self.test_image.to_glyphspec(), 
-                         {'dh': {'units': 'data', 'field': 'dh'}, 
-                          'image': {'units': 'data', 'field': 'image'}, 
-                          'dw': {'units': 'data', 'field': 'dw'}, 
-                          'y': {'units': 'data', 'field': 'y'}, 
-                          'x': {'units': 'data', 'field': 'x'}, 
-                          'palette': {'field': 'palette', 'units': 'data'}, 
-                          'reserve_color':{'default': 0xffffff, 'field':None, 'units':'data'},
+        self.assertEqual(self.test_image.to_glyphspec(),
+                         {'dh': {'units': 'data', 'field': 'dh'},
+                          'image': {'units': 'data', 'field': 'image'},
+                          'dw': {'units': 'data', 'field': 'dw'},
+                          'y': {'units': 'data', 'field': 'y'},
+                          'x': {'units': 'data', 'field': 'x'},
+                          'palette': {'field': 'palette', 'units': 'data'},
+                          'reserve_color':{'value': 0xffffff, 'units':'data'},
                           'type': 'image'})
         self.test_image.image = 'image image image'
         self.test_image.width = 500
@@ -617,14 +617,14 @@ class TestImage(unittest.TestCase):
         self.test_image.y = 51
         self.test_image.dw = 53
         self.test_image.dh = 54
-        self.assertEqual(self.test_image.to_glyphspec(), 
-                         {'dh': {'units': 'data', 'value': 54}, 
-                          'image': {'units': 'data', 'field': 'image image image'}, 
-                          'x': {'units': 'data', 'value': 50}, 
-                          'y': {'units': 'data', 'value': 51}, 
-                          'dw': {'units': 'data', 'value': 53}, 
-                          'palette': {'field': 'palette', 'units': 'data'}, 
-                          'reserve_color':{'default': 0xffffff, 'field':None, 'units':'data'},
+        self.assertEqual(self.test_image.to_glyphspec(),
+                         {'dh': {'units': 'data', 'value': 54},
+                          'image': {'units': 'data', 'field': 'image image image'},
+                          'x': {'units': 'data', 'value': 50},
+                          'y': {'units': 'data', 'value': 51},
+                          'dw': {'units': 'data', 'value': 53},
+                          'palette': {'field': 'palette', 'units': 'data'},
+                          'reserve_color':{'value': 0xffffff, 'units':'data'},
                           'type': 'image'})
 
 
