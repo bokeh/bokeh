@@ -227,9 +227,9 @@ class ChartObject(object):
         It pass source and ranges as parameters of the `chart.add_data_plot` method.
 
         Args:
-            source (obj): datasource object for your plot.
             xdr (obj): x-associated datarange object for you plot.
             ydr (obj): y-associated datarange object for you plot.
+            source (list): list containing datasources objects for your plot.
         """
         self.chart.add_data_plot(xdr, ydr, *source)
 

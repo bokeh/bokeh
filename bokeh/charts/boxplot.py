@@ -235,8 +235,6 @@ class BoxPlot(ChartObject):
             self._set_and_get(self.data, self.attr, "u_he_list", level, u_he_list)
             self._set_and_get(self.data, self.attr, "l_cp_list", level, l_cp_list)
             self._set_and_get(self.data, self.attr, "l_he_list", level, l_he_list)
-            #self._set_and_get(self.data, self.attr, "out_x", level, out_x)
-            #self._set_and_get(self.data, self.attr, "out_y", level, out_y)
 
             self._set_and_get(self.data_scatter, self.attr_scatter, "out_x", level, out_x)
             self._set_and_get(self.data_scatter, self.attr_scatter, "out_y", level, out_y)

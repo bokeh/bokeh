@@ -226,6 +226,10 @@ class Chart(object):
         """ Creates a segment glyph with specified color and width,
         and appends it to the plot.renderers list.
 
+        Args:
+        source (obj): datasource containing data for the glyph
+
+        Notes:
         Same args as the Segment glyphs:
             from bokeh._glyph_functions import segment
             help(segment)
@@ -238,6 +242,10 @@ class Chart(object):
         """Creates a line glyph with specified color,
         and appends it to the plot.renderers list.
 
+        Args:
+        source (obj): datasource containing data for the glyph
+
+        Notes:
         Same args as the Segment glyphs:
             from bokeh._glyph_functions import line
             help(line)
@@ -250,6 +258,10 @@ class Chart(object):
         """Creates a quad glyph with specified color,
         and appends it to the plot.renderers list.
 
+        Args:
+        source (obj): datasource containing data for the glyph
+
+        Notes:
         Same args as the Segment glyphs:
             from bokeh._glyph_functions import quad
             help(quad)
@@ -262,6 +274,11 @@ class Chart(object):
     def make_rect(self, source, x, y, width, height, color, line_color, line_width):
         """Creates a rect glyph with specified color,
         and appends it to the renderers list.
+
+        Args:
+        source (obj): datasource containing data for the glyph
+
+        Notes:
         Same args as the Segment glyphs:
             from bokeh._glyph_functions import rect
             help(rect)
@@ -276,6 +293,7 @@ class Chart(object):
         markertype and color, and appends it to the renderers list.
 
         Args:
+            source (obj): datasource containing data for the glyph
             x (int): x-pos of point
             y (int): y-pos of point
             markertype (int/string): Marker type to use (e.g., 2, 'circle', etc.)
@@ -338,12 +356,17 @@ class Chart(object):
 
     ## Some helper methods
     def _append_glyph(self, source, glyph):
-        """ Appends the pass glyphs to the plot.renderer."""
-        glyph = Glyph(data_source=source,
+        """ Appends the pass glyphs to the plot.renderer.
+
+        Args:
+            source (obj): datasource containing data for the glyph
+            glyph (obj): glyph type
+        """
+        _glyph = Glyph(data_source=source,
                       xdata_range=self.plot.x_range,
                       ydata_range=self.plot.y_range,
                       glyph=glyph)
 
-        self.plot.renderers.append(glyph)
+        self.plot.renderers.append(_glyph)
 
-        self.glyphs.append(glyph)
+        self.glyphs.append(_glyph)
