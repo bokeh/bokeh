@@ -135,7 +135,7 @@ class Chart(object):
             previewsave = PreviewSaveTool(plot=self.plot)
             self.plot.tools.append(previewsave)
 
-    def add_data_plot(self, source, x_range, y_range):
+    def add_data_plot(self, x_range, y_range, *source):
         """This method add source and range data to the initialized empty
         attributes.
 
@@ -145,9 +145,9 @@ class Chart(object):
             ydr (obj): y-associated datarange object for your `self.plot`.
         """
         # Overwrite the source and ranges in the plot
-        self.plot.data_sources = [source]
         self.plot.x_range = x_range
         self.plot.y_range = y_range
+        self.plot.data_sources = source[0]
 
     def end_plot(self, groups):
         """This method add the legend to your plot, and the plot to
@@ -222,7 +222,7 @@ class Chart(object):
 
         return grid
 
-    def make_segment(self, x0, y0, x1, y1, color, width):
+    def make_segment(self, source, x0, y0, x1, y1, color, width):
         """ Creates a segment glyph with specified color and width,
         and appends it to the plot.renderers list.
 
@@ -232,7 +232,7 @@ class Chart(object):
         """
         segment = Segment(x0=x0, y0=y0, x1=x1, y1=y1, line_color=color, line_width=width)
 
-        self._append_glyph(segment)
+        self._append_glyph(source, segment)
 
     def make_line(self, x, y, color):
         """Creates a line glyph with specified color,
@@ -259,7 +259,7 @@ class Chart(object):
 
         self._append_glyph(quad)
 
-    def make_rect(self, x, y, width, height, color, line_color, line_width):
+    def make_rect(self, source, x, y, width, height, color, line_color, line_width):
         """Creates a rect glyph with specified color,
         and appends it to the renderers list.
         Same args as the Segment glyphs:
@@ -269,9 +269,9 @@ class Chart(object):
         rect = Rect(x=x, y=y, width=width, height=height, fill_color=color,
                     fill_alpha=0.7, line_color=line_color, line_alpha=1.0, line_width=line_width)
 
-        self._append_glyph(rect)
+        self._append_glyph(source, rect)
 
-    def make_scatter(self, x, y, markertype, color):
+    def make_scatter(self, source, x, y, markertype, color):
         """ Creates a marker glyph (for a single point) with specified
         markertype and color, and appends it to the renderers list.
 
@@ -310,7 +310,7 @@ class Chart(object):
                                        line_color=color,
                                        line_alpha=1.0)
 
-        self._append_glyph(scatter)
+        self._append_glyph(source, scatter)
 
     def show(self):
         "Main show function, it shows the plot in file, server and notebook outputs."
@@ -337,9 +337,9 @@ class Chart(object):
             publish_display_data({'text/html': notebook_div(self.plot)})
 
     ## Some helper methods
-    def _append_glyph(self, glyph):
+    def _append_glyph(self, source, glyph):
         """ Appends the pass glyphs to the plot.renderer."""
-        glyph = Glyph(data_source=self.plot.data_sources[0],
+        glyph = Glyph(data_source=source,
                       xdata_range=self.plot.x_range,
                       ydata_range=self.plot.y_range,
                       glyph=glyph)
