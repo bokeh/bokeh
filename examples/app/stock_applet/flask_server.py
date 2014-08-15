@@ -3,6 +3,10 @@ This is an example applet embedded into another flask app. See the
 README.md file in this rectory for instructions on running.
 """
 from __future__ import print_function
+import logging
+logging.basicConfig(level=logging.INFO)
+
+
 
 from os.path import dirname, join, abspath
 
@@ -14,7 +18,7 @@ from stock_example import StockApp
 app = Flask('sampleapp')
 
 bokeh_url = "http://localhost:5006"
-applet_url = "http://localhost:5050/applet"
+applet_url = "http://localhost:5050"
 
 @app_document("stock_example", bokeh_url)
 def make_stock_applet():
@@ -30,8 +34,6 @@ def applet():
     )
 
 if __name__ == "__main__":
-    import logging
-    logging.basicConfig(level=logging.DEBUG)
     print("\nView this example at: %s\n" % applet_url)
     app.debug = True
     app.run(host='0.0.0.0', port=5050)
