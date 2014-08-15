@@ -1,8 +1,12 @@
 
-This examples shows how to create a simple applet in Bokeh, and also
-how to embed that applet into a Flask server. You will need to first
-download some sample data, then follow the instructions for running
-the example.
+This example shows how to create a simple applet in Bokeh, which can
+be viewed in two different ways:
+
+* running directly on a bokeh-server
+* embedded into a separate Flask application
+
+You will need to first download some sample data, then follow the
+instructions for running the example.
 
 Sample Data
 ============
@@ -32,10 +36,26 @@ This should leave a "daily" subdirectory in this directory.
 Running
 =======
 
-First you need to run a bokeh-server and point it at the stock example
-script. In this directory, execute the command:
+Bokeh Server
+------------
 
-    bokeh-server --script stock_example_embedded.py
+To view this applet directly from a bokeh server, you simply need to
+run a bokeh-server and point it at the stock example script:
+
+    bokeh-server --script stock_app.py
+
+Now navigate to the following URL in a browser:
+
+    http://localhost:5006/bokeh/stocks
+
+Flask Application
+-----------------
+
+To embed this applet into a Flass application, first you need to run
+a bokeh-server and point it at the stock example script. In this
+directory, execute the command:
+
+    bokeh-server --script stock_app.py
 
 Next you need to run the flask server that embeds the stock applet:
 

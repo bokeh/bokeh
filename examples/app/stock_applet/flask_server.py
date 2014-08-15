@@ -1,19 +1,17 @@
 """
-This is an example applet embedded into another flask app. See the
-README.md file in this rectory for instructions on running.
+This file demonstrates embedding a bokeh applet into a flask
+application. See the README.md file in this dirrectory for
+instructions on running.
 """
 from __future__ import print_function
+
 import logging
 logging.basicConfig(level=logging.INFO)
 
-
-
-from os.path import dirname, join, abspath
-
 from bokeh.pluginutils import app_document
-from flask import Flask, render_template, redirect
+from flask import Flask, render_template
 
-from stock_example import StockApp
+from stocks import StockApp
 
 app = Flask('sampleapp')
 
@@ -28,9 +26,10 @@ def make_stock_applet():
 @app.route("/")
 def applet():
     applet = make_stock_applet()
-    return render_template("stocks.html",
-                           app_url = bokeh_url + "/bokeh/jsgenerate/VBox/StockApp/StockApp",
-                           app_tag = applet.tag
+    return render_template(
+        "stocks.html",
+        app_url = bokeh_url + "/bokeh/jsgenerate/VBox/StockApp/StockApp",
+        app_tag = applet.tag
     )
 
 if __name__ == "__main__":
