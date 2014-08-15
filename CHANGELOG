@@ -1,3 +1,44 @@
+2014-08-15    0.5.2:
+--------------------
+  * New Layout system
+  * Improved automate testing infrastructure
+  * AR testing, server-side downsample fixes and ISO Contours
+  * New "dashboard-like" example: examples/app/applet/stock_example.py 
+  * features:
+    - #891 Using --tags with git describe
+    - #901 Allow xfield and yfield paramters to be scalar values
+    - #931 Add hovertool for patches
+    - #942 Hit testing for patches
+    - #976 Server-side colors and iso contours
+    - #977 Add line property in `line_cap` to terminate segment with arrow
+    - #995 Various improvements to example widget testing script
+    - #996 Grid and axes improvements
+  * bugfixes:
+    - #242 Zoom does not work on firefox 26.0
+    - #814 Bokeh-server starting error
+    - #890 Documentation not correct for plotting and changing the title text font size
+    - #892 Updated the title attributes in the docs example
+    - #894 Minor documentation bug
+    - #903 Fix case where colorspecs mishandled serializing to dictionaries when the value was unset
+    - #910 Subtypes, such as numpy int64, are not considered instance of np.int
+    - #912 Simplify canvas dom render, and fix toolbar positions issue
+    - #913 Fix broken wheel zoom in firefox
+    - #915 Not redirected to `/bokeh/` when i load the server
+    - #917 Add return statement in welcome view (#915)
+    - #929 Fixed axis location in categorical plots after layout landed
+    - #943 Fix up plotting.py and js examples
+    - #944 Check patch hit testing for split patches
+    - #954 Plots not working in bokeh.plotting when passing columndatasources with column names different than 'x' and 'y' in dev-0.5.2
+    - #956 All plots in charts.ipynb get the yaxis label cut in ipython notebook (dev-0.5.2)
+    - #957 Fixed labels in charts interface
+    - #960 Bugfix/server downsample
+    - #962 Update _glyph_functions.py
+    - #963 Circle glyph bug on if fill_color is not passed
+    - #974 Fix missing mouse callbacks
+    - #990 Examples/glyphs/daylight contains duplicated yaxis
+  * documentation:
+    - #932 Remove reference to "bokehjs site" on gallery docs
+
 2014-07-23    0.5.1:
 --------------------
   * Hover activated by default
