@@ -7,7 +7,7 @@ from __future__ import print_function
 from os.path import dirname, join, abspath
 
 from bokeh.pluginutils import app_document
-from flask import Flask, render_template
+from flask import Flask, render_template, redirect
 
 from stock_example import StockApp
 
@@ -22,10 +22,6 @@ def make_stock_applet():
     return app
 
 @app.route("/")
-def root():
-    return r"Example is located at <a href='%s'>%s</a>" % (applet_url, applet_url)
-
-@app.route("/applet")
 def applet():
     applet = make_stock_applet()
     return render_template("stocks.html",
