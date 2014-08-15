@@ -39,7 +39,7 @@ script. In this directory, execute the command:
 
 Next you need to run the flask server that embeds the stock applet:
 
-    python embedded_server.py
+    python flask_server.py
 
 Now you can see the stock correlation applet by navigating to the following
 URL in a browser:
