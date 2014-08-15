@@ -220,10 +220,10 @@ class StockApp(VBox):
     def df(self):
         return get_data(self.ticker1, self.ticker2)
 
+# the following addes "/bokeh/stocks/" as a url which renders StockApp
+# if you don't want to server it from the bokeh server, just remove this section
 @bokeh_app.route("/bokeh/stocks/")
 @object_page("stocks")
 def make_object():
     app = StockApp.create()
     return app
-
-# the following addes "/exampleapp" as a url which renders StockApp

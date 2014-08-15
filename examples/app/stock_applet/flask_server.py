@@ -8,9 +8,8 @@ from os.path import dirname, join, abspath
 
 from bokeh.pluginutils import app_document
 from flask import Flask, render_template
-import jinja2
 
-from stock_example_embedded import StockApp
+from stock_example import StockApp
 
 app = Flask('sampleapp')
 
@@ -29,10 +28,9 @@ def root():
 @app.route("/applet")
 def applet():
     applet = make_stock_applet()
-    template = jinja2.Template(open("stocks.html").read())
-    return template.render(
-        app_url = bokeh_url + "/bokeh/jsgenerate/VBox/StockApp/StockApp",
-        app_tag = applet.tag
+    return render_template("stocks.html",
+                           app_url = bokeh_url + "/bokeh/jsgenerate/VBox/StockApp/StockApp",
+                           app_tag = applet.tag
     )
 
 if __name__ == "__main__":
