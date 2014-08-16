@@ -17,7 +17,6 @@ class TestPlotting(unittest.TestCase):
         self.assertEqual(plt._default_notebook, None)
 
     def test_figure(self):
-        self.assertEqual(plt.curplot(), None)
         plt.figure()
         self.assertEqual(plt.curplot(), None)
         p = plt.circle([1,2,3], [1,2,3])
