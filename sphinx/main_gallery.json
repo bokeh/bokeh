@@ -37,9 +37,9 @@
         { "file": "../examples/seaborn/violin.py",              "name": "violin"                             },
         { "file": "../examples/seaborn/kde.py",                 "name": "kde"                                },
         { "file": "../examples/seaborn/sinerror.py",            "name": "sinerror"                           },
-        { "file": "../examples/charts/histograms.py",           "name": "kde"                                },
-        { "file": "../examples/charts/stacked_bar.py",          "name": "kde"                                },
-        { "file": "../examples/charts/boxplot.py",              "name": "kde"                                },
-        { "file": "../examples/charts/iris_scatter.py",         "name": "kde"                                }
+        { "file": "../examples/charts/histograms.py",           "name": "hitograms"                          },
+        { "file": "../examples/charts/stacked_bar.py",          "name": "stacked_bar"                        },
+        { "file": "../examples/charts/boxplot.py",              "name": "boxplot"                            },
+        { "file": "../examples/charts/iris_scatter.py",         "name": "iris_scatter"                       }
     ]
 }
