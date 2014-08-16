@@ -12,5 +12,5 @@ df = pd.DataFrame(distributions)
 
 # and finally we drop the df into out Histogram chart
 from bokeh.charts import Histogram
-hist = Histogram(df, bins=50, filename="histograms")
+hist = Histogram(df, bins=50, filename="histograms.html")
 hist.title("Histograms").ylabel("frequency").legend(True).width(400).height(350).show()
