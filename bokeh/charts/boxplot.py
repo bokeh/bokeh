@@ -67,12 +67,12 @@ class BoxPlot(ChartObject):
                  xscale="categorical", yscale="linear", width=800, height=600,
                  tools=True, filename=False, server=False, notebook=False, outliers=True,
                  marker="circle", line_width=2):
-        """ Initialize a new boxplot.
+        """ Initialize a new BoxPlot.
         Args:
-            value (DataFrame/OrderedDict/dict): containing the data with names as a key
+            value (DataFrame or OrderedDict/dict): containing the data with names as a key
                 and the data as a value.
             outliers (bool, optional): Whether or not to plot outliers.
-            marker (int/string, optional): if outliers=True, the marker type to use
+            marker (int or string, optional): if outliers=True, the marker type to use
                 e.g., `circle`.
             line_width (int): width of the inter-quantile range line.
             title (str, optional): the title of your plot. Defaults to None.
@@ -97,11 +97,11 @@ class BoxPlot(ChartObject):
                 Defaults to 600.
             tools (bool, optional): to enable or disable the tools in your plot.
                 Defaults to True
-            filename (str, bool, optional): the name of the file where your plot.
+            filename (str or bool, optional): the name of the file where your plot.
                 will be written. If you pass True to this argument, it will use
                 "untitled" as a filename.
                 Defaults to False.
-            server (str, bool, optional): the name of your plot in the server.
+            server (str or bool, optional): the name of your plot in the server.
                 If you pass True to this argument, it will use "untitled"
                 as the name in the server.
                 Defaults to False.
@@ -139,16 +139,25 @@ class BoxPlot(ChartObject):
                                   tools, filename, server, notebook)
 
     def check_attr(self):
-        """This method checks if any of the chained method were used. If they were
-        not used, it assign the init params content by default.
+        """Check if any of the chained method were used.
+
+        If they were not used, it assign the init parameters content by default.
         """
         super(BoxPlot, self).check_attr()
 
     def get_data(self, cat, marker, outliers, **value):
-        """Take the data from the input **value and calculate the
-        parameters accordingly. Then build a dict containing references
-        to all the calculated point to be used by the quad glyph inside the
-        `draw` method.
+        """Take the BoxPlot data from the input **value.
+
+        It calculates the chart properties accordingly. Then build a dict
+        containing references to all the calculated points to be used by
+        the quad, segments and markers glyphs inside the `draw` method.
+
+        Args:
+            cat (list): categories as a list of strings.
+            marker (int or string, optional): if outliers=True, the marker type to use
+                e.g., `circle`.
+            outliers (bool, optional): Whether or not to plot outliers.
+            values (dict or pd obj): the values to be plotted as bars.
         """
         self.cat = cat
         self.marker = marker
@@ -188,8 +197,7 @@ class BoxPlot(ChartObject):
             self._set_and_get("x", level, step[i])
 
     def get_source(self):
-        """Get the boxplot data dict into the ColumnDataSource and
-        calculate the proper ranges."""
+        "Push the BoxPlot data into the ColumnDataSource and calculate the proper ranges."
         self.source = ColumnDataSource(self.data)
         self.xdr = FactorRange(factors=self.source.data["cat"])
         y_names = self.attr[::6]
@@ -201,7 +209,9 @@ class BoxPlot(ChartObject):
         self.ydr = Range1d(start=start_y - 0.1 * (end_y-start_y), end=end_y + 0.1 * (end_y-start_y))
 
     def draw(self):
-        """Use a selected marker glyph to display the points, segments to
+        """Use the several glyphs to display the Boxplot.
+
+        It uses the selected marker glyph to display the points, segments to
         display the iqr and rects to display the boxes, taking as reference
         points the data loaded at the ColumnDataSurce.
         """
@@ -219,12 +229,13 @@ class BoxPlot(ChartObject):
                     self.chart.make_scatter(x, o, self.marker, colors[i])
 
     def show(self):
-        """This is the main boxPlot show function.
+        """Main BoxPlot show method.
+
         It essentially checks for chained methods, creates the chart,
         pass data into the plot object, draws the glyphs according
         to the data and shows the chart in the selected output.
 
-        Note: the show method can not be chained. It has to be called
+        .. note:: the show method can not be chained. It has to be called
         at the end of the chain.
         """
         if isinstance(self.value, pd.DataFrame):
@@ -254,6 +265,7 @@ class BoxPlot(ChartObject):
     # Some helper methods
     def _set_and_get(self, prefix, val, content):
         """Set a new attr and then get it to fill the self.data dict.
+
         Keep track of the attributes created.
 
         Args:

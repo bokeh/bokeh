@@ -1,7 +1,7 @@
 """This is the Bokeh charts interface. It gives you a high level API to build
 complex plot is a simple way.
 
-This is the Scatter class which lets you build your scatter plots just passing
+This is the Scatter class which lets you build your Scatter charts just passing
 the arguments to the Chart class and calling the proper functions.
 It also add detection of the incomming input to see if it is a pandas dataframe
 or a pandas groupby object.
@@ -32,7 +32,7 @@ from ..objects import ColumnDataSource, Range1d
 
 class Scatter(ChartObject):
     """This is the Scatter class and it is in charge of plotting
-    scatter plots in an easy and intuitive way.
+    Scatter charts in an easy and intuitive way.
 
     Essentially, we provide a way to ingest the data, make the proper
     calculations and push the references into a source object.
@@ -89,11 +89,11 @@ class Scatter(ChartObject):
                 Defaults to 600.
             tools (bool, optional): to enable or disable the tools in your plot.
                 Defaults to True
-            filename (str, bool, optional): the name of the file where your plot.
+            filename (str or bool, optional): the name of the file where your plot.
                 will be written. If you pass True to this argument, it will use
                 "untitled" as a filename.
                 Defaults to False.
-            server (str, bool, optional): the name of your plot in the server.
+            server (str or bool, optional): the name of your plot in the server.
                 If you pass True to this argument, it will use "untitled"
                 as the name in the server.
                 Defaults to False.
@@ -129,16 +129,22 @@ class Scatter(ChartObject):
                                       tools, filename, server, notebook)
 
     def check_attr(self):
-        """This method checks if any of the chained method were used. If they were
-        not used, it assign the init params content by default.
+        """Check if any of the chained method were used.
+
+        If they were not used, it assign the init parameters content by default.
         """
         super(Scatter, self).check_attr()
 
     def get_data(self, **pairs):
-        """Take the points data from the input **pairs and calculate the
-        parameters accordingly. Then build a dict containing references
-        to all the calculated point to be used by the quad glyph inside the
-        `draw` method.
+        """Take the x/y data from the input **value.
+
+        It calculates the chart properties accordingly. Then build a dict
+        containing references to all the calculated points to be used by
+        the marker glyph inside the `draw` method.
+
+        Args:
+            pairs (dict): a dict containing the data with names as a key
+                and the data as a value.
         """
         self.data = dict()
 
@@ -158,8 +164,7 @@ class Scatter(ChartObject):
             self._set_and_get("y_", val, xy[:, 1])
 
     def get_source(self):
-        """Get the pairs data dict into the ColumnDataSource and
-        calculate the proper ranges."""
+        "Push the Scatter data into the ColumnDataSource and calculate the proper ranges."
         self.source = ColumnDataSource(self.data)
 
         x_names, y_names = self.attr[::2], self.attr[1::2]
@@ -173,9 +178,9 @@ class Scatter(ChartObject):
         self.ydr = Range1d(start=starty - 0.1 * (endy - starty), end=endy + 0.1 * (endy - starty))
 
     def draw(self):
-        """Use a selected marker glyph to display the points,
-        taking as reference points the data loaded at the
-        ColumnDataSurce.
+        """Use the marker glyphs to display the points.
+
+        Takes reference points from data loaded at the ColumnDataSurce.
         """
         self.duplet = list(self._chunker(self.attr, 2))
         colors = self._set_colors(self.duplet)
@@ -184,12 +189,13 @@ class Scatter(ChartObject):
             self.chart.make_scatter(duplet[0], duplet[1], i, colors[i - 1])
 
     def show(self):
-        """This is the main Scatter show function.
+        """Main Scatter show method.
+
         It essentially checks for chained methods, creates the chart,
         pass data into the plot object, draws the glyphs according
         to the data and shows the chart in the selected output.
 
-        Note: the show method can not be chained. It has to be called
+        .. note:: the show method can not be chained. It has to be called
         at the end of the chain.
         """
         # asumming we get an hierchiral pandas object
@@ -247,6 +253,7 @@ class Scatter(ChartObject):
     # Some helper methods
     def _set_and_get(self, prefix, val, content):
         """Set a new attr and then get it to fill the self.data dict.
+
         Keep track of the attributes created.
 
         Args:

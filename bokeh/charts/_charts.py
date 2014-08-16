@@ -2,7 +2,7 @@
 complex plot is a simple way.
 
 This is the main Chart class which is able to build several plots using the low
-level Bokeh API. It setups all the plot characteristics and let you plot
+level Bokeh API. It setups all the plot characteristics and lets you plot
 different chart types, taking OrderedDict as the main input. It also supports
 the generation of several outputs (file, server, notebook).
 """
@@ -50,7 +50,8 @@ class Chart(object):
     """
     def __init__(self, title, xlabel, ylabel, legend, xscale, yscale, width, height,
                  tools, filename, server, notebook):
-        """
+        """Common arguments to be used by all the inherited classes.
+
         Args:
             title (str): the title of your plot.
             xlabel (str): the x-axis label of your plot.
@@ -66,13 +67,13 @@ class Chart(object):
             width (int): the width of your plot in pixels.
             height (int): the height of you plot in pixels.
             tools (bool): to enable or disable the tools in your plot.
-            filename (str, bool): the name of the file where your plot.
+            filename (str or bool): the name of the file where your plot.
                 will be written. If you pass True to this argument, it will use
                 "untitled" as a filename.
-            server (str, bool): the name of your plot in the server.
+            server (str or bool): the name of your plot in the server.
                 If you pass True to this argument, it will use "untitled"
                 as the name in the server.
-            notebook (bool):if you want to output (or not) your plot into the
+            notebook (bool): if you want to output (or not) your plot into the
                 IPython notebook.
 
         Attributes:
@@ -112,7 +113,7 @@ class Chart(object):
         self.glyphs = []
 
     def start_plot(self):
-        "This method add the axis, grids and tools to self.plot"
+        "Add the axis, grids and tools to self.plot"
         # Add axis
         xaxis = self.make_axis("bottom", self.xscale, self.xlabel)
         yaxis = self.make_axis("left", self.yscale, self.ylabel)
@@ -135,8 +136,7 @@ class Chart(object):
             self.plot.tools.append(previewsave)
 
     def add_data_plot(self, source, x_range, y_range):
-        """This method add source and range data to the initialized empty
-        attributes.
+        """Add source and range data to the initialized empty attributes.
 
         Args:
             source (obj): datasource object for your `self.plot`.
@@ -149,8 +149,9 @@ class Chart(object):
         self.plot.y_range = y_range
 
     def end_plot(self, groups):
-        """This method add the legend to your plot, and the plot to
-        a new Document (and Session in the case of server option use).
+        """Add the legend to your plot, and the plot to a new Document.
+
+        It also add the Document to a new Session in the case of server output.
 
         Args:
             groups(list): keeping track of the incoming groups of data.
@@ -222,36 +223,41 @@ class Chart(object):
         return grid
 
     def make_segment(self, x0, y0, x1, y1, color, width):
-        """ Creates a segment glyph with specified color and width,
-        and appends it to the plot.renderers list.
+        """ Create a segment glyph and append it to the plot.renderers list.
 
-        Same args as the Segment glyphs:
-            from bokeh._glyph_functions import segment
-            help(segment)
+        Args:
+            x0 (str or list[float]) : values or field names of starting `x` coordinates
+            y0 (str or list[float]) : values or field names of starting `y` coordinates
+            x1 (str or list[float]) : values or field names of ending `x` coordinates
+            y1 (str or list[float]) : values or field names of ending `y` coordinates
+            color (str): the segment color
+            width (int): the segment width
         """
         segment = Segment(x0=x0, y0=y0, x1=x1, y1=y1, line_color=color, line_width=width)
 
         self._append_glyph(segment)
 
     def make_line(self, x, y, color):
-        """Creates a line glyph with specified color,
-        and appends it to the plot.renderers list.
+        """Create a line glyph and append it to the plot.renderers list.
 
-        Same args as the Segment glyphs:
-            from bokeh._glyph_functions import line
-            help(line)
+        Args:
+            x (str or list[float]) : values or field names of line `x` coordinates
+            y (str or list[float]) : values or field names of line `y` coordinates
+            color (str): the line color
         """
         line = Line(x=x, y=y, line_color=color)
 
         self._append_glyph(line)
 
     def make_quad(self, top, bottom, left, right, color):
-        """Creates a quad glyph with specified color,
-        and appends it to the plot.renderers list.
+        """Create a quad glyph and append it to the plot.renderers list.
 
-        Same args as the Segment glyphs:
-            from bokeh._glyph_functions import quad
-            help(quad)
+        Args:
+            left (str or list[float]) : values or field names of left edges
+            right (str or list[float]) : values or field names of right edges
+            top (str or list[float]) : values or field names of top edges
+            bottom (str or list[float]) : values or field names of bottom edges
+            color (str): the fill color
         """
         quad = Quad(top=top, bottom=bottom, left=left, right=right,
                     fill_color=color, fill_alpha=0.7, line_color="white", line_alpha=1.0)
@@ -259,11 +265,14 @@ class Chart(object):
         self._append_glyph(quad)
 
     def make_rect(self, x, y, width, height, color):
-        """Creates a rect glyph with specified color,
-        and appends it to the renderers list.
-        Same args as the Segment glyphs:
-            from bokeh._glyph_functions import rect
-            help(rect)
+        """Create a rect glyph and append it to the renderers list.
+
+        Args:
+            x (str or list[float]) : values or field names of center `x` coordinates
+            y (str or list[float]) : values or field names of center `y` coordinates
+            width (str or list[float]) : values or field names of widths
+            height (str or list[float]) : values or field names of heights
+            color (str): the fill color
         """
         rect = Rect(x=x, y=y, width=width, height=height, fill_color=color,
                     fill_alpha=0.7, line_color='white', line_alpha=1.0)
@@ -271,14 +280,13 @@ class Chart(object):
         self._append_glyph(rect)
 
     def make_scatter(self, x, y, markertype, color):
-        """ Creates a marker glyph (for a single point) with specified
-        markertype and color, and appends it to the renderers list.
+        """Create a marker glyph and appends it to the renderers list.
 
         Args:
-            x (int): x-pos of point
-            y (int): y-pos of point
-            markertype (int/string): Marker type to use (e.g., 2, 'circle', etc.)
-            color (string/?): color of point
+            x (str or list[float]) : values or field names of line `x` coordinates
+            y (str or list[float]) : values or field names of line `y` coordinates
+            markertype (int or str): Marker type to use (e.g., 2, 'circle', etc.)
+            color (str): color of point
         """
         from collections import OrderedDict
 
@@ -313,7 +321,10 @@ class Chart(object):
         self._append_glyph(scatter)
 
     def show(self):
-        "Main show function, it shows the plot in file, server and notebook outputs."
+        """Main show function.
+
+        It shows the plot in file, server and notebook outputs.
+        """
         if self.filename:
             if self.filename is True:
                 filename = "untitled"
@@ -338,7 +349,11 @@ class Chart(object):
 
     ## Some helper methods
     def _append_glyph(self, glyph):
-        """ Appends the pass glyphs to the plot.renderer."""
+        """Append the passed glyphs to the plot.renderer.
+
+        Args:
+            glyph (obj): the glyph to be appended
+        """
         glyph = Glyph(data_source=self.plot.data_sources[0],
                       xdata_range=self.plot.x_range,
                       ydata_range=self.plot.y_range,
