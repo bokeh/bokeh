@@ -36,6 +36,10 @@
         { "file": "../examples/ggplot/xkcd_density.py",         "name": "xkcd_density"                       },
         { "file": "../examples/seaborn/violin.py",              "name": "violin"                             },
         { "file": "../examples/seaborn/kde.py",                 "name": "kde"                                },
-        { "file": "../examples/seaborn/sinerror.py",            "name": "sinerror"                           }
+        { "file": "../examples/seaborn/sinerror.py",            "name": "sinerror"                           },
+        { "file": "../examples/charts/histograms.py",           "name": "kde"                                },
+        { "file": "../examples/charts/stacked_bar.py",          "name": "kde"                                },
+        { "file": "../examples/charts/boxplot.py",              "name": "kde"                                },
+        { "file": "../examples/charts/iris_scatter.py",         "name": "kde"                                }
     ]
 }
