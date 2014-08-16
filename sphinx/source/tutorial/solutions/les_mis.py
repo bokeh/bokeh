@@ -66,6 +66,7 @@ figure()
 # data. Experiment with the widths and heights (use categorical percentage
 # unite) as well as colors and alphas. Add hover and resize tools.
 rect('xname', 'yname', 0.9, 0.9, source=source,
+     x_axis_location="above",
      x_range=list(reversed(names)), y_range=names,
      color='colors', alpha='alphas', line_color=None,
      tools="resize,hover", title="Les Mis Occurrences (one at a time)",
@@ -81,7 +82,6 @@ axis().axis_line_color = None
 axis().major_tick_line_color = None
 axis().major_label_text_font_size = "5pt"
 axis().major_label_standoff = 0
-xaxis().location = "top"
 xaxis().major_label_orientation = np.pi/3
 
 # EXERCISE configure the  hover tool to display both names as well as
