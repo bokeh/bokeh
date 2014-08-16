@@ -630,17 +630,20 @@ def legend():
     legends = [obj for obj in p.renderers if isinstance(obj, Legend)]
     return _list_attr_splat(legends)
 
+def _grid(dimension):
+    p = curplot()
+    if p is None:
+        return None
+    grid = [obj for obj in p.renderers if isinstance(obj, Grid) and obj.dimension==dimension]
+    return _list_attr_splat(grid)
+
 def xgrid():
     """ Get the current `x` :class:`grid <bokeh.objects.Grid>` object(s)
 
     Returns:
         Returns legend object or splattable list of legend objects on the current plot
     """
-    p = curplot()
-    if p is None:
-        return None
-    grid = [obj for obj in p.renderers if isinstance(obj, Grid) and obj.dimension==0]
-    return _list_attr_splat(grid)
+    return _grid(0)
 
 def ygrid():
     """ Get the current `y` :class:`grid <bokeh.objects.Grid>` object(s)
@@ -648,11 +651,7 @@ def ygrid():
     Returns:
         Returns y-grid object or splattable list of y-grid objects on the current plot
     """
-    p = curplot()
-    if p is None:
-        return None
-    grid = [obj for obj in p.renderers if isinstance(obj, Grid) and obj.dimension==1]
-    return _list_attr_splat(grid)
+    return _grid(1)
 
 def grid():
     """ Get the current :class:`grid <bokeh.objects.Grid>` object(s)
