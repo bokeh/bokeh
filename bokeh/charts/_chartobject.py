@@ -1,8 +1,8 @@
 """This is the Bokeh charts interface. It gives you a high level API to build
 complex plot is a simple way.
 
-This is the ChartObject class used aa a minimal prototype to build more each
-chart type available. It also provides the mechanisms to support chained
+This is the ChartObject class, a minimal prototype class to build more chart
+types on top of it. It provides the mechanisms to support the shared chained
 methods.
 """
 #-----------------------------------------------------------------------------
@@ -25,10 +25,9 @@ from ._charts import Chart
 
 
 class ChartObject(object):
-    """This is the ChartObject class, a prototype class to inherit each type of
-    different new chart.
+    """A prototype class to inherit each new chart type.
 
-    It provided useful general methods to be used by the inherited chart clases
+    It provides useful methods to be used by the inherited chart classes,
     such as:
         * chained methods
         * dinamically chart cration attributes, ie. `self.chart`
@@ -37,7 +36,8 @@ class ChartObject(object):
     def __init__(self, title, xlabel, ylabel, legend,
                  xscale, yscale, width, height,
                  tools, filename, server, notebook):
-        """
+        """Common arguments to be used by all the inherited classes.
+
         Args:
             title (str): the title of your plot.
             xlabel (str): the x-axis label of your plot.
@@ -53,16 +53,16 @@ class ChartObject(object):
             width (int): the width of your plot in pixels.
             height (int): the height of you plot in pixels.
             tools (bool): to enable or disable the tools in your plot.
-            filename (str, bool): the name of the file where your plot.
+            filename (str or bool): the name of the file where your plot.
                 will be written. If you pass True to this argument, it will use
                 "untitled" as a filename.
-            server (str, bool): the name of your plot in the server.
+            server (str or bool): the name of your plot in the server.
                 If you pass True to this argument, it will use "untitled"
                 as the name in the server.
             notebook (bool):if you want to output (or not) your plot into the
                 IPython notebook.
 
-        Notes:
+        .. note::
             These Args are assigned to private attributes that will be used
             by default at the time of chart instantiation, except in the case
             we call any of the chained methods available, in that case the
@@ -82,81 +82,163 @@ class ChartObject(object):
         self.__notebook = notebook
 
     def title(self, title):
-        "title (str): the title of your plot."
+        """Set the title of your chart.
+
+        Args:
+            title (str): new title to use for your chart.
+
+        Returns:
+            self: the chart object being configured.
+        """
         self._title = title
         return self
 
     def xlabel(self, xlabel):
-        "xlabel (str): the x-axis label of your plot."
+        """Set the xlabel of your chart.
+
+        Args:
+            xlabel (str): the x-axis label of your plot.
+
+        Returns:
+            self: the chart object being configured.
+        """
         self._xlabel = xlabel
         return self
 
     def ylabel(self, ylabel):
-        "ylabel (str): the y-axis label of your plot."
+        """Set the ylabel of your chart.
+
+        Args:
+            ylabel (str): the y-axis label of your plot.
+
+        Returns:
+            self: the chart object being configured.
+        """
         self._ylabel = ylabel
         return self
 
     def legend(self, legend):
-        """legend (str, bool): the legend of your plot.
+        """Set the legend of your chart.
 
         The legend content is inferred from incoming input.
         It can be `top_left`, `top_right`, `bottom_left`, `bottom_right`.
         It is `top_right` is you set it as True.
+
+        Args:
+            legend (str or bool): the legend of your plot.
+
+        Returns:
+            self: the chart object being configured.
         """
         self._legend = legend
         return self
 
     def xscale(self, xscale):
-        "xscale (str): the x-axis scale of your plot."
+        """Set the xscale of your chart.
+
+        It can be `linear`, `date` or `categorical`.
+
+        Args:
+            xscale (str): the x-axis scale of your plot.
+
+        Returns:
+            self: the chart object being configured.
+        """
         self._xscale = xscale
         return self
 
     def yscale(self, yscale):
-        "yscale (str): the y-axis scale of your plot."
+        """Set the yscale of your chart.
+
+        It can be `linear`, `date` or `categorical`.
+
+        Args:
+            yscale (str): the y-axis scale of your plot..
+
+        Returns:
+            self: the chart object being configured.
+        """
         self._yscale = yscale
         return self
 
     def width(self, width):
-        "width (int): the width of your plot in pixels."
+        """Set the width of your chart.
+
+        Args:
+            width (int): the width of your plot in pixels.
+
+        Returns:
+            self: the chart object being configured.
+        """
         self._width = width
         return self
 
     def height(self, height):
-        "height (int): the height of you plot in pixels."
+        """Set the height of your chart.
+
+        Args:
+            height (int): the height of you plot in pixels.
+
+        Returns:
+            self: the chart object being configured.
+        """
         self._height = height
         return self
 
     def tools(self, tools=True):
-        """tools (bool): to enable or disable the tools in your plot.
+        """Set the tools of your chart.
 
         It defaults to True if you use the method without any parameter.
+
+        Args:
+            tools (bool): to enable or disable the tools in your plot.
+
+        Returns:
+            self: the chart object being configured.
         """
         self._tools = tools
         return self
 
     def filename(self, filename):
-        """filename (str, bool): the name of the file where your plot.
-        will be written.
+        """Set the file name of your chart.
 
         If you pass True to this argument, it will use "untitled" as a filename.
+
+        Args:
+            filename (str or bool): the file name where your plot will be written.
+
+        Returns:
+            self: the chart object being configured.
         """
         self._filename = filename
         return self
 
     def server(self, server):
-        """server (str, bool): the name of your plot in the server.
+        """Set the server name of your chart.
 
         If you pass True to this argument, it will use "untitled"
         as the name in the server.
+
+        Args:
+            server (str or bool): the name of your plot in the server
+
+        Returns:
+            self: the chart object being configured.
         """
         self._server = server
         return self
 
     def notebook(self, notebook=True):
-        """notebook (bool):if you want to output (or not) your plot into the
-        IPython notebook.
+        """Show your chart inside the IPython notebook.
 
         It defaults to True if you use the method without any parameter.
+
+        Args:
+            notebook (bool):if you want to output (or not) your plot into the
+                IPython notebook.
+
+        Returns:
+            self: the chart object being configured.
         """
         self._notebook = notebook
         return self
@@ -164,9 +246,10 @@ class ChartObject(object):
     # TODO: make more chain methods
 
     def check_attr(self):
-        """This method check if any of the underscore attributes exists,
-        so, it checks if any of the chained method were used. If they were
-        not used, it assign the params content by default.
+        """Check if any of the underscored attributes exists.
+
+        It checks if any of the chained method were used. If they were
+        not used, it assigns the parameters content by default.
         """
         if not hasattr(self, '_title'):
             self._title = self.__title
@@ -194,9 +277,10 @@ class ChartObject(object):
             self._notebook = self.__notebook
 
     def create_chart(self):
-        """We dinamically create a new chart object containing
-        our specific chart customized with our parameters we have
-        passed in at the instantiation step or through the chained
+        """Dinamically create a new chart object.
+
+        It creates a chart instance customized with the parameters
+        we have passed at the __init__ step or through the chained
         methods.
         """
         self.chart = Chart(self._title, self._xlabel, self._ylabel, self._legend,
@@ -208,15 +292,17 @@ class ChartObject(object):
         self.chart.start_plot()
 
     def get_data(self):
-        """Method to get the data and make specific calculations.
+        """Get the input data.
+
         It has to be implemented by any of the inherited class
-        representing each different chart type.
+        representing each different chart type. It is the place
+        where we make specific calculations for each chart.
         """
         pass
 
     def get_source(self):
-        """Method to push the data into the ColumnDataSource and
-        build the proper ranges.
+        """Push data into the ColumnDataSource and build the proper ranges.
+
         It has to be implemented by any of the inherited class
         representing each different chart type.
         """
@@ -224,6 +310,7 @@ class ChartObject(object):
 
     def add_data_plot(self, xdr, ydr, *source):
         """Wrapper to call the `chart.add_data_plot` method.
+
         It pass source and ranges as parameters of the `chart.add_data_plot` method.
 
         Args:
@@ -234,7 +321,8 @@ class ChartObject(object):
         self.chart.add_data_plot(xdr, ydr, *source)
 
     def draw(self):
-        """Method to draw the glyphs into the plot.
+        """Draw the glyphs into the plot.
+
         It has to be implemented by any of the inherited class
         representing each different chart type.
         """
@@ -242,6 +330,7 @@ class ChartObject(object):
 
     def end_plot(self, groups):
         """Wrapper to call the `chart.end_plot` method.
+
         It pass groups as parameters of the `chart.end_plot` method.
 
         Args:
@@ -256,12 +345,21 @@ class ChartObject(object):
 
     # Some helper methods
     def _chunker(self, l, n):
-        "Yield successive n-sized chunks from l."
+        """Yield successive n-sized chunks from l.
+
+        Args:
+            l (list: the incomming list to be chunked
+            n (int): lenght of you chucks
+        """
         for i in range(0, len(l), n):
             yield l[i:i + n]
 
     def _set_colors(self, chunk):
-        "Build the proper color list just cycling in a defined palette"
+        """Build a color list just cycling through a defined palette.
+
+        Args:
+            chuck (list): the chunk of elements to generate the color list.
+        """
         colors = []
 
         pal = ["#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33ff3"]

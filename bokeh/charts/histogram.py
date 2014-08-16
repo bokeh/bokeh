@@ -62,7 +62,7 @@ class Histogram(ChartObject):
         Args:
             measured (dict): a dict containing the data with name as a key
                 and the data as a value.
-            bins (int): number of bins to use in the histogram building.
+            bins (int): number of bins to use in the Histogram building.
             mu (float, optional): theoretical mean value for the normal
                 distribution. Defaults to None.
             sigma (float, optional): theoretical sigma value for the normal
@@ -89,11 +89,11 @@ class Histogram(ChartObject):
                 Defaults to 600.
             tools (bool, optional): to enable or disable the tools in your plot.
                 Defaults to True
-            filename (str, bool, optional): the name of the file where your plot.
+            filename (str or bool, optional): the name of the file where your plot.
                 will be written. If you pass True to this argument, it will use
                 "untitled" as a filename.
                 Defaults to False.
-            server (str, bool, optional): the name of your plot in the server.
+            server (str or bool, optional): the name of your plot in the server.
                 If you pass True to this argument, it will use "untitled"
                 as the name in the server.
                 Defaults to False.
@@ -132,16 +132,24 @@ class Histogram(ChartObject):
                                         tools, filename, server, notebook)
 
     def check_attr(self):
-        """This method checks if any of the chained method were used. If they were
-        not used, it assign the init params content by default.
+        """Check if any of the chained method were used.
+
+        If they were not used, it assign the init parameters content by default.
         """
         super(Histogram, self).check_attr()
 
     def get_data(self, bins, mu, sigma, **value):
-        """Take the histogram data from the input **value and calculate
-        the parameters accordingly. Then build a dict containing references
-        to all the calculated point to be used by the quad glyph inside the
-        `draw` method.
+        """Take the Histogram data from the input **value.
+
+        It calculates the chart properties accordingly. Then build a dict
+        containing references to all the calculated points to be used by
+        the quad and line glyphs inside the `draw` method.
+
+        Args:
+            bins (int): number of bins to use in the Histogram building.
+            mu (float): theoretical mean value for the normal distribution.
+            sigma (float): theoretical sigma value for the normal distribution.
+            values (dict or pd obj): the values to be plotted as bars.
         """
         # assuming value is a dict, ordered dict
         self.value = value
@@ -172,8 +180,7 @@ class Histogram(ChartObject):
                 self.groups.append("cdf")
 
     def get_source(self):
-        """Get the histogram data dict into the ColumnDataSource
-        and calculate the proper ranges."""
+        "Push the Histogram data into the ColumnDataSource and calculate the proper ranges."
         self.source = ColumnDataSource(data=self.data)
 
         if not self.mu_and_sigma:
@@ -192,7 +199,9 @@ class Histogram(ChartObject):
         self.ydr = Range1d(start=0, end=1.1 * endy)
 
     def draw(self):
-        """Use the quad (and line) glyphs to display the histogram
+        """Use the several glyphs to display the Histogram and pdf/cdf.
+
+        It uses the quad (and line) glyphs to display the Histogram
         bars, taking as reference points the data loaded at the
         ColumnDataSurce.
         """
@@ -212,12 +221,13 @@ class Histogram(ChartObject):
                 self.chart.make_line(self.source, octet[6], octet[8], "blue")
 
     def show(self):
-        """This is the main Histogram show function.
+        """Main Histogram show method.
+
         It essentially checks for chained methods, creates the chart,
         pass data into the plot object, draws the glyphs according
         to the data and shows the chart in the selected output.
 
-        Note: the show method can not be chained. It has to be called
+        .. note:: the show method can not be chained. It has to be called
         at the end of the chain.
         """
         # we need to check the chained method attr
@@ -242,6 +252,7 @@ class Histogram(ChartObject):
     # Some helper methods
     def _set_and_get(self, prefix, val, content):
         """Set a new attr and then get it to fill the self.data dict.
+
         Keep track of the attributes created.
 
         Args:
