@@ -64,16 +64,27 @@ run the Bokeh server as follows::
 Installing from Source
 ----------------------
 
-You can also clone the `Bokeh Github repository <https://github.com/ContinuumIO/bokeh>`_::
+Installing Bokeh from source typically requires rebuilding the BokehJS library
+from its CoffeeScript sources. Some additional toolchain support is required,
+please consults the :ref:`developer_install` section of the :ref:`devguide` for
+more detailed instructions.
 
-    $ git clone https://github.com/ContinuumIO/bokeh
-    $ cd bokeh
-    $ python setup.py install
+Developer Builds
+----------------
 
-The setup.py script will automatically install the pre-built JavaScript
-for the runtime :ref:`bokehjs` library, so you do not need CoffeeScript
-or any JavaScript development infrastructure to use Bokeh.
+And easier way to obtain the most recent Bokeh updates without having to worry about
+building Bokeh yourself is to install a developer build. We typically try to make
+a new developer build available at least once a week, and sometimes more often.
 
-If these instructions don't work, or you are not sure how to install the
-various dependencies, please consults the :ref:`developer_install` section
-of the :ref:`devguide`.
+These builds are being made available on `binstar.org <http://binstar.org>`_. If
+you are using Anaconda, you can install with conda by issuing::
+
+    conda install -c bokeh/channel/dev bokeh
+
+Alternatively you can install with pip::
+
+    pip install --pre -i https://pypi.binstar.org/bokeh/channel/dev/simple bokeh --extra-index-url https://pypi.python.org/simple/
+
+We attempt to make sure the developer builds are relatively stable, however please
+be aware they they are not tested as rigorously as standard releases. Any problems
+or issues reported on the GitHub issue tracker are appreciated.
