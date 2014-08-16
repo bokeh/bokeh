@@ -6,7 +6,7 @@ window.layout_main = (Bokeh) ->
   p3 = Bokeh.Collections('Paragraph').create(text : "hi how are you3")
 
   hbox = Bokeh.Collections('HBox').create(
-    children : [p1.ref(), p2.ref(), p3.ref()]
+    children : [p1, p2, p3]
   )
 
   p1 = Bokeh.Collections('Paragraph').create(text : "hi how are you")
@@ -14,7 +14,7 @@ window.layout_main = (Bokeh) ->
   p3 = Bokeh.Collections('Paragraph').create(text : "hi how are you3")
 
   vbox = Bokeh.Collections('VBox').create(
-    children : [p1.ref(), p2.ref(), p3.ref()]
+    children : [p1, p2, p3]
   )
   input1 = Bokeh.Collections('TextInput').create(
     title : "First Input"
@@ -22,7 +22,7 @@ window.layout_main = (Bokeh) ->
     value : "hello"
   )
   vboxform = Bokeh.Collections('VBoxModelForm').create(
-    _children : [vbox.ref(), hbox.ref(), input1.ref()]
+    _children : [vbox, hbox, input1]
   )
   view = new vboxform.default_view(model : vboxform)
   window.view = view

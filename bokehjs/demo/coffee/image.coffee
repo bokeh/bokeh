@@ -41,7 +41,7 @@ options = {
   dims: [600, 600]
   xrange: [0, 10]
   yrange: [0, 10]
-  xaxes: "bottom"
+  xaxes: "below"
   yaxes: "left"
   tools: "pan,wheel_zoom,box_zoom,resize,preview"
   legend: false

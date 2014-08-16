@@ -20,8 +20,8 @@ def large_plot(n):
         xdr = DataRange1d(sources=[source.columns("x")])
         ydr = DataRange1d(sources=[source.columns("y")])
         plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source])
-        xaxis = LinearAxis(plot=plot, dimension=0)
-        yaxis = LinearAxis(plot=plot, dimension=1)
+        xaxis = LinearAxis(plot=plot)
+        yaxis = LinearAxis(plot=plot)
         xgrid = Grid(plot=plot, dimension=0)
         ygrid = Grid(plot=plot, dimension=1)
         tickers = [xaxis.ticker, xaxis.formatter, yaxis.ticker, yaxis.formatter]
