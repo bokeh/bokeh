@@ -460,6 +460,31 @@ shown here::
             cursession().store_objects(ds)
             time.sleep(.10)
 
+Applets
+-------
+
+It is possible to use Bokeh to create dashboard-like applets. These applets can be served
+directly from the Bokeh Server, or they may be embedded in you own web applications. In
+addition to the standard Bokeh interactive plot tools, Bokeh applets can contain widgets
+such as drop downs, date selectors, and sliders. The values are from these widgets are
+made available to the applet code, which can add, remove, or update plots or otherwise
+inform the application view based on user input.
+
+One example is the stocks correlation applet pictured below:
+
+.. image:: /_images/stocks_applet.png
+    :align: center
+    :scale: 30 %
+
+This applet allows a user to pick between pairs of stocks to display correlation plots for.
+The subplots below show histograms for each time series as well as the time series themselves.
+These plots have linked panning and selections; making a selection on the correlation plot will
+highlight the selected points on the time series, as well as update the histograms to only show
+binnings got the selected points.
+
+The code and instructions for running this example can be found at
+`examples/app/stock_applet <https://github.com/ContinuumIO/bokeh/tree/master/examples/app/stock_applet>`_.
+
 Novel Plots
 -----------
 
