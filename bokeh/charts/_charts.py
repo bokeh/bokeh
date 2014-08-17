@@ -115,12 +115,14 @@ class Chart(object):
     def start_plot(self):
         "Add the axis, grids and tools to self.plot"
         # Add axis
-        xaxis = self.make_axis("bottom", self.xscale, self.xlabel)
+        xaxis = self.make_axis("below", self.xscale, self.xlabel)
+        self.plot.below.append(xaxis)
         yaxis = self.make_axis("left", self.yscale, self.ylabel)
+        self.plot.left.append(yaxis)
 
         # Add grids
-        self.make_grid(xaxis, 0)
-        self.make_grid(yaxis, 1)
+        self.make_grid(0, xaxis.ticker)
+        self.make_grid(1, yaxis.ticker)
 
         # Add tools
         if self.tools:
@@ -209,16 +211,16 @@ class Chart(object):
 
         return axis
 
-    def make_grid(self, axis, dimension):
+    def make_grid(self, dimension, ticker):
         """Create the grid just passing the axis and dimension.
 
         Args:
-            axis (obj): the axis object
             dimension(int): the dimension of the axis, ie. xaxis=0, yaxis=1.
+            ticker (obj): the axis.ticker object
         """
         grid = Grid(plot=self.plot,
                     dimension=dimension,
-                    axis=axis)
+                    ticker=ticker)
 
         return grid
 

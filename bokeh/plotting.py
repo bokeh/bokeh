@@ -13,7 +13,7 @@ from . import browserlib
 from . import _glyph_functions as gf
 from .document import Document
 from .embed import notebook_div, file_html, autoload_server
-from .objects import Axis, ColumnDataSource, Glyph, Grid, GridPlot, Legend
+from .objects import Axis, ColumnDataSource, Glyph, Grid, GridPlot, Legend, Plot
 from .palettes import brewer
 from .plotting_helpers import (
     get_default_color, get_default_alpha, _handle_1d_data_args, _list_attr_splat
@@ -241,7 +241,7 @@ def show(obj=None, browser=None, new="tab", url=None):
 
     controller = browserlib.get_browser_controller(browser=browser)
     if obj is None:
-        plot = curplot()
+        plot = curdoc()
     else:
         plot = obj
     if not plot:
@@ -263,11 +263,11 @@ def show(obj=None, browser=None, new="tab", url=None):
             controller.open(session.object_link(curdoc()._plotcontext))
 
     elif filename:
-        save(filename)
+        save(filename, obj=plot)
         controller.open("file://" + os.path.abspath(filename), new=new_param)
 
 
-def save(filename=None, resources=None):
+def save(filename=None, resources=None, obj=None):
     """ Updates the file with the data for the current document.
 
     If a filename is supplied, or output_file(...) has been called, this will
@@ -278,6 +278,10 @@ def save(filename=None, resources=None):
             if `filename` is None, the current output_file(...) filename is used if present
         resources (Resources, optional) : BokehJS resource config to use
             if `resources` is None, the current default resource config is used
+
+        obj (Document or Plot object, optional)
+            if provided, then this is the object to save instead of curdoc()
+            and its curplot()
 
     Returns:
         None
@@ -297,11 +301,20 @@ def save(filename=None, resources=None):
         warnings.warn("save() called but no resources was supplied and output_file(...) was never called, nothing saved")
         return
 
-    if not curplot():
-        warnings.warn("No current plot to save. Use renderer functions (circle, rect, etc.) to create a current plot (see http://bokeh.pydata.org/index.html)")
-        return
+    if obj is None:
+        if not curplot():
+            warnings.warn("No current plot to save. Use renderer functions (circle, rect, etc.) to create a current plot (see http://bokeh.pydata.org/index.html)")
+            return
+        doc = curdoc()
+    elif isinstance(obj, Plot):
+        doc = Document()
+        doc.add(obj)
+    elif isinstance(obj, Document):
+        doc = obj
+    else:
+        raise RuntimeError("Unable to save object of type '%s'" % type(obj))
 
-    html = file_html(curdoc(), resources, _default_file['title'])
+    html = file_html(doc, resources, _default_file['title'])
     with io.open(filename, "w", encoding="utf-8") as f:
         f.write(decode_utf8(html))
 
@@ -570,17 +583,24 @@ def gridplot(plot_arrangement, name=None):
         save()
     return grid
 
+
+def _axis(*sides):
+    p = curplot()
+    if p is None:
+        return None
+    objs = []
+    for s in sides:
+        objs.extend(getattr(p, s, []))
+    axis = [obj for obj in objs if isinstance(obj, Axis)]
+    return _list_attr_splat(axis)
+
 def xaxis():
     """ Get the current axis objects
 
     Returns:
-        Returns axis object or splattable list of axis objects on the current plot
+        Returns axis object or splattable list of x-axis objects on the current plot
     """
-    p = curplot()
-    if p is None:
-        return None
-    axis = [obj for obj in p.renderers if isinstance(obj, Axis) and obj.location in ("top", "bottom")]
-    return _list_attr_splat(axis)
+    return _axis("above", "below")
 
 def yaxis():
     """ Get the current `y` axis object(s)
@@ -588,17 +608,13 @@ def yaxis():
     Returns:
         Returns y-axis object or splattable list of y-axis objects on the current plot
     """
-    p = curplot()
-    if p is None:
-        return None
-    axis = [obj for obj in p.renderers if isinstance(obj, Axis) and obj.location in ("left", "right")]
-    return _list_attr_splat(axis)
+    return _axis("left", "right")
 
 def axis():
     """ Get the current `x` axis object(s)
 
     Returns:
-        Returns x-axis object or splattable list of x-axis objects on the current plot
+        Returns x-axis object or splattable list of axis objects on the current plot
     """
     return _list_attr_splat(xaxis() + yaxis())
 
@@ -614,17 +630,20 @@ def legend():
     legends = [obj for obj in p.renderers if isinstance(obj, Legend)]
     return _list_attr_splat(legends)
 
+def _grid(dimension):
+    p = curplot()
+    if p is None:
+        return None
+    grid = [obj for obj in p.renderers if isinstance(obj, Grid) and obj.dimension==dimension]
+    return _list_attr_splat(grid)
+
 def xgrid():
     """ Get the current `x` :class:`grid <bokeh.objects.Grid>` object(s)
 
     Returns:
         Returns legend object or splattable list of legend objects on the current plot
     """
-    p = curplot()
-    if p is None:
-        return None
-    grid = [obj for obj in p.renderers if isinstance(obj, Grid) and obj.dimension==0]
-    return _list_attr_splat(grid)
+    return _grid(0)
 
 def ygrid():
     """ Get the current `y` :class:`grid <bokeh.objects.Grid>` object(s)
@@ -632,11 +651,7 @@ def ygrid():
     Returns:
         Returns y-grid object or splattable list of y-grid objects on the current plot
     """
-    p = curplot()
-    if p is None:
-        return None
-    grid = [obj for obj in p.renderers if isinstance(obj, Grid) and obj.dimension==1]
-    return _list_attr_splat(grid)
+    return _grid(1)
 
 def grid():
     """ Get the current :class:`grid <bokeh.objects.Grid>` object(s)

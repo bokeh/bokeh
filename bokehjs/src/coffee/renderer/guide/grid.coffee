@@ -51,14 +51,20 @@ define [
       @register_property('grid_coords', @_grid_coords, false)
       @add_dependencies('grid_coords', this, ['computed_bounds', 'dimension', 'ticker'])
 
-     _bounds: () ->
+      @register_property('ranges', @_ranges, true)
+
+    _ranges: () ->
       i = @get('dimension')
       j = (i + 1) % 2
 
-      ranges = [@get_obj('plot').get_obj('x_range'), @get_obj('plot').get_obj('y_range')]
+      ranges = [@get('plot').get('frame').get('x_range'), @get('plot').get('frame').get('y_range')]
+      return [ranges[i], ranges[j]]
+
+     _bounds: () ->
+      [range, cross_range] = @get('ranges')
 
       user_bounds = @get('bounds') ? 'auto'
-      range_bounds = [ranges[i].get('min'), ranges[i].get('max')]
+      range_bounds = [range.get('min'), range.get('max')]
 
       if _.isArray(user_bounds)
         start = Math.min(user_bounds[0], user_bounds[1])
@@ -79,9 +85,7 @@ define [
     _grid_coords: () ->
       i = @get('dimension')
       j = (i + 1) % 2
-      ranges = [@get_obj('plot').get_obj('x_range'), @get_obj('plot').get_obj('y_range')]
-      range = ranges[i]
-      cross_range = ranges[j]
+      [range, cross_range] = @get('ranges')
 
       [start, end] = @get('computed_bounds')
 
@@ -89,7 +93,7 @@ define [
       end = Math.max(start, end)
       start = tmp
 
-      ticks = @get_obj('axis').get_obj('ticker').get_ticks(start, end, range, {}).major
+      ticks = @get('ticker').get_ticks(start, end, range, {}).major
 
       min = range.get('min')
       max = range.get('max')

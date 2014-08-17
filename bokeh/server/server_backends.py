@@ -387,6 +387,9 @@ class FunctionBackend(AbstractDataBackend):
                'hundredA': np.random.rand(1000)*100,
                'hundredB': np.random.rand(1000)*100}
 
+    pyramid = {'x': [1, 1, 1, 2, 2, 2, 2, 1, 1, 1],
+               'y': [1, 1, 1, 2, 2, 2, 2, 1, 1, 1]}
+    
     def __init__(self):
       N = 1000
       x = np.linspace(0, 10, N)
@@ -456,7 +459,7 @@ class HDF5DataBackend(AbstractDataBackend):
     def line1d_downsample(self, request_username, data_url, data_parameters):
         dataset = self.client[data_url]
         (primary_column, domain_name, columns,
-         domain_limit, domain_resolution, input_params) = data_parameters
+         domain_limit, range_limit, domain_resolution, input_params) = data_parameters
        
         method = input_params['method']
 
@@ -477,18 +480,17 @@ class HDF5DataBackend(AbstractDataBackend):
         result = dataset.select(where=[(domain_name, ">=", domain_limit[0]),
                                        (domain_name, "<=", domain_limit[1])],
                                 columns=all_columns)
+
         result = line_downsample.downsample(result.to_records(),
                                             domain_name,
                                             primary_column,
                                             domain_limit,
+                                            range_limit,
                                             domain_resolution,
                                             method)
-        print ('result', result.shape)
-        result = {
-            'data' : dict([(k, result[k]) for k in result.dtype.names]),
-            'domain_limit' : domain_limit
-        }
-        return result
+
+        return result;
+
 
     def heatmap_downsample(self, request_username, data_url, 
                            parameters, plot_state):
@@ -534,6 +536,8 @@ class HDF5DataBackend(AbstractDataBackend):
         resample_op = datasource.transform['resample']
 
         if resample_op == 'line1d':
+
+
             return self.line1d_downsample(
                 request_username, data_url, 
                 parameters)

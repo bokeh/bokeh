@@ -59,7 +59,7 @@ define [
       @$el.html(html)
 
     render : () ->
-      plot_context = @model.get_obj('plot_context')
+      plot_context = @model.get('plot_context')
       @plot_context_view = new plot_context.default_view(
         model : plot_context
       )
@@ -83,7 +83,7 @@ define [
       @listenTo(@collection, 'remove', @render)
       @listenTo(@collection, 'add', (model, collection, options) =>
         @listenTo(model, 'loaded', () =>
-          @listenTo(model.get_obj('plot_context'), 'change', () =>
+          @listenTo(model.get('plot_context'), 'change', () =>
             @trigger('show')
           )
         )

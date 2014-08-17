@@ -15,14 +15,14 @@ define [
 
     initialize: (attrs, objects) ->
       super(attrs, objects)
-      if not @get_obj('ticker')?
+      if not @get('ticker')?
         @set_obj('ticker', CategoricalTicker.Collection.create())
-      if not @get_obj('formatter')?
+      if not @get('formatter')?
         @set_obj('formatter', CategoricalTickFormatter.Collection.create())
 
     _bounds: () ->
       i = @get('dimension')
-      ranges = [@get_obj('plot').get_obj('x_range'), @get_obj('plot').get_obj('y_range')]
+      ranges = [@get('plot').get('x_range'), @get('plot').get('y_range')]
 
       user_bounds = @get('bounds') ? 'auto'
       if user_bounds != 'auto'

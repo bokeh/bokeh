@@ -41,7 +41,7 @@ define [
   create_range = (range, sources, columns) ->
     if range == 'auto'
       return DataRange1d.Collection.create(
-        sources: ({source: s.ref(), columns: columns} for s in sources)
+        sources: ({source: s, columns: columns} for s in sources)
       )
     else if (range instanceof Range1d.Model) or (range instanceof FactorRange.Model)
       return range
@@ -70,8 +70,7 @@ define [
     for val in _.zip(glyphspecs, nonselection_glyphspecs, sources)
       [spec, non_spec, source] = val
       glyph = GlyphFactory.Collection.create({
-        parent: plot.ref()
-        data_source: source.ref()
+        data_source: source
         glyphspec: spec
         nonselection_glyphspec: non_spec
       })
@@ -83,15 +82,14 @@ define [
     xaxes = []
     if xaxes_spec
       if xaxes_spec == true
-        xaxes_spec = ['bottom', 'top']
+        xaxes_spec = ['below', 'above']
       if not _.isArray(xaxes_spec)
         xaxes_spec = [xaxes_spec]
       if xaxes_spec[0]=="datetime"
         axis = DatetimeAxis.Collection.create(
           axis_label: 'x'
-          location: 'bottom'
-          parent: plot.ref()
-          plot: plot.ref()
+          location: 'below'
+          plot: plot
         )
         xaxes.push(axis)
       else if xdr.type == "FactorRange"
@@ -99,8 +97,7 @@ define [
           axis = CategoricalAxis.Collection.create(
             axis_label: 'x'
             location: loc
-            parent: plot.ref()
-            plot: plot.ref()
+            plot: plot
           )
           xaxes.push(axis)
       else
@@ -108,15 +105,18 @@ define [
           axis = LinearAxis.Collection.create(
             axis_label: 'x'
             location: loc
-            parent: plot.ref()
-            plot: plot.ref()
+            plot: plot
           )
           xaxes.push(axis)
       for xax in xaxes
-        if xax.get('location') == "bottom"
-          plot.get('below').push(xax.ref())
-        else if xax.get('location') == "top"
-          plot.get('above').push(xax.ref())
+        if xax.get('location') == "below"
+          below = plot.get('below')
+          below.push(xax)
+          plot.set('below', below)
+        else if xax.get('location') == "above"
+          above = plot.get('above')
+          above.push(xax)
+          plot.set('above', above)
     yaxes = []
     if yaxes_spec
       if yaxes_spec == true
@@ -127,8 +127,7 @@ define [
         axis = DatetimeAxis.Collection.create(
           axis_label: 'y'
           location: 'left'
-          parent: plot.ref()
-          plot: plot.ref()
+          plot: plot
         )
         yaxes.push(axis)
       else if ydr.type == "FactorRange"
@@ -136,8 +135,7 @@ define [
           axis = CategoricalAxis.Collection.create(
             axis_label: 'y'
             location: loc
-            parent: plot.ref()
-            plot: plot.ref()
+            plot: plot
           )
           yaxes.push(axis)
       else
@@ -145,18 +143,21 @@ define [
           axis = LinearAxis.Collection.create(
             axis_label: 'y'
             location: loc
-            parent: plot.ref()
-            plot: plot.ref()
+            plot: plot
           )
           yaxes.push(axis)
       for yax in yaxes
         if yax.get('location') == "left"
-          plot.get('left').push(yax.ref())
+          left = plot.get('left')
+          left.push(yax)
+          plot.set('left', left)
         else if yax.get('location') == "right"
-          plot.get('right').push(yax.ref())
+          right = plot.get('right')
+          right.push(yax)
+          plot.set('right', right)
 
-    plot.add_renderers(a.ref() for a in xaxes)
-    plot.add_renderers(a.ref() for a in yaxes)
+    plot.add_renderers(a for a in xaxes)
+    plot.add_renderers(a for a in yaxes)
 
     return [xaxes, yaxes]
 
@@ -168,20 +169,18 @@ define [
     if xgrid and xaxes.length > 0
       grid = Grid.Collection.create(
         dimension: 0
-        parent: plot.ref()
-        plot: plot.ref()
-        axis: xaxes[0].ref()
+        plot: plot
+        ticker: xaxes[0].get('ticker')
       )
       grids.push(grid)
     if ygrid and yaxes.length > 0
       grid = Grid.Collection.create(
         dimension: 1
-        parent: plot.ref()
-        plot: plot.ref()
-        axis: yaxes[0].ref()
+        plot: plot
+        ticker: yaxes[0].get('ticker')
       )
       grids.push(grid)
-      plot.add_renderers(g.ref() for g in grids)
+      plot.add_renderers(g for g in grids)
 
   add_tools = (plot, tools, glyphs, xdr, ydr) ->
     if tools == false
@@ -193,33 +192,33 @@ define [
 
     if tools.indexOf("pan") > -1
       pan_tool = PanTool.Collection.create(
-        dataranges: [xdr.ref(), ydr.ref()]
+        dataranges: [xdr, ydr]
         dimensions: ['width', 'height']
       )
       added_tools.push(pan_tool)
 
     if tools.indexOf("wheel_zoom") > -1
       wheel_zoom_tool = WheelZoomTool.Collection.create(
-        dataranges: [xdr.ref(), ydr.ref()]
+        dataranges: [xdr, ydr]
         dimensions: ['width', 'height']
       )
       added_tools.push(wheel_zoom_tool)
 
     if tools.indexOf("hover") > -1
       hover_tool = HoverTool.Collection.create(
-        plot: plot.ref()
+        plot: plot
       )
       added_tools.push(hover_tool)
 
     if tools.indexOf("select") > -1
       select_tool = BoxSelectTool.Collection.create(
-        renderers: (g.ref() for g in glyphs)
+        renderers: (g for g in glyphs)
       )
       select_overlay = BoxSelection.Collection.create(
-        tool: select_tool.ref()
+        tool: select_tool
       )
       added_tools.push(select_tool)
-      plot.add_renderers([select_overlay.ref()])
+      plot.add_renderers([select_overlay])
 
     if tools.indexOf("resize") > -1
       resize_tool = ResizeTool.Collection.create()
@@ -236,10 +235,10 @@ define [
     if tools.indexOf("box_zoom") > -1
       box_zoom_tool = BoxZoomTool.Collection.create()
       box_zoom_overlay = BoxSelection.Collection.create(
-        tool: box_zoom_tool.ref()
+        tool: box_zoom_tool
       )
       added_tools.push(box_zoom_tool)
-      plot.add_renderers([box_zoom_overlay.ref()])
+      plot.add_renderers([box_zoom_overlay])
 
     plot.set_obj('tools', added_tools)
 
@@ -247,14 +246,13 @@ define [
     if legend
       legends = {}
       for g, idx in glyphs
-        legends[legend + String(idx)] = [g.ref()]
+        legends[legend + String(idx)] = [g]
       legend_renderer = Legend.Collection.create({
-        parent: plot.ref()
-        plot: plot.ref()
+        plot: plot
         orientation: "top_right"
         legends: legends
       })
-      plot.add_renderers([legend_renderer.ref()])
+      plot.add_renderers([legend_renderer])
 
   make_plot = (glyphspecs, data, {nonselected, title, dims, xrange, yrange, xaxes, yaxes, xgrid, ygrid, xdr, ydr, tools, legend}) ->
     nonselected ?= null
@@ -275,15 +273,15 @@ define [
     ydr = create_range(yrange, sources, ['y'])
 
     plot = Plot.Collection.create(
-      x_range: xdr.ref()
-      y_range: ydr.ref()
+      x_range: xdr
+      y_range: ydr
       plot_width: dims[0]
       plot_height: dims[1]
       title: title
     )
 
     glyphs = create_glyphs(plot, glyphspecs, sources, nonselected)
-    plot.add_renderers(g.ref() for g in glyphs)
+    plot.add_renderers(g for g in glyphs)
 
     [xaxes, yaxes] = add_axes(plot, xaxes, yaxes, xdr, ydr)
     add_grids(plot, xgrid, ygrid, xaxes, yaxes)

@@ -44,13 +44,19 @@ def object_page(prefix):
             init_bokeh(clientdoc)
             obj = func(*args, **kwargs)
             clientdoc.add(obj)
+            if hasattr(obj, 'extra_generated_classes'):
+                extra_generated_classes = obj.extra_generated_classes
+            else:
+                extra_generated_classes = []
             changed = bokeh_app.backbone_storage.store_document(clientdoc)
             
             return render_template("oneobj.html",
                                    docid=docid,
                                    objid=obj._id,
                                    hide_navbar=True,
+                                   extra_generated_classes=extra_generated_classes,
                                    splitjs=bokeh_app.splitjs,
                                    username=bokehuser.username)
+        wrapper.__name__ = func.__name__
         return wrapper
     return decorator
