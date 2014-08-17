@@ -1,7 +1,7 @@
 """
-This file demonstrates a bokeh applet, which can either be viewed
-directly on a bokeh-server. See the README.md file in this directory
-for instructions on running.
+This file demonstrates a bokeh applet, which can be viewed directly
+on a bokeh-server. See the README.md file in this directory for
+instructions on running.
 """
 
 import logging
