@@ -34,7 +34,7 @@ require(['main'], (Bokeh) ->
   options = {
     title: "Annular Wedge Demo"
     dims: [800, 500]
-    xaxes: "bottom"
+    xaxes: "below"
     yaxes: "left"
     tools: "pan,zoom,resize,preview,select"
     legend: false

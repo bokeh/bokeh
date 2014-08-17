@@ -7,7 +7,7 @@ define [
 ], (_, HasParent, PlotWidget, Properties) ->
 
   class GlyphView extends PlotWidget
- 
+
     #TODO: There are glyph sub-type-vs-resample_op concordance issues...
     setup_server_data : () ->
       serversource = @mget('server_data_source')
@@ -18,11 +18,11 @@ define [
       @set_data(false)
 
       transform_params = serversource.attributes['transform']
-      resample_op = transform_params['resample']  
-      x_range = @plot_view.frame.get('inner_range_horizontal')
-      y_range = @plot_view.frame.get('inner_range_vertical')
+      resample_op = transform_params['resample']
+      x_range = @plot_view.frame.get('h_range')
+      y_range = @plot_view.frame.get('v_range')
 
-      #TODO: This is weird.  For example, inner_range_horizontal is passed in twice.  Hugo or Joseph should clean it up
+      #TODO: This is weird.  For example, h_range is passed in twice.  Hugo or Joseph should clean it up
       if (resample_op == 'line1d')
         domain = transform_params['domain']
         if domain == 'x'
@@ -49,7 +49,7 @@ define [
       else if (resample_op == 'abstract rendering')
         serversource.listen_for_ar_updates(
            @plot_view
-           @mget('data_source'), 
+           @mget('data_source'),
              #TODO: Joseph -- Get rid of the next four params because we're passing in the plot_view
            x_range,  y_range,
            @plot_view.x_range,
@@ -130,7 +130,7 @@ define [
       if request_render
         @request_render()
 
-    render: (have_new_mapper_state=true) ->
+    render: () ->
       if @need_set_data
         @set_data(false)
         @need_set_data = false

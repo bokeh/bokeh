@@ -72,8 +72,8 @@ define [
 
         [vx, vy] = @view_coords(e.bokehX, e.bokehY)
 
-        irh = @plot_view.frame.get('inner_range_horizontal')
-        irv = @plot_view.frame.get('inner_range_vertical')
+        irh = @plot_view.frame.get('h_range')
+        irv = @plot_view.frame.get('v_range')
         xstart = irh.get('start')
         xend = irh.get('end')
         ystart = irv.get('start')
@@ -126,7 +126,7 @@ define [
 
             if value.indexOf("$color") >= 0
               [match, opts, colname] = value.match(/\$color(\[.*\])?:(\w*)/)
-              column = ds.getcolumn(colname)
+              column = ds.get_column(colname)
               if not column?
                 span = $("<span>#{ colname } unknown</span>")
                 td.append(span)
@@ -157,11 +157,11 @@ define [
               value = value.replace("$sy", "#{ e.bokehY }")
               while value.indexOf("@") >= 0
                 [match, unused, column_name] = value.match(/(@)(\w*)/)
-                column = ds.getcolumn(column_name)
+                column = ds.get_column(column_name)
                 if not column?
                   value = value.replace(column_name, "#{ column_name } unknown")
                   break
-                column = ds.getcolumn(column_name)
+                column = ds.get_column(column_name)
                 dsvalue = column[i]
                 if typeof(dsvalue) == "number"
                   value = value.replace(match, "#{ _format_number(dsvalue) }")

@@ -46,7 +46,7 @@ figure()
 
 rect('year', 'month', 1,1, source=source,
      x_range=years, y_range=list(reversed(months)),
-     x_axis_location="top",
+     x_axis_location="above",
      color='color', line_color=None,
      tools="resize,hover,previewsave", title="US Unemployment (1948 - 2013)",
      plot_width=900, plot_height=400)
