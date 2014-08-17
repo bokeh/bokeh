@@ -59,7 +59,7 @@ class SlidersApp(HBox):
         )
         obj.freq = Slider(
             title="frequency", name='frequency',
-            value=1.0, start=0.1, end=3.0
+            value=1.0, start=0.1, end=5.1
         )
 
         obj.plot = line('x', 'y', source=obj.source,
