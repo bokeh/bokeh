@@ -19,6 +19,6 @@ df = pd.DataFrame(medals, index=countries)
 
 # and finally we drop the df into our Bar chart
 from bokeh.charts import Bar
-bar = Bar(df, filename="stacked_bars.html")
+bar = Bar(df, filename="stacked_bar.html")
 bar.title("Stacked bars").xlabel("countries").ylabel("medals")\
    .legend(True).width(600).height(400).stacked().show()
