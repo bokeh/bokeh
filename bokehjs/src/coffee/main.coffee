@@ -4,7 +4,7 @@ define (require, exports, module) ->
     window.Float64Array = Array
   Bokeh = {}
   Bokeh.require = require
-  Bokeh.version = '0.5.1'
+  Bokeh.version = '0.5.2'
 
   # binding the libs that bokeh uses so others can reference them
   Bokeh._                 = require("underscore")
@@ -40,17 +40,15 @@ define (require, exports, module) ->
   Bokeh.load_models   = require("common/load_models")
   Bokeh.PlotContext   = require("common/plot_context")
   Bokeh.PlotWidget    = require("common/plot_widget")
-  Bokeh.PNGView       = require("common/png_view")
   Bokeh.Random        = require("common/random")
-  Bokeh.safebind      = require("common/safebind")
   Bokeh.SVGColors     = require("common/svg_colors")
 
   # mappers
-  Bokeh.LinearMapper      = require("mapper/1d/linear_mapper")
-  Bokeh.LogMapper         = require("mapper/1d/log_mapper")
-  Bokeh.CategoricalMapper = require("mapper/1d/categorical_mapper")
-  Bokeh.GridMapper        = require("mapper/2d/grid_mapper")
-  Bokeh.LinearColorMapper = require("mapper/color/linear_color_mapper")
+  Bokeh.LinearMapper      = require("mapper/linear_mapper")
+  Bokeh.LogMapper         = require("mapper/log_mapper")
+  Bokeh.CategoricalMapper = require("mapper/categorical_mapper")
+  Bokeh.GridMapper        = require("mapper/grid_mapper")
+  Bokeh.LinearColorMapper = require("mapper/linear_color_mapper")
 
   # palettes
   Bokeh.Palettes = require("palettes/palettes")
@@ -76,7 +74,6 @@ define (require, exports, module) ->
   Bokeh.Properties = require("renderer/properties")
 
   # server tools
-  Bokeh.embed_core  = require("server/embed_core")
   Bokeh.embed       = require("server/embed")
   Bokeh.serverrun   = require("server/serverrun")
   Bokeh.serverutils = require("server/serverutils")

@@ -34,8 +34,8 @@ require(['main'], (Bokeh) ->
   options = {
     title: "Annular Wedge Demo"
     dims: [800, 500]
-    xaxes: "min"
-    yaxes: "min"
+    xaxes: "below"
+    yaxes: "left"
     tools: "pan,zoom,resize,preview,select"
     legend: false
   }
@@ -43,4 +43,3 @@ require(['main'], (Bokeh) ->
   plot = Bokeh.Plotting.make_plot(rects, data, options)
   Bokeh.Plotting.show(plot)
   )
-  

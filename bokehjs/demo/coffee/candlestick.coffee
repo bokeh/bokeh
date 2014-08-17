@@ -59,8 +59,8 @@ options = {
   dims: [800, 500]
   xrange: [0, 100]
   yrange: [5500, 6500]
-  xaxes: "min"
-  yaxes: "min"
+  xaxes: "below"
+  yaxes: "left"
   tools: "pan,wheel_zoom,resize,preview"
   legend: false
 }

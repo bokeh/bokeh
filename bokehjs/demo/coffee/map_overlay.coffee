@@ -99,8 +99,8 @@ options = {
   dims: [1200, 600]
   xrange: [-130, -60]
   yrange: [25, 50]
-  xaxes: false
-  yaxes: false
+  xaxes: "below"
+  yaxes: "left"
   xgrid: false
   ygrid: false
   tools: "pan,wheel_zoom,resize,preview"

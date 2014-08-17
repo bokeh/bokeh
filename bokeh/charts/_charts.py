@@ -257,8 +257,10 @@ class Chart(object):
         self.categorical = False
 
         # Add axis
-        xaxis = self.make_axis(0, self.xscale, self.xlabel)
-        yaxis = self.make_axis(1, self.yscale, self.ylabel)
+        xaxis = self.make_axis("bottom", self.xscale, self.xlabel)
+        self.plot.below.append(xaxis)
+        yaxis = self.make_axis("left", self.yscale, self.ylabel)
+        self.plot.left.append(yaxis)
 
         # Add grids
         self.make_grid(xaxis, 0)
@@ -302,22 +304,19 @@ class Chart(object):
             self.session.load_document(self.doc)
             self.session.store_document(self.doc)
 
-    def make_axis(self, dimension, scale, label):
+    def make_axis(self, location, scale, label):
         "Create linear, date or categorical axis depending on the scale and dimension."
         if scale == "linear":
-            dim_loc_map = {0: "bottom", 1: "left"}
             axis = LinearAxis(plot=self.plot,
-                              dimension=dimension,
-                              location=dim_loc_map[dimension],
+                              location=location,
                               axis_label=label)
         elif scale == "date":
             axis = DatetimeAxis(plot=self.plot,
-                                dimension=dimension,
-                                location=dim_loc_map[dimension],
+                                location=location,
                                 axis_label=label)
         elif scale == "categorical":
             axis = CategoricalAxis(plot=self.plot,
-                                   dimension=dimension,
+                                   location=location,
                                    major_label_orientation=np.pi / 4,
                                    axis_label=label)
             self.categorical = True
@@ -335,27 +334,27 @@ class Chart(object):
     def make_segment(self, x0, y0, x1, y1, color, width):
         """ Create a segment """
         segment = Segment(x0=x0, y0=y0, x1=x1, y1=y1, line_color=color, line_width=width)
-        
+
         self._append_glyph(segment)
 
     def make_line(self, x, y, color):
         "Create a line glyph and append it to the renderers list."
         line = Line(x=x, y=y, line_color=color)
-        
+
         self._append_glyph(line)
 
     def make_quad(self, top, bottom, left, right, color):
         "Create a quad glyph and append it to the renderers list."
         quad = Quad(top=top, bottom=bottom, left=left, right=right,
                     fill_color=color, fill_alpha=0.7, line_color="white", line_alpha=1.0)
-        
+
         self._append_glyph(quad)
 
     def make_rect(self, x, y, width, height, color):
         "Create a rect glyph and append it to the renderers list."
-        rect = Rect(x=x, y=y, width=width, height=height, fill_color=color, 
+        rect = Rect(x=x, y=y, width=width, height=height, fill_color=color,
                     fill_alpha=0.7, line_color='white', line_alpha=1.0)
-        
+
         self._append_glyph(rect)
 
     def make_scatter(self, x, y, markertype, color):
@@ -507,5 +506,5 @@ class Chart(object):
                       glyph=glyph)
 
         self.plot.renderers.append(glyph)
-        
+
         self.glyphs.append(glyph)

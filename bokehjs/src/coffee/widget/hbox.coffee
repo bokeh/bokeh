@@ -15,7 +15,7 @@ define [
       @render()
       @listenTo(@model, 'change', @render)
     render: () ->
-      children = @mget_obj('children')
+      children = @mget('children')
       build_views(@views, children)
       for own key, val of @views
         val.$el.detach()

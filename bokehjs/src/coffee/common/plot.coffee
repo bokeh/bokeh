@@ -5,7 +5,6 @@ define [
   "kiwi",
   "./build_views",
   "./plot_utils",
-  "./safebind",
   "./continuum_view",
   "./has_parent",
   "./canvas",
@@ -15,7 +14,7 @@ define [
   "./plot_template"
   "renderer/properties",
   "tool/active_tool_manager",
-], (_, Backbone, kiwi, build_views, plot_utils, safebind, ContinuumView, HasParent, Canvas, LayoutBox, Solver, CartesianFrame, plot_template, Properties, ActiveToolManager) ->
+], (_, Backbone, kiwi, build_views, plot_utils, ContinuumView, HasParent, Canvas, LayoutBox, Solver, CartesianFrame, plot_template, Properties, ActiveToolManager) ->
 
   line_properties = Properties.line_properties
   text_properties = Properties.text_properties
@@ -27,7 +26,7 @@ define [
   GE = kiwi.Operator.Ge
 
   class PlotView extends ContinuumView.View
-    className: "bokeh plotview"
+    className: "bokeh plotview plotarea"
     template: plot_template
 
     view_options: () ->
@@ -51,9 +50,6 @@ define [
 
       @model.initialize_layout(@model.solver)
 
-      @canvas = @mget('canvas')
-      @canvas_view = new @canvas.default_view({'model': @canvas})
-
       # compat, to be removed
       @frame = @mget('frame')
       @x_range = @frame.get('x_ranges')['default']
@@ -67,18 +63,16 @@ define [
       html = @template(template_data)
       @$el.html(html)
 
-      @$el.prepend(@canvas_view.$el)
+      @canvas = @mget('canvas')
+      @canvas_view = new @canvas.default_view({'model': @canvas})
+
+      @$('.bokeh_canvas_wrapper_outer').prepend(@canvas_view.el)
       @canvas_view.render()
 
       @throttled_render = plot_utils.throttle_animation(@render, 15)
 
       @outline_props = new line_properties(@, {}, 'outline_')
       @title_props = new text_properties(@, {}, 'title_')
-
-      @old_mapper_state = {
-        x: null
-        y: null
-      }
 
       @renderers = {}
       @tools = {}
@@ -91,9 +85,6 @@ define [
       @build_levels()
       @atm.bind_bokeh_events()
       @bind_bokeh_events()
-      for k, v of @renderers
-        if v.model.initialize_layout?
-          v.model.initialize_layout(@canvas.solver)
       @model.add_constraints(@canvas.solver)
       @listenTo(@canvas.solver, 'layout_update', @request_render)
 
@@ -122,11 +113,11 @@ define [
       #
       # should only bind events on NEW views and tools
       old_renderers = _.keys(@renderers)
-      views = build_views(@renderers, @mget_obj('renderers'), @view_options())
-      renderers_to_remove = _.difference(old_renderers, _.pluck(@mget_obj('renderers'), 'id'))
+      views = build_views(@renderers, @mget('renderers'), @view_options())
+      renderers_to_remove = _.difference(old_renderers, _.pluck(@mget('renderers'), 'id'))
       for id_ in renderers_to_remove
         delete @levels.glyph[id_]
-      tools = build_views(@tools, @mget_obj('tools'), @view_options())
+      tools = build_views(@tools, @mget('tools'), @view_options())
       for v in views
         level = v.mget('level')
         @levels[level][v.model.id] = v
@@ -140,10 +131,10 @@ define [
     bind_bokeh_events: () ->
       @listenTo(@mget('frame').get('x_range'), 'change', @request_render)
       @listenTo(@mget('frame').get('y_range'), 'change', @request_render)
-      safebind(@, @model, 'change:renderers', @build_levels)
-      safebind(@, @model, 'change:tool', @build_levels)
-      safebind(@, @model, 'change', @request_render)
-      safebind(@, @model, 'destroy', () => @remove())
+      @listenTo(@model, 'change:renderers', @build_levels)
+      @listenTo(@model, 'change:tool', @build_levels)
+      @listenTo(@model, 'change', @request_render)
+      @listenTo(@model, 'destroy', () => @remove())
 
     set_initial_range : () ->
       #check for good values for ranges before setting initial range
@@ -203,16 +194,8 @@ define [
         @outline_props.set(ctx, {})
         ctx.strokeRect.apply(ctx, frame_box)
 
-      have_new_mapper_state = false
-      xms = @xmapper.get('mapper_state')[0]
-      yms = @ymapper.get('mapper_state')[0]
-      if Math.abs(@old_mapper_state.x-xms) > 1e-8 or Math.abs(@old_mapper_state.y - yms) > 1e-8
-        @old_mapper_state.x = xms
-        @old_mapper_state.y = yms
-        have_new_mapper_state = true
-
-      @_render_levels(ctx, ['image', 'underlay', 'glyph'], have_new_mapper_state, frame_box)
-      @_render_levels(ctx, ['overlay', 'annotation', 'tool'], have_new_mapper_state)
+      @_render_levels(ctx, ['image', 'underlay', 'glyph'], frame_box)
+      @_render_levels(ctx, ['overlay', 'annotation', 'tool'])
 
       if title
         sx = @canvas.vx_to_sx(@canvas.get('width')/2)
@@ -220,9 +203,10 @@ define [
         @title_props.set(ctx, {})
         ctx.fillText(title, sx, sy)
 
-    _render_levels: (ctx, levels, have_new_mapper_state, clip_region) ->
+    _render_levels: (ctx, levels, clip_region) ->
+      ctx.save()
+
       if clip_region?
-        ctx.save()
         ctx.beginPath()
         ctx.rect.apply(ctx, clip_region)
         ctx.clip()
@@ -231,10 +215,9 @@ define [
       for level in levels
         renderers = @levels[level]
         for k, v of renderers
-          v.render(have_new_mapper_state)
+          v.render()
 
-      if clip_region?
-        ctx.restore()
+      ctx.restore()
 
     _map_hook: () ->
 
@@ -262,11 +245,16 @@ define [
 
       @solver = canvas.get('solver')
 
+      for r in @get('renderers')
+        r.set('parent', @)
+
     initialize_layout: (solver) ->
       canvas = @get('canvas')
       frame = new CartesianFrame.Model({
-        x_range: @get_obj('x_range'),
-        y_range: @get_obj('y_range')
+        x_range: @get('x_range'),
+        x_mapper_type: @get('x_mapper_type'),
+        y_range: @get('y_range'),
+        y_mapper_type: @get('y_mapper_type'),
         solver: solver
       })
       @set('frame', frame)
@@ -276,7 +264,9 @@ define [
       @title_panel = new LayoutBox.Model({solver: solver})
       LayoutBox.Collection.add(@title_panel)
       @title_panel._anchor = @title_panel._bottom
-      @get('above').push(@title_panel.ref())
+      elts = @get('above')
+      elts.push(@title_panel)
+      @set('above', elts)
 
     add_constraints: (solver) ->
       min_border_top    = @get('min_border_top')    ? @get('min_border')
@@ -294,8 +284,12 @@ define [
         solver.add_constraint(new Constraint(new Expr(frame[c0], [-1, box[c1]]), EQ))
         solver.add_constraint(new Constraint(new Expr(box[c0], [-1, canvas[c0]]), EQ))
         last = frame
-        elts = @get_obj(side)
+        elts = @get(side)
         for r in elts
+          if r.get('location') ? 'auto' == 'auto'
+            r.set('location', side, {'silent' : true})
+          if r.initialize_layout?
+            r.initialize_layout(solver)
           solver.add_constraint(new Constraint(new Expr(last[c0], [-1, r[c1]]), EQ), kiwi.Strength.strong)
           last = r
         padding = new LayoutBox.Model({solver: solver})
@@ -330,6 +324,8 @@ define [
         tools: [],
         h_symmetry: true,
         v_symmetry: false,
+        x_mapper_type: 'auto',
+        y_mapper_type: 'auto',
         plot_width: 600,
         plot_height: 600,
         title: 'Plot',

@@ -3,10 +3,9 @@ define [
   "underscore",
   "backbone",
   "./build_views",
-  "./safebind",
   "./has_parent"
   "./continuum_view",
-], (_, Backbone, build_views, safebind, HasParent, ContinuumView) ->
+], (_, Backbone, build_views, HasParent, ContinuumView) ->
 
   class PlotContextView extends ContinuumView.View
     initialize: (options) ->
@@ -16,12 +15,12 @@ define [
       @render()
 
     delegateEvents: () ->
-      safebind(this, @model, 'destroy', @remove)
-      safebind(this, @model, 'change', @render)
+      @listenTo(@model, 'destroy', @remove)
+      @listenTo(@model, 'change', @render)
       super()
 
     build_children: () ->
-      created_views = build_views(@views, @mget_obj('children'), {})
+      created_views = build_views(@views, @mget('children'), {})
       window.pc_created_views = created_views
       window.pc_views = @views
       return null
@@ -36,7 +35,7 @@ define [
 
     removeplot: (e) =>
       plotnum = parseInt($(e.currentTarget).parent().attr('data-plot_num'))
-      s_pc = @model.resolve_ref(@mget('children')[plotnum])
+      s_pc = @mget('children')[plotnum]
       view = @views[s_pc.get('id')]
       view.remove();
       newchildren = (x for x in @mget('children') when x.id != view.model.id)

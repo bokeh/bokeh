@@ -38,20 +38,17 @@ Numerical Ranges
 ''''''''''''''''
 
 To set the range on a plot that has numerical range values, you can pass a sequence of
-numbers with length two:
-::
+numbers with length two::
 
     figure(xrange=[0, 100])
 
 This will prepare a new plot that has an x-axis range that spans the interval `[0, 100]`.
-You can also pass a :class:`bokeh.objects.Range1D` object explicitly:
-::
+You can also pass a :class:`bokeh.objects.Range1D` object explicitly::
 
     figure(xrange=Range1d(start=2, end=8))
 
 This will prepare a new plot that has an x-axis range that spans the interval `[2, 8]`.
-Alternatively, you can set the range as a property on a Plot object:
-::
+Alternatively, you can set the range as a property on a Plot object::
 
     plot = curplot()
     plot.y_range = Range1d(start=0, end=10)
@@ -60,8 +57,7 @@ Categorical Ranges
 ''''''''''''''''''
 
 For plots with categorical ranges, it is necessary to specify the range as a sequence of strings
-that give the categories in the desired order. For example:
-::
+that give the categories in the desired order. For example::
 
     figure(y_range=["foo", "bar", "baz"])
 
@@ -132,8 +128,7 @@ Plots can be configured with several keyword arguments that control appearance:
 * ``x_mapper_type``, ``y_mapper_type`` can be set to ``"log"`` to specifically set the mapper used for the axis
 
 These parameters can be passed to glyph functions such a ``circle`` or ``rect`` but it is often useful
-to pass them to a call to ``figure``:
-::
+to pass them to a call to ``figure``::
 
     figure(
         title="My Plot",
@@ -256,8 +251,7 @@ HoverTool
 The hover tool (``'hover'``) tool pops up a tooltip div whenever the cursor is over
 a glyph. The information comes from the glyphs data source and is configurable through
 a simple tooltips dictionary that maps displayed names to columns in the data source,
-or to special known variables. Here is an example of how to configure the hover tool:
-::
+or to special known variables. Here is an example of how to configure the hover tool::
 
     # We want to add some fields for the hover tool to interrogate, but first we
     # have to get ahold of the tool. This will be made easier in future releases.
@@ -431,7 +425,7 @@ on the server at `"some/path", from the document that has the plot embedded.
 
 
 .. note:: In both cases the ``<script>`` tag loads a ``<div>`` in place, so
-it must be placed under ``<head>``.
+          it must be placed under ``<head>``.
 
 Animated Plots
 --------------
@@ -623,20 +617,17 @@ Currently the ``bokeh.charts`` interface supports:
 * ``Bar plots`` (grouped and stacked)
 * ``Scatter plots`` (grouped and stacked)
 
-To use it, you only have to import the ``Bokeh`` chart of interest from ``bokeh.charts``:
-::
+To use it, you only have to import the ``Bokeh`` chart of interest from ``bokeh.charts``::
 
     from bokeh.charts import Histogram
 
-initialize your plot with some specific arguments (for chart customization):
-::
+initialize your plot with some specific arguments (for chart customization)::
 
     hist = Histogram(normal_dist, bins=50, mu=mu, sigma=sigma,
                      title="kwargs, dict_input", ylabel="frequency", legend="top_left",
                      width=400, height=350, notebook=True)
 
-and finally call the ``show()`` method:
-::
+and finally call the ``show()`` method::
 
     hist.show()
 
@@ -647,8 +638,7 @@ Generic arguments and chained methods
 '''''''''''''''''''''''''''''''''''''
 
 You can pass some arguments when you instantiate the class, as we shown you before, or you can use
-chained methods as we shown below:
-::
+chained methods as we shown below::
 
     hist = Histogram(distributions, bins=50, notebook=True)
     hist.title("chained_methods, dict_input").ylabel("frequency").legend(True).width(400).height(350).show()
@@ -692,8 +682,7 @@ data and easily plot them through the interface.
 
 Let see some examples using different kind of inputs.
 
-* Using ``OrderedDict``:
-::
+* Using ``OrderedDict``::
 
     from collections import OrderedDict
 
@@ -712,8 +701,7 @@ Let see some examples using different kind of inputs.
 .. image:: /_images/scatter.png
     :align: center
 
-* Using a ``hierarchical`` pandas ``dataframe``:
-::
+* Using a ``hierarchical`` pandas ``dataframe``::
 
     import pandas as pd
 
@@ -724,8 +712,7 @@ Let see some examples using different kind of inputs.
     scatter = Scatter(df)
     scatter.title("iris dataset, df_input").legend("top_left").width(600).height(400).notebook().show()
 
-* Using a pandas ``groupby`` object:
-::
+* Using a pandas ``groupby`` object::
 
     from bokeh.charts import Scatter
     from bokeh.sampledata.iris import flowers
@@ -739,39 +726,35 @@ Let see some examples using different kind of inputs.
 As you can see, in the last two cases, we inferred the ``x`` and ``y`` labels from the pandas object, so you have not to be aware
 of specifying them by yourself.
 
-.. note:: For plotting just one group you can build a simple ``OrderedDict`` having the group of interest and pass this object to the interface, ie:
-::
+.. note:: For plotting just one group you can build a simple ``OrderedDict``
+          having the group of interest and pass this object to the interface, ie::
 
-    mu, sigma = 0, 0.5
-    normal = np.random.normal(mu, sigma, 1000)
-    normal_dist = OrderedDict(normal=normal)
+              mu, sigma = 0, 0.5
+              normal = np.random.normal(mu, sigma, 1000)
+              normal_dist = OrderedDict(normal=normal)
 
 Interface outputs
 '''''''''''''''''
 
-As with the low and middle level ``Bokeh`` plotting APIs, in ``bokeh.charts``, we also support the chart output to a file:
-::
+As with the low and middle level ``Bokeh`` plotting APIs, in ``bokeh.charts``, we also support the chart output to a file::
 
     hist = Histogram(distributions, bins=50, filename="my_plot")
 
 * ``filename``, string type, the name of your chart. If you pass ``True`` to this argument (or chained method) it will use ``untitled`` as a filename)
 
-to the ``bokeh-server``:
-::
+to the ``bokeh-server``::
 
     hist = Histogram(distributions, bins=50, server=True)
 
 * ``server``, string type, the name of your chart in the server. If you pass ``True`` to this argument (or chained method) it will use ``untitled`` as a server name)
 
-and to the IPython notebook:
-::
+and to the IPython notebook::
 
     hist = Histogram(distributions, bins=50, notebook=True)
 
 * ``notebook``, bool type, if you want to output (or not) to the notebook.
 
-Keep in mind that, as with any other ``Bokeh`` plots in the IPython notebook, you have to load the ``BokehJS`` library into the notebook just doing:
-::
+Keep in mind that, as with any other ``Bokeh`` plots in the IPython notebook, you have to load the ``BokehJS`` library into the notebook just doing::
 
     import bokeh
     bokeh.load_notebook()
@@ -781,13 +764,12 @@ Keep in mind that, as with any other ``Bokeh`` plots in the IPython notebook, yo
 Reporting bugs
 --------------
 
-You can report any possible bug, start discussions or ask for features at our
-`issue tracker https://github.com/ContinuumIO/bokeh/issues?state=open`_ list.
+You can report possible bugs, start discussions, or ask for features on our
+`issue tracker <https://github.com/ContinuumIO/bokeh/issues?state=open>`_.
 To start a new issue, you will find a ``New issue`` green button at the top right area of the page.
 
 But ``Bokeh`` also provides a programmatic way to open an issue. You only need to use the
-``bokeh.report_issue()`` interactive function:
-::
+``bokeh.report_issue()`` interactive function::
 
     In [1]: import bokeh
 
@@ -817,11 +799,10 @@ But ``Bokeh`` also provides a programmatic way to open an issue. You only need t
 Then, ``Bokeh`` will push the issue to our issue tracker and it will open a new browser tab
 showing your submitted issue, if you want to add more comments.
 As you can see, this function will also append some important information about versions
-and your arcuitecture to help us to reproduce the intended bug.
+and your architecture to help us to reproduce the intended bug.
 
 Finally, you can even make a comment in any issue using this tool just passing the issue number as
-an argument:
-::
+an argument::
 
     In [3]: bokeh.report_issue(555)
     This is the Bokeh reporting engine.

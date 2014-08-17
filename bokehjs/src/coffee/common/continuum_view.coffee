@@ -19,10 +19,6 @@ define [
       super(events)
 
     remove: ->
-      #handles lifecycle of events bound by safebind
-      ##hugo : the eventers stuff with safebind should no longer be needed
-      ##because we should be using @listenTo
-      ## the remove event is good though
       if _.has(this, 'eventers')
         for own target, val of @eventers
           val.off(null, null, this)
@@ -37,11 +33,6 @@ define [
       # convenience function, calls set on the associated model
 
       return @model.set.apply(@model, arguments)
-
-    mget_obj: (fld) ->
-      # convenience function, calls get_obj on the associated model
-
-      return @model.get_obj(fld)
 
     render_end: () ->
       "pass"

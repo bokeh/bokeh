@@ -294,15 +294,15 @@ palette, currently) must also be supplied to use for color-mapping the scalar im
 
 .. warning:: The second (2D) form is significantly less efficient. It is currently used by the python interface to send data to the browser, but may be deprecated in the future.
 
-+----------------------------------------+----------------------------------------+
-|* ``image`` - 1D array of data          |* ``image`` - 2D array of data          |
-|* ``rows`` - number of rows in image    |* ``x``, ``y`` - lower left             |
-|* ``cols`` - number of columns in image |* ``dw`` - width on screen              |
-|* ``x``, ``y`` - lower left             |* ``dh``- height on screen              |
-|* ``dw`` - width on screen              |* ``palette``                           |
-|* ``dh``- height on screen              |                                        |
-|* ``palette``                           |                                        |
-+----------------------------------------+----------------------------------------+
++-----------------------------------------+-----------------------------------------+
+| * ``image`` - 1D array of data          | * ``image`` - 2D array of data          |
+| * ``rows`` - number of rows in image    | * ``x``, ``y`` - lower left             |
+| * ``cols`` - number of columns in image | * ``dw`` - width on screen              |
+| * ``x``, ``y`` - lower left             | * ``dh``- height on screen              |
+| * ``dw`` - width on screen              | * ``palette``                           |
+| * ``dh``- height on screen              |                                         |
+| * ``palette``                           |                                         |
++-----------------------------------------+-----------------------------------------+
 
 .. image:: ../_images/bokehjs_glyphs/image.png
     :height: 300px
@@ -322,14 +322,14 @@ that describe the two-dimensional shape of the array. The second form takes each
 
 .. warning:: The second (2D) form is significantly less efficient. It is currently used by the python interface to send data to the browser, but may be deprecated in the future.
 
-+----------------------------------------+----------------------------------------+
-|* ``image`` - 1D array of RGBA          |* ``image`` - 2D array of RGBA          |
-|* ``rows`` - number of rows in image    |* ``x``, ``y`` - lower left             |
-|* ``cols`` - number of columns in image |* ``dw`` - width on screen              |
-|* ``x``, ``y`` - lower left             |* ``dh``- height on screen              |
-|* ``dw`` - width on screen              |                                        |
-|* ``dh``- height on screen              |                                        |
-+----------------------------------------+----------------------------------------+
++-----------------------------------------+-----------------------------------------+
+| * ``image`` - 1D array of RGBA          | * ``image`` - 2D array of RGBA          |
+| * ``rows`` - number of rows in image    | * ``x``, ``y`` - lower left             |
+| * ``cols`` - number of columns in image | * ``dw`` - width on screen              |
+| * ``x``, ``y`` - lower left             | * ``dh``- height on screen              |
+| * ``dw`` - width on screen              |                                         |
+| * ``dh``- height on screen              |                                         |
++-----------------------------------------+-----------------------------------------+
 
 .. image:: ../_images/bokehjs_glyphs/image_rgba.png
     :height: 300px

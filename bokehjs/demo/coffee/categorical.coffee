@@ -39,8 +39,8 @@ require(['main'], (Bokeh) ->
     dims: [600, 600]
     xrange: [0, 100]
     yrange: factors
-    xaxes: "min"
-    yaxes: "min"
+    xaxes: "below"
+    yaxes: "left"
     tools: "resize"
     legend: false
   }
@@ -70,8 +70,8 @@ require(['main'], (Bokeh) ->
     dims: [600, 600]
     xrange: factors
     yrange: factors
-    xaxes: "min"
-    yaxes: "min"
+    xaxes: "below"
+    yaxes: "left"
     xgrid: false
     ygrid: false
     tools: "resize"

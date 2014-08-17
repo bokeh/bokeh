@@ -5,9 +5,8 @@ require [
   "common/base",
   "common/continuum_view",
   "common/has_properties",
-  "common/safebind",
   "../test/common/test_object",
-], (_, Backbone, base, ContinuumView, HasProperties, safebind, test_object) ->
+], (_, Backbone, base, ContinuumView, HasProperties, test_object) ->
 
   testobjects = test_object.Collection
   base.locations['TestObject'] = "../test/common/test_object"
@@ -45,7 +44,7 @@ require [
     model = testobjects.create({'a': 1, 'b': 1})
     model2 = testobjects.create({'a': 1, 'b': 1})
     triggered = false
-    safebind(model, model2, 'change', () -> triggered = true)
+    model.listenTo(model2, 'change', () -> triggered = true)
     model2.set({'a': 2})
     ok(triggered)
     triggered = false
@@ -64,7 +63,7 @@ require [
     view = new ContinuumView.View({'model': model2})
 
     triggered = false
-    safebind(view, model, 'change', () -> triggered = true)
+    view.listenTo(model, 'change', () -> triggered = true)
     model.set({'a': 2})
     ok(triggered)
     triggered = false
@@ -94,6 +93,7 @@ require [
 
   test('test_vectorized_ref', () ->
     testobjects.reset()
+
     model1 = testobjects.create(
       a: 1
       b: 1
@@ -107,13 +107,25 @@ require [
       b: 1
       vectordata: [model1.ref(), model2.ref()]
     )
-    output = model3.get_obj('vectordata')
+    model4 = testobjects.create(
+      a: 1
+      b: 1
+      vectordata: [[model1.ref(), model2.ref()]]
+    )
+
+    output = model3.get('vectordata')
     ok(output[0] == model1)
     ok(output[1] == model2)
+
     model3.set_obj('vectordata2', [model1, model1, model2])
-    output = model3.get('vectordata2')
+    output = model3.get('vectordata2', false)
     ok(output[0].id == model1.ref().id)
     ok(output[1].id == model1.ref().id)
     ok(output[2].id == model2.ref().id)
-    ok (not (output[0] instanceof HasProperties))
+    ok(not (output[0] instanceof HasProperties))
+
+    output = model4.get('vectordata')
+    ok(output[0][0] == model1)
+    ok(output[0][1] == model2)
+
   )

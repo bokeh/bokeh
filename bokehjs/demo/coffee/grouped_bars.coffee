@@ -50,8 +50,8 @@ options = {
   dims: [600, 600]
   xrange: [0, 8]
   yrange: [0, 8]
-  xaxes: "min"
-  yaxes: "min"
+  xaxes: "below"
+  yaxes: "left"
   xgrid: false
   tools: 'hover'
   legend: false
