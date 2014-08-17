@@ -25,7 +25,7 @@ define [
       @bind_children()
 
     bind_children : () ->
-      children = @mget_obj('_children')
+      children = @mget('_children')
       for child in children
         @listenTo(child, 'change:value' : @set_data)
     set_data : (model, value, options) ->
@@ -35,16 +35,15 @@ define [
         @mset(name, value)
         @model.save()
       else
-        for model in @mget_obj('children')
+        for model in @mget('children')
           [name, value] = [model.get('name'), model.get('value')]
           if name? and value?
             value = @model.convert_val(name, value)
             @mset(name, value)
         @model.save()
-      console.log(@model.attributes)
 
     render: () ->
-      children = @mget_obj('_children')
+      children = @mget('_children')
       build_views(@views, children)
       for own key, val of @views
         val.$el.detach()

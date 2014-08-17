@@ -4,6 +4,13 @@
 Release Notes
 #############
 
+v0.5.2 (Aug 2014)
+=================
+* New Layout system
+* Improved automate testing infrastructure
+* AR testing, server-side downsample fixes and ISO Contours
+* New "dashboard-like" example: examples/app/applet/stock_example.py 
+
 v0.5.1 (Jul 2014)
 =================
 * Hover activated by default

@@ -40,12 +40,12 @@ define [
     _mask_data: () ->
       # dilate the inner screen region by max_size and map back to data space for use in
       # spatial query
-      hr = @plot_view.frame.get('inner_range_horizontal')
+      hr = @plot_view.frame.get('h_range')
       vx0 = hr.get('start') - @max_size
       vx1 = hr.get('end') + @max_size
       [x0, x1] = @plot_view.xmapper.v_map_from_target([vx0, vx1])
 
-      vr = @plot_view.frame.get('inner_range_vertical')
+      vr = @plot_view.frame.get('v_range')
       vy0 = vr.get('start') - @max_size
       vy1 = vr.get('end') + @max_size
       [y0, y1] = @plot_view.ymapper.v_map_from_target([vy0, vy1])

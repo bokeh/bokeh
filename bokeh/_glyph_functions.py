@@ -54,11 +54,11 @@ def _glyph_function(glyphclass, argnames, docstring, xfields=["x"], yfields=["y"
         x_data_fields = []
         for xx in xfields:
             if not isinstance(glyph_params[xx], dict): continue
-            if glyph_params[xx]['units'] == 'data': x_data_fields.append(xx)
+            if glyph_params[xx]['units'] == 'data': x_data_fields.append(glyph_params[xx]['field'])
         y_data_fields = []
         for yy in yfields:
             if not isinstance(glyph_params[yy], dict): continue
-            if glyph_params[yy]['units'] == 'data': y_data_fields.append(yy)
+            if glyph_params[yy]['units'] == 'data': y_data_fields.append(glyph_params[yy]['field'])
 
         _update_plot_data_ranges(plot, datasource, x_data_fields, y_data_fields)
         kwargs.update(glyph_params)

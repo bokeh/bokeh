@@ -40,12 +40,12 @@ define [
 
     build_children: () ->
       childmodels = []
-      for row in @mget_obj('children')
+      for row in @mget('children')
         for plot in row
           childmodels.push(plot)
       build_views(@childviews, childmodels, {})
       @set_child_view_states()
-      for row in @mget_obj('children')
+      for row in @mget('children')
         for plot in row
           @listenTo(plot.solver, 'layout_update', @render)
 

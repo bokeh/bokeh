@@ -72,8 +72,8 @@ define [
 
         [vx, vy] = @view_coords(e.bokehX, e.bokehY)
 
-        irh = @plot_view.frame.get('inner_range_horizontal')
-        irv = @plot_view.frame.get('inner_range_vertical')
+        irh = @plot_view.frame.get('h_range')
+        irv = @plot_view.frame.get('v_range')
         xstart = irh.get('start')
         xend = irh.get('end')
         ystart = irv.get('start')
@@ -104,10 +104,10 @@ define [
       datasources = {}
       datasource_selections = {}
       for renderer in @mget('renderers')
-        datasource = renderer.get_obj('data_source')
+        datasource = renderer.get('data_source')
         datasources[datasource.id] = datasource
       for renderer in @mget('renderers')
-        datasource_id = renderer.get_obj('data_source').id
+        datasource_id = renderer.get('data_source').id
         _.setdefault(datasource_selections, datasource_id, [])
         selected = @plot_view.renderers[renderer.id].hit_test(geometry)
         ds = datasources[datasource_id]
@@ -126,7 +126,7 @@ define [
 
             if value.indexOf("$color") >= 0
               [match, opts, colname] = value.match(/\$color(\[.*\])?:(\w*)/)
-              column = ds.getcolumn(colname)
+              column = ds.get_column(colname)
               if not column?
                 span = $("<span>#{ colname } unknown</span>")
                 td.append(span)
@@ -157,11 +157,11 @@ define [
               value = value.replace("$sy", "#{ e.bokehY }")
               while value.indexOf("@") >= 0
                 [match, unused, column_name] = value.match(/(@)(\w*)/)
-                column = ds.getcolumn(column_name)
+                column = ds.get_column(column_name)
                 if not column?
                   value = value.replace(column_name, "#{ column_name } unknown")
                   break
-                column = ds.getcolumn(column_name)
+                column = ds.get_column(column_name)
                 dsvalue = column[i]
                 if typeof(dsvalue) == "number"
                   value = value.replace(match, "#{ _format_number(dsvalue) }")
@@ -204,7 +204,7 @@ define [
     initialize: (attrs, options) ->
       super(attrs, options)
       names = @get('names')
-      all_renderers = @get_obj('plot').get_obj('renderers')
+      all_renderers = @get('plot').get('renderers')
       renderers = (r for r in all_renderers when r.type == "Glyph")
       if names.length > 0
         renderers = (r for r in renderers when names.indexOf(r.get('name')) >= 0)
