@@ -42,7 +42,7 @@ class SlidersApp(HBox):
         obj.source = ColumnDataSource(data=dict(x=[], y=[]))
 
         obj.text = TextInput(
-            title="title", name='title', value='my sin save'
+            title="title", name='title', value='my sin wave'
         )
 
         obj.offset = Slider(
@@ -64,6 +64,7 @@ class SlidersApp(HBox):
 
         obj.plot = line('x', 'y', source=obj.source,
                         plot_width=400, plot_height=400,
+                        line_width=3, line_alpha=0.6,
                         title=obj.text.value,
                         x_range=[0, 4*np.pi], y_range=[-2.5, 2.5]
         )
@@ -107,7 +108,7 @@ class SlidersApp(HBox):
         self.plot.title = self.text.value
 
     def update_data(self):
-        N = 80
+        N = 200
         a = self.amplitude.value
         b = self.offset.value
         w = self.phase.value
