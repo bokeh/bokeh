@@ -35,6 +35,7 @@
         { "file": "../examples/ggplot/step.py",                 "name": "step"                               },
         { "file": "../examples/ggplot/xkcd_density.py",         "name": "xkcd_density"                       },
         { "file": "../examples/seaborn/violin.py",              "name": "violin"                             },
-        { "file": "../examples/seaborn/kde.py",                 "name": "kde"                                }
+        { "file": "../examples/seaborn/kde.py",                 "name": "kde"                                },
+        { "file": "../examples/seaborn/sinerror.py",            "name": "sinerror"                           }
     ]
 }
