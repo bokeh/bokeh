@@ -41,12 +41,15 @@ def _loadAR():
     """
     try:
         from importlib import import_module
-        globals()["numeric"] = import_module("abstract_rendering.numeric")
-        globals()["general"] = import_module("abstract_rendering.general")
-        globals()["infos"] = import_module("abstract_rendering.infos")
         globals()["ar"] = import_module("abstract_rendering.core")
-        globals()["glyphset"] = import_module("abstract_rendering.glyphset")
+        globals()["categories"] = import_module("abstract_rendering.categories")
         globals()["contour"] = import_module("abstract_rendering.contour")
+        globals()["infos"] = import_module("abstract_rendering.infos")
+        globals()["general"] = import_module("abstract_rendering.general")
+        globals()["glyphset"] = import_module("abstract_rendering.glyphset")
+        globals()["npg"] = import_module("abstract_rendering.numpyglyphs")
+        globals()["numeric"] = import_module("abstract_rendering.numeric")
+        globals()["util"] = import_module("abstract_rendering.util")
     except:
         print(_AR_MESSAGE)
         raise
@@ -76,7 +79,21 @@ class Sum(Proxy):
 class Count(Proxy):
     "Count how many items there are (ignores values)"
     def reify(self, **kwargs):
-        return numeric.Count()
+        glyphs = kwargs.get('glyphset', None)
+        if isinstance(glyphs, npg.Glyphset):
+            return npg.PointCount()
+        else:
+            return numeric.Count()
+
+
+class CountCategories(Proxy):
+    "Count how many items there are in provided categories"
+    def reify(self, **kwargs):
+        glyphs = kwargs.get('glyphset', None)
+        if isinstance(glyphs, npg.Glyphset):
+            return npg.PointCountCategories()
+        else:
+            return categories.CountCategories()
 
 
 # ------ Infos ---------
@@ -104,7 +121,7 @@ class Shader(Proxy):
         Modify the standard AR shader output to one that Bokeh can use.
         Response to 'None' should produce an empty basic dataset.
 
-        The default behavior for None is [[0]] because most shaders produce images.
+        The default behavior for None is [[0]] (most shaders produce images).
         The default behavior for all other values is identity.
         """
         return np.array([[0]]) if result is None else result
@@ -174,7 +191,8 @@ class InterpolateColor(Shader):
     * empty - Empty value (default: 0)
 
     """
-    # TODO: Make color format conversion fluid...possibly by some change to properties.Color
+    # TODO: Make color format conversion fluid
+    #       ...possibly by some change to properties.Color
     out = "image_rgb"
     high = Color((255, 0, 0, 1))
     low = Color((255, 255, 255, 1))
@@ -207,8 +225,10 @@ class InterpolateColor(Shader):
                     raise ValueError("Unknown color string %s" % color)
 
     def reformat(self, image, *args):
-        if image is None: return np.array([[0]])
-        return image.view(dtype=np.int32).reshape(image.shape[0:2])
+        if image is None:
+            return np.array([[0]])
+        else:
+            return image.view(dtype=np.int32).reshape(image.shape[0:2])
 
 
 class Sqrt(Shader):
@@ -275,7 +295,8 @@ class Contour(Shader):
 
 # ------------------  Control Functions ----------------
 def replot(plot, agg=Count(), info=Const(val=1), shader=Id(),
-           remove_original=True, palette=["Spectral-11"], points=False, **kwargs):
+           remove_original=True, palette=["Spectral-11"], points=False,
+           **kwargs):
     """
     Treat the passed plot as an base plot for abstract rendering, generate the
     proper Bokeh plot based on the passed parameters.
@@ -286,7 +307,8 @@ def replot(plot, agg=Count(), info=Const(val=1), shader=Id(),
 
     Transfers plot title, width, height from the original plot
 
-    **kwargs -- Arguments for the source function EXCEPT reserve_val and reserve_color (if present)
+    **kwargs -- Arguments for the source function EXCEPT reserve_val
+                and reserve_color (if present)
     returns -- A new plot
     """
 
@@ -382,12 +404,26 @@ def mapping(source):
         raise ValueError("Unrecognized shader output type %s" % out)
 
 
+def make_glyphset(xcol, ycol, glyphspec, transform):
+    # TODO: Do more detection to find if it is an area implantation.
+    #       If so, make a selector with the right shape pattern and use a point shaper
+    shaper = _shaper(glyphspec['type'], glyphspec['size'], transform['points'])
+    if isinstance(shaper, glyphset.ToPoint):
+        points = np.zeros((len(xcol), 4), order="F")
+        points[:, 0] = xcol
+        points[:, 1] = ycol
+        glyphs = npg.Glyphset(points, util.EmptyList())
+    else:
+        glyphs = glyphset.Glyphset([xcol, ycol], util.EmptyList(),
+                                   shaper, colMajor=True)
+    return glyphs
+
+
 def downsample(data, transform, plot_state):
     _loadAR()  # Must be called before any attempts to use AR proper
     glyphspec = transform['glyphspec']
     xcol = glyphspec['x']['field']
     ycol = glyphspec['y']['field']
-    size = glyphspec['size']['default']  # TODO: Inspect to get non-default val
 
     # Translate the resample parameters to server-side rendering....
     # TODO: Should probably handle this type-based-unpacking server_backend so downsamples get a consistent view of the data
@@ -399,12 +435,7 @@ def downsample(data, transform, plot_state):
         xcol = table[xcol]
         ycol = table[ycol]
 
-    # TODO: Do more detection to find if it is an area implantation.
-    #       If so, make a selector with the right shape pattern and use a point shaper
-    shaper = _shaper(glyphspec['type'], size, transform['points'])
-    glyphs = glyphset.Glyphset([xcol, ycol], general.EmptyList(),
-                               shaper, colMajor=True)
-
+    glyphs = make_glyphset(xcol, ycol, glyphspec, transform)
     shader = transform['shader']
 
     if shader.out == "image" or shader.out == "image_rgb":
@@ -416,59 +447,48 @@ def downsample(data, transform, plot_state):
 
 
 def downsample_line(xcol, ycol, glyphs, transform, plot_state):
-    bounds = glyphs.bounds()
-
     screen_x_span = float(_span(plot_state['screen_x']))
     screen_y_span = float(_span(plot_state['screen_y']))
     data_x_span = float(_span(plot_state['data_x']))
     data_y_span = float(_span(plot_state['data_y']))
-
-    (xmin, xmax) = (xcol.min(), xcol.max())
-    (ymin, ymax) = (ycol.min(), ycol.max())
-
     shader = transform['shader']
 
-    # How big would a full plot of the data be at the current resolution?
     if data_x_span == 0 or data_y_span == 0:
+        # How big would a full plot of the data be at the current resolution?
         # If scale is zero for either axis, don't actual render,
         # instead report back data bounds and wait for the next request
         # This enales guide creation...which cahgnes the available plot size.
         plot_size = [screen_x_span, screen_y_span]
         parts = shader.reformat(None)
     else:
+        bounds = glyphs.bounds()
         plot_size = [bounds[2], bounds[3]]
 
-        vt = ar.zoom_fit(plot_size, bounds, balanced=False)
+        vt = util.zoom_fit(plot_size, bounds, balanced=False)
 
         lines = ar.render(glyphs,
                           transform['info'].reify(),
-                          transform['agg'].reify(),
+                          transform['agg'].reify(glyphset=glyphs),
                           shader.reify(),
                           plot_size, vt)
 
-        parts = shader.reformat(lines, xmin, ymin)
+        parts = shader.reformat(lines, xcol.min(), ycol.min())
 
-    parts['x_range'] = {'start': xmin, 'end': xmax}
-    parts['y_range'] = {'start': ymin, 'end': ymax}
+    parts['x_range'] = {'start': xcol.min(), 'end': xcol.max()}
+    parts['y_range'] = {'start': ycol.min(), 'end': ycol.max()}
 
     return parts
 
 
 def downsample_image(xcol, ycol, glyphs, transform, plot_state):
-    bounds = glyphs.bounds()
-
     screen_x_span = float(_span(plot_state['screen_x']))
     screen_y_span = float(_span(plot_state['screen_y']))
     data_x_span = float(_span(plot_state['data_x']))
     data_y_span = float(_span(plot_state['data_y']))
-
-    (xmin, xmax) = (xcol.min(), xcol.max())
-    (ymin, ymax) = (ycol.min(), ycol.max())
-
     shader = transform['shader']
 
-    # How big would a full plot of the data be at the current resolution?
     if data_x_span == 0 or data_y_span == 0:
+        # How big would a full plot of the data be at the current resolution?
         # If scale is zero for either axis, don't actual render,
         # instead report back data bounds and wait for the next request
         # This enables guide creation...which changes the available plot size.
@@ -476,16 +496,17 @@ def downsample_image(xcol, ycol, glyphs, transform, plot_state):
         scale_x = 1
         scale_y = 1
     else:
+        bounds = glyphs.bounds()
         scale_x = data_x_span/screen_x_span
         scale_y = data_x_span/screen_y_span
         plot_size = [bounds[2]/scale_x, bounds[3]/scale_y]
 
-        ivt = ar.zoom_fit(plot_size, bounds, balanced=False)
+        ivt = util.zoom_fit(plot_size, bounds, balanced=False)
         (tx, ty, sx, sy) = ivt
 
         image = ar.render(glyphs,
                           transform['info'].reify(),
-                          transform['agg'].reify(),
+                          transform['agg'].reify(glyphset=glyphs),
                           shader.reify(),
                           plot_size, ivt)
 
@@ -500,16 +521,16 @@ def downsample_image(xcol, ycol, glyphs, transform, plot_state):
             #     the bottom left and bottom right of the plot
             # y_range is the bottom and top data space values corresponding to
             #     the bottom left and top left of the plot
-            'x_range': {'start': xmin*scale_x, 'end': xmax*scale_x},
-            'y_range': {'start': ymin*scale_y, 'end': ymax*scale_y},
+            'x_range': {'start': xcol.min()*scale_x, 'end': xcol.max()*scale_x},
+            'y_range': {'start': ycol.min()*scale_y, 'end': ycol.max()*scale_y},
 
             # Data-image parameters.
             # x/y are lower left data-space coord of the image.
             # dw/dh are the width and height in data space
-            'x': [xmin],
-            'y': [ymin],
-            'dw': [xmax-xmin],
-            'dh': [ymax-ymin]}
+            'x': [xcol.min()],
+            'y': [ycol.min()],
+            'dw': [xcol.max()-xcol.min()],
+            'dh': [ycol.max()-ycol.min()]}
 
     return rslt
 

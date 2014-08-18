@@ -9,10 +9,12 @@ from ..utils import is_py3
 # Only import in python 2...
 try:
     import abstract_rendering.numeric as numeric
+    import abstract_rendering.categories as categories
     import abstract_rendering.contour as contour
     import abstract_rendering.general as general
     import abstract_rendering.glyphset as glyphset
     import abstract_rendering.core as ar
+    import abstract_rendering.numpyglyphs as npg
 except:
     if not is_py3():
         raise
@@ -34,6 +36,14 @@ class _SourceShim(object):
     def __init__(self, t, *k):
         self.transform = {'shader': t}
         self.data = dict(zip(k, [self.defVal]*len(k)))
+
+
+class _FailsProxyReify(object):
+    """Tests the test machinery.  Intentionally fails reification
+       to check that the test suite will register excpetions as failures."""
+
+    def reify(self):
+        raise NotImplementedError
 
 
 @skipIfPy3("AR does not run in python 3")
@@ -63,7 +73,7 @@ class Test_AR(unittest.TestCase):
         self.assertEquals(3, ar_downsample._span(Range1d(start=3, end=None)))
         self.assertEquals(0, ar_downsample._span(Range1d(start=None, end=None)))
 
-    # ------------ Shaper tests --------------
+    # ------------ Glyphset creation tests --------------
     def test_shaper_create(self):
         ar_downsample._loadAR()
         self.assertIsInstance(ar_downsample._shaper("square", 3, False), glyphset.ToRect)
@@ -75,6 +85,18 @@ class Test_AR(unittest.TestCase):
         with self.assertRaises(ValueError):
             ar_downsample._shaper("circle", 3, False)
             ar_downsample._shaper("blah", 3, False)
+
+    def test_make_glyphset(self):
+        glyphspec = {'type': 'square', 'size': 1}
+        transform = {'points': True}
+        glyphs = make_glyphset([], [], glyphspec, transform)
+        self.assertIsInstance(glyphs, npg.Glyphset, "Point-optimized numpy verison")
+
+        transform= {'points': False}
+        glyphs = make_glyphset([], [], glyphspec, transform)
+        self.assertIsInstance(glyphs, glyphset.Glyphset, "Generic glyphset")
+
+
 
     # -------------- Mapping tests ----------
     def test_Image(self):
@@ -149,10 +171,17 @@ class Test_AR(unittest.TestCase):
             self._reify_tester(info, types.FunctionType)
 
     def test_aggregators(self):
-        aggregators = [Sum(), Count()]
-        targets = [numeric.Sum, numeric.Count]
+        aggregators = [Sum(), Count(), CountCategories()]
+        targets = [numeric.Sum, numeric.Count, categories.CountCategories]
+
         for (agg, target) in zip(aggregators, targets):
             self._reify_tester(agg, target)
+
+        self.assertEqual(len(aggregators), len(targets), "Error in test configuration")
+
+    def test_reify_tester(self):
+        self.assertRaises(NotImplementedError, self._reify_tester, *(_FailsProxyReify(), object))
+
 
     def test_shaders(self):
         shaders = [(Seq(first=Id(), second=Sqrt()), ar.Seq),
