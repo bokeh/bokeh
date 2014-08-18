@@ -21,14 +21,26 @@ define [
 
         for column in @mget("columns")
           headers.push(column.get("header"))
-          data = column.get("data")
-          type = column.get("type")
-          columns.push({ data: data, type: type })
+          columns.push({
+              data: column.get("field")
+              type: column.get("type")
+              format: column.get("format")
+              source: column.get("source")
+              strict: column.get("strict")
+              checkedTemplate: column.get("checked")
+              uncheckedTemplate: column.get("unchecked")
+          })
 
+        width = @mget("width")
+        height = @mget("height")
+
+        @$el.css(width: width + "px", height: height + "px")
         @$el.handsontable({
           data: source.datapoints()
           colHeaders: headers
           columns: columns
+          width: width
+          height: height
           afterChange: (changes, source) =>
             if source == "edit"
               @editData(changes)
@@ -74,6 +86,8 @@ define [
       return {
           source: null
           columns: []
+          width: null
+          height: null
       }
 
   class HandsonTables extends Backbone.Collection

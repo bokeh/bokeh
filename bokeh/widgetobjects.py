@@ -8,6 +8,7 @@ from bokeh.plotting import (curdoc, cursession, line,
                             scatter)
 from .properties import (HasProps, Dict, Enum, Either, Float, Instance, Int, List,
     String, Color, Include, Bool, Tuple, Any, Date, RelativeDelta, lookup_descriptor)
+from .enums import ColumnType
 from .pivot_table import pivot_table
 import copy
 import logging
@@ -204,8 +205,6 @@ class Slider(InputWidget):
     step = Int()
     orientation = Enum("horizontal", "vertical")
 
-
-
 class DateRangeSlider(InputWidget):
     value = Tuple(Date, Date)
     bounds = Tuple(Date, Date)
@@ -227,13 +226,14 @@ class TableWidget(Widget):
     pass
 
 class TableColumn(Widget):
-    type = Enum("text", "numeric", "date", "autocomplete")
-    data = String
+    field = String
     header = String
-
-    # TODO: splic TableColumn into multiple classes
-    source = List(String) # only 'autocomplete'
-    strict = Bool(True)   # only 'autocomplete'
+    type = Enum(ColumnType)
+    format = String
+    source = List(String)
+    strict = Bool(False)
+    checked = String("true")
+    unchecked = String("false")
 
 class HandsonTable(TableWidget):
     source = Instance(DataSource)

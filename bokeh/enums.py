@@ -63,3 +63,4 @@ NamedColor = enumeration(
     "darkorchid", "salmon", "lightslategray", "lemonchiffon", "chocolate",
     "tomato", "cadetblue", "lightyellow", "lavenderblush", "darkblue",
     "mediumaquamarine", "green", "blueviolet", "peachpuff", "darkgrey")
+ColumnType = enumeration("string", "numeric", "date", "checkbox", "select", "dropdown", "autocomplete", "password", "handsontable")
