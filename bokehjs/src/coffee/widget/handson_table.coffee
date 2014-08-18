@@ -13,7 +13,7 @@ define [
       @render()
       @listenTo(@model, 'change:source', @render)
 
-    render: () ->
+    renderFn: () ->
       source = @mget("source")
       if source?
         headers = []
@@ -33,11 +33,18 @@ define [
             if source == "edit"
               @editData(changes)
         })
-
-        ht = @$el.handsontable("getInstance")
-        ht.view.wt.draw(true) # XXX: hack to show table, but column sizes are still wrong (until window/node resize)
       else
         @$el.handsontable()
+
+    render: () ->
+      # XXX: we have to know when bokeh finished rendering to ... finish rendering
+      display = @$el.css("display")
+
+      interval = setInterval(() =>
+        if @$el.css("display") != display
+          clearInterval(interval)
+          @renderFn()
+      , 100)
 
     editData: (changes) ->
       source = @mget("source")
