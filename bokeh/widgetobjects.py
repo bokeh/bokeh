@@ -33,7 +33,8 @@ class Dialog(Widget):
     buttons = List(String)
 
 class Layout(Widget):
-    pass
+    width = Int
+    height = Int
 
 class HBox(Layout):
     children = List(Instance(Widget))
