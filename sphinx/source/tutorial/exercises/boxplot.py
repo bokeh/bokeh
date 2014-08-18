@@ -28,9 +28,11 @@ out = groups.apply(outliers).dropna()
 outx = []
 outy = []
 for cat in cats:
-    for value in out[cat]:
-        outx.append(cat)
-        outy.append(value)
+    # only add outliers if they exist
+    if (not out.loc[cat].empty):
+        for value in out[cat]:
+            outx.append(cat)
+            outy.append(value)
 
 # EXERCISE: output static HTML file
 
@@ -38,6 +40,11 @@ for cat in cats:
 
 # Draw the upper segment extending from the box plot using `segment` which
 # takes x0, x1 and y0, y1 as data
+
+# If no outliers, shrink lengths of stems to be no longer than the maximums
+qmax = groups.quantile(q=1.00)
+upper.score = [min([x,y]) for (x,y) in zip(list(qmax.iloc[:,0]),upper.score) ]
+
 segment(cats, upper.score, cats, q3.score, x_range=cats, line_width=2,
         tools="", background_fill="#EFE8E2", line_color="black", title="")
 
