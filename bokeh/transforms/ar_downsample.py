@@ -228,6 +228,8 @@ class InterpolateColor(Shader):
         if image is None:
             return np.array([[0]])
         else:
+            # TODO: Why does numpyglyphs sometimes return a non-continugous array?
+            image = np.ascontiguousarray(image)
             return image.view(dtype=np.int32).reshape(image.shape[0:2])
 
 
@@ -404,17 +406,18 @@ def mapping(source):
         raise ValueError("Unrecognized shader output type %s" % out)
 
 
-def make_glyphset(xcol, ycol, glyphspec, transform):
+def make_glyphset(xcol, ycol, datacol, glyphspec, transform):
     # TODO: Do more detection to find if it is an area implantation.
     #       If so, make a selector with the right shape pattern and use a point shaper
-    shaper = _shaper(glyphspec['type'], glyphspec['size'], transform['points'])
+    shaper = _shaper(glyphspec['type'], _size(glyphspec), transform['points'])
     if isinstance(shaper, glyphset.ToPoint):
         points = np.zeros((len(xcol), 4), order="F")
         points[:, 0] = xcol
         points[:, 1] = ycol
-        glyphs = npg.Glyphset(points, util.EmptyList())
+        datacol = npg.code_categories(datacol, None)
+        glyphs = npg.Glyphset(points, datacol)
     else:
-        glyphs = glyphset.Glyphset([xcol, ycol], util.EmptyList(),
+        glyphs = glyphset.Glyphset([xcol, ycol], datacol, 
                                    shaper, colMajor=True)
     return glyphs
 
@@ -424,18 +427,19 @@ def downsample(data, transform, plot_state):
     glyphspec = transform['glyphspec']
     xcol = glyphspec['x']['field']
     ycol = glyphspec['y']['field']
+    datacol = _datacolumn(glyphspec)
 
     # Translate the resample parameters to server-side rendering....
-    # TODO: Should probably handle this type-based-unpacking server_backend so downsamples get a consistent view of the data
-    if isinstance(data, dict):
-        xcol = data[xcol]
-        ycol = data[ycol]
-    else:
-        table = data.select(columns=[xcol, ycol])
-        xcol = table[xcol]
-        ycol = table[ycol]
+    # TODO: Do more to preserve the 'natural' data form and have make_glyphset build the 'right thing' (tm) 
 
-    glyphs = make_glyphset(xcol, ycol, glyphspec, transform)
+    if not isinstance(data, dict):
+        columns = [xcol, ycol] + ([datacol] if datacol else [])
+        data = data.select(columns= columns)
+
+    xcol = data[xcol]
+    ycol = data[ycol]
+    datacol = data[datacol] if datacol else util.EmptyList()
+    glyphs = make_glyphset(xcol, ycol, datacol, glyphspec, transform)
     shader = transform['shader']
 
     if shader.out == "image" or shader.out == "image_rgb":
@@ -534,6 +538,32 @@ def downsample_image(xcol, ycol, glyphs, transform, plot_state):
 
     return rslt
 
+
+def _size(glyphspec):
+    """
+    Determine size property value or size field.
+
+    TODO: Handle data-derived and non-default
+    """
+    return glyphspec['size'].get('default', 1)
+
+
+def _datacolumn(glyphspec):
+    """Search the glyphspec to determine what the data column.
+    
+    Precedence:  
+    Size > Type > Fill Color > Fill Alpha > Line Color > Line Alpha 
+
+    TODO: Support a tuple-like datacolumn
+    TODO: Support direct AR override parameter to directly specify data column
+    TODO: Line width?
+    """
+    return ((isinstance(glyphspec['size'], dict) and glyphspec['size'].get('field', False)) or
+            (isinstance(glyphspec['type'], dict) and glyphspec['type'].get('field', False)) or
+            (isinstance(glyphspec['fill_color'], dict) and glyphspec['fill_color'].get('field', False)) or
+            (isinstance(glyphspec['fill_alpha'], dict) and glyphspec['fill_alpha'].get('field', False)) or
+            (isinstance(glyphspec['line_color'], dict) and glyphspec['line_color'].get('field', False)) or
+            (isinstance(glyphspec['line_alpha'], dict) and glyphspec['line_alpha'].get('field', False)))
 
 def _span(r):
     """Distance in a Range1D"""

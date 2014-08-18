@@ -89,11 +89,11 @@ class Test_AR(unittest.TestCase):
     def test_make_glyphset(self):
         glyphspec = {'type': 'square', 'size': 1}
         transform = {'points': True}
-        glyphs = make_glyphset([], [], glyphspec, transform)
+        glyphs = make_glyphset([], [], [], glyphspec, transform)
         self.assertIsInstance(glyphs, npg.Glyphset, "Point-optimized numpy verison")
 
         transform= {'points': False}
-        glyphs = make_glyphset([], [], glyphspec, transform)
+        glyphs = make_glyphset([], [], [], glyphspec, transform)
         self.assertIsInstance(glyphs, glyphset.Glyphset, "Generic glyphset")
 
 
