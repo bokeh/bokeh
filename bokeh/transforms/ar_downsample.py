@@ -3,6 +3,7 @@ from ..plotting import image_rgba, image, multi_line, curdoc
 from ..plot_object import PlotObject
 from ..objects import ServerDataSource,  Glyph, Range1d, Color
 from ..properties import (Instance, Any, Either, Int, Float, List, Bool)
+import bokeh.colors as colors
 import numpy as np
 
 import logging
@@ -193,14 +194,15 @@ class ImageShader(Shader):
                 return tuple(color[0:3]) + (min(abs(color[3])*255, 255),)
             raise ValueError("Improperty formatted tuple for color %s" % color)
 
-        if isinstance(color, str):
+        if (isinstance(color, str) or isinstance(color, unicode)):
             if color[0] == "#":
                 raise ValueError("Can't handle hex-format colors (yet)")
             else:
                 try:
-                    getattr(colors, str)
+                    rgb = getattr(colors, color).toRGB() 
                 except:
                     raise ValueError("Unknown color string %s" % color)
+                return [rgb.r, rgb.g, rgb.b, 255] 
 
     def reformat(self, image, *args):
         if image is None:
