@@ -106,6 +106,15 @@ class Const(Proxy):
         return infos.const(self.val)
 
 
+class Encode(Proxy):
+    "Convert a set of values to numeric codes."
+    cats = List(Any)
+    defcat = Int(-1)
+
+    def reify(self, **kwargs):
+        return infos.encode(self.cats, defcat=self.defcat)
+
+
 # ----- Shaders ---------
 # Out types to support:
 #   image -- grid of values
@@ -199,17 +208,17 @@ class ImageShader(Shader):
                 raise ValueError("Can't handle hex-format colors (yet)")
             else:
                 try:
-                    rgb = getattr(colors, color).toRGB() 
+                    rgb = getattr(colors, color).toRGB()
                 except:
                     raise ValueError("Unknown color string %s" % color)
-                return [rgb.r, rgb.g, rgb.b, 255] 
+                return [rgb.r, rgb.g, rgb.b, 255]
 
     def reformat(self, image, *args):
         if image is None:
             return np.array([[0]])
         else:
             if not image.flags.contiguous:
-                # TODO: Why does numpyglyphs **sometimes** return a non-continugous array?
+                # TODO: Numpyglyphs *sometimes* return a non-continugous array?
                 image = np.ascontiguousarray(image)
             return image.view(dtype=np.int32).reshape(image.shape[0:2])
 
@@ -224,7 +233,7 @@ class ToCounts(Shader):
 
 class HDAlpha(ImageShader):
     colors = List(Color)
-    background = Color((255,255,255,0))
+    background = Color((255, 255, 255, 0))
     alphamin = Float(.3)
     log = Bool(False)
     base = Int(10)
@@ -263,7 +272,7 @@ class InterpolateColor(ImageShader):
             self._reformatColor(self.high),
             reserve=self._reformatColor(self.reserve),
             empty=self.empty)
-    
+
 
 class Sqrt(Shader):
     "Square root of all values"
@@ -288,7 +297,7 @@ class Spread(Shader):
     factor = Any    # TODO: Restrict to numbers; Add shape parameter
 
     def reify(self, **kwargs):
-        return numeric.Spread(factor=self.factor)
+        return npg.Spread(factor=self.factor)
 
 
 class Contour(Shader):
@@ -354,7 +363,7 @@ def replot(plot, agg=Count(), info=Const(val=1), shader=Id(),
 
     # TODO: Find a list somewhere for plot-type-specific options and transfer out using that list.
     #       Otherwise, this section will be horribly unmanageable.
-    options = ['reserve_val', 'reserve_color', 'line_color']
+    options = ['reserve_val', 'reserve_color', 'line_color','tools']
     for opt in options:
         if opt in kwargs:
             props[opt] = kwargs.pop(opt)
@@ -375,7 +384,7 @@ def replot(plot, agg=Count(), info=Const(val=1), shader=Id(),
 # TODO: Move reserve control up here or palette control down.  Probably related to refactoring palette into a model-backed type
 def source(plot, agg=Count(), info=Const(val=1), shader=Id(),
            remove_original=True, palette=["Spectral-11"],
-           points=False, **kwargs):
+           points=False, balancedZoom=False, **kwargs):
     # Acquire information from renderer...
     rend = [r for r in plot.renderers if isinstance(r, Glyph)][0]
     datasource = rend.server_data_source
@@ -413,6 +422,7 @@ def source(plot, agg=Count(), info=Const(val=1), shader=Id(),
         'info': info,
         'shader': shader,
         'glyphspec': spec,
+        'balancedZoom': balancedZoom,
         'points': points}
     return ServerDataSource(**kwargs)
 
@@ -446,10 +456,9 @@ def make_glyphset(xcol, ycol, datacol, glyphspec, transform):
         points = np.zeros((len(xcol), 4), order="F")
         points[:, 0] = xcol
         points[:, 1] = ycol
-        datacol = npg.code_categories(datacol, None)
         glyphs = npg.Glyphset(points, datacol)
     else:
-        glyphs = glyphset.Glyphset([xcol, ycol], datacol, 
+        glyphs = glyphset.Glyphset([xcol, ycol], datacol,
                                    shaper, colMajor=True)
     return glyphs
 
@@ -462,11 +471,11 @@ def downsample(data, transform, plot_state):
     datacol = _datacolumn(glyphspec)
 
     # Translate the resample parameters to server-side rendering....
-    # TODO: Do more to preserve the 'natural' data form and have make_glyphset build the 'right thing' (tm) 
+    # TODO: Do more to preserve the 'natural' data form and have make_glyphset build the 'right thing' (tm)
 
     if not isinstance(data, dict):
         columns = [xcol, ycol] + ([datacol] if datacol else [])
-        data = data.select(columns= columns)
+        data = data.select(columns=columns)
 
     xcol = data[xcol]
     ycol = data[ycol]
@@ -499,8 +508,9 @@ def downsample_line(xcol, ycol, glyphs, transform, plot_state):
     else:
         bounds = glyphs.bounds()
         plot_size = [bounds[2], bounds[3]]
+        balancedZoom = transform.get('balancedZoom', False)
 
-        vt = util.zoom_fit(plot_size, bounds, balanced=False)
+        vt = util.zoom_fit(plot_size, bounds, balanced=balancedZoom)
 
         lines = ar.render(glyphs,
                           transform['info'].reify(),
@@ -522,6 +532,7 @@ def downsample_image(xcol, ycol, glyphs, transform, plot_state):
     data_x_span = float(_span(plot_state['data_x']))
     data_y_span = float(_span(plot_state['data_y']))
     shader = transform['shader']
+    balanced_zoom = transform.get('balancedZoom', False)
 
     if data_x_span == 0 or data_y_span == 0:
         # How big would a full plot of the data be at the current resolution?
@@ -529,22 +540,27 @@ def downsample_image(xcol, ycol, glyphs, transform, plot_state):
         # instead report back data bounds and wait for the next request
         # This enables guide creation...which changes the available plot size.
         image = shader.reformat(None)
-        scale_x = 1
-        scale_y = 1
+        if balanced_zoom:
+            bounds = glyphs.bounds()
+            scale_x = 1
+            scale_y = bounds[2]/bounds[3]
+        else:
+            scale_x = 1
+            scale_y = 1
     else:
         bounds = glyphs.bounds()
         scale_x = data_x_span/screen_x_span
-        scale_y = data_x_span/screen_y_span
+        scale_y = data_y_span/screen_y_span
         plot_size = [bounds[2]/scale_x, bounds[3]/scale_y]
 
-        ivt = util.zoom_fit(plot_size, bounds, balanced=False)
-        (tx, ty, sx, sy) = ivt
+        vt = util.zoom_fit(plot_size, bounds, balanced=balanced_zoom)
+        (tx, ty, sx, sy) = vt
 
         image = ar.render(glyphs,
                           transform['info'].reify(),
                           transform['agg'].reify(glyphset=glyphs),
                           shader.reify(),
-                          plot_size, ivt)
+                          plot_size, vt)
 
         image = shader.reformat(image)
 
@@ -582,20 +598,20 @@ def _size(glyphspec):
 
 def _datacolumn(glyphspec):
     """Search the glyphspec to determine what the data column.
-    
-    Precedence:  
-    Size > Type > Fill Color > Fill Alpha > Line Color > Line Alpha 
+
+    Precedence:
+    Type > Fill Color > Fill Alpha > Line Color > Line Alpha
 
     TODO: Support a tuple-like datacolumn
     TODO: Support direct AR override parameter to directly specify data column
     TODO: Line width?
     """
-    return ((isinstance(glyphspec['size'], dict) and glyphspec['size'].get('field', False)) or
-            (isinstance(glyphspec['type'], dict) and glyphspec['type'].get('field', False)) or
+    return ((isinstance(glyphspec['type'], dict) and glyphspec['type'].get('field', False)) or
             (isinstance(glyphspec['fill_color'], dict) and glyphspec['fill_color'].get('field', False)) or
             (isinstance(glyphspec['fill_alpha'], dict) and glyphspec['fill_alpha'].get('field', False)) or
             (isinstance(glyphspec['line_color'], dict) and glyphspec['line_color'].get('field', False)) or
             (isinstance(glyphspec['line_alpha'], dict) and glyphspec['line_alpha'].get('field', False)))
+
 
 def _span(r):
     """Distance in a Range1D"""
