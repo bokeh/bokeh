@@ -1,14 +1,18 @@
-import numpy as np
+import pandas as pd
+
+# we throw the data into a pandas df
 from bokeh.sampledata.olympics2014 import data
+df = pd.io.json.json_normalize(data['data'])
 
-# we get data data
-data = {d['abbr']: d['medals'] for d in data['data'] if d['medals']['total'] > 0}
+# we filter by countries with at least one medal and sort
+df = df[df['medals.total'] > 0]
+df = df.sort("medals.total", ascending=False)
 
-# then, we grouped them properly
-countries = sorted(data.keys(), key=lambda x: data[x]['total'], reverse=True)
-gold = np.array([data[abbr]['gold'] for abbr in countries], dtype=np.float)
-silver = np.array([data[abbr]['silver'] for abbr in countries], dtype=np.float)
-bronze = np.array([data[abbr]['bronze'] for abbr in countries], dtype=np.float)
+# then, we get the countries and we group the data by medal type
+countries = df.abbr.values.tolist()
+gold = df['medals.gold'].astype(float).values
+silver = df['medals.silver'].astype(float).values
+bronze = df['medals.bronze'].astype(float).values
 
 # later, we build a dict containing the grouped data
 medals = dict(bronze=bronze, silver=silver, gold=gold)
