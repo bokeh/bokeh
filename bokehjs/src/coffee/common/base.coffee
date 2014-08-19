@@ -96,12 +96,15 @@ define [
   'transforms/const'
   'transforms/contour'
   'transforms/count'
+  'transforms/countcategories'
   'transforms/cuberoot'
+  'transforms/hdalpha'
   'transforms/id'
   'transforms/interpolate'
   'transforms/interpolatecolor'
   'transforms/seq'
   'transforms/spread'
+  'transforms/tocounts'
 ], (_, require) ->
 
   # add some useful functions to underscore
@@ -204,12 +207,15 @@ define [
     Const:                    'transforms/const'
     Contour:                  'transforms/contour'
     Count:                    'transforms/count'
+    CountCategories:          'transforms/countcategories'
     Cuberoot:                 'transforms/cuberoot'
+    HDAlpha:                  'transforms/hdalpha'
     Id:                       'transforms/id'
     Interpolate:              'transforms/interpolate'
     InterpolateColor:         'transforms/interpolatecolor'
     Seq:                      'transforms/seq'
     Spread:                   'transforms/spread'
+    ToCounts:                 'transforms/tocounts'
   mod_cache = {}
   collection_overrides = {}
   Collections = (typename) ->

@@ -2,7 +2,7 @@ from __future__ import print_function
 from ..plotting import image_rgba, image, multi_line, curdoc
 from ..plot_object import PlotObject
 from ..objects import ServerDataSource,  Glyph, Range1d, Color
-from ..properties import (Instance, Any, Either, Int, Float, List)
+from ..properties import (Instance, Any, Either, Int, Float, List, Bool)
 import numpy as np
 
 import logging
@@ -181,30 +181,8 @@ class Interpolate(Shader):
         return numeric.Interpolate(self.low, self.high)
 
 
-class InterpolateColor(Shader):
-    """
-    Interpolate between a high and low color
-
-    * high - High color (default: red)
-    * low - Low color (default: white)
-    * reserve - Color for empty values (default: transparent)
-    * empty - Empty value (default: 0)
-
-    """
-    # TODO: Make color format conversion fluid
-    #       ...possibly by some change to properties.Color
+class ImageShader(Shader):
     out = "image_rgb"
-    high = Color((255, 0, 0, 1))
-    low = Color((255, 255, 255, 1))
-    reserve = Color((255, 255, 255, 0))
-    empty = Any(0)
-
-    def reify(self, **kwargs):
-        return numeric.InterpolateColors(
-            self._reformatColor(self.low),
-            self._reformatColor(self.high),
-            reserve=self._reformatColor(self.reserve),
-            empty=self.empty)
 
     def _reformatColor(self, color):
         if isinstance(color, tuple) or isinstance(color, list):
@@ -228,10 +206,62 @@ class InterpolateColor(Shader):
         if image is None:
             return np.array([[0]])
         else:
-            # TODO: Why does numpyglyphs sometimes return a non-continugous array?
-            image = np.ascontiguousarray(image)
+            if not image.flags.contiguous:
+                # TODO: Why does numpyglyphs **sometimes** return a non-continugous array?
+                image = np.ascontiguousarray(image)
             return image.view(dtype=np.int32).reshape(image.shape[0:2])
 
+
+class ToCounts(Shader):
+    "Convert count-of-categories to just counts"
+    out = "image"
+
+    def reify(self, **kwargs):
+        return categories.ToCounts()
+
+
+class HDAlpha(ImageShader):
+    colors = List(Color)
+    background = Color((255,255,255,0))
+    alphamin = Float(.3)
+    log = Bool(False)
+    base = Int(10)
+
+    def reify(self, **kwargs):
+        colors = map(self._reformatColor, self.colors)
+        return categories.HDAlpha(
+                colors,
+                background=self._reformatColor(self.background),
+                alphamin=self.alphamin,
+                log=self.log,
+                logbase=self.base)
+
+
+class InterpolateColor(ImageShader):
+    """
+    Interpolate between a high and low color
+
+    * high - High color (default: red)
+    * low - Low color (default: white)
+    * reserve - Color for empty values (default: transparent)
+    * empty - Empty value (default: 0)
+
+    """
+    # TODO: Make color format conversion fluid
+    #       ...possibly by some change to properties.Color
+    out = "image_rgb"
+    high = Color((255, 0, 0, 1))
+    low = Color((255, 255, 255, 1))
+    reserve = Color((255, 255, 255, 0))
+    empty = Any(0)
+
+    def reify(self, **kwargs):
+        return numeric.InterpolateColors(
+            self._reformatColor(self.low),
+            self._reformatColor(self.high),
+            reserve=self._reformatColor(self.reserve),
+            empty=self.empty)
+    
 
 class Sqrt(Shader):
     "Square root of all values"
