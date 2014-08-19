@@ -21,7 +21,7 @@ DIRECTORIES = {
     'mpl'     : 'mpl',
     'pandas'  : 'pandas',
     'seaborn' : 'seaborn',
-    'charts'  : 'charts'
+    'charts'  : 'charts',
 }
 
 DEFAULT_TEST_FILES = [
@@ -33,7 +33,7 @@ DEFAULT_TEST_FILES = [
     '../plotting/notebook/candlestick.ipynb',
     '../plotting/notebook/glucose.ipynb',
     '../seaborn/violin.py',
-    '../charts/boxplot.py'
+    '../charts/boxplot.py',
 ]
 
 
