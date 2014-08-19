@@ -77,12 +77,6 @@ class Chart(object):
                 IPython notebook.
 
         Attributes:
-            _source (obj): datasource object for your plot,
-                initialized as a dummy None.
-            _xdr (obj): x-associated datarange object for you plot,
-                initialized as a dummy None.
-            _ydr (obj): y-associated datarange object for you plot,
-                initialized as a dummy None.
             plot (obj): main Plot object.
             categorical (bool): tag to prevent adding a wheelzoom to a
                 categorical plot.
