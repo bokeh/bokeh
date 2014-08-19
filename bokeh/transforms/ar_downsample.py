@@ -292,12 +292,14 @@ class Cuberoot(Shader):
 
 class Spread(Shader):
     """Spread values out in a regular pattern from their origin."""
+    # TODO: Add shape parameter
 
     out = "image"
-    factor = Any    # TODO: Restrict to numbers; Add shape parameter
+    factor = Int    
+    anti_alias = Bool(False)
 
     def reify(self, **kwargs):
-        return npg.Spread(factor=self.factor)
+        return npg.Spread(factor=self.factor, anti_alias=self.anti_alias)
 
 
 class Contour(Shader):
