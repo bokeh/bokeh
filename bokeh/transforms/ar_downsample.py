@@ -388,7 +388,12 @@ def source(plot, agg=Count(), info=Const(val=1), shader=Id(),
            remove_original=True, palette=["Spectral-11"],
            points=False, balancedZoom=False, **kwargs):
     # Acquire information from renderer...
-    rend = [r for r in plot.renderers if isinstance(r, Glyph)][0]
+    # TODO: How to be more specific about what to do AR on?  
+    #       Currently just takes the first renderer with a server data source
+    rend = [r for r in plot.renderers 
+            if (isinstance(r, Glyph) 
+                and hasattr(r, "server_data_source") 
+                and r.server_data_source is not None)][0]
     datasource = rend.server_data_source
     kwargs['data_url'] = datasource.data_url
     kwargs['owner_username'] = datasource.owner_username
