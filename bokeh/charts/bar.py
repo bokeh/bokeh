@@ -140,10 +140,9 @@ class Bar(ChartObject):
     def stacked(self, stacked=True):
         """Set the bars stacked on your chart.
 
-        It defaults to True if you use the method without any parameter.
-
         Args:
-            stacked (bool): to stack (or not) the bars in your plot.
+            stacked (bool, optional): whether to stack the bars
+                in your plot (default: True).
 
         Returns:
             self: the chart object being configured.
@@ -204,7 +203,7 @@ class Bar(ChartObject):
         """Push the Bar data into the ColumnDataSource and calculate the proper ranges.
 
         Args:
-            stacked (bool): to stack (or not) the bars in your plot.
+            stacked (bool): whether to stack the bars in your plot.
         """
         self.source = ColumnDataSource(self.data)
         self.xdr = FactorRange(factors=self.source.data["cat"])
@@ -221,7 +220,7 @@ class Bar(ChartObject):
         Takes reference points from data loaded at the ColumnDataSurce.
 
         Args:
-            stacked (bool): to stack (or not) the bars in your plot.
+            stacked (bool): whether to stack the bars in your plot.
         """
         self.quartet = list(self._chunker(self.attr, 4))
         colors = self._set_colors(self.quartet)
@@ -257,7 +256,7 @@ class Bar(ChartObject):
         self.get_data(self.cat, **self.value)
         # we filled the source and ranges with the calculated data
         self.get_source(self._stacked)
-        # we dinamically inject the source and ranges into the plot
+        # we dynamically inject the source and ranges into the plot
         self.add_data_plot(self.source, self.xdr, self.ydr)
         # we add the glyphs into the plot
         self.draw(self._stacked)

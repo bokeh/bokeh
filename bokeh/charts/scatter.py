@@ -241,7 +241,7 @@ class Scatter(ChartObject):
         self.get_data(**self.pairs)
         # we filled the source and ranges with the calculated data
         self.get_source()
-        # we dinamically inject the source and ranges into the plot
+        # we dynamically inject the source and ranges into the plot
         self.add_data_plot(self.source, self.xdr, self.ydr)
         # we add the glyphs into the plot
         self.draw()

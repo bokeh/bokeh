@@ -188,10 +188,9 @@ class ChartObject(object):
     def tools(self, tools=True):
         """Set the tools of your chart.
 
-        It defaults to True if you use the method without any parameter.
-
         Args:
-            tools (bool): to enable or disable the tools in your plot.
+            tools (bool, optional): to enable or disable the tools
+                in your plot (default: True).
 
         Returns:
             self: the chart object being configured.
@@ -231,11 +230,9 @@ class ChartObject(object):
     def notebook(self, notebook=True):
         """Show your chart inside the IPython notebook.
 
-        It defaults to True if you use the method without any parameter.
-
         Args:
-            notebook (bool):if you want to output (or not) your plot into the
-                IPython notebook.
+            notebook (bool, optional) : whether to output to the
+                IPython notebook (default: True).
 
         Returns:
             self: the chart object being configured.

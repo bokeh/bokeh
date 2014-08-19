@@ -156,7 +156,7 @@ class BoxPlot(ChartObject):
             cat (list): categories as a list of strings.
             marker (int or string, optional): if outliers=True, the marker type to use
                 e.g., ``circle``.
-            outliers (bool, optional): Whether or not to plot outliers.
+            outliers (bool, optional): Whether to plot outliers.
             values (dict or pd obj): the values to be plotted as bars.
         """
         self.cat = cat
@@ -253,7 +253,7 @@ class BoxPlot(ChartObject):
         self.get_data(self.cat, self.marker, self.outliers, **self.value)
         # we filled the source and ranges with the calculated data
         self.get_source()
-        # we dinamically inject the source and ranges into the plot
+        # we dynamically inject the source and ranges into the plot
         self.add_data_plot(self.source, self.xdr, self.ydr)
         # we add the glyphs into the plot
         self.draw()
