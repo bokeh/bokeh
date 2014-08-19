@@ -43,7 +43,7 @@ from ..utils import publish_display_data
 
 
 class Chart(object):
-    """This is the main Chart class, the core of the `Bokeh.charts` interface.
+    """This is the main Chart class, the core of the ``Bokeh.charts`` interface.
 
     This class essentially set up a "universal" Plot object containing all the
     needed attributes and methods to draw any of the Charts that you can build
@@ -58,32 +58,26 @@ class Chart(object):
             xlabel (str): the x-axis label of your plot.
             ylabel (str): the y-axis label of your plot.
             legend (str): the legend of your plot. The legend content is
-                inferred from incoming input.It can be `top_left`,
-                `top_right`, `bottom_left`, `bottom_right`.
-                It is `top_right` is you set it as True.
+                inferred from incoming input.It can be ``top_left``,
+                ``top_right``, ``bottom_left``, ``bottom_right``.
+                It is ``top_right`` is you set it as True.
             xscale (str): the x-axis type scale of your plot. It can be
-                `linear`, `date` or `categorical`.
+                ``linear``, ``datetime`` or ``categorical``.
             yscale (str): the y-axis type scale of your plot. It can be
-                `linear`, `date` or `categorical`.
+                ``linear``, ``datetime`` or ``categorical``.
             width (int): the width of your plot in pixels.
             height (int): the height of you plot in pixels.
             tools (bool): to enable or disable the tools in your plot.
             filename (str or bool): the name of the file where your plot.
                 will be written. If you pass True to this argument, it will use
-                "untitled" as a filename.
+                ``untitled`` as a filename.
             server (str or bool): the name of your plot in the server.
-                If you pass True to this argument, it will use "untitled"
+                If you pass True to this argument, it will use ``untitled``
                 as the name in the server.
             notebook (bool): if you want to output (or not) your plot into the
                 IPython notebook.
 
         Attributes:
-            _source (obj): datasource object for your plot,
-                initialized as a dummy None.
-            _xdr (obj): x-associated datarange object for you plot,
-                initialized as a dummy None.
-            _ydr (obj): y-associated datarange object for you plot,
-                initialized as a dummy None.
             plot (obj): main Plot object.
             categorical (bool): tag to prevent adding a wheelzoom to a
                 categorical plot.
@@ -190,16 +184,16 @@ class Chart(object):
 
         Args:
             location(str): the space localization of the axis. It can be
-                `left`, `right`, `below` or `above`.
-            scale (str): the scale on the axis. It can be `linear`, `date`
-                or `categorical`.
+                ``left``, ``right``, ``above`` or ``below``.
+            scale (str): the scale on the axis. It can be ``linear``, ``datetime``
+                or ``categorical``.
             label (str): the label on the axis.
         """
         if scale == "linear":
             axis = LinearAxis(plot=self.plot,
                               location=location,
                               axis_label=label)
-        elif scale == "date":
+        elif scale == "datetime":
             axis = DatetimeAxis(plot=self.plot,
                                 location=location,
                                 axis_label=label)
@@ -230,10 +224,10 @@ class Chart(object):
 
         Args:
             source (obj): datasource object containing segment refereces.
-            x0 (str or list[float]) : values or field names of starting `x` coordinates
-            y0 (str or list[float]) : values or field names of starting `y` coordinates
-            x1 (str or list[float]) : values or field names of ending `x` coordinates
-            y1 (str or list[float]) : values or field names of ending `y` coordinates
+            x0 (str or list[float]) : values or field names of starting ``x`` coordinates
+            y0 (str or list[float]) : values or field names of starting ``y`` coordinates
+            x1 (str or list[float]) : values or field names of ending ``x`` coordinates
+            y1 (str or list[float]) : values or field names of ending ``y`` coordinates
             color (str): the segment color
             width (int): the segment width
         """
@@ -246,8 +240,8 @@ class Chart(object):
 
         Args:
             source (obj): datasource object containing line refereces.
-            x (str or list[float]) : values or field names of line `x` coordinates
-            y (str or list[float]) : values or field names of line `y` coordinates
+            x (str or list[float]) : values or field names of line ``x`` coordinates
+            y (str or list[float]) : values or field names of line ``y`` coordinates
             color (str): the line color
         """
         line = Line(x=x, y=y, line_color=color)
@@ -276,8 +270,8 @@ class Chart(object):
 
         Args:
             source (obj): datasource object containing rect refereces.
-            x (str or list[float]) : values or field names of center `x` coordinates
-            y (str or list[float]) : values or field names of center `y` coordinates
+            x (str or list[float]) : values or field names of center ``x`` coordinates
+            y (str or list[float]) : values or field names of center ``y`` coordinates
             width (str or list[float]) : values or field names of widths
             height (str or list[float]) : values or field names of heights
             color (str): the fill color
@@ -294,8 +288,8 @@ class Chart(object):
 
         Args:
             source (obj): datasource object containing markers refereces.
-            x (str or list[float]) : values or field names of line `x` coordinates
-            y (str or list[float]) : values or field names of line `y` coordinates
+            x (str or list[float]) : values or field names of line ``x`` coordinates
+            y (str or list[float]) : values or field names of line ``y`` coordinates
             markertype (int or str): Marker type to use (e.g., 2, 'circle', etc.)
             color (str): color of the points
         """

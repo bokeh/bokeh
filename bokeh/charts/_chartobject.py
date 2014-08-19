@@ -30,7 +30,7 @@ class ChartObject(object):
     It provides useful methods to be used by the inherited chart classes,
     such as:
         * chained methods
-        * dinamically chart cration attributes, ie. `self.chart`
+        * dynamically chart cration attributes, ie. `self.chart`
         * composition to easily use Chart clase methods
     """
     def __init__(self, title, xlabel, ylabel, legend,
@@ -43,21 +43,21 @@ class ChartObject(object):
             xlabel (str): the x-axis label of your plot.
             ylabel (str): the y-axis label of your plot.
             legend (str, bool): the legend of your plot. The legend content is
-                inferred from incoming input.It can be `top_left`,
-                `top_right`, `bottom_left`, `bottom_right`.
-                It is `top_right` is you set it as True.
+                inferred from incoming input.It can be ``top_left``,
+                ``top_right``, ``bottom_left``, ``bottom_right``.
+                It is ``top_right`` is you set it as True.
             xscale (str): the x-axis type scale of your plot. It can be
-                `linear`, `date` or `categorical`.
+                ``linear``, ``datetime`` or ``categorical``.
             yscale (str): the y-axis type scale of your plot. It can be
-                `linear`, `date` or `categorical`.
+                ``linear``, ``datetime`` or ``categorical``.
             width (int): the width of your plot in pixels.
             height (int): the height of you plot in pixels.
             tools (bool): to enable or disable the tools in your plot.
             filename (str or bool): the name of the file where your plot.
                 will be written. If you pass True to this argument, it will use
-                "untitled" as a filename.
+                ``untitled`` as a filename.
             server (str or bool): the name of your plot in the server.
-                If you pass True to this argument, it will use "untitled"
+                If you pass True to this argument, it will use ``untitled``
                 as the name in the server.
             notebook (bool):if you want to output (or not) your plot into the
                 IPython notebook.
@@ -121,8 +121,8 @@ class ChartObject(object):
         """Set the legend of your chart.
 
         The legend content is inferred from incoming input.
-        It can be `top_left`, `top_right`, `bottom_left`, `bottom_right`.
-        It is `top_right` is you set it as True.
+        It can be ``top_left``, ``top_right``, ``bottom_left``, ``bottom_right``.
+        It is ``top_right`` is you set it as True.
 
         Args:
             legend (str or bool): the legend of your plot.
@@ -136,7 +136,7 @@ class ChartObject(object):
     def xscale(self, xscale):
         """Set the xscale of your chart.
 
-        It can be `linear`, `date` or `categorical`.
+        It can be ``linear``, ``datetime`` or ``categorical``.
 
         Args:
             xscale (str): the x-axis scale of your plot.
@@ -150,10 +150,10 @@ class ChartObject(object):
     def yscale(self, yscale):
         """Set the yscale of your chart.
 
-        It can be `linear`, `date` or `categorical`.
+        It can be ``linear``, ``datetime`` or ``categorical``.
 
         Args:
-            yscale (str): the y-axis scale of your plot..
+            yscale (str): the y-axis scale of your plot.
 
         Returns:
             self: the chart object being configured.
@@ -188,10 +188,9 @@ class ChartObject(object):
     def tools(self, tools=True):
         """Set the tools of your chart.
 
-        It defaults to True if you use the method without any parameter.
-
         Args:
-            tools (bool): to enable or disable the tools in your plot.
+            tools (bool, optional): to enable or disable the tools
+                in your plot (default: True).
 
         Returns:
             self: the chart object being configured.
@@ -202,7 +201,7 @@ class ChartObject(object):
     def filename(self, filename):
         """Set the file name of your chart.
 
-        If you pass True to this argument, it will use "untitled" as a filename.
+        If you pass True to this argument, it will use ``untitled`` as a filename.
 
         Args:
             filename (str or bool): the file name where your plot will be written.
@@ -216,7 +215,7 @@ class ChartObject(object):
     def server(self, server):
         """Set the server name of your chart.
 
-        If you pass True to this argument, it will use "untitled"
+        If you pass True to this argument, it will use ``untitled``
         as the name in the server.
 
         Args:
@@ -231,11 +230,9 @@ class ChartObject(object):
     def notebook(self, notebook=True):
         """Show your chart inside the IPython notebook.
 
-        It defaults to True if you use the method without any parameter.
-
         Args:
-            notebook (bool):if you want to output (or not) your plot into the
-                IPython notebook.
+            notebook (bool, optional) : whether to output to the
+                IPython notebook (default: True).
 
         Returns:
             self: the chart object being configured.
@@ -277,7 +274,7 @@ class ChartObject(object):
             self._notebook = self.__notebook
 
     def create_chart(self):
-        """Dinamically create a new chart object.
+        """Dynamically create a new chart object.
 
         It creates a chart instance customized with the parameters
         we have passed at the __init__ step or through the chained
@@ -288,7 +285,7 @@ class ChartObject(object):
                       self._tools, self._filename, self._server, self._notebook)
 
     def start_plot(self):
-        "Wrapper to call the `chart.start_plot` method."
+        "Wrapper to call the ``chart.start_plot`` method."
         self.chart.start_plot()
 
     def get_data(self):
@@ -309,9 +306,9 @@ class ChartObject(object):
         pass
 
     def add_data_plot(self, xdr, ydr, *source):
-        """Wrapper to call the `chart.add_data_plot` method.
+        """Wrapper to call the ``chart.add_data_plot`` method.
 
-        It pass source and ranges as parameters of the `chart.add_data_plot` method.
+        It pass source and ranges as parameters of the ``chart.add_data_plot`` method.
 
         Args:
             xdr (obj): x-associated datarange object for you plot.
@@ -329,7 +326,7 @@ class ChartObject(object):
         pass
 
     def end_plot(self, groups):
-        """Wrapper to call the `chart.end_plot` method.
+        """Wrapper to call the ``chart.end_plot`` method.
 
         It pass groups as parameters of the `chart.end_plot` method.
 
@@ -340,7 +337,7 @@ class ChartObject(object):
         self.chart.end_plot(groups)
 
     def show_chart(self):
-        "Wrapper to call the `chart.show` method."
+        "Wrapper to call the ``chart.show`` method."
         self.chart.show()
 
     # Some helper methods

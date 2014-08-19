@@ -81,16 +81,16 @@ class BoxPlot(ChartObject):
             ylabel (str, optional): the y-axis label of your plot.
                 Defaults to None.
             legend (str, optional): the legend of your plot. The legend content is
-                inferred from incoming input.It can be `top_left`,
-                `top_right`, `bottom_left`, `bottom_right`.
-                It is `top_right` is you set it as True.
+                inferred from incoming input.It can be ``top_left``,
+                ``top_right``, ``bottom_left``, ``bottom_right``.
+                It is ``top_right`` is you set it as True.
                 Defaults to None.
             xscale (str, optional): the x-axis type scale of your plot. It can be
-                `linear`, `date` or `categorical`.
-                Defaults to `linear`.
+                ``linear``, ``datetime`` or ``categorical``.
+                Defaults to ``linear``.
             yscale (str, optional): the y-axis type scale of your plot. It can be
-                `linear`, `date` or `categorical`.
-                Defaults to `linear`.
+                ``linear``, ``date`` or ``categorical``.
+                Defaults to ``linear``.
             width (int, optional): the width of your plot in pixels.
                 Defaults to 800.
             height (int, optional): the height of you plot in pixels.
@@ -99,10 +99,10 @@ class BoxPlot(ChartObject):
                 Defaults to True
             filename (str or bool, optional): the name of the file where your plot.
                 will be written. If you pass True to this argument, it will use
-                "untitled" as a filename.
+                ``untitled`` as a filename.
                 Defaults to False.
             server (str or bool, optional): the name of your plot in the server.
-                If you pass True to this argument, it will use "untitled"
+                If you pass True to this argument, it will use ``untitled``
                 as the name in the server.
                 Defaults to False.
             notebook (bool, optional):if you want to output (or not) your plot into the
@@ -167,13 +167,13 @@ class BoxPlot(ChartObject):
 
         It calculates the chart properties accordingly. Then build a dict
         containing references to all the calculated points to be used by
-        the quad, segments and markers glyphs inside the `draw` method.
+        the quad, segments and markers glyphs inside the ``draw`` method.
 
         Args:
             cat (list): categories as a list of strings.
             marker (int or string, optional): if outliers=True, the marker type to use
-                e.g., `circle`.
-            outliers (bool, optional): Whether or not to plot outliers.
+                e.g., ``circle``.
+            outliers (bool, optional): Whether to plot outliers.
             values (dict or pd obj): the values to be plotted as bars.
         """
         # assuming value is a OrdererDict
@@ -335,7 +335,7 @@ class BoxPlot(ChartObject):
         self.get_data(self._marker, self._outliers, **self.value)
         # we filled the source and ranges with the calculated data
         self.get_source()
-        # we dinamically inject the source and ranges into the plot
+        # we dynamically inject the source and ranges into the plot
         self.add_data_plot(self.xdr, self.ydr, [self.source_segment,
                                                 self.source_rect,
                                                 self.source_scatter,

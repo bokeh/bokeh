@@ -80,16 +80,16 @@ class Bar(ChartObject):
             ylabel (str, optional): the y-axis label of your plot.
                 Defaults to None.
             legend (str, optional): the legend of your plot. The legend content is
-                inferred from incoming input.It can be `top_left`,
-                `top_right`, `bottom_left`, `bottom_right`.
-                It is `top_right` is you set it as True.
+                inferred from incoming input.It can be ``top_left``,
+                ``top_right``, ``bottom_left``, ``bottom_right``.
+                It is ``top_right`` is you set it as True.
                 Defaults to None.
             xscale (str, optional): the x-axis type scale of your plot. It can be
-                `linear`, `date` or `categorical`.
-                Defaults to `linear`.
+                ``linear``, ``datetime`` or ``categorical``.
+                Defaults to ``linear``.
             yscale (str, optional): the y-axis type scale of your plot. It can be
-                `linear`, `date` or `categorical`.
-                Defaults to `linear`.
+                ``linear``, ``datetime`` or ``categorical``.
+                Defaults to ``linear``.
             width (int, optional): the width of your plot in pixels.
                 Defaults to 800.
             height (int, optional): the height of you plot in pixels.
@@ -98,10 +98,10 @@ class Bar(ChartObject):
                 Defaults to True
             filename (str or bool, optional): the name of the file where your plot.
                 will be written. If you pass True to this argument, it will use
-                "untitled" as a filename.
+                ``untitled`` as a filename.
                 Defaults to False.
             server (str or bool, optional): the name of your plot in the server.
-                If you pass True to this argument, it will use "untitled"
+                If you pass True to this argument, it will use ``untitled``
                 as the name in the server.
                 Defaults to False.
             notebook (bool or optional):if you want to output (or not) your plot into the
@@ -140,10 +140,9 @@ class Bar(ChartObject):
     def stacked(self, stacked=True):
         """Set the bars stacked on your chart.
 
-        It defaults to True if you use the method without any parameter.
-
         Args:
-            stacked (bool): to stack (or not) the bars in your plot.
+            stacked (bool, optional): whether to stack the bars
+                in your plot (default: True).
 
         Returns:
             self: the chart object being configured.
@@ -167,7 +166,7 @@ class Bar(ChartObject):
 
         It calculates the chart properties accordingly. Then build a dict
         containing references to all the calculated points to be used by
-        the rect glyph inside the `draw` method.
+        the rect glyph inside the ``draw`` method.
 
         Args:
             cat (list): categories as a list of strings
@@ -204,7 +203,7 @@ class Bar(ChartObject):
         """Push the Bar data into the ColumnDataSource and calculate the proper ranges.
 
         Args:
-            stacked (bool): to stack (or not) the bars in your plot.
+            stacked (bool): whether to stack the bars in your plot.
         """
         self.source = ColumnDataSource(self.data)
         self.xdr = FactorRange(factors=self.source.data["cat"])
@@ -221,7 +220,7 @@ class Bar(ChartObject):
         Takes reference points from data loaded at the ColumnDataSurce.
 
         Args:
-            stacked (bool): to stack (or not) the bars in your plot.
+            stacked (bool): whether to stack the bars in your plot.
         """
         self.quartet = list(self._chunker(self.attr, 4))
         colors = self._set_colors(self.quartet)
@@ -257,7 +256,7 @@ class Bar(ChartObject):
         self.get_data(self.cat, **self.value)
         # we filled the source and ranges with the calculated data
         self.get_source(self._stacked)
-        # we dinamically inject the source and ranges into the plot
+        # we dynamically inject the source and ranges into the plot
         self.add_data_plot(self.xdr, self.ydr, [self.source])
         # we add the glyphs into the plot
         self.draw(self._stacked)
