@@ -73,16 +73,16 @@ class Histogram(ChartObject):
             ylabel (str, optional): the y-axis label of your plot.
                 Defaults to None.
             legend (str, optional): the legend of your plot. The legend content is
-                inferred from incoming input.It can be `top_left`,
-                `top_right`, `bottom_left`, `bottom_right`.
-                It is `top_right` is you set it as True.
+                inferred from incoming input.It can be ``top_left``,
+                ``top_right``, ``bottom_left``, ``bottom_right``.
+                It is ``top_right`` is you set it as True.
                 Defaults to None.
             xscale (str, optional): the x-axis type scale of your plot. It can be
-                `linear`, `date` or `categorical`.
-                Defaults to `linear`.
+                ``linear``, ``datetime`` or ``categorical``.
+                Defaults to ``linear``.
             yscale (str, optional): the y-axis type scale of your plot. It can be
-                `linear`, `date` or `categorical`.
-                Defaults to `linear`.
+                ``linear``, ``datetime`` or ``categorical``.
+                Defaults to ``linear``.
             width (int, optional): the width of your plot in pixels.
                 Defaults to 800.
             height (int, optional): the height of you plot in pixels.
@@ -91,10 +91,10 @@ class Histogram(ChartObject):
                 Defaults to True
             filename (str or bool, optional): the name of the file where your plot.
                 will be written. If you pass True to this argument, it will use
-                "untitled" as a filename.
+                ``untitled`` as a filename.
                 Defaults to False.
             server (str or bool, optional): the name of your plot in the server.
-                If you pass True to this argument, it will use "untitled"
+                If you pass True to this argument, it will use ``untitled``
                 as the name in the server.
                 Defaults to False.
             notebook (bool, optional):if you want to output (or not) your plot into the
@@ -143,7 +143,7 @@ class Histogram(ChartObject):
 
         It calculates the chart properties accordingly. Then build a dict
         containing references to all the calculated points to be used by
-        the quad and line glyphs inside the `draw` method.
+        the quad and line glyphs inside the ``draw`` method.
 
         Args:
             bins (int): number of bins to use in the Histogram building.
