@@ -11,11 +11,22 @@ define [
     initialize: (options) ->
       super(options)
       @render()
-      @listenTo(@model, 'change:source', @render)
+      @listenTo(@model, 'change:source', () => @renderFn())
+      source = @mget("source")
+      @listenTo(source, 'change:data', () => @renderFn())
+      @listenTo(source, 'change:selected', () => @changeSelection())
+
+    changeSelection: () ->
+      debugger;
+      @ht.deselectCell()
+
+      source = @mget("source")
+      for i in source.get("selected")
+          @ht.selectCell(i)
 
     renderFn: () ->
       source = @mget("source")
-      if source?
+      @ht = if source?
         headers = []
         columns = []
 
@@ -31,16 +42,14 @@ define [
               uncheckedTemplate: column.get("unchecked")
           })
 
-        width = @mget("width")
-        height = @mget("height")
-
-        @$el.css(width: width + "px", height: height + "px")
         @$el.handsontable({
           data: source.datapoints()
           colHeaders: headers
           columns: columns
-          width: width
-          height: height
+          columnSorting: @mget("sorting")
+          rowHeaders: true
+          width: @mget("width")
+          height: @mget("height")
           afterChange: (changes, source) =>
             if source == "edit"
               @editData(changes)

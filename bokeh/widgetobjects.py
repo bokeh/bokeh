@@ -239,6 +239,9 @@ class TableColumn(Widget):
 class HandsonTable(TableWidget):
     source = Instance(DataSource)
     columns = List(Instance(TableColumn))
+    sorting = Bool(True)
+    width = Int(None)
+    height = Int(None)
 
 class ObjectExplorer(Widget):
     data_widget = Instance(TableWidget)
