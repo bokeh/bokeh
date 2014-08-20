@@ -550,7 +550,7 @@ def downsample_image(xcol, ycol, glyphs, transform, plot_state):
         if balanced_zoom:
             bounds = glyphs.bounds()
             scale_x = 1
-            scale_y = bounds[2]/bounds[3]
+            scale_y = (bounds[2]/bounds[3])/(screen_x_span/screen_y_span)
         else:
             scale_x = 1
             scale_y = 1
