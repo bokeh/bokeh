@@ -15,6 +15,7 @@ try:
     import abstract_rendering.glyphset as glyphset
     import abstract_rendering.core as ar
     import abstract_rendering.numpyglyphs as npg
+    import abstract_rendering.infos as infos
 except:
     if not is_py3():
         raise
@@ -87,7 +88,7 @@ class Test_AR(unittest.TestCase):
             ar_downsample._shaper("blah", 3, False)
 
     def test_make_glyphset(self):
-        glyphspec = {'type': 'square', 'size': 1}
+        glyphspec = {'type': 'square', 'size': {'default': 1}}
         transform = {'points': True}
         glyphs = make_glyphset([], [], [], glyphspec, transform)
         self.assertIsInstance(glyphs, npg.Glyphset, "Point-optimized numpy verison")
@@ -146,13 +147,13 @@ class Test_AR(unittest.TestCase):
         expected['C'] = source.defVal
         self.assertEquals(expected.keys(), result.keys())
 
-    def _reify_tester(self, proxy, reifyBase):
+    def _reify_tester(self, proxy, reifyBase, kwargs):
         ar_downsample._loadAR()
-        op = proxy.reify()
+        op = proxy.reify(**kwargs)
         self.assertIsNotNone(op, "Empty reification on %s" % type(proxy))
         self.assertIsInstance(op, reifyBase, "Reify to unexpected type (%s) for %s" % (type(op), type(proxy)))
 
-    def _shader_tester(self, proxy, reifyBase):
+    def _shader_tester(self, proxy, reifyBase, kwargs):
         self.assertIn(proxy.out, ["image", "image_rgb", "poly_line"],
                       "Unknown output type.")
 
@@ -163,36 +164,42 @@ class Test_AR(unittest.TestCase):
         self.assertIsNotNone(op2)
         self.assertIsInstance(op2, Seq, "Unexpected result from sequencing")
 
-        self._reify_tester(proxy, reify_base)
+        self._reify_tester(proxy, reify_base, kwargs)
 
     def test_infos(self):
-        infos = [Const(val=3)]
-        for info in infos:
-            self._reify_tester(info, types.FunctionType)
+        configs = [(AutoEncode(), infos.AutoEncode, {}),
+                   (Const(val=3), types.FunctionType, {}),
+                   (Encode(cats=[10,20,30]), types.FunctionType, {})]
+
+        for (proxy, target, kwargs) in configs:
+            self._reify_tester(proxy, target, kwargs)
 
     def test_aggregators(self):
-        aggregators = [Sum(), Count(), CountCategories()]
-        targets = [numeric.Sum, numeric.Count, categories.CountCategories]
+        aggregators = [(Sum(), numeric.Sum, {}),
+                       (Count(), numeric.Count, {}),
+                       (CountCategories(), categories.CountCategories, {})
+                      ]
 
-        for (agg, target) in zip(aggregators, targets):
-            self._reify_tester(agg, target)
-
-        self.assertEqual(len(aggregators), len(targets), "Error in test configuration")
+        for (agg, target, kwargs) in aggregators:
+            self._reify_tester(agg, target, kwargs)
 
     def test_reify_tester(self):
-        self.assertRaises(NotImplementedError, self._reify_tester, *(_FailsProxyReify(), object))
+        self.assertRaises(NotImplementedError, self._reify_tester, *(_FailsProxyReify(), object, {}))
 
 
     def test_shaders(self):
-        shaders = [(Seq(first=Id(), second=Sqrt()), ar.Seq),
-                   (Id(), general.Id),
-                   (BinarySegment(low=1, high=2, divider=10), numeric.BinarySegment),
-                   (Interpolate(low=0, high=10), numeric.Interpolate),
-                   (InterpolateColor(low=(10, 10, 10), high=(200, 200, 200), reserve=(0, 0, 0), empty=-1), numeric.InterpolateColors),
-                   (Sqrt(), numeric.Sqrt),
-                   (Cuberoot(), numeric.Cuberoot),
-                   (Spread(factor=2), numeric.Spread),
-                   (Contour(), contour.Contour)]
+        shaders = [(BinarySegment(low=1, high=2, divider=10), numeric.BinarySegment, {}),
+                   (Contour(), contour.Contour, {}),
+                   (Cuberoot(), numeric.Cuberoot, {}),
+                   (Id(), general.Id, {}),
+                   (Interpolate(low=0, high=10), numeric.Interpolate, {}),
+                   (InterpolateColor(low=(10, 10, 10), high=(200, 200, 200), reserve=(0, 0, 0), empty=-1), numeric.InterpolateColors, {}),
+                   (NonZeros(), categories.NonZeros, {}),
+                   (Seq(first=Id(), second=Sqrt()), ar.Seq, {}),
+                   (Spread(factor=2), npg.Spread, {}),
+                   (Sqrt(), numeric.Sqrt, {}),
+                   (ToCounts(), categories.ToCounts, {}),
+                   ]
 
-        for (shader, target) in shaders:
-            self._reify_tester(shader, target)
+        for (shader, target, kwargs) in shaders:
+            self._reify_tester(shader, target, kwargs)
