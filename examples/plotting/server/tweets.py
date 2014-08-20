@@ -3,7 +3,7 @@ from bokeh.objects import ServerDataSource
 from bokeh.properties import Color
 import bokeh.transforms.ar_downsample as ar
 
-output_server("Tweets")
+output_server("Tweets2")
 # 2010 US Census tracts
 source = ServerDataSource(data_url="/defaultuser/tweets.hdf5", owner_username="defaultuser")
 plot = square(
@@ -11,7 +11,7 @@ plot = square(
         color='lang',
         source=source,
         plot_width=800,
-        plot_height=600,
+        plot_height=400,
         title="Tweets")
 
 #ar.replot(plot,

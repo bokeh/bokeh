@@ -115,6 +115,13 @@ class Encode(Proxy):
         return infos.encode(self.cats, defcat=self.defcat)
 
 
+class AutoEncode(Proxy):
+    "Convert a set of values to numeric codes."
+
+    def reify(self, **kwargs):
+        return infos.AutoEncode()
+
+
 # ----- Shaders ---------
 # Out types to support:
 #   image -- grid of values
@@ -229,6 +236,23 @@ class ToCounts(Shader):
 
     def reify(self, **kwargs):
         return categories.ToCounts()
+
+
+class NonZeros(Shader):
+    "How many non-zero categories are there?"
+    out = "image"
+
+    def reify(self, **kwargs):
+        return categories.NonZeros()
+
+
+class Ratio(Shader):
+    "Ratio of some category to total of all cateogires."
+    out = "image"
+    focus = Int(-1)
+
+    def reify(self, **kwargs):
+        return categories.Ratio(focus=self.focus)
 
 
 class HDAlpha(ImageShader):
