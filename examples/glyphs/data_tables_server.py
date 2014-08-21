@@ -73,11 +73,10 @@ class DataTables(object):
         plot.left.append(yaxis)
         cty = Glyph(data_source=self.source, xdata_range=xdr, ydata_range=ydr, glyph=Circle(x="index", y="cty", fill_color="green"))
         hwy = Glyph(data_source=self.source, xdata_range=xdr, ydata_range=ydr, glyph=Circle(x="index", y="hwy", fill_color="red"))
-        select_tool = BoxSelectTool()
+        select_tool = BoxSelectTool(renderers=[cty, hwy], select_y=False)
         plot.tools.append(select_tool)
         overlay = BoxSelectionOverlay(tool=select_tool)
         plot.renderers.extend([cty, hwy, ygrid, overlay])
-        #grid = GridPlot(children=[[plot]])
 
         vbox = VBox(children=[manufacturer_select, model_select, transmission_select, drive_select, class_select], width=200)
         hbox = HBox(children=[vbox, VBox(children=[plot, handson_table])])

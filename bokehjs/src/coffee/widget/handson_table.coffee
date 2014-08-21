@@ -17,16 +17,18 @@ define [
       @listenTo(source, 'change:selected', () => @changeSelection())
 
     changeSelection: () ->
-      debugger;
       @ht.deselectCell()
 
-      source = @mget("source")
-      for i in source.get("selected")
-          @ht.selectCell(i)
+      # NOTE: only linear selection allowed by ht
+      selected = @mget("source").get("selected")
+      i = _.min(selected)
+      j = _.max(selected)
+      n = @ht.countCols()
+      @ht.selectCell(i, 0, j, n-1, true)
 
     renderFn: () ->
       source = @mget("source")
-      @ht = if source?
+      if source?
         headers = []
         columns = []
 
@@ -56,6 +58,8 @@ define [
         })
       else
         @$el.handsontable()
+
+      @ht = @$el.handsontable("getInstance")
 
     render: () ->
       # XXX: we have to know when bokeh finished rendering to ... finish rendering
