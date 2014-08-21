@@ -30,7 +30,7 @@ outx = []
 outy = []
 for cat in cats:
     # only add outliers if they exist
-    if (not out.loc[cat].empty):
+    if not out.loc[cat].empty:
         for value in out[cat]:
             outx.append(cat)
             outy.append(value)
