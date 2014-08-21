@@ -11,7 +11,7 @@ logging.basicConfig(level=logging.INFO)
 from bokeh.pluginutils import app_document
 from flask import Flask, render_template
 
-from stocks import StockApp
+from stock_app import StockApp
 
 app = Flask('sampleapp')
 
