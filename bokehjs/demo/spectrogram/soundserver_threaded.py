@@ -86,7 +86,6 @@ def main():
     t.setDaemon(True)
     t.start()
 
-    app.debug = True
     app.run(host='0.0.0.0')
 
 

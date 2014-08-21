@@ -63,7 +63,6 @@ def main():
     its process space, and forks out workers when web connections are
     made.
     """
-    app.debug = True
     app.run(host='0.0.0.0')
 
 if __name__ == "__main__":
