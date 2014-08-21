@@ -17,37 +17,23 @@ x = np.linspace(-2*pi, 2*pi, 1000)
 y = sin(x)
 z = cos(x)
 
-source = ColumnDataSource(
-    data=dict(
-        x=x,
-        y=y,
-    )
-)
+source = ColumnDataSource(data=dict(x=x, y=y))
 
 xdr = DataRange1d(sources=[source.columns("x")])
 ydr = DataRange1d(sources=[source.columns("y")])
 
-line_glyph = Line(x="x", y="y", line_color="blue")
-
-renderer = Glyph(
-        data_source = source,
-        xdata_range = xdr,
-        ydata_range = ydr,
-        glyph = line_glyph
-        )
-
 plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source], min_border=50)
-xaxis = LinearAxis(plot=plot)
-plot.below.append(xaxis)
-yaxis = LinearAxis(plot=plot)
-plot.left.append(yaxis)
+
+line_glyph = Line(x="x", y="y", line_color="blue")
+plot.add_obj(Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=line_glyph))
+
+plot.add_obj(LinearAxis(), 'below')
+plot.add_obj(LinearAxis(), 'left')
 
 pantool = PanTool(dimensions=["width", "height"])
 wheelzoomtool = WheelZoomTool(dimensions=["width", "height"])
 previewsave = PreviewSaveTool(plot=plot)
 objectexplorer = ObjectExplorerTool()
-
-plot.renderers.append(renderer)
 plot.tools = [pantool, wheelzoomtool, previewsave, objectexplorer]
 
 doc = Document()

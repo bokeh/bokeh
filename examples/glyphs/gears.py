@@ -28,8 +28,7 @@ def sample_gear():
     plot.tools.extend([PanTool(plot=plot), WheelZoomTool(plot=plot), ResetTool(plot=plot)])
 
     glyph = Gear(x=0, y=0, module=5, teeth=8, angle=0, shaft_size=0.2, fill_color=fill_color[2], line_color=line_color)
-    renderer = Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=glyph)
-    plot.renderers.append(renderer)
+    plot.add_obj(Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=glyph))
 
     return plot
 
@@ -38,20 +37,30 @@ def classical_gear(module, large_teeth, small_teeth):
     ydr = Range1d(start=-100, end=100)
 
     source = ColumnDataSource(data=dict(dummy=[0]))
-    plot = Plot(title=None, data_sources=[source], x_range=xdr, y_range=ydr, plot_width=800, plot_height=800)
+    plot = Plot(
+        title=None, data_sources=[source],
+        x_range=xdr, y_range=ydr,
+        plot_width=800, plot_height=800
+    )
     plot.tools.extend([PanTool(plot=plot), WheelZoomTool(plot=plot), ResetTool(plot=plot)])
 
     radius = pitch_radius(module, large_teeth)
     angle = 0
-    glyph = Gear(x=-radius, y=0, module=module, teeth=large_teeth, angle=angle, fill_color=fill_color[0], line_color=line_color)
-    renderer = Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=glyph)
-    plot.renderers.append(renderer)
+    glyph = Gear(
+        x=-radius, y=0,
+        module=module, teeth=large_teeth, angle=angle,
+        fill_color=fill_color[0], line_color=line_color
+    )
+    plot.add_obj(Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=glyph))
 
     radius = pitch_radius(module, small_teeth)
     angle = half_tooth(small_teeth)
-    glyph = Gear(x=radius, y=0, module=module, teeth=small_teeth, angle=angle, fill_color=fill_color[1], line_color=line_color)
-    renderer = Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=glyph)
-    plot.renderers.append(renderer)
+    glyph = Gear(
+        x=radius, y=0,
+        module=module, teeth=small_teeth, angle=angle,
+        fill_color=fill_color[1], line_color=line_color
+    )
+    plot.add_obj(Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=glyph))
 
     return plot
 
@@ -60,18 +69,28 @@ def epicyclic_gear(module, sun_teeth, planet_teeth):
     ydr = Range1d(start=-150, end=150)
 
     source = ColumnDataSource(data=dict(dummy=[0]))
-    plot = Plot(title=None, data_sources=[source], x_range=xdr, y_range=ydr, plot_width=800, plot_height=800)
+    plot = Plot(
+        title=None, data_sources=[source],
+        x_range=xdr, y_range=ydr,
+        plot_width=800, plot_height=800
+    )
     plot.tools.extend([PanTool(plot=plot), WheelZoomTool(plot=plot), ResetTool(plot=plot)])
 
     annulus_teeth = sun_teeth + 2*planet_teeth
 
-    glyph = Gear(x=0, y=0, module=module, teeth=annulus_teeth, angle=0, fill_color=fill_color[0], line_color=line_color, internal=True)
-    renderer = Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=glyph)
-    plot.renderers.append(renderer)
+    glyph = Gear(
+        x=0, y=0,
+        module=module, teeth=annulus_teeth, angle=0,
+        fill_color=fill_color[0], line_color=line_color, internal=True
+    )
+    plot.add_obj(Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=glyph))
 
-    glyph = Gear(x=0, y=0, module=module, teeth=sun_teeth, angle=0, fill_color=fill_color[2], line_color=line_color)
-    renderer = Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=glyph)
-    plot.renderers.append(renderer)
+    glyph = Gear(
+        x=0, y=0,
+        module=module, teeth=sun_teeth, angle=0,
+        fill_color=fill_color[2], line_color=line_color
+    )
+    plot.add_obj(Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=glyph))
 
     sun_radius = pitch_radius(module, sun_teeth)
     planet_radius = pitch_radius(module, planet_teeth)
@@ -80,9 +99,12 @@ def epicyclic_gear(module, sun_teeth, planet_teeth):
     angle = half_tooth(planet_teeth)
 
     for i, j in [(+1, 0), (0, +1), (-1, 0), (0, -1)]:
-        glyph = Gear(x=radius*i, y=radius*j, module=module, teeth=planet_teeth, angle=angle, fill_color=fill_color[1], line_color=line_color)
-        renderer = Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=glyph)
-        plot.renderers.append(renderer)
+        glyph = Gear(
+            x=radius*i, y=radius*j,
+            module=module, teeth=planet_teeth, angle=angle,
+            fill_color=fill_color[1], line_color=line_color
+        )
+        plot.add_obj(Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=glyph))
 
     return plot
 

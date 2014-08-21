@@ -43,18 +43,7 @@ def make_plot(xname, yname, xax=False, yax=False, text=None):
         x_range=xdr, y_range=ydr, data_sources=[source], background_fill="#efe8e2",
         border_fill='white', title="", min_border=2, border_symmetry=None,
         plot_width=250, plot_height=250)
-    xticker = BasicTicker()
-    if xax:
-        xaxis = LinearAxis(plot=plot)
-        plot.below.append(xaxis)
-        xticker = xaxis.ticker
-    xgrid = Grid(plot=plot, dimension=0, ticker=xticker)
-    yticker = BasicTicker()
-    if yax:
-        yaxis = LinearAxis(plot=plot)
-        plot.left.append(yaxis)
-        yticker = yaxis.ticker
-    ygrid = Grid(plot=plot, dimension=1, ticker=yticker)
+
     circle = Circle(x=xname, y=yname, fill_color="color", fill_alpha=0.2, size=4, line_color="color")
     circle_renderer = Glyph(
         data_source = source,
@@ -62,23 +51,40 @@ def make_plot(xname, yname, xax=False, yax=False, text=None):
         ydata_range = ydr,
         glyph = circle,
     )
-    plot.renderers.append(circle_renderer)
+    plot.add_obj(circle_renderer)
+
+    xticker = BasicTicker()
+    if xax:
+        xaxis = LinearAxis()
+        plot.add_obj(xaxis, 'below')
+        xticker = xaxis.ticker
+    plot.add_obj(Grid(dimension=0, ticker=xticker))
+
+    yticker = BasicTicker()
+    if yax:
+        yaxis = LinearAxis()
+        plot.add_obj(yaxis, 'left')
+        yticker = yaxis.ticker
+    plot.add_obj(Grid(dimension=1, ticker=yticker))
+
     plot.tools = [pan, zoom]
+
     if text:
         text = " ".join(text.split('_'))
         text = Text(
             x={'field':'xcenter', 'units':'screen'},
             y={'field':'ycenter', 'units':'screen'},
             text=[text], angle=pi/4, text_font_style="bold", text_baseline="top",
-            text_color="#ffaaaa", text_alpha=0.7, text_align="center", text_font_size="28pt")
+            text_color="#ffaaaa", text_alpha=0.7, text_align="center", text_font_size="28pt"
+        )
         text_renderer = Glyph(
             data_source=text_source,
             xdata_range = xdr,
             ydata_range = ydr,
             glyph = text,
         )
-        plot.data_sources.append(text_source)
-        plot.renderers.append(text_renderer)
+        plot.add_obj(text_renderer)
+
     return plot
 
 xattrs = ["petal_length", "petal_width", "sepal_width", "sepal_length"]

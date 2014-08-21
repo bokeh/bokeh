@@ -27,27 +27,25 @@ source = ColumnDataSource(
 xdr = DataRange1d(sources=[source.columns("petal_length")])
 ydr = DataRange1d(sources=[source.columns("petal_width")])
 
-circle = Circle(x="petal_length", y="petal_width", fill_color="color", fill_alpha=0.2, size=10, line_color="color")
-
-glyph_renderer = Glyph(
-        data_source = source,
-        xdata_range = xdr,
-        ydata_range = ydr,
-        glyph = circle,
-        )
-
 plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source], min_border=80, title="Iris Data")
-xaxis = LinearAxis(plot=plot, axis_label="petal length", bounds=(1,7), major_tick_in=0)
-plot.below.append(xaxis)
-yaxis = LinearAxis(plot=plot, axis_label="petal width", bounds=(0,2.5), major_tick_in=0)
-plot.left.append(yaxis)
-xgrid = Grid(plot=plot, dimension=0, ticker=xaxis.ticker)
-ygrid = Grid(plot=plot, dimension=1, ticker=yaxis.ticker)
+
+circle = Circle(
+    x="petal_length", y="petal_width", size=10,
+    fill_color="color", fill_alpha=0.2, line_color="color"
+)
+plot.add_obj(Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=circle))
+
+xaxis = LinearAxis(axis_label="petal length", bounds=(1,7), major_tick_in=0)
+plot.add_obj(xaxis, 'below')
+
+yaxis = LinearAxis(axis_label="petal width", bounds=(0,2.5), major_tick_in=0)
+plot.add_obj(yaxis, 'left')
+
+plot.add_obj(Grid(dimension=0, ticker=xaxis.ticker))
+plot.add_obj(Grid(dimension=1, ticker=yaxis.ticker))
 
 pantool = PanTool(dimensions=["width", "height"])
 wheelzoomtool = WheelZoomTool(dimensions=["width", "height"])
-
-plot.renderers.append(glyph_renderer)
 plot.tools = [pantool, wheelzoomtool]
 
 doc = Document()

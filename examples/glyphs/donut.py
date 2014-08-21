@@ -2,7 +2,6 @@ from __future__ import print_function
 
 import base64
 from math import pi, sin, cos
-import pandas as pd
 
 from bokeh.document import Document
 from bokeh.embed import file_html
@@ -45,7 +44,7 @@ plot.data_sources.append(browsers_source)
 glyph = Wedge(x=0, y=0, radius=1, line_color="white",
     line_width=2, start_angle="start", end_angle="end", fill_color="colors")
 renderer = Glyph(data_source=browsers_source, xdata_range=xdr, ydata_range=ydr, glyph=glyph)
-plot.renderers.append(renderer)
+plot.add_obj(renderer)
 
 def polar_to_cartesian(r, start_angles, end_angles):
     cartesian = lambda r, alpha: (r*cos(alpha), r*sin(alpha))
@@ -74,7 +73,7 @@ for browser, start_angle, end_angle in zip(browsers, start_angles, end_angles):
         inner_radius=1, outer_radius=1.5, start_angle="start", end_angle="end",
         line_color="white", line_width=2, fill_color="fill")
     renderer = Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=glyph)
-    plot.renderers.append(renderer)
+    plot.add_obj(renderer)
 
     text_angle = [(start[i]+end[i])/2 for i in range(len(start))]
     text_angle = [angle + pi if pi/2 < angle < 3*pi/2 else angle for angle in text_angle]
@@ -93,7 +92,7 @@ for browser, start_angle, end_angle in zip(browsers, start_angles, end_angles):
     glyph = Text(x="x", y="y", text="text", angle="angle",
         text_align="center", text_baseline="middle")
     renderer = Glyph(data_source=text_source, xdata_range=xdr, ydata_range=ydr, glyph=glyph)
-    plot.renderers.append(renderer)
+    plot.add_obj(renderer)
 
 def to_base64(png):
     return "data:image/png;base64," + base64.b64encode(png).decode("utf-8")
@@ -106,7 +105,7 @@ plot.data_sources.append(icons_source)
 
 glyph = ImageURL(url="urls", x="x", y="y", angle=0.0, anchor="center")
 renderer = Glyph(data_source=icons_source, xdata_range=xdr, ydata_range=ydr, glyph=glyph)
-plot.renderers.append(renderer)
+plot.add_obj(renderer)
 
 text = [ "%.02f%%" % value for value in selected.Share ]
 x, y = polar_to_cartesian(0.7, start_angles, end_angles)
@@ -116,7 +115,7 @@ plot.data_sources.append(text_source)
 
 glyph = Text(x="x", y="y", text="text", angle=0, text_align="center", text_baseline="middle")
 renderer = Glyph(data_source=text_source, xdata_range=xdr, ydata_range=ydr, glyph=glyph)
-plot.renderers.append(renderer)
+plot.add_obj(renderer)
 
 doc = Document()
 doc.add(plot)

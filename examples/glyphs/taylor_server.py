@@ -5,11 +5,11 @@ import time
 import numpy as np
 import sympy as sy
 
-from bokeh.objects import Plot, DataRange1d, LinearAxis, ColumnDataSource, Glyph, Grid, Legend
-from bokeh.widgetobjects import Slider, TextInput, HBox, VBox, Dialog
-from bokeh.glyphs import Patch, Line, Text
 from bokeh.document import Document
+from bokeh.glyphs import Line
+from bokeh.objects import Plot, DataRange1d, LinearAxis, ColumnDataSource, Glyph, Grid, Legend
 from bokeh.session import Session
+from bokeh.widgetobjects import Slider, TextInput, HBox, VBox, Dialog
 
 from requests.exceptions import ConnectionError
 
@@ -50,11 +50,7 @@ def update_data():
 
     session.store_document(document)
 
-source = ColumnDataSource(data=dict(
-    x  = [],
-    fy = [],
-    ty = [],
-))
+source = ColumnDataSource(data=dict(x=[], fy=[], ty=[]))
 
 xdr = DataRange1d(sources=[source.columns("x")])
 ydr = DataRange1d(sources=[source.columns("fy")])
@@ -63,22 +59,23 @@ plot = Plot(data_sources=[source], x_range=xdr, y_range=ydr, plot_width=800, plo
 
 line_f = Line(x="x", y="fy", line_color="blue", line_width=2)
 line_f_glyph = Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=line_f)
-plot.renderers.append(line_f_glyph)
+plot.add_obj(line_f_glyph)
 
 line_t = Line(x="x", y="ty", line_color="red", line_width=2)
 line_t_glyph = Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=line_t)
-plot.renderers.append(line_t_glyph)
+plot.add_obj(line_t_glyph)
 
-xaxis = LinearAxis(plot=plot)
-plot.below.append(xaxis)
-yaxis = LinearAxis(plot=plot)
-plot.left.append(yaxis)
+xaxis = LinearAxis()
+plot.add_obj(xaxis, 'below')
 
-xgrid = Grid(plot=plot, dimension=0, ticker=xaxis.ticker)
-ygrid = Grid(plot=plot, dimension=1, ticker=yaxis.ticker)
+yaxis = LinearAxis()
+plot.add_obj(yaxis, 'left')
 
-legend = Legend(plot=plot, orientation="bottom_left")
-plot.renderers.append(legend)
+xgrid = Grid(dimension=0, ticker=xaxis.ticker)
+ygrid = Grid(dimension=1, ticker=yaxis.ticker)
+
+legend = Legend(orientation="bottom_left")
+plot.add_obj(legend)
 
 def on_slider_value_change(obj, attr, old, new):
     global order

@@ -19,8 +19,7 @@ global_source = ColumnDataSource(dict(dummy=[0]))
 plot.data_sources.append(global_source)
 
 def add_glyph(glyph, source=global_source):
-    renderer = Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=glyph)
-    plot.renderers.append(renderer)
+    plot.add_obj(Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=glyph))
 
 start_angle = pi + pi/4
 end_angle = -pi/4

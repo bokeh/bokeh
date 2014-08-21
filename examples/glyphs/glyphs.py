@@ -73,15 +73,21 @@ markers = [
 
 def make_tab(title, glyph):
     plot = Plot(title=title, data_sources=[source], x_range=xdr, y_range=ydr)
+
     renderer = Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=glyph)
-    plot.renderers.append(renderer)
-    xaxis = LinearAxis(plot=plot)
-    plot.below.append(xaxis)
-    yaxis = LinearAxis(plot=plot)
-    plot.left.append(yaxis)
-    xgrid = Grid(plot=plot, dimension=0, ticker=xaxis.ticker)
-    ygrid = Grid(plot=plot, dimension=1, ticker=yaxis.ticker)
+    plot.add_obj(renderer)
+
+    xaxis = LinearAxis()
+    plot.add_obj(xaxis, 'below')
+
+    yaxis = LinearAxis()
+    plot.add_obj(yaxis, 'left')
+
+    plot.add_obj(Grid(dimension=0, ticker=xaxis.ticker))
+    plot.add_obj(Grid(dimension=1, ticker=yaxis.ticker))
+
     tab = Panel(child=plot, title=title)
+
     return tab
 
 def make_tabs(objs):

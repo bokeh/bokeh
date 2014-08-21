@@ -14,7 +14,10 @@ session.load_document(document)
 source = ColumnDataSource(autompg)
 
 fields = zip(autompg.columns, map(str, autompg.dtypes))
-columns = [ TableColumn(data=column, type="text" if dtype == "object" else "numeric", header=column) for column, dtype in fields ]
+columns = [
+    TableColumn(data=column, type="text" if dtype == "object" else "numeric", header=column)
+    for column, dtype in fields
+]
 
 data_table = HandsonTable(source=source, columns=columns)
 pivot_table = PivotTable(source=source, fields=[ dict(name=field, dtype=dtype) for field, dtype in fields ])

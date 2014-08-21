@@ -21,25 +21,17 @@ source = ColumnDataSource(
 xdr = DataRange1d(sources=[source.columns("x")])
 ydr = DataRange1d(sources=[source.columns("y")])
 
-circle = Circle(x="x", y="y", fill_color="red", size=5, line_color="black")
-
-glyph_renderer = Glyph(
-        data_source = source,
-        xdata_range = xdr,
-        ydata_range = ydr,
-        glyph = circle,
-        )
-
 plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source], min_border=80)
-xaxis = LinearAxis(plot=plot)
-plot.below.append(xaxis)
-yaxis = LinearAxis(plot=plot)
-plot.left.append(yaxis)
+
+circle = Circle(x="x", y="y", fill_color="red", size=5, line_color="black")
+plot.add_obj(Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=circle))
+
+plot.add_obj(LinearAxis(), 'below')
+plot.add_obj(LinearAxis(), 'left')
 
 pantool = PanTool(dimensions=["width", "height"])
 wheelzoomtool = WheelZoomTool(dimensions=["width", "height"])
 
-plot.renderers.append(glyph_renderer)
 plot.tools = [pantool, wheelzoomtool]
 
 doc = Document()
