@@ -74,6 +74,22 @@ class Test_AR(unittest.TestCase):
         self.assertEquals(3, ar_downsample._span(Range1d(start=3, end=None)))
         self.assertEquals(0, ar_downsample._span(Range1d(start=None, end=None)))
 
+    def test_size(self):
+        self.assertEquals(10, ar_downsample._size({'size': {'default': 10}}))
+        self.assertEquals(1, ar_downsample._size({'size': {'other': 10}}))
+
+    def test_datacolumn(self):
+        self.assertEquals('state', ar_downsample._datacolumn({'type': {'field': 'state'}}))
+        self.assertEquals('state', ar_downsample._datacolumn({'fill_color': {'field': 'state'}}))
+        self.assertEquals('state', ar_downsample._datacolumn({'fill_alpha': {'field': 'state'}}))
+        self.assertEquals('state', ar_downsample._datacolumn({'line_color': {'field': 'state'}}))
+        self.assertEquals('state', ar_downsample._datacolumn({'line_alpha': {'field': 'state'}}))
+        self.assertEquals('state1', ar_downsample._datacolumn({'type': {'field': 'state1'}, 'fill_color': {'field': 'state2'}}))
+        self.assertEquals('state2', ar_downsample._datacolumn({'fill_alpha': {'field': 'state1'}, 'fill_color': {'field': 'state2'}}))
+        self.assertEquals('state1', ar_downsample._datacolumn({'fill_alpha': {'field': 'state1'}, 'line_color': {'field': 'state2'}}))
+        self.assertEquals('state2', ar_downsample._datacolumn({'line_alpha': {'field': 'state1'}, 'line_color': {'field': 'state2'}}))
+        self.assertEquals('state1', ar_downsample._datacolumn({'line_alpha': {'field': 'state1'}, 'other': {'field': 'state2'}}))
+
     # ------------ Glyphset creation tests --------------
     def test_shaper_create(self):
         ar_downsample._loadAR()
@@ -147,6 +163,8 @@ class Test_AR(unittest.TestCase):
         expected['C'] = source.defVal
         self.assertEquals(expected.keys(), result.keys())
 
+
+    # -------------------- Proxy object tests --------------
     def _reify_tester(self, proxy, reifyBase, kwargs):
         ar_downsample._loadAR()
         op = proxy.reify(**kwargs)

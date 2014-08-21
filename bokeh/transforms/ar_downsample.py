@@ -210,7 +210,7 @@ class ImageShader(Shader):
                 return tuple(color[0:3]) + (min(abs(color[3])*255, 255),)
             raise ValueError("Improperty formatted tuple for color %s" % color)
 
-        if (isinstance(color, str) or isinstance(color, unicode)):
+        if isinstance(color, str) or isinstance(color, unicode):
             if color[0] == "#":
                 raise ValueError("Can't handle hex-format colors (yet)")
             else:
@@ -628,7 +628,8 @@ def _size(glyphspec):
 
 
 def _datacolumn(glyphspec):
-    """Search the glyphspec to determine what the data column.
+    """Search the glyphspec to determine what the data column is.
+    Returns the column name or False if none was found
 
     Precedence:
     Type > Fill Color > Fill Alpha > Line Color > Line Alpha
@@ -637,11 +638,19 @@ def _datacolumn(glyphspec):
     TODO: Support direct AR override parameter to directly specify data column
     TODO: Line width?
     """
-    return ((isinstance(glyphspec['type'], dict) and glyphspec['type'].get('field', False)) or
-            (isinstance(glyphspec['fill_color'], dict) and glyphspec['fill_color'].get('field', False)) or
-            (isinstance(glyphspec['fill_alpha'], dict) and glyphspec['fill_alpha'].get('field', False)) or
-            (isinstance(glyphspec['line_color'], dict) and glyphspec['line_color'].get('field', False)) or
-            (isinstance(glyphspec['line_alpha'], dict) and glyphspec['line_alpha'].get('field', False)))
+
+    def maybe_get(key):
+        return (key in glyphspec
+                and isinstance(glyphspec[key], dict)
+                and glyphspec[key].get('field', False))
+
+    return (maybe_get('type')
+           or maybe_get('fill_color')
+           or maybe_get('fill_alpha')
+           or maybe_get('line_color')
+           or maybe_get('line_alpha'))
+
+
 
 
 def _span(r):
