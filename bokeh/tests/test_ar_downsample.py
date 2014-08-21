@@ -41,7 +41,7 @@ class _SourceShim(object):
 
 class _FailsProxyReify(object):
     """Tests the test machinery.  Intentionally fails reification
-       to check that the test suite will register excpetions as failures."""
+       to check that the test suite will register exceptions as failures."""
 
     def reify(self):
         raise NotImplementedError
@@ -91,7 +91,7 @@ class Test_AR(unittest.TestCase):
         glyphspec = {'type': 'square', 'size': {'default': 1}}
         transform = {'points': True}
         glyphs = make_glyphset([], [], [], glyphspec, transform)
-        self.assertIsInstance(glyphs, npg.Glyphset, "Point-optimized numpy verison")
+        self.assertIsInstance(glyphs, npg.Glyphset, "Point-optimized numpy version")
 
         transform= {'points': False}
         glyphs = make_glyphset([], [], [], glyphspec, transform)
