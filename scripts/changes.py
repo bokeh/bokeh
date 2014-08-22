@@ -22,14 +22,33 @@ API_PARAMS = {
     'repo': 'bokeh',
 }
 
-IGNORE_LABELS = {'status: rejected', 'duplicate', 'invalid', 'superceded', 'upstream', 'wontfix'}
+IGNORE_LABELS = {
+    'status: rejected',
+    'reso: duplicate',
+    'reso: invalid',
+    'status: superseded',
+    'reso: upstream',
+    'reso: wontfix',
+    'type: discussion',
+    'tag: labels',
+    'status: paused',
+    'status: WIP',
+    'tag: regression',
+    'tag: py3',
+    'type: task',
+    'status: ready',
+    'status: accepted',
+    'tag: BEP',
+    'reso: completed',
+}
 
 CHANGEKIND_NAME = OrderedDict([  # issue label -> change kind name (or None to ignore)
     ('type: feature', 'features'),
     ('type: bug',     'bugfixes'),
-    ('tests',         'tests'),
-    ('docs',          'documentation'),
+    ('tag: tests',    'tests'),
+    ('tag: docs',     'documentation'),
 ])
+
 
 def get_labels_url():
     """Returns github API URL for querying labels."""
@@ -147,6 +166,9 @@ def list_tags():
             else:
                 kind = ''
                 index = 'disabled'
+        elif name in IGNORE_LABELS:
+            kind = ''
+            index = 'ignored'
         else:
             kind = ''
             index = 'not configured'
