@@ -33,13 +33,14 @@ source = ColumnDataSource(
 circle = Circle(x="lon", y="lat", size=15, fill_color="fill", line_color="black")
 plot.add_obj(Glyph(data_source=source, xdata_range=x_range, ydata_range=y_range, glyph=circle))
 
-pantool = PanTool(plot=plot)
-wheelzoomtool = WheelZoomTool(plot=plot)
-objectexplorer = ObjectExplorerTool()
-select_tool = BoxSelectTool()
-plot.tools = [pantool, wheelzoomtool, objectexplorer, select_tool]
+pan = PanTool()
+wheel_zoom = WheelZoomTool()
+object_explorer = ObjectExplorerTool()
+box_select = BoxSelectTool()
 
-overlay = BoxSelectionOverlay(tool=select_tool)
+plot.add_tools(pan, wheel_zoom, object_explorer, box_select)
+
+overlay = BoxSelectionOverlay(tool=box_select)
 plot.add_obj(overlay)
 
 doc = Document()

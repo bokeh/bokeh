@@ -44,9 +44,7 @@ plot.add_obj(yaxis, 'left')
 plot.add_obj(Grid(dimension=0, ticker=xaxis.ticker))
 plot.add_obj(Grid(dimension=1, ticker=yaxis.ticker))
 
-pantool = PanTool(dimensions=["width", "height"])
-wheelzoomtool = WheelZoomTool(dimensions=["width", "height"])
-plot.tools = [pantool, wheelzoomtool]
+plot.add_tools(PanTool(), WheelZoomTool())
 
 doc = Document()
 doc.add(plot)

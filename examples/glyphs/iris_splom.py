@@ -35,9 +35,6 @@ text_source = ColumnDataSource(
 xdr = DataRange1d(sources=[source.columns("petal_length", "petal_width", "sepal_length", "sepal_width")])
 ydr = DataRange1d(sources=[source.columns("petal_length", "petal_width", "sepal_length", "sepal_width")])
 
-pan = PanTool(dimensions=["width","height"])
-zoom = WheelZoomTool(dimensions=["width","height"])
-
 def make_plot(xname, yname, xax=False, yax=False, text=None):
     plot = Plot(
         x_range=xdr, y_range=ydr, data_sources=[source], background_fill="#efe8e2",
@@ -67,7 +64,7 @@ def make_plot(xname, yname, xax=False, yax=False, text=None):
         yticker = yaxis.ticker
     plot.add_obj(Grid(dimension=1, ticker=yticker))
 
-    plot.tools = [pan, zoom]
+    plot.add_tools(PanTool(), WheelZoomTool())
 
     if text:
         text = " ".join(text.split('_'))

@@ -5,6 +5,7 @@ import time
 import numpy as np
 import sympy as sy
 
+from bokeh.browserlib import view
 from bokeh.document import Document
 from bokeh.glyphs import Line
 from bokeh.objects import Plot, DataRange1d, LinearAxis, ColumnDataSource, Glyph, Grid, Legend
@@ -110,6 +111,9 @@ update_data()
 if __name__ == "__main__":
     link = session.object_link(document._plotcontext)
     print("Please visit %s to see the plots" % link)
+    view (link)
+
+    print("\npress ctrl-C to exit")
 
     try:
         while True:

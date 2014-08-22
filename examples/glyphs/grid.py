@@ -46,9 +46,7 @@ def make_plot(source, xname, yname, line_color, xdr=None, ydr=None):
         )
     )
 
-    pantool = PanTool(dimensions=["width", "height"])
-    wheelzoomtool = WheelZoomTool(dimensions=["width", "height"])
-    plot.tools = [pantool, wheelzoomtool]
+    plot.add_tools(PanTool(), WheelZoomTool())
 
     return plot
 

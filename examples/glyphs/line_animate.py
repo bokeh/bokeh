@@ -4,6 +4,7 @@ import time
 
 from numpy import pi, sin, cos, linspace
 
+from bokeh.browserlib import view
 from bokeh.document import Document
 from bokeh.glyphs import Line
 from bokeh.objects import (
@@ -51,16 +52,16 @@ plot.add_obj(renderer2)
 plot.add_obj(LinearAxis(), 'below')
 plot.add_obj(LinearAxis(), 'left')
 
-pantool = PanTool(dimensions=["width", "height"])
-wheelzoomtool = WheelZoomTool(dimensions=["width", "height"])
-plot.tools = [pantool, wheelzoomtool]
+plot.add_tools(PanTool(), WheelZoomTool())
 
 document.add(plot)
 session.store_document(document)
 
 link = session.object_link(document._plotcontext)
-print ("please visit %s to see plots" % link)
-print ("animating")
+print("please visit %s to see plots" % link)
+view(link)
+
+print("\nanimating... press ctrl-C to stop")
 
 while True:
     for i in  linspace(-2*pi, 2*pi, 50):

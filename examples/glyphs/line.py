@@ -30,11 +30,12 @@ plot.add_obj(Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=l
 plot.add_obj(LinearAxis(), 'below')
 plot.add_obj(LinearAxis(), 'left')
 
-pantool = PanTool(dimensions=["width", "height"])
-wheelzoomtool = WheelZoomTool(dimensions=["width", "height"])
-previewsave = PreviewSaveTool(plot=plot)
-objectexplorer = ObjectExplorerTool()
-plot.tools = [pantool, wheelzoomtool, previewsave, objectexplorer]
+pan = PanTool()
+wheel_zoom = WheelZoomTool()
+preview_save = PreviewSaveTool()
+object_explorer = ObjectExplorerTool()
+
+plot.add_tools(pan, wheel_zoom, preview_save, object_explorer)
 
 doc = Document()
 doc.add(plot)

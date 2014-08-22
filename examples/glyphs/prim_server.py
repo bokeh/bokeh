@@ -2,6 +2,7 @@ from __future__ import print_function
 
 import numpy as np
 
+from bokeh.browserlib import view
 from bokeh.document import Document
 from bokeh.glyphs import *
 from bokeh.objects import (
@@ -42,9 +43,7 @@ def make_plot(name, glyph):
     plot.add_obj(Grid(dimension=0, ticker=xaxis.ticker))
     plot.add_obj(Grid(dimension=1, ticker=yaxis.ticker))
 
-    pantool = PanTool(dimensions=["width", "height"])
-    wheelzoomtool = WheelZoomTool(dimensions=["width", "height"])
-    plot.tools = [pantool, wheelzoomtool]
+    plot.add_tools(PanTool(), WheelZoomTool())
 
     document.add(plot)
     session.store_document(document)
@@ -61,6 +60,8 @@ make_plot('wedge', Wedge(x="x", y="y", radius=0.5, start_angle=0.9, end_angle=3.
 
 link = session.object_link(document._plotcontext)
 print ("please visit %s to see plots" % link)
+view (link)
 
+print("\npress ctrl-C to exit")
 
 

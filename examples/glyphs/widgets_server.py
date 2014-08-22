@@ -2,6 +2,7 @@ from __future__ import print_function
 
 from datetime import date
 
+from bokeh.browserlib import view
 from bokeh.document import Document
 from bokeh.glyphs import Line, Circle
 from bokeh.objects import (
@@ -46,8 +47,7 @@ def make_plot():
     plot.add_obj(Grid(dimension=0, ticker=xaxis.ticker))
     plot.add_obj(Grid(dimension=1, ticker=yaxis.ticker))
 
-    hover = HoverTool(plot=plot, tooltips=dict(downloads="@downloads"))
-    plot.tools.append(hover)
+    plot.add_tools(HoverTool(tooltips=dict(downloads="@downloads")))
 
     return plot, source
 
@@ -67,3 +67,6 @@ session.store_document(document)
 if __name__ == "__main__":
     link = session.object_link(document._plotcontext)
     print("Please visit %s to see the plots" % link)
+    view (link)
+
+    print("\npress ctrl-C to exit")

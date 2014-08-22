@@ -70,7 +70,7 @@ plot.add_obj(
         )
 )
 
-plot.tools = [ResizeTool(plot=plot)]
+plot.add_tools(ResizeTool())
 
 doc = Document()
 doc.add(plot)

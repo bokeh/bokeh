@@ -389,6 +389,25 @@ class Plot(Widget):
         if place is not 'center':
             getattr(self, place).append(obj)
 
+    def add_tools(self, *tools):
+        ''' Adds an tools to the plot.
+
+        Args:
+            *tools (Tool) : the tools to add to the Plot
+
+        Returns:
+            None
+
+        '''
+        if not all(isinstance(tool, Tool) for tool in tools):
+            raise ValueError("All arguments to add_tool must be Tool subclasses.")
+
+        for tool in tools:
+            if tool.plot is not None:
+                 raise ValueError("tool %s to be added already has 'plot' attribute set" % tools)
+            tool.plot = self
+            self.tools.append(tool)
+
     data_sources = List(Instance(DataSource))
 
     x_range = Instance(Range)

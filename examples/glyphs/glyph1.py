@@ -29,10 +29,7 @@ plot.add_obj(Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=c
 plot.add_obj(LinearAxis(), 'below')
 plot.add_obj(LinearAxis(), 'left')
 
-pantool = PanTool(dimensions=["width", "height"])
-wheelzoomtool = WheelZoomTool(dimensions=["width", "height"])
-
-plot.tools = [pantool, wheelzoomtool]
+plot.add_tools(PanTool(), WheelZoomTool())
 
 doc = Document()
 doc.add(plot)

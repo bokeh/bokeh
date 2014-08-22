@@ -2,6 +2,7 @@ from __future__ import print_function
 
 from numpy import pi, arange, sin, cos
 
+from bokeh.browserlib import view
 from bokeh.document import Document
 from bokeh.glyphs import Circle
 from bokeh.objects import (
@@ -41,14 +42,12 @@ plot.add_obj(yaxis, 'left')
 plot.add_obj(Grid(dimension=0, ticker=xaxis.ticker))
 plot.add_obj(Grid(dimension=1, ticker=yaxis.ticker))
 
-pantool = PanTool(dimensions=["width", "height"])
-wheelzoomtool = WheelZoomTool(dimensions=["width", "height"])
-plot.tools = [pantool,wheelzoomtool]
+plot.add_tools(PanTool(), WheelZoomTool())
 
 document.add(plot)
 session.store_document(document)
 
 link = session.object_link(document._plotcontext)
 print ("please visit %s to see plots" % link)
-
+view(link)
 

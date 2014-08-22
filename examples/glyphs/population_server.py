@@ -5,13 +5,17 @@ from math import pi
 
 from requests.exceptions import ConnectionError
 
-from bokeh.objects import (Plot, ColumnDataSource, DataRange1d, FactorRange,
-    LinearAxis, CategoricalAxis, Grid, Glyph, Legend, SingleIntervalTicker)
-from bokeh.widgetobjects import Select, HBox, VBox
-from bokeh.glyphs import Line, Quad
+from bokeh.browserlib import view
 from bokeh.document import Document
-from bokeh.session import Session
+from bokeh.glyphs import Line, Quad
+from bokeh.objects import (
+    Plot, ColumnDataSource, DataRange1d, FactorRange,
+    LinearAxis, CategoricalAxis, Grid, Glyph, Legend,
+    SingleIntervalTicker
+)
 from bokeh.sampledata.population import load_population
+from bokeh.session import Session
+from bokeh.widgetobjects import Select, HBox, VBox
 
 document = Document()
 session = Session()
@@ -147,6 +151,9 @@ update_data()
 if __name__ == "__main__":
     link = session.object_link(document._plotcontext)
     print("Please visit %s to see the plots" % link)
+    view (link)
+
+    print("\npress ctrl-C to exit")
 
     try:
         while True:

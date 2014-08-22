@@ -3,14 +3,13 @@ from __future__ import print_function
 import base64
 from math import pi, sin, cos
 
+from bokeh.browserlib import view
+from bokeh.colors import skyblue, seagreen, tomato, orchid, firebrick, lightgray
 from bokeh.document import Document
 from bokeh.embed import file_html
-from bokeh.resources import INLINE
-from bokeh.browserlib import view
-
 from bokeh.glyphs import Wedge, AnnularWedge, ImageURL, Text
 from bokeh.objects import ColumnDataSource, Plot, Glyph, Range1d
-from bokeh.colors import skyblue, seagreen, tomato, orchid, firebrick, lightgray
+from bokeh.resources import INLINE
 from bokeh.sampledata.browsers import browsers_nov_2013, icons
 
 df = browsers_nov_2013

@@ -25,7 +25,7 @@ def sample_gear():
 
     source = ColumnDataSource(data=dict(dummy=[0]))
     plot = Plot(title=None, data_sources=[source], x_range=xdr, y_range=ydr, plot_width=800, plot_height=800)
-    plot.tools.extend([PanTool(plot=plot), WheelZoomTool(plot=plot), ResetTool(plot=plot)])
+    plot.add_tools(PanTool(), WheelZoomTool(), ResetTool())
 
     glyph = Gear(x=0, y=0, module=5, teeth=8, angle=0, shaft_size=0.2, fill_color=fill_color[2], line_color=line_color)
     plot.add_obj(Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=glyph))
@@ -42,7 +42,7 @@ def classical_gear(module, large_teeth, small_teeth):
         x_range=xdr, y_range=ydr,
         plot_width=800, plot_height=800
     )
-    plot.tools.extend([PanTool(plot=plot), WheelZoomTool(plot=plot), ResetTool(plot=plot)])
+    plot.add_tools(PanTool(), WheelZoomTool(), ResetTool())
 
     radius = pitch_radius(module, large_teeth)
     angle = 0
@@ -74,7 +74,7 @@ def epicyclic_gear(module, sun_teeth, planet_teeth):
         x_range=xdr, y_range=ydr,
         plot_width=800, plot_height=800
     )
-    plot.tools.extend([PanTool(plot=plot), WheelZoomTool(plot=plot), ResetTool(plot=plot)])
+    plot.add_tools(PanTool(), WheelZoomTool(), ResetTool())
 
     annulus_teeth = sun_teeth + 2*planet_teeth
 
