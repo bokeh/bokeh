@@ -75,7 +75,7 @@ define ["common/base",
 
     if doc?
       doc.on('loaded', () ->
-        plot_context = doc.get_obj('plot_context')
+        plot_context = doc.get('plot_context')
         plot_context_view = new plot_context.default_view(model: plot_context)
         _render(plot_context_view.el)
       )

@@ -2,7 +2,7 @@
 define [
   "underscore",
   "renderer/properties",
-  "mapper/color/linear_color_mapper",
+  "mapper/linear_color_mapper",
   "palettes/palettes",
   "./glyph",
 ], (_, Properties, LinearColorMapper, Palettes, Glyph) ->

@@ -21,10 +21,10 @@ define [
         val.$el.detach()
       @$el.empty()
 
-      tabs = @mget_obj('tabs')
+      tabs = @mget('tabs')
       active = @mget("active")
 
-      children = (tab.get_obj("child") for tab in tabs)
+      children = (tab.get("child") for tab in tabs)
       build_views(@views, children)
 
       html = $(tabs_template({

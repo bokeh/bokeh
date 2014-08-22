@@ -937,7 +937,7 @@ class Enum(Property):
         super(Enum, self).validate(value)
 
         if not (value is None or value in self.allowed_values):
-            raise ValueError("invalid value %r, allowed values are %s" % (value, nice_join(self.allowed_values)))
+            raise ValueError("invalid value for %s: %r; allowed values are %s" % (self.name, value, nice_join(self.allowed_values)))
 
     def __str__(self):
         return "%s(%s)" % (self.__class__.__name__, ", ".join(map(repr, self.allowed_values)))

@@ -12,11 +12,11 @@ define [
   "common/plot",
   "common/plot_context",
 
-  "mapper/1d/categorical_mapper",
-  "mapper/1d/linear_mapper",
-  "mapper/1d/log_mapper",
-  "mapper/2d/grid_mapper",
-  "mapper/color/linear_color_mapper",
+  "mapper/categorical_mapper",
+  "mapper/linear_mapper",
+  "mapper/log_mapper",
+  "mapper/grid_mapper",
+  "mapper/linear_color_mapper",
 
   "range/data_factor_range",
   "range/data_range1d",
@@ -80,6 +80,7 @@ define [
   'widget/vbox'
   'widget/textinput'
   'widget/vboxmodelform'
+  'widget/vboxform'
   'widget/pretext'
   'widget/selectbox'
   'widget/slider'
@@ -93,10 +94,12 @@ define [
 
   'transforms/binarysegment'
   'transforms/const'
+  'transforms/contour'
   'transforms/count'
   'transforms/cuberoot'
   'transforms/id'
   'transforms/interpolate'
+  'transforms/interpolatecolor'
   'transforms/seq'
   'transforms/spread'
 ], (_, require) ->
@@ -184,6 +187,7 @@ define [
     HBox:                     'widget/hbox'
     VBox:                     'widget/vbox'
     VBoxModelForm:            'widget/vboxmodelform'
+    VBoxForm:                 'widget/vboxform'
     TextInput:                'widget/textinput'
     PreText:                  'widget/pretext'
     Select:                   'widget/selectbox'
@@ -198,10 +202,12 @@ define [
 
     BinarySegment:            'transforms/binarysegment'
     Const:                    'transforms/const'
+    Contour:                  'transforms/contour'
     Count:                    'transforms/count'
     Cuberoot:                 'transforms/cuberoot'
     Id:                       'transforms/id'
     Interpolate:              'transforms/interpolate'
+    InterpolateColor:         'transforms/interpolatecolor'
     Seq:                      'transforms/seq'
     Spread:                   'transforms/spread'
   mod_cache = {}

@@ -41,8 +41,8 @@ define [
         @radius = @distance_vector('x', 'radius', 'edge')
 
     _mask_data: () ->
-      hr = @plot_view.frame.get('inner_range_horizontal')
-      vr = @plot_view.frame.get('inner_range_vertical')
+      hr = @plot_view.frame.get('h_range')
+      vr = @plot_view.frame.get('v_range')
 
       if @radius_units == "screen"
         sx0 = hr.get('start') - @max_radius

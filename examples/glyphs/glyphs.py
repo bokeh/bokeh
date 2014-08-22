@@ -75,12 +75,12 @@ def make_tab(title, glyph):
     plot = Plot(title=title, data_sources=[source], x_range=xdr, y_range=ydr)
     renderer = Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=glyph)
     plot.renderers.append(renderer)
-    xaxis = LinearAxis(plot=plot, location="bottom")
+    xaxis = LinearAxis(plot=plot)
     plot.below.append(xaxis)
-    yaxis = LinearAxis(plot=plot, location="left")
+    yaxis = LinearAxis(plot=plot)
     plot.left.append(yaxis)
-    xgrid = Grid(plot=plot, dimension=0, axis=xaxis)
-    ygrid = Grid(plot=plot, dimension=1, axis=yaxis)
+    xgrid = Grid(plot=plot, dimension=0, ticker=xaxis.ticker)
+    ygrid = Grid(plot=plot, dimension=1, ticker=yaxis.ticker)
     tab = Panel(child=plot, title=title)
     return tab
 

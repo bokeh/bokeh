@@ -52,8 +52,8 @@ options = {
   dims: [600, 600]
   xrange: [0, 11]
   yrange: [0, 100]
-  xaxes: "min"
-  yaxes: "min"
+  xaxes: "below"
+  yaxes: "left"
   xgrid: false
   tools: false
   legend: "bars"

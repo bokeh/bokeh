@@ -11,6 +11,10 @@ define [
       @render()
       @listenTo(@model, 'change', @render)
     render: () ->
+      if @mget('height')
+        @$el.height(@mget('height'))
+      if @mget('width')
+        @$el.width(@mget('width'))
       @$el.text(@mget('text'))
   class Paragraph extends HasParent
     type : "Paragraph"

@@ -3,7 +3,8 @@ define [
   "underscore",
   "backbone",
   "common/has_properties",
-], (_, Backbone, HasProperties) ->
+  "range/range1d"
+], (_, Backbone, HasProperties, Range1d) ->
 
   ajax_throttle = (func) ->
     busy = false
@@ -29,6 +30,7 @@ define [
           busy = false
           resp = null
         )
+
     return callback
   class ServerDataSource extends HasProperties
     # Datasource where the data is defined column-wise, i.e. each key in the
@@ -51,40 +53,57 @@ define [
       url = "#{prefix}bokeh/data/#{owner_username}/#{@get('doc')}/#{@get('id')}"    
 
     listen_for_line1d_updates : (column_data_source, 
-                                  plot_x_range, plot_y_range, 
-                                  domain_range, screen_range
+                                  plot_x_span, plot_y_span, 
+                                  domain_span, range_span,
+                                  screen_span,
                                   primary_column, domain_name, columns, input_params) ->
       
-      plot_state = {screen_x: plot_x_range, screen_y: plot_y_range}
+      plot_state = {screen_x: plot_x_span, screen_y: plot_y_span}
       #ensure we only have one set of events bound
       @stoplistening_for_updates(column_data_source)
-      @line1d_update(column_data_source, plot_state, domain_range, screen_range
-          primary_column, domain_name, columns, input_params)
+      @line1d_update(column_data_source, plot_state, domain_span, range_span, screen_span,
+                     primary_column, domain_name, columns, input_params)
 
       throttle = _.throttle(@line1d_update, 300)
-      console.log(input_params)
-      callback = () => throttle(column_data_source, plot_state, domain_range, screen_range
-        primary_column, domain_name, columns, input_params
-      )
-      @listenTo(screen_range, 'change', callback)
-      @listenTo(domain_range, 'change', callback)
+      
+      callback = () => throttle(column_data_source, plot_state, domain_span, range_span, screen_span,
+                                primary_column, domain_name, columns, input_params)
+
+      @listenTo(screen_span, 'change', callback)
+      @listenTo(domain_span, 'change', callback)
       @callbacks[column_data_source.get('id')] = [
-        [screen_range, 'change', callback],
-        [domain_range, 'change', callback]
+        [screen_span, 'change', callback],
+        [domain_span, 'change', callback]
       ]
 
     #TODO: Move some of the passed paramters in to the plot_state object...when plot_state can handle more than just ranges
-    line1d_update : (column_data_source, plot_state, domain_range, screen_range,
+    line1d_update : (column_data_source, plot_state, 
+                     domain_span, range_span,
+                     screen_span,
                      primary_column, domain_name, columns, input_params) =>
-      #console.log('calling update')
-      domain_resolution = (screen_range.get('end') - screen_range.get('start')) / 2
+      
+      domain_resolution = (screen_span.get('end') - screen_span.get('start')) / 2
       domain_resolution = Math.floor(domain_resolution)
-      domain_limit = [domain_range.get('start'), domain_range.get('end')]
-      if _.any(_.map(domain_limit, (x) -> _.isNaN(x)))
+      domain_limit = [domain_span.get('start'), domain_span.get('end')]
+      range_limit = [range_span.get('start'), range_span.get('end')]
+
+      if plot_state['screen_x'].get('start') == plot_state['screen_x'].get('end') or
+         plot_state['screen_y'].get('start') == plot_state['screen_y'].get('end') or
+         domain_limit[0] > domain_limit[1] or
+         range_limit[0] > range_limit[1]
+       return $.ajax()
+  
+      if (_.any(_.map(domain_limit, (x) -> _.isNaN(x))) or
+         _.every(_.map(domain_limit, (x) -> _.isEqual(0,x))))
         domain_limit = 'auto'
-      console.log(input_params)
+
+      if (_.any(_.map(range_limit, (x) -> _.isNaN(x))) or
+         _.every(_.map(range_limit, (x) -> _.isEqual(0,x))))
+        range_limit = 'auto'
+      
       params = [primary_column, domain_name, columns,
-          domain_limit, domain_resolution, input_params]
+          domain_limit, range_limit, domain_resolution, input_params]
+
       $.ajax(
         dataType: 'json'
         url : @update_url()
@@ -92,14 +111,18 @@ define [
           withCredentials : true
         success : (data) ->
           if domain_limit == 'auto'
-            domain_range.set(
+            domain_span.set(
                 start : data.domain_limit[0],
                 end : data.domain_limit[1],
-                silent : true
             )
-            #console.log('setting range', data.domain_limit)
+
+          if range_limit == 'auto'
+            range_span.set(
+                start : data.range_limit[0],
+                end : data.range_limit[1],
+            )
+
           column_data_source.set('data', data.data)
-          #console.log('setting data', _.values(data.data)[0].length)
         data :
           resample_parameters : JSON.stringify(params)
           plot_state: JSON.stringify(plot_state)
@@ -131,13 +154,34 @@ define [
       return null
 
 
-    ar_update : (plot_view, column_data_source, plot_state, input_params, x_data_range, y_data_range) ->
+    ar_update : (plot_view, column_data_source, plot_state, input_params) ->
       #TODO: Share the x/y range information back to the server in some way...
       domain_limit = 'not auto'
-        
-      if (plot_view.x_range.get('start') == plot_view.x_range.get('end') or
-          plot_view.y_range.get('start') == plot_view.y_range.get('end'))
+
+      if plot_state['screen_x'].get('start') == plot_state['screen_x'].get('end') or
+         plot_state['screen_y'].get('start') == plot_state['screen_y'].get('end')
+       console.log("Skipping due to under-defined view state")
+       return $.ajax()
+
+      if plot_view.x_range.get('start') == plot_view.x_range.get('end') or
+         _.isNaN(plot_view.x_range.get('start')) or
+         _.isNaN(plot_view.x_range.get('end')) or
+         plot_view.y_range.get('start') == plot_view.y_range.get('end') or
+         _.isNaN(plot_view.y_range.get('start')) or
+         _.isNaN(plot_view.y_range.get('end')) 
         domain_limit = 'auto'
+      
+      sendable_plot_state = {}
+      for k,range of plot_state
+        # This copy is to reformat a datarange1d to a range1d without
+        # loosing the reference.  It is required because of weidness deserializing
+        # the datarange1d on the python side.  It can't be done in just
+        # plot_state becase we need the references still
+        # REMOVE when DataRange1D goes away.
+        proxy = new Range1d.Model()
+        proxy.set('start', range.get('start'))
+        proxy.set('end', range.get('end'))
+        sendable_plot_state[k] = proxy
 
       resp = $.ajax(
         dataType: 'json'
@@ -145,7 +189,6 @@ define [
         xhrField :
           withCredentials : true
         success : (data) ->
-          #use x_range to set domain_range ...similar to line1d_update
           if (domain_limit == 'auto')
             plot_state['data_x'].set(
               {start : data.x_range.start, end : data.x_range.end},
@@ -155,6 +198,7 @@ define [
               {start : data.y_range.start, end : data.y_range.end},
             )
           
+          
           #hack
           new_data = _.clone(column_data_source.get('data'))
           _.extend(new_data, data)
@@ -162,7 +206,7 @@ define [
           plot_view.request_render()
         data :
           resample_parameters : JSON.stringify([input_params])
-          plot_state: JSON.stringify(plot_state)
+          plot_state: JSON.stringify(sendable_plot_state)
       )
       return resp
 
@@ -202,13 +246,18 @@ define [
       global_offset_y = @get('data').global_offset_y[0]
       index_slice = @get('index_slice')
       data_slice = @get('data_slice')
+
+      if plot_state['screen_x'].get('start') == plot_state['screen_x'].get('end') or
+         plot_state['screen_y'].get('start') == plot_state['screen_y'].get('end')
+       console.log("Skipping due to under-defined view state")
+       return $.ajax()
+
       params = [global_x_range, global_y_range,
         global_offset_x, global_offset_y,
         index_slice, data_slice,
         @get('transpose'),
         input_params
       ]
-      #console.log(y_bounds)
       $.ajax(
         dataType: 'json'
         url : @update_url()
@@ -219,7 +268,6 @@ define [
           new_data = _.clone(column_data_source.get('data'))
           _.extend(new_data, data)
           column_data_source.set('data', new_data)
-          #console.log('setting data', data.image.length, data.image[0].length)
         data :
           resample_parameters : JSON.stringify(params)
           plot_state: JSON.stringify(plot_state)

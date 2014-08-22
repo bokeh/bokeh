@@ -15,9 +15,9 @@ define [
 
     initialize: (attrs, objects) ->
       super(attrs, objects)
-      if not @get_obj('ticker')?
+      if not @get('ticker')?
         @set_obj('ticker', LogTicker.Collection.create())
-      if not @get_obj('formatter')?
+      if not @get('formatter')?
         @set_obj('formatter', LogTickFormatter.Collection.create())
 
   class LogAxes extends Backbone.Collection

@@ -117,6 +117,55 @@ terminate `sbt`).
 
 Note that `sbt`-based build system is experimental and should be used with caution.
 
+.. _developer_docstring:
+
+Documentation
+=============
+
+requirements
+------------
+
+We use `Sphinx <http://sphinx-doc.org>` to generate our HTML documentation. You
+will need the following packages installed in order to build Bokeh documentation:
+
+* docutils
+* sphinx
+* sphinxcontrib-napoleon
+
+These can be installed using ``conda`` or ``pip`` or from source.
+
+building
+--------
+
+To generate the full HTML documentation, navigate to the ``sphinx`` subdirectory
+of the Bokeh source checkout, and execute the command::
+
+    make all
+
+To start a server and automatically open the built documentation in a browser,
+execute the command::
+
+    make serve
+
+docstrings
+----------
+
+We use `Sphinx Napoleon <http://sphinxcontrib-napoleon.readthedocs.org/en/latest/index.html>`_
+to process docstrings for our reference documentation. All docstrings are `Google Style Docstrings <http://sphinxcontrib-napoleon.readthedocs.org/en/latest/example_google.html#example-google>`_.
+
+Docstrings should generally begin with a verb stating what the function or method does in
+short statement. For example::
+
+    "Create and return a new Foo."
+
+is to be preferred over::
+
+    "This function creates and returns a new Foo."
+
+All docstrings for functions and methods should have an **Args:** section (if any
+arguments are accepted) and also a **Returns:** section (even if the function just
+returns None).
+
 .. _developer_testing:
 
 Testing

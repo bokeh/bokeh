@@ -15,7 +15,7 @@ define [
 
     bind_bokeh_events: () ->
       super()
-      for renderer in @mget_obj ('renderers')
+      for renderer in @mget ('renderers')
         rendererview = @plot_view.renderers[renderer.id]
         @listenTo(rendererview.xrange(), 'change', @select_callback)
         @listenTo(rendererview.yrange(), 'change', @select_callback)
@@ -64,13 +64,13 @@ define [
         xrange = [@mget('start_vx'), @mget('current_vx')]
         xrange = [_.min(xrange), _.max(xrange)]
       else
-        range = @plot_view.view_state.get('inner_range_horizontal')
+        range = @plot_view.view_state.get('h_range')
         xrange = [range.get('start'), range.get('end')]
       if @mget('select_y')
         yrange = [@mget('start_vy'), @mget('current_vy')]
         yrange = [_.min(yrange), _.max(yrange)]
       else
-        range = @plot_view.view_state.get('inner_range_vertical')
+        range = @plot_view.view_state.get('v_range')
         yrange = [range.get('start'), range.get('end')]
       return [xrange, yrange]
 
@@ -104,12 +104,12 @@ define [
 
       datasources = {}
       datasource_selections = {}
-      for renderer in @mget_obj('renderers')
-        datasource = renderer.get_obj('data_source')
+      for renderer in @mget('renderers')
+        datasource = renderer.get('data_source')
         datasources[datasource.id] = datasource
 
-      for renderer in @mget_obj('renderers')
-        datasource_id = renderer.get_obj('data_source').id
+      for renderer in @mget('renderers')
+        datasource_id = renderer.get('data_source').id
         _.setdefault(datasource_selections, datasource_id, [])
         #the select call of the render converts the screen coordinates
         #of @xrange and @yrange into data space coordinates

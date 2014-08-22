@@ -39,12 +39,12 @@ define [
     search: (e) =>
       if e.keyCode == ENTER
         code = $(e.currentTarget).val()
-        source = @model.get_obj('source')
+        source = @model.get('source')
         source.rpc('search', [code])
         e.preventDefault()
 
     column_del: (e) =>
-      source = @model.get_obj('source')
+      source = @model.get('source')
       old = source.get('computed_columns')
       name = $(e.currentTarget).attr('name')
       computed_columns = _.filter(old, (x) ->
@@ -56,7 +56,7 @@ define [
       if e.keyCode == ENTER
         name = @$('.computedname').val()
         code = @$('.computedtxtbox').val()
-        source = @model.get_obj('source')
+        source = @model.get('source')
         old = source.get('computed_columns')
         old.push(name: name, code: code)
         source.rpc('set_computed_columns', [old])
@@ -174,13 +174,13 @@ define [
       sort_ascendings = {}
       for obj in  @mget('sort')
         sort_ascendings[obj['column']] = obj['ascending']
-      source = @mget_obj('source')
+      source = @mget('source')
       template_data =
         skip:
           _counts: true
           _selected: true
           index: true
-        computed_columns: @mget_obj('source').get('computed_columns')
+        computed_columns: @mget('source').get('computed_columns')
         columns: @mget('tabledata').column_names
         data: @mget('tabledata').data
         group: group
