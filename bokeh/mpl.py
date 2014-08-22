@@ -51,8 +51,7 @@ class BokehRenderer(Renderer):
         "Get the main plot properties and create the plot."
         self.width = int(props['figwidth'] * props['dpi'])
         self.height = int(props['figheight'] * props['dpi'])
-        self.plot = Plot(data_sources=[self.source],
-                         x_range=self.xdr,
+        self.plot = Plot(x_range=self.xdr,
                          y_range=self.ydr,
                          plot_width=self.width,
                          plot_height=self.height)
