@@ -214,8 +214,10 @@ class DataSpec(Property):
             # If the user never set a value
             if self.field is not None:
                 d = {"field": self.field, "units": self.units}
-            if self.default != "__not_set__":
+            elif self.default != "__not_set__":
                 d = {"value": self.default, "units": self.units}
+            else:
+                d = {}
 
         if "value" in d and self.min_value is not None:
             if d["value"] < self.min_value:
