@@ -583,17 +583,24 @@ def gridplot(plot_arrangement, name=None):
         save()
     return grid
 
+
+def _axis(*sides):
+    p = curplot()
+    if p is None:
+        return None
+    objs = []
+    for s in sides:
+        objs.extend(getattr(p, s, []))
+    axis = [obj for obj in objs if isinstance(obj, Axis)]
+    return _list_attr_splat(axis)
+
 def xaxis():
     """ Get the current axis objects
 
     Returns:
-        Returns axis object or splattable list of axis objects on the current plot
+        Returns axis object or splattable list of x-axis objects on the current plot
     """
-    p = curplot()
-    if p is None:
-        return None
-    axis = [obj for obj in p.above + p.below if isinstance(obj, Axis)]
-    return _list_attr_splat(axis)
+    return _axis("above", "below")
 
 def yaxis():
     """ Get the current `y` axis object(s)
@@ -601,17 +608,13 @@ def yaxis():
     Returns:
         Returns y-axis object or splattable list of y-axis objects on the current plot
     """
-    p = curplot()
-    if p is None:
-        return None
-    axis = [obj for obj in p.left + p.right if isinstance(obj, Axis)]
-    return _list_attr_splat(axis)
+    return _axis("left", "right")
 
 def axis():
     """ Get the current `x` axis object(s)
 
     Returns:
-        Returns x-axis object or splattable list of x-axis objects on the current plot
+        Returns x-axis object or splattable list of axis objects on the current plot
     """
     return _list_attr_splat(xaxis() + yaxis())
 
@@ -627,17 +630,20 @@ def legend():
     legends = [obj for obj in p.renderers if isinstance(obj, Legend)]
     return _list_attr_splat(legends)
 
+def _grid(dimension):
+    p = curplot()
+    if p is None:
+        return None
+    grid = [obj for obj in p.renderers if isinstance(obj, Grid) and obj.dimension==dimension]
+    return _list_attr_splat(grid)
+
 def xgrid():
     """ Get the current `x` :class:`grid <bokeh.objects.Grid>` object(s)
 
     Returns:
         Returns legend object or splattable list of legend objects on the current plot
     """
-    p = curplot()
-    if p is None:
-        return None
-    grid = [obj for obj in p.renderers if isinstance(obj, Grid) and obj.dimension==0]
-    return _list_attr_splat(grid)
+    return _grid(0)
 
 def ygrid():
     """ Get the current `y` :class:`grid <bokeh.objects.Grid>` object(s)
@@ -645,11 +651,7 @@ def ygrid():
     Returns:
         Returns y-grid object or splattable list of y-grid objects on the current plot
     """
-    p = curplot()
-    if p is None:
-        return None
-    grid = [obj for obj in p.renderers if isinstance(obj, Grid) and obj.dimension==1]
-    return _list_attr_splat(grid)
+    return _grid(1)
 
 def grid():
     """ Get the current :class:`grid <bokeh.objects.Grid>` object(s)

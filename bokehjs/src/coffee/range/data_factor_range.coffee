@@ -9,7 +9,7 @@ define [
     type: 'DataFactorRange'
 
     _get_values: () =>
-      columns = (@get('data_source').getcolumn(x) for x in @get('columns'))
+      columns = (@get('data_source').get_column(x) for x in @get('columns'))
       columns = _.reduce(columns, ((x, y) -> return x.concat(y)), [])
       temp = {}
       for val in columns

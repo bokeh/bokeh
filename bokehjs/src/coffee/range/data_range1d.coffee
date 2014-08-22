@@ -13,7 +13,7 @@ define [
       for source in @get('sources')
         sourceobj = @resolve_ref(source['source'])
         for colname in source['columns']
-          columns.push(sourceobj.getcolumn(colname))
+          columns.push(sourceobj.get_column(colname))
       columns = _.flatten(columns)
       columns = _.filter(columns, (x) -> typeof(x) != "string")
       columns = _.reject(columns, (x) -> isNaN(x))

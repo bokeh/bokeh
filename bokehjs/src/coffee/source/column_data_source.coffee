@@ -5,33 +5,31 @@ define [
   "common/has_properties",
 ], (_, Backbone, HasProperties) ->
 
+  # Datasource where the data is defined column-wise, i.e. each key in the
+  # the data attribute is a column name, and its value is an array of scalars.
+  # Each column should be the same length.
   class ColumnDataSource extends HasProperties
-    # Datasource where the data is defined column-wise, i.e. each key in the
-    # the data attribute is a column name, and its value is an array of scalars.
-    # Each column should be the same length.
     type: 'ColumnDataSource'
-    initialize: (attrs, options) ->
-      super(attrs, options)
-      @cont_ranges = {}
-      @discrete_ranges = {}
 
-    getcolumn: (colname) ->
-      return @get('data')[colname] ? null
-
-    getcolumn_with_default: (colname, default_value) ->
-      """ returns the column, with any undefineds replaced with default""" #"
+    get_column: (colname) ->
       return @get('data')[colname] ? null
 
     get_length: () ->
       data = @get('data')
+      if _.keys(data).length == 0
+        return 0
       return data[_.keys(data)[0]].length
 
     columns: () ->
+      # return the column names in this data source
       return _.keys(@get('data'))
 
     datapoints: () ->
+      # return the data in this data source as a "array of records"
       data = @get('data')
       fields = _.keys(data)
+      if fields.length == 0
+        return []
       points = []
       for i in [0...data[fields[0]].length]
         point = {}
@@ -41,7 +39,9 @@ define [
       return points
 
     defaults: () ->
-      super()
+      return {
+        data: {}
+      }
 
   class ColumnDataSources extends Backbone.Collection
     model: ColumnDataSource

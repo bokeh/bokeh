@@ -54,6 +54,7 @@ figure()
 #   - tools are resize and hover tools
 #   - add a nice title, and set the plot_width and plot_height
 rect('year', 'month', 0.95, 0.95, source=source,
+     x_axis_location="above",
      x_range=years, y_range=list(reversed(months)),
      color='color', line_color=None,
      tools="resize,hover", title="US Unemployment (1948 - 2013)",
@@ -69,7 +70,6 @@ axis().axis_line_color = None
 axis().major_tick_line_color = None
 axis().major_label_text_font_size = "5pt"
 axis().major_label_standoff = 0
-xaxis().location = "top"
 xaxis().major_label_orientation = np.pi/3
 
 # EXERCISE: configure the  hover tool to display the month, year and rate
