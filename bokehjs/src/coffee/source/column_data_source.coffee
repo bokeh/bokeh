@@ -24,7 +24,9 @@ define [
         if lengths.length == 1
             return lengths[0]
         else
-            throw new Error("data source has columns of inconsitent lengths")
+            length = _.min(lengths)
+            console.error("data source has columns of inconsitent lengths: #{lengths}, using value #{length}")
+            return length
 
     columns: () ->
       # return the column names in this data source
