@@ -21,25 +21,32 @@ API_PARAMS = {
     'owner': 'ContinuumIO',
     'repo': 'bokeh',
 }
+
+IGNORE_LABELS = {
+    'status: rejected',
+    'reso: duplicate',
+    'reso: invalid',
+    'status: superseded',
+    'reso: upstream',
+    'reso: wontfix',
+    'type: discussion',
+    'tag: labels',
+    'status: paused',
+    'status: WIP',
+    'tag: regression',
+    'tag: py3',
+    'type: task',
+    'status: ready',
+    'status: accepted',
+    'tag: BEP',
+    'reso: completed',
+}
+
 CHANGEKIND_NAME = OrderedDict([  # issue label -> change kind name (or None to ignore)
-    ('', 'unlabeled'),  # special "label" to indicate issue has no labels
     ('type: feature', 'features'),
-    ('type: bug', 'bugfixes'),
-    ('tests', 'tests'),
-    ('docs', 'documentation'),
-    ('duplicate', None),
-    ('invalid', None),
-    ('python3', None),
-    ('status: WIP', None),
-    ('status: accepted', None),
-    ('status: ready', None),
-    ('status: rejected', None),
-    ('superceded', None),
-    ('type: discussion', None),
-    ('type: question', None),
-    ('type: task', None),
-    ('upstream', None),
-    ('wontfix', None),
+    ('type: bug',     'bugfixes'),
+    ('tag: tests',    'tests'),
+    ('tag: docs',     'documentation'),
 ])
 
 
@@ -73,9 +80,12 @@ def changekind(issue):
     """Returns change kind name of the given issue, otherwise None."""
     labels = issue.get('labels', [])
     if not labels:
-        return 'unlabeled'
+        return None
     for label in labels:
-        name = CHANGEKIND_NAME.get(label['name'], None)
+        name = label['name']
+        if name in IGNORE_LABELS:
+            return None
+        name = CHANGEKIND_NAME.get(name, None)
         if name:
             return name
     return None
@@ -156,6 +166,9 @@ def list_tags():
             else:
                 kind = ''
                 index = 'disabled'
+        elif name in IGNORE_LABELS:
+            kind = ''
+            index = 'ignored'
         else:
             kind = ''
             index = 'not configured'
