@@ -33,10 +33,12 @@ define [
         max : max,
         step : step,
       })
+      @$( "##{ @mget('id') }" ).val( @$('.slider').slider('value') );
 
     slide : (event, ui) =>
       value = ui.value
       console.log('sliding', value)
+      @$( "##{ @mget('id') }" ).val( ui.value );
       @mset('value', value)
       @model.save()
 

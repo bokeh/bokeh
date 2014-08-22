@@ -37,7 +37,7 @@ def make_plot(name, glyph):
     pantool = PanTool(dimensions=["width", "height"])
     wheelzoomtool = WheelZoomTool(dimensions=["width", "height"])
 
-    plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source], min_border=80)
+    plot = Plot(x_range=xdr, y_range=ydr, min_border=80)
     xaxis = LinearAxis(plot=plot)
     plot.below.append(xaxis)
     yaxis = LinearAxis(plot=plot)
