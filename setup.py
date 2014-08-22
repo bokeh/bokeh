@@ -26,18 +26,13 @@ if 'nightly' in sys.argv:
     from setuptools import setup
     sys.argv.remove('nightly')
 
-    #need to create py dev version file for __init__.py __version__ setting
-    vers_file = os.path.join('bokeh','__conda_version__.py')
     with open('__conda_version__.txt','r') as f:
         version = f.read().rstrip()
 
-    #create valid py file
+    vers_file = os.path.join('bokeh','__conda_version__.py')
     with open(vers_file,'w') as f:
         f.write("conda_version="+"'"+version+"'")
 
-    # subprocess.call(["ls bokeh/", "-l"])
-    # import time
-    # time.sleep(10)
 else:
     from distutils.core import setup
 
@@ -53,12 +48,13 @@ import versioneer
 
 BOKEHJSROOT = 'bokehjs'
 BOKEHJSBUILD = join(BOKEHJSROOT, 'build')
-BOKEHJSREL = join(BOKEHJSROOT, 'release')
+CSS = join(BOKEHJSBUILD, 'css')
+JS  = join(BOKEHJSBUILD, 'js')
 
 SERVER = 'bokeh/server'
 
-JS  = join(BOKEHJSREL, 'js')
-CSS = join(BOKEHJSREL, 'css')
+if sys.version_info[0] < 3:
+    input = raw_input
 
 #-----------------------------------------------------------------------------
 # Local utilities
@@ -81,11 +77,11 @@ def package_path(path, filters=()):
     elif os.path.isfile(path):
         package_data.append(relpath(path, 'bokeh'))
     else:
-        for dirname, _, files in os.walk(path):
-            dirname = relpath(dirname, 'bokeh')
+        for path, dirs, files in os.walk(path):
+            path = relpath(path, 'bokeh')
             for f in files:
                 if not filters or f.endswith(filters):
-                    package_data.append(join(dirname, f))
+                    package_data.append(join(path, f))
 
 # You can't install Bokeh in a virtualenv because the lack of getsitepackages()
 # This is an open bug: https://github.com/pypa/virtualenv/issues/355
@@ -175,22 +171,35 @@ def getsitepackages():
             sitepackages.append(os.path.abspath(sitedir))
     return sitepackages
 
-#-----------------------------------------------------------------------------
-# Main script
-#-----------------------------------------------------------------------------
+def check_remove_bokeh_install(site_packages):
+    bokeh_path = join(site_packages, "bokeh")
+    if not (exists(bokeh_path) and isdir(bokeh_path)):
+        return
+    prompt = "Found existing bokeh install: %s\nRemove it? [y|N] " % bokeh_path
+    val = input(prompt)
+    if val == "y":
+        print ("Removing old bokeh install...", end=" ")
+        try:
+            shutil.rmtree(bokeh_path)
+            print ("Done")
+        except (IOError, OSError):
+            print ("Unable to remove old bokeh at %s, exiting" % bokeh_path)
+            sys.exit(-1)
+    else:
+        print ("Not removing old bokeh install")
 
-# Set up this checkout or source archive with the right BokehJS files.
+def remove_bokeh_pth(path_file):
+    if exists(path_file):
+        try:
+            os.remove(path_file)
+        except (IOError, OSError):
+            print ("Unable to remove old path file at %s, exiting" % path_file)
+            sys.exit(-1)
+        return True
+    return False
 
-build_js = False
-
-if sys.version_info[:2] < (2, 6):
-    raise RuntimeError("Bokeh requires python >= 2.6")
-
-if '--build_js' in sys.argv:
-    sys.argv.remove('--build_js')
-    build_js = True
-
-    print("building bokehjs...")
+def build_js():
+    print("Building BokehJS...")
     os.chdir('bokehjs')
 
     cmd = [join('node_modules', '.bin', 'grunt'), 'deploy']
@@ -207,16 +216,84 @@ if '--build_js' in sys.argv:
         print("ERROR: could not build bokehjs")
         sys.exit(1)
 
-    JS  = join(BOKEHJSBUILD, 'js')
-    CSS = join(BOKEHJSBUILD, 'css')
+def install_js():
+    if exists(join(SERVER, 'static', 'js')):
+        shutil.rmtree(join(SERVER, 'static', 'js'))
+    shutil.copytree(JS, join(SERVER, 'static', 'js'))
 
-if exists(join(SERVER, 'static', 'js')):
-    shutil.rmtree(join(SERVER, 'static', 'js'))
-shutil.copytree(JS, join(SERVER, 'static', 'js'))
+    if exists(join(SERVER, 'static', 'css')):
+        shutil.rmtree(join(SERVER, 'static', 'css'))
+    shutil.copytree(CSS, join(SERVER, 'static', 'css'))
 
-if exists(join(SERVER, 'static', 'css')):
-    shutil.rmtree(join(SERVER, 'static', 'css'))
-shutil.copytree(CSS, join(SERVER, 'static', 'css'))
+def clean():
+    print("Removing prior-built items...", end=" ")
+    dir_util.remove_tree('build/lib/bokeh')
+    print("Done")
+
+def get_user_jsargs():
+    print("""
+Bokeh includes a JavaScript library (BokehJS) that has its own
+build process. How would you like to handle BokehJS:
+
+1) build and install fresh BokehJS
+2) install last built BokehJS
+3) do not install BokehJS
+""")
+    value = int(input("Choice? "))
+    while value not in [1,2,3]:
+        print("Input '%s' not understood. Valid choices: 1, 2, 3\n")
+        value = intput("Choice? ")
+    if value == 1:
+        return (True, True)
+    elif value == 2:
+        return (False, True)
+    else:
+        return (False, False)
+
+def parse_jsargs():
+    installing = 'install' in sys.argv or 'develop' in sys.argv
+
+
+    if '--build_js' in sys.argv:
+        if not installing:
+            print("Option '--build_js' only valid with 'install' or 'develop', exiting.")
+            sys.exit(1)
+        jsbuild = True
+        jsinstall = True
+        sys.argv.remove('--build_js')
+    elif '--install_js' in sys.argv:
+        if not installing:
+            print("Option '--install_js' only valid with 'install' or 'develop', exiting.")
+            sys.exit(1)
+        jsbuild = False
+        jsinstall = True
+        sys.argv.remove('--install_js')
+    elif '--no_js' in sys.argv:
+        jsbuild = False
+        jsinstall = False
+        sys.argv.remove('--no_js')
+    else:
+        if not installing:
+            jsbuild, jsinstall = (False, False)
+        else:
+            jsbuild, jsinstall = get_user_jsargs()
+
+    return jsbuild, jsinstall
+
+#-----------------------------------------------------------------------------
+# Main script
+#-----------------------------------------------------------------------------
+
+# Set up this checkout or source archive with the right BokehJS files.
+
+if sys.version_info[:2] < (2, 6):
+    raise RuntimeError("Bokeh requires python >= 2.6")
+
+jsbuild, jsinstall = parse_jsargs()
+
+if jsbuild: build_js()
+
+if jsinstall: install_js()
 
 sampledata_suffixes = ('.csv', '.conf', '.gz', '.json', '.png')
 
@@ -233,59 +310,31 @@ if '--user' in sys.argv:
 else:
     site_packages = getsitepackages()[0]
 
-if 'develop' in sys.argv:
-    bokeh_path = join(site_packages, "bokeh")
-    if exists(bokeh_path) and isdir(bokeh_path):
-        prompt = "\nFound existing bokeh install: %s\nRemove it? [y|N] " % bokeh_path
-        if sys.version_info[0] < 3:
-            val = raw_input(prompt)
-        else:
-            val = input(prompt)
-        if val == "y":
-            print ("Removing old bokeh install...")
-            try:
-                shutil.rmtree(bokeh_path)
-                print ("Removed.")
-            except (IOError, OSError):
-                print ("Unable to remove old bokeh at: %s" % bokeh_path)
-                sys.exit(-1)
-        else:
-            print ("Not removing old bokeh install")
-
 path_file = join(site_packages, "bokeh.pth")
 path = abspath(dirname(__file__))
 
-f = open('bokehjs/src/coffee/main.coffee')
-import re
-pat = re.compile("Bokeh.version = '(.*)'")
-v = pat.search(f.read()).group(1)
-
 print()
 if 'develop' in sys.argv:
+    check_remove_bokeh_install(site_packages)
     with open(path_file, "w+") as f:
         f.write(path)
-    print("Developing bokeh:")
+    print("Installing Bokeh for development:")
     print("  - writing path '%s' to %s" % (path, path_file))
-    if build_js:
-        print("  - using BUILT bokehjs from bokehjs/build")
-    else:
-        print("  - using RELEASED bokehjs (version %s) from bokehjs/release" % v)
-    print()
     sys.exit()
+
 elif 'clean' in sys.argv:
-    print("Removing prior-built items...")
-    dir_util.remove_tree('build/lib/bokeh')
+    clean()
+
 elif 'install' in sys.argv:
-    if exists(path_file):
-        os.remove(path_file)
-        print("Installing bokeh, removing %s" % path_file)
-    else:
-        print("Installing bokeh.")
-    if build_js:
-        print("  - using BUILT bokehjs from bokehjs/build")
-    else:
-        print("  - using RELEASED bokehjs (version %s) from bokehjs/release" % v)
-    print()
+    pth_removed = remove_bokeh_pth(path_file)
+    print("Installing Bokeh:")
+    if pth_removed:
+        print("  - removed path file at %s" % path_file)
+
+if jsinstall:
+    print("  - using %s built bokehjs from bokehjs/build\n" % ("NEWLY" if jsbuild else "PREVIOUSLY"))
+
+print()
 
 REQUIRES = [
         'Flask>=0.10.1',
