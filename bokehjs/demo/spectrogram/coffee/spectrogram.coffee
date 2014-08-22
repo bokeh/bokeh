@@ -55,7 +55,7 @@ class SpectrogramApp
   request_data: () ->
     if @paused
       return
-    $.ajax 'http://localhost:5000/data',
+    $.ajax '/data',
     type: 'GET'
     dataType: 'json'
     error: (jqXHR, textStatus, errorThrown) =>
