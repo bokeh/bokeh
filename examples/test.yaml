@@ -4,7 +4,6 @@
 - path: "seaborn"
 - path: "pandas"
 - path: "charts"
-  skip_travis: ['charts.ipynb']
 - path: "plotting/file"
   type: file
   skip: ["image.py", "image_rgba.py"]
