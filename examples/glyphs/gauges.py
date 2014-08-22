@@ -15,7 +15,7 @@ ydr = Range1d(start=-1.25, end=1.25)
 
 plot = Plot(title="Speedometer", data_sources=[], x_range=xdr, y_range=ydr, plot_width=600, plot_height=600)
 
-global_source = ColumnDataSource(dict(dummy=[0]))
+global_source = ColumnDataSource()
 plot.data_sources.append(global_source)
 
 def add_glyph(glyph, source=global_source):

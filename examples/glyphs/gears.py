@@ -23,7 +23,7 @@ def sample_gear():
     xdr = Range1d(start=-30, end=30)
     ydr = Range1d(start=-30, end=30)
 
-    source = ColumnDataSource(data=dict(dummy=[0]))
+    source = ColumnDataSource()
     plot = Plot(title=None, data_sources=[source], x_range=xdr, y_range=ydr, plot_width=800, plot_height=800)
     plot.tools.extend([PanTool(plot=plot), WheelZoomTool(plot=plot), ResetTool(plot=plot)])
 
@@ -37,7 +37,7 @@ def classical_gear(module, large_teeth, small_teeth):
     xdr = Range1d(start=-300, end=150)
     ydr = Range1d(start=-100, end=100)
 
-    source = ColumnDataSource(data=dict(dummy=[0]))
+    source = ColumnDataSource()
     plot = Plot(title=None, data_sources=[source], x_range=xdr, y_range=ydr, plot_width=800, plot_height=800)
     plot.tools.extend([PanTool(plot=plot), WheelZoomTool(plot=plot), ResetTool(plot=plot)])
 
@@ -59,7 +59,7 @@ def epicyclic_gear(module, sun_teeth, planet_teeth):
     xdr = Range1d(start=-150, end=150)
     ydr = Range1d(start=-150, end=150)
 
-    source = ColumnDataSource(data=dict(dummy=[0]))
+    source = ColumnDataSource()
     plot = Plot(title=None, data_sources=[source], x_range=xdr, y_range=ydr, plot_width=800, plot_height=800)
     plot.tools.extend([PanTool(plot=plot), WheelZoomTool(plot=plot), ResetTool(plot=plot)])
 
