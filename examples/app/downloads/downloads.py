@@ -144,10 +144,12 @@ class DownloadsApp(BokehApplet):
         plot.tools.append(hover)
         xformatter = DatetimeTickFormatter(formats=dict(months=["%b %Y"]))
         yformatter = BasicTickFormatter(precision=None, use_scientific=False)
-        xaxis = DatetimeAxis(plot=plot, dimension=0, formatter=xformatter)
-        yaxis = LinearAxis(plot=plot, dimension=1, formatter=yformatter)
-        xgrid = Grid(plot=plot, dimension=0, axis=xaxis)
-        ygrid = Grid(plot=plot, dimension=1, axis=yaxis)
+        xaxis = DatetimeAxis(plot=plot, formatter=xformatter)
+        plot.below.append(xaxis)
+        yaxis = LinearAxis(plot=plot, formatter=yformatter)
+        plot.left.append(yaxis)
+        xgrid = Grid(plot=plot, dimension=0, ticker=xaxis.ticker)
+        ygrid = Grid(plot=plot, dimension=1, ticker=yaxis.ticker)
         return plot
 
     def make_punchcard_plot(self, source):
@@ -160,8 +162,10 @@ class DownloadsApp(BokehApplet):
         plot.renderers.append(rect_glyph)
         hover = HoverTool(plot=plot, tooltips=dict(downloads="@counts"))
         plot.tools.append(hover)
-        xaxis = CategoricalAxis(plot=plot, dimension=0)
-        yaxis = CategoricalAxis(plot=plot, dimension=1)
+        xaxis = CategoricalAxis(plot=plot)
+        plot.below.append(xaxis)
+        yaxis = CategoricalAxis(plot=plot)
+        plot.left.append(yaxis)
         return plot
 
     def input_change(self, obj, attrname, old, new):
