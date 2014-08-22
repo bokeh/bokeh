@@ -712,6 +712,7 @@ elif run_examples != num_examples:
     warn("NOT ALL EXAMPLES WERE RUN")
     for skipped in skip_examples:
         warn(" %s" % skipped)
+    ok("THOSE WHICH WERE RUN SUCCEEDED")
     sys.exit(0)
 else:
     ok("ALL TESTS PASS")
