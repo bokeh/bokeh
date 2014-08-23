@@ -217,13 +217,23 @@ def build_js():
         sys.exit(1)
 
 def install_js():
-    if exists(join(SERVER, 'static', 'js')):
-        shutil.rmtree(join(SERVER, 'static', 'js'))
-    shutil.copytree(JS, join(SERVER, 'static', 'js'))
+    target_jsdir = join(SERVER, 'static', 'js')
+    target_cssdir = join(SERVER, 'static', 'css')
 
-    if exists(join(SERVER, 'static', 'css')):
-        shutil.rmtree(join(SERVER, 'static', 'css'))
-    shutil.copytree(CSS, join(SERVER, 'static', 'css'))
+    if ( not exists(join(JS, 'bokeh.js')) or
+         not exists(join(JS, 'bokeh.min.js')) or
+         not exists(join(CSS, 'bokeh.css')) or
+         not exists(join(CSS, 'bokeh.min.css'))):
+        print("ERROR: Cannot install BokehJS, files missing in bokehjs/build. Need to run at least once with --build_js?")
+        sys.exit(1)
+
+    if exists(target_jsdir):
+        shutil.rmtree(target_jsdir)
+    shutil.copytree(JS, target_jsdir)
+
+    if exists(target_cssdir):
+        shutil.rmtree(target_cssdir)
+    shutil.copytree(CSS, target_cssdir)
 
 def clean():
     print("Removing prior-built items...", end=" ")
