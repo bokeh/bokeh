@@ -253,22 +253,24 @@ build process. How would you like to handle BokehJS:
 def parse_jsargs():
     installing = 'install' in sys.argv or 'develop' in sys.argv
 
-
     if '--build_js' in sys.argv:
         if not installing:
-            print("Option '--build_js' only valid with 'install' or 'develop', exiting.")
+            print("Error: Option '--build_js' only valid with 'install' or 'develop', exiting.")
             sys.exit(1)
         jsbuild = True
         jsinstall = True
         sys.argv.remove('--build_js')
     elif '--install_js' in sys.argv:
         if not installing:
-            print("Option '--install_js' only valid with 'install' or 'develop', exiting.")
+            print("Error: Option '--install_js' only valid with 'install' or 'develop', exiting.")
             sys.exit(1)
         jsbuild = False
         jsinstall = True
         sys.argv.remove('--install_js')
     elif '--no_js' in sys.argv:
+        if not installing:
+            print("Error: Option '--no_js' only valid with 'install' or 'develop', exiting.")
+            sys.exit(1)
         jsbuild = False
         jsinstall = False
         sys.argv.remove('--no_js')
