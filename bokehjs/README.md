@@ -5,8 +5,7 @@ BokehJS is a front-end JavaScript library for [Bokeh](http://github.com/Continuu
 
 The architecture of the library facilitates easy manipulation of the components
 and configuration of a plot from server-side code in python or other languages.
-
-However, BokhJS can also be used directly as a standalone JavaScript library,
+However, BokehJS can also be used directly as a standalone JavaScript library,
 with plot data embedded directly into the page, retrieved via AJAX calls, or
 supplied by a separate Bokeh Plot server.
 
