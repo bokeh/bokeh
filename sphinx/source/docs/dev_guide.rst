@@ -67,6 +67,7 @@ This command will install build dependencies in the ``node_modules`` subdirector
 
 Typically at this point you would use the ``setup.py`` script at the top level
 to manage building and installing BokehJS as part of complete Bokeh library.
+(See :ref:`developer_python_setup` for additional information.)
 However, if you are using BokehJS as a standalone JavaScript library, without
 the rest of Bokeh, then the instructions below describe the process to build
 BokehJS.
@@ -118,16 +119,19 @@ enables incremental compilation. For example, issuing `~less` will watch `*.less
 sources and compile only the subset of files that changed. To stop watching sources,
 press ENTER. Pressing Ctrl+C will terminate `sbt`.
 
-.. note:: The `sbt` build system is experimental and should be used with caution.
+.. warning::
+        The ``sbt`` build system is experimental and not integrated with ``setup.py``
+        and should be used with caution.
 
-.. developer_python_setup
+.. _developer_python_setup:
 
 Python Setup
 ------------
 
-Once you have a working BokehJS build, you can use the `setup.py`
-script at the top level to install or develop the full Bokeh library from
-source.
+Once you have a working BokehJS build (which you can verify by completing the
+steps described in :ref:`developer_building_bokehjs` one time), you can
+use the ``setup.py`` script at the top level to install or develop the full
+Bokeh library from source.
 
 The ``setup.py`` script has two main modes of operation: ``install`` and
 ``develop``.
