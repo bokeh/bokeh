@@ -319,7 +319,7 @@ class Spread(Shader):
     # TODO: Add shape parameter
 
     out = "image"
-    factor = Int    
+    factor = Int
     anti_alias = Bool(False)
 
     def reify(self, **kwargs):
@@ -389,7 +389,7 @@ def replot(plot, agg=Count(), info=Const(val=1), shader=Id(),
 
     # TODO: Find a list somewhere for plot-type-specific options and transfer out using that list.
     #       Otherwise, this section will be horribly unmanageable.
-    options = ['reserve_val', 'reserve_color', 'line_color','tools']
+    options = ['reserve_val', 'reserve_color', 'line_color', 'tools']
     for opt in options:
         if opt in kwargs:
             props[opt] = kwargs.pop(opt)
@@ -412,11 +412,11 @@ def source(plot, agg=Count(), info=Const(val=1), shader=Id(),
            remove_original=True, palette=["Spectral-11"],
            points=False, balancedZoom=False, **kwargs):
     # Acquire information from renderer...
-    # TODO: How to be more specific about what to do AR on?  
+    # TODO: How to be more specific about what to do AR on?
     #       Currently just takes the first renderer with a server data source
-    rend = [r for r in plot.renderers 
-            if (isinstance(r, Glyph) 
-                and hasattr(r, "server_data_source") 
+    rend = [r for r in plot.renderers
+            if (isinstance(r, Glyph)
+                and hasattr(r, "server_data_source")
                 and r.server_data_source is not None)][0]
     datasource = rend.server_data_source
     kwargs['data_url'] = datasource.data_url
@@ -645,12 +645,10 @@ def _datacolumn(glyphspec):
                 and glyphspec[key].get('field', False))
 
     return (maybe_get('type')
-           or maybe_get('fill_color')
-           or maybe_get('fill_alpha')
-           or maybe_get('line_color')
-           or maybe_get('line_alpha'))
-
-
+            or maybe_get('fill_color')
+            or maybe_get('fill_alpha')
+            or maybe_get('line_color')
+            or maybe_get('line_alpha'))
 
 
 def _span(r):
