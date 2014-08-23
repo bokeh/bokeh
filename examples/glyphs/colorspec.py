@@ -44,7 +44,7 @@ glyph_renderer = Glyph(
         glyph = circle,
         )
 
-plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source])
+plot = Plot(x_range=xdr, y_range=ydr)
 xaxis = LinearAxis(plot=plot)
 plot.below.append(xaxis)
 yaxis = LinearAxis(plot=plot)
