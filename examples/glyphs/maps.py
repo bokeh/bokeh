@@ -17,7 +17,6 @@ map_options = MapOptions(lat=30.2861, lng=-97.7394, zoom=15)
 plot = GMapPlot(
     x_range=x_range, y_range=y_range,
     map_options=map_options,
-    data_sources=[],
     title = "Austin")
 
 select_tool = BoxSelectTool()
@@ -46,7 +45,6 @@ circle_renderer = Glyph(
         glyph = Circle(x="lon", y="lat", fill_color="fill", size=15,
                 radius_units="screen", line_color="black")
         )
-plot.data_sources.append(source)
 plot.renderers.append(circle_renderer)
 
 doc = Document()

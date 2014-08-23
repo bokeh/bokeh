@@ -40,7 +40,7 @@ zoom = WheelZoomTool(dimensions=["width","height"])
 
 def make_plot(xname, yname, xax=False, yax=False, text=None):
     plot = Plot(
-        x_range=xdr, y_range=ydr, data_sources=[source], background_fill="#efe8e2",
+        x_range=xdr, y_range=ydr, background_fill="#efe8e2",
         border_fill='white', title="", min_border=2, border_symmetry=None,
         plot_width=250, plot_height=250)
     xticker = BasicTicker()
@@ -77,7 +77,6 @@ def make_plot(xname, yname, xax=False, yax=False, text=None):
             ydata_range = ydr,
             glyph = text,
         )
-        plot.data_sources.append(text_source)
         plot.renderers.append(text_renderer)
     return plot
 

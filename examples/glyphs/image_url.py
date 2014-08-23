@@ -24,7 +24,7 @@ source = ColumnDataSource(dict(
 xdr = Range1d(start=-100, end=200)
 ydr = Range1d(start=-100, end=200)
 
-plot = Plot(title="ImageURL", data_sources=[source], x_range=xdr, y_range=ydr)
+plot = Plot(title="ImageURL", x_range=xdr, y_range=ydr)
 
 image1 = ImageURL(url="url", x="x1", y="y1", w="w1", h="h1", angle=0.0, anchor="center")
 image1_glyph = Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=image1)

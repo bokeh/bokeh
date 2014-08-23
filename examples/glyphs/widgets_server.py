@@ -22,7 +22,7 @@ def make_plot():
     ))
     xdr = DataRange1d(sources=[source.columns("dates")])
     ydr = DataRange1d(sources=[source.columns("downloads")])
-    plot = Plot(title="Product downloads", data_sources=[source], x_range=xdr, y_range=ydr, plot_width=400, plot_height=400)
+    plot = Plot(title="Product downloads", x_range=xdr, y_range=ydr, plot_width=400, plot_height=400)
     line = Line(x="dates", y="downloads", line_color="blue")
     line_glyph = Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=line)
     plot.renderers.append(line_glyph)
