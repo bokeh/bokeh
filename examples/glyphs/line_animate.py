@@ -49,7 +49,7 @@ renderer2 = Glyph(
         glyph = line_glyph2
         )
 
-plot = Plot(x_range=xdr_static, y_range=ydr, data_sources=[source], min_border=50)
+plot = Plot(x_range=xdr_static, y_range=ydr, min_border=50)
 xaxis = LinearAxis(plot=plot)
 plot.below.append(xaxis)
 yaxis = LinearAxis(plot=plot)

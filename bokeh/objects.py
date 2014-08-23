@@ -131,8 +131,8 @@ class Range(PlotObject):
 
 class Range1d(Range):
     """ Represents a fixed range [start, end] in a scalar dimension. """
-    start = Either(Datetime, Float)
-    end = Either(Datetime, Float)
+    start = Either(Float, Datetime)
+    end = Either(Float, Datetime)
 
 class DataRange(Range):
     sources = List(Instance(ColumnsRef))
@@ -357,8 +357,6 @@ class Plot(Widget):
             kwargs.setdefault('h_symmetry', 'h' in border_symmetry or 'H' in border_symmetry)
             kwargs.setdefault('v_symmetry', 'v' in border_symmetry or 'V' in border_symmetry)
         super(Plot, self).__init__(**kwargs)
-
-    data_sources = List(Instance(DataSource))
 
     x_range = Instance(Range)
     y_range = Instance(Range)

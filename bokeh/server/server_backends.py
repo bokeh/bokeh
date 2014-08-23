@@ -387,6 +387,9 @@ class FunctionBackend(AbstractDataBackend):
                'hundredA': np.random.rand(1000)*100,
                'hundredB': np.random.rand(1000)*100}
 
+    pyramid = {'x': [1, 1, 1, 2, 2, 2, 2, 1, 1, 1],
+               'y': [1, 1, 1, 2, 2, 2, 2, 1, 1, 1]}
+    
     def __init__(self):
       N = 1000
       x = np.linspace(0, 10, N)

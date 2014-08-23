@@ -186,6 +186,7 @@ module.exports = (grunt) ->
             'http://localhost:8000/build/test/common_test.html',
             'http://localhost:8000/build/test/mapper_test.html',
             'http://localhost:8000/build/test/range_test.html',
+            'http://localhost:8000/build/test/source_test.html',
           ]
 
     groc:

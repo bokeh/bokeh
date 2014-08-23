@@ -17,7 +17,7 @@ define [
       # if the attribute specifies a field, and the field exists on
       # the column source, return the column from the column source
       if prop.field? and (prop.field of datasource.get('data'))
-        return datasource.getcolumn(prop.field)
+        return datasource.get_column(prop.field)
       else
         # If the user gave an explicit value, that should always be returned
         if glyph_props[attrname].value?
@@ -29,7 +29,7 @@ define [
         # named "x" or "radius".)
 
         else if (attrname of datasource.get('data'))
-          return datasource.getcolumn(attrname)
+          return datasource.get_column(attrname)
 
         # finally, check for a default value on this property object that could be returned
         else if glyph_props[attrname].default?

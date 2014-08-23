@@ -50,9 +50,8 @@ xdr = Range1d(start=-0.5, end=20.5)
 ydr = Range1d(start=-0.5, end=20.5)
 
 def make_plot(title, xname, yname):
-    plot = Plot(
-        x_range=xdr, y_range=ydr, data_sources=[lines_source, circles_source],
-        title=title, plot_width=400, plot_height=400, border_fill='white', background_fill='#e9e0db')
+    plot = Plot(x_range=xdr, y_range=ydr, title=title, plot_width=400, plot_height=400,
+        border_fill='white', background_fill='#e9e0db')
     xaxis = LinearAxis(plot=plot, axis_line_color=None)
     plot.below.append(xaxis)
     yaxis = LinearAxis(plot=plot, axis_line_color=None)

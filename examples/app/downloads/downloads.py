@@ -133,7 +133,7 @@ class DownloadsApp(BokehApplet):
         xdr = DataRange1d(sources=[source.columns("dates")])
         ydr = DataRange1d(sources=[source.columns("downloads")])
         title = "%s downloads" % self.modelform.installer
-        plot = Plot(title=title, data_sources=[source], x_range=xdr, y_range=ydr, plot_width=600, plot_height=400)
+        plot = Plot(title=title, x_range=xdr, y_range=ydr, plot_width=600, plot_height=400)
         line = Line(x="dates", y="downloads", line_color="blue")
         line_glyph = Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=line)
         plot.renderers.append(line_glyph)
@@ -154,7 +154,7 @@ class DownloadsApp(BokehApplet):
         xdr = FactorRange(factors=source.data["hours"][::7])
         ydr = FactorRange(factors=source.data["days"][:7])
         title = "%s punchcard" % self.modelform.installer
-        plot = Plot(title=title, data_sources=[source], x_range=xdr, y_range=ydr, plot_width=600, plot_height=400)
+        plot = Plot(title=title, x_range=xdr, y_range=ydr, plot_width=600, plot_height=400)
         rect = Rect(x="hours", y="days", width=1, height=1, fill_color="red", fill_alpha="percentages")
         rect_glyph = Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=rect)
         plot.renderers.append(rect_glyph)
