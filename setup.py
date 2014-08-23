@@ -242,7 +242,7 @@ build process. How would you like to handle BokehJS:
     value = int(input("Choice? "))
     while value not in [1,2,3]:
         print("Input '%s' not understood. Valid choices: 1, 2, 3\n")
-        value = intput("Choice? ")
+        value = int(intput("Choice? "))
     if value == 1:
         return (True, True)
     elif value == 2:
