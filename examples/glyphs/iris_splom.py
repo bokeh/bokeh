@@ -48,21 +48,21 @@ def make_plot(xname, yname, xax=False, yax=False, text=None):
         ydata_range = ydr,
         glyph = circle,
     )
-    plot.add_obj(circle_renderer)
+    plot.add_layout(circle_renderer)
 
     xticker = BasicTicker()
     if xax:
         xaxis = LinearAxis()
-        plot.add_obj(xaxis, 'below')
+        plot.add_layout(xaxis, 'below')
         xticker = xaxis.ticker
-    plot.add_obj(Grid(dimension=0, ticker=xticker))
+    plot.add_layout(Grid(dimension=0, ticker=xticker))
 
     yticker = BasicTicker()
     if yax:
         yaxis = LinearAxis()
-        plot.add_obj(yaxis, 'left')
+        plot.add_layout(yaxis, 'left')
         yticker = yaxis.ticker
-    plot.add_obj(Grid(dimension=1, ticker=yticker))
+    plot.add_layout(Grid(dimension=1, ticker=yticker))
 
     plot.add_tools(PanTool(), WheelZoomTool())
 
@@ -80,7 +80,7 @@ def make_plot(xname, yname, xax=False, yax=False, text=None):
             ydata_range = ydr,
             glyph = text,
         )
-        plot.add_obj(text_renderer)
+        plot.add_layout(text_renderer)
 
     return plot
 

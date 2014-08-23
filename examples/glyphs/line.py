@@ -25,10 +25,10 @@ ydr = DataRange1d(sources=[source.columns("y")])
 plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source], min_border=50)
 
 line_glyph = Line(x="x", y="y", line_color="blue")
-plot.add_obj(Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=line_glyph))
+plot.add_layout(Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=line_glyph))
 
-plot.add_obj(LinearAxis(), 'below')
-plot.add_obj(LinearAxis(), 'left')
+plot.add_layout(LinearAxis(), 'below')
+plot.add_layout(LinearAxis(), 'left')
 
 pan = PanTool()
 wheel_zoom = WheelZoomTool()

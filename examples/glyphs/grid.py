@@ -34,10 +34,10 @@ def make_plot(source, xname, yname, line_color, xdr=None, ydr=None):
 
     plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source], min_border=50)
 
-    plot.add_obj(LinearAxis(), 'below')
-    plot.add_obj(LinearAxis(), 'left')
+    plot.add_layout(LinearAxis(), 'below')
+    plot.add_layout(LinearAxis(), 'left')
 
-    plot.add_obj(
+    plot.add_layout(
         Glyph(
             data_source = source,
             xdata_range = xdr,

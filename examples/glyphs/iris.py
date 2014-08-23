@@ -33,16 +33,16 @@ circle = Circle(
     x="petal_length", y="petal_width", size=10,
     fill_color="color", fill_alpha=0.2, line_color="color"
 )
-plot.add_obj(Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=circle))
+plot.add_layout(Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=circle))
 
 xaxis = LinearAxis(axis_label="petal length", bounds=(1,7), major_tick_in=0)
-plot.add_obj(xaxis, 'below')
+plot.add_layout(xaxis, 'below')
 
 yaxis = LinearAxis(axis_label="petal width", bounds=(0,2.5), major_tick_in=0)
-plot.add_obj(yaxis, 'left')
+plot.add_layout(yaxis, 'left')
 
-plot.add_obj(Grid(dimension=0, ticker=xaxis.ticker))
-plot.add_obj(Grid(dimension=1, ticker=yaxis.ticker))
+plot.add_layout(Grid(dimension=0, ticker=xaxis.ticker))
+plot.add_layout(Grid(dimension=1, ticker=yaxis.ticker))
 
 plot.add_tools(PanTool(), WheelZoomTool())
 

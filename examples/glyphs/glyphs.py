@@ -75,16 +75,16 @@ def make_tab(title, glyph):
     plot = Plot(title=title, data_sources=[source], x_range=xdr, y_range=ydr)
 
     renderer = Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=glyph)
-    plot.add_obj(renderer)
+    plot.add_layout(renderer)
 
     xaxis = LinearAxis()
-    plot.add_obj(xaxis, 'below')
+    plot.add_layout(xaxis, 'below')
 
     yaxis = LinearAxis()
-    plot.add_obj(yaxis, 'left')
+    plot.add_layout(yaxis, 'left')
 
-    plot.add_obj(Grid(dimension=0, ticker=xaxis.ticker))
-    plot.add_obj(Grid(dimension=1, ticker=yaxis.ticker))
+    plot.add_layout(Grid(dimension=0, ticker=xaxis.ticker))
+    plot.add_layout(Grid(dimension=1, ticker=yaxis.ticker))
 
     tab = Panel(child=plot, title=title)
 

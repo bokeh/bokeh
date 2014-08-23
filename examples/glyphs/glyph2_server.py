@@ -31,16 +31,16 @@ circle = Circle(
     x="x", y="y", size="r",
     fill_color="red", line_color="black"
 )
-plot.add_obj(Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=circle))
+plot.add_layout(Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=circle))
 
 xaxis = LinearAxis()
-plot.add_obj(xaxis, 'below')
+plot.add_layout(xaxis, 'below')
 
 yaxis = LinearAxis()
-plot.add_obj(yaxis, 'left')
+plot.add_layout(yaxis, 'left')
 
-plot.add_obj(Grid(dimension=0, ticker=xaxis.ticker))
-plot.add_obj(Grid(dimension=1, ticker=yaxis.ticker))
+plot.add_layout(Grid(dimension=0, ticker=xaxis.ticker))
+plot.add_layout(Grid(dimension=1, ticker=yaxis.ticker))
 
 plot.add_tools(PanTool(), WheelZoomTool())
 

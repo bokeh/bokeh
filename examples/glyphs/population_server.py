@@ -40,22 +40,22 @@ def pyramid():
     plot = Plot(title=None, data_sources=[source_pyramid], x_range=xdr, y_range=ydr, plot_width=600, plot_height=600)
 
     xaxis = LinearAxis()
-    plot.add_obj(xaxis, 'below')
+    plot.add_layout(xaxis, 'below')
     yaxis = LinearAxis(ticker=SingleIntervalTicker(interval=5))
-    plot.add_obj(yaxis, 'left')
+    plot.add_layout(yaxis, 'left')
 
-    plot.add_obj(Grid(dimension=0, ticker=xaxis.ticker))
-    plot.add_obj(Grid(dimension=1, ticker=yaxis.ticker))
+    plot.add_layout(Grid(dimension=0, ticker=xaxis.ticker))
+    plot.add_layout(Grid(dimension=1, ticker=yaxis.ticker))
 
     male_quad = Quad(left="male", right=0, bottom="groups", top="shifted", fill_color="#3B8686")
     male_quad_glyph = Glyph(data_source=source_pyramid, xdata_range=xdr, ydata_range=ydr, glyph=male_quad)
-    plot.add_obj(male_quad_glyph)
+    plot.add_layout(male_quad_glyph)
 
     female_quad = Quad(left=0, right="female", bottom="groups", top="shifted", fill_color="#CFF09E")
     female_quad_glyph = Glyph(data_source=source_pyramid, xdata_range=xdr, ydata_range=ydr, glyph=female_quad)
-    plot.add_obj(female_quad_glyph)
+    plot.add_layout(female_quad_glyph)
 
-    plot.add_obj(Legend(legends=dict(Male=[male_quad_glyph], Female=[female_quad_glyph])))
+    plot.add_layout(Legend(legends=dict(Male=[male_quad_glyph], Female=[female_quad_glyph])))
 
     return plot
 
@@ -68,17 +68,17 @@ def population():
 
     plot = Plot(title=None, data_sources=[source_known, source_predicted], x_range=xdr, y_range=ydr, plot_width=800, plot_height=200)
 
-    plot.add_obj(CategoricalAxis(major_label_orientation=pi/4), 'below')
+    plot.add_layout(CategoricalAxis(major_label_orientation=pi/4), 'below')
 
     line_known = Line(x="x", y="y", line_color="violet", line_width=2)
     line_known_glyph = Glyph(data_source=source_known, xdata_range=xdr, ydata_range=ydr, glyph=line_known)
-    plot.add_obj(line_known_glyph)
+    plot.add_layout(line_known_glyph)
 
     line_predicted = Line(x="x", y="y", line_color="violet", line_width=2, line_dash="dashed")
     line_predicted_glyph = Glyph(data_source=source_predicted, xdata_range=xdr, ydata_range=ydr, glyph=line_predicted)
-    plot.add_obj(line_predicted_glyph)
+    plot.add_layout(line_predicted_glyph)
 
-    plot.add_obj(
+    plot.add_layout(
         Legend(
             orientation="bottom_right",
             legends=dict(known=[line_known_glyph], predicted=[line_predicted_glyph])

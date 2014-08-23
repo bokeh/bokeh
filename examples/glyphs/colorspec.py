@@ -39,7 +39,7 @@ circle = Circle(x="x", y="y", size=15,
 
 plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source])
 
-plot.add_obj(
+plot.add_layout(
     Glyph(
         data_source = source,
         xdata_range = xdr,
@@ -48,8 +48,8 @@ plot.add_obj(
     )
 )
 
-plot.add_obj(LinearAxis(), 'below')
-plot.add_obj(LinearAxis(), 'left')
+plot.add_layout(LinearAxis(), 'below')
+plot.add_layout(LinearAxis(), 'left')
 
 plot.add_tools(PanTool(), WheelZoomTool())
 

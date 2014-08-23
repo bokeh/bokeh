@@ -58,16 +58,16 @@ def make_plot(title, xname, yname):
     )
 
     xaxis = LinearAxis(axis_line_color=None)
-    plot.add_obj(xaxis, 'below')
+    plot.add_layout(xaxis, 'below')
 
     yaxis = LinearAxis(axis_line_color=None)
-    plot.add_obj(yaxis, 'left')
+    plot.add_layout(yaxis, 'left')
 
-    plot.add_obj(Grid(dimension=0, ticker=xaxis.ticker))
-    plot.add_obj(Grid(dimension=1, ticker=yaxis.ticker))
+    plot.add_layout(Grid(dimension=0, ticker=xaxis.ticker))
+    plot.add_layout(Grid(dimension=1, ticker=yaxis.ticker))
 
     line = Line(x='x', y='y', line_color="#666699", line_width=2)
-    plot.add_obj(
+    plot.add_layout(
         Glyph(
             data_source = lines_source,
             xdata_range = xdr,
@@ -79,7 +79,7 @@ def make_plot(title, xname, yname):
     circle = Circle(
         x=xname, y=yname, size=12, fill_color="#cc6633", line_color="#cc6633", fill_alpha=0.5
     )
-    plot.add_obj(
+    plot.add_layout(
         Glyph(
             data_source = circles_source,
             xdata_range = xdr,

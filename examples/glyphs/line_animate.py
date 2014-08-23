@@ -38,7 +38,7 @@ renderer = Glyph(
     ydata_range = ydr,
     glyph = line_glyph
 )
-plot.add_obj(renderer)
+plot.add_layout(renderer)
 
 line_glyph2 = Line(x="x", y="z", line_color="red")
 renderer2 = Glyph(
@@ -47,10 +47,10 @@ renderer2 = Glyph(
     ydata_range = ydr,
     glyph = line_glyph2
 )
-plot.add_obj(renderer2)
+plot.add_layout(renderer2)
 
-plot.add_obj(LinearAxis(), 'below')
-plot.add_obj(LinearAxis(), 'left')
+plot.add_layout(LinearAxis(), 'below')
+plot.add_layout(LinearAxis(), 'left')
 
 plot.add_tools(PanTool(), WheelZoomTool())
 

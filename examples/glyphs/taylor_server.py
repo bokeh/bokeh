@@ -60,23 +60,23 @@ plot = Plot(data_sources=[source], x_range=xdr, y_range=ydr, plot_width=800, plo
 
 line_f = Line(x="x", y="fy", line_color="blue", line_width=2)
 line_f_glyph = Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=line_f)
-plot.add_obj(line_f_glyph)
+plot.add_layout(line_f_glyph)
 
 line_t = Line(x="x", y="ty", line_color="red", line_width=2)
 line_t_glyph = Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=line_t)
-plot.add_obj(line_t_glyph)
+plot.add_layout(line_t_glyph)
 
 xaxis = LinearAxis()
-plot.add_obj(xaxis, 'below')
+plot.add_layout(xaxis, 'below')
 
 yaxis = LinearAxis()
-plot.add_obj(yaxis, 'left')
+plot.add_layout(yaxis, 'left')
 
 xgrid = Grid(dimension=0, ticker=xaxis.ticker)
 ygrid = Grid(dimension=1, ticker=yaxis.ticker)
 
 legend = Legend(orientation="bottom_left")
-plot.add_obj(legend)
+plot.add_layout(legend)
 
 def on_slider_value_change(obj, attr, old, new):
     global order

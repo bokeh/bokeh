@@ -31,10 +31,10 @@ ydr = DataRange1d(sources=[source.columns("y")])
 plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source], min_border=80)
 
 circle = Circle(x="times", y="y", fill_color="red", size=5, line_color="black")
-plot.add_obj(Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=circle))
+plot.add_layout(Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=circle))
 
-plot.add_obj(DatetimeAxis(), 'below')
-plot.add_obj(DatetimeAxis(), 'left')
+plot.add_layout(DatetimeAxis(), 'below')
+plot.add_layout(DatetimeAxis(), 'left')
 
 plot.add_tools(PanTool(), WheelZoomTool())
 

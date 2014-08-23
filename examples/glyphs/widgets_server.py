@@ -32,20 +32,20 @@ def make_plot():
 
     line = Line(x="dates", y="downloads", line_color="blue")
     line_glyph = Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=line)
-    plot.add_obj(line_glyph)
+    plot.add_layout(line_glyph)
 
     circle = Circle(x="dates", y="downloads", fill_color="red")
     circle_glyph = Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=circle)
-    plot.add_obj(circle_glyph)
+    plot.add_layout(circle_glyph)
 
     xaxis = DatetimeAxis()
-    plot.add_obj(xaxis, 'below')
+    plot.add_layout(xaxis, 'below')
 
     yaxis = LinearAxis()
-    plot.add_obj(yaxis, 'left')
+    plot.add_layout(yaxis, 'left')
 
-    plot.add_obj(Grid(dimension=0, ticker=xaxis.ticker))
-    plot.add_obj(Grid(dimension=1, ticker=yaxis.ticker))
+    plot.add_layout(Grid(dimension=0, ticker=xaxis.ticker))
+    plot.add_layout(Grid(dimension=1, ticker=yaxis.ticker))
 
     plot.add_tools(HoverTool(tooltips=dict(downloads="@downloads")))
 

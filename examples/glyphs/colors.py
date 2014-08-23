@@ -165,15 +165,15 @@ ydr = FactorRange(factors=list(reversed(css3_colors.Name)))
 plot = Plot(title="CSS3 Color Names", data_sources=[source], x_range=xdr, y_range=ydr, plot_width=600, plot_height=2000)
 
 rect = Rect(x="groups", y="names", width=1, height=1, fill_color="colors", line_color=None)
-plot.add_obj(Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=rect))
+plot.add_layout(Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=rect))
 
 xaxis_above = CategoricalAxis(major_label_orientation=pi/4)
-plot.add_obj(xaxis_above, 'above')
+plot.add_layout(xaxis_above, 'above')
 
 xaxis_below = CategoricalAxis(major_label_orientation=pi/4)
-plot.add_obj(xaxis_below, 'below')
+plot.add_layout(xaxis_below, 'below')
 
-plot.add_obj(CategoricalAxis(), 'left')
+plot.add_layout(CategoricalAxis(), 'left')
 
 doc = Document()
 doc.add(plot)

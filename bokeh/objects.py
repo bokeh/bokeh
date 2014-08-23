@@ -361,7 +361,7 @@ class Plot(Widget):
             kwargs.setdefault('v_symmetry', 'v' in border_symmetry or 'V' in border_symmetry)
         super(Plot, self).__init__(**kwargs)
 
-    def add_obj(self, obj, place='center'):
+    def add_layout(self, obj, place='center'):
         ''' Adds an object to the plot in a specified place.
 
         Args:
