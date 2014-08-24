@@ -167,6 +167,7 @@ def autoload_static(plot_object, resources, script_path):
         elementid = elementid,
         modelid = plot_object._id,
         modeltype = plot_object.__view_model__,
+        log_level = resources.log_level,
     )
 
     return encode_utf8(js), encode_utf8(tag)
@@ -199,6 +200,7 @@ def autoload_server(plot_object, session):
         docid =  session.docid,
         docapikey = session.apikey,
         conn_string = resources.conn_string,
+        log_level = resources.log_level,
     )
 
     return encode_utf8(tag)

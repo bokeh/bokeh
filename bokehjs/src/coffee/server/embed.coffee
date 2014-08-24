@@ -25,7 +25,6 @@ define [
       _.delay(-> $(element).replaceWith(view.$el))
     )
   inject_plot = (element_id, all_models) ->
-    console.log "Injecting plot for script tag with id: #" + element_id
     script = $("#" + element_id)
     if script.length == 0
       throw "Error injecting plot: could not find script tag with id: " + element_id
@@ -34,15 +33,17 @@ define [
     if not document.body.contains(script[0])
       throw "Error injecting plot: autoload script tag may only be under <body>"
     info = script.data()
+    Bokeh.set_log_level(info["bokehLogLevel"])
+    Bokeh.logger.info("Injecting plot for script tag with id: #" + element_id)
     base.Config.ws_conn_string = info['bokehConnString']
     base.Config.prefix = info['bokehRootUrl']
     container = $('<div>', {class: 'bokeh-container'})
     container.insertBefore(script)
     if info.bokehData == "static"
-      console.log " - using static data"
+      Bokeh.logger.info("  - using static data")
       add_plot_static(container, info, all_models)
     else if info.bokehData == "server"
-      console.log " - using server data"
+      Bokeh.logger.info("  - using server data")
       add_plot_server(container, info)
     else
       throw "Unknown bokehData value for inject_plot: " + info.bokehData

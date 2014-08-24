@@ -113,7 +113,7 @@ define [
     Config.prefix = url.slice(0, url.indexOf('/bokeh')) + "/" #keep trailing slash
   else
     Config.prefix = '/'
-  console.log('setting prefix to', Config.prefix)
+  console.log('Bokeh: setting prefix to', Config.prefix)
 
   locations =
 
