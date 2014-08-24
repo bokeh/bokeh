@@ -2,6 +2,7 @@
 define [
   "underscore",
   "require",
+  "jsnlog",
 
   "common/custom",
   "common/canvas",
@@ -102,7 +103,12 @@ define [
   'transforms/interpolatecolor'
   'transforms/seq'
   'transforms/spread'
-], (_, require) ->
+], (_, require, JL) ->
+
+  # set up logging to the console
+  JL().setOptions({
+    "appenders": [JL.createConsoleAppender('consoleAppender')],
+  })
 
   # add some useful functions to underscore
   require("common/custom").monkey_patch()
@@ -210,8 +216,10 @@ define [
     InterpolateColor:         'transforms/interpolatecolor'
     Seq:                      'transforms/seq'
     Spread:                   'transforms/spread'
+
   mod_cache = {}
   collection_overrides = {}
+
   Collections = (typename) ->
    if collection_overrides[typename]
      return collection_overrides[typename]
@@ -230,8 +238,10 @@ define [
           throw Error("improperly implemented collection: #{modulename}")
 
     return mod_cache[modulename].Collection
+
   Collections.register = (name, collection) ->
     collection_overrides[name] = collection
+
   return {
     "collection_overrides" : collection_overrides, # for testing only
     "mod_cache": mod_cache, # for testing only
