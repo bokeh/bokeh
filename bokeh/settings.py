@@ -40,18 +40,21 @@ class Settings(object):
     def minified(self, default=None):
         return self._get_bool("MINIFIED", default)
 
+    def log_level(self, default=None):
+        return self._get_str("LOG_LEVEL", default)
+
     def pretty(self, default=None):
         return self._get_bool("PRETTY", default)
 
     def pythonlib(self, default=None):
         return self._get_str("PYTHONLIB", default)
-        
+
     """
     Server settings go here:
     """
     def serverdir(self):
         return join(dirname(abspath(__file__)), 'server')
-        
+
     def bokehjssrcdir(self):
         if self.debugjs:
             basedir = dirname(dirname(self.serverdir()))
@@ -65,7 +68,7 @@ class Settings(object):
             return join(basedir, 'bokehjs', 'build')
         else:
             return join(self.serverdir(), 'static')
-            
+
     def js_files(self):
         bokehjsdir = self.bokehjsdir()
         js_files = []
@@ -74,7 +77,7 @@ class Settings(object):
                 if fname.endswith(".js") and 'vendor' not in root:
                     js_files.append(join(root, fname))
         return js_files
-        
+
     def css_files(self):
         bokehjsdir = self.bokehjsdir()
         js_files = []
@@ -84,6 +87,6 @@ class Settings(object):
                     js_files.append(join(root, fname))
         return js_files
 
-    
+
 settings = Settings()
 del Settings

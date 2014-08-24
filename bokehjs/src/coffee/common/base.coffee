@@ -2,7 +2,6 @@
 define [
   "underscore",
   "require",
-  "jsnlog",
 
   "common/custom",
   "common/canvas",
@@ -103,12 +102,7 @@ define [
   'transforms/interpolatecolor'
   'transforms/seq'
   'transforms/spread'
-], (_, require, JL) ->
-
-  # set up logging to the console
-  JL().setOptions({
-    "appenders": [JL.createConsoleAppender('consoleAppender')],
-  })
+], (_, require) ->
 
   # add some useful functions to underscore
   require("common/custom").monkey_patch()

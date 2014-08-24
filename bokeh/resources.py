@@ -133,11 +133,12 @@ class Resources(object):
     logo_url = "http://bokeh.pydata.org/_static/bokeh-transparent.png"
 
     def __init__(self, mode='inline', version=None, root_dir=None,
-                 minified=True, root_url=None):
+                 minified=True, log_level="info", root_url=None):
         self.mode = settings.resources(mode)
         self.root_dir = settings.rootdir(root_dir)
         self.version = settings.version(version)
         self.minified = settings.minified(minified)
+        self.log_level = settings.log_level(log_level)
         if root_url and not root_url.endswith("/"):
             logger.warning("root_url should end with a /, adding one")
             root_url = root_url + "/"
@@ -197,10 +198,24 @@ class Resources(object):
             self._js_raw.append(require)
 
     @property
+    def log_level(self):
+        return self._log_level
+
+    @log_level.setter
+    def log_level(self, level):
+        valid_levels = [
+            "trace", "debug", "info", "warn", "error", "fatal"
+        ]
+        if level not in valid_levels:
+            raise ValueError("Unknown log level '%s', valid levels are: %s", str(valid_levels))
+        self._log_level = level
+
+
+    @property
     def js_raw(self):
         if six.callable(self._js_raw):
             self._js_raw = self._js_raw()
-        return self._js_raw
+        return self._js_raw + ['Bokeh.set_log_level(%r)' % self.log_level]
 
     @property
     def css_raw(self):
