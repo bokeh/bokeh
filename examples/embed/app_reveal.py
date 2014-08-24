@@ -173,8 +173,7 @@ class Population(object):
                                    self.source_pyramid.columns("female")])
         ydr = DataRange1d(sources=[self.source_pyramid.columns("groups")])
 
-        self.plot = Plot(title="Widgets", data_sources=[self.source_pyramid],
-                         x_range=xdr, y_range=ydr, plot_width=600, plot_height=600)
+        self.plot = Plot(title="Widgets", x_range=xdr, y_range=ydr, plot_width=600, plot_height=600)
 
         xaxis = LinearAxis(plot=self.plot, dimension=0)
         yaxis = LinearAxis(plot=self.plot, dimension=1, ticker=SingleIntervalTicker(interval=5))
