@@ -196,6 +196,8 @@ class Resources(object):
         if self.dev:
             require = 'require.config({ baseUrl: "%s" });' % base_url
             self._js_raw.append(require)
+            main = 'Bokeh = require("main");'
+            self._js_raw.append(main)
 
     @property
     def log_level(self):
