@@ -15,9 +15,7 @@ ydr = Range1d(start=-1.25, end=1.25)
 
 plot = Plot(title="Speedometer", x_range=xdr, y_range=ydr, plot_width=600, plot_height=600)
 
-global_source = ColumnDataSource()
-
-def add_glyph(glyph, source=global_source):
+def add_glyph(glyph, source=ColumnDataSource()):
     renderer = Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=glyph)
     plot.renderers.append(renderer)
 
@@ -79,7 +77,7 @@ def add_gauge(radius, max_value, length, direction, color, major_step, minor_ste
     minor_labels = [ x for i, x in enumerate(minor_labels) if i % n != 0 ]
 
     glyph = Arc(x=0, y=0, radius=radius, start_angle=start_angle, end_angle=end_angle, direction="clock", line_color=color, line_width=2)
-    add_glyph(glyph, global_source)
+    add_glyph(glyph)
 
     rotation = 0 if direction == 1 else -pi
 
