@@ -66,8 +66,8 @@ parser.add_argument("-j", "--phantomjs", type=str, default="phantomjs",
                     help="phantomjs executable")
 parser.add_argument("-t", "--timeout", type=int, default=default_timeout,
                     help="how long can an example run (in seconds)")
-parser.add_argument("-v", "--verbose", action="store_true", default=False,
-                    help="show console messages")
+parser.add_argument("-J", "--no-js-logs", dest="js_logs", action="store_false", default=True,
+                    help="don't show JS console messages")
 parser.add_argument("-D", "--no-dev", dest="dev", action="store_false", default=True,
                     help="don't use development JavaScript and CSS files")
 parser.add_argument("-all-n", "--all-notebooks", action="store_true", default=False,
@@ -130,7 +130,7 @@ write("%s bokeh-port    = %s" % (green("---"), args.bokeh_port))
 write("%s ipython-port  = %s" % (green("---"), args.ipython_port))
 write("%s phantomjs     = %s" % (green("---"), args.phantomjs))
 write("%s timeout       = %s" % (green("---"), args.timeout))
-write("%s verbose       = %s" % (green("---"), args.verbose))
+write("%s js-logs       = %s" % (green("---"), args.js_logs))
 write("%s dev           = %s" % (green("---"), args.dev))
 write("%s all-notebooks = %s" % (green("---"), args.all_notebooks))
 write("%s output-cells  = %s" % (green("---"), args.output_cells))
@@ -367,18 +367,20 @@ def test_example(example, flags):
     if status == 'fail':
         fail("failed to load %s" % url)
     else:
-        if args.verbose:
+        if args.js_logs:
             for message in messages:
                 msg = message['msg']
                 line = message.get('line')
                 source = message.get('source')
 
                 if source is None:
-                    write(msg)
+                    text = msg
                 elif line is None:
-                    write("%s: %s" % (source, msg))
+                    text = "%s: %s" % (source, msg)
                 else:
-                    write("%s:%s: %s" % (source, line, msg))
+                    text = "%s:%s: %s" % (source, line, msg)
+
+                write("[JS] %s" % text)
 
         resource_errors = False
 
