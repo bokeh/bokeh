@@ -22,8 +22,11 @@ import site
 import subprocess
 import sys
 
+using_setuptools = False
+
 if 'nightly' in sys.argv:
     from setuptools import setup
+    using_setuptools = True
     sys.argv.remove('nightly')
 
     with open('__conda_version__.txt','r') as f:
@@ -391,6 +394,10 @@ else:
     _version = versioneer.get_version()
     _cmdclass = versioneer.get_cmdclass()
 
+extra_kw = {}
+if using_setuptools:
+    extra_kw = dict(zip_safe=False, install_requires=REQUIRES)
+
 setup(
     name='bokeh',
     version=_version,
@@ -417,6 +424,5 @@ setup(
     description='Statistical and novel interactive HTML plots for Python',
     license='New BSD',
     scripts=scripts,
-    zip_safe=False,
-    install_requires=REQUIRES,
+    **extra_kw
 )
