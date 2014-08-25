@@ -1,19 +1,20 @@
 
 from functools import reduce
 import math
-import os
 import platform
 import sys
 import uuid
 
 from six.moves.urllib.parse import urljoin as sys_urljoin
 
+
 _simple_id = 1000
 
 def make_id():
     global _simple_id
     yes = ['yes', 'YES', 'true', 'True', 1]
-    if os.environ.get('BOKEH_SIMPLE_IDS', 'no') in yes:
+    from . import settings
+    if settings.simple_ids(False):
         _simple_id += 1
         new_id = _simple_id
     else:
