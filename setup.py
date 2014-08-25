@@ -337,6 +337,11 @@ elif 'install' in sys.argv:
         print("  - removed path file at %s" % path_file)
     print("  - using %s built bokehjs from bokehjs/build\n" % ("NEWLY" if jsbuild else "PREVIOUSLY"))
 
+elif '--help' in sys.argv:
+    print("Bokeh-specific options available with 'install' or 'develop':\n")
+    print("  --build_js          build and install a fresh BokehJS")
+    print("  --install_js        install only last previously built BokehJS")
+
 print()
 
 REQUIRES = [
