@@ -20,9 +20,11 @@ source = ColumnDataSource(
 xdr = DataRange1d(sources=[source.columns("x")])
 ydr = DataRange1d(sources=[source.columns("y")])
 
+plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source])
+
 circle = Circle(x="x", y="y", size=15,
     # Set the fill color to be dependent on the "color" field of the
-    # datasource.  If the field is missing, then the default value is
+    # data source.  If the field is missing, then the default value is
     # used. Since no explicit default is provided, this picks up the
     # default in FillProps, which is "gray".
     fill_color="color",
@@ -37,16 +39,7 @@ circle = Circle(x="x", y="y", size=15,
     # on the datasource.
     line_color="black")
 
-plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source])
-
-plot.add_layout(
-    Glyph(
-        data_source = source,
-        xdata_range = xdr,
-        ydata_range = ydr,
-        glyph = circle,
-    )
-)
+plot.add_glyph(source, xdr, ydr, circle)
 
 plot.add_layout(LinearAxis(), 'below')
 plot.add_layout(LinearAxis(), 'left')

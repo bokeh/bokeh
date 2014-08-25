@@ -6,7 +6,7 @@ from bokeh.browserlib import view
 from bokeh.document import Document
 from bokeh.glyphs import Line, Circle
 from bokeh.objects import (
-    Plot, ColumnDataSource, DataRange1d, Glyph,
+    Plot, ColumnDataSource, DataRange1d,
     LinearAxis, DatetimeAxis, Grid, HoverTool
 )
 from bokeh.session import Session
@@ -31,12 +31,10 @@ def make_plot():
     plot = Plot(title="Product downloads", data_sources=[source], x_range=xdr, y_range=ydr, plot_width=400, plot_height=400)
 
     line = Line(x="dates", y="downloads", line_color="blue")
-    line_glyph = Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=line)
-    plot.add_layout(line_glyph)
+    plot.add_glyph(source, xdr, ydr, line)
 
     circle = Circle(x="dates", y="downloads", fill_color="red")
-    circle_glyph = Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=circle)
-    plot.add_layout(circle_glyph)
+    plot.add_glyph(source, xdr, ydr, circle)
 
     xaxis = DatetimeAxis()
     plot.add_layout(xaxis, 'below')

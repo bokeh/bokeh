@@ -18,7 +18,7 @@ from .mixins import LineProps, TextProps
 from .plot_object import PlotObject
 from .properties import (
     Datetime, HasProps, Dict, Enum, Either, Float, Instance, Int,
-    List, String, Color, Date, Include, Bool, Tuple, Any
+    List, String, Color, Include, Bool, Tuple, Any
 )
 from .utils import nice_join
 
@@ -407,6 +407,26 @@ class Plot(Widget):
                  raise ValueError("tool %s to be added already has 'plot' attribute set" % tools)
             tool.plot = self
             self.tools.append(tool)
+
+    def add_glyph(self, source, x_range, y_range, glyph):
+        ''' Adds a glyph to the plot with associated data sources and ranges.
+
+        Args:
+            source: (ColumnDataSource) : a data source for the glyphs to all use
+            x_range (Range1d) : a range object for the x-dimension
+            y_range (Range1d) : a range object for the y-dimension
+            glyphs (BaseGlyph) : the glyph to add to the Plot
+
+        Returns:
+            glyph : Glyph
+
+        '''
+        if not isinstance(glyph, BaseGlyph):
+            raise ValueError("glyph arguments to add_glyph must be BaseGlyph subclass.")
+
+        g = Glyph(data_source=source, xdata_range=x_range, ydata_range=y_range, glyph=glyph)
+        self.renderers.append(g)
+        return g
 
     data_sources = List(Instance(DataSource))
 

@@ -10,7 +10,7 @@ from bokeh.embed import file_html
 from bokeh.glyphs import Circle
 from bokeh.objects import (
     Plot, DataRange1d, DatetimeAxis,
-    ColumnDataSource, Glyph, PanTool, WheelZoomTool
+    ColumnDataSource, PanTool, WheelZoomTool
 )
 from bokeh.resources import INLINE
 
@@ -31,7 +31,7 @@ ydr = DataRange1d(sources=[source.columns("y")])
 plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source], min_border=80)
 
 circle = Circle(x="times", y="y", fill_color="red", size=5, line_color="black")
-plot.add_layout(Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=circle))
+plot.add_glyph(source, xdr, ydr, circle)
 
 plot.add_layout(DatetimeAxis(), 'below')
 plot.add_layout(DatetimeAxis(), 'left')

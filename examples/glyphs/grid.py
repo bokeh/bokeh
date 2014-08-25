@@ -8,7 +8,7 @@ from bokeh.embed import file_html
 from bokeh.glyphs import Line
 from bokeh.objects import (
     Plot, DataRange1d, LinearAxis, ColumnDataSource,
-    Glyph, PanTool, WheelZoomTool, GridPlot
+    PanTool, WheelZoomTool, GridPlot
 )
 from bokeh.resources import INLINE
 
@@ -37,14 +37,7 @@ def make_plot(source, xname, yname, line_color, xdr=None, ydr=None):
     plot.add_layout(LinearAxis(), 'below')
     plot.add_layout(LinearAxis(), 'left')
 
-    plot.add_layout(
-        Glyph(
-            data_source = source,
-            xdata_range = xdr,
-            ydata_range = ydr,
-            glyph = Line(x=xname, y=yname, line_color=line_color),
-        )
-    )
+    plot.add_glyph(source, xdr, ydr, Line(x=xname, y=yname, line_color=line_color))
 
     plot.add_tools(PanTool(), WheelZoomTool())
 

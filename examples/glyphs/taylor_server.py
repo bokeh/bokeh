@@ -8,7 +8,7 @@ import sympy as sy
 from bokeh.browserlib import view
 from bokeh.document import Document
 from bokeh.glyphs import Line
-from bokeh.objects import Plot, DataRange1d, LinearAxis, ColumnDataSource, Glyph, Grid, Legend
+from bokeh.objects import Plot, DataRange1d, LinearAxis, ColumnDataSource, Grid, Legend
 from bokeh.session import Session
 from bokeh.widgetobjects import Slider, TextInput, HBox, VBox, Dialog
 
@@ -59,11 +59,11 @@ ydr = DataRange1d(sources=[source.columns("fy")])
 plot = Plot(x_range=xdr, y_range=ydr, plot_width=800, plot_height=400)
 
 line_f = Line(x="x", y="fy", line_color="blue", line_width=2)
-line_f_glyph = Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=line_f)
+line_f_glyph = plot.add_glyph(source, xdr, ydr, line_f)
 plot.add_layout(line_f_glyph)
 
 line_t = Line(x="x", y="ty", line_color="red", line_width=2)
-line_t_glyph = Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=line_t)
+line_t_glyph = plot.add_glyph(source, xdr, ydr, line_t)
 plot.add_layout(line_t_glyph)
 
 xaxis = LinearAxis()

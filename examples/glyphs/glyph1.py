@@ -7,7 +7,7 @@ from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.glyphs import Circle
 from bokeh.objects import (
-    Plot, DataRange1d, LinearAxis, ColumnDataSource, Glyph, PanTool, WheelZoomTool
+    Plot, DataRange1d, LinearAxis, ColumnDataSource, PanTool, WheelZoomTool
 )
 from bokeh.resources import INLINE
 
@@ -24,7 +24,7 @@ ydr = DataRange1d(sources=[source.columns("y")])
 plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source], min_border=80)
 
 circle = Circle(x="x", y="y", fill_color="red", size=5, line_color="black")
-plot.add_layout(Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=circle))
+plot.add_glyph(source, xdr, ydr, circle)
 
 plot.add_layout(LinearAxis(), 'below')
 plot.add_layout(LinearAxis(), 'left')

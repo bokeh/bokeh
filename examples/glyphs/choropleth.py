@@ -5,7 +5,7 @@ from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.glyphs import Patches
 from bokeh.objects import (
-    Plot, DataRange1d, ColumnDataSource, Glyph, ResizeTool
+    Plot, DataRange1d, ColumnDataSource, ResizeTool
 )
 from bokeh.resources import INLINE
 from bokeh.sampledata import us_states, us_counties, unemployment
@@ -51,24 +51,10 @@ ydr = DataRange1d(sources=[state_source.columns("state_ys")])
 plot = Plot(x_range=xdr, y_range=ydr, data_sources=[state_source, county_source], min_border=0, border_fill="white", title="2009 Unemployment Data", plot_width=1300, plot_height=800)
 
 county_patches = Patches(xs="county_xs", ys="county_ys", fill_color="county_colors", fill_alpha=0.7, line_color="white", line_width=0.5)
-plot.add_layout(
-    Glyph(
-        data_source = county_source,
-        xdata_range = xdr,
-        ydata_range = ydr,
-        glyph = county_patches,
-        )
-)
+plot.add_glyph(county_source, xdr, ydr, county_patches)
 
 state_patches = Patches(xs="state_xs", ys="state_ys", fill_alpha=0.0, line_color="#884444", line_width=2)
-plot.add_layout(
-    Glyph(
-        data_source = state_source,
-        xdata_range = xdr,
-        ydata_range = ydr,
-        glyph = state_patches,
-        )
-)
+plot.add_glyph(state_source, xdr, ydr, state_patches)
 
 plot.add_tools(ResizeTool())
 

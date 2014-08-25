@@ -5,7 +5,7 @@ from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.glyphs import Circle
 from bokeh.objects import (
-    Plot, DataRange1d, LinearAxis, Grid, ColumnDataSource, Glyph, PanTool, WheelZoomTool
+    Plot, DataRange1d, LinearAxis, Grid, ColumnDataSource, PanTool, WheelZoomTool
 )
 from bokeh.resources import INLINE
 from bokeh.sampledata.iris import flowers
@@ -33,7 +33,7 @@ circle = Circle(
     x="petal_length", y="petal_width", size=10,
     fill_color="color", fill_alpha=0.2, line_color="color"
 )
-plot.add_layout(Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=circle))
+plot.add_glyph(source, xdr, ydr, circle)
 
 xaxis = LinearAxis(axis_label="petal length", bounds=(1,7), major_tick_in=0)
 plot.add_layout(xaxis, 'below')

@@ -1,6 +1,6 @@
 import numpy as np
 
-from bokeh.objects import ColumnDataSource, DataRange1d, Plot, Glyph, LinearAxis, Grid
+from bokeh.objects import ColumnDataSource, DataRange1d, Plot, LinearAxis, Grid
 from bokeh.widgetobjects import VBox, Tabs, Panel
 from bokeh.glyphs import (AnnularWedge, Annulus, Arc, Bezier, Circle, Line, MultiLine, Oval,
     Patch, Patches, Quad, Quadratic, Ray, Rect, Segment, Square, Wedge, CircleX, Triangle,
@@ -74,8 +74,7 @@ markers = [
 def make_tab(title, glyph):
     plot = Plot(title=title, data_sources=[source], x_range=xdr, y_range=ydr)
 
-    renderer = Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=glyph)
-    plot.add_layout(renderer)
+    plot.add_glyph(source, xdr, ydr, glyph)
 
     xaxis = LinearAxis()
     plot.add_layout(xaxis, 'below')

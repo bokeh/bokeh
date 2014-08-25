@@ -6,7 +6,7 @@ from bokeh.embed import file_html
 from bokeh.glyphs import Circle
 from bokeh.objects import (
     GMapPlot, Range1d, ColumnDataSource,
-    Glyph, PanTool, WheelZoomTool, BoxSelectTool,
+    PanTool, WheelZoomTool, BoxSelectTool,
     BoxSelectionOverlay, ObjectExplorerTool, MapOptions)
 from bokeh.resources import INLINE
 
@@ -31,7 +31,7 @@ source = ColumnDataSource(
 )
 
 circle = Circle(x="lon", y="lat", size=15, fill_color="fill", line_color="black")
-plot.add_layout(Glyph(data_source=source, xdata_range=x_range, ydata_range=y_range, glyph=circle))
+plot.add_glyph(source, x_range, y_range, circle)
 
 pan = PanTool()
 wheel_zoom = WheelZoomTool()

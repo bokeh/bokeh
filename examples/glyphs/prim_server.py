@@ -6,7 +6,7 @@ from bokeh.browserlib import view
 from bokeh.document import Document
 from bokeh.glyphs import *
 from bokeh.objects import (
-    Plot, Range1d, LinearAxis, Grid, Glyph, ColumnDataSource, PanTool, WheelZoomTool
+    Plot, Range1d, LinearAxis, Grid, ColumnDataSource, PanTool, WheelZoomTool
 )
 from bokeh.session import Session
 
@@ -26,13 +26,7 @@ ydr = Range1d(start=0, end=10)
 def make_plot(name, glyph):
     plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source], min_border=80)
 
-    glyph_renderer = Glyph(
-        data_source = source,
-        xdata_range = xdr,
-        ydata_range = ydr,
-        glyph = glyph,
-    )
-    plot.add_layout(glyph_renderer)
+    plot.add_glyph(source, xdr, ydr, glyph)
 
     xaxis = LinearAxis()
     plot.add_layout(xaxis, 'below')
@@ -61,7 +55,5 @@ make_plot('wedge', Wedge(x="x", y="y", radius=0.5, start_angle=0.9, end_angle=3.
 link = session.object_link(document._plotcontext)
 print ("please visit %s to see plots" % link)
 view (link)
-
-print("\npress ctrl-C to exit")
 
 

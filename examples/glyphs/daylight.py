@@ -8,8 +8,8 @@ from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.glyphs import Patch, Line, Text
 from bokeh.objects import (
-    ColumnDataSource, DataRange1d, DatetimeAxis, DatetimeTickFormatter,
-    Glyph, Grid, Legend, Plot
+    ColumnDataSource, DataRange1d, DatetimeAxis,
+    DatetimeTickFormatter, Grid, Legend, Plot
 )
 from bokeh.resources import INLINE
 from bokeh.sampledata import daylight
@@ -64,21 +64,19 @@ plot = Plot(
 )
 
 patch1 = Patch(x="dates", y="times", fill_color="skyblue", fill_alpha=0.8)
-plot.add_layout(Glyph(data_source=patch1_source, xdata_range=xdr, ydata_range=ydr, glyph=patch1))
+plot.add_glyph(patch1_source, xdr, ydr, patch1)
 
 patch2 = Patch(x="dates", y="times", fill_color="orange", fill_alpha=0.8)
-plot.add_layout(Glyph(data_source=patch2_source, xdata_range=xdr, ydata_range=ydr, glyph=patch2))
+plot.add_glyph(patch2_source, xdr, ydr, patch2)
 
 line1 = Line(x="dates", y="sunrises", line_color="yellow", line_width=2)
-line1_glyph = Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=line1)
-plot.add_layout(line1_glyph)
+line1_glyph = plot.add_glyph(source, xdr, ydr, line1)
 
 line2 = Line(x="dates", y="sunsets", line_color="red", line_width=2)
-line2_glyph = Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=line2)
-plot.add_layout(line2_glyph)
+line2_glyph = plot.add_glyph(source, xdr, ydr, line2)
 
 text = Text(x="dates", y="times", text="texts", angle=0, text_align="center")
-plot.add_layout(Glyph(data_source=text_source, xdata_range=xdr, ydata_range=ydr, glyph=text))
+plot.add_glyph(text_source, xdr, ydr, text)
 
 xformatter = DatetimeTickFormatter(formats=dict(months=["%b %Y"]))
 xaxis = DatetimeAxis(formatter=xformatter)

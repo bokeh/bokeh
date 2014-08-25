@@ -8,7 +8,7 @@ from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.glyphs import Circle, Line
 from bokeh.objects import (
-    ColumnDataSource, Glyph, Grid, GridPlot, LinearAxis, Plot, Range1d
+    ColumnDataSource, Grid, GridPlot, LinearAxis, Plot, Range1d
 )
 from bokeh.resources import INLINE
 
@@ -67,26 +67,13 @@ def make_plot(title, xname, yname):
     plot.add_layout(Grid(dimension=1, ticker=yaxis.ticker))
 
     line = Line(x='x', y='y', line_color="#666699", line_width=2)
-    plot.add_layout(
-        Glyph(
-            data_source = lines_source,
-            xdata_range = xdr,
-            ydata_range = ydr,
-            glyph = line,
-        )
-    )
+    plot.add_glyph(lines_source, xdr, ydr, line)
 
     circle = Circle(
-        x=xname, y=yname, size=12, fill_color="#cc6633", line_color="#cc6633", fill_alpha=0.5
+        x=xname, y=yname, size=12,
+        fill_color="#cc6633", line_color="#cc6633", fill_alpha=0.5
     )
-    plot.add_layout(
-        Glyph(
-            data_source = circles_source,
-            xdata_range = xdr,
-            ydata_range = ydr,
-            glyph = circle,
-        )
-    )
+    plot.add_glyph(circles_source, xdr, ydr, circle)
 
     return plot
 

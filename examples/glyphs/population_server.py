@@ -10,7 +10,7 @@ from bokeh.document import Document
 from bokeh.glyphs import Line, Quad
 from bokeh.objects import (
     Plot, ColumnDataSource, DataRange1d, FactorRange,
-    LinearAxis, CategoricalAxis, Grid, Glyph, Legend,
+    LinearAxis, CategoricalAxis, Grid, Legend,
     SingleIntervalTicker
 )
 from bokeh.sampledata.population import load_population
@@ -48,12 +48,10 @@ def pyramid():
     plot.add_layout(Grid(dimension=1, ticker=yaxis.ticker))
 
     male_quad = Quad(left="male", right=0, bottom="groups", top="shifted", fill_color="#3B8686")
-    male_quad_glyph = Glyph(data_source=source_pyramid, xdata_range=xdr, ydata_range=ydr, glyph=male_quad)
-    plot.add_layout(male_quad_glyph)
+    male_quad_glyph = plot.add_glyph(source_pyramid, xdr, ydr, male_quad)
 
     female_quad = Quad(left=0, right="female", bottom="groups", top="shifted", fill_color="#CFF09E")
-    female_quad_glyph = Glyph(data_source=source_pyramid, xdata_range=xdr, ydata_range=ydr, glyph=female_quad)
-    plot.add_layout(female_quad_glyph)
+    female_quad_glyph = plot.add_glyph(source_pyramid, xdr, ydr, female_quad)
 
     plot.add_layout(Legend(legends=dict(Male=[male_quad_glyph], Female=[female_quad_glyph])))
 
@@ -71,12 +69,10 @@ def population():
     plot.add_layout(CategoricalAxis(major_label_orientation=pi/4), 'below')
 
     line_known = Line(x="x", y="y", line_color="violet", line_width=2)
-    line_known_glyph = Glyph(data_source=source_known, xdata_range=xdr, ydata_range=ydr, glyph=line_known)
-    plot.add_layout(line_known_glyph)
+    line_known_glyph = plot.add_glyph(source_known, xdr, ydr, line_known)
 
     line_predicted = Line(x="x", y="y", line_color="violet", line_width=2, line_dash="dashed")
-    line_predicted_glyph = Glyph(data_source=source_predicted, xdata_range=xdr, ydata_range=ydr, glyph=line_predicted)
-    plot.add_layout(line_predicted_glyph)
+    line_predicted_glyph = plot.add_glyph(source_predicted, xdr, ydr, line_predicted)
 
     plot.add_layout(
         Legend(
