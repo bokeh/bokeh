@@ -408,14 +408,21 @@ class Plot(Widget):
             tool.plot = self
             self.tools.append(tool)
 
-    def add_glyph(self, source, x_range, y_range, glyph):
+    def add_glyph(self, source, x_range, y_range, glyph, **kw):
         ''' Adds a glyph to the plot with associated data sources and ranges.
+
+        This function will take care of creating and configurinf a Glyph object,
+        and then add it to the plot's list of renderers.
 
         Args:
             source: (ColumnDataSource) : a data source for the glyphs to all use
             x_range (Range1d) : a range object for the x-dimension
             y_range (Range1d) : a range object for the y-dimension
             glyphs (BaseGlyph) : the glyph to add to the Plot
+
+        Keyword Arguments:
+            Any additional keyword arguments are passed on as-is to the
+            Glyph initializer.
 
         Returns:
             glyph : Glyph
@@ -424,7 +431,7 @@ class Plot(Widget):
         if not isinstance(glyph, BaseGlyph):
             raise ValueError("glyph arguments to add_glyph must be BaseGlyph subclass.")
 
-        g = Glyph(data_source=source, xdata_range=x_range, ydata_range=y_range, glyph=glyph)
+        g = Glyph(data_source=source, xdata_range=x_range, ydata_range=y_range, glyph=glyph, **kw)
         self.renderers.append(g)
         return g
 
