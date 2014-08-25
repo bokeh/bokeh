@@ -12,7 +12,6 @@ _simple_id = 1000
 
 def make_id():
     global _simple_id
-    yes = ['yes', 'YES', 'true', 'True', 1]
     from . import settings
     if settings.simple_ids(False):
         _simple_id += 1
