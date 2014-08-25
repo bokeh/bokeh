@@ -32,15 +32,23 @@ out = groups.apply(outliers).dropna()
 outx = []
 outy = []
 for cat in cats:
-    for value in out[cat]:
-        outx.append(cat)
-        outy.append(value)
+    # only add outliers if they exist
+    if not out.loc[cat].empty:
+        for value in out[cat]:
+            outx.append(cat)
+            outy.append(value)
 
 output_server('boxplot')
 
 figure(tools="previewsave", background_fill="#EFE8E2", title="")
 
 hold()
+
+# If no outliers, shrink lengths of stems to be no longer than the minimums or maximums
+qmin = groups.quantile(q=0.00) 
+qmax = groups.quantile(q=1.00)
+upper.score = [min([x,y]) for (x,y) in zip(list(qmax.iloc[:,0]),upper.score) ]
+lower.score = [max([x,y]) for (x,y) in zip(list(qmin.iloc[:,0]),lower.score) ]
 
 # stems
 segment(cats, upper.score, cats, q3.score, x_range=cats,

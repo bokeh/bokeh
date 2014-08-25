@@ -65,7 +65,7 @@ state_renderer = Glyph(
         glyph = state_patches,
         )
 
-plot = Plot(x_range=xdr, y_range=ydr, data_sources=[state_source, county_source], min_border=0, border_fill="white", title="2009 Unemployment Data", plot_width=1300, plot_height=800)
+plot = Plot(x_range=xdr, y_range=ydr, min_border=0, border_fill="white", title="2009 Unemployment Data", plot_width=1300, plot_height=800)
 
 resizetool = ResizeTool(plot=plot)
 

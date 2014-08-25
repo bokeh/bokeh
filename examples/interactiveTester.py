@@ -19,7 +19,8 @@ DIRECTORIES = {
     'glyphs'  : 'glyphs',
     'mpl'     : 'mpl',
     'pandas'  : 'pandas',
-    'seaborn' : 'seaborn'
+    'seaborn' : 'seaborn',
+    'charts'  : 'charts',
 }
 
 DEFAULT_TEST_FILES = [
@@ -30,7 +31,8 @@ DEFAULT_TEST_FILES = [
     '../plotting/server/glucose.py',
     '../plotting/notebook/candlestick.ipynb',
     '../plotting/notebook/glucose.ipynb',
-    '../seaborn/violin.py'
+    '../seaborn/violin.py',
+    '../charts/boxplot.py',
 ]
 
 
@@ -205,7 +207,7 @@ if __name__ == '__main__':
         if results.location and results.location in DIRECTORIES:
             target = results.location
 
-            if target in ['ggplot', 'pandas', 'seaborn']:
+            if target in ['ggplot', 'pandas', 'seaborn', 'charts']:
                 if not depend_check(target):
                     sys.exit(1)
 

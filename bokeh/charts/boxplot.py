@@ -55,7 +55,7 @@ class BoxPlot(ChartObject):
         if isinstance(self.value, pd.DataFrame):
             self.cat = self.value.columns
         else:
-            self.cat = self.value.keys()
+            self.cat = list(self.value.keys())
 
         self.check_attr()
 

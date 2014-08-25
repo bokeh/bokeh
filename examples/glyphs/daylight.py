@@ -56,7 +56,7 @@ xdr = DataRange1d(sources=[source.columns("dates")])
 ydr = DataRange1d(sources=[source.columns("sunrises", "sunsets")])
 
 title = "Daylight Hours - Warsaw, Poland"
-plot = Plot(title=title, data_sources=[source, patch1_source, patch2_source, text_source], x_range=xdr, y_range=ydr, plot_width=800, plot_height=400)
+plot = Plot(title=title, x_range=xdr, y_range=ydr, plot_width=800, plot_height=400)
 
 patch1 = Patch(x="dates", y="times", fill_color="skyblue", fill_alpha=0.8)
 patch1_glyph = Glyph(data_source=patch1_source, xdata_range=xdr, ydata_range=ydr, glyph=patch1)
