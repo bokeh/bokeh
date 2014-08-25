@@ -13,10 +13,9 @@ from bokeh.objects import ColumnDataSource, Range1d, Plot, Glyph
 xdr = Range1d(start=-1.25, end=1.25)
 ydr = Range1d(start=-1.25, end=1.25)
 
-plot = Plot(title="Speedometer", data_sources=[], x_range=xdr, y_range=ydr, plot_width=600, plot_height=600)
+plot = Plot(title="Speedometer", x_range=xdr, y_range=ydr, plot_width=600, plot_height=600)
 
 global_source = ColumnDataSource(dict(dummy=[0]))
-plot.data_sources.append(global_source)
 
 def add_glyph(glyph, source=global_source):
     plot.add_layout(Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=glyph))
@@ -86,7 +85,6 @@ def add_gauge(radius, max_value, length, direction, color, major_step, minor_ste
     x, y = zip(*[ polar_to_cartesian(radius, angle) for angle in major_angles ])
     angles = [ angle + rotation for angle in major_angles ]
     source = ColumnDataSource(dict(x=x, y=y, angle=angles))
-    plot.data_sources.append(source)
 
     glyph = Ray(x="x", y="y", length=length, angle="angle", line_color=color, line_width=2)
     add_glyph(glyph, source)
@@ -94,7 +92,6 @@ def add_gauge(radius, max_value, length, direction, color, major_step, minor_ste
     x, y = zip(*[ polar_to_cartesian(radius, angle) for angle in minor_angles ])
     angles = [ angle + rotation for angle in minor_angles ]
     source = ColumnDataSource(dict(x=x, y=y, angle=angles))
-    plot.data_sources.append(source)
 
     glyph = Ray(x="x", y="y", length=length/2, angle="angle", line_color=color, line_width=1)
     add_glyph(glyph, source)
@@ -102,7 +99,6 @@ def add_gauge(radius, max_value, length, direction, color, major_step, minor_ste
     x, y = zip(*[ polar_to_cartesian(radius+2*length*direction, angle) for angle in major_angles ])
     text_angles = [ angle - pi/2 for angle in major_angles ]
     source = ColumnDataSource(dict(x=x, y=y, angle=text_angles, text=major_labels))
-    plot.data_sources.append(source)
 
     glyph = Text(x="x", y="y", angle="angle", text="text", text_align="center", text_baseline="middle")
     add_glyph(glyph, source)

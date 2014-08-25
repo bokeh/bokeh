@@ -319,7 +319,6 @@ define [
     defaults: () ->
       return {
         button_bar: true
-        data_sources: {},
         renderers: [],
         tools: [],
         h_symmetry: true,

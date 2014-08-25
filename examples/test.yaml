@@ -3,6 +3,7 @@
 - path: "ggplot"
 - path: "seaborn"
 - path: "pandas"
+- path: "charts"
 - path: "plotting/file"
   type: file
   skip: ["image.py", "image_rgba.py"]

@@ -162,7 +162,7 @@ source = ColumnDataSource(dict(
 xdr = FactorRange(factors=list(css3_colors.Group.unique()))
 ydr = FactorRange(factors=list(reversed(css3_colors.Name)))
 
-plot = Plot(title="CSS3 Color Names", data_sources=[source], x_range=xdr, y_range=ydr, plot_width=600, plot_height=2000)
+plot = Plot(title="CSS3 Color Names", x_range=xdr, y_range=ydr, plot_width=600, plot_height=2000)
 
 rect = Rect(x="groups", y="names", width=1, height=1, fill_color="colors", line_color=None)
 plot.add_layout(Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=rect))
