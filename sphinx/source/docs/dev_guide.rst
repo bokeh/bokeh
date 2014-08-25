@@ -154,7 +154,6 @@ With either mode, you will be prompted for how to install BokehJS, e.g.::
 
     1) build and install fresh BokehJS
     2) install last built BokehJS
-    3) do not install BokehJS
 
     Choice?
 
@@ -163,7 +162,6 @@ to ``setup.py``:
 
 * ``--build_js``
 * ``--install_js``
-* ``--no_js``
 
 If you have any problems with the steps here, please contact the developers
 (see :ref:`contact`).

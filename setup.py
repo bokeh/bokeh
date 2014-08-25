@@ -247,18 +247,13 @@ build process. How would you like to handle BokehJS:
 
 1) build and install fresh BokehJS
 2) install last built BokehJS
-3) do not install BokehJS
 """)
-    value = int(input("Choice? "))
-    while value not in [1,2,3]:
-        print("Input '%s' not understood. Valid choices: 1, 2, 3\n")
-        value = int(intput("Choice? "))
-    if value == 1:
-        return (True, True)
-    elif value == 2:
-        return (False, True)
-    else:
-        return (False, False)
+    mapping = {"1": True, "2": False}
+    value = input("Choice? ")
+    while value not in mapping:
+        print("Input '%s' not understood. Valid choices: 1, 2\n" % value)
+        value = input("Choice? ")
+    return mapping[value]
 
 def parse_jsargs():
     installing = 'install' in sys.argv or 'develop' in sys.argv
@@ -268,29 +263,22 @@ def parse_jsargs():
             print("Error: Option '--build_js' only valid with 'install' or 'develop', exiting.")
             sys.exit(1)
         jsbuild = True
-        jsinstall = True
         sys.argv.remove('--build_js')
+
     elif '--install_js' in sys.argv:
         if not installing:
             print("Error: Option '--install_js' only valid with 'install' or 'develop', exiting.")
             sys.exit(1)
         jsbuild = False
-        jsinstall = True
         sys.argv.remove('--install_js')
-    elif '--no_js' in sys.argv:
-        if not installing:
-            print("Error: Option '--no_js' only valid with 'install' or 'develop', exiting.")
-            sys.exit(1)
-        jsbuild = False
-        jsinstall = False
-        sys.argv.remove('--no_js')
-    else:
-        if not installing:
-            jsbuild, jsinstall = (False, False)
-        else:
-            jsbuild, jsinstall = get_user_jsargs()
 
-    return jsbuild, jsinstall
+    else:
+        if installing:
+            jsbuild = get_user_jsargs()
+        else:
+            jsbuild = False
+
+    return jsbuild
 
 #-----------------------------------------------------------------------------
 # Main script
@@ -301,11 +289,12 @@ def parse_jsargs():
 if sys.version_info[:2] < (2, 6):
     raise RuntimeError("Bokeh requires python >= 2.6")
 
-jsbuild, jsinstall = parse_jsargs()
+jsbuild = parse_jsargs()
 
-if jsbuild: build_js()
+if jsbuild:
+    build_js()
 
-if jsinstall: install_js()
+install_js()
 
 sampledata_suffixes = ('.csv', '.conf', '.gz', '.json', '.png')
 
@@ -332,6 +321,7 @@ if 'develop' in sys.argv:
         f.write(path)
     print("Installing Bokeh for development:")
     print("  - writing path '%s' to %s" % (path, path_file))
+    print("  - using %s built bokehjs from bokehjs/build\n" % ("NEWLY" if jsbuild else "PREVIOUSLY"))
     sys.exit()
 
 elif 'clean' in sys.argv:
@@ -342,8 +332,6 @@ elif 'install' in sys.argv:
     print("Installing Bokeh:")
     if pth_removed:
         print("  - removed path file at %s" % path_file)
-
-if jsinstall:
     print("  - using %s built bokehjs from bokehjs/build\n" % ("NEWLY" if jsbuild else "PREVIOUSLY"))
 
 print()
@@ -427,8 +415,8 @@ setup(
     author_email='info@continuum.io',
     url='http://github.com/ContinuumIO/Bokeh',
     description='Statistical and novel interactive HTML plots for Python',
-    zip_safe=False,
     license='New BSD',
     scripts=scripts,
+    zip_safe=False,
     install_requires=REQUIRES,
 )
