@@ -156,20 +156,7 @@ __version__ = get_version_from_git()
 write("%s Bokeh version: %s" % (green(">>>"), __version__))
 
 if args.diff:
-    cmd = ["git", "describe", "--tags", "--always", args.diff]
-
-    try:
-        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-        code = proc.wait()
-    except OSError:
-        write("Failed to run: %s" % " ".join(cmd))
-        sys.exit(1)
-
-    if code != 0:
-        write("Failed to process --diff=%s" % args.diff)
-        sys.exit(1)
-
-    args.diff = proc.stdout.read().decode('utf-8').strip()
+    args.diff = get_version_from_git(args.diff)
     write("%s Reference version: %s" % (green(">>>"), args.diff))
 
 if args.upload and not py2:
