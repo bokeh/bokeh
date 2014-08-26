@@ -126,7 +126,6 @@ define (require, exports, module) ->
   Bokeh.ClickTool              = require("tool/click_tool")
   Bokeh.CrosshairTool          = require("tool/crosshair_tool")
   Bokeh.DataRangeBoxSelectTool = require("tool/data_range_box_select_tool")
-  Bokeh.EmbedTool              = require("tool/embed_tool")
   Bokeh.HoverTool              = require("tool/hover_tool")
   Bokeh.PanTool                = require("tool/pan_tool")
   Bokeh.PreviewSaveTool        = require("tool/preview_save_tool")

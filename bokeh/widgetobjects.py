@@ -7,7 +7,7 @@ from .plot_object import PlotObject
 from bokeh.plotting import (curdoc, cursession, line,
                             scatter)
 from .properties import (HasProps, Dict, Enum, Either, Float, Instance, Int, List,
-    String, Color, Include, Bool, Tuple, Any, Date, RelativeDelta, lookup_descriptor)
+    String, Color, Bool, Tuple, Any, Date, RelativeDelta, lookup_descriptor)
 from .pivot_table import pivot_table
 import copy
 import logging
