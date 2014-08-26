@@ -61,7 +61,7 @@ def callbackskey(typename, docid, modelid):
 def parse_modelkey(key):
     _, typename, docid, modelid = decode_utf8(key).split(":")
     return typename, docid, modelid
-    
+
 def prune(document, delete=False):
     all_models = docs.prune_and_get_valid_models(document, delete=delete)
     to_keep = set([x._id for x in all_models])
@@ -72,7 +72,7 @@ def prune(document, delete=False):
 class PersistentBackboneStorage(object):
     """Base class for `RedisBackboneStorage`, `InMemoryBackboneStorage`, etc. """
 
-        
+
     def pull(self, docid, typename=None, objid=None):
         """you need to call this with either typename AND objid
         or leave out both.  leaving them out means retrieve all
@@ -86,26 +86,26 @@ class PersistentBackboneStorage(object):
             attr = protocol.deserialize_json(decode_utf8(attr))
             data.append({'type': typename, 'attributes': attr})
         return data
-        
+
     def get_document(self, docid):
         json_objs = self.pull(docid)
         doc = Document(json_objs)
         doc.docid = docid
         return doc
-        
+
     def store_objects(self, docid, *objs, **kwargs):
         dirty_only = kwargs.pop('dirty_only', True)
         models = set()
         for obj in objs:
             models.add(obj.references())
         if dirty_only:
-            models = list(models)            
+            models = list(models)
         json_objs = utils.dump(models, docid)
         self.push(doc.docid, *json_objs)
         for mod in models:
             mod._dirty = False
         return models
-        
+
     def store_document(self, doc, dirty_only=True):
         """store all dirty models
         """
@@ -117,10 +117,10 @@ class PersistentBackboneStorage(object):
         for mod in models:
             mod._dirty = False
         return models
-        
+
     def push(self, docid, *jsonobjs):
-        keys = [modelkey(attr['type'], 
-                              docid, 
+        keys = [modelkey(attr['type'],
+                              docid,
                               attr['attributes']['id']) for attr in jsonobjs]
         for attr in jsonobjs:
             attr['attributes']['doc'] = docid
@@ -134,7 +134,7 @@ class PersistentBackboneStorage(object):
         mkey = modelkey(m.__view_model__, docid, m._id)
         self.srem(dockey(docid), mkey)
         self.delete(mkey)
-    
+
     """unused for now """
     def load_all_callbacks(self, get_json=False):
         """get_json = return json of callbacks, rather than
