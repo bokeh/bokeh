@@ -247,7 +247,6 @@ class Chart(object):
 
     def start_plot(self):
         self.plot = Plot(title=self.title,
-                         data_sources=[self.source],
                          x_range=self.xdr,
                          y_range=self.ydr,
                          plot_width=self.plot_width,

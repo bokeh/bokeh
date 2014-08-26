@@ -26,8 +26,8 @@ requirements:
     - flask
     - werkzeug
     - greenlet
-    - redis
-    - redis-py
+    - redis                [linux or osx]
+    - redis-py             [linux or osx]
     - gevent               [py2k]
     - gevent-websocket     [py2k]
     - abstract-rendering   [py2k]
@@ -50,7 +50,7 @@ test:
     - nose
     - mock
     - coverage
-    - websocket
+    - websocket-client
     - ipython
     - ipython-notebook
 

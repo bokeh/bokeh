@@ -55,7 +55,7 @@ class SpectrogramApp
   request_data: () ->
     if @paused
       return
-    $.ajax 'http://localhost:5000/data',
+    $.ajax '/data',
     type: 'GET'
     dataType: 'json'
     error: (jqXHR, textStatus, errorThrown) =>
@@ -209,8 +209,8 @@ class SpectrogramPlot
       dims: [options.width, options.height]
       xrange: [0, NGRAMS]
       yrange: [0, MAX_FREQ]
-      xaxes: "min"
-      yaxes: "min"
+      xaxes: "below"
+      yaxes: "left"
       xgrid: false
       ygrid: false
       tools: false
@@ -348,8 +348,8 @@ class SimpleIndexPlot
       dims: [options.width, options.height]
       xrange: [options.x0, options.x1]
       yrange: [options.y0, options.y1]
-      xaxes: "min"
-      yaxes: "min"
+      xaxes: "below"
+      yaxes: "left"
       xgrid: false
       tools: false
     }

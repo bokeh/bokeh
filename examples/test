@@ -27,12 +27,7 @@ colorama.init()
 
 from conda.utils import human_bytes
 
-try:
-    import gevent
-except ImportError:
-    use_server = False
-else:
-    use_server = True
+use_server = True
 
 try:
     import IPython
