@@ -1132,5 +1132,59 @@ class TestWedge(unittest.TestCase):
         })
         self.assertEqual(self.test_wedge.to_glyphspec(), expected)
 
+class TestGear(unittest.TestCase):
+
+    def setUp(self):
+        from bokeh.glyphs import Gear
+        self.test_gear = Gear()
+
+    def test_expected_properties(self):
+        expected_properties = set(['x', 'y', 'angle', 'module', 'teeth', 'pressure_angle', 'shaft_size', 'internal'])
+        actual_properties = get_prop_set(type(self.test_gear))
+        self.assertTrue(expected_properties.issubset(actual_properties))
+
+    def test_expected_values(self):
+        self.assertEqual(self.test_gear.x, 'x')
+        self.assertEqual(self.test_gear.y, 'y')
+        self.assertEqual(self.test_gear.angle, {'default': 0, 'field': None})
+        self.assertEqual(self.test_gear.module, 'module')
+        self.assertEqual(self.test_gear.teeth, 'teeth')
+        self.assertEqual(self.test_gear.pressure_angle, {'default': 20, 'field': None})
+        self.assertEqual(self.test_gear.shaft_size, {'default': 0.3, 'field': None})
+        self.assertEqual(self.test_gear.internal,  {'default': False, 'field': None})
+        self.assertEqual(self.test_gear.__view_model__, 'gear')
+
+    def test_to_glyphspec(self):
+        expected = dict(GENERIC_GLYPH_DICT)
+        expected['type'] = 'gear'
+        expected.update({
+            'angle':            {'units': 'data', 'field': None, 'default': 0},
+            'module':           {'units': 'data', 'field': 'module'},
+            'teeth':            {'units': 'data', 'field': 'teeth'},
+            'pressure_angle':   {'units': 'data', 'field': None, 'default': 20},
+            'shaft_size':       {'units': 'data', 'field': None, 'default': 0.3},
+            'internal':         {'units': 'data', 'field': None, 'default': False}
+        })
+        self.assertEqual(self.test_gear.to_glyphspec(), expected)
+        self.test_gear.x = 50
+        self.test_gear.y = 51
+        self.test_gear.angle = 52
+        self.test_gear.module = 53
+        self.test_gear.teeth = 54
+        self.test_gear.pressure_angle = 55
+        self.test_gear.shaft_size = 56
+        self.test_gear.internal = True
+        expected.update({
+            'x':                {'units': 'data', 'value': 50},
+            'y':                {'units': 'data', 'value': 51},
+            'angle':            {'units': 'data', 'value': 52},
+            'module':           {'units': 'data', 'value': 53},
+            'teeth':            {'units': 'data', 'value': 54},
+            'pressure_angle':   {'units': 'data', 'value': 55},
+            'shaft_size':       {'units': 'data', 'value': 56},
+            'internal':         {'units': 'data', 'value': True}
+        })
+        self.assertEqual(self.test_gear.to_glyphspec(), expected)
+
 if __name__ == "__main__":
     unittest.main()

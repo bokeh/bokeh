@@ -52,7 +52,7 @@ figure()
 
 rect('xname', 'yname', 0.9, 0.9, source=source,
      x_range=list(reversed(names)), y_range=names,
-     x_axis_location="top",
+     x_axis_location="above",
      color='colors', alpha='alphas', line_color=None,
      tools="resize,hover,previewsave", title="Les Mis Occurrences (one at a time)",
      plot_width=800, plot_height=800)

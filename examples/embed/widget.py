@@ -34,11 +34,13 @@ class Population(object):
 
         self.plot = Plot(title=None, x_range=xdr, y_range=ydr, plot_width=600, plot_height=600)
 
-        xaxis = LinearAxis(plot=self.plot, dimension=0)
-        yaxis = LinearAxis(plot=self.plot, dimension=1, ticker=SingleIntervalTicker(interval=5))
+        xaxis = LinearAxis(plot=self.plot)
+        self.plot.below.append(xaxis)
+        yaxis = LinearAxis(plot=self.plot, ticker=SingleIntervalTicker(interval=5))
+        self.plot.left.append(yaxis)
 
-        xgrid = Grid(plot=self.plot, dimension=0, axis=xaxis)
-        ygrid = Grid(plot=self.plot, dimension=1, axis=yaxis)
+        xgrid = Grid(plot=self.plot, dimension=0, ticker=xaxis.ticker)
+        ygrid = Grid(plot=self.plot, dimension=1, ticker=yaxis.ticker)
 
         male_quad = Quad(left="male", right=0, bottom="groups", top="shifted", fill_color="blue")
         male_quad_glyph = Glyph(data_source=self.source_pyramid,
