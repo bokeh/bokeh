@@ -17,7 +17,7 @@ from ..plotting import (curdoc, cursession, line,
                             scatter)
 from ..plot_object import PlotObject
 from ..properties import (HasProps, Dict, Enum, Either, Float, Instance, Int, List,
-    String, Color, Include, Bool, Tuple, Any, Date, RelativeDelta, lookup_descriptor)
+    String, Color, Bool, Tuple, Any, Date, RelativeDelta, lookup_descriptor)
 
 logger = logging.getLogger(__name__)
 
