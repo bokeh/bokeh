@@ -137,7 +137,7 @@ def get_version_from_git(ref=None):
     cmd = ["git", "describe", "--tags", "--always"]
 
     if ref is not None:
-        cmd += ref
+        cmd.append(ref)
 
     try:
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
