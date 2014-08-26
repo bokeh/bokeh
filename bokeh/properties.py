@@ -94,14 +94,6 @@ class Property(object):
     def has_ref(self):
         return False
 
-class Include(Property):
-
-    def __init__(self, delegate, prefix=None):
-        self._delegate = delegate
-        self._prefix = prefix
-        super(Include, self).__init__()
-
-
 class DataSpec(Property):
     """ Because the BokehJS glyphs support a fixed value or a named
     field for most data fields, we capture that in this descriptor.
@@ -426,6 +418,13 @@ class ColorSpec(DataSpec):
     def __repr__(self):
         return "ColorSpec(field=%r, default=%r)" % (self.field, self.default)
 
+class Include(object):
+
+    def __init__(self, delegate):
+        if not (isinstance(delegate, type) and issubclass(delegate, HasProps)):
+            raise ValueError("expected a subclass of HasProps, got %r" % delegate)
+
+        self.delegate = delegate
 
 class MetaHasProps(type):
     def __new__(cls, class_name, bases, class_dict):
@@ -440,14 +439,9 @@ class MetaHasProps(type):
             if not isinstance(prop, Include):
                 continue
 
-            delegate = prop._delegate
-            if not (isinstance(delegate,type) and issubclass(delegate,HasProps)):
-                continue
+            delegate = prop.delegate
+            prefix = re.sub("_props$", "", name) + "_"
 
-            if prop._prefix is None:
-                prefix = name + "_"
-            else:
-                prefix = prop._prefix + "_"
             for subpropname in delegate.class_properties(withbases=False):
                 fullpropname = prefix + subpropname
                 subprop = lookup_descriptor(delegate, subpropname)
