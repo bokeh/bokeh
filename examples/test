@@ -181,14 +181,14 @@ if args.upload:
     try:
         boto.connect_s3()
     except NoAuthHandlerFound:
-        write("Upload (--upload) was requested but could not connect to S3.")
-        write("Fix your credentials or permissions and re-run tests.")
-        sys.exit(1)
+        warn("Upload (--upload) was requested but could not connect to S3.")
+        warn("Fix your credentials or permissions and re-run tests.")
+        args.upload = False
 
-    if __version__.endswith("-dirty"):
-        write("Can't upload reference images when working directory is dirty.")
-        write("Make sure that __version__ doesn't contain -dirty suffix.")
-        sys.exit(1)
+if args.upload and __version__.endswith("-dirty"):
+    write("Can't upload reference images when working directory is dirty.")
+    write("Make sure that __version__ doesn't contain -dirty suffix.")
+    sys.exit(1)
 
 def is_selected(example):
     if not args.patterns:
