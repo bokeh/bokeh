@@ -1,8 +1,5 @@
 import colorsys
 
-from .types import sig
-from .properties import Byte, String, Percent
-
 class Color(object):
 
     def copy(self):
@@ -26,13 +23,11 @@ class Color(object):
     def fromHSL(self, value):
         raise NotImplementedError
 
-    @sig(amount=Percent)
     def lighten(self, amount):
         hsl = self.toHSL()
         hsl.l = self.clamp(hsl.l + amount)
         return self.fromHSL(hsl)
 
-    @sig(amount=Percent)
     def darken(self, amount):
         hsl = self.toHSL()
         hsl.l = self.clamp(hsl.l - amount)
@@ -49,7 +44,6 @@ class Color(object):
 
 class RGB(Color):
 
-    @sig(r=Byte, g=Byte, b=Byte, a=Percent)
     def __init__(self, r, g, b, a=1.0):
         self.r = r
         self.g = g
@@ -83,7 +77,6 @@ class RGB(Color):
 
 class HSL(Color):
 
-    @sig(h=Byte, s=Percent, l=Percent, a=Percent)
     def __init__(self, h, s, l, a=1.0):
         self.h = h
         self.s = s
@@ -114,7 +107,6 @@ class HSL(Color):
 
 class NamedColor(RGB):
 
-    @sig(name=String, r=Byte, g=Byte, b=Byte)
     def __init__(self, name, r, g, b):
         self.name = name
         super(NamedColor, self).__init__(r, g, b)
