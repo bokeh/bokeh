@@ -245,7 +245,7 @@ class Document(object):
         for attr in attrs:
             typename = attr['type']
             attr = attr['attributes']
-            logger.debug('type: %s', typename)
+            #logger.debug('type: %s', typename)
             #logger.debug('attrs: %s', attr)
             _id = attr['id']
             if _id in self._models:
@@ -379,4 +379,3 @@ def merge(basedocument, document):
     for k, v in document._models.items():
         basedocument._models[k] = v
     del basedocument._models[document._plotcontext._id]
-
