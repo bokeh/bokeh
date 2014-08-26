@@ -2,6 +2,7 @@
 from . import glyphs
 
 from six import iteritems
+import warnings
 
 def _glyph_function(glyphclass, argnames, docstring, xfields=["x"], yfields=["y"]):
 
@@ -67,6 +68,9 @@ def _glyph_function(glyphclass, argnames, docstring, xfields=["x"], yfields=["y"
         glyph_kwargs = dict((key, value) for (key, value) in iteritems(kwargs) if key in glyph_props)
 
         glyph = glyphclass(**glyph_kwargs)
+        _unutlized_kwargs = set(kwargs) - set(glyph_kwargs)
+        if _unutlized_kwargs:
+            raise AttributeError("Keyword arguments not utlized: %s"%", ".join(sorted(_unutlized_kwargs)))
 
         nonselection_glyph_params = _materialize_colors_and_alpha(kwargs, prefix='nonselection_', default_alpha=0.1)
         nonselection_glyph = glyph.clone()
