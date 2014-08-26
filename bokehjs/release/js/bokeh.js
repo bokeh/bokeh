@@ -16601,12 +16601,12 @@ define('common/plot_template',[],function(){
         }
         prop = glyph_props[attrname];
         if ((prop.field != null) && (prop.field in datasource.get('data'))) {
-          return datasource.getcolumn(prop.field);
+          return datasource.get_column(prop.field);
         } else {
           if (glyph_props[attrname].value != null) {
             default_value = glyph_props[attrname].value;
           } else if (attrname in datasource.get('data')) {
-            return datasource.getcolumn(attrname);
+            return datasource.get_column(attrname);
           } else if (glyph_props[attrname]["default"] != null) {
             default_value = glyph_props[attrname]["default"];
           }
@@ -17523,7 +17523,6 @@ define('common/plot_template',[],function(){
       Plot.prototype.defaults = function() {
         return {
           button_bar: true,
-          data_sources: {},
           renderers: [],
           tools: [],
           h_symmetry: true,
@@ -18588,7 +18587,7 @@ define('common/plot_template',[],function(){
           _results = [];
           for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
             x = _ref1[_i];
-            _results.push(this.get('data_source').getcolumn(x));
+            _results.push(this.get('data_source').get_column(x));
           }
           return _results;
         }).call(this);
@@ -18676,7 +18675,7 @@ define('common/plot_template',[],function(){
           _ref2 = source['columns'];
           for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
             colname = _ref2[_j];
-            columns.push(sourceobj.getcolumn(colname));
+            columns.push(sourceobj.get_column(colname));
           }
         }
         columns = _.flatten(columns);
@@ -24274,7 +24273,7 @@ return { create_gear_tooth: createGearTooth, create_internal_gear_tooth: createI
         return _ref;
       }
 
-      RectView.prototype._fields = ['x', 'y', 'width', 'height', 'angle'];
+      RectView.prototype._fields = ['x', 'y', 'width', 'height', 'angle', 'x_offset', 'y_offset'];
 
       RectView.prototype._properties = ['line', 'fill'];
 
@@ -24345,7 +24344,7 @@ return { create_gear_tooth: createGearTooth, create_internal_gear_tooth: createI
               ctx.rotate(-this.angle[i]);
               ctx.translate(-sx[i], -sy[i]);
             } else {
-              ctx.fillRect(sx[i] - sw[i] / 2, sy[i] - sh[i] / 2, sw[i], sh[i]);
+              ctx.fillRect((sx[i] - sw[i] / 2) + this.x_offset[i], (sy[i] - sh[i] / 2) + this.y_offset[i], sw[i], sh[i]);
             }
           }
         }
@@ -28913,19 +28912,7 @@ return root.sprintf = sprintf;
 
       ColumnDataSource.prototype.type = 'ColumnDataSource';
 
-      ColumnDataSource.prototype.initialize = function(attrs, options) {
-        ColumnDataSource.__super__.initialize.call(this, attrs, options);
-        this.cont_ranges = {};
-        return this.discrete_ranges = {};
-      };
-
-      ColumnDataSource.prototype.getcolumn = function(colname) {
-        var _ref1;
-        return (_ref1 = this.get('data')[colname]) != null ? _ref1 : null;
-      };
-
-      ColumnDataSource.prototype.getcolumn_with_default = function(colname, default_value) {
-        " returns the column, with any undefineds replaced with default";
+      ColumnDataSource.prototype.get_column = function(colname) {
         var _ref1;
         return (_ref1 = this.get('data')[colname]) != null ? _ref1 : null;
       };
@@ -28933,6 +28920,9 @@ return root.sprintf = sprintf;
       ColumnDataSource.prototype.get_length = function() {
         var data;
         data = this.get('data');
+        if (_.keys(data).length === 0) {
+          return 0;
+        }
         return data[_.keys(data)[0]].length;
       };
 
@@ -28944,6 +28934,9 @@ return root.sprintf = sprintf;
         var data, field, fields, i, point, points, _i, _j, _len, _ref1;
         data = this.get('data');
         fields = _.keys(data);
+        if (fields.length === 0) {
+          return [];
+        }
         points = [];
         for (i = _i = 0, _ref1 = data[fields[0]].length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
           point = {};
@@ -28957,7 +28950,9 @@ return root.sprintf = sprintf;
       };
 
       ColumnDataSource.prototype.defaults = function() {
-        return ColumnDataSource.__super__.defaults.call(this);
+        return {
+          data: {}
+        };
       };
 
       return ColumnDataSource;
@@ -31100,7 +31095,7 @@ define('tool/embed_tool_template',[],function(){
               td = $("<td class='bokeh_tooltip_row_value'></td>");
               if (value.indexOf("$color") >= 0) {
                 _ref4 = value.match(/\$color(\[.*\])?:(\w*)/), match = _ref4[0], opts = _ref4[1], colname = _ref4[2];
-                column = ds.getcolumn(colname);
+                column = ds.get_column(colname);
                 if (column == null) {
                   span = $("<span>" + colname + " unknown</span>");
                   td.append(span);
@@ -31136,12 +31131,12 @@ define('tool/embed_tool_template',[],function(){
                 value = value.replace("$sy", "" + e.bokehY);
                 while (value.indexOf("@") >= 0) {
                   _ref5 = value.match(/(@)(\w*)/), match = _ref5[0], unused = _ref5[1], column_name = _ref5[2];
-                  column = ds.getcolumn(column_name);
+                  column = ds.get_column(column_name);
                   if (column == null) {
                     value = value.replace(column_name, "" + column_name + " unknown");
                     break;
                   }
-                  column = ds.getcolumn(column_name);
+                  column = ds.get_column(column_name);
                   dsvalue = column[i];
                   if (typeof dsvalue === "number") {
                     value = value.replace(match, "" + (_format_number(dsvalue)));
@@ -38415,7 +38410,7 @@ define('tool/object_explorer_tool_template',[],function(){
         this.$el.append("<div class='slider'></div>");
         this.$el.append("<div class='minlabel'></div>");
         this.plot_view.$(".plotarea").append(this.$el);
-        column = this.mget('data_source').getcolumn(this.mget('field'));
+        column = this.mget('data_source').get_column(this.mget('field'));
         _ref1 = [_.min(column), _.max(column)], min = _ref1[0], max = _ref1[1];
         this.$el.find(".slider").slider({
           orientation: "vertical",
@@ -38455,7 +38450,7 @@ define('tool/object_explorer_tool_template',[],function(){
         for (colname in _ref1) {
           if (!__hasProp.call(_ref1, colname)) continue;
           value = _ref1[colname];
-          columns[colname] = data_source.getcolumn(colname);
+          columns[colname] = data_source.get_column(colname);
           numrows = columns[colname].length;
         }
         selected = [];
@@ -58460,7 +58455,7 @@ define('widget/textinputtemplate',[],function(){
 
       VBoxFormView.prototype.render = function() {
         var child, children, key, val, _i, _len, _ref1, _results;
-        children = this.mget_obj('children');
+        children = this.mget('children');
         build_views(this.views, children);
         _ref1 = this.views;
         for (key in _ref1) {
@@ -58818,7 +58813,11 @@ define('widget/slidertemplate',[],function(){
     
       _print(this.title);
     
-      _print(_safe(' </label>\n<div class="bk-slider-'));
+      _print(_safe(': </label>\n<input type="text" id="'));
+    
+      _print(this.id);
+    
+      _print(_safe('" readonly style="border:0; color:#f6931f; font-weight:bold;">\n<div class="bk-slider-'));
     
       _print(this.orientation);
     
@@ -59536,7 +59535,7 @@ $.widget( "ui.slider", $.ui.mouse, {
         min = this.mget('start');
         step = this.mget('step') || ((max - min) / 50);
         console.log('sliderval', min, max, step);
-        return this.$('.slider').slider({
+        this.$('.slider').slider({
           orientation: this.mget('orientation'),
           animate: "fast",
           slide: _.throttle(this.slide, 200),
@@ -59545,12 +59544,14 @@ $.widget( "ui.slider", $.ui.mouse, {
           max: max,
           step: step
         });
+        return this.$("#" + (this.mget('id'))).val(this.$('.slider').slider('value'));
       };
 
       SliderView.prototype.slide = function(event, ui) {
         var value;
         value = ui.value;
         console.log('sliding', value);
+        this.$("#" + (this.mget('id'))).val(ui.value);
         this.mset('value', value);
         return this.model.save();
       };
@@ -64855,6 +64856,80 @@ define('widget/dialog_template',[],function(){
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
+  define('transforms/autoencode',["common/continuum_view", "backbone", "common/has_parent"], function(continuum_view, Backbone, HasParent) {
+    var AutoEncode, AutoEncodeView, AutoEncodes, _ref, _ref1, _ref2;
+    AutoEncodeView = (function(_super) {
+      __extends(AutoEncodeView, _super);
+
+      function AutoEncodeView() {
+        _ref = AutoEncodeView.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      AutoEncodeView.prototype.attributes = {
+        "class": "AutoEncodeView"
+      };
+
+      AutoEncodeView.prototype.initialize = function(options) {
+        AutoEncodeView.__super__.initialize.call(this, options);
+        return this.render_init();
+      };
+
+      AutoEncodeView.prototype.delegateEvents = function(events) {
+        AutoEncodeView.__super__.delegateEvents.call(this, events);
+        return "pass";
+      };
+
+      AutoEncodeView.prototype.render_init = function() {
+        return this.$el.html("");
+      };
+
+      return AutoEncodeView;
+
+    })(continuum_view.View);
+    AutoEncode = (function(_super) {
+      __extends(AutoEncode, _super);
+
+      function AutoEncode() {
+        _ref1 = AutoEncode.__super__.constructor.apply(this, arguments);
+        return _ref1;
+      }
+
+      AutoEncode.prototype.type = "AutoEncode";
+
+      AutoEncode.prototype.default_view = AutoEncodeView;
+
+      return AutoEncode;
+
+    })(HasParent);
+    AutoEncodes = (function(_super) {
+      __extends(AutoEncodes, _super);
+
+      function AutoEncodes() {
+        _ref2 = AutoEncodes.__super__.constructor.apply(this, arguments);
+        return _ref2;
+      }
+
+      AutoEncodes.prototype.model = AutoEncode;
+
+      return AutoEncodes;
+
+    })(Backbone.Collection);
+    return {
+      "Model": AutoEncode,
+      "Collection": new AutoEncodes()
+    };
+  });
+
+}).call(this);
+
+/*
+//@ sourceMappingURL=autoencode.js.map
+*/;
+(function() {
+  var __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
   define('transforms/binarysegment',["common/continuum_view", "backbone", "common/has_parent"], function(continuum_view, Backbone, HasParent) {
     var BinarySegment, BinarySegmentView, BinarySegments, _ref, _ref1, _ref2;
     BinarySegmentView = (function(_super) {
@@ -65151,6 +65226,154 @@ define('widget/dialog_template',[],function(){
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
+  define('transforms/countcategories',["common/continuum_view", "backbone", "common/has_parent"], function(continuum_view, Backbone, HasParent) {
+    var CountCategories, CountCategoriesView, CountCategoriess, _ref, _ref1, _ref2;
+    CountCategoriesView = (function(_super) {
+      __extends(CountCategoriesView, _super);
+
+      function CountCategoriesView() {
+        _ref = CountCategoriesView.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      CountCategoriesView.prototype.attributes = {
+        "class": "CountCategoriesView"
+      };
+
+      CountCategoriesView.prototype.initialize = function(options) {
+        CountCategoriesView.__super__.initialize.call(this, options);
+        return this.render_init();
+      };
+
+      CountCategoriesView.prototype.delegateEvents = function(events) {
+        CountCategoriesView.__super__.delegateEvents.call(this, events);
+        return "pass";
+      };
+
+      CountCategoriesView.prototype.render_init = function() {
+        return this.$el.html("");
+      };
+
+      return CountCategoriesView;
+
+    })(continuum_view.View);
+    CountCategories = (function(_super) {
+      __extends(CountCategories, _super);
+
+      function CountCategories() {
+        _ref1 = CountCategories.__super__.constructor.apply(this, arguments);
+        return _ref1;
+      }
+
+      CountCategories.prototype.type = "CountCategories";
+
+      CountCategories.prototype.default_view = CountCategoriesView;
+
+      return CountCategories;
+
+    })(HasParent);
+    CountCategoriess = (function(_super) {
+      __extends(CountCategoriess, _super);
+
+      function CountCategoriess() {
+        _ref2 = CountCategoriess.__super__.constructor.apply(this, arguments);
+        return _ref2;
+      }
+
+      CountCategoriess.prototype.model = CountCategories;
+
+      return CountCategoriess;
+
+    })(Backbone.Collection);
+    return {
+      "Model": CountCategories,
+      "Collection": new CountCategoriess()
+    };
+  });
+
+}).call(this);
+
+/*
+//@ sourceMappingURL=countcategories.js.map
+*/;
+(function() {
+  var __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  define('transforms/encode',["common/continuum_view", "backbone", "common/has_parent"], function(continuum_view, Backbone, HasParent) {
+    var Encode, EncodeView, Encodes, _ref, _ref1, _ref2;
+    EncodeView = (function(_super) {
+      __extends(EncodeView, _super);
+
+      function EncodeView() {
+        _ref = EncodeView.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      EncodeView.prototype.attributes = {
+        "class": "EncodeView"
+      };
+
+      EncodeView.prototype.initialize = function(options) {
+        EncodeView.__super__.initialize.call(this, options);
+        return this.render_init();
+      };
+
+      EncodeView.prototype.delegateEvents = function(events) {
+        EncodeView.__super__.delegateEvents.call(this, events);
+        return "pass";
+      };
+
+      EncodeView.prototype.render_init = function() {
+        return this.$el.html("");
+      };
+
+      return EncodeView;
+
+    })(continuum_view.View);
+    Encode = (function(_super) {
+      __extends(Encode, _super);
+
+      function Encode() {
+        _ref1 = Encode.__super__.constructor.apply(this, arguments);
+        return _ref1;
+      }
+
+      Encode.prototype.type = "Encode";
+
+      Encode.prototype.default_view = EncodeView;
+
+      return Encode;
+
+    })(HasParent);
+    Encodes = (function(_super) {
+      __extends(Encodes, _super);
+
+      function Encodes() {
+        _ref2 = Encodes.__super__.constructor.apply(this, arguments);
+        return _ref2;
+      }
+
+      Encodes.prototype.model = Encode;
+
+      return Encodes;
+
+    })(Backbone.Collection);
+    return {
+      "Model": Encode,
+      "Collection": new Encodes()
+    };
+  });
+
+}).call(this);
+
+/*
+//@ sourceMappingURL=encode.js.map
+*/;
+(function() {
+  var __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
   define('transforms/cuberoot',["common/continuum_view", "backbone", "common/has_parent"], function(continuum_view, Backbone, HasParent) {
     var Cuberoot, CuberootView, Cuberoots, _ref, _ref1, _ref2;
     CuberootView = (function(_super) {
@@ -65220,6 +65443,80 @@ define('widget/dialog_template',[],function(){
 
 /*
 //@ sourceMappingURL=cuberoot.js.map
+*/;
+(function() {
+  var __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  define('transforms/hdalpha',["common/continuum_view", "backbone", "common/has_parent"], function(continuum_view, Backbone, HasParent) {
+    var HDAlpha, HDAlphaView, HDAlphas, _ref, _ref1, _ref2;
+    HDAlphaView = (function(_super) {
+      __extends(HDAlphaView, _super);
+
+      function HDAlphaView() {
+        _ref = HDAlphaView.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      HDAlphaView.prototype.attributes = {
+        "class": "HDAlphaView"
+      };
+
+      HDAlphaView.prototype.initialize = function(options) {
+        HDAlphaView.__super__.initialize.call(this, options);
+        return this.render_init();
+      };
+
+      HDAlphaView.prototype.delegateEvents = function(events) {
+        HDAlphaView.__super__.delegateEvents.call(this, events);
+        return "pass";
+      };
+
+      HDAlphaView.prototype.render_init = function() {
+        return this.$el.html("");
+      };
+
+      return HDAlphaView;
+
+    })(continuum_view.View);
+    HDAlpha = (function(_super) {
+      __extends(HDAlpha, _super);
+
+      function HDAlpha() {
+        _ref1 = HDAlpha.__super__.constructor.apply(this, arguments);
+        return _ref1;
+      }
+
+      HDAlpha.prototype.type = "HDAlpha";
+
+      HDAlpha.prototype.default_view = HDAlphaView;
+
+      return HDAlpha;
+
+    })(HasParent);
+    HDAlphas = (function(_super) {
+      __extends(HDAlphas, _super);
+
+      function HDAlphas() {
+        _ref2 = HDAlphas.__super__.constructor.apply(this, arguments);
+        return _ref2;
+      }
+
+      HDAlphas.prototype.model = HDAlpha;
+
+      return HDAlphas;
+
+    })(Backbone.Collection);
+    return {
+      "Model": HDAlpha,
+      "Collection": new HDAlphas()
+    };
+  });
+
+}).call(this);
+
+/*
+//@ sourceMappingURL=hdalpha.js.map
 */;
 (function() {
   var __hasProp = {}.hasOwnProperty,
@@ -65447,6 +65744,154 @@ define('widget/dialog_template',[],function(){
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
+  define('transforms/nonzero',["common/continuum_view", "backbone", "common/has_parent"], function(continuum_view, Backbone, HasParent) {
+    var NonZero, NonZeroView, NonZeros, _ref, _ref1, _ref2;
+    NonZeroView = (function(_super) {
+      __extends(NonZeroView, _super);
+
+      function NonZeroView() {
+        _ref = NonZeroView.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      NonZeroView.prototype.attributes = {
+        "class": "NonZeroView"
+      };
+
+      NonZeroView.prototype.initialize = function(options) {
+        NonZeroView.__super__.initialize.call(this, options);
+        return this.render_init();
+      };
+
+      NonZeroView.prototype.delegateEvents = function(events) {
+        NonZeroView.__super__.delegateEvents.call(this, events);
+        return "pass";
+      };
+
+      NonZeroView.prototype.render_init = function() {
+        return this.$el.html("");
+      };
+
+      return NonZeroView;
+
+    })(continuum_view.View);
+    NonZero = (function(_super) {
+      __extends(NonZero, _super);
+
+      function NonZero() {
+        _ref1 = NonZero.__super__.constructor.apply(this, arguments);
+        return _ref1;
+      }
+
+      NonZero.prototype.type = "NonZero";
+
+      NonZero.prototype.default_view = NonZeroView;
+
+      return NonZero;
+
+    })(HasParent);
+    NonZeros = (function(_super) {
+      __extends(NonZeros, _super);
+
+      function NonZeros() {
+        _ref2 = NonZeros.__super__.constructor.apply(this, arguments);
+        return _ref2;
+      }
+
+      NonZeros.prototype.model = NonZero;
+
+      return NonZeros;
+
+    })(Backbone.Collection);
+    return {
+      "Model": NonZero,
+      "Collection": new NonZeros()
+    };
+  });
+
+}).call(this);
+
+/*
+//@ sourceMappingURL=nonzero.js.map
+*/;
+(function() {
+  var __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  define('transforms/ratio',["common/continuum_view", "backbone", "common/has_parent"], function(continuum_view, Backbone, HasParent) {
+    var Ratio, RatioView, Ratios, _ref, _ref1, _ref2;
+    RatioView = (function(_super) {
+      __extends(RatioView, _super);
+
+      function RatioView() {
+        _ref = RatioView.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      RatioView.prototype.attributes = {
+        "class": "RatioView"
+      };
+
+      RatioView.prototype.initialize = function(options) {
+        RatioView.__super__.initialize.call(this, options);
+        return this.render_init();
+      };
+
+      RatioView.prototype.delegateEvents = function(events) {
+        RatioView.__super__.delegateEvents.call(this, events);
+        return "pass";
+      };
+
+      RatioView.prototype.render_init = function() {
+        return this.$el.html("");
+      };
+
+      return RatioView;
+
+    })(continuum_view.View);
+    Ratio = (function(_super) {
+      __extends(Ratio, _super);
+
+      function Ratio() {
+        _ref1 = Ratio.__super__.constructor.apply(this, arguments);
+        return _ref1;
+      }
+
+      Ratio.prototype.type = "Ratio";
+
+      Ratio.prototype.default_view = RatioView;
+
+      return Ratio;
+
+    })(HasParent);
+    Ratios = (function(_super) {
+      __extends(Ratios, _super);
+
+      function Ratios() {
+        _ref2 = Ratios.__super__.constructor.apply(this, arguments);
+        return _ref2;
+      }
+
+      Ratios.prototype.model = Ratio;
+
+      return Ratios;
+
+    })(Backbone.Collection);
+    return {
+      "Model": Ratio,
+      "Collection": new Ratios()
+    };
+  });
+
+}).call(this);
+
+/*
+//@ sourceMappingURL=ratio.js.map
+*/;
+(function() {
+  var __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
   define('transforms/seq',["common/continuum_view", "backbone", "common/has_parent"], function(continuum_view, Backbone, HasParent) {
     var Seq, SeqView, Seqs, _ref, _ref1, _ref2;
     SeqView = (function(_super) {
@@ -65592,7 +66037,81 @@ define('widget/dialog_template',[],function(){
 //@ sourceMappingURL=spread.js.map
 */;
 (function() {
-  define('common/base',["underscore", "require", "common/custom", "common/canvas", "common/cartesian_frame", "common/gmap_plot", "common/grid_plot", "common/layout_box", "common/plot", "common/plot_context", "mapper/categorical_mapper", "mapper/linear_mapper", "mapper/log_mapper", "mapper/grid_mapper", "mapper/linear_color_mapper", "range/data_factor_range", "range/data_range1d", "range/factor_range", "range/range1d", "renderer/annotation/legend", "renderer/glyph/glyph_factory", "renderer/guide/categorical_axis", "renderer/guide/datetime_axis", "renderer/guide/grid", "renderer/guide/linear_axis", "renderer/guide/log_axis", "renderer/overlay/box_selection", "source/column_data_source", "source/server_data_source", "ticking/abstract_ticker", "ticking/adaptive_ticker", "ticking/basic_tick_formatter", "ticking/basic_ticker", "ticking/log_ticker", "ticking/log_tick_formatter", "ticking/categorical_tick_formatter", "ticking/categorical_ticker", "ticking/composite_ticker", "ticking/datetime_tick_formatter", "ticking/datetime_ticker", "ticking/days_ticker", "ticking/months_ticker", "ticking/single_interval_ticker", "ticking/years_ticker", "tool/box_select_tool", "tool/box_zoom_tool", "tool/click_tool", "tool/crosshair_tool", "tool/data_range_box_select_tool", "tool/embed_tool", "tool/hover_tool", "tool/pan_tool", "tool/preview_save_tool", "tool/reset_tool", "tool/resize_tool", "tool/wheel_zoom_tool", "tool/object_explorer_tool", "widget/data_slider", "widget/data_table", "widget/handson_table", "widget/table_column", "widget/pivot_table", "widget/object_explorer", "widget/pandas/ipython_remote_data", "widget/pandas/pandas_pivot_table", "widget/pandas/pandas_plot_source", 'widget/paragraph', 'widget/hbox', 'widget/vbox', 'widget/textinput', 'widget/vboxmodelform', 'widget/vboxform', 'widget/pretext', 'widget/selectbox', 'widget/slider', 'widget/crossfilter', 'widget/multiselect', 'widget/date_range_slider', 'widget/date_picker', 'widget/panel', 'widget/tabs', 'widget/dialog', 'transforms/binarysegment', 'transforms/const', 'transforms/contour', 'transforms/count', 'transforms/cuberoot', 'transforms/id', 'transforms/interpolate', 'transforms/interpolatecolor', 'transforms/seq', 'transforms/spread'], function(_, require) {
+  var __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  define('transforms/tocounts',["common/continuum_view", "backbone", "common/has_parent"], function(continuum_view, Backbone, HasParent) {
+    var ToCounts, ToCountsView, ToCountss, _ref, _ref1, _ref2;
+    ToCountsView = (function(_super) {
+      __extends(ToCountsView, _super);
+
+      function ToCountsView() {
+        _ref = ToCountsView.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      ToCountsView.prototype.attributes = {
+        "class": "ToCountsView"
+      };
+
+      ToCountsView.prototype.initialize = function(options) {
+        ToCountsView.__super__.initialize.call(this, options);
+        return this.render_init();
+      };
+
+      ToCountsView.prototype.delegateEvents = function(events) {
+        ToCountsView.__super__.delegateEvents.call(this, events);
+        return "pass";
+      };
+
+      ToCountsView.prototype.render_init = function() {
+        return this.$el.html("");
+      };
+
+      return ToCountsView;
+
+    })(continuum_view.View);
+    ToCounts = (function(_super) {
+      __extends(ToCounts, _super);
+
+      function ToCounts() {
+        _ref1 = ToCounts.__super__.constructor.apply(this, arguments);
+        return _ref1;
+      }
+
+      ToCounts.prototype.type = "ToCounts";
+
+      ToCounts.prototype.default_view = ToCountsView;
+
+      return ToCounts;
+
+    })(HasParent);
+    ToCountss = (function(_super) {
+      __extends(ToCountss, _super);
+
+      function ToCountss() {
+        _ref2 = ToCountss.__super__.constructor.apply(this, arguments);
+        return _ref2;
+      }
+
+      ToCountss.prototype.model = ToCounts;
+
+      return ToCountss;
+
+    })(Backbone.Collection);
+    return {
+      "Model": ToCounts,
+      "Collection": new ToCountss()
+    };
+  });
+
+}).call(this);
+
+/*
+//@ sourceMappingURL=tocounts.js.map
+*/;
+(function() {
+  define('common/base',["underscore", "require", "common/custom", "common/canvas", "common/cartesian_frame", "common/gmap_plot", "common/grid_plot", "common/layout_box", "common/plot", "common/plot_context", "mapper/categorical_mapper", "mapper/linear_mapper", "mapper/log_mapper", "mapper/grid_mapper", "mapper/linear_color_mapper", "range/data_factor_range", "range/data_range1d", "range/factor_range", "range/range1d", "renderer/annotation/legend", "renderer/glyph/glyph_factory", "renderer/guide/categorical_axis", "renderer/guide/datetime_axis", "renderer/guide/grid", "renderer/guide/linear_axis", "renderer/guide/log_axis", "renderer/overlay/box_selection", "source/column_data_source", "source/server_data_source", "ticking/abstract_ticker", "ticking/adaptive_ticker", "ticking/basic_tick_formatter", "ticking/basic_ticker", "ticking/log_ticker", "ticking/log_tick_formatter", "ticking/categorical_tick_formatter", "ticking/categorical_ticker", "ticking/composite_ticker", "ticking/datetime_tick_formatter", "ticking/datetime_ticker", "ticking/days_ticker", "ticking/months_ticker", "ticking/single_interval_ticker", "ticking/years_ticker", "tool/box_select_tool", "tool/box_zoom_tool", "tool/click_tool", "tool/crosshair_tool", "tool/data_range_box_select_tool", "tool/embed_tool", "tool/hover_tool", "tool/pan_tool", "tool/preview_save_tool", "tool/reset_tool", "tool/resize_tool", "tool/wheel_zoom_tool", "tool/object_explorer_tool", "widget/data_slider", "widget/data_table", "widget/handson_table", "widget/table_column", "widget/pivot_table", "widget/object_explorer", "widget/pandas/ipython_remote_data", "widget/pandas/pandas_pivot_table", "widget/pandas/pandas_plot_source", 'widget/paragraph', 'widget/hbox', 'widget/vbox', 'widget/textinput', 'widget/vboxmodelform', 'widget/vboxform', 'widget/pretext', 'widget/selectbox', 'widget/slider', 'widget/crossfilter', 'widget/multiselect', 'widget/date_range_slider', 'widget/date_picker', 'widget/panel', 'widget/tabs', 'widget/dialog', 'transforms/autoencode', 'transforms/binarysegment', 'transforms/const', 'transforms/contour', 'transforms/count', 'transforms/countcategories', 'transforms/encode', 'transforms/cuberoot', 'transforms/hdalpha', 'transforms/id', 'transforms/interpolate', 'transforms/interpolatecolor', 'transforms/nonzero', 'transforms/ratio', 'transforms/seq', 'transforms/spread', 'transforms/tocounts'], function(_, require) {
     var Collections, Config, collection_overrides, locations, mod_cache, url;
     require("common/custom").monkey_patch();
     Config = {};
@@ -65679,16 +66198,23 @@ define('widget/dialog_template',[],function(){
       Panel: 'widget/panel',
       Tabs: 'widget/tabs',
       Dialog: 'widget/dialog',
+      AutoEncode: 'transforms/autoencode',
       BinarySegment: 'transforms/binarysegment',
       Const: 'transforms/const',
       Contour: 'transforms/contour',
       Count: 'transforms/count',
+      CountCategories: 'transforms/countcategories',
       Cuberoot: 'transforms/cuberoot',
+      HDAlpha: 'transforms/hdalpha',
+      Encode: 'transforms/encode',
       Id: 'transforms/id',
       Interpolate: 'transforms/interpolate',
       InterpolateColor: 'transforms/interpolatecolor',
+      NonZero: 'transforms/nonzero',
+      Ratio: 'transforms/ratio',
       Seq: 'transforms/seq',
-      Spread: 'transforms/spread'
+      Spread: 'transforms/spread',
+      ToCounts: 'transforms/tocounts'
     };
     mod_cache = {};
     collection_overrides = {};
