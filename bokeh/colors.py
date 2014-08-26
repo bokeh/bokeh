@@ -105,9 +105,14 @@ class HSL(Color):
     def fromHSL(self, value):
         return value.copy()
 
+__colors__ = []
+
 class NamedColor(RGB):
 
     def __init__(self, name, r, g, b):
+        if name not in __colors__:
+            __colors__.append(name)
+
         self.name = name
         super(NamedColor, self).__init__(r, g, b)
 
