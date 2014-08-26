@@ -56,7 +56,6 @@ define [
   "tool/click_tool",
   "tool/crosshair_tool",
   "tool/data_range_box_select_tool",
-  "tool/embed_tool",
   "tool/hover_tool",
   "tool/pan_tool",
   "tool/preview_save_tool",
@@ -176,7 +175,6 @@ define [
     HoverTool:                'tool/hover_tool'
     DataRangeBoxSelectTool:   'tool/data_range_box_select_tool'
     PreviewSaveTool:          'tool/preview_save_tool'
-    EmbedTool:                'tool/embed_tool'
     ResetTool:                'tool/reset_tool'
     ObjectExplorerTool:       'tool/object_explorer_tool'
 

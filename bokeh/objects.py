@@ -520,9 +520,6 @@ class WheelZoomTool(Tool):
 class PreviewSaveTool(Tool):
     pass
 
-class EmbedTool(Tool):
-    pass
-
 class ResetTool(Tool):
     pass
 
