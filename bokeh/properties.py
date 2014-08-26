@@ -18,6 +18,7 @@ import numpy as np
 from . import enums
 from .utils import nice_join
 
+# used to indicate properties that are not set (vs null, None, etc)
 class _NotSet(object):
     pass
 
