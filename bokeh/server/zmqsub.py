@@ -22,7 +22,7 @@ class Subscriber(object):
         for addr in self.addrs:
             socket = ctx.socket(zmq.SUB)
             socket.connect(addr)
-            socket.setsockopt(zmq.SUBSCRIBE, "")
+            socket.setsockopt_string(zmq.SUBSCRIBE, u"")
             sockets.append(socket)
             poller.register(socket, zmq.POLLIN)
         try:

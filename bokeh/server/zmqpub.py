@@ -25,7 +25,7 @@ class Publisher(object):
             while not self.kill:
                 try:
                     message = self.queue.get(timeout=timeout)
-                    socket.send(str(message))
+                    socket.send_string(str(message))
                 except Empty:
                     pass
         finally:
