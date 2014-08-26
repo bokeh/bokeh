@@ -10,7 +10,7 @@ from tornado.httpserver import HTTPServer
 from .zmqsub import Subscriber
 
 from .. import  protocol
-from wsmanager import WebSocketManager
+from .wsmanager import WebSocketManager
 
 log = logging.getLogger(__name__)
 
