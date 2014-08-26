@@ -35,7 +35,7 @@ def components(plot_object, resources):
         resources (Resources, optional) : BokehJS resources config
 
     Returns:
-        (script, div)
+        (script, div) : UTF-8 encoded 
 
     '''
     ref = plot_object.get_ref()
