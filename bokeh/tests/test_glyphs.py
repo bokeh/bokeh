@@ -365,8 +365,8 @@ class TestAnnularWedge(unittest.TestCase):
         expected.update({
             'start_angle':  {'units': 'data', 'field': 'start_angle'},
             'end_angle':    {'units': 'data', 'field': 'end_angle'},
-            'outer_radius': {'units': 'data', 'field': None},
-            'inner_radius': {'units': 'data', 'field': None},
+            'outer_radius': {},
+            'inner_radius': {},
         })
         self.assertEqual(self.test_annular_wedge.to_glyphspec(), expected)
         self.test_annular_wedge.x = 50
@@ -410,8 +410,8 @@ class TestAnnulus(unittest.TestCase):
         expected = dict(GENERIC_GLYPH_DICT)
         expected['type'] = 'annulus'
         expected.update({
-            'outer_radius': {'units': 'data', 'field': None},
-            'inner_radius': {'units': 'data', 'field': None},
+            'outer_radius': {},
+            'inner_radius': {},
         })
         self.assertEqual(self.test_annulus.to_glyphspec(), expected)
         self.test_annulus.x = 50
@@ -454,7 +454,7 @@ class TestArc(unittest.TestCase):
         del expected['fill_alpha']  # only has line pros:ps
         expected['type'] = 'arc'
         expected.update({
-            'radius': {'units': 'data', 'field': None},
+            'radius': {},
             'start_angle':  {'units': 'data', 'field': 'start_angle'},
             'end_angle':    {'units': 'data', 'field': 'end_angle'},
         })
@@ -468,7 +468,7 @@ class TestArc(unittest.TestCase):
         expected.update({
             'x':            {'units': 'data', 'value': 50},
             'y':            {'units': 'data', 'value': 100},
-            'radius': {'units': 'data', 'value': 51},
+            'radius':       {'units': 'data', 'value': 51},
             'start_angle':  {'units': 'data', 'value': 52},
             'end_angle':    {'units': 'data', 'value': 53},
             'direction':    'anticlock',
@@ -1113,7 +1113,7 @@ class TestWedge(unittest.TestCase):
         expected.update({
             'start_angle':  {'units': 'data', 'field': 'start_angle'},
             'end_angle':    {'units': 'data', 'field': 'end_angle'},
-            'radius':       {'units': 'data', 'field': None},
+            'radius':       {},
         })
         self.assertEqual(self.test_wedge.to_glyphspec(), expected)
         self.test_wedge.x = 50
@@ -1146,24 +1146,25 @@ class TestGear(unittest.TestCase):
     def test_expected_values(self):
         self.assertEqual(self.test_gear.x, 'x')
         self.assertEqual(self.test_gear.y, 'y')
-        self.assertEqual(self.test_gear.angle, {'default': 0, 'field': None})
+        self.assertEqual(self.test_gear.angle, 0)
         self.assertEqual(self.test_gear.module, 'module')
         self.assertEqual(self.test_gear.teeth, 'teeth')
-        self.assertEqual(self.test_gear.pressure_angle, {'default': 20, 'field': None})
-        self.assertEqual(self.test_gear.shaft_size, {'default': 0.3, 'field': None})
-        self.assertEqual(self.test_gear.internal,  {'default': False, 'field': None})
+        self.assertEqual(self.test_gear.pressure_angle, 20)
+        self.assertEqual(self.test_gear.shaft_size, 0.3)
+        self.assertEqual(self.test_gear.internal,  False)
         self.assertEqual(self.test_gear.__view_model__, 'gear')
 
     def test_to_glyphspec(self):
+        self.maxDiff = None
         expected = dict(GENERIC_GLYPH_DICT)
         expected['type'] = 'gear'
         expected.update({
-            'angle':            {'units': 'data', 'field': None, 'default': 0},
+            'angle':            {'units': 'data', 'value': 0},
             'module':           {'units': 'data', 'field': 'module'},
             'teeth':            {'units': 'data', 'field': 'teeth'},
-            'pressure_angle':   {'units': 'data', 'field': None, 'default': 20},
-            'shaft_size':       {'units': 'data', 'field': None, 'default': 0.3},
-            'internal':         {'units': 'data', 'field': None, 'default': False}
+            'pressure_angle':   {'units': 'data', 'value': 20},
+            'shaft_size':       {'units': 'data', 'value': 0.3},
+            'internal':         {'units': 'data', 'value': False}
         })
         self.assertEqual(self.test_gear.to_glyphspec(), expected)
         self.test_gear.x = 50
