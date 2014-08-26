@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 from six import integer_types, string_types, add_metaclass, iteritems
 import numpy as np
 
-from . import enums
+from . import enums, colors
 from .utils import nice_join
 
 class Property(object):
@@ -299,7 +299,7 @@ class ColorSpec(DataSpec):
     For more examples, see tests/test_glyphs.py
     """
 
-    NAMEDCOLORS = set(enums.NamedColor._values)
+    NAMEDCOLORS = set(colors.__colors__)
 
     def __init__(self, field_or_value=None, field=None, default=None, value=None):
         """ ColorSpec(field_or_value=None, field=None, default=None, value=None)
@@ -382,7 +382,7 @@ class ColorSpec(DataSpec):
                 pass
             else:
                 raise RuntimeError("Invalid tuple being assigned to ColorSpec; must be length 2, 3, or 4.")
-        elif hasattr(arg, "toCSS"):
+        elif isinstance(arg, colors.Color):
             arg = arg.toCSS()
         super(ColorSpec, self).__set__(obj, arg)
 
