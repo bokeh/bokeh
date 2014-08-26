@@ -39,8 +39,6 @@ define [
       @index.load(pts)
 
     _render: (ctx, indices, glyph_props, sx=@sx, sy=@sy, sw=@sw, sh=@sh) ->
-      console.log("rectview render2")
-      window.rectView = @
       if glyph_props.fill_properties.do_fill
         
         for i in indices
