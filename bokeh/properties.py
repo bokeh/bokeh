@@ -18,6 +18,9 @@ import numpy as np
 from . import enums
 from .utils import nice_join
 
+class _NotSet(object):
+    pass
+
 class Property(object):
     def __init__(self, default=None):
         """ This is how the descriptor is created in the class declaration """
@@ -155,7 +158,7 @@ class DataSpec(Property):
 
     """
 
-    def __init__(self, field=None, units="data", min_value=None, default="__not_set__"):
+    def __init__(self, field=None, units="data", min_value=None, default=_NotSet):
         """
         Parameters
         ==========
@@ -196,7 +199,7 @@ class DataSpec(Property):
             # If the user hasn't set anything
             if self.field is not None:
                 return self.field
-            if self.default != "__not_set__":
+            if self.default != _NotSet:
                 return self.default
 
     def to_dict(self, obj):
@@ -214,7 +217,7 @@ class DataSpec(Property):
             # If the user never set a value
             if self.field is not None:
                 d = {"field": self.field, "units": self.units}
-            elif self.default != "__not_set__":
+            elif self.default != _NotSet:
                 d = {"value": self.default, "units": self.units}
             else:
                 d = {}
@@ -274,7 +277,7 @@ class ColorSpec(DataSpec):
 
     NAMEDCOLORS = set(enums.NamedColor._values)
 
-    def __init__(self, field_or_value=None, field=None, value=None, default="__not_set__"):
+    def __init__(self, field_or_value=None, field=None, value=None, default=_NotSet):
         """ ColorSpec(field_or_value=None, field=None, value=None)
         """
         # The fancy footwork below is so we auto-interpret the first positional
@@ -333,7 +336,7 @@ class ColorSpec(DataSpec):
         else:
             if self.value is not None:
                 return self.value
-            if self.default != "__not_set__":
+            if self.default != _NotSet:
                 return self.default
             else:
                 return self.field
@@ -352,7 +355,7 @@ class ColorSpec(DataSpec):
 
     def to_dict(self, obj):
         setval = getattr(obj, self._name, None)
-        if self.default != "__not_set__" and not self._isset:
+        if self.default != _NotSet and not self._isset:
             setval = self.default
         if setval is not None:
             if self.isconst(setval):
