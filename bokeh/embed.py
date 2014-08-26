@@ -199,10 +199,7 @@ def autoload_server(plot_object, session):
         root_url = resources.root_url,
         docid =  session.docid,
         docapikey = session.apikey,
-        conn_string = resources.conn_string,
         log_level = resources.log_level,
     )
 
     return encode_utf8(tag)
-
-

@@ -142,9 +142,7 @@ class Resources(object):
         if root_url and not root_url.endswith("/"):
             logger.warning("root_url should end with a /, adding one")
             root_url = root_url + "/"
-
         self._root_url = root_url
-
         if mode not in ['inline', 'cdn', 'server', 'server-dev', 'relative', 'relative-dev', 'absolute', 'absolute-dev']:
             raise ValueError("wrong value for 'mode' parameter, expected 'inline', 'cdn', 'server(-dev)', 'relative(-dev)' or 'absolute(-dev)', got %r" % self.mode)
 
@@ -231,10 +229,6 @@ class Resources(object):
             return self._root_url
         else:
             return self._default_root_url
-
-    @property
-    def conn_string(self):
-        return self.root_url.replace("http", "ws", 1) + "bokeh/sub"
 
     def _js_paths(self, minified=True, dev=False):
         files = self._default_js_files_dev if self.dev else self._default_js_files

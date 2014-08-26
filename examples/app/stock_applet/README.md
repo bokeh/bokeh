@@ -51,7 +51,7 @@ Now navigate to the following URL in a browser:
 Flask Application
 -----------------
 
-To embed this applet into a Flass application, first you need to run
+To embed this applet into a Flask application, first you need to run
 a bokeh-server and point it at the stock example script. In this
 directory, execute the command:
 
