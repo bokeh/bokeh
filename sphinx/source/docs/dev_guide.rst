@@ -8,97 +8,99 @@ Developer Guide
     :local:
     :depth: 2
 
+.. _developer_process:
+
+Process
+=======
+
+The development process for Bokeh is outline in `Bokeh Enhancement Proposal 1 <https://github.com/ContinuumIO/bokeh/wiki/BEP-1:-Issues-and-PRs-management>`_. All changes, enhancements, and bugfixes should generally go
+through the process outlined there.
+
 .. _developer_install:
 
 Installation for Developers
 ===========================
 
-Bokeh development is complicated by the fact that there is Python code and
-CoffeeScript in Bokeh itself, and there is CoffeeScript in BokehJS.
+Bokeh development is complicated by the fact the client-side BokehJS library
+is written in CoffeeScript and requires an explicit compilation step. Also, it
+is not guaranteed that the previously released BokehJS and the current python
+Bokeh library in GitHub master will always be compatible. For this reason, in
+order to do development on Bokeh from a source checkout, you must first be
+able to build BokehJS.
 
-It is possible to set up just for development on Bokeh, without having a
-development install of BokehJS.  To do this, just run ``python setup.py install``.
-This will copy the pre-built ``bokeh.js`` from the ``bokehjs/release`` directory
-into the correct place in the source tree, and then install Bokeh into your
-``site-packages``.
+.. _developer_building_bokehjs:
 
-You can also use a "develop" install (one that points at your source checkout) by
-running ``python setup.py develop``. This will place a ``bokeh.pth`` file in
-``site-packages`` that points to your source checkout, and also  copy the pre-built
-``bokeh.js`` from the ``bokehjs/release`` directory into the correct place in the
-source tree. This mode is suitabe fordoing development on just Bokeh (but not BokehJS)
+Building BokehJS
+----------------
 
-If you want to do development on BokehJS as well, then modify the CoffeeScript
-source in the ``bokehjs/`` directory, and follow the instructions below for
-building/installing CoffeeScript.  Then run ``python setup.py develop --build_js``.
-
-.. warning:: It is not guaranteed that the previously released BokehJS and the
-             current python Bokeh library in GitHub master will always be compatible.
-             The ``--build_js`` option may be **required** in some circumstances.
-
-If you have any problems with the steps here, please contact the developers
-(see :ref:`contact`).
-
-BokehJS
--------
-
-Building the BokehJS library requires you to have `node.js` and `npm` (node
+Building the BokehJS library requires you to have ``node.js`` and ``npm`` (node
 package manager) installed. There exist system installers for these packages,
 but if you are using conda, the easiest way to get them is to install from
 the Bokeh channel on Binstar by executing the command::
 
-    $ conda install -c binstar nodejs
+    $ conda install -c bokeh nodejs
 
-BokehJS uses Grunt for building. Grunt will
-compile CoffeeScript, Less and Eco sources, combine JavaScript files, and
-generate optimized and minified `bokeh.js` and `bokeh.css`.
+BokehJS uses Grunt for managing its build. Grunt will compile CoffeeScript,
+Less and Eco sources, combine JavaScript files, and generate optimized and
+minified ``bokeh.js`` and ``bokeh.css``.
 
 If you are using conda, you can also install the Grunt command line tool
-from the Bokeh binstart channel::
+from the Bokeh channel on `Binstar <https://binstar.org>`_::
 
     $ conda install -c bokeh grunt-cli
 
-Otherwise you acan install Grunt by with npm by executing::
+Otherwise you can install Grunt by with npm by executing::
 
-    $ npm install -g grunt-cli
+    $ npm install grunt-cli
 
-or if necessary::
-
-    $ sudo npm install -g grunt-cli
+in the ``bokehjs`` subdirectory of the Bokeh source checkout.
 
 .. note:: The following commands should be executed in the ``bokehjs``
-          subdirectory of the top level checkout
+          subdirectory of the Bokeh source checkout.
 
 In order to build the JavaScript files that comprise ``bokeh.js``, first install
 necessary dependencies::
 
-    $ cd bokehjs
     $ npm install
 
-This command will install build dependencies in the `node_modules/` subdirectory.
+This command will install build dependencies in the ``node_modules`` subdirectory.
 
-To compile the CoffeeScript, Less and Eco sources, issue::
+Typically at this point you would use the ``setup.py`` script at the top level
+to manage building and installing BokehJS as part of complete Bokeh library.
+(See :ref:`developer_python_setup` for additional information.)
+However, if you are using BokehJS as a standalone JavaScript library, without
+the rest of Bokeh, then the instructions below describe the process to build
+BokehJS.
 
-    $ grunt build
-
-At this point BokehJS can be be used as an `AMD module together with require.js
-<http://requirejs.org/docs/whyamd.html>`_. To build a single ``bokeh.js`` that may
-be included as a script, see below.
-
-Grunt can concatenate the JavaScript files into a single JavaScript file, either
-minified or unminified. To generate both minified and unminified libraries, issue::
+To generate the compiled and optimized JavaScript libraries, run the command::
 
     $ grunt deploy
 
-The resulting scripts will have the filenames `bokeh.js` and `bokeh.min.js` and
-be located in the ``build/js`` subdirectory.
+This creates both ``bokeh.js`` and ``bokeh.min.js`` scripts in the ``build/js``
+subdirectory, and ``bokeh.css`` and ``bokeh.min.css`` CSS files in the
+``build/css`` subdirectory.
 
-Alternative build system
-~~~~~~~~~~~~~~~~~~~~~~~~
+To build the BokehJS sources without concatenating and optimizing into
+standalone libraries, run the command::
 
-Alternatively to `grunt`, you can use `sbt <http://www.scala-sbt.org` to build BokehJS.
-To start, issue `./sbt` in the root directory. This will download `sbt` itself, its
-dependencies and configure the build system. Due to this, the first run will be slow.
+    $ grunt build
+
+At this point BokehJS can be be used together with `require.js` as an
+`AMD module <http://requirejs.org/docs/whyamd.html>`_. To
+automatically watch the source tree for changes and trigger a recompile
+of individual files as they change, run the command::
+
+    $ grunt watch
+
+This can be used together with "splitjs" mode of the Bokeh server to
+facilitate a more rapid development cycle.
+
+Alternative BokehJS build system
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+As an alternatively to ``grunt``, you can use `sbt <http://www.scala-sbt.org` to
+build BokehJS. To start, run `./sbt` in the top level directory. This will
+download `sbt` itself, its dependencies and configure the build system.
 In general you should see (more or less) the following output::
 
     $ ./sbt
@@ -106,23 +108,70 @@ In general you should see (more or less) the following output::
     [info] Set current project to bokeh (in build file:/home/user/continuum/bokeh/)
     continuum (bokeh)>
 
-There are two main commands available: `build` and `deploy`. `build` compiles CoffeeScript,
-Less and Eco sources, and copies other resources to the build directory. `deploy` does the
-same and additionally generates optimized and minified `bokeh.js` and `bokeh.css`. You can
-also run any specific subtask if you want, e.g. `compile` to compile CoffeeScript, Less and
-Eco sources, but not copy resources. You can prefix any command with `~`, which enables
-incremental compilation, so e.g. `~less` will watch `*.less` sources and compile the subset
-of files that changed. To stop watching sources, press ENTER (note that pressing Ctrl+C will
-terminate `sbt`).
+There are two main commands available: `build` and `deploy`. The `build` command
+compiles CoffeeScript, Less and Eco sources, and copies other resources to the
+build directory. The `deploy` command does the same and additionally generates
+optimized and minified `bokeh.js` and `bokeh.css` outputs.
 
-Note that `sbt`-based build system is experimental and should be used with caution.
+You may also run specific subtasks, e.g. `compile` to compile CoffeeScript, Less and
+Eco sources, but not copy resources. You can also prefix any command with `~`, which
+enables incremental compilation. For example, issuing `~less` will watch `*.less`
+sources and compile only the subset of files that changed. To stop watching sources,
+press ENTER. Pressing Ctrl+C will terminate `sbt`.
 
-.. _developer_docstring:
+.. warning::
+        The ``sbt`` build system is experimental and not integrated with ``setup.py``
+        and should be used with caution.
+
+.. _developer_python_setup:
+
+Python Setup
+------------
+
+Once you have a working BokehJS build (which you can verify by completing the
+steps described in :ref:`developer_building_bokehjs` one time), you can
+use the ``setup.py`` script at the top level to install or develop the full
+Bokeh library from source.
+
+The ``setup.py`` script has two main modes of operation: ``install`` and
+``develop``.
+
+When ``python setup.py install`` is used, Bokeh will be installed in your local
+``site-packages`` directory. In this mode, any changes to the python source
+code will not show up until ``setup.py install`` is run again.
+
+When ``python setup.py develop`` is used, a path file ``bokeh.pth``
+will be written to your ``site-packages`` directory that points to the
+``bokeh`` subdirectory of your source checkout. Any changes to the python
+source code will be available immediately without any additional steps.
+
+With either mode, you will be prompted for how to install BokehJS, e.g.::
+
+    $ python setup.py install
+
+    Bokeh includes a JavaScript library (BokehJS) that has its own
+    build process. How would you like to handle BokehJS:
+
+    1) build and install fresh BokehJS
+    2) install last built BokehJS
+
+    Choice?
+
+You may skip this prompt by supplying the appropriate command line option
+to ``setup.py``:
+
+* ``--build_js``
+* ``--install_js``
+
+If you have any problems with the steps here, please contact the developers
+(see :ref:`contact`).
+
+.. _developer_documentation:
 
 Documentation
 =============
 
-requirements
+Requirements
 ------------
 
 We use `Sphinx <http://sphinx-doc.org>` to generate our HTML documentation. You
@@ -147,7 +196,7 @@ execute the command::
 
     make serve
 
-docstrings
+Docstrings
 ----------
 
 We use `Sphinx Napoleon <http://sphinxcontrib-napoleon.readthedocs.org/en/latest/index.html>`_
@@ -174,9 +223,15 @@ Testing
 There is a TravisCI project configured to execute on every GitHub push, it can
 be viewed at: https://travis-ci.org/ContinuumIO/bokeh.
 
-To run the python unit tests manually, you can execute::
+To run the just the python unit tests, run the command::
 
     $ python -c "import bokeh; bokeh.test()"
+
+To run just the BokehJS unit tests, execute::
+
+    $ grunt test
+
+in the `bokehjs` subdirectory.
 
 Additionally, there are "examples tests" that check whether all the examples
 produce outputs. This script is in the `examples` directory and can be run by
@@ -184,36 +239,17 @@ executing::
 
     $ test -D
 
-You can also run all the available test (unit tests and example tests) from the
-top level directory following the next steps::
+You can run all available tests (python and JS unit tests and example tests)
+from the top level directory by executing::
 
-    $ export BOKEH_DEFAULT_NO_DEV=True (just do it once!)
+    $ BOKEH_DEFAULT_NO_DEV=True nosetests
 
-and then::
+Currently this script does not support Windows.
 
-    $ nosetests
-
-or::
-
-    $ nosetests --with-coverage
-
-Currently this script does not support Windows. When adding new examples, make
-sure to place them in appropriate location under `examples/` directory and use
-special keywords (`server`, `animate`) in their names, if required. This will
-help test script to properly classify examples and use correct test runner. If
-new examples are placed under `plotting/` directory, only `animate` keyword is
-required for animated examples. Placing examples elsewhere, e.g. in `glyphs/`,
-may also require `server` keyword for server examples, because otherwise they
-will be classified as `file` (`*.py` extension) or `notebook` examples (`*.ipynb`
-extension).
-
-There is also a bokehjs unit test suite, it can be run by changing directories
-to the `bokehjs` subdirectory and executing::
-
-    $ grunt test
-
-Architecture Overview
-=====================
+To help the test script choose the appropriate test runner, there are some
+naming conventions that examples should adhere to. Non-IPython notebook
+example scripts that rely on the Bokeh server should have 'server' or
+'animate' in their filenames.
 
 .. _bokehjs:
 
@@ -235,7 +271,7 @@ If they provided any server-side wrappers, those were always "second class" and
 primarily designed to generate a simple configuration for the front-end JS.  Of
 the few JS plotting libraries that offered any level of interactivity, the
 interaction was not really configurable or customizable from outside the JS
-itself.  Very few JS plotting libraries took large and streaming server-side
+itself. Very few JS plotting libraries took large and streaming server-side
 data into account, and providing seamless access to those facilities from
 another language like Python was not a consideration.
 
@@ -268,19 +304,6 @@ a reactive scene graph (similar to `Chaco <http://code.enthought.com/chaco/>`_).
 examples for different types of plots are show below in `bokehjs_examples`_.
 
 The full BokehJS interface is described detail in :doc:`bokehjs`
-
-.. _bokehjs_location:
-
-Location
---------
-
-The BokehJS files are available via CDN at pydata.org.
-For instance, for version 0.4:
-
-* http://cdn.pydata.org/bokeh-0.4.js
-* http://cdn.pydata.org/bokeh-0.4.css
-* http://cdn.pydata.org/bokeh-0.4.min.js
-* http://cdn.pydata.org/bokeh-0.4.min.css
 
 .. _bokehjs_examples:
 
@@ -325,68 +348,6 @@ This example shows how it it possible to animate BokehJS plots by updating the d
 Python Interface
 ================
 
-*Coming soon*
-
-Properties
-----------
-
-*Coming soon*
-
-Sessions
---------
-
-Bokeh supports three main kinds of sessions: **file**, **server** and **notebook**.
-This allows for creating static files with plots, communicating with a plot server
-and rendering plots in `IPython Notebook <http://ipython.org/notebook>`, and there
-are :class:`HTMLFileSession`, :class:`PlotServerSession` and :class:`NotebookSession`,
-respectively, to handle those cases.
-
-File sessions
-~~~~~~~~~~~~~
-
-::
-
-    >>> from bokeh.session import HTMLFileSession
-    >>> session = HTMLFileSession("myplot.html")
-    >>> session.save()
-
-:func:`HTMLFileSession.save` accepts ``resources`` argument that allows to specify
-how static files (JavaScript and CSS files) will be attached to generated HTML files.
-For example::
-
-    >>> session.save(resources="inline")
-
-will result in Bokeh merging all the BokehJS resources directly into
-``myplot.html``. This might be convenient, because we get a single,
-transportable file that is easy to move around and share, but the
-resulting HTML may be large.
-
-An alternative is to use either ``relative`` or ``absolute`` options, which allow
-for reuse of pre-generated static resources by linking to ``bokeh(.min).{js,css}``
-from generated HTML file, using relative (to the working directory) or absolute
-paths, respectively. In ``relative`` case, one can specify ``rootdir`` to change
-working directory. Using either of those two options allows to reduce ``anscombe.html``
-to under 20 kilobytes. Note that depending on the configuration, moving Bokeh or
-generated ``*.html`` files around may break links and you will have to rerun your
-code for the new setup.
-
-Another option is to use ``relative-dev`` or ``absolute-dev`` which additionally
-allow to use individual development files via ``requirejs`` instead of ``bokeh.*``
-bundles. If developing Bokeh, this allows for very fast turnaround time when used
-together with ``grunt watch`` for compiling ``bokehjs``. Don't use this in production
-environments. When working with examples, it may come handy to use ``BOKEH_RESOURCES``
-and ``BOKEH_ROOTDIR`` environment variables, which allow overriding any values
-passed to :func:`HTMLFileSession.save`. This can be useful when running examples
-that have user-friendly (but not developer-friendly) defaults.
-
-You can also link to static files that are available from Bokeh's `CDN <http://cdn.pydata.org>`
-by setting ``resources="cdn"``. This requires an internet connection to work,
-but is very useful for sharing plots.
-
-.. warning:: If you are using a development version of Bokeh, then linked resources
-          are from the last official release version of BokehJS. This may may not
-          work if there are incompatibilities between Bokeh (master) and BokehJS (released).
-
 Low-level Object Interface
 --------------------------
 
@@ -396,3 +357,92 @@ of these in turn.
 .. image:: /_images/objects.png
     :align: center
 
+Models and properties
+---------------------
+
+The main unit of the low-level API is a model, which is a class that, at least
+indirectly, derives from `HasProps` trait::
+
+    from bokeh.properties import HasProps, Int
+
+    class Whatever(HasProps):
+        """`Whatever` model. """
+
+Indirectly means that models can derive from other models and can extend mixins
+that provide common APIs for particular entities (e.g. `LineProps`, `FillProps`;
+see `bokeh.mixins`). Thus model's definition can look like this::
+
+    class Another(Whatever, LineProps):
+        """`Another` model. """
+
+Models contain properties, that are class-level instances of type `Property`, e.g:
+
+    class IntProps(HasFields):
+
+        prop1 = Int
+        prop2 = Int()
+        prop3 = Int(10)
+
+That said, `prop1` isn't an instance of `Int`, but `HasFields` uses a metaclass that
+turns instantiate classes , so `prop1` and `prop2` are equivalent (thought independent)
+properties. This is useful for readability purpose, so if you don't need to pass any
+arguments to property's constructor then prefer the former over the later.
+
+There is wide variety of property types, ranging from primitive types like `Int`,
+`String`, `Float`, through containers `List(Int)`, `Dict(String, Double)`, references
+to models, `Instance(Plot)`, to specialized type like `Enum("foo", "bar", "baz")`,
+`Either(Int, String)` (type union), `Range(Int, 0, 255)` (aka. unsigned byte), etc.
+There is a special branch of property types that allow value vectorization (`DataSpec`
+and `ColorSpec`). There exists type `Any` that is the super-type of all other types
+(make sure to use it sparingly or not at all). Thus a sample, but more complex model
+can look like this::
+
+    class Sample(HasProps, FillProps):
+        """`Sample` model. """
+
+        prop1 = Int(127)
+        prop2 = Either(Int, List(Int), Dict(String, List(Int)))
+        prop3 = Enum("x", "y", "z")
+        prop4 = Range(Float, 0.0, 1.0)
+        prop5 = List(Instance(Range1d))
+
+There is a special property-like type named `Include`, that allow to include properties
+from a mixin using a prefix, e.g.::
+
+    class Includes(HasProps):
+        """`Includes` model. """
+
+        some_props = Include(FillProps)
+
+In this case we have a placeholder property `some_props`, which will be removed by the
+metaclass and replaced with properties from `FillProps` with `some_` prefix appended.
+Prefix can be a valid identifier. If it ends with `_props` then `props` suffix will
+be removed. Adding `_props` isn't necessary, but can be useful if `some` property exists
+in parallel to future `some_*` properties (see `Plot.title` as an example).
+
+`Includes` is equivalent to writing::
+
+    class ExplicitIncludes(HasProps):
+        """`ExplicitIncludes` model. """
+
+        some_fill_color = ColorSpec("gray")
+        some_fill_alpha = DataSpec(1.0)
+
+Note hat you can inherit from (in this case) `FillProps` as well, so::
+
+    class IncludesExtends(HasProps, FillProps):
+        """`IncludesExtends` model. """
+
+        some = String
+        some_props = Include(FilleProps)
+
+is equivalent to::
+
+    class ExplicitIncludesExtends(HasProps):
+        """`ExplicitIncludesExtends` model. """
+
+        fill_color = ColorSpec("gray")
+        fill_alpha = DataSpec(1.0)
+        some = String
+        some_fill_color = ColorSpec("gray")
+        some_fill_alpha = DataSpec(1.0)

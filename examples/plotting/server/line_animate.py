@@ -26,4 +26,4 @@ while True:
     for i in np.hstack((np.linspace(1, -1, 100), np.linspace(-1, 1, 100))):
         ds.data["y"] = y * i
         cursession().store_objects(ds)
-        time.sleep(0.05)
+        time.sleep(1.0)

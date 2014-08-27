@@ -71,61 +71,31 @@ class WebSocketManager(object):
 
     def subscribe(self, clientid, topic):
         if self.can_subscribe(clientid, topic):
+            log.debug("subscribe %s, %s", topic, clientid)
             self.topic_clientid_map.add(topic, clientid)
             self.clientid_topic_map.add(clientid, topic)
 
     def add_socket(self, socket, clientid):
+        log.debug("add socket %s", clientid)
         self.sockets[clientid] = socket
 
     def remove_socket(self, clientid):
-        del self.sockets[clientid]
+        log.debug("remove socket %s", clientid)
+        self.sockets.pop(clientid, None)
 
     def send(self, topic, msg, exclude=None):
         if exclude is None:
             exclude = set()
+        log.debug("sending to %s", self.topic_clientid_map.get(topic, []))
         for clientid in tuple(self.topic_clientid_map.get(topic, [])):
+            socket = self.sockets.get(clientid, None)
+            if not socket:
+                continue
             if clientid in exclude:
                 continue
-            socket = self.sockets[clientid]
             try:
-                socket.send(topic + ":" + msg)
+                socket.write_message(topic + ":" + msg)
             except Exception as e: #what exception is this?if a client disconnects
                 log.exception(e)
                 self.remove_socket(clientid)
                 self.remove_clientid(clientid)
-
-def run_socket(socket, manager, clientid=None):
-    clientid = clientid if clientid is not None else str(uuid.uuid4())
-
-    log.debug("CLIENTID: %s" % clientid)
-    manager.add_socket(socket, clientid)
-
-    while True:
-        msg = socket.receive()
-
-        if msg is None:
-            manager.remove_socket(clientid)
-            manager.remove_clientid(clientid)
-            break
-
-        msgobj = protocol.deserialize_web(msg)
-        msgtype = msgobj.get('msgtype')
-
-        if msgtype == 'subscribe':
-            auth = msgobj['auth']
-            topic = msgobj['topic']
-
-            if manager.auth(auth, topic):
-                manager.subscribe(clientid, topic)
-                msg = protocol.serialize_web(protocol.status_obj(['subscribesuccess', topic, clientid]))
-                socket.send(topic + ":" + msg)
-            else:
-                msg = protocol.serialize_web(protcol.error_obj('unauthorized'))
-                socket.send(topic + ":" + msg)
-                break
-
-def pub_from_redis(redisconn, wsmanager):
-    ps = redisconn.pubsub()
-    ps.psubscribe("*")
-    for message in ps.listen():
-        wsmanager.send(message['channel'], message['data'])

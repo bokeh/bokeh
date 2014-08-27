@@ -27,7 +27,7 @@ conda install --use-local --yes bokeh
 
 DEPS_TEST=$(cat <<EOF | python -
 from conda_build.metadata import MetaData
-print(" ".join(MetaData("conda.recipe").get_value("test/requires")))
+print(" ".join([s.replace(" ", "") for s in MetaData("conda.recipe").get_value("test/requires")]))
 EOF
 )
 

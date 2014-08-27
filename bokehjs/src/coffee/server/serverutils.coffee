@@ -26,13 +26,15 @@ define [
 
   utility =
     load_one_object_chain : (docid, objid) ->
-      if not exports.wswrapper?
-        utility.make_websocket();
-        HasProperties.prototype.sync = Backbone.sync
-      Config = require("common/base").Config
-      url = "#{Config.prefix}bokeh/objinfo/#{docid}/#{objid}"
-      console.log(url)
-      resp = $.get(url)
+      HasProperties.prototype.sync = Backbone.sync
+      resp = utility.make_websocket()
+      resp = resp.then(() ->
+        Config = require("common/base").Config
+        url = "#{Config.prefix}bokeh/objinfo/#{docid}/#{objid}"
+        console.log(url)
+        resp = $.get(url)
+        return resp
+      )
       resp.done((data) ->
         all_models = data['all_models']
         load_models(all_models)
@@ -44,16 +46,6 @@ define [
     load_user: () ->
       response = $.get('/bokeh/userinfo/', {})
       return response
-
-    load_doc_once: (docid) ->
-      if _.has(Promises.doc_promises, docid)
-        console.log("already found #{docid} in promises")
-        return Promises.doc_promises[docid]
-      else
-        console.log("#{docid} not in promises, loading it")
-        doc_prom = utility.load_doc(docid)
-        Promises.doc_promises[docid] = doc_prom
-        return doc_prom
 
     load_doc_by_title: (title) ->
       Config = require("common/base").Config
@@ -76,22 +68,34 @@ define [
       return promise
 
     load_doc: (docid) ->
-      wswrapper = utility.make_websocket();
-      Config = require("common/base").Config
-      response = $.get(Config.prefix + "bokeh/bokehinfo/#{docid}/", {})
-        .done((data) ->
-          all_models = data['all_models']
-          load_models(all_models)
-          apikey = data['apikey']
-          submodels(exports.wswrapper, "bokehplot:#{docid}", apikey)
-        )
-      return response
+      resp = utility.make_websocket();
+      resp = resp.then(() ->
+        Config = require("common/base").Config
+        return $.get(Config.prefix + "bokeh/bokehinfo/#{docid}/", {})
+      )
+      resp.done((data) ->
+        all_models = data['all_models']
+        load_models(all_models)
+        apikey = data['apikey']
+        submodels(exports.wswrapper, "bokehplot:#{docid}", apikey)
+      )
+      return resp
 
     make_websocket: () ->
-      Config = require("common/base").Config
-      wswrapper = new WebSocketWrapper(Config.ws_conn_string)
-      exports.wswrapper = wswrapper
-      return wswrapper
+      if exports.wswrapper?
+        return exports._wswrapper_deferred
+      else
+        Config = require("common/base").Config
+        exports._wswrapper_deferred = $.get(Config.prefix + "bokeh/wsurl/")
+        resp = exports._wswrapper_deferred
+        resp.done((data) ->
+          Config = require("common/base").Config
+          configure_server(data, null)
+          wswrapper = new WebSocketWrapper(Config.ws_conn_string)
+          exports.wswrapper = wswrapper
+        )
+        return resp
+
 
     render_plots: (plot_context_ref, viewclass=null, viewoptions={}) ->
       Collections = require("common/base").Collections
@@ -118,7 +122,24 @@ define [
           load_models(data['all_models'])
           Deferreds._doc_loaded.resolve(data)
         )
+  # Hugo: Todo, lift utility functions outside of utility object
+  # and into this module
+
+  configure_server = (ws_conn_string, prefix) ->
+    ## This function can be called multiple times
+    ## if you only want to set ws_conn_string, pass null for prefix
+    ## if you only want to set prefix, pass null for ws_conn_string
+
+    Config = require("common/base").Config
+    if ws_conn_string
+      Config.ws_conn_string = ws_conn_string
+      console.log('setting ws_conn_string to', Config.ws_conn_string)
+    if prefix
+      Config.prefix = prefix
+      console.log('setting prefix to', Config.prefix)
+    return null
 
   exports.utility = utility
+  exports.configure_server = configure_server
 
   return exports
