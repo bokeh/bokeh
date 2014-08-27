@@ -18,7 +18,6 @@ map_options = MapOptions(lat=30.2861, lng=-97.7394, zoom=15)
 plot = GMapPlot(
     x_range=x_range, y_range=y_range,
     map_options=map_options,
-    data_sources=[],
     title = "Austin"
 )
 

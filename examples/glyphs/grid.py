@@ -32,7 +32,7 @@ def make_plot(source, xname, yname, line_color, xdr=None, ydr=None):
     if ydr is None:
         ydr = DataRange1d(sources=[source.columns(yname)])
 
-    plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source], min_border=50)
+    plot = Plot(x_range=xdr, y_range=ydr, min_border=50)
 
     plot.add_layout(LinearAxis(), 'below')
     plot.add_layout(LinearAxis(), 'left')

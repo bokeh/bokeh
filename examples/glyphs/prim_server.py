@@ -24,7 +24,7 @@ xdr = Range1d(start=0, end=10)
 ydr = Range1d(start=0, end=10)
 
 def make_plot(name, glyph):
-    plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source], min_border=80)
+    plot = Plot(x_range=xdr, y_range=ydr, min_border=80)
 
     plot.add_glyph(source, xdr, ydr, glyph)
 

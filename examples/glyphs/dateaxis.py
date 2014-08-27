@@ -28,7 +28,7 @@ source = ColumnDataSource(
 xdr = DataRange1d(sources=[source.columns("times")])
 ydr = DataRange1d(sources=[source.columns("y")])
 
-plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source], min_border=80)
+plot = Plot(x_range=xdr, y_range=ydr, min_border=80)
 
 circle = Circle(x="times", y="y", fill_color="red", size=5, line_color="black")
 plot.add_glyph(source, xdr, ydr, circle)

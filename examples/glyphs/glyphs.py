@@ -72,7 +72,7 @@ markers = [
 ]
 
 def make_tab(title, glyph):
-    plot = Plot(title=title, data_sources=[source], x_range=xdr, y_range=ydr)
+    plot = Plot(title=title, x_range=xdr, y_range=ydr)
 
     plot.add_glyph(source, xdr, ydr, glyph)
 

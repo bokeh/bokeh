@@ -20,7 +20,7 @@ source = ColumnDataSource(
 xdr = DataRange1d(sources=[source.columns("x")])
 ydr = DataRange1d(sources=[source.columns("y")])
 
-plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source])
+plot = Plot(x_range=xdr, y_range=ydr)
 
 circle = Circle(x="x", y="y", size=15,
     # Set the fill color to be dependent on the "color" field of the

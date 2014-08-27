@@ -29,10 +29,10 @@ xdr = DataRange1d(sources=[source.columns("x")])
 xdr_static = DataRange1d(sources=[source.columns("x_static")])
 ydr = DataRange1d(sources=[source.columns("y")])
 
-plot = Plot(x_range=xdr_static, y_range=ydr, data_sources=[source], min_border=50)
+plot = Plot(x_range=xdr_static, y_range=ydr, min_border=50)
 
 line_glyph = Line(x="x", y="y", line_color="blue")
-plot.add_glyph( source, xdr, ydr, line_glyph)
+plot.add_glyph(source, xdr, ydr, line_glyph)
 
 line_glyph2 = Line(x="x", y="z", line_color="red")
 plot.add_glyph(source, xdr_static, ydr, line_glyph2)

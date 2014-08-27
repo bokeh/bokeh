@@ -25,7 +25,7 @@ source = ColumnDataSource(data=dict(x=x, y=y, r=r))
 xdr = DataRange1d(sources=[source.columns("x")])
 ydr = DataRange1d(sources=[source.columns("y")])
 
-plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source], min_border=80)
+plot = Plot(x_range=xdr, y_range=ydr, min_border=80)
 
 circle = Circle(
     x="x", y="y", size="r",
