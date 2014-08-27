@@ -143,7 +143,6 @@ class TestAutoloadServer(unittest.TestCase):
         self.assertEqual(attrs['data-bokeh-docapikey'], 'apikey123')
         self.assertEqual(attrs['data-bokeh-docid'], 'docid10')
         self.assertEqual(attrs['data-bokeh-modelid'], str(_embed_test_plot._id))
-        self.assertEqual(attrs['data-bokeh-modeltype'], 'Plot')
         self.assertEqual(attrs['data-bokeh-root-url'], "http://foo/")
         divid = attrs['id']
         self.assertEqual(attrs['src'], "%s/bokeh/autoload.js/%s" % ("http://foo", divid))

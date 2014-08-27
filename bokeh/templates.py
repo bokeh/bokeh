@@ -74,12 +74,9 @@ Args:
     elementid (str) : the a unique id for the script tag
     modelid (str) : The Bokeh model id for the object to render
         typically for a Plot, PlotContext, etc.
-    modeltype (str) : the type of the model to render
-        used to reference the appropriate Backbone collection
     root_url (str) : root URL of the Bokeh Server
     docid (str) : document ID for the document on the server to load
     docapikey (str) : API key for the document
-    conn_string (str) : a connection string for a websocket connection to the Bokeh Server
 
 Attributes
     AUTOLOAD_STATIC: This template is for creating ``<script>`` tags that run AUTOLOAD scripts for plots that have their data embedded in the AUTOLOAD script
