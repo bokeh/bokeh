@@ -181,13 +181,13 @@ def output_notebook(url=None, docname=None, session=None, name=None,
     global _default_notebook
     _default_notebook = True
 
-def output_file(filename, title="Bokeh Plot", autosave=True, mode="inline", root_dir=None):
+def output_file(filename, title="Bokeh Plot", autosave=False, mode="inline", root_dir=None):
     """ Outputs to a static HTML file.
 
     .. note:: This file will be overwritten each time show() or save() is invoked.
 
     Args:
-        autosave (bool, optional) : whether to automatically save (default: True)
+        autosave (bool, optional) : whether to automatically save (default: False)
             If **autosave** is True, then every time plot() or one of the other
             visual functions is called, this causes the file to be saved. If it
             is False, then the file is only saved upon calling show().
