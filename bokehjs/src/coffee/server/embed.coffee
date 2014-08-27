@@ -5,13 +5,16 @@ define [
     "common/base",
     "common/has_properties",
     "common/load_models",
-],  ($, serverutils, usercontext, base, HasProperties, load_models) ->
+    "common/logging",
+],  ($, serverutils, usercontext, base, HasProperties, load_models, Logging) ->
+
+  logger = Logging.logger
 
   reload = () ->
     Config = require("common/base").Config
     ping_url = "#{Config.prefix}bokeh/ping"
     $.get(ping_url).success(() ->
-      console.log('reloading')
+      logger.info('reloading')
       window.location.reload()
     ).fail(_.delay((() -> reload()), 1000))
     return null
@@ -49,15 +52,15 @@ define [
     if not document.body.contains(script[0])
       throw "Error injecting plot: autoload script tag may only be under <body>"
     info = script.data()
-    Bokeh.logger.info("Injecting plot for script tag with id: #" + element_id)
+    logger.info("Injecting plot for script tag with id: #" + element_id)
     base.Config.prefix = info['bokehRootUrl']
     container = $('<div>', {class: 'bokeh-container'})
     container.insertBefore(script)
     if info.bokehData == "static"
-      Bokeh.logger.info("  - using static data")
+      logger.info("  - using static data")
       add_plot_static(container, info["bokehModelid"], info["bokehModeltype"], all_models)
     else if info.bokehData == "server"
-      Bokeh.logger.info("  - using server data")
+      logger.info("  - using server data")
       add_plot_server(container, info["bokehDocid"], info["bokehModelid"])
     else
       throw "Unknown bokehData value for inject_plot: " + info.bokehData
@@ -76,7 +79,7 @@ define [
             _render_one(userdocs, title)
           else
             _render_all(userdocs)
-        console.log('subscribing to debug')
+        logger.info('subscribing to debug')
         wswrapper.subscribe("debug:debug", "")
         wswrapper.on('msg:debug:debug', (msg) ->
           if msg == 'reload'
@@ -101,7 +104,8 @@ define [
       doc.load()
     else
       msg = "Document '#{title}' wasn't found on this server."
-      _render(msg); console.error(msg)
+      _render(msg)
+      logger.error(msg)
 
   _render = (html) -> $('#PlotPane').append(html)
 

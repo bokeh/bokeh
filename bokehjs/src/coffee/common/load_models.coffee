@@ -2,7 +2,10 @@
 define [
   "require",
   "./base"
-], (require, base) ->
+  "./logging"
+], (require, base, Logging) ->
+
+  logger = Logging.logger
 
   load_models = (modelspecs)->
     # First we identify which model jsons correspond to new models,
@@ -38,6 +41,8 @@ define [
 
     Collections = require("./base").Collections
 
+    logger.debug("load_models: start")
+
     for model in modelspecs
       coll = Collections(model['type'])
       attrs = model['attributes']
@@ -52,11 +57,15 @@ define [
       if coll
         coll.add(attrs, {'silent' : true, 'defer_initialization' : true})
 
+    logger.debug("load_models: starting deferred initializations")
+
     # call deferred initialization on all new models
     for coll_attrs in newspecs
       [coll, attrs] = coll_attrs
       if coll
         coll.get(attrs['id']).initialize(attrs)
+
+    logger.debug("load_models: finished deferred initializations")
 
     # trigger add events on all new models
     for coll_attrs in newspecs
@@ -70,4 +79,7 @@ define [
       [coll, attrs] = coll_attrs
       if coll
         coll.get(attrs['id']).set(attrs)
+
+    logger.debug("load_models: finish")
+
     return null

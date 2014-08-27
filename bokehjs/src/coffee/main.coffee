@@ -11,27 +11,9 @@ define (require, exports, module) ->
   Bokeh.$                 = require("jquery")
   Bokeh.Backbone          = require("backbone")
 
-  JL = require("jsnlog")
-  Bokeh.logger = JL("Bokeh")
-  Bokeh.logger.setOptions({
-    "appenders": [JL.createConsoleAppender('consoleAppender')],
-  })
-
-  Bokeh.set_log_level = (level) ->
-    valid_levels = {
-      "trace" : JL.getTraceLevel()
-      "debug" : JL.getDebugLevel()
-      "info"  : JL.getInfoLevel()
-      "warn"  : JL.getWarnLevel()
-      "error" : JL.getErrorLevel()
-      "fatal" : JL.getFatalLevel()
-    }
-    if level not of valid_levels
-      console.log "Bokeh: Unrecognized logging level '#{level}' passed to Bokeh.set_log_level, ignoring."
-      console.log "Bokeh: Valid log levels are: #{Object.keys(valid_levels)}"
-      return
-    console.log "Bokeh: setting log level to: '#{level}'"
-    Bokeh.logger.setOptions({"level": valid_levels[level]})
+  logging = require("common/logging")
+  Bokeh.logger = logging.logger
+  Bokeh.set_log_level = logging.set_log_level
 
   # Make sure that we don't clobber any existing definition of $ (most
   # likely a previous version of jQuery.

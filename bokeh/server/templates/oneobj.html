@@ -6,7 +6,9 @@
 
 {% block extra_scripts %}
   {% for modulename, classname, parentname in extra_generated_classes %}
-  <script src="{{url_for('bokeh.server.generatejs', modulename=modulename, classname=classname, parentname=parentname) }}"></script>
+  <script
+    src="{{ url_for('bokeh.server.generatejs', modulename=modulename, classname=classname, parentname=parentname) }}"
+  ></script>
   {% endfor %}
 {% endblock %}
 
