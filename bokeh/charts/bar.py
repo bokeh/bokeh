@@ -257,7 +257,7 @@ class Bar(ChartObject):
         # we filled the source and ranges with the calculated data
         self.get_source(self._stacked)
         # we dynamically inject the source and ranges into the plot
-        self.add_data_plot(self.xdr, self.ydr, [self.source])
+        self.add_data_plot(self.xdr, self.ydr)
         # we add the glyphs into the plot
         self.draw(self._stacked)
         # we pass info to build the legend

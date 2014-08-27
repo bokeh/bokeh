@@ -305,17 +305,16 @@ class ChartObject(object):
         """
         pass
 
-    def add_data_plot(self, xdr, ydr, *source):
+    def add_data_plot(self, xdr, ydr):
         """Wrapper to call the ``chart.add_data_plot`` method.
 
-        It pass source and ranges as parameters of the ``chart.add_data_plot`` method.
+        It pass ranges as parameters of the ``chart.add_data_plot`` method.
 
         Args:
             xdr (obj): x-associated datarange object for you plot.
             ydr (obj): y-associated datarange object for you plot.
-            source (list): list containing datasources objects for your plot.
         """
-        self.chart.add_data_plot(xdr, ydr, *source)
+        self.chart.add_data_plot(xdr, ydr)
 
     def draw(self):
         """Draw the glyphs into the plot.

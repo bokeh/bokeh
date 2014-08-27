@@ -95,7 +95,6 @@ class Chart(object):
         self.filename = filename
         self.server = server
         self.notebook = notebook
-        self._source = None
         self._xdr = None
         self._ydr = None
         self.plot = Plot(title=self.title,
@@ -131,18 +130,16 @@ class Chart(object):
             previewsave = PreviewSaveTool(plot=self.plot)
             self.plot.tools.append(previewsave)
 
-    def add_data_plot(self, x_range, y_range, *source):
-        """Add source and range data to the initialized empty attributes.
+    def add_data_plot(self, x_range, y_range):
+        """Add range data to the initialized empty attributes.
 
         Args:
             x_range (obj): x-associated datarange object for your `self.plot`.
             y_range (obj): y-associated datarange object for your `self.plot`.
-            source (obj): datasource object for your `self.plot`.
         """
-        # Overwrite the source and ranges in the plot
+        # Overwrite the ranges in the plot
         self.plot.x_range = x_range
         self.plot.y_range = y_range
-        self.plot.data_sources = source[0]
 
     def end_plot(self, groups):
         """Add the legend to your plot, and the plot to a new Document.
