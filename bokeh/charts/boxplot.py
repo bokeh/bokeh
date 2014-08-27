@@ -182,7 +182,7 @@ class BoxPlot(ChartObject):
         if isinstance(self.value, pd.DataFrame):
             self.groups = self.value.columns
         else:
-            self.groups = self.value.keys()
+            self.groups = list(self.value.keys())
 
         self.marker = marker
         self.outliers = outliers
