@@ -59,28 +59,10 @@ class TestResources(unittest.TestCase):
         self.assertEqual(r.css_raw, [])
         self.assertEqual(r.messages, [])
 
-        self.assertEqual(r.conn_string, "ws://127.0.0.1:5006/bokeh/sub")
-
-        r = resources.Resources(mode="server", root_url="http://foo/")
-        self.assertEqual(r.conn_string, "ws://foo/bokeh/sub")
-
-        self.assertEqual(r.js_raw, [])
-        self.assertEqual(r.css_raw, [])
-        self.assertEqual(r.messages, [])
-
     def test_server_dev(self):
         r = resources.Resources(mode="server-dev")
         self.assertEqual(r.mode, "server")
         self.assertEqual(r.dev, True)
-
-        self.assertEqual(r.conn_string, "ws://127.0.0.1:5006/bokeh/sub")
-
-        self.assertEqual(len(r.js_raw), 1)
-        self.assertEqual(r.css_raw, [])
-        self.assertEqual(r.messages, [])
-
-        r = resources.Resources(mode="server-dev", root_url="http://foo/")
-        self.assertEqual(r.conn_string, "ws://foo/bokeh/sub")
 
         self.assertEqual(len(r.js_raw), 1)
         self.assertEqual(r.css_raw, [])
@@ -142,5 +124,3 @@ class TestResources(unittest.TestCase):
         for mode in ("server-dev", "relative-dev", "absolute-dev"):
             r = resources.Resources(mode)
             self.assertEqual(r.js_wrapper("foo"), WRAPPER_DEV)
-
-

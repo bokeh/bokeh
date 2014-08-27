@@ -1,7 +1,6 @@
 {% extends "_base.html" %}
 
 {% block head %}
-  <script src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>
   <link href="{{ url_for('bokeh.server.bokehjs_file', filename='css/bokeh.css') }}" rel="stylesheet">
   {% block extra_scripts %}
   {% endblock %}

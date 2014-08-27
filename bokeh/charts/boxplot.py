@@ -241,7 +241,7 @@ class BoxPlot(ChartObject):
         if isinstance(self.value, pd.DataFrame):
             self.cat = self.value.columns
         else:
-            self.cat = self.value.keys()
+            self.cat = list(self.value.keys())
 
         # we need to check the chained method attr
         self.check_attr()

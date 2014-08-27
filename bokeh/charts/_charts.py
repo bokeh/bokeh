@@ -98,7 +98,6 @@ class Chart(object):
         self._xdr = None
         self._ydr = None
         self.plot = Plot(title=self.title,
-                         data_sources=[self._source],
                          x_range=self._xdr,
                          y_range=self._ydr,
                          plot_width=self.plot_width,

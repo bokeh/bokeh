@@ -241,11 +241,6 @@ CrosshairTool
 Th crosshair tool (``'crosshair'``) draws a crosshair annotation over the plot, centered on
 the current mouse position.
 
-EmbedTool
-'''''''''
-The embed tool (``'embed'``) tool pops up a modal dialog containing a javascript ``<script>``
-snippet that can put int HTML pages to display the plot.
-
 HoverTool
 '''''''''
 The hover tool (``'hover'``) tool pops up a tooltip div whenever the cursor is over
@@ -459,6 +454,41 @@ shown here::
 
             cursession().store_objects(ds)
             time.sleep(.10)
+
+Applets
+-------
+
+It is possible to use Bokeh to create dashboard-like applets. These applets can be served
+directly from the Bokeh Server, or they may be embedded in you own web applications. In
+addition to the standard Bokeh interactive plot tools, Bokeh applets can contain widgets
+such as drop downs, date selectors, and sliders. The values are from these widgets are
+made available to the applet code, which can add, remove, or update plots or otherwise
+inform the application view based on user input.
+
+One example is the stocks correlation applet pictured below:
+
+.. image:: /_images/stocks_applet.png
+    :align: center
+    :scale: 30 %
+
+This applet allows a user to pick between pairs of stocks to display correlation plots for.
+The subplots below show histograms for each time series as well as the time series themselves.
+These plots have linked panning and selections; making a selection on the correlation plot will
+highlight the selected points on the time series, as well as update the histograms to only show
+binnings got the selected points.
+
+The code and instructions for running this example can be found at
+`examples/app/stock_applet <https://github.com/ContinuumIO/bokeh/tree/master/examples/app/stock_applet>`_.
+
+Another example is the sliders applet that presents several sliders to modify
+parameters of a `sin` function:
+
+.. image:: /_images/sliders_applet.png
+    :align: center
+    :scale: 50 %
+
+The code and instructions for running this example can be found at
+`examples/app/sliders_applet <https://github.com/ContinuumIO/bokeh/tree/master/examples/app/sliders_applet>`_.
 
 Novel Plots
 -----------

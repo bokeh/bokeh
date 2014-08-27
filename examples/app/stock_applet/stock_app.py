@@ -1,40 +1,37 @@
-import os
-from os.path import join, dirname, splitext
-import logging
+"""
+This file demonstrates a bokeh applet, which can either be viewed
+directly on a bokeh-server, or embedded into a flask application.
+See the README.md file in this directory for instructions on running.
+"""
 
+import logging
+logging.basicConfig(level=logging.DEBUG)
+
+from os import listdir
+from os.path import dirname, join, splitext
+
+import numpy as np
 import pandas as pd
 
-import bokeh.server
+from bokeh.objects import ColumnDataSource, Plot
+from bokeh.plotting import circle, rect, curdoc
+from bokeh.properties import String, Instance
 from bokeh.server.app import bokeh_app
 from bokeh.server.utils.plugins import object_page
-from bokeh.plotting import line, circle, rect, curdoc
-from bokeh.objects import Range1d
-from bokeh.widgetobjects import (HBox, VBox, VBoxForm,
-                                 TextInput, PreText,
-                                 Select)
-from bokeh.objects import Plot, ColumnDataSource
-from bokeh.properties import (Dict, Float, String, Instance)
-import numpy as np
-
-
-logging.basicConfig(level=logging.DEBUG)
-"""
-This is an example applet run from the bokeh server.  you will need to download some sample data from quantquote, which
-can be executed from the download.py script
-
-Then, execute bokeh-server --script stock_example.py, and point your browser at http://localhost:5006/bokeh/stocks/
-"""
+from bokeh.widgetobjects import HBox, VBox, VBoxForm, PreText, Select
 
 data_dir = join(dirname(__file__), "daily")
-tickers = os.listdir(data_dir)
+tickers = listdir(data_dir)
 tickers = [splitext(x)[0].split("table_")[-1] for x in tickers]
 
 def get_ticker_data(ticker):
     fname = join(data_dir, "table_%s.csv" % ticker.lower())
-    data = pd.read_csv(fname,
-                        names=['date', 'foo', 'o', 'h', 'l', 'c', 'v'],
-                        header=False,
-                        parse_dates=['date'])
+    data = pd.read_csv(
+        fname,
+        names=['date', 'foo', 'o', 'h', 'l', 'c', 'v'],
+        header=False,
+        parse_dates=['date']
+    )
     data = data.set_index('date')
     data = pd.DataFrame({ticker : data.c, ticker + "_returns" : data.c.diff()})
     return data
@@ -55,25 +52,25 @@ class StockApp(VBox):
     extra_generated_classes = [["StockApp", "StockApp", "VBox"]]
     jsmodel = "VBox"
 
-    #text statistics
+    # text statistics
     pretext = Instance(PreText)
 
-    #plots
+    # plots
     plot = Instance(Plot)
     line_plot1 = Instance(Plot)
     line_plot2 = Instance(Plot)
     hist1 = Instance(Plot)
     hist2 = Instance(Plot)
 
-    #datsource
+    # data source
     source = Instance(ColumnDataSource)
 
-    #layout boxes
+    # layout boxes
     mainrow = Instance(HBox)
     histrow = Instance(HBox)
     statsbox = Instance(VBox)
 
-    #inputs
+    # inputs
     ticker1 = String(default="AAPL")
     ticker2 = String(default="GOOG")
     ticker1_select = Instance(Select)
@@ -90,34 +87,38 @@ class StockApp(VBox):
         This function is called once, and is responsible for
         creating all objects (plots, datasources, etc)
         """
-        #create layout widgets
+        # create layout widgets
         obj = cls()
         obj.mainrow = HBox()
         obj.histrow = HBox()
         obj.statsbox = VBox()
         obj.input_box = VBoxForm()
 
-        #create input widgets
+        # create input widgets
         obj.make_inputs()
 
-        #outputs
+        # outputs
         obj.pretext = PreText(text="", width=500)
         obj.make_source()
         obj.make_plots()
         obj.make_stats()
 
-        #layout
+        # layout
         obj.set_children()
         return obj
+
     def make_inputs(self):
-        self.ticker1_select = Select(name='ticker1',
-                                     value='AAPL',
-                                     options=['AAPL', 'GOOG', 'INTC', 'BRCM', 'YHOO']
+        self.ticker1_select = Select(
+            name='ticker1',
+            value='AAPL',
+            options=['AAPL', 'GOOG', 'INTC', 'BRCM', 'YHOO']
         )
-        self.ticker2_select = Select(name='ticker2',
-                                     value='GOOG',
-                                     options=['AAPL', 'GOOG', 'INTC', 'BRCM', 'YHOO']
+        self.ticker2_select = Select(
+            name='ticker2',
+            value='GOOG',
+            options=['AAPL', 'GOOG', 'INTC', 'BRCM', 'YHOO']
         )
+
     @property
     def selected_df(self):
         pandas_df = self.df
@@ -130,16 +131,18 @@ class StockApp(VBox):
         self.source = ColumnDataSource(data=self.df)
 
     def line_plot(self, ticker, x_range=None):
-        plot = circle('date', ticker,
-                      title=ticker,
-                      size=2,
-                      x_range=x_range,
-                      x_axis_type='datetime',
-                      source=self.source,
-                      title_text_font_size="10pt",
-                      plot_width=1000, plot_height=200,
-                      nonselection_alpha=0.02,
-                      tools="pan,wheel_zoom,select")
+        plot = circle(
+            'date', ticker,
+            title=ticker,
+            size=2,
+            x_range=x_range,
+            x_axis_type='datetime',
+            source=self.source,
+            title_text_font_size="10pt",
+            plot_width=1000, plot_height=200,
+            nonselection_alpha=0.02,
+            tools="pan,wheel_zoom,select"
+        )
         return plot
 
     def hist_plot(self, ticker):
@@ -150,25 +153,28 @@ class StockApp(VBox):
         start = global_bins.min()
         end = global_bins.max()
         top = hist.max()
-        return rect(center, hist/2.0, width, hist,
-                    title="%s hist" % ticker,
-                    plot_width=500, plot_height=200,
-                    tools="",
-                    title_text_font_size="10pt",
-                    x_range=Range1d(start=start, end=end),
-                    y_range=Range1d(start=0, end=top))
+        return rect(
+            center, hist/2.0, width, hist,
+            title="%s hist" % ticker,
+            plot_width=500, plot_height=200,
+            tools="",
+            title_text_font_size="10pt",
+            x_range=[start, end],
+            y_range=[0, top],
+        )
 
     def make_plots(self):
         ticker1 = self.ticker1
         ticker2 = self.ticker2
-        self.plot = circle(ticker1 + "_returns", ticker2 + "_returns",
-                           size=2,
-                           title="%s vs %s" %(ticker1, ticker2),
-                           source=self.source,
-                           plot_width=400, plot_height=400,
-                           tools="pan,wheel_zoom,select",
-                           title_text_font_size="10pt",
-                           nonselection_alpha=0.02
+        self.plot = circle(
+            ticker1 + "_returns", ticker2 + "_returns",
+            size=2,
+            title="%s vs %s" %(ticker1, ticker2),
+            source=self.source,
+            plot_width=400, plot_height=400,
+            tools="pan,wheel_zoom,select",
+            title_text_font_size="10pt",
+            nonselection_alpha=0.02,
         )
         self.line_plot1 = self.line_plot(ticker1)
         self.line_plot2 = self.line_plot(ticker2, self.line_plot1.x_range)
@@ -220,10 +226,12 @@ class StockApp(VBox):
     def df(self):
         return get_data(self.ticker1, self.ticker2)
 
+# The following code adds a "/bokeh/stocks/" url to the bokeh-server. This URL
+# will render this StockApp. If you don't want serve this applet from a Bokeh
+# server (for instance if you are embedding in a separate Flask application),
+# then just remove this block of code.
 @bokeh_app.route("/bokeh/stocks/")
 @object_page("stocks")
 def make_object():
     app = StockApp.create()
     return app
-
-# the following addes "/exampleapp" as a url which renders StockApp
