@@ -194,8 +194,6 @@ class Resources(object):
         if self.dev:
             require = 'require.config({ baseUrl: "%s" });' % base_url
             self._js_raw.append(require)
-            main = 'Bokeh = require("main");'
-            self._js_raw.append(main)
 
     @property
     def log_level(self):
@@ -215,7 +213,10 @@ class Resources(object):
     def js_raw(self):
         if six.callable(self._js_raw):
             self._js_raw = self._js_raw()
-        return self._js_raw + ['Bokeh.set_log_level("%s")' % self.log_level]
+        if self.dev:
+            return self._js_raw
+        else:
+            return self._js_raw + ['Bokeh.set_log_level("%s");' % self.log_level]
 
     @property
     def css_raw(self):
@@ -247,7 +248,7 @@ class Resources(object):
         wrapper = lambda code: '$(function() {\n%s\n});' % pad(code)
 
         if self.dev:
-            js_wrapper = lambda code: 'require(["jquery", "main"], function($, Bokeh) {\n%s\n});' % pad(wrapper(code))
+            js_wrapper = lambda code: 'require(["jquery", "main"], function($, Bokeh) {\nBokeh.set_log_level("%s");\n%s\n});' % (self.log_level, pad(wrapper(code)))
         else:
             js_wrapper = wrapper
 

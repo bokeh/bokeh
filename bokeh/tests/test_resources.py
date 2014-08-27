@@ -8,6 +8,7 @@ WRAPPER = """$(function() {
 });"""
 
 WRAPPER_DEV = '''require(["jquery", "main"], function($, Bokeh) {
+Bokeh.set_log_level("info");
     $(function() {
         foo
     });
@@ -15,7 +16,7 @@ WRAPPER_DEV = '''require(["jquery", "main"], function($, Bokeh) {
 
 LOG_LEVELS = ['trace', 'debug', 'info', 'warn', 'error', 'fatal']
 
-DEFAULT_JOG_JS_RAW = 'Bokeh.set_log_level("info")'
+DEFAULT_JOG_JS_RAW = 'Bokeh.set_log_level("info");'
 
 class TestResources(unittest.TestCase):
 
@@ -28,7 +29,8 @@ class TestResources(unittest.TestCase):
         for level in LOG_LEVELS:
             r.log_level = level
             self.assertEqual(r.log_level, level)
-            self.assertEqual(r.js_raw[-1], 'Bokeh.set_log_level("%s")' % level)
+            if not r.dev:
+                self.assertEqual(r.js_raw[-1], 'Bokeh.set_log_level("%s");' % level)
         self.assertRaises(ValueError, setattr, r, "log_level", "foo")
 
     def test_module_attrs(self):
@@ -82,15 +84,17 @@ class TestResources(unittest.TestCase):
         self.assertEqual(r.mode, "server")
         self.assertEqual(r.dev, True)
 
-        self.assertEqual(len(r.js_raw), 3)
-        self.assertEqual(r.js_raw[-1], DEFAULT_JOG_JS_RAW)
+        self.assertEqual(len(r.js_raw), 1)
+        self.assertTrue(r.js_raw[0].startswith('require.config({ baseUrl:'))
+        self.assertTrue(r.js_raw[0].endswith('static/js" });'))
         self.assertEqual(r.css_raw, [])
         self.assertEqual(r.messages, [])
 
         r = resources.Resources(mode="server-dev", root_url="http://foo/")
 
-        self.assertEqual(len(r.js_raw), 3)
-        self.assertEqual(r.js_raw[-1], DEFAULT_JOG_JS_RAW)
+        self.assertEqual(len(r.js_raw), 1)
+        self.assertTrue(r.js_raw[0].startswith('require.config({ baseUrl:'))
+        self.assertTrue(r.js_raw[0].endswith('static/js" });'))
         self.assertEqual(r.css_raw, [])
         self.assertEqual(r.messages, [])
 
@@ -108,8 +112,9 @@ class TestResources(unittest.TestCase):
         self.assertEqual(r.mode, "relative")
         self.assertEqual(r.dev, True)
 
-        self.assertEqual(len(r.js_raw), 3)
-        self.assertEqual(r.js_raw[-1], DEFAULT_JOG_JS_RAW)
+        self.assertEqual(len(r.js_raw), 1)
+        self.assertTrue(r.js_raw[0].startswith('require.config({ baseUrl:'))
+        self.assertTrue(r.js_raw[0].endswith('static/js" });'))
         self.assertEqual(r.css_raw, [])
         self.assertEqual(r.messages, [])
 
@@ -127,8 +132,9 @@ class TestResources(unittest.TestCase):
         self.assertEqual(r.mode, "absolute")
         self.assertEqual(r.dev, True)
 
-        self.assertEqual(len(r.js_raw), 3)
-        self.assertEqual(r.js_raw[-1], DEFAULT_JOG_JS_RAW)
+        self.assertEqual(len(r.js_raw), 1)
+        self.assertTrue(r.js_raw[0].startswith('require.config({ baseUrl:'))
+        self.assertTrue(r.js_raw[0].endswith('static/js" });'))
         self.assertEqual(r.css_raw, [])
         self.assertEqual(r.messages, [])
 
