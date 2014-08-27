@@ -52,6 +52,7 @@ define [
     if not document.body.contains(script[0])
       throw "Error injecting plot: autoload script tag may only be under <body>"
     info = script.data()
+    Bokeh.set_log_level(info['bokehLoglevel'])
     logger.info("Injecting plot for script tag with id: #" + element_id)
     base.Config.prefix = info['bokehRootUrl']
     container = $('<div>', {class: 'bokeh-container'})
