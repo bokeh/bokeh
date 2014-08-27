@@ -1,7 +1,7 @@
 {% extends "_page_base.html" %}
 
 {% block title %}
-Bokeh Plot Server &mdash; {{ title }}
+  Bokeh Plot Server &mdash; {{ title }}
 {% endblock %}
 
 {% block extra_scripts %}
@@ -11,13 +11,12 @@ Bokeh Plot Server &mdash; {{ title }}
 {% endblock %}
 
 {% block script %}
-window.Bokeh = Bokeh;
-{% for modulename, classname, parentname in extra_generated_classes %}
-window.{{modulename}}.main();
-{% endfor %}
-
-Bokeh.one_object_page("{{docid}}", "{{objid}}")
-
+  window.Bokeh = Bokeh;
+  {% for modulename, classname, parentname in extra_generated_classes %}
+  window.{{modulename}}.main();
+  {% endfor %}
+  container = $("#PlotPane");
+  Bokeh.embed.add_plot_server(container, "{{ docid }}", "{{ objid }}");
 {% endblock %}
 
 {% block content %}

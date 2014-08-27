@@ -276,6 +276,7 @@ def show_obj(docid, objid):
     if not bokehuser:
         return redirect(url_for(".login_get", next=request.url))
     return render("oneobj.html",
+                  elementid=str(uuid.uuid4()),
                   docid=docid,
                   objid=objid,
                   hide_navbar=True,
@@ -283,6 +284,7 @@ def show_obj(docid, objid):
                   username=bokehuser.username)
 
 @bokeh_app.route('/bokeh/wsurl/', methods=['GET'])
+@crossdomain(origin="*", headers=['BOKEH-API-KEY', 'Continuum-Clientid'])
 def wsurl():
     if bokeh_app.websocket_params.get('ws_conn_string'):
         return bokeh_app.websocket_params.get('ws_conn_string')

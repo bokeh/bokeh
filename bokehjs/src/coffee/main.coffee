@@ -97,7 +97,6 @@ define (require, exports, module) ->
 
   # server tools
   Bokeh.embed       = require("server/embed")
-  Bokeh.serverrun   = require("server/serverrun")
   Bokeh.serverutils = require("server/serverutils")
 
   # data sources
@@ -133,10 +132,6 @@ define (require, exports, module) ->
   Bokeh.ResizeTool             = require("tool/resize_tool")
   Bokeh.WheelZoomTool          = require("tool/wheel_zoom_tool")
   Bokeh.ObjectExplorerTool     = require("tool/object_explorer_tool")
-
-  # page functions
-  Bokeh.one_object_page = require("server/serverrun").load_one_object
-  Bokeh.server_page     = require("server/serverrun").load
 
   # widgets
   Bokeh.DataSlider     = require("widget/data_slider")

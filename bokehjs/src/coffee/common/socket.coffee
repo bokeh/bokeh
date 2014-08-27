@@ -57,7 +57,7 @@ define [
     wswrapper.on("msg:" + topic, (msg) ->
       msgobj = JSON.parse(msg)
       if msgobj['msgtype'] == 'modelpush'
-        console.log(msgobj['modelspecs'])
+        #console.log(msgobj['modelspecs'])
         load_models(msgobj['modelspecs'])
       else if msgobj['msgtype'] == 'modeldel'
         for ref in msgobj['modelspecs']

@@ -35,7 +35,7 @@ def components(plot_object, resources):
         resources (Resources, optional) : BokehJS resources config
 
     Returns:
-        (script, div) : UTF-8 encoded 
+        (script, div) : UTF-8 encoded
 
     '''
     ref = plot_object.get_ref()
@@ -195,7 +195,6 @@ def autoload_server(plot_object, session):
         src_path = resources._autoload_path(elementid),
         elementid = elementid,
         modelid = plot_object._id,
-        modeltype = plot_object.__view_model__,
         root_url = resources.root_url,
         docid =  session.docid,
         docapikey = session.apikey,
