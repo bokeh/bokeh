@@ -49,6 +49,9 @@ class Settings(object):
     def pythonlib(self, default=None):
         return self._get_str("PYTHONLIB", default)
 
+    def simple_ids(self, default=None):
+        return self._get_bool("SIMPLE_IDS", default)
+
     """
     Server settings go here:
     """

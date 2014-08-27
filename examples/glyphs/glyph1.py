@@ -7,7 +7,7 @@ from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.glyphs import Circle
 from bokeh.objects import (
-    Plot, DataRange1d, LinearAxis, ColumnDataSource, Glyph, PanTool, WheelZoomTool
+    Plot, DataRange1d, LinearAxis, ColumnDataSource, PanTool, WheelZoomTool
 )
 from bokeh.resources import INLINE
 
@@ -21,26 +21,15 @@ source = ColumnDataSource(
 xdr = DataRange1d(sources=[source.columns("x")])
 ydr = DataRange1d(sources=[source.columns("y")])
 
-circle = Circle(x="x", y="y", fill_color="red", size=5, line_color="black")
-
-glyph_renderer = Glyph(
-        data_source = source,
-        xdata_range = xdr,
-        ydata_range = ydr,
-        glyph = circle,
-        )
-
 plot = Plot(x_range=xdr, y_range=ydr, min_border=80)
-xaxis = LinearAxis(plot=plot)
-plot.below.append(xaxis)
-yaxis = LinearAxis(plot=plot)
-plot.left.append(yaxis)
 
-pantool = PanTool(dimensions=["width", "height"])
-wheelzoomtool = WheelZoomTool(dimensions=["width", "height"])
+circle = Circle(x="x", y="y", fill_color="red", size=5, line_color="black")
+plot.add_glyph(source, xdr, ydr, circle)
 
-plot.renderers.append(glyph_renderer)
-plot.tools = [pantool, wheelzoomtool]
+plot.add_layout(LinearAxis(), 'below')
+plot.add_layout(LinearAxis(), 'left')
+
+plot.add_tools(PanTool(), WheelZoomTool())
 
 doc = Document()
 doc.add(plot)

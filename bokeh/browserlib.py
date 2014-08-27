@@ -21,21 +21,34 @@ def get_browser_controller(browser=None):
 
     return controller
 
-def view(filename, browser=None, new=False, autoraise=True):
-        """ Opens a browser to view the file pointed to by this sessions.
+def view(location, browser=None, new="same", autoraise=True):
+        """ Opens a browser to view the specified location.
 
-        **new** can be None, "tab", or "window" to view the file in the
-        existing page, a new tab, or a new windows.  **autoraise** causes
-        the browser to be brought to the foreground; this may happen
-        automatically on some platforms regardless of the setting of this
-        variable.
+        Args:
+            location (str) : location to open
+                If location does not begin with "http:" it is assumed
+                to be a file path on the local filesystem.
+            browser (str) : what browser to use
+            new (str) : how to open the location
+                Valid values are:
+                    * "same" - open in the current tab
+                    * "tab" - open a new tab in the current window
+                    * "window" - open in a new window
+            autoraise (bool) : whether to raise the new location
+
+        Returns:
+            None
+
         """
-        new_map = { False: 0, "window": 1, "tab": 2 }
-        file_url = "file://" + abspath(filename)
+        new_map = { "same": 0, "window": 1, "tab": 2 }
+        if location.startswith("http"):
+            url = location
+        else:
+            url = "file://" + abspath(location)
 
         try:
             controller = get_browser_controller(browser)
-            controller.open(file_url, new=new_map[new], autoraise=autoraise)
+            controller.open(url, new=new_map[new], autoraise=autoraise)
         except (SystemExit, KeyboardInterrupt):
             raise
         except:
