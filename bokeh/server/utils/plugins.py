@@ -3,6 +3,7 @@ from ...exceptions import DataIntegrityException
 from ..app import bokeh_app
 from ..views.main import _makedoc
 from ..views.backbone import init_bokeh
+from ...resources import Resources
 import uuid
 
 """Utilities for writing plugins, this is different from bokeh.pluginutils
@@ -50,6 +51,7 @@ def object_page(prefix):
                 extra_generated_classes = []
             changed = bokeh_app.backbone_storage.store_document(clientdoc)
 
+            resources = Resources()
             return render_template("oneobj.html",
                                    elementid=str(uuid.uuid4()),
                                    docid=docid,
@@ -57,7 +59,8 @@ def object_page(prefix):
                                    hide_navbar=True,
                                    extra_generated_classes=extra_generated_classes,
                                    splitjs=bokeh_app.splitjs,
-                                   username=bokehuser.username)
+                                   username=bokehuser.username,
+                                   loglevel=resources.log_level)
         wrapper.__name__ = func.__name__
         return wrapper
     return decorator

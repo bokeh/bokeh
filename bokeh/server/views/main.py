@@ -275,13 +275,15 @@ def show_obj(docid, objid):
     bokehuser = bokeh_app.current_user()
     if not bokehuser:
         return redirect(url_for(".login_get", next=request.url))
+    resources = request_resources()
     return render("oneobj.html",
                   elementid=str(uuid.uuid4()),
                   docid=docid,
                   objid=objid,
                   hide_navbar=True,
                   splitjs=bokeh_app.splitjs,
-                  username=bokehuser.username)
+                  username=bokehuser.username,
+                  loglevel=resources.log_level)
 
 @bokeh_app.route('/bokeh/wsurl/', methods=['GET'])
 @crossdomain(origin="*", headers=['BOKEH-API-KEY', 'Continuum-Clientid'])
