@@ -15,6 +15,7 @@ require.config
         jstree:            "vendor/jstree/dist/jstree"
         gear_utils:        "vendor/gear-utils/gear-utils"
         kiwi:              "vendor/kiwi/kiwi"
+        jsnlog:            "vendor/jsnlog/jsnlog.min"
     shim:
         sprintf:
             exports: 'sprintf'

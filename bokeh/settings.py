@@ -40,6 +40,9 @@ class Settings(object):
     def minified(self, default=None):
         return self._get_bool("MINIFIED", default)
 
+    def log_level(self, default=None):
+        return self._get_str("LOG_LEVEL", default)
+
     def pretty(self, default=None):
         return self._get_bool("PRETTY", default)
 

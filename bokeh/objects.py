@@ -443,8 +443,8 @@ class Plot(Widget):
     y_mapper_type = String('auto')
 
     title = String('')
-    title_props = Include(TextProps, prefix="title")
-    outline_props = Include(LineProps, prefix="outline")
+    title_props = Include(TextProps)
+    outline_props = Include(LineProps)
 
     # A list of all renderers on this plot; this includes guides as well
     # as glyph renderers
@@ -539,14 +539,14 @@ class Axis(GuideRenderer):
 
     axis_label = String
     axis_label_standoff = Int
-    axis_label_props = Include(TextProps, prefix="axis_label")
+    axis_label_props = Include(TextProps)
 
     major_label_standoff = Int
     major_label_orientation = Either(Enum("horizontal", "vertical"), Float)
-    major_label_props = Include(TextProps, prefix="major_label")
+    major_label_props = Include(TextProps)
 
-    axis_props = Include(LineProps, prefix="axis")
-    tick_props = Include(LineProps, prefix="major_tick")
+    axis_props = Include(LineProps)
+    major_tick_props = Include(LineProps)
 
     major_tick_in = Int
     major_tick_out = Int
@@ -585,7 +585,7 @@ class Grid(GuideRenderer):
 
     ticker = Instance(Ticker)
 
-    grid_props = Include(LineProps, prefix="grid")
+    grid_props = Include(LineProps)
 
 class Tool(PlotObject):
     plot = Instance(Plot)
@@ -597,9 +597,6 @@ class WheelZoomTool(Tool):
     dimensions = List(Enum(Dimension), default=["width", "height"])
 
 class PreviewSaveTool(Tool):
-    pass
-
-class EmbedTool(Tool):
     pass
 
 class ResetTool(Tool):
@@ -643,9 +640,9 @@ class DataRangeBoxSelectTool(Tool):
 class Legend(Renderer):
     plot = Instance(Plot)
     orientation = Enum(Orientation)
-    border = Include(LineProps, prefix="border")
+    border_props = Include(LineProps)
 
-    label_props = Include(TextProps, prefix="label")
+    label_props = Include(TextProps)
     label_standoff = Int(15)
     label_height = Int(20)
     label_width = Int(50)
