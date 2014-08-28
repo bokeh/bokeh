@@ -15,7 +15,7 @@ def prune_and_get_valid_models(clientdoc, delete=False):
     wipe out any models that are orphaned.  Also call transform_models, which
     performs any backwards compatability data transformations.
     """
-    objs = clientdoc._plotcontext.references()
+    objs = clientdoc.context.references()
     log.info("num models: %d", len(objs))
     if delete:
         for obj in clientdoc._models.values():
@@ -29,8 +29,7 @@ def new_doc(flaskapp, docid, title, clientdoc, rw_users=None, r_users=None,
     if not apikey: apikey = str(uuid.uuid4())
     if not readonlyapikey: readonlyapikey = str(uuid.uuid4())
     plot_context = PlotContext()
-    clientdoc.unset_context()
-    clientdoc.set_context(plot_context)
+    clientdoc.context = plot_context
     if rw_users is None: rw_users = []
     if r_users is None: r_users = []
     doc = Doc(docid, title, rw_users, r_users,

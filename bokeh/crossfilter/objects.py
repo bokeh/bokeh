@@ -149,7 +149,6 @@ class CrossFilter(PlotObject):
             return
         plot = self.make_plot()
         self.plot = plot
-        curdoc().add_all()
 
     def make_plot(self):
         if all([len(self.facet_x) ==0,
@@ -418,7 +417,6 @@ class CrossFilter(PlotObject):
                     )
                     hist_plot.title = col
                     self.filter_widgets[col] = hist_plot
-        curdoc().add_all()
 
     def set_metadata(self):
         descriptors = []

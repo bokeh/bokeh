@@ -139,7 +139,7 @@ class BokehApplet(Widget):
         def exampleapp():
             app = make_app()
             docid = curdoc().docid
-            objid = curdoc()._plotcontext._id
+            objid = curdoc().context._id
             extra_generated_classes = app.extra_generated_classes
             if len(extra_generated_classes) == 0:
                 extra_generated_classes.append([

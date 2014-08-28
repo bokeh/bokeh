@@ -519,8 +519,10 @@ class Session(object):
         if typename is None and objid is None:
             url = utils.urljoin(self.base_url, self.docid +"/")
             attrs = self.get_json(url)
+
         elif typename is None or objid is None:
             raise ValueError("typename and objid must both be None, or neither.")
+
         else:
             url = utils.urljoin(
                 self.base_url,
@@ -570,13 +572,13 @@ class Session(object):
         plot_context_json = plot_contexts[0]
         children = set([x['id'] for x in plot_context_json['attributes']['children']])
 
-        for child in doc._plotcontext.children:
+        for child in doc.context.children:
             ref = child.ref
             if ref['id'] not in children:
                 plot_context_json['attributes']['children'].append(ref)
 
         doc.docid = self.docid
-        doc._plotcontext._id = plot_context_json['id']
+        doc.context._id = plot_context_json['id']
         doc.load(plot_context_json, *other_objects)
 
     def load_object(self, obj, doc):

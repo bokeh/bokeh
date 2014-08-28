@@ -248,7 +248,7 @@ def show(obj=None, browser=None, new="tab", url=None):
         if url:
             controller.open(url, new=new_param)
         else:
-            controller.open(session.object_link(curdoc()._plotcontext))
+            controller.open(session.object_link(curdoc().context))
 
     elif filename:
         save(filename, obj=plot)
@@ -561,7 +561,7 @@ def gridplot(plot_arrangement, name=None):
     # Walk the plot_arrangement and remove them from the plotcontext,
     # so they don't show up twice
     subplots = itertools.chain.from_iterable(plot_arrangement)
-    curdoc().get_context().children = list(set(curdoc().get_context().children) - set(subplots))
+    curdoc().context.children = list(set(curdoc().context.children) - set(subplots))
     curdoc().add(grid)
     curdoc()._current_plot = grid # TODO (bev) don't use private attrs
 

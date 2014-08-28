@@ -133,7 +133,7 @@ in this directory, then navigate to
 
 import time
 
-link = pop.session.object_link(pop.document._plotcontext)
+link = pop.session.object_link(pop.document.context)
 print("""You can also go to
 
     %s
