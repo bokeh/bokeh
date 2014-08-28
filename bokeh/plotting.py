@@ -337,7 +337,7 @@ def _doc_wrap(func):
 
 def _plot_function(__func__, *args, **kwargs):
     retval = __func__(curdoc(), *args, **kwargs)
-    if cursession() and curdoc()._autostore:
+    if cursession() and curdoc().autostore:
         push()
     if _default_file and _default_file['autosave']:
         save()

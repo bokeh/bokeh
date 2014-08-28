@@ -18,17 +18,34 @@ logger = logging.getLogger(__file__)
 class Document(object):
 
     def __init__(self, json_objs=None):
+        self.autostore = True
+        self.autoadd = True
+
         self._current_plot = None
         self._next_figure_kwargs = dict()
         self._hold = False
-        self._autostore = True
-        self._autoadd = True
         self._models = {}
         self.docid = make_id()
         self._plotcontext = None
         if json_objs:
             self.load(*json_objs, dirty=False)
         self.set_context()
+
+    @property
+    def autoadd(self):
+        return self._autoadd
+
+    @autoadd.setter
+    def autoadd(self, value):
+        self._autoadd = value
+
+    @property
+    def autostore(self):
+        return self._autostore
+
+    @autostore.setter
+    def autostore(self, value):
+        self._autostore = value
 
     @property
     def ref(self):
@@ -84,12 +101,6 @@ class Document(object):
 
     def __exit__(self, e_ty, e_val, e_tb):
         pass
-
-    def autoadd(self, value=True):
-        self._autoadd = value
-
-    def autostore(self, value=True):
-        self._autostore = value
 
     def hold(self, value=True):
         ''' Set the hold value for this Document.

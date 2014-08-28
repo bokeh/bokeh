@@ -132,7 +132,7 @@ class BokehApplet(Widget):
         @app_document(cls.__view_model__, bokeh_url)
         def make_app():
             app = cls()
-            curdoc().autostore(False)
+            curdoc().autostore = False
             app.create(curdoc())
             return app
 
