@@ -1,3 +1,11 @@
+''' The session module provides the Session class, which encapsulates a
+connection to a Document that resides on a Bokeh server.
+
+The Session class provides methods for creating, loading and storing
+documents and objects, as well as methods for user-authentication. These
+are useful when the server is run in multi-user mode.
+
+'''
 from __future__ import absolute_import, print_function
 
 #--------
@@ -42,19 +50,26 @@ from . import utils
 DEFAULT_SERVER_URL = "http://localhost:5006/"
 
 class Session(object):
-    """ Encapsulate a connection to a document stored on a Bokeh Server
+    """ Encapsulate a connection to a document stored on a Bokeh Server.
 
     Args:
         name (str, optional) : name of server
-        root_url (str, optional) : root_url of server
+        root_url (str, optional) : root url of server
         userapikey (str, optional) : (default: "nokey")
-            if userapikey is "nokey"
         username (str, optional) : (default: "defaultuser")
-            if username is "defaultuser"
         load_from_config (bool, optional) :
             Whether to load login information from config. (default: True)
             If False, then we may overwrite the user's config.
+        configdir (str) : location of user configuration information
+
+    Attributes:
+        base_url (str) :
         configdir (str) :
+        configfile (str) :
+        http_session (requests.session) :
+        userapikey (str) :
+        userinfo (dict) :
+        username (str) :
 
     """
     def __init__(
@@ -168,6 +183,19 @@ class Session(object):
             json.dump(data, f)
 
     def register(self, username, password):
+        ''' Register a new user with a bokeh server.
+
+        .. note::
+            This is useful in multi-user mode.
+
+        Args:
+            username (str) : user name to register
+            password (str) : user password for account
+
+        Returns:
+            None
+
+        '''
         url = urljoin(self.root_url, "bokeh/register")
         result = self.http_session.post(
             url,
@@ -190,6 +218,19 @@ class Session(object):
             raise RuntimeError(result['error'])
 
     def login(self, username, password):
+        ''' Log a user into a bokeh server.
+
+        .. note::
+            This is useful in multi-user mode.
+
+        Args:
+            username (str) : user name to log in
+            password (str) : user password
+
+        Returns:
+            None
+
+        '''
         url = urljoin(self.root_url, "bokeh/login")
         result = self.http_session.post(
             url,
@@ -290,7 +331,7 @@ class Session(object):
         Args:
             method (string) : 'get' or 'post'
             url (string) : url
-            headers (dict, optional) : any extra headers
+            headers (dict, optional) : any extra HTTP headers
 
         Keyword Args:
             Any extra arguments to pass into the requests library
@@ -326,7 +367,7 @@ class Session(object):
 
         Args:
             url (str) : the URL for the 'get' request
-            headers : HTTP headers for the request
+            headers (dict, optional) : any extra HTTP headers
 
         Keyword Args:
             Any extra arguments to pass into the requests library
@@ -342,7 +383,7 @@ class Session(object):
 
         Args:
             url (str) : the URL for the 'get' request
-            headers : HTTP headers for the request
+            headers (dict, optional) : any extra HTTP headers
 
         Keyword Args:
             Any extra arguments to pass into the requests library
