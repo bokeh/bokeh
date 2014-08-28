@@ -8,7 +8,7 @@ from functools import wraps
 from six import add_metaclass, iteritems
 
 from .properties import HasProps, MetaHasProps, Instance, String
-from .utils import dump, make_id
+from .utils import dump, is_ref, json_apply, make_id, resolve_json
 
 class Viewable(MetaHasProps):
     """ Any plot object (Data Model) which has its own View Model in the
@@ -63,41 +63,6 @@ class Viewable(MetaHasProps):
             return d[view_model_name]
         else:
             raise KeyError("View model name '%s' not found" % view_model_name)
-
-def is_ref(frag):
-    return isinstance(frag, dict) and \
-           frag.get('type') and \
-           frag.get('id')
-
-def json_apply(fragment, check_func, func):
-    """recursively searches through a nested dict/lists
-    if check_func(fragment) is True, then we return
-    func(fragment)
-    """
-    if check_func(fragment):
-        return func(fragment)
-    elif isinstance(fragment, list):
-        output = []
-        for val in fragment:
-            output.append(json_apply(val, check_func, func))
-        return output
-    elif isinstance(fragment, dict):
-        output = {}
-        for k, val in fragment.items():
-            output[k] = json_apply(val, check_func, func)
-        return output
-    else:
-        return fragment
-
-def resolve_json(fragment, models):
-    check_func = is_ref
-    def func(fragment):
-        if fragment['id'] in models:
-            return models[fragment['id']]
-        else:
-            logging.error("model not found for %s", fragment)
-            return None
-    return json_apply(fragment, check_func, func)
 
 @add_metaclass(Viewable)
 class PlotObject(HasProps):
