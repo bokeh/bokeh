@@ -19,7 +19,7 @@ from .plotting_helpers import (
     get_default_color, get_default_alpha, _handle_1d_data_args, _list_attr_splat
 )
 from .resources import Resources
-from .session import Cloud, DEFAULT_SERVER_URL, Session
+from .session import DEFAULT_SERVER_URL, Session
 from .utils import decode_utf8, publish_display_data
 
 # extra imports -- just thigns to add to 'from plotting import *'
@@ -152,22 +152,6 @@ def output_server(docname, session=None, url="default", name=None):
         session = _default_session
     session.use_doc(docname)
     session.load_document(curdoc())
-
-def output_cloud(docname):
-    """ Cause plotting commands to automatically persist plots to the Bokeh
-    cloud server.
-
-    Args:
-        docname (str) : name of document to push on Bokeh server
-            An existing documents with the same name will be overwritten.
-
-    .. note:: Generally, this should be called at the beginning of an
-              interactive session or the top of a script.
-
-    .. note:: Calling this function will replaces any existing default Server session
-
-    """
-    output_server(docname, session=Cloud())
 
 def output_notebook(url=None, docname=None, session=None, name=None,
                     force=False):
