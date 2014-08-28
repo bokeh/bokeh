@@ -6,6 +6,8 @@ library.
 from __future__ import absolute_import
 
 import logging
+logger = logging.getLogger(__file__)
+
 import uuid
 
 from six import string_types
@@ -16,8 +18,6 @@ from .objects import PlotContext
 from .plot_object import PlotObject
 from .plotting_helpers import _new_xy_plot
 from .utils import dump
-
-logger = logging.getLogger(__file__)
 
 class Document(object):
     """ The Document class is a container to hold Bokeh objects that
@@ -55,7 +55,9 @@ class Document(object):
 
     @autoadd.setter
     def autoadd(self, value):
-        self._autoadd = value
+        if not isinstance(value, bool):
+            raise TypeError("'autoadd' must be boolean")
+        self._autoadd = bool(value)
 
     @property
     def autostore(self):
@@ -63,7 +65,9 @@ class Document(object):
 
     @autostore.setter
     def autostore(self, value):
-        self._autostore = value
+        if not isinstance(value, bool):
+            raise TypeError("'autostore' must be boolean")
+        self._autostore = bool(value)
 
     @property
     def context(self):
@@ -71,9 +75,11 @@ class Document(object):
 
     @context.setter
     def context(self, value):
+        if not isinstance(value, PlotContext):
+            raise TypeError('Document.context may only be assigned to PlotContext objects')
         try:
             if self._context:
-                self.remove(self._context)
+                del self._models[self._context._id]
         except AttributeError:
             pass
         pcs = [x for x in self._models.values() if x.__view_model__ == 'PlotContext']
@@ -158,7 +164,7 @@ class Document(object):
     x                 = gf.x
 
 
-    # functions for adding and removing objects to documents
+    # functions for adding objects to documents
 
     def add(self, *objects):
         """ Add top-level objects (and any references they hold to sub-objects)
@@ -180,26 +186,6 @@ class Document(object):
                 self.context.children.append(obj)
                 self.context._dirty = True
             self._add(*obj.references())
-
-    def remove(self, obj_or_id):
-        """ Remove and object from this Document.
-
-        Args:
-            obj_or_id (PlotObject or str) : a PlotObject, or ID of a PlotObject, remove
-
-        Returns:
-            None
-
-        Raises:
-            ValueError
-        """
-        if isinstance(obj_or_id, PlotObject):
-            del self._models[obj_or_id._id]
-        elif isinstance(obj_or_id, string_types):
-            del self._models[obj_or_id]
-        else:
-            raise ValueError("obj_or_id must be PlotObject or string(id)")
-
 
     # functions for turning json objects into json models
 
@@ -414,4 +400,5 @@ class Document(object):
             self._add(self._context)
         else:
             raise DataIntegrityException("too many plot contexts found")
+
 
