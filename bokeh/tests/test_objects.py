@@ -69,55 +69,6 @@ class TestViewable(unittest.TestCase):
         self.assertTrue(hasattr(tclass, 'foo'))
         self.assertRaises(KeyError, self.viewable.get_class, 'Imaginary_Class')
 
-
-class Test_UseSession(unittest.TestCase):
-
-    def setUp(self):
-        from bokeh.plot_object import usesession
-        self.usesession = usesession
-
-    def test_transparent(self):
-        class test_class():
-            session = None
-
-            @self.usesession
-            def test_func(self, session=None):
-                return session
-        tc = test_class()
-        self.assertEqual(tc.test_func.__name__, 'test_func')
-
-    def test_withkw(self):
-        class test_class():
-            session = None
-
-            @self.usesession
-            def test_func(self, session=None):
-                return session
-        tc = test_class()
-        self.assertEqual(tc.test_func(session='not_default'), 'not_default')
-
-    def test_withoutkw(self):
-        class test_class():
-            session = None
-
-            @self.usesession
-            def test_func(self, session=None):
-                return session
-        tc = test_class()
-        self.assertRaises(RuntimeError, tc.test_func)
-        tc.session = 'something'
-        self.assertEqual(tc.test_func(), 'something')
-
-    def test_without_session_attr(self):
-        class test_class():
-
-            @self.usesession
-            def test_func(self, session=None):
-                return session
-        tc = test_class()
-        self.assertEqual(tc.test_func(session='not_default'), 'not_default')
-
-
 class TestJsonapply(unittest.TestCase):
 
     def test_jsonapply(self):

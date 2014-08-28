@@ -64,23 +64,6 @@ class Viewable(MetaHasProps):
         else:
             raise KeyError("View model name '%s' not found" % view_model_name)
 
-def usesession(meth):
-    """ Checks for 'session' in kwargs and in **self**, and guarantees
-    that **kw** always has a valid 'session' parameter.  Wrapped methods
-    should define 'session' as an optional argument, and in the body of
-    the method, should expect an
-    """
-    @wraps(meth)
-    def wrapper(self, *args, **kw):
-        session = kw.get("session", None)
-        if session is None:
-            session = getattr(self, "session")
-        if session is None:
-            raise RuntimeError("Call to %s needs a session" % meth.__name__)
-        kw["session"] = session
-        return meth(self, *args, **kw)
-    return wrapper
-
 def is_ref(frag):
     return isinstance(frag, dict) and \
            frag.get('type') and \
