@@ -67,7 +67,7 @@ def prune(document, delete=False):
     to_keep = set([x._id for x in all_models])
     to_delete = set(document._models.keys()) - to_keep
     for k in to_delete:
-        document._models.remove(k)
+        del document._models[k]
 
 class PersistentBackboneStorage(object):
     """Base class for `RedisBackboneStorage`, `InMemoryBackboneStorage`, etc. """
