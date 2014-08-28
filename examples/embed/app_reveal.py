@@ -170,10 +170,10 @@ class Population(object):
         from bokeh.glyphs import Quad
 
         xdr = DataRange1d(sources=[self.source_pyramid.columns("male"),
-                          self.source_pyramid.columns("female")])
+                                   self.source_pyramid.columns("female")])
         ydr = DataRange1d(sources=[self.source_pyramid.columns("groups")])
 
-        self.plot = Plot(title=None, x_range=xdr, y_range=ydr,
+        self.plot = Plot(title="Widgets", x_range=xdr, y_range=ydr,
                          plot_width=600, plot_height=600)
 
         xaxis = LinearAxis()
