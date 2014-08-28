@@ -1,33 +1,48 @@
 from __future__ import absolute_import, print_function
 
+#--------
+# logging
+#--------
+import logging
+logger = logging.getLogger(__name__)
+
+#-------------
+# standard lib
+#-------------
 import json
 from os import makedirs
 from os.path import expanduser, exists, join
 import tempfile
-from . import protocol
+
+#------------
+# third party
+#------------
+from six.moves.urllib.parse import urljoin, urlencode
+
+#---------
+# optional
+#---------
 try:
     import pandas as pd
     import tables
+    has_pandas = True
 except ImportError as e:
-    pass
+    has_pandas = False
 
-from six.moves.urllib.parse import urljoin, urlencode
-from .exceptions import DataIntegrityException
-from .document import merge, Document
+#--------
+# project
+#--------
+from . import browserlib
 from .embed import autoload_server
-from . import utils, browserlib
-from bokeh.objects import ServerDataSource
-import logging
-
-logger = logging.getLogger(__name__)
+from .exceptions import DataIntegrityException
+from .objects import ServerDataSource
+from . import protocol
+from . import utils
 
 DEFAULT_SERVER_URL = "http://localhost:5006/"
 
-BOKEHPLOTS_URL = "http://bokehplots.com/"
-
 class Session(object):
-    """ Session objects encapsulate a connection to a document stored on
-    a Bokeh Server
+    """ Encapsulate a connection to a document stored on a Bokeh Server
 
     Args:
         name (str, optional) : name of server
@@ -36,10 +51,11 @@ class Session(object):
             if userapikey is "nokey"
         username (str, optional) : (default: "defaultuser")
             if username is "defaultuser"
-        load_from_config (bool, optional) : whether to load login information from config. (default: True)
-            if load_from_config is False, then we may overwrite the
-            users config with this data
+        load_from_config (bool, optional) :
+            Whether to load login information from config. (default: True)
+            If False, then we may overwrite the user's config.
         configdir (str) :
+
     """
     def __init__(
             self,
@@ -52,16 +68,20 @@ class Session(object):
         ):
 
         self.name = name
+
         if not root_url.endswith("/"):
             logger.warning("root_url should end with a /, adding one")
             root_url = root_url + "/"
         self.root_url = root_url
-        #single user mode case
+
+        # single user mode case
         self.userapikey = userapikey
         self.username = username
         self._configdir = None
+
         if configdir:
             self.configdir = configdir
+
         if load_from_config:
             self.load()
 
@@ -100,7 +120,7 @@ class Session(object):
             makedirs(bokehdir)
         return bokehdir
 
-    #for testing
+    # for testing
     @configdir.setter
     def configdir(self, path):
         self._configdir = path
@@ -119,7 +139,11 @@ class Session(object):
         return data
 
     def load(self):
-        """loads server configuration information from disk
+        """ Loads the server configuration information from disk
+
+        Returns:
+            None
+
         """
         config_info = self.load_dict().get(self.name, {})
         print("Using saved session configuration for %s" % self.name)
@@ -129,7 +153,11 @@ class Session(object):
         self.username = config_info.get('username', self.username)
 
     def save(self):
-        """Saves server configuration information to json
+        """ Save the server configuration information to JSON
+
+        Returns:
+            None
+
         """
         data = self.load_dict()
         data[self.name] = {'root_url': self.root_url,
@@ -138,17 +166,21 @@ class Session(object):
         configfile = self.configfile
         with open(configfile, "w+") as f:
             json.dump(data, f)
-        return
 
     def register(self, username, password):
         url = urljoin(self.root_url, "bokeh/register")
-        result = self.http_session.post(url, data={
+        result = self.http_session.post(
+            url,
+            data={
                 'username': username,
                 'password': password,
                 'api': 'true'
-                })
+            }
+        )
+
         if result.status_code != 200:
             raise RuntimeError("Unknown Error")
+
         result = utils.get_json(result)
         if result['status']:
             self.username = username
@@ -159,13 +191,18 @@ class Session(object):
 
     def login(self, username, password):
         url = urljoin(self.root_url, "bokeh/login")
-        result = self.http_session.post(url, data={
+        result = self.http_session.post(
+            url,
+            data={
                 'username': username,
                 'password': password,
                 'api': 'true'
-                })
+            }
+        )
+
         if result.status_code != 200:
             raise RuntimeError("Unknown Error")
+
         result = utils.get_json(result)
         if result['status']:
             self.username = username
@@ -173,11 +210,18 @@ class Session(object):
             self.save()
         else:
             raise RuntimeError(result['error'])
+
         self.save()
 
     def browser_login(self):
-        """Opens a web browser with a token that logs you
-        in to a bokeh server (for multi-user mode)
+        """ Open a browser with a token that logs the user into a bokeh server.
+
+        .. note::
+            This is useful in multi-user mode.
+
+        Return:
+            None
+
         """
         controller = browserlib.get_browser_controller()
         url = urljoin(self.root_url, "bokeh/loginfromapikey")
@@ -185,76 +229,128 @@ class Session(object):
                                 'userapikey': self.userapikey})
         controller.open(url)
 
-    def _prep_data_source_df(self, name, dataframe):
-        name = tempfile.NamedTemporaryFile(prefix="bokeh_data",
-                                           suffix=".pandas").name
-        store = pd.HDFStore(name)
-        store.append("__data__", dataframe, format="table", data_columns=True)
-        store.close()
-        return name
+    def data_source(self, name, data):
+        """ Makes and uploads a server data source to the server.
 
-    def _prep_data_source_numpy(self, name, arr):
-        name = tempfile.NamedTemporaryFile(prefix="bokeh_data",
-                                           suffix=".table").name
-        store = tables.File(name, 'w')
-        store.createArray("/", "__data__", obj=arr)
-        store.close()
-        return name
+        .. note::
+            The server must be configured with a data directory.
 
-    def data_source(self, name, dataframe=None, array=None):
-        """Makes a server data source and uploads it to the server
-        The server must be configured with a data directory
-        for this to work
+        Args:
+            name (str) : name for the data source object
+            data (pd.DataFrame or np.array) : data to upload
+
+        Returns:
+            source : ServerDataSource
+
         """
-        if dataframe is not None:
-            fname = self._prep_data_source_df(name, dataframe)
-            target_name = name + ".pandas"
+        if has_pandas:
+            if isinstance(data, pd.DataFrame):
+                fname = self._prep_data_source_df(name, dataframe)
+                target_name = name + ".pandas"
+            elif isinstance(data, np.array):
+                fname = self._prep_data_source_numpy(name, array)
+                target_name = name + ".table"
+            else:
+                raise ValueError("'data' must be a Pandas DataFrame or NumPy array")
         else:
-            fname = self._prep_data_source_numpy(name, array)
-            target_name = name + ".table"
-        url = urljoin(self.root_url,
-                      "bokeh/data/upload/%s/%s" % (self.username, target_name))
+            if isinstance(data, np.array):
+                fname = self._prep_data_source_numpy(name, array)
+                target_name = name + ".table"
+            else:
+                raise ValueError("'data' must be a Pandas DataFrame or NumPy array")
+
+        url = urljoin(
+            self.root_url,
+            "bokeh/data/upload/%s/%s" % (self.username, target_name)
+        )
+
         with open(fname) as f:
             result = self.http_session.post(url, files={'file' : (target_name, f)})
+
         return ServerDataSource(owner_username=self.username, data_url=result.content)
 
     def list_data(self):
+        """ Return all the data soruces on the server.
+
+        Returns:
+            sources : JSON
+
+        """
         url = urljoin(self.root_url, "bokeh/data/" + self.username)
         result = self.http_session.get(url)
-        result = utils.get_json(result)
-        sources = result['sources']
+        json_result = utils.get_json(result)
+        sources = json_result['sources']
         return sources
 
     def execute_json(self, method, url, headers=None, **kwargs):
-        """Executes a http request using the current session, and returns
-        the json response (assuming the endpoint returns json)
+        """ Execute an HTTP request using the current session.
+
+        Returns the JSON response (assuming the endpoint returns JSON).
+
         Args:
             method (string) : 'get' or 'post'
             url (string) : url
             headers (dict, optional) : any extra headers
-            **kwargs : any extra arguments that should be passed into
-                the requests library
+
+        Keyword Args:
+            Any extra arguments to pass into the requests library
+
+        Returns:
+            response: JSON
+
         """
-        if headers is None:
-            headers={'content-type':'application/json'}
-        func = getattr(self.http_session, method)
         import requests
         import warnings
+
+        if headers is None:
+            headers={'content-type':'application/json'}
+
+        func = getattr(self.http_session, method)
+
         try:
             resp = func(url, headers=headers, **kwargs)
         except requests.exceptions.ConnectionError as e:
             warnings.warn("You need to start the bokeh-server to see this example.")
             raise e
+
         if resp.status_code == 409:
             raise DataIntegrityException
+
         if resp.status_code == 401:
             raise Exception('HTTP Unauthorized accessing')
+
         return utils.get_json(resp)
 
     def get_json(self, url, headers=None, **kwargs):
+        """ Return the result of an HTTP 'get'.
+
+        Args:
+            url (str) : the URL for the 'get' request
+            headers : HTTP headers for the request
+
+        Keyword Args:
+            Any extra arguments to pass into the requests library
+
+        Returns:
+            response: JSON
+
+        """
         return self.execute_json('get', url, headers=headers, **kwargs)
 
     def post_json(self, url, headers=None, **kwargs):
+        """ Return the result of an HTTP 'post'
+
+        Args:
+            url (str) : the URL for the 'get' request
+            headers : HTTP headers for the request
+
+        Keyword Args:
+            Any extra arguments to pass into the requests library
+
+        Returns:
+            response: JSON
+
+        """
         return self.execute_json('post', url, headers=headers, **kwargs)
 
     @property
@@ -273,11 +369,14 @@ class Session(object):
         return urljoin(self.root_url, "bokeh/bb/")
 
     def get_api_key(self, docid):
-        """Retrive the document apikey from the server
+        """ Retrieve the document API key from the server.
+
         Args:
-            docid (string) : docid you want the api key for
+            docid (string) : docid of the document to retrive API key for
+
         Returns:
             apikey : string
+
         """
         url = urljoin(self.root_url,"bokeh/getdocapikey/%s" % docid)
         apikey = self.get_json(url)
@@ -290,30 +389,53 @@ class Session(object):
         return apikey
 
     def find_doc(self, name):
-        """Finds the document with a title matching name and returns the docid
-        Creates a document with the given title if one is not found
+        """ Return the docid of the document with a title matching ``name``.
+
+        .. note::
+            Creates a new document with the given title if one is not found.
+
         Args:
-            name (string) : name/title of document
+            name (string) : name for the document
+
         Returns:
-            docid (string)
+            docid : str
+
         """
 
         docs = self.userinfo.get('docs')
+
         matching = [x for x in docs if x.get('title') == name]
+
         if len(matching) == 0:
             logger.info("No documents found, creating new document '%s'" % name)
             self.make_doc(name)
             return self.find_doc(name)
+
         elif len(matching) > 1:
             logger.warning("Multiple documents with name '%s'" % name)
-        docid = matching[0]['docid']
-        return docid
+
+        return matching[0]['docid']
 
     def use_doc(self, name=None, docid=None):
-        """configures the session to use a document.  you can pass in
-        a title, or a docid, but not both.  Creates a document for
-        title if one is not present on the server
+        """ Configure the session to use a given document.
+
+        Args:
+            name (str, optional) : name of the document to use
+            docid (str, optional) : id of the document to use
+
+        .. note::
+            only one of ``name`` or ``docid`` may be supplied.
+
+        Creates a document for with the given name if one is not present on
+        the server.
+
+        Returns:
+            None
+
         """
+        if docid is not None and name is not None:
+            raise ValueError("only one of 'name' or 'docid' can be supplied to use_doc(...)")
+
         if docid:
             self.docid = docid
         else:
@@ -321,17 +443,37 @@ class Session(object):
         self.apikey = self.get_api_key(self.docid)
 
     def make_doc(self, title):
-        """makes a document matching title on the server, then
-        reloads user infomation
+        """ Makes a new document with the given title on the server
+
+        .. note:: user information is reloaded
+
+        Returns:
+            None
+
         """
         url = urljoin(self.root_url,"bokeh/doc/")
         data = protocol.serialize_json({'title' : title})
         self.userinfo = self.post_json(url, data=data)
 
     def pull(self, typename=None, objid=None):
-        """lowever level function for pulling json objects,
-        you need to call this with either typename AND objid
-        or leave out both
+        """ Pull JSON objects from the server.
+
+        Returns a specific object if both ``typename`` and ``objid`` are
+        supplied. Otherwise, returns all objects for the currently configured
+        document.
+
+        This is a low-level function.
+
+        Args:
+            typename (str, optional) : name of the type of object to pull
+            objid (str, optional) : ID of the object to pull
+
+        .. note::
+            you must supply either ``typename`` AND ``objid`` or omit both.
+
+        Returns:
+            attrs : JSON
+
         """
         if typename is None and objid is None:
             url = utils.urljoin(self.base_url, self.docid +"/")
@@ -352,89 +494,165 @@ class Session(object):
         return attrs
 
     def push(self, *jsonobjs):
-        """Lower level function for pushing raw json objects
-        to the server
+        """ Push JSON objects to the server.
+
+        This is a low-level function.
+
+        Args:
+            *jsonobjs (JSON) : objects to push to the server
+
+        Returns:
+            None
+
         """
         data = protocol.serialize_json(jsonobjs)
         url = utils.urljoin(self.base_url, self.docid + "/", "bulkupsert")
         self.post_json(url, data=data)
 
     # convenience functions to use a session and store/fetch from server
-    # where should this go?
 
     def load_document(self, doc):
-        """higher level function for pulling all data for
-        the docid for this session, and then merging it into
-        the doc that was passed in
-        """
+        """ Loads data for the session and merge with the given document.
 
+        Args:
+            doc (Document) : document to load data into
+
+        Returns:
+            None
+
+        """
         json_objs = self.pull()
+
         plot_contexts = [x for x in json_objs if x['type'] == 'PlotContext']
         other_objects = [x for x in json_objs if x['type'] != 'PlotContext']
+
         plot_context_json = plot_contexts[0]
         children = set([x['id'] for x in plot_context_json['attributes']['children']])
+
         for child in doc._plotcontext.children:
             ref = child.ref
             if ref['id'] not in children:
                 plot_context_json['attributes']['children'].append(ref)
+
         doc.docid = self.docid
         doc._plotcontext._id = plot_context_json['id']
         doc.load(plot_context_json, *other_objects)
 
-    def load_object(self, obj, document):
-        """pulls an objects json from the server,
-        loads it into the document. the object should be updated
-        since it's inside document._models
+    def load_object(self, obj, doc):
+        """ Update an object in a document with data pulled from the server.
+
         Args:
-            obj : object to be updated.. this is used just for typename and id
-            document : document instance.  object should be inside the document
+            obj (PlotObject) : object to be updated
+            doc (Document) : the object's document
+
+        Returns:
+            None
+
         """
-        assert obj._id in document._models
+        assert obj._id in doc._models
         attrs = self.pull(typename=obj.__view_model__, objid=obj._id)
-        document.load(*attrs)
-        return
+        doc.load(*attrs)
 
     def store_document(self, doc, dirty_only=True):
-        """higher level function for storing a doc on the server
+        """ Store a document on the server.
+
+        Returns the models that were actually pushed.
+
+        Args:
+            doc (Document) : the document to store
+            dirty_only (bool, optional) : whether to store only dirty objects. (default: True)
+
+        Returns:
+            models : list[PlotObject]
+
         """
         models = doc._models.values()
+
         if dirty_only:
-            models = [x for x in models if hasattr(x, '_dirty') and x._dirty]
+            models = [x for x in models if getattr(x, '_dirty', False)]
+
         json_objs = doc.dump(*models)
         self.push(*json_objs)
+
         for model in models:
             model._dirty = False
+
         return models
 
     def store_objects(self, *objs, **kwargs):
-        """higher level function for storing a plot objects
-        on the server
+        """ Store objects on the server
+
+        Returns the objects that were actually stored.
+
+        Args:
+            *objs (PlotObject) : objects to store
+
+        Keywords Args:
+            dirty_only (bool, optional) : whether to store only dirty objects. (default: True)
+
+        Returns:
+            models : set[PlotObject]
+
         """
-        dirty_only = kwargs.pop('dirty_only', True)
+
         models = set()
+
         for obj in objs:
             models.update(obj.references())
-        if dirty_only:
+
+        if kwargs.pop('dirty_only', True):
             models = list(models)
 
         json_objs = utils.dump(models, self.docid)
         self.push(*json_objs)
+
         for model in models:
             model._dirty = False
+
         return models
 
     def object_link(self, obj):
-        """webpage link which should render a given object
+        """ Return a URL to a server page that will render the given object.
+
+        Args:
+            obj (PlotObject) : object to render
+
+        Returns:
+            url : str
+
         """
         link = "bokeh/doc/%s/%s" % (self.docid, obj._id)
         return utils.urljoin(self.root_url, link)
 
-    def show(self, plot_object):
-        """Display an object as HTML in IPython using its display protocol. """
-        data = {'text/html': autoload_server(plot_object, self)}
+    def show(self, obj):
+        """ Display an object as HTML in IPython using its display protocol.
+
+        Args:
+            obj (PlotObject) : object to display
+
+        Returns:
+            None
+
+        """
+        data = {'text/html': autoload_server(obj, self)}
         utils.publish_display_data(data)
 
-class Cloud(Session):
-    def __init__(self):
-        super(Cloud, self).__init__(name="cloud",
-                                    root_url=BOKEHPLOTS_URL)
+    # helper methods
+
+    def _prep_data_source_df(self, name, dataframe):
+        name = tempfile.NamedTemporaryFile(prefix="bokeh_data",
+                                           suffix=".pandas").name
+        store = pd.HDFStore(name)
+        store.append("__data__", dataframe, format="table", data_columns=True)
+        store.close()
+        return name
+
+    def _prep_data_source_numpy(self, name, arr):
+        name = tempfile.NamedTemporaryFile(prefix="bokeh_data",
+                                           suffix=".table").name
+        store = tables.File(name, 'w')
+        store.createArray("/", "__data__", obj=arr)
+        store.close()
+        return name
+
+
