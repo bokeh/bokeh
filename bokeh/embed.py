@@ -38,7 +38,7 @@ def components(plot_object, resources):
         (script, div) : UTF-8 encoded
 
     '''
-    ref = plot_object.get_ref()
+    ref = plot_object.ref
     elementid = str(uuid.uuid4())
 
     js = PLOT_JS.render(
@@ -72,7 +72,7 @@ def notebook_div(plot_object):
               already been executed.
 
     '''
-    ref = plot_object.get_ref()
+    ref = plot_object.ref
     resources = Resources()
     elementid = str(uuid.uuid4())
 

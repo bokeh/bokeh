@@ -11,7 +11,7 @@ from .exceptions import DataIntegrityException
 from .objects import PlotContext
 from .plot_object import PlotObject
 from .plotting_helpers import _new_xy_plot
-from .utils import dump, get_ref, make_id
+from .utils import dump, make_id
 
 logger = logging.getLogger(__file__)
 
@@ -30,11 +30,12 @@ class Document(object):
             self.load(*json_objs, dirty=False)
         self.set_context()
 
+    @property
+    def ref(self):
+        return self._plotcontext.ref
+
     def get_context(self):
         return self._plotcontext
-
-    def get_ref(self):
-        return get_ref(self._plotcontext)
 
     def _set_context(self, plotcontext):
         """sets the plot context.

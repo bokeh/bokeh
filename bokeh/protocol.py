@@ -6,7 +6,6 @@ import calendar
 
 import numpy as np
 from six.moves import cPickle as pickle
-from .utils import get_ref
 
 try:
     import pandas as pd
@@ -91,7 +90,7 @@ class BokehJSONEncoder(json.JSONEncoder):
         elif isinstance(obj, np.ndarray):
             return self.transform_array(obj)
         elif isinstance(obj, PlotObject):
-            return get_ref(obj)
+            return obj.ref
         elif isinstance(obj, HasProps):
             return obj.to_dict()
         elif isinstance(obj, Color):

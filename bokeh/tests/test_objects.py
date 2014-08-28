@@ -193,9 +193,9 @@ class TestPlotObject(unittest.TestCase):
 
         self.pObjectClass.setup_events = oldmethod
 
-    def test_get_ref(self):
+    def test_ref(self):
         testObject = self.pObjectClass(id='test_id')
-        self.assertEqual({'type': 'PlotObject', 'id': 'test_id'}, testObject.get_ref())
+        self.assertEqual({'type': 'PlotObject', 'id': 'test_id'}, testObject.ref)
 
     def test_load_json(self):
         from bokeh.plot_object import PlotObject

@@ -75,15 +75,12 @@ def json_apply(json_obj, func):
             for k,v in node.iteritems():
                 queue.append(v)
 
-def get_ref(obj):
-    return obj.get_ref()
-
 def convert_references(json_obj):
     from .plot_object import PlotObject
     from .properties import HasProps
     def convert(obj):
         if isinstance(obj, PlotObject):
-            return get_ref(obj)
+            return obj.ref
         elif isinstance(obj, HasProps):
             return obj.to_dict()
         else:
@@ -101,7 +98,7 @@ def convert_references(json_obj):
 def dump(objs, docid):
     json_objs = []
     for obj in objs:
-        ref = get_ref(obj)
+        ref = obj.ref
         ref["attributes"] = obj.vm_serialize()
         ref["attributes"].update({"id": ref["id"], "doc" : docid})
         json_objs.append(ref)

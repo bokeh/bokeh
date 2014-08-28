@@ -146,7 +146,8 @@ class PlotObject(HasProps):
             self._block_callbacks = True
             super(PlotObject, self).__init__(**kwargs)
 
-    def get_ref(self):
+    @property
+    def ref(self):
         return {
             'type': self.__view_model__,
             'id': self._id,

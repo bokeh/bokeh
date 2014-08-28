@@ -374,9 +374,9 @@ class Session(object):
         plot_context_json = plot_contexts[0]
         children = set([x['id'] for x in plot_context_json['attributes']['children']])
         for child in doc._plotcontext.children:
-            ref = child.get_ref()
+            ref = child.ref
             if ref['id'] not in children:
-                plot_context_json['attributes']['children'].append(child.get_ref())
+                plot_context_json['attributes']['children'].append(ref)
         doc.docid = self.docid
         doc._plotcontext._id = plot_context_json['id']
         doc.load(plot_context_json, *other_objects)

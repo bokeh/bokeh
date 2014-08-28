@@ -1,12 +1,11 @@
 import uuid
 from .. import models
 from ...objects import PlotContext, PlotObject
-from ...document import get_ref
 import logging
 log = logging.getLogger(__name__)
 
 """This is the serverside model of a document.  we also use the same object
-the clients use to represent docs, and that is from ...document.  That is 
+the clients use to represent docs, and that is from ...document.  That is
 referred to here as clientdoc
 """
 def prune_and_get_valid_models(clientdoc, delete=False):
@@ -35,7 +34,7 @@ def new_doc(flaskapp, docid, title, clientdoc, rw_users=None, r_users=None,
     if rw_users is None: rw_users = []
     if r_users is None: r_users = []
     doc = Doc(docid, title, rw_users, r_users,
-              get_ref(plot_context), apikey, readonlyapikey)
+              plot_context.ref, apikey, readonlyapikey)
     doc.save(flaskapp.servermodel_storage)
     return doc
 
