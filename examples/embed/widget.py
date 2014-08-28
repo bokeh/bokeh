@@ -24,7 +24,7 @@ class Population(object):
         self.update_pyramid()
 
     def pyramid_plot(self):
-        from bokeh.objects import (Plot, DataRange1d, LinearAxis, Grid, Glyph,
+        from bokeh.objects import (Plot, DataRange1d, LinearAxis, Grid,
                                    Legend, SingleIntervalTicker)
         from bokeh.glyphs import Quad
 
@@ -32,30 +32,27 @@ class Population(object):
                           self.source_pyramid.columns("female")])
         ydr = DataRange1d(sources=[self.source_pyramid.columns("groups")])
 
-        self.plot = Plot(title=None, x_range=xdr, y_range=ydr, plot_width=600, plot_height=600)
+        self.plot = Plot(title=None, x_range=xdr, y_range=ydr,
+                         plot_width=600, plot_height=600)
 
-        xaxis = LinearAxis(plot=self.plot)
-        self.plot.below.append(xaxis)
-        yaxis = LinearAxis(plot=self.plot, ticker=SingleIntervalTicker(interval=5))
-        self.plot.left.append(yaxis)
+        xaxis = LinearAxis()
+        self.plot.add_layout(xaxis, 'below')
+        yaxis = LinearAxis(ticker=SingleIntervalTicker(interval=5))
+        self.plot.add_layout(yaxis, 'left')
 
-        xgrid = Grid(plot=self.plot, dimension=0, ticker=xaxis.ticker)
-        ygrid = Grid(plot=self.plot, dimension=1, ticker=yaxis.ticker)
+        self.plot.add_layout(Grid(dimension=0, ticker=xaxis.ticker))
+        self.plot.add_layout(Grid(dimension=1, ticker=yaxis.ticker))
 
-        male_quad = Quad(left="male", right=0, bottom="groups", top="shifted", fill_color="blue")
-        male_quad_glyph = Glyph(data_source=self.source_pyramid,
-                                xdata_range=xdr, ydata_range=ydr, glyph=male_quad)
-        self.plot.renderers.append(male_quad_glyph)
+        male_quad = Quad(left="male", right=0, bottom="groups", top="shifted",
+                         fill_color="#3B8686")
+        male_quad_glyph = self.plot.add_glyph(self.source_pyramid, xdr, ydr, male_quad)
 
         female_quad = Quad(left=0, right="female", bottom="groups", top="shifted",
-                           fill_color="violet")
-        female_quad_glyph = Glyph(data_source=self.source_pyramid,
-                                  xdata_range=xdr, ydata_range=ydr, glyph=female_quad)
-        self.plot.renderers.append(female_quad_glyph)
+                           fill_color="#CFF09E")
+        female_quad_glyph = self.plot.add_glyph(self.source_pyramid, xdr, ydr, female_quad)
 
-        legend = Legend(plot=self.plot, legends=dict(Male=[male_quad_glyph],
-                        Female=[female_quad_glyph]))
-        self.plot.renderers.append(legend)
+        self.plot.add_layout(Legend(legends=dict(Male=[male_quad_glyph],
+                                                 Female=[female_quad_glyph])))
 
     def on_year_change(self, obj, attr, old, new):
         self.year = int(new)
