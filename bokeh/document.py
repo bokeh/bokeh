@@ -47,6 +47,8 @@ class Document(object):
         # must init context after loading JSON objs
         self._init_context()
 
+    # properties
+
     @property
     def autoadd(self):
         return self._autoadd
@@ -375,7 +377,9 @@ class Document(object):
     #------------------------------------------------------------------------
 
     def _get_plot(self, kwargs):
-        """ Returns the current plot, creating a new one if needed. """
+        """ Return the current plot, creating a new one if needed.
+
+        """
         plot = kwargs.pop("plot", None)
         if not plot:
             if self._hold and self._current_plot:
@@ -389,13 +393,18 @@ class Document(object):
         return plot
 
     def _add(self, *objects):
-        """ Adds objects to this document. """
+        """ Adds objects to this document.
+
+        """
         for obj in objects:
             self._models[obj._id] = obj
 
     def _init_context(self):
-        """autosets context from what's already in this document
-        If no plotcontext exists, creates one
+        """ Initialize self.context appropriately.
+
+        If no plotcontext exists, creates one. If one exists in self._modes
+        (because we are on the server) re-use it.
+
         """
         pcs = [x for x in self._models.values() if x.__view_model__ == 'PlotContext']
         if len(pcs) == 0:
@@ -405,28 +414,4 @@ class Document(object):
             self._add(self._context)
         else:
             raise DataIntegrityException("too many plot contexts found")
-
-
-
-def merge(dest, source):
-    """ Combine objects from a source document into another.
-
-    This operation includes adding the top level objects in the source
-    document's plot context to the destination's plot context.
-
-    Args:
-        dest (Document) : document to merge objects into
-        source (Document) : document to merge objects from
-
-    Returns:
-        None
-
-    """
-    for m in source.context.children:
-        if m not in dest.context.children:
-            dest.context.children.append(m)
-    dest.context._dirty = True
-    for k, v in source._models.items():
-        dest._models[k] = v
-    del dest._models[source.context._id]
 
