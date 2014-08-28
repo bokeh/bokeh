@@ -61,22 +61,6 @@ def is_py3():
 def is_pypy():
     return platform.python_implementation() == "PyPy"
 
-def json_apply(json_obj, func):
-    processed = set()
-    queue = [json_obj]
-    while queue:
-        node = queue.pop(0)
-        if id(node) in processed:
-            continue
-        func(node)
-        processed.add(id(node))
-        if isinstance(node, list):
-            for idx, x in enumerate(node):
-                queue.append(x)
-        if isinstance(node, dict):
-            for k,v in node.iteritems():
-                queue.append(v)
-
 def convert_references(json_obj):
     from .plot_object import PlotObject
     from .properties import HasProps
