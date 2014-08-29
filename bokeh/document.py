@@ -56,8 +56,8 @@ class Document(object):
     @autoadd.setter
     def autoadd(self, value):
         if not isinstance(value, bool):
-            raise TypeError("'autoadd' must be boolean")
-        self._autoadd = bool(value)
+            raise TypeError("'autoadd' must be True or False")
+        self._autoadd = value
 
     @property
     def autostore(self):
@@ -66,8 +66,8 @@ class Document(object):
     @autostore.setter
     def autostore(self, value):
         if not isinstance(value, bool):
-            raise TypeError("'autostore' must be boolean")
-        self._autostore = bool(value)
+            raise TypeError("'autostore' must be True or False")
+        self._autostore = value
 
     @property
     def context(self):
