@@ -445,8 +445,8 @@ def source(plot, agg=Count(), info=Const(val=1), shader=Id(),
         raise ValueError("Unrecognized shader output type %s" % shader.out)
 
     # Remove the base plot (if requested)
-    if remove_original and plot in curdoc()._plotcontext.children:
-        curdoc()._plotcontext.children.remove(plot)
+    if remove_original and plot in curdoc().context.children:
+        curdoc().context.children.remove(plot)
 
     kwargs['transform'] = {
         'resample': "abstract rendering",

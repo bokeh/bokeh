@@ -17,7 +17,7 @@ from ..plotting import (curdoc, cursession, line,
                             scatter)
 from ..plot_object import PlotObject
 from ..properties import (HasProps, Dict, Enum, Either, Float, Instance, Int, List,
-    String, Color, Include, Bool, Tuple, Any, Date, RelativeDelta, lookup_descriptor)
+    String, Color, Bool, Tuple, Any, Date, RelativeDelta, lookup_descriptor)
 
 logger = logging.getLogger(__name__)
 
@@ -149,7 +149,6 @@ class CrossFilter(PlotObject):
             return
         plot = self.make_plot()
         self.plot = plot
-        curdoc().add_all()
 
     def make_plot(self):
         if all([len(self.facet_x) ==0,
@@ -418,7 +417,6 @@ class CrossFilter(PlotObject):
                     )
                     hist_plot.title = col
                     self.filter_widgets[col] = hist_plot
-        curdoc().add_all()
 
     def set_metadata(self):
         descriptors = []

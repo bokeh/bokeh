@@ -35,10 +35,10 @@ def components(plot_object, resources):
         resources (Resources, optional) : BokehJS resources config
 
     Returns:
-        (script, div)
+        (script, div) : UTF-8 encoded
 
     '''
-    ref = plot_object.get_ref()
+    ref = plot_object.ref
     elementid = str(uuid.uuid4())
 
     js = PLOT_JS.render(
@@ -72,7 +72,7 @@ def notebook_div(plot_object):
               already been executed.
 
     '''
-    ref = plot_object.get_ref()
+    ref = plot_object.ref
     resources = Resources()
     elementid = str(uuid.uuid4())
 
@@ -167,6 +167,7 @@ def autoload_static(plot_object, resources, script_path):
         elementid = elementid,
         modelid = plot_object._id,
         modeltype = plot_object.__view_model__,
+        loglevel = resources.log_level,
     )
 
     return encode_utf8(js), encode_utf8(tag)
@@ -194,13 +195,10 @@ def autoload_server(plot_object, session):
         src_path = resources._autoload_path(elementid),
         elementid = elementid,
         modelid = plot_object._id,
-        modeltype = plot_object.__view_model__,
         root_url = resources.root_url,
         docid =  session.docid,
         docapikey = session.apikey,
-        conn_string = resources.conn_string,
+        loglevel = resources.log_level,
     )
 
     return encode_utf8(tag)
-
-

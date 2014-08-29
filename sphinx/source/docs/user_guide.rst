@@ -241,11 +241,6 @@ CrosshairTool
 Th crosshair tool (``'crosshair'``) draws a crosshair annotation over the plot, centered on
 the current mouse position.
 
-EmbedTool
-'''''''''
-The embed tool (``'embed'``) tool pops up a modal dialog containing a javascript ``<script>``
-snippet that can put int HTML pages to display the plot.
-
 HoverTool
 '''''''''
 The hover tool (``'hover'``) tool pops up a tooltip div whenever the cursor is over

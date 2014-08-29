@@ -35,7 +35,7 @@ def page_desc(module_desc):
     if var_name:
         objs = [namespace[var_name]]
     else:
-        objs = plotting.curdoc().get_context().children
+        objs = plotting.curdoc().context.children
 
     embed_snippet = ""
     for i, obj in enumerate(objs):

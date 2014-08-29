@@ -11,6 +11,10 @@ define (require, exports, module) ->
   Bokeh.$                 = require("jquery")
   Bokeh.Backbone          = require("backbone")
 
+  logging = require("common/logging")
+  Bokeh.logger = logging.logger
+  Bokeh.set_log_level = logging.set_log_level
+
   # Make sure that we don't clobber any existing definition of $ (most
   # likely a previous version of jQuery.
   _oldJQ = window.$
@@ -32,7 +36,6 @@ define (require, exports, module) ->
   Bokeh.Plot              = require("common/plot")
   Bokeh.Plotting          = require("common/plotting")
 
-  Bokeh.Affine        = require("common/affine")
   Bokeh.build_views   = require("common/build_views")
   Bokeh.bulk_save     = require("common/bulk_save")
   Bokeh.ContinuumView = require("common/continuum_view")
@@ -75,7 +78,6 @@ define (require, exports, module) ->
 
   # server tools
   Bokeh.embed       = require("server/embed")
-  Bokeh.serverrun   = require("server/serverrun")
   Bokeh.serverutils = require("server/serverutils")
 
   # data sources
@@ -104,7 +106,6 @@ define (require, exports, module) ->
   Bokeh.ClickTool              = require("tool/click_tool")
   Bokeh.CrosshairTool          = require("tool/crosshair_tool")
   Bokeh.DataRangeBoxSelectTool = require("tool/data_range_box_select_tool")
-  Bokeh.EmbedTool              = require("tool/embed_tool")
   Bokeh.HoverTool              = require("tool/hover_tool")
   Bokeh.PanTool                = require("tool/pan_tool")
   Bokeh.PreviewSaveTool        = require("tool/preview_save_tool")
@@ -112,10 +113,6 @@ define (require, exports, module) ->
   Bokeh.ResizeTool             = require("tool/resize_tool")
   Bokeh.WheelZoomTool          = require("tool/wheel_zoom_tool")
   Bokeh.ObjectExplorerTool     = require("tool/object_explorer_tool")
-
-  # page functions
-  Bokeh.one_object_page = require("server/serverrun").load_one_object
-  Bokeh.server_page     = require("server/serverrun").load
 
   # widgets
   Bokeh.DataSlider     = require("widget/data_slider")
