@@ -271,7 +271,7 @@ class Document(object):
 
         Args:
             *models (PlotObject) : models to convert to json objects
-                If *models is empty, ``dump`` converts all models in this d
+                If models is empty, ``dump`` converts all models in this d
                 ocument.
 
         Return:
