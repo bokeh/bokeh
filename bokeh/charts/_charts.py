@@ -342,15 +342,12 @@ class Chart(object):
     def _append_glyph(self, source, glyph):
         """ Append the glyph to the plot.renderer.
 
+        Also add the glyph to the glyphs list.
+
         Args:
             source (obj): datasource containing data for the glyph
             glyph (obj): glyph type
         """
-        _glyph = Glyph(data_source=source,
-                       xdata_range=self.plot.x_range,
-                       ydata_range=self.plot.y_range,
-                       glyph=glyph)
-
-        self.plot.renderers.append(_glyph)
+        _glyph = self.plot.add_glyph(source, self.plot.x_range, self.plot.y_range, glyph)
 
         self.glyphs.append(_glyph)
