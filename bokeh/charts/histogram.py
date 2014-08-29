@@ -210,15 +210,15 @@ class Histogram(ChartObject):
             colors = self._set_colors(self.quintet)
 
             for i, quintet in enumerate(self.quintet):
-                self.chart.make_quad(quintet[1], quintet[5], quintet[3], quintet[4], colors[i])
+                self.chart.make_quad(self.source, quintet[1], quintet[5], quintet[3], quintet[4], colors[i], "white")
         else:
             self.octet = list(self._chunker(self.attr, 9))
             colors = self._set_colors(self.octet)
 
             for i, octet in enumerate(self.octet):
-                self.chart.make_quad(octet[1], octet[5], octet[3], octet[4], colors[i])
-                self.chart.make_line(octet[6], octet[7], "black")
-                self.chart.make_line(octet[6], octet[8], "blue")
+                self.chart.make_quad(self.source, octet[1], octet[5], octet[3], octet[4], colors[i], "white")
+                self.chart.make_line(self.source, octet[6], octet[7], "black")
+                self.chart.make_line(self.source, octet[6], octet[8], "blue")
 
     def show(self):
         """Main Histogram show method.
@@ -240,8 +240,8 @@ class Histogram(ChartObject):
         self.get_data(self.bins, self.mu, self.sigma, **self.measured)
         # we filled the source and ranges with the calculated data
         self.get_source()
-        # we dynamically inject the source and ranges into the plot
-        self.add_data_plot(self.source, self.xdr, self.ydr)
+        # we dynamically inject the ranges into the plot
+        self.add_data_plot(self.xdr, self.ydr)
         # we add the glyphs into the plot
         self.draw()
         # we pass info to build the legend

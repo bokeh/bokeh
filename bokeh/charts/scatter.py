@@ -186,7 +186,7 @@ class Scatter(ChartObject):
         colors = self._set_colors(self.duplet)
 
         for i, duplet in enumerate(self.duplet, start=1):
-            self.chart.make_scatter(duplet[0], duplet[1], i, colors[i - 1])
+            self.chart.make_scatter(self.source, duplet[0], duplet[1], i, colors[i - 1])
 
     def show(self):
         """Main Scatter show method.
@@ -242,7 +242,7 @@ class Scatter(ChartObject):
         # we filled the source and ranges with the calculated data
         self.get_source()
         # we dynamically inject the source and ranges into the plot
-        self.add_data_plot(self.source, self.xdr, self.ydr)
+        self.add_data_plot(self.xdr, self.ydr)
         # we add the glyphs into the plot
         self.draw()
         # we pass info to build the legend

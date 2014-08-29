@@ -19,6 +19,7 @@ the generation of several outputs (file, server, notebook).
 #-----------------------------------------------------------------------------
 
 import itertools
+from collections import OrderedDict
 
 import numpy as np
 
@@ -94,7 +95,6 @@ class Chart(object):
         self.filename = filename
         self.server = server
         self.notebook = notebook
-        self._source = None
         self._xdr = None
         self._ydr = None
         self.plot = Plot(title=self.title,
@@ -130,16 +130,14 @@ class Chart(object):
             previewsave = PreviewSaveTool(plot=self.plot)
             self.plot.tools.append(previewsave)
 
-    def add_data_plot(self, source, x_range, y_range):
-        """Add source and range data to the initialized empty attributes.
+    def add_data_plot(self, x_range, y_range):
+        """Add range data to the initialized empty attributes.
 
         Args:
-            source (obj): datasource object for your `self.plot`.
-            xdr (obj): x-associated datarange object for your `self.plot`.
-            ydr (obj): y-associated datarange object for your `self.plot`.
+            x_range (obj): x-associated datarange object for your `self.plot`.
+            y_range (obj): y-associated datarange object for your `self.plot`.
         """
-        # Overwrite the source and ranges in the plot
-        self.plot.data_sources = [source]
+        # Overwrite the ranges in the plot
         self.plot.x_range = x_range
         self.plot.y_range = y_range
 
@@ -155,7 +153,7 @@ class Chart(object):
         # Add legend
         if self.legend:
             listed_glyphs = [[glyph] for glyph in self.glyphs]
-            self.legends = dict(zip(groups, listed_glyphs))
+            self.legends = OrderedDict(zip(groups, listed_glyphs))
             if self.legend is True:
                 orientation = "top_right"
             else:
@@ -217,10 +215,11 @@ class Chart(object):
 
         return grid
 
-    def make_segment(self, x0, y0, x1, y1, color, width):
+    def make_segment(self, source, x0, y0, x1, y1, color, width):
         """ Create a segment glyph and append it to the plot.renderers list.
 
         Args:
+            source (obj): datasource object containing segment refereces.
             x0 (str or list[float]) : values or field names of starting ``x`` coordinates
             y0 (str or list[float]) : values or field names of starting ``y`` coordinates
             x1 (str or list[float]) : values or field names of ending ``x`` coordinates
@@ -230,60 +229,66 @@ class Chart(object):
         """
         segment = Segment(x0=x0, y0=y0, x1=x1, y1=y1, line_color=color, line_width=width)
 
-        self._append_glyph(segment)
+        self._append_glyph(source, segment)
 
-    def make_line(self, x, y, color):
+    def make_line(self, source, x, y, color):
         """Create a line glyph and append it to the plot.renderers list.
 
         Args:
+            source (obj): datasource object containing line refereces.
             x (str or list[float]) : values or field names of line ``x`` coordinates
             y (str or list[float]) : values or field names of line ``y`` coordinates
             color (str): the line color
         """
         line = Line(x=x, y=y, line_color=color)
 
-        self._append_glyph(line)
+        self._append_glyph(source, line)
 
-    def make_quad(self, top, bottom, left, right, color):
+    def make_quad(self, source, top, bottom, left, right, color, line_color):
         """Create a quad glyph and append it to the plot.renderers list.
 
         Args:
+            source (obj): datasource object containing quad refereces.
             left (str or list[float]) : values or field names of left edges
             right (str or list[float]) : values or field names of right edges
             top (str or list[float]) : values or field names of top edges
             bottom (str or list[float]) : values or field names of bottom edges
             color (str): the fill color
+            line_color (str): the line color
         """
         quad = Quad(top=top, bottom=bottom, left=left, right=right,
-                    fill_color=color, fill_alpha=0.7, line_color="white", line_alpha=1.0)
+                    fill_color=color, fill_alpha=0.7, line_color=line_color, line_alpha=1.0)
 
-        self._append_glyph(quad)
+        self._append_glyph(source, quad)
 
-    def make_rect(self, x, y, width, height, color):
+    def make_rect(self, source, x, y, width, height, color, line_color, line_width):
         """Create a rect glyph and append it to the renderers list.
 
         Args:
+            source (obj): datasource object containing rect refereces.
             x (str or list[float]) : values or field names of center ``x`` coordinates
             y (str or list[float]) : values or field names of center ``y`` coordinates
             width (str or list[float]) : values or field names of widths
             height (str or list[float]) : values or field names of heights
             color (str): the fill color
+            line_color (str): the line color
+            line_width (int): the line width
         """
         rect = Rect(x=x, y=y, width=width, height=height, fill_color=color,
-                    fill_alpha=0.7, line_color='white', line_alpha=1.0)
+                    fill_alpha=0.7, line_color=line_color, line_alpha=1.0, line_width=line_width)
 
-        self._append_glyph(rect)
+        self._append_glyph(source, rect)
 
-    def make_scatter(self, x, y, markertype, color):
+    def make_scatter(self, source, x, y, markertype, color):
         """Create a marker glyph and appends it to the renderers list.
 
         Args:
+            source (obj): datasource object containing markers refereces.
             x (str or list[float]) : values or field names of line ``x`` coordinates
             y (str or list[float]) : values or field names of line ``y`` coordinates
             markertype (int or str): Marker type to use (e.g., 2, 'circle', etc.)
-            color (str): color of point
+            color (str): color of the points
         """
-        from collections import OrderedDict
 
         _marker_types = OrderedDict([
             ("circle", Circle),
@@ -313,7 +318,7 @@ class Chart(object):
                                        line_color=color,
                                        line_alpha=1.0)
 
-        self._append_glyph(scatter)
+        self._append_glyph(source, scatter)
 
     def show(self):
         """Main show function.
@@ -343,17 +348,18 @@ class Chart(object):
             publish_display_data({'text/html': notebook_div(self.plot)})
 
     ## Some helper methods
-    def _append_glyph(self, glyph):
-        """Append the passed glyphs to the plot.renderer.
+    def _append_glyph(self, source, glyph):
+        """ Append the glyph to the plot.renderer.
 
         Args:
-            glyph (obj): the glyph to be appended
+            source (obj): datasource containing data for the glyph
+            glyph (obj): glyph type
         """
-        glyph = Glyph(data_source=self.plot.data_sources[0],
-                      xdata_range=self.plot.x_range,
-                      ydata_range=self.plot.y_range,
-                      glyph=glyph)
+        _glyph = Glyph(data_source=source,
+                       xdata_range=self.plot.x_range,
+                       ydata_range=self.plot.y_range,
+                       glyph=glyph)
 
-        self.plot.renderers.append(glyph)
+        self.plot.renderers.append(_glyph)
 
-        self.glyphs.append(glyph)
+        self.glyphs.append(_glyph)

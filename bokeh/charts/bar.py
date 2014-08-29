@@ -228,9 +228,9 @@ class Bar(ChartObject):
         # quartet elements are: [data, mid, stacked, cat]
         for i, quartet in enumerate(self.quartet):
             if stacked:
-                self.chart.make_rect("cat", quartet[2], "width", quartet[0], colors[i])
+                self.chart.make_rect(self.source, "cat", quartet[2], "width", quartet[0], colors[i], "white", None)
             else:  # Grouped
-                self.chart.make_rect(quartet[3], quartet[1], "width_cat", quartet[0], colors[i])
+                self.chart.make_rect(self.source, quartet[3], quartet[1], "width_cat", quartet[0], colors[i], "white", None)
 
     def show(self):
         """Main Bar show method.
@@ -257,7 +257,7 @@ class Bar(ChartObject):
         # we filled the source and ranges with the calculated data
         self.get_source(self._stacked)
         # we dynamically inject the source and ranges into the plot
-        self.add_data_plot(self.source, self.xdr, self.ydr)
+        self.add_data_plot(self.xdr, self.ydr)
         # we add the glyphs into the plot
         self.draw(self._stacked)
         # we pass info to build the legend
