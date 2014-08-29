@@ -52,7 +52,7 @@ make_plot('rect', Rect(x="x", y="y", width=0.5, height=0.8, angle=-0.6))
 make_plot('text', Text(x="x", y="y", text={"value":"foo"}, angle=0.6))
 make_plot('wedge', Wedge(x="x", y="y", radius=0.5, start_angle=0.9, end_angle=3.2))
 
-link = session.object_link(document._plotcontext)
+link = session.object_link(document.context)
 print ("please visit %s to see plots" % link)
 view (link)
 

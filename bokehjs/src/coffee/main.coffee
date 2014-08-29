@@ -36,7 +36,6 @@ define (require, exports, module) ->
   Bokeh.Plot              = require("common/plot")
   Bokeh.Plotting          = require("common/plotting")
 
-  Bokeh.Affine        = require("common/affine")
   Bokeh.build_views   = require("common/build_views")
   Bokeh.bulk_save     = require("common/bulk_save")
   Bokeh.ContinuumView = require("common/continuum_view")

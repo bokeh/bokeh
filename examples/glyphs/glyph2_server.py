@@ -47,7 +47,7 @@ plot.add_tools(PanTool(), WheelZoomTool())
 document.add(plot)
 session.store_document(document)
 
-link = session.object_link(document._plotcontext)
+link = session.object_link(document.context)
 print ("please visit %s to see plots" % link)
 view(link)
 
