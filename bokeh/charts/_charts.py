@@ -26,7 +26,7 @@ import numpy as np
 from ..glyphs import (Asterisk, Circle, CircleCross, CircleX, Cross, Diamond,
                       DiamondCross, InvertedTriangle, Line, Rect, Segment,
                       Square, SquareCross, SquareX, Triangle, Xmarker, Quad)
-from ..objects import (CategoricalAxis, DatetimeAxis, Glyph, Grid, Legend,
+from ..objects import (CategoricalAxis, DatetimeAxis, Grid, Legend,
                        LinearAxis, PanTool, Plot, PreviewSaveTool, ResetTool,
                        WheelZoomTool)
 
