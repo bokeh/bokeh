@@ -19,7 +19,7 @@ from .plotting_helpers import (
     get_default_color, get_default_alpha, _handle_1d_data_args, _list_attr_splat
 )
 from .resources import Resources
-from .session import Cloud, DEFAULT_SERVER_URL, Session
+from .session import DEFAULT_SERVER_URL, Session
 from .utils import decode_utf8, publish_display_data
 
 # extra imports -- just thigns to add to 'from plotting import *'
@@ -153,22 +153,6 @@ def output_server(docname, session=None, url="default", name=None):
     session.use_doc(docname)
     session.load_document(curdoc())
 
-def output_cloud(docname):
-    """ Cause plotting commands to automatically persist plots to the Bokeh
-    cloud server.
-
-    Args:
-        docname (str) : name of document to push on Bokeh server
-            An existing documents with the same name will be overwritten.
-
-    .. note:: Generally, this should be called at the beginning of an
-              interactive session or the top of a script.
-
-    .. note:: Calling this function will replaces any existing default Server session
-
-    """
-    output_server(docname, session=Cloud())
-
 def output_notebook(url=None, docname=None, session=None, name=None,
                     force=False):
     if session or url or name:
@@ -264,7 +248,7 @@ def show(obj=None, browser=None, new="tab", url=None):
         if url:
             controller.open(url, new=new_param)
         else:
-            controller.open(session.object_link(curdoc()._plotcontext))
+            controller.open(session.object_link(curdoc().context))
 
     elif filename:
         save(filename, obj=plot)
@@ -353,7 +337,7 @@ def _doc_wrap(func):
 
 def _plot_function(__func__, *args, **kwargs):
     retval = __func__(curdoc(), *args, **kwargs)
-    if cursession() and curdoc()._autostore:
+    if cursession() and curdoc().autostore:
         push()
     if _default_file and _default_file['autosave']:
         save()
@@ -577,7 +561,7 @@ def gridplot(plot_arrangement, name=None):
     # Walk the plot_arrangement and remove them from the plotcontext,
     # so they don't show up twice
     subplots = itertools.chain.from_iterable(plot_arrangement)
-    curdoc().get_context().children = list(set(curdoc().get_context().children) - set(subplots))
+    curdoc().context.children = list(set(curdoc().context.children) - set(subplots))
     curdoc().add(grid)
     curdoc()._current_plot = grid # TODO (bev) don't use private attrs
 

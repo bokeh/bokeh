@@ -8,7 +8,7 @@ from functools import wraps
 from six import add_metaclass, iteritems
 
 from .properties import HasProps, MetaHasProps, Instance, String
-from .utils import dump, make_id
+from .utils import dump, is_ref, json_apply, make_id, resolve_json
 
 class Viewable(MetaHasProps):
     """ Any plot object (Data Model) which has its own View Model in the
@@ -64,58 +64,6 @@ class Viewable(MetaHasProps):
         else:
             raise KeyError("View model name '%s' not found" % view_model_name)
 
-def usesession(meth):
-    """ Checks for 'session' in kwargs and in **self**, and guarantees
-    that **kw** always has a valid 'session' parameter.  Wrapped methods
-    should define 'session' as an optional argument, and in the body of
-    the method, should expect an
-    """
-    @wraps(meth)
-    def wrapper(self, *args, **kw):
-        session = kw.get("session", None)
-        if session is None:
-            session = getattr(self, "session")
-        if session is None:
-            raise RuntimeError("Call to %s needs a session" % meth.__name__)
-        kw["session"] = session
-        return meth(self, *args, **kw)
-    return wrapper
-
-def is_ref(frag):
-    return isinstance(frag, dict) and \
-           frag.get('type') and \
-           frag.get('id')
-
-def json_apply(fragment, check_func, func):
-    """recursively searches through a nested dict/lists
-    if check_func(fragment) is True, then we return
-    func(fragment)
-    """
-    if check_func(fragment):
-        return func(fragment)
-    elif isinstance(fragment, list):
-        output = []
-        for val in fragment:
-            output.append(json_apply(val, check_func, func))
-        return output
-    elif isinstance(fragment, dict):
-        output = {}
-        for k, val in fragment.items():
-            output[k] = json_apply(val, check_func, func)
-        return output
-    else:
-        return fragment
-
-def resolve_json(fragment, models):
-    check_func = is_ref
-    def func(fragment):
-        if fragment['id'] in models:
-            return models[fragment['id']]
-        else:
-            logging.error("model not found for %s", fragment)
-            return None
-    return json_apply(fragment, check_func, func)
-
 @add_metaclass(Viewable)
 class PlotObject(HasProps):
     """ Base class for all plot-related objects """
@@ -146,7 +94,8 @@ class PlotObject(HasProps):
             self._block_callbacks = True
             super(PlotObject, self).__init__(**kwargs)
 
-    def get_ref(self):
+    @property
+    def ref(self):
         return {
             'type': self.__view_model__,
             'id': self._id,

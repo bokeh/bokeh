@@ -29,7 +29,7 @@ document.add(hbox)
 session.store_document(document)
 
 if __name__ == "__main__":
-    link = session.object_link(document._plotcontext)
+    link = session.object_link(document.context)
     print("Please visit %s to see the plots" % link)
     view(link)
     print("\npress ctrl-C to exit")

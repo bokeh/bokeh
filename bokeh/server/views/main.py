@@ -255,7 +255,6 @@ def autoload_js(elementid):
 def get_bokeh_info_one_object(docid, objid):
     doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
     clientdoc = bokeh_app.backbone_storage.get_document(docid)
-    prune(clientdoc)
     obj = clientdoc._models[objid]
     objs = obj.references()
     all_models = clientdoc.dump(*objs)

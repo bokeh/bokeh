@@ -98,7 +98,7 @@ def _glyph_function(glyphclass, argnames, docstring, xfields=["x"], yfields=["y"
 
         plot.renderers.append(glyph_renderer)
         plot._dirty = True
-        if document and document._autoadd:
+        if document and document.autoadd:
             document.add(plot)
         return plot
     func.__name__ = glyphclass.__view_model__

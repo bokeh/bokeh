@@ -1,4 +1,7 @@
 
+import logging
+logger = logging.getLogger(__name__)
+
 from functools import reduce
 import math
 import platform
@@ -6,7 +9,6 @@ import sys
 import uuid
 
 from six.moves.urllib.parse import urljoin as sys_urljoin
-
 
 _simple_id = 1000
 
@@ -59,31 +61,12 @@ def is_py3():
 def is_pypy():
     return platform.python_implementation() == "PyPy"
 
-def json_apply(json_obj, func):
-    processed = set()
-    queue = [json_obj]
-    while queue:
-        node = queue.pop(0)
-        if id(node) in processed:
-            continue
-        func(node)
-        processed.add(id(node))
-        if isinstance(node, list):
-            for idx, x in enumerate(node):
-                queue.append(x)
-        if isinstance(node, dict):
-            for k,v in node.iteritems():
-                queue.append(v)
-
-def get_ref(obj):
-    return obj.get_ref()
-
 def convert_references(json_obj):
     from .plot_object import PlotObject
     from .properties import HasProps
     def convert(obj):
         if isinstance(obj, PlotObject):
-            return get_ref(obj)
+            return obj.ref
         elif isinstance(obj, HasProps):
             return obj.to_dict()
         else:
@@ -101,7 +84,7 @@ def convert_references(json_obj):
 def dump(objs, docid):
     json_objs = []
     for obj in objs:
-        ref = get_ref(obj)
+        ref = obj.ref
         ref["attributes"] = obj.vm_serialize()
         ref["attributes"].update({"id": ref["id"], "doc" : docid})
         json_objs.append(ref)
@@ -129,3 +112,38 @@ def publish_display_data(data, source='bokeh'):
         displaypub.publish_display_data(source, data)
     except TypeError:
         displaypub.publish_display_data(data)
+
+def is_ref(frag):
+    return isinstance(frag, dict) and \
+           frag.get('type') and \
+           frag.get('id')
+
+def json_apply(fragment, check_func, func):
+    """recursively searches through a nested dict/lists
+    if check_func(fragment) is True, then we return
+    func(fragment)
+    """
+    if check_func(fragment):
+        return func(fragment)
+    elif isinstance(fragment, list):
+        output = []
+        for val in fragment:
+            output.append(json_apply(val, check_func, func))
+        return output
+    elif isinstance(fragment, dict):
+        output = {}
+        for k, val in fragment.items():
+            output[k] = json_apply(val, check_func, func)
+        return output
+    else:
+        return fragment
+
+def resolve_json(fragment, models):
+    check_func = is_ref
+    def func(fragment):
+        if fragment['id'] in models:
+            return models[fragment['id']]
+        else:
+            logging.error("model not found for %s", fragment)
+            return None
+    return json_apply(fragment, check_func, func)
