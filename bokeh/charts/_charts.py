@@ -109,9 +109,7 @@ class Chart(object):
         "Add the axis, grids and tools to self.plot"
         # Add axis
         xaxis = self.make_axis("below", self.xscale, self.xlabel)
-        self.plot.below.append(xaxis)
         yaxis = self.make_axis("left", self.yscale, self.ylabel)
-        self.plot.left.append(yaxis)
 
         # Add grids
         self.make_grid(0, xaxis.ticker)
@@ -120,15 +118,12 @@ class Chart(object):
         # Add tools
         if self.tools:
             if not self.categorical:
-                self.plot.tools = []
-                pantool = PanTool(dimensions=['width', 'height'])
-                self.plot.tools.append(pantool)
-                wheelzoom = WheelZoomTool(dimensions=['width', 'height'])
-                self.plot.tools.append(wheelzoom)
-                reset = ResetTool(plot=self.plot)
-                self.plot.tools.append(reset)
-            previewsave = PreviewSaveTool(plot=self.plot)
-            self.plot.tools.append(previewsave)
+                pan = PanTool()
+                wheelzoom = WheelZoomTool()
+                reset = ResetTool()
+                self.plot.add_tools(pan, wheelzoom, reset)
+            previewsave = PreviewSaveTool()
+            self.plot.add_tools(previewsave)
 
     def add_data_plot(self, x_range, y_range):
         """Add range data to the initialized empty attributes.
@@ -153,13 +148,13 @@ class Chart(object):
         # Add legend
         if self.legend:
             listed_glyphs = [[glyph] for glyph in self.glyphs]
-            self.legends = OrderedDict(zip(groups, listed_glyphs))
+            legends = OrderedDict(zip(groups, listed_glyphs))
             if self.legend is True:
                 orientation = "top_right"
             else:
                 orientation = self.legend
-            legend = Legend(plot=self.plot, orientation=orientation, legends=self.legends)
-            self.plot.renderers.append(legend)
+            legend = Legend(orientation=orientation, legends=legends)
+            self.plot.add_layout(legend)
 
         # Add to document and session if server output is asked
         self.doc = Document()
@@ -184,21 +179,20 @@ class Chart(object):
             scale (str): the scale on the axis. It can be ``linear``, ``datetime``
                 or ``categorical``.
             label (str): the label on the axis.
+
+        Return:
+            axis: Axis instance
         """
         if scale == "linear":
-            axis = LinearAxis(plot=self.plot,
-                              location=location,
-                              axis_label=label)
+            axis = LinearAxis(axis_label=label)
         elif scale == "datetime":
-            axis = DatetimeAxis(plot=self.plot,
-                                location=location,
-                                axis_label=label)
+            axis = DatetimeAxis(axis_label=label)
         elif scale == "categorical":
-            axis = CategoricalAxis(plot=self.plot,
-                                   location=location,
-                                   major_label_orientation=np.pi / 4,
+            axis = CategoricalAxis(major_label_orientation=np.pi / 4,
                                    axis_label=label)
             self.categorical = True
+
+        self.plot.add_layout(axis, location)
 
         return axis
 
@@ -209,11 +203,8 @@ class Chart(object):
             dimension(int): the dimension of the axis, ie. xaxis=0, yaxis=1.
             ticker (obj): the axis.ticker object
         """
-        grid = Grid(plot=self.plot,
-                    dimension=dimension,
-                    ticker=ticker)
-
-        return grid
+        grid = Grid(dimension=dimension, ticker=ticker)
+        self.plot.add_layout(grid)
 
     def make_segment(self, source, x0, y0, x1, y1, color, width):
         """ Create a segment glyph and append it to the plot.renderers list.
