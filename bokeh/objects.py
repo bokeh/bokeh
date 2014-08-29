@@ -6,18 +6,21 @@ notebook.
 """
 from __future__ import absolute_import
 
-import warnings
 import logging
 logger = logging.getLogger(__file__)
 
+import warnings
+
 from . import _glyph_functions
-from .properties import (HasProps, Dict, Enum, Either, Float, Instance, Int,
-    Datetime,
-    List, String, Color, Date, Include, Bool, Tuple, Any)
-from .mixins import LineProps, TextProps
 from .enums import DatetimeUnits, Dimension, Location, Orientation, Units
-from .plot_object import PlotObject
 from .glyphs import BaseGlyph
+from .mixins import LineProps, TextProps
+from .plot_object import PlotObject
+from .properties import (
+    Datetime, HasProps, Dict, Enum, Either, Float, Instance, Int,
+    List, String, Color, Include, Bool, Tuple, Any
+)
+from .utils import nice_join
 
 class DataSource(PlotObject):
     """ Base class for data sources """
@@ -357,6 +360,82 @@ class Plot(Widget):
             kwargs.setdefault('h_symmetry', 'h' in border_symmetry or 'H' in border_symmetry)
             kwargs.setdefault('v_symmetry', 'v' in border_symmetry or 'V' in border_symmetry)
         super(Plot, self).__init__(**kwargs)
+
+    def add_layout(self, obj, place='center'):
+        ''' Adds an object to the plot in a specified place.
+
+        Args:
+            obj (PlotObject) : the object to add to the Plot
+            place (str, optional) : where to add the object (default: 'center')
+                Valid places are: 'left', 'right', 'above', 'below', 'center'.
+
+        Returns:
+            None
+
+        '''
+        valid_places = ['left', 'right', 'above', 'below', 'center']
+        if place not in valid_places:
+            raise ValueError(
+                "Invalid place '%s' specified. Valid place values are: %s" % (place, nice_join(valid_places))
+            )
+
+        if hasattr(obj, 'plot'):
+            if obj.plot is not None:
+                 raise ValueError("object to be added already has 'plot' attribute set")
+            obj.plot = self
+
+        self.renderers.append(obj)
+
+        if place is not 'center':
+            getattr(self, place).append(obj)
+
+    def add_tools(self, *tools):
+        ''' Adds an tools to the plot.
+
+        Args:
+            *tools (Tool) : the tools to add to the Plot
+
+        Returns:
+            None
+
+        '''
+        if not all(isinstance(tool, Tool) for tool in tools):
+            raise ValueError("All arguments to add_tool must be Tool subclasses.")
+
+        for tool in tools:
+            if tool.plot is not None:
+                 raise ValueError("tool %s to be added already has 'plot' attribute set" % tools)
+            tool.plot = self
+            self.tools.append(tool)
+
+    def add_glyph(self, source, x_range, y_range, glyph, **kw):
+        ''' Adds a glyph to the plot with associated data sources and ranges.
+
+        This function will take care of creating and configurinf a Glyph object,
+        and then add it to the plot's list of renderers.
+
+        Args:
+            source: (ColumnDataSource) : a data source for the glyphs to all use
+            x_range (Range1d) : a range object for the x-dimension
+            y_range (Range1d) : a range object for the y-dimension
+            glyphs (BaseGlyph) : the glyph to add to the Plot
+
+        Keyword Arguments:
+            Any additional keyword arguments are passed on as-is to the
+            Glyph initializer.
+
+        Returns:
+            glyph : Glyph
+
+        '''
+        if not isinstance(glyph, BaseGlyph):
+            raise ValueError("glyph arguments to add_glyph must be BaseGlyph subclass.")
+
+        g = Glyph(data_source=source, xdata_range=x_range, ydata_range=y_range, glyph=glyph, **kw)
+        self.renderers.append(g)
+        return g
+
+    data_sources = List(Instance(DataSource))
 
     x_range = Instance(Range)
     y_range = Instance(Range)

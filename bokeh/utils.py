@@ -1,9 +1,24 @@
+
+from functools import reduce
+import math
 import platform
 import sys
-import math
+import uuid
+
 from six.moves.urllib.parse import urljoin as sys_urljoin
-import copy
-from functools import reduce
+
+
+_simple_id = 1000
+
+def make_id():
+    global _simple_id
+    from . import settings
+    if settings.simple_ids(False):
+        _simple_id += 1
+        new_id = _simple_id
+    else:
+        new_id = uuid.uuid4()
+    return str(new_id)
 
 def urljoin(*args):
     return reduce(sys_urljoin, args)

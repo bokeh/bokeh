@@ -2,19 +2,16 @@
 """
 from __future__ import absolute_import
 
-import copy
 import logging
-import uuid
 
 from six import string_types
 
 from . import _glyph_functions as gf
 from .exceptions import DataIntegrityException
 from .objects import PlotContext
-from .properties import HasProps
 from .plot_object import PlotObject
 from .plotting_helpers import _new_xy_plot
-from .utils import json_apply, convert_references, get_ref, dump
+from .utils import dump, get_ref, make_id
 
 logger = logging.getLogger(__file__)
 
@@ -27,7 +24,7 @@ class Document(object):
         self._autostore = True
         self._autoadd = True
         self._models = {}
-        self.docid = str(uuid.uuid4())
+        self.docid = make_id()
         self._plotcontext = None
         if json_objs:
             self.load(*json_objs, dirty=False)

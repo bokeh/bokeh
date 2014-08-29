@@ -8,8 +8,10 @@ from bokeh.browserlib import view
 from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.glyphs import Circle
-from bokeh.objects import (Plot, DataRange1d, LinearAxis, DatetimeAxis,
-        ColumnDataSource, Glyph, PanTool, WheelZoomTool)
+from bokeh.objects import (
+    Plot, DataRange1d, DatetimeAxis,
+    ColumnDataSource, PanTool, WheelZoomTool
+)
 from bokeh.resources import INLINE
 
 x = arange(-2 * pi, 2 * pi, 0.1)
@@ -26,26 +28,15 @@ source = ColumnDataSource(
 xdr = DataRange1d(sources=[source.columns("times")])
 ydr = DataRange1d(sources=[source.columns("y")])
 
-circle = Circle(x="times", y="y", fill_color="red", size=5, line_color="black")
-
-glyph_renderer = Glyph(
-    data_source=source,
-    xdata_range=xdr,
-    ydata_range=ydr,
-    glyph=circle,
-)
-
 plot = Plot(x_range=xdr, y_range=ydr, min_border=80)
-xaxis = DatetimeAxis(plot=plot)
-plot.below.append(xaxis)
-yaxis = LinearAxis(plot=plot)
-plot.left.append(yaxis)
 
-pantool = PanTool(dimensions=["width", "height"])
-wheelzoomtool = WheelZoomTool(dimensions=["width", "height"])
+circle = Circle(x="times", y="y", fill_color="red", size=5, line_color="black")
+plot.add_glyph(source, xdr, ydr, circle)
 
-plot.renderers.append(glyph_renderer)
-plot.tools = [pantool, wheelzoomtool]
+plot.add_layout(DatetimeAxis(), 'below')
+plot.add_layout(DatetimeAxis(), 'left')
+
+plot.add_tools(PanTool(), WheelZoomTool())
 
 doc = Document()
 doc.add(plot)

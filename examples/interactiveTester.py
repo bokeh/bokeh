@@ -123,7 +123,7 @@ def main(home_dir, testing_ground=None):
                 if index != len(TestFiles)-1:
                     input("\nPress enter to open next file ")
             else:
-                ErrorReport = test_status(fileName)
+                ErrorReport = test_status()
                 if ErrorReport:
                     Log.append("\n\n%s: \n %s" % (fileName, ErrorReport))
 
@@ -157,16 +157,16 @@ def opener(some_file, command):
     the command method provided.
     """
 
-    print("\nOpening %s\n" % some_file)
+    print("\nOpening %s\n" % some_file.strip('../'))
     os.system("%s %s" % (command, some_file))
 
 
-def test_status(some_file):
+def test_status():
     """Collect user input to determine if a file displayed correctly or incorrectly.
     In the case of incorrectly displayed plots, an 'ErrorReport' string is returned.
     """
 
-    status = input("Did the plot(s) in %s display correctly? (y/n) " % some_file)
+    status = input("Did the plot(s) display correctly? (y/n) ")
     while not status.startswith(('y', 'n')):
         print("")
         status = input("Unexpected answer. Please type y or n. ")

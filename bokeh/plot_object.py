@@ -1,20 +1,14 @@
 from __future__ import absolute_import, print_function
 
-import os.path
-from uuid import uuid4
-from functools import wraps
-
-import warnings
 import logging
 logger = logging.getLogger(__file__)
 
-from six import add_metaclass, iteritems
-from six.moves.urllib.parse import urlsplit
+from functools import wraps
 
-from .embed import autoload_static, autoload_server
+from six import add_metaclass, iteritems
+
 from .properties import HasProps, MetaHasProps, Instance, String
-from .protocol import serialize_json
-from .utils import get_ref, convert_references, dump
+from .utils import dump, make_id
 
 class Viewable(MetaHasProps):
     """ Any plot object (Data Model) which has its own View Model in the
@@ -135,7 +129,7 @@ class PlotObject(HasProps):
         if "id" in kwargs:
             self._id = kwargs.pop("id")
         else:
-            self._id = str(uuid4())
+            self._id = make_id()
 
         self._dirty = True
         self._callbacks_dirty = False
@@ -172,8 +166,6 @@ class PlotObject(HasProps):
 
         if not instance:
             instance = cls(id=_id, _block_events=True)
-
-        _doc = attrs.pop("doc", None)
 
         ref_props = {}
         for p in instance.properties_with_refs():

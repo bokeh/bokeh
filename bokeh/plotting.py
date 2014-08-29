@@ -1,19 +1,19 @@
 from __future__ import print_function
 
-from functools import wraps
-import itertools
-import time
 import logging
-import os
-import uuid
-import warnings
+logger = logging.getLogger(__name__)
+
 import io
+import itertools
+import os
+import time
+import warnings
 
 from . import browserlib
 from . import _glyph_functions as gf
 from .document import Document
 from .embed import notebook_div, file_html, autoload_server
-from .objects import Axis, ColumnDataSource, Glyph, Grid, GridPlot, Legend, Plot
+from .objects import Axis, Grid, GridPlot, Legend, Plot
 from .palettes import brewer
 from .plotting_helpers import (
     get_default_color, get_default_alpha, _handle_1d_data_args, _list_attr_splat
@@ -22,7 +22,8 @@ from .resources import Resources
 from .session import Cloud, DEFAULT_SERVER_URL, Session
 from .utils import decode_utf8, publish_display_data
 
-logger = logging.getLogger(__name__)
+# extra imports -- just thigns to add to 'from plotting import *'
+from bokeh.objects import ColumnDataSource
 
 _default_document = Document()
 
@@ -180,13 +181,13 @@ def output_notebook(url=None, docname=None, session=None, name=None,
     global _default_notebook
     _default_notebook = True
 
-def output_file(filename, title="Bokeh Plot", autosave=True, mode="inline", root_dir=None):
+def output_file(filename, title="Bokeh Plot", autosave=False, mode="inline", root_dir=None):
     """ Outputs to a static HTML file.
 
     .. note:: This file will be overwritten each time show() or save() is invoked.
 
     Args:
-        autosave (bool, optional) : whether to automatically save (default: True)
+        autosave (bool, optional) : whether to automatically save (default: False)
             If **autosave** is True, then every time plot() or one of the other
             visual functions is called, this causes the file to be saved. If it
             is False, then the file is only saved upon calling show().
