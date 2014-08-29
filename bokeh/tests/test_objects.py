@@ -69,90 +69,6 @@ class TestViewable(unittest.TestCase):
         self.assertTrue(hasattr(tclass, 'foo'))
         self.assertRaises(KeyError, self.viewable.get_class, 'Imaginary_Class')
 
-
-class Test_UseSession(unittest.TestCase):
-
-    def setUp(self):
-        from bokeh.plot_object import usesession
-        self.usesession = usesession
-
-    def test_transparent(self):
-        class test_class():
-            session = None
-
-            @self.usesession
-            def test_func(self, session=None):
-                return session
-        tc = test_class()
-        self.assertEqual(tc.test_func.__name__, 'test_func')
-
-    def test_withkw(self):
-        class test_class():
-            session = None
-
-            @self.usesession
-            def test_func(self, session=None):
-                return session
-        tc = test_class()
-        self.assertEqual(tc.test_func(session='not_default'), 'not_default')
-
-    def test_withoutkw(self):
-        class test_class():
-            session = None
-
-            @self.usesession
-            def test_func(self, session=None):
-                return session
-        tc = test_class()
-        self.assertRaises(RuntimeError, tc.test_func)
-        tc.session = 'something'
-        self.assertEqual(tc.test_func(), 'something')
-
-    def test_without_session_attr(self):
-        class test_class():
-
-            @self.usesession
-            def test_func(self, session=None):
-                return session
-        tc = test_class()
-        self.assertEqual(tc.test_func(session='not_default'), 'not_default')
-
-
-class TestJsonapply(unittest.TestCase):
-
-    def test_jsonapply(self):
-        from bokeh.plot_object import json_apply
-
-        def check_func(frag):
-            if frag == 'goal':
-                return True
-
-        def func(frag):
-            return frag + 'ed'
-
-        result = json_apply('goal', check_func, func)
-        self.assertEqual(result, 'goaled')
-        result = json_apply([[['goal', 'junk'], 'junk', 'junk']], check_func, func)
-        self.assertEqual(result, [[['goaled', 'junk'], 'junk', 'junk']])
-        result = json_apply({'1': 'goal', 1.5: {'2': 'goal', '3': 'junk'}}, check_func, func)
-        self.assertEqual(result, {'1': 'goaled', 1.5: {'2': 'goaled', '3': 'junk'}})
-
-
-class TestResolveJson(unittest.TestCase):
-
-    @patch('bokeh.plot_object.logging')
-    def test_resolve_json(self, mock_logging):
-        from bokeh.plot_object import resolve_json
-
-        models = {'foo': 'success', 'otherfoo': 'othersuccess'}
-        fragment = [{'id': 'foo', 'type': 'atype'}, {'id': 'foo', 'type': 'atype'}, {'id': 'otherfoo', 'type': 'othertype'}]
-        self.assertEqual(resolve_json(fragment, models), ['success', 'success', 'othersuccess'])
-        fragment.append({'id': 'notfoo', 'type': 'badtype'})
-        self.assertEqual(resolve_json(fragment, models), ['success', 'success', 'othersuccess', None])
-        self.assertTrue(mock_logging.error.called)
-        self.assertTrue('badtype' in repr(mock_logging.error.call_args))
-
-
 class TestCollectPlotObjects(unittest.TestCase):
 
     def test_references(self):
@@ -193,9 +109,9 @@ class TestPlotObject(unittest.TestCase):
 
         self.pObjectClass.setup_events = oldmethod
 
-    def test_get_ref(self):
+    def test_ref(self):
         testObject = self.pObjectClass(id='test_id')
-        self.assertEqual({'type': 'PlotObject', 'id': 'test_id'}, testObject.get_ref())
+        self.assertEqual({'type': 'PlotObject', 'id': 'test_id'}, testObject.ref)
 
     def test_load_json(self):
         from bokeh.plot_object import PlotObject
