@@ -2,7 +2,7 @@ from __future__ import print_function
 from ..plotting import image_rgba, image, multi_line, curdoc
 from ..plot_object import PlotObject
 from ..objects import ServerDataSource,  Glyph, Range1d, Color
-from ..properties import (Instance, Any, Either, Int, Float, List, Bool)
+from ..properties import (Instance, Any, Either, Int, Float, List, Bool, String)
 import bokeh.colors as colors
 import numpy as np
 
@@ -320,10 +320,11 @@ class Spread(Shader):
 
     out = "image"
     factor = Int
+    shape = String("circle")
     anti_alias = Bool(False)
 
     def reify(self, **kwargs):
-        return npg.Spread(factor=self.factor, anti_alias=self.anti_alias)
+        return npg.Spread(factor=self.factor, shape=self.shape, anti_alias=self.anti_alias)
 
 
 class Contour(Shader):
@@ -482,7 +483,7 @@ def mapping(source):
 def make_glyphset(xcol, ycol, datacol, glyphspec, transform):
     # TODO: Do more detection to find if it is an area implantation.
     #       If so, make a selector with the right shape pattern and use a point shaper
-    shaper = _shaper(glyphspec['type'], _size(glyphspec), transform['points'])
+    shaper = _shaper(glyphspec, transform['points'])
     if isinstance(shaper, glyphset.ToPoint):
         points = np.zeros((len(xcol), 4), order="F")
         points[:, 0] = xcol
@@ -510,7 +511,7 @@ def downsample(data, transform, plot_state):
 
     xcol = data[xcol]
     ycol = data[ycol]
-    datacol = data[datacol] if datacol else util.EmptyList()
+    datacol = data[datacol] if datacol else np.zeros_like(xcol)
     glyphs = make_glyphset(xcol, ycol, datacol, glyphspec, transform)
     shader = transform['shader']
 
@@ -582,7 +583,7 @@ def downsample_image(xcol, ycol, glyphs, transform, plot_state):
         bounds = glyphs.bounds()
         scale_x = data_x_span/screen_x_span
         scale_y = data_y_span/screen_y_span
-        plot_size = [bounds[2]/scale_x, bounds[3]/scale_y]
+        plot_size = (bounds[2]/scale_x, bounds[3]/scale_y)
 
         vt = util.zoom_fit(plot_size, bounds, balanced=balanced_zoom)
         (tx, ty, sx, sy) = vt
@@ -618,15 +619,6 @@ def downsample_image(xcol, ycol, glyphs, transform, plot_state):
     return rslt
 
 
-def _size(glyphspec):
-    """
-    Determine size property value or size field.
-
-    TODO: Handle data-derived and non-default
-    """
-    return glyphspec['size'].get('default', 1)
-
-
 def _datacolumn(glyphspec):
     """Search the glyphspec to determine what the data column is.
     Returns the column name or False if none was found
@@ -657,18 +649,25 @@ def _span(r):
     start = r.start if r.start is not None else 0
     return abs(end-start)
 
-
-def _shaper(code, size, points):
+def _shaper(glyphspec, points):
     """Construct the AR shaper to match the given shape code."""
+    code = glyphspec['type']
+    code = code.lower()
 
     tox = glyphset.idx(0)
     toy = glyphset.idx(1)
-    sizer = glyphset.const(size)
-    code = code.lower()
 
     if points:
+        sizer = glyphset.const(1)
         return glyphset.ToPoint(tox, toy, sizer, sizer)
-    elif code == 'square':
+
+    if code == 'square':
+        size = glyphspec['size'].get('default', 1)
+        sizer = glyphset.const(size)
+        return glyphset.ToRect(tox, toy, sizer, sizer)
+    if code == 'circle':
+        size = glyphspec['radius'].get('default', 1)
+        sizer = glyphset.const(size)
         return glyphset.ToRect(tox, toy, sizer, sizer)
     else:
-        raise ValueError("Only recognizing 'square', received " + code)
+        raise ValueError("Only recognizing 'square', received '{0}'".format(code))
