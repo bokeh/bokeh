@@ -2,9 +2,12 @@
 define [
   "underscore",
   "common/has_parent",
+  "common/logging",
   "common/plot_widget",
   "renderer/properties"
-], (_, HasParent, PlotWidget, Properties) ->
+], (_, HasParent, Logging, PlotWidget, Properties) ->
+
+  logger = Logging.logger
 
   class GlyphView extends PlotWidget
 
@@ -118,7 +121,12 @@ define [
 
       # any additional customization can happen here
       if @_set_data?
+        t0 = Date.now()
         @_set_data()
+        dt = Date.now() - t0
+        type = @mget('glyphspec').type
+        id = @mget("id")
+        logger.debug("#{type} glyph (#{id}): custom _set_data finished in #{dt}ms")
 
       # just use the length of the last added field
       len = @[field].length
@@ -160,6 +168,8 @@ define [
 
       selected = @mget('data_source').get('selected')
 
+      t0 = Date.now()
+
       if selected and selected.length and @have_selection_props
 
         # reset the selection mask
@@ -181,6 +191,11 @@ define [
 
       else
         do_render(ctx, indices, @glyph_props)
+
+      dt = Date.now() - t0
+      type = @mget('glyphspec').type
+      id = @mget("id")
+      logger.trace("#{type} glyph (#{id}): do_render calls finished in #{dt}ms")
 
       @have_new_data = false
 
@@ -287,23 +302,27 @@ define [
     hit_test: (geometry) ->
       if geometry.type == "point"
         if @_hit_point?
-          return @_hit_point(geometry)
-        if not @_point_hit_warned?
-          console.log "WARNING: 'point' selection not available on renderer"
+          result = @_hit_point(geometry)
+        else if not @_point_hit_warned?
+          type = @mget('glyphspec').type
+          logger.warn("'point' selection not available on #{type} renderer")
           @_point_hit_warned = true
         return null
 
       else if geometry.type == "rect"
         if @_hit_rect?
-          return @_hit_rect(geometry)
-        if not @_rect_hit_warned?
-          console.log "WARNING: 'rect' selection not avaliable on renderer"
+          result = @_hit_rect(geometry)
+        else if not @_rect_hit_warned?
+          type = @mget('glyphspec').type
+          logger.warn("'rect' selection not available on #{type} renderer")
           @_rect_hit_warned = true
         return null
 
       else
-        console.log "unrecognized selection geometry type '#{ geometry.type }'"
+        logger.error("unrecognized selection geometry type '#{ geometry.type }'")
         return null
+
+      return result
 
   class Glyph extends HasParent
 
