@@ -494,6 +494,11 @@ def make_glyphset(xcol, ycol, datacol, glyphspec, transform):
                                    shaper, colMajor=True)
     return glyphs
 
+def _generate_render_state(plot_state):
+    data_x_span = float(_span(plot_state['data_x']))
+    data_y_span = float(_span(plot_state['data_y']))
+    return {'x_span': data_x_span,
+            'y_span': data_y_span}
 
 def downsample(data, transform, plot_state):
     _loadAR()  # Must be called before any attempts to use AR proper
@@ -501,6 +506,11 @@ def downsample(data, transform, plot_state):
     xcol = glyphspec['x']['field']
     ycol = glyphspec['y']['field']
     datacol = _datacolumn(glyphspec)
+
+    render_state = plot_state.get('render_state', None)
+    if render_state == _generate_render_state(plot_state):
+        print("SKIPPING UPDATE ----------------------------") 
+        return {'render_state': "NO UPDATE"}
 
     # Translate the resample parameters to server-side rendering....
     # TODO: Do more to preserve the 'natural' data form and have make_glyphset build the 'right thing' (tm)
@@ -516,11 +526,15 @@ def downsample(data, transform, plot_state):
     shader = transform['shader']
 
     if shader.out == "image" or shader.out == "image_rgb":
-        return downsample_image(xcol, ycol, glyphs, transform, plot_state)
+        rslt = downsample_image(xcol, ycol, glyphs, transform, plot_state)
     elif shader.out == "poly_line":
-        return downsample_line(xcol, ycol, glyphs, transform, plot_state)
+        rslt = downsample_line(xcol, ycol, glyphs, transform, plot_state)
     else:
         raise ValueError("Only handles out types of image, image_rgb and poly_line")
+
+    rslt['render_state'] = render_state 
+
+    return rslt;
 
 
 def downsample_line(xcol, ycol, glyphs, transform, plot_state):
@@ -614,7 +628,8 @@ def downsample_image(xcol, ycol, glyphs, transform, plot_state):
             'x': [xcol.min()],
             'y': [ycol.min()],
             'dw': [xcol.max()-xcol.min()],
-            'dh': [ycol.max()-ycol.min()]}
+            'dh': [ycol.max()-ycol.min()]
+            }
 
     return rslt
 

@@ -4,7 +4,8 @@ define [
   "backbone",
   "common/has_properties",
   "range/range1d"
-], (_, Backbone, HasProperties, Range1d) ->
+  "range/data_range1d"
+], (_, Backbone, HasProperties, Range1d, DataRange1d) ->
 
   ajax_throttle = (func) ->
     busy = false
@@ -133,7 +134,8 @@ define [
                              plot_x_range, plot_y_range, 
                              x_data_range, y_data_range, 
                              input_params) ->
-      plot_state = {data_x: x_data_range, data_y:y_data_range, screen_x: plot_x_range, screen_y: plot_y_range}
+      
+      plot_state = {data_x: x_data_range, data_y: y_data_range, screen_x: plot_x_range, screen_y: plot_y_range, render_state: plot_view.ar_render_state}
 
       #TODO: Can this ar_updates be merged with line1d_updates and heatmap_updates?
       #TODO: Do we need other descriptors for AR or are these data and view parameters sufficient?
@@ -172,16 +174,20 @@ define [
         domain_limit = 'auto'
       
       sendable_plot_state = {}
-      for k,range of plot_state
+      for key,item of plot_state
         # This copy is to reformat a datarange1d to a range1d without
         # loosing the reference.  It is required because of weidness deserializing
         # the datarange1d on the python side.  It can't be done in just
         # plot_state becase we need the references still
-        # REMOVE when DataRange1D goes away.
-        proxy = new Range1d.Model()
-        proxy.set('start', range.get('start'))
-        proxy.set('end', range.get('end'))
-        sendable_plot_state[k] = proxy
+        # REMOVE when DataRange1d goes away.
+        if typeof(item) == DataRange1d
+          proxy = new Range1d.Model()
+          proxy.set('start', item.get('start'))
+          proxy.set('end', item.get('end'))
+          item = proxy
+
+        sendable_plot_state[key] = item
+
 
       resp = $.ajax(
         dataType: 'json'
@@ -189,6 +195,10 @@ define [
         xhrField :
           withCredentials : true
         success : (data) ->
+          if data.render_state == "NO UPDATE"
+            console.log("No update")
+            return
+
           if (domain_limit == 'auto')
             plot_state['data_x'].set(
               {start : data.x_range.start, end : data.x_range.end},
@@ -198,11 +208,10 @@ define [
               {start : data.y_range.start, end : data.y_range.end},
             )
           
-          
-          #hack
-          new_data = _.clone(column_data_source.get('data'))
+          new_data = _.clone(column_data_source.get('data'))  # the "clone" is a hack
           _.extend(new_data, data)
           column_data_source.set('data', new_data)
+          plot_view.ar_render_state = data.render_state
           plot_view.request_render()
         data :
           resample_parameters : JSON.stringify([input_params])
