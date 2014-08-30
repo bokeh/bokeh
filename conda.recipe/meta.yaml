@@ -18,7 +18,7 @@ requirements:
     - numpy
     - pandas
     - six
-    - requests <2.4.0
+    - requests
     - dateutil
     - pyyaml
 
@@ -41,7 +41,6 @@ test:
     - sphinxcontrib-napoleon
 
     # tests
-    - requests <2.4.0
     - beautiful-soup
     - colorama
     - pyyaml

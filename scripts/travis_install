@@ -16,7 +16,7 @@ rm -rf $MINICONDA.sh
 
 python -V
 
-DEPS_TRAVIS="python=$TRAVIS_PYTHON_VERSION conda-build=1.7.0 jinja2 requests=2.3.0"
+DEPS_TRAVIS="python=$TRAVIS_PYTHON_VERSION conda-build=1.7.0 jinja2"
 conda install --yes $DEPS_TRAVIS
 
 conda config --add channels bokeh
