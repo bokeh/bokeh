@@ -15,17 +15,28 @@
 
 import unittest
 
-from bokeh.charts import Bar, BoxPlot, Chart, ChartObject, Histogram, Scatter
-from bokeh.objects import Grid, LinearAxis, PanTool
+from ..charts import Bar, BoxPlot, Chart, ChartObject, Histogram, Scatter
+from ..objects import ColumnDataSource, Grid, Glyph, Legend, LinearAxis, PanTool, Range1d
+
+from ..document import Document
+#from ..session import Session
 
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
 
+source = ColumnDataSource()
+xdr = Range1d()
+ydr = Range1d()
+glyph = Glyph()
+groups = [glyph] * 3
 test_chart = Chart(title="title", xlabel="xlabel", ylabel="ylabel",
                    legend="top_left", xscale="linear", yscale="linear",
                    width=800, height=600, tools=True,
                    filename=False, server=False, notebook=False)
+test_chart.start_plot()
+test_chart.add_data_plot(xdr, ydr)
+test_chart.end_plot(groups)
 
 
 class TestChart(unittest.TestCase):
@@ -45,18 +56,25 @@ class TestChart(unittest.TestCase):
         self.assertFalse(test_chart.notebook)
 
     def test_start_plot(self):
-        test_chart.start_plot()
         self.assertIsInstance(test_chart.plot.left[0], LinearAxis)
+        #self.assertIsInstance(test_chart.plot.renderers[0], LinearAxis)
         self.assertIsInstance(test_chart.plot.below[0], LinearAxis)
-        self.assertIsInstance(test_chart.plot.renderers[-1], Grid)
-        self.assertIsInstance(test_chart.plot.renderers[-2], Grid)
+        #self.assertIsInstance(test_chart.plot.renderers[1], LinearAxis)
+        self.assertIsInstance(test_chart.plot.renderers[2], Grid)
+        self.assertIsInstance(test_chart.plot.renderers[3], Grid)
         self.assertIsInstance(test_chart.plot.tools[0], PanTool)
 
     def test_add_data_plot(self):
-        pass
+        self.assertIsInstance(test_chart.plot.x_range, Range1d)
+        self.assertIsInstance(test_chart.plot.y_range, Range1d)
 
     def test_end_plot(self):
-        pass
+        legend = test_chart.plot.renderers[4]
+        self.assertIsInstance(legend, Legend)
+        self.assertEqual(legend.orientation, "top_left")
+        self.assertIsInstance(test_chart.doc, Document)
+        #TODO test server-base charts
+        #self.assertIsInstance(test_chart.session, Session)
 
     def test_make_axis(self):
         pass
