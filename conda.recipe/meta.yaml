@@ -41,6 +41,7 @@ test:
     - sphinxcontrib-napoleon
 
     # tests
+    - requests <2.4.0
     - beautiful-soup
     - colorama
     - pyyaml
