@@ -18,7 +18,7 @@ requirements:
     - numpy
     - pandas
     - six
-    - requests <2.4.0
+    - requests
     - dateutil
     - pyyaml
 
