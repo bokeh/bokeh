@@ -1,12 +1,14 @@
 
 define [
-  "underscore",
-  "backbone",
-  "./tool",
-  "./event_generators",
-], (_, Backbone, Tool, EventGenerators) ->
+  "underscore"
+  "backbone"
+  "common/logging"
+  "./tool"
+  "./event_generators"
+], (_, Backbone, Tool, Logging, EventGenerators) ->
 
   OnePointWheelEventGenerator = EventGenerators.OnePointWheelEventGenerator
+  logger = Logging.logger
 
   class WheelZoomToolView extends Tool.View
 
@@ -14,19 +16,19 @@ define [
       super(options)
       dims = @mget('dimensions')
       if dims.length == 0
-        console.log ("WARN: wheel zoom tool given empty dimensions")
+        logger.warn("wheel zoom tool given empty dimensions")
       else if dims.length == 1
         if dims[0] == 'width'
           @evgen_options.buttonText = "Wheel Zoom (x-axis)"
         else if dims[0] == 'height'
           @evgen_options.buttonText = "Wheel Zoom (y-axis)"
         else
-          console.log ("WARN: wheel tool given unrecognized dimensions: #{ dims }")
+          logger.warn("wheel tool given unrecognized dimensions: #{dims}")
       else if dims.length == 2
         if dims.indexOf('width') < 0 or dims.indexOf('height') < 0
-          console.log ("WARN: pan tool given unrecognized dimensions: #{ dims }")
+          logger.warn("pan tool given unrecognized dimensions: #{dims}")
       else
-        console.log ("WARN: wheel tool given more than two dimensions: #{ dims }")
+        logger.warn("wheel tool given more than two dimensions: #{dims}")
 
 
     eventGeneratorClass: OnePointWheelEventGenerator
