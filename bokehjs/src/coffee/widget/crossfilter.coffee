@@ -72,7 +72,6 @@ define [
       @columns = new ColumnCollection()
       @_set_columns()
       @listenTo(this, 'change:columns', @_set_columns)
-      console.log(@columns.models)
 
     _set_columns : () =>
       @columns.reset(@get('columns'))

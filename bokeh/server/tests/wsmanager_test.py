@@ -10,7 +10,7 @@ from ..app import bokeh_app
 from ..models import docs
 from ... import protocol
 from ...tests.test_utils import skipIfPy3, skipIfPyPy
-from bokeh.widgetobjects import VBox
+from bokeh.widgets import VBox
 import bokeh.document as document
 import bokeh.session as session
 ws_address = "ws://localhost:6009/bokeh/sub/"
