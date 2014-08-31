@@ -52,7 +52,6 @@ define [
       ctx.beginPath()
       ctx.moveTo(0,@y)
       ctx.lineTo(cw,@y)
-      console.log(@x,@y)
       ctx.moveTo(@x, 0)
       ctx.lineTo(@x, ch)
       ctx.stroke()

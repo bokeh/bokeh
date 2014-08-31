@@ -18,7 +18,7 @@ from bokeh.plotting import circle, rect, curdoc
 from bokeh.properties import String, Instance
 from bokeh.server.app import bokeh_app
 from bokeh.server.utils.plugins import object_page
-from bokeh.widgetobjects import HBox, VBox, VBoxForm, PreText, Select
+from bokeh.widgets import HBox, VBox, VBoxForm, PreText, Select
 
 data_dir = join(dirname(__file__), "daily")
 tickers = listdir(data_dir)

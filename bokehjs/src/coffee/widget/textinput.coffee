@@ -1,11 +1,15 @@
 define [
-  "common/has_parent",
-  "common/continuum_view",
-  "common/build_views"
   "backbone",
+  "common/build_views"
+  "common/continuum_view"
+  "common/has_parent"
+  "common/logging"
   "./textinputtemplate"
-], (HasParent, continuum_view, build_views, Backbone, template) ->
+], (Backbone, build_views, continuum_view, HasParent, Logging, template) ->
+
   ContinuumView = continuum_view.View
+  logger = Logging.logger
+
   class TextInputView extends ContinuumView
     tagName : "div"
     attributes :
@@ -13,10 +17,13 @@ define [
     template : template
     events :
       "change input" : "change_input"
+
     change_input : () ->
-      @mset('value', @$('input').val())
+      value = @$('input').val()
+      logger.debug("textinput: value = #{value}")
+      @mset('value', value)
       @model.save()
-      console.log('set', @model.attributes)
+
     initialize : (options) ->
       super(options)
       @render()
@@ -29,16 +36,18 @@ define [
   class TextInput extends HasParent
     type : "TextInput"
     default_view : TextInputView
+
     defaults : () ->
       defaults =
         name : ""
         value : ""
         title : ""
       return defaults
+
   class TextInputs extends Backbone.Collection
     model : TextInput
-  textinputs = new TextInputs()
-  return{
+
+  return {
     Model : TextInput
-    Collection : textinputs
+    Collection : new TextInputs()
   }

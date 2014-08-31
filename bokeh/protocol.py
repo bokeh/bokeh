@@ -94,7 +94,7 @@ class BokehJSONEncoder(json.JSONEncoder):
         elif isinstance(obj, HasProps):
             return obj.to_dict()
         elif isinstance(obj, Color):
-            return obj.toCSS()
+            return obj.to_css()
         else:
             return self.transform_python_types(obj)
 

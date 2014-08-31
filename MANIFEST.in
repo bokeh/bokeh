@@ -1,4 +1,5 @@
 global-exclude .git*
+include LICENSE.txt
 include versioneer.py
 recursive-include examples *.py *.ipynb *.md
 graft bokehjs

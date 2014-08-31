@@ -3,22 +3,29 @@ define [
   "underscore",
   "common/base",
   "common/load_models"
-], (Backbone, _, base, load_models) ->
+  "common/logging"
+], (Backbone, _, base, load_models, Logging) ->
+
   Config = base.Config
+  logger = Logging.logger
+
   class WebSocketWrapper
     _.extend(@prototype, Backbone.Events)
+
     # ### method :
     constructor : (ws_conn_string) ->
       @auth = {}
       @ws_conn_string = ws_conn_string
       @_connected = $.Deferred()
       @connected = @_connected.promise()
-      if window.MozWebSocket
-        @s = new MozWebSocket(ws_conn_string)
-      else
-        @s = new WebSocket(ws_conn_string)
-      # catch error
-      #   console.log(ws_conn_string, error)
+      try
+        if window.MozWebSocket
+          @s = new MozWebSocket(ws_conn_string)
+        else
+          @s = new WebSocket(ws_conn_string)
+      catch error
+        logger.error("websocket creation failed for connection string: #{ws_conn_string}")
+        logger.error(" - #{error}")
 
       @s.onopen = () =>
         @_connected.resolve()
@@ -26,8 +33,8 @@ define [
 
     onmessage : (msg) =>
       data = msg.data
-      index = data.indexOf(":") #first colon marks topic namespace
-      index = data.indexOf(":", index + 1) #second colon marks the topic
+      index = data.indexOf(":") # first colon marks topic namespace
+      index = data.indexOf(":", index + 1) # second colon marks the topic
       topic = data.substring(0, index)
       data = data.substring(index + 1)
       @trigger("msg:" + topic, data)
@@ -57,7 +64,6 @@ define [
     wswrapper.on("msg:" + topic, (msg) ->
       msgobj = JSON.parse(msg)
       if msgobj['msgtype'] == 'modelpush'
-        #console.log(msgobj['modelspecs'])
         load_models(msgobj['modelspecs'])
       else if msgobj['msgtype'] == 'modeldel'
         for ref in msgobj['modelspecs']
@@ -70,11 +76,11 @@ define [
           Config.clientid = clientid
           $.ajaxSetup({'headers' : {'Continuum-Clientid' : clientid}})
       else
-        console.log(msgobj)
+        log.warn("unknown msgtype '#{msgobj['msgtype']}' for message: #{msgobj}")
       return null
     )
 
-  result =
+  return {
     WebSocketWrapper : WebSocketWrapper
     submodels : submodels
-  return result
+  }
