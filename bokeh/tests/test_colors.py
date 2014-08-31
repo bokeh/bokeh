@@ -10,11 +10,11 @@ class TestColor(unittest.TestCase):
 
     def test_abstract(self):
         c = colors.Color()
-        self.assertRaises(NotImplementedError, c.toCSS)
-        self.assertRaises(NotImplementedError, c.toRGB)
-        self.assertRaises(NotImplementedError, c.toHSL)
-        self.assertRaises(NotImplementedError, c.fromRGB, "foo")
-        self.assertRaises(NotImplementedError, c.fromHSL,"foo")
+        self.assertRaises(NotImplementedError, c.to_css)
+        self.assertRaises(NotImplementedError, c.to_rgb)
+        self.assertRaises(NotImplementedError, c.to_hsl)
+        self.assertRaises(NotImplementedError, c.from_rgb, "foo")
+        self.assertRaises(NotImplementedError, c.from_hsl,"foo")
 
     def test_repr(self):
         c = colors.Color()
@@ -55,23 +55,23 @@ class TestRGB(unittest.TestCase):
 
     def test_repr(self):
         c = colors.RGB(10, 20, 30)
-        self.assertEqual(repr(c), c.toCSS())
+        self.assertEqual(repr(c), c.to_css())
         c = colors.RGB(10, 20, 30, 0.3)
-        self.assertEqual(repr(c), c.toCSS())
+        self.assertEqual(repr(c), c.to_css())
 
     def test_to_css(self):
         c = colors.RGB(10, 20, 30)
-        self.assertEqual(c.toCSS(), "rgb(10, 20, 30)")
+        self.assertEqual(c.to_css(), "rgb(10, 20, 30)")
         c = colors.RGB(10, 20, 30, 0.3)
-        self.assertEqual(c.toCSS(), "rgba(10, 20, 30, 0.3)")
+        self.assertEqual(c.to_css(), "rgba(10, 20, 30, 0.3)")
 
     def test_to_hex(self):
         c = colors.RGB(10, 20, 30)
-        self.assertEqual(c.toHEX(), "#%02X%02X%02X" % (c.r, c.g, c.b))
+        self.assertEqual(c.to_hex(), "#%02X%02X%02X" % (c.r, c.g, c.b))
 
     def test_to_rgb(self):
         c = colors.RGB(10, 20, 30)
-        c2 = c.toRGB()
+        c2 = c.to_rgb()
         self.assertTrue(c is not c2)
         self.assertEqual(c.a, c2.a)
         self.assertEqual(c.r, c2.r)
@@ -79,7 +79,7 @@ class TestRGB(unittest.TestCase):
         self.assertEqual(c.b, c2.b)
 
         c = colors.RGB(10, 20, 30, 0.1)
-        c2 = c.toRGB()
+        c2 = c.to_rgb()
         self.assertTrue(c is not c2)
         self.assertEqual(c.a, c2.a)
         self.assertEqual(c.r, c2.r)
@@ -88,7 +88,7 @@ class TestRGB(unittest.TestCase):
 
     def test_from_rgb(self):
         c = colors.RGB(10, 20, 30)
-        c2 = c.fromRGB(c)
+        c2 = c.from_rgb(c)
         self.assertTrue(c is not c2)
         self.assertEqual(c.a, c2.a)
         self.assertEqual(c.r, c2.r)
@@ -96,7 +96,7 @@ class TestRGB(unittest.TestCase):
         self.assertEqual(c.b, c2.b)
 
         c = colors.RGB(10, 20, 30, 0.1)
-        c2 = c.fromRGB(c)
+        c2 = c.from_rgb(c)
         self.assertTrue(c is not c2)
         self.assertEqual(c.a, c2.a)
         self.assertEqual(c.r, c2.r)
@@ -111,19 +111,19 @@ class TestHSL(unittest.TestCase):
 
     def test_repr(self):
         c = colors.HSL(10, 0.2, 0.3)
-        self.assertEqual(repr(c), c.toCSS())
+        self.assertEqual(repr(c), c.to_css())
         c = colors.HSL(10, 0.2, 0.3, 0.3)
-        self.assertEqual(repr(c), c.toCSS())
+        self.assertEqual(repr(c), c.to_css())
 
     def test_to_css(self):
         c = colors.HSL(10, 0.2, 0.3)
-        self.assertEqual(c.toCSS(), "hsl(10, 20.0%, 30.0%)")
+        self.assertEqual(c.to_css(), "hsl(10, 20.0%, 30.0%)")
         c = colors.HSL(10, 0.2, 0.3, 0.3)
-        self.assertEqual(c.toCSS(), "hsla(10, 20.0%, 30.0%, 0.3)")
+        self.assertEqual(c.to_css(), "hsla(10, 20.0%, 30.0%, 0.3)")
 
     def test_to_hsl(self):
         c = colors.HSL(10, 0.2, 0.3)
-        c2 = c.toHSL()
+        c2 = c.to_hsl()
         self.assertTrue(c is not c2)
         self.assertEqual(c.a, c2.a)
         self.assertEqual(c.h, c2.h)
@@ -131,7 +131,7 @@ class TestHSL(unittest.TestCase):
         self.assertEqual(c.l, c2.l)
 
         c = colors.HSL(10, 0.2, 0.3, 0.1)
-        c2 = c.toHSL()
+        c2 = c.to_hsl()
         self.assertTrue(c is not c2)
         self.assertEqual(c.a, c2.a)
         self.assertEqual(c.h, c2.h)
@@ -140,7 +140,7 @@ class TestHSL(unittest.TestCase):
 
     def test_from_hsl(self):
         c = colors.HSL(10, 0.2, 0.3)
-        c2 = c.fromHSL(c)
+        c2 = c.from_hsl(c)
         self.assertTrue(c is not c2)
         self.assertEqual(c.a, c2.a)
         self.assertEqual(c.h, c2.h)
@@ -148,7 +148,7 @@ class TestHSL(unittest.TestCase):
         self.assertEqual(c.l, c2.l)
 
         c = colors.HSL(10, 0.2, 0.3, 0.1)
-        c2 = c.fromHSL(c)
+        c2 = c.from_hsl(c)
         self.assertTrue(c is not c2)
         self.assertEqual(c.a, c2.a)
         self.assertEqual(c.h, c2.h)
@@ -163,8 +163,8 @@ class TestNamedColor(unittest.TestCase):
 
     def test_to_css(self):
         c = colors.NamedColor("aliceblue", 240,  248,  255)
-        self.assertEqual(c.toCSS(), "aliceblue")
+        self.assertEqual(c.to_css(), "aliceblue")
 
     def test_repr(self):
         c = colors.NamedColor("aliceblue", 240,  248,  255)
-        self.assertEqual(repr(c), c.toCSS())
+        self.assertEqual(repr(c), c.to_css())
