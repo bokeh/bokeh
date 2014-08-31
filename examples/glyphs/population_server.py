@@ -15,7 +15,7 @@ from bokeh.objects import (
 )
 from bokeh.sampledata.population import load_population
 from bokeh.session import Session
-from bokeh.widgetobjects import Select, HBox, VBox
+from bokeh.widgets import Select, HBox, VBox
 
 document = Document()
 session = Session()

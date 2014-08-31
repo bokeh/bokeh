@@ -5,7 +5,7 @@ from bokeh.document import Document
 from bokeh.objects import ColumnDataSource
 from bokeh.sampledata.autompg import autompg
 from bokeh.session import Session
-from bokeh.widgetobjects import TableColumn, HandsonTable, PivotTable, HBox
+from bokeh.widgets import TableColumn, HandsonTable, PivotTable, HBox
 
 document = Document()
 session = Session()
