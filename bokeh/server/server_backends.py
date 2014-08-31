@@ -347,7 +347,7 @@ class AbstractDataBackend(object):
         """
         
     #parameters for this are undefined at the moment
-    def get_data(self, request_username, datasource, parameters, plot_state): 
+    def get_data(self, request_username, datasource, parameters, plot_state, render_state): 
         raise NotImplementedError        
     
     def append_data(self, request_username, request_docid, data_url, datafile):
@@ -411,14 +411,14 @@ class FunctionBackend(AbstractDataBackend):
     def list_data_sources(self, *args):
       return ["sin_cos", "gauss","uniform"]
     
-    def get_data(self, request_username, datasource, parameters, plot_state): 
+    def get_data(self, request_username, datasource, parameters, plot_state, render_state): 
         data_url = datasource.data_url
         resample_op = datasource.transform['resample']
 
         dataset = self.get_dataset(data_url)
         
         if resample_op == 'abstract rendering':
-          result = ar_downsample.downsample(dataset, datasource.transform, plot_state)
+          result = ar_downsample.downsample(dataset, datasource.transform, plot_state, render_state)
           return result
         else:
           raise ValueError("Unknown resample op '{}'".format(resample_op))
@@ -531,7 +531,7 @@ class HDF5DataBackend(AbstractDataBackend):
         output['dh'] = [result['dh']]
         return output
 
-    def get_data(self, request_username, datasource, parameters, plot_state): 
+    def get_data(self, request_username, datasource, parameters, plot_state, render_state): 
         data_url = datasource.data_url
         resample_op = datasource.transform['resample']
 
@@ -550,7 +550,7 @@ class HDF5DataBackend(AbstractDataBackend):
             dataset = FunctionBackend().get_dataset(data_url)
           else:
             dataset = self.client[data_url]
-          result = ar_downsample.downsample(dataset, datasource.transform, plot_state)
+          result = ar_downsample.downsample(dataset, datasource.transform, plot_state, render_state)
           return result
         else:
           raise ValueError("Unknown resample op '{}'".format(resample_op))

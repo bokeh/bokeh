@@ -5,6 +5,7 @@ from ..objects import ServerDataSource,  Glyph, Range1d, Color
 from ..properties import (Instance, Any, Either, Int, Float, List, Bool, String)
 import bokeh.colors as colors
 import numpy as np
+import math
 
 import logging
 logger = logging.getLogger(__file__)
@@ -437,10 +438,12 @@ def source(plot, agg=Count(), info=Const(val=1), shader=Id(),
                           'global_offset_y': [0],
                           'dw': [1],
                           'dh': [1],
-                          'palette': palette}
+                          'palette': palette,
+                          'render_state': {}}
     elif shader.out == "poly_line":
         kwargs['data'] = {'xs': [[]],
-                          'ys': [[]]}
+                          'ys': [[]],
+                          'render_state': {}}
     else:
         raise ValueError("Unrecognized shader output type %s" % shader.out)
 
@@ -497,20 +500,25 @@ def make_glyphset(xcol, ycol, datacol, glyphspec, transform):
 def _generate_render_state(plot_state):
     data_x_span = float(_span(plot_state['data_x']))
     data_y_span = float(_span(plot_state['data_y']))
+    
+    data_x_span = math.ceil(data_x_span * 100) / 100.0
+    data_y_span = math.ceil(data_y_span * 100) / 100.0
+
     return {'x_span': data_x_span,
             'y_span': data_y_span}
 
-def downsample(data, transform, plot_state):
+def downsample(data, transform, plot_state, render_state):
     _loadAR()  # Must be called before any attempts to use AR proper
     glyphspec = transform['glyphspec']
     xcol = glyphspec['x']['field']
     ycol = glyphspec['y']['field']
     datacol = _datacolumn(glyphspec)
 
-    render_state = plot_state.get('render_state', None)
     if render_state == _generate_render_state(plot_state):
         print("SKIPPING UPDATE ----------------------------") 
         return {'render_state': "NO UPDATE"}
+
+    print("NOT SKIPPING UPDATE ----------------------------") 
 
     # Translate the resample parameters to server-side rendering....
     # TODO: Do more to preserve the 'natural' data form and have make_glyphset build the 'right thing' (tm)
@@ -532,7 +540,7 @@ def downsample(data, transform, plot_state):
     else:
         raise ValueError("Only handles out types of image, image_rgb and poly_line")
 
-    rslt['render_state'] = render_state 
+    rslt['render_state'] = _generate_render_state(plot_state)
 
     return rslt;
 

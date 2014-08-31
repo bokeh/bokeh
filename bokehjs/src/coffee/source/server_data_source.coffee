@@ -135,7 +135,7 @@ define [
                              x_data_range, y_data_range, 
                              input_params) ->
       
-      plot_state = {data_x: x_data_range, data_y: y_data_range, screen_x: plot_x_range, screen_y: plot_y_range, render_state: plot_view.ar_render_state}
+      plot_state = {data_x: x_data_range, data_y: y_data_range, screen_x: plot_x_range, screen_y: plot_y_range}
 
       #TODO: Can this ar_updates be merged with line1d_updates and heatmap_updates?
       #TODO: Do we need other descriptors for AR or are these data and view parameters sufficient?
@@ -159,7 +159,11 @@ define [
     ar_update : (plot_view, column_data_source, plot_state, input_params) ->
       #TODO: Share the x/y range information back to the server in some way...
       domain_limit = 'not auto'
-
+      
+      render_state = column_data_source.get('data')['render_state']
+      if not render_state
+        render_state = {}
+      
       if plot_state['screen_x'].get('start') == plot_state['screen_x'].get('end') or
          plot_state['screen_y'].get('start') == plot_state['screen_y'].get('end')
        console.log("Skipping due to under-defined view state")
@@ -187,7 +191,7 @@ define [
           item = proxy
 
         sendable_plot_state[key] = item
-
+      console.log("Sent render State", render_state)
 
       resp = $.ajax(
         dataType: 'json'
@@ -207,15 +211,17 @@ define [
             plot_state['data_y'].set(
               {start : data.y_range.start, end : data.y_range.end},
             )
-          
+         
+          console.log("New render State:", data.render_state)
           new_data = _.clone(column_data_source.get('data'))  # the "clone" is a hack
           _.extend(new_data, data)
           column_data_source.set('data', new_data)
-          plot_view.ar_render_state = data.render_state
+          console.log("Saved render State:", column_data_source.get('data')['render_state'])
           plot_view.request_render()
         data :
           resample_parameters : JSON.stringify([input_params])
           plot_state: JSON.stringify(sendable_plot_state)
+          render_state: JSON.stringify(render_state)
       )
       return resp
 
