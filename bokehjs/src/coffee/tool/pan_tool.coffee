@@ -5,7 +5,7 @@ define [
   "common/logging"
   "./tool"
   "./event_generators"
-], (_, Backbone, Tool, Logging, EventGenerators) ->
+], (_, Backbone, Logging, Tool, EventGenerators) ->
 
   TwoPointEventGenerator = EventGenerators.TwoPointEventGenerator
   logger = Logging.logger
