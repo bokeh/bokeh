@@ -132,6 +132,12 @@ class PlotObject(HasProps):
         instance.update(**attrs)
         return instance
 
+    def layout(self, side, plot):
+        try:
+            return self in getattr(plot, side)
+        except:
+            return []
+
     def finalize(self, models):
         """Convert any references into instances
         models is a dict of id->model mappings

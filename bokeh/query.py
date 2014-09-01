@@ -4,14 +4,31 @@ graphs for objects that match specified criteria.
 Queries are specified as selectors similar to MongoDB style query
 selectors.
 
+Examples::
 
+    # find all objects with type "grid"
+    find(p, {'type': 'grid'})
 
+    # find all objects with type "grid" or "axis"
+    find(p, {OR: [
+        {'type': 'grid'}, {'type': 'axis'}
+    ]})
 
+    # same query, using IN operator
+    find(p, {'type': {IN: ['grid', 'axis']})
+
+    # find all plot objects on the 'left' layout of the Plot
+    list(find(p, {'layout': 'left'}, {'plot': p}))
+
+    # find all subplots in column 0
+    find(p, {type: 'plot', 'column: 0}, {'gridplot': p})
+
+    # find all subplots the last row
+    find(p, {type: 'plot', 'row': -1}, {'gridplot': p})
 
 '''
 
 from six import string_types
-
 
 class OR(object): pass
 
@@ -24,7 +41,7 @@ class LEQ(object): pass
 class NEQ(object): pass
 
 
-def match(obj, selector):
+def match(obj, selector, context={}):
     ''' Test whether a particular object matches a given
     selector.
 
@@ -46,12 +63,19 @@ def match(obj, selector):
             if not hasattr(obj, key): return False
 
             # if the value to check is a dict, recurse
-            elif isinstance(val, dict):
-                if not match(getattr(obj, key), val): return False
-
-            # otherwise test the value
             else:
-                if getattr(obj, key) != val: return False
+                attr = getattr(obj, key)
+                if callable(attr):
+                    try:
+                        if not attr(val, **context): return False
+                    except:
+                        return False
+
+                elif isinstance(val, dict):
+                    if not match(attr, val): return False
+
+                else:
+                    if attr != val: return False
 
         # test OR conditionals
         elif key is OR:
@@ -67,7 +91,7 @@ def match(obj, selector):
     return True
 
 
-def find(obj, selector):
+def find(obj, selector, context={}):
     ''' Query an object and all of its contained references
     and yield objects that match the given selector.
 
@@ -82,7 +106,7 @@ def find(obj, selector):
     Examples:
 
     '''
-    return (obj for obj in obj.references() if match(obj, selector))
+    return (obj for obj in obj.references() if match(obj, selector, context))
 
 
 def _or(obj, selectors):

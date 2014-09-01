@@ -361,6 +361,32 @@ class Plot(Widget):
             kwargs.setdefault('v_symmetry', 'v' in border_symmetry or 'V' in border_symmetry)
         super(Plot, self).__init__(**kwargs)
 
+    def row(self, row, gridplot):
+        ''' Return whether this plot is in a given row of a GridPlot.
+
+        Args:
+            row (int) : index of the row to test
+            gridplot (GridPlot) : the GridPlot to check
+
+        Returns:
+            bool
+
+        '''
+        return self in gridplot.row(row)
+
+    def column(self, col, gridplot):
+        ''' Return whether this plot is in a given column of a GridPlot.
+
+        Args:
+            col (int) : index of the column to test
+            gridplot (GridPlot) : the GridPlot to check
+
+        Returns:
+            bool
+
+        '''
+        return self in gridplot.column(col)
+
     def add_layout(self, obj, place='center'):
         ''' Adds an object to the plot in a specified place.
 
@@ -517,6 +543,37 @@ class GridPlot(Plot):
 
     children = List(List(Instance(Plot)))
     border_space = Int(0)
+
+    def column(self, col):
+        ''' Return a given column of plots from this GridPlot.
+
+        Args:
+            col (int) : index of the column to return
+
+        Returns:
+            seq[Plot] : column of plots
+
+        '''
+        try:
+            return [row[col] for row in self.children]
+        except:
+            return []
+
+    def row(self, row):
+        ''' Return a given row of plots from this GridPlot.
+
+        Args:
+            rwo (int) : index of the row to return
+
+        Returns:
+            seq[Plot] : rwo of plots
+
+        '''
+        try:
+            return self.children[row]
+        except:
+            return []
+
 
 class GuideRenderer(Renderer):
     plot = Instance(Plot)
