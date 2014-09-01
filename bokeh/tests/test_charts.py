@@ -131,9 +131,9 @@ class TestChart(unittest.TestCase):
         self.assertIsInstance(scatter, Circle)
         self.assertEqual(scatter.line_color, "black")
 
-    def test_show(self):
-        # Thinking about the best way to test the 3 outputs.
-        pass
+    # Thinking about the best way to test the 3 outputs.
+    #def test_show(self):
+        #pass
 
     def test__append_glyph(self):
         scatter = self.chart.make_scatter(self.source, 0, 1, "circle", "black")
@@ -243,28 +243,29 @@ class TestChartObject(unittest.TestCase):
         self.assertIsInstance(test_chart_created, Chart)
 
     # The following tests would test chart wrapping functions,
-    # so I am not sure if repeat all the thing because we tests
-    # the specific charts functios above, inside the TestChart class.
-    def test_start_plot(self):
-        pass
+    # but I am not sure if repeat all the things because we tests
+    # the specific charts functions above, inside the TestChart class.
+    # I have also commentining out to avoid spurious test count.
+    #def test_start_plot(self):
+        #pass
 
-    def test_get_data(self):
-        pass
+    #def test_get_data(self):
+        #pass
 
-    def test_get_source(self):
-        pass
+    #def test_get_source(self):
+        #pass
 
-    def test_add_data_plot(self):
-        pass
+    #def test_add_data_plot(self):
+        #pass
 
-    def test_draw(self):
-        pass
+    #def test_draw(self):
+        #pass
 
-    def test_end_plot(self):
-        pass
+    #def test_end_plot(self):
+        #pass
 
-    def test_show_chart(self):
-        pass
+    #def test_show_chart(self):
+        #pass
 
     def test_chunker(self):
         chunk = self.chart_object._chunker(range(5), 2)
