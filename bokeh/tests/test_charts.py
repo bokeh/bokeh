@@ -16,7 +16,8 @@
 import unittest
 
 from ..charts import Bar, BoxPlot, Chart, ChartObject, Histogram, Scatter
-from ..objects import ColumnDataSource, Grid, Glyph, Legend, LinearAxis, PanTool, Range1d
+from ..glyphs import Circle
+from ..objects import ColumnDataSource, Grid, Glyph, Legend, LinearAxis, PanTool, Range1d, Ticker
 
 from ..document import Document
 #from ..session import Session
@@ -57,9 +58,9 @@ class TestChart(unittest.TestCase):
 
     def test_start_plot(self):
         self.assertIsInstance(test_chart.plot.left[0], LinearAxis)
-        #self.assertIsInstance(test_chart.plot.renderers[0], LinearAxis)
+        self.assertIsInstance(test_chart.plot.renderers[0], LinearAxis)
         self.assertIsInstance(test_chart.plot.below[0], LinearAxis)
-        #self.assertIsInstance(test_chart.plot.renderers[1], LinearAxis)
+        self.assertIsInstance(test_chart.plot.renderers[1], LinearAxis)
         self.assertIsInstance(test_chart.plot.renderers[2], Grid)
         self.assertIsInstance(test_chart.plot.renderers[3], Grid)
         self.assertIsInstance(test_chart.plot.tools[0], PanTool)
@@ -77,28 +78,64 @@ class TestChart(unittest.TestCase):
         #self.assertIsInstance(test_chart.session, Session)
 
     def test_make_axis(self):
-        pass
+        axis = test_chart.make_axis("left", "datetime", "foo")
+        self.assertEqual(axis.location, "auto")
+        self.assertEqual(axis.scale, "time")
+        self.assertEqual(axis.axis_label, "foo")
 
     def test_make_grid(self):
-        pass
+        axis = test_chart.make_axis("left", "datetime", "foo")
+        grid = test_chart.make_grid(0, axis.ticker)
+        self.assertEqual(grid.dimension, 0)
+        self.assertIsInstance(grid.ticker, Ticker)
 
     def test_make_segment(self):
-        pass
+        segment = test_chart.make_segment(source, 0, 1, 0, 1, "black", 1)
+        self.assertEqual(segment.x0, 0)
+        self.assertEqual(segment.y0, 1)
+        self.assertEqual(segment.x1, 0)
+        self.assertEqual(segment.y1, 1)
+        self.assertEqual(segment.line_color, "black")
+        self.assertEqual(segment.line_width, 1)
 
     def test_make_line(self):
-        pass
+        line = test_chart.make_line(source, [0, 1], [0, 1], "black")
+        self.assertEqual(line.x, [0, 1])
+        self.assertEqual(line.y, [0, 1])
+        self.assertEqual(line.line_color, "black")
 
     def test_make_quad(self):
-        pass
+        quad = test_chart.make_quad(source, 1, 0, 0, 1, "black", "black")
+        self.assertEqual(quad.top, 1)
+        self.assertEqual(quad.bottom, 0)
+        self.assertEqual(quad.left, 0)
+        self.assertEqual(quad.right, 1)
+        self.assertEqual(quad.fill_color, "black")
+        self.assertEqual(quad.line_color, "black")
 
     def test_rect(self):
-        pass
+        rect = test_chart.make_rect(source, 1, 0, 0, 1, "black", "black", 1)
+        self.assertEqual(rect.x, 1)
+        self.assertEqual(rect.y, 0)
+        self.assertEqual(rect.width, 0)
+        self.assertEqual(rect.height, 1)
+        self.assertEqual(rect.fill_color, "black")
+        self.assertEqual(rect.line_color, "black")
+        self.assertEqual(rect.line_width, 1)
 
     def test_scatter(self):
-        pass
+        scatter = test_chart.make_scatter(source, 0, 1, "circle", "black")
+        self.assertEqual(scatter.x, 0)
+        self.assertEqual(scatter.y, 1)
+        self.assertIsInstance(scatter, Circle)
+        self.assertEqual(scatter.line_color, "black")
 
     def test_show(self):
+        # Thinking about the best way to test the 3 outputs.
         pass
 
     def test__append_glyph(self):
-        pass
+        scatter = test_chart.make_scatter(source, 0, 1, "circle", "black")
+        test_chart._append_glyph(source, scatter)
+        circle = test_chart.plot.renderers[-1]
+        self.assertIsInstance(circle.glyph, Circle)
