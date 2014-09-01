@@ -170,18 +170,15 @@ class TimeSeries(ChartObject):
         "Push the TimeSeries data into the ColumnDataSource and calculate the proper ranges."
         self.source = ColumnDataSource(self.data)
 
-        x_names, y_names = self.attr[::2], self.attr[1::2]
-
-        #endx = max(max(self.data[i]) for i in x_names)
-        #startx = min(min(self.data[i]) for i in x_names)
         self.xdr = DataRange1d(sources=[self.source.columns(self.attr[0])])
 
+        y_names = self.attr[1::2]
         endy = max(max(self.data[i]) for i in y_names)
         starty = min(min(self.data[i]) for i in y_names)
         self.ydr = Range1d(start=starty - 0.1 * (endy - starty), end=endy + 0.1 * (endy - starty))
 
     def draw(self):
-        """Use the marker glyphs to display the points.
+        """Use the line glyphs to conect the xy points in the time series.
 
         Takes reference points from data loaded at the ColumnDataSurce.
         """
