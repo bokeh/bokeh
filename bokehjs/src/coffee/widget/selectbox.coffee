@@ -1,22 +1,26 @@
 define [
-  "common/has_parent",
-  "common/continuum_view",
   "backbone"
   "underscore"
+  "common/continuum_view"
+  "common/has_parent"
+  "common/logging"
   "./selecttemplate"
-], (HasParent, continuum_view, Backbone, _, selecttemplate) ->
+], (Backbone, build_views, continuum_view, HasParent, Logging, template) ->
+
   ContinuumView = continuum_view.View
+  logger = Logging.logger
+
   class SelectView extends ContinuumView
+    tagName : "div"
+    template : template
     events :
       "change select" : "change_input"
+
     change_input : () ->
-      console.log('set', @model.attributes)
-      @mset('value', @$('select').val())
+      value = @$('select').val()
+      logging.debug("selectbox: value = #{value}")
+      @mset('value', value)
       @model.save()
-
-    tagName : "div"
-
-    template : selecttemplate
 
     initialize : (options) ->
       super(options)
@@ -32,17 +36,19 @@ define [
   class Select extends HasParent
     type : "Select"
     default_view : SelectView
+
     defaults : () ->
       def =
         title : ''
         value : ''
         options : []
       return def
+
   class Selects extends Backbone.Collection
     model : Select
-  selectboxes = new Selects()
+
   return {
-    "Model" : Select
-    "Collection" : selectboxes
-    "View" : SelectView
+    Model : Select
+    Collection : new Selects()
+    View : SelectView
   }

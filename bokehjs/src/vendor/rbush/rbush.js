@@ -9,7 +9,7 @@
 function rbush(maxEntries, format) {
 
     // jshint newcap: false, validthis: true
-    if (!(this instanceof rbush)) { return new rbush(maxEntries, format); }
+    if (!(this instanceof rbush)) return new rbush(maxEntries, format);
 
     // max entries in a node is 9 by default; min node fill is 40% for best performance
     this._maxEntries = Math.max(4, maxEntries || 9);
@@ -31,32 +31,26 @@ rbush.prototype = {
     search: function (bbox) {
 
         var node = this.data,
-            result = [];
+            result = [],
+            toBBox = this.toBBox;
 
-        if (!this._intersects(bbox, node.bbox)) { return result; }
+        if (!intersects(bbox, node.bbox)) return result;
 
         var nodesToSearch = [],
             i, len, child, childBBox;
 
         while (node) {
             for (i = 0, len = node.children.length; i < len; i++) {
+
                 child = node.children[i];
-                childBBox = node.leaf ? this.toBBox(child) : child.bbox;
+                childBBox = node.leaf ? toBBox(child) : child.bbox;
 
-                if (this._intersects(bbox, childBBox)) {
-
-                    if (node.leaf) {
-                        result.push(child);
-
-                    } else if (this._contains(bbox, childBBox)) {
-                        this._all(child, result);
-
-                    } else {
-                        nodesToSearch.push(child);
-                    }
+                if (intersects(bbox, childBBox)) {
+                    if (node.leaf) result.push(child);
+                    else if (contains(bbox, childBBox)) this._all(child, result);
+                    else nodesToSearch.push(child);
                 }
             }
-
             node = nodesToSearch.pop();
         }
 
@@ -64,7 +58,7 @@ rbush.prototype = {
     },
 
     load: function (data) {
-        if (!(data && data.length)) { return this; }
+        if (!(data && data.length)) return this;
 
         if (data.length < this._minEntries) {
             for (var i = 0, len = data.length; i < len; i++) {
@@ -74,7 +68,7 @@ rbush.prototype = {
         }
 
         // recursively build the tree with the given data from stratch using OMT algorithm
-        var node = this._build(data.slice(), 0);
+        var node = this._build(data.slice(), 0, data.length - 1, 0);
 
         if (!this.data.children.length) {
             // save as is if tree is empty
@@ -100,24 +94,22 @@ rbush.prototype = {
     },
 
     insert: function (item) {
-        if (item) {
-            this._insert(item, this.data.height - 1);
-        }
+        if (item) this._insert(item, this.data.height - 1);
         return this;
     },
 
     clear: function () {
         this.data = {
             children: [],
-            leaf: true,
-            bbox: this._empty(),
-            height: 1
+            height: 1,
+            bbox: empty(),
+            leaf: true
         };
         return this;
     },
 
     remove: function (item) {
-        if (!item) { return this; }
+        if (!item) return this;
 
         var node = this.data,
             bbox = this.toBBox(item),
@@ -147,7 +139,7 @@ rbush.prototype = {
                 }
             }
 
-            if (!goingUp && !node.leaf && this._contains(node.bbox, bbox)) { // go down
+            if (!goingUp && !node.leaf && contains(node.bbox, bbox)) { // go down
                 path.push(node);
                 indexes.push(i);
                 i = 0;
@@ -159,9 +151,7 @@ rbush.prototype = {
                 node = parent.children[i];
                 goingUp = false;
 
-            } else { // nothing found
-                node = null;
-            }
+            } else node = null; // nothing found
         }
 
         return this;
@@ -182,29 +172,28 @@ rbush.prototype = {
     _all: function (node, result) {
         var nodesToSearch = [];
         while (node) {
-            if (node.leaf) {
-                result.push.apply(result, node.children);
-            } else {
-                nodesToSearch.push.apply(nodesToSearch, node.children);
-            }
+            if (node.leaf) result.push.apply(result, node.children);
+            else nodesToSearch.push.apply(nodesToSearch, node.children);
+
             node = nodesToSearch.pop();
         }
         return result;
     },
 
-    _build: function (items, level, height) {
+    _build: function (items, left, right, level, height) {
 
-        var N = items.length,
+        var N = right - left + 1,
             M = this._maxEntries,
             node;
 
         if (N <= M) {
             node = {
-                children: items,
-                leaf: true,
-                height: 1
+                children: items.slice(left, right + 1),
+                height: 1,
+                bbox: null,
+                leaf: true
             };
-            this._calcBBox(node);
+            calcBBox(node, this.toBBox);
             return node;
         }
 
@@ -214,34 +203,37 @@ rbush.prototype = {
 
             // target number of root entries to maximize storage utilization
             M = Math.ceil(N / Math.pow(M, height - 1));
-
-            items.sort(this.compareMinX);
         }
 
         // TODO eliminate recursion?
 
         node = {
             children: [],
-            height: height
+            height: height,
+            bbox: null
         };
 
-        var N1 = Math.ceil(N / M) * Math.ceil(Math.sqrt(M)),
-            N2 = Math.ceil(N / M),
-            compare = level % 2 === 1 ? this.compareMinX : this.compareMinY,
-            i, j, slice, sliceLen, childNode;
+        var N2 = Math.ceil(N / M),
+            N1 = N2 * Math.ceil(Math.sqrt(M)),
+            i, j, right2, childNode;
 
         // split the items into M mostly square tiles
-        for (i = 0; i < N; i += N1) {
-            slice = items.slice(i, i + N1).sort(compare);
+        for (i = left; i <= right; i += N1) {
 
-            for (j = 0, sliceLen = slice.length; j < sliceLen; j += N2) {
+            if (i + N1 <= right) partitionSort(items, i, right, i + N1, this.compareMinX);
+            right2 = Math.min(i + N1 - 1, right);
+
+            for (j = i; j <= right2; j += N2) {
+
+                if (j + N2 <= right2) partitionSort(items, j, right2, j + N2, this.compareMinY);
+
                 // pack each entry recursively
-                childNode = this._build(slice.slice(j, j + N2), level + 1, height - 1);
+                childNode = this._build(items, j, Math.min(j + N2 - 1, right2), level + 1, height - 1);
                 node.children.push(childNode);
             }
         }
 
-        this._calcBBox(node);
+        calcBBox(node, this.toBBox);
 
         return node;
     },
@@ -253,14 +245,14 @@ rbush.prototype = {
         while (true) {
             path.push(node);
 
-            if (node.leaf || path.length - 1 === level) { break; }
+            if (node.leaf || path.length - 1 === level) break;
 
             minArea = minEnlargement = Infinity;
 
             for (i = 0, len = node.children.length; i < len; i++) {
                 child = node.children[i];
-                area = this._area(child.bbox);
-                enlargement = this._enlargedArea(bbox, child.bbox) - area;
+                area = bboxArea(child.bbox);
+                enlargement = enlargedArea(bbox, child.bbox) - area;
 
                 // choose entry with the least area enlargement
                 if (enlargement < minEnlargement) {
@@ -285,7 +277,8 @@ rbush.prototype = {
 
     _insert: function (item, level, isNode) {
 
-        var bbox = isNode ? item.bbox : this.toBBox(item),
+        var toBBox = this.toBBox,
+            bbox = isNode ? item.bbox : toBBox(item),
             insertPath = [];
 
         // find the best node for accommodating the item, saving all nodes along the path too
@@ -293,16 +286,14 @@ rbush.prototype = {
 
         // put the item into the node
         node.children.push(item);
-        this._extend(node.bbox, bbox);
+        extend(node.bbox, bbox);
 
         // split on node overflow; propagate upwards if necessary
         while (level >= 0) {
             if (insertPath[level].children.length > this._maxEntries) {
                 this._split(insertPath, level);
                 level--;
-            } else {
-              break;
-            }
+            } else break;
         }
 
         // adjust bboxes along the insertion path
@@ -323,26 +314,22 @@ rbush.prototype = {
             height: node.height
         };
 
-        if (node.leaf) {
-            newNode.leaf = true;
-        }
+        if (node.leaf) newNode.leaf = true;
 
-        this._calcBBox(node);
-        this._calcBBox(newNode);
+        calcBBox(node, this.toBBox);
+        calcBBox(newNode, this.toBBox);
 
-        if (level) {
-            insertPath[level - 1].children.push(newNode);
-        } else {
-            this._splitRoot(node, newNode);
-        }
+        if (level) insertPath[level - 1].children.push(newNode);
+        else this._splitRoot(node, newNode);
     },
 
     _splitRoot: function (node, newNode) {
         // split root node
-        this.data = {};
-        this.data.children = [node, newNode];
-        this.data.height = node.height + 1;
-        this._calcBBox(this.data);
+        this.data = {
+            children: [node, newNode],
+            height: node.height + 1
+        };
+        calcBBox(this.data, this.toBBox);
     },
 
     _chooseSplitIndex: function (node, m, M) {
@@ -352,11 +339,11 @@ rbush.prototype = {
         minOverlap = minArea = Infinity;
 
         for (i = m; i <= M - m; i++) {
-            bbox1 = this._distBBox(node, 0, i);
-            bbox2 = this._distBBox(node, i, M);
+            bbox1 = distBBox(node, 0, i, this.toBBox);
+            bbox2 = distBBox(node, i, M, this.toBBox);
 
-            overlap = this._intersectionArea(bbox1, bbox2);
-            area = this._area(bbox1) + this._area(bbox2);
+            overlap = intersectionArea(bbox1, bbox2);
+            area = bboxArea(bbox1) + bboxArea(bbox2);
 
             // choose distribution with minimum overlap
             if (overlap < minOverlap) {
@@ -380,17 +367,14 @@ rbush.prototype = {
     // sorts node children by the best axis for split
     _chooseSplitAxis: function (node, m, M) {
 
-        var compareMinX = node.leaf ? this.compareMinX : this._compareNodeMinX,
-            compareMinY = node.leaf ? this.compareMinY : this._compareNodeMinY,
+        var compareMinX = node.leaf ? this.compareMinX : compareNodeMinX,
+            compareMinY = node.leaf ? this.compareMinY : compareNodeMinY,
             xMargin = this._allDistMargin(node, m, M, compareMinX),
             yMargin = this._allDistMargin(node, m, M, compareMinY);
 
         // if total distributions margin value is minimal for x, sort by minX,
         // otherwise it's already sorted by minY
-
-        if (xMargin < yMargin) {
-            node.children.sort(compareMinX);
-        }
+        if (xMargin < yMargin) node.children.sort(compareMinX);
     },
 
     // total margin of all possible split distributions where each node is at least m full
@@ -398,47 +382,31 @@ rbush.prototype = {
 
         node.children.sort(compare);
 
-        var leftBBox = this._distBBox(node, 0, m),
-            rightBBox = this._distBBox(node, M - m, M),
-            margin = this._margin(leftBBox) + this._margin(rightBBox),
+        var toBBox = this.toBBox,
+            leftBBox = distBBox(node, 0, m, toBBox),
+            rightBBox = distBBox(node, M - m, M, toBBox),
+            margin = bboxMargin(leftBBox) + bboxMargin(rightBBox),
             i, child;
 
         for (i = m; i < M - m; i++) {
             child = node.children[i];
-            this._extend(leftBBox, node.leaf ? this.toBBox(child) : child.bbox);
-            margin += this._margin(leftBBox);
+            extend(leftBBox, node.leaf ? toBBox(child) : child.bbox);
+            margin += bboxMargin(leftBBox);
         }
 
         for (i = M - m - 1; i >= m; i--) {
             child = node.children[i];
-            this._extend(rightBBox, node.leaf ? this.toBBox(child) : child.bbox);
-            margin += this._margin(rightBBox);
+            extend(rightBBox, node.leaf ? toBBox(child) : child.bbox);
+            margin += bboxMargin(rightBBox);
         }
 
         return margin;
     },
 
-    // min bounding rectangle of node children from k to p-1
-    _distBBox: function (node, k, p) {
-        var bbox = this._empty();
-
-        for (var i = k, child; i < p; i++) {
-            child = node.children[i];
-            this._extend(bbox, node.leaf ? this.toBBox(child) : child.bbox);
-        }
-
-        return bbox;
-    },
-
-    // calculate node's bbox from bboxes of its children
-    _calcBBox: function (node) {
-        node.bbox = this._distBBox(node, 0, node.children.length);
-    },
-
     _adjustParentBBoxes: function (bbox, path, level) {
         // adjust bboxes along the given tree path
         for (var i = level; i >= 0; i--) {
-            this._extend(path[i].bbox, bbox);
+            extend(path[i].bbox, bbox);
         }
     },
 
@@ -449,59 +417,12 @@ rbush.prototype = {
                 if (i > 0) {
                     siblings = path[i - 1].children;
                     siblings.splice(siblings.indexOf(path[i]), 1);
-                } else {
-                    this.clear();
-                }
-            } else {
-                this._calcBBox(path[i]);
-            }
+
+                } else this.clear();
+
+            } else calcBBox(path[i], this.toBBox);
         }
     },
-
-    _contains: function(a, b) {
-        return a[0] <= b[0] &&
-               a[1] <= b[1] &&
-               b[2] <= a[2] &&
-               b[3] <= a[3];
-    },
-
-    _intersects: function (a, b) {
-        return b[0] <= a[2] &&
-               b[1] <= a[3] &&
-               b[2] >= a[0] &&
-               b[3] >= a[1];
-    },
-
-    _extend: function (a, b) {
-        a[0] = Math.min(a[0], b[0]);
-        a[1] = Math.min(a[1], b[1]);
-        a[2] = Math.max(a[2], b[2]);
-        a[3] = Math.max(a[3], b[3]);
-        return a;
-    },
-
-    _area:   function (a) { return (a[2] - a[0]) * (a[3] - a[1]); },
-    _margin: function (a) { return (a[2] - a[0]) + (a[3] - a[1]); },
-
-    _enlargedArea: function (a, b) {
-        return (Math.max(b[2], a[2]) - Math.min(b[0], a[0])) *
-               (Math.max(b[3], a[3]) - Math.min(b[1], a[1]));
-    },
-
-    _intersectionArea: function (a, b) {
-        var minX = Math.max(a[0], b[0]),
-            minY = Math.max(a[1], b[1]),
-            maxX = Math.min(a[2], b[2]),
-            maxY = Math.min(a[3], b[3]);
-
-        return Math.max(0, maxX - minX) *
-               Math.max(0, maxY - minY);
-    },
-
-    _empty: function () { return [Infinity, Infinity, -Infinity, -Infinity]; },
-
-    _compareNodeMinX: function (a, b) { return a.bbox[0] - b.bbox[0]; },
-    _compareNodeMinY: function (a, b) { return a.bbox[1] - b.bbox[1]; },
 
     _initFormat: function (format) {
         // data format (minX, minY, maxX, maxY accessors)
@@ -521,16 +442,113 @@ rbush.prototype = {
     }
 };
 
-if (typeof define === 'function' && define.amd) {
-    define(function() {
-        return rbush;
-    });
-} else if (typeof module !== 'undefined') {
-    module.exports = rbush;
-} else if (typeof self !== 'undefined') {
-    self.rbush = rbush;
-} else {
-    window.rbush = rbush;
+// calculate node's bbox from bboxes of its children
+function calcBBox(node, toBBox) {
+    node.bbox = distBBox(node, 0, node.children.length, toBBox);
 }
+
+// min bounding rectangle of node children from k to p-1
+function distBBox(node, k, p, toBBox) {
+    var bbox = empty();
+
+    for (var i = k, child; i < p; i++) {
+        child = node.children[i];
+        extend(bbox, node.leaf ? toBBox(child) : child.bbox);
+    }
+
+    return bbox;
+}
+
+
+function empty() { return [Infinity, Infinity, -Infinity, -Infinity]; }
+
+function extend(a, b) {
+    a[0] = Math.min(a[0], b[0]);
+    a[1] = Math.min(a[1], b[1]);
+    a[2] = Math.max(a[2], b[2]);
+    a[3] = Math.max(a[3], b[3]);
+    return a;
+}
+
+function compareNodeMinX(a, b) { return a.bbox[0] - b.bbox[0]; }
+function compareNodeMinY(a, b) { return a.bbox[1] - b.bbox[1]; }
+
+function bboxArea(a)   { return (a[2] - a[0]) * (a[3] - a[1]); }
+function bboxMargin(a) { return (a[2] - a[0]) + (a[3] - a[1]); }
+
+function enlargedArea(a, b) {
+    return (Math.max(b[2], a[2]) - Math.min(b[0], a[0])) *
+           (Math.max(b[3], a[3]) - Math.min(b[1], a[1]));
+}
+
+function intersectionArea (a, b) {
+    var minX = Math.max(a[0], b[0]),
+        minY = Math.max(a[1], b[1]),
+        maxX = Math.min(a[2], b[2]),
+        maxY = Math.min(a[3], b[3]);
+
+    return Math.max(0, maxX - minX) *
+           Math.max(0, maxY - minY);
+}
+
+function contains(a, b) {
+    return a[0] <= b[0] &&
+           a[1] <= b[1] &&
+           b[2] <= a[2] &&
+           b[3] <= a[3];
+}
+
+function intersects (a, b) {
+    return b[0] <= a[2] &&
+           b[1] <= a[3] &&
+           b[2] >= a[0] &&
+           b[3] >= a[1];
+}
+
+
+function partitionSort(arr, left, right, k, compare) {
+    var pivot;
+
+    while (true) {
+        pivot = Math.floor((left + right) / 2);
+        pivot = partition(arr, left, right, pivot, compare);
+
+        if (k === pivot) break;
+        else if (k < pivot) right = pivot - 1;
+        else left = pivot + 1;
+    }
+
+    partition(arr, left, right, k, compare);
+}
+
+function partition(arr, left, right, pivot, compare) {
+    var k = left,
+        value = arr[pivot];
+
+    swap(arr, pivot, right);
+
+    for (var i = left; i < right; i++) {
+        if (compare(arr[i], value) < 0) {
+            swap(arr, k, i);
+            k++;
+        }
+    }
+    swap(arr, right, k);
+
+    return k;
+}
+
+function swap(arr, i, j) {
+    var tmp = arr[i];
+    arr[i] = arr[j];
+    arr[j] = tmp;
+}
+
+
+// export as AMD/CommonJS module or global variable
+if (typeof define === 'function' && define.amd) define(function() { return rbush; });
+else if (typeof module !== 'undefined') module.exports = rbush;
+else if (typeof self !== 'undefined') self.rbush = rbush;
+else window.rbush = rbush;
 
 })();

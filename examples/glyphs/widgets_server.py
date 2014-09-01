@@ -10,7 +10,7 @@ from bokeh.objects import (
     LinearAxis, DatetimeAxis, Grid, HoverTool
 )
 from bokeh.session import Session
-from bokeh.widgetobjects import VBox, TableColumn, HandsonTable
+from bokeh.widgets import VBox, TableColumn, HandsonTable
 
 document = Document()
 session = Session()

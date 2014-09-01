@@ -3,17 +3,13 @@ define [
   "jquery"
   "jstree"
   "backbone"
-  "common/has_properties"
   "common/continuum_view"
+  "common/has_properties"
+  "common/logging"
   "source/column_data_source"
-], (
-  _,
-  $,
-  $1,
-  Backbone,
-  HasProperties,
-  ContinuumView,
-  ColumnDataSource) ->
+], (_, $, $1, Backbone, ContinuumView, HasProperties, Logging, ColumnDataSource) ->
+
+  logger = Logging.logger
 
   class ObjectExplorerView extends ContinuumView.View
     initialize: (options) ->
@@ -62,7 +58,7 @@ define [
         if not visited[obj.id]?
           obj = @base().Collections(obj.type).get(obj.id)
         else
-          console.log("Cyclic reference to #{obj.type}:#{obj.id}")
+          logger.info("object_explorer:descend Cyclic reference to #{obj.type}:#{obj.id}")
 
       if obj instanceof HasProperties
         visited = _.clone(visited)
