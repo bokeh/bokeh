@@ -2,16 +2,14 @@ from __future__ import print_function
 
 import base64
 from math import pi, sin, cos
-import pandas as pd
 
+from bokeh.browserlib import view
+from bokeh.colors import skyblue, seagreen, tomato, orchid, firebrick, lightgray
 from bokeh.document import Document
 from bokeh.embed import file_html
-from bokeh.resources import INLINE
-from bokeh.browserlib import view
-
 from bokeh.glyphs import Wedge, AnnularWedge, ImageURL, Text
-from bokeh.objects import ColumnDataSource, Plot, Glyph, Range1d
-from bokeh.colors import skyblue, seagreen, tomato, orchid, firebrick, lightgray
+from bokeh.objects import ColumnDataSource, Plot, Range1d
+from bokeh.resources import INLINE
 from bokeh.sampledata.browsers import browsers_nov_2013, icons
 
 df = browsers_nov_2013
@@ -40,12 +38,10 @@ browsers_source = ColumnDataSource(dict(
     end    = end_angles,
     colors = [colors[browser] for browser in browsers ],
 ))
-plot.data_sources.append(browsers_source)
 
 glyph = Wedge(x=0, y=0, radius=1, line_color="white",
     line_width=2, start_angle="start", end_angle="end", fill_color="colors")
-renderer = Glyph(data_source=browsers_source, xdata_range=xdr, ydata_range=ydr, glyph=glyph)
-plot.renderers.append(renderer)
+plot.add_glyph(browsers_source, xdr, ydr, glyph)
 
 def polar_to_cartesian(r, start_angles, end_angles):
     cartesian = lambda r, alpha: (r*cos(alpha), r*sin(alpha))
@@ -69,12 +65,11 @@ for browser, start_angle, end_angle in zip(browsers, start_angles, end_angles):
     x, y = polar_to_cartesian(1.25, start, end)
 
     source = ColumnDataSource(dict(start=start, end=end, fill=fill))
-    plot.data_sources.append(source)
     glyph = AnnularWedge(x=0, y=0,
         inner_radius=1, outer_radius=1.5, start_angle="start", end_angle="end",
         line_color="white", line_width=2, fill_color="fill")
-    renderer = Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=glyph)
-    plot.renderers.append(renderer)
+    plot.add_glyph(source, xdr, ydr, glyph)
+
 
     text_angle = [(start[i]+end[i])/2 for i in range(len(start))]
     text_angle = [angle + pi if pi/2 < angle < 3*pi/2 else angle for angle in text_angle]
@@ -89,11 +84,10 @@ for browser, start_angle, end_angle in zip(browsers, start_angles, end_angles):
         first = False
 
     text_source = ColumnDataSource(dict(text=text, x=x, y=y, angle=text_angle))
-    plot.data_sources.append(text_source)
     glyph = Text(x="x", y="y", text="text", angle="angle",
         text_align="center", text_baseline="middle")
-    renderer = Glyph(data_source=text_source, xdata_range=xdr, ydata_range=ydr, glyph=glyph)
-    plot.renderers.append(renderer)
+    plot.add_glyph(text_source, xdr, ydr, glyph)
+
 
 def to_base64(png):
     return "data:image/png;base64," + base64.b64encode(png).decode("utf-8")
@@ -102,21 +96,15 @@ urls = [ to_base64(icons.get(browser, b"")) for browser in browsers ]
 x, y = polar_to_cartesian(1.7, start_angles, end_angles)
 
 icons_source = ColumnDataSource(dict(urls=urls, x=x, y=y))
-plot.data_sources.append(icons_source)
-
 glyph = ImageURL(url="urls", x="x", y="y", angle=0.0, anchor="center")
-renderer = Glyph(data_source=icons_source, xdata_range=xdr, ydata_range=ydr, glyph=glyph)
-plot.renderers.append(renderer)
+plot.add_glyph(icons_source, xdr, ydr, glyph)
 
 text = [ "%.02f%%" % value for value in selected.Share ]
 x, y = polar_to_cartesian(0.7, start_angles, end_angles)
 
 text_source = ColumnDataSource(dict(text=text, x=x, y=y))
-plot.data_sources.append(text_source)
-
 glyph = Text(x="x", y="y", text="text", angle=0, text_align="center", text_baseline="middle")
-renderer = Glyph(data_source=text_source, xdata_range=xdr, ydata_range=ydr, glyph=glyph)
-plot.renderers.append(renderer)
+plot.add_glyph(text_source, xdr, ydr, glyph)
 
 doc = Document()
 doc.add(plot)

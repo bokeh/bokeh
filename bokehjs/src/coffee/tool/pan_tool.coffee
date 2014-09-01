@@ -1,12 +1,14 @@
 
 define [
-  "underscore",
-  "backbone",
-  "./tool",
-  "./event_generators",
-], (_, Backbone, Tool, EventGenerators) ->
+  "underscore"
+  "backbone"
+  "common/logging"
+  "./tool"
+  "./event_generators"
+], (_, Backbone, Logging, Tool, EventGenerators) ->
 
   TwoPointEventGenerator = EventGenerators.TwoPointEventGenerator
+  logger = Logging.logger
 
   window.render_count = 0
 
@@ -15,19 +17,19 @@ define [
       super(options)
       dims = @mget('dimensions')
       if dims.length == 0
-        console.log ("WARN: pan tool given empty dimensions")
+        logger.warn("pan tool given empty dimensions")
       else if dims.length == 1
         if dims[0] == 'width'
           @evgen_options.buttonText = "Pan (x-axis)"
         else if dims[0] == 'height'
           @evgen_options.buttonText = "Pan (y-axis)"
         else
-          console.log ("WARN: pan tool given unrecognized dimensions: #{ dims }")
+          logger.warn("pan tool given unrecognized dimensions: #{dims}")
       else if dims.length == 2
         if dims.indexOf('width') < 0 or dims.indexOf('height') < 0
-          console.log ("WARN: pan tool given unrecognized dimensions: #{ dims }")
+          logger.warn("pan tool given unrecognized dimensions: #{dims}")
       else
-        console.log ("WARN: pan tool given more than two dimensions: #{ dims }")
+        logger.warn("pan tool given more than two dimensions: #{dims}")
 
     bind_bokeh_events: () ->
       super()

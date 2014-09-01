@@ -56,7 +56,6 @@ define [
   "tool/click_tool",
   "tool/crosshair_tool",
   "tool/data_range_box_select_tool",
-  "tool/embed_tool",
   "tool/hover_tool",
   "tool/pan_tool",
   "tool/preview_save_tool",
@@ -92,16 +91,23 @@ define [
   'widget/tabs'
   'widget/dialog'
 
+  'transforms/autoencode'
   'transforms/binarysegment'
   'transforms/const'
   'transforms/contour'
   'transforms/count'
+  'transforms/countcategories'
+  'transforms/encode'
   'transforms/cuberoot'
+  'transforms/hdalpha'
   'transforms/id'
   'transforms/interpolate'
   'transforms/interpolatecolor'
+  'transforms/nonzero'
+  'transforms/ratio'
   'transforms/seq'
   'transforms/spread'
+  'transforms/tocounts'
 ], (_, require) ->
 
   # add some useful functions to underscore
@@ -113,7 +119,7 @@ define [
     Config.prefix = url.slice(0, url.indexOf('/bokeh')) + "/" #keep trailing slash
   else
     Config.prefix = '/'
-  console.log('setting prefix to', Config.prefix)
+  console.log('Bokeh: setting prefix to', Config.prefix)
 
   locations =
 
@@ -169,7 +175,6 @@ define [
     HoverTool:                'tool/hover_tool'
     DataRangeBoxSelectTool:   'tool/data_range_box_select_tool'
     PreviewSaveTool:          'tool/preview_save_tool'
-    EmbedTool:                'tool/embed_tool'
     ResetTool:                'tool/reset_tool'
     ObjectExplorerTool:       'tool/object_explorer_tool'
 
@@ -200,18 +205,27 @@ define [
     Tabs:                     'widget/tabs'
     Dialog:                   'widget/dialog'
 
+    AutoEncode:               'transforms/autoencode'
     BinarySegment:            'transforms/binarysegment'
     Const:                    'transforms/const'
     Contour:                  'transforms/contour'
     Count:                    'transforms/count'
+    CountCategories:          'transforms/countcategories'
     Cuberoot:                 'transforms/cuberoot'
+    HDAlpha:                  'transforms/hdalpha'
+    Encode:                   'transforms/encode'
     Id:                       'transforms/id'
     Interpolate:              'transforms/interpolate'
     InterpolateColor:         'transforms/interpolatecolor'
+    NonZero:                  'transforms/nonzero'
+    Ratio:                    'transforms/ratio'
     Seq:                      'transforms/seq'
     Spread:                   'transforms/spread'
+    ToCounts:                 'transforms/tocounts'
+
   mod_cache = {}
   collection_overrides = {}
+
   Collections = (typename) ->
    if collection_overrides[typename]
      return collection_overrides[typename]
@@ -230,8 +244,10 @@ define [
           throw Error("improperly implemented collection: #{modulename}")
 
     return mod_cache[modulename].Collection
+
   Collections.register = (name, collection) ->
     collection_overrides[name] = collection
+
   return {
     "collection_overrides" : collection_overrides, # for testing only
     "mod_cache": mod_cache, # for testing only

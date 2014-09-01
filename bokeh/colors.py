@@ -1,42 +1,37 @@
 import colorsys
 
-from .types import sig
-from .properties import Byte, String, Percent
-
 class Color(object):
 
     def copy(self):
         raise NotImplementedError
 
     def __repr__(self):
-        return self.toCSS()
+        return self.to_css()
 
-    def toCSS(self):
+    def to_css(self):
         raise NotImplementedError
 
-    def toRGB(self):
+    def to_rgb(self):
         raise NotImplementedError
 
-    def toHSL(self):
+    def to_hsl(self):
         raise NotImplementedError
 
-    def fromRGB(self, value):
+    def from_rgb(self, value):
         raise NotImplementedError
 
-    def fromHSL(self, value):
+    def from_hsl(self, value):
         raise NotImplementedError
 
-    @sig(amount=Percent)
     def lighten(self, amount):
-        hsl = self.toHSL()
+        hsl = self.to_hsl()
         hsl.l = self.clamp(hsl.l + amount)
-        return self.fromHSL(hsl)
+        return self.from_hsl(hsl)
 
-    @sig(amount=Percent)
     def darken(self, amount):
-        hsl = self.toHSL()
+        hsl = self.to_hsl()
         hsl.l = self.clamp(hsl.l - amount)
-        return self.fromHSL(hsl)
+        return self.from_hsl(hsl)
 
     @staticmethod
     def clamp(value, maximum=None):
@@ -49,7 +44,6 @@ class Color(object):
 
 class RGB(Color):
 
-    @sig(r=Byte, g=Byte, b=Byte, a=Percent)
     def __init__(self, r, g, b, a=1.0):
         self.r = r
         self.g = g
@@ -59,31 +53,30 @@ class RGB(Color):
     def copy(self):
         return RGB(self.r, self.g, self.b, self.a)
 
-    def toCSS(self):
+    def to_css(self):
         if self.a == 1.0:
             return "rgb(%d, %d, %d)" % (self.r, self.g, self.b)
         else:
             return "rgba(%d, %d, %d, %s)" % (self.r, self.g, self.b, self.a)
 
-    def toHEX(self):
+    def to_hex(self):
         return "#%02X%02X%02X" % (self.r, self.g, self.b)
 
-    def toRGB(self):
+    def to_rgb(self):
         return self.copy()
 
-    def toHSL(self):
+    def to_hsl(self):
         h, l, s = colorsys.rgb_to_hls(float(self.r)/255, float(self.g)/255, float(self.b)/255)
         return HSL(round(h*360), s, l, self.a)
 
-    def fromRGB(self, value):
+    def from_rgb(self, value):
         return value.copy()
 
-    def fromHSL(self, value):
-        return value.toRGB()
+    def from_hsl(self, value):
+        return value.to_rgb()
 
 class HSL(Color):
 
-    @sig(h=Byte, s=Percent, l=Percent, a=Percent)
     def __init__(self, h, s, l, a=1.0):
         self.h = h
         self.s = s
@@ -93,33 +86,37 @@ class HSL(Color):
     def copy(self):
         return HSL(self.h, self.s, self.l, self.a)
 
-    def toCSS(self):
+    def to_css(self):
         if self.a == 1.0:
             return "hsl(%d, %s%%, %s%%)" % (self.h, self.s*100, self.l*100)
         else:
             return "hsla(%d, %s%%, %s%%, %s)" % (self.h, self.s*100, self.l*100, self.a)
 
-    def toRGB(self):
+    def to_rgb(self):
         r, g, b = colorsys.hls_to_rgb(float(self.h)/360, self.l, self.s)
         return RGB(round(r*255), round(g*255), round(b*255), self.a)
 
-    def toHSL(self):
+    def to_hsl(self):
         return self.copy()
 
-    def fromRGB(self, value):
-        return value.toHSL()
+    def from_rgb(self, value):
+        return value.to_hsl()
 
-    def fromHSL(self, value):
+    def from_hsl(self, value):
         return value.copy()
+
+__colors__ = []
 
 class NamedColor(RGB):
 
-    @sig(name=String, r=Byte, g=Byte, b=Byte)
     def __init__(self, name, r, g, b):
+        if name not in __colors__:
+            __colors__.append(name)
+
         self.name = name
         super(NamedColor, self).__init__(r, g, b)
 
-    def toCSS(self):
+    def to_css(self):
         return self.name
 
 aliceblue            = NamedColor("aliceblue",             240,  248,  255)

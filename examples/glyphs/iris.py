@@ -5,7 +5,7 @@ from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.glyphs import Circle
 from bokeh.objects import (
-    Plot, DataRange1d, LinearAxis, Grid, ColumnDataSource, Glyph, PanTool, WheelZoomTool
+    Plot, DataRange1d, LinearAxis, Grid, ColumnDataSource, PanTool, WheelZoomTool
 )
 from bokeh.resources import INLINE
 from bokeh.sampledata.iris import flowers
@@ -27,28 +27,24 @@ source = ColumnDataSource(
 xdr = DataRange1d(sources=[source.columns("petal_length")])
 ydr = DataRange1d(sources=[source.columns("petal_width")])
 
-circle = Circle(x="petal_length", y="petal_width", fill_color="color", fill_alpha=0.2, size=10, line_color="color")
+plot = Plot(x_range=xdr, y_range=ydr, min_border=80, title="Iris Data")
 
-glyph_renderer = Glyph(
-        data_source = source,
-        xdata_range = xdr,
-        ydata_range = ydr,
-        glyph = circle,
-        )
+circle = Circle(
+    x="petal_length", y="petal_width", size=10,
+    fill_color="color", fill_alpha=0.2, line_color="color"
+)
+plot.add_glyph(source, xdr, ydr, circle)
 
-plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source], min_border=80, title="Iris Data")
-xaxis = LinearAxis(plot=plot, axis_label="petal length", bounds=(1,7), major_tick_in=0)
-plot.below.append(xaxis)
-yaxis = LinearAxis(plot=plot, axis_label="petal width", bounds=(0,2.5), major_tick_in=0)
-plot.left.append(yaxis)
-xgrid = Grid(plot=plot, dimension=0, ticker=xaxis.ticker)
-ygrid = Grid(plot=plot, dimension=1, ticker=yaxis.ticker)
+xaxis = LinearAxis(axis_label="petal length", bounds=(1,7), major_tick_in=0)
+plot.add_layout(xaxis, 'below')
 
-pantool = PanTool(dimensions=["width", "height"])
-wheelzoomtool = WheelZoomTool(dimensions=["width", "height"])
+yaxis = LinearAxis(axis_label="petal width", bounds=(0,2.5), major_tick_in=0)
+plot.add_layout(yaxis, 'left')
 
-plot.renderers.append(glyph_renderer)
-plot.tools = [pantool, wheelzoomtool]
+plot.add_layout(Grid(dimension=0, ticker=xaxis.ticker))
+plot.add_layout(Grid(dimension=1, ticker=yaxis.ticker))
+
+plot.add_tools(PanTool(), WheelZoomTool())
 
 doc = Document()
 doc.add(plot)

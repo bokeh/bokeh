@@ -9,12 +9,13 @@ define [
   "./has_parent",
   "./canvas",
   "./layout_box",
+  "./logging",
   "./solver",
   "./cartesian_frame",
   "./plot_template"
   "renderer/properties",
   "tool/active_tool_manager",
-], (_, Backbone, kiwi, build_views, plot_utils, ContinuumView, HasParent, Canvas, LayoutBox, Solver, CartesianFrame, plot_template, Properties, ActiveToolManager) ->
+], (_, Backbone, kiwi, build_views, plot_utils, ContinuumView, HasParent, Canvas, LayoutBox, Logging, Solver, CartesianFrame, plot_template, Properties, ActiveToolManager) ->
 
   line_properties = Properties.line_properties
   text_properties = Properties.text_properties
@@ -24,6 +25,8 @@ define [
   EQ = kiwi.Operator.Eq
   LE = kiwi.Operator.Le
   GE = kiwi.Operator.Ge
+
+  logger = Logging.logger
 
   class PlotView extends ContinuumView.View
     className: "bokeh plotview plotarea"
@@ -90,6 +93,9 @@ define [
 
       @unpause()
       @request_render()
+
+      logger.debug("PlotView initialized")
+
       return this
 
     map_to_screen: (x, x_units, y, y_units) ->
@@ -149,6 +155,8 @@ define [
         }
 
     render: (force_canvas=false) ->
+      logger.trace("Plot.render(force_canvas=#{force_canvas})")
+
       super()
       @canvas_view.render(force_canvas)
 
@@ -248,6 +256,8 @@ define [
       for r in @get('renderers')
         r.set('parent', @)
 
+      logger.debug("Plot initialized")
+
     initialize_layout: (solver) ->
       canvas = @get('canvas')
       frame = new CartesianFrame.Model({
@@ -319,7 +329,6 @@ define [
     defaults: () ->
       return {
         button_bar: true
-        data_sources: {},
         renderers: [],
         tools: [],
         h_symmetry: true,

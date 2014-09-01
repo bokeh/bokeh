@@ -12,7 +12,7 @@ pushd $SRC_DIR
 if [ -e using_tags.txt ]; then
     version=`git describe --tags`
 else
-    version=`$PYTHON build_scripts/get_bump_version.py`
+    version=`$PYTHON scripts/get_bump_version.py`
 fi
 
 date=`date "+%Y%m%d"`

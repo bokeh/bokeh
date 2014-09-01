@@ -3,8 +3,8 @@ from __future__ import print_function
 from math import pi
 import pandas as pd
 
-from bokeh.objects import Plot, ColumnDataSource, FactorRange, CategoricalAxis, Glyph
-from bokeh.glyphs import Circle, Rect
+from bokeh.objects import Plot, ColumnDataSource, FactorRange, CategoricalAxis
+from bokeh.glyphs import Rect
 from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.resources import INLINE
@@ -162,21 +162,18 @@ source = ColumnDataSource(dict(
 xdr = FactorRange(factors=list(css3_colors.Group.unique()))
 ydr = FactorRange(factors=list(reversed(css3_colors.Name)))
 
-plot = Plot(title="CSS3 Color Names", data_sources=[source], x_range=xdr, y_range=ydr, plot_width=600, plot_height=2000)
-
-xaxis_top    = CategoricalAxis(plot=plot, major_label_orientation=pi/4)
-plot.above.append(xaxis_top)
-xaxis_bottom = CategoricalAxis(plot=plot, major_label_orientation=pi/4)
-plot.below.append(xaxis_bottom)
-yaxis        = CategoricalAxis(plot=plot)
-plot.left.append(yaxis)
-
-# XXX: Wrong radius. Doesn't respect 'radius'. 'line_color' on 'rect' affects 'circle'.
-# circle = Circle(x="groups", y="names", radius=1, fill_color="colors")
-# plot.renderers.append(Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=circle))
+plot = Plot(title="CSS3 Color Names", x_range=xdr, y_range=ydr, plot_width=600, plot_height=2000)
 
 rect = Rect(x="groups", y="names", width=1, height=1, fill_color="colors", line_color=None)
-plot.renderers.append(Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=rect))
+plot.add_glyph(source, xdr, ydr, rect)
+
+xaxis_above = CategoricalAxis(major_label_orientation=pi/4)
+plot.add_layout(xaxis_above, 'above')
+
+xaxis_below = CategoricalAxis(major_label_orientation=pi/4)
+plot.add_layout(xaxis_below, 'below')
+
+plot.add_layout(CategoricalAxis(), 'left')
 
 doc = Document()
 doc.add(plot)

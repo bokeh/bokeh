@@ -6,18 +6,21 @@ notebook.
 """
 from __future__ import absolute_import
 
-import warnings
 import logging
 logger = logging.getLogger(__file__)
 
+import warnings
+
 from . import _glyph_functions
-from .properties import (HasProps, Dict, Enum, Either, Float, Instance, Int,
-    Datetime,
-    List, String, Color, Date, Include, Bool, Tuple, Any)
-from .mixins import LineProps, TextProps
 from .enums import DatetimeUnits, Dimension, Location, Orientation, Units
-from .plot_object import PlotObject
 from .glyphs import BaseGlyph
+from .mixins import LineProps, TextProps
+from .plot_object import PlotObject
+from .properties import (
+    Datetime, HasProps, Dict, Enum, Either, Float, Instance, Int,
+    List, String, Color, Include, Bool, Tuple, Any
+)
+from .utils import nice_join
 
 class DataSource(PlotObject):
     """ Base class for data sources """
@@ -358,6 +361,80 @@ class Plot(Widget):
             kwargs.setdefault('v_symmetry', 'v' in border_symmetry or 'V' in border_symmetry)
         super(Plot, self).__init__(**kwargs)
 
+    def add_layout(self, obj, place='center'):
+        ''' Adds an object to the plot in a specified place.
+
+        Args:
+            obj (PlotObject) : the object to add to the Plot
+            place (str, optional) : where to add the object (default: 'center')
+                Valid places are: 'left', 'right', 'above', 'below', 'center'.
+
+        Returns:
+            None
+
+        '''
+        valid_places = ['left', 'right', 'above', 'below', 'center']
+        if place not in valid_places:
+            raise ValueError(
+                "Invalid place '%s' specified. Valid place values are: %s" % (place, nice_join(valid_places))
+            )
+
+        if hasattr(obj, 'plot'):
+            if obj.plot is not None:
+                 raise ValueError("object to be added already has 'plot' attribute set")
+            obj.plot = self
+
+        self.renderers.append(obj)
+
+        if place is not 'center':
+            getattr(self, place).append(obj)
+
+    def add_tools(self, *tools):
+        ''' Adds an tools to the plot.
+
+        Args:
+            *tools (Tool) : the tools to add to the Plot
+
+        Returns:
+            None
+
+        '''
+        if not all(isinstance(tool, Tool) for tool in tools):
+            raise ValueError("All arguments to add_tool must be Tool subclasses.")
+
+        for tool in tools:
+            if tool.plot is not None:
+                 raise ValueError("tool %s to be added already has 'plot' attribute set" % tools)
+            tool.plot = self
+            self.tools.append(tool)
+
+    def add_glyph(self, source, x_range, y_range, glyph, **kw):
+        ''' Adds a glyph to the plot with associated data sources and ranges.
+
+        This function will take care of creating and configurinf a Glyph object,
+        and then add it to the plot's list of renderers.
+
+        Args:
+            source: (ColumnDataSource) : a data source for the glyphs to all use
+            x_range (Range1d) : a range object for the x-dimension
+            y_range (Range1d) : a range object for the y-dimension
+            glyphs (BaseGlyph) : the glyph to add to the Plot
+
+        Keyword Arguments:
+            Any additional keyword arguments are passed on as-is to the
+            Glyph initializer.
+
+        Returns:
+            glyph : Glyph
+
+        '''
+        if not isinstance(glyph, BaseGlyph):
+            raise ValueError("glyph arguments to add_glyph must be BaseGlyph subclass.")
+
+        g = Glyph(data_source=source, xdata_range=x_range, ydata_range=y_range, glyph=glyph, **kw)
+        self.renderers.append(g)
+        return g
+
     data_sources = List(Instance(DataSource))
 
     x_range = Instance(Range)
@@ -366,8 +443,8 @@ class Plot(Widget):
     y_mapper_type = String('auto')
 
     title = String('')
-    title_props = Include(TextProps, prefix="title")
-    outline_props = Include(LineProps, prefix="outline")
+    title_props = Include(TextProps)
+    outline_props = Include(LineProps)
 
     # A list of all renderers on this plot; this includes guides as well
     # as glyph renderers
@@ -462,14 +539,14 @@ class Axis(GuideRenderer):
 
     axis_label = String
     axis_label_standoff = Int
-    axis_label_props = Include(TextProps, prefix="axis_label")
+    axis_label_props = Include(TextProps)
 
     major_label_standoff = Int
     major_label_orientation = Either(Enum("horizontal", "vertical"), Float)
-    major_label_props = Include(TextProps, prefix="major_label")
+    major_label_props = Include(TextProps)
 
-    axis_props = Include(LineProps, prefix="axis")
-    tick_props = Include(LineProps, prefix="major_tick")
+    axis_props = Include(LineProps)
+    major_tick_props = Include(LineProps)
 
     major_tick_in = Int
     major_tick_out = Int
@@ -508,7 +585,7 @@ class Grid(GuideRenderer):
 
     ticker = Instance(Ticker)
 
-    grid_props = Include(LineProps, prefix="grid")
+    grid_props = Include(LineProps)
 
 class Tool(PlotObject):
     plot = Instance(Plot)
@@ -520,9 +597,6 @@ class WheelZoomTool(Tool):
     dimensions = List(Enum(Dimension), default=["width", "height"])
 
 class PreviewSaveTool(Tool):
-    pass
-
-class EmbedTool(Tool):
     pass
 
 class ResetTool(Tool):
@@ -566,9 +640,9 @@ class DataRangeBoxSelectTool(Tool):
 class Legend(Renderer):
     plot = Instance(Plot)
     orientation = Enum(Orientation)
-    border = Include(LineProps, prefix="border")
+    border_props = Include(LineProps)
 
-    label_props = Include(TextProps, prefix="label")
+    label_props = Include(TextProps)
     label_standoff = Int(15)
     label_height = Int(20)
     label_width = Int(50)

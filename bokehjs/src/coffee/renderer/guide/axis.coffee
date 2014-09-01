@@ -1,17 +1,20 @@
 
 define [
-  "underscore",
-  "backbone",
-  "kiwi",
-  "common/has_parent",
-  "common/layout_box",
-  "common/plot_widget",
-  "renderer/properties",
-], (_, Backbone, kiwi, HasParent, LayoutBox, PlotWidget, Properties) ->
+  "underscore"
+  "backbone"
+  "kiwi"
+  "common/has_parent"
+  "common/layout_box"
+  "common/logging"
+  "common/plot_widget"
+  "renderer/properties"
+], (_, Backbone, kiwi, HasParent, LayoutBox, Logging, PlotWidget, Properties) ->
 
   glyph_properties = Properties.glyph_properties
   line_properties  = Properties.line_properties
   text_properties  = Properties.text_properties
+
+  logger = Logging.logger
 
   # This table lays out the rules for configuring the baseline, alignment, etc. of
   # axis title text, based on it's location and orientation
@@ -343,7 +346,7 @@ define [
         @_size = panel._width
         @_anchor = panel._left
       else
-        console.log("ERROR: unrecognized side: '#{ side }'")
+        logger.error("unrecognized side: '#{ side }'")
 
     update_layout: (view, solver) ->
       size = @_tick_extent(view) + @_tick_label_extent(view) + @_axis_label_extent(view)
@@ -381,7 +384,7 @@ define [
           end = Math.max(user_bounds[0], user_bounds[1])
         return [start, end]
 
-      console.log("error: user bounds '#{ user_bounds }' not understood")
+      logger.error("user bounds '#{ user_bounds }' not understood")
       return null
 
     _rule_coords: () ->

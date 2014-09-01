@@ -1,19 +1,17 @@
 from __future__ import print_function
 
-import sys
-import requests
-
 import numpy as np
 
+from bokeh.browserlib import view
+from bokeh.document import Document
 from bokeh.glyphs import *
 from bokeh.objects import (
-    Plot, Range1d, LinearAxis, Grid, Glyph, ColumnDataSource, PanTool, WheelZoomTool
+    Plot, Range1d, LinearAxis, Grid, ColumnDataSource, PanTool, WheelZoomTool
 )
-from bokeh import session
-from bokeh import document
+from bokeh.session import Session
 
-document = document.Document()
-session = session.Session()
+document = Document()
+session = Session()
 session.use_doc('prim_server')
 session.load_document(document)
 
@@ -25,28 +23,22 @@ source = ColumnDataSource(data=dict(x=x,y=y))
 xdr = Range1d(start=0, end=10)
 ydr = Range1d(start=0, end=10)
 
-
 def make_plot(name, glyph):
-    glyph_renderer = Glyph(
-        data_source = source,
-        xdata_range = xdr,
-        ydata_range = ydr,
-        glyph = glyph,
-    )
+    plot = Plot(x_range=xdr, y_range=ydr, min_border=80)
 
-    pantool = PanTool(dimensions=["width", "height"])
-    wheelzoomtool = WheelZoomTool(dimensions=["width", "height"])
+    plot.add_glyph(source, xdr, ydr, glyph)
 
-    plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source], min_border=80)
-    xaxis = LinearAxis(plot=plot)
-    plot.below.append(xaxis)
-    yaxis = LinearAxis(plot=plot)
-    plot.left.append(yaxis)
-    xgrid = Grid(plot=plot, dimension=0, ticker=xaxis.ticker)
-    ygrid = Grid(plot=plot, dimension=1, ticker=yaxis.ticker)
+    xaxis = LinearAxis()
+    plot.add_layout(xaxis, 'below')
 
-    plot.renderers.append(glyph_renderer)
-    plot.tools = [pantool, wheelzoomtool]
+    yaxis = LinearAxis()
+    plot.add_layout(yaxis, 'left')
+
+    plot.add_layout(Grid(dimension=0, ticker=xaxis.ticker))
+    plot.add_layout(Grid(dimension=1, ticker=yaxis.ticker))
+
+    plot.add_tools(PanTool(), WheelZoomTool())
+
     document.add(plot)
     session.store_document(document)
 
@@ -57,11 +49,11 @@ make_plot('circle', Circle(x="x", y="y", radius=1))
 make_plot('oval', Oval(x="x", y="y", width=0.5, height=0.8, angle=-0.6))
 make_plot('ray', Ray(x="x", y="y", length=25, angle=0.6))
 make_plot('rect', Rect(x="x", y="y", width=0.5, height=0.8, angle=-0.6))
-make_plot('text', Text(x="x", y="y", text="foo", angle=0.6))
+make_plot('text', Text(x="x", y="y", text={"value":"foo"}, angle=0.6))
 make_plot('wedge', Wedge(x="x", y="y", radius=0.5, start_angle=0.9, end_angle=3.2))
 
-link = session.object_link(document._plotcontext)
+link = session.object_link(document.context)
 print ("please visit %s to see plots" % link)
-
+view (link)
 
 

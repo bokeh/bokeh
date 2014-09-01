@@ -35,50 +35,41 @@ text_source = ColumnDataSource(
 xdr = DataRange1d(sources=[source.columns("petal_length", "petal_width", "sepal_length", "sepal_width")])
 ydr = DataRange1d(sources=[source.columns("petal_length", "petal_width", "sepal_length", "sepal_width")])
 
-pan = PanTool(dimensions=["width","height"])
-zoom = WheelZoomTool(dimensions=["width","height"])
-
 def make_plot(xname, yname, xax=False, yax=False, text=None):
     plot = Plot(
-        x_range=xdr, y_range=ydr, data_sources=[source], background_fill="#efe8e2",
+        x_range=xdr, y_range=ydr, background_fill="#efe8e2",
         border_fill='white', title="", min_border=2, border_symmetry=None,
         plot_width=250, plot_height=250)
+
+    circle = Circle(x=xname, y=yname, fill_color="color", fill_alpha=0.2, size=4, line_color="color")
+    plot.add_glyph(source, xdr, ydr, circle)
+
     xticker = BasicTicker()
     if xax:
-        xaxis = LinearAxis(plot=plot)
-        plot.below.append(xaxis)
+        xaxis = LinearAxis()
+        plot.add_layout(xaxis, 'below')
         xticker = xaxis.ticker
-    xgrid = Grid(plot=plot, dimension=0, ticker=xticker)
+    plot.add_layout(Grid(dimension=0, ticker=xticker))
+
     yticker = BasicTicker()
     if yax:
-        yaxis = LinearAxis(plot=plot)
-        plot.left.append(yaxis)
+        yaxis = LinearAxis()
+        plot.add_layout(yaxis, 'left')
         yticker = yaxis.ticker
-    ygrid = Grid(plot=plot, dimension=1, ticker=yticker)
-    circle = Circle(x=xname, y=yname, fill_color="color", fill_alpha=0.2, size=4, line_color="color")
-    circle_renderer = Glyph(
-        data_source = source,
-        xdata_range = xdr,
-        ydata_range = ydr,
-        glyph = circle,
-    )
-    plot.renderers.append(circle_renderer)
-    plot.tools = [pan, zoom]
+    plot.add_layout(Grid(dimension=1, ticker=yticker))
+
+    plot.add_tools(PanTool(), WheelZoomTool())
+
     if text:
         text = " ".join(text.split('_'))
         text = Text(
             x={'field':'xcenter', 'units':'screen'},
             y={'field':'ycenter', 'units':'screen'},
             text=[text], angle=pi/4, text_font_style="bold", text_baseline="top",
-            text_color="#ffaaaa", text_alpha=0.7, text_align="center", text_font_size="28pt")
-        text_renderer = Glyph(
-            data_source=text_source,
-            xdata_range = xdr,
-            ydata_range = ydr,
-            glyph = text,
+            text_color="#ffaaaa", text_alpha=0.7, text_align="center", text_font_size="28pt"
         )
-        plot.data_sources.append(text_source)
-        plot.renderers.append(text_renderer)
+        plot.add_glyph(text_source, xdr, ydr, text)
+
     return plot
 
 xattrs = ["petal_length", "petal_width", "sepal_width", "sepal_length"]

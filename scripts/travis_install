@@ -16,7 +16,9 @@ rm -rf $MINICONDA.sh
 
 python -V
 
-DEPS_TRAVIS="python=$TRAVIS_PYTHON_VERSION conda-build jinja2"
+echo "requests <2.4.0" > /home/travis/miniconda/conda-meta/pinned
+
+DEPS_TRAVIS="python=$TRAVIS_PYTHON_VERSION conda-build=1.7.0 jinja2"
 conda install --yes $DEPS_TRAVIS
 
 conda config --add channels bokeh
@@ -27,7 +29,7 @@ conda install --use-local --yes bokeh
 
 DEPS_TEST=$(cat <<EOF | python -
 from conda_build.metadata import MetaData
-print(" ".join(MetaData("conda.recipe").get_value("test/requires")))
+print(" ".join([s.replace(" ", "") for s in MetaData("conda.recipe").get_value("test/requires")]))
 EOF
 )
 

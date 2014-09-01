@@ -30,12 +30,12 @@
         { "file": "../examples/plotting/file/brewer.py",        "name": "brewer"                             },
         { "file": "../examples/plotting/file/elements.py",      "name": "elements"                           },
         { "file": "../examples/plotting/file/boxplot.py",       "name": "boxplot"                            },
-        { "file": "../examples/ggplot/density.py",              "name": "density"                            },
-        { "file": "../examples/ggplot/line.py",                 "name": "ggplot_line"                        },
-        { "file": "../examples/ggplot/step.py",                 "name": "step"                               },
-        { "file": "../examples/ggplot/xkcd_density.py",         "name": "xkcd_density"                       },
-        { "file": "../examples/seaborn/violin.py",              "name": "violin"                             },
-        { "file": "../examples/seaborn/kde.py",                 "name": "kde"                                },
-        { "file": "../examples/seaborn/sinerror.py",            "name": "sinerror"                           }
+        { "file": "../examples/compat/ggplot/density.py",       "name": "density"                            },
+        { "file": "../examples/compat/ggplot/line.py",          "name": "ggplot_line"                        },
+        { "file": "../examples/compat/ggplot/step.py",          "name": "step"                               },
+        { "file": "../examples/compat/ggplot/xkcd_density.py",  "name": "xkcd_density"                       },
+        { "file": "../examples/compat/seaborn/violin.py",       "name": "violin"                             },
+        { "file": "../examples/compat/seaborn/kde.py",          "name": "kde"                                },
+        { "file": "../examples/compat/seaborn/sinerror.py",     "name": "sinerror"                           }
     ]
 }

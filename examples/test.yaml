@@ -1,8 +1,9 @@
 - path: "glyphs"
-- path: "mpl"
-- path: "ggplot"
-- path: "seaborn"
-- path: "pandas"
+- path: "compat/mpl"
+- path: "compat/ggplot"
+- path: "compat/seaborn"
+- path: "compat/pandas"
+- path: "charts"
 - path: "plotting/file"
   type: file
   skip: ["image.py", "image_rgba.py"]
