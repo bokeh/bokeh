@@ -31,8 +31,8 @@ class BokehJSONEncoder(json.JSONEncoder):
 
     # Check for astype failures (putative Numpy < 1.7)
     dt2001 = np.datetime64('2001')
-    bad_datetime_conversion = (dt2001.astype('int64') ==
-                               dt2001.astype('datetime64[ms]').astype('int64'))
+    legacy_datetime64 = (dt2001.astype('int64') ==
+                         dt2001.astype('datetime64[ms]').astype('int64'))
     def transform_array(self, obj):
         """Transform arrays into lists of json safe types
         also handles pandas series, and replacing
@@ -40,8 +40,10 @@ class BokehJSONEncoder(json.JSONEncoder):
         """
         ## not quite correct, truncates to ms..
         if obj.dtype.kind == 'M':
-            if self.bad_datetime_conversion:
-                return (obj.astype('int64') / millifactor).tolist()
+            if self.legacy_datetime64:
+                if obj.dtype == numpy.dtype('datetime[ns]'):
+                    return (obj.astype('int64') / millifactor).tolist()
+                # else punt.
             else:
                 return obj.astype('datetime64[ms]').astype('int64').tolist()
         elif obj.dtype.kind in ('u', 'i', 'f'):
