@@ -2,7 +2,8 @@ from __future__ import print_function
 from ..plotting import image_rgba, image, multi_line, curdoc
 from ..plot_object import PlotObject
 from ..objects import ServerDataSource,  Glyph, Range1d, Color
-from ..properties import (Instance, Any, Either, Int, Float, List, Bool, String)
+from ..properties import (Instance, Any, Either,
+                          Int, Float, List, Bool, String)
 import bokeh.colors as colors
 import numpy as np
 import math
@@ -59,8 +60,8 @@ def _loadAR():
 
 class Proxy(PlotObject):
     """
-    Proxy objects stand in for the abstract rendering (AR) config classes.
-    Basically, the AR implementation doesn't rely on Bokeh, so
+    Proxy objects stand in for the abstract rendering (AR) configuration
+    classes. Basically, the AR implementation doesn't rely on Bokeh, so
     it doesn't know about the properties BUT the Bokeh needs be able to
     construct/modify/inspect AR configurations.  Proxy classes hold the
     relevant parameters for constructing AR classes in a way that Bokeh
@@ -73,7 +74,7 @@ class Proxy(PlotObject):
 
 # ------ Aggregators -------------
 class Sum(Proxy):
-    "Add up all incomming values"
+    "Add up all incoming values"
     def reify(self, **kwargs):
         return numeric.Sum()
 
@@ -209,7 +210,7 @@ class ImageShader(Shader):
                 return tuple(color)+(255,)
             if parts == 4:
                 return tuple(color[0:3]) + (min(abs(color[3])*255, 255),)
-            raise ValueError("Improperty formatted tuple for color %s" % color)
+            raise ValueError("Improperly formatted tuple for color %s" % color)
 
         if isinstance(color, str) or isinstance(color, unicode):
             if color[0] == "#":
@@ -248,7 +249,7 @@ class NonZeros(Shader):
 
 
 class Ratio(Shader):
-    "Ratio of some category to total of all cateogires."
+    "Ratio of some category to total of all categories."
     out = "image"
     focus = Int(-1)
 
@@ -308,7 +309,7 @@ class Sqrt(Shader):
 
 
 class Cuberoot(Shader):
-    "Cub eroot of all values"
+    "Cube root of all values"
     out = "image"
 
     def reify(self, **kwargs):
@@ -325,7 +326,9 @@ class Spread(Shader):
     anti_alias = Bool(False)
 
     def reify(self, **kwargs):
-        return npg.Spread(factor=self.factor, shape=self.shape, anti_alias=self.anti_alias)
+        return npg.Spread(factor=self.factor,
+                          shape=self.shape,
+                          anti_alias=self.anti_alias)
 
 
 class Contour(Shader):
@@ -396,7 +399,8 @@ def replot(plot, agg=Count(), info=Const(val=1), shader=Id(),
         if opt in kwargs:
             props[opt] = kwargs.pop(opt)
 
-    src = source(plot, agg, info, shader, remove_original, palette, points, **kwargs)
+    src = source(plot, agg, info, shader,
+                 remove_original, palette, points, **kwargs)
     props.update(mapping(src))
 
     if shader.out == "image":
@@ -497,15 +501,17 @@ def make_glyphset(xcol, ycol, datacol, glyphspec, transform):
                                    shaper, colMajor=True)
     return glyphs
 
+
 def _generate_render_state(plot_state):
     data_x_span = float(_span(plot_state['data_x']))
     data_y_span = float(_span(plot_state['data_y']))
-    
+
     data_x_span = math.ceil(data_x_span * 100) / 100.0
     data_y_span = math.ceil(data_y_span * 100) / 100.0
 
     return {'x_span': data_x_span,
             'y_span': data_y_span}
+
 
 def downsample(data, transform, plot_state, render_state):
     _loadAR()  # Must be called before any attempts to use AR proper
@@ -517,7 +523,6 @@ def downsample(data, transform, plot_state, render_state):
     if render_state == _generate_render_state(plot_state):
         logger.info("Skipping update; render state unchanged")
         return {'render_state': "NO UPDATE"}
-
 
     # Translate the resample parameters to server-side rendering....
     # TODO: Do more to preserve the 'natural' data form and have make_glyphset build the 'right thing' (tm)
@@ -537,11 +542,11 @@ def downsample(data, transform, plot_state, render_state):
     elif shader.out == "poly_line":
         rslt = downsample_line(xcol, ycol, glyphs, transform, plot_state)
     else:
-        raise ValueError("Only handles out types of image, image_rgb and poly_line")
+        raise ValueError("Unhandled shader output '{0}.".format(shader.out))
 
     rslt['render_state'] = _generate_render_state(plot_state)
 
-    return rslt;
+    return rslt
 
 
 def downsample_line(xcol, ycol, glyphs, transform, plot_state):
@@ -556,7 +561,7 @@ def downsample_line(xcol, ycol, glyphs, transform, plot_state):
         # How big would a full plot of the data be at the current resolution?
         # If scale is zero for either axis, don't actual render,
         # instead report back data bounds and wait for the next request
-        # This enales guide creation...which cahgnes the available plot size.
+        # This enables guide creation...which changes the available plot size.
         plot_size = [screen_x_span, screen_y_span]
         parts = shader.reformat(None)
     else:
@@ -629,8 +634,10 @@ def downsample_image(xcol, ycol, glyphs, transform, plot_state):
             #     the bottom left and bottom right of the plot
             # y_range is the bottom and top data space values corresponding to
             #     the bottom left and top left of the plot
-            'x_range': {'start': xcol.min()*scale_x, 'end': xcol.max()*scale_x},
-            'y_range': {'start': ycol.min()*scale_y, 'end': ycol.max()*scale_y},
+            'x_range': {'start': xcol.min()*scale_x,
+                        'end': xcol.max()*scale_x},
+            'y_range': {'start': ycol.min()*scale_y,
+                        'end': ycol.max()*scale_y},
 
             # Data-image parameters.
             # x/y are lower left data-space coord of the image.
@@ -675,6 +682,7 @@ def _span(r):
     start = r.start if r.start is not None else 0
     return abs(end-start)
 
+
 def _shaper(glyphspec, points):
     """Construct the AR shaper to match the given shape code."""
     code = glyphspec['type']
@@ -697,3 +705,88 @@ def _shaper(glyphspec, points):
         return glyphset.ToRect(tox, toy, sizer, sizer)
     else:
         raise ValueError("Only recognizing 'square', received '{0}'".format(code))
+
+
+# -------------------- Recipes -----------------------
+
+def hdalpha(plot, cats=None, colors=None, log=True, spread=0, **kwargs):
+    """
+    Produce a plot using high-definition alpha composition (HDAlpha).
+    HDAlpha essentially makes a heatmap for each of a number of categories,
+    with different colors for each category.  Then those colors are composed
+    in a way that ensures that oversaturate on does not occur.
+    This is a convenience function that encodes a common configuration,
+    and parameters to support the most common variations.
+
+    plot -- Plot to convert into an HDAlpha plot
+    cats -- What are the expected categories?
+                 Default is None, indicating that categories
+                 should be determined automatically.
+    colors -- What colors should be used. Colors are matched to categories in
+              order, so the first color is associated with the first category.
+              Default is a rainbow palette with 8 steps.
+    spread -- How far (if any) should values be spread. Default is 0.
+    long -- Log-transform each category prior to composing? Default is True.
+    kwargs -- Further arguments passed on to replot for greater control.
+
+    Note: Category to color association follows the rules of the HDAlpha
+         operator.  Refer to that documentation for corner case resolution.
+    """
+
+    if cats is None:
+        info = AutoEncode()
+    else:
+        info = Encode(cats=cats)
+
+    kwargs['points'] = kwargs.get('points', True)
+
+    return replot(plot,
+                  info=info,
+                  agg=CountCategories(),
+                  shader=Spread(factor=spread) + HDAlpha(colors=colors, log=log),
+                  **kwargs)
+
+
+def heatmap(plot,
+            low=(255, 200, 200), high=(255, 0, 0),
+            spread=0, transform="cbrt", **kwargs):
+    """
+    Produce a heatmap from a set of shapes.
+    A heatmap is a scale of how often a single thing occurs.
+    This is a convenience function that encodes a common configuration,
+    and parameters to support the most common variations.
+
+
+    plot -- Plot to convert into a heatmap
+    low -- Low color of the heatmap.  Default is a light red
+    high -- High color of the heatmap. Default is full saturation red.
+    spread -- How far (if any) should values be spread. Default is 0.
+    transform -- Apply a transformation before building a color ramp?
+                 Understood values are 'cbrt', 'log', 'none' and None.
+                 The default is 'cbrt', for cuberoot, an approximation of
+                 perceptual correction on monochromatic scales.
+    kwargs -- Further arguments passed on to replot for greater control.
+    """
+
+    transform = transform.lower()
+    shader = InterpolateColor(low=low, high=high)
+
+    if transform == "cbrt":
+        shader = Cuberoot() + shader
+    elif transform == "log":
+        shader = Log(10) + shader
+    elif transform == "none" or transform is None:
+        pass
+    else:
+        raise ValueError("Unrecognized transform '{0}'".format(transform))
+
+    if spread > 0:
+        shader = Spread(factor=spread, shape="circle") + shader
+
+    kwargs['points'] = kwargs.get('points', True)
+
+    return replot(plot,
+                  agg=Count(),
+                  info=Const(val=1),
+                  shader=shader,
+                  **kwargs)
