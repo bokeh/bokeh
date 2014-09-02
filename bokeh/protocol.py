@@ -41,7 +41,7 @@ class BokehJSONEncoder(json.JSONEncoder):
         ## not quite correct, truncates to ms..
         if obj.dtype.kind == 'M':
             if self.legacy_datetime64:
-                if obj.dtype == numpy.dtype('datetime[ns]'):
+                if obj.dtype == np.dtype('datetime64[ns]'):
                     return (obj.astype('int64') / millifactor).tolist()
                 # else punt.
             else:
