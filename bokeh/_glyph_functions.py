@@ -103,7 +103,7 @@ def _glyph_function(glyphclass, dsnames, argnames, docstring, xfields=["x"], yfi
     func.__doc__ = docstring
     return func
 
-annular_wedge = _glyph_function(glyphs.AnnularWedge, ("x", "y", "inner_radius", "outer_radius", "start_angle", "end_angle"), (),
+annular_wedge = _glyph_function(glyphs.AnnularWedge, ("x", "y", "inner_radius", "outer_radius", "start_angle", "end_angle"), ("direction",),
 """ The `annular_wedge` glyph renders annular wedges centered at `x`, `y`.
 
 Args:
@@ -142,7 +142,7 @@ Returns:
 """
 )
 
-arc = _glyph_function(glyphs.Arc, ("x", "y", "radius" ,"start_angle", "end_angle"), (),
+arc = _glyph_function(glyphs.Arc, ("x", "y", "radius" ,"start_angle", "end_angle"), ("direction",),
 """ The `arc` glyph renders circular arcs centered at `x`, `y`.
 
 Args:
@@ -319,6 +319,7 @@ Args:
     dw (str or list[float]) : values or field names of image width distances
     dh (str or list[float]) : values or field names of image height distances
     palette (str or list[str]) : values or field names of palettes to use for color-mapping
+    colorMapper (LinearColorMapper) : a LinearColorMapper instance
     dilate (bool, optional) : whether to dilate pixel distance computations when drawing, defaults to False
 
 Returns:
@@ -330,7 +331,7 @@ Notes:
 """
 )
 
-image_rgba = _glyph_function(glyphs.ImageRGBA, ("image", "x", "y", "dw", "dh"), (),
+image_rgba = _glyph_function(glyphs.ImageRGBA, ("image", "x", "y", "dw", "dh"), ("dilate",),
 """ The image_rgba glyph takes each ``image`` as a two-dimensional array of RGBA values (encoded
 as 32-bit integers).
 
@@ -533,7 +534,7 @@ Returns:
 """
 )
 
-rect = _glyph_function(glyphs.Rect, ("x", "y", "width", "height"), (),
+rect = _glyph_function(glyphs.Rect, ("x", "y", "width", "height"), ("dilate",),
 """ The rect glyph displays rectangles centered on the given coordinates with the given dimensions and angle.
 
 Args:
@@ -660,7 +661,7 @@ Returns:
 """
 )
 
-wedge = _glyph_function(glyphs.Wedge, ("x", "y", "radius", "start_angle", "end_angle"), (),
+wedge = _glyph_function(glyphs.Wedge, ("x", "y", "radius", "start_angle", "end_angle"), ("direction",),
 """ The `wedge` glyph renders circular wedges centered at `x`, `y`.
 
 Args:
