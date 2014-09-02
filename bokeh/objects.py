@@ -20,6 +20,7 @@ from .properties import (
     Datetime, HasProps, Dict, Enum, Either, Float, Instance, Int,
     List, String, Color, Include, Bool, Tuple, Any
 )
+from .query import find
 from .utils import nice_join
 
 class DataSource(PlotObject):
@@ -361,6 +362,19 @@ class Plot(Widget):
             kwargs.setdefault('v_symmetry', 'v' in border_symmetry or 'V' in border_symmetry)
         super(Plot, self).__init__(**kwargs)
 
+    def select(self, selector):
+        ''' Query this object and all of its references for objects that
+        match the given selector.
+
+        Args:
+            selector (JSON-like) :
+
+        Returns:
+            seq[PlotObject]
+
+        '''
+        return find(self.references(), selector, {'plot': self})
+
     def row(self, row, gridplot):
         ''' Return whether this plot is in a given row of a GridPlot.
 
@@ -543,6 +557,19 @@ class GridPlot(Plot):
 
     children = List(List(Instance(Plot)))
     border_space = Int(0)
+
+    def select(self, selector):
+        ''' Query this object and all of its references for objects that
+        match the given selector.
+
+        Args:
+            selector (JSON-like) :
+
+        Returns:
+            seq[PlotObject]
+
+        '''
+        return find(self.references(), selector, {'gridplot': self})
 
     def column(self, col):
         ''' Return a given column of plots from this GridPlot.

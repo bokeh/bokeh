@@ -91,7 +91,7 @@ def match(obj, selector, context={}):
     return True
 
 
-def find(obj, selector, context={}):
+def find(objs, selector, context={}):
     ''' Query an object and all of its contained references
     and yield objects that match the given selector.
 
@@ -106,7 +106,7 @@ def find(obj, selector, context={}):
     Examples:
 
     '''
-    return (obj for obj in obj.references() if match(obj, selector, context))
+    return (obj for obj in objs if match(obj, selector, context))
 
 
 def _or(obj, selectors):
