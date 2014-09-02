@@ -3,7 +3,7 @@ from . import glyphs
 
 from six import iteritems
 
-def _glyph_function(glyphclass, argnames, docstring, xfields=["x"], yfields=["y"]):
+def _glyph_function(glyphclass, dsnames, argnames, docstring, xfields=["x"], yfields=["y"]):
 
     def func(document_or_plot, *args, **kwargs):
         # Note: We want to reuse the glyph functions by attaching them the Plot
@@ -46,10 +46,9 @@ def _glyph_function(glyphclass, argnames, docstring, xfields=["x"], yfields=["y"
         select_tool = _get_select_tool(plot)
 
         # Process the glyph dataspec parameters
-        glyph_params = _match_data_params(argnames, glyphclass,
+        glyph_params = _match_data_params(dsnames, glyphclass,
                                           datasource, serversource,
                                           args, _materialize_colors_and_alpha(kwargs))
-
 
         x_data_fields = []
         for xx in xfields:
@@ -63,9 +62,8 @@ def _glyph_function(glyphclass, argnames, docstring, xfields=["x"], yfields=["y"
         _update_plot_data_ranges(plot, datasource, x_data_fields, y_data_fields)
         kwargs.update(glyph_params)
 
-        glyph_props = glyphclass.properties()
+        glyph_props = glyphclass.properties() | set(argnames)
         glyph_kwargs = dict((key, value) for (key, value) in iteritems(kwargs) if key in glyph_props)
-
         glyph = glyphclass(**glyph_kwargs)
 
         nonselection_glyph_params = _materialize_colors_and_alpha(kwargs, prefix='nonselection_', default_alpha=0.1)
@@ -105,7 +103,7 @@ def _glyph_function(glyphclass, argnames, docstring, xfields=["x"], yfields=["y"
     func.__doc__ = docstring
     return func
 
-annular_wedge = _glyph_function(glyphs.AnnularWedge, ("x", "y", "inner_radius", "outer_radius", "start_angle", "end_angle"),
+annular_wedge = _glyph_function(glyphs.AnnularWedge, ("x", "y", "inner_radius", "outer_radius", "start_angle", "end_angle"), (),
 """ The `annular_wedge` glyph renders annular wedges centered at `x`, `y`.
 
 Args:
@@ -126,7 +124,7 @@ Returns:
 """
 )
 
-annulus = _glyph_function(glyphs.Annulus, ("x", "y" ,"inner_radius", "outer_radius"),
+annulus = _glyph_function(glyphs.Annulus, ("x", "y" ,"inner_radius", "outer_radius"), (),
 """ The `annulus` glyph renders annuli centered at `x`, `y`.
 
 Args:
@@ -144,7 +142,7 @@ Returns:
 """
 )
 
-arc = _glyph_function(glyphs.Arc, ("x", "y", "radius" ,"start_angle", "end_angle"),
+arc = _glyph_function(glyphs.Arc, ("x", "y", "radius" ,"start_angle", "end_angle"), (),
 """ The `arc` glyph renders circular arcs centered at `x`, `y`.
 
 Args:
@@ -164,7 +162,7 @@ Returns:
 """
 )
 
-asterisk = _glyph_function(glyphs.Asterisk, ("x", "y"),
+asterisk = _glyph_function(glyphs.Asterisk, ("x", "y"), (),
 """ The `asterisk` glyph is a marker that renders asterisks at `x`, `y` with size `size`.
 
 Args:
@@ -181,7 +179,7 @@ Returns:
 """
 )
 
-bezier = _glyph_function(glyphs.Bezier, ("x0", "y0", "x1", "y1", "cx0", "cy0", "cx1", "cy1"),
+bezier = _glyph_function(glyphs.Bezier, ("x0", "y0", "x1", "y1", "cx0", "cy0", "cx1", "cy1"), (),
 """ The bezier glyph displays Bezier curves with the given starting, ending, and control points.
 
 Args:
@@ -203,7 +201,7 @@ Returns:
 """,
     xfields=['x0', 'x1'], yfields=['y0', 'y1'])
 
-circle = _glyph_function(glyphs.Circle, ("x", "y"),
+circle = _glyph_function(glyphs.Circle, ("x", "y"), (),
 """ The `circle` glyph is a marker that renders circles at `x`, `y` with size `size`.
 
 Args:
@@ -224,7 +222,7 @@ Notes:
 """
 )
 
-circle_cross = _glyph_function(glyphs.CircleCross, ("x", "y"),
+circle_cross = _glyph_function(glyphs.CircleCross, ("x", "y"), (),
 """ The `circle_cross` glyph is a marker that renders circles together with a crossbar (+) at `x`, `y` with size `size` or `radius`.
 
 Args:
@@ -241,7 +239,7 @@ Returns:
 """
 )
 
-circle_x = _glyph_function(glyphs.CircleX, ("x", "y"),
+circle_x = _glyph_function(glyphs.CircleX, ("x", "y"), (),
 """ The `circle_x` glyph is a marker that renders circles together with a "X" glyph at `x`, `y` with size `size`.
 
 Args:
@@ -258,7 +256,7 @@ Returns:
 """
 )
 
-cross = _glyph_function(glyphs.Cross, ("x", "y"),
+cross = _glyph_function(glyphs.Cross, ("x", "y"), (),
 """ The `cross` glyph is a marker that renders crossbars (+) at `x`, `y` with size `size`.
 
 Args:
@@ -275,7 +273,7 @@ Returns:
 """
 )
 
-diamond = _glyph_function(glyphs.Diamond, ("x", "y"),
+diamond = _glyph_function(glyphs.Diamond, ("x", "y"), (),
 """ The `diamond` glyph is a marker that renders diamonds at `x`, `y` with size `size` or `radius`.
 
 Args:
@@ -292,7 +290,7 @@ Returns:
 """
 )
 
-diamond_cross = _glyph_function(glyphs.DiamondCross, ("x", "y"),
+diamond_cross = _glyph_function(glyphs.DiamondCross, ("x", "y"), (),
 """ The `diamond_cross` glyph is a marker that renders diamonds together with a crossbar (+) at `x`, `y` with size `size` or `radius`.
 
 Args:
@@ -309,7 +307,7 @@ Returns:
 """
 )
 
-image = _glyph_function(glyphs.Image, ("image", "x", "y", "dw", "dh", "palette"),
+image = _glyph_function(glyphs.Image, ("image", "x", "y", "dw", "dh"), ('palette', 'color_mapper', 'dilate'),
 """ The image glyph takes each image as a two-dimensional array of scalar data.
 
 A palette (string name of a built-in palette, currently) must also be supplied to use for color-mapping the scalar image.
@@ -332,7 +330,7 @@ Notes:
 """
 )
 
-image_rgba = _glyph_function(glyphs.ImageRGBA, ("image", "x", "y", "dw", "dh"),
+image_rgba = _glyph_function(glyphs.ImageRGBA, ("image", "x", "y", "dw", "dh"), (),
 """ The image_rgba glyph takes each ``image`` as a two-dimensional array of RGBA values (encoded
 as 32-bit integers).
 
@@ -353,7 +351,7 @@ Notes:
 """
 )
 
-image_url = _glyph_function(glyphs.ImageURL, ("url", "x", "y", "angle"),
+image_url = _glyph_function(glyphs.ImageURL, ("url", "x", "y", "angle"), (),
 """The image_url glyph takes a urls for images to display.
 
 Args:
@@ -367,7 +365,7 @@ Returns:
 """
 )
 
-inverted_triangle = _glyph_function(glyphs.InvertedTriangle, ("x", "y"),
+inverted_triangle = _glyph_function(glyphs.InvertedTriangle, ("x", "y"), (),
 """ The `inverted_triangle` glyph is a marker that renders upside-down triangles at `x`, `y` with size `size` or `radius`.
 
 Args:
@@ -384,7 +382,7 @@ Returns:
 """
 )
 
-line = _glyph_function(glyphs.Line, ("x", "y"),
+line = _glyph_function(glyphs.Line, ("x", "y"), (),
 """ The line glyph displays a single line that connects several points given by the arrays of coordinates `x` and `y`.
 
 In addition the the parameters specific to this glyph,
@@ -404,7 +402,7 @@ Returns:
 """
 )
 
-multi_line = _glyph_function(glyphs.MultiLine, ("xs", "ys"),
+multi_line = _glyph_function(glyphs.MultiLine, ("xs", "ys"), (),
 """ The multi_line glyph displays lines, each with points given by the arrays of coordinates that are the elements of xs and ys.
 
 Args:
@@ -424,7 +422,7 @@ Returns:
     xfields=["xs"], yfields=["ys"],
 )
 
-oval = _glyph_function(glyphs.Oval, ("x", "y", "width", "height"),
+oval = _glyph_function(glyphs.Oval, ("x", "y", "width", "height"), (),
 """ The oval glyph displays ovals centered on the given coordinates with the given dimensions and angle.
 
 Args:
@@ -443,7 +441,7 @@ Returns:
 """
 )
 
-patch = _glyph_function(glyphs.Patch, ("x", "y"),
+patch = _glyph_function(glyphs.Patch, ("x", "y"), (),
 """ The patch glyph displays a single polygonal patch that connects several points given by the arrays of coordinates `x` and `y`.
 
 Args:
@@ -459,7 +457,7 @@ Returns:
 """
 )
 
-patches = _glyph_function(glyphs.Patches, ("xs", "ys"),
+patches = _glyph_function(glyphs.Patches, ("xs", "ys"), (),
 """ The patches glyph displays several patches, each with points given by the arrays of coordinates that are the elements of xs and ys.
 
 Args:
@@ -479,7 +477,7 @@ Returns:
     xfields=["xs"], yfields=["ys"],
 )
 
-quad = _glyph_function(glyphs.Quad, ("left", "right", "top", "bottom"),
+quad = _glyph_function(glyphs.Quad, ("left", "right", "top", "bottom"), (),
 """ The quad glyph displays axis-aligned rectangles with the given dimensions.
 
 Args:
@@ -497,7 +495,7 @@ Returns:
 """,
     xfields=["left", "right"], yfields=["top", "bottom"])
 
-quadratic = _glyph_function(glyphs.Quadratic, ("x0", "y0", "x1", "y1", "cx", "cy"),
+quadratic = _glyph_function(glyphs.Quadratic, ("x0", "y0", "x1", "y1", "cx", "cy"), (),
 """ The quadratic glyph displays quadratic curves with the given starting, ending, and control points.
 
 Args:
@@ -517,7 +515,7 @@ Returns:
 """,
     xfields=["x0", "x1"], yfields=["y0", "y1"])
 
-ray = _glyph_function(glyphs.Ray, ("x", "y", "length", "angle"),
+ray = _glyph_function(glyphs.Ray, ("x", "y", "length", "angle"), (),
 """ The ray glyph displays line segments starting at the given coordinate and extending the given length at the given angle.
 
 Args:
@@ -535,7 +533,7 @@ Returns:
 """
 )
 
-rect = _glyph_function(glyphs.Rect, ("x", "y", "width", "height"),
+rect = _glyph_function(glyphs.Rect, ("x", "y", "width", "height"), (),
 """ The rect glyph displays rectangles centered on the given coordinates with the given dimensions and angle.
 
 Args:
@@ -560,7 +558,7 @@ Notes:
 """
 )
 
-segment = _glyph_function(glyphs.Segment, ("x0", "y0", "x1", "y1"),
+segment = _glyph_function(glyphs.Segment, ("x0", "y0", "x1", "y1"), (),
 """ The segment glyph displays line segments with the given starting and ending coordinates.
 
 Args:
@@ -577,7 +575,7 @@ Returns:
 """,
     xfields=["x0", "x1"], yfields=["y0", "y1"])
 
-square = _glyph_function(glyphs.Square, ("x", "y"),
+square = _glyph_function(glyphs.Square, ("x", "y"), (),
 """ The `square` glyph is a marker that renders squares at `x`, `y` with size `size`.
 
 In addition the the parameters specific to this glyph,
@@ -594,7 +592,7 @@ Returns:
 """
 )
 
-square_cross = _glyph_function(glyphs.SquareCross, ("x", "y"),
+square_cross = _glyph_function(glyphs.SquareCross, ("x", "y"), (),
 """ The `square_cross` glyph is a marker that renders squares together with a crossbar (+) at `x`, `y` with size `size`.
 
 Args:
@@ -610,7 +608,7 @@ Returns:
 """
 )
 
-square_x = _glyph_function(glyphs.SquareX, ("x", "y"),
+square_x = _glyph_function(glyphs.SquareX, ("x", "y"), (),
 """ The `square_x` glyph is a marker that renders squares together with "X" glyphs at `x`, `y` with size `size`.
 
 In addition the the parameters specific to this glyph, :ref:`userguide_line_properties` and
@@ -626,7 +624,7 @@ Returns:
 """
 )
 
-text = _glyph_function(glyphs.Text, ("x", "y", "text", "angle"),
+text = _glyph_function(glyphs.Text, ("x", "y", "text", "angle"), (),
 """ The text glyph displays text at the given coordinates rotated by the given angle.
 
 Args:
@@ -645,7 +643,7 @@ Returns:
 """
 )
 
-triangle = _glyph_function(glyphs.Triangle, ("x", "y"),
+triangle = _glyph_function(glyphs.Triangle, ("x", "y"), (),
 """ The `triangle` glyph is a marker that renders triangles at `x`, `y` with size `size`.
 
 In addition the the parameters specific to this glyph,
@@ -662,7 +660,7 @@ Returns:
 """
 )
 
-wedge = _glyph_function(glyphs.Wedge, ("x", "y", "radius", "start_angle", "end_angle"),
+wedge = _glyph_function(glyphs.Wedge, ("x", "y", "radius", "start_angle", "end_angle"), (),
 """ The `wedge` glyph renders circular wedges centered at `x`, `y`.
 
 Args:
@@ -681,7 +679,7 @@ Returns:
 """
 )
 
-x = _glyph_function(glyphs.Xmarker, ("x", "y"),
+x = _glyph_function(glyphs.Xmarker, ("x", "y"), (),
 """ The `x` glyph is a marker that renders "x" glyphs at `x`, `y` with size `size`.
 
 In addition the the parameters specific to this glyph,

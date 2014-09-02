@@ -295,6 +295,9 @@ class LinearColorMapper(ColorMapper):
     low = Float
     high = Float
 
+    reserve_color = Color("#ffffff") #TODO: Why doesn't type Color work here?? (Came through as 'undefined' on the JS side)
+                                     #TODO: What is the color code for transparent???
+
     def __init__(self, pal, **kwargs):
         if isinstance(pal, string_types):
             palette = getattr(palettes, pal, None)
@@ -357,6 +360,7 @@ class Glyph(Renderer):
                  "glyphspec": self.glyph.to_glyphspec(),
                  "name": self.name,
                  }
+        data.update(self.glyph.changed_properties_with_values())
         if self.selection_glyph:
             data['selection_glyphspec'] = self.selection_glyph.to_glyphspec()
         if self.nonselection_glyph:

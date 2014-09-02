@@ -388,8 +388,8 @@ def diamond_cross(x, y, **kwargs):
     return _plot_function(gf.diamond_cross, x, y, **kwargs)
 
 @_doc_wrap
-def image(image, x, y, dw, dh, palette, **kwargs):
-    return _plot_function(gf.image, image, x, y, dw, dh, palette, **kwargs)
+def image(image, x, y, dw, dh, **kwargs):
+    return _plot_function(gf.image, image, x, y, dw, dh, **kwargs)
 
 @_doc_wrap
 def image_rgba(image, x, y, dw, dh, **kwargs):

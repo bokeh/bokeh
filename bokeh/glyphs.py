@@ -1,6 +1,7 @@
-from .properties import Align, Bool, DataSpec, Enum, HasProps, Size, Any, Color
-from .mixins import FillProps, LineProps, TextProps
+
 from .enums import Units, AngleUnits, Direction
+from .properties import Any, Align, Bool, Color, DataSpec, Enum, HasProps, Instance, Size
+from .mixins import FillProps, LineProps, TextProps
 from .plot_object import Viewable
 
 from six import add_metaclass, iteritems
@@ -34,7 +35,7 @@ class BaseGlyph(HasProps):
         """ Returns a dict mapping attributes to values, that is amenable for
         inclusion in a Glyph definition.
         """
-        props = self.changed_properties_with_values()
+        props = dict()
         props["type"] = self.__view_model__
 
         # Iterate over all the DataSpec properties and convert them, using the
@@ -52,8 +53,6 @@ class Marker(BaseGlyph, FillProps, LineProps):
     x = DataSpec
     y = DataSpec
     size = DataSpec(units="screen", min_value=0, default=4)
-
-
 
 class Asterisk(Marker):
     __view_model__ = "asterisk"
@@ -111,8 +110,6 @@ class Triangle(Marker):
 class Xmarker(Marker):
     __view_model__ = "x"
 
-
-
 class AnnularWedge(BaseGlyph, FillProps, LineProps):
     __view_model__ = 'annular_wedge'
     x = DataSpec
@@ -163,6 +160,16 @@ class Gear(BaseGlyph, LineProps, FillProps):
 
 class Image(BaseGlyph):
     __view_model__ = 'image'
+
+    def __init__(self, **kwargs):
+        from .objects import LinearColorMapper
+        if 'palette' in kwargs and 'color_mapper' in kwargs:
+            raise ValueError("Only one of 'palette' and 'color_mapper' may be specified")
+        palette = kwargs.pop('palette', None)
+        if palette:
+            kwargs['color_mapper'] = LinearColorMapper(palette)
+        super(Image, self).__init__(**kwargs)
+
     image = DataSpec
     x = DataSpec
     y = DataSpec
@@ -170,15 +177,7 @@ class Image(BaseGlyph):
     dh = DataSpec
     dilate = Bool(False)
 
-    #TODO: Consider converting palette in to a first-class object, then wrap the color list and reserve values into it instead of here
-    #Reserve represents a color/value outside of the normal range.  Commonly used to setup a 'background' color for the image
-    palette = DataSpec
-
-    #TODO: Using 'False' to indicate no reserve value is not great.  A flag field or sentinel is probably better, but that can be worked out when/if palette becomes its own object
-    #The actual type of reserve_val is an instance of whatever is held in the image array, so the exact type will depend on the type of values in the dataspec of the image field.
-    reserve_val = Any(default=False)
-    reserve_color = DataSpec(default=0xffffff) #TODO: Why doesn't type Color work here?? (Came through as 'undefined' on the JS side)
-                                               #TODO: What is the color code for transparent???
+    color_mapper = Instance(HasProps) # LinearColorMapper but circular import
 
 class ImageURL(BaseGlyph):
     __view_model__ = 'image_url'

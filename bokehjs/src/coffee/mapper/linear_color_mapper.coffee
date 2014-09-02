@@ -75,7 +75,10 @@ define [
     _build_palette: (palette) ->
       new_palette = new Uint32Array(palette.length+1)
       for i in [0...palette.length]
-        new_palette[i] = palette[i]
+        if _.isNumber(palette[i])
+          new_palette[i] = palette[i]
+        else
+          new_palette[i] = parseInt(palette[i].slice(1), 16)
       new_palette[new_palette.length-1] = palette[palette.length-1]
       return new_palette
 

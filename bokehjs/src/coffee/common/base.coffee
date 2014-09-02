@@ -132,6 +132,8 @@ define [
     LayoutBox:                'common/layout_box'
     CartesianFrame:           'common/cartesian_frame'
 
+    LinearColorMapper:        'mapper/linear_color_mapper'
+
     DataFactorRange:          'range/data_factor_range'
     DataRange1d:              'range/data_range1d'
     FactorRange:              'range/factor_range'
