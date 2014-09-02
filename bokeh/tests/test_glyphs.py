@@ -77,12 +77,12 @@ class TestBaseGlyph(unittest.TestCase):
         self.assertEqual(self.test_glyph.to_glyphspec(), {'type': 'BaseGlyph'})
         self.test_glyph.visible = False
         self.test_glyph.margin = 5
-        self.assertEqual(self.test_glyph.to_glyphspec(), {'visible': False, 'margin': 5, 'type': 'BaseGlyph'})
+        self.assertEqual(self.test_glyph.to_glyphspec(), {'type': 'BaseGlyph'})
 
     def test_constructor(self):
         from bokeh.glyphs import BaseGlyph
         test_glyph = BaseGlyph(visible=True, margin=8)
-        self.assertEqual(test_glyph.to_glyphspec(), {'visible': True, 'margin': 8, 'type': 'BaseGlyph'})
+        self.assertEqual(test_glyph.to_glyphspec(), {'type': 'BaseGlyph'})
 
 # Basic Shapes
 
@@ -383,7 +383,6 @@ class TestAnnularWedge(unittest.TestCase):
             'end_angle':    {'units': 'data', 'value': 92},
             'outer_radius': {'units': 'data', 'value': 51},
             'inner_radius': {'units': 'data', 'value': 50},
-            'direction':    'anticlock',
         })
         self.assertEqual(self.test_annular_wedge.to_glyphspec(), expected)
 
@@ -471,7 +470,6 @@ class TestArc(unittest.TestCase):
             'radius':       {'units': 'data', 'value': 51},
             'start_angle':  {'units': 'data', 'value': 52},
             'end_angle':    {'units': 'data', 'value': 53},
-            'direction':    'anticlock',
         })
         self.assertEqual(self.test_arc.to_glyphspec(), expected)
 
@@ -588,7 +586,7 @@ class TestImage(unittest.TestCase):
         self.test_image = Image()
 
     def test_expected_properties(self):
-        expected_properties = set(['image', 'x', 'y', 'dw', 'dh', 'palette'])
+        expected_properties = set(['image', 'x', 'y', 'dw', 'dh'])
         actual_properties = get_prop_set(type(self.test_image))
         self.assertTrue(expected_properties.issubset(actual_properties))
 
@@ -607,8 +605,6 @@ class TestImage(unittest.TestCase):
                           'dw': {'units': 'data', 'field': 'dw'},
                           'y': {'units': 'data', 'field': 'y'},
                           'x': {'units': 'data', 'field': 'x'},
-                          'palette': {'field': 'palette', 'units': 'data'},
-                          'reserve_color':{'value': 0xffffff, 'units':'data'},
                           'type': 'image'})
         self.test_image.image = 'image image image'
         self.test_image.width = 500
@@ -623,8 +619,6 @@ class TestImage(unittest.TestCase):
                           'x': {'units': 'data', 'value': 50},
                           'y': {'units': 'data', 'value': 51},
                           'dw': {'units': 'data', 'value': 53},
-                          'palette': {'field': 'palette', 'units': 'data'},
-                          'reserve_color':{'value': 0xffffff, 'units':'data'},
                           'type': 'image'})
 
 
@@ -1128,7 +1122,6 @@ class TestWedge(unittest.TestCase):
             'start_angle':  {'units': 'data', 'value': 53},
             'end_angle':    {'units': 'data', 'value': 54},
             'radius':       {'units': 'data', 'value': 52},
-            'direction':    'anticlock',
         })
         self.assertEqual(self.test_wedge.to_glyphspec(), expected)
 
