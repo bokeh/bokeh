@@ -142,8 +142,8 @@ class TimeSeries(ChartObject):
         """Take the x/y data from the input **value.
 
         It calculates the chart properties accordingly. Then build a dict
-        containing references to all the calculated points to be used by
-        the marker glyph inside the ``draw`` method.
+        containing references to all the points to be used by
+        the line glyph inside the ``draw`` method.
 
         Args:
             xy (dict): a dict containing the data with names as a key
@@ -180,7 +180,7 @@ class TimeSeries(ChartObject):
     def draw(self):
         """Use the line glyphs to conect the xy points in the time series.
 
-        Takes reference points from data loaded at the ColumnDataSurce.
+        Takes reference points from the data loaded at the ColumnDataSurce.
         """
         self.duplet = list(self._chunker(self.attr, 2))
         colors = self._set_colors(self.duplet)
