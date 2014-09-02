@@ -12,9 +12,8 @@ define [
       @palette       = @_build_palette(@get('palette'))
       @little_endian = @_is_little_endian()
       if @get('reserve_color')?
-        @reserve_color = @get('reserve_color')[0]  ##TODO: Why are these coming in as arrays? 
+        @reserve_color = @get('reserve_color')[0]  ##TODO: Why are these coming in as arrays?
         @reserve_val   = @get('reserve_val')[0]
-
 
     v_map_screen: (data) ->
       buf = new ArrayBuffer(data.length * 4);
@@ -39,7 +38,7 @@ define [
             if (d < low)
               d = low
             value = @palette[Math.floor(d*scale+offset)]
-          
+
           color[i] =
             (0xff << 24)               | # alpha
             ((value & 0xff0000) >> 16) | # blue
