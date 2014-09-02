@@ -12,11 +12,11 @@ plot = square('oneA', 'oneB', color='#FF00FF', source=source)
 
 
 # Simple heat-map: bin the counts ('tis the default configuration....)
-heatmap =ar.source(plot, palette=["Reds-9"])
+heatmap =ar.source(plot, palette="Reds9")
 image(source=heatmap, title="Heatmap", reserve_val=0, **ar.mapping(heatmap))
 
 #Perceptually corrected heat-map.  Cube-root then bin
-percepmap = ar.source(plot, shader=ar.Cuberoot(), palette=["Reds-9"])
+percepmap = ar.source(plot, shader=ar.Cuberoot(), palette="Reds9")
 image(source=percepmap, title="Perceptually corrected", reserve_val=0, **ar.mapping(percepmap))
 
 
