@@ -515,10 +515,9 @@ def downsample(data, transform, plot_state, render_state):
     datacol = _datacolumn(glyphspec)
 
     if render_state == _generate_render_state(plot_state):
-        print("SKIPPING UPDATE ----------------------------") 
+        logger.info("Skipping update; render state unchanged")
         return {'render_state': "NO UPDATE"}
 
-    print("NOT SKIPPING UPDATE ----------------------------") 
 
     # Translate the resample parameters to server-side rendering....
     # TODO: Do more to preserve the 'natural' data form and have make_glyphset build the 'right thing' (tm)
@@ -546,6 +545,7 @@ def downsample(data, transform, plot_state, render_state):
 
 
 def downsample_line(xcol, ycol, glyphs, transform, plot_state):
+    logger.info("Starting line-producing downsample")
     screen_x_span = float(_span(plot_state['screen_x']))
     screen_y_span = float(_span(plot_state['screen_y']))
     data_x_span = float(_span(plot_state['data_x']))
@@ -577,10 +577,12 @@ def downsample_line(xcol, ycol, glyphs, transform, plot_state):
     parts['x_range'] = {'start': xcol.min(), 'end': xcol.max()}
     parts['y_range'] = {'start': ycol.min(), 'end': ycol.max()}
 
+    logger.info("Finished line-producing downsample")
     return parts
 
 
 def downsample_image(xcol, ycol, glyphs, transform, plot_state):
+    logger.info("Starting image-producing downsample")
     screen_x_span = float(_span(plot_state['screen_x']))
     screen_y_span = float(_span(plot_state['screen_y']))
     data_x_span = float(_span(plot_state['data_x']))
@@ -607,7 +609,7 @@ def downsample_image(xcol, ycol, glyphs, transform, plot_state):
         scale_y = data_y_span/screen_y_span
         plot_size = (bounds[2]/scale_x, bounds[3]/scale_y)
 
-        vt = util.zoom_fit(plot_size, bounds, balanced=balanced_zoom)
+        vt = util.zoom_fit(plot_size, bounds, balanced=False)
         (tx, ty, sx, sy) = vt
 
         image = ar.render(glyphs,
@@ -639,6 +641,7 @@ def downsample_image(xcol, ycol, glyphs, transform, plot_state):
             'dh': [ycol.max()-ycol.min()]
             }
 
+    logger.info("Finished image-producing downsample")
     return rslt
 
 
