@@ -70,6 +70,12 @@ define [
       @canvas_view = new @canvas.default_view({'model': @canvas})
 
       @$('.bokeh_canvas_wrapper_outer').prepend(@canvas_view.el)
+
+      if @mget('show_toolbar')
+        @$('.bk-sidebar').show()
+      else
+        @$('.bk-sidebar').hide()
+
       @canvas_view.render()
 
       @throttled_render = plot_utils.throttle_animation(@render, 15)
@@ -350,6 +356,8 @@ define [
         background_fill: "#fff",
         border_fill: "#fff",
         min_border: 40,
+
+        show_toolbar: true,
 
         title_standoff: 8,
         title_text_font: "helvetica",
