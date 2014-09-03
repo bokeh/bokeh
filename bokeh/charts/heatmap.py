@@ -52,7 +52,7 @@ class HeatMap(ChartObject):
         hm = HeatMap(df3, title="heatmap, pd_input", notebook=True)
         hm.width(1000).height(400).show()
     """
-    def __init__(self, value, catx=None, caty=None,
+    def __init__(self, value, palette=None,
                  title=None, xlabel=None, ylabel=None, legend=False,
                  xscale="categorical", yscale="categorical", width=800, height=600,
                  tools=True, filename=False, server=False, notebook=False):
@@ -60,6 +60,7 @@ class HeatMap(ChartObject):
         Args:
             value (pd obj): a pandas dataframe containing. Columns and Index must
                 be string type.
+            palette(list, optional): a list containing the colormap as hex values.
             title (str, optional): the title of your plot. Defaults to None.
             xlabel (str, optional): the x-axis label of your plot.
                 Defaults to None.
@@ -111,6 +112,7 @@ class HeatMap(ChartObject):
                 Needed for _set_And_get method.
         """
         self.value = value
+        self.palette = palette
         self.source = None
         self.xdr = None
         self.ydr = None
@@ -128,7 +130,7 @@ class HeatMap(ChartObject):
         """
         super(HeatMap, self).check_attr()
 
-    def get_data(self, **value):
+    def get_data(self, palette, **value):
         """Take the HeatMap data from the input **value.
 
         It calculates the chart properties accordingly. Then build a dict
@@ -136,15 +138,17 @@ class HeatMap(ChartObject):
         the rect glyph inside the ``draw`` method.
 
         Args:
+            pallete (list): the colormap as hex values.
             values (pd obj): the pandas dataframe to be plotted as heatmap.
         """
         # assuming value is a pandas df
         self.value = value
 
-        colors = [
-            "#75968f", "#a5bab7", "#c9d9d3", "#e2e2e2", "#dfccce",
-            "#ddb7b1", "#cc7878", "#933b41", "#550b1d"
-        ]
+        if palette is None:
+            colors = ["#75968f", "#a5bab7", "#c9d9d3", "#e2e2e2", "#dfccce",
+            "#ddb7b1", "#cc7878", "#933b41", "#550b1d"]
+        else:
+            colors = palette
 
         # Set up the data for plotting. We will need to have values for every
         # pair of year/month names. Map the rate to a color.
@@ -161,7 +165,7 @@ class HeatMap(ChartObject):
         # Now that we have the min and max rates
         for y in self.catsy:
             for m in self.catsx:
-                c = int(round(8 * (self.value[m][y] - min(rate)) / (max(rate) - min(rate))))
+                c = int(round((len(colors) - 1) * (self.value[m][y] - min(rate)) / (max(rate) - min(rate))))
                 color.append(colors[c])
 
         width = [0.95] * len(catx)
@@ -208,7 +212,7 @@ class HeatMap(ChartObject):
         # we start the plot (adds axis, grids and tools)
         self.start_plot()
         # we get the data from the incoming input
-        self.get_data(**self.value)
+        self.get_data(self.palette, **self.value)
         # we filled the source and ranges with the calculated data
         self.get_source()
         # we dynamically inject the source and ranges into the plot
