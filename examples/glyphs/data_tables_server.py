@@ -80,10 +80,11 @@ class DataTables(object):
         overlay = BoxSelectionOverlay(tool=select_tool)
         plot.renderers.extend([cty, hwy, ygrid, overlay])
 
-        vbox = VBox(children=[manufacturer_select, model_select, transmission_select, drive_select, class_select], width=200)
-        hbox = HBox(children=[vbox, VBox(children=[plot, handson_table])])
+        controls = VBox(children=[manufacturer_select, model_select, transmission_select, drive_select, class_select], width=200)
+        top_panel = HBox(children=[controls, plot])
+        layout = VBox(children=[top_panel, handson_table])
 
-        return hbox
+        return layout
 
     def on_manufacturer_change(self, obj, attr, _, value):
         self.manufacturer_filter = None if value == "All" else value
