@@ -302,21 +302,21 @@ define [
     hit_test: (geometry) ->
       if geometry.type == "point"
         if @_hit_point?
-          return @_hit_point(geometry)
+          result = @_hit_point(geometry)
         else if not @_point_hit_warned?
           type = @mget('glyphspec').type
           logger.warn("'point' selection not available on #{type} renderer")
           @_point_hit_warned = true
-          return null
+        return null
 
       else if geometry.type == "rect"
         if @_hit_rect?
-          return @_hit_rect(geometry)
+          result = @_hit_rect(geometry)
         else if not @_rect_hit_warned?
           type = @mget('glyphspec').type
           logger.warn("'rect' selection not available on #{type} renderer")
           @_rect_hit_warned = true
-          return null
+        return null
 
       else
         logger.error("unrecognized selection geometry type '#{ geometry.type }'")
