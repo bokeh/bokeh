@@ -377,15 +377,18 @@ class FunctionBackend(AbstractDataBackend):
     """ Collection of datasets defined by functions.  
         Datasets are accessed by a URL starting with 'fn://'
     """
-    gauss = {'oneA': np.random.randn(1000), 
-             'oneB': np.random.randn(1000), 
-             'hundredA': np.random.randn(1000)*100,
-             'hundredB': np.random.randn(1000)*100}
+
+    qty=10000
+    gauss = {'oneA': np.random.randn(qty),
+             'oneB': np.random.randn(qty),
+             'cats': np.random.randint(0,3,size=qty),
+             'hundredA': np.random.randn(qty)*100,
+             'hundredB': np.random.randn(qty)*100}
     
-    uniform = {'oneA': np.random.rand(1000), 
-               'oneB': np.random.rand(1000), 
-               'hundredA': np.random.rand(1000)*100,
-               'hundredB': np.random.rand(1000)*100}
+    uniform = {'oneA': np.random.rand(qty), 
+               'oneB': np.random.rand(qty), 
+               'hundredA': np.random.rand(qty)*100,
+               'hundredB': np.random.rand(qty)*100}
 
     pyramid = {'x': [1, 1, 1, 2, 2, 2, 2, 1, 1, 1],
                'y': [1, 1, 1, 2, 2, 2, 2, 1, 1, 1]}

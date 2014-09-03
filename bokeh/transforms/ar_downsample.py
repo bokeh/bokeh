@@ -315,6 +315,12 @@ class Cuberoot(Shader):
     def reify(self, **kwargs):
         return numeric.Cuberoot()
 
+class Log(Shader):
+    "Log (base 10) of values"
+    out = "image"
+    
+    def reify(self, **kwargs):
+        return npg.Log10()
 
 class Spread(Shader):
     """Spread values out in a regular pattern from their origin."""
@@ -748,6 +754,7 @@ def hdalpha(plot, cats=None, colors=None, log=True, spread=0, **kwargs):
 
 
 def heatmap(plot,
+            client_color=False,
             low=(255, 200, 200), high=(255, 0, 0),
             spread=0, transform="cbrt", **kwargs):
     """
@@ -768,13 +775,18 @@ def heatmap(plot,
     kwargs -- Further arguments passed on to replot for greater control.
     """
 
-    transform = transform.lower()
-    shader = InterpolateColor(low=low, high=high)
+    transform = transform.lower() if transform is not None else None
+    
+    if client_color:
+        shader = Id()
+        kwargs['reserve_val'] = kwargs.get('reserve_val', 0)
+    else:
+        shader = InterpolateColor(low=low, high=high)
 
     if transform == "cbrt":
         shader = Cuberoot() + shader
     elif transform == "log":
-        shader = Log(10) + shader
+        shader = Log() + shader
     elif transform == "none" or transform is None:
         pass
     else:
