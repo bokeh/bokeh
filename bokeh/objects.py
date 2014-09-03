@@ -295,10 +295,11 @@ class LinearColorMapper(ColorMapper):
     low = Float
     high = Float
 
-    reserve_color = Color("#ffffff") #TODO: Why doesn't type Color work here?? (Came through as 'undefined' on the JS side)
-                                     #TODO: What is the color code for transparent???
+    reserve_color = Color("#ffffff") #TODO: What is the color code for transparent???
 
-    def __init__(self, pal, **kwargs):
+    def __init__(self, *args, **kwargs):
+        pal = args[0] if len(args) > 0 else kwargs.get('palette', [])
+        
         if isinstance(pal, string_types):
             palette = getattr(palettes, pal, None)
             if palette is None:
@@ -307,7 +308,8 @@ class LinearColorMapper(ColorMapper):
         else:
             if not all(isinstance(x, string_types) and x.startswith('#') for x in pal):
                 raise ValueError("Malformed palette: '%s'" % pal)
-            kwargs['palette'] = np.array(palette)
+            kwargs['palette'] = np.array(pal)
+
         super(LinearColorMapper, self).__init__(**kwargs)
 
     def map_from_index(self, indices):

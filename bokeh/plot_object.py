@@ -109,28 +109,32 @@ class PlotObject(HasProps):
         """Loads all json into a instance of cls, EXCEPT any references
         which are handled in finalize
         """
-        if 'id' not in attrs:
-            raise RuntimeError("Unable to find 'id' attribute in JSON: %r" % attrs)
-        _id = attrs.pop('id')
+        try:
+            if 'id' not in attrs:
+                raise RuntimeError("Unable to find 'id' attribute in JSON: %r" % attrs)
+            _id = attrs.pop('id')
 
-        if not instance:
-            instance = cls(id=_id, _block_events=True)
+            if not instance:
+                instance = cls(id=_id, _block_events=True)
 
-        ref_props = {}
-        for p in instance.properties_with_refs():
-            if p in attrs:
-                ref_props[p] = attrs.pop(p)
+            ref_props = {}
+            for p in instance.properties_with_refs():
+                if p in attrs:
+                    ref_props[p] = attrs.pop(p)
 
-        special_props = {}
-        for p in dict(attrs):
-            if p not in instance.properties():
-                special_props[p] = attrs.pop(p)
+            special_props = {}
+            for p in dict(attrs):
+                if p not in instance.properties():
+                    special_props[p] = attrs.pop(p)
 
-        instance._ref_props = ref_props
-        instance._special_props = special_props
+            instance._ref_props = ref_props
+            instance._special_props = special_props
 
-        instance.update(**attrs)
-        return instance
+            instance.update(**attrs)
+            return instance
+        except Exception as e:
+            logger.exception("Failed to instantiate object of class {0} from json".format(cls))
+            raise
 
     def finalize(self, models):
         """Convert any references into instances
