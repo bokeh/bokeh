@@ -20,7 +20,7 @@ define [
         x = @xs[i]
         y = @ys[i]
         [sx, sy] = @plot_view.map_to_screen(
-          @xs[i], @glyph_props.xs.units, @ys, @glyph_props.ys[i].units, @x_range_name, @y_range_name
+          @xs[i], @glyph_props.xs.units, @ys[i], @glyph_props.ys.units, @x_range_name, @y_range_name
         )
 
         glyph_props.line_properties.set_vectorize(ctx, i)
