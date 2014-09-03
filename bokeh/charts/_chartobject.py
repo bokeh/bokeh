@@ -284,9 +284,14 @@ class ChartObject(object):
                       self._xscale, self._yscale, self._width, self._height,
                       self._tools, self._filename, self._server, self._notebook)
 
-    def start_plot(self):
-        "Wrapper to call the ``chart.start_plot`` method."
-        self.chart.start_plot()
+    def start_plot(self, xgrid=True, ygrid=True):
+        """Wrapper to call the ``chart.start_plot`` method.
+
+        Args:
+            xgrid(bool, optional): whether to show the xgrid
+            ygrid(bool, optional): whether to shoe the ygrid
+        """
+        self.chart.start_plot(xgrid, ygrid)
 
     def get_data(self):
         """Get the input data.

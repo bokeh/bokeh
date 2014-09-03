@@ -251,7 +251,7 @@ class Bar(ChartObject):
         # we create the chart object
         self.create_chart()
         # we start the plot (adds axis, grids and tools)
-        self.start_plot()
+        self.start_plot(xgrid=False)
         # we get the data from the incoming input
         self.get_data(self.cat, **self.value)
         # we filled the source and ranges with the calculated data
