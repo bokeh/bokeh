@@ -300,6 +300,8 @@ define [
         ctx.stroke()
 
     hit_test: (geometry) ->
+      result = null
+
       if geometry.type == "point"
         if @_hit_point?
           result = @_hit_point(geometry)
@@ -307,8 +309,6 @@ define [
           type = @mget('glyphspec').type
           logger.warn("'point' selection not available on #{type} renderer")
           @_point_hit_warned = true
-        return null
-
       else if geometry.type == "rect"
         if @_hit_rect?
           result = @_hit_rect(geometry)
@@ -316,11 +316,8 @@ define [
           type = @mget('glyphspec').type
           logger.warn("'rect' selection not available on #{type} renderer")
           @_rect_hit_warned = true
-        return null
-
       else
         logger.error("unrecognized selection geometry type '#{ geometry.type }'")
-        return null
 
       return result
 
