@@ -17,7 +17,6 @@ rm -rf $MINICONDA.sh
 python -V
 
 PINNED_PKGS=$(cat <<EOF
-conda-build 1.7.0
 requests <2.4.0
 matplotlib <1.4.0
 EOF
