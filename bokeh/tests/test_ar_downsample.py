@@ -74,10 +74,6 @@ class Test_AR(unittest.TestCase):
         self.assertEquals(3, ar_downsample._span(Range1d(start=3, end=None)))
         self.assertEquals(0, ar_downsample._span(Range1d(start=None, end=None)))
 
-    def test_size(self):
-        self.assertEquals(10, ar_downsample._size({'size': {'default': 10}}))
-        self.assertEquals(1, ar_downsample._size({'size': {'other': 10}}))
-
     def test_datacolumn(self):
         self.assertEquals('state', ar_downsample._datacolumn({'type': {'field': 'state'}}))
         self.assertEquals('state', ar_downsample._datacolumn({'fill_color': {'field': 'state'}}))
@@ -93,24 +89,25 @@ class Test_AR(unittest.TestCase):
     # ------------ Glyphset creation tests --------------
     def test_shaper_create(self):
         ar_downsample._loadAR()
-        self.assertIsInstance(ar_downsample._shaper("square", 3, False), glyphset.ToRect)
-        self.assertIsInstance(ar_downsample._shaper("square", 3, True), glyphset.ToPoint)
-        self.assertIsInstance(ar_downsample._shaper("circle", 3, True), glyphset.ToPoint)
+
+        glyphspec={'type': 'square', 'size': {'default': 3}, 'radius': {'default': 3}}
+        self.assertIsInstance(ar_downsample._shaper(glyphspec, False), glyphset.ToRect)
+        self.assertIsInstance(ar_downsample._shaper(glyphspec, True), glyphset.ToPoint)
+        self.assertIsInstance(ar_downsample._shaper(glyphspec, True), glyphset.ToPoint)
 
     def test_shaper_fail(self):
         ar_downsample._loadAR()
         with self.assertRaises(ValueError):
-            ar_downsample._shaper("circle", 3, False)
-            ar_downsample._shaper("blah", 3, False)
+            ar_downsample._shaper({'type': 'blah', 'size': {'default':  3}}, False)
 
     def test_make_glyphset(self):
         glyphspec = {'type': 'square', 'size': {'default': 1}}
         transform = {'points': True}
-        glyphs = make_glyphset([], [], [], glyphspec, transform)
+        glyphs = make_glyphset([1], [1], [1], glyphspec, transform)
         self.assertIsInstance(glyphs, npg.Glyphset, "Point-optimized numpy version")
 
         transform= {'points': False}
-        glyphs = make_glyphset([], [], [], glyphspec, transform)
+        glyphs = make_glyphset([1], [1], [1], glyphspec, transform)
         self.assertIsInstance(glyphs, glyphset.Glyphset, "Generic glyphset")
 
 

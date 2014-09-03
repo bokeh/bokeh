@@ -710,7 +710,7 @@ def _shaper(glyphspec, points):
         sizer = glyphset.const(size)
         return glyphset.ToRect(tox, toy, sizer, sizer)
     else:
-        raise ValueError("Only recognizing 'square', received '{0}'".format(code))
+        raise ValueError("Unrecogized shape, received '{0}'".format(code))
 
 
 # -------------------- Recipes -----------------------
