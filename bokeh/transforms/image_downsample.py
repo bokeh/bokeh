@@ -11,15 +11,14 @@ except ImportError as e:
 def source(**kwargs):
   kwargs['transform'] = {'resample':'heatmap'}
   kwargs['data'] = {'x': [0], 
-                                'y': [0],
-                                'global_x_range' : [0, 10],
-                                'global_y_range' : [0, 10],
-                                'global_offset_x' : [0],
-                                'global_offset_y' : [0],
-                                'dw' : [10], 
-                                'dh' : [10], 
-                                'palette': ["Spectral-11"]
-                            }
+                    'y': [0],
+                    'global_x_range' : [0, 10],
+                    'global_y_range' : [0, 10],
+                    'global_offset_x' : [0],
+                    'global_offset_y' : [0],
+                    'dw' : [10], 
+                    'dh' : [10], 
+                   }
   return ServerDataSource(**kwargs)
 
 
