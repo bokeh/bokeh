@@ -48,10 +48,10 @@ def pyramid():
     plot.add_layout(Grid(dimension=1, ticker=yaxis.ticker))
 
     male_quad = Quad(left="male", right=0, bottom="groups", top="shifted", fill_color="#3B8686")
-    male_quad_glyph = plot.add_glyph(source_pyramid, xdr, ydr, male_quad)
+    male_quad_glyph = plot.add_glyph(source_pyramid, male_quad)
 
     female_quad = Quad(left=0, right="female", bottom="groups", top="shifted", fill_color="#CFF09E")
-    female_quad_glyph = plot.add_glyph(source_pyramid, xdr, ydr, female_quad)
+    female_quad_glyph = plot.add_glyph(source_pyramid, female_quad)
 
     plot.add_layout(Legend(legends=dict(Male=[male_quad_glyph], Female=[female_quad_glyph])))
 
@@ -69,10 +69,10 @@ def population():
     plot.add_layout(CategoricalAxis(major_label_orientation=pi/4), 'below')
 
     line_known = Line(x="x", y="y", line_color="violet", line_width=2)
-    line_known_glyph = plot.add_glyph(source_known, xdr, ydr, line_known)
+    line_known_glyph = plot.add_glyph(source_known, line_known)
 
     line_predicted = Line(x="x", y="y", line_color="violet", line_width=2, line_dash="dashed")
-    line_predicted_glyph = plot.add_glyph(source_predicted, xdr, ydr, line_predicted)
+    line_predicted_glyph = plot.add_glyph(source_predicted, line_predicted)
 
     plot.add_layout(
         Legend(

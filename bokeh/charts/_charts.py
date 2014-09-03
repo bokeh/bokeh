@@ -348,6 +348,6 @@ class Chart(object):
             source (obj): datasource containing data for the glyph
             glyph (obj): glyph type
         """
-        _glyph = self.plot.add_glyph(source, self.plot.x_range, self.plot.y_range, glyph)
+        _glyph = self.plot.add_glyph(source, glyph)
 
         self.glyphs.append(_glyph)
