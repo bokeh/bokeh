@@ -137,10 +137,10 @@ define [
       return this
 
     bind_bokeh_events: () ->
-      # for name, rng of @mget('frame').get('x_ranges')
-      #   @listenTo(rng, 'change', @request_render)
-      # for name, rng of @mget('frame').get('y_ranges')
-      #   @listenTo(rng, 'change', @request_render)
+      for name, rng of @mget('frame').get('x_ranges')
+        @listenTo(rng, 'change', @request_render)
+      for name, rng of @mget('frame').get('y_ranges')
+        @listenTo(rng, 'change', @request_render)
       @listenTo(@model, 'change:renderers', @build_levels)
       @listenTo(@model, 'change:tool', @build_levels)
       @listenTo(@model, 'change', @request_render)
