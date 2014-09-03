@@ -1,31 +1,34 @@
 
 define [
-  "underscore",
-  "jquery",
-  "./plot",
-  "range/data_range1d",
-  "range/factor_range",
-  "range/range1d",
-  "renderer/annotation/legend",
-  "renderer/glyph/glyph_factory",
-  "renderer/guide/categorical_axis",
-  "renderer/guide/linear_axis",
-  "renderer/guide/grid",
-  "renderer/overlay/box_selection",
-  "source/column_data_source",
-  "tool/box_select_tool",
-  "tool/box_zoom_tool",
-  "tool/hover_tool",
-  "tool/pan_tool",
-  "tool/preview_save_tool",
-  "tool/resize_tool",
-  "tool/wheel_zoom_tool",
-  "tool/reset_tool",
-  "renderer/guide/datetime_axis",
-], (_, $, Plot, DataRange1d, FactorRange, Range1d, Legend,
+  "underscore"
+  "jquery"
+  "./logging"
+  "./plot"
+  "range/data_range1d"
+  "range/factor_range"
+  "range/range1d"
+  "renderer/annotation/legend"
+  "renderer/glyph/glyph_factory"
+  "renderer/guide/categorical_axis"
+  "renderer/guide/linear_axis"
+  "renderer/guide/grid"
+  "renderer/overlay/box_selection"
+  "source/column_data_source"
+  "tool/box_select_tool"
+  "tool/box_zoom_tool"
+  "tool/hover_tool"
+  "tool/pan_tool"
+  "tool/preview_save_tool"
+  "tool/resize_tool"
+  "tool/wheel_zoom_tool"
+  "tool/reset_tool"
+  "renderer/guide/datetime_axis"
+], (_, $, Logging, Plot, DataRange1d, FactorRange, Range1d, Legend,
   GlyphFactory, CategoricalAxis, LinearAxis, Grid, BoxSelection,
   ColumnDataSource, BoxSelectTool, BoxZoomTool, HoverTool, PanTool,
   PreviewSaveTool, ResizeTool, WheelZoomTool, ResetTool, DatetimeAxis) ->
+
+  logger = Logging.logger
 
   create_sources = (data) ->
     if not _.isArray(data)
@@ -290,7 +293,6 @@ define [
 
     return plot
 
-
   show = (plot, target_div=false) ->
     div = $('<div class="plotdiv"></div>')
     if target_div
@@ -302,9 +304,8 @@ define [
       view = new plot.default_view(model: plot)
       window.pview = view
       div.append(view.$el)
-      console.log("added plot: " + plot.get('title'))
+      logger.info("added plot: #{plot.get('title')}")
     _.defer(myrender)
-
 
   return {
     "make_plot": make_plot,

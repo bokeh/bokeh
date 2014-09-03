@@ -8,7 +8,7 @@ from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.glyphs import Circle, Line
 from bokeh.objects import (
-    ColumnDataSource, Glyph, Grid, GridPlot, LinearAxis, Plot, Range1d
+    ColumnDataSource, Grid, GridPlot, LinearAxis, Plot, Range1d
 )
 from bokeh.resources import INLINE
 
@@ -50,29 +50,30 @@ xdr = Range1d(start=-0.5, end=20.5)
 ydr = Range1d(start=-0.5, end=20.5)
 
 def make_plot(title, xname, yname):
-    plot = Plot(x_range=xdr, y_range=ydr, title=title, plot_width=400, plot_height=400,
-        border_fill='white', background_fill='#e9e0db')
-    xaxis = LinearAxis(plot=plot, axis_line_color=None)
-    plot.below.append(xaxis)
-    yaxis = LinearAxis(plot=plot, axis_line_color=None)
-    plot.left.append(yaxis)
-    xgrid = Grid(plot=plot, dimension=0, ticker=xaxis.ticker)
-    ygrid = Grid(plot=plot, dimension=1, ticker=yaxis.ticker)
-    line_renderer = Glyph(
-        data_source = lines_source,
-        xdata_range = xdr,
-        ydata_range = ydr,
-        glyph = Line(x='x', y='y', line_color="#666699", line_width=2),
+    plot = Plot(
+        x_range=xdr, y_range=ydr,
+        title=title, plot_width=400, plot_height=400,
+        border_fill='white', background_fill='#e9e0db'
     )
-    plot.renderers.append(line_renderer)
-    circle_renderer = Glyph(
-        data_source = circles_source,
-        xdata_range = xdr,
-        ydata_range = ydr,
-        glyph = Circle(x=xname, y=yname, size=12, fill_color="#cc6633",
-                       line_color="#cc6633", fill_alpha=0.5),
+
+    xaxis = LinearAxis(axis_line_color=None)
+    plot.add_layout(xaxis, 'below')
+
+    yaxis = LinearAxis(axis_line_color=None)
+    plot.add_layout(yaxis, 'left')
+
+    plot.add_layout(Grid(dimension=0, ticker=xaxis.ticker))
+    plot.add_layout(Grid(dimension=1, ticker=yaxis.ticker))
+
+    line = Line(x='x', y='y', line_color="#666699", line_width=2)
+    plot.add_glyph(lines_source, xdr, ydr, line)
+
+    circle = Circle(
+        x=xname, y=yname, size=12,
+        fill_color="#cc6633", line_color="#cc6633", fill_alpha=0.5
     )
-    plot.renderers.append(circle_renderer)
+    plot.add_glyph(circles_source, xdr, ydr, circle)
+
     return plot
 
 #where will this comment show up

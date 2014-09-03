@@ -2,6 +2,8 @@
 
 from six import string_types
 
+from . import colors
+
 class Enumeration(object):
     pass
 
@@ -35,32 +37,5 @@ Dimension = enumeration("width", "height", "x", "y")
 Location = enumeration("above", "below", "left", "right")
 Orientation = enumeration("top_right", "top_left", "bottom_left", "bottom_right")
 DashPattern = enumeration("solid", "dashed", "dotted", "dotdash", "dashdot")
-NamedColor = enumeration(
-    "indigo", "gold", "firebrick", "indianred", "yellow",
-    "darkolivegreen", "darkseagreen", "darkslategrey", "mediumvioletred",
-    "mediumorchid", "chartreuse", "mediumblue", "black", "springgreen",
-    "orange", "lightsalmon", "brown", "turquoise", "olivedrab", "cyan",
-    "silver", "skyblue", "gray", "darkturquoise", "goldenrod", "darkgreen",
-    "darkviolet", "darkgray", "lightpink", "teal", "darkmagenta",
-    "lightgoldenrodyellow", "lavender", "yellowgreen", "thistle", "violet",
-    "navy", "dimgrey", "orchid", "blue", "ghostwhite", "honeydew",
-    "cornflowerblue", "purple", "darkkhaki", "mediumpurple", "cornsilk", "red",
-    "bisque", "slategray", "darkcyan", "khaki", "wheat", "deepskyblue",
-    "darkred", "steelblue", "aliceblue", "lightslategrey", "gainsboro",
-    "mediumturquoise", "floralwhite", "coral", "aqua", "burlywood",
-    "darksalmon", "beige", "azure", "lightsteelblue", "oldlace", "greenyellow",
-    "royalblue", "lightseagreen", "mistyrose", "sienna", "lightcoral",
-    "orangered", "navajowhite", "lime", "palegreen", "lightcyan", "seashell",
-    "mediumspringgreen", "fuchsia", "papayawhip", "blanchedalmond", "peru",
-    "aquamarine", "white", "darkslategray", "ivory", "darkgoldenrod",
-    "lawngreen", "lightgreen", "crimson", "forestgreen", "maroon", "olive",
-    "mintcream", "antiquewhite", "dimgray", "hotpink", "moccasin", "limegreen",
-    "saddlebrown", "grey", "darkslateblue", "lightskyblue", "deeppink",
-    "plum", "lightgrey", "dodgerblue", "slateblue", "sandybrown", "magenta",
-    "tan", "rosybrown", "pink", "lightblue", "palevioletred", "mediumseagreen",
-    "linen", "darkorange", "powderblue", "seagreen", "snow", "mediumslateblue",
-    "midnightblue", "paleturquoise", "palegoldenrod", "whitesmoke",
-    "darkorchid", "salmon", "lightslategray", "lemonchiffon", "chocolate",
-    "tomato", "cadetblue", "lightyellow", "lavenderblush", "darkblue",
-    "mediumaquamarine", "green", "blueviolet", "peachpuff", "darkgrey")
 ColumnType = enumeration("string", "numeric", "date", "checkbox", "select", "dropdown", "autocomplete", "password", "handsontable")
+NamedColor = enumeration(*colors.__colors__)

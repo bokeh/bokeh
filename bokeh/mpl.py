@@ -25,16 +25,16 @@ from .mplexporter.exporter import Exporter
 from .mplexporter.renderers import Renderer
 from .mpl_helpers import (convert_dashes, delete_last_col, get_props_cycled,
                           is_ax_end, xkcd_line)
-from .objects import (BoxSelectionOverlay, BoxSelectTool, BoxZoomTool,
-                      ColumnDataSource, DataRange1d, DatetimeTickFormatter,
-                      DatetimeAxis, Glyph, Grid, GridPlot, LinearAxis, PanTool,
-                      Plot, PreviewSaveTool, ResetTool, WheelZoomTool)
+from .objects import (ColumnDataSource, DataRange1d, DatetimeAxis, Glyph, Grid,
+                      GridPlot, LinearAxis, PanTool, Plot, PreviewSaveTool,
+                      ResetTool, WheelZoomTool)
 from .plotting import (curdoc, output_file, output_notebook, output_server,
                        show)
 
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
+
 
 class BokehRenderer(Renderer):
 
@@ -56,25 +56,14 @@ class BokehRenderer(Renderer):
                          plot_width=self.width,
                          plot_height=self.height)
 
-
     def close_figure(self, fig):
         "Complete the plot: add tools."
-
         # Add tools
-        pantool = PanTool(dimensions=["width", "height"])
-        wheelzoom = WheelZoomTool(dimensions=["width", "height"])
-        #boxzoom = BoxZoomTool(plot=self.plot)
-        #boxoverlay = BoxSelectionOverlay(tool=boxzoom)
-        #self.plot.renderers.append(boxoverlay)
-        #select_tool = BoxSelectTool()
-        #selectoverlay = BoxSelectionOverlay(tool=select_tool)
-        #self.plot.renderers.append(selectoverlay)
-        reset = ResetTool(plot=self.plot)
-        previewsave = PreviewSaveTool(plot=self.plot)
-        self.plot.tools = [pantool, wheelzoom,
-                           #boxzoom,
-                           #select_tool,
-                           reset, previewsave]
+        pan = PanTool()
+        wheelzoom = WheelZoomTool()
+        reset = ResetTool()
+        previewsave = PreviewSaveTool()
+        self.plot.add_tools(pan, wheelzoom, reset, previewsave)
 
         # Simple or Grid plot setup
         if len(fig.axes) <= 1:
@@ -175,12 +164,7 @@ class BokehRenderer(Renderer):
         if self.xkcd:
             line.line_width = 3
 
-        line_glyph = Glyph(data_source=self.source,
-                           xdata_range=self.xdr,
-                           ydata_range=self.ydr,
-                           glyph=line)
-
-        self.plot.renderers.append(line_glyph)
+        self.plot.add_glyph(self.source, self.xdr, self.ydr, line)
 
     def draw_markers(self, data, coordinates, style, label, mplobj=None):
         "Given a mpl line2d instance create a Bokeh Marker glyph."
@@ -213,12 +197,7 @@ class BokehRenderer(Renderer):
         marker.fill_alpha = marker.line_alpha = style['alpha']
         #style['zorder'] # not in Bokeh
 
-        marker_glyph = Glyph(data_source=self.source,
-                             xdata_range=self.xdr,
-                             ydata_range=self.ydr,
-                             glyph=marker)
-
-        self.plot.renderers.append(marker_glyph)
+        self.plot.add_glyph(self.source, self.xdr, self.ydr, marker)
 
     def draw_path_collection(self, paths, path_coordinates, path_transforms,
                              offsets, offset_coordinates, offset_order,
@@ -254,12 +233,7 @@ class BokehRenderer(Renderer):
         #if mplText.get_weight() in ("bold", "heavy"):
             #text.text_font_style = bold
 
-        text_glyph = Glyph(data_source=self.source,
-                           xdata_range=self.xdr,
-                           ydata_range=self.ydr,
-                           glyph=text)
-
-        self.plot.renderers.append(text_glyph)
+        self.plot.add_glyph(self.source, self.xdr, self.ydr, text)
 
     def draw_image(self, imdata, extent, coordinates, style, mplobj=None):
         pass
@@ -272,19 +246,11 @@ class BokehRenderer(Renderer):
         #  * deal with minor ticks once BokehJS supports them
         #  * handle custom tick locations once that is added to bokehJS
         if scale == "linear":
-            laxis = LinearAxis(plot=self.plot,
-                               axis_label=ax.get_label_text())
+            laxis = LinearAxis(axis_label=ax.get_label_text())
         elif scale == "date":
-            #formatter = DatetimeTickFormatter(formats=dict(months=["%b %Y"]))
-            laxis = DatetimeAxis(plot=self.plot,
-                                 axis_label=ax.get_label_text(),
-                                 #formatter=formatter
-                                 )
-        if location == "left": self.plot.left.append(laxis)
-        elif location == "right": self.plot.right.append(laxis)
-        elif location == "above": self.plot.above.append(laxis)
-        elif location == "below": self.plot.below.append(laxis)
+            laxis = DatetimeAxis(axis_label=ax.get_label_text())
 
+        self.plot.add_layout(laxis, location)
 
         # First get the label properties by getting an mpl.Text object
         #label = ax.get_label()
@@ -312,12 +278,12 @@ class BokehRenderer(Renderer):
 
     def make_grid(self, baxis, dimension):
         "Given a mpl axes instance, returns a Bokeh Grid object."
-        lgrid = Grid(plot=self.plot,
-                     dimension=dimension,
+        lgrid = Grid(dimension=dimension,
                      ticker=baxis.ticker,
                      grid_line_color=self.grid.get_color(),
                      grid_line_width=self.grid.get_linewidth())
-        return lgrid
+
+        self.plot.add_layout(lgrid)
 
     def make_line_collection(self, col):
         "Given a mpl collection instance create a Bokeh MultiLine glyph."
@@ -339,12 +305,7 @@ class BokehRenderer(Renderer):
 
         self.multiline_props(multiline, col)
 
-        multiline_glyph = Glyph(data_source=self.source,
-                                xdata_range=self.xdr,
-                                ydata_range=self.ydr,
-                                glyph=multiline)
-
-        self.plot.renderers.append(multiline_glyph)
+        self.plot.add_glyph(self.source, self.xdr, self.ydr, multiline)
 
     def make_poly_collection(self, col):
         "Given a mpl collection instance create a Bokeh Patches glyph."
@@ -362,12 +323,7 @@ class BokehRenderer(Renderer):
 
         self.patches_props(patches, col)
 
-        patches_glyph = Glyph(data_source=self.source,
-                              xdata_range=self.xdr,
-                              ydata_range=self.ydr,
-                              glyph=patches)
-
-        self.plot.renderers.append(patches_glyph)
+        self.plot.add_glyph(self.source, self.xdr, self.ydr, patches)
 
     def multiline_props(self, multiline, col):
         "Takes a mpl collection object to extract and set up some Bokeh multiline properties."

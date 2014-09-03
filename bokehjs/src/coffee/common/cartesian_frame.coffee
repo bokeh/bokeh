@@ -1,12 +1,15 @@
 define [
-  "underscore",
-  "backbone",
-  "./layout_box",
-  "mapper/linear_mapper",
-  "mapper/log_mapper",
-  "mapper/categorical_mapper",
-  "mapper/grid_mapper",
-], (_, Backbone, LayoutBox, LinearMapper, LogMapper, CategoricalMapper, GridMapper) ->
+  "underscore"
+  "backbone"
+  "./layout_box"
+  "./logging"
+  "mapper/linear_mapper"
+  "mapper/log_mapper"
+  "mapper/categorical_mapper"
+  "mapper/grid_mapper"
+], (_, Backbone, LayoutBox, Logging, LinearMapper, LogMapper, CategoricalMapper, GridMapper) ->
+
+  logger = Logging.logger
 
   class CartesianFrame extends LayoutBox.Model
     type: 'CartesianFrame'
@@ -110,7 +113,7 @@ define [
         else if range.type == "FactorRange"
           mapper_type = CategoricalMapper.Model
         else
-          console.log "Unknown range type for range '#{name}': #{range}"
+          logger.warn("unknown range type for range '#{name}': #{range}")
           return null
         mappers[name] = new mapper_type({
           source_range: range

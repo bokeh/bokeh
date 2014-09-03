@@ -3,29 +3,30 @@ from ...exceptions import DataIntegrityException
 from ..app import bokeh_app
 from ..views.main import _makedoc
 from ..views.backbone import init_bokeh
+from ...resources import Resources
 import uuid
 
 """Utilities for writing plugins, this is different from bokeh.pluginutils
-because these are ways of patching routes and objects directly into the 
+because these are ways of patching routes and objects directly into the
 bokeh server.  You would run this type of code using the --script option
 """
 
 def object_page(prefix):
     """decorator for a function which turns an object into a web page
-    
+
     from bokeh.server.app import bokeh_app
     @bokeh_app.route("/myapp")
     @object_page("mypage")
     def make_object():
         #make some bokeh object here
         return obj
-    
-    This decorator will 
+
+    This decorator will
       - create a randomized title for a bokeh document using the prefix
       - initialize bokeh plotting libraries to use that document
       - call the function you pass in, add that object to the plot context
       - render that object in a web page
-    
+
     """
     def decorator(func):
         def wrapper(*args, **kwargs):
@@ -38,9 +39,9 @@ def object_page(prefix):
                 return abort(409, e.message)
             docid = doc.docid
             clientdoc = bokeh_app.backbone_storage.get_document(docid)
-            
+
             ## initialize our plotting APIs to use that document
-            
+
             init_bokeh(clientdoc)
             obj = func(*args, **kwargs)
             clientdoc.add(obj)
@@ -49,14 +50,17 @@ def object_page(prefix):
             else:
                 extra_generated_classes = []
             changed = bokeh_app.backbone_storage.store_document(clientdoc)
-            
+
+            resources = Resources()
             return render_template("oneobj.html",
+                                   elementid=str(uuid.uuid4()),
                                    docid=docid,
                                    objid=obj._id,
                                    hide_navbar=True,
                                    extra_generated_classes=extra_generated_classes,
                                    splitjs=bokeh_app.splitjs,
-                                   username=bokehuser.username)
+                                   username=bokehuser.username,
+                                   loglevel=resources.log_level)
         wrapper.__name__ = func.__name__
         return wrapper
     return decorator

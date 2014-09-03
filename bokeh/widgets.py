@@ -7,7 +7,7 @@ from .plot_object import PlotObject
 from bokeh.plotting import (curdoc, cursession, line,
                             scatter)
 from .properties import (HasProps, Dict, Enum, Either, Float, Instance, Int, List,
-    String, Color, Include, Bool, Tuple, Any, Date, RelativeDelta, lookup_descriptor)
+    String, Color, Bool, Tuple, Any, Date, RelativeDelta, lookup_descriptor)
 from .enums import ColumnType
 from .pivot_table import pivot_table
 import copy
@@ -134,14 +134,14 @@ class BokehApplet(Widget):
         @app_document(cls.__view_model__, bokeh_url)
         def make_app():
             app = cls()
-            curdoc().autostore(False)
+            curdoc().autostore = False
             app.create(curdoc())
             return app
 
         def exampleapp():
             app = make_app()
             docid = curdoc().docid
-            objid = curdoc()._plotcontext._id
+            objid = curdoc().context._id
             extra_generated_classes = app.extra_generated_classes
             if len(extra_generated_classes) == 0:
                 extra_generated_classes.append([

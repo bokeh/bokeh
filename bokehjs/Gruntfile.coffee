@@ -120,7 +120,6 @@ module.exports = (grunt) ->
         include: ['underscore', 'main']
         fileExclusionRegExp: /^test/
         wrapShim: true
-        preserveLicenseComments: false
         wrap:
           startFile: 'src/js/_start.js.frag'
           endFile: 'src/js/_end.js.frag'

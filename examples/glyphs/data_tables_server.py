@@ -4,7 +4,7 @@ import time
 
 from bokeh.objects import ColumnDataSource, Plot, DataRange1d, LinearAxis, Grid, Glyph, BoxSelectTool, BoxSelectionOverlay
 from bokeh.glyphs import Circle
-from bokeh.widgetobjects import TableColumn, HandsonTable, Select, HBox, VBox
+from bokeh.widgets import TableColumn, HandsonTable, Select, HBox, VBox
 from bokeh.document import Document
 from bokeh.session import Session
 from bokeh.sampledata.autompg2 import autompg2 as mpg
@@ -121,8 +121,8 @@ class DataTables(object):
         self.session.store_document(self.document)
 
     def run(self, poll_interval=0.5):
-        link = self.session.object_link(self.document._plotcontext)
-        print("Please visit %s to see the plots" % link)
+        link = self.session.object_link(self.document.context)
+        print("Please visit %s to see the plots (press ctrl-C to exit)" % link)
 
         try:
             while True:

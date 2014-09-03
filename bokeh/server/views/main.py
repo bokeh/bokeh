@@ -255,7 +255,6 @@ def autoload_js(elementid):
 def get_bokeh_info_one_object(docid, objid):
     doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
     clientdoc = bokeh_app.backbone_storage.get_document(docid)
-    prune(clientdoc)
     obj = clientdoc._models[objid]
     objs = obj.references()
     all_models = clientdoc.dump(*objs)
@@ -275,14 +274,18 @@ def show_obj(docid, objid):
     bokehuser = bokeh_app.current_user()
     if not bokehuser:
         return redirect(url_for(".login_get", next=request.url))
+    resources = request_resources()
     return render("oneobj.html",
+                  elementid=str(uuid.uuid4()),
                   docid=docid,
                   objid=objid,
                   hide_navbar=True,
                   splitjs=bokeh_app.splitjs,
-                  username=bokehuser.username)
+                  username=bokehuser.username,
+                  loglevel=resources.log_level)
 
 @bokeh_app.route('/bokeh/wsurl/', methods=['GET'])
+@crossdomain(origin="*", headers=['BOKEH-API-KEY', 'Continuum-Clientid'])
 def wsurl():
     if bokeh_app.websocket_params.get('ws_conn_string'):
         return bokeh_app.websocket_params.get('ws_conn_string')
