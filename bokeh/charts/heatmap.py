@@ -156,9 +156,13 @@ class HeatMap(ChartObject):
             for m in self.catsx:
                 catx.append(m)
                 caty.append(y)
-                monthly_rate = self.value[m][y]
-                rate.append(monthly_rate)
-                color.append(colors[min(int(monthly_rate) - 2, 8)])
+                rate.append(self.value[m][y])
+
+        # Now that we have the min and max rates
+        for y in self.catsy:
+            for m in self.catsx:
+                c = int(round(8 * (self.value[m][y] - min(rate)) / (max(rate) - min(rate))))
+                color.append(colors[c])
 
         width = [0.95] * len(catx)
         height = [0.95] * len(catx)
