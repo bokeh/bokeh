@@ -323,7 +323,7 @@ class BokehRenderer(Renderer):
 
         self.patches_props(patches, col)
 
-        self.plot.add_glyph(self.source, self.xdr, self.ydr, patches)
+        self.plot.add_glyph(self.source, patches)
 
     def multiline_props(self, multiline, col):
         "Takes a mpl collection object to extract and set up some Bokeh multiline properties."
