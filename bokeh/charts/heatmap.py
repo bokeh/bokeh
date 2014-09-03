@@ -17,12 +17,11 @@ It also add a new chained stacked method.
 # Imports
 #-----------------------------------------------------------------------------
 
-import numpy as np
 import pandas as pd
 
 from ._chartobject import ChartObject
 
-from ..objects import ColumnDataSource, FactorRange, Range1d
+from ..objects import ColumnDataSource, FactorRange
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -40,40 +39,27 @@ class HeatMap(ChartObject):
     from the source.
 
     Examples:
+        from bokeh.sampledata.unemployment1948 import data
 
-        ##from collections import OrderedDict
+        # pandas magic
+        df = data[data.columns[:-2]]
+        df2 = df.set_index(df[df.columns[0]].astype(str))
+        df2.drop(df.columns[0], axis=1, inplace=True)
+        df3 = df2.transpose()
 
-        ##import numpy as np
-
-        ##from bokeh.charts import Bar
-        ##from bokeh.sampledata.olympics2014 import data
-
-        ##data = {d['abbr']: d['medals'] for d in data['data'] if d['medals']['total'] > 0}
-
-        ##countries = sorted(data.keys(), key=lambda x: data[x]['total'], reverse=True)
-
-        ##gold = np.array([data[abbr]['gold'] for abbr in countries], dtype=np.float)
-        ##silver = np.array([data[abbr]['silver'] for abbr in countries], dtype=np.float)
-        ##bronze = np.array([data[abbr]['bronze'] for abbr in countries], dtype=np.float)
-
-        ##medals = OrderedDict(bronze=bronze, silver=silver, gold=gold)
-
-        ##bar = Bar(medals, countries)
-        ##bar.title("stacked, dict_input").xlabel("countries").ylabel("medals")\
-##.legend(True).width(600).height(400).stacked().notebook().show()
+        # bokeh magic
+        from bokeh.charts import HeatMap
+        hm = HeatMap(df3, title="heatmap, pd_input", notebook=True)
+        hm.width(1000).height(400).show()
     """
-    def __init__(self, value, catx, caty,
+    def __init__(self, value, catx=None, caty=None,
                  title=None, xlabel=None, ylabel=None, legend=False,
-                 xscale="categorical", yscale="linear", width=800, height=600,
+                 xscale="categorical", yscale="categorical", width=800, height=600,
                  tools=True, filename=False, server=False, notebook=False):
         """
         Args:
-            value (dict): a dict containing the data with names as a key
-                and the data as a value.
-            catx (list): list of string representing the categories.
-            caty (list): list of string representing the categories.
-            stacked (bool, optional): to see the bars stacked or grouped.
-                Defaults to False, so grouping is assumed.
+            value (pd obj): a pandas dataframe containing. Columns and Index must
+                be string type.
             title (str, optional): the title of your plot. Defaults to None.
             xlabel (str, optional): the x-axis label of your plot.
                 Defaults to None.
@@ -124,8 +110,6 @@ class HeatMap(ChartObject):
                 loading the data dict.
                 Needed for _set_And_get method.
         """
-        self.catx = catx
-        self.caty = caty
         self.value = value
         self.source = None
         self.xdr = None
@@ -137,19 +121,6 @@ class HeatMap(ChartObject):
                                       xscale, yscale, width, height,
                                       tools, filename, server, notebook)
 
-    #def stacked(self, stacked=True):
-        #"""Set the bars stacked on your chart.
-
-        #Args:
-            #stacked (bool, optional): whether to stack the bars
-                #in your plot (default: True).
-
-        #Returns:
-            #self: the chart object being configured.
-        #"""
-        #self._stacked = stacked
-        #return self
-
     def check_attr(self):
         """Check if any of the chained method were used.
 
@@ -157,11 +128,7 @@ class HeatMap(ChartObject):
         """
         super(HeatMap, self).check_attr()
 
-        ## add specific chained method
-        #if not hasattr(self, '_stacked'):
-            #self._stacked = self.__stacked
-
-    def get_data(self, catx, caty, **value):
+    def get_data(self, **value):
         """Take the HeatMap data from the input **value.
 
         It calculates the chart properties accordingly. Then build a dict
@@ -169,74 +136,52 @@ class HeatMap(ChartObject):
         the rect glyph inside the ``draw`` method.
 
         Args:
-            catx (list): x-categories as a list of strings
-            caty (list): y-categories as a list of strings
-            values (dict or pd obj): the values to be plotted as bars.
+            values (pd obj): the pandas dataframe to be plotted as heatmap.
         """
-        self.catx = catx
-        self.caty = caty
-
-        self.width = [0.8] * len(self.cat)
-        self.width_cat = [0.2] * len(self.cat)
-        self.zero = np.zeros(len(self.cat))
-        self.data = dict(cat=self.cat, width=self.width, width_cat=self.width_cat, zero=self.zero)
-
-        # assuming value is a dict, ordered dict
+        # assuming value is a pandas df
         self.value = value
 
-        # list to save all the attributes we are going to create
-        self.attr = []
+        colors = [
+            "#75968f", "#a5bab7", "#c9d9d3", "#e2e2e2", "#dfccce",
+            "#ddb7b1", "#cc7878", "#933b41", "#550b1d"
+        ]
 
-        # list to save all the groups available in the incomming input
-        # Grouping
-        step = np.linspace(0, 1.0, len(self.value.keys()) + 1, endpoint=False)
+        # Set up the data for plotting. We will need to have values for every
+        # pair of year/month names. Map the rate to a color.
+        catx = []
+        caty = []
+        color = []
+        rate = []
+        for y in self.catsy:
+            for m in self.catsx:
+                catx.append(m)
+                caty.append(y)
+                monthly_rate = self.value[m][y]
+                rate.append(monthly_rate)
+                color.append(colors[min(int(monthly_rate) - 2, 8)])
 
-        self.groups.extend(self.value.keys())
+        width = [0.95] * len(catx)
+        height = [0.95] * len(catx)
 
-        for i, val in enumerate(self.value.keys()):
-            self._set_and_get("", val, self.value[val])
-            self._set_and_get("mid", val, self.value[val] / 2)
-            self._set_and_get("stacked", val, self.zero + self.value[val] / 2)
-            # Grouped
-            self._set_and_get("cat", val, [c + ":" + str(step[i + 1]) for c in self.cat])
-            # Stacked
-            self.zero += self.value[val]
+        self.data = dict(catx=catx, caty=caty, color=color, rate=rate,
+                         width=width, height=height)
 
-    def get_source(self, stacked):
-        """Push the Bar data into the ColumnDataSource and calculate the proper ranges.
-
-        Args:
-            stacked (bool): whether to stack the bars in your plot.
-        """
+    def get_source(self):
+        "Push the HeatMap data into the ColumnDataSource and calculate the proper ranges."
         self.source = ColumnDataSource(self.data)
-        self.xdr = FactorRange(factors=self.source.data["cat"])
-        if stacked:
-            self.ydr = Range1d(start=0, end=1.1 * max(self.zero))
-        else:
-            cat = [i for i in self.attr if not i.startswith(("mid", "stacked", "cat"))]
-            end = 1.1 * max(max(self.data[i]) for i in cat)
-            self.ydr = Range1d(start=0, end=end)
+        self.xdr = FactorRange(factors=self.catsx)
+        self.ydr = FactorRange(factors=self.catsy)
 
-    def draw(self, stacked):
-        """Use the rect glyphs to display the bars.
+    def draw(self):
+        """Use the rect glyphs to display the heatmap.
 
         Takes reference points from data loaded at the ColumnDataSurce.
-
-        Args:
-            stacked (bool): whether to stack the bars in your plot.
         """
-        self.quartet = list(self._chunker(self.attr, 4))
-        colors = self._set_colors(self.quartet)
-
-        # quartet elements are: [data, mid, stacked, cat]
-        for i, quartet in enumerate(self.quartet):
-            if stacked:
-                self.chart.make_rect(self.source, "cat", quartet[2], "width", quartet[0], colors[i], "white", None)
-            else:  # Grouped
-                self.chart.make_rect(self.source, quartet[3], quartet[1], "width_cat", quartet[0], colors[i], "white", None)
+        self.chart.make_rect(self.source, "catx", "caty", "width", "height",
+                             "color", "white", None)
 
     def show(self):
-        """Main Bar show method.
+        """Main HeatMap show method.
 
         It essentially checks for chained methods, creates the chart,
         pass data into the plot object, draws the glyphs according
@@ -245,9 +190,12 @@ class HeatMap(ChartObject):
         .. note:: the show method can not be chained. It has to be called
         at the end of the chain.
         """
-        # if we pass a pandas df, the cat are guessed
+        # if we pass a pandas df, the cats are guessed
         if isinstance(self.value, pd.DataFrame):
-            self.cat = self.value.index.values.tolist()
+            self.catsx = self.value.columns.tolist()
+            self.catsy = self.value.index.tolist()
+        else:
+            print("HeatMap only support pandas dataframes loading for now.")
 
         # we need to check the chained method attr
         self.check_attr()
@@ -256,29 +204,14 @@ class HeatMap(ChartObject):
         # we start the plot (adds axis, grids and tools)
         self.start_plot()
         # we get the data from the incoming input
-        self.get_data(self.cat, **self.value)
+        self.get_data(**self.value)
         # we filled the source and ranges with the calculated data
-        self.get_source(self._stacked)
+        self.get_source()
         # we dynamically inject the source and ranges into the plot
         self.add_data_plot(self.xdr, self.ydr)
         # we add the glyphs into the plot
-        self.draw(self._stacked)
+        self.draw()
         # we pass info to build the legend
         self.end_plot(self.groups)
         # and finally we show it
         self.show_chart()
-
-    # Some helper methods
-    def _set_and_get(self, prefix, val, content):
-        """Set a new attr and then get it to fill the self.data dict.
-
-        Keep track of the attributes created.
-
-        Args:
-            prefix (str): prefix of the new attribute
-            val (string): name of the new attribute
-            content (obj): content of the new attribute
-        """
-        setattr(self, prefix + val, content)
-        self.data[prefix + val] = getattr(self, prefix + val)
-        self.attr.append(prefix + val)
