@@ -71,6 +71,9 @@ define [
       @x_range_name = @mget('x_range_name')
       @y_range_name = @mget('y_range_name')
 
+      @xmapper = @plot_view.frame.get('x_mappers')[@x_range_name]
+      @ymapper = @plot_view.frame.get('y_mappers')[@y_range_name]
+
       @have_selection_props = false
       if @mget('selection_glyphspec')
         spec = _.extend({}, @mget('glyphspec'), @mget('selection_glyphspec'))
@@ -219,8 +222,8 @@ define [
       pt_units = @glyph_props[pt].units
       span_units = @glyph_props[span_prop_name].units
 
-      if      pt == 'x' then mapper = @plot_view.xmapper
-      else if pt == 'y' then mapper = @plot_view.ymapper
+      if      pt == 'x' then mapper = @xmapper
+      else if pt == 'y' then mapper = @ymapper
 
       source = @mget('data_source')
       local_select = (prop_name) =>

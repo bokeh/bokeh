@@ -45,12 +45,12 @@ define [
       hr = @plot_view.frame.get('h_range')
       vx0 = hr.get('start') - @max_size
       vx1 = hr.get('end') + @max_size
-      [x0, x1] = @plot_view.xmapper.v_map_from_target([vx0, vx1])
+      [x0, x1] = @xmapper.v_map_from_target([vx0, vx1])
 
       vr = @plot_view.frame.get('v_range')
       vy0 = vr.get('start') - @max_size
       vy1 = vr.get('end') + @max_size
-      [y0, y1] = @plot_view.ymapper.v_map_from_target([vy0, vy1])
+      [y0, y1] = @ymapper.v_map_from_target([vy0, vy1])
 
       return (x[4].i for x in @index.search([x0, y0, x1, y1]))
 
@@ -61,11 +61,11 @@ define [
 
       vx0 = vx - @max_size
       vx1 = vx + @max_size
-      [x0, x1] = @plot_view.xmapper.v_map_from_target([vx0, vx1])
+      [x0, x1] = @xmapper.v_map_from_target([vx0, vx1])
 
       vy0 = vy - @max_size
       vy1 = vy + @max_size
-      [y0, y1] = @plot_view.ymapper.v_map_from_target([vy0, vy1])
+      [y0, y1] = @ymapper.v_map_from_target([vy0, vy1])
 
       candidates = (x[4].i for x in @index.search([x0, y0, x1, y1]))
 
@@ -82,8 +82,8 @@ define [
       return hits
 
     _hit_rect: (geometry) ->
-      [x0, x1] = @plot_view.xmapper.v_map_from_target([geometry.vx0, geometry.vx1])
-      [y0, y1] = @plot_view.ymapper.v_map_from_target([geometry.vy0, geometry.vy1])
+      [x0, x1] = @xmapper.v_map_from_target([geometry.vx0, geometry.vx1])
+      [y0, y1] = @ymapper.v_map_from_target([geometry.vy0, geometry.vy1])
 
       return (x[4].i for x in @index.search([x0, y0, x1, y1]))
 
