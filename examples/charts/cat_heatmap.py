@@ -7,6 +7,6 @@ df2.drop(df.columns[0], axis=1, inplace=True)
 df3 = df2.transpose()
 
 # bokeh magic
-from bokeh.charts import HeatMap
-hm = HeatMap(df3, title="heatmap, pd_input", filename="heatmap.html")
+from bokeh.charts import CategoricalHeatMap
+hm = CategoricalHeatMap(df3, title="categorical heatmap, pd_input", filename="cat_heatmap.html")
 hm.width(1000).height(400).show()

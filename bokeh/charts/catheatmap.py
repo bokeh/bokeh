@@ -1,9 +1,9 @@
 """This is the Bokeh charts interface. It gives you a high level API to build
 complex plot is a simple way.
 
-This is the HeatMap class which lets you build your HeatMap charts just passing
-the arguments to the Chart class and calling the proper functions.
-It also add a new chained stacked method.
+This is the CategoricalHeatMap class which lets you build your
+CategoricalHeatMap charts just passing the arguments to the Chart class and
+calling the proper functions.
 """
 #-----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2014, Continuum Analytics, Inc. All rights reserved.
@@ -28,9 +28,9 @@ from ..objects import ColumnDataSource, FactorRange
 #-----------------------------------------------------------------------------
 
 
-class HeatMap(ChartObject):
-    """This is the HeatMap class and it is in charge of plotting
-    HeatMap chart in an easy and intuitive way.
+class CategoricalHeatMap(ChartObject):
+    """This is the CategoricalHeatMap class and it is in charge of plotting
+    CategoricalHeatMap chart in an easy and intuitive way.
 
     Essentially, it provides a way to ingest the data, make the proper
     calculations and push the references into a source object.
@@ -48,8 +48,8 @@ class HeatMap(ChartObject):
         df3 = df2.transpose()
 
         # bokeh magic
-        from bokeh.charts import HeatMap
-        hm = HeatMap(df3, title="heatmap, pd_input", notebook=True)
+        from bokeh.charts import CategoricalHeatMap
+        hm = CategoricalHeatMap(df3, title="categorical heatmap, pd_input", notebook=True)
         hm.width(1000).height(400).show()
     """
     def __init__(self, value, palette=None,
@@ -119,7 +119,7 @@ class HeatMap(ChartObject):
         self.groups = []
         self.data = dict()
         self.attr = []
-        super(HeatMap, self).__init__(title, xlabel, ylabel, legend,
+        super(CategoricalHeatMap, self).__init__(title, xlabel, ylabel, legend,
                                       xscale, yscale, width, height,
                                       tools, filename, server, notebook)
 
@@ -128,10 +128,10 @@ class HeatMap(ChartObject):
 
         If they were not used, it assign the init parameters content by default.
         """
-        super(HeatMap, self).check_attr()
+        super(CategoricalHeatMap, self).check_attr()
 
     def get_data(self, palette, **value):
-        """Take the HeatMap data from the input **value.
+        """Take the CategoricalHeatMap data from the input **value.
 
         It calculates the chart properties accordingly. Then build a dict
         containing references to all the calculated points to be used by
@@ -139,7 +139,7 @@ class HeatMap(ChartObject):
 
         Args:
             pallete (list): the colormap as hex values.
-            values (pd obj): the pandas dataframe to be plotted as heatmap.
+            values (pd obj): the pandas dataframe to be plotted as categorical heatmap.
         """
         # assuming value is a pandas df
         self.value = value
@@ -175,13 +175,15 @@ class HeatMap(ChartObject):
                          width=width, height=height)
 
     def get_source(self):
-        "Push the HeatMap data into the ColumnDataSource and calculate the proper ranges."
+        """Push the CategoricalHeatMap data into the ColumnDataSource
+        and calculate the proper ranges.
+        """
         self.source = ColumnDataSource(self.data)
         self.xdr = FactorRange(factors=self.catsx)
         self.ydr = FactorRange(factors=self.catsy)
 
     def draw(self):
-        """Use the rect glyphs to display the heatmap.
+        """Use the rect glyphs to display the categorical heatmap.
 
         Takes reference points from data loaded at the ColumnDataSurce.
         """
@@ -189,7 +191,7 @@ class HeatMap(ChartObject):
                              "color", "white", None)
 
     def show(self):
-        """Main HeatMap show method.
+        """Main CategoricalHeatMap show method.
 
         It essentially checks for chained methods, creates the chart,
         pass data into the plot object, draws the glyphs according
@@ -203,7 +205,7 @@ class HeatMap(ChartObject):
             self.catsx = self.value.columns.tolist()
             self.catsy = self.value.index.tolist()
         else:
-            print("HeatMap only support pandas dataframes loading for now.")
+            print("CategoricalHeatMap only support pandas dataframes loading for now.")
 
         # we need to check the chained method attr
         self.check_attr()
