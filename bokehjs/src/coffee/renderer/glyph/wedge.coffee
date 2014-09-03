@@ -22,7 +22,9 @@ define [
       @index.load(pts)
 
     _map_data: () ->
-      [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
+      [@sx, @sy] = @plot_view.map_to_screen(
+        @x, @glyph_props.x.units, @y, @glyph_props.y.units, @x_range_name, @y_range_name
+      )
       @radius = @distance_vector('x', 'radius', 'edge')
 
     _render: (ctx, indices, glyph_props, sx=@sx, sy=@sy, radius=@radius) ->

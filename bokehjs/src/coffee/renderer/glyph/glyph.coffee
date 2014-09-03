@@ -68,6 +68,9 @@ define [
 
       @glyph_props = @init_glyph(@mget('glyphspec'))
 
+      @x_range_name = @mget('x_range_name')
+      @y_range_name = @mget('y_range_name')
+
       @have_selection_props = false
       if @mget('selection_glyphspec')
         spec = _.extend({}, @mget('glyphspec'), @mget('selection_glyphspec'))
@@ -328,6 +331,8 @@ define [
 
     defaults: () ->
       return {
+        x_range_name: "default"
+        y_range_name: "default"
         data_source: null
       }
 

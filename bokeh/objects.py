@@ -283,8 +283,8 @@ class DatetimeTickFormatter(TickFormatter):
 class Glyph(Renderer):
     server_data_source = Instance(ServerDataSource)
     data_source = Instance(DataSource)
-    xdata_range = Instance(Range)
-    ydata_range = Instance(Range)
+    x_range_name = String('default')
+    y_range_name = String('default')
 
     # How to intepret the values in the data_source
     units = Enum(Units)
@@ -302,8 +302,8 @@ class Glyph(Renderer):
         data =  {"id" : self._id,
                  "data_source": self.data_source,
                  "server_data_source" : self.server_data_source,
-                 "xdata_range": self.xdata_range,
-                 "ydata_range": self.ydata_range,
+                 "x_range_name": self.x_range_name,
+                 "y_range_name": self.y_range_name,
                  "glyphspec": self.glyph.to_glyphspec(),
                  "name": self.name,
                  }
@@ -442,6 +442,9 @@ class Plot(Widget):
     x_mapper_type = String('auto')
     y_mapper_type = String('auto')
 
+    extra_x_ranges = Dict(String, Instance(Range1d))
+    extra_y_ranges = Dict(String, Instance(Range1d))
+
     title = String('')
     title_props = Include(TextProps)
     outline_props = Include(LineProps)
@@ -534,6 +537,9 @@ class Axis(GuideRenderer):
     location = Either(Enum('auto'), Enum(Location))
     bounds = Either(Enum('auto'), Tuple(Float, Float))
 
+    x_range_name = String('default')
+    y_range_name = String('default')
+
     ticker = Instance(Ticker)
     formatter = Instance(TickFormatter)
 
@@ -582,6 +588,9 @@ class Grid(GuideRenderer):
 
     dimension = Int(0)
     bounds = String('auto')
+
+    x_range_name = String('default')
+    y_range_name = String('default')
 
     ticker = Instance(Ticker)
 

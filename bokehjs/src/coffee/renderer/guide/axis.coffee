@@ -186,7 +186,7 @@ define [
       if not @rule_props.do_stroke
         return
       [x, y] = coords = @mget('rule_coords')
-      [sx, sy] = @plot_view.map_to_screen(x, "data", y, "data")
+      [sx, sy] = @plot_view.map_to_screen(x, "data", y, "data", @x_range_name, @y_range_name)
       [nx, ny] = @mget('normals')
 
       @rule_props.set(ctx, @)
@@ -201,7 +201,7 @@ define [
         return
       coords = @mget('tick_coords')
       [x, y] = coords.major
-      [sx, sy] = @plot_view.map_to_screen(x, "data", y, "data")
+      [sx, sy] = @plot_view.map_to_screen(x, "data", y, "data",@x_range_name, @y_range_name)
       [nx, ny] = @mget('normals')
 
       tin = @mget('major_tick_in')
@@ -218,7 +218,7 @@ define [
         return
       coords = @mget('tick_coords')
       [x, y] = coords.minor
-      [sx, sy] = @plot_view.map_to_screen(x, "data", y, "data")
+      [sx, sy] = @plot_view.map_to_screen(x, "data", y, "data", @x_range_name, @y_range_name)
       [nx, ny] = @mget('normals')
 
       tin = @mget('minor_tick_in')
@@ -233,7 +233,7 @@ define [
     _draw_major_labels: (ctx) ->
       coords = @mget('tick_coords')
       [x, y] = coords.major
-      [sx, sy] = @plot_view.map_to_screen(x, "data", y, "data")
+      [sx, sy] = @plot_view.map_to_screen(x, "data", y, "data", @x_range_name, @y_range_name)
       [nx, ny] = @mget('normals')
       dim = @mget('dimension')
       side = @mget('location')
@@ -267,7 +267,7 @@ define [
         return
 
       [x, y] = @mget('rule_coords')
-      [sx, sy] = @plot_view.map_to_screen(x, "data", y, "data")
+      [sx, sy] = @plot_view.map_to_screen(x, "data", y, "data", @x_range_name, @y_range_name)
       [nx, ny] = @mget('normals')
       side = @mget('location')
       orient = 'parallel'
@@ -363,7 +363,11 @@ define [
     _ranges: () ->
       i = @get('dimension')
       j = (i + 1) % 2
-      ranges = [@get('plot').get('frame').get('x_range'), @get('plot').get('frame').get('y_range')]
+      frame = @get('plot').get('frame')
+      ranges = [
+        frame.get('x_ranges')[@get('x_range_name')],
+        frame.get('y_ranges')[@get('y_range_name')]
+      ]
       return [ranges[i], ranges[j]]
 
     _computed_bounds: () ->
@@ -542,6 +546,12 @@ define [
           extent += w*c + h*s
 
       return extent
+
+    defaults: () ->
+      return {
+        x_range_name: "default"
+        y_range_name: "default"
+      }
 
     display_defaults: () ->
       return {

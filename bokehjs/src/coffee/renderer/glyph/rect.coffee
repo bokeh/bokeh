@@ -12,7 +12,9 @@ define [
     _properties: ['line', 'fill']
 
     _map_data: () ->
-      [sxi, syi] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
+      [sxi, syi] = @plot_view.map_to_screen(
+        @x, @glyph_props.x.units, @y, @glyph_props.y.units, @x_range_name, @y_range_name
+      )
 
       @sw = @distance_vector('x', 'width', 'center', @mget('glyphspec')['dilate'])
       @sh = @distance_vector('y', 'height', 'center', @mget('glyphspec')['dilate'])
