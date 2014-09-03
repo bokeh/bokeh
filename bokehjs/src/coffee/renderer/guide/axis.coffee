@@ -165,6 +165,8 @@ define [
       @minor_tick_props = new line_properties(@, null, 'minor_tick_')
       @major_label_props = new text_properties(@, null, 'major_label_')
       @axis_label_props = new text_properties(@, null, 'axis_label_')
+      @x_range_name = @mget('x_range_name')
+      @y_range_name = @mget('y_range_name')
 
     render: () ->
       ctx = @plot_view.canvas_view.ctx
@@ -201,7 +203,7 @@ define [
         return
       coords = @mget('tick_coords')
       [x, y] = coords.major
-      [sx, sy] = @plot_view.map_to_screen(x, "data", y, "data",@x_range_name, @y_range_name)
+      [sx, sy] = @plot_view.map_to_screen(x, "data", y, "data", @x_range_name, @y_range_name)
       [nx, ny] = @mget('normals')
 
       tin = @mget('major_tick_in')

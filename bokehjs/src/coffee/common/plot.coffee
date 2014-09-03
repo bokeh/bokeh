@@ -137,10 +137,10 @@ define [
       return this
 
     bind_bokeh_events: () ->
-      for name, rng of @mget('frame').get('x_ranges')
-        @listenTo(rng, 'change', @request_render)
-      for name, rng of @mget('frame').get('y_ranges')
-        @listenTo(rng, 'change', @request_render)
+      # for name, rng of @mget('frame').get('x_ranges')
+      #   @listenTo(rng, 'change', @request_render)
+      # for name, rng of @mget('frame').get('y_ranges')
+      #   @listenTo(rng, 'change', @request_render)
       @listenTo(@model, 'change:renderers', @build_levels)
       @listenTo(@model, 'change:tool', @build_levels)
       @listenTo(@model, 'change', @request_render)
@@ -281,8 +281,10 @@ define [
       canvas = @get('canvas')
       frame = new CartesianFrame.Model({
         x_range: @get('x_range'),
+        extra_x_ranges: @get('extra_x_ranges'),
         x_mapper_type: @get('x_mapper_type'),
         y_range: @get('y_range'),
+        extra_y_ranges: @get('extra_y_ranges'),
         y_mapper_type: @get('y_mapper_type'),
         solver: solver
       })

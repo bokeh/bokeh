@@ -11,8 +11,9 @@ define [
   class GridView extends PlotWidget
     initialize: (attrs, options) ->
       super(attrs, options)
-
       @grid_props = new line_properties(@, null, 'grid_')
+      @x_range_name = @mget('x_range_name')
+      @y_range_name = @mget('y_range_name')
 
     render: () ->
       ctx = @plot_view.canvas_view.ctx

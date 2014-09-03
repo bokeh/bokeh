@@ -99,7 +99,8 @@ define [
       extra_ranges = @get("extra_#{dim}_ranges")
       if extra_ranges?
         for name, range of extra_ranges
-          ranges[name] = range
+          # resolve ref needed because dicts are not auto-resolved
+          ranges[name] = @resolve_ref(range)
       return ranges
 
     _get_mappers: (dim, ranges, frame_range) ->
