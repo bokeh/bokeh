@@ -279,10 +279,17 @@ class ChartObject(object):
         It creates a chart instance customized with the parameters
         we have passed at the __init__ step or through the chained
         methods.
+
+        Returns:
+            chart: the chart object being configured.
         """
-        self.chart = Chart(self._title, self._xlabel, self._ylabel, self._legend,
+        chart = Chart(self._title, self._xlabel, self._ylabel, self._legend,
                       self._xscale, self._yscale, self._width, self._height,
                       self._tools, self._filename, self._server, self._notebook)
+
+        self.chart = chart
+
+        return chart
 
     def start_plot(self, xgrid=True, ygrid=True):
         """Wrapper to call the ``chart.start_plot`` method.
