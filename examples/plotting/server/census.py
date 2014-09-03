@@ -22,14 +22,7 @@ plot = square(
         plot_height=400,
         title="Census Tracts")
 
-ar.replot(plot, palette=["Reds-9"], reserve_val=0, points=True)
-
-ar.replot(plot,
-        shader=ar.Cuberoot() + ar.InterpolateColor(low=(255, 200, 200)),
-        points=True,
-        title="Census Tracts (Server Colors)")
-
-colors = ["#C6DBEF", "#9ECAE1", "#6BAED6", "#4292C6", "#2171B5", "#08519C", "#08306B"]
-ar.replot(plot, shader=ar.Cuberoot() + ar.Spread(factor=2) + ar.Contour(levels=len(colors)), line_color=colors, points=True, title="Census (Contours)")
+ar.heatmap(plot, palette=["Reds-9"], reserve_val=0, points=True, client_color=True, title="Census Tracts (Client Colors)")
+ar.heatmap(plot, low=(255, 200, 200), points=True, title="Census Tracts (Server Colors)")
 
 show()

@@ -381,7 +381,7 @@ class FunctionBackend(AbstractDataBackend):
     qty=10000
     gauss = {'oneA': np.random.randn(qty),
              'oneB': np.random.randn(qty),
-             'cats': np.random.randint(0,3,size=qty),
+             'cats': np.random.randint(0,5,size=qty),
              'hundredA': np.random.randn(qty)*100,
              'hundredB': np.random.randn(qty)*100}
     

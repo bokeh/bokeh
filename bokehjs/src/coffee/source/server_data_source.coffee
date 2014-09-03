@@ -187,13 +187,10 @@ define [
         # the datarange1d on the python side.  It can't be done in just
         # plot_state becase we need the references still
         # REMOVE when DataRange1d goes away.
-        if typeof(item) == DataRange1d
-          proxy = new Range1d.Model()
-          proxy.set('start', item.get('start'))
-          proxy.set('end', item.get('end'))
-          item = proxy
-
-        sendable_plot_state[key] = item
+        proxy = new Range1d.Model()
+        proxy.set('start', item.get('start'))
+        proxy.set('end', item.get('end'))
+        sendable_plot_state[key] = proxy 
       console.log("Sent render State", render_state)
 
       resp = $.ajax(

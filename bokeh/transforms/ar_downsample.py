@@ -214,13 +214,16 @@ class ImageShader(Shader):
 
         if isinstance(color, str) or isinstance(color, unicode):
             if color[0] == "#":
-                raise ValueError("Can't handle hex-format colors (yet)")
+                color = color.lstrip('#')
+                lv = len(color)
+                rgb = tuple(int(color[i:i + lv // 3], 16) for i in range(0, lv, lv // 3))
+                return [rgb[0], rgb[1], rgb[2], 255]
             else:
                 try:
                     rgb = getattr(colors, color).to_rgb()
+                    return [rgb.r, rgb.g, rgb.b, 255]
                 except:
                     raise ValueError("Unknown color string %s" % color)
-                return [rgb.r, rgb.g, rgb.b, 255]
 
     def reformat(self, image, *args):
         if image is None:
@@ -315,12 +318,14 @@ class Cuberoot(Shader):
     def reify(self, **kwargs):
         return numeric.Cuberoot()
 
+
 class Log(Shader):
     "Log (base 10) of values"
     out = "image"
-    
+
     def reify(self, **kwargs):
         return npg.Log10()
+
 
 class Spread(Shader):
     """Spread values out in a regular pattern from their origin."""
@@ -715,7 +720,7 @@ def _shaper(glyphspec, points):
 
 # -------------------- Recipes -----------------------
 
-def hdalpha(plot, cats=None, colors=None, log=True, spread=0, **kwargs):
+def hdalpha(plot, cats=None, palette=None, log=True, spread=0, **kwargs):
     """
     Produce a plot using high-definition alpha composition (HDAlpha).
     HDAlpha essentially makes a heatmap for each of a number of categories,
@@ -728,7 +733,7 @@ def hdalpha(plot, cats=None, colors=None, log=True, spread=0, **kwargs):
     cats -- What are the expected categories?
                  Default is None, indicating that categories
                  should be determined automatically.
-    colors -- What colors should be used. Colors are matched to categories in
+    palette -- What colors should be used. Colors are matched to categories in
               order, so the first color is associated with the first category.
               Default is a rainbow palette with 8 steps.
     spread -- How far (if any) should values be spread. Default is 0.
@@ -744,12 +749,15 @@ def hdalpha(plot, cats=None, colors=None, log=True, spread=0, **kwargs):
     else:
         info = Encode(cats=cats)
 
+    if palette is None:
+        palette = ["#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#ffff33", "#a65628", "#f781bf"]
+
     kwargs['points'] = kwargs.get('points', True)
 
     return replot(plot,
                   info=info,
                   agg=CountCategories(),
-                  shader=Spread(factor=spread) + HDAlpha(colors=colors, log=log),
+                  shader=Spread(factor=spread) + HDAlpha(colors=palette, log=log),
                   **kwargs)
 
 
@@ -776,7 +784,7 @@ def heatmap(plot,
     """
 
     transform = transform.lower() if transform is not None else None
-    
+
     if client_color:
         shader = Id()
         kwargs['reserve_val'] = kwargs.get('reserve_val', 0)
@@ -801,4 +809,43 @@ def heatmap(plot,
                   agg=Count(),
                   info=Const(val=1),
                   shader=shader,
+                  **kwargs)
+
+
+def contour(plot, palette=None, transform='cbrt', spread=0, **kwargs):
+    """
+    Create ISO contours from a given plot
+
+    plot -- Plot to convert into iso contours
+    spread -- How far (if any) should values be spread. Default is 0.
+    palette -- What should the line colors be?
+               The number of lines is determined by the number of colors.
+    transform -- Apply a transformation before building the iso contours?
+                 Understood values are 'cbrt', 'log', 'none' and None.
+                 The default is 'cbrt', for cuberoot, an approximation of
+                 perceptual correction for monochromatic scales.
+    kwargs -- Further arguments passed on to replot for greater control.
+    """
+    if palette is None:
+        palette = ["#C6DBEF", "#9ECAE1", "#6BAED6", "#4292C6", "#2171B5", "#08519C", "#08306B"]
+
+    shader = Contour(levels=len(palette))
+
+    if transform == "cbrt":
+        shader = Cuberoot() + shader
+    elif transform == "log":
+        shader = Log() + shader
+    elif transform == "none" or transform is None:
+        pass
+    else:
+        raise ValueError("Unrecognized transform '{0}'".format(transform))
+
+    if spread > 0:
+        shader = Spread(factor=spread, shape="circle") + shader
+
+    return replot(plot,
+                  agg=Count(),
+                  info=Const(val=1),
+                  shader=shader,
+                  line_color=palette,
                   **kwargs)
