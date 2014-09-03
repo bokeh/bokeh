@@ -50,7 +50,7 @@ define [
       @sys = []
       for i in [0...@xs.length]
         [sx, sy] = @plot_view.map_to_screen(
-          @x, @glyph_props.x.units, @y, @glyph_props.y.units, @x_range_name, @y_range_name
+          @xs[i], @glyph_props.xs.units, @ys[i], @glyph_props.ys.units, @x_range_name, @y_range_name
         )
         @sxs.push(sx)
         @sys.push(sy)
