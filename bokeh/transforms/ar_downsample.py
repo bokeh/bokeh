@@ -217,7 +217,7 @@ class ImageShader(Shader):
                 raise ValueError("Can't handle hex-format colors (yet)")
             else:
                 try:
-                    rgb = getattr(colors, color).toRGB()
+                    rgb = getattr(colors, color).to_rgb()
                 except:
                     raise ValueError("Unknown color string %s" % color)
                 return [rgb.r, rgb.g, rgb.b, 255]

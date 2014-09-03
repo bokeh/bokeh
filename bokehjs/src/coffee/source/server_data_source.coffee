@@ -1,11 +1,14 @@
 
 define [
-  "underscore",
-  "backbone",
-  "common/has_properties",
+  "underscore"
+  "backbone"
+  "common/has_properties"
+  "common/logging"
   "range/range1d"
   "range/data_range1d"
-], (_, Backbone, HasProperties, Range1d, DataRange1d) ->
+], (_, Backbone, HasProperties, Logging, Range1d, DataRange1d) ->
+
+  logger = Logging.logger
 
   ajax_throttle = (func) ->
     busy = false
@@ -14,20 +17,20 @@ define [
     callback = () ->
       if busy
         if has_callback
-          console.log('already bound, ignoreing')
+          logger.debug('already bound, ignoring')
         else
-          console.log('busy, so doing it later')
+          logger.debug('busy, so doing it later')
           has_callback = true
           resp.done(() ->
             has_callback = false
             callback()
           )
       else
-        console.log('executing')
+        logger.debug('executing')
         busy = true
         resp = func()
         resp.done(() ->
-          console.log('done, setting to false')
+          logger.debug('done, setting to false')
           busy = false
           resp = null
         )
@@ -47,18 +50,18 @@ define [
       if @callbacks[column_data_source.get('id')]
         for entry in @callbacks[column_data_source.get('id')]
           @stopListening.apply(this, entry)
-    
+
     update_url : () ->
       owner_username = @get('owner_username')
-      prefix = @get_base().Config.prefix     
-      url = "#{prefix}bokeh/data/#{owner_username}/#{@get('doc')}/#{@get('id')}"    
+      prefix = @get_base().Config.prefix
+      url = "#{prefix}bokeh/data/#{owner_username}/#{@get('doc')}/#{@get('id')}"
 
-    listen_for_line1d_updates : (column_data_source, 
-                                  plot_x_span, plot_y_span, 
+    listen_for_line1d_updates : (column_data_source,
+                                  plot_x_span, plot_y_span,
                                   domain_span, range_span,
                                   screen_span,
                                   primary_column, domain_name, columns, input_params) ->
-      
+
       plot_state = {screen_x: plot_x_span, screen_y: plot_y_span}
       #ensure we only have one set of events bound
       @stoplistening_for_updates(column_data_source)
@@ -66,7 +69,7 @@ define [
                      primary_column, domain_name, columns, input_params)
 
       throttle = _.throttle(@line1d_update, 300)
-      
+
       callback = () => throttle(column_data_source, plot_state, domain_span, range_span, screen_span,
                                 primary_column, domain_name, columns, input_params)
 
@@ -78,11 +81,11 @@ define [
       ]
 
     #TODO: Move some of the passed paramters in to the plot_state object...when plot_state can handle more than just ranges
-    line1d_update : (column_data_source, plot_state, 
+    line1d_update : (column_data_source, plot_state,
                      domain_span, range_span,
                      screen_span,
                      primary_column, domain_name, columns, input_params) =>
-      
+
       domain_resolution = (screen_span.get('end') - screen_span.get('start')) / 2
       domain_resolution = Math.floor(domain_resolution)
       domain_limit = [domain_span.get('start'), domain_span.get('end')]
@@ -93,7 +96,7 @@ define [
          domain_limit[0] > domain_limit[1] or
          range_limit[0] > range_limit[1]
        return $.ajax()
-  
+
       if (_.any(_.map(domain_limit, (x) -> _.isNaN(x))) or
          _.every(_.map(domain_limit, (x) -> _.isEqual(0,x))))
         domain_limit = 'auto'
@@ -101,7 +104,7 @@ define [
       if (_.any(_.map(range_limit, (x) -> _.isNaN(x))) or
          _.every(_.map(range_limit, (x) -> _.isEqual(0,x))))
         range_limit = 'auto'
-      
+
       params = [primary_column, domain_name, columns,
           domain_limit, range_limit, domain_resolution, input_params]
 
@@ -130,9 +133,9 @@ define [
       )
 
     listen_for_ar_updates : (plot_view,
-                             column_data_source, 
-                             plot_x_range, plot_y_range, 
-                             x_data_range, y_data_range, 
+                             column_data_source,
+                             plot_x_range, plot_y_range,
+                             x_data_range, y_data_range,
                              input_params) ->
       
       plot_state = {data_x: x_data_range, data_y: y_data_range, screen_x: plot_x_range, screen_y: plot_y_range}
@@ -141,7 +144,7 @@ define [
       #TODO: Do we need other descriptors for AR or are these data and view parameters sufficient?
       @stoplistening_for_updates(column_data_source)
       callback =ajax_throttle( () => return @ar_update(plot_view, column_data_source, plot_state, input_params))
-      
+
       callback()
       @callbacks[column_data_source.get('id')] = []
       for param in [x_data_range, y_data_range, plot_x_range, plot_y_range]
@@ -166,7 +169,7 @@ define [
       
       if plot_state['screen_x'].get('start') == plot_state['screen_x'].get('end') or
          plot_state['screen_y'].get('start') == plot_state['screen_y'].get('end')
-       console.log("Skipping due to under-defined view state")
+       logger.debug("skipping due to under-defined view state")
        return $.ajax()
 
       if plot_view.x_range.get('start') == plot_view.x_range.get('end') or
@@ -174,9 +177,9 @@ define [
          _.isNaN(plot_view.x_range.get('end')) or
          plot_view.y_range.get('start') == plot_view.y_range.get('end') or
          _.isNaN(plot_view.y_range.get('start')) or
-         _.isNaN(plot_view.y_range.get('end')) 
+         _.isNaN(plot_view.y_range.get('end'))
         domain_limit = 'auto'
-      
+
       sendable_plot_state = {}
       for key,item of plot_state
         # This copy is to reformat a datarange1d to a range1d without
@@ -207,7 +210,7 @@ define [
             plot_state['data_x'].set(
               {start : data.x_range.start, end : data.x_range.end},
             )
-           
+
             plot_state['data_y'].set(
               {start : data.y_range.start, end : data.y_range.end},
             )
@@ -226,10 +229,10 @@ define [
       return resp
 
 
-    listen_for_heatmap_updates : (column_data_source, 
+    listen_for_heatmap_updates : (column_data_source,
         plot_x_range, plot_y_range,
         x_data_range, y_data_range, input_params) ->
-      
+
       plot_state = {data_x: x_data_range, data_y:y_data_range, screen_x: plot_x_range, screen_y: plot_y_range}
 
       #ensure we only have one set of events bound
@@ -264,7 +267,7 @@ define [
 
       if plot_state['screen_x'].get('start') == plot_state['screen_x'].get('end') or
          plot_state['screen_y'].get('start') == plot_state['screen_y'].get('end')
-       console.log("Skipping due to under-defined view state")
+       logger.debug("skipping due to under-defined view state")
        return $.ajax()
 
       params = [global_x_range, global_y_range,

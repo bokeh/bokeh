@@ -8,6 +8,7 @@ from functools import wraps
 from six import add_metaclass, iteritems
 
 from .properties import HasProps, MetaHasProps, Instance, String
+from .query import find
 from .utils import dump, is_ref, json_apply, make_id, resolve_json
 
 class Viewable(MetaHasProps):
@@ -49,7 +50,7 @@ class Viewable(MetaHasProps):
 
     @classmethod
     def _preload_models(cls):
-        from . import objects, widgetobjects
+        from . import objects, widgets
         from .crossfilter import objects
 
     @classmethod
@@ -104,6 +105,35 @@ class PlotObject(HasProps):
     def setup_events(self):
         pass
 
+    def select(self, selector):
+        ''' Query this object and all of its references for objects that
+        match the given selector.
+
+        Args:
+            selector (JSON-like) :
+
+        Returns:
+            seq[PlotObject]
+
+        '''
+        return find(self.references(), selector)
+
+    def set_select(self, selector, updates):
+        ''' Update objects that match a given selector with the specified
+        attribute/value updates.
+
+        Args:
+            selector (JSON-like) :
+            updates (dict) :
+
+        Returns:
+            None
+
+        '''
+        for obj in self.select(selector):
+            for key, val in updates.items():
+                setattr(obj, key, val)
+
     @classmethod
     def load_json(cls, attrs, instance=None):
         """Loads all json into a instance of cls, EXCEPT any references
@@ -131,6 +161,12 @@ class PlotObject(HasProps):
 
         instance.update(**attrs)
         return instance
+
+    def layout(self, side, plot):
+        try:
+            return self in getattr(plot, side)
+        except:
+            return []
 
     def finalize(self, models):
         """Convert any references into instances

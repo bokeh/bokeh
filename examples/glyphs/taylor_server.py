@@ -10,7 +10,7 @@ from bokeh.document import Document
 from bokeh.glyphs import Line
 from bokeh.objects import Plot, DataRange1d, LinearAxis, ColumnDataSource, Grid, Legend
 from bokeh.session import Session
-from bokeh.widgetobjects import Slider, TextInput, HBox, VBox, Dialog
+from bokeh.widgets import Slider, TextInput, HBox, VBox, Dialog
 
 from requests.exceptions import ConnectionError
 
