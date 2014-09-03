@@ -2321,9 +2321,6 @@ $.fn.handsontable = function (action) {
  * It is recommended for Handsontable plugins and renderers, because it is much faster than jQuery
  * @type {Object}
  */
-if(!window.Handsontable) {
-  var Handsontable = {}; //required because Walkontable test suite uses this class directly
-}
 Handsontable.Dom = {};
 
 //goes up the DOM tree (including given element) until it finds an element that matches the nodeName
