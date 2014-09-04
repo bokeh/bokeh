@@ -69,8 +69,10 @@ define [
       @canvas = @mget('canvas')
       @canvas_view = new @canvas.default_view({'model': @canvas})
 
-      @$('.bokeh_canvas_wrapper_outer').prepend(@canvas_view.el)
+      @$('.bokeh_canvas_wrapper_outer').append(@canvas_view.el)
 
+      @$('.bokeh_canvas_wrapper').prepend(@$('.bk-sidebar'))
+      
       if @mget('show_toolbar')
         @$('.bk-sidebar').show()
       else
@@ -184,7 +186,7 @@ define [
 
       @model.get('frame').set('width', canvas.get('width'))
       @model.get('frame').set('height', canvas.get('height'))
-
+      
       @canvas.solver.update_variables(false)
 
       # TODO (bev) OK this sucks, but the event from the solver update doesn't
