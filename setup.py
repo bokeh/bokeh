@@ -16,6 +16,7 @@ from __future__ import print_function
 
 # Stdlib imports
 import os
+from os.path import dirname, exists, join, realpath
 import platform
 import shutil
 import site
@@ -49,7 +50,9 @@ import versioneer
 # Globals and constants
 #-----------------------------------------------------------------------------
 
-BOKEHJSROOT = 'bokehjs'
+ROOT = dirname(realpath(__file__))
+BOKEHJSROOT = join(ROOT, 'bokehjs')
+print(BOKEHJSROOT)
 BOKEHJSBUILD = join(BOKEHJSROOT, 'build')
 CSS = join(BOKEHJSBUILD, 'css')
 JS  = join(BOKEHJSBUILD, 'js')
@@ -259,18 +262,18 @@ build process. How would you like to handle BokehJS:
     return mapping[value]
 
 def parse_jsargs():
-    installing = 'install' in sys.argv or 'develop' in sys.argv
+    installing = 'install' in sys.argv or 'develop' in sys.argv or 'sdist' in sys.argv
 
     if '--build_js' in sys.argv:
         if not installing:
-            print("Error: Option '--build_js' only valid with 'install' or 'develop', exiting.")
+            print("Error: Option '--build_js' only valid with 'install', 'develop' or 'sdist', exiting.")
             sys.exit(1)
         jsbuild = True
         sys.argv.remove('--build_js')
 
     elif '--install_js' in sys.argv:
         if not installing:
-            print("Error: Option '--install_js' only valid with 'install' or 'develop', exiting.")
+            print("Error: Option '--install_js' only valid with 'install', 'develop' or 'sdist', exiting.")
             sys.exit(1)
         jsbuild = False
         sys.argv.remove('--install_js')
@@ -291,6 +294,21 @@ def parse_jsargs():
 
 if sys.version_info[:2] < (2, 6):
     raise RuntimeError("Bokeh requires python >= 2.6")
+
+# check for 'sdist' and make sure we always do a BokehJS build when packaging
+if "sdist" in sys.argv:
+    if "--install_js"  in sys.argv:
+        print("Removing '--install_js' incompatible with 'sdist'")
+        sys.argv.remove('--install_js')
+    if "--build_js" not in sys.argv:
+        print("Adding '--build_js' required for 'sdist'")
+        sys.argv.append('--build_js')
+
+# check for package install, add "--install_js" to skip prompt
+if not exists(join(ROOT, 'MANIFEST.in')):
+    if "--install_js" not in sys.argv and "--build_js" not in sys.argv:
+        print("Adding '--install_js' default for sdist package install")
+        sys.argv.append('--install_js')
 
 jsbuild = parse_jsargs()
 
