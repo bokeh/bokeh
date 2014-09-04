@@ -17,7 +17,8 @@ import unittest
 
 from ..charts import Chart, ChartObject
 from ..glyphs import Circle
-from ..objects import ColumnDataSource, Grid, Glyph, Legend, LinearAxis, PanTool, Range1d, Ticker
+from ..objects import (ColumnDataSource, Grid, Glyph, Legend, LinearAxis,
+                       PanTool, Range1d, Ticker)
 
 from ..document import Document
 #from ..session import Session
@@ -39,7 +40,7 @@ class TestChart(unittest.TestCase):
                            legend="top_left", xscale="linear", yscale="linear",
                            width=800, height=600, tools=True,
                            filename=False, server=False, notebook=False)
-        self.chart.start_plot()
+        self.chart.start_plot(xgrid=True, ygrid=True)
         self.chart.add_data_plot(self.xdr, self.ydr)
         self.chart.end_plot(self.groups)
 
