@@ -66,13 +66,11 @@ define [
       @canvas.width = width * @dpi_ratio
       @canvas.height = height * @dpi_ratio
 
-      sidebarHeight = @$('.bk-sidebar').height()
-      totalHeight = height + sidebarHeight
-      @$el.attr('style', "width:#{width}px; height:#{totalHeight}px")
+      @$el.attr('style', "width:#{width}px; height:#{height}px")
       @canvas.attr('style', "width:#{width}px;")
       @canvas.attr('style', "height:#{height}px;")
       @canvas.attr('width', width*ratio).attr('height', height*ratio)
-      @$el.attr("width", width).attr('height', totalHeight)
+      @$el.attr("width", width).attr('height', height)
 
       @ctx.scale(ratio, ratio)
       @ctx.translate(0.5, 0.5)

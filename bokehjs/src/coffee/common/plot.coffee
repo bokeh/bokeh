@@ -71,8 +71,6 @@ define [
 
       @$('.bokeh_canvas_wrapper_outer').append(@canvas_view.el)
 
-      @$('.bokeh_canvas_wrapper').prepend(@$('.bk-sidebar'))
-      
       if @mget('show_toolbar')
         @$('.bk-sidebar').show()
       else
