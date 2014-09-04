@@ -1,12 +1,14 @@
 
 define [
-  "underscore",
-  "backbone",
-  "./tool",
-  "./event_generators",
-], (_, Backbone, Tool, EventGenerators) ->
+  "underscore"
+  "backbone"
+  "common/logging"
+  "./tool"
+  "./event_generators"
+], (_, Backbone, Logging, Tool, EventGenerators) ->
 
   TwoPointEventGenerator = EventGenerators.TwoPointEventGenerator
+  logger = Logging.logger
 
   window.render_count = 0
 
@@ -15,19 +17,19 @@ define [
       super(options)
       dims = @mget('dimensions')
       if dims.length == 0
-        console.log ("WARN: pan tool given empty dimensions")
+        logger.warn("pan tool given empty dimensions")
       else if dims.length == 1
         if dims[0] == 'width'
           @evgen_options.buttonText = "Pan (x-axis)"
         else if dims[0] == 'height'
           @evgen_options.buttonText = "Pan (y-axis)"
         else
-          console.log ("WARN: pan tool given unrecognized dimensions: #{ dims }")
+          logger.warn("pan tool given unrecognized dimensions: #{dims}")
       else if dims.length == 2
         if dims.indexOf('width') < 0 or dims.indexOf('height') < 0
-          console.log ("WARN: pan tool given unrecognized dimensions: #{ dims }")
+          logger.warn("pan tool given unrecognized dimensions: #{dims}")
       else
-        console.log ("WARN: pan tool given more than two dimensions: #{ dims }")
+        logger.warn("pan tool given more than two dimensions: #{dims}")
 
     bind_bokeh_events: () ->
       super()
@@ -72,26 +74,36 @@ define [
       dims = @mget('dimensions')
 
       if dims.indexOf('width') > -1
-        xstart = @plot_view.xmapper.map_from_target(sx_low)
-        xend   = @plot_view.xmapper.map_from_target(sx_high)
-        sdx    = -xdiff
+        sx0 = sx_low
+        sx1 = sx_high
+        sdx = -xdiff
       else
-        xstart = @plot_view.xmapper.map_from_target(xr.get('start'))
-        xend   = @plot_view.xmapper.map_from_target(xr.get('end'))
-        sdx    = 0
+        sx0 = xr.get('start')
+        sx1 = xr.get('end')
+        sdx = 0
 
       if dims.indexOf('height') > -1
-        ystart = @plot_view.ymapper.map_from_target(sy_low)
-        yend   = @plot_view.ymapper.map_from_target(sy_high)
-        sdy    = ydiff
+        sy0 = sy_low
+        sy1 = sy_high
+        sdy = ydiff
       else
-        ystart = @plot_view.ymapper.map_from_target(yr.get('start'))
-        yend   = @plot_view.ymapper.map_from_target(yr.get('end'))
-        sdy    = 0
+        sy0 = yr.get('start')
+        sy1 = yr.get('end')
+        sdy = 0
+
+      xrs = {}
+      for name, mapper of @plot_view.frame.get('x_mappers')
+        [start, end] = mapper.v_map_from_target([sx0, sx1])
+        xrs[name] = {start: start, end: end}
+
+      yrs = {}
+      for name, mapper of @plot_view.frame.get('y_mappers')
+        [start, end] = mapper.v_map_from_target([sy0, sy1])
+        yrs[name] = {start: start, end: end}
 
       pan_info = {
-        xr: {start: xstart, end: xend}
-        yr: {start: ystart, end: yend}
+        xrs: xrs
+        yrs: yrs
         sdx: sdx
         sdy: sdy
       }

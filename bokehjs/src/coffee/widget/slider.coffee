@@ -1,12 +1,16 @@
 define [
-  "common/has_parent",
-  "common/continuum_view",
   "backbone"
   "underscore"
+  "common/continuum_view"
+  "common/has_parent"
+  "common/logging"
   "./slidertemplate"
   "jquery_ui/slider"
-], (HasParent, continuum_view, Backbone, _, slidertemplate) ->
+], (Backbone, _, continuum_view, HasParent, Logging, slidertemplate) ->
+
   ContinuumView = continuum_view.View
+  logger = Logging.logger
+
   class SliderView extends ContinuumView
     tagName : "div"
 
@@ -23,7 +27,7 @@ define [
       max = @mget('end')
       min = @mget('start')
       step = @mget('step') or ((max - min)/50)
-      console.log('sliderval', min, max, step)
+      logger.debug("slider render: min, max, step = (#{min}, #{max}, #{step})")
       @$('.slider').slider({
         orientation : @mget('orientation')
         animate : "fast",
@@ -37,7 +41,7 @@ define [
 
     slide : (event, ui) =>
       value = ui.value
-      console.log('sliding', value)
+      logger.debug("slide value = #{value}")
       @$( "##{ @mget('id') }" ).val( ui.value );
       @mset('value', value)
       @model.save()
@@ -45,6 +49,7 @@ define [
   class Slider extends HasParent
     type : "Slider"
     default_view : SliderView
+
     defaults : () ->
       def =
         title : ''
@@ -57,9 +62,9 @@ define [
 
   class Sliders extends Backbone.Collection
     model : Slider
-  sliders = new Sliders()
+
   return {
-    "Model" : Slider
-    "Collection" : sliders
-    "View" : SliderView
+    Model : Slider
+    Collection : new Sliders()
+    View : SliderView
   }

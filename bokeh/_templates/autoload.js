@@ -5,10 +5,10 @@
   function load_lib(url, callback){
     window._bokeh_onload_callbacks.push(callback);
     if (window._bokeh_is_loading){
-      console.log("BokehJS is being loaded, scheduling callback at", new Date());
+      console.log("Bokeh: BokehJS is being loaded, scheduling callback at", new Date());
       return null;
     }
-    console.log("BokehJS not loaded, scheduling load and callback at", new Date());
+    console.log("Bokeh: BokehJS not loaded, scheduling load and callback at", new Date());
     window._bokeh_is_loading = true;
     var s = document.createElement('script');
     s.src = url;
@@ -29,7 +29,7 @@
 
   var elt = document.getElementById("{{ elementid }}");
   if(elt==null) {
-    console.log("ERROR: Bokeh autoload.js configured with elementid '{{ elementid }}' but no matching script tag was found. ")
+    console.log("Bokeh: ERROR: autoload.js configured with elementid '{{ elementid }}' but no matching script tag was found. ")
     return false;
   }
 
@@ -41,11 +41,11 @@
   {%- endif %}
 
   if(typeof(Bokeh) !== "undefined") {
-    console.log("BokehJS loaded, going straight to plotting");
+    console.log("Bokeh: BokehJS loaded, going straight to plotting");
     Bokeh.embed.inject_plot("{{ elementid }}", all_models);
   } else {
     load_lib(bokehjs_url, function() {
-      console.log("BokehJS plotting callback run at", new Date())
+      console.log("Bokeh: BokehJS plotting callback run at", new Date())
       Bokeh.embed.inject_plot("{{ elementid }}", all_models);
     });
   }

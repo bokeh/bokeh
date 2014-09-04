@@ -27,23 +27,22 @@ ydr = Range1d(start=-100, end=200)
 plot = Plot(title="ImageURL", x_range=xdr, y_range=ydr)
 
 image1 = ImageURL(url="url", x="x1", y="y1", w="w1", h="h1", angle=0.0, anchor="center")
-image1_glyph = Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=image1)
-plot.renderers.append(image1_glyph)
+plot.add_glyph(source, image1)
 
 image2 = ImageURL(url="url", x="x2", y="y2", w=20, h=20, angle=0.0, anchor="top_left")
-image2_glyph = Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=image2)
-plot.renderers.append(image2_glyph)
+plot.add_glyph(source, image2)
 
 image3 = ImageURL(url=dict(value=url), x=200, y=-100, angle=0.0, anchor="bottom_right")
-image3_glyph = Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=image3)
-plot.renderers.append(image3_glyph)
+plot.add_glyph(source, image3)
 
-xaxis = LinearAxis(plot=plot)
-plot.below.append(xaxis)
-yaxis = LinearAxis(plot=plot)
-plot.left.append(yaxis)
-xgrid = Grid(plot=plot, dimension=0, ticker=xaxis.ticker)
-ygrid = Grid(plot=plot, dimension=1, ticker=yaxis.ticker)
+xaxis = LinearAxis()
+plot.add_layout(xaxis, 'below')
+
+yaxis = LinearAxis()
+plot.add_layout(yaxis,'left')
+
+plot.add_layout(Grid(dimension=0, ticker=xaxis.ticker))
+plot.add_layout(Grid(dimension=1, ticker=yaxis.ticker))
 
 doc = Document( )
 doc.add(plot)

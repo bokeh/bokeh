@@ -25,8 +25,6 @@ from requests.exceptions import ConnectionError
 import colorama
 colorama.init()
 
-from conda.utils import human_bytes
-
 use_server = True
 
 try:
@@ -137,7 +135,7 @@ def get_version_from_git(ref=None):
     cmd = ["git", "describe", "--tags", "--always"]
 
     if ref is not None:
-        cmd += ref
+        cmd.append(ref)
 
     try:
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
@@ -150,26 +148,14 @@ def get_version_from_git(ref=None):
         write("Failed to get version for %s" % ref)
         sys.exit(1)
 
-    return proc.stdout.read().decode('utf-8').strip()
+    version, _, sha1 = proc.stdout.read().decode('utf-8').strip().split("-")
+    return "%s-%s" % (version, sha1[1:])
 
 __version__ = get_version_from_git()
 write("%s Bokeh version: %s" % (green(">>>"), __version__))
 
 if args.diff:
-    cmd = ["git", "describe", "--tags", "--always", args.diff]
-
-    try:
-        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-        code = proc.wait()
-    except OSError:
-        write("Failed to run: %s" % " ".join(cmd))
-        sys.exit(1)
-
-    if code != 0:
-        write("Failed to process --diff=%s" % args.diff)
-        sys.exit(1)
-
-    args.diff = proc.stdout.read().decode('utf-8').strip()
+    args.diff = get_version_from_git(args.diff)
     write("%s Reference version: %s" % (green(">>>"), args.diff))
 
 if args.upload and not py2:
@@ -181,14 +167,14 @@ if args.upload:
     try:
         boto.connect_s3()
     except NoAuthHandlerFound:
-        write("Upload (--upload) was requested but could not connect to S3.")
-        write("Fix your credentials or permissions and re-run tests.")
-        sys.exit(1)
+        warn("Upload (--upload) was requested but could not connect to S3.")
+        warn("Fix your credentials or permissions and re-run tests.")
+        args.upload = False
 
-    if __version__.endswith("-dirty"):
-        write("Can't upload reference images when working directory is dirty.")
-        write("Make sure that __version__ doesn't contain -dirty suffix.")
-        sys.exit(1)
+if args.upload and __version__.endswith("-dirty"):
+    write("Can't upload reference images when working directory is dirty.")
+    write("Make sure that __version__ doesn't contain -dirty suffix.")
+    sys.exit(1)
 
 def is_selected(example):
     if not args.patterns:
@@ -199,6 +185,21 @@ def is_selected(example):
         return True
     else:
         return False
+
+def human_bytes(n):
+    """
+    Return the number of bytes n in more human readable form.
+    """
+    if n < 1024:
+        return '%d B' % n
+    k = n/1024
+    if k < 1024:
+        return '%d KB' % round(k)
+    m = k/1024
+    if m < 1024:
+        return '%.1f MB' % m
+    g = m/1024
+    return '%.2f GB' % g
 
 base_dir = dirname(__file__)
 examples = []

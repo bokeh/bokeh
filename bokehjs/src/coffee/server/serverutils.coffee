@@ -1,10 +1,13 @@
 define [
-  "common/base",
-  "common/socket",
-  "common/load_models",
-  "backbone",
+  "common/base"
+  "common/socket"
+  "common/load_models"
+  "common/logging"
+  "backbone"
   "common/has_properties"
-], (base, socket, load_models, Backbone, HasProperties) ->
+], (base, socket, load_models, Logging, Backbone, HasProperties) ->
+
+  logger = Logging.logger
 
   #not proud of this refactor... but we can make it better later
   Deferreds = {}
@@ -31,7 +34,7 @@ define [
       resp = resp.then(() ->
         Config = require("common/base").Config
         url = "#{Config.prefix}bokeh/objinfo/#{docid}/#{objid}"
-        console.log(url)
+        logger.debug("load one object chain: #{url}")
         resp = $.get(url)
         return resp
       )
@@ -117,7 +120,7 @@ define [
       if Promises.doc_requested.state() == "pending"
         Deferreds._doc_requested.resolve()
         $.get("#{protocol}://#{host}/bokeh/publicbokehinfo/#{docid}", {}, (data) ->
-          console.log('instatiate_doc_single, docid', docid)
+          logger.debug("instantiate_doc_single #{docid}")
           data = JSON.parse(data)
           load_models(data['all_models'])
           Deferreds._doc_loaded.resolve(data)
@@ -133,10 +136,10 @@ define [
     Config = require("common/base").Config
     if ws_conn_string
       Config.ws_conn_string = ws_conn_string
-      console.log('setting ws_conn_string to', Config.ws_conn_string)
+      logger.debug("setting ws_conn_string to: #{Config.ws_conn_string}")
     if prefix
       Config.prefix = prefix
-      console.log('setting prefix to', Config.prefix)
+      logger.debug("setting prefix to #{Config.prefix}")
     return null
 
   exports.utility = utility

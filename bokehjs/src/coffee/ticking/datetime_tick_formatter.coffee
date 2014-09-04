@@ -1,10 +1,13 @@
 define [
-  "underscore",
-  "backbone",
+  "underscore"
+  "backbone"
+  "sprintf"
+  "timezone"
   "common/has_properties"
-  "sprintf",
-  "timezone",
-], (_, Backbone, HasProperties, sprintf, tz) ->
+  "common/logging"
+], (_, Backbone, sprintf, tz, HasProperties, Logging) ->
+
+  logger = Logging.logger
 
   _us = (t) ->
     return sprintf("%3dus", Math.floor((t % 1) * 1000))
@@ -171,8 +174,8 @@ define [
           tm = _array(t)
           s = _strftime(t, format)
         catch error
-          console.log error
-          console.log("Unable to convert tick for timestamp " + t)
+          logger.warn("unable to format tick for timestamp value #{t}")
+          logger.warn(" - #{error}")
           labels.push("ERR")
           continue
 
@@ -204,7 +207,6 @@ define [
             # A label such as '000ms' should leave one zero.
             ss = '0' + ss
           labels.push(ss)
-#           console.log("  #{t} -> #{new Date(t)} : #{tm} : #{s} -> #{ss}")
         else
           labels.push(s)
 

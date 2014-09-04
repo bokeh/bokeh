@@ -11,11 +11,11 @@ from . import glyphs
 from .objects import (
     BoxSelectionOverlay, BoxSelectTool, BoxZoomTool, CategoricalAxis,
     ColumnDataSource, ClickTool, CrosshairTool, DataRange1d, DatetimeAxis,
-    EmbedTool, FactorRange, Grid, HoverTool, Legend, LinearAxis, LogAxis,
+    FactorRange, Grid, HoverTool, Legend, LinearAxis, LogAxis,
     ObjectExplorerTool, PanTool, Plot, PreviewSaveTool, Range, Range1d,
     ResetTool, ResizeTool, Tool, WheelZoomTool,
 )
-from .properties import ColorSpec, Date, Datetime
+from .properties import ColorSpec, Datetime
 import warnings
 
 def get_default_color(plot=None):
@@ -405,14 +405,12 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
             })
         elif tool == "previewsave":
             tool_obj = PreviewSaveTool(plot=p)
-        elif tool == "embed":
-            tool_obj = EmbedTool(plot=p)
         elif tool == "reset":
             tool_obj = ResetTool(plot=p)
         elif tool == "object_explorer":
             tool_obj = ObjectExplorerTool()
         else:
-            known_tools = "pan, xpan, ypan, wheel_zoom, xwheel_zoom, ywheel_zoom, box_zoom, save, resize, crosshair, select, previewsave, reset, hover, or embed"
+            known_tools = "pan, xpan, ypan, wheel_zoom, xwheel_zoom, ywheel_zoom, box_zoom, save, resize, crosshair, select, previewsave, reset, or hover"
             raise ValueError("invalid tool: %s (expected one of %s)" % (tool, known_tools))
 
         tool_objs.append(tool_obj)

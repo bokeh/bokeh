@@ -7,7 +7,8 @@ from .plot_object import PlotObject
 from bokeh.plotting import (curdoc, cursession, line,
                             scatter)
 from .properties import (HasProps, Dict, Enum, Either, Float, Instance, Int, List,
-    String, Color, Include, Bool, Tuple, Any, Date, RelativeDelta, lookup_descriptor)
+    String, Color, Bool, Tuple, Any, Date, RelativeDelta, lookup_descriptor)
+from .enums import ColumnType
 from .pivot_table import pivot_table
 import copy
 import logging
@@ -32,7 +33,8 @@ class Dialog(Widget):
     buttons = List(String)
 
 class Layout(Widget):
-    pass
+    width = Int
+    height = Int
 
 class HBox(Layout):
     children = List(Instance(Widget))
@@ -132,14 +134,14 @@ class BokehApplet(Widget):
         @app_document(cls.__view_model__, bokeh_url)
         def make_app():
             app = cls()
-            curdoc().autostore(False)
+            curdoc().autostore = False
             app.create(curdoc())
             return app
 
         def exampleapp():
             app = make_app()
             docid = curdoc().docid
-            objid = curdoc()._plotcontext._id
+            objid = curdoc().context._id
             extra_generated_classes = app.extra_generated_classes
             if len(extra_generated_classes) == 0:
                 extra_generated_classes.append([
@@ -204,8 +206,6 @@ class Slider(InputWidget):
     step = Int()
     orientation = Enum("horizontal", "vertical")
 
-
-
 class DateRangeSlider(InputWidget):
     value = Tuple(Date, Date)
     bounds = Tuple(Date, Date)
@@ -227,17 +227,21 @@ class TableWidget(Widget):
     pass
 
 class TableColumn(Widget):
-    type = Enum("text", "numeric", "date", "autocomplete")
-    data = String
+    field = String
     header = String
-
-    # TODO: splic TableColumn into multiple classes
-    source = List(String) # only 'autocomplete'
-    strict = Bool(True)   # only 'autocomplete'
+    type = Enum(ColumnType)
+    format = String
+    source = List(String)
+    strict = Bool(False)
+    checked = String("true")
+    unchecked = String("false")
 
 class HandsonTable(TableWidget):
     source = Instance(DataSource)
     columns = List(Instance(TableColumn))
+    sorting = Bool(True)
+    width = Int(None)
+    height = Int(None)
 
 class ObjectExplorer(Widget):
     data_widget = Instance(TableWidget)

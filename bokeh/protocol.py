@@ -6,7 +6,6 @@ import calendar
 
 import numpy as np
 from six.moves import cPickle as pickle
-from .utils import get_ref
 
 try:
     import pandas as pd
@@ -30,6 +29,10 @@ class BokehJSONEncoder(json.JSONEncoder):
         vals = obj.values
         return self.transform_array(vals)
 
+    # Check for astype failures (putative Numpy < 1.7)
+    dt2001 = np.datetime64('2001')
+    legacy_datetime64 = (dt2001.astype('int64') ==
+                         dt2001.astype('datetime64[ms]').astype('int64'))
     def transform_array(self, obj):
         """Transform arrays into lists of json safe types
         also handles pandas series, and replacing
@@ -37,7 +40,12 @@ class BokehJSONEncoder(json.JSONEncoder):
         """
         ## not quite correct, truncates to ms..
         if obj.dtype.kind == 'M':
-            return obj.astype('datetime64[ms]').astype('int64').tolist()
+            if self.legacy_datetime64:
+                if obj.dtype == np.dtype('datetime64[ns]'):
+                    return (obj.astype('int64') / millifactor).tolist()
+                # else punt.
+            else:
+                return obj.astype('datetime64[ms]').astype('int64').tolist()
         elif obj.dtype.kind in ('u', 'i', 'f'):
             return self.transform_numerical_array(obj)
         return obj.tolist()
@@ -91,11 +99,11 @@ class BokehJSONEncoder(json.JSONEncoder):
         elif isinstance(obj, np.ndarray):
             return self.transform_array(obj)
         elif isinstance(obj, PlotObject):
-            return get_ref(obj)
+            return obj.ref
         elif isinstance(obj, HasProps):
             return obj.to_dict()
         elif isinstance(obj, Color):
-            return obj.toCSS()
+            return obj.to_css()
         else:
             return self.transform_python_types(obj)
 

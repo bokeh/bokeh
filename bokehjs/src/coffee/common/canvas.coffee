@@ -4,12 +4,15 @@ define [
   "./canvas_template"
   "./continuum_view",
   "./layout_box"
+  "./logging"
   "./solver",
-], (Backbone, kiwi, canvas_template, ContinuumView, LayoutBox, Solver) ->
+], (Backbone, kiwi, canvas_template, ContinuumView, LayoutBox, Logging, Solver) ->
 
   Expr = kiwi.Expression
   Constraint = kiwi.Constraint
   EQ = kiwi.Operator.Eq
+
+  logger = Logging.logger
 
   class CanvasView extends ContinuumView.View
 
@@ -35,6 +38,8 @@ define [
 
       @canvas = @$('canvas.bokeh_canvas')
       @map_div = @$('.bokeh_gmap') ? null
+
+      logger.debug("CanvasView initialized")
 
     render: (force=false) ->
       # normally we only want to render the canvas when the canvas itself
@@ -137,9 +142,12 @@ define [
       solver.add_constraint(new Constraint(new Expr(@_bottom), EQ))
       @_set_dims([@get('canvas_width'), @get('canvas_height')])
 
+      logger.debug("Canvas initialized")
+
     # transform view coordinates to underlying screen coordinates
     vx_to_sx: (x) ->
       return x
+
     vy_to_sy: (y) ->
       return @get('height') - y
 
@@ -148,6 +156,7 @@ define [
       for x, idx in xx
         xx[idx] = x
       return xx
+
     v_vy_to_sy: (yy) ->
       canvas_height = @get('height')
       for y, idx in yy
@@ -157,6 +166,7 @@ define [
     # transform underlying screen coordinates to view coordinates
     sx_to_vx: (x) ->
       return x
+
     sy_to_vy: (y) ->
       return @get('height') - y
 
@@ -165,6 +175,7 @@ define [
       for x, idx in xx
         xx[idx] = x
       return xx
+
     v_sy_to_vy: (yy) ->
       canvas_height = @get('height')
       for y, idx in yy

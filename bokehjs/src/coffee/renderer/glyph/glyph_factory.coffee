@@ -38,6 +38,8 @@ define (require, exports, module) ->
   wedge             = require("./wedge")
   x                 = require("./x")
 
+  logger = require("common/logging").logger
+
   glyphs = {
     "annular_wedge"     : annular_wedge.Model,
     "annulus"           : annulus.Model,
@@ -79,16 +81,17 @@ define (require, exports, module) ->
 
 
       if not attrs.glyphspec?.type?
-        console.log "missing glyph type"
+        logger.error("missing glyph type")
         return
 
       type = attrs.glyphspec.type
 
       if not (type of glyphs)
-        console.log "unknown glyph type '" + type + "'"
+        logger.error("unknown glyph type: #{type}")
         return
 
       model = glyphs[type]
+      logger.debug("Creating glyph: #{type}")
       return new model(attrs, options)
 
   return {

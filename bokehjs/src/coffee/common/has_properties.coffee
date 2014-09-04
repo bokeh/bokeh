@@ -1,10 +1,13 @@
 
 define [
-  "underscore",
-  "backbone",
-  "require",
+  "underscore"
+  "backbone"
+  "require"
   "./base"
-], (_, Backbone, require, base) ->
+  "./logging"
+], (_, Backbone, require, base, Logging) ->
+
+  logger = Logging.logger
 
   _is_ref = (arg) ->
     if _.isObject(arg)
@@ -260,8 +263,7 @@ define [
       # model where our API processes this model
       doc = @get('doc')
       if not doc?
-        console.log("WARN: Unset 'doc' in " + this)
-        # throw new Error("Unset 'doc' in " + this)
+        logger.error("unset 'doc' in #{@}")
 
       url = @get_base().Config.prefix + "bokeh/bb/" + doc + "/" + @type + "/"
       if (@isNew())
