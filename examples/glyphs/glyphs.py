@@ -74,7 +74,7 @@ markers = [
 def make_tab(title, glyph):
     plot = Plot(title=title, x_range=xdr, y_range=ydr)
 
-    plot.add_glyph(source, xdr, ydr, glyph)
+    plot.add_glyph(source, glyph)
 
     xaxis = LinearAxis()
     plot.add_layout(xaxis, 'below')

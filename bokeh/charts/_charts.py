@@ -105,15 +105,22 @@ class Chart(object):
         self.categorical = False
         self.glyphs = []
 
-    def start_plot(self):
-        "Add the axis, grids and tools to self.plot"
+    def start_plot(self, xgrid, ygrid):
+        """Add the axis, grids and tools to self.plot
+
+        Args:
+            xgrid(bool): whether to show the xgrid
+            ygrid(bool): whether to shoe the ygrid
+        """
         # Add axis
         xaxis = self.make_axis("below", self.xscale, self.xlabel)
         yaxis = self.make_axis("left", self.yscale, self.ylabel)
 
         # Add grids
-        self.make_grid(0, xaxis.ticker)
-        self.make_grid(1, yaxis.ticker)
+        if xgrid:
+            self.make_grid(0, xaxis.ticker)
+        if ygrid:
+            self.make_grid(1, yaxis.ticker)
 
         # Add tools
         if self.tools:
@@ -378,6 +385,6 @@ class Chart(object):
             source (obj): datasource containing data for the glyph
             glyph (obj): glyph type
         """
-        _glyph = self.plot.add_glyph(source, self.plot.x_range, self.plot.y_range, glyph)
+        _glyph = self.plot.add_glyph(source, glyph)
 
         self.glyphs.append(_glyph)

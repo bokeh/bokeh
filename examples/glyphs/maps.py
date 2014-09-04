@@ -30,7 +30,7 @@ source = ColumnDataSource(
 )
 
 circle = Circle(x="lon", y="lat", size=15, fill_color="fill", line_color="black")
-plot.add_glyph(source, x_range, y_range, circle)
+plot.add_glyph(source, circle)
 
 pan = PanTool()
 wheel_zoom = WheelZoomTool()

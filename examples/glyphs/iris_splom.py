@@ -42,7 +42,7 @@ def make_plot(xname, yname, xax=False, yax=False, text=None):
         plot_width=250, plot_height=250)
 
     circle = Circle(x=xname, y=yname, fill_color="color", fill_alpha=0.2, size=4, line_color="color")
-    plot.add_glyph(source, xdr, ydr, circle)
+    plot.add_glyph(source, circle)
 
     xticker = BasicTicker()
     if xax:
@@ -68,7 +68,7 @@ def make_plot(xname, yname, xax=False, yax=False, text=None):
             text=[text], angle=pi/4, text_font_style="bold", text_baseline="top",
             text_color="#ffaaaa", text_alpha=0.7, text_align="center", text_font_size="28pt"
         )
-        plot.add_glyph(text_source, xdr, ydr, text)
+        plot.add_glyph(text_source, text)
 
     return plot
 

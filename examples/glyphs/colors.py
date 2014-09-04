@@ -165,7 +165,7 @@ ydr = FactorRange(factors=list(reversed(css3_colors.Name)))
 plot = Plot(title="CSS3 Color Names", x_range=xdr, y_range=ydr, plot_width=600, plot_height=2000)
 
 rect = Rect(x="groups", y="names", width=1, height=1, fill_color="colors", line_color=None)
-plot.add_glyph(source, xdr, ydr, rect)
+plot.add_glyph(source, rect)
 
 xaxis_above = CategoricalAxis(major_label_orientation=pi/4)
 plot.add_layout(xaxis_above, 'above')
