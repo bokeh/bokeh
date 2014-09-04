@@ -22,7 +22,7 @@ ar.replot(plot,
           title="Manually process: perceptually corrected", 
           reserve_val=0)
 
-Client-side colored heatmap
+# Client-side colored heatmap
 ar.heatmap(plot, spread=3, client_color=True, palette=["Reds-9"], title="Client-colored")
 
 # Contours come in the same framework, but since the results of the shader are lines you use a different plotting function...
