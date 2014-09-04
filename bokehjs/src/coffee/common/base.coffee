@@ -90,6 +90,10 @@ define [
   'widget/panel'
   'widget/tabs'
   'widget/dialog'
+  'widget/button'
+  'widget/toggle'
+  'widget/checkbox_buttons'
+  'widget/radio_buttons'
 
   'transforms/autoencode'
   'transforms/binarysegment'
@@ -204,6 +208,10 @@ define [
     Panel:                    'widget/panel'
     Tabs:                     'widget/tabs'
     Dialog:                   'widget/dialog'
+    Button:                   'widget/button'
+    Toggle:                   'widget/toggle'
+    CheckboxButtons:          'widget/checkbox_buttons'
+    RadioButtons:             'widget/radio_buttons'
 
     AutoEncode:               'transforms/autoencode'
     BinarySegment:            'transforms/binarysegment'

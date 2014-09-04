@@ -8,13 +8,37 @@ from bokeh.plotting import (curdoc, cursession, line,
                             scatter)
 from .properties import (HasProps, Dict, Enum, Either, Float, Instance, Int, List,
     String, Color, Bool, Tuple, Any, Date, RelativeDelta, lookup_descriptor)
-from .enums import ColumnType
+from .enums import ColumnType, ButtonType
 from .pivot_table import pivot_table
 import copy
 import logging
 logger = logging.getLogger(__name__)
 
 import pandas as pd
+
+class AbstractButton(Widget):
+    type = Enum(ButtonType)
+    disabled = Bool(False)
+
+class Button(AbstractButton):
+    clicks = Int(0)
+    text = String("Button")
+
+    def on_click(self, handler):
+        self.on_change('clicks', lambda obj, attr, old, new: handler())
+
+class Toggle(AbstractButton):
+    active = Bool(False)
+    text = String("Button")
+
+class ButtonGroup(AbstractButton):
+    texts = List(String)
+
+class CheckboxButtons(ButtonGroup):
+    active = List(Int)
+
+class RadioButtons(ButtonGroup):
+    active = Int(None)
 
 class Panel(Widget):
     title = String
