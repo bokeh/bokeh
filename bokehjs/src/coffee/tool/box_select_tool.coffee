@@ -64,13 +64,13 @@ define [
         xrange = [@mget('start_vx'), @mget('current_vx')]
         xrange = [_.min(xrange), _.max(xrange)]
       else
-        range = @plot_view.view_state.get('h_range')
+        range = @plot_view.frame.get('h_range')
         xrange = [range.get('start'), range.get('end')]
       if @mget('select_y')
         yrange = [@mget('start_vy'), @mget('current_vy')]
         yrange = [_.min(yrange), _.max(yrange)]
       else
-        range = @plot_view.view_state.get('v_range')
+        range = @plot_view.frame.get('v_range')
         yrange = [range.get('start'), range.get('end')]
       return [xrange, yrange]
 
@@ -84,7 +84,7 @@ define [
       if @select_every_mousemove
         @_select_data()
 
-      @plot_view._render_levels(@plot_view.ctx, ['overlay'], true)
+      @plot_view._render_levels(@plot_view.canvas_view.ctx, ['overlay'])
       return null
 
     _dragend : () ->

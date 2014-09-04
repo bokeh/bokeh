@@ -13,8 +13,8 @@ def app_document(prefix, url="default"):
             session = Session(name=url, root_url=url)
             session.use_doc(docname)
             session.load_document(curdoc())
-            curdoc().autoadd(False)
-            curdoc().autostore(False)
+            curdoc().autoadd = False
+            curdoc().autostore = False
 
             obj = func(*args, **kwargs)
             tag = embed.autoload_server(obj, session)

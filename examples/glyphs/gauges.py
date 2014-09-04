@@ -15,9 +15,8 @@ ydr = Range1d(start=-1.25, end=1.25)
 
 plot = Plot(title="Speedometer", x_range=xdr, y_range=ydr, plot_width=600, plot_height=600)
 
-def add_glyph(glyph, source=ColumnDataSource()):
-    renderer = Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=glyph)
-    plot.renderers.append(renderer)
+def add_glyph(glyph):
+    plot.renderers.append(Glyph(glyph=glyph))
 
 start_angle = pi + pi/4
 end_angle = -pi/4
@@ -86,21 +85,21 @@ def add_gauge(radius, max_value, length, direction, color, major_step, minor_ste
     source = ColumnDataSource(dict(x=x, y=y, angle=angles))
 
     glyph = Ray(x="x", y="y", length=length, angle="angle", line_color=color, line_width=2)
-    add_glyph(glyph, source)
+    plot.add_glyph(source, glyph)
 
     x, y = zip(*[ polar_to_cartesian(radius, angle) for angle in minor_angles ])
     angles = [ angle + rotation for angle in minor_angles ]
     source = ColumnDataSource(dict(x=x, y=y, angle=angles))
 
     glyph = Ray(x="x", y="y", length=length/2, angle="angle", line_color=color, line_width=1)
-    add_glyph(glyph, source)
+    plot.add_glyph(source, glyph)
 
     x, y = zip(*[ polar_to_cartesian(radius+2*length*direction, angle) for angle in major_angles ])
     text_angles = [ angle - pi/2 for angle in major_angles ]
     source = ColumnDataSource(dict(x=x, y=y, angle=text_angles, text=major_labels))
 
     glyph = Text(x="x", y="y", angle="angle", text="text", text_align="center", text_baseline="middle")
-    add_glyph(glyph, source)
+    plot.add_glyph(source, glyph)
 
 add_gauge(0.75, max_kmh, 0.05, +1, "red", major_step, minor_step)
 add_gauge(0.70, max_mph, 0.05, -1, "blue", major_step, minor_step)

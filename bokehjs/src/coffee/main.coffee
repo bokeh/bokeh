@@ -1,10 +1,18 @@
 define (require, exports, module) ->
-  if not window.Float64Array
-    console.warn("Float64Array is not supported. Using generic Array instead.")
-    window.Float64Array = Array
+
   Bokeh = {}
   Bokeh.require = require
   Bokeh.version = '0.5.2'
+
+  # set up logger
+  logging = require("common/logging")
+  Bokeh.logger = logging.logger
+  Bokeh.set_log_level = logging.set_log_level
+
+  # fallback to Array if necessary
+  if not window.Float64Array
+    Bokeh.logger.warn("Float64Array is not supported. Using generic Array instead.")
+    window.Float64Array = Array
 
   # binding the libs that bokeh uses so others can reference them
   Bokeh._                 = require("underscore")
@@ -32,7 +40,6 @@ define (require, exports, module) ->
   Bokeh.Plot              = require("common/plot")
   Bokeh.Plotting          = require("common/plotting")
 
-  Bokeh.Affine        = require("common/affine")
   Bokeh.build_views   = require("common/build_views")
   Bokeh.bulk_save     = require("common/bulk_save")
   Bokeh.ContinuumView = require("common/continuum_view")
@@ -75,7 +82,6 @@ define (require, exports, module) ->
 
   # server tools
   Bokeh.embed       = require("server/embed")
-  Bokeh.serverrun   = require("server/serverrun")
   Bokeh.serverutils = require("server/serverutils")
 
   # data sources
@@ -111,10 +117,6 @@ define (require, exports, module) ->
   Bokeh.ResizeTool             = require("tool/resize_tool")
   Bokeh.WheelZoomTool          = require("tool/wheel_zoom_tool")
   Bokeh.ObjectExplorerTool     = require("tool/object_explorer_tool")
-
-  # page functions
-  Bokeh.one_object_page = require("server/serverrun").load_one_object
-  Bokeh.server_page     = require("server/serverrun").load
 
   # widgets
   Bokeh.DataSlider     = require("widget/data_slider")

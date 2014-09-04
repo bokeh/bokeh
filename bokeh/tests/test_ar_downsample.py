@@ -123,14 +123,14 @@ class Test_AR(unittest.TestCase):
                     'y_range': Range1d(start=0, end=0)}
 
         self.assertEquals(len(expected), len(result))
-        self.assertEquals(expected.keys(), result.keys())
+        self.assertEquals(sorted(expected.keys()), sorted(result.keys()))
 
         source = _SourceShim(ar_downsample.Interpolate, "A", "B", "C")
         result = ar_downsample.mapping(source)
         expected['A'] = source.defVal
         expected['B'] = source.defVal
         expected['C'] = source.defVal
-        self.assertEquals(expected.keys(), result.keys())
+        self.assertEquals(sorted(expected.keys()), sorted(result.keys()))
 
     def test_ImageRGB(self):
         source = _SourceShim(ar_downsample.InterpolateColor)
@@ -139,14 +139,14 @@ class Test_AR(unittest.TestCase):
                     'y_range': Range1d(start=0, end=0)}
 
         self.assertEquals(len(expected), len(result))
-        self.assertEquals(expected.keys(), result.keys())
+        self.assertEquals(sorted(expected.keys()), sorted(result.keys()))
 
         source = _SourceShim(ar_downsample.InterpolateColor, "A", "B", "C")
         result = ar_downsample.mapping(source)
         expected['A'] = source.defVal
         expected['B'] = source.defVal
         expected['C'] = source.defVal
-        self.assertEquals(expected.keys(), result.keys())
+        self.assertEquals(sorted(expected.keys()), sorted(result.keys()))
 
     def test_PolyLine(self):
         source = _SourceShim(ar_downsample.Contour)
@@ -154,14 +154,14 @@ class Test_AR(unittest.TestCase):
         expected = {}
 
         self.assertEquals(len(expected), len(result))
-        self.assertEquals(expected.keys(), result.keys())
+        self.assertEquals(sorted(expected.keys()), sorted(result.keys()))
 
         source = _SourceShim(ar_downsample.Contour, "A", "B", "C")
         result = ar_downsample.mapping(source)
         expected['A'] = source.defVal
         expected['B'] = source.defVal
         expected['C'] = source.defVal
-        self.assertEquals(expected.keys(), result.keys())
+        self.assertEquals(sorted(expected.keys()), sorted(result.keys()))
 
 
     # -------------------- Proxy object tests --------------

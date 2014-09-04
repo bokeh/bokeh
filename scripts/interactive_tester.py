@@ -12,27 +12,27 @@ import time
 #       catch and log exceptions in examples files that fail to open
 
 DIRECTORIES = {
-    'file'    : 'plotting/file',
-    'notebook': 'plotting/notebook',
-    'server'  : 'plotting/server',
-    'ggplot'  : 'ggplot',
-    'glyphs'  : 'glyphs',
-    'mpl'     : 'mpl',
-    'pandas'  : 'pandas',
-    'seaborn' : 'seaborn',
-    'charts'  : 'charts',
+    'file'    : '../../examples/plotting/file',
+    'notebook': '../../examples/plotting/notebook',
+    'server'  : '../../examples/plotting/server',
+    'ggplot'  : '../../examples/compat/ggplot',
+    'glyphs'  : '../../examples/glyphs',
+    'mpl'     : '../../examples/compat/mpl',
+    'pandas'  : '../../examples/compat/pandas',
+    'seaborn' : '../../examples/compat/seaborn',
+    'charts'  : '../../examples/charts',
 }
 
 DEFAULT_TEST_FILES = [
-    '../plotting/file/stocks.py',
-    '../plotting/file/glucose.py',
-    '../ggplot/density.py',
-    '../plotting/server/stocks.py',
-    '../plotting/server/glucose.py',
-    '../plotting/notebook/candlestick.ipynb',
-    '../plotting/notebook/glucose.ipynb',
-    '../seaborn/violin.py',
-    '../charts/boxplot.py',
+    '../../examples/plotting/file/stocks.py',
+    '../../examples/plotting/file/glucose.py',
+    '../../examples/compat/ggplot/density.py',
+    '../../examples/plotting/server/stocks.py',
+    '../../examples/plotting/server/glucose.py',
+    '../../examples/plotting/notebook/candlestick.ipynb',
+    '../../examples/plotting/notebook/glucose.ipynb',
+    '../../examples/compat/seaborn/violin.py',
+    '../../examples/charts/boxplot.py',
 ]
 
 
@@ -80,7 +80,7 @@ def depend_check(dependency):
     return found
 
 
-def main(home_dir, testing_ground=None):
+def main(testing_ground=None):
     """
     Collect and run .py or .ipynb examples from a set list or given examples directory, ignoring __init__.py
     User input is collected to determine a properly or improperly displayed page
@@ -123,7 +123,7 @@ def main(home_dir, testing_ground=None):
                 if index != len(TestFiles)-1:
                     input("\nPress enter to open next file ")
             else:
-                ErrorReport = test_status(fileName)
+                ErrorReport = test_status()
                 if ErrorReport:
                     Log.append("\n\n%s: \n %s" % (fileName, ErrorReport))
 
@@ -132,11 +132,11 @@ def main(home_dir, testing_ground=None):
 
     # exit the testing directory and delete it
 
-    os.chdir(home_dir)
+    os.chdir('../')
     rmtree(testing_directory)
 
     if Log:
-        logger(Log, home_dir, log_name)
+        logger(Log, log_name)
 
 
 def get_cmd(some_file):
@@ -157,16 +157,16 @@ def opener(some_file, command):
     the command method provided.
     """
 
-    print("\nOpening %s\n" % some_file)
+    print("\nOpening %s\n" % some_file.strip('../'))
     os.system("%s %s" % (command, some_file))
 
 
-def test_status(some_file):
+def test_status():
     """Collect user input to determine if a file displayed correctly or incorrectly.
     In the case of incorrectly displayed plots, an 'ErrorReport' string is returned.
     """
 
-    status = input("Did the plot(s) in %s display correctly? (y/n) " % some_file)
+    status = input("Did the plot(s) display correctly? (y/n) ")
     while not status.startswith(('y', 'n')):
         print("")
         status = input("Unexpected answer. Please type y or n. ")
@@ -175,20 +175,19 @@ def test_status(some_file):
         return ErrorReport
 
 
-def logger(error_array, log_dir, name):
+def logger(error_array, name):
     """
     Log errors by appending to a .txt file.  The name and directory the file is saved into
     is provided by the name and log_dir args.
     """
 
-    logfile = "%sExamplesTestlog.txt" % name
+    logfile = "%s_examples_testlog.txt" % name
     if os.path.exists(logfile):
         os.remove(logfile)
 
     with open(logfile, 'a') as f:
         print("")
         print("\nWriting error log to %s" % logfile)
-        f.write("%s\n" % log_dir)
         for error in error_array:
             f.write("%s\n" % error)
 
@@ -201,8 +200,6 @@ if __name__ == '__main__':
     parser = get_parser()
     results = parser.parse_args()
 
-    base_dir = os.getcwd()
-
     if results.location:
         if results.location and results.location in DIRECTORIES:
             target = results.location
@@ -211,7 +208,7 @@ if __name__ == '__main__':
                 if not depend_check(target):
                     sys.exit(1)
 
-            test_dir = os.path.join(base_dir, DIRECTORIES[target])
+            test_dir = DIRECTORIES[target]
     else:
         test_dir = None
 
@@ -219,4 +216,4 @@ if __name__ == '__main__':
         print("Server examples require bokeh-server. Make sure you've typed 'bokeh-server' in another terminal tab.")
         time.sleep(5)
 
-    main(base_dir, test_dir)
+    main(test_dir)

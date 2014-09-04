@@ -72,8 +72,8 @@ define [
         vx: vx
         vy: vy
       }
-      x = @plot_view.xmapper.map_from_target(vx)
-      y = @plot_view.ymapper.map_from_target(vy)
+      x = @xmapper.map_from_target(vx)
+      y = @ymapper.map_from_target(vy)
       datasources = {}
       datasource_selections = {}
       renderers = @mget('renderers')

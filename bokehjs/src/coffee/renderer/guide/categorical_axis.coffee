@@ -1,11 +1,14 @@
 
 define [
-  "backbone",
-  "./axis",
+  "backbone"
+  "./axis"
+  "common/logging"
   "range/factor_range"
   "ticking/categorical_ticker"
   "ticking/categorical_tick_formatter"
-], (Backbone, Axis, FactorRange, CategoricalTicker, CategoricalTickFormatter) ->
+], (Backbone, Axis, Logging, FactorRange, CategoricalTicker, CategoricalTickFormatter) ->
+
+  logger = Logging.logger
 
   class CategoricalAxisView extends Axis.View
 
@@ -26,7 +29,7 @@ define [
 
       user_bounds = @get('bounds') ? 'auto'
       if user_bounds != 'auto'
-        console.log "Categorical Axes only support user_bounds='auto', ignoring"
+        logger.warn("Categorical Axes only support user_bounds='auto', ignoring")
 
       range_bounds = [ranges[i].get('min'), ranges[i].get('max')]
 

@@ -5,7 +5,7 @@ Bokeh Plot Server &mdash; {{ title }}
 {% endblock %}
 
 {% block script %}
-Bokeh.server_page("{{ title }}");
+Bokeh.embed.server_page("{{ title }}");
 {% endblock %}
 
 {% block content %}

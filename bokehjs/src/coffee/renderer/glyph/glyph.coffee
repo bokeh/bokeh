@@ -2,9 +2,12 @@
 define [
   "underscore",
   "common/has_parent",
+  "common/logging",
   "common/plot_widget",
   "renderer/properties"
-], (_, HasParent, PlotWidget, Properties) ->
+], (_, HasParent, Logging, PlotWidget, Properties) ->
+
+  logger = Logging.logger
 
   class GlyphView extends PlotWidget
 
@@ -56,7 +59,7 @@ define [
            @plot_view.y_range,
            transform_params)
       else
-        console.log("Unkonwn resample op '#{resample_op}'")
+        logger.warn("unknown resample op: '#{resample_op}'")
 
     initialize: (options) ->
       super(options)
@@ -64,6 +67,12 @@ define [
       @need_set_data = true
 
       @glyph_props = @init_glyph(@mget('glyphspec'))
+
+      @x_range_name = @mget('x_range_name')
+      @y_range_name = @mget('y_range_name')
+
+      @xmapper = @plot_view.frame.get('x_mappers')[@x_range_name]
+      @ymapper = @plot_view.frame.get('y_mappers')[@y_range_name]
 
       @have_selection_props = false
       if @mget('selection_glyphspec')
@@ -118,7 +127,12 @@ define [
 
       # any additional customization can happen here
       if @_set_data?
+        t0 = Date.now()
         @_set_data()
+        dt = Date.now() - t0
+        type = @mget('glyphspec').type
+        id = @mget("id")
+        logger.debug("#{type} glyph (#{id}): custom _set_data finished in #{dt}ms")
 
       # just use the length of the last added field
       len = @[field].length
@@ -160,6 +174,8 @@ define [
 
       selected = @mget('data_source').get('selected')
 
+      t0 = Date.now()
+
       if selected and selected.length and @have_selection_props
 
         # reset the selection mask
@@ -182,6 +198,11 @@ define [
       else
         do_render(ctx, indices, @glyph_props)
 
+      dt = Date.now() - t0
+      type = @mget('glyphspec').type
+      id = @mget("id")
+      logger.trace("#{type} glyph (#{id}): do_render calls finished in #{dt}ms")
+
       @have_new_data = false
 
       ctx.restore()
@@ -201,8 +222,8 @@ define [
       pt_units = @glyph_props[pt].units
       span_units = @glyph_props[span_prop_name].units
 
-      if      pt == 'x' then mapper = @plot_view.xmapper
-      else if pt == 'y' then mapper = @plot_view.ymapper
+      if      pt == 'x' then mapper = @xmapper
+      else if pt == 'y' then mapper = @ymapper
 
       source = @mget('data_source')
       local_select = (prop_name) =>
@@ -285,30 +306,33 @@ define [
         ctx.stroke()
 
     hit_test: (geometry) ->
+      result = null
+
       if geometry.type == "point"
         if @_hit_point?
-          return @_hit_point(geometry)
-        if not @_point_hit_warned?
-          console.log "WARNING: 'point' selection not available on renderer"
+          result = @_hit_point(geometry)
+        else if not @_point_hit_warned?
+          type = @mget('glyphspec').type
+          logger.warn("'point' selection not available on #{type} renderer")
           @_point_hit_warned = true
-        return null
-
       else if geometry.type == "rect"
         if @_hit_rect?
-          return @_hit_rect(geometry)
-        if not @_rect_hit_warned?
-          console.log "WARNING: 'rect' selection not avaliable on renderer"
+          result = @_hit_rect(geometry)
+        else if not @_rect_hit_warned?
+          type = @mget('glyphspec').type
+          logger.warn("'rect' selection not available on #{type} renderer")
           @_rect_hit_warned = true
-        return null
-
       else
-        console.log "unrecognized selection geometry type '#{ geometry.type }'"
-        return null
+        logger.error("unrecognized selection geometry type '#{ geometry.type }'")
+
+      return result
 
   class Glyph extends HasParent
 
     defaults: () ->
       return {
+        x_range_name: "default"
+        y_range_name: "default"
         data_source: null
       }
 

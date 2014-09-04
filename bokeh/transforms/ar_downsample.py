@@ -215,7 +215,7 @@ class ImageShader(Shader):
                 raise ValueError("Can't handle hex-format colors (yet)")
             else:
                 try:
-                    rgb = getattr(colors, color).toRGB()
+                    rgb = getattr(colors, color).to_rgb()
                 except:
                     raise ValueError("Unknown color string %s" % color)
                 return [rgb.r, rgb.g, rgb.b, 255]
@@ -444,8 +444,8 @@ def source(plot, agg=Count(), info=Const(val=1), shader=Id(),
         raise ValueError("Unrecognized shader output type %s" % shader.out)
 
     # Remove the base plot (if requested)
-    if remove_original and plot in curdoc()._plotcontext.children:
-        curdoc()._plotcontext.children.remove(plot)
+    if remove_original and plot in curdoc().context.children:
+        curdoc().context.children.remove(plot)
 
     kwargs['transform'] = {
         'resample': "abstract rendering",

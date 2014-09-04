@@ -14,7 +14,7 @@ from bokeh.objects import Plot, ColumnDataSource, Range1d
 from bokeh.properties import Instance
 from bokeh.server.app import bokeh_app
 from bokeh.server.utils.plugins import object_page
-from bokeh.widgetobjects import HBox, Slider, TextInput, VBoxForm
+from bokeh.widgets import HBox, Slider, TextInput, VBoxForm
 
 class SlidersApp(HBox):
     extra_generated_classes = [["SlidersApp", "SlidersApp", "HBox"]]

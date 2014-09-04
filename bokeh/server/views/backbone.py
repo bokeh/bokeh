@@ -19,8 +19,8 @@ log = logging.getLogger(__name__)
 
 def init_bokeh(clientdoc):
     request.bokeh_server_document = clientdoc
-    clientdoc.autostore(False)
-    clientdoc.autoadd(False)
+    clientdoc.autostore = False
+    clientdoc.autoadd = False
 #Management Functions
 
 @bokeh_app.route("/bokeh/bb/<docid>/reset", methods=['GET'])
@@ -72,7 +72,7 @@ def bulk_upsert(docid):
     prune(clientdoc)
     data = protocol.deserialize_json(request.data.decode('utf-8'))
     if client == 'python':
-        clientdoc.load(*data, events=None, dirty=True)
+        clientdoc.load(*data, events='none', dirty=True)
     else:
         clientdoc.load(*data, events='existing', dirty=True)
     changed = bokeh_app.backbone_storage.store_document(clientdoc)

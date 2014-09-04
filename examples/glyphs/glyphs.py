@@ -1,7 +1,7 @@
 import numpy as np
 
-from bokeh.objects import ColumnDataSource, DataRange1d, Plot, Glyph, LinearAxis, Grid
-from bokeh.widgetobjects import VBox, Tabs, Panel
+from bokeh.objects import ColumnDataSource, DataRange1d, Plot, LinearAxis, Grid
+from bokeh.widgets import VBox, Tabs, Panel
 from bokeh.glyphs import (AnnularWedge, Annulus, Arc, Bezier, Circle, Line, MultiLine, Oval,
     Patch, Patches, Quad, Quadratic, Ray, Rect, Segment, Square, Wedge, CircleX, Triangle,
     Cross, Diamond, InvertedTriangle, SquareX, Asterisk, SquareCross, DiamondCross, CircleCross)
@@ -73,15 +73,20 @@ markers = [
 
 def make_tab(title, glyph):
     plot = Plot(title=title, x_range=xdr, y_range=ydr)
-    renderer = Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=glyph)
-    plot.renderers.append(renderer)
-    xaxis = LinearAxis(plot=plot)
-    plot.below.append(xaxis)
-    yaxis = LinearAxis(plot=plot)
-    plot.left.append(yaxis)
-    xgrid = Grid(plot=plot, dimension=0, ticker=xaxis.ticker)
-    ygrid = Grid(plot=plot, dimension=1, ticker=yaxis.ticker)
+
+    plot.add_glyph(source, glyph)
+
+    xaxis = LinearAxis()
+    plot.add_layout(xaxis, 'below')
+
+    yaxis = LinearAxis()
+    plot.add_layout(yaxis, 'left')
+
+    plot.add_layout(Grid(dimension=0, ticker=xaxis.ticker))
+    plot.add_layout(Grid(dimension=1, ticker=yaxis.ticker))
+
     tab = Panel(child=plot, title=title)
+
     return tab
 
 def make_tabs(objs):

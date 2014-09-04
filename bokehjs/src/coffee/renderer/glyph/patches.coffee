@@ -49,7 +49,9 @@ define [
       @sxs = []
       @sys = []
       for i in [0...@xs.length]
-        [sx, sy] = @plot_view.map_to_screen(@xs[i], @glyph_props.xs.units, @ys[i], @glyph_props.ys.units)
+        [sx, sy] = @plot_view.map_to_screen(
+          @xs[i], @glyph_props.xs.units, @ys[i], @glyph_props.ys.units, @x_range_name, @y_range_name
+        )
         @sxs.push(sx)
         @sys.push(sy)
 
@@ -111,8 +113,8 @@ define [
       sx = @plot_view.canvas.vx_to_sx(vx)
       sy = @plot_view.canvas.vy_to_sy(vy)
 
-      x = @plot_view.xmapper.map_from_target(vx)
-      y = @plot_view.ymapper.map_from_target(vy)
+      x = @xmapper.map_from_target(vx)
+      y = @ymapper.map_from_target(vy)
 
       candidates = (x[4].i for x in @index.search([x, y, x, y]))
 

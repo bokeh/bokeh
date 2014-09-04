@@ -12,7 +12,9 @@ define [
     _properties: ['line', 'fill']
 
     _map_data: () ->
-      [sxi, syi] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
+      [sxi, syi] = @plot_view.map_to_screen(
+        @x, @glyph_props.x.units, @y, @glyph_props.y.units, @x_range_name, @y_range_name
+      )
 
       @sw = @distance_vector('x', 'width', 'center', @mget('glyphspec')['dilate'])
       @sh = @distance_vector('y', 'height', 'center', @mget('glyphspec')['dilate'])
@@ -89,15 +91,15 @@ define [
         ctx.stroke()
 
     _hit_rect: (geometry) ->
-      [x0, x1] = @plot_view.xmapper.v_map_from_target([geometry.vx0, geometry.vx1])
-      [y0, y1] = @plot_view.ymapper.v_map_from_target([geometry.vy0, geometry.vy1])
+      [x0, x1] = @xmapper.v_map_from_target([geometry.vx0, geometry.vx1])
+      [y0, y1] = @ymapper.v_map_from_target([geometry.vy0, geometry.vy1])
 
       return (x[4].i for x in @index.search([x0, y0, x1, y1]))
 
     _hit_point: (geometry) ->
       [vx, vy] = [geometry.vx, geometry.vy]
-      x = @plot_view.xmapper.map_from_target(vx)
-      y = @plot_view.ymapper.map_from_target(vy)
+      x = @xmapper.map_from_target(vx)
+      y = @ymapper.map_from_target(vy)
 
       # handle categorical cases
       xcat = (typeof(x) == "string")
@@ -112,10 +114,10 @@ define [
         if @width_units == "screen" or xcat
           max_width = @max_width
           if xcat
-            max_width = @plot_view.xmapper.map_to_target(max_width)
+            max_width = @xmapper.map_to_target(max_width)
           vx0 = vx - 2*max_width
           vx1 = vx + 2*max_width
-          [x0, x1] = @plot_view.xmapper.v_map_from_target([vx0, vx1])
+          [x0, x1] = @xmapper.v_map_from_target([vx0, vx1])
         else
           x0 = x - 2*@max_width
           x1 = x + 2*@max_width
@@ -123,10 +125,10 @@ define [
         if @height_units == "screen" or ycat
           max_height = @max_height
           if ycat
-            max_height = @plot_view.ymapper.map_to_target(max_height)
+            max_height = @ymapper.map_to_target(max_height)
           vy0 = vy - 2*max_height
           vy1 = vy + 2*max_height
-          [y0, y1] = @plot_view.ymapper.v_map_from_target([vy0, vy1])
+          [y0, y1] = @ymapper.v_map_from_target([vy0, vy1])
         else
           y0 = y - 2*@max_height
           y1 = y + 2*@max_height
@@ -138,12 +140,12 @@ define [
         if @width_units == "screen" or xcat
           sx = @plot_view.canvas.vx_to_sx(vx)
         else
-          sx = @plot_view.canvas.vx_to_sx(@plot_view.xmapper.map_to_target(x))
+          sx = @plot_view.canvas.vx_to_sx(@xmapper.map_to_target(x))
 
         if @height_units == "screen" or ycat
           sy = @plot_view.canvas.vy_to_sy(vy)
         else
-          sy = @plot_view.canvas.vy_to_sy(@plot_view.ymapper.map_to_target(y))
+          sy = @plot_view.canvas.vy_to_sy(@ymapper.map_to_target(y))
 
         if @angle[i]
           d = Math.sqrt(Math.pow((sx - @sx[i]), 2) + Math.pow((sy - @sy[i]),2))

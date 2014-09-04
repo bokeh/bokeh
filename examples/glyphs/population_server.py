@@ -3,18 +3,19 @@ from __future__ import print_function
 import time
 from math import pi
 
-import requests
 from requests.exceptions import ConnectionError
 
-import pandas as pd
-
-from bokeh.objects import (Plot, ColumnDataSource, DataRange1d, FactorRange,
-    LinearAxis, CategoricalAxis, Grid, Glyph, Legend, SingleIntervalTicker, HoverTool)
-from bokeh.widgetobjects import Select, HBox, VBox
-from bokeh.glyphs import Line, Quad
+from bokeh.browserlib import view
 from bokeh.document import Document
-from bokeh.session import Session
+from bokeh.glyphs import Line, Quad
+from bokeh.objects import (
+    Plot, ColumnDataSource, DataRange1d, FactorRange,
+    LinearAxis, CategoricalAxis, Grid, Legend,
+    SingleIntervalTicker
+)
 from bokeh.sampledata.population import load_population
+from bokeh.session import Session
+from bokeh.widgets import Select, HBox, VBox
 
 document = Document()
 session = Session()
@@ -27,7 +28,7 @@ revision = 2012
 year = 2010
 location = "World"
 
-years = list(map(str, sorted(df.Year.unique())))
+years = [str(x) for x in sorted(df.Year.unique())]
 locations = sorted(df.Location.unique())
 
 source_pyramid = ColumnDataSource(data=dict())
@@ -38,24 +39,21 @@ def pyramid():
 
     plot = Plot(title=None, x_range=xdr, y_range=ydr, plot_width=600, plot_height=600)
 
-    xaxis = LinearAxis(plot=plot)
-    plot.below.append(xaxis)
-    yaxis = LinearAxis(plot=plot, ticker=SingleIntervalTicker(interval=5))
-    plot.left.append(yaxis)
+    xaxis = LinearAxis()
+    plot.add_layout(xaxis, 'below')
+    yaxis = LinearAxis(ticker=SingleIntervalTicker(interval=5))
+    plot.add_layout(yaxis, 'left')
 
-    xgrid = Grid(plot=plot, dimension=0, ticker=xaxis.ticker)
-    ygrid = Grid(plot=plot, dimension=1, ticker=yaxis.ticker)
+    plot.add_layout(Grid(dimension=0, ticker=xaxis.ticker))
+    plot.add_layout(Grid(dimension=1, ticker=yaxis.ticker))
 
     male_quad = Quad(left="male", right=0, bottom="groups", top="shifted", fill_color="#3B8686")
-    male_quad_glyph = Glyph(data_source=source_pyramid, xdata_range=xdr, ydata_range=ydr, glyph=male_quad)
-    plot.renderers.append(male_quad_glyph)
+    male_quad_glyph = plot.add_glyph(source_pyramid, male_quad)
 
     female_quad = Quad(left=0, right="female", bottom="groups", top="shifted", fill_color="#CFF09E")
-    female_quad_glyph = Glyph(data_source=source_pyramid, xdata_range=xdr, ydata_range=ydr, glyph=female_quad)
-    plot.renderers.append(female_quad_glyph)
+    female_quad_glyph = plot.add_glyph(source_pyramid, female_quad)
 
-    legend = Legend(plot=plot, legends=dict(Male=[male_quad_glyph], Female=[female_quad_glyph]))
-    plot.renderers.append(legend)
+    plot.add_layout(Legend(legends=dict(Male=[male_quad_glyph], Female=[female_quad_glyph])))
 
     return plot
 
@@ -68,19 +66,20 @@ def population():
 
     plot = Plot(title=None, x_range=xdr, y_range=ydr, plot_width=800, plot_height=200)
 
-    xaxis = CategoricalAxis(plot=plot, major_label_orientation=pi/4)
-    plot.below.append(xaxis)
+    plot.add_layout(CategoricalAxis(major_label_orientation=pi/4), 'below')
 
     line_known = Line(x="x", y="y", line_color="violet", line_width=2)
-    line_known_glyph = Glyph(data_source=source_known, xdata_range=xdr, ydata_range=ydr, glyph=line_known)
-    plot.renderers.append(line_known_glyph)
+    line_known_glyph = plot.add_glyph(source_known, line_known)
 
     line_predicted = Line(x="x", y="y", line_color="violet", line_width=2, line_dash="dashed")
-    line_predicted_glyph = Glyph(data_source=source_predicted, xdata_range=xdr, ydata_range=ydr, glyph=line_predicted)
-    plot.renderers.append(line_predicted_glyph)
+    line_predicted_glyph = plot.add_glyph(source_predicted, line_predicted)
 
-    legend = Legend(plot=plot, orientation="bottom_right", legends=dict(known=[line_known_glyph], predicted=[line_predicted_glyph]))
-    plot.renderers.append(legend)
+    plot.add_layout(
+        Legend(
+            orientation="bottom_right",
+            legends=dict(known=[line_known_glyph], predicted=[line_predicted_glyph])
+        )
+    )
 
     return plot
 
@@ -146,8 +145,11 @@ document.add(layout())
 update_data()
 
 if __name__ == "__main__":
-    link = session.object_link(document._plotcontext)
+    link = session.object_link(document.context)
     print("Please visit %s to see the plots" % link)
+    view (link)
+
+    print("\npress ctrl-C to exit")
 
     try:
         while True:
