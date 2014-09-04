@@ -166,6 +166,17 @@ to ``setup.py``:
 If you have any problems with the steps here, please contact the developers
 (see :ref:`contact`).
 
+"Developer" Mode Setup
+----------------------
+The processes described about result in building and using a full `bokeh.js`
+library. This could be considered "production" mode. It is also possible to
+run Bokeh code in a mode that utilizes ``require.js`` mode directly to serve
+up individual JavaScript modules individually. If this is done, then changes
+to BokehJS can be incrementally compiled, and the development iteration
+cycle shortened considerably.
+
+ development configuration (--splitjs, --dev, etc.)
+
 .. _developer_documentation:
 
 Documentation
@@ -522,11 +533,6 @@ Maintaining secure variables in .travis.yml
 
  interactions with travis-ci from CLI (gem install --user-instal travis)
  how to update secure values in .travis.yml (S3, flowdock)
-
-Production vs. Development mode
--------------------------------
-
- development configuration (--splitjs, --dev, etc.)
 
 Dealing with aggressive browser cache
 -------------------------------------
