@@ -33,8 +33,9 @@ define [
       super(options)
       @div = $('<div class="bokeh_tooltip" />').appendTo('body')
       @div.hide()
-
       @active = false
+      @xmapper = @plot_view.frame.get('x_mappers')[@x_range_name]
+      @ymapper = @plot_view.frame.get('y_mappers')[@y_range_name]
 
     bind_bokeh_events: () ->
 
@@ -99,8 +100,6 @@ define [
         vx: vx
         vy: vy
       }
-      x = @xmapper.map_from_target(vx)
-      y = @ymapper.map_from_target(vy)
       datasources = {}
       datasource_selections = {}
       for renderer in @mget('renderers')
@@ -111,6 +110,11 @@ define [
         _.setdefault(datasource_selections, datasource_id, [])
         selected = @plot_view.renderers[renderer.id].hit_test(geometry)
         ds = datasources[datasource_id]
+
+        xmapper = @plot_view.frame.get('x_mappers')[renderer.get('x_range_name')]
+        ymapper = @plot_view.frame.get('y_mappers')[renderer.get('y_range_name')]
+        x = xmapper.map_from_target(vx)
+        y = ymapper.map_from_target(vy)
 
         if selected == null
           continue
