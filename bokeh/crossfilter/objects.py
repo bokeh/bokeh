@@ -1,23 +1,20 @@
-import copy
 import logging
 
 import six
 import pandas as pd
 import numpy as np
 
-from ..objects import ColumnDataSource, Range1d, FactorRange, GridPlot, Widget, DataSource
+from ..objects import ColumnDataSource, Range1d, FactorRange, GridPlot
 from ..widgets import Select, MultiSelect, InputWidget
 #crossfilter plotting utilities
-from .plotting import (make_histogram_source, make_factor_source,
+from .plotting import (make_histogram_source,
                        make_histogram, make_continuous_bar_source,
                        make_categorical_bar_source,
                        make_bar_plot, cross)
 #bokeh plotting functions
-from ..plotting import (curdoc, cursession, line,
-                            scatter)
+from ..plotting import line, scatter
 from ..plot_object import PlotObject
-from ..properties import (HasProps, Dict, Enum, Either, Float, Instance, Int, List,
-    String, Color, Bool, Tuple, Any, Date, RelativeDelta, lookup_descriptor)
+from ..properties import Dict, Enum, Instance, List, String, Any
 
 logger = logging.getLogger(__name__)
 
@@ -280,8 +277,7 @@ class CrossFilter(PlotObject):
                 source = make_continuous_bar_source(
                     df, self.x, self.y, self.agg)
                 bar_width = 0.7
-                x_range = Range1d(start=df[self.x].min() - bar_width,
-                                  end=df[self.x].max() - bar_width)
+                x_range = [df[self.x].min() - bar_width, df[self.x].max() - bar_width]
                 plot = make_bar_plot(source, counts_name=self.y,
                                      centers_name=self.x,
                                      bar_width=bar_width,
@@ -302,8 +298,6 @@ class CrossFilter(PlotObject):
                                      tools=tools,
                                      x_range=x_range)
                 return plot
-
-
 
     def plot_attribute_change(self, obj, attrname, old, new):
         setattr(self, obj.name, new)
@@ -352,13 +346,11 @@ class CrossFilter(PlotObject):
         self.on_change('facet_y', self, 'facet_change')
 
     def handle_filter_selection(self, obj, attrname, old, new):
-        column_descriptor_dict = self.column_descriptor_dict()
         df = self.df
         for descriptor in self.columns:
             colname = descriptor['name']
             if descriptor['type'] == 'DiscreteColumn' and \
                colname in self.filter_widgets:
-                widget = self.filter_widgets[colname]
                 selected = self.filter_widgets[colname].value
                 if not selected:
                     continue
