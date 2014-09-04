@@ -446,3 +446,140 @@ is equivalent to::
         some = String
         some_fill_color = ColorSpec("gray")
         some_fill_alpha = DataSpec(1.0)
+
+Developer Notes
+===============
+
+This sections lists important developer notes, in random order. Please improve this,
+reorganize, etc. If you intent to modify semantics, please discuss this in the issue
+tracker.
+
+CSS class names
+---------------
+
+  bk-, bk-bs-
+
+Managing examples
+-----------------
+
+ examples' naming convention (e.g. _server suffix)
+ adding examples to test.yml
+
+Choosing right types
+--------------------
+
+ choosing correct types for properties (don't use Any if possible)
+
+Managing Python modules
+-----------------------
+
+ update packages in setup.py when changing module structure
+
+Managing external JS libraries
+------------------------------
+
+ adding packages to and updating bokehjs/src/vendor
+
+Maintaining secure variables in .travis.yml
+-------------------------------------------
+
+ interactions with travis-ci from CLI (gem install --user-instal travis)
+ how to update secure values in .travis.yml (S3, flowdock)
+
+Production vs. Development mode
+-------------------------------
+
+ development configuration (--splitjs, --dev, etc.)
+
+Dealing with aggressive browser cache
+-------------------------------------
+
+ dealing with aggressive caching in major web browsers
+
+BokehJS AMD module template for a model
+---------------------------------------
+
+Supposed you want to add a model for a `Button` widget. This must be accompanied
+by a collection and (most often) a view. Follow this steps:
+
+#. There is one model per source file policy. The file name is the snakified version
+   of the model name. In this case `button.coffee`.
+#. Choose location of the source file under `bokehjs/src/coffee`. This depends on
+   the role of your model. Button is a widget, so it goes into `widget`. If you
+   create a group of related models, then you may consider adding a subdirectory
+   that will contain those models. Do not add top-level directories unless you
+   add a completely new kind of functionality to bokeh.
+#. Update `bokehjs/src/coffee/common/base.coffee`. This is required for model loader
+   to be able to resolve your new model. Two additions are necessary. First, add
+   module path to `define [...]`. Then update `locations: ...` mapping with
+   model name and module path entry. Module path is source file path relative
+   to `bokehjs/src/coffee` directory and without extension. In this case it's
+   `widget/button`, so you add `widget/button` to `define [...]` and `Button:
+   `widget/button` to `locations: ...`. Make sure to add them under appropriate
+   sections, preferably in lexicographic order or group by functionality.
+#. Create the source file using the following template::
+
+    define [
+      "underscore"
+      "backbone"
+      "common/continuum_view"
+      "common/has_parent"
+      "common/logging"
+      "./button_template"
+    ], (_, Backbone, continuum_view, HasParent, Logging, template) ->
+
+      logger = Logging.logger
+
+      class ButtonView extends continuum_view.View
+        tagName: "div"
+        template: template
+        events:
+          "click": "on_click"
+
+        on_click: () ->
+          logger.info("click!")
+
+        initialize: (options) ->
+          super(options)
+          @render()
+          @listenTo(@model, 'change', @render)
+
+        render: () ->
+          @$el.empty()
+          html = @template(@model.attributes)
+          @$el.html(html)
+          return this
+
+      class Button extends HasParent
+        type: "Button"
+        default_view: ButtonView
+
+        defaults: () ->
+          _.extend({}, super(), {
+            text: 'Button'
+          }
+
+      class Buttons extends Backbone.Collection
+        model: Button
+
+      return {
+        Model: Button
+        Collection: new Buttons()
+        View: ButtonView
+      }
+
+   Note that this is just a template, so make sure you change it accordingly to your
+   application. However, most implementation will have to have three classes defined:
+   a model, a collection and a view, which must directly or indirectly inherit from
+   `HasProperties`, `Backbone.Collection` and `continuum_view.View` respectively. In
+   this case you can see that the model inherits from `HasParent` which in turn
+   inherits from `HasProperties`. If a view is defined, the model must have `default_view`
+   defined. You are not forced to use ECO templates for rendering of a view, but it's
+   encouraged, because it takes care of variable encoding, so it's less likely to
+   introduce XSS vulnerabilities this way. Otherwise, take advantage of jQuery's APIs,
+   like `$(...).text("foobar")`. Do *not* use plain string concatenation or interpolation,
+   because you will quickly compromise security this way.
+
+#. Test your new module in development and production modes (i.e. with `require()` and
+   `r.js`). Your module can work perfectly in one mode and not load at all in the other,
+   so keep that in mind.
