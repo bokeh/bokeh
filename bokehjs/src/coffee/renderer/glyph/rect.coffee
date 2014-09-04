@@ -161,8 +161,8 @@ define [
           py = s * (sx-@sx[i]) + c * (sy-@sy[i]) + @sy[i]
           sx = px
           sy = py
-        width_in = Math.abs(@sx[i]-sx) <= @sw[i]/2
-        height_in = Math.abs(@sy[i]-sy) <= @sh[i]/2
+        width_in = Math.abs((@sx[i] + @x_offset[i])-sx) <= @sw[i]/2
+        height_in = Math.abs((@sy[i] + @y_offset[i])-sy) <= @sh[i]/2
 
         if height_in and width_in
           hits.push(i)
