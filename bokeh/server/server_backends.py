@@ -390,9 +390,14 @@ class FunctionBackend(AbstractDataBackend):
                'hundredA': np.random.rand(qty)*100,
                'hundredB': np.random.rand(qty)*100}
 
-    pyramid = {'x': [1, 1, 1, 2, 2, 2, 2, 1, 1, 1],
-               'y': [1, 1, 1, 2, 2, 2, 2, 1, 1, 1]}
-    
+    bivariate = {'A1': np.hstack([np.random.randn(qty/2), np.random.randn(qty/2)+1]),
+                 'A2': np.hstack([np.random.randn(qty/2), np.random.randn(qty/2)+2]),
+                 'A3': np.hstack([np.random.randn(qty/2), np.random.randn(qty/2)+3]),
+                 'A4': np.hstack([np.random.randn(qty/2), np.random.randn(qty/2)+4]),
+                 'A5': np.hstack([np.random.randn(qty/2), np.random.randn(qty/2)+5]),
+                 'B': np.random.randn(qty),
+                 'C': np.hstack([np.zeros(qty/2), np.ones(qty/2)])}
+
     def __init__(self):
       N = 1000
       x = np.linspace(0, 10, N)
@@ -412,7 +417,7 @@ class FunctionBackend(AbstractDataBackend):
         raise ValueError("Unknown (function-defined) dataset '{}'".format(dataset))
 
     def list_data_sources(self, *args):
-      return ["sin_cos", "gauss","uniform"]
+      return ["sin_cos", "gauss","uniform", "bivariate"]
     
     def get_data(self, request_username, datasource, parameters, plot_state, render_state): 
         data_url = datasource.data_url
