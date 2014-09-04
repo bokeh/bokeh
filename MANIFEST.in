@@ -4,6 +4,5 @@ include versioneer.py
 recursive-include examples *.py *.ipynb *.md
 graft bokehjs
 prune bokehjs/node_modules
-prune bokehjs/build
 prune examples/plotting/notebook/.ipynb_checkpoints
 prune examples/glyphs/.ipynb_checkpoints
