@@ -39,7 +39,7 @@ circle = Circle(x="x", y="y", size=15,
     # on the datasource.
     line_color="black")
 
-plot.add_glyph(source, xdr, ydr, circle)
+plot.add_glyph(source, circle)
 
 plot.add_layout(LinearAxis(), 'below')
 plot.add_layout(LinearAxis(), 'left')

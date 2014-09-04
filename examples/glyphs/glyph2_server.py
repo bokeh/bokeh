@@ -31,7 +31,7 @@ circle = Circle(
     x="x", y="y", size="r",
     fill_color="red", line_color="black"
 )
-plot.add_glyph(source, xdr, ydr, circle)
+plot.add_glyph(source, circle)
 
 xaxis = LinearAxis()
 plot.add_layout(xaxis, 'below')

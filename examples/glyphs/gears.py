@@ -28,7 +28,7 @@ def sample_gear():
     plot.add_tools(PanTool(), WheelZoomTool(), ResetTool())
 
     glyph = Gear(x=0, y=0, module=5, teeth=8, angle=0, shaft_size=0.2, fill_color=fill_color[2], line_color=line_color)
-    plot.add_glyph(source, xdr, ydr, glyph)
+    plot.add_glyph(source, glyph)
 
     return plot
 
@@ -51,7 +51,7 @@ def classical_gear(module, large_teeth, small_teeth):
         module=module, teeth=large_teeth, angle=angle,
         fill_color=fill_color[0], line_color=line_color
     )
-    plot.add_glyph(source, xdr, ydr, glyph)
+    plot.add_glyph(source, glyph)
 
     radius = pitch_radius(module, small_teeth)
     angle = half_tooth(small_teeth)
@@ -60,7 +60,7 @@ def classical_gear(module, large_teeth, small_teeth):
         module=module, teeth=small_teeth, angle=angle,
         fill_color=fill_color[1], line_color=line_color
     )
-    plot.add_glyph(source, xdr, ydr, glyph)
+    plot.add_glyph(source, glyph)
 
     return plot
 
@@ -83,14 +83,14 @@ def epicyclic_gear(module, sun_teeth, planet_teeth):
         module=module, teeth=annulus_teeth, angle=0,
         fill_color=fill_color[0], line_color=line_color, internal=True
     )
-    plot.add_glyph(source, xdr, ydr, glyph)
+    plot.add_glyph(source, glyph)
 
     glyph = Gear(
         x=0, y=0,
         module=module, teeth=sun_teeth, angle=0,
         fill_color=fill_color[2], line_color=line_color
     )
-    plot.add_glyph(source, xdr, ydr, glyph)
+    plot.add_glyph(source, glyph)
 
     sun_radius = pitch_radius(module, sun_teeth)
     planet_radius = pitch_radius(module, planet_teeth)
@@ -104,7 +104,7 @@ def epicyclic_gear(module, sun_teeth, planet_teeth):
             module=module, teeth=planet_teeth, angle=angle,
             fill_color=fill_color[1], line_color=line_color
         )
-        plot.add_glyph(source, xdr, ydr, glyph)
+        plot.add_glyph(source, glyph)
 
     return plot
 

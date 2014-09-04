@@ -186,11 +186,11 @@ class Population(object):
 
         male_quad = Quad(left="male", right=0, bottom="groups", top="shifted",
                          fill_color="#3B8686")
-        male_quad_glyph = self.plot.add_glyph(self.source_pyramid, xdr, ydr, male_quad)
+        male_quad_glyph = self.plot.add_glyph(self.source_pyramid, male_quad)
 
         female_quad = Quad(left=0, right="female", bottom="groups", top="shifted",
                            fill_color="#CFF09E")
-        female_quad_glyph = self.plot.add_glyph(self.source_pyramid, xdr, ydr, female_quad)
+        female_quad_glyph = self.plot.add_glyph(self.source_pyramid, female_quad)
 
         self.plot.add_layout(Legend(legends=dict(Male=[male_quad_glyph],
                                                  Female=[female_quad_glyph])))

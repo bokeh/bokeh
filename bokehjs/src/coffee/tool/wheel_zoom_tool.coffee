@@ -76,25 +76,35 @@ define [
       dims = @mget('dimensions')
 
       if dims.indexOf('width') > -1
-        [xstart, xend] = @plot_view.xmapper.v_map_from_target([
-          sx_low  - (sx_low  - x)*factor, sx_high - (sx_high - x)*factor
-        ])
+        sx0 = sx_low  - (sx_low  - x)*factor
+        sx1 = sx_high - (sx_high - x)*factor
       else
-        [xstart, xend] = @plot_view.xmapper.v_map_from_target([sx_low, sx_high])
+        sx0 = sx_low
+        sx1 = sx_high
 
       if dims.indexOf('height') > -1
-        [ystart, yend] = @plot_view.ymapper.v_map_from_target([
-          sy_low  - (sy_low  - y)*factor, sy_high - (sy_high - y)*factor
-        ])
+        sy0 = sy_low  - (sy_low  - y)*factor
+        sy1 = sy_high - (sy_high - y)*factor
       else
-        [ystart, yend] = @plot_view.ymapper.v_map_from_target([sy_low, sy_high])
+        sy0 = sy_low
+        sy1 = sy_high
+
+      xrs = {}
+      for name, mapper of @plot_view.frame.get('x_mappers')
+        [start, end] = mapper.v_map_from_target([sx0, sx1])
+        xrs[name] = {start: start, end: end}
+
+      yrs = {}
+      for name, mapper of @plot_view.frame.get('y_mappers')
+        [start, end] = mapper.v_map_from_target([sy0, sy1])
+        yrs[name] = {start: start, end: end}
 
       # OK this sucks we can't set factor independently in each direction. It is used
       # for GMap plots, and GMap plots always preserve aspect, so effective the value
       # of 'dimensions' is ignored.
       zoom_info = {
-        xr: {start: xstart, end: xend}
-        yr: {start: ystart, end: yend}
+        xrs: xrs
+        yrs: yrs
         factor: factor
       }
       @plot_view.update_range(zoom_info)

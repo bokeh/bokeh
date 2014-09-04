@@ -18,7 +18,7 @@ define [
 
     change_input : () ->
       value = @$('select').val()
-      logging.debug("selectbox: value = #{value}")
+      logger.debug("selectbox: value = #{value}")
       @mset('value', value)
       @model.save()
 

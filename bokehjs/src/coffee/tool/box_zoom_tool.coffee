@@ -69,7 +69,7 @@ define [
       [@xrange, @yrange] = @_get_selection_range()
       @trigger('boxselect', @xrange, @yrange)
 
-      @plot_view._render_levels(@plot_view.ctx, ['overlay'], true)
+      @plot_view._render_levels(@plot_view.canvas_view.ctx, ['overlay'])
       return null
 
     _dragend : () ->
@@ -82,12 +82,19 @@ define [
       if not @basepoint_set
         return
 
-      [xstart, xend] = @plot_view.xmapper.v_map_from_target([@xrange[0], @xrange[1]])
-      [ystart, yend] = @plot_view.ymapper.v_map_from_target([@yrange[0], @yrange[1]])
+      xrs = {}
+      for name, mapper of @plot_view.frame.get('x_mappers')
+        [start, end] = mapper.v_map_from_target([@xrange[0], @xrange[1]])
+        xrs[name] = {start: start, end: end}
+
+      yrs = {}
+      for name, mapper of @plot_view.frame.get('y_mappers')
+        [start, end] = mapper.v_map_from_target([@yrange[0], @yrange[1]])
+        yrs[name] = {start: start, end: end}
 
       zoom_info = {
-        xr: {start: xstart, end: xend}
-        yr: {start: ystart, end: yend}
+        xrs: xrs
+        yrs: yrs
       }
       @plot_view.update_range(zoom_info)
 

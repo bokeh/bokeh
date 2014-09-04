@@ -11,9 +11,22 @@ define [
     initialize: (options) ->
       super(options)
       @render()
-      @listenTo(@model, 'change:source', @render)
+      @listenTo(@model, 'change:source', () => @renderFn())
+      source = @mget("source")
+      @listenTo(source, 'change:data', () => @renderFn())
+      @listenTo(source, 'change:selected', () => @changeSelection())
 
-    render: () ->
+    changeSelection: () ->
+      @ht.deselectCell()
+
+      # NOTE: only linear selection allowed by ht
+      selected = @mget("source").get("selected")
+      i = _.min(selected)
+      j = _.max(selected)
+      n = @ht.countCols()
+      @ht.selectCell(i, 0, j, n-1, true)
+
+    renderFn: () ->
       source = @mget("source")
       if source?
         headers = []
@@ -21,23 +34,42 @@ define [
 
         for column in @mget("columns")
           headers.push(column.get("header"))
-          data = column.get("data")
-          type = column.get("type")
-          columns.push({ data: data, type: type })
+          columns.push({
+              data: column.get("field")
+              type: column.get("type")
+              format: column.get("format")
+              source: column.get("source")
+              strict: column.get("strict")
+              checkedTemplate: column.get("checked")
+              uncheckedTemplate: column.get("unchecked")
+          })
 
         @$el.handsontable({
           data: source.datapoints()
           colHeaders: headers
           columns: columns
+          columnSorting: @mget("sorting")
+          rowHeaders: true
+          width: @mget("width")
+          height: @mget("height")
           afterChange: (changes, source) =>
             if source == "edit"
               @editData(changes)
         })
-
-        ht = @$el.handsontable("getInstance")
-        ht.view.wt.draw(true) # XXX: hack to show table, but column sizes are still wrong (until window/node resize)
       else
         @$el.handsontable()
+
+      @ht = @$el.handsontable("getInstance")
+
+    render: () ->
+      # XXX: we have to know when bokeh finished rendering to ... finish rendering
+      display = @$el.css("display")
+
+      interval = setInterval(() =>
+        if @$el.css("display") != display
+          clearInterval(interval)
+          @renderFn()
+      , 100)
 
     editData: (changes) ->
       source = @mget("source")
@@ -67,6 +99,8 @@ define [
       return {
           source: null
           columns: []
+          width: null
+          height: null
       }
 
   class HandsonTables extends Backbone.Collection

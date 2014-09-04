@@ -25,7 +25,7 @@ def large_plot(n):
         xgrid = Grid(plot=plot, dimension=0)
         ygrid = Grid(plot=plot, dimension=1)
         tickers = [xaxis.ticker, xaxis.formatter, yaxis.ticker, yaxis.formatter]
-        renderer = Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=Line(x='x', y='y'))
+        renderer = Glyph(data_source=source, glyph=Line(x='x', y='y'))
         plot.renderers.append(renderer)
         pan = PanTool(plot=plot)
         wheel_zoom = WheelZoomTool(plot=plot)

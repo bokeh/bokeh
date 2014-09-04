@@ -105,15 +105,22 @@ class Chart(object):
         self.categorical = False
         self.glyphs = []
 
-    def start_plot(self):
-        "Add the axis, grids and tools to self.plot"
+    def start_plot(self, xgrid, ygrid):
+        """Add the axis, grids and tools to self.plot
+
+        Args:
+            xgrid(bool): whether to show the xgrid
+            ygrid(bool): whether to shoe the ygrid
+        """
         # Add axis
         xaxis = self.make_axis("below", self.xscale, self.xlabel)
         yaxis = self.make_axis("left", self.yscale, self.ylabel)
 
         # Add grids
-        self.make_grid(0, xaxis.ticker)
-        self.make_grid(1, yaxis.ticker)
+        if xgrid:
+            self.make_grid(0, xaxis.ticker)
+        if ygrid:
+            self.make_grid(1, yaxis.ticker)
 
         # Add tools
         if self.tools:
@@ -202,9 +209,14 @@ class Chart(object):
         Args:
             dimension(int): the dimension of the axis, ie. xaxis=0, yaxis=1.
             ticker (obj): the axis.ticker object
+
+        Return:
+            grid: Grid instance
         """
         grid = Grid(dimension=dimension, ticker=ticker)
         self.plot.add_layout(grid)
+
+        return grid
 
     def make_segment(self, source, x0, y0, x1, y1, color, width):
         """ Create a segment glyph and append it to the plot.renderers list.
@@ -217,10 +229,15 @@ class Chart(object):
             y1 (str or list[float]) : values or field names of ending ``y`` coordinates
             color (str): the segment color
             width (int): the segment width
+
+        Return:
+            segment: Segment instance
         """
         segment = Segment(x0=x0, y0=y0, x1=x1, y1=y1, line_color=color, line_width=width)
 
         self._append_glyph(source, segment)
+
+        return segment
 
     def make_line(self, source, x, y, color):
         """Create a line glyph and append it to the plot.renderers list.
@@ -230,10 +247,15 @@ class Chart(object):
             x (str or list[float]) : values or field names of line ``x`` coordinates
             y (str or list[float]) : values or field names of line ``y`` coordinates
             color (str): the line color
+
+        Return:
+            line: Line instance
         """
         line = Line(x=x, y=y, line_color=color)
 
         self._append_glyph(source, line)
+
+        return line
 
     def make_quad(self, source, top, bottom, left, right, color, line_color):
         """Create a quad glyph and append it to the plot.renderers list.
@@ -246,11 +268,16 @@ class Chart(object):
             bottom (str or list[float]) : values or field names of bottom edges
             color (str): the fill color
             line_color (str): the line color
+
+        Return:
+            quad: Quad instance
         """
         quad = Quad(top=top, bottom=bottom, left=left, right=right,
                     fill_color=color, fill_alpha=0.7, line_color=line_color, line_alpha=1.0)
 
         self._append_glyph(source, quad)
+
+        return quad
 
     def make_rect(self, source, x, y, width, height, color, line_color, line_width):
         """Create a rect glyph and append it to the renderers list.
@@ -264,11 +291,16 @@ class Chart(object):
             color (str): the fill color
             line_color (str): the line color
             line_width (int): the line width
+
+        Return:
+            rect: Rect instance
         """
         rect = Rect(x=x, y=y, width=width, height=height, fill_color=color,
                     fill_alpha=0.7, line_color=line_color, line_alpha=1.0, line_width=line_width)
 
         self._append_glyph(source, rect)
+
+        return rect
 
     def make_scatter(self, source, x, y, markertype, color):
         """Create a marker glyph and appends it to the renderers list.
@@ -279,6 +311,9 @@ class Chart(object):
             y (str or list[float]) : values or field names of line ``y`` coordinates
             markertype (int or str): Marker type to use (e.g., 2, 'circle', etc.)
             color (str): color of the points
+
+        Return:
+            scatter: Marker Glyph instance
         """
 
         _marker_types = OrderedDict([
@@ -311,6 +346,8 @@ class Chart(object):
 
         self._append_glyph(source, scatter)
 
+        return scatter
+
     def show(self):
         """Main show function.
 
@@ -326,8 +363,8 @@ class Chart(object):
             print("Wrote %s" % filename)
             view(filename)
         elif self.filename is False and self.server is False and self.notebook is False:
-            print("You have a provide a filename (filename='foo' or"
-                  " .filename('foo')) to save your plot.")
+            print("You have a provide a filename (filename='foo.html' or"
+                  " .filename('foo.html')) to save your plot.")
 
         if self.server:
             self.session.use_doc(self.servername)
@@ -348,6 +385,6 @@ class Chart(object):
             source (obj): datasource containing data for the glyph
             glyph (obj): glyph type
         """
-        _glyph = self.plot.add_glyph(source, self.plot.x_range, self.plot.y_range, glyph)
+        _glyph = self.plot.add_glyph(source, glyph)
 
         self.glyphs.append(_glyph)

@@ -48,7 +48,7 @@ define [
 
       @listenTo(@solver, 'layout_update', @_update_mappers)
 
-    map_to_screen: (x, x_units, y, y_units, canvas, name='default') ->
+    map_to_screen: (x, x_units, y, y_units, canvas, x_name='default', y_name='default') ->
       if x_units == 'screen'
         if _.isArray(x)
           vx = x[..]
@@ -56,7 +56,7 @@ define [
           vx = new Float64Array(x.length)
           vx.set(x)
       else
-        vx = @get('x_mappers')[name].v_map_to_target(x)
+        vx = @get('x_mappers')[x_name].v_map_to_target(x)
       if y_units == 'screen'
         if _.isArray(y)
           vy = y[..]
@@ -64,7 +64,7 @@ define [
           vy = new Float64Array(y.length)
           vy.set(y)
       else
-        vy = @get('y_mappers')[name].v_map_to_target(y)
+        vy = @get('y_mappers')[y_name].v_map_to_target(y)
 
       sx = canvas.v_vx_to_sx(vx)
       sy = canvas.v_vy_to_sy(vy)
@@ -99,7 +99,8 @@ define [
       extra_ranges = @get("extra_#{dim}_ranges")
       if extra_ranges?
         for name, range of extra_ranges
-          ranges[name] = range
+          # resolve ref needed because dicts are not auto-resolved
+          ranges[name] = @resolve_ref(range)
       return ranges
 
     _get_mappers: (dim, ranges, frame_range) ->

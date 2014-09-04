@@ -26,7 +26,7 @@ ydr = Range1d(start=0, end=10)
 def make_plot(name, glyph):
     plot = Plot(x_range=xdr, y_range=ydr, min_border=80)
 
-    plot.add_glyph(source, xdr, ydr, glyph)
+    plot.add_glyph(source, glyph)
 
     xaxis = LinearAxis()
     plot.add_layout(xaxis, 'below')
