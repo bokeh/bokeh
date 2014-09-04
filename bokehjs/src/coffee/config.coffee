@@ -4,8 +4,7 @@ require.config
         jquery_ui:         "vendor/jquery-ui-amd/jquery-ui-1.10.0/jqueryui"
         jquery_mousewheel: "vendor/jquery-mousewheel/jquery.mousewheel.min"
         jqrangeslider:     "vendor/jqrangeslider/jQAllRangeSliders-withRuler-min"
-        handsontable:      "vendor/handsontable/jquery.handsontable"
-        numeral:           "vendor/numeral/numeral"
+        handsontable:      "vendor/handsontable/jquery.handsontable.full"
         underscore:        "vendor/underscore-amd/underscore"
         backbone:          "vendor/backbone-amd/backbone"
         bootstrap:         "vendor/bootstrap-3.1.1/js"
@@ -20,7 +19,7 @@ require.config
         sprintf:
             exports: 'sprintf'
         handsontable:
-            deps: ["numeral"]
+            deps: ["jquery"]
             exports: "$.fn.handsontable"
         jqrangeslider:
             deps: ["jquery_ui/core", "jquery_ui/widget", "jquery_ui/mouse", "jquery_mousewheel"]

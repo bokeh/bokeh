@@ -20,6 +20,7 @@ from .properties import (
     Datetime, HasProps, Dict, Enum, Either, Float, Instance, Int,
     List, String, Color, Include, Bool, Tuple, Any
 )
+from .query import find
 from .utils import nice_join
 
 class DataSource(PlotObject):
@@ -59,20 +60,26 @@ class ColumnDataSource(DataSource):
         if not isinstance(raw_data, dict):
             import pandas as pd
             if isinstance(raw_data, pd.DataFrame):
-                dfindex = raw_data.index
-                new_data = {}
-                for colname in raw_data:
-                    new_data[colname] = raw_data[colname].tolist()
-                if dfindex.name:
-                    new_data[dfindex.name] = dfindex.tolist()
-                elif dfindex.names and not all([x is None for x in dfindex.names]):
-                    new_data["_".join(dfindex.names)] = dfindex.tolist()
-                else:
-                    new_data["index"] = dfindex.tolist()
-                raw_data = new_data
+                raw_data = self.from_df(raw_data)
+            else:
+                raise ValueError("expected a dict or pandas.DataFrame, got %s" % raw_data)
         for name, data in raw_data.items():
             self.add(data, name)
         super(ColumnDataSource, self).__init__(**kw)
+
+    @classmethod
+    def from_df(cls, raw_data):
+        dfindex = raw_data.index
+        new_data = {}
+        for colname in raw_data:
+            new_data[colname] = raw_data[colname].tolist()
+        if dfindex.name:
+            new_data[dfindex.name] = dfindex.tolist()
+        elif dfindex.names and not all([x is None for x in dfindex.names]):
+            new_data["_".join(dfindex.names)] = dfindex.tolist()
+        else:
+            new_data["index"] = dfindex.tolist()
+        return new_data
 
     def to_df(self):
         """convert data source to pandas dataframe
@@ -361,6 +368,45 @@ class Plot(Widget):
             kwargs.setdefault('v_symmetry', 'v' in border_symmetry or 'V' in border_symmetry)
         super(Plot, self).__init__(**kwargs)
 
+    def select(self, selector):
+        ''' Query this object and all of its references for objects that
+        match the given selector.
+
+        Args:
+            selector (JSON-like) :
+
+        Returns:
+            seq[PlotObject]
+
+        '''
+        return find(self.references(), selector, {'plot': self})
+
+    def row(self, row, gridplot):
+        ''' Return whether this plot is in a given row of a GridPlot.
+
+        Args:
+            row (int) : index of the row to test
+            gridplot (GridPlot) : the GridPlot to check
+
+        Returns:
+            bool
+
+        '''
+        return self in gridplot.row(row)
+
+    def column(self, col, gridplot):
+        ''' Return whether this plot is in a given column of a GridPlot.
+
+        Args:
+            col (int) : index of the column to test
+            gridplot (GridPlot) : the GridPlot to check
+
+        Returns:
+            bool
+
+        '''
+        return self in gridplot.column(col)
+
     def add_layout(self, obj, place='center'):
         ''' Adds an object to the plot in a specified place.
 
@@ -518,6 +564,50 @@ class GridPlot(Plot):
 
     children = List(List(Instance(Plot)))
     border_space = Int(0)
+
+    def select(self, selector):
+        ''' Query this object and all of its references for objects that
+        match the given selector.
+
+        Args:
+            selector (JSON-like) :
+
+        Returns:
+            seq[PlotObject]
+
+        '''
+        return find(self.references(), selector, {'gridplot': self})
+
+    def column(self, col):
+        ''' Return a given column of plots from this GridPlot.
+
+        Args:
+            col (int) : index of the column to return
+
+        Returns:
+            seq[Plot] : column of plots
+
+        '''
+        try:
+            return [row[col] for row in self.children]
+        except:
+            return []
+
+    def row(self, row):
+        ''' Return a given row of plots from this GridPlot.
+
+        Args:
+            rwo (int) : index of the row to return
+
+        Returns:
+            seq[Plot] : rwo of plots
+
+        '''
+        try:
+            return self.children[row]
+        except:
+            return []
+
 
 class GuideRenderer(Renderer):
     plot = Instance(Plot)

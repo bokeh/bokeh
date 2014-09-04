@@ -52,8 +52,8 @@ def make_plot():
 def make_ui():
     plot, source = make_plot()
     columns = [
-        TableColumn(data="dates", type="date", header="Date"),
-        TableColumn(data="downloads", type="numeric", header="Downloads"),
+        TableColumn(field="dates", type="date", header="Date"),
+        TableColumn(field="downloads", type="numeric", header="Downloads"),
     ]
     data_table = HandsonTable(source=source, columns=columns)
     vbox = VBox(children=[plot, data_table])
