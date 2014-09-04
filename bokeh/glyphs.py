@@ -258,8 +258,8 @@ class Rect(BaseGlyph, FillProps, LineProps):
     y = DataSpec
     width = DataSpec
     height = DataSpec
-    x_offset = DataSpec
-    y_offset = DataSpec
+    x_offset = DataSpec(field="x_offset", units="screen", default=0)
+    y_offset = DataSpec(field="y_offset", units="screen", default=0)
     angle = DataSpec
     dilate = Bool(False)
 
