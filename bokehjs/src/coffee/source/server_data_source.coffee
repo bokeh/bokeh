@@ -191,7 +191,7 @@ define [
         proxy.set('start', item.get('start'))
         proxy.set('end', item.get('end'))
         sendable_plot_state[key] = proxy 
-      console.log("Sent render State", render_state)
+      logger.debug("Sent render State", render_state)
 
       resp = $.ajax(
         dataType: 'json'
@@ -200,7 +200,7 @@ define [
           withCredentials : true
         success : (data) ->
           if data.render_state == "NO UPDATE"
-            console.log("No update")
+            logger.info("No update")
             return
 
           if (domain_limit == 'auto')
@@ -212,11 +212,10 @@ define [
               {start : data.y_range.start, end : data.y_range.end},
             )
          
-          console.log("New render State:", data.render_state)
+          logger.debug("New render State:", data.render_state)
           new_data = _.clone(column_data_source.get('data'))  # the "clone" is a hack
           _.extend(new_data, data)
           column_data_source.set('data', new_data)
-          console.log("Saved render State:", column_data_source.get('data')['render_state'])
           plot_view.request_render()
         data :
           resample_parameters : JSON.stringify([input_params])

@@ -148,7 +148,7 @@ class Test_AR(unittest.TestCase):
     def test_PolyLine(self):
         source = _SourceShim(ar_downsample.Contour)
         result = ar_downsample.mapping(source)
-        expected = {}
+        expected = {'line_color':[]}
 
         self.assertEquals(len(expected), len(result))
         self.assertEquals(sorted(expected.keys()), sorted(result.keys()))

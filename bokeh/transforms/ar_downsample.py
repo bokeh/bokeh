@@ -352,6 +352,7 @@ class Contour(Shader):
     """
     out = "poly_line"
     levels = Either(Int, List(Float), default=5)
+    palette = List(Color)
 
     def reify(self, **kwargs):
         return contour.Contour(levels=self.levels, points=False)
@@ -363,17 +364,22 @@ class Contour(Shader):
         xxs = []
         yys = []
         levels = sorted(contours.keys())
+        colors = []
         (xmin, ymin) = args
 
         # Re-arrange results and project xs/ys back to the data space
-        for level in levels:
-            (xs, ys) = contours[level]
-            xs = xs+(xmin-1)  # HACK: Why is this -1 required?
-            ys = ys+(ymin-1)  # HACK: Why is this -1 required?
-            xxs.append(xs)
-            yys.append(ys)
+        for (level, color) in zip(levels, self.palette):
+            for trace in contours[level]:
+                (xs, ys) = trace 
+                xs = xs+xmin
+                ys = ys+ymin
+                xxs.append(xs)
+                yys.append(ys)
+                colors.append(color)
+
 
         return {'levels': levels,
+                'colors': colors,
                 'xs': xxs,
                 'ys': yys}
 
@@ -458,6 +464,7 @@ def source(plot, agg=Count(), info=Const(val=1), shader=Id(),
     elif shader.out == "poly_line":
         kwargs['data'] = {'xs': [[]],
                           'ys': [[]],
+                          'colors': [],
                           'render_state': {}}
     else:
         raise ValueError("Unrecognized shader output type %s" % shader.out)
@@ -492,6 +499,7 @@ def mapping(source):
     elif out == 'poly_line':
         keys = source.data.keys()
         m = dict(zip(keys, keys))
+        m['line_color'] = 'colors'
         return m
 
     else:
@@ -829,7 +837,7 @@ def contour(plot, palette=None, transform='cbrt', spread=0, **kwargs):
     if palette is None:
         palette = ["#C6DBEF", "#9ECAE1", "#6BAED6", "#4292C6", "#2171B5", "#08519C", "#08306B"]
 
-    shader = Contour(levels=len(palette))
+    shader = Contour(levels=len(palette), palette=palette)
 
     if transform == "cbrt":
         shader = Cuberoot() + shader
@@ -847,5 +855,4 @@ def contour(plot, palette=None, transform='cbrt', spread=0, **kwargs):
                   agg=Count(),
                   info=Const(val=1),
                   shader=shader,
-                  line_color=palette,
                   **kwargs)
