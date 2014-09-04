@@ -262,7 +262,7 @@ build process. How would you like to handle BokehJS:
     return mapping[value]
 
 def parse_jsargs():
-    installing = 'install' in sys.argv or 'develop' in sys.argv or 'sdist' in sys.argv
+    installing = any(arg in sys.argv for arg in ('install', 'develop', 'sdist', 'egg_info'))
 
     if '--build_js' in sys.argv:
         if not installing:
