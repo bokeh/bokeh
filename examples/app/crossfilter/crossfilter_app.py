@@ -5,8 +5,8 @@ from bokeh.plotting import curdoc, cursession
 from bokeh.crossfilter.objects import CrossFilter
 from bokeh.sampledata.autompg import autompg
 
-@bokeh_app.route("/bokeh/myapp/")
-@object_page("myapp")
+@bokeh_app.route("/bokeh/crossfilter/")
+@object_page("crossfilter")
 def make_object():
     autompg['cyl'] = autompg['cyl'].astype(str)
     autompg['origin'] = autompg['cyl'].astype(str)
