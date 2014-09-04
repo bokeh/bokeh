@@ -360,22 +360,25 @@ of these in turn.
 Models and properties
 ---------------------
 
-The main unit of the low-level API is a model, which is a class that, at least
-indirectly, derives from `HasProps` trait::
+The primary components of the low-level API are models, which are objects
+that have attributes that can be automatically serialized in a way that
+lets them be reconsituted as Backbone objects within BokehJS. Technically,
+models are classes that inherit from `HasProps` at some point::
 
     from bokeh.properties import HasProps, Int
 
     class Whatever(HasProps):
         """`Whatever` model. """
 
-Indirectly means that models can derive from other models and can extend mixins
-that provide common APIs for particular entities (e.g. `LineProps`, `FillProps`;
-see `bokeh.mixins`). Thus model's definition can look like this::
+Models can derive from other models as well as mixins that provide common
+sets of properties (e.g. see :class:`~bokeh.mixins.LineProps`, etc. in :ref:`bokeh_dot_mixins`).
+An example might look like this::
 
     class Another(Whatever, LineProps):
         """`Another` model. """
 
-Models contain properties, that are class-level instances of type `Property`, e.g:
+Models contain properties, which are class attributes of type
+:class:`~bokeh.properties.Property`, e.g::
 
     class IntProps(HasFields):
 
@@ -383,19 +386,49 @@ Models contain properties, that are class-level instances of type `Property`, e.
         prop2 = Int()
         prop3 = Int(10)
 
-That said, `prop1` isn't an instance of `Int`, but `HasFields` uses a metaclass that
-turns instantiate classes , so `prop1` and `prop2` are equivalent (thought independent)
-properties. This is useful for readability purpose, so if you don't need to pass any
-arguments to property's constructor then prefer the former over the later.
+The `IntProps` model represents objects that have three integer values,
+``prop1``, ``prop2``, and ``prop3``, that can be automatically serialized
+from python, and unserialized by BokehJS.
 
-There is wide variety of property types, ranging from primitive types like `Int`,
-`String`, `Float`, through containers `List(Int)`, `Dict(String, Double)`, references
-to models, `Instance(Plot)`, to specialized type like `Enum("foo", "bar", "baz")`,
-`Either(Int, String)` (type union), `Range(Int, 0, 255)` (aka. unsigned byte), etc.
-There is a special branch of property types that allow value vectorization (`DataSpec`
-and `ColorSpec`). There exists type `Any` that is the super-type of all other types
-(make sure to use it sparingly or not at all). Thus a sample, but more complex model
-can look like this::
+.. note::
+    Technically, ``prop1`` isn't an instance of ``Int``, but ``HasFields`` uses a
+    metaclass that automatically instantiates `Property` classes when necessary,
+    so ``prop1`` and ``prop2`` are equivalent (thought independent) properties.
+    This is useful for readability; if you don't need to pass any arguments to
+    property's constructor then prefer the former over the later.
+
+There is wide variety of property types, ranging from primitive types such as:
+
+* :class:`~bokeh.properties.Byte`
+* :class:`~bokeh.properties.Int`
+* :class:`~bokeh.properties.Float`
+* :class:`~bokeh.properties.Complex`
+* :class:`~bokeh.properties.String`
+
+As well as container-like properties, that take other Properties as parameters:
+
+* :class:`~bokeh.properties.List` --- for a list of one type of objects: ``List(Int)``
+* :class:`~bokeh.properties.Dict` --- for a mapping between two type: ``Dict(String, Double)``
+
+and finally some specialized types like
+
+* :class:`~bokeh.properties.Instance` --- to hold a reference to another model: ``Instance(Plot)``
+* :class:`~bokeh.properties.Enum` --- to represent enumerated values: ``Enum("foo", "bar", "baz")``
+* :class:`~bokeh.properties.Either` --- to create a union type: ``Either(Int, String)``
+* :class:`~bokeh.properties.Range` --- to restrict values to a given range: ``Instance(Plot)``
+
+The primary benefit of these property types is that validation can be performed
+and meaningful error reporting can occur when an attempt is made to assign an
+invalid type or value.
+
+.. warning::
+    There is an :class:`~bokeh.properties.Any` that is the super-type of all other
+    types, and will accept any type of value. Since this circumvents all type validation,
+    make sure to use it sparingly, it at all.
+
+See :ref:`bokeh_dot_properties` for full details.
+
+An example of a more complex, realistic model might look like this::
 
     class Sample(HasProps, FillProps):
         """`Sample` model. """
@@ -406,21 +439,24 @@ can look like this::
         prop4 = Range(Float, 0.0, 1.0)
         prop5 = List(Instance(Range1d))
 
-There is a special property-like type named `Include`, that allow to include properties
-from a mixin using a prefix, e.g.::
+There is a special property-like type named :class:`~bokeh.properties.Include`,
+that make it simpler to mix in in properties from a mixin using a prefix, e.g.::
 
     class Includes(HasProps):
         """`Includes` model. """
 
         some_props = Include(FillProps)
 
-In this case we have a placeholder property `some_props`, which will be removed by the
-metaclass and replaced with properties from `FillProps` with `some_` prefix appended.
-Prefix can be a valid identifier. If it ends with `_props` then `props` suffix will
-be removed. Adding `_props` isn't necessary, but can be useful if `some` property exists
-in parallel to future `some_*` properties (see `Plot.title` as an example).
+In this case there is a placeholder property `some_props`, that will be removed
+and automatically replaced with all the properties from :class:`~bokeh.mixins.FillProps`,
+each with `some_` appended as a prefix.
 
-`Includes` is equivalent to writing::
+.. note::
+    The prefix can be a valid identifier. If it ends with ``_props`` then ``props``
+    will be removed. Adding ``_props`` isn't necessary, but can be useful if a
+    property ``some`` already exists in parallel (see ``Plot.title`` as an example).
+
+Using :class:`~bokeh.properties.Include` is equivalent to writing::
 
     class ExplicitIncludes(HasProps):
         """`ExplicitIncludes` model. """
@@ -428,7 +464,8 @@ in parallel to future `some_*` properties (see `Plot.title` as an example).
         some_fill_color = ColorSpec("gray")
         some_fill_alpha = DataSpec(1.0)
 
-Note hat you can inherit from (in this case) `FillProps` as well, so::
+Note that you could inherit from :class:`~bokeh.mixins.FillProps` in this
+case, as well::
 
     class IncludesExtends(HasProps, FillProps):
         """`IncludesExtends` model. """
@@ -436,7 +473,7 @@ Note hat you can inherit from (in this case) `FillProps` as well, so::
         some = String
         some_props = Include(FilleProps)
 
-is equivalent to::
+but note that this is  equivalent to::
 
     class ExplicitIncludesExtends(HasProps):
         """`ExplicitIncludesExtends` model. """
