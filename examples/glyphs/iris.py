@@ -33,7 +33,7 @@ circle = Circle(
     x="petal_length", y="petal_width", size=10,
     fill_color="color", fill_alpha=0.2, line_color="color"
 )
-plot.add_glyph(source, xdr, ydr, circle)
+plot.add_glyph(source, circle)
 
 xaxis = LinearAxis(axis_label="petal length", bounds=(1,7), major_tick_in=0)
 plot.add_layout(xaxis, 'below')

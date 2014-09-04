@@ -165,6 +165,8 @@ define [
       @minor_tick_props = new line_properties(@, null, 'minor_tick_')
       @major_label_props = new text_properties(@, null, 'major_label_')
       @axis_label_props = new text_properties(@, null, 'axis_label_')
+      @x_range_name = @mget('x_range_name')
+      @y_range_name = @mget('y_range_name')
 
     render: () ->
       ctx = @plot_view.canvas_view.ctx
@@ -186,14 +188,15 @@ define [
       if not @rule_props.do_stroke
         return
       [x, y] = coords = @mget('rule_coords')
-      [sx, sy] = @plot_view.map_to_screen(x, "data", y, "data")
+      [sx, sy] = @plot_view.map_to_screen(x, "data", y, "data", @x_range_name, @y_range_name)
       [nx, ny] = @mget('normals')
+      [xoff, yoff]  = @mget('offsets')
 
       @rule_props.set(ctx, @)
       ctx.beginPath()
-      ctx.moveTo(Math.round(sx[0]), Math.round(sy[0]))
+      ctx.moveTo(Math.round(sx[0]+nx*xoff), Math.round(sy[0]+ny*yoff))
       for i in [1...sx.length]
-        ctx.lineTo(Math.round(sx[i]), Math.round(sy[i]))
+        ctx.lineTo(Math.round(sx[i]+nx*xoff), Math.round(sy[i]+ny*yoff))
       ctx.stroke()
 
     _draw_major_ticks: (ctx) ->
@@ -201,16 +204,17 @@ define [
         return
       coords = @mget('tick_coords')
       [x, y] = coords.major
-      [sx, sy] = @plot_view.map_to_screen(x, "data", y, "data")
+      [sx, sy] = @plot_view.map_to_screen(x, "data", y, "data", @x_range_name, @y_range_name)
       [nx, ny] = @mget('normals')
+      [xoff, yoff]  = @mget('offsets')
 
       tin = @mget('major_tick_in')
       tout = @mget('major_tick_out')
       @major_tick_props.set(ctx, @)
       for i in [0...sx.length]
         ctx.beginPath()
-        ctx.moveTo(Math.round(sx[i]+nx*tout), Math.round(sy[i]+ny*tout))
-        ctx.lineTo(Math.round(sx[i]-nx*tin),  Math.round(sy[i]-ny*tin))
+        ctx.moveTo(Math.round(sx[i]+nx*tout+nx*xoff), Math.round(sy[i]+ny*tout+ny*yoff))
+        ctx.lineTo(Math.round(sx[i]-nx*tin+nx*xoff),  Math.round(sy[i]-ny*tin+ny*yoff))
         ctx.stroke()
 
     _draw_minor_ticks: (ctx) ->
@@ -218,23 +222,25 @@ define [
         return
       coords = @mget('tick_coords')
       [x, y] = coords.minor
-      [sx, sy] = @plot_view.map_to_screen(x, "data", y, "data")
+      [sx, sy] = @plot_view.map_to_screen(x, "data", y, "data", @x_range_name, @y_range_name)
       [nx, ny] = @mget('normals')
+      [xoff, yoff]  = @mget('offsets')
 
       tin = @mget('minor_tick_in')
       tout = @mget('minor_tick_out')
       @minor_tick_props.set(ctx, @)
       for i in [0...sx.length]
         ctx.beginPath()
-        ctx.moveTo(Math.round(sx[i]+nx*tout), Math.round(sy[i]+ny*tout))
-        ctx.lineTo(Math.round(sx[i]-nx*tin),  Math.round(sy[i]-ny*tin))
+        ctx.moveTo(Math.round(sx[i]+nx*tout+nx*xoff), Math.round(sy[i]+ny*tout+ny*yoff))
+        ctx.lineTo(Math.round(sx[i]-nx*tin+nx*xoff),  Math.round(sy[i]-ny*tin+ny*yoff))
         ctx.stroke()
 
     _draw_major_labels: (ctx) ->
       coords = @mget('tick_coords')
       [x, y] = coords.major
-      [sx, sy] = @plot_view.map_to_screen(x, "data", y, "data")
+      [sx, sy] = @plot_view.map_to_screen(x, "data", y, "data", @x_range_name, @y_range_name)
       [nx, ny] = @mget('normals')
+      [xoff, yoff]  = @mget('offsets')
       dim = @mget('dimension')
       side = @mget('location')
       orient = @mget('major_label_orientation')
@@ -252,13 +258,13 @@ define [
 
       for i in [0...sx.length]
         if angle
-          ctx.translate(sx[i]+nx*standoff, sy[i]+ny*standoff)
+          ctx.translate(sx[i]+nx*standoff+nx*xoff, sy[i]+ny*standoff+ny*yoff)
           ctx.rotate(angle)
           ctx.fillText(labels[i], 0, 0)
           ctx.rotate(-angle)
-          ctx.translate(-sx[i]-nx*standoff, -sy[i]-ny*standoff)
+          ctx.translate(-sx[i]-nx*standoff+nx*xoff, -sy[i]-ny*standoff+ny*yoff)
         else
-          ctx.fillText(labels[i], Math.round(sx[i] + nx*standoff), Math.round(sy[i] + ny*standoff))
+          ctx.fillText(labels[i], Math.round(sx[i]+nx*standoff+nx*xoff), Math.round(sy[i]+ny*standoff+ny*yoff))
 
     _draw_axis_label: (ctx) ->
       label = @mget('axis_label')
@@ -267,8 +273,9 @@ define [
         return
 
       [x, y] = @mget('rule_coords')
-      [sx, sy] = @plot_view.map_to_screen(x, "data", y, "data")
+      [sx, sy] = @plot_view.map_to_screen(x, "data", y, "data", @x_range_name, @y_range_name)
       [nx, ny] = @mget('normals')
+      [xoff, yoff]  = @mget('offsets')
       side = @mget('location')
       orient = 'parallel'
 
@@ -282,13 +289,13 @@ define [
       _apply_location_heuristics(ctx, side, orient)
 
       if angle
-        ctx.translate(sx+nx*standoff, sy+ny*standoff)
+        ctx.translate(sx+nx*standoff+nx*xoff, sy+ny*standoff+ny*yoff)
         ctx.rotate(angle)
         ctx.fillText(label, 0, 0)
         ctx.rotate(-angle)
-        ctx.translate(-sx-nx*standoff, -sy-ny*standoff)
+        ctx.translate(-sx-nx*standoff+nx*xoff, -sy-ny*standoff+ny*yoff)
       else
-        ctx.fillText(label, sx+nx*standoff, sy+ny*standoff)
+        ctx.fillText(label, sx+nx*standoff+nx*xoff, sy+ny*standoff+ny*yoff)
 
   class Axis extends HasParent
     default_view: AxisView
@@ -310,6 +317,7 @@ define [
       @register_property('ranges', @_ranges, true)
       @register_property('normals', (() -> @_normals), true)
       @register_property('dimension', (() -> @_dim), true)
+      @register_property('offsets', @_offsets, true)
 
     initialize_layout: (solver) ->
       panel = new LayoutBox.Model({solver: solver})
@@ -360,10 +368,33 @@ define [
       @_size_constraint = new kiwi.Constraint(new kiwi.Expression(@_size, -size), kiwi.Operator.Eq)
       solver.add_constraint(@_size_constraint)
 
+    _offsets: () ->
+      side = @get('location')
+      [xoff, yoff] = [0, 0]
+      frame = @get('plot').get('frame')
+
+      if side == "below"
+        yoff = Math.abs(@panel.get("top") - frame.get("bottom"))
+
+      else if side == "above"
+        yoff = Math.abs(@panel.get("bottom") - frame.get("top"))
+
+      else if side == "right"
+        xoff = Math.abs(@panel.get("left") - frame.get("right"))
+
+      else if side == "left"
+        xoff = Math.abs(@panel.get("right") - frame.get("left"))
+
+      return [xoff, yoff]
+
     _ranges: () ->
       i = @get('dimension')
       j = (i + 1) % 2
-      ranges = [@get('plot').get('frame').get('x_range'), @get('plot').get('frame').get('y_range')]
+      frame = @get('plot').get('frame')
+      ranges = [
+        frame.get('x_ranges')[@get('x_range_name')],
+        frame.get('y_ranges')[@get('y_range_name')]
+      ]
       return [ranges[i], ranges[j]]
 
     _computed_bounds: () ->
@@ -542,6 +573,12 @@ define [
           extent += w*c + h*s
 
       return extent
+
+    defaults: () ->
+      return {
+        x_range_name: "default"
+        y_range_name: "default"
+      }
 
     display_defaults: () ->
       return {

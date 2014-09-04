@@ -22,7 +22,9 @@ define [
       @index.load(pts)
 
     _map_data: () ->
-      [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
+      [@sx, @sy] = @plot_view.map_to_screen(
+        @x, @glyph_props.x.units, @y, @glyph_props.y.units, @x_range_name, @y_range_name
+      )
       @radius = @distance_vector('x', 'radius', 'edge')
 
     _render: (ctx, indices, glyph_props, sx=@sx, sy=@sy, radius=@radius) ->
@@ -46,17 +48,17 @@ define [
 
     _hit_point: (geometry) ->
       [vx, vy] = [geometry.vx, geometry.vy]
-      x = @plot_view.xmapper.map_from_target(vx)
-      y = @plot_view.ymapper.map_from_target(vy)
+      x = @xmapper.map_from_target(vx)
+      y = @ymapper.map_from_target(vy)
 
       if @radius_units == "screen"
         vx0 = vx - @max_radius
         vx1 = vx + @max_radius
-        [x0, x1] = @plot_view.xmapper.v_map_from_target([vx0, vx1])
+        [x0, x1] = @xmapper.v_map_from_target([vx0, vx1])
 
         vy0 = vy - @max_radius
         vy1 = vy + @max_radius
-        [y0, y1] = @plot_view.ymapper.v_map_from_target([vy0, vy1])
+        [y0, y1] = @ymapper.v_map_from_target([vy0, vy1])
 
       else
         x0 = x - @max_radius
@@ -79,10 +81,10 @@ define [
       else
         for i in candidates
           r2 = Math.pow(@radius[i], 2)
-          sx0 = @plot_view.xmapper.map_to_target(x)
-          sx1 = @plot_view.xmapper.map_to_target(@x[i])
-          sy0 = @plot_view.ymapper.map_to_target(y)
-          sy1 = @plot_view.ymapper.map_to_target(@y[i])
+          sx0 = @xmapper.map_to_target(x)
+          sx1 = @xmapper.map_to_target(@x[i])
+          sy0 = @ymapper.map_to_target(y)
+          sy1 = @ymapper.map_to_target(@y[i])
           dist = Math.pow(sx0-sx1, 2) + Math.pow(sy0-sy1, 2)
           if dist <= r2
             candidates2.push([i, dist])
