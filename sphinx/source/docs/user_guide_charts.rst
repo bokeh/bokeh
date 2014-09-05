@@ -1,7 +1,7 @@
 .. _userguide_charts:
 
-Bokeh Charts
-============
+High Level Charts
+=================
 
 .. contents::
     :local:

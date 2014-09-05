@@ -1,4 +1,4 @@
-.. _userguide_embedding:
+.. _user_guide_embedding:
 
 Embedding
 =========
@@ -119,8 +119,7 @@ The resulting ``<script>`` tag looks like::
     ></script>
 
 The resulting JavaScript code should be saved to a file that can be reached
-on the server at `"some/path", from the document that has the plot embedded.
-
+on the server at `"some/path"`, from the document that has the plot embedded.
 
 .. note:: In both cases the ``<script>`` tag loads a ``<div>`` in place, so
           it must be placed under ``<head>``.

@@ -39,6 +39,10 @@ def build_parser():
                         type=int,
                         default=5006
                         )
+    parser.add_argument("--url-prefix",
+                        help="URL prefix for server. e.g. 'host:port/<prefix>/bokeh' (default: None)",
+                        type=str
+                        )
 
     # advanced configuration
     parser.add_argument("-D", "--data-directory",
@@ -53,10 +57,6 @@ def build_parser():
     parser.add_argument("--script",
                         help="script to load (for applets)",
                         default=None,
-                        type=str
-                        )
-    parser.add_argument("--url-prefix",
-                        help="url prefix",
                         type=str
                         )
 
