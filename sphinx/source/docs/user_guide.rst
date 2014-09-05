@@ -19,6 +19,7 @@ the kinds of low-level object attributes that can be set to really customize a p
    user_guide_server.rst
    user_guide_embedding.rst
    user_guide_widgets.rst
+   user_guide_ar.rst
    user_guide_examples.rst
    user_guide_issues.rst
 

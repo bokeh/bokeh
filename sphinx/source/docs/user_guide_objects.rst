@@ -7,10 +7,110 @@ Bokeh Objects
     :local:
     :depth: 2
 
-.. _userguide_plot_ranges:
+.. _userguide_objects_plots:
 
-Plot Ranges
------------
+Plots
+-----
+
+Plots can be configured with several keyword arguments that control appearance:
+
+* ``background_fill`` --- a color to fill the inner plot area with
+
+* ``border_fill`` --- a color to fill the border region around the plot area with.
+
+* ``min_border`` --- a minimum size in pixels for the border. This applies to all sides of the plot. May set individual border widths with ``min_border_left``, ``min_border_right``, ``min_border_top``, and ``min_border_bottom``
+
+* ``h_symmetry``, ``v_symmetry`` --- whether to symmetrize plot borders on opposite horizontal or vertical sides of the plot.
+
+* ``title`` --- a title to display above the plot.
+  - "title" is also the prefix for a set of :ref:`userguide_text_properties`, so you can set the font for the title with the parameter ``text_font``.
+
+* "outline" --- is the prefix for a set of :ref:`userguide_line_properties` that control the appearance of an outline around the plot, for instance you can set the color of the outline with ``outline_line_color``.
+
+* ``x_range`` --- the extent of the plotting area in the x-dimension. See :ref:`userguide_plot_ranges`
+
+* ``y_range`` --- the extent of the plotting area in the y-dimension. See :ref:`userguide_plot_ranges`
+
+* ``plot_width``, ``plot_height`` --- width and height of the entire plot in pixels, including border space
+
+* ``x_axis_type``, ``y_axis_type`` --- can be set to ``"datetime"`` to create datetime axis
+
+* ``x_mapper_type``, ``y_mapper_type`` --- can be set to ``"log"`` to specifically set the mapper used for the axis
+
+These parameters can be passed to glyph functions such a ``circle`` or ``rect`` but it is often useful
+to pass them to a call to ``figure``::
+
+    figure(
+        title="My Plot",
+        title_text_font_size="20pt",
+        plot_width=200,
+        plot_height=300,
+        outline_line_color="red",
+        x_axis_type="datetime"
+    )
+
+.. _userguide_objects_glyphs:
+
+Glyphs
+------
+
+Bokeh plots are centered around glyphs, which generally have some combination of line, fill, or
+text properties, depending on what is appropriate for a given glyph. For example, the ``Circle``
+glyph has both line and fill properties, but the ``Bezier`` glyph only has line properties.
+These properties may be specified as keyword arguments when calling the glyph functions::
+
+    rect(x, y, radius, fill_color="green", fill_alpha=0.6, line_color=None)
+
+.. _userguide_objects_markers:
+
+Markers
+'''''''
+
+Markers are a subset of Bokeh glyphs that have a prescribed interface.
+Markers all respond to:
+
+* `x`, `y`
+* `size` (screen units)
+* :ref:`userguide_objects_line_properties`
+* :ref:`userguide_objects_fill_properties`
+
+.. _userguide_objects_styling:
+
+Styling
+-------
+
+Properties
+''''''''''
+Many of the styling options are grouped into three categories of properties: :ref:`userguide_line_properties`,
+:ref:`userguide_fill_properties`, and :ref:`userguide_text_properties`.
+
+.. _userguide_objects_line_properties:
+
+Line Properties
+***************
+
+.. include:: includes/line_props.txt
+
+
+.. _userguide_objects_fill_properties:
+
+Fill Properties
+***************
+
+.. include:: includes/fill_props.txt
+
+
+.. _userguide_objects_text_properties:
+
+Text Properties
+***************
+
+.. include:: includes/text_props.txt
+
+.. _userguide_objects_ranges:
+
+Ranges
+------
 
 To control the ranges that Bokeh plots show, there are two keyword parameters `x_range` and
 `y_range`. These may be passed into the :class:`bokeh.plotting.figure` function, or into any
@@ -24,7 +124,9 @@ If `None` is passed in as the value of `x_range` or `y_range`, then the plot wil
 with a `DataRange1d` which computes the envelope of all the plot data to determine the range.
 This is the default behavior.
 
-.. note:: For non-scatter glyphs with spatial extent, the `DataRange1d` may not compute the necessary bounds fully.
+.. note::
+    For non-scatter glyphs with spatial extent, the `DataRange1d` may not
+    compute the necessary bounds fully.
 
 Numerical Ranges
 ''''''''''''''''
@@ -48,110 +150,23 @@ Alternatively, you can set the range as a property on a Plot object::
 Categorical Ranges
 ''''''''''''''''''
 
-For plots with categorical ranges, it is necessary to specify the range as a sequence of strings
-that give the categories in the desired order. For example::
+For plots with categorical ranges, it is necessary to specify the range as a sequence
+of strings that give the categories in the desired order. For example::
 
     figure(y_range=["foo", "bar", "baz"])
 
-will prepare a plot whose y-axis range is categorical, with the categories "foo", "bar", and "baz".
-Please see `this categorical example <http://bokeh.pydata.org/docs/gallery/categorical.html>`_ from
-the gallery for a concrete example.
+will prepare a plot whose y-axis range is categorical, with the categories "foo",
+"bar", and "baz". Please see `this categorical example <http://bokeh.pydata.org/docs/gallery/categorical.html>`_
+from the gallery for a concrete example.
 
 You can also pass in a `FactorRange` explicitly as well.
 
-Styling
--------
+.. _userguide_objects_guides:
 
-Properties
-''''''''''
-Many of the styling options are grouped into three categories of properties: :ref:`userguide_line_properties`,
-:ref:`userguide_fill_properties`, and :ref:`userguide_text_properties`.
+Guides
+------
 
-.. _userguide_line_properties:
-
-Line Properties
-***************
-
-.. include:: includes/line_props.txt
-
-
-.. _userguide_fill_properties:
-
-Fill Properties
-***************
-
-.. include:: includes/fill_props.txt
-
-
-.. _userguide_text_properties:
-
-Text Properties
-***************
-
-.. include:: includes/text_props.txt
-
-
-Plots
-'''''
-
-Plots can be configured with several keyword arguments that control appearance:
-
-* ``background_fill`` a color to fill the inner plot area with
-
-* ``border_fill`` a color to fill the border region around the plot area with.
-
-* ``min_border`` a minimum size in pixels for the border. This applies to all sides of the plot. May set individual border widths with ``min_border_left``, ``min_border_right``, ``min_border_top``, and ``min_border_bottom``
-
-* ``border_symmetry`` whether to symmetrize plot borders on opposite sides of the plot. Valid values are: ``''``, ``'h'``, ``'v'``, and ``'hv'``, where "h" and "v" are for "horizontal" and "vertical", respectively.
-
-* ``title`` a title to display above the plot.
-  - "title" is also the prefix for a set of :ref:`userguide_text_properties`, so you an set the font for the title with the parameter ``text_font``.
-
-* "outline" is the prefix for a set of :ref:`userguide_line_properties` that control the appearance of an outline around the plot, for instance you can set the color of the outline with ``outline_line_color``.
-
-* ``x_range`` the extent of the plotting area in the x-dimension. See :ref:`userguide_plot_ranges`
-
-* ``y_range`` the extent of the plotting area in the y-dimension. See :ref:`userguide_plot_ranges`
-
-* ``plot_width``, ``plot_height`` width and height of the entire plot in pixels, including border space
-
-* ``x_axis_type``, ``y_axis_type`` can be set to ``"datetime"`` to create datetime axis
-
-* ``x_mapper_type``, ``y_mapper_type`` can be set to ``"log"`` to specifically set the mapper used for the axis
-
-These parameters can be passed to glyph functions such a ``circle`` or ``rect`` but it is often useful
-to pass them to a call to ``figure``::
-
-    figure(
-        title="My Plot",
-        title_text_font_size="20pt",
-        plot_width=200,
-        plot_height=300,
-        outline_line_color="red",
-        x_axis_type="datetime"
-    )
-
-Glyphs
-''''''
-
-Bokeh plots are centered around glyphs, which generally have some combination of line, fill, or
-text properties, depending on what is appropriate for a given glyph. For example, the ``Circle``
-glyph has both line and fill properties, but the ``Bezier`` glyph only has line properties.
-These properties may be specified as keyword arguments when calling the glyph functions::
-
-    rect(x, y, radius, fill_color="green", fill_alpha=0.6, line_color=None)
-
-.. _userguide_markers:
-
-Markers
-'''''''
-
-Markers are Bokeh glyphs that have a prescribed interface. Markers all respond to:
-
-* `x`, `y`
-* `size` (screen units)
-* line properties
-* fill properties
+.. _userguide_objects_axes:
 
 Axes
 ''''
@@ -188,6 +203,8 @@ Typically after updating these attributes, a call to :func:`bokeh.plotting.show`
 
 .. note:: The ``bounds`` attribute here controls only the extent of the axis! It does not set the range of the plot. For that, see :ref:`userguide_plot_ranges`. As an example, a plot window may extend from 0 to 10, but you may only want the axis to render between 4 and 8, in order to highlight a particular sub-area of the plot.
 
+.. _userguide_objects_grids:
+
 Grids
 '''''
 
@@ -202,6 +219,13 @@ and :func:`bokeh.plotting.grid` functions available to obtain grids for the curr
 Typically after updating these attributes, a call to :func:`bokeh.plotting.show` will be required.
 
 .. note:: The ``bounds`` attribute here controls only the extent of the grid! It does not set the range of the plot. For that, see :ref:`userguide_plot_ranges`. As an example, a plot window may extend from 0 to 10, but you may only want the grid to render between 4 and 8, in order to highlight a particular sub-area of the plot.
+
+
+.. _userguide_objects_legends:
+
+Legends
+'''''''
+
 
 Tools
 -----
@@ -263,7 +287,9 @@ or to special known variables. Here is an example of how to configure the hover 
         ("bar", "@bar"),
     ])
 
-.. note:: Point hit testing is not currently available on all glyphs. Hover tool currently does not work with lines, images, or patch type glyphs.
+.. note::
+    Point hit testing is not currently available on all glyphs. Hover tool currently does
+    not work with line or image type glyphs.
 
 PanTool
 '''''''
@@ -296,3 +322,6 @@ it also automatically activates when the ``Shift`` key is depressed.
 
 It is also possible to constraint the wheel zoom tool to only act on either just the x-axis or
 just the y-axis. For this, there are tool names ``'xwheel_zoom'`` and ``'ywheel_zoom'``, respectively.
+
+
+
