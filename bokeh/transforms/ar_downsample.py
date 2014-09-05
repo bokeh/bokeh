@@ -370,13 +370,12 @@ class Contour(Shader):
         # Re-arrange results and project xs/ys back to the data space
         for (level, color) in zip(levels, self.palette):
             for trace in contours[level]:
-                (xs, ys) = trace 
+                (xs, ys) = trace
                 xs = xs+xmin
                 ys = ys+ymin
                 xxs.append(xs)
                 yys.append(ys)
                 colors.append(color)
-
 
         return {'levels': levels,
                 'colors': colors,
