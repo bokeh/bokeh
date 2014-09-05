@@ -1,9 +1,0 @@
-{
-  "name": "almond",
-  "version": "0.2.9",
-  "main": "almond.js",
-  "ignore": [
-    "tests",
-    "shrinktest.sh"
-  ]
-}
