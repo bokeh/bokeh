@@ -498,9 +498,51 @@ but note that this is  equivalent to::
 Developer Notes
 ===============
 
-This sections lists important developer notes, in random order. Please improve this,
-reorganize, etc. If you intent to modify semantics, please discuss this in the issue
-tracker.
+Environment Variables
+---------------------
+There are several environment variables that can be useful for developers:
+
+* ``BOKEH_BROWSER`` --- What browser to use when opening plots
+    Valid values are any of the browser names understood by the python standard
+    library `webbrowser module <https://docs.python.org/2/library/webbrowser.html>`_.
+
+* ``BOKEH_LOG_LEVEL`` --- The BokehJS console logging level to set
+    Valid values are, in order of increasing severity:
+
+  - ``trace``
+  - ``debug``
+  - ``info``
+  - ``warn``
+  - ``error``
+  - ``fatal``
+
+    The default logging level is ``info``.
+
+    .. note::
+        When running  server examples, it is the value of this ``BOKEH_LOG_LEVEL`` that is
+        set for the server that matters.
+
+* ``BOKEH_MINIFIED`` --- Whether to emit minified JavaScript for ``bokeh.js``
+    Accepted values are ``yes``/``no``, ``true``/``false`` or ``0``/``1``.
+
+* ``BOKEH_PRETTY`` --- Whether to emit "pretty printed" JSON
+    Accepted values are ``yes``/``no``, ``true``/``false`` or ``0``/``1``.
+
+* ``BOKEH_RESOURCES`` --- What kind of BokehJS resources to configure
+    For example:  ``inline``, ``cdn``, ``server``. See the :class:`~bokeh.resources.Resources`
+    class reference for full details.
+
+* ``BOKEH_ROOTDIR`` --- Root directory to use with ``relative`` resources
+    See the :class:`~bokeh.resources.Resources` class reference for full details.
+
+* ``BOKEH_SIMPLE_IDS`` --- Whether to generate human-friendly object IDs
+    Accepted values are ``yes``/``no``, ``true``/``false`` or ``0``/``1``.
+    Normally Bokeh generates UUIDs for object identifiers. Setting this variable
+    to an affirmative value will result in more friendly simple numeric IDs
+    counting up from 1000.
+
+* ``BOKEH_VERSION`` --- What version of BokehJS to use with ``cdn`` resources
+    See the :class:`~bokeh.resources.Resources` class reference for full details.
 
 CSS class names
 ---------------
