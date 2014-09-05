@@ -1,8 +1,26 @@
 <div class='bokeh_canvas_wrapper_outer'>
-
-  <div class='bk-sidebar'>
-    <a href='http://bokeh.pydata.org/' target="_blank" class='bk-logo bk-logo-small'/>
-    <div class='bk-button-bar'/>
-  </div>
+	<table>
+		<tr>
+			<td></td>
+			<td>
+				 <div class='bk-sidebar'>
+				    <a href='http://bokeh.pydata.org/' target="_blank" class='bk-logo bk-logo-small'/>
+				    <div class='bk-button-bar'/>
+				  </div>
+			</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td class='bokeh_canvas_wrapper_cell'></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td></td>
+			<td></td>
+		</tr>
+	</table>
+ 
 
 </div>

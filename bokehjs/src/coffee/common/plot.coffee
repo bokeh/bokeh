@@ -69,7 +69,7 @@ define [
       @canvas = @mget('canvas')
       @canvas_view = new @canvas.default_view({'model': @canvas})
 
-      @$('.bokeh_canvas_wrapper_outer').append(@canvas_view.el)
+      @$('.bokeh_canvas_wrapper_cell').append(@canvas_view.el)
 
       if @mget('show_toolbar')
         @$('.bk-sidebar').show()
