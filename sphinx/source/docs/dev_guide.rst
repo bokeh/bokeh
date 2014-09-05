@@ -13,8 +13,10 @@ Developer Guide
 Process
 =======
 
-The development process for Bokeh is outline in `Bokeh Enhancement Proposal 1 <https://github.com/ContinuumIO/bokeh/wiki/BEP-1:-Issues-and-PRs-management>`_. All changes, enhancements, and bugfixes should generally go
+The development process for Bokeh is outlined in `Bokeh Enhancement Proposal 1 <https://github.com/ContinuumIO/bokeh/wiki/BEP-1:-Issues-and-PRs-management>`_. All changes, enhancements, and bugfixes should generally go
 through the process outlined there.
+
+The release process for Bokeh is outlined in `Bokeh Enhancement Proposal 2 <https://github.com/ContinuumIO/bokeh/wiki/BEP-2:-Release-Management>`_.
 
 .. _developer_install:
 
@@ -194,7 +196,7 @@ will need the following packages installed in order to build Bokeh documentation
 
 These can be installed using ``conda`` or ``pip`` or from source.
 
-building
+Building
 --------
 
 To generate the full HTML documentation, navigate to the ``sphinx`` subdirectory
@@ -373,20 +375,20 @@ Models and properties
 
 The primary components of the low-level API are models, which are objects
 that have attributes that can be automatically serialized in a way that
-lets them be reconsituted as Backbone objects within BokehJS. Technically,
+lets them be reconstituted as Backbone objects within BokehJS. Technically,
 models are classes that inherit from `HasProps` at some point::
 
     from bokeh.properties import HasProps, Int
 
     class Whatever(HasProps):
-        """`Whatever` model. """
+        """ `Whatever` model. """
 
 Models can derive from other models as well as mixins that provide common
 sets of properties (e.g. see :class:`~bokeh.mixins.LineProps`, etc. in :ref:`bokeh_dot_mixins`).
 An example might look like this::
 
     class Another(Whatever, LineProps):
-        """`Another` model. """
+        """ `Another` model. """
 
 Models contain properties, which are class attributes of type
 :class:`~bokeh.properties.Property`, e.g::
@@ -404,7 +406,7 @@ from python, and unserialized by BokehJS.
 .. note::
     Technically, ``prop1`` isn't an instance of ``Int``, but ``HasFields`` uses a
     metaclass that automatically instantiates `Property` classes when necessary,
-    so ``prop1`` and ``prop2`` are equivalent (thought independent) properties.
+    so ``prop1`` and ``prop2`` are equivalent (though independent) properties.
     This is useful for readability; if you don't need to pass any arguments to
     property's constructor then prefer the former over the later.
 
@@ -442,7 +444,7 @@ See :ref:`bokeh_dot_properties` for full details.
 An example of a more complex, realistic model might look like this::
 
     class Sample(HasProps, FillProps):
-        """`Sample` model. """
+        """ `Sample` model. """
 
         prop1 = Int(127)
         prop2 = Either(Int, List(Int), Dict(String, List(Int)))
@@ -454,7 +456,7 @@ There is a special property-like type named :class:`~bokeh.properties.Include`,
 that make it simpler to mix in in properties from a mixin using a prefix, e.g.::
 
     class Includes(HasProps):
-        """`Includes` model. """
+        """ `Includes` model. """
 
         some_props = Include(FillProps)
 
@@ -470,7 +472,7 @@ each with `some_` appended as a prefix.
 Using :class:`~bokeh.properties.Include` is equivalent to writing::
 
     class ExplicitIncludes(HasProps):
-        """`ExplicitIncludes` model. """
+        """ `ExplicitIncludes` model. """
 
         some_fill_color = ColorSpec("gray")
         some_fill_alpha = DataSpec(1.0)
@@ -479,7 +481,7 @@ Note that you could inherit from :class:`~bokeh.mixins.FillProps` in this
 case, as well::
 
     class IncludesExtends(HasProps, FillProps):
-        """`IncludesExtends` model. """
+        """ `IncludesExtends` model. """
 
         some = String
         some_props = Include(FilleProps)
@@ -487,7 +489,7 @@ case, as well::
 but note that this is  equivalent to::
 
     class ExplicitIncludesExtends(HasProps):
-        """`ExplicitIncludesExtends` model. """
+        """ `ExplicitIncludesExtends` model. """
 
         fill_color = ColorSpec("gray")
         fill_alpha = DataSpec(1.0)
