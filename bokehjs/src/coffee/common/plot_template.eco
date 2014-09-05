@@ -2,22 +2,17 @@
 	<table>
 		<tr>
 			<td></td>
-			<td>
-				 <div class='bk-sidebar'>
-				    <a href='http://bokeh.pydata.org/' target="_blank" class='bk-logo bk-logo-small'/>
-				    <div class='bk-button-bar'/>
-				  </div>
-			</td>
+			<td class='bk-plot-above'></td>
 			<td></td>
 		</tr>
 		<tr>
-			<td></td>
-			<td class='bokeh_canvas_wrapper_cell'></td>
-			<td></td>
+			<td class="bk-plot-left"></td>
+			<td class='bk-plot-canvas-wrapper'></td>
+			<td class="bk-plot-right"></td>
 		</tr>
 		<tr>
 			<td></td>
-			<td></td>
+			<td class='bk-plot-below'></td>
 			<td></td>
 		</tr>
 	</table>
