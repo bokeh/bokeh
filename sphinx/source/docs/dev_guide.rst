@@ -546,8 +546,14 @@ There are several environment variables that can be useful for developers:
 
 CSS class names
 ---------------
+The CSS for controlling Bokeh presentation are located in a ``bokeh.css`` file
+that is compiled from several separate ``.less`` files in the BokehJS source
+tree. All CSS classes specifically for Bokeh DOM elements are prefixed with
+the string ``bk-``. For instance some examples are: ``.bk-sidebar``, ``.bk-toolbar-button``, etc.
 
-  bk-, bk-bs-
+Furthermore, BokehJS ships with its own version of `Bootstrap <http://getbootstrap.com>`_.
+To prevent name collisions, the version of Bootstrap CSS that Bokeh uses has
+been entirely prefixed with the prefix ``bk-bs-``.
 
 Managing examples
 -----------------
@@ -576,10 +582,34 @@ Maintaining secure variables in .travis.yml
  interactions with travis-ci from CLI (gem install --user-instal travis)
  how to update secure values in .travis.yml (S3, flowdock)
 
-Dealing with aggressive browser cache
--------------------------------------
+Browser caching
+---------------
 
- dealing with aggressive caching in major web browsers
+During development, depending on the type of configured resources,
+aggressive browser caching can sometimes cause new BokehJS code changes to
+not be picked up. It is recommended that during normal development,
+browser caching be disabled. Instructions for different browsers can be
+found here:
+
+* `Chrome <https://developer.chrome.com/devtools/docs/settings>`_
+* `Firefox <https://developer.mozilla.org/en-US/docs/Mozilla/Preferences/Mozilla_networking_preferences#Cache>`_
+* `Safari <https://developer.apple.com/library/mac/documentation/AppleApplications/Conceptual/Safari_Developer_Guide/TheDevelopMenu/TheDevelopMenu.html>`_
+* `Internet Explorer <http://msdn.microsoft.com/en-us/library/hh968260(v=vs.85).aspx#cacheMenu>`_
+
+Additionlly some browsers also provide a "private mode" that may disable
+caching automatically.
+
+Even with caching disabled, on some browsers, it may still be required to
+sometimes force a page reload. Keyboard shortcuts for forcing page
+refreshes can be found here:
+
+* Chrome `Windows <https://support.google.com/chrome/answer/157179?hl=en&ref_topic=25799>`_ / `OSX <https://support.google.com/chrome/answer/165450?hl=en&ref_topic=25799>`_ / `Linux <https://support.google.com/chrome/answer/171571?hl=en&ref_topic=25799>`_
+* `Firefox <https://support.mozilla.org/en-US/kb/keyboard-shortcuts-perform-firefox-tasks-quickly#w_navigation>`_
+* `Safari <https://developer.apple.com/library/mac/documentation/AppleApplications/Conceptual/Safari_Developer_Guide/KeyboardShortcuts/KeyboardShortcuts.html>`_
+* Internet Explorer `10 <http://msdn.microsoft.com/en-us/library/dd565630(v=vs.85).aspx>`_ / `11 <http://msdn.microsoft.com/en-us/library/ie/dn322041(v=vs.85).aspx>`_
+
+If it appears that new changes are not being executed when they should be, it
+is recommended to try this first.
 
 BokehJS AMD module template for a model
 ---------------------------------------
