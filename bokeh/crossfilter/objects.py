@@ -3,7 +3,7 @@ import logging
 import six
 import pandas as pd
 import numpy as np
-
+from ..plotting import curdoc
 from ..objects import ColumnDataSource, Range1d, FactorRange, GridPlot
 from ..widgets import Select, MultiSelect, InputWidget
 #crossfilter plotting utilities
@@ -146,7 +146,7 @@ class CrossFilter(PlotObject):
             return
         plot = self.make_plot()
         self.plot = plot
-
+        curdoc()._add_all()
     def make_plot(self):
         if all([len(self.facet_x) ==0,
                 len(self.facet_y) == 0,
@@ -409,7 +409,7 @@ class CrossFilter(PlotObject):
                     )
                     hist_plot.title = col
                     self.filter_widgets[col] = hist_plot
-
+        curdoc()._add_all()
     def set_metadata(self):
         descriptors = []
         columns = self.df.columns
