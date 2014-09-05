@@ -820,7 +820,7 @@ def heatmap(plot,
                   **kwargs)
 
 
-def contour(plot, palette=None, transform='cbrt', spread=0, **kwargs):
+def contours(plot, palette=None, transform='cbrt', spread=0, **kwargs):
     """
     Create ISO contours from a given plot
 
