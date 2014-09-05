@@ -381,7 +381,7 @@ class ColorSpec(DataSpec):
         return "ColorSpec(field=%r)" % self.field
 
 class Include(object):
-    ''' Property to include other property mixins under a prefix. '''
+    ''' Include other properties from mixin Models, with a given prefix. '''
 
     def __init__(self, delegate):
         if not (isinstance(delegate, type) and issubclass(delegate, HasProps)):
