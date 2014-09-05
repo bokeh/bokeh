@@ -3,6 +3,16 @@
 Bokeh Server
 ============
 
+.. contents::
+    :local:
+    :depth: 2
+
+.. program:: bokeh-server
+
+.. _userguide_server_overview
+
+Overview
+--------
 
 The Bokeh server is an optional component that can be used to provide
 additional capabilities, such as:
@@ -12,18 +22,38 @@ additional capabilities, such as:
 * interactively visualizing very large datasets by employing downsampling and abstract rendering
 * building and deploying dashboards and apps with sophisticated user interactions
 
+The Bokeh server is built on top of `Flask <http://flask.pocoo.org>`_. Bokeh
+ships with a standalone executable ``bokeh-server`` that you can easily run,
+and you can also embded the Bokeh server functionality inside another Flask
+server using the Bokeh Server `Flask Blueprint <http://flask.pocoo.org/docs/0.10/blueprints/>`_.
 
-.. contents::
-    :local:
-    :depth: 2
+.. _userguide_server_hosting
 
-.. program:: bokeh-server
+Plot Hosting
+------------
 
-The Bokeh server is built on top of `Flask <http://flask.pocoo.org>`
+.. _userguide_server_streaming
 
+Streaming Data
+--------------
+
+.. _userguide_server_large
+
+Large Data
+----------
+
+.. _userguide_server_widgets
+
+Widgets and Dashboards
+----------------------
+
+.. _userguide_server_options
+
+Command Line Configuration
+--------------------------
 
 General Usage
--------------
+~~~~~~~~~~~~~
 
 The ``bokeh-server`` application has some command line options for
 general usage, setting the server port and IP, for instance:
@@ -40,8 +70,12 @@ general usage, setting the server port and IP, for instance:
 
     port that the bokeh server will listen on (default: 5006)
 
+.. option:: --url-prefix <URL_PREFIX>
+
+    URL prefix for server. e.g. 'host:port/<prefix>/bokeh' (default: None)
+
 Advanced Usage
---------------
+~~~~~~~~~~~~~~
 
 Additional configuration options for configuring server data sources,
 multi-user operation, scripts, etc:
@@ -58,12 +92,8 @@ multi-user operation, scripts, etc:
 
     script to load (for applets)
 
-.. option:: --url-prefix <URL_PREFIX>
-
-    URL prefix
-
 Storage Backends
-----------------
+~~~~~~~~~~~~~~~~
 
 Bokeh server supports various different backends for data storage:
 
@@ -108,7 +138,7 @@ By default ``bokeh-server`` will start Redis automatically when the
 ``redis`` backend is chosen.
 
 Websockets
-----------
+~~~~~~~~~~
 
 The Bokeh server uses websockets for communication between the server
 and browser clients. There are several options for configuring the
@@ -134,7 +164,7 @@ Typically these values do not require much attention. By default,
 ``bokeh-server`` automatically starts a ZeroMQ websocket worker.
 
 Development Options
--------------------
+~~~~~~~~~~~~~~~~~~~
 
 .. option:: -d, --debug
 
@@ -142,7 +172,7 @@ Development Options
 
 .. option:: --dev
 
-    run server in development mode: --js --backend=memory
+    run server in development mode: -js --backend=memory
 
 .. option:: --filter-logs
 
