@@ -99,37 +99,35 @@ def print_versions():
 
 def report_issue(number=None , owner="ContinuumIO", repo="bokeh",
                  versions=True, browser=True):
-    """ Open a new Github issue programmatically.
+    """ Open or add to a Github issue programmatically.
 
     This interactive function will ask you for some minimal content
     and submit a new Github issue, adding information about your
     current environment.
 
-    You can also call this fucntion with one specific issue
+    You can also call this function with a specific issue
     number to add a comment to an already open issue.
 
-    Parameters
-    ----------
+    Args:
+        number: int (default=None)
+            The issue number if you want to add a new comment to an issue
+            already created.
 
-    number: int (default=None)
-        The issue number if you want to add a new comment to an issue
-        already created.
+        owner: str (default="ContinuumIO")
+            Username of the repository's owner.
 
-    owner: str (default="ContinuumIO")
-        The owner's repository name.
+        repo: str (default="bokeh")
+            The name of the repository.
 
-    repo: str (default="bokeh")
-        The name of the repository.
+        versions: bool (default=True)
+            Adds the `_print_versions` content information at the end of
+            the body text.
 
-    versions: bool (default=True)
-        Adds the `_print_versions` content information at the end of
-        the body text.
+        browser: bool (default=True)
+            After submitting the new issue, it opens the issue webpage in
+            your default web browser.
 
-    browser: bool (default=True)
-        After submitting the new issue, it opens the issue webpage in
-        your default web browser.
-
-    Notes:
+    .. note:
         Setting the environment variables GHUSER (Github username) and
         GHPASS (Github password) will supply those values automatically
         and streamline the dialog. Additionally, this function can report
