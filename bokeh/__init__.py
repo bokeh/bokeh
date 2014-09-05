@@ -99,12 +99,14 @@ def print_versions():
 
 def report_issue(number=None , owner="ContinuumIO", repo="bokeh",
                  versions=True, browser=True):
-    """Opens a new Github issue programmatically.
+    """ Open a new Github issue programmatically.
 
-    This "interactive" function will ask you for some minimal content
-    to finally submit a new Github issue, adding essential info about
-    the current setup. You can also call it with one specific issue
-    number to add the essential info to an already opened issue.
+    This interactive function will ask you for some minimal content
+    and submit a new Github issue, adding information about your
+    current environment.
+
+    You can also call this fucntion with one specific issue
+    number to add a comment to an already open issue.
 
     Parameters
     ----------
@@ -128,11 +130,11 @@ def report_issue(number=None , owner="ContinuumIO", repo="bokeh",
         your default web browser.
 
     Notes:
-        * You can add the GHUSER (Github username) and
-        GHPASS (Github password) to your environment to avoid
-        filling this info in the interactive prompt.
-        * Additionally, you can use this same function to report to any
-        other project, just changing the parameters.
+        Setting the environment variables GHUSER (Github username) and
+        GHPASS (Github password) will supply those values automatically
+        and streamline the dialog. Additionally, this function can report
+        on any GitHub project by changing the default parameters.
+
     """
 
     import requests
@@ -144,30 +146,25 @@ def report_issue(number=None , owner="ContinuumIO", repo="bokeh",
     from six.moves.urllib.parse import urljoin
 
     print("This is the Bokeh reporting engine.\n\n"
-          "Next, you will be guided to build the report")
+          "You will be guided to build a GitHub issue.\n")
 
     if number is None:
-        title = input('Write the title for the intended issue: ')
-        body = input('Write the body for the intended issue: ')
+        title = input('Issue title: ')
+        body = input('Description: ')
     else:
         body = input('Write your comment here: ')
 
     ghuser, ghpass = (os.environ.get(x) for x in ["GHUSER", "GHPASS"])
-    if ghuser is None and ghpass is None:
-        print("You need to add your GHUSER (Github username) and GHPASS (Github password)\n"
-              "to the environmentor complete the next lines.")
-        environment = input('Do you want to abort to set up the environment variable? ')
-        if environment.lower() in ["true", "yes", "y", "on", "1"]:
-            return
-        else:
-            ghuser = input('Write your Github username: ')
-            ghpass = input('Write your Github password: ')
-    elif ghuser is None and ghpass is not None:
-        print("You need to add your GHUSER (Github username) to the environment.")
-        return
-    elif ghpass is None and ghuser is not None:
-        print("You need to add your GHPASS (Github password) to the environment.")
-        return
+
+    if ghuser is None:
+        ghuser = input('GitHub username: ')
+    else:
+        print("Found GHUSER, using for GitHub username")
+
+    if ghpass is None:
+        ghpass = input('GitHub password: ')
+    else:
+        print("Found GHPASS, using for GitHub password")
 
     base = "https://api.github.com"
     if number is None:
@@ -185,10 +182,11 @@ def report_issue(number=None , owner="ContinuumIO", repo="bokeh",
     issues_url = urljoin(base, url)
 
     print("\nPreview:\n")
-    for label, content in sorted(data.items(), reverse=True):
-        print('{0}: {1}'.format(label, content))
-    value = input('Submit the intended issue/comment? ')
-    if value.lower() in ["true", "yes", "y", "on", "1"]:
+    print("Title: ", data["title"])
+    print("Description:\n\n")
+    print(data["body"])
+    value = input('Submit (y/n)? ')
+    if value.lower() in ["true", "yes", "y", "1"]:
         r = requests.post(issues_url,
                           auth=(ghuser, ghpass),
                           headers={'Content-Type': 'application/json'},
@@ -205,7 +203,7 @@ def report_issue(number=None , owner="ContinuumIO", repo="bokeh",
                 if browser:
                     webbrowser.open_new(g.json()[-1].get("html_url"))
         else:
-            print("Something failed, please check your GHUSER and GHPASS.")
+            print("Something failed, please check your username and password.")
     else:
         print("Issue not submitted.")
 

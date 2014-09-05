@@ -32,30 +32,29 @@ right area of the page.
 Bokeh also provides the ``bokeh.report_issue()`` function to easily open
 issues from an interactive console prompt::
 
-    In [1]: import bokeh
 
-    In [2]: bokeh.report_issue()
+    In [1]: bokeh.report_issue()
     This is the Bokeh reporting engine.
 
-    Next, you will be guided to build the report
-    Write the title for the intended issue: This is a text.
-    Write the body for the intended issue: And this is the problem.
-    You need to add your GHUSER (Github username) and GHPASS (Github password)
-    to the environmentor complete the next lines.
-    Do you want to abort to set up the environment variable? no
-    Write your Github username: damianavila
-    Write your Github password: xxxxxxxxxxx
+    You will be guided to build a GitHub issue.
+
+    Issue title: A Short Issue Title
+    Description: Some additional details and description
+    GitHub username: SomeUser
+    GitHub password: xxxxxxxx
 
     Preview:
 
-    title: This is a text.
-    body: And this is the problem.
+    Title:  A Short Issue Title
+    Description:
 
-        Bokeh version: 0.4.4-455-gc3324df-dirty
-        Python version: 2.7.4-CPython
-        Platform: Linux-3.11.0-031100rc7-generic-x86_64-with-Ubuntu-13.04-raring
+     Some additional details and description
 
-    Submit the intended issue/comment? y
+        Bokeh version: 0.5.2-436-g831adf5-dirty
+        Python version: 2.7.8-CPython
+        Platform: Darwin-13.3.0-x86_64-i386-64bit
+
+    Submit (y/n)?
 
 This will open a new issue on our issue tracker as well as open a new browser tab
 showing the issue, in case you want to add more comments. As you can see, this
@@ -68,5 +67,8 @@ the issue number as an argument::
     In [3]: bokeh.report_issue(555)
     This is the Bokeh reporting engine.
 
-    Next, you will be guided to build the report
-    Write your comment here: Adding a new comment to an already opened issue.
+    You will be guided to build a GitHub issue.
+
+    Write your comment here: Some new information!
+
+
