@@ -179,7 +179,7 @@ python options : %s
 js options     : %s
 data-directory : %s
 """ % (
-    args.ip, args.bokeh_port,
+    args.ip, args.port,
     backend_options,
     py_options,
     js_options,
@@ -232,7 +232,7 @@ def start_server(args):
         print ("importing %s" % args.script)
         imp.load_source("_bokeh_app", args.script)
     start.register_blueprint(args.url_prefix)
-    start.start_app(host=args.ip, port=args.bokeh_port, verbose=args.verbose)
+    start.start_app(host=args.ip, port=args.port, verbose=args.verbose)
 
 def start_with_reloader(args, js_files, robust):
     def helper():
