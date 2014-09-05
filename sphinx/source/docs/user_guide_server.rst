@@ -27,27 +27,57 @@ ships with a standalone executable ``bokeh-server`` that you can easily run,
 and you can also embded the Bokeh server functionality inside another Flask
 server using the Bokeh Server `Flask Blueprint <http://flask.pocoo.org/docs/0.10/blueprints/>`_.
 
+The basic task of the Bokeh Server is to be a mediator between the original data
+and plot models created by a user, and the reflected data and plot models in the
+BokehJS client:
+
+|
+
+.. image:: /_images/bokeh_server.png
+    :align: center
+    :scale: 50 %
+
+|
+
+Here you can see illustrated the most useful and compelling of the Bokeh server:
+**full two-way communication between the original code and the BokehJS plot.**
+Plots are published by sending them to the server. The data for the plot can be
+updated on the server, and the client will respond and update the plot. Users can
+interact with the plot through tools and widgets in the browser, then the results of
+these interactions can be pulled back to the original code to inform some further
+query or analysis (possibly resulting in updates pushed back the plot).
+
+We will explore the capabilities afforded by the Bokeh server in detail below.
+
 .. _userguide_server_hosting
 
 Plot Hosting
 ------------
+
+
 
 .. _userguide_server_streaming
 
 Streaming Data
 --------------
 
+
+
 .. _userguide_server_large
 
 Large Data
 ----------
+
+
 
 .. _userguide_server_widgets
 
 Widgets and Dashboards
 ----------------------
 
-.. _userguide_server_options
+
+
+.. _userguide_server_command_line
 
 Command Line Configuration
 --------------------------
