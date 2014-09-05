@@ -649,15 +649,27 @@ class ContinuousAxis(Axis):
     pass
 
 class LinearAxis(ContinuousAxis):
-    def __init__(self, ticker=BasicTicker(), formatter=BasicTickFormatter(), **kwargs):
+    def __init__(self, ticker=None, formatter=None, **kwargs):
+        if ticker is None:
+            ticker = BasicTicker()
+        if formatter is None:
+            formatter = BasicTickFormatter()
         super(LinearAxis, self).__init__(ticker=ticker, formatter=formatter, **kwargs)
 
 class LogAxis(ContinuousAxis):
-    def __init__(self, ticker=LogTicker(num_minor_ticks=10), formatter=LogTickFormatter(), **kwargs):
+    def __init__(self, ticker=None, formatter=None, **kwargs):
+        if ticker is None:
+            ticker = LogTicker(num_minor_ticks=10)
+        if formatter is None:
+            formatter = LogTickFormatter()
         super(LogAxis, self).__init__(ticker=ticker, formatter=formatter, **kwargs)
 
 class CategoricalAxis(Axis):
-    def __init__(self, ticker=CategoricalTicker(), formatter=CategoricalTickFormatter(), **kwargs):
+    def __init__(self, ticker=None, formatter=None, **kwargs):
+        if ticker is None:
+            ticker = CategoricalTicker()
+        if formatter is None:
+            formatter = CategoricalTickFormatter()
         super(CategoricalAxis, self).__init__(ticker=ticker, formatter=formatter, **kwargs)
 
 class DatetimeAxis(LinearAxis):
@@ -667,7 +679,11 @@ class DatetimeAxis(LinearAxis):
     char_width = Int(10)
     fill_ratio = Float(0.3)
 
-    def __init__(self, ticker=DatetimeTicker(), formatter=DatetimeTickFormatter(), **kwargs):
+    def __init__(self, ticker=None, formatter=None, **kwargs):
+        if ticker is None:
+            ticker = DatetimeTicker()
+        if formatter is None:
+            formatter = DatetimeTickFormatter()
         super(DatetimeAxis, self).__init__(ticker=ticker, formatter=formatter, **kwargs)
 
 class Grid(GuideRenderer):

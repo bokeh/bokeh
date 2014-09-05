@@ -2,8 +2,8 @@ import numpy as np
 import pandas as pd
 
 from bokeh.objects import ColumnDataSource
-from ..plotting import rect
 from ..objects import Range1d
+from ..plotting import rect
 from ..plotting_helpers import _get_select_tool
 
 def cross(start, facets):
@@ -17,8 +17,7 @@ def cross(start, facets):
 def make_histogram_source(series):
     counts, bins = np.histogram(series, bins=50)
     bin_centers = pd.rolling_mean(bins, 2)[1:]
-    #hacky - we need to center the rect around
-    #height/2
+    # hacky - we need to center the rect around height/2
     source = ColumnDataSource(data={'counts':counts,
                                     'centery' : counts /2.,
                                     'centers' : bin_centers},
@@ -81,7 +80,8 @@ def make_bar_plot(datasource, counts_name="counts",
         select_tool.select_y = False
     return plot
 
-def make_histogram(datasource, counts_name="counts",
+def make_histogram(datasource,
+                  counts_name="counts",
                   centery_name='centery',
                   centers_name="centers",
                   x_range=None,
@@ -90,7 +90,6 @@ def make_histogram(datasource, counts_name="counts",
                   min_border=40,
                   tools=None,
                   title_text_font_size="12pt"):
-    top = np.max(datasource.data[counts_name])
     start = np.min(datasource.data[centers_name]) - bar_width
     end = np.max(datasource.data[centers_name]) - bar_width
     x_range = Range1d(start=start, end=end)
@@ -102,11 +101,14 @@ def make_histogram(datasource, counts_name="counts",
     return plot
 
 
-def bar_plot(datasource, counts_name="counts",
+def bar_plot(datasource,
+             counts_name="counts",
              centery_name='centery',
              centers_name="centers",
-             max=None, min=None,
-             plot_width=500, plot_height=500,
+             max=None,
+             min=None,
+             plot_width=500,
+             plot_height=500,
              min_border=40):
 
     if max is None:
@@ -114,13 +116,14 @@ def bar_plot(datasource, counts_name="counts",
     if min is None:
         start = np.min(datasource.data[centers_name])
     top = np.max(datasource.data[counts_name])
-    plot = rect(centers_name, centery_name, widths_name, counts_name,
+    plot = rect(centers_name, centery_name, 0.7, counts_name,
                 title=" " ,
-                plot_width=plot_width, plot_height=plot_height,
+                plot_width=plot_width,
+                plot_height=plot_height,
                 tools="select",
                 title_text_font_size="8pt",
-                x_range=Range1d(start=start, end=end),
-                y_range=Range1d(start=0, end=top),
+                x_range=[start, end],
+                y_range=[0, top],
                 source=datasource,
     )
     plot.min_border = 0
