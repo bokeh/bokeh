@@ -29,7 +29,7 @@ You can report possible bugs, start discussions, or ask for features on our
 To start a new issue, you will find a ``New issue`` green button at the top
 right area of the page.
 
-Bokeh also provides the ``bokeh.report_issue()`` function to easily open
+Bokeh also provides the :func:`bokeh.report_issue()` function to easily open
 issues from an interactive console prompt::
 
 
@@ -48,11 +48,12 @@ issues from an interactive console prompt::
     Title:  A Short Issue Title
     Description:
 
-     Some additional details and description
+    Some additional details and description
 
-        Bokeh version: 0.5.2-436-g831adf5-dirty
-        Python version: 2.7.8-CPython
-        Platform: Darwin-13.3.0-x86_64-i386-64bit
+    System information:
+       Bokeh version: 0.5.2-436-g831adf5-dirty
+      Python version: 2.7.8-CPython
+            Platform: Darwin-13.3.0-x86_64-i386-64bit
 
     Submit (y/n)?
 
