@@ -123,7 +123,7 @@ def build_parser():
     parser.add_argument("--filter-logs",
                         action="store_true",
                         default=False,
-                        help="don't show 'GET /static/... 200 OK', useful with --splitjs"
+                        help="don't show 'GET /static/... 200 OK', useful with --splitjs")
     parser.add_argument("-j", "--debugjs",
                         action="store_true",
                         default=False,
