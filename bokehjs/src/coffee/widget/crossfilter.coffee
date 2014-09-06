@@ -1,28 +1,26 @@
 define [
-  "common/has_parent",
-  "common/has_properties",
-  "common/continuum_view",
-  "common/build_views"
   "backbone",
   "underscore",
   "jquery_ui/draggable",
   "jquery_ui/droppable",
-  "./crossfiltertemplate"
-  "./discretecolumntemplate"
-  "./continuouscolumntemplate"
-  "./facetcolumntemplate"
+  "common/has_parent",
+  "common/has_properties",
+  "common/continuum_view",
+  "common/build_views"
+  "./crossfilter_template"
+  "./crossfilter_column_template"
+  "./crossfilter_facet_template"
 
-], (HasParent, HasProperties, continuum_view,
-  build_views, Backbone, _, draggable, droppable,
-  crossfiltertemplate,
-  discretecolumntemplate, continuouscolumntemplate
-  facetcolumntemplate) ->
+], (Backbone, _, draggable, droppable, HasParent, HasProperties, continuum_view, build_views, crossfilter_template, crossfilter_column_template, crossfilter_facet_template) ->
+
   ContinuumView = continuum_view.View
   CloseWrapper = continuum_view.CloseWrapper
+
   class CrossFilterView extends ContinuumView
-    tag : "div"
+    tag: "div"
     attributes:
       class : "bk-crossfilter"
+
     initialize : (options) ->
       super(options)
       @views = {}
@@ -42,9 +40,8 @@ define [
         @columnview.$el.detach();
 
       @$el.empty()
-      html = crossfiltertemplate()
+      html = crossfilter_template()
       @$el.html(html)
-
 
       @filterview = new FilterView(
         el : @$('.bk-filters')
@@ -150,7 +147,7 @@ define [
       @name = options.name
       @render()
     render : () ->
-      @$el.html(facetcolumntemplate(name:@name))
+      @$el.html(crossfilter_facet_template(name: @name))
 
   class FacetsView extends ContinuumView
     initialize : (options) ->
@@ -276,82 +273,87 @@ define [
       @mset('filtering_columns', newcolumns)
       @model.save()
 
-  class ColumnCollection extends Backbone.Collection
-    model : (attrs, options) ->
-      if attrs.type == 'DiscreteColumn'
-        return new DiscreteColumn(attrs)
-      else if attrs.type == 'TimeColumn'
-        return new TimeColumn(attrs)
-      else
-        return new ContinuousColumn(attrs)
-
   class ColumnView extends ContinuumView
-    attributes :
-      class : "bk-crossfilter-column-entry bk-bs-panel bk-bs-panel-primary"
-    initialize : (options) ->
+
+    template: crossfilter_column_template
+    attributes:
+      class: "bk-crossfilter-column-entry bk-bs-panel bk-bs-panel-primary"
+
+    initialize: (options) ->
       super(options)
       @render()
-    dragging_helper : () =>
-      node = @$el.clone()
-      #node.find('tbody').detach()
-      return node
 
-    render : () ->
+    render: () ->
       @$el.html(@template(@model.attributes))
       @$el.draggable(
         appendTo: 'body',
-        containment : 'document',
-        helper : 'clone',#@dragging_helper,
-        start : (e, ui) =>
+        containment: 'document',
+        helper: 'clone',
+        start: (e, ui) =>
           ui.helper.data('model', @model)
       )
       return this
 
   class TimeColumnView extends ColumnView
 
+  class TimeColumn extends HasProperties
+    default_view: TimeColumnView
+    defaults:
+      type: "TimeColumn"
+      label: "Time"
+      name: ""
+      fields: ['count', 'unique', 'first', 'last']
+      count: 0
+      unique: 0
+      first: 0
+      last: 0
 
   class DiscreteColumnView extends ColumnView
-    template : discretecolumntemplate
-
-  class ContinuousColumnView extends ColumnView
-    template : continuouscolumntemplate
-
-  class TimeColumn extends HasProperties
-    idAttribute : "name"
-    default_view : TimeColumnView
-    defaults:
-      type : "TimeColumn"
-      name : ""
-      count : 0
-      unique : 0
-      first : 0
-      last : 0
 
   class DiscreteColumn extends HasProperties
-    idAttribute : "name"
-    default_view : DiscreteColumnView
+    default_view: DiscreteColumnView
     defaults:
-      type : "DiscreteColumn"
-      name : ""
-      count : 0
-      unique : 0
-      top : 0
-      freq : 0
+      type: "DiscreteColumn"
+      label: "Factor"
+      name: ""
+      fields: ['count', 'unique', 'top', 'freq']
+      count: 0
+      unique: 0
+      top: 0
+      freq: 0
+
+  class ContinuousColumnView extends ColumnView
 
   class ContinuousColumn extends HasProperties
-    idAttribute : "name"
-    default_view : ContinuousColumnView
+    default_view: ContinuousColumnView
     defaults:
-      type : "ContinuousColumn"
-      name : ""
-      count : 0
+      type: "ContinuousColumn"
+      label: "Continuous"
+      name: ""
+      fields: ['count', 'mean', 'std', 'min', 'max']
+      count: 0
       mean: 0
-      std : 0
-      min : 0
-      max : 0
+      std: 0
+      min: 0
+      max: 0
+
+  column_types = {
+    'DiscreteColumn'   : DiscreteColumn
+    'TimeColumn'       : TimeColumn
+    'ContinuousColumn' : ContinuousColumn
+  }
+
+  class ColumnCollection extends Backbone.Collection
+
+    model : (attrs, options) ->
+      if attrs.type of column_types
+        return new column_types[attrs.type](attrs)
+
+      console.log("Unknown column type: '#{attrs.type}'")
+      return null
 
   return {
-    "Model" : CrossFilter
-    "Collection" : crossfilters
-    "View" : CrossFilterView
+    Model: CrossFilter
+    Collection: crossfilters
+    View: CrossFilterView
   }

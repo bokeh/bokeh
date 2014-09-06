@@ -1,0 +1,19 @@
+<div class="bk-bs-panel-heading bk-crossfilter-panel-heading">
+  <%= @label %>: <%= @name %>
+</div>
+
+<div class="bk-bs-panel-body">
+
+  <table class="bk-table">
+
+    <tbody>
+
+      <% for field in @fields: %>
+      <tr> <td> <%= field %>  </td> <td> <%= @[field] %>  </td> </tr>
+      <% end %>
+
+    </tbody>
+
+  </table>
+
+</div>
