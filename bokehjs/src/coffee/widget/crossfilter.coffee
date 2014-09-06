@@ -64,66 +64,46 @@ define [
       return this
 
   class CrossFilter extends HasParent
-    initialize : (attrs, options) ->
+    default_view: CrossFilterView
+    type: "CrossFilter"
+
+    initialize: (attrs, options) ->
       super(attrs, options)
       @columns = new ColumnCollection()
       @_set_columns()
       @listenTo(this, 'change:columns', @_set_columns)
 
-    _set_columns : () =>
+    _set_columns: () =>
       @columns.reset(@get('columns'))
 
-    type : "CrossFilter"
-    default_view : CrossFilterView
-    defaults :
-      height : 700
-      width : 1300
+    defaults:
+      height: 700
+      width: 1300
 
   class CrossFilters extends Backbone.Collection
-    model : CrossFilter
-
-  crossfilters = new CrossFilters()
+    model: CrossFilter
 
   class PlotAttributeSelector extends ContinuumView
-    initialize : (options) ->
+
+    initialize: (options) ->
       super(options)
-      @listenTo(@model, "change:plot_selector", @render_plot_selector)
-      @listenTo(@model, "change:x_selector", @render_x_selector)
-      @listenTo(@model, "change:y_selector", @render_y_selector)
-      @listenTo(@model, "change:agg_selector", @render_agg_selector)
-      @render_plot_selector()
-      @render_x_selector()
-      @render_y_selector()
-      @render_agg_selector()
+      @listenTo(@model, "change:plot_selector", _.bind(@render_selector, 'plot'))
+      @listenTo(@model, "change:x_selector", _.bind(@render_selector, 'x'))
+      @listenTo(@model, "change:y_selector", _.bind(@render_selector, 'y'))
+      @listenTo(@model, "change:agg_selector", _.bind(@render_selector, 'agg'))
+      @render_selector('plot')
+      @render_selector('x')
+      @render_selector('y')
+      @render_selector('agg')
 
-    render_selector : (node, model) ->
-      node.empty()
-      if model
-        @plot_selector_view = new model.default_view(model : model)
-        node.append(@plot_selector_view.$el)
-
-    render_plot_selector : () ->
-      node = @$('.bk-plot-selector')
-      model = @mget('plot_selector')
-      @render_selector(node, model)
-
-    render_x_selector : () ->
-      node = @$('.bk-x-selector')
-      model = @mget('x_selector')
-      @render_selector(node, model)
-
-    render_y_selector : () ->
-      node = @$('.bk-y-selector')
-      model = @mget('y_selector')
-      @render_selector(node, model)
-
-    render_agg_selector : () ->
-      node = @$('.bk-agg-selector')
-      model = @mget('agg_selector')
-      @render_selector(node, model)
+    render_selector: (selector) ->
+      node = @$(".bk-#{selector}-selector").empty()
+      model = @mget("#{selector}_selector")
+      @plot_selector_view = new model.default_view(model: model)
+      node.append(@plot_selector_view.$el)
 
   class ColumnsView extends Backbone.View
-    initialize : (options) ->
+    initialize: (options) ->
       super(options)
       @views = {}
       @listenTo(@collection, 'all', @render)
@@ -254,7 +234,7 @@ define [
       filtering_columns = @mget('filtering_columns')
       filter_widgets = (filter_widget_dict[col] for col in filtering_columns \
         when filter_widget_dict[col]?)
-      newviews =build_views(@views, filter_widgets)
+      newviews = build_views(@views, filter_widgets)
       _.map(newviews, (view)=>
         @listenTo(view, 'remove', @child_remove)
       )
@@ -354,6 +334,6 @@ define [
 
   return {
     Model: CrossFilter
-    Collection: crossfilters
+    Collection: new CrossFilters()
     View: CrossFilterView
   }
