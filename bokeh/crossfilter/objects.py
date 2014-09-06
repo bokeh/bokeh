@@ -239,7 +239,7 @@ class CrossFilter(PlotObject):
 
 
     def make_single_plot(self, df=None, title=None,
-                         plot_width=500, plot_height=500,
+                         plot_width=700, plot_height=680,
                          tools="pan,wheel_zoom,box_zoom,save,resize,select,reset"
                      ):
         column_descriptor_dict = self.column_descriptor_dict()

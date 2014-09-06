@@ -10,9 +10,9 @@
 
           <div class="bk-crossfilter-row">
 
-            <div class="col-md-4 bk-column-list" />
+            <div class="col-md-5 bk-column-list" />
 
-            <div class="col-md-5 bk-filters-facets">
+            <div class="col-md-7 bk-filters-facets">
 
               <div class="bk-bs-panel bk-bs-panel-primary bk-filters">
                 <div class="bk-bs-panel-heading bk-crossfilter-panel-heading"> Filter </div>
@@ -36,17 +36,6 @@
 
             </div>
 
-            <div class="col-md-3 bk-plot-selection">
-
-              <form class="bk-widget-form">
-                <div class="bk-plot-selector" />
-                <div class="bk-x-selector" />
-                <div class="bk-y-selector" />
-                <div class="bk-agg-selector" />
-              </form>
-
-            </div>
-
           </div>
 
         </div>
@@ -54,6 +43,20 @@
       </td>
 
       <td class="aligntable">
+
+        <div class="bk-plot-selection">
+
+          <form class="bk-widget-form">
+            <ul class="bk-crossfilter-selector">
+              <li class="bk-plot-selector col-md-3"> </li>
+              <li class="bk-x-selector col-md-3"> </li>
+              <li class="bk-y-selector col-md-3"> </li>
+              <li class="bk-agg-selector col-md-3"> </li>
+            </ul>
+          </form>
+
+        </div>
+
         <div class="bk-plot" />
       </td>
 
