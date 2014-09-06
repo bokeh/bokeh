@@ -503,8 +503,8 @@ class Plot(Widget):
     above = List(Instance(PlotObject))
     below = List(Instance(PlotObject))
 
-    toolbar_location = Either(Enum(Location), Enum('none'))
-    
+    toolbar_location = Enum(Location)
+
     plot_height = Int(600)
     plot_width = Int(600)
 
