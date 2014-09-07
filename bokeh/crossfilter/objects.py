@@ -26,12 +26,11 @@ class DiscreteFacet(object):
         self.label = label
         self._value = value
 
-    def __str__(self):
+    def __repr__(self):
         return "%s:%s" % (self.field, self.label)
 
     def filter(self, df):
         return df[df[self.field] == self._value]
-    __repr__ = __str__
 
 class ContinuousFacet(DiscreteFacet):
     def __init__(self, field, value, bins, label=None):
@@ -49,13 +48,17 @@ class CrossFilter(PlotObject):
     columns = List(Dict(String, Any))
     data = Instance(ColumnDataSource)
     filtered_data = Instance(ColumnDataSource)
-    #list of datasources to use for filtering widgets
+
+    # list of datasources to use for filtering widgets
     filter_sources = Dict(String, Instance(ColumnDataSource))
-    #list of columns we are filtering
+
+    # list of columns we are filtering
     filtering_columns = List(String)
-    #Dict of column name to filtering widgets
+
+    # dict of column name to filtering widgets
     filter_widgets = Dict(String, Instance(PlotObject))
-    #Dict which aggregates all the selections from the different filtering widgets
+
+    # dict which aggregates all the selections from the different filtering widgets
     filtered_selections = Dict(String, Dict(String, Any))
 
     # list of facet vars
@@ -96,29 +99,32 @@ class CrossFilter(PlotObject):
         return obj
 
     def set_input_selector(self):
-        select = Select.create(
+        col_names = [x['name'] for x in self.columns]
+
+        self.plot_selector = Select.create(
             title="PlotType",
             name="plot_type",
             value=self.plot_type,
-            options=["line", "scatter", "bar"])
-        self.plot_selector = select
-        col_names = [x['name'] for x in self.columns]
-        select = Select.create(
+            options=["line", "scatter", "bar"],
+        )
+
+        self.x_selector = Select.create(
             name="x",
             value=self.x,
-            options=col_names)
-        self.x_selector = select
-        select = Select.create(
+            options=col_names,
+        )
+
+        self.y_selector = Select.create(
             name="y",
             value=self.y,
-            options=col_names)
-        self.y_selector = select
-        select = Select.create(
+            options=col_names,
+        )
+
+        self.agg_selector = Select.create(
             name='agg',
             value=self.agg,
-            options=['sum', 'mean', 'last']
-            )
-        self.agg_selector = select
+            options=['sum', 'mean', 'last'],
+        )
 
     def update_plot_choices(self, input_dict):
         for k,v in input_dict.items():
@@ -147,6 +153,7 @@ class CrossFilter(PlotObject):
         plot = self.make_plot()
         self.plot = plot
         curdoc()._add_all()
+
     def make_plot(self):
         if all([len(self.facet_x) ==0,
                 len(self.facet_y) == 0,
@@ -403,16 +410,19 @@ class CrossFilter(PlotObject):
                     source = make_histogram_source(self.df[col])
                     self.filter_sources[col] = source
                     hist_plot = make_histogram(self.filter_sources[col],
-                                               plot_width=150, plot_height=100,
+                                               plot_width=200, plot_height=100,
                                                title_text_font_size='8pt',
                                                tools='select'
                     )
                     hist_plot.title = col
                     self.filter_widgets[col] = hist_plot
         curdoc()._add_all()
+
     def set_metadata(self):
         descriptors = []
+
         columns = self.df.columns
+
         for c in columns:
             desc = self.df[c].describe()
             if self.df[c].dtype == object:
@@ -445,4 +455,4 @@ class CrossFilter(PlotObject):
                     'max' : "%.2f" % desc['max'],
                 })
         self.columns = descriptors
-        return None
+
