@@ -16,32 +16,28 @@ from __future__ import print_function
 
 # Stdlib imports
 import os
-from os.path import dirname, exists, join, realpath
 import platform
 import shutil
 import site
 import subprocess
 import sys
-
-using_setuptools = False
+from os.path import abspath, dirname, exists, isdir, join, realpath, relpath
 
 if 'nightly' in sys.argv:
     from setuptools import setup
-    using_setuptools = True
     sys.argv.remove('nightly')
 
-    with open('__conda_version__.txt','r') as f:
+    with open('__conda_version__.txt', 'r') as f:
         version = f.read().rstrip()
 
-    vers_file = os.path.join('bokeh','__conda_version__.py')
-    with open(vers_file,'w') as f:
-        f.write("conda_version="+"'"+version+"'")
+    vers_file = os.path.join('bokeh', '__conda_version__.py')
+    with open(vers_file, 'w') as f:
+        f.write("conda_version=" + "'" + version + "'")
 
 else:
     from distutils.core import setup
 
 from distutils import dir_util
-from os.path import abspath, relpath, exists, join, dirname, isdir
 
 # Our own imports
 import versioneer
@@ -377,6 +373,8 @@ REQUIRES = [
         'pystache>=0.5.3',
         'markdown>=2.3.1',
         'PyYAML>=3.10',
+        'pyzmq>=14.3.1',
+        'tornado>=4.0.1',
         # tests
         'nose>=1.3.0',
         'mock>=1.0.1',
@@ -417,10 +415,6 @@ else:
     _version = versioneer.get_version()
     _cmdclass = versioneer.get_cmdclass()
 
-extra_kw = {}
-if using_setuptools:
-    extra_kw = dict(zip_safe=False, install_requires=REQUIRES)
-
 setup(
     name='bokeh',
     version=_version,
@@ -447,5 +441,6 @@ setup(
     description='Statistical and novel interactive HTML plots for Python',
     license='New BSD',
     scripts=scripts,
-    **extra_kw
+    zip_safe=False,
+    install_requires=REQUIRES
 )
