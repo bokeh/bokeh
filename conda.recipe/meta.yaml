@@ -21,6 +21,8 @@ requirements:
     - requests
     - dateutil
     - pyyaml
+    - pyzmq
+    - tornado
 
     # server
     - flask
