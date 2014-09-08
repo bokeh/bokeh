@@ -760,11 +760,6 @@ class Legend(Renderer):
     legend_spacing = Int(3)
     legends = Dict(String, List(Instance(Glyph)))
 
-class DataSlider(Renderer):
-    plot = Instance(Plot)
-    data_source = Instance(DataSource)
-    field = String()
-
 class PlotContext(PlotObject):
     """ A container for multiple plot objects. """
     children = List(Instance(PlotObject))
