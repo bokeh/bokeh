@@ -7,7 +7,7 @@ from functools import wraps
 
 from six import add_metaclass, iteritems
 
-from .properties import HasProps, MetaHasProps, Instance, String
+from .properties import Any, HasProps, List, MetaHasProps, Instance, String
 from .query import find
 from .utils import dump, is_ref, json_apply, make_id, resolve_json
 
@@ -71,6 +71,7 @@ class PlotObject(HasProps):
 
     session = Instance(".session.Session")
     name = String()
+    tag = List(Any)
 
     def __init__(self, **kwargs):
         # Eventually should use our own memo instead of storing
