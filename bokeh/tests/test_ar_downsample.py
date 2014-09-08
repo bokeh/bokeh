@@ -8,7 +8,7 @@ from ..utils import is_py3
 
 # Only import in python 2...
 try:
-    import abstract_rendering.numeric as numeric
+    #import abstract_rendering.numeric as numeric
     import abstract_rendering.categories as categories
     import abstract_rendering.contour as contour
     import abstract_rendering.general as general
@@ -189,6 +189,7 @@ class Test_AR(unittest.TestCase):
         for (proxy, target, kwargs) in configs:
             self._reify_tester(proxy, target, kwargs)
 
+    @unittest.skip
     def test_aggregators(self):
         aggregators = [(ar_downsample.Sum(), numeric.Sum, {}),
                        (ar_downsample.Count(), numeric.Count, {}),
@@ -201,7 +202,7 @@ class Test_AR(unittest.TestCase):
     def test_reify_tester(self):
         self.assertRaises(NotImplementedError, self._reify_tester, *(_FailsProxyReify(), object, {}))
 
-
+    @unittest.skip
     def test_shaders(self):
         shaders = [(ar_downsample.BinarySegment(low=1, high=2, divider=10), numeric.BinarySegment, {}),
                    (ar_downsample.Contour(), contour.Contour, {}),
