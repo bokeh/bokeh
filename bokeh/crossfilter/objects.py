@@ -210,7 +210,7 @@ class CrossFilter(PlotObject):
             plots.append(plot)
         chunk_size = int(np.ceil(np.sqrt(len(plots))))
         grid_plots = []
-        for i in xrange(0, len(plots), chunk_size):
+        for i in range(0, len(plots), chunk_size):
             chunk =  plots[i:i+chunk_size]
             grid_plots.append(chunk)
         grid = GridPlot(children=grid_plots, plot_width=200 * chunk_size)
