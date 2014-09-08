@@ -18,6 +18,8 @@ import numpy as np
 from . import enums, colors
 from .utils import nice_join
 
+bokeh_integer_types = (np.int8, np.int16, np.int32, np.int64) + integer_types
+
 # used to indicate properties that are not set (vs null, None, etc)
 class _NotSet(object):
     pass
@@ -600,15 +602,15 @@ class Bool(PrimitiveProperty):
 
 class Int(PrimitiveProperty):
     ''' Signed integer type property. '''
-    _underlying_type = integer_types
+    _underlying_type = bokeh_integer_types
 
 class Float(PrimitiveProperty):
     ''' Floating point type property. '''
-    _underlying_type = (float,) + integer_types
+    _underlying_type = (float, ) + bokeh_integer_types
 
 class Complex(PrimitiveProperty):
     ''' Complex floating point type property. '''
-    _underlying_type = (complex, float) + integer_types
+    _underlying_type = (complex, float) + bokeh_integer_types
 
 class String(PrimitiveProperty):
     ''' String type property. '''
@@ -1017,13 +1019,13 @@ class Date(Property):
     def validate(self, value):
         super(Date, self).validate(value)
 
-        if not (value is None or isinstance(value, (datetime.date,) + string_types + (float,) + integer_types)):
+        if not (value is None or isinstance(value, (datetime.date,) + string_types + (float,) + bokeh_integer_types)):
             raise ValueError("expected a date, string or timestamp, got %r" % value)
 
     def transform(self, value):
         value = super(Date, self).transform(value)
 
-        if isinstance(value, (float,) + integer_types):
+        if isinstance(value, (float,) + bokeh_integer_types):
             try:
                 value = datetime.date.fromtimestamp(value)
             except ValueError:

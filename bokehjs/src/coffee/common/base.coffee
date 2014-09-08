@@ -64,21 +64,16 @@ define [
   "tool/wheel_zoom_tool",
   "tool/object_explorer_tool",
 
-  "widget/data_slider",
   "widget/data_table",
   "widget/handson_table",
   "widget/table_column"
   "widget/pivot_table",
   "widget/object_explorer",
 
-  "widget/pandas/ipython_remote_data",
-  "widget/pandas/pandas_pivot_table",
-  "widget/pandas/pandas_plot_source",
   'widget/paragraph'
   'widget/hbox'
   'widget/vbox'
   'widget/textinput'
-  'widget/vboxmodelform'
   'widget/vboxform'
   'widget/pretext'
   'widget/selectbox'
@@ -179,20 +174,15 @@ define [
     ResetTool:                'tool/reset_tool'
     ObjectExplorerTool:       'tool/object_explorer_tool'
 
-    DataSlider:               'widget/data_slider'
     DataTable:                'widget/data_table'
     HandsonTable:             'widget/handson_table'
     TableColumn:              'widget/table_column'
     PivotTable:               'widget/pivot_table'
     ObjectExplorer:           'widget/object_explorer'
 
-    IPythonRemoteData:        'widget/pandas/ipython_remote_data'
-    PandasPivotTable:         'widget/pandas/pandas_pivot_table'
-    PandasPlotSource:         'widget/pandas/pandas_plot_source'
     Paragraph:                'widget/paragraph'
     HBox:                     'widget/hbox'
     VBox:                     'widget/vbox'
-    VBoxModelForm:            'widget/vboxmodelform'
     VBoxForm:                 'widget/vboxform'
     TextInput:                'widget/textinput'
     PreText:                  'widget/pretext'
