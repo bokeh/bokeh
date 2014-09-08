@@ -108,6 +108,8 @@ Styling Accessors
 .. autofunction:: bokeh.plotting.xgrid
 .. autofunction:: bokeh.plotting.ygrid
 
+.. _bokeh_dot_resources:
+
 BokehJS Resources
 =================
 
@@ -119,6 +121,8 @@ Embedding Options
 
 The high level interface for embedding is located in :mod:`bokeh.embed`:
 
+.. _bokeh_dot_embed:
+
 `bokeh.embed`
 -------------
 
@@ -126,6 +130,8 @@ The high level interface for embedding is located in :mod:`bokeh.embed`:
   :members:
 
 The underlying templates for embedding are exposed in :mod:`bokeh.templates`:
+
+.. _bokeh_dot_templates:
 
 `bokeh.templates`
 -----------------
@@ -153,6 +159,8 @@ directory:
 * `examples/compat/pandas <https://github.com/ContinuumIO/bokeh/tree/master/examples/compat/pandas>`_
 * `examples/compat/seaborn <https://github.com/ContinuumIO/bokeh/tree/master/examples/compat/seaborn>`_
 
+.. _bokeh_dot_mpl:
+
 `bokeh.mpl`
 -----------
 
@@ -162,17 +170,23 @@ directory:
 Underlying Object System
 ========================
 
+.. _bokeh_dot_document:
+
 `bokeh.document`
 ----------------
 
 .. automodule:: bokeh.document
     :members:
 
+.. _bokeh_dot_glyphs:
+
 `bokeh.glyphs`
 --------------
 
 .. automodule:: bokeh.glyphs
     :members:
+
+.. _bokeh_dot_objects:
 
 `bokeh.objects`
 ---------------
@@ -183,6 +197,8 @@ Underlying Object System
 .. automodule:: bokeh.objects
     :members:
 
+.. _bokeh_dot_properties:
+
 `bokeh.properties`
 ------------------
 
@@ -191,6 +207,16 @@ Underlying Object System
 
 .. automodule:: bokeh.properties
     :members:
+
+.. _bokeh_dot_mixins:
+
+`bokeh.mixins`
+------------------
+
+.. automodule:: bokeh.mixins
+    :members:
+
+.. _bokeh_dot_session:
 
 `bokeh.session`
 ----------------

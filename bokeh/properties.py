@@ -23,6 +23,7 @@ class _NotSet(object):
     pass
 
 class Property(object):
+    ''' Base class for all type properties. '''
     def __init__(self, default=None):
         """ This is how the descriptor is created in the class declaration """
         self.validate(default)
@@ -380,6 +381,7 @@ class ColorSpec(DataSpec):
         return "ColorSpec(field=%r)" % self.field
 
 class Include(object):
+    ''' Include other properties from mixin Models, with a given prefix. '''
 
     def __init__(self, delegate):
         if not (isinstance(delegate, type) and issubclass(delegate, HasProps)):
@@ -593,22 +595,29 @@ class PrimitiveProperty(Property):
                 (nice_join([ cls.__name__ for cls in self._underlying_type ]), value, type(value).__name__))
 
 class Bool(PrimitiveProperty):
+    ''' Boolean type property. '''
     _underlying_type = (bool,)
 
 class Int(PrimitiveProperty):
+    ''' Signed integer type property. '''
     _underlying_type = integer_types
 
 class Float(PrimitiveProperty):
+    ''' Floating point type property. '''
     _underlying_type = (float,) + integer_types
 
 class Complex(PrimitiveProperty):
+    ''' Complex floating point type property. '''
     _underlying_type = (complex, float) + integer_types
 
 class String(PrimitiveProperty):
+    ''' String type property. '''
     _underlying_type = string_types
 
 class Regex(String):
-
+    ''' Regex type property validates that text values match the
+    given regular expression.
+    '''
     def __init__(self, regex, default=None):
         self.regex = re.compile(regex)
         super(Regex, self).__init__(default=default)
@@ -623,7 +632,7 @@ class Regex(String):
         return "%s(%r)" % (self.__class__.__name__, self.regex.pattern)
 
 class ParameterizedProperty(Property):
-    """Property that has type parameters, e.g. `List(String)`. """
+    """ Base class for Properties that have type parameters, e.g. `List(String)`. """
 
     def _validate_type_param(self, type_param):
         if isinstance(type_param, type):
@@ -645,6 +654,7 @@ class ParameterizedProperty(Property):
         return any(type_param.has_ref for type_param in self.type_params)
 
 class ContainerProperty(ParameterizedProperty):
+    ''' Base class for Container-like type properties. '''
     # Base class for container-like things; this helps the auto-serialization
     # and attribute change detection code
     pass
@@ -722,7 +732,7 @@ class Dict(ContainerProperty):
         return "%s(%s, %s)" % (self.__class__.__name__, self.keys_type, self.values_type)
 
 class Tuple(ContainerProperty):
-
+    ''' Tuple type property. '''
     def __init__(self, tp1, tp2, *type_params, **kwargs):
         self._type_params = list(map(self._validate_type_param, (tp1, tp2) + type_params))
         super(Tuple, self).__init__(default=kwargs.get("default", None))
@@ -764,6 +774,10 @@ class Array(ContainerProperty):
             return getattr(obj, self._name, self.default)
 
 class Instance(Property):
+    ''' Instance type property for referneces to other Models in the object
+    graph.
+
+    '''
     def __init__(self, instance_type, default=None):
         if not isinstance(instance_type, (type,) + string_types):
             raise ValueError("expected a type or string, got %s" % instance_type)
@@ -812,12 +826,20 @@ class This(Property):
     pass
 
 # Fake types, ABCs
-class Any(Property): pass
-class Function(Property): pass
-class Event(Property): pass
+class Any(Property):
+    ''' Any type property accepts any values. '''
+    pass
+
+class Function(Property):
+    ''' Function type property. '''
+    pass
+
+class Event(Property):
+    ''' Event type property. '''
+    pass
 
 class Range(ParameterizedProperty):
-
+    ''' Range type property ensures values are between a range. '''
     def __init__(self, range_type, start, end, default=None):
         self.range_type = self._validate_type_param(range_type)
         self.range_type.validate(start)
@@ -840,7 +862,7 @@ class Range(ParameterizedProperty):
         return "%s(%s, %r, %r)" % (self.__class__.__name__, self.range_type, self.start, self.end)
 
 class Byte(Range):
-
+    ''' Byte type property. '''
     def __init__(self, default=0):
         super(Byte, self).__init__(Int, 0, 255, default=default)
 
@@ -984,10 +1006,11 @@ class Percent(Float):
             raise ValueError("expected a value in range [0, 1], got %r" % value)
 
 class Angle(Float):
+    ''' Angle type property. '''
     pass
 
-
 class Date(Property):
+    ''' Date (not datetime) type property. '''
     def __init__(self, default=datetime.date.today()):
         super(Date, self).__init__(default=default)
 
@@ -1011,6 +1034,7 @@ class Date(Property):
         return value
 
 class Datetime(Property):
+    ''' Datetime type property. '''
     def __init__(self, default=datetime.date.today()):
         super(Datetime, self).__init__(default=default)
 
@@ -1035,6 +1059,7 @@ class Datetime(Property):
 
 
 class RelativeDelta(Dict):
+    ''' RelativeDelta type property for time deltas. '''
     def __init__(self, default={}):
         keys = Enum("years", "months", "days", "hours", "minutes", "seconds", "microseconds")
         values = Int

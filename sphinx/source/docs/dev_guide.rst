@@ -13,8 +13,10 @@ Developer Guide
 Process
 =======
 
-The development process for Bokeh is outline in `Bokeh Enhancement Proposal 1 <https://github.com/ContinuumIO/bokeh/wiki/BEP-1:-Issues-and-PRs-management>`_. All changes, enhancements, and bugfixes should generally go
+The development process for Bokeh is outlined in `Bokeh Enhancement Proposal 1 <https://github.com/ContinuumIO/bokeh/wiki/BEP-1:-Issues-and-PRs-management>`_. All changes, enhancements, and bugfixes should generally go
 through the process outlined there.
+
+The release process for Bokeh is outlined in `Bokeh Enhancement Proposal 2 <https://github.com/ContinuumIO/bokeh/wiki/BEP-2:-Release-Management>`_.
 
 .. _developer_install:
 
@@ -166,6 +168,17 @@ to ``setup.py``:
 If you have any problems with the steps here, please contact the developers
 (see :ref:`contact`).
 
+"Developer" Mode Setup
+----------------------
+The processes described about result in building and using a full `bokeh.js`
+library. This could be considered "production" mode. It is also possible to
+run Bokeh code in a mode that utilizes ``require.js`` mode directly to serve
+up individual JavaScript modules individually. If this is done, then changes
+to BokehJS can be incrementally compiled, and the development iteration
+cycle shortened considerably.
+
+ development configuration (--splitjs, --dev, etc.)
+
 .. _developer_documentation:
 
 Documentation
@@ -183,7 +196,7 @@ will need the following packages installed in order to build Bokeh documentation
 
 These can be installed using ``conda`` or ``pip`` or from source.
 
-building
+Building
 --------
 
 To generate the full HTML documentation, navigate to the ``sphinx`` subdirectory
@@ -360,22 +373,25 @@ of these in turn.
 Models and properties
 ---------------------
 
-The main unit of the low-level API is a model, which is a class that, at least
-indirectly, derives from `HasProps` trait::
+The primary components of the low-level API are models, which are objects
+that have attributes that can be automatically serialized in a way that
+lets them be reconstituted as Backbone objects within BokehJS. Technically,
+models are classes that inherit from `HasProps` at some point::
 
     from bokeh.properties import HasProps, Int
 
     class Whatever(HasProps):
-        """`Whatever` model. """
+        """ `Whatever` model. """
 
-Indirectly means that models can derive from other models and can extend mixins
-that provide common APIs for particular entities (e.g. `LineProps`, `FillProps`;
-see `bokeh.mixins`). Thus model's definition can look like this::
+Models can derive from other models as well as mixins that provide common
+sets of properties (e.g. see :class:`~bokeh.mixins.LineProps`, etc. in :ref:`bokeh_dot_mixins`).
+An example might look like this::
 
     class Another(Whatever, LineProps):
-        """`Another` model. """
+        """ `Another` model. """
 
-Models contain properties, that are class-level instances of type `Property`, e.g:
+Models contain properties, which are class attributes of type
+:class:`~bokeh.properties.Property`, e.g::
 
     class IntProps(HasFields):
 
@@ -383,22 +399,52 @@ Models contain properties, that are class-level instances of type `Property`, e.
         prop2 = Int()
         prop3 = Int(10)
 
-That said, `prop1` isn't an instance of `Int`, but `HasFields` uses a metaclass that
-turns instantiate classes , so `prop1` and `prop2` are equivalent (thought independent)
-properties. This is useful for readability purpose, so if you don't need to pass any
-arguments to property's constructor then prefer the former over the later.
+The `IntProps` model represents objects that have three integer values,
+``prop1``, ``prop2``, and ``prop3``, that can be automatically serialized
+from python, and unserialized by BokehJS.
 
-There is wide variety of property types, ranging from primitive types like `Int`,
-`String`, `Float`, through containers `List(Int)`, `Dict(String, Double)`, references
-to models, `Instance(Plot)`, to specialized type like `Enum("foo", "bar", "baz")`,
-`Either(Int, String)` (type union), `Range(Int, 0, 255)` (aka. unsigned byte), etc.
-There is a special branch of property types that allow value vectorization (`DataSpec`
-and `ColorSpec`). There exists type `Any` that is the super-type of all other types
-(make sure to use it sparingly or not at all). Thus a sample, but more complex model
-can look like this::
+.. note::
+    Technically, ``prop1`` isn't an instance of ``Int``, but ``HasFields`` uses a
+    metaclass that automatically instantiates `Property` classes when necessary,
+    so ``prop1`` and ``prop2`` are equivalent (though independent) properties.
+    This is useful for readability; if you don't need to pass any arguments to
+    property's constructor then prefer the former over the later.
+
+There is wide variety of property types, ranging from primitive types such as:
+
+* :class:`~bokeh.properties.Byte`
+* :class:`~bokeh.properties.Int`
+* :class:`~bokeh.properties.Float`
+* :class:`~bokeh.properties.Complex`
+* :class:`~bokeh.properties.String`
+
+As well as container-like properties, that take other Properties as parameters:
+
+* :class:`~bokeh.properties.List` --- for a list of one type of objects: ``List(Int)``
+* :class:`~bokeh.properties.Dict` --- for a mapping between two type: ``Dict(String, Double)``
+
+and finally some specialized types like
+
+* :class:`~bokeh.properties.Instance` --- to hold a reference to another model: ``Instance(Plot)``
+* :class:`~bokeh.properties.Enum` --- to represent enumerated values: ``Enum("foo", "bar", "baz")``
+* :class:`~bokeh.properties.Either` --- to create a union type: ``Either(Int, String)``
+* :class:`~bokeh.properties.Range` --- to restrict values to a given range: ``Instance(Plot)``
+
+The primary benefit of these property types is that validation can be performed
+and meaningful error reporting can occur when an attempt is made to assign an
+invalid type or value.
+
+.. warning::
+    There is an :class:`~bokeh.properties.Any` that is the super-type of all other
+    types, and will accept any type of value. Since this circumvents all type validation,
+    make sure to use it sparingly, it at all.
+
+See :ref:`bokeh_dot_properties` for full details.
+
+An example of a more complex, realistic model might look like this::
 
     class Sample(HasProps, FillProps):
-        """`Sample` model. """
+        """ `Sample` model. """
 
         prop1 = Int(127)
         prop2 = Either(Int, List(Int), Dict(String, List(Int)))
@@ -406,43 +452,251 @@ can look like this::
         prop4 = Range(Float, 0.0, 1.0)
         prop5 = List(Instance(Range1d))
 
-There is a special property-like type named `Include`, that allow to include properties
-from a mixin using a prefix, e.g.::
+There is a special property-like type named :class:`~bokeh.properties.Include`,
+that make it simpler to mix in in properties from a mixin using a prefix, e.g.::
 
     class Includes(HasProps):
-        """`Includes` model. """
+        """ `Includes` model. """
 
         some_props = Include(FillProps)
 
-In this case we have a placeholder property `some_props`, which will be removed by the
-metaclass and replaced with properties from `FillProps` with `some_` prefix appended.
-Prefix can be a valid identifier. If it ends with `_props` then `props` suffix will
-be removed. Adding `_props` isn't necessary, but can be useful if `some` property exists
-in parallel to future `some_*` properties (see `Plot.title` as an example).
+In this case there is a placeholder property `some_props`, that will be removed
+and automatically replaced with all the properties from :class:`~bokeh.mixins.FillProps`,
+each with `some_` appended as a prefix.
 
-`Includes` is equivalent to writing::
+.. note::
+    The prefix can be a valid identifier. If it ends with ``_props`` then ``props``
+    will be removed. Adding ``_props`` isn't necessary, but can be useful if a
+    property ``some`` already exists in parallel (see ``Plot.title`` as an example).
+
+Using :class:`~bokeh.properties.Include` is equivalent to writing::
 
     class ExplicitIncludes(HasProps):
-        """`ExplicitIncludes` model. """
+        """ `ExplicitIncludes` model. """
 
         some_fill_color = ColorSpec("gray")
         some_fill_alpha = DataSpec(1.0)
 
-Note hat you can inherit from (in this case) `FillProps` as well, so::
+Note that you could inherit from :class:`~bokeh.mixins.FillProps` in this
+case, as well::
 
     class IncludesExtends(HasProps, FillProps):
-        """`IncludesExtends` model. """
+        """ `IncludesExtends` model. """
 
         some = String
         some_props = Include(FilleProps)
 
-is equivalent to::
+but note that this is  equivalent to::
 
     class ExplicitIncludesExtends(HasProps):
-        """`ExplicitIncludesExtends` model. """
+        """ `ExplicitIncludesExtends` model. """
 
         fill_color = ColorSpec("gray")
         fill_alpha = DataSpec(1.0)
         some = String
         some_fill_color = ColorSpec("gray")
         some_fill_alpha = DataSpec(1.0)
+
+Developer Notes
+===============
+
+Environment Variables
+---------------------
+There are several environment variables that can be useful for developers:
+
+* ``BOKEH_BROWSER`` --- What browser to use when opening plots
+    Valid values are any of the browser names understood by the python standard
+    library `webbrowser module <https://docs.python.org/2/library/webbrowser.html>`_.
+
+* ``BOKEH_LOG_LEVEL`` --- The BokehJS console logging level to set
+    Valid values are, in order of increasing severity:
+
+  - ``trace``
+  - ``debug``
+  - ``info``
+  - ``warn``
+  - ``error``
+  - ``fatal``
+
+    The default logging level is ``info``.
+
+    .. note::
+        When running  server examples, it is the value of this ``BOKEH_LOG_LEVEL`` that is
+        set for the server that matters.
+
+* ``BOKEH_MINIFIED`` --- Whether to emit minified JavaScript for ``bokeh.js``
+    Accepted values are ``yes``/``no``, ``true``/``false`` or ``0``/``1``.
+
+* ``BOKEH_PRETTY`` --- Whether to emit "pretty printed" JSON
+    Accepted values are ``yes``/``no``, ``true``/``false`` or ``0``/``1``.
+
+* ``BOKEH_RESOURCES`` --- What kind of BokehJS resources to configure
+    For example:  ``inline``, ``cdn``, ``server``. See the :class:`~bokeh.resources.Resources`
+    class reference for full details.
+
+* ``BOKEH_ROOTDIR`` --- Root directory to use with ``relative`` resources
+    See the :class:`~bokeh.resources.Resources` class reference for full details.
+
+* ``BOKEH_SIMPLE_IDS`` --- Whether to generate human-friendly object IDs
+    Accepted values are ``yes``/``no``, ``true``/``false`` or ``0``/``1``.
+    Normally Bokeh generates UUIDs for object identifiers. Setting this variable
+    to an affirmative value will result in more friendly simple numeric IDs
+    counting up from 1000.
+
+* ``BOKEH_VERSION`` --- What version of BokehJS to use with ``cdn`` resources
+    See the :class:`~bokeh.resources.Resources` class reference for full details.
+
+CSS class names
+---------------
+The CSS for controlling Bokeh presentation are located in a ``bokeh.css`` file
+that is compiled from several separate ``.less`` files in the BokehJS source
+tree. All CSS classes specifically for Bokeh DOM elements are prefixed with
+the string ``bk-``. For instance some examples are: ``.bk-sidebar``, ``.bk-toolbar-button``, etc.
+
+Furthermore, BokehJS ships with its own version of `Bootstrap <http://getbootstrap.com>`_.
+To prevent name collisions, the version of Bootstrap CSS that Bokeh uses has
+been entirely prefixed with the prefix ``bk-bs-``.
+
+Managing examples
+-----------------
+
+ examples' naming convention (e.g. _server suffix)
+ adding examples to test.yml
+
+Choosing right types
+--------------------
+
+ choosing correct types for properties (don't use Any if possible)
+
+Managing Python modules
+-----------------------
+
+ update packages in setup.py when changing module structure
+
+Managing external JS libraries
+------------------------------
+
+ adding packages to and updating bokehjs/src/vendor
+
+Maintaining secure variables in .travis.yml
+-------------------------------------------
+
+ interactions with travis-ci from CLI (gem install --user-instal travis)
+ how to update secure values in .travis.yml (S3, flowdock)
+
+Browser caching
+---------------
+
+During development, depending on the type of configured resources,
+aggressive browser caching can sometimes cause new BokehJS code changes to
+not be picked up. It is recommended that during normal development,
+browser caching be disabled. Instructions for different browsers can be
+found here:
+
+* `Chrome <https://developer.chrome.com/devtools/docs/settings>`_
+* `Firefox <https://developer.mozilla.org/en-US/docs/Mozilla/Preferences/Mozilla_networking_preferences#Cache>`_
+* `Safari <https://developer.apple.com/library/mac/documentation/AppleApplications/Conceptual/Safari_Developer_Guide/TheDevelopMenu/TheDevelopMenu.html>`_
+* `Internet Explorer <http://msdn.microsoft.com/en-us/library/hh968260(v=vs.85).aspx#cacheMenu>`_
+
+Additionlly some browsers also provide a "private mode" that may disable
+caching automatically.
+
+Even with caching disabled, on some browsers, it may still be required to
+sometimes force a page reload. Keyboard shortcuts for forcing page
+refreshes can be found here:
+
+* Chrome `Windows <https://support.google.com/chrome/answer/157179?hl=en&ref_topic=25799>`_ / `OSX <https://support.google.com/chrome/answer/165450?hl=en&ref_topic=25799>`_ / `Linux <https://support.google.com/chrome/answer/171571?hl=en&ref_topic=25799>`_
+* `Firefox <https://support.mozilla.org/en-US/kb/keyboard-shortcuts-perform-firefox-tasks-quickly#w_navigation>`_
+* `Safari <https://developer.apple.com/library/mac/documentation/AppleApplications/Conceptual/Safari_Developer_Guide/KeyboardShortcuts/KeyboardShortcuts.html>`_
+* Internet Explorer `10 <http://msdn.microsoft.com/en-us/library/dd565630(v=vs.85).aspx>`_ / `11 <http://msdn.microsoft.com/en-us/library/ie/dn322041(v=vs.85).aspx>`_
+
+If it appears that new changes are not being executed when they should be, it
+is recommended to try this first.
+
+BokehJS AMD module template for a model
+---------------------------------------
+
+Supposed you want to add a model for a `Button` widget. This must be accompanied
+by a collection and (most often) a view. Follow this steps:
+
+#. There is one model per source file policy. The file name is the snakified version
+   of the model name. In this case `button.coffee`.
+#. Choose location of the source file under `bokehjs/src/coffee`. This depends on
+   the role of your model. Button is a widget, so it goes into `widget`. If you
+   create a group of related models, then you may consider adding a subdirectory
+   that will contain those models. Do not add top-level directories unless you
+   add a completely new kind of functionality to bokeh.
+#. Update `bokehjs/src/coffee/common/base.coffee`. This is required for model loader
+   to be able to resolve your new model. Two additions are necessary. First, add
+   module path to `define [...]`. Then update `locations: ...` mapping with
+   model name and module path entry. Module path is source file path relative
+   to `bokehjs/src/coffee` directory and without extension. In this case it's
+   `widget/button`, so you add `widget/button` to `define [...]` and `Button:
+   `widget/button` to `locations: ...`. Make sure to add them under appropriate
+   sections, preferably in lexicographic order or group by functionality.
+#. Create the source file using the following template::
+
+    define [
+      "underscore"
+      "backbone"
+      "common/continuum_view"
+      "common/has_parent"
+      "common/logging"
+      "./button_template"
+    ], (_, Backbone, continuum_view, HasParent, Logging, template) ->
+
+      logger = Logging.logger
+
+      class ButtonView extends continuum_view.View
+        tagName: "div"
+        template: template
+        events:
+          "click": "on_click"
+
+        on_click: () ->
+          logger.info("click!")
+
+        initialize: (options) ->
+          super(options)
+          @render()
+          @listenTo(@model, 'change', @render)
+
+        render: () ->
+          @$el.empty()
+          html = @template(@model.attributes)
+          @$el.html(html)
+          return this
+
+      class Button extends HasParent
+        type: "Button"
+        default_view: ButtonView
+
+        defaults: () ->
+          _.extend({}, super(), {
+            text: 'Button'
+          }
+
+      class Buttons extends Backbone.Collection
+        model: Button
+
+      return {
+        Model: Button
+        Collection: new Buttons()
+        View: ButtonView
+      }
+
+   Note that this is just a template, so make sure you change it accordingly to your
+   application. However, most implementation will have to have three classes defined:
+   a model, a collection and a view, which must directly or indirectly inherit from
+   `HasProperties`, `Backbone.Collection` and `continuum_view.View` respectively. In
+   this case you can see that the model inherits from `HasParent` which in turn
+   inherits from `HasProperties`. If a view is defined, the model must have `default_view`
+   defined. You are not forced to use ECO templates for rendering of a view, but it's
+   encouraged, because it takes care of variable encoding, so it's less likely to
+   introduce XSS vulnerabilities this way. Otherwise, take advantage of jQuery's APIs,
+   like `$(...).text("foobar")`. Do *not* use plain string concatenation or interpolation,
+   because you will quickly compromise security this way.
+
+#. Test your new module in development and production modes (i.e. with `require()` and
+   `r.js`). Your module can work perfectly in one mode and not load at all in the other,
+   so keep that in mind.
