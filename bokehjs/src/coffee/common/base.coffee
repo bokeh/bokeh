@@ -71,9 +71,6 @@ define [
   "widget/pivot_table",
   "widget/object_explorer",
 
-  "widget/pandas/ipython_remote_data",
-  "widget/pandas/pandas_pivot_table",
-  "widget/pandas/pandas_plot_source",
   'widget/paragraph'
   'widget/hbox'
   'widget/vbox'
@@ -186,9 +183,6 @@ define [
     PivotTable:               'widget/pivot_table'
     ObjectExplorer:           'widget/object_explorer'
 
-    IPythonRemoteData:        'widget/pandas/ipython_remote_data'
-    PandasPivotTable:         'widget/pandas/pandas_pivot_table'
-    PandasPlotSource:         'widget/pandas/pandas_plot_source'
     Paragraph:                'widget/paragraph'
     HBox:                     'widget/hbox'
     VBox:                     'widget/vbox'
