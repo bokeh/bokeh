@@ -127,15 +127,6 @@ class ServerDataSource(DataSource):
     # TODO: Find/create a property type for 'any primitive/atomic value'
     transform = Dict(String,Either(Instance(PlotObject), Any))
 
-
-class PandasDataSource(DataSource):
-    """ Represents serverside data.  This gets stored into the plot server's
-    database, but it does not have any client side representation.  Instead,
-    a PandasPlotSource needs to be created and pointed at it.
-    """
-
-    data = Dict(String, Any)
-
 class Range(PlotObject):
     pass
 
