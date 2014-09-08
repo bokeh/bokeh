@@ -4,6 +4,10 @@
   "description": "Interactive, novel data visualization",
   "keywords": ["bokeh", "datavis", "dataviz", "visualization", "plotting", "plot", "graph"],
   "license": "BSD-3-Clause",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/ContinuumIO/bokeh.git"
+    },
   "devDependencies": {
     "requirejs": "^2.1.11",
     "grunt": "^0.4.4",
