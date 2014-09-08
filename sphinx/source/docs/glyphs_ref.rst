@@ -29,8 +29,8 @@ corresponding ``start_radius``, ``end_radius``,  ``start_angle`` and ``end_angle
   * values: ``'clock'``, ``'anticlock'``
   * default: ``'anticlock'``
 
-* :ref:`userguide_line_properties`
-* :ref:`userguide_fill_properties`
+* :ref:`userguide_objects_line_properties`
+* :ref:`userguide_objects_fill_properties`
 
 .. _bokeh_annulus:
 
@@ -42,8 +42,8 @@ corresponding ``start_radius`` and ``end_radius``.
 * ``x``, ``y`` - center point coordinates
 * ``start_radius``
 * ``end_radius``
-* :ref:`userguide_line_properties`
-* :ref:`userguide_fill_properties`
+* :ref:`userguide_objects_line_properties`
+* :ref:`userguide_objects_fill_properties`
 
 .. _bokeh_arc:
 
@@ -63,18 +63,18 @@ corresponding ``radius``, ``start_angle`` and ``end_angle``.
   * values: [``'clock'`` or ``'anticlock'``]
   * default: ``'anticlock'``
 
-* :ref:`userguide_line_properties`
+* :ref:`userguide_objects_line_properties`
 
 .. _bokeh_asterisk:
 
 ``asterisk``
 ------------
-The asterisk glyph is a :ref:`marker <userguide_markers>` that displays asterisks at
+The asterisk glyph is a :ref:`marker <userguide_objects_markers>` that displays asterisks at
 the given coordinates.
 
 * ``x``, ``y`` - center point coordinates
 * ``size``
-* :ref:`userguide_line_properties`
+* :ref:`userguide_objects_line_properties`
 
 .. _bokeh_bezier:
 
@@ -86,80 +86,80 @@ The bezier glyph displays Bezier curves with the given starting, ending, and con
 * ``x1``, ``y1`` - ending point coordinates
 * ``cx0``, ``cy0`` - first control point coordinates
 * ``cx1``, ``cy1`` - second control point coordinates
-* :ref:`userguide_line_properties`
+* :ref:`userguide_objects_line_properties`
 
 .. _bokeh_circle:
 
 ``circle``
 ----------
-The circle glyph has two forms, a :ref:`marker <userguide_markers>` form that takes a ``size``
+The circle glyph has two forms, a :ref:`marker <userguide_objects_markers>` form that takes a ``size``
 field or a non-marker form that takes a ``radius`` field.
 
 +------------------------------------------+------------------------------------------+
 |* ``x``, ``y`` - center point coordinates |* ``x``, ``y`` - center point coordinates |
 |* ``size``                                |* ``radius``                              |
-|* :ref:`userguide_line_properties`        |* :ref:`userguide_line_properties`        |
-|* :ref:`userguide_fill_properties`        |* :ref:`userguide_fill_properties`        |
+|* :ref:`userguide_objects_line_properties`|* :ref:`userguide_objects_line_properties`|
+|* :ref:`userguide_objects_fill_properties`|* :ref:`userguide_objects_fill_properties`|
 +------------------------------------------+------------------------------------------+
 
 .. _bokeh_circle_cross:
 
 ``circle_cross``
 ----------------
-The circle_cross glyph is a :ref:`marker <userguide_markers>` that displays circles
+The circle_cross glyph is a :ref:`marker <userguide_objects_markers>` that displays circles
 together with a crossbar (+) at the given coordinates.
 
 * ``x``, ``y`` - center point coordinates
 * ``size``
-* :ref:`userguide_line_properties`
-* :ref:`userguide_fill_properties`
+* :ref:`userguide_objects_line_properties`
+* :ref:`userguide_objects_fill_properties`
 
 .. _bokeh_circle_x:
 
 ``circle_x``
 ------------
-The circle_x glyph is a :ref:`marker <userguide_markers>` that displays circles
+The circle_x glyph is a :ref:`marker <userguide_objects_markers>` that displays circles
 together with an X at the given coordinates.
 
 * ``x``, ``y`` - center point coordinates
 * ``size``
-* :ref:`userguide_line_properties`
-* :ref:`userguide_fill_properties`
+* :ref:`userguide_objects_line_properties`
+* :ref:`userguide_objects_fill_properties`
 
 .. _bokeh_cross:
 
 ``cross``
 ---------
-The cross glyph is a :ref:`marker <userguide_markers>` that displays crossbar symbols (+)
+The cross glyph is a :ref:`marker <userguide_objects_markers>` that displays crossbar symbols (+)
 at the given coordinates.
 
 * ``x``, ``y`` - center point coordinates
 * ``size``
-* :ref:`userguide_line_properties`
+* :ref:`userguide_objects_line_properties`
 
 .. _bokeh_diamond:
 
 ``diamond``
 -----------
-The diamond glyph is a :ref:`marker <userguide_markers>` that displays diamonds
+The diamond glyph is a :ref:`marker <userguide_objects_markers>` that displays diamonds
 at the given coordinates.
 
 * ``x``, ``y`` - center point coordinates
 * ``size``
-* :ref:`userguide_line_properties`
-* :ref:`userguide_fill_properties`
+* :ref:`userguide_objects_line_properties`
+* :ref:`userguide_objects_fill_properties`
 
 .. _bokeh_diamond_cross:
 
 ``diamond_cross``
 -----------------
-The diamond_cross glyph is a :ref:`marker <userguide_markers>` that displays diamonds
+The diamond_cross glyph is a :ref:`marker <userguide_objects_markers>` that displays diamonds
 together with a crossbar (+) at the given coordinates.
 
 * ``x``, ``y`` - center point coordinates
 * ``size``
-* :ref:`userguide_line_properties`
-* :ref:`userguide_fill_properties`
+* :ref:`userguide_objects_line_properties`
+* :ref:`userguide_objects_fill_properties`
 
 .. _bokeh_image:
 
@@ -216,13 +216,13 @@ on the given coordinates and rotated by the given angles.
 
 ``inverted_triangle``
 ---------------------
-The inverted_triangle glyph is a :ref:`marker <userguide_markers>` that displays
+The inverted_triangle glyph is a :ref:`marker <userguide_objects_markers>` that displays
 upside-down triangles at the given coordinates.
 
 * ``x``, ``y`` - center point coordinates
 * ``size``
-* :ref:`userguide_line_properties`
-* :ref:`userguide_fill_properties`
+* :ref:`userguide_objects_line_properties`
+* :ref:`userguide_objects_fill_properties`
 
 .. _bokeh_line:
 
@@ -232,7 +232,7 @@ The line glyph displays a single line that connects several points given by the 
 of coordinates ``x`` and ``y``.
 
 * ``x``, ``y`` - line coordinates
-* :ref:`userguide_line_properties`
+* :ref:`userguide_objects_line_properties`
 
 .. _bokeh_multi_line:
 
@@ -245,7 +245,7 @@ implementing parallel coordinates plots, or plotting several aligned series simu
 .. note:: For this glyph, the vector data is not simply an array of scalars, it is really an "array of arrays".
 
 * ``xs``, ``ys`` - lists of line coordinates
-* :ref:`userguide_line_properties`
+* :ref:`userguide_objects_line_properties`
 
 .. _bokeh_oval:
 
@@ -261,8 +261,8 @@ and angle.
 
   * default: 0
 
-* :ref:`userguide_line_properties`
-* :ref:`userguide_fill_properties`
+* :ref:`userguide_objects_line_properties`
+* :ref:`userguide_objects_fill_properties`
 
 .. _bokeh_patch:
 
@@ -272,8 +272,8 @@ The patch glyph displays a single polygonal patch that connects several points g
 of coordinates ``x`` and ``y``.
 
 * ``x``, ``y`` - coordinates
-* :ref:`userguide_line_properties`
-* :ref:`userguide_fill_properties`
+* :ref:`userguide_objects_line_properties`
+* :ref:`userguide_objects_fill_properties`
 
 .. _bokeh_patches:
 
@@ -286,8 +286,8 @@ implementing stacked area charts and cartograms.
 .. note:: For this glyph, the vector data is not simply an array of scalars, it is really an "array of arrays".
 
 * ``xs``, ``ys`` - lists of coordinates
-* :ref:`userguide_line_properties`
-* :ref:`userguide_fill_properties`
+* :ref:`userguide_objects_line_properties`
+* :ref:`userguide_objects_fill_properties`
 
 .. _bokeh_quad:
 
@@ -299,8 +299,8 @@ The quad glyph displays axis-aligned rectangles with the given dimensions.
 * ``right``
 * ``top``
 * ``bottom``
-* :ref:`userguide_line_properties`
-* :ref:`userguide_fill_properties`
+* :ref:`userguide_objects_line_properties`
+* :ref:`userguide_objects_fill_properties`
 
 .. _bokeh_quadratic:
 
@@ -311,7 +311,7 @@ The quadratic glyph displays quadratic curves with the given starting, ending, a
 * ``x0``, ``y0`` - starting point coordinates
 * ``x1``, ``y1`` - ending point coordinates
 * ``cx``, ``cy`` - control point coordinates
-* :ref:`userguide_line_properties`
+* :ref:`userguide_objects_line_properties`
 
 .. _bokeh_ray:
 
@@ -326,7 +326,7 @@ The ray glyph displays line segments starting at the given coordinate and extend
 
   * default: 0
 
-* :ref:`userguide_line_properties`
+* :ref:`userguide_objects_line_properties`
 
 .. _bokeh_rect:
 
@@ -348,8 +348,8 @@ and angle.
 
   * default: `False`
 
-* :ref:`userguide_line_properties`
-* :ref:`userguide_fill_properties`
+* :ref:`userguide_objects_line_properties`
+* :ref:`userguide_objects_fill_properties`
 
 
 .. _bokeh_segment:
@@ -361,43 +361,43 @@ The segment glyph displays line segments with the given starting and ending coor
 
 * ``x0``, ``y0`` - starting point coordinates
 * ``x1``, ``y1`` - ending point coordinates
-* :ref:`userguide_line_properties`
+* :ref:`userguide_objects_line_properties`
 
 .. _bokeh_square:
 
 ``square``
 ----------
-The square glyph is a :ref:`marker <userguide_markers>` that displays squares
+The square glyph is a :ref:`marker <userguide_objects_markers>` that displays squares
 at the given coordinates.
 
 * ``x``, ``y`` - center point coordinates
 * ``size``
-* :ref:`userguide_line_properties`
-* :ref:`userguide_fill_properties`
+* :ref:`userguide_objects_line_properties`
+* :ref:`userguide_objects_fill_properties`
 
 .. _bokeh_square_cross:
 
 ``square_cross``
 ----------------
-The square_cross glyph is a :ref:`marker <userguide_markers>` that displays squares
+The square_cross glyph is a :ref:`marker <userguide_objects_markers>` that displays squares
 together with a crossbar (+) at the given coordinates.
 
 * ``x``, ``y`` - center point coordinates
 * ``size``
-* :ref:`userguide_line_properties`
-* :ref:`userguide_fill_properties`
+* :ref:`userguide_objects_line_properties`
+* :ref:`userguide_objects_fill_properties`
 
 .. _bokeh_square_x:
 
 ``square_x``
 ------------
-The square_x glyph is a :ref:`marker <userguide_markers>` that displays squares
+The square_x glyph is a :ref:`marker <userguide_objects_markers>` that displays squares
 together with an X at the given coordinates.
 
 * ``x``, ``y`` - center point coordinates
 * ``size``
-* :ref:`userguide_line_properties`
-* :ref:`userguide_fill_properties`
+* :ref:`userguide_objects_line_properties`
+* :ref:`userguide_objects_fill_properties`
 
 .. _bokeh_text:
 
@@ -412,19 +412,19 @@ location of the coordinates relative to the text is indicated by the text proper
 
   * default: 0
 
-* :ref:`userguide_text_properties`
+* :ref:`userguide_objects_text_properties`
 
 .. _bokeh_triangle:
 
 ``triangle``
 ------------
-The triangle glyph is a :ref:`marker <userguide_markers>` that displays triangles
+The triangle glyph is a :ref:`marker <userguide_objects_markers>` that displays triangles
 at the given coordinates.
 
 * ``x``, ``y`` - center point coordinates
 * ``size``
-* :ref:`userguide_line_properties`
-* :ref:`userguide_fill_properties`
+* :ref:`userguide_objects_line_properties`
+* :ref:`userguide_objects_fill_properties`
 
 .. _bokeh_wedge:
 
@@ -444,19 +444,19 @@ corresponding ``radius``,  ``start_angle`` and ``end_angle``.
   * values: [``'clock'`` or ``'anticlock'``]
   * default: ``'anticlock'``
 
-* :ref:`userguide_line_properties`
-* :ref:`userguide_fill_properties`
+* :ref:`userguide_objects_line_properties`
+* :ref:`userguide_objects_fill_properties`
 
 .. _bokeh_x:
 
 ``x``
 -----
-The x glyph is a :ref:`marker <userguide_markers>` that displays X symbols at
+The x glyph is a :ref:`marker <userguide_objects_markers>` that displays X symbols at
 the given coordinates.
 
 * ``x``, ``y`` - center point coordinates
 * ``size``
-* :ref:`userguide_line_properties`
-* :ref:`userguide_fill_properties`
+* :ref:`userguide_objects_line_properties`
+* :ref:`userguide_objects_fill_properties`
 
 

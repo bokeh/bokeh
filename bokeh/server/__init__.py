@@ -16,6 +16,7 @@ import werkzeug.serving
 import imp
 import sys
 
+from bokeh import __version__
 from bokeh.server.utils.reload import robust_reloader
 from bokeh.server.app import bokeh_app
 from bokeh.settings import settings
@@ -173,13 +174,16 @@ def run():
     print("""
 Bokeh Server Configuration
 ==========================
+python version : %s
+bokeh version  : %s
 listening      : %s:%d
 backend        : %s
 python options : %s
 js options     : %s
 data-directory : %s
 """ % (
-    args.ip, args.port,
+    sys.version.split()[0], __version__,
+    args.ip, args.bokeh_port,
     backend_options,
     py_options,
     js_options,
