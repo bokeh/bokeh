@@ -77,7 +77,6 @@ define [
   'widget/hbox'
   'widget/vbox'
   'widget/textinput'
-  'widget/vboxmodelform'
   'widget/vboxform'
   'widget/pretext'
   'widget/selectbox'
