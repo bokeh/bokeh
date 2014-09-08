@@ -119,7 +119,6 @@ define (require, exports, module) ->
   Bokeh.ObjectExplorerTool     = require("tool/object_explorer_tool")
 
   # widgets
-  Bokeh.DataSlider     = require("widget/data_slider")
   Bokeh.HBox           = require("widget/hbox")
   Bokeh.VBox           = require("widget/vbox")
   Bokeh.TextInput      = require("widget/textinput")

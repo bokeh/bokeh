@@ -179,7 +179,6 @@ define [
     ResetTool:                'tool/reset_tool'
     ObjectExplorerTool:       'tool/object_explorer_tool'
 
-    DataSlider:               'widget/data_slider'
     DataTable:                'widget/data_table'
     HandsonTable:             'widget/handson_table'
     TableColumn:              'widget/table_column'
