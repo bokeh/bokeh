@@ -17,8 +17,16 @@ define [
     get_length: () ->
       data = @get('data')
       if _.keys(data).length == 0
-        return 0
-      return data[_.keys(data)[0]].length
+        return null # don't guess, treat on case-by-case basis
+      else
+        lengths = _.uniq(val.length for key, val of data)
+
+        if lengths.length == 1
+            return lengths[0]
+        else
+            length = _.min(lengths)
+            console.error("data source has columns of inconsitent lengths: #{lengths}, using value #{length}")
+            return length
 
     columns: () ->
       # return the column names in this data source

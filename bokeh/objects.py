@@ -289,7 +289,7 @@ class DatetimeTickFormatter(TickFormatter):
 
 class Glyph(Renderer):
     server_data_source = Instance(ServerDataSource)
-    data_source = Instance(DataSource)
+    data_source = Instance(DataSource, lambda: ColumnDataSource())
     x_range_name = String('default')
     y_range_name = String('default')
 

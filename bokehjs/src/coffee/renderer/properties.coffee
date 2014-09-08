@@ -12,9 +12,7 @@ define [
       glyph_props = @
       # if the attribute is not on this property object at all, log a bad request
       if not (attrname of glyph_props)
-        logger.warn("requested vector selection of unknown property '#{attrname}' on objects")
-        return (null for i in datasource.get_length())
-
+        throw new Error("requested vector selection of unknown property '#{attrname}' on objects")
 
       prop = glyph_props[attrname]
       # if the attribute specifies a field, and the field exists on
@@ -38,13 +36,12 @@ define [
         else if glyph_props[attrname].default?
           default_value = glyph_props[attrname].default
 
-        #FIXME this is where we could return a generator, which might
-        #do a better job for constant propagation
-        #for some reason a list comprehension fails here
-        retval = []
-        for i in [0...datasource.get_length()]
-          retval.push(default_value)
-        return retval
+        # FIXME this is where we could return a generator, which might
+        # do a better job for constant propagation.
+        length = datasource.get_length()
+        length = 1 if not length?
+
+        return (default_value for i in [0...length])
 
     string: (styleprovider, glyphspec, attrname) ->
       @[attrname] = {}
