@@ -391,8 +391,8 @@ if sys.version_info[0] != 3 and platform.python_implementation() != "PyPy":
         'gevent-websocket>=0.9.2',
     ])
 
-if sys.platform != "win32":
-    REQUIRES.append('redis>=2.7.6')
+#if sys.platform != "win32":
+    #REQUIRES.append('redis>=2.7.6')
 
 if platform.python_implementation() != "PyPy":
     # You need to install PyPy's fork of NumPy to make it work:
