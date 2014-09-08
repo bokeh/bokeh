@@ -209,11 +209,12 @@ def build_js():
     try:
         proc = subprocess.Popen(cmd)
     except OSError:
-#        print("Failed to run: %s.\n\n" % " ".join(cmd),
-        print()
-        print("Failed to build BokehJS.\n\n"
-              "Have you run `npm install` from the bokehjs subdirectory?\n"
-              "  Dev Guide: http://bokeh.pydata.org/docs/dev_guide.html#bokehjs.")
+        print("""
+Failed to build BokehJS.
+
+Have you run `npm install` from the bokehjs subdirectory?
+  Dev Guide: http://bokeh.pydata.org/docs/dev_guide.html#bokehjs.
+""")
         sys.exit(1)
     finally:
         os.chdir('..')
@@ -230,10 +231,13 @@ def install_js():
          not exists(join(JS, 'bokeh.min.js')) or
          not exists(join(CSS, 'bokeh.css')) or
          not exists(join(CSS, 'bokeh.min.css'))):
-        print()
-        print("ERROR: Cannot install BokehJS: files missing in `./bokehjs/build`.\n\n"
-            "Please build BokehJS by running setup.py with the `--build_js` option.\n"
-            "  Dev Guide: http://bokeh.pydata.org/docs/dev_guide.html#bokehjs.")
+        print("""
+ERROR: Cannot install BokehJS: files missing in `./bokehjs/build`.
+
+
+Please build BokehJS by running setup.py with the `--build_js` option.
+  Dev Guide: http://bokeh.pydata.org/docs/dev_guide.html#bokehjs.
+""")
         sys.exit(1)
 
     if exists(target_jsdir):
