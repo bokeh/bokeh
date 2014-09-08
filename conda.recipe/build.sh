@@ -26,8 +26,8 @@ popd
 $PYTHON setup.py --quiet install nightly --build_js --single-version-externally-managed --record=record.txt
 popd
 
-mkdir $EXAMPLES
-mv examples $EXAMPLES/bokeh
+mkdir $PREFIX/Examples
+mv examples $PREFIX/Examples/bokeh
 
 cd $PREFIX
 echo $PREFIX
