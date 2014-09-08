@@ -17,6 +17,19 @@ Detailed information about the Python and JavaScript glyph interfaces may be fou
    bokehjs
    glyphs_ref
 
+.. _bokeh_module:
+
+Bokeh Module
+============
+
+The ``bokeh`` module itself contains a few useful functions for testing
+and reporting issues:
+
+.. autofunction:: bokeh.load_notebook
+.. autofunction:: bokeh.print_versions
+.. autofunction:: bokeh.report_issue
+.. autofunction:: bokeh.test
+
 High Level Plotting Interface
 =============================
 
