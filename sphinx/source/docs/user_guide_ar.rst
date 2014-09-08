@@ -7,35 +7,35 @@ Abstract Rendering
     :local:
     :depth: 2
 
- Abstract rendering is a bin-based rendering technique
- that provides greater control over a visual representation
- and access to larger data sets through server-side processing.
- There are two interfaces for abstract rendering in Bokeh:
- (1) a low-level `functions' interface that provides access to the details
- of the abstract rendering process and
- (2) a high-level `recipies' interface that provides common abstract rendering
- configurations with good defaults and only optional parameterization.
- The recipies interface actually produces elements in the low-level
- interface, but through a level of indirection to simplify construction.
+Abstract rendering is a bin-based rendering technique
+that provides greater control over a visual representation
+and access to larger data sets through server-side processing.
+There are two interfaces for abstract rendering in Bokeh:
+(1) a low-level 'functions' interface that provides access to the details
+of the abstract rendering process and
+(2) a high-level 'recipes' interface that provides common abstract rendering
+configurations with good defaults and only optional parameterization.
+The recipes interface actually produces elements in the low-level
+interface, but through a level of indirection to simplify construction.
 
- At a high level, all abstract rendering applications start with a plot.
- Abstract rendering takes the plot and renders it to a canvas that uses
- data values instead of colors and bins instead of pixels. With the data
- values collected into bins, the plot can be analized and transformed to 
- ensure the true nature of the underlying data source is preserved.  
- This second step is referred to as 'shading' 
- (older versions of abstract rendering called this step 'transfer', 
- but the current version is more general and thus the name change).
- 
- The abstract rendering interfaces take an existing Bokeh plot as a parameter.
- They produce binning and shading processes, which are  attached to a data source.
- They also produce a new plot to consume the results of the shading. 
- and produce a new plot. By default, the old plot is removed.  
- Abstract rendering is tied to the bokeh server infrastructure, and can
- thus only be used with an active bokeh server and with plots employing
- a ServerDataSource.
+At a high level, all abstract rendering applications start with a plot.
+Abstract rendering takes the plot and renders it to a canvas that uses
+data values instead of colors and bins instead of pixels. With the data
+values collected into bins, the plot can be analyzed and transformed to 
+ensure the true nature of the underlying data source is preserved.  
+This second step is referred to as 'shading' 
+(older versions of abstract rendering called this step 'transfer', 
+but the current version is more general and thus the name change).
 
-Recipies Interface
+The abstract rendering interfaces take an existing Bokeh plot as a parameter.
+They produce binning and shading processes, which are  attached to a data source.
+They also produce a new plot to consume the results of the shading. 
+and produce a new plot. By default, the old plot is removed.  
+Abstract rendering is tied to the bokeh server infrastructure, and can
+thus only be used with an active bokeh server and with plots employing
+a ServerDataSource.
+
+Recipes Interface
 ---------------------
 
 Abstract rendering recipes provide direct access to common abstract
