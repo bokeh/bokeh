@@ -64,7 +64,6 @@ define [
   "tool/wheel_zoom_tool",
   "tool/object_explorer_tool",
 
-  "widget/data_slider",
   "widget/data_table",
   "widget/handson_table",
   "widget/table_column"
