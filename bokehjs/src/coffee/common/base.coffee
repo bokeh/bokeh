@@ -192,7 +192,6 @@ define [
     Paragraph:                'widget/paragraph'
     HBox:                     'widget/hbox'
     VBox:                     'widget/vbox'
-    VBoxModelForm:            'widget/vboxmodelform'
     VBoxForm:                 'widget/vboxform'
     TextInput:                'widget/textinput'
     PreText:                  'widget/pretext'
