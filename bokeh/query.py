@@ -59,6 +59,10 @@ def match(obj, selector, context={}):
         # test attributes
         if isinstance(key, string_types):
 
+            # special case 'type'
+            if key == "type":
+                return isinstance(obj, val)
+
             # if the object doesn't have the attr, it doesn't match
             if not hasattr(obj, key): return False
 
