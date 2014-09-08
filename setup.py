@@ -204,7 +204,10 @@ def build_js():
     print("Building BokehJS...")
     os.chdir('bokehjs')
 
-    cmd = [join('node_modules', '.bin', 'grunt'), 'deploy']
+    if sys.platform != "win32":
+        cmd = [join('node_modules', '.bin', 'grunt'), 'deploy']
+    else:
+        cmd = [join('node_modules', '.bin', 'grunt.cmd'), 'deploy']
 
     try:
         proc = subprocess.Popen(cmd)
