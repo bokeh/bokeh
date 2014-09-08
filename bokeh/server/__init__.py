@@ -183,7 +183,7 @@ js options     : %s
 data-directory : %s
 """ % (
     sys.version.split()[0], __version__,
-    args.ip, args.bokeh_port,
+    args.ip, args.port,
     backend_options,
     py_options,
     js_options,
