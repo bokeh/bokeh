@@ -212,7 +212,12 @@ def build_js():
     try:
         proc = subprocess.Popen(cmd)
     except OSError:
-        print("Failed to run: %s. Did you run `npm install` before?" % " ".join(cmd))
+        print("""
+Failed to build BokehJS.
+
+Have you run `npm install` from the bokehjs subdirectory?
+  Dev Guide: http://bokeh.pydata.org/docs/dev_guide.html#bokehjs.
+""")
         sys.exit(1)
     finally:
         os.chdir('..')
@@ -229,7 +234,13 @@ def install_js():
          not exists(join(JS, 'bokeh.min.js')) or
          not exists(join(CSS, 'bokeh.css')) or
          not exists(join(CSS, 'bokeh.min.css'))):
-        print("ERROR: Cannot install BokehJS, files missing in bokehjs/build. Need to run at least once with --build_js?")
+        print("""
+ERROR: Cannot install BokehJS: files missing in `./bokehjs/build`.
+
+
+Please build BokehJS by running setup.py with the `--build_js` option.
+  Dev Guide: http://bokeh.pydata.org/docs/dev_guide.html#bokehjs.
+""")
         sys.exit(1)
 
     if exists(target_jsdir):
@@ -251,7 +262,7 @@ Bokeh includes a JavaScript library (BokehJS) that has its own
 build process. How would you like to handle BokehJS:
 
 1) build and install fresh BokehJS
-2) install last built BokehJS
+2) install last built BokehJS from bokeh/bokehjs/build
 """)
     mapping = {"1": True, "2": False}
     value = input("Choice? ")
