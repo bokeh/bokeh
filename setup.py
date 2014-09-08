@@ -248,7 +248,7 @@ Bokeh includes a JavaScript library (BokehJS) that has its own
 build process. How would you like to handle BokehJS:
 
 1) build and install fresh BokehJS
-2) install last built BokehJS
+2) install last built BokehJS from bokeh/bokehjs/build
 """)
     mapping = {"1": True, "2": False}
     value = input("Choice? ")
