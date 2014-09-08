@@ -71,7 +71,7 @@ class PlotObject(HasProps):
 
     session = Instance(".session.Session")
     name = String()
-    tag = List(Any)
+    tags = List(Any)
 
     def __init__(self, **kwargs):
         # Eventually should use our own memo instead of storing

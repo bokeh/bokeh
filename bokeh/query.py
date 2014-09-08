@@ -62,8 +62,8 @@ def match(obj, selector, context={}):
         >>> len(list(p.select({'type': Axis})))
         2
 
-    There is also a a 'tag' attribute that `PlotObject` objects have,
-    that is a list of user-supplied values. The 'tag' selector key can
+    There is also a a 'tags' attribute that `PlotObject` objects have,
+    that is a list of user-supplied values. The 'tags' selector key can
     be used to query against this list of tags. An object matches if
     any of the tags in the selector match any of the tags on the
     object::
@@ -71,10 +71,10 @@ def match(obj, selector, context={}):
         >>> from bokeh.plotting import line
         >>> from bokeh.objects import Axis
         >>> p = line([1,2,3], [4,5,6])
-        >>> p.tag = ["my plot", 10]
-        >>> len(list(p.select({'tag': "my plot"})))
+        >>> p.tags = ["my plot", 10]
+        >>> len(list(p.select({'tags': "my plot"})))
         1
-        >>> len(list(p.select({'tag': ["my plot", 10]})))
+        >>> len(list(p.select({'tags': ["my plot", 10]})))
         1
 
     '''
@@ -88,14 +88,13 @@ def match(obj, selector, context={}):
                 return isinstance(obj, val)
 
             # special case 'tag'
-            if key == 'tag':
-                tags = getattr(obj, key, [])
+            if key == 'tags':
                 if isinstance(val, string_types):
-                    return val in tags
+                    return val in obj.tags
                 try:
-                    return set(val) & set(tags)
+                    return set(val) & set(obj.tags)
                 except TypeError:
-                    return val in tags
+                    return val in obj.tags
 
             # if the object doesn't have the attr, it doesn't match
             if not hasattr(obj, key): return False
