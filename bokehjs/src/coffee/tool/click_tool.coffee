@@ -72,8 +72,7 @@ define [
         vx: vx
         vy: vy
       }
-      x = @plot_view.xmapper.map_from_target(vx)
-      y = @plot_view.ymapper.map_from_target(vy)
+
       datasources = {}
       datasource_selections = {}
       renderers = @mget('renderers')
@@ -85,6 +84,11 @@ define [
         _.setdefault(datasource_selections, datasource_id, [])
         selected = @plot_view.renderers[renderer.id].hit_test(geometry)
         ds = datasources[datasource_id]
+
+        xmapper = @plot_view.frame.get('x_mappers')[renderer.get('x_range_name')]
+        ymapper = @plot_view.frame.get('y_mappers')[renderer.get('y_range_name')]
+        x = xmapper.map_from_target(vx)
+        y = ymapper.map_from_target(vy)
 
         if selected == null
           continue

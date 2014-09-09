@@ -63,19 +63,19 @@ plot = Plot(
 )
 
 patch1 = Patch(x="dates", y="times", fill_color="skyblue", fill_alpha=0.8)
-plot.add_glyph(patch1_source, xdr, ydr, patch1)
+plot.add_glyph(patch1_source, patch1)
 
 patch2 = Patch(x="dates", y="times", fill_color="orange", fill_alpha=0.8)
-plot.add_glyph(patch2_source, xdr, ydr, patch2)
+plot.add_glyph(patch2_source, patch2)
 
 line1 = Line(x="dates", y="sunrises", line_color="yellow", line_width=2)
-line1_glyph = plot.add_glyph(source, xdr, ydr, line1)
+line1_glyph = plot.add_glyph(source, line1)
 
 line2 = Line(x="dates", y="sunsets", line_color="red", line_width=2)
-line2_glyph = plot.add_glyph(source, xdr, ydr, line2)
+line2_glyph = plot.add_glyph(source, line2)
 
 text = Text(x="dates", y="times", text="texts", angle=0, text_align="center")
-plot.add_glyph(text_source, xdr, ydr, text)
+plot.add_glyph(text_source, text)
 
 xformatter = DatetimeTickFormatter(formats=dict(months=["%b %Y"]))
 xaxis = DatetimeAxis(formatter=xformatter)

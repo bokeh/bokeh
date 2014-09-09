@@ -12,10 +12,11 @@ define [
   "./logging",
   "./solver",
   "./cartesian_frame",
-  "./plot_template"
+  "./plot_template",
+  "./toolbar_template",
   "renderer/properties",
   "tool/active_tool_manager",
-], (_, Backbone, kiwi, build_views, plot_utils, ContinuumView, HasParent, Canvas, LayoutBox, Logging, Solver, CartesianFrame, plot_template, Properties, ActiveToolManager) ->
+], (_, Backbone, kiwi, build_views, plot_utils, ContinuumView, HasParent, Canvas, LayoutBox, Logging, Solver, CartesianFrame, plot_template, toolbar_template, Properties, ActiveToolManager) ->
 
   line_properties = Properties.line_properties
   text_properties = Properties.text_properties
@@ -31,6 +32,7 @@ define [
   class PlotView extends ContinuumView.View
     className: "bokeh plotview plotarea"
     template: plot_template
+    toolbar_template: toolbar_template
 
     view_options: () ->
       _.extend({plot_model: @model, plot_view: @}, @options)
@@ -69,7 +71,14 @@ define [
       @canvas = @mget('canvas')
       @canvas_view = new @canvas.default_view({'model': @canvas})
 
-      @$('.bokeh_canvas_wrapper_outer').prepend(@canvas_view.el)
+      @$('.bk-plot-canvas-wrapper').append(@canvas_view.el)
+
+      toolbar_location = @mget('toolbar_location')
+
+      if toolbar_location?
+        toolbar_selector = '.bk-plot-' + toolbar_location
+        @$(toolbar_selector).html(@toolbar_template())
+
       @canvas_view.render()
 
       @throttled_render = plot_utils.throttle_animation(@render, 15)
@@ -98,18 +107,20 @@ define [
 
       return this
 
-    map_to_screen: (x, x_units, y, y_units) ->
-      @frame.map_to_screen(x, x_units, y, y_units, @canvas)
+    map_to_screen: (x, x_units, y, y_units, x_name='default', y_name='default') ->
+      @frame.map_to_screen(x, x_units, y, y_units, @canvas, x_name, y_name)
 
     map_from_screen: (sx, sy, units) ->
-      @frame.map_from_screen(sx, sy, units, @canvas)
+      @frame.map_from_screen(sx, sy, units, @canvas, name)
 
     update_range: (range_info) ->
       if not range_info?
         range_info = @initial_range_info
       @pause()
-      @x_range.set(range_info.xr)
-      @y_range.set(range_info.yr)
+      for name, rng of @frame.get('x_ranges')
+        rng.set(range_info.xrs[name])
+      for name, rng of @frame.get('y_ranges')
+        rng.set(range_info.yrs[name])
       @unpause()
 
     build_levels: () ->
@@ -135,24 +146,41 @@ define [
       return this
 
     bind_bokeh_events: () ->
-      @listenTo(@mget('frame').get('x_range'), 'change', @request_render)
-      @listenTo(@mget('frame').get('y_range'), 'change', @request_render)
+      for name, rng of @mget('frame').get('x_ranges')
+        @listenTo(rng, 'change', @request_render)
+      for name, rng of @mget('frame').get('y_ranges')
+        @listenTo(rng, 'change', @request_render)
       @listenTo(@model, 'change:renderers', @build_levels)
       @listenTo(@model, 'change:tool', @build_levels)
       @listenTo(@model, 'change', @request_render)
       @listenTo(@model, 'destroy', () => @remove())
 
     set_initial_range : () ->
-      #check for good values for ranges before setting initial range
-      range_vals = [@x_range.get('start'), @x_range.get('end'),
-        @y_range.get('start'), @y_range.get('end')]
-      good_vals = _.map(range_vals, (val) -> val? and not _.isNaN(val))
-      good_vals = _.all(good_vals)
+      # check for good values for ranges before setting initial range
+      good_vals = true
+      xrs = {}
+      for name, rng of @frame.get('x_ranges')
+        if not rng.get('start')? or not rng.get('end')? or _.isNaN(rng.get('start') + rng.get('end'))
+          good_vals = false
+          break
+        xrs[name] = { start: rng.get('start'), end: rng.get('end') }
+      if good_vals
+        yrs = {}
+        for name, rng of @frame.get('y_ranges')
+          if not rng.get('start')? or not rng.get('end')? or _.isNaN(rng.get('start') + rng.get('end'))
+            good_vals = false
+            break
+          yrs[name] = { start: rng.get('start'), end: rng.get('end') }
       if good_vals
         @initial_range_info = {
-          xr: { start: @x_range.get('start'), end: @x_range.get('end') }
-          yr: { start: @y_range.get('start'), end: @y_range.get('end') }
+          xrs: xrs
+          yrs: yrs
         }
+        logger.debug('initial ranges set')
+        logger.trace('- xrs: #{xrs}')
+        logger.trace('- yrs: #{yrs}')
+      else
+        logger.warn('could not set initial ranges')
 
     render: (force_canvas=false) ->
       logger.trace("Plot.render(force_canvas=#{force_canvas})")
@@ -262,8 +290,10 @@ define [
       canvas = @get('canvas')
       frame = new CartesianFrame.Model({
         x_range: @get('x_range'),
+        extra_x_ranges: @get('extra_x_ranges'),
         x_mapper_type: @get('x_mapper_type'),
         y_range: @get('y_range'),
+        extra_y_ranges: @get('extra_y_ranges'),
         y_mapper_type: @get('y_mapper_type'),
         solver: solver
       })
@@ -341,7 +371,8 @@ define [
         above: [],
         below: [],
         left: [],
-        right: []
+        right: [],
+        toolbar_location: "above"
       }
 
     display_defaults: () ->
@@ -350,6 +381,8 @@ define [
         background_fill: "#fff",
         border_fill: "#fff",
         min_border: 40,
+
+        show_toolbar: true,
 
         title_standoff: 8,
         title_text_font: "helvetica",

@@ -37,7 +37,7 @@ def make_plot(source, xname, yname, line_color, xdr=None, ydr=None):
     plot.add_layout(LinearAxis(), 'below')
     plot.add_layout(LinearAxis(), 'left')
 
-    plot.add_glyph(source, xdr, ydr, Line(x=xname, y=yname, line_color=line_color))
+    plot.add_glyph(source, Line(x=xname, y=yname, line_color=line_color))
 
     plot.add_tools(PanTool(), WheelZoomTool())
 

@@ -41,7 +41,7 @@ browsers_source = ColumnDataSource(dict(
 
 glyph = Wedge(x=0, y=0, radius=1, line_color="white",
     line_width=2, start_angle="start", end_angle="end", fill_color="colors")
-plot.add_glyph(browsers_source, xdr, ydr, glyph)
+plot.add_glyph(browsers_source, glyph)
 
 def polar_to_cartesian(r, start_angles, end_angles):
     cartesian = lambda r, alpha: (r*cos(alpha), r*sin(alpha))
@@ -68,7 +68,7 @@ for browser, start_angle, end_angle in zip(browsers, start_angles, end_angles):
     glyph = AnnularWedge(x=0, y=0,
         inner_radius=1, outer_radius=1.5, start_angle="start", end_angle="end",
         line_color="white", line_width=2, fill_color="fill")
-    plot.add_glyph(source, xdr, ydr, glyph)
+    plot.add_glyph(source, glyph)
 
 
     text_angle = [(start[i]+end[i])/2 for i in range(len(start))]
@@ -86,7 +86,7 @@ for browser, start_angle, end_angle in zip(browsers, start_angles, end_angles):
     text_source = ColumnDataSource(dict(text=text, x=x, y=y, angle=text_angle))
     glyph = Text(x="x", y="y", text="text", angle="angle",
         text_align="center", text_baseline="middle")
-    plot.add_glyph(text_source, xdr, ydr, glyph)
+    plot.add_glyph(text_source, glyph)
 
 
 def to_base64(png):
@@ -97,14 +97,14 @@ x, y = polar_to_cartesian(1.7, start_angles, end_angles)
 
 icons_source = ColumnDataSource(dict(urls=urls, x=x, y=y))
 glyph = ImageURL(url="urls", x="x", y="y", angle=0.0, anchor="center")
-plot.add_glyph(icons_source, xdr, ydr, glyph)
+plot.add_glyph(icons_source, glyph)
 
 text = [ "%.02f%%" % value for value in selected.Share ]
 x, y = polar_to_cartesian(0.7, start_angles, end_angles)
 
 text_source = ColumnDataSource(dict(text=text, x=x, y=y))
 glyph = Text(x="x", y="y", text="text", angle=0, text_align="center", text_baseline="middle")
-plot.add_glyph(text_source, xdr, ydr, glyph)
+plot.add_glyph(text_source, glyph)
 
 doc = Document()
 doc.add(plot)

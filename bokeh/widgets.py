@@ -69,30 +69,6 @@ class VBox(Layout):
 class VBoxForm(VBox):
     pass
 
-class VBoxModelForm(Widget):
-    _children  = List(Instance(Widget))
-    _field_defs = Dict(String, Any)
-    input_specs = None
-    jsmodel = "VBoxModelForm"
-    def __init__(self, *args, **kwargs):
-        super(VBoxModelForm, self).__init__(*args, **kwargs)
-        for prop in self.properties():
-            propobj = lookup_descriptor(self.__class__, prop)
-            if isinstance(propobj, Float):
-                self._field_defs[prop] = "Float"
-            elif isinstance(propobj, Int):
-                self._field_defs[prop] = "Int"
-            else:
-                self._field_defs[prop] = "String"
-    def create_inputs(self, doc):
-        if self.input_specs:
-            for input_spec in self.input_specs:
-                input_spec = copy.copy(input_spec)
-                widget = input_spec.pop('widget')
-                widget = widget.create(**input_spec)
-                self._children.append(widget)
-
-
 class InputWidget(Widget):
     title = String()
     name = String()
@@ -122,69 +98,6 @@ class InputWidget(Widget):
 
 class TextInput(InputWidget):
     value = String()
-
-class BokehApplet(Widget):
-    modelform = Instance(VBoxModelForm)
-    children = List(Instance(Widget))
-    jsmodel = "HBox"
-    # Change to List because json unpacks tuples into lists
-    extra_generated_classes = List(List(String))
-
-    def update(self, **kwargs):
-        super(BokehApplet, self).update(**kwargs)
-        self.setup_events()
-
-    def setup_events(self):
-        if self.modelform:
-            self.bind_modelform()
-
-    def bind_modelform(self):
-        for prop in self.modelform.__properties__:
-            if not prop.startswith("_"):
-                self.modelform.on_change(prop, self,
-                                         'input_change')
-
-    def input_change(self, obj, attrname, old, new):
-        pass
-
-    def create(self):
-        pass
-
-    @classmethod
-    def add_route(cls, route, bokeh_url):
-        from bokeh.server.app import bokeh_app
-        from bokeh.pluginutils import app_document
-        from flask import render_template
-        @app_document(cls.__view_model__, bokeh_url)
-        def make_app():
-            app = cls()
-            curdoc().autostore = False
-            app.create(curdoc())
-            return app
-
-        def exampleapp():
-            app = make_app()
-            docid = curdoc().docid
-            objid = curdoc().context._id
-            extra_generated_classes = app.extra_generated_classes
-            if len(extra_generated_classes) == 0:
-                extra_generated_classes.append([
-                    app.__view_model__,
-                    app.__view_model__,
-                    app.jsmodel])
-                extra_generated_classes.append([
-                    app.modelform.__view_model__,
-                    app.modelform.__view_model__,
-                    app.modelform.jsmodel])
-            return render_template(
-                'applet.html',
-                extra_generated_classes=extra_generated_classes,
-                title=app.__class__.__view_model__,
-                objid=objid,
-                docid=docid,
-                splitjs=bokeh_app.splitjs)
-        exampleapp.__name__ = cls.__view_model__
-        bokeh_app.route(route)(exampleapp)
 
 class Paragraph(Widget):
     text = String()

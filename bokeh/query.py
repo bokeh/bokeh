@@ -53,11 +53,48 @@ def match(obj, selector, context={}):
     Returns:
         bool : True if the object matches, False otherwise
 
+    There are two selector keyss that are handled specially. The first
+    is 'type', which will do an isinstance check::
+
+        >>> from bokeh.plotting import line
+        >>> from bokeh.objects import Axis
+        >>> p = line([1,2,3], [4,5,6])
+        >>> len(list(p.select({'type': Axis})))
+        2
+
+    There is also a a 'tags' attribute that `PlotObject` objects have,
+    that is a list of user-supplied values. The 'tags' selector key can
+    be used to query against this list of tags. An object matches if
+    any of the tags in the selector match any of the tags on the
+    object::
+
+        >>> from bokeh.plotting import line
+        >>> from bokeh.objects import Axis
+        >>> p = line([1,2,3], [4,5,6])
+        >>> p.tags = ["my plot", 10]
+        >>> len(list(p.select({'tags': "my plot"})))
+        1
+        >>> len(list(p.select({'tags': ["my plot", 10]})))
+        1
+
     '''
     for key, val in selector.items():
 
         # test attributes
         if isinstance(key, string_types):
+
+            # special case 'type'
+            if key == "type":
+                return isinstance(obj, val)
+
+            # special case 'tag'
+            if key == 'tags':
+                if isinstance(val, string_types):
+                    return val in obj.tags
+                try:
+                    return set(val) & set(obj.tags)
+                except TypeError:
+                    return val in obj.tags
 
             # if the object doesn't have the attr, it doesn't match
             if not hasattr(obj, key): return False

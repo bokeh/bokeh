@@ -127,22 +127,13 @@ class ServerDataSource(DataSource):
     # TODO: Find/create a property type for 'any primitive/atomic value'
     transform = Dict(String,Either(Instance(PlotObject), Any))
 
-
-class PandasDataSource(DataSource):
-    """ Represents serverside data.  This gets stored into the plot server's
-    database, but it does not have any client side representation.  Instead,
-    a PandasPlotSource needs to be created and pointed at it.
-    """
-
-    data = Dict(String, Any)
-
 class Range(PlotObject):
     pass
 
 class Range1d(Range):
     """ Represents a fixed range [start, end] in a scalar dimension. """
-    start = Either(Float, Datetime)
-    end = Either(Float, Datetime)
+    start = Either(Float, Datetime, Int)
+    end = Either(Float, Datetime, Int)
 
 class DataRange(Range):
     sources = List(Instance(ColumnsRef))
@@ -290,8 +281,8 @@ class DatetimeTickFormatter(TickFormatter):
 class Glyph(Renderer):
     server_data_source = Instance(ServerDataSource)
     data_source = Instance(DataSource)
-    xdata_range = Instance(Range)
-    ydata_range = Instance(Range)
+    x_range_name = String('default')
+    y_range_name = String('default')
 
     # How to intepret the values in the data_source
     units = Enum(Units)
@@ -309,8 +300,8 @@ class Glyph(Renderer):
         data =  {"id" : self._id,
                  "data_source": self.data_source,
                  "server_data_source" : self.server_data_source,
-                 "xdata_range": self.xdata_range,
-                 "ydata_range": self.ydata_range,
+                 "x_range_name": self.x_range_name,
+                 "y_range_name": self.y_range_name,
                  "glyphspec": self.glyph.to_glyphspec(),
                  "name": self.name,
                  }
@@ -454,7 +445,7 @@ class Plot(Widget):
             tool.plot = self
             self.tools.append(tool)
 
-    def add_glyph(self, source, x_range, y_range, glyph, **kw):
+    def add_glyph(self, source, glyph, **kw):
         ''' Adds a glyph to the plot with associated data sources and ranges.
 
         This function will take care of creating and configurinf a Glyph object,
@@ -462,9 +453,7 @@ class Plot(Widget):
 
         Args:
             source: (ColumnDataSource) : a data source for the glyphs to all use
-            x_range (Range1d) : a range object for the x-dimension
-            y_range (Range1d) : a range object for the y-dimension
-            glyphs (BaseGlyph) : the glyph to add to the Plot
+            glyph (BaseGlyph) : the glyph to add to the Plot
 
         Keyword Arguments:
             Any additional keyword arguments are passed on as-is to the
@@ -477,7 +466,7 @@ class Plot(Widget):
         if not isinstance(glyph, BaseGlyph):
             raise ValueError("glyph arguments to add_glyph must be BaseGlyph subclass.")
 
-        g = Glyph(data_source=source, xdata_range=x_range, ydata_range=y_range, glyph=glyph, **kw)
+        g = Glyph(data_source=source, glyph=glyph, **kw)
         self.renderers.append(g)
         return g
 
@@ -487,6 +476,9 @@ class Plot(Widget):
     y_range = Instance(Range)
     x_mapper_type = String('auto')
     y_mapper_type = String('auto')
+
+    extra_x_ranges = Dict(String, Instance(Range1d))
+    extra_y_ranges = Dict(String, Instance(Range1d))
 
     title = String('')
     title_props = Include(TextProps)
@@ -501,6 +493,8 @@ class Plot(Widget):
     right = List(Instance(PlotObject))
     above = List(Instance(PlotObject))
     below = List(Instance(PlotObject))
+
+    toolbar_location = Enum(Location)
 
     plot_height = Int(600)
     plot_width = Int(600)
@@ -624,6 +618,9 @@ class Axis(GuideRenderer):
     location = Either(Enum('auto'), Enum(Location))
     bounds = Either(Enum('auto'), Tuple(Float, Float))
 
+    x_range_name = String('default')
+    y_range_name = String('default')
+
     ticker = Instance(Ticker)
     formatter = Instance(TickFormatter)
 
@@ -645,15 +642,27 @@ class ContinuousAxis(Axis):
     pass
 
 class LinearAxis(ContinuousAxis):
-    def __init__(self, ticker=BasicTicker(), formatter=BasicTickFormatter(), **kwargs):
+    def __init__(self, ticker=None, formatter=None, **kwargs):
+        if ticker is None:
+            ticker = BasicTicker()
+        if formatter is None:
+            formatter = BasicTickFormatter()
         super(LinearAxis, self).__init__(ticker=ticker, formatter=formatter, **kwargs)
 
 class LogAxis(ContinuousAxis):
-    def __init__(self, ticker=LogTicker(num_minor_ticks=10), formatter=LogTickFormatter(), **kwargs):
+    def __init__(self, ticker=None, formatter=None, **kwargs):
+        if ticker is None:
+            ticker = LogTicker(num_minor_ticks=10)
+        if formatter is None:
+            formatter = LogTickFormatter()
         super(LogAxis, self).__init__(ticker=ticker, formatter=formatter, **kwargs)
 
 class CategoricalAxis(Axis):
-    def __init__(self, ticker=CategoricalTicker(), formatter=CategoricalTickFormatter(), **kwargs):
+    def __init__(self, ticker=None, formatter=None, **kwargs):
+        if ticker is None:
+            ticker = CategoricalTicker()
+        if formatter is None:
+            formatter = CategoricalTickFormatter()
         super(CategoricalAxis, self).__init__(ticker=ticker, formatter=formatter, **kwargs)
 
 class DatetimeAxis(LinearAxis):
@@ -663,7 +672,11 @@ class DatetimeAxis(LinearAxis):
     char_width = Int(10)
     fill_ratio = Float(0.3)
 
-    def __init__(self, ticker=DatetimeTicker(), formatter=DatetimeTickFormatter(), **kwargs):
+    def __init__(self, ticker=None, formatter=None, **kwargs):
+        if ticker is None:
+            ticker = DatetimeTicker()
+        if formatter is None:
+            formatter = DatetimeTickFormatter()
         super(DatetimeAxis, self).__init__(ticker=ticker, formatter=formatter, **kwargs)
 
 class Grid(GuideRenderer):
@@ -672,6 +685,9 @@ class Grid(GuideRenderer):
 
     dimension = Int(0)
     bounds = String('auto')
+
+    x_range_name = String('default')
+    y_range_name = String('default')
 
     ticker = Instance(Ticker)
 
@@ -743,11 +759,6 @@ class Legend(Renderer):
     legend_padding = Int(10)
     legend_spacing = Int(3)
     legends = Dict(String, List(Instance(Glyph)))
-
-class DataSlider(Renderer):
-    plot = Instance(Plot)
-    data_source = Instance(DataSource)
-    field = String()
 
 class PlotContext(PlotObject):
     """ A container for multiple plot objects. """

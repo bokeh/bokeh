@@ -17,9 +17,14 @@ def load_notebook(resources=None, verbose=False, force=False, skip=False):
     ''' Prepare the IPython notebook for displaying Bokeh plots.
 
     Args:
-        resources (Resource, optional) : a resource object describing how and where to load BokehJS from
-        verbose (bool, optional) : whether to report detailed settings (default: False)
-        force (bool, optional) : whether to skip IPython notebook check (default: False)
+        resources (Resource, optional) :
+            how and where to load BokehJS from
+
+        verbose (bool, optional) :
+            whether to report detailed settings (default: False)
+
+        force (bool, optional) :
+            whether to skip IPython notebook check (default: False)
 
     Returns:
         None
@@ -82,57 +87,61 @@ from .settings import settings
 from . import sampledata
 
 def _print_versions():
-    """Returns all the versions of software that Bokeh relies on."""
     import platform as pt
-
     message = """
-    Bokeh version: %s
-    Python version: %s-%s
-    Platform: %s
+   Bokeh version: %s
+  Python version: %s-%s
+        Platform: %s
     """ % (__version__, pt.python_version(),
            pt.python_implementation(), pt.platform())
     return(message)
 
 def print_versions():
-    """Print all the versions of software that Bokeh relies on."""
+    """ Print the versions for Bokeh and the current Python and OS.
+
+    Returns:
+        None
+
+    """
     print(_print_versions())
 
 def report_issue(number=None , owner="ContinuumIO", repo="bokeh",
                  versions=True, browser=True):
-    """Opens a new Github issue programmatically.
+    """ Open or add to a Github issue programmatically.
 
-    This "interactive" function will ask you for some minimal content
-    to finally submit a new Github issue, adding essential info about
-    the current setup. You can also call it with one specific issue
-    number to add the essential info to an already opened issue.
+    This interactive function will ask you for some minimal content
+    and submit a new Github issue, adding information about your
+    current environment.
 
-    Parameters
-    ----------
+    You can also call this function with a specific issue number to
+    add a comment to an already open issue.
 
-    number: int (default=None)
-        The issue number if you want to add a new comment to an issue
-        already created.
+    Args:
+        number (int, optional) :
+            Omit to create a new issue, otherwise supply to comment on an
+            already created issue. (default: None)
 
-    owner: str (default="ContinuumIO")
-        The owner's repository name.
+        owner (str, optional) : owner username (default: "ContinuumIO")
 
-    repo: str (default="bokeh")
-        The name of the repository.
+        repo (str, optional) : repository name (default: "bokeh")
 
-    versions: bool (default=True)
-        Adds the `_print_versions` content information at the end of
-        the body text.
+        versions (bool, optional) :
+            Whether to print system information. If True, add the current
+            system info to the end of the issue description. (default: True)
 
-    browser: bool (default=True)
-        After submitting the new issue, it opens the issue webpage in
-        your default web browser.
+        browser (bool, optional) :
+            Whether to open a browser automatically. If True, open a browser
+            to the GitHub issue page (default: True)
 
     Notes:
-        * You can add the GHUSER (Github username) and
-        GHPASS (Github password) to your environment to avoid
-        filling this info in the interactive prompt.
-        * Additionally, you can use this same function to report to any
-        other project, just changing the parameters.
+        Setting the environment variables GHUSER (Github username) and
+        GHPASS (Github password) will supply those values automatically
+        and streamline the dialog. Additionally, this function can report
+        on any GitHub project by changing the default parameters.
+
+    Returns:
+        None
+
     """
 
     import requests
@@ -144,51 +153,47 @@ def report_issue(number=None , owner="ContinuumIO", repo="bokeh",
     from six.moves.urllib.parse import urljoin
 
     print("This is the Bokeh reporting engine.\n\n"
-          "Next, you will be guided to build the report")
+          "You will be guided to build a GitHub issue.\n")
 
     if number is None:
-        title = input('Write the title for the intended issue: ')
-        body = input('Write the body for the intended issue: ')
+        title = input('Issue title: ')
+        body = input('Description: ')
     else:
         body = input('Write your comment here: ')
 
     ghuser, ghpass = (os.environ.get(x) for x in ["GHUSER", "GHPASS"])
-    if ghuser is None and ghpass is None:
-        print("You need to add your GHUSER (Github username) and GHPASS (Github password)\n"
-              "to the environmentor complete the next lines.")
-        environment = input('Do you want to abort to set up the environment variable? ')
-        if environment.lower() in ["true", "yes", "y", "on", "1"]:
-            return
-        else:
-            ghuser = input('Write your Github username: ')
-            ghpass = input('Write your Github password: ')
-    elif ghuser is None and ghpass is not None:
-        print("You need to add your GHUSER (Github username) to the environment.")
-        return
-    elif ghpass is None and ghuser is not None:
-        print("You need to add your GHPASS (Github password) to the environment.")
-        return
+
+    if ghuser is None:
+        ghuser = input('GitHub username: ')
+    else:
+        print("Found GHUSER, using for GitHub username")
+
+    if ghpass is None:
+        ghpass = input('GitHub password: ')
+    else:
+        print("Found GHPASS, using for GitHub password")
 
     base = "https://api.github.com"
     if number is None:
         url = "/".join(["repos", owner, repo, "issues"])
         if versions:
-            data = {"title": title, "body": body + "\n" + _print_versions()}
+            data = {"title": title, "body": body + "\nSystem information:" + _print_versions()}
         else:
             data = {"title": title, "body": body}
     else:
         url = "/".join(["repos", owner, repo, "issues", str(number), "comments"])
         if versions:
-            data = {"body": body + "\n" + _print_versions()}
+            data = {"body": body + "\nSystem information:" + _print_versions()}
         else:
             data = {"body": body}
     issues_url = urljoin(base, url)
 
     print("\nPreview:\n")
-    for label, content in sorted(data.items(), reverse=True):
-        print('{0}: {1}'.format(label, content))
-    value = input('Submit the intended issue/comment? ')
-    if value.lower() in ["true", "yes", "y", "on", "1"]:
+    print("Title: ", data["title"])
+    print("Description:\n\n")
+    print(data["body"])
+    value = input('Submit (y/n)? ')
+    if value.lower() in ["true", "yes", "y", "1"]:
         r = requests.post(issues_url,
                           auth=(ghuser, ghpass),
                           headers={'Content-Type': 'application/json'},
@@ -205,41 +210,44 @@ def report_issue(number=None , owner="ContinuumIO", repo="bokeh",
                 if browser:
                     webbrowser.open_new(g.json()[-1].get("html_url"))
         else:
-            print("Something failed, please check your GHUSER and GHPASS.")
+            print("Something failed, please check your username and password.")
     else:
         print("Issue not submitted.")
 
 def test(verbosity=1, xunitfile=None, exit=False):
-    """
-    Runs the full Bokeh test suite, outputting
-    the results of the tests to sys.stdout.
+    """ Run the full Bokeh test suite, and output the results of the tests
+    to sys.stdout.
 
-    This uses nose tests to discover which tests to
-    run, and runs tests in any 'tests' subdirectory
-    within the Bokeh module.
+    This function uses nosetests to discover which tests to run, and will
+    run tests in any 'tests' subdirectory within the Bokeh module.
 
-    Parameters
-    ----------
-    verbosity : int, optional
-        Value 0 prints very little, 1 prints a little bit,
-        and 2 prints the test names while testing.
-    xunitfile : string, optional
-        If provided, writes the test results to an xunit
-        style xml file. This is useful for running the tests
-        in a CI server such as Jenkins.
-    exit : bool, optional
-        If True, the function will call sys.exit with an
-        error code after the tests are finished.
+    Args:
+        verbosity (int, optional) :
+            Acceptatable values are 0 (less verbose) to 2 (most verbose)
+
+        xunitfile (str, optional) :
+            Write xunit-style XML test results to a given filename. This
+            is useful for running tests on a CI server. (default: None)
+
+        exit (bool, optional) :
+            Whether to return or exit. If True, call sys.exit with an
+            error code after the tests are finished. (default: False)
+
+    Returns:
+        int : nose return code
+
     """
-    import nose
-    import os
-    import sys
+    import nose, os, sys
+
     argv = ['nosetests', '--verbosity=%d' % verbosity]
+
     # Output an xunit file if requested
     if xunitfile:
         argv.extend(['--with-xunit', '--xunit-file=%s' % xunitfile])
+
     # Set the logging level to warn
     argv.extend(['--logging-level=WARN'])
+
     # Add all 'tests' subdirectories to the options
     rootdir = os.path.dirname(__file__)
     for root, dirs, files in os.walk(rootdir):
@@ -247,8 +255,10 @@ def test(verbosity=1, xunitfile=None, exit=False):
             testsdir = os.path.join(root, 'tests')
             argv.append(testsdir)
             print('Test dir: %s' % testsdir[len(rootdir)+1:])
+
     # print versions (handy when reporting problems)
     print_versions()
     sys.stdout.flush()
-    # Ask nose to do its thing
+
+    # Run the tests
     return nose.main(argv=argv, exit=exit)

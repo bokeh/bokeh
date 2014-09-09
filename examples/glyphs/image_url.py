@@ -27,13 +27,13 @@ ydr = Range1d(start=-100, end=200)
 plot = Plot(title="ImageURL", x_range=xdr, y_range=ydr)
 
 image1 = ImageURL(url="url", x="x1", y="y1", w="w1", h="h1", angle=0.0, anchor="center")
-plot.add_glyph(source, xdr, ydr, image1)
+plot.add_glyph(source, image1)
 
 image2 = ImageURL(url="url", x="x2", y="y2", w=20, h=20, angle=0.0, anchor="top_left")
-plot.add_glyph(source, xdr, ydr, image2)
+plot.add_glyph(source, image2)
 
 image3 = ImageURL(url=dict(value=url), x=200, y=-100, angle=0.0, anchor="bottom_right")
-plot.add_glyph(source, xdr, ydr, image3)
+plot.add_glyph(source, image3)
 
 xaxis = LinearAxis()
 plot.add_layout(xaxis, 'below')
