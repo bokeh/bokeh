@@ -73,16 +73,22 @@ Building with Grunt
 
 There are three main Grunt commands for development:
 
+.. code-block:: sh
+
     $ grunt deploy
 
 This will generate the compiled and optimized BokehJS libraries, and deploy
 them to the ``build`` subdirectory.
+
+.. code-block:: sh
 
     $ grunt build
 
 This will build the BokehJS sources without concatenating and optimizing into
 standalone libraries. At this point BokehJS can be be used together with ``require.js`` as an
 `AMD module <http://requirejs.org/docs/whyamd.html>`_.
+
+.. code-block:: sh
 
     $ grunt watch
 
@@ -93,30 +99,30 @@ the Bokeh server to facilitate a more rapid development cycle.
 Alternative BokehJS build system
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-As an alternatively to ``grunt``, you can use `sbt <http://www.scala-sbt.org` to
-build BokehJS. To start, run `./sbt` in the top level directory. This will
-download `sbt` itself, its dependencies and configure the build system.
-In general you should see (more or less) the following output::
+As an alternative to Grunt, you can use `sbt <http://www.scala-sbt.org>`_ to
+build BokehJS. To start, run
+
+.. code-block:: sh
 
     $ ./sbt
-    [info] Loading project definition from /home/user/continuum/bokeh/project
-    [info] Set current project to bokeh (in build file:/home/user/continuum/bokeh/)
-    continuum (bokeh)>
 
-There are two main commands available: `build` and `deploy`. The `build` command
+in the top level directory. This will download ``sbt`` (and its dependencies) itself,
+and configure the build system.
+
+There are two main commands available: ``build`` and ``deploy``. The ``build`` command
 compiles CoffeeScript, Less and Eco sources, and copies other resources to the
-build directory. The `deploy` command does the same and additionally generates
-optimized and minified `bokeh.js` and `bokeh.css` outputs.
+build directory. The ``deploy`` command does the same and additionally generates
+optimized and minified ``bokeh.js`` and ``bokeh.css`` outputs.
 
-You may also run specific subtasks, e.g. `compile` to compile CoffeeScript, Less and
-Eco sources, but not copy resources. You can also prefix any command with `~`, which
-enables incremental compilation. For example, issuing `~less` will watch `*.less`
+You may also run specific subtasks, e.g. ``compile`` to compile CoffeeScript, Less and
+Eco sources, but not copy resources. You can also prefix any command with ``~``, which
+enables incremental compilation. For example, issuing ``~less`` will watch ``*.less``
 sources and compile only the subset of files that changed. To stop watching sources,
-press ENTER. Pressing Ctrl+C will terminate `sbt`.
+press ENTER. Pressing Ctrl+C will terminate ``sbt``.
 
 .. warning::
-        The ``sbt`` build system is experimental and not integrated with ``setup.py``
-        and should be used with caution.
+        The ``sbt`` build system is experimental and not integrated with ``setup.py``,
+        so it should be used with caution.
 
 .. _developer_python_setup:
 
