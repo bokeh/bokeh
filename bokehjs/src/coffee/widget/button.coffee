@@ -32,8 +32,8 @@ define [
           val.$el.detach()
 
       @$el.empty()
-      @$el.addClass("btn")
-      @$el.addClass("btn-" + @mget("type"))
+      @$el.addClass("bk-bs-btn")
+      @$el.addClass("bk-bs-btn-" + @mget("type"))
       if @mget("disabled") then @$el.attr("disabled", "disabled")
 
       @$el.text(@mget("label"))
