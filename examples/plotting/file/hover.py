@@ -43,10 +43,7 @@ circle(x, y, radius=radii, source=source, tools=TOOLS,
 text(x, y, text=inds, alpha=0.5, text_font_size="5pt",
      text_baseline="middle", text_align="center", angle=0)
 
-# We want to add some fields for the hover tool to interrogate, but first we
-# have to get ahold of the tool. This will be made easier in future releases.
-hover = [t for t in curplot().tools if isinstance(t, HoverTool)][0]
-
+hover = curplot().select(dict(type=HoverTool))
 hover.tooltips = OrderedDict([
     ("index", "$index"),
     ("(x,y)", "($x, $y)"),

@@ -23,6 +23,12 @@ from .properties import (
 from .query import find
 from .utils import nice_join
 
+# TODO (bev) dupe, move to utils
+class _list_attr_splat(list):
+    def __setattr__(self, attr, value):
+        for x in self:
+            setattr(x, attr, value)
+
 class DataSource(PlotObject):
     """ Base class for data sources """
     # List of names of the fields of each tuple in self.data
@@ -370,7 +376,7 @@ class Plot(Widget):
             seq[PlotObject]
 
         '''
-        return find(self.references(), selector, {'plot': self})
+        return _list_attr_splat(find(self.references(), selector, {'plot': self}))
 
     def row(self, row, gridplot):
         ''' Return whether this plot is in a given row of a GridPlot.
@@ -569,7 +575,7 @@ class GridPlot(Plot):
             seq[PlotObject]
 
         '''
-        return find(self.references(), selector, {'gridplot': self})
+        return _list_attr_splat(find(self.references(), selector, {'gridplot': self}))
 
     def column(self, col):
         ''' Return a given column of plots from this GridPlot.

@@ -84,6 +84,12 @@ def _glyph_function(glyphclass, argnames, docstring, xfields=["x"], yfields=["y"
             nonselection_glyph=nonselection_glyph,
             name=name)
 
+        # TODO (bev) hacky, fix up when glyphspecs are simplified/removed
+        if 'x_range_name' in kwargs:
+            glyph_renderer.x_range_name = kwargs['x_range_name']
+        if 'y_range_name' in kwargs:
+            glyph_renderer.y_range_name = kwargs['y_range_name']
+
         if legend_name:
             legend = _get_legend(plot)
             if not legend:

@@ -78,7 +78,7 @@ text(x=dict(field="symx", units="data"),
 
 grid().grid_line_color = None
 
-hover = [t for t in curplot().tools if isinstance(t, HoverTool)][0]
+hover = curplot().select(dict(type=HoverTool))
 hover.tooltips = OrderedDict([
     ("name", "@name"),
     ("atomic number", "@atomic_number"),

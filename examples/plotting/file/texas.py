@@ -33,8 +33,7 @@ TOOLS="pan,wheel_zoom,box_zoom,reset,hover,previewsave"
 patches(county_xs, county_ys, fill_color=county_colors, fill_alpha=0.7, tools=TOOLS,
         line_color="white", line_width=0.5, title="Texas Unemployment 2009")
 
-hover = [t for t in curplot().tools if isinstance(t, HoverTool)][0]
-
+hover = curplot().select(dict(type=HoverTool))
 hover.tooltips = OrderedDict([
     ("index", "$index"),
     ("(x,y)", "($x, $y)"),

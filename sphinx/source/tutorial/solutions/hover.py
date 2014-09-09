@@ -54,8 +54,8 @@ text(x, y, text=inds, alpha=0.5, text_font_size="5pt",
 # EXERCISE: try other "marker-like" renderers besides `circle`
 
 # We want to add some fields for the hover tool to interrogate, but first we
-# have to get ahold of the tool. This will be made easier in future releases.
-hover = [t for t in curplot().tools if isinstance(t, HoverTool)][0]
+# have to get ahold of the tool. We can use the 'select' method to do that.
+hover = curplot().select(dict(type=HoverTool))
 
 # EXERCISE: add some new tooltip (name, value) pairs. Variables from the
 # data source are available with a "@" prefix, e.g., "@x" will display the
