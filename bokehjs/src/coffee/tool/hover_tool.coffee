@@ -33,15 +33,19 @@ define [
       super(options)
       @div = $('<div class="bokeh_tooltip" />').appendTo('body')
       @div.hide()
-
       @active = false
+      @xmapper = @plot_view.frame.get('x_mappers')[@x_range_name]
+      @ymapper = @plot_view.frame.get('y_mappers')[@y_range_name]
 
     bind_bokeh_events: () ->
 
       tool_name = "hover_tool"
 
       if not @mget('always_active')
-        @tool_button = $("<button class='bk-toolbar-button'> Hover </button>")
+        @tool_button = $("<button class='bk-toolbar-button hover'>
+          <img class='bk-btn-icon' src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA8ElEQVQ4T42T0Q2CMBCGaQjPxgmMG/jelIQN3ECZQEfADRwBJzBuQCC81wlkBHxvqP8lmhTsUfpSWvp/vfvvKiJn1HVdpml6dPdC38I90DSNxVobYzKMPiSm/z5AZK3t4zjOpJQ6BPECfiKAcqRUzkFmASQEhHzJOUgQ8BWyviwFsL4sBnC+LAE84YMWQnSAVCixdkvMAiB6Q7TCfJtrLq4PHkmSnHHbi0LHvOYa6w/g3kitjSgOYFyUUoWvlCPA9C1gvQfgDmiHNLZBgO8A3geZt+G6chQBA7hi/0QVQBrZ9EwQ0LbtbhgGghQAVFPAB25HmRH8b2/nAAAAAElFTkSuQmCC'/>
+            <span class='tip'>Hover</span>
+          </button>")
         @plot_view.$el.find('.bk-button-bar').append(@tool_button)
         @tool_button.click(=>
           if @active
@@ -99,8 +103,6 @@ define [
         vx: vx
         vy: vy
       }
-      x = @xmapper.map_from_target(vx)
-      y = @ymapper.map_from_target(vy)
       datasources = {}
       datasource_selections = {}
       for renderer in @mget('renderers')
@@ -111,6 +113,11 @@ define [
         _.setdefault(datasource_selections, datasource_id, [])
         selected = @plot_view.renderers[renderer.id].hit_test(geometry)
         ds = datasources[datasource_id]
+
+        xmapper = @plot_view.frame.get('x_mappers')[renderer.get('x_range_name')]
+        ymapper = @plot_view.frame.get('y_mappers')[renderer.get('y_range_name')]
+        x = xmapper.map_from_target(vx)
+        y = ymapper.map_from_target(vy)
 
         if selected == null
           continue

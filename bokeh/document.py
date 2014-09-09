@@ -187,6 +187,12 @@ class Document(object):
                 self.context._dirty = True
             self._add(*obj.references())
 
+    def _add_all(self):
+        # fix for crossfilter - we should take this out soon, and just
+        # ensure that the entire graph is added before dump
+        for obj in self.context.references():
+            self._add(obj)
+
     # functions for turning json objects into json models
 
     def load(self, *objs, **kwargs):
@@ -400,5 +406,3 @@ class Document(object):
             self._add(self._context)
         else:
             raise DataIntegrityException("too many plot contexts found")
-
-

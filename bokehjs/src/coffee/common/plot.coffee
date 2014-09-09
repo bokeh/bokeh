@@ -12,10 +12,11 @@ define [
   "./logging",
   "./solver",
   "./cartesian_frame",
-  "./plot_template"
+  "./plot_template",
+  "./toolbar_template",
   "renderer/properties",
   "tool/active_tool_manager",
-], (_, Backbone, kiwi, build_views, plot_utils, ContinuumView, HasParent, Canvas, LayoutBox, Logging, Solver, CartesianFrame, plot_template, Properties, ActiveToolManager) ->
+], (_, Backbone, kiwi, build_views, plot_utils, ContinuumView, HasParent, Canvas, LayoutBox, Logging, Solver, CartesianFrame, plot_template, toolbar_template, Properties, ActiveToolManager) ->
 
   line_properties = Properties.line_properties
   text_properties = Properties.text_properties
@@ -31,6 +32,7 @@ define [
   class PlotView extends ContinuumView.View
     className: "bokeh plotview plotarea"
     template: plot_template
+    toolbar_template: toolbar_template
 
     view_options: () ->
       _.extend({plot_model: @model, plot_view: @}, @options)
@@ -69,7 +71,14 @@ define [
       @canvas = @mget('canvas')
       @canvas_view = new @canvas.default_view({'model': @canvas})
 
-      @$('.bokeh_canvas_wrapper_outer').prepend(@canvas_view.el)
+      @$('.bk-plot-canvas-wrapper').append(@canvas_view.el)
+
+      toolbar_location = @mget('toolbar_location')
+
+      if toolbar_location?
+        toolbar_selector = '.bk-plot-' + toolbar_location
+        @$(toolbar_selector).html(@toolbar_template())
+
       @canvas_view.render()
 
       @throttled_render = plot_utils.throttle_animation(@render, 15)
@@ -362,7 +371,8 @@ define [
         above: [],
         below: [],
         left: [],
-        right: []
+        right: [],
+        toolbar_location: "above"
       }
 
     display_defaults: () ->
@@ -371,6 +381,8 @@ define [
         background_fill: "#fff",
         border_fill: "#fff",
         min_border: 40,
+
+        show_toolbar: true,
 
         title_standoff: 8,
         title_text_font: "helvetica",

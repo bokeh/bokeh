@@ -9,29 +9,3 @@ def get_versions(default={}, verbose=False):
     return {'version': version_version, 'full': version_full}
 
 EOF
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

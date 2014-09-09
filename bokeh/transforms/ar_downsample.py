@@ -2,9 +2,11 @@ from __future__ import print_function
 from ..plotting import image_rgba, image, multi_line, curdoc
 from ..plot_object import PlotObject
 from ..objects import ServerDataSource,  Glyph, Range1d, Color
-from ..properties import (Instance, Any, Either, Int, Float, List, Bool)
+from ..properties import (Instance, Any, Either,
+                          Int, Float, List, Bool, String)
 import bokeh.colors as colors
 import numpy as np
+import math
 
 import logging
 logger = logging.getLogger(__file__)
@@ -58,8 +60,8 @@ def _loadAR():
 
 class Proxy(PlotObject):
     """
-    Proxy objects stand in for the abstract rendering (AR) config classes.
-    Basically, the AR implementation doesn't rely on Bokeh, so
+    Proxy objects stand in for the abstract rendering (AR) configuration
+    classes. Basically, the AR implementation doesn't rely on Bokeh, so
     it doesn't know about the properties BUT the Bokeh needs be able to
     construct/modify/inspect AR configurations.  Proxy classes hold the
     relevant parameters for constructing AR classes in a way that Bokeh
@@ -72,7 +74,7 @@ class Proxy(PlotObject):
 
 # ------ Aggregators -------------
 class Sum(Proxy):
-    "Add up all incomming values"
+    "Add up all incoming values"
     def reify(self, **kwargs):
         return numeric.Sum()
 
@@ -208,17 +210,20 @@ class ImageShader(Shader):
                 return tuple(color)+(255,)
             if parts == 4:
                 return tuple(color[0:3]) + (min(abs(color[3])*255, 255),)
-            raise ValueError("Improperty formatted tuple for color %s" % color)
+            raise ValueError("Improperly formatted tuple for color %s" % color)
 
         if isinstance(color, str) or isinstance(color, unicode):
             if color[0] == "#":
-                raise ValueError("Can't handle hex-format colors (yet)")
+                color = color.lstrip('#')
+                lv = len(color)
+                rgb = tuple(int(color[i:i + lv // 3], 16) for i in range(0, lv, lv // 3))
+                return [rgb[0], rgb[1], rgb[2], 255]
             else:
                 try:
                     rgb = getattr(colors, color).to_rgb()
+                    return [rgb.r, rgb.g, rgb.b, 255]
                 except:
                     raise ValueError("Unknown color string %s" % color)
-                return [rgb.r, rgb.g, rgb.b, 255]
 
     def reformat(self, image, *args):
         if image is None:
@@ -247,7 +252,7 @@ class NonZeros(Shader):
 
 
 class Ratio(Shader):
-    "Ratio of some category to total of all cateogires."
+    "Ratio of some category to total of all categories."
     out = "image"
     focus = Int(-1)
 
@@ -307,11 +312,19 @@ class Sqrt(Shader):
 
 
 class Cuberoot(Shader):
-    "Cub eroot of all values"
+    "Cube root of all values"
     out = "image"
 
     def reify(self, **kwargs):
         return numeric.Cuberoot()
+
+
+class Log(Shader):
+    "Log (base 10) of values"
+    out = "image"
+
+    def reify(self, **kwargs):
+        return npg.Log10()
 
 
 class Spread(Shader):
@@ -320,10 +333,13 @@ class Spread(Shader):
 
     out = "image"
     factor = Int
+    shape = String("circle")
     anti_alias = Bool(False)
 
     def reify(self, **kwargs):
-        return npg.Spread(factor=self.factor, anti_alias=self.anti_alias)
+        return npg.Spread(factor=self.factor,
+                          shape=self.shape,
+                          anti_alias=self.anti_alias)
 
 
 class Contour(Shader):
@@ -336,6 +352,7 @@ class Contour(Shader):
     """
     out = "poly_line"
     levels = Either(Int, List(Float), default=5)
+    palette = List(Color)
 
     def reify(self, **kwargs):
         return contour.Contour(levels=self.levels, points=False)
@@ -347,17 +364,21 @@ class Contour(Shader):
         xxs = []
         yys = []
         levels = sorted(contours.keys())
+        colors = []
         (xmin, ymin) = args
 
         # Re-arrange results and project xs/ys back to the data space
-        for level in levels:
-            (xs, ys) = contours[level]
-            xs = xs+(xmin-1)  # HACK: Why is this -1 required?
-            ys = ys+(ymin-1)  # HACK: Why is this -1 required?
-            xxs.append(xs)
-            yys.append(ys)
+        for (level, color) in zip(levels, self.palette):
+            for trace in contours[level]:
+                (xs, ys) = trace
+                xs = xs+xmin
+                ys = ys+ymin
+                xxs.append(xs)
+                yys.append(ys)
+                colors.append(color)
 
         return {'levels': levels,
+                'colors': colors,
                 'xs': xxs,
                 'ys': yys}
 
@@ -394,7 +415,8 @@ def replot(plot, agg=Count(), info=Const(val=1), shader=Id(),
         if opt in kwargs:
             props[opt] = kwargs.pop(opt)
 
-    src = source(plot, agg, info, shader, remove_original, palette, points, **kwargs)
+    src = source(plot, agg, info, shader,
+                 remove_original, palette, points, **kwargs)
     props.update(mapping(src))
 
     if shader.out == "image":
@@ -436,10 +458,13 @@ def source(plot, agg=Count(), info=Const(val=1), shader=Id(),
                           'global_offset_y': [0],
                           'dw': [1],
                           'dh': [1],
-                          'palette': palette}
+                          'palette': palette,
+                          'render_state': {}}
     elif shader.out == "poly_line":
         kwargs['data'] = {'xs': [[]],
-                          'ys': [[]]}
+                          'ys': [[]],
+                          'colors': [],
+                          'render_state': {}}
     else:
         raise ValueError("Unrecognized shader output type %s" % shader.out)
 
@@ -473,6 +498,7 @@ def mapping(source):
     elif out == 'poly_line':
         keys = source.data.keys()
         m = dict(zip(keys, keys))
+        m['line_color'] = 'colors'
         return m
 
     else:
@@ -482,7 +508,7 @@ def mapping(source):
 def make_glyphset(xcol, ycol, datacol, glyphspec, transform):
     # TODO: Do more detection to find if it is an area implantation.
     #       If so, make a selector with the right shape pattern and use a point shaper
-    shaper = _shaper(glyphspec['type'], _size(glyphspec), transform['points'])
+    shaper = _shaper(glyphspec, transform['points'])
     if isinstance(shaper, glyphset.ToPoint):
         points = np.zeros((len(xcol), 4), order="F")
         points[:, 0] = xcol
@@ -494,12 +520,27 @@ def make_glyphset(xcol, ycol, datacol, glyphspec, transform):
     return glyphs
 
 
-def downsample(data, transform, plot_state):
+def _generate_render_state(plot_state):
+    data_x_span = float(_span(plot_state['data_x']))
+    data_y_span = float(_span(plot_state['data_y']))
+
+    data_x_span = math.ceil(data_x_span * 100) / 100.0
+    data_y_span = math.ceil(data_y_span * 100) / 100.0
+
+    return {'x_span': data_x_span,
+            'y_span': data_y_span}
+
+
+def downsample(data, transform, plot_state, render_state):
     _loadAR()  # Must be called before any attempts to use AR proper
     glyphspec = transform['glyphspec']
     xcol = glyphspec['x']['field']
     ycol = glyphspec['y']['field']
     datacol = _datacolumn(glyphspec)
+
+    if render_state == _generate_render_state(plot_state):
+        logger.info("Skipping update; render state unchanged")
+        return {'render_state': "NO UPDATE"}
 
     # Translate the resample parameters to server-side rendering....
     # TODO: Do more to preserve the 'natural' data form and have make_glyphset build the 'right thing' (tm)
@@ -510,19 +551,24 @@ def downsample(data, transform, plot_state):
 
     xcol = data[xcol]
     ycol = data[ycol]
-    datacol = data[datacol] if datacol else util.EmptyList()
+    datacol = data[datacol] if datacol else np.zeros_like(xcol)
     glyphs = make_glyphset(xcol, ycol, datacol, glyphspec, transform)
     shader = transform['shader']
 
     if shader.out == "image" or shader.out == "image_rgb":
-        return downsample_image(xcol, ycol, glyphs, transform, plot_state)
+        rslt = downsample_image(xcol, ycol, glyphs, transform, plot_state)
     elif shader.out == "poly_line":
-        return downsample_line(xcol, ycol, glyphs, transform, plot_state)
+        rslt = downsample_line(xcol, ycol, glyphs, transform, plot_state)
     else:
-        raise ValueError("Only handles out types of image, image_rgb and poly_line")
+        raise ValueError("Unhandled shader output '{0}.".format(shader.out))
+
+    rslt['render_state'] = _generate_render_state(plot_state)
+
+    return rslt
 
 
 def downsample_line(xcol, ycol, glyphs, transform, plot_state):
+    logger.info("Starting line-producing downsample")
     screen_x_span = float(_span(plot_state['screen_x']))
     screen_y_span = float(_span(plot_state['screen_y']))
     data_x_span = float(_span(plot_state['data_x']))
@@ -533,7 +579,7 @@ def downsample_line(xcol, ycol, glyphs, transform, plot_state):
         # How big would a full plot of the data be at the current resolution?
         # If scale is zero for either axis, don't actual render,
         # instead report back data bounds and wait for the next request
-        # This enales guide creation...which cahgnes the available plot size.
+        # This enables guide creation...which changes the available plot size.
         plot_size = [screen_x_span, screen_y_span]
         parts = shader.reformat(None)
     else:
@@ -554,10 +600,12 @@ def downsample_line(xcol, ycol, glyphs, transform, plot_state):
     parts['x_range'] = {'start': xcol.min(), 'end': xcol.max()}
     parts['y_range'] = {'start': ycol.min(), 'end': ycol.max()}
 
+    logger.info("Finished line-producing downsample")
     return parts
 
 
 def downsample_image(xcol, ycol, glyphs, transform, plot_state):
+    logger.info("Starting image-producing downsample")
     screen_x_span = float(_span(plot_state['screen_x']))
     screen_y_span = float(_span(plot_state['screen_y']))
     data_x_span = float(_span(plot_state['data_x']))
@@ -582,9 +630,9 @@ def downsample_image(xcol, ycol, glyphs, transform, plot_state):
         bounds = glyphs.bounds()
         scale_x = data_x_span/screen_x_span
         scale_y = data_y_span/screen_y_span
-        plot_size = [bounds[2]/scale_x, bounds[3]/scale_y]
+        plot_size = (bounds[2]/scale_x, bounds[3]/scale_y)
 
-        vt = util.zoom_fit(plot_size, bounds, balanced=balanced_zoom)
+        vt = util.zoom_fit(plot_size, bounds, balanced=False)
         (tx, ty, sx, sy) = vt
 
         image = ar.render(glyphs,
@@ -604,8 +652,10 @@ def downsample_image(xcol, ycol, glyphs, transform, plot_state):
             #     the bottom left and bottom right of the plot
             # y_range is the bottom and top data space values corresponding to
             #     the bottom left and top left of the plot
-            'x_range': {'start': xcol.min()*scale_x, 'end': xcol.max()*scale_x},
-            'y_range': {'start': ycol.min()*scale_y, 'end': ycol.max()*scale_y},
+            'x_range': {'start': xcol.min()*scale_x,
+                        'end': xcol.max()*scale_x},
+            'y_range': {'start': ycol.min()*scale_y,
+                        'end': ycol.max()*scale_y},
 
             # Data-image parameters.
             # x/y are lower left data-space coord of the image.
@@ -613,18 +663,11 @@ def downsample_image(xcol, ycol, glyphs, transform, plot_state):
             'x': [xcol.min()],
             'y': [ycol.min()],
             'dw': [xcol.max()-xcol.min()],
-            'dh': [ycol.max()-ycol.min()]}
+            'dh': [ycol.max()-ycol.min()]
+            }
 
+    logger.info("Finished image-producing downsample")
     return rslt
-
-
-def _size(glyphspec):
-    """
-    Determine size property value or size field.
-
-    TODO: Handle data-derived and non-default
-    """
-    return glyphspec['size'].get('default', 1)
 
 
 def _datacolumn(glyphspec):
@@ -658,17 +701,157 @@ def _span(r):
     return abs(end-start)
 
 
-def _shaper(code, size, points):
+def _shaper(glyphspec, points):
     """Construct the AR shaper to match the given shape code."""
+    code = glyphspec['type']
+    code = code.lower()
 
     tox = glyphset.idx(0)
     toy = glyphset.idx(1)
-    sizer = glyphset.const(size)
-    code = code.lower()
 
     if points:
+        sizer = glyphset.const(1)
         return glyphset.ToPoint(tox, toy, sizer, sizer)
-    elif code == 'square':
+
+    if code == 'square':
+        size = glyphspec['size'].get('default', 1)
+        sizer = glyphset.const(size)
+        return glyphset.ToRect(tox, toy, sizer, sizer)
+    if code == 'circle':
+        size = glyphspec['radius'].get('default', 1)
+        sizer = glyphset.const(size)
         return glyphset.ToRect(tox, toy, sizer, sizer)
     else:
-        raise ValueError("Only recognizing 'square', received " + code)
+        raise ValueError("Unrecogized shape, received '{0}'".format(code))
+
+
+# -------------------- Recipes -----------------------
+
+def hdalpha(plot, cats=None, palette=None, log=True, spread=0, **kwargs):
+    """
+    Produce a plot using high-definition alpha composition (HDAlpha).
+    HDAlpha essentially makes a heatmap for each of a number of categories,
+    with different colors for each category.  Then those colors are composed
+    in a way that ensures that oversaturate on does not occur.
+    This is a convenience function that encodes a common configuration,
+    and parameters to support the most common variations.
+
+    plot -- Plot to convert into an HDAlpha plot
+    cats -- What are the expected categories?
+                 Default is None, indicating that categories
+                 should be determined automatically.
+    palette -- What colors should be used. Colors are matched to categories in
+              order, so the first color is associated with the first category.
+              Default is a rainbow palette with 8 steps.
+    spread -- How far (if any) should values be spread. Default is 0.
+    long -- Log-transform each category prior to composing? Default is True.
+    kwargs -- Further arguments passed on to replot for greater control.
+
+    Note: Category to color association follows the rules of the HDAlpha
+         operator.  Refer to that documentation for corner case resolution.
+    """
+
+    if cats is None:
+        info = AutoEncode()
+    else:
+        info = Encode(cats=cats)
+
+    if palette is None:
+        palette = ["#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#ffff33", "#a65628", "#f781bf"]
+
+    kwargs['points'] = kwargs.get('points', True)
+
+    return replot(plot,
+                  info=info,
+                  agg=CountCategories(),
+                  shader=Spread(factor=spread) + HDAlpha(colors=palette, log=log),
+                  **kwargs)
+
+
+def heatmap(plot,
+            client_color=False,
+            low=(255, 200, 200), high=(255, 0, 0),
+            spread=0, transform="cbrt", **kwargs):
+    """
+    Produce a heatmap from a set of shapes.
+    A heatmap is a scale of how often a single thing occurs.
+    This is a convenience function that encodes a common configuration,
+    and parameters to support the most common variations.
+
+
+    plot -- Plot to convert into a heatmap
+    low -- Low color of the heatmap.  Default is a light red
+    high -- High color of the heatmap. Default is full saturation red.
+    spread -- How far (if any) should values be spread. Default is 0.
+    transform -- Apply a transformation before building a color ramp?
+                 Understood values are 'cbrt', 'log', 'none' and None.
+                 The default is 'cbrt', for cuberoot, an approximation of
+                 perceptual correction on monochromatic scales.
+    kwargs -- Further arguments passed on to replot for greater control.
+    """
+
+    transform = transform.lower() if transform is not None else None
+
+    if client_color:
+        shader = Id()
+        kwargs['reserve_val'] = kwargs.get('reserve_val', 0)
+    else:
+        shader = InterpolateColor(low=low, high=high)
+
+    if transform == "cbrt":
+        shader = Cuberoot() + shader
+    elif transform == "log":
+        shader = Log() + shader
+    elif transform == "none" or transform is None:
+        pass
+    else:
+        raise ValueError("Unrecognized transform '{0}'".format(transform))
+
+    if spread > 0:
+        shader = Spread(factor=spread, shape="circle") + shader
+
+    kwargs['points'] = kwargs.get('points', True)
+
+    return replot(plot,
+                  agg=Count(),
+                  info=Const(val=1),
+                  shader=shader,
+                  **kwargs)
+
+
+def contours(plot, palette=None, transform='cbrt', spread=0, **kwargs):
+    """
+    Create ISO contours from a given plot
+
+    plot -- Plot to convert into iso contours
+    spread -- How far (if any) should values be spread. Default is 0.
+    palette -- What should the line colors be?
+               The number of lines is determined by the number of colors.
+    transform -- Apply a transformation before building the iso contours?
+                 Understood values are 'cbrt', 'log', 'none' and None.
+                 The default is 'cbrt', for cuberoot, an approximation of
+                 perceptual correction for monochromatic scales.
+    kwargs -- Further arguments passed on to replot for greater control.
+    """
+    if palette is None:
+        palette = ["#C6DBEF", "#9ECAE1", "#6BAED6", "#4292C6", "#2171B5", "#08519C", "#08306B"]
+
+    shader = Contour(levels=len(palette), palette=palette)
+
+    if transform == "cbrt":
+        shader = Cuberoot() + shader
+    elif transform == "log":
+        shader = Log() + shader
+    elif transform == "none" or transform is None:
+        pass
+    else:
+        raise ValueError("Unrecognized transform '{0}'".format(transform))
+
+    if spread > 0:
+        shader = Spread(factor=spread, shape="circle") + shader
+
+    return replot(plot,
+                  agg=Count(),
+                  info=Const(val=1),
+                  shader=shader,
+                  **kwargs)

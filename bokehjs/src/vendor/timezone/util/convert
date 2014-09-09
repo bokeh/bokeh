@@ -1,5 +1,0 @@
-trap "exit" SIGINT SIGTERM
-langs=()
-for locale in $(find locales -name \*.js | cut -d'/' -f2 | cut -d'.' -f1); do
-  node util/localizer ~/src/glibc-2.14.1/localedata/locales/$locale > locales/$locale.js
-done
