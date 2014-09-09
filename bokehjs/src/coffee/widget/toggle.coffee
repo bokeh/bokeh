@@ -34,8 +34,11 @@ define [
       @$el.addClass("bk-bs-btn-" + @mget("type"))
       if @mget("disabled") then @$el.attr("disabled", "disabled")
 
-      @$el.text(@mget("label"))
-      if icon? then @$el.prepend(@views[icon.id].$el)
+      label = @mget("label")
+      if icon?
+        @$el.append(@views[icon.id].$el)
+        label = " #{label}"
+      @$el.append(document.createTextNode(label))
 
       if @mget("active")
         @$el.addClass("bk-bs-active")
