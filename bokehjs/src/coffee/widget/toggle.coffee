@@ -9,6 +9,13 @@ define [
   logger = Logging.logger
 
   class ToggleView extends continuum_view.View
+    tagName: "button"
+    events:
+      "click": "change_input"
+
+    change_input: () ->
+      @mset('active', @$el.hasClass("bk-bs-active"))
+      @model.save()
 
     initialize: (options) ->
       super(options)
@@ -16,7 +23,24 @@ define [
       @listenTo(@model, 'change', @render)
 
     render: () ->
+      icon = @mget('icon')
+      if icon?
+        build_views(@views, [icon])
+        for own key, val of @views
+          val.$el.detach()
+
       @$el.empty()
+      @$el.addClass("bk-bs-btn")
+      @$el.addClass("bk-bs-btn-" + @mget("type"))
+      if @mget("disabled") then @$el.attr("disabled", "disabled")
+
+      @$el.text(@mget("label"))
+      if icon? then @$el.prepend(@views[icon.id].$el)
+
+      if @mget("active")
+        @$el.addClass("bk-bs-active")
+
+      @$el.attr("data-bk-bs-toggle", "button")
       return @
 
   class Toggle extends HasParent
@@ -25,6 +49,11 @@ define [
 
     defaults: () ->
       _.extend({}, super(), {
+        active: false
+        label: "Toggle"
+        icon: null
+        type: "default"
+        disabled: false
       })
 
   class Toggles extends Backbone.Collection

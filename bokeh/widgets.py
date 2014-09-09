@@ -40,7 +40,7 @@ class Toggle(AbstractButton):
     active = Bool(False)
 
     def on_click(self, handler):
-        self.on_change('clicks', lambda obj, attr, old, new: handler(new))
+        self.on_change('active', lambda obj, attr, old, new: handler(new))
 
 class Dropdown(AbstractButton):
     pass
