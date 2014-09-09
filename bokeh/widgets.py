@@ -45,10 +45,17 @@ class Toggle(AbstractButton):
 class Dropdown(AbstractButton):
     pass
 
-class Group(Widget):
+class AbstractGroup(Widget):
     labels = List(String)
+    # active = AbstractProperty
 
-class ButtonGroup(Group):
+    def on_click(self, handler):
+        self.on_change('active', lambda obj, attr, old, new: handler(new))
+
+class Group(AbstractGroup):
+    inline = Bool(False)
+
+class ButtonGroup(AbstractGroup):
     type = Enum(ButtonType)
 
 class CheckboxGroup(Group):

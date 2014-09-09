@@ -10,6 +10,13 @@ define [
 
   class RadioGroupView extends continuum_view.View
     tagName: "div"
+    events:
+      "change input": "change_input"
+
+    change_input: () ->
+      active = (i for radio, i in @$("input") when radio.checked)
+      @mset('active', active[0])
+      @model.save()
 
     initialize: (options) ->
       super(options)
@@ -18,7 +25,22 @@ define [
 
     render: () ->
       @$el.empty()
-      @$el.addClass("radio")
+
+      name = _.uniqueId("RadioGroup")
+      active = @mget("active")
+      for label, i in @mget("labels")
+        $input = $('<input type="radio">').attr(name: name, value: "#{i}")
+        if @mget("disabled") then $input.prop("disabled", true)
+        if i == active then $input.prop("checked", true)
+
+        $label = $('<label></label>').text(label).prepend($input)
+        if @mget("inline")
+            $label.addClass("bk-bs-radio-inline")
+            @$el.append($label)
+        else
+            $div = $('<div class="bk-bs-radio"></div>').append($label)
+            @$el.append($div)
+
       return @
 
   class RadioGroup extends HasParent
