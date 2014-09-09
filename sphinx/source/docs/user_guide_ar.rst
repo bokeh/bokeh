@@ -35,6 +35,14 @@ Abstract rendering is tied to the bokeh server infrastructure, and can
 thus only be used with an active bokeh server and with plots employing
 a ServerDataSource.
 
+*Note:* Because abstract rendering relies on server-side processing,
+it will only work with bokeh server.  Furthermore, it requires server-side
+data sources, so the server must be started with the ``-D`` option followed
+by the directory holding the data, e.g. ``bokeh-server -D remotedata`` will
+start the server and point at the example data directory. Example snippets
+assume that bokeh has been properly imported and configured and that
+abstract rendering is imported as ``import bokeh.transforms.ar_downsample as ar``.
+
 Recipes Interface
 ---------------------
 
@@ -117,6 +125,7 @@ Additionally, the composition between categories is also controlled to prevent o
 
 Example application of hdalpha::
 
+  import bokeh.transforms.ar_downsample as ar
   source = ServerDataSource(data_url="fn://gauss", owner_username="defaultuser")
   plot = square('oneA', 'oneB', color='cats', source=source)
   ar.hdalpha(plot, spread=5, title="Multiple categories")
@@ -162,19 +171,20 @@ The info function is commonly used for categorization of the input glyphs.
 The aggregator builds bin values from info values and an existing bin.
 Count and CountCategories are the current aggregators.
 
-Shaders take sets of bins and transform them.  The most common target is a 
-new set of bins.  The output set of bins may be anything, though numbers and colors
-are the most common target.  Shader chains that end in grids of numbers rely
-on the BokehJS client to do coloring.  The Contours shader produces sets of lines
-instead of a new grid of bins.  Any chain that results in a grid of bins can be
-extended with additional shaders.
+Shaders transform sets of bins.  The most common target is a new set of bins.  
+The output set of bins may be anything, though numbers and colors
+are the most common.  Shader chains that end in grids of numbers rely
+on the BokehJS client to do coloring.  Any chain that results in a grid of bins can be
+extended with additional shaders.  In constrast, the Contours shader produces sets of lines
+instead of a new grid of bins. 
 
-Here is a recreation of the heatmap_ recipe using the functions interface::
+Here is a re-creation of the heatmap_ recipe using the functions interface::
 
     source = ServerDataSource(data_url="/defaultuser/CensusTracts.hdf5", 
                               owner_username="defaultuser")
     plot = square( 'LON', 'LAT', source=source)
     ar.replot(plot, 
+              info=ar.Const(val=1),
               agg=ar.Count(), 
               shader=ar.Spread(factor=3) 
                        + ar.Cuberoot()  # Approximates perceptual correction
@@ -185,15 +195,15 @@ Here is a recreation of the heatmap_ recipe using the functions interface::
 
 The list of available functions
 and their relevant parameters is growing all the time. Please see
-the docstrings for details.  The above example is used
+the docstrings for details.  The above example is also found
 in abstractrender.py (in examples/plotting/server).
 
 
 
 Limitations
 --------------
-- At the current time, abstract rendering fully supports circle and square glyph types 
-  in scatter plots and simple line plots.  More complex shapes and poly-lines cannot 
+- Abstract rendering fully supports circle and square glyph types 
+  in scatter plots.  More complex shapes and lines cannot 
   used in the input plot at this time.
 
 - If a plot is constructed with multiple layers, only the first layer using a ServerDataSource
