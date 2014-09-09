@@ -23,107 +23,107 @@ The release process for Bokeh is outlined in `Bokeh Enhancement Proposal 2 <http
 Installation for Developers
 ===========================
 
-Bokeh development is complicated by the fact the client-side BokehJS library
-is written in CoffeeScript and requires an explicit compilation step. Also, it
-is not guaranteed that the previously released BokehJS and the current python
-Bokeh library in GitHub master will always be compatible. For this reason, in
-order to do development on Bokeh from a source checkout, you must first be
-able to build BokehJS.
+The Bokeh project encompasses two major components: the Bokeh package source code,
+written in Python, and the BokehJS client-side library, written in CoffeeScript.
+Accordingly, development of Bokeh is slightly complicated by the fact that
+BokehJS requires an explicit compilation step to render the CoffeeScript source
+into deployable JavaScript.
+
+For this reason, in order to develop Bokeh from a source checkout,
+you must first be able to build BokehJS.
 
 .. _developer_building_bokehjs:
 
 Building BokehJS
 ----------------
 
-Building the BokehJS library requires you to have ``node.js`` and ``npm`` (node
-package manager) installed. There exist system installers for these packages,
-but if you are using conda, the easiest way to get them is to install from
-the Bokeh channel on Binstar by executing the command::
+Install Prerequisites
+~~~~~~~~~~~~~~~~~~~~~
 
-    $ conda install -c bokeh nodejs
+The BokehJS build process is handled by `Grunt <http://gruntjs.com/>`_,
+which in turn depends on `Node.js <http://nodejs.org/>`_.
+Grunt is used to compile CoffeeScript, Less and Eco sources, combine JavaScript resources,
+and generate optimized and minified ``bokeh.js`` and ``bokeh.css`` files.
 
-BokehJS uses Grunt for managing its build. Grunt will compile CoffeeScript,
-Less and Eco sources, combine JavaScript files, and generate optimized and
-minified ``bokeh.js`` and ``bokeh.css``.
-
-If you are using conda, you can also install the Grunt command line tool
+You can download and install Node.js directly, or use
+`conda <http://conda.pydata.org/>`_ to install Node.js
 from the Bokeh channel on `Binstar <https://binstar.org>`_::
 
-    $ conda install -c bokeh grunt-cli
-
-Otherwise you can install Grunt by with npm by executing::
-
-    $ npm install grunt-cli
-
-in the ``bokehjs`` subdirectory of the Bokeh source checkout.
+    $ conda install -c bokeh nodejs
 
 .. note:: The following commands should be executed in the ``bokehjs``
           subdirectory of the Bokeh source checkout.
 
-In order to build the JavaScript files that comprise ``bokeh.js``, first install
-necessary dependencies::
+In order to build BokehJS, you must first install the dependencies::
 
     $ npm install
 
-This command will install build dependencies in the ``node_modules`` subdirectory.
+This command will install the necessary packages
+(listed as ``devDependencies`` in ``package.json``) in the ``node_modules`` subdirectory.
 
-Typically at this point you would use the ``setup.py`` script at the top level
-to manage building and installing BokehJS as part of complete Bokeh library.
-(See :ref:`developer_python_setup` for additional information.)
-However, if you are using BokehJS as a standalone JavaScript library, without
-the rest of Bokeh, then the instructions below describe the process to build
-BokehJS.
+At this point you can typically use the ``setup.py`` script at the top level directory
+to manage building and installing BokehJS as part of the complete Bokeh library
+(see :ref:`developer_python_setup`).
 
-To generate the compiled and optimized JavaScript libraries, run the command::
+However, if you are using BokehJS as a standalone JavaScript library,
+then the instructions below describe the process to iteratively
+build BokehJS with Grunt for development purposes.
+
+Building with Grunt
+~~~~~~~~~~~~~~~~~~~
+
+There are three main Grunt commands for development:
+
+.. code-block:: sh
 
     $ grunt deploy
 
-This creates both ``bokeh.js`` and ``bokeh.min.js`` scripts in the ``build/js``
-subdirectory, and ``bokeh.css`` and ``bokeh.min.css`` CSS files in the
-``build/css`` subdirectory.
+This will generate the compiled and optimized BokehJS libraries, and deploy
+them to the ``build`` subdirectory.
 
-To build the BokehJS sources without concatenating and optimizing into
-standalone libraries, run the command::
+.. code-block:: sh
 
     $ grunt build
 
-At this point BokehJS can be be used together with `require.js` as an
-`AMD module <http://requirejs.org/docs/whyamd.html>`_. To
-automatically watch the source tree for changes and trigger a recompile
-of individual files as they change, run the command::
+This will build the BokehJS sources without concatenating and optimizing into
+standalone libraries. At this point BokehJS can be be used together with ``require.js`` as an
+`AMD module <http://requirejs.org/docs/whyamd.html>`_.
+
+.. code-block:: sh
 
     $ grunt watch
 
-This can be used together with "splitjs" mode of the Bokeh server to
-facilitate a more rapid development cycle.
+This directs Grunt to automatically watch the source tree for changes and trigger a recompile
+of individual files as they change—especially useful together with the ``--splitjs`` mode of
+the Bokeh server to facilitate a more rapid development cycle.
 
 Alternative BokehJS build system
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-As an alternatively to ``grunt``, you can use `sbt <http://www.scala-sbt.org` to
-build BokehJS. To start, run `./sbt` in the top level directory. This will
-download `sbt` itself, its dependencies and configure the build system.
-In general you should see (more or less) the following output::
+As an alternative to Grunt, you can use `sbt <http://www.scala-sbt.org>`_ to
+build BokehJS. To start, run
+
+.. code-block:: sh
 
     $ ./sbt
-    [info] Loading project definition from /home/user/continuum/bokeh/project
-    [info] Set current project to bokeh (in build file:/home/user/continuum/bokeh/)
-    continuum (bokeh)>
 
-There are two main commands available: `build` and `deploy`. The `build` command
+in the top level directory. This will download ``sbt`` (and its dependencies) itself,
+and configure the build system.
+
+There are two main commands available: ``build`` and ``deploy``. The ``build`` command
 compiles CoffeeScript, Less and Eco sources, and copies other resources to the
-build directory. The `deploy` command does the same and additionally generates
-optimized and minified `bokeh.js` and `bokeh.css` outputs.
+build directory. The ``deploy`` command does the same and additionally generates
+optimized and minified ``bokeh.js`` and ``bokeh.css`` outputs.
 
-You may also run specific subtasks, e.g. `compile` to compile CoffeeScript, Less and
-Eco sources, but not copy resources. You can also prefix any command with `~`, which
-enables incremental compilation. For example, issuing `~less` will watch `*.less`
+You may also run specific subtasks, e.g. ``compile`` to compile CoffeeScript, Less and
+Eco sources, but not copy resources. You can also prefix any command with ``~``, which
+enables incremental compilation. For example, issuing ``~less`` will watch ``*.less``
 sources and compile only the subset of files that changed. To stop watching sources,
-press ENTER. Pressing Ctrl+C will terminate `sbt`.
+press ENTER. Pressing Ctrl+C will terminate ``sbt``.
 
 .. warning::
-        The ``sbt`` build system is experimental and not integrated with ``setup.py``
-        and should be used with caution.
+        The ``sbt`` build system is experimental and not integrated with ``setup.py``,
+        so it should be used with caution.
 
 .. _developer_python_setup:
 
@@ -131,7 +131,7 @@ Python Setup
 ------------
 
 Once you have a working BokehJS build (which you can verify by completing the
-steps described in :ref:`developer_building_bokehjs` one time), you can
+steps described in :ref:`developer_building_bokehjs`), you can
 use the ``setup.py`` script at the top level to install or develop the full
 Bokeh library from source.
 

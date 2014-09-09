@@ -23,13 +23,13 @@ Plots can be configured with several keyword arguments that control appearance:
 * ``h_symmetry``, ``v_symmetry`` --- whether to symmetrize plot borders on opposite horizontal or vertical sides of the plot.
 
 * ``title`` --- a title to display above the plot.
-  - "title" is also the prefix for a set of :ref:`userguide_text_properties`, so you can set the font for the title with the parameter ``text_font``.
+  - "title" is also the prefix for a set of :ref:`userguide_objects_text_properties`, so you can set the font for the title with the parameter ``text_font``.
 
-* "outline" --- is the prefix for a set of :ref:`userguide_line_properties` that control the appearance of an outline around the plot, for instance you can set the color of the outline with ``outline_line_color``.
+* "outline" --- is the prefix for a set of :ref:`userguide_objects_line_properties` that control the appearance of an outline around the plot, for instance you can set the color of the outline with ``outline_line_color``.
 
-* ``x_range`` --- the extent of the plotting area in the x-dimension. See :ref:`userguide_plot_ranges`
+* ``x_range`` --- the extent of the plotting area in the x-dimension. See :ref:`userguide_objects_ranges`
 
-* ``y_range`` --- the extent of the plotting area in the y-dimension. See :ref:`userguide_plot_ranges`
+* ``y_range`` --- the extent of the plotting area in the y-dimension. See :ref:`userguide_objects_ranges`
 
 * ``plot_width``, ``plot_height`` --- width and height of the entire plot in pixels, including border space
 
@@ -81,8 +81,8 @@ Styling
 
 Properties
 ''''''''''
-Many of the styling options are grouped into three categories of properties: :ref:`userguide_line_properties`,
-:ref:`userguide_fill_properties`, and :ref:`userguide_text_properties`.
+Many of the styling options are grouped into three categories of properties: :ref:`userguide_objects_line_properties`,
+:ref:`userguide_objects_fill_properties`, and :ref:`userguide_objects_text_properties`.
 
 .. _userguide_objects_line_properties:
 
@@ -201,7 +201,7 @@ individual axes, or can that have attributes set directly on them to update all 
 
 Typically after updating these attributes, a call to :func:`bokeh.plotting.show` will be required.
 
-.. note:: The ``bounds`` attribute here controls only the extent of the axis! It does not set the range of the plot. For that, see :ref:`userguide_plot_ranges`. As an example, a plot window may extend from 0 to 10, but you may only want the axis to render between 4 and 8, in order to highlight a particular sub-area of the plot.
+.. note:: The ``bounds`` attribute here controls only the extent of the axis! It does not set the range of the plot. For that, see :ref:`userguide_objects_ranges`. As an example, a plot window may extend from 0 to 10, but you may only want the axis to render between 4 and 8, in order to highlight a particular sub-area of the plot.
 
 .. _userguide_objects_grids:
 
@@ -218,7 +218,7 @@ and :func:`bokeh.plotting.grid` functions available to obtain grids for the curr
 
 Typically after updating these attributes, a call to :func:`bokeh.plotting.show` will be required.
 
-.. note:: The ``bounds`` attribute here controls only the extent of the grid! It does not set the range of the plot. For that, see :ref:`userguide_plot_ranges`. As an example, a plot window may extend from 0 to 10, but you may only want the grid to render between 4 and 8, in order to highlight a particular sub-area of the plot.
+.. note:: The ``bounds`` attribute here controls only the extent of the grid! It does not set the range of the plot. For that, see :ref:`userguide_objects_ranges`. As an example, a plot window may extend from 0 to 10, but you may only want the grid to render between 4 and 8, in order to highlight a particular sub-area of the plot.
 
 
 .. _userguide_objects_legends:
