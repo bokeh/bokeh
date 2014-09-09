@@ -101,19 +101,17 @@ def animated():
 
     output_server("animated_reveal")
 
-    figure(title="Animations")
+    figure(title="Animations", x_range=[-11, 11], y_range=[-11, 11],
+           tools="pan,wheel_zoom,box_zoom,reset,previewsave")
 
     hold()
 
     annular_wedge(
         cx, cy, rmin, rmax, theta[:-1], theta[1:],
-        x_range=[-11, 11],
-        y_range=[-11, 11],
         inner_radius_units="data",
         outer_radius_units="data",
         fill_color=colors,
         line_color="black",
-        tools="pan,wheel_zoom,box_zoom,reset,previewsave"
     )
 
     return curplot(), cursession()
