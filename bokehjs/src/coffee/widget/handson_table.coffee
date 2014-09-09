@@ -11,7 +11,7 @@ define [
     initialize: (options) ->
       super(options)
       @render()
-      @listenTo(@model, 'change:source', () => @renderFn())
+      @listenTo(@model, 'change', () => @renderFn())
       source = @mget("source")
       @listenTo(source, 'change:data', () => @renderFn())
       @listenTo(source, 'change:selected', () => @changeSelection())
@@ -33,8 +33,9 @@ define [
         columns = []
 
         for column in @mget("columns")
-          headers.push(column.get("header"))
-          columns.push({
+          if column?
+            headers.push(column.get("header"))
+            columns.push({
               data: column.get("field")
               type: column.get("type")
               format: column.get("format")
@@ -42,7 +43,7 @@ define [
               strict: column.get("strict")
               checkedTemplate: column.get("checked")
               uncheckedTemplate: column.get("unchecked")
-          })
+            })
 
         @$el.handsontable({
           data: source.datapoints()

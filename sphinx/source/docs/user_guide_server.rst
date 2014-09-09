@@ -9,7 +9,7 @@ Bokeh Server
 
 .. program:: bokeh-server
 
-.. _userguide_server_overview
+.. _userguide_server_overview:
 
 Overview
 --------
@@ -49,35 +49,35 @@ query or analysis (possibly resulting in updates pushed back the plot).
 
 We will explore the capabilities afforded by the Bokeh server in detail below.
 
-.. _userguide_server_hosting
+.. _userguide_server_hosting:
 
 Plot Hosting
 ------------
 
 
 
-.. _userguide_server_streaming
+.. _userguide_server_streaming:
 
 Streaming Data
 --------------
 
 
 
-.. _userguide_server_large
+.. _userguide_server_large:
 
 Large Data
 ----------
 
 
 
-.. _userguide_server_widgets
+.. _userguide_server_widgets:
 
 Widgets and Dashboards
 ----------------------
 
 
 
-.. _userguide_server_command_line
+.. _userguide_server_command_line:
 
 Command Line Configuration
 --------------------------

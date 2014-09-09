@@ -1,28 +1,26 @@
 define [
-  "common/has_parent",
-  "common/has_properties",
-  "common/continuum_view",
-  "common/build_views"
   "backbone",
   "underscore",
   "jquery_ui/draggable",
   "jquery_ui/droppable",
-  "./crossfiltertemplate"
-  "./discretecolumntemplate"
-  "./continuouscolumntemplate"
-  "./facetcolumntemplate"
+  "common/has_parent",
+  "common/has_properties",
+  "common/continuum_view",
+  "common/build_views"
+  "./crossfilter_template"
+  "./crossfilter_column_template"
+  "./crossfilter_facet_template"
 
-], (HasParent, HasProperties, continuum_view,
-  build_views, Backbone, _, draggable, droppable,
-  crossfiltertemplate,
-  discretecolumntemplate, continuouscolumntemplate
-  facetcolumntemplate) ->
+], (Backbone, _, draggable, droppable, HasParent, HasProperties, continuum_view, build_views, crossfilter_template, crossfilter_column_template, crossfilter_facet_template) ->
+
   ContinuumView = continuum_view.View
   CloseWrapper = continuum_view.CloseWrapper
+
   class CrossFilterView extends ContinuumView
-    tag : "div"
+    tag: "div"
     attributes:
       class : "bk-crossfilter"
+
     initialize : (options) ->
       super(options)
       @views = {}
@@ -42,9 +40,8 @@ define [
         @columnview.$el.detach();
 
       @$el.empty()
-      html = crossfiltertemplate()
+      html = crossfilter_template()
       @$el.html(html)
-
 
       @filterview = new FilterView(
         el : @$('.bk-filters')
@@ -63,70 +60,50 @@ define [
       @$('.bk-column-list').append(@columnview.el)
 
       @$('.bk-crossfilter-configuration').height(@mget('height'))
-      @$('.bk-crossfilter-configuration').width(500)
+      @$('.bk-crossfilter-configuration').width(400)
       return this
 
   class CrossFilter extends HasParent
-    initialize : (attrs, options) ->
+    default_view: CrossFilterView
+    type: "CrossFilter"
+
+    initialize: (attrs, options) ->
       super(attrs, options)
       @columns = new ColumnCollection()
       @_set_columns()
       @listenTo(this, 'change:columns', @_set_columns)
 
-    _set_columns : () =>
+    _set_columns: () =>
       @columns.reset(@get('columns'))
 
-    type : "CrossFilter"
-    default_view : CrossFilterView
-    defaults :
-      height : 700
-      width : 1300
+    defaults:
+      height: 700
+      width: 1300
 
   class CrossFilters extends Backbone.Collection
-    model : CrossFilter
-
-  crossfilters = new CrossFilters()
+    model: CrossFilter
 
   class PlotAttributeSelector extends ContinuumView
-    initialize : (options) ->
+
+    initialize: (options) ->
       super(options)
-      @listenTo(@model, "change:plot_selector", @render_plot_selector)
-      @listenTo(@model, "change:x_selector", @render_x_selector)
-      @listenTo(@model, "change:y_selector", @render_y_selector)
-      @listenTo(@model, "change:agg_selector", @render_agg_selector)
-      @render_plot_selector()
-      @render_x_selector()
-      @render_y_selector()
-      @render_agg_selector()
+      @listenTo(@model, "change:plot_selector", _.bind(@render_selector, 'plot'))
+      @listenTo(@model, "change:x_selector", _.bind(@render_selector, 'x'))
+      @listenTo(@model, "change:y_selector", _.bind(@render_selector, 'y'))
+      @listenTo(@model, "change:agg_selector", _.bind(@render_selector, 'agg'))
+      @render_selector('plot')
+      @render_selector('x')
+      @render_selector('y')
+      @render_selector('agg')
 
-    render_selector : (node, model) ->
-      node.empty()
-      if model
-        @plot_selector_view = new model.default_view(model : model)
-        node.append(@plot_selector_view.$el)
-
-    render_plot_selector : () ->
-      node = @$('.bk-plot-selector')
-      model = @mget('plot_selector')
-      @render_selector(node, model)
-
-    render_x_selector : () ->
-      node = @$('.bk-x-selector')
-      model = @mget('x_selector')
-      @render_selector(node, model)
-
-    render_y_selector : () ->
-      node = @$('.bk-y-selector')
-      model = @mget('y_selector')
-      @render_selector(node, model)
-
-    render_agg_selector : () ->
-      node = @$('.bk-agg-selector')
-      model = @mget('agg_selector')
-      @render_selector(node, model)
+    render_selector: (selector) ->
+      node = @$(".bk-#{selector}-selector").empty()
+      model = @mget("#{selector}_selector")
+      @plot_selector_view = new model.default_view(model: model)
+      node.append(@plot_selector_view.$el)
 
   class ColumnsView extends Backbone.View
-    initialize : (options) ->
+    initialize: (options) ->
       super(options)
       @views = {}
       @listenTo(@collection, 'all', @render)
@@ -150,7 +127,7 @@ define [
       @name = options.name
       @render()
     render : () ->
-      @$el.html(facetcolumntemplate(name:@name))
+      @$el.html(crossfilter_facet_template(name: @name))
 
   class FacetsView extends ContinuumView
     initialize : (options) ->
@@ -257,7 +234,7 @@ define [
       filtering_columns = @mget('filtering_columns')
       filter_widgets = (filter_widget_dict[col] for col in filtering_columns \
         when filter_widget_dict[col]?)
-      newviews =build_views(@views, filter_widgets)
+      newviews = build_views(@views, filter_widgets)
       _.map(newviews, (view)=>
         @listenTo(view, 'remove', @child_remove)
       )
@@ -276,82 +253,87 @@ define [
       @mset('filtering_columns', newcolumns)
       @model.save()
 
-  class ColumnCollection extends Backbone.Collection
-    model : (attrs, options) ->
-      if attrs.type == 'DiscreteColumn'
-        return new DiscreteColumn(attrs)
-      else if attrs.type == 'TimeColumn'
-        return new TimeColumn(attrs)
-      else
-        return new ContinuousColumn(attrs)
-
   class ColumnView extends ContinuumView
-    attributes :
-      class : "bk-crossfilter-column-entry bk-bs-panel bk-bs-panel-primary"
-    initialize : (options) ->
+
+    template: crossfilter_column_template
+    attributes:
+      class: "bk-crossfilter-column-entry bk-bs-panel bk-bs-panel-primary"
+
+    initialize: (options) ->
       super(options)
       @render()
-    dragging_helper : () =>
-      node = @$el.clone()
-      #node.find('tbody').detach()
-      return node
 
-    render : () ->
+    render: () ->
       @$el.html(@template(@model.attributes))
       @$el.draggable(
         appendTo: 'body',
-        containment : 'document',
-        helper : 'clone',#@dragging_helper,
-        start : (e, ui) =>
+        containment: 'document',
+        helper: 'clone',
+        start: (e, ui) =>
           ui.helper.data('model', @model)
       )
       return this
 
   class TimeColumnView extends ColumnView
 
+  class TimeColumn extends HasProperties
+    default_view: TimeColumnView
+    defaults:
+      type: "TimeColumn"
+      label: "Time"
+      name: ""
+      fields: ['count', 'unique', 'first', 'last']
+      count: 0
+      unique: 0
+      first: 0
+      last: 0
 
   class DiscreteColumnView extends ColumnView
-    template : discretecolumntemplate
-
-  class ContinuousColumnView extends ColumnView
-    template : continuouscolumntemplate
-
-  class TimeColumn extends HasProperties
-    idAttribute : "name"
-    default_view : TimeColumnView
-    defaults:
-      type : "TimeColumn"
-      name : ""
-      count : 0
-      unique : 0
-      first : 0
-      last : 0
 
   class DiscreteColumn extends HasProperties
-    idAttribute : "name"
-    default_view : DiscreteColumnView
+    default_view: DiscreteColumnView
     defaults:
-      type : "DiscreteColumn"
-      name : ""
-      count : 0
-      unique : 0
-      top : 0
-      freq : 0
+      type: "DiscreteColumn"
+      label: "Factor"
+      name: ""
+      fields: ['count', 'unique', 'top', 'freq']
+      count: 0
+      unique: 0
+      top: 0
+      freq: 0
+
+  class ContinuousColumnView extends ColumnView
 
   class ContinuousColumn extends HasProperties
-    idAttribute : "name"
-    default_view : ContinuousColumnView
+    default_view: ContinuousColumnView
     defaults:
-      type : "ContinuousColumn"
-      name : ""
-      count : 0
+      type: "ContinuousColumn"
+      label: "Continuous"
+      name: ""
+      fields: ['count', 'mean', 'std', 'min', 'max']
+      count: 0
       mean: 0
-      std : 0
-      min : 0
-      max : 0
+      std: 0
+      min: 0
+      max: 0
+
+  column_types = {
+    'DiscreteColumn'   : DiscreteColumn
+    'TimeColumn'       : TimeColumn
+    'ContinuousColumn' : ContinuousColumn
+  }
+
+  class ColumnCollection extends Backbone.Collection
+
+    model : (attrs, options) ->
+      if attrs.type of column_types
+        return new column_types[attrs.type](attrs)
+
+      console.log("Unknown column type: '#{attrs.type}'")
+      return null
 
   return {
-    "Model" : CrossFilter
-    "Collection" : crossfilters
-    "View" : CrossFilterView
+    Model: CrossFilter
+    Collection: new CrossFilters()
+    View: CrossFilterView
   }

@@ -139,6 +139,11 @@
   -webkit-border-radius: 3px !important;
 }
 .bk-button-bar > .bk-toolbar-button.active {
+  background: #fff;
+  -box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+  -moz-box-shadow: none !important;
+  outline: none !important;
   border-bottom: 2px solid #26aae1;
 }
 .slides .bokeh_canvas_wrapper_outer {
@@ -168,7 +173,7 @@
           display: block !important;
           width: auto;
         }
-      }      
+      }
     }
   }
 }
@@ -181,7 +186,7 @@
   display: block;
   margin-top: 45px;
   .bk-sidebar {
-    .bk-button-bar > .bk-toolbar-button { 
+    .bk-button-bar > .bk-toolbar-button {
       > span.tip {
         top: 4px;
         left: 40px;
@@ -225,7 +230,7 @@
 .bk-toolbar-button.hover {
   > span.tip {
     left: -48%;
-  } 
+  }
 }
 .bk-toolbar-button.help {
   > span.tip {
@@ -245,6 +250,19 @@
 .slides .bokeh_canvas_wrapper_outer {
   overflow: visible;
 }
+
+.bk-crossfilter-selector {
+  list-style-type: none;
+  -webkit-padding-start: 0px
+}
+
+.bk-crossfilter-selector li {
+  display: inline;
+  margin-bottom: 10px;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
 .bokeh_canvas_wrapper_outer {
   table {
     border: none !important;
