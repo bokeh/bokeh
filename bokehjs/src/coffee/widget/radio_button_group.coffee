@@ -8,7 +8,7 @@ define [
 
   logger = Logging.logger
 
-  class ToggleView extends continuum_view.View
+  class RadioButtonGroupView extends continuum_view.View
 
     initialize: (options) ->
       super(options)
@@ -19,19 +19,19 @@ define [
       @$el.empty()
       return @
 
-  class Toggle extends HasParent
-    type: "Toggle"
-    default_view: ToggleView
+  class RadioButtonGroup extends HasParent
+    type: "RadioButtonGroup"
+    default_view: RadioButtonGroupView
 
     defaults: () ->
       _.extend({}, super(), {
       })
 
-  class Toggles extends Backbone.Collection
-    model: Toggle
+  class RadioButtonGroups extends Backbone.Collection
+    model: RadioButtonGroup
 
   return {
-    Model: Toggle
-    Collection: new Toggles()
-    View: ToggleView
+    Model: RadioButtonGroup
+    Collection: new RadioButtonGroups()
+    View: RadioButtonGroupView
   }

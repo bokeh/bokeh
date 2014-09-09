@@ -8,7 +8,8 @@ define [
 
   logger = Logging.logger
 
-  class ToggleView extends continuum_view.View
+  class CheckboxGroupView extends continuum_view.View
+    tagName: "div"
 
     initialize: (options) ->
       super(options)
@@ -17,21 +18,22 @@ define [
 
     render: () ->
       @$el.empty()
+      @$el.addClass("checkbox")
       return @
 
-  class Toggle extends HasParent
-    type: "Toggle"
-    default_view: ToggleView
+  class CheckboxGroup extends HasParent
+    type: "CheckboxGroup"
+    default_view: CheckboxGroupView
 
     defaults: () ->
       _.extend({}, super(), {
       })
 
-  class Toggles extends Backbone.Collection
-    model: Toggle
+  class CheckboxGroups extends Backbone.Collection
+    model: CheckboxGroup
 
   return {
-    Model: Toggle
-    Collection: new Toggles()
-    View: ToggleView
+    Model: CheckboxGroup
+    Collection: new CheckboxGroups()
+    View: CheckboxGroupView
   }

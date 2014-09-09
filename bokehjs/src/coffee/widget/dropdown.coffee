@@ -8,7 +8,10 @@ define [
 
   logger = Logging.logger
 
-  class ToggleView extends continuum_view.View
+  class DropdownView extends continuum_view.View
+    tagName: "div"
+    events:
+      "click": "change_input"
 
     initialize: (options) ->
       super(options)
@@ -19,19 +22,19 @@ define [
       @$el.empty()
       return @
 
-  class Toggle extends HasParent
-    type: "Toggle"
-    default_view: ToggleView
+  class Dropdown extends HasParent
+    type: "Dropdown"
+    default_view: DropdownView
 
     defaults: () ->
       _.extend({}, super(), {
       })
 
-  class Toggles extends Backbone.Collection
-    model: Toggle
+  class Dropdowns extends Backbone.Collection
+    model: Dropdown
 
   return {
-    Model: Toggle
-    Collection: new Toggles()
-    View: ToggleView
+    Model: Dropdown
+    Collection: new Dropdowns()
+    View: DropdownView
   }

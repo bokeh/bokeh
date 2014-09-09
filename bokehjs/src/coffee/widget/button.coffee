@@ -24,23 +24,25 @@ define [
 
     render: () ->
       @$el.empty()
-      @$el.text(@mget("text"))
       @$el.addClass("btn")
       @$el.addClass("btn-" + @mget("type"))
-      if @mget("disabled")
-        @$el.attr("disabled", "disabled")
+      if @mget("disabled") then @$el.attr("disabled", "disabled")
+
+      @$el.text(@mget("label"))
+
       return @
 
   class Button extends HasParent
     type: "Button"
     default_view: ButtonView
 
-    defaults: () -> {
-      clicks: 0
-      text: "Button"
-      type: "default"
-      disabled: false
-    }
+    defaults: () ->
+      _.extend({}, super(), {
+        clicks: 0
+        label: "Button"
+        type: "default"
+        disabled: false
+      })
 
   class Buttons extends Backbone.Collection
     model: Button

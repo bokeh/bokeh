@@ -17,27 +17,40 @@ logger = logging.getLogger(__name__)
 import pandas as pd
 
 class AbstractButton(Widget):
+    label = String("Button")
     type = Enum(ButtonType)
-    disabled = Bool(False)
 
 class Button(AbstractButton):
     clicks = Int(0)
-    text = String("Button")
 
     def on_click(self, handler):
         self.on_change('clicks', lambda obj, attr, old, new: handler())
 
 class Toggle(AbstractButton):
     active = Bool(False)
-    text = String("Button")
 
-class ButtonGroup(AbstractButton):
-    texts = List(String)
+    def on_click(self, handler):
+        self.on_change('clicks', lambda obj, attr, old, new: handler(new))
 
-class CheckboxButtons(ButtonGroup):
+class Dropdown(AbstractButton):
+    pass
+
+class Group(Widget):
+    labels = List(String)
+
+class ButtonGroup(Group):
+    type = Enum(ButtonType)
+
+class CheckboxGroup(Group):
     active = List(Int)
 
-class RadioButtons(ButtonGroup):
+class RadioGroup(Group):
+    active = Int(None)
+
+class CheckboxButtonGroup(ButtonGroup):
+    active = List(Int)
+
+class RadioButtonGroup(ButtonGroup):
     active = Int(None)
 
 class Panel(Widget):

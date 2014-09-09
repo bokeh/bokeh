@@ -333,7 +333,7 @@ class Glyph(Renderer):
         return props
 
 class Widget(PlotObject):
-    pass
+    disabled = Bool(False)
 
 class Canvas(PlotObject):
     # TODO (bev) remove default dims here, see #561
