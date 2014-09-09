@@ -8,7 +8,7 @@ from bokeh.plotting import (curdoc, cursession, line,
                             scatter)
 from .properties import (HasProps, Dict, Enum, Either, Float, Instance, Int, List,
     String, Color, Bool, Tuple, Any, Date, RelativeDelta, lookup_descriptor)
-from .enums import ColumnType, ButtonType
+from .enums import ColumnType, ButtonType, NamedIcon
 from .pivot_table import pivot_table
 import copy
 import logging
@@ -16,8 +16,18 @@ logger = logging.getLogger(__name__)
 
 import pandas as pd
 
+class AbstractIcon(Widget):
+    pass
+
+class Icon(AbstractIcon):
+    name = Enum(NamedIcon)
+    size = Float(None)
+    flip = Enum("horizontal", "vertical", default=None)
+    spin = Bool(False)
+
 class AbstractButton(Widget):
     label = String("Button")
+    icon = Instance(AbstractIcon)
     type = Enum(ButtonType)
 
 class Button(AbstractButton):

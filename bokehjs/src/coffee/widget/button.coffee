@@ -3,8 +3,9 @@ define [
   "backbone"
   "common/continuum_view"
   "common/has_parent"
+  "common/build_views"
   "common/logging"
-], (_, Backbone, continuum_view, HasParent, Logging) ->
+], (_, Backbone, continuum_view, HasParent, build_views, Logging) ->
 
   logger = Logging.logger
 
@@ -19,16 +20,24 @@ define [
 
     initialize: (options) ->
       super(options)
+      @views = {}
       @render()
       @listenTo(@model, 'change', @render)
 
     render: () ->
+      icon = @mget('icon')
+      if icon?
+        build_views(@views, [icon])
+        for own key, val of @views
+          val.$el.detach()
+
       @$el.empty()
       @$el.addClass("btn")
       @$el.addClass("btn-" + @mget("type"))
       if @mget("disabled") then @$el.attr("disabled", "disabled")
 
       @$el.text(@mget("label"))
+      if icon? then @$el.prepend(@views[icon.id].$el)
 
       return @
 

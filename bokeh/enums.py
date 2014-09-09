@@ -2,7 +2,7 @@
 
 from six import string_types
 
-from . import colors
+from . import colors, icons
 
 class Enumeration(object):
     pass
@@ -40,3 +40,4 @@ DashPattern = enumeration("solid", "dashed", "dotted", "dotdash", "dashdot")
 ColumnType = enumeration("string", "numeric", "date", "checkbox", "select", "dropdown", "autocomplete", "password", "handsontable")
 ButtonType = enumeration("default", "primary", "success", "warning", "danger", "link")
 NamedColor = enumeration(*colors.__colors__)
+NamedIcon = enumeration(*icons.__icons__)
