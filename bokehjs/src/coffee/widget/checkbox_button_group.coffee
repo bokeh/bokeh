@@ -1,14 +1,24 @@
 define [
   "underscore"
   "backbone"
+  "jquery"
+  "bootstrap/button"
   "common/continuum_view"
   "common/has_parent"
   "common/logging"
-], (_, Backbone, continuum_view, HasParent, Logging) ->
+], (_, Backbone, $, $1, continuum_view, HasParent, Logging) ->
 
   logger = Logging.logger
 
   class CheckboxButtonGroupView extends continuum_view.View
+    tagName: "div"
+    events:
+      "change input": "change_input"
+
+    change_input: () ->
+      active = (i for checkbox, i in @$("input") when checkbox.checked)
+      @mset('active', active)
+      @model.save()
 
     initialize: (options) ->
       super(options)
@@ -19,12 +29,34 @@ define [
       @$el.empty()
       return @
 
+    render: () ->
+      @$el.empty()
+
+      @$el.addClass("bk-bs-btn-group")
+      @$el.attr("data-bk-bs-toggle", "buttons")
+
+      active = @mget("active")
+      for label, i in @mget("labels")
+        $input = $('<input type="checkbox">').attr(value: "#{i}")
+        if i in active then $input.prop("checked", true)
+        $label = $('<label class="bk-bs-btn"></label>')
+        $label.text(label).prepend($input)
+        $label.addClass("bk-bs-btn-" + @mget("type"))
+        if i in active then $label.addClass("bk-bs-active")
+        @$el.append($label)
+
+      return @
+
   class CheckboxButtonGroup extends HasParent
     type: "CheckboxButtonGroup"
     default_view: CheckboxButtonGroupView
 
     defaults: () ->
       _.extend({}, super(), {
+        active: []
+        labels: []
+        type: "default"
+        disabled: false
       })
 
   class CheckboxButtonGroups extends Backbone.Collection

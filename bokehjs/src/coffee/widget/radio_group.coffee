@@ -49,6 +49,10 @@ define [
 
     defaults: () ->
       _.extend({}, super(), {
+        active: null
+        labels: []
+        inline: false
+        disabled: false
       })
 
   class RadioGroups extends Backbone.Collection

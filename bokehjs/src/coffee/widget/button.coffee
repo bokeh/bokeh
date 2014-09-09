@@ -49,6 +49,7 @@ define [
       _.extend({}, super(), {
         clicks: 0
         label: "Button"
+        icon: null
         type: "default"
         disabled: false
       })

@@ -48,6 +48,10 @@ define [
 
     defaults: () ->
       _.extend({}, super(), {
+        active: []
+        labels: []
+        inline: false
+        disabled: false
       })
 
   class CheckboxGroups extends Backbone.Collection

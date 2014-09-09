@@ -39,6 +39,10 @@ define [
 
     defaults: () ->
       _.extend({}, super(), {
+        name: ""
+        size: null
+        flip: null
+        spin: false
       })
 
   class Icons extends Backbone.Collection
