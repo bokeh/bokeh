@@ -46,7 +46,7 @@ abstract rendering is imported as ``import bokeh.transforms.ar_downsample as ar`
 Recipes Interface
 ---------------------
 
-Abstract rendering recipes provide direct access to common abstract
+Abstract rendering recipes provide simplified access to common abstract
 rendering operations.  The recipes interface is declarative,
 in that a high-level operation is requested and the abstract rendering
 system constructs the proper low-level function combinations.  
@@ -62,11 +62,11 @@ The basic process is that each bin collects the count of the number of items
 that fall into the bin.  After that, a color scale is constructed that ensures
 the full range of the data covers is covered by the color scale.
 
-Heatmap is applicable when there is only one category and when the number of items
-at a given location is of interest.  In many ways, it is a replacement for 
+Heatmap is applicable when there is only one category and when the spatial
+distribution of items is of interest. In many ways, it is a replacement for 
 alpha composition, but more flexible.  It should be used when the dynamic
-range of color composition of the visualization is essential to interpretation
-and there is only one category. The color scale can be perceptually corrected
+range of color composition of the visualization is essential to interpretation. 
+The color scale can be perceptually corrected
 and include a large step from  zero items to many (to ensure visibility of outliers).
 
 Example heatmap::
@@ -125,15 +125,14 @@ Additionally, the composition between categories is also controlled to prevent o
 
 Example application of hdalpha::
 
-  import bokeh.transforms.ar_downsample as ar
   source = ServerDataSource(data_url="fn://gauss", owner_username="defaultuser")
   plot = square('oneA', 'oneB', color='cats', source=source)
   ar.hdalpha(plot, spread=5, title="Multiple categories")
 
 The parameters for hdalpha are the same as for contours, except
-that instead of determining the number of contours, palette determines
-the number of categories.  If more categories are found than colors provided,
-all 'extra' categories are combined into the last category. 
+that ``palette`` determines the number categories instead of the number
+of contours.  If more categories are found than colors provided,
+all additional categories are combined into the last category. 
 
 
 Functions Interface
@@ -175,7 +174,7 @@ Shaders transform sets of bins.  The most common target is a new set of bins.
 The output set of bins may be anything, though numbers and colors
 are the most common.  Shader chains that end in grids of numbers rely
 on the BokehJS client to do coloring.  Any chain that results in a grid of bins can be
-extended with additional shaders.  In constrast, the Contours shader produces sets of lines
+extended with additional shaders.  In contrast, the Contours shader produces sets of lines
 instead of a new grid of bins. 
 
 Here is a re-creation of the heatmap_ recipe using the functions interface::
@@ -199,7 +198,18 @@ the docstrings for details.  The above example is also found
 in abstractrender.py (in examples/plotting/server).
 
 
+Publications
+---------------
+Abstract rendering is also an active research project.  If you would like more
+information,  the follow publications provide information on the experimental system
+and the capabilities that may eventually be included in Bokeh through abstract rendering.
 
+* `Abstract Rendering: Out-of-core Rendering for Information Visualization  
+  <http://www.crest.iu.edu/publications/prints/2014/Cottam2014OutOfCore.pdf>`_
+  (SPIE Conference on Visualization and Data Analysis 2014)
+* `Overplotting: Unified solutions under Abstract Rendering  
+  <http://www.crest.iu.edu/publications/prints/2013/Cottam2013AR.pdf>`_
+  (The first workshop on Big Data Visualization, IEEE Big Data 2012)
 Limitations
 --------------
 - Abstract rendering fully supports circle and square glyph types 
