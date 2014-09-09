@@ -1,6 +1,11 @@
-<div class="bk-bs-panel-heading bk-crossfilter-panel-heading">
-  <%= @label %>: <%= @name %>
+<% if @label=="Continuous": %>
+<div class="bk-bs-panel-heading bk-crossfilter-panel-heading bk-crossfilter-panel-continuous-heading">
+<% else: %>
+<div class="bk-bs-panel-heading bk-crossfilter-panel-heading bk-crossfilter-panel-factor-heading">
+<% end %>
+  <%= @name %> <span style="font-size:x-small;">(<%= @label %>)</span>
 </div>
+
 
 <div class="bk-bs-panel-body">
 
