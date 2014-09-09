@@ -59,8 +59,8 @@ rect('year', 'month', 0.95, 0.95, source=source,
 #   - make the tick labels smaller
 #   - set the x-axis orientation to vertical, or angled
 
-# EXERCISE: configure the  hover tool to display the month, year and rate
-hover = [t for t in curplot().tools if isinstance(t, HoverTool)][0]
+# EXERCISE: configure the hover tool to display the month, year and rate
+hover = curplot().select(dict(type=HoverTool))
 hover.tooltips = OrderedDict([
     # fill me in
 ])
