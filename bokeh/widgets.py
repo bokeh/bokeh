@@ -43,7 +43,12 @@ class Toggle(AbstractButton):
         self.on_change('active', lambda obj, attr, old, new: handler(new))
 
 class Dropdown(AbstractButton):
-    pass
+    action = String
+    default_action = String
+    menu = List(Tuple(String, String))
+
+    def on_click(self, handler):
+        self.on_change('action', lambda obj, attr, old, new: handler(new))
 
 class AbstractGroup(Widget):
     labels = List(String)
