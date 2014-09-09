@@ -25,8 +25,8 @@ General Questions
     `consult Wikipedia <http://en.wikipedia.org/wiki/Bokeh>`_ or an actual
     Japanese person.
 
-*Why did you start writing a new plotting library?
---------------------------------------------------
+*Why did you start writing a new plotting library?*
+---------------------------------------------------
 
     There are a number of reasons why we wrote a new Python library, but they
     all hinge on maximizing flexibility for exploring new design spaces for
@@ -56,8 +56,8 @@ General Questions
     Please see :ref:`contact` and get in touch with the dev team if you have
     ideas along these lines.
 
-*Can I incorporate Bokeh into my proprietary app or platform?
--------------------------------------------------------------
+*Can I incorporate Bokeh into my proprietary app or platform?*
+--------------------------------------------------------------
 
     We are happy for people to do this.  We do appreciate an attribution, and
     we also would like to receive feedback about how it's working out for your

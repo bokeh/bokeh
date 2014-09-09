@@ -48,6 +48,7 @@ and generate optimized and minified ``bokeh.js`` and ``bokeh.css`` files.
 You can download and install Node.js directly, or use
 `conda <http://conda.pydata.org/>`_ to install Node.js
 from the Bokeh channel on `Binstar <https://binstar.org>`_::
+
     $ conda install -c bokeh nodejs
 
 .. note:: The following commands should be executed in the ``bokehjs``
