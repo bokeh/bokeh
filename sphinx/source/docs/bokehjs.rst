@@ -359,7 +359,7 @@ upside-down triangles at the given coordinates.
 * :ref:`bokehjs_line_properties`
 * :ref:`bokehjs_fill_properties`
 
-.. image:: ../_images/bokehjs_glyphs/image_url.png
+.. image:: ../_images/bokehjs_glyphs/inverted_triangle.png
     :height: 300px
     :alt: Click to view JSFiddle
     :target: http://jsfiddle.net/bokeh/EMEJw/

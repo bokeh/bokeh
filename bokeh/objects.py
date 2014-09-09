@@ -127,22 +127,13 @@ class ServerDataSource(DataSource):
     # TODO: Find/create a property type for 'any primitive/atomic value'
     transform = Dict(String,Either(Instance(PlotObject), Any))
 
-
-class PandasDataSource(DataSource):
-    """ Represents serverside data.  This gets stored into the plot server's
-    database, but it does not have any client side representation.  Instead,
-    a PandasPlotSource needs to be created and pointed at it.
-    """
-
-    data = Dict(String, Any)
-
 class Range(PlotObject):
     pass
 
 class Range1d(Range):
     """ Represents a fixed range [start, end] in a scalar dimension. """
-    start = Either(Float, Datetime)
-    end = Either(Float, Datetime)
+    start = Either(Float, Datetime, Int)
+    end = Either(Float, Datetime, Int)
 
 class DataRange(Range):
     sources = List(Instance(ColumnsRef))
@@ -768,11 +759,6 @@ class Legend(Renderer):
     legend_padding = Int(10)
     legend_spacing = Int(3)
     legends = Dict(String, List(Instance(Glyph)))
-
-class DataSlider(Renderer):
-    plot = Instance(Plot)
-    data_source = Instance(DataSource)
-    field = String()
 
 class PlotContext(PlotObject):
     """ A container for multiple plot objects. """

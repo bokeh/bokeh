@@ -19,6 +19,10 @@ class WebSocketHandler(websocket.WebSocketHandler):
     def manager(self):
         return self.application.wsmanager
 
+    #accept all domains for now.. maybe rethink this later?
+    def check_origin(self, origin):
+        return True
+
     def open(self):
         ## TODO - set client id to continuum client id
         self.clientid = str(uuid.uuid4())
