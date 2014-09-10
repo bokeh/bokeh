@@ -148,8 +148,14 @@ def get_version_from_git(ref=None):
         write("Failed to get version for %s" % ref)
         sys.exit(1)
 
-    version, _, sha1 = proc.stdout.read().decode('utf-8').strip().split("-")
-    return "%s-%s" % (version, sha1[1:])
+    version = proc.stdout.read().decode('utf-8').strip()
+
+    try:
+        tag, _, sha1 = version.split("-")
+    except ValueError:
+        return version
+    else:
+        return "%s-%s" % (tag, sha1[1:])
 
 __version__ = get_version_from_git()
 write("%s Bokeh version: %s" % (green(">>>"), __version__))
