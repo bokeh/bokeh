@@ -36,11 +36,18 @@ def get_data(username, docid, datasourceid):
     serverdatasource = clientdoc._models[datasourceid]
     parameters = json.loads(request.values.get('resample_parameters'))
     plot_state = json.loads(request.values.get('plot_state'))
+    render_state = json.loads(request.values.get('render_state')) if 'render_state' in request.values else None
 
     #TODO: Desserializing directly to ranges....awk-ward.  There is probably a better way via the properties system that detects type...probably... 
     plot_state=dict([(k, Range1d.load_json(r)) for k,r in iteritems(plot_state)])
 
-    result = bokeh_app.datamanager.get_data(request_username, serverdatasource, parameters, plot_state)
+    result = bokeh_app.datamanager.get_data(
+            request_username, 
+            serverdatasource, 
+            parameters, 
+            plot_state, 
+            render_state)
+
     result = make_json(protocol.serialize_json(result))
     return result
 

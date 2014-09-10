@@ -66,13 +66,13 @@ def make_plot(title, xname, yname):
     plot.add_layout(Grid(dimension=1, ticker=yaxis.ticker))
 
     line = Line(x='x', y='y', line_color="#666699", line_width=2)
-    plot.add_glyph(lines_source, xdr, ydr, line)
+    plot.add_glyph(lines_source, line)
 
     circle = Circle(
         x=xname, y=yname, size=12,
         fill_color="#cc6633", line_color="#cc6633", fill_alpha=0.5
     )
-    plot.add_glyph(circles_source, xdr, ydr, circle)
+    plot.add_glyph(circles_source, circle)
 
     return plot
 

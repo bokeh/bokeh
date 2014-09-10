@@ -31,10 +31,10 @@ def make_plot():
     plot = Plot(title="Product downloads", x_range=xdr, y_range=ydr, plot_width=400, plot_height=400)
 
     line = Line(x="dates", y="downloads", line_color="blue")
-    plot.add_glyph(source, xdr, ydr, line)
+    plot.add_glyph(source, line)
 
     circle = Circle(x="dates", y="downloads", fill_color="red")
-    plot.add_glyph(source, xdr, ydr, circle)
+    plot.add_glyph(source, circle)
 
     xaxis = DatetimeAxis()
     plot.add_layout(xaxis, 'below')
@@ -52,8 +52,8 @@ def make_plot():
 def make_ui():
     plot, source = make_plot()
     columns = [
-        TableColumn(data="dates", type="date", header="Date"),
-        TableColumn(data="downloads", type="numeric", header="Downloads"),
+        TableColumn(field="dates", type="date", header="Date"),
+        TableColumn(field="downloads", type="numeric", header="Downloads"),
     ]
     data_table = HandsonTable(source=source, columns=columns)
     vbox = VBox(children=[plot, data_table])

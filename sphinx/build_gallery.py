@@ -33,7 +33,11 @@ def page_desc(module_desc):
         eval(code, namespace)
 
     if var_name:
-        objs = [namespace[var_name]]
+        if 'chart' in module_desc['file']:
+            obj = namespace[var_name]
+            objs = [obj.chart.plot]
+        else:
+            objs = [namespace[var_name]]
     else:
         objs = plotting.curdoc().context.children
 

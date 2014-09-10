@@ -164,7 +164,7 @@ class BokehRenderer(Renderer):
         if self.xkcd:
             line.line_width = 3
 
-        self.plot.add_glyph(self.source, self.xdr, self.ydr, line)
+        self.plot.add_glyph(self.source, line)
 
     def draw_markers(self, data, coordinates, style, label, mplobj=None):
         "Given a mpl line2d instance create a Bokeh Marker glyph."
@@ -197,7 +197,7 @@ class BokehRenderer(Renderer):
         marker.fill_alpha = marker.line_alpha = style['alpha']
         #style['zorder'] # not in Bokeh
 
-        self.plot.add_glyph(self.source, self.xdr, self.ydr, marker)
+        self.plot.add_glyph(self.source, marker)
 
     def draw_path_collection(self, paths, path_coordinates, path_transforms,
                              offsets, offset_coordinates, offset_order,
@@ -233,7 +233,7 @@ class BokehRenderer(Renderer):
         #if mplText.get_weight() in ("bold", "heavy"):
             #text.text_font_style = bold
 
-        self.plot.add_glyph(self.source, self.xdr, self.ydr, text)
+        self.plot.add_glyph(self.source, text)
 
     def draw_image(self, imdata, extent, coordinates, style, mplobj=None):
         pass
@@ -305,7 +305,7 @@ class BokehRenderer(Renderer):
 
         self.multiline_props(multiline, col)
 
-        self.plot.add_glyph(self.source, self.xdr, self.ydr, multiline)
+        self.plot.add_glyph(self.source, multiline)
 
     def make_poly_collection(self, col):
         "Given a mpl collection instance create a Bokeh Patches glyph."
@@ -323,7 +323,7 @@ class BokehRenderer(Renderer):
 
         self.patches_props(patches, col)
 
-        self.plot.add_glyph(self.source, self.xdr, self.ydr, patches)
+        self.plot.add_glyph(self.source, patches)
 
     def multiline_props(self, multiline, col):
         "Takes a mpl collection object to extract and set up some Bokeh multiline properties."

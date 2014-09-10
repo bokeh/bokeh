@@ -27,7 +27,8 @@ define [
     evgen_options:
       keyName: "shiftKey"
       buttonText: "Select"
-      buttonIcon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAcCAYAAAByDd+UAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEgAACxIB0t1+/AAAABx0RVh0U29mdHdhcmUAQWRvYmUgRmlyZXdvcmtzIENTNui8sowAAAE1SURBVEiJ7ZXNUcQwDIU/7VDA3rnkQAF0QEpJCZSQEihhSxEFMLMlmA44cH8col2CsVlCfmYPvJlMLMnjJ8mSbJLYErtN2a6BsAPczM5roAvZJ9ruS4Q3BV0a/X0ke7anZvMgLcLGRRMeLoZSQe6yDZ2kpwWIXFIxpfkdNlRyPxEPwL7mzfhrap5NgaRW0j47G0nbt0XuQS/JFzhTEeXFCBNwnEsIPANvJcN/W/wV19MWpVk6G2bmQfzNVnotZt1h1IHXaiGPMDG/LRqGOyziC6GZHWaSXYRlee6A1sw6SQ2Dt8nMkqQ2nPKCrePzDbwDboF34CV0R+ARKI42hb6PEdWHrB9sJ7kGP3EsMmki+jbEluEOX4FD6NJ5PY5wCYyidf1ieK+ONRrf459KxrxKV8fmKf0AQEJj/A0qfJ8AAAAASUVORK5CYII="
+      buttonHook: "select"
+      buttonIcon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAgCAYAAAB6kdqOAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyRpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYxIDY0LjE0MDk0OSwgMjAxMC8xMi8wNy0xMDo1NzowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNS4xIE1hY2ludG9zaCIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDpBODVDNDBCRjIwQjMxMUU0ODREQUYzNzM5QTM2MjBCRSIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDpBODVDNDBDMDIwQjMxMUU0ODREQUYzNzM5QTM2MjBCRSI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkE4NUM0MEJEMjBCMzExRTQ4NERBRjM3MzlBMzYyMEJFIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOkE4NUM0MEJFMjBCMzExRTQ4NERBRjM3MzlBMzYyMEJFIi8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+hdQ7dQAAAJdJREFUeNpiXLhs5X8GBPgIxAJQNjZxfiD+wIAKGCkUZ0SWZGIYZIAF3YVoPkEHH6kojhUMyhD6jydEaAlgaWnwh9BAgf9DKpfxDxYHjeay0Vw2bHMZw2guG81lwyXKRnMZWlt98JdDTFAX/x9NQwPkIH6kGMAVEyjyo7lstC4jouc69Moh9L42rlyBTZyYXDS00xBAgAEAqsguPe03+cYAAAAASUVORK5CYII="
       cursor: "crosshair"
       restrict_to_innercanvas: true
 
@@ -64,13 +65,13 @@ define [
         xrange = [@mget('start_vx'), @mget('current_vx')]
         xrange = [_.min(xrange), _.max(xrange)]
       else
-        range = @plot_view.view_state.get('h_range')
+        range = @plot_view.frame.get('h_range')
         xrange = [range.get('start'), range.get('end')]
       if @mget('select_y')
         yrange = [@mget('start_vy'), @mget('current_vy')]
         yrange = [_.min(yrange), _.max(yrange)]
       else
-        range = @plot_view.view_state.get('v_range')
+        range = @plot_view.frame.get('v_range')
         yrange = [range.get('start'), range.get('end')]
       return [xrange, yrange]
 
@@ -84,7 +85,7 @@ define [
       if @select_every_mousemove
         @_select_data()
 
-      @plot_view._render_levels(@plot_view.ctx, ['overlay'], true)
+      @plot_view._render_levels(@plot_view.canvas_view.ctx, ['overlay'])
       return null
 
     _dragend : () ->

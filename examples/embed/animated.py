@@ -6,7 +6,7 @@ import bokeh.embed as embed
 
 import time
 from numpy import pi, cos, sin, linspace, roll, zeros_like
-from bokeh.objects import Glyph, Range1d
+from bokeh.objects import Glyph
 
 N = 50 + 1
 r_base = 8
@@ -22,17 +22,16 @@ cx = cy = zeros_like(rmin)
 
 output_server("animated")
 
+figure(x_range=[-11, 11], y_range=[-11, 11], tools="pan,wheel_zoom,box_zoom,reset,previewsave")
+
 hold()
 
 plot = annular_wedge(
     cx, cy, rmin, rmax, theta[:-1], theta[1:],
-    x_range=Range1d(start=-11, end=11),
-    y_range=Range1d(start=-11, end=11),
     inner_radius_units="data",
     outer_radius_units="data",
     fill_color=colors,
     line_color="black",
-    tools="pan,wheel_zoom,box_zoom,reset,previewsave"
 )
 
 tag = embed.autoload_server(plot, cursession())

@@ -51,10 +51,10 @@ ydr = DataRange1d(sources=[state_source.columns("state_ys")])
 plot = Plot(x_range=xdr, y_range=ydr, min_border=0, border_fill="white", title="2009 Unemployment Data", plot_width=1300, plot_height=800)
 
 county_patches = Patches(xs="county_xs", ys="county_ys", fill_color="county_colors", fill_alpha=0.7, line_color="white", line_width=0.5)
-plot.add_glyph(county_source, xdr, ydr, county_patches)
+plot.add_glyph(county_source, county_patches)
 
 state_patches = Patches(xs="state_xs", ys="state_ys", fill_alpha=0.0, line_color="#884444", line_width=2)
-plot.add_glyph(state_source, xdr, ydr, state_patches)
+plot.add_glyph(state_source, state_patches)
 
 plot.add_tools(ResizeTool())
 

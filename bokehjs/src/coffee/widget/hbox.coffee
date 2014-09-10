@@ -20,6 +20,10 @@ define [
       for own key, val of @views
         val.$el.detach()
       @$el.empty()
+      width = @mget("width")
+      if width? then @$el.css(width: width + "px")
+      height = @mget("height")
+      if height? then @$el.css(height: height + "px")
       for child in children
         @$el.append(@views[child.id].$el)
 
