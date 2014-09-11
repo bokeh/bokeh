@@ -8,13 +8,72 @@ from bokeh.plotting import (curdoc, cursession, line,
                             scatter)
 from .properties import (HasProps, Dict, Enum, Either, Float, Instance, Int, List,
     String, Color, Bool, Tuple, Any, Date, RelativeDelta, lookup_descriptor)
-from .enums import ColumnType
+from .enums import ColumnType, ButtonType, NamedIcon
 from .pivot_table import pivot_table
 import copy
 import logging
 logger = logging.getLogger(__name__)
 
 import pandas as pd
+
+class AbstractIcon(Widget):
+    pass
+
+class Icon(AbstractIcon):
+    name = Enum(NamedIcon)
+    size = Float(None)
+    flip = Enum("horizontal", "vertical", default=None)
+    spin = Bool(False)
+
+class AbstractButton(Widget):
+    label = String("Button")
+    icon = Instance(AbstractIcon)
+    type = Enum(ButtonType)
+
+class Button(AbstractButton):
+    clicks = Int(0)
+
+    def on_click(self, handler):
+        self.on_change('clicks', lambda obj, attr, old, new: handler())
+
+class Toggle(AbstractButton):
+    active = Bool(False)
+
+    def on_click(self, handler):
+        self.on_change('active', lambda obj, attr, old, new: handler(new))
+
+class Dropdown(AbstractButton):
+    action = String
+    default_action = String
+    menu = List(Tuple(String, String))
+
+    def on_click(self, handler):
+        self.on_change('action', lambda obj, attr, old, new: handler(new))
+
+class AbstractGroup(Widget):
+    labels = List(String)
+    # active = AbstractProperty
+
+    def on_click(self, handler):
+        self.on_change('active', lambda obj, attr, old, new: handler(new))
+
+class Group(AbstractGroup):
+    inline = Bool(False)
+
+class ButtonGroup(AbstractGroup):
+    type = Enum(ButtonType)
+
+class CheckboxGroup(Group):
+    active = List(Int)
+
+class RadioGroup(Group):
+    active = Int(None)
+
+class CheckboxButtonGroup(ButtonGroup):
+    active = List(Int)
+
+class RadioButtonGroup(ButtonGroup):
+    active = Int(None)
 
 class Panel(Widget):
     title = String
