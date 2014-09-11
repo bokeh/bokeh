@@ -1,5 +1,6 @@
 from __future__ import print_function
 
+from bokeh.browserlib import view
 from bokeh.document import Document
 from bokeh.session import Session
 from bokeh.widgets import (
@@ -81,4 +82,6 @@ session.store_document(document)
 if __name__ == "__main__":
     link = session.object_link(document.context)
     print("Please visit %s to see the plots" % link)
+    view(link)
     session.poll_document(document)
+    

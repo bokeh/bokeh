@@ -78,6 +78,7 @@ session.store_document(document)
 
 if __name__ == "__main__":
     link = session.object_link(document.context)
+    view(link)
     print("Please visit %s to see the plots" % link)
 
     try:
