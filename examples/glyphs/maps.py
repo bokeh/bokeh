@@ -20,6 +20,7 @@ plot = GMapPlot(
     map_options=map_options,
     title = "Austin"
 )
+plot.map_options.map_type="hybrid"
 
 source = ColumnDataSource(
     data=dict(

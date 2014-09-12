@@ -59,12 +59,18 @@ define [
       @initial_zoom = @mget('map_options').zoom
 
       build_map = () =>
+        map_types = {
+          "satellite": google.maps.MapTypeId.SATELLITE,
+          "terrain": google.maps.MapTypeId.TERRAIN,
+          "roadmap": google.maps.MapTypeId.ROADMAP,
+          "hybrid": google.maps.MapTypeId.HYBRID
+        }
         mo = @mget('map_options')
         map_options =
           center: new google.maps.LatLng(mo.lat, mo.lng)
           zoom:mo.zoom
           disableDefaultUI: true
-          mapTypeId: google.maps.MapTypeId.SATELLITE
+          mapTypeId: map_types[mo.map_type]
 
         # Create the map with above options in div
         @map = new google.maps.Map(@canvas_view.map_div[0], map_options)

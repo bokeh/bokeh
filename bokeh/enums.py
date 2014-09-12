@@ -41,3 +41,4 @@ ColumnType = enumeration("string", "numeric", "date", "checkbox", "select", "dro
 ButtonType = enumeration("default", "primary", "success", "warning", "danger", "link")
 NamedColor = enumeration(*colors.__colors__)
 NamedIcon = enumeration(*icons.__icons__)
+MapType = enumeration("satellite", "roadmap", "terrain", "hybrid")
