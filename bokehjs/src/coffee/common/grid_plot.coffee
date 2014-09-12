@@ -42,6 +42,7 @@ define [
       childmodels = []
       for row in @mget('children')
         for plot in row
+          plot.set('toolbar_location', null)
           childmodels.push(plot)
       build_views(@childviews, childmodels, {})
       @set_child_view_states()
