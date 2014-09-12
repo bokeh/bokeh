@@ -88,7 +88,6 @@ class SlidersApp(HBox):
             return
         self.text.on_change('value', self, 'input_change')
         for w in ["offset", "amplitude", "phase", "freq"]:
-            print self.offset
             getattr(self, w).on_change('value', self, 'input_change')
 
     def input_change(self, obj, attrname, old, new):

@@ -21,16 +21,18 @@ requirements:
     - requests
     - dateutil
     - pyyaml
+    - pyzmq
+    - tornado
 
     # server
     - flask
     - werkzeug
     - greenlet
-    - redis                [linux or osx]
-    - redis-py             [linux or osx]
+    # - redis                [linux or osx]
+    # - redis-py             [linux or osx]
     - gevent               [py2k]
     - gevent-websocket     [py2k]
-    - abstract-rendering   [py2k]
+    # - abstract-rendering   [py2k]
 
 test:
   requires:
@@ -56,7 +58,7 @@ test:
 
     # examples
     - scipy
-    - matplotlib <1.4.0
+    - matplotlib
     - sympy
     - ggplot
     - seaborn

@@ -92,10 +92,6 @@ define [
     _drag: (e) ->
       @plot_view.pause()
 
-      [@x, @y] = @mouse_coords(e, e.bokehX, e.bokehY)
-      data_x = sprintf("%.4f", @plot_view.xmapper.map_from_target(x))
-      data_y = sprintf("%.4f", @plot_view.ymapper.map_from_target(y))
-      @popup.text("x: #{data_x} y: #{data_y}")
       @request_render()
       @plot_view.request_render()
       @plot_view.unpause(true)

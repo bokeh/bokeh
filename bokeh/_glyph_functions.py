@@ -82,6 +82,12 @@ def _glyph_function(glyphclass, dsnames, argnames, docstring, xfields=["x"], yfi
             nonselection_glyph=nonselection_glyph,
             name=name)
 
+        # TODO (bev) hacky, fix up when glyphspecs are simplified/removed
+        if 'x_range_name' in kwargs:
+            glyph_renderer.x_range_name = kwargs['x_range_name']
+        if 'y_range_name' in kwargs:
+            glyph_renderer.y_range_name = kwargs['y_range_name']
+
         if legend_name:
             legend = _get_legend(plot)
             if not legend:
@@ -116,7 +122,7 @@ Args:
     direction ("clock" or "anticlock", optional): direction to turn between starting and ending angles, defaults to "anticlock"
 
 In addition the the parameters specific to this glyph,
-:ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
+:ref:`userguide_objects_line_properties` and :ref:`userguide_objects_fill_properties`
 are also accepted as keyword parameters.
 
 Returns:
@@ -134,7 +140,7 @@ Args:
     outer_radius (str or list[float]) : values or field names of outer radii
 
 In addition the the parameters specific to this glyph,
-:ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
+:ref:`userguide_objects_line_properties` and :ref:`userguide_objects_fill_properties`
 are also accepted as keyword parameters.
 
 Returns:
@@ -154,7 +160,7 @@ Args:
     direction ("clock" or "anticlock", optional): direction to turn between starting and ending angles, defaults to "anticlock"
 
 In addition the the parameters specific to this glyph,
-:ref:`userguide_line_properties`
+:ref:`userguide_objects_line_properties`
 are also accepted as keyword parameters.
 
 Returns:
@@ -171,7 +177,7 @@ Args:
     size (str or list[float]) : values or field names of sizes in screen units
 
 In addition the the parameters specific to this glyph,
-:ref:`userguide_line_properties`
+:ref:`userguide_objects_line_properties`
 are also accepted as keyword parameters.
 
 Returns:
@@ -193,7 +199,7 @@ Args:
     cy1 (str or list[float]) : values or field names of second control point `y` coordinates
 
 In addition the the parameters specific to this glyph,
-:ref:`userguide_line_properties`
+:ref:`userguide_objects_line_properties`
 are also accepted as keyword parameters.
 
 Returns:
@@ -211,7 +217,7 @@ Args:
     radius (str  or list[float], optional): values or field names of radii
 
 In addition the the parameters specific to this glyph,
-:ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
+:ref:`userguide_objects_line_properties` and :ref:`userguide_objects_fill_properties`
 are also accepted as keyword parameters.
 
 Returns:
@@ -231,7 +237,7 @@ Args:
     size (str or list[float]) : values or field names of sizes in screen units
 
 In addition the the parameters specific to this glyph,
-:ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
+:ref:`userguide_objects_line_properties` and :ref:`userguide_objects_fill_properties`
 are also accepted as keyword parameters.
 
 Returns:
@@ -248,7 +254,7 @@ Args:
     size (str or list[float]) : values or field names of sizes in screen units
 
 In addition the the parameters specific to this glyph,
-:ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
+:ref:`userguide_objects_line_properties` and :ref:`userguide_objects_fill_properties`
 are also accepted as keyword parameters.
 
 Returns:
@@ -265,7 +271,7 @@ Args:
     size (str or list[float]) : values or field names of sizes in screen units
 
 In addition the the parameters specific to this glyph,
-:ref:`userguide_line_properties`
+:ref:`userguide_objects_line_properties`
 are also accepted as keyword parameters.
 
 Returns:
@@ -282,7 +288,7 @@ Args:
     size (str or list[float]) : values or field names of sizes in screen units
 
 In addition the the parameters specific to this glyph,
-:ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
+:ref:`userguide_objects_line_properties` and :ref:`userguide_objects_fill_properties`
 are also accepted as keyword parameters.
 
 Returns:
@@ -299,7 +305,7 @@ Args:
     size (str or list[float]) : values or field names of sizes in screen units
 
 In addition the the parameters specific to this glyph,
-:ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
+:ref:`userguide_objects_line_properties` and :ref:`userguide_objects_fill_properties`
 are also accepted as keyword parameters.
 
 Returns:
@@ -375,7 +381,7 @@ Args:
     size (str or list[float]) : values or field names of sizes in screen units
 
 In addition the the parameters specific to this glyph,
-:ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
+:ref:`userguide_objects_line_properties` and :ref:`userguide_objects_fill_properties`
 are also accepted as keyword parameters.
 
 Returns:
@@ -387,7 +393,7 @@ line = _glyph_function(glyphs.Line, ("x", "y"), (),
 """ The line glyph displays a single line that connects several points given by the arrays of coordinates `x` and `y`.
 
 In addition the the parameters specific to this glyph,
-:ref:`userguide_line_properties`
+:ref:`userguide_objects_line_properties`
 are also accepted as keyword parameters.
 
 Args:
@@ -395,7 +401,7 @@ Args:
     y (str or list[float]) : values or field names of line `y` coordinates
 
 In addition the the parameters specific to this glyph,
-:ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
+:ref:`userguide_objects_line_properties` and :ref:`userguide_objects_fill_properties`
 are also accepted as keyword parameters.
 
 Returns:
@@ -411,7 +417,7 @@ Args:
     ys (str or list[list[float]]): values or field names of lines `y` coordinates
 
 In addition the the parameters specific to this glyph,
-:ref:`userguide_line_properties`
+:ref:`userguide_objects_line_properties`
 are also accepted as keyword parameters.
 
 .. note:: For this glyph, the data is not simply an array of scalars, it is really an "array of arrays".
@@ -434,7 +440,7 @@ Args:
     angle (str or list[float], optional) : values or field names of rotation angles, defaults to 0
 
 In addition the the parameters specific to this glyph,
-:ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
+:ref:`userguide_objects_line_properties` and :ref:`userguide_objects_fill_properties`
 are also accepted as keyword parameters.
 
 Returns:
@@ -450,7 +456,7 @@ Args:
     y (str or list[float]) : values or field names of patch `y` coordinates
 
 In addition the the parameters specific to this glyph,
-:ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
+:ref:`userguide_objects_line_properties` and :ref:`userguide_objects_fill_properties`
 are also accepted as keyword parameters.
 
 Returns:
@@ -466,7 +472,7 @@ Args:
     ys (str or list[list[float]]): values or field names of patches `y` coordinates
 
 In addition the the parameters specific to this glyph,
-:ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
+:ref:`userguide_objects_line_properties` and :ref:`userguide_objects_fill_properties`
 are also accepted as keyword parameters.
 
 .. note:: For this glyph, the data is not simply an array of scalars, it is really an "array of arrays".
@@ -488,7 +494,7 @@ Args:
     bottom (str or list[float]) : values or field names of bottom edges
 
 In addition the the parameters specific to this glyph,
-:ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
+:ref:`userguide_objects_line_properties` and :ref:`userguide_objects_fill_properties`
 are also accepted as keyword parameters.
 
 Returns:
@@ -508,7 +514,7 @@ Args:
     cy (str or list[float]) : values or field names of control point `y` coordinates
 
 In addition the the parameters specific to this glyph,
-:ref:`userguide_line_properties`
+:ref:`userguide_objects_line_properties`
 are also accepted as keyword parameters.
 
 Returns:
@@ -526,7 +532,7 @@ Args:
     angle (str or list[float]) : values or field names of ray angles
 
 In addition the the parameters specific to this glyph,
-:ref:`userguide_line_properties`
+:ref:`userguide_objects_line_properties`
 are also accepted as keyword parameters.
 
 Returns:
@@ -546,7 +552,7 @@ Args:
     dilate (bool, optional) : whether to dilate pixel distance computations when drawing, defaults to False
 
 In addition the the parameters specific to this glyph,
-:ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
+:ref:`userguide_objects_line_properties` and :ref:`userguide_objects_fill_properties`
 are also accepted as keyword parameters.
 
 Returns:
@@ -568,7 +574,7 @@ Args:
     x1 (str or list[float]) : values or field names of ending `x` coordinates
     y1 (str or list[float]) : values or field names of ending `y` coordinates
 
-In addition the the parameters specific to this glyph, :ref:`userguide_line_properties`
+In addition the the parameters specific to this glyph, :ref:`userguide_objects_line_properties`
 are also accepted as keyword parameters.
 
 Returns:
@@ -580,7 +586,7 @@ square = _glyph_function(glyphs.Square, ("x", "y"), (),
 """ The `square` glyph is a marker that renders squares at `x`, `y` with size `size`.
 
 In addition the the parameters specific to this glyph,
-:ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
+:ref:`userguide_objects_line_properties` and :ref:`userguide_objects_fill_properties`
 are also accepted as keyword parameters.
 
 Args:
@@ -601,8 +607,8 @@ Args:
     y (str or list[float]) : values or field names of center `y` coordinates
     size (str or list[float]) : values or field names of sizes in screen units
 
-In addition the the parameters specific to this glyph, :ref:`userguide_line_properties` and
-:ref:`userguide_fill_properties` are also accepted as keyword parameters.
+In addition the the parameters specific to this glyph, :ref:`userguide_objects_line_properties` and
+:ref:`userguide_objects_fill_properties` are also accepted as keyword parameters.
 
 Returns:
     plot: the current :class:`Plot <bokeh.objects.Plot>`
@@ -612,8 +618,8 @@ Returns:
 square_x = _glyph_function(glyphs.SquareX, ("x", "y"), (),
 """ The `square_x` glyph is a marker that renders squares together with "X" glyphs at `x`, `y` with size `size`.
 
-In addition the the parameters specific to this glyph, :ref:`userguide_line_properties` and
-:ref:`userguide_fill_properties` are also accepted as keyword parameters.
+In addition the the parameters specific to this glyph, :ref:`userguide_objects_line_properties` and
+:ref:`userguide_objects_fill_properties` are also accepted as keyword parameters.
 
 Args:
     x (str or list[float]) : values or field names of center `x` coordinates
@@ -634,7 +640,7 @@ Args:
     text (str or list[text]): values or field names of texts
     angle (str or list[float], optional) : values or field names of text angles, defaults to 0
 
-In addition the the parameters specific to this glyph, :ref:`userguide_text_properties`
+In addition the the parameters specific to this glyph, :ref:`userguide_objects_text_properties`
 are also accepted as keyword parameters.
 
 .. note:: The location and angle of the text relative to the `x`, `y` coordinates is indicated by the alignment and baseline text properties.
@@ -648,7 +654,7 @@ triangle = _glyph_function(glyphs.Triangle, ("x", "y"), (),
 """ The `triangle` glyph is a marker that renders triangles at `x`, `y` with size `size`.
 
 In addition the the parameters specific to this glyph,
-:ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
+:ref:`userguide_objects_line_properties` and :ref:`userguide_objects_fill_properties`
 are also accepted as keyword parameters.
 
 Args:
@@ -672,8 +678,8 @@ Args:
     end_angle (str or list[float]) : values or field names of ending angles
     direction ("clock" or "anticlock", optional): direction to turn between starting and ending angles, defaults to "anticlock"
 
-In addition the the parameters specific to this glyph, :ref:`userguide_line_properties` and
-:ref:`userguide_fill_properties` are also accepted as keyword parameters.
+In addition the the parameters specific to this glyph, :ref:`userguide_objects_line_properties` and
+:ref:`userguide_objects_fill_properties` are also accepted as keyword parameters.
 
 Returns:
     plot: the current :class:`Plot <bokeh.objects.Plot>`
@@ -684,7 +690,7 @@ x = _glyph_function(glyphs.Xmarker, ("x", "y"), (),
 """ The `x` glyph is a marker that renders "x" glyphs at `x`, `y` with size `size`.
 
 In addition the the parameters specific to this glyph,
-:ref:`userguide_line_properties`
+:ref:`userguide_objects_line_properties`
 are also accepted as keyword parameters.
 
 Args:

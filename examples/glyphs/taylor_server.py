@@ -59,11 +59,11 @@ ydr = DataRange1d(sources=[source.columns("fy")])
 plot = Plot(x_range=xdr, y_range=ydr, plot_width=800, plot_height=400)
 
 line_f = Line(x="x", y="fy", line_color="blue", line_width=2)
-line_f_glyph = plot.add_glyph(source, xdr, ydr, line_f)
+line_f_glyph = plot.add_glyph(source, line_f)
 plot.add_layout(line_f_glyph)
 
 line_t = Line(x="x", y="ty", line_color="red", line_width=2)
-line_t_glyph = plot.add_glyph(source, xdr, ydr, line_t)
+line_t_glyph = plot.add_glyph(source, line_t)
 plot.add_layout(line_t_glyph)
 
 xaxis = LinearAxis()

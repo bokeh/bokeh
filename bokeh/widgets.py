@@ -8,12 +8,72 @@ from bokeh.plotting import (curdoc, cursession, line,
                             scatter)
 from .properties import (HasProps, Dict, Enum, Either, Float, Instance, Int, List,
     String, Color, Bool, Tuple, Any, Date, RelativeDelta, lookup_descriptor)
+from .enums import ColumnType, ButtonType, NamedIcon
 from .pivot_table import pivot_table
 import copy
 import logging
 logger = logging.getLogger(__name__)
 
 import pandas as pd
+
+class AbstractIcon(Widget):
+    pass
+
+class Icon(AbstractIcon):
+    name = Enum(NamedIcon)
+    size = Float(None)
+    flip = Enum("horizontal", "vertical", default=None)
+    spin = Bool(False)
+
+class AbstractButton(Widget):
+    label = String("Button")
+    icon = Instance(AbstractIcon)
+    type = Enum(ButtonType)
+
+class Button(AbstractButton):
+    clicks = Int(0)
+
+    def on_click(self, handler):
+        self.on_change('clicks', lambda obj, attr, old, new: handler())
+
+class Toggle(AbstractButton):
+    active = Bool(False)
+
+    def on_click(self, handler):
+        self.on_change('active', lambda obj, attr, old, new: handler(new))
+
+class Dropdown(AbstractButton):
+    action = String
+    default_action = String
+    menu = List(Tuple(String, String))
+
+    def on_click(self, handler):
+        self.on_change('action', lambda obj, attr, old, new: handler(new))
+
+class AbstractGroup(Widget):
+    labels = List(String)
+    # active = AbstractProperty
+
+    def on_click(self, handler):
+        self.on_change('active', lambda obj, attr, old, new: handler(new))
+
+class Group(AbstractGroup):
+    inline = Bool(False)
+
+class ButtonGroup(AbstractGroup):
+    type = Enum(ButtonType)
+
+class CheckboxGroup(Group):
+    active = List(Int)
+
+class RadioGroup(Group):
+    active = Int(None)
+
+class CheckboxButtonGroup(ButtonGroup):
+    active = List(Int)
+
+class RadioButtonGroup(ButtonGroup):
+    active = Int(None)
 
 class Panel(Widget):
     title = String
@@ -32,7 +92,8 @@ class Dialog(Widget):
     buttons = List(String)
 
 class Layout(Widget):
-    pass
+    width = Int
+    height = Int
 
 class HBox(Layout):
     children = List(Instance(Widget))
@@ -42,30 +103,6 @@ class VBox(Layout):
 #parent class only, you need to set the fields you want
 class VBoxForm(VBox):
     pass
-
-class VBoxModelForm(Widget):
-    _children  = List(Instance(Widget))
-    _field_defs = Dict(String, Any)
-    input_specs = None
-    jsmodel = "VBoxModelForm"
-    def __init__(self, *args, **kwargs):
-        super(VBoxModelForm, self).__init__(*args, **kwargs)
-        for prop in self.properties():
-            propobj = lookup_descriptor(self.__class__, prop)
-            if isinstance(propobj, Float):
-                self._field_defs[prop] = "Float"
-            elif isinstance(propobj, Int):
-                self._field_defs[prop] = "Int"
-            else:
-                self._field_defs[prop] = "String"
-    def create_inputs(self, doc):
-        if self.input_specs:
-            for input_spec in self.input_specs:
-                input_spec = copy.copy(input_spec)
-                widget = input_spec.pop('widget')
-                widget = widget.create(**input_spec)
-                self._children.append(widget)
-
 
 class InputWidget(Widget):
     title = String()
@@ -96,69 +133,6 @@ class InputWidget(Widget):
 
 class TextInput(InputWidget):
     value = String()
-
-class BokehApplet(Widget):
-    modelform = Instance(VBoxModelForm)
-    children = List(Instance(Widget))
-    jsmodel = "HBox"
-    # Change to List because json unpacks tuples into lists
-    extra_generated_classes = List(List(String))
-
-    def update(self, **kwargs):
-        super(BokehApplet, self).update(**kwargs)
-        self.setup_events()
-
-    def setup_events(self):
-        if self.modelform:
-            self.bind_modelform()
-
-    def bind_modelform(self):
-        for prop in self.modelform.__properties__:
-            if not prop.startswith("_"):
-                self.modelform.on_change(prop, self,
-                                         'input_change')
-
-    def input_change(self, obj, attrname, old, new):
-        pass
-
-    def create(self):
-        pass
-
-    @classmethod
-    def add_route(cls, route, bokeh_url):
-        from bokeh.server.app import bokeh_app
-        from bokeh.pluginutils import app_document
-        from flask import render_template
-        @app_document(cls.__view_model__, bokeh_url)
-        def make_app():
-            app = cls()
-            curdoc().autostore = False
-            app.create(curdoc())
-            return app
-
-        def exampleapp():
-            app = make_app()
-            docid = curdoc().docid
-            objid = curdoc().context._id
-            extra_generated_classes = app.extra_generated_classes
-            if len(extra_generated_classes) == 0:
-                extra_generated_classes.append([
-                    app.__view_model__,
-                    app.__view_model__,
-                    app.jsmodel])
-                extra_generated_classes.append([
-                    app.modelform.__view_model__,
-                    app.modelform.__view_model__,
-                    app.modelform.jsmodel])
-            return render_template(
-                'applet.html',
-                extra_generated_classes=extra_generated_classes,
-                title=app.__class__.__view_model__,
-                objid=objid,
-                docid=docid,
-                splitjs=bokeh_app.splitjs)
-        exampleapp.__name__ = cls.__view_model__
-        bokeh_app.route(route)(exampleapp)
 
 class Paragraph(Widget):
     text = String()
@@ -204,8 +178,6 @@ class Slider(InputWidget):
     step = Int()
     orientation = Enum("horizontal", "vertical")
 
-
-
 class DateRangeSlider(InputWidget):
     value = Tuple(Date, Date)
     bounds = Tuple(Date, Date)
@@ -227,17 +199,21 @@ class TableWidget(Widget):
     pass
 
 class TableColumn(Widget):
-    type = Enum("text", "numeric", "date", "autocomplete")
-    data = String
+    field = String
     header = String
-
-    # TODO: splic TableColumn into multiple classes
-    source = List(String) # only 'autocomplete'
-    strict = Bool(True)   # only 'autocomplete'
+    type = Enum(ColumnType)
+    format = String
+    source = List(String)
+    strict = Bool(False)
+    checked = String("true")
+    unchecked = String("false")
 
 class HandsonTable(TableWidget):
     source = Instance(DataSource)
     columns = List(Instance(TableColumn))
+    sorting = Bool(True)
+    width = Int(None)
+    height = Int(None)
 
 class ObjectExplorer(Widget):
     data_widget = Instance(TableWidget)

@@ -45,7 +45,7 @@ for i, n1 in enumerate(nodes):
             color.append('lightgrey')
 
 # EXERCISE: output static HTML file
-output_file("lesmis.html")
+output_file("les_mis.html")
 
 # EXERCISE: create a ColumnDataSource to hold the xnames, ynames, colors, alphas,
 # and counts. NOTE: the counts array is 2D and will need to be flattened
@@ -84,9 +84,9 @@ axis().major_label_text_font_size = "5pt"
 axis().major_label_standoff = 0
 xaxis().major_label_orientation = np.pi/3
 
-# EXERCISE configure the  hover tool to display both names as well as
+# EXERCISE configure the hover tool to display both names as well as
 # the count value as tooltips
-hover = [t for t in curplot().tools if isinstance(t, HoverTool)][0]
+hover = curplot().select(dict(type=HoverTool))
 hover.tooltips = OrderedDict([
     ('names', '@yname, @xname'),
     ('count', '@count'),

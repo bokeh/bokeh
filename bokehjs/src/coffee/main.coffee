@@ -2,7 +2,7 @@ define (require, exports, module) ->
 
   Bokeh = {}
   Bokeh.require = require
-  Bokeh.version = '0.5.2'
+  Bokeh.version = '0.6.0'
 
   # set up logger
   logging = require("common/logging")
@@ -119,10 +119,8 @@ define (require, exports, module) ->
   Bokeh.ObjectExplorerTool     = require("tool/object_explorer_tool")
 
   # widgets
-  Bokeh.DataSlider     = require("widget/data_slider")
   Bokeh.HBox           = require("widget/hbox")
   Bokeh.VBox           = require("widget/vbox")
-  Bokeh.VBoxModelForm  = require("widget/vboxmodelform")
   Bokeh.TextInput      = require("widget/textinput")
   Bokeh.CrossFilter    = require("widget/crossfilter")
   Bokeh.ObjectExplorer = require("widget/object_explorer")

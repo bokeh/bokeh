@@ -7,7 +7,8 @@ from functools import wraps
 
 from six import add_metaclass, iteritems
 
-from .properties import HasProps, MetaHasProps, Instance, String
+from .properties import Any, HasProps, List, MetaHasProps, Instance, String
+from .query import find
 from .utils import dump, is_ref, json_apply, make_id, resolve_json
 
 class Viewable(MetaHasProps):
@@ -70,6 +71,7 @@ class PlotObject(HasProps):
 
     session = Instance(".session.Session")
     name = String()
+    tags = List(Any)
 
     def __init__(self, **kwargs):
         # Eventually should use our own memo instead of storing
@@ -104,6 +106,35 @@ class PlotObject(HasProps):
     def setup_events(self):
         pass
 
+    def select(self, selector):
+        ''' Query this object and all of its references for objects that
+        match the given selector.
+
+        Args:
+            selector (JSON-like) :
+
+        Returns:
+            seq[PlotObject]
+
+        '''
+        return find(self.references(), selector)
+
+    def set_select(self, selector, updates):
+        ''' Update objects that match a given selector with the specified
+        attribute/value updates.
+
+        Args:
+            selector (JSON-like) :
+            updates (dict) :
+
+        Returns:
+            None
+
+        '''
+        for obj in self.select(selector):
+            for key, val in updates.items():
+                setattr(obj, key, val)
+
     @classmethod
     def load_json(cls, attrs, instance=None):
         """Loads all json into a instance of cls, EXCEPT any references
@@ -135,6 +166,12 @@ class PlotObject(HasProps):
         except Exception as e:
             logger.exception("Failed to instantiate object of class {0} from json".format(cls))
             raise
+
+    def layout(self, side, plot):
+        try:
+            return self in getattr(plot, side)
+        except:
+            return []
 
     def finalize(self, models):
         """Convert any references into instances

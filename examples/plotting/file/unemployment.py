@@ -58,7 +58,7 @@ axis().major_label_text_font_size = "5pt"
 axis().major_label_standoff = 0
 xaxis().major_label_orientation = np.pi/3
 
-hover = [t for t in curplot().tools if isinstance(t, HoverTool)][0]
+hover = curplot().select(dict(type=HoverTool))
 hover.tooltips = OrderedDict([
     ('date', '@month @year'),
     ('rate', '@rate'),

@@ -7,7 +7,7 @@ from bokeh.glyphs import Circle
 from bokeh.objects import (
     GMapPlot, Range1d, ColumnDataSource,
     PanTool, WheelZoomTool, BoxSelectTool,
-    BoxSelectionOverlay, ObjectExplorerTool, MapOptions)
+    BoxSelectionOverlay, MapOptions)
 from bokeh.resources import INLINE
 
 x_range = Range1d()
@@ -20,6 +20,7 @@ plot = GMapPlot(
     map_options=map_options,
     title = "Austin"
 )
+plot.map_options.map_type="hybrid"
 
 source = ColumnDataSource(
     data=dict(
@@ -30,14 +31,13 @@ source = ColumnDataSource(
 )
 
 circle = Circle(x="lon", y="lat", size=15, fill_color="fill", line_color="black")
-plot.add_glyph(source, x_range, y_range, circle)
+plot.add_glyph(source, circle)
 
 pan = PanTool()
 wheel_zoom = WheelZoomTool()
-object_explorer = ObjectExplorerTool()
 box_select = BoxSelectTool()
 
-plot.add_tools(pan, wheel_zoom, object_explorer, box_select)
+plot.add_tools(pan, wheel_zoom, box_select)
 
 overlay = BoxSelectionOverlay(tool=box_select)
 plot.add_layout(overlay)

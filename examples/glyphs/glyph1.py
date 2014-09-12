@@ -24,7 +24,7 @@ ydr = DataRange1d(sources=[source.columns("y")])
 plot = Plot(x_range=xdr, y_range=ydr, min_border=80)
 
 circle = Circle(x="x", y="y", fill_color="red", size=5, line_color="black")
-plot.add_glyph(source, xdr, ydr, circle)
+plot.add_glyph(source, circle)
 
 plot.add_layout(LinearAxis(), 'below')
 plot.add_layout(LinearAxis(), 'left')

@@ -24,7 +24,12 @@ npm install
 popd
 
 $PYTHON setup.py --quiet install nightly --build_js --single-version-externally-managed --record=record.txt
+
+mkdir $PREFIX/Examples
+cp -r examples $PREFIX/Examples/bokeh
+
 popd
 
 cd $PREFIX
 echo $PREFIX
+

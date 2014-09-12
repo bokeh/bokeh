@@ -217,6 +217,7 @@ class SpectrogramPlot
     }
 
     @model = Bokeh.Plotting.make_plot(spec, @source, options)
+    @model.set('toolbar_location', null)
     @view = new @model.default_view(model: @model)
 
   update: (fft) ->
@@ -287,6 +288,7 @@ class RadialHistogramPlot
     }
 
     @model = Bokeh.Plotting.make_plot(spec, @source, options)
+    @model.set('toolbar_location', null)
     @view = new @model.default_view(model: @model)
 
   update: (fft, fft_min, fft_max) ->
@@ -355,6 +357,7 @@ class SimpleIndexPlot
     }
 
     @model = Bokeh.Plotting.make_plot(spec, @source, options)
+    @model.set('toolbar_location', null)
     @view = new @model.default_view(model: @model)
 
   update: (ys) ->

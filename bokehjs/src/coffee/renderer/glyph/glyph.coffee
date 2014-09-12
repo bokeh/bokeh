@@ -68,6 +68,12 @@ define [
 
       @glyph_props = @init_glyph(@mget('glyphspec'))
 
+      @x_range_name = @mget('x_range_name')
+      @y_range_name = @mget('y_range_name')
+
+      @xmapper = @plot_view.frame.get('x_mappers')[@x_range_name]
+      @ymapper = @plot_view.frame.get('y_mappers')[@y_range_name]
+
       @have_selection_props = false
       if @mget('selection_glyphspec')
         spec = _.extend({}, @mget('glyphspec'), @mget('selection_glyphspec'))
@@ -216,8 +222,8 @@ define [
       pt_units = @glyph_props[pt].units
       span_units = @glyph_props[span_prop_name].units
 
-      if      pt == 'x' then mapper = @plot_view.xmapper
-      else if pt == 'y' then mapper = @plot_view.ymapper
+      if      pt == 'x' then mapper = @xmapper
+      else if pt == 'y' then mapper = @ymapper
 
       source = @mget('data_source')
       local_select = (prop_name) =>
@@ -300,6 +306,8 @@ define [
         ctx.stroke()
 
     hit_test: (geometry) ->
+      result = null
+
       if geometry.type == "point"
         if @_hit_point?
           result = @_hit_point(geometry)
@@ -307,8 +315,6 @@ define [
           type = @mget('glyphspec').type
           logger.warn("'point' selection not available on #{type} renderer")
           @_point_hit_warned = true
-        return null
-
       else if geometry.type == "rect"
         if @_hit_rect?
           result = @_hit_rect(geometry)
@@ -316,11 +322,8 @@ define [
           type = @mget('glyphspec').type
           logger.warn("'rect' selection not available on #{type} renderer")
           @_rect_hit_warned = true
-        return null
-
       else
         logger.error("unrecognized selection geometry type '#{ geometry.type }'")
-        return null
 
       return result
 
@@ -328,6 +331,8 @@ define [
 
     defaults: () ->
       return {
+        x_range_name: "default"
+        y_range_name: "default"
         data_source: null
       }
 

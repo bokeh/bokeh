@@ -1,3 +1,0 @@
-[submodule "eggert/tz"]
-	path = eggert/tz
-	url = git://github.com/eggert/tz.git

@@ -101,19 +101,17 @@ def animated():
 
     output_server("animated_reveal")
 
-    figure(title="Animations")
+    figure(title="Animations", x_range=[-11, 11], y_range=[-11, 11],
+           tools="pan,wheel_zoom,box_zoom,reset,previewsave")
 
     hold()
 
     annular_wedge(
         cx, cy, rmin, rmax, theta[:-1], theta[1:],
-        x_range=[-11, 11],
-        y_range=[-11, 11],
         inner_radius_units="data",
         outer_radius_units="data",
         fill_color=colors,
         line_color="black",
-        tools="pan,wheel_zoom,box_zoom,reset,previewsave"
     )
 
     return curplot(), cursession()
@@ -186,11 +184,11 @@ class Population(object):
 
         male_quad = Quad(left="male", right=0, bottom="groups", top="shifted",
                          fill_color="#3B8686")
-        male_quad_glyph = self.plot.add_glyph(self.source_pyramid, xdr, ydr, male_quad)
+        male_quad_glyph = self.plot.add_glyph(self.source_pyramid, male_quad)
 
         female_quad = Quad(left=0, right="female", bottom="groups", top="shifted",
                            fill_color="#CFF09E")
-        female_quad_glyph = self.plot.add_glyph(self.source_pyramid, xdr, ydr, female_quad)
+        female_quad_glyph = self.plot.add_glyph(self.source_pyramid, female_quad)
 
         self.plot.add_layout(Legend(legends=dict(Male=[male_quad_glyph],
                                                  Female=[female_quad_glyph])))
