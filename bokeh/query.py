@@ -85,19 +85,19 @@ def match(obj, selector, context={}):
 
             # special case 'type'
             if key == "type":
-                return isinstance(obj, val)
+                if not isinstance(obj, val): return False
 
             # special case 'tag'
-            if key == 'tags':
+            elif key == 'tags':
                 if isinstance(val, string_types):
-                    return val in obj.tags
+                    if val not in obj.tags: return False
                 try:
-                    return set(val) & set(obj.tags)
+                    if not set(val) & set(obj.tags): return False
                 except TypeError:
-                    return val in obj.tags
+                    if val not in obj.tags: return False
 
             # if the object doesn't have the attr, it doesn't match
-            if not hasattr(obj, key): return False
+            elif not hasattr(obj, key): return False
 
             # if the value to check is a dict, recurse
             else:
