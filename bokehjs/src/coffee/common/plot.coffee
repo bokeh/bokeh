@@ -223,7 +223,7 @@ define [
         @frame.get('height'),
       ]
 
-      @_map_hook()
+      @_map_hook(ctx, frame_box)
       @_paint_empty(ctx, frame_box)
 
       if @outline_props.do_stroke
@@ -255,7 +255,7 @@ define [
 
       ctx.restore()
 
-    _map_hook: () ->
+    _map_hook: (ctx, frame_box) ->
 
     _paint_empty: (ctx, frame_box) ->
       ctx.fillStyle = @mget('border_fill')
