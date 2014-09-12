@@ -384,9 +384,10 @@ class Contour(Shader):
 
 
 # ------------------  Control Functions ----------------
-def replot(plot, agg=Count(), info=Const(val=1), shader=Id(),
-           remove_original=True, palette=["Spectral-11"], points=False,
-           **kwargs):
+def replot(plot, 
+           agg=Count(), info=Const(val=1), shader=Id(),
+           remove_original=True, 
+           plot_opts={}, **kwargs):
     """
     Treat the passed plot as an base plot for abstract rendering, generate the
     proper Bokeh plot based on the passed parameters.
@@ -397,41 +398,56 @@ def replot(plot, agg=Count(), info=Const(val=1), shader=Id(),
 
     Transfers plot title, width, height from the original plot
 
-    **kwargs -- Arguments for the source function EXCEPT reserve_val
-                and reserve_color (if present)
+    plot -- Plot to based new plot off of
+    remove_original -- Remove the source plot from the document (default: true)
+    plot_opts -- Options passed directly to soure.
+                   This parameter only needs to be used if there is a name
+                   conflict bewteen  target plot type and
+                   source options (see kwargs note)
+    **kwargs -- Arugments for the plot or source as needed.
+                If in conflict, a kwarg will be applied to the source function.
+                If this causes incorrecte behavior, the plot arguments may
+                be put in the plot_opts parameter instead.
     returns -- A new plot
     """
 
-    # Transfer relevant named arguments
-    props = dict()
-    props['plot_width'] = kwargs.pop('plot_width', plot.plot_width)
-    props['plot_height'] = kwargs.pop('plot_height', plot.plot_height)
-    props['title'] = kwargs.pop('title', plot.title)
+    # Remove the base plot (if requested)
+    if remove_original and plot in curdoc().context.children:
+        curdoc().context.children.remove(plot)
 
-    # TODO: Find a list somewhere for plot-type-specific options and transfer out using that list.
-    #       Otherwise, this section will be horribly unmanageable.
-    options = ['reserve_val', 'reserve_color', 'line_color', 'tools']
-    for opt in options:
-        if opt in kwargs:
-            props[opt] = kwargs.pop(opt)
+    # Sift kwargs
+    source_opts = {}
+    for key in ServerDataSource().vm_props():
+        if key in kwargs:
+            source_opts[key] = kwargs.pop(key)
 
-    src = source(plot, agg, info, shader,
-                 remove_original, palette, points, **kwargs)
-    props.update(mapping(src))
+    for name in source.func_code.co_varnames:
+        if name in kwargs:
+            source_opts[name] = kwargs.pop(name)
+    
+    # Transfer specific items from the source plot, then updates from kwargs
+    plot_opts['plot_width'] = plot.plot_width
+    plot_opts['plot_height'] = plot.plot_height
+    plot_opts['title'] = plot.title
+    plot_opts.update(kwargs)
+
+    src = source(plot, agg, info, shader, **source_opts)
+    plot_opts.update(mapping(src))
 
     if shader.out == "image":
-        return image(source=src, **props)
+        new_plot = image(source=src, **plot_opts)
     elif shader.out == "image_rgb":
-        return image_rgba(source=src, **props)
+        new_plot = image_rgba(source=src, **plot_opts)
     elif shader.out == "poly_line":
-        return multi_line(source=src, **props)
+        new_plot = multi_line(source=src, **plot_opts)
     else:
         raise ValueError("Unhandled output type %s" % shader.out)
 
+    return new_plot
 
-# TODO: Move reserve control up here or palette control down.  Probably related to refactoring palette into a model-backed type
-def source(plot, agg=Count(), info=Const(val=1), shader=Id(),
-           remove_original=True, palette=["Spectral-11"],
+
+def source(plot,
+           agg=Count(), info=Const(val=1), shader=Id(),
            points=False, balancedZoom=False, **kwargs):
     # Acquire information from renderer...
     # TODO: How to be more specific about what to do AR on?
@@ -458,7 +474,6 @@ def source(plot, agg=Count(), info=Const(val=1), shader=Id(),
                           'global_offset_y': [0],
                           'dw': [1],
                           'dh': [1],
-                          'palette': palette,
                           'render_state': {}}
     elif shader.out == "poly_line":
         kwargs['data'] = {'xs': [[]],
@@ -467,10 +482,6 @@ def source(plot, agg=Count(), info=Const(val=1), shader=Id(),
                           'render_state': {}}
     else:
         raise ValueError("Unrecognized shader output type %s" % shader.out)
-
-    # Remove the base plot (if requested)
-    if remove_original and plot in curdoc().context.children:
-        curdoc().context.children.remove(plot)
 
     kwargs['transform'] = {
         'resample': "abstract rendering",
