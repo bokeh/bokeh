@@ -9,7 +9,7 @@ from bokeh.embed import file_html
 from bokeh.glyphs import Line
 from bokeh.objects import (
     Plot, DataRange1d, LinearAxis, ColumnDataSource,
-    PanTool, WheelZoomTool, PreviewSaveTool, ObjectExplorerTool
+    PanTool, WheelZoomTool, PreviewSaveTool
 )
 from bokeh.resources import INLINE
 
@@ -33,9 +33,8 @@ plot.add_layout(LinearAxis(), 'left')
 pan = PanTool()
 wheel_zoom = WheelZoomTool()
 preview_save = PreviewSaveTool()
-object_explorer = ObjectExplorerTool()
 
-plot.add_tools(pan, wheel_zoom, preview_save, object_explorer)
+plot.add_tools(pan, wheel_zoom, preview_save)
 
 doc = Document()
 doc.add(plot)

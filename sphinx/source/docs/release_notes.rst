@@ -4,6 +4,17 @@
 Release Notes
 #############
 
+v0.6.0 (Sep 2014)
+=================
+* Abstract Rendering recipes for large data sets: isocontour, heatmap, hdalpha
+* Improved, configurable tool bar for plots
+* Full Python 3 support for bokeh-server
+* Much expanded User Guide
+* Support for multiple axes
+* Plot object graph query interface
+* New charts in bokeh.charts: TimeSeries and Categorical HeatMap
+* Hit-testing for patch glyphs
+
 v0.5.2 (Aug 2014)
 =================
 * New Layout system

@@ -1,3 +1,110 @@
+2014-09-09    0.6.0:
+--------------------
+  * Abstract Rendering recipes for large data sets: isocontour, heatmap, hdalpha
+  * Improved, configurable tool bar for plots
+  * Full Python 3 support for bokeh-server
+  * Much expanded User Guide
+  * Support for multiple axes
+  * Plot object graph query interface
+  * New charts in bokeh.charts: TimeSeries and Categorical HeatMap
+  * Hit-testing for patch glyphs
+  * bugfixes:
+    - #111 When axis objects are located in data space (vs "min" or "max"), they should clip to plot bounds
+    - #366 Hover tool sets cursor to crosshair although the tool is disabled by default
+    - #852 Bokeh logo on plots should open bokeh.pydata.org in a new tab
+    - #935 Fix boxplot and more refactor
+    - #940 Fix conda.recipe on windows
+    - #951 [docs] Some plots in the tutorial at bokeh.pydata.org render with title on top of plot
+    - #953 [docs] Scatter example in http://bokeh.pydata.org/docs/dev_guide.html#scatter broken
+    - #955 Plots in bokeh/examples/app/downloads not showing in dev-0.5.2
+    - #1010 Xaxis() and yaxis() broken  in 0.5.2
+    - #1012 Scatter broken in axis placement
+    - #1019 Running the stock applet
+    - #1023 Server-based notebook are broken
+    - #1024 Multiple plots in a notebook not showing content in the first plot
+    - #1028 [docs] Quickstart documentation suggests invalid resources output_file argument
+    - #1036 Fix spectrogram axis locations
+    - #1058 Show() shows previous plots in ipython notebook
+    - #1059 Server_source_upload is failing on master
+    - #1095 Box zoom tool does not draw zoom box
+    - #1100 Request error hit our travis ci test
+    - #1104 Ms / ns issue in protocol serialize/deserialize
+    - #1114 Abstract rendering box-zoom+base-map
+    - #1122 Fix broken logger statement
+    - #1123 Hit testing is completely broken
+    - #1124 Fix bug introduced when experimenting with logging
+    - #1132 Updates to allow pip packages to install cleanly
+    - #1133 Hotifx/crossfilter
+    - #1138 Update tool hit testing to account for multiple raneges
+    - #1142 Remove abstract rendering as a hard dependecy
+    - #1145 Use none instead of "none" in toolbar_location
+    - #1147 Fixed setup.py and add missing dependencies
+    - #1151 Fix websockets in tornado 4.0 from notebook
+    - #1154 Hotfix/toolbar notebook appearance
+    - #1164 [build] [windows] Fix windows build
+    - #1165 Added pyzmq and tornado as dependencies in the conda recipe
+    - #1168 Hotfix/np int in ranges
+    - #1174 Upgrade handsontable to fix scrolling issues
+  * features:
+    - #106 The x-axis of the stock example doesn't have a unit
+    - #742 Tornado websockets (gevent optional)
+    - #961 Big charts refactor
+    - #981 Added stock example embedded into external flask app
+    - #982 Feature/sin example
+    - #1014 Add independent examples to bokeh chart
+    - #1029 Extending ar integration with categories tools
+    - #1038 Handsontable improvements
+    - #1042 Allow remote connections to spectrogram demo
+    - #1050 [tests] Update scripts/changes.py for bep 1
+    - #1065 Don't repeat include properties' prefix
+    - #1068 [tests] Improvements to examples/test (s3 conn, version detection)
+    - #1070 [tests] Add test for new gear gylph
+    - #1097 Upgrade rbush
+    - #1102 Grouped pinning of upstream packages with bugs
+    - #1106 [tests] Feature/charts tests
+    - #1109 Feature/timeseries chart
+    - #1110 Feature/object selection
+    - #1113 Feature/toolbar
+    - #1115 Abstract rendering resource consumption
+    - #1126 Feature/heatmap
+    - #1127 Feature/twinx
+    - #1146 Clean up and improve the crossfilter 
+    - #1152 Updating css for different toolbar positions
+    - #1158 Make select much more useful
+    - #1169 Made scipy a soft dependency for chart histogram
+  * tasks:
+    - #754 [docs] Update dev_guide
+    - #756 Copy wpp2012_sa_db03_population_quinquennial.csv to s3
+    - #824 [tests] Example sampleapp not working
+    - #986 Axis.location vs plot.{left,right,above,below}
+    - #1001 Remove "default" from glyph specs
+    - #1009 [docs] Possible error in bokeh boxplot tutorial and documentation code
+    - #1041 Some usability cleanup
+    - #1045 Don't include rejected issues in scripts/changes.py
+    - #1046 [tests] Use conda-build 1.7.0 until get fixed
+    - #1048 [docs] Better options for js building
+    - #1057 Update readme.md
+    - #1061 Cleaning some additional failing examples
+    - #1066 Disable redis(-py) dependency on windows (#940)
+    - #1071 Remove embed tool
+    - #1072 Don't repeat color names
+    - #1077 Mpl temp down
+    - #1081 Made command line output less cluttered (and, in one case, less misleadi
+    - #1083 [docs] [tests] Task/cleanup2
+    - #1090 Update mpl support and charts to use the new add_* low level functions
+    - #1092 [docs] License.txt in pypi?
+    - #1096 Re-enable license comments in bokehjs
+    - #1099 [docs] [tests] Task/cleanup3
+    - #1119 [tests] Test_ar_downsample flaky; assumes dict keys sorted
+    - #1140 Split user guide into separate docs
+    - #1141 Collecting fixes for our examples
+    - #1150 [labels] Add tag for build
+    - #1156 Hover tool missing icon still?
+    - #1161 [build] Copy examples into conda packages
+    - #1163 Remove more unused widgets
+    - #1171 [wip] updating documentation for 0.6 release
+    - #1178 Task/update examples
+
 2014-08-15    0.5.2:
 --------------------
   * New Layout system

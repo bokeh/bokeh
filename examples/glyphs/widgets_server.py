@@ -1,6 +1,11 @@
 from __future__ import print_function
 
+import time
+
 from datetime import date
+from random import randint
+
+from requests.exceptions import ConnectionError
 
 from bokeh.browserlib import view
 from bokeh.document import Document
@@ -10,21 +15,23 @@ from bokeh.objects import (
     LinearAxis, DatetimeAxis, Grid, HoverTool
 )
 from bokeh.session import Session
-from bokeh.widgets import VBox, TableColumn, HandsonTable
+from bokeh.widgets import VBox, HBox, Paragraph, Button, TableColumn, HandsonTable
 
 document = Document()
 session = Session()
 session.use_doc('widgets_server')
 session.load_document(document)
 
-def make_plot():
-    source = ColumnDataSource(
-        dict(
-            dates=[ date(2014, 3, i) for i in [1, 2, 3, 4, 5] ],
-            downloads=[100, 27, 54, 64, 75],
-        )
+def make_data():
+    n = randint(5, 10)
+    return dict(
+        dates=[ date(2014, 3, i+1) for i in range(n) ],
+        downloads=[ randint(0, 100) for i in range(n) ],
     )
 
+source = ColumnDataSource(make_data())
+
+def make_plot():
     xdr = DataRange1d(sources=[source.columns("dates")])
     ydr = DataRange1d(sources=[source.columns("downloads")])
 
@@ -49,22 +56,36 @@ def make_plot():
 
     return plot, source
 
-def make_ui():
+def click_handler():
+    source.data = make_data()
+    session.store_document(document)
+
+def make_layout():
     plot, source = make_plot()
     columns = [
         TableColumn(field="dates", type="date", header="Date"),
         TableColumn(field="downloads", type="numeric", header="Downloads"),
     ]
     data_table = HandsonTable(source=source, columns=columns)
-    vbox = VBox(children=[plot, data_table])
+    button = Button(label="Randomize data", type="success")
+    button.on_click(click_handler)
+    buttons = VBox(children=[button])
+    vbox = VBox(children=[buttons, plot, data_table])
     return vbox
 
-document.add(make_ui())
+document.add(make_layout())
 session.store_document(document)
 
 if __name__ == "__main__":
     link = session.object_link(document.context)
+    view(link)
     print("Please visit %s to see the plots" % link)
-    view (link)
 
-    print("\npress ctrl-C to exit")
+    try:
+        while True:
+            session.load_document(document)
+            time.sleep(0.5)
+    except KeyboardInterrupt:
+        print()
+    except ConnectionError:
+        print("Connection to bokeh-server was terminated")

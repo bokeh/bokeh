@@ -61,9 +61,9 @@ for i, n1 in enumerate(nodes):
 #   - make the tick labels smaller
 #   - set the x-axis orientation to vertical, or angled
 
-# EXERCISE configure the  hover tool to display both names as well as
+# EXERCISE configure the hover tool to display both names as well as
 # the count value as tooltips
-hover = [t for t in curplot().tools if isinstance(t, HoverTool)][0]
+hover = curplot().select(dict(type=HoverTool))
 hover.tooltips = OrderedDict([
     # fill me in
 ])

@@ -1,23 +1,20 @@
-import copy
 import logging
 
 import six
 import pandas as pd
 import numpy as np
-
-from ..objects import ColumnDataSource, Range1d, FactorRange, GridPlot, Widget, DataSource
+from ..plotting import curdoc
+from ..objects import ColumnDataSource, Range1d, FactorRange, GridPlot
 from ..widgets import Select, MultiSelect, InputWidget
 #crossfilter plotting utilities
-from .plotting import (make_histogram_source, make_factor_source,
+from .plotting import (make_histogram_source,
                        make_histogram, make_continuous_bar_source,
                        make_categorical_bar_source,
                        make_bar_plot, cross)
 #bokeh plotting functions
-from ..plotting import (curdoc, cursession, line,
-                            scatter)
+from ..plotting import line, scatter
 from ..plot_object import PlotObject
-from ..properties import (HasProps, Dict, Enum, Either, Float, Instance, Int, List,
-    String, Color, Bool, Tuple, Any, Date, RelativeDelta, lookup_descriptor)
+from ..properties import Dict, Enum, Instance, List, String, Any
 
 logger = logging.getLogger(__name__)
 
@@ -29,12 +26,11 @@ class DiscreteFacet(object):
         self.label = label
         self._value = value
 
-    def __str__(self):
+    def __repr__(self):
         return "%s:%s" % (self.field, self.label)
 
     def filter(self, df):
         return df[df[self.field] == self._value]
-    __repr__ = __str__
 
 class ContinuousFacet(DiscreteFacet):
     def __init__(self, field, value, bins, label=None):
@@ -52,13 +48,17 @@ class CrossFilter(PlotObject):
     columns = List(Dict(String, Any))
     data = Instance(ColumnDataSource)
     filtered_data = Instance(ColumnDataSource)
-    #list of datasources to use for filtering widgets
+
+    # list of datasources to use for filtering widgets
     filter_sources = Dict(String, Instance(ColumnDataSource))
-    #list of columns we are filtering
+
+    # list of columns we are filtering
     filtering_columns = List(String)
-    #Dict of column name to filtering widgets
+
+    # dict of column name to filtering widgets
     filter_widgets = Dict(String, Instance(PlotObject))
-    #Dict which aggregates all the selections from the different filtering widgets
+
+    # dict which aggregates all the selections from the different filtering widgets
     filtered_selections = Dict(String, Dict(String, Any))
 
     # list of facet vars
@@ -99,29 +99,32 @@ class CrossFilter(PlotObject):
         return obj
 
     def set_input_selector(self):
-        select = Select.create(
+        col_names = [x['name'] for x in self.columns]
+
+        self.plot_selector = Select.create(
             title="PlotType",
             name="plot_type",
             value=self.plot_type,
-            options=["line", "scatter", "bar"])
-        self.plot_selector = select
-        col_names = [x['name'] for x in self.columns]
-        select = Select.create(
+            options=["line", "scatter", "bar"],
+        )
+
+        self.x_selector = Select.create(
             name="x",
             value=self.x,
-            options=col_names)
-        self.x_selector = select
-        select = Select.create(
+            options=col_names,
+        )
+
+        self.y_selector = Select.create(
             name="y",
             value=self.y,
-            options=col_names)
-        self.y_selector = select
-        select = Select.create(
+            options=col_names,
+        )
+
+        self.agg_selector = Select.create(
             name='agg',
             value=self.agg,
-            options=['sum', 'mean', 'last']
-            )
-        self.agg_selector = select
+            options=['sum', 'mean', 'last'],
+        )
 
     def update_plot_choices(self, input_dict):
         for k,v in input_dict.items():
@@ -149,6 +152,7 @@ class CrossFilter(PlotObject):
             return
         plot = self.make_plot()
         self.plot = plot
+        curdoc()._add_all()
 
     def make_plot(self):
         if all([len(self.facet_x) ==0,
@@ -213,7 +217,7 @@ class CrossFilter(PlotObject):
             plots.append(plot)
         chunk_size = int(np.ceil(np.sqrt(len(plots))))
         grid_plots = []
-        for i in xrange(0, len(plots), chunk_size):
+        for i in range(0, len(plots), chunk_size):
             chunk =  plots[i:i+chunk_size]
             grid_plots.append(chunk)
         grid = GridPlot(children=grid_plots, plot_width=200 * chunk_size)
@@ -242,7 +246,7 @@ class CrossFilter(PlotObject):
 
 
     def make_single_plot(self, df=None, title=None,
-                         plot_width=500, plot_height=500,
+                         plot_width=700, plot_height=680,
                          tools="pan,wheel_zoom,box_zoom,save,resize,select,reset"
                      ):
         column_descriptor_dict = self.column_descriptor_dict()
@@ -280,8 +284,7 @@ class CrossFilter(PlotObject):
                 source = make_continuous_bar_source(
                     df, self.x, self.y, self.agg)
                 bar_width = 0.7
-                x_range = Range1d(start=df[self.x].min() - bar_width,
-                                  end=df[self.x].max() - bar_width)
+                x_range = [df[self.x].min() - bar_width, df[self.x].max() - bar_width]
                 plot = make_bar_plot(source, counts_name=self.y,
                                      centers_name=self.x,
                                      bar_width=bar_width,
@@ -302,8 +305,6 @@ class CrossFilter(PlotObject):
                                      tools=tools,
                                      x_range=x_range)
                 return plot
-
-
 
     def plot_attribute_change(self, obj, attrname, old, new):
         setattr(self, obj.name, new)
@@ -352,13 +353,11 @@ class CrossFilter(PlotObject):
         self.on_change('facet_y', self, 'facet_change')
 
     def handle_filter_selection(self, obj, attrname, old, new):
-        column_descriptor_dict = self.column_descriptor_dict()
         df = self.df
         for descriptor in self.columns:
             colname = descriptor['name']
             if descriptor['type'] == 'DiscreteColumn' and \
                colname in self.filter_widgets:
-                widget = self.filter_widgets[colname]
                 selected = self.filter_widgets[colname].value
                 if not selected:
                     continue
@@ -411,16 +410,19 @@ class CrossFilter(PlotObject):
                     source = make_histogram_source(self.df[col])
                     self.filter_sources[col] = source
                     hist_plot = make_histogram(self.filter_sources[col],
-                                               plot_width=150, plot_height=100,
+                                               plot_width=200, plot_height=100,
                                                title_text_font_size='8pt',
                                                tools='select'
                     )
                     hist_plot.title = col
                     self.filter_widgets[col] = hist_plot
+        curdoc()._add_all()
 
     def set_metadata(self):
         descriptors = []
+
         columns = self.df.columns
+
         for c in columns:
             desc = self.df[c].describe()
             if self.df[c].dtype == object:
@@ -453,4 +455,4 @@ class CrossFilter(PlotObject):
                     'max' : "%.2f" % desc['max'],
                 })
         self.columns = descriptors
-        return None
+

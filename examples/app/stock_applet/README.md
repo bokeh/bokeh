@@ -1,4 +1,3 @@
-
 This example shows how to create a simple applet in Bokeh, which can
 be viewed in two different ways:
 
@@ -64,5 +63,5 @@ Next you need to run the flask server that embeds the stock applet:
 Now you can see the stock correlation applet by navigating to the following
 URL in a browser:
 
-    http://localhost:5050/app
+    http://localhost:5050/
 

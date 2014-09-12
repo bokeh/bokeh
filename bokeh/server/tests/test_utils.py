@@ -4,7 +4,7 @@ import time
 import unittest
 
 from tornado import ioloop
-import redis
+#import redis
 import requests
 from requests.exceptions import ConnectionError
 
@@ -68,6 +68,7 @@ class BaseBokehServerTestCase(unittest.TestCase):
 
 class RedisBokehServerTestCase(BaseBokehServerTestCase):
 
+    @unittest.skip
     @skipIfPy3("gevent does not work in py3.")
     def setUp(self):
         start.prepare_app({"type": "redis", "redis_port": 6899}, **self.options)
