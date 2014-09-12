@@ -73,28 +73,17 @@ define [
         vy: vy
       }
 
-      datasources = {}
-      datasource_selections = {}
       renderers = @mget('renderers')
-      for renderer in renderers
-        datasource = renderer.get('data_source')
-        datasources[datasource.id] = datasource
-      for renderer in renderers
-        datasource_id = renderer.get('data_source').id
-        _.setdefault(datasource_selections, datasource_id, [])
-        selected = @plot_view.renderers[renderer.id].hit_test(geometry)
-        ds = datasources[datasource_id]
+      for r in renderers
 
-        xmapper = @plot_view.frame.get('x_mappers')[renderer.get('x_range_name')]
-        ymapper = @plot_view.frame.get('y_mappers')[renderer.get('y_range_name')]
-        x = xmapper.map_from_target(vx)
-        y = ymapper.map_from_target(vy)
+        ds = r.get('data_source')
 
-        if selected == null
-          continue
+        selected = @plot_view.renderers[r.id].hit_test(geometry)
 
-        if selected.length == 0
-          continue
+        if not selected?
+          selected = []
+
+        ds.save({"point_selection": selected}, {patch: true})
 
         @trigger('clicked', selected, ds)
 

@@ -35,6 +35,7 @@ class DataSource(PlotObject):
     # ordering is incoporated here
     column_names = List(String)
     selected = List(Int) # index of selected points
+    point_selection = List(Int) # index of selected points
 
     def columns(self, *columns):
         """ Returns a ColumnsRef object that points to a column or set of
