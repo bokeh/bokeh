@@ -44,8 +44,8 @@ def distance(p1, p2):
 def prep_data(dataset):
     df = dataset.copy()
 
-    latlon = zip(df.lat, df.lon)
-    dist = np.array([0] + [ distance(latlon[i+1], latlon[i]) for i, _ in enumerate(latlon[:-1]) ])
+    latlon = list(zip(df.lat, df.lon))
+    dist = np.array([0] + [ distance(latlon[i+1], latlon[i]) for i in range(len((latlon[:-1]))) ])
 
     df["dist"] = np.cumsum(dist)
 
