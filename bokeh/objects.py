@@ -23,6 +23,7 @@ from .properties import (
     Datetime, HasProps, Dict, Enum, Either, Float, Instance, Int,
     List, String, Color, Include, Bool, Tuple, Any
 )
+from . import palettes
 from .query import find
 from .utils import nice_join
 
