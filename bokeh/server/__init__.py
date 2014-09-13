@@ -175,25 +175,25 @@ def run():
         name + ":" + onoff[vars(args).get(name)]for name in ['splitjs', 'debugjs']
     )
 
-
-    print("""
-Bokeh Server Configuration
-==========================
-python version : %s
-bokeh version  : %s
-listening      : %s:%d
-backend        : %s
-python options : %s
-js options     : %s
-data-directory : %s
-""" % (
-    sys.version.split()[0], __version__,
-    args.ip, args.port,
-    backend_options,
-    py_options,
-    js_options,
-    None if not args.data_directory else args.data_directory,
-))
+    if os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
+        print("""
+    Bokeh Server Configuration
+    ==========================
+    python version : %s
+    bokeh version  : %s
+    listening      : %s:%d
+    backend        : %s
+    python options : %s
+    js options     : %s
+    data-directory : %s
+    """ % (
+        sys.version.split()[0], __version__,
+        args.ip, args.port,
+        backend_options,
+        py_options,
+        js_options,
+        None if not args.data_directory else args.data_directory,
+    ))
 
     if args.filter_logs:
         class StaticFilter(logging.Filter):
