@@ -175,7 +175,7 @@ def run():
         name + ":" + onoff[vars(args).get(name)]for name in ['splitjs', 'debugjs']
     )
 
-    if os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
+    if not args.debug or os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
         print("""
     Bokeh Server Configuration
     ==========================
