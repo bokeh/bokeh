@@ -6,6 +6,7 @@ from math import sin, cos, atan2, sqrt, pi, radians
 
 import numpy as np
 import pandas as pd
+import scipy.ndimage as im
 
 from bokeh.document import Document
 from bokeh.embed import file_html
@@ -45,18 +46,25 @@ def prep_data(dataset):
     df = dataset.copy()
 
     latlon = list(zip(df.lat, df.lon))
-    dist = np.array([0] + [ distance(latlon[i+1], latlon[i]) for i in range(len((latlon[:-1]))) ])
+    dist = np.array([ distance(latlon[i+1], latlon[i]) for i in range(len((latlon[:-1]))) ])
 
-    df["dist"] = np.cumsum(dist)
+    df["dist"] = np.concatenate(([0], np.cumsum(dist)))
 
-    slope = np.abs(100*np.diff(df.alt)/(1000*dist)[1:])
+    slope = np.abs(100*np.diff(df.alt)/(1000*dist))
+    slope[np.where(                 slope <  4) ] = 0 # "green"
+    slope[np.where((slope >=  4) & (slope <  6))] = 1 # "yellow"
+    slope[np.where((slope >=  6) & (slope < 10))] = 2 # "pink"
+    slope[np.where((slope >= 10) & (slope < 15))] = 3 # "orange"
+    slope[np.where( slope >= 15                )] = 4 # "red"
+    slope = im.median_filter(slope, 6)
+
     colors = np.empty_like(slope, dtype=object)
-    colors[np.where((slope >= 0) & (slope < 4))] = "green"
-    colors[np.where((slope >= 4) & (slope < 6))] = "yellow"
-    colors[np.where((slope >= 6) & (slope < 10))] = "pink"
-    colors[np.where((slope >= 10) & (slope < 15))] = "orange"
-    colors[np.where(slope >= 15)] = "red"
-    df["colors"] = list(colors) + [None]
+    colors[np.where(slope == 0)] = "green"
+    colors[np.where(slope == 1)] = "yellow"
+    colors[np.where(slope == 2)] = "pink"
+    colors[np.where(slope == 3)] = "orange"
+    colors[np.where(slope == 4)] = "red"
+    df["colors"] = list(colors) + [None]              # NOTE: add [None] just make pandas happy
 
     return df
 
@@ -116,7 +124,7 @@ def altitude_profile(data):
         color = data.colors[:-1]
     ))
 
-    patches = Patches(xs="xs", ys="ys", fill_color="color", line_color=None)
+    patches = Patches(xs="xs", ys="ys", fill_color="color", line_color="color")
     plot.add_glyph(patches_source, patches)
 
     line_source = ColumnDataSource(dict(
