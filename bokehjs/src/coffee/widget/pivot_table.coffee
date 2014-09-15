@@ -379,17 +379,19 @@ define [
   class PivotTable extends HasParent
     default_view: PivotTableView
     type: "PivotTable"
-    defaults:
-      title: "Pivot Table"
-      description: ""
-      source: null
-      data: {}
-      fields: []
-      rows: []
-      columns: []
-      values: []
-      filters: []
-      manual_update: true
+    defaults: ->
+      _.extend {}, super(), {
+        title: "Pivot Table"
+        description: ""
+        source: null
+        data: {}
+        fields: []
+        rows: []
+        columns: []
+        values: []
+        filters: []
+        manual_update: true
+      }
     aggregates: ["count", "counta", "countunique", "average", "max", "min", "median", "sum", "product", "stdev", "stdevp", "var", "varp"]
     renderers: ["default", "heatmap"]
     formatters: ["none"]

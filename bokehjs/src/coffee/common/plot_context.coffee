@@ -70,8 +70,8 @@ define [
     url: () ->
       return super()
 
-    defaults: () ->
-      return {
+    defaults: ->
+      _.extend {}, super(), {
         children: []
       }
 

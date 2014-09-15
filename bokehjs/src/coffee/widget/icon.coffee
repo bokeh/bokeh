@@ -37,13 +37,13 @@ define [
     type: "Icon"
     default_view: IconView
 
-    defaults: () ->
-      _.extend({}, super(), {
+    defaults: ->
+      _.extend {}, super(), {
         name: ""
         size: null
         flip: null
         spin: false
-      })
+      }
 
   class Icons extends Backbone.Collection
     model: Icon

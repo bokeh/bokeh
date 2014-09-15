@@ -69,8 +69,8 @@ define [
     default_view: BoxSelectionView
     type: "BoxSelection"
 
-    defaults: () ->
-      return {
+    defaults: ->
+      _.extend {}, super(), {
         tool: null
         level: 'overlay'
       }

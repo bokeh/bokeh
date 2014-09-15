@@ -356,8 +356,8 @@ define [
       'min_border_right'
     ]
 
-    defaults: () ->
-      return {
+    defaults: ->
+      _.extend {}, super(), {
         button_bar: true
         renderers: [],
         tools: [],
@@ -375,8 +375,8 @@ define [
         toolbar_location: "above"
       }
 
-    display_defaults: () ->
-      return {
+    display_defaults: ->
+      _.extend {}, super(), {
         hidpi: true,
         background_fill: "#fff",
         border_fill: "#fff",

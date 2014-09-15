@@ -29,10 +29,11 @@ define [
   class VBoxForm extends HasParent
     type : "VBoxForm"
     default_view : VBoxFormView
-    defaults : () ->
-      defaults =
-        children : []
-      return defaults
+    defaults: ->
+      _.extend {}, super(), {
+        children: []
+      }
+
   class VBoxForms extends Backbone.Collection
     model : VBoxForm
   vboxforms = new VBoxForms()

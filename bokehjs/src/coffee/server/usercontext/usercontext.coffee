@@ -110,11 +110,13 @@ define [
   class Doc extends HasParent
     default_view : DocView
     idAttribute : 'docid'
-    defaults :
-      docid : null
-      title : null
-      plot_context : null
-      apikey : null
+    defaults: ->
+      _.extend {}, super(), {
+        docid: null
+        title: null
+        plot_context: null
+        apikey: null
+      }
 
     sync : () ->
 

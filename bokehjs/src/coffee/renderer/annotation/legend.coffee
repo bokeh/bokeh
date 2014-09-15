@@ -121,8 +121,8 @@ define [
     default_view: LegendView
     type: 'Legend'
 
-    display_defaults: () ->
-      return {
+    display_defaults: ->
+      _.extend {}, super(), {
         level: 'overlay'
 
         border_line_color: 'black'

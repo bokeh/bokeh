@@ -80,10 +80,10 @@ define [
         "minor": []
       }
 
-    defaults: () ->
-      return _.extend(super(), {
+    defaults: ->
+      _.extend {}, super(), {
         toString_properties: ['days']
-      })
+      }
 
   class DaysTickers extends Backbone.Collection
     model: DaysTicker

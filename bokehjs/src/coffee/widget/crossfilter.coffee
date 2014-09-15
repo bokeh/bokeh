@@ -76,9 +76,11 @@ define [
     _set_columns: () =>
       @columns.reset(@get('columns'))
 
-    defaults:
-      height: 700
-      width: 1300
+    defaults: ->
+      _.extend {}, super(), {
+        height: 700
+        width: 1300
+      }
 
   class CrossFilters extends Backbone.Collection
     model: CrossFilter
@@ -278,44 +280,50 @@ define [
 
   class TimeColumn extends HasProperties
     default_view: TimeColumnView
-    defaults:
-      type: "TimeColumn"
-      label: "Time"
-      name: ""
-      fields: ['count', 'unique', 'first', 'last']
-      count: 0
-      unique: 0
-      first: 0
-      last: 0
+    defaults: ->
+      _.extend {}, super(), {
+        type: "TimeColumn"
+        label: "Time"
+        name: ""
+        fields: ['count', 'unique', 'first', 'last']
+        count: 0
+        unique: 0
+        first: 0
+        last: 0
+      }
 
   class DiscreteColumnView extends ColumnView
 
   class DiscreteColumn extends HasProperties
     default_view: DiscreteColumnView
-    defaults:
-      type: "DiscreteColumn"
-      label: "Factor"
-      name: ""
-      fields: ['count', 'unique', 'top', 'freq']
-      count: 0
-      unique: 0
-      top: 0
-      freq: 0
+    defaults: ->
+      _.extend {}, super(), {
+        type: "DiscreteColumn"
+        label: "Factor"
+        name: ""
+        fields: ['count', 'unique', 'top', 'freq']
+        count: 0
+        unique: 0
+        top: 0
+        freq: 0
+      }
 
   class ContinuousColumnView extends ColumnView
 
   class ContinuousColumn extends HasProperties
     default_view: ContinuousColumnView
-    defaults:
-      type: "ContinuousColumn"
-      label: "Continuous"
-      name: ""
-      fields: ['count', 'mean', 'std', 'min', 'max']
-      count: 0
-      mean: 0
-      std: 0
-      min: 0
-      max: 0
+    defaults: ->
+      _.extend {}, super(), {
+        type: "ContinuousColumn"
+        label: "Continuous"
+        name: ""
+        fields: ['count', 'mean', 'std', 'min', 'max']
+        count: 0
+        mean: 0
+        std: 0
+        min: 0
+        max: 0
+      }
 
   column_types = {
     'DiscreteColumn'   : DiscreteColumn

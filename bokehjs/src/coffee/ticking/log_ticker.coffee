@@ -86,10 +86,10 @@ define [
         "minor": minor_ticks
       }
 
-    defaults: () ->
-      return _.extend(super(), {
+    defaults: ->
+      _.extend {}, super(), {
         mantissas: [1, 5]
-      })
+      }
 
   class LogTickers extends Backbone.Collection
     model: LogTicker

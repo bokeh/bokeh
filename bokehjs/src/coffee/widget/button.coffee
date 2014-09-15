@@ -48,14 +48,14 @@ define [
     type: "Button"
     default_view: ButtonView
 
-    defaults: () ->
-      _.extend({}, super(), {
+    defaults: ->
+      _.extend {}, super(), {
         clicks: 0
         label: "Button"
         icon: null
         type: "default"
         disabled: false
-      })
+      }
 
   class Buttons extends Backbone.Collection
     model: Button

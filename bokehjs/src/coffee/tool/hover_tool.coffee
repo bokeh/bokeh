@@ -217,8 +217,8 @@ define [
         renderers = (r for r in renderers when names.indexOf(r.get('name')) >= 0)
       @set('renderers', renderers)
 
-    defaults: () ->
-      return _.extend(super(), {
+    defaults: ->
+      _.extend {}, super(), {
         renderers: []
         names: []
         tooltips: {
@@ -226,10 +226,7 @@ define [
           "data (x, y)": "($x, $y)"
           "canvas (x, y)": "($sx, $sy)"
         }
-      })
-
-    display_defaults: () ->
-      super()
+      }
 
   class HoverTools extends Backbone.Collection
     model: HoverTool

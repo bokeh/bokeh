@@ -96,11 +96,11 @@ define [
     default_view: ImageView
     type: 'Glyph'
 
-    display_defaults: () ->
-      return _.extend(super(), {
+    display_defaults: ->
+      _.extend {}, super(), {
         level: 'underlay'
         dilate: false
-      })
+      }
 
   return {
     "Model": ImageGlyph,

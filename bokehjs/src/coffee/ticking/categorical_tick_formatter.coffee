@@ -15,9 +15,6 @@ define [
   class CategoricalTickFormatters extends Backbone.Collection
     model: CategoricalTickFormatter
 
-    defaults: () ->
-      super()
-
   return {
     "Model": CategoricalTickFormatter,
     "Collection": new CategoricalTickFormatters()

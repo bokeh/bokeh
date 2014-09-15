@@ -98,8 +98,8 @@ define [
         @_aspect_constraint = c
         @solver.add_constraint(c)
 
-    defaults: () ->
-      return {
+    defaults: ->
+      _.extend {}, super(), {
         'top_strength': kiwi.Strength.strong,
         'bottom_strength': kiwi.Strength.strong,
         'left_strength': kiwi.Strength.strong,

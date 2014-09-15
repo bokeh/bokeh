@@ -50,15 +50,15 @@ define [
     type : "Slider"
     default_view : SliderView
 
-    defaults : () ->
-      def =
-        title : ''
-        value : 0.5
-        start : 0
-        end : 1
-        step : 0
-        orientation : "horizontal"
-      return def
+    defaults: ->
+      _.extend {}, super(), {
+        title: ''
+        value: 0.5
+        start: 0
+        end: 1
+        step: 0
+        orientation: "horizontal"
+      }
 
   class Sliders extends Backbone.Collection
     model : Slider

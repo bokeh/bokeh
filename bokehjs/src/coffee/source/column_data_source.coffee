@@ -38,8 +38,8 @@ define [
         points.push(point)
       return points
 
-    defaults: () ->
-      return {
+    defaults: ->
+      _.extend {}, super(), {
         data: {}
       }
 

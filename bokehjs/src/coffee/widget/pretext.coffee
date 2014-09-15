@@ -9,12 +9,13 @@ define [
   class PreText extends Paragraph.Model
     type : "PreText"
     default_view : PreTextView
-    defaults : () ->
-      return {
-        'text' : ''
-        'height' : 400
-        'width' : 400
+    defaults: ->
+      _.extend {}, super(), {
+        text: ''
+        height: 400
+        width: 400
       }
+
   class PreTexts extends Backbone.Collection
     model : PreText
   pretexts = new PreTexts()

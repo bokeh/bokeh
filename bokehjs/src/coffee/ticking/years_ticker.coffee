@@ -33,10 +33,10 @@ define [
         "minor": []
       }
 
-    defaults: () ->
-      return _.extend(super(), {
+    defaults: ->
+      _.extend {}, super(), {
         toString_properties: ['years']
-      })
+      }
 
   class YearsTickers extends Backbone.Collection
     model: YearsTicker

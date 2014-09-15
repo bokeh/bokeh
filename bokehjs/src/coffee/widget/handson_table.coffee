@@ -96,12 +96,12 @@ define [
     type: 'HandsonTable'
     default_view: HandsonTableView
 
-    defaults: () ->
-      return {
-          source: null
-          columns: []
-          width: null
-          height: null
+    defaults: ->
+      _.extend {}, super(), {
+        source: null
+        columns: []
+        width: null
+        height: null
       }
 
   class HandsonTables extends Backbone.Collection

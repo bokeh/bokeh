@@ -46,13 +46,13 @@ define [
     type: "CheckboxGroup"
     default_view: CheckboxGroupView
 
-    defaults: () ->
-      _.extend({}, super(), {
+    defaults: ->
+      _.extend {}, super(), {
         active: []
         labels: []
         inline: false
         disabled: false
-      })
+      }
 
   class CheckboxGroups extends Backbone.Collection
     model: CheckboxGroup

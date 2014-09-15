@@ -44,8 +44,8 @@ define [
   class DateRangeSlider extends HasProperties
     type: "DateRangeSlider"
     default_view: DateRangeSliderView
-    defaults: () ->
-      return _.extend({}, super(), {
+    defaults: ->
+      _.extend {}, super(), {
         ###
         value
         range
@@ -58,7 +58,7 @@ define [
         value_labels
         wheel_mode
         ###
-      })
+      }
 
   class DateRangeSliders extends Backbone.Collection
     model: DateRangeSlider

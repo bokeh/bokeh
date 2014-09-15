@@ -154,8 +154,8 @@ define [
     type: 'GridPlot'
     default_view: GridPlotView
 
-    defaults: () ->
-      return {
+    defaults: ->
+      _.extend {}, super(), {
         children: [[]]
         border_space: 0
       }

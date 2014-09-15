@@ -9,10 +9,6 @@ define [
     type: 'TableColumn'
     default_view: null
 
-    defaults: () ->
-      return {
-      }
-
   class TableColumns extends Backbone.Collection
     model: TableColumn
 

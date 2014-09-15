@@ -212,10 +212,10 @@ define [
 
       return labels
 
-    defaults: () ->
-      _.extend(super(), {
+    defaults: ->
+      _.extend {}, super(), {
         formats: {}
-      })
+      }
 
   class DatetimeTickFormatters extends Backbone.Collection
     model: DatetimeTickFormatter

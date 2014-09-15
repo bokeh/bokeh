@@ -21,8 +21,8 @@ define [
         , true)
       @add_dependencies('max', this, ['factors'])
 
-    defaults: () ->
-      return {
+    defaults: ->
+      _.extend {}, super(), {
         start: 0.5
         factors: []
       }

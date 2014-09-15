@@ -113,15 +113,12 @@ define [
         renderers = (r for r in renderers when names.indexOf(r.get('name')) >= 0)
       @set('renderers', renderers)
 
-    defaults: () ->
-      return _.extend(super(), {
+    defaults: ->
+      _.extend {}, super(), {
         renderers: []
         names: []
         always_active: []
-      })
-
-    display_defaults: () ->
-      super()
+      }
 
   class ClickTools extends Backbone.Collection
     model: ClickTool

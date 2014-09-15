@@ -25,10 +25,10 @@ define [
     get_interval: (data_low, data_high, n_desired_ticks) ->
       return @get('interval')
 
-    defaults: () ->
-      return _.extend(super(), {
+    defaults: ->
+      _.extend {}, super(), {
         toString_properties: ['interval']
-      })
+      }
 
   class SingleIntervalTickers extends Backbone.Collection
     model: SingleIntervalTicker

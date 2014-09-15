@@ -30,8 +30,11 @@ define [
   class VBox extends HasParent
     type : "VBox"
     default_view : VBoxView
-    defaults : () ->
-      return {'children' : []}
+    defaults: ->
+      _.extend {}, super(), {
+        children: []
+      }
+
   class VBoxes extends Backbone.Collection
     model : VBox
   vboxes = new VBoxes()

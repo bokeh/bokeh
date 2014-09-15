@@ -70,8 +70,8 @@ define [
     default_view: OvalView
     type: 'Glyph'
 
-    display_defaults: () ->
-      return _.extend(super(), {
+    display_defaults: ->
+      _.extend {}, super(), {
         fill_color: 'gray'
         fill_alpha: 1.0
         line_color: 'red'
@@ -82,7 +82,7 @@ define [
         line_dash: []
         line_dash_offset: 0
         angle: 0.0
-      })
+      }
 
   return {
     "Model": Oval,

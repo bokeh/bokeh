@@ -19,8 +19,11 @@ define [
   class Paragraph extends HasParent
     type : "Paragraph"
     default_view : ParagraphView
-    defaults : () ->
-      return {'text' : ''}
+    defaults: ->
+      _.extend {}, super(), {
+        text: ''
+      }
+
   class Paragraphs extends Backbone.Collection
     model : Paragraph
   paragraphs = new Paragraphs()

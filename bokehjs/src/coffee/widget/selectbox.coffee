@@ -37,12 +37,12 @@ define [
     type : "Select"
     default_view : SelectView
 
-    defaults : () ->
-      def =
-        title : ''
-        value : ''
-        options : []
-      return def
+    defaults: ->
+      _.extend {}, super(), {
+        title: ''
+        value: ''
+        options: []
+      }
 
   class Selects extends Backbone.Collection
     model : Select

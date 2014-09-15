@@ -61,8 +61,8 @@ define [
       @add_dependencies('end', this, ['minmax', '_end'])
       super(attrs, options)
 
-    defaults: () ->
-      return {
+    defaults: ->
+      _.extend {}, super(), {
         sources: []
         rangepadding: 0.1
       }

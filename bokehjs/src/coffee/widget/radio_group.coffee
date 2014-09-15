@@ -47,13 +47,13 @@ define [
     type: "RadioGroup"
     default_view: RadioGroupView
 
-    defaults: () ->
-      _.extend({}, super(), {
+    defaults: ->
+      _.extend {}, super(), {
         active: null
         labels: []
         inline: false
         disabled: false
-      })
+      }
 
   class RadioGroups extends Backbone.Collection
     model: RadioGroup

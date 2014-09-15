@@ -30,8 +30,11 @@ define [
   class HBox extends HasParent
     type : "HBox"
     default_view : HBoxView
-    defaults : () ->
-      return {'children' : []}
+    defaults: ->
+      _.extend {}, super(), {
+        children: []
+      }
+
   class HBoxes extends Backbone.Collection
     model : HBox
   hboxes = new HBoxes()

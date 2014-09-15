@@ -22,8 +22,8 @@ define [
   class DatetimeTicker extends CompositeTicker.Model
     type: 'DatetimeTicker'
 
-    defaults: () ->
-      return _.extend(super(), {
+    defaults: ->
+      _.extend {}, super(), {
         num_minor_ticks: 0
         tickers: [
           # Sub-second.
@@ -68,7 +68,7 @@ define [
           # Years
           new YearsTicker.Model({})
         ]
-      })
+      }
 
   class DatetimeTickers extends Backbone.Collection
     model: DatetimeTicker

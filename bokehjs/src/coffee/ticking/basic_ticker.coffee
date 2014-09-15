@@ -8,10 +8,10 @@ define [
     initialize: (attrs, options) ->
       super(attrs, options)
 
-    defaults: () ->
-      return _.extend(super(), {
+    defaults: ->
+      _.extend {}, super(), {
         mantissas: [1,2,5]
-      })
+      }
 
   class BasicTickers extends Backbone.Collection
     model: BasicTicker

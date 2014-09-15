@@ -128,8 +128,8 @@ define [
       for name, mapper of @get('y_mappers')
         mapper.set('target_range', @get('v_range'))
 
-    defaults: () ->
-      return {
+    defaults: ->
+      _.extend {}, super(), {
         extra_x_ranges: {}
         extra_y_ranges: {}
       }

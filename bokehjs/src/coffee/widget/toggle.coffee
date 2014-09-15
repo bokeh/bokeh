@@ -50,14 +50,14 @@ define [
     type: "Toggle"
     default_view: ToggleView
 
-    defaults: () ->
-      _.extend({}, super(), {
+    defaults: ->
+      _.extend {}, super(), {
         active: false
         label: "Toggle"
         icon: null
         type: "default"
         disabled: false
-      })
+      }
 
   class Toggles extends Backbone.Collection
     model: Toggle

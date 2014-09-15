@@ -37,12 +37,12 @@ define [
     type : "TextInput"
     default_view : TextInputView
 
-    defaults : () ->
-      defaults =
-        name : ""
-        value : ""
-        title : ""
-      return defaults
+    defaults: ->
+      _.extend {}, super(), {
+        name: ""
+        value: ""
+        title: ""
+      }
 
   class TextInputs extends Backbone.Collection
     model : TextInput

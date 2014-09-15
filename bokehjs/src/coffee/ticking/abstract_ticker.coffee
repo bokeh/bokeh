@@ -116,11 +116,11 @@ define [
       data_range = data_high - data_low
       return data_range / desired_n_ticks
 
-    defaults: () ->
-      return _.extend(super(), {
+    defaults: ->
+      _.extend {}, super(), {
         toString_properties: []
         num_minor_ticks: 5
-      })
+      }
 
   class AbstractTickers extends Backbone.Collection
     model: AbstractTicker

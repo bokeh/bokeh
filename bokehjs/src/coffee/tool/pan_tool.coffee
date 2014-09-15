@@ -116,13 +116,10 @@ define [
     default_view: PanToolView
     type: "PanTool"
 
-    defaults: () ->
-      return {
+    defaults:  ->
+      _.extend {}, super(), {
         dimensions: ["width", "height"]
       }
-
-    display_defaults: () ->
-      super()
 
   class PanTools extends Backbone.Collection
     model: PanTool

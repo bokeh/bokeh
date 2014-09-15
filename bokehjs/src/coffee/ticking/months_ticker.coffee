@@ -64,10 +64,10 @@ define [
         "minor": []
       }
 
-    defaults: () ->
-      return _.extend(super(), {
+    defaults: ->
+      _.extend {}, super(), {
         toString_properties: ['months']
-      })
+      }
 
   class MonthsTickers extends Backbone.Collection
     model: MonthsTicker

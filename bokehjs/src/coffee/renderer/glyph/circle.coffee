@@ -162,8 +162,8 @@ define [
     default_view: CircleView
     type: 'Glyph'
 
-    display_defaults: () ->
-      return _.extend(super(), {
+    display_defaults: ->
+      _.extend {}, super(), {
         radius_units: 'data'
         size_units: 'screen'
 
@@ -177,7 +177,7 @@ define [
         line_cap: 'butt'
         line_dash: []
         line_dash_offset: 0
-      })
+      }
 
   return {
     "Model": Circle,

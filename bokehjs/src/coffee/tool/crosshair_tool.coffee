@@ -101,9 +101,6 @@ define [
     default_view: CrosshairToolView
     type: "CrosshairTool"
 
-    display_defaults: () ->
-      super()
-
   class CrosshairTools extends Backbone.Collection
     model: CrosshairTool
 

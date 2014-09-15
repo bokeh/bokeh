@@ -156,8 +156,8 @@ define [
     default_view: AnnularWedgeView
     type: 'Glyph'
 
-    display_defaults: () ->
-      return _.extend(super(), {
+    display_defaults: ->
+      _.extend {}, super(), {
         direction: 'anticlock'
 
         fill_color: 'gray'
@@ -170,7 +170,7 @@ define [
         line_cap: 'butt'
         line_dash: []
         line_dash_offset: 0
-      })
+      }
 
   return {
     "Model": AnnularWedge,

@@ -26,8 +26,8 @@ define [
       @add_dependencies('values', @get('data_source'),
         ['data_source', 'columns'])
 
-    defaults: () ->
-      return {
+    defaults: ->
+      _.extend {}, super(), {
         values: []
         columns: []
         data_source: null

@@ -72,9 +72,6 @@ define [
       ticks = best_ticker.get_ticks_no_defaults(data_low, data_high, desired_n_ticks)
       return ticks
 
-    defaults: () ->
-      super()
-
   class CompositeTickers extends Backbone.Collection
     model: CompositeTicker
 

@@ -114,17 +114,14 @@ define [
     default_view: WheelZoomToolView
     type: "WheelZoomTool"
 
-    defaults: () ->
-      return {
+    defaults: ->
+      _.extend {}, super(), {
         dimensions: ["width", "height"]
         speed: 1/600
       }
 
   class WheelZoomTools extends Backbone.Collection
     model: WheelZoomTool
-
-    display_defaults: () ->
-      super()
 
   return {
     "Model": WheelZoomTool,

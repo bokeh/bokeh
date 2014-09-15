@@ -45,12 +45,13 @@ define [
   class MultiSelect extends HasParent
     type : "MultiSelect"
     default_view : MultiSelectView
-    defaults : () ->
-      def =
-        title : ''
-        value : []
-        options : []
-      return def
+    defaults: ->
+      _.extend {}, super(), {
+        title: ''
+        value: []
+        options: []
+      }
+
   class MultiSelects extends Backbone.Collection
     model : MultiSelect
   multiselectboxes = new MultiSelects()

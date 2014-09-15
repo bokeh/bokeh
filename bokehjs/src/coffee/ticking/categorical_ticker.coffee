@@ -12,9 +12,6 @@ define [
         "minor": []
       }
 
-    defaults: () ->
-      super()
-
   class CategoricalTickers extends Backbone.Collection
     model: CategoricalTicker
 

@@ -67,8 +67,8 @@ define [
     type: "Dropdown"
     default_view: DropdownView
 
-    defaults: () ->
-      _.extend({}, super(), {
+    defaults: ->
+      _.extend {}, super(), {
         action: null
         default_action: null
         label: "Dropdown"
@@ -76,7 +76,7 @@ define [
         type: "default"
         menu: []
         disabled: false
-      })
+      }
 
   class Dropdowns extends Backbone.Collection
     model: Dropdown

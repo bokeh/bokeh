@@ -47,8 +47,8 @@ define [
   class Tabs extends HasProperties
     type: "Tabs"
     default_view: TabsView
-    defaults: () ->
-      return {
+    defaults: ->
+      _.extend {}, super(), {
         tabs: []
         active: 0
       }

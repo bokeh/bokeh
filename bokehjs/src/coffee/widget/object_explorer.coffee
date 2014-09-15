@@ -182,8 +182,8 @@ define [
     type: 'ObjectExplorer'
     default_view: ObjectExplorerView
 
-    defaults: () ->
-      return {
+    defaults: ->
+      _.extend {}, super(), {
         data_widget: null
       }
 

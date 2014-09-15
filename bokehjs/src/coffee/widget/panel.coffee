@@ -18,8 +18,8 @@ define [
   class Panel extends HasProperties
     type: "Panel"
     default_view: PanelView
-    defaults: () ->
-      return {
+    defaults: ->
+      _.extend {}, super(), {
         title: ""
         child: null
         closable: false

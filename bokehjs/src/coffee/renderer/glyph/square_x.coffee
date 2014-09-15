@@ -40,8 +40,8 @@ define [
     default_view: SquareXView
     type: 'Glyph'
 
-    display_defaults: () ->
-      return _.extend(super(), {
+    display_defaults: ->
+      _.extend {}, super(), {
         size_units: 'screen'
 
         fill_color: 'gray'
@@ -54,7 +54,7 @@ define [
         line_cap: 'butt'
         line_dash: []
         line_dash_offset: 0
-      })
+      }
 
   return {
     "Model": SquareX,

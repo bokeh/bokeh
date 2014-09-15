@@ -35,13 +35,14 @@ define [
   class Dialog extends HasProperties
     type: "Dialog"
     default_view: DialogView
-    defaults: () -> {
-      visible: false
-      closable: true
-      title: ""
-      content: ""
-      buttons: []
-    }
+    defaults: ->
+      _.extend {}, super(), {
+        visible: false
+        closable: true
+        title: ""
+        content: ""
+        buttons: []
+      }
 
   class Dialogs extends Backbone.Collection
     model: Dialog

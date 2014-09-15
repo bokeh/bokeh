@@ -134,8 +134,8 @@ define [
     default_view: AnnulusView
     type: 'Glyph'
 
-    display_defaults: () ->
-      return _.extend(super(), {
+    display_defaults: ->
+      _.extend {}, super(), {
         fill_color: 'gray'
         fill_alpha: 1.0
 
@@ -146,7 +146,7 @@ define [
         line_cap: 'butt'
         line_dash: []
         line_dash_offset: 0
-      })
+      }
 
   return {
     "Model": Annulus,

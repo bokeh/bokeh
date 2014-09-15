@@ -148,15 +148,15 @@ define [
       'min_border_right'
     ]
 
-    defaults: () ->
-      return _.extend(super(), {
+    defaults: ->
+      _.extend {}, super(), {
         title: 'GMapPlot'
-      })
+      }
 
-    display_defaults: () ->
-      return _.extend(super(), {
+    display_defaults: ->
+      _.extend {}, super(), {
         border_fill: "#eee",
-      })
+      }
 
   class GMapPlots extends Backbone.Collection
      model: GMapPlot

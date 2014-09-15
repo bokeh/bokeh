@@ -140,17 +140,14 @@ define [
     default_view: BoxSelectToolView
     type: "BoxSelectTool"
 
-    defaults: () ->
-      return _.extend(super(), {
+    defaults: ->
+      _.extend {}, super(), {
         renderers: []
         select_x: true
         select_y: true
         select_every_mousemove: false
         data_source_options: {} # backbone options for save on datasource
-      })
-
-    display_defaults: () ->
-      super()
+      }
 
   class BoxSelectTools extends Backbone.Collection
     model: BoxSelectTool

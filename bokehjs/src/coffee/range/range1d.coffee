@@ -19,8 +19,8 @@ define [
         , true)
       @add_dependencies('max', this, ['start', 'end'])
 
-    defaults: () ->
-      return {
+    defaults: ->
+      _.extend {}, super(), {
         start: 0
         end: 1
       }

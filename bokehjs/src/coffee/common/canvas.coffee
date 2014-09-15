@@ -205,8 +205,8 @@ define [
       @_set_height(dims[1], false)
       @solver.update_variables()
 
-    defaults: () ->
-      return {
+    defaults: ->
+      _.extend {}, super(), {
         width: 300
         height: 300
         map: false
@@ -214,9 +214,6 @@ define [
         mousemove_callbacks: []
         use_hidpi: true
       }
-
-    display_defaults: () ->
-      return { }
 
   class Canvases extends Backbone.Collection
     model: Canvas

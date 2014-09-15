@@ -29,9 +29,6 @@ define [
   class DataRangeBoxSelectTools extends Backbone.Collection
     model: DataRangeBoxSelectToolView
 
-    display_defaults: () ->
-      super()
-
   return {
     "Model": DataRangeBoxSelectTool,
     "Collection": new DataRangeBoxSelectTools(),

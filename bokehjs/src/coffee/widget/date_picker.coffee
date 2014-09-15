@@ -31,8 +31,8 @@ define [
   class DatePicker extends HasProperties
     type: "DatePicker"
     default_view: DatePickerView
-    defaults: () ->
-      return {
+    defaults: ->
+      _.extend {}, super(), {
         value: Date.now()
       }
 
