@@ -11,6 +11,7 @@ import math
 import logging
 logger = logging.getLogger(__file__)
 
+_AR_VERSION = "0.5.1"
 _AR_MESSAGE = """
 ---------------------------------------------------
 Error loading the abstract_rendering package.
@@ -27,7 +28,8 @@ Joseph Cottam (jcottam@indiana.edu)
 
 def _loadAR():
     """
-    Utility to load abstract rendering (AR).  Keeps the import from occurring
+    Utility to load abstract rendering (AR) and checks for version match.
+    Keeps the import from occurring
     unless you actually try to use AR.  MUST be called before actually
     calling any AR package items (typically only invoked on the server
     in response to an AR-reliant plot request).
@@ -44,6 +46,22 @@ def _loadAR():
     """
     try:
         from importlib import import_module
+        globals()["ari"] = import_module("abstract_rendering")
+    except:
+        print(_AR_MESSAGE)
+        raise
+
+    expected = dict(zip(["major", "minor", "micro"], map(int, _AR_VERSION.split("."))))
+    if not hasattr(ari, "__version_info__"):
+        raise ImportError("Abstract rendering version not found; import aborted.")
+
+    if (ari.__version_info__["major"] != expected["major"]
+       or ari.__version_info__["minor"] != expected["minor"]
+       or ari.__version_info__["micro"] < expected["micro"]):
+           raise ImportError("Abstract rendering version mismatched." +
+                             "Expecting at least {0}, found {1}".format(_AR_VERSION, ari.__version__))
+
+    try:
         globals()["ar"] = import_module("abstract_rendering.core")
         globals()["categories"] = import_module("abstract_rendering.categories")
         globals()["contour"] = import_module("abstract_rendering.contour")
