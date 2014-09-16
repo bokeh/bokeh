@@ -20,7 +20,7 @@ define [
     type : "Paragraph"
     default_view : ParagraphView
     defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         text: ''
       }
 

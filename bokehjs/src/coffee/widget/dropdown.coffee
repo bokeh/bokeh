@@ -68,7 +68,7 @@ define [
     default_view: DropdownView
 
     defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         action: null
         default_action: null
         label: "Dropdown"

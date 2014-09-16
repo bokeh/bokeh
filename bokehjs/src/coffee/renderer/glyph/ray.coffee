@@ -51,7 +51,7 @@ define [
     type: 'Glyph'
 
     display_defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         line_color: 'red'
         line_width: 1
         line_alpha: 1.0

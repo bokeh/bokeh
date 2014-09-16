@@ -47,7 +47,7 @@ define [
     default_view: CheckboxGroupView
 
     defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         active: []
         labels: []
         inline: false

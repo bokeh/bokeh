@@ -115,7 +115,7 @@ define [
     type: "WheelZoomTool"
 
     defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         dimensions: ["width", "height"]
         speed: 1/600
       }

@@ -213,7 +213,7 @@ define [
       return labels
 
     defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         formats: {}
       }
 

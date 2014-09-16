@@ -265,7 +265,7 @@ define [
     default_view: DataTableView
 
     defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         sort: []
         group: []
         agg: 'sum'

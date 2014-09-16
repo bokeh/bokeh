@@ -24,7 +24,7 @@ define [
     type: 'DatetimeTicker'
 
     defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         num_minor_ticks: 0
         tickers: [
           # Sub-second.

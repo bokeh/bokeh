@@ -123,7 +123,7 @@ define [
     type: 'Legend'
 
     display_defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         level: 'overlay'
 
         border_line_color: 'black'

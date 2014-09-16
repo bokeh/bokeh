@@ -22,7 +22,7 @@ define [
       @add_dependencies('max', this, ['factors'])
 
     defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         start: 0.5
         factors: []
       }

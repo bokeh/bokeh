@@ -218,7 +218,7 @@ define [
       @set('renderers', renderers)
 
     defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         renderers: []
         names: []
         tooltips: {

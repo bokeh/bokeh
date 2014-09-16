@@ -10,7 +10,7 @@ define [
     type : "PreText"
     default_view : PreTextView
     defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         text: ''
         height: 400
         width: 400

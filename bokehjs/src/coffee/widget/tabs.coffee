@@ -48,7 +48,7 @@ define [
     type: "Tabs"
     default_view: TabsView
     defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         tabs: []
         active: 0
       }

@@ -39,7 +39,7 @@ define [
       return points
 
     defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         data: {}
       }
 

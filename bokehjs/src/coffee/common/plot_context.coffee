@@ -71,7 +71,7 @@ define [
       return super()
 
     defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         children: []
       }
 

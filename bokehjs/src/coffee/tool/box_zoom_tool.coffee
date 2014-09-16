@@ -103,7 +103,7 @@ define [
     type: "BoxZoomTool"
 
     defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         renderers: []
         select_x: true
         select_y: true

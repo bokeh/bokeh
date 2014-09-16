@@ -37,7 +37,7 @@ define [
     default_view : SelectView
 
     defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         title: ''
         value: ''
         options: []

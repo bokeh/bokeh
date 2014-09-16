@@ -26,7 +26,7 @@ define [
       return @get('interval')
 
     defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         toString_properties: ['interval']
       }
 

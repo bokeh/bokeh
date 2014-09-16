@@ -123,7 +123,7 @@ define [
     type: 'Glyph'
 
     display_defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         direction: 'anticlock'
         fill_color: 'gray'
         fill_alpha: 1.0

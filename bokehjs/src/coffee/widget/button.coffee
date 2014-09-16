@@ -49,7 +49,7 @@ define [
     default_view: ButtonView
 
     defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         clicks: 0
         label: "Button"
         icon: null

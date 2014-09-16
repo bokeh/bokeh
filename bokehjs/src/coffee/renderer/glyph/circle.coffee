@@ -163,7 +163,7 @@ define [
     type: 'Glyph'
 
     display_defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         radius_units: 'data'
         size_units: 'screen'
 

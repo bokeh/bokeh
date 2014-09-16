@@ -10,7 +10,7 @@ define [
       super(attrs, options)
 
     defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         mantissas: [1,2,5]
       }
 

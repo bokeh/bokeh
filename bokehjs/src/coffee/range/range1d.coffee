@@ -20,7 +20,7 @@ define [
       @add_dependencies('max', this, ['start', 'end'])
 
     defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         start: 0
         end: 1
       }

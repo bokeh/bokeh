@@ -46,7 +46,7 @@ define [
     type : "MultiSelect"
     default_view : MultiSelectView
     defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         title: ''
         value: []
         options: []

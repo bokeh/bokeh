@@ -123,13 +123,13 @@ define [
       return coords
 
     defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         x_range_name: "default"
         y_range_name: "default"
       }
 
     display_defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         level: 'underlay'
         grid_line_color: '#cccccc'
         grid_line_width: 1

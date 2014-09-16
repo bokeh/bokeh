@@ -31,7 +31,7 @@ define [
     type : "HBox"
     default_view : HBoxView
     defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         children: []
       }
 

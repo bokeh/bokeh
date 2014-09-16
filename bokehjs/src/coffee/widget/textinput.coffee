@@ -37,7 +37,7 @@ define [
     default_view : TextInputView
 
     defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         name: ""
         value: ""
         title: ""

@@ -36,7 +36,7 @@ define [
     type: "Dialog"
     default_view: DialogView
     defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         visible: false
         closable: true
         title: ""

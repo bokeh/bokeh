@@ -41,7 +41,7 @@ define [
     type: 'Glyph'
 
     display_defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         size_units: 'screen'
 
         fill_color: 'gray'

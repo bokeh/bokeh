@@ -117,7 +117,7 @@ define [
       return data_range / desired_n_ticks
 
     defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         toString_properties: []
         num_minor_ticks: 5
       }

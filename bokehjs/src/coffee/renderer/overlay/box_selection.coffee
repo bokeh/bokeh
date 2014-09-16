@@ -71,7 +71,7 @@ define [
     type: "BoxSelection"
 
     defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         tool: null
         level: 'overlay'
       }

@@ -111,7 +111,7 @@ define [
     default_view : DocView
     idAttribute : 'docid'
     defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         docid: null
         title: null
         plot_context: null

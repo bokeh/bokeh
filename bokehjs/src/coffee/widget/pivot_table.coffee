@@ -380,7 +380,7 @@ define [
     default_view: PivotTableView
     type: "PivotTable"
     defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         title: "Pivot Table"
         description: ""
         source: null

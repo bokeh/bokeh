@@ -50,7 +50,7 @@ define [
     default_view: RadioButtonGroupView
 
     defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         active: null
         labels: []
         type: "default"

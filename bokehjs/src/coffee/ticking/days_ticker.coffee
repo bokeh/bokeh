@@ -81,7 +81,7 @@ define [
       }
 
     defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         toString_properties: ['days']
       }
 

@@ -574,13 +574,13 @@ define [
       return extent
 
     defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         x_range_name: "default"
         y_range_name: "default"
       }
 
     display_defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         level: 'overlay'
 
         axis_line_color: 'black'

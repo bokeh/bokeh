@@ -88,7 +88,7 @@ define [
       }
 
     defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         mantissas: [1, 5]
       }
 

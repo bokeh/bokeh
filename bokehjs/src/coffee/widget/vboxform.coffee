@@ -30,7 +30,7 @@ define [
     type : "VBoxForm"
     default_view : VBoxFormView
     defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         children: []
       }
 

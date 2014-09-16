@@ -74,7 +74,7 @@ define [
       @columns.reset(@get('columns'))
 
     defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         height: 700
         width: 1300
       }
@@ -278,7 +278,7 @@ define [
   class TimeColumn extends HasProperties
     default_view: TimeColumnView
     defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         type: "TimeColumn"
         label: "Time"
         name: ""
@@ -294,7 +294,7 @@ define [
   class DiscreteColumn extends HasProperties
     default_view: DiscreteColumnView
     defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         type: "DiscreteColumn"
         label: "Factor"
         name: ""
@@ -310,7 +310,7 @@ define [
   class ContinuousColumn extends HasProperties
     default_view: ContinuousColumnView
     defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         type: "ContinuousColumn"
         label: "Continuous"
         name: ""

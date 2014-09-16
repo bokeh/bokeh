@@ -62,7 +62,7 @@ define [
       super(attrs, options)
 
     defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         sources: []
         rangepadding: 0.1
       }

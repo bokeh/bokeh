@@ -54,7 +54,7 @@ define [
       return col_widths
 
     defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         childviewstates: [[]]
         border_space: 0
       }

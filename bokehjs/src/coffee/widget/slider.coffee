@@ -50,7 +50,7 @@ define [
     default_view : SliderView
 
     defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         title: ''
         value: 0.5
         start: 0

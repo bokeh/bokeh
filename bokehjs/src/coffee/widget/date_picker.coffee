@@ -32,7 +32,7 @@ define [
     type: "DatePicker"
     default_view: DatePickerView
     defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         value: Date.now()
       }
 

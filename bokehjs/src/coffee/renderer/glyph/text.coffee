@@ -53,7 +53,7 @@ define [
     type: 'Glyph'
 
     display_defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         text_font: "helvetica"
         text_font_size: "12pt"
         text_font_style: "normal"

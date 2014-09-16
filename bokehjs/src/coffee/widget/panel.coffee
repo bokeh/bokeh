@@ -19,7 +19,7 @@ define [
     type: "Panel"
     default_view: PanelView
     defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         title: ""
         child: null
         closable: false

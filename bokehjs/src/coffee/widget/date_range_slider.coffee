@@ -45,7 +45,7 @@ define [
     type: "DateRangeSlider"
     default_view: DateRangeSliderView
     defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         ###
         value
         range

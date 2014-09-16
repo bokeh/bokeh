@@ -48,7 +48,7 @@ define [
     default_view: RadioGroupView
 
     defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         active: null
         labels: []
         inline: false

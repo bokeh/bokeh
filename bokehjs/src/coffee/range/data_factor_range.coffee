@@ -27,7 +27,7 @@ define [
         ['data_source', 'columns'])
 
     defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         values: []
         columns: []
         data_source: null

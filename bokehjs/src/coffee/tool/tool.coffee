@@ -30,7 +30,7 @@ define [
   class Tool extends HasParent
 
     display_defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         level: 'tool'
       }
 

@@ -330,14 +330,14 @@ define [
   class Glyph extends HasParent
 
     defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         x_range_name: "default"
         y_range_name: "default"
         data_source: null
       }
 
     display_defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         level: 'glyph'
         radius_units: 'data'
         length_units: 'screen'

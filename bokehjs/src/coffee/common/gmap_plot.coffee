@@ -149,12 +149,12 @@ define [
     ]
 
     defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         title: 'GMapPlot'
       }
 
     display_defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         border_fill: "#eee",
       }
 

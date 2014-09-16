@@ -358,7 +358,7 @@ define [
     ]
 
     defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         button_bar: true
         renderers: [],
         tools: [],
@@ -377,7 +377,7 @@ define [
       }
 
     display_defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         hidpi: true,
         background_fill: "#fff",
         border_fill: "#fff",

@@ -38,7 +38,7 @@ define [
     default_view: IconView
 
     defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         name: ""
         size: null
         flip: null

@@ -117,7 +117,7 @@ define [
     type: "PanTool"
 
     defaults:  ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         dimensions: ["width", "height"]
       }
 

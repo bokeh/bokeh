@@ -51,7 +51,7 @@ define [
     default_view: ToggleView
 
     defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         active: false
         label: "Toggle"
         icon: null

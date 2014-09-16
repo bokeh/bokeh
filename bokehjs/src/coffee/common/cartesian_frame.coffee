@@ -129,7 +129,7 @@ define [
         mapper.set('target_range', @get('v_range'))
 
     defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         extra_x_ranges: {}
         extra_y_ranges: {}
       }

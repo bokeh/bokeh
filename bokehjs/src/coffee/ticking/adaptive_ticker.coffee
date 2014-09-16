@@ -60,7 +60,7 @@ define [
       return clamp(interval, @get('min_interval'), @get('max_interval'))
 
     defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         toString_properties: ['mantissas', 'base', 'min_magnitude', 'max_magnitude'],
         base: 10.0,
         mantissas: [2, 5, 10]

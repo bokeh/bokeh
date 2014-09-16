@@ -79,7 +79,7 @@ define [
       return labels
 
     defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         precision: 'auto'
         use_scientific: true
         power_limit_high: 5

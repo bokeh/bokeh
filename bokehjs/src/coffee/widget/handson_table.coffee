@@ -97,7 +97,7 @@ define [
     default_view: HandsonTableView
 
     defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         source: null
         columns: []
         width: null

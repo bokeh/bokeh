@@ -206,7 +206,7 @@ define [
       @solver.update_variables()
 
     defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         width: 300
         height: 300
         map: false

@@ -99,7 +99,7 @@ define [
         @solver.add_constraint(c)
 
     defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         'top_strength': kiwi.Strength.strong,
         'bottom_strength': kiwi.Strength.strong,
         'left_strength': kiwi.Strength.strong,

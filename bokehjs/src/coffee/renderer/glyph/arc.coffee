@@ -48,7 +48,7 @@ define [
     type: 'Glyph'
 
     display_defaults: ->
-      _.extend {}, super(), {
+      return _.extend {}, super(), {
         direction: 'anticlock'
         line_color: 'red'
         line_width: 1
