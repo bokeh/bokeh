@@ -4,11 +4,11 @@ define [
   "common/continuum_view"
   "common/has_parent"
   "common/logging"
-], (_, Backbone, continuum_view, HasParent, Logging) ->
+], (_, Backbone, ContinuumView, HasParent, Logging) ->
 
   logger = Logging.logger
 
-  class DropdownView extends continuum_view.View
+  class DropdownView extends ContinuumView
     tagName: "div"
 
     change_input: (action) ->

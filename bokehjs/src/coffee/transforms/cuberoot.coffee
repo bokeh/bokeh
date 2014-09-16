@@ -2,8 +2,9 @@ define [
   "common/continuum_view"
   "backbone",
   "common/has_parent"
-], (continuum_view, Backbone, HasParent) ->
-  class CuberootView extends continuum_view.View
+], (ContinuumView, Backbone, HasParent) ->
+
+  class CuberootView extends ContinuumView
     attributes:
       class: "CuberootView"
 
@@ -21,10 +22,11 @@ define [
   class Cuberoot extends HasParent
     type : "Cuberoot"
     default_view: CuberootView
-  
+
   class Cuberoots extends Backbone.Collection
     model : Cuberoot
+
   return {
-    "Model" : Cuberoot 
+    "Model" : Cuberoot
     "Collection" : new Cuberoots()
   }

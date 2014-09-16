@@ -9,7 +9,7 @@ define [
   "common/continuum_view"
 ], (_, $, $$1, $$2, Backbone, HasParent, HasProperties, ContinuumView) ->
 
-  class PivotTableView extends ContinuumView.View
+  class PivotTableView extends ContinuumView
 
     initialize: (options) ->
       super(options)

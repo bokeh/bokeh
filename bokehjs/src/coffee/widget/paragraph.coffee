@@ -2,8 +2,8 @@ define [
   "common/has_parent",
   "common/continuum_view",
   "backbone"
-], (HasParent, continuum_view, Backbone) ->
-  ContinuumView = continuum_view.View
+], (HasParent, ContinuumView, Backbone) ->
+
   class ParagraphView extends ContinuumView
     tagName : "p"
     initialize : (options) ->

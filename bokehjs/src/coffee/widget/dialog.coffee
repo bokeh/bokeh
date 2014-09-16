@@ -6,9 +6,9 @@ define [
   "common/has_properties"
   "common/continuum_view"
   "./dialog_template"
-], (_, Backbone, $, $1, HasProperties, continuum_view, dialog_template) ->
+], (_, Backbone, $, $1, HasProperties, ContinuumView, dialog_template) ->
 
-  class DialogView extends continuum_view.View
+  class DialogView extends ContinuumView
 
     initialize: (options) ->
       super(options)

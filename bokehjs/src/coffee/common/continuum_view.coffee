@@ -29,12 +29,7 @@ define [
 
     mset: ()->
       # convenience function, calls set on the associated model
-
       return @model.set.apply(@model, arguments)
 
     render_end: () ->
       "pass"
-
-  return {
-    View: ContinuumView
-  }

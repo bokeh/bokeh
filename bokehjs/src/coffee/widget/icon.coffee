@@ -4,11 +4,11 @@ define [
   "common/continuum_view"
   "common/has_parent"
   "common/logging"
-], (_, Backbone, continuum_view, HasParent, Logging) ->
+], (_, Backbone, ContinuumView, HasParent, Logging) ->
 
   logger = Logging.logger
 
-  class IconView extends continuum_view.View
+  class IconView extends ContinuumView
     tagName: "i"
 
     initialize: (options) ->

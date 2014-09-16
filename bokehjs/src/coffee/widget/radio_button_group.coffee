@@ -7,11 +7,11 @@ define [
   "common/has_parent"
   "common/logging"
   "bootstrap/button"
-], (_, Backbone, $, $1, continuum_view, HasParent, Logging) ->
+], (_, Backbone, $, $1, ContinuumView, HasParent, Logging) ->
 
   logger = Logging.logger
 
-  class RadioButtonGroupView extends continuum_view.View
+  class RadioButtonGroupView extends ContinuumView
     tagName: "div"
     events:
       "change input": "change_input"

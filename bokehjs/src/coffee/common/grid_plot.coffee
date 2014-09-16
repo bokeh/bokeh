@@ -10,7 +10,7 @@ define [
   "tool/active_tool_manager",
 ], (_, Backbone, build_views, ContinuumView, HasParent, GridViewState, Properties, ActiveToolManager) ->
 
-  class GridPlotView extends ContinuumView.View
+  class GridPlotView extends ContinuumView
     tagName: 'div'
     className: "bokeh grid_plot"
     default_options: {scale:1.0}

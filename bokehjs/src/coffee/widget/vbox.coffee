@@ -3,8 +3,8 @@ define [
   "common/continuum_view",
   "common/build_views"
   "backbone"
-], (HasParent, continuum_view, build_views, Backbone) ->
-  ContinuumView = continuum_view.View
+], (HasParent, ContinuumView, build_views, Backbone) ->
+
   class VBoxView extends ContinuumView
     tag : "div"
     attributes:

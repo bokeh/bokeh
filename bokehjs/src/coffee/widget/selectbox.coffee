@@ -5,9 +5,8 @@ define [
   "common/has_parent"
   "common/logging"
   "./selecttemplate"
-], (Backbone, build_views, continuum_view, HasParent, Logging, template) ->
+], (Backbone, build_views, ContinuumView, HasParent, Logging, template) ->
 
-  ContinuumView = continuum_view.View
   logger = Logging.logger
 
   class SelectView extends ContinuumView

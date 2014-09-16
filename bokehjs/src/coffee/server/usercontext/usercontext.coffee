@@ -10,12 +10,11 @@ define [
     "common/has_parent",
     "common/build_views",
     "common/load_models",
-], (_, $, base, serverutils, continuum_view,
+], (_, $, base, serverutils, ContinuumView,
     userdocstemplate, documentationtemplate,
     wrappertemplate, HasParent, build_views, load_models) ->
 
   exports = {}
-  ContinuumView = continuum_view.View
   utility = serverutils.utility
 
   class DocView extends ContinuumView

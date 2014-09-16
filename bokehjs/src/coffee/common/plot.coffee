@@ -29,7 +29,7 @@ define [
 
   logger = Logging.logger
 
-  class PlotView extends ContinuumView.View
+  class PlotView extends ContinuumView
     className: "bokeh plotview plotarea"
     template: plot_template
     toolbar_template: toolbar_template

@@ -11,10 +11,7 @@ define [
   "./crossfilter_template"
   "./crossfilter_column_template"
   "./crossfilter_facet_template"
-], (Backbone, _, draggable, droppable, HasParent, HasProperties, continuum_view, close_wrapper, build_views, crossfilter_template, crossfilter_column_template, crossfilter_facet_template) ->
-
-  ContinuumView = continuum_view.View
-  CloseWrapper = close_wrapper.View
+], (Backbone, _, draggable, droppable, HasParent, HasProperties, ContinuumView, CloseWrapper, build_views, crossfilter_template, crossfilter_column_template, crossfilter_facet_template) ->
 
   class CrossFilterView extends ContinuumView
     tag: "div"

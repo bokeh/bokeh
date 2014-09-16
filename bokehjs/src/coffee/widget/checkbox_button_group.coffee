@@ -6,11 +6,11 @@ define [
   "common/continuum_view"
   "common/has_parent"
   "common/logging"
-], (_, Backbone, $, $1, continuum_view, HasParent, Logging) ->
+], (_, Backbone, $, $1, ContinuumView, HasParent, Logging) ->
 
   logger = Logging.logger
 
-  class CheckboxButtonGroupView extends continuum_view.View
+  class CheckboxButtonGroupView extends ContinuumView
     tagName: "div"
     events:
       "change input": "change_input"

@@ -1,9 +1,9 @@
 define [
   "underscore",
   "./continuum_view"
-], (_, continuum_view) ->
+], (_, ContinuumView) ->
 
-  class CloseWrapper extends continuum_view.View
+  class CloseWrapper extends ContinuumView
     ## Wraps a ContinuumView, and adds a close button
     attributes:
       class : "bk-closewrapper"

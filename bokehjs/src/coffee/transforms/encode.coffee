@@ -2,8 +2,9 @@ define [
   "common/continuum_view"
   "backbone",
   "common/has_parent",
-], (continuum_view, Backbone, HasParent) ->
-  class EncodeView extends continuum_view.View
+], (ContinuumView, Backbone, HasParent) ->
+
+  class EncodeView extends ContinuumView
     attributes:
       class: "EncodeView"
 
@@ -17,14 +18,15 @@ define [
 
     render_init: () ->
       @$el.html("")
-  
+
   class Encode extends HasParent
     type : "Encode"
     default_view: EncodeView
 
   class Encodes extends Backbone.Collection
     model : Encode
+
   return {
-    "Model" : Encode 
+    "Model" : Encode
     "Collection" : new Encodes()
   }

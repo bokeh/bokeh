@@ -7,9 +7,9 @@ define [
   "common/has_properties"
   "common/build_views"
   "./tabs_template"
-], (_, $, $1, Backbone, continuum_view, HasProperties, build_views, tabs_template) ->
+], (_, $, $1, Backbone, ContinuumView, HasProperties, build_views, tabs_template) ->
 
-  class TabsView extends continuum_view.View
+  class TabsView extends ContinuumView
 
     initialize : (options) ->
       super(options)

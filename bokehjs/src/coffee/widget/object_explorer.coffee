@@ -11,7 +11,7 @@ define [
 
   logger = Logging.logger
 
-  class ObjectExplorerView extends ContinuumView.View
+  class ObjectExplorerView extends ContinuumView
     initialize: (options) ->
       super(options)
       @onEvent = _.debounce(@onEvent, options.debounce or 200)

@@ -2,8 +2,9 @@ define [
   "common/continuum_view"
   "backbone",
   "common/has_parent",
-], (continuum_view, Backbone, HasParent) ->
-  class LogView extends continuum_view.View
+], (ContinuumView, Backbone, HasParent) ->
+
+  class LogView extends ContinuumView
     attributes:
       class: "LogView"
 
@@ -17,14 +18,15 @@ define [
 
     render_init: () ->
       @$el.html("")
-  
+
   class Log extends HasParent
     type : "Log"
     default_view: LogView
 
   class Logs extends Backbone.Collection
     model : Log
+
   return {
-    "Model" : Log 
+    "Model" : Log
     "Collection" : new Logs()
   }

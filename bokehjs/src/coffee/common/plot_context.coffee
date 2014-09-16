@@ -7,7 +7,7 @@ define [
   "./continuum_view",
 ], (_, Backbone, build_views, HasParent, ContinuumView) ->
 
-  class PlotContextView extends ContinuumView.View
+  class PlotContextView extends ContinuumView
     initialize: (options) ->
       @views = {}
       @child_models = []

@@ -2,8 +2,9 @@ define [
   "common/continuum_view"
   "backbone",
   "common/has_parent",
-], (continuum_view, Backbone, HasParent) ->
-  class NonZeroView extends continuum_view.View
+], (ContinuumView, Backbone, HasParent) ->
+
+  class NonZeroView extends ContinuumView
     attributes:
       class: "NonZeroView"
 
@@ -17,14 +18,15 @@ define [
 
     render_init: () ->
       @$el.html("")
-  
+
   class NonZero extends HasParent
     type : "NonZero"
     default_view: NonZeroView
 
   class NonZeros extends Backbone.Collection
     model : NonZero
+
   return {
-    "Model" : NonZero 
+    "Model" : NonZero
     "Collection" : new NonZeros()
   }

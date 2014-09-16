@@ -4,9 +4,9 @@ define [
   "backbone"
   "common/continuum_view"
   "common/has_properties"
-], (_, $, Backbone, continuum_view, HasProperties) ->
+], (_, $, Backbone, ContinuumView, HasProperties) ->
 
-  class PanelView extends continuum_view.View
+  class PanelView extends ContinuumView
 
     initialize : (options) ->
       super(options)

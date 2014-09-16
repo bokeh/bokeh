@@ -2,8 +2,9 @@ define [
   "common/continuum_view"
   "backbone",
   "common/has_parent"
-], (continuum_view, Backbone, HasParent) ->
-  class CountCategoriesView extends continuum_view.View
+], (ContinuumView, Backbone, HasParent) ->
+
+  class CountCategoriesView extends ContinuumView
     attributes:
       class: "CountCategoriesView"
 
@@ -21,10 +22,11 @@ define [
   class CountCategories extends HasParent
     type : "CountCategories"
     default_view: CountCategoriesView
-  
+
   class CountCategoriess extends Backbone.Collection
     model : CountCategories
+
   return {
-    "Model" : CountCategories 
+    "Model" : CountCategories
     "Collection" : new CountCategoriess()
   }

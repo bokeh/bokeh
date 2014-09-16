@@ -6,9 +6,8 @@ define [
   "common/logging"
   "./slidertemplate"
   "jquery_ui/slider"
-], (Backbone, _, continuum_view, HasParent, Logging, slidertemplate) ->
+], (Backbone, _, ContinuumView, HasParent, Logging, slidertemplate) ->
 
-  ContinuumView = continuum_view.View
   logger = Logging.logger
 
   class SliderView extends ContinuumView

@@ -5,9 +5,9 @@ define [
   "backbone"
   "common/continuum_view"
   "common/has_properties"
-], (_, $, $1, Backbone, continuum_view, HasProperties) ->
+], (_, $, $1, Backbone, ContinuumView, HasProperties) ->
 
-  class DateRangeSliderView extends continuum_view.View
+  class DateRangeSliderView extends ContinuumView
 
     initialize : (options) ->
       super(options)

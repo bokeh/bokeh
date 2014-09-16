@@ -2,8 +2,9 @@ define [
   "common/continuum_view"
   "backbone",
   "common/has_parent",
-], (continuum_view, Backbone, HasParent) ->
-  class AutoEncodeView extends continuum_view.View
+], (ContinuumView, Backbone, HasParent) ->
+
+  class AutoEncodeView extends ContinuumView
     attributes:
       class: "AutoEncodeView"
 
@@ -17,7 +18,7 @@ define [
 
     render_init: () ->
       @$el.html("")
-  
+
   class AutoEncode extends HasParent
     type : "AutoEncode"
     default_view: AutoEncodeView
@@ -25,6 +26,6 @@ define [
   class AutoEncodes extends Backbone.Collection
     model : AutoEncode
   return {
-    "Model" : AutoEncode 
+    "Model" : AutoEncode
     "Collection" : new AutoEncodes()
   }

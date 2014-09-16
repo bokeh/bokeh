@@ -4,8 +4,8 @@ define [
   "backbone"
   "underscore"
   "./multiselecttemplate"
-], (HasParent, continuum_view, Backbone, _, multiselecttemplate) ->
-  ContinuumView = continuum_view.View
+], (HasParent, ContinuumView, Backbone, _, multiselecttemplate) ->
+
   class MultiSelectView extends ContinuumView
     events :
       "change select" : "change_input"

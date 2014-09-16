@@ -5,11 +5,11 @@ define [
   "common/has_parent"
   "common/build_views"
   "common/logging"
-], (_, Backbone, continuum_view, HasParent, build_views, Logging) ->
+], (_, Backbone, ContinuumView, HasParent, build_views, Logging) ->
 
   logger = Logging.logger
 
-  class ButtonView extends continuum_view.View
+  class ButtonView extends ContinuumView
     tagName: "button"
     events:
       "click": "change_input"

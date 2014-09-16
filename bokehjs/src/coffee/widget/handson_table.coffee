@@ -7,7 +7,7 @@ define [
   "common/continuum_view"
 ], (_, $, $$1, Backbone, HasProperties, ContinuumView) ->
 
-  class HandsonTableView extends ContinuumView.View
+  class HandsonTableView extends ContinuumView
     initialize: (options) ->
       super(options)
       @render()

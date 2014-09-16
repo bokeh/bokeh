@@ -8,7 +8,7 @@ define [
 
   ENTER = 13
 
-  class DataTableView extends ContinuumView.View
+  class DataTableView extends ContinuumView
 
     template: data_table_template
 

@@ -14,7 +14,7 @@ define [
 
   logger = Logging.logger
 
-  class CanvasView extends ContinuumView.View
+  class CanvasView extends ContinuumView
 
     className: "bokeh plotview bokeh_canvas_wrapper"
 

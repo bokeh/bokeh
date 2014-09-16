@@ -2,8 +2,9 @@ define [
   "common/continuum_view"
   "backbone",
   "common/has_parent",
-], (continuum_view, Backbone, HasParent) ->
-  class ConstView extends continuum_view.View
+], (ContinuumView, Backbone, HasParent) ->
+
+  class ConstView extends ContinuumView
     attributes:
       class: "ConstView"
 
@@ -17,14 +18,15 @@ define [
 
     render_init: () ->
       @$el.html("")
-  
+
   class Const extends HasParent
     type : "Const"
-    default_view: ConstView 
-  
+    default_view: ConstView
+
   class Consts extends Backbone.Collection
     model : Const
+
   return {
-    "Model" : Const 
+    "Model" : Const
     "Collection" : new Consts()
   }
