@@ -1,11 +1,11 @@
 
 define [
   "underscore",
-  "backbone",
+  "./collection",
   "kiwi",
   "./has_properties"
   "range/range1d",
-], (_, Backbone, kiwi, HasProperties, Range1d) ->
+], (_, Collection, kiwi, HasProperties, Range1d) ->
 
   Var = kiwi.Variable
   Expr = kiwi.Expression
@@ -108,7 +108,7 @@ define [
         'height_strength': kiwi.Strength.strong
       }
 
-  class LayoutBoxs extends Backbone.Collection
+  class LayoutBoxs extends Collection
     model: LayoutBox
 
   return {

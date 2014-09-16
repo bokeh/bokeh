@@ -1,11 +1,11 @@
 
 define [
   "underscore"
-  "backbone"
+  "common/collection"
   "common/logging"
   "./tool"
   "./event_generators"
-], (_, Backbone, Logging, Tool, EventGenerators) ->
+], (_, Collection, Logging, Tool, EventGenerators) ->
 
   OnePointWheelEventGenerator = EventGenerators.OnePointWheelEventGenerator
   logger = Logging.logger
@@ -120,7 +120,7 @@ define [
         speed: 1/600
       }
 
-  class WheelZoomTools extends Backbone.Collection
+  class WheelZoomTools extends Collection
     model: WheelZoomTool
 
   return {

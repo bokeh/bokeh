@@ -1,11 +1,11 @@
 define [
   "underscore"
-  "backbone"
+  "common/collection"
   "common/continuum_view"
   "common/has_parent"
   "common/build_views"
   "common/logging"
-], (_, Backbone, ContinuumView, HasParent, build_views, Logging) ->
+], (_, Collection, ContinuumView, HasParent, build_views, Logging) ->
 
   logger = Logging.logger
 
@@ -57,7 +57,7 @@ define [
         disabled: false
       }
 
-  class Buttons extends Backbone.Collection
+  class Buttons extends Collection
     model: Button
 
   return {

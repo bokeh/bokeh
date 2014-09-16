@@ -2,9 +2,10 @@
 define [
   "underscore",
   "common/has_parent",
+  "common/collection",
   "renderer/properties",
   "common/plot_widget",
-], (_, HasParent, Properties, PlotWidget) ->
+], (_, HasParent, Collection, Properties, PlotWidget) ->
 
   line_properties = Properties.line_properties
 
@@ -139,7 +140,7 @@ define [
         grid_line_dash_offset: 0
       }
 
-  class Grids extends Backbone.Collection
+  class Grids extends Collection
      model: Grid
 
   return {

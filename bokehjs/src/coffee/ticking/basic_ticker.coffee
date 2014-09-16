@@ -1,6 +1,7 @@
 define [
+  "common/collection",
   "ticking/adaptive_ticker",
-], (AdaptiveTicker) ->
+], (Collection, AdaptiveTicker) ->
 
   class BasicTicker extends AdaptiveTicker.Model
     type: 'BasicTicker'
@@ -13,7 +14,7 @@ define [
         mantissas: [1,2,5]
       }
 
-  class BasicTickers extends Backbone.Collection
+  class BasicTickers extends Collection
     model: BasicTicker
 
   return {

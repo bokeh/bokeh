@@ -2,12 +2,12 @@ define [
   "underscore"
   "jquery"
   "bootstrap/tab"
-  "backbone"
+  "common/collection"
   "common/continuum_view"
   "common/has_properties"
   "common/build_views"
   "./tabs_template"
-], (_, $, $1, Backbone, ContinuumView, HasProperties, build_views, tabs_template) ->
+], (_, $, $1, Collection, ContinuumView, HasProperties, build_views, tabs_template) ->
 
   class TabsView extends ContinuumView
 
@@ -53,7 +53,7 @@ define [
         active: 0
       }
 
-  class Tabses extends Backbone.Collection
+  class Tabses extends Collection
     model: Tabs
 
   return {

@@ -1,10 +1,10 @@
 define [
   "underscore"
-  "backbone"
+  "common/collection"
   "common/continuum_view"
   "common/has_parent"
   "common/logging"
-], (_, Backbone, ContinuumView, HasParent, Logging) ->
+], (_, Collection, ContinuumView, HasParent, Logging) ->
 
   logger = Logging.logger
 
@@ -45,7 +45,7 @@ define [
         spin: false
       }
 
-  class Icons extends Backbone.Collection
+  class Icons extends Collection
     model: Icon
 
   return {

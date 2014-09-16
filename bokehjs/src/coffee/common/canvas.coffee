@@ -1,12 +1,12 @@
 define [
-  "backbone",
+  "./collection",
   "kiwi",
   "./canvas_template"
   "./continuum_view",
   "./layout_box"
   "./logging"
   "./solver",
-], (Backbone, kiwi, canvas_template, ContinuumView, LayoutBox, Logging, Solver) ->
+], (Collection, kiwi, canvas_template, ContinuumView, LayoutBox, Logging, Solver) ->
 
   Expr = kiwi.Expression
   Constraint = kiwi.Constraint
@@ -215,7 +215,7 @@ define [
         use_hidpi: true
       }
 
-  class Canvases extends Backbone.Collection
+  class Canvases extends Collection
     model: Canvas
 
   return {

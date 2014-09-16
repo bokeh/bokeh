@@ -1,10 +1,10 @@
 define [
   "underscore"
   "jquery"
-  "backbone"
+  "common/collection"
   "common/continuum_view"
   "common/has_properties"
-], (_, $, Backbone, ContinuumView, HasProperties) ->
+], (_, $, Collection, ContinuumView, HasProperties) ->
 
   class PanelView extends ContinuumView
 
@@ -25,7 +25,7 @@ define [
         closable: false
       }
 
-  class Panels extends Backbone.Collection
+  class Panels extends Collection
     model: Panel
 
   return {

@@ -1,8 +1,8 @@
 define [
   "common/has_parent",
   "common/continuum_view",
-  "backbone"
-], (HasParent, ContinuumView, Backbone) ->
+  "common/collection"
+], (HasParent, ContinuumView, Collection) ->
 
   class ParagraphView extends ContinuumView
     tagName : "p"
@@ -24,7 +24,7 @@ define [
         text: ''
       }
 
-  class Paragraphs extends Backbone.Collection
+  class Paragraphs extends Collection
     model : Paragraph
   paragraphs = new Paragraphs()
   return {

@@ -1,8 +1,8 @@
 define [
   "common/continuum_view"
-  "backbone",
+  "common/collection",
   "common/has_parent",
-], (ContinuumView, Backbone, HasParent) ->
+], (ContinuumView, Collection, HasParent) ->
 
   class ConstView extends ContinuumView
     attributes:
@@ -23,7 +23,7 @@ define [
     type : "Const"
     default_view: ConstView
 
-  class Consts extends Backbone.Collection
+  class Consts extends Collection
     model : Const
 
   return {

@@ -1,11 +1,11 @@
 
 define [
   "underscore",
-  "backbone",
+  "common/collection",
   "./tool",
   "./event_generators",
   "sprintf",
-], (_, Backbone, Tool, EventGenerators, sprintf) ->
+], (_, Collection, Tool, EventGenerators, sprintf) ->
 
   TwoPointEventGenerator = EventGenerators.TwoPointEventGenerator
 
@@ -101,7 +101,7 @@ define [
     default_view: CrosshairToolView
     type: "CrosshairTool"
 
-  class CrosshairTools extends Backbone.Collection
+  class CrosshairTools extends Collection
     model: CrosshairTool
 
   return {

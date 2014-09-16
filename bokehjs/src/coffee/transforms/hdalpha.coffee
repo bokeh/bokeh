@@ -1,8 +1,8 @@
 define [
   "common/continuum_view"
-  "backbone",
+  "common/collection",
   "common/has_parent"
-], (ContinuumView, Backbone, HasParent) ->
+], (ContinuumView, Collection, HasParent) ->
 
   class HDAlphaView extends ContinuumView
     attributes:
@@ -23,7 +23,7 @@ define [
     type : "HDAlpha"
     default_view: HDAlphaView
 
-  class HDAlphas extends Backbone.Collection
+  class HDAlphas extends Collection
     model : HDAlpha
 
   return {

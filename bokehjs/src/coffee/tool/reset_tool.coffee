@@ -1,10 +1,10 @@
 
 define [
   "underscore",
-  "backbone",
+  "common/collection",
   "./tool",
   "./event_generators",
-], (_, Backbone, Tool, EventGenerators) ->
+], (_, Collection, Tool, EventGenerators) ->
 
   ButtonEventGenerator = EventGenerators.ButtonEventGenerator
 
@@ -31,7 +31,7 @@ define [
      default_view: ResetToolView
      type: "ResetTool"
 
-  class ResetTools extends Backbone.Collection
+  class ResetTools extends Collection
     model: ResetTool
 
   return {

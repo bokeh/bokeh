@@ -1,10 +1,10 @@
 
 define [
-  "backbone",
+  "common/collection",
   "./axis",
   "ticking/datetime_ticker"
   "ticking/datetime_tick_formatter",
-], (Backbone, Axis, DatetimeTicker, DatetimeTickFormatter) ->
+], (Collection, Axis, DatetimeTicker, DatetimeTickFormatter) ->
 
   class DatetimeAxisView extends Axis.View
 
@@ -19,7 +19,7 @@ define [
       if not @get('formatter')?
         @set_obj('formatter', DatetimeTickFormatter.Collection.create())
 
-  class DatetimeAxes extends Backbone.Collection
+  class DatetimeAxes extends Collection
     model: DatetimeAxis
 
   return {

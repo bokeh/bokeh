@@ -1,9 +1,9 @@
 
 define [
   "underscore",
-  "backbone",
+  "common/collection",
   "./tool",
-], (_, Backbone, Tool) ->
+], (_, Collection, Tool) ->
 
   class ClickToolView extends Tool.View
     initialize: (options) ->
@@ -120,7 +120,7 @@ define [
         always_active: []
       }
 
-  class ClickTools extends Backbone.Collection
+  class ClickTools extends Collection
     model: ClickTool
 
   return {

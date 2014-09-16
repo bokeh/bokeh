@@ -1,9 +1,9 @@
 
 define [
   "underscore",
-  "backbone",
+  "common/collection",
   "common/has_properties",
-], (_, Backbone, HasProperties) ->
+], (_, Collection, HasProperties) ->
 
   # Datasource where the data is defined column-wise, i.e. each key in the
   # the data attribute is a column name, and its value is an array of scalars.
@@ -43,7 +43,7 @@ define [
         data: {}
       }
 
-  class ColumnDataSources extends Backbone.Collection
+  class ColumnDataSources extends Collection
     model: ColumnDataSource
 
   return {

@@ -1,10 +1,10 @@
 define [
   "underscore"
-  "backbone"
+  "common/collection"
   "common/continuum_view"
   "common/has_parent"
   "common/logging"
-], (_, Backbone, ContinuumView, HasParent, Logging) ->
+], (_, Collection, ContinuumView, HasParent, Logging) ->
 
   logger = Logging.logger
 
@@ -54,7 +54,7 @@ define [
         disabled: false
       }
 
-  class CheckboxGroups extends Backbone.Collection
+  class CheckboxGroups extends Collection
     model: CheckboxGroup
 
   return {

@@ -1,8 +1,8 @@
 define [
   "common/continuum_view"
-  "backbone",
+  "common/collection",
   "common/has_parent",
-], (ContinuumView, Backbone, HasParent) ->
+], (ContinuumView, Collection, HasParent) ->
 
   class IdView extends ContinuumView
     attributes:
@@ -23,7 +23,7 @@ define [
     type : "Id"
     default_view: IdView
 
-  class Ids extends Backbone.Collection
+  class Ids extends Collection
     model : Id
 
   return {

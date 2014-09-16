@@ -3,9 +3,10 @@ define [
   "underscore",
   "common/has_parent",
   "common/plot_widget",
+  "common/collection",
   "common/textutils",
   "renderer/properties",
-], (_, HasParent, PlotWidget, textutils, Properties) ->
+], (_, HasParent, PlotWidget, Collection, textutils, Properties) ->
 
   glyph_properties = Properties.glyph_properties
   line_properties  = Properties.line_properties
@@ -152,7 +153,7 @@ define [
         datapoint: null
       }
 
-  class Legends extends Backbone.Collection
+  class Legends extends Collection
     model: Legend
 
   return {

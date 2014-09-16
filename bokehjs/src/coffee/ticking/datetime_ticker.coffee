@@ -1,12 +1,13 @@
 define [
   "underscore",
+  "common/collection",
   "ticking/adaptive_ticker",
   "ticking/composite_ticker",
   "ticking/days_ticker",
   "ticking/months_ticker",
   "ticking/years_ticker",
   "ticking/util",
-], (_, AdaptiveTicker, CompositeTicker, DaysTicker, MonthsTicker, YearsTicker, util) ->
+], (_, Collection, AdaptiveTicker, CompositeTicker, DaysTicker, MonthsTicker, YearsTicker, util) ->
 
   ONE_MILLI = util.ONE_MILLI
   ONE_SECOND = util.ONE_SECOND
@@ -70,7 +71,7 @@ define [
         ]
       }
 
-  class DatetimeTickers extends Backbone.Collection
+  class DatetimeTickers extends Collection
     model: DatetimeTicker
 
   return {

@@ -1,8 +1,8 @@
 
 define [
-  "backbone",
+  "common/collection",
   "common/has_properties"
-], (Backbone, HasProperties) ->
+], (Collection, HasProperties) ->
 
   class FactorRange extends HasProperties
     type: 'FactorRange'
@@ -27,7 +27,7 @@ define [
         factors: []
       }
 
-  class FactorRanges extends Backbone.Collection
+  class FactorRanges extends Collection
     model: FactorRange
 
   return {

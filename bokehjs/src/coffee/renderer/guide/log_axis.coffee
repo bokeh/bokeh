@@ -1,11 +1,11 @@
 
 define [
   "underscore",
-  "backbone",
+  "common/collection",
   "./axis"
   "ticking/log_ticker",
   "ticking/log_tick_formatter",
-], (_, Backbone, Axis, LogTicker, LogTickFormatter) ->
+], (_, Collection, Axis, LogTicker, LogTickFormatter) ->
 
   class LogAxisView extends Axis.View
 
@@ -20,7 +20,7 @@ define [
       if not @get('formatter')?
         @set_obj('formatter', LogTickFormatter.Collection.create())
 
-  class LogAxes extends Backbone.Collection
+  class LogAxes extends Collection
      model: LogAxis
 
   return {

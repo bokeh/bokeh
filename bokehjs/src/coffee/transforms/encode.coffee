@@ -1,8 +1,8 @@
 define [
   "common/continuum_view"
-  "backbone",
+  "common/collection",
   "common/has_parent",
-], (ContinuumView, Backbone, HasParent) ->
+], (ContinuumView, Collection, HasParent) ->
 
   class EncodeView extends ContinuumView
     attributes:
@@ -23,7 +23,7 @@ define [
     type : "Encode"
     default_view: EncodeView
 
-  class Encodes extends Backbone.Collection
+  class Encodes extends Collection
     model : Encode
 
   return {

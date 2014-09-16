@@ -1,8 +1,8 @@
 define [
   "common/continuum_view"
-  "backbone",
+  "common/collection",
   "common/has_parent",
-], (ContinuumView, Backbone, HasParent) ->
+], (ContinuumView, Collection, HasParent) ->
 
   class ToCountsView extends ContinuumView
     attributes:
@@ -23,7 +23,7 @@ define [
     type : "ToCounts"
     default_view: ToCountsView
 
-  class ToCountss extends Backbone.Collection
+  class ToCountss extends Collection
     model : ToCounts
 
   return {

@@ -4,13 +4,14 @@ define [
     "common/base",
     "../serverutils",
     "common/continuum_view",
+    "common/collection",
     "./userdocstemplate",
     "./documentationtemplate",
     "./wrappertemplate",
     "common/has_parent",
     "common/build_views",
     "common/load_models",
-], (_, $, base, serverutils, ContinuumView,
+], (_, $, base, serverutils, ContinuumView, Collection,
     userdocstemplate, documentationtemplate,
     wrappertemplate, HasParent, build_views, load_models) ->
 
@@ -145,7 +146,7 @@ define [
         #do the websocket stuff later
       )
 
-  class UserDocs extends Backbone.Collection
+  class UserDocs extends Collection
     model : Doc
     subscribe : (wswrapper, username) ->
       wswrapper.subscribe("bokehuser:#{username}", null)

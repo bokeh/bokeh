@@ -1,8 +1,8 @@
 define [
   "underscore",
-  "backbone",
+  "common/collection",
   "common/has_properties"
-], (_, Backbone, HasProperties) ->
+], (_, Collection, HasProperties) ->
 
   class BasicTickFormatter extends HasProperties
     type: 'BasicTickFormatter'
@@ -86,7 +86,7 @@ define [
         power_limit_low: -3
       }
 
-  class BasicTickFormatters extends Backbone.Collection
+  class BasicTickFormatters extends Collection
     model: BasicTickFormatter
 
   return {

@@ -1,11 +1,11 @@
 
 define [
   "underscore"
-  "backbone"
+  "common/collection"
   "common/logging"
   "./tool"
   "./event_generators"
-], (_, Backbone, Logging, Tool, EventGenerators) ->
+], (_, Collection, Logging, Tool, EventGenerators) ->
 
   TwoPointEventGenerator = EventGenerators.TwoPointEventGenerator
   logger = Logging.logger
@@ -121,7 +121,7 @@ define [
         dimensions: ["width", "height"]
       }
 
-  class PanTools extends Backbone.Collection
+  class PanTools extends Collection
     model: PanTool
 
   return {

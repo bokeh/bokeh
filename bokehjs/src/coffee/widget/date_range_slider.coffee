@@ -2,10 +2,10 @@ define [
   "underscore"
   "jquery"
   "jqrangeslider"
-  "backbone"
+  "common/collection"
   "common/continuum_view"
   "common/has_properties"
-], (_, $, $1, Backbone, ContinuumView, HasProperties) ->
+], (_, $, $1, Collection, ContinuumView, HasProperties) ->
 
   class DateRangeSliderView extends ContinuumView
 
@@ -60,7 +60,7 @@ define [
         ###
       }
 
-  class DateRangeSliders extends Backbone.Collection
+  class DateRangeSliders extends Collection
     model: DateRangeSlider
 
   return {

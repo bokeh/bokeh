@@ -1,4 +1,3 @@
-
 define [
   "underscore"
   "backbone"

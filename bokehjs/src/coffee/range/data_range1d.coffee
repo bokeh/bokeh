@@ -1,9 +1,9 @@
 
 define [
   "underscore",
-  "backbone",
+  "common/collection",
   "range/range1d"
-], (_, Backbone, Range1d) ->
+], (_, Collection, Range1d) ->
 
   class DataRange1d extends Range1d.Model
     type: 'DataRange1d'
@@ -67,7 +67,7 @@ define [
         rangepadding: 0.1
       }
 
-  class DataRange1ds extends Backbone.Collection
+  class DataRange1ds extends Collection
     model: DataRange1d
 
   return {

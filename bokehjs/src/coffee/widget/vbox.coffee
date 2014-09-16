@@ -2,8 +2,8 @@ define [
   "common/has_parent",
   "common/continuum_view",
   "common/build_views"
-  "backbone"
-], (HasParent, ContinuumView, build_views, Backbone) ->
+  "common/collection"
+], (HasParent, ContinuumView, build_views, Collection) ->
 
   class VBoxView extends ContinuumView
     tag : "div"
@@ -35,7 +35,7 @@ define [
         children: []
       }
 
-  class VBoxes extends Backbone.Collection
+  class VBoxes extends Collection
     model : VBox
   vboxes = new VBoxes()
   return {

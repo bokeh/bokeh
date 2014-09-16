@@ -1,8 +1,8 @@
 define [
   "common/continuum_view"
-  "backbone",
+  "common/collection",
   "common/has_parent",
-], (ContinuumView, Backbone, HasParent) ->
+], (ContinuumView, Collection, HasParent) ->
 
   class BinarySegmentView extends ContinuumView
     attributes:
@@ -23,7 +23,7 @@ define [
     type : "BinarySegment"
     default_view: BinarySegmentView
 
-  class BinarySegments extends Backbone.Collection
+  class BinarySegments extends Collection
     model : BinarySegment
 
   return {

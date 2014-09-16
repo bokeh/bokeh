@@ -1,8 +1,8 @@
 define [
   "common/continuum_view"
-  "backbone",
+  "common/collection",
   "common/has_parent",
-], (ContinuumView, Backbone, HasParent) ->
+], (ContinuumView, Collection, HasParent) ->
 
   class NonZeroView extends ContinuumView
     attributes:
@@ -23,7 +23,7 @@ define [
     type : "NonZero"
     default_view: NonZeroView
 
-  class NonZeros extends Backbone.Collection
+  class NonZeros extends Collection
     model : NonZero
 
   return {

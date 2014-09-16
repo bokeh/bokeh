@@ -1,12 +1,12 @@
 define [
   "underscore"
-  "backbone"
+  "common/collection"
   "jquery"
   "bootstrap/button"
   "common/continuum_view"
   "common/has_parent"
   "common/logging"
-], (_, Backbone, $, $1, ContinuumView, HasParent, Logging) ->
+], (_, Collection, $, $1, ContinuumView, HasParent, Logging) ->
 
   logger = Logging.logger
 
@@ -59,7 +59,7 @@ define [
         disabled: false
       }
 
-  class CheckboxButtonGroups extends Backbone.Collection
+  class CheckboxButtonGroups extends Collection
     model: CheckboxButtonGroup
 
   return {

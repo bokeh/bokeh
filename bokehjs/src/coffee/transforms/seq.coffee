@@ -1,8 +1,8 @@
 define [
   "common/continuum_view"
-  "backbone",
+  "common/collection",
   "common/has_parent",
-], (ContinuumView, Backbone, HasParent) ->
+], (ContinuumView, Collection, HasParent) ->
 
   class SeqView extends ContinuumView
     attributes:
@@ -23,7 +23,7 @@ define [
     type : "Seq"
     default_view: SeqView
 
-  class Seqs extends Backbone.Collection
+  class Seqs extends Collection
     model : Seq
 
   return {

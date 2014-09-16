@@ -4,11 +4,12 @@ define [
   "backbone",
   "./build_views",
   "./continuum_view",
+  "./collection"
   "./has_parent",
   "./grid_view_state",
   "renderer/properties",
   "tool/active_tool_manager",
-], (_, Backbone, build_views, ContinuumView, HasParent, GridViewState, Properties, ActiveToolManager) ->
+], (_, Backbone, build_views, ContinuumView, Collection, HasParent, GridViewState, Properties, ActiveToolManager) ->
 
   class GridPlotView extends ContinuumView
     tagName: 'div'
@@ -160,7 +161,7 @@ define [
         border_space: 0
       }
 
-  class GridPlots extends Backbone.Collection
+  class GridPlots extends Collection
     model: GridPlot
 
   return {

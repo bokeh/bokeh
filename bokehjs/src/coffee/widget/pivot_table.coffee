@@ -3,11 +3,11 @@ define [
   "jquery"
   "jquery_ui/sortable"
   "bootstrap/dropdown"
-  "backbone"
+  "common/collection"
   "common/has_parent"
   "common/has_properties"
   "common/continuum_view"
-], (_, $, $$1, $$2, Backbone, HasParent, HasProperties, ContinuumView) ->
+], (_, $, $$1, $$2, Collection, HasParent, HasProperties, ContinuumView) ->
 
   class PivotTableView extends ContinuumView
 
@@ -402,7 +402,7 @@ define [
       else
         @save.apply(this, arguments)
 
-  class PivotTables extends Backbone.Collection
+  class PivotTables extends Collection
     model: PivotTable
 
   return {

@@ -6,6 +6,7 @@ define [
   "./build_views",
   "./plot_utils",
   "./continuum_view",
+  "./collection"
   "./has_parent",
   "./canvas",
   "./layout_box",
@@ -16,7 +17,7 @@ define [
   "./toolbar_template",
   "renderer/properties",
   "tool/active_tool_manager",
-], (_, Backbone, kiwi, build_views, plot_utils, ContinuumView, HasParent, Canvas, LayoutBox, Logging, Solver, CartesianFrame, plot_template, toolbar_template, Properties, ActiveToolManager) ->
+], (_, Backbone, kiwi, build_views, plot_utils, ContinuumView, Collection, HasParent, Canvas, LayoutBox, Logging, Solver, CartesianFrame, plot_template, toolbar_template, Properties, ActiveToolManager) ->
 
   line_properties = Properties.line_properties
   text_properties = Properties.text_properties
@@ -402,7 +403,7 @@ define [
         outline_line_dash_offset: 0
       }
 
-  class Plots extends Backbone.Collection
+  class Plots extends Collection
      model: Plot
 
   return {

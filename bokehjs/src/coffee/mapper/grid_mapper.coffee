@@ -1,8 +1,8 @@
 
 define [
-  "backbone",
+  "common/collection",
   "common/has_properties"
-], (Backbone, HasProperties) ->
+], (Collection, HasProperties) ->
 
   class GridMapper extends HasProperties
 
@@ -26,7 +26,7 @@ define [
       ys = @get('codomain_mapper').v_map_from_target(yprimes)
       return [xs, ys]
 
-  class GridMappers extends Backbone.Collection
+  class GridMappers extends Collection
     model: GridMapper
 
   return {

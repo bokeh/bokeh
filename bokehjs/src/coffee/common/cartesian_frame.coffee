@@ -1,13 +1,13 @@
 define [
   "underscore"
-  "backbone"
+  "./collection"
   "./layout_box"
   "./logging"
   "mapper/linear_mapper"
   "mapper/log_mapper"
   "mapper/categorical_mapper"
   "mapper/grid_mapper"
-], (_, Backbone, LayoutBox, Logging, LinearMapper, LogMapper, CategoricalMapper, GridMapper) ->
+], (_, Collection, LayoutBox, Logging, LinearMapper, LogMapper, CategoricalMapper, GridMapper) ->
 
   logger = Logging.logger
 
@@ -134,7 +134,7 @@ define [
         extra_y_ranges: {}
       }
 
-  class CartesianFrames extends Backbone.Collection
+  class CartesianFrames extends Collection
     model: CartesianFrame
 
   return {

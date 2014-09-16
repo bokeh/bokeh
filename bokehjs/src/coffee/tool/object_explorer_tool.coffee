@@ -2,12 +2,12 @@ define [
   "underscore",
   "jquery",
   "bootstrap/modal",
-  "backbone",
+  "common/collection",
   "./tool",
   "./event_generators",
   "./object_explorer_tool_template",
   "widget/object_explorer",
-], (_, $, $$1, Backbone, Tool, EventGenerators, object_explorer_tool_template, ObjectExplorer) ->
+], (_, $, $$1, Collection, Tool, EventGenerators, object_explorer_tool_template, ObjectExplorer) ->
 
   ButtonEventGenerator = EventGenerators.ButtonEventGenerator
 
@@ -43,7 +43,7 @@ define [
     default_view: ObjectExplorerToolView
     type: "ObjectExplorerTool"
 
-  class ObjectExplorerTools extends Backbone.Collection
+  class ObjectExplorerTools extends Collection
     model: ObjectExplorerTool
 
   return {

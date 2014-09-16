@@ -1,8 +1,8 @@
 define [
   "common/continuum_view"
-  "backbone",
+  "common/collection",
   "common/has_parent",
-], (ContinuumView, Backbone, HasParent) ->
+], (ContinuumView, Collection, HasParent) ->
 
   class ContourView extends ContinuumView
     attributes:
@@ -23,7 +23,7 @@ define [
     type : "Contour"
     default_view: ContourView
 
-  class Contours extends Backbone.Collection
+  class Contours extends Collection
     model : Contour
 
   return {

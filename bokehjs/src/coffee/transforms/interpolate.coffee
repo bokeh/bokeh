@@ -1,8 +1,8 @@
 define [
   "common/continuum_view"
-  "backbone",
+  "common/collection",
   "common/has_parent",
-], (ContinuumView, Backbone, HasParent) ->
+], (ContinuumView, Collection, HasParent) ->
 
   class InterpolateView extends ContinuumView
     attributes:
@@ -23,7 +23,7 @@ define [
     type : "Interpolate"
     default_view: InterpolateView
 
-  class Interpolates extends Backbone.Collection
+  class Interpolates extends Collection
     model : Interpolate
 
   return {

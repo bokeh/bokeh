@@ -1,10 +1,10 @@
 
 define [
   "underscore",
-  "backbone",
+  "common/collection",
   "sprintf",
   "./tool",
-], (_, Backbone, sprintf, Tool) ->
+], (_, Collection, sprintf, Tool) ->
 
   _color_to_hex = (color) ->
     if (color.substr(0, 1) == '#')
@@ -228,7 +228,7 @@ define [
         }
       }
 
-  class HoverTools extends Backbone.Collection
+  class HoverTools extends Collection
     model: HoverTool
 
   return {

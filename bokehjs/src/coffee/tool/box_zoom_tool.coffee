@@ -1,10 +1,10 @@
 
 define [
   "underscore",
-  "backbone",
+  "common/collection",
   "./tool",
   "./event_generators",
-], (_, Backbone, Tool, EventGenerators) ->
+], (_, Collection, Tool, EventGenerators) ->
 
   TwoPointEventGenerator = EventGenerators.TwoPointEventGenerator
 
@@ -111,7 +111,7 @@ define [
         data_source_options: {} # backbone options for save on datasource
       }
 
-  class BoxZoomTools extends Backbone.Collection
+  class BoxZoomTools extends Collection
     model: BoxZoomTool
 
   return {

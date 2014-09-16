@@ -1,9 +1,9 @@
 
 define [
   "underscore",
-  "backbone",
+  "common/collection",
   "./box_select_tool",
-], (_, Backbone, BoxSelectTool) ->
+], (_, Collection, BoxSelectTool) ->
 
   # data range box selection tool differs from our other select tool
   # in that it just stores the selected ranges on itself
@@ -26,7 +26,7 @@ define [
     default_view: DataRangeBoxSelectToolView
     type: "DataRangeBoxSelectTool"
 
-  class DataRangeBoxSelectTools extends Backbone.Collection
+  class DataRangeBoxSelectTools extends Collection
     model: DataRangeBoxSelectToolView
 
   return {

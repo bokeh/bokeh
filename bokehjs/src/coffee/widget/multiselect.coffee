@@ -1,10 +1,10 @@
 define [
   "common/has_parent",
   "common/continuum_view",
-  "backbone"
+  "common/collection"
   "underscore"
   "./multiselecttemplate"
-], (HasParent, ContinuumView, Backbone, _, multiselecttemplate) ->
+], (HasParent, ContinuumView, Collection, _, multiselecttemplate) ->
 
   class MultiSelectView extends ContinuumView
     events :
@@ -52,7 +52,7 @@ define [
         options: []
       }
 
-  class MultiSelects extends Backbone.Collection
+  class MultiSelects extends Collection
     model : MultiSelect
   multiselectboxes = new MultiSelects()
   return {

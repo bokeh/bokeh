@@ -1,9 +1,9 @@
 define [
   "underscore",
-  "backbone",
+  "common/collection",
   "ticking/single_interval_ticker",
   "ticking/util",
-], (_, Backbone, SingleIntervalTicker, util) ->
+], (_, Collection, SingleIntervalTicker, util) ->
 
   copy_date = util.copy_date
   last_year_no_later_than = util.last_year_no_later_than
@@ -69,7 +69,7 @@ define [
         toString_properties: ['months']
       }
 
-  class MonthsTickers extends Backbone.Collection
+  class MonthsTickers extends Collection
     model: MonthsTicker
 
   return {

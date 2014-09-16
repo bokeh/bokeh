@@ -1,8 +1,8 @@
 define [
   "common/continuum_view"
-  "backbone",
+  "common/collection",
   "common/has_parent",
-], (ContinuumView, Backbone, HasParent) ->
+], (ContinuumView, Collection, HasParent) ->
 
   class SpreadView extends ContinuumView
     attributes:
@@ -23,7 +23,7 @@ define [
     type : "Spread"
     default_view: SpreadView
 
-  class Spreads extends Backbone.Collection
+  class Spreads extends Collection
     model : Spread
 
   return {

@@ -1,10 +1,10 @@
 
 define [
   "underscore",
-  "backbone",
+  "./collection",
   "./solver",
   "./plot",
-], (_, Backbone, Solver, Plot) ->
+], (_, Collection, Solver, Plot) ->
 
   class GMapPlotView extends Plot.View
 
@@ -158,7 +158,7 @@ define [
         border_fill: "#eee",
       }
 
-  class GMapPlots extends Backbone.Collection
+  class GMapPlots extends Collection
      model: GMapPlot
 
   return {

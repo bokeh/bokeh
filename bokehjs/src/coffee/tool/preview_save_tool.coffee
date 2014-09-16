@@ -3,12 +3,12 @@ define [
   "underscore",
   "jquery",
   "bootstrap/modal",
-  "backbone",
+  "common/collection",
   "common/bulk_save",
   "./tool",
   "./event_generators",
   "./preview_save_tool_template",
-], (_, $, $$1, Backbone, bulk_save, Tool, EventGenerators, preview_save_tool_template) ->
+], (_, $, $$1, Collection, bulk_save, Tool, EventGenerators, preview_save_tool_template) ->
 
   ButtonEventGenerator = EventGenerators.ButtonEventGenerator
 
@@ -46,7 +46,7 @@ define [
     default_view: PreviewSaveToolView
     type: "PreviewSaveTool"
 
-  class PreviewSaveTools extends Backbone.Collection
+  class PreviewSaveTools extends Collection
     model: PreviewSaveTool
 
   return {

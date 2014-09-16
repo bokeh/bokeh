@@ -2,10 +2,10 @@ define [
   "underscore"
   "jquery"
   "jquery_ui/datepicker"
-  "backbone"
+  "common/collection"
   "common/continuum_view"
   "common/has_properties"
-], (_, $, $1, Backbone, ContinuumView, HasProperties) ->
+], (_, $, $1, Collection, ContinuumView, HasProperties) ->
 
   class DatePickerView extends ContinuumView
 
@@ -36,7 +36,7 @@ define [
         value: Date.now()
       }
 
-  class DatePickers extends Backbone.Collection
+  class DatePickers extends Collection
     model: DatePicker
 
   return {

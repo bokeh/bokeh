@@ -2,12 +2,12 @@ define [
   "underscore"
   "jquery"
   "jstree"
-  "backbone"
+  "common/collection"
   "common/continuum_view"
   "common/has_properties"
   "common/logging"
   "source/column_data_source"
-], (_, $, $1, Backbone, ContinuumView, HasProperties, Logging, ColumnDataSource) ->
+], (_, $, $1, Collection, ContinuumView, HasProperties, Logging, ColumnDataSource) ->
 
   logger = Logging.logger
 
@@ -187,7 +187,7 @@ define [
         data_widget: null
       }
 
-  class ObjectExplorers extends Backbone.Collection
+  class ObjectExplorers extends Collection
     model: ObjectExplorer
 
   return {

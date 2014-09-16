@@ -1,5 +1,5 @@
 define [
-  "backbone",
+  "common/collection",
   "underscore",
   "jquery_ui/draggable",
   "jquery_ui/droppable",
@@ -11,7 +11,7 @@ define [
   "./crossfilter_template"
   "./crossfilter_column_template"
   "./crossfilter_facet_template"
-], (Backbone, _, draggable, droppable, HasParent, HasProperties, ContinuumView, CloseWrapper, build_views, crossfilter_template, crossfilter_column_template, crossfilter_facet_template) ->
+], (Collection, _, draggable, droppable, HasParent, HasProperties, ContinuumView, CloseWrapper, build_views, crossfilter_template, crossfilter_column_template, crossfilter_facet_template) ->
 
   class CrossFilterView extends ContinuumView
     tag: "div"
@@ -79,7 +79,7 @@ define [
         width: 1300
       }
 
-  class CrossFilters extends Backbone.Collection
+  class CrossFilters extends Collection
     model: CrossFilter
 
   class PlotAttributeSelector extends ContinuumView
@@ -101,7 +101,7 @@ define [
       @plot_selector_view = new model.default_view(model: model)
       node.append(@plot_selector_view.$el)
 
-  class ColumnsView extends Backbone.View
+  class ColumnsView extends ContinuumView
     initialize: (options) ->
       super(options)
       @views = {}
@@ -328,7 +328,7 @@ define [
     'ContinuousColumn' : ContinuousColumn
   }
 
-  class ColumnCollection extends Backbone.Collection
+  class ColumnCollection extends Collection
 
     model : (attrs, options) ->
       if attrs.type of column_types

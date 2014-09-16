@@ -1,12 +1,12 @@
 define [
-  "backbone"
+  "common/collection"
   "underscore"
   "common/continuum_view"
   "common/has_parent"
   "common/logging"
   "./slidertemplate"
   "jquery_ui/slider"
-], (Backbone, _, ContinuumView, HasParent, Logging, slidertemplate) ->
+], (Collection, _, ContinuumView, HasParent, Logging, slidertemplate) ->
 
   logger = Logging.logger
 
@@ -59,7 +59,7 @@ define [
         orientation: "horizontal"
       }
 
-  class Sliders extends Backbone.Collection
+  class Sliders extends Collection
     model : Slider
 
   return {

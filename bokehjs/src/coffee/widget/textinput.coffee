@@ -1,11 +1,11 @@
 define [
-  "backbone",
+  "common/collection",
   "common/build_views"
   "common/continuum_view"
   "common/has_parent"
   "common/logging"
   "./textinputtemplate"
-], (Backbone, build_views, ContinuumView, HasParent, Logging, template) ->
+], (Collection, build_views, ContinuumView, HasParent, Logging, template) ->
 
   logger = Logging.logger
 
@@ -43,7 +43,7 @@ define [
         title: ""
       }
 
-  class TextInputs extends Backbone.Collection
+  class TextInputs extends Collection
     model : TextInput
 
   return {

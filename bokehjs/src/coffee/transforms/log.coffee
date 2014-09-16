@@ -1,8 +1,8 @@
 define [
   "common/continuum_view"
-  "backbone",
+  "common/collection",
   "common/has_parent",
-], (ContinuumView, Backbone, HasParent) ->
+], (ContinuumView, Collection, HasParent) ->
 
   class LogView extends ContinuumView
     attributes:
@@ -23,7 +23,7 @@ define [
     type : "Log"
     default_view: LogView
 
-  class Logs extends Backbone.Collection
+  class Logs extends Collection
     model : Log
 
   return {

@@ -1,12 +1,12 @@
 define [
   "underscore"
-  "backbone"
+  "common/collection"
   "jquery"
   "bootstrap/modal"
   "common/has_properties"
   "common/continuum_view"
   "./dialog_template"
-], (_, Backbone, $, $1, HasProperties, ContinuumView, dialog_template) ->
+], (_, Collection, $, $1, HasProperties, ContinuumView, dialog_template) ->
 
   class DialogView extends ContinuumView
 
@@ -44,7 +44,7 @@ define [
         buttons: []
       }
 
-  class Dialogs extends Backbone.Collection
+  class Dialogs extends Collection
     model: Dialog
 
   return {

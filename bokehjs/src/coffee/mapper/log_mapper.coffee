@@ -1,8 +1,8 @@
 
 define [
-  "backbone",
+  "common/collection",
   "common/has_properties",
-], (Backbone, HasProperties) ->
+], (Collection, HasProperties) ->
 
 
   class LogMapper extends HasProperties
@@ -16,17 +16,17 @@ define [
 
     map_to_target: (x) ->
       [scale, offset, inter_scale, inter_offset] = @get('mapper_state')
-      
+
       intermediate = 0
       result = 0
 
       if inter_scale == 0
         intermediate = 0
       else
-          
+
         try
           intermediate = (Math.log(x) - inter_offset) / inter_scale
-          
+
           if isNaN(intermediate)
             throw "NaN"
           if isFinite(intermediate) == false
@@ -36,19 +36,19 @@ define [
           intermediate = 0
 
       result = intermediate * scale + offset
-      
+
       return result
 
     v_map_to_target: (xs) ->
       [scale, offset, inter_scale, inter_offset] = @get('mapper_state')
-      
+
       intermediate = new Float64Array(xs.length)
       result = new Float64Array(xs.length)
 
       if inter_scale == 0
         intermediate = xs.map (i) -> i * 0
       else
-          
+
         try
           mask1 = xs.map (i) -> i <= 0
           mask2 = xs.map (i) -> isNaN(i)
@@ -56,12 +56,12 @@ define [
           mask = (mask1[i] | mask2[i] for i in [0...xs.length])
 
           mask = mask.reduce (x, y) -> x || y
-          
+
           if mask == 1
             xs[mask] = 1
 
           intermediate = xs.map (i) -> (Math.log(i) - inter_offset) / inter_scale
-          
+
           for x, idx in intermediate
             if isNaN(intermediate[idx])
               throw "NaN"
@@ -73,7 +73,7 @@ define [
 
       for x, idx in xs
         result[idx] = intermediate[idx] * scale + offset
-      
+
       return result
 
     map_from_target: (xprime) ->
@@ -125,7 +125,7 @@ define [
 
       screen_range = target_end - target_start
       [start, end] = @_get_safe_scale(source_start, source_end)
-      
+
       if start == 0
         inter_scale = Math.log(end)
         inter_offset = 0
@@ -137,7 +137,7 @@ define [
       offset = target_start
       return [scale, offset, inter_scale, inter_offset]
 
-  class LogMappers extends Backbone.Collection
+  class LogMappers extends Collection
     model: LogMapper
 
   return {

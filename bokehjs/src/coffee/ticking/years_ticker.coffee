@@ -1,10 +1,10 @@
 define [
   "underscore",
-  "backbone",
+  "common/collection",
   "ticking/basic_ticker",
   "ticking/single_interval_ticker",
   "ticking/util",
-], (_, Backbone, BasicTicker, SingleIntervalTicker, util) ->
+], (_, Collection, BasicTicker, SingleIntervalTicker, util) ->
 
   last_year_no_later_than = util.last_year_no_later_than
   ONE_YEAR = util.ONE_YEAR
@@ -38,7 +38,7 @@ define [
         toString_properties: ['years']
       }
 
-  class YearsTickers extends Backbone.Collection
+  class YearsTickers extends Collection
     model: YearsTicker
 
   return {

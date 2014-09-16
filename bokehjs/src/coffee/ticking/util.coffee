@@ -11,8 +11,7 @@
 
 define [
   "underscore",
-  "backbone",
-], (_, Backbone) ->
+], (_) ->
 
   # Some time constants, in milliseconds.
   ONE_MILLI = 1.0

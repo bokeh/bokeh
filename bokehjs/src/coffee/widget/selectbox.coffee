@@ -1,11 +1,11 @@
 define [
-  "backbone"
+  "common/collection"
   "underscore"
   "common/continuum_view"
   "common/has_parent"
   "common/logging"
   "./selecttemplate"
-], (Backbone, build_views, ContinuumView, HasParent, Logging, template) ->
+], (Collection, build_views, ContinuumView, HasParent, Logging, template) ->
 
   logger = Logging.logger
 
@@ -43,7 +43,7 @@ define [
         options: []
       }
 
-  class Selects extends Backbone.Collection
+  class Selects extends Collection
     model : Select
 
   return {

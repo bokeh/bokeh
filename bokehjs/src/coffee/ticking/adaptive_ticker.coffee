@@ -1,9 +1,9 @@
 define [
   "underscore",
-  "backbone",
+  "common/collection",
   "ticking/abstract_ticker",
   "ticking/util",
-], (_, Backbone, AbstractTicker, util) ->
+], (_, Collection, AbstractTicker, util) ->
 
   argmin = util.argmin
 
@@ -68,7 +68,7 @@ define [
         max_interval: Infinity,
       }
 
-  class AdaptiveTickers extends Backbone.Collection
+  class AdaptiveTickers extends Collection
     model: AdaptiveTicker
 
   return {

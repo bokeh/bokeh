@@ -1,10 +1,10 @@
 define [
   "underscore"
-  "backbone"
+  "common/collection"
   "common/continuum_view"
   "common/has_parent"
   "common/logging"
-], (_, Backbone, ContinuumView, HasParent, Logging) ->
+], (_, Collection, ContinuumView, HasParent, Logging) ->
 
   logger = Logging.logger
 
@@ -59,7 +59,7 @@ define [
         disabled: false
       }
 
-  class Toggles extends Backbone.Collection
+  class Toggles extends Collection
     model: Toggle
 
   return {

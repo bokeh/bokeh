@@ -1,10 +1,10 @@
 define [
   "underscore",
-  "backbone",
+  "common/collection",
   "common/has_parent",
   "common/continuum_view",
   "./data_table_template"
-], (_, Backbone, HasParent, ContinuumView, data_table_template) ->
+], (_, Collection, HasParent, ContinuumView, data_table_template) ->
 
   ENTER = 13
 
@@ -276,7 +276,7 @@ define [
         columns_names: []
       }
 
-  class DataTables extends Backbone.Collection
+  class DataTables extends Collection
     model: DataTable
 
   return {
