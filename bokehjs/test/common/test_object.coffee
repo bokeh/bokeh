@@ -1,13 +1,13 @@
 
 define [
-  "backbone",
+  "common/collection",
   "common/has_properties",
-], (Backbone, HasProperties) ->
+], (Collection, HasProperties) ->
 
   class TestObject extends HasProperties
     type: 'TestObject'
 
-  class TestObjects extends Backbone.Collection
+  class TestObjects extends Collection
     model: TestObject
     url: "/"
 

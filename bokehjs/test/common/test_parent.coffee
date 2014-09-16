@@ -1,16 +1,19 @@
 
 define [
-  "backbone",
+  "underscore",
+  "common/collection",
   "common/has_parent",
-], (Backbone, HasParent) ->
+], (_, Collection, HasParent) ->
 
   class TestParent extends HasParent
       type : 'TestParent',
       parent_properties : ['testprop'],
-      display_defaults :
-        testprop : 'defaulttestprop'
+      display_defaults : ->
+        _.extend {}, super(), {
+          testprop : 'defaulttestprop'
+        }
 
-  class TestParents extends Backbone.Collection
+  class TestParents extends Collection
       model : TestParent
 
   return {
