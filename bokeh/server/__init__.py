@@ -1,19 +1,11 @@
 from __future__ import print_function
 
-# NOTE: Execute patch_all() before everything else, especially before
-# importing threading module. Otherwise, annoying KeyError exception
-# will be thrown. gevent is optional, so don't fail if not installed.
-try:
-    import gevent.monkey
-except ImportError:
-    pass
-else:
-    gevent.monkey.patch_all()
-from os.path import dirname
 import argparse, os, sys
-import logging
-import werkzeug.serving
 import imp
+import logging
+from os.path import dirname
+
+import werkzeug.serving
 
 from bokeh import __version__
 from bokeh.server.utils.reload import robust_reloader
