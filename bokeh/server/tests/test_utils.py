@@ -4,11 +4,11 @@ import threading
 import time
 import unittest
 
-import redis
+#import redis
 import requests
 from requests.exceptions import ConnectionError
 from tornado import ioloop
-import zmq
+#import zmq
 
 from bokeh.tests.test_utils import skipIfPy3
 

@@ -58,7 +58,7 @@ class RemoteDataTestCase(test_utils.BokehServerTestCase):
         requests.get(url).json()
 
 temp_data_dir = tempfile.mkdtemp(prefix="remote_data_test")
-class RemoteDataTestCase2(test_utils.BokehServerTestCase):
+class RemoteDataTestCase(test_utils.BokehServerTestCase):
     options = {'data_directory':  temp_data_dir}
 
     @skipIf(arraymanagement_missing, "array management not installed")
