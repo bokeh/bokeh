@@ -1,13 +1,15 @@
-from flask import abort, request, g
-from .. import serverbb
+
+from flask import abort, request
+
+from ..app import bokeh_app
 from ..models import docs
 from ..models import convenience
-from ..app import bokeh_app
+
 def check_read_authentication_and_create_client(func):
     def wrapper(docid, *args, **kwargs):
         doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
         if convenience.can_read_from_request(doc, request, bokeh_app):
-            return func(docid, *args, **kwargs)            
+            return func(docid, *args, **kwargs)
         else:
             abort(401)
     wrapper.__name__ = func.__name__
@@ -17,7 +19,7 @@ def check_write_authentication_and_create_client(func):
     def wrapper(docid, *args, **kwargs):
         doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
         if convenience.can_write_from_request(doc, request, bokeh_app):
-            return func(docid, *args, **kwargs)            
+            return func(docid, *args, **kwargs)
         else:
             abort(401)
     wrapper.__name__ = func.__name__

@@ -1,8 +1,12 @@
+
 from threading import Thread
-import json
 
 try:
     import gevent
+
+    # this just shuts up pyflakes
+    gevent
+
     import zmq.green as zmq
 except ImportError:
     import zmq

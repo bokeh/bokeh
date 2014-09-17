@@ -1,23 +1,24 @@
-from werkzeug.serving import _iter_module_files
-import traceback
-import sys
-import os
+
 import atexit
-import traceback
+import os
+import sys
 import time
+import traceback
+
+from werkzeug.serving import _iter_module_files
 
 def broadcast_reload():
     from bokeh.server.app import bokeh_app
     if hasattr(bokeh_app, 'wsmanager'):
         bokeh_app.wsmanager.send('debug:debug', 'reload')
-    
+
 def _wait_for_edit(extra_files=[], interval=1):
     """Waits until one of the files we're using have changed
     """
     from itertools import chain
     mtimes = {}
     while 1:
-        for filename in chain(_iter_module_files(), extra_files or ()):        
+        for filename in chain(_iter_module_files(), extra_files or ()):
             try:
                 mtime = os.stat(filename).st_mtime
             except OSError:
@@ -29,7 +30,7 @@ def _wait_for_edit(extra_files=[], interval=1):
             elif mtime > old_time:
                 return
         time.sleep(interval)
-        
+
 def robust_reloader(func):
     def wrapper(*args, **kwargs):
         atexit.register(broadcast_reload)
@@ -38,7 +39,7 @@ def robust_reloader(func):
             func(*args, **kwargs)
         except KeyboardInterrupt:
             raise
-        except Exception as e:
+        except Exception:
             """If in robust reload mode, gather all dependent files
             and wait until something has changed - and if so,
             exit(3) (that's what werkzeug looks for to determine
