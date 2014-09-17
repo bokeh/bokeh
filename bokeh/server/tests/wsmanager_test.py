@@ -1,18 +1,12 @@
-import unittest
-from unittest import skip
-import time
 
-import mock
+from bokeh import document
+from bokeh import protocol
+from bokeh import session
+from bokeh.tests.test_utils import skipIfPyPy
 
 from . import test_utils
-from .. import wsmanager
 from ..app import bokeh_app
-from ..models import docs
-from ... import protocol
-from ...tests.test_utils import skipIfPy3, skipIfPyPy
-from bokeh.widgets import VBox
-import bokeh.document as document
-import bokeh.session as session
+
 ws_address = "ws://localhost:6009/bokeh/sub/"
 
 class TestSubscribeWebSocket(test_utils.BokehServerTestCase):
@@ -24,7 +18,7 @@ class TestSubscribeWebSocket(test_utils.BokehServerTestCase):
         self.doc2 = document.Document()
         self.sess2 = session.Session()
         self.sess2.use_doc('second')
-    @skipIfPy3("gevent does not work in py3.")
+
     @skipIfPyPy("gevent requires pypycore and pypy-hacks branch of gevent.")
     def test_basic_subscribe(self):
         #connect sock to defaultdoc
@@ -55,7 +49,6 @@ class TestSubscribeWebSocket(test_utils.BokehServerTestCase):
         assert msg == 'bokehplot:defaultdoc:hello2!'
         msg = sock3.recv()
         assert msg == 'bokehplot:defaultdoc2:hello3!'
-
 
 def connect(sock, addr, topic, auth):
     sock.timeout = 2.0

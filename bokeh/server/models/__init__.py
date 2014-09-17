@@ -1,5 +1,5 @@
-import json
-from ...exceptions import DataIntegrityException
+
+from bokeh.exceptions import DataIntegrityException
 
 class UnauthorizedException(Exception):
     pass
@@ -7,7 +7,7 @@ class UnauthorizedException(Exception):
 class ServerModel(object):
     idfield = None
     typename = None
-    
+
     @classmethod
     def modelkey(cls, objid):
         return "model:%s:%s"% (cls.typename, objid)
@@ -17,18 +17,18 @@ class ServerModel(object):
 
     def to_json(self):
         raise NotImplementedError
-    
+
     @staticmethod
     def from_json(obj):
-        raise NotImplementedError        
-    
+        raise NotImplementedError
+
     def save(self, client):
         client.set(self.mykey(), self.to_json())
-        
+
     def create(self, client):
         try:
             client.create(self.mykey(), self.to_json())
-        except DataIntegrityException as e:
+        except DataIntegrityException:
             raise UnauthorizedException(self.mykey())
 
     @classmethod
@@ -37,7 +37,7 @@ class ServerModel(object):
         if data is None:
             return None
         return data
-    
+
     @classmethod
     def load(cls, client, objid):
         attrs = cls.load_json(client, objid)

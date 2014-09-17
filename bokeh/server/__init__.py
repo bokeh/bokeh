@@ -9,12 +9,11 @@ except ImportError:
     pass
 else:
     gevent.monkey.patch_all()
-from os.path import join, dirname
+from os.path import dirname
 import argparse, os, sys
 import logging
 import werkzeug.serving
 import imp
-import sys
 
 from bokeh import __version__
 from bokeh.server.utils.reload import robust_reloader

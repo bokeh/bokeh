@@ -1,24 +1,30 @@
 from __future__ import print_function
-from werkzeug.utils import secure_filename
+
+import logging
+logger = logging.getLogger(__name__)
+
 import json
 from os.path import join, exists
 from os import makedirs, remove
+import posixpath
 import shelve
 import uuid
-import posixpath
+
+from flask import (
+    request, session, flash, redirect, url_for, render_template, jsonify
+)
+import numpy as np
+from werkzeug.utils import secure_filename
+
+from bokeh.exceptions import DataIntegrityException
+from bokeh.utils import encode_utf8, decode_utf8
+from bokeh.transforms import line_downsample
+from bokeh.transforms import image_downsample
+from bokeh.transforms import ar_downsample
+
+from .app import bokeh_app
 from .models import user
 from .models import UnauthorizedException
-from .app import bokeh_app
-from ..exceptions import DataIntegrityException
-from ..utils import encode_utf8, decode_utf8
-from ..transforms import line_downsample
-from ..transforms import image_downsample
-from ..transforms import ar_downsample
-import logging
-import numpy as np
-
-logger = logging.getLogger(__name__)
-
 
 class AbstractServerModelStorage(object):
     """Storage class for server side models (non backbone, that would be
@@ -167,11 +173,6 @@ class AbstractAuthentication(object):
         """
         raise NotImplementedError
 
-from flask import (request, session, abort,
-                   flash, redirect, url_for, render_template,
-                   jsonify
-                   )
-
 class SingleUserAuthentication(AbstractAuthentication):
     def current_user_name(self):
         return "defaultuser"
@@ -306,32 +307,32 @@ class MultiUserAuthentication(AbstractAuthentication):
 class AbstractDataBackend(object):
     """These functions take a request_username parameter,
     which is the identify of the requester.
-    
-    Some also take request_docid, which is the docid of the 
+
+    Some also take request_docid, which is the docid of the
     requester.  You only need one or the other.  pass None for the
     one you don't want to set
-    
+
     IT is up to the implementation to handle permissions
 
     many functions take a data_url.  It is assumed that
     the implementation can retrieve the dataset owner from
-    the dataset_url 
+    the dataset_url
     """
     def list_data_sources(self, request_username, username):
         """
         request_username is the identity of the requester
 
         list data sources for username
-        
+
         should probably return an error if request_username and username
         don't match, but that is delegated to the backend, which can
         do something else if it chooses
 
-        return data_source urls as list, 
+        return data_source urls as list,
         ["/foo/bar", "foo/bar/baz"]
         """
         raise NotImplementedError
-    
+
     def get_permissons(self, request_username, data_url):
         """return permissions as JSON
         rw_users : [list of users], or 'all'
@@ -342,14 +343,14 @@ class AbstractDataBackend(object):
         raise NotImplementedError
 
     def modify_permissions(self, request_username, data_url, permissions_json):
-        """permissions_json is a json object like that which is 
+        """permissions_json is a json object like that which is
         returned by get_permissions
         """
-        
+
     #parameters for this are undefined at the moment
-    def get_data(self, request_username, datasource, parameters, plot_state, render_state): 
-        raise NotImplementedError        
-    
+    def get_data(self, request_username, datasource, parameters, plot_state, render_state):
+        raise NotImplementedError
+
     def append_data(self, request_username, request_docid, data_url, datafile):
         raise NotImplementedError
 
@@ -360,7 +361,7 @@ def user_url_root(data_directory, username):
     if posixpath.basename(user_directory) != username:
         raise IOError('security error')
     return user_directory
-    
+
 def safe_url_join(base_path, paths):
     proposed_path = posixpath.realpath(posixpath.join(base_path, *paths))
     if not proposed_path.startswith(base_path):
@@ -372,9 +373,9 @@ def safe_user_url_join(data_directory, username, path):
     return safe_url_join(user_path, path)
 
 
-        
+
 class FunctionBackend(AbstractDataBackend):
-    """ Collection of datasets defined by functions.  
+    """ Collection of datasets defined by functions.
         Datasets are accessed by a URL starting with 'fn://'
     """
 
@@ -384,9 +385,9 @@ class FunctionBackend(AbstractDataBackend):
              'cats': np.random.randint(0,5,size=qty),
              'hundredA': np.random.randn(qty)*100,
              'hundredB': np.random.randn(qty)*100}
-    
-    uniform = {'oneA': np.random.rand(qty), 
-               'oneB': np.random.rand(qty), 
+
+    uniform = {'oneA': np.random.rand(qty),
+               'oneB': np.random.rand(qty),
                'hundredA': np.random.rand(qty)*100,
                'hundredB': np.random.rand(qty)*100}
 
@@ -418,20 +419,20 @@ class FunctionBackend(AbstractDataBackend):
 
     def list_data_sources(self, *args):
       return ["sin_cos", "gauss","uniform", "bivariate"]
-    
-    def get_data(self, request_username, datasource, parameters, plot_state, render_state): 
+
+    def get_data(self, request_username, datasource, parameters, plot_state, render_state):
         data_url = datasource.data_url
         resample_op = datasource.transform['resample']
 
         dataset = self.get_dataset(data_url)
-        
+
         if resample_op == 'abstract rendering':
           result = ar_downsample.downsample(dataset, datasource.transform, plot_state, render_state)
           return result
         else:
           raise ValueError("Unknown resample op '{}'".format(resample_op))
-        
-    
+
+
 
 class HDF5DataBackend(AbstractDataBackend):
     """Everything here is world readable, but only writeable by the user
@@ -441,14 +442,14 @@ class HDF5DataBackend(AbstractDataBackend):
         self.data_directory = data_directory
         try:
             from arraymanagement.client import ArrayClient
-            self.client = ArrayClient(self.data_directory, 
+            self.client = ArrayClient(self.data_directory,
                                       configname="bokeh.server.hdf5_backend_config")
         except Exception as e:
             logger.exception(e)
             logger.info("error importing arraymanagement")
             logger.info("install arraymanagement from https://github.com/continuumio/ArrayManagement")
             logger.info("or procede without remote data capabilities")
-            
+
     def write(self, request_username, request_filename, fileobj):
         username_path = secure_filename(request_username)
         fpath = secure_filename(request_filename)
@@ -460,7 +461,7 @@ class HDF5DataBackend(AbstractDataBackend):
             remove(path)
         fileobj.save(path)
         return posixpath.join("/", username_path, fpath)
-        
+
     def list_data_sources(self, request_username, username):
         return self.client[username].descendant_urls(ignore_groups=True)
 
@@ -468,7 +469,7 @@ class HDF5DataBackend(AbstractDataBackend):
         dataset = self.client[data_url]
         (primary_column, domain_name, columns,
          domain_limit, range_limit, domain_resolution, input_params) = data_parameters
-       
+
         method = input_params['method']
 
         if domain_limit == 'auto':
@@ -500,12 +501,12 @@ class HDF5DataBackend(AbstractDataBackend):
         return result;
 
 
-    def heatmap_downsample(self, request_username, data_url, 
+    def heatmap_downsample(self, request_username, data_url,
                            parameters, plot_state):
         dataset = self.client[data_url].node
-        (global_x_range, global_y_range, 
+        (global_x_range, global_y_range,
          global_offset_x, global_offset_y,
-         index_slice, data_slice, 
+         index_slice, data_slice,
          transpose, input_params) = parameters
 
         x_resolution = plot_state['screen_x'].end - plot_state['screen_x'].start
@@ -539,7 +540,7 @@ class HDF5DataBackend(AbstractDataBackend):
         output['dh'] = [result['dh']]
         return output
 
-    def get_data(self, request_username, datasource, parameters, plot_state, render_state): 
+    def get_data(self, request_username, datasource, parameters, plot_state, render_state):
         data_url = datasource.data_url
         resample_op = datasource.transform['resample']
 
@@ -547,11 +548,11 @@ class HDF5DataBackend(AbstractDataBackend):
 
 
             return self.line1d_downsample(
-                request_username, data_url, 
+                request_username, data_url,
                 parameters)
         elif resample_op == 'heatmap':
             return self.heatmap_downsample(
-                request_username, data_url, 
+                request_username, data_url,
                 parameters, plot_state)
         elif resample_op == 'abstract rendering':
           if (data_url.startswith("fn://")):
@@ -562,4 +563,4 @@ class HDF5DataBackend(AbstractDataBackend):
           return result
         else:
           raise ValueError("Unknown resample op '{}'".format(resample_op))
-        
+

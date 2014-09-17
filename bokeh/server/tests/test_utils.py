@@ -1,23 +1,25 @@
-import threading
+
 import tempfile
+import threading
 import time
 import unittest
 
-from tornado import ioloop
-#import redis
+import redis
 import requests
 from requests.exceptions import ConnectionError
+from tornado import ioloop
+import zmq
+
+from bokeh.tests.test_utils import skipIfPy3
 
 from .. import start
 from ..app import bokeh_app
-from ...tests.test_utils import skipIfPy3
-
 
 def wait_flask():
     def helper():
         try:
             return requests.get('http://localhost:5006/bokeh/ping')
-        except ConnectionError as e:
+        except ConnectionError:
             return False
     return wait_until(helper)
 

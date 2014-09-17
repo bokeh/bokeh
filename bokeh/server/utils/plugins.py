@@ -1,18 +1,25 @@
-from flask import abort, render_template
-from ...exceptions import DataIntegrityException
-from ..app import bokeh_app
-from ..views.main import _makedoc
-from ..views.backbone import init_bokeh
-from ...resources import Resources
-import uuid
+""" Utilities for writing plugins.
 
-"""Utilities for writing plugins, this is different from bokeh.pluginutils
-because these are ways of patching routes and objects directly into the
-bokeh server.  You would run this type of code using the --script option
+This is different from bokeh.pluginutils because these are ways of
+patching routes and objects directly into the bokeh server. You
+would run this type of code using the --script option
+
 """
 
+import uuid
+
+from flask import abort, render_template
+
+from bokeh.exceptions import DataIntegrityException
+from bokeh.resources import Resources
+
+from ..app import bokeh_app
+from ..views.backbone import init_bokeh
+from ..views.main import _makedoc
+
+
 def object_page(prefix):
-    """decorator for a function which turns an object into a web page
+    """ Decorator for a function which turns an object into a web page
 
     from bokeh.server.app import bokeh_app
     @bokeh_app.route("/myapp")
@@ -49,7 +56,6 @@ def object_page(prefix):
                 extra_generated_classes = obj.extra_generated_classes
             else:
                 extra_generated_classes = []
-            changed = bokeh_app.backbone_storage.store_document(clientdoc)
 
             resources = Resources()
             return render_template("oneobj.html",
@@ -63,4 +69,5 @@ def object_page(prefix):
                                    loglevel=resources.log_level)
         wrapper.__name__ = func.__name__
         return wrapper
+
     return decorator
