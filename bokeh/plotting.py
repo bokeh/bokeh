@@ -518,7 +518,7 @@ def scatter(*args, **kwargs):
         marker (str, optional): a valid marker_type, defaults to "circle"
         color (color value, optional): shorthand to set both fill and line color
 
-    All the :ref:`userguide_line_properties` and :ref:`userguide_fill_properties` are
+    All the :ref:`userguide_objects_line_properties` and :ref:`userguide_objects_fill_properties` are
     also accepted as keyword parameters.
 
     Examples:
@@ -543,19 +543,20 @@ def scatter(*args, **kwargs):
         raise ValueError("Invalid marker type '%s'. Use markers() to see a list of valid marker types." % markertype)
     return _marker_types[markertype](*args, **kwargs)
 
-def gridplot(plot_arrangement, name=None):
+def gridplot(plot_arrangement, name=None, **kwargs):
     """ Generate a plot that arranges several subplots into a grid.
 
     Args:
         plot_arrangement (list[:class:`Plot <bokeh.objects.Plot>`]) : plots to arrange in a grid
         name (str) : name for this plot
+        **kwargs: additional attributes to pass in to GridPlot() constructor
 
     .. note:: `plot_arrangement` can be nested, e.g [[p1, p2], [p3, p4]]
 
     Returns:
         grid_plot: the current :class:`GridPlot <bokeh.objects.GridPlot>`
     """
-    grid = GridPlot(children=plot_arrangement)
+    grid = GridPlot(children=plot_arrangement, **kwargs)
     if name:
         grid._id = name
     # Walk the plot_arrangement and remove them from the plotcontext,

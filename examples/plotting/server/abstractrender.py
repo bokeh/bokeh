@@ -17,6 +17,7 @@ ar.heatmap(plot, spread=3, title="Server-rendered, perceptually corrected")
 
 ar.replot(plot, 
           agg=ar.Count(), 
+          info=ar.Const(val=1),
           shader=ar.Spread(factor=3) + ar.Cuberoot() + ar.InterpolateColor(low=(255,200,200), high=(255,0,0)),
           points=True,
           title="Manually process: perceptually corrected", 

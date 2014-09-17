@@ -1,0 +1,24 @@
+<% if @label=="Continuous": %>
+<div class="bk-bs-panel-heading bk-crossfilter-panel-heading bk-crossfilter-panel-continuous-heading">
+<% else: %>
+<div class="bk-bs-panel-heading bk-crossfilter-panel-heading bk-crossfilter-panel-factor-heading">
+<% end %>
+  <%= @name %> <span style="font-size:x-small;">(<%= @label %>)</span>
+</div>
+
+
+<div class="bk-bs-panel-body">
+
+  <table class="bk-table">
+
+    <tbody>
+
+      <% for field in @fields: %>
+      <tr> <td> <%= field %>  </td> <td> <%= @[field] %>  </td> </tr>
+      <% end %>
+
+    </tbody>
+
+  </table>
+
+</div>

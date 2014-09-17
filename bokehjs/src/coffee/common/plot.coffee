@@ -74,11 +74,10 @@ define [
       @$('.bk-plot-canvas-wrapper').append(@canvas_view.el)
 
       toolbar_location = @mget('toolbar_location')
-      
-      if toolbar_location != 'none'
-        toolbar_div = 'bk-plot-'+toolbar_location
-        @$('.'+toolbar_div).html(@toolbar_template())
-       
+
+      if toolbar_location?
+        toolbar_selector = '.bk-plot-' + toolbar_location
+        @$(toolbar_selector).html(@toolbar_template())
 
       @canvas_view.render()
 
@@ -207,7 +206,7 @@ define [
 
       @model.get('frame').set('width', canvas.get('width'))
       @model.get('frame').set('height', canvas.get('height'))
-      
+
       @canvas.solver.update_variables(false)
 
       # TODO (bev) OK this sucks, but the event from the solver update doesn't
@@ -224,7 +223,7 @@ define [
         @frame.get('height'),
       ]
 
-      @_map_hook()
+      @_map_hook(ctx, frame_box)
       @_paint_empty(ctx, frame_box)
 
       if @outline_props.do_stroke
@@ -256,7 +255,7 @@ define [
 
       ctx.restore()
 
-    _map_hook: () ->
+    _map_hook: (ctx, frame_box) ->
 
     _paint_empty: (ctx, frame_box) ->
       ctx.fillStyle = @mget('border_fill')

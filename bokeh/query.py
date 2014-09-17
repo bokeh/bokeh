@@ -53,14 +53,66 @@ def match(obj, selector, context={}):
     Returns:
         bool : True if the object matches, False otherwise
 
+    There are two selector keyss that are handled specially. The first
+    is 'type', which will do an isinstance check::
+
+        >>> from bokeh.plotting import line
+        >>> from bokeh.objects import Axis
+        >>> p = line([1,2,3], [4,5,6])
+        >>> len(list(p.select({'type': Axis})))
+        2
+
+    There is also a a 'tags' attribute that `PlotObject` objects have,
+    that is a list of user-supplied values. The 'tags' selector key can
+    be used to query against this list of tags. An object matches if
+    any of the tags in the selector match any of the tags on the
+    object::
+
+        >>> from bokeh.plotting import line
+        >>> from bokeh.objects import Axis
+        >>> p = line([1,2,3], [4,5,6])
+        >>> p.tags = ["my plot", 10]
+        >>> len(list(p.select({'tags': "my plot"})))
+        1
+        >>> len(list(p.select({'tags': ["my plot", 10]})))
+        1
+
     '''
+    # OK, we are going to get rid of glyphspecs eventually, so let's try to
+    # simulate the expected eventual desired behaviour. For now, If the glyphspec
+    # matches, then the glyph matches.
+    from bokeh.objects import Glyph
+    if isinstance(obj, Glyph):
+        if match(obj.glyph, selector, context): return True
+
     for key, val in selector.items():
 
         # test attributes
         if isinstance(key, string_types):
 
+            # special case 'type'
+            if key == "type":
+                # type supports IN, check for that first
+                if isinstance(val, dict) and list(val.keys()) == [IN]:
+                    if not any(isinstance(obj, x) for x in val[IN]): return False
+                # otherwise just check the type of the object against val
+                elif not isinstance(obj, val): return False
+
+            # special case 'tag'
+            elif key == 'tags':
+                # TODO (bev) this is for glyphspecs, remove when they are removed
+                if not hasattr(obj, "tags"): return False
+
+                if isinstance(val, string_types):
+                    if val not in obj.tags: return False
+                else:
+                    try:
+                        if not set(val) & set(obj.tags): return False
+                    except TypeError:
+                        if val not in obj.tags: return False
+
             # if the object doesn't have the attr, it doesn't match
-            if not hasattr(obj, key): return False
+            elif not hasattr(obj, key): return False
 
             # if the value to check is a dict, recurse
             else:

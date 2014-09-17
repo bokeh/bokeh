@@ -16,6 +16,7 @@ import werkzeug.serving
 import imp
 import sys
 
+from bokeh import __version__
 from bokeh.server.utils.reload import robust_reloader
 from bokeh.server.app import bokeh_app
 from bokeh.settings import settings
@@ -27,68 +28,47 @@ if DEFAULT_BACKEND not in ['redis', 'shelve', 'memory']:
 
 def build_parser():
     parser = argparse.ArgumentParser(description="Start the Bokeh plot server")
-    parser.add_argument("-d", "--debug",
-                        action="store_true",
-                        default=False,
-                        help="debug mode for flask"
+
+    # general configuration
+    parser.add_argument("--ip",
+                        help="IP address that the bokeh server will listen on (default: 127.0.0.1)",
+                        type=str,
+                        default="127.0.0.1"
                         )
-    parser.add_argument("-j", "--debugjs",
-                        action="store_true",
-                        default=False,
-                        help="Whether to use bokehjs from the bokehjs build directory in the source tree or not"
+    parser.add_argument("--port", "--bokeh-port",
+                        help="Port that the bokeh server will listen on (default: 5006)",
+                        type=int,
+                        default=5006
                         )
-    parser.add_argument("-s", "--splitjs",
-                        action="store_true",
-                        default=False,
-                        help="don't serve compiled bokeh.js file.  This can only be True if debugjs is True"
+    parser.add_argument("--url-prefix",
+                        help="URL prefix for server. e.g. 'host:port/<prefix>/bokeh' (default: None)",
+                        type=str
                         )
-    parser.add_argument("--filter-logs",
+
+    # advanced configuration
+    parser.add_argument("-D", "--data-directory",
+                        help="location for server data sources",
+                        type=str
+                        )
+    parser.add_argument("-m", "--multi-user",
+                        help="start in multi-user configuration (default: False)",
                         action="store_true",
-                        default=False,
-                        help="don't show GET /static/... 200 OK (useful with --splitjs)")
-    parser.add_argument("-v", "--verbose", action="store_true", default=False)
+                        default=False
+                        )
+    parser.add_argument("--script",
+                        help="script to load (for applets)",
+                        default=None,
+                        type=str
+                        )
+
+    # storage config
     parser.add_argument("--backend",
                         help="storage backend: [ redis | memory | shelve ], default: %s" % DEFAULT_BACKEND,
                         type=str,
                         default=DEFAULT_BACKEND
                         )
-    parser.add_argument("--ip",
-                        help="The IP address the bokeh server will listen on",
-                        type=str,
-                        default="127.0.0.1"
-                        )
-    ## websockets
-    parser.add_argument("--ws-conn-string",
-                        help="conn string for websocket, unnecessary if autostarting",
-                        default=None
-    )
-
-    parser.add_argument("--zmqaddr",
-                        help="zmq url",
-                        default="tcp://127.0.0.1:5555"
-    )
-
-    parser.add_argument("--no-ws-start",
-                        help="auto start a websocket worker",
-                        default=False,
-                        action="store_true"
-    )
-
-    parser.add_argument("--ws-port",
-                        help="port for websocket worker",
-                        default=5007,
-                        type=int
-    )
-
-    ## end websockets
-
-    parser.add_argument("--bokeh-port",
-                        help="port for bokeh server",
-                        type=int,
-                        default=5006
-                        )
     parser.add_argument("--redis-port",
-                        help="port for redis",
+                        help="port for redis server to listen on (default: 7001)",
                         type=int,
                         default=7001
                         )
@@ -103,37 +83,67 @@ def build_parser():
                         dest="start_redis",
                         )
     parser.set_defaults(start_redis=True)
-    parser.add_argument("-m", "--multi-user",
-                        help="multi user",
-                        action="store_true",
-                        default=False
-                        )
-    parser.add_argument("-D", "--data-directory",
-                        help="data directory",
-                        type=str
-                        )
-    parser.add_argument("--robust-reload",
-                        help="whether to protect debug server reloading from syntax errors",
-                        default=False,
-                        action="store_true",
-                       )
-    parser.add_argument("--script",
-                        help="script to load(for applets)",
-                        default=None,
-                        type=str
-                       )
-    parser.add_argument("--url-prefix",
-                        help="url prefix",
-                        type=str
-                        )
 
+    # websockets config
+    parser.add_argument("--ws-conn-string",
+                        help="connection string for websocket (unnecessary if auto-starting)",
+                        default=None
+    )
+    parser.add_argument("--zmqaddr",
+                        help="ZeroMQ URL",
+                        default="tcp://127.0.0.1:5555"
+    )
+    parser.add_argument("--no-ws-start",
+                        help="don't automatically start a websocket worker",
+                        default=False,
+                        action="store_true"
+    )
+    parser.add_argument("--ws-port",
+                        help="port for websocket worker to listen on",
+                        default=5007,
+                        type=int
+    )
+
+    # dev, debugging, etc.
     class DevAction(argparse.Action):
         def __call__(self, parser, namespace, values, option_string=None):
             namespace.splitjs = True
             namespace.debugjs = True
             namespace.backend = 'memory'
 
-    parser.add_argument("--dev", action=DevAction, nargs=0, help="run server in development mode")
+    parser.add_argument("-d", "--debug",
+                        action="store_true",
+                        default=False,
+                        help="use debug mode for Flask"
+                        )
+    parser.add_argument("--dev",
+                        action=DevAction,
+                        nargs=0,
+                        help="run server in development mode"
+                        )
+    parser.add_argument("--filter-logs",
+                        action="store_true",
+                        default=False,
+                        help="don't show 'GET /static/... 200 OK', useful with --splitjs")
+    parser.add_argument("-j", "--debugjs",
+                        action="store_true",
+                        default=False,
+                        help="serve BokehJS files from the bokehjs build directory in the source tree"
+                        )
+    parser.add_argument("-s", "--splitjs",
+                        action="store_true",
+                        default=False,
+                        help="serve individual JS files instead of compiled bokeh.js, requires --debugjs"
+                        )
+    parser.add_argument("--robust-reload",
+                        help="protect debug server reloading from syntax errors",
+                        default=False,
+                        action="store_true",
+                        )
+    parser.add_argument("-v", "--verbose",
+                        action="store_true",
+                        default=False
+                        )
 
     return parser
 
@@ -164,13 +174,16 @@ def run():
     print("""
 Bokeh Server Configuration
 ==========================
+python version : %s
+bokeh version  : %s
 listening      : %s:%d
 backend        : %s
 python options : %s
 js options     : %s
 data-directory : %s
 """ % (
-    args.ip, args.bokeh_port,
+    sys.version.split()[0], __version__,
+    args.ip, args.port,
     backend_options,
     py_options,
     js_options,
@@ -223,7 +236,7 @@ def start_server(args):
         print ("importing %s" % args.script)
         imp.load_source("_bokeh_app", args.script)
     start.register_blueprint(args.url_prefix)
-    start.start_app(host=args.ip, port=args.bokeh_port, verbose=args.verbose)
+    start.start_app(host=args.ip, port=args.port, verbose=args.verbose)
 
 def start_with_reloader(args, js_files, robust):
     def helper():

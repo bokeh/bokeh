@@ -15,7 +15,11 @@ the arguments to the Chart class and calling the proper functions.
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-import scipy.special
+try:
+    import scipy.special
+    _is_scipy = True
+except ImportError as e:
+    _is_scipy = False
 import numpy as np
 
 from ._chartobject import ChartObject
@@ -170,14 +174,17 @@ class Histogram(ChartObject):
             self.mu_and_sigma = False
 
             if mu is not None and sigma is not None:
-                self.mu_and_sigma = True
-                self._set_and_get("x", val, np.linspace(-2, 2, len(self.data[val])))
-                pdf = 1 / (sigma * np.sqrt(2 * np.pi)) * np.exp(-(self.data["x" + val] - mu) ** 2 / (2 * sigma ** 2))
-                self._set_and_get("pdf", val, pdf)
-                self.groups.append("pdf")
-                cdf = (1 + scipy.special.erf((self.data["x" + val] - mu) / np.sqrt(2 * sigma ** 2))) / 2
-                self._set_and_get("cdf", val, cdf)
-                self.groups.append("cdf")
+                if _is_scipy:
+                    self.mu_and_sigma = True
+                    self._set_and_get("x", val, np.linspace(-2, 2, len(self.data[val])))
+                    pdf = 1 / (sigma * np.sqrt(2 * np.pi)) * np.exp(-(self.data["x" + val] - mu) ** 2 / (2 * sigma ** 2))
+                    self._set_and_get("pdf", val, pdf)
+                    self.groups.append("pdf")
+                    cdf = (1 + scipy.special.erf((self.data["x" + val] - mu) / np.sqrt(2 * sigma ** 2))) / 2
+                    self._set_and_get("cdf", val, cdf)
+                    self.groups.append("cdf")
+                else:
+                    print("You need scipy to get the theoretical probability distributions.")
 
     def get_source(self):
         "Push the Histogram data into the ColumnDataSource and calculate the proper ranges."
@@ -194,8 +201,7 @@ class Histogram(ChartObject):
                            end=endx + 0.1 * (endx - startx))
 
         endy = max(max(self.data[i]) for i in y_names)
-        if endy < 1.0:
-            endy = 1.0
+ 
         self.ydr = Range1d(start=0, end=1.1 * endy)
 
     def draw(self):

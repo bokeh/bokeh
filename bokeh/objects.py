@@ -12,7 +12,7 @@ logger = logging.getLogger(__file__)
 import warnings
 
 from . import _glyph_functions
-from .enums import DatetimeUnits, Dimension, Location, Orientation, Units
+from .enums import DatetimeUnits, Dimension, Location, MapType, Orientation, Units
 from .glyphs import BaseGlyph
 from .mixins import LineProps, TextProps
 from .plot_object import PlotObject
@@ -22,6 +22,12 @@ from .properties import (
 )
 from .query import find
 from .utils import nice_join
+
+# TODO (bev) dupe, move to utils
+class _list_attr_splat(list):
+    def __setattr__(self, attr, value):
+        for x in self:
+            setattr(x, attr, value)
 
 class DataSource(PlotObject):
     """ Base class for data sources """
@@ -127,22 +133,13 @@ class ServerDataSource(DataSource):
     # TODO: Find/create a property type for 'any primitive/atomic value'
     transform = Dict(String,Either(Instance(PlotObject), Any))
 
-
-class PandasDataSource(DataSource):
-    """ Represents serverside data.  This gets stored into the plot server's
-    database, but it does not have any client side representation.  Instead,
-    a PandasPlotSource needs to be created and pointed at it.
-    """
-
-    data = Dict(String, Any)
-
 class Range(PlotObject):
     pass
 
 class Range1d(Range):
     """ Represents a fixed range [start, end] in a scalar dimension. """
-    start = Either(Float, Datetime)
-    end = Either(Float, Datetime)
+    start = Either(Float, Datetime, Int)
+    end = Either(Float, Datetime, Int)
 
 class DataRange(Range):
     sources = List(Instance(ColumnsRef))
@@ -342,7 +339,7 @@ class Glyph(Renderer):
         return props
 
 class Widget(PlotObject):
-    pass
+    disabled = Bool(False)
 
 class Canvas(PlotObject):
     # TODO (bev) remove default dims here, see #561
@@ -379,7 +376,7 @@ class Plot(Widget):
             seq[PlotObject]
 
         '''
-        return find(self.references(), selector, {'plot': self})
+        return _list_attr_splat(find(self.references(), selector, {'plot': self}))
 
     def row(self, row, gridplot):
         ''' Return whether this plot is in a given row of a GridPlot.
@@ -503,8 +500,8 @@ class Plot(Widget):
     above = List(Instance(PlotObject))
     below = List(Instance(PlotObject))
 
-    toolbar_location = Either(Enum(Location), Enum('none'))
-    
+    toolbar_location = Enum(Location)
+
     plot_height = Int(600)
     plot_width = Int(600)
 
@@ -557,6 +554,7 @@ class MapOptions(HasProps):
     lat = Float
     lng = Float
     zoom = Int(12)
+    map_type = Enum(MapType)
 
 class GMapPlot(Plot):
     map_options = Instance(MapOptions)
@@ -578,7 +576,7 @@ class GridPlot(Plot):
             seq[PlotObject]
 
         '''
-        return find(self.references(), selector, {'gridplot': self})
+        return _list_attr_splat(find(self.references(), selector, {'gridplot': self}))
 
     def column(self, col):
         ''' Return a given column of plots from this GridPlot.
@@ -768,11 +766,6 @@ class Legend(Renderer):
     legend_padding = Int(10)
     legend_spacing = Int(3)
     legends = Dict(String, List(Instance(Glyph)))
-
-class DataSlider(Renderer):
-    plot = Instance(Plot)
-    data_source = Instance(DataSource)
-    field = String()
 
 class PlotContext(PlotObject):
     """ A container for multiple plot objects. """

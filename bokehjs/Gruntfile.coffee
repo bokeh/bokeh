@@ -48,18 +48,6 @@ module.exports = (grunt) ->
           src: ['**/*']
           dest : 'build/js/vendor'
         ]
-      release:
-        files: [
-            expand: true
-            cwd: 'build/js'
-            src: ['*.js']
-            dest: 'release/js'
-          ,
-            expand: true
-            cwd: 'build/css'
-            src: ['*.css']
-            dest: 'release/css'
-        ]
       spectrogram:
         src: 'build/js/bokeh.js'
         dest: 'build/demo/spectrogram/static/bokeh.js'

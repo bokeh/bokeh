@@ -16,32 +16,28 @@ from __future__ import print_function
 
 # Stdlib imports
 import os
-from os.path import dirname, exists, join, realpath
 import platform
 import shutil
 import site
 import subprocess
 import sys
-
-using_setuptools = False
+from os.path import abspath, dirname, exists, isdir, join, realpath, relpath
 
 if 'nightly' in sys.argv:
     from setuptools import setup
-    using_setuptools = True
     sys.argv.remove('nightly')
 
-    with open('__conda_version__.txt','r') as f:
+    with open('__conda_version__.txt', 'r') as f:
         version = f.read().rstrip()
 
-    vers_file = os.path.join('bokeh','__conda_version__.py')
-    with open(vers_file,'w') as f:
-        f.write("conda_version="+"'"+version+"'")
+    vers_file = os.path.join('bokeh', '__conda_version__.py')
+    with open(vers_file, 'w') as f:
+        f.write("conda_version=" + "'" + version + "'")
 
 else:
     from distutils.core import setup
 
 from distutils import dir_util
-from os.path import abspath, relpath, exists, join, dirname, isdir
 
 # Our own imports
 import versioneer
@@ -208,12 +204,20 @@ def build_js():
     print("Building BokehJS...")
     os.chdir('bokehjs')
 
-    cmd = [join('node_modules', '.bin', 'grunt'), 'deploy']
+    if sys.platform != "win32":
+        cmd = [join('node_modules', '.bin', 'grunt'), 'deploy']
+    else:
+        cmd = [join('node_modules', '.bin', 'grunt.cmd'), 'deploy']
 
     try:
         proc = subprocess.Popen(cmd)
     except OSError:
-        print("Failed to run: %s. Did you run `npm install` before?" % " ".join(cmd))
+        print("""
+Failed to build BokehJS.
+
+Have you run `npm install` from the bokehjs subdirectory?
+  Dev Guide: http://bokeh.pydata.org/docs/dev_guide.html#bokehjs.
+""")
         sys.exit(1)
     finally:
         os.chdir('..')
@@ -230,7 +234,13 @@ def install_js():
          not exists(join(JS, 'bokeh.min.js')) or
          not exists(join(CSS, 'bokeh.css')) or
          not exists(join(CSS, 'bokeh.min.css'))):
-        print("ERROR: Cannot install BokehJS, files missing in bokehjs/build. Need to run at least once with --build_js?")
+        print("""
+ERROR: Cannot install BokehJS: files missing in `./bokehjs/build`.
+
+
+Please build BokehJS by running setup.py with the `--build_js` option.
+  Dev Guide: http://bokeh.pydata.org/docs/dev_guide.html#bokehjs.
+""")
         sys.exit(1)
 
     if exists(target_jsdir):
@@ -252,7 +262,7 @@ Bokeh includes a JavaScript library (BokehJS) that has its own
 build process. How would you like to handle BokehJS:
 
 1) build and install fresh BokehJS
-2) install last built BokehJS
+2) install last built BokehJS from bokeh/bokehjs/build
 """)
     mapping = {"1": True, "2": False}
     value = input("Choice? ")
@@ -377,9 +387,11 @@ REQUIRES = [
         'pystache>=0.5.3',
         'markdown>=2.3.1',
         'PyYAML>=3.10',
+        'pyzmq>=14.3.1',
+        'tornado>=4.0.1',
         # tests
-        'nose>=1.3.0',
-        'mock>=1.0.1',
+        #'nose>=1.3.0',
+        #'mock>=1.0.1',
         'colorama>=0.2.7'
     ]
 
@@ -393,8 +405,8 @@ if sys.version_info[0] != 3 and platform.python_implementation() != "PyPy":
         'gevent-websocket>=0.9.2',
     ])
 
-if sys.platform != "win32":
-    REQUIRES.append('redis>=2.7.6')
+#if sys.platform != "win32":
+    #REQUIRES.append('redis>=2.7.6')
 
 if platform.python_implementation() != "PyPy":
     # You need to install PyPy's fork of NumPy to make it work:
@@ -416,10 +428,6 @@ if 'BOKEH_DEV_VERSION' in os.environ:
 else:
     _version = versioneer.get_version()
     _cmdclass = versioneer.get_cmdclass()
-
-extra_kw = {}
-if using_setuptools:
-    extra_kw = dict(zip_safe=False, install_requires=REQUIRES)
 
 setup(
     name='bokeh',
@@ -447,5 +455,6 @@ setup(
     description='Statistical and novel interactive HTML plots for Python',
     license='New BSD',
     scripts=scripts,
-    **extra_kw
+    zip_safe=False,
+    install_requires=REQUIRES
 )
