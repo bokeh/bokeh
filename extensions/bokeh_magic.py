@@ -27,17 +27,10 @@ from bokeh.plotting import (output_notebook, show, hold, figure)
 class BokehMagics(Magics):
     """Magic to embed Bokeh into the IPython notebook."""
 
-    ipyones = ['1.0.0', '1.1.1', '1.1.2', '1.2.0', '1.2.1']
-    ipytwos = ['2.0.0-dev', '2.0.0-b1', '2.0.0-wakari', '2.0.0', '2.1.0', '3.0.0-dev']
-    if IPython.__version__ in ipyones:
+    if IPython.__version__.startswith("1"):
         is_ipytwo = False
-    elif IPython.__version__ in ipytwos:
-        is_ipytwo = True
     else:
-        message = """This version of IPython is not currently supported.
-
-Currently supported version are: %s and %s.""" % (', '.join(ipyones), ', '.join(ipytwos))
-        raise Exception(message)
+        is_ipytwo = True
 
     has_run = False
 
