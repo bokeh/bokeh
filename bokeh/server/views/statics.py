@@ -8,7 +8,7 @@ from ..app import bokeh_app
 
 @bokeh_app.route('/bokehjs/static/<path:filename>')
 def bokehjs_file(filename):
-     """ Return a specific BokehJS deployment file
+    """ Return a specific BokehJS deployment file
 
     Args:
         filename (str): name of the file to retrieve
