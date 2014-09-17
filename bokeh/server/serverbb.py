@@ -4,23 +4,18 @@ which stores models, from the http client which interacts with a remote store
 In applications, we would use a class that combines both
 """
 
-import requests
-import shelve
-import uuid
-import contextlib
 import logging
-from collections import defaultdict
-from six.moves import cPickle as pickle
-from .. import  protocol
-from .models import docs
-import numpy as np
 logger = logging.getLogger(__name__)
 
-from ..objects import PlotObject, Plot
-from ..document import Document
-from ..utils import encode_utf8, decode_utf8, dump
-from . import server_backends
-from .app import bokeh_app
+from collections import defaultdict
+import contextlib
+import shelve
+
+from bokeh import protocol
+from bokeh.document import Document
+from bokeh.utils import decode_utf8, dump, encode_utf8
+
+from .models import docs
 
 class StoreAdapter(object):
     """API modeled after Redis that other stores have to adapt to. """
@@ -100,8 +95,8 @@ class PersistentBackboneStorage(object):
             models.add(obj.references())
         if dirty_only:
             models = list(models)
-        json_objs = utils.dump(models, docid)
-        self.push(doc.docid, *json_objs)
+        json_objs = dump(models, docid)
+        self.push(docid, *json_objs)
         for mod in models:
             mod._dirty = False
         return models
@@ -135,19 +130,19 @@ class PersistentBackboneStorage(object):
         self.srem(dockey(docid), mkey)
         self.delete(mkey)
 
-    """unused for now """
-    def load_all_callbacks(self, get_json=False):
-        """get_json = return json of callbacks, rather than
-        loading them into models
-        """
-        doc_keys = self.smembers(dockey(docid))
-        callback_keys = [x.replace("bbmodel", "bbcallback") for x in doc_keys]
-        callbacks = self.mget(callback_keys)
-        callbacks = [x for x in callbacks if x]
-        callbacks = [protocol.deserialize_json(x) for x in callbacks]
-        if get_json:
-            return callbacks
-        self.load_callbacks_json(callbacks)
+    # UNUSED FOR NOW
+    # def load_all_callbacks(self, get_json=False):
+    #     """get_json = return json of callbacks, rather than
+    #     loading them into models
+    #     """
+    #     doc_keys = self.smembers(dockey(docid))
+    #     callback_keys = [x.replace("bbmodel", "bbcallback") for x in doc_keys]
+    #     callbacks = self.mget(callback_keys)
+    #     callbacks = [x for x in callbacks if x]
+    #     callbacks = [protocol.deserialize_json(x) for x in callbacks]
+    #     if get_json:
+    #         return callbacks
+    #     self.load_callbacks_json(callbacks)
 
     def store_callbacks(self, to_store):
         for callbacks in to_store:

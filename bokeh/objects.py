@@ -12,7 +12,7 @@ logger = logging.getLogger(__file__)
 import warnings
 
 from . import _glyph_functions
-from .enums import DatetimeUnits, Dimension, Location, Orientation, Units
+from .enums import DatetimeUnits, Dimension, Location, MapType, Orientation, Units
 from .glyphs import BaseGlyph
 from .mixins import LineProps, TextProps
 from .plot_object import PlotObject
@@ -339,7 +339,7 @@ class Glyph(Renderer):
         return props
 
 class Widget(PlotObject):
-    pass
+    disabled = Bool(False)
 
 class Canvas(PlotObject):
     # TODO (bev) remove default dims here, see #561
@@ -554,6 +554,7 @@ class MapOptions(HasProps):
     lat = Float
     lng = Float
     zoom = Int(12)
+    map_type = Enum(MapType)
 
 class GMapPlot(Plot):
     map_options = Instance(MapOptions)

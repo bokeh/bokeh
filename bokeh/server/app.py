@@ -1,10 +1,12 @@
 
 import flask
-from os.path import join, dirname, abspath
 from os import walk
+from os.path import join
+
+from bokeh.settings import settings
+
 from .models import convenience as mconv
 from .models import docs
-from bokeh.settings import settings
 
 class BokehBlueprint(flask.Blueprint):
 

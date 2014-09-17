@@ -1,9 +1,14 @@
-from threading import Thread
-from six.moves.queue import Empty
-import json
 
+from threading import Thread
+
+import json
+from six.moves.queue import Empty
 try:
     import gevent
+
+    # this just shuts up pyflakes
+    gevent
+
     import zmq.green as zmq
 except ImportError:
     import zmq

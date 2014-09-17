@@ -1,11 +1,8 @@
 from __future__ import print_function
 
-import gzip
-
-import six
-
 from flask import request
-
+import gzip
+import six
 
 class Gzip(object):
     def __init__(self, app, compress_level=6, minimum_size=500):
