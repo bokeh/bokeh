@@ -88,7 +88,7 @@ def ws_delete(clientdoc, models):
         'modelspecs' : attrs,
     }
     msg = protocol.serialize_json(msg)
-    bokeh_app.wsmanager.send("bokehplot:" + clientdoc.docid, msg, exclude=set([clientid]))
+    bokeh_app.wsmanager.send("bokehplot:" + clientdoc.docid, msg)
     return msg
 
 # backbone functionality
@@ -122,10 +122,8 @@ def bulkget(docid, typename=None):
         return make_json(protocol.serialize_json(attrs))
 
 # route for working with individual models
-@bokeh_app.route("/bokeh/bb/<docid>/<typename>/<id>/",
-           methods=['GET', 'OPTIONS', 'PUT', 'PATCH', 'DELETE'])
-@crossdomain(origin="*", methods=['PATCH', 'GET', 'PUT'],
-             headers=['BOKEH-API-KEY', 'Continuum-Clientid', 'Content-Type'])
+@bokeh_app.route("/bokeh/bb/<docid>/<typename>/<id>/", methods=['GET', 'OPTIONS', 'PUT', 'PATCH', 'DELETE'])
+@crossdomain(origin="*", methods=['PATCH', 'GET', 'PUT'], headers=['BOKEH-API-KEY', 'Continuum-Clientid', 'Content-Type'])
 def handle_specific_model(docid, typename, id):
     if request.method == 'PUT':
         return update(docid, typename, id)
@@ -183,10 +181,8 @@ def delete(docid, typename, id):
 
 
 # rpc route
-@bokeh_app.route("/bokeh/bb/rpc/<docid>/<typename>/<id>/<funcname>/",
-           methods=['POST', 'OPTIONS'])
-@crossdomain(origin="*", methods=['POST'],
-             headers=['BOKEH-API-KEY', 'Continuum-Clientid', 'Content-Type'])
+@bokeh_app.route("/bokeh/bb/rpc/<docid>/<typename>/<id>/<funcname>/", methods=['POST', 'OPTIONS'])
+@crossdomain(origin="*", methods=['POST'], headers=['BOKEH-API-KEY', 'Continuum-Clientid', 'Content-Type'])
 @check_write_authentication_and_create_client
 def rpc(docid, typename, id, funcname):
     clientdoc = bokeh_app.backbone_storage.get_document(docid)
