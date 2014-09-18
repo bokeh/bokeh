@@ -18,7 +18,7 @@ file. The file is located at:
 You can use a browser to download the file, or depending on your system you
 may be able to use curl:
 
-    curl http://quantquote.com/files/quantquote_daily_sp500_83986.zip > quantquote_daily_sp500_83986.zip
+    curl -O http://quantquote.com/files/quantquote_daily_sp500_83986.zip
 
 or wget:
 
