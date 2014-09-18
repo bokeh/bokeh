@@ -1,10 +1,10 @@
 
 define [
   "underscore",
-  "backbone",
+  "common/collection",
   "sprintf",
   "./tool",
-], (_, Backbone, sprintf, Tool) ->
+], (_, Collection, sprintf, Tool) ->
 
   _color_to_hex = (color) ->
     if (color.substr(0, 1) == '#')
@@ -217,8 +217,8 @@ define [
         renderers = (r for r in renderers when names.indexOf(r.get('name')) >= 0)
       @set('renderers', renderers)
 
-    defaults: () ->
-      return _.extend(super(), {
+    defaults: ->
+      return _.extend {}, super(), {
         renderers: []
         names: []
         tooltips: {
@@ -226,12 +226,9 @@ define [
           "data (x, y)": "($x, $y)"
           "canvas (x, y)": "($sx, $sy)"
         }
-      })
+      }
 
-    display_defaults: () ->
-      super()
-
-  class HoverTools extends Backbone.Collection
+  class HoverTools extends Collection
     model: HoverTool
 
   return {

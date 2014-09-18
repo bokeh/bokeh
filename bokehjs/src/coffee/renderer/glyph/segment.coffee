@@ -40,8 +40,8 @@ define [
     default_view: SegmentView
     type: 'Glyph'
 
-    display_defaults: () ->
-      return _.extend(super(), {
+    display_defaults: ->
+      return _.extend {}, super(), {
         line_color: 'red'
         line_width: 1
         line_alpha: 1.0
@@ -49,7 +49,7 @@ define [
         line_cap: 'butt'
         line_dash: []
         line_dash_offset: 0
-      })
+      }
 
   return {
     "Model": Segment,

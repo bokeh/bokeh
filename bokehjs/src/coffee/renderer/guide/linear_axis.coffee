@@ -1,11 +1,11 @@
 
 define [
   "underscore",
-  "backbone",
+  "common/collection",
   "./axis"
   "ticking/basic_ticker",
   "ticking/basic_tick_formatter",
-], (_, Backbone, Axis, BasicTicker, BasicTickFormatter) ->
+], (_, Collection, Axis, BasicTicker, BasicTickFormatter) ->
 
   class LinearAxisView extends Axis.View
 
@@ -20,7 +20,7 @@ define [
       if not @get('formatter')?
         @set_obj('formatter', BasicTickFormatter.Collection.create())
 
-  class LinearAxes extends Backbone.Collection
+  class LinearAxes extends Collection
      model: LinearAxis
 
   return {

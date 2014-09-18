@@ -1,9 +1,10 @@
 define [
   "common/continuum_view"
-  "backbone",
+  "common/collection",
   "common/has_parent",
-], (continuum_view, Backbone, HasParent) ->
-  class InterpolateView extends continuum_view.View
+], (ContinuumView, Collection, HasParent) ->
+
+  class InterpolateView extends ContinuumView
     attributes:
       class: "InterpolateView"
 
@@ -17,14 +18,15 @@ define [
 
     render_init: () ->
       @$el.html("")
-  
+
   class Interpolate extends HasParent
     type : "Interpolate"
-    default_view: InterpolateView 
-  
-  class Interpolates extends Backbone.Collection
+    default_view: InterpolateView
+
+  class Interpolates extends Collection
     model : Interpolate
+
   return {
-    "Model" : Interpolate 
+    "Model" : Interpolate
     "Collection" : new Interpolates()
   }

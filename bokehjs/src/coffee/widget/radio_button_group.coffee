@@ -1,17 +1,17 @@
 define [
   "underscore"
-  "backbone"
+  "common/collection"
   "jquery"
   "bootstrap/button"
   "common/continuum_view"
   "common/has_parent"
   "common/logging"
   "bootstrap/button"
-], (_, Backbone, $, $1, continuum_view, HasParent, Logging) ->
+], (_, Collection, $, $1, ContinuumView, HasParent, Logging) ->
 
   logger = Logging.logger
 
-  class RadioButtonGroupView extends continuum_view.View
+  class RadioButtonGroupView extends ContinuumView
     tagName: "div"
     events:
       "change input": "change_input"
@@ -49,15 +49,15 @@ define [
     type: "RadioButtonGroup"
     default_view: RadioButtonGroupView
 
-    defaults: () ->
-      _.extend({}, super(), {
+    defaults: ->
+      return _.extend {}, super(), {
         active: null
         labels: []
         type: "default"
         disabled: false
-      })
+      }
 
-  class RadioButtonGroups extends Backbone.Collection
+  class RadioButtonGroups extends Collection
     model: RadioButtonGroup
 
   return {

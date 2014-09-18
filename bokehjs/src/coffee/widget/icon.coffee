@@ -1,14 +1,14 @@
 define [
   "underscore"
-  "backbone"
+  "common/collection"
   "common/continuum_view"
   "common/has_parent"
   "common/logging"
-], (_, Backbone, continuum_view, HasParent, Logging) ->
+], (_, Collection, ContinuumView, HasParent, Logging) ->
 
   logger = Logging.logger
 
-  class IconView extends continuum_view.View
+  class IconView extends ContinuumView
     tagName: "i"
 
     initialize: (options) ->
@@ -37,15 +37,15 @@ define [
     type: "Icon"
     default_view: IconView
 
-    defaults: () ->
-      _.extend({}, super(), {
+    defaults: ->
+      return _.extend {}, super(), {
         name: ""
         size: null
         flip: null
         spin: false
-      })
+      }
 
-  class Icons extends Backbone.Collection
+  class Icons extends Collection
     model: Icon
 
   return {

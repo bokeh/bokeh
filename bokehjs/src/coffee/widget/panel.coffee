@@ -1,12 +1,12 @@
 define [
   "underscore"
   "jquery"
-  "backbone"
+  "common/collection"
   "common/continuum_view"
   "common/has_properties"
-], (_, $, Backbone, continuum_view, HasProperties) ->
+], (_, $, Collection, ContinuumView, HasProperties) ->
 
-  class PanelView extends continuum_view.View
+  class PanelView extends ContinuumView
 
     initialize : (options) ->
       super(options)
@@ -18,14 +18,14 @@ define [
   class Panel extends HasProperties
     type: "Panel"
     default_view: PanelView
-    defaults: () ->
-      return {
+    defaults: ->
+      return _.extend {}, super(), {
         title: ""
         child: null
         closable: false
       }
 
-  class Panels extends Backbone.Collection
+  class Panels extends Collection
     model: Panel
 
   return {

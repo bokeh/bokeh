@@ -2,9 +2,10 @@
 define [
   "underscore",
   "common/has_parent",
+  "common/collection",
   "renderer/properties",
   "common/plot_widget",
-], (_, HasParent, Properties, PlotWidget) ->
+], (_, HasParent, Collection, Properties, PlotWidget) ->
 
   line_properties = Properties.line_properties
 
@@ -121,14 +122,14 @@ define [
 
       return coords
 
-    defaults: () ->
-      return {
+    defaults: ->
+      return _.extend {}, super(), {
         x_range_name: "default"
         y_range_name: "default"
       }
 
-    display_defaults: () ->
-      return {
+    display_defaults: ->
+      return _.extend {}, super(), {
         level: 'underlay'
         grid_line_color: '#cccccc'
         grid_line_width: 1
@@ -139,7 +140,7 @@ define [
         grid_line_dash_offset: 0
       }
 
-  class Grids extends Backbone.Collection
+  class Grids extends Collection
      model: Grid
 
   return {

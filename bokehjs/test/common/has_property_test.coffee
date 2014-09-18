@@ -1,12 +1,11 @@
 
 require [
   "underscore",
-  "backbone",
   "common/base",
   "common/continuum_view",
   "common/has_properties",
   "../test/common/test_object",
-], (_, Backbone, base, ContinuumView, HasProperties, test_object) ->
+], (_, base, ContinuumView, HasProperties, test_object) ->
 
   testobjects = test_object.Collection
   base.locations['TestObject'] = "../test/common/test_object"
@@ -38,7 +37,6 @@ require [
     ok(temp == 11)
   )
 
-
   test('has_prop_manages_event_lifcycle', ->
     testobjects.reset()
     model = testobjects.create({'a': 1, 'b': 1})
@@ -60,7 +58,7 @@ require [
     # we mostly want to test how we react to other models, which is why
     # @model for a view is already handleed
     model2 = testobjects.create({'a': 1, 'b': 1})
-    view = new ContinuumView.View({'model': model2})
+    view = new ContinuumView({'model': model2})
 
     triggered = false
     view.listenTo(model, 'change', () -> triggered = true)

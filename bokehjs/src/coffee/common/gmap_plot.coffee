@@ -1,10 +1,10 @@
 
 define [
   "underscore",
-  "backbone",
+  "./collection",
   "./solver",
   "./plot",
-], (_, Backbone, Solver, Plot) ->
+], (_, Collection, Solver, Plot) ->
 
   class GMapPlotView extends Plot.View
 
@@ -148,17 +148,17 @@ define [
       'min_border_right'
     ]
 
-    defaults: () ->
-      return _.extend(super(), {
+    defaults: ->
+      return _.extend {}, super(), {
         title: 'GMapPlot'
-      })
+      }
 
-    display_defaults: () ->
-      return _.extend(super(), {
+    display_defaults: ->
+      return _.extend {}, super(), {
         border_fill: "#eee",
-      })
+      }
 
-  class GMapPlots extends Backbone.Collection
+  class GMapPlots extends Collection
      model: GMapPlot
 
   return {

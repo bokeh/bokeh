@@ -1,10 +1,10 @@
 
 define [
   "underscore",
-  "backbone",
+  "common/collection",
   "./tool",
   "./event_generators",
-], (_, Backbone, Tool, EventGenerators) ->
+], (_, Collection, Tool, EventGenerators) ->
 
   TwoPointEventGenerator = EventGenerators.TwoPointEventGenerator
 
@@ -102,19 +102,16 @@ define [
     default_view: BoxZoomToolView
     type: "BoxZoomTool"
 
-    defaults: () ->
-      return _.extend(super(), {
+    defaults: ->
+      return _.extend {}, super(), {
         renderers: []
         select_x: true
         select_y: true
         select_every_mousemove: false
         data_source_options: {} # backbone options for save on datasource
-      })
+      }
 
-    display_defaults: () ->
-      super()
-
-  class BoxZoomTools extends Backbone.Collection
+  class BoxZoomTools extends Collection
     model: BoxZoomTool
 
   return {
