@@ -21,7 +21,6 @@ import abstract_rendering.core as ar
 import abstract_rendering.numpyglyphs as npg
 import abstract_rendering.infos as infos
 
-
 def sort_init_first(_, a, b):
     if "_init_" in a:
         return -1
@@ -90,6 +89,8 @@ def start_bokeh_server(bokeh_port=5006):
 
 
 class Test_AR(unittest.TestCase):
+    bokeh_server = None 
+
     @classmethod
     def setUpClass(cls):
         cls.bokeh_server = start_bokeh_server()
@@ -101,7 +102,7 @@ class Test_AR(unittest.TestCase):
 
     # --------------- Processs functions -------------
     def test_replot_remove(self):
-        self.assertIsNotNone(self.bokeh_server)
+        self.assertIsNotNone(self.bokeh_server, "Server failed to start, cannot tests")
         ar_downsample._loadAR()
         output_server("Census")
         source = ServerDataSource(data_url="fn://bivariate", owner_username="defaultuser")
@@ -118,7 +119,7 @@ class Test_AR(unittest.TestCase):
             self.assertTrue(False, "Error reploting plot not in curdoc")
 
     def test_replot_property_transfer(self):
-        self.assertIsNotNone(self.bokeh_server)
+        self.assertIsNotNone(self.bokeh_server, "Server failed to start, cannot tests")
         ar_downsample._loadAR()
         output_server("Census")
         source = ServerDataSource(data_url="fn://bivariate", owner_username="defaultuser")
