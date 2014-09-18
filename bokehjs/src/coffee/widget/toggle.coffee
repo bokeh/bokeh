@@ -1,14 +1,14 @@
 define [
   "underscore"
-  "backbone"
+  "common/collection"
   "common/continuum_view"
   "common/has_parent"
   "common/logging"
-], (_, Backbone, continuum_view, HasParent, Logging) ->
+], (_, Collection, ContinuumView, HasParent, Logging) ->
 
   logger = Logging.logger
 
-  class ToggleView extends continuum_view.View
+  class ToggleView extends ContinuumView
     tagName: "button"
     events:
       "click": "change_input"
@@ -50,16 +50,16 @@ define [
     type: "Toggle"
     default_view: ToggleView
 
-    defaults: () ->
-      _.extend({}, super(), {
+    defaults: ->
+      return _.extend {}, super(), {
         active: false
         label: "Toggle"
         icon: null
         type: "default"
         disabled: false
-      })
+      }
 
-  class Toggles extends Backbone.Collection
+  class Toggles extends Collection
     model: Toggle
 
   return {

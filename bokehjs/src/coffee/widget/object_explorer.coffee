@@ -2,16 +2,16 @@ define [
   "underscore"
   "jquery"
   "jstree"
-  "backbone"
+  "common/collection"
   "common/continuum_view"
   "common/has_properties"
   "common/logging"
   "source/column_data_source"
-], (_, $, $1, Backbone, ContinuumView, HasProperties, Logging, ColumnDataSource) ->
+], (_, $, $1, Collection, ContinuumView, HasProperties, Logging, ColumnDataSource) ->
 
   logger = Logging.logger
 
-  class ObjectExplorerView extends ContinuumView.View
+  class ObjectExplorerView extends ContinuumView
     initialize: (options) ->
       super(options)
       @onEvent = _.debounce(@onEvent, options.debounce or 200)
@@ -182,12 +182,12 @@ define [
     type: 'ObjectExplorer'
     default_view: ObjectExplorerView
 
-    defaults: () ->
-      return {
+    defaults: ->
+      return _.extend {}, super(), {
         data_widget: null
       }
 
-  class ObjectExplorers extends Backbone.Collection
+  class ObjectExplorers extends Collection
     model: ObjectExplorer
 
   return {

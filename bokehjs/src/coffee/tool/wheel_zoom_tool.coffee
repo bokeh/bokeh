@@ -1,11 +1,11 @@
 
 define [
   "underscore"
-  "backbone"
+  "common/collection"
   "common/logging"
   "./tool"
   "./event_generators"
-], (_, Backbone, Logging, Tool, EventGenerators) ->
+], (_, Collection, Logging, Tool, EventGenerators) ->
 
   OnePointWheelEventGenerator = EventGenerators.OnePointWheelEventGenerator
   logger = Logging.logger
@@ -114,17 +114,14 @@ define [
     default_view: WheelZoomToolView
     type: "WheelZoomTool"
 
-    defaults: () ->
-      return {
+    defaults: ->
+      return _.extend {}, super(), {
         dimensions: ["width", "height"]
         speed: 1/600
       }
 
-  class WheelZoomTools extends Backbone.Collection
+  class WheelZoomTools extends Collection
     model: WheelZoomTool
-
-    display_defaults: () ->
-      super()
 
   return {
     "Model": WheelZoomTool,

@@ -2,9 +2,9 @@ define [
   "common/has_parent",
   "common/continuum_view",
   "common/build_views"
-  "backbone"
-], (HasParent, continuum_view, build_views, Backbone) ->
-  ContinuumView = continuum_view.View
+  "common/collection"
+], (HasParent, ContinuumView, build_views, Collection) ->
+
   class HBoxView extends ContinuumView
     tag : "div"
     attributes:
@@ -30,9 +30,12 @@ define [
   class HBox extends HasParent
     type : "HBox"
     default_view : HBoxView
-    defaults : () ->
-      return {'children' : []}
-  class HBoxes extends Backbone.Collection
+    defaults: ->
+      return _.extend {}, super(), {
+        children: []
+      }
+
+  class HBoxes extends Collection
     model : HBox
   hboxes = new HBoxes()
   return {

@@ -1,7 +1,7 @@
 define [
-  "backbone",
+  "common/collection",
   "./paragraph"
-], (Backbone, Paragraph) ->
+], (Collection, Paragraph) ->
   class PreTextView extends Paragraph.View
     tagName : "pre"
     attributes:
@@ -9,13 +9,14 @@ define [
   class PreText extends Paragraph.Model
     type : "PreText"
     default_view : PreTextView
-    defaults : () ->
-      return {
-        'text' : ''
-        'height' : 400
-        'width' : 400
+    defaults: ->
+      return _.extend {}, super(), {
+        text: ''
+        height: 400
+        width: 400
       }
-  class PreTexts extends Backbone.Collection
+
+  class PreTexts extends Collection
     model : PreText
   pretexts = new PreTexts()
   return {

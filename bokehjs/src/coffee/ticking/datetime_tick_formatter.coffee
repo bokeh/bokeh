@@ -1,11 +1,11 @@
 define [
   "underscore"
-  "backbone"
+  "common/collection"
   "sprintf"
   "timezone"
   "common/has_properties"
   "common/logging"
-], (_, Backbone, sprintf, tz, HasProperties, Logging) ->
+], (_, Collection, sprintf, tz, HasProperties, Logging) ->
 
   logger = Logging.logger
 
@@ -212,12 +212,12 @@ define [
 
       return labels
 
-    defaults: () ->
-      _.extend(super(), {
+    defaults: ->
+      return _.extend {}, super(), {
         formats: {}
-      })
+      }
 
-  class DatetimeTickFormatters extends Backbone.Collection
+  class DatetimeTickFormatters extends Collection
     model: DatetimeTickFormatter
 
   return {

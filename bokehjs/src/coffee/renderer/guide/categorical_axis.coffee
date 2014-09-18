@@ -1,12 +1,12 @@
 
 define [
-  "backbone"
+  "common/collection"
   "./axis"
   "common/logging"
   "range/factor_range"
   "ticking/categorical_ticker"
   "ticking/categorical_tick_formatter"
-], (Backbone, Axis, Logging, FactorRange, CategoricalTicker, CategoricalTickFormatter) ->
+], (Collection, Axis, Logging, FactorRange, CategoricalTicker, CategoricalTickFormatter) ->
 
   logger = Logging.logger
 
@@ -35,7 +35,7 @@ define [
 
       return range_bounds
 
-  class CategoricalAxes extends Backbone.Collection
+  class CategoricalAxes extends Collection
     model: CategoricalAxis
 
   return {

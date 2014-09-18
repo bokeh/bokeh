@@ -1,9 +1,9 @@
 define [
   "underscore",
-  "backbone",
+  "common/collection",
   "ticking/abstract_ticker",
   "ticking/util",
-], (_, Backbone, AbstractTicker, util) ->
+], (_, Collection, AbstractTicker, util) ->
 
   argmin = util.argmin
 
@@ -72,10 +72,7 @@ define [
       ticks = best_ticker.get_ticks_no_defaults(data_low, data_high, desired_n_ticks)
       return ticks
 
-    defaults: () ->
-      super()
-
-  class CompositeTickers extends Backbone.Collection
+  class CompositeTickers extends Collection
     model: CompositeTicker
 
   return {

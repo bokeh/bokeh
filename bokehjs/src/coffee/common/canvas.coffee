@@ -1,12 +1,12 @@
 define [
-  "backbone",
+  "./collection",
   "kiwi",
   "./canvas_template"
   "./continuum_view",
   "./layout_box"
   "./logging"
   "./solver",
-], (Backbone, kiwi, canvas_template, ContinuumView, LayoutBox, Logging, Solver) ->
+], (Collection, kiwi, canvas_template, ContinuumView, LayoutBox, Logging, Solver) ->
 
   Expr = kiwi.Expression
   Constraint = kiwi.Constraint
@@ -14,7 +14,7 @@ define [
 
   logger = Logging.logger
 
-  class CanvasView extends ContinuumView.View
+  class CanvasView extends ContinuumView
 
     className: "bokeh plotview bokeh_canvas_wrapper"
 
@@ -205,8 +205,8 @@ define [
       @_set_height(dims[1], false)
       @solver.update_variables()
 
-    defaults: () ->
-      return {
+    defaults: ->
+      return _.extend {}, super(), {
         width: 300
         height: 300
         map: false
@@ -215,10 +215,7 @@ define [
         use_hidpi: true
       }
 
-    display_defaults: () ->
-      return { }
-
-  class Canvases extends Backbone.Collection
+  class Canvases extends Collection
     model: Canvas
 
   return {

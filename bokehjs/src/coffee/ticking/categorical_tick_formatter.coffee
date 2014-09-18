@@ -1,7 +1,7 @@
 define [
-  "backbone",
+  "common/collection",
   "common/has_properties"
-], (Backbone, HasProperties) ->
+], (Collection, HasProperties) ->
 
   class CategoricalTickFormatter extends HasProperties
     type: 'CategoricalTickFormatter'
@@ -12,11 +12,8 @@ define [
     format: (ticks) ->
       return ticks
 
-  class CategoricalTickFormatters extends Backbone.Collection
+  class CategoricalTickFormatters extends Collection
     model: CategoricalTickFormatter
-
-    defaults: () ->
-      super()
 
   return {
     "Model": CategoricalTickFormatter,

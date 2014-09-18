@@ -88,10 +88,10 @@ define [
     default_view: ImageURLView
     type: 'Glyph'
 
-    display_defaults: () ->
-      return _.extend(super(), {
+    display_defaults: ->
+      return _.extend {}, super(), {
         level: 'underlay'
-      })
+      }
 
   return {
     "Model": ImageURLGlyph,

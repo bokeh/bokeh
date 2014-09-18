@@ -1,9 +1,9 @@
 
 define (require, exports, module) ->
 
-  _ = require("underscore")
   HasParent = require("common/has_parent")
-  PlotWidget = require("common/plot_widget")
+  Collection = require("common/collection")
+
   annular_wedge     = require("./annular_wedge")
   annulus           = require("./annulus")
   arc               = require("./arc")
@@ -76,10 +76,8 @@ define (require, exports, module) ->
     "x"                 : x.Model
   }
 
-  class Glyph extends Backbone.Collection
+  class Glyph extends Collection
     model: (attrs, options) ->
-
-
       if not attrs.glyphspec?.type?
         logger.error("missing glyph type")
         return

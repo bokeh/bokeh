@@ -1,16 +1,16 @@
 define [
   "underscore"
-  "backbone"
+  "common/collection"
   "jquery"
   "bootstrap/button"
   "common/continuum_view"
   "common/has_parent"
   "common/logging"
-], (_, Backbone, $, $1, continuum_view, HasParent, Logging) ->
+], (_, Collection, $, $1, ContinuumView, HasParent, Logging) ->
 
   logger = Logging.logger
 
-  class CheckboxButtonGroupView extends continuum_view.View
+  class CheckboxButtonGroupView extends ContinuumView
     tagName: "div"
     events:
       "change input": "change_input"
@@ -51,15 +51,15 @@ define [
     type: "CheckboxButtonGroup"
     default_view: CheckboxButtonGroupView
 
-    defaults: () ->
-      _.extend({}, super(), {
+    defaults: ->
+      return _.extend {}, super(), {
         active: []
         labels: []
         type: "default"
         disabled: false
-      })
+      }
 
-  class CheckboxButtonGroups extends Backbone.Collection
+  class CheckboxButtonGroups extends Collection
     model: CheckboxButtonGroup
 
   return {

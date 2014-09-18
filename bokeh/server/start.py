@@ -37,7 +37,6 @@ from .models import user
 
 try:
     from gevent.pywsgi import WSGIServer, WSGIHandler
-    #from geventwebsocket.handler import WebSocketHanler
 except ImportError:
     log.info("no gevent - your websockets won't work")
     from wsgiref.simple_server import make_server
@@ -103,17 +102,27 @@ def prepare_app(backend, single_user_mode=True, data_directory=None):
         authentication = SingleUserAuthentication()
     else:
         authentication = MultiUserAuthentication()
-    if data_directory:
-        datamanager = HDF5DataBackend(data_directory)
-    else:
-        datamanager = FunctionBackend()
 
-    bokeh_app.setup(backend, bbstorage, servermodel_storage,
-                    authentication, datamanager)
+    if data_directory:
+        data_manager = HDF5DataBackend(data_directory)
+    else:
+        data_manager = FunctionBackend()
+
+    bokeh_app.setup(
+        backend,
+        bbstorage,
+        servermodel_storage,
+        authentication,
+        data_manager
+    )
+
+    register_blueprint()
 
     # where should we be setting the secret key....?
     if not app.secret_key:
         app.secret_key = str(uuid.uuid4())
+
+    return app
 
 def register_blueprint(prefix=None):
     app.register_blueprint(bokeh_app, url_prefix=prefix)

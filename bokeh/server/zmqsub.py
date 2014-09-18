@@ -1,15 +1,7 @@
 
 from threading import Thread
 
-try:
-    import gevent
-
-    # this just shuts up pyflakes
-    gevent
-
-    import zmq.green as zmq
-except ImportError:
-    import zmq
+import zmq
 
 timeout = 0.1
 
