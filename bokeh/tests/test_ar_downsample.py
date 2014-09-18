@@ -1,32 +1,38 @@
+from __future__ import print_function
 import unittest
+import subprocess
+import time
+import sys
+import requests
+from requests.exceptions import ConnectionError
+
+
 import bokeh.transforms.ar_downsample as ar_downsample
 from bokeh.objects import Range1d, ServerDataSource, Glyph
 from bokeh.plotting import square, output_server, curdoc
 import types
-from .test_utils import skipIfPy3
-from ..utils import is_py3
 
-# Only import in python 2...
-try:
-    import abstract_rendering.numeric as numeric
-    import abstract_rendering.categories as categories
-    import abstract_rendering.contour as contour
-    import abstract_rendering.general as general
-    import abstract_rendering.glyphset as glyphset
-    import abstract_rendering.core as ar
-    import abstract_rendering.numpyglyphs as npg
-    import abstract_rendering.infos as infos
-except:
-    if not is_py3():
-        raise
+import abstract_rendering.numeric as numeric
+import abstract_rendering.categories as categories
+import abstract_rendering.contour as contour
+import abstract_rendering.general as general
+import abstract_rendering.glyphset as glyphset
+import abstract_rendering.core as ar
+import abstract_rendering.numpyglyphs as npg
+import abstract_rendering.infos as infos
 
 
 def sort_init_first(_, a, b):
-    if "_init_" in a: return -1
-    elif "_init_" in b: return 1
-    elif a > b: return -1
-    elif a < b: return 1
-    else: return 0
+    if "_init_" in a:
+        return -1
+    elif "_init_" in b:
+        return 1
+    elif a > b:
+        return -1
+    elif a < b:
+        return 1
+    else:
+        return 0
 
 unittest.TestLoader.sortTestMethodsUsing = sort_init_first
 
@@ -47,11 +53,55 @@ class _FailsProxyReify(object):
         raise NotImplementedError
 
 
-@unittest.skip
-@skipIfPy3("AR does not run in python 3")
+def start_bokeh_server(bokeh_port=5006):
+    cmd = ["python", "-c", "import bokeh.server; bokeh.server.run()"]
+    argv = ["--bokeh-port=%s" % bokeh_port, "--backend=memory"]
+
+    try:
+        proc = subprocess.Popen(cmd + argv)
+    except OSError:
+        print("Failed to run: %s" % " ".join(cmd + argv))
+        sys.exit(1)
+    else:
+        def wait_until(func, timeout=5.0, interval=0.01):
+            start = time.time()
+
+            while True:
+                if func():
+                    return True
+                if time.time() - start > timeout:
+                    return False
+                time.sleep(interval)
+
+        def wait_for_bokeh_server():
+            def helper():
+                try:
+                    return requests.get('http://localhost:%s/bokeh/ping' % bokeh_port)
+                except ConnectionError:
+                    return False
+
+            return wait_until(helper)
+
+        if not wait_for_bokeh_server():
+            print("Timeout when running: %s" % " ".join(cmd + argv))
+            sys.exit(1)
+
+        return proc
+
+
 class Test_AR(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.bokeh_server = start_bokeh_server()
+
+    @classmethod
+    def tearDownClass(cls):
+        if cls.bokeh_server:
+            cls.bokeh_server.kill()
+
     # --------------- Processs functions -------------
     def test_replot_remove(self):
+        self.assertIsNotNone(self.bokeh_server)
         ar_downsample._loadAR()
         output_server("Census")
         source = ServerDataSource(data_url="fn://bivariate", owner_username="defaultuser")
@@ -68,6 +118,7 @@ class Test_AR(unittest.TestCase):
             self.assertTrue(False, "Error reploting plot not in curdoc")
 
     def test_replot_property_transfer(self):
+        self.assertIsNotNone(self.bokeh_server)
         ar_downsample._loadAR()
         output_server("Census")
         source = ServerDataSource(data_url="fn://bivariate", owner_username="defaultuser")
