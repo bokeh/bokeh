@@ -52,6 +52,7 @@ def object_page(prefix):
             init_bokeh(clientdoc)
             obj = func(*args, **kwargs)
             clientdoc.add(obj)
+            bokeh_app.backbone_storage.store_document(clientdoc)
             if hasattr(obj, 'extra_generated_classes'):
                 extra_generated_classes = obj.extra_generated_classes
             else:
