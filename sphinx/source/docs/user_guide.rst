@@ -13,13 +13,13 @@ the kinds of low-level object attributes that can be set to really customize a p
 .. toctree::
    :maxdepth: 2
 
-   user_guide_objects.rst
-   user_guide_plotting.rst
-   user_guide_charts.rst
-   user_guide_server.rst
-   user_guide_embedding.rst
-   user_guide_widgets.rst
-   user_guide_ar.rst
-   user_guide_examples.rst
-   user_guide_issues.rst
+   user_guide/objects.rst
+   user_guide/plotting.rst
+   user_guide/charts.rst
+   user_guide/server.rst
+   user_guide/embedding.rst
+   user_guide/widgets.rst
+   user_guide/ar.rst
+   user_guide/examples.rst
+   user_guide/issues.rst
 
