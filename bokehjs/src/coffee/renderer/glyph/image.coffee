@@ -1,11 +1,12 @@
 
 define [
   "underscore",
+  "common/collection",
   "renderer/properties",
   "mapper/linear_color_mapper",
   "palettes/palettes",
   "./glyph",
-], (_, Properties, LinearColorMapper, Palettes, Glyph) ->
+], (_, Collection, Properties, LinearColorMapper, Palettes, Glyph) ->
 
   all_palettes = Palettes.all_palettes
 
@@ -91,10 +92,9 @@ define [
 
       ctx.setImageSmoothingEnabled(old_smoothing)
 
-  # name Image conflicts with js Image
-  class ImageGlyph extends Glyph.Model
+  class Image extends Glyph.Model
     default_view: ImageView
-    type: 'Glyph'
+    type: 'Image'
 
     display_defaults: ->
       return _.extend {}, super(), {
@@ -102,7 +102,11 @@ define [
         dilate: false
       }
 
+  class Images extends Collection
+    model: Image
+
   return {
-    "Model": ImageGlyph,
-    "View": ImageView,
+    Model: Image
+    View: ImageView
+    Collection: new Images()
   }

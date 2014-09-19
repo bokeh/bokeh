@@ -2,10 +2,11 @@
 define [
   "underscore",
   "rbush",
-  "common/mathutils"
+  "common/mathutils",
+  "common/collection",
   "renderer/properties",
   "./glyph",
-], (_, rbush, mathutils, Properties, Glyph) ->
+], (_, rbush, mathutils, Collection, Properties, Glyph) ->
 
   class AnnularWedgeView extends Glyph.View
 
@@ -154,25 +155,18 @@ define [
 
   class AnnularWedge extends Glyph.Model
     default_view: AnnularWedgeView
-    type: 'Glyph'
+    type: 'AnnularWedge'
 
     display_defaults: ->
-      return _.extend {}, super(), {
+      return _.extend {}, super(), @line_defaults, @fill_defaults, {
         direction: 'anticlock'
-
-        fill_color: 'gray'
-        fill_alpha: 1.0
-
-        line_color: 'red'
-        line_width: 1
-        line_alpha: 1.0
-        line_join: 'miter'
-        line_cap: 'butt'
-        line_dash: []
-        line_dash_offset: 0
       }
 
+  class AnnularWedges extends Collection
+    model: AnnularWedge
+
   return {
-    "Model": AnnularWedge,
-    "View": AnnularWedgeView,
+    Model: AnnularWedge
+    View: AnnularWedgeView
+    Collection: new AnnularWedges()
   }

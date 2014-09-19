@@ -1,9 +1,10 @@
 
 define [
   "underscore",
+  "common/collection",
   "renderer/properties",
   "./glyph",
-], (_, Properties, Glyph) ->
+], (_, Collection, Properties, Glyph) ->
 
   class BezierView extends Glyph.View
 
@@ -44,21 +45,16 @@ define [
 
   class Bezier extends Glyph.Model
     default_view: BezierView
-    type: 'Glyph'
+    type: 'Bezier'
 
     display_defaults: ->
-      return _.extend {}, super(), {
-        line_color: 'red'
-        line_width: 1
-        line_alpha: 1.0
-        line_join: 'miter'
-        line_cap: 'butt'
-        line_dash: []
-        line_dash_offset: 0
-      }
+      return _.extend {}, super(), @line_defaults
+
+  class Beziers extends Collection
+    model: Bezier
 
   return {
-    "Model": Bezier,
-    "View": BezierView,
+    Model: Bezier
+    View: BezierView
+    Collection: new Beziers()
   }
-

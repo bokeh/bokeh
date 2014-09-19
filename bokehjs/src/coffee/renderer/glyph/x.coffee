@@ -1,9 +1,10 @@
 
 define [
   "underscore",
+  "common/collection",
   "renderer/properties",
   "./marker",
-], (_, Properties, Marker) ->
+], (_, Collection, Properties, Marker) ->
 
   class XView extends Marker.View
 
@@ -28,21 +29,16 @@ define [
 
   class X extends Marker.Model
     default_view: XView
-    type: 'Glyph'
+    type: 'X'
 
     display_defaults: ->
-      return _.extend {}, super(), {
-        line_color: 'red'
-        line_width: 1
-        line_alpha: 1.0
-        line_join: 'miter'
-        line_cap: 'butt'
-        line_dash: []
-        line_dash_offset: 0
-      }
+      return _.extend {}, super(), @line_defaults
+
+  class Xs extends Collection
+    model: X
 
   return {
-    "Model": X,
-    "View": XView,
+    Model: X
+    View: XView
+    Collection: new Xs()
   }
-

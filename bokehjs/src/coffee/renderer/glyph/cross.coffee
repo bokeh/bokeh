@@ -1,9 +1,10 @@
 
 define [
   "underscore",
+  "common/collection",
   "renderer/properties",
   "./marker",
-], (_, Properties, Marker) ->
+], (_, Collection, Properties, Marker) ->
 
   class CrossView extends Marker.View
 
@@ -28,21 +29,16 @@ define [
 
   class Cross extends Marker.Model
     default_view: CrossView
-    type: 'Glyph'
+    type: 'Cross'
 
     display_defaults: ->
-      return _.extend {}, super(), {
-        line_color: 'red'
-        line_width: 1
-        line_alpha: 1.0
-        line_join: 'miter'
-        line_cap: 'butt'
-        line_dash: []
-        line_dash_offset: 0
-      }
+      return _.extend {}, super(), @line_defaults
+
+  class Crosses extends Collection
+    model: Cross
 
   return {
-    "Model": Cross,
-    "View": CrossView,
+    Model: Cross
+    View: CrossView
+    Collection: new Crosses()
   }
-

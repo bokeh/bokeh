@@ -1,10 +1,11 @@
 define [
   "underscore",
   "gear_utils",
+  "common/collection",
   "renderer/properties",
   "util/bezier",
   "./glyph",
-], (_, GearUtils, Properties, Bezier, Glyph) ->
+], (_, GearUtils, Collection, Properties, Bezier, Glyph) ->
 
   class GearView extends Glyph.View
 
@@ -122,22 +123,16 @@ define [
 
   class Gear extends Glyph.Model
     default_view: GearView
-    type: 'Glyph'
+    type: 'Gear'
 
     display_defaults: ->
-      return _.extend {}, super(), {
-        fill_color: 'gray'
-        fill_alpha: 1.0
-        line_color: 'red'
-        line_width: 1
-        line_alpha: 1.0
-        line_join: 'miter'
-        line_cap: 'butt'
-        line_dash: []
-        line_dash_offset: 0
-      }
+      return _.extend {}, super(), @line_defaults, @fill_defaults
+
+  class Gears extends Collection
+    model: Gear
 
   return {
     Model: Gear
     View: GearView
+    Collection: new Gears()
   }

@@ -1,9 +1,10 @@
 
 define [
   "underscore",
+  "common/collection",
   "renderer/properties",
   "./glyph",
-], (_, Properties, Glyph) ->
+], (_, Collection, Properties, Glyph) ->
 
   glyph_properties = Properties.glyph_properties
 
@@ -83,17 +84,20 @@ define [
       else
         ctx.drawImage(img, sx, sy, @sw[i], @sh[i])
 
-  # name Image conflicts with js Image
-  class ImageURLGlyph extends Glyph.Model
+  class ImageURL extends Glyph.Model
     default_view: ImageURLView
-    type: 'Glyph'
+    type: 'ImageURL'
 
     display_defaults: ->
       return _.extend {}, super(), {
         level: 'underlay'
       }
 
+  class ImageURLs extends Collection
+    model: ImageURL
+
   return {
-    "Model": ImageURLGlyph,
-    "View": ImageURLView,
+    Model: ImageURL
+    View: ImageURLView
+    Collection: new ImageURLs()
   }

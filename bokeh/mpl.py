@@ -20,7 +20,7 @@ import numpy as np
 import pandas as pd
 
 from .glyphs import (Asterisk, Circle, Cross, Diamond, InvertedTriangle, Line,
-                     MultiLine, Patches, Square, Text, Triangle, Xmarker)
+                     MultiLine, Patches, Square, Text, Triangle, X)
 from .mplexporter.exporter import Exporter
 from .mplexporter.renderers import Renderer
 from .mpl_helpers import (convert_dashes, delete_last_col, get_props_cycled,
@@ -125,7 +125,7 @@ class BokehRenderer(Renderer):
 
         # Add a "marker" Glyph to help the plot.renderers splitting in the GridPlot build
         dummy_source = ColumnDataSource(data=dict(name="ax_end"))
-        self.plot.renderers.append(Glyph(data_source=dummy_source, glyph=Xmarker()))
+        self.plot.renderers.append(Glyph(data_source=dummy_source, glyph=X()))
 
     def open_legend(self, legend, props):
         pass
@@ -177,7 +177,7 @@ class BokehRenderer(Renderer):
             "+": Cross,
             "^": Triangle,
             "v": InvertedTriangle,
-            "x": Xmarker,
+            "x": X,
             "D": Diamond,
             "*": Asterisk,
         }

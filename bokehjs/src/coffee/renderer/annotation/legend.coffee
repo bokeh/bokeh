@@ -8,7 +8,6 @@ define [
   "renderer/properties",
 ], (_, HasParent, PlotWidget, Collection, textutils, Properties) ->
 
-  glyph_properties = Properties.glyph_properties
   line_properties  = Properties.line_properties
   text_properties  = Properties.text_properties
 

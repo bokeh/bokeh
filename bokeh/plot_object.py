@@ -15,10 +15,6 @@ class Viewable(MetaHasProps):
     """ Any plot object (Data Model) which has its own View Model in the
     persistence layer.
 
-    Adds handling of a __view_model__ attribute to the class (which is
-    provided by default) which tells the View layer what View class to
-    create.
-
     One thing to keep in mind is that a Viewable should have a single
     unique representation in the persistence layer, but it might have
     multiple concurrent client-side Views looking at it.  Those may
@@ -151,14 +147,7 @@ class PlotObject(HasProps):
         for p in instance.properties_with_refs():
             if p in attrs:
                 ref_props[p] = attrs.pop(p)
-
-        special_props = {}
-        for p in dict(attrs):
-            if p not in instance.properties():
-                special_props[p] = attrs.pop(p)
-
         instance._ref_props = ref_props
-        instance._special_props = special_props
 
         instance.update(**attrs)
         return instance

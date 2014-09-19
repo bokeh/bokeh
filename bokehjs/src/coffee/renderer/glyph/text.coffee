@@ -1,9 +1,10 @@
 
 define [
   "underscore",
+  "common/collection",
   "renderer/properties",
   "./glyph",
-], (_, Properties, Glyph) ->
+], (_, Collection, Properties, Glyph) ->
 
   class TextView extends Glyph.View
 
@@ -50,7 +51,7 @@ define [
 
   class Text extends Glyph.Model
     default_view: TextView
-    type: 'Glyph'
+    type: 'Text'
 
     display_defaults: ->
       return _.extend {}, super(), {
@@ -63,7 +64,11 @@ define [
         text_baseline: "bottom"
       }
 
+  class Texts extends Collection
+    model: Text
+
   return {
-    "Model": Text,
-    "View": TextView,
+    Model: Text
+    View: TextView
+    Collection: new Texts()
   }

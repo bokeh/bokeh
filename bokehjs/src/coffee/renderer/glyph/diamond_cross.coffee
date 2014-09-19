@@ -1,9 +1,10 @@
 
 define [
   "underscore",
+  "common/collection",
   "renderer/properties",
   "./marker",
-], (_, Properties, Marker) ->
+], (_, Collection, Properties, Marker) ->
 
   class DiamondCrossView extends Marker.View
 
@@ -37,22 +38,16 @@ define [
 
   class DiamondCross extends Marker.Model
     default_view: DiamondCrossView
-    type: 'Glyph'
+    type: 'DiamondCross'
 
     display_defaults: ->
-      return _.extend {}, super(), {
-        fill_color: 'gray'
-        fill_alpha: 1.0
-        line_color: 'red'
-        line_width: 1
-        line_alpha: 1.0
-        line_join: 'miter'
-        line_cap: 'butt'
-        line_dash: []
-        line_dash_offset: 0
-      }
+      return _.extend {}, super(), @line_defaults, @fill_defaults
+
+  class DiamondCrosses extends Collection
+    model: DiamondCross
 
   return {
-    "Model": DiamondCross,
-    "View": DiamondCrossView,
+    Model: DiamondCross
+    View: DiamondCrossView
+    Collection: new DiamondCrosses()
   }

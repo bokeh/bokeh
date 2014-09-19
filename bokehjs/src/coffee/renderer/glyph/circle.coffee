@@ -2,9 +2,10 @@
 define [
   "underscore",
   "rbush",
+  "common/collection",
   "renderer/properties",
   "./glyph",
-], (_, rbush, Properties, Glyph) ->
+], (_, rbush, Collection, Properties, Glyph) ->
 
   class CircleView extends Glyph.View
 
@@ -160,26 +161,19 @@ define [
 
   class Circle extends Glyph.Model
     default_view: CircleView
-    type: 'Glyph'
+    type: 'Circle'
 
     display_defaults: ->
-      return _.extend {}, super(), {
+      return _.extend {}, super(), @line_defaults, @fill_defaults, {
         radius_units: 'data'
         size_units: 'screen'
-
-        fill_color: 'gray'
-        fill_alpha: 1.0
-
-        line_color: 'red'
-        line_width: 1
-        line_alpha: 1.0
-        line_join: 'miter'
-        line_cap: 'butt'
-        line_dash: []
-        line_dash_offset: 0
       }
 
+  class Circles extends Collection
+    model: Circle
+
   return {
-    "Model": Circle,
-    "View": CircleView,
+    Model: Circle
+    View: CircleView
+    Collection: new Circles()
   }

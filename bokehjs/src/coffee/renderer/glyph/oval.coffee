@@ -2,9 +2,10 @@
 
 define [
   "underscore",
+  "common/collection",
   "renderer/properties",
   "./glyph",
-], (_, Properties, Glyph) ->
+], (_, Collection, Properties, Glyph) ->
 
   class OvalView extends Glyph.View
 
@@ -68,23 +69,18 @@ define [
 
   class Oval extends Glyph.Model
     default_view: OvalView
-    type: 'Glyph'
+    type: 'Oval'
 
     display_defaults: ->
-      return _.extend {}, super(), {
-        fill_color: 'gray'
-        fill_alpha: 1.0
-        line_color: 'red'
-        line_width: 1
-        line_alpha: 1.0
-        line_join: 'miter'
-        line_cap: 'butt'
-        line_dash: []
-        line_dash_offset: 0
+      return _.extend {}, super(), @line_defaults, @fill_defaults, {
         angle: 0.0
       }
 
+  class Ovals extends Collection
+    model: Oval
+
   return {
-    "Model": Oval,
-    "View": OvalView,
+    Model: Oval
+    View: OvalView
+    Collection: new Ovals()
   }

@@ -1,9 +1,10 @@
 
 define [
   "underscore",
+  "common/collection",
   "renderer/properties",
   "./marker",
-], (_, Properties, Marker) ->
+], (_, Collection, Properties, Marker) ->
 
   class AsteriskView extends Marker.View
 
@@ -34,20 +35,16 @@ define [
 
   class Asterisk extends Marker.Model
     default_view: AsteriskView
-    type: 'Glyph'
+    type: 'Asterisk'
 
     display_defaults: ->
-      return _.extend {}, super(), {
-        line_color: 'red'
-        line_width: 1
-        line_alpha: 1.0
-        line_join: 'miter'
-        line_cap: 'butt'
-        line_dash: []
-        line_dash_offset: 0
-      }
+      return _.extend {}, super(), @line_defaults
+
+  class Asterisks extends Collection
+    model: Asterisk
 
   return {
-    "Model": Asterisk,
-    "View": AsteriskView,
+    Model: Asterisk
+    View: AsteriskView
+    Collection: new Asterisks()
   }

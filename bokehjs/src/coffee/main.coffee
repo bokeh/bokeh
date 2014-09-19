@@ -64,8 +64,7 @@ define (require, exports, module) ->
   Bokeh.Legend = require("renderer/annotation/legend")
 
   # glyphs
-  Bokeh.Glyph   = require("renderer/glyph/glyph")
-  glyph_factory = require("renderer/glyph/glyph_factory")
+  # ...
 
   # guides
   Bokeh.CategoricalAxis = require("renderer/guide/categorical_axis")

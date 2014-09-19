@@ -1,9 +1,10 @@
 
 define [
   "underscore",
+  "common/collection",
   "renderer/properties",
   "./glyph",
-], (_, Properties, Glyph) ->
+], (_, Collection, Properties, Glyph) ->
 
   class RayView extends Glyph.View
 
@@ -48,20 +49,16 @@ define [
 
   class Ray extends Glyph.Model
     default_view: RayView
-    type: 'Glyph'
+    type: 'Ray'
 
     display_defaults: ->
-      return _.extend {}, super(), {
-        line_color: 'red'
-        line_width: 1
-        line_alpha: 1.0
-        line_join: 'miter'
-        line_cap: 'butt'
-        line_dash: []
-        line_dash_offset: 0
-      }
+      return _.extend {}, super(), @line_defaults
+
+  class Rays extends Collection
+    model: Ray
 
   return {
-    "Model": Ray,
-    "View": RayView
+    Model: Ray
+    View: RayView
+    Collection: new Rays()
   }

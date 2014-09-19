@@ -2,9 +2,10 @@
 define [
   "underscore",
   "rbush",
+  "common/collection",
   "renderer/properties",
   "./glyph",
-], (_, rbush, Properties, Glyph) ->
+], (_, rbush, Collection, Properties, Glyph) ->
 
   class MarkerView extends Glyph.View
 
@@ -90,7 +91,6 @@ define [
   class Marker extends Glyph.Model
 
   return {
-    "Model": Marker,
-    "View": MarkerView,
+    Model: Marker
+    View: MarkerView
   }
-

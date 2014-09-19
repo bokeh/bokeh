@@ -199,11 +199,11 @@ class TestCross(unittest.TestCase):
         self.assertEqual(self.test_cross.to_glyphspec(), expected)
 
 
-class TestXmarker(unittest.TestCase):
+class TestX(unittest.TestCase):
 
     def setUp(self):
-        from bokeh.glyphs import Xmarker
-        self.test_x_marker = Xmarker()
+        from bokeh.glyphs import X
+        self.test_x_marker = X()
 
     def test_expected_values(self):
         self.assertEqual(self.test_x_marker.__view_model__, 'x')

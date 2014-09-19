@@ -1,9 +1,10 @@
 
 define [
   "underscore",
+  "common/collection",
   "renderer/properties",
   "./glyph",
-], (_, Properties, Glyph) ->
+], (_, Collection, Properties, Glyph) ->
 
   glyph_properties = Properties.glyph_properties
 
@@ -86,10 +87,9 @@ define [
 
       ctx.setImageSmoothingEnabled(old_smoothing)
 
-  # name Image conflicts with js Image
-  class ImageRGBAGlyph extends Glyph.Model
+  class ImageRGBA extends Glyph.Model
     default_view: ImageRGBAView
-    type: 'Glyph'
+    type: 'ImageRGBA'
 
     display_defaults: ->
       return _.extend {}, super(), {
@@ -97,7 +97,11 @@ define [
         dilate: false
       }
 
+  class ImageRGBAs extends Collection
+    model: ImageRGBA
+
   return {
-    "Model": ImageRGBAGlyph,
-    "View": ImageRGBAView,
+    Model: ImageRGBA
+    View: ImageRGBAView
+    Collection: new ImageRGBAs()
   }

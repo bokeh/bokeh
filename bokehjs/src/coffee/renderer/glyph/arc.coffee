@@ -1,9 +1,10 @@
 
 define [
   "underscore",
+  "common/collection",
   "renderer/properties",
   "./glyph",
-], (_, Properties, Glyph) ->
+], (_, Collection, Properties, Glyph) ->
 
   class ArcView extends Glyph.View
 
@@ -45,21 +46,18 @@ define [
 
   class Arc extends Glyph.Model
     default_view: ArcView
-    type: 'Glyph'
+    type: 'Arc'
 
     display_defaults: ->
-      return _.extend {}, super(), {
+      return _.extend {}, super(), @line_defaults, {
         direction: 'anticlock'
-        line_color: 'red'
-        line_width: 1
-        line_alpha: 1.0
-        line_join: 'miter'
-        line_cap: 'butt'
-        line_dash: []
-        line_dash_offset: 0
       }
 
+  class Arcs extends Collection
+    model: Arc
+
   return {
-    "Model": Arc,
-    "View": ArcView,
+    Model: Arc
+    View: ArcView
+    Collection: new Arcs()
   }

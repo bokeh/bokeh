@@ -24,12 +24,47 @@ define [
   "range/range1d",
 
   "renderer/annotation/legend",
-  "renderer/glyph/glyph_factory",
+
+  "renderer/glyph/annular_wedge",
+  "renderer/glyph/annulus",
+  "renderer/glyph/arc",
+  "renderer/glyph/asterisk",
+  "renderer/glyph/bezier",
+  "renderer/glyph/circle",
+  "renderer/glyph/circle_x",
+  "renderer/glyph/circle_cross",
+  "renderer/glyph/diamond",
+  "renderer/glyph/diamond_cross",
+  "renderer/glyph/gear",
+  "renderer/glyph/image",
+  "renderer/glyph/image_rgba",
+  "renderer/glyph/image_url",
+  "renderer/glyph/inverted_triangle",
+  "renderer/glyph/line",
+  "renderer/glyph/multi_line",
+  "renderer/glyph/oval",
+  "renderer/glyph/patch",
+  "renderer/glyph/patches",
+  "renderer/glyph/cross",
+  "renderer/glyph/quad",
+  "renderer/glyph/quadratic",
+  "renderer/glyph/ray",
+  "renderer/glyph/rect",
+  "renderer/glyph/square",
+  "renderer/glyph/square_x",
+  "renderer/glyph/square_cross",
+  "renderer/glyph/segment",
+  "renderer/glyph/text",
+  "renderer/glyph/triangle",
+  "renderer/glyph/wedge",
+  "renderer/glyph/x",
+
   "renderer/guide/categorical_axis",
   "renderer/guide/datetime_axis",
   "renderer/guide/grid",
   "renderer/guide/linear_axis",
   "renderer/guide/log_axis",
+
   "renderer/overlay/box_selection",
 
   "source/column_data_source",
@@ -141,13 +176,48 @@ define [
     FactorRange:              'range/factor_range'
     Range1d:                  'range/range1d'
 
-    Glyph:                    'renderer/glyph/glyph_factory'
+    Legend:                   'renderer/annotation/legend'
+
+    AnnularWedge:             'renderer/glyph/annular_wedge'
+    Annulus:                  'renderer/glyph/annulus'
+    Arc:                      'renderer/glyph/arc'
+    Asterisk:                 'renderer/glyph/asterisk'
+    Bezier:                   'renderer/glyph/bezier'
+    Circle:                   'renderer/glyph/circle'
+    CircleX:                  'renderer/glyph/circle_x'
+    CircleCross:              'renderer/glyph/circle_cross'
+    Diamond:                  'renderer/glyph/diamond'
+    DiamondCross:             'renderer/glyph/diamond_cross'
+    Gear:                     'renderer/glyph/gear'
+    Image:                    'renderer/glyph/image'
+    ImageRGBA:                'renderer/glyph/image_rgba'
+    ImageURL:                 'renderer/glyph/image_url'
+    InvertedTriangle:         'renderer/glyph/inverted_triangle'
+    Line:                     'renderer/glyph/line'
+    MultiLine:                'renderer/glyph/multi_line'
+    Oval:                     'renderer/glyph/oval'
+    Patch:                    'renderer/glyph/patch'
+    Patches:                  'renderer/glyph/patches'
+    Cross:                    'renderer/glyph/cross'
+    Quad:                     'renderer/glyph/quad'
+    Quadratic:                'renderer/glyph/quadratic'
+    Ray:                      'renderer/glyph/ray'
+    Rect:                     'renderer/glyph/rect'
+    Square:                   'renderer/glyph/square'
+    SquareX:                  'renderer/glyph/square_x'
+    SquereCross:              'renderer/glyph/square_cross'
+    Segment:                  'renderer/glyph/segment'
+    Text:                     'renderer/glyph/text'
+    Triangle:                 'renderer/glyph/triangle'
+    Wedget:                   'renderer/glyph/wedge'
+    X:                        'renderer/glyph/x'
+
     LinearAxis:               'renderer/guide/linear_axis'
     LogAxis:                  'renderer/guide/log_axis'
     CategoricalAxis:          'renderer/guide/categorical_axis'
     DatetimeAxis:             'renderer/guide/datetime_axis'
     Grid:                     'renderer/guide/grid'
-    Legend:                   'renderer/annotation/legend'
+
     BoxSelection:             'renderer/overlay/box_selection'
 
     ColumnDataSource:         'source/column_data_source'
