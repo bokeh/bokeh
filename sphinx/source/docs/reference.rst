@@ -211,7 +211,7 @@ Underlying Object System
 .. _bokeh_dot_mixins:
 
 `bokeh.mixins`
-------------------
+--------------
 
 .. automodule:: bokeh.mixins
     :members:
@@ -219,9 +219,16 @@ Underlying Object System
 .. _bokeh_dot_session:
 
 `bokeh.session`
-----------------
+---------------
 
 .. automodule:: bokeh.session
     :members:
 
+.. _bokeh_server_rest:
 
+Bokeh Server REST API
+=====================
+
+.. autoflask:: bokeh.server.start:doc_prepare()
+    :endpoints:
+    :include-empty-docstring:
