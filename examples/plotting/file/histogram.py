@@ -29,6 +29,9 @@ line(x, cdf, line_color="white", line_width=2, alpha=0.7, legend="CDF")
 
 legend().orientation = "top_left"
 
+xax, yax = axis()
+xax.axis_label = 'x'
+yax.axis_label = 'Pr(x)'
 
 figure(title="Log Normal Distribution (μ=0, σ=0.5)", tools="previewsave",
        background_fill="#E8DDCB")
@@ -49,6 +52,9 @@ line(x, pdf, line_color="#D95B43", line_width=8, alpha=0.7, legend="PDF")
 line(x, cdf, line_color="white", line_width=2, alpha=0.7, legend="CDF")
 legend().orientation = "bottom_right"
 
+xax, yax = axis()
+xax.axis_label = 'x'
+yax.axis_label = 'Pr(x)'
 
 figure(title="Gamma Distribution (k=1, θ=2)", tools="previewsave",
        background_fill="#E8DDCB")
@@ -70,6 +76,9 @@ line(x, pdf, line_color="#D95B43", line_width=8, alpha=0.7, legend="PDF")
 line(x, cdf, line_color="white", line_width=2, alpha=0.7, legend="CDF")
 legend().orientation = "top_left"
 
+xax, yax = axis()
+xax.axis_label = 'x'
+yax.axis_label = 'Pr(x)'
 
 figure(title="Beta Distribution (α=2, β=2)", tools="previewsave",
        background_fill="#E8DDCB")
@@ -89,7 +98,9 @@ quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:],
 line(x, pdf, line_color="#D95B43", line_width=8, alpha=0.7, legend="PDF")
 line(x, cdf, line_color="white", line_width=2, alpha=0.7, legend="CDF")
 
-
+xax, yax = axis()
+xax.axis_label = 'x'
+yax.axis_label = 'Pr(x)'
 
 figure(title="Weibull Distribution (λ=1, k=1.25)", tools="previewsave",
        background_fill="#E8DDCB")
@@ -109,5 +120,9 @@ quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:],
 line(x, pdf, line_color="#D95B43", line_width=8, alpha=0.7, legend="PDF")
 line(x, cdf, line_color="white", line_width=2, alpha=0.7, legend="CDF")
 legend().orientation = "top_left"
+
+xax, yax = axis()
+xax.axis_label = 'x'
+yax.axis_label = 'Pr(x)'
 
 show()
