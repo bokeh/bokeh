@@ -9,9 +9,6 @@ from bokeh.document import Document
 from bokeh.session import Session
 from bokeh.sampledata.autompg2 import autompg2 as mpg
 
-import requests
-from requests.exceptions import ConnectionError
-
 class DataTables(object):
 
     def __init__(self):
@@ -121,19 +118,13 @@ class DataTables(object):
         self.source.data = ColumnDataSource.from_df(df)
         self.session.store_document(self.document)
 
-    def run(self, poll_interval=0.5):
+    def run(self, do_view=False, poll_interval=0.5):
         link = self.session.object_link(self.document.context)
-        print("Please visit %s to see the plots (press ctrl-C to exit)" % link)
-
-        try:
-            while True:
-                self.session.load_document(self.document)
-                time.sleep(poll_interval)
-        except KeyboardInterrupt:
-            print()
-        except ConnectionError:
-            print("Connection to bokeh-server was terminated")
+        print("Please visit %s to see the plots" % link)
+        if do_view: view(link)
+        print("\npress ctrl-C to exit")
+        session.poll_document(document)
 
 if __name__ == "__main__":
     data_tables = DataTables()
-    data_tables.run()
+    data_tables.run(True)
