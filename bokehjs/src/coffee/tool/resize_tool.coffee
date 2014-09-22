@@ -1,10 +1,10 @@
 
 define [
   "underscore",
-  "backbone",
+  "common/collection",
   "./tool",
   "./event_generators",
-], (_, Backbone, Tool, EventGenerators) ->
+], (_, Collection, Tool, EventGenerators) ->
 
   TwoPointEventGenerator = EventGenerators.TwoPointEventGenerator
 
@@ -109,10 +109,7 @@ define [
     default_view: ResizeToolView
     type: "ResizeTool"
 
-    display_defaults: () ->
-      super()
-
-  class ResizeTools extends Backbone.Collection
+  class ResizeTools extends Collection
     model: ResizeTool
 
   return {

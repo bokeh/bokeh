@@ -1,15 +1,15 @@
 define [
   "underscore"
-  "backbone"
+  "common/collection"
   "common/continuum_view"
   "common/has_parent"
   "common/build_views"
   "common/logging"
-], (_, Backbone, continuum_view, HasParent, build_views, Logging) ->
+], (_, Collection, ContinuumView, HasParent, build_views, Logging) ->
 
   logger = Logging.logger
 
-  class ButtonView extends continuum_view.View
+  class ButtonView extends ContinuumView
     tagName: "button"
     events:
       "click": "change_input"
@@ -48,16 +48,16 @@ define [
     type: "Button"
     default_view: ButtonView
 
-    defaults: () ->
-      _.extend({}, super(), {
+    defaults: ->
+      return _.extend {}, super(), {
         clicks: 0
         label: "Button"
         icon: null
         type: "default"
         disabled: false
-      })
+      }
 
-  class Buttons extends Backbone.Collection
+  class Buttons extends Collection
     model: Button
 
   return {

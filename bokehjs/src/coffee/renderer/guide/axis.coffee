@@ -1,14 +1,13 @@
 
 define [
   "underscore"
-  "backbone"
   "kiwi"
   "common/has_parent"
   "common/layout_box"
   "common/logging"
   "common/plot_widget"
   "renderer/properties"
-], (_, Backbone, kiwi, HasParent, LayoutBox, Logging, PlotWidget, Properties) ->
+], (_, kiwi, HasParent, LayoutBox, Logging, PlotWidget, Properties) ->
 
   glyph_properties = Properties.glyph_properties
   line_properties  = Properties.line_properties
@@ -574,14 +573,14 @@ define [
 
       return extent
 
-    defaults: () ->
-      return {
+    defaults: ->
+      return _.extend {}, super(), {
         x_range_name: "default"
         y_range_name: "default"
       }
 
-    display_defaults: () ->
-      return {
+    display_defaults: ->
+      return _.extend {}, super(), {
         level: 'overlay'
 
         axis_line_color: 'black'

@@ -78,6 +78,13 @@ def match(obj, selector, context={}):
         1
 
     '''
+    # OK, we are going to get rid of glyphspecs eventually, so let's try to
+    # simulate the expected eventual desired behaviour. For now, If the glyphspec
+    # matches, then the glyph matches.
+    from bokeh.objects import Glyph
+    if isinstance(obj, Glyph):
+        if match(obj.glyph, selector, context): return True
+
     for key, val in selector.items():
 
         # test attributes
@@ -85,19 +92,27 @@ def match(obj, selector, context={}):
 
             # special case 'type'
             if key == "type":
-                return isinstance(obj, val)
+                # type supports IN, check for that first
+                if isinstance(val, dict) and list(val.keys()) == [IN]:
+                    if not any(isinstance(obj, x) for x in val[IN]): return False
+                # otherwise just check the type of the object against val
+                elif not isinstance(obj, val): return False
 
             # special case 'tag'
-            if key == 'tags':
+            elif key == 'tags':
+                # TODO (bev) this is for glyphspecs, remove when they are removed
+                if not hasattr(obj, "tags"): return False
+
                 if isinstance(val, string_types):
-                    return val in obj.tags
-                try:
-                    return set(val) & set(obj.tags)
-                except TypeError:
-                    return val in obj.tags
+                    if val not in obj.tags: return False
+                else:
+                    try:
+                        if not set(val) & set(obj.tags): return False
+                    except TypeError:
+                        if val not in obj.tags: return False
 
             # if the object doesn't have the attr, it doesn't match
-            if not hasattr(obj, key): return False
+            elif not hasattr(obj, key): return False
 
             # if the value to check is a dict, recurse
             else:

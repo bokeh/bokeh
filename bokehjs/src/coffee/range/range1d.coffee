@@ -1,9 +1,9 @@
 
 define [
   "underscore",
-  "backbone",
+  "common/collection",
   "common/has_properties"
-], (_, Backbone, HasProperties) ->
+], (_, Collection, HasProperties) ->
 
   class Range1d extends HasProperties
     type: 'Range1d'
@@ -19,13 +19,13 @@ define [
         , true)
       @add_dependencies('max', this, ['start', 'end'])
 
-    defaults: () ->
-      return {
+    defaults: ->
+      return _.extend {}, super(), {
         start: 0
         end: 1
       }
 
-  class Range1ds extends Backbone.Collection
+  class Range1ds extends Collection
     model: Range1d
 
   return {

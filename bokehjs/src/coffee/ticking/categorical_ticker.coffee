@@ -1,7 +1,7 @@
 define [
-  "backbone",
+  "common/collection",
   "common/has_properties"
-], (Backbone, HasProperties) ->
+], (Collection, HasProperties) ->
 
   class CategoricalTicker extends HasProperties
     type: 'CategoricalTicker'
@@ -12,10 +12,7 @@ define [
         "minor": []
       }
 
-    defaults: () ->
-      super()
-
-  class CategoricalTickers extends Backbone.Collection
+  class CategoricalTickers extends Collection
     model: CategoricalTicker
 
   return {

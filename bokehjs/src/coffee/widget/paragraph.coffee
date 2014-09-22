@@ -1,9 +1,9 @@
 define [
   "common/has_parent",
   "common/continuum_view",
-  "backbone"
-], (HasParent, continuum_view, Backbone) ->
-  ContinuumView = continuum_view.View
+  "common/collection"
+], (HasParent, ContinuumView, Collection) ->
+
   class ParagraphView extends ContinuumView
     tagName : "p"
     initialize : (options) ->
@@ -19,9 +19,12 @@ define [
   class Paragraph extends HasParent
     type : "Paragraph"
     default_view : ParagraphView
-    defaults : () ->
-      return {'text' : ''}
-  class Paragraphs extends Backbone.Collection
+    defaults: ->
+      return _.extend {}, super(), {
+        text: ''
+      }
+
+  class Paragraphs extends Collection
     model : Paragraph
   paragraphs = new Paragraphs()
   return {

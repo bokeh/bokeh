@@ -1,14 +1,13 @@
 define [
-  "backbone"
+  "common/collection"
   "underscore"
   "common/continuum_view"
   "common/has_parent"
   "common/logging"
   "./slidertemplate"
   "jquery_ui/slider"
-], (Backbone, _, continuum_view, HasParent, Logging, slidertemplate) ->
+], (Collection, _, ContinuumView, HasParent, Logging, slidertemplate) ->
 
-  ContinuumView = continuum_view.View
   logger = Logging.logger
 
   class SliderView extends ContinuumView
@@ -50,17 +49,17 @@ define [
     type : "Slider"
     default_view : SliderView
 
-    defaults : () ->
-      def =
-        title : ''
-        value : 0.5
-        start : 0
-        end : 1
-        step : 0
-        orientation : "horizontal"
-      return def
+    defaults: ->
+      return _.extend {}, super(), {
+        title: ''
+        value: 0.5
+        start: 0
+        end: 1
+        step: 0
+        orientation: "horizontal"
+      }
 
-  class Sliders extends Backbone.Collection
+  class Sliders extends Collection
     model : Slider
 
   return {

@@ -4,18 +4,18 @@ define [
     "common/base",
     "../serverutils",
     "common/continuum_view",
+    "common/collection",
     "./userdocstemplate",
     "./documentationtemplate",
     "./wrappertemplate",
     "common/has_parent",
     "common/build_views",
     "common/load_models",
-], (_, $, base, serverutils, continuum_view,
+], (_, $, base, serverutils, ContinuumView, Collection,
     userdocstemplate, documentationtemplate,
     wrappertemplate, HasParent, build_views, load_models) ->
 
   exports = {}
-  ContinuumView = continuum_view.View
   utility = serverutils.utility
 
   class DocView extends ContinuumView
@@ -110,11 +110,13 @@ define [
   class Doc extends HasParent
     default_view : DocView
     idAttribute : 'docid'
-    defaults :
-      docid : null
-      title : null
-      plot_context : null
-      apikey : null
+    defaults: ->
+      return _.extend {}, super(), {
+        docid: null
+        title: null
+        plot_context: null
+        apikey: null
+      }
 
     sync : () ->
 
@@ -144,7 +146,7 @@ define [
         #do the websocket stuff later
       )
 
-  class UserDocs extends Backbone.Collection
+  class UserDocs extends Collection
     model : Doc
     subscribe : (wswrapper, username) ->
       wswrapper.subscribe("bokehuser:#{username}", null)

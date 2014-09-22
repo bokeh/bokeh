@@ -1,4 +1,3 @@
-
 define [
   "underscore"
   "backbone"
@@ -278,8 +277,7 @@ define [
       # HasProperties.prototype.sync = Backbone.sync
       return options.success(model.attributes, null, {})
 
-    defaults: () ->
-      return {}
+    defaults: -> {}
 
     rpc: (funcname, args, kwargs) =>
       prefix = @get_base().Config.prefix

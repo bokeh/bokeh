@@ -1,8 +1,8 @@
 define [
   "underscore",
-  "backbone",
+  "common/collection",
   "common/has_properties",
-], (_, Backbone, HasProperties) ->
+], (_, Collection, HasProperties) ->
   # A hacky analogue to repr() in Python.
   repr = (obj) ->
     if obj == null
@@ -116,13 +116,13 @@ define [
       data_range = data_high - data_low
       return data_range / desired_n_ticks
 
-    defaults: () ->
-      return _.extend(super(), {
+    defaults: ->
+      return _.extend {}, super(), {
         toString_properties: []
         num_minor_ticks: 5
-      })
+      }
 
-  class AbstractTickers extends Backbone.Collection
+  class AbstractTickers extends Collection
     model: AbstractTicker
 
   return {

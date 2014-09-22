@@ -1,8 +1,8 @@
 
 define [
-  "backbone",
+  "common/collection",
   "common/has_properties",
-], (Backbone, HasProperties) ->
+], (Collection, HasProperties) ->
 
 
   class LinearMapper extends HasProperties
@@ -52,7 +52,7 @@ define [
       offset = -(scale * source_start) + target_start
       return [scale, offset]
 
-  class LinearMappers extends Backbone.Collection
+  class LinearMappers extends Collection
     model: LinearMapper
 
   return {

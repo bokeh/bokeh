@@ -2,8 +2,9 @@
 define [
   "underscore",
   "common/has_parent",
+  "common/collection",
   "common/plot_widget",
-], (_, HasParent, PlotWidget) ->
+], (_, HasParent, Collection, PlotWidget) ->
 
   class BoxSelectionView extends PlotWidget
 
@@ -69,13 +70,13 @@ define [
     default_view: BoxSelectionView
     type: "BoxSelection"
 
-    defaults: () ->
-      return {
+    defaults: ->
+      return _.extend {}, super(), {
         tool: null
         level: 'overlay'
       }
 
-  class BoxSelections extends Backbone.Collection
+  class BoxSelections extends Collection
     model: BoxSelection
 
   return {

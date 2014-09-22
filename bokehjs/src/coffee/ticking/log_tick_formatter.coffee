@@ -1,10 +1,10 @@
 
 define [
   "underscore",
-  "backbone",
+  "common/collection",
   "common/has_properties",
   "ticking/basic_tick_formatter"
-], (_, Backbone, HasProperties, BasicTickFormatter) ->
+], (_, Collection, HasProperties, BasicTickFormatter) ->
 
   class LogTickFormatter extends HasProperties
     type: 'LogTickFormatter'
@@ -30,7 +30,7 @@ define [
 
       return labels
 
-  class LogTickFormatters extends Backbone.Collection
+  class LogTickFormatters extends Collection
     model: LogTickFormatter
 
   return {

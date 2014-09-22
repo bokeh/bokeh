@@ -1,28 +1,29 @@
 
+import logging
+log = logging.getLogger(__name__)
+
+import os
+import uuid
+
 from flask import (
     render_template, request, send_from_directory,
     abort, jsonify, Response, redirect, url_for
 )
-
-import os
-import uuid
 from six import string_types
 
-import logging
-log = logging.getLogger(__name__)
+from bokeh import protocol
+from bokeh.exceptions import DataIntegrityException
+from bokeh.resources import Resources
+from bokeh.templates import AUTOLOAD
 
 from .bbauth import check_read_authentication_and_create_client
 from ..app import bokeh_app
-from ..models import user
-from ..models import docs
-from ..models import convenience as mconv
-from ... import protocol
-from ...exceptions import DataIntegrityException
-from ..views import make_json
 from ..crossdomain import crossdomain
+from ..models import convenience as mconv
+from ..models import docs
+from ..models import user
 from ..serverbb import prune
-from ...templates import AUTOLOAD
-from ...resources import Resources
+from ..views import make_json
 
 def request_resources():
     """Creates resources instance based on url info from
@@ -41,7 +42,6 @@ def render(fname, **kwargs):
     bokeh_prefix = resources.root_url
     return render_template(fname, bokeh_prefix=bokeh_prefix,
                            **kwargs)
-
 
 @bokeh_app.route('/bokeh/ping')
 def ping():

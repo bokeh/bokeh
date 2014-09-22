@@ -1,7 +1,8 @@
 
 define [
+  "common/collection",
   "ticking/adaptive_ticker",
-], (AdaptiveTicker) ->
+], (Collection, AdaptiveTicker) ->
 
   range = (start, stop, step) ->
     if typeof stop is "undefined"
@@ -86,12 +87,12 @@ define [
         "minor": minor_ticks
       }
 
-    defaults: () ->
-      return _.extend(super(), {
+    defaults: ->
+      return _.extend {}, super(), {
         mantissas: [1, 5]
-      })
+      }
 
-  class LogTickers extends Backbone.Collection
+  class LogTickers extends Collection
     model: LogTicker
 
   return {

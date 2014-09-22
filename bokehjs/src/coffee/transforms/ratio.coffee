@@ -1,9 +1,10 @@
 define [
   "common/continuum_view"
-  "backbone",
+  "common/collection",
   "common/has_parent",
-], (continuum_view, Backbone, HasParent) ->
-  class RatioView extends continuum_view.View
+], (ContinuumView, Collection, HasParent) ->
+
+  class RatioView extends ContinuumView
     attributes:
       class: "RatioView"
 
@@ -17,14 +18,15 @@ define [
 
     render_init: () ->
       @$el.html("")
-  
+
   class Ratio extends HasParent
     type : "Ratio"
     default_view: RatioView
 
-  class Ratios extends Backbone.Collection
+  class Ratios extends Collection
     model : Ratio
+
   return {
-    "Model" : Ratio 
+    "Model" : Ratio
     "Collection" : new Ratios()
   }

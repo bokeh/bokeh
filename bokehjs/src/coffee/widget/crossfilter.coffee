@@ -1,20 +1,17 @@
 define [
-  "backbone",
+  "common/collection",
   "underscore",
   "jquery_ui/draggable",
   "jquery_ui/droppable",
   "common/has_parent",
   "common/has_properties",
   "common/continuum_view",
+  "common/close_wrapper",
   "common/build_views"
   "./crossfilter_template"
   "./crossfilter_column_template"
   "./crossfilter_facet_template"
-
-], (Backbone, _, draggable, droppable, HasParent, HasProperties, continuum_view, build_views, crossfilter_template, crossfilter_column_template, crossfilter_facet_template) ->
-
-  ContinuumView = continuum_view.View
-  CloseWrapper = continuum_view.CloseWrapper
+], (Collection, _, draggable, droppable, HasParent, HasProperties, ContinuumView, CloseWrapper, build_views, crossfilter_template, crossfilter_column_template, crossfilter_facet_template) ->
 
   class CrossFilterView extends ContinuumView
     tag: "div"
@@ -76,11 +73,13 @@ define [
     _set_columns: () =>
       @columns.reset(@get('columns'))
 
-    defaults:
-      height: 700
-      width: 1300
+    defaults: ->
+      return _.extend {}, super(), {
+        height: 700
+        width: 1300
+      }
 
-  class CrossFilters extends Backbone.Collection
+  class CrossFilters extends Collection
     model: CrossFilter
 
   class PlotAttributeSelector extends ContinuumView
@@ -102,7 +101,7 @@ define [
       @plot_selector_view = new model.default_view(model: model)
       node.append(@plot_selector_view.$el)
 
-  class ColumnsView extends Backbone.View
+  class ColumnsView extends ContinuumView
     initialize: (options) ->
       super(options)
       @views = {}
@@ -278,44 +277,50 @@ define [
 
   class TimeColumn extends HasProperties
     default_view: TimeColumnView
-    defaults:
-      type: "TimeColumn"
-      label: "Time"
-      name: ""
-      fields: ['count', 'unique', 'first', 'last']
-      count: 0
-      unique: 0
-      first: 0
-      last: 0
+    defaults: ->
+      return _.extend {}, super(), {
+        type: "TimeColumn"
+        label: "Time"
+        name: ""
+        fields: ['count', 'unique', 'first', 'last']
+        count: 0
+        unique: 0
+        first: 0
+        last: 0
+      }
 
   class DiscreteColumnView extends ColumnView
 
   class DiscreteColumn extends HasProperties
     default_view: DiscreteColumnView
-    defaults:
-      type: "DiscreteColumn"
-      label: "Factor"
-      name: ""
-      fields: ['count', 'unique', 'top', 'freq']
-      count: 0
-      unique: 0
-      top: 0
-      freq: 0
+    defaults: ->
+      return _.extend {}, super(), {
+        type: "DiscreteColumn"
+        label: "Factor"
+        name: ""
+        fields: ['count', 'unique', 'top', 'freq']
+        count: 0
+        unique: 0
+        top: 0
+        freq: 0
+      }
 
   class ContinuousColumnView extends ColumnView
 
   class ContinuousColumn extends HasProperties
     default_view: ContinuousColumnView
-    defaults:
-      type: "ContinuousColumn"
-      label: "Continuous"
-      name: ""
-      fields: ['count', 'mean', 'std', 'min', 'max']
-      count: 0
-      mean: 0
-      std: 0
-      min: 0
-      max: 0
+    defaults: ->
+      return _.extend {}, super(), {
+        type: "ContinuousColumn"
+        label: "Continuous"
+        name: ""
+        fields: ['count', 'mean', 'std', 'min', 'max']
+        count: 0
+        mean: 0
+        std: 0
+        min: 0
+        max: 0
+      }
 
   column_types = {
     'DiscreteColumn'   : DiscreteColumn
@@ -323,7 +328,7 @@ define [
     'ContinuousColumn' : ContinuousColumn
   }
 
-  class ColumnCollection extends Backbone.Collection
+  class ColumnCollection extends Collection
 
     model : (attrs, options) ->
       if attrs.type of column_types

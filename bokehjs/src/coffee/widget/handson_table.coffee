@@ -2,12 +2,12 @@ define [
   "underscore"
   "jquery"
   "handsontable"
-  "backbone"
+  "common/collection"
   "common/has_properties"
   "common/continuum_view"
-], (_, $, $$1, Backbone, HasProperties, ContinuumView) ->
+], (_, $, $$1, Collection, HasProperties, ContinuumView) ->
 
-  class HandsonTableView extends ContinuumView.View
+  class HandsonTableView extends ContinuumView
     initialize: (options) ->
       super(options)
       @render()
@@ -96,15 +96,15 @@ define [
     type: 'HandsonTable'
     default_view: HandsonTableView
 
-    defaults: () ->
-      return {
-          source: null
-          columns: []
-          width: null
-          height: null
+    defaults: ->
+      return _.extend {}, super(), {
+        source: null
+        columns: []
+        width: null
+        height: null
       }
 
-  class HandsonTables extends Backbone.Collection
+  class HandsonTables extends Collection
     model: HandsonTable
 
   return {

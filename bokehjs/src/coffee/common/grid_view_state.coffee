@@ -53,8 +53,8 @@ define [
       col_widths = (@maxdim('width', col) for col in columns)
       return col_widths
 
-    defaults: () ->
-      return {
+    defaults: ->
+      return _.extend {}, super(), {
         childviewstates: [[]]
         border_space: 0
       }

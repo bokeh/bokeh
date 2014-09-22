@@ -1,16 +1,42 @@
 from __future__ import absolute_import, print_function
-from six.moves.queue import Queue
-import re
+
 import logging
 log = logging.getLogger(__name__)
 
-from bokeh.utils import scale_delta
-from .zmqpub import Publisher
+import atexit
+import os
+import re
+import sys
+import uuid
+
+from flask import Flask
+from six.moves.queue import Queue
+
 from . import websocket
+from .flask_gzip import Gzip
+from .server_backends import (
+    FunctionBackend, HDF5DataBackend, InMemoryServerModelStorage,
+    MultiUserAuthentication, RedisServerModelStorage, ShelveServerModelStorage,
+    SingleUserAuthentication,
+)
+from .serverbb import (
+    InMemoryBackboneStorage, RedisBackboneStorage, ShelveBackboneStorage
+)
+from .zmqpub import Publisher
+
+from bokeh import plotting # imports custom objects for plugin
+from bokeh import glyphs, objects, protocol # import objects so that we can resolve them
+from bokeh.utils import scale_delta
+
+# this just shuts up pyflakes
+glyphs, objects, plotting, protocol
+
+from . import services
+from .app import bokeh_app
+from .models import user
 
 try:
     from gevent.pywsgi import WSGIServer, WSGIHandler
-    #from geventwebsocket.handler import WebSocketHanler
 except ImportError:
     log.info("no gevent - your websockets won't work")
     from wsgiref.simple_server import make_server
@@ -37,28 +63,6 @@ else:
         http_server = BokehWSGIServer((host, port), app, handler_class=BokehWSGIHandler, log=log)
         return http_server
 
-import atexit
-import os
-import sys
-import uuid
-from flask import Flask
-
-# import objects so that we can resolve them
-from .. import protocol, objects, glyphs
-from .. import plotting #imports custom objects for plugin
-from .app import bokeh_app
-from .models import user
-from . import services
-from .server_backends import (
-    RedisServerModelStorage,
-    InMemoryServerModelStorage,
-    ShelveServerModelStorage,
-    SingleUserAuthentication, MultiUserAuthentication,
-    HDF5DataBackend, FunctionBackend
-)
-from .serverbb import RedisBackboneStorage, ShelveBackboneStorage, InMemoryBackboneStorage
-from .flask_gzip import Gzip
-
 PORT = 5006
 REDIS_PORT = 6379
 
@@ -71,11 +75,13 @@ def configure_websocket(websocket_params):
     bokeh_app.publisher = Publisher(zmqaddr, Queue())
     bokeh_app.websocket_params = websocket_params
 
-
 def prepare_app(backend, single_user_mode=True, data_directory=None):
 
     # must import views before running apps
     from .views import deps
+
+    # this just shuts up pyflakes
+    deps
 
     if backend['type'] == 'redis':
         import redis
@@ -96,17 +102,27 @@ def prepare_app(backend, single_user_mode=True, data_directory=None):
         authentication = SingleUserAuthentication()
     else:
         authentication = MultiUserAuthentication()
-    if data_directory:
-        datamanager = HDF5DataBackend(data_directory)
-    else:
-        datamanager = FunctionBackend()
 
-    bokeh_app.setup(backend, bbstorage, servermodel_storage,
-                    authentication, datamanager)
+    if data_directory:
+        data_manager = HDF5DataBackend(data_directory)
+    else:
+        data_manager = FunctionBackend()
+
+    bokeh_app.setup(
+        backend,
+        bbstorage,
+        servermodel_storage,
+        authentication,
+        data_manager
+    )
+
+    register_blueprint()
 
     # where should we be setting the secret key....?
     if not app.secret_key:
         app.secret_key = str(uuid.uuid4())
+
+    return app
 
 def register_blueprint(prefix=None):
     app.register_blueprint(bokeh_app, url_prefix=prefix)

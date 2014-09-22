@@ -4,13 +4,14 @@ define [
   "backbone",
   "./build_views",
   "./continuum_view",
+  "./collection"
   "./has_parent",
   "./grid_view_state",
   "renderer/properties",
   "tool/active_tool_manager",
-], (_, Backbone, build_views, ContinuumView, HasParent, GridViewState, Properties, ActiveToolManager) ->
+], (_, Backbone, build_views, ContinuumView, Collection, HasParent, GridViewState, Properties, ActiveToolManager) ->
 
-  class GridPlotView extends ContinuumView.View
+  class GridPlotView extends ContinuumView
     tagName: 'div'
     className: "bokeh grid_plot"
     default_options: {scale:1.0}
@@ -154,13 +155,13 @@ define [
     type: 'GridPlot'
     default_view: GridPlotView
 
-    defaults: () ->
-      return {
+    defaults: ->
+      return _.extend {}, super(), {
         children: [[]]
         border_space: 0
       }
 
-  class GridPlots extends Backbone.Collection
+  class GridPlots extends Collection
     model: GridPlot
 
   return {
