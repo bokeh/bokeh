@@ -1,3 +1,4 @@
+from collections import OrderedDict
 
 from . import glyphs
 
@@ -94,9 +95,9 @@ def _glyph_function(glyphclass, argnames, docstring, xfields=["x"], yfields=["y"
             legend = _get_legend(plot)
             if not legend:
                 legend = _make_legend(plot)
-            mappings = legend.legends
-            mappings.setdefault(legend_name, []).append(glyph_renderer)
-            legend._dirty = True
+            legends = OrderedDict(legend.legends)
+            legends.setdefault(legend_name, []).append(glyph_renderer)
+            legend.legends = legends
 
         if select_tool :
             select_tool.renderers.append(glyph_renderer)

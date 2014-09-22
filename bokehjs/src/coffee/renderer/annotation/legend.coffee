@@ -36,15 +36,11 @@ define [
       super(options)
       @label_props = new text_properties(@, @model, 'label_')
       @border_props = new line_properties(@, @model, 'border_')
-      if @mget('legend_names')
-        @legend_names = @mget('legend_names')
-      else
-        @legends = @mget('legends')
-        @legend_names =_.keys(@mget('legends'))
       @need_calc_dims = true
       @listenTo(@plot_model.solver, 'layout_update', () -> @need_calc_dims = true)
 
     calc_dims: (options) ->
+      legend_names = (legend_name for [legend_name, glyphs] in @mget("legends"))
       label_height = @mget('label_height')
       @glyph_height = @mget('glyph_height')
       label_width = @mget('label_width')
@@ -53,11 +49,11 @@ define [
       @label_height = _.max([textutils.getTextHeight(@label_props.font(@)), label_height, @glyph_height])
       @legend_height = @label_height
       #add legend spacing
-      @legend_height = @legend_names.length * @legend_height + (1 + @legend_names.length) * legend_spacing
+      @legend_height = legend_names.length * @legend_height + (1 + legend_names.length) * legend_spacing
       ctx = @plot_view.canvas_view.ctx
       ctx.save()
       @label_props.set(ctx, @)
-      text_widths = _.map(@legend_names, (txt) -> ctx.measureText(txt).width)
+      text_widths = _.map(legend_names, (txt) -> ctx.measureText(txt).width)
       ctx.restore()
 
       text_width = _.max(text_widths)
@@ -101,7 +97,7 @@ define [
       ctx.fill()
       ctx.stroke()
       legend_spacing = @mget('legend_spacing')
-      for legend_name, idx in @legend_names
+      for [legend_name, glyphs], idx in @mget("legends")
         yoffset = idx * @label_height
         yspacing = (1 + idx) * legend_spacing
         y = @box_coords[1] +  @label_height / 2.0 + yoffset + yspacing
@@ -112,7 +108,7 @@ define [
         y2 = y1 + @glyph_height
         @label_props.set(ctx, @)
         ctx.fillText(legend_name, x, y)
-        for renderer in @model.resolve_ref(@legends[legend_name])
+        for renderer in @model.resolve_ref(glyphs)
           view = @plot_view.renderers[renderer.id]
           view.draw_legend(ctx, x1,x2,y1,y2)
 
@@ -121,6 +117,11 @@ define [
   class Legend extends HasParent
     default_view: LegendView
     type: 'Legend'
+
+    defaults: ->
+      return _.extend {}, super(), {
+        legends: []
+      }
 
     display_defaults: ->
       return _.extend {}, super(), {

@@ -765,7 +765,7 @@ class Legend(Renderer):
 
     legend_padding = Int(10)
     legend_spacing = Int(3)
-    legends = Dict(String, List(Instance(Glyph)))
+    legends = List(Tuple(String, List(Instance(Glyph))))
 
 class PlotContext(PlotObject):
     """ A container for multiple plot objects. """

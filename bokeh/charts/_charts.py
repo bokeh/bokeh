@@ -155,7 +155,7 @@ class Chart(object):
         # Add legend
         if self.legend:
             listed_glyphs = [[glyph] for glyph in self.glyphs]
-            legends = OrderedDict(zip(groups, listed_glyphs))
+            legends = zip(groups, listed_glyphs)
             if self.legend is True:
                 orientation = "top_right"
             else:

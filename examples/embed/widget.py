@@ -51,8 +51,11 @@ class Population(object):
                            fill_color="#CFF09E")
         female_quad_glyph = self.plot.add_glyph(self.source_pyramid, female_quad)
 
-        self.plot.add_layout(Legend(legends=dict(Male=[male_quad_glyph],
-                                                 Female=[female_quad_glyph])))
+        legends = [
+            (  "Male", [  male_quad_glyph]),
+            ("Female", [female_quad_glyph]),
+        ]
+        self.plot.add_layout(Legend(legends=legends))
 
     def on_year_change(self, obj, attr, old, new):
         self.year = int(new)
