@@ -9,9 +9,6 @@ define [
   TwoPointEventGenerator = EventGenerators.TwoPointEventGenerator
 
   class BoxSelectToolView extends Tool.View
-    initialize: (options) ->
-      super(options)
-      @select_every_mousemove = @mget('select_every_mousemove')
 
     bind_bokeh_events: () ->
       super()
@@ -82,16 +79,16 @@ define [
       [@xrange, @yrange] = @_get_selection_range()
       @trigger('boxselect', @xrange, @yrange)
 
-      if @select_every_mousemove
-        @_select_data()
+      if @mget('select_every_mousemove')
+        @_select(false)
 
       @plot_view._render_levels(@plot_view.canvas_view.ctx, ['overlay'])
       return null
 
     _dragend : () ->
-      @_select_data()
+      @_select(true)
 
-    _select_data: () ->
+    _select: (final) ->
       if not @basepoint_set
         return
 
@@ -103,37 +100,11 @@ define [
         vy1: @yrange[1]
       }
 
-      datasources = {}
-      datasource_selections = {}
-      for renderer in @mget('renderers')
-        datasource = renderer.get('data_source')
-        datasources[datasource.id] = datasource
-
-      for renderer in @mget('renderers')
-        datasource_id = renderer.get('data_source').id
-        _.setdefault(datasource_selections, datasource_id, [])
-        #the select call of the render converts the screen coordinates
-        #of @xrange and @yrange into data space coordinates
-        selected = @plot_view.renderers[renderer.id].hit_test(geometry)
-        datasource_selections[datasource_id].push(selected)
-
-      for own k,v of datasource_selections
-
-        #FIXME: I'm not sure why this is here, when will v have more than one element?
-        #
-        # This next line is the equivalent of calling
-        #_.intersection(v[0], v[1], v[2]...) for however many
-        #subelements v has.  each member of the v list will have another
-        #list inside it.  thus this line finds the intersection of the
-        #lists of v.
-        selected = _.intersection.apply(_, v)
-        ds = datasources[k]
-        ds.save(
-          selected:selected
-        ,
-          {patch: true}
-        )
-        @plot_view.unpause()
+      for r in @mget('renderers')
+        ds = r.get('data_source')
+        sm = ds.get('selection_manager')
+        sm.select(@, @plot_view.renderers[r.id], geometry, final)
+      @plot_view.unpause()
       return null
 
   class BoxSelectTool extends Tool.Model

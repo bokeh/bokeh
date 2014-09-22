@@ -65,6 +65,10 @@ define [
           @tool_button.addClass('active')
         )
 
+      @plot_view.canvas_view.canvas.bind("mouseout", (e) =>
+        @div.hide()
+      )
+
       @plot_view.canvas_view.canvas.bind("mousemove", (e) =>
         if not @active and not @mget('always_active')
           return
@@ -88,6 +92,9 @@ define [
 
         @_select(vx, vy, e)
       )
+
+      for r in @mget('renderers')
+        @listenTo(r.get('data_source'), 'inspect', @_update)
       @plot_view.canvas_view.canvas_wrapper.css('cursor', 'crosshair')
 
     view_coords: (sx, sy) ->
@@ -103,104 +110,103 @@ define [
         vx: vx
         vy: vy
       }
-      datasources = {}
-      datasource_selections = {}
-      for renderer in @mget('renderers')
-        datasource = renderer.get('data_source')
-        datasources[datasource.id] = datasource
-      for renderer in @mget('renderers')
-        datasource_id = renderer.get('data_source').id
-        _.setdefault(datasource_selections, datasource_id, [])
-        selected = @plot_view.renderers[renderer.id].hit_test(geometry)
-        ds = datasources[datasource_id]
+      for r in @mget('renderers')
+        sm = r.get('data_source').get('selection_manager')
+        sm.inspect(@, @plot_view.renderers[r.id], geometry, {"e": e, "geometry": geometry})
 
-        xmapper = @plot_view.frame.get('x_mappers')[renderer.get('x_range_name')]
-        ymapper = @plot_view.frame.get('y_mappers')[renderer.get('y_range_name')]
-        x = xmapper.map_from_target(vx)
-        y = ymapper.map_from_target(vy)
+    _update: (indices, tool, renderer, ds, {e, geometry}) ->
+      if tool != @
+        return
 
-        if selected == null
-          continue
-        if selected.length > 0
-          i = selected[0]
-          @div.empty()
-          table = $('<table></table>')
+      if indices.length == 0
+        @div.hide()
+        return
 
-          for label, value of @mget("tooltips")
-            row = $("<tr></tr>")
-            row.append($("<td class='bokeh_tooltip_row_label'>#{ label }: </td>"))
-            td = $("<td class='bokeh_tooltip_row_value'></td>")
+      vx = geometry.vx
+      vy = geometry.vy
+      sx = @plot_view.mget('canvas').vx_to_sx(vx)
+      sy = @plot_view.mget('canvas').vy_to_sy(vy)
 
-            if value.indexOf("$color") >= 0
-              [match, opts, colname] = value.match(/\$color(\[.*\])?:(\w*)/)
-              column = ds.get_column(colname)
-              if not column?
-                span = $("<span>#{ colname } unknown</span>")
-                td.append(span)
-                continue
-              hex = opts?.indexOf("hex") >= 0
-              swatch = opts?.indexOf("swatch") >= 0
-              color = column[i]
-              if not color?
-                span = $("<span>(null)</span>")
-                td.append(span)
-                continue
-              if hex
-                color = _color_to_hex(color)
-              span = $("<span>#{ color }</span>")
-              td.append(span)
-              if swatch
-                span = $("<span class='bokeh_tooltip_color_block'> </span>")
-                span.css({ backgroundColor: color})
-              td.append(span)
+      xmapper = @plot_view.frame.get('x_mappers')[renderer.mget('x_range_name')]
+      ymapper = @plot_view.frame.get('y_mappers')[renderer.mget('y_range_name')]
+      x = xmapper.map_from_target(vx)
+      y = ymapper.map_from_target(vy)
 
-            else
-              value = value.replace("$index", "#{ i }")
-              value = value.replace("$x", "#{ _format_number(x) }")
-              value = value.replace("$y", "#{ _format_number(y) }")
-              value = value.replace("$vx", "#{ vx }")
-              value = value.replace("$vy", "#{ vy }")
-              value = value.replace("$sx", "#{ e.bokehX }")
-              value = value.replace("$sy", "#{ e.bokehY }")
-              while value.indexOf("@") >= 0
-                [match, unused, column_name] = value.match(/(@)(\w*)/)
-                column = ds.get_column(column_name)
-                if not column?
-                  value = value.replace(column_name, "#{ column_name } unknown")
-                  break
-                column = ds.get_column(column_name)
-                dsvalue = column[i]
-                if typeof(dsvalue) == "number"
-                  value = value.replace(match, "#{ _format_number(dsvalue) }")
-                else
-                  value = value.replace(match, "#{ dsvalue }")
-              span = $("<span>#{ value }</span>")
-              td.append(span)
+      i = indices[0]
+      @div.empty()
+      table = $('<table></table>')
 
-            row.append(td)
-            table.append(row)
+      for label, value of @mget("tooltips")
+        row = $("<tr></tr>")
+        row.append($("<td class='bokeh_tooltip_row_label'>#{ label }: </td>"))
+        td = $("<td class='bokeh_tooltip_row_value'></td>")
 
-          @div.append(table)
-          ow = @plot_view.frame.get('width')
-          if vx < ow/2
-            @div.removeClass('right')
-            @div.addClass('left')
-            @div.css({
-              top: e.pageY - @div.height()/2,
-              left: e.pageX + 18,
-            })
-          else
-            @div.removeClass('left')
-            @div.addClass('right')
-            @div.css({
-              top: e.pageY - @div.height()/2,
-              left: e.pageX - @div.width() - 23,
-            })
-          @div.show()
-          break
+        if value.indexOf("$color") >= 0
+          [match, opts, colname] = value.match(/\$color(\[.*\])?:(\w*)/)
+          column = ds.get_column(colname)
+          if not column?
+            span = $("<span>#{ colname } unknown</span>")
+            td.append(span)
+            continue
+          hex = opts?.indexOf("hex") >= 0
+          swatch = opts?.indexOf("swatch") >= 0
+          color = column[i]
+          if not color?
+            span = $("<span>(null)</span>")
+            td.append(span)
+            continue
+          if hex
+            color = _color_to_hex(color)
+          span = $("<span>#{ color }</span>")
+          td.append(span)
+          if swatch
+            span = $("<span class='bokeh_tooltip_color_block'> </span>")
+            span.css({ backgroundColor: color})
+          td.append(span)
+
         else
-          @div.hide()
-        datasource_selections[datasource_id].push(selected)
+          value = value.replace("$index", "#{ i }")
+          value = value.replace("$x", "#{ _format_number(x) }")
+          value = value.replace("$y", "#{ _format_number(y) }")
+          value = value.replace("$vx", "#{ vx }")
+          value = value.replace("$vy", "#{ vy }")
+          value = value.replace("$sx", "#{ sx }")
+          value = value.replace("$sy", "#{ sy }")
+          while value.indexOf("@") >= 0
+            [match, unused, column_name] = value.match(/(@)(\w*)/)
+            column = ds.get_column(column_name)
+            if not column?
+              value = value.replace(column_name, "#{ column_name } unknown")
+              break
+            column = ds.get_column(column_name)
+            dsvalue = column[i]
+            if typeof(dsvalue) == "number"
+              value = value.replace(match, "#{ _format_number(dsvalue) }")
+            else
+              value = value.replace(match, "#{ dsvalue }")
+          span = $("<span>#{ value }</span>")
+          td.append(span)
+
+        row.append(td)
+        table.append(row)
+
+      @div.append(table)
+      ow = @plot_view.frame.get('width')
+      if vx < ow/2
+        @div.removeClass('right')
+        @div.addClass('left')
+        @div.css({
+          top: e.pageY - @div.height()/2,
+          left: e.pageX + 18,
+        })
+      else
+        @div.removeClass('left')
+        @div.addClass('right')
+        @div.css({
+          top: e.pageY - @div.height()/2,
+          left: e.pageX - @div.width() - 23,
+        })
+      @div.show()
 
       return null
 

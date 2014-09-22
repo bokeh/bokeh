@@ -9,10 +9,10 @@ define [
   class BoxSelectionView extends PlotWidget
 
     initialize: (options) ->
+      super(options)
       @selecting = false
       @xrange = [null, null]
       @yrange = [null, null]
-      super(options)
       @plot_view.$el.find('.bokeh_canvas_wrapper').append(@$el)
 
     boxselect: (xrange, yrange) ->

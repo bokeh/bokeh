@@ -11,6 +11,8 @@ define [
   "common/layout_box",
   "common/plot",
   "common/plot_context",
+  "common/selection_manager",
+  "common/selector",
 
   "mapper/categorical_mapper",
   "mapper/linear_mapper",
@@ -135,6 +137,8 @@ define [
     Canvas:                   'common/canvas'
     LayoutBox:                'common/layout_box'
     CartesianFrame:           'common/cartesian_frame'
+    SelectionManager:         'common/selection_manager'
+    Selector:                 'common/selector'
 
     DataFactorRange:          'range/data_factor_range'
     DataRange1d:              'range/data_range1d'

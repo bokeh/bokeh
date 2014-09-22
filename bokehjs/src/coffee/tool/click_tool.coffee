@@ -66,6 +66,10 @@ define [
         @_select(vx, vy, e)
       )
 
+      for r in @mget('renderers')
+        ds = r.get('data_source')
+        @listenTo(ds, 'select', @_update)
+
     _select: (vx, vy, e) ->
       geometry = {
         type: 'point'
@@ -73,31 +77,15 @@ define [
         vy: vy
       }
 
-      datasources = {}
-      datasource_selections = {}
-      renderers = @mget('renderers')
-      for renderer in renderers
-        datasource = renderer.get('data_source')
-        datasources[datasource.id] = datasource
-      for renderer in renderers
-        datasource_id = renderer.get('data_source').id
-        _.setdefault(datasource_selections, datasource_id, [])
-        selected = @plot_view.renderers[renderer.id].hit_test(geometry)
-        ds = datasources[datasource_id]
+      for r in @mget('renderers')
+        ds = r.get('data_source')
+        sm = ds.get('selection_manager')
+        sm.select(@, @plot_view.renderers[r.id], geometry, true)
 
-        xmapper = @plot_view.frame.get('x_mappers')[renderer.get('x_range_name')]
-        ymapper = @plot_view.frame.get('y_mappers')[renderer.get('y_range_name')]
-        x = xmapper.map_from_target(vx)
-        y = ymapper.map_from_target(vy)
-
-        if selected == null
-          continue
-
-        if selected.length == 0
-          continue
-
-        @trigger('clicked', selected, ds)
-
+    _update: (indices, tool, renderer, ds) ->
+      if tool != @
+        return null
+      @trigger('clicked', indices, ds)
       return null
 
   class ClickTool extends Tool.Model
