@@ -25,6 +25,19 @@ def init_bokeh(clientdoc):
 @bokeh_app.route("/bokeh/bb/<docid>/reset", methods=['GET'])
 @check_write_authentication_and_create_client
 def reset(docid):
+    ''' Reset a specified :class:`Document <bokeh.document.Document>`.
+
+    Deletes all stored objects except for the current
+    :class:`PlotContext <bokeh.objects.PlotContext>`, which has all of
+    its children removed.
+
+    :param docid: id of the :class:`Document <bokeh.document.Document>`
+        to reset
+
+    :status 200: when user is authorized
+    :status 401: when user is not authorized
+
+    '''
     clientdoc = bokeh_app.backbone_storage.get_document(docid)
     prune(clientdoc)
     for m in clientdoc._models:
@@ -38,27 +51,70 @@ def reset(docid):
 @bokeh_app.route("/bokeh/bb/<docid>/rungc", methods=['GET'])
 @check_write_authentication_and_create_client
 def rungc(docid):
+    ''' Run the Bokeh Server garbage collector for a given
+    :class:`Document <bokeh.document.Document>`.
+
+    :param docid: id of the :class:`Document <bokeh.document.Document>`
+        to collect
+
+    :status 200: when user is authorized
+    :status 401: when user is not authorized
+
+    '''
     clientdoc = bokeh_app.backbone_storage.get_document(docid)
     prune(clientdoc, delete=True)
     return 'success'
 
-@bokeh_app.route("/bokeh/bb/<docid>/callbacks", methods=['POST', 'GET'])
+@bokeh_app.route("/bokeh/bb/<docid>/callbacks", methods=['POST'])
 @check_write_authentication_and_create_client
-def callbacks(docid):
-    #broken...
+def callbacks_post(docid):
+    ''' Update callbacks for a given :class:`Document <bokeh.document.Document>`.
+
+    :param docid: id of the :class:`Document <bokeh.document.Document>`
+        to update callbacks for
+
+    :status 200: when user is authorized
+    :status 401: when user is not authorized
+
+    '''
+    # broken...
     clientdoc = bokeh_app.backbone_storage.get_document(docid)
     prune(clientdoc)
-    if request.method == 'POST':
-        jsondata = protocol.deserialize_json(request.data.decode('utf-8'))
-        bokeh_app.backbone_storage.push_callbacks(jsondata)
-    else:
-        jsondata = bokeh_app.backbone_storage.load_callbacks()
+    jsondata = protocol.deserialize_json(request.data.decode('utf-8'))
+    bokeh_app.backbone_storage.push_callbacks(jsondata)
+    return make_json(protocol.serialize_json(jsondata))
+
+@bokeh_app.route("/bokeh/bb/<docid>/callbacks", methods=['GET'])
+@check_write_authentication_and_create_client
+def callbacks_get(docid):
+    ''' Retrieve callbacks for a given :class:`Document <bokeh.document.Document>`.
+
+    :param docid: id of the :class:`Document <bokeh.document.Document>`
+        to get callbacks for
+
+    :status 200: when user is authorized
+    :status 401: when user is not authorized
+
+    '''
+    # broken...
+    clientdoc = bokeh_app.backbone_storage.get_document(docid)
+    prune(clientdoc)
+    jsondata = bokeh_app.backbone_storage.load_callbacks()
     return make_json(protocol.serialize_json(jsondata))
 
 # bulk upsert
 @bokeh_app.route("/bokeh/bb/<docid>/bulkupsert", methods=['POST'])
 @check_write_authentication_and_create_client
 def bulk_upsert(docid):
+    ''' Update or insert new objects for a given :class:`Document <bokeh.document.Document>`.
+
+    :param docid: id of the :class:`Document <bokeh.document.Document>`
+        to update or insert into
+
+    :status 200: when user is authorized
+    :status 401: when user is not authorized
+
+    '''
     # endpoint is only used by python, therefore we don't process
     # callbacks here
     client = request.headers.get('client', 'python')
@@ -95,6 +151,15 @@ def ws_delete(clientdoc, models):
 @bokeh_app.route("/bokeh/bb/<docid>/<typename>/", methods=['POST'])
 @check_write_authentication_and_create_client
 def create(docid, typename):
+    ''' Update or insert new objects for a given :class:`Document <bokeh.document.Document>`.
+
+    :param docid: id of the :class:`Document <bokeh.document.Document>`
+        to update or insert into
+
+    :status 200: when user is authorized
+    :status 401: when user is not authorized
+
+    '''
     clientdoc = bokeh_app.backbone_storage.get_document(docid)
     prune(clientdoc)
     modeldata = protocol.deserialize_json(request.data.decode('utf-8'))
@@ -105,10 +170,8 @@ def create(docid, typename):
     ws_update(clientdoc, modeldata)
     return protocol.serialize_json(modeldata[0]['attributes'])
 
-@bokeh_app.route("/bokeh/bb/<docid>/", methods=['GET'])
-@bokeh_app.route("/bokeh/bb/<docid>/<typename>/", methods=['GET'])
 @check_read_authentication_and_create_client
-def bulkget(docid, typename=None):
+def _bulkget(docid, typename=None):
     clientdoc = bokeh_app.backbone_storage.get_document(docid)
     prune(clientdoc)
     all_models = clientdoc._models.values()
@@ -121,18 +184,125 @@ def bulkget(docid, typename=None):
         attrs = clientdoc.dump(*all_models)
         return make_json(protocol.serialize_json(attrs))
 
-# route for working with individual models
-@bokeh_app.route("/bokeh/bb/<docid>/<typename>/<id>/", methods=['GET', 'OPTIONS', 'PUT', 'PATCH', 'DELETE'])
+@bokeh_app.route("/bokeh/bb/<docid>/", methods=['GET'])
+def bulkget_without_typename(docid):
+    ''' Retrieve all objects for a given :class:`Document <bokeh.document.Document>`.
+
+    :param docid: id of the :class:`Document <bokeh.document.Document>`
+        to update or insert into
+
+    :status 200: when user is authorized
+    :status 401: when user is not authorized
+
+    '''
+    return _bulkget(docid)
+
+@bokeh_app.route("/bokeh/bb/<docid>/<typename>/", methods=['GET'])
+def bulkget_with_typename(docid):
+    ''' Retrieve all objects of a specified typename for a
+    given :class:`Document <bokeh.document.Document>`.
+
+    :param docid: id of the :class:`Document <bokeh.document.Document>`
+        to update or insert into
+    :param typename: the type of objects to find and return
+
+    :status 200: when user is authorized
+    :status 401: when user is not authorized
+
+    '''
+    return _bulkget(docid, typename)
+
 @crossdomain(origin="*", methods=['PATCH', 'GET', 'PUT'], headers=['BOKEH-API-KEY', 'Continuum-Clientid', 'Content-Type'])
-def handle_specific_model(docid, typename, id):
-    if request.method == 'PUT':
+def _handle_specific_model(docid, typename, id, method):
+    if method == 'PUT':
         return update(docid, typename, id)
-    elif request.method == 'PATCH':
+    elif method == 'PATCH':
         return update(docid, typename, id)
-    elif request.method == 'GET':
+    elif method == 'GET':
         return getbyid(docid, typename, id)
-    elif request.method =='DELETE':
+    elif method == 'DELETE':
         return delete(docid, typename, id)
+
+# route for working with individual models
+@bokeh_app.route("/bokeh/bb/<docid>/<typename>/<id>/", methods=['GET'])
+def _handle_specific_model_get(docid, typename, id):
+    ''' Retrieve a specific model with a given id and typename for a
+    given :class:`Document <bokeh.document.Document>`.
+
+    :param docid: id of the :class:`Document <bokeh.document.Document>`
+        to update or insert into
+    :param typename: the type of objects to find and return
+    :param id: unique id of the object to retrieve
+
+    :status 200: when user is authorized
+    :status 401: when user is not authorized
+
+    '''
+    return _handle_specific_model(docid, typename, id, request.method)
+
+@bokeh_app.route("/bokeh/bb/<docid>/<typename>/<id>/", methods=['OPTIONS'])
+def _handle_specific_model_options(docid, typename, id):
+    ''' Retrieve crossdomain options for a specific model with a
+    given id and typename for a given :class:`Document <bokeh.document.Document>`.
+
+    :param docid: id of the :class:`Document <bokeh.document.Document>`
+        to update or insert into
+    :param typename: the type of objects to find and return
+    :param id: unique id of the object to retrieve
+
+    :status 200:
+
+    '''
+    return _handle_specific_model(docid, typename, id, request.method)
+
+@bokeh_app.route("/bokeh/bb/<docid>/<typename>/<id>/", methods=['PUT'])
+def _handle_specific_model_put(docid, typename, id):
+    ''' Update a specific model with a given id and typename for a
+    given :class:`Document <bokeh.document.Document>`.
+
+    :param docid: id of the :class:`Document <bokeh.document.Document>`
+        to update or insert into
+    :param typename: the type of objects to find and return
+    :param id: unique id of the object to retrieve
+
+    :status 200: when user is authorized
+    :status 401: when user is not authorized
+
+    '''
+    return _handle_specific_model(docid, typename, id, request.method)
+
+@bokeh_app.route("/bokeh/bb/<docid>/<typename>/<id>/", methods=['PATCH'])
+def _handle_specific_model_patch(docid, typename, id):
+    ''' Update a specific model with a given id and typename for a
+    given :class:`Document <bokeh.document.Document>`.
+
+    :param docid: id of the :class:`Document <bokeh.document.Document>`
+        to update or insert into
+    :param typename: the type of objects to find and return
+    :param id: unique id of the object to retrieve
+
+    :status 200: when user is authorized
+    :status 401: when user is not authorized
+
+    '''
+    return _handle_specific_model(docid, typename, id, request.method)
+
+@bokeh_app.route("/bokeh/bb/<docid>/<typename>/<id>/", methods=['DELETE'])
+def _handle_specific_model_delete(docid, typename, id):
+    ''' Delete a specific model with a given id and typename for a
+    given :class:`Document <bokeh.document.Document>`.
+
+    :param docid: id of the :class:`Document <bokeh.document.Document>`
+        to update or insert into
+    :param typename: the type of objects to find and return
+    :param id: unique id of the object to retrieve
+
+    :status 200: when user is authorized
+    :status 401: when user is not authorized
+
+    '''
+    return _handle_specific_model(docid, typename, id, request.method)
+
 
 # individual model methods
 @check_read_authentication_and_create_client

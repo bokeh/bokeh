@@ -116,8 +116,6 @@ def prepare_app(backend, single_user_mode=True, data_directory=None):
         data_manager
     )
 
-    register_blueprint()
-
     # where should we be setting the secret key....?
     if not app.secret_key:
         app.secret_key = str(uuid.uuid4())
@@ -133,6 +131,11 @@ def make_default_user(bokeh_app):
                               str(uuid.uuid4()), apikey='nokey', docs=[])
 
     return bokehuser
+
+def doc_prepare():
+    app = prepare_app(dict(type='memory'))
+    register_blueprint()
+    return app
 
 http_server = None
 
