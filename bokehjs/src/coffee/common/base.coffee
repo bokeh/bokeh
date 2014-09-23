@@ -7,6 +7,7 @@ define [
   "common/canvas",
   "common/cartesian_frame",
   "common/gmap_plot",
+  "common/geojs_plot",
   "common/grid_plot",
   "common/layout_box",
   "common/plot",
@@ -129,6 +130,7 @@ define [
 
     Plot:                     'common/plot'
     GMapPlot:                 'common/gmap_plot'
+    GeoJSPlot:                'common/geojs_plot'
     GridPlot:                 'common/grid_plot'
     PlotContext:              'common/plot_context'
     PlotList:                 'common/plot_context'

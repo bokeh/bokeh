@@ -33,6 +33,7 @@ define (require, exports, module) ->
   Bokeh.CartesianFrame    = require("common/cartesian_frame")
   Bokeh.Canvas            = require("common/canvas")
   Bokeh.GMapPlot          = require("common/gmap_plot")
+  Bokeh.GeoJSPlot         = require("common/geojs_plot")
   Bokeh.GridPlot          = require("common/grid_plot")
   Bokeh.HasParent         = require("common/has_parent")
   Bokeh.HasProperties     = require("common/has_properties")
