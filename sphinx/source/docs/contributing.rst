@@ -33,6 +33,21 @@ Specific areas we'd like to get help on:
 * Canvas performance optimization
 * Connectors to various data APIs (public data or even commercial software suites)
 
+Core Team
+---------
+The Bokeh core team comprises:
+
+* Damián Avila
+* Joseph Cottam
+* Karan Dodia
+* Christine Doig
+* Mateusz Paprocki
+* Hugo Shi
+* Bryan Van de Ven
+* Peter Wang
+
+A full list of contributors may be viewed on the `GitHub Contributors Page <https://github.com/ContinuumIO/bokeh/graphs/contributors>`_.
+
 
 
 

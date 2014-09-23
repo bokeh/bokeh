@@ -20,7 +20,7 @@ def prune_and_get_valid_models(clientdoc, delete=False):
     retrieve all models that the plot_context points to.
     if delete is True,
     wipe out any models that are orphaned.  Also call transform_models, which
-    performs any backwards compatability data transformations.
+    performs any backwards compatibility data transformations.
     """
     objs = clientdoc.context.references()
     log.info("num models: %d", len(objs))
