@@ -2,6 +2,7 @@ from __future__ import print_function
 
 import time
 
+from bokeh.browserlib import view
 from bokeh.objects import ColumnDataSource, Plot, DataRange1d, LinearAxis, Grid, Glyph, BoxSelectTool, BoxSelectionOverlay
 from bokeh.glyphs import Circle
 from bokeh.widgets import TableColumn, HandsonTable, Select, HBox, VBox
@@ -70,8 +71,8 @@ class DataTables(object):
         yaxis = LinearAxis(plot=plot)
         ygrid = Grid(plot=plot, dimension=1, ticker=yaxis.ticker)
         plot.left.append(yaxis)
-        cty = Glyph(data_source=self.source, glyph=Circle(x="index", y="cty", fill_color="green"))
-        hwy = Glyph(data_source=self.source, glyph=Circle(x="index", y="hwy", fill_color="red"))
+        cty = Glyph(data_source=self.source, glyph=Circle(x="index", y="cty", fill_color="#396285", size=8, fill_alpha=0.5, line_alpha=0.5))
+        hwy = Glyph(data_source=self.source, glyph=Circle(x="index", y="hwy", fill_color="#CE603D", size=8, fill_alpha=0.5, line_alpha=0.5))
         select_tool = BoxSelectTool(renderers=[cty, hwy], select_y=False)
         plot.tools.append(select_tool)
         overlay = BoxSelectionOverlay(tool=select_tool)
