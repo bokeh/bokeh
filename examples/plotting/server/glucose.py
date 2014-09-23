@@ -23,6 +23,10 @@ day = data.ix['2010-10-06']
 highs = day[day['glucose'] > 180]
 lows = day[day['glucose'] < 80]
 
+xax, yax = axis()
+xax.axis_label = 'Time'
+yax.axis_label = 'Value'
+
 figure(x_axis_type="datetime", tools="pan,wheel_zoom,box_zoom,reset,previewsave")
 
 line(day.index.to_series(), day['glucose'],
@@ -45,6 +49,10 @@ figure(x_axis_type="datetime", tools="pan,wheel_zoom,box_zoom,reset,previewsave"
 line(inrange.index.to_series(), inrange, line_color="navy")
 
 curplot().title = "Glucose In-Range Rolling Sum"
+
+xax, yax = axis()
+xax.axis_label = 'Time'
+yax.axis_label = 'Proportion In-Range'
 
 # open a browser
 show()

@@ -27,6 +27,10 @@ window_size = 30
 window = np.ones(window_size)/float(window_size)
 aapl_avg = np.convolve(aapl, window, 'same')
 
+xax, yax = axis()
+xax.axis_label = 'Date'
+yax.axis_label = 'Price'
+
 figure(x_axis_type="datetime", tools="pan,wheel_zoom,box_zoom,reset,previewsave")
 
 scatter(aapl_dates, aapl, size=4, color='#A6CEE3', legend='close')
@@ -34,6 +38,10 @@ line(aapl_dates, aapl_avg, color='red', legend='avg')
 
 curplot().title = "AAPL One-Month Average"
 grid().grid_line_alpha=0.3
+
+xax, yax = axis()
+xax.axis_label = 'Date'
+yax.axis_label = 'Price'
 
 show()  # open a browser
 
