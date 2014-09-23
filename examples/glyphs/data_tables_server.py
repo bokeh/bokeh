@@ -124,7 +124,7 @@ class DataTables(object):
         print("Please visit %s to see the plots" % link)
         if do_view: view(link)
         print("\npress ctrl-C to exit")
-        self.session.poll_document(document)
+        self.session.poll_document(self.document)
 
 if __name__ == "__main__":
     data_tables = DataTables()
