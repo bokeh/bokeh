@@ -584,10 +584,10 @@ def _axis(*sides):
     return _list_attr_splat(axis)
 
 def xaxis():
-    """ Get the current axis objects
+    """ Get the current `x` axis object(s)
 
     Returns:
-        Returns axis object or splattable list of x-axis objects on the current plot
+        Returns x-axis object or splattable list of x-axis objects on the current plot
     """
     return _axis("above", "below")
 
@@ -600,10 +600,10 @@ def yaxis():
     return _axis("left", "right")
 
 def axis():
-    """ Get the current `x` axis object(s)
+    """ Get all the current axis objects
 
     Returns:
-        Returns x-axis object or splattable list of axis objects on the current plot
+        Returns axis object or splattable list of axis objects on the current plot
     """
     return _list_attr_splat(xaxis() + yaxis())
 

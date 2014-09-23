@@ -2,15 +2,13 @@ from __future__ import print_function
 
 import time
 
+from bokeh.browserlib import view
 from bokeh.objects import ColumnDataSource, Plot, DataRange1d, LinearAxis, Grid, Glyph, BoxSelectTool, BoxSelectionOverlay
 from bokeh.glyphs import Circle
 from bokeh.widgets import TableColumn, HandsonTable, Select, HBox, VBox
 from bokeh.document import Document
 from bokeh.session import Session
 from bokeh.sampledata.autompg2 import autompg2 as mpg
-
-import requests
-from requests.exceptions import ConnectionError
 
 class DataTables(object):
 
@@ -73,8 +71,8 @@ class DataTables(object):
         yaxis = LinearAxis(plot=plot)
         ygrid = Grid(plot=plot, dimension=1, ticker=yaxis.ticker)
         plot.left.append(yaxis)
-        cty = Glyph(data_source=self.source, glyph=Circle(x="index", y="cty", fill_color="green"))
-        hwy = Glyph(data_source=self.source, glyph=Circle(x="index", y="hwy", fill_color="red"))
+        cty = Glyph(data_source=self.source, glyph=Circle(x="index", y="cty", fill_color="#396285", size=8, fill_alpha=0.5, line_alpha=0.5))
+        hwy = Glyph(data_source=self.source, glyph=Circle(x="index", y="hwy", fill_color="#CE603D", size=8, fill_alpha=0.5, line_alpha=0.5))
         select_tool = BoxSelectTool(renderers=[cty, hwy], select_y=False)
         plot.tools.append(select_tool)
         overlay = BoxSelectionOverlay(tool=select_tool)
@@ -121,19 +119,13 @@ class DataTables(object):
         self.source.data = ColumnDataSource.from_df(df)
         self.session.store_document(self.document)
 
-    def run(self, poll_interval=0.5):
+    def run(self, do_view=False, poll_interval=0.5):
         link = self.session.object_link(self.document.context)
-        print("Please visit %s to see the plots (press ctrl-C to exit)" % link)
-
-        try:
-            while True:
-                self.session.load_document(self.document)
-                time.sleep(poll_interval)
-        except KeyboardInterrupt:
-            print()
-        except ConnectionError:
-            print("Connection to bokeh-server was terminated")
+        print("Please visit %s to see the plots" % link)
+        if do_view: view(link)
+        print("\npress ctrl-C to exit")
+        self.session.poll_document(self.document)
 
 if __name__ == "__main__":
     data_tables = DataTables()
-    data_tables.run()
+    data_tables.run(True)
