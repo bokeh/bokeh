@@ -1,10 +1,8 @@
-
 define [
   "underscore",
-  "common/collection",
   "renderer/properties",
   "./glyph",
-], (_, Collection, Properties, Glyph) ->
+], (_, Properties, Glyph) ->
 
   class ArcView extends Glyph.View
 
@@ -53,7 +51,7 @@ define [
         direction: 'anticlock'
       }
 
-  class Arcs extends Collection
+  class Arcs extends Glyph.Collection
     model: Arc
 
   return {

@@ -1,10 +1,8 @@
-
 define [
   "underscore",
-  "common/collection",
   "renderer/properties",
   "./glyph",
-], (_, Collection, Properties, Glyph) ->
+], (_, Properties, Glyph) ->
 
   glyph_properties = Properties.glyph_properties
 
@@ -97,7 +95,7 @@ define [
         dilate: false
       }
 
-  class ImageRGBAs extends Collection
+  class ImageRGBAs extends Glyph.Collection
     model: ImageRGBA
 
   return {

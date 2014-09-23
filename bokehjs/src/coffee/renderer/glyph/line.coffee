@@ -1,10 +1,8 @@
-
 define [
   "underscore",
-  "common/collection",
   "renderer/properties",
   "./glyph",
-], (_, Collection, Properties, Glyph) ->
+], (_, Properties, Glyph) ->
 
   class LineView extends Glyph.View
 
@@ -49,7 +47,7 @@ define [
     display_defaults: ->
       return _.extend {}, super(), @line_defaults
 
-  class Lines extends Collection
+  class Lines extends Glyph.Collection
     model: Line
 
   return {

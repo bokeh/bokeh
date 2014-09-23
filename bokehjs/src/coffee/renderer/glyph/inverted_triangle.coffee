@@ -1,10 +1,8 @@
-
 define [
   "underscore",
-  "common/collection",
   "renderer/properties",
   "./marker",
-], (_, Collection, Properties, Marker) ->
+], (_, Properties, Marker) ->
 
   class InvertedTriangleView extends Marker.View
 
@@ -42,7 +40,7 @@ define [
     display_defaults: ->
       return _.extend {}, super(), @line_defaults, @fill_defaults
 
-  class InvertedTriangles extends Collection
+  class InvertedTriangles extends Marker.Collection
     model: InvertedTriangle
 
   return {

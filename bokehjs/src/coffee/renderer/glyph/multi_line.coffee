@@ -1,10 +1,8 @@
-
 define [
   "underscore",
-  "common/collection",
   "renderer/properties",
   "./glyph",
-], (_, Collection, Properties, Glyph) ->
+], (_, Properties, Glyph) ->
 
   class MultiLineView extends Glyph.View
 
@@ -48,7 +46,7 @@ define [
     display_defaults: ->
       return _.extend {}, super(), @line_defaults
 
-  class MultiLines extends Collection
+  class MultiLines extends Glyph.Collection
     model: MultiLine
 
   return {

@@ -1,11 +1,9 @@
-
 define [
   "underscore",
   "rbush",
-  "common/collection",
   "renderer/properties",
   "./glyph",
-], (_, rbush, Collection, Properties, Glyph) ->
+], (_, rbush, Properties, Glyph) ->
 
   class RectView extends Glyph.View
 
@@ -177,7 +175,7 @@ define [
         dilate: false
       }
 
-  class Rects extends Collection
+  class Rects extends Glyph.Collection
     model: Rect
 
   return {

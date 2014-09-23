@@ -1,11 +1,9 @@
-
 define [
   "underscore",
   "rbush",
-  "common/collection",
   "renderer/properties",
   "./glyph",
-], (_, rbush, Collection, Properties, Glyph) ->
+], (_, rbush, Properties, Glyph) ->
 
   class QuadView extends Glyph.View
 
@@ -57,7 +55,7 @@ define [
     display_defaults: ->
       return _.extend {}, super(), @line_defaults, @fill_defaults
 
-  class Quads extends Collection
+  class Quads extends Glyph.Collection
     model: Quad
 
   return {

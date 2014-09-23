@@ -1,10 +1,8 @@
-
 define [
   "underscore",
-  "common/collection",
   "renderer/properties",
   "./marker",
-], (_, Collection, Properties, Marker) ->
+], (_, Properties, Marker) ->
 
   class SquareCrossView extends Marker.View
 
@@ -45,7 +43,7 @@ define [
         size_units: 'screen'
       }
 
-  class SquareCrosses extends Collection
+  class SquareCrosses extends Marker.Collection
     model: SquareCross
 
   return {

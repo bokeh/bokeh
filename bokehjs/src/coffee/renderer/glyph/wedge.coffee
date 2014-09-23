@@ -1,12 +1,10 @@
-
 define [
   "underscore",
   "rbush",
   "common/mathutils",
-  "common/collection",
   "renderer/properties",
   "./glyph",
-], (_, rbush, mathutils, Collection, Properties, Glyph) ->
+], (_, rbush, mathutils, Properties, Glyph) ->
 
   class WedgeView extends Glyph.View
 
@@ -128,7 +126,7 @@ define [
         direction: 'anticlock'
       }
 
-  class Wedges extends Collection
+  class Wedges extends Glyph.Collection
     model: Wedge
 
   return {

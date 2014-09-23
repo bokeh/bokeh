@@ -1,10 +1,8 @@
-
 define [
   "underscore",
-  "common/collection",
   "renderer/properties",
   "./marker",
-], (_, Collection, Properties, Marker) ->
+], (_, Properties, Marker) ->
 
   class CircleCrossView extends Marker.View
 
@@ -39,7 +37,7 @@ define [
     display_defaults: ->
       return _.extend {}, super(), @line_defaults, @fill_defaults
 
-  class CircleCrosses extends Collection
+  class CircleCrosses extends Marker.Collection
     model: CircleCross
 
   return {

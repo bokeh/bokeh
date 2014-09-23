@@ -1,11 +1,11 @@
-
 define [
   "underscore",
-  "common/has_parent",
   "common/logging",
+  "common/has_parent",
+  "common/collection"
   "common/plot_widget",
   "renderer/properties"
-], (_, HasParent, Logging, PlotWidget, Properties) ->
+], (_, Logging, HasParent, Collection, PlotWidget, Properties) ->
 
   logger = Logging.logger
 
@@ -344,24 +344,10 @@ define [
       line_dash_offset: 0
     }
 
-    defaults: ->
-      return _.extend {}, super(), {
-        x_range_name: "default"
-        y_range_name: "default"
-        data_source: null
-      }
-
-    display_defaults: ->
-      return _.extend {}, super(), {
-        level: 'glyph'
-        radius_units: 'data'
-        length_units: 'screen'
-        angle_units: 'deg'
-        start_angle_units: 'deg'
-        end_angle_units: 'deg'
-      }
+  class Glyphs extends Collection
 
   return {
     Model: Glyph
     View: GlyphView
+    Collection: Glyphs
   }

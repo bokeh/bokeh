@@ -1,11 +1,9 @@
-
 define [
   "underscore",
   "rbush",
-  "common/collection",
   "renderer/properties",
   "./glyph",
-], (_, rbush, Collection, Properties, Glyph) ->
+], (_, rbush, Properties, Glyph) ->
 
 
   point_in_poly = (x, y, px, py) ->
@@ -136,7 +134,7 @@ define [
     display_defaults: ->
       return _.extend {}, super(), @line_defaults, @fill_defaults
 
-  class Patcheses extends Collection
+  class Patcheses extends Glyph.Collection
     model: Patches
 
   return {

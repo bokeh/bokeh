@@ -1,10 +1,8 @@
-
 define [
   "underscore",
-  "common/collection",
   "renderer/properties",
   "./glyph",
-], (_, Collection, Properties, Glyph) ->
+], (_, Properties, Glyph) ->
 
   class SegmentView extends Glyph.View
 
@@ -44,7 +42,7 @@ define [
     display_defaults: ->
       return _.extend {}, super(), @line_defaults
 
-  class Segments extends Collection
+  class Segments extends Glyph.Collection
     model: Segment
 
   return {

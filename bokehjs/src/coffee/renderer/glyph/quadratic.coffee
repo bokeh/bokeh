@@ -1,10 +1,8 @@
-
 define [
   "underscore",
-  "common/collection",
   "renderer/properties",
   "./glyph",
-], (_, Collection, Properties, Glyph) ->
+], (_, Properties, Glyph) ->
 
   class QuadraticView extends Glyph.View
 
@@ -47,7 +45,7 @@ define [
     display_defaults: ->
       return _.extend {}, super(), @line_defaults
 
-  class Quadratics extends Collection
+  class Quadratics extends Glyph.Collection
     model: Quadratic
 
   return {

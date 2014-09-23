@@ -1,12 +1,10 @@
-
 define [
   "underscore",
-  "common/collection",
   "renderer/properties",
   "mapper/linear_color_mapper",
   "palettes/palettes",
   "./glyph",
-], (_, Collection, Properties, LinearColorMapper, Palettes, Glyph) ->
+], (_, Properties, LinearColorMapper, Palettes, Glyph) ->
 
   all_palettes = Palettes.all_palettes
 
@@ -102,7 +100,7 @@ define [
         dilate: false
       }
 
-  class Images extends Collection
+  class Images extends Glyph.Collection
     model: Image
 
   return {

@@ -1,11 +1,8 @@
-
-
 define [
   "underscore",
-  "common/collection",
   "renderer/properties",
   "./glyph",
-], (_, Collection, Properties, Glyph) ->
+], (_, Properties, Glyph) ->
 
   class OvalView extends Glyph.View
 
@@ -76,7 +73,7 @@ define [
         angle: 0.0
       }
 
-  class Ovals extends Collection
+  class Ovals extends Glyph.Collection
     model: Oval
 
   return {

@@ -1,10 +1,8 @@
-
 define [
   "underscore",
-  "common/collection",
   "renderer/properties",
   "./glyph",
-], (_, Collection, Properties, Glyph) ->
+], (_, Properties, Glyph) ->
 
   glyph_properties = Properties.glyph_properties
 
@@ -93,7 +91,7 @@ define [
         level: 'underlay'
       }
 
-  class ImageURLs extends Collection
+  class ImageURLs extends Glyph.Collection
     model: ImageURL
 
   return {

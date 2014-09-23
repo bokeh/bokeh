@@ -1,11 +1,9 @@
-
 define [
   "underscore",
   "rbush",
-  "common/collection",
   "renderer/properties",
   "./glyph",
-], (_, rbush, Collection, Properties, Glyph) ->
+], (_, rbush, Properties, Glyph) ->
 
   class CircleView extends Glyph.View
 
@@ -169,7 +167,7 @@ define [
         size_units: 'screen'
       }
 
-  class Circles extends Collection
+  class Circles extends Glyph.Collection
     model: Circle
 
   return {
