@@ -61,13 +61,12 @@ renderer = [r for r in plot.renderers if isinstance(r, Glyph)][0]
 ds = renderer.data_source
 
 while True:
-    for i in linspace(-2 * pi, 2 * pi, 50):
-        rmin = ds.data["inner_radius"]
-        rmin = roll(rmin, 1)
-        ds.data["inner_radius"] = rmin
-        rmax = ds.data["outer_radius"]
-        rmax = roll(rmax, -1)
-        ds.data["outer_radius"] = rmax
-        ds._dirty = True
-        cursession().store_objects(ds)
-        time.sleep(.10)
+    rmin = ds.data["inner_radius"]
+    rmin = roll(rmin, 1)
+    ds.data["inner_radius"] = rmin
+    rmax = ds.data["outer_radius"]
+    rmax = roll(rmax, -1)
+    ds.data["outer_radius"] = rmax
+    ds._dirty = True
+    cursession().store_objects(ds)
+    time.sleep(.10)
