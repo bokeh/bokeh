@@ -101,6 +101,7 @@ class Test_AR(unittest.TestCase):
             cls.bokeh_server.kill()
 
     # --------------- Processs functions -------------
+    @unittest.skip("Unreliable bokeh server-start")
     def test_replot_remove(self):
         self.assertIsNotNone(self.bokeh_server, "Server failed to start, cannot tests")
         ar_downsample._loadAR()
@@ -118,6 +119,7 @@ class Test_AR(unittest.TestCase):
         except:
             self.assertTrue(False, "Error reploting plot not in curdoc")
 
+    @unittest.skip("Unreliable bokeh server-start")
     def test_replot_property_transfer(self):
         self.assertIsNotNone(self.bokeh_server, "Server failed to start, cannot tests")
         ar_downsample._loadAR()
