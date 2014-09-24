@@ -4,6 +4,8 @@ from ..plot_object import PlotObject
 from ..objects import ServerDataSource,  Glyph, Range1d, Color
 from ..properties import (Instance, Any, Either,
                           Int, Float, List, Bool, String)
+from six import get_function_code
+
 import bokeh.colors as colors
 import numpy as np
 import math
@@ -439,7 +441,8 @@ def replot(plot,
         if key in kwargs:
             source_opts[key] = kwargs.pop(key)
 
-    for name in source.func_code.co_varnames:
+
+    for name in get_function_code(source).co_varnames:
         if name in kwargs:
             source_opts[name] = kwargs.pop(name)
 
