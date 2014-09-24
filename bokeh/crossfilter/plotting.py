@@ -58,7 +58,7 @@ def make_bar_plot(datasource, counts_name="counts",
       x_range=x_range, y_range=[0, top], tools=tools,
     )
     hold()
-    y = datasource.data['counts'] / 2
+    y = [val/2.0 for val in datasource.data[counts_name]]
     plot = rect(centers_name, y, bar_width, counts_name, source=datasource)
 
     plot.min_border = 0

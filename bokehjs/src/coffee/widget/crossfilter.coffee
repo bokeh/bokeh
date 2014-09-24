@@ -238,7 +238,7 @@ define [
         @listenTo(view, 'remove', @child_remove)
       )
       _.map(filter_widgets, (model) =>
-        wrapper = new CloseWrapper(view : @views[model.id])
+        wrapper = new CloseWrapper.View(view : @views[model.id])
         @$el.find('.bk-filters-selections').append(wrapper.$el)
       )
 
