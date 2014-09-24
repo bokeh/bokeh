@@ -15,8 +15,8 @@ define [
         @x, @glyph_props.x.units, @y, @glyph_props.y.units, @x_range_name, @y_range_name
       )
 
-      @sw = @distance_vector('x', 'width', 'center', @mget('glyphspec')['dilate'])
-      @sh = @distance_vector('y', 'height', 'center', @mget('glyphspec')['dilate'])
+      @sw = @distance_vector('x', 'width', 'center', @mget('dilate'))
+      @sh = @distance_vector('y', 'height', 'center', @mget('dilate'))
       @sx = new Array(sxi.length)
       @sy = new Array(sxi.length)
       for i in [0...sxi.length]

@@ -20,8 +20,8 @@ define [
       [@sx, @sy] = @plot_view.map_to_screen(
         @x, @glyph_props.x.units, @y, @glyph_props.y.units, @x_range_name, @y_range_name
       )
-      @sw = @distance_vector('x', 'w', 'edge', @mget('glyphspec')['dilate'])
-      @sh = @distance_vector('y', 'h', 'edge', @mget('glyphspec')['dilate'])
+      @sw = @distance_vector('x', 'w', 'edge', @mget('dilate'))
+      @sh = @distance_vector('y', 'h', 'edge', @mget('dilate'))
 
     _render: (ctx, indices, glyph_props) ->
       for i in indices
@@ -54,7 +54,7 @@ define [
           @_render_image(ctx, i, @image[i])
 
     _final_sx_sy: () ->
-      anchor = @mget('glyphspec').anchor or "top_left"
+      anchor = @mget('anchor') or "top_left"
 
       switch anchor
         when "top_left"      then (i) => [@sx[i]           , @sy[i]           ]

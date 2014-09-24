@@ -14,11 +14,10 @@ define [
 
     initialize: (options) ->
       # the point of this is to support both efficient ArrayBuffers as well as dumb
-      # arrays of arrays that the python interface currently uses. If the glyphspec
+      # arrays of arrays that the python interface currently uses. If the model
       # contains "rows" then it is assumed to be an ArrayBuffer with explicitly
       # provided number of rows/cols, otherwise treat as a "list of lists".
-      spec = @mget('glyphspec')
-      if spec.rows?
+      if @mget("rows")?
         @_fields = ['image:array', 'rows', 'cols', 'x', 'y', 'dw', 'dh', 'palette:string', 'reserve_val', 'reserve_color']
       else
         @_fields = ['image:array', 'x', 'y', 'dw', 'dh', 'palette:string', 'reserve_val', 'reserve_color']
@@ -65,8 +64,8 @@ define [
       [@sx, @sy] = @plot_view.map_to_screen(
         @x, @glyph_props.x.units, @y, @glyph_props.y.units, @x_range_name, @y_range_name
       )
-      @sw = @distance_vector('x', 'dw', 'edge',  @mget('glyphspec')['dilate'])
-      @sh = @distance_vector('y', 'dh', 'edge',  @mget('glyphspec')['dilate'])
+      @sw = @distance_vector('x', 'dw', 'edge', @mget('dilate'))
+      @sh = @distance_vector('y', 'dh', 'edge', @mget('dilate'))
 
     _render: (ctx, indices, glyph_props) ->
       old_smoothing = ctx.getImageSmoothingEnabled()
