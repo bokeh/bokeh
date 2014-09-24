@@ -64,13 +64,11 @@ define [
 
     render: () ->
       # XXX: we have to know when bokeh finished rendering to ... finish rendering
-      display = @$el.css("display")
-
-      interval = setInterval(() =>
-        if @$el.css("display") != display
+      handler = () =>
+        if $.contains(document.documentElement, @el)
           clearInterval(interval)
           @renderFn()
-      , 100)
+      interval = setInterval(handler, 50)
 
     editData: (changes) ->
       source = @mget("source")

@@ -89,7 +89,7 @@ Many of the styling options are grouped into three categories of properties: :re
 Line Properties
 ***************
 
-.. include:: includes/line_props.txt
+.. include:: ../includes/line_props.txt
 
 
 .. _userguide_objects_fill_properties:
@@ -97,7 +97,7 @@ Line Properties
 Fill Properties
 ***************
 
-.. include:: includes/fill_props.txt
+.. include:: ../includes/fill_props.txt
 
 
 .. _userguide_objects_text_properties:
@@ -105,7 +105,7 @@ Fill Properties
 Text Properties
 ***************
 
-.. include:: includes/text_props.txt
+.. include:: ../includes/text_props.txt
 
 .. _userguide_objects_ranges:
 
