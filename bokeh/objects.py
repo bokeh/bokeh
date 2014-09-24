@@ -285,6 +285,8 @@ class DatetimeTickFormatter(TickFormatter):
     formats = Dict(Enum(DatetimeUnits), List(String))
 
 class Glyph(Renderer):
+    __view_model__ = "GlyphRenderer" # TODO: rename Glyph -> GlyphRenderer and remove this
+
     server_data_source = Instance(ServerDataSource)
     data_source = Instance(DataSource)
     x_range_name = String('default')

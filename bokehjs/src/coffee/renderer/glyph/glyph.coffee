@@ -11,98 +11,21 @@ define [
 
   class GlyphView extends PlotWidget
 
-    #TODO: There are glyph sub-type-vs-resample_op concordance issues...
-    setup_server_data : () ->
-      serversource = @mget('server_data_source')
-      # hack, call set data, becuase there are some attrs that we need
-      # that are in it
-      data = _.extend({}, @mget('data_source').get('data'), serversource.get('data'))
-      @mget('data_source').set('data', data)
-      @set_data(false)
-
-      transform_params = serversource.attributes['transform']
-      resample_op = transform_params['resample']
-      x_range = @plot_view.frame.get('h_range')
-      y_range = @plot_view.frame.get('v_range')
-
-      #TODO: This is weird.  For example, h_range is passed in twice.  Hugo or Joseph should clean it up
-      if (resample_op == 'line1d')
-        domain = transform_params['domain']
-        if domain == 'x'
-          serversource.listen_for_line1d_updates(
-            @mget('data_source'),
-            x_range,  y_range,
-            @plot_view.x_range, @plot_view.y_range,
-            x_range,
-            @glyph_props.y.field,
-            @glyph_props.x.field,
-            [@glyph_props.y.field],
-            transform_params
-          )
-        else
-          throw new Error("Domains other than 'x' not supported yet.")
-      else if (resample_op == 'heatmap')
-        serversource.listen_for_heatmap_updates(
-           @mget('data_source'),
-           x_range,  y_range,
-           @plot_view.x_range,
-           @plot_view.y_range,
-           transform_params
-        )
-      else if (resample_op == 'abstract rendering')
-        serversource.listen_for_ar_updates(
-           @plot_view
-           @mget('data_source'),
-             #TODO: Joseph -- Get rid of the next four params because we're passing in the plot_view
-           x_range,  y_range,
-           @plot_view.x_range,
-           @plot_view.y_range,
-           transform_params)
-      else
-        logger.warn("unknown resample op: '#{resample_op}'")
-
     initialize: (options) ->
       super(options)
+      @props = init_props()
 
-      @need_set_data = true
-
-      @glyph_props = @init_glyph(@mget('glyphspec'))
-
-      @x_range_name = @mget('x_range_name')
-      @y_range_name = @mget('y_range_name')
-
-      @xmapper = @plot_view.frame.get('x_mappers')[@x_range_name]
-      @ymapper = @plot_view.frame.get('y_mappers')[@y_range_name]
-
-      @have_selection_props = false
-      if @mget('selection_glyphspec')
-        spec = _.extend({}, @mget('glyphspec'), @mget('selection_glyphspec'))
-        @selection_glyphprops = @init_glyph(spec)
-        @have_selection_props = true
-      else
-        @selection_glyphprops = @glyph_props
-
-      if @mget('nonselection_glyphspec')
-        spec = _.extend({}, @mget('glyphspec'), @mget('nonselection_glyphspec'))
-        @nonselection_glyphprops = @init_glyph(spec)
-        @have_selection_props = true
-      else
-        @nonselection_glyphprops = @glyph_props
-
-      if @mget('server_data_source')
-        @setup_server_data()
-      @listenTo(this, 'change:server_data_source', @setup_server_data)
-
-    init_glyph: (glyphspec) ->
+    init_props: ->
       props = {}
+
       if 'line' in @_properties
-        props['line_properties'] = new Properties.line_properties(@, glyphspec)
+        props.line_properties = new Properties.line_properties(@, glyphspec)
       if 'fill' in @_properties
-        props['fill_properties'] = new Properties.fill_properties(@, glyphspec)
+        props.fill_properties = new Properties.fill_properties(@, glyphspec)
       if 'text' in @_properties
-        props['text_properties'] = new Properties.text_properties(@, glyphspec)
-      glyph_props = new Properties.glyph_properties(@, glyphspec, @_fields, props)
-      return glyph_props
+        props.text_properties = new Properties.text_properties(@, glyphspec)
+
+      new Properties.glyph_properties(@, glyphspec, @_fields, props)
 
     set_data: (request_render=true) ->
       source = @mget('data_source')
@@ -176,7 +99,7 @@ define [
 
       t0 = Date.now()
 
-      if selected and selected.length and @have_selection_props
+      if selected and selected.length and @have_selection_props()
 
         # reset the selection mask
         selected_mask = (false for i in @all_indices)
@@ -212,10 +135,6 @@ define [
 
     yrange: () ->
       return @plot_view.y_range
-
-    bind_bokeh_events: () ->
-      @listenTo(@model, 'change', @request_render)
-      @listenTo(@mget('data_source'), 'change', @set_data)
 
     distance_vector: (pt, span_prop_name, position, dilate=false) ->
       """ returns an array """
@@ -255,7 +174,6 @@ define [
         return (Math.ceil(Math.abs(spt1[i] - spt0[i])) for i in [0...spt0.length])
       else
         return (Math.abs(spt1[i] - spt0[i]) for i in [0...spt0.length])
-
 
     get_reference_point: () ->
       reference_point = @mget('reference_point')

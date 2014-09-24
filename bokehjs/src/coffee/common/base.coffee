@@ -25,6 +25,8 @@ define [
 
   "renderer/annotation/legend",
 
+  "renderer/glyph/glyph_renderer",
+
   "renderer/glyph/annular_wedge",
   "renderer/glyph/annulus",
   "renderer/glyph/arc",
@@ -177,6 +179,8 @@ define [
     Range1d:                  'range/range1d'
 
     Legend:                   'renderer/annotation/legend'
+
+    GlyphRenderer:            'renderer/glyph/glyph_renderer'
 
     AnnularWedge:             'renderer/glyph/annular_wedge'
     Annulus:                  'renderer/glyph/annulus'
