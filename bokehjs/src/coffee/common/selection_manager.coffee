@@ -27,6 +27,7 @@ define [
 
       @_save(selector)
       source.trigger('select')
+      source.trigger('select-' + renderer_view.mget('id'))
 
     inspect: (tool, renderer_view, geometry, data) ->
       source = @get('source')
@@ -38,6 +39,9 @@ define [
       if indices?
         source.trigger(
           'inspect', indices, tool, renderer_view, source, data
+        )
+        source.trigger(
+          'inspect' + renderer_view.mget('id'), indices, tool, renderer_view, source, data
         )
 
     clear: (tool) ->
