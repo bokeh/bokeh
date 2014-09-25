@@ -8,9 +8,8 @@ define [
 
     _properties: ['line']
 
-    _render: (ctx, indices, glyph_props, sx=@sx, sy=@sy, size=@size) ->
+    _render: (ctx, indices, sx=@sx, sy=@sy, size=@size) ->
       for i in indices
-
         if isNaN(sx[i] + sy[i] + size[i])
           continue
 
@@ -21,8 +20,8 @@ define [
         ctx.moveTo(sx[i]-r, sy[i]-r)
         ctx.lineTo(sx[i]+r, sy[i]+r)
 
-        if glyph_props.line_properties.do_stroke
-          glyph_props.line_properties.set_vectorize(ctx, i)
+        if @props.line.do_stroke
+          @props.line.set_vectorize(ctx, i)
           ctx.stroke()
 
   class X extends Marker.Model

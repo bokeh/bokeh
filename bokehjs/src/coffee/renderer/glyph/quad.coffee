@@ -18,20 +18,19 @@ define [
         @right, @glyph_props.right.units, @bottom, @glyph_props.bottom.units, @x_range_name, @y_range_name
       )
 
-    _render: (ctx, indices, glyph_props, sx0=@sx0, sx1=@sx1, sy0=@sy0, sy1=@sy1) ->
+    _render: (ctx, indices, sx0=@sx0, sx1=@sx1, sy0=@sy0, sy1=@sy1) ->
       for i in indices
-
         if isNaN(sx0[i] + sy0[i] + sx1[i] + sy1[i])
           continue
 
-        if glyph_props.fill_properties.do_fill
-          glyph_props.fill_properties.set_vectorize(ctx, i)
+        if @props.fill.do_fill
+          @props.fill.set_vectorize(ctx, i)
           ctx.fillRect(sx0[i], sy0[i], sx1[i]-sx0[i], sy1[i]-sy0[i])
 
-        if glyph_props.line_properties.do_stroke
+        if @props.line.do_stroke
           ctx.beginPath()
           ctx.rect(sx0[i], sy0[i], sx1[i]-sx0[i], sy1[i]-sy0[i])
-          glyph_props.line_properties.set_vectorize(ctx, i)
+          @props.line.set_vectorize(ctx, i)
           ctx.stroke()
 
     _hit_point: (geometry) ->

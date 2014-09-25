@@ -20,11 +20,9 @@ define [
         @cx, @glyph_props.cx.units, @cy, @glyph_props.cy.units, @x_range_name, @y_range_name
       )
 
-    _render: (ctx, indices, glyph_props) ->
-      if glyph_props.line_properties.do_stroke
-
+    _render: (ctx, indices) ->
+      if @props.line.do_stroke
         for i in indices
-
           if isNaN(@sx0[i] + @sy0[i] + @sx1[i] + @sy1[i] + @scx[i] + @scy[i])
             continue
 
@@ -32,7 +30,7 @@ define [
           ctx.moveTo(@sx0[i], @sy0[i])
           ctx.quadraticCurveTo(@scx[i], @scy[i], @sx1[i], @sy1[i])
 
-          glyph_props.line_properties.set_vectorize(ctx, i)
+          @props.line.set_vectorize(ctx, i)
           ctx.stroke()
 
     draw_legend: (ctx, x0, x1, y0, y1) ->

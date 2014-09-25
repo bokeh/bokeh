@@ -15,9 +15,8 @@ define [
       )
       @radius = @distance_vector('x', 'radius', 'edge')
 
-    _render: (ctx, indices, glyph_props, sx=@sx, sy=@sy, radius=@radius) ->
-      if glyph_props.line_properties.do_stroke
-
+    _render: (ctx, indices, sx=@sx, sy=@sy, radius=@radius) ->
+      if @props.line.do_stroke
         for i in indices
           if isNaN(sx[i] + sy[i] + radius[i] + @start_angle[i] + @end_angle[i] + @direction[i])
             continue
@@ -25,22 +24,22 @@ define [
           ctx.beginPath()
           ctx.arc(sx[i], sy[i], radius[i], @start_angle[i], @end_angle[i], @direction[i])
 
-          glyph_props.line_properties.set_vectorize(ctx, i)
+          @props.line.set_vectorize(ctx, i)
           ctx.stroke()
 
     draw_legend: (ctx, x0, x1, y0, y1) ->
       reference_point = @get_reference_point() ? 0
 
       indices = [reference_point]
-      sx = { }
+      sx = {}
       sx[reference_point] = (x0+x1)/2
-      sy = { }
+      sy = {}
       sy[reference_point] = (y0+y1)/2
 
-      radius = { }
+      radius = {}
       radius[reference_point] = Math.min(Math.abs(x1-x0), Math.abs(y1-y0))*0.4
 
-      @_render(ctx, indices, @glyph_props, sx, sy, radius)
+      @_render(ctx, indices, sx, sy, radius)
 
   class Arc extends Glyph.Model
     default_view: ArcView

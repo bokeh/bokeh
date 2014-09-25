@@ -69,21 +69,20 @@ define [
 
       return (x[4].i for x in @index.search([x0, y0, x1, y1]))
 
-    _render: (ctx, indices, glyph_props, sx=@sx, sy=@sy, radius=@radius) ->
+    _render: (ctx, indices, sx=@sx, sy=@sy, radius=@radius) ->
       for i in indices
-
         if isNaN(sx[i] + sy[i] + radius[i])
             continue
 
         ctx.beginPath()
         ctx.arc(sx[i], sy[i], radius[i], 0, 2*Math.PI, false)
 
-        if glyph_props.fill_properties.do_fill
-          glyph_props.fill_properties.set_vectorize(ctx,i)
+        if @props.fill.do_fill
+          @props.fill.set_vectorize(ctx,i)
           ctx.fill()
 
-        if glyph_props.line_properties.do_stroke
-          glyph_props.line_properties.set_vectorize(ctx, i)
+        if @props.line.do_stroke
+          @props.line.set_vectorize(ctx, i)
           ctx.stroke()
 
     _hit_point: (geometry) ->
@@ -155,7 +154,7 @@ define [
       radius = { }
       radius[reference_point] = Math.min(Math.abs(x1-x0), Math.abs(y1-y0))*0.2
 
-      @_render(ctx, indices, @glyph_props, sx, sy, radius)
+      @_render(ctx, indices, sx, sy, radius)
 
   class Circle extends Glyph.Model
     default_view: CircleView

@@ -14,10 +14,10 @@ define [
         @x, @glyph_props.x.units, @y, @glyph_props.y.units, @x_range_name, @y_range_name
       )
 
-    _render: (ctx, indices, glyph_props) ->
+    _render: (ctx, indices) ->
+      if @props.fill.do_fill
+        @props.fill.set(ctx, glyph_props)
 
-      if glyph_props.fill_properties.do_fill
-        glyph_props.fill_properties.set(ctx, glyph_props)
         for i in indices
           if i == 0
             ctx.beginPath()
@@ -30,11 +30,13 @@ define [
             continue
           else
             ctx.lineTo(@sx[i], @sy[i])
+
         ctx.closePath()
         ctx.fill()
 
-      if glyph_props.line_properties.do_stroke
-        glyph_props.line_properties.set(ctx, glyph_props)
+      if @props.line.do_stroke
+        @props.line.set(ctx, glyph_props)
+
         for i in indices
           if i == 0
             ctx.beginPath()
@@ -47,6 +49,7 @@ define [
             continue
           else
             ctx.lineTo(@sx[i], @sy[i])
+
         ctx.closePath()
         ctx.stroke()
 

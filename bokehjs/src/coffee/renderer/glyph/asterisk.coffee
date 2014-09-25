@@ -8,9 +8,8 @@ define [
 
     _properties: ['line']
 
-    _render: (ctx, indices, glyph_props, sx=@sx, sy=@sy, size=@size) ->
+    _render: (ctx, indices, sx=@sx, sy=@sy, size=@size) ->
       for i in indices
-
         if isNaN(sx[i] + sy[i] + size[i])
           continue
 
@@ -27,8 +26,8 @@ define [
         ctx.moveTo(sx[i]-r2, sy[i]-r2)
         ctx.lineTo(sx[i]+r2, sy[i]+r2)
 
-        if glyph_props.line_properties.do_stroke
-          glyph_props.line_properties.set_vectorize(ctx, i)
+        if @props.line.do_stroke
+          @props.line.set_vectorize(ctx, i)
           ctx.stroke()
 
   class Asterisk extends Marker.Model

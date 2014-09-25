@@ -26,9 +26,8 @@ define [
       )
       @radius = @distance_vector('x', 'radius', 'edge')
 
-    _render: (ctx, indices, glyph_props, sx=@sx, sy=@sy, radius=@radius) ->
+    _render: (ctx, indices, sx=@sx, sy=@sy, radius=@radius) ->
       for i in indices
-
         if isNaN(sx[i] + sy[i] + radius[i] + @start_angle[i] + @end_angle[i] + @direction[i])
           continue
 
@@ -37,12 +36,12 @@ define [
         ctx.lineTo(sx[i], sy[i])
         ctx.closePath()
 
-        if glyph_props.fill_properties.do_fill
-          glyph_props.fill_properties.set_vectorize(ctx, i)
+        if @props.fill.do_fill
+          @props.fill.set_vectorize(ctx, i)
           ctx.fill()
 
-        if glyph_props.line_properties.do_stroke
-          glyph_props.line_properties.set_vectorize(ctx, i)
+        if @props.line.do_stroke
+          @props.line.set_vectorize(ctx, i)
           ctx.stroke()
 
     _hit_point: (geometry) ->
@@ -115,7 +114,7 @@ define [
       radius = { }
       radius[reference_point] = Math.min(Math.abs(x1-x0), Math.abs(y1-y0)) * 0.4
 
-      @_render(ctx, indices, @glyph_props, sx, sy, radius)
+      @_render(ctx, indices, sx, sy, radius)
 
   class Wedge extends Glyph.Model
     default_view: WedgeView

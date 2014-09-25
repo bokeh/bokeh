@@ -14,13 +14,11 @@ define [
         @x, @glyph_props.x.units, @y, @glyph_props.y.units, @x_range_name, @y_range_name
       )
 
-    _render: (ctx, indices, glyph_props) ->
-
+    _render: (ctx, indices) ->
       drawing = false
-      glyph_props.line_properties.set(ctx, glyph_props)
+      @props.line.set(ctx, glyph_props) # WTF?
 
       for i in indices
-
         if isNaN(@sx[i] + @sy[i]) and drawing
           ctx.stroke()
           ctx.beginPath()

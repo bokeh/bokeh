@@ -67,14 +67,13 @@ define [
 
       return (x[4].i for x in @index.search([x0, y0, x1, y1]))
 
-    _render: (ctx, indices, glyph_props) ->
-
+    _render: (ctx, indices) ->
       for i in indices
-
         [sx, sy] = [@sxs[i], @sys[i]]
 
-        if glyph_props.fill_properties.do_fill
-          glyph_props.fill_properties.set_vectorize(ctx, i)
+        if @props.fill.do_fill
+          @props.fill.set_vectorize(ctx, i)
+
           for j in [0...sx.length]
             if j == 0
               ctx.beginPath()
@@ -87,11 +86,13 @@ define [
               continue
             else
               ctx.lineTo(sx[j], sy[j])
+
           ctx.closePath()
           ctx.fill()
 
-        if glyph_props.line_properties.do_stroke
-          glyph_props.line_properties.set_vectorize(ctx, i)
+        if @props.line.do_stroke
+          @props.line.set_vectorize(ctx, i)
+
           for j in [0...sx.length]
             if j == 0
               ctx.beginPath()
@@ -104,6 +105,7 @@ define [
               continue
             else
               ctx.lineTo(sx[j], sy[j])
+
           ctx.closePath()
           ctx.stroke()
 

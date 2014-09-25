@@ -14,16 +14,15 @@ define [
         @x, @glyph_props.x.units, @y, @glyph_props.y.units, @x_range_name, @y_range_name
       )
 
-    _render: (ctx, indices, glyph_props) ->
+    _render: (ctx, indices) ->
       for i in indices
-
         if isNaN(@sx[i] + @sy[i] + @angle[i])
           continue
 
         ctx.translate(@sx[i], @sy[i])
         ctx.rotate(@angle[i])
 
-        glyph_props.text_properties.set_vectorize(ctx, i)
+        @props.text_properties.set_vectorize(ctx, i)
         ctx.fillText(@text[i], 0, 0)
 
         ctx.rotate(-@angle[i])

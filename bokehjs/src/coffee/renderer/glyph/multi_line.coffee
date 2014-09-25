@@ -9,20 +9,15 @@ define [
     _fields: ['xs', 'ys']
     _properties: ['line']
 
-    _map_data: () ->
-      null
-
-    _render: (ctx, indices, glyph_props) ->
-
+    _render: (ctx, indices) ->
       for i in indices
-
         x = @xs[i]
         y = @ys[i]
         [sx, sy] = @plot_view.map_to_screen(
           @xs[i], @glyph_props.xs.units, @ys[i], @glyph_props.ys.units, @x_range_name, @y_range_name
         )
 
-        glyph_props.line_properties.set_vectorize(ctx, i)
+        @props.line.set_vectorize(ctx, i)
         for j in [0...sx.length]
           if j == 0
             ctx.beginPath()

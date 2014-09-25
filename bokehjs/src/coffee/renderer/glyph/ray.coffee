@@ -21,11 +21,9 @@ define [
       for i in [0...@length.length]
         if @length[i] == 0 then @length[i] = inf_len
 
-    _render: (ctx, indices, glyph_props) ->
-      if glyph_props.line_properties.do_stroke
-
+    _render: (ctx, indices) ->
+      if @props.line.do_stroke
         for i in indices
-
           if isNaN(@sx[i] + @sy[i] + @angle[i] + @length[i])
             continue
 
@@ -36,7 +34,7 @@ define [
           ctx.moveTo(0, 0)
           ctx.lineTo(@length[i], 0)
 
-          glyph_props.line_properties.set_vectorize(ctx, i)
+          @props.line.set_vectorize(ctx, i)
           ctx.stroke()
 
           ctx.rotate(-@angle[i])

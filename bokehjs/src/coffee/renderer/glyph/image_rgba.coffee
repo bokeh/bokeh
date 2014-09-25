@@ -4,8 +4,6 @@ define [
   "./glyph",
 ], (_, Properties, Glyph) ->
 
-  glyph_properties = Properties.glyph_properties
-
   class ImageRGBAView extends Glyph.View
 
     _properties: []
@@ -63,7 +61,7 @@ define [
       @sw = @distance_vector('x', 'dw', 'edge', @mget('dilate'))
       @sh = @distance_vector('y', 'dh', 'edge', @mget('dilate'))
 
-    _render: (ctx, indices, glyph_props) ->
+    _render: (ctx, indices) ->
       old_smoothing = ctx.getImageSmoothingEnabled()
       ctx.setImageSmoothingEnabled(false)
 

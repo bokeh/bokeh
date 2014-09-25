@@ -16,9 +16,8 @@ define [
       @sw = @distance_vector('x', 'width', 'center')
       @sh = @distance_vector('y', 'height', 'center')
 
-    _render: (ctx, indices, glyph_props, sx=@sx, sy=@sy, sw=@sw, sh=@sh) ->
+    _render: (ctx, indices, sx=@sx, sy=@sy, sw=@sw, sh=@sh) ->
       for i in indices
-
         if isNaN(sx[i] + sy[i] + sw[i] + sh[i] + @angle[i])
           continue
 
@@ -31,12 +30,12 @@ define [
         ctx.bezierCurveTo(-sw[i]/2,  sh[i]/2, -sw[i]/2, -sh[i]/2, 0, -sh[i]/2);
         ctx.closePath()
 
-        if glyph_props.fill_properties.do_fill
-          glyph_props.fill_properties.set_vectorize(ctx, i)
+        if @props.fill.do_fill
+          @props.fill.set_vectorize(ctx, i)
           ctx.fill()
 
-        if glyph_props.line_properties.do_stroke
-          glyph_props.line_properties.set_vectorize(ctx, i)
+        if @props.line.do_stroke
+          @props.line.set_vectorize(ctx, i)
           ctx.stroke()
 
         ctx.rotate(-@angle[i])
@@ -62,7 +61,7 @@ define [
         sw[reference_point] = d*scale
         sh[reference_point] = d
 
-      @_render(ctx, indices, @glyph_props, sx, sy, sw, sh)
+      @_render(ctx, indices, sx, sy, sw, sh)
 
   class Oval extends Glyph.Model
     default_view: OvalView

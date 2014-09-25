@@ -8,9 +8,8 @@ define [
 
     _properties: ['line', 'fill']
 
-    _render: (ctx, indices, glyph_props, sx=@sx, sy=@sy, size=@size) ->
+    _render: (ctx, indices, sx=@sx, sy=@sy, size=@size) ->
       for i in indices
-
         if isNaN(sx[i] + sy[i] + size[i])
           continue
 
@@ -24,12 +23,12 @@ define [
         ctx.lineTo(sx[i],   sy[i]+a-h)
         ctx.closePath()
 
-        if glyph_props.fill_properties.do_fill
-          glyph_props.fill_properties.set_vectorize(ctx, i)
+        if @props.fill.do_fill
+          @props.fill.set_vectorize(ctx, i)
           ctx.fill()
 
-        if glyph_props.line_properties.do_stroke
-          glyph_props.line_properties.set_vectorize(ctx, i)
+        if @props.line.do_stroke
+          @props.line.set_vectorize(ctx, i)
           ctx.stroke()
 
   class Triangle extends Marker.Model

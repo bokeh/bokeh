@@ -26,9 +26,8 @@ define [
       @inner_radius = @distance_vector('x', 'inner_radius', 'edge')
       @outer_radius = @distance_vector('x', 'outer_radius', 'edge')
 
-    _render: (ctx, indices, glyph_props, sx=@sx, sy=@sy, inner_radius=@inner_radius, outer_radius=@outer_radius) ->
+    _render: (ctx, indices, sx=@sx, sy=@sy, inner_radius=@inner_radius, outer_radius=@outer_radius) ->
       for i in indices
-
         if isNaN(sx[i] + sy[i] + inner_radius[i] + outer_radius[i])
           continue
 
@@ -37,12 +36,12 @@ define [
         ctx.moveTo(sx[i]+outer_radius[i], sy[i])
         ctx.arc(sx[i], sy[i], outer_radius[i], 0, 2*Math.PI*2, true)
 
-        if glyph_props.fill_properties.do_fill
-          glyph_props.fill_properties.set_vectorize(ctx, i)
+        if @props.fill.do_fill
+          @props.fill.set_vectorize(ctx, i)
           ctx.fill()
 
-        if glyph_props.line_properties.do_stroke
-          glyph_props.line_properties.set_vectorize(ctx, i)
+        if @props.line.do_stroke
+          @props.line.set_vectorize(ctx, i)
           ctx.stroke()
 
     _hit_point: (geometry) ->
@@ -127,7 +126,7 @@ define [
       outer_radius = { }
       outer_radius[reference_point] = r*0.8
 
-      @_render(ctx, indices, @glyph_props, sx, sy, inner_radius, outer_radius)
+      @_render(ctx, indices, sx, sy, inner_radius, outer_radius)
 
   class Annulus extends Glyph.Model
     default_view: AnnulusView

@@ -39,16 +39,14 @@ define [
           pts.push([@x[i], @y[i], @x[i], @y[i], {'i': i}])
       @index.load(pts)
 
-    _render: (ctx, indices, glyph_props, sx=@sx, sy=@sy, sw=@sw, sh=@sh) ->
-      if glyph_props.fill_properties.do_fill
-
+    _render: (ctx, indices, sx=@sx, sy=@sy, sw=@sw, sh=@sh) ->
+      if @props.fill.do_fill
         for i in indices
-
           if isNaN(sx[i] + sy[i] + sw[i] + sh[i] + @angle[i])
             continue
 
           #no need to test the return value, we call fillRect for every glyph anyway
-          glyph_props.fill_properties.set_vectorize(ctx, i)
+          @props.fill.set_vectorize(ctx, i)
 
           if @angle[i]
             ctx.translate(sx[i], sy[i])
@@ -59,8 +57,7 @@ define [
           else
             ctx.fillRect(sx[i]-sw[i]/2, sy[i]-sh[i]/2, sw[i], sh[i])
 
-      if glyph_props.line_properties.do_stroke
-
+      if @props.line.do_stroke
         ctx.beginPath()
 
         for i in indices
@@ -83,7 +80,7 @@ define [
           else
             ctx.rect(sx[i]-sw[i]/2, sy[i]-sh[i]/2, sw[i], sh[i])
 
-          glyph_props.line_properties.set_vectorize(ctx, i)
+          @props.line.set_vectorize(ctx, i)
           ctx.stroke()
           ctx.beginPath()
 

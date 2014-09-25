@@ -4,8 +4,6 @@ define [
   "./glyph",
 ], (_, Properties, Glyph) ->
 
-  glyph_properties = Properties.glyph_properties
-
   class ImageURLView extends Glyph.View
 
     _fields: ['url:string', 'x', 'y', 'w', 'h', 'angle']
@@ -23,9 +21,8 @@ define [
       @sw = @distance_vector('x', 'w', 'edge', @mget('dilate'))
       @sh = @distance_vector('y', 'h', 'edge', @mget('dilate'))
 
-    _render: (ctx, indices, glyph_props) ->
+    _render: (ctx, indices) ->
       for i in indices
-
         if isNaN(@sx[i] + @sy[i] + @angle[i])
           continue
 
@@ -47,9 +44,9 @@ define [
               ctx.clip()
               @_render_image(ctx, i, img)
               ctx.restore()
+
           img.src = @url[i]
           @need_load[i] = false
-
         else if @loaded[i]
           @_render_image(ctx, i, @image[i])
 

@@ -17,7 +17,7 @@ define [
       )
       @smodule = @distance_vector('x', 'module', 'edge')
 
-    _render: (ctx, indices, glyph_props) ->
+    _render: (ctx, indices) ->
       for i in indices
         [sx, sy, angle, module, teeth, pressure_angle, shaft_size, internal] =
           [@sx[i], @sy[i], @angle[i], @smodule[i], @teeth[i], @pressure_angle[i], @shaft_size[i], @internal[i]]
@@ -61,12 +61,12 @@ define [
           ctx.moveTo(shaft_radius, 0)
           ctx.arc(0, 0, shaft_radius, 0, 2*Math.PI, true)
 
-        if glyph_props.fill_properties.do_fill
-          glyph_props.fill_properties.set_vectorize(ctx, i)
+        if @props.fill.do_fill
+          @props.fill.set_vectorize(ctx, i)
           ctx.fill()
 
-        if glyph_props.line_properties.do_stroke
-          glyph_props.line_properties.set_vectorize(ctx, i)
+        if @props.line.do_stroke
+          @props.line.set_vectorize(ctx, i)
           ctx.stroke()
 
         ctx.restore()
