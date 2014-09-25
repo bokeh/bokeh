@@ -3,13 +3,13 @@ define [
   "common/logging",
   "common/has_parent",
   "common/collection"
-  "common/plot_widget",
+  "common/continuum_view",
   "renderer/properties"
-], (_, Logging, HasParent, Collection, PlotWidget, Properties) ->
+], (_, Logging, HasParent, Collection, ContinuumView, Properties) ->
 
   logger = Logging.logger
 
-  class GlyphView extends PlotWidget
+  class GlyphView extends ContinuumView
 
     initialize: (options) ->
       super(options)
@@ -19,122 +19,15 @@ define [
       props = {}
 
       if 'line' in @_properties
-        props.line_properties = new Properties.line_properties(@, glyphspec)
+        props.line = new Properties.line_properties(@, glyphspec)
       if 'fill' in @_properties
-        props.fill_properties = new Properties.fill_properties(@, glyphspec)
+        props.fill = new Properties.fill_properties(@, glyphspec)
       if 'text' in @_properties
-        props.text_properties = new Properties.text_properties(@, glyphspec)
+        props.text = new Properties.text_properties(@, glyphspec)
 
       new Properties.glyph_properties(@, glyphspec, @_fields, props)
 
-    set_data: (request_render=true) ->
-      source = @mget('data_source')
-
-      for field in @_fields
-        if field.indexOf(":") > -1
-          [field, junk] = field.split(":")
-        @[field] = @glyph_props.source_v_select(field, source)
-
-        # special cases
-        if field == "direction"
-          values = new Uint8Array(@direction.length)
-          for i in [0...@direction.length]
-            dir = @direction[i]
-            if      dir == 'clock'     then values[i] = false
-            else if dir == 'anticlock' then values[i] = true
-            else values = NaN
-          @direction = values
-
-        if field.indexOf("angle") > -1
-          @[field] = (-x for x in @[field])
-
-      # any additional customization can happen here
-      if @_set_data?
-        t0 = Date.now()
-        @_set_data()
-        dt = Date.now() - t0
-        type = @mget('glyphspec').type
-        id = @mget("id")
-        logger.debug("#{type} glyph (#{id}): custom _set_data finished in #{dt}ms")
-
-      # just use the length of the last added field
-      len = @[field].length
-
-      @all_indices = [0...len]
-
-      @have_new_data = true
-
-      if request_render
-        @request_render()
-
-    render: () ->
-      if @need_set_data
-        @set_data(false)
-        @need_set_data = false
-
-      @_map_data()
-
-      if @_mask_data? and (@plot_view.x_range.type != "FactorRange") and (@plot_view.y_range.type != "FactorRange")
-        indices = @_mask_data()
-      else
-        indices = @all_indices
-
-      ctx = @plot_view.canvas_view.ctx
-      ctx.save()
-
-      do_render = (ctx, indices, glyph_props) =>
-        source = @mget('data_source')
-
-        if @have_new_data
-          if glyph_props.fill_properties? and glyph_props.fill_properties.do_fill
-            glyph_props.fill_properties.set_prop_cache(source)
-          if glyph_props.line_properties? and glyph_props.line_properties.do_stroke
-            glyph_props.line_properties.set_prop_cache(source)
-          if glyph_props.text_properties?
-            glyph_props.text_properties.set_prop_cache(source)
-
-        @_render(ctx, indices, glyph_props)
-
-      selected = @mget('data_source').get('selected')
-
-      t0 = Date.now()
-
-      if selected and selected.length and @have_selection_props()
-
-        # reset the selection mask
-        selected_mask = (false for i in @all_indices)
-        for idx in selected
-          selected_mask[idx] = true
-
-        # intersect/different selection with render mask
-        selected = new Array()
-        nonselected = new Array()
-        for i in indices
-          if selected_mask[i]
-            selected.push(i)
-          else
-            nonselected.push(i)
-
-        do_render(ctx, selected, @selection_glyphprops)
-        do_render(ctx, nonselected, @nonselection_glyphprops)
-
-      else
-        do_render(ctx, indices, @glyph_props)
-
-      dt = Date.now() - t0
-      type = @mget('glyphspec').type
-      id = @mget("id")
-      logger.trace("#{type} glyph (#{id}): do_render calls finished in #{dt}ms")
-
-      @have_new_data = false
-
-      ctx.restore()
-
-    xrange: () ->
-      return @plot_view.x_range
-
-    yrange: () ->
-      return @plot_view.y_range
+    _map_data: () -> null
 
     distance_vector: (pt, span_prop_name, position, dilate=false) ->
       """ returns an array """
@@ -160,7 +53,6 @@ define [
           ptc = mapper.v_map_to_target(ptc)
         pt0 = (ptc[i] - halfspan[i] for i in [0...ptc.length])
         pt1 = (ptc[i] + halfspan[i] for i in [0...ptc.length])
-
       else
         pt0 = local_select(pt)
         if pt_units == 'screen'
@@ -187,19 +79,17 @@ define [
 
     _generic_line_legend: (ctx, x0, x1, y0, y1) ->
       reference_point = @get_reference_point() ? 0
-      line_props = @glyph_props.line_properties
       ctx.save()
       ctx.beginPath()
       ctx.moveTo(x0, (y0 + y1) /2)
       ctx.lineTo(x1, (y0 + y1) /2)
-      if line_props.do_stroke
-        line_props.set_vectorize(ctx, reference_point)
+      if @props.line.do_stroke
+        @props.line.set_vectorize(ctx, reference_point)
         ctx.stroke()
       ctx.restore()
 
     _generic_area_legend: (ctx, x0, x1, y0, y1) ->
       reference_point = @get_reference_point() ? 0
-
       indices = [reference_point]
 
       w = Math.abs(x1-x0)
@@ -213,14 +103,14 @@ define [
       sy0 = y0 + dh
       sy1 = y1 - dh
 
-      if @glyph_props.fill_properties.do_fill
-        @glyph_props.fill_properties.set_vectorize(ctx, reference_point)
+      if @props.fill.do_fill
+        @props.fill.set_vectorize(ctx, reference_point)
         ctx.fillRect(sx0, sy0, sx1-sx0, sy1-sy0)
 
-      if @glyph_props.line_properties.do_stroke
+      if @props.line.do_stroke
         ctx.beginPath()
         ctx.rect(sx0, sy0, sx1-sx0, sy1-sy0)
-        @glyph_props.line_properties.set_vectorize(ctx, reference_point)
+        @props.line.set_vectorize(ctx, reference_point)
         ctx.stroke()
 
     hit_test: (geometry) ->
@@ -230,15 +120,13 @@ define [
         if @_hit_point?
           result = @_hit_point(geometry)
         else if not @_point_hit_warned?
-          type = @mget('glyphspec').type
-          logger.warn("'point' selection not available on #{type} renderer")
+          logger.warn("'point' selection not available on #{@model.type} renderer")
           @_point_hit_warned = true
       else if geometry.type == "rect"
         if @_hit_rect?
           result = @_hit_rect(geometry)
         else if not @_rect_hit_warned?
-          type = @mget('glyphspec').type
-          logger.warn("'rect' selection not available on #{type} renderer")
+          logger.warn("'rect' selection not available on #{@model.type} renderer")
           @_rect_hit_warned = true
       else
         logger.error("unrecognized selection geometry type '#{ geometry.type }'")

@@ -34,7 +34,7 @@ define [
       @listenTo(@model, 'change', @request_render)
       @listenTo(@mget('data_source'), 'change', @set_data)
 
-    have_selection_props: ->
+    have_selection_glyphs: ->
       @mget("selection_glyph")? or @mget("nonselection_glyph")?
 
     #TODO: There are glyph sub-type-vs-resample_op concordance issues...
@@ -86,6 +86,111 @@ define [
            transform_params)
       else
         logger.warn("unknown resample op: '#{resample_op}'")
+
+    set_data: (request_render=true) ->
+      source = @mget('data_source')
+
+      for field in @_fields
+        if field.indexOf(":") > -1
+          [field, junk] = field.split(":")
+        @[field] = @glyph_props.source_v_select(field, source)
+
+        # special cases
+        if field == "direction"
+          values = new Uint8Array(@direction.length)
+          for i in [0...@direction.length]
+            dir = @direction[i]
+            if      dir == 'clock'     then values[i] = false
+            else if dir == 'anticlock' then values[i] = true
+            else values = NaN
+          @direction = values
+
+        if field.indexOf("angle") > -1
+          @[field] = (-x for x in @[field])
+
+      # any additional customization can happen here
+      if @_set_data?
+        t0 = Date.now()
+        @_set_data()
+        dt = Date.now() - t0
+        glyph = @mget('glyph')
+        logger.debug("#{glyph.type} glyph (#{glyph.id}): custom _set_data finished in #{dt}ms")
+
+      # just use the length of the last added field
+      len = @[field].length
+
+      @all_indices = [0...len]
+
+      @have_new_data = true
+
+      if request_render
+        @request_render()
+
+    render: () ->
+      if @need_set_data
+        @set_data(false)
+        @need_set_data = false
+
+      @_map_data()
+
+      if @_mask_data? and (@plot_view.x_range.type != "FactorRange") and (@plot_view.y_range.type != "FactorRange")
+        indices = @_mask_data()
+      else
+        indices = @all_indices
+
+      ctx = @plot_view.canvas_view.ctx
+      ctx.save()
+
+      do_render = (ctx, indices, glyph_props) =>
+        source = @mget('data_source')
+
+        if @have_new_data
+          if glyph_props.fill_properties? and glyph_props.fill_properties.do_fill
+            glyph_props.fill_properties.set_prop_cache(source)
+          if glyph_props.line_properties? and glyph_props.line_properties.do_stroke
+            glyph_props.line_properties.set_prop_cache(source)
+          if glyph_props.text_properties?
+            glyph_props.text_properties.set_prop_cache(source)
+
+        @_render(ctx, indices, glyph_props)
+
+      selected = @mget('data_source').get('selected')
+
+      t0 = Date.now()
+
+      if not (selected and selected.length and @have_selection_glyphs())
+        do_render(ctx, indices, @mget("glyph"))
+      else
+        # reset the selection mask
+        selected_mask = (false for i in @all_indices)
+        for idx in selected
+          selected_mask[idx] = true
+
+        # intersect/different selection with render mask
+        selected = new Array()
+        nonselected = new Array()
+        for i in indices
+          if selected_mask[i]
+            selected.push(i)
+          else
+            nonselected.push(i)
+
+        do_render(ctx, selected,    @mget("selection_glyph")    or @mget("glyph"))
+        do_render(ctx, nonselected, @mget("nonselection_glyph") or @mget("glyph"))
+
+      dt = Date.now() - t0
+      glyph = @mget('glyph')
+      logger.trace("#{glyph.type} glyph (#{glyph.id}): do_render calls finished in #{dt}ms")
+
+      @have_new_data = false
+
+      ctx.restore()
+
+    xrange: () ->
+      return @plot_view.x_range
+
+    yrange: () ->
+      return @plot_view.y_range
 
   class GlyphRenderer extends HasParent
 
