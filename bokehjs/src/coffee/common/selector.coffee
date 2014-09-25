@@ -17,3 +17,14 @@ define [
       if append
         indices = _.union(@get('indices'), indices)
       @set('indices', indices)
+
+    clear: () ->
+      @set('timestamp', new Date())
+      @set('geometry', null)
+      @set('final', true)
+      @set('indices', [])
+
+    defaults: ->
+      return _.extend {}, super(), {
+        indices: []
+      }
