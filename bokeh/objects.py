@@ -34,7 +34,7 @@ class DataSource(PlotObject):
     # List of names of the fields of each tuple in self.data
     # ordering is incoporated here
     column_names = List(String)
-    #selected = List(Int) # index of selected points
+    selected = List(Int) # index of selected points
 
     def columns(self, *columns):
         """ Returns a ColumnsRef object that points to a column or set of
