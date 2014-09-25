@@ -26,6 +26,7 @@ define [
   "range/range1d",
 
   "renderer/annotation/legend",
+  "renderer/annotation/tooltip",
   "renderer/glyph/glyph_factory",
   "renderer/guide/categorical_axis",
   "renderer/guide/datetime_axis",
@@ -145,13 +146,14 @@ define [
     FactorRange:              'range/factor_range'
     Range1d:                  'range/range1d'
 
+    Legend:                   'renderer/annotation/legend'
+    Tooltip:                  'renderer/annotation/tooltip'
     Glyph:                    'renderer/glyph/glyph_factory'
     LinearAxis:               'renderer/guide/linear_axis'
     LogAxis:                  'renderer/guide/log_axis'
     CategoricalAxis:          'renderer/guide/categorical_axis'
     DatetimeAxis:             'renderer/guide/datetime_axis'
     Grid:                     'renderer/guide/grid'
-    Legend:                   'renderer/annotation/legend'
     BoxSelection:             'renderer/overlay/box_selection'
 
     ColumnDataSource:         'source/column_data_source'
