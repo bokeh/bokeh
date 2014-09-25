@@ -15,6 +15,10 @@ define [
       super(attrs, options)
       @selectors = {}
 
+    set_selection: (indices) ->
+      @_save(null, indices)
+      source.trigger('select')
+
     select: (tool, renderer_view, geometry, final, append=false) ->
       source = @get('source')
       if source != renderer_view.mget('data_source')
@@ -25,7 +29,7 @@ define [
       selector = @_get_selector(tool)
       selector.update(indices, geometry, final, append)
 
-      @_save(selector)
+      @_save(selector, selector.get('indices'))
       source.trigger('select')
       source.trigger('select-' + renderer_view.mget('id'))
 
@@ -45,16 +49,18 @@ define [
         )
 
     clear: (tool) ->
-      selector = @_get_selector(tool)
-      selector.clear()
-      @_save(selector)
+      if tool?
+        selector = @_get_selector(tool)
+        selector.clear()
+      @_save(null, [])
+
 
     _get_selector: (tool) ->
       _.setdefault(@selectors, tool.model.id, new Selector())
       return @selectors[tool.model.id]
 
-    _save: (selector) ->
+    _save: (selector, indices) ->
       @get('source').save({
         "selector": selector
-        "selection": selector.get('indices')
+        "selection": indices
       }, {patch: true})
