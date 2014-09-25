@@ -8,18 +8,9 @@ define [
   class ClickToolView extends Tool.View
     initialize: (options) ->
       super(options)
-      @listenTo(@, 'clicked', ((selected, ds) -> console.log selected, ds))
       @active = false
 
-    view_coords: (sx, sy) ->
-      [vx, vy] = [
-        @plot_view.canvas.sx_to_vx(sx)
-        @plot_view.canvas.sy_to_vy(sy)
-      ]
-      return [vx, vy]
-
     bind_bokeh_events: () ->
-
       tool_name = "click_tool"
 
       if not @mget('always_active')
@@ -46,29 +37,49 @@ define [
       @plot_view.canvas_view.canvas_wrapper.bind("mousedown", (e) =>
         if not @active and not @mget('always_active')
           return
-        @start_posx = e.pageX
-        @start_posy = e.pageY
-      )
 
-      @plot_view.canvas_view.canvas_wrapper.bind("mouseup", (e) =>
-        if not @active and not @mget('always_active')
-          return
-        if @start_posx != e.pageX or @start_posy != e.pageY
-          return
         offset = $(e.currentTarget).offset()
         left = if offset? then offset.left else 0
         top = if offset? then offset.top else 0
         e.bokehX = e.pageX - left
         e.bokehY = e.pageY - top
 
-        [vx, vy] = @view_coords(e.bokehX, e.bokehY)
+        if @mget('style') == "button"
+          [vx, vy] = @view_coords(e.bokehX, e.bokehY)
+          @_select(vx, vy, e)
 
-        @_select(vx, vy, e)
+        else
+          @start_posx = e.pageX
+          @start_posy = e.pageY
+
       )
 
+      @plot_view.canvas_view.canvas_wrapper.bind("mouseup", (e) =>
+        if not @active and not @mget('always_active')
+          return
+
+        offset = $(e.currentTarget).offset()
+        left = if offset? then offset.left else 0
+        top = if offset? then offset.top else 0
+        e.bokehX = e.pageX - left
+        e.bokehY = e.pageY - top
+
+        if @mget('style') == "button"
+          @_clear()
+
+        else
+          if @start_posx != e.pageX or @start_posy != e.pageY
+            return
+          [vx, vy] = @view_coords(e.bokehX, e.bokehY)
+          @_select(vx, vy, e)
+
+      )
+
+    _clear: () ->
       for r in @mget('renderers')
         ds = r.get('data_source')
-        @listenTo(ds, 'select', @_update)
+        sm = ds.get('selection_manager')
+        sm.clear(@)
 
     _select: (vx, vy, e) ->
       geometry = {
@@ -76,17 +87,11 @@ define [
         vx: vx
         vy: vy
       }
-
+      append = @mget('style') == "click" and e.shiftKey
       for r in @mget('renderers')
         ds = r.get('data_source')
         sm = ds.get('selection_manager')
-        sm.select(@, @plot_view.renderers[r.id], geometry, true)
-
-    _update: (indices, tool, renderer, ds) ->
-      if tool != @
-        return null
-      @trigger('clicked', indices, ds)
-      return null
+        sm.select(@, @plot_view.renderers[r.id], geometry, true, append)
 
   class ClickTool extends Tool.Model
     default_view: ClickToolView
@@ -95,8 +100,10 @@ define [
     initialize: (attrs, options) ->
       super(attrs, options)
       names = @get('names')
-      all_renderers = @get('plot').get('renderers')
-      renderers = (r for r in all_renderers when r.type == "Glyph")
+      renderers = @get('renderers')
+      if renderers.length == 0
+        all_renderers = @get('plot').get('renderers')
+        renderers = (r for r in all_renderers when r.type == "Glyph")
       if names.length > 0
         renderers = (r for r in renderers when names.indexOf(r.get('name')) >= 0)
       @set('renderers', renderers)
@@ -105,7 +112,8 @@ define [
       return _.extend {}, super(), {
         renderers: []
         names: []
-        always_active: []
+        always_active: true
+        style: "click"
       }
 
   class ClickTools extends Collection

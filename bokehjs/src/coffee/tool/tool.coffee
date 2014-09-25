@@ -25,7 +25,13 @@ define [
           @[handler_f](e)
         eventSink.on(full_event_name, wrap))
       @evgen = evgen
-      render: () ->
+
+    view_coords: (sx, sy) ->
+      [vx, vy] = [
+        @plot_view.canvas.sx_to_vx(sx),
+        @plot_view.canvas.sy_to_vy(sy)
+      ]
+      return [vx, vy]
 
   class Tool extends HasParent
 

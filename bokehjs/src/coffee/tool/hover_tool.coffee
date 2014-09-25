@@ -90,21 +90,15 @@ define [
           @div.hide()
           return
 
-        @_select(vx, vy, e)
+        @_inspect(vx, vy, e)
       )
 
       for r in @mget('renderers')
         @listenTo(r.get('data_source'), 'inspect', @_update)
+
       @plot_view.canvas_view.canvas_wrapper.css('cursor', 'crosshair')
 
-    view_coords: (sx, sy) ->
-      [vx, vy] = [
-        @plot_view.canvas.sx_to_vx(sx),
-        @plot_view.canvas.sy_to_vy(sy)
-      ]
-      return [vx, vy]
-
-    _select: (vx, vy, e) ->
+    _inspect: (vx, vy, e) ->
       geometry = {
         type: 'point'
         vx: vx
@@ -115,8 +109,6 @@ define [
         sm.inspect(@, @plot_view.renderers[r.id], geometry, {"e": e, "geometry": geometry})
 
     _update: (indices, tool, renderer, ds, {e, geometry}) ->
-      if tool != @
-        return
 
       if indices.length == 0
         @div.hide()
@@ -217,7 +209,10 @@ define [
     initialize: (attrs, options) ->
       super(attrs, options)
       names = @get('names')
-      all_renderers = @get('plot').get('renderers')
+      renderers = @get('renderers')
+      if renderers.length == 0
+        all_renderers = @get('plot').get('renderers')
+        renderers = (r for r in all_renderers when r.type == "Glyph")
       renderers = (r for r in all_renderers when r.type == "Glyph")
       if names.length > 0
         renderers = (r for r in renderers when names.indexOf(r.get('name')) >= 0)
@@ -232,6 +227,7 @@ define [
           "data (x, y)": "($x, $y)"
           "canvas (x, y)": "($sx, $sy)"
         }
+        always_active: true
       }
 
   class HoverTools extends Collection
