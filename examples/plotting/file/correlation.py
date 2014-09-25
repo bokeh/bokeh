@@ -9,8 +9,8 @@ from bokeh.objects import GridPlot
 num_points = 300
 
 now = time.time()
-dt = 24*3600 # days
-dates = linspace(now, now + num_points*dt, num_points)
+dt = 24*3600 # days in seconds
+dates = linspace(now, now + num_points*dt, num_points) * 1000 # times in ms
 acme = cumprod(random.lognormal(0.0, 0.04, size=num_points))
 choam = cumprod(random.lognormal(0.0, 0.04, size=num_points))
 
