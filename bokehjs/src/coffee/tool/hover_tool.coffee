@@ -103,6 +103,10 @@ define [
 
       vx = geometry.vx
       vy = geometry.vy
+
+      if @mget('inner_only') and not @plot_view.frame.contains(vx, vy)
+        return
+
       sx = @plot_view.mget('canvas').vx_to_sx(vx)
       sy = @plot_view.mget('canvas').vy_to_sy(vy)
 
@@ -112,6 +116,13 @@ define [
       y = ymapper.map_from_target(vy)
 
       for i in  indices
+
+        if @mget('snap_to_marker')
+          rx = @plot_view.mget('canvas').sx_to_vx(renderer.sx[i])
+          ry = @plot_view.mget('canvas').sy_to_vy(renderer.sy[i])
+        else
+          [rx, ry] = [vx, vy]
+
         table = $('<table></table>')
 
         for label, value of @mget("tooltips")
@@ -168,7 +179,7 @@ define [
           row.append(td)
           table.append(row)
 
-        @mget('tooltip').add(vx, vy, table)
+        @mget('tooltip').add(rx, ry, table)
 
       return null
 
@@ -201,7 +212,9 @@ define [
           "data (x, y)": "($x, $y)"
           "canvas (x, y)": "($sx, $sy)"
         }
+        snap_to_marker: true
         always_active: true
+        inner_only: true
       }
 
   class HoverTools extends Collection
