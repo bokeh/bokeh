@@ -87,7 +87,7 @@ define [
 
   class Marker extends Glyph.Model
 
-  class Markers extends Glyph.Model
+  class Markers extends Glyph.Collection
 
   return {
     Model: Marker
