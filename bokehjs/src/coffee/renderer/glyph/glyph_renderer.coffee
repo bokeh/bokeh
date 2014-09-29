@@ -104,7 +104,7 @@ define [
         @set_data(false)
         @need_set_data = false
 
-      @_map_data()
+      @glyph._map_data()
 
       if @_mask_data? and @plot_view.x_range instanceof FactorRange.Model \
                       and @plot_view.y_range instanceof FactorRange.Model
