@@ -13,10 +13,8 @@ define [
     initialize: (options) ->
       super(options)
 
-      @glyph = @mget("glyph")
-
-      @selection_glyph    = @mget("selection_glyph")    or @glyph
-      @nonselection_glyph = @mget("nonselection_glyph") or @glyph
+      @selection_glyph    = @mget("selection_glyph")    or @mget("glyph")
+      @nonselection_glyph = @mget("nonselection_glyph") or @mget("glyph")
 
       @need_set_data = true
 
