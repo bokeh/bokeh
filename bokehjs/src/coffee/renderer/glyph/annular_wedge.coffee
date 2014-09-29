@@ -57,17 +57,17 @@ define [
 
     _hit_point: (geometry) ->
       [vx, vy] = [geometry.vx, geometry.vy]
-      x = @xmapper.map_from_target(vx)
-      y = @ymapper.map_from_target(vy)
+      x = @renderer.xmapper.map_from_target(vx)
+      y = @renderer.ymapper.map_from_target(vy)
 
       if @outer_radius_units == "screen"
         vx0 = vx - @max_radius
         vx1 = vx + @max_radius
-        [x0, x1] = @xmapper.v_map_from_target([vx0, vx1])
+        [x0, x1] = @renderer.xmapper.v_map_from_target([vx0, vx1])
 
         vy0 = vy - @max_radius
         vy1 = vy + @max_radius
-        [y0, y1] = @ymapper.v_map_from_target([vy0, vy1])
+        [y0, y1] = @renderer.ymapper.v_map_from_target([vy0, vy1])
 
       else
         x0 = x - @max_radius
@@ -90,10 +90,10 @@ define [
       else
         for i in candidates
           r2 = Math.pow(@outer_radius[i], 2)
-          sx0 = @xmapper.map_to_target(x)
-          sx1 = @xmapper.map_to_target(@x[i])
-          sy0 = @ymapper.map_to_target(y)
-          sy1 = @ymapper.map_to_target(@y[i])
+          sx0 = @renderer.xmapper.map_to_target(x)
+          sx1 = @renderer.xmapper.map_to_target(@x[i])
+          sy0 = @renderer.ymapper.map_to_target(y)
+          sy1 = @renderer.ymapper.map_to_target(@y[i])
           dist = Math.pow(sx0-sx1, 2) + Math.pow(sy0-sy1, 2)
           if dist <= r2
             candidates2.push([i, dist])
@@ -109,10 +109,10 @@ define [
       else
         for [i, dist] in candidates2
           r2 = Math.pow(@inner_radius[i], 2)
-          sx0 = @xmapper.map_to_target(x)
-          sx1 = @xmapper.map_to_target(@x[i])
-          sy0 = @ymapper.map_to_target(y)
-          sy1 = @ymapper.map_to_target(@y[i])
+          sx0 = @renderer.xmapper.map_to_target(x)
+          sx1 = @renderer.xmapper.map_to_target(@x[i])
+          sy0 = @renderer.ymapper.map_to_target(y)
+          sy1 = @renderer.ymapper.map_to_target(@y[i])
           if dist >= r2
             candidates3.push([i, dist])
 

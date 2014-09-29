@@ -75,8 +75,8 @@ define [
       pt_units = @props[pt].units
       span_units = @props[span_prop_name].units
 
-      if      pt == 'x' then mapper = @xmapper
-      else if pt == 'y' then mapper = @ymapper
+      if      pt == 'x' then mapper = @renderer.xmapper
+      else if pt == 'y' then mapper = @renderer.ymapper
 
       source = @mget('data_source')
       local_select = (prop_name) =>
