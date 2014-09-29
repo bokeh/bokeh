@@ -1,7 +1,7 @@
 from .properties import Align, Bool, DataSpec, Enum, HasProps, Size, Any, Color
 from .mixins import FillProps, LineProps, TextProps
 from .enums import Units, AngleUnits, Direction
-from .plot_object import Viewable
+from .plot_object import PlotObject
 
 from six import add_metaclass, iteritems
 
@@ -11,8 +11,7 @@ from six import add_metaclass, iteritems
 #   of a random distribution to draw random samples from. Defaults to uniform
 #   but gaussian could certainly be useful.
 
-@add_metaclass(Viewable)
-class BaseGlyph(HasProps):
+class BaseGlyph(PlotObject):
     """ Base class for all glyphs/marks/geoms/whatever-you-call-'em in Bokeh.
     """
 
