@@ -37,8 +37,14 @@ define [
         @map = geo.map(map_options)
         @map.createLayer('osm')
 
-      # TODO (bev) uncomment when script load and build_map are ready
-      #_.defer(build_map)
+      if window.ogs.geo
+        _.defer(build_map)
+      else
+        script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = 'http://opengeoscience.github.io/geojs/lib/geo.all.js';
+        script.onload = build_map
+        document.body.appendChild(script);
 
     _map_hook: (ctx, frame_box) ->
       [left, top, width, height] = frame_box
