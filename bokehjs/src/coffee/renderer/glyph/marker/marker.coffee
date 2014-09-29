@@ -2,7 +2,7 @@ define [
   "underscore",
   "rbush",
   "renderer/properties",
-  "./glyph",
+  "../glyph",
 ], (_, rbush, Properties, Glyph) ->
 
   class MarkerView extends Glyph.View
