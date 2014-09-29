@@ -4,7 +4,8 @@ define [
   "common/has_parent"
   "common/collection"
   "common/plot_widget"
-], (_, Logging, HasParent, Collection, PlotWidget) ->
+  "range/factor_range"
+], (_, Logging, HasParent, Collection, PlotWidget, FactorRange) ->
 
   logger = Logging.logger
 
@@ -106,7 +107,8 @@ define [
 
       @_map_data()
 
-      if @_mask_data? and (@plot_view.x_range.type != "FactorRange") and (@plot_view.y_range.type != "FactorRange")
+      if @_mask_data? and @plot_view.x_range instanceof FactorRange.Model \
+                      and @plot_view.y_range instanceof FactorRange.Model
         indices = @_mask_data()
       else
         indices = @all_indices
