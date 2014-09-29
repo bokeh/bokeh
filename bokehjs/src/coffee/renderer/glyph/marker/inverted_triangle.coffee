@@ -5,7 +5,6 @@ define [
 
   class InvertedTriangleView extends Marker.View
 
-    _fields: ['x', 'y', 'size']
     _properties: ['line', 'fill']
 
     _render: (ctx, indices, sx=@sx, sy=@sy, size=@size) ->
