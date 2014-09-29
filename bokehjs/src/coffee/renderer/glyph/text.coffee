@@ -11,7 +11,7 @@ define [
 
     _map_data: () ->
       [@sx, @sy] = @plot_view.map_to_screen(
-        @x, @glyph_props.x.units, @y, @glyph_props.y.units, @x_range_name, @y_range_name
+        @x, @props.x.units, @y, @props.y.units, @x_range_name, @y_range_name
       )
 
     _render: (ctx, indices) ->
@@ -29,7 +29,7 @@ define [
         ctx.translate(-@sx[i], -@sy[i])
 
     draw_legend: (ctx, x1, x2, y1, y2) ->
-      glyph_props = @glyph_props
+      glyph_props = @props
       text_props = glyph_props.text_properties
       ctx.save()
       reference_point = @get_reference_point()

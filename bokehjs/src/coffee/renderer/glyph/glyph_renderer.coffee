@@ -58,9 +58,9 @@ define [
             x_range,  y_range,
             @plot_view.x_range, @plot_view.y_range,
             x_range,
-            @glyph_props.y.field,
-            @glyph_props.x.field,
-            [@glyph_props.y.field],
+            @props.y.field,
+            @props.x.field,
+            [@props.y.field],
             transform_params
           )
         else
@@ -91,7 +91,7 @@ define [
       for field in @_fields
         if field.indexOf(":") > -1
           [field, junk] = field.split(":")
-        @[field] = @glyph_props.source_v_select(field, source)
+        @[field] = @props.source_v_select(field, source)
 
         # special cases
         if field == "direction"

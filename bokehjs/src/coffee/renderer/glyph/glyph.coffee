@@ -31,15 +31,15 @@ define [
 
     distance_vector: (pt, span_prop_name, position, dilate=false) ->
       """ returns an array """
-      pt_units = @glyph_props[pt].units
-      span_units = @glyph_props[span_prop_name].units
+      pt_units = @props[pt].units
+      span_units = @props[span_prop_name].units
 
       if      pt == 'x' then mapper = @xmapper
       else if pt == 'y' then mapper = @ymapper
 
       source = @mget('data_source')
       local_select = (prop_name) =>
-        return @glyph_props.source_v_select(prop_name, source)
+        return @props.source_v_select(prop_name, source)
       span = local_select(span_prop_name)
       if span_units == 'screen'
         return span

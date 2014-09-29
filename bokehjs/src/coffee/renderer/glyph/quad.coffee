@@ -12,10 +12,10 @@ define [
 
     _map_data: () ->
       [@sx0, @sy0] = @plot_view.map_to_screen(
-        @left,  @glyph_props.left.units,  @top, @glyph_props.top.units, @x_range_name, @y_range_name
+        @left,  @props.left.units,  @top, @props.top.units, @x_range_name, @y_range_name
       )
       [@sx1, @sy1] = @plot_view.map_to_screen(
-        @right, @glyph_props.right.units, @bottom, @glyph_props.bottom.units, @x_range_name, @y_range_name
+        @right, @props.right.units, @bottom, @props.bottom.units, @x_range_name, @y_range_name
       )
 
     _render: (ctx, indices, sx0=@sx0, sx1=@sx1, sy0=@sy0, sy1=@sy1) ->

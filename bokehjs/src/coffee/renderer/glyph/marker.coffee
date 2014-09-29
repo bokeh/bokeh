@@ -22,7 +22,7 @@ define [
       size = { }
       size[reference_point] = Math.min(Math.abs(x1-x0), Math.abs(y1-y0))*0.4
 
-      @_render(ctx, indices, @glyph_props, sx, sy, size)
+      @_render(ctx, indices, @props, sx, sy, size)
 
     _set_data: () ->
       @max_size = _.max(@size)
@@ -35,7 +35,7 @@ define [
 
     _map_data: () ->
       [@sx, @sy] = @plot_view.map_to_screen(
-        @x, @glyph_props.x.units, @y, @glyph_props.y.units, @x_range_name, @y_range_name
+        @x, @props.x.units, @y, @props.y.units, @x_range_name, @y_range_name
       )
 
     _mask_data: () ->

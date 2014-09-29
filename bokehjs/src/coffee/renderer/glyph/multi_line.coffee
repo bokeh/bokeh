@@ -14,7 +14,7 @@ define [
         x = @xs[i]
         y = @ys[i]
         [sx, sy] = @plot_view.map_to_screen(
-          @xs[i], @glyph_props.xs.units, @ys[i], @glyph_props.ys.units, @x_range_name, @y_range_name
+          @xs[i], @props.xs.units, @ys[i], @props.ys.units, @x_range_name, @y_range_name
         )
 
         @props.line.set_vectorize(ctx, i)
