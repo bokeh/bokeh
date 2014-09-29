@@ -13,7 +13,8 @@ define [
 
     initialize: (options) ->
       super(options)
-      @props = init_props()
+      @renderer = options.renderer
+      @props = @init_props()
 
     init_props: ->
       props = {}
@@ -27,7 +28,17 @@ define [
 
       new Properties.glyph_properties(@, glyphspec, @_fields, props)
 
+    render: (ctx, indicies) -> @_render(ctx, indicies)
+
     _map_data: () -> null
+
+    update_data: (source) ->
+      if @props.fill? and @props.fill.do_fill
+        @props.fill.set_prop_cache(source)
+      if @props.line? and @props.line.do_stroke
+        @props.line.set_prop_cache(source)
+      if @props.text?
+        @props.text.set_prop_cache(source)
 
     set_data: (source) ->
       for field in @_fields
@@ -94,6 +105,26 @@ define [
       else
         return (Math.abs(spt1[i] - spt0[i]) for i in [0...spt0.length])
 
+    hit_test: (geometry) ->
+      result = null
+
+      if geometry.type == "point"
+        if @_hit_point?
+          result = @_hit_point(geometry)
+        else if not @_point_hit_warned?
+          logger.warn("'point' selection not available on #{@model.type} renderer")
+          @_point_hit_warned = true
+      else if geometry.type == "rect"
+        if @_hit_rect?
+          result = @_hit_rect(geometry)
+        else if not @_rect_hit_warned?
+          logger.warn("'rect' selection not available on #{@model.type} renderer")
+          @_rect_hit_warned = true
+      else
+        logger.error("unrecognized selection geometry type '#{ geometry.type }'")
+
+      return result
+
     get_reference_point: () ->
       reference_point = @mget('reference_point')
       if _.isNumber(reference_point)
@@ -101,8 +132,7 @@ define [
       else
         return reference_point
 
-    draw_legend: (ctx, x0, x1, y0, y1) ->
-      null
+    draw_legend: (ctx, x0, x1, y0, y1) -> null
 
     _generic_line_legend: (ctx, x0, x1, y0, y1) ->
       reference_point = @get_reference_point() ? 0
@@ -139,26 +169,6 @@ define [
         ctx.rect(sx0, sy0, sx1-sx0, sy1-sy0)
         @props.line.set_vectorize(ctx, reference_point)
         ctx.stroke()
-
-    hit_test: (geometry) ->
-      result = null
-
-      if geometry.type == "point"
-        if @_hit_point?
-          result = @_hit_point(geometry)
-        else if not @_point_hit_warned?
-          logger.warn("'point' selection not available on #{@model.type} renderer")
-          @_point_hit_warned = true
-      else if geometry.type == "rect"
-        if @_hit_rect?
-          result = @_hit_rect(geometry)
-        else if not @_rect_hit_warned?
-          logger.warn("'rect' selection not available on #{@model.type} renderer")
-          @_rect_hit_warned = true
-      else
-        logger.error("unrecognized selection geometry type '#{ geometry.type }'")
-
-      return result
 
   class Glyph extends HasParent
 

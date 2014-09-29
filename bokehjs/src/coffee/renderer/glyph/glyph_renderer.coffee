@@ -13,8 +13,10 @@ define [
     initialize: (options) ->
       super(options)
 
-      @selection_glyph    = @mget("selection_glyph")    or @mget("glyph")
-      @nonselection_glyph = @mget("nonselection_glyph") or @mget("glyph")
+      @glyph              = @build_glyph(@mget("glyph"))
+
+      @selection_glyph    = @build_glyph(@mget("selection_glyph")    or @mget("glyph"))
+      @nonselection_glyph = @build_glyph(@mget("nonselection_glyph") or @mget("glyph"))
 
       @need_set_data = true
 
@@ -24,6 +26,9 @@ define [
       if @mget('server_data_source')
         @setup_server_data()
       @listenTo(this, 'change:server_data_source', @setup_server_data)
+
+    build_glyph: (model) ->
+      new model.default_view(renderer: this)
 
     bind_bokeh_events: () ->
       @listenTo(@model, 'change', @request_render)
@@ -109,25 +114,17 @@ define [
       ctx = @plot_view.canvas_view.ctx
       ctx.save()
 
-      do_render = (ctx, indices, glyph_props) =>
-        source = @mget('data_source')
-
+      do_render = (ctx, indices, glyph) =>
         if @have_new_data
-          if glyph_props.fill_properties? and glyph_props.fill_properties.do_fill
-            glyph_props.fill_properties.set_prop_cache(source)
-          if glyph_props.line_properties? and glyph_props.line_properties.do_stroke
-            glyph_props.line_properties.set_prop_cache(source)
-          if glyph_props.text_properties?
-            glyph_props.text_properties.set_prop_cache(source)
-
-        @_render(ctx, indices, glyph_props)
+          glyph.update_data(@mget('data_source'))
+        glyph.render(ctx, indices)
 
       selected = @mget('data_source').get('selected')
 
       t0 = Date.now()
 
       if not (selected and selected.length and @have_selection_glyphs())
-        do_render(ctx, indices, @mget("glyph"))
+        do_render(ctx, indices, @glyph)
       else
         # reset the selection mask
         selected_mask = (false for i in @all_indices)
@@ -143,15 +140,13 @@ define [
           else
             nonselected.push(i)
 
-        do_render(ctx, selected,    @mget("selection_glyph")    or @mget("glyph"))
-        do_render(ctx, nonselected, @mget("nonselection_glyph") or @mget("glyph"))
+        do_render(ctx, selected,    @selection_glyph)
+        do_render(ctx, nonselected, @nonselection_glyph)
 
       dt = Date.now() - t0
-      glyph = @mget('glyph')
-      logger.trace("#{glyph.type} glyph (#{glyph.id}): do_render calls finished in #{dt}ms")
+      logger.trace("#{@glyph.model.type} glyph (#{@glyph.model.id}): do_render calls finished in #{dt}ms")
 
       @have_new_data = false
-
       ctx.restore()
 
     xrange: () ->
