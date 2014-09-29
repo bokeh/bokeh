@@ -29,6 +29,33 @@ define [
 
     _map_data: () -> null
 
+    set_data: (source) ->
+      for field in @_fields
+        # REMOVE {
+        if field.indexOf(":") > -1
+          [field, junk] = field.split(":")
+        # }
+
+        @[field] = @props.source_v_select(field, source)
+
+        # special cases
+        if field == "direction"
+          values = new Uint8Array(@direction.length)
+          for i in [0...@direction.length]
+            dir = @direction[i]
+            if      dir == 'clock'     then values[i] = false
+            else if dir == 'anticlock' then values[i] = true
+            else values = NaN
+          @direction = values
+
+        if field.indexOf("angle") > -1
+          @[field] = (-x for x in @[field])
+
+      @_set_data()
+
+    # any additional customization can happen here
+    _set_data: () -> null
+
     distance_vector: (pt, span_prop_name, position, dilate=false) ->
       """ returns an array """
       pt_units = @props[pt].units

@@ -23,7 +23,7 @@ define [
         @_fields = ['image:array', 'x', 'y', 'dw', 'dh', 'palette:string', 'reserve_val', 'reserve_color']
       super(options)
 
-    _set_data: (@data) ->
+    _set_data: () ->
       if not @image_data? or @image_data.length != @image.length
         @image_data = new Array(@image.length)
 

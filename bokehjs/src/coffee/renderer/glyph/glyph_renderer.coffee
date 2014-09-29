@@ -83,39 +83,12 @@ define [
         logger.warn("unknown resample op: '#{resample_op}'")
 
     set_data: (request_render=true) ->
-      source = @mget('data_source')
+      t0 = Date.now()
+      @glyph.set_data(@mget('data_source'))
+      dt = Date.now() - t0
+      logger.debug("#{@glyph.model.type} glyph (#{@glyph.model.id}): set_data finished in #{dt}ms")
 
-      for field in @_fields
-        if field.indexOf(":") > -1
-          [field, junk] = field.split(":")
-        @[field] = @props.source_v_select(field, source)
-
-        # special cases
-        if field == "direction"
-          values = new Uint8Array(@direction.length)
-          for i in [0...@direction.length]
-            dir = @direction[i]
-            if      dir == 'clock'     then values[i] = false
-            else if dir == 'anticlock' then values[i] = true
-            else values = NaN
-          @direction = values
-
-        if field.indexOf("angle") > -1
-          @[field] = (-x for x in @[field])
-
-      # any additional customization can happen here
-      if @_set_data?
-        t0 = Date.now()
-        @_set_data()
-        dt = Date.now() - t0
-        glyph = @mget('glyph')
-        logger.debug("#{glyph.type} glyph (#{glyph.id}): custom _set_data finished in #{dt}ms")
-
-      # just use the length of the last added field
-      len = @[field].length
-
-      @all_indices = [0...len]
-
+      @all_indices = [0...@[field].length] # just use the length of the last added field
       @have_new_data = true
 
       if request_render

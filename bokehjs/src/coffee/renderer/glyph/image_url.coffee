@@ -9,7 +9,7 @@ define [
     _fields: ['url:string', 'x', 'y', 'w', 'h', 'angle']
     _properties: []
 
-    _set_data: (@data) ->
+    _set_data: () ->
       @image = (null for img in @url)
       @need_load = (true for img in @url)
       @loaded = (false for img in @url)
