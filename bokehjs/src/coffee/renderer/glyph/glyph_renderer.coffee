@@ -214,6 +214,6 @@ define [
 
   return {
     Model: GlyphRenderer
-    View: GlyphVRendereriew
+    View: GlyphRendererView
     Collection: new GlyphRenderers()
   }
