@@ -1,8 +1,7 @@
 define [
   "underscore",
-  "renderer/properties",
   "./marker",
-], (_, Properties, Marker) ->
+], (_, Marker) ->
 
   class SquareCrossView extends Marker.View
 
