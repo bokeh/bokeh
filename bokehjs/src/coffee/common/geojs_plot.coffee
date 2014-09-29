@@ -37,14 +37,18 @@ define [
         @map = geo.map(map_options)
         @map.createLayer('osm')
 
-      if window.ogs.geo
-        _.defer(build_map)
-      else
-        script = document.createElement('script');
-        script.type = 'text/javascript';
-        script.src = 'http://opengeoscience.github.io/geojs/lib/geo.all.js';
-        script.onload = build_map
-        document.body.appendChild(script);
+      # Assuming that jquery is loaded already
+      $.getScript( "http://opengeoscience.github.io/geojs/lib/gl-matrix.js", () ->
+        $.getScript( "http://opengeoscience.github.io/geojs/lib/d3.v3.min.js", () ->
+          $.getScript( "http://opengeoscience.github.io/geojs/lib/proj4.js", () ->
+            $.getScript( "http://opengeoscience.github.io/geojs/lib/vgl.js", () ->
+              $.getScript( "http://opengeoscience.github.io/geojs/lib/geo.js", () ->
+                build_map()
+              )
+            )
+          )
+        )
+      )
 
     _map_hook: (ctx, frame_box) ->
       [left, top, width, height] = frame_box

@@ -57,7 +57,7 @@ make_geojs_plot = (defaults, glyphspecs, {dims, tools, axes, legend, legend_name
   return plot
 
 
-opts = {dims: [800, 800], tools: true, axes: true, legend: false, plot_title: "GMap Plot"}
+opts = {dims: [800, 800], tools: true, axes: true, legend: false, plot_title: "GeoJS Plot"}
 plot = make_geojs_plot({}, [], opts)
 Bokeh.Plotting.show(plot)
 
