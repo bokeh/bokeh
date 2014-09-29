@@ -12,10 +12,9 @@ define [
     # we need a custom initializer because circles may either take glyph-style radius (defaults
     # to data units) or a marker-style size (defaults to screen units)
     initialize: (options) ->
-      spec = @mget('glyphspec')
-      if spec.radius?
+      if @mget("radius")?
         @_fields = ['x', 'y', 'radius']
-      else if spec.size?
+      else
         @_fields = ['x', 'y', 'size']
       super(options)
 
