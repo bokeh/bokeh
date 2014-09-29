@@ -54,17 +54,6 @@ define [
       else
         logger.warn("string property '#{attrname}' given invalid default value: #{default_value}")
 
-      if not glyphspec? or not (attrname of glyphspec)
-        return
-
-      glyph_value = glyphspec[attrname]
-      if _.isString(glyph_value)
-        @[attrname].value = glyph_value
-      else if _.isObject(glyph_value)
-        @[attrname] = _.extend(@[attrname], glyph_value)
-      else
-        logger.warn("string property '#{attrname}' given invalid glyph value: #{glyph_value}")
-
     number: (styleprovider, attrname) ->
       @[attrname] = { } #typed: true }
 
@@ -76,22 +65,7 @@ define [
         logger.warn("number property '#{attrname}' given invalid default value: #{default_value}")
 
       units_value = styleprovider.mget(attrname+'_units') ? 'data'
-      if glyphspec? and (attrname+'_units' of glyphspec)
-        units_value = glyphspec[attrname+'_units']
       @[attrname].units = units_value
-
-      if not glyphspec? or not (attrname of glyphspec)
-        return
-
-      glyph_value = glyphspec[attrname]
-      if _.isString(glyph_value)
-        @[attrname].field = glyph_value
-      else if _.isNumber(glyph_value)
-        @[attrname].value = glyph_value
-      else if _.isObject(glyph_value)
-        @[attrname] = _.extend(@[attrname], glyph_value)
-      else
-        logger.warn("number property '#{attrname}' given invalid glyph value: #{glyph_value}")
 
     color: (styleprovider, attrname) ->
       @[attrname] = {}
@@ -104,22 +78,6 @@ define [
       else
         logger.warn("color property '#{attrname}' given invalid default value: #{default_value}")
 
-      if not glyphspec? or not (attrname of glyphspec)
-        return
-
-      glyph_value = glyphspec[attrname]
-      if _.isNull(glyph_value)
-        @[attrname].value = null
-      else if _.isString(glyph_value)
-        if svg_colors[glyph_value]? or glyph_value.substring(0, 1) == "#"
-          @[attrname].value = glyph_value
-        else
-          @[attrname].field = glyph_value
-      else if _.isObject(glyph_value)
-        @[attrname] = _.extend(@[attrname], glyph_value)
-      else
-        logger.warn("color property '#{attrname}' given invalid glyph value: #{glyph_value}")
-
     array: (styleprovider, attrname) ->
       @[attrname] = {}
 
@@ -131,22 +89,7 @@ define [
         logger.warn("array property '#{attrname}' given invalid default value: #{default_value}")
 
       units_value = styleprovider.mget(attrname+"_units") ? 'data'
-      if glyphspec? and (attrname+'_units' of glyphspec)
-        units_value = glyphspec[attrname+'_units']
       @[attrname].units = units_value
-
-      if not glyphspec? or not (attrname of glyphspec)
-        return
-
-      glyph_value = glyphspec[attrname]
-      if _.isString(glyph_value)
-        @[attrname].field = glyph_value
-      else if _.isArray(glyph_value)
-        @[attrname].value = glyph_value
-      else if _.isObject(glyph_value)
-        @[attrname] = _.extend(@[attrname], glyph_value)
-      else
-        logger.warn("array property '#{attrname}' given invalid glyph value: #{glyph_value}")
 
     enum: (styleprovider, attrname, vals) ->
       @[attrname] = {}
@@ -159,21 +102,6 @@ define [
         @[attrname] = {default: default_value}
       else
         logger.warn("enum property '#{attrname}' given invalid default value: #{default_value}")
-        logger.warn(" - acceptable values:" + levels)
-
-      if not glyphspec? or not (attrname of glyphspec)
-        return
-
-      glyph_value = glyphspec[attrname]
-      if _.isString(glyph_value)
-        if glyph_value in levels
-          @[attrname].value = glyph_value
-        else
-          @[attrname].field = glyph_value
-      else if _.isObject(glyph_value)
-        @[attrname] = _.extend(@[attrname], glyph_value)
-      else
-        logger.warn("enum property '#{attrname}' given invalid glyph value: #{glyph_value}")
         logger.warn(" - acceptable values:" + levels)
 
     setattr: (styleprovider, attrname, attrtype) ->
