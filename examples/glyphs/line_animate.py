@@ -52,7 +52,7 @@ view(link)
 print("\nanimating... press ctrl-C to stop")
 
 while True:
-    for i in  linspace(-2*pi, 2*pi, 50):
-        source.data['x'] = x +i
+    for i in linspace(-2*pi, 2*pi, 50):
+        source.data['x'] = x + i
         session.store_objects(source)
         time.sleep(0.05)

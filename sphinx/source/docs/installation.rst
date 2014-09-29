@@ -118,13 +118,23 @@ BokehJS Standalone
 If you would like to use BokehJS as a standalone JavaScript library, there are
 two easy ways to get any published release.
 
-First, BokehJS is available for download from CDN at pydata.org. For instance,
-for version 0.5:
+First, BokehJS is available for download from CDN at pydata.org, under the
+following naming scheme::
 
-* http://cdn.pydata.org/bokeh-0.5.js
-* http://cdn.pydata.org/bokeh-0.5.css
-* http://cdn.pydata.org/bokeh-0.5.min.js
-* http://cdn.pydata.org/bokeh-0.5.min.css
+    http://cdn.pydata.org/bokeh-x.y.z.[min.]js
+
+for the BokehJS JavaScript, and::
+
+    http://cdn.pydata.org/bokeh-x.y.z.[min.]css
+
+for the BokehJS CSS.
+
+As a concrete example, the links for version 0.6.1 are:
+
+* http://cdn.pydata.org/bokeh-0.6.1.js
+* http://cdn.pydata.org/bokeh-0.6.1.css
+* http://cdn.pydata.org/bokeh-0.6.1.min.js
+* http://cdn.pydata.org/bokeh-0.6.1.min.css
 
 Alternatively, BokehJS is available from `npmjs.org <https://www.npmjs.org/package/bokehjs>`_
 through the node package manager::

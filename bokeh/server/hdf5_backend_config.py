@@ -1,4 +1,4 @@
-import collections
+
 from arraymanagement.nodes.csvnodes import PandasCSVNode
 from arraymanagement.nodes.hdfnodes import PandasHDFNode, PyTables
 from arraymanagement.nodes.sql import SimpleQueryTable
@@ -16,5 +16,5 @@ global_config = dict(
         '*.sql' : SimpleQueryTable,
         '*.table' : PyTables,
         },
-    )            
+    )
 local_config = {}

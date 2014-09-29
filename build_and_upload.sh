@@ -19,17 +19,11 @@ else
 fi
 echo The tag flag: $tag_flag
 
-#buld py27 pkg
-echo "Building py27 pkg"
-conda build conda.recipe --quiet;
-
-#buid py33 pkg
-echo "Building py33 pkg"
-CONDA_PY=33 conda build conda.recipe --quiet;
-
-#buid py34 pkg
-echo "Building py34 pkg"
-CONDA_PY=34 conda build conda.recipe --quiet;
+for py in 27 33 34;
+do
+    echo "Building py$py pkg"
+    CONDA_PY=$py conda build conda.recipe --quiet
+done
 
 function conda_info {
     conda info --json | python -c "import json, sys; print(json.load(sys.stdin)['$1'])"

@@ -16,13 +16,6 @@ rm -rf $MINICONDA.sh
 
 python -V
 
-PINNED_PKGS=$(cat <<EOF
-requests <2.4.0
-matplotlib <1.4.0
-EOF
-)
-echo -e "$PINNED_PKGS" > /home/travis/miniconda/conda-meta/pinned
-
 DEPS_TRAVIS="python=$TRAVIS_PYTHON_VERSION conda-build jinja2"
 conda install --yes $DEPS_TRAVIS
 

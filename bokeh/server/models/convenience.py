@@ -1,7 +1,3 @@
-import uuid
-from . import user
-from . import docs
-
 
 def can_read_doc_api(doc, apikey, app):
     return apikey == doc.apikey
