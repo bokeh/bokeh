@@ -90,11 +90,10 @@ define [
 
     set_data: (request_render=true) ->
       t0 = Date.now()
-      @glyph.set_data(@mget('data_source'))
+      @all_indices = @glyph.set_data(@mget('data_source'))
       dt = Date.now() - t0
       logger.debug("#{@glyph.model.type} glyph (#{@glyph.model.id}): set_data finished in #{dt}ms")
 
-      @all_indices = [0...@[field].length] # just use the length of the last added field
       @have_new_data = true
 
       if request_render

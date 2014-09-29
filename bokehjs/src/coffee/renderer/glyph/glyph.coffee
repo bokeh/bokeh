@@ -64,6 +64,9 @@ define [
 
       @_set_data()
 
+      # just use the length of the last added field
+      [0...@[field].length]
+
     # any additional customization can happen here
     _set_data: () -> null
 
