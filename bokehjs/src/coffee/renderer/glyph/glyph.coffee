@@ -78,7 +78,7 @@ define [
       if      pt == 'x' then mapper = @renderer.xmapper
       else if pt == 'y' then mapper = @renderer.ymapper
 
-      source = @mget('data_source')
+      source = @renderer.mget('data_source')
       local_select = (prop_name) =>
         return @props.source_v_select(prop_name, source)
       span = local_select(span_prop_name)
