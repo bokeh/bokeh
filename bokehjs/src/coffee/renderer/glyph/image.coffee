@@ -61,9 +61,7 @@ define [
         @image_data[i] = canvas
 
     _map_data: () ->
-      [@sx, @sy] = @plot_view.map_to_screen(
-        @x, @props.x.units, @y, @props.y.units, @x_range_name, @y_range_name
-      )
+      [@sx, @sy] = @renderer.map_to_screen(@x, @props.x.units, @y, @props.y.units)
       @sw = @distance_vector('x', 'dw', 'edge', @mget('dilate'))
       @sh = @distance_vector('y', 'dh', 'edge', @mget('dilate'))
 

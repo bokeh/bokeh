@@ -13,9 +13,7 @@ define [
       for i in indices
         x = @xs[i]
         y = @ys[i]
-        [sx, sy] = @plot_view.map_to_screen(
-          @xs[i], @props.xs.units, @ys[i], @props.ys.units, @x_range_name, @y_range_name
-        )
+        [sx, sy] = @renderer.map_to_screen(@xs[i], @props.xs.units, @ys[i], @props.ys.units)
 
         @props.line.set_vectorize(ctx, i)
         for j in [0...sx.length]

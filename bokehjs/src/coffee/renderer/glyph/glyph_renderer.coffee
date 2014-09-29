@@ -18,11 +18,8 @@ define [
 
       @need_set_data = true
 
-      @x_range_name = @mget('x_range_name')
-      @y_range_name = @mget('y_range_name')
-
-      @xmapper = @plot_view.frame.get('x_mappers')[@x_range_name]
-      @ymapper = @plot_view.frame.get('y_mappers')[@y_range_name]
+      @xmapper = @plot_view.frame.get('x_mappers')[@mget("x_range_name")]
+      @ymapper = @plot_view.frame.get('y_mappers')[@mget("y_range_name")]
 
       if @mget('server_data_source')
         @setup_server_data()
@@ -189,6 +186,9 @@ define [
 
     yrange: () ->
       return @plot_view.y_range
+
+    map_to_screen: (x, x_units, y, y_units) ->
+      @plot_view.map_to_screen(x, x_units, y, y_units, @mget("x_range_name"), @mget("y_range_name"))
 
   class GlyphRenderer extends HasParent
     default_view: GlyphRendererView

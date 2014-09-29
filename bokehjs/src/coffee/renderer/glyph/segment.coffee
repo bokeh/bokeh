@@ -10,12 +10,8 @@ define [
     _properties: ['line']
 
     _map_data: () ->
-      [@sx0, @sy0] = @plot_view.map_to_screen(
-        @x0, @props.x0.units, @y0, @props.y0.units, @x_range_name, @y_range_name
-      )
-      [@sx1, @sy1] = @plot_view.map_to_screen(
-        @x1, @props.x1.units, @y1, @props.y1.units, @x_range_name, @y_range_name
-      )
+      [@sx0, @sy0] = @renderer.map_to_screen(@x0, @props.x0.units, @y0, @props.y0.units)
+      [@sx1, @sy1] = @plot_view.map_to_screen(@x1, @props.x1.units, @y1, @props.y1.units)
 
     _render: (ctx, indices) ->
       if @props.line.do_stroke

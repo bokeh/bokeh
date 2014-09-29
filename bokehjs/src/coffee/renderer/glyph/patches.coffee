@@ -48,9 +48,7 @@ define [
       @sxs = []
       @sys = []
       for i in [0...@xs.length]
-        [sx, sy] = @plot_view.map_to_screen(
-          @xs[i], @props.xs.units, @ys[i], @props.ys.units, @x_range_name, @y_range_name
-        )
+        [sx, sy] = @renderer.map_to_screen(@xs[i], @props.xs.units, @ys[i], @props.ys.units)
         @sxs.push(sx)
         @sys.push(sy)
 

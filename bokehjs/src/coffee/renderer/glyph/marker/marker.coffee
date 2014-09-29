@@ -33,9 +33,7 @@ define [
       @index.load(pts)
 
     _map_data: () ->
-      [@sx, @sy] = @plot_view.map_to_screen(
-        @x, @props.x.units, @y, @props.y.units, @x_range_name, @y_range_name
-      )
+      [@sx, @sy] = @renderer.map_to_screen(@x, @props.x.units, @y, @props.y.units)
 
     _mask_data: () ->
       # dilate the inner screen region by max_size and map back to data space for use in
