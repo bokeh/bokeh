@@ -191,6 +191,8 @@ define [
       return @plot_view.y_range
 
   class GlyphRenderer extends HasParent
+    default_view: GlyphRendererView
+    type: 'GlyphRenderer'
 
     defaults: ->
       return _.extend {}, super(), {
