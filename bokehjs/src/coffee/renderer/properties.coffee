@@ -456,11 +456,6 @@ define [
       for key of properties
         @[key] = properties[key]
 
-      # TODO auto detect fast path cases
-      @fast_path = false
-      if ('fast_path' of glyphspec)
-        @fast_path = glyphspec.fast_path
-
   return {
     glyph_properties: glyph_properties
     fill_properties: fill_properties
