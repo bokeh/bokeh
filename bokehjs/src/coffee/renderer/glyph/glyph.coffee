@@ -5,7 +5,7 @@ define [
   "common/collection"
   "common/continuum_view",
   "renderer/properties"
-], (_, Logging, HasParent, Collection, ContinuumView, Properties) ->
+], (_, Logging, HasParent, Collection, ContinuumView, properties) ->
 
   logger = Logging.logger
 
@@ -20,13 +20,13 @@ define [
       props = {}
 
       if 'line' in @_properties
-        props.line = new Properties.line_properties(@, glyphspec)
+        props.line = new properties.Line(@)
       if 'fill' in @_properties
-        props.fill = new Properties.fill_properties(@, glyphspec)
+        props.fill = new properties.Fill(@)
       if 'text' in @_properties
-        props.text = new Properties.text_properties(@, glyphspec)
+        props.text = new properties.Text(@)
 
-      new Properties.glyph_properties(@, glyphspec, @_fields, props)
+      new properties.Glyph(@, @_fields, props)
 
     render: (ctx, indicies) -> @_render(ctx, indicies)
 

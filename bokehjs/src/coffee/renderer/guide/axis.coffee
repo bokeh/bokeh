@@ -7,10 +7,7 @@ define [
   "common/logging"
   "common/plot_widget"
   "renderer/properties"
-], (_, kiwi, HasParent, LayoutBox, Logging, PlotWidget, Properties) ->
-
-  line_properties  = Properties.line_properties
-  text_properties  = Properties.text_properties
+], (_, kiwi, HasParent, LayoutBox, Logging, PlotWidget, properties) ->
 
   logger = Logging.logger
 
@@ -158,11 +155,11 @@ define [
   class AxisView extends PlotWidget
     initialize: (options) ->
       super(options)
-      @rule_props = new line_properties(@, null, 'axis_')
-      @major_tick_props = new line_properties(@, null, 'major_tick_')
-      @minor_tick_props = new line_properties(@, null, 'minor_tick_')
-      @major_label_props = new text_properties(@, null, 'major_label_')
-      @axis_label_props = new text_properties(@, null, 'axis_label_')
+      @rule_props = new properties.Line(@, 'axis_')
+      @major_tick_props = new properties.Line(@, 'major_tick_')
+      @minor_tick_props = new properties.Line(@, 'minor_tick_')
+      @major_label_props = new properties.Text(@, 'major_label_')
+      @axis_label_props = new properties.Text(@, 'axis_label_')
       @x_range_name = @mget('x_range_name')
       @y_range_name = @mget('y_range_name')
 

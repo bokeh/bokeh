@@ -29,7 +29,7 @@ define [
       @listenTo(this, 'change:server_data_source', @setup_server_data)
 
     build_glyph: (model) ->
-      new model.default_view(renderer: this)
+      new model.default_view({model: model, renderer: this})
 
     bind_bokeh_events: () ->
       @listenTo(@model, 'change', @request_render)

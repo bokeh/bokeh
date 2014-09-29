@@ -1,4 +1,3 @@
-
 define [
   "underscore"
   "common/logging"
@@ -7,14 +6,13 @@ define [
 
   logger = Logging.logger
 
-  class properties
+  class Properties
     source_v_select: (attrname, datasource) ->
       glyph_props = @
       # if the attribute is not on this property object at all, log a bad request
       if not (attrname of glyph_props)
         logger.warn("requested vector selection of unknown property '#{attrname}' on objects")
         return (null for i in datasource.get_length())
-
 
       prop = glyph_props[attrname]
       # if the attribute specifies a field, and the field exists on
@@ -46,7 +44,7 @@ define [
           retval.push(default_value)
         return retval
 
-    string: (styleprovider, glyphspec, attrname) ->
+    string: (styleprovider, attrname) ->
       @[attrname] = {}
 
       default_value = styleprovider.mget(attrname)
@@ -67,7 +65,7 @@ define [
       else
         logger.warn("string property '#{attrname}' given invalid glyph value: #{glyph_value}")
 
-    number: (styleprovider, glyphspec, attrname) ->
+    number: (styleprovider, attrname) ->
       @[attrname] = { } #typed: true }
 
       default_value = styleprovider.mget(attrname)
@@ -95,7 +93,7 @@ define [
       else
         logger.warn("number property '#{attrname}' given invalid glyph value: #{glyph_value}")
 
-    color: (styleprovider, glyphspec, attrname) ->
+    color: (styleprovider, attrname) ->
       @[attrname] = {}
 
       default_value = styleprovider.mget(attrname)
@@ -122,7 +120,7 @@ define [
       else
         logger.warn("color property '#{attrname}' given invalid glyph value: #{glyph_value}")
 
-    array: (styleprovider, glyphspec, attrname) ->
+    array: (styleprovider, attrname) ->
       @[attrname] = {}
 
       default_value = styleprovider.mget(attrname)
@@ -150,7 +148,7 @@ define [
       else
         logger.warn("array property '#{attrname}' given invalid glyph value: #{glyph_value}")
 
-    enum: (styleprovider, glyphspec, attrname, vals) ->
+    enum: (styleprovider, attrname, vals) ->
       @[attrname] = {}
 
       levels = vals.split(" ")
@@ -178,22 +176,21 @@ define [
         logger.warn("enum property '#{attrname}' given invalid glyph value: #{glyph_value}")
         logger.warn(" - acceptable values:" + levels)
 
-    setattr: (styleprovider, glyphspec, attrname, attrtype) ->
+    setattr: (styleprovider, attrname, attrtype) ->
       values = null
       if attrtype.indexOf(":") > -1
         [attrtype, values] = attrtype.split(":")
 
-      if      attrtype == "string" then @string(styleprovider, glyphspec, attrname)
-      else if attrtype == "number" then @number(styleprovider, glyphspec, attrname)
-      else if attrtype == "color"  then @color(styleprovider, glyphspec, attrname)
-      else if attrtype == "array"  then @array(styleprovider, glyphspec, attrname)
+      if      attrtype == "string" then @string(styleprovider, attrname)
+      else if attrtype == "number" then @number(styleprovider, attrname)
+      else if attrtype == "color"  then @color(styleprovider, attrname)
+      else if attrtype == "array"  then @array(styleprovider, attrname)
       else if attrtype == "enum" and values
-        @enum(styleprovider, glyphspec, attrname, values)
+        @enum(styleprovider, attrname, values)
       else
         logger.warn("Unknown type '#{attrtype}' for glyph property: #{attrname}")
 
     select: (attrname, obj) ->
-
       # if the attribute is not on this property object at all, log a bad request
       if not (attrname of @)
         logger.warn("requested selection of unknown property '#{attrname}' on object: #{obj}")
@@ -208,8 +205,8 @@ define [
         return @[attrname].value
 
       # Note about the following two checks. They are to accomodate the case where properties
-	  # are not used to map over data sources, but are used for one-off properties like a Plot
-	  # object might have. There is no corresponding check in v_select
+      # are not used to map over data sources, but are used for one-off properties like a Plot
+      # object might have. There is no corresponding check in v_select
       if obj.get and obj.get(attrname)
         return obj.get(attrname)
 
@@ -269,8 +266,8 @@ define [
 
       return result
 
-  class line_properties extends properties
-    constructor: (styleprovider, glyphspec, prefix="") ->
+  class LineProperties extends Properties
+    constructor: (styleprovider, prefix="") ->
       @line_color_name        = "#{prefix}line_color"
       @line_width_name        = "#{prefix}line_width"
       @line_alpha_name        = "#{prefix}line_alpha"
@@ -279,13 +276,13 @@ define [
       @line_dash_name         = "#{prefix}line_dash"
       @line_dash_offset_name  = "#{prefix}line_dash_offset"
 
-      @color(styleprovider, glyphspec, @line_color_name)
-      @number(styleprovider, glyphspec, @line_width_name)
-      @number(styleprovider, glyphspec, @line_alpha_name)
-      @enum(styleprovider, glyphspec, @line_join_name, "miter round bevel")
-      @enum(styleprovider, glyphspec, @line_cap_name, "butt round square")
-      @array(styleprovider, glyphspec, @line_dash_name)
-      @number(styleprovider, glyphspec, @line_dash_offset_name)
+      @color(styleprovider, @line_color_name)
+      @number(styleprovider, @line_width_name)
+      @number(styleprovider, @line_alpha_name)
+      @enum(styleprovider, @line_join_name, "miter round bevel")
+      @enum(styleprovider, @line_cap_name, "butt round square")
+      @array(styleprovider, @line_dash_name)
+      @number(styleprovider, @line_dash_offset_name)
 
       @do_stroke = true
       if not _.isUndefined(@[@line_color_name].value)
@@ -343,13 +340,13 @@ define [
 
       return did_change
 
-  class fill_properties extends properties
-    constructor: (styleprovider, glyphspec, prefix="") ->
+  class FillProperties extends Properties
+    constructor: (styleprovider, prefix="") ->
       @fill_color_name = "#{prefix}fill_color"
       @fill_alpha_name = "#{prefix}fill_alpha"
 
-      @color(styleprovider, glyphspec, @fill_color_name)
-      @number(styleprovider, glyphspec, @fill_alpha_name)
+      @color(styleprovider, @fill_color_name)
+      @number(styleprovider, @fill_alpha_name)
 
       @do_fill = true
       if not _.isUndefined(@[@fill_color_name].value)
@@ -378,8 +375,8 @@ define [
 
       return did_change
 
-  class text_properties extends properties
-    constructor: (styleprovider, glyphspec, prefix="") ->
+  class TextProperties extends Properties
+    constructor: (styleprovider, prefix="") ->
       @text_font_name       = "#{prefix}text_font"
       @text_font_size_name  = "#{prefix}text_font_size"
       @text_font_style_name = "#{prefix}text_font_style"
@@ -388,13 +385,13 @@ define [
       @text_align_name      = "#{prefix}text_align"
       @text_baseline_name   = "#{prefix}text_baseline"
 
-      @string(styleprovider, glyphspec, @text_font_name)
-      @string(styleprovider, glyphspec, @text_font_size_name)
-      @enum(styleprovider, glyphspec, @text_font_style_name, "normal italic bold")
-      @color(styleprovider, glyphspec, @text_color_name)
-      @number(styleprovider, glyphspec, @text_alpha_name)
-      @enum(styleprovider, glyphspec, @text_align_name, "left right center")
-      @enum(styleprovider, glyphspec, @text_baseline_name, "top middle bottom alphabetic hanging")
+      @string(styleprovider, @text_font_name)
+      @string(styleprovider, @text_font_size_name)
+      @enum(styleprovider, @text_font_style_name, "normal italic bold")
+      @color(styleprovider, @text_color_name)
+      @number(styleprovider, @text_alpha_name)
+      @enum(styleprovider, @text_align_name, "left right center")
+      @enum(styleprovider, @text_baseline_name, "top middle bottom alphabetic hanging")
 
     font: (obj, font_size) ->
       if not font_size?
@@ -445,20 +442,20 @@ define [
 
       return did_change
 
-  class glyph_properties extends properties
-    constructor: (styleprovider, glyphspec, attrnames, properties) ->
+  class GlyphProperties extends Properties
+    constructor: (styleprovider, attrnames, properties) ->
       for attrname in attrnames
         attrtype = "number"
         if attrname.indexOf(":") > -1
           [attrname, attrtype] = attrname.split(":")
-        @setattr(styleprovider, glyphspec, attrname, attrtype)
+        @setattr(styleprovider, attrname, attrtype)
 
       for key of properties
         @[key] = properties[key]
 
   return {
-    glyph_properties: glyph_properties
-    fill_properties: fill_properties
-    line_properties: line_properties
-    text_properties: text_properties
+    Glyph: GlyphProperties
+    Fill: FillProperties
+    Line: LineProperties
+    Text: TextProperties
   }

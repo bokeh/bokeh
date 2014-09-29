@@ -6,10 +6,7 @@ define [
   "common/collection",
   "common/textutils",
   "renderer/properties",
-], (_, HasParent, PlotWidget, Collection, textutils, Properties) ->
-
-  line_properties  = Properties.line_properties
-  text_properties  = Properties.text_properties
+], (_, HasParent, PlotWidget, Collection, textutils, properties) ->
 
   # Legends:
   #
@@ -33,8 +30,8 @@ define [
   class LegendView extends PlotWidget
     initialize: (options) ->
       super(options)
-      @label_props = new text_properties(@, @model, 'label_')
-      @border_props = new line_properties(@, @model, 'border_')
+      @label_props = new properties.Text(@, 'label_')
+      @border_props = new properties.Line(@, 'border_')
       if @mget('legend_names')
         @legend_names = @mget('legend_names')
       else

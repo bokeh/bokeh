@@ -17,10 +17,7 @@ define [
   "./toolbar_template",
   "renderer/properties",
   "tool/active_tool_manager",
-], (_, Backbone, kiwi, build_views, plot_utils, ContinuumView, Collection, HasParent, Canvas, LayoutBox, Logging, Solver, CartesianFrame, plot_template, toolbar_template, Properties, ActiveToolManager) ->
-
-  line_properties = Properties.line_properties
-  text_properties = Properties.text_properties
+], (_, Backbone, kiwi, build_views, plot_utils, ContinuumView, Collection, HasParent, Canvas, LayoutBox, Logging, Solver, CartesianFrame, plot_template, toolbar_template, properties, ActiveToolManager) ->
 
   Expr = kiwi.Expression
   Constraint = kiwi.Constraint
@@ -84,8 +81,8 @@ define [
 
       @throttled_render = plot_utils.throttle_animation(@render, 15)
 
-      @outline_props = new line_properties(@, {}, 'outline_')
-      @title_props = new text_properties(@, {}, 'title_')
+      @outline_props = new properties.Line(@, 'outline_')
+      @title_props = new properties.Text(@, 'title_')
 
       @renderers = {}
       @tools = {}
