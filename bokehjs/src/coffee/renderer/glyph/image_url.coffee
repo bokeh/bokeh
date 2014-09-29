@@ -33,7 +33,7 @@ define [
               ctx.save()
               ctx.beginPath()
               # TODO should take the real axis rule width into account, for now shrink region by 1 px
-              frame = @plot_view.frame
+              frame = @renderer.plot_view.frame
               # use bottom here because frame is view coords
               ctx.rect(
                 frame.get('left')+1, frame.get('bottom')+1,

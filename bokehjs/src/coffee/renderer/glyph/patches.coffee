@@ -57,10 +57,10 @@ define [
       if @props.xs.units == "screen" or @props.ys.units == "screen"
         return @all_indices
 
-      xr = @plot_view.x_range
+      xr = @renderer.plot_view.x_range
       [x0, x1] = [xr.get('start'), xr.get('end')]
 
-      yr = @plot_view.y_range
+      yr = @renderer.plot_view.y_range
       [y0, y1] = [yr.get('start'), yr.get('end')]
 
       return (x[4].i for x in @index.search([x0, y0, x1, y1]))
@@ -109,8 +109,8 @@ define [
 
     _hit_point: (geometry) ->
       [vx, vy] = [geometry.vx, geometry.vy]
-      sx = @plot_view.canvas.vx_to_sx(vx)
-      sy = @plot_view.canvas.vy_to_sy(vy)
+      sx = @renderer.plot_view.canvas.vx_to_sx(vx)
+      sy = @renderer.plot_view.canvas.vy_to_sy(vy)
 
       x = @xmapper.map_from_target(vx)
       y = @ymapper.map_from_target(vy)

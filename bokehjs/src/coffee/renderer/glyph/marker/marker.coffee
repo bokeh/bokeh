@@ -38,12 +38,12 @@ define [
     _mask_data: () ->
       # dilate the inner screen region by max_size and map back to data space for use in
       # spatial query
-      hr = @plot_view.frame.get('h_range')
+      hr = @renderer.plot_view.frame.get('h_range')
       vx0 = hr.get('start') - @max_size
       vx1 = hr.get('end') + @max_size
       [x0, x1] = @xmapper.v_map_from_target([vx0, vx1])
 
-      vr = @plot_view.frame.get('v_range')
+      vr = @renderer.plot_view.frame.get('v_range')
       vy0 = vr.get('start') - @max_size
       vy1 = vr.get('end') + @max_size
       [y0, y1] = @ymapper.v_map_from_target([vy0, vy1])
@@ -52,8 +52,8 @@ define [
 
     _hit_point: (geometry) ->
       [vx, vy] = [geometry.vx, geometry.vy]
-      sx = @plot_view.canvas.vx_to_sx(vx)
-      sy = @plot_view.canvas.vy_to_sy(vy)
+      sx = @renderer.plot_view.canvas.vx_to_sx(vx)
+      sy = @renderer.plot_view.canvas.vy_to_sy(vy)
 
       vx0 = vx - @max_size
       vx1 = vx + @max_size

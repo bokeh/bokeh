@@ -13,8 +13,8 @@ define [
       [@sx, @sy] = @renderer.map_to_screen(@x, @props.x.units, @y, @props.y.units)
       @length = @distance_vector('x', 'length', 'edge')
 
-      width = @plot_view.frame.get('width')
-      height = @plot_view.frame.get('height')
+      width = @renderer.plot_view.frame.get('width')
+      height = @renderer.plot_view.frame.get('height')
       inf_len = 2 * (width + height)
       for i in [0...@length.length]
         if @length[i] == 0 then @length[i] = inf_len

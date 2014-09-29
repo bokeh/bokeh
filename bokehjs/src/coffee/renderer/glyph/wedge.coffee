@@ -67,8 +67,8 @@ define [
 
       candidates2 = []
       if @radius_units == "screen"
-        sx = @plot_view.canvas.vx_to_sx(vx)
-        sy = @plot_view.canvas.vy_to_sy(vy)
+        sx = @renderer.plot_view.canvas.vx_to_sx(vx)
+        sy = @renderer.plot_view.canvas.vy_to_sy(vy)
         for i in candidates
           r2 = Math.pow(@radius[i], 2)
           dist = Math.pow(@sx[i]-sx, 2) + Math.pow(@sy[i]-sy, 2)
@@ -87,8 +87,8 @@ define [
 
       hits = []
       for [i, dist] in candidates2
-        sx = @plot_view.canvas.vx_to_sx(vx)
-        sy = @plot_view.canvas.vy_to_sy(vy)
+        sx = @renderer.plot_view.canvas.vx_to_sx(vx)
+        sy = @renderer.plot_view.canvas.vy_to_sy(vy)
         # NOTE: minus the angle because JS uses non-mathy convention for angles
         angle = Math.atan2(sy-@sy[i], sx-@sx[i])
         if mathutils.angle_between(-angle, -@start_angle[i], -@end_angle[i], @direction[i])

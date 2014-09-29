@@ -132,14 +132,14 @@ define [
       hits = []
       for i in candidates
         if @width_units == "screen" or xcat
-          sx = @plot_view.canvas.vx_to_sx(vx)
+          sx = @renderer.plot_view.canvas.vx_to_sx(vx)
         else
-          sx = @plot_view.canvas.vx_to_sx(@xmapper.map_to_target(x))
+          sx = @renderer.plot_view.canvas.vx_to_sx(@xmapper.map_to_target(x))
 
         if @height_units == "screen" or ycat
-          sy = @plot_view.canvas.vy_to_sy(vy)
+          sy = @renderer.plot_view.canvas.vy_to_sy(vy)
         else
-          sy = @plot_view.canvas.vy_to_sy(@ymapper.map_to_target(y))
+          sy = @renderer.plot_view.canvas.vy_to_sy(@ymapper.map_to_target(y))
 
         if @angle[i]
           d = Math.sqrt(Math.pow((sx - @sx[i]), 2) + Math.pow((sy - @sy[i]),2))
