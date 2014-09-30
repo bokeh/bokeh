@@ -396,8 +396,8 @@ def image_rgba(image, x, y, dw, dh, **kwargs):
     return _plot_function(gf.image_rgba, image, x, y, dw, dh, **kwargs)
 
 @_doc_wrap
-def image_url(url, x, y, angle, **kwargs):
-    return _plot_function(gf.image_url, url, x, y, angle, **kwargs)
+def image_url(url, x, y, w, h, angle, **kwargs):
+    return _plot_function(gf.image_url, url, x, y, w, h, angle, **kwargs)
 
 @_doc_wrap
 def inverted_triangle(x, y, **kwargs):
