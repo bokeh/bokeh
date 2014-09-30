@@ -159,6 +159,9 @@ define [
     map_to_screen: (x, x_units, y, y_units) ->
       @plot_view.map_to_screen(x, x_units, y, y_units, @mget("x_range_name"), @mget("y_range_name"))
 
+    draw_legend: (ctx, x0, x1, y0, y1) ->
+      @glyph.draw_legend(ctx, x0, x1, y0, y1)
+
   class GlyphRenderer extends HasParent
     default_view: GlyphRendererView
     type: 'GlyphRenderer'
