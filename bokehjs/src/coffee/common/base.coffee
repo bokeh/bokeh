@@ -203,7 +203,7 @@ define [
     Rect:                     'renderer/glyph/rect'
     Segment:                  'renderer/glyph/segment'
     Text:                     'renderer/glyph/text'
-    Wedget:                   'renderer/glyph/wedge'
+    Wedge:                    'renderer/glyph/wedge'
 
     Asterisk:                 'renderer/glyph/marker/asterisk'
     CircleCross:              'renderer/glyph/marker/circle_cross'
