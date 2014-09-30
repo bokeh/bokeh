@@ -106,8 +106,8 @@ define [
 
       @glyph._map_data()
 
-      if @_mask_data? and @plot_view.x_range instanceof FactorRange.Model \
-                      and @plot_view.y_range instanceof FactorRange.Model
+      if @_mask_data? and not (@plot_view.x_range instanceof FactorRange.Model) \
+                      and not (@plot_view.y_range instanceof FactorRange.Model)
         indices = @_mask_data()
       else
         indices = @all_indices
