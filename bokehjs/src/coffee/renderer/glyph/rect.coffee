@@ -8,7 +8,7 @@ define [
 
   class RectView extends Glyph.View
 
-    _fields: ['x', 'y', 'width', 'height', 'angle']
+    _fields: ['x', 'y', 'width', 'height', 'angle', 'x_offset', 'y_offset']
     _properties: ['line', 'fill']
 
     _map_data: () ->
@@ -42,7 +42,7 @@ define [
 
     _render: (ctx, indices, glyph_props, sx=@sx, sy=@sy, sw=@sw, sh=@sh) ->
       if glyph_props.fill_properties.do_fill
-
+        
         for i in indices
 
           if isNaN(sx[i] + sy[i] + sw[i] + sh[i] + @angle[i])
@@ -52,13 +52,17 @@ define [
           glyph_props.fill_properties.set_vectorize(ctx, i)
 
           if @angle[i]
-            ctx.translate(sx[i], sy[i])
+            ctx.translate(sx[i] + @x_offset[i], sy[i] + @y_offset[i])
             ctx.rotate(@angle[i])
+                
             ctx.fillRect(-sw[i]/2, -sh[i]/2, sw[i], sh[i])
             ctx.rotate(-@angle[i])
-            ctx.translate(-sx[i], -sy[i])
+            ctx.translate(-(sx[i] + @x_offset[i]), -(sy[i] + @y_offset[i]))
           else
-            ctx.fillRect(sx[i]-sw[i]/2, sy[i]-sh[i]/2, sw[i], sh[i])
+            ctx.fillRect(
+              (sx[i]-sw[i]/2)+@x_offset[i], (sy[i]-sh[i]/2)+@y_offset[i],
+              sw[i], sh[i])
+              
 
       if glyph_props.line_properties.do_stroke
 
@@ -76,13 +80,15 @@ define [
             continue
 
           if @angle[i]
-            ctx.translate(sx[i], sy[i])
+            ctx.translate(sx[i] + @x_offset[i], sy[i] + @y_offset[i])
             ctx.rotate(@angle[i])
             ctx.rect(-sw[i]/2, -sh[i]/2, sw[i], sh[i])
             ctx.rotate(-@angle[i])
-            ctx.translate(-sx[i], -sy[i])
+            ctx.translate(-(sx[i] + @x_offset[i]), -(sy[i] + @y_offset[i]))
           else
-            ctx.rect(sx[i]-sw[i]/2, sy[i]-sh[i]/2, sw[i], sh[i])
+            ctx.rect(
+              (sx[i]-sw[i]/2)+@x_offset[i], (sy[i]-sh[i]/2)+@y_offset[i],
+              sw[i], sh[i])
 
           glyph_props.line_properties.set_vectorize(ctx, i)
           ctx.stroke()
@@ -155,8 +161,8 @@ define [
           py = s * (sx-@sx[i]) + c * (sy-@sy[i]) + @sy[i]
           sx = px
           sy = py
-        width_in = Math.abs(@sx[i]-sx) <= @sw[i]/2
-        height_in = Math.abs(@sy[i]-sy) <= @sh[i]/2
+        width_in = Math.abs((@sx[i] + @x_offset[i])-sx) <= @sw[i]/2
+        height_in = Math.abs((@sy[i] + @y_offset[i])-sy) <= @sh[i]/2
 
         if height_in and width_in
           hits.push(i)
@@ -183,6 +189,8 @@ define [
         line_dash: []
         line_dash_offset: 0
         angle: 0.0
+        x_offset:0,
+        y_offset:0,
         dilate: false
       }
 

@@ -965,6 +965,7 @@ class TestRect(unittest.TestCase):
 
     def setUp(self):
         from bokeh.glyphs import Rect
+        self.maxDiff = None
         self.test_rect = Rect()
 
     def test_expected_properties(self):
@@ -987,6 +988,8 @@ class TestRect(unittest.TestCase):
             'angle':  {'units': 'data', 'field': 'angle'},
             'height': {'units': 'data', 'field': 'height'},
             'width':  {'units': 'data', 'field': 'width'},
+            'x_offset':  {'units': 'screen', 'field': 'x_offset'},
+            'y_offset':  {'units': 'screen', 'field': 'y_offset'},
         })
         self.assertEqual(self.test_rect.to_glyphspec(), expected)
         self.test_rect.x = 50
