@@ -1,3 +1,54 @@
+2014-09-24    0.6.1:
+--------------------
+  * Toolbar enhancements
+  * bokeh-server fixes
+  * Improved documentation
+  * Button widgets
+  * Google map support in the Python side
+  * Code cleanup in the JS side and examples
+  * New examples
+  * bugfixes:
+    - #730 Hover tool failing
+    - #854 Hover when hold is true
+    - #947 Toolbar moves to bottom if window is not wide enough
+    - #1144 Support rc candidates in devel builds
+    - #1157 Active tool underline doesn't line up with gray bar
+    - #1160 X overflow doesn't trigger vertical scrollbar
+    - #1175 Toolbar icons remain in "depressed" state even after toggled off
+    - #1179 [tests] Test script does not handle release number version
+    - #1187 [regression] Toolbar changes break grid plots
+    - #1195 Gmap plot zoom broken and has positioning error
+    - #1200 Fix query for conjuctions
+    - #1203 Bokeh-server -d: double prints server configuration
+    - #1219 Need to store document in decorator
+    - #1222 [docs] Inaccurate docstrings for xaxis() and axis() in plotting.py
+    - #1226 Support devel build with miniconda 3
+    - #1233 Use $.contains(...) to detect that element was added to dom
+    - #1235 [docs] Bokehjs: website links and npm package not up to date (v.0.6)
+    - #1237 [tests] Unpin matplotlib and delete mplexporter tests
+    - #1249 Fix error instantiating close wrapper
+  * features:
+    - #992 Toolbar improvements 
+    - #1131 Button widgets
+    - #1194 Expose google map type to python
+    - #1197 Add glyphs/trail example (altitude profile + map)
+    - #1216 Update version change script
+    - #1223 [docs] Add axis labels to plots in tutorial
+  * tasks:
+    - #933 Make --build_js the default
+    - #980 Complete hands on table
+    - #1177 [docs] Add contributors.rst
+    - #1180 [build] [docs] Updates to reflect not checking in bokehjs releases 
+    - #1181 Release 0.6.0
+    - #1182 [docs] Continue improving the 0.6 docs
+    - #1185 Support ipython 2.2.0 in bokeh_magic
+    - #1208 Cleanup some ugly code in bokehjs (part 1)
+    - #1209 Remove pinning of requests
+    - #1212 Remove unused imports, standardise import order, etc
+    - #1215 Use one codepath for py2 and py3
+    - #1231 Code cleanup (part 2)
+    - #1241 Task/docs 061
+
 2014-09-09    0.6.0:
 --------------------
   * Abstract Rendering recipes for large data sets: isocontour, heatmap, hdalpha
