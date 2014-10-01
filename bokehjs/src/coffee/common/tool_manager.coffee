@@ -18,7 +18,7 @@ define [
 
     render: () ->
       @$el.html(@template())
-      @button_bar_list = @$('.bk-button-bar-list')
+      button_bar_list = @$('.bk-button-bar-list')
 
       # if @model.get('move').length > 0
       #   dropdown = $('<div class="bk-bs-btn-group" />')
@@ -32,13 +32,15 @@ define [
       #   )
       #   dropdown.render()
 
+      button_bar_list = @$(".bk-button-bar-list[type='action']")
       _.each(@model.get('action').tools, (item) =>
-        @button_bar_list.prepend(new ActionTool.ButtonView({model: item}).el)
+        button_bar_list.prepend(new ActionTool.ButtonView({model: item}).el)
       )
 
       for et in ['rotate', 'pinch', 'scroll', 'tap', 'pan']
+        button_bar_list = @$(".bk-button-bar-list[type='#{et}']")
         _.each(@model.get(et).tools, (item) =>
-          @button_bar_list.prepend(new ActionTool.ButtonView({model: item}).el)
+          button_bar_list.prepend(new ActionTool.ButtonView({model: item}).el)
         )
 
       return @
