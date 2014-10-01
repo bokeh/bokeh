@@ -16,7 +16,6 @@ require.config
         kiwi:              "vendor/kiwi/kiwi"
         jsnlog:            "vendor/jsnlog/jsnlog.min"
         hammer:            "vendor/hammer-2.0.3/hammer.min"
-        jquery_drag:       "vendor/jquery-event-drag-2.2/jquery.event.drag-2.2"
     shim:
         sprintf:
             exports: 'sprintf'
