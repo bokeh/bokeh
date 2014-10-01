@@ -1,23 +1,24 @@
 
 define [
-  "underscore",
-  "backbone",
-  "kiwi",
-  "./build_views",
-  "./plot_utils",
-  "./continuum_view",
+  "underscore"
+  "backbone"
+  "kiwi"
+  "./build_views"
+  "./canvas"
+  "./cartesian_frame"
+  "./continuum_view"
   "./collection"
-  "./has_parent",
-  "./canvas",
-  "./layout_box",
-  "./logging",
-  "./solver",
-  "./cartesian_frame",
-  "./plot_template",
-  "./toolbar_template",
-  "renderer/properties",
-  "tool/active_tool_manager",
-], (_, Backbone, kiwi, build_views, plot_utils, ContinuumView, Collection, HasParent, Canvas, LayoutBox, Logging, Solver, CartesianFrame, plot_template, toolbar_template, Properties, ActiveToolManager) ->
+  "./events"
+  "./has_parent"
+  "./layout_box"
+  "./logging"
+  "./plot_utils"
+  "./solver"
+  "./tool_manager"
+  "./plot_template"
+  "./toolbar_template"
+  "renderer/properties"
+], ( _, Backbone, kiwi, build_views, Canvas, CartesianFrame, ContinuumView, Collection, Events, HasParent, LayoutBox, Logging, plot_utils, Solver, ToolManager, plot_template, toolbar_template, Properties) ->
 
   line_properties = Properties.line_properties
   text_properties = Properties.text_properties
@@ -74,11 +75,7 @@ define [
 
       @$('.bk-plot-canvas-wrapper').append(@canvas_view.el)
 
-      toolbar_location = @mget('toolbar_location')
 
-      if toolbar_location?
-        toolbar_selector = '.bk-plot-' + toolbar_location
-        @$(toolbar_selector).html(@toolbar_template())
 
       @canvas_view.render()
 
@@ -90,16 +87,21 @@ define [
       @renderers = {}
       @tools = {}
 
-      @eventSink = _.extend({}, Backbone.Events)
-      @atm = new ActiveToolManager(@eventSink)
       @levels = {}
       for level in plot_utils.LEVELS
         @levels[level] = {}
       @build_levels()
-      @atm.bind_bokeh_events()
       @bind_bokeh_events()
+
       @model.add_constraints(@canvas.solver)
       @listenTo(@canvas.solver, 'layout_update', @request_render)
+
+      @event_bus = new Events({
+        tool_manager: @mget('tool_manager')
+        hit_area: @canvas_view.$el
+      })
+      for id, tool_view of @tools
+        @event_bus.register_tool(tool_view)
 
       @unpause()
       @request_render()
@@ -188,6 +190,15 @@ define [
 
       super()
       @canvas_view.render(force_canvas)
+
+      toolbar_location = @mget('toolbar_location')
+      if toolbar_location?
+        toolbar_selector = '.bk-plot-' + toolbar_location
+        @tm_view = new ToolManager.View({
+          model: @mget('tool_manager')
+          el: toolbar_selector
+        })
+        @tm_view.render()
 
       ctx = @canvas_view.ctx
 
@@ -284,6 +295,11 @@ define [
 
       for r in @get('renderers')
         r.set('parent', @)
+
+      @set('tool_manager', new ToolManager.Model({
+        tools: @get('tools')
+        toolbar_location: @get('toolbar_location')
+      }))
 
       logger.debug("Plot initialized")
 
@@ -382,8 +398,6 @@ define [
         background_fill: "#fff",
         border_fill: "#fff",
         min_border: 40,
-
-        show_toolbar: true,
 
         title_standoff: 8,
         title_text_font: "helvetica",

@@ -54,18 +54,19 @@ define [
   "ticking/single_interval_ticker",
   "ticking/years_ticker",
 
-  "tool/box_select_tool",
-  "tool/box_zoom_tool",
-  "tool/click_tool",
-  "tool/crosshair_tool",
-  "tool/data_range_box_select_tool",
-  "tool/hover_tool",
-  "tool/pan_tool",
-  "tool/preview_save_tool",
-  "tool/reset_tool",
-  "tool/resize_tool",
-  "tool/wheel_zoom_tool",
-  "tool/object_explorer_tool",
+  "tool/action_tool",
+  "tool/inspect_tool",
+  "tool/select_tool",
+  "tool/actions/box_select_tool",
+  "tool/actions/box_zoom_tool",
+  "tool/actions/object_explorer_tool",
+  "tool/actions/pan_tool",
+  "tool/actions/preview_save_tool",
+  "tool/actions/reset_tool",
+  "tool/actions/resize_tool",
+  "tool/actions/wheel_zoom_tool",
+  "tool/inspectors/crosshair_tool",
+  "tool/inspectors/hover_tool",
 
   "widget/data_table",
   "widget/handson_table",
@@ -175,18 +176,19 @@ define [
     SingleIntervalTicker:     'ticking/single_interval_ticker'
     YearsTicker:              'ticking/years_ticker'
 
-    PanTool:                  'tool/pan_tool'
-    WheelZoomTool:            'tool/wheel_zoom_tool'
-    ResizeTool:               'tool/resize_tool'
-    ClickTool:                'tool/click_tool'
-    CrosshairTool:            'tool/crosshair_tool'
-    BoxSelectTool:            'tool/box_select_tool'
-    BoxZoomTool:              'tool/box_zoom_tool'
-    HoverTool:                'tool/hover_tool'
-    DataRangeBoxSelectTool:   'tool/data_range_box_select_tool'
-    PreviewSaveTool:          'tool/preview_save_tool'
-    ResetTool:                'tool/reset_tool'
-    ObjectExplorerTool:       'tool/object_explorer_tool'
+    ActionTool:               'tool/action_tool'
+    InspectTool:              'tool/inspect_tool'
+    SelectTool:               'tool/select_tool'
+    BoxSelectTool:            'tool/actions/box_select_tool'
+    BoxZoomTool:              'tool/actions/box_zoom_tool'
+    ObjectExplorerTool:       'tool/actions/object_explorer_tool'
+    PanTool:                  'tool/actions/pan_tool'
+    PreviewSaveTool:          'tool/actions/preview_save_tool'
+    ResetTool:                'tool/actions/reset_tool'
+    ResizeTool:               'tool/actions/resize_tool'
+    WheelZoomTool:            'tool/actions/wheel_zoom_tool'
+    CrosshairTool:            'tool/inspectors/crosshair_tool'
+    HoverTool:                'tool/inspectors/hover_tool'
 
     DataTable:                'widget/data_table'
     HandsonTable:             'widget/handson_table'

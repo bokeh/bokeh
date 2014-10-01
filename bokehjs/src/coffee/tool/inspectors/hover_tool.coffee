@@ -1,11 +1,11 @@
 
 define [
-  "underscore",
-  "common/collection",
-  "sprintf",
-  "./tool",
+  "underscore"
+  "sprintf"
+  "common/collection"
   "renderer/annotation/tooltip"
-], (_, Collection, sprintf, Tool, Tooltip) ->
+  "tool/inspect_tool"
+], (_, sprintf, Collection, Tooltip, InspectTool) ->
 
   _color_to_hex = (color) ->
     if (color.substr(0, 1) == '#')
@@ -29,61 +29,18 @@ define [
       return sprintf("%0.3f", number)
     return sprintf("%0.3e", number)
 
-  class HoverToolView extends Tool.View
-    initialize: (options) ->
-      super(options)
-      @active = false
+  _hover_icon = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA8ElEQVQ4T42T0Q2CMBCGaQjPxgmMG/jelIQN3ECZQEfADRwBJzBuQCC81wlkBHxvqP8lmhTsUfpSWvp/vfvvKiJn1HVdpml6dPdC38I90DSNxVobYzKMPiSm/z5AZK3t4zjOpJQ6BPECfiKAcqRUzkFmASQEhHzJOUgQ8BWyviwFsL4sBnC+LAE84YMWQnSAVCixdkvMAiB6Q7TCfJtrLq4PHkmSnHHbi0LHvOYa6w/g3kitjSgOYFyUUoWvlCPA9C1gvQfgDmiHNLZBgO8A3geZt+G6chQBA7hi/0QVQBrZ9EwQ0LbtbhgGghQAVFPAB25HmRH8b2/nAAAAAElFTkSuQmCC'
+
+  class HoverToolView extends InspectTool.View
 
     bind_bokeh_events: () ->
-
-      tool_name = "hover_tool"
-
-      if not @mget('always_active')
-        @tool_button = $("<button class='bk-toolbar-button hover'>
-          <img class='bk-btn-icon' src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA8ElEQVQ4T42T0Q2CMBCGaQjPxgmMG/jelIQN3ECZQEfADRwBJzBuQCC81wlkBHxvqP8lmhTsUfpSWvp/vfvvKiJn1HVdpml6dPdC38I90DSNxVobYzKMPiSm/z5AZK3t4zjOpJQ6BPECfiKAcqRUzkFmASQEhHzJOUgQ8BWyviwFsL4sBnC+LAE84YMWQnSAVCixdkvMAiB6Q7TCfJtrLq4PHkmSnHHbi0LHvOYa6w/g3kitjSgOYFyUUoWvlCPA9C1gvQfgDmiHNLZBgO8A3geZt+G6chQBA7hi/0QVQBrZ9EwQ0LbtbhgGghQAVFPAB25HmRH8b2/nAAAAAElFTkSuQmCC'/>
-            <span class='tip'>Hover</span>
-          </button>")
-        @plot_view.$el.find('.bk-button-bar').append(@tool_button)
-        @tool_button.click(=>
-          if @active
-            @plot_view.eventSink.trigger("clear_active_tool")
-          else
-            @plot_view.eventSink.trigger("active_tool", tool_name)
-          )
-
-        @plot_view.eventSink.on("#{tool_name}:deactivated", =>
-          @active=false;
-          @tool_button.removeClass('active')
-          @div.hide()
-        )
-
-        @plot_view.eventSink.on("#{tool_name}:activated", =>
-          @active=true;
-          @tool_button.addClass('active')
-        )
-
-      @plot_view.canvas_view.canvas.bind("mouseout", (e) =>
-        @mget('tooltip').clear()
-      )
-
-      @plot_view.canvas_view.canvas.bind("mousemove", (e) =>
-        if not @active and not @mget('always_active')
-          return
-        offset = $(e.currentTarget).offset()
-        left = if offset? then offset.left else 0
-        top = if offset? then offset.top else 0
-        e.bokehX = e.pageX - left
-        e.bokehY = e.pageY - top
-
-        [vx, vy] = @view_coords(e.bokehX, e.bokehY)
-
-        @_inspect(vx, vy, e)
-      )
-
       for r in @mget('renderers')
         @listenTo(r.get('data_source'), 'inspect', @_update)
 
       @plot_view.canvas_view.canvas_wrapper.css('cursor', 'crosshair')
+
+    _exit_inner: ()->
+      @tooltip.clear()
 
     _inspect: (vx, vy, e) ->
       geometry = {
@@ -93,33 +50,31 @@ define [
       }
       for r in @mget('renderers')
         sm = r.get('data_source').get('selection_manager')
-        sm.inspect(@, @plot_view.renderers[r.id], geometry, {"e": e, "geometry": geometry})
+        sm.inspect(@, @plot_view.renderers[r.id], geometry, {"geometry": geometry})
 
-    _update: (indices, tool, renderer, ds, {e, geometry}) ->
+    _update: (indices, tool, renderer, ds, {geometry}) ->
 
       @mget('tooltip').clear()
+
       if indices.length == 0
         return
 
-      vx = geometry.vx
-      vy = geometry.vy
+      canvas = @plot_model.get('canvas')
+      frame = @plot_model.get('frame')
 
-      if @mget('inner_only') and not @plot_view.frame.contains(vx, vy)
-        return
+      sx = canvas.vx_to_sx(vx)
+      sy = canvas.vy_to_sy(vy)
 
-      sx = @plot_view.mget('canvas').vx_to_sx(vx)
-      sy = @plot_view.mget('canvas').vy_to_sy(vy)
-
-      xmapper = @plot_view.frame.get('x_mappers')[renderer.mget('x_range_name')]
-      ymapper = @plot_view.frame.get('y_mappers')[renderer.mget('y_range_name')]
+      xmapper = frame.get('x_mappers')[renderer.mget('x_range_name')]
+      ymapper = frame.get('y_mappers')[renderer.mget('y_range_name')]
       x = xmapper.map_from_target(vx)
       y = ymapper.map_from_target(vy)
 
       for i in  indices
 
         if @mget('snap_to_marker')
-          rx = @plot_view.mget('canvas').sx_to_vx(renderer.sx[i])
-          ry = @plot_view.mget('canvas').sy_to_vy(renderer.sy[i])
+          rx = canvas.sx_to_vx(renderer.sx[i])
+          ry = canvas.sy_to_vy(renderer.sy[i])
         else
           [rx, ry] = [vx, vy]
 
@@ -183,39 +138,26 @@ define [
 
       return null
 
-  class HoverTool extends Tool.Model
+  class HoverTool extends InspectTool.Model
     default_view: HoverToolView
     type: "HoverTool"
+    tool_name: "Hover Tool"
 
     initialize: (attrs, options) ->
       super(attrs, options)
       @set('tooltip', new Tooltip.Model())
       plot_renderers = @get('plot').get('renderers')
       plot_renderers.push(@get('tooltip'))
-      @get('plot').set('renderers', plot_renderers)
-      names = @get('names')
-      renderers = @get('renderers')
-      if renderers.length == 0
-        all_renderers = @get('plot').get('renderers')
-        renderers = (r for r in all_renderers when r.type == "Glyph")
-      renderers = (r for r in all_renderers when r.type == "Glyph")
-      if names.length > 0
-        renderers = (r for r in renderers when names.indexOf(r.get('name')) >= 0)
-      @set('renderers', renderers)
 
-    defaults: ->
-      return _.extend {}, super(), {
-        renderers: []
-        names: []
+    defaults: () ->
+      return _.extend({}, super(), {
+        snap_to_marker: true
         tooltips: {
           "index": "$index"
           "data (x, y)": "($x, $y)"
           "canvas (x, y)": "($sx, $sy)"
         }
-        snap_to_marker: true
-        always_active: true
-        inner_only: true
-      }
+      })
 
   class HoverTools extends Collection
     model: HoverTool

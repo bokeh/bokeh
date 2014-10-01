@@ -8,8 +8,7 @@ define [
   "./has_parent",
   "./grid_view_state",
   "renderer/properties",
-  "tool/active_tool_manager",
-], (_, Backbone, build_views, ContinuumView, Collection, HasParent, GridViewState, Properties, ActiveToolManager) ->
+], (_, Backbone, build_views, ContinuumView, Collection, HasParent, GridViewState, Properties) ->
 
   class GridPlotView extends ContinuumView
     tagName: 'div'
@@ -84,8 +83,6 @@ define [
       @button_bar = $("<div class='grid_button_bar'/>")
       @button_bar.attr('style',     "position:absolute; left:10px; top:0px; ")
       @toolEventSink = _.extend({}, Backbone.Events)
-      @atm = new ActiveToolManager(@toolEventSink)
-      @atm.bind_bokeh_events()
       @$el.append(@button_bar)
       all_tools = _.flatten(_.map(_.pluck(this.childviews, 'tools'), _.values))
       all_tool_classes = _.uniq(_.pluck(all_tools, 'constructor'))

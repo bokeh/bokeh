@@ -70,11 +70,11 @@ define [
     default_view: BoxSelectionView
     type: "BoxSelection"
 
-    defaults: ->
-      return _.extend {}, super(), {
+    defaults: () ->
+      return _.extend({}, super(), {
         tool: null
         level: 'overlay'
-      }
+      })
 
   class BoxSelections extends Collection
     model: BoxSelection

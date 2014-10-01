@@ -1,44 +1,96 @@
 
 define [
-  "underscore",
   "common/plot_widget",
-  "common/has_parent",
-], (_, PlotWidget, HasParent) ->
+  "common/has_properties",
+  "common/logging",
+], (PlotWidget, HasProperties, Logging) ->
+
+  logger = Logging.logger
 
   class ToolView extends PlotWidget
-    initialize: (options) ->
-      super(options)
 
     bind_bokeh_events: () ->
-      eventSink = @plot_view.eventSink
-      evgen_options = {
-        eventBasename:@cid,
-        buttonIcon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAcCAYAAAByDd+UAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEgAACxIB0t1+/AAAABx0RVh0U29mdHdhcmUAQWRvYmUgRmlyZXdvcmtzIENTNui8sowAAADfSURBVEiJ1ZXhDYIwEEbfZxzADWQDR5ANXMFRHMERdBLZQDdQN9AJPv+gIajQClZ8SUNy6d0j5a7INikZJbUNVijpaQFLYAesa/FGxh1etgBOwCUqy3brKvflto9up7lWiND2KkAUJAxtmgK4Rh3dGxQyh5KwPQE2wKRle96LsI7tDJgCV0mHSry5WGjTvMi7f9cipl6Xwc/K5zwmqQ9hFMO82oYifIyH7TyFcPZJ0l8d6U+F+VeFMU3Si7DCOalQUgZskwlt74EFEddcl9/TsiJaS7qU8e7CPvnbOQzmBk+aLHum0l/aAAAAAElFTkSuQmCC"
-      }
-      evgen_options2 = _.extend(evgen_options, @evgen_options)
-      evgen = new @eventGeneratorClass(evgen_options2)
-      evgen.bind_bokeh_events(@plot_view, eventSink)
+      @listenTo(@model, 'change:active', () =>
+        if @mget('active')
+          @activate()
+        else
+          @deactivate()
+      )
 
-      _.each(@tool_events, (handler_f, event_name) =>
-        full_event_name = "#{@cid}:#{event_name}"
-        wrap = (e) =>
-          @[handler_f](e)
-        eventSink.on(full_event_name, wrap))
-      @evgen = evgen
+    # activate is triggered by toolbar ui actions
+    activate: () ->
 
-    view_coords: (sx, sy) ->
-      [vx, vy] = [
-        @plot_view.canvas.sx_to_vx(sx),
-        @plot_view.canvas.sy_to_vy(sy)
-      ]
-      return [vx, vy]
+    # deactivate is triggered by toolbar ui actions
+    deactivate: () ->
 
-  class Tool extends HasParent
+  class Tool extends HasProperties
 
-    display_defaults: ->
-      return _.extend {}, super(), {
-        level: 'tool'
-      }
+
+    # TODO (bev) The following "dim" functions should probably
+    # go in a helper util module, or something. Would be best
+    # as a mixin but no MI built into CoffeeScript
+
+    # this is a utility function that can be used by tools
+    # to check their "dims" attribute, if they have one, and
+    # return indicators for which ones are set
+    _check_dims: (dims, tool_name) ->
+
+      [wdim, hdim] = [false, false]
+
+      if dims.length == 0
+        logger.warn("#{tool_name} given empty dimensions")
+
+      else if dims.length == 1
+        if dims[0] != 'width' and dims[0] != 'height'
+          logger.warn("#{tool_name} given unrecognized dimensions: #{dims}")
+
+      else if dims.length == 2
+        if dims.indexOf('width') < 0 or dims.indexOf('height') < 0
+          logger.warn("#{tool_name} given unrecognized dimensions: #{dims}")
+
+      else
+        logger.warn("#{tool_name} given more than two dimensions: #{dims}")
+
+      if dims.indexOf('width') >= 0
+        wdim = true
+      if dims.indexOf('height') >= 0
+        hdim = true
+
+      return [wdim, hdim]
+
+    # utility function to return a tool name, modified
+    # by the active dimenions. Used by tools that have dimensions
+    _get_dim_tooltip: (name, [wdim, hdim]) ->
+      if wdim and not hdim
+        return "#{name} (x-axis)"
+      else if hdim and not wdim
+        return "#{name} (y-axis)"
+      else
+        return name
+
+    # utility function to get limits along both dimensions, given
+    # optional dimensional constraints
+    _get_dim_limits: ([vx0, vy0], [vx1, vy1], frame, dims) ->
+      if dims.indexOf('width') >= 0
+        vxlim = [_.min([vx0, vx]), _.max([vx0, vx])]
+      else
+        hr = frame.get('h_range')
+        vxlim = [hr.get('min'), hr.get('max')]
+
+      if dims.indexOf('height') >= 0
+        vylim = [_.min([vy0, vy]), _.max([vy0, vy])]
+      else
+        vr = frame.get('v_range')
+        vylim = [vr.get('min'), vr.get('max')]
+
+      return [vxlim, vylim]
+
+    defaults: () ->
+      return _.extend({}, super(), {
+        active: false
+        tool_name: @tool_name
+        level: 'overlay'
+      })
 
   return {
     "Model": Tool,

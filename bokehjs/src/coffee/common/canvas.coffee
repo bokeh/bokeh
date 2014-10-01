@@ -20,10 +20,6 @@ define [
 
     template: canvas_template
 
-    events:
-      "mousemove": "_mousemove"
-      "mousedown": "_mousedown"
-
     initialize: (options) ->
       super(options)
 
@@ -118,14 +114,6 @@ define [
           # fake it til you make it
           textMetrics.ascent = ctx.html5MeasureText("m").width * 1.6
           return textMetrics
-
-    _mousedown: (e) =>
-      for f in @mget('mousedown_callbacks')
-        f(e, e.layerX, e.layerY)
-
-    _mousemove: (e) =>
-      for f in @mget('mousemove_callbacks')
-        f(e, e.layerX, e.layerY)
 
   class Canvas extends LayoutBox.Model
     type: 'Canvas'

@@ -31,6 +31,12 @@ define [
     isNew: () ->
       return false
 
+    attrs_and_props : () ->
+      data = _.clone(@attributes)
+      for prop_name in _.keys(@properties)
+        data[prop_name] = @get(prop_name)
+      return data
+
     constructor : (attributes, options) ->
       ## straight from backbone.js
       attrs = attributes || {}
@@ -229,7 +235,7 @@ define [
           @add_cache(prop_name, computed)
         return computed
 
-    ref: ->
+    ref: () ->
       # ### method: HasProperties::ref
       # generates a reference to this model
       'type': this.type

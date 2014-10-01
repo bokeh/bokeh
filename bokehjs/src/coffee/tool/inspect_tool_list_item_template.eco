@@ -1,0 +1,1 @@
+<input type="checkbox" checked=<%= @active %>><%= @tool_name %></input>
