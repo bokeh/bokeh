@@ -22,7 +22,8 @@ define [
       else
         delta = e.delta
 
-      [x, y]  = @mouse_coords(e, e.bokehX, e.bokehY)
+      x = @plot_view.canvas.sx_to_vx(e.sx)
+      y = @plot_view.canvas.sy_to_vy(e.sy)
       factor  = @mget('speed') * delta
 
       # clamp the  magnitude of factor, if it is > 1 bad things happen

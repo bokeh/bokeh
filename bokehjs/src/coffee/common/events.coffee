@@ -105,7 +105,14 @@ define [
 
     _mouse_wheel: (e, delta) ->
       e.delta = delta
+      offset = $(e.currentTarget).offset()
+      left = if offset? then offset.left else 0
+      top = if offset? then offset.top else 0
+      e.sx = e.pageX - left
+      e.sy = e.pageY - top
       @_trigger('scroll', e)
+      e.preventDefault()
+      e.stopPropagation()
 
     _key_down: (e) ->
       @trigger('keydown', e)
