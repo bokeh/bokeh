@@ -19,9 +19,9 @@ define [
     render: () ->
       @$el.html(@template(@model.attrs_and_props()))
       if @model.get('active')
-        @$el.addClass('active')
+        @$el.children('button').addClass('active')
       else
-        @$el.removeClass('active')
+        @$el.children('button').removeClass('active')
       return @
 
     _clicked: () ->

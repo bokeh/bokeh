@@ -73,20 +73,39 @@
 .bk-button-bar {
   float: right;
 }
-.bk-button-bar > .bk-toolbar-button {
-  width: 30px;
-  height: 36px;
-  padding: 5px;
+.bk-button-bar .bk-button-bar-list {
+  float: left;
+  margin: 0 10px 0 0;
+  padding: 0 5px 0 0;
+  border-right: 1px solid gray;
+}
+.bk-button-bar .bk-button-bar-list:after {
+  content: " ";
+  display: block;
+  height: 0;
+  clear: both;
+}
+.bk-button-bar-list li {
+  list-style-type: none;
+  float: left;
+  padding: 0;
+  margin: 0;
   position: relative;
   display: block;
   overflow: visible;
   background-color: transparent;
+  
+}
+.bk-button-bar-list .bk-toolbar-button {
+  width: 30px;
+  height: 36px;
+  padding: 5px;
   border: none;
   border-radius: 0px !important;
   -moz-border-radius: 0px !important;
   -webkit-border-radius: 0px !important;
 }
-.bk-button-bar > .bk-toolbar-button > .bk-btn-icon {
+.bk-button-bar-list .bk-toolbar-button .bk-btn-icon {
   height: 16px;
   margin: 0 !important;
   border: none !important;
@@ -95,24 +114,26 @@
   position: relative;
   z-index: 10;
 }
-.bk-button-bar > .bk-toolbar-button > span.tip {
+.bk-button-bar-list .bk-toolbar-button span.tip {
   display: none;
 }
-.bk-button-bar > .bk-toolbar-button > span.tip:before {
+.bk-button-bar-list .bk-toolbar-button span.tip:before {
   display: none;
   content: " ";
   position: relative;
   background-position: top center;
   background-repeat: no-repeat;
 }
-.bk-button-bar > .bk-toolbar-button:hover {
+.bk-button-bar-list .bk-toolbar-button:hover {
   cursor: pointer;
   background: transparent !important;
 
 }
-.bk-toolbar-button:hover > span.tip {
+.bk-toolbar-button:hover span.tip {
   display: inline-block;
   position: absolute;
+  top: 40px;
+  padding: 3px 5px;
   transition:  all 0.6s ease;
   -webkit-transition:  all 0.6s ease;
   -moz-transition:   all 0.6s ease;
@@ -124,10 +145,10 @@
     text-align: left;
   }
 }
-.bk-toolbar-button:hover > span.tip:before {
+.bk-toolbar-button:hover span.tip:before {
   display: inline-block;
 }
-.bk-toolbar-button:hover > span.tip {
+.bk-toolbar-button:hover span.tip {
   z-index: 20;
   font-size: 100%;
   color: #fff;
@@ -138,7 +159,7 @@
   -moz-border-radius: 3px !important;
   -webkit-border-radius: 3px !important;
 }
-.bk-button-bar > .bk-toolbar-button.active {
+.bk-button-bar-list .bk-toolbar-button.active {
   background: #fff;
   -box-shadow: none !important;
   -webkit-box-shadow: none !important;
