@@ -59,11 +59,29 @@ define [
         tool_view.listenTo(@, "#{et}:#{id}", tool_view["_#{et}"])
 
     _trigger: (event_type, e) ->
-      active = @get('tool_manager').get(event_type.split(":")[0]).active
+      tm = @get('tool_manager')
+      base_event_type = event_type.split(":")[0]
+      active = tm.get(base_event_type).active
       if active?
         @trigger("#{event_type}:#{active.id}", e)
 
+    _bokify: (e) ->
+      if e.pointerType == "mouse"
+        offset = $(e.target).offset()
+        left = if offset? then offset.left else 0
+        top = if offset? then offset.top else 0
+        e.bokeh = {
+          sx: e.srcEvent.pageX - left
+          sy: e.srcEvent.pageY - top
+        }
+      else
+        e.bokeh = {
+          sx: e.center.x
+          sy: e.center.y
+        }
+
     _tap: (e) ->
+      @_bokify(e)
       @_trigger('tap', e)
 
     _doubletap: (e) ->
@@ -115,8 +133,10 @@ define [
       e.stopPropagation()
 
     _key_down: (e) ->
+      # NOTE: keydown event triggered unconditionally
       @trigger('keydown', e)
 
     _key_up: (e) ->
+      # NOTE: keyup event triggered unconditionally
       @trigger('keyup', e)
 

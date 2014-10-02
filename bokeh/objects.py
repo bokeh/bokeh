@@ -718,7 +718,7 @@ class ResetTool(Tool):
 class ResizeTool(Tool):
     pass
 
-class ClickTool(Tool):
+class TapTool(Tool):
     names = List(String)
     always_active = Bool(True)
 

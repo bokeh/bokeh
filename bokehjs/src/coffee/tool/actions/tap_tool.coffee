@@ -8,7 +8,11 @@ define [
   class TapToolView extends SelectTool.View
 
     _tap: (e) ->
-      @_select(e.centerX, e.centerY, e.shiftKey?)
+      canvas = @plot_view.canvas
+      vx = canvas.sx_to_vx(e.bokeh.sx)
+      vy = canvas.sy_to_vy(e.bokeh.sy)
+      append = e.srcEvent.shiftKey ? false
+      @_select(vx, vy, append)
 
     _select: (vx, vy, append) ->
       geometry = {
@@ -26,6 +30,7 @@ define [
     default_view: TapToolView
     type: "TapTool"
     tool_name: "Tap"
+    icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAcCAYAAAByDd+UAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEgAACxIB0t1+/AAAABx0RVh0U29mdHdhcmUAQWRvYmUgRmlyZXdvcmtzIENTNui8sowAAADfSURBVEiJ1ZXhDYIwEEbfZxzADWQDR5ANXMFRHMERdBLZQDdQN9AJPv+gIajQClZ8SUNy6d0j5a7INikZJbUNVijpaQFLYAesa/FGxh1etgBOwCUqy3brKvflto9up7lWiND2KkAUJAxtmgK4Rh3dGxQyh5KwPQE2wKRle96LsI7tDJgCV0mHSry5WGjTvMi7f9cipl6Xwc/K5zwmqQ9hFMO82oYifIyH7TyFcPZJ0l8d6U+F+VeFMU3Si7DCOalQUgZskwlt74EFEddcl9/TsiJaS7qU8e7CPvnbOQzmBk+aLHum0l/aAAAAAElFTkSuQmCC"
     event_type: "tap"
 
   class TapTools extends Collection

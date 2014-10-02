@@ -94,6 +94,7 @@ define [
       return {
         pan: {tools: [], active: null}
         tap: {tools: [], active: null}
+        doubletap: {tools: [], active: null}
         scroll: {tools: [], active: null}
         pinch: {tools: [], active: null}
         press: {tools: [], active: null}

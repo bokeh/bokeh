@@ -186,6 +186,7 @@ define [
     PreviewSaveTool:          'tool/actions/preview_save_tool'
     ResetTool:                'tool/actions/reset_tool'
     ResizeTool:               'tool/actions/resize_tool'
+    TapTool:                  'tool/actions/tap_tool'
     WheelZoomTool:            'tool/actions/wheel_zoom_tool'
     CrosshairTool:            'tool/inspectors/crosshair_tool'
     HoverTool:                'tool/inspectors/hover_tool'

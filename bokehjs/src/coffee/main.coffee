@@ -118,6 +118,7 @@ define (require, exports, module) ->
   Bokeh.PreviewSaveTool        = require("tool/actions/preview_save_tool")
   Bokeh.ResetTool              = require("tool/actions/reset_tool")
   Bokeh.ResizeTool             = require("tool/actions/resize_tool")
+  Bokeh.TapTool                = require("tool/actions/tap_tool")
   Bokeh.WheelZoomTool          = require("tool/actions/wheel_zoom_tool")
   Bokeh.HoverTool              = require("tool/inspectors/hover_tool")
   Bokeh.CrosshairTool          = require("tool/inspectors/crosshair_tool")

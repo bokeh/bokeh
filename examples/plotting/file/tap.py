@@ -4,9 +4,9 @@ import numpy as np
 from six.moves import zip
 from collections import OrderedDict
 from bokeh.plotting import *
-from bokeh.objects import ClickTool
+from bokeh.objects import TapTool
 
-TOOLS="pan,wheel_zoom,box_zoom,reset,click,previewsave"
+TOOLS="pan,wheel_zoom,box_zoom,reset,tap,previewsave"
 
 xx, yy = np.meshgrid(range(0,101,4), range(0,101,4))
 x = xx.flatten()
@@ -38,13 +38,13 @@ hold()
 
 circle(x, y, radius=radii, source=source, tools=TOOLS,
        fill_color=colors, fill_alpha=0.6,
-       line_color=None, Title="Clicky Scatter", name="mystuff")
+       line_color=None, Title="Tappy Scatter", name="mystuff")
 
 text(x, y, text=inds, alpha=0.5, text_font_size="5pt",
      text_baseline="middle", text_align="center", angle=0)
 
 # in the broswer console, you will see messages when circles are clicked
-click = [t for t in curplot().tools if isinstance(t, ClickTool)][0]
+click = [t for t in curplot().tools if isinstance(t, TapTool)][0]
 click.names.append("mystuff")
 
 show()  # open a browser
