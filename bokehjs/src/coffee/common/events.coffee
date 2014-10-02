@@ -71,11 +71,11 @@ define [
       if active?
         @trigger("#{event_type}:#{active.id}", e)
 
-    _bokify: (e) ->
+    _bokify_hammer: (e) ->
       if e.pointerType == "mouse"
         offset = $(e.target).offset()
-        left = if offset? then offset.left else 0
-        top = if offset? then offset.top else 0
+        left = offset.left ? 0
+        top = offset.top ? 0
         e.bokeh = {
           sx: e.srcEvent.pageX - left
           sy: e.srcEvent.pageY - top
@@ -86,54 +86,74 @@ define [
           sy: e.center.y
         }
 
+    _bokify_jq: (e) ->
+      offset = $(e.currentTarget).offset()
+      left = offset.left ? 0
+      top = offset.top ? 0
+      e.bokeh = {
+        sx: e.pageX - left
+        sy: e.pageY - top
+      }
+
     _tap: (e) ->
-      @_bokify(e)
+      @_bokify_hammer(e)
       @_trigger('tap', e)
 
     _doubletap: (e) ->
+      @_bokify_hammer(e)
       @_trigger('doubletap', e)
 
     _press: (e) ->
+      @_bokify_hammer(e)
       @_trigger('press', e)
 
     _pan_start: (e) ->
+      @_bokify_hammer(e)
+      # back out delta to get original center point
+      e.bokeh.sx -= e.deltaX
+      e.bokeh.sy -= e.deltaY
       @_trigger('pan:start', e)
 
     _pan: (e) ->
+      @_bokify_hammer(e)
       @_trigger('pan', e)
 
     _pan_end: (e) ->
+      @_bokify_hammer(e)
       @_trigger('pan:end', e)
 
     _pinch_start: (e) ->
+      @_bokify_hammer(e)
       @_trigger('pinch:start', e)
 
     _pinch: (e) ->
+      @_bokify_hammer(e)
       @_trigger('pinch', e)
 
     _pinch_end: (e) ->
+      @_bokify_hammer(e)
       @_trigger('pinch:end', e)
 
     _rotate_start: (e) ->
+      @_bokify_hammer(e)
       @_trigger('rotate:start', e)
 
     _rotate: (e) ->
+      @_bokify_hammer(e)
       @_trigger('rotate', e)
 
     _rotate_end: (e) ->
+      @_bokify_hammer(e)
       @_trigger('rotate:end', e)
 
     _mouse_move: (e) ->
       # NOTE: move event triggered unconditionally
+      @_bokify_jq(e)
       @trigger('move', e)
 
     _mouse_wheel: (e, delta) ->
-      e.delta = delta
-      offset = $(e.currentTarget).offset()
-      left = if offset? then offset.left else 0
-      top = if offset? then offset.top else 0
-      e.sx = e.pageX - left
-      e.sy = e.pageY - top
+      @_bokify_jq(e)
+      e.bokeh.delta = delta
       @_trigger('scroll', e)
       e.preventDefault()
       e.stopPropagation()

@@ -72,13 +72,13 @@ define [
     # optional dimensional constraints
     _get_dim_limits: ([vx0, vy0], [vx1, vy1], frame, dims) ->
       if dims.indexOf('width') >= 0
-        vxlim = [_.min([vx0, vx]), _.max([vx0, vx])]
+        vxlim = [_.min([vx0, vx1]), _.max([vx0, vx1])]
       else
         hr = frame.get('h_range')
         vxlim = [hr.get('min'), hr.get('max')]
 
       if dims.indexOf('height') >= 0
-        vylim = [_.min([vy0, vy]), _.max([vy0, vy])]
+        vylim = [_.min([vy0, vy1]), _.max([vy0, vy1])]
       else
         vr = frame.get('v_range')
         vylim = [vr.get('min'), vr.get('max')]

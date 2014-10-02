@@ -20,10 +20,10 @@ define [
       if e.originalEvent.deltaY?
         delta = -e.originalEvent.deltaY * multiplier
       else
-        delta = e.delta
+        delta = e.bokeh.delta
 
-      x = @plot_view.canvas.sx_to_vx(e.sx)
-      y = @plot_view.canvas.sy_to_vy(e.sy)
+      vx = @plot_view.canvas.sx_to_vx(e.bokeh.sx)
+      vy = @plot_view.canvas.sy_to_vy(e.bokeh.sy)
       factor  = @mget('speed') * delta
 
       # clamp the  magnitude of factor, if it is > 1 bad things happen
@@ -35,28 +35,28 @@ define [
       frame = @plot_model.get('frame')
 
       xr = frame.get('h_range')
-      sx_low  = xr.get('start')
-      sx_high = xr.get('end')
+      vx_low  = xr.get('start')
+      vx_high = xr.get('end')
 
       yr = frame.get('v_range')
-      sy_low  = yr.get('start')
-      sy_high = yr.get('end')
+      vy_low  = yr.get('start')
+      vy_high = yr.get('end')
 
       dims = @mget('dimensions')
 
       if dims.indexOf('width') > -1
-        sx0 = sx_low  - (sx_low  - x)*factor
-        sx1 = sx_high - (sx_high - x)*factor
+        sx0 = vx_low  - (vx_low  - vx)*factor
+        sx1 = vx_high - (vx_high - vx)*factor
       else
-        sx0 = sx_low
-        sx1 = sx_high
+        sx0 = vx_low
+        sx1 = vx_high
 
       if dims.indexOf('height') > -1
-        sy0 = sy_low  - (sy_low  - y)*factor
-        sy1 = sy_high - (sy_high - y)*factor
+        sy0 = vy_low  - (vy_low  - vy)*factor
+        sy1 = vy_high - (vy_high - vy)*factor
       else
-        sy0 = sy_low
-        sy1 = sy_high
+        sy0 = vy_low
+        sy1 = vy_high
 
       xrs = {}
       for name, mapper of frame.get('x_mappers')

@@ -8,34 +8,41 @@ define [
   class BoxZoomToolView extends ActionTool.View
 
     _pan_start: (e) ->
+      canvas = @plot_view.canvas
       @_baseboint = [
-        e.center.x-e.deltaX,
-        e.center.t-e.deltaY
+        canvas.sx_to_vx(e.bokeh.sx)
+        canvas.sy_to_vy(e.bokeh.sy)
       ]
       return null
 
     _pan: (e) ->
-      curpoint = [e.vx, e.vy]
+      canvas = @plot_view.canvas
+      curpoint = [
+        canvas.sx_to_vx(e.bokeh.sx)
+        canvas.sy_to_vy(e.bokeh.sy)
+      ]
       frame = @plot_model.get('frame')
       dims = @mget('dimensions')
 
-      [vxlim, vylim] = @_get_dim_limits(@_baseboint, curpoint, frame, dims)
+      [vxlim, vylim] = @model._get_dim_limits(@_baseboint, curpoint, frame, dims)
 
       @plot_view._render_levels(@plot_view.canvas_view.ctx, ['overlay'])
-
       return null
 
      _pan_end: (e) ->
-      curpoint = [e.vx, e.vy]
+      canvas = @plot_view.canvas
+      curpoint = [
+        canvas.sx_to_vx(e.bokeh.sx)
+        canvas.sy_to_vy(e.bokeh.sy)
+      ]
       frame = @plot_model.get('frame')
       dims = @mget('dimensions')
 
-      [vxlim, vylim] = @_get_dim_limits(@_baseboint, curpoint, frame, dims)
+      [vxlim, vylim] = @model._get_dim_limits(@_baseboint, curpoint, frame, dims)
 
       @_update(vxlim, vylim)
 
       @_baseboint = null
-
       return null
 
     _update: (vxlim, vylim) ->

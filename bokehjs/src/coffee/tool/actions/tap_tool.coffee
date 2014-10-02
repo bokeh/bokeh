@@ -7,13 +7,6 @@ define [
 
   class TapToolView extends SelectTool.View
 
-    _keyup: (e) ->
-      if e.keyCode == 27
-        for r in @mget('renderers')
-          ds = r.get('data_source')
-          sm = ds.get('selection_manager')
-          sm.clear()
-
     _tap: (e) ->
       canvas = @plot_view.canvas
       vx = canvas.sx_to_vx(e.bokeh.sx)

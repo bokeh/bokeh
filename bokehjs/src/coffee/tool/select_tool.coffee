@@ -5,6 +5,13 @@ define [
 
   class SelectToolView extends ActionTool.View
 
+    _keyup: (e) ->
+      if e.keyCode == 27
+        for r in @mget('renderers')
+          ds = r.get('data_source')
+          sm = ds.get('selection_manager')
+          sm.clear()
+
   class SelectTool extends ActionTool.Model
 
     initialize: (attrs, options) ->
