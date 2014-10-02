@@ -37,7 +37,7 @@ define [
         button_bar_list.prepend(new ActionTool.ButtonView({model: item}).el)
       )
 
-      for et in ['rotate', 'pinch', 'scroll', 'tap', 'pan']
+      for et in ['rotate', 'pinch', 'scroll', 'tap', 'doubletap', 'pan']
         button_bar_list = @$(".bk-button-bar-list[type='#{et}']")
         _.each(@model.get(et).tools, (item) =>
           button_bar_list.prepend(new ActionTool.ButtonView({model: item}).el)
@@ -65,6 +65,11 @@ define [
           tool.set('active', true)
 
         @set(et, info)
+
+      for et in ['rotate', 'pinch', 'scroll', 'tap', 'doubletap', 'pan']
+        info = @get(et)
+        if not info.active? and info.tools.length > 0
+          info.active = info.tools[0]
 
     _active_change: (tool) =>
       et = tool.event_type ? 'action'
