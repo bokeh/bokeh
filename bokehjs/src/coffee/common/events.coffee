@@ -35,8 +35,8 @@ define [
 
       hit_area.mousemove((e) => @_mouse_move(e))
       hit_area.mousewheel((e, delta) => @_mouse_wheel(e, delta))
-      hit_area.keydown((e) => @key_down(e))
-      hit_area.keyup((e) => @key_up(e))
+      $(document).keydown((e) => @_key_down(e))
+      $(document).keyup((e) => @_key_up(e))
 
     register_tool: (tool_view) ->
       et = tool_view.mget('event_type')
@@ -57,6 +57,12 @@ define [
         tool_view.listenTo(@, "#{et}", tool_view["_#{et}"])
       else
         tool_view.listenTo(@, "#{et}:#{id}", tool_view["_#{et}"])
+
+      if tool_view._keydown?
+        tool_view.listenTo(@, "keydown", tool_view._keydown)
+
+      if tool_view._keyup?
+        tool_view.listenTo(@, "keyup", tool_view._keyup)
 
     _trigger: (event_type, e) ->
       tm = @get('tool_manager')
