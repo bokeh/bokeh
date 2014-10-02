@@ -390,13 +390,9 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
         elif tool == "crosshair":
             tool_obj = CrosshairTool(plot=p)
         elif tool == "select":
-            tool_obj = BoxSelectTool()
-            overlay = BoxSelectionOverlay(tool=tool_obj)
-            p.renderers.append(overlay)
+            tool_obj = BoxSelectTool(plot=p)
         elif tool == "box_zoom":
             tool_obj = BoxZoomTool(plot=p)
-            overlay = BoxSelectionOverlay(tool=tool_obj)
-            p.renderers.append(overlay)
         elif tool == "hover":
             tool_obj = HoverTool(plot=p, always_active=True, tooltips={
                 "index": "$index",

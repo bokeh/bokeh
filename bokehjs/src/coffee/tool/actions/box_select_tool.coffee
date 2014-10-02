@@ -1,10 +1,10 @@
 
 define [
-  "underscore",
-  "common/collection",
-  "range/range1d",
-  "tool/select_tool",
-], (_, Collection, Range1d, SelectTool) ->
+  "underscore"
+  "common/collection"
+  "renderer/overlay/box_selection"
+  "tool/select_tool"
+], (_, Collection, BoxSelection, SelectTool) ->
 
   class BoxSelectToolView extends SelectTool.View
 
@@ -26,11 +26,11 @@ define [
       dims = @mget('dimensions')
 
       [vxlim, vylim] = @model._get_dim_limits(@_baseboint, curpoint, frame, dims)
+      @mget('overlay').set('data', {vxlim: vxlim, vylim: vylim})
 
       if @mget('select_every_mousemove')
         @_select(vxlim, vylim, false)
 
-      @plot_view._render_levels(@plot_view.canvas_view.ctx, ['overlay'])
       return null
 
      _pan_end: (e) ->
@@ -43,8 +43,8 @@ define [
       dims = @mget('dimensions')
 
       [vxlim, vylim] = @model._get_dim_limits(@_baseboint, curpoint, frame, dims)
-
       @_select(vxlim, vylim, true)
+      @mget('overlay').set('data', {})
 
       @_baseboint = null
       return null
@@ -82,6 +82,11 @@ define [
           )
         , false)
       @add_dependencies('tooltip', this, ['dimensions'])
+
+      @set('overlay', new BoxSelection.Model)
+      plot_renderers = @get('plot').get('renderers')
+      plot_renderers.push(@get('overlay'))
+      @get('plot').set('renderers', plot_renderers)
 
     defaults: () ->
       return _.extend({}, super(), {

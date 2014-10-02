@@ -75,8 +75,6 @@ define [
 
       @$('.bk-plot-canvas-wrapper').append(@canvas_view.el)
 
-
-
       @canvas_view.render()
 
       @throttled_render = plot_utils.throttle_animation(@render, 15)
@@ -98,7 +96,7 @@ define [
 
       @event_bus = new Events({
         tool_manager: @mget('tool_manager')
-        hit_area: @canvas_view.$el
+        hit_area: @$('.bokeh_canvas')
       })
       for id, tool_view of @tools
         @event_bus.register_tool(tool_view)

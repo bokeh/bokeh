@@ -1,9 +1,10 @@
 
 define [
-  "underscore",
-  "common/collection",
-  "tool/action_tool",
-], (_, Collection, ActionTool) ->
+  "underscore"
+  "common/collection"
+  "renderer/overlay/box_selection"
+  "tool/action_tool"
+], (_, Collection, BoxSelection, ActionTool) ->
 
   class BoxZoomToolView extends ActionTool.View
 
@@ -25,8 +26,8 @@ define [
       dims = @mget('dimensions')
 
       [vxlim, vylim] = @model._get_dim_limits(@_baseboint, curpoint, frame, dims)
+      @mget('overlay').set('data', {vxlim: vxlim, vylim: vylim})
 
-      @plot_view._render_levels(@plot_view.canvas_view.ctx, ['overlay'])
       return null
 
      _pan_end: (e) ->
@@ -39,8 +40,8 @@ define [
       dims = @mget('dimensions')
 
       [vxlim, vylim] = @model._get_dim_limits(@_baseboint, curpoint, frame, dims)
-
       @_update(vxlim, vylim)
+      @mget('overlay').set('data', {})
 
       @_baseboint = null
       return null
@@ -79,6 +80,11 @@ define [
           )
         , false)
       @add_dependencies('tooltip', this, ['dimensions'])
+
+      @set('overlay', new BoxSelection.Model)
+      plot_renderers = @get('plot').get('renderers')
+      plot_renderers.push(@get('overlay'))
+      @get('plot').set('renderers', plot_renderers)
 
     defaults: () ->
       return _.extend({}, super(), {

@@ -16,9 +16,12 @@ define [
       # TODO (bev) really probably need multiple divs
       @div = $('<div class="bokeh_tooltip" />').appendTo(@plot_view.$el.find('.bokeh_canvas_wrapper'))
       @div.hide()
+
+    bind_bokeh_events: () ->
       @listenTo(@model, 'change:data', @_draw_tips)
 
     render: () ->
+      @_draw_tips()
 
     _draw_tips: () ->
       @div.empty()
