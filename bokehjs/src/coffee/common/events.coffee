@@ -3,7 +3,10 @@ define [
   "backbone"
   "hammer"
   "jquery_mousewheel"
-], (Backbone, Hammer, mousewheel) ->
+  "common/logging"
+], (Backbone, Hammer, mousewheel, Logging) ->
+
+  logger = Logging.logger
 
   class Events extends Backbone.Model
 
@@ -34,6 +37,8 @@ define [
       @hammer.on('rotateend', (e) => @_rotate_end(e))
 
       hit_area.mousemove((e) => @_mouse_move(e))
+      hit_area.mouseenter((e) => @_mouse_enter(e))
+      hit_area.mouseleave((e) => @_mouse_exit(e))
       hit_area.mousewheel((e, delta) => @_mouse_wheel(e, delta))
       $(document).keydown((e) => @_key_down(e))
       $(document).keyup((e) => @_key_up(e))
@@ -41,12 +46,15 @@ define [
     register_tool: (tool_view) ->
       et = tool_view.mget('event_type')
       id = tool_view.mget('id')
+      type = tool_view.model.type
 
       # tool_viewbar button events handled by tool_view manager
       if not et?
+        logger.debug("Button tool: #{type}")
         return
 
       if et in ['pan', 'pinch', 'rotate']
+        logger.debug("Registering tool: #{type} for event '#{et}'")
         if tool_view["_#{et}_start"]?
           tool_view.listenTo(@, "#{et}:start:#{id}", tool_view["_#{et}_start"])
         if tool_view["_#{et}"]
@@ -54,14 +62,22 @@ define [
         if tool_view["_#{et}_end"]
           tool_view.listenTo(@, "#{et}:end:#{id}",   tool_view["_#{et}_end"])
       else if et == "move"
-        tool_view.listenTo(@, "#{et}", tool_view["_#{et}"])
+        logger.debug("Registering tool: #{type} for event '#{et}'")
+        if tool_view._move_enter?
+          tool_view.listenTo(@, "move:enter", tool_view._move_enter)
+        tool_view.listenTo(@, "move", tool_view["_move"])
+        if tool_view._move_exit?
+          tool_view.listenTo(@, "move:exit", tool_view._move_exit)
       else
+        logger.debug("Registering tool: #{type} for event '#{et}'")
         tool_view.listenTo(@, "#{et}:#{id}", tool_view["_#{et}"])
 
       if tool_view._keydown?
+        logger.debug("Registering tool: #{type} for event 'keydown'")
         tool_view.listenTo(@, "keydown", tool_view._keydown)
 
       if tool_view._keyup?
+        logger.debug("Registering tool: #{type} for event 'keyup'")
         tool_view.listenTo(@, "keyup", tool_view._keyup)
 
     _trigger: (event_type, e) ->
@@ -146,10 +162,20 @@ define [
       @_bokify_hammer(e)
       @_trigger('rotate:end', e)
 
+    _mouse_enter: (e) ->
+      # NOTE: move:enter event triggered unconditionally
+      @_bokify_jq(e)
+      @trigger('move:enter', e)
+
     _mouse_move: (e) ->
       # NOTE: move event triggered unconditionally
       @_bokify_jq(e)
       @trigger('move', e)
+
+    _mouse_exit: (e) ->
+      # NOTE: move:exit event triggered unconditionally
+      @_bokify_jq(e)
+      @trigger('move:exit', e)
 
     _mouse_wheel: (e, delta) ->
       @_bokify_jq(e)

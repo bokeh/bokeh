@@ -89,6 +89,7 @@ define [
       return _.extend({}, super(), {
         active: false
         tool_name: @tool_name
+        event_type: @event_type
         level: 'overlay'
       })
 

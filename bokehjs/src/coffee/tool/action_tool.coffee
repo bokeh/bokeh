@@ -40,7 +40,6 @@ define [
         default_active: false
         tool_name: @tool_name
         icon: @icon
-        event_type: @event_type
       })
 
   return {

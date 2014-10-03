@@ -8,17 +8,14 @@ define [
 
   class ResizeToolView extends ActionTool.View
 
-    _activate: () ->
+    activate: () ->
       @popup = $('<div class="resize_bokeh_plot pull-right hide"/>')
       el = @plot_view.$el.find('.bokeh_canvas_wrapper')
       @popup.appendTo(el)
-      @plot_view.request_render(true)
       return null
 
-    _deactivate: () ->
+    deactivate: () ->
       @popup.remove()
-      @request_render()
-      @plot_view.request_render()
       return null
 
     _pan_start: (e) ->

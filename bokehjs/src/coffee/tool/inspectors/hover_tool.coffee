@@ -39,8 +39,18 @@ define [
 
       @plot_view.canvas_view.canvas_wrapper.css('cursor', 'crosshair')
 
-    _exit_inner: ()->
-      @tooltip.clear()
+    _move: (e) ->
+      canvas = @plot_view.canvas
+      vx = canvas.sx_to_vx(e.bokeh.sx)
+      vy = canvas.sy_to_vy(e.bokeh.sy)
+      console.log @plot_view.frame.contains(vx, vy)
+      if not @plot_view.frame.contains(vx, vy)
+        @mget('tooltip').clear()
+        return
+      @_inspect(vx, vy)
+
+    _move_exit: ()->
+      @mget('tooltip').clear()
 
     _inspect: (vx, vy, e) ->
       geometry = {
@@ -58,6 +68,9 @@ define [
 
       if indices.length == 0
         return
+
+      vx = geometry.vx
+      vy = geometry.vy
 
       canvas = @plot_model.get('canvas')
       frame = @plot_model.get('frame')
@@ -146,8 +159,9 @@ define [
     initialize: (attrs, options) ->
       super(attrs, options)
       @set('tooltip', new Tooltip.Model())
-      plot_renderers = @get('plot').get('renderers')
-      plot_renderers.push(@get('tooltip'))
+      renderers = @get('plot').get('renderers')
+      renderers.push(@get('tooltip'))
+      @get('plot').set('renderers', renderers)
 
     defaults: () ->
       return _.extend({}, super(), {
