@@ -32,7 +32,7 @@ source = ColumnDataSource(
     )
 )
 
-output_file("click.html")
+output_file("tap.html")
 
 hold()
 
