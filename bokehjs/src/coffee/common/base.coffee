@@ -213,7 +213,7 @@ define [
     DiamondCross:             'renderer/glyph/marker/diamond_cross'
     InvertedTriangle:         'renderer/glyph/marker/inverted_triangle'
     Square:                   'renderer/glyph/marker/square'
-    SquereCross:              'renderer/glyph/marker/square_cross'
+    SquareCross:              'renderer/glyph/marker/square_cross'
     SquareX:                  'renderer/glyph/marker/square_x'
     Triangle:                 'renderer/glyph/marker/triangle'
     X:                        'renderer/glyph/marker/x'
