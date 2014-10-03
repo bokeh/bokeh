@@ -8,7 +8,7 @@ define [
 
   class GearView extends Glyph.View
 
-    _fields: ['x', 'y', 'angle', 'module', 'teeth', 'pressure_angle', 'shaft_size', 'internal']
+    _fields: ['x', 'y', 'angle', 'module', 'teeth', 'pressure_angle', 'shaft_size', 'internal:boolean']
     _properties: ['line', 'fill']
 
     _map_data: () ->
@@ -121,6 +121,18 @@ define [
   class Gear extends Glyph.Model
     default_view: GearView
     type: 'Gear'
+
+    defaults: ->
+      return _.extend {}, super(), {
+        x: undefined
+        y: undefined
+        angle: 0
+        module: undefined
+        teeth: undefined
+        pressure_angle: 20   # TODO: units: deg
+        shaft_size: 0.3
+        internal: false
+      }
 
     display_defaults: ->
       return _.extend {}, super(), @line_defaults, @fill_defaults
