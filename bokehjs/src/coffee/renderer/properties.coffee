@@ -47,61 +47,99 @@ define [
     string: (styleprovider, attrname) ->
       @[attrname] = {}
 
-      default_value = styleprovider.mget(attrname)
-      if not default_value?
-      else if _.isString(default_value)
-        @[attrname].default = default_value
+      value = styleprovider.mget(attrname)
+      if not value?
+        null
+      else if _.isString(value)
+        @[attrname].value = value
+      else if _.isObject(value)
+        @[attrname] = _.extend(@[attrname], value)
       else
-        logger.warn("string property '#{attrname}' given invalid default value: #{default_value}")
+        logger.warn("string property '#{attrname}' given invalid value: #{value}")
+
+    boolean: (styleprovider, attrname) ->
+      @[attrname] = {}
+
+      value = styleprovider.mget(attrname)
+      if not value?
+        null
+      else if _.isBoolean(value)
+        @[attrname].value = value
+      else if _.isString(value)
+        @[attrname].field = value
+      else if _.isObject(value)
+        @[attrname] = _.extend(@[attrname], value)
+      else
+        logger.warn("boolean property '#{attrname}' given invalid value: #{value}")
 
     number: (styleprovider, attrname) ->
-      @[attrname] = { } #typed: true }
+      @[attrname] = {}
 
-      default_value = styleprovider.mget(attrname)
-      if not default_value?
-      else if _.isNumber(default_value)
-        @[attrname].default = default_value
-      else
-        logger.warn("number property '#{attrname}' given invalid default value: #{default_value}")
-
-      units_value = styleprovider.mget(attrname+'_units') ? 'data'
+      units_value = styleprovider.mget(attrname + '_units') ? 'data'
       @[attrname].units = units_value
+
+      value = styleprovider.mget(attrname)
+      if not value?
+        null
+      else if _.isNumber(value)
+        @[attrname].value = value
+      else if _.isString(value)
+        @[attrname].field = value
+      else if _.isObject(value)
+        @[attrname] = _.extend(@[attrname], value)
+      else
+        logger.warn("number property '#{attrname}' given invalid value: #{value}")
 
     color: (styleprovider, attrname) ->
       @[attrname] = {}
 
-      default_value = styleprovider.mget(attrname)
-      if _.isUndefined(default_value)
-        @[attrname].default = null
-      else if _.isString(default_value) and (svg_colors[default_value]? or default_value.substring(0, 1) == "#") or _.isNull(default_value)
-        @[attrname].default = default_value
+      value = styleprovider.mget(attrname)
+      if not value?
+        null
+      else if _.isString(value)
+        if svg_colors[value]? or value.substring(0, 1) == "#"
+          @[attrname].value = value
+        else
+          @[attrname].field = value
+      else if _.isObject(value)
+        @[attrname] = _.extend(@[attrname], value)
       else
-        logger.warn("color property '#{attrname}' given invalid default value: #{default_value}")
+        logger.warn("color property '#{attrname}' given invalid value: #{value}")
 
     array: (styleprovider, attrname) ->
       @[attrname] = {}
 
-      default_value = styleprovider.mget(attrname)
-      if not default_value?
-      else if _.isArray(default_value)
-        @[attrname].default = default_value
-      else
-        logger.warn("array property '#{attrname}' given invalid default value: #{default_value}")
-
       units_value = styleprovider.mget(attrname+"_units") ? 'data'
       @[attrname].units = units_value
+
+      value = styleprovider.mget(attrname)
+      if not value?
+        null
+      else if _.isString(value)
+        @[attrname].field = value
+      else if _.isArray(value)
+        @[attrname].value = value
+      else if _.isObject(value)
+        @[attrname] = _.extend(@[attrname], value)
+      else
+        logger.warn("array property '#{attrname}' given invalid value: #{value}")
 
     enum: (styleprovider, attrname, vals) ->
       @[attrname] = {}
 
       levels = vals.split(" ")
-
       default_value = styleprovider.mget(attrname)
-      if _.isNull(default_value)
-      else if _.isString(default_value) and default_value in levels
-        @[attrname] = {default: default_value}
+      if not value?
+        null
+      else if _.isString(value)
+        if value in levels
+          @[attrname].value = value
+        else
+          @[attrname].field = value
+      else if _.isObject(value)
+        @[attrname] = _.extend(@[attrname], value)
       else
-        logger.warn("enum property '#{attrname}' given invalid default value: #{default_value}")
+        logger.warn("enum property '#{attrname}' given invalid value: #{value}")
         logger.warn(" - acceptable values:" + levels)
 
     setattr: (styleprovider, attrname, attrtype) ->
@@ -109,12 +147,12 @@ define [
       if attrtype.indexOf(":") > -1
         [attrtype, values] = attrtype.split(":")
 
-      if      attrtype == "string" then @string(styleprovider, attrname)
-      else if attrtype == "number" then @number(styleprovider, attrname)
-      else if attrtype == "color"  then @color(styleprovider, attrname)
-      else if attrtype == "array"  then @array(styleprovider, attrname)
-      else if attrtype == "enum" and values
-        @enum(styleprovider, attrname, values)
+      if      attrtype == "string"          then @string(styleprovider, attrname)
+      else if attrtype == "boolean"         then @boolean(styleprovider, attrname)
+      else if attrtype == "number"          then @number(styleprovider, attrname)
+      else if attrtype == "color"           then @color(styleprovider, attrname)
+      else if attrtype == "array"           then @array(styleprovider, attrname)
+      else if attrtype == "enum" and values then @enum(styleprovider, attrname, values)
       else
         logger.warn("Unknown type '#{attrtype}' for glyph property: #{attrname}")
 
