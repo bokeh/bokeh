@@ -30,8 +30,10 @@ define [
       # vx = canvas.sx_to_vx(e.bokeh.sx)
       # vy = canvas.sy_to_vy(e.bokeh.sy)
       # if frame.contains(vx, vy)
-      #   e.stopPropagation()
-      #   return
+      if $(e.relatedTarget).width() == 1 or  $(e.relatedTarget).height() == 1
+        e.stopPropagation()
+        e.preventDefault()
+        return
       for dim in @mget('dimensions')
         span = @mget('spans')[dim]
         # console.log "ME"

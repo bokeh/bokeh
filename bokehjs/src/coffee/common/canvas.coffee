@@ -33,6 +33,8 @@ define [
       @canvas_wrapper = @$el
 
       @canvas = @$('canvas.bokeh_canvas')
+      @canvas_events = @$('div.bokeh_canvas_events')
+      @canvas_overlay = @$('div.bokeh_canvas_overlay')
       @map_div = @$('.bokeh_gmap') ? null
 
       logger.debug("CanvasView initialized")
@@ -61,11 +63,13 @@ define [
       @canvas.width = width * @dpi_ratio
       @canvas.height = height * @dpi_ratio
 
-      @$el.attr('style', "width:#{width}px; height:#{height}px")
-      @canvas.attr('style', "width:#{width}px;")
-      @canvas.attr('style', "height:#{height}px;")
+      @$el.attr('style', "z-index: 50; width:#{width}px; height:#{height}px")
+      @canvas.attr('style', "width:#{width}px;height:#{height}px")
       @canvas.attr('width', width*ratio).attr('height', height*ratio)
       @$el.attr("width", width).attr('height', height)
+
+      @canvas_events.attr('style', "z-index:100; position:absolute; top:0; left:0; width:#{width}px; height:#{height}px;")
+      @canvas_overlay.attr('style', "z-index:75; position:absolute; top:0; left:0; width:#{width}px; height:#{height}px;")
 
       @ctx.scale(ratio, ratio)
       @ctx.translate(0.5, 0.5)

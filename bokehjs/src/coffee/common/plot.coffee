@@ -96,7 +96,7 @@ define [
 
       @event_bus = new Events({
         tool_manager: @mget('tool_manager')
-        hit_area: @$('.bokeh_canvas')
+        hit_area: @canvas_view.$el #@$('.bokeh_canvas_wrapper')
       })
       for id, tool_view of @tools
         @event_bus.register_tool(tool_view)
@@ -177,9 +177,7 @@ define [
           xrs: xrs
           yrs: yrs
         }
-        logger.debug('initial ranges set')
-        logger.trace('- xrs: #{xrs}')
-        logger.trace('- yrs: #{yrs}')
+        logger.debug("initial ranges set")
       else
         logger.warn('could not set initial ranges')
 
