@@ -6,7 +6,7 @@ from collections import OrderedDict
 from bokeh.plotting import *
 from bokeh.objects import TapTool
 
-TOOLS="pan,wheel_zoom,box_zoom,reset,tap,previewsave"
+TOOLS="crosshair,pan,wheel_zoom,box_zoom,reset,tap,previewsave"
 
 xx, yy = np.meshgrid(range(0,101,4), range(0,101,4))
 x = xx.flatten()

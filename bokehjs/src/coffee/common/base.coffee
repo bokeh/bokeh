@@ -26,6 +26,7 @@ define [
   "range/range1d",
 
   "renderer/annotation/legend",
+  "renderer/annotation/span",
   "renderer/annotation/tooltip",
   "renderer/glyph/glyph_factory",
   "renderer/guide/categorical_axis",
@@ -148,6 +149,7 @@ define [
     Range1d:                  'range/range1d'
 
     Legend:                   'renderer/annotation/legend'
+    Span:                     'renderer/annotation/span'
     Tooltip:                  'renderer/annotation/tooltip'
     Glyph:                    'renderer/glyph/glyph_factory'
     LinearAxis:               'renderer/guide/linear_axis'

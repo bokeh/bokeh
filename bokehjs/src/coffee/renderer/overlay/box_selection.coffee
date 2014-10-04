@@ -10,7 +10,7 @@ define [
 
     initialize: (options) ->
       super(options)
-      @$el.appendTo(@plot_view.$el.find('.bokeh_canvas_wrapper'))
+      @$el.appendTo(@plot_view.$el.find('.bokeh_canvas_inner_wrapper'))
       @$el.addClass('shading')
       @$el.hide()
 

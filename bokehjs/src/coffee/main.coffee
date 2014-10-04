@@ -64,6 +64,7 @@ define (require, exports, module) ->
 
   # annotations
   Bokeh.Legend  = require("renderer/annotation/legend")
+  Bokeh.Span    = require("renderer/annotation/span")
   Bokeh.Tooltip = require("renderer/annotation/tooltip")
 
   # glyphs

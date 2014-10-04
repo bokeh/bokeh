@@ -1,4 +1,6 @@
 <% if @map: %>
 <div class="bokeh_gmap"></div>
 <% end %>
-<canvas class='bokeh_canvas'></canvas>
+<div class="bokeh_canvas_inner_wrapper">
+    <canvas class='bokeh_canvas'></canvas>
+</div>

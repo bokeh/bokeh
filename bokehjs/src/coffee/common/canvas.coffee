@@ -42,7 +42,6 @@ define [
       # should be configured with new bounds.
       if not @model.new_bounds and not force
         return
-
       @ctx = @canvas[0].getContext('2d')
 
       if @mget('use_hidpi')
