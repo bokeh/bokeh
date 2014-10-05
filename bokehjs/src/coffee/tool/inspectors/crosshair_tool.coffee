@@ -3,7 +3,7 @@ define [
   "underscore"
   "common/collection"
   "renderer/annotation/span"
-  "tool/inspect_tool"
+  "./inspect_tool"
 ], (_, Collection, Span, InspectTool) ->
 
   class CrosshairToolView extends InspectTool.View

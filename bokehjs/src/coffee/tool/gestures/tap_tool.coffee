@@ -2,7 +2,7 @@
 define [
   "underscore",
   "common/collection",
-  "tool/select_tool",
+  "tool/gestures/select_tool",
 ], (_, Collection, SelectTool) ->
 
   class TapToolView extends SelectTool.View
@@ -32,6 +32,7 @@ define [
     tool_name: "Tap"
     icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAcCAYAAAByDd+UAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEgAACxIB0t1+/AAAABx0RVh0U29mdHdhcmUAQWRvYmUgRmlyZXdvcmtzIENTNui8sowAAADfSURBVEiJ1ZXhDYIwEEbfZxzADWQDR5ANXMFRHMERdBLZQDdQN9AJPv+gIajQClZ8SUNy6d0j5a7INikZJbUNVijpaQFLYAesa/FGxh1etgBOwCUqy3brKvflto9up7lWiND2KkAUJAxtmgK4Rh3dGxQyh5KwPQE2wKRle96LsI7tDJgCV0mHSry5WGjTvMi7f9cipl6Xwc/K5zwmqQ9hFMO82oYifIyH7TyFcPZJ0l8d6U+F+VeFMU3Si7DCOalQUgZskwlt74EFEddcl9/TsiJaS7qU8e7CPvnbOQzmBk+aLHum0l/aAAAAAElFTkSuQmCC"
     event_type: "tap"
+    default_order: 10
 
   class TapTools extends Collection
     model: TapTool

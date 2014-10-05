@@ -83,7 +83,8 @@ define [
     _trigger: (event_type, e) ->
       tm = @get('tool_manager')
       base_event_type = event_type.split(":")[0]
-      active = tm.get(base_event_type).active
+      gestures = tm.get('gestures')
+      active = gestures[base_event_type].active
       if active?
         @trigger("#{event_type}:#{active.id}", e)
 

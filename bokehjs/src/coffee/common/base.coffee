@@ -55,19 +55,25 @@ define [
   "ticking/single_interval_ticker",
   "ticking/years_ticker",
 
-  "tool/action_tool",
-  "tool/inspect_tool",
-  "tool/select_tool",
-  "tool/actions/box_select_tool",
-  "tool/actions/box_zoom_tool",
+  "tool/button_tool",
+
+  "tool/actions/action_tool",
   "tool/actions/object_explorer_tool",
-  "tool/actions/pan_tool",
   "tool/actions/preview_save_tool",
   "tool/actions/reset_tool",
-  "tool/actions/resize_tool",
-  "tool/actions/wheel_zoom_tool",
+
+  "tool/gestures/box_select_tool",
+  "tool/gestures/box_zoom_tool",
+  "tool/gestures/gesture_tool",
+  "tool/gestures/pan_tool",
+  "tool/gestures/resize_tool",
+  "tool/gestures/select_tool",
+  "tool/gestures/tap_tool",
+  "tool/gestures/wheel_zoom_tool",
+
   "tool/inspectors/crosshair_tool",
   "tool/inspectors/hover_tool",
+  "tool/inspectors/inspect_tool",
 
   "widget/data_table",
   "widget/handson_table",
@@ -178,20 +184,24 @@ define [
     SingleIntervalTicker:     'ticking/single_interval_ticker'
     YearsTicker:              'ticking/years_ticker'
 
-    ActionTool:               'tool/action_tool'
-    InspectTool:              'tool/inspect_tool'
-    SelectTool:               'tool/select_tool'
-    BoxSelectTool:            'tool/actions/box_select_tool'
-    BoxZoomTool:              'tool/actions/box_zoom_tool'
+    ButtonTool:               'tool/button_tool'
+    ActionTool:               'tool/actions/action_tool'
     ObjectExplorerTool:       'tool/actions/object_explorer_tool'
-    PanTool:                  'tool/actions/pan_tool'
     PreviewSaveTool:          'tool/actions/preview_save_tool'
     ResetTool:                'tool/actions/reset_tool'
-    ResizeTool:               'tool/actions/resize_tool'
-    TapTool:                  'tool/actions/tap_tool'
-    WheelZoomTool:            'tool/actions/wheel_zoom_tool'
+
+    BoxSelectTool:            'tool/gestures/box_select_tool'
+    BoxZoomTool:              'tool/gestures/box_zoom_tool'
+    GestureTool:              'tool/gestures/gesture_tool'
+    PanTool:                  'tool/gestures/pan_tool'
+    SelectTool:               'tool/gestures/select_tool'
+    ResizeTool:               'tool/gestures/resize_tool'
+    TapTool:                  'tool/gestures/tap_tool'
+    WheelZoomTool:            'tool/gestures/wheel_zoom_tool'
+
     CrosshairTool:            'tool/inspectors/crosshair_tool'
     HoverTool:                'tool/inspectors/hover_tool'
+    InspectTool:              'tool/inspectors/inspect_tool'
 
     DataTable:                'widget/data_table'
     HandsonTable:             'widget/handson_table'

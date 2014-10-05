@@ -109,18 +109,20 @@ define (require, exports, module) ->
   Bokeh.YearsTicker              = require("ticking/years_ticker")
 
   # tools
-  Bokeh.ActionTool             = require("tool/action_tool")
-  Bokeh.InspectTool            = require("tool/inspect_tool")
-  Bokeh.SelectTool             = require("tool/select_tool")
-  Bokeh.BoxSelectTool          = require("tool/actions/box_select_tool")
-  Bokeh.BoxZoomTool            = require("tool/actions/box_zoom_tool")
+  Bokeh.ActionTool             = require("tool/actions/action_tool")
   Bokeh.ObjectExplorerTool     = require("tool/actions/object_explorer_tool")
-  Bokeh.PanTool                = require("tool/actions/pan_tool")
   Bokeh.PreviewSaveTool        = require("tool/actions/preview_save_tool")
   Bokeh.ResetTool              = require("tool/actions/reset_tool")
-  Bokeh.ResizeTool             = require("tool/actions/resize_tool")
-  Bokeh.TapTool                = require("tool/actions/tap_tool")
-  Bokeh.WheelZoomTool          = require("tool/actions/wheel_zoom_tool")
+
+  Bokeh.BoxSelectTool          = require("tool/gestures/box_select_tool")
+  Bokeh.BoxZoomTool            = require("tool/gestures/box_zoom_tool")
+  Bokeh.PanTool                = require("tool/gestures/pan_tool")
+  Bokeh.ResizeTool             = require("tool/gestures/resize_tool")
+  Bokeh.SelectTool             = require("tool/gestures/select_tool")
+  Bokeh.TapTool                = require("tool/gestures/tap_tool")
+  Bokeh.WheelZoomTool          = require("tool/gestures/wheel_zoom_tool")
+
+  Bokeh.InspectTool            = require("tool/inspectors/inspect_tool")
   Bokeh.HoverTool              = require("tool/inspectors/hover_tool")
   Bokeh.CrosshairTool          = require("tool/inspectors/crosshair_tool")
 

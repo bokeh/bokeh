@@ -1,19 +1,24 @@
 
 define [
+  "underscore"
   "backbone"
   "./logging"
   "./toolbar_template"
-  "tool/action_tool"
-  "tool/inspect_tool"
-], (Backbone, Logging, toolbar_template, ActionTool, InspectTool) ->
+  "tool/actions/action_tool"
+  "tool/gestures/gesture_tool"
+  "tool/inspectors/inspect_tool"
+], (_, Backbone, Logging, toolbar_template, ActionTool, GestureTool, InspectTool) ->
 
   logger = Logging.logger
+
+  _event_types = ['rotate', 'pinch', 'press', 'scroll', 'tap', 'doubletap', 'pan']
 
   class ToolManagerView extends Backbone.View
     className: "bk-sidebar"
     template: toolbar_template
 
     initialize: (options) ->
+      super(options)
       @listenTo(@model, 'change', @render)
 
     render: () ->
@@ -33,14 +38,15 @@ define [
       #   dropdown.render()
 
       button_bar_list = @$(".bk-button-bar-list[type='action']")
-      _.each(@model.get('action').tools, (item) =>
-        button_bar_list.prepend(new ActionTool.ButtonView({model: item}).el)
+      _.each(@model.get('actions'), (item) =>
+        button_bar_list.append(new ActionTool.ButtonView({model: item}).el)
       )
 
-      for et in ['rotate', 'pinch', 'scroll', 'tap', 'doubletap', 'pan']
+      gestures = @model.get('gestures')
+      for et in _event_types
         button_bar_list = @$(".bk-button-bar-list[type='#{et}']")
-        _.each(@model.get(et).tools, (item) =>
-          button_bar_list.prepend(new ActionTool.ButtonView({model: item}).el)
+        _.each(gestures[et].tools, (item) =>
+          button_bar_list.append(new GestureTool.ButtonView({model: item}).el)
         )
 
       return @
@@ -50,62 +56,64 @@ define [
     initialize: (attrs, options) ->
       super(attrs, options)
 
+      gestures = @get('gestures')
+
       for tool in @get('tools')
-        et = tool.event_type ? 'action'
 
-        info = @get(et)
-        if not info?
-          logger.warn("ToolManager: unknown event type '#{et}' for tool: #{tool.type} (#{tool.id})")
+        if tool instanceof InspectTool.Model
+          @get('inspectors').push(tool)
+
+        else if tool instanceof ActionTool.Model
+          @get('actions').push(tool)
+
+        else if tool instanceof GestureTool.Model
+          et = tool.get('event_type')
+
+          if et not in _event_types
+            logger.warn("ToolManager: unknown event type '#{et}' for tool: #{tool.type} (#{tool.id})")
+            continue
+
+          gestures[et].tools.push(tool)
+          @listenTo(tool, 'change:active', _.bind(@_active_change, tool))
+
+      for et in _event_types
+        tools = gestures[et].tools
+        if tools.length == 0
           continue
-
-        info.tools.push(tool)
-        @listenTo(tool, 'change:active', _.bind(@_active_change, tool))
-
-        if tool.get('default_active') ? false
-          tool.set('active', true)
-
-        @set(et, info)
-
-      for et in ['rotate', 'pinch', 'scroll', 'tap', 'doubletap', 'pan']
-        info = @get(et)
-        if not info.active? and info.tools.length > 0
-          info.active = info.tools[0]
+        gestures[et].tools = _.sortBy(tools, (tool) -> tool.get('default_order'))
+        gestures[et].tools[0].set('active', true)
 
     _active_change: (tool) =>
-      et = tool.event_type ? 'action'
-      if et == 'action'
-        return null
+      et = tool.get('event_type')
 
       active = tool.get('active')
       if not active
         return null
 
-      info = @get(et)
-      if not info?
-        logger.warn("ToolManager: unknown event type '#{et}' for tool: #{tool.type} (#{tool.id})")
-        return null
-
-      prev = info.active
+      gestures = @get('gestures')
+      prev = gestures[et].active
       if prev?
         logger.debug("ToolManager: deactivating tool: #{prev.type} (#{prev.id}) for event type '#{et}'")
         prev.set('active', false)
 
-      info.active = tool
-      @set(et, info)
+      gestures[et].active = tool
+      @set('gestures', gestures)
       logger.debug("ToolManager: activating tool: #{tool.type} (#{tool.id}) for event type '#{et}'")
       return null
 
     defaults: () ->
       return {
-        pan: {tools: [], active: null}
-        tap: {tools: [], active: null}
-        doubletap: {tools: [], active: null}
-        scroll: {tools: [], active: null}
-        pinch: {tools: [], active: null}
-        press: {tools: [], active: null}
-        rotate: {tools: [], active: null}
-        action: {tools: []}
-        move: {tools: []}
+        gestures: {
+          pan: {tools: [], active: null}
+          tap: {tools: [], active: null}
+          doubletap: {tools: [], active: null}
+          scroll: {tools: [], active: null}
+          pinch: {tools: [], active: null}
+          press: {tools: [], active: null}
+          rotate: {tools: [], active: null}
+        }
+        actions: []
+        inspectors: []
       }
 
   return {

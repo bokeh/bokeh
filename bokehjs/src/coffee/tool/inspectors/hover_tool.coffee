@@ -4,7 +4,7 @@ define [
   "sprintf"
   "common/collection"
   "renderer/annotation/tooltip"
-  "tool/inspect_tool"
+  "./inspect_tool"
 ], (_, sprintf, Collection, Tooltip, InspectTool) ->
 
   _color_to_hex = (color) ->

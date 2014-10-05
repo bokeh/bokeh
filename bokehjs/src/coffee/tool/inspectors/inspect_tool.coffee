@@ -1,7 +1,7 @@
 
 define [
   "backbone"
-  "./tool"
+  "tool/tool"
   "./inspect_tool_list_item_template"
 ], (Backbone, Tool, inspect_tool_list_item_template) ->
 

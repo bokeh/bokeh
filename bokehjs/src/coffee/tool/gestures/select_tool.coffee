@@ -1,9 +1,9 @@
 
 define [
-  "./action_tool"
-], (ActionTool) ->
+  "./gesture_tool"
+], (GestureTool) ->
 
-  class SelectToolView extends ActionTool.View
+  class SelectToolView extends GestureTool.View
 
     _keyup: (e) ->
       if e.keyCode == 27
@@ -12,7 +12,7 @@ define [
           sm = ds.get('selection_manager')
           sm.clear()
 
-  class SelectTool extends ActionTool.Model
+  class SelectTool extends GestureTool.Model
 
     initialize: (attrs, options) ->
       super(attrs, options)
