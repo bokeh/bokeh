@@ -1,8 +1,6 @@
 <% if @map: %>
-<div class="bokeh_gmap"></div>
+<div class="bk-canvas-map"></div>
 <% end %>
-<div class="bokeh_canvas_events" />
-<div class="bokeh_canvas_overlay" />
-<div class="bokeh_canvas_inner_wrapper">
-    <canvas class='bokeh_canvas'></canvas>
-</div>
+<div class="bk-canvas-events" />
+<div class="bk-canvas-overlays" />
+<canvas class='bk-canvas'></canvas>

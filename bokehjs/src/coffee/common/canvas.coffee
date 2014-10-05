@@ -16,7 +16,7 @@ define [
 
   class CanvasView extends ContinuumView
 
-    className: "bokeh plotview bokeh_canvas_wrapper"
+    className: "bokeh bk-canvas-wrapper"
 
     template: canvas_template
 
@@ -32,10 +32,10 @@ define [
       # for compat, to be removed
       @canvas_wrapper = @$el
 
-      @canvas = @$('canvas.bokeh_canvas')
-      @canvas_events = @$('div.bokeh_canvas_events')
-      @canvas_overlay = @$('div.bokeh_canvas_overlay')
-      @map_div = @$('.bokeh_gmap') ? null
+      @canvas = @$('canvas.bk-canvas')
+      @canvas_events = @$('div.bk-canvas-events')
+      @canvas_overlay = @$('div.bk-canvas-overlays')
+      @map_div = @$('div.bk-canvas-map') ? null
 
       logger.debug("CanvasView initialized")
 

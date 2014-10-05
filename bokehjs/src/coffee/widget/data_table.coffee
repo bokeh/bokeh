@@ -201,7 +201,7 @@ define [
       @$(".pandasagg")
         .find("option[value=\"#{@mget('agg')}\"]")
         .attr('selected', 'selected')
-      @$el.addClass("bokehtable")
+      @$el.addClass("bk-table")
 
   class DataTable extends HasParent
     type: 'DataTable'

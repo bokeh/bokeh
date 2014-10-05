@@ -16,7 +16,6 @@ define [
       for dim in @mget('dimensions')
         span = @mget('spans')[dim]
         if not frame.contains(vx, vy)
-          # console.log "NC"
           span.unset('location')
         else
           if dim == "width"
@@ -25,18 +24,8 @@ define [
             span.set('location', vx)
 
     _move_exit: (e)->
-      # frame = @plot_model.get('frame')
-      # canvas = @plot_model.get('canvas')
-      # vx = canvas.sx_to_vx(e.bokeh.sx)
-      # vy = canvas.sy_to_vy(e.bokeh.sy)
-      # if frame.contains(vx, vy)
-      if $(e.relatedTarget).width() == 1 or  $(e.relatedTarget).height() == 1
-        e.stopPropagation()
-        e.preventDefault()
-        return
       for dim in @mget('dimensions')
         span = @mget('spans')[dim]
-        # console.log "ME"
         span.unset('location')
 
   class CrosshairTool extends InspectTool.Model

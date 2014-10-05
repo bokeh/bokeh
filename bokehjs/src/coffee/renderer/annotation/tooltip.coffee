@@ -14,7 +14,7 @@ define [
     initialize: (options) ->
       super(options)
       # TODO (bev) really probably need multiple divs
-      @div = $('<div class="bokeh_tooltip" />').appendTo(@plot_view.$el.find('.bokeh_canvas_wrapper'))
+      @div = $('<div class="bk-tooltip" />').appendTo(@plot_view.$el.find('div.bk-canvas-wrapper'))
       @div.hide()
 
     bind_bokeh_events: () ->

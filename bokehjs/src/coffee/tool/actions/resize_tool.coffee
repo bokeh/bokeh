@@ -5,26 +5,33 @@ define [
   "tool/action_tool",
 ], (_, Collection, ActionTool) ->
 
-
   class ResizeToolView extends ActionTool.View
+    className: "bk-resize-popup pull-right"
+
+    initialize: (options) ->
+      super(options)
+      wrapper = @plot_view.$el.find('div.bk-canvas-wrapper')
+      @$el.appendTo(wrapper)
+      @$el.hide()
+      return null
 
     activate: () ->
-      @popup = $('<div class="resize_bokeh_plot pull-right hide"/>')
-      el = @plot_view.$el.find('.bokeh_canvas_wrapper')
-      @popup.appendTo(el)
+      @$el.show()
       return null
 
     deactivate: () ->
-      @popup.remove()
+      @$el.hide()
       return null
 
     _pan_start: (e) ->
       canvas = @plot_view.canvas
       @ch = canvas.get('height')
       @cw = canvas.get('width')
+      return null
 
     _pan: (e) ->
       @_update(e.deltaX, e.deltaY)
+      return null
 
     _update: (dx, dy) ->
       @plot_view.pause()

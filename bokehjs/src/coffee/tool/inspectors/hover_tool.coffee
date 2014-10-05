@@ -92,8 +92,8 @@ define [
 
         for label, value of @mget("tooltips")
           row = $("<tr></tr>")
-          row.append($("<td class='bokeh_tooltip_row_label'>#{ label }: </td>"))
-          td = $("<td class='bokeh_tooltip_row_value'></td>")
+          row.append($("<td class='bk-tooltip-row-label'>#{ label }: </td>"))
+          td = $("<td class='bk-tooltip-row-value'></td>")
 
           if value.indexOf("$color") >= 0
             [match, opts, colname] = value.match(/\$color(\[.*\])?:(\w*)/)
@@ -114,7 +114,7 @@ define [
             span = $("<span>#{ color }</span>")
             td.append(span)
             if swatch
-              span = $("<span class='bokeh_tooltip_color_block'> </span>")
+              span = $("<span class='bk-tooltip-color-block'> </span>")
               span.css({ backgroundColor: color})
             td.append(span)
 

@@ -32,7 +32,7 @@ define [
   logger = Logging.logger
 
   class PlotView extends ContinuumView
-    className: "bokeh plotview plotarea"
+    className: "bokeh bk-plot"
     template: plot_template
     toolbar_template: toolbar_template
 
@@ -96,7 +96,7 @@ define [
 
       @event_bus = new Events({
         tool_manager: @mget('tool_manager')
-        hit_area: @canvas_view.$el #@$('.bokeh_canvas_wrapper')
+        hit_area: @canvas_view.$el
       })
       for id, tool_view of @tools
         @event_bus.register_tool(tool_view)

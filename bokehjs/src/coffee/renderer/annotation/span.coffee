@@ -13,7 +13,7 @@ define [
 
     initialize: (options) ->
       super(options)
-      @$el.appendTo(@plot_view.$el.find('.bokeh_canvas_overlay'))
+      @$el.appendTo(@plot_view.$el.find('div.bk-canvas-overlays'))
       @$el.css({position: 'absolute'})
       @$el.hide()
 

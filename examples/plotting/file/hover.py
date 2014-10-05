@@ -6,7 +6,7 @@ from collections import OrderedDict
 from bokeh.plotting import *
 from bokeh.objects import HoverTool
 
-TOOLS="pan,wheel_zoom,box_zoom,reset,hover,previewsave"
+TOOLS="crosshair,pan,wheel_zoom,box_zoom,reset,hover,previewsave"
 
 xx, yy = np.meshgrid(range(0,101,4), range(0,101,4))
 x = xx.flatten()

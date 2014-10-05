@@ -89,7 +89,6 @@ define [
     defaults: () ->
       return _.extend({}, super(), {
         dimensions: ["width", "height"]
-        select_every_mousemove: false
       })
 
   class BoxZoomTools extends Collection
