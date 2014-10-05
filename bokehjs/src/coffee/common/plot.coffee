@@ -16,9 +16,8 @@ define [
   "./solver"
   "./tool_manager"
   "./plot_template"
-  "./toolbar_template"
   "renderer/properties"
-], ( _, Backbone, kiwi, build_views, Canvas, CartesianFrame, ContinuumView, Collection, Events, HasParent, LayoutBox, Logging, plot_utils, Solver, ToolManager, plot_template, toolbar_template, Properties) ->
+], ( _, Backbone, kiwi, build_views, Canvas, CartesianFrame, ContinuumView, Collection, Events, HasParent, LayoutBox, Logging, plot_utils, Solver, ToolManager, plot_template, Properties) ->
 
   line_properties = Properties.line_properties
   text_properties = Properties.text_properties
@@ -32,9 +31,8 @@ define [
   logger = Logging.logger
 
   class PlotView extends ContinuumView
-    className: "bokeh bk-plot"
+    className: "bk-plot"
     template: plot_template
-    toolbar_template: toolbar_template
 
     view_options: () ->
       _.extend({plot_model: @model, plot_view: @}, @options)
@@ -125,10 +123,6 @@ define [
       @unpause()
 
     build_levels: () ->
-      # need to separate renderer/tool creation from event binding
-      # because things like box selection overlay needs to bind events
-      # on the select tool
-      #
       # should only bind events on NEW views and tools
       old_renderers = _.keys(@renderers)
       views = build_views(@renderers, @mget('renderers'), @view_options())
@@ -239,7 +233,7 @@ define [
         ctx.strokeRect.apply(ctx, frame_box)
 
       @_render_levels(ctx, ['image', 'underlay', 'glyph'], frame_box)
-      @_render_levels(ctx, ['overlay', 'annotation', 'tool'])
+      @_render_levels(ctx, ['overlay', 'tool'])
 
       if title
         sx = @canvas.vx_to_sx(@canvas.get('width')/2)
