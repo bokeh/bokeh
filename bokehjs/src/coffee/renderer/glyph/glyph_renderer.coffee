@@ -16,6 +16,7 @@ define [
 
       @glyph              = @build_glyph(@mget("glyph"))
 
+      # XXX: this will be slow (see later in this file), perhaps reuse @glyph.
       @selection_glyph    = @build_glyph(@mget("selection_glyph")    or @mget("glyph"))
       @nonselection_glyph = @build_glyph(@mget("nonselection_glyph") or @mget("glyph"))
 
@@ -90,8 +91,14 @@ define [
         logger.warn("unknown resample op: '#{resample_op}'")
 
     set_data: (request_render=true) ->
+      source = @mget('data_source')
       t0 = Date.now()
-      @all_indices = @glyph.set_data(@mget('data_source'))
+
+      @all_indices = @glyph.set_data(source)
+
+      @selection_glyph.set_data(source)
+      @nonselection_glyph.set_data(source)
+
       dt = Date.now() - t0
       logger.debug("#{@glyph.model.type} glyph (#{@glyph.model.id}): set_data finished in #{dt}ms")
 
@@ -107,6 +114,10 @@ define [
 
       @glyph._map_data()
 
+      @selection_glyph._map_data()
+      @nonselection_glyph._map_data()
+
+      # XXX: this ignores (non)selection glyphs
       if @_mask_data? and not (@plot_view.x_range instanceof FactorRange.Model) \
                       and not (@plot_view.y_range instanceof FactorRange.Model)
         indices = @_mask_data()
@@ -162,6 +173,9 @@ define [
 
     draw_legend: (ctx, x0, x1, y0, y1) ->
       @glyph.draw_legend(ctx, x0, x1, y0, y1)
+
+    hit_test: (geometry) ->
+      @glyph.hit_test(geometry)
 
   class GlyphRenderer extends HasParent
     default_view: GlyphRendererView
