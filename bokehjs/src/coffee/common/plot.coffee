@@ -62,11 +62,7 @@ define [
       @xmapper = @frame.get('x_mappers')['default']
       @ymapper = @frame.get('y_mappers')['default']
 
-      template_data = {
-        button_bar: @mget('button_bar')
-      }
-      html = @template(template_data)
-      @$el.html(html)
+      @$el.html(@template())
 
       @canvas = @mget('canvas')
       @canvas_view = new @canvas.default_view({'model': @canvas})
@@ -365,7 +361,6 @@ define [
 
     defaults: ->
       return _.extend {}, super(), {
-        button_bar: true
         renderers: [],
         tools: [],
         h_symmetry: true,
