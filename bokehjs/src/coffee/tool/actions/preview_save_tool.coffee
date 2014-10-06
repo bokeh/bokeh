@@ -1,11 +1,11 @@
 
 define [
-  "underscore",
-  "jquery",
-  "bootstrap/modal",
-  "common/collection",
-  "./action_tool",
-  "./preview_save_tool_template",
+  "underscore"
+  "jquery"
+  "bootstrap/modal"
+  "common/collection"
+  "./action_tool"
+  "./preview_save_tool_template"
 ], (_, $, $$1, Collection, ActionTool, preview_save_tool_template) ->
 
   class PreviewSaveToolView extends ActionTool.View

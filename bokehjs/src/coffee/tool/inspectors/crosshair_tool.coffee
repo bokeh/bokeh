@@ -9,6 +9,8 @@ define [
   class CrosshairToolView extends InspectTool.View
 
     _move: (e) ->
+      if not @mget('active')
+        return
       frame = @plot_model.get('frame')
       canvas = @plot_model.get('canvas')
       vx = canvas.sx_to_vx(e.bokeh.sx)

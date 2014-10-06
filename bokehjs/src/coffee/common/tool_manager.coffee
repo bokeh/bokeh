@@ -1,13 +1,14 @@
 
 define [
   "underscore"
+  "bootstrap/dropdown"
   "backbone"
   "./logging"
   "./toolbar_template"
   "tool/actions/action_tool"
   "tool/gestures/gesture_tool"
   "tool/inspectors/inspect_tool"
-], (_, Backbone, Logging, toolbar_template, ActionTool, GestureTool, InspectTool) ->
+], (_, $$1, Backbone, Logging, toolbar_template, ActionTool, GestureTool, InspectTool) ->
 
   logger = Logging.logger
 
@@ -25,19 +26,24 @@ define [
       @$el.html(@template())
       button_bar_list = @$('.bk-button-bar-list')
 
-      # if @model.get('move').length > 0
-      #   dropdown = $('<div class="bk-bs-btn-group" />')
-      #   button = $('<button type="button" data-toggle="dropdown" class="bk-bs-btn bk-bs-btn-default bk-bs-dropdown-toggle">inspect <span class="caret"></span></button>')
-      #   button.appendTo(dropdown)
-      #   ul = $('<ul class="bk-bs-dropdown-menu" />')
-      #   _.each(@model.get('move').tools, (item) ->
-      #     item = $('<li />')
-      #     item.append(new InspectTool.ListItemView({model: item}).el)
-      #     item.appendTo(ul)
-      #   )
-      #   dropdown.render()
+      inspectors = @model.get('inspectors')
+      button_bar_list = @$(".bk-bs-dropdown[type='inspectors']")
+      if inspectors.length == 0
+        button_bar_list.hide()
+      else
+        anchor = $('<a href="#" data-bk-bs-toggle="dropdown" class="bk-bs-dropdown-toggle">inspect <span class="bk-bs-caret"></a>')
+        anchor.appendTo(button_bar_list)
+        ul = $('<ul class="bk-bs-dropdown-menu" />')
+        _.each(inspectors, (tool) ->
+          item = $('<li />')
+          item.append(new InspectTool.ListItemView({model: tool}).el)
+          item.appendTo(ul)
+        )
+        ul.on('click', (e) -> e.stopPropagation())
+        ul.appendTo(button_bar_list)
+        anchor.dropdown()
 
-      button_bar_list = @$(".bk-button-bar-list[type='action']")
+      button_bar_list = @$(".bk-button-bar-list[type='actions']")
       _.each(@model.get('actions'), (item) =>
         button_bar_list.append(new ActionTool.ButtonView({model: item}).el)
       )

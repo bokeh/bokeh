@@ -6,7 +6,8 @@
   <ul class='bk-button-bar-list' type="tap" />
   <ul class='bk-button-bar-list' type="press" />
   <ul class='bk-button-bar-list' type="rotate" />
-  <ul class='bk-button-bar-list' type="action" />
+  <ul class='bk-button-bar-list' type="actions" />
+  <ul class='bk-bs-dropdown' type="inspectors" />
   <ul class='bk-button-bar-list' type="help">
     <li>
   	  <button class="bk-toolbar-button help" title="Help">

@@ -38,6 +38,8 @@ define [
       @plot_view.canvas_view.canvas_wrapper.css('cursor', 'crosshair')
 
     _move: (e) ->
+      if not @mget('active')
+        return
       canvas = @plot_view.canvas
       vx = canvas.sx_to_vx(e.bokeh.sx)
       vy = canvas.sy_to_vy(e.bokeh.sy)
@@ -60,7 +62,6 @@ define [
         sm.inspect(@, @plot_view.renderers[r.id], geometry, {"geometry": geometry})
 
     _update: (indices, tool, renderer, ds, {geometry}) ->
-
       @mget('tooltip').clear()
 
       if indices.length == 0

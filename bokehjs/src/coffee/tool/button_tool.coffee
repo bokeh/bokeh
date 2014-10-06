@@ -25,7 +25,7 @@ define [
         @$el.children('button').removeClass('active')
       return @
 
-    _clicked: () ->
+    _clicked: (e) ->
 
   class ButtonToolView extends Tool.View
 

@@ -17,11 +17,12 @@ define [
       @render()
 
     render: () ->
-      $el.html(template(@model.attrs_and_props()))
+      @$el.html(@template(@model.attrs_and_props()))
       return @
 
-    _clicked: () ->
-      @model.set('active', true)
+    _clicked: (e) ->
+      active = @model.get('active')
+      @model.set('active', not active)
 
   class InspectToolView extends Tool.View
 
@@ -58,6 +59,8 @@ define [
         renderers: []
         names: []
         inner_only: true
+        active: true
+        event_type: 'move'
       }
 
   return {
