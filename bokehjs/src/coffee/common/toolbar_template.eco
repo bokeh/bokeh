@@ -7,7 +7,7 @@
   <ul class='bk-button-bar-list' type="press" />
   <ul class='bk-button-bar-list' type="rotate" />
   <ul class='bk-button-bar-list' type="actions" />
-  <ul class='bk-bs-dropdown' type="inspectors" />
+  <div class='bk-button-bar-list bk-bs-dropdown' type="inspectors" />
   <ul class='bk-button-bar-list' type="help">
     <li>
   	  <button class="bk-toolbar-button help" title="Help">

@@ -10,12 +10,14 @@ define [
   logger = Logging.logger
 
   class TooltipView extends PlotWidget
+    className: "bk-tooltip"
 
     initialize: (options) ->
       super(options)
       # TODO (bev) really probably need multiple divs
-      @div = $('<div class="bk-tooltip" />').appendTo(@plot_view.$el.find('div.bk-canvas-wrapper'))
-      @div.hide()
+      @$el.appendTo(@plot_view.$el.find('div.bk-canvas-wrapper'))
+      @$el.css({'z-index': 1010});
+      @$el.hide()
 
     bind_bokeh_events: () ->
       @listenTo(@model, 'change:data', @_draw_tips)
@@ -24,8 +26,8 @@ define [
       @_draw_tips()
 
     _draw_tips: () ->
-      @div.empty()
-      @div.hide()
+      @$el.empty()
+      @$el.hide()
 
       if _.isEmpty(@mget('data'))
         return
@@ -34,7 +36,7 @@ define [
         [vx, vy, content] = val
         if @mget('inner_only') and not @plot_view.frame.contains(vx, vy)
             continue
-        tip = $('<div />').appendTo(@div)
+        tip = $('<div />').appendTo(@$el)
         tip.append(content)
       sx = @plot_view.mget('canvas').vx_to_sx(vx)
       sy = @plot_view.mget('canvas').vy_to_sy(vy)
@@ -47,17 +49,17 @@ define [
         else
           side = 'left'
 
-      @div.removeClass('right')
-      @div.removeClass('left')
+      @$el.removeClass('right')
+      @$el.removeClass('left')
 
       if side == "right"
-        @div.addClass("left")
-        top  = sy - @div.height()/2
+        @$el.addClass("left")
+        top  = sy - @$el.height()/2
         left = sx + 18
       else if side == "left"
-        @div.addClass("right")
-        top  = sy - @div.height()/2
-        left = sx - @div.width() - 23
+        @$el.addClass("right")
+        top  = sy - @$el.height()/2
+        left = sx - @$el.width() - 23
       else
         logger.warn("invalid tooltip side: '#{side}'")
         return
@@ -65,9 +67,9 @@ define [
       # TODO (bev) this is not currently bulletproof. If there are
       # two hits, not colocated and one is off the screen, that can
       # be problematic
-      if @div.children().length > 0
-        @div.css({top: top, left: left})
-        @div.show()
+      if @$el.children().length > 0
+        @$el.css({top: top, left: left})
+        @$el.show()
 
   class Tooltip extends HasParent
     default_view: TooltipView

@@ -47,6 +47,7 @@ define [
         'left': left,
         'width': width,
         'height': height
+        'z-index': 1000
         'background-color': @mget('color')
         });
       @$el.show()
