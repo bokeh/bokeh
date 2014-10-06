@@ -21,7 +21,7 @@ class BaseGlyph(PlotObject):
     valign = Align  # when there is vertical wiggle room
 
     radius_units = Enum(Units)
-    length_units = Enum(Units)
+    length_units = Enum(Units)           # XXX: deprecated
     angle_units = Enum(AngleUnits)
     start_angle_units = Enum(AngleUnits)
     end_angle_units = Enum(AngleUnits)
@@ -195,7 +195,7 @@ class Ray(BaseGlyph, LineProps):
     x = DataSpec
     y = DataSpec
     angle = DataSpec
-    length = DataSpec
+    length = DataSpec(units="screen")
 
 class Rect(BaseGlyph, FillProps, LineProps):
     x = DataSpec
