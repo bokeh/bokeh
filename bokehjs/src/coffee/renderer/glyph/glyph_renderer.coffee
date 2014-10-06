@@ -176,11 +176,6 @@ define [
     display_defaults: ->
       return _.extend {}, super(), {
         level: 'glyph'
-        radius_units: 'data'
-        length_units: 'screen'
-        angle_units: 'deg'
-        start_angle_units: 'deg'
-        end_angle_units: 'deg'
       }
 
   class GlyphRenderers extends Collection

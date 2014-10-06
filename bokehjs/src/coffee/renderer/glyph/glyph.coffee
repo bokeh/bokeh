@@ -190,6 +190,15 @@ define [
       line_dash_offset: 0
     }
 
+    defaults: ->
+      return _.extend {}, super(), {
+        radius_units: 'data'
+        length_units: 'screen'
+        angle_units: 'deg'
+        start_angle_units: 'deg'
+        end_angle_units: 'deg'
+      }
+
   class Glyphs extends Collection
 
   return {
