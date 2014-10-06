@@ -181,7 +181,7 @@ define [
     }
 
     line_defaults: {
-      line_color: 'red'
+      line_color: 'black'
       line_width: 1
       line_alpha: 1.0
       line_join: 'miter'
