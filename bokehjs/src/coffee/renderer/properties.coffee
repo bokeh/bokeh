@@ -44,6 +44,20 @@ define [
           retval.push(default_value)
         return retval
 
+    _fix_singleton_array_value: (obj) ->
+      # XXX: this is required because we can't distinguish between
+      # cases like Text(text="field") and Text(test="actual text").
+      if obj.value?
+        value = obj.value
+
+        if _.isArray(value)
+          if value.length == 1
+            return _.extend({}, obj, {value: value[0]})
+          else
+            throw new Error("expected an array of length 1, got #{value}")
+
+      return obj
+
     string: (styleprovider, attrname) ->
       @[attrname] = {}
 
@@ -53,6 +67,7 @@ define [
       else if _.isString(value)
         @[attrname].value = value
       else if _.isObject(value)
+        value = @_fix_singleton_array_value(value)
         @[attrname] = _.extend(@[attrname], value)
       else
         logger.warn("string property '#{attrname}' given invalid value: #{value}")
@@ -68,6 +83,7 @@ define [
       else if _.isString(value)
         @[attrname].field = value
       else if _.isObject(value)
+        value = @_fix_singleton_array_value(value)
         @[attrname] = _.extend(@[attrname], value)
       else
         logger.warn("boolean property '#{attrname}' given invalid value: #{value}")
@@ -86,6 +102,7 @@ define [
       else if _.isString(value)
         @[attrname].field = value
       else if _.isObject(value)
+        value = @_fix_singleton_array_value(value)
         @[attrname] = _.extend(@[attrname], value)
       else
         logger.warn("number property '#{attrname}' given invalid value: #{value}")
@@ -102,6 +119,7 @@ define [
         else
           @[attrname].field = value
       else if _.isObject(value)
+        value = @_fix_singleton_array_value(value)
         @[attrname] = _.extend(@[attrname], value)
       else
         logger.warn("color property '#{attrname}' given invalid value: #{value}")
@@ -120,6 +138,7 @@ define [
       else if _.isArray(value)
         @[attrname].value = value
       else if _.isObject(value)
+        value = @_fix_singleton_array_value(value)
         @[attrname] = _.extend(@[attrname], value)
       else
         logger.warn("array property '#{attrname}' given invalid value: #{value}")
@@ -137,6 +156,7 @@ define [
         else
           @[attrname].field = value
       else if _.isObject(value)
+        value = @_fix_singleton_array_value(value)
         @[attrname] = _.extend(@[attrname], value)
       else
         logger.warn("enum property '#{attrname}' given invalid value: #{value}")
