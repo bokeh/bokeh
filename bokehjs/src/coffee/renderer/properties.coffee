@@ -213,45 +213,6 @@ define [
       # failing that, just log a problem
       logger.warn("selection for attribute '#{attrname}' failed on object: #{ obj }")
 
-    v_select: (attrname, objs) ->
-
-      # if the attribute is not on this property object at all, log a bad request
-      if not (attrname of @)
-        logger.warn("requested vector selection of unknown property '#{attrname}' on objects")
-        return
-
-      if @[attrname].typed?
-        result = new Float64Array(objs.length)
-      else
-        result = new Array(objs.length)
-
-      for i in [0...objs.length]
-
-        obj = objs[i]
-
-        # if the attribute specifies a field, and the field exists on the object, return that value
-        if @[attrname].field? and (@[attrname].field of obj)
-          result[i] = obj[@[attrname].field]
-
-        # If the user gave an explicit value, that should always be returned
-        else if @[attrname].value?
-          result[i] = @[attrname].value
-
-        # otherwise, if the attribute exists on the object, return that value
-        else if obj[attrname]?
-          result[i] = obj[attrname]
-
-        # finally, check for a default value on this property object that could be returned
-        else if @[attrname].default?
-          result[i] = @[attrname].default
-
-        # failing that, just log a problem
-        else
-          logger.warn("vector selection for attribute '#{attrname}' failed on object: #{obj}")
-          return
-
-      return result
-
   class LineProperties extends Properties
     constructor: (styleprovider, prefix="") ->
       @line_color_name        = "#{prefix}line_color"
