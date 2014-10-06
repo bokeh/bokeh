@@ -147,7 +147,7 @@ define [
       @[attrname] = {}
 
       levels = vals.split(" ")
-      default_value = styleprovider.mget(attrname)
+      value = styleprovider.mget(attrname)
       if not value?
         null
       else if _.isString(value)
