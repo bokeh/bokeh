@@ -48,13 +48,13 @@ define [
       @sxs = []
       @sys = []
       for i in [0...@xs.length]
-        [sx, sy] = @renderer.map_to_screen(@xs[i], @props.xs.units, @ys[i], @props.ys.units)
+        [sx, sy] = @renderer.map_to_screen(@xs[i], @glyph.xs.units, @ys[i], @glyph.ys.units)
         @sxs.push(sx)
         @sys.push(sy)
 
     _mask_data: () ->
       # if user uses screen units, punt on trying to mask data
-      if @props.xs.units == "screen" or @props.ys.units == "screen"
+      if @glyph.xs.units == "screen" or @glyph.ys.units == "screen"
         return @all_indices
 
       xr = @renderer.plot_view.x_range

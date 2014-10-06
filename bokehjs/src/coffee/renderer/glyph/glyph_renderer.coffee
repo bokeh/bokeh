@@ -61,9 +61,10 @@ define [
             x_range,  y_range,
             @plot_view.x_range, @plot_view.y_range,
             x_range,
-            @props.y.field,
-            @props.x.field,
-            [@props.y.field],
+            # XXX: @glyph.x.field (etc.) indicates this be moved to Glyph
+            @glyph.y.field,
+            @glyph.x.field,
+            [@glyph.y.field],
             transform_params
           )
         else

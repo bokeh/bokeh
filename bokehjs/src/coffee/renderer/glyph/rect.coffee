@@ -11,7 +11,7 @@ define [
     _properties: ['line', 'fill']
 
     _map_data: () ->
-      [sxi, syi] = @renderer.map_to_screen(@x, @props.x.units, @y, @props.y.units)
+      [sxi, syi] = @renderer.map_to_screen(@x, @glyph.x.units, @y, @glyph.y.units)
 
       @sw = @distance_vector('x', 'width', 'center', @mget('dilate'))
       @sh = @distance_vector('y', 'height', 'center', @mget('dilate'))

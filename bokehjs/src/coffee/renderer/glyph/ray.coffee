@@ -10,7 +10,7 @@ define [
     _properties: ['line']
 
     _map_data: () ->
-      [@sx, @sy] = @renderer.map_to_screen(@x, @props.x.units, @y, @props.y.units)
+      [@sx, @sy] = @renderer.map_to_screen(@x, @glyph.x.units, @y, @glyph.y.units)
       @length = @distance_vector('x', 'length', 'edge')
 
       width = @renderer.plot_view.frame.get('width')

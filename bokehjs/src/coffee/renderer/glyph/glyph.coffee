@@ -14,19 +14,16 @@ define [
     initialize: (options) ->
       super(options)
       @renderer = options.renderer
-      @props = @init_props()
 
-    init_props: ->
-      props = {}
+      @glyph = new properties.Glyph(@, @_fields)
+      @props = {}
 
       if 'line' in @_properties
-        props.line = new properties.Line(@)
+        @props.line = new properties.Line(@)
       if 'fill' in @_properties
-        props.fill = new properties.Fill(@)
+        @props.fill = new properties.Fill(@)
       if 'text' in @_properties
-        props.text = new properties.Text(@)
-
-      new properties.Glyph(@, @_fields, props)
+        @props.text = new properties.Text(@)
 
     render: (ctx, indicies) -> @_render(ctx, indicies)
 
@@ -47,7 +44,7 @@ define [
           [field, junk] = field.split(":")
         # }
 
-        @[field] = @props.source_v_select(field, source)
+        @[field] = @glyph.source_v_select(field, source)
 
         # special cases
         if field == "direction"
@@ -72,15 +69,15 @@ define [
 
     distance_vector: (pt, span_prop_name, position, dilate=false) ->
       """ returns an array """
-      pt_units = @props[pt].units
-      span_units = @props[span_prop_name].units
+      pt_units = @glyph[pt].units
+      span_units = @glyph[span_prop_name].units
 
       if      pt == 'x' then mapper = @renderer.xmapper
       else if pt == 'y' then mapper = @renderer.ymapper
 
       source = @renderer.mget('data_source')
       local_select = (prop_name) =>
-        return @props.source_v_select(prop_name, source)
+        return @glyph.source_v_select(prop_name, source)
       span = local_select(span_prop_name)
       if span_units == 'screen'
         return span

@@ -61,7 +61,7 @@ define [
         @image_data[i] = canvas
 
     _map_data: () ->
-      [@sx, @sy] = @renderer.map_to_screen(@x, @props.x.units, @y, @props.y.units)
+      [@sx, @sy] = @renderer.map_to_screen(@x, @glyph.x.units, @y, @glyph.y.units)
       @sw = @distance_vector('x', 'dw', 'edge', @mget('dilate'))
       @sh = @distance_vector('y', 'dh', 'edge', @mget('dilate'))
 

@@ -31,10 +31,10 @@ define [
       @index.load(pts)
 
     _map_data: () ->
-      [@sx, @sy] = @renderer.map_to_screen(@x, @props.x.units, @y, @props.y.units)
+      [@sx, @sy] = @renderer.map_to_screen(@x, @glyph.x.units, @y, @glyph.y.units)
       if @size
         @radius = (s/2 for s in @distance_vector('x', 'size', 'edge'))
-        @radius_units = @props.size.units
+        @radius_units = @glyph.size.units
       else
         @radius = @distance_vector('x', 'radius', 'edge')
 

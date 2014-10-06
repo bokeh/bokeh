@@ -15,7 +15,7 @@ define [
       @loaded = (false for img in @url)
 
     _map_data: () ->
-      [@sx, @sy] = @renderer.map_to_screen(@x, @props.x.units, @y, @props.y.units)
+      [@sx, @sy] = @renderer.map_to_screen(@x, @glyph.x.units, @y, @glyph.y.units)
       @sw = @distance_vector('x', 'w', 'edge', @mget('dilate'))
       @sh = @distance_vector('y', 'h', 'edge', @mget('dilate'))
 

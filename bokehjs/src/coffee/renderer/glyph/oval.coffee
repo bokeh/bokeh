@@ -10,7 +10,7 @@ define [
     _properties: ['line', 'fill']
 
     _map_data: () ->
-      [@sx, @sy] = @renderer.map_to_screen(@x, @props.x.units, @y, @props.y.units)
+      [@sx, @sy] = @renderer.map_to_screen(@x, @glyph.x.units, @y, @glyph.y.units)
       @sw = @distance_vector('x', 'width', 'center')
       @sh = @distance_vector('y', 'height', 'center')
 

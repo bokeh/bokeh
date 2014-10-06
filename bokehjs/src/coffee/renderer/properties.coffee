@@ -29,7 +29,7 @@ define [
 
     _fix_singleton_array_value: (obj) ->
       # XXX: this is required because we can't distinguish between
-      # cases like Text(text="field") and Text(test="actual text").
+      # cases like Text(text="field") and Text(text="actual text").
       if obj.value?
         value = obj.value
 
@@ -373,15 +373,12 @@ define [
       return did_change
 
   class GlyphProperties extends Properties
-    constructor: (styleprovider, attrnames, properties) ->
+    constructor: (styleprovider, attrnames) ->
       for attrname in attrnames
         attrtype = "number"
         if attrname.indexOf(":") > -1
           [attrname, attrtype] = attrname.split(":")
         @setattr(styleprovider, attrname, attrtype)
-
-      for key of properties
-        @[key] = properties[key]
 
   return {
     Glyph: GlyphProperties

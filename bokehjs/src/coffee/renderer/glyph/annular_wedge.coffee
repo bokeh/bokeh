@@ -21,7 +21,7 @@ define [
       @index.load(pts)
 
     _map_data: () ->
-      [@sx, @sy] = @renderer.map_to_screen(@x, @props.x.units, @y, @props.y.units)
+      [@sx, @sy] = @renderer.map_to_screen(@x, @glyph.x.units, @y, @glyph.y.units)
       @inner_radius = @distance_vector('x', 'inner_radius', 'edge')
       @outer_radius = @distance_vector('x', 'outer_radius', 'edge')
       @angle = new Float32Array(@start_angle.length)

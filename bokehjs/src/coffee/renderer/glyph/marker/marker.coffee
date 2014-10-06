@@ -33,7 +33,7 @@ define [
       @index.load(pts)
 
     _map_data: () ->
-      [@sx, @sy] = @renderer.map_to_screen(@x, @props.x.units, @y, @props.y.units)
+      [@sx, @sy] = @renderer.map_to_screen(@x, @glyph.x.units, @y, @glyph.y.units)
 
     _mask_data: () ->
       # dilate the inner screen region by max_size and map back to data space for use in
