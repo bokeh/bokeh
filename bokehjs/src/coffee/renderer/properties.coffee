@@ -7,42 +7,25 @@ define [
   logger = Logging.logger
 
   class Properties
+
     source_v_select: (attrname, datasource) ->
-      glyph_props = @
-      # if the attribute is not on this property object at all, log a bad request
-      if not (attrname of glyph_props)
-        logger.warn("requested vector selection of unknown property '#{attrname}' on objects")
-        return (null for i in datasource.get_length())
+      obj = @[attrname]
 
-      prop = glyph_props[attrname]
-      # if the attribute specifies a field, and the field exists on
-      # the column source, return the column from the column source
-      if prop.field? and (prop.field of datasource.get('data'))
-        return datasource.get_column(prop.field)
+      if not obj?
+        throw new Error("requested vector selection of unknown property '#{attrname}'")
+      else if obj.field? and (obj.field of datasource.get('data'))
+        datasource.get_column(obj.field)
+      else if _.isObject(obj)
+        # FIXME: This is where we could return a generator, which might do a better
+        # job for constant propagation for some reason a list comprehension fails here.
+        # NOTE: obj.value can be undefined, because the owning property can be optional
+        # like e.g. ImageUrl.w (yeah, meaningful name). Use NaN to indicate that we do
+        # things on purpose. Not a great idea, but still seems better than carrying
+        # undefineds or nulls around.
+        value = if obj.value? then obj.value else NaN
+        value for i in [0...datasource.get_length()]
       else
-        # If the user gave an explicit value, that should always be returned
-        if glyph_props[attrname].value?
-          default_value = glyph_props[attrname].value
-
-        # otherwise, if the attribute exists on the object, return that value.
-        # (This is a convenience case for when the object passed in has a member
-        # that has the same name as the glyphspec name, e.g. an actual field
-        # named "x" or "radius".)
-
-        else if (attrname of datasource.get('data'))
-          return datasource.get_column(attrname)
-
-        # finally, check for a default value on this property object that could be returned
-        else if glyph_props[attrname].default?
-          default_value = glyph_props[attrname].default
-
-        #FIXME this is where we could return a generator, which might
-        #do a better job for constant propagation
-        #for some reason a list comprehension fails here
-        retval = []
-        for i in [0...datasource.get_length()]
-          retval.push(default_value)
-        return retval
+        throw new Error("requested vector selection of '#{attrname}' failed for #{obj}")
 
     _fix_singleton_array_value: (obj) ->
       # XXX: this is required because we can't distinguish between
