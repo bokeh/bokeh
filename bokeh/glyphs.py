@@ -1,6 +1,6 @@
 from .properties import Align, Bool, DataSpec, Enum, HasProps, Size, Any, Color
 from .mixins import FillProps, LineProps, TextProps
-from .enums import Units, AngleUnits, Direction
+from .enums import Units, AngleUnits, Direction, Anchor
 from .plot_object import PlotObject
 
 from six import add_metaclass, iteritems
@@ -151,8 +151,7 @@ class ImageURL(BaseGlyph):
     h = DataSpec
     angle = DataSpec
     dilate = Bool(False)
-    anchor = Enum("top_left", "top_center", "top_right", "right_center", "bottom_right",
-                  "bottom_center", "bottom_left", "left_center", "center")
+    anchor = Enum(Anchor)
 
 class Line(BaseGlyph, LineProps):
     x = DataSpec
