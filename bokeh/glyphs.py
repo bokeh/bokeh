@@ -135,6 +135,14 @@ class Image(BaseGlyph):
     reserve_color = DataSpec(default=0xffffff) #TODO: Why doesn't type Color work here?? (Came through as 'undefined' on the JS side)
                                                #TODO: What is the color code for transparent???
 
+class ImageRGBA(BaseGlyph):
+    image = DataSpec
+    x = DataSpec
+    y = DataSpec
+    dw = DataSpec
+    dh = DataSpec
+    dilate = Bool(False)
+
 class ImageURL(BaseGlyph):
     url = DataSpec
     x = DataSpec
@@ -145,14 +153,6 @@ class ImageURL(BaseGlyph):
     dilate = Bool(False)
     anchor = Enum("top_left", "top_center", "top_right", "right_center", "bottom_right",
                   "bottom_center", "bottom_left", "left_center", "center")
-
-class ImageRGBA(BaseGlyph):
-    image = DataSpec
-    x = DataSpec
-    y = DataSpec
-    dw = DataSpec
-    dh = DataSpec
-    dilate = Bool(False)
 
 class Line(BaseGlyph, LineProps):
     x = DataSpec
