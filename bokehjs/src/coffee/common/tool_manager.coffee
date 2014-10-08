@@ -5,14 +5,13 @@ define [
   "backbone"
   "./logging"
   "./toolbar_template"
+  "common/has_properties"
   "tool/actions/action_tool"
   "tool/gestures/gesture_tool"
   "tool/inspectors/inspect_tool"
-], (_, $$1, Backbone, Logging, toolbar_template, ActionTool, GestureTool, InspectTool) ->
+], (_, $$1, Backbone, Logging, toolbar_template, HasProperties, ActionTool, GestureTool, InspectTool) ->
 
   logger = Logging.logger
-
-  _event_types = ['rotate', 'pinch', 'press', 'scroll', 'tap', 'doubletap', 'pan']
 
   class ToolManagerView extends Backbone.View
     className: "bk-sidebar"
@@ -49,7 +48,7 @@ define [
       )
 
       gestures = @model.get('gestures')
-      for et in _event_types
+      for et of gestures
         button_bar_list = @$(".bk-button-bar-list[type='#{et}']")
         _.each(gestures[et].tools, (item) =>
           button_bar_list.append(new GestureTool.ButtonView({model: item}).el)
@@ -57,11 +56,13 @@ define [
 
       return @
 
-  class ToolManager extends Backbone.Model
+  class ToolManager extends HasProperties
 
     initialize: (attrs, options) ->
       super(attrs, options)
+      @_init_tools()
 
+    _init_tools: () ->
       gestures = @get('gestures')
 
       for tool in @get('tools')
@@ -75,14 +76,14 @@ define [
         else if tool instanceof GestureTool.Model
           et = tool.get('event_type')
 
-          if et not in _event_types
+          if et not of gestures
             logger.warn("ToolManager: unknown event type '#{et}' for tool: #{tool.type} (#{tool.id})")
             continue
 
           gestures[et].tools.push(tool)
           @listenTo(tool, 'change:active', _.bind(@_active_change, tool))
 
-      for et in _event_types
+      for et of gestures
         tools = gestures[et].tools
         if tools.length == 0
           continue

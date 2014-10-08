@@ -11,6 +11,93 @@ define [
   "renderer/properties"
 ], (_, Backbone, build_views, ContinuumView, Collection, HasProperties, ToolManager, plot_template, Properties) ->
 
+  class _ToolProxy extends Backbone.Model
+    attrs_and_props: () ->
+      return @attributes.tools[0].attrs_and_props()
+
+    get: (attr) ->
+      return @attributes.tools[0].get(attr)
+
+    set: (attr, value) ->
+      super(attr, value)
+      for tool in @attributes.tools
+        tool.set(attr, value)
+
+  class GridToolManager extends ToolManager.Model
+
+    _init_tools: () ->
+      # Note: no call to super(), intentionally
+      inspectors = {}
+      actions = {}
+      gestures = {}
+
+      for tm in @get('tool_managers')
+
+        for et, info of tm.get('gestures')
+          if et not of gestures
+            gestures[et] = {}
+          for tool in info.tools
+            if tool.type not of gestures[et]
+              gestures[et][tool.type] = []
+            gestures[et][tool.type].push(tool)
+
+        for tool in tm.get('inspectors')
+          if tool.type not of inspectors
+            inspectors[tool.type] = []
+          inspectors[tool.type].push(tool)
+
+        for tool in @get('actions')
+          if tool.type not of actions
+            actions[tool.type] = []
+          actions[tool.type].push(tool)
+
+
+      for et of gestures
+        for typ, tools of gestures[et]
+          if tools.length != @get('num_plots')
+            continue
+          proxy = new _ToolProxy({tools: tools})
+          @get('gestures')[et].tools.push(proxy)
+          @listenTo(proxy, 'change:active', _.bind(@_active_change, proxy))
+
+      gestures[et].tools = _.sortBy(tools, (tool) -> tool.get('default_order'))
+      gestures[et].tools[0].set('active', true)
+
+      for typ, tools of actions
+        if tools.length != @get('num_plots')
+          continue
+        proxy = new _ToolProxy({tools: tools})
+        @get('actions').tools.push(proxy)
+
+      for typ, tools of inspectors
+        if tools.length != @get('num_plots')
+          continue
+        proxy = new _ToolProxy({tools: tools})
+        @get('inspectors').tools.push(proxy)
+
+    _active_change: (tool) =>
+      et = tool.get('event_type')
+
+      active = tool.get('active')
+      if not active
+        return null
+
+      gestures = @get('gestures')
+      prev = gestures[et].active
+      if prev?
+        logger.debug("GridToolManager: deactivating tool: #{prev.type} (for event type '#{et}'")
+        prev.set('active', false)
+
+      gestures[et].active = tool
+      @set('gestures', gestures)
+      logger.debug("GridToolManager: activating tool: #{tool.type} (for event type '#{et}'")
+      return null
+
+    defaults: () ->
+      return _.extend {}, super(), {
+        tool_manangers: []
+      }
+
   class GridViewState extends HasProperties
 
     setup_layout_properties: () =>
@@ -34,7 +121,6 @@ define [
         , false)
       @add_dependencies('width', @, 'layout_widths')
 
-    #compute a childs position in the underlying device
     position_child_x: (offset, childsize) ->
       return offset
 
@@ -172,13 +258,15 @@ define [
 
     initialize: (attrs, options) ->
       super(attrs, options)
+      @register_property('tool_manager',
+          () -> new GridToolManager({
+            tool_managers: (plot.get('tool_manager') for plot in _.flatten(@get('children')))
+            toolbar_location: @get('toolbar_location')
+            num_plots: _.flatten(@get('children')).length
+          })
+        , true)
 
-      @set('tool_manager', new ToolManager.Model({
-        tools: []
-        toolbar_location: @get('toolbar_location')
-      }))
-
-    defaults: ->
+    defaults: () ->
       return _.extend {}, super(), {
         children: [[]]
         toolbar_location: "left"
