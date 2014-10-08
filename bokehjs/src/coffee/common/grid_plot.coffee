@@ -55,7 +55,6 @@ define [
             actions[tool.type] = []
           actions[tool.type].push(tool)
 
-
       for et of gestures
         for typ, tools of gestures[et]
           if tools.length != @get('num_plots')
@@ -64,8 +63,10 @@ define [
           @get('gestures')[et].tools.push(proxy)
           @listenTo(proxy, 'change:active', _.bind(@_active_change, proxy))
 
-      gestures[et].tools = _.sortBy(tools, (tool) -> tool.get('default_order'))
-      gestures[et].tools[0].set('active', true)
+        tools = @get('gestures')[et].tools
+        if tools.length > 0
+          @get('gestures')[et].tools = _.sortBy(tools, (tool) -> tool.get('default_order'))
+          gestures[et].tools[0].set('active', true)
 
       for typ, tools of actions
         if tools.length != @get('num_plots')
