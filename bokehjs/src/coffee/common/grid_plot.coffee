@@ -6,10 +6,13 @@ define [
   "./continuum_view"
   "./collection"
   "./has_properties"
+  "./logging"
   "./tool_manager"
   "./plot_template"
   "renderer/properties"
-], (_, Backbone, build_views, ContinuumView, Collection, HasProperties, ToolManager, plot_template, Properties) ->
+], (_, Backbone, build_views, ContinuumView, Collection, HasProperties, Logging, ToolManager, plot_template, Properties) ->
+
+  logger = Logging.logger
 
   class _ToolProxy extends Backbone.Model
     attrs_and_props: () ->
@@ -27,6 +30,7 @@ define [
 
     _init_tools: () ->
       # Note: no call to super(), intentionally
+
       inspectors = {}
       actions = {}
       gestures = {}
