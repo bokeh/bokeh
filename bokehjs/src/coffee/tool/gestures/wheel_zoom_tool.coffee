@@ -11,6 +11,16 @@ define [
   class WheelZoomToolView extends GestureTool.View
 
     _scroll: (e) ->
+      frame = @plot_model.get('frame')
+      hr = frame.get('h_range')
+      vr = frame.get('v_range')
+
+      vx = @plot_view.canvas.sx_to_vx(e.bokeh.sx)
+      vy = @plot_view.canvas.sy_to_vy(e.bokeh.sy)
+
+      if not (vx >= hr.get('start') and vx <= hr.get('end') and vy >= vr.get('start') and vy <= vr.get('end'))
+        return null
+
       # we need a browser-specific multiplier to have similar experiences
       if navigator.userAgent.toLowerCase().indexOf("firefox") > -1
         multiplier = 20
@@ -22,8 +32,6 @@ define [
       else
         delta = e.bokeh.delta
 
-      vx = @plot_view.canvas.sx_to_vx(e.bokeh.sx)
-      vy = @plot_view.canvas.sy_to_vy(e.bokeh.sy)
       factor  = @mget('speed') * delta
 
       # clamp the  magnitude of factor, if it is > 1 bad things happen
@@ -32,15 +40,11 @@ define [
       else if factor < -0.9
         factor = -0.9
 
-      frame = @plot_model.get('frame')
+      vx_low  = hr.get('start')
+      vx_high = hr.get('end')
 
-      xr = frame.get('h_range')
-      vx_low  = xr.get('start')
-      vx_high = xr.get('end')
-
-      yr = frame.get('v_range')
-      vy_low  = yr.get('start')
-      vy_high = yr.get('end')
+      vy_low  = vr.get('start')
+      vy_high = vr.get('end')
 
       dims = @mget('dimensions')
 
