@@ -223,4 +223,3 @@ class Wedge(BaseGlyph, FillProps, LineProps):
     start_angle = DataSpec
     end_angle = DataSpec
     direction = Enum(Direction)
-
