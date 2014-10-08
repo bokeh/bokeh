@@ -8,6 +8,7 @@ define [
     "common/logging",
 ],  ($, serverutils, usercontext, base, HasProperties, load_models, Logging) ->
 
+  index = base.index
   logger = Logging.logger
 
   reload = () ->
@@ -26,21 +27,21 @@ define [
   add_plot_static = (element, model_id, model_type, all_models) ->
     load_models(all_models);
     model = base.Collections(model_type).get(model_id)
-    if model_id not in Bokeh.index
+    if model_id not in index
       view = new model.default_view({model : model})
-      Bokeh.index[model_id] = view
+      index[model_id] = view
       _.delay(-> $(element).replaceWith(view.$el))
     else
-      Bokeh.index[model_id].render()
+      index[model_id].render()
 
   add_plot_server = (element, doc_id, model_id) ->
     resp = serverutils.utility.load_one_object_chain(doc_id, model_id)
     resp.done((data) ->
       model = base.Collections(data.type).get(model_id)
-      if model_id not in Bokeh.index
+      if model_id not in index
         view = new model.default_view(model : model)
         _.delay(-> $(element).replaceWith(view.$el))
-        Bokeh.index[model_id] = view
+        index[model_id] = view
       wswrapper = serverutils.wswrapper
       wswrapper.subscribe("debug:debug", "")
       wswrapper.on('msg:debug:debug', (msg) ->

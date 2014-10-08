@@ -4,7 +4,7 @@ define (require, exports, module) ->
   Bokeh.require = require
   Bokeh.version = '0.6.1'
 
-  Bokeh.index = {}
+  Bokeh.index = require("common/base").index
 
   # set up logger
   logging = require("common/logging")

@@ -256,10 +256,13 @@ define [
   Collections.register = (name, collection) ->
     collection_overrides[name] = collection
 
+  index = {}
+
   return {
-    "collection_overrides" : collection_overrides, # for testing only
-    "mod_cache": mod_cache, # for testing only
-    "locations": locations,
-    "Collections": Collections,
+    "collection_overrides": collection_overrides # for testing only
+    "mod_cache": mod_cache # for testing only
+    "locations": locations
+    "index": index
+    "Collections": Collections
     "Config" : Config
   }
