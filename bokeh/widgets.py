@@ -196,12 +196,13 @@ class DatePicker(InputWidget):
     max_date = Date(default=None)
 
 class TableWidget(Widget):
-    pass
+    source = Instance(DataSource)
 
 class TableColumn(Widget):
     field = String
     header = String
     type = Enum(ColumnType)
+    width = Int(None)
     format = String
     source = List(String)
     strict = Bool(False)
@@ -209,11 +210,15 @@ class TableColumn(Widget):
     unchecked = String("false")
 
 class HandsonTable(TableWidget):
-    source = Instance(DataSource)
     columns = List(Instance(TableColumn))
+    columns_width = Int(None)
     sorting = Bool(True)
     width = Int(None)
     height = Int(None)
+    row_headers = Bool(True)
+    column_headers = Bool(True)
+    row_resize = Bool(False)
+    column_resize = Bool(False)
 
 class ObjectExplorer(Widget):
     data_widget = Instance(TableWidget)

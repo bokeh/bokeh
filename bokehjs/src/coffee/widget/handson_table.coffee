@@ -30,11 +30,18 @@ define [
       source = @mget("source")
       if source?
         headers = []
+        widths  = []
         columns = []
 
         for column in @mget("columns")
           if column?
-            headers.push(column.get("header"))
+            header = column.get("header")
+            width = column.get("width")
+
+            # NOTE: null won't work, so explicitly fall back to undefined
+            headers.push(if header? then header else undefined)
+            widths.push(if width? then width else undefined)
+
             columns.push({
               data: column.get("field")
               type: column.get("type")
@@ -45,14 +52,24 @@ define [
               uncheckedTemplate: column.get("unchecked")
             })
 
+        if @mget("columns_width")?
+          col_widths = @mget("columns_width")
+        else if _.filter(widths, (x) => x?).length != 0
+          col_widths = widths
+        else
+          col_widths = undefined
+
         @$el.handsontable({
           data: source.datapoints()
-          colHeaders: headers
-          columns: columns
-          columnSorting: @mget("sorting")
-          rowHeaders: true
           width: @mget("width")
           height: @mget("height")
+          columns: columns
+          colWidths: col_widths
+          columnSorting: @mget("sorting")
+          rowHeaders: @mget("row_headers")
+          colHeaders: if @mget("column_headers") then headers else false
+          manualRowResize: @mget("row_resize")
+          manualColumnResize: @mget("column_resize")
           afterChange: (changes, source) =>
             if source == "edit"
               @editData(changes)
@@ -97,9 +114,15 @@ define [
     defaults: ->
       return _.extend {}, super(), {
         source: null
-        columns: []
         width: null
         height: null
+        columns: []
+        columns_width: null
+        sorting: true
+        row_headers: true
+        column_headers: true
+        row_resize: false
+        column_resize: false
       }
 
   class HandsonTables extends Collection
