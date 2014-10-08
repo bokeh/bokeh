@@ -14,15 +14,15 @@ define [
       @listenTo(@model, 'change', () => @renderFn())
       source = @mget("source")
       @listenTo(source, 'change:data', () => @renderFn())
-      @listenTo(source, 'change:selected', () => @changeSelection())
+      @listenTo(source, 'change:selection', () => @changeSelection())
 
     changeSelection: () ->
       @ht.deselectCell()
 
       # NOTE: only linear selection allowed by ht
-      selected = @mget("source").get("selected")
-      i = _.min(selected)
-      j = _.max(selected)
+      selection = @mget("source").get("selection")
+      i = _.min(selection)
+      j = _.max(selection)
       n = @ht.countCols()
       @ht.selectCell(i, 0, j, n-1, true)
 
