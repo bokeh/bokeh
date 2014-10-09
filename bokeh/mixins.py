@@ -21,9 +21,9 @@ class LineProps(HasProps):
 class TextProps(HasProps):
     """ Mirrors the BokehJS properties.text_properties class """
     text_font = String("Helvetica")
-    text_font_size = String("10pt")
+    text_font_size = String("12pt")
     text_font_style = Enum(FontStyle)
-    text_color = ColorSpec("black")
+    text_color = ColorSpec("#444444")
     text_alpha = DataSpec(1.0)
     text_align = Enum(TextAlign)
-    text_baseline = Enum(TextBaseline)
+    text_baseline = Enum(TextBaseline, default="bottom")
