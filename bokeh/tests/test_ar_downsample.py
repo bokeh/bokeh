@@ -89,7 +89,7 @@ def start_bokeh_server(bokeh_port=5006):
 
 
 class Test_AR(unittest.TestCase):
-    bokeh_server = None 
+    bokeh_server = None
 
     @classmethod
     def setUpClass(cls):
@@ -147,14 +147,16 @@ class Test_AR(unittest.TestCase):
 
     def _glyphspec(self, plot):
         rend = ar_downsample._renderer(plot)
-        return rend.vm_serialize()['glyphspec']
+        spec = rend.glyph.vm_serialize()
+        spec['type'] = rend.glyph.__view_model__
+        return spec
 
     def test_replot_result_type(self):
         ar_downsample._loadAR()
         source = ServerDataSource(data_url="fn://bivariate", owner_username="defaultuser")
         plot = square('A', 'B', source=source)
 
-        expected = {"image": "image", "image_rgb": "image_rgba", "multi_line": "multi_line"}
+        expected = {"image": "Image", "image_rgb": "ImageRGBA", "multi_line": "MultiLine"}
 
         shaders = dict()
         for name in dir(ar_downsample):

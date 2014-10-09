@@ -492,7 +492,8 @@ def source(plot,
     kwargs['data_url'] = datasource.data_url
     kwargs['owner_username'] = datasource.owner_username
 
-    spec = rend.vm_serialize()['glyphspec']
+    spec = rend.glyph.vm_serialize()
+    spec['type'] = rend.glyph.__view_model__
 
     # TODO: Use reformat here?
 
