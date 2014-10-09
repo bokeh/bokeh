@@ -66,12 +66,15 @@ define [
       gestures = @get('gestures')
 
       for tool in @get('tools')
-
         if tool instanceof InspectTool.Model
-          @get('inspectors').push(tool)
+          inspectors = @get('inspectors')
+          inspectors.push(tool)
+          @set('inspectors', inspectors)
 
         else if tool instanceof ActionTool.Model
-          @get('actions').push(tool)
+          actions = @get('actions')
+          actions.push(tool)
+          @set('actions', actions)
 
         else if tool instanceof GestureTool.Model
           et = tool.get('event_type')
