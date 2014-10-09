@@ -1,4 +1,4 @@
-<a href='http://bokeh.pydata.org/' target='_blank' class='bk-logo bk-logo-small'/>
+<a href='http://bokeh.pydata.org/' target='_blank' class='bk-logo bk-logo-small'></a>
 <div class='bk-button-bar'>
   <ul class='bk-button-bar-list' type="pan" />
   <ul class='bk-button-bar-list' type="scroll" />

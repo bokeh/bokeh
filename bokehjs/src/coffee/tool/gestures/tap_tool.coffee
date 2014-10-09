@@ -30,7 +30,7 @@ define [
     default_view: TapToolView
     type: "TapTool"
     tool_name: "Tap"
-    icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAcCAYAAAByDd+UAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEgAACxIB0t1+/AAAABx0RVh0U29mdHdhcmUAQWRvYmUgRmlyZXdvcmtzIENTNui8sowAAADfSURBVEiJ1ZXhDYIwEEbfZxzADWQDR5ANXMFRHMERdBLZQDdQN9AJPv+gIajQClZ8SUNy6d0j5a7INikZJbUNVijpaQFLYAesa/FGxh1etgBOwCUqy3brKvflto9up7lWiND2KkAUJAxtmgK4Rh3dGxQyh5KwPQE2wKRle96LsI7tDJgCV0mHSry5WGjTvMi7f9cipl6Xwc/K5zwmqQ9hFMO82oYifIyH7TyFcPZJ0l8d6U+F+VeFMU3Si7DCOalQUgZskwlt74EFEddcl9/TsiJaS7qU8e7CPvnbOQzmBk+aLHum0l/aAAAAAElFTkSuQmCC"
+    icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAQCAMAAAAVv241AAAAA3NCSVQICAjb4U/gAAAA51BMVEX////+/v79/v78/f38/Pz6+/v6+vr4+Pj29/f29vf19fby8/Tx8fLx8vPx8vLw8fLu7+/q6+zm5+jl5+fk5ufj5OXh4+Ti4+Te3+Dd3+Dd3t/a3N7Z29zY2tvX2dvU1tfT1tfS1dbS1NbP0dPO0NLNz9HKzc/Kzc7JzM7Ex8nDx8nDxsjCxsjAxMa/w8TAw8W9wcO8wMK8wMG4u763u722ur23uryytrmztrmxtbivtLavs7aus7WtsrSusrWtsrWssbOssLOrsLKrr7Kmq66lqq2mqq2kqayjqKujqKqip6qip6uhpqmjmdHyAAAATXRSTlMA/////////////////////////////////////////////////////////////////////////////////////////////////////8TzpBEAAAAJcEhZcwAACxIAAAsSAdLdfvwAAAAcdEVYdFNvZnR3YXJlAEFkb2JlIEZpcmV3b3JrcyBDUzbovLKMAAAAnElEQVQImUWO1xbBQBRF7xBEiDJqiF6iRIneSyQmuP//PUYS7Ke9X846AAAVxjTwGdxG/cMi4vk2KCVAPxLuRZu0pvoYTJWHPYwZAJqiznk829km5MRyfs1jtYRN1O5Cb8JDutN48oSGLH7WCo8quSDuZXebntM75CgBN8kV0TnNqHfCxJclfB+xUg0bvgsZCDMrBD86Dv1Hqg7wBukXEhG+uFsTAAAAAElFTkSuQmCC"
     event_type: "tap"
     default_order: 10
 
