@@ -10,7 +10,7 @@ from . import glyphs
 
 from .objects import (
     BoxSelectionOverlay, BoxSelectTool, BoxZoomTool, CategoricalAxis,
-    ColumnDataSource, ClickTool, CrosshairTool, DataRange1d, DatetimeAxis,
+    ColumnDataSource, TapTool, CrosshairTool, DataRange1d, DatetimeAxis,
     FactorRange, Grid, HoverTool, Legend, LinearAxis, LogAxis,
     ObjectExplorerTool, PanTool, Plot, PreviewSaveTool, Range, Range1d,
     ResetTool, ResizeTool, Tool, WheelZoomTool,
@@ -385,18 +385,14 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
             tool_obj = PreviewSaveTool(plot=p)
         elif tool == "resize":
             tool_obj = ResizeTool(plot=p)
-        elif tool == "click":
-            tool_obj = ClickTool(plot=p, always_active=True)
+        elif tool == "click" or tool == "tap":
+            tool_obj = TapTool(plot=p, always_active=True)
         elif tool == "crosshair":
             tool_obj = CrosshairTool(plot=p)
         elif tool == "select":
-            tool_obj = BoxSelectTool()
-            overlay = BoxSelectionOverlay(tool=tool_obj)
-            p.renderers.append(overlay)
+            tool_obj = BoxSelectTool(plot=p)
         elif tool == "box_zoom":
             tool_obj = BoxZoomTool(plot=p)
-            overlay = BoxSelectionOverlay(tool=tool_obj)
-            p.renderers.append(overlay)
         elif tool == "hover":
             tool_obj = HoverTool(plot=p, always_active=True, tooltips={
                 "index": "$index",

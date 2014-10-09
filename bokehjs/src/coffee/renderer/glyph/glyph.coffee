@@ -172,15 +172,19 @@ define [
 
         @_render(ctx, indices, glyph_props)
 
-      selected = @mget('data_source').get('selected')
+      selection = @mget('data_source').get('selection')
+      if selection? and selection.length > 0
+        selected_indices = selection
+      else
+        selected_indices = []
 
       t0 = Date.now()
 
-      if selected and selected.length and @have_selection_props
+      if selected_indices? and selected_indices.length and @have_selection_props
 
         # reset the selection mask
         selected_mask = (false for i in @all_indices)
-        for idx in selected
+        for idx in selected_indices
           selected_mask[idx] = true
 
         # intersect/different selection with render mask
@@ -216,6 +220,7 @@ define [
     bind_bokeh_events: () ->
       @listenTo(@model, 'change', @request_render)
       @listenTo(@mget('data_source'), 'change', @set_data)
+      @listenTo(@mget('data_source'), 'select', @request_render)
 
     distance_vector: (pt, span_prop_name, position, dilate=false) ->
       """ returns an array """

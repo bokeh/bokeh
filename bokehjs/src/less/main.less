@@ -4,20 +4,14 @@
 @import "widgets.less";
 @import "crossfilter.less";
 
-svg {
-  font: 12px sans-serif;
-  margin: 0;
-}
-
 .ui-dialog-titlebar {
   height: 16px;
 }
 
-
 .bk-button-bar{
-  margin-top: 0px;
-  margin-bottom: 0px;
-  padding-top: 0px;
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-top: 0;
   padding-bottom: 2px;
   .bk-bs-btn-group;
 
@@ -29,49 +23,28 @@ svg {
   .bk-bs-btn-default;
 }
 
-.grid_plot .button_bar {
-  display: none;
-}
-
-.grid_plot .bk-logo {
-  display: none;
-}
-
-.bokeh_canvas_wrapper {
-  position: relative;
-  font-size: 12pt;
-}
-
-.bokeh_canvas {
-  position: absolute;
-  font-size: 12pt;
-}
-
-.bokeh_canvas_wrapper .bokeh_gmap {
-  position: absolute !important;
-  z-index: -5;
-}
-
-.plotview {
-  clear: both;
-}
-
-.bokeh_canvas_wrapper {
+.bk-canvas-wrapper {
   position: relative;
   font-size: 12pt;
   float: left;
 }
 
-.bokeh_canvas {
+.bk-canvas {
+  clear: both;
   position: absolute;
   font-size: 12pt;
 }
 
-.bokeh_tooltip.left::before {
+.bk-canvas-wrapper .bk-canvas-map {
+  position: absolute !important;
+  z-index: -5;
+}
+
+.bk-tooltip.left::before {
   position: absolute;
   top: 40%;
-  width: 0px;
-  height: 0px;
+  width: 0;
+  height: 0;
   left: -9px;
   border-style: solid;
   border-width: 7px 10px 7px 0;
@@ -80,11 +53,11 @@ svg {
   display: block;
 }
 
-.bokeh_tooltip.right::after {
+.bk-tooltip.right::after {
   position: absolute;
   top: 40%;
-  width: 0px;
-  height: 0px;
+  width: 0;
+  height: 0;
   right: -9px;
   border-style: solid;
   border-width: 7px 0 7px 10px;
@@ -93,7 +66,7 @@ svg {
   display: block;
 }
 
-.bokeh_tooltip {
+.bk-tooltip {
   position: absolute;
   padding: 5px;
   background-color: #1e4B6c;
@@ -101,18 +74,18 @@ svg {
   pointer-events: none;
 }
 
-.bokeh_tooltip_row_label {
+.bk-tooltip-row-label {
   color: #9ab9b1;
   font-family: Helvetica, sans-serif;
   text-align: right;
 }
 
-.bokeh_tooltip_row_value {
+.bk-tooltip-row-value {
   color: #e2ddbd;
   font-family: Helvetica, sans-serif;
 }
 
-.bokeh_tooltip_color_block {
+.bk-tooltip-color-block {
   width: 12px;
   height: 12px;
   margin-left: 5px;
@@ -121,7 +94,7 @@ svg {
   display: inline-block;
 }
 
-.bokeh_gmap {
+.bk-canvas-map {
   position: absolute;
   border: 0;
   z-index: -5;
@@ -182,7 +155,7 @@ svg {
 
 // Pandas
 
-.bokehtable {
+.bk-table {
   overflow: auto;
 }
 
@@ -190,10 +163,6 @@ svg {
   width: 30px !important;
   height: 20px !important;
   padding: 1px !important;
-}
-
-.hide {
-  display: none;
 }
 
 .pandasicons {
@@ -254,61 +223,7 @@ svg {
   padding-bottom: 10px;
 }
 
-.dataslider {
-  margin: 10px 5px;
-  width: 20px;
-}
-
 .maxlabel, .minlabel {
   margin-top: 10px;
   margin-bottom: 10px;
-}
-
-.jsp {
-  overflow: hidden;
-}
-
-.bk-icon-type-boolean {
-  //background-image: url("data:image/png;base64,") !important;
-  //background-position: center !important;
-}
-
-.bk-icon-type-number {
-  //background-image: url("data:image/png;base64,") !important;
-  //background-position: center !important;
-}
-
-.bk-icon-type-string {
-  //background-image: url("data:image/png;base64,") !important;
-  //background-position: center !important;
-}
-
-.bk-icon-type-array {
-  //background-image: url("data:image/png;base64,") !important;
-  //background-position: center !important;
-}
-
-.bk-icon-type-object {
-  //background-image: url("data:image/png;base64,") !important;
-  //background-position: center !important;
-}
-
-.bk-icon-type-date {
-  //background-image: url("data:image/png;base64,") !important;
-  //background-position: center !important;
-}
-
-.bk-icon-type-regexp {
-  //background-image: url("data:image/png;base64,") !important;
-  //background-position: center !important;
-}
-
-.bk-icon-type-domnode {
-  //background-image: url("data:image/png;base64,") !important;
-  //background-position: center !important;
-}
-
-.bk-icon-type-function {
-  //background-image: url("data:image/png;base64,") !important;
-  //background-position: center !important;
 }

@@ -3,7 +3,7 @@ from __future__ import print_function
 import time
 
 from bokeh.browserlib import view
-from bokeh.objects import ColumnDataSource, Plot, DataRange1d, LinearAxis, Grid, Glyph, BoxSelectTool, BoxSelectionOverlay
+from bokeh.objects import ColumnDataSource, Plot, DataRange1d, LinearAxis, Grid, Glyph, BoxSelectTool
 from bokeh.glyphs import Circle
 from bokeh.widgets import TableColumn, HandsonTable, Select, HBox, VBox
 from bokeh.document import Document
@@ -73,10 +73,9 @@ class DataTables(object):
         plot.left.append(yaxis)
         cty = Glyph(data_source=self.source, glyph=Circle(x="index", y="cty", fill_color="#396285", size=8, fill_alpha=0.5, line_alpha=0.5))
         hwy = Glyph(data_source=self.source, glyph=Circle(x="index", y="hwy", fill_color="#CE603D", size=8, fill_alpha=0.5, line_alpha=0.5))
-        select_tool = BoxSelectTool(renderers=[cty, hwy], select_y=False)
+        select_tool = BoxSelectTool(plot=plot, renderers=[cty, hwy], dimensions=['width'])
         plot.tools.append(select_tool)
-        overlay = BoxSelectionOverlay(tool=select_tool)
-        plot.renderers.extend([cty, hwy, ygrid, overlay])
+        plot.renderers.extend([cty, hwy, ygrid])
 
         controls = VBox(children=[manufacturer_select, model_select, transmission_select, drive_select, class_select], width=200)
         top_panel = HBox(children=[controls, plot])
