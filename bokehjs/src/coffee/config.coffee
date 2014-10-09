@@ -1,6 +1,6 @@
 require.config
     paths:
-        jquery:            "vendor/jquery/jquery"
+        jquery:            "vendor/jquery/jquery.min"
         jquery_ui:         "vendor/jquery-ui-amd/jquery-ui-1.10.0/jqueryui"
         jquery_mousewheel: "vendor/jquery-mousewheel/jquery.mousewheel.min"
         jqrangeslider:     "vendor/jqrangeslider/jQAllRangeSliders-withRuler-min"
@@ -15,6 +15,7 @@ require.config
         gear_utils:        "vendor/gear-utils/gear-utils"
         kiwi:              "vendor/kiwi/kiwi"
         jsnlog:            "vendor/jsnlog/jsnlog.min"
+        hammer:            "vendor/hammer-2.0.3/hammer.min"
     shim:
         sprintf:
             exports: 'sprintf'

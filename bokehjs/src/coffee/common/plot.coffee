@@ -1,23 +1,23 @@
 
 define [
-  "underscore",
-  "backbone",
-  "kiwi",
-  "./build_views",
-  "./plot_utils",
-  "./continuum_view",
+  "underscore"
+  "backbone"
+  "kiwi"
+  "./build_views"
+  "./canvas"
+  "./cartesian_frame"
+  "./continuum_view"
   "./collection"
-  "./has_parent",
-  "./canvas",
-  "./layout_box",
-  "./logging",
-  "./solver",
-  "./cartesian_frame",
-  "./plot_template",
-  "./toolbar_template",
-  "renderer/properties",
-  "tool/active_tool_manager",
-], (_, Backbone, kiwi, build_views, plot_utils, ContinuumView, Collection, HasParent, Canvas, LayoutBox, Logging, Solver, CartesianFrame, plot_template, toolbar_template, Properties, ActiveToolManager) ->
+  "./events"
+  "./has_parent"
+  "./layout_box"
+  "./logging"
+  "./plot_utils"
+  "./solver"
+  "./tool_manager"
+  "./plot_template"
+  "renderer/properties"
+], ( _, Backbone, kiwi, build_views, Canvas, CartesianFrame, ContinuumView, Collection, Events, HasParent, LayoutBox, Logging, plot_utils, Solver, ToolManager, plot_template, Properties) ->
 
   line_properties = Properties.line_properties
   text_properties = Properties.text_properties
@@ -31,9 +31,8 @@ define [
   logger = Logging.logger
 
   class PlotView extends ContinuumView
-    className: "bokeh plotview plotarea"
+    className: "bk-plot"
     template: plot_template
-    toolbar_template: toolbar_template
 
     view_options: () ->
       _.extend({plot_model: @model, plot_view: @}, @options)
@@ -63,22 +62,12 @@ define [
       @xmapper = @frame.get('x_mappers')['default']
       @ymapper = @frame.get('y_mappers')['default']
 
-      template_data = {
-        button_bar: @mget('button_bar')
-      }
-      html = @template(template_data)
-      @$el.html(html)
+      @$el.html(@template())
 
       @canvas = @mget('canvas')
       @canvas_view = new @canvas.default_view({'model': @canvas})
 
       @$('.bk-plot-canvas-wrapper').append(@canvas_view.el)
-
-      toolbar_location = @mget('toolbar_location')
-
-      if toolbar_location?
-        toolbar_selector = '.bk-plot-' + toolbar_location
-        @$(toolbar_selector).html(@toolbar_template())
 
       @canvas_view.render()
 
@@ -90,16 +79,21 @@ define [
       @renderers = {}
       @tools = {}
 
-      @eventSink = _.extend({}, Backbone.Events)
-      @atm = new ActiveToolManager(@eventSink)
       @levels = {}
       for level in plot_utils.LEVELS
         @levels[level] = {}
       @build_levels()
-      @atm.bind_bokeh_events()
       @bind_bokeh_events()
+
       @model.add_constraints(@canvas.solver)
       @listenTo(@canvas.solver, 'layout_update', @request_render)
+
+      @event_bus = new Events({
+        tool_manager: @mget('tool_manager')
+        hit_area: @canvas_view.$el
+      })
+      for id, tool_view of @tools
+        @event_bus.register_tool(tool_view)
 
       @unpause()
       @request_render()
@@ -125,10 +119,6 @@ define [
       @unpause()
 
     build_levels: () ->
-      # need to separate renderer/tool creation from event binding
-      # because things like box selection overlay needs to bind events
-      # on the select tool
-      #
       # should only bind events on NEW views and tools
       old_renderers = _.keys(@renderers)
       views = build_views(@renderers, @mget('renderers'), @view_options())
@@ -177,9 +167,7 @@ define [
           xrs: xrs
           yrs: yrs
         }
-        logger.debug('initial ranges set')
-        logger.trace('- xrs: #{xrs}')
-        logger.trace('- yrs: #{yrs}')
+        logger.debug("initial ranges set")
       else
         logger.warn('could not set initial ranges')
 
@@ -188,6 +176,15 @@ define [
 
       super()
       @canvas_view.render(force_canvas)
+
+      toolbar_location = @mget('toolbar_location')
+      if toolbar_location?
+        toolbar_selector = '.bk-plot-' + toolbar_location
+        @tm_view = new ToolManager.View({
+          model: @mget('tool_manager')
+          el: toolbar_selector
+        })
+        @tm_view.render()
 
       ctx = @canvas_view.ctx
 
@@ -232,7 +229,7 @@ define [
         ctx.strokeRect.apply(ctx, frame_box)
 
       @_render_levels(ctx, ['image', 'underlay', 'glyph'], frame_box)
-      @_render_levels(ctx, ['overlay', 'annotation', 'tool'])
+      @_render_levels(ctx, ['overlay', 'tool'])
 
       if title
         sx = @canvas.vx_to_sx(@canvas.get('width')/2)
@@ -284,6 +281,11 @@ define [
 
       for r in @get('renderers')
         r.set('parent', @)
+
+      @set('tool_manager', new ToolManager.Model({
+        tools: @get('tools')
+        toolbar_location: @get('toolbar_location')
+      }))
 
       logger.debug("Plot initialized")
 
@@ -359,7 +361,6 @@ define [
 
     defaults: ->
       return _.extend {}, super(), {
-        button_bar: true
         renderers: [],
         tools: [],
         h_symmetry: true,
@@ -382,8 +383,6 @@ define [
         background_fill: "#fff",
         border_fill: "#fff",
         min_border: 40,
-
-        show_toolbar: true,
 
         title_standoff: 8,
         title_text_font: "helvetica",

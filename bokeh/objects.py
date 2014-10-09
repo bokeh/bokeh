@@ -550,14 +550,22 @@ class Plot(Widget):
     wedge             = _glyph_functions.wedge
     x                 = _glyph_functions.x
 
-class MapOptions(HasProps):
+class GMapOptions(HasProps):
     lat = Float
     lng = Float
     zoom = Int(12)
     map_type = Enum(MapType)
 
 class GMapPlot(Plot):
-    map_options = Instance(MapOptions)
+    map_options = Instance(GMapOptions)
+
+class GeoJSOptions(HasProps):
+    lat = Float
+    lng = Float
+    zoom = Int(12)
+
+class GeoJSPlot(Plot):
+    map_options = Instance(GeoJSOptions)
 
 class GridPlot(Plot):
     """ A 2D grid of plots """
@@ -718,7 +726,7 @@ class ResetTool(Tool):
 class ResizeTool(Tool):
     pass
 
-class ClickTool(Tool):
+class TapTool(Tool):
     names = List(String)
     always_active = Bool(True)
 
@@ -731,8 +739,7 @@ class BoxZoomTool(Tool):
 class BoxSelectTool(Tool):
     renderers = List(Instance(Renderer))
     select_every_mousemove = Bool(True)
-    select_x = Bool(True)
-    select_y = Bool(True)
+    dimensions = List(Enum(Dimension), default=["width", "height"])
 
 class BoxSelectionOverlay(Renderer):
     __view_model__ = 'BoxSelection'
