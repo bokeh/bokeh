@@ -91,16 +91,15 @@
 }
 
 .bk-button-bar .bk-bs-dropdown {
-  width: 20px;
-  height: 26px;
   padding: 10px 10px 0 5px;
   a {
     color: transparent;
     font-size: 0;
     display: block;
+    float: left;
     width: 16px;
     height: 16px;
-    margin: 0;
+    margin: 10px 5px 5px 5px;
     background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEgAACxIB0t1+/AAAABx0RVh0U29mdHdhcmUAQWRvYmUgRmlyZXdvcmtzIENTNui8sowAAAHeSURBVDiNpZPPS1RRFMc/5z6FLLKlQQ1IQi0y0L/AsF+00rC6M3eQN61buDDatWoXuRBahs5zeM/uiCi0aTKE2ktSrttY0NoIFzpzWnTHxscQRF/4Ls453++5nHM5Qhcspv62GByqlwAjIp+0xXKlbDfyWukMqqkfAeZEGAe+Av2h9AM4p7CJMFsp2e22xxyZMz8hwpYIg8Dd2NkCsAasxc6eB0oCg6JsVTM/caxBkvphgXWgoeho7OxqqPcGEjv7StFRoCGwXk39MICpZT4CXgC7ik5VXHGvY6pTgQBUXHFP0SlUd0WYr2UrPaYJ1xHGgJmKK+7ndjQbSEeTfUQeAeNNWmOSpD5FuBY7eza/4b8hyfx3VBs9CBeBviTzS0AU6k9iZ7/kDBeApyFsAicQudz+Bf2X1zvxvyO8MSosAQNJ5u90EQ0lmR/qkr8PDKhIzUTwTuGDwvzLlXpfTjsXeISFev0k8FxhM8K8N9PONkV5KFDoPdDVBe/7O/Q/A3+b/fKZ6FBfAwVRZqbdvUMDEJftDqKTwK2oyXY19TZ4DgKppt6apvkIXEV0Mi7bHcgdU5L6ERWeCdwAvgGnQ6l9TBuiPI7Lf47pWIM2FjN/00AJuBJSn1uw/MDZt3ntLzC5tBIPCBGPAAAAAElFTkSuQmCC);
   }
 }
@@ -109,17 +108,51 @@
   margin: 0;
   padding: 0;
 }
-.bk-button-bar-list li {
-  list-style-type: none;
-  float: left;
-  padding: 0;
-  margin: 0;
-  position: relative;
-  display: block;
-  overflow: visible;
-  background-color: transparent;
-  &:last-child {
+.bk-button-bar-list {
+  > li {
+    list-style-type: none;
+    float: left;
+    padding: 0;
+    margin: 0;
+    position: relative;
+    display: block;
+    overflow: visible;
+    background-color: transparent;
+    &:last-child {
+      &:after {
+        content: "|";
+        font-size: 90%;
+        color: lightgray;
+        display: inline-block;
+        float: left;
+        height: 36px;
+        line-height: 36px;
+        padding: 0 3px;
+      }
+    }
+  }
+  &.bk-bs-dropdown {
     &:after {
+        content: "|";
+        font-size: 90%;
+        color: lightgray;
+        display: inline-block;
+        float: left;
+        height: 36px;
+        line-height: 36px;
+        padding: 0 3px;
+      }
+  }
+  &[type='help'] {
+    li:after {
+      content: "" !important;
+      display: none;
+    }
+  }
+  
+}
+.bk-button-bar-list a {
+  &:after {
       content: "|";
       font-size: 90%;
       color: lightgray;
@@ -129,7 +162,6 @@
       line-height: 36px;
       padding: 0 3px;
     }
-  }
 }
 
 .bk-button-bar .bk-button-bar-list .bk-bs-dropdown-menu {
