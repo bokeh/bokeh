@@ -1,4 +1,3 @@
-
 .tableelem {
   padding: 2px 10px;
   border: 2px white;
@@ -109,7 +108,6 @@
 .bk-button-bar .bk-button-bar-list {
   margin: 0;
   padding: 0;
-
 }
 .bk-button-bar-list li {
   list-style-type: none;
@@ -120,17 +118,30 @@
   display: block;
   overflow: visible;
   background-color: transparent;
+  &:last-child {
+    &:after {
+      content: "|";
+      font-size: 90%;
+      color: lightgray;
+      display: inline-block;
+      float: left;
+      height: 36px;
+      line-height: 36px;
+      padding: 0 3px;
+    }
+  }
 }
-.bk-button-bar-list .bk-bs-dropdown-menu {
+
+.bk-button-bar .bk-button-bar-list .bk-bs-dropdown-menu {
   padding: 10px 8px;
 }
-.bk-button-bar-list .bk-bs-dropdown-menu li {
+.bk-button-bar .bk-button-bar-list .bk-bs-dropdown-menu li {
   float: none;
   clear: both;
   font-family: Helvetica, sans-serif;
   line-height: 1.5em;
 }
-.bk-button-bar-list .bk-bs-dropdown-menu li input {
+.bk-button-bar .bk-button-bar-list .bk-bs-dropdown-menu li input {
   margin-right: 8px;
 }
 .bk-button-bar-list .bk-toolbar-button {
@@ -257,7 +268,7 @@
 }
 .bk-plot-left, .bk-plot-right {
   display: block;
-  margin: 45px 45px 0 0;
+  margin: 45px 0 0 0;
   .bk-logo  {
     margin-bottom: 20px;
   }
@@ -273,22 +284,35 @@
     .bk-button-bar-list {
       li {
         clear: both;
-      .bk-toolbar-button {
-        &.active {
-          border-bottom: none;
-          border-right: 2px solid #26aae1;
-        }
-        span.tip {
-          top: 4px;
-          left: 40px;
-          padding: 5px 10px 5px 10px;
-          &:before {
-            top: 2px;
-            left: -19px;
-            width: 9px;
-            height: 15px;
-            background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAPCAMAAAABFhU/AAAAA3NCSVQICAjb4U/gAAAAY1BMVEX////////8/Pz5+fn39/f19fX09PTv8fHv7+/t7e7s7Ozp6enn6Onm5ubj4+Ph4eHf39/X2drW1tfMzMzAw8S+wMGusbKorK6orK2nq6ufo6WcoaGYnZ+RlpiJj5GGjI6Bh4n1ho2QAAAAIXRSTlMA//////////////////////////////////////////9G9E6kAAAACXBIWXMAAAsSAAALEgHS3X78AAAAHHRFWHRTb2Z0d2FyZQBBZG9iZSBGaXJld29ya3MgQ1M26LyyjAAAABR0RVh0Q3JlYXRpb24gVGltZQA5LzUvMTTY+fXxAAAAUklEQVQImTXN2xZAIABE0VQUIfdLwvz/V1rL1DztpzOi4EoIQoekNoIaH1AL8EvvoExEUkBWfWZZvyWVzq/vL6kbP9/sKdtPF8vKdMPBN1m5AR+0BAnD6uP50QAAAABJRU5ErkJggg==);
+        &:last-child {
+          &:after {
+            content: "-";
+            float: none;
+            clear: both;
+            display: block;
+            width: 30px;
+            height: 8px;
+            line-height: 8px;
+            padding: 3px 0;
+            text-align: center; 
           }
+        }
+        .bk-toolbar-button {
+          &.active {
+            border-bottom: none;
+            border-right: 2px solid #26aae1;
+          }
+          span.tip {
+            top: 4px;
+            left: 40px;
+            padding: 5px 10px 5px 10px;
+            &:before {
+              top: 2px;
+              left: -19px;
+              width: 9px;
+              height: 15px;
+              background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAPCAMAAAABFhU/AAAAA3NCSVQICAjb4U/gAAAAY1BMVEX////////8/Pz5+fn39/f19fX09PTv8fHv7+/t7e7s7Ozp6enn6Onm5ubj4+Ph4eHf39/X2drW1tfMzMzAw8S+wMGusbKorK6orK2nq6ufo6WcoaGYnZ+RlpiJj5GGjI6Bh4n1ho2QAAAAIXRSTlMA//////////////////////////////////////////9G9E6kAAAACXBIWXMAAAsSAAALEgHS3X78AAAAHHRFWHRTb2Z0d2FyZQBBZG9iZSBGaXJld29ya3MgQ1M26LyyjAAAABR0RVh0Q3JlYXRpb24gVGltZQA5LzUvMTTY+fXxAAAAUklEQVQImTXN2xZAIABE0VQUIfdLwvz/V1rL1DztpzOi4EoIQoekNoIaH1AL8EvvoExEUkBWfWZZvyWVzq/vL6kbP9/sKdtPF8vKdMPBN1m5AR+0BAnD6uP50QAAAABJRU5ErkJggg==);
+            }
           }
         }
       }
