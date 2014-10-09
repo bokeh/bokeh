@@ -180,9 +180,10 @@ define [
       toolbar_location = @mget('toolbar_location')
       if toolbar_location?
         toolbar_selector = '.bk-plot-' + toolbar_location
+        logger.debug("attaching toolbar to #{toolbar_selector} for plot #{@model.id}")
         @tm_view = new ToolManager.View({
           model: @mget('tool_manager')
-          el: toolbar_selector
+          el: @$(toolbar_selector)
         })
         @tm_view.render()
 
