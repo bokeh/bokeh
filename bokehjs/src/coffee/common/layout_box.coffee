@@ -75,6 +75,12 @@ define [
       @register_setter('aspect', @_set_aspect)
       @add_dependencies('aspect', this, ['width', 'height'])
 
+    contains: (vx, vy) ->
+      return (
+        vx >= @get('left') and vx <= @get('right') and
+        vy >= @get('bottom') and vy <= @get('top')
+      )
+
     _set_var: (value, prop_name) ->
       v = @['_' + prop_name]
       if typeof value == 'number'

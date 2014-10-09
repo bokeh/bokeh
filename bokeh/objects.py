@@ -690,7 +690,7 @@ class ResetTool(Tool):
 class ResizeTool(Tool):
     pass
 
-class ClickTool(Tool):
+class TapTool(Tool):
     names = List(String)
     always_active = Bool(True)
 
@@ -703,8 +703,7 @@ class BoxZoomTool(Tool):
 class BoxSelectTool(Tool):
     renderers = List(Instance(Renderer))
     select_every_mousemove = Bool(True)
-    select_x = Bool(True)
-    select_y = Bool(True)
+    dimensions = List(Enum(Dimension), default=["width", "height"])
 
 class BoxSelectionOverlay(Renderer):
     __view_model__ = 'BoxSelection'

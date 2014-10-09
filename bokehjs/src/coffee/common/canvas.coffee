@@ -15,14 +15,8 @@ define [
   logger = Logging.logger
 
   class CanvasView extends ContinuumView
-
-    className: "bokeh plotview bokeh_canvas_wrapper"
-
+    className: "bk-canvas-wrapper"
     template: canvas_template
-
-    events:
-      "mousemove": "_mousemove"
-      "mousedown": "_mousedown"
 
     initialize: (options) ->
       super(options)
@@ -36,8 +30,10 @@ define [
       # for compat, to be removed
       @canvas_wrapper = @$el
 
-      @canvas = @$('canvas.bokeh_canvas')
-      @map_div = @$('.bokeh_gmap') ? null
+      @canvas = @$('canvas.bk-canvas')
+      @canvas_events = @$('div.bk-canvas-events')
+      @canvas_overlay = @$('div.bk-canvas-overlays')
+      @map_div = @$('div.bk-canvas-map') ? null
 
       logger.debug("CanvasView initialized")
 
@@ -46,7 +42,6 @@ define [
       # should be configured with new bounds.
       if not @model.new_bounds and not force
         return
-
       @ctx = @canvas[0].getContext('2d')
 
       if @mget('use_hidpi')
@@ -66,11 +61,13 @@ define [
       @canvas.width = width * @dpi_ratio
       @canvas.height = height * @dpi_ratio
 
-      @$el.attr('style', "width:#{width}px; height:#{height}px")
-      @canvas.attr('style', "width:#{width}px;")
-      @canvas.attr('style', "height:#{height}px;")
+      @$el.attr('style', "z-index: 50; width:#{width}px; height:#{height}px")
+      @canvas.attr('style', "width:#{width}px;height:#{height}px")
       @canvas.attr('width', width*ratio).attr('height', height*ratio)
       @$el.attr("width", width).attr('height', height)
+
+      @canvas_events.attr('style', "z-index:100; position:absolute; top:0; left:0; width:#{width}px; height:#{height}px;")
+      @canvas_overlay.attr('style', "z-index:75; position:absolute; top:0; left:0; width:#{width}px; height:#{height}px;")
 
       @ctx.scale(ratio, ratio)
       @ctx.translate(0.5, 0.5)
@@ -118,14 +115,6 @@ define [
           # fake it til you make it
           textMetrics.ascent = ctx.html5MeasureText("m").width * 1.6
           return textMetrics
-
-    _mousedown: (e) =>
-      for f in @mget('mousedown_callbacks')
-        f(e, e.layerX, e.layerY)
-
-    _mousemove: (e) =>
-      for f in @mget('mousemove_callbacks')
-        f(e, e.layerX, e.layerY)
 
   class Canvas extends LayoutBox.Model
     type: 'Canvas'

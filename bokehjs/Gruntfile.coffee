@@ -67,6 +67,8 @@ module.exports = (grunt) ->
           dest: 'build/css',   # destination path prefix
           ext: '.css',         # dest filepaths will have this extension
         }]
+    lesslint:
+      src: ['src/less/*.less']
 
     coffee:
       compile:
@@ -205,6 +207,7 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks("grunt-contrib-connect")
   grunt.loadNpmTasks("grunt-eco")
   grunt.loadNpmTasks("grunt-groc")
+  grunt.loadNpmTasks('grunt-lesslint')
 
   grunt.registerTask("default",   ["build", "test"])
   grunt.registerTask("buildcopy", ["copy:template", "copy:test", "copy:demo", "copy:vendor"]) # better way??

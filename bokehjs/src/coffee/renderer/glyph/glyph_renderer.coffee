@@ -35,6 +35,7 @@ define [
     bind_bokeh_events: () ->
       @listenTo(@model, 'change', @request_render)
       @listenTo(@mget('data_source'), 'change', @set_data)
+      @listenTo(@mget('data_source'), 'select', @request_render)
 
     have_selection_glyphs: ->
       @mget("selection_glyph")? or @mget("nonselection_glyph")?
@@ -132,16 +133,20 @@ define [
           glyph.update_data(@mget('data_source'))
         glyph.render(ctx, indices)
 
-      selected = @mget('data_source').get('selected')
+      selection = @mget('data_source').get('selection')
+      if selection? and selection.length > 0
+        selected_indices = selection
+      else
+        selected_indices = []
 
       t0 = Date.now()
 
-      if not (selected and selected.length and @have_selection_glyphs())
+      if not (selected_indices and selected_indices.length and @have_selection_glyphs())
         do_render(ctx, indices, @glyph)
       else
         # reset the selection mask
         selected_mask = (false for i in @all_indices)
-        for idx in selected
+        for idx in selected_indices
           selected_mask[idx] = true
 
         # intersect/different selection with render mask

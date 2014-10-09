@@ -12,6 +12,8 @@ define [
   "common/layout_box",
   "common/plot",
   "common/plot_context",
+  "common/selection_manager",
+  "common/selector",
 
   "mapper/categorical_mapper",
   "mapper/linear_mapper",
@@ -25,6 +27,8 @@ define [
   "range/range1d",
 
   "renderer/annotation/legend",
+  "renderer/annotation/span",
+  "renderer/annotation/tooltip",
 
   "renderer/glyph/glyph_renderer",
 
@@ -90,18 +94,25 @@ define [
   "ticking/single_interval_ticker",
   "ticking/years_ticker",
 
-  "tool/box_select_tool",
-  "tool/box_zoom_tool",
-  "tool/click_tool",
-  "tool/crosshair_tool",
-  "tool/data_range_box_select_tool",
-  "tool/hover_tool",
-  "tool/pan_tool",
-  "tool/preview_save_tool",
-  "tool/reset_tool",
-  "tool/resize_tool",
-  "tool/wheel_zoom_tool",
-  "tool/object_explorer_tool",
+  "tool/button_tool",
+
+  "tool/actions/action_tool",
+  "tool/actions/object_explorer_tool",
+  "tool/actions/preview_save_tool",
+  "tool/actions/reset_tool",
+
+  "tool/gestures/box_select_tool",
+  "tool/gestures/box_zoom_tool",
+  "tool/gestures/gesture_tool",
+  "tool/gestures/pan_tool",
+  "tool/gestures/resize_tool",
+  "tool/gestures/select_tool",
+  "tool/gestures/tap_tool",
+  "tool/gestures/wheel_zoom_tool",
+
+  "tool/inspectors/crosshair_tool",
+  "tool/inspectors/hover_tool",
+  "tool/inspectors/inspect_tool",
 
   "widget/data_table",
   "widget/handson_table",
@@ -175,6 +186,8 @@ define [
     Canvas:                   'common/canvas'
     LayoutBox:                'common/layout_box'
     CartesianFrame:           'common/cartesian_frame'
+    SelectionManager:         'common/selection_manager'
+    Selector:                 'common/selector'
 
     DataFactorRange:          'range/data_factor_range'
     DataRange1d:              'range/data_range1d'
@@ -182,6 +195,8 @@ define [
     Range1d:                  'range/range1d'
 
     Legend:                   'renderer/annotation/legend'
+    Span:                     'renderer/annotation/span'
+    Tooltip:                  'renderer/annotation/tooltip'
 
     GlyphRenderer:            'renderer/glyph/glyph_renderer'
 
@@ -247,18 +262,24 @@ define [
     SingleIntervalTicker:     'ticking/single_interval_ticker'
     YearsTicker:              'ticking/years_ticker'
 
-    PanTool:                  'tool/pan_tool'
-    WheelZoomTool:            'tool/wheel_zoom_tool'
-    ResizeTool:               'tool/resize_tool'
-    ClickTool:                'tool/click_tool'
-    CrosshairTool:            'tool/crosshair_tool'
-    BoxSelectTool:            'tool/box_select_tool'
-    BoxZoomTool:              'tool/box_zoom_tool'
-    HoverTool:                'tool/hover_tool'
-    DataRangeBoxSelectTool:   'tool/data_range_box_select_tool'
-    PreviewSaveTool:          'tool/preview_save_tool'
-    ResetTool:                'tool/reset_tool'
-    ObjectExplorerTool:       'tool/object_explorer_tool'
+    ButtonTool:               'tool/button_tool'
+    ActionTool:               'tool/actions/action_tool'
+    ObjectExplorerTool:       'tool/actions/object_explorer_tool'
+    PreviewSaveTool:          'tool/actions/preview_save_tool'
+    ResetTool:                'tool/actions/reset_tool'
+
+    BoxSelectTool:            'tool/gestures/box_select_tool'
+    BoxZoomTool:              'tool/gestures/box_zoom_tool'
+    GestureTool:              'tool/gestures/gesture_tool'
+    PanTool:                  'tool/gestures/pan_tool'
+    SelectTool:               'tool/gestures/select_tool'
+    ResizeTool:               'tool/gestures/resize_tool'
+    TapTool:                  'tool/gestures/tap_tool'
+    WheelZoomTool:            'tool/gestures/wheel_zoom_tool'
+
+    CrosshairTool:            'tool/inspectors/crosshair_tool'
+    HoverTool:                'tool/inspectors/hover_tool'
+    InspectTool:              'tool/inspectors/inspect_tool'
 
     DataTable:                'widget/data_table'
     HandsonTable:             'widget/handson_table'
