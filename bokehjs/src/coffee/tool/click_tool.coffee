@@ -23,7 +23,7 @@ define [
       tool_name = "click_tool"
 
       if not @mget('always_active')
-        @tool_button = $("<button class='bk-toolbar-button'> Click </button>")
+        @tool_button = $("<button type='button' class='bk-toolbar-button'> Click </button>")
         @plot_view.$el.find('.bk-button-bar').append(@tool_button)
 
         @tool_button.click(=>

@@ -514,14 +514,22 @@ class Plot(Widget):
     wedge             = _glyph_functions.wedge
     x                 = _glyph_functions.x
 
-class MapOptions(HasProps):
+class GMapOptions(HasProps):
     lat = Float
     lng = Float
     zoom = Int(12)
     map_type = Enum(MapType)
 
 class GMapPlot(Plot):
-    map_options = Instance(MapOptions)
+    map_options = Instance(GMapOptions)
+
+class GeoJSOptions(HasProps):
+    lat = Float
+    lng = Float
+    zoom = Int(12)
+
+class GeoJSPlot(Plot):
+    map_options = Instance(GeoJSOptions)
 
 class GridPlot(Plot):
     """ A 2D grid of plots """

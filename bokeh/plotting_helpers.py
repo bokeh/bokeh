@@ -238,9 +238,9 @@ def _get_range(range_input):
 def _get_axis_class(axis_type, range_input):
     if axis_type is None:
         return None
-    elif axis_type is "linear":
+    elif axis_type == "linear":
         return LinearAxis
-    elif axis_type is "log":
+    elif axis_type == "log":
         return LogAxis
     elif axis_type == "datetime":
         return DatetimeAxis
