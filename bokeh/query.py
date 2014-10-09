@@ -93,9 +93,6 @@ def match(obj, selector, context={}):
 
             # special case 'tag'
             elif key == 'tags':
-                # TODO (bev) this is for glyphspecs, remove when they are removed
-                if not hasattr(obj, "tags"): return False
-
                 if isinstance(val, string_types):
                     if val not in obj.tags: return False
                 else:
