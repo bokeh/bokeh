@@ -37,9 +37,7 @@ define [
     type: 'SquareCross'
 
     display_defaults: ->
-      return _.extend {}, super(), @line_defaults, @fill_defaults, {
-        size_units: 'screen'
-      }
+      return _.extend {}, super(), @line_defaults, @fill_defaults
 
   class SquareCrosses extends Marker.Collection
     model: SquareCross

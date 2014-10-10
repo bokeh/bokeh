@@ -20,11 +20,13 @@ class BaseGlyph(PlotObject):
     halign = Align  # when there is horizontal wiggle room (e.g. categorical)
     valign = Align  # when there is vertical wiggle room
 
-    radius_units = Enum(Units)
-    length_units = Enum(Units)           # XXX: deprecated
-    angle_units = Enum(AngleUnits)
-    start_angle_units = Enum(AngleUnits)
-    end_angle_units = Enum(AngleUnits)
+    # TODO: all *_units properties should be removed
+    size_units = Enum(Units, default=Units.screen)
+    radius_units = Enum(Units, default=Units.data)
+    length_units = Enum(Units, default=Units.screen)
+    angle_units = Enum(AngleUnits, default=AngleUnits.deg)
+    start_angle_units = Enum(AngleUnits, default=AngleUnits.deg)
+    end_angle_units = Enum(AngleUnits, default=AngleUnits.deg)
 
 class Marker(BaseGlyph, FillProps, LineProps):
     """ Base class for glyphs which are just simple markers placed at (x,y)

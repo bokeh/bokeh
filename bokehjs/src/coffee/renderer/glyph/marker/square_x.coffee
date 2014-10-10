@@ -38,9 +38,7 @@ define [
     type: 'SquareX'
 
     display_defaults: ->
-      return _.extend {}, super(), @line_defaults, @fill_defaults, {
-        size_units: 'screen'
-      }
+      return _.extend {}, super(), @line_defaults, @fill_defaults
 
   class SquareXs extends Marker.Collection
     model: SquareX

@@ -159,8 +159,7 @@ define [
 
     display_defaults: ->
       return _.extend {}, super(), @line_defaults, @fill_defaults, {
-        radius_units: 'data'
-        size_units: 'screen'
+        size: 4 # XXX: Circle should be a marker, then this wouldn't be necessary.
       }
 
   class Circles extends Glyph.Collection

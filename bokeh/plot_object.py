@@ -220,7 +220,7 @@ class PlotObject(HasProps):
         # from serialization point of view. This should be handled in
         # the properties module, but for now, fix serialized values here.
         for attr, prop in iteritems(self.dataspecs_with_refs()):
-            if attr in props:
+            if props.get(attr) is not None:
                 props[attr] = prop.to_dict(self)
 
         return props

@@ -85,6 +85,11 @@ define [
 
   class Marker extends Glyph.Model
 
+    display_defaults: ->
+      return _.extend {}, super(), {
+        size: 4
+      }
+
   class Markers extends Glyph.Collection
 
   return {

@@ -189,6 +189,7 @@ define [
 
     defaults: ->
       return _.extend {}, super(), {
+        size_units: 'screen'
         radius_units: 'data'
         length_units: 'screen'
         angle_units: 'deg'
