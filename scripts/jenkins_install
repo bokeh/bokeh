@@ -29,7 +29,7 @@ export ENV_DIR=${WORKSPACE}/build/env
 
 python -V
 
-DEPS_BUILD="python=$PYTHON_VERSION jinja2 matplotlib"
+DEPS_BUILD="python=$PYTHON_VERSION jinja2 matplotlib yaml pyyaml"
 conda create  -p ${ENV_DIR} --yes --quiet $DEPS_BUILD
 export PATH=${ENV_DIR}/bin:${PATH}
 
