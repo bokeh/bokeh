@@ -15,7 +15,7 @@ define [
     initialize: (options) ->
       super(options)
       # TODO (bev) really probably need multiple divs
-      @$el.appendTo(@plot_view.$el.find('div.bk-canvas-wrapper'))
+      @$el.appendTo(@plot_view.$el.find('div.bk-canvas-overlays'))
       @$el.css({'z-index': 1010});
       @$el.hide()
 

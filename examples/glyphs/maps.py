@@ -5,17 +5,17 @@ from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.glyphs import Circle
 from bokeh.objects import (
-    GeoJSPlot, Range1d, ColumnDataSource,
+    GMapPlot, Range1d, ColumnDataSource,
     PanTool, WheelZoomTool, BoxSelectTool,
-    BoxSelectionOverlay, GeoJSOptions)
+    BoxSelectionOverlay, GMapOptions)
 from bokeh.resources import INLINE
 
 x_range = Range1d()
 y_range = Range1d()
 
-map_options = GeoJSOptions(lat=30.2861, lng=-97.7394, zoom=15)
+map_options = GMapOptions(lat=30.2861, lng=-97.7394, zoom=15)
 
-plot = GeoJSPlot(
+plot = GMapPlot(
     x_range=x_range, y_range=y_range,
     map_options=map_options,
     title = "Austin"

@@ -1,6 +1,7 @@
 
 define [
   "underscore"
+  "jquery"
   "bootstrap/dropdown"
   "backbone"
   "./logging"
@@ -9,7 +10,7 @@ define [
   "tool/actions/action_tool"
   "tool/gestures/gesture_tool"
   "tool/inspectors/inspect_tool"
-], (_, $$1, Backbone, Logging, toolbar_template, HasProperties, ActionTool, GestureTool, InspectTool) ->
+], (_, $, $$1, Backbone, Logging, toolbar_template, HasProperties, ActionTool, GestureTool, InspectTool) ->
 
   logger = Logging.logger
 
