@@ -710,6 +710,7 @@ class BoxSelectionOverlay(Renderer):
     tool = Instance(Tool)
 
 class HoverTool(Tool):
+    names = List(String)
     renderers = List(Instance(Renderer))
     tooltips = Dict(String, String)
     always_active = Bool(True)
