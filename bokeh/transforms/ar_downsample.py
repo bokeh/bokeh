@@ -481,6 +481,11 @@ def _renderer(plot):
                 and hasattr(r, "server_data_source")
                 and r.server_data_source is not None)][0]
 
+# TODO: just use glyph instead of obsolete glyphspec
+def get_glyphspec(glyph):
+    spec = glyph.vm_serialize()
+    spec['type'] = glyph.__view_model__
+    return spec
 
 def source(plot,
            agg=Count(), info=Const(val=1), shader=Id(),
@@ -492,11 +497,9 @@ def source(plot,
     kwargs['data_url'] = datasource.data_url
     kwargs['owner_username'] = datasource.owner_username
 
-    spec = rend.glyph.vm_serialize()
-    spec['type'] = rend.glyph.__view_model__
+    spec = get_glyphspec(rend.glyph)
 
     # TODO: Use reformat here?
-
     if shader.out == "image" or shader.out == "image_rgb":
         kwargs['data'] = {'image': [],
                           'x': [0],
@@ -578,7 +581,9 @@ def _generate_render_state(plot_state):
 
 def downsample(data, transform, plot_state, render_state):
     _loadAR()  # Must be called before any attempts to use AR proper
-    glyphspec = transform['glyphspec']
+
+    # XXX: transform['glyphspec'] is really a glyph
+    glyphspec = get_glyphspec(transform['glyphspec'])
     xcol = glyphspec['x']['field']
     ycol = glyphspec['y']['field']
     datacol = _datacolumn(glyphspec)
@@ -748,8 +753,7 @@ def _span(r):
 
 def _shaper(glyphspec, points):
     """Construct the AR shaper to match the given shape code."""
-    code = glyphspec['type']
-    code = code.lower()
+    glyphtype = glyphspec['type']
 
     tox = glyphset.idx(0)
     toy = glyphset.idx(1)
@@ -758,16 +762,21 @@ def _shaper(glyphspec, points):
         sizer = glyphset.const(1)
         return glyphset.ToPoint(tox, toy, sizer, sizer)
 
-    if code == 'square':
-        size = glyphspec['size'].get('default', 1)
+    # XXX: glyphspec['dataspec'] won't work anymore, because previously all dataspecs
+    # were serialized no matter if dirty or not. Now only changed dataspecs are being
+    # serialized. Use glyphs directly to fix this issue.
+
+    if glyphtype == 'Square':
+        size = glyphspec.get('size', {}).get('value', 1)
         sizer = glyphset.const(size)
         return glyphset.ToRect(tox, toy, sizer, sizer)
-    if code == 'circle':
-        size = glyphspec['radius'].get('default', 1)
+    if glyphtype == 'Circle':
+        # XXX: what about 'size' and different units?
+        size = glyphspec.get('radius', {}).get('value', 1)
         sizer = glyphset.const(size)
         return glyphset.ToRect(tox, toy, sizer, sizer)
     else:
-        raise ValueError("Unrecogized shape, received '{0}'".format(code))
+        raise ValueError("Unrecogized shape, received '{0}'".format(glyphtype.lower()))
 
 
 # -------------------- Recipes -----------------------

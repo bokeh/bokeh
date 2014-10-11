@@ -226,7 +226,7 @@ class Test_AR(unittest.TestCase):
     def test_shaper_create(self):
         ar_downsample._loadAR()
 
-        glyphspec = {'type': 'square', 'size': {'default': 3}, 'radius': {'default': 3}}
+        glyphspec = {'type': 'Square', 'size': {'value': 3}, 'radius': {'value': 3}}
         self.assertIsInstance(ar_downsample._shaper(glyphspec, False), glyphset.ToRect)
         self.assertIsInstance(ar_downsample._shaper(glyphspec, True), glyphset.ToPoint)
         self.assertIsInstance(ar_downsample._shaper(glyphspec, True), glyphset.ToPoint)
@@ -234,10 +234,10 @@ class Test_AR(unittest.TestCase):
     def test_shaper_fail(self):
         ar_downsample._loadAR()
         with self.assertRaises(ValueError):
-            ar_downsample._shaper({'type': 'blah', 'size': {'default':  3}}, False)
+            ar_downsample._shaper({'type': 'blah', 'size': {'value': 3}}, False)
 
     def test_make_glyphset(self):
-        glyphspec = {'type': 'square', 'size': {'default': 1}}
+        glyphspec = {'type': 'Square', 'size': {'value': 1}}
         transform = {'points': True}
         glyphs = ar_downsample.make_glyphset([1], [1], [1], glyphspec, transform)
         self.assertIsInstance(glyphs, npg.Glyphset, "Point-optimized numpy version")
