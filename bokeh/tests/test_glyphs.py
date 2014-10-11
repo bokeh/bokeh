@@ -43,7 +43,7 @@ TEXT = ["text_font", "text_font_size", "text_font_style", "text_color", "text_al
 
 PROPS = ["session", "name", "tags"]
 GLYPH = ["visible", "margin", "halign", "valign",
-         "radius_units", "length_units", "angle_units", "start_angle_units", "end_angle_units"]
+         "size_units", "radius_units", "length_units", "angle_units", "start_angle_units", "end_angle_units"]
 MARKER = ["x", "y", "size"]
 
 def check_props(glyph, *props):
