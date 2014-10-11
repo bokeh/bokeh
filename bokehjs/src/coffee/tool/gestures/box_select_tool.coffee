@@ -29,7 +29,8 @@ define [
       @mget('overlay').set('data', {vxlim: vxlim, vylim: vylim})
 
       if @mget('select_every_mousemove')
-        @_select(vxlim, vylim, false)
+        append = e.srcEvent.shiftKey ? false
+        @_select(vxlim, vylim, false, append)
 
       return null
 
@@ -43,13 +44,14 @@ define [
       dims = @mget('dimensions')
 
       [vxlim, vylim] = @model._get_dim_limits(@_baseboint, curpoint, frame, dims)
-      @_select(vxlim, vylim, true)
+      append = e.srcEvent.shiftKey ? false
+      @_select(vxlim, vylim, true, append)
       @mget('overlay').set('data', {})
 
       @_baseboint = null
       return null
 
-    _select: ([vx0, vx1], [vy0, vy1], final) ->
+    _select: ([vx0, vx1], [vy0, vy1], final, append=false) ->
       geometry = {
         type: 'rect'
         vx0: vx0
@@ -61,7 +63,7 @@ define [
       for r in @mget('renderers')
         ds = r.get('data_source')
         sm = ds.get('selection_manager')
-        sm.select(@, @plot_view.renderers[r.id], geometry, final)
+        sm.select(@, @plot_view.renderers[r.id], geometry, final, append)
 
       return null
 
