@@ -95,6 +95,15 @@ define [
       for id, tool_view of @tools
         @event_bus.register_tool(tool_view)
 
+      toolbar_location = @mget('toolbar_location')
+      if toolbar_location?
+        toolbar_selector = '.bk-plot-' + toolbar_location
+        logger.debug("attaching toolbar to #{toolbar_selector} for plot #{@model.id}")
+        @tm_view = new ToolManager.View({
+          model: @mget('tool_manager')
+          el: @$(toolbar_selector)
+        })
+
       @unpause()
       @request_render()
 
@@ -177,15 +186,7 @@ define [
       super()
       @canvas_view.render(force_canvas)
 
-      toolbar_location = @mget('toolbar_location')
-      if toolbar_location?
-        toolbar_selector = '.bk-plot-' + toolbar_location
-        logger.debug("attaching toolbar to #{toolbar_selector} for plot #{@model.id}")
-        @tm_view = new ToolManager.View({
-          model: @mget('tool_manager')
-          el: @$(toolbar_selector)
-        })
-        @tm_view.render()
+      @tm_view.render()
 
       ctx = @canvas_view.ctx
 

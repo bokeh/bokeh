@@ -21,6 +21,7 @@ define [
     initialize: (options) ->
       super(options)
       @listenTo(@model, 'change', @render)
+      @render()
 
     render: () ->
       @$el.html(@template())
