@@ -44,7 +44,7 @@ define [
       @is_paused = false
       @request_render()
 
-    request_render: () ->
+    request_render: () =>
       if not @is_paused
         @throttled_render(true)
       return
@@ -186,7 +186,8 @@ define [
       super()
       @canvas_view.render(force_canvas)
 
-      @tm_view.render()
+      if @tm_view?
+        @tm_view.render()
 
       ctx = @canvas_view.ctx
 

@@ -6,6 +6,24 @@ define [
   "./glyph",
 ], (_, rbush, Properties, Glyph) ->
 
+
+  point_in_poly = (x, y, px, py) ->
+    inside = false
+
+    x1 = px[px.length-1]
+    y1 = py[py.length-1]
+
+    for i in [0...px.length]
+        x2 = px[i]
+        y2 = py[i]
+        if ( y1 < y ) != ( y2 < y )
+            if x1 + ( y - y1 ) / ( y2 - y1 ) * ( x2 - x1 ) < x
+                inside = not inside
+        x1 = x2
+        y1 = y2
+
+    return inside
+
   class MarkerView extends Glyph.View
 
     _fields: ['x', 'y', 'size']
@@ -86,6 +104,21 @@ define [
       [y0, y1] = @ymapper.v_map_from_target([geometry.vy0, geometry.vy1])
 
       return (x[4].i for x in @index.search([x0, y0, x1, y1]))
+
+    _hit_poly: (geometry) ->
+      [vx, vy] = [geometry.vx, geometry.vy]
+      sx = @plot_view.canvas.v_vx_to_sx(vx)
+      sy = @plot_view.canvas.v_vy_to_sy(vy)
+
+      # TODO (bev) use spatial index to pare candidate list
+      candidates = [0...@sx.length]
+
+      hits = []
+      for i in [0...candidates.length]
+        idx = candidates[i]
+        if point_in_poly(@sx[i], @sy[i], sx, sy)
+          hits.push(idx)
+      return hits
 
   class Marker extends Glyph.Model
 

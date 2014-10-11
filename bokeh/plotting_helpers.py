@@ -12,8 +12,8 @@ from .objects import (
     BoxSelectionOverlay, BoxSelectTool, BoxZoomTool, CategoricalAxis,
     ColumnDataSource, TapTool, CrosshairTool, DataRange1d, DatetimeAxis,
     FactorRange, Grid, HoverTool, Legend, LinearAxis, LogAxis,
-    ObjectExplorerTool, PanTool, Plot, PreviewSaveTool, Range, Range1d,
-    ResetTool, ResizeTool, Tool, WheelZoomTool,
+    ObjectExplorerTool, PanTool, Plot, PolySelectTool, PreviewSaveTool,
+    Range, Range1d, ResetTool, ResizeTool, Tool, WheelZoomTool,
 )
 from .properties import ColorSpec, Datetime
 import warnings
@@ -389,8 +389,11 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
             tool_obj = TapTool(plot=p, always_active=True)
         elif tool == "crosshair":
             tool_obj = CrosshairTool(plot=p)
-        elif tool == "select":
+        elif tool == "select" or tool == "box_select":
+            # TODO (bev) deprecate just "select"
             tool_obj = BoxSelectTool(plot=p)
+        elif tool == "poly_select":
+            tool_obj = PolySelectTool(plot=p)
         elif tool == "box_zoom":
             tool_obj = BoxZoomTool(plot=p)
         elif tool == "hover":

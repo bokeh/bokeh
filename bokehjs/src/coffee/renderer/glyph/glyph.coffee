@@ -211,6 +211,8 @@ define [
 
       ctx.restore()
 
+      return @
+
     xrange: () ->
       return @plot_view.x_range
 
@@ -327,6 +329,13 @@ define [
           type = @mget('glyphspec').type
           logger.warn("'rect' selection not available on #{type} renderer")
           @_rect_hit_warned = true
+      else if geometry.type == "poly"
+        if @_hit_poly?
+          result = @_hit_poly(geometry)
+        else if not @_poly_hit_warned?
+          type = @mget('glyphspec').type
+          logger.warn("'poly' selection not available on #{type} renderer")
+          @_poly_hit_warned = true
       else
         logger.error("unrecognized selection geometry type '#{ geometry.type }'")
 
