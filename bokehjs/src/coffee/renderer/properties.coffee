@@ -46,7 +46,7 @@ define [
 
       value = styleprovider.mget(attrname)
       if not value?
-        null
+        @[attrname].value = null
       else if _.isString(value)
         @[attrname].value = value
       else if _.isObject(value)
@@ -60,7 +60,7 @@ define [
 
       value = styleprovider.mget(attrname)
       if not value?
-        null
+        @[attrname].value = null
       else if _.isBoolean(value)
         @[attrname].value = value
       else if _.isString(value)
@@ -79,7 +79,7 @@ define [
 
       value = styleprovider.mget(attrname)
       if not value?
-        null
+        @[attrname].value = null
       else if _.isNumber(value)
         @[attrname].value = value
       else if _.isString(value)
@@ -95,7 +95,7 @@ define [
 
       value = styleprovider.mget(attrname)
       if not value?
-        null
+        @[attrname].value = null
       else if _.isString(value)
         if svg_colors[value]? or value.substring(0, 1) == "#"
           @[attrname].value = value
@@ -115,7 +115,7 @@ define [
 
       value = styleprovider.mget(attrname)
       if not value?
-        null
+        @[attrname].value = null
       else if _.isString(value)
         @[attrname].field = value
       else if _.isArray(value)
@@ -132,7 +132,7 @@ define [
       levels = vals.split(" ")
       value = styleprovider.mget(attrname)
       if not value?
-        null
+        @[attrname].value = null
       else if _.isString(value)
         if value in levels
           @[attrname].value = value
