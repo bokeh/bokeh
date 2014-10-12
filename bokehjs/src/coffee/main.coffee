@@ -119,6 +119,7 @@ define (require, exports, module) ->
 
   Bokeh.BoxSelectTool          = require("tool/gestures/box_select_tool")
   Bokeh.BoxZoomTool            = require("tool/gestures/box_zoom_tool")
+  Bokeh.LassoSelectTool        = require("tool/gestures/lasso_select_tool")
   Bokeh.PanTool                = require("tool/gestures/pan_tool")
   Bokeh.PolySelectTool         = require("tool/gestures/poly_select_tool")
   Bokeh.ResizeTool             = require("tool/gestures/resize_tool")

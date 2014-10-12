@@ -742,6 +742,10 @@ class BoxSelectTool(Tool):
     select_every_mousemove = Bool(True)
     dimensions = List(Enum(Dimension), default=["width", "height"])
 
+class LassoSelectTool(Tool):
+    names = List(String)
+    renderers = List(Instance(Renderer))
+
 class PolySelectTool(Tool):
     names = List(String)
     renderers = List(Instance(Renderer))
