@@ -687,7 +687,7 @@ Returns:
 """
 )
 
-x = _glyph_function(glyphs.Xmarker, ("x", "y"),
+x = _glyph_function(glyphs.X, ("x", "y"),
 """ The `x` glyph is a marker that renders "x" glyphs at `x`, `y` with size `size`.
 
 In addition the the parameters specific to this glyph,

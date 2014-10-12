@@ -29,12 +29,50 @@ define [
   "renderer/annotation/legend",
   "renderer/annotation/span",
   "renderer/annotation/tooltip",
-  "renderer/glyph/glyph_factory",
+
+  "renderer/glyph/glyph_renderer",
+
+  "renderer/glyph/annular_wedge",
+  "renderer/glyph/annulus",
+  "renderer/glyph/arc",
+  "renderer/glyph/bezier",
+  "renderer/glyph/circle",
+  "renderer/glyph/gear",
+  "renderer/glyph/image",
+  "renderer/glyph/image_rgba",
+  "renderer/glyph/image_url",
+  "renderer/glyph/line",
+  "renderer/glyph/multi_line",
+  "renderer/glyph/oval",
+  "renderer/glyph/patch",
+  "renderer/glyph/patches",
+  "renderer/glyph/quad",
+  "renderer/glyph/quadratic",
+  "renderer/glyph/ray",
+  "renderer/glyph/rect",
+  "renderer/glyph/segment",
+  "renderer/glyph/text",
+  "renderer/glyph/wedge",
+
+  "renderer/glyph/marker/asterisk"
+  "renderer/glyph/marker/circle_cross"
+  "renderer/glyph/marker/circle_x"
+  "renderer/glyph/marker/cross"
+  "renderer/glyph/marker/diamond"
+  "renderer/glyph/marker/diamond_cross"
+  "renderer/glyph/marker/inverted_triangle"
+  "renderer/glyph/marker/square"
+  "renderer/glyph/marker/square_cross"
+  "renderer/glyph/marker/square_x"
+  "renderer/glyph/marker/triangle"
+  "renderer/glyph/marker/x"
+
   "renderer/guide/categorical_axis",
   "renderer/guide/datetime_axis",
   "renderer/guide/grid",
   "renderer/guide/linear_axis",
   "renderer/guide/log_axis",
+
   "renderer/overlay/box_selection",
 
   "source/column_data_source",
@@ -159,12 +197,50 @@ define [
     Legend:                   'renderer/annotation/legend'
     Span:                     'renderer/annotation/span'
     Tooltip:                  'renderer/annotation/tooltip'
-    Glyph:                    'renderer/glyph/glyph_factory'
+
+    GlyphRenderer:            'renderer/glyph/glyph_renderer'
+
+    AnnularWedge:             'renderer/glyph/annular_wedge'
+    Annulus:                  'renderer/glyph/annulus'
+    Arc:                      'renderer/glyph/arc'
+    Bezier:                   'renderer/glyph/bezier'
+    Circle:                   'renderer/glyph/circle'
+    Gear:                     'renderer/glyph/gear'
+    Image:                    'renderer/glyph/image'
+    ImageRGBA:                'renderer/glyph/image_rgba'
+    ImageURL:                 'renderer/glyph/image_url'
+    Line:                     'renderer/glyph/line'
+    MultiLine:                'renderer/glyph/multi_line'
+    Oval:                     'renderer/glyph/oval'
+    Patch:                    'renderer/glyph/patch'
+    Patches:                  'renderer/glyph/patches'
+    Quad:                     'renderer/glyph/quad'
+    Quadratic:                'renderer/glyph/quadratic'
+    Ray:                      'renderer/glyph/ray'
+    Rect:                     'renderer/glyph/rect'
+    Segment:                  'renderer/glyph/segment'
+    Text:                     'renderer/glyph/text'
+    Wedge:                    'renderer/glyph/wedge'
+
+    Asterisk:                 'renderer/glyph/marker/asterisk'
+    CircleCross:              'renderer/glyph/marker/circle_cross'
+    CircleX:                  'renderer/glyph/marker/circle_x'
+    Cross:                    'renderer/glyph/marker/cross'
+    Diamond:                  'renderer/glyph/marker/diamond'
+    DiamondCross:             'renderer/glyph/marker/diamond_cross'
+    InvertedTriangle:         'renderer/glyph/marker/inverted_triangle'
+    Square:                   'renderer/glyph/marker/square'
+    SquareCross:              'renderer/glyph/marker/square_cross'
+    SquareX:                  'renderer/glyph/marker/square_x'
+    Triangle:                 'renderer/glyph/marker/triangle'
+    X:                        'renderer/glyph/marker/x'
+
     LinearAxis:               'renderer/guide/linear_axis'
     LogAxis:                  'renderer/guide/log_axis'
     CategoricalAxis:          'renderer/guide/categorical_axis'
     DatetimeAxis:             'renderer/guide/datetime_axis'
     Grid:                     'renderer/guide/grid'
+
     BoxSelection:             'renderer/overlay/box_selection'
 
     ColumnDataSource:         'source/column_data_source'

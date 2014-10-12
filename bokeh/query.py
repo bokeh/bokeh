@@ -78,13 +78,6 @@ def match(obj, selector, context={}):
         1
 
     '''
-    # OK, we are going to get rid of glyphspecs eventually, so let's try to
-    # simulate the expected eventual desired behaviour. For now, If the glyphspec
-    # matches, then the glyph matches.
-    from bokeh.objects import Glyph
-    if isinstance(obj, Glyph):
-        if match(obj.glyph, selector, context): return True
-
     for key, val in selector.items():
 
         # test attributes
@@ -100,9 +93,6 @@ def match(obj, selector, context={}):
 
             # special case 'tag'
             elif key == 'tags':
-                # TODO (bev) this is for glyphspecs, remove when they are removed
-                if not hasattr(obj, "tags"): return False
-
                 if isinstance(val, string_types):
                     if val not in obj.tags: return False
                 else:

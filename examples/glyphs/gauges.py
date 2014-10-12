@@ -30,6 +30,10 @@ plot.add_glyph(ds, Circle(x=0, y=0, radius=0.05, fill_color="gray", line_color="
 plot.add_glyph(ds, Text(x=0, y=+0.15, angle=0, text=["km/h"], text_color="red", text_align="center", text_baseline="bottom", text_font_style="bold"))
 plot.add_glyph(ds, Text(x=0, y=-0.15, angle=0, text=["mph"], text_color="blue", text_align="center", text_baseline="top", text_font_style="bold"))
 
+def data(value):
+    """Shorthand to override default units with "data", for e.g. `Ray.length`. """
+    return dict(value=value, units="data")
+
 def speed_to_angle(speed, units):
     max_speed = max_kmh if units == "kmh" else max_mph
     speed = min(max(speed, 0), max_speed)
@@ -39,8 +43,8 @@ def speed_to_angle(speed, units):
 
 def add_needle(speed, units):
     angle = speed_to_angle(speed, units)
-    plot.add_glyph(ds, Ray(x=0, y=0, length=0.75, angle=angle,    line_color="black", line_width=3))
-    plot.add_glyph(ds, Ray(x=0, y=0, length=0.10, angle=angle-pi, line_color="black", line_width=3))
+    plot.add_glyph(ds, Ray(x=0, y=0, length=data(0.75), angle=angle,    line_color="black", line_width=3))
+    plot.add_glyph(ds, Ray(x=0, y=0, length=data(0.10), angle=angle-pi, line_color="black", line_width=3))
 
 def polar_to_cartesian(r, alpha):
     return r*cos(alpha), r*sin(alpha)
@@ -82,14 +86,14 @@ def add_gauge(radius, max_value, length, direction, color, major_step, minor_ste
     angles = [ angle + rotation for angle in major_angles ]
     source = ColumnDataSource(dict(x=x, y=y, angle=angles))
 
-    glyph = Ray(x="x", y="y", length=length, angle="angle", line_color=color, line_width=2)
+    glyph = Ray(x="x", y="y", length=data(length), angle="angle", line_color=color, line_width=2)
     plot.add_glyph(source, glyph)
 
     x, y = zip(*[ polar_to_cartesian(radius, angle) for angle in minor_angles ])
     angles = [ angle + rotation for angle in minor_angles ]
     source = ColumnDataSource(dict(x=x, y=y, angle=angles))
 
-    glyph = Ray(x="x", y="y", length=length/2, angle="angle", line_color=color, line_width=1)
+    glyph = Ray(x="x", y="y", length=data(length/2), angle="angle", line_color=color, line_width=1)
     plot.add_glyph(source, glyph)
 
     x, y = zip(*[ polar_to_cartesian(radius+2*length*direction, angle) for angle in major_angles ])
