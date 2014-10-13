@@ -133,7 +133,7 @@ define [
           glyph.update_data(@mget('data_source'))
         glyph.render(ctx, indices)
 
-      selection = @mget('data_source').get('selection')
+      selection = @mget('data_source').get('selected')
       if selection? and selection.length > 0
         selected_indices = selection
       else
