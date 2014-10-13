@@ -189,10 +189,6 @@ define [
       if obj[attrname]?
         return obj[attrname]
 
-      # finally, check for a default value on this property object that could be returned
-      if @[attrname].default?
-        return @[attrname].default
-
       # failing that, just log a problem
       logger.warn("selection for attribute '#{attrname}' failed on object: #{ obj }")
 
@@ -218,8 +214,6 @@ define [
       if not _.isUndefined(@[@line_color_name].value)
         if _.isNull(@[@line_color_name].value)
           @do_stroke = false
-      else if _.isNull(@[@line_color_name].default)
-        @do_stroke = false
 
     set: (ctx, obj) ->
       ctx.strokeStyle = @select(@line_color_name, obj)
@@ -282,8 +276,6 @@ define [
       if not _.isUndefined(@[@fill_color_name].value)
         if _.isNull(@[@fill_color_name].value)
           @do_fill = false
-      else if _.isNull(@[@fill_color_name].default)
-        @do_fill = false
 
     set: (ctx, obj) ->
       ctx.fillStyle   = @select(@fill_color_name, obj)
