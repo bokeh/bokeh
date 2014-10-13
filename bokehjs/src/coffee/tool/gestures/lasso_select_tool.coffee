@@ -17,6 +17,10 @@ define [
       if not @mget('active')
         @mget('overlay').set('data', null)
 
+    _keyup: (e) ->
+      if e.keyCode == 13
+        @mget('overlay').set('data', null)
+
     _pan_start: (e) ->
       canvas = @plot_view.canvas
       vx = canvas.sx_to_vx(e.bokeh.sx)

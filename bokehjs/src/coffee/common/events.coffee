@@ -17,8 +17,13 @@ define [
 
       @hammer = new Hammer(hit_area[0])
 
-      @hammer.on('tap', (e) => @_tap(e))
+      # This is to be able to distinguish double taps from single taps
+      @hammer.get('doubletap').recognizeWith('tap')
+      @hammer.get('tap').requireFailure('doubletap')
+      @hammer.get('doubletap').dropRequireFailure('tap')
+
       @hammer.on('doubletap', (e) => @_doubletap(e))
+      @hammer.on('tap', (e) => @_tap(e))
       @hammer.on('press', (e) => @_press(e))
 
       @hammer.get('pan').set({ direction: Hammer.DIRECTION_ALL })
@@ -80,6 +85,10 @@ define [
         logger.debug("Registering tool: #{type} for event 'keyup'")
         tool_view.listenTo(@, "keyup", tool_view._keyup)
 
+      if tool_view._doubletap?
+        logger.debug("Registering tool: #{type} for event 'doubletap'")
+        tool_view.listenTo(@, "doubletap", tool_view._doubletap)
+
     _trigger: (event_type, e) ->
       tm = @get('tool_manager')
       base_event_type = event_type.split(":")[0]
@@ -117,8 +126,9 @@ define [
       @_trigger('tap', e)
 
     _doubletap: (e) ->
+      # NOTE: doubletap event triggered unconditionally
       @_bokify_hammer(e)
-      @_trigger('doubletap', e)
+      @trigger('doubletap', e)
 
     _press: (e) ->
       @_bokify_hammer(e)

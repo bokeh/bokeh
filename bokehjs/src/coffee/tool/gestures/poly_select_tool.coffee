@@ -13,10 +13,20 @@ define [
       @listenTo(@model, 'change:active', @_active_change)
       @data = null
 
-     _active_change: () ->
+    _active_change: () ->
       if not @mget('active')
+        @_clear_data()
+
+    _keyup: (e) ->
+      if e.keyCode == 13
+        @_clear_data()
+
+    _doubletap: (e)->
+      @_clear_data()
+
+    _clear_data: () ->
         @data = null
-        @mget('overlay').set('data', {})
+        @mget('overlay').set('data', null)
 
     _tap: (e) ->
       canvas = @plot_view.canvas
