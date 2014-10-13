@@ -1,17 +1,14 @@
-
 define [
   "underscore",
-  "renderer/properties",
   "./marker",
-], (_, Properties, Marker) ->
+], (_, Marker) ->
 
   class AsteriskView extends Marker.View
 
     _properties: ['line']
 
-    _render: (ctx, indices, glyph_props, sx=@sx, sy=@sy, size=@size) ->
+    _render: (ctx, indices, sx=@sx, sy=@sy, size=@size) ->
       for i in indices
-
         if isNaN(sx[i] + sy[i] + size[i])
           continue
 
@@ -28,26 +25,22 @@ define [
         ctx.moveTo(sx[i]-r2, sy[i]-r2)
         ctx.lineTo(sx[i]+r2, sy[i]+r2)
 
-        if glyph_props.line_properties.do_stroke
-          glyph_props.line_properties.set_vectorize(ctx, i)
+        if @props.line.do_stroke
+          @props.line.set_vectorize(ctx, i)
           ctx.stroke()
 
   class Asterisk extends Marker.Model
     default_view: AsteriskView
-    type: 'Glyph'
+    type: 'Asterisk'
 
     display_defaults: ->
-      return _.extend {}, super(), {
-        line_color: 'red'
-        line_width: 1
-        line_alpha: 1.0
-        line_join: 'miter'
-        line_cap: 'butt'
-        line_dash: []
-        line_dash_offset: 0
-      }
+      return _.extend {}, super(), @line_defaults
+
+  class Asterisks extends Marker.Collection
+    model: Asterisk
 
   return {
-    "Model": Asterisk,
-    "View": AsteriskView,
+    Model: Asterisk
+    View: AsteriskView
+    Collection: new Asterisks()
   }

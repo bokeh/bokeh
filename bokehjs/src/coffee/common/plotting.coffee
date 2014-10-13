@@ -8,7 +8,7 @@ define [
   "range/factor_range"
   "range/range1d"
   "renderer/annotation/legend"
-  "renderer/glyph/glyph_factory"
+  "renderer/glyph/glyph_renderer"
   "renderer/guide/categorical_axis"
   "renderer/guide/linear_axis"
   "renderer/guide/grid"
@@ -24,7 +24,7 @@ define [
   "tool/actions/reset_tool"
   "renderer/guide/datetime_axis"
 ], (_, $, Logging, Plot, DataRange1d, FactorRange, Range1d, Legend,
-  GlyphFactory, CategoricalAxis, LinearAxis, Grid, BoxSelection,
+  GlyphRenderer, CategoricalAxis, LinearAxis, Grid, BoxSelection,
   ColumnDataSource, BoxSelectTool, BoxZoomTool, HoverTool, PanTool,
   PreviewSaveTool, ResizeTool, WheelZoomTool, ResetTool, DatetimeAxis) ->
 
@@ -72,10 +72,10 @@ define [
 
     for val in _.zip(glyphspecs, nonselection_glyphspecs, sources)
       [spec, non_spec, source] = val
-      glyph = GlyphFactory.Collection.create({
+      glyph = GlyphRenderer.Collection.create({
         data_source: source
-        glyphspec: spec
-        nonselection_glyphspec: non_spec
+        glyph: spec
+        nonselection_glyph: non_spec
       })
       glyphs.push(glyph)
 

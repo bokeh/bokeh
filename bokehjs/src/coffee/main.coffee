@@ -70,8 +70,7 @@ define (require, exports, module) ->
   Bokeh.Tooltip = require("renderer/annotation/tooltip")
 
   # glyphs
-  Bokeh.Glyph   = require("renderer/glyph/glyph")
-  glyph_factory = require("renderer/glyph/glyph_factory")
+  # ...
 
   # guides
   Bokeh.CategoricalAxis = require("renderer/guide/categorical_axis")

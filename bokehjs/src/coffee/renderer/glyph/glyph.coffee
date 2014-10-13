@@ -1,116 +1,50 @@
-
 define [
   "underscore",
-  "common/has_parent",
   "common/logging",
-  "common/plot_widget",
+  "common/has_parent",
+  "common/collection"
+  "common/continuum_view",
   "renderer/properties"
-], (_, HasParent, Logging, PlotWidget, Properties) ->
+], (_, Logging, HasParent, Collection, ContinuumView, properties) ->
 
   logger = Logging.logger
 
-  class GlyphView extends PlotWidget
-
-    #TODO: There are glyph sub-type-vs-resample_op concordance issues...
-    setup_server_data : () ->
-      serversource = @mget('server_data_source')
-      # hack, call set data, becuase there are some attrs that we need
-      # that are in it
-      data = _.extend({}, @mget('data_source').get('data'), serversource.get('data'))
-      @mget('data_source').set('data', data)
-      @set_data(false)
-
-      transform_params = serversource.attributes['transform']
-      resample_op = transform_params['resample']
-      x_range = @plot_view.frame.get('h_range')
-      y_range = @plot_view.frame.get('v_range')
-
-      #TODO: This is weird.  For example, h_range is passed in twice.  Hugo or Joseph should clean it up
-      if (resample_op == 'line1d')
-        domain = transform_params['domain']
-        if domain == 'x'
-          serversource.listen_for_line1d_updates(
-            @mget('data_source'),
-            x_range,  y_range,
-            @plot_view.x_range, @plot_view.y_range,
-            x_range,
-            @glyph_props.y.field,
-            @glyph_props.x.field,
-            [@glyph_props.y.field],
-            transform_params
-          )
-        else
-          throw new Error("Domains other than 'x' not supported yet.")
-      else if (resample_op == 'heatmap')
-        serversource.listen_for_heatmap_updates(
-           @mget('data_source'),
-           x_range,  y_range,
-           @plot_view.x_range,
-           @plot_view.y_range,
-           transform_params
-        )
-      else if (resample_op == 'abstract rendering')
-        serversource.listen_for_ar_updates(
-           @plot_view
-           @mget('data_source'),
-             #TODO: Joseph -- Get rid of the next four params because we're passing in the plot_view
-           x_range,  y_range,
-           @plot_view.x_range,
-           @plot_view.y_range,
-           transform_params)
-      else
-        logger.warn("unknown resample op: '#{resample_op}'")
+  class GlyphView extends ContinuumView
 
     initialize: (options) ->
       super(options)
+      @renderer = options.renderer
 
-      @need_set_data = true
+      @glyph = new properties.Glyph(@, @_fields)
+      @props = {}
 
-      @glyph_props = @init_glyph(@mget('glyphspec'))
-
-      @x_range_name = @mget('x_range_name')
-      @y_range_name = @mget('y_range_name')
-
-      @xmapper = @plot_view.frame.get('x_mappers')[@x_range_name]
-      @ymapper = @plot_view.frame.get('y_mappers')[@y_range_name]
-
-      @have_selection_props = false
-      if @mget('selection_glyphspec')
-        spec = _.extend({}, @mget('glyphspec'), @mget('selection_glyphspec'))
-        @selection_glyphprops = @init_glyph(spec)
-        @have_selection_props = true
-      else
-        @selection_glyphprops = @glyph_props
-
-      if @mget('nonselection_glyphspec')
-        spec = _.extend({}, @mget('glyphspec'), @mget('nonselection_glyphspec'))
-        @nonselection_glyphprops = @init_glyph(spec)
-        @have_selection_props = true
-      else
-        @nonselection_glyphprops = @glyph_props
-
-      if @mget('server_data_source')
-        @setup_server_data()
-      @listenTo(this, 'change:server_data_source', @setup_server_data)
-
-    init_glyph: (glyphspec) ->
-      props = {}
       if 'line' in @_properties
-        props['line_properties'] = new Properties.line_properties(@, glyphspec)
+        @props.line = new properties.Line(@)
       if 'fill' in @_properties
-        props['fill_properties'] = new Properties.fill_properties(@, glyphspec)
+        @props.fill = new properties.Fill(@)
       if 'text' in @_properties
-        props['text_properties'] = new Properties.text_properties(@, glyphspec)
-      glyph_props = new Properties.glyph_properties(@, glyphspec, @_fields, props)
-      return glyph_props
+        @props.text = new properties.Text(@)
 
-    set_data: (request_render=true) ->
-      source = @mget('data_source')
+    render: (ctx, indicies) -> @_render(ctx, indicies)
 
+    _map_data: () -> null
+
+    update_data: (source) ->
+      if @props.fill? and @props.fill.do_fill
+        @props.fill.set_prop_cache(source)
+      if @props.line? and @props.line.do_stroke
+        @props.line.set_prop_cache(source)
+      if @props.text?
+        @props.text.set_prop_cache(source)
+
+    set_data: (source) ->
       for field in @_fields
+        # REMOVE {
         if field.indexOf(":") > -1
           [field, junk] = field.split(":")
-        @[field] = @glyph_props.source_v_select(field, source)
+        # }
+
+        @[field] = @glyph.source_v_select(field, source)
 
         # special cases
         if field == "direction"
@@ -125,116 +59,25 @@ define [
         if field.indexOf("angle") > -1
           @[field] = (-x for x in @[field])
 
-      # any additional customization can happen here
-      if @_set_data?
-        t0 = Date.now()
-        @_set_data()
-        dt = Date.now() - t0
-        type = @mget('glyphspec').type
-        id = @mget("id")
-        logger.debug("#{type} glyph (#{id}): custom _set_data finished in #{dt}ms")
+      @_set_data()
 
       # just use the length of the last added field
-      len = @[field].length
+      [0...@[field].length]
 
-      @all_indices = [0...len]
-
-      @have_new_data = true
-
-      if request_render
-        @request_render()
-
-    render: () ->
-      if @need_set_data
-        @set_data(false)
-        @need_set_data = false
-
-      @_map_data()
-
-      if @_mask_data? and (@plot_view.x_range.type != "FactorRange") and (@plot_view.y_range.type != "FactorRange")
-        indices = @_mask_data()
-      else
-        indices = @all_indices
-
-      ctx = @plot_view.canvas_view.ctx
-      ctx.save()
-
-      do_render = (ctx, indices, glyph_props) =>
-        source = @mget('data_source')
-
-        if @have_new_data
-          if glyph_props.fill_properties? and glyph_props.fill_properties.do_fill
-            glyph_props.fill_properties.set_prop_cache(source)
-          if glyph_props.line_properties? and glyph_props.line_properties.do_stroke
-            glyph_props.line_properties.set_prop_cache(source)
-          if glyph_props.text_properties?
-            glyph_props.text_properties.set_prop_cache(source)
-
-        @_render(ctx, indices, glyph_props)
-
-      selection = @mget('data_source').get('selection')
-      if selection? and selection.length > 0
-        selected_indices = selection
-      else
-        selected_indices = []
-
-      t0 = Date.now()
-
-      if selected_indices? and selected_indices.length and @have_selection_props
-
-        # reset the selection mask
-        selected_mask = (false for i in @all_indices)
-        for idx in selected_indices
-          selected_mask[idx] = true
-
-        # intersect/different selection with render mask
-        selected = new Array()
-        nonselected = new Array()
-        for i in indices
-          if selected_mask[i]
-            selected.push(i)
-          else
-            nonselected.push(i)
-
-        do_render(ctx, selected, @selection_glyphprops)
-        do_render(ctx, nonselected, @nonselection_glyphprops)
-
-      else
-        do_render(ctx, indices, @glyph_props)
-
-      dt = Date.now() - t0
-      type = @mget('glyphspec').type
-      id = @mget("id")
-      logger.trace("#{type} glyph (#{id}): do_render calls finished in #{dt}ms")
-
-      @have_new_data = false
-
-      ctx.restore()
-
-      return @
-
-    xrange: () ->
-      return @plot_view.x_range
-
-    yrange: () ->
-      return @plot_view.y_range
-
-    bind_bokeh_events: () ->
-      @listenTo(@model, 'change', @request_render)
-      @listenTo(@mget('data_source'), 'change', @set_data)
-      @listenTo(@mget('data_source'), 'select', @request_render)
+    # any additional customization can happen here
+    _set_data: () -> null
 
     distance_vector: (pt, span_prop_name, position, dilate=false) ->
       """ returns an array """
-      pt_units = @glyph_props[pt].units
-      span_units = @glyph_props[span_prop_name].units
+      pt_units = @glyph[pt].units
+      span_units = @glyph[span_prop_name].units
 
-      if      pt == 'x' then mapper = @xmapper
-      else if pt == 'y' then mapper = @ymapper
+      if      pt == 'x' then mapper = @renderer.xmapper
+      else if pt == 'y' then mapper = @renderer.ymapper
 
-      source = @mget('data_source')
+      source = @renderer.mget('data_source')
       local_select = (prop_name) =>
-        return @glyph_props.source_v_select(prop_name, source)
+        return @glyph.source_v_select(prop_name, source)
       span = local_select(span_prop_name)
       if span_units == 'screen'
         return span
@@ -248,7 +91,6 @@ define [
           ptc = mapper.v_map_to_target(ptc)
         pt0 = (ptc[i] - halfspan[i] for i in [0...ptc.length])
         pt1 = (ptc[i] + halfspan[i] for i in [0...ptc.length])
-
       else
         pt0 = local_select(pt)
         if pt_units == 'screen'
@@ -262,55 +104,6 @@ define [
         return (Math.ceil(Math.abs(spt1[i] - spt0[i])) for i in [0...spt0.length])
       else
         return (Math.abs(spt1[i] - spt0[i]) for i in [0...spt0.length])
-
-
-    get_reference_point: () ->
-      reference_point = @mget('reference_point')
-      if _.isNumber(reference_point)
-        return @data[reference_point]
-      else
-        return reference_point
-
-    draw_legend: (ctx, x0, x1, y0, y1) ->
-      null
-
-    _generic_line_legend: (ctx, x0, x1, y0, y1) ->
-      reference_point = @get_reference_point() ? 0
-      line_props = @glyph_props.line_properties
-      ctx.save()
-      ctx.beginPath()
-      ctx.moveTo(x0, (y0 + y1) /2)
-      ctx.lineTo(x1, (y0 + y1) /2)
-      if line_props.do_stroke
-        line_props.set_vectorize(ctx, reference_point)
-        ctx.stroke()
-      ctx.restore()
-
-    _generic_area_legend: (ctx, x0, x1, y0, y1) ->
-      reference_point = @get_reference_point() ? 0
-
-      indices = [reference_point]
-
-      w = Math.abs(x1-x0)
-      dw = w*0.1
-      h = Math.abs(y1-y0)
-      dh = h*0.1
-
-      sx0 = x0 + dw
-      sx1 = x1 - dw
-
-      sy0 = y0 + dh
-      sy1 = y1 - dh
-
-      if @glyph_props.fill_properties.do_fill
-        @glyph_props.fill_properties.set_vectorize(ctx, reference_point)
-        ctx.fillRect(sx0, sy0, sx1-sx0, sy1-sy0)
-
-      if @glyph_props.line_properties.do_stroke
-        ctx.beginPath()
-        ctx.rect(sx0, sy0, sx1-sx0, sy1-sy0)
-        @glyph_props.line_properties.set_vectorize(ctx, reference_point)
-        ctx.stroke()
 
     hit_test: (geometry) ->
       result = null
@@ -341,18 +134,71 @@ define [
 
       return result
 
+    get_reference_point: () ->
+      reference_point = @mget('reference_point')
+      if _.isNumber(reference_point)
+        return @data[reference_point]
+      else
+        return reference_point
+
+    draw_legend: (ctx, x0, x1, y0, y1) -> null
+
+    _generic_line_legend: (ctx, x0, x1, y0, y1) ->
+      reference_point = @get_reference_point() ? 0
+      ctx.save()
+      ctx.beginPath()
+      ctx.moveTo(x0, (y0 + y1) /2)
+      ctx.lineTo(x1, (y0 + y1) /2)
+      if @props.line.do_stroke
+        @props.line.set_vectorize(ctx, reference_point)
+        ctx.stroke()
+      ctx.restore()
+
+    _generic_area_legend: (ctx, x0, x1, y0, y1) ->
+      reference_point = @get_reference_point() ? 0
+      indices = [reference_point]
+
+      w = Math.abs(x1-x0)
+      dw = w*0.1
+      h = Math.abs(y1-y0)
+      dh = h*0.1
+
+      sx0 = x0 + dw
+      sx1 = x1 - dw
+
+      sy0 = y0 + dh
+      sy1 = y1 - dh
+
+      if @props.fill.do_fill
+        @props.fill.set_vectorize(ctx, reference_point)
+        ctx.fillRect(sx0, sy0, sx1-sx0, sy1-sy0)
+
+      if @props.line.do_stroke
+        ctx.beginPath()
+        ctx.rect(sx0, sy0, sx1-sx0, sy1-sy0)
+        @props.line.set_vectorize(ctx, reference_point)
+        ctx.stroke()
+
   class Glyph extends HasParent
+
+    fill_defaults: {
+      fill_color: 'gray'
+      fill_alpha: 1.0
+    }
+
+    line_defaults: {
+      line_color: 'black'
+      line_width: 1
+      line_alpha: 1.0
+      line_join: 'miter'
+      line_cap: 'butt'
+      line_dash: []
+      line_dash_offset: 0
+    }
 
     defaults: ->
       return _.extend {}, super(), {
-        x_range_name: "default"
-        y_range_name: "default"
-        data_source: null
-      }
-
-    display_defaults: ->
-      return _.extend {}, super(), {
-        level: 'glyph'
+        size_units: 'screen'
         radius_units: 'data'
         length_units: 'screen'
         angle_units: 'deg'
@@ -360,7 +206,10 @@ define [
         end_angle_units: 'deg'
       }
 
+  class Glyphs extends Collection
+
   return {
-    "Model": Glyph,
-    "View": GlyphView
+    Model: Glyph
+    View: GlyphView
+    Collection: Glyphs
   }

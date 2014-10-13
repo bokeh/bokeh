@@ -1,4 +1,3 @@
-
 import unittest
 
 import bokeh.query as query
@@ -227,8 +226,6 @@ class TestFind(unittest.TestCase):
             query.find(self.plot.references(), {'size': {LT: 5}})
         )
         self.assertEqual(len(res), 0)
-
-
 
 if __name__ == "__main__":
     unittest.main()

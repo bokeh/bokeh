@@ -1,4 +1,3 @@
-
 define [
   "underscore",
   "rbush",
@@ -49,33 +48,30 @@ define [
       @sxs = []
       @sys = []
       for i in [0...@xs.length]
-        [sx, sy] = @plot_view.map_to_screen(
-          @xs[i], @glyph_props.xs.units, @ys[i], @glyph_props.ys.units, @x_range_name, @y_range_name
-        )
+        [sx, sy] = @renderer.map_to_screen(@xs[i], @glyph.xs.units, @ys[i], @glyph.ys.units)
         @sxs.push(sx)
         @sys.push(sy)
 
     _mask_data: () ->
       # if user uses screen units, punt on trying to mask data
-      if @glyph_props.xs.units == "screen" or @glyph_props.ys.units == "screen"
+      if @glyph.xs.units == "screen" or @glyph.ys.units == "screen"
         return @all_indices
 
-      xr = @plot_view.x_range
+      xr = @renderer.plot_view.x_range
       [x0, x1] = [xr.get('start'), xr.get('end')]
 
-      yr = @plot_view.y_range
+      yr = @renderer.plot_view.y_range
       [y0, y1] = [yr.get('start'), yr.get('end')]
 
       return (x[4].i for x in @index.search([x0, y0, x1, y1]))
 
-    _render: (ctx, indices, glyph_props) ->
-
+    _render: (ctx, indices) ->
       for i in indices
-
         [sx, sy] = [@sxs[i], @sys[i]]
 
-        if glyph_props.fill_properties.do_fill
-          glyph_props.fill_properties.set_vectorize(ctx, i)
+        if @props.fill.do_fill
+          @props.fill.set_vectorize(ctx, i)
+
           for j in [0...sx.length]
             if j == 0
               ctx.beginPath()
@@ -88,11 +84,13 @@ define [
               continue
             else
               ctx.lineTo(sx[j], sy[j])
+
           ctx.closePath()
           ctx.fill()
 
-        if glyph_props.line_properties.do_stroke
-          glyph_props.line_properties.set_vectorize(ctx, i)
+        if @props.line.do_stroke
+          @props.line.set_vectorize(ctx, i)
+
           for j in [0...sx.length]
             if j == 0
               ctx.beginPath()
@@ -105,16 +103,17 @@ define [
               continue
             else
               ctx.lineTo(sx[j], sy[j])
+
           ctx.closePath()
           ctx.stroke()
 
     _hit_point: (geometry) ->
       [vx, vy] = [geometry.vx, geometry.vy]
-      sx = @plot_view.canvas.vx_to_sx(vx)
-      sy = @plot_view.canvas.vy_to_sy(vy)
+      sx = @renderer.plot_view.canvas.vx_to_sx(vx)
+      sy = @renderer.plot_view.canvas.vy_to_sy(vy)
 
-      x = @xmapper.map_from_target(vx)
-      y = @ymapper.map_from_target(vy)
+      x = @renderer.xmapper.map_from_target(vx)
+      y = @renderer.ymapper.map_from_target(vy)
 
       candidates = (x[4].i for x in @index.search([x, y, x, y]))
 
@@ -130,22 +129,16 @@ define [
 
   class Patches extends Glyph.Model
     default_view: PatchesView
-    type: 'Glyph'
+    type: 'Patches'
 
     display_defaults: ->
-      return _.extend {}, super(), {
-        fill_color: 'gray'
-        fill_alpha: 1.0
-        line_color: 'red'
-        line_width: 1
-        line_alpha: 1.0
-        line_join: 'miter'
-        line_cap: 'butt'
-        line_dash: []
-        line_dash_offset: 0
-      }
+      return _.extend {}, super(), @line_defaults, @fill_defaults
+
+  class Patcheses extends Glyph.Collection
+    model: Patches
 
   return {
-    "Model": Patches,
-    "View": PatchesView,
+    Model: Patches
+    View: PatchesView
+    Collection: new Patcheses()
   }

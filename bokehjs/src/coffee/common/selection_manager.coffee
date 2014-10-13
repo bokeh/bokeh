@@ -62,5 +62,5 @@ define [
     _save: (selector, indices) ->
       @get('source').save({
         "selector": selector
-        "selection": indices
+        "selected": indices
       }, {patch: true})

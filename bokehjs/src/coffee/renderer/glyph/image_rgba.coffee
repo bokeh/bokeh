@@ -1,11 +1,8 @@
-
 define [
   "underscore",
   "renderer/properties",
   "./glyph",
 ], (_, Properties, Glyph) ->
-
-  glyph_properties = Properties.glyph_properties
 
   class ImageRGBAView extends Glyph.View
 
@@ -13,11 +10,10 @@ define [
 
     initialize: (options) ->
       # the point of this is to support both efficient ArrayBuffers as well as dumb
-      # arrays of arrays that the python interface currently uses. If the glyphspec
+      # arrays of arrays that the python interface currently uses. If the model
       # contains "rows" then it is assumed to be an ArrayBuffer with explicitly
       # provided number of rows/cols, otherwise treat as a "list of lists".
-      spec = @mget('glyphspec')
-      if spec.rows?
+      if @mget("rows")?
         @_fields = ['image:array', 'rows', 'cols', 'x', 'y', 'dw', 'dh']
       else
         @_fields = ['image:array', 'x', 'y', 'dw', 'dh']
@@ -59,13 +55,11 @@ define [
         @image_data[i] = canvas
 
     _map_data: () ->
-      [@sx, @sy] = @plot_view.map_to_screen(
-        @x, @glyph_props.x.units, @y, @glyph_props.y.units, @x_range_name, @y_range_name
-      )
-      @sw = @distance_vector('x', 'dw', 'edge', @mget('glyphspec')['dilate'])
-      @sh = @distance_vector('y', 'dh', 'edge', @mget('glyphspec')['dilate'])
+      [@sx, @sy] = @renderer.map_to_screen(@x, @glyph.x.units, @y, @glyph.y.units)
+      @sw = @distance_vector('x', 'dw', 'edge', @mget('dilate'))
+      @sh = @distance_vector('y', 'dh', 'edge', @mget('dilate'))
 
-    _render: (ctx, indices, glyph_props) ->
+    _render: (ctx, indices) ->
       old_smoothing = ctx.getImageSmoothingEnabled()
       ctx.setImageSmoothingEnabled(false)
 
@@ -86,10 +80,9 @@ define [
 
       ctx.setImageSmoothingEnabled(old_smoothing)
 
-  # name Image conflicts with js Image
-  class ImageRGBAGlyph extends Glyph.Model
+  class ImageRGBA extends Glyph.Model
     default_view: ImageRGBAView
-    type: 'Glyph'
+    type: 'ImageRGBA'
 
     display_defaults: ->
       return _.extend {}, super(), {
@@ -97,7 +90,11 @@ define [
         dilate: false
       }
 
+  class ImageRGBAs extends Glyph.Collection
+    model: ImageRGBA
+
   return {
-    "Model": ImageRGBAGlyph,
-    "View": ImageRGBAView,
+    Model: ImageRGBA
+    View: ImageRGBAView
+    Collection: new ImageRGBAs()
   }

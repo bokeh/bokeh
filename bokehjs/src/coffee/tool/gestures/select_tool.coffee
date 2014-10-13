@@ -22,7 +22,7 @@ define [
 
       if renderers.length == 0
         all_renderers = @get('plot').get('renderers')
-        renderers = (r for r in all_renderers when r.type == "Glyph")
+        renderers = (r for r in all_renderers when r.type == "GlyphRenderer")
 
       if names.length > 0
         renderers = (r for r in renderers when names.indexOf(r.get('name')) >= 0)
