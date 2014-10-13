@@ -10,7 +10,13 @@ define [
 
     initialize: (options) ->
       super(options)
+      @listenTo(@model, 'change:active', @_active_change)
       @data = null
+
+     _active_change: () ->
+      if not @mget('active')
+        @data = null
+        @mget('overlay').set('data', {})
 
     _tap: (e) ->
       canvas = @plot_view.canvas

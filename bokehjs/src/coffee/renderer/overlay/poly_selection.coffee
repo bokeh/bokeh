@@ -13,7 +13,7 @@ define [
 
     render: (ctx) ->
       data = _.clone(@mget('data'))
-      if _.isEmpty(data)
+      if _.isEmpty(data) or not data?
         return null
 
       canvas = @plot_view.canvas
