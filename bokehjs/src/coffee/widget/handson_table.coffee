@@ -20,7 +20,7 @@ define [
       @ht.deselectCell()
 
       # NOTE: only linear selection allowed by ht
-      selection = @mget("source").get("selection")
+      selection = @mget("source").get("selected")
       i = _.min(selection)
       j = _.max(selection)
       n = @ht.countCols()
