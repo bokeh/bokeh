@@ -12,7 +12,7 @@ colors = ["#%02x%02x%02x" % (r, g, 150) for r, g in zip(np.floor(50+2*x), np.flo
 
 output_file("color_scatter.html", title="color_scatter.py example")
 
-TOOLS="crosshair,pan,wheel_zoom,box_zoom,reset,tap,previewsave,box_select,poly_select,lasso_select"
+TOOLS="resize,crosshair,pan,wheel_zoom,box_zoom,reset,tap,previewsave,box_select,poly_select,lasso_select"
 scatter(x,y, radius=radii, radius_units="data",
        fill_color=colors, fill_alpha=0.6,
         line_color=None, Name="color_scatter_example", tools=TOOLS)
