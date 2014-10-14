@@ -49,7 +49,7 @@ rect('year', 'month', 1,1, source=source,
      x_axis_location="above",
      color='color', line_color=None,
      tools="resize,hover,previewsave", title="US Unemployment (1948 - 2013)",
-     plot_width=900, plot_height=400)
+     plot_width=900, plot_height=400, toolbar_location="left")
 
 grid().grid_line_color = None
 axis().axis_line_color = None

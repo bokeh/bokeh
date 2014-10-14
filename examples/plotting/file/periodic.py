@@ -46,7 +46,7 @@ rect("group", "period", 0.9, 0.9, source=source,
      x_range=group_range, y_range=period_range,
      fill_alpha=0.6, color="type_color",
      tools="resize,hover,previewsave", title="Periodic Table",
-     plot_width=1200)
+     plot_width=1200, toolbar_location="left")
 
 text_props = {
     "source": source,

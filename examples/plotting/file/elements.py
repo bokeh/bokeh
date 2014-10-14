@@ -25,7 +25,7 @@ hold()
 circle(elements['atomic mass'], elements['density'] ,
        color=meltingpointcolors, plot_width=1200, line_color='black',fill_alpha=0.8,
        size=12, title='Density vs Atomic Weight of Elements (colored by melting point)',
-       background_fill= '#cccccc', tools='pan, wheel_zoom, box_zoom, reset')
+       background_fill= '#cccccc', tools='pan, wheel_zoom, box_zoom, reset', toolbar_location='left')
 
 text(elements['atomic mass'], elements['density'] +0.3,
     text=elements['symbol'],angle=0, text_color='#333333',

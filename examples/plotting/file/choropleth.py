@@ -34,7 +34,7 @@ hold()
 
 patches(county_xs, county_ys, fill_color=county_colors, fill_alpha=0.7,
         line_color="white", line_width=0.5, plot_width=1100, plot_height=700,
-        title="US Unemployment 2009")
+        title="US Unemployment 2009", toolbar_location='left')
 patches(state_xs, state_ys, fill_alpha=0.0, line_color="#884444",
         line_width=2, name="choropleth")
 
