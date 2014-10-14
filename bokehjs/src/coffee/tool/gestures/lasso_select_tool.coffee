@@ -15,11 +15,11 @@ define [
 
     _active_change: () ->
       if not @mget('active')
-        @mget('overlay').set('data', null)
+        @_clear_overlay()
 
     _keyup: (e) ->
       if e.keyCode == 13
-        @mget('overlay').set('data', null)
+        @_clear_overlay()
 
     _pan_start: (e) ->
       canvas = @plot_view.canvas
@@ -45,6 +45,12 @@ define [
 
       append = e.srcEvent.shiftKey ? false
       @_select(@data.vx, @data.vy, append)
+
+    _pan_end: (e) ->
+      @_clear_overlay()
+
+    _clear_overlay: () ->
+      @mget('overlay').set('data', null)
 
     _select: (vx, vy, append) ->
       geometry = {
