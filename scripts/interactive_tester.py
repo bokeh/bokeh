@@ -209,6 +209,10 @@ if __name__ == '__main__':
                     sys.exit(1)
 
             test_dir = DIRECTORIES[target]
+        else:
+          print("Test location '%s' not recognized.\nPlease type 'python interactive_tester.py -h for a list of valid test directories.'"
+               % results.location)
+          sys.exit(1)
     else:
         test_dir = None
 
