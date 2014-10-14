@@ -24,6 +24,9 @@ bokeh_integer_types = (np.int8, np.int16, np.int32, np.int64) + integer_types
 class _NotSet(object):
     pass
 
+class DeserializationError(Exception):
+    pass
+
 class Property(object):
     ''' Base class for all type properties. '''
     def __init__(self, default=None):
@@ -60,6 +63,9 @@ class Property(object):
         except Exception as e:
             logger.debug("could not compare %s and %s for property %s (Reason: %s)", new, old, self.name, e)
         return False
+
+    def from_json(self, json, models=None):
+        return json
 
     def transform(self, value):
         return value
@@ -501,6 +507,10 @@ class HasProps(object):
         return self.__class__(**self.to_dict())
 
     @classmethod
+    def lookup(cls, name):
+        return lookup_descriptor(cls, name)
+
+    @classmethod
     def properties_with_refs(cls):
         """ Returns a set of the names of this object's properties that
         have references. We traverse the class hierarchy and
@@ -701,6 +711,14 @@ class List(ContainerProperty):
         setattr(obj, self._name, val)
         return val
 
+    def from_json(self, json, models=None):
+        if json is None:
+            return None
+        elif isinstance(json, list):
+            return [ self.item_type.from_json(item, models) for item in json ]
+        else:
+            raise DeserializationError("%s expected a list or None, got %s" % (self, json))
+
 class Dict(ContainerProperty):
     """ If a default value is passed in, then a shallow copy of it will be
     used for each new use of this property.
@@ -733,6 +751,14 @@ class Dict(ContainerProperty):
     def __str__(self):
         return "%s(%s, %s)" % (self.__class__.__name__, self.keys_type, self.values_type)
 
+    def from_json(self, json, models=None):
+        if json is None:
+            return None
+        elif isinstance(json, dict):
+            return { self.key_type.from_json(key, models): self.value_type.from_json(key, models) for key, value in iteritems(json) }
+        else:
+            raise DeserializationError("%s expected a dict or None, got %s" % (self, json))
+
 class Tuple(ContainerProperty):
     ''' Tuple type property. '''
     def __init__(self, tp1, tp2, *type_params, **kwargs):
@@ -753,6 +779,14 @@ class Tuple(ContainerProperty):
 
     def __str__(self):
         return "%s(%s)" % (self.__class__.__name__, ", ".join(map(str, self.type_params)))
+
+    def from_json(self, json, models=None):
+        if json is None:
+            return None
+        elif isinstance(json, list):
+            return tuple(type_param.from_json(item, models) for type_param, item in zip(self.type_params, json))
+        else:
+            raise DeserializationError("%s expected a list or None, got %s" % (self, json))
 
 class Array(ContainerProperty):
     """ Whatever object is passed in as a default value, np.asarray() is
@@ -822,6 +856,34 @@ class Instance(Property):
 
     def __str__(self):
         return "%s(%s)" % (self.__class__.__name__, self.instance_type.__name__)
+
+    def from_json(self, json, models=None):
+        if json is None:
+            return None
+        elif isinstance(json, dict):
+            from .plot_object import PlotObject
+            if issubclass(self.instance_type, PlotObject):
+                if models is None:
+                    raise DeserializationError("%s can't deserialize without models" % self)
+                else:
+                    model = models.get(json["id"])
+
+                    if model is not None:
+                        return model
+                    else:
+                        raise DeserializationError("% failed to deserilize reference to %s" % (self, json))
+            else:
+                attrs = {}
+
+                for name, value in iteritems(json):
+                    prop = self.instance_type.lookup(name)
+                    attrs[name] = prop.from_json(value, models)
+
+                # XXX: this doesn't work when Instance(Superclass) := Subclass()
+                # Serialization dict must carry type information to resolve this.
+                return self.instance_type(**attrs)
+        else:
+            raise DeserializationError("%s expected a dict or None, got %s" % (self, json))
 
 class This(Property):
     """ A reference to an instance of the class being defined. """

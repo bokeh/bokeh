@@ -144,11 +144,6 @@ class Range1d(Range):
 class DataRange(Range):
     sources = List(Instance(ColumnsRef))
 
-    def finalize(self, models):
-        props = super(DataRange, self).finalize(models)
-        props['sources'] = [ ColumnsRef(**source) for source in props['sources'] ]
-        return props
-
 class DataRange1d(DataRange):
     """ Represents an auto-fitting range in a scalar dimension. """
     rangepadding = Float(0.1)

@@ -162,10 +162,13 @@ class PlotObject(HasProps):
         """Convert any references into instances
         models is a dict of id->model mappings
         """
-        if hasattr(self, "_ref_props"):
-            return resolve_json(self._ref_props, models)
-        else:
-            return {}
+        attrs = {}
+
+        for name, json in iteritems(getattr(self, "_ref_props", {})):
+            prop = self.__class__.lookup(name)
+            attrs[name] = prop.from_json(json, models=models)
+
+        return attrs
 
     @classmethod
     def collect_plot_objects(cls, *input_objs):
