@@ -5,7 +5,7 @@ import time
 import numpy as np
 from numpy import pi, cos, sin, linspace, roll, zeros_like
 from bokeh.plotting import *
-from bokeh.objects import Glyph
+from bokeh.objects import GlyphRenderer
 
 N = 50 + 1
 r_base = 8
@@ -32,9 +32,10 @@ annular_wedge(
     line_color="black",
 )
 
-renderer = [r for r in curplot().renderers if isinstance(r, Glyph)][0]
-ds = renderer.data_source
 show()
+
+renderer = [r for r in curplot().renderers if isinstance(r, GlyphRenderer)][0]
+ds = renderer.data_source
 
 while True:
     rmin = ds.data["inner_radius"]
