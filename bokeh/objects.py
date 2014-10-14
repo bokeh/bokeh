@@ -285,6 +285,8 @@ class DatetimeTickFormatter(TickFormatter):
     formats = Dict(Enum(DatetimeUnits), List(String))
 
 class Glyph(Renderer):
+    __view_model__ = "GlyphRenderer" # TODO: rename Glyph -> GlyphRenderer and remove this
+
     server_data_source = Instance(ServerDataSource)
     data_source = Instance(DataSource)
     x_range_name = String('default')
@@ -299,44 +301,6 @@ class Glyph(Renderer):
     selection_glyph = Instance(BaseGlyph)
     # Optional glyph used when data is unselected.
     nonselection_glyph = Instance(BaseGlyph)
-
-    def vm_serialize(self):
-        # Glyphs need to serialize their state a little differently,
-        # because the internal glyph instance is turned into a glyphspec
-        data =  {"id" : self._id,
-                 "data_source": self.data_source,
-                 "server_data_source" : self.server_data_source,
-                 "x_range_name": self.x_range_name,
-                 "y_range_name": self.y_range_name,
-                 "glyphspec": self.glyph.to_glyphspec(),
-                 "name": self.name,
-                 }
-        if self.selection_glyph:
-            data['selection_glyphspec'] = self.selection_glyph.to_glyphspec()
-        if self.nonselection_glyph:
-            data['nonselection_glyphspec'] = self.nonselection_glyph.to_glyphspec()
-        return data
-
-    def finalize(self, models):
-        props = super(Glyph, self).finalize(models)
-
-        if hasattr(self, "_special_props"):
-            glyphspec = self._special_props.pop('glyphspec', None)
-            if glyphspec is not None:
-                cls = PlotObject.get_class(glyphspec.pop('type'))
-                props['glyph'] = cls(**glyphspec)
-
-            selection_glyphspec = self._special_props.pop('selection_glyphspec', None)
-            if selection_glyphspec is not None:
-                cls = PlotObject.get_class(selection_glyphspec.pop('type'))
-                props['selection_glyph'] = cls(**selection_glyphspec)
-
-            nonselection_glyphspec = self._special_props.pop('nonselection_glyphspec', None)
-            if nonselection_glyphspec is not None:
-                cls = PlotObject.get_class(nonselection_glyphspec.pop('type'))
-                props['nonselection_glyph'] = cls(**nonselection_glyphspec)
-
-        return props
 
 class Widget(PlotObject):
     disabled = Bool(False)
@@ -550,14 +514,22 @@ class Plot(Widget):
     wedge             = _glyph_functions.wedge
     x                 = _glyph_functions.x
 
-class MapOptions(HasProps):
+class GMapOptions(HasProps):
     lat = Float
     lng = Float
     zoom = Int(12)
     map_type = Enum(MapType)
 
 class GMapPlot(Plot):
-    map_options = Instance(MapOptions)
+    map_options = Instance(GMapOptions)
+
+class GeoJSOptions(HasProps):
+    lat = Float
+    lng = Float
+    zoom = Int(12)
+
+class GeoJSPlot(Plot):
+    map_options = Instance(GeoJSOptions)
 
 class GridPlot(Plot):
     """ A 2D grid of plots """
@@ -718,7 +690,7 @@ class ResetTool(Tool):
 class ResizeTool(Tool):
     pass
 
-class ClickTool(Tool):
+class TapTool(Tool):
     names = List(String)
     always_active = Bool(True)
 
@@ -731,14 +703,14 @@ class BoxZoomTool(Tool):
 class BoxSelectTool(Tool):
     renderers = List(Instance(Renderer))
     select_every_mousemove = Bool(True)
-    select_x = Bool(True)
-    select_y = Bool(True)
+    dimensions = List(Enum(Dimension), default=["width", "height"])
 
 class BoxSelectionOverlay(Renderer):
     __view_model__ = 'BoxSelection'
     tool = Instance(Tool)
 
 class HoverTool(Tool):
+    names = List(String)
     renderers = List(Instance(Renderer))
     tooltips = Dict(String, String)
     always_active = Bool(True)

@@ -16,12 +16,6 @@ rm -rf $MINICONDA.sh
 
 python -V
 
-PINNED_PKGS=$(cat <<EOF
-matplotlib <1.4.0
-EOF
-)
-echo -e "$PINNED_PKGS" > /home/travis/miniconda/conda-meta/pinned
-
 DEPS_TRAVIS="python=$TRAVIS_PYTHON_VERSION conda-build jinja2"
 conda install --yes $DEPS_TRAVIS
 
@@ -38,6 +32,7 @@ EOF
 )
 
 conda install --yes $DEPS_TEST
+conda install --yes abstract-rendering
 
 MATPLOTLIB_RC=$(python -c "import matplotlib; print(matplotlib.matplotlib_fname())")
 sed -i 's/^backend\s*:.*$/backend: agg/' $MATPLOTLIB_RC

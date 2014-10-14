@@ -45,11 +45,22 @@ def render(fname, **kwargs):
 
 @bokeh_app.route('/bokeh/ping')
 def ping():
+    ''' Test whether Bokeh server is up.
+
+    :status 200:
+
+    '''
     # test route, to know if the server is up
     return "pong"
 
 @bokeh_app.route('/bokeh/')
 def index(*unused_all, **kwargs):
+    ''' Render main page.
+
+    :status 200: if current user logged in
+    :status 302: otherwise redirect to login
+
+    '''
     bokehuser = bokeh_app.current_user()
     if not bokehuser:
         return redirect(url_for('.login_get'))
@@ -61,10 +72,20 @@ def index(*unused_all, **kwargs):
 
 @bokeh_app.route('/')
 def welcome(*unused_all, **kwargs):
+    ''' Redirect to index
+
+    :status 302: redirect to index
+
+    '''
     return redirect(url_for('.index'))
 
 @bokeh_app.route('/bokeh/favicon.ico')
 def favicon():
+    ''' Return favicon.
+
+    :status 200: return favicon
+
+    '''
     return send_from_directory(os.path.join(bokeh_app.root_path, 'static'),
                                'favicon.ico', mimetype='image/x-icon')
 
@@ -240,6 +261,13 @@ def make_test_plot():
 
 @bokeh_app.route("/bokeh/autoload.js/<elementid>")
 def autoload_js(elementid):
+    ''' Return autoload script for given elementid
+
+    :param elementid: DOM element ID to target
+
+    :status 200: return script
+
+    '''
     resources = request_resources()
     rendered = AUTOLOAD.render(
         js_url = resources.js_files[0],

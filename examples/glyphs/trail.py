@@ -16,7 +16,7 @@ from bokeh.browserlib import view
 from bokeh.glyphs import Line, Patches
 from bokeh.widgets import VBox
 from bokeh.objects import (
-    Plot, GMapPlot, MapOptions,
+    Plot, GMapPlot, GMapOptions,
     Range1d, DataRange1d,
     ColumnDataSource,
     LinearAxis, Grid,
@@ -74,7 +74,7 @@ def trail_map(data):
     lon = (min(data.lon) + max(data.lon))/2
     lat = (min(data.lat) + max(data.lat))/2
 
-    map_options = MapOptions(lng=lon, lat=lat, zoom=13)
+    map_options = GMapOptions(lng=lon, lat=lat, zoom=13)
     plot = GMapPlot(title="%s - Trail Map" % title, map_options=map_options, plot_width=800, plot_height=800)
 
     xaxis = LinearAxis()

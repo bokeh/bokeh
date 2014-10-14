@@ -1,7 +1,7 @@
 
 from datetime import timedelta
 from flask import make_response, request, current_app
-from functools import update_wrapper
+from functools import update_wrapper, wraps
 from six import string_types
 
 def crossdomain(origin=None, methods=None, headers=None,
@@ -25,6 +25,7 @@ def crossdomain(origin=None, methods=None, headers=None,
         return options_resp.headers['allow']
 
     def decorator(f):
+        @wraps(f)
         def wrapped_function(*args, **kwargs):
             if automatic_options and request.method == 'OPTIONS':
                 resp = current_app.make_default_options_response()

@@ -7,13 +7,13 @@ from bokeh.glyphs import Circle
 from bokeh.objects import (
     GMapPlot, Range1d, ColumnDataSource,
     PanTool, WheelZoomTool, BoxSelectTool,
-    BoxSelectionOverlay, MapOptions)
+    BoxSelectionOverlay, GMapOptions)
 from bokeh.resources import INLINE
 
 x_range = Range1d()
 y_range = Range1d()
 
-map_options = MapOptions(lat=30.2861, lng=-97.7394, zoom=15)
+map_options = GMapOptions(lat=30.2861, lng=-97.7394, zoom=15)
 
 plot = GMapPlot(
     x_range=x_range, y_range=y_range,

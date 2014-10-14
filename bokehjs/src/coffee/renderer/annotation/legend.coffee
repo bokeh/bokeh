@@ -6,11 +6,7 @@ define [
   "common/collection",
   "common/textutils",
   "renderer/properties",
-], (_, HasParent, PlotWidget, Collection, textutils, Properties) ->
-
-  glyph_properties = Properties.glyph_properties
-  line_properties  = Properties.line_properties
-  text_properties  = Properties.text_properties
+], (_, HasParent, PlotWidget, Collection, textutils, properties) ->
 
   # Legends:
   #
@@ -34,8 +30,8 @@ define [
   class LegendView extends PlotWidget
     initialize: (options) ->
       super(options)
-      @label_props = new text_properties(@, @model, 'label_')
-      @border_props = new line_properties(@, @model, 'border_')
+      @label_props = new properties.Text(@, 'label_')
+      @border_props = new properties.Line(@, 'border_')
       @need_calc_dims = true
       @listenTo(@plot_model.solver, 'layout_update', () -> @need_calc_dims = true)
 
@@ -110,7 +106,7 @@ define [
         ctx.fillText(legend_name, x, y)
         for renderer in @model.resolve_ref(glyphs)
           view = @plot_view.renderers[renderer.id]
-          view.draw_legend(ctx, x1,x2,y1,y2)
+          view.draw_legend(ctx, x1, x2, y1, y2)
 
       ctx.restore()
 

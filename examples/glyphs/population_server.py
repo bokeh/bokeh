@@ -3,8 +3,6 @@ from __future__ import print_function
 import time
 from math import pi
 
-from requests.exceptions import ConnectionError
-
 from bokeh.browserlib import view
 from bokeh.document import Document
 from bokeh.glyphs import Line, Quad
@@ -147,15 +145,6 @@ update_data()
 if __name__ == "__main__":
     link = session.object_link(document.context)
     print("Please visit %s to see the plots" % link)
-    view (link)
-
+    view(link)
     print("\npress ctrl-C to exit")
-
-    try:
-        while True:
-            session.load_document(document)
-            time.sleep(0.5)
-    except KeyboardInterrupt:
-        print()
-    except ConnectionError:
-        print("Connection to bokeh-server was terminated")
+    session.poll_document(document)

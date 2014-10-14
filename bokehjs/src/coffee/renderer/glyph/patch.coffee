@@ -1,4 +1,3 @@
-
 define [
   "underscore",
   "renderer/properties",
@@ -11,14 +10,12 @@ define [
     _properties: ['line', 'fill']
 
     _map_data: () ->
-      [@sx, @sy] = @plot_view.map_to_screen(
-        @x, @glyph_props.x.units, @y, @glyph_props.y.units, @x_range_name, @y_range_name
-      )
+      [@sx, @sy] = @renderer.map_to_screen(@x, @glyph.x.units, @y, @glyph.y.units)
 
-    _render: (ctx, indices, glyph_props) ->
+    _render: (ctx, indices) ->
+      if @props.fill.do_fill
+        @props.fill.set(ctx, @props)
 
-      if glyph_props.fill_properties.do_fill
-        glyph_props.fill_properties.set(ctx, glyph_props)
         for i in indices
           if i == 0
             ctx.beginPath()
@@ -31,11 +28,13 @@ define [
             continue
           else
             ctx.lineTo(@sx[i], @sy[i])
+
         ctx.closePath()
         ctx.fill()
 
-      if glyph_props.line_properties.do_stroke
-        glyph_props.line_properties.set(ctx, glyph_props)
+      if @props.line.do_stroke
+        @props.line.set(ctx, @props)
+
         for i in indices
           if i == 0
             ctx.beginPath()
@@ -48,6 +47,7 @@ define [
             continue
           else
             ctx.lineTo(@sx[i], @sy[i])
+
         ctx.closePath()
         ctx.stroke()
 
@@ -56,22 +56,16 @@ define [
 
   class Patch extends Glyph.Model
     default_view: PatchView
-    type: 'Glyph'
+    type: 'Patch'
 
     display_defaults: ->
-      return _.extend {}, super(), {
-        fill_color: 'gray'
-        fill_alpha: 1.0
-        line_color: 'red'
-        line_width: 1
-        line_alpha: 1.0
-        line_join: 'miter'
-        line_cap: 'butt'
-        line_dash: []
-        line_dash_offset: 0
-      }
+      return _.extend {}, super(), @line_defaults, @fill_defaults
+
+  class Patches extends Glyph.Collection
+    model: Patch
 
   return {
-    "Model": Patch,
-    "View": PatchView,
+    Model: Patch
+    View: PatchView
+    Collection: new Patches()
   }

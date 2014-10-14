@@ -5,14 +5,12 @@ define [
   "common/collection",
   "renderer/properties",
   "common/plot_widget",
-], (_, HasParent, Collection, Properties, PlotWidget) ->
-
-  line_properties = Properties.line_properties
+], (_, HasParent, Collection, properties, PlotWidget) ->
 
   class GridView extends PlotWidget
     initialize: (attrs, options) ->
       super(attrs, options)
-      @grid_props = new line_properties(@, null, 'grid_')
+      @grid_props = new properties.Line(@, 'grid_')
       @x_range_name = @mget('x_range_name')
       @y_range_name = @mget('y_range_name')
 

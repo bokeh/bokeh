@@ -2,7 +2,9 @@ define (require, exports, module) ->
 
   Bokeh = {}
   Bokeh.require = require
-  Bokeh.version = '0.6.0'
+  Bokeh.version = '0.6.1'
+
+  Bokeh.index = require("common/base").index
 
   # set up logger
   logging = require("common/logging")
@@ -33,17 +35,19 @@ define (require, exports, module) ->
   Bokeh.CartesianFrame    = require("common/cartesian_frame")
   Bokeh.Canvas            = require("common/canvas")
   Bokeh.GMapPlot          = require("common/gmap_plot")
+  Bokeh.GeoJSPlot         = require("common/geojs_plot")
   Bokeh.GridPlot          = require("common/grid_plot")
   Bokeh.HasParent         = require("common/has_parent")
   Bokeh.HasProperties     = require("common/has_properties")
   Bokeh.LayoutBox         = require("common/layout_box")
   Bokeh.Plot              = require("common/plot")
   Bokeh.Plotting          = require("common/plotting")
+  Bokeh.SelectionManager  = require("common/selection_manager")
+  Bokeh.Selector          = require("common/selector")
 
   Bokeh.build_views   = require("common/build_views")
   Bokeh.bulk_save     = require("common/bulk_save")
   Bokeh.ContinuumView = require("common/continuum_view")
-  Bokeh.GridViewState = require("common/grid_view_state")
   Bokeh.load_models   = require("common/load_models")
   Bokeh.PlotContext   = require("common/plot_context")
   Bokeh.PlotWidget    = require("common/plot_widget")
@@ -61,11 +65,12 @@ define (require, exports, module) ->
   Bokeh.Palettes = require("palettes/palettes")
 
   # annotations
-  Bokeh.Legend = require("renderer/annotation/legend")
+  Bokeh.Legend  = require("renderer/annotation/legend")
+  Bokeh.Span    = require("renderer/annotation/span")
+  Bokeh.Tooltip = require("renderer/annotation/tooltip")
 
   # glyphs
-  Bokeh.Glyph   = require("renderer/glyph/glyph")
-  glyph_factory = require("renderer/glyph/glyph_factory")
+  # ...
 
   # guides
   Bokeh.CategoricalAxis = require("renderer/guide/categorical_axis")
@@ -105,18 +110,22 @@ define (require, exports, module) ->
   Bokeh.YearsTicker              = require("ticking/years_ticker")
 
   # tools
-  Bokeh.BoxSelectTool          = require("tool/box_select_tool")
-  Bokeh.BoxZoomTool            = require("tool/box_zoom_tool")
-  Bokeh.ClickTool              = require("tool/click_tool")
-  Bokeh.CrosshairTool          = require("tool/crosshair_tool")
-  Bokeh.DataRangeBoxSelectTool = require("tool/data_range_box_select_tool")
-  Bokeh.HoverTool              = require("tool/hover_tool")
-  Bokeh.PanTool                = require("tool/pan_tool")
-  Bokeh.PreviewSaveTool        = require("tool/preview_save_tool")
-  Bokeh.ResetTool              = require("tool/reset_tool")
-  Bokeh.ResizeTool             = require("tool/resize_tool")
-  Bokeh.WheelZoomTool          = require("tool/wheel_zoom_tool")
-  Bokeh.ObjectExplorerTool     = require("tool/object_explorer_tool")
+  Bokeh.ActionTool             = require("tool/actions/action_tool")
+  Bokeh.ObjectExplorerTool     = require("tool/actions/object_explorer_tool")
+  Bokeh.PreviewSaveTool        = require("tool/actions/preview_save_tool")
+  Bokeh.ResetTool              = require("tool/actions/reset_tool")
+
+  Bokeh.BoxSelectTool          = require("tool/gestures/box_select_tool")
+  Bokeh.BoxZoomTool            = require("tool/gestures/box_zoom_tool")
+  Bokeh.PanTool                = require("tool/gestures/pan_tool")
+  Bokeh.ResizeTool             = require("tool/gestures/resize_tool")
+  Bokeh.SelectTool             = require("tool/gestures/select_tool")
+  Bokeh.TapTool                = require("tool/gestures/tap_tool")
+  Bokeh.WheelZoomTool          = require("tool/gestures/wheel_zoom_tool")
+
+  Bokeh.InspectTool            = require("tool/inspectors/inspect_tool")
+  Bokeh.HoverTool              = require("tool/inspectors/hover_tool")
+  Bokeh.CrosshairTool          = require("tool/inspectors/crosshair_tool")
 
   # widgets
   Bokeh.HBox           = require("widget/hbox")

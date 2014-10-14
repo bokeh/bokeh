@@ -4,6 +4,8 @@ from ..plot_object import PlotObject
 from ..objects import ServerDataSource,  Glyph, Range1d, Color
 from ..properties import (Instance, Any, Either,
                           Int, Float, List, Bool, String)
+from six import get_function_code
+
 import bokeh.colors as colors
 import numpy as np
 import math
@@ -11,6 +13,7 @@ import math
 import logging
 logger = logging.getLogger(__file__)
 
+_AR_VERSION = "0.5.1"
 _AR_MESSAGE = """
 ---------------------------------------------------
 Error loading the abstract_rendering package.
@@ -27,7 +30,8 @@ Joseph Cottam (jcottam@indiana.edu)
 
 def _loadAR():
     """
-    Utility to load abstract rendering (AR).  Keeps the import from occurring
+    Utility to load abstract rendering (AR) and checks for version match.
+    Keeps the import from occurring
     unless you actually try to use AR.  MUST be called before actually
     calling any AR package items (typically only invoked on the server
     in response to an AR-reliant plot request).
@@ -44,6 +48,22 @@ def _loadAR():
     """
     try:
         from importlib import import_module
+        globals()["ari"] = import_module("abstract_rendering")
+    except:
+        print(_AR_MESSAGE)
+        raise
+
+    expected = dict(zip(["major", "minor", "micro"], map(int, _AR_VERSION.split("."))))
+    if not hasattr(ari, "__version_info__"):
+        raise ImportError("Abstract rendering version not found; import aborted.")
+
+    if (ari.__version_info__["major"] != expected["major"]
+       or ari.__version_info__["minor"] != expected["minor"]
+       or ari.__version_info__["micro"] < expected["micro"]):
+           raise ImportError("Abstract rendering version mismatched." +
+                             "Expecting at least {0}, found {1}".format(_AR_VERSION, ari.__version__))
+
+    try:
         globals()["ar"] = import_module("abstract_rendering.core")
         globals()["categories"] = import_module("abstract_rendering.categories")
         globals()["contour"] = import_module("abstract_rendering.contour")
@@ -128,7 +148,7 @@ class AutoEncode(Proxy):
 # Out types to support:
 #   image -- grid of values
 #   rgb_image -- grid of colors
-#   poly_line -- multi-segment lines
+#   multi_line -- multi-segment lines
 
 class Shader(Proxy):
     def __add__(self, other):
@@ -350,7 +370,7 @@ class Contour(Shader):
               or the exact contour levels (list).
               Both cases indicate how many contour lines to create.
     """
-    out = "poly_line"
+    out = "multi_line"
     levels = Either(Int, List(Float), default=5)
     palette = List(Color)
 
@@ -384,9 +404,10 @@ class Contour(Shader):
 
 
 # ------------------  Control Functions ----------------
-def replot(plot, agg=Count(), info=Const(val=1), shader=Id(),
-           remove_original=True, palette=["Spectral-11"], points=False,
-           **kwargs):
+def replot(plot,
+           agg=Count(), info=Const(val=1), shader=Id(),
+           remove_original=True,
+           plot_opts={}, **kwargs):
     """
     Treat the passed plot as an base plot for abstract rendering, generate the
     proper Bokeh plot based on the passed parameters.
@@ -397,57 +418,88 @@ def replot(plot, agg=Count(), info=Const(val=1), shader=Id(),
 
     Transfers plot title, width, height from the original plot
 
-    **kwargs -- Arguments for the source function EXCEPT reserve_val
-                and reserve_color (if present)
+    plot -- Plot to based new plot off of
+    remove_original -- Remove the source plot from the document (default: true)
+    plot_opts -- Options passed directly to soure.
+                   This parameter only needs to be used if there is a name
+                   conflict bewteen  target plot type and
+                   source options (see kwargs note)
+    **kwargs -- Arugments for the plot or source as needed.
+                If in conflict, a kwarg will be applied to the source function.
+                If this causes incorrecte behavior, the plot arguments may
+                be put in the plot_opts parameter instead.
     returns -- A new plot
     """
 
-    # Transfer relevant named arguments
-    props = dict()
-    props['plot_width'] = kwargs.pop('plot_width', plot.plot_width)
-    props['plot_height'] = kwargs.pop('plot_height', plot.plot_height)
-    props['title'] = kwargs.pop('title', plot.title)
+    # Remove the base plot (if requested)
+    if remove_original and plot in curdoc().context.children:
+        curdoc().context.children.remove(plot)
 
-    # TODO: Find a list somewhere for plot-type-specific options and transfer out using that list.
-    #       Otherwise, this section will be horribly unmanageable.
-    options = ['reserve_val', 'reserve_color', 'line_color', 'tools']
-    for opt in options:
-        if opt in kwargs:
-            props[opt] = kwargs.pop(opt)
+    # Sift kwargs
+    source_opts = {}
+    for key in ServerDataSource().vm_props():
+        if key in kwargs:
+            source_opts[key] = kwargs.pop(key)
 
-    src = source(plot, agg, info, shader,
-                 remove_original, palette, points, **kwargs)
-    props.update(mapping(src))
+
+    for name in get_function_code(source).co_varnames:
+        if name in kwargs:
+            source_opts[name] = kwargs.pop(name)
+
+    # Transfer specific items from the source plot, then updates from kwargs
+    plot_opts['plot_width'] = plot.plot_width
+    plot_opts['plot_height'] = plot.plot_height
+    plot_opts['title'] = plot.title
+    plot_opts.update(kwargs)
+
+    src = source(plot, agg, info, shader, **source_opts)
+    plot_opts.update(mapping(src))
 
     if shader.out == "image":
-        return image(source=src, **props)
+        new_plot = image(source=src, **plot_opts)
     elif shader.out == "image_rgb":
-        return image_rgba(source=src, **props)
-    elif shader.out == "poly_line":
-        return multi_line(source=src, **props)
+        new_plot = image_rgba(source=src, **plot_opts)
+    elif shader.out == "multi_line":
+        new_plot = multi_line(source=src, **plot_opts)
     else:
         raise ValueError("Unhandled output type %s" % shader.out)
 
+    return new_plot
 
-# TODO: Move reserve control up here or palette control down.  Probably related to refactoring palette into a model-backed type
-def source(plot, agg=Count(), info=Const(val=1), shader=Id(),
-           remove_original=True, palette=["Spectral-11"],
-           points=False, balancedZoom=False, **kwargs):
-    # Acquire information from renderer...
-    # TODO: How to be more specific about what to do AR on?
-    #       Currently just takes the first renderer with a server data source
-    rend = [r for r in plot.renderers
+
+def _renderer(plot):
+    """
+    Acquire the renderer of interest.
+    More specifically, the first child of the plot
+    that is both a renderer and related to a server data source.
+
+    TODO: How to be more specific about what to do AR on?
+          Currently just takes the first renderer with a server data source
+    """
+    return [r for r in plot.renderers
             if (isinstance(r, Glyph)
                 and hasattr(r, "server_data_source")
                 and r.server_data_source is not None)][0]
+
+# TODO: just use glyph instead of obsolete glyphspec
+def get_glyphspec(glyph):
+    spec = glyph.vm_serialize()
+    spec['type'] = glyph.__view_model__
+    return spec
+
+def source(plot,
+           agg=Count(), info=Const(val=1), shader=Id(),
+           palette=["Spectral-11"],
+           points=False, balancedZoom=False, **kwargs):
+    # Acquire information from renderer...
+    rend = _renderer(plot)
     datasource = rend.server_data_source
     kwargs['data_url'] = datasource.data_url
     kwargs['owner_username'] = datasource.owner_username
 
-    spec = rend.vm_serialize()['glyphspec']
+    spec = get_glyphspec(rend.glyph)
 
     # TODO: Use reformat here?
-
     if shader.out == "image" or shader.out == "image_rgb":
         kwargs['data'] = {'image': [],
                           'x': [0],
@@ -456,21 +508,17 @@ def source(plot, agg=Count(), info=Const(val=1), shader=Id(),
                           'global_y_range': [0, 50],
                           'global_offset_x': [0],
                           'global_offset_y': [0],
+                          'palette': palette,
                           'dw': [1],
                           'dh': [1],
-                          'palette': palette,
                           'render_state': {}}
-    elif shader.out == "poly_line":
+    elif shader.out == "multi_line":
         kwargs['data'] = {'xs': [[]],
                           'ys': [[]],
                           'colors': [],
                           'render_state': {}}
     else:
         raise ValueError("Unrecognized shader output type %s" % shader.out)
-
-    # Remove the base plot (if requested)
-    if remove_original and plot in curdoc().context.children:
-        curdoc().context.children.remove(plot)
 
     kwargs['transform'] = {
         'resample': "abstract rendering",
@@ -495,7 +543,7 @@ def mapping(source):
         m['x_range'] = Range1d(start=0, end=0)
         m['y_range'] = Range1d(start=0, end=0)
         return m
-    elif out == 'poly_line':
+    elif out == 'multi_line':
         keys = source.data.keys()
         m = dict(zip(keys, keys))
         m['line_color'] = 'colors'
@@ -533,7 +581,9 @@ def _generate_render_state(plot_state):
 
 def downsample(data, transform, plot_state, render_state):
     _loadAR()  # Must be called before any attempts to use AR proper
-    glyphspec = transform['glyphspec']
+
+    # XXX: transform['glyphspec'] is really a glyph
+    glyphspec = get_glyphspec(transform['glyphspec'])
     xcol = glyphspec['x']['field']
     ycol = glyphspec['y']['field']
     datacol = _datacolumn(glyphspec)
@@ -557,7 +607,7 @@ def downsample(data, transform, plot_state, render_state):
 
     if shader.out == "image" or shader.out == "image_rgb":
         rslt = downsample_image(xcol, ycol, glyphs, transform, plot_state)
-    elif shader.out == "poly_line":
+    elif shader.out == "multi_line":
         rslt = downsample_line(xcol, ycol, glyphs, transform, plot_state)
     else:
         raise ValueError("Unhandled shader output '{0}.".format(shader.out))
@@ -703,8 +753,7 @@ def _span(r):
 
 def _shaper(glyphspec, points):
     """Construct the AR shaper to match the given shape code."""
-    code = glyphspec['type']
-    code = code.lower()
+    glyphtype = glyphspec['type']
 
     tox = glyphset.idx(0)
     toy = glyphset.idx(1)
@@ -713,16 +762,21 @@ def _shaper(glyphspec, points):
         sizer = glyphset.const(1)
         return glyphset.ToPoint(tox, toy, sizer, sizer)
 
-    if code == 'square':
-        size = glyphspec['size'].get('default', 1)
+    # XXX: glyphspec['dataspec'] won't work anymore, because previously all dataspecs
+    # were serialized no matter if dirty or not. Now only changed dataspecs are being
+    # serialized. Use glyphs directly to fix this issue.
+
+    if glyphtype == 'Square':
+        size = glyphspec.get('size', {}).get('value', 1)
         sizer = glyphset.const(size)
         return glyphset.ToRect(tox, toy, sizer, sizer)
-    if code == 'circle':
-        size = glyphspec['radius'].get('default', 1)
+    if glyphtype == 'Circle':
+        # XXX: what about 'size' and different units?
+        size = glyphspec.get('radius', {}).get('value', 1)
         sizer = glyphset.const(size)
         return glyphset.ToRect(tox, toy, sizer, sizer)
     else:
-        raise ValueError("Unrecogized shape, received '{0}'".format(code))
+        raise ValueError("Unrecogized shape, received '{0}'".format(glyphtype.lower()))
 
 
 # -------------------- Recipes -----------------------

@@ -4,6 +4,16 @@
 Release Notes
 #############
 
+v0.6.1 (Sep 2014)
+=================
+  * Toolbar enhancements
+  * bokeh-server fixes
+  * Improved documentation
+  * Button widgets
+  * Google map support in the Python side
+  * Code cleanup in the JS side and examples
+  * New examples
+
 v0.6.0 (Sep 2014)
 =================
 * Abstract Rendering recipes for large data sets: isocontour, heatmap, hdalpha

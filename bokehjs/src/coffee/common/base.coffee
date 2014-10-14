@@ -7,10 +7,13 @@ define [
   "common/canvas",
   "common/cartesian_frame",
   "common/gmap_plot",
+  "common/geojs_plot",
   "common/grid_plot",
   "common/layout_box",
   "common/plot",
   "common/plot_context",
+  "common/selection_manager",
+  "common/selector",
 
   "mapper/categorical_mapper",
   "mapper/linear_mapper",
@@ -24,12 +27,52 @@ define [
   "range/range1d",
 
   "renderer/annotation/legend",
-  "renderer/glyph/glyph_factory",
+  "renderer/annotation/span",
+  "renderer/annotation/tooltip",
+
+  "renderer/glyph/glyph_renderer",
+
+  "renderer/glyph/annular_wedge",
+  "renderer/glyph/annulus",
+  "renderer/glyph/arc",
+  "renderer/glyph/bezier",
+  "renderer/glyph/circle",
+  "renderer/glyph/gear",
+  "renderer/glyph/image",
+  "renderer/glyph/image_rgba",
+  "renderer/glyph/image_url",
+  "renderer/glyph/line",
+  "renderer/glyph/multi_line",
+  "renderer/glyph/oval",
+  "renderer/glyph/patch",
+  "renderer/glyph/patches",
+  "renderer/glyph/quad",
+  "renderer/glyph/quadratic",
+  "renderer/glyph/ray",
+  "renderer/glyph/rect",
+  "renderer/glyph/segment",
+  "renderer/glyph/text",
+  "renderer/glyph/wedge",
+
+  "renderer/glyph/marker/asterisk"
+  "renderer/glyph/marker/circle_cross"
+  "renderer/glyph/marker/circle_x"
+  "renderer/glyph/marker/cross"
+  "renderer/glyph/marker/diamond"
+  "renderer/glyph/marker/diamond_cross"
+  "renderer/glyph/marker/inverted_triangle"
+  "renderer/glyph/marker/square"
+  "renderer/glyph/marker/square_cross"
+  "renderer/glyph/marker/square_x"
+  "renderer/glyph/marker/triangle"
+  "renderer/glyph/marker/x"
+
   "renderer/guide/categorical_axis",
   "renderer/guide/datetime_axis",
   "renderer/guide/grid",
   "renderer/guide/linear_axis",
   "renderer/guide/log_axis",
+
   "renderer/overlay/box_selection",
 
   "source/column_data_source",
@@ -51,18 +94,25 @@ define [
   "ticking/single_interval_ticker",
   "ticking/years_ticker",
 
-  "tool/box_select_tool",
-  "tool/box_zoom_tool",
-  "tool/click_tool",
-  "tool/crosshair_tool",
-  "tool/data_range_box_select_tool",
-  "tool/hover_tool",
-  "tool/pan_tool",
-  "tool/preview_save_tool",
-  "tool/reset_tool",
-  "tool/resize_tool",
-  "tool/wheel_zoom_tool",
-  "tool/object_explorer_tool",
+  "tool/button_tool",
+
+  "tool/actions/action_tool",
+  "tool/actions/object_explorer_tool",
+  "tool/actions/preview_save_tool",
+  "tool/actions/reset_tool",
+
+  "tool/gestures/box_select_tool",
+  "tool/gestures/box_zoom_tool",
+  "tool/gestures/gesture_tool",
+  "tool/gestures/pan_tool",
+  "tool/gestures/resize_tool",
+  "tool/gestures/select_tool",
+  "tool/gestures/tap_tool",
+  "tool/gestures/wheel_zoom_tool",
+
+  "tool/inspectors/crosshair_tool",
+  "tool/inspectors/hover_tool",
+  "tool/inspectors/inspect_tool",
 
   "widget/data_table",
   "widget/handson_table",
@@ -129,25 +179,68 @@ define [
 
     Plot:                     'common/plot'
     GMapPlot:                 'common/gmap_plot'
+    GeoJSPlot:                'common/geojs_plot'
     GridPlot:                 'common/grid_plot'
     PlotContext:              'common/plot_context'
     PlotList:                 'common/plot_context'
     Canvas:                   'common/canvas'
     LayoutBox:                'common/layout_box'
     CartesianFrame:           'common/cartesian_frame'
+    SelectionManager:         'common/selection_manager'
+    Selector:                 'common/selector'
 
     DataFactorRange:          'range/data_factor_range'
     DataRange1d:              'range/data_range1d'
     FactorRange:              'range/factor_range'
     Range1d:                  'range/range1d'
 
-    Glyph:                    'renderer/glyph/glyph_factory'
+    Legend:                   'renderer/annotation/legend'
+    Span:                     'renderer/annotation/span'
+    Tooltip:                  'renderer/annotation/tooltip'
+
+    GlyphRenderer:            'renderer/glyph/glyph_renderer'
+
+    AnnularWedge:             'renderer/glyph/annular_wedge'
+    Annulus:                  'renderer/glyph/annulus'
+    Arc:                      'renderer/glyph/arc'
+    Bezier:                   'renderer/glyph/bezier'
+    Circle:                   'renderer/glyph/circle'
+    Gear:                     'renderer/glyph/gear'
+    Image:                    'renderer/glyph/image'
+    ImageRGBA:                'renderer/glyph/image_rgba'
+    ImageURL:                 'renderer/glyph/image_url'
+    Line:                     'renderer/glyph/line'
+    MultiLine:                'renderer/glyph/multi_line'
+    Oval:                     'renderer/glyph/oval'
+    Patch:                    'renderer/glyph/patch'
+    Patches:                  'renderer/glyph/patches'
+    Quad:                     'renderer/glyph/quad'
+    Quadratic:                'renderer/glyph/quadratic'
+    Ray:                      'renderer/glyph/ray'
+    Rect:                     'renderer/glyph/rect'
+    Segment:                  'renderer/glyph/segment'
+    Text:                     'renderer/glyph/text'
+    Wedge:                    'renderer/glyph/wedge'
+
+    Asterisk:                 'renderer/glyph/marker/asterisk'
+    CircleCross:              'renderer/glyph/marker/circle_cross'
+    CircleX:                  'renderer/glyph/marker/circle_x'
+    Cross:                    'renderer/glyph/marker/cross'
+    Diamond:                  'renderer/glyph/marker/diamond'
+    DiamondCross:             'renderer/glyph/marker/diamond_cross'
+    InvertedTriangle:         'renderer/glyph/marker/inverted_triangle'
+    Square:                   'renderer/glyph/marker/square'
+    SquareCross:              'renderer/glyph/marker/square_cross'
+    SquareX:                  'renderer/glyph/marker/square_x'
+    Triangle:                 'renderer/glyph/marker/triangle'
+    X:                        'renderer/glyph/marker/x'
+
     LinearAxis:               'renderer/guide/linear_axis'
     LogAxis:                  'renderer/guide/log_axis'
     CategoricalAxis:          'renderer/guide/categorical_axis'
     DatetimeAxis:             'renderer/guide/datetime_axis'
     Grid:                     'renderer/guide/grid'
-    Legend:                   'renderer/annotation/legend'
+
     BoxSelection:             'renderer/overlay/box_selection'
 
     ColumnDataSource:         'source/column_data_source'
@@ -169,18 +262,24 @@ define [
     SingleIntervalTicker:     'ticking/single_interval_ticker'
     YearsTicker:              'ticking/years_ticker'
 
-    PanTool:                  'tool/pan_tool'
-    WheelZoomTool:            'tool/wheel_zoom_tool'
-    ResizeTool:               'tool/resize_tool'
-    ClickTool:                'tool/click_tool'
-    CrosshairTool:            'tool/crosshair_tool'
-    BoxSelectTool:            'tool/box_select_tool'
-    BoxZoomTool:              'tool/box_zoom_tool'
-    HoverTool:                'tool/hover_tool'
-    DataRangeBoxSelectTool:   'tool/data_range_box_select_tool'
-    PreviewSaveTool:          'tool/preview_save_tool'
-    ResetTool:                'tool/reset_tool'
-    ObjectExplorerTool:       'tool/object_explorer_tool'
+    ButtonTool:               'tool/button_tool'
+    ActionTool:               'tool/actions/action_tool'
+    ObjectExplorerTool:       'tool/actions/object_explorer_tool'
+    PreviewSaveTool:          'tool/actions/preview_save_tool'
+    ResetTool:                'tool/actions/reset_tool'
+
+    BoxSelectTool:            'tool/gestures/box_select_tool'
+    BoxZoomTool:              'tool/gestures/box_zoom_tool'
+    GestureTool:              'tool/gestures/gesture_tool'
+    PanTool:                  'tool/gestures/pan_tool'
+    SelectTool:               'tool/gestures/select_tool'
+    ResizeTool:               'tool/gestures/resize_tool'
+    TapTool:                  'tool/gestures/tap_tool'
+    WheelZoomTool:            'tool/gestures/wheel_zoom_tool'
+
+    CrosshairTool:            'tool/inspectors/crosshair_tool'
+    HoverTool:                'tool/inspectors/hover_tool'
+    InspectTool:              'tool/inspectors/inspect_tool'
 
     DataTable:                'widget/data_table'
     HandsonTable:             'widget/handson_table'
@@ -256,10 +355,13 @@ define [
   Collections.register = (name, collection) ->
     collection_overrides[name] = collection
 
+  index = {}
+
   return {
-    "collection_overrides" : collection_overrides, # for testing only
-    "mod_cache": mod_cache, # for testing only
-    "locations": locations,
-    "Collections": Collections,
+    "collection_overrides": collection_overrides # for testing only
+    "mod_cache": mod_cache # for testing only
+    "locations": locations
+    "index": index
+    "Collections": Collections
     "Config" : Config
   }

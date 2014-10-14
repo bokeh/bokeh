@@ -1,4 +1,4 @@
-<div class='bokeh_canvas_wrapper_outer'>
+<div class='bk-plot-wrapper'>
 	<table>
 		<tr>
 			<td></td>
@@ -16,6 +16,4 @@
 			<td></td>
 		</tr>
 	</table>
- 
-
 </div>

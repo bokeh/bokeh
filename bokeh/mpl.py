@@ -20,7 +20,7 @@ import numpy as np
 import pandas as pd
 
 from .glyphs import (Asterisk, Circle, Cross, Diamond, InvertedTriangle, Line,
-                     MultiLine, Patches, Square, Text, Triangle, Xmarker)
+                     MultiLine, Patches, Square, Text, Triangle, X)
 from .mplexporter.exporter import Exporter
 from .mplexporter.renderers import Renderer
 from .mpl_helpers import (convert_dashes, delete_last_col, get_props_cycled,
@@ -75,14 +75,31 @@ class BokehRenderer(Renderer):
                         self.plot.renderers, lambda x: is_ax_end(x)) if not x[0]]
             plots = []
             for i, axes in enumerate(fig.axes):
-                self.plot.renderers = subrends[i]
-                if i < len(fig.axes) - 1:
-                    _plot = self.plot.clone()
-                    for x in _plot.renderers:
-                        x.plot = _plot
-                    plots.append(_plot)
-                else:
-                    plots.append(self.plot)
+                # create a new plot for each subplot
+                _plot = Plot(x_range=self.xdr,
+                             y_range=self.ydr,
+                             plot_width=self.width,
+                             plot_height=self.height)
+                _plot.title = ""
+                # and add new tools
+                _pan = PanTool()
+                _wheelzoom = WheelZoomTool()
+                _reset = ResetTool()
+                _previewsave = PreviewSaveTool()
+                _plot.add_tools(_pan, _wheelzoom, _reset, _previewsave)
+                # clean the plot ref from axis and grids
+                _plot_rends = subrends[i]
+                for r in _plot_rends:
+                    if not isinstance(r, Glyph):
+                        r.plot = None
+                # add all the renderers into the new subplot
+                _plot.add_layout(_plot_rends[0], 'below')  # xaxis
+                _plot.add_layout(_plot_rends[1], 'left')  # yaxis
+                _plot.add_layout(_plot_rends[2])  # xgrid
+                _plot.add_layout(_plot_rends[3])  # ygrid
+                for r in _plot_rends[4:]:  # all the glyphs
+                    _plot.renderers.append(r)
+                plots.append(_plot)
             (a, b, c) = fig.axes[0].get_geometry()
             p = np.array(plots)
             n = np.resize(p, (a, b))
@@ -125,7 +142,7 @@ class BokehRenderer(Renderer):
 
         # Add a "marker" Glyph to help the plot.renderers splitting in the GridPlot build
         dummy_source = ColumnDataSource(data=dict(name="ax_end"))
-        self.plot.renderers.append(Glyph(data_source=dummy_source, glyph=Xmarker()))
+        self.plot.renderers.append(Glyph(data_source=dummy_source, glyph=X()))
 
     def open_legend(self, legend, props):
         pass
@@ -177,7 +194,7 @@ class BokehRenderer(Renderer):
             "+": Cross,
             "^": Triangle,
             "v": InvertedTriangle,
-            "x": Xmarker,
+            "x": X,
             "D": Diamond,
             "*": Asterisk,
         }

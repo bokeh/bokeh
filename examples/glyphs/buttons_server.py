@@ -83,5 +83,5 @@ if __name__ == "__main__":
     link = session.object_link(document.context)
     print("Please visit %s to see the plots" % link)
     view(link)
+    print("\npress ctrl-C to exit")
     session.poll_document(document)
-    

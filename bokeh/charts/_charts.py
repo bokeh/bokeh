@@ -25,7 +25,7 @@ import numpy as np
 
 from ..glyphs import (Asterisk, Circle, CircleCross, CircleX, Cross, Diamond,
                       DiamondCross, InvertedTriangle, Line, Rect, Segment,
-                      Square, SquareCross, SquareX, Triangle, Xmarker, Quad)
+                      Square, SquareCross, SquareX, Triangle, X, Quad)
 from ..objects import (CategoricalAxis, DatetimeAxis, Grid, Legend,
                        LinearAxis, PanTool, Plot, PreviewSaveTool, ResetTool,
                        WheelZoomTool)
@@ -324,7 +324,7 @@ class Chart(object):
             ("inverted_triangle", InvertedTriangle),
             ("asterisk", Asterisk),
             ("cross", Cross),
-            ("x", Xmarker),
+            ("x", X),
             ("circle_cross", CircleCross),
             ("circle_x", CircleX),
             ("square_x", SquareX),

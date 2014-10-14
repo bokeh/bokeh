@@ -1,5 +1,3 @@
-
-
 define [
   "underscore",
   "renderer/properties",
@@ -12,15 +10,12 @@ define [
     _properties: ['line', 'fill']
 
     _map_data: () ->
-      [@sx, @sy] = @plot_view.map_to_screen(
-        @x, @glyph_props.x.units, @y, @glyph_props.y.units, @x_range_name, @y_range_name
-      )
+      [@sx, @sy] = @renderer.map_to_screen(@x, @glyph.x.units, @y, @glyph.y.units)
       @sw = @distance_vector('x', 'width', 'center')
       @sh = @distance_vector('y', 'height', 'center')
 
-    _render: (ctx, indices, glyph_props, sx=@sx, sy=@sy, sw=@sw, sh=@sh) ->
+    _render: (ctx, indices, sx=@sx, sy=@sy, sw=@sw, sh=@sh) ->
       for i in indices
-
         if isNaN(sx[i] + sy[i] + sw[i] + sh[i] + @angle[i])
           continue
 
@@ -33,12 +28,12 @@ define [
         ctx.bezierCurveTo(-sw[i]/2,  sh[i]/2, -sw[i]/2, -sh[i]/2, 0, -sh[i]/2);
         ctx.closePath()
 
-        if glyph_props.fill_properties.do_fill
-          glyph_props.fill_properties.set_vectorize(ctx, i)
+        if @props.fill.do_fill
+          @props.fill.set_vectorize(ctx, i)
           ctx.fill()
 
-        if glyph_props.line_properties.do_stroke
-          glyph_props.line_properties.set_vectorize(ctx, i)
+        if @props.line.do_stroke
+          @props.line.set_vectorize(ctx, i)
           ctx.stroke()
 
         ctx.rotate(-@angle[i])
@@ -64,27 +59,22 @@ define [
         sw[reference_point] = d*scale
         sh[reference_point] = d
 
-      @_render(ctx, indices, @glyph_props, sx, sy, sw, sh)
+      @_render(ctx, indices, sx, sy, sw, sh)
 
   class Oval extends Glyph.Model
     default_view: OvalView
-    type: 'Glyph'
+    type: 'Oval'
 
     display_defaults: ->
-      return _.extend {}, super(), {
-        fill_color: 'gray'
-        fill_alpha: 1.0
-        line_color: 'red'
-        line_width: 1
-        line_alpha: 1.0
-        line_join: 'miter'
-        line_cap: 'butt'
-        line_dash: []
-        line_dash_offset: 0
+      return _.extend {}, super(), @line_defaults, @fill_defaults, {
         angle: 0.0
       }
 
+  class Ovals extends Glyph.Collection
+    model: Oval
+
   return {
-    "Model": Oval,
-    "View": OvalView,
+    Model: Oval
+    View: OvalView
+    Collection: new Ovals()
   }

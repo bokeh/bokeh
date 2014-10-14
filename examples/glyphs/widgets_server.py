@@ -5,8 +5,6 @@ import time
 from datetime import date
 from random import randint
 
-from requests.exceptions import ConnectionError
-
 from bokeh.browserlib import view
 from bokeh.document import Document
 from bokeh.glyphs import Line, Circle
@@ -78,14 +76,7 @@ session.store_document(document)
 
 if __name__ == "__main__":
     link = session.object_link(document.context)
-    view(link)
     print("Please visit %s to see the plots" % link)
-
-    try:
-        while True:
-            session.load_document(document)
-            time.sleep(0.5)
-    except KeyboardInterrupt:
-        print()
-    except ConnectionError:
-        print("Connection to bokeh-server was terminated")
+    view(link)
+    print("\npress ctrl-C to exit")
+    session.poll_document(document)

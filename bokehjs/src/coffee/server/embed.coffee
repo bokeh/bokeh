@@ -8,6 +8,7 @@ define [
     "common/logging",
 ],  ($, serverutils, usercontext, base, HasProperties, load_models, Logging) ->
 
+  index = base.index
   logger = Logging.logger
 
   reload = () ->
@@ -24,7 +25,9 @@ define [
     $('body').append(link)
 
   add_plot_static = (element, model_id, model_type, all_models) ->
-    load_models(all_models);
+    if model_id not of index
+      load_models(all_models);
+      index[model_id] = view
     model = base.Collections(model_type).get(model_id)
     view = new model.default_view({model : model})
     _.delay(-> $(element).replaceWith(view.$el))
@@ -35,6 +38,8 @@ define [
       model = base.Collections(data.type).get(model_id)
       view = new model.default_view(model : model)
       _.delay(-> $(element).replaceWith(view.$el))
+      if model_id not of index
+        index[model_id] = view
       wswrapper = serverutils.wswrapper
       wswrapper.subscribe("debug:debug", "")
       wswrapper.on('msg:debug:debug', (msg) ->
