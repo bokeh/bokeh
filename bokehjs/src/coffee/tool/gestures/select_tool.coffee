@@ -1,7 +1,10 @@
 
 define [
+  "common/logging"
   "./gesture_tool"
-], (GestureTool) ->
+], (Logging, GestureTool) ->
+
+  logger = Logging.logger
 
   class SelectToolView extends GestureTool.View
 
@@ -28,6 +31,9 @@ define [
         renderers = (r for r in renderers when names.indexOf(r.get('name')) >= 0)
 
       @set('renderers', renderers)
+      logger.debug("setting #{renderers.length} renderers for #{@type} #{@id}")
+      for r in renderers
+        logger.debug("- #{r.type} #{r.id}")
 
     defaults: () ->
       return _.extend({}, super(), {

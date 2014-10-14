@@ -1,9 +1,12 @@
 
 define [
   "backbone"
+  "common/logging"
   "tool/tool"
   "./inspect_tool_list_item_template"
-], (Backbone, Tool, inspect_tool_list_item_template) ->
+], (Backbone, Logging, Tool, inspect_tool_list_item_template) ->
+
+  logger = Logging.logger
 
   class InspectToolListItemView extends Backbone.View
     className: "bk-toolbar-inspector"
@@ -47,6 +50,9 @@ define [
         renderers = (r for r in renderers when names.indexOf(r.get('name')) >= 0)
 
       @set('renderers', renderers)
+      logger.debug("setting #{renderers.length} renderers for #{@type} #{@id}")
+      for r in renderers
+        logger.debug("- #{r.type} #{r.id}")
 
     _inspect: (vx, vy, e) ->
 
