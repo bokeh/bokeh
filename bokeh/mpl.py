@@ -25,8 +25,8 @@ from .mplexporter.exporter import Exporter
 from .mplexporter.renderers import Renderer
 from .mpl_helpers import (convert_dashes, delete_last_col, get_props_cycled,
                           is_ax_end, xkcd_line)
-from .objects import (ColumnDataSource, DataRange1d, DatetimeAxis, Glyph, Grid,
-                      GridPlot, LinearAxis, PanTool, Plot, PreviewSaveTool,
+from .objects import (ColumnDataSource, DataRange1d, DatetimeAxis, GlyphRenderer,
+                      Grid, GridPlot, LinearAxis, PanTool, Plot, PreviewSaveTool,
                       ResetTool, WheelZoomTool)
 from .plotting import (curdoc, output_file, output_notebook, output_server,
                        show)
@@ -90,7 +90,7 @@ class BokehRenderer(Renderer):
                 # clean the plot ref from axis and grids
                 _plot_rends = subrends[i]
                 for r in _plot_rends:
-                    if not isinstance(r, Glyph):
+                    if not isinstance(r, GlyphRenderer):
                         r.plot = None
                 # add all the renderers into the new subplot
                 _plot.add_layout(_plot_rends[0], 'below')  # xaxis
@@ -142,7 +142,7 @@ class BokehRenderer(Renderer):
 
         # Add a "marker" Glyph to help the plot.renderers splitting in the GridPlot build
         dummy_source = ColumnDataSource(data=dict(name="ax_end"))
-        self.plot.renderers.append(Glyph(data_source=dummy_source, glyph=X()))
+        self.plot.renderers.append(GlyphRenderer(data_source=dummy_source, glyph=X()))
 
     def open_legend(self, legend, props):
         pass

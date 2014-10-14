@@ -1,7 +1,7 @@
 from __future__ import print_function
 from ..plotting import image_rgba, image, multi_line, curdoc
 from ..plot_object import PlotObject
-from ..objects import ServerDataSource,  Glyph, Range1d, Color
+from ..objects import ServerDataSource,  GlyphRenderer, Range1d, Color
 from ..properties import (Instance, Any, Either,
                           Int, Float, List, Bool, String)
 from six import get_function_code
@@ -477,7 +477,7 @@ def _renderer(plot):
           Currently just takes the first renderer with a server data source
     """
     return [r for r in plot.renderers
-            if (isinstance(r, Glyph)
+            if (isinstance(r, GlyphRenderer)
                 and hasattr(r, "server_data_source")
                 and r.server_data_source is not None)][0]
 

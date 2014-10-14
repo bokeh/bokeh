@@ -6,7 +6,7 @@ from six.moves import xrange
 import copy
 
 def large_plot(n):
-    from bokeh.objects import (Plot, PlotContext, LinearAxis, Grid, Glyph,
+    from bokeh.objects import (Plot, PlotContext, LinearAxis, Grid, GlyphRenderer,
         ColumnDataSource, DataRange1d, PanTool, WheelZoomTool, BoxZoomTool,
         BoxSelectTool, BoxSelectionOverlay, ResizeTool, PreviewSaveTool,
         ResetTool)
@@ -26,7 +26,7 @@ def large_plot(n):
         ygrid = Grid(plot=plot, dimension=1)
         tickers = [xaxis.ticker, xaxis.formatter, yaxis.ticker, yaxis.formatter]
         glyph = Line(x='x', y='y')
-        renderer = Glyph(data_source=source, glyph=glyph)
+        renderer = GlyphRenderer(data_source=source, glyph=glyph)
         plot.renderers.append(renderer)
         pan = PanTool(plot=plot)
         wheel_zoom = WheelZoomTool(plot=plot)

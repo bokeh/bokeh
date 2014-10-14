@@ -17,7 +17,7 @@ import unittest
 
 from ..charts import Chart, ChartObject
 from ..glyphs import Circle
-from ..objects import (ColumnDataSource, Grid, Glyph, Legend, LinearAxis,
+from ..objects import (ColumnDataSource, Grid, GlyphRenderer, Legend, LinearAxis,
                        PanTool, Range1d, Ticker)
 
 from ..document import Document
@@ -34,7 +34,7 @@ class TestChart(unittest.TestCase):
         self.source = ColumnDataSource()
         self.xdr = Range1d()
         self.ydr = Range1d()
-        self.glyph = Glyph()
+        self.glyph = GlyphRenderer()
         self.groups = [self.glyph] * 3
         self.chart = Chart(title="title", xlabel="xlabel", ylabel="ylabel",
                            legend="top_left", xscale="linear", yscale="linear",
