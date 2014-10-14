@@ -1,9 +1,10 @@
 
 define [
   "underscore",
-  "backbone",
+  "common/collection",
   "common/has_properties",
-], (_, Backbone, HasProperties) ->
+  "common/selection_manager",
+], (_, Collection, HasProperties, SelectionManager) ->
 
   # Datasource where the data is defined column-wise, i.e. each key in the
   # the data attribute is a column name, and its value is an array of scalars.
@@ -38,12 +39,13 @@ define [
         points.push(point)
       return points
 
-    defaults: () ->
-      return {
+    defaults: =>
+      return _.extend {}, super(), {
         data: {}
+        selection_manager: new SelectionManager({'source':@})
       }
 
-  class ColumnDataSources extends Backbone.Collection
+  class ColumnDataSources extends Collection
     model: ColumnDataSource
 
   return {

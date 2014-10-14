@@ -48,18 +48,6 @@ module.exports = (grunt) ->
           src: ['**/*']
           dest : 'build/js/vendor'
         ]
-      release:
-        files: [
-            expand: true
-            cwd: 'build/js'
-            src: ['*.js']
-            dest: 'release/js'
-          ,
-            expand: true
-            cwd: 'build/css'
-            src: ['*.css']
-            dest: 'release/css'
-        ]
       spectrogram:
         src: 'build/js/bokeh.js'
         dest: 'build/demo/spectrogram/static/bokeh.js'
@@ -79,6 +67,8 @@ module.exports = (grunt) ->
           dest: 'build/css',   # destination path prefix
           ext: '.css',         # dest filepaths will have this extension
         }]
+    lesslint:
+      src: ['src/less/*.less']
 
     coffee:
       compile:
@@ -217,6 +207,7 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks("grunt-contrib-connect")
   grunt.loadNpmTasks("grunt-eco")
   grunt.loadNpmTasks("grunt-groc")
+  grunt.loadNpmTasks('grunt-lesslint')
 
   grunt.registerTask("default",   ["build", "test"])
   grunt.registerTask("buildcopy", ["copy:template", "copy:test", "copy:demo", "copy:vendor"]) # better way??

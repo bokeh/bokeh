@@ -17,6 +17,10 @@ line(dates, data['isig'], color='blue', legend='isig')
 
 curplot().title = "Glucose Measurements"
 
+xax, yax = axis()
+xax.axis_label = 'Date'
+yax.axis_label = 'Value'
+
 day = data.ix['2010-10-06']
 highs = day[day['glucose'] > 180]
 lows = day[day['glucose'] < 80]
@@ -32,6 +36,10 @@ curplot().title = "Glucose Range"
 xgrid()[0].grid_line_color=None
 ygrid()[0].grid_line_alpha=0.5
 
+xax, yax = axis()
+xax.axis_label = 'Time'
+yax.axis_label = 'Value'
+
 data['inrange'] = (data['glucose'] < 180) & (data['glucose'] > 80)
 window = 30.5*288 #288 is average number of samples in a month
 inrange = pd.rolling_sum(data.inrange, window)
@@ -43,6 +51,10 @@ figure(x_axis_type="datetime", tools="pan,wheel_zoom,box_zoom,reset,previewsave"
 line(inrange.index.to_series(), inrange, line_color="navy")
 
 curplot().title = "Glucose In-Range Rolling Sum"
+
+xax, yax = axis()
+xax.axis_label = 'Date'
+yax.axis_label = 'Proportion In-Range'
 
 # open a browser
 show()

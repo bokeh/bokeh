@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 #-------------
 # standard lib
 #-------------
+import time
 import json
 from os import makedirs
 from os.path import expanduser, exists, join
@@ -26,6 +27,7 @@ import tempfile
 # third party
 #------------
 from six.moves.urllib.parse import urljoin, urlencode
+from requests.exceptions import ConnectionError
 
 #---------
 # optional
@@ -679,6 +681,17 @@ class Session(object):
         """
         data = {'text/html': autoload_server(obj, self)}
         utils.publish_display_data(data)
+
+    def poll_document(self, document, interval=0.5):
+        """ Periodically ask the server for updates to the `document`. """
+        try:
+            while True:
+                self.load_document(document)
+                time.sleep(interval)
+        except KeyboardInterrupt:
+            print()
+        except ConnectionError:
+            print("Connection to bokeh-server was terminated")
 
     # helper methods
 

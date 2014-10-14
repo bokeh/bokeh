@@ -1,9 +1,9 @@
 
 define [
   "underscore",
-  "backbone",
+  "common/collection",
   "range/factor_range"
-], (_, Backbone, FactorRange) ->
+], (_, Collection, FactorRange) ->
 
   class DataFactorRange extends FactorRange.Model
     type: 'DataFactorRange'
@@ -26,14 +26,14 @@ define [
       @add_dependencies('values', @get('data_source'),
         ['data_source', 'columns'])
 
-    defaults: () ->
-      return {
+    defaults: ->
+      return _.extend {}, super(), {
         values: []
         columns: []
         data_source: null
       }
 
-  class DataFactorRanges extends Backbone.Collection
+  class DataFactorRanges extends Collection
     model: DataFactorRange
 
   return {

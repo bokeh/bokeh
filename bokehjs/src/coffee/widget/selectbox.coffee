@@ -1,13 +1,12 @@
 define [
-  "backbone"
+  "common/collection"
   "underscore"
   "common/continuum_view"
   "common/has_parent"
   "common/logging"
   "./selecttemplate"
-], (Backbone, build_views, continuum_view, HasParent, Logging, template) ->
+], (Collection, build_views, ContinuumView, HasParent, Logging, template) ->
 
-  ContinuumView = continuum_view.View
   logger = Logging.logger
 
   class SelectView extends ContinuumView
@@ -37,14 +36,14 @@ define [
     type : "Select"
     default_view : SelectView
 
-    defaults : () ->
-      def =
-        title : ''
-        value : ''
-        options : []
-      return def
+    defaults: ->
+      return _.extend {}, super(), {
+        title: ''
+        value: ''
+        options: []
+      }
 
-  class Selects extends Backbone.Collection
+  class Selects extends Collection
     model : Select
 
   return {

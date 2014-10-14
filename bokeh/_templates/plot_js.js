@@ -12,4 +12,4 @@ var model = Bokeh.Collections(modeltype).get(modelid);
 window["bokeh_{{ window_name }}"] = model
 {%- endif %}
 var view = new model.default_view({model: model, el: '#{{ elementid }}'});
-
+Bokeh.index[modelid] = view

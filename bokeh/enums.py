@@ -2,7 +2,7 @@
 
 from six import string_types
 
-from . import colors
+from . import colors, icons
 
 class Enumeration(object):
     pass
@@ -34,8 +34,12 @@ Units = enumeration("screen", "data")
 AngleUnits = enumeration("deg", "rad")
 DatetimeUnits = enumeration("microseconds", "milliseconds", "seconds", "minsec", "minutes", "hourmin", "hours", "days", "months", "years")
 Dimension = enumeration("width", "height", "x", "y")
+Anchor = enumeration("top_left", "top_center", "top_right", "right_center", "bottom_right", "bottom_center", "bottom_left", "left_center", "center")
 Location = enumeration("above", "below", "left", "right")
 Orientation = enumeration("top_right", "top_left", "bottom_left", "bottom_right")
 DashPattern = enumeration("solid", "dashed", "dotted", "dotdash", "dashdot")
 ColumnType = enumeration("string", "numeric", "date", "checkbox", "select", "dropdown", "autocomplete", "password", "handsontable")
+ButtonType = enumeration("default", "primary", "success", "warning", "danger", "link")
 NamedColor = enumeration(*colors.__colors__)
+NamedIcon = enumeration(*icons.__icons__)
+MapType = enumeration("satellite", "roadmap", "terrain", "hybrid")

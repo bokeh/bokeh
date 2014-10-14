@@ -1,19 +1,26 @@
-import uuid
-from .. import models
-from ...objects import PlotContext, PlotObject
+""" Server-side model of a document.
+
+We also use the same object the clients use to represent docs,
+and that is from bokeh.document.  That is referred to here as
+clientdoc.
+
+"""
+
 import logging
 log = logging.getLogger(__name__)
 
-"""This is the serverside model of a document.  we also use the same object
-the clients use to represent docs, and that is from ...document.  That is
-referred to here as clientdoc
-"""
+import uuid
+
+from bokeh.objects import PlotContext
+
+from .. import models
+
 def prune_and_get_valid_models(clientdoc, delete=False):
     """
     retrieve all models that the plot_context points to.
     if delete is True,
     wipe out any models that are orphaned.  Also call transform_models, which
-    performs any backwards compatability data transformations.
+    performs any backwards compatibility data transformations.
     """
     objs = clientdoc.context.references()
     log.info("num models: %d", len(objs))

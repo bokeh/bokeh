@@ -1,12 +1,12 @@
 
 define [
   "underscore"
-  "backbone"
+  "common/collection"
   "common/has_properties"
   "common/logging"
   "range/range1d"
   "range/data_range1d"
-], (_, Backbone, HasProperties, Logging, Range1d, DataRange1d) ->
+], (_, Collection, HasProperties, Logging, Range1d, DataRange1d) ->
 
   logger = Logging.logger
 
@@ -137,7 +137,7 @@ define [
                              plot_x_range, plot_y_range,
                              x_data_range, y_data_range,
                              input_params) ->
-      
+
       plot_state = {data_x: x_data_range, data_y: y_data_range, screen_x: plot_x_range, screen_y: plot_y_range}
 
       #TODO: Can this ar_updates be merged with line1d_updates and heatmap_updates?
@@ -162,11 +162,11 @@ define [
     ar_update : (plot_view, column_data_source, plot_state, input_params) ->
       #TODO: Share the x/y range information back to the server in some way...
       domain_limit = 'not auto'
-      
+
       render_state = column_data_source.get('data')['render_state']
       if not render_state
         render_state = {}
-      
+
       if plot_state['screen_x'].get('start') == plot_state['screen_x'].get('end') or
          plot_state['screen_y'].get('start') == plot_state['screen_y'].get('end')
        logger.debug("skipping due to under-defined view state")
@@ -190,7 +190,7 @@ define [
         proxy = new Range1d.Model()
         proxy.set('start', item.get('start'))
         proxy.set('end', item.get('end'))
-        sendable_plot_state[key] = proxy 
+        sendable_plot_state[key] = proxy
       logger.debug("Sent render State", render_state)
 
       resp = $.ajax(
@@ -211,7 +211,7 @@ define [
             plot_state['data_y'].set(
               {start : data.y_range.start, end : data.y_range.end},
             )
-         
+
           logger.debug("New render State:", data.render_state)
           new_data = _.clone(column_data_source.get('data'))  # the "clone" is a hack
           _.extend(new_data, data)
@@ -287,7 +287,7 @@ define [
           plot_state: JSON.stringify(plot_state)
       )
 
-  class ServerDataSources extends Backbone.Collection
+  class ServerDataSources extends Collection
     model: ServerDataSource
   return {
     "Model": ServerDataSource,

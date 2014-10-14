@@ -1,4 +1,3 @@
-
 define [
   "underscore",
   "renderer/properties",
@@ -11,22 +10,18 @@ define [
     _properties: ['line']
 
     _map_data: () ->
-      [@sx, @sy] = @plot_view.map_to_screen(
-        @x, @glyph_props.x.units, @y, @glyph_props.y.units, @x_range_name, @y_range_name
-      )
+      [@sx, @sy] = @renderer.map_to_screen(@x, @glyph.x.units, @y, @glyph.y.units)
       @length = @distance_vector('x', 'length', 'edge')
 
-      width = @plot_view.frame.get('width')
-      height = @plot_view.frame.get('height')
+      width = @renderer.plot_view.frame.get('width')
+      height = @renderer.plot_view.frame.get('height')
       inf_len = 2 * (width + height)
       for i in [0...@length.length]
         if @length[i] == 0 then @length[i] = inf_len
 
-    _render: (ctx, indices, glyph_props) ->
-      if glyph_props.line_properties.do_stroke
-
+    _render: (ctx, indices) ->
+      if @props.line.do_stroke
         for i in indices
-
           if isNaN(@sx[i] + @sy[i] + @angle[i] + @length[i])
             continue
 
@@ -37,7 +32,7 @@ define [
           ctx.moveTo(0, 0)
           ctx.lineTo(@length[i], 0)
 
-          glyph_props.line_properties.set_vectorize(ctx, i)
+          @props.line.set_vectorize(ctx, i)
           ctx.stroke()
 
           ctx.rotate(-@angle[i])
@@ -48,20 +43,16 @@ define [
 
   class Ray extends Glyph.Model
     default_view: RayView
-    type: 'Glyph'
+    type: 'Ray'
 
-    display_defaults: () ->
-      return _.extend(super(), {
-        line_color: 'red'
-        line_width: 1
-        line_alpha: 1.0
-        line_join: 'miter'
-        line_cap: 'butt'
-        line_dash: []
-        line_dash_offset: 0
-      })
+    display_defaults: ->
+      return _.extend {}, super(), @line_defaults
+
+  class Rays extends Glyph.Collection
+    model: Ray
 
   return {
-    "Model": Ray,
-    "View": RayView
+    Model: Ray
+    View: RayView
+    Collection: new Rays()
   }

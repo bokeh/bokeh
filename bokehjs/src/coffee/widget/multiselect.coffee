@@ -1,11 +1,11 @@
 define [
   "common/has_parent",
   "common/continuum_view",
-  "backbone"
+  "common/collection"
   "underscore"
   "./multiselecttemplate"
-], (HasParent, continuum_view, Backbone, _, multiselecttemplate) ->
-  ContinuumView = continuum_view.View
+], (HasParent, ContinuumView, Collection, _, multiselecttemplate) ->
+
   class MultiSelectView extends ContinuumView
     events :
       "change select" : "change_input"
@@ -45,13 +45,14 @@ define [
   class MultiSelect extends HasParent
     type : "MultiSelect"
     default_view : MultiSelectView
-    defaults : () ->
-      def =
-        title : ''
-        value : []
-        options : []
-      return def
-  class MultiSelects extends Backbone.Collection
+    defaults: ->
+      return _.extend {}, super(), {
+        title: ''
+        value: []
+        options: []
+      }
+
+  class MultiSelects extends Collection
     model : MultiSelect
   multiselectboxes = new MultiSelects()
   return {

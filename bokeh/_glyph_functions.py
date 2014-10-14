@@ -13,7 +13,7 @@ def _glyph_function(glyphclass, argnames, docstring, xfields=["x"], yfields=["y"
             _materialize_colors_and_alpha, _get_legend,
             _make_legend, _get_select_tool
         )
-        from .objects import ColumnDataSource, Glyph, Plot, ServerDataSource
+        from .objects import ColumnDataSource, GlyphRenderer, Plot, ServerDataSource
         source = kwargs.pop('source', None)
         if isinstance(source, ServerDataSource):
             datasource = ColumnDataSource()
@@ -77,7 +77,7 @@ def _glyph_function(glyphclass, argnames, docstring, xfields=["x"], yfields=["y"
         nonselection_glyph.fill_alpha = nonselection_glyph_params['fill_alpha']
         nonselection_glyph.line_alpha = nonselection_glyph_params['line_alpha']
 
-        glyph_renderer = Glyph(
+        glyph_renderer = GlyphRenderer(
             data_source=datasource,
             server_data_source=serversource,
             glyph=glyph,
@@ -687,7 +687,7 @@ Returns:
 """
 )
 
-x = _glyph_function(glyphs.Xmarker, ("x", "y"),
+x = _glyph_function(glyphs.X, ("x", "y"),
 """ The `x` glyph is a marker that renders "x" glyphs at `x`, `y` with size `size`.
 
 In addition the the parameters specific to this glyph,

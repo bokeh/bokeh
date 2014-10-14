@@ -1,0 +1,64 @@
+#!/bin/bash
+#
+# Jenkins Requirements:
+#   - Anaconda should be installed in ~/anaconda
+#   - conda-build is intalled in the root env
+#   - Use a jenkins build matrix for multiple platforms/python versions
+#   - Use the XShell plugin to launch this script
+#   - Call the script from the root workspace directory as scripts/jenkins_install
+#
+
+set -e # exit on error
+set -x # echo commands
+
+# Require a version of Python to be selected
+if [ "${PYTHON_VERSION}" == "" ]; then
+ echo You must select a Python version with the PYTHON_VERSION variable.
+ exit 1
+fi
+
+rm -rf ${WORKSPACE}/build
+
+if [ -d ${WORKSPACE}/build ]; then
+  echo Failed to delete temporary build dir ${WORKSPACE}/build
+  exit 1
+fi
+
+export PATH=~anaconda/bin:${PATH}
+export ENV_DIR=${WORKSPACE}/build/env
+
+python -V
+
+DEPS_BUILD="python=$PYTHON_VERSION jinja2 matplotlib yaml pyyaml"
+conda create  -p ${ENV_DIR} --yes --quiet $DEPS_BUILD
+export PATH=${ENV_DIR}/bin:${PATH}
+
+if [ -f "${ENV_DIR}/bin/python" ]; then
+  export PYTHON=${ENV_DIR}/bin/python
+elif [ -f "${ENV_DIR}/bin/python3" ]; then
+  export PYTHON=${ENV_DIR}/bin/python3
+else
+  echo Conda environment creation failed.
+  exit 1
+fi
+
+conda config --add channels bokeh
+conda config --add channels mutirri   # TODO: remove when packages are moved to bokeh
+
+CONDA_PY="${PYTHON_VERSION/./}" conda build --no-test conda.recipe
+conda install --use-local --yes --quiet bokeh
+
+# Need to use root-eny python because that's where conda-build lives
+DEPS_TEST=$(cat <<EOF | ~/anaconda/bin/python -
+from conda_build.metadata import MetaData
+print(" ".join([s.replace(" ", "") for s in MetaData("conda.recipe").get_value("test/requires")]))
+EOF
+)
+
+conda install --yes $DEPS_TEST
+conda install --yes abstract-rendering
+
+MATPLOTLIB_RC=$(python -c "import matplotlib; print(matplotlib.matplotlib_fname())")
+sed -i 's/^backend\s*:.*$/backend: agg/' $MATPLOTLIB_RC
+
+python -c 'import bokeh; bokeh.sampledata.download(progress=False)'

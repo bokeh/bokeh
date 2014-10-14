@@ -1,8 +1,8 @@
 define [
   "underscore",
-  "backbone",
+  "common/collection",
   "ticking/abstract_ticker",
-], (_, Backbone, AbstractTicker) ->
+], (_, Collection, AbstractTicker) ->
 
   # The SingleIntervalTicker is a Ticker that always uses the same tick spacing,
   # regardless of the input range.  It's not very useful by itself, but can
@@ -25,12 +25,12 @@ define [
     get_interval: (data_low, data_high, n_desired_ticks) ->
       return @get('interval')
 
-    defaults: () ->
-      return _.extend(super(), {
+    defaults: ->
+      return _.extend {}, super(), {
         toString_properties: ['interval']
-      })
+      }
 
-  class SingleIntervalTickers extends Backbone.Collection
+  class SingleIntervalTickers extends Collection
     model: SingleIntervalTicker
 
   return {

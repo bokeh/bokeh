@@ -2,80 +2,61 @@
 define [
   "underscore",
   "common/has_parent",
+  "common/collection",
   "common/plot_widget",
-], (_, HasParent, PlotWidget) ->
+], (_, HasParent, Collection, PlotWidget) ->
 
   class BoxSelectionView extends PlotWidget
 
     initialize: (options) ->
-      @selecting = false
-      @xrange = [null, null]
-      @yrange = [null, null]
       super(options)
-      @plot_view.$el.find('.bokeh_canvas_wrapper').append(@$el)
+      @$el.appendTo(@plot_view.$el.find('div.bk-canvas-overlays'))
+      @$el.addClass('shading')
+      @$el.hide()
 
-    boxselect: (xrange, yrange) ->
-      @xrange = xrange
-      @yrange = yrange
-      @request_render()
-
-    startselect: () ->
-      @selecting = true
-      @xrange = [null, null]
-      @yrange = [null, null]
-      @request_render()
-
-    stopselect: () ->
-      @selecting = false
-      @xrange = [null, null]
-      @yrange = [null, null]
-      @request_render()
-
-    bind_bokeh_events: (options) ->
-      @toolview = @plot_view.tools[@mget('tool').id]
-      @listenTo(@toolview, 'boxselect', @boxselect)
-      @listenTo(@toolview, 'startselect', @startselect)
-      @listenTo(@toolview, 'stopselect', @stopselect)
+    bind_bokeh_events: () ->
+      @listenTo(@model, 'change:data', @_draw_box)
 
     render: () ->
-      if not @selecting
-        @$el.removeClass('shading')
+      @_draw_box()
+      return @
+
+    _draw_box: () ->
+      data = @mget('data')
+      if _.isEmpty(data)
+        @$el.hide()
         return
-      xrange = @xrange
-      yrange = @yrange
-      if _.any(_.map(xrange, _.isNullOrUndefined)) or
-        _.any(_.map(yrange, _.isNullOrUndefined))
-          @$el.removeClass('shading')
-          return
-      style_string = ""
-      if xrange
-        xpos = @plot_view.canvas.vx_to_sx(Math.min(xrange[0], xrange[1]))
-        width = Math.abs(xrange[1] - xrange[0])
-      else
-        xpos = 0
-        width = @plot_view.frame.get('width')
-      style_string += "; left:#{xpos}px; width:#{width}px; "
-      if yrange
-        ypos = @plot_view.canvas.vy_to_sy(Math.max(yrange[0], yrange[1]))
-        height = Math.abs(yrange[1] - yrange[0])
-      else
-        ypos = 0
-        height = @plot_view.frame.get('height')
-      @$el.addClass('shading')
-      style_string += "top:#{ypos}px; height:#{height}px"
-      @$el.attr('style', style_string)
+
+      vxlim = data.vxlim
+      vylim = data.vylim
+
+      canvas = @plot_view.canvas
+      sx = Math.min(
+        canvas.vx_to_sx(vxlim[0]),
+        canvas.vx_to_sx(vxlim[1])
+      )
+      sy = Math.min(
+        canvas.vy_to_sy(vylim[0]),
+        canvas.vy_to_sy(vylim[1])
+      )
+      sw = Math.abs(vxlim[1] - vxlim[0])
+      sh = Math.abs(vylim[1] - vylim[0])
+
+      style = "left:#{sx}px; width:#{sw}px; top:#{sy}px; height:#{sh}px"
+      @$el.attr('style', style)
+      @$el.show()
 
   class BoxSelection extends HasParent
     default_view: BoxSelectionView
     type: "BoxSelection"
 
     defaults: () ->
-      return {
-        tool: null
+      return _.extend({}, super(), {
         level: 'overlay'
-      }
+        data: {}
+      })
 
-  class BoxSelections extends Backbone.Collection
+  class BoxSelections extends Collection
     model: BoxSelection
 
   return {

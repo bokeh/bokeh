@@ -3,13 +3,13 @@ define [
   "jquery"
   "jquery_ui/sortable"
   "bootstrap/dropdown"
-  "backbone"
+  "common/collection"
   "common/has_parent"
   "common/has_properties"
   "common/continuum_view"
-], (_, $, $$1, $$2, Backbone, HasParent, HasProperties, ContinuumView) ->
+], (_, $, $$1, $$2, Collection, HasParent, HasProperties, ContinuumView) ->
 
-  class PivotTableView extends ContinuumView.View
+  class PivotTableView extends ContinuumView
 
     initialize: (options) ->
       super(options)
@@ -379,17 +379,19 @@ define [
   class PivotTable extends HasParent
     default_view: PivotTableView
     type: "PivotTable"
-    defaults:
-      title: "Pivot Table"
-      description: ""
-      source: null
-      data: {}
-      fields: []
-      rows: []
-      columns: []
-      values: []
-      filters: []
-      manual_update: true
+    defaults: ->
+      return _.extend {}, super(), {
+        title: "Pivot Table"
+        description: ""
+        source: null
+        data: {}
+        fields: []
+        rows: []
+        columns: []
+        values: []
+        filters: []
+        manual_update: true
+      }
     aggregates: ["count", "counta", "countunique", "average", "max", "min", "median", "sum", "product", "stdev", "stdevp", "var", "varp"]
     renderers: ["default", "heatmap"]
     formatters: ["none"]
@@ -400,7 +402,7 @@ define [
       else
         @save.apply(this, arguments)
 
-  class PivotTables extends Backbone.Collection
+  class PivotTables extends Collection
     model: PivotTable
 
   return {

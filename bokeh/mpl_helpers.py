@@ -16,7 +16,7 @@ import numpy as np
 from itertools import cycle, islice
 from scipy import interpolate, signal
 
-from .objects import Glyph
+from .objects import GlyphRenderer
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -88,7 +88,7 @@ def get_props_cycled(col, prop, fx=lambda x: x):
 
 def is_ax_end(r):
     "Check if the 'name' (if it exists) in the Glyph's datasource is 'ax_end'"
-    if isinstance(r, Glyph):
+    if isinstance(r, GlyphRenderer):
         try:
             if r.data_source.data["name"] == "ax_end":
                 return True

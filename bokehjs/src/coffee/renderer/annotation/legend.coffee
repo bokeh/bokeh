@@ -3,13 +3,10 @@ define [
   "underscore",
   "common/has_parent",
   "common/plot_widget",
+  "common/collection",
   "common/textutils",
   "renderer/properties",
-], (_, HasParent, PlotWidget, textutils, Properties) ->
-
-  glyph_properties = Properties.glyph_properties
-  line_properties  = Properties.line_properties
-  text_properties  = Properties.text_properties
+], (_, HasParent, PlotWidget, Collection, textutils, properties) ->
 
   # Legends:
   #
@@ -33,8 +30,8 @@ define [
   class LegendView extends PlotWidget
     initialize: (options) ->
       super(options)
-      @label_props = new text_properties(@, @model, 'label_')
-      @border_props = new line_properties(@, @model, 'border_')
+      @label_props = new properties.Text(@, 'label_')
+      @border_props = new properties.Line(@, 'border_')
       if @mget('legend_names')
         @legend_names = @mget('legend_names')
       else
@@ -113,7 +110,7 @@ define [
         ctx.fillText(legend_name, x, y)
         for renderer in @model.resolve_ref(@legends[legend_name])
           view = @plot_view.renderers[renderer.id]
-          view.draw_legend(ctx, x1,x2,y1,y2)
+          view.draw_legend(ctx, x1, x2, y1, y2)
 
       ctx.restore()
 
@@ -121,8 +118,8 @@ define [
     default_view: LegendView
     type: 'Legend'
 
-    display_defaults: () ->
-      return {
+    display_defaults: ->
+      return _.extend {}, super(), {
         level: 'overlay'
 
         border_line_color: 'black'
@@ -152,7 +149,7 @@ define [
         datapoint: null
       }
 
-  class Legends extends Backbone.Collection
+  class Legends extends Collection
     model: Legend
 
   return {

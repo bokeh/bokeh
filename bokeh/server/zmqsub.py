@@ -1,11 +1,7 @@
-from threading import Thread
-import json
 
-try:
-    import gevent
-    import zmq.green as zmq
-except ImportError:
-    import zmq
+from threading import Thread
+
+import zmq
 
 timeout = 0.1
 

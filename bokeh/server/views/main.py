@@ -1,28 +1,29 @@
 
+import logging
+log = logging.getLogger(__name__)
+
+import os
+import uuid
+
 from flask import (
     render_template, request, send_from_directory,
     abort, jsonify, Response, redirect, url_for
 )
-
-import os
-import uuid
 from six import string_types
 
-import logging
-log = logging.getLogger(__name__)
+from bokeh import protocol
+from bokeh.exceptions import DataIntegrityException
+from bokeh.resources import Resources
+from bokeh.templates import AUTOLOAD
 
 from .bbauth import check_read_authentication_and_create_client
 from ..app import bokeh_app
-from ..models import user
-from ..models import docs
-from ..models import convenience as mconv
-from ... import protocol
-from ...exceptions import DataIntegrityException
-from ..views import make_json
 from ..crossdomain import crossdomain
+from ..models import convenience as mconv
+from ..models import docs
+from ..models import user
 from ..serverbb import prune
-from ...templates import AUTOLOAD
-from ...resources import Resources
+from ..views import make_json
 
 def request_resources():
     """Creates resources instance based on url info from
@@ -42,14 +43,24 @@ def render(fname, **kwargs):
     return render_template(fname, bokeh_prefix=bokeh_prefix,
                            **kwargs)
 
-
 @bokeh_app.route('/bokeh/ping')
 def ping():
+    ''' Test whether Bokeh server is up.
+
+    :status 200:
+
+    '''
     # test route, to know if the server is up
     return "pong"
 
 @bokeh_app.route('/bokeh/')
 def index(*unused_all, **kwargs):
+    ''' Render main page.
+
+    :status 200: if current user logged in
+    :status 302: otherwise redirect to login
+
+    '''
     bokehuser = bokeh_app.current_user()
     if not bokehuser:
         return redirect(url_for('.login_get'))
@@ -61,10 +72,20 @@ def index(*unused_all, **kwargs):
 
 @bokeh_app.route('/')
 def welcome(*unused_all, **kwargs):
+    ''' Redirect to index
+
+    :status 302: redirect to index
+
+    '''
     return redirect(url_for('.index'))
 
 @bokeh_app.route('/bokeh/favicon.ico')
 def favicon():
+    ''' Return favicon.
+
+    :status 200: return favicon
+
+    '''
     return send_from_directory(os.path.join(bokeh_app.root_path, 'static'),
                                'favicon.ico', mimetype='image/x-icon')
 
@@ -240,6 +261,13 @@ def make_test_plot():
 
 @bokeh_app.route("/bokeh/autoload.js/<elementid>")
 def autoload_js(elementid):
+    ''' Return autoload script for given elementid
+
+    :param elementid: DOM element ID to target
+
+    :status 200: return script
+
+    '''
     resources = request_resources()
     rendered = AUTOLOAD.render(
         js_url = resources.js_files[0],

@@ -2,17 +2,16 @@ import tempfile
 
 import requests
 
+from bokeh.session import Session
+from bokeh.tests.test_utils import skipIfPyPy
+
 from . import test_utils
 from ..app import bokeh_app
 from ..models import user
-from ...session import Session
-from ...tests.test_utils import skipIfPy3, skipIfPyPy
-
 
 class TestRegister(test_utils.BokehServerTestCase):
     options = {'single_user_mode': False}
 
-    @skipIfPy3("gevent does not work in py3.")
     @skipIfPyPy("gevent requires pypycore and pypy-hacks branch of gevent.")
     def test_register(self):
         url = "http://localhost:5006/bokeh/register"
@@ -30,7 +29,6 @@ class TestRegister(test_utils.BokehServerTestCase):
         userinfo = session.get(url).json()
         assert userinfo['username'] == 'testuser1'
 
-    @skipIfPy3("gevent does not work in py3.")
     @skipIfPyPy("gevent requires pypycore and pypy-hacks branch of gevent.")
     def test_register_twice_should_fail(self):
         url = "http://localhost:5006/bokeh/register"
@@ -59,7 +57,6 @@ class TestRegister(test_utils.BokehServerTestCase):
 class TestLogin(test_utils.BokehServerTestCase):
     options = {'single_user_mode': False}
 
-    @skipIfPy3("gevent does not work in py3.")
     @skipIfPyPy("gevent requires pypycore and pypy-hacks branch of gevent.")
     def test_login(self):
         username = "testuser2"
@@ -99,7 +96,6 @@ class TestLogin(test_utils.BokehServerTestCase):
 class ServerConfigTestCase(test_utils.BokehServerTestCase):
     options = {'single_user_mode': False}
 
-    @skipIfPy3("gevent does not work in py3.")
     @skipIfPyPy("gevent requires pypycore and pypy-hacks branch of gevent.")
     def test_register(self):
         #create a dummy config file
@@ -120,7 +116,6 @@ class ServerConfigTestCase(test_utils.BokehServerTestCase):
         assert server2.userapikey == server.userapikey
         assert server2.root_url == server.root_url
 
-    @skipIfPy3("gevent does not work in py3.")
     @skipIfPyPy("gevent requires pypycore and pypy-hacks branch of gevent.")
     def test_login(self):
         #create a server config, register a user

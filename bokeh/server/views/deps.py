@@ -1,1 +1,4 @@
-from . import (main, backbone, statics, data, plugins)
+from . import backbone, data, main, plugins, statics
+
+# this just shuts up pyflakes
+backbone, data, main, plugins, statics
