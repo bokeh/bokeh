@@ -34,7 +34,7 @@ def get_default_color(plot=None):
     ]
     if plot:
         renderers = plot.renderers
-        renderers = [x for x in renderers if x.__view_model__ == "Glyph"]
+        renderers = [x for x in renderers if x.__view_model__ == "GlyphRenderer"]
         num_renderers = len(renderers)
         return colors[num_renderers]
     else:

@@ -9,7 +9,7 @@ from bokeh.document import Document
 from bokeh.glyphs import Line
 from bokeh.objects import (
     Plot, DataRange1d, LinearAxis,
-    ColumnDataSource, Glyph, PanTool, WheelZoomTool
+    ColumnDataSource, PanTool, WheelZoomTool
 )
 from bokeh.session import Session
 

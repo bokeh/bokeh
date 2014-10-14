@@ -25,7 +25,7 @@ you must grab the glyph renderer off a plot, update its data source, then
 store the data source on the session. The code to animate the above plot is
 shown here::
 
-    renderer = [r for r in curplot().renderers if isinstance(r, Glyph)][0]
+    renderer = [r for r in curplot().renderers if isinstance(r, GlyphRenderer)][0]
     ds = renderer.data_source
 
     while True:

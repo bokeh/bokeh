@@ -8,7 +8,7 @@ from requests.exceptions import ConnectionError
 
 from .test_utils import skipIfPy3
 import bokeh.transforms.ar_downsample as ar_downsample
-from bokeh.objects import Range1d, ServerDataSource, Glyph
+from bokeh.objects import Range1d, ServerDataSource, GlyphRenderer
 from bokeh.plotting import square, output_server, curdoc
 import types
 
@@ -357,7 +357,7 @@ class Test_AR(unittest.TestCase):
 
     # -------------------- Recipies ------------
     def _find_source(self, plot):
-        return [r for r in plot.renderers if (isinstance(r, Glyph)
+        return [r for r in plot.renderers if (isinstance(r, GlyphRenderer)
                     and hasattr(r, "server_data_source")
                     and r.server_data_source is not None)][0].server_data_source
 
