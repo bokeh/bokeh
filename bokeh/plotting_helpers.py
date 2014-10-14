@@ -282,6 +282,8 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
     p = Plot()
     p.title = kw.pop("title", "Plot")
 
+    p.toolbar_location = kw.pop("toolbar_location", "above")
+
     p.x_range = _get_range(x_range)
     p.y_range = _get_range(y_range)
 
