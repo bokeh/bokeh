@@ -1,13 +1,12 @@
 define [
-  "backbone",
+  "common/collection",
   "common/build_views"
   "common/continuum_view"
   "common/has_parent"
   "common/logging"
   "./textinputtemplate"
-], (Backbone, build_views, continuum_view, HasParent, Logging, template) ->
+], (Collection, build_views, ContinuumView, HasParent, Logging, template) ->
 
-  ContinuumView = continuum_view.View
   logger = Logging.logger
 
   class TextInputView extends ContinuumView
@@ -37,14 +36,14 @@ define [
     type : "TextInput"
     default_view : TextInputView
 
-    defaults : () ->
-      defaults =
-        name : ""
-        value : ""
-        title : ""
-      return defaults
+    defaults: ->
+      return _.extend {}, super(), {
+        name: ""
+        value: ""
+        title: ""
+      }
 
-  class TextInputs extends Backbone.Collection
+  class TextInputs extends Collection
     model : TextInput
 
   return {

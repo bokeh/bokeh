@@ -1,14 +1,14 @@
 define [
   "underscore"
-  "backbone"
+  "common/collection"
   "jquery"
   "bootstrap/modal"
   "common/has_properties"
   "common/continuum_view"
   "./dialog_template"
-], (_, Backbone, $, $1, HasProperties, continuum_view, dialog_template) ->
+], (_, Collection, $, $1, HasProperties, ContinuumView, dialog_template) ->
 
-  class DialogView extends continuum_view.View
+  class DialogView extends ContinuumView
 
     initialize: (options) ->
       super(options)
@@ -35,15 +35,16 @@ define [
   class Dialog extends HasProperties
     type: "Dialog"
     default_view: DialogView
-    defaults: () -> {
-      visible: false
-      closable: true
-      title: ""
-      content: ""
-      buttons: []
-    }
+    defaults: ->
+      return _.extend {}, super(), {
+        visible: false
+        closable: true
+        title: ""
+        content: ""
+        buttons: []
+      }
 
-  class Dialogs extends Backbone.Collection
+  class Dialogs extends Collection
     model: Dialog
 
   return {

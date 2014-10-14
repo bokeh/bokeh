@@ -2,16 +2,15 @@
 define [
   "underscore",
   "common/has_parent",
+  "common/collection",
   "renderer/properties",
   "common/plot_widget",
-], (_, HasParent, Properties, PlotWidget) ->
-
-  line_properties = Properties.line_properties
+], (_, HasParent, Collection, properties, PlotWidget) ->
 
   class GridView extends PlotWidget
     initialize: (attrs, options) ->
       super(attrs, options)
-      @grid_props = new line_properties(@, null, 'grid_')
+      @grid_props = new properties.Line(@, 'grid_')
       @x_range_name = @mget('x_range_name')
       @y_range_name = @mget('y_range_name')
 
@@ -121,14 +120,14 @@ define [
 
       return coords
 
-    defaults: () ->
-      return {
+    defaults: ->
+      return _.extend {}, super(), {
         x_range_name: "default"
         y_range_name: "default"
       }
 
-    display_defaults: () ->
-      return {
+    display_defaults: ->
+      return _.extend {}, super(), {
         level: 'underlay'
         grid_line_color: '#cccccc'
         grid_line_width: 1
@@ -139,7 +138,7 @@ define [
         grid_line_dash_offset: 0
       }
 
-  class Grids extends Backbone.Collection
+  class Grids extends Collection
      model: Grid
 
   return {

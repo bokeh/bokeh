@@ -2,43 +2,58 @@ import os
 import re
 import sys
 
-def replace(verNum):
-	target_files = {
-		"../bokehjs/src/coffee/main.coffee" : ("Bokeh\.version",),
-		"../sphinx/source/conf.py" : ("version", "release")
-	}
 
-	for target, keys in target_files.items():
-		if os.path.exists(target):
-			f = open(target, "r")
-			text = f.read()
-			f.close()
+def check_input(new_ver):
+    """ Ensure that user input matches the format X.X.X """
 
-			for key in keys:
-				pattern = re.search(r"(%s = '.*')" % key, text)
-				if pattern:
-					f = open(target, "w")
-					# Remove '\' that escapes the '.' in Bokeh.version as a regex
-					text = re.sub(pattern.group(1), "%s = '%s'" % (key.replace('\\', '') ,verNum), text) 
-					f.write(text)
-					f.close()
-				else:
-					print "Expected 'version' string not found in %s" % target
+    pat = r'\d+.\d+.\d+'
+    if not re.match(pat, new_ver):
+        print("The new version must be in the format X.X.X (ex. '0.6.0')")
+        return True
 
-		else:
-			print "%s not found." % target
 
+def version_update(new_ver, file_array):
+    """ Replace existing version/release number in an array of files
+        with a user-supplied version number (new_ver)"""
+
+    pat = r"""(release|version)([\" ][:=] [\"\'])(\d+.\d+.\d+)([\"\'])"""
+
+    # List that will contain any files where the version number was successfully replaced
+    replaced = []
+
+    # Set as false until a match is found and replaced in the loop below
+    early_ver = False
+
+    for ver_file in file_array:
+        f = open(ver_file)
+        text = f.read()
+        matchObj = re.search(pat, text)
+        f.close()
+
+        if matchObj:
+            early_ver = matchObj.group(3)
+            f = open(ver_file, 'w')
+            text = re.sub(pat, r'\g<1>\g<2>%s\g<4>' % new_ver, text)
+            f.write(text)
+            replaced.append(ver_file)
+        else:
+            print("Unable to find version number matching expected format 'X.X.X' in %s" % ver_file)
+
+    if early_ver:
+        print("Version number changed from %s to %s in \n%s" % (early_ver, new_ver, replaced))
 
 
 if __name__ == '__main__':
-    if len(sys.argv) == 2:
-
-    	abspath = os.path.abspath(__file__)
-    	dname = os.path.dirname(abspath)
-    	os.chdir(dname)
-
-        version = sys.argv[1]
-        replace(version)
-    else:
-        print "Please supply a version number."
+    if not len(sys.argv) == 2:
+        print("Please provide a version number.")
         sys.exit(1)
+
+    os.chdir('../')
+
+    files = ['bokehjs/src/coffee/main.coffee', 'bokehjs/package.json', 'sphinx/source/conf.py']
+    updated_version = sys.argv[1]
+
+    if check_input(updated_version):
+        sys.exit(1)
+
+    version_update(updated_version, files)

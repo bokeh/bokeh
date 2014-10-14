@@ -1,8 +1,8 @@
 
 define [
-  "backbone",
+  "common/collection",
   "common/has_properties"
-], (Backbone, HasProperties) ->
+], (Collection, HasProperties) ->
 
   class FactorRange extends HasProperties
     type: 'FactorRange'
@@ -21,13 +21,13 @@ define [
         , true)
       @add_dependencies('max', this, ['factors'])
 
-    defaults: () ->
-      return {
+    defaults: ->
+      return _.extend {}, super(), {
         start: 0.5
         factors: []
       }
 
-  class FactorRanges extends Backbone.Collection
+  class FactorRanges extends Collection
     model: FactorRange
 
   return {

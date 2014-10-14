@@ -1,4 +1,3 @@
-
 define [
   "underscore"
   "backbone"
@@ -31,6 +30,12 @@ define [
 
     isNew: () ->
       return false
+
+    attrs_and_props : () ->
+      data = _.clone(@attributes)
+      for prop_name in _.keys(@properties)
+        data[prop_name] = @get(prop_name)
+      return data
 
     constructor : (attributes, options) ->
       ## straight from backbone.js
@@ -230,7 +235,7 @@ define [
           @add_cache(prop_name, computed)
         return computed
 
-    ref: ->
+    ref: () ->
       # ### method: HasProperties::ref
       # generates a reference to this model
       'type': this.type
@@ -278,8 +283,7 @@ define [
       # HasProperties.prototype.sync = Backbone.sync
       return options.success(model.attributes, null, {})
 
-    defaults: () ->
-      return {}
+    defaults: -> {}
 
     rpc: (funcname, args, kwargs) =>
       prefix = @get_base().Config.prefix

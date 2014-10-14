@@ -15,10 +15,6 @@ class Viewable(MetaHasProps):
     """ Any plot object (Data Model) which has its own View Model in the
     persistence layer.
 
-    Adds handling of a __view_model__ attribute to the class (which is
-    provided by default) which tells the View layer what View class to
-    create.
-
     One thing to keep in mind is that a Viewable should have a single
     unique representation in the persistence layer, but it might have
     multiple concurrent client-side Views looking at it.  Those may
@@ -140,32 +136,21 @@ class PlotObject(HasProps):
         """Loads all json into a instance of cls, EXCEPT any references
         which are handled in finalize
         """
-        try:
-            if 'id' not in attrs:
-                raise RuntimeError("Unable to find 'id' attribute in JSON: %r" % attrs)
-            _id = attrs.pop('id')
+        if 'id' not in attrs:
+            raise RuntimeError("Unable to find 'id' attribute in JSON: %r" % attrs)
+        _id = attrs.pop('id')
 
-            if not instance:
-                instance = cls(id=_id, _block_events=True)
+        if not instance:
+            instance = cls(id=_id, _block_events=True)
 
-            ref_props = {}
-            for p in instance.properties_with_refs():
-                if p in attrs:
-                    ref_props[p] = attrs.pop(p)
+        ref_props = {}
+        for p in instance.properties_with_refs():
+            if p in attrs:
+                ref_props[p] = attrs.pop(p)
+        instance._ref_props = ref_props
 
-            special_props = {}
-            for p in dict(attrs):
-                if p not in instance.properties():
-                    special_props[p] = attrs.pop(p)
-
-            instance._ref_props = ref_props
-            instance._special_props = special_props
-
-            instance.update(**attrs)
-            return instance
-        except Exception as e:
-            logger.exception("Failed to instantiate object of class {0} from json".format(cls))
-            raise
+        instance.update(**attrs)
+        return instance
 
     def layout(self, side, plot):
         try:
@@ -230,6 +215,14 @@ class PlotObject(HasProps):
         """ Returns the ViewModel-related properties of this object. """
         props = self.changed_properties_with_values()
         props.pop("session", None)
+
+        # XXX: For dataspecs, getattr() returns a meaningless value
+        # from serialization point of view. This should be handled in
+        # the properties module, but for now, fix serialized values here.
+        for attr, prop in iteritems(self.dataspecs_with_refs()):
+            if props.get(attr) is not None:
+                props[attr] = prop.to_dict(self)
+
         return props
 
     def vm_serialize(self):

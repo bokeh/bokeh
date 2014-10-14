@@ -1,5 +1,3 @@
-
-
 define [
   "underscore",
   "backbone",
@@ -31,39 +29,7 @@ define [
 
     mset: ()->
       # convenience function, calls set on the associated model
-
       return @model.set.apply(@model, arguments)
 
     render_end: () ->
       "pass"
-
-  class CloseWrapper extends ContinuumView
-    ## Wraps a ContinuumView, and adds a close button
-    attributes:
-      class : "bk-closewrapper"
-
-    delegateEvents: (events) ->
-      super(events)
-
-    events :
-      "click .bk-close" : "close"
-
-    close : (options) ->
-      @view.remove()
-      @remove()
-
-    initialize : (options) ->
-      super(options)
-      @view = options.view
-      @render()
-
-    render : () ->
-      @view.$el.detach()
-      @$el.empty()
-      @$el.html("<a href='#' class='bk-close'>[x]</a>")
-      @$el.append(@view.$el)
-
-  return {
-    "View": ContinuumView
-    "CloseWrapper" : CloseWrapper
-  }

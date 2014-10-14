@@ -4,7 +4,7 @@ define [
   "./continuum_view",
 ], (ContinuumView) ->
 
-  class PlotWidget extends ContinuumView.View
+  class PlotWidget extends ContinuumView
     # Everything that lives inside a plot container should
     # inherit from this class.  All plot widgets are
     # passed in the plot model and view

@@ -1,9 +1,10 @@
 define [
   "common/continuum_view"
-  "backbone",
+  "common/collection",
   "common/has_parent",
-], (continuum_view, Backbone, HasParent) ->
-  class SpreadView extends continuum_view.View
+], (ContinuumView, Collection, HasParent) ->
+
+  class SpreadView extends ContinuumView
     attributes:
       class: "SpreadView"
 
@@ -17,14 +18,15 @@ define [
 
     render_init: () ->
       @$el.html("")
-  
+
   class Spread extends HasParent
     type : "Spread"
-    default_view: SpreadView 
-  
-  class Spreads extends Backbone.Collection
-    model : Spread 
+    default_view: SpreadView
+
+  class Spreads extends Collection
+    model : Spread
+
   return {
-    "Model" : Spread 
+    "Model" : Spread
     "Collection" : new Spreads()
   }

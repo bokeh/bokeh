@@ -8,16 +8,14 @@ define [
 
   class GearView extends Glyph.View
 
-    _fields: ['x', 'y', 'angle', 'module', 'teeth', 'pressure_angle', 'shaft_size', 'internal']
+    _fields: ['x', 'y', 'angle', 'module', 'teeth', 'pressure_angle', 'shaft_size', 'internal:boolean']
     _properties: ['line', 'fill']
 
     _map_data: () ->
-      [@sx, @sy] = @plot_view.map_to_screen(
-        @x, @glyph_props.x.units, @y, @glyph_props.y.units, @x_range_name, @y_range_name
-      )
+      [@sx, @sy] = @renderer.map_to_screen(@x, @glyph.x.units, @y, @glyph.y.units)
       @smodule = @distance_vector('x', 'module', 'edge')
 
-    _render: (ctx, indices, glyph_props) ->
+    _render: (ctx, indices) ->
       for i in indices
         [sx, sy, angle, module, teeth, pressure_angle, shaft_size, internal] =
           [@sx[i], @sy[i], @angle[i], @smodule[i], @teeth[i], @pressure_angle[i], @shaft_size[i], @internal[i]]
@@ -61,12 +59,12 @@ define [
           ctx.moveTo(shaft_radius, 0)
           ctx.arc(0, 0, shaft_radius, 0, 2*Math.PI, true)
 
-        if glyph_props.fill_properties.do_fill
-          glyph_props.fill_properties.set_vectorize(ctx, i)
+        if @props.fill.do_fill
+          @props.fill.set_vectorize(ctx, i)
           ctx.fill()
 
-        if glyph_props.line_properties.do_stroke
-          glyph_props.line_properties.set_vectorize(ctx, i)
+        if @props.line.do_stroke
+          @props.line.set_vectorize(ctx, i)
           ctx.stroke()
 
         ctx.restore()
@@ -122,22 +120,28 @@ define [
 
   class Gear extends Glyph.Model
     default_view: GearView
-    type: 'Glyph'
+    type: 'Gear'
 
-    display_defaults: () ->
-      return _.extend({}, super(), {
-        fill_color: 'gray'
-        fill_alpha: 1.0
-        line_color: 'red'
-        line_width: 1
-        line_alpha: 1.0
-        line_join: 'miter'
-        line_cap: 'butt'
-        line_dash: []
-        line_dash_offset: 0
-      })
+    defaults: ->
+      return _.extend {}, super(), {
+        x: undefined
+        y: undefined
+        angle: 0
+        module: undefined
+        teeth: undefined
+        pressure_angle: 20   # TODO: units: deg
+        shaft_size: 0.3
+        internal: false
+      }
+
+    display_defaults: ->
+      return _.extend {}, super(), @line_defaults, @fill_defaults
+
+  class Gears extends Glyph.Collection
+    model: Gear
 
   return {
     Model: Gear
     View: GearView
+    Collection: new Gears()
   }

@@ -3,7 +3,6 @@ from bokeh.plotting import square, output_server, image, show
 from bokeh.objects import ServerDataSource
 
 import bokeh.transforms.ar_downsample as ar
-#from bokeh.transforms import line_downsample
 
 output_server("abstractrender")
 source = ServerDataSource(data_url="fn://gauss", owner_username="defaultuser")

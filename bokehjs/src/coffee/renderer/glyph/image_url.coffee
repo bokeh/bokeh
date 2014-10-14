@@ -1,32 +1,26 @@
-
 define [
   "underscore",
   "renderer/properties",
   "./glyph",
 ], (_, Properties, Glyph) ->
 
-  glyph_properties = Properties.glyph_properties
-
   class ImageURLView extends Glyph.View
 
     _fields: ['url:string', 'x', 'y', 'w', 'h', 'angle']
     _properties: []
 
-    _set_data: (@data) ->
+    _set_data: () ->
       @image = (null for img in @url)
       @need_load = (true for img in @url)
       @loaded = (false for img in @url)
 
     _map_data: () ->
-      [@sx, @sy] = @plot_view.map_to_screen(
-        @x, @glyph_props.x.units, @y, @glyph_props.y.units, @x_range_name, @y_range_name
-      )
-      @sw = @distance_vector('x', 'w', 'edge', @mget('glyphspec')['dilate'])
-      @sh = @distance_vector('y', 'h', 'edge', @mget('glyphspec')['dilate'])
+      [@sx, @sy] = @renderer.map_to_screen(@x, @glyph.x.units, @y, @glyph.y.units)
+      @sw = @distance_vector('x', 'w', 'edge', @mget('dilate'))
+      @sh = @distance_vector('y', 'h', 'edge', @mget('dilate'))
 
-    _render: (ctx, indices, glyph_props) ->
+    _render: (ctx, indices) ->
       for i in indices
-
         if isNaN(@sx[i] + @sy[i] + @angle[i])
           continue
 
@@ -39,7 +33,7 @@ define [
               ctx.save()
               ctx.beginPath()
               # TODO should take the real axis rule width into account, for now shrink region by 1 px
-              frame = @plot_view.frame
+              frame = @renderer.plot_view.frame
               # use bottom here because frame is view coords
               ctx.rect(
                 frame.get('left')+1, frame.get('bottom')+1,
@@ -48,14 +42,14 @@ define [
               ctx.clip()
               @_render_image(ctx, i, img)
               ctx.restore()
+
           img.src = @url[i]
           @need_load[i] = false
-
         else if @loaded[i]
           @_render_image(ctx, i, @image[i])
 
     _final_sx_sy: () ->
-      anchor = @mget('glyphspec').anchor or "top_left"
+      anchor = @mget('anchor') or "top_left"
 
       switch anchor
         when "top_left"      then (i) => [@sx[i]           , @sy[i]           ]
@@ -83,17 +77,20 @@ define [
       else
         ctx.drawImage(img, sx, sy, @sw[i], @sh[i])
 
-  # name Image conflicts with js Image
-  class ImageURLGlyph extends Glyph.Model
+  class ImageURL extends Glyph.Model
     default_view: ImageURLView
-    type: 'Glyph'
+    type: 'ImageURL'
 
-    display_defaults: () ->
-      return _.extend(super(), {
+    display_defaults: ->
+      return _.extend {}, super(), {
         level: 'underlay'
-      })
+      }
+
+  class ImageURLs extends Glyph.Collection
+    model: ImageURL
 
   return {
-    "Model": ImageURLGlyph,
-    "View": ImageURLView,
+    Model: ImageURL
+    View: ImageURLView
+    Collection: new ImageURLs()
   }

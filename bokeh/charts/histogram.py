@@ -201,8 +201,7 @@ class Histogram(ChartObject):
                            end=endx + 0.1 * (endx - startx))
 
         endy = max(max(self.data[i]) for i in y_names)
-        if endy < 1.0:
-            endy = 1.0
+ 
         self.ydr = Range1d(start=0, end=1.1 * endy)
 
     def draw(self):

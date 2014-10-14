@@ -1,14 +1,14 @@
 define [
   "underscore"
-  "backbone"
+  "common/collection"
   "common/continuum_view"
   "common/has_parent"
   "common/logging"
-], (_, Backbone, continuum_view, HasParent, Logging) ->
+], (_, Collection, ContinuumView, HasParent, Logging) ->
 
   logger = Logging.logger
 
-  class CheckboxGroupView extends continuum_view.View
+  class CheckboxGroupView extends ContinuumView
     tagName: "div"
     events:
       "change input": "change_input"
@@ -46,15 +46,15 @@ define [
     type: "CheckboxGroup"
     default_view: CheckboxGroupView
 
-    defaults: () ->
-      _.extend({}, super(), {
+    defaults: ->
+      return _.extend {}, super(), {
         active: []
         labels: []
         inline: false
         disabled: false
-      })
+      }
 
-  class CheckboxGroups extends Backbone.Collection
+  class CheckboxGroups extends Collection
     model: CheckboxGroup
 
   return {

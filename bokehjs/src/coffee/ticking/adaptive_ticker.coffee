@@ -1,9 +1,9 @@
 define [
   "underscore",
-  "backbone",
+  "common/collection",
   "ticking/abstract_ticker",
   "ticking/util",
-], (_, Backbone, AbstractTicker, util) ->
+], (_, Collection, AbstractTicker, util) ->
 
   argmin = util.argmin
 
@@ -59,16 +59,16 @@ define [
 
       return clamp(interval, @get('min_interval'), @get('max_interval'))
 
-    defaults: () ->
-      return _.extend(super(), {
+    defaults: ->
+      return _.extend {}, super(), {
         toString_properties: ['mantissas', 'base', 'min_magnitude', 'max_magnitude'],
         base: 10.0,
         mantissas: [2, 5, 10]
         min_interval: 0.0,
         max_interval: Infinity,
-      })
+      }
 
-  class AdaptiveTickers extends Backbone.Collection
+  class AdaptiveTickers extends Collection
     model: AdaptiveTicker
 
   return {

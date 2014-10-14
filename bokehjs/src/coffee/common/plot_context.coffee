@@ -1,13 +1,13 @@
 
 define [
   "underscore",
-  "backbone",
+  "./collection",
   "./build_views",
   "./has_parent"
   "./continuum_view",
-], (_, Backbone, build_views, HasParent, ContinuumView) ->
+], (_, Collection, build_views, HasParent, ContinuumView) ->
 
-  class PlotContextView extends ContinuumView.View
+  class PlotContextView extends ContinuumView
     initialize: (options) ->
       @views = {}
       @child_models = []
@@ -70,12 +70,12 @@ define [
     url: () ->
       return super()
 
-    defaults: () ->
-      return {
+    defaults: ->
+      return _.extend {}, super(), {
         children: []
       }
 
-  class PlotContexts extends Backbone.Collection
+  class PlotContexts extends Collection
     model: PlotContext
 
   return {

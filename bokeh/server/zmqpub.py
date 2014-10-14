@@ -1,12 +1,9 @@
-from threading import Thread
-from six.moves.queue import Empty
-import json
 
-try:
-    import gevent
-    import zmq.green as zmq
-except ImportError:
-    import zmq
+from threading import Thread
+
+import json
+from six.moves.queue import Empty
+import zmq
 
 timeout = 0.1
 

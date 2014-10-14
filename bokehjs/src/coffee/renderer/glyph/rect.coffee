@@ -1,4 +1,3 @@
-
 define [
   "underscore",
   "rbush",
@@ -12,12 +11,10 @@ define [
     _properties: ['line', 'fill']
 
     _map_data: () ->
-      [sxi, syi] = @plot_view.map_to_screen(
-        @x, @glyph_props.x.units, @y, @glyph_props.y.units, @x_range_name, @y_range_name
-      )
+      [sxi, syi] = @renderer.map_to_screen(@x, @glyph.x.units, @y, @glyph.y.units)
 
-      @sw = @distance_vector('x', 'width', 'center', @mget('glyphspec')['dilate'])
-      @sh = @distance_vector('y', 'height', 'center', @mget('glyphspec')['dilate'])
+      @sw = @distance_vector('x', 'width', 'center', @mget('dilate'))
+      @sh = @distance_vector('y', 'height', 'center', @mget('dilate'))
       @sx = new Array(sxi.length)
       @sy = new Array(sxi.length)
       for i in [0...sxi.length]
@@ -40,16 +37,14 @@ define [
           pts.push([@x[i], @y[i], @x[i], @y[i], {'i': i}])
       @index.load(pts)
 
-    _render: (ctx, indices, glyph_props, sx=@sx, sy=@sy, sw=@sw, sh=@sh) ->
-      if glyph_props.fill_properties.do_fill
-
+    _render: (ctx, indices, sx=@sx, sy=@sy, sw=@sw, sh=@sh) ->
+      if @props.fill.do_fill
         for i in indices
-
           if isNaN(sx[i] + sy[i] + sw[i] + sh[i] + @angle[i])
             continue
 
           #no need to test the return value, we call fillRect for every glyph anyway
-          glyph_props.fill_properties.set_vectorize(ctx, i)
+          @props.fill.set_vectorize(ctx, i)
 
           if @angle[i]
             ctx.translate(sx[i], sy[i])
@@ -60,8 +55,7 @@ define [
           else
             ctx.fillRect(sx[i]-sw[i]/2, sy[i]-sh[i]/2, sw[i], sh[i])
 
-      if glyph_props.line_properties.do_stroke
-
+      if @props.line.do_stroke
         ctx.beginPath()
 
         for i in indices
@@ -84,22 +78,22 @@ define [
           else
             ctx.rect(sx[i]-sw[i]/2, sy[i]-sh[i]/2, sw[i], sh[i])
 
-          glyph_props.line_properties.set_vectorize(ctx, i)
+          @props.line.set_vectorize(ctx, i)
           ctx.stroke()
           ctx.beginPath()
 
         ctx.stroke()
 
     _hit_rect: (geometry) ->
-      [x0, x1] = @xmapper.v_map_from_target([geometry.vx0, geometry.vx1])
-      [y0, y1] = @ymapper.v_map_from_target([geometry.vy0, geometry.vy1])
+      [x0, x1] = @renderer.xmapper.v_map_from_target([geometry.vx0, geometry.vx1])
+      [y0, y1] = @renderer.ymapper.v_map_from_target([geometry.vy0, geometry.vy1])
 
       return (x[4].i for x in @index.search([x0, y0, x1, y1]))
 
     _hit_point: (geometry) ->
       [vx, vy] = [geometry.vx, geometry.vy]
-      x = @xmapper.map_from_target(vx)
-      y = @ymapper.map_from_target(vy)
+      x = @renderer.xmapper.map_from_target(vx)
+      y = @renderer.ymapper.map_from_target(vy)
 
       # handle categorical cases
       xcat = (typeof(x) == "string")
@@ -114,10 +108,10 @@ define [
         if @width_units == "screen" or xcat
           max_width = @max_width
           if xcat
-            max_width = @xmapper.map_to_target(max_width)
+            max_width = @renderer.xmapper.map_to_target(max_width)
           vx0 = vx - 2*max_width
           vx1 = vx + 2*max_width
-          [x0, x1] = @xmapper.v_map_from_target([vx0, vx1])
+          [x0, x1] = @renderer.xmapper.v_map_from_target([vx0, vx1])
         else
           x0 = x - 2*@max_width
           x1 = x + 2*@max_width
@@ -125,10 +119,10 @@ define [
         if @height_units == "screen" or ycat
           max_height = @max_height
           if ycat
-            max_height = @ymapper.map_to_target(max_height)
+            max_height = @renderer.ymapper.map_to_target(max_height)
           vy0 = vy - 2*max_height
           vy1 = vy + 2*max_height
-          [y0, y1] = @ymapper.v_map_from_target([vy0, vy1])
+          [y0, y1] = @renderer.ymapper.v_map_from_target([vy0, vy1])
         else
           y0 = y - 2*@max_height
           y1 = y + 2*@max_height
@@ -138,14 +132,14 @@ define [
       hits = []
       for i in candidates
         if @width_units == "screen" or xcat
-          sx = @plot_view.canvas.vx_to_sx(vx)
+          sx = @renderer.plot_view.canvas.vx_to_sx(vx)
         else
-          sx = @plot_view.canvas.vx_to_sx(@xmapper.map_to_target(x))
+          sx = @renderer.plot_view.canvas.vx_to_sx(@renderer.xmapper.map_to_target(x))
 
         if @height_units == "screen" or ycat
-          sy = @plot_view.canvas.vy_to_sy(vy)
+          sy = @renderer.plot_view.canvas.vy_to_sy(vy)
         else
-          sy = @plot_view.canvas.vy_to_sy(@ymapper.map_to_target(y))
+          sy = @renderer.plot_view.canvas.vy_to_sy(@renderer.ymapper.map_to_target(y))
 
         if @angle[i]
           d = Math.sqrt(Math.pow((sx - @sx[i]), 2) + Math.pow((sy - @sy[i]),2))
@@ -166,27 +160,21 @@ define [
     draw_legend: (ctx, x0, x1, y0, y1) ->
       @_generic_area_legend(ctx, x0, x1, y0, y1)
 
-
   class Rect extends Glyph.Model
     default_view: RectView
-    type: 'Glyph'
+    type: 'Rect'
 
-    display_defaults: () ->
-      return _.extend(super(), {
-        fill_color: 'gray'
-        fill_alpha: 1.0
-        line_color: 'red'
-        line_width: 1
-        line_alpha: 1.0
-        line_join: 'miter'
-        line_cap: 'butt'
-        line_dash: []
-        line_dash_offset: 0
+    display_defaults: ->
+      return _.extend {}, super(), @line_defaults, @fill_defaults, {
         angle: 0.0
         dilate: false
-      })
+      }
+
+  class Rects extends Glyph.Collection
+    model: Rect
 
   return {
-    "Model": Rect,
-    "View": RectView,
+    Model: Rect
+    View: RectView
+    Collection: new Rects()
   }

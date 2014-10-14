@@ -1,14 +1,14 @@
 define [
   "underscore",
-  "backbone",
+  "common/collection",
   "common/has_parent",
   "common/continuum_view",
   "./data_table_template"
-], (_, Backbone, HasParent, ContinuumView, data_table_template) ->
+], (_, Collection, HasParent, ContinuumView, data_table_template) ->
 
   ENTER = 13
 
-  class DataTableView extends ContinuumView.View
+  class DataTableView extends ContinuumView
 
     template: data_table_template
 
@@ -201,7 +201,7 @@ define [
       @$(".pandasagg")
         .find("option[value=\"#{@mget('agg')}\"]")
         .attr('selected', 'selected')
-      @$el.addClass("bokehtable")
+      @$el.addClass("bk-table")
 
   class DataTable extends HasParent
     type: 'DataTable'
@@ -264,8 +264,8 @@ define [
 
     default_view: DataTableView
 
-    defaults: () ->
-      return {
+    defaults: ->
+      return _.extend {}, super(), {
         sort: []
         group: []
         agg: 'sum'
@@ -276,7 +276,7 @@ define [
         columns_names: []
       }
 
-  class DataTables extends Backbone.Collection
+  class DataTables extends Collection
     model: DataTable
 
   return {

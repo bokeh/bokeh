@@ -1,18 +1,13 @@
 
 define [
   "underscore"
-  "backbone"
   "kiwi"
   "common/has_parent"
   "common/layout_box"
   "common/logging"
   "common/plot_widget"
   "renderer/properties"
-], (_, Backbone, kiwi, HasParent, LayoutBox, Logging, PlotWidget, Properties) ->
-
-  glyph_properties = Properties.glyph_properties
-  line_properties  = Properties.line_properties
-  text_properties  = Properties.text_properties
+], (_, kiwi, HasParent, LayoutBox, Logging, PlotWidget, properties) ->
 
   logger = Logging.logger
 
@@ -160,11 +155,11 @@ define [
   class AxisView extends PlotWidget
     initialize: (options) ->
       super(options)
-      @rule_props = new line_properties(@, null, 'axis_')
-      @major_tick_props = new line_properties(@, null, 'major_tick_')
-      @minor_tick_props = new line_properties(@, null, 'minor_tick_')
-      @major_label_props = new text_properties(@, null, 'major_label_')
-      @axis_label_props = new text_properties(@, null, 'axis_label_')
+      @rule_props = new properties.Line(@, 'axis_')
+      @major_tick_props = new properties.Line(@, 'major_tick_')
+      @minor_tick_props = new properties.Line(@, 'minor_tick_')
+      @major_label_props = new properties.Text(@, 'major_label_')
+      @axis_label_props = new properties.Text(@, 'axis_label_')
       @x_range_name = @mget('x_range_name')
       @y_range_name = @mget('y_range_name')
 
@@ -574,14 +569,14 @@ define [
 
       return extent
 
-    defaults: () ->
-      return {
+    defaults: ->
+      return _.extend {}, super(), {
         x_range_name: "default"
         y_range_name: "default"
       }
 
-    display_defaults: () ->
-      return {
+    display_defaults: ->
+      return _.extend {}, super(), {
         level: 'overlay'
 
         axis_line_color: 'black'

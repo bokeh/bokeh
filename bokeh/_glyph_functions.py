@@ -313,7 +313,7 @@ Returns:
 """
 )
 
-image = _glyph_function(glyphs.Image, ("image", "x", "y", "dw", "dh"), ('palette', 'color_mapper', 'dilate'),
+image = _glyph_function(glyphs.Image, ("image", "x", "y", "dw", "dh"), ('palette', 'reserve_color', 'reserve_val', 'color_mapper', 'dilate'),
 """ The image glyph takes each image as a two-dimensional array of scalar data.
 
 A palette (string name of a built-in palette, currently) must also be supplied to use for color-mapping the scalar image.
@@ -686,7 +686,7 @@ Returns:
 """
 )
 
-x = _glyph_function(glyphs.Xmarker, ("x", "y"), (),
+x = _glyph_function(glyphs.X, ("x", "y"), (),
 """ The `x` glyph is a marker that renders "x" glyphs at `x`, `y` with size `size`.
 
 In addition the the parameters specific to this glyph,

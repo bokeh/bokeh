@@ -1,14 +1,14 @@
 define [
   "underscore"
-  "backbone"
+  "common/collection"
   "common/continuum_view"
   "common/has_parent"
   "common/logging"
-], (_, Backbone, continuum_view, HasParent, Logging) ->
+], (_, Collection, ContinuumView, HasParent, Logging) ->
 
   logger = Logging.logger
 
-  class DropdownView extends continuum_view.View
+  class DropdownView extends ContinuumView
     tagName: "div"
 
     change_input: (action) ->
@@ -67,8 +67,8 @@ define [
     type: "Dropdown"
     default_view: DropdownView
 
-    defaults: () ->
-      _.extend({}, super(), {
+    defaults: ->
+      return _.extend {}, super(), {
         action: null
         default_action: null
         label: "Dropdown"
@@ -76,9 +76,9 @@ define [
         type: "default"
         menu: []
         disabled: false
-      })
+      }
 
-  class Dropdowns extends Backbone.Collection
+  class Dropdowns extends Collection
     model: Dropdown
 
   return {
