@@ -1,4 +1,5 @@
 
+# something like this will make it into Bokeh proper
 find = (obj, name) ->
   if obj.get('name')? and obj.get('name') == name
     return obj
@@ -14,32 +15,24 @@ find = (obj, name) ->
         return result
   return null
 
-
-MAX_FREQ = 44100
-SPECTROGRAM_LENGTH = 512
-NGRAMS = 800
-TILE_WIDTH = 500
-TIMESLICE = 40 # ms
-
-
 class SpectrogramApp
 
-  constructor: (layout) ->
-    @request_data = _.throttle((=> @_request_data()), 20)
+  constructor: (@layout) ->
     @paused = false
     @gain = 1
 
-    @spectrogram_plot = new SpectrogramPlot(find(layout, "spectrogram"))
-    @signal_plot = new SimpleXYPlot(find(layout, "signal"))
-    @power_plot = new SimpleXYPlot(find(layout, "spectrum"))
-    #@eq_plot = new RadialHistogramPlot(find(layout, "eq"))
-
-    @freq_slider = find(layout, "freq")
+    @freq_slider = find(@layout, "freq")
     @freq_slider.on("change:value", @update_freq)
-    @gain_slider = find(layout, "gain")
+    @gain_slider = find(@layout, "gain")
     @gain_slider.on("change:value", @update_gain)
 
-    setInterval((() => @request_data()), 400)
+    config = $.ajax('http://localhost:5000/params', {
+      type: 'GET'
+      dataType: 'json'
+      cache: false
+    }).done((data, textStatus, jqXHR) =>
+        @_config(data)
+    ).then(@request_data)
 
   update_freq: () =>
     freq = @freq_slider.get('value')
@@ -49,21 +42,25 @@ class SpectrogramApp
   update_gain: () =>
     @gain = @gain_slider.get('value')
 
-  _request_data: () ->
-    if @paused
-      return
+  _config: (data) ->
+    @config = data
+    console.log "Got config:", @config
+    @spectrogram_plot = new SpectrogramPlot(find(@layout, "spectrogram"), @config)
+    @signal_plot = new SimpleXYPlot(find(@layout, "signal"), @config)
+    @power_plot = new SimpleXYPlot(find(@layout, "spectrum"), @config)
+    #@eq_plot = new RadialHistogramPlot(find(@layout, "eq"), @config)
 
-    $.ajax('http://localhost:5000/data', {
+  request_data: () =>
+    return $.ajax('http://localhost:5000/data', {
       type: 'GET'
       dataType: 'json'
       cache: false
-      error: (jqXHR, textStatus, errorThrown) =>
-        null
-      success: (data, textStatus, jqXHR) =>
+    }
+    ).then((data, textStatus, jqXHR) =>
         @on_data(data)
-      complete: (jqXHR, status) =>
-        requestAnimationFrame(() => @request_data())
-    })
+    ).then((data, textStatus, jqXHR) =>
+        @request_data()
+    )
 
   on_data: (data) ->
     signal = (x*@gain for x in data.signal)
@@ -72,15 +69,17 @@ class SpectrogramApp
 
     @spectrogram_plot.update(spectrum)
 
-    t = (i/signal.length*TIMESLICE for i in [0...signal.length])
+    t = (i/signal.length*@config.TIMESLICE for i in [0...signal.length])
     @signal_plot.update(t, signal)
-    f = (i/spectrum.length*MAX_FREQ for i in [0...spectrum.length])
+
+    f = (i/spectrum.length*@config.MAX_FREQ for i in [0...spectrum.length])
     @power_plot.update(f, spectrum)
+
     #@eq_plot.update(data.bins)
 
 class SpectrogramPlot
 
-  constructor: (@model) ->
+  constructor: (@model, @config) ->
     @source = @model.get('data_source')
     @cmap = new Bokeh.LinearColorMapper.Model({
       palette: Bokeh.Palettes.all_palettes["YlGnBu-9"], low: 0, high: 10
@@ -89,13 +88,13 @@ class SpectrogramPlot
     plot = @model.attributes.parent
     @y_range = plot.get('frame').get('y_ranges')[@model.get('y_range_name')]
 
-    @num_images = Math.ceil(NGRAMS/TILE_WIDTH) + 3
+    @num_images = Math.ceil(@config.NGRAMS/@config.TILE_WIDTH) + 1
 
-    @image_width = TILE_WIDTH
+    @image_width = @config.TILE_WIDTH
 
     @images = new Array(@num_images)
     for i in [0..(@num_images-1)]
-      @images[i] = new ArrayBuffer(SPECTROGRAM_LENGTH * @image_width * 4)
+      @images[i] = new ArrayBuffer(@config.SPECTROGRAM_LENGTH * @image_width * 4)
 
     @xs = new Array(@num_images)
 
@@ -118,7 +117,7 @@ class SpectrogramPlot
     image32 = new Uint32Array(@images[0])
     buf32 = new Uint32Array(buf)
 
-    for i in [0...SPECTROGRAM_LENGTH]
+    for i in [0...@config.SPECTROGRAM_LENGTH]
       image32[i*@image_width+@col] = buf32[i]
 
     @source.set('data', {image: @images, x: @xs})
@@ -129,7 +128,7 @@ class SpectrogramPlot
 
 class RadialHistogramPlot
 
-  constructor: (@model) ->
+  constructor: (@model, @config) ->
     @source = @model.get('data_source')
 
   update: (bins) ->
@@ -150,7 +149,7 @@ class RadialHistogramPlot
 
 class SimpleXYPlot
 
-  constructor: (@model) ->
+  constructor: (@model, @config) ->
     @source = @model.get('data_source')
     plot = @model.attributes.parent
     @x_range = plot.get('frame').get('x_ranges')[@model.get('x_range_name')]
