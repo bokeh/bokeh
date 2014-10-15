@@ -133,20 +133,20 @@ def make_spectrogram():
     spec = image_rgba(
         x='x', y=0, image='image', dw=TILE_WIDTH, dh=MAX_FREQ,
         cols=TILE_WIDTH, rows=SPECTROGRAM_LENGTH, title=None,
-        source=spec_source, plot_width=800, plot_height=200,
+        source=spec_source, plot_width=800, plot_height=300,
         x_range=[0, NGRAMS], y_range=[0, MAX_FREQ],
         name="spectrogram", **plot_kw)
 
     spectrum_source = ColumnDataSource(data=dict(x=[], y=[]))
     spectrum = line(
-        x="x", y="y", line_color="darkblue", title=None, #"Power Spectrum",
+        x="x", y="y", line_color="darkblue", title="Power Spectrum",
         source=spectrum_source, plot_width=800, plot_height=250,
         x_range=[0, MAX_FREQ], y_range=[10**(-4), 10**3], y_axis_type="log",
         name="spectrum", **plot_kw)
 
     signal_source = ColumnDataSource(data=dict(x=[], y=[]))
     signal = line(
-        x="x", y="y", line_color="darkblue", title=None, #"Signal",
+        x="x", y="y", line_color="darkblue", title="Signal",
         source=signal_source, plot_width=800, plot_height=250,
         x_range=[0, TIMESLICE*1.01], y_range=[-0.1, 0.1],
         name="signal", **plot_kw)
