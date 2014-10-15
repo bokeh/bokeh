@@ -165,11 +165,13 @@ setup = () ->
   index = window.Bokeh.index
   if _.keys(index).length == 0
     console.log "Bokeh not loaded yet, waiting to set up SpectrogramApp..."
-    setTimeout(setup, 200)
-  else
-    console.log "Bokeh loaded, starting SpectrogramApp"
-    id = _.keys(index)[0]
-    app = new SpectrogramApp(index[id].model)
+    return
 
-setTimeout(setup, 200)
+  clearInterval timer
+
+  console.log "Bokeh loaded, starting SpectrogramApp"
+  id = _.keys(index)[0]
+  app = new SpectrogramApp(index[id].model)
+
+timer = setInterval setup, 200
 
