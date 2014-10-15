@@ -19,6 +19,8 @@ MAX_FREQ = 44100
 SPECTROGRAM_LENGTH = 512
 NGRAMS = 800
 TILE_WIDTH = 500
+TIMESLICE = 40 # ms
+
 
 class SpectrogramApp
 
@@ -70,9 +72,9 @@ class SpectrogramApp
 
     @spectrogram_plot.update(spectrum)
 
-    t = (i for i in [0...signal.length])
+    t = (i/signal.length*TIMESLICE for i in [0...signal.length])
     @signal_plot.update(t, signal)
-    f = (i/signal.length*MAX_FREQ for i in [0...signal.length])
+    f = (i/spectrum.length*MAX_FREQ for i in [0...spectrum.length])
     @power_plot.update(f, spectrum)
     #@eq_plot.update(data.bins)
 
@@ -154,7 +156,7 @@ class SimpleXYPlot
     @x_range = plot.get('frame').get('x_ranges')[@model.get('x_range_name')]
 
   update: (x, y) ->
-    @source.set('data', {idx: x, y: y})
+    @source.set('data', {x: x, y: y})
     @source.trigger('change', @source)
 
   set_xrange: (x0, x1) ->

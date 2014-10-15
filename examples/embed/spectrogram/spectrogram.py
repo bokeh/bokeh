@@ -136,16 +136,16 @@ def make_spectrogram():
         x_range=[0, NGRAMS], y_range=[0, MAX_FREQ],
         name="spectrogram", **plot_kw)
 
-    spectrum_source = ColumnDataSource(data=dict(idx=[], y=[]))
+    spectrum_source = ColumnDataSource(data=dict(x=[], y=[]))
     spectrum = line(
-        x="idx", y="y", line_color="darkblue", title="Power Spectrum",
+        x="x", y="y", line_color="darkblue", title="Power Spectrum",
         source=spectrum_source, plot_width=800, plot_height=250,
         x_range=[0, MAX_FREQ], y_range=[10**(-4), 10**3], y_axis_type="log",
         name="spectrum", **plot_kw)
 
-    signal_source = ColumnDataSource(data=dict(idx=[], y=[]))
+    signal_source = ColumnDataSource(data=dict(x=[], y=[]))
     signal = line(
-        x="idx", y="y", line_color="darkblue", title="Signal",
+        x="x", y="y", line_color="darkblue", title="Signal",
         source=signal_source, plot_width=800, plot_height=250,
         x_range=[0, TIMESLICE*1.01], y_range=[-0.1, 0.1],
         name="signal", **plot_kw)
