@@ -14,6 +14,12 @@ find = (obj, name) ->
         return result
   return null
 
+
+MAX_FREQ = 44100
+SPECTROGRAM_LENGTH = 512
+NGRAMS = 800
+TILE_WIDTH = 500
+
 class SpectrogramApp
 
   constructor: (layout) ->
@@ -22,8 +28,8 @@ class SpectrogramApp
     @gain = 1
 
     @spectrogram_plot = new SpectrogramPlot(find(layout, "spectrogram"))
-    @signal_plot = new SimpleIndexPlot(find(layout, "signal"))
-    @power_plot = new SimpleIndexPlot(find(layout, "spectrum"))
+    @signal_plot = new SimpleXYPlot(find(layout, "signal"))
+    @power_plot = new SimpleXYPlot(find(layout, "spectrum"))
     #@eq_plot = new RadialHistogramPlot(find(layout, "eq"))
 
     @freq_slider = find(layout, "freq")
@@ -63,13 +69,12 @@ class SpectrogramApp
     power = (x*x for x in data.spectrum)
 
     @spectrogram_plot.update(spectrum)
-    @signal_plot.update(signal)
-    @power_plot.update(spectrum)
-    #@eq_plot.update(data.bins)
 
-SPECTROGRAM_LENGTH = 512
-NGRAMS = 800
-TILE_WIDTH = 500
+    t = (i for i in [0...signal.length])
+    @signal_plot.update(t, signal)
+    f = (i/signal.length*MAX_FREQ for i in [0...signal.length])
+    @power_plot.update(f, spectrum)
+    #@eq_plot.update(data.bins)
 
 class SpectrogramPlot
 
@@ -141,19 +146,15 @@ class RadialHistogramPlot
     })
     @source.trigger('change', @source)
 
-class SimpleIndexPlot
+class SimpleXYPlot
 
   constructor: (@model) ->
     @source = @model.get('data_source')
     plot = @model.attributes.parent
     @x_range = plot.get('frame').get('x_ranges')[@model.get('x_range_name')]
 
-  update: (y) ->
-    start = @x_range.get('start')
-    end = @x_range.get('end')
-    idx = (start + (i/y.length)*end for i in [0...y.length])
-
-    @source.set('data', {idx: idx, y: y})
+  update: (x, y) ->
+    @source.set('data', {idx: x, y: y})
     @source.trigger('change', @source)
 
   set_xrange: (x0, x1) ->

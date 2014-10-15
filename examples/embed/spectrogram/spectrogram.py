@@ -188,18 +188,17 @@ def get_audio_data():
         )
 
     while True:
-        #try:
+        try:
             raw_data  = np.fromstring(stream.read(NUM_SAMPLES), dtype=np.int16)
             signal = raw_data / 32768.0
             fft = sp.fft(signal)
             spectrum = abs(fft)[:NUM_SAMPLES/2]
-
             bins = np.histogram(spectrum)[0]
             with mutex:
                 data = signal.tolist(), spectrum.tolist(), bins.tolist()
-        # except:
-        #     with mutex:
-        #         data = None
+        except:
+            with mutex:
+                data = None
 
 if __name__ == "__main__":
     main()
