@@ -19,14 +19,27 @@ class SpectrogramApp
   constructor: (layout) ->
     @request_data = _.throttle((=> @_request_data()), 20)
     @paused = false
-    @gain = 20
+    @gain = 1
 
     @spectrogram_plot = new SpectrogramPlot(find(layout, "spectrogram"))
     @signal_plot = new SimpleIndexPlot(find(layout, "signal"))
     @power_plot = new SimpleIndexPlot(find(layout, "spectrum"))
     #@eq_plot = new RadialHistogramPlot(find(layout, "eq"))
 
+    @freq_slider = find(layout, "freq")
+    @freq_slider.on("change:value", @update_freq)
+    @gain_slider = find(layout, "gain")
+    @gain_slider.on("change:value", @update_gain)
+
     setInterval((() => @request_data()), 400)
+
+  update_freq: () =>
+    freq = @freq_slider.get('value')
+    @spectrogram_plot.set_yrange(0, freq)
+    @power_plot.set_xrange(0, freq)
+
+  update_gain: () =>
+    @gain = @gain_slider.get('value')
 
   _request_data: () ->
     if @paused
@@ -51,7 +64,7 @@ class SpectrogramApp
 
     @spectrogram_plot.update(spectrum)
     @signal_plot.update(signal)
-    @power_plot.update(power)
+    @power_plot.update(spectrum)
     #@eq_plot.update(data.bins)
 
 SPECTROGRAM_LENGTH = 512
@@ -65,6 +78,9 @@ class SpectrogramPlot
     @cmap = new Bokeh.LinearColorMapper.Model({
       palette: Bokeh.Palettes.all_palettes["YlGnBu-9"], low: 0, high: 10
     })
+
+    plot = @model.attributes.parent
+    @y_range = plot.get('frame').get('y_ranges')[@model.get('y_range_name')]
 
     @num_images = Math.ceil(NGRAMS/TILE_WIDTH) + 3
 
@@ -102,7 +118,7 @@ class SpectrogramPlot
     @source.trigger('change', @source)
 
   set_yrange: (y0, y1) ->
-    @view.y_range.set({'start': y0, 'end' : y1})
+    @y_range.set({'start': y0, 'end' : y1})
 
 class RadialHistogramPlot
 
@@ -113,12 +129,12 @@ class RadialHistogramPlot
     angle = 2*Math.PI/bins.length
     [inner, outer, start, end, alpha] = [[], [], [], [], []]
     for i in [0...bins.length]
-      range = [0...bins[i]]
-      inner = inner.concat(i+2 for i in range)
-      outer = outer.concat(i+2.95 for i in range)
-      start = start.concat((i+0.05) * angle for i in range)
-      end   = end.concat((i+95) * angle for i in range)
-      alpha = alpha.concat(1 - 0.08*i for i in range)
+      range = [0...(bins[i]/32+1)]
+      inner = inner.concat(j+2 for j in range)
+      outer = outer.concat(j+2.95 for j in range)
+      start = start.concat((i+0.05) * angle for j in range)
+      end   = end.concat((i+0.95) * angle for j in range)
+      alpha = alpha.concat(1 - 0.08*j for j in range)
 
     @source.set('data', {
       inner_radius: inner, outer_radius: outer, start_angle: start, end_angle: end, fill_alpha: alpha

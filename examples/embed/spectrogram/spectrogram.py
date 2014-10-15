@@ -117,14 +117,14 @@ def make_spectrogram():
     freq = VBox(
         children=[
             Paragraph(text="Freq Range"),
-            Slider(orientation="vertical", start=1, end=MAX_FREQ, value=MAX_FREQ, step=1)
+            Slider(orientation="vertical", start=1, end=MAX_FREQ, value=MAX_FREQ, step=1, name="freq")
         ]
     )
 
     gain = VBox(
         children=[
             Paragraph(text="Gain"),
-            Slider(orientation="vertical", start=1, end=20, value=1, step=1)
+            Slider(orientation="vertical", start=1, end=20, value=1, step=1, name="gain")
         ]
     )
 
@@ -140,7 +140,7 @@ def make_spectrogram():
     spectrum = line(
         x="idx", y="y", line_color="darkblue", title="Power Spectrum",
         source=spectrum_source, plot_width=800, plot_height=250,
-        x_range=[0, MAX_FREQ], y_range=[10**(-8), 20], y_axis_type="log",
+        x_range=[0, MAX_FREQ], y_range=[10**(-4), 10**3], y_axis_type="log",
         name="spectrum", **plot_kw)
 
     signal_source = ColumnDataSource(data=dict(idx=[], y=[]))
@@ -158,6 +158,7 @@ def make_spectrogram():
         inner_radius="inner_radius", outer_radius="outer_radius",
         start_angle="start_angle", end_angle="end_angle", title=None,
         source=radial_source, plot_width=500, plot_height=520,
+        x_range=[-20, 20], y_range=[-20, 20],
         name="eq", **plot_kw)
 
     lines = VBox(
@@ -167,7 +168,7 @@ def make_spectrogram():
     layout = VBox(
         children = [
             HBox(children=[freq, gain, spec]),
-            HBox(children=[lines, radial])
+            HBox(children=[lines]) #, radial])
         ]
     )
 
@@ -187,17 +188,18 @@ def get_audio_data():
         )
 
     while True:
-        try:
+        #try:
             raw_data  = np.fromstring(stream.read(NUM_SAMPLES), dtype=np.int16)
             signal = raw_data / 32768.0
             fft = sp.fft(signal)
             spectrum = abs(fft)[:NUM_SAMPLES/2]
-            bins = np.array([])
+
+            bins = np.histogram(spectrum)[0]
             with mutex:
                 data = signal.tolist(), spectrum.tolist(), bins.tolist()
-        except:
-            with mutex:
-                data = None
+        # except:
+        #     with mutex:
+        #         data = None
 
 if __name__ == "__main__":
     main()
