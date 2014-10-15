@@ -135,7 +135,7 @@ def make_spectrogram():
         cols=TILE_WIDTH, rows=SPECTROGRAM_LENGTH, title=None,
         source=spec_source, plot_width=800, plot_height=300,
         x_range=[0, NGRAMS], y_range=[0, MAX_FREQ],
-        name="spectrogram", **plot_kw)
+        dilate=True, name="spectrogram", **plot_kw)
 
     spectrum_source = ColumnDataSource(data=dict(x=[], y=[]))
     spectrum = line(
