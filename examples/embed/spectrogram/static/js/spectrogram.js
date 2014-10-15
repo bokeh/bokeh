@@ -314,15 +314,16 @@
   })();
 
   setup = function() {
-    var app, id, index;
+    var app, id, index, keys;
     index = window.Bokeh.index;
-    if (_.keys(index).length === 0) {
+    keys = _.keys(index);
+    if (keys.length === 0) {
       console.log("Bokeh not loaded yet, waiting to set up SpectrogramApp...");
       return;
     }
     clearInterval(timer);
     console.log("Bokeh loaded, starting SpectrogramApp");
-    id = _.keys(index)[0];
+    id = keys[0];
     return app = new SpectrogramApp(index[id].model);
   };
 

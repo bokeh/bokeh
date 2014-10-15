@@ -163,14 +163,15 @@ class SimpleXYPlot
 
 setup = () ->
   index = window.Bokeh.index
-  if _.keys(index).length == 0
+  keys = _.keys index
+  if keys.length is 0
     console.log "Bokeh not loaded yet, waiting to set up SpectrogramApp..."
     return
 
   clearInterval timer
 
   console.log "Bokeh loaded, starting SpectrogramApp"
-  id = _.keys(index)[0]
+  id = keys[0]
   app = new SpectrogramApp(index[id].model)
 
 timer = setInterval setup, 200
