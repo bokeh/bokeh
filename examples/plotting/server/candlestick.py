@@ -8,7 +8,7 @@ from bokeh.sampledata.stocks import MSFT
 from bokeh.plotting import *
 
 df = pd.DataFrame(MSFT)[:50]
-df['date'] = pd.to_datetime(df['date'])
+df["date"] = pd.to_datetime(df["date"])
 
 mids = (df.open + df.close)/2
 spans = abs(df.close-df.open)
@@ -24,7 +24,7 @@ figure(x_axis_type = "datetime", tools="pan,wheel_zoom,box_zoom,reset,previewsav
 
 hold()
 
-segment(df.date, df.high, df.date, df.low, color='black', toolbar_location="left")
+segment(df.date, df.high, df.date, df.low, color="black", toolbar_location="left")
 rect(df.date[inc], mids[inc], w, spans[inc], fill_color="#D5E1DD", line_color="black")
 rect(df.date[dec], mids[dec], w, spans[dec], fill_color="#F2583E", line_color="black")
 

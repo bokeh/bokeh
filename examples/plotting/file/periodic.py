@@ -3,40 +3,40 @@ from bokeh.objects import HoverTool, ColumnDataSource
 from bokeh.sampledata import periodic_table
 from collections import OrderedDict
 
-elements = periodic_table.elements[periodic_table.elements['group'] != "-"]
+elements = periodic_table.elements[periodic_table.elements["group"] != "-"]
 
 group_range = [str(x) for x in range(1,19)]
-period_range = [str(x) for x in reversed(sorted(set(elements['period'])))]
+period_range = [str(x) for x in reversed(sorted(set(elements["period"])))]
 
 output_file("periodic.html")
 
 colormap = {
-    'alkali metal'         : "#a6cee3",
-    'alkaline earth metal' : "#1f78b4",
-    'halogen'              : "#fdbf6f",
-    'metal'                : "#b2df8a",
-    'metalloid'            : "#33a02c",
-    'noble gas'            : "#bbbb88",
-    'nonmetal'             : "#baa2a6",
-    'transition metal'     : "#e08e79",
+    "alkali metal"         : "#a6cee3",
+    "alkaline earth metal" : "#1f78b4",
+    "halogen"              : "#fdbf6f",
+    "metal"                : "#b2df8a",
+    "metalloid"            : "#33a02c",
+    "noble gas"            : "#bbbb88",
+    "nonmetal"             : "#baa2a6",
+    "transition metal"     : "#e08e79",
 }
 
 source = ColumnDataSource(
     data=dict(
-        group=[str(x) for x in elements['group']],
-        period=[str(y) for y in elements['period']],
-        symx=[str(x)+":0.1" for x in elements['group']],
-        numbery=[str(x)+":0.8" for x in elements['period']],
-        massy=[str(x)+":0.15" for x in elements['period']],
-        namey=[str(x)+":0.3" for x in elements['period']],
-        sym=elements['symbol'],
-        name=elements['name'],
-        cpk=elements['CPK'],
-        atomic_number=elements['atomic number'],
-        electronic=elements['electronic configuration'],
-        mass=elements['atomic mass'],
-        type=elements['metal'],
-        type_color=[colormap[x] for x in elements['metal']],
+        group=[str(x) for x in elements["group"]],
+        period=[str(y) for y in elements["period"]],
+        symx=[str(x)+":0.1" for x in elements["group"]],
+        numbery=[str(x)+":0.8" for x in elements["period"]],
+        massy=[str(x)+":0.15" for x in elements["period"]],
+        namey=[str(x)+":0.3" for x in elements["period"]],
+        sym=elements["symbol"],
+        name=elements["name"],
+        cpk=elements["CPK"],
+        atomic_number=elements["atomic number"],
+        electronic=elements["electronic configuration"],
+        mass=elements["atomic mass"],
+        type=elements["metal"],
+        type_color=[colormap[x] for x in elements["metal"]],
     )
 )
 
