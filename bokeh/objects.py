@@ -16,7 +16,7 @@ from six import string_types
 
 from . import _glyph_functions
 from .enums import DatetimeUnits, Dimension, Location, MapType, Orientation, Units
-from .glyphs import BaseGlyph
+from .glyphs import Glyph
 from .mixins import LineProps, TextProps
 from .plot_object import PlotObject
 from .properties import (
@@ -304,7 +304,7 @@ class LinearColorMapper(ColorMapper):
 
     def __init__(self, *args, **kwargs):
         pal = args[0] if len(args) > 0 else kwargs.get('palette', [])
-        
+
         if isinstance(pal, string_types):
             palette = getattr(palettes, pal, None)
             if palette is None:
@@ -340,9 +340,7 @@ class LinearColorMapper(ColorMapper):
     def reverse(self):
         self.palette = self.palette[::-1]
 
-class Glyph(Renderer):
-    __view_model__ = "GlyphRenderer" # TODO: rename Glyph -> GlyphRenderer and remove this
-
+class GlyphRenderer(Renderer):
     server_data_source = Instance(ServerDataSource)
     data_source = Instance(DataSource)
     x_range_name = String('default')
@@ -351,12 +349,12 @@ class Glyph(Renderer):
     # How to intepret the values in the data_source
     units = Enum(Units)
 
-    glyph = Instance(BaseGlyph)
+    glyph = Instance(Glyph)
 
     # Optional glyph used when data is selected.
-    selection_glyph = Instance(BaseGlyph)
+    selection_glyph = Instance(Glyph)
     # Optional glyph used when data is unselected.
-    nonselection_glyph = Instance(BaseGlyph)
+    nonselection_glyph = Instance(Glyph)
 
 
 class Widget(PlotObject):
@@ -480,7 +478,7 @@ class Plot(Widget):
 
         Args:
             source: (ColumnDataSource) : a data source for the glyphs to all use
-            glyph (BaseGlyph) : the glyph to add to the Plot
+            glyph (Glyph) : the glyph to add to the Plot
 
         Keyword Arguments:
             Any additional keyword arguments are passed on as-is to the
@@ -490,10 +488,10 @@ class Plot(Widget):
             glyph : Glyph
 
         '''
-        if not isinstance(glyph, BaseGlyph):
-            raise ValueError("glyph arguments to add_glyph must be BaseGlyph subclass.")
+        if not isinstance(glyph, Glyph):
+            raise ValueError("glyph arguments to add_glyph must be Glyph subclass.")
 
-        g = Glyph(data_source=source, glyph=glyph, **kw)
+        g = GlyphRenderer(data_source=source, glyph=glyph, **kw)
         self.renderers.append(g)
         return g
 
@@ -794,7 +792,7 @@ class Legend(Renderer):
 
     legend_padding = Int(10)
     legend_spacing = Int(3)
-    legends = Dict(String, List(Instance(Glyph)))
+    legends = Dict(String, List(Instance(GlyphRenderer)))
 
 class PlotContext(PlotObject):
     """ A container for multiple plot objects. """

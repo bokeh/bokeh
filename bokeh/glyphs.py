@@ -11,9 +11,8 @@ from six import add_metaclass, iteritems
 #   of a random distribution to draw random samples from. Defaults to uniform
 #   but gaussian could certainly be useful.
 
-class BaseGlyph(PlotObject):
-    """ Base class for all glyphs/marks/geoms/whatever-you-call-'em in Bokeh.
-    """
+class Glyph(PlotObject):
+    """ Base class for all glyphs/marks/geoms/whatever-you-call-'em in Bokeh.  """
 
     visible = Bool
     margin = Size   # the amount of desired space around this glyph
@@ -28,7 +27,7 @@ class BaseGlyph(PlotObject):
     start_angle_units = Enum(AngleUnits, default=AngleUnits.deg)
     end_angle_units = Enum(AngleUnits, default=AngleUnits.deg)
 
-class Marker(BaseGlyph, FillProps, LineProps):
+class Marker(Glyph, FillProps, LineProps):
     """ Base class for glyphs which are just simple markers placed at (x,y)
     locations.
     """
@@ -76,7 +75,7 @@ class Triangle(Marker):
 class X(Marker):
     pass
 
-class AnnularWedge(BaseGlyph, FillProps, LineProps):
+class AnnularWedge(Glyph, FillProps, LineProps):
     x = DataSpec
     y = DataSpec
     inner_radius = DataSpec(min_value=0)
@@ -85,13 +84,13 @@ class AnnularWedge(BaseGlyph, FillProps, LineProps):
     end_angle = DataSpec
     direction = Enum(Direction)
 
-class Annulus(BaseGlyph, FillProps, LineProps):
+class Annulus(Glyph, FillProps, LineProps):
     x = DataSpec
     y = DataSpec
     inner_radius = DataSpec(min_value=0)
     outer_radius = DataSpec(min_value=0)
 
-class Arc(BaseGlyph, LineProps):
+class Arc(Glyph, LineProps):
     x = DataSpec
     y = DataSpec
     radius = DataSpec(min_value=0)
@@ -99,7 +98,7 @@ class Arc(BaseGlyph, LineProps):
     end_angle = DataSpec
     direction = Enum(Direction)
 
-class Bezier(BaseGlyph, LineProps):
+class Bezier(Glyph, LineProps):
     x0 = DataSpec
     y0 = DataSpec
     x1 = DataSpec
@@ -109,7 +108,7 @@ class Bezier(BaseGlyph, LineProps):
     cx1 = DataSpec
     cy1 = DataSpec
 
-class Gear(BaseGlyph, LineProps, FillProps):
+class Gear(Glyph, LineProps, FillProps):
     x = DataSpec                          # Float (mm, data)
     y = DataSpec                          # Float (mm, data)
     angle = DataSpec(default=0)           # Float (rad)
@@ -119,18 +118,18 @@ class Gear(BaseGlyph, LineProps, FillProps):
     shaft_size = DataSpec(default=0.3)    # Percent
     internal = DataSpec(default=False)    # Bool
 
-class Image(BaseGlyph):
+class Image(Glyph):
     def __init__(self, **kwargs):
         from .objects import LinearColorMapper
         if 'palette' in kwargs and 'color_mapper' in kwargs:
             raise ValueError("Only one of 'palette' and 'color_mapper' may be specified")
-        
+
         palette = kwargs.pop('palette', None)
         if palette:
             reserve_val = kwargs.pop('reserve_val', LinearColorMapper.reserve_val)
             reserve_color = kwargs.pop('reserve_color', LinearColorMapper.reserve_color)
-            kwargs['color_mapper'] = LinearColorMapper(palette, 
-                                                       reserve_val=reserve_val, 
+            kwargs['color_mapper'] = LinearColorMapper(palette,
+                                                       reserve_val=reserve_val,
                                                        reserve_color=reserve_color)
         super(Image, self).__init__(**kwargs)
 
@@ -143,7 +142,7 @@ class Image(BaseGlyph):
 
     color_mapper = Instance(HasProps) # LinearColorMapper but circular import
 
-class ImageRGBA(BaseGlyph):
+class ImageRGBA(Glyph):
     image = DataSpec
     x = DataSpec
     y = DataSpec
@@ -152,7 +151,7 @@ class ImageRGBA(BaseGlyph):
     dilate = Bool(False)
     anchor = Enum(Anchor)
 
-class ImageURL(BaseGlyph):
+class ImageURL(Glyph):
     url = DataSpec
     x = DataSpec
     y = DataSpec
@@ -162,36 +161,36 @@ class ImageURL(BaseGlyph):
     dilate = Bool(False)
     anchor = Enum(Anchor)
 
-class Line(BaseGlyph, LineProps):
+class Line(Glyph, LineProps):
     x = DataSpec
     y = DataSpec
 
-class MultiLine(BaseGlyph, LineProps):
+class MultiLine(Glyph, LineProps):
     xs = DataSpec
     ys = DataSpec
 
-class Oval(BaseGlyph, FillProps, LineProps):
+class Oval(Glyph, FillProps, LineProps):
     x = DataSpec
     y = DataSpec
     width = DataSpec
     height = DataSpec
     angle = DataSpec
 
-class Patch(BaseGlyph, FillProps, LineProps):
+class Patch(Glyph, FillProps, LineProps):
     x = DataSpec
     y = DataSpec
 
-class Patches(BaseGlyph, LineProps, FillProps):
+class Patches(Glyph, LineProps, FillProps):
     xs = DataSpec
     ys = DataSpec
 
-class Quad(BaseGlyph, FillProps, LineProps):
+class Quad(Glyph, FillProps, LineProps):
     left = DataSpec
     right = DataSpec
     bottom = DataSpec
     top = DataSpec
 
-class Quadratic(BaseGlyph, LineProps):
+class Quadratic(Glyph, LineProps):
     x0 = DataSpec
     y0 = DataSpec
     x1 = DataSpec
@@ -199,13 +198,13 @@ class Quadratic(BaseGlyph, LineProps):
     cx = DataSpec
     cy = DataSpec
 
-class Ray(BaseGlyph, LineProps):
+class Ray(Glyph, LineProps):
     x = DataSpec
     y = DataSpec
     angle = DataSpec
     length = DataSpec(units="screen")
 
-class Rect(BaseGlyph, FillProps, LineProps):
+class Rect(Glyph, FillProps, LineProps):
     x = DataSpec
     y = DataSpec
     width = DataSpec
@@ -213,19 +212,19 @@ class Rect(BaseGlyph, FillProps, LineProps):
     angle = DataSpec
     dilate = Bool(False)
 
-class Segment(BaseGlyph, LineProps):
+class Segment(Glyph, LineProps):
     x0 = DataSpec
     y0 = DataSpec
     x1 = DataSpec
     y1 = DataSpec
 
-class Text(BaseGlyph, TextProps):
+class Text(Glyph, TextProps):
     x = DataSpec
     y = DataSpec
     text = DataSpec
     angle = DataSpec
 
-class Wedge(BaseGlyph, FillProps, LineProps):
+class Wedge(Glyph, FillProps, LineProps):
     x = DataSpec
     y = DataSpec
     radius = DataSpec(min_value=0)

@@ -7,7 +7,7 @@ from bokeh.document import Document
 from bokeh.glyphs import Circle
 from bokeh.objects import (
     Plot, DataRange1d, LinearAxis, Grid,
-    ColumnDataSource, Glyph, PanTool, WheelZoomTool
+    ColumnDataSource, PanTool, WheelZoomTool
 )
 from bokeh import session
 
