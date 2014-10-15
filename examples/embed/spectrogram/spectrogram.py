@@ -2,6 +2,11 @@
 import json
 from threading import Thread, RLock
 
+import flask
+import pyaudio
+import numpy as np
+import scipy as sp
+
 from bokeh.embed import components
 from bokeh.objects import ColumnDataSource
 from bokeh.plotting import image_rgba, line, annular_wedge
@@ -9,10 +14,6 @@ from bokeh.resources import Resources
 from bokeh.templates import RESOURCES
 from bokeh.utils import encode_utf8
 from bokeh.widgets import HBox, Paragraph, Slider, VBox
-import flask
-import pyaudio
-from numpy import fromstring, int16
-from scipy import fft
 
 app = flask.Flask(__name__)
 
@@ -45,7 +46,7 @@ def root():
     )
 
     plot_script, plot_div = components(
-        spectrogram, resources, "spectrogram"
+        spectrogram, resources
     )
 
     html = flask.render_template(
@@ -82,14 +83,14 @@ def data():
             return json.dumps({})
         else:
             have_data = True
-            fft, samples, bins = data
+            signal, spectrum, bins = data
             data = None
 
     if have_data:
         return json.dumps({
-            "fft"     : fft,
-            "samples" : samples,
-            "bins"    : bins,
+            "signal"   : signal,
+            "spectrum" : spectrum,
+            "bins"     : bins,
         })
 
 
@@ -131,20 +132,23 @@ def make_spectrogram():
     spec = image_rgba(
         x='x', y=0, image='image', dw=TILE_WIDTH, dh=MAX_FREQ,
         cols=TILE_WIDTH, rows=SPECTROGRAM_LENGTH, title=None,
-        source=spec_source, plot_width=1000, plot_height=400,
-        **plot_kw)
+        source=spec_source, plot_width=800, plot_height=200,
+        x_range=[0, NGRAMS], y_range=[0, MAX_FREQ],
+        name="spectrogram", **plot_kw)
 
-    fft_source = ColumnDataSource(data=dict(idx=[], y=[]))
-    fft = line(
-        x="idx", y="y", line_color="darkblue", title="Spectrum",
-        source=fft_source, plot_width=800, plot_height=250,
-        **plot_kw)
+    spectrum_source = ColumnDataSource(data=dict(idx=[], y=[]))
+    spectrum = line(
+        x="idx", y="y", line_color="darkblue", title="Power Spectrum",
+        source=spectrum_source, plot_width=800, plot_height=250,
+        x_range=[0, MAX_FREQ], y_range=[10**(-8), 20], y_axis_type="log",
+        name="spectrum", **plot_kw)
 
-    power_source = ColumnDataSource(data=dict(idx=[], y=[]))
-    power = line(
-        x="idx", y="y", line_color="darkblue", y_axis_type="log", title="Power",
-        source=power_source, plot_width=800, plot_height=250,
-        **plot_kw)
+    signal_source = ColumnDataSource(data=dict(idx=[], y=[]))
+    signal = line(
+        x="idx", y="y", line_color="darkblue", title="Signal",
+        source=signal_source, plot_width=800, plot_height=250,
+        x_range=[0, TIMESLICE*1.01], y_range=[-0.1, 0.1],
+        name="signal", **plot_kw)
 
     radial_source = ColumnDataSource(data=dict(
         inner_radius=[], outer_radius=[], start_angle=[], end_angle=[], fill_alpha=[],
@@ -154,10 +158,10 @@ def make_spectrogram():
         inner_radius="inner_radius", outer_radius="outer_radius",
         start_angle="start_angle", end_angle="end_angle", title=None,
         source=radial_source, plot_width=500, plot_height=520,
-        **plot_kw)
+        name="eq", **plot_kw)
 
     lines = VBox(
-        children=[fft, power]
+        children=[spectrum, signal]
     )
 
     layout = VBox(
@@ -184,13 +188,13 @@ def get_audio_data():
 
     while True:
         try:
-            raw_data  = fromstring(stream.read(NUM_SAMPLES), dtype=int16)
-            normalized_data = raw_data / 32768.0
+            raw_data  = np.fromstring(stream.read(NUM_SAMPLES), dtype=np.int16)
+            signal = raw_data / 32768.0
+            fft = sp.fft(signal)
+            spectrum = abs(fft)[:NUM_SAMPLES/2]
+            bins = np.array([])
             with mutex:
-                fft = abs(fft(normalized_data))[:NUM_SAMPLES/2]
-                samples = normalized_data
-                bins = np.array()
-                data = fft.tolist(), samples.tolist(), bins.tolist()
+                data = signal.tolist(), spectrum.tolist(), bins.tolist()
         except:
             with mutex:
                 data = None
