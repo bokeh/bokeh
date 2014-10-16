@@ -361,7 +361,7 @@ class Test_AR(unittest.TestCase):
                     and hasattr(r, "server_data_source")
                     and r.server_data_source is not None)][0].server_data_source
 
-    def test_contour_recipie(self):
+    def test_contour_recipe(self):
         source = ServerDataSource(data_url="fn://bivariate", owner_username="defaultuser")
         plot = square('A', 'B',
                       source=source,
@@ -381,7 +381,7 @@ class Test_AR(unittest.TestCase):
         self.assertEquals(type(transform['shader']), ar_downsample.Seq)
         self.assertEquals(transform['shader'].out, "multi_line")
 
-    def test_heatmap_recipie(self):
+    def test_heatmap_recipe(self):
         source = ServerDataSource(data_url="fn://bivariate", owner_username="defaultuser")
         plot = square('A', 'B',
                       source=source,
@@ -389,7 +389,7 @@ class Test_AR(unittest.TestCase):
                       plot_height=400,
                       title="Test Title")
 
-        plot2 = ar_downsample.heatmap(plot, palette=["Reds-9"], reserve_val=0, points=True, client_color=True, title="Test Title 2")
+        plot2 = ar_downsample.heatmap(plot, palette="Reds9", reserve_val=0, points=True, client_color=True, title="Test Title 2")
         source2 = self._find_source(plot2)
 
         self.assertEquals("Test Title 2", plot2.title)
