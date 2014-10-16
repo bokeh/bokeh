@@ -75,19 +75,25 @@
     };
 
     SpectrogramApp.prototype.request_data = function() {
-      return $.ajax('http://localhost:5000/data', {
-        type: 'GET',
-        dataType: 'json',
-        cache: false
-      }).then((function(_this) {
-        return function(data, textStatus, jqXHR) {
-          return _this.on_data(data);
+      var grabData, inFlight;
+      inFlight = false;
+      grabData = (function(_this) {
+        return function() {
+          if (inFlight) {
+            return;
+          }
+          inFlight = true;
+          return $.ajax('/data', {
+            type: 'GET',
+            dataType: 'json',
+            cache: false
+          }).then(function(data) {
+            inFlight = false;
+            return _this.on_data(data);
+          });
         };
-      })(this)).then((function(_this) {
-        return function(data, textStatus, jqXHR) {
-          return _this.request_data();
-        };
-      })(this));
+      })(this);
+      return setInterval(grabData, 10);
     };
 
     SpectrogramApp.prototype.on_data = function(data) {

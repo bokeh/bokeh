@@ -50,17 +50,19 @@ class SpectrogramApp
     @power_plot = new SimpleXYPlot(find(@layout, "spectrum"), @config)
     #@eq_plot = new RadialHistogramPlot(find(@layout, "eq"), @config)
 
-  request_data: () =>
-    return $.ajax('http://localhost:5000/data', {
-      type: 'GET'
-      dataType: 'json'
-      cache: false
-    }
-    ).then((data, textStatus, jqXHR) =>
-        @on_data(data)
-    ).then((data, textStatus, jqXHR) =>
-        @request_data()
-    )
+  request_data: =>
+    inFlight = false
+    grabData = =>
+      return if inFlight
+      inFlight = true
+      $.ajax '/data',
+        type: 'GET'
+        dataType: 'json'
+        cache: false
+      .then (data) =>
+        inFlight = false
+        @on_data data
+    setInterval grabData, 10
 
   on_data: (data) ->
     signal = (x*@gain for x in data.signal)
