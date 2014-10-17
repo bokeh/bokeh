@@ -50,17 +50,19 @@ class SpectrogramApp
     @power_plot = new SimpleXYPlot(find(@layout, "spectrum"), @config)
     @eq_plot = new RadialHistogramPlot(find(@layout, "eq"), @config)
 
-  request_data: () =>
-    return $.ajax('http://localhost:5000/data', {
-      type: 'GET'
-      dataType: 'json'
-      cache: false
-    }
-    ).then((data, textStatus, jqXHR) =>
-        @on_data(data)
-    ).then((data, textStatus, jqXHR) =>
-        @request_data()
-    )
+  request_data: =>
+    inFlight = false
+    grabData = =>
+      return if inFlight
+      inFlight = true
+      $.ajax '/data',
+        type: 'GET'
+        dataType: 'json'
+        cache: false
+      .then (data) =>
+        inFlight = false
+        @on_data data
+    setInterval grabData, 10
 
   on_data: (data) ->
     if _.keys(data).length == 0
@@ -166,13 +168,16 @@ class SimpleXYPlot
 
 setup = () ->
   index = window.Bokeh.index
-  if _.keys(index).length == 0
+  keys = _.keys index
+  if keys.length is 0
     console.log "Bokeh not loaded yet, waiting to set up SpectrogramApp..."
-    setTimeout(setup, 200)
-  else
-    console.log "Bokeh loaded, starting SpectrogramApp"
-    id = _.keys(index)[0]
-    app = new SpectrogramApp(index[id].model)
+    return
 
-setTimeout(setup, 200)
+  clearInterval timer
+
+  console.log "Bokeh loaded, starting SpectrogramApp"
+  id = keys[0]
+  app = new SpectrogramApp(index[id].model)
+
+timer = setInterval setup, 200
 
