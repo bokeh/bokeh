@@ -6,10 +6,11 @@ import flask
 import pyaudio
 import numpy as np
 import scipy as sp
+from scipy.integrate import simps
 
 from bokeh.embed import components
 from bokeh.objects import ColumnDataSource
-from bokeh.plotting import image_rgba, line, annular_wedge
+from bokeh.plotting import image_rgba, line, annular_wedge, grid
 from bokeh.resources import Resources
 from bokeh.templates import RESOURCES
 from bokeh.utils import encode_utf8
@@ -108,7 +109,6 @@ def main():
 
     app.run(debug=True)
 
-
 def make_spectrogram():
 
     plot_kw = dict(
@@ -154,13 +154,14 @@ def make_spectrogram():
     radial_source = ColumnDataSource(data=dict(
         inner_radius=[], outer_radius=[], start_angle=[], end_angle=[], fill_alpha=[],
     ))
-    radial = annular_wedge(
+    eq = annular_wedge(
         x=0, y=0, fill_color="#688AB9", fill_alpha="fill_alpha", line_color=None,
         inner_radius="inner_radius", outer_radius="outer_radius",
         start_angle="start_angle", end_angle="end_angle", title=None,
         source=radial_source, plot_width=500, plot_height=520,
         x_range=[-20, 20], y_range=[-20, 20],
         name="eq", **plot_kw)
+    grid().grid_line_color=None
 
     lines = VBox(
         children=[spectrum, signal]
@@ -169,7 +170,7 @@ def make_spectrogram():
     layout = VBox(
         children = [
             HBox(children=[freq, gain, spec]),
-            HBox(children=[lines]) #, radial])
+            HBox(children=[lines, eq])
         ]
     )
 
@@ -194,9 +195,10 @@ def get_audio_data():
             signal = raw_data / 32768.0
             fft = sp.fft(signal)
             spectrum = abs(fft)[:NUM_SAMPLES/2]
-            bins = np.histogram(spectrum)[0]
+            power = spectrum**2
+            bins = [simps(a)*4 for a in np.split(power, 16)]
             with mutex:
-                data = signal.tolist(), spectrum.tolist(), bins.tolist()
+                data = signal.tolist(), spectrum.tolist(), bins
         except:
             with mutex:
                 data = None

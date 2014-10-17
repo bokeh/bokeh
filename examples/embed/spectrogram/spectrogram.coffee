@@ -48,7 +48,7 @@ class SpectrogramApp
     @spectrogram_plot = new SpectrogramPlot(find(@layout, "spectrogram"), @config)
     @signal_plot = new SimpleXYPlot(find(@layout, "signal"), @config)
     @power_plot = new SimpleXYPlot(find(@layout, "spectrum"), @config)
-    #@eq_plot = new RadialHistogramPlot(find(@layout, "eq"), @config)
+    @eq_plot = new RadialHistogramPlot(find(@layout, "eq"), @config)
 
   request_data: () =>
     return $.ajax('http://localhost:5000/data', {
@@ -63,6 +63,9 @@ class SpectrogramApp
     )
 
   on_data: (data) ->
+    if _.keys(data).length == 0
+      return
+
     signal = (x*@gain for x in data.signal)
     spectrum = (x*@gain for x in data.spectrum)
     power = (x*x for x in data.spectrum)
@@ -75,7 +78,7 @@ class SpectrogramApp
     f = (i/spectrum.length*@config.MAX_FREQ for i in [0...spectrum.length])
     @power_plot.update(f, spectrum)
 
-    #@eq_plot.update(data.bins)
+    @eq_plot.update(data.bins)
 
 class SpectrogramPlot
 
@@ -135,7 +138,7 @@ class RadialHistogramPlot
     angle = 2*Math.PI/bins.length
     [inner, outer, start, end, alpha] = [[], [], [], [], []]
     for i in [0...bins.length]
-      range = [0...(bins[i]/32+1)]
+      range = [0...(Math.ceil(bins[i]))]
       inner = inner.concat(j+2 for j in range)
       outer = outer.concat(j+2.95 for j in range)
       start = start.concat((i+0.05) * angle for j in range)

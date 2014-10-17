@@ -70,7 +70,8 @@
       console.log("Got config:", this.config);
       this.spectrogram_plot = new SpectrogramPlot(find(this.layout, "spectrogram"), this.config);
       this.signal_plot = new SimpleXYPlot(find(this.layout, "signal"), this.config);
-      return this.power_plot = new SimpleXYPlot(find(this.layout, "spectrum"), this.config);
+      this.power_plot = new SimpleXYPlot(find(this.layout, "spectrum"), this.config);
+      return this.eq_plot = new RadialHistogramPlot(find(this.layout, "eq"), this.config);
     };
 
     SpectrogramApp.prototype.request_data = function() {
@@ -88,6 +89,9 @@
 
     SpectrogramApp.prototype.on_data = function(data) {
       var f, i, power, signal, spectrum, t, x;
+      if (_.keys(data).length === 0) {
+        return;
+      }
       signal = (function() {
         var _i, _len, _ref, _results;
         _ref = data.signal;
@@ -136,7 +140,8 @@
         }
         return _results;
       }).call(this);
-      return this.power_plot.update(f, spectrum);
+      this.power_plot.update(f, spectrum);
+      return this.eq_plot.update(data.bins);
     };
 
     return SpectrogramApp;
@@ -217,7 +222,7 @@
       for (i = _i = 0, _ref1 = bins.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
         range = (function() {
           _results = [];
-          for (var _j = 0, _ref2 = bins[i] / 32 + 1; 0 <= _ref2 ? _j < _ref2 : _j > _ref2; 0 <= _ref2 ? _j++ : _j--){ _results.push(_j); }
+          for (var _j = 0, _ref2 = Math.ceil(bins[i]); 0 <= _ref2 ? _j < _ref2 : _j > _ref2; 0 <= _ref2 ? _j++ : _j--){ _results.push(_j); }
           return _results;
         }).apply(this);
         inner = inner.concat((function() {
