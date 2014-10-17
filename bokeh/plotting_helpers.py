@@ -342,6 +342,9 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
             if k.startswith(prefix):
                 setattr(p, k, kw.pop(k))
 
+    if 'toolbar_location' in list(kw):
+        p.toolbar_location = kw.pop('toolbar_location')
+
     tool_objs = []
     temp_tool_str = str()
 

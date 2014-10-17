@@ -146,6 +146,8 @@ class ImageRGBA(Glyph):
     image = DataSpec
     x = DataSpec
     y = DataSpec
+    rows = DataSpec
+    cols = DataSpec
     dw = DataSpec
     dh = DataSpec
     dilate = Bool(False)
