@@ -57,7 +57,7 @@ output_file("image.html")
 
 # EXERCISE: Fill in the missing parameters to use the `image` renderer to
 # display the Mandelbrot image with the title 'Mandelbrot', colormapped
-# with the palette 'Spectral-11', and a fixed range given by (min_x, max_x)
+# with the palette 'Spectral11', and a fixed range given by (min_x, max_x)
 # and (min_y, max_y).
 #
 # NOTE: the `image` renderer can display many images at once, so it takes
@@ -68,7 +68,7 @@ image(image=[img],
       y=[min_y],
       dw=[max_x-min_x],
       dh=[max_y-min_y],
-      palette=["Spectral-11"],
+      palette="Spectral11",
       x_range = [min_x, max_x],
       y_range = [min_y, max_y],
       title="Mandelbrot",

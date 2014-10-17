@@ -287,7 +287,8 @@ class Document(object):
         self._add(*self.context.references())
         if not models:
             models = self._models.values()
-        return dump(models, docid=self.docid)
+        json = dump(models, docid=self.docid) 
+        return json 
 
     #------------------------------------------------------------------------
     # Managing callbacks
