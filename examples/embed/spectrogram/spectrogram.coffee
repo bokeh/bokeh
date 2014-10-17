@@ -50,19 +50,23 @@ class SpectrogramApp
     @power_plot = new SimpleXYPlot(find(@layout, "spectrum"), @config)
     @eq_plot = new RadialHistogramPlot(find(@layout, "eq"), @config)
 
-  request_data: =>
-    inFlight = false
-    grabData = =>
-      return if inFlight
-      inFlight = true
-      $.ajax '/data',
+  request_data: () =>
+    in_flight = false
+    helper = () =>
+      if in_flight
+        return
+      in_flight = true
+      $.ajax('/data',
         type: 'GET'
         dataType: 'json'
         cache: false
-      .then (data) =>
-        inFlight = false
-        @on_data data
-    setInterval grabData, 10
+      ).fail(
+        in_flight = false
+      ).then((data) =>
+        in_flight = false
+        @on_data(data)
+      )
+    setInterval(helper, 10)
 
   on_data: (data) ->
     if _.keys(data).length == 0
@@ -87,7 +91,7 @@ class SpectrogramPlot
   constructor: (@model, @config) ->
     @source = @model.get('data_source')
     @cmap = new Bokeh.LinearColorMapper.Model({
-      palette: Bokeh.Palettes.all_palettes["YlGnBu-9"], low: 0, high: 10
+      palette: Bokeh.Palettes.all_palettes["YlGnBu-9"], low: 0, high: 5
     })
 
     plot = @model.attributes.parent
@@ -168,16 +172,16 @@ class SimpleXYPlot
 
 setup = () ->
   index = window.Bokeh.index
-  keys = _.keys index
+  keys = _.keys(index)
   if keys.length is 0
-    console.log "Bokeh not loaded yet, waiting to set up SpectrogramApp..."
+    console.log("Bokeh not loaded yet, waiting to set up SpectrogramApp...")
     return
 
-  clearInterval timer
+  clearInterval(timer)
 
-  console.log "Bokeh loaded, starting SpectrogramApp"
+  console.log("Bokeh loaded, starting SpectrogramApp")
   id = keys[0]
   app = new SpectrogramApp(index[id].model)
 
-timer = setInterval setup, 200
+timer = setInterval(setup, 200)
 
