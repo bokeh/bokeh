@@ -5,6 +5,8 @@ from ..mixins import FillProps, LineProps, TextProps
 from ..enums import Units, AngleUnits, Direction, Anchor
 from ..properties import Align, Bool, DataSpec, Enum, HasProps, Instance, Size
 
+from .mappers import LinearColorMapper
+
 # Size is a way to preserve a data-space-related metric all the way until
 #   render time, when the screen dimensions are known
 # Align may be "center", "min", "max", or "jitter(func)" where func is name
@@ -72,7 +74,6 @@ class Gear(Glyph, LineProps, FillProps):
 
 class Image(Glyph):
     def __init__(self, **kwargs):
-        from .objects import LinearColorMapper
         if 'palette' in kwargs and 'color_mapper' in kwargs:
             raise ValueError("Only one of 'palette' and 'color_mapper' may be specified")
 
