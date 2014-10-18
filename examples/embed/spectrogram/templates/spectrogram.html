@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv='content-type' content='text/html; charset=utf-8' />
+
+    <title>Bokeh Spectrogram Demo</title>
+
+    {{ plot_resources|indent(4)|safe }}
+
+    {{ plot_script|indent(4)|safe }}
+  </head>
+  <body>
+    {{ plot_div|indent(4)|safe }}
+    <script type="text/javascript" src="static/js/spectrogram.js" defer></script>
+  </body>
+</html>
