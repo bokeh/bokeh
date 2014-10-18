@@ -13,3 +13,4 @@ from .sources import *
 from .tickers import *
 from .tools import *
 from .widget import *
+from .widgets import *
