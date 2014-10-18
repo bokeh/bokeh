@@ -5,7 +5,6 @@ from ..properties import Bool, Int, String, Color, Enum, Instance, List, Dict, I
 from ..mixins import LineProps, TextProps
 from .. enums import Location
 
-from .. import _glyph_functions
 from ..utils import nice_join
 from ..query import find
 
@@ -194,39 +193,6 @@ class Plot(Widget):
 
     h_symmetry = Bool(True)
     v_symmetry = Bool(False)
-
-    annular_wedge     = _glyph_functions.annular_wedge
-    annulus           = _glyph_functions.annulus
-    arc               = _glyph_functions.arc
-    asterisk          = _glyph_functions.asterisk
-    bezier            = _glyph_functions.bezier
-    circle            = _glyph_functions.circle
-    circle_cross      = _glyph_functions.circle_cross
-    circle_x          = _glyph_functions.circle_x
-    cross             = _glyph_functions.cross
-    diamond           = _glyph_functions.diamond
-    diamond_cross     = _glyph_functions.diamond_cross
-    image             = _glyph_functions.image
-    image_rgba        = _glyph_functions.image_rgba
-    image_url         = _glyph_functions.image_url
-    inverted_triangle = _glyph_functions.inverted_triangle
-    line              = _glyph_functions.line
-    multi_line        = _glyph_functions.multi_line
-    oval              = _glyph_functions.oval
-    patch             = _glyph_functions.patch
-    patches           = _glyph_functions.patches
-    quad              = _glyph_functions.quad
-    quadratic         = _glyph_functions.quadratic
-    ray               = _glyph_functions.ray
-    rect              = _glyph_functions.rect
-    segment           = _glyph_functions.segment
-    square            = _glyph_functions.square
-    square_cross      = _glyph_functions.square_cross
-    square_x          = _glyph_functions.square_x
-    text              = _glyph_functions.text
-    triangle          = _glyph_functions.triangle
-    wedge             = _glyph_functions.wedge
-    x                 = _glyph_functions.x
 
 class GridPlot(Plot):
     """ A 2D grid of plots """
