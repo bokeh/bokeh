@@ -11,15 +11,19 @@ logger = logging.getLogger(__file__)
 
 import warnings
 
+import numpy as np
+from six import string_types
+
 from . import _glyph_functions
 from .enums import DatetimeUnits, Dimension, Location, MapType, Orientation, Units
-from .glyphs import BaseGlyph
+from .glyphs import Glyph
 from .mixins import LineProps, TextProps
 from .plot_object import PlotObject
 from .properties import (
     Datetime, HasProps, Dict, Enum, Either, Float, Instance, Int,
     List, String, Color, Include, Bool, Tuple, Any
 )
+from . import palettes
 from .query import find
 from .utils import nice_join
 
@@ -284,9 +288,59 @@ class DatetimeTickFormatter(TickFormatter):
     """ Represents a categorical tick formatter for an axis object """
     formats = Dict(Enum(DatetimeUnits), List(String))
 
-class Glyph(Renderer):
-    __view_model__ = "GlyphRenderer" # TODO: rename Glyph -> GlyphRenderer and remove this
+class ColorMapper(PlotObject):
+    ''' Base class for color mapper objects. '''
+    pass
 
+class LinearColorMapper(ColorMapper):
+
+    # TODO (bev) use Array property
+    palette = Any # Array
+    low = Float
+    high = Float
+
+    reserve_color = Color("#ffffff") #TODO: What is the color code for transparent???
+    reserve_val = Float(default=None)
+
+    def __init__(self, *args, **kwargs):
+        pal = args[0] if len(args) > 0 else kwargs.get('palette', [])
+
+        if isinstance(pal, string_types):
+            palette = getattr(palettes, pal, None)
+            if palette is None:
+                raise ValueError("Unknown palette name '%s'" % pal)
+            kwargs['palette'] = np.array(palette)
+        else:
+            if not all(isinstance(x, string_types) and x.startswith('#') for x in pal):
+                raise ValueError("Malformed palette: '%s'" % pal)
+            kwargs['palette'] = np.array(pal)
+
+        super(LinearColorMapper, self).__init__(**kwargs)
+
+    def map_from_index(self, indices):
+        return self.palette[np.array(indices)]
+
+    def map_from_value(self, values):
+        x = np.array(values)
+
+        if self.low: low = self.low
+        else: low = min(values)
+
+        if self.high: high = self.high
+        else: high = max(values)
+
+        N = len(self.palette)
+        scale = N/float(high-low)
+        offset = -scale*low
+
+        indices = np.floor(x*scale+offset).astype('int')
+        indices[indices==len(self.palette)] -= 1
+        return self.palette[indices]
+
+    def reverse(self):
+        self.palette = self.palette[::-1]
+
+class GlyphRenderer(Renderer):
     server_data_source = Instance(ServerDataSource)
     data_source = Instance(DataSource)
     x_range_name = String('default')
@@ -295,12 +349,13 @@ class Glyph(Renderer):
     # How to intepret the values in the data_source
     units = Enum(Units)
 
-    glyph = Instance(BaseGlyph)
+    glyph = Instance(Glyph)
 
     # Optional glyph used when data is selected.
-    selection_glyph = Instance(BaseGlyph)
+    selection_glyph = Instance(Glyph)
     # Optional glyph used when data is unselected.
-    nonselection_glyph = Instance(BaseGlyph)
+    nonselection_glyph = Instance(Glyph)
+
 
 class Widget(PlotObject):
     disabled = Bool(False)
@@ -423,7 +478,7 @@ class Plot(Widget):
 
         Args:
             source: (ColumnDataSource) : a data source for the glyphs to all use
-            glyph (BaseGlyph) : the glyph to add to the Plot
+            glyph (Glyph) : the glyph to add to the Plot
 
         Keyword Arguments:
             Any additional keyword arguments are passed on as-is to the
@@ -433,10 +488,10 @@ class Plot(Widget):
             glyph : Glyph
 
         '''
-        if not isinstance(glyph, BaseGlyph):
-            raise ValueError("glyph arguments to add_glyph must be BaseGlyph subclass.")
+        if not isinstance(glyph, Glyph):
+            raise ValueError("glyph arguments to add_glyph must be Glyph subclass.")
 
-        g = Glyph(data_source=source, glyph=glyph, **kw)
+        g = GlyphRenderer(data_source=source, glyph=glyph, **kw)
         self.renderers.append(g)
         return g
 
@@ -737,7 +792,8 @@ class Legend(Renderer):
 
     legend_padding = Int(10)
     legend_spacing = Int(3)
-    legends = List(Tuple(String, List(Instance(Glyph))))
+
+    legends = List(Tuple(String, List(Instance(GlyphRenderer))))
 
 class PlotContext(PlotObject):
     """ A container for multiple plot objects. """

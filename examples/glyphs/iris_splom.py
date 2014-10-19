@@ -7,7 +7,7 @@ from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.glyphs import Circle, Text
 from bokeh.objects import (
-    BasicTicker, ColumnDataSource, Glyph, Grid, GridPlot, LinearAxis,
+    BasicTicker, ColumnDataSource, Grid, GridPlot, LinearAxis,
     DataRange1d, PanTool, Plot, WheelZoomTool
 )
 from bokeh.resources import INLINE

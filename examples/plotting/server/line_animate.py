@@ -19,9 +19,11 @@ line([0,4*np.pi], [-1, 1], color="#ee3333", tools="pan,wheel_zoom,box_zoom,reset
 show()
 
 import time
-from bokeh.objects import Glyph
-renderer = [r for r in curplot().renderers if isinstance(r, Glyph)][0]
+from bokeh.objects import GlyphRenderer
+
+renderer = [r for r in curplot().renderers if isinstance(r, GlyphRenderer)][0]
 ds = renderer.data_source
+
 while True:
     for i in np.hstack((np.linspace(1, -1, 100), np.linspace(-1, 1, 100))):
         ds.data["y"] = y * i

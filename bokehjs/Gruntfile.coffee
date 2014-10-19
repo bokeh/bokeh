@@ -48,9 +48,6 @@ module.exports = (grunt) ->
           src: ['**/*']
           dest : 'build/js/vendor'
         ]
-      spectrogram:
-        src: 'build/js/bokeh.js'
-        dest: 'build/demo/spectrogram/static/bokeh.js'
 
     clean:
       all : ['build'],
@@ -96,10 +93,6 @@ module.exports = (grunt) ->
         ext: '.js'             # file extension for compiled files
         options:
           sourceMap : true
-      spectrogram:
-        files: {
-          'build/demo/spectrogram/static/spectrogram.js': 'demo/spectrogram/coffee/spectrogram.coffee'
-        }
 
     requirejs:
       options:
@@ -212,7 +205,7 @@ module.exports = (grunt) ->
   grunt.registerTask("default",   ["build", "test"])
   grunt.registerTask("buildcopy", ["copy:template", "copy:test", "copy:demo", "copy:vendor"]) # better way??
   grunt.registerTask("build",     ["coffee", "less", "buildcopy", "eco"])
-  grunt.registerTask("deploy",    ["build",  "requirejs", "cssmin", "copy:spectrogram"])
+  grunt.registerTask("deploy",    ["build",  "requirejs", "cssmin"])
   grunt.registerTask("test",      ["build", "connect", "qunit"])
   grunt.registerTask("serve",     ["connect:server:keepalive"])
   grunt.registerTask("release",   ["deploy", "copy:release"])

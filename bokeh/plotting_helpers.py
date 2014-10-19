@@ -33,7 +33,7 @@ def get_default_color(plot=None):
     ]
     if plot:
         renderers = plot.renderers
-        renderers = [x for x in renderers if x.__view_model__ == "Glyph"]
+        renderers = [x for x in renderers if x.__view_model__ == "GlyphRenderer"]
         num_renderers = len(renderers)
         return colors[num_renderers]
     else:
@@ -282,6 +282,8 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
     p = Plot()
     p.title = kw.pop("title", "Plot")
 
+    p.toolbar_location = kw.pop("toolbar_location", "above")
+
     p.x_range = _get_range(x_range)
     p.y_range = _get_range(y_range)
 
@@ -339,6 +341,9 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
         for k in list(kw):
             if k.startswith(prefix):
                 setattr(p, k, kw.pop(k))
+
+    if 'toolbar_location' in list(kw):
+        p.toolbar_location = kw.pop('toolbar_location')
 
     tool_objs = []
     temp_tool_str = str()
