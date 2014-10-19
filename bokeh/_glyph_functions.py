@@ -95,7 +95,7 @@ def _glyph_function(glyphclass, dsnames, argnames, docstring, xfields=["x"], yfi
                 legend = _make_legend(plot)
             legends = OrderedDict(legend.legends)
             legends.setdefault(legend_name, []).append(glyph_renderer)
-            legend.legends = legends
+            legend.legends = list(legends.items())
 
         if select_tool :
             select_tool.renderers.append(glyph_renderer)
