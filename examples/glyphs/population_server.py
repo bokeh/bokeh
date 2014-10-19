@@ -51,7 +51,7 @@ def pyramid():
     female_quad = Quad(left=0, right="female", bottom="groups", top="shifted", fill_color="#CFF09E")
     female_quad_glyph = plot.add_glyph(source_pyramid, female_quad)
 
-    plot.add_layout(Legend(legends=dict(Male=[male_quad_glyph], Female=[female_quad_glyph])))
+    plot.add_layout(Legend(legends=[("Male", [male_quad_glyph]), ("Female", [female_quad_glyph])]))
 
     return plot
 
