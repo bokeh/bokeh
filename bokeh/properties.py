@@ -755,7 +755,7 @@ class Dict(ContainerProperty):
         if json is None:
             return None
         elif isinstance(json, dict):
-            return { self.key_type.from_json(key, models): self.value_type.from_json(key, models) for key, value in iteritems(json) }
+            return { self.keys_type.from_json(key, models): self.values_type.from_json(value, models) for key, value in iteritems(json) }
         else:
             raise DeserializationError("%s expected a dict or None, got %s" % (self, json))
 
