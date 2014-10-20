@@ -16,6 +16,10 @@ To build the gallery, ggplot and seaborn are also needed:
 Building
 ========
 
+Build requires to install sampledata:
+
+    $ python -c 'import bokeh; bokeh.sampledata.download()'
+
 To build the entire docs:
 
     $ make clean all
