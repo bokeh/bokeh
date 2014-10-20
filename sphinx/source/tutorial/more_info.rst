@@ -3,7 +3,7 @@ More Information
 
 For the full documentation, see `http://bokeh.pydata.org <http://bokeh.pydata.org>`_.
 
-To see the Bokeh source code, visit the GitHub repository: `https://github.com/ContinuumIO/bokeh <https://github.com/ContinuumIO/bokeh>`_
+To see the Bokeh source code, visit the GitHub repository: `https://github.com/bokeh/bokeh <https://github.com/bokeh/bokeh>`_
 
 Be sure to follow us on Twitter `@bokehplots <http://twitter.com/BokehPlots>`_!
 
@@ -36,4 +36,4 @@ Thanks
 Bokeh is developed with funding from `DARPA <http://www.darpa.mil>`_'s
 `XDATA <http://www.darpa.mil/Our_Work/I2O/Programs/XDATA.aspx>`_ program.
 
-Additionally, many thanks to `all of the Bokeh Github contributors <https://github.com/ContinuumIO/bokeh/graphs/contributors>`_.
+Additionally, many thanks to `all of the Bokeh Github contributors <https://github.com/bokeh/bokeh/graphs/contributors>`_.

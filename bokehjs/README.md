@@ -1,7 +1,7 @@
 <img src="http://i.imgur.com/TMKcgIV.png" width="35" height="35"> BokehJS
 =========================================================================
 
-BokehJS is a front-end JavaScript library for [Bokeh](http://github.com/ContinuumIO/bokeh).
+BokehJS is a front-end JavaScript library for [Bokeh](http://github.com/bokeh/bokeh).
 
 The architecture of the library facilitates easy manipulation of the components
 and configuration of a plot from server-side code in python or other languages.

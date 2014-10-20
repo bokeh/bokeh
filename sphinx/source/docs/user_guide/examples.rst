@@ -63,7 +63,7 @@ highlight the selected points on the time series, as well as update the histogra
 binnings got the selected points.
 
 The code and instructions for running this example can be found at
-`examples/app/stock_applet <https://github.com/ContinuumIO/bokeh/tree/master/examples/app/stock_applet>`_.
+`examples/app/stock_applet <https://github.com/bokeh/bokeh/tree/master/examples/app/stock_applet>`_.
 
 Another example is the sliders applet that presents several sliders to modify
 parameters of a `sin` function:
@@ -73,7 +73,7 @@ parameters of a `sin` function:
     :scale: 50 %
 
 The code and instructions for running this example can be found at
-`examples/app/sliders_applet <https://github.com/ContinuumIO/bokeh/tree/master/examples/app/sliders_applet>`_.
+`examples/app/sliders_applet <https://github.com/bokeh/bokeh/tree/master/examples/app/sliders_applet>`_.
 
 Novel Plots
 -----------

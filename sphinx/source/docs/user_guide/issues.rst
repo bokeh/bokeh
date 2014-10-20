@@ -4,7 +4,7 @@ Reporting Issues
 ================
 
 You can report possible bugs, start discussions, or ask for features on our
-`issue tracker <https://github.com/ContinuumIO/bokeh/issues>`_.
+`issue tracker <https://github.com/bokeh/bokeh/issues>`_.
 To start a new issue, you will find a ``New issue`` green button at the top
 right area of the page.
 

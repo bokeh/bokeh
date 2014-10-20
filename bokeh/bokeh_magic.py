@@ -1,6 +1,6 @@
 # This is the bokeh_magic loader and installer, if you want to see the 
 # bokeh_magic source code check the following url:
-# https://github.com/ContinuumIO/bokeh/blob/master/extensions/bokeh_magic.py
+# https://github.com/bokeh/bokeh/blob/master/extensions/bokeh_magic.py
 
 from __future__ import print_function
 from IPython import get_ipython
@@ -8,7 +8,7 @@ from IPython import get_ipython
 
 def install_bokeh_magic():
     "An alternative way to install the bokeh_magic extension."
-    url = "https://raw.github.com/ContinuumIO/bokeh/master/extensions/bokeh_magic.py"
+    url = "https://raw.github.com/bokeh/bokeh/master/extensions/bokeh_magic.py"
     ip.extension_manager.install_extension(url)
     print("Bokeh_magic has been installed.")
 
