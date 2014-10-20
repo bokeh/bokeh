@@ -27,10 +27,11 @@ class _NotSet(object):
 
 class Property(object):
     ''' Base class for all type properties. '''
-    def __init__(self, default=None):
+    def __init__(self, default=None, help=None):
         """ This is how the descriptor is created in the class declaration """
         self.validate(default)
         self.default = default
+        self.help = help
         # This gets set by the class decorator at class creation time
         self.name = "unnamed"
 
@@ -155,7 +156,7 @@ class DataSpec(Property):
 
     """
 
-    def __init__(self, field=None, units="data", min_value=None, default=_NotSet):
+    def __init__(self, field=None, units="data", min_value=None, default=_NotSet, help=None):
         """
         Parameters
         ==========
@@ -168,6 +169,7 @@ class DataSpec(Property):
         self.units = units
         self.min_value = min_value
         self.default = default
+        self.help = help
 
     @classmethod
     def autocreate(cls, name=None):
@@ -274,9 +276,7 @@ class ColorSpec(DataSpec):
 
     NAMEDCOLORS = set(colors.__colors__)
 
-    def __init__(self, field_or_value=None, field=None, value=None, default=_NotSet):
-        """ ColorSpec(field_or_value=None, field=None, value=None)
-        """
+    def __init__(self, field_or_value=None, field=None, value=None, default=_NotSet, help=None):
         # The fancy footwork below is so we auto-interpret the first positional
         # parameter as either a field or a fixed value.  If either "field" or
         # "value" are then supplied as keyword arguments, then those will
@@ -285,6 +285,8 @@ class ColorSpec(DataSpec):
         self.field = field
         self.value = value
         self.default = default
+        self.help = help
+
         if field_or_value is not None:
             if self.isconst(field_or_value):
                 self.value = field_or_value
@@ -626,9 +628,9 @@ class Regex(String):
     ''' Regex type property validates that text values match the
     given regular expression.
     '''
-    def __init__(self, regex, default=None):
+    def __init__(self, regex, default=None, help=None):
         self.regex = re.compile(regex)
-        super(Regex, self).__init__(default=default)
+        super(Regex, self).__init__(default=default, help=help)
 
     def validate(self, value):
         super(Regex, self).validate(value)
@@ -676,9 +678,9 @@ class List(ContainerProperty):
     just create an empty list
     """
 
-    def __init__(self, item_type, default=None):
+    def __init__(self, item_type, default=None, help=None):
         self.item_type = self._validate_type_param(item_type)
-        super(List, self).__init__(default=default)
+        super(List, self).__init__(default=default, help=help)
 
     @property
     def type_params(self):
@@ -712,10 +714,10 @@ class Dict(ContainerProperty):
     used for each new use of this property.
     """
 
-    def __init__(self, keys_type, values_type, default={}):
+    def __init__(self, keys_type, values_type, default={}, help=None):
         self.keys_type = self._validate_type_param(keys_type)
         self.values_type = self._validate_type_param(values_type)
-        super(Dict, self).__init__(default=default)
+        super(Dict, self).__init__(default=default, help=help)
 
     @property
     def type_params(self):
@@ -743,7 +745,7 @@ class Tuple(ContainerProperty):
     ''' Tuple type property. '''
     def __init__(self, tp1, tp2, *type_params, **kwargs):
         self._type_params = list(map(self._validate_type_param, (tp1, tp2) + type_params))
-        super(Tuple, self).__init__(default=kwargs.get("default", None))
+        super(Tuple, self).__init__(default=kwargs.get("default"), help=kwargs.get("help"))
 
     @property
     def type_params(self):
@@ -766,9 +768,9 @@ class Array(ContainerProperty):
     this property.
     """
 
-    def __init__(self, item_type, default=None):
+    def __init__(self, item_type, default=None, help=None):
         self.item_type = self._validate_type_param(item_type)
-        super(Array, self).__init__(default=default)
+        super(Array, self).__init__(default=default, help=help)
 
     @property
     def type_params(self):
@@ -786,7 +788,7 @@ class Instance(Property):
     graph.
 
     '''
-    def __init__(self, instance_type, default=None):
+    def __init__(self, instance_type, default=None, help=None):
         if not isinstance(instance_type, (type,) + string_types):
             raise ValueError("expected a type or string, got %s" % instance_type)
 
@@ -795,7 +797,7 @@ class Instance(Property):
 
         self._instance_type = instance_type
 
-        super(Instance, self).__init__(default=default)
+        super(Instance, self).__init__(default=default, help=help)
 
     @property
     def instance_type(self):
@@ -848,13 +850,13 @@ class Event(Property):
 
 class Range(ParameterizedProperty):
     ''' Range type property ensures values are between a range. '''
-    def __init__(self, range_type, start, end, default=None):
+    def __init__(self, range_type, start, end, default=None, help=None):
         self.range_type = self._validate_type_param(range_type)
         self.range_type.validate(start)
         self.range_type.validate(end)
         self.start = start
         self.end = end
-        super(Range, self).__init__(default=default)
+        super(Range, self).__init__(default=default, help=help)
 
     @property
     def type_params(self):
@@ -871,8 +873,8 @@ class Range(ParameterizedProperty):
 
 class Byte(Range):
     ''' Byte type property. '''
-    def __init__(self, default=0):
-        super(Byte, self).__init__(Int, 0, 255, default=default)
+    def __init__(self, default=0, help=None):
+        super(Byte, self).__init__(Int, 0, 255, default=default, help=help)
 
 class Either(ParameterizedProperty):
     """ Takes a list of valid properties and validates against them in succession. """
@@ -880,7 +882,8 @@ class Either(ParameterizedProperty):
     def __init__(self, tp1, tp2, *type_params, **kwargs):
         self._type_params = list(map(self._validate_type_param, (tp1, tp2) + type_params))
         default = kwargs.get("default", self._type_params[0].default)
-        super(Either, self).__init__(default=default)
+        help = kwargs.get("help")
+        super(Either, self).__init__(default=default, help=help)
 
     @property
     def type_params(self):
@@ -916,7 +919,8 @@ class Enum(Property):
         self.allowed_values = enum._values
 
         default = kwargs.get("default", enum._default)
-        super(Enum, self).__init__(default=default)
+        help = kwargs.get("help")
+        super(Enum, self).__init__(default=default, help=help)
 
     def validate(self, value):
         super(Enum, self).validate(value)
@@ -942,12 +946,12 @@ class Color(Either):
     alpha as a float between 0 and 1.  (This follows the HTML5 Canvas API.)
     """
 
-    def __init__(self, default=None):
+    def __init__(self, default=None, help=None):
         types = (Enum(enums.NamedColor),
                  Regex("^#[0-9a-fA-F]{6}$"),
                  Tuple(Byte, Byte, Byte),
                  Tuple(Byte, Byte, Byte, Percent))
-        super(Color, self).__init__(*types, default=default)
+        super(Color, self).__init__(*types, default=default, help=help)
 
     def __str__(self):
         return self.__class__.__name__
@@ -977,9 +981,9 @@ class DashPattern(Either):
         "dashdot": [6,4,2,4],
     }
 
-    def __init__(self, default=[]):
+    def __init__(self, default=[], help=None):
         types = Enum(enums.DashPattern), Regex(r"^(\d+(\s+\d+)*)?$"), List(Int)
-        super(DashPattern, self).__init__(*types, default=default)
+        super(DashPattern, self).__init__(*types, default=default, help=help)
 
     def transform(self, value):
         value = super(DashPattern, self).transform(value)
@@ -1019,8 +1023,8 @@ class Angle(Float):
 
 class Date(Property):
     ''' Date (not datetime) type property. '''
-    def __init__(self, default=datetime.date.today()):
-        super(Date, self).__init__(default=default)
+    def __init__(self, default=datetime.date.today(), help=None):
+        super(Date, self).__init__(default=default, help=help)
 
     def validate(self, value):
         super(Date, self).validate(value)
@@ -1043,8 +1047,8 @@ class Date(Property):
 
 class Datetime(Property):
     ''' Datetime type property. '''
-    def __init__(self, default=datetime.date.today()):
-        super(Datetime, self).__init__(default=default)
+    def __init__(self, default=datetime.date.today(), help=None):
+        super(Datetime, self).__init__(default=default, help=help)
 
     def validate(self, value):
         super(Datetime, self).validate(value)
@@ -1068,10 +1072,10 @@ class Datetime(Property):
 
 class RelativeDelta(Dict):
     ''' RelativeDelta type property for time deltas. '''
-    def __init__(self, default={}):
+    def __init__(self, default={}, help=None):
         keys = Enum("years", "months", "days", "hours", "minutes", "seconds", "microseconds")
         values = Int
-        super(RelativeDelta, self).__init__(keys, values, default=default)
+        super(RelativeDelta, self).__init__(keys, values, default=default, help=help)
 
     def __str__(self):
         return self.__class__.__name__
