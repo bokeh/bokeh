@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 
 from ..plot_object import PlotObject
-from ..properties import Int, String, Enum, Instance, List, Dict, Include
+from ..properties import Int, String, Enum, Instance, List, Dict, Tuple, Include
 from ..mixins import LineProps, TextProps
 from ..enums import Units, Orientation
 
