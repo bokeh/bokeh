@@ -47,7 +47,12 @@ GLYPH = ["visible", "margin", "halign", "valign",
 MARKER = ["x", "y", "size"]
 
 def check_props(glyph, *props):
-    assert glyph.properties() == set(sum((PROPS, GLYPH) + props, []))
+    expected = set(sum((PROPS, GLYPH) + props, []))
+    found = set(glyph.properties())
+    missing = expected.difference(found)
+    extra = found.difference(expected)
+    assert len(missing) == 0, "Properties missing: {0}".format(missing)
+    assert len(extra) == 0, "Extra properties: {0}".format(extra)
 
 def check_fill(glyph):
     assert glyph.fill_color == Color.gray
@@ -145,10 +150,7 @@ def test_Image():
     assert glyph.dw == "dw"
     assert glyph.dh == "dh"
     assert glyph.dilate == False
-    assert glyph.palette == "palette"
-    assert glyph.reserve_val == False
-    assert glyph.reserve_color == 16777215
-    yield check_props, glyph, ["image", "x", "y", "dw", "dh", "dilate", "palette", "reserve_val", "reserve_color"]
+    yield check_props, glyph, ["image", "x", "y", "dw", "dh", "dilate", "color_mapper"]
 
 def test_ImageRGBA():
     glyph = ImageRGBA()
@@ -157,8 +159,11 @@ def test_ImageRGBA():
     assert glyph.y == "y"
     assert glyph.dw == "dw"
     assert glyph.dh == "dh"
+    assert glyph.rows == "rows"
+    assert glyph.cols == "cols"
     assert glyph.dilate == False
-    yield check_props, glyph, ["image", "x", "y", "dw", "dh", "dilate"]
+    assert glyph.anchor == Anchor.top_left 
+    yield check_props, glyph, ["image", "x", "y", "dw", "dh", "rows", "cols", "dilate", "anchor"]
 
 def test_ImageURL():
     glyph = ImageURL()
@@ -169,7 +174,7 @@ def test_ImageURL():
     assert glyph.h == "h"
     assert glyph.angle == "angle"
     assert glyph.dilate == False
-    assert glyph.anchor == "top_left"
+    assert glyph.anchor == Anchor.top_left 
     yield check_props, glyph, ["url", "x", "y", "w", "h", "angle", "dilate", "anchor"]
 
 def test_Line():

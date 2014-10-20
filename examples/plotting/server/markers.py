@@ -50,3 +50,4 @@ mytext([4.5], [6.5], "square_cross")
 mytext([6.5], [6.5], "diamond")
 mytext([8.5], [6.5], "cross / +")
 
+show()

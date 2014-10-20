@@ -108,7 +108,8 @@ class BokehJSONEncoder(json.JSONEncoder):
             return self.transform_python_types(obj)
 
 def serialize_json(obj, encoder=BokehJSONEncoder, **kwargs):
-    return json.dumps(obj, cls=encoder, **kwargs)
+    rslt =  json.dumps(obj, cls=encoder, **kwargs)
+    return rslt
 
 deserialize_json = json.loads
 

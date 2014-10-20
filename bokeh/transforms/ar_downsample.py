@@ -441,7 +441,6 @@ def replot(plot,
         if key in kwargs:
             source_opts[key] = kwargs.pop(key)
 
-
     for name in get_function_code(source).co_varnames:
         if name in kwargs:
             source_opts[name] = kwargs.pop(name)
@@ -481,15 +480,16 @@ def _renderer(plot):
                 and hasattr(r, "server_data_source")
                 and r.server_data_source is not None)][0]
 
+
 # TODO: just use glyph instead of obsolete glyphspec
 def get_glyphspec(glyph):
     spec = glyph.vm_serialize()
     spec['type'] = glyph.__view_model__
     return spec
 
+
 def source(plot,
            agg=Count(), info=Const(val=1), shader=Id(),
-           palette=["Spectral-11"],
            points=False, balancedZoom=False, **kwargs):
     # Acquire information from renderer...
     rend = _renderer(plot)
@@ -508,7 +508,6 @@ def source(plot,
                           'global_y_range': [0, 50],
                           'global_offset_x': [0],
                           'global_offset_y': [0],
-                          'palette': palette,
                           'dw': [1],
                           'dh': [1],
                           'render_state': {}}
