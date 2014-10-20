@@ -1,8 +1,9 @@
-from collections import OrderedDict
-
-from . import glyphs
+from __future__ import absolute_import
 
 from six import iteritems
+from collections import OrderedDict
+
+from .models import glyphs, markers
 
 def _glyph_function(glyphclass, dsnames, argnames, docstring, xfields=["x"], yfields=["y"]):
 
@@ -169,7 +170,7 @@ Returns:
 """
 )
 
-asterisk = _glyph_function(glyphs.Asterisk, ("x", "y"), (),
+asterisk = _glyph_function(markers.Asterisk, ("x", "y"), (),
 """ The `asterisk` glyph is a marker that renders asterisks at `x`, `y` with size `size`.
 
 Args:
@@ -208,7 +209,7 @@ Returns:
 """,
     xfields=['x0', 'x1'], yfields=['y0', 'y1'])
 
-circle = _glyph_function(glyphs.Circle, ("x", "y"), (),
+circle = _glyph_function(markers.Circle, ("x", "y"), (),
 """ The `circle` glyph is a marker that renders circles at `x`, `y` with size `size`.
 
 Args:
@@ -229,7 +230,7 @@ Notes:
 """
 )
 
-circle_cross = _glyph_function(glyphs.CircleCross, ("x", "y"), (),
+circle_cross = _glyph_function(markers.CircleCross, ("x", "y"), (),
 """ The `circle_cross` glyph is a marker that renders circles together with a crossbar (+) at `x`, `y` with size `size` or `radius`.
 
 Args:
@@ -246,7 +247,7 @@ Returns:
 """
 )
 
-circle_x = _glyph_function(glyphs.CircleX, ("x", "y"), (),
+circle_x = _glyph_function(markers.CircleX, ("x", "y"), (),
 """ The `circle_x` glyph is a marker that renders circles together with a "X" glyph at `x`, `y` with size `size`.
 
 Args:
@@ -263,7 +264,7 @@ Returns:
 """
 )
 
-cross = _glyph_function(glyphs.Cross, ("x", "y"), (),
+cross = _glyph_function(markers.Cross, ("x", "y"), (),
 """ The `cross` glyph is a marker that renders crossbars (+) at `x`, `y` with size `size`.
 
 Args:
@@ -280,7 +281,7 @@ Returns:
 """
 )
 
-diamond = _glyph_function(glyphs.Diamond, ("x", "y"), (),
+diamond = _glyph_function(markers.Diamond, ("x", "y"), (),
 """ The `diamond` glyph is a marker that renders diamonds at `x`, `y` with size `size` or `radius`.
 
 Args:
@@ -297,7 +298,7 @@ Returns:
 """
 )
 
-diamond_cross = _glyph_function(glyphs.DiamondCross, ("x", "y"), (),
+diamond_cross = _glyph_function(markers.DiamondCross, ("x", "y"), (),
 """ The `diamond_cross` glyph is a marker that renders diamonds together with a crossbar (+) at `x`, `y` with size `size` or `radius`.
 
 Args:
@@ -373,7 +374,7 @@ Returns:
 """
 )
 
-inverted_triangle = _glyph_function(glyphs.InvertedTriangle, ("x", "y"), (),
+inverted_triangle = _glyph_function(markers.InvertedTriangle, ("x", "y"), (),
 """ The `inverted_triangle` glyph is a marker that renders upside-down triangles at `x`, `y` with size `size` or `radius`.
 
 Args:
@@ -583,7 +584,7 @@ Returns:
 """,
     xfields=["x0", "x1"], yfields=["y0", "y1"])
 
-square = _glyph_function(glyphs.Square, ("x", "y"), (),
+square = _glyph_function(markers.Square, ("x", "y"), (),
 """ The `square` glyph is a marker that renders squares at `x`, `y` with size `size`.
 
 In addition the the parameters specific to this glyph,
@@ -600,7 +601,7 @@ Returns:
 """
 )
 
-square_cross = _glyph_function(glyphs.SquareCross, ("x", "y"), (),
+square_cross = _glyph_function(markers.SquareCross, ("x", "y"), (),
 """ The `square_cross` glyph is a marker that renders squares together with a crossbar (+) at `x`, `y` with size `size`.
 
 Args:
@@ -616,7 +617,7 @@ Returns:
 """
 )
 
-square_x = _glyph_function(glyphs.SquareX, ("x", "y"), (),
+square_x = _glyph_function(markers.SquareX, ("x", "y"), (),
 """ The `square_x` glyph is a marker that renders squares together with "X" glyphs at `x`, `y` with size `size`.
 
 In addition the the parameters specific to this glyph, :ref:`userguide_objects_line_properties` and
@@ -651,7 +652,7 @@ Returns:
 """
 )
 
-triangle = _glyph_function(glyphs.Triangle, ("x", "y"), (),
+triangle = _glyph_function(markers.Triangle, ("x", "y"), (),
 """ The `triangle` glyph is a marker that renders triangles at `x`, `y` with size `size`.
 
 In addition the the parameters specific to this glyph,
@@ -687,7 +688,7 @@ Returns:
 """
 )
 
-x = _glyph_function(glyphs.X, ("x", "y"), (),
+x = _glyph_function(markers.X, ("x", "y"), (),
 """ The `x` glyph is a marker that renders "x" glyphs at `x`, `y` with size `size`.
 
 In addition the the parameters specific to this glyph,
