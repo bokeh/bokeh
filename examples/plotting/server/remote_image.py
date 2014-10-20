@@ -35,7 +35,7 @@ image(
     dh="dh",
     width=200,
     height=200,
-    palette="palette",
+    palette="Spectral11",
     x_range=[0,10],
     y_range=[0,10],
     tools="pan,wheel_zoom,box_zoom,reset,previewsave"

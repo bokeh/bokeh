@@ -191,6 +191,8 @@ define [
     SelectionManager:         'common/selection_manager'
     Selector:                 'common/selector'
 
+    LinearColorMapper:        'mapper/linear_color_mapper'
+
     DataFactorRange:          'range/data_factor_range'
     DataRange1d:              'range/data_range1d'
     FactorRange:              'range/factor_range'

@@ -435,6 +435,8 @@ setup(
     cmdclass=_cmdclass,
     packages=[
         'bokeh',
+        'bokeh.models',
+        'bokeh.models.widgets',
         'bokeh.charts',
         'bokeh.crossfilter',
         'bokeh.mplexporter',

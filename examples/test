@@ -288,7 +288,20 @@ class Timeout(Exception):
     pass
 
 def run_example(example):
-    cmd = ["python", basename(example)]
+    code = """\
+filename = '%s'
+
+import random
+random.seed(1)
+
+import numpy as np
+np.random.seed(1)
+
+with open(filename, 'rb') as example:
+    exec(compile(example.read(), filename, 'exec'))
+""" % basename(example)
+
+    cmd = ["python", "-c", code]
     cwd = dirname(example)
     env = make_env()
 
