@@ -4,6 +4,7 @@ classes and implement convenience behaviors like default values, etc.
 from __future__ import print_function
 
 import re
+import difflib
 import datetime
 import dateutil.parser
 from importlib import import_module
@@ -486,8 +487,13 @@ class HasProps(object):
             if key in props:
                 setattr(self, key, value)
             else:
-                raise AttributeError("unexpected attribute '%s' to %s, possible attributes are %s" %
-                    (key, self.__class__.__name__, nice_join(props)))
+                matches, text = difflib.get_close_matches(key.lower(), props), "similar"
+
+                if not matches:
+                    matches, text = props, "possible"
+
+                raise AttributeError("unexpected attribute '%s' to %s, %s attributes are %s" %
+                    (key, self.__class__.__name__, text, nice_join(matches)))
 
         super(HasProps, self).__init__()
 
