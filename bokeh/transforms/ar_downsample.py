@@ -174,12 +174,9 @@ class Seq(Shader):
     def reify(self, **kwargs):
         return self.first.reify(**kwargs) + self.second.reify(**kwargs)
 
-    def __getattr__(self, name):
-        if name == 'out':
-            self.out = self.second.out
-            return self.out
-        else:
-            raise AttributeError(name)
+    @property
+    def out(self):
+        return self.second.out
 
     def reformat(self, result, *args):
         return self.second.reformat(result, *args)

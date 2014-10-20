@@ -238,7 +238,7 @@ class BokehRenderer(Renderer):
         text.text_color = style['color']
         text.text_align = style['halign']
         text.text_baseline = alignment_map[style['valign']]
-        text.text_angle = style['rotation']
+        text.angle = style['rotation']
         #style['zorder'] # not in Bokeh
 
         ## Using get_fontname() works, but it's oftentimes not available in the browser,
