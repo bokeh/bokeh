@@ -72,21 +72,6 @@ class TestViewable(unittest.TestCase):
 
 class TestCollectPlotObjects(unittest.TestCase):
 
-    def test_references(self):
-        from bokeh.plot_object import PlotObject
-        pobject1 = PlotObject()
-        pobject2 = PlotObject()
-        pobject3 = PlotObject()
-        pobject4 = PlotObject()
-        pobject1.pobject2 = pobject2
-        pobject1.pobject3 = pobject3
-        pobject3.pobject4 = pobject4
-        pobject1.properties_with_refs = Mock(return_value=['pobject2', 'pobject3'])
-        pobject3.properties_with_refs = Mock(return_value=['pobject4'])
-        resultset = set(pobject1.references())
-        expectedset = set([pobject1, pobject2, pobject3, pobject4])
-        self.assertEqual(resultset, expectedset)
-
     def test_references_large(self):
         context, objects = large_plot(500)
         self.assertEqual(set(context.references()), objects)

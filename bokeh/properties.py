@@ -477,27 +477,27 @@ def lookup_descriptor(cls, propname):
 
 @add_metaclass(MetaHasProps)
 class HasProps(object):
-    def __init__(self, **kwargs):
-        """ Set up a default initializer handler which assigns all kwargs
-        that have the same names as Properties on the class
-        """
-        # Initialize the mutated property handling
+
+    def __init__(self, **properties):
+        super(HasProps, self).__init__()
         self._changed_vars = set()
 
+        for name, value in properties.items():
+            setattr(self, name, value)
+
+    def __setattr__(self, name, value):
         props = self.properties()
-        for key, value in kwargs.items():
-            if key in props:
-                setattr(self, key, value)
-            else:
-                matches, text = difflib.get_close_matches(key.lower(), props), "similar"
 
-                if not matches:
-                    matches, text = props, "possible"
+        if name.startswith("_") or name in props:
+            super(HasProps, self).__setattr__(name, value)
+        else:
+            matches, text = difflib.get_close_matches(name.lower(), props), "similar"
 
-                raise AttributeError("unexpected attribute '%s' to %s, %s attributes are %s" %
-                    (key, self.__class__.__name__, text, nice_join(matches)))
+            if not matches:
+                matches, text = props, "possible"
 
-        super(HasProps, self).__init__()
+            raise AttributeError("unexpected attribute '%s' to %s, %s attributes are %s" %
+                (name, self.__class__.__name__, text, nice_join(matches)))
 
     def to_dict(self):
         return dict((prop, getattr(self, prop)) for prop in self.properties())
