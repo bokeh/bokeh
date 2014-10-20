@@ -18,8 +18,10 @@ define [
       vx = @plot_view.canvas.sx_to_vx(e.bokeh.sx)
       vy = @plot_view.canvas.sy_to_vy(e.bokeh.sy)
 
-      if not (vx >= hr.get('start') and vx <= hr.get('end') and vy >= vr.get('start') and vy <= vr.get('end'))
-        return null
+      if vx < hr.get('start') or vx > hr.get('end')
+        v_axis_only = true
+      if vy < vr.get('start') or vy > vr.get('end')
+        h_axis_only = true
 
       # we need a browser-specific multiplier to have similar experiences
       if navigator.userAgent.toLowerCase().indexOf("firefox") > -1
@@ -48,14 +50,14 @@ define [
 
       dims = @mget('dimensions')
 
-      if dims.indexOf('width') > -1
+      if dims.indexOf('width') > -1 and not v_axis_only
         sx0 = vx_low  - (vx_low  - vx)*factor
         sx1 = vx_high - (vx_high - vx)*factor
       else
         sx0 = vx_low
         sx1 = vx_high
 
-      if dims.indexOf('height') > -1
+      if dims.indexOf('height') > -1 and not h_axis_only
         sy0 = vy_low  - (vy_low  - vy)*factor
         sy1 = vy_high - (vy_high - vy)*factor
       else
