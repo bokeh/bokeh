@@ -6,7 +6,7 @@
   "license": "BSD-3-Clause",
   "repository": {
     "type": "git",
-    "url": "git://github.com/ContinuumIO/bokeh.git"
+    "url": "git://github.com/bokeh/bokeh.git"
     },
   "devDependencies": {
     "requirejs": "^2.1.11",

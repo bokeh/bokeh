@@ -13,10 +13,10 @@ Developer Guide
 Process
 =======
 
-The development process for Bokeh is outlined in `Bokeh Enhancement Proposal 1 <https://github.com/ContinuumIO/bokeh/wiki/BEP-1:-Issues-and-PRs-management>`_. All changes, enhancements, and bugfixes should generally go
+The development process for Bokeh is outlined in `Bokeh Enhancement Proposal 1 <https://github.com/bokeh/bokeh/wiki/BEP-1:-Issues-and-PRs-management>`_. All changes, enhancements, and bugfixes should generally go
 through the process outlined there.
 
-The release process for Bokeh is outlined in `Bokeh Enhancement Proposal 2 <https://github.com/ContinuumIO/bokeh/wiki/BEP-2:-Release-Management>`_.
+The release process for Bokeh is outlined in `Bokeh Enhancement Proposal 2 <https://github.com/bokeh/bokeh/wiki/BEP-2:-Release-Management>`_.
 
 .. _developer_install:
 
@@ -234,7 +234,7 @@ Testing
 =======
 
 There is a TravisCI project configured to execute on every GitHub push, it can
-be viewed at: https://travis-ci.org/ContinuumIO/bokeh.
+be viewed at: https://travis-ci.org/bokeh/bokeh.
 
 To run the just the python unit tests, run the command::
 

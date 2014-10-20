@@ -24,7 +24,7 @@ then you can use ``pip``::
 This will not install any examples, and you will need to clone the git
 repository and look in the ``examples/`` directory there.
 
-To download from source, clone the `Bokeh git repo <https://github.com/ContinuumIO/bokeh>`_,
+To download from source, clone the `Bokeh git repo <https://github.com/bokeh/bokeh>`_,
 then run::
 
     $ python setup.py install
