@@ -10,7 +10,7 @@ bootstrap theme:
 
 To build the gallery, ggplot and seaborn are also needed:
 
-    $ pip install ggpplot
+    $ pip install ggplot
     $ pip install seaborn
 
 Building
