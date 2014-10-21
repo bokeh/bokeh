@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "plot_widget.js",
+  "sourceRoot": "../../../src/coffee/common/",
+  "sources": [
+    "plot_widget.coffee"
+  ],
+  "names": [],
+  "mappings": "AAEA;CAAA,KAAA;oSAAA;;CAAA,CAAA,CAEG,GAFH,GAEI,IAAD,KAFI;CAIL,OAAA,QAAA;WAAM;CAOJ;;;;;CAAA;;CAAA,EAAS,EAAT,EAAA;;CAAA,EAEY,IAAA,EAAC,CAAb;CACE,EAAc,CAAb,GAAoB,CAArB,EAAA;CACC,EAAY,CAAZ,GAAmB,EAApB,MAAA;CAJF,MAEY;;CAFZ,EAMmB,MAAA,QAAnB;;CANA,EAQgB,MAAA,KAAhB;CACG,GAAA,KAAS,KAAV,CAAA;CATF,MAQgB;;CARhB;;CAPuB;CAJ3B,EAEG;CAFH"
+}

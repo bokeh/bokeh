@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "palettes.js",
+  "sourceRoot": "../../../src/coffee/palettes/",
+  "sources": [
+    "palettes.coffee"
+  ],
+  "names": [],
+  "mappings": "AACA;CAAA,CAAA,CAEG,GAFH,GAEI,EAAD,IAFI;CAIL,OAAA,2BAAA;CAAA,CAAA,CAAe,CAAf,QAAA;AAEA,CAAA,QAAA,UAAA;iCAAA;AACE,CAAA,UAAA,CAAA;0BAAA;CACE,CAAa,CAAlB,CAAkB,GAAwB,CAArC,IAAa;CADf,MADF;CAAA,IAFA;CAMA,UAAO;CAAA,CACW,IAAhB,MADK,EACL;CATD,KAQD;CAVF,EAEG;CAFH"
+}

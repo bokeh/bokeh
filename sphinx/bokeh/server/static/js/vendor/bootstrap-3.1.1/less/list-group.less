@@ -1,0 +1,110 @@
+//
+// List groups
+// --------------------------------------------------
+
+
+// Base class
+//
+// Easily usable on <ul>, <ol>, or <div>.
+
+.bk-bs-list-group {
+  // No need to set list-style: none; since .bk-bs-list-group-item is block level
+  margin-bottom: 20px;
+  padding-left: 0; // reset padding because ul and ol
+}
+
+
+// Individual list items
+//
+// Use on `li`s or `div`s within the `.bk-bs-list-group` parent.
+
+.bk-bs-list-group-item {
+  position: relative;
+  display: block;
+  padding: 10px 15px;
+  // Place the border on the list items and negative margin up for better styling
+  margin-bottom: -1px;
+  background-color: @list-group-bg;
+  border: 1px solid @list-group-border;
+
+  // Round the first and last items
+  &:first-child {
+    .bk-bs-border-top-radius(@list-group-border-radius);
+  }
+  &:last-child {
+    margin-bottom: 0;
+    .bk-bs-border-bottom-radius(@list-group-border-radius);
+  }
+
+  // Align badges within list items
+  > .bk-bs-badge {
+    float: right;
+  }
+  > .bk-bs-badge + .bk-bs-badge {
+    margin-right: 5px;
+  }
+}
+
+
+// Linked list items
+//
+// Use anchor elements instead of `li`s or `div`s to create linked list items.
+// Includes an extra `.bk-bs-active` modifier class for showing selected items.
+
+a.bk-bs-list-group-item {
+  color: @list-group-link-color;
+
+  .bk-bs-list-group-item-heading {
+    color: @list-group-link-heading-color;
+  }
+
+  // Hover state
+  &:hover,
+  &:focus {
+    text-decoration: none;
+    background-color: @list-group-hover-bg;
+  }
+
+  // Active class on item itself, not parent
+  &.bk-bs-active,
+  &.bk-bs-active:hover,
+  &.bk-bs-active:focus {
+    z-index: 2; // Place active items above their siblings for proper border styling
+    color: @list-group-active-color;
+    background-color: @list-group-active-bg;
+    border-color: @list-group-active-border;
+
+    // Force color to inherit for custom content
+    .bk-bs-list-group-item-heading {
+      color: inherit;
+    }
+    .bk-bs-list-group-item-text {
+      color: @list-group-active-text-color;
+    }
+  }
+}
+
+
+// Contextual variants
+//
+// Add modifier classes to change text and background color on individual items.
+// Organizationally, this must come after the `:hover` states.
+
+.bk-bs-list-group-item-variant(success; @state-success-bg; @state-success-text);
+.bk-bs-list-group-item-variant(info; @state-info-bg; @state-info-text);
+.bk-bs-list-group-item-variant(warning; @state-warning-bg; @state-warning-text);
+.bk-bs-list-group-item-variant(danger; @state-danger-bg; @state-danger-text);
+
+
+// Custom content options
+//
+// Extra classes for creating well-formatted content within `.bk-bs-list-group-item`s.
+
+.bk-bs-list-group-item-heading {
+  margin-top: 0;
+  margin-bottom: 5px;
+}
+.bk-bs-list-group-item-text {
+  margin-bottom: 0;
+  line-height: 1.3;
+}

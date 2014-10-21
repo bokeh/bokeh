@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "table_column.js",
+  "sourceRoot": "../../../src/coffee/widget/",
+  "sources": [
+    "table_column.coffee"
+  ],
+  "names": [],
+  "mappings": "AAAA;CAAA,KAAA;oSAAA;;CAAA,CAAA,CAKG,GALH,EAAO,CAKH,CAAD,EALI,CAKJ,MALI,IAAA;CAOL,OAAA,8BAAA;CAAA,GAAM;CACJ;;;;;CAAA;;CAAA,EAAM,CAAN,SAAA;;CAAA,EACc,CADd,QACA;;CADA;;CADwB;CAA1B,GAIM;CACJ;;;;;CAAA;;CAAA,EAAO,EAAP,MAAA;;CAAA;;CADyB;CAG3B,UAAO;CAAA,CACG,GAAR,CAAA,KADK;CAAA,CAEW,EAAA,EAAhB,IAAA,EAAgB;CAXjB,KASD;CAdF,EAKG;CALH"
+}

@@ -1,0 +1,247 @@
+
+//
+// Load core variables and mixins
+// --------------------------------------------------
+
+@import "variables.less";
+@import "mixins.less";
+
+
+
+//
+// Buttons
+// --------------------------------------------------
+
+// Common styles
+.bk-bs-btn-default,
+.bk-bs-btn-primary,
+.bk-bs-btn-success,
+.bk-bs-btn-info,
+.bk-bs-btn-warning,
+.bk-bs-btn-danger {
+  text-shadow: 0 -1px 0 rgba(0,0,0,.2);
+  @shadow: inset 0 1px 0 rgba(255,255,255,.15), 0 1px 1px rgba(0,0,0,.075);
+  .bk-bs-box-shadow(@shadow);
+
+  // Reset the shadow
+  &:active,
+  &.bk-bs-active {
+    .bk-bs-box-shadow(inset 0 3px 5px rgba(0,0,0,.125));
+  }
+}
+
+// Mixin for generating new styles
+.bk-bs-btn-styles(@btn-color: #555) {
+  #gradient > .bk-bs-vertical(@start-color: @btn-color; @end-color: darken(@btn-color, 12%));
+  .bk-bs-reset-filter(); // Disable gradients for IE9 because filter bleeds through rounded corners
+  background-repeat: repeat-x;
+  border-color: darken(@btn-color, 14%);
+
+  &:hover,
+  &:focus  {
+    background-color: darken(@btn-color, 12%);
+    background-position: 0 -15px;
+  }
+
+  &:active,
+  &.bk-bs-active {
+    background-color: darken(@btn-color, 12%);
+    border-color: darken(@btn-color, 14%);
+  }
+}
+
+// Common styles
+.bk-bs-btn {
+  // Remove the gradient for the pressed/active state
+  &:active,
+  &.bk-bs-active {
+    background-image: none;
+  }
+}
+
+// Apply the mixin to the buttons
+.bk-bs-btn-default { .bk-bs-btn-styles(@btn-default-bg); text-shadow: 0 1px 0 #fff; border-color: #ccc; }
+.bk-bs-btn-primary { .bk-bs-btn-styles(@btn-primary-bg); }
+.bk-bs-btn-success { .bk-bs-btn-styles(@btn-success-bg); }
+.bk-bs-btn-info    { .bk-bs-btn-styles(@btn-info-bg); }
+.bk-bs-btn-warning { .bk-bs-btn-styles(@btn-warning-bg); }
+.bk-bs-btn-danger  { .bk-bs-btn-styles(@btn-danger-bg); }
+
+
+
+//
+// Images
+// --------------------------------------------------
+
+.bk-bs-thumbnail,
+.bk-bs-img-thumbnail {
+  .bk-bs-box-shadow(0 1px 2px rgba(0,0,0,.075));
+}
+
+
+
+//
+// Dropdowns
+// --------------------------------------------------
+
+.bk-bs-dropdown-menu > li > a:hover,
+.bk-bs-dropdown-menu > li > a:focus {
+  #gradient > .bk-bs-vertical(@start-color: @dropdown-link-hover-bg; @end-color: darken(@dropdown-link-hover-bg, 5%));
+  background-color: darken(@dropdown-link-hover-bg, 5%);
+}
+.bk-bs-dropdown-menu > .bk-bs-active > a,
+.bk-bs-dropdown-menu > .bk-bs-active > a:hover,
+.bk-bs-dropdown-menu > .bk-bs-active > a:focus {
+  #gradient > .bk-bs-vertical(@start-color: @dropdown-link-active-bg; @end-color: darken(@dropdown-link-active-bg, 5%));
+  background-color: darken(@dropdown-link-active-bg, 5%);
+}
+
+
+
+//
+// Navbar
+// --------------------------------------------------
+
+// Default navbar
+.bk-bs-navbar-default {
+  #gradient > .bk-bs-vertical(@start-color: lighten(@navbar-default-bg, 10%); @end-color: @navbar-default-bg);
+  .bk-bs-reset-filter(); // Remove gradient in IE<10 to fix bug where dropdowns don't get triggered
+  border-radius: @navbar-border-radius;
+  @shadow: inset 0 1px 0 rgba(255,255,255,.15), 0 1px 5px rgba(0,0,0,.075);
+  .bk-bs-box-shadow(@shadow);
+
+  .bk-bs-navbar-nav > .bk-bs-active > a {
+    #gradient > .bk-bs-vertical(@start-color: darken(@navbar-default-bg, 5%); @end-color: darken(@navbar-default-bg, 2%));
+    .bk-bs-box-shadow(inset 0 3px 9px rgba(0,0,0,.075));
+  }
+}
+.bk-bs-navbar-brand,
+.bk-bs-navbar-nav > li > a {
+  text-shadow: 0 1px 0 rgba(255,255,255,.25);
+}
+
+// Inverted navbar
+.bk-bs-navbar-inverse {
+  #gradient > .bk-bs-vertical(@start-color: lighten(@navbar-inverse-bg, 10%); @end-color: @navbar-inverse-bg);
+  .bk-bs-reset-filter(); // Remove gradient in IE<10 to fix bug where dropdowns don't get triggered
+
+  .bk-bs-navbar-nav > .bk-bs-active > a {
+    #gradient > .bk-bs-vertical(@start-color: @navbar-inverse-bg; @end-color: lighten(@navbar-inverse-bg, 2.5%));
+    .bk-bs-box-shadow(inset 0 3px 9px rgba(0,0,0,.25));
+  }
+
+  .bk-bs-navbar-brand,
+  .bk-bs-navbar-nav > li > a {
+    text-shadow: 0 -1px 0 rgba(0,0,0,.25);
+  }
+}
+
+// Undo rounded corners in static and fixed navbars
+.bk-bs-navbar-static-top,
+.bk-bs-navbar-fixed-top,
+.bk-bs-navbar-fixed-bottom {
+  border-radius: 0;
+}
+
+
+
+//
+// Alerts
+// --------------------------------------------------
+
+// Common styles
+.bk-bs-alert {
+  text-shadow: 0 1px 0 rgba(255,255,255,.2);
+  @shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 1px 2px rgba(0,0,0,.05);
+  .bk-bs-box-shadow(@shadow);
+}
+
+// Mixin for generating new styles
+.bk-bs-alert-styles(@color) {
+  #gradient > .bk-bs-vertical(@start-color: @color; @end-color: darken(@color, 7.5%));
+  border-color: darken(@color, 15%);
+}
+
+// Apply the mixin to the alerts
+.bk-bs-alert-success    { .bk-bs-alert-styles(@alert-success-bg); }
+.bk-bs-alert-info       { .bk-bs-alert-styles(@alert-info-bg); }
+.bk-bs-alert-warning    { .bk-bs-alert-styles(@alert-warning-bg); }
+.bk-bs-alert-danger     { .bk-bs-alert-styles(@alert-danger-bg); }
+
+
+
+//
+// Progress bars
+// --------------------------------------------------
+
+// Give the progress background some depth
+.bk-bs-progress {
+  #gradient > .bk-bs-vertical(@start-color: darken(@progress-bg, 4%); @end-color: @progress-bg)
+}
+
+// Mixin for generating new styles
+.bk-bs-progress-bar-styles(@color) {
+  #gradient > .bk-bs-vertical(@start-color: @color; @end-color: darken(@color, 10%));
+}
+
+// Apply the mixin to the progress bars
+.bk-bs-progress-bar            { .bk-bs-progress-bar-styles(@progress-bar-bg); }
+.bk-bs-progress-bar-success    { .bk-bs-progress-bar-styles(@progress-bar-success-bg); }
+.bk-bs-progress-bar-info       { .bk-bs-progress-bar-styles(@progress-bar-info-bg); }
+.bk-bs-progress-bar-warning    { .bk-bs-progress-bar-styles(@progress-bar-warning-bg); }
+.bk-bs-progress-bar-danger     { .bk-bs-progress-bar-styles(@progress-bar-danger-bg); }
+
+
+
+//
+// List groups
+// --------------------------------------------------
+
+.bk-bs-list-group {
+  border-radius: @border-radius-base;
+  .bk-bs-box-shadow(0 1px 2px rgba(0,0,0,.075));
+}
+.bk-bs-list-group-item.bk-bs-active,
+.bk-bs-list-group-item.bk-bs-active:hover,
+.bk-bs-list-group-item.bk-bs-active:focus {
+  text-shadow: 0 -1px 0 darken(@list-group-active-bg, 10%);
+  #gradient > .bk-bs-vertical(@start-color: @list-group-active-bg; @end-color: darken(@list-group-active-bg, 7.5%));
+  border-color: darken(@list-group-active-border, 7.5%);
+}
+
+
+
+//
+// Panels
+// --------------------------------------------------
+
+// Common styles
+.bk-bs-panel {
+  .bk-bs-box-shadow(0 1px 2px rgba(0,0,0,.05));
+}
+
+// Mixin for generating new styles
+.bk-bs-panel-heading-styles(@color) {
+  #gradient > .bk-bs-vertical(@start-color: @color; @end-color: darken(@color, 5%));
+}
+
+// Apply the mixin to the panel headings only
+.bk-bs-panel-default > .bk-bs-panel-heading   { .bk-bs-panel-heading-styles(@panel-default-heading-bg); }
+.bk-bs-panel-primary > .bk-bs-panel-heading   { .bk-bs-panel-heading-styles(@panel-primary-heading-bg); }
+.bk-bs-panel-success > .bk-bs-panel-heading   { .bk-bs-panel-heading-styles(@panel-success-heading-bg); }
+.bk-bs-panel-info > .bk-bs-panel-heading      { .bk-bs-panel-heading-styles(@panel-info-heading-bg); }
+.bk-bs-panel-warning > .bk-bs-panel-heading   { .bk-bs-panel-heading-styles(@panel-warning-heading-bg); }
+.bk-bs-panel-danger > .bk-bs-panel-heading    { .bk-bs-panel-heading-styles(@panel-danger-heading-bg); }
+
+
+
+//
+// Wells
+// --------------------------------------------------
+
+.bk-bs-well {
+  #gradient > .bk-bs-vertical(@start-color: darken(@well-bg, 5%); @end-color: @well-bg);
+  border-color: darken(@well-bg, 10%);
+  @shadow: inset 0 1px 3px rgba(0,0,0,.05), 0 1px 0 rgba(255,255,255,.1);
+  .bk-bs-box-shadow(@shadow);
+}

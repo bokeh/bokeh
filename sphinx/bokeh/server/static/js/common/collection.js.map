@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "collection.js",
+  "sourceRoot": "../../../src/coffee/common/",
+  "sources": [
+    "collection.coffee"
+  ],
+  "names": [],
+  "mappings": "AAAA;CAAA,KAAA;oSAAA;;CAAA,CAAA,CAGG,GAHH,EAGG,CAAC,CAHG,EAAA;CAKL,OAAA,QAAA;WAAM;CAAN;;;;;CAAA;;CAAA;;CAAyB,OAAQ;CALnC,EAGG;CAHH"
+}

@@ -1,0 +1,241 @@
+//
+// Panels
+// --------------------------------------------------
+
+
+// Base class
+.bk-bs-panel {
+  margin-bottom: @line-height-computed;
+  background-color: @panel-bg;
+  border: 1px solid transparent;
+  border-radius: @panel-border-radius;
+  .bk-bs-box-shadow(0 1px 1px rgba(0,0,0,.05));
+}
+
+// Panel contents
+.bk-bs-panel-body {
+  padding: @panel-body-padding;
+  &:extend(.bk-bs-clearfix all);
+}
+
+// Optional heading
+.bk-bs-panel-heading {
+  padding: 10px 15px;
+  border-bottom: 1px solid transparent;
+  .bk-bs-border-top-radius((@panel-border-radius - 1));
+
+  > .bk-bs-dropdown .bk-bs-dropdown-toggle {
+    color: inherit;
+  }
+}
+
+// Within heading, strip any `h*` tag of its default margins for spacing.
+.bk-bs-panel-title {
+  margin-top: 0;
+  margin-bottom: 0;
+  font-size: ceil((@font-size-base * 1.125));
+  color: inherit;
+
+  > a {
+    color: inherit;
+  }
+}
+
+// Optional footer (stays gray in every modifier class)
+.bk-bs-panel-footer {
+  padding: 10px 15px;
+  background-color: @panel-footer-bg;
+  border-top: 1px solid @panel-inner-border;
+  .bk-bs-border-bottom-radius((@panel-border-radius - 1));
+}
+
+
+// List groups in panels
+//
+// By default, space out list group content from panel headings to account for
+// any kind of custom content between the two.
+
+.bk-bs-panel {
+  > .bk-bs-list-group {
+    margin-bottom: 0;
+
+    .bk-bs-list-group-item {
+      border-width: 1px 0;
+      border-radius: 0;
+    }
+
+    // Add border top radius for first one
+    &:first-child {
+      .bk-bs-list-group-item:first-child {
+        border-top: 0;
+        .bk-bs-border-top-radius((@panel-border-radius - 1));
+      }
+    }
+    // Add border bottom radius for last one
+    &:last-child {
+      .bk-bs-list-group-item:last-child {
+        border-bottom: 0;
+        .bk-bs-border-bottom-radius((@panel-border-radius - 1));
+      }
+    }
+  }
+}
+// Collapse space between when there's no additional content.
+.bk-bs-panel-heading + .bk-bs-list-group {
+  .bk-bs-list-group-item:first-child {
+    border-top-width: 0;
+  }
+}
+
+
+// Tables in panels
+//
+// Place a non-bordered `.bk-bs-table` within a panel (not within a `.bk-bs-panel-body`) and
+// watch it go full width.
+
+.bk-bs-panel {
+  > .bk-bs-table,
+  > .bk-bs-table-responsive > .bk-bs-table {
+    margin-bottom: 0;
+  }
+  // Add border top radius for first one
+  > .bk-bs-table:first-child,
+  > .bk-bs-table-responsive:first-child > .bk-bs-table:first-child {
+    .bk-bs-border-top-radius((@panel-border-radius - 1));
+
+    > thead:first-child,
+    > tbody:first-child {
+      > tr:first-child {
+        td:first-child,
+        th:first-child {
+          border-top-left-radius: (@panel-border-radius - 1);
+        }
+        td:last-child,
+        th:last-child {
+          border-top-right-radius: (@panel-border-radius - 1);
+        }
+      }
+    }
+  }
+  // Add border bottom radius for last one
+  > .bk-bs-table:last-child,
+  > .bk-bs-table-responsive:last-child > .bk-bs-table:last-child {
+    .bk-bs-border-bottom-radius((@panel-border-radius - 1));
+
+    > tbody:last-child,
+    > tfoot:last-child {
+      > tr:last-child {
+        td:first-child,
+        th:first-child {
+          border-bottom-left-radius: (@panel-border-radius - 1);
+        }
+        td:last-child,
+        th:last-child {
+          border-bottom-right-radius: (@panel-border-radius - 1);
+        }
+      }
+    }
+  }
+  > .bk-bs-panel-body + .bk-bs-table,
+  > .bk-bs-panel-body + .bk-bs-table-responsive {
+    border-top: 1px solid @table-border-color;
+  }
+  > .bk-bs-table > tbody:first-child > tr:first-child th,
+  > .bk-bs-table > tbody:first-child > tr:first-child td {
+    border-top: 0;
+  }
+  > .bk-bs-table-bordered,
+  > .bk-bs-table-responsive > .bk-bs-table-bordered {
+    border: 0;
+    > thead,
+    > tbody,
+    > tfoot {
+      > tr {
+        > th:first-child,
+        > td:first-child {
+          border-left: 0;
+        }
+        > th:last-child,
+        > td:last-child {
+          border-right: 0;
+        }
+      }
+    }
+    > thead,
+    > tbody {
+      > tr:first-child {
+        > td,
+        > th {
+          border-bottom: 0;
+        }
+      }
+    }
+    > tbody,
+    > tfoot {
+      > tr:last-child {
+        > td,
+        > th {
+          border-bottom: 0;
+        }
+      }
+    }
+  }
+  > .bk-bs-table-responsive {
+    border: 0;
+    margin-bottom: 0;
+  }
+}
+
+
+// Collapsable panels (aka, accordion)
+//
+// Wrap a series of panels in `.bk-bs-panel-group` to turn them into an accordion with
+// the help of our collapse JavaScript plugin.
+
+.bk-bs-panel-group {
+  margin-bottom: @line-height-computed;
+
+  // Tighten up margin so it's only between panels
+  .bk-bs-panel {
+    margin-bottom: 0;
+    border-radius: @panel-border-radius;
+    overflow: hidden; // crop contents when collapsed
+    + .bk-bs-panel {
+      margin-top: 5px;
+    }
+  }
+
+  .bk-bs-panel-heading {
+    border-bottom: 0;
+    + .bk-bs-panel-collapse .bk-bs-panel-body {
+      border-top: 1px solid @panel-inner-border;
+    }
+  }
+  .bk-bs-panel-footer {
+    border-top: 0;
+    + .bk-bs-panel-collapse .bk-bs-panel-body {
+      border-bottom: 1px solid @panel-inner-border;
+    }
+  }
+}
+
+
+// Contextual variations
+.bk-bs-panel-default {
+  .bk-bs-panel-variant(@panel-default-border; @panel-default-text; @panel-default-heading-bg; @panel-default-border);
+}
+.bk-bs-panel-primary {
+  .bk-bs-panel-variant(@panel-primary-border; @panel-primary-text; @panel-primary-heading-bg; @panel-primary-border);
+}
+.bk-bs-panel-success {
+  .bk-bs-panel-variant(@panel-success-border; @panel-success-text; @panel-success-heading-bg; @panel-success-border);
+}
+.bk-bs-panel-info {
+  .bk-bs-panel-variant(@panel-info-border; @panel-info-text; @panel-info-heading-bg; @panel-info-border);
+}
+.bk-bs-panel-warning {
+  .bk-bs-panel-variant(@panel-warning-border; @panel-warning-text; @panel-warning-heading-bg; @panel-warning-border);
+}
+.bk-bs-panel-danger {
+  .bk-bs-panel-variant(@panel-danger-border; @panel-danger-text; @panel-danger-heading-bg; @panel-danger-border);
+}

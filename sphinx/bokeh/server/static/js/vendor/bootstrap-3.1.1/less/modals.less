@@ -1,0 +1,139 @@
+//
+// Modals
+// --------------------------------------------------
+
+// .bk-bs-modal-open      - body class for killing the scroll
+// .bk-bs-modal           - container to scroll within
+// .bk-bs-modal-dialog    - positioning shell for the actual modal
+// .bk-bs-modal-content   - actual modal w/ bg and corners and shit
+
+// Kill the scroll on the body
+.bk-bs-modal-open {
+  overflow: hidden;
+}
+
+// Container that the modal scrolls within
+.bk-bs-modal {
+  display: none;
+  overflow: auto;
+  overflow-y: scroll;
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: @zindex-modal;
+  -webkit-overflow-scrolling: touch;
+
+  // Prevent Chrome on Windows from adding a focus outline. For details, see
+  // https://github.bk-bs-com/twbs/bootstrap/pull/10951.
+  outline: 0;
+
+  // When fading in the modal, animate it to slide down
+  &.bk-bs-fade .bk-bs-modal-dialog {
+    .bk-bs-translate(0, -25%);
+    .bk-bs-transition-transform(~"0.3s ease-out");
+  }
+  &.bk-bs-in .bk-bs-modal-dialog { .bk-bs-translate(0, 0)}
+}
+
+// Shell div to position the modal with bottom padding
+.bk-bs-modal-dialog {
+  position: relative;
+  width: auto;
+  margin: 10px;
+}
+
+// Actual modal
+.bk-bs-modal-content {
+  position: relative;
+  background-color: @modal-content-bg;
+  border: 1px solid @modal-content-fallback-border-color; //old browsers fallback (ie8 etc)
+  border: 1px solid @modal-content-border-color;
+  border-radius: @border-radius-large;
+  .bk-bs-box-shadow(0 3px 9px rgba(0,0,0,.5));
+  background-clip: padding-box;
+  // Remove focus outline from opened modal
+  outline: none;
+}
+
+// Modal background
+.bk-bs-modal-backdrop {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: @zindex-modal-background;
+  background-color: @modal-backdrop-bg;
+  // Fade for backdrop
+  &.bk-bs-fade { .bk-bs-opacity(0); }
+  &.bk-bs-in { .bk-bs-opacity(@modal-backdrop-opacity); }
+}
+
+// Modal header
+// Top section of the modal w/ title and dismiss
+.bk-bs-modal-header {
+  padding: @modal-title-padding;
+  border-bottom: 1px solid @modal-header-border-color;
+  min-height: (@modal-title-padding + @modal-title-line-height);
+}
+// Close icon
+.bk-bs-modal-header .bk-bs-close {
+  margin-top: -2px;
+}
+
+// Title text within header
+.bk-bs-modal-title {
+  margin: 0;
+  line-height: @modal-title-line-height;
+}
+
+// Modal body
+// Where all modal content resides (sibling of .bk-bs-modal-header and .bk-bs-modal-footer)
+.bk-bs-modal-body {
+  position: relative;
+  padding: @modal-inner-padding;
+}
+
+// Footer (for actions)
+.bk-bs-modal-footer {
+  margin-top: 15px;
+  padding: (@modal-inner-padding - 1) @modal-inner-padding @modal-inner-padding;
+  text-align: right; // right align buttons
+  border-top: 1px solid @modal-footer-border-color;
+  &:extend(.bk-bs-clearfix all); // clear it in case folks use .bk-bs-pull-* classes on buttons
+
+  // Properly space out buttons
+  .bk-bs-btn + .bk-bs-btn {
+    margin-left: 5px;
+    margin-bottom: 0; // account for input[type="submit"] which gets the bottom margin like all other inputs
+  }
+  // but override that for button groups
+  .bk-bs-btn-group .bk-bs-btn + .bk-bs-btn {
+    margin-left: -1px;
+  }
+  // and override it for block buttons as well
+  .bk-bs-btn-block + .bk-bs-btn-block {
+    margin-left: 0;
+  }
+}
+
+// Scale up the modal
+@media (min-width: @screen-sm-min) {
+  // Automatically set modal's width for larger viewports
+  .bk-bs-modal-dialog {
+    width: @modal-md;
+    margin: 30px auto;
+  }
+  .bk-bs-modal-content {
+    .bk-bs-box-shadow(0 5px 15px rgba(0,0,0,.5));
+  }
+
+  // Modal sizes
+  .bk-bs-modal-sm { width: @modal-sm; }
+}
+
+@media (min-width: @screen-md-min) {
+  .bk-bs-modal-lg { width: @modal-lg; }
+}

@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "categorical_tick_formatter.js",
+  "sourceRoot": "../../../src/coffee/ticking/",
+  "sources": [
+    "categorical_tick_formatter.coffee"
+  ],
+  "names": [],
+  "mappings": "AAAA;CAAA,KAAA;oSAAA;;CAAA,CAAA,CAGG,GAHH,GAGI,CAAD,GAAA,MAHI,IAAA;CAKL,OAAA,wDAAA;CAAA,GAAM;CACJ;;;;;CAAA;;CAAA,EAAM,CAAN,sBAAA;;CAAA,CAEoB,CAAR,EAAA,EAAA,EAAC,CAAb;CAAY,CACG,GAAb,EAAA,QAAA,0CAAM;CAHR,MAEY;;CAFZ,EAKQ,EAAA,CAAR,GAAS;CACP,IAAA,UAAO;CANT,MAKQ;;CALR;;CADqC;CAAvC,GASM;CACJ;;;;;CAAA;;CAAA,EAAO,EAAP,mBAAA;;CAAA;;CADsC;CAGxC,UAAO;CAAA,CACI,IAAT,CAAA,iBADK;CAAA,CAEa,EAAA,EAAlB,MAAA,aAAkB;CAhBnB,KAcD;CAjBF,EAGG;CAHH"
+}
