@@ -1,4 +1,4 @@
-.. _palettes:
+.. _bokeh_dot_palettes:
 
 Palettes
 ========
