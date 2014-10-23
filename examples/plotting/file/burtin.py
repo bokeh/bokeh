@@ -71,7 +71,7 @@ figure(plot_width=width, plot_height=height, title="",
 line(x+1, y+1, alpha=0)
 
 # annular wedges
-angles = np.pi/2 - big_angle/2 - df.index*big_angle
+angles = np.pi/2 - big_angle/2 - df.index.to_series()*big_angle
 colors = [gram_color[gram] for gram in df.gram]
 annular_wedge(
     x, y, inner_radius, outer_radius, -big_angle+angles, angles, color=colors,
