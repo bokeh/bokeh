@@ -15,15 +15,17 @@ define [
   logger = Logging.logger
 
   class ToolManagerView extends Backbone.View
-    className: "bk-sidebar"
     template: toolbar_template
 
     initialize: (options) ->
       super(options)
       @listenTo(@model, 'change', @render)
+      @render()
 
     render: () ->
       @$el.html(@template())
+      @$el.addClass("bk-sidebar")
+      @$el.addClass("bk-toolbar-active")
       button_bar_list = @$('.bk-button-bar-list')
 
       inspectors = @model.get('inspectors')

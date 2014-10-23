@@ -46,7 +46,7 @@ The Bokeh core team comprises:
 * Bryan Van de Ven
 * Peter Wang
 
-A full list of contributors may be viewed on the `GitHub Contributors Page <https://github.com/ContinuumIO/bokeh/graphs/contributors>`_.
+A full list of contributors may be viewed on the `GitHub Contributors Page <https://github.com/bokeh/bokeh/graphs/contributors>`_.
 
 
 

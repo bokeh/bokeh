@@ -159,10 +159,11 @@ class Test_AR(unittest.TestCase):
         expected = {"image": "Image", "image_rgb": "ImageRGBA", "multi_line": "MultiLine"}
 
         shaders = dict()
+
         for name in dir(ar_downsample):
             item = getattr(ar_downsample, name)
-            if hasattr(item, "out"):
-                shaders[item] = getattr(item, "out")
+            if isinstance(item, ar_downsample.Shader):
+                shaders[item] = item.out
 
         for shader_class in shaders:
             shader = shader_class()

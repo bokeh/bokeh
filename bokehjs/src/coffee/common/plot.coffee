@@ -41,7 +41,7 @@ define [
       @is_paused = false
       @request_render()
 
-    request_render: () ->
+    request_render: () =>
       if not @is_paused
         @throttled_render(true)
       return
@@ -91,6 +91,15 @@ define [
       })
       for id, tool_view of @tools
         @event_bus.register_tool(tool_view)
+
+      toolbar_location = @mget('toolbar_location')
+      if toolbar_location?
+        toolbar_selector = '.bk-plot-' + toolbar_location
+        logger.debug("attaching toolbar to #{toolbar_selector} for plot #{@model.id}")
+        @tm_view = new ToolManager.View({
+          model: @mget('tool_manager')
+          el: @$(toolbar_selector)
+        })
 
       @unpause()
       @request_render()
@@ -174,14 +183,7 @@ define [
       super()
       @canvas_view.render(force_canvas)
 
-      toolbar_location = @mget('toolbar_location')
-      if toolbar_location?
-        toolbar_selector = '.bk-plot-' + toolbar_location
-        logger.debug("attaching toolbar to #{toolbar_selector} for plot #{@model.id}")
-        @tm_view = new ToolManager.View({
-          model: @mget('tool_manager')
-          el: @$(toolbar_selector)
-        })
+      if @tm_view?
         @tm_view.render()
 
       ctx = @canvas_view.ctx

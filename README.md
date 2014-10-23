@@ -9,8 +9,8 @@ Bokeh
 <tr>
   <td>Status</td>  
   <td>
-    <a href="https://travis-ci.org/ContinuumIO/bokeh">
-    <img src="https://travis-ci.org/ContinuumIO/bokeh.svg?branch=master" alt="build status" />
+    <a href="https://travis-ci.org/bokeh/bokeh">
+    <img src="https://travis-ci.org/bokeh/bokeh.svg?branch=master" alt="build status" />
     </a>
   </td> 
 </tr>

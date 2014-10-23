@@ -4,6 +4,7 @@ classes and implement convenience behaviors like default values, etc.
 from __future__ import print_function
 
 import re
+import difflib
 import datetime
 import dateutil.parser
 from importlib import import_module
@@ -24,12 +25,16 @@ bokeh_integer_types = (np.int8, np.int16, np.int32, np.int64) + integer_types
 class _NotSet(object):
     pass
 
+class DeserializationError(Exception):
+    pass
+
 class Property(object):
     ''' Base class for all type properties. '''
-    def __init__(self, default=None):
+    def __init__(self, default=None, help=None):
         """ This is how the descriptor is created in the class declaration """
         self.validate(default)
         self.default = default
+        self.help = help
         # This gets set by the class decorator at class creation time
         self.name = "unnamed"
 
@@ -60,6 +65,9 @@ class Property(object):
         except Exception as e:
             logger.debug("could not compare %s and %s for property %s (Reason: %s)", new, old, self.name, e)
         return False
+
+    def from_json(self, json, models=None):
+        return json
 
     def transform(self, value):
         return value
@@ -154,7 +162,7 @@ class DataSpec(Property):
 
     """
 
-    def __init__(self, field=None, units="data", min_value=None, default=_NotSet):
+    def __init__(self, field=None, units="data", min_value=None, default=_NotSet, help=None):
         """
         Parameters
         ==========
@@ -167,6 +175,7 @@ class DataSpec(Property):
         self.units = units
         self.min_value = min_value
         self.default = default
+        self.help = help
 
     @classmethod
     def autocreate(cls, name=None):
@@ -273,9 +282,7 @@ class ColorSpec(DataSpec):
 
     NAMEDCOLORS = set(colors.__colors__)
 
-    def __init__(self, field_or_value=None, field=None, value=None, default=_NotSet):
-        """ ColorSpec(field_or_value=None, field=None, value=None)
-        """
+    def __init__(self, field_or_value=None, field=None, value=None, default=_NotSet, help=None):
         # The fancy footwork below is so we auto-interpret the first positional
         # parameter as either a field or a fixed value.  If either "field" or
         # "value" are then supplied as keyword arguments, then those will
@@ -284,6 +291,8 @@ class ColorSpec(DataSpec):
         self.field = field
         self.value = value
         self.default = default
+        self.help = help
+
         if field_or_value is not None:
             if self.isconst(field_or_value):
                 self.value = field_or_value
@@ -474,22 +483,27 @@ def lookup_descriptor(cls, propname):
 
 @add_metaclass(MetaHasProps)
 class HasProps(object):
-    def __init__(self, **kwargs):
-        """ Set up a default initializer handler which assigns all kwargs
-        that have the same names as Properties on the class
-        """
-        # Initialize the mutated property handling
+
+    def __init__(self, **properties):
+        super(HasProps, self).__init__()
         self._changed_vars = set()
 
-        props = self.properties()
-        for key, value in kwargs.items():
-            if key in props:
-                setattr(self, key, value)
-            else:
-                raise AttributeError("unexpected attribute '%s' to %s, possible attributes are %s" %
-                    (key, self.__class__.__name__, nice_join(props)))
+        for name, value in properties.items():
+            setattr(self, name, value)
 
-        super(HasProps, self).__init__()
+    def __setattr__(self, name, value):
+        props = self.properties()
+
+        if name.startswith("_") or name in props:
+            super(HasProps, self).__setattr__(name, value)
+        else:
+            matches, text = difflib.get_close_matches(name.lower(), props), "similar"
+
+            if not matches:
+                matches, text = props, "possible"
+
+            raise AttributeError("unexpected attribute '%s' to %s, %s attributes are %s" %
+                (name, self.__class__.__name__, text, nice_join(matches)))
 
     def to_dict(self):
         return dict((prop, getattr(self, prop)) for prop in self.properties())
@@ -499,6 +513,10 @@ class HasProps(object):
         set appropriately.  Values which are containers are shallow-copied.
         """
         return self.__class__(**self.to_dict())
+
+    @classmethod
+    def lookup(cls, name):
+        return lookup_descriptor(cls, name)
 
     @classmethod
     def properties_with_refs(cls):
@@ -620,9 +638,9 @@ class Regex(String):
     ''' Regex type property validates that text values match the
     given regular expression.
     '''
-    def __init__(self, regex, default=None):
+    def __init__(self, regex, default=None, help=None):
         self.regex = re.compile(regex)
-        super(Regex, self).__init__(default=default)
+        super(Regex, self).__init__(default=default, help=help)
 
     def validate(self, value):
         super(Regex, self).validate(value)
@@ -670,9 +688,9 @@ class List(ContainerProperty):
     just create an empty list
     """
 
-    def __init__(self, item_type, default=None):
+    def __init__(self, item_type, default=None, help=None):
         self.item_type = self._validate_type_param(item_type)
-        super(List, self).__init__(default=default)
+        super(List, self).__init__(default=default, help=help)
 
     @property
     def type_params(self):
@@ -701,15 +719,23 @@ class List(ContainerProperty):
         setattr(obj, self._name, val)
         return val
 
+    def from_json(self, json, models=None):
+        if json is None:
+            return None
+        elif isinstance(json, list):
+            return [ self.item_type.from_json(item, models) for item in json ]
+        else:
+            raise DeserializationError("%s expected a list or None, got %s" % (self, json))
+
 class Dict(ContainerProperty):
     """ If a default value is passed in, then a shallow copy of it will be
     used for each new use of this property.
     """
 
-    def __init__(self, keys_type, values_type, default={}):
+    def __init__(self, keys_type, values_type, default={}, help=None):
         self.keys_type = self._validate_type_param(keys_type)
         self.values_type = self._validate_type_param(values_type)
-        super(Dict, self).__init__(default=default)
+        super(Dict, self).__init__(default=default, help=help)
 
     @property
     def type_params(self):
@@ -733,11 +759,19 @@ class Dict(ContainerProperty):
     def __str__(self):
         return "%s(%s, %s)" % (self.__class__.__name__, self.keys_type, self.values_type)
 
+    def from_json(self, json, models=None):
+        if json is None:
+            return None
+        elif isinstance(json, dict):
+            return { self.keys_type.from_json(key, models): self.values_type.from_json(value, models) for key, value in iteritems(json) }
+        else:
+            raise DeserializationError("%s expected a dict or None, got %s" % (self, json))
+
 class Tuple(ContainerProperty):
     ''' Tuple type property. '''
     def __init__(self, tp1, tp2, *type_params, **kwargs):
         self._type_params = list(map(self._validate_type_param, (tp1, tp2) + type_params))
-        super(Tuple, self).__init__(default=kwargs.get("default", None))
+        super(Tuple, self).__init__(default=kwargs.get("default"), help=kwargs.get("help"))
 
     @property
     def type_params(self):
@@ -754,15 +788,23 @@ class Tuple(ContainerProperty):
     def __str__(self):
         return "%s(%s)" % (self.__class__.__name__, ", ".join(map(str, self.type_params)))
 
+    def from_json(self, json, models=None):
+        if json is None:
+            return None
+        elif isinstance(json, list):
+            return tuple(type_param.from_json(item, models) for type_param, item in zip(self.type_params, json))
+        else:
+            raise DeserializationError("%s expected a list or None, got %s" % (self, json))
+
 class Array(ContainerProperty):
     """ Whatever object is passed in as a default value, np.asarray() is
     called on it to create a copy for the default value for each use of
     this property.
     """
 
-    def __init__(self, item_type, default=None):
+    def __init__(self, item_type, default=None, help=None):
         self.item_type = self._validate_type_param(item_type)
-        super(Array, self).__init__(default=default)
+        super(Array, self).__init__(default=default, help=help)
 
     @property
     def type_params(self):
@@ -780,7 +822,7 @@ class Instance(Property):
     graph.
 
     '''
-    def __init__(self, instance_type, default=None):
+    def __init__(self, instance_type, default=None, help=None):
         if not isinstance(instance_type, (type,) + string_types):
             raise ValueError("expected a type or string, got %s" % instance_type)
 
@@ -789,7 +831,7 @@ class Instance(Property):
 
         self._instance_type = instance_type
 
-        super(Instance, self).__init__(default=default)
+        super(Instance, self).__init__(default=default, help=help)
 
     @property
     def instance_type(self):
@@ -823,6 +865,34 @@ class Instance(Property):
     def __str__(self):
         return "%s(%s)" % (self.__class__.__name__, self.instance_type.__name__)
 
+    def from_json(self, json, models=None):
+        if json is None:
+            return None
+        elif isinstance(json, dict):
+            from .plot_object import PlotObject
+            if issubclass(self.instance_type, PlotObject):
+                if models is None:
+                    raise DeserializationError("%s can't deserialize without models" % self)
+                else:
+                    model = models.get(json["id"])
+
+                    if model is not None:
+                        return model
+                    else:
+                        raise DeserializationError("% failed to deserilize reference to %s" % (self, json))
+            else:
+                attrs = {}
+
+                for name, value in iteritems(json):
+                    prop = self.instance_type.lookup(name)
+                    attrs[name] = prop.from_json(value, models)
+
+                # XXX: this doesn't work when Instance(Superclass) := Subclass()
+                # Serialization dict must carry type information to resolve this.
+                return self.instance_type(**attrs)
+        else:
+            raise DeserializationError("%s expected a dict or None, got %s" % (self, json))
+
 class This(Property):
     """ A reference to an instance of the class being defined. """
     pass
@@ -842,13 +912,13 @@ class Event(Property):
 
 class Range(ParameterizedProperty):
     ''' Range type property ensures values are between a range. '''
-    def __init__(self, range_type, start, end, default=None):
+    def __init__(self, range_type, start, end, default=None, help=None):
         self.range_type = self._validate_type_param(range_type)
         self.range_type.validate(start)
         self.range_type.validate(end)
         self.start = start
         self.end = end
-        super(Range, self).__init__(default=default)
+        super(Range, self).__init__(default=default, help=help)
 
     @property
     def type_params(self):
@@ -865,8 +935,8 @@ class Range(ParameterizedProperty):
 
 class Byte(Range):
     ''' Byte type property. '''
-    def __init__(self, default=0):
-        super(Byte, self).__init__(Int, 0, 255, default=default)
+    def __init__(self, default=0, help=None):
+        super(Byte, self).__init__(Int, 0, 255, default=default, help=help)
 
 class Either(ParameterizedProperty):
     """ Takes a list of valid properties and validates against them in succession. """
@@ -874,7 +944,8 @@ class Either(ParameterizedProperty):
     def __init__(self, tp1, tp2, *type_params, **kwargs):
         self._type_params = list(map(self._validate_type_param, (tp1, tp2) + type_params))
         default = kwargs.get("default", self._type_params[0].default)
-        super(Either, self).__init__(default=default)
+        help = kwargs.get("help")
+        super(Either, self).__init__(default=default, help=help)
 
     @property
     def type_params(self):
@@ -910,7 +981,8 @@ class Enum(Property):
         self.allowed_values = enum._values
 
         default = kwargs.get("default", enum._default)
-        super(Enum, self).__init__(default=default)
+        help = kwargs.get("help")
+        super(Enum, self).__init__(default=default, help=help)
 
     def validate(self, value):
         super(Enum, self).validate(value)
@@ -936,12 +1008,12 @@ class Color(Either):
     alpha as a float between 0 and 1.  (This follows the HTML5 Canvas API.)
     """
 
-    def __init__(self, default=None):
+    def __init__(self, default=None, help=None):
         types = (Enum(enums.NamedColor),
                  Regex("^#[0-9a-fA-F]{6}$"),
                  Tuple(Byte, Byte, Byte),
                  Tuple(Byte, Byte, Byte, Percent))
-        super(Color, self).__init__(*types, default=default)
+        super(Color, self).__init__(*types, default=default, help=help)
 
     def __str__(self):
         return self.__class__.__name__
@@ -971,9 +1043,9 @@ class DashPattern(Either):
         "dashdot": [6,4,2,4],
     }
 
-    def __init__(self, default=[]):
+    def __init__(self, default=[], help=None):
         types = Enum(enums.DashPattern), Regex(r"^(\d+(\s+\d+)*)?$"), List(Int)
-        super(DashPattern, self).__init__(*types, default=default)
+        super(DashPattern, self).__init__(*types, default=default, help=help)
 
     def transform(self, value):
         value = super(DashPattern, self).transform(value)
@@ -1013,8 +1085,8 @@ class Angle(Float):
 
 class Date(Property):
     ''' Date (not datetime) type property. '''
-    def __init__(self, default=datetime.date.today()):
-        super(Date, self).__init__(default=default)
+    def __init__(self, default=datetime.date.today(), help=None):
+        super(Date, self).__init__(default=default, help=help)
 
     def validate(self, value):
         super(Date, self).validate(value)
@@ -1037,8 +1109,8 @@ class Date(Property):
 
 class Datetime(Property):
     ''' Datetime type property. '''
-    def __init__(self, default=datetime.date.today()):
-        super(Datetime, self).__init__(default=default)
+    def __init__(self, default=datetime.date.today(), help=None):
+        super(Datetime, self).__init__(default=default, help=help)
 
     def validate(self, value):
         super(Datetime, self).validate(value)
@@ -1062,10 +1134,10 @@ class Datetime(Property):
 
 class RelativeDelta(Dict):
     ''' RelativeDelta type property for time deltas. '''
-    def __init__(self, default={}):
+    def __init__(self, default={}, help=None):
         keys = Enum("years", "months", "days", "hours", "minutes", "seconds", "microseconds")
         values = Int
-        super(RelativeDelta, self).__init__(keys, values, default=default)
+        super(RelativeDelta, self).__init__(keys, values, default=default, help=help)
 
     def __str__(self):
         return self.__class__.__name__

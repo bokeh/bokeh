@@ -36,6 +36,7 @@ class BoxZoomTool(Tool):
     pass
 
 class BoxSelectTool(Tool):
+    names = List(String)
     renderers = List(Instance(Renderer))
     select_every_mousemove = Bool(True)
     dimensions = List(Enum(Dimension), default=["width", "height"])
@@ -43,6 +44,14 @@ class BoxSelectTool(Tool):
 class BoxSelectionOverlay(Renderer):
     __view_model__ = 'BoxSelection'
     tool = Instance(Tool)
+
+class LassoSelectTool(Tool):
+    names = List(String)
+    renderers = List(Instance(Renderer))
+
+class PolySelectTool(Tool):
+    names = List(String)
+    renderers = List(Instance(Renderer))
 
 class HoverTool(Tool):
     names = List(String)

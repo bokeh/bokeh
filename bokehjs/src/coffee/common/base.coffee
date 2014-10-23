@@ -74,6 +74,7 @@ define [
   "renderer/guide/log_axis",
 
   "renderer/overlay/box_selection",
+  "renderer/overlay/poly_selection",
 
   "source/column_data_source",
   "source/server_data_source",
@@ -104,6 +105,7 @@ define [
   "tool/gestures/box_select_tool",
   "tool/gestures/box_zoom_tool",
   "tool/gestures/gesture_tool",
+  "tool/gestures/lasso_select_tool",
   "tool/gestures/pan_tool",
   "tool/gestures/resize_tool",
   "tool/gestures/select_tool",
@@ -244,6 +246,7 @@ define [
     Grid:                     'renderer/guide/grid'
 
     BoxSelection:             'renderer/overlay/box_selection'
+    PolySelection:            'renderer/overlay/poly_selection'
 
     ColumnDataSource:         'source/column_data_source'
     ServerDataSource:         'source/server_data_source'
@@ -273,7 +276,9 @@ define [
     BoxSelectTool:            'tool/gestures/box_select_tool'
     BoxZoomTool:              'tool/gestures/box_zoom_tool'
     GestureTool:              'tool/gestures/gesture_tool'
+    LassoSelectTool:          'tool/gestures/lasso_select_tool'
     PanTool:                  'tool/gestures/pan_tool'
+    PolySelectTool:           'tool/gestures/poly_select_tool'
     SelectTool:               'tool/gestures/select_tool'
     ResizeTool:               'tool/gestures/resize_tool'
     TapTool:                  'tool/gestures/tap_tool'

@@ -112,14 +112,23 @@ define [
         if @_hit_point?
           result = @_hit_point(geometry)
         else if not @_point_hit_warned?
-          logger.warn("'point' selection not available on #{@model.type} renderer")
+          type = @mget('glyphspec').type
+          logger.warn("'point' selection not available on #{type} renderer")
           @_point_hit_warned = true
       else if geometry.type == "rect"
         if @_hit_rect?
           result = @_hit_rect(geometry)
         else if not @_rect_hit_warned?
-          logger.warn("'rect' selection not available on #{@model.type} renderer")
+          type = @mget('glyphspec').type
+          logger.warn("'rect' selection not available on #{type} renderer")
           @_rect_hit_warned = true
+      else if geometry.type == "poly"
+        if @_hit_poly?
+          result = @_hit_poly(geometry)
+        else if not @_poly_hit_warned?
+          type = @mget('glyphspec').type
+          logger.warn("'poly' selection not available on #{type} renderer")
+          @_poly_hit_warned = true
       else
         logger.error("unrecognized selection geometry type '#{ geometry.type }'")
 

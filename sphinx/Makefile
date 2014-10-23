@@ -57,6 +57,7 @@ clean:
 html:
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 	cp -r $(BUILDDIR)/gallery $(BUILDDIR)/html/docs/gallery
+	python build_palettes.py
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
 

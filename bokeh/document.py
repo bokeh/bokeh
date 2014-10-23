@@ -227,23 +227,27 @@ class Document(object):
         all_models = set()
         new_models = set()
 
-        for attr in objs:
-            typename = attr['type']
-            attr = attr['attributes']
-            if attr['id'] in self._models:
-                m = self._models[attr['id']]
-                m._block_callbacks = True
-                m.load_json(attr, instance=m)
+        for obj in objs:
+            obj_id = obj['attributes']['id'] # XXX: obj['id']
+            obj_type = obj['type']
+            obj_attrs = obj['attributes']
+
+            if "doc" in obj_attrs:
+                del obj_attrs["doc"]
+
+            if obj_id in self._models:
+                model = self._models[obj_id]
+                model._block_callbacks = True
+                model.load_json(obj_attrs, instance=model)
             else:
-                cls = PlotObject.get_class(typename)
-                m = cls.load_json(attr)
-                if m is None:
-                    raise RuntimeError(
-                        'Error loading model from JSON (type: %s, id: %s)' % (typename, attr['id'])
-                    )
-                self._add(m)
-                new_models.add(m)
-            all_models.add(m)
+                cls = PlotObject.get_class(obj_type)
+                model = cls.load_json(obj_attrs)
+                if model is None:
+                    raise RuntimeError('Error loading model from JSON (type: %s, id: %s)' % (obj_type, obj_id))
+                self._add(model)
+                new_models.add(model)
+
+            all_models.add(model)
 
         for m in all_models:
             props = m.finalize(self._models)
@@ -287,8 +291,8 @@ class Document(object):
         self._add(*self.context.references())
         if not models:
             models = self._models.values()
-        json = dump(models, docid=self.docid) 
-        return json 
+        json = dump(models, docid=self.docid)
+        return json
 
     #------------------------------------------------------------------------
     # Managing callbacks

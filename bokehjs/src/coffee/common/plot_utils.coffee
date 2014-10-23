@@ -18,13 +18,13 @@ define [], () ->
     [context , args, timeout, result] = [null,null,null,null]
     previous = 0
     pending = false
-    later = ->
+    later = () ->
       previous = new Date
       timeout = null
       pending = false
       result = func.apply(context, args)
 
-    return ->
+    return () ->
       now = new Date
       remaining = wait - (now - previous)
       context = this

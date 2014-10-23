@@ -13,5 +13,6 @@ Reference Guide
    reference/rest_api
    reference/bokehjs
    reference/glyphs
+   reference/palettes
 
 
