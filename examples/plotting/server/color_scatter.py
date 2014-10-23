@@ -14,8 +14,9 @@ colors = ["#%02x%02x%02x" % (r, g, 150) for r, g in zip(np.floor(50+2*x), np.flo
 
 output_server("color_scatter")
 
-scatter(x,y, radius=radii, radius_units="data",
+TOOLS="resize,crosshair,pan,wheel_zoom,box_zoom,reset,tap,previewsave,box_select,poly_select,lasso_select"
+scatter(x,y, radius=radii, radius_units="data", tools=TOOLS,
         fill_color=colors, fill_alpha=0.6,
-        line_color=None, tools="select,pan,wheel_zoom,box_zoom,reset,previewsave", name="color_scatter_example")
+        line_color=None, name="color_scatter_example")
 
 show()  # open a browser

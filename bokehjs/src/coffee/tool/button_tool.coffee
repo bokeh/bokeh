@@ -8,9 +8,12 @@ define [
   class ButtonToolButtonView extends Backbone.View
     tagName: "li"
     template: button_tool_template
-    events: {
-      'click .bk-toolbar-button': '_clicked'
-    }
+    events: () ->
+      # TODO (bev) this seems to work OK but maybe there is a better way
+      if 'ontouchstart' of document
+        return { 'touchstart .bk-toolbar-button': '_clicked' }
+      else
+        return { 'click .bk-toolbar-button': '_clicked' }
 
     initialize: (options) ->
       super(options)

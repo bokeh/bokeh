@@ -54,7 +54,6 @@ define [
         selector.clear()
       @_save(null, [])
 
-
     _get_selector: (tool) ->
       _.setdefault(@selectors, tool.model.id, new Selector())
       return @selectors[tool.model.id]

@@ -230,37 +230,180 @@ Legends
 Tools
 -----
 
-Bokeh comes with a number of interactive tools. The are typically activated
-through the toolbar above plots, although some can be activated by key presses
-or specific mouse movement.
+Bokeh comes with a number of interactive tools. There are five categories of tool
+interactions:
 
-Tools are added to plots with the ``tools`` keyword argument, which has as its
-value a comma separated string listing the tools to add to the plot, for example::
+* Pan/Drag
+* Click/Tap
+* Scroll/Pinch
+* Actions
+* Inspectors
+
+For the first three categories, one tool can be active at any given time, and
+the active tool is indicated on the toolbar by a highlight next to to the tool.
+Actions are immediate or modal operations that are only activated when their
+button in the toolbar is pressed. Inspectors are passive tools that merely
+report information or annotate the plot in some way.
+
+When using the :ref:`userguide_plotting` interface, tools are added to plots with the
+``tools`` keyword argument, which has as its value a comma separated string
+listing the tools to add to the plot, for example::
 
     tools = "pan,wheel_zoom,box_zoom,reset,resize"
 
+Pan/Drag Tools
+''''''''''''''
+
+These tools are employed by panning (on touch devices) or left-dragging (on
+mouse devices). Only one pan/drag tool may be active at a time.
+
 BoxSelectTool
-'''''''''''''
-The box selection tool (``'select'``) allows the user to define a rectangular selection
-region be left-dragging on the plot. The indicies of the data points in the selection
-region are stored on the data source as the current selection. If other plots share this
-datasource, then they will render a linked selection. This selection is also available
-from python when using server-based output.
+*************
+
+* name: ``'box_select'``
+* icon: |box_select_icon|
+
+The box selection tool allows the user to define a rectangular selection
+region by left-dragging a mouse, or dragging a finger across the plot area.
+The box select tool may be configured to select across only one dimension by
+setting the ``dimension`` property to ``width`` or ``height``.
 
 BoxZoomTool
-'''''''''''
-The box zoom tool (``'box_zoom'``) will zoom the plot in to the box region that a user
-selects with left drag while it is the active tool.
+***********
+
+* name: ``'box_zoom'``
+* icon: |box_zoom_icon|
+
+The box zoom tool allows the user to degine a rectangular region to zoom the
+plot bounds too, by left-dragging a mouse, or dragging a finger across the
+plot area.
+
+LassoSelectTool
+***************
+
+* name: ``'lasso_select'``
+* icon: |lasso_select_icon|
+
+The lasso selection tool allows the user to define an arbitrary region for
+selection by left-dragging a mouse, or dragging a finger across the plot area.
+
+PanTool
+*******
+
+* name: ``'pan'``
+* icon: |pan_icon|
+
+The pan tool allows the user to pan the plot by left-dragging a mouse or dragging a
+finger across the plot region.
+
+It is also possible to constraint the pan tool to only act on either just the x-axis or
+just the y-axis by setting the ``dimension`` property to ``width`` or ``height``.
+Additionally, there are tool aliases ``'xpan'`` and ``'ypan'``, respectively.
+
+ResizeTool
+**********
+
+* name: ``'resize_select'``
+* icon: |resize_icon|
+
+The resize tool allows the user to left-drag a mouse or drag a finger to resize
+the entire plot.
+
+Click/Tap Tools
+'''''''''''''''
+
+These tools are employed by tapping (on touch devices) or left-clicking (on
+mouse devices). Only one click/tap tool may be active at a time.
+
+PolySelectTool
+**************
+
+* name: ``'poly_select'``
+* icon: |poly_select_icon|
+
+The polygon selection tool allows the user to define an arbitrary polygonal
+regions for selection by left-clicking a mouse, or tapping a finger at different
+locations.
+
+TapSelectTool
+*************
+
+* name: ``'tap_select'``
+* icon: |tap_select_icon|
+
+The tap selection tool allows the user to select at single points by clicking
+a left mouse button, or tapping with a finger.
+
+Scroll/Pinch Tools
+''''''''''''''''''
+
+These tools are employed by pinching (on touch devices) or scrolling (on
+mouse devices). Only one scroll/pinch tool may be active at a time.
+
+WheelZoomTool
+*************
+
+* name: ``'wheel_zoom'``
+* icon: |wheel_zoom_icon|
+
+The wheel zoom tool will zoom the plot in and out, centered on the curren
+t mouse location.
+
+It is also possible to constraint the wheel zoom tool to only act on either
+just the x-axis or just the y-axis by setting the ``dimension`` property to
+``width`` or ``height``. Additionally, there are tool aliases ``'xwheel_zoom'``
+and ``'ywheel_zoom'``, respectively.
+
+Actions
+'''''''
+
+Actions are operations that are activated only when their button in the toolbar
+is tapped or clicked. They are typically modal or immediate-acting.
+
+ResetTool
+*********
+
+* name: ``'reset'``
+* icon: |reset_icon|
+
+The reset tool will restore the plot ranges to their original values.
+
+SaveTool
+********
+
+* name: ``'save'``
+* icon: |save_icon|
+
+The save tool pops up a modal dialog that allows the user to save a PNG image
+of the plot.
+
+Inspectors
+''''''''''
+
+* menu icon: |inspector_icon|
+
+Inpectors are passive tools that annotate or otherwise report information about
+the plot, based on the current cursor position. Any number of inspectors may be
+active at any given time. The inspectors menu in the toolbar allows users to
+toggle the active state of any inspector.
 
 CrosshairTool
-'''''''''''''
-Th crosshair tool (``'crosshair'``) draws a crosshair annotation over the plot, centered on
-the current mouse position.
+*************
+
+* name: ``'crosshair'``
+
+Th crosshair tool draws a crosshair annotation over the plot, centered on
+the current mouse position. The crosshair tool may be configured to draw
+accross only one dimension by setting the ``dimension`` property to
+``width`` or ``height``.
 
 HoverTool
-'''''''''
-The hover tool (``'hover'``) tool pops up a tooltip div whenever the cursor is over
-a glyph. The information comes from the glyphs data source and is configurable through
+*********
+
+* name: ``'hover'``
+
+The hover tool pops up a tooltip div whenever the cursor is over a glyph.
+The information comes from the glyphs data source and is configurable through
 a simple tooltips dictionary that maps displayed names to columns in the data source,
 or to special known variables. Here is an example of how to configure the hover tool::
 
@@ -291,37 +434,29 @@ or to special known variables. Here is an example of how to configure the hover 
     Point hit testing is not currently available on all glyphs. Hover tool currently does
     not work with line or image type glyphs.
 
-PanTool
-'''''''
-The pan tool (``'pan'``) pans the plot on left-click drag. It can be made the active tool
-by clicking its button on the tool bar, however it also automatically activates on left-click
-drag whenever there is no other active tool.
 
-It is also possible to constraint the pan tool to only act on either just the x-axis or
-just the y-axis. For this, there are tool names ``'xpan'`` and ``'ypan'``, respectively.
-
-PreviewSaveTool
-'''''''''''''''
-The preview-save tool (``'previewsave'``) pops up a modal dialog that allows the user to save
-a PNG image if the plot.
-
-ResetTool
-'''''''''
-The reset tool (``'reset'``) will restore the plot ranges to their original values.
-
-ResizeTool
-''''''''''
-The resize tool (``'resize'``) allows the user to left drag to resize the entire plot while
-it is the active tool.
-
-WheelZoomTool
-'''''''''''''
-The wheel zoom tool (``'wheel_zoom'``) will zoom the plot in and out, centered on the current
-mouse location.  It can be made the active tool by clicking its button on the tool bar, however
-it also automatically activates when the ``Shift`` key is depressed.
-
-It is also possible to constraint the wheel zoom tool to only act on either just the x-axis or
-just the y-axis. For this, there are tool names ``'xwheel_zoom'`` and ``'ywheel_zoom'``, respectively.
-
-
+.. |box_select_icon| image:: /_images/icons/BoxSelect.png
+    :height: 14pt
+.. |box_zoom_icon| image:: /_images/icons/BoxZoom.png
+    :height: 14pt
+.. |help_icon| image:: /_images/icons/Help.png
+    :height: 14pt
+.. |inspector_icon| image:: /_images/icons/Inspector.png
+    :height: 14pt
+.. |lasso_select_icon| image:: /_images/icons/LassoSelect.png
+    :height: 14pt
+.. |pan_icon| image:: /_images/icons/Pan.png
+    :height: 14pt
+.. |poly_select_icon| image:: /_images/icons/PolygonSelect.png
+    :height: 14pt
+.. |reset_icon| image:: /_images/icons/Reset.png
+    :height: 14pt
+.. |resize_icon| image:: /_images/icons/Resize.png
+    :height: 14pt
+.. |save_icon| image:: /_images/icons/Save.png
+    :height: 14pt
+.. |tap_select_icon| image:: /_images/icons/TapSelect.png
+    :height: 14pt
+.. |wheel_zoom_icon| image:: /_images/icons/WheelZoom.png
+    :height: 14pt
 

@@ -13,10 +13,25 @@ define [
     _pan_start: (e) ->
       @last_dx = 0
       @last_dy = 0
+      canvas = @plot_view.canvas
+      frame = @plot_view.frame
+      vx = canvas.sx_to_vx(e.bokeh.sx)
+      vy = canvas.sy_to_vy(e.bokeh.sy)
+      if not frame.contains(vx, vy)
+        hr = frame.get('h_range')
+        vr = frame.get('v_range')
+        if vx < hr.get('start') or vx > hr.get('end')
+          @v_axis_only = true
+        if vy < vr.get('start') or vy > vr.get('end')
+          @h_axis_only = true
 
     _pan: (e) ->
       # TODO (bev) get minus sign from canvas/frame
       @_update(e.deltaX, -e.deltaY)
+
+    _pan_end: (e) ->
+      @h_axis_only = false
+      @v_axis_only = false
 
     _update: (dx, dy) ->
       frame = @plot_view.frame
@@ -34,7 +49,7 @@ define [
 
       dims = @mget('dimensions')
 
-      if dims.indexOf('width') > -1
+      if dims.indexOf('width') > -1 and not @v_axis_only
         sx0 = sx_low
         sx1 = sx_high
         sdx = -new_dx
@@ -43,7 +58,7 @@ define [
         sx1 = hr.get('end')
         sdx = 0
 
-      if dims.indexOf('height') > -1
+      if dims.indexOf('height') > -1 and not @h_axis_only
         sy0 = sy_low
         sy1 = sy_high
         sdy = new_dy
