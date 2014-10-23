@@ -10,11 +10,15 @@ bootstrap theme:
 
 To build the gallery, ggplot and seaborn are also needed:
 
-    $ pip install ggpplot
+    $ pip install ggplot
     $ pip install seaborn
 
 Building
 ========
+
+Build requires to install sampledata:
+
+    $ python -c 'import bokeh; bokeh.sampledata.download()'
 
 To build the entire docs:
 

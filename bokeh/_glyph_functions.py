@@ -325,7 +325,7 @@ Args:
     y (str or list[float]) : values or field names of lower left `y` coordinates
     dw (str or list[float]) : values or field names of image width distances
     dh (str or list[float]) : values or field names of image height distances
-    palette (str or list[str]) : values or field names of palettes to use for color-mapping
+    palette (str or list[str]) : values or field names of palettes to use for color-mapping (see :ref:`bokeh_dot_palettes` for more details)
     colorMapper (LinearColorMapper) : a LinearColorMapper instance
     dilate (bool, optional) : whether to dilate pixel distance computations when drawing, defaults to False
 
