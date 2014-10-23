@@ -3,6 +3,7 @@ from __future__ import absolute_import
 from six import iteritems
 
 from .models import glyphs, markers
+from .mixins import FillProps, LineProps
 
 def _glyph_function(glyphclass, dsnames, argnames, docstring, xfields=["x"], yfields=["y"]):
 
@@ -70,11 +71,13 @@ def _glyph_function(glyphclass, dsnames, argnames, docstring, xfields=["x"], yfi
         nonselection_glyph_params = _materialize_colors_and_alpha(kwargs, prefix='nonselection_', default_alpha=0.1)
         nonselection_glyph = glyph.clone()
 
-        nonselection_glyph.fill_color = nonselection_glyph_params['fill_color']
-        nonselection_glyph.line_color = nonselection_glyph_params['line_color']
+        if isinstance(nonselection_glyph, FillProps):
+            nonselection_glyph.fill_color = nonselection_glyph_params['fill_color']
+            nonselection_glyph.fill_alpha = nonselection_glyph_params['fill_alpha']
 
-        nonselection_glyph.fill_alpha = nonselection_glyph_params['fill_alpha']
-        nonselection_glyph.line_alpha = nonselection_glyph_params['line_alpha']
+        if isinstance(nonselection_glyph, LineProps):
+            nonselection_glyph.line_color = nonselection_glyph_params['line_color']
+            nonselection_glyph.line_alpha = nonselection_glyph_params['line_alpha']
 
         glyph_renderer = GlyphRenderer(
             data_source=datasource,
