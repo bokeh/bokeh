@@ -9,6 +9,7 @@ import sys
 import uuid
 
 from six.moves.urllib.parse import urljoin as sys_urljoin
+from six import iteritems
 
 _simple_id = 1000
 
@@ -76,7 +77,7 @@ def convert_references(json_obj):
             for idx, x in enumerate(json_obj):
                 json_obj[idx] = convert(x)
         if isinstance(json_obj, dict):
-            for k, x in json_obj.iteritems():
+            for k, x in iteritems(json_obj):
                 json_obj[k] = convert(x)
     json_apply(json_obj, helper)
     return json_obj
