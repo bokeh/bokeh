@@ -1,10 +1,10 @@
 from bokeh import palettes as pl
-
+from six import iteritems
 
 def build():
     s = "<table>"
-    for i, (k, v) in enumerate(pl.brewer.iteritems()):
-        for k1, v1 in v.iteritems():
+    for i, (k, v) in enumerate(iteritems(pl.brewer)):
+        for k1, v1 in iteritems(v):
             s += """
                 <tr><td height='20px' width='80px' style='font-size: 12px'>%s</td>
             """ % (k+str(k1))
