@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
 from six import iteritems
+from collections import OrderedDict
 
 from .models import glyphs, markers
 from .mixins import FillProps, LineProps
@@ -96,9 +97,9 @@ def _glyph_function(glyphclass, dsnames, argnames, docstring, xfields=["x"], yfi
             legend = _get_legend(plot)
             if not legend:
                 legend = _make_legend(plot)
-            mappings = legend.legends
-            mappings.setdefault(legend_name, []).append(glyph_renderer)
-            legend._dirty = True
+            legends = OrderedDict(legend.legends)
+            legends.setdefault(legend_name, []).append(glyph_renderer)
+            legend.legends = list(legends.items())
 
         if select_tool :
             select_tool.renderers.append(glyph_renderer)

@@ -938,6 +938,42 @@ class Byte(Range):
     def __init__(self, default=0, help=None):
         super(Byte, self).__init__(Int, 0, 255, default=default, help=help)
 
+class OrElse(ParameterizedProperty):
+
+    def __init__(self, tp, *alternatives, **kwargs):
+        self.tp = self._validate_type_param(tp)
+        self.alternatives = [ (self._validate_type_param(tp), conv) for tp, conv in alternatives ]
+        default = kwargs.get("default", self.tp.default)
+        help = kwargs.get("help")
+        super(OrElse, self).__init__(default=default, help=help)
+
+    @property
+    def type_params(self):
+        return [self.tp]
+
+    def validate(self, value):
+        super(OrElse, self).validate(value)
+
+        try:
+            self.tp.validate(value)
+        except ValueError as e:
+            if not any(tp.is_valid(value) for tp, _ in self.alternatives):
+                raise e
+
+    def transform(self, value):
+        value = super(OrElse, self).transform(value)
+
+        # XXX: don't do validation twice
+        if self.tp.is_valid(value):
+            return value
+        else:
+            for tp, conv in self.alternatives:
+                if tp.is_valid(value):
+                    return conv(value)
+
+    def from_json(self, json, models=None):
+        return self.tp.from_json(json, models)
+
 class Either(ParameterizedProperty):
     """ Takes a list of valid properties and validates against them in succession. """
 

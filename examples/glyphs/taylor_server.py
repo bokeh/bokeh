@@ -40,10 +40,10 @@ def update_data():
     x, fy, ty = taylor(expr, xs, order, (-2*sy.pi, 2*sy.pi), 200)
 
     plot.title = "%s vs. taylor(%s, n=%d)" % (expr, expr, order)
-    legend.legends = {
-        "%s"         % expr: [line_f_glyph],
-        "taylor(%s)" % expr: [line_t_glyph],
-    }
+    legend.legends = [
+        ("%s"         % expr, [line_f_glyph]),
+        ("taylor(%s)" % expr, [line_t_glyph]),
+    ]
     source.data = dict(x=x, fy=fy, ty=ty)
     slider.value = order
 

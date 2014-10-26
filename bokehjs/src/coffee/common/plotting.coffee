@@ -247,9 +247,7 @@ define [
 
   add_legend = (plot, legend, glyphs) ->
     if legend
-      legends = {}
-      for g, idx in glyphs
-        legends[legend + String(idx)] = [g]
+      legends = ([legend + String(idx), [glyph]] for glyph, idx in glyphs)
       legend_renderer = Legend.Collection.create({
         plot: plot
         orientation: "top_right"

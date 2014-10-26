@@ -87,7 +87,7 @@ plot.add_layout(yaxis, 'left')
 plot.add_layout(Grid(dimension=0, ticker=xaxis.ticker))
 plot.add_layout(Grid(dimension=1, ticker=yaxis.ticker))
 
-legend = Legend(legends={"sunrise": [line1_glyph], "sunset": [line2_glyph]})
+legend = Legend(legends=[("sunrise", [line1_glyph]), ("sunset", [line2_glyph])])
 plot.add_layout(legend)
 
 doc = Document()
