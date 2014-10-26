@@ -83,9 +83,9 @@ define [
 
       for i in  indices
 
-        if @mget('snap_to_marker')
-          rx = canvas.sx_to_vx(renderer.sx[i])
-          ry = canvas.sy_to_vy(renderer.sy[i])
+        if @mget('snap_to_data')
+          rx = canvas.sx_to_vx(renderer.glyph.sx[i])
+          ry = canvas.sy_to_vy(renderer.glyph.sy[i])
         else
           [rx, ry] = [vx, vy]
 
@@ -164,7 +164,7 @@ define [
 
     defaults: () ->
       return _.extend({}, super(), {
-        snap_to_marker: true
+        snap_to_data: true
         tooltips: {
           "index": "$index"
           "data (x, y)": "($x, $y)"
