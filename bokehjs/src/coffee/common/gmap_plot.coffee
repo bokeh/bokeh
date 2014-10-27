@@ -62,30 +62,40 @@ define [
       @initial_zoom = @mget('map_options').zoom
 
       build_map = () =>
+        maps = window.google.maps
         map_types = {
-          "satellite": google.maps.MapTypeId.SATELLITE,
-          "terrain": google.maps.MapTypeId.TERRAIN,
-          "roadmap": google.maps.MapTypeId.ROADMAP,
-          "hybrid": google.maps.MapTypeId.HYBRID
+          "satellite": maps.MapTypeId.SATELLITE,
+          "terrain": maps.MapTypeId.TERRAIN,
+          "roadmap": maps.MapTypeId.ROADMAP,
+          "hybrid": maps.MapTypeId.HYBRID
         }
         mo = @mget('map_options')
         map_options =
-          center: new google.maps.LatLng(mo.lat, mo.lng)
+          center: new maps.LatLng(mo.lat, mo.lng)
           zoom:mo.zoom
           disableDefaultUI: true
           mapTypeId: map_types[mo.map_type]
 
         # Create the map with above options in div
-        @map = new google.maps.Map(@canvas_view.map_div[0], map_options)
-        google.maps.event.addListener(@map, 'bounds_changed', @bounds_change)
+        @map = new maps.Map(@canvas_view.map_div[0], map_options)
+        maps.event.addListener(@map, 'bounds_changed', @bounds_change)
+
+      if not window._bokeh_gmap_loads?
+        window._bokeh_gmap_loads = []
 
       if window.google? and window.google.maps?
         _.defer(build_map)
+
+      else if window._bokeh_gmap_callback?
+        window._bokeh_gmap_loads.push(build_map)
+
       else
-        window['_bokeh_first_gmap_load'] = build_map
+        window._bokeh_gmap_loads.push(build_map)
+        window._bokeh_gmap_callback = () ->
+          _.each(window._bokeh_gmap_loads, _.defer)
         script = document.createElement('script');
         script.type = 'text/javascript';
-        script.src = 'https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&callback=_bokeh_first_gmap_load';
+        script.src = 'https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&callback=_bokeh_gmap_callback';
         document.body.appendChild(script);
 
     bounds_change: () =>
