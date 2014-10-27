@@ -34,14 +34,6 @@ class Plot(Widget):
     """ Object representing a plot, containing glyphs, guides, annotations.
     """
 
-    def __init__(self, **kwargs):
-        if 'border_symmetry' in kwargs:
-            border_symmetry = kwargs.pop('border_symmetry')
-            if border_symmetry is None: border_symmetry = ""
-            kwargs.setdefault('h_symmetry', 'h' in border_symmetry or 'H' in border_symmetry)
-            kwargs.setdefault('v_symmetry', 'v' in border_symmetry or 'V' in border_symmetry)
-        super(Plot, self).__init__(**kwargs)
-
     def select(self, selector):
         ''' Query this object and all of its references for objects that
         match the given selector.
@@ -235,7 +227,7 @@ class GridPlot(Plot):
             rwo (int) : index of the row to return
 
         Returns:
-            seq[Plot] : rwo of plots
+            seq[Plot] : row of plots
 
         '''
         try:
