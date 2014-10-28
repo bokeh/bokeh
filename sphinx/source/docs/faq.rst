@@ -93,13 +93,6 @@ General Questions
 Technical Questions
 ===================
 
-*Can pan and zoom both be active at the same time?*
----------------------------------------------------
-
-    They are! On all plots that have these tools present, they are always
-    both active by default. Note however, that pan is accomplished with
-    left-drag, and wheel zoom is accomplished with SHIFT+scroll.
-
 *Does Bokeh us D3.js?*
 ----------------------
 
@@ -119,5 +112,16 @@ Technical Questions
     use this JSON to reproduce Python object graphs when we load up a
     Python plot from the plot server - so we would need to make sure that Vega
     can fully encapsulate all the information we need here as well.
+
+*How do I get the sample data?*
+-------------------------------
+
+    Some of the Bokeh examples rely on sample data that is not included
+    in the Bokeh GitHub repository or released packages, due to their
+    size. The sample data can be obtained by executing the following
+    commands at a python prompt::
+
+        >>> import bokeh.sampledata
+        >>> bokeh.sampledata.download()
 
 
