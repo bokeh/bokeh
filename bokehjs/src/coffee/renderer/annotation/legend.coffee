@@ -30,8 +30,8 @@ define [
   class LegendView extends PlotWidget
     initialize: (options) ->
       super(options)
-      @label_props = new properties.Text(@, 'label_')
-      @border_props = new properties.Line(@, 'border_')
+      @label_props = new properties.Text(@, 'label')
+      @border_props = new properties.Line(@, 'border')
       @need_calc_dims = true
       @listenTo(@plot_model.solver, 'layout_update', () -> @need_calc_dims = true)
 

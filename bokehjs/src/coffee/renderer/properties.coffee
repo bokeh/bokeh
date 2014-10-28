@@ -194,13 +194,13 @@ define [
 
   class LineProperties extends Properties
     constructor: (styleprovider, prefix="") ->
-      @line_color_name        = "#{prefix}line_color"
-      @line_width_name        = "#{prefix}line_width"
-      @line_alpha_name        = "#{prefix}line_alpha"
-      @line_join_name         = "#{prefix}line_join"
-      @line_cap_name          = "#{prefix}line_cap"
-      @line_dash_name         = "#{prefix}line_dash"
-      @line_dash_offset_name  = "#{prefix}line_dash_offset"
+      @line_color_name        = "#{prefix}_line_color"
+      @line_width_name        = "#{prefix}_line_width"
+      @line_alpha_name        = "#{prefix}_line_alpha"
+      @line_join_name         = "#{prefix}_line_join"
+      @line_cap_name          = "#{prefix}_line_cap"
+      @line_dash_name         = "#{prefix}_line_dash"
+      @line_dash_offset_name  = "#{prefix}_line_dash_offset"
 
       @color(styleprovider, @line_color_name)
       @number(styleprovider, @line_width_name)
@@ -266,8 +266,8 @@ define [
 
   class FillProperties extends Properties
     constructor: (styleprovider, prefix="") ->
-      @fill_color_name = "#{prefix}fill_color"
-      @fill_alpha_name = "#{prefix}fill_alpha"
+      @fill_color_name = "#{prefix}_fill_color"
+      @fill_alpha_name = "#{prefix}_fill_alpha"
 
       @color(styleprovider, @fill_color_name)
       @number(styleprovider, @fill_alpha_name)
@@ -299,13 +299,13 @@ define [
 
   class TextProperties extends Properties
     constructor: (styleprovider, prefix="") ->
-      @text_font_name       = "#{prefix}text_font"
-      @text_font_size_name  = "#{prefix}text_font_size"
-      @text_font_style_name = "#{prefix}text_font_style"
-      @text_color_name      = "#{prefix}text_color"
-      @text_alpha_name      = "#{prefix}text_alpha"
-      @text_align_name      = "#{prefix}text_align"
-      @text_baseline_name   = "#{prefix}text_baseline"
+      @text_font_name       = "#{prefix}_text_font"
+      @text_font_size_name  = "#{prefix}_text_font_size"
+      @text_font_style_name = "#{prefix}_text_font_style"
+      @text_color_name      = "#{prefix}_text_color"
+      @text_alpha_name      = "#{prefix}_text_alpha"
+      @text_align_name      = "#{prefix}_text_align"
+      @text_baseline_name   = "#{prefix}_text_baseline"
 
       @string(styleprovider, @text_font_name)
       @string(styleprovider, @text_font_size_name)

@@ -155,11 +155,11 @@ define [
   class AxisView extends PlotWidget
     initialize: (options) ->
       super(options)
-      @rule_props = new properties.Line(@, 'axis_')
-      @major_tick_props = new properties.Line(@, 'major_tick_')
-      @minor_tick_props = new properties.Line(@, 'minor_tick_')
-      @major_label_props = new properties.Text(@, 'major_label_')
-      @axis_label_props = new properties.Text(@, 'axis_label_')
+      @rule_props = new properties.Line(@, 'axis')
+      @major_tick_props = new properties.Line(@, 'major_tick')
+      @minor_tick_props = new properties.Line(@, 'minor_tick')
+      @major_label_props = new properties.Text(@, 'major_label')
+      @axis_label_props = new properties.Text(@, 'axis_label')
       @x_range_name = @mget('x_range_name')
       @y_range_name = @mget('y_range_name')
 

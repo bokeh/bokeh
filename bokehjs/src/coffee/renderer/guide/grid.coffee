@@ -10,7 +10,7 @@ define [
   class GridView extends PlotWidget
     initialize: (attrs, options) ->
       super(attrs, options)
-      @grid_props = new properties.Line(@, 'grid_')
+      @grid_props = new properties.Line(@, 'grid')
       @x_range_name = @mget('x_range_name')
       @y_range_name = @mget('y_range_name')
 

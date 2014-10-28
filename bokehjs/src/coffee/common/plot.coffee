@@ -70,8 +70,8 @@ define [
 
       @throttled_render = plot_utils.throttle_animation(@render, 15)
 
-      @outline_props = new properties.Line(@, 'outline_')
-      @title_props = new properties.Text(@, 'title_')
+      @outline_props = new properties.Line(@, 'outline')
+      @title_props = new properties.Text(@, 'title')
 
       @renderers = {}
       @tools = {}
