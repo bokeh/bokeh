@@ -1,0 +1,59 @@
+/* Menu button */
+.slick-header-menubutton {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 14px;
+  background-repeat: no-repeat;
+  background-position: left center;
+  background-image: url(../images/down.gif);
+  cursor: pointer;
+
+  display: none;
+  border-left: thin ridge silver;
+}
+
+.slick-header-column:hover > .slick-header-menubutton,
+.slick-header-column-active .slick-header-menubutton {
+  display: inline-block;
+}
+
+/* Menu */
+.slick-header-menu {
+  position: absolute;
+  display: inline-block;
+  margin: 0;
+  padding: 2px;
+  cursor: default;
+}
+
+
+/* Menu items */
+.slick-header-menuitem {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+.slick-header-menuicon {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  vertical-align: middle;
+  margin-right: 4px;
+  background-repeat: no-repeat;
+  background-position: center center;
+}
+
+.slick-header-menucontent {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+
+/* Disabled */
+.slick-header-menuitem-disabled {
+  color: silver;
+}
