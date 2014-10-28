@@ -24,14 +24,14 @@ line(dates, acme, color='#1F78B4', legend='ACME')
 line(dates, choam, color='#FB9A99', legend='CHOAM')
 
 curplot().title = "Stock Returns"
-grid().grid_line_alpha=0.3
+grid().grid_alpha=0.3
 
 figure(tools="pan,wheel_zoom,box_zoom,reset,previewsave")
 
 scatter(acme, choam, color='#A6CEE3', legend='close')
 
 curplot().title = "ACME / CHOAM Correlations"
-grid().grid_line_alpha=0.3
+grid().grid_alpha=0.3
 
 show()  # open a browser
 

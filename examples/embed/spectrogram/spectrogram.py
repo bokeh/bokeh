@@ -161,7 +161,7 @@ def make_spectrogram():
         source=radial_source, plot_width=500, plot_height=520,
         x_range=[-20, 20], y_range=[-20, 20],
         name="eq", **plot_kw)
-    grid().grid_line_color=None
+    grid().grid_color=None
 
     lines = VBox(
         children=[spectrum, signal]

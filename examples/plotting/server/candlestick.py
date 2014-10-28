@@ -30,7 +30,7 @@ rect(df.date[dec], mids[dec], w, spans[dec], fill_color="#F2583E", line_color="b
 
 curplot().title = "MSFT Candlestick"
 xaxis().major_label_orientation = pi/4
-grid().grid_line_alpha=0.3
+grid().grid_alpha=0.3
 
 # open a browser
 show()

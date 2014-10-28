@@ -83,8 +83,8 @@ def trail_map(data):
     yaxis = LinearAxis()
     plot.add_layout(yaxis, 'left')
 
-    xgrid = Grid(plot=plot, dimension=0, ticker=xaxis.ticker, grid_line_dash="dashed", grid_line_color="gray")
-    ygrid = Grid(plot=plot, dimension=1, ticker=yaxis.ticker, grid_line_dash="dashed", grid_line_color="gray")
+    xgrid = Grid(plot=plot, dimension=0, ticker=xaxis.ticker, grid_dash="dashed", grid_color="gray")
+    ygrid = Grid(plot=plot, dimension=1, ticker=yaxis.ticker, grid_dash="dashed", grid_color="gray")
     plot.renderers.extend([xgrid, ygrid])
 
     hover = HoverTool(tooltips=dict(distance="@dist"))

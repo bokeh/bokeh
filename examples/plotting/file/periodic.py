@@ -76,7 +76,7 @@ text(x=dict(field="symx", units="data"),
      text=dict(field="mass", units="data"),
      text_font_size="5pt", **text_props)
 
-grid().grid_line_color = None
+grid().grid_color = None
 
 hover = curplot().select(dict(type=HoverTool))
 hover.tooltips = OrderedDict([

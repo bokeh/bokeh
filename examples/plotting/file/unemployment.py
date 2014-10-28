@@ -51,10 +51,10 @@ rect("year", "month", 1,1, source=source,
      tools="resize,hover,previewsave", title="US Unemployment (1948 - 2013)",
      plot_width=900, plot_height=400, toolbar_location="left")
 
-grid().grid_line_color = None
-axis().axis_line_color = None
-axis().major_tick_line_color = None
-axis().major_label_text_font_size = "5pt"
+grid().grid_color = None
+axis().axis_color = None
+axis().major_tick_color = None
+axis().major_label_font_size = "5pt"
 axis().major_label_standoff = 0
 xaxis().major_label_orientation = np.pi/3
 

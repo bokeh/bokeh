@@ -138,7 +138,7 @@ class StockApp(VBox):
             x_range=x_range,
             x_axis_type='datetime',
             source=self.source,
-            title_text_font_size="10pt",
+            title_font_size="10pt",
             plot_width=1000, plot_height=200,
             nonselection_alpha=0.02,
             tools="pan,wheel_zoom,select"
@@ -158,7 +158,7 @@ class StockApp(VBox):
             title="%s hist" % ticker,
             plot_width=500, plot_height=200,
             tools="",
-            title_text_font_size="10pt",
+            title_font_size="10pt",
             x_range=[start, end],
             y_range=[0, top],
         )
@@ -173,7 +173,7 @@ class StockApp(VBox):
             source=self.source,
             plot_width=400, plot_height=400,
             tools="pan,wheel_zoom,select",
-            title_text_font_size="10pt",
+            title_font_size="10pt",
             nonselection_alpha=0.02,
         )
         self.line_plot1 = self.line_plot(ticker1)

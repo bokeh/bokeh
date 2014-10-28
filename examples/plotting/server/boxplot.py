@@ -45,7 +45,7 @@ figure(tools="previewsave", background_fill="#EFE8E2", title="")
 hold()
 
 # If no outliers, shrink lengths of stems to be no longer than the minimums or maximums
-qmin = groups.quantile(q=0.00) 
+qmin = groups.quantile(q=0.00)
 qmax = groups.quantile(q=1.00)
 upper.score = [min([x,y]) for (x,y) in zip(list(qmax.iloc[:,0]),upper.score) ]
 lower.score = [max([x,y]) for (x,y) in zip(list(qmin.iloc[:,0]),lower.score) ]
@@ -68,8 +68,8 @@ rect(cats, upper.score, 0.2, 0, line_color="black")
 # outliers
 circle(outx, outy, size=6, color="#F38630", fill_alpha=0.6)
 
-xgrid().grid_line_color = None
-ygrid().grid_line_color = "white"
-ygrid().grid_line_width = 2
-xaxis().major_label_text_font_size="12pt"
+xgrid().grid_color = None
+ygrid().grid_color = "white"
+ygrid().grid_width = 2
+xaxis().major_label_font_size="12pt"
 show()
