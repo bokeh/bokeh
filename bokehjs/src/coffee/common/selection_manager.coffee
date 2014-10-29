@@ -27,7 +27,7 @@ define [
       indices = renderer_view.hit_test(geometry)
 
       selector = @_get_selector(tool)
-      selector.update(indices, geometry, final, append)
+      selector.update(indices, final, append)
 
       @_save(selector, selector.get('indices'))
       source.trigger('select')
