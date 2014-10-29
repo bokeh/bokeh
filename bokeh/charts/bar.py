@@ -174,7 +174,7 @@ class Bar(ChartObject):
         """
         self.cat = cat
         self.width = [0.8] * len(self.cat)
-        self.width_cat = [0.2] * len(self.cat)
+        self.width_cat = [min(0.2, (1./len(value))**1.1)] * len(self.cat)
         self.zero = np.zeros(len(self.cat))
         self.data = dict(cat=self.cat, width=self.width, width_cat=self.width_cat, zero=self.zero)
 
