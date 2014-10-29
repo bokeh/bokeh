@@ -9,8 +9,6 @@ from .tickers import Ticker, BasicTicker, LogTicker, CategoricalTicker, Datetime
 from .formatters import TickFormatter, BasicTickFormatter, LogTickFormatter, CategoricalTickFormatter, DatetimeTickFormatter
 
 class Axis(GuideRenderer):
-    type = String("axis")
-
     location = Either(Enum('auto'), Enum(Location))
     bounds = Either(Enum('auto'), Tuple(Float, Float))
 
