@@ -12,7 +12,7 @@ from .widget import Widget
 from .sources import DataSource
 from .ranges import Range, Range1d
 from .renderers import Renderer, GlyphRenderer
-from .tools import Tool
+from .tools import Tool, ToolEvents
 from .glyphs import Glyph
 
 # TODO (bev) dupe, move to utils
@@ -35,12 +35,8 @@ class Plot(Widget):
     """
 
     def __init__(self, **kwargs):
-        if 'border_symmetry' in kwargs:
-            border_symmetry = kwargs.pop('border_symmetry')
-            if border_symmetry is None: border_symmetry = ""
-            kwargs.setdefault('h_symmetry', 'h' in border_symmetry or 'H' in border_symmetry)
-            kwargs.setdefault('v_symmetry', 'v' in border_symmetry or 'V' in border_symmetry)
         super(Plot, self).__init__(**kwargs)
+        self.tool_events = ToolEvents()
 
     def select(self, selector):
         ''' Query this object and all of its references for objects that
@@ -171,6 +167,7 @@ class Plot(Widget):
     # as glyph renderers
     renderers = List(Instance(Renderer))
     tools = List(Instance(Tool))
+    tool_events = Instance(ToolEvents)
 
     left = List(Instance(PlotObject))
     right = List(Instance(PlotObject))

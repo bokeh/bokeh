@@ -328,6 +328,7 @@ def update(docid, typename, id):
     modeldata['id'] = id
     modeldata = {'type' : typename,
                  'attributes' : modeldata}
+
     clientdoc.load(modeldata, events='existing', dirty=True)
     log.info("done")
     log.info("saving")
