@@ -1,11 +1,4 @@
-(function ($) {
-  // register namespace
-  $.extend(true, window, {
-    "Slick": {
-      "CheckboxSelectColumn": CheckboxSelectColumn
-    }
-  });
-
+define(["jquery", "../slick.core"], function ($, Slick) {
 
   function CheckboxSelectColumn(options) {
     var _grid;
@@ -150,4 +143,6 @@
       "getColumnDefinition": getColumnDefinition
     });
   }
-})(jQuery);
+
+  return CheckboxSelectColumn;
+});

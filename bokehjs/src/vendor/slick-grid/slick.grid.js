@@ -16,25 +16,7 @@
  *     and do proper cleanup.
  */
 
-// make sure required JavaScript modules are loaded
-if (typeof jQuery === "undefined") {
-  throw "SlickGrid requires jquery module to be loaded";
-}
-if (!jQuery.fn.drag) {
-  throw "SlickGrid requires jquery.event.drag module to be loaded";
-}
-if (typeof Slick === "undefined") {
-  throw "slick.core.js not loaded";
-}
-
-
-(function ($) {
-  // Slick.Grid
-  $.extend(true, window, {
-    Slick: {
-      Grid: SlickGrid
-    }
-  });
+define(["jquery", "./slick.core", "jquery_event_drag", "jquery_event_drop"], function($, Slick, $1, $2) {
 
   // shared across all grids on the page
   var scrollbarDimensions;
@@ -1515,7 +1497,7 @@ if (typeof Slick === "undefined") {
       } else {
         $canvas[0].removeChild(cacheEntry.rowNode);
       }
-      
+
       delete rowsCache[row];
       delete postProcessedRows[row];
       renderedRows--;
@@ -2162,7 +2144,7 @@ if (typeof Slick === "undefined") {
           $canvas[0].removeChild(zombieRowNodeFromLastMouseWheelEvent);
           zombieRowNodeFromLastMouseWheelEvent = null;
         }
-        rowNodeFromLastMouseWheelEvent = rowNode;      
+        rowNodeFromLastMouseWheelEvent = rowNode;
       }
     }
 
@@ -2217,7 +2199,7 @@ if (typeof Slick === "undefined") {
             cancelEditAndSetFocus();
           } else if (e.which == 34) {
             navigatePageDown();
-            handled = true;           
+            handled = true;
           } else if (e.which == 33) {
             navigatePageUp();
             handled = true;
@@ -2774,7 +2756,7 @@ if (typeof Slick === "undefined") {
         var prevActivePosX = activePosX;
         while (cell <= activePosX) {
           if (canCellBeActive(row, cell)) {
-            prevCell = cell;  
+            prevCell = cell;
           }
           cell += getColspan(row, cell);
         }
@@ -3419,4 +3401,6 @@ if (typeof Slick === "undefined") {
 
     init();
   }
-}(jQuery));
+
+  return SlickGrid;
+});

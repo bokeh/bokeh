@@ -1,10 +1,4 @@
-(function ($) {
-  // register namespace
-  $.extend(true, window, {
-    "Slick": {
-      "CellRangeDecorator": CellRangeDecorator
-    }
-  });
+define(["jquery"], function ($) {
 
   /***
    * Displays an overlay on top of a given cell range.
@@ -63,4 +57,6 @@
       "hide": hide
     });
   }
-})(jQuery);
+
+  return CellRangeDecorator;
+});

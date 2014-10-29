@@ -1,13 +1,4 @@
-(function ($) {
-  // register namespace
-  $.extend(true, window, {
-    "Slick": {
-      "Plugins": {
-        "HeaderMenu": HeaderMenu
-      }
-    }
-  });
-
+define(["jquery", "../slick.core"], function ($, Slick) {
 
   /***
    * A plugin to add drop-down menus to column headers.
@@ -272,4 +263,6 @@
       "onCommand": new Slick.Event()
     });
   }
-})(jQuery);
+
+  return HeaderMenu;
+});

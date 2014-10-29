@@ -4,18 +4,18 @@
  * @namespace Slick
  */
 
-(function ($) {
+define(["jquery"], function($) {
+
   // register namespace
-  $.extend(true, window, {
-    "Slick": {
-      "Event": Event,
-      "EventData": EventData,
-      "EventHandler": EventHandler,
-      "Range": Range,
-      "NonDataRow": NonDataItem,
-      "Group": Group,
-      "GroupTotals": GroupTotals,
-      "EditorLock": EditorLock,
+  var Slick = {
+    Event: Event,
+    EventData: EventData,
+    EventHandler: EventHandler,
+    Range: Range,
+    NonDataRow: NonDataItem,
+    Group: Group,
+    GroupTotals: GroupTotals,
+    EditorLock: EditorLock,
 
       /***
        * A global singleton editor lock.
@@ -23,9 +23,8 @@
        * @static
        * @constructor
        */
-      "GlobalEditorLock": new EditorLock()
-    }
-  });
+    GlobalEditorLock: new EditorLock()
+  };
 
   /***
    * An event object for passing data to event handlers and letting them control propagation.
@@ -462,6 +461,6 @@
       return (activeEditController ? activeEditController.cancelCurrentEdit() : true);
     };
   }
-})(jQuery);
 
-
+  return Slick;
+});

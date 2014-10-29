@@ -4,21 +4,7 @@
  * @namespace Slick
  */
 
-(function ($) {
-  // register namespace
-  $.extend(true, window, {
-    "Slick": {
-      "Editors": {
-        "Text": TextEditor,
-        "Integer": IntegerEditor,
-        "Date": DateEditor,
-        "YesNoSelect": YesNoSelectEditor,
-        "Checkbox": CheckboxEditor,
-        "PercentComplete": PercentCompleteEditor,
-        "LongText": LongTextEditor
-      }
-    }
-  });
+define(["jquery"], function($) {
 
   function TextEditor(args) {
     var $input;
@@ -509,4 +495,14 @@
 
     this.init();
   }
-})(jQuery);
+
+  return {
+    Text: TextEditor,
+    Integer: IntegerEditor,
+    Date: DateEditor,
+    YesNoSelect: YesNoSelectEditor,
+    Checkbox: CheckboxEditor,
+    PercentComplete: PercentCompleteEditor,
+    LongText: LongTextEditor
+  };
+});

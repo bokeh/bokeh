@@ -1,13 +1,4 @@
-(function ($) {
-  // register namespace
-  $.extend(true, window, {
-    "Slick": {
-      "Plugins": {
-        "HeaderButtons": HeaderButtons
-      }
-    }
-  });
-
+define(["jquery", "../slick.core"], function ($, Slick) {
 
   /***
    * A plugin to add custom buttons to column headers.
@@ -174,4 +165,6 @@
       "onCommand": new Slick.Event()
     });
   }
-})(jQuery);
+
+  return HeaderButtons;
+});

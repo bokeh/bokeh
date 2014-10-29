@@ -1,10 +1,4 @@
-(function ($) {
-  // register namespace
-  $.extend(true, window, {
-    "Slick": {
-      "RowSelectionModel": RowSelectionModel
-    }
-  });
+define(["jquery", "../slick.core"], function ($, Slick) {
 
   function RowSelectionModel(options) {
     var _grid;
@@ -184,4 +178,6 @@
       "onSelectedRangesChanged": new Slick.Event()
     });
   }
-})(jQuery);
+
+  return RowSelectionModel;
+});

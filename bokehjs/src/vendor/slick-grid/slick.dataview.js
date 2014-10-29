@@ -1,25 +1,12 @@
-(function ($) {
-  $.extend(true, window, {
-    Slick: {
-      Data: {
-        DataView: DataView,
-        Aggregators: {
-          Avg: AvgAggregator,
-          Min: MinAggregator,
-          Max: MaxAggregator,
-          Sum: SumAggregator
-        }
-      }
-    }
-  });
+/***
+ * A sample Model implementation.
+ * Provides a filtered view of the underlying data.
+ *
+ * Relies on the data item having an "id" property uniquely identifying it.
+ */
 
+define(["jquery", "./slick.core", "./slick.groupitemmetadataprovider"], function($, Slick, GroupItemMetadataProvider) {
 
-  /***
-   * A sample Model implementation.
-   * Provides a filtered view of the underlying data.
-   *
-   * Relies on the data item having an "id" property uniquely identifying it.
-   */
   function DataView(options) {
     var self = this;
 
@@ -221,7 +208,7 @@
 
     function setGrouping(groupingInfo) {
       if (!options.groupItemMetadataProvider) {
-        options.groupItemMetadataProvider = new Slick.Data.GroupItemMetadataProvider();
+        options.groupItemMetadataProvider = new GroupItemMetadataProvider();
       }
 
       groups = [];
@@ -512,7 +499,7 @@
           group = groups[i];
           group.groups = extractGroups(group.rows, group);
         }
-      }      
+      }
 
       groups.sort(groupingInfos[level].comparer);
 
@@ -562,7 +549,7 @@
       level = level || 0;
       var gi = groupingInfos[level];
       var groupCollapsed = gi.collapsed;
-      var toggledGroups = toggledGroupsByLevel[level];      
+      var toggledGroups = toggledGroupsByLevel[level];
       var idx = groups.length, g;
       while (idx--) {
         g = groups[idx];
@@ -584,7 +571,7 @@
         g.collapsed = groupCollapsed ^ toggledGroups[g.groupingKey];
         g.title = gi.formatter ? gi.formatter(g) : g.value;
       }
-    } 
+    }
 
     function flattenGroupedRows(groups, level) {
       level = level || 0;
@@ -901,7 +888,7 @@
           inHandler = true;
           var selectedRows = self.mapIdsToRows(selectedRowIds);
           if (!preserveHidden) {
-            setSelectedRowIds(self.mapRowsToIds(selectedRows));       
+            setSelectedRowIds(self.mapRowsToIds(selectedRows));
           }
           grid.setSelectedRows(selectedRows);
           inHandler = false;
@@ -1022,105 +1009,5 @@
     });
   }
 
-  function AvgAggregator(field) {
-    this.field_ = field;
-
-    this.init = function () {
-      this.count_ = 0;
-      this.nonNullCount_ = 0;
-      this.sum_ = 0;
-    };
-
-    this.accumulate = function (item) {
-      var val = item[this.field_];
-      this.count_++;
-      if (val != null && val !== "" && val !== NaN) {
-        this.nonNullCount_++;
-        this.sum_ += parseFloat(val);
-      }
-    };
-
-    this.storeResult = function (groupTotals) {
-      if (!groupTotals.avg) {
-        groupTotals.avg = {};
-      }
-      if (this.nonNullCount_ != 0) {
-        groupTotals.avg[this.field_] = this.sum_ / this.nonNullCount_;
-      }
-    };
-  }
-
-  function MinAggregator(field) {
-    this.field_ = field;
-
-    this.init = function () {
-      this.min_ = null;
-    };
-
-    this.accumulate = function (item) {
-      var val = item[this.field_];
-      if (val != null && val !== "" && val !== NaN) {
-        if (this.min_ == null || val < this.min_) {
-          this.min_ = val;
-        }
-      }
-    };
-
-    this.storeResult = function (groupTotals) {
-      if (!groupTotals.min) {
-        groupTotals.min = {};
-      }
-      groupTotals.min[this.field_] = this.min_;
-    }
-  }
-
-  function MaxAggregator(field) {
-    this.field_ = field;
-
-    this.init = function () {
-      this.max_ = null;
-    };
-
-    this.accumulate = function (item) {
-      var val = item[this.field_];
-      if (val != null && val !== "" && val !== NaN) {
-        if (this.max_ == null || val > this.max_) {
-          this.max_ = val;
-        }
-      }
-    };
-
-    this.storeResult = function (groupTotals) {
-      if (!groupTotals.max) {
-        groupTotals.max = {};
-      }
-      groupTotals.max[this.field_] = this.max_;
-    }
-  }
-
-  function SumAggregator(field) {
-    this.field_ = field;
-
-    this.init = function () {
-      this.sum_ = null;
-    };
-
-    this.accumulate = function (item) {
-      var val = item[this.field_];
-      if (val != null && val !== "" && val !== NaN) {
-        this.sum_ += parseFloat(val);
-      }
-    };
-
-    this.storeResult = function (groupTotals) {
-      if (!groupTotals.sum) {
-        groupTotals.sum = {};
-      }
-      groupTotals.sum[this.field_] = this.sum_;
-    }
-  }
-
-  // TODO:  add more built-in aggregators
-  // TODO:  merge common aggregators in one to prevent needles iterating
-
-})(jQuery);
+  return DataView;
+});

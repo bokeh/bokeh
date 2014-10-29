@@ -1,11 +1,4 @@
-(function ($) {
-  // register namespace
-  $.extend(true, window, {
-    "Slick": {
-      "CellRangeSelector": CellRangeSelector
-    }
-  });
-
+define(["jquery", "../slick.core", "./slick.cellrangedecorator"], function ($, Slick, CellRangeDecorator) {
 
   function CellRangeSelector(options) {
     var _grid;
@@ -23,7 +16,7 @@
 
     function init(grid) {
       options = $.extend(true, {}, _defaults, options);
-      _decorator = new Slick.CellRangeDecorator(grid, options);
+      _decorator = new CellRangeDecorator(grid, options);
       _grid = grid;
       _canvas = _grid.getCanvasNode();
       _handler
@@ -110,4 +103,6 @@
       "onCellRangeSelected": new Slick.Event()
     });
   }
-})(jQuery);
+
+  return CellRangeSelector;
+});
