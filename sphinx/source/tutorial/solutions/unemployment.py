@@ -65,10 +65,10 @@ rect('year', 'month', 0.95, 0.95, source=source,
 #   - remove the major ticks
 #   - make the tick labels smaller
 #   - set the x-axis orientation to vertical, or angled
-grid().grid_line_color = None
-axis().axis_line_color = None
-axis().major_tick_line_color = None
-axis().major_label_text_font_size = "5pt"
+grid().grid_color = None
+axis().axis_color = None
+axis().major_tick_color = None
+axis().major_label_font_size = "5pt"
 axis().major_label_standoff = 0
 xaxis().major_label_orientation = np.pi/3
 

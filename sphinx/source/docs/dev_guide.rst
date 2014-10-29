@@ -474,8 +474,8 @@ Using :class:`~bokeh.properties.Include` is equivalent to writing::
     class ExplicitIncludes(HasProps):
         """ `ExplicitIncludes` model. """
 
-        some_fill_color = ColorSpec("gray")
-        some_fill_alpha = DataSpec(1.0)
+        some_color = ColorSpec("gray")
+        some_alpha = DataSpec(1.0)
 
 Note that you could inherit from :class:`~bokeh.mixins.FillProps` in this
 case, as well::
@@ -484,7 +484,7 @@ case, as well::
         """ `IncludesExtends` model. """
 
         some = String
-        some_props = Include(FilleProps)
+        some_props = Include(FillProps)
 
 but note that this is  equivalent to::
 
@@ -494,8 +494,8 @@ but note that this is  equivalent to::
         fill_color = ColorSpec("gray")
         fill_alpha = DataSpec(1.0)
         some = String
-        some_fill_color = ColorSpec("gray")
-        some_fill_alpha = DataSpec(1.0)
+        some_color = ColorSpec("gray")
+        some_alpha = DataSpec(1.0)
 
 Developer Notes
 ===============

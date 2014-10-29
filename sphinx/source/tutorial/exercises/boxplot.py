@@ -67,9 +67,9 @@ rect(cats, upper.score, 0.2, 0, line_color="black")
 # EXERCISE: use grid(), axis(), etc. to style the plot. Some suggestions:
 #   - remove the X grid lines, change the Y grid line color
 #   - make the tick labels bigger
-xgrid().grid_line_color = None
-ygrid().grid_line_color = "white"
-ygrid().grid_line_width = 2
-xaxis().major_label_text_font_size="12pt"
+xgrid().grid_color = None
+ygrid().grid_color = "white"
+ygrid().grid_width = 2
+xaxis().major_label_font_size="12pt"
 
 show()

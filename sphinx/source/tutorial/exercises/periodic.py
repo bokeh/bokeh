@@ -79,7 +79,7 @@ text(x=dict(field="symx", units="data"),
 # Use 'massy' for the y position.
 
 # turn off the grid lines
-grid().grid_line_color = None
+grid().grid_color = None
 
 # EXERCISE: configure a hover tool that displays the following:
 # * name

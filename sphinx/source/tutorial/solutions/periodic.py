@@ -98,7 +98,7 @@ text(x=dict(field="symx", units="data"),
      text_font_size="5pt", **text_props)
 
 # turn off the grid lines
-grid().grid_line_color = None
+grid().grid_color = None
 
 # EXERCISE: configure a hover tool that displays the following:
 # * name

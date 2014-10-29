@@ -173,9 +173,9 @@ Next we grab the current plot using ``curplot`` and customize the look of the pl
     plot.min_border = 0
     plot.background_fill = "#f0e1d2"
     plot.border_fill = "#f0e1d2"
-    plot.outline_line_color = None
-    xgrid().grid_line_color = None
-    ygrid().grid_line_color = None
+    plot.outline_color = None
+    xgrid().grid_color = None
+    ygrid().grid_color = None
 
 Add the small wedges representing the antibiotic effectiveness, also using ``annular_wedge``::
 

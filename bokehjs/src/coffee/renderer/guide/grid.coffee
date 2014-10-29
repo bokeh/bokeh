@@ -129,13 +129,13 @@ define [
     display_defaults: ->
       return _.extend {}, super(), {
         level: 'underlay'
-        grid_line_color: '#cccccc'
-        grid_line_width: 1
-        grid_line_alpha: 1.0
-        grid_line_join: 'miter'
-        grid_line_cap: 'butt'
-        grid_line_dash: []
-        grid_line_dash_offset: 0
+        grid_color: '#cccccc'
+        grid_width: 1
+        grid_alpha: 1.0
+        grid_join: 'miter'
+        grid_cap: 'butt'
+        grid_dash: []
+        grid_dash_offset: 0
       }
 
   class Grids extends Collection

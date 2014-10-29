@@ -123,22 +123,22 @@ define [
       return _.extend {}, super(), {
         level: 'overlay'
 
-        border_line_color: 'black'
-        border_line_width: 1
-        border_line_alpha: 1.0
-        border_line_join: 'miter'
-        border_line_cap: 'butt'
-        border_line_dash: []
-        border_line_dash_offset: 0
+        border_color: 'black'
+        border_width: 1
+        border_alpha: 1.0
+        border_join: 'miter'
+        border_cap: 'butt'
+        border_dash: []
+        border_dash_offset: 0
 
         label_standoff: 15
-        label_text_font: "helvetica"
-        label_text_font_size: "10pt"
-        label_text_font_style: "normal"
-        label_text_color: "#444444"
-        label_text_alpha: 1.0
-        label_text_align: "left"
-        label_text_baseline: "middle"
+        label_font: "helvetica"
+        label_font_size: "10pt"
+        label_font_style: "normal"
+        label_color: "#444444"
+        label_alpha: 1.0
+        label_align: "left"
+        label_baseline: "middle"
 
         glyph_height: 20
         glyph_width: 20

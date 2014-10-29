@@ -136,9 +136,9 @@ class BokehRenderer(Renderer):
             background_fill = 'white'
         self.plot.background_fill = background_fill
         if self.xkcd:
-            self.plot.title_text_font = "Comic Sans MS, Textile, cursive"
-            self.plot.title_text_font_style = "bold"
-            self.plot.title_text_color = "black"
+            self.plot.title_font = "Comic Sans MS, Textile, cursive"
+            self.plot.title_font_style = "bold"
+            self.plot.title_color = "black"
 
         # Add a "marker" Glyph to help the plot.renderers splitting in the GridPlot build
         dummy_source = ColumnDataSource(data=dict(name="ax_end"))
@@ -283,13 +283,13 @@ class BokehRenderer(Renderer):
         #newaxis.bounds = axis.get_data_interval()  # I think this is the right func...
 
         if self.xkcd:
-            laxis.axis_line_width = 3
-            laxis.axis_label_text_font = "Comic Sans MS, Textile, cursive"
-            laxis.axis_label_text_font_style = "bold"
-            laxis.axis_label_text_color = "black"
-            laxis.major_label_text_font = "Comic Sans MS, Textile, cursive"
-            laxis.major_label_text_font_style = "bold"
-            laxis.major_label_text_color = "black"
+            laxis.axis_width = 3
+            laxis.axis_label_font = "Comic Sans MS, Textile, cursive"
+            laxis.axis_label_font_style = "bold"
+            laxis.axis_label_color = "black"
+            laxis.major_label_font = "Comic Sans MS, Textile, cursive"
+            laxis.major_label_font_style = "bold"
+            laxis.major_label_color = "black"
 
         return laxis
 
@@ -297,8 +297,8 @@ class BokehRenderer(Renderer):
         "Given a mpl axes instance, returns a Bokeh Grid object."
         lgrid = Grid(dimension=dimension,
                      ticker=baxis.ticker,
-                     grid_line_color=self.grid.get_color(),
-                     grid_line_width=self.grid.get_linewidth())
+                     grid_color=self.grid.get_color(),
+                     grid_width=self.grid.get_linewidth())
 
         self.plot.add_layout(lgrid)
 
