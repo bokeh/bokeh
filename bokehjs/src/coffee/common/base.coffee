@@ -118,6 +118,7 @@ define [
 
   "widget/data_table",
   "widget/handson_table",
+  "widget/slick_grid",
   "widget/table_column"
   "widget/pivot_table",
   "widget/object_explorer",
@@ -290,6 +291,7 @@ define [
 
     DataTable:                'widget/data_table'
     HandsonTable:             'widget/handson_table'
+    SlickGrid:                'widget/slick_grid'
     TableColumn:              'widget/table_column'
     PivotTable:               'widget/pivot_table'
     ObjectExplorer:           'widget/object_explorer'
