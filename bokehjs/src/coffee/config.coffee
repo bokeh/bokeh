@@ -3,8 +3,11 @@ require.config
         jquery:            "vendor/jquery/jquery.min"
         jquery_ui:         "vendor/jquery-ui-amd/jquery-ui-1.10.0/jqueryui"
         jquery_mousewheel: "vendor/jquery-mousewheel/jquery.mousewheel.min"
+        jquery_event_drag: "vendor/jquery-event/jquery.event.drag-2.2"
+        jquery_event_drop: "vendor/jquery-event/jquery.event.drop-2.2"
         jqrangeslider:     "vendor/jqrangeslider/jQAllRangeSliders-withRuler-min"
         handsontable:      "vendor/handsontable/jquery.handsontable.full"
+        slick_grid:        "vendor/slick-grid"
         underscore:        "vendor/underscore-amd/underscore"
         backbone:          "vendor/backbone-amd/backbone"
         bootstrap:         "vendor/bootstrap-3.1.1/js"
@@ -27,3 +30,9 @@ require.config
             exports: "$.fn.rangeSlider"
         kiwi:
             exports: 'kiwi'
+        jquery_event_drag:
+            deps: ["jquery"]
+            exports: "$.fn.drag"
+        jquery_event_drop:
+            deps: ["jquery"]
+            exports: "$.fn.drop"
