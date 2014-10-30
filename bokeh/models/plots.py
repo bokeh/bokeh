@@ -35,8 +35,9 @@ class Plot(Widget):
     """
 
     def __init__(self, **kwargs):
+        if "tool_events" not in kwargs:
+            kwargs["tool_events"] = ToolEvents()
         super(Plot, self).__init__(**kwargs)
-        self.tool_events = ToolEvents()
 
     def select(self, selector):
         ''' Query this object and all of its references for objects that
