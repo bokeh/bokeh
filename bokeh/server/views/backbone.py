@@ -324,6 +324,8 @@ def update(docid, typename, id):
     init_bokeh(clientdoc)
     log.info("updating")
     modeldata = protocol.deserialize_json(request.data.decode('utf-8'))
+    ### horrible hack, we need to pop off the noop object if it exists
+    modeldata.pop('noop', None)
     # patch id is not passed...
     modeldata['id'] = id
     modeldata = {'type' : typename,
