@@ -38,7 +38,7 @@ ydr = DataRange1d(sources=[source.columns("petal_length", "petal_width", "sepal_
 def make_plot(xname, yname, xax=False, yax=False, text=None):
     plot = Plot(
         x_range=xdr, y_range=ydr, background_fill="#efe8e2",
-        border_fill='white', title="", min_border=2, border_symmetry=None,
+        border_fill='white', title="", min_border=2, h_symmetry=False, v_symmetry=False,
         plot_width=250, plot_height=250)
 
     circle = Circle(x=xname, y=yname, fill_color="color", fill_alpha=0.2, size=4, line_color="color")
