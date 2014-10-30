@@ -14,7 +14,7 @@ from .plotting import (make_histogram_source,
 #bokeh plotting functions
 from ..plotting import line, scatter
 from ..plot_object import PlotObject
-from ..properties import Dict, Enum, Instance, List, String, Any
+from ..properties import Dict, Enum, Instance, List, String, Any, Int
 
 logger = logging.getLogger(__name__)
 
@@ -76,7 +76,8 @@ class CrossFilter(PlotObject):
     x_selector = Instance(Select)
     y_selector = Instance(Select)
     agg_selector = Instance(Select)
-
+    height = Int()
+    width = Int()
     def __init__(self, *args, **kwargs):
         if 'df' in kwargs:
             self._df = kwargs.pop('df')
@@ -455,4 +456,3 @@ class CrossFilter(PlotObject):
                     'max' : "%.2f" % desc['max'],
                 })
         self.columns = descriptors
-
