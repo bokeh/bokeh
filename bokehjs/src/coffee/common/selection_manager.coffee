@@ -24,16 +24,6 @@ define [
       if source != renderer_view.mget('data_source')
         logger.warn('select called with mis-matched data sources')
 
-      if final
-        tool_events = renderer_view.plot_view.mget('tool_events')
-        if append
-          geoms = tool_events.get('geometries')
-          geoms.push(geometry)
-        else
-          geoms = [geometry]
-        tool_events.set("geometries", geoms)
-        tool_events.save()
-
       indices = renderer_view.hit_test(geometry)
 
       selector = @_get_selector(tool)

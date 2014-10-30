@@ -15,6 +15,18 @@ define [
           sm = ds.get('selection_manager')
           sm.clear()
 
+    _save_geometry: (geometry, final, append) ->
+      if final
+        tool_events = @plot_model.get('tool_events')
+        if append
+          geoms = tool_events.get('geometries')
+          geoms.push(geometry)
+        else
+          geoms = [geometry]
+        tool_events.set("geometries", geoms)
+        tool_events.save()
+      return null
+
   class SelectTool extends GestureTool.Model
 
     initialize: (attrs, options) ->
@@ -34,6 +46,7 @@ define [
       logger.debug("setting #{renderers.length} renderers for #{@type} #{@id}")
       for r in renderers
         logger.debug("- #{r.type} #{r.id}")
+      return null
 
     defaults: () ->
       return _.extend({}, super(), {
