@@ -16,13 +16,22 @@ define [
           sm.clear()
 
     _save_geometry: (geometry, final, append) ->
+      g = _.clone(geometry)
+      if g.type = 'point'
+        g.x = this.plot_view.frame.get('x_mappers')['default'].map_from_target(g.vx)
+        g.y = this.plot_view.frame.get('y_mappers')['default'].map_from_target(g.vy)
+      else
+        g.x = this.plot_view.frame.get('x_mappers')['default'].v_map_from_target(g.vx)
+        g.y = this.plot_view.frame.get('y_mappers')['default'].v_map_from_target(g.vy)
+
       if final
         tool_events = @plot_model.get('tool_events')
         if append
           geoms = tool_events.get('geometries')
-          geoms.push(geometry)
+          geoms.push(g)
         else
-          geoms = [geometry]
+          geoms = [g]
+
         tool_events.set("geometries", geoms)
         tool_events.save()
       return null
