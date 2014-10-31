@@ -26,6 +26,10 @@ define [
         sm = ds.get('selection_manager')
         sm.select(@, @plot_view.renderers[r.id], geometry, true, append)
 
+      @_save_geometry(geometry, true, append)
+
+      return null
+
   class TapTool extends SelectTool.Model
     default_view: TapToolView
     type: "TapTool"
