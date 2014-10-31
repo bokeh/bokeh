@@ -453,7 +453,7 @@ setup(
     package_data={'bokeh': package_data},
     author='Continuum Analytics',
     author_email='info@continuum.io',
-    url='http://github.com/ContinuumIO/Bokeh',
+    url='http://github.com/bokeh/bokeh',
     description='Statistical and novel interactive HTML plots for Python',
     license='New BSD',
     scripts=scripts,

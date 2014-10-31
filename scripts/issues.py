@@ -19,7 +19,7 @@ logging.basicConfig(level=logging.INFO)
 
 API_PARAMS = {
     'base_url': 'https://api.github.com/repos',
-    'owner':    'ContinuumIO',
+    'owner':    'bokeh',
     'repo':     'bokeh',
 }
 
