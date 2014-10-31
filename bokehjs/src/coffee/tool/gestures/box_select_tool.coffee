@@ -31,7 +31,6 @@ define [
       if @mget('select_every_mousemove')
         append = e.srcEvent.shiftKey ? false
         @_select(vxlim, vylim, false, append)
-        @_save_geometry(geometry, false, append)
 
       return null
 
@@ -47,7 +46,6 @@ define [
       [vxlim, vylim] = @model._get_dim_limits(@_baseboint, curpoint, frame, dims)
       append = e.srcEvent.shiftKey ? false
       @_select(vxlim, vylim, true, append)
-      @_save_geometry(geometry, true, append)
 
       @mget('overlay').set('data', {})
 
@@ -67,6 +65,8 @@ define [
         ds = r.get('data_source')
         sm = ds.get('selection_manager')
         sm.select(@, @plot_view.renderers[r.id], geometry, final, append)
+
+      @_save_geometry(geometry, final, append)
 
       return null
 
