@@ -8,13 +8,25 @@
   background-color: #C0C0C0;
 }
 #notebook .bk-plot-wrapper table {
-  border: none !important; 
+  border: none !important;
   tr {
-    border: none !important; 
+    border: none !important;
     td {
       border: none !important;
       padding: 0 !important;
       margin: 0 !important;
+      &.bk-plot-above {
+        border-bottom: 2px solid #efefef !important;
+      }
+      &.bk-plot-below {
+        border-top: 2px solid #efefef !important;
+      }
+      &.bk-plot-left, {
+        border-right: 2px solid #efefef !important;
+      }
+      &.bk-plot-right {
+        border-left: 2px solid #efefef !important;
+      }
     }
   }
 }
@@ -149,7 +161,7 @@
       display: none;
     }
   }
-  
+
 }
 .bk-button-bar-list > a {
   &:after {
@@ -341,7 +353,7 @@ li:hover .bk-toolbar-button span.tip {
             height: 8px;
             line-height: 8px;
             padding: 3px 0;
-            text-align: center; 
+            text-align: center;
           }
         }
         .bk-toolbar-button {
