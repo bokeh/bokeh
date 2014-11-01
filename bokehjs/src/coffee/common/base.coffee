@@ -14,6 +14,7 @@ define [
   "common/plot_context",
   "common/selection_manager",
   "common/selector",
+  "common/tool_events",
 
   "mapper/categorical_mapper",
   "mapper/linear_mapper",
@@ -190,6 +191,7 @@ define [
     CartesianFrame:           'common/cartesian_frame'
     SelectionManager:         'common/selection_manager'
     Selector:                 'common/selector'
+    ToolEvents:               'common/tool_events'
 
     LinearColorMapper:        'mapper/linear_color_mapper'
 

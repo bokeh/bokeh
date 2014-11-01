@@ -44,6 +44,7 @@ define (require, exports, module) ->
   Bokeh.Plotting          = require("common/plotting")
   Bokeh.SelectionManager  = require("common/selection_manager")
   Bokeh.Selector          = require("common/selector")
+  Bokeh.ToolEvents        = require("common/tool_events")
 
   Bokeh.build_views   = require("common/build_views")
   Bokeh.bulk_save     = require("common/bulk_save")

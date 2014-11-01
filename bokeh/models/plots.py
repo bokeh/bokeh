@@ -12,7 +12,7 @@ from .widget import Widget
 from .sources import DataSource
 from .ranges import Range, Range1d
 from .renderers import Renderer, GlyphRenderer
-from .tools import Tool
+from .tools import Tool, ToolEvents
 from .glyphs import Glyph
 
 # TODO (bev) dupe, move to utils
@@ -33,6 +33,11 @@ class PlotList(PlotContext):
 class Plot(Widget):
     """ Object representing a plot, containing glyphs, guides, annotations.
     """
+
+    def __init__(self, **kwargs):
+        if "tool_events" not in kwargs:
+            kwargs["tool_events"] = ToolEvents()
+        super(Plot, self).__init__(**kwargs)
 
     def select(self, selector):
         ''' Query this object and all of its references for objects that
@@ -163,6 +168,7 @@ class Plot(Widget):
     # as glyph renderers
     renderers = List(Instance(Renderer))
     tools = List(Instance(Tool))
+    tool_events = Instance(ToolEvents)
 
     left = List(Instance(PlotObject))
     right = List(Instance(PlotObject))

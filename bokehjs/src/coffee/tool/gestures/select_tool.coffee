@@ -15,6 +15,39 @@ define [
           sm = ds.get('selection_manager')
           sm.clear()
 
+    _save_geometry: (geometry, final, append) ->
+      g = _.clone(geometry)
+      xm = @plot_view.frame.get('x_mappers')['default']
+      ym = @plot_view.frame.get('y_mappers')['default']
+      if g.type == 'point'
+        g.x = xm.map_from_target(g.vx)
+        g.y = ym.map_from_target(g.vy)
+      else if g.type == 'rect'
+        g.x0 = xm.map_from_target(g.vx0)
+        g.y0 = ym.map_from_target(g.vy0)
+        g.x1 = xm.map_from_target(g.vx1)
+        g.y1 = ym.map_from_target(g.vy1)
+      else if g.type == 'poly'
+        g.x = new Array(g.vx.length)
+        g.y = new Array(g.vy.length)
+        for i in [0...g.vx.length]
+          g.x[i] = xm.map_from_target(g.vx[i])
+          g.y[i] = ym.map_from_target(g.vy[i])
+      else
+        logger.debug("Unrecognized selection geometry type: '#{g.type}'")
+
+      if final
+        tool_events = @plot_model.get('tool_events')
+        if append
+          geoms = tool_events.get('geometries')
+          geoms.push(g)
+        else
+          geoms = [g]
+
+        tool_events.set("geometries", geoms)
+        tool_events.save()
+      return null
+
   class SelectTool extends GestureTool.Model
 
     initialize: (attrs, options) ->
@@ -34,6 +67,7 @@ define [
       logger.debug("setting #{renderers.length} renderers for #{@type} #{@id}")
       for r in renderers
         logger.debug("- #{r.type} #{r.id}")
+      return null
 
     defaults: () ->
       return _.extend({}, super(), {

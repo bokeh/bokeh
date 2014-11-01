@@ -5,7 +5,7 @@ from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.glyphs import Circle
 from bokeh.objects import (
-    GMapPlot, Range1d, ColumnDataSource,
+    GMapPlot, Range1d, ColumnDataSource, LinearAxis,
     PanTool, WheelZoomTool, BoxSelectTool,
     BoxSelectionOverlay, GMapOptions)
 from bokeh.resources import INLINE
@@ -38,6 +38,12 @@ wheel_zoom = WheelZoomTool()
 box_select = BoxSelectTool()
 
 plot.add_tools(pan, wheel_zoom, box_select)
+
+xaxis = LinearAxis(axis_label="lat", major_tick_in=0)
+plot.add_layout(xaxis, 'below')
+
+yaxis = LinearAxis(axis_label="lon", major_tick_in=0)
+plot.add_layout(yaxis, 'left')
 
 overlay = BoxSelectionOverlay(tool=box_select)
 plot.add_layout(overlay)

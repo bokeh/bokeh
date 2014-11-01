@@ -10,9 +10,8 @@ define [
   class Selector extends HasProperties
     type: 'Selector'
 
-    update: (indices, geometry, final, append) ->
+    update: (indices, final, append) ->
       @set('timestamp', new Date())
-      @set('geometry', geometry)
       @set('final', final)
       if append
         indices = _.union(@get('indices'), indices)
@@ -20,7 +19,6 @@ define [
 
     clear: () ->
       @set('timestamp', new Date())
-      @set('geometry', null)
       @set('final', true)
       @set('indices', [])
 
