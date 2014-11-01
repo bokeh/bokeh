@@ -35,10 +35,16 @@ def _glyph_function(glyphclass, dsnames, argnames, docstring, xfields=["x"], yfi
         plot = None
         if isinstance(document_or_plot, Plot):
             plot = document_or_plot
-            # TODO (bev) plot.update(kwargs)
+            # TODO (bev) this seems like it should be here but invalid kwargs
+            # currently get through (see also below)
+            # plot.update(**kwargs)
         elif isinstance(document_or_plot, Document):
             document = document_or_plot
-            plot = document._get_plot(kwargs)
+            if document.curplot() is not None and document._hold:
+                plot = document.curplot()
+                # plot.update(**kwargs)
+            else:
+                plot = document.figure(**kwargs)
         else:
             raise ValueError("expected document or plot object for first argument")
 

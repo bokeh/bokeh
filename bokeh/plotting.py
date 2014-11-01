@@ -11,6 +11,7 @@ import warnings
 
 from . import browserlib
 from . import _glyph_functions as gf
+from .deprecate import deprecated
 from .document import Document
 from .embed import notebook_div, file_html, autoload_server
 from .objects import Axis, Grid, GridPlot, Legend, Plot
@@ -111,7 +112,7 @@ def figure(**kwargs):
         None
 
     '''
-    curdoc().figure(**kwargs)
+    return curdoc().figure(**kwargs)
 
 def output_server(docname, session=None, url="default", name=None):
     """ Cause plotting commands to automatically persist plots to a Bokeh server.
@@ -331,9 +332,12 @@ def push(session=None, document=None):
         warnings.warn("push() called but no session was supplied and output_server(...) was never called, nothing pushed")
 
 def _doc_wrap(func):
-    extra_doc = "\nThis is a convenience function that acts on the current document, and is equivalent to curdoc().%s(...)" % func.__name__
+    extra_doc = "\nThis is a convenience function that acts on the current plot of the current document, and is equivalent to curlot().%s(...)\n\n" % func.__name__
     func.__doc__ = getattr(gf, func.__name__).__doc__ + extra_doc
-    return func
+    return deprecated(
+        "Bokeh 0.7",
+        "glyph methods on plots, e.g. plt.%s(...)" % func.__name__
+    )(func)
 
 def _plot_function(__func__, *args, **kwargs):
     retval = __func__(curdoc(), *args, **kwargs)
