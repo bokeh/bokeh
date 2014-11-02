@@ -214,7 +214,6 @@ class CrossFilter(PlotObject):
                 tools="pan,wheel_zoom"
             )
             plot.min_border = 0
-            plot.border_symmetry = "none"
             plots.append(plot)
         chunk_size = int(np.ceil(np.sqrt(len(plots))))
         grid_plots = []
