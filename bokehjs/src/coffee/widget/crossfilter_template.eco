@@ -57,7 +57,7 @@
 
         </div>
 
-        <div class="bk-plot" />
+        <div class="bk-crossfilter-plot" />
       </td>
 
     </tr>
