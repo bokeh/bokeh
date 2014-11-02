@@ -1,11 +1,14 @@
 from __future__ import absolute_import
 
 from ..plot_object import PlotObject
-from ..properties import Bool, String, Enum, Instance, List, Dict
+from ..properties import Any, Bool, String, Enum, Instance, List, Dict
 from ..enums import Dimension
 
 from .renderers import Renderer
 from .ranges import Range
+
+class ToolEvents(PlotObject):
+    geometries = List(Dict(String, Any))
 
 class Tool(PlotObject):
     plot = Instance(".models.plots.Plot")

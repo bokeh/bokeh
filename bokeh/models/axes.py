@@ -27,10 +27,14 @@ class Axis(GuideRenderer):
     major_label_props = Include(TextProps)
 
     axis_props = Include(LineProps)
-    major_tick_props = Include(LineProps)
 
+    major_tick_props = Include(LineProps)
     major_tick_in = Int
     major_tick_out = Int
+
+    minor_tick_props = Include(LineProps)
+    minor_tick_in = Int
+    minor_tick_out = Int
 
 class ContinuousAxis(Axis):
     pass
