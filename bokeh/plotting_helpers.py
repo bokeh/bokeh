@@ -4,6 +4,7 @@ import itertools
 from numbers import Number
 import numpy as np
 import re
+import difflib
 from six import string_types
 
 from . import glyphs
@@ -17,6 +18,7 @@ from .objects import (
     WheelZoomTool,
 )
 from .properties import ColorSpec, Datetime
+from .utils import nice_join
 import warnings
 
 def get_default_color(plot=None):
@@ -272,6 +274,51 @@ def _get_num_minor_ticks(axis_class, num_minor_ticks):
             return 10
         return 5
 
+_known_tools = {
+    "pan": lambda plot: PanTool(plot=plot, dimensions=["width", "height"]),
+    "xpan": lambda plot: PanTool(plot=plot, dimensions=["width"]),
+    "ypan": lambda plot: PanTool(plot=plot, dimensions=["height"]),
+    "wheel_zoom": lambda plot: WheelZoomTool(plot=plot, dimensions=["width", "height"]),
+    "xwheel_zoom": lambda plot: WheelZoomTool(plot=plot, dimensions=["width"]),
+    "ywheel_zoom": lambda plot: WheelZoomTool(plot=plot, dimensions=["height"]),
+    "save": lambda plot: PreviewSaveTool(plot=plot),
+    "resize": lambda plot: ResizeTool(plot=plot),
+    "click": "tap",
+    "tap": lambda plot: TapTool(plot=plot, always_active=True),
+    "crosshair": lambda plot: CrosshairTool(plot=plot),
+    "select": "box_select", # TODO (bev) deprecate just "select"
+    "box_select": lambda plot: BoxSelectTool(plot=plot),
+    "poly_select": lambda plot: PolySelectTool(plot=plot),
+    "lasso_select": lambda plot: LassoSelectTool(plot=plot),
+    "box_zoom": lambda plot: BoxZoomTool(plot=plot),
+    "hover": lambda plot: HoverTool(plot=plot, always_active=True, tooltips={
+        "index": "$index",
+        "data (x, y)": "($x, $y)",
+        "canvas (x, y)": "($sx, $sy)",
+    }),
+    "previewsave": lambda plot: PreviewSaveTool(plot=plot),
+    "reset": lambda plot: ResetTool(plot=plot),
+    "object_explorer": lambda plot: ObjectExplorerTool(),
+}
+
+def _tool_from_string(name):
+    known_tools = _known_tools.keys()
+
+    if name in known_tools:
+        tool_fn = _known_tools[name]
+
+        if isinstance(tool_fn, string_types):
+            tool_fn = _known_tools[tool_fn]
+
+        return tool_fn
+    else:
+        matches, text = difflib.get_close_matches(name.lower(), known_tools), "similar"
+
+        if not matches:
+            matches, text = known_tools, "possible"
+
+        raise ValueError("unexpected tool name '%s', %s tools are %s" % (name, text, nice_join(matches)))
+
 def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
                  x_axis_type="auto", y_axis_type="auto",
                  x_axis_location="below", y_axis_location="left",
@@ -367,67 +414,22 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
 
     for tool in re.split(r"\s*,\s*", tools.strip()):
         # re.split will return empty strings; ignore them.
+        if tool == "":
+            continue
+
+        tool_fn = _tool_from_string(tool)
 
         if remove_pan_zoom and ("pan" in tool or "zoom" in tool):
             removing.append(tool)
             continue
 
-        if tool == "":
-            continue
-
-        if tool == "pan":
-            tool_obj = PanTool(plot=p, dimensions=["width", "height"])
-        elif tool == "xpan":
-            tool_obj = PanTool(plot=p, dimensions=["width"])
-        elif tool == "ypan":
-            tool_obj = PanTool(plot=p, dimensions=["height"])
-        elif tool == "wheel_zoom":
-            tool_obj = WheelZoomTool(plot=p, dimensions=["width", "height"])
-        elif tool == "xwheel_zoom":
-            tool_obj = WheelZoomTool(plot=p, dimensions=["width"])
-        elif tool == "ywheel_zoom":
-            tool_obj = WheelZoomTool(plot=p, dimensions=["height"])
-        elif tool == "save":
-            tool_obj = PreviewSaveTool(plot=p)
-        elif tool == "resize":
-            tool_obj = ResizeTool(plot=p)
-        elif tool == "click" or tool == "tap":
-            tool_obj = TapTool(plot=p, always_active=True)
-        elif tool == "crosshair":
-            tool_obj = CrosshairTool(plot=p)
-        elif tool == "select" or tool == "box_select":
-            # TODO (bev) deprecate just "select"
-            tool_obj = BoxSelectTool(plot=p)
-        elif tool == "poly_select":
-            tool_obj = PolySelectTool(plot=p)
-        elif tool == "lasso_select":
-            tool_obj = LassoSelectTool(plot=p)
-        elif tool == "box_zoom":
-            tool_obj = BoxZoomTool(plot=p)
-        elif tool == "hover":
-            tool_obj = HoverTool(plot=p, always_active=True, tooltips={
-                "index": "$index",
-                "data (x, y)": "($x, $y)",
-                "canvas (x, y)": "($sx, $sy)",
-            })
-        elif tool == "previewsave":
-            tool_obj = PreviewSaveTool(plot=p)
-        elif tool == "reset":
-            tool_obj = ResetTool(plot=p)
-        elif tool == "object_explorer":
-            tool_obj = ObjectExplorerTool()
-        else:
-            known_tools = "pan, xpan, ypan, wheel_zoom, xwheel_zoom, ywheel_zoom, box_zoom, save, resize, crosshair, select, previewsave, reset, or hover"
-            raise ValueError("invalid tool: %s (expected one of %s)" % (tool, known_tools))
-
-        tool_objs.append(tool_obj)
+        tool_objs.append(tool_fn(p))
 
         #Checking for repeated tools
         repeated_tools = []
 
         for typname, grp in itertools.groupby(sorted(str(type(i)) for i in tool_objs)):
-            if len(list(grp)) > 1: repeated_tools+=typname
-
+            if len(list(grp)) > 1: repeated_tools += typname
 
         if repeated_tools:
             repeated = str()
