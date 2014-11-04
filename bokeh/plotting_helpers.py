@@ -13,7 +13,7 @@ from .objects import (
     BoxSelectionOverlay, BoxSelectTool, BoxZoomTool, CategoricalAxis,
     ColumnDataSource, TapTool, CrosshairTool, DataRange1d, DatetimeAxis,
     FactorRange, Grid, HoverTool, LassoSelectTool, Legend, LinearAxis,
-    LogAxis, ObjectExplorerTool, PanTool, Plot, PolySelectTool,
+    LogAxis, PanTool, Plot, PolySelectTool,
     PreviewSaveTool, Range, Range1d, ResetTool, ResizeTool, Tool,
     WheelZoomTool,
 )
@@ -298,7 +298,6 @@ _known_tools = {
     }),
     "previewsave": lambda plot: PreviewSaveTool(plot=plot),
     "reset": lambda plot: ResetTool(plot=plot),
-    "object_explorer": lambda plot: ObjectExplorerTool(),
 }
 
 def _tool_from_string(name):

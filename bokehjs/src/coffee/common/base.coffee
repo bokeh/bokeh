@@ -99,7 +99,6 @@ define [
   "tool/button_tool",
 
   "tool/actions/action_tool",
-  "tool/actions/object_explorer_tool",
   "tool/actions/preview_save_tool",
   "tool/actions/reset_tool",
 
@@ -121,7 +120,6 @@ define [
   "widget/handson_table",
   "widget/table_column"
   "widget/pivot_table",
-  "widget/object_explorer",
 
   'widget/paragraph'
   'widget/hbox'
@@ -271,7 +269,6 @@ define [
 
     ButtonTool:               'tool/button_tool'
     ActionTool:               'tool/actions/action_tool'
-    ObjectExplorerTool:       'tool/actions/object_explorer_tool'
     PreviewSaveTool:          'tool/actions/preview_save_tool'
     ResetTool:                'tool/actions/reset_tool'
 
@@ -294,7 +291,6 @@ define [
     HandsonTable:             'widget/handson_table'
     TableColumn:              'widget/table_column'
     PivotTable:               'widget/pivot_table'
-    ObjectExplorer:           'widget/object_explorer'
 
     Paragraph:                'widget/paragraph'
     HBox:                     'widget/hbox'

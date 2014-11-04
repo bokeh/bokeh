@@ -62,9 +62,6 @@ class HoverTool(Tool):
     tooltips = Dict(String, String)
     always_active = Bool(True)
 
-class ObjectExplorerTool(Tool):
-    pass
-
 class DataRangeBoxSelectTool(Tool):
     xselect = List(Instance(Range))
     yselect = List(Instance(Range))
