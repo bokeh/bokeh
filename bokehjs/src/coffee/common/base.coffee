@@ -116,10 +116,7 @@ define [
   "tool/inspectors/hover_tool",
   "tool/inspectors/inspect_tool",
 
-  "widget/data_table",
-  "widget/handson_table",
   "widget/slick_grid",
-  "widget/table_column"
   "widget/pivot_table",
 
   'widget/paragraph'
@@ -288,10 +285,7 @@ define [
     HoverTool:                'tool/inspectors/hover_tool'
     InspectTool:              'tool/inspectors/inspect_tool'
 
-    DataTable:                'widget/data_table'
-    HandsonTable:             'widget/handson_table'
     SlickGrid:                'widget/slick_grid'
-    TableColumn:              'widget/table_column'
     PivotTable:               'widget/pivot_table'
 
     Paragraph:                'widget/paragraph'

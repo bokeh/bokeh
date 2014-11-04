@@ -6,7 +6,6 @@ require.config
         jquery_event_drag: "vendor/jquery-event/jquery.event.drag-2.2"
         jquery_event_drop: "vendor/jquery-event/jquery.event.drop-2.2"
         jqrangeslider:     "vendor/jqrangeslider/jQAllRangeSliders-withRuler-min"
-        handsontable:      "vendor/handsontable/jquery.handsontable.full"
         slick_grid:        "vendor/slick-grid"
         underscore:        "vendor/underscore-amd/underscore"
         backbone:          "vendor/backbone-amd/backbone"
@@ -21,9 +20,6 @@ require.config
     shim:
         sprintf:
             exports: 'sprintf'
-        handsontable:
-            deps: ["jquery"]
-            exports: "$.fn.handsontable"
         jqrangeslider:
             deps: ["jquery_ui/core", "jquery_ui/widget", "jquery_ui/mouse", "jquery_mousewheel"]
             exports: "$.fn.rangeSlider"

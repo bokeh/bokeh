@@ -53,9 +53,5 @@ User Interaction
 
 * Dialog
 
-* DataTable
-
-* HandsonTable
-
 * PivotTable
 
