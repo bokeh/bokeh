@@ -33,9 +33,6 @@ class HandsonTable(TableWidget):
     row_resize = Bool(False)
     column_resize = Bool(False)
 
-class ObjectExplorer(Widget):
-    data_widget = Instance(TableWidget)
-
 class DataTable(Widget):
     source = Instance(DataSource)
     sort = List(String)

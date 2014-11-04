@@ -14,7 +14,6 @@ require.config
         timezone:          "vendor/timezone/src/timezone"
         sprintf:           "vendor/sprintf/src/sprintf"
         rbush:             "vendor/rbush/rbush"
-        jstree:            "vendor/jstree/dist/jstree"
         gear_utils:        "vendor/gear-utils/gear-utils"
         kiwi:              "vendor/kiwi/kiwi"
         jsnlog:            "vendor/jsnlog/jsnlog.min"

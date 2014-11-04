@@ -5,9 +5,9 @@ User Guide
 
 
 The User Guide is being continuously updated, but please also consult the numerous
-`examples <https://github.com/ContinuumIO/Bokeh/tree/master/examples>`_
+`examples <https://github.com/bokeh/bokeh/tree/master/examples>`_
 to see the kinds of parameters that can be passed in to plotting functions in ``bokeh.plotting``, and look
-at the `glyph examples <https://github.com/ContinuumIO/Bokeh/tree/master/examples/glyphs>`_ to see
+at the `glyph examples <https://github.com/bokeh/bokeh/tree/master/examples/glyphs>`_ to see
 the kinds of low-level object attributes that can be set to really customize a plot.
 
 .. toctree::

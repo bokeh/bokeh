@@ -46,6 +46,7 @@ define [
       [vxlim, vylim] = @model._get_dim_limits(@_baseboint, curpoint, frame, dims)
       append = e.srcEvent.shiftKey ? false
       @_select(vxlim, vylim, true, append)
+
       @mget('overlay').set('data', {})
 
       @_baseboint = null
@@ -64,6 +65,8 @@ define [
         ds = r.get('data_source')
         sm = ds.get('selection_manager')
         sm.select(@, @plot_view.renderers[r.id], geometry, final, append)
+
+      @_save_geometry(geometry, final, append)
 
       return null
 
