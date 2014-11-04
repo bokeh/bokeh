@@ -403,14 +403,15 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
             elif isinstance(tool, string_types):
                 temp_tool_str+=tool + ','
             else:
-                raise ValueError("tool should be a valid str or Tool Object")
+                raise ValueError("tool should be a string or an instance of Tool class")
         tools = temp_tool_str
-
 
     # Remove pan/zoom tools in case of categorical axes
     remove_pan_zoom = (isinstance(p.x_range, FactorRange) or
                        isinstance(p.y_range, FactorRange))
-    removing = []
+
+    repeated_tools = []
+    removed_tools = []
 
     for tool in re.split(r"\s*,\s*", tools.strip()):
         # re.split will return empty strings; ignore them.
@@ -421,28 +422,23 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
         tool_obj.plot = p
 
         if remove_pan_zoom and ("pan" in tool or "zoom" in tool):
-            removing.append(tool)
+            removed_tools.append(tool)
             continue
 
         tool_objs.append(tool_obj)
 
-        #Checking for repeated tools
-        repeated_tools = []
-
-        for typname, grp in itertools.groupby(sorted(str(type(i)) for i in tool_objs)):
-            if len(list(grp)) > 1: repeated_tools += typname
-
-        if repeated_tools:
-            repeated = str()
-            for tools in repeated_tools:
-                repeated += tools
-            warnings.warn("tools:%s are being repeated!"%repeated)
-
     p.tools.extend(tool_objs)
 
-    if removing:
-        warnings.warn("Categorical plots do not support pan and zoom operations.\n"
-                      "Removing tool(s): %s" %', '.join(removing))
+    for typename, group in itertools.groupby(sorted([ tool.__class__.__name__ for tool in p.tools ])):
+        if len(list(group)) > 1:
+            repeated_tools.append(typename)
+
+    if repeated_tools:
+        warnings.warn("%s are being repeated" % ",".join(repeated_tools))
+
+    if removed_tools:
+        warnings.warn("categorical plots do not support pan and zoom operations.\n"
+                      "Removing tool(s): %s" %', '.join(removed_tools))
 
     return p
 
