@@ -275,32 +275,33 @@ def _get_num_minor_ticks(axis_class, num_minor_ticks):
         return 5
 
 _known_tools = {
-    "pan": lambda plot: PanTool(plot=plot, dimensions=["width", "height"]),
-    "xpan": lambda plot: PanTool(plot=plot, dimensions=["width"]),
-    "ypan": lambda plot: PanTool(plot=plot, dimensions=["height"]),
-    "wheel_zoom": lambda plot: WheelZoomTool(plot=plot, dimensions=["width", "height"]),
-    "xwheel_zoom": lambda plot: WheelZoomTool(plot=plot, dimensions=["width"]),
-    "ywheel_zoom": lambda plot: WheelZoomTool(plot=plot, dimensions=["height"]),
-    "save": lambda plot: PreviewSaveTool(plot=plot),
-    "resize": lambda plot: ResizeTool(plot=plot),
+    "pan": lambda: PanTool(dimensions=["width", "height"]),
+    "xpan": lambda: PanTool(dimensions=["width"]),
+    "ypan": lambda: PanTool(dimensions=["height"]),
+    "wheel_zoom": lambda: WheelZoomTool(dimensions=["width", "height"]),
+    "xwheel_zoom": lambda: WheelZoomTool(dimensions=["width"]),
+    "ywheel_zoom": lambda: WheelZoomTool(dimensions=["height"]),
+    "save": lambda: PreviewSaveTool(),
+    "resize": lambda: ResizeTool(),
     "click": "tap",
-    "tap": lambda plot: TapTool(plot=plot, always_active=True),
-    "crosshair": lambda plot: CrosshairTool(plot=plot),
+    "tap": lambda: TapTool(always_active=True),
+    "crosshair": lambda: CrosshairTool(),
     "select": "box_select", # TODO (bev) deprecate just "select"
-    "box_select": lambda plot: BoxSelectTool(plot=plot),
-    "poly_select": lambda plot: PolySelectTool(plot=plot),
-    "lasso_select": lambda plot: LassoSelectTool(plot=plot),
-    "box_zoom": lambda plot: BoxZoomTool(plot=plot),
-    "hover": lambda plot: HoverTool(plot=plot, always_active=True, tooltips={
+    "box_select": lambda: BoxSelectTool(),
+    "poly_select": lambda: PolySelectTool(),
+    "lasso_select": lambda: LassoSelectTool(),
+    "box_zoom": lambda: BoxZoomTool(),
+    "hover": lambda: HoverTool(always_active=True, tooltips={
         "index": "$index",
         "data (x, y)": "($x, $y)",
         "canvas (x, y)": "($sx, $sy)",
     }),
-    "previewsave": lambda plot: PreviewSaveTool(plot=plot),
-    "reset": lambda plot: ResetTool(plot=plot),
+    "previewsave": lambda: PreviewSaveTool(),
+    "reset": lambda: ResetTool(),
 }
 
 def _tool_from_string(name):
+    """ Takes a string and returns a corresponding `Tool` instance. """
     known_tools = _known_tools.keys()
 
     if name in known_tools:
@@ -309,7 +310,7 @@ def _tool_from_string(name):
         if isinstance(tool_fn, string_types):
             tool_fn = _known_tools[tool_fn]
 
-        return tool_fn
+        return tool_fn()
     else:
         matches, text = difflib.get_close_matches(name.lower(), known_tools), "similar"
 
@@ -416,13 +417,14 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
         if tool == "":
             continue
 
-        tool_fn = _tool_from_string(tool)
+        tool_obj = _tool_from_string(tool)
+        tool_obj.plot = p
 
         if remove_pan_zoom and ("pan" in tool or "zoom" in tool):
             removing.append(tool)
             continue
 
-        tool_objs.append(tool_fn(p))
+        tool_objs.append(tool_obj)
 
         #Checking for repeated tools
         repeated_tools = []
