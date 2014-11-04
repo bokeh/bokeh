@@ -327,71 +327,71 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
     # Accept **kw to absorb other arguments which the actual factory functions
     # might pass in, but that we don't care about
 
-    p = Plot()
-    p.title = kw.pop("title", "Plot")
+    plot = Plot()
+    plot.title = kw.pop("title", "Plot")
 
-    p.toolbar_location = kw.pop("toolbar_location", "above")
+    plot.toolbar_location = kw.pop("toolbar_location", "above")
 
-    p.x_range = _get_range(x_range)
-    p.y_range = _get_range(y_range)
+    plot.x_range = _get_range(x_range)
+    plot.y_range = _get_range(y_range)
 
-    if plot_width: p.plot_width = plot_width
-    if plot_height: p.plot_height = plot_height
+    if plot_width: plot.plot_width = plot_width
+    if plot_height: plot.plot_height = plot_height
 
-    x_axiscls = _get_axis_class(x_axis_type, p.x_range)
+    x_axiscls = _get_axis_class(x_axis_type, plot.x_range)
     if x_axiscls:
         if x_axiscls is LogAxis:
-            p.x_mapper_type = 'log'
-        xaxis = x_axiscls(plot=p)
+            plot.x_mapper_type = 'log'
+        xaxis = x_axiscls(plot=plot)
         xaxis.ticker.num_minor_ticks = _get_num_minor_ticks(x_axiscls, x_minor_ticks)
         axis_label = kw.pop('x_axis_label', None)
         if axis_label:
             xaxis.axis_label = axis_label
-        xgrid = Grid(plot=p, dimension=0, ticker=xaxis.ticker)
+        xgrid = Grid(plot=plot, dimension=0, ticker=xaxis.ticker)
         if x_axis_location == "top":
             warnings.warn("'top' is deprecated, use 'above'")
-            p.above.append(xaxis)
+            plot.above.append(xaxis)
         elif x_axis_location == "bottom":
             warnings.warn("'bottom' is deprecated, use 'below'")
-            p.below.append(xaxis)
+            plot.below.append(xaxis)
         elif x_axis_location == "above":
-            p.above.append(xaxis)
+            plot.above.append(xaxis)
         elif x_axis_location == "below":
-            p.below.append(xaxis)
+            plot.below.append(xaxis)
 
-    y_axiscls = _get_axis_class(y_axis_type, p.y_range)
+    y_axiscls = _get_axis_class(y_axis_type, plot.y_range)
     if y_axiscls:
         if y_axiscls is LogAxis:
-            p.y_mapper_type = 'log'
-        yaxis = y_axiscls(plot=p)
+            plot.y_mapper_type = 'log'
+        yaxis = y_axiscls(plot=plot)
         yaxis.ticker.num_minor_ticks = _get_num_minor_ticks(y_axiscls, y_minor_ticks)
         axis_label = kw.pop('y_axis_label', None)
         if axis_label:
             yaxis.axis_label = axis_label
-        ygrid = Grid(plot=p, dimension=1, ticker=yaxis.ticker)
+        ygrid = Grid(plot=plot, dimension=1, ticker=yaxis.ticker)
         if y_axis_location == "left":
-            p.left.append(yaxis)
+            plot.left.append(yaxis)
         elif y_axis_location == "right":
-            p.right.append(yaxis)
+            plot.right.append(yaxis)
 
     border_args = ["min_border", "min_border_top", "min_border_bottom", "min_border_left", "min_border_right"]
     for arg in border_args:
         if arg in kw:
-            setattr(p, arg, kw.pop(arg))
+            setattr(plot, arg, kw.pop(arg))
 
     fill_args = ["background_fill", "border_fill"]
     for arg in fill_args:
         if arg in kw:
-            setattr(p, arg, kw.pop(arg))
+            setattr(plot, arg, kw.pop(arg))
 
     style_arg_prefix = ["title", "outline"]
     for prefix in style_arg_prefix:
         for k in list(kw):
             if k.startswith(prefix):
-                setattr(p, k, kw.pop(k))
+                setattr(plot, k, kw.pop(k))
 
     if 'toolbar_location' in list(kw):
-        p.toolbar_location = kw.pop('toolbar_location')
+        plot.toolbar_location = kw.pop('toolbar_location')
 
     tool_objs = []
     temp_tool_str = str()
@@ -407,8 +407,8 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
         tools = temp_tool_str
 
     # Remove pan/zoom tools in case of categorical axes
-    remove_pan_zoom = (isinstance(p.x_range, FactorRange) or
-                       isinstance(p.y_range, FactorRange))
+    remove_pan_zoom = (isinstance(plot.x_range, FactorRange) or
+                       isinstance(plot.y_range, FactorRange))
 
     repeated_tools = []
     removed_tools = []
@@ -419,7 +419,7 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
             continue
 
         tool_obj = _tool_from_string(tool)
-        tool_obj.plot = p
+        tool_obj.plot = plot
 
         if remove_pan_zoom and ("pan" in tool or "zoom" in tool):
             removed_tools.append(tool)
@@ -427,9 +427,9 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
 
         tool_objs.append(tool_obj)
 
-    p.tools.extend(tool_objs)
+    plot.tools.extend(tool_objs)
 
-    for typename, group in itertools.groupby(sorted([ tool.__class__.__name__ for tool in p.tools ])):
+    for typename, group in itertools.groupby(sorted([ tool.__class__.__name__ for tool in plot.tools ])):
         if len(list(group)) > 1:
             repeated_tools.append(typename)
 
@@ -440,7 +440,7 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
         warnings.warn("categorical plots do not support pan and zoom operations.\n"
                       "Removing tool(s): %s" %', '.join(removed_tools))
 
-    return p
+    return plot
 
 
 def _handle_1d_data_args(args, datasource=None, create_autoindex=True,
