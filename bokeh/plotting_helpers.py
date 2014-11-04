@@ -302,7 +302,7 @@ _known_tools = {
 
 def _tool_from_string(name):
     """ Takes a string and returns a corresponding `Tool` instance. """
-    known_tools = _known_tools.keys()
+    known_tools = sorted(_known_tools.keys())
 
     if name in known_tools:
         tool_fn = _known_tools[name]

@@ -508,7 +508,7 @@ class HasProps(object):
             setattr(self, name, value)
 
     def __setattr__(self, name, value):
-        props = self.properties()
+        props = sorted(self.properties())
 
         if name.startswith("_") or name in props:
             super(HasProps, self).__setattr__(name, value)
