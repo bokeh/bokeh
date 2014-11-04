@@ -13,7 +13,7 @@ from bokeh.objects import (
     LinearAxis, DatetimeAxis, Grid, HoverTool
 )
 from bokeh.session import Session
-from bokeh.widgets import VBox, HBox, Paragraph, Button, TableColumn, HandsonTable
+from bokeh.widgets import VBox, HBox, Paragraph, Button, TableColumn, DataTable
 
 document = Document()
 session = Session()
@@ -64,7 +64,7 @@ def make_layout():
         TableColumn(field="dates", type="date", header="Date"),
         TableColumn(field="downloads", type="numeric", header="Downloads"),
     ]
-    data_table = HandsonTable(source=source, columns=columns)
+    data_table = DataTable(source=source, columns=columns)
     button = Button(label="Randomize data", type="success")
     button.on_click(click_handler)
     buttons = VBox(children=[button])

@@ -5,7 +5,7 @@ import time
 from bokeh.browserlib import view
 from bokeh.objects import ColumnDataSource, Plot, DataRange1d, LinearAxis, Grid, GlyphRenderer, BoxSelectTool
 from bokeh.glyphs import Circle
-from bokeh.widgets import TableColumn, HandsonTable, Select, HBox, VBox
+from bokeh.widgets import TableColumn, DataTable, Select, HBox, VBox
 from bokeh.document import Document
 from bokeh.session import Session
 from bokeh.sampledata.autompg2 import autompg2 as mpg
@@ -60,7 +60,7 @@ class DataTables(object):
             TableColumn(field="cty", header="City MPG", type="numeric"),
             TableColumn(field="hwy", header="Highway MPG", type="numeric"),
         ]
-        handson_table = HandsonTable(source=self.source, columns=columns, sorting=True)
+        data_table = DataTable(source=self.source, columns=columns, sorting=True)
 
         xdr = DataRange1d(sources=[self.source.columns("index")])
         #xdr = FactorRange(factors=manufacturers)
@@ -79,7 +79,7 @@ class DataTables(object):
 
         controls = VBox(children=[manufacturer_select, model_select, transmission_select, drive_select, class_select], width=200)
         top_panel = HBox(children=[controls, plot])
-        layout = VBox(children=[top_panel, handson_table])
+        layout = VBox(children=[top_panel, data_table])
 
         return layout
 

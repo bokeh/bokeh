@@ -11,6 +11,12 @@ from ..sources import DataSource
 class TableWidget(Widget):
     source = Instance(DataSource)
 
+class TableColumn(Widget):
+    pass
+
+class DataTable(TableWidget):
+    columns = List(Instance(TableColumn))
+
 class PivotTable(Widget):
     source = Instance(DataSource)
     title = String("Pivot Table")
