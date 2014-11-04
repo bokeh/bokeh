@@ -116,9 +116,9 @@ define [
   "tool/inspectors/hover_tool",
   "tool/inspectors/inspect_tool",
 
-  "widget/slick_grid",
   "widget/pivot_table",
 
+  "widget/data_table",
   'widget/paragraph'
   'widget/hbox'
   'widget/vbox'
@@ -285,9 +285,9 @@ define [
     HoverTool:                'tool/inspectors/hover_tool'
     InspectTool:              'tool/inspectors/inspect_tool'
 
-    SlickGrid:                'widget/slick_grid'
     PivotTable:               'widget/pivot_table'
 
+    DataTable:                'widget/data_table'
     Paragraph:                'widget/paragraph'
     HBox:                     'widget/hbox'
     VBox:                     'widget/vbox'
