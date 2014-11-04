@@ -116,8 +116,6 @@ define [
   "tool/inspectors/hover_tool",
   "tool/inspectors/inspect_tool",
 
-  "widget/pivot_table",
-
   "widget/data_table",
   'widget/paragraph'
   'widget/hbox'
@@ -284,8 +282,6 @@ define [
     CrosshairTool:            'tool/inspectors/crosshair_tool'
     HoverTool:                'tool/inspectors/hover_tool'
     InspectTool:              'tool/inspectors/inspect_tool'
-
-    PivotTable:               'widget/pivot_table'
 
     DataTable:                'widget/data_table'
     Paragraph:                'widget/paragraph'

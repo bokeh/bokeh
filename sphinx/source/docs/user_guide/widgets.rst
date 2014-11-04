@@ -52,6 +52,3 @@ User Interaction
 * DatePicker
 
 * Dialog
-
-* PivotTable
-
