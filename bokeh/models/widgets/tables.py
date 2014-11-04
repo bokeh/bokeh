@@ -3,7 +3,7 @@ from __future__ import absolute_import
 import pandas as pd
 
 from ...pivot_table import pivot_table
-from ...properties import Any, Bool, Int, String, Enum, Instance, List, Dict
+from ...properties import HasProps, Any, Bool, Int, String, Enum, Instance, List, Dict
 from ...enums import ColumnType
 from ..widget import Widget
 from ..sources import DataSource
@@ -11,7 +11,7 @@ from ..sources import DataSource
 class TableWidget(Widget):
     source = Instance(DataSource)
 
-class TableColumn(Widget):
+class TableColumn(HasProps):
     pass
 
 class DataTable(TableWidget):
