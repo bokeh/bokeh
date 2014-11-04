@@ -117,6 +117,7 @@ define [
   "tool/inspectors/inspect_tool",
 
   "widget/data_table",
+  "widget/table_column",
   'widget/paragraph'
   'widget/hbox'
   'widget/vbox'
@@ -284,6 +285,7 @@ define [
     InspectTool:              'tool/inspectors/inspect_tool'
 
     DataTable:                'widget/data_table'
+    TableColumn:              'widget/table_column'
     Paragraph:                'widget/paragraph'
     HBox:                     'widget/hbox'
     VBox:                     'widget/vbox'

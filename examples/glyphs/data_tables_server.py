@@ -49,18 +49,18 @@ class DataTables(object):
         class_select.on_change('value', self.on_class_change)
 
         columns = [
-            TableColumn(field="manufacturer", header="Manufacturer", type="autocomplete", source=manufacturers),
-            TableColumn(field="model", header="Model", type="autocomplete", source=models),
-            TableColumn(field="displ", header="Displacement", type="numeric", format="0.00"),
-            TableColumn(field="year", header="Year", type="numeric"),
-            TableColumn(field="cyl", header="Cylinders", type="numeric"),
-            TableColumn(field="trans", header="Transmission", type="dropdown", strict=True, source=transmissions),
-            TableColumn(field="drv", header="Drive", type="autocomplete", strict=True, source=drives),
-            TableColumn(field="class", header="Class", type="autocomplete", strict=True, source=classes),
-            TableColumn(field="cty", header="City MPG", type="numeric"),
-            TableColumn(field="hwy", header="Highway MPG", type="numeric"),
+            TableColumn(field="manufacturer", title="Manufacturer"),
+            TableColumn(field="model", title="Model"),
+            TableColumn(field="displ", title="Displacement"),
+            TableColumn(field="year", title="Year"),
+            TableColumn(field="cyl", title="Cylinders"),
+            TableColumn(field="trans", title="Transmission"),
+            TableColumn(field="drv", title="Drive"),
+            TableColumn(field="class", title="Class"),
+            TableColumn(field="cty", title="City MPG"),
+            TableColumn(field="hwy", title="Highway MPG"),
         ]
-        data_table = DataTable(source=self.source, columns=columns, sorting=True)
+        data_table = DataTable(source=self.source, columns=columns, width=1000, height=400)
 
         xdr = DataRange1d(sources=[self.source.columns("index")])
         #xdr = FactorRange(factors=manufacturers)

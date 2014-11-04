@@ -61,10 +61,10 @@ def click_handler():
 def make_layout():
     plot, source = make_plot()
     columns = [
-        TableColumn(field="dates", type="date", header="Date"),
-        TableColumn(field="downloads", type="numeric", header="Downloads"),
+        TableColumn(field="dates", title="Date"),
+        TableColumn(field="downloads", title="Downloads"),
     ]
-    data_table = DataTable(source=source, columns=columns)
+    data_table = DataTable(source=source, columns=columns, width=400, height=400)
     button = Button(label="Randomize data", type="success")
     button.on_click(click_handler)
     buttons = VBox(children=[button])
