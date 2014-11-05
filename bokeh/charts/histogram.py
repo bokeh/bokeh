@@ -142,7 +142,7 @@ class Histogram(ChartObject):
         """
         super(Histogram, self).check_attr()
 
-    def get_data(self, bins, mu, sigma, **value):
+    def get_data(self, bins, mu, sigma, value):
         """Take the Histogram data from the input **value.
 
         It calculates the chart properties accordingly. Then build a dict
@@ -159,12 +159,33 @@ class Histogram(ChartObject):
         self.value = value
 
         # list to save all the groups available in the incomming input
-        self.groups.extend(self.value.keys())
+        try:
+            self.groups.extend(self.value.keys())
+
+            def _set_and_get_data(val):
+                self._set_and_get("", val, self.value[val])
+
+        except AttributeError:
+            # assuming that only non-dict like objects can raise this error
+            # it's probably because we have an iterable instead of a mapper
+            # in this case let's use indices as groups keys
+            self.groups.extend(map(str, range(len(self.value))))
+
+            def _set_and_get_data(val):
+                self._set_and_get("", val, self.value[int(val)])
 
         # fill the data dictionary with the proper values
-        for i, val in enumerate(self.value.keys()):
-            self._set_and_get("", val, self.value[val])
-            hist, edges = np.histogram(self.data[val], density=True, bins=bins)
+        for i, val in enumerate(self.groups):
+            # using _set_and_get_data to delegate call to self._set_and_get as
+            # self.value can be a mapper and iterable so val could need type
+            # conversion in some cases
+            _set_and_get_data(val)
+            _val = self.data[val]
+
+            if isinstance(_val, dict):
+                _val = _val.values()
+
+            hist, edges = np.histogram(_val, density=True, bins=bins)
             self._set_and_get("hist", val, hist)
             self._set_and_get("edges", val, edges)
             self._set_and_get("left", val, edges[:-1])
@@ -243,7 +264,7 @@ class Histogram(ChartObject):
         # we start the plot (adds axis, grids and tools)
         self.start_plot()
         # we get the data from the incoming input
-        self.get_data(self.bins, self.mu, self.sigma, **self.measured)
+        self.get_data(self.bins, self.mu, self.sigma, self.measured)
         # we filled the source and ranges with the calculated data
         self.get_source()
         # we dynamically inject the ranges into the plot
