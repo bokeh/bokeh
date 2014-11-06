@@ -1,4 +1,4 @@
-
+import uuid
 import tempfile
 import threading
 import time
@@ -11,8 +11,8 @@ from tornado import ioloop
 #import zmq
 
 from bokeh.tests.test_utils import skipIfPy3
-
-from .. import start
+from ..models import user
+from .. import start, configure
 from ..app import bokeh_app
 from ..settings import settings as server_settings
 
@@ -73,26 +73,26 @@ class MemoryBokehServerTestCase(BaseBokehServerTestCase):
     @skipIfPy3("gevent does not work in py3.")
     def setUp(self):
         #clear tornado ioloop instance
-        settings.backend = {'type' : 'memory'}
-        if hasattr(ioloop.IOLoop, '_instance'):
-            del ioloop.IOLoop._instance
-        start.prepare_app({"type": "memory"}, **self.options)
-        websocket = {
-            "zmqaddr" : "tcp://127.0.0.1:6010",
-            "no_ws_start" : False,
-            "ws_port" : 6009,
-        }
-        start.configure_websocket(websocket)
-        start.register_blueprint()
+        server_settings.model_backend = {'type' : 'memory'}
+        for k,v in self.options.items():
+            setattr(server_settings, k, v)
         bokeh_app.stdout = None
         bokeh_app.stderr = None
-        self.serverthread = threading.Thread(target=start.start_app)
+        self.serverthread = threading.Thread(target=start.start_simple_server)
         self.serverthread.start()
-        start.make_default_user(bokeh_app)
         wait_flask()
+        #not great - but no good way to wait for zmq to come up
+        time.sleep(0.1)
+        make_default_user(bokeh_app)
 
     def tearDown(self):
         start.stop()
         self.serverthread.join()
 
 BokehServerTestCase = MemoryBokehServerTestCase
+
+def make_default_user(bokeh_app):
+    bokehuser = user.new_user(bokeh_app.servermodel_storage, "defaultuser",
+                              str(uuid.uuid4()), apikey='nokey', docs=[])
+    print bokeh_app.servermodel_storage._data
+    return bokehuser

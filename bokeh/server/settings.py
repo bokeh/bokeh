@@ -1,5 +1,6 @@
 import logging
 from ..settings import settings as bokeh_settings
+import uuid
 
 class Settings(object):
     ip = "0.0.0.0"
@@ -24,7 +25,7 @@ class Settings(object):
     robust_reload = False
     verbose = False
     run_forwarder = True
-
+    secret_key = str(uuid.uuid4())
     _debugjs = False
 
     @property

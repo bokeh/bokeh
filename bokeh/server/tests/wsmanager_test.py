@@ -7,20 +7,16 @@ from bokeh.tests.test_utils import skipIfPyPy
 from . import test_utils
 from ..app import bokeh_app
 
-ws_address = "ws://localhost:6009/bokeh/sub/"
+ws_address = "ws://localhost:5006/bokeh/sub"
 
 class TestSubscribeWebSocket(test_utils.BokehServerTestCase):
-    def setUp(self):
-        super(TestSubscribeWebSocket, self).setUp()
+    def test_basic_subscribe(self):
         self.doc1 = document.Document()
         self.sess1 = session.Session()
         self.sess1.use_doc('first')
         self.doc2 = document.Document()
         self.sess2 = session.Session()
         self.sess2.use_doc('second')
-
-    @skipIfPyPy("gevent requires pypycore and pypy-hacks branch of gevent.")
-    def test_basic_subscribe(self):
         #connect sock to defaultdoc
         #connect sock2 to defaultdoc
         #connect sock3 to defaultdoc2

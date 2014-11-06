@@ -58,21 +58,20 @@ def start_redis():
 
 server = None
 
-def start_simple_server(args):
+def start_simple_server(args=None):
     global server
     configure_flask(config_argparse=args)
     register_blueprint()
     tornado_app = make_tornado_app(flask_app=app)
     server = HTTPServer(tornado_app)
     server.listen(server_settings.port, server_settings.ip)
-    try:
-        ioloop.IOLoop.instance().start()
-    finally:
-        ioloop.IOLoop.instance().stop()
-        ioloop.IOLoop.instance().clear_instance()
+    ioloop.IOLoop.instance().start()
 
 def stop():
     if hasattr(bokeh_app, 'redis_proc'):
         bokeh_app.redis_proc.close()
+    server.stop()
     bokehapp = server.request_callback
     bokehapp.stop_threads()
+    ioloop.IOLoop.instance().stop()
+    ioloop.IOLoop.instance().clear_instance()

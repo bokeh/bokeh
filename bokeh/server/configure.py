@@ -125,6 +125,7 @@ def make_tornado_app(flask_app=None):
         flask_app = app
     if server_settings.debug:
         flask_app.debug = True
+    flask_app.secret_key = server_settings.secret_key
     tornado_app = SimpleBokehTornadoApp(flask_app, debug=server_settings.debug)
     tornado_app.start_threads()
     return tornado_app

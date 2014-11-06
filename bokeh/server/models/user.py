@@ -15,6 +15,8 @@ def apiuser_from_request(app, request):
         return None
     username = request.headers['BOKEHUSER']
     bokehuser = User.load(app.servermodel_storage, username)
+    if bokehuser is None:
+        import pdb; pdb.set_trace()
     if bokehuser.apikey == apikey:
         return bokehuser
     else:
@@ -110,4 +112,3 @@ class User(models.ServerModel):
                     obj['apikey'],
                     obj['docs'],
                     )
-
