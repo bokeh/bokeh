@@ -41,7 +41,7 @@ return $.widget( "ui.progressbar", {
 		this.oldValue = this.options.value = this._constrainedValue();
 
 		this.element
-			.addClass( "ui-progressbar ui-widget ui-widget-content ui-corner-all" )
+			.addClass( "bk-ui-progressbar bk-ui-widget bk-ui-widget-content bk-ui-corner-all" )
 			.attr({
 				// Only set static values, aria-valuenow and aria-valuemax are
 				// set inside _refreshValue()
@@ -49,7 +49,7 @@ return $.widget( "ui.progressbar", {
 				"aria-valuemin": this.min
 			});
 
-		this.valueDiv = $( "<div class='ui-progressbar-value ui-widget-header ui-corner-left'></div>" )
+		this.valueDiv = $( "<div class='bk-ui-progressbar-value bk-ui-widget-header bk-ui-corner-left'></div>" )
 			.appendTo( this.element );
 
 		this._refreshValue();
@@ -57,7 +57,7 @@ return $.widget( "ui.progressbar", {
 
 	_destroy: function() {
 		this.element
-			.removeClass( "ui-progressbar ui-widget ui-widget-content ui-corner-all" )
+			.removeClass( "bk-ui-progressbar bk-ui-widget bk-ui-widget-content bk-ui-corner-all" )
 			.removeAttr( "role" )
 			.removeAttr( "aria-valuemin" )
 			.removeAttr( "aria-valuemax" )
@@ -109,7 +109,7 @@ return $.widget( "ui.progressbar", {
 		}
 		if ( key === "disabled" ) {
 			this.element
-				.toggleClass( "ui-state-disabled", !!value )
+				.toggleClass( "bk-ui-state-disabled", !!value )
 				.attr( "aria-disabled", value );
 		}
 		this._super( key, value );
@@ -125,15 +125,15 @@ return $.widget( "ui.progressbar", {
 
 		this.valueDiv
 			.toggle( this.indeterminate || value > this.min )
-			.toggleClass( "ui-corner-right", value === this.options.max )
+			.toggleClass( "bk-ui-corner-right", value === this.options.max )
 			.width( percentage.toFixed(0) + "%" );
 
-		this.element.toggleClass( "ui-progressbar-indeterminate", this.indeterminate );
+		this.element.toggleClass( "bk-ui-progressbar-indeterminate", this.indeterminate );
 
 		if ( this.indeterminate ) {
 			this.element.removeAttr( "aria-valuenow" );
 			if ( !this.overlayDiv ) {
-				this.overlayDiv = $( "<div class='ui-progressbar-overlay'></div>" ).appendTo( this.valueDiv );
+				this.overlayDiv = $( "<div class='bk-ui-progressbar-overlay'></div>" ).appendTo( this.valueDiv );
 			}
 		} else {
 			this.element.attr({

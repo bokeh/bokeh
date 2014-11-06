@@ -34,7 +34,7 @@
 			this.element
 				.css("position", "absolute")
 				.css("top", 0)
-				.addClass("ui-rangeSlider-bar");
+				.addClass("bk-ui-rangeSlider-bar");
 
 			this.options.leftHandle
 				.bind("initialize", $.proxy(this._onInitialized, this))

@@ -69,7 +69,7 @@ $.fn.extend({
 		return function() {
 			return this.each(function() {
 				if ( !this.id ) {
-					this.id = "ui-id-" + ( ++uuid );
+					this.id = "bk-ui-id-" + ( ++uuid );
 				}
 			});
 		};
@@ -77,7 +77,7 @@ $.fn.extend({
 
 	removeUniqueId: function() {
 		return this.each(function() {
-			if ( /^ui-id-\d+$/.test( this.id ) ) {
+			if ( /^bk-ui-id-\d+$/.test( this.id ) ) {
 				$( this ).removeAttr( "id" );
 			}
 		});
@@ -231,14 +231,14 @@ $.fn.extend({
 			"mousedown";
 
 		return function() {
-			return this.bind( eventType + ".ui-disableSelection", function( event ) {
+			return this.bind( eventType + ".bk-ui-disableSelection", function( event ) {
 				event.preventDefault();
 			});
 		};
 	})(),
 
 	enableSelection: function() {
-		return this.unbind( ".ui-disableSelection" );
+		return this.unbind( ".bk-ui-disableSelection" );
 	},
 
 	zIndex: function( zIndex ) {

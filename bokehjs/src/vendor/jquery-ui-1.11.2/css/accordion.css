@@ -8,7 +8,7 @@
  *
  * http://api.jqueryui.com/accordion/#theming
  */
-.ui-accordion .ui-accordion-header {
+.bk-ui-accordion .bk-ui-accordion-header {
 	display: block;
 	cursor: pointer;
 	position: relative;
@@ -17,19 +17,19 @@
 	min-height: 0; /* support: IE7 */
 	font-size: 100%;
 }
-.ui-accordion .ui-accordion-icons {
+.bk-ui-accordion .bk-ui-accordion-icons {
 	padding-left: 2.2em;
 }
-.ui-accordion .ui-accordion-icons .ui-accordion-icons {
+.bk-ui-accordion .bk-ui-accordion-icons .bk-ui-accordion-icons {
 	padding-left: 2.2em;
 }
-.ui-accordion .ui-accordion-header .ui-accordion-header-icon {
+.bk-ui-accordion .bk-ui-accordion-header .bk-ui-accordion-header-icon {
 	position: absolute;
 	left: .5em;
 	top: 50%;
 	margin-top: -8px;
 }
-.ui-accordion .ui-accordion-content {
+.bk-ui-accordion .bk-ui-accordion-content {
 	padding: 1em 2.2em;
 	border-top: 0;
 	overflow: auto;

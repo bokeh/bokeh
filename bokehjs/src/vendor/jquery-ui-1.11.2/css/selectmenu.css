@@ -8,7 +8,7 @@
  *
  * http://api.jqueryui.com/selectmenu/#theming
  */
-.ui-selectmenu-menu {
+.bk-ui-selectmenu-menu {
 	padding: 0;
 	margin: 0;
 	position: absolute;
@@ -16,13 +16,13 @@
 	left: 0;
 	display: none;
 }
-.ui-selectmenu-menu .ui-menu {
+.bk-ui-selectmenu-menu .bk-ui-menu {
 	overflow: auto;
 	/* Support: IE7 */
 	overflow-x: hidden;
 	padding-bottom: 1px;
 }
-.ui-selectmenu-menu .ui-menu .ui-selectmenu-optgroup {
+.bk-ui-selectmenu-menu .bk-ui-menu .bk-ui-selectmenu-optgroup {
 	font-size: 1em;
 	font-weight: bold;
 	line-height: 1.5;
@@ -31,24 +31,24 @@
 	height: auto;
 	border: 0;
 }
-.ui-selectmenu-open {
+.bk-ui-selectmenu-open {
 	display: block;
 }
-.ui-selectmenu-button {
+.bk-ui-selectmenu-button {
 	display: inline-block;
 	overflow: hidden;
 	position: relative;
 	text-decoration: none;
 	cursor: pointer;
 }
-.ui-selectmenu-button span.ui-icon {
+.bk-ui-selectmenu-button span.bk-ui-icon {
 	right: 0.5em;
 	left: auto;
 	margin-top: -8px;
 	position: absolute;
 	top: 50%;
 }
-.ui-selectmenu-button span.ui-selectmenu-text {
+.bk-ui-selectmenu-button span.bk-ui-selectmenu-text {
 	text-align: left;
 	padding: 0.4em 2.1em 0.4em 1em;
 	display: block;

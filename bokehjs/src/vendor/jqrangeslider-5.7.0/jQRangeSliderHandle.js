@@ -33,19 +33,19 @@
 			this.element
 				.css("position", "absolute")
 				.css("top", 0)
-				.addClass("ui-rangeSlider-handle")
-				.toggleClass("ui-rangeSlider-leftHandle", this.options.isLeft)
-				.toggleClass("ui-rangeSlider-rightHandle", !this.options.isLeft);
+				.addClass("bk-ui-rangeSlider-handle")
+				.toggleClass("bk-ui-rangeSlider-leftHandle", this.options.isLeft)
+				.toggleClass("bk-ui-rangeSlider-rightHandle", !this.options.isLeft);
 
-			this.element.append("<div class='ui-rangeSlider-handle-inner' />");
+			this.element.append("<div class='bk-ui-rangeSlider-handle-inner' />");
 
 			this._value = this._constraintValue(this.options.value);
 		},
 
 		destroy: function(){
-			this.element.empty();	
+			this.element.empty();
 
-			$.ui.rangeSliderDraggable.prototype.destroy.apply(this);			
+			$.ui.rangeSliderDraggable.prototype.destroy.apply(this);
 		},
 
 		_setOption: function(key, value){
@@ -53,8 +53,8 @@
 				this.options.isLeft = value;
 
 				this.element
-					.toggleClass("ui-rangeSlider-leftHandle", this.options.isLeft)
-					.toggleClass("ui-rangeSlider-rightHandle", !this.options.isLeft);
+					.toggleClass("bk-ui-rangeSlider-leftHandle", this.options.isLeft)
+					.toggleClass("bk-ui-rangeSlider-rightHandle", !this.options.isLeft);
 
 				this._position(this._value);
 
@@ -90,7 +90,7 @@
 
 		_initElement: function(){
 			$.ui.rangeSliderDraggable.prototype._initElement.apply(this);
-			
+
 			if (this.cache.parent.width === 0 || this.cache.parent.width === null){
 				setTimeout($.proxy(this._initElementIfNotDestroyed, this), 500);
 			}else{
@@ -166,7 +166,7 @@
 		_constraintValue: function(value){
 			value = Math.min(value, this._bounds().max);
 			value = Math.max(value, this._bounds().min);
-		
+
 			value = this._round(value);
 
 			if (this.options.range !== false){
@@ -229,10 +229,10 @@
 					ratio;
 
 			if (this.options.symmetricPositionning){
-				position -= this.options.isLeft ? 0 : this.cache.width.outer;	
+				position -= this.options.isLeft ? 0 : this.cache.width.outer;
 				availableWidth = this.cache.parent.width - 2 * this.cache.width.outer;
 			}else{
-				position += this.options.isLeft ? 0 : this.cache.width.outer;	
+				position += this.options.isLeft ? 0 : this.cache.width.outer;
 				availableWidth = this.cache.parent.width;
 			}
 
@@ -280,7 +280,7 @@
 		position: function(position){
 			if (typeof position !== "undefined"){
 				this._cache();
-				
+
 				position = this._constraintPosition(position);
 				this._applyPosition(position);
 			}
@@ -317,7 +317,7 @@
 
 				return this._left - previous;
 			}
-			
+
 			previous = this._value;
 			this.value(this.add(previous, this.multiplyStep(this.options.step, quantity)));
 

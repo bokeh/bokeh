@@ -60,15 +60,15 @@ function Datepicker() {
 	this._disabledInputs = []; // List of date picker inputs that have been disabled
 	this._datepickerShowing = false; // True if the popup picker is showing , false if not
 	this._inDialog = false; // True if showing within a "dialog", false if not
-	this._mainDivId = "ui-datepicker-div"; // The ID of the main datepicker division
-	this._inlineClass = "ui-datepicker-inline"; // The name of the inline marker class
-	this._appendClass = "ui-datepicker-append"; // The name of the append marker class
-	this._triggerClass = "ui-datepicker-trigger"; // The name of the trigger marker class
-	this._dialogClass = "ui-datepicker-dialog"; // The name of the dialog marker class
-	this._disableClass = "ui-datepicker-disabled"; // The name of the disabled covering marker class
-	this._unselectableClass = "ui-datepicker-unselectable"; // The name of the unselectable cell marker class
-	this._currentClass = "ui-datepicker-current-day"; // The name of the current day marker class
-	this._dayOverClass = "ui-datepicker-days-cell-over"; // The name of the day hover marker class
+	this._mainDivId = "bk-ui-datepicker-div"; // The ID of the main datepicker division
+	this._inlineClass = "bk-ui-datepicker-inline"; // The name of the inline marker class
+	this._appendClass = "bk-ui-datepicker-append"; // The name of the append marker class
+	this._triggerClass = "bk-ui-datepicker-trigger"; // The name of the trigger marker class
+	this._dialogClass = "bk-ui-datepicker-dialog"; // The name of the dialog marker class
+	this._disableClass = "bk-ui-datepicker-disabled"; // The name of the disabled covering marker class
+	this._unselectableClass = "bk-ui-datepicker-unselectable"; // The name of the unselectable cell marker class
+	this._currentClass = "bk-ui-datepicker-current-day"; // The name of the current day marker class
+	this._dayOverClass = "bk-ui-datepicker-days-cell-over"; // The name of the day hover marker class
 	this.regional = []; // Available regional settings, indexed by language code
 	this.regional[""] = { // Default regional settings
 		closeText: "Done", // Display text for close link
@@ -141,7 +141,7 @@ function Datepicker() {
 	$.extend(this._defaults, this.regional[""]);
 	this.regional.en = $.extend( true, {}, this.regional[ "" ]);
 	this.regional[ "en-US" ] = $.extend( true, {}, this.regional.en );
-	this.dpDiv = datepicker_bindHover($("<div id='" + this._mainDivId + "' class='ui-datepicker ui-widget ui-widget-content ui-helper-clearfix ui-corner-all'></div>"));
+	this.dpDiv = datepicker_bindHover($("<div id='" + this._mainDivId + "' class='bk-ui-datepicker bk-ui-widget bk-ui-widget-content bk-ui-helper-clearfix bk-ui-corner-all'></div>"));
 }
 
 $.extend(Datepicker.prototype, {
@@ -194,7 +194,7 @@ $.extend(Datepicker.prototype, {
 			drawMonth: 0, drawYear: 0, // month being drawn
 			inline: inline, // is datepicker inline or not
 			dpDiv: (!inline ? this.dpDiv : // presentation div
-			datepicker_bindHover($("<div class='" + this._inlineClass + " ui-datepicker ui-widget ui-widget-content ui-helper-clearfix ui-corner-all'></div>")))};
+			datepicker_bindHover($("<div class='" + this._inlineClass + " bk-ui-datepicker bk-ui-widget bk-ui-widget-content bk-ui-helper-clearfix bk-ui-corner-all'></div>")))};
 	},
 
 	/* Attach the date picker to an input field. */
@@ -411,8 +411,8 @@ $.extend(Datepicker.prototype, {
 				filter("img").css({opacity: "1.0", cursor: ""});
 		} else if (nodeName === "div" || nodeName === "span") {
 			inline = $target.children("." + this._inlineClass);
-			inline.children().removeClass("ui-state-disabled");
-			inline.find("select.ui-datepicker-month, select.ui-datepicker-year").
+			inline.children().removeClass("bk-ui-state-disabled");
+			inline.find("select.bk-ui-datepicker-month, select.bk-ui-datepicker-year").
 				prop("disabled", false);
 		}
 		this._disabledInputs = $.map(this._disabledInputs,
@@ -439,8 +439,8 @@ $.extend(Datepicker.prototype, {
 				filter("img").css({opacity: "0.5", cursor: "default"});
 		} else if (nodeName === "div" || nodeName === "span") {
 			inline = $target.children("." + this._inlineClass);
-			inline.children().addClass("ui-state-disabled");
-			inline.find("select.ui-datepicker-month, select.ui-datepicker-year").
+			inline.children().addClass("bk-ui-state-disabled");
+			inline.find("select.bk-ui-datepicker-month, select.bk-ui-datepicker-year").
 				prop("disabled", true);
 		}
 		this._disabledInputs = $.map(this._disabledInputs,
@@ -580,7 +580,7 @@ $.extend(Datepicker.prototype, {
 		var onSelect, dateStr, sel,
 			inst = $.datepicker._getInst(event.target),
 			handled = true,
-			isRTL = inst.dpDiv.is(".ui-datepicker-rtl");
+			isRTL = inst.dpDiv.is(".bk-ui-datepicker-rtl");
 
 		inst._keyEvent = true;
 		if ($.datepicker._datepickerShowing) {
@@ -810,14 +810,14 @@ $.extend(Datepicker.prototype, {
 			datepicker_handleMouseover.apply( activeCell.get( 0 ) );
 		}
 
-		inst.dpDiv.removeClass("ui-datepicker-multi-2 ui-datepicker-multi-3 ui-datepicker-multi-4").width("");
+		inst.dpDiv.removeClass("bk-ui-datepicker-multi-2 bk-ui-datepicker-multi-3 bk-ui-datepicker-multi-4").width("");
 		if (cols > 1) {
-			inst.dpDiv.addClass("ui-datepicker-multi-" + cols).css("width", (width * cols) + "em");
+			inst.dpDiv.addClass("bk-ui-datepicker-multi-" + cols).css("width", (width * cols) + "em");
 		}
 		inst.dpDiv[(numMonths[0] !== 1 || numMonths[1] !== 1 ? "add" : "remove") +
-			"Class"]("ui-datepicker-multi");
+			"Class"]("bk-ui-datepicker-multi");
 		inst.dpDiv[(this._get(inst, "isRTL") ? "add" : "remove") +
-			"Class"]("ui-datepicker-rtl");
+			"Class"]("bk-ui-datepicker-rtl");
 
 		if (inst === $.datepicker._curInst && $.datepicker._datepickerShowing && $.datepicker._shouldFocusInput( inst ) ) {
 			inst.input.focus();
@@ -829,7 +829,7 @@ $.extend(Datepicker.prototype, {
 			setTimeout(function(){
 				//assure that inst.yearshtml didn't change.
 				if( origyearshtml === inst.yearshtml && inst.yearshtml ){
-					inst.dpDiv.find("select.ui-datepicker-year:first").replaceWith(inst.yearshtml);
+					inst.dpDiv.find("select.bk-ui-datepicker-year:first").replaceWith(inst.yearshtml);
 				}
 				origyearshtml = inst.yearshtml = null;
 			}, 0);
@@ -929,7 +929,7 @@ $.extend(Datepicker.prototype, {
 
 	/* Tidy up after a dialog display. */
 	_tidyDialog: function(inst) {
-		inst.dpDiv.removeClass(this._dialogClass).unbind(".ui-datepicker-calendar");
+		inst.dpDiv.removeClass(this._dialogClass).unbind(".bk-ui-datepicker-calendar");
 	},
 
 	/* Close date picker if clicked elsewhere. */
@@ -1667,9 +1667,9 @@ $.extend(Datepicker.prototype, {
 			this._getFormatConfig(inst)));
 
 		prev = (this._canAdjustMonth(inst, -1, drawYear, drawMonth) ?
-			"<a class='ui-datepicker-prev ui-corner-all' data-handler='prev' data-event='click'" +
-			" title='" + prevText + "'><span class='ui-icon ui-icon-circle-triangle-" + ( isRTL ? "e" : "w") + "'>" + prevText + "</span></a>" :
-			(hideIfNoPrevNext ? "" : "<a class='ui-datepicker-prev ui-corner-all ui-state-disabled' title='"+ prevText +"'><span class='ui-icon ui-icon-circle-triangle-" + ( isRTL ? "e" : "w") + "'>" + prevText + "</span></a>"));
+			"<a class='bk-ui-datepicker-prev bk-ui-corner-all' data-handler='prev' data-event='click'" +
+			" title='" + prevText + "'><span class='bk-ui-icon bk-ui-icon-circle-triangle-" + ( isRTL ? "e" : "w") + "'>" + prevText + "</span></a>" :
+			(hideIfNoPrevNext ? "" : "<a class='bk-ui-datepicker-prev bk-ui-corner-all bk-ui-state-disabled' title='"+ prevText +"'><span class='bk-ui-icon bk-ui-icon-circle-triangle-" + ( isRTL ? "e" : "w") + "'>" + prevText + "</span></a>"));
 
 		nextText = this._get(inst, "nextText");
 		nextText = (!navigationAsDateFormat ? nextText : this.formatDate(nextText,
@@ -1677,20 +1677,20 @@ $.extend(Datepicker.prototype, {
 			this._getFormatConfig(inst)));
 
 		next = (this._canAdjustMonth(inst, +1, drawYear, drawMonth) ?
-			"<a class='ui-datepicker-next ui-corner-all' data-handler='next' data-event='click'" +
-			" title='" + nextText + "'><span class='ui-icon ui-icon-circle-triangle-" + ( isRTL ? "w" : "e") + "'>" + nextText + "</span></a>" :
-			(hideIfNoPrevNext ? "" : "<a class='ui-datepicker-next ui-corner-all ui-state-disabled' title='"+ nextText + "'><span class='ui-icon ui-icon-circle-triangle-" + ( isRTL ? "w" : "e") + "'>" + nextText + "</span></a>"));
+			"<a class='bk-ui-datepicker-next bk-ui-corner-all' data-handler='next' data-event='click'" +
+			" title='" + nextText + "'><span class='bk-ui-icon bk-ui-icon-circle-triangle-" + ( isRTL ? "w" : "e") + "'>" + nextText + "</span></a>" :
+			(hideIfNoPrevNext ? "" : "<a class='bk-ui-datepicker-next bk-ui-corner-all bk-ui-state-disabled' title='"+ nextText + "'><span class='bk-ui-icon bk-ui-icon-circle-triangle-" + ( isRTL ? "w" : "e") + "'>" + nextText + "</span></a>"));
 
 		currentText = this._get(inst, "currentText");
 		gotoDate = (this._get(inst, "gotoCurrent") && inst.currentDay ? currentDate : today);
 		currentText = (!navigationAsDateFormat ? currentText :
 			this.formatDate(currentText, gotoDate, this._getFormatConfig(inst)));
 
-		controls = (!inst.inline ? "<button type='button' class='ui-datepicker-close ui-state-default ui-priority-primary ui-corner-all' data-handler='hide' data-event='click'>" +
+		controls = (!inst.inline ? "<button type='button' class='bk-ui-datepicker-close bk-ui-state-default bk-ui-priority-primary bk-ui-corner-all' data-handler='hide' data-event='click'>" +
 			this._get(inst, "closeText") + "</button>" : "");
 
-		buttonPanel = (showButtonPanel) ? "<div class='ui-datepicker-buttonpane ui-widget-content'>" + (isRTL ? controls : "") +
-			(this._isInRange(inst, gotoDate) ? "<button type='button' class='ui-datepicker-current ui-state-default ui-priority-secondary ui-corner-all' data-handler='today' data-event='click'" +
+		buttonPanel = (showButtonPanel) ? "<div class='bk-ui-datepicker-buttonpane bk-ui-widget-content'>" + (isRTL ? controls : "") +
+			(this._isInRange(inst, gotoDate) ? "<button type='button' class='bk-ui-datepicker-current bk-ui-state-default bk-ui-priority-secondary bk-ui-corner-all' data-handler='today' data-event='click'" +
 			">" + currentText + "</button>" : "") + (isRTL ? "" : controls) + "</div>" : "";
 
 		firstDay = parseInt(this._get(inst, "firstDay"),10);
@@ -1712,32 +1712,32 @@ $.extend(Datepicker.prototype, {
 			this.maxRows = 4;
 			for (col = 0; col < numMonths[1]; col++) {
 				selectedDate = this._daylightSavingAdjust(new Date(drawYear, drawMonth, inst.selectedDay));
-				cornerClass = " ui-corner-all";
+				cornerClass = " bk-ui-corner-all";
 				calender = "";
 				if (isMultiMonth) {
-					calender += "<div class='ui-datepicker-group";
+					calender += "<div class='bk-ui-datepicker-group";
 					if (numMonths[1] > 1) {
 						switch (col) {
-							case 0: calender += " ui-datepicker-group-first";
-								cornerClass = " ui-corner-" + (isRTL ? "right" : "left"); break;
-							case numMonths[1]-1: calender += " ui-datepicker-group-last";
-								cornerClass = " ui-corner-" + (isRTL ? "left" : "right"); break;
-							default: calender += " ui-datepicker-group-middle"; cornerClass = ""; break;
+							case 0: calender += " bk-ui-datepicker-group-first";
+								cornerClass = " bk-ui-corner-" + (isRTL ? "right" : "left"); break;
+							case numMonths[1]-1: calender += " bk-ui-datepicker-group-last";
+								cornerClass = " bk-ui-corner-" + (isRTL ? "left" : "right"); break;
+							default: calender += " bk-ui-datepicker-group-middle"; cornerClass = ""; break;
 						}
 					}
 					calender += "'>";
 				}
-				calender += "<div class='ui-datepicker-header ui-widget-header ui-helper-clearfix" + cornerClass + "'>" +
+				calender += "<div class='bk-ui-datepicker-header bk-ui-widget-header bk-ui-helper-clearfix" + cornerClass + "'>" +
 					(/all|left/.test(cornerClass) && row === 0 ? (isRTL ? next : prev) : "") +
 					(/all|right/.test(cornerClass) && row === 0 ? (isRTL ? prev : next) : "") +
 					this._generateMonthYearHeader(inst, drawMonth, drawYear, minDate, maxDate,
 					row > 0 || col > 0, monthNames, monthNamesShort) + // draw month headers
-					"</div><table class='ui-datepicker-calendar'><thead>" +
+					"</div><table class='bk-ui-datepicker-calendar'><thead>" +
 					"<tr>";
-				thead = (showWeek ? "<th class='ui-datepicker-week-col'>" + this._get(inst, "weekHeader") + "</th>" : "");
+				thead = (showWeek ? "<th class='bk-ui-datepicker-week-col'>" + this._get(inst, "weekHeader") + "</th>" : "");
 				for (dow = 0; dow < 7; dow++) { // days of the week
 					day = (dow + firstDay) % 7;
-					thead += "<th scope='col'" + ((dow + firstDay + 6) % 7 >= 5 ? " class='ui-datepicker-week-end'" : "") + ">" +
+					thead += "<th scope='col'" + ((dow + firstDay + 6) % 7 >= 5 ? " class='bk-ui-datepicker-week-end'" : "") + ">" +
 						"<span title='" + dayNames[day] + "'>" + dayNamesMin[day] + "</span></th>";
 				}
 				calender += thead + "</tr></thead><tbody>";
@@ -1752,7 +1752,7 @@ $.extend(Datepicker.prototype, {
 				printDate = this._daylightSavingAdjust(new Date(drawYear, drawMonth, 1 - leadDays));
 				for (dRow = 0; dRow < numRows; dRow++) { // create date picker rows
 					calender += "<tr>";
-					tbody = (!showWeek ? "" : "<td class='ui-datepicker-week-col'>" +
+					tbody = (!showWeek ? "" : "<td class='bk-ui-datepicker-week-col'>" +
 						this._get(inst, "calculateWeek")(printDate) + "</td>");
 					for (dow = 0; dow < 7; dow++) { // create date picker days
 						daySettings = (beforeShowDay ?
@@ -1761,23 +1761,23 @@ $.extend(Datepicker.prototype, {
 						unselectable = (otherMonth && !selectOtherMonths) || !daySettings[0] ||
 							(minDate && printDate < minDate) || (maxDate && printDate > maxDate);
 						tbody += "<td class='" +
-							((dow + firstDay + 6) % 7 >= 5 ? " ui-datepicker-week-end" : "") + // highlight weekends
-							(otherMonth ? " ui-datepicker-other-month" : "") + // highlight days from other months
+							((dow + firstDay + 6) % 7 >= 5 ? " bk-ui-datepicker-week-end" : "") + // highlight weekends
+							(otherMonth ? " bk-ui-datepicker-other-month" : "") + // highlight days from other months
 							((printDate.getTime() === selectedDate.getTime() && drawMonth === inst.selectedMonth && inst._keyEvent) || // user pressed key
 							(defaultDate.getTime() === printDate.getTime() && defaultDate.getTime() === selectedDate.getTime()) ?
 							// or defaultDate is current printedDate and defaultDate is selectedDate
 							" " + this._dayOverClass : "") + // highlight selected day
-							(unselectable ? " " + this._unselectableClass + " ui-state-disabled": "") +  // highlight unselectable days
+							(unselectable ? " " + this._unselectableClass + " bk-ui-state-disabled": "") +  // highlight unselectable days
 							(otherMonth && !showOtherMonths ? "" : " " + daySettings[1] + // highlight custom dates
 							(printDate.getTime() === currentDate.getTime() ? " " + this._currentClass : "") + // highlight selected day
-							(printDate.getTime() === today.getTime() ? " ui-datepicker-today" : "")) + "'" + // highlight today (if different)
+							(printDate.getTime() === today.getTime() ? " bk-ui-datepicker-today" : "")) + "'" + // highlight today (if different)
 							((!otherMonth || showOtherMonths) && daySettings[2] ? " title='" + daySettings[2].replace(/'/g, "&#39;") + "'" : "") + // cell title
 							(unselectable ? "" : " data-handler='selectDay' data-event='click' data-month='" + printDate.getMonth() + "' data-year='" + printDate.getFullYear() + "'") + ">" + // actions
 							(otherMonth && !showOtherMonths ? "&#xa0;" : // display for other months
-							(unselectable ? "<span class='ui-state-default'>" + printDate.getDate() + "</span>" : "<a class='ui-state-default" +
-							(printDate.getTime() === today.getTime() ? " ui-state-highlight" : "") +
-							(printDate.getTime() === currentDate.getTime() ? " ui-state-active" : "") + // highlight selected day
-							(otherMonth ? " ui-priority-secondary" : "") + // distinguish dates from other months
+							(unselectable ? "<span class='bk-ui-state-default'>" + printDate.getDate() + "</span>" : "<a class='bk-ui-state-default" +
+							(printDate.getTime() === today.getTime() ? " bk-ui-state-highlight" : "") +
+							(printDate.getTime() === currentDate.getTime() ? " bk-ui-state-active" : "") + // highlight selected day
+							(otherMonth ? " bk-ui-priority-secondary" : "") + // distinguish dates from other months
 							"' href='#'>" + printDate.getDate() + "</a>")) + "</td>"; // display selectable date
 						printDate.setDate(printDate.getDate() + 1);
 						printDate = this._daylightSavingAdjust(printDate);
@@ -1790,7 +1790,7 @@ $.extend(Datepicker.prototype, {
 					drawYear++;
 				}
 				calender += "</tbody></table>" + (isMultiMonth ? "</div>" +
-							((numMonths[0] > 0 && col === numMonths[1]-1) ? "<div class='ui-datepicker-row-break'></div>" : "") : "");
+							((numMonths[0] > 0 && col === numMonths[1]-1) ? "<div class='bk-ui-datepicker-row-break'></div>" : "") : "");
 				group += calender;
 			}
 			html += group;
@@ -1808,16 +1808,16 @@ $.extend(Datepicker.prototype, {
 			changeMonth = this._get(inst, "changeMonth"),
 			changeYear = this._get(inst, "changeYear"),
 			showMonthAfterYear = this._get(inst, "showMonthAfterYear"),
-			html = "<div class='ui-datepicker-title'>",
+			html = "<div class='bk-ui-datepicker-title'>",
 			monthHtml = "";
 
 		// month selection
 		if (secondary || !changeMonth) {
-			monthHtml += "<span class='ui-datepicker-month'>" + monthNames[drawMonth] + "</span>";
+			monthHtml += "<span class='bk-ui-datepicker-month'>" + monthNames[drawMonth] + "</span>";
 		} else {
 			inMinYear = (minDate && minDate.getFullYear() === drawYear);
 			inMaxYear = (maxDate && maxDate.getFullYear() === drawYear);
-			monthHtml += "<select class='ui-datepicker-month' data-handler='selectMonth' data-event='change'>";
+			monthHtml += "<select class='bk-ui-datepicker-month' data-handler='selectMonth' data-event='change'>";
 			for ( month = 0; month < 12; month++) {
 				if ((!inMinYear || month >= minDate.getMonth()) && (!inMaxYear || month <= maxDate.getMonth())) {
 					monthHtml += "<option value='" + month + "'" +
@@ -1836,7 +1836,7 @@ $.extend(Datepicker.prototype, {
 		if ( !inst.yearshtml ) {
 			inst.yearshtml = "";
 			if (secondary || !changeYear) {
-				html += "<span class='ui-datepicker-year'>" + drawYear + "</span>";
+				html += "<span class='bk-ui-datepicker-year'>" + drawYear + "</span>";
 			} else {
 				// determine range of years to display
 				years = this._get(inst, "yearRange").split(":");
@@ -1851,7 +1851,7 @@ $.extend(Datepicker.prototype, {
 				endYear = Math.max(year, determineYear(years[1] || ""));
 				year = (minDate ? Math.max(year, minDate.getFullYear()) : year);
 				endYear = (maxDate ? Math.min(endYear, maxDate.getFullYear()) : endYear);
-				inst.yearshtml += "<select class='ui-datepicker-year' data-handler='selectYear' data-event='change'>";
+				inst.yearshtml += "<select class='bk-ui-datepicker-year' data-handler='selectYear' data-event='change'>";
 				for (; year <= endYear; year++) {
 					inst.yearshtml += "<option value='" + year + "'" +
 						(year === drawYear ? " selected='selected'" : "") +
@@ -1994,14 +1994,14 @@ $.extend(Datepicker.prototype, {
  * Global datepicker_instActive, set by _updateDatepicker allows the handlers to find their way back to the active picker.
  */
 function datepicker_bindHover(dpDiv) {
-	var selector = "button, .ui-datepicker-prev, .ui-datepicker-next, .ui-datepicker-calendar td a";
+	var selector = "button, .bk-ui-datepicker-prev, .bk-ui-datepicker-next, .bk-ui-datepicker-calendar td a";
 	return dpDiv.delegate(selector, "mouseout", function() {
-			$(this).removeClass("ui-state-hover");
-			if (this.className.indexOf("ui-datepicker-prev") !== -1) {
-				$(this).removeClass("ui-datepicker-prev-hover");
+			$(this).removeClass("bk-ui-state-hover");
+			if (this.className.indexOf("bk-ui-datepicker-prev") !== -1) {
+				$(this).removeClass("bk-ui-datepicker-prev-hover");
 			}
-			if (this.className.indexOf("ui-datepicker-next") !== -1) {
-				$(this).removeClass("ui-datepicker-next-hover");
+			if (this.className.indexOf("bk-ui-datepicker-next") !== -1) {
+				$(this).removeClass("bk-ui-datepicker-next-hover");
 			}
 		})
 		.delegate( selector, "mouseover", datepicker_handleMouseover );
@@ -2009,13 +2009,13 @@ function datepicker_bindHover(dpDiv) {
 
 function datepicker_handleMouseover() {
 	if (!$.datepicker._isDisabledDatepicker( datepicker_instActive.inline? datepicker_instActive.dpDiv.parent()[0] : datepicker_instActive.input[0])) {
-		$(this).parents(".ui-datepicker-calendar").find("a").removeClass("ui-state-hover");
-		$(this).addClass("ui-state-hover");
-		if (this.className.indexOf("ui-datepicker-prev") !== -1) {
-			$(this).addClass("ui-datepicker-prev-hover");
+		$(this).parents(".bk-ui-datepicker-calendar").find("a").removeClass("bk-ui-state-hover");
+		$(this).addClass("bk-ui-state-hover");
+		if (this.className.indexOf("bk-ui-datepicker-prev") !== -1) {
+			$(this).addClass("bk-ui-datepicker-prev-hover");
 		}
-		if (this.className.indexOf("ui-datepicker-next") !== -1) {
-			$(this).addClass("ui-datepicker-next-hover");
+		if (this.className.indexOf("bk-ui-datepicker-next") !== -1) {
+			$(this).addClass("bk-ui-datepicker-next-hover");
 		}
 	}
 }

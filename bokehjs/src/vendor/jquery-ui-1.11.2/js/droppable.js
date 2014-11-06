@@ -75,7 +75,7 @@ $.widget( "ui.droppable", {
 
 		this._addToManager( o.scope );
 
-		o.addClasses && this.element.addClass( "ui-droppable" );
+		o.addClasses && this.element.addClass( "bk-ui-droppable" );
 
 	},
 
@@ -99,7 +99,7 @@ $.widget( "ui.droppable", {
 
 		this._splice( drop );
 
-		this.element.removeClass( "ui-droppable ui-droppable-disabled" );
+		this.element.removeClass( "bk-ui-droppable bk-ui-droppable-disabled" );
 	},
 
 	_setOption: function( key, value ) {
@@ -184,7 +184,7 @@ $.widget( "ui.droppable", {
 			return false;
 		}
 
-		this.element.find( ":data(ui-droppable)" ).not( ".ui-draggable-dragging" ).each(function() {
+		this.element.find( ":data(bk-ui-droppable)" ).not( ".bk-ui-draggable-dragging" ).each(function() {
 			var inst = $( this ).droppable( "instance" );
 			if (
 				inst.options.greedy &&
@@ -281,7 +281,7 @@ $.ui.ddmanager = {
 		var i, j,
 			m = $.ui.ddmanager.droppables[ t.options.scope ] || [],
 			type = event ? event.type : null, // workaround for #2317
-			list = ( t.currentItem || t.element ).find( ":data(ui-droppable)" ).addBack();
+			list = ( t.currentItem || t.element ).find( ":data(bk-ui-droppable)" ).addBack();
 
 		droppablesLoop: for ( i = 0; i < m.length; i++ ) {
 
@@ -369,7 +369,7 @@ $.ui.ddmanager = {
 			if ( this.options.greedy ) {
 				// find droppable parents with same scope
 				scope = this.options.scope;
-				parent = this.element.parents( ":data(ui-droppable)" ).filter(function() {
+				parent = this.element.parents( ":data(bk-ui-droppable)" ).filter(function() {
 					return $( this ).droppable( "instance" ).options.scope === scope;
 				});
 

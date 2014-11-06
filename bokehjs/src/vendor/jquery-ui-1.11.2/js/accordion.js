@@ -34,8 +34,8 @@ return $.widget( "ui.accordion", {
 		header: "> li > :first-child,> :not(li):even",
 		heightStyle: "auto",
 		icons: {
-			activeHeader: "ui-icon-triangle-1-s",
-			header: "ui-icon-triangle-1-e"
+			activeHeader: "bk-ui-icon-triangle-1-s",
+			header: "bk-ui-icon-triangle-1-e"
 		},
 
 		// callbacks
@@ -62,7 +62,7 @@ return $.widget( "ui.accordion", {
 	_create: function() {
 		var options = this.options;
 		this.prevShow = this.prevHide = $();
-		this.element.addClass( "ui-accordion ui-widget ui-helper-reset" )
+		this.element.addClass( "bk-ui-accordion bk-ui-widget bk-ui-helper-reset" )
 			// ARIA
 			.attr( "role", "tablist" );
 
@@ -90,19 +90,19 @@ return $.widget( "ui.accordion", {
 		var icons = this.options.icons;
 		if ( icons ) {
 			$( "<span>" )
-				.addClass( "ui-accordion-header-icon ui-icon " + icons.header )
+				.addClass( "bk-ui-accordion-header-icon bk-ui-icon " + icons.header )
 				.prependTo( this.headers );
-			this.active.children( ".ui-accordion-header-icon" )
+			this.active.children( ".bk-ui-accordion-header-icon" )
 				.removeClass( icons.header )
 				.addClass( icons.activeHeader );
-			this.headers.addClass( "ui-accordion-icons" );
+			this.headers.addClass( "bk-ui-accordion-icons" );
 		}
 	},
 
 	_destroyIcons: function() {
 		this.headers
-			.removeClass( "ui-accordion-icons" )
-			.children( ".ui-accordion-header-icon" )
+			.removeClass( "bk-ui-accordion-icons" )
+			.children( ".bk-ui-accordion-header-icon" )
 				.remove();
 	},
 
@@ -111,13 +111,13 @@ return $.widget( "ui.accordion", {
 
 		// clean up main element
 		this.element
-			.removeClass( "ui-accordion ui-widget ui-helper-reset" )
+			.removeClass( "bk-ui-accordion bk-ui-widget bk-ui-helper-reset" )
 			.removeAttr( "role" );
 
 		// clean up headers
 		this.headers
-			.removeClass( "ui-accordion-header ui-accordion-header-active ui-state-default " +
-				"ui-corner-all ui-state-active ui-state-disabled ui-corner-top" )
+			.removeClass( "bk-ui-accordion-header bk-ui-accordion-header-active bk-ui-state-default " +
+				"bk-ui-corner-all bk-ui-state-active bk-ui-state-disabled bk-ui-corner-top" )
 			.removeAttr( "role" )
 			.removeAttr( "aria-expanded" )
 			.removeAttr( "aria-selected" )
@@ -129,8 +129,8 @@ return $.widget( "ui.accordion", {
 
 		// clean up content panels
 		contents = this.headers.next()
-			.removeClass( "ui-helper-reset ui-widget-content ui-corner-bottom " +
-				"ui-accordion-content ui-accordion-content-active ui-state-disabled" )
+			.removeClass( "bk-ui-helper-reset bk-ui-widget-content bk-ui-corner-bottom " +
+				"bk-ui-accordion-content bk-ui-accordion-content-active bk-ui-state-disabled" )
 			.css( "display", "" )
 			.removeAttr( "role" )
 			.removeAttr( "aria-hidden" )
@@ -174,10 +174,10 @@ return $.widget( "ui.accordion", {
 		// so we need to add the disabled class to the headers and panels
 		if ( key === "disabled" ) {
 			this.element
-				.toggleClass( "ui-state-disabled", !!value )
+				.toggleClass( "bk-ui-state-disabled", !!value )
 				.attr( "aria-disabled", value );
 			this.headers.add( this.headers.next() )
-				.toggleClass( "ui-state-disabled", !!value );
+				.toggleClass( "bk-ui-state-disabled", !!value );
 		}
 	},
 
@@ -240,7 +240,7 @@ return $.widget( "ui.accordion", {
 		// was active, but active panel is gone
 		} else if ( this.active.length && !$.contains( this.element[ 0 ], this.active[ 0 ] ) ) {
 			// all remaining panel are disabled
-			if ( this.headers.length === this.headers.find(".ui-state-disabled").length ) {
+			if ( this.headers.length === this.headers.find(".bk-ui-state-disabled").length ) {
 				options.active = false;
 				this.active = $();
 			// activate previous panel
@@ -263,11 +263,11 @@ return $.widget( "ui.accordion", {
 			prevPanels = this.panels;
 
 		this.headers = this.element.find( this.options.header )
-			.addClass( "ui-accordion-header ui-state-default ui-corner-all" );
+			.addClass( "bk-ui-accordion-header bk-ui-state-default bk-ui-corner-all" );
 
 		this.panels = this.headers.next()
-			.addClass( "ui-accordion-content ui-helper-reset ui-widget-content ui-corner-bottom" )
-			.filter( ":not(.ui-accordion-content-active)" )
+			.addClass( "bk-ui-accordion-content bk-ui-helper-reset bk-ui-widget-content bk-ui-corner-bottom" )
+			.filter( ":not(.bk-ui-accordion-content-active)" )
 			.hide();
 
 		// Avoid memory leaks (#10056)
@@ -284,10 +284,10 @@ return $.widget( "ui.accordion", {
 			parent = this.element.parent();
 
 		this.active = this._findActive( options.active )
-			.addClass( "ui-accordion-header-active ui-state-active ui-corner-top" )
-			.removeClass( "ui-corner-all" );
+			.addClass( "bk-ui-accordion-header-active bk-ui-state-active bk-ui-corner-top" )
+			.removeClass( "bk-ui-corner-all" );
 		this.active.next()
-			.addClass( "ui-accordion-content-active" )
+			.addClass( "bk-ui-accordion-content-active" )
 			.show();
 
 		this.headers
@@ -440,26 +440,26 @@ return $.widget( "ui.accordion", {
 
 		// switch classes
 		// corner classes on the previously active header stay after the animation
-		active.removeClass( "ui-accordion-header-active ui-state-active" );
+		active.removeClass( "bk-ui-accordion-header-active bk-ui-state-active" );
 		if ( options.icons ) {
-			active.children( ".ui-accordion-header-icon" )
+			active.children( ".bk-ui-accordion-header-icon" )
 				.removeClass( options.icons.activeHeader )
 				.addClass( options.icons.header );
 		}
 
 		if ( !clickedIsActive ) {
 			clicked
-				.removeClass( "ui-corner-all" )
-				.addClass( "ui-accordion-header-active ui-state-active ui-corner-top" );
+				.removeClass( "bk-ui-corner-all" )
+				.addClass( "bk-ui-accordion-header-active bk-ui-state-active bk-ui-corner-top" );
 			if ( options.icons ) {
-				clicked.children( ".ui-accordion-header-icon" )
+				clicked.children( ".bk-ui-accordion-header-icon" )
 					.removeClass( options.icons.header )
 					.addClass( options.icons.activeHeader );
 			}
 
 			clicked
 				.next()
-				.addClass( "ui-accordion-content-active" );
+				.addClass( "bk-ui-accordion-content-active" );
 		}
 	},
 
@@ -568,10 +568,10 @@ return $.widget( "ui.accordion", {
 		var toHide = data.oldPanel;
 
 		toHide
-			.removeClass( "ui-accordion-content-active" )
+			.removeClass( "bk-ui-accordion-content-active" )
 			.prev()
-				.removeClass( "ui-corner-top" )
-				.addClass( "ui-corner-all" );
+				.removeClass( "bk-ui-corner-top" )
+				.addClass( "bk-ui-corner-all" );
 
 		// Work around for rendering bug in IE (#5421)
 		if ( toHide.length ) {

@@ -80,7 +80,7 @@ return $.widget("ui.sortable", $.ui.mouse, {
 
 		var o = this.options;
 		this.containerCache = {};
-		this.element.addClass("ui-sortable");
+		this.element.addClass("bk-ui-sortable");
 
 		//Get the items
 		this.refresh();
@@ -110,19 +110,19 @@ return $.widget("ui.sortable", $.ui.mouse, {
 	},
 
 	_setHandleClassName: function() {
-		this.element.find( ".ui-sortable-handle" ).removeClass( "ui-sortable-handle" );
+		this.element.find( ".bk-ui-sortable-handle" ).removeClass( "bk-ui-sortable-handle" );
 		$.each( this.items, function() {
 			( this.instance.options.handle ?
 				this.item.find( this.instance.options.handle ) : this.item )
-				.addClass( "ui-sortable-handle" );
+				.addClass( "bk-ui-sortable-handle" );
 		});
 	},
 
 	_destroy: function() {
 		this.element
-			.removeClass( "ui-sortable ui-sortable-disabled" )
-			.find( ".ui-sortable-handle" )
-				.removeClass( "ui-sortable-handle" );
+			.removeClass( "bk-ui-sortable bk-ui-sortable-disabled" )
+			.find( ".bk-ui-sortable-handle" )
+				.removeClass( "bk-ui-sortable-handle" );
 		this._mouseDestroy();
 
 		for ( var i = this.items.length - 1; i >= 0; i-- ) {
@@ -307,7 +307,7 @@ return $.widget("ui.sortable", $.ui.mouse, {
 
 		this.dragging = true;
 
-		this.helper.addClass("ui-sortable-helper");
+		this.helper.addClass("bk-ui-sortable-helper");
 		this._mouseDrag(event); //Execute the drag once - this causes the helper not to be visible before getting its correct position
 		return true;
 
@@ -476,7 +476,7 @@ return $.widget("ui.sortable", $.ui.mouse, {
 			this._mouseUp({ target: null });
 
 			if(this.options.helper === "original") {
-				this.currentItem.css(this._storedCSS).removeClass("ui-sortable-helper");
+				this.currentItem.css(this._storedCSS).removeClass("bk-ui-sortable-helper");
 			} else {
 				this.currentItem.show();
 			}
@@ -652,13 +652,13 @@ return $.widget("ui.sortable", $.ui.mouse, {
 				for ( j = cur.length - 1; j >= 0; j--){
 					inst = $.data(cur[j], this.widgetFullName);
 					if(inst && inst !== this && !inst.options.disabled) {
-						queries.push([$.isFunction(inst.options.items) ? inst.options.items.call(inst.element) : $(inst.options.items, inst.element).not(".ui-sortable-helper").not(".ui-sortable-placeholder"), inst]);
+						queries.push([$.isFunction(inst.options.items) ? inst.options.items.call(inst.element) : $(inst.options.items, inst.element).not(".bk-ui-sortable-helper").not(".bk-ui-sortable-placeholder"), inst]);
 					}
 				}
 			}
 		}
 
-		queries.push([$.isFunction(this.options.items) ? this.options.items.call(this.element, null, { options: this.options, item: this.currentItem }) : $(this.options.items, this.element).not(".ui-sortable-helper").not(".ui-sortable-placeholder"), this]);
+		queries.push([$.isFunction(this.options.items) ? this.options.items.call(this.element, null, { options: this.options, item: this.currentItem }) : $(this.options.items, this.element).not(".bk-ui-sortable-helper").not(".bk-ui-sortable-placeholder"), this]);
 
 		function addItems() {
 			items.push( this );
@@ -785,8 +785,8 @@ return $.widget("ui.sortable", $.ui.mouse, {
 
 					var nodeName = that.currentItem[0].nodeName.toLowerCase(),
 						element = $( "<" + nodeName + ">", that.document[0] )
-							.addClass(className || that.currentItem[0].className+" ui-sortable-placeholder")
-							.removeClass("ui-sortable-helper");
+							.addClass(className || that.currentItem[0].className+" bk-ui-sortable-placeholder")
+							.removeClass("bk-ui-sortable-helper");
 
 					if ( nodeName === "tr" ) {
 						that.currentItem.children().each(function() {
@@ -1201,7 +1201,7 @@ return $.widget("ui.sortable", $.ui.mouse, {
 					this._storedCSS[i] = "";
 				}
 			}
-			this.currentItem.css(this._storedCSS).removeClass("ui-sortable-helper");
+			this.currentItem.css(this._storedCSS).removeClass("bk-ui-sortable-helper");
 		} else {
 			this.currentItem.show();
 		}
@@ -1209,7 +1209,7 @@ return $.widget("ui.sortable", $.ui.mouse, {
 		if(this.fromOutside && !noPropagation) {
 			delayedTriggers.push(function(event) { this._trigger("receive", event, this._uiHash(this.fromOutside)); });
 		}
-		if((this.fromOutside || this.domPosition.prev !== this.currentItem.prev().not(".ui-sortable-helper")[0] || this.domPosition.parent !== this.currentItem.parent()[0]) && !noPropagation) {
+		if((this.fromOutside || this.domPosition.prev !== this.currentItem.prev().not(".bk-ui-sortable-helper")[0] || this.domPosition.parent !== this.currentItem.parent()[0]) && !noPropagation) {
 			delayedTriggers.push(function(event) { this._trigger("update", event, this._uiHash()); }); //Trigger update callback if the DOM position has changed
 		}
 

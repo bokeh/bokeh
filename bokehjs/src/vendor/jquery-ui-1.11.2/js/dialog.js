@@ -114,7 +114,7 @@ return $.widget( "ui.dialog", {
 		this.element
 			.show()
 			.removeAttr( "title" )
-			.addClass( "ui-dialog-content ui-widget-content" )
+			.addClass( "bk-ui-dialog-content bk-ui-widget-content" )
 			.appendTo( this.uiDialog );
 
 		this._createTitlebar();
@@ -154,7 +154,7 @@ return $.widget( "ui.dialog", {
 
 		this.element
 			.removeUniqueId()
-			.removeClass( "ui-dialog-content ui-widget-content" )
+			.removeClass( "bk-ui-dialog-content bk-ui-widget-content" )
 			.css( this.originalCss )
 			// Without detaching first, the following becomes really slow
 			.detach();
@@ -228,7 +228,7 @@ return $.widget( "ui.dialog", {
 
 	_moveToTop: function( event, silent ) {
 		var moved = false,
-			zIndicies = this.uiDialog.siblings( ".ui-front:visible" ).map(function() {
+			zIndicies = this.uiDialog.siblings( ".bk-ui-front:visible" ).map(function() {
 				return +$( this ).css( "z-index" );
 			}).get(),
 			zIndexMax = Math.max.apply( null, zIndicies );
@@ -327,7 +327,7 @@ return $.widget( "ui.dialog", {
 
 	_createWrapper: function() {
 		this.uiDialog = $("<div>")
-			.addClass( "ui-dialog ui-widget ui-widget-content ui-corner-all ui-front " +
+			.addClass( "bk-ui-dialog bk-ui-widget bk-ui-widget-content bk-ui-corner-all bk-ui-front " +
 				this.options.dialogClass )
 			.hide()
 			.attr({
@@ -387,14 +387,14 @@ return $.widget( "ui.dialog", {
 		var uiDialogTitle;
 
 		this.uiDialogTitlebar = $( "<div>" )
-			.addClass( "ui-dialog-titlebar ui-widget-header ui-corner-all ui-helper-clearfix" )
+			.addClass( "bk-ui-dialog-titlebar bk-ui-widget-header bk-ui-corner-all bk-ui-helper-clearfix" )
 			.prependTo( this.uiDialog );
 		this._on( this.uiDialogTitlebar, {
 			mousedown: function( event ) {
 				// Don't prevent click on close button (#8838)
 				// Focusing a dialog that is partially scrolled out of view
 				// causes the browser to scroll it into view, preventing the click event
-				if ( !$( event.target ).closest( ".ui-dialog-titlebar-close" ) ) {
+				if ( !$( event.target ).closest( ".bk-ui-dialog-titlebar-close" ) ) {
 					// Dialog isn't getting focus when dragging (#8063)
 					this.uiDialog.focus();
 				}
@@ -408,11 +408,11 @@ return $.widget( "ui.dialog", {
 			.button({
 				label: this.options.closeText,
 				icons: {
-					primary: "ui-icon-closethick"
+					primary: "bk-ui-icon-closethick"
 				},
 				text: false
 			})
-			.addClass( "ui-dialog-titlebar-close" )
+			.addClass( "bk-ui-dialog-titlebar-close" )
 			.appendTo( this.uiDialogTitlebar );
 		this._on( this.uiDialogTitlebarClose, {
 			click: function( event ) {
@@ -423,7 +423,7 @@ return $.widget( "ui.dialog", {
 
 		uiDialogTitle = $( "<span>" )
 			.uniqueId()
-			.addClass( "ui-dialog-title" )
+			.addClass( "bk-ui-dialog-title" )
 			.prependTo( this.uiDialogTitlebar );
 		this._title( uiDialogTitle );
 
@@ -441,10 +441,10 @@ return $.widget( "ui.dialog", {
 
 	_createButtonPane: function() {
 		this.uiDialogButtonPane = $( "<div>" )
-			.addClass( "ui-dialog-buttonpane ui-widget-content ui-helper-clearfix" );
+			.addClass( "bk-ui-dialog-buttonpane bk-ui-widget-content bk-ui-helper-clearfix" );
 
 		this.uiButtonSet = $( "<div>" )
-			.addClass( "ui-dialog-buttonset" )
+			.addClass( "bk-ui-dialog-buttonset" )
 			.appendTo( this.uiDialogButtonPane );
 
 		this._createButtons();
@@ -459,7 +459,7 @@ return $.widget( "ui.dialog", {
 		this.uiButtonSet.empty();
 
 		if ( $.isEmptyObject( buttons ) || ($.isArray( buttons ) && !buttons.length) ) {
-			this.uiDialog.removeClass( "ui-dialog-buttons" );
+			this.uiDialog.removeClass( "bk-ui-dialog-buttons" );
 			return;
 		}
 
@@ -485,7 +485,7 @@ return $.widget( "ui.dialog", {
 				.button( buttonOptions )
 				.appendTo( that.uiButtonSet );
 		});
-		this.uiDialog.addClass( "ui-dialog-buttons" );
+		this.uiDialog.addClass( "bk-ui-dialog-buttons" );
 		this.uiDialogButtonPane.appendTo( this.uiDialog );
 	},
 
@@ -501,11 +501,11 @@ return $.widget( "ui.dialog", {
 		}
 
 		this.uiDialog.draggable({
-			cancel: ".ui-dialog-content, .ui-dialog-titlebar-close",
-			handle: ".ui-dialog-titlebar",
+			cancel: ".bk-ui-dialog-content, .bk-ui-dialog-titlebar-close",
+			handle: ".bk-ui-dialog-titlebar",
 			containment: "document",
 			start: function( event, ui ) {
-				$( this ).addClass( "ui-dialog-dragging" );
+				$( this ).addClass( "bk-ui-dialog-dragging" );
 				that._blockFrames();
 				that._trigger( "dragStart", event, filteredUi( ui ) );
 			},
@@ -522,7 +522,7 @@ return $.widget( "ui.dialog", {
 						"top" + (top >= 0 ? "+" : "") + top,
 					of: that.window
 				};
-				$( this ).removeClass( "ui-dialog-dragging" );
+				$( this ).removeClass( "bk-ui-dialog-dragging" );
 				that._unblockFrames();
 				that._trigger( "dragStop", event, filteredUi( ui ) );
 			}
@@ -533,7 +533,7 @@ return $.widget( "ui.dialog", {
 		var that = this,
 			options = this.options,
 			handles = options.resizable,
-			// .ui-resizable has position: relative defined in the stylesheet
+			// .bk-ui-resizable has position: relative defined in the stylesheet
 			// but dialogs have to use absolute or fixed positioning
 			position = this.uiDialog.css("position"),
 			resizeHandles = typeof handles === "string" ?
@@ -550,7 +550,7 @@ return $.widget( "ui.dialog", {
 		}
 
 		this.uiDialog.resizable({
-			cancel: ".ui-dialog-content",
+			cancel: ".bk-ui-dialog-content",
 			containment: "document",
 			alsoResize: this.element,
 			maxWidth: options.maxWidth,
@@ -559,7 +559,7 @@ return $.widget( "ui.dialog", {
 			minHeight: this._minHeight(),
 			handles: resizeHandles,
 			start: function( event, ui ) {
-				$( this ).addClass( "ui-dialog-resizing" );
+				$( this ).addClass( "bk-ui-dialog-resizing" );
 				that._blockFrames();
 				that._trigger( "resizeStart", event, filteredUi( ui ) );
 			},
@@ -579,7 +579,7 @@ return $.widget( "ui.dialog", {
 						"top" + (top >= 0 ? "+" : "") + top,
 					of: that.window
 				};
-				$( this ).removeClass( "ui-dialog-resizing" );
+				$( this ).removeClass( "bk-ui-dialog-resizing" );
 				that._unblockFrames();
 				that._trigger( "resizeStop", event, filteredUi( ui ) );
 			}
@@ -610,10 +610,10 @@ return $.widget( "ui.dialog", {
 	},
 
 	_trackingInstances: function() {
-		var instances = this.document.data( "ui-dialog-instances" );
+		var instances = this.document.data( "bk-ui-dialog-instances" );
 		if ( !instances ) {
 			instances = [];
-			this.document.data( "ui-dialog-instances", instances );
+			this.document.data( "bk-ui-dialog-instances", instances );
 		}
 		return instances;
 	},
@@ -658,7 +658,7 @@ return $.widget( "ui.dialog", {
 			this._size();
 			this._position();
 		}
-		if ( this.uiDialog.is( ":data(ui-resizable)" ) ) {
+		if ( this.uiDialog.is( ":data(bk-ui-resizable)" ) ) {
 			this.uiDialog.resizable( "option", resizableOptions );
 		}
 	},
@@ -695,7 +695,7 @@ return $.widget( "ui.dialog", {
 		}
 
 		if ( key === "draggable" ) {
-			isDraggable = uiDialog.is( ":data(ui-draggable)" );
+			isDraggable = uiDialog.is( ":data(bk-ui-draggable)" );
 			if ( isDraggable && !value ) {
 				uiDialog.draggable( "destroy" );
 			}
@@ -711,7 +711,7 @@ return $.widget( "ui.dialog", {
 
 		if ( key === "resizable" ) {
 			// currently resizable, becoming non-resizable
-			isResizable = uiDialog.is( ":data(ui-resizable)" );
+			isResizable = uiDialog.is( ":data(bk-ui-resizable)" );
 			if ( isResizable && !value ) {
 				uiDialog.resizable( "destroy" );
 			}
@@ -728,12 +728,12 @@ return $.widget( "ui.dialog", {
 		}
 
 		if ( key === "title" ) {
-			this._title( this.uiDialogTitlebar.find( ".ui-dialog-title" ) );
+			this._title( this.uiDialogTitlebar.find( ".bk-ui-dialog-title" ) );
 		}
 	},
 
 	_size: function() {
-		// If the user has resized the dialog, the .ui-dialog and .ui-dialog-content
+		// If the user has resized the dialog, the .bk-ui-dialog and .bk-ui-dialog-content
 		// divs will both have width and height set, so we need to reset them
 		var nonContentHeight, minContentHeight, maxContentHeight,
 			options = this.options;
@@ -772,7 +772,7 @@ return $.widget( "ui.dialog", {
 			this.element.height( Math.max( 0, options.height - nonContentHeight ) );
 		}
 
-		if ( this.uiDialog.is( ":data(ui-resizable)" ) ) {
+		if ( this.uiDialog.is( ":data(bk-ui-resizable)" ) ) {
 			this.uiDialog.resizable( "option", "minHeight", this._minHeight() );
 		}
 	},
@@ -800,13 +800,13 @@ return $.widget( "ui.dialog", {
 	},
 
 	_allowInteraction: function( event ) {
-		if ( $( event.target ).closest( ".ui-dialog" ).length ) {
+		if ( $( event.target ).closest( ".bk-ui-dialog" ).length ) {
 			return true;
 		}
 
 		// TODO: Remove hack when datepicker implements
-		// the .ui-front logic (#8989)
-		return !!$( event.target ).closest( ".ui-datepicker" ).length;
+		// the .bk-ui-front logic (#8989)
+		return !!$( event.target ).closest( ".bk-ui-datepicker" ).length;
 	},
 
 	_createOverlay: function() {
@@ -821,7 +821,7 @@ return $.widget( "ui.dialog", {
 			isOpening = false;
 		});
 
-		if ( !this.document.data( "ui-dialog-overlays" ) ) {
+		if ( !this.document.data( "bk-ui-dialog-overlays" ) ) {
 
 			// Prevent use of anchors and inputs
 			// Using _on() for an event handler shared across many instances is
@@ -841,13 +841,13 @@ return $.widget( "ui.dialog", {
 		}
 
 		this.overlay = $( "<div>" )
-			.addClass( "ui-widget-overlay ui-front" )
+			.addClass( "bk-ui-widget-overlay bk-ui-front" )
 			.appendTo( this._appendTo() );
 		this._on( this.overlay, {
 			mousedown: "_keepFocus"
 		});
-		this.document.data( "ui-dialog-overlays",
-			(this.document.data( "ui-dialog-overlays" ) || 0) + 1 );
+		this.document.data( "bk-ui-dialog-overlays",
+			(this.document.data( "bk-ui-dialog-overlays" ) || 0) + 1 );
 	},
 
 	_destroyOverlay: function() {
@@ -856,14 +856,14 @@ return $.widget( "ui.dialog", {
 		}
 
 		if ( this.overlay ) {
-			var overlays = this.document.data( "ui-dialog-overlays" ) - 1;
+			var overlays = this.document.data( "bk-ui-dialog-overlays" ) - 1;
 
 			if ( !overlays ) {
 				this.document
 					.unbind( "focusin" )
-					.removeData( "ui-dialog-overlays" );
+					.removeData( "bk-ui-dialog-overlays" );
 			} else {
-				this.document.data( "ui-dialog-overlays", overlays );
+				this.document.data( "bk-ui-dialog-overlays", overlays );
 			}
 
 			this.overlay.remove();

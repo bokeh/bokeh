@@ -8,14 +8,14 @@
  *
  * http://api.jqueryui.com/spinner/#theming
  */
-.ui-spinner {
+.bk-ui-spinner {
 	position: relative;
 	display: inline-block;
 	overflow: hidden;
 	padding: 0;
 	vertical-align: middle;
 }
-.ui-spinner-input {
+.bk-ui-spinner-input {
 	border: none;
 	background: none;
 	color: inherit;
@@ -25,7 +25,7 @@
 	margin-left: .4em;
 	margin-right: 22px;
 }
-.ui-spinner-button {
+.bk-ui-spinner-button {
 	width: 16px;
 	height: 50%;
 	font-size: .5em;
@@ -39,27 +39,27 @@
 	right: 0;
 }
 /* more specificity required here to override default borders */
-.ui-spinner a.ui-spinner-button {
+.bk-ui-spinner a.bk-ui-spinner-button {
 	border-top: none;
 	border-bottom: none;
 	border-right: none;
 }
 /* vertically center icon */
-.ui-spinner .ui-icon {
+.bk-ui-spinner .bk-ui-icon {
 	position: absolute;
 	margin-top: -8px;
 	top: 50%;
 	left: 0;
 }
-.ui-spinner-up {
+.bk-ui-spinner-up {
 	top: 0;
 }
-.ui-spinner-down {
+.bk-ui-spinner-down {
 	bottom: 0;
 }
 
 /* TR overrides */
-.ui-spinner .ui-icon-triangle-1-s {
+.bk-ui-spinner .bk-ui-icon-triangle-1-s {
 	/* need to fix icons sprite */
 	background-position: -65px -16px;
 }

@@ -20,7 +20,7 @@
 	}
 }(function( $ ) {
 
-var dataSpace = "ui-effects-",
+var dataSpace = "bk-ui-effects-",
 
 	// Create a local jQuery because jQuery Color relies on it and the
 	// global may not exist with AMD and a custom build (#10199)
@@ -967,7 +967,7 @@ $.extend( $.effects, {
 	createWrapper: function( element ) {
 
 		// if the element is already wrapped, return it
-		if ( element.parent().is( ".ui-effects-wrapper" )) {
+		if ( element.parent().is( ".bk-ui-effects-wrapper" )) {
 			return element.parent();
 		}
 
@@ -978,7 +978,7 @@ $.extend( $.effects, {
 				"float": element.css( "float" )
 			},
 			wrapper = $( "<div></div>" )
-				.addClass( "ui-effects-wrapper" )
+				.addClass( "bk-ui-effects-wrapper" )
 				.css({
 					fontSize: "100%",
 					background: "transparent",
@@ -1042,7 +1042,7 @@ $.extend( $.effects, {
 	removeWrapper: function( element ) {
 		var active = document.activeElement;
 
-		if ( element.parent().is( ".ui-effects-wrapper" ) ) {
+		if ( element.parent().is( ".bk-ui-effects-wrapper" ) ) {
 			element.parent().replaceWith( element );
 
 			// Fixes #7595 - Elements lose focus when wrapped.

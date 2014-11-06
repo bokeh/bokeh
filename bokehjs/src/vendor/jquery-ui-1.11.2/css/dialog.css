@@ -8,7 +8,7 @@
  *
  * http://api.jqueryui.com/dialog/#theming
  */
-.ui-dialog {
+.bk-ui-dialog {
 	overflow: hidden;
 	position: absolute;
 	top: 0;
@@ -16,11 +16,11 @@
 	padding: .2em;
 	outline: 0;
 }
-.ui-dialog .ui-dialog-titlebar {
+.bk-ui-dialog .bk-ui-dialog-titlebar {
 	padding: .4em 1em;
 	position: relative;
 }
-.ui-dialog .ui-dialog-title {
+.bk-ui-dialog .bk-ui-dialog-title {
 	float: left;
 	margin: .1em 0;
 	white-space: nowrap;
@@ -28,7 +28,7 @@
 	overflow: hidden;
 	text-overflow: ellipsis;
 }
-.ui-dialog .ui-dialog-titlebar-close {
+.bk-ui-dialog .bk-ui-dialog-titlebar-close {
 	position: absolute;
 	right: .3em;
 	top: 50%;
@@ -37,34 +37,34 @@
 	padding: 1px;
 	height: 20px;
 }
-.ui-dialog .ui-dialog-content {
+.bk-ui-dialog .bk-ui-dialog-content {
 	position: relative;
 	border: 0;
 	padding: .5em 1em;
 	background: none;
 	overflow: auto;
 }
-.ui-dialog .ui-dialog-buttonpane {
+.bk-ui-dialog .bk-ui-dialog-buttonpane {
 	text-align: left;
 	border-width: 1px 0 0 0;
 	background-image: none;
 	margin-top: .5em;
 	padding: .3em 1em .5em .4em;
 }
-.ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset {
+.bk-ui-dialog .bk-ui-dialog-buttonpane .bk-ui-dialog-buttonset {
 	float: right;
 }
-.ui-dialog .ui-dialog-buttonpane button {
+.bk-ui-dialog .bk-ui-dialog-buttonpane button {
 	margin: .5em .4em .5em 0;
 	cursor: pointer;
 }
-.ui-dialog .ui-resizable-se {
+.bk-ui-dialog .bk-ui-resizable-se {
 	width: 12px;
 	height: 12px;
 	right: -5px;
 	bottom: -5px;
 	background-position: 16px 16px;
 }
-.ui-draggable .ui-dialog-titlebar {
+.bk-ui-draggable .bk-ui-dialog-titlebar {
 	cursor: move;
 }

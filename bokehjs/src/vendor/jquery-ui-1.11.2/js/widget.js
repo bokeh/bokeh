@@ -305,12 +305,12 @@ $.Widget.prototype = {
 			.removeAttr( "aria-disabled" )
 			.removeClass(
 				this.widgetFullName + "-disabled " +
-				"ui-state-disabled" );
+				"bk-ui-state-disabled" );
 
 		// clean up events and states
 		this.bindings.unbind( this.eventNamespace );
-		this.hoverable.removeClass( "ui-state-hover" );
-		this.focusable.removeClass( "ui-state-focus" );
+		this.hoverable.removeClass( "bk-ui-state-hover" );
+		this.focusable.removeClass( "bk-ui-state-focus" );
 	},
 	_destroy: $.noop,
 
@@ -375,8 +375,8 @@ $.Widget.prototype = {
 
 			// If the widget is becoming disabled, then nothing is interactive
 			if ( value ) {
-				this.hoverable.removeClass( "ui-state-hover" );
-				this.focusable.removeClass( "ui-state-focus" );
+				this.hoverable.removeClass( "bk-ui-state-hover" );
+				this.focusable.removeClass( "bk-ui-state-focus" );
 			}
 		}
 
@@ -418,7 +418,7 @@ $.Widget.prototype = {
 				// - disabled class as method for disabling individual parts
 				if ( !suppressDisabledCheck &&
 						( instance.options.disabled === true ||
-							$( this ).hasClass( "ui-state-disabled" ) ) ) {
+							$( this ).hasClass( "bk-ui-state-disabled" ) ) ) {
 					return;
 				}
 				return ( typeof handler === "string" ? instance[ handler ] : handler )
@@ -466,10 +466,10 @@ $.Widget.prototype = {
 		this.hoverable = this.hoverable.add( element );
 		this._on( element, {
 			mouseenter: function( event ) {
-				$( event.currentTarget ).addClass( "ui-state-hover" );
+				$( event.currentTarget ).addClass( "bk-ui-state-hover" );
 			},
 			mouseleave: function( event ) {
-				$( event.currentTarget ).removeClass( "ui-state-hover" );
+				$( event.currentTarget ).removeClass( "bk-ui-state-hover" );
 			}
 		});
 	},
@@ -478,10 +478,10 @@ $.Widget.prototype = {
 		this.focusable = this.focusable.add( element );
 		this._on( element, {
 			focusin: function( event ) {
-				$( event.currentTarget ).addClass( "ui-state-focus" );
+				$( event.currentTarget ).addClass( "bk-ui-state-focus" );
 			},
 			focusout: function( event ) {
-				$( event.currentTarget ).removeClass( "ui-state-focus" );
+				$( event.currentTarget ).removeClass( "bk-ui-state-focus" );
 			}
 		});
 	},

@@ -9,7 +9,7 @@
 
  (function ($, undefined) {
 	"use strict";
-	
+
 	$.widget("ui.editRangeSlider", $.ui.rangeSlider, {
 		options:{
 			type: "text",
@@ -19,11 +19,11 @@
 		_create: function(){
 			$.ui.rangeSlider.prototype._create.apply(this);
 
-			this.element.addClass("ui-editRangeSlider");
+			this.element.addClass("bk-ui-editRangeSlider");
 		},
 
 		destroy: function(){
-			this.element.removeClass("ui-editRangeSlider");
+			this.element.removeClass("bk-ui-editRangeSlider");
 
 			$.ui.rangeSlider.prototype.destroy.apply(this);
 		},
@@ -31,7 +31,7 @@
 		_setOption: function(key, value){
 			if (key === "type" || key === "step"){
 				this._setLabelOption(key, value);
-			}	
+			}
 
 			if (key === "type"){
 				this.options[key] = this.labels.left === null ? value : this._leftLabel("option", key);
@@ -53,7 +53,7 @@
 
 		_createLabel: function(label, handle){
 			var result = $.ui.rangeSlider.prototype._createLabel.apply(this, [label, handle]);
-			
+
 			if (label === null){
 				result.bind("valueChange", $.proxy(this._onValueChange, this));
 			}

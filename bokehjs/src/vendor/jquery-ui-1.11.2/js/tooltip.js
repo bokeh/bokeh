@@ -56,12 +56,12 @@ return $.widget( "ui.tooltip", {
 		var describedby = (elem.attr( "aria-describedby" ) || "").split( /\s+/ );
 		describedby.push( id );
 		elem
-			.data( "ui-tooltip-id", id )
+			.data( "bk-ui-tooltip-id", id )
 			.attr( "aria-describedby", $.trim( describedby.join( " " ) ) );
 	},
 
 	_removeDescribedBy: function( elem ) {
-		var id = elem.data( "ui-tooltip-id" ),
+		var id = elem.data( "bk-ui-tooltip-id" ),
 			describedby = (elem.attr( "aria-describedby" ) || "").split( /\s+/ ),
 			index = $.inArray( id, describedby );
 
@@ -69,7 +69,7 @@ return $.widget( "ui.tooltip", {
 			describedby.splice( index, 1 );
 		}
 
-		elem.removeData( "ui-tooltip-id" );
+		elem.removeData( "bk-ui-tooltip-id" );
 		describedby = $.trim( describedby.join( " " ) );
 		if ( describedby ) {
 			elem.attr( "aria-describedby", describedby );
@@ -101,7 +101,7 @@ return $.widget( "ui.tooltip", {
 				"aria-live": "assertive",
 				"aria-relevant": "additions"
 			})
-			.addClass( "ui-helper-hidden-accessible" )
+			.addClass( "bk-ui-helper-hidden-accessible" )
 			.appendTo( this.document[ 0 ].body );
 	},
 
@@ -139,7 +139,7 @@ return $.widget( "ui.tooltip", {
 			var element = $( this );
 			if ( element.is( "[title]" ) ) {
 				element
-					.data( "ui-tooltip-title", element.attr( "title" ) )
+					.data( "bk-ui-tooltip-title", element.attr( "title" ) )
 					.removeAttr( "title" );
 			}
 		});
@@ -149,8 +149,8 @@ return $.widget( "ui.tooltip", {
 		// restore title attributes
 		this.element.find( this.options.items ).addBack().each(function() {
 			var element = $( this );
-			if ( element.data( "ui-tooltip-title" ) ) {
-				element.attr( "title", element.data( "ui-tooltip-title" ) );
+			if ( element.data( "bk-ui-tooltip-title" ) ) {
+				element.attr( "title", element.data( "bk-ui-tooltip-title" ) );
 			}
 		});
 	},
@@ -163,22 +163,22 @@ return $.widget( "ui.tooltip", {
 				.closest( this.options.items );
 
 		// No element to show a tooltip for or the tooltip is already open
-		if ( !target.length || target.data( "ui-tooltip-id" ) ) {
+		if ( !target.length || target.data( "bk-ui-tooltip-id" ) ) {
 			return;
 		}
 
 		if ( target.attr( "title" ) ) {
-			target.data( "ui-tooltip-title", target.attr( "title" ) );
+			target.data( "bk-ui-tooltip-title", target.attr( "title" ) );
 		}
 
-		target.data( "ui-tooltip-open", true );
+		target.data( "bk-ui-tooltip-open", true );
 
 		// kill parent tooltips, custom or native, for hover
 		if ( event && event.type === "mouseover" ) {
 			target.parents().each(function() {
 				var parent = $( this ),
 					blurEvent;
-				if ( parent.data( "ui-tooltip-open" ) ) {
+				if ( parent.data( "bk-ui-tooltip-open" ) ) {
 					blurEvent = $.Event( "blur" );
 					blurEvent.target = blurEvent.currentTarget = this;
 					that.close( blurEvent, true );
@@ -209,7 +209,7 @@ return $.widget( "ui.tooltip", {
 
 		content = contentOption.call( target[0], function( response ) {
 			// ignore async response if tooltip was closed already
-			if ( !target.data( "ui-tooltip-open" ) ) {
+			if ( !target.data( "bk-ui-tooltip-open" ) ) {
 				return;
 			}
 			// IE may instantly serve a cached response for ajax requests
@@ -243,7 +243,7 @@ return $.widget( "ui.tooltip", {
 		// exists, then just update the content and bail.
 		tooltipData = this._find( target );
 		if ( tooltipData ) {
-			tooltipData.tooltip.find( ".ui-tooltip-content" ).html( content );
+			tooltipData.tooltip.find( ".bk-ui-tooltip-content" ).html( content );
 			return;
 		}
 
@@ -265,7 +265,7 @@ return $.widget( "ui.tooltip", {
 		tooltipData = this._tooltip( target );
 		tooltip = tooltipData.tooltip;
 		this._addDescribedBy( target, tooltip.attr( "id" ) );
-		tooltip.find( ".ui-tooltip-content" ).html( content );
+		tooltip.find( ".bk-ui-tooltip-content" ).html( content );
 
 		// Support: Voiceover on OS X, JAWS on IE <= 9
 		// JAWS announces deletions even when aria-relevant="additions"
@@ -366,8 +366,8 @@ return $.widget( "ui.tooltip", {
 
 		// only set title if we had one before (see comment in _open())
 		// If the title attribute has changed since open(), don't restore
-		if ( target.data( "ui-tooltip-title" ) && !target.attr( "title" ) ) {
-			target.attr( "title", target.data( "ui-tooltip-title" ) );
+		if ( target.data( "bk-ui-tooltip-title" ) && !target.attr( "title" ) ) {
+			target.attr( "title", target.data( "bk-ui-tooltip-title" ) );
 		}
 
 		this._removeDescribedBy( target );
@@ -378,7 +378,7 @@ return $.widget( "ui.tooltip", {
 			that._removeTooltip( $( this ) );
 		});
 
-		target.removeData( "ui-tooltip-open" );
+		target.removeData( "bk-ui-tooltip-open" );
 		this._off( target, "mouseleave focusout keyup" );
 
 		// Remove 'remove' binding only on delegated targets
@@ -404,12 +404,12 @@ return $.widget( "ui.tooltip", {
 	_tooltip: function( element ) {
 		var tooltip = $( "<div>" )
 				.attr( "role", "tooltip" )
-				.addClass( "ui-tooltip ui-widget ui-corner-all ui-widget-content " +
+				.addClass( "bk-ui-tooltip bk-ui-widget bk-ui-corner-all bk-ui-widget-content " +
 					( this.options.tooltipClass || "" ) ),
 			id = tooltip.uniqueId().attr( "id" );
 
 		$( "<div>" )
-			.addClass( "ui-tooltip-content" )
+			.addClass( "bk-ui-tooltip-content" )
 			.appendTo( tooltip );
 
 		tooltip.appendTo( this.document[0].body );
@@ -421,7 +421,7 @@ return $.widget( "ui.tooltip", {
 	},
 
 	_find: function( target ) {
-		var id = target.data( "ui-tooltip-id" );
+		var id = target.data( "bk-ui-tooltip-id" );
 		return id ? this.tooltips[ id ] : null;
 	},
 
@@ -446,12 +446,12 @@ return $.widget( "ui.tooltip", {
 			$( "#" + id ).remove();
 
 			// Restore the title
-			if ( element.data( "ui-tooltip-title" ) ) {
+			if ( element.data( "bk-ui-tooltip-title" ) ) {
 				// If the title attribute has changed since open(), don't restore
 				if ( !element.attr( "title" ) ) {
-					element.attr( "title", element.data( "ui-tooltip-title" ) );
+					element.attr( "title", element.data( "bk-ui-tooltip-title" ) );
 				}
-				element.removeData( "ui-tooltip-title" );
+				element.removeData( "bk-ui-tooltip-title" );
 			}
 		});
 		this.liveRegion.remove();

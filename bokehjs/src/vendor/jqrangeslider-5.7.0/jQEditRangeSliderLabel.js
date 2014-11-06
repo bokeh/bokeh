@@ -38,7 +38,7 @@
 
 		_createInput: function(){
 			this._input = $("<input type='" + this.options.type + "' />")
-				.addClass("ui-editRangeSlider-inputValue")
+				.addClass("bk-ui-editRangeSlider-inputValue")
 				.appendTo(this._valueContainer);
 
 			this._setInputName();

@@ -80,7 +80,7 @@ $.widget( "ui.autocomplete", {
 		this.isNewMenu = true;
 
 		this.element
-			.addClass( "ui-autocomplete-input" )
+			.addClass( "bk-ui-autocomplete-input" )
 			.attr( "autocomplete", "off" );
 
 		this._on( this.element, {
@@ -202,7 +202,7 @@ $.widget( "ui.autocomplete", {
 
 		this._initSource();
 		this.menu = $( "<ul>" )
-			.addClass( "ui-autocomplete ui-front" )
+			.addClass( "bk-ui-autocomplete bk-ui-front" )
 			.appendTo( this._appendTo() )
 			.menu({
 				// disable ARIA support, the live region takes care of that
@@ -228,7 +228,7 @@ $.widget( "ui.autocomplete", {
 				// so we have to track the next mousedown and close the menu if
 				// the user clicks somewhere outside of the autocomplete
 				var menuElement = this.menu.element[ 0 ];
-				if ( !$( event.target ).closest( ".ui-menu-item" ).length ) {
+				if ( !$( event.target ).closest( ".bk-ui-menu-item" ).length ) {
 					this._delay(function() {
 						var that = this;
 						this.document.one( "mousedown", function( event ) {
@@ -258,7 +258,7 @@ $.widget( "ui.autocomplete", {
 					}
 				}
 
-				item = ui.item.data( "ui-autocomplete-item" );
+				item = ui.item.data( "bk-ui-autocomplete-item" );
 				if ( false !== this._trigger( "focus", event, { item: item } ) ) {
 					// use value to match what will end up in the input, if it was a key event
 					if ( event.originalEvent && /^key/.test( event.originalEvent.type ) ) {
@@ -274,7 +274,7 @@ $.widget( "ui.autocomplete", {
 				}
 			},
 			menuselect: function( event, ui ) {
-				var item = ui.item.data( "ui-autocomplete-item" ),
+				var item = ui.item.data( "bk-ui-autocomplete-item" ),
 					previous = this.previous;
 
 				// only trigger when focus was lost (click on menu)
@@ -307,7 +307,7 @@ $.widget( "ui.autocomplete", {
 				"aria-live": "assertive",
 				"aria-relevant": "additions"
 			})
-			.addClass( "ui-helper-hidden-accessible" )
+			.addClass( "bk-ui-helper-hidden-accessible" )
 			.appendTo( this.document[ 0 ].body );
 
 		// turning off autocomplete prevents the browser from remembering the
@@ -323,7 +323,7 @@ $.widget( "ui.autocomplete", {
 	_destroy: function() {
 		clearTimeout( this.searching );
 		this.element
-			.removeClass( "ui-autocomplete-input" )
+			.removeClass( "bk-ui-autocomplete-input" )
 			.removeAttr( "autocomplete" );
 		this.menu.element.remove();
 		this.liveRegion.remove();
@@ -352,7 +352,7 @@ $.widget( "ui.autocomplete", {
 		}
 
 		if ( !element || !element[ 0 ] ) {
-			element = this.element.closest( ".ui-front" );
+			element = this.element.closest( ".bk-ui-front" );
 		}
 
 		if ( !element.length ) {
@@ -428,7 +428,7 @@ $.widget( "ui.autocomplete", {
 
 	_search: function( value ) {
 		this.pending++;
-		this.element.addClass( "ui-autocomplete-loading" );
+		this.element.addClass( "bk-ui-autocomplete-loading" );
 		this.cancelSearch = false;
 
 		this.source( { term: value }, this._response() );
@@ -444,7 +444,7 @@ $.widget( "ui.autocomplete", {
 
 			this.pending--;
 			if ( !this.pending ) {
-				this.element.removeClass( "ui-autocomplete-loading" );
+				this.element.removeClass( "bk-ui-autocomplete-loading" );
 			}
 		}, this );
 	},
@@ -538,7 +538,7 @@ $.widget( "ui.autocomplete", {
 	},
 
 	_renderItemData: function( ul, item ) {
-		return this._renderItem( ul, item ).data( "ui-autocomplete-item", item );
+		return this._renderItem( ul, item ).data( "bk-ui-autocomplete-item", item );
 	},
 
 	_renderItem: function( ul, item ) {

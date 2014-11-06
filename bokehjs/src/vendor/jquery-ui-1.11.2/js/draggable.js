@@ -65,10 +65,10 @@ $.widget("ui.draggable", $.ui.mouse, {
 			this._setPositionRelative();
 		}
 		if (this.options.addClasses){
-			this.element.addClass("ui-draggable");
+			this.element.addClass("bk-ui-draggable");
 		}
 		if (this.options.disabled){
-			this.element.addClass("ui-draggable-disabled");
+			this.element.addClass("bk-ui-draggable-disabled");
 		}
 		this._setHandleClassName();
 
@@ -84,11 +84,11 @@ $.widget("ui.draggable", $.ui.mouse, {
 	},
 
 	_destroy: function() {
-		if ( ( this.helper || this.element ).is( ".ui-draggable-dragging" ) ) {
+		if ( ( this.helper || this.element ).is( ".bk-ui-draggable-dragging" ) ) {
 			this.destroyOnClear = true;
 			return;
 		}
-		this.element.removeClass( "ui-draggable ui-draggable-dragging ui-draggable-disabled" );
+		this.element.removeClass( "bk-ui-draggable bk-ui-draggable-dragging bk-ui-draggable-disabled" );
 		this._removeHandleClassName();
 		this._mouseDestroy();
 	},
@@ -99,7 +99,7 @@ $.widget("ui.draggable", $.ui.mouse, {
 		this._blurActiveElement( event );
 
 		// among others, prevent a drag on a resizable-handle
-		if (this.helper || o.disabled || $(event.target).closest(".ui-resizable-handle").length > 0) {
+		if (this.helper || o.disabled || $(event.target).closest(".bk-ui-resizable-handle").length > 0) {
 			return false;
 		}
 
@@ -164,7 +164,7 @@ $.widget("ui.draggable", $.ui.mouse, {
 		//Create and append the visible helper
 		this.helper = this._createHelper(event);
 
-		this.helper.addClass("ui-draggable-dragging");
+		this.helper.addClass("bk-ui-draggable-dragging");
 
 		//Cache the helper size
 		this._cacheHelperProportions();
@@ -327,7 +327,7 @@ $.widget("ui.draggable", $.ui.mouse, {
 
 	cancel: function() {
 
-		if (this.helper.is(".ui-draggable-dragging")) {
+		if (this.helper.is(".bk-ui-draggable-dragging")) {
 			this._mouseUp({});
 		} else {
 			this._clear();
@@ -346,11 +346,11 @@ $.widget("ui.draggable", $.ui.mouse, {
 	_setHandleClassName: function() {
 		this.handleElement = this.options.handle ?
 			this.element.find( this.options.handle ) : this.element;
-		this.handleElement.addClass( "ui-draggable-handle" );
+		this.handleElement.addClass( "bk-ui-draggable-handle" );
 	},
 
 	_removeHandleClassName: function() {
-		this.handleElement.removeClass( "ui-draggable-handle" );
+		this.handleElement.removeClass( "bk-ui-draggable-handle" );
 	},
 
 	_createHelper: function(event) {
@@ -654,7 +654,7 @@ $.widget("ui.draggable", $.ui.mouse, {
 	},
 
 	_clear: function() {
-		this.helper.removeClass("ui-draggable-dragging");
+		this.helper.removeClass("bk-ui-draggable-dragging");
 		if (this.helper[0] !== this.element[0] && !this.cancelHelperRemoval) {
 			this.helper.remove();
 		}
@@ -802,7 +802,7 @@ $.ui.plugin.add( "draggable", "connectToSortable", {
 
 					sortable.currentItem = ui.helper
 						.appendTo( sortable.element )
-						.data( "ui-sortable-item", true );
+						.data( "bk-ui-sortable-item", true );
 
 					// Store helper option to later restore it
 					sortable.options._helper = sortable.options.helper;
@@ -1000,7 +1000,7 @@ $.ui.plugin.add("draggable", "snap", {
 
 		i.snapElements = [];
 
-		$(o.snap.constructor !== String ? ( o.snap.items || ":data(ui-draggable)" ) : o.snap).each(function() {
+		$(o.snap.constructor !== String ? ( o.snap.items || ":data(bk-ui-draggable)" ) : o.snap).each(function() {
 			var $t = $(this),
 				$o = $t.offset();
 			if (this !== i.element[0]) {

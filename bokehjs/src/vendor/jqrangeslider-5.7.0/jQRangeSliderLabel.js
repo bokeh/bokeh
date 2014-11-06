@@ -8,7 +8,7 @@
  */
 
 (function($, undefined){
-	
+
 	"use strict";
 
 	$.widget("ui.rangeSliderLabel", $.ui.rangeSliderMouseTouch, {
@@ -33,7 +33,7 @@
 			this.options.isLeft = this._handle("option", "isLeft");
 
 			this.element
-				.addClass("ui-rangeSlider-label")
+				.addClass("bk-ui-rangeSlider-label")
 				.css("position", "absolute")
 				.css("display", "block");
 
@@ -70,10 +70,10 @@
 		},
 
 		_createElements: function(){
-			this._valueContainer = $("<div class='ui-rangeSlider-label-value' />")
+			this._valueContainer = $("<div class='bk-ui-rangeSlider-label-value' />")
 				.appendTo(this.element);
 
-			this._innerElement = $("<div class='ui-rangeSlider-label-inner' />")
+			this._innerElement = $("<div class='bk-ui-rangeSlider-label-inner' />")
 				.appendTo(this.element);
 		},
 
@@ -113,7 +113,7 @@
 				this._display(this.options.handle[this.options.handleType]("value"));
 				this._positionner.PositionLabels();
 			}
-			
+
 			this._positionner.options.show = this.options.show;
 		},
 
@@ -139,8 +139,8 @@
 		},
 
 		_toggleClass: function(){
-			this.element.toggleClass("ui-rangeSlider-leftLabel", this.options.isLeft)
-				.toggleClass("ui-rangeSlider-rightLabel", !this.options.isLeft);
+			this.element.toggleClass("bk-ui-rangeSlider-leftLabel", this.options.isLeft)
+				.toggleClass("bk-ui-rangeSlider-rightLabel", !this.options.isLeft);
 		},
 
 		_positionLabels: function(){
@@ -177,7 +177,7 @@
 
 		_onSwitch: function(event, isLeft){
 			this.options.isLeft = isLeft;
-			
+
 			this._toggleClass();
 			this._positionLabels();
 		},
@@ -264,8 +264,8 @@
 				this.left = null;
 				this.right = null;
 			}
-			
-			this.cache = null;			
+
+			this.cache = null;
 		}
 
 		this.AfterInit = function () {
@@ -445,7 +445,7 @@
 
 		this.UpdateHandlePosition = function(ui){
 			if (this.cache === null) return;
-			
+
 			if (ui.element[0] === this.handle1[0]){
 				this.UpdatePosition(ui, this.cache.handle1);
 			}else{

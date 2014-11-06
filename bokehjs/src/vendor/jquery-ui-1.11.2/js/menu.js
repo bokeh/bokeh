@@ -31,7 +31,7 @@ return $.widget( "ui.menu", {
 	delay: 300,
 	options: {
 		icons: {
-			submenu: "ui-icon-carat-1-e"
+			submenu: "bk-ui-icon-carat-1-e"
 		},
 		items: "> *",
 		menus: "ul",
@@ -55,8 +55,8 @@ return $.widget( "ui.menu", {
 		this.mouseHandled = false;
 		this.element
 			.uniqueId()
-			.addClass( "ui-menu ui-widget ui-widget-content" )
-			.toggleClass( "ui-menu-icons", !!this.element.find( ".ui-icon" ).length )
+			.addClass( "bk-ui-menu bk-ui-widget bk-ui-widget-content" )
+			.toggleClass( "bk-ui-menu-icons", !!this.element.find( ".bk-ui-icon" ).length )
 			.attr({
 				role: this.options.role,
 				tabIndex: 0
@@ -64,19 +64,19 @@ return $.widget( "ui.menu", {
 
 		if ( this.options.disabled ) {
 			this.element
-				.addClass( "ui-state-disabled" )
+				.addClass( "bk-ui-state-disabled" )
 				.attr( "aria-disabled", "true" );
 		}
 
 		this._on({
 			// Prevent focus from sticking to links inside menu after clicking
 			// them (focus should always stay on UL during navigation).
-			"mousedown .ui-menu-item": function( event ) {
+			"mousedown .bk-ui-menu-item": function( event ) {
 				event.preventDefault();
 			},
-			"click .ui-menu-item": function( event ) {
+			"click .bk-ui-menu-item": function( event ) {
 				var target = $( event.target );
-				if ( !this.mouseHandled && target.not( ".ui-state-disabled" ).length ) {
+				if ( !this.mouseHandled && target.not( ".bk-ui-state-disabled" ).length ) {
 					this.select( event );
 
 					// Only set the mouseHandled flag if the event will bubble, see #9469.
@@ -85,22 +85,22 @@ return $.widget( "ui.menu", {
 					}
 
 					// Open submenu on click
-					if ( target.has( ".ui-menu" ).length ) {
+					if ( target.has( ".bk-ui-menu" ).length ) {
 						this.expand( event );
-					} else if ( !this.element.is( ":focus" ) && $( this.document[ 0 ].activeElement ).closest( ".ui-menu" ).length ) {
+					} else if ( !this.element.is( ":focus" ) && $( this.document[ 0 ].activeElement ).closest( ".bk-ui-menu" ).length ) {
 
 						// Redirect focus to the menu
 						this.element.trigger( "focus", [ true ] );
 
 						// If the active item is on the top level, let it stay active.
 						// Otherwise, blur the active item since it is no longer visible.
-						if ( this.active && this.active.parents( ".ui-menu" ).length === 1 ) {
+						if ( this.active && this.active.parents( ".bk-ui-menu" ).length === 1 ) {
 							clearTimeout( this.timer );
 						}
 					}
 				}
 			},
-			"mouseenter .ui-menu-item": function( event ) {
+			"mouseenter .bk-ui-menu-item": function( event ) {
 				// Ignore mouse events while typeahead is active, see #10458.
 				// Prevents focusing the wrong item when typeahead causes a scroll while the mouse
 				// is over an item in the menu
@@ -108,13 +108,13 @@ return $.widget( "ui.menu", {
 					return;
 				}
 				var target = $( event.currentTarget );
-				// Remove ui-state-active class from siblings of the newly focused menu item
+				// Remove bk-ui-state-active class from siblings of the newly focused menu item
 				// to avoid a jump caused by adjacent elements both having a class with a border
-				target.siblings( ".ui-state-active" ).removeClass( "ui-state-active" );
+				target.siblings( ".bk-ui-state-active" ).removeClass( "bk-ui-state-active" );
 				this.focus( event, target );
 			},
 			mouseleave: "collapseAll",
-			"mouseleave .ui-menu": "collapseAll",
+			"mouseleave .bk-ui-menu": "collapseAll",
 			focus: function( event, keepActiveItem ) {
 				// If there's already an active item, keep it active
 				// If not, activate the first item
@@ -153,8 +153,8 @@ return $.widget( "ui.menu", {
 		// Destroy (sub)menus
 		this.element
 			.removeAttr( "aria-activedescendant" )
-			.find( ".ui-menu" ).addBack()
-				.removeClass( "ui-menu ui-widget ui-widget-content ui-menu-icons ui-front" )
+			.find( ".bk-ui-menu" ).addBack()
+				.removeClass( "bk-ui-menu bk-ui-widget bk-ui-widget-content bk-ui-menu-icons bk-ui-front" )
 				.removeAttr( "role" )
 				.removeAttr( "tabIndex" )
 				.removeAttr( "aria-labelledby" )
@@ -165,24 +165,24 @@ return $.widget( "ui.menu", {
 				.show();
 
 		// Destroy menu items
-		this.element.find( ".ui-menu-item" )
-			.removeClass( "ui-menu-item" )
+		this.element.find( ".bk-ui-menu-item" )
+			.removeClass( "bk-ui-menu-item" )
 			.removeAttr( "role" )
 			.removeAttr( "aria-disabled" )
 			.removeUniqueId()
-			.removeClass( "ui-state-hover" )
+			.removeClass( "bk-ui-state-hover" )
 			.removeAttr( "tabIndex" )
 			.removeAttr( "role" )
 			.removeAttr( "aria-haspopup" )
 			.children().each( function() {
 				var elem = $( this );
-				if ( elem.data( "ui-menu-submenu-carat" ) ) {
+				if ( elem.data( "bk-ui-menu-submenu-carat" ) ) {
 					elem.remove();
 				}
 			});
 
 		// Destroy menu dividers
-		this.element.find( ".ui-menu-divider" ).removeClass( "ui-menu-divider ui-widget-content" );
+		this.element.find( ".bk-ui-menu-divider" ).removeClass( "bk-ui-menu-divider bk-ui-widget-content" );
 	},
 
 	_keydown: function( event ) {
@@ -212,7 +212,7 @@ return $.widget( "ui.menu", {
 			this.collapse( event );
 			break;
 		case $.ui.keyCode.RIGHT:
-			if ( this.active && !this.active.is( ".ui-state-disabled" ) ) {
+			if ( this.active && !this.active.is( ".bk-ui-state-disabled" ) ) {
 				this.expand( event );
 			}
 			break;
@@ -239,7 +239,7 @@ return $.widget( "ui.menu", {
 
 			match = this._filterMenuItems( character );
 			match = skip && match.index( this.active.next() ) !== -1 ?
-				this.active.nextAll( ".ui-menu-item" ) :
+				this.active.nextAll( ".bk-ui-menu-item" ) :
 				match;
 
 			// If no matches on the current filter, reset to the last character pressed
@@ -266,7 +266,7 @@ return $.widget( "ui.menu", {
 	},
 
 	_activate: function( event ) {
-		if ( !this.active.is( ".ui-state-disabled" ) ) {
+		if ( !this.active.is( ".bk-ui-state-disabled" ) ) {
 			if ( this.active.is( "[aria-haspopup='true']" ) ) {
 				this.expand( event );
 			} else {
@@ -281,11 +281,11 @@ return $.widget( "ui.menu", {
 			icon = this.options.icons.submenu,
 			submenus = this.element.find( this.options.menus );
 
-		this.element.toggleClass( "ui-menu-icons", !!this.element.find( ".ui-icon" ).length );
+		this.element.toggleClass( "bk-ui-menu-icons", !!this.element.find( ".bk-ui-icon" ).length );
 
 		// Initialize nested menus
-		submenus.filter( ":not(.ui-menu)" )
-			.addClass( "ui-menu ui-widget ui-widget-content ui-front" )
+		submenus.filter( ":not(.bk-ui-menu)" )
+			.addClass( "bk-ui-menu bk-ui-widget bk-ui-widget-content bk-ui-front" )
 			.hide()
 			.attr({
 				role: this.options.role,
@@ -296,8 +296,8 @@ return $.widget( "ui.menu", {
 				var menu = $( this ),
 					item = menu.parent(),
 					submenuCarat = $( "<span>" )
-						.addClass( "ui-menu-icon ui-icon " + icon )
-						.data( "ui-menu-submenu-carat", true );
+						.addClass( "bk-ui-menu-icon bk-ui-icon " + icon )
+						.data( "bk-ui-menu-submenu-carat", true );
 
 				item
 					.attr( "aria-haspopup", "true" )
@@ -309,16 +309,16 @@ return $.widget( "ui.menu", {
 		items = menus.find( this.options.items );
 
 		// Initialize menu-items containing spaces and/or dashes only as dividers
-		items.not( ".ui-menu-item" ).each(function() {
+		items.not( ".bk-ui-menu-item" ).each(function() {
 			var item = $( this );
 			if ( that._isDivider( item ) ) {
-				item.addClass( "ui-widget-content ui-menu-divider" );
+				item.addClass( "bk-ui-widget-content bk-ui-menu-divider" );
 			}
 		});
 
 		// Don't refresh list items that are already adapted
-		items.not( ".ui-menu-item, .ui-menu-divider" )
-			.addClass( "ui-menu-item" )
+		items.not( ".bk-ui-menu-item, .bk-ui-menu-divider" )
+			.addClass( "bk-ui-menu-item" )
 			.uniqueId()
 			.attr({
 				tabIndex: -1,
@@ -326,7 +326,7 @@ return $.widget( "ui.menu", {
 			});
 
 		// Add aria-disabled attribute to any disabled menu item
-		items.filter( ".ui-state-disabled" ).attr( "aria-disabled", "true" );
+		items.filter( ".bk-ui-state-disabled" ).attr( "aria-disabled", "true" );
 
 		// If the active item has been removed, blur the menu
 		if ( this.active && !$.contains( this.element[ 0 ], this.active[ 0 ] ) ) {
@@ -343,13 +343,13 @@ return $.widget( "ui.menu", {
 
 	_setOption: function( key, value ) {
 		if ( key === "icons" ) {
-			this.element.find( ".ui-menu-icon" )
+			this.element.find( ".bk-ui-menu-icon" )
 				.removeClass( this.options.icons.submenu )
 				.addClass( value.submenu );
 		}
 		if ( key === "disabled" ) {
 			this.element
-				.toggleClass( "ui-state-disabled", !!value )
+				.toggleClass( "bk-ui-state-disabled", !!value )
 				.attr( "aria-disabled", value );
 		}
 		this._super( key, value );
@@ -362,7 +362,7 @@ return $.widget( "ui.menu", {
 		this._scrollIntoView( item );
 
 		this.active = item.first();
-		focused = this.active.addClass( "ui-state-focus" ).removeClass( "ui-state-active" );
+		focused = this.active.addClass( "bk-ui-state-focus" ).removeClass( "bk-ui-state-active" );
 		// Only update aria-activedescendant if there's a role
 		// otherwise we assume focus is managed elsewhere
 		if ( this.options.role ) {
@@ -372,8 +372,8 @@ return $.widget( "ui.menu", {
 		// Highlight active parent menu item, if any
 		this.active
 			.parent()
-			.closest( ".ui-menu-item" )
-			.addClass( "ui-state-active" );
+			.closest( ".bk-ui-menu-item" )
+			.addClass( "bk-ui-state-active" );
 
 		if ( event && event.type === "keydown" ) {
 			this._close();
@@ -383,7 +383,7 @@ return $.widget( "ui.menu", {
 			}, this.delay );
 		}
 
-		nested = item.children( ".ui-menu" );
+		nested = item.children( ".bk-ui-menu" );
 		if ( nested.length && event && ( /^mouse/.test( event.type ) ) ) {
 			this._startOpening(nested);
 		}
@@ -419,7 +419,7 @@ return $.widget( "ui.menu", {
 			return;
 		}
 
-		this.active.removeClass( "ui-state-focus" );
+		this.active.removeClass( "bk-ui-state-focus" );
 		this.active = null;
 
 		this._trigger( "blur", event, { item: this.active } );
@@ -446,7 +446,7 @@ return $.widget( "ui.menu", {
 		}, this.options.position );
 
 		clearTimeout( this.timer );
-		this.element.find( ".ui-menu" ).not( submenu.parents( ".ui-menu" ) )
+		this.element.find( ".bk-ui-menu" ).not( submenu.parents( ".bk-ui-menu" ) )
 			.hide()
 			.attr( "aria-hidden", "true" );
 
@@ -462,7 +462,7 @@ return $.widget( "ui.menu", {
 		this.timer = this._delay(function() {
 			// If we were passed an event, look for the submenu that contains the event
 			var currentMenu = all ? this.element :
-				$( event && event.target ).closest( this.element.find( ".ui-menu" ) );
+				$( event && event.target ).closest( this.element.find( ".bk-ui-menu" ) );
 
 			// If we found no valid submenu ancestor, use the main menu to close all sub menus anyway
 			if ( !currentMenu.length ) {
@@ -484,17 +484,17 @@ return $.widget( "ui.menu", {
 		}
 
 		startMenu
-			.find( ".ui-menu" )
+			.find( ".bk-ui-menu" )
 				.hide()
 				.attr( "aria-hidden", "true" )
 				.attr( "aria-expanded", "false" )
 			.end()
-			.find( ".ui-state-active" ).not( ".ui-state-focus" )
-				.removeClass( "ui-state-active" );
+			.find( ".bk-ui-state-active" ).not( ".bk-ui-state-focus" )
+				.removeClass( "bk-ui-state-active" );
 	},
 
 	_closeOnDocumentClick: function( event ) {
-		return !$( event.target ).closest( ".ui-menu" ).length;
+		return !$( event.target ).closest( ".bk-ui-menu" ).length;
 	},
 
 	_isDivider: function( item ) {
@@ -505,7 +505,7 @@ return $.widget( "ui.menu", {
 
 	collapse: function( event ) {
 		var newItem = this.active &&
-			this.active.parent().closest( ".ui-menu-item", this.element );
+			this.active.parent().closest( ".bk-ui-menu-item", this.element );
 		if ( newItem && newItem.length ) {
 			this._close();
 			this.focus( event, newItem );
@@ -515,7 +515,7 @@ return $.widget( "ui.menu", {
 	expand: function( event ) {
 		var newItem = this.active &&
 			this.active
-				.children( ".ui-menu " )
+				.children( ".bk-ui-menu " )
 				.find( this.options.items )
 				.first();
 
@@ -538,11 +538,11 @@ return $.widget( "ui.menu", {
 	},
 
 	isFirstItem: function() {
-		return this.active && !this.active.prevAll( ".ui-menu-item" ).length;
+		return this.active && !this.active.prevAll( ".bk-ui-menu-item" ).length;
 	},
 
 	isLastItem: function() {
-		return this.active && !this.active.nextAll( ".ui-menu-item" ).length;
+		return this.active && !this.active.nextAll( ".bk-ui-menu-item" ).length;
 	},
 
 	_move: function( direction, filter, event ) {
@@ -550,11 +550,11 @@ return $.widget( "ui.menu", {
 		if ( this.active ) {
 			if ( direction === "first" || direction === "last" ) {
 				next = this.active
-					[ direction === "first" ? "prevAll" : "nextAll" ]( ".ui-menu-item" )
+					[ direction === "first" ? "prevAll" : "nextAll" ]( ".bk-ui-menu-item" )
 					.eq( -1 );
 			} else {
 				next = this.active
-					[ direction + "All" ]( ".ui-menu-item" )
+					[ direction + "All" ]( ".bk-ui-menu-item" )
 					.eq( 0 );
 			}
 		}
@@ -578,7 +578,7 @@ return $.widget( "ui.menu", {
 		if ( this._hasScroll() ) {
 			base = this.active.offset().top;
 			height = this.element.height();
-			this.active.nextAll( ".ui-menu-item" ).each(function() {
+			this.active.nextAll( ".bk-ui-menu-item" ).each(function() {
 				item = $( this );
 				return item.offset().top - base - height < 0;
 			});
@@ -602,7 +602,7 @@ return $.widget( "ui.menu", {
 		if ( this._hasScroll() ) {
 			base = this.active.offset().top;
 			height = this.element.height();
-			this.active.prevAll( ".ui-menu-item" ).each(function() {
+			this.active.prevAll( ".bk-ui-menu-item" ).each(function() {
 				item = $( this );
 				return item.offset().top - base + height > 0;
 			});
@@ -620,9 +620,9 @@ return $.widget( "ui.menu", {
 	select: function( event ) {
 		// TODO: It should never be possible to not have an active item at this
 		// point, but the tests don't trigger mouseenter before click.
-		this.active = this.active || $( event.target ).closest( ".ui-menu-item" );
+		this.active = this.active || $( event.target ).closest( ".bk-ui-menu-item" );
 		var ui = { item: this.active };
-		if ( !this.active.has( ".ui-menu" ).length ) {
+		if ( !this.active.has( ".bk-ui-menu" ).length ) {
 			this.collapseAll( event, true );
 		}
 		this._trigger( "select", event, ui );
@@ -636,7 +636,7 @@ return $.widget( "ui.menu", {
 			.find( this.options.items )
 
 			// Only match on items, not dividers or other content (#10571)
-			.filter( ".ui-menu-item" )
+			.filter( ".bk-ui-menu-item" )
 			.filter(function() {
 				return regex.test( $.trim( $( this ).text() ) );
 			});

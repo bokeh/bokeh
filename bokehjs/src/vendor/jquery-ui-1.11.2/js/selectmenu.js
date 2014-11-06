@@ -33,7 +33,7 @@ return $.widget( "ui.selectmenu", {
 		appendTo: null,
 		disabled: null,
 		icons: {
-			button: "ui-icon-triangle-1-s"
+			button: "bk-ui-icon-triangle-1-s"
 		},
 		position: {
 			my: "left top",
@@ -84,7 +84,7 @@ return $.widget( "ui.selectmenu", {
 
 		// Create button
 		this.button = $( "<span>", {
-			"class": "ui-selectmenu-button ui-widget ui-state-default ui-corner-all",
+			"class": "bk-ui-selectmenu-button bk-ui-widget bk-ui-state-default bk-ui-corner-all",
 			tabindex: tabindex || this.options.disabled ? -1 : 0,
 			id: this.ids.button,
 			role: "combobox",
@@ -96,12 +96,12 @@ return $.widget( "ui.selectmenu", {
 			.insertAfter( this.element );
 
 		$( "<span>", {
-			"class": "ui-icon " + this.options.icons.button
+			"class": "bk-ui-icon " + this.options.icons.button
 		})
 			.prependTo( this.button );
 
 		this.buttonText = $( "<span>", {
-			"class": "ui-selectmenu-text"
+			"class": "bk-ui-selectmenu-text"
 		})
 			.appendTo( this.button );
 
@@ -133,7 +133,7 @@ return $.widget( "ui.selectmenu", {
 
 		// Wrap menu
 		this.menuWrap = $( "<div>", {
-			"class": "ui-selectmenu-menu ui-front"
+			"class": "bk-ui-selectmenu-menu bk-ui-front"
 		})
 			.append( this.menu )
 			.appendTo( this._appendTo() );
@@ -150,10 +150,10 @@ return $.widget( "ui.selectmenu", {
 					// will be destroyed in IE
 					that._setSelection();
 
-					that._select( ui.item.data( "ui-selectmenu-item" ), event );
+					that._select( ui.item.data( "bk-ui-selectmenu-item" ), event );
 				},
 				focus: function( event, ui ) {
-					var item = ui.item.data( "ui-selectmenu-item" );
+					var item = ui.item.data( "bk-ui-selectmenu-item" );
 
 					// Prevent inital focus from firing and check if its a newly focused item
 					if ( that.focusIndex != null && item.index !== that.focusIndex ) {
@@ -172,8 +172,8 @@ return $.widget( "ui.selectmenu", {
 
 		// Adjust menu styles to dropdown
 		this.menu
-			.addClass( "ui-corner-bottom" )
-			.removeClass( "ui-corner-all" );
+			.addClass( "bk-ui-corner-bottom" )
+			.removeClass( "bk-ui-corner-all" );
 
 		// Don't close the menu on mouseleave
 		this.menuInstance._off( this.menu, "mouseleave" );
@@ -211,13 +211,13 @@ return $.widget( "ui.selectmenu", {
 		this._renderMenu( this.menu, this.items );
 
 		this.menuInstance.refresh();
-		this.menuItems = this.menu.find( "li" ).not( ".ui-selectmenu-optgroup" );
+		this.menuItems = this.menu.find( "li" ).not( ".bk-ui-selectmenu-optgroup" );
 
 		item = this._getSelectedItem();
 
 		// Update the menu to have the correct item focused
 		this.menuInstance.focus( null, item );
-		this._setAria( item.data( "ui-selectmenu-item" ) );
+		this._setAria( item.data( "bk-ui-selectmenu-item" ) );
 
 		// Set disabled state
 		this._setOption( "disabled", this.element.prop( "disabled" ) );
@@ -234,7 +234,7 @@ return $.widget( "ui.selectmenu", {
 		} else {
 
 			// Menu clears focus on close, reset focus to selected item
-			this.menu.find( ".ui-state-focus" ).removeClass( "ui-state-focus" );
+			this.menu.find( ".bk-ui-state-focus" ).removeClass( "bk-ui-state-focus" );
 			this.menuInstance.focus( null, this._getSelectedItem() );
 		}
 
@@ -281,9 +281,9 @@ return $.widget( "ui.selectmenu", {
 		$.each( items, function( index, item ) {
 			if ( item.optgroup !== currentOptgroup ) {
 				$( "<li>", {
-					"class": "ui-selectmenu-optgroup ui-menu-divider" +
+					"class": "bk-ui-selectmenu-optgroup bk-ui-menu-divider" +
 						( item.element.parent( "optgroup" ).prop( "disabled" ) ?
-							" ui-state-disabled" :
+							" bk-ui-state-disabled" :
 							"" ),
 					text: item.optgroup
 				})
@@ -297,14 +297,14 @@ return $.widget( "ui.selectmenu", {
 	},
 
 	_renderItemData: function( ul, item ) {
-		return this._renderItem( ul, item ).data( "ui-selectmenu-item", item );
+		return this._renderItem( ul, item ).data( "bk-ui-selectmenu-item", item );
 	},
 
 	_renderItem: function( ul, item ) {
 		var li = $( "<li>" );
 
 		if ( item.disabled ) {
-			li.addClass( "ui-state-disabled" );
+			li.addClass( "bk-ui-state-disabled" );
 		}
 		this._setText( li, item.label );
 
@@ -321,13 +321,13 @@ return $.widget( "ui.selectmenu", {
 
 	_move: function( direction, event ) {
 		var item, next,
-			filter = ".ui-menu-item";
+			filter = ".bk-ui-menu-item";
 
 		if ( this.isOpen ) {
 			item = this.menuItems.eq( this.focusIndex );
 		} else {
 			item = this.menuItems.eq( this.element[ 0 ].selectedIndex );
-			filter += ":not(.ui-state-disabled)";
+			filter += ":not(.bk-ui-state-disabled)";
 		}
 
 		if ( direction === "first" || direction === "last" ) {
@@ -378,7 +378,7 @@ return $.widget( "ui.selectmenu", {
 				return;
 			}
 
-			if ( !$( event.target ).closest( ".ui-selectmenu-menu, #" + this.ids.button ).length ) {
+			if ( !$( event.target ).closest( ".bk-ui-selectmenu-menu, #" + this.ids.button ).length ) {
 				this.close( event );
 			}
 		}
@@ -468,8 +468,8 @@ return $.widget( "ui.selectmenu", {
 
 	_selectFocusedItem: function( event ) {
 		var item = this.menuItems.eq( this.focusIndex );
-		if ( !item.hasClass( "ui-state-disabled" ) ) {
-			this._select( item.data( "ui-selectmenu-item" ), event );
+		if ( !item.hasClass( "bk-ui-state-disabled" ) ) {
+			this._select( item.data( "bk-ui-selectmenu-item" ), event );
 		}
 	},
 
@@ -501,7 +501,7 @@ return $.widget( "ui.selectmenu", {
 
 	_setOption: function( key, value ) {
 		if ( key === "icons" ) {
-			this.button.find( "span.ui-icon" )
+			this.button.find( "span.bk-ui-icon" )
 				.removeClass( this.options.icons.button )
 				.addClass( value.button );
 		}
@@ -515,7 +515,7 @@ return $.widget( "ui.selectmenu", {
 		if ( key === "disabled" ) {
 			this.menuInstance.option( "disabled", value );
 			this.button
-				.toggleClass( "ui-state-disabled", value )
+				.toggleClass( "bk-ui-state-disabled", value )
 				.attr( "aria-disabled", value );
 
 			this.element.prop( "disabled", value );
@@ -542,7 +542,7 @@ return $.widget( "ui.selectmenu", {
 		}
 
 		if ( !element || !element[ 0 ] ) {
-			element = this.element.closest( ".ui-front" );
+			element = this.element.closest( ".bk-ui-front" );
 		}
 
 		if ( !element.length ) {
@@ -554,10 +554,10 @@ return $.widget( "ui.selectmenu", {
 
 	_toggleAttr: function() {
 		this.button
-			.toggleClass( "ui-corner-top", this.isOpen )
-			.toggleClass( "ui-corner-all", !this.isOpen )
+			.toggleClass( "bk-ui-corner-top", this.isOpen )
+			.toggleClass( "bk-ui-corner-all", !this.isOpen )
 			.attr( "aria-expanded", this.isOpen );
-		this.menuWrap.toggleClass( "ui-selectmenu-open", this.isOpen );
+		this.menuWrap.toggleClass( "bk-ui-selectmenu-open", this.isOpen );
 		this.menu.attr( "aria-hidden", !this.isOpen );
 	},
 

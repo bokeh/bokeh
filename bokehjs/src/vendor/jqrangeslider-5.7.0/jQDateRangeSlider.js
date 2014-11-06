@@ -9,7 +9,7 @@
 
 (function ($, undefined) {
 	"use strict";
-	
+
 	$.widget("ui.dateRangeSlider", $.ui.rangeSlider, {
 		options: {
 			bounds: {min: new Date(2010,0,1).valueOf(), max: new Date(2012,0,1).valueOf()},
@@ -19,11 +19,11 @@
 		_create: function(){
 			$.ui.rangeSlider.prototype._create.apply(this);
 
-			this.element.addClass("ui-dateRangeSlider");
+			this.element.addClass("bk-ui-dateRangeSlider");
 		},
 
 		destroy: function(){
-			this.element.removeClass("ui-dateRangeSlider");
+			this.element.removeClass("bk-ui-dateRangeSlider");
 			$.ui.rangeSlider.prototype.destroy.apply(this);
 		},
 
@@ -87,7 +87,7 @@
 
 		values: function(min, max){
 			var values = null;
-			
+
 			if (this._isValidDate(min) && this._isValidDate(max))
 			{
 				values = $.ui.rangeSlider.prototype.values.apply(this, [min.valueOf(), max.valueOf()]);
@@ -113,16 +113,16 @@
 
 			return new Date($.ui.rangeSlider.prototype.max.apply(this));
 		},
-		
+
 		bounds: function(min, max){
 			var result;
-			
+
 			if (this._isValidDate(min) && this._isValidDate(max)) {
 				result = $.ui.rangeSlider.prototype.bounds.apply(this, [min.valueOf(), max.valueOf()]);
 			} else {
 				result = $.ui.rangeSlider.prototype.bounds.apply(this, this._toArray(arguments));
 			}
-			
+
 			return {min: new Date(result.min), max: new Date(result.max)};
 		},
 

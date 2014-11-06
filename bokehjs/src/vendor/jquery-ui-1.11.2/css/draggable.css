@@ -6,7 +6,7 @@
  * Released under the MIT license.
  * http://jquery.org/license
  */
-.ui-draggable-handle {
+.bk-ui-draggable-handle {
 	-ms-touch-action: none;
 	touch-action: none;
 }

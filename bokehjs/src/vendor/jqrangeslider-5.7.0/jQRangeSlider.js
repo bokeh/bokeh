@@ -89,7 +89,7 @@
 		},
 
 		_setOption: function(key, value) {
-			this._setWheelOption(key, value);		
+			this._setWheelOption(key, value);
 			this._setArrowsOption(key, value);
 			this._setLabelsOption(key, value);
 			this._setLabelsDurations(key, value);
@@ -183,15 +183,15 @@
 			if (key === "arrows" && (value === true || value === false) && value !== this.options.arrows){
 				if (value === true){
 					this.element
-						.removeClass("ui-rangeSlider-noArrow")
-						.addClass("ui-rangeSlider-withArrows");
+						.removeClass("bk-ui-rangeSlider-noArrow")
+						.addClass("bk-ui-rangeSlider-withArrows");
 					this.arrows.left.css("display", "block");
 					this.arrows.right.css("display", "block");
 					this.options.arrows = true;
 				}else if (value === false){
 					this.element
-						.addClass("ui-rangeSlider-noArrow")
-						.removeClass("ui-rangeSlider-withArrows");
+						.addClass("bk-ui-rangeSlider-noArrow")
+						.removeClass("bk-ui-rangeSlider-withArrows");
 					this.arrows.left.css("display", "none");
 					this.arrows.right.css("display", "none");
 					this.options.arrows = false;
@@ -235,13 +235,13 @@
 				this.element.css("position", "relative");
 			}
 
-			this.element.addClass("ui-rangeSlider");
+			this.element.addClass("bk-ui-rangeSlider");
 
-			this.container = $("<div class='ui-rangeSlider-container' />")
+			this.container = $("<div class='bk-ui-rangeSlider-container' />")
 				.css("position", "absolute")
 				.appendTo(this.element);
-			
-			this.innerBar = $("<div class='ui-rangeSlider-innerBar' />")
+
+			this.innerBar = $("<div class='bk-ui-rangeSlider-innerBar' />")
 				.css("position", "absolute")
 				.css("top", 0)
 				.css("left", 0);
@@ -277,7 +277,7 @@
 					step: this.options.step,
 					symmetricPositionning: this.options.symmetricPositionning
 			}).appendTo(this.container);
-	
+
 			this.rightHandle = this._createHandle({
 				isLeft: false,
 				bounds: this.options.bounds,
@@ -286,13 +286,13 @@
 				symmetricPositionning: this.options.symmetricPositionning
 			}).appendTo(this.container);
 		},
-		
+
 		_createBar: function(){
 			this.bar = $("<div />")
 				.prependTo(this.container)
 				.bind("sliderDrag scroll zoom", $.proxy(this._changing, this))
 				.bind("stop", $.proxy(this._changed, this));
-			
+
 			this._bar({
 					leftHandle: this.leftHandle,
 					rightHandle: this.rightHandle,
@@ -315,16 +315,16 @@
 			if (!this.options.arrows){
 				this.arrows.left.css("display", "none");
 				this.arrows.right.css("display", "none");
-				this.element.addClass("ui-rangeSlider-noArrow");
+				this.element.addClass("bk-ui-rangeSlider-noArrow");
 			}else{
-				this.element.addClass("ui-rangeSlider-withArrows");
+				this.element.addClass("bk-ui-rangeSlider-withArrows");
 			}
 		},
 
 		_createArrow: function(whichOne){
-			var arrow = $("<div class='ui-rangeSlider-arrow' />")
-				.append("<div class='ui-rangeSlider-arrow-inner' />")
-				.addClass("ui-rangeSlider-" + whichOne + "Arrow")
+			var arrow = $("<div class='bk-ui-rangeSlider-arrow' />")
+				.append("<div class='bk-ui-rangeSlider-arrow-inner' />")
+				.addClass("bk-ui-rangeSlider-" + whichOne + "Arrow")
 				.css("position", "absolute")
 				.css(whichOne, 0)
 				.appendTo(this.element),
@@ -345,7 +345,7 @@
 			var array = Array.prototype.slice.call(args);
 
 			if (element && element[type]){
-				return element[type].apply(element, array);	
+				return element[type].apply(element, array);
 			}
 
 			return null;
@@ -384,10 +384,10 @@
 		},
 
 		_getValue: function(position, handle){
-			if (handle === this.rightHandle){	
+			if (handle === this.rightHandle){
 				position = position - handle.outerWidth();
 			}
-			
+
 			return position * (this.options.bounds.max - this.options.bounds.min) / (this.container.innerWidth() - handle.outerWidth(true)) + this.options.bounds.min;
 		},
 
@@ -432,7 +432,7 @@
 				this._trigger("valuesChanged");
 
 				if (isAutomatic !== true){
-					this._trigger("userValuesChanged");					
+					this._trigger("userValuesChanged");
 				}
 
 				this._valuesChanged = false;
@@ -571,11 +571,11 @@
 			this._scrollTimeout = setTimeout(function(){
 				if (timesBeforeSpeedingUp === 0){
 					if (timeout > minTimeout){
-						timeout = Math.max(minTimeout, timeout / 1.5);	
+						timeout = Math.max(minTimeout, timeout / 1.5);
 					} else {
 						quantity = Math.min(maxQuantity, quantity * 2);
 					}
-					
+
 					timesBeforeSpeedingUp = 5;
 				}
 
@@ -615,7 +615,7 @@
 		 * Ruler
 		 */
 		_createRuler: function(){
-			this.ruler = $("<div class='ui-rangeSlider-ruler' />").appendTo(this.innerBar);
+			this.ruler = $("<div class='bk-ui-rangeSlider-ruler' />").appendTo(this.innerBar);
 		},
 
 		_setRulerParameters: function(){
@@ -642,7 +642,7 @@
 			}
 
 			this._createRuler();
-			this._setRulerParameters();			
+			this._setRulerParameters();
 		},
 
 		/*
@@ -680,15 +680,15 @@
 
 			return this._values.max;
 		},
-		
+
 		bounds: function(min, max){
 			if (this._isValidValue(min) && this._isValidValue(max) && min < max){
-				
+
 				this._setBounds(min, max);
 				this._updateRuler();
 				this._changed(true);
 			}
-			
+
 			return this.options.bounds;
 		},
 
@@ -722,7 +722,7 @@
 			this._bar("scrollRight", quantity);
 			this._bar("stopScroll");
 		},
-		
+
 		/**
 		 * Resize
 		 */
@@ -754,7 +754,7 @@
 
 		_toggle: function(enabled){
 			this.options.enabled = enabled;
-			this.element.toggleClass("ui-rangeSlider-disabled", !enabled);
+			this.element.toggleClass("bk-ui-rangeSlider-disabled", !enabled);
 
 			var action = enabled ? "enable" : "disable";
 
@@ -769,12 +769,12 @@
 		 * Destroy
 		 */
 		destroy: function(){
-			this.element.removeClass("ui-rangeSlider-withArrows ui-rangeSlider-noArrow ui-rangeSlider-disabled");
+			this.element.removeClass("bk-ui-rangeSlider-withArrows bk-ui-rangeSlider-noArrow bk-ui-rangeSlider-disabled");
 
 			this._destroyWidgets();
 			this._destroyElements();
-			
-			this.element.removeClass("ui-rangeSlider");
+
+			this.element.removeClass("bk-ui-rangeSlider");
 			this.options = null;
 
 			$(window).unbind("resize", this._resizeProxy);

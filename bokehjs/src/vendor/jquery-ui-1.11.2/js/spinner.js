@@ -43,8 +43,8 @@ return $.widget( "ui.spinner", {
 	options: {
 		culture: null,
 		icons: {
-			down: "ui-icon-triangle-1-s",
-			up: "ui-icon-triangle-1-n"
+			down: "bk-ui-icon-triangle-1-s",
+			up: "bk-ui-icon-triangle-1-n"
 		},
 		incremental: true,
 		max: null,
@@ -139,7 +139,7 @@ return $.widget( "ui.spinner", {
 			}, 100 );
 			event.preventDefault();
 		},
-		"mousedown .ui-spinner-button": function( event ) {
+		"mousedown .bk-ui-spinner-button": function( event ) {
 			var previous;
 
 			// We never want the buttons to have focus; whenever the user is
@@ -181,29 +181,29 @@ return $.widget( "ui.spinner", {
 				return;
 			}
 
-			this._repeat( null, $( event.currentTarget ).hasClass( "ui-spinner-up" ) ? 1 : -1, event );
+			this._repeat( null, $( event.currentTarget ).hasClass( "bk-ui-spinner-up" ) ? 1 : -1, event );
 		},
-		"mouseup .ui-spinner-button": "_stop",
-		"mouseenter .ui-spinner-button": function( event ) {
-			// button will add ui-state-active if mouse was down while mouseleave and kept down
-			if ( !$( event.currentTarget ).hasClass( "ui-state-active" ) ) {
+		"mouseup .bk-ui-spinner-button": "_stop",
+		"mouseenter .bk-ui-spinner-button": function( event ) {
+			// button will add bk-ui-state-active if mouse was down while mouseleave and kept down
+			if ( !$( event.currentTarget ).hasClass( "bk-ui-state-active" ) ) {
 				return;
 			}
 
 			if ( this._start( event ) === false ) {
 				return false;
 			}
-			this._repeat( null, $( event.currentTarget ).hasClass( "ui-spinner-up" ) ? 1 : -1, event );
+			this._repeat( null, $( event.currentTarget ).hasClass( "bk-ui-spinner-up" ) ? 1 : -1, event );
 		},
 		// TODO: do we really want to consider this a stop?
 		// shouldn't we just stop the repeater and wait until mouseup before
 		// we trigger the stop event?
-		"mouseleave .ui-spinner-button": "_stop"
+		"mouseleave .bk-ui-spinner-button": "_stop"
 	},
 
 	_draw: function() {
 		var uiSpinner = this.uiSpinner = this.element
-			.addClass( "ui-spinner-input" )
+			.addClass( "bk-ui-spinner-input" )
 			.attr( "autocomplete", "off" )
 			.wrap( this._uiSpinnerHtml() )
 			.parent()
@@ -213,10 +213,10 @@ return $.widget( "ui.spinner", {
 		this.element.attr( "role", "spinbutton" );
 
 		// button bindings
-		this.buttons = uiSpinner.find( ".ui-spinner-button" )
+		this.buttons = uiSpinner.find( ".bk-ui-spinner-button" )
 			.attr( "tabIndex", -1 )
 			.button()
-			.removeClass( "ui-corner-all" );
+			.removeClass( "bk-ui-corner-all" );
 
 		// IE 6 doesn't understand height: 50% for the buttons
 		// unless the wrapper has an explicit height
@@ -254,16 +254,16 @@ return $.widget( "ui.spinner", {
 	},
 
 	_uiSpinnerHtml: function() {
-		return "<span class='ui-spinner ui-widget ui-widget-content ui-corner-all'></span>";
+		return "<span class='bk-ui-spinner bk-ui-widget bk-ui-widget-content bk-ui-corner-all'></span>";
 	},
 
 	_buttonHtml: function() {
 		return "" +
-			"<a class='ui-spinner-button ui-spinner-up ui-corner-tr'>" +
-				"<span class='ui-icon " + this.options.icons.up + "'>&#9650;</span>" +
+			"<a class='bk-ui-spinner-button bk-ui-spinner-up bk-ui-corner-tr'>" +
+				"<span class='bk-ui-icon " + this.options.icons.up + "'>&#9650;</span>" +
 			"</a>" +
-			"<a class='ui-spinner-button ui-spinner-down ui-corner-br'>" +
-				"<span class='ui-icon " + this.options.icons.down + "'>&#9660;</span>" +
+			"<a class='bk-ui-spinner-button bk-ui-spinner-down bk-ui-corner-br'>" +
+				"<span class='bk-ui-icon " + this.options.icons.down + "'>&#9660;</span>" +
 			"</a>";
 	},
 
@@ -384,10 +384,10 @@ return $.widget( "ui.spinner", {
 			}
 		}
 		if ( key === "icons" ) {
-			this.buttons.first().find( ".ui-icon" )
+			this.buttons.first().find( ".bk-ui-icon" )
 				.removeClass( this.options.icons.up )
 				.addClass( value.up );
-			this.buttons.last().find( ".ui-icon" )
+			this.buttons.last().find( ".bk-ui-icon" )
 				.removeClass( this.options.icons.down )
 				.addClass( value.down );
 		}
@@ -395,7 +395,7 @@ return $.widget( "ui.spinner", {
 		this._super( key, value );
 
 		if ( key === "disabled" ) {
-			this.widget().toggleClass( "ui-state-disabled", !!value );
+			this.widget().toggleClass( "bk-ui-state-disabled", !!value );
 			this.element.prop( "disabled", !!value );
 			this.buttons.button( value ? "disable" : "enable" );
 		}
@@ -461,7 +461,7 @@ return $.widget( "ui.spinner", {
 
 	_destroy: function() {
 		this.element
-			.removeClass( "ui-spinner-input" )
+			.removeClass( "bk-ui-spinner-input" )
 			.prop( "disabled", false )
 			.removeAttr( "autocomplete" )
 			.removeAttr( "role" )

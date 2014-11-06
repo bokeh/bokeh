@@ -61,11 +61,11 @@ return $.widget( "ui.slider", $.ui.mouse, {
 		this._calculateNewMax();
 
 		this.element
-			.addClass( "ui-slider" +
-				" ui-slider-" + this.orientation +
-				" ui-widget" +
-				" ui-widget-content" +
-				" ui-corner-all");
+			.addClass( "bk-ui-slider" +
+				" bk-ui-slider-" + this.orientation +
+				" bk-ui-widget" +
+				" bk-ui-widget-content" +
+				" bk-ui-corner-all");
 
 		this._refresh();
 		this._setOption( "disabled", this.options.disabled );
@@ -83,8 +83,8 @@ return $.widget( "ui.slider", $.ui.mouse, {
 	_createHandles: function() {
 		var i, handleCount,
 			options = this.options,
-			existingHandles = this.element.find( ".ui-slider-handle" ).addClass( "ui-state-default ui-corner-all" ),
-			handle = "<span class='ui-slider-handle ui-state-default ui-corner-all' tabindex='0'></span>",
+			existingHandles = this.element.find( ".bk-ui-slider-handle" ).addClass( "bk-ui-state-default bk-ui-corner-all" ),
+			handle = "<span class='bk-ui-slider-handle bk-ui-state-default bk-ui-corner-all' tabindex='0'></span>",
 			handles = [];
 
 		handleCount = ( options.values && options.values.length ) || 1;
@@ -103,7 +103,7 @@ return $.widget( "ui.slider", $.ui.mouse, {
 		this.handle = this.handles.eq( 0 );
 
 		this.handles.each(function( i ) {
-			$( this ).data( "ui-slider-handle-index", i );
+			$( this ).data( "bk-ui-slider-handle-index", i );
 		});
 	},
 
@@ -126,12 +126,12 @@ return $.widget( "ui.slider", $.ui.mouse, {
 				this.range = $( "<div></div>" )
 					.appendTo( this.element );
 
-				classes = "ui-slider-range" +
+				classes = "bk-ui-slider-range" +
 				// note: this isn't the most fittingly semantic framework class for this element,
 				// but worked best visually with a variety of themes
-				" ui-widget-header ui-corner-all";
+				" bk-ui-widget-header bk-ui-corner-all";
 			} else {
-				this.range.removeClass( "ui-slider-range-min ui-slider-range-max" )
+				this.range.removeClass( "bk-ui-slider-range-min bk-ui-slider-range-max" )
 					// Handle range switching from true to min/max
 					.css({
 						"left": "",
@@ -140,7 +140,7 @@ return $.widget( "ui.slider", $.ui.mouse, {
 			}
 
 			this.range.addClass( classes +
-				( ( options.range === "min" || options.range === "max" ) ? " ui-slider-range-" + options.range : "" ) );
+				( ( options.range === "min" || options.range === "max" ) ? " bk-ui-slider-range-" + options.range : "" ) );
 		} else {
 			if ( this.range ) {
 				this.range.remove();
@@ -163,12 +163,12 @@ return $.widget( "ui.slider", $.ui.mouse, {
 		}
 
 		this.element
-			.removeClass( "ui-slider" +
-				" ui-slider-horizontal" +
-				" ui-slider-vertical" +
-				" ui-widget" +
-				" ui-widget-content" +
-				" ui-corner-all" );
+			.removeClass( "bk-ui-slider" +
+				" bk-ui-slider-horizontal" +
+				" bk-ui-slider-vertical" +
+				" bk-ui-widget" +
+				" bk-ui-widget-content" +
+				" bk-ui-corner-all" );
 
 		this._mouseDestroy();
 	},
@@ -211,11 +211,11 @@ return $.widget( "ui.slider", $.ui.mouse, {
 		this._handleIndex = index;
 
 		closestHandle
-			.addClass( "ui-state-active" )
+			.addClass( "bk-ui-state-active" )
 			.focus();
 
 		offset = closestHandle.offset();
-		mouseOverHandle = !$( event.target ).parents().addBack().is( ".ui-slider-handle" );
+		mouseOverHandle = !$( event.target ).parents().addBack().is( ".bk-ui-slider-handle" );
 		this._clickOffset = mouseOverHandle ? { left: 0, top: 0 } : {
 			left: event.pageX - offset.left - ( closestHandle.width() / 2 ),
 			top: event.pageY - offset.top -
@@ -225,7 +225,7 @@ return $.widget( "ui.slider", $.ui.mouse, {
 				( parseInt( closestHandle.css("marginTop"), 10 ) || 0)
 		};
 
-		if ( !this.handles.hasClass( "ui-state-hover" ) ) {
+		if ( !this.handles.hasClass( "bk-ui-state-hover" ) ) {
 			this._slide( event, index, normValue );
 		}
 		this._animateOff = true;
@@ -246,7 +246,7 @@ return $.widget( "ui.slider", $.ui.mouse, {
 	},
 
 	_mouseStop: function( event ) {
-		this.handles.removeClass( "ui-state-active" );
+		this.handles.removeClass( "bk-ui-state-active" );
 		this._mouseSliding = false;
 
 		this._stop( event, this._handleIndex );
@@ -443,7 +443,7 @@ return $.widget( "ui.slider", $.ui.mouse, {
 		}
 
 		if ( key === "disabled" ) {
-			this.element.toggleClass( "ui-state-disabled", !!value );
+			this.element.toggleClass( "bk-ui-state-disabled", !!value );
 		}
 
 		this._super( key, value );
@@ -452,8 +452,8 @@ return $.widget( "ui.slider", $.ui.mouse, {
 			case "orientation":
 				this._detectOrientation();
 				this.element
-					.removeClass( "ui-slider-horizontal ui-slider-vertical" )
-					.addClass( "ui-slider-" + this.orientation );
+					.removeClass( "bk-ui-slider-horizontal bk-ui-slider-vertical" )
+					.addClass( "bk-ui-slider-" + this.orientation );
 				this._refreshValue();
 
 				// Reset positioning from previous orientation
@@ -619,7 +619,7 @@ return $.widget( "ui.slider", $.ui.mouse, {
 	_handleEvents: {
 		keydown: function( event ) {
 			var allowed, curVal, newVal, step,
-				index = $( event.target ).data( "ui-slider-handle-index" );
+				index = $( event.target ).data( "bk-ui-slider-handle-index" );
 
 			switch ( event.keyCode ) {
 				case $.ui.keyCode.HOME:
@@ -633,7 +633,7 @@ return $.widget( "ui.slider", $.ui.mouse, {
 					event.preventDefault();
 					if ( !this._keySliding ) {
 						this._keySliding = true;
-						$( event.target ).addClass( "ui-state-active" );
+						$( event.target ).addClass( "bk-ui-state-active" );
 						allowed = this._start( event, index );
 						if ( allowed === false ) {
 							return;
@@ -684,13 +684,13 @@ return $.widget( "ui.slider", $.ui.mouse, {
 			this._slide( event, index, newVal );
 		},
 		keyup: function( event ) {
-			var index = $( event.target ).data( "ui-slider-handle-index" );
+			var index = $( event.target ).data( "bk-ui-slider-handle-index" );
 
 			if ( this._keySliding ) {
 				this._keySliding = false;
 				this._stop( event, index );
 				this._change( event, index );
-				$( event.target ).removeClass( "ui-state-active" );
+				$( event.target ).removeClass( "bk-ui-state-active" );
 			}
 		}
 	}

@@ -75,7 +75,7 @@ return $.effects.effect.explode = function( o, done ) {
 			// select the wrapper - make it overflow: hidden and absolute positioned based on
 			// where the original was located +left and +top equal to the size of pieces
 				.parent()
-				.addClass( "ui-effects-explode" )
+				.addClass( "bk-ui-effects-explode" )
 				.css({
 					position: "absolute",
 					overflow: "hidden",

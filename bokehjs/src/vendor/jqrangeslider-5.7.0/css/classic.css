@@ -3,17 +3,17 @@
  * Using fam fam icon set from Mark James, http://www.famfamfam.com/lab/icons/silk/ (Creative Commons Attribution 2.5 License)
  */
 
-.ui-rangeSlider{
+.bk-ui-rangeSlider{
 	height:22px;
 }
 
-.ui-rangeSlider .ui-rangeSlider-innerBar{
+.bk-ui-rangeSlider .bk-ui-rangeSlider-innerBar{
 	height:16px;
 	margin:3px 6px;
 	background:#DDD;
 }
 
-.ui-rangeSlider .ui-rangeSlider-handle{
+.bk-ui-rangeSlider .bk-ui-rangeSlider-handle{
 	width:6px;
 	height:22px;
 	background:#AAA;
@@ -21,7 +21,7 @@
 	cursor:col-resize;
 }
 
-.ui-rangeSlider .ui-rangeSlider-bar{
+.bk-ui-rangeSlider .bk-ui-rangeSlider-bar{
 	margin: 1px 0;
 	background:#CCC;
 	background:rgba(100,100,150, 0.2);
@@ -31,45 +31,45 @@
 	cursor: -moz-grab;
 }
 
-.ui-rangeSlider .ui-rangeSlider-bar.ui-draggable-dragging{
+.bk-ui-rangeSlider .bk-ui-rangeSlider-bar.bk-ui-draggable-dragging{
 	cursor:	-moz-grabbing;
 	cursor:grabbing;
 }
 
-.ui-rangeSlider-arrow{
+.bk-ui-rangeSlider-arrow{
 	height:16px;
 	margin:2px 0;
 	width:16px;
 	background-repeat:no-repeat;
 }
 
-.ui-rangeSlider-arrow.ui-rangeSlider-leftArrow{
+.bk-ui-rangeSlider-arrow.bk-ui-rangeSlider-leftArrow{
 	background-image: url('icons-classic/resultset_previous.png');
 	background-position:center left;
 }
 
-.ui-rangeSlider-arrow.ui-rangeSlider-rightArrow{
+.bk-ui-rangeSlider-arrow.bk-ui-rangeSlider-rightArrow{
 	background-image: url('icons-classic/resultset_next.png');
 	background-position:center right;
 }
 
-.ui-rangeSlider-arrow-inner{
+.bk-ui-rangeSlider-arrow-inner{
 	display: none;
 }
 
-.ui-rangeSlider-container{
+.bk-ui-rangeSlider-container{
 	height:22px;
 }
 
-.ui-rangeSlider-withArrows .ui-rangeSlider-container{
+.bk-ui-rangeSlider-withArrows .bk-ui-rangeSlider-container{
 	margin:0 11px;
 }
 
-.ui-rangeSlider-noArrow .ui-rangeSlider-container{
+.bk-ui-rangeSlider-noArrow .bk-ui-rangeSlider-container{
 	margin:0;
 }
 
-.ui-rangeSlider-label{
+.bk-ui-rangeSlider-label{
 	margin:0 2px 2px;
 	background-image:url('icons-classic/label.png');
 	background-position:bottom center;
@@ -80,7 +80,7 @@
   cursor:col-resize;
 }
 
-.ui-rangeSlider-label-inner{
+.bk-ui-rangeSlider-label-inner{
 	display:none;
 }
 
@@ -88,7 +88,7 @@
  * Edit slider
  */
 
-input.ui-editRangeSlider-inputValue{
+input.bk-ui-editRangeSlider-inputValue{
 	width:3em;
 	vertical-align: middle;
 	text-align:center;
