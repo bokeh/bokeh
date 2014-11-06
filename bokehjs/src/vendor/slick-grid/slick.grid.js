@@ -218,18 +218,18 @@ define(["jquery", "./slick.core", "jquery_event_drag", "jquery_event_drop"], fun
 
       $focusSink = $("<div tabIndex='0' hideFocus style='position:fixed;width:0;height:0;top:0;left:0;outline:0;'></div>").appendTo($container);
 
-      $headerScroller = $("<div class='slick-header ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
-      $headers = $("<div class='slick-header-columns' style='left:-1000px' />").appendTo($headerScroller);
+      $headerScroller = $("<div class='bk-slick-header ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
+      $headers = $("<div class='bk-slick-header-columns' style='left:-1000px' />").appendTo($headerScroller);
       $headers.width(getHeadersWidth());
 
-      $headerRowScroller = $("<div class='slick-headerrow ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
-      $headerRow = $("<div class='slick-headerrow-columns' />").appendTo($headerRowScroller);
+      $headerRowScroller = $("<div class='bk-slick-headerrow ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
+      $headerRow = $("<div class='bk-slick-headerrow-columns' />").appendTo($headerRowScroller);
       $headerRowSpacer = $("<div style='display:block;height:1px;position:absolute;top:0;left:0;'></div>")
           .css("width", getCanvasWidth() + scrollbarDimensions.width + "px")
           .appendTo($headerRowScroller);
 
-      $topPanelScroller = $("<div class='slick-top-panel-scroller ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
-      $topPanel = $("<div class='slick-top-panel' style='width:10000px' />").appendTo($topPanelScroller);
+      $topPanelScroller = $("<div class='bk-slick-top-panel-scroller ui-state-default' style='overflow:hidden;position:relative;' />").appendTo($container);
+      $topPanel = $("<div class='bk-slick-top-panel' style='width:10000px' />").appendTo($topPanelScroller);
 
       if (!options.showTopPanel) {
         $topPanelScroller.hide();
@@ -239,7 +239,7 @@ define(["jquery", "./slick.core", "jquery_event_drag", "jquery_event_drop"], fun
         $headerRowScroller.hide();
       }
 
-      $viewport = $("<div class='slick-viewport' style='width:100%;overflow:auto;outline:0;position:relative;;'>").appendTo($container);
+      $viewport = $("<div class='bk-slick-viewport' style='width:100%;overflow:auto;outline:0;position:relative;;'>").appendTo($container);
       $viewport.css("overflow-y", options.autoHeight ? "hidden" : "auto");
 
       $canvas = $("<div class='grid-canvas' />").appendTo($viewport);
@@ -541,8 +541,8 @@ define(["jquery", "./slick.core", "jquery_event_drag", "jquery_event_drop"], fun
       for (var i = 0; i < columns.length; i++) {
         var m = columns[i];
 
-        var header = $("<div class='ui-state-default slick-header-column' />")
-            .html("<span class='slick-column-name'>" + m.name + "</span>")
+        var header = $("<div class='ui-state-default bk-slick-header-column' />")
+            .html("<span class='bk-slick-column-name'>" + m.name + "</span>")
             .width(m.width - headerColumnWidthDiff)
             .attr("id", "" + uid + m.id)
             .attr("title", m.toolTip || "")
@@ -557,8 +557,8 @@ define(["jquery", "./slick.core", "jquery_event_drag", "jquery_event_drop"], fun
         }
 
         if (m.sortable) {
-          header.addClass("slick-header-sortable");
-          header.append("<span class='slick-sort-indicator' />");
+          header.addClass("bk-slick-header-sortable");
+          header.append("<span class='bk-slick-sort-indicator' />");
         }
 
         trigger(self.onHeaderCellRendered, {
@@ -567,7 +567,7 @@ define(["jquery", "./slick.core", "jquery_event_drag", "jquery_event_drop"], fun
         });
 
         if (options.showHeaderRow) {
-          var headerRowCell = $("<div class='ui-state-default slick-headerrow-column l" + i + " r" + i + "'></div>")
+          var headerRowCell = $("<div class='ui-state-default bk-slick-headerrow-column l" + i + " r" + i + "'></div>")
               .data("column", m)
               .appendTo($headerRow);
 
@@ -590,7 +590,7 @@ define(["jquery", "./slick.core", "jquery_event_drag", "jquery_event_drop"], fun
         // temporary workaround for a bug in jQuery 1.7.1 (http://bugs.jquery.com/ticket/11328)
         e.metaKey = e.metaKey || e.ctrlKey;
 
-        if ($(e.target).hasClass("slick-resizable-handle")) {
+        if ($(e.target).hasClass("bk-slick-resizable-handle")) {
           return;
         }
 
@@ -660,13 +660,13 @@ define(["jquery", "./slick.core", "jquery_event_drag", "jquery_event_drop"], fun
         cursor: "default",
         tolerance: "intersection",
         helper: "clone",
-        placeholder: "slick-sortable-placeholder ui-state-default slick-header-column",
+        placeholder: "bk-slick-sortable-placeholder ui-state-default bk-slick-header-column",
         start: function (e, ui) {
           ui.placeholder.width(ui.helper.outerWidth() - headerColumnWidthDiff);
-          $(ui.helper).addClass("slick-header-column-active");
+          $(ui.helper).addClass("bk-slick-header-column-active");
         },
         beforeStop: function (e, ui) {
-          $(ui.helper).removeClass("slick-header-column-active");
+          $(ui.helper).removeClass("bk-slick-header-column-active");
         },
         stop: function (e) {
           if (!getEditorLock().commitCurrentEdit()) {
@@ -708,14 +708,14 @@ define(["jquery", "./slick.core", "jquery_event_drag", "jquery_event_drop"], fun
           return;
         }
         $col = $(e);
-        $("<div class='slick-resizable-handle' />")
+        $("<div class='bk-slick-resizable-handle' />")
             .appendTo(e)
             .bind("dragstart", function (e, dd) {
               if (!getEditorLock().commitCurrentEdit()) {
                 return false;
               }
               pageX = e.pageX;
-              $(this).parent().addClass("slick-header-column-active");
+              $(this).parent().addClass("bk-slick-header-column-active");
               var shrinkLeewayOnRight = null, stretchLeewayOnRight = null;
               // lock each column's width option to current width
               columnElements.each(function (i, e) {
@@ -841,7 +841,7 @@ define(["jquery", "./slick.core", "jquery_event_drag", "jquery_event_drop"], fun
             })
             .bind("dragend", function (e, dd) {
               var newWidth;
-              $(this).parent().removeClass("slick-header-column-active");
+              $(this).parent().removeClass("bk-slick-header-column-active");
               for (j = 0; j < columnElements.length; j++) {
                 c = columns[j];
                 newWidth = $(columnElements[j]).outerWidth();
@@ -871,7 +871,7 @@ define(["jquery", "./slick.core", "jquery_event_drag", "jquery_event_drop"], fun
       var h = ["borderLeftWidth", "borderRightWidth", "paddingLeft", "paddingRight"];
       var v = ["borderTopWidth", "borderBottomWidth", "paddingTop", "paddingBottom"];
 
-      el = $("<div class='ui-state-default slick-header-column' style='visibility:hidden'>-</div>").appendTo($headers);
+      el = $("<div class='ui-state-default bk-slick-header-column' style='visibility:hidden'>-</div>").appendTo($headers);
       headerColumnWidthDiff = headerColumnHeightDiff = 0;
       if (el.css("box-sizing") != "border-box" && el.css("-moz-box-sizing") != "border-box" && el.css("-webkit-box-sizing") != "border-box") {
         $.each(h, function (n, val) {
@@ -883,8 +883,8 @@ define(["jquery", "./slick.core", "jquery_event_drag", "jquery_event_drop"], fun
       }
       el.remove();
 
-      var r = $("<div class='slick-row' />").appendTo($canvas);
-      el = $("<div class='slick-cell' id='' style='visibility:hidden'>-</div>").appendTo(r);
+      var r = $("<div class='bk-slick-row' />").appendTo($canvas);
+      el = $("<div class='bk-slick-cell' id='' style='visibility:hidden'>-</div>").appendTo(r);
       cellWidthDiff = cellHeightDiff = 0;
       if (el.css("box-sizing") != "border-box" && el.css("-moz-box-sizing") != "border-box" && el.css("-webkit-box-sizing") != "border-box") {
         $.each(h, function (n, val) {
@@ -1123,9 +1123,9 @@ define(["jquery", "./slick.core", "jquery_event_drag", "jquery_event_drop"], fun
 
       var headerColumnEls = $headers.children();
       headerColumnEls
-          .removeClass("slick-header-column-sorted")
+          .removeClass("bk-slick-header-column-sorted")
           .find(".bk-slick-sort-indicator")
-              .removeClass("slick-sort-indicator-asc slick-sort-indicator-desc");
+              .removeClass("bk-slick-sort-indicator-asc bk-slick-sort-indicator-desc");
 
       $.each(sortColumns, function(i, col) {
         if (col.sortAsc == null) {
@@ -1134,9 +1134,9 @@ define(["jquery", "./slick.core", "jquery_event_drag", "jquery_event_drop"], fun
         var columnIndex = getColumnIndex(col.columnId);
         if (columnIndex != null) {
           headerColumnEls.eq(columnIndex)
-              .addClass("slick-header-column-sorted")
+              .addClass("bk-slick-header-column-sorted")
               .find(".bk-slick-sort-indicator")
-                  .addClass(col.sortAsc ? "slick-sort-indicator-asc" : "slick-sort-indicator-desc");
+                  .addClass(col.sortAsc ? "bk-slick-sort-indicator-asc" : "bk-slick-sort-indicator-desc");
         }
       });
     }
@@ -1385,7 +1385,7 @@ define(["jquery", "./slick.core", "jquery_event_drag", "jquery_event_drop"], fun
     function appendRowHtml(stringArray, row, range, dataLength) {
       var d = getDataItem(row);
       var dataLoading = row < dataLength && !d;
-      var rowCss = "slick-row" +
+      var rowCss = "bk-slick-row" +
           (dataLoading ? " loading" : "") +
           (row === activeRow ? " active" : "") +
           (row % 2 == 1 ? " odd" : " even");
@@ -1434,7 +1434,7 @@ define(["jquery", "./slick.core", "jquery_event_drag", "jquery_event_drop"], fun
 
     function appendCellHtml(stringArray, row, cell, colspan, item) {
       var m = columns[cell];
-      var cellCss = "slick-cell l" + cell + " r" + Math.min(columns.length - 1, cell + colspan - 1) +
+      var cellCss = "bk-slick-cell l" + cell + " r" + Math.min(columns.length - 1, cell + colspan - 1) +
           (m.cssClass ? " " + m.cssClass : "");
       if (row === activeRow && cell === activeCell) {
         cellCss += (" active");
@@ -2254,7 +2254,7 @@ define(["jquery", "./slick.core", "jquery_event_drag", "jquery_event_drop"], fun
         // if this click resulted in some cell child node getting focus,
         // don't steal it back - keyboard events will still bubble up
         // IE9+ seems to default DIVs to tabIndex=0 instead of -1, so check for cell clicks directly.
-        if (e.target != document.activeElement || $(e.target).hasClass("slick-cell")) {
+        if (e.target != document.activeElement || $(e.target).hasClass("bk-slick-cell")) {
           setFocus();
         }
       }

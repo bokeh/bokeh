@@ -12,7 +12,7 @@ define(["jquery"], function ($) {
       grid.onColumnsReordered.subscribe(updateColumnOrder);
       options = $.extend({}, defaults, options);
 
-      $menu = $("<span class='slick-columnpicker' style='display:none;position:absolute;z-index:20;' />").appendTo(document.body);
+      $menu = $("<span class='bk-slick-columnpicker' style='display:none;position:absolute;z-index:20;' />").appendTo(document.body);
 
       $menu.bind("mouseleave", function (e) {
         $(this).fadeOut(options.fadeSpeed)

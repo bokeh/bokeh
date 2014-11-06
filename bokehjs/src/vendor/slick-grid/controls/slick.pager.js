@@ -62,12 +62,12 @@ define(["jquery", "../slick.core"], function ($, Slick) {
     function constructPagerUI() {
       $container.empty();
 
-      var $nav = $("<span class='slick-pager-nav' />").appendTo($container);
-      var $settings = $("<span class='slick-pager-settings' />").appendTo($container);
-      $status = $("<span class='slick-pager-status' />").appendTo($container);
+      var $nav = $("<span class='bk-slick-pager-nav' />").appendTo($container);
+      var $settings = $("<span class='bk-slick-pager-settings' />").appendTo($container);
+      $status = $("<span class='bk-slick-pager-status' />").appendTo($container);
 
       $settings
-          .append("<span class='slick-pager-settings-expanded' style='display:none'>Show: <a data=0>All</a><a data='-1'>Auto</a><a data=25>25</a><a data=50>50</a><a data=100>100</a></span>");
+          .append("<span class='bk-slick-pager-settings-expanded' style='display:none'>Show: <a data=0>All</a><a data='-1'>Auto</a><a data=25>25</a><a data=50>50</a><a data=100>100</a></span>");
 
       $settings.find("a[data]").click(function (e) {
         var pagesize = $(e.target).attr("data");
@@ -111,7 +111,7 @@ define(["jquery", "../slick.core"], function ($, Slick) {
             $(this).toggleClass("ui-state-hover");
           });
 
-      $container.children().wrapAll("<div class='slick-pager' />");
+      $container.children().wrapAll("<div class='bk-slick-pager' />");
     }
 
 

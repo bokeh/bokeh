@@ -49,7 +49,7 @@ define(["jquery", "../slick.core"], function ($, Slick) {
    *
    *
    * @param options {Object} Options:
-   *    buttonCssClass:   a CSS class to use for buttons (default 'slick-header-button')
+   *    buttonCssClass:   a CSS class to use for buttons (default 'bk-slick-header-button')
    * @class Slick.Plugins.HeaderButtons
    * @constructor
    */
@@ -58,7 +58,7 @@ define(["jquery", "../slick.core"], function ($, Slick) {
     var _self = this;
     var _handler = new Slick.EventHandler();
     var _defaults = {
-      buttonCssClass: "slick-header-button"
+      buttonCssClass: "bk-slick-header-button"
     };
 
 
@@ -93,7 +93,7 @@ define(["jquery", "../slick.core"], function ($, Slick) {
             .data("button", button);
 
           if (button.showOnHover) {
-            btn.addClass("slick-header-button-hidden");
+            btn.addClass("bk-slick-header-button-hidden");
           }
 
           if (button.image) {

@@ -14,7 +14,7 @@ define(["jquery"], function ($) {
   function CellRangeDecorator(grid, options) {
     var _elem;
     var _defaults = {
-      selectionCssClass: 'slick-range-decorator',
+      selectionCssClass: 'bk-slick-range-decorator',
       selectionCss: {
         "zIndex": "9999",
         "border": "2px dashed red"

@@ -55,14 +55,14 @@ define(["jquery", "../slick.core"], function ($, Slick) {
 
       dd.selectedRows = selectedRows;
 
-      dd.selectionProxy = $("<div class='slick-reorder-proxy'/>")
+      dd.selectionProxy = $("<div class='bk-slick-reorder-proxy'/>")
           .css("position", "absolute")
           .css("zIndex", "99999")
           .css("width", $(_canvas).innerWidth())
           .css("height", rowHeight * selectedRows.length)
           .appendTo(_canvas);
 
-      dd.guide = $("<div class='slick-reorder-guide'/>")
+      dd.guide = $("<div class='bk-slick-reorder-guide'/>")
           .css("position", "absolute")
           .css("zIndex", "99998")
           .css("width", $(_canvas).innerWidth())

@@ -113,7 +113,7 @@ define(["jquery", "../slick.core"], function ($, Slick) {
         $menu.remove();
         $menu = null;
         $activeHeaderColumn
-          .removeClass("slick-header-column-active");
+          .removeClass("bk-slick-header-column-active");
       }
     }
 
@@ -123,7 +123,7 @@ define(["jquery", "../slick.core"], function ($, Slick) {
 
       if (menu) {
         var $el = $("<div></div>")
-          .addClass("slick-header-menubutton")
+          .addClass("bk-slick-header-menubutton")
           .data("column", column)
           .data("menu", menu);
 
@@ -172,7 +172,7 @@ define(["jquery", "../slick.core"], function ($, Slick) {
 
 
       if (!$menu) {
-        $menu = $("<div class='slick-header-menu'></div>")
+        $menu = $("<div class='bk-slick-header-menu'></div>")
           .appendTo(_grid.getContainerNode());
       }
       $menu.empty();
@@ -182,7 +182,7 @@ define(["jquery", "../slick.core"], function ($, Slick) {
       for (var i = 0; i < menu.items.length; i++) {
         var item = menu.items[i];
 
-        var $li = $("<div class='slick-header-menuitem'></div>")
+        var $li = $("<div class='bk-slick-header-menuitem'></div>")
           .data("command", item.command || '')
           .data("column", columnDef)
           .data("item", item)
@@ -190,14 +190,14 @@ define(["jquery", "../slick.core"], function ($, Slick) {
           .appendTo($menu);
 
         if (item.disabled) {
-          $li.addClass("slick-header-menuitem-disabled");
+          $li.addClass("bk-slick-header-menuitem-disabled");
         }
 
         if (item.tooltip) {
           $li.attr("title", item.tooltip);
         }
 
-        var $icon = $("<div class='slick-header-menuicon'></div>")
+        var $icon = $("<div class='bk-slick-header-menuicon'></div>")
           .appendTo($li);
 
         if (item.iconCssClass) {
@@ -208,7 +208,7 @@ define(["jquery", "../slick.core"], function ($, Slick) {
           $icon.css("background-image", "url(" + item.iconImage + ")");
         }
 
-        $("<span class='slick-header-menucontent'></span>")
+        $("<span class='bk-slick-header-menucontent'></span>")
           .text(item.title)
           .appendTo($li);
       }
@@ -222,7 +222,7 @@ define(["jquery", "../slick.core"], function ($, Slick) {
       // Mark the header as active to keep the highlighting.
       $activeHeaderColumn = $menuButton.closest(".bk-slick-header-column");
       $activeHeaderColumn
-        .addClass("slick-header-column-active");
+        .addClass("bk-slick-header-column-active");
 
       // Stop propagation so that it doesn't register as a header click event.
       e.preventDefault();

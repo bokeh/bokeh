@@ -17,12 +17,12 @@ define(["jquery", "./slick.core"], function($, Slick) {
   function GroupItemMetadataProvider(options) {
     var _grid;
     var _defaults = {
-      groupCssClass: "slick-group",
-      groupTitleCssClass: "slick-group-title",
-      totalsCssClass: "slick-group-totals",
+      groupCssClass: "bk-slick-group",
+      groupTitleCssClass: "bk-slick-group-title",
+      totalsCssClass: "bk-slick-group-totals",
       groupFocusable: true,
       totalsFocusable: false,
-      toggleCssClass: "slick-group-toggle",
+      toggleCssClass: "bk-slick-group-toggle",
       toggleExpandedCssClass: "expanded",
       toggleCollapsedCssClass: "collapsed",
       enableExpandCollapse: true,
