@@ -60,10 +60,9 @@ class DataTables(object):
             TableColumn(field="cty", title="City MPG"),
             TableColumn(field="hwy", title="Highway MPG"),
         ]
-        data_table = DataTable(source=self.source, columns=columns, width=1000, height=400)
+        data_table = DataTable(source=self.source, columns=columns, width=1000, height=500)
 
         xdr = DataRange1d(sources=[self.source.columns("index")])
-        #xdr = FactorRange(factors=manufacturers)
         ydr = DataRange1d(sources=[self.source.columns("cty"), self.source.columns("hwy")])
         plot = Plot(title=None, x_range=xdr, y_range=ydr, plot_width=800, plot_height=300)
         xaxis = LinearAxis(plot=plot)
@@ -71,8 +70,10 @@ class DataTables(object):
         yaxis = LinearAxis(plot=plot)
         ygrid = Grid(plot=plot, dimension=1, ticker=yaxis.ticker)
         plot.left.append(yaxis)
-        cty = GlyphRenderer(data_source=self.source, glyph=Circle(x="index", y="cty", fill_color="#396285", size=8, fill_alpha=0.5, line_alpha=0.5))
-        hwy = GlyphRenderer(data_source=self.source, glyph=Circle(x="index", y="hwy", fill_color="#CE603D", size=8, fill_alpha=0.5, line_alpha=0.5))
+        cty_glyph = Circle(x="index", y="cty", fill_color="#396285", size=8, fill_alpha=0.5, line_alpha=0.5)
+        hwy_glyph = Circle(x="index", y="hwy", fill_color="#CE603D", size=8, fill_alpha=0.5, line_alpha=0.5)
+        cty = GlyphRenderer(data_source=self.source, glyph=cty_glyph)
+        hwy = GlyphRenderer(data_source=self.source, glyph=hwy_glyph)
         select_tool = BoxSelectTool(plot=plot, renderers=[cty, hwy], dimensions=['width'])
         plot.tools.append(select_tool)
         plot.renderers.extend([cty, hwy, ygrid])
