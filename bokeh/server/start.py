@@ -12,6 +12,8 @@ import time
 from flask import Flask
 from six.moves.queue import Queue
 
+from .settings import settings as server_settings
+from ..settings import settings as bokeh_settings
 from . import websocket
 from .flask_gzip import Gzip
 from .server_backends import (
@@ -23,6 +25,8 @@ from .serverbb import (
     InMemoryBackboneStorage, RedisBackboneStorage, ShelveBackboneStorage
 )
 from .zmqpub import Publisher
+from .zmqsub import Subscriber
+from .forwarder import Forwarder
 
 from bokeh import plotting # imports custom objects for plugin
 from bokeh import glyphs, objects, protocol # import objects so that we can resolve them
@@ -32,155 +36,97 @@ from bokeh.utils import scale_delta
 glyphs, objects, plotting, protocol
 
 from . import services
-from .app import bokeh_app
-from .models import user
+from .app import bokeh_app, app
+from .configure import configure_flask
 
 from wsgiref.simple_server import make_server, WSGIServer, WSGIRequestHandler
 
-class BokehWSGIHandler(WSGIRequestHandler):
-    _http_suffix = re.compile("\s*HTTP/\d+\.\d+$")
-    def format_request(self, code, size):
-        request = self._http_suffix.sub("", getattr(self, 'requestline', '-'))
-        status = code
-        length = size
-        time = "%.1f%s" % scale_delta(self.time_finish - self.time_start) if self.time_finish else '-'
-        return '%s %s %s %s' % (request, status, length, time)
-
-    def handle(self):
-        self.time_start = time.time()
-        WSGIRequestHandler.handle(self)
-
-    def log_request(self, code, size):
-        self.time_finish = time.time()
-        log.debug(self.format_request(code, size) + '\n')
-
-PORT = 5006
-REDIS_PORT = 6379
-
-app = Flask("bokeh.server")
-
-## TODO: split out configuration into multiple sections
-
-def configure_websocket(websocket_params):
-    zmqaddr = websocket_params.get('zmqaddr')
-    bokeh_app.publisher = Publisher(zmqaddr, Queue())
-    bokeh_app.websocket_params = websocket_params
-
-def prepare_app(backend, single_user_mode=True, data_directory=None):
-
-    # must import views before running apps
-    from .views import deps
-
-    # this just shuts up pyflakes
-    deps
-
-    if backend['type'] == 'redis':
-        import redis
-        rhost = backend.get('redis_host', '127.0.0.1')
-        rport = backend.get('redis_port', REDIS_PORT)
-        bbstorage = RedisBackboneStorage(redis.Redis(host=rhost, port=rport, db=2))
-        servermodel_storage = RedisServerModelStorage(redis.Redis(host=rhost, port=rport, db=3))
-
-    elif backend['type'] == 'memory':
-        bbstorage = InMemoryBackboneStorage()
-        servermodel_storage = InMemoryServerModelStorage()
-
-    elif backend['type'] == 'shelve':
-        bbstorage = ShelveBackboneStorage()
-        servermodel_storage = ShelveServerModelStorage()
-
-    if single_user_mode:
-        authentication = SingleUserAuthentication()
-    else:
-        authentication = MultiUserAuthentication()
-
-    if data_directory:
-        data_manager = HDF5DataBackend(data_directory)
-    else:
-        data_manager = FunctionBackend()
-
-    bokeh_app.setup(
-        backend,
-        bbstorage,
-        servermodel_storage,
-        authentication,
-        data_manager
-    )
-
-    # where should we be setting the secret key....?
-    if not app.secret_key:
-        app.secret_key = str(uuid.uuid4())
-
-    return app
-
-def register_blueprint(prefix=None):
-    app.register_blueprint(bokeh_app, url_prefix=prefix)
-    bokeh_app.url_prefix = prefix
-
-def make_default_user(bokeh_app):
-    bokehuser = user.new_user(bokeh_app.servermodel_storage, "defaultuser",
-                              str(uuid.uuid4()), apikey='nokey', docs=[])
-
-    return bokehuser
+def register_blueprint():
+    app.register_blueprint(bokeh_app, url_prefix=server_settings.url_prefix)
 
 def doc_prepare():
-    app = prepare_app(dict(type='memory'))
+    server_settings.model_backend = {'type' : 'memory'}
+    configure_flask()
     register_blueprint()
     return app
 
 http_server = None
+def start_redis():
+    work_dir = getattr(bokeh_app, 'work_dir', os.getcwd())
+    data_file = getattr(bokeh_app, 'data_file', 'redis.db')
+    stdout = getattr(bokeh_app, 'stdout', sys.stdout)
+    stderr = getattr(bokeh_app, 'stdout', sys.stderr)
+    redis_save = getattr(bokeh_app, 'redis_save', True)
+    mproc = services.start_redis(pidfilename=os.path.join(work_dir, "bokehpids.json"),
+                                 port=bokeh_app.backend.get('redis_port', REDIS_PORT),
+                                 data_dir=work_dir,
+                                 data_file=data_file,
+                                 stdout=stdout,
+                                 stderr=stderr,
+                                save=redis_save)
+    bokeh_app.redis_proc = mproc
 
-def start_services():
-    if bokeh_app.backend['type'] == 'redis' and \
-       bokeh_app.backend.get('start_redis', True):
-        work_dir = getattr(bokeh_app, 'work_dir', os.getcwd())
-        data_file = getattr(bokeh_app, 'data_file', 'redis.db')
-        stdout = getattr(bokeh_app, 'stdout', sys.stdout)
-        stderr = getattr(bokeh_app, 'stdout', sys.stderr)
-        redis_save = getattr(bokeh_app, 'redis_save', True)
-        mproc = services.start_redis(pidfilename=os.path.join(work_dir, "bokehpids.json"),
-                                     port=bokeh_app.backend.get('redis_port', REDIS_PORT),
-                                     data_dir=work_dir,
-                                     data_file=data_file,
-                                     stdout=stdout,
-                                     stderr=stderr,
-                                     save=redis_save)
-        bokeh_app.redis_proc = mproc
+from tornado import ioloop
+from tornado.web import Application, FallbackHandler
+from tornado.wsgi import WSGIContainer
+from tornado.httpserver import HTTPServer
 
-    bokeh_app.publisher.start()
-    if not bokeh_app.websocket_params['no_ws_start']:
-        bokeh_app.subscriber = websocket.make_app(bokeh_app.url_prefix,
-                                                  [bokeh_app.publisher.zmqaddr],
-                                                  bokeh_app.websocket_params['ws_port']
-        )
-        bokeh_app.subscriber.start(thread=True)
-    atexit.register(stop_services)
+tornado_flask = WSGIContainer(app)
 
-def stop_services():
-    print('stop services')
-    bokeh_app.publisher.kill = True
-    if hasattr(bokeh_app, 'redis_proc'):
-        bokeh_app.redis_proc.close()
-    if hasattr(bokeh_app, 'subscriber'):
-        bokeh_app.subscriber.stop()
-    bokeh_app.publisher.stop()
+class SimpleBokehApp(Application):
+    def __init__(self, **settings):
+        url_prefix = server_settings.url_prefix
+        handlers = [
+            (url_prefix + "/bokeh/sub", websocket.WebSocketHandler),
+            (r".*", FallbackHandler, dict(fallback=tornado_flask))
+        ]
+        super(SimpleBokehApp, self).__init__(handlers, **settings)
+        self.wsmanager = websocket.WebSocketManager()
+        self.subscriber = Subscriber([server_settings.sub_zmqaddr], self.wsmanager)
+        self.forwarder = Forwarder(server_settings.pub_zmqaddr,
+                                   server_settings.sub_zmqaddr)
 
-def start_app(host="127.0.0.1", port=PORT, verbose=False):
-    global http_server
-    Gzip(app)
-    http_server = make_server(host, port, app,
-                              handler_class=BokehWSGIHandler)
-    start_services()
-    print("\nStarting Bokeh plot server on port %d..." % port)
-    print("View http://%s:%d/bokeh to see plots\n" % (host, port))
-    http_server.serve_forever()
-    stop_services()
+    def start_threads(self):
+        bokeh_app.publisher.start()
+        self.subscriber.start()
+        self.forwarder.start()
+
+    def stop_threads(self):
+        bokeh_app.publisher.stop()
+        self.subscriber.stop()
+        self.forwarder.stop()
+
+tornado_app = None
+def start_simple_server():
+    global tornado_app
+    tornado_app = SimpleBokehApp()
+    tornado_app.start_threads()
+    server = HTTPServer(tornado_app)
+    server.listen(server_settings.port, server_settings.ip)
+    ioloop.IOLoop.instance().start()
+
+
+# def stop_services():
+#     print('stop services')
+#     bokeh_app.publisher.kill = True
+#     if hasattr(bokeh_app, 'redis_proc'):
+#         bokeh_app.redis_proc.close()
+#     if hasattr(bokeh_app, 'subscriber'):
+#         bokeh_app.subscriber.stop()
+#     bokeh_app.publisher.stop()
+
+# def start_app(host="127.0.0.1", port=PORT, verbose=False):
+#     global http_server
+#     Gzip(app)
+#     http_server = make_server(host, port, app,
+#                               handler_class=BokehWSGIHandler)
+#     start_services()
+#     print("\nStarting Bokeh plot server on port %d..." % port)
+#     print("View http://%s:%d/bokeh to see plots\n" % (host, port))
+#     http_server.serve_forever()
+#     stop_services()
 
 def stop():
-    stop_services()
-    if hasattr(http_server, 'shutdown'):
-        print ('shutdown')
-        http_server.server_close()
-        http_server.shutdown()
-    elif hasattr(http_server, 'stop'):
-        http_server.stop()
+    if hasattr(bokeh_app, 'redis_proc'):
+        bokeh_app.redis_proc.close()
+    tornado_app.stop_threads()

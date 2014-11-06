@@ -186,25 +186,11 @@ def run():
         None if not args.data_directory else args.data_directory,
     ))
 
-    if args.filter_logs:
-        class StaticFilter(logging.Filter):
-
-            def filter(self, record):
-                msg = record.getMessage()
-                return not (msg.startswith(("GET /static", "GET /bokehjs/static")) and \
-                            any(status in msg for status in ["200 OK", "304 NOT MODIFIED"]))
-
-        for handler in logging.getLogger().handlers:
-            handler.addFilter(StaticFilter())
     settings.debugjs = args.debugjs
-    if args.debug :
-        extra_files = settings.js_files() + settings.css_files()
-        start_with_reloader(args, extra_files, args.robust_reload)
-    else:
-        start_server(args)
+    start_server(args)
 
 def start_server(args):
-    from . import start
+    from . import start, configure
 
     bokeh_app.debug = args.debug
     bokeh_app.splitjs = args.splitjs
@@ -221,9 +207,8 @@ def start_server(args):
         "no_ws_start" : args.no_ws_start,
         "ws_port" : args.ws_port,
     }
-    start.prepare_app(backend, single_user_mode=not args.multi_user,
-                      data_directory=args.data_directory)
-    start.configure_websocket(websocket)
+    configure.configure_websocket()
+    configure.configure_flask()
     if args.script:
         script_dir = dirname(args.script)
         if script_dir not in sys.path:
@@ -231,8 +216,8 @@ def start_server(args):
             sys.path.append(script_dir)
         print ("importing %s" % args.script)
         imp.load_source("_bokeh_app", args.script)
-    start.register_blueprint(args.url_prefix)
-    start.start_app(host=args.ip, port=args.port, verbose=args.verbose)
+    start.register_blueprint()
+    start.start_simple_server()
 
 def start_with_reloader(args, js_files, robust):
     def helper():

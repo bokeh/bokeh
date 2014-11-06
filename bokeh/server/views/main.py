@@ -24,6 +24,7 @@ from ..models import docs
 from ..models import user
 from ..serverbb import prune
 from ..views import make_json
+from ..settings import settings as server_settings
 
 def request_resources():
     """Creates resources instance based on url info from
@@ -315,13 +316,4 @@ def show_obj(docid, objid):
 @bokeh_app.route('/bokeh/wsurl/', methods=['GET'])
 @crossdomain(origin="*", headers=['BOKEH-API-KEY', 'Continuum-Clientid'])
 def wsurl():
-    if bokeh_app.websocket_params.get('ws_conn_string'):
-        return bokeh_app.websocket_params.get('ws_conn_string')
-    else:
-        prefix = bokeh_app.url_prefix
-        if prefix is None or prefix == "/":
-            prefix = ""
-        ws_port = bokeh_app.websocket_params['ws_port']
-        host = request.host.split(":")[0]
-        #TODO:ssl..?
-        return "ws://%s:%d%s/bokeh/sub/" % (host, ws_port, prefix)
+    return server_settings.ws_conn_string
