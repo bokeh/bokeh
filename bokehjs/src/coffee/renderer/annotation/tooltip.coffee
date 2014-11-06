@@ -49,15 +49,15 @@ define [
         else
           side = 'left'
 
-      @$el.removeClass('right')
-      @$el.removeClass('left')
+      @$el.removeClass('bk-right')
+      @$el.removeClass('bk-left')
 
       if side == "right"
-        @$el.addClass("left")
+        @$el.addClass("bk-left")
         top  = sy - @$el.height()/2
         left = sx + 18
       else if side == "left"
-        @$el.addClass("right")
+        @$el.addClass("bk-right")
         top  = sy - @$el.height()/2
         left = sx - @$el.width() - 23
       else
