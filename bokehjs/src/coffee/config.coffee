@@ -6,7 +6,7 @@ require.config
         jquery_event_drag: "vendor/jquery-event/jquery.event.drag-2.2"
         jquery_event_drop: "vendor/jquery-event/jquery.event.drop-2.2"
         jqrangeslider:     "vendor/jqrangeslider/jQAllRangeSliders-withRuler-min"
-        slick_grid:        "vendor/slick-grid"
+        slick_grid:        "vendor/slick-grid-2.1.0"
         underscore:        "vendor/underscore-amd/underscore"
         backbone:          "vendor/backbone-amd/backbone"
         bootstrap:         "vendor/bootstrap-3.1.1/js"
