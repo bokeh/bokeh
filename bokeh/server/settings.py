@@ -1,4 +1,5 @@
 import logging
+from ..settings import settings as bokeh_settings
 
 class Settings(object):
     ip = "0.0.0.0"
@@ -14,10 +15,53 @@ class Settings(object):
     # model_backend = {'type' : memory}
     # model_backend = {'type' : shelve}
     filter_logs = False
-    ws_conn_string = "ws://localhost:5006/bokeh/sub"
-    ws_conn_string = "ws://localhost:5006/bokeh/sub"
+    ws_conn_string = None
     pub_zmqaddr = "ipc:///tmp/bokeh_in"
     sub_zmqaddr = "ipc:///tmp/bokeh_out"
+    debug = False
+    dev = False
+    splitjs = False
+    robust_reload = False
+    verbose = False
+    run_forwarder = True
+
+    _debugjs = False
+
+    @property
+    def debugjs(self):
+        return bokeh_settings.debugjs
+
+    @debugjs.setter
+    def debugjs(self, val):
+        bokeh_settings.debugjs = val
+
+    def from_file(self, filename):
+        raise NotImplementedError
+
+    def from_args(self, args):
+        self.ip = args.ip
+        self.port = args.port
+        self.data_directory = args.data_directory
+        import tempfile
+        infile = tempfile.NamedTemporaryFile(prefix="bokeh-ws-in").name
+        outfile = tempfile.NamedTemporaryFile(prefix="bokeh-ws-in").name
+        self.pub_zmq_addr = "ipc://%s" % infile
+        self.sub_zmq_addr = "ipc://%s" % outfile
+        self.multi_user = args.multi_user
+        self.model_backend = {'type' : args.backend}
+        if self.model_backend['type'] == 'redis':
+            self.model_backend.update({
+                'redis_port' : args.redis_port,
+                'start-redis' : args.start-redis
+            })
+        self.ws_conn_string = args.ws_conn_string
+        self.ws_port = args.ws_port
+        self.debug = args.debug
+        self.dev = args.dev
+        self.splitjs = args.splitjs
+        self.robust_reload = args.robust_reload
+        self.verbose = args.verbose
+        self.run_forwarder = True
 
     def process_settings(self, bokeh_app):
         if self.url_prefix:
@@ -25,14 +69,6 @@ class Settings(object):
                 self.url_prefix = "/" + self.url_prefix
             if self.url_prefix.endswith("/"):
                 self.url_prefix = self.url_prefix[:-1]
-        for handler in logging.getLogger().handlers:
-            handler.addFilter(StaticFilter())
-
-class StaticFilter(logging.Filter):
-    def filter(self, record):
-        msg = record.getMessage()
-        return not (msg.startswith(("GET /static", "GET /bokehjs/static")) and \
-                    any(status in msg for status in ["200 OK", "304 NOT MODIFIED"]))
 
 settings = Settings()
 del Settings

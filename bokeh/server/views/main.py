@@ -66,7 +66,7 @@ def index(*unused_all, **kwargs):
     if not bokehuser:
         return redirect(url_for('.login_get'))
     return render('bokeh.html',
-                  splitjs=bokeh_app.splitjs,
+                  splitjs=server_settings.splitjs,
                   username=bokehuser.username,
                   title="Bokeh Documents for %s" % bokehuser.username
     )
@@ -191,7 +191,7 @@ def show_doc_by_title(title):
     docs = [ doc for doc in bokehuser.docs if doc['title'] == title ]
     doc = docs[0] if len(docs) != 0 else abort(404)
     docid = doc['docid']
-    return render('show.html', title=title, docid=docid, splitjs=bokeh_app.splitjs)
+    return render('show.html', title=title, docid=docid, splitjs=server_settings.splitjs)
 
 @bokeh_app.route('/bokeh/doc/', methods=['GET', 'OPTIONS'])
 @crossdomain(origin="*", headers=['BOKEH-API-KEY', 'Continuum-Clientid'])
@@ -309,11 +309,20 @@ def show_obj(docid, objid):
                   docid=docid,
                   objid=objid,
                   hide_navbar=True,
-                  splitjs=bokeh_app.splitjs,
+                  splitjs=server_settings.splitjs,
                   username=bokehuser.username,
                   loglevel=resources.log_level)
 
 @bokeh_app.route('/bokeh/wsurl/', methods=['GET'])
 @crossdomain(origin="*", headers=['BOKEH-API-KEY', 'Continuum-Clientid'])
 def wsurl():
-    return server_settings.ws_conn_string
+    if server_settings.ws_conn_string:
+        return server_settings.ws_conn_string
+    if request.scheme == "http":
+        scheme = 'ws'
+    else:
+        scheme = 'wss'
+    url = "%s://%s%s" % (scheme,
+                         request.host,
+                         server_settings.url_prefix + "/bokeh/sub")
+    return url

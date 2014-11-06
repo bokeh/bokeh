@@ -84,15 +84,6 @@ def build_parser():
                             help="connection string for websocket (unnecessary if auto-starting)",
                             default=None
                             )
-    websockets.add_argument("--zmqaddr",
-                            help="ZeroMQ URL",
-                            default="tcp://127.0.0.1:5555"
-                            )
-    websockets.add_argument("--no-ws-start",
-                            help="don't automatically start a websocket worker",
-                            default=False,
-                            action="store_true"
-                            )
     websockets.add_argument("--ws-port",
                             help="port for websocket worker to listen on",
                            default=5007,
@@ -190,34 +181,8 @@ def run():
     start_server(args)
 
 def start_server(args):
-    from . import start, configure
-
-    bokeh_app.debug = args.debug
-    bokeh_app.splitjs = args.splitjs
-    bokeh_app.debugjs = args.debugjs
-
-    backend = {
-        "type": args.backend,
-        "redis_port": args.redis_port,
-        "start_redis": args.start_redis,
-    }
-    websocket = {
-        "ws_conn_string" : args.ws_conn_string,
-        "zmqaddr" : args.zmqaddr,
-        "no_ws_start" : args.no_ws_start,
-        "ws_port" : args.ws_port,
-    }
-    configure.configure_websocket()
-    configure.configure_flask()
-    if args.script:
-        script_dir = dirname(args.script)
-        if script_dir not in sys.path:
-            print ("adding %s to python path" % script_dir)
-            sys.path.append(script_dir)
-        print ("importing %s" % args.script)
-        imp.load_source("_bokeh_app", args.script)
-    start.register_blueprint()
-    start.start_simple_server()
+    from . import start
+    start.start_simple_server(args)
 
 def start_with_reloader(args, js_files, robust):
     def helper():
