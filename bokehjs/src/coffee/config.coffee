@@ -1,7 +1,7 @@
 require.config
     paths:
         jquery:            "vendor/jquery/jquery.min"
-        jquery_ui:         "vendor/jquery-ui-amd/jquery-ui-1.10.0/jqueryui"
+        jquery_ui:         "vendor/jquery-ui-1.11.2/js"
         jquery_mousewheel: "vendor/jquery-mousewheel/jquery.mousewheel.min"
         jquery_event_drag: "vendor/jquery-event/jquery.event.drag-2.2"
         jquery_event_drop: "vendor/jquery-event/jquery.event.drop-2.2"
