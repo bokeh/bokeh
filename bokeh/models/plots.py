@@ -150,8 +150,6 @@ class Plot(Widget):
         self.renderers.append(g)
         return g
 
-    data_sources = List(Instance(DataSource))
-
     x_range = Instance(Range)
     y_range = Instance(Range)
     x_mapper_type = String('auto')
