@@ -1,5 +1,5 @@
 /* Menu button */
-.slick-header-menubutton {
+.bk-slick-header-menubutton {
   position: absolute;
   right: 0;
   top: 0;
@@ -14,13 +14,13 @@
   border-left: thin ridge silver;
 }
 
-.slick-header-column:hover > .slick-header-menubutton,
-.slick-header-column-active .slick-header-menubutton {
+.bk-slick-header-column:hover > .bk-slick-header-menubutton,
+.bk-slick-header-column-active .bk-slick-header-menubutton {
   display: inline-block;
 }
 
 /* Menu */
-.slick-header-menu {
+.bk-slick-header-menu {
   position: absolute;
   display: inline-block;
   margin: 0;
@@ -30,14 +30,14 @@
 
 
 /* Menu items */
-.slick-header-menuitem {
+.bk-slick-header-menuitem {
   list-style: none;
   margin: 0;
   padding: 0;
   cursor: pointer;
 }
 
-.slick-header-menuicon {
+.bk-slick-header-menuicon {
   display: inline-block;
   width: 16px;
   height: 16px;
@@ -47,13 +47,13 @@
   background-position: center center;
 }
 
-.slick-header-menucontent {
+.bk-slick-header-menucontent {
   display: inline-block;
   vertical-align: middle;
 }
 
 
 /* Disabled */
-.slick-header-menuitem-disabled {
+.bk-slick-header-menuitem-disabled {
   color: silver;
 }

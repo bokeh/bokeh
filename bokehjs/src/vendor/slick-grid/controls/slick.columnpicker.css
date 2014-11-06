@@ -1,4 +1,4 @@
-.slick-columnpicker {
+.bk-slick-columnpicker {
   border: 1px solid #718BB7;
   background: #f0f0f0;
   padding: 6px;
@@ -9,23 +9,23 @@
   cursor: default;
 }
 
-.slick-columnpicker li {
+.bk-slick-columnpicker li {
   list-style: none;
   margin: 0;
   padding: 0;
   background: none;
 }
 
-.slick-columnpicker input {
+.bk-slick-columnpicker input {
   margin: 4px;
 }
 
-.slick-columnpicker li a {
+.bk-slick-columnpicker li a {
   display: block;
   padding: 4px;
   font-weight: bold;
 }
 
-.slick-columnpicker li a:hover {
+.bk-slick-columnpicker li a:hover {
   background: white;
 }

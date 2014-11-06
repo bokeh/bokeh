@@ -150,7 +150,7 @@ define(["jquery", "../slick.core"], function ($, Slick) {
       var column = args.column;
 
       if (column.header && column.header.menu) {
-        $(args.node).find(".slick-header-menubutton").remove();
+        $(args.node).find(".bk-slick-header-menubutton").remove();
       }
     }
 
@@ -220,7 +220,7 @@ define(["jquery", "../slick.core"], function ($, Slick) {
 
 
       // Mark the header as active to keep the highlighting.
-      $activeHeaderColumn = $menuButton.closest(".slick-header-column");
+      $activeHeaderColumn = $menuButton.closest(".bk-slick-header-column");
       $activeHeaderColumn
         .addClass("slick-header-column-active");
 

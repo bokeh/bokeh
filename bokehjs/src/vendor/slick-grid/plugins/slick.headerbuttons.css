@@ -1,5 +1,5 @@
-.slick-column-name,
-.slick-sort-indicator {
+.bk-slick-column-name,
+.bk-slick-sort-indicator {
   /**
    * This makes all "float:right" elements after it that spill over to the next line
    * display way below the lower boundary of the column thus hiding them.
@@ -9,7 +9,7 @@
   margin-bottom: 100px;
 }
 
-.slick-header-button {
+.bk-slick-header-button {
   display: inline-block;
   float: right;
   vertical-align: top;
@@ -26,7 +26,7 @@
   cursor: pointer;
 }
 
-.slick-header-button-hidden {
+.bk-slick-header-button-hidden {
   width: 0;
 
   -webkit-transition: 0.2s width;
@@ -34,6 +34,6 @@
   transition: 0.2s width;
 }
 
-.slick-header-column:hover > .slick-header-button {
+.bk-slick-header-column:hover > .bk-slick-header-button {
   width: 15px;
 }

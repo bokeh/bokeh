@@ -1,4 +1,4 @@
-.slick-pager {
+.bk-slick-pager {
   width: 100%;
   height: 26px;
   border: 1px solid gray;
@@ -7,34 +7,34 @@
   vertical-align: middle;
 }
 
-.slick-pager .slick-pager-status {
+.bk-slick-pager .bk-slick-pager-status {
   display: inline-block;
   padding: 6px;
 }
 
-.slick-pager .ui-icon-container {
+.bk-slick-pager .ui-icon-container {
   display: inline-block;
   margin: 2px;
   border-color: gray;
 }
 
-.slick-pager .slick-pager-nav {
+.bk-slick-pager .bk-slick-pager-nav {
   display: inline-block;
   float: left;
   padding: 2px;
 }
 
-.slick-pager .slick-pager-settings {
+.bk-slick-pager .bk-slick-pager-settings {
   display: block;
   float: right;
   padding: 2px;
 }
 
-.slick-pager .slick-pager-settings * {
+.bk-slick-pager .bk-slick-pager-settings * {
   vertical-align: middle;
 }
 
-.slick-pager .slick-pager-settings a {
+.bk-slick-pager .bk-slick-pager-settings a {
   padding: 2px;
   text-decoration: underline;
   cursor: pointer;

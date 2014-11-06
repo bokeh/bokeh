@@ -284,15 +284,15 @@ define(["jquery", "./slick.core", "jquery_event_drag", "jquery_event_drop"], fun
         bindAncestorScrollEvents();
 
         $container
-            .bind("resize.slickgrid", resizeCanvas);
+            .bind("resize.bk-slickgrid", resizeCanvas);
         $viewport
             //.bind("click", handleClick)
             .bind("scroll", handleScroll);
         $headerScroller
             .bind("contextmenu", handleHeaderContextMenu)
             .bind("click", handleHeaderClick)
-            .delegate(".slick-header-column", "mouseenter", handleHeaderMouseEnter)
-            .delegate(".slick-header-column", "mouseleave", handleHeaderMouseLeave);
+            .delegate(".bk-slick-header-column", "mouseenter", handleHeaderMouseEnter)
+            .delegate(".bk-slick-header-column", "mouseleave", handleHeaderMouseLeave);
         $headerRowScroller
             .bind("scroll", handleHeaderRowScroll);
         $focusSink.add($focusSink2)
@@ -306,8 +306,8 @@ define(["jquery", "./slick.core", "jquery_event_drag", "jquery_event_drop"], fun
             .bind("dragstart", {distance: 3}, handleDragStart)
             .bind("drag", handleDrag)
             .bind("dragend", handleDragEnd)
-            .delegate(".slick-cell", "mouseenter", handleMouseEnter)
-            .delegate(".slick-cell", "mouseleave", handleMouseLeave);
+            .delegate(".bk-slick-cell", "mouseenter", handleMouseEnter)
+            .delegate(".bk-slick-cell", "mouseleave", handleMouseLeave);
 
         // Work around http://crbug.com/312427.
         if (navigator.userAgent.toLowerCase().match(/webkit/) &&
@@ -513,7 +513,7 @@ define(["jquery", "./slick.core", "jquery_event_drag", "jquery_event_drop"], fun
         $(this).removeClass("ui-state-hover");
       }
 
-      $headers.find(".slick-header-column")
+      $headers.find(".bk-slick-header-column")
         .each(function() {
           var columnDef = $(this).data("column");
           if (columnDef) {
@@ -526,7 +526,7 @@ define(["jquery", "./slick.core", "jquery_event_drag", "jquery_event_drop"], fun
       $headers.empty();
       $headers.width(getHeadersWidth());
 
-      $headerRow.find(".slick-headerrow-column")
+      $headerRow.find(".bk-slick-headerrow-column")
         .each(function() {
           var columnDef = $(this).data("column");
           if (columnDef) {
@@ -594,7 +594,7 @@ define(["jquery", "./slick.core", "jquery_event_drag", "jquery_event_drop"], fun
           return;
         }
 
-        var $col = $(e.target).closest(".slick-header-column");
+        var $col = $(e.target).closest(".bk-slick-header-column");
         if (!$col.length) {
           return;
         }
@@ -691,7 +691,7 @@ define(["jquery", "./slick.core", "jquery_event_drag", "jquery_event_drop"], fun
     function setupColumnResize() {
       var $col, j, c, pageX, columnElements, minPageX, maxPageX, firstResizable, lastResizable;
       columnElements = $headers.children();
-      columnElements.find(".slick-resizable-handle").remove();
+      columnElements.find(".bk-slick-resizable-handle").remove();
       columnElements.each(function (i, e) {
         if (columns[i].resizable) {
           if (firstResizable === undefined) {
@@ -903,11 +903,11 @@ define(["jquery", "./slick.core", "jquery_event_drag", "jquery_event_drop"], fun
       $style = $("<style type='text/css' rel='stylesheet' />").appendTo($("head"));
       var rowHeight = (options.rowHeight - cellHeightDiff);
       var rules = [
-        "." + uid + " .slick-header-column { left: 1000px; }",
-        "." + uid + " .slick-top-panel { height:" + options.topPanelHeight + "px; }",
-        "." + uid + " .slick-headerrow-columns { height:" + options.headerRowHeight + "px; }",
-        "." + uid + " .slick-cell { height:" + rowHeight + "px; }",
-        "." + uid + " .slick-row { height:" + options.rowHeight + "px; }"
+        "." + uid + " .bk-slick-header-column { left: 1000px; }",
+        "." + uid + " .bk-slick-top-panel { height:" + options.topPanelHeight + "px; }",
+        "." + uid + " .bk-slick-headerrow-columns { height:" + options.headerRowHeight + "px; }",
+        "." + uid + " .bk-slick-cell { height:" + rowHeight + "px; }",
+        "." + uid + " .bk-slick-row { height:" + options.rowHeight + "px; }"
       ];
 
       for (var i = 0; i < columns.length; i++) {
@@ -979,7 +979,7 @@ define(["jquery", "./slick.core", "jquery_event_drag", "jquery_event_drop"], fun
       }
 
       unbindAncestorScrollEvents();
-      $container.unbind(".slickgrid");
+      $container.unbind(".bk-slickgrid");
       removeCssRules();
 
       $canvas.unbind("draginit dragstart dragend drag");
@@ -1124,7 +1124,7 @@ define(["jquery", "./slick.core", "jquery_event_drag", "jquery_event_drop"], fun
       var headerColumnEls = $headers.children();
       headerColumnEls
           .removeClass("slick-header-column-sorted")
-          .find(".slick-sort-indicator")
+          .find(".bk-slick-sort-indicator")
               .removeClass("slick-sort-indicator-asc slick-sort-indicator-desc");
 
       $.each(sortColumns, function(i, col) {
@@ -1135,7 +1135,7 @@ define(["jquery", "./slick.core", "jquery_event_drag", "jquery_event_drop"], fun
         if (columnIndex != null) {
           headerColumnEls.eq(columnIndex)
               .addClass("slick-header-column-sorted")
-              .find(".slick-sort-indicator")
+              .find(".bk-slick-sort-indicator")
                   .addClass(col.sortAsc ? "slick-sort-indicator-asc" : "slick-sort-indicator-desc");
         }
       });
@@ -2138,7 +2138,7 @@ define(["jquery", "./slick.core", "jquery_event_drag", "jquery_event_drop"], fun
     // Interactivity
 
     function handleMouseWheel(e) {
-      var rowNode = $(e.target).closest(".slick-row")[0];
+      var rowNode = $(e.target).closest(".bk-slick-row")[0];
       if (rowNode != rowNodeFromLastMouseWheelEvent) {
         if (zombieRowNodeFromLastMouseWheelEvent && zombieRowNodeFromLastMouseWheelEvent != rowNode) {
           $canvas[0].removeChild(zombieRowNodeFromLastMouseWheelEvent);
@@ -2278,7 +2278,7 @@ define(["jquery", "./slick.core", "jquery_event_drag", "jquery_event_drop"], fun
     }
 
     function handleContextMenu(e) {
-      var $cell = $(e.target).closest(".slick-cell", $canvas);
+      var $cell = $(e.target).closest(".bk-slick-cell", $canvas);
       if ($cell.length === 0) {
         return;
       }
@@ -2320,13 +2320,13 @@ define(["jquery", "./slick.core", "jquery_event_drag", "jquery_event_drop"], fun
     }
 
     function handleHeaderContextMenu(e) {
-      var $header = $(e.target).closest(".slick-header-column", ".slick-header-columns");
+      var $header = $(e.target).closest(".bk-slick-header-column", ".bk-slick-header-columns");
       var column = $header && $header.data("column");
       trigger(self.onHeaderContextMenu, {column: column}, e);
     }
 
     function handleHeaderClick(e) {
-      var $header = $(e.target).closest(".slick-header-column", ".slick-header-columns");
+      var $header = $(e.target).closest(".bk-slick-header-column", ".bk-slick-header-columns");
       var column = $header && $header.data("column");
       if (column) {
         trigger(self.onHeaderClick, {column: column}, e);
@@ -2382,7 +2382,7 @@ define(["jquery", "./slick.core", "jquery_event_drag", "jquery_event_drop"], fun
     }
 
     function getCellFromEvent(e) {
-      var $cell = $(e.target).closest(".slick-cell", $canvas);
+      var $cell = $(e.target).closest(".bk-slick-cell", $canvas);
       if (!$cell.length) {
         return null;
       }

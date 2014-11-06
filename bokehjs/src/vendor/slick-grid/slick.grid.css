@@ -5,20 +5,20 @@ No built-in (selected, editable, highlight, flashing, invalid, loading, :focus) 
 classes should alter those!
 */
 
-.slick-header.ui-state-default, .slick-headerrow.ui-state-default {
+.bk-slick-header.ui-state-default, .bk-slick-headerrow.ui-state-default {
   width: 100%;
   overflow: hidden;
   border-left: 0px;
 }
 
-.slick-header-columns, .slick-headerrow-columns {
+.bk-slick-header-columns, .bk-slick-headerrow-columns {
   position: relative;
   white-space: nowrap;
   cursor: default;
   overflow: hidden;
 }
 
-.slick-header-column.ui-state-default {
+.bk-slick-header-column.ui-state-default {
   position: relative;
   display: inline-block;
   overflow: hidden;
@@ -35,15 +35,15 @@ classes should alter those!
   float: left;
 }
 
-.slick-headerrow-column.ui-state-default {
+.bk-slick-headerrow-column.ui-state-default {
   padding: 4px;
 }
 
-.slick-header-column-sorted {
+.bk-slick-header-column-sorted {
   font-style: italic;
 }
 
-.slick-sort-indicator {
+.bk-slick-sort-indicator {
   display: inline-block;
   width: 8px;
   height: 5px;
@@ -52,15 +52,15 @@ classes should alter those!
   float: left;
 }
 
-.slick-sort-indicator-desc {
+.bk-slick-sort-indicator-desc {
   background: url(images/sort-desc.gif);
 }
 
-.slick-sort-indicator-asc {
+.bk-slick-sort-indicator-asc {
   background: url(images/sort-asc.gif);
 }
 
-.slick-resizable-handle {
+.bk-slick-resizable-handle {
   position: absolute;
   font-size: 0.1px;
   display: block;
@@ -71,7 +71,7 @@ classes should alter those!
   height: 100%;
 }
 
-.slick-sortable-placeholder {
+.bk-slick-sortable-placeholder {
   background: silver;
 }
 
@@ -80,13 +80,13 @@ classes should alter those!
   outline: 0;
 }
 
-.slick-row.ui-widget-content, .slick-row.ui-state-active {
+.bk-slick-row.ui-widget-content, .bk-slick-row.ui-state-active {
   position: absolute;
   border: 0px;
   width: 100%;
 }
 
-.slick-cell, .slick-headerrow-column {
+.bk-slick-cell, .bk-slick-headerrow-column {
   position: absolute;
   border: 1px solid transparent;
   border-right: 1px dotted silver;
@@ -102,14 +102,14 @@ classes should alter those!
   cursor: default;
 }
 
-.slick-group {
+.bk-slick-group {
 }
 
-.slick-group-toggle {
+.bk-slick-group-toggle {
   display: inline-block;
 }
 
-.slick-cell.highlighted {
+.bk-slick-cell.highlighted {
   background: lightskyblue;
   background: rgba(0, 0, 255, 0.2);
   -webkit-transition: all 0.5s;
@@ -118,11 +118,11 @@ classes should alter those!
   transition: all 0.5s;
 }
 
-.slick-cell.flashing {
+.bk-slick-cell.flashing {
   border: 1px solid red !important;
 }
 
-.slick-cell.editable {
+.bk-slick-cell.editable {
   z-index: 11;
   overflow: visible;
   background: white;
@@ -130,11 +130,11 @@ classes should alter those!
   border-style: solid;
 }
 
-.slick-cell:focus {
+.bk-slick-cell:focus {
   outline: none;
 }
 
-.slick-reorder-proxy {
+.bk-slick-reorder-proxy {
   display: inline-block;
   background: blue;
   opacity: 0.15;
@@ -142,7 +142,7 @@ classes should alter those!
   cursor: move;
 }
 
-.slick-reorder-guide {
+.bk-slick-reorder-guide {
   display: inline-block;
   height: 2px;
   background: blue;
@@ -150,7 +150,7 @@ classes should alter those!
   filter: alpha(opacity = 70);
 }
 
-.slick-selection {
+.bk-slick-selection {
   z-index: 10;
   position: absolute;
   border: 2px dashed black;

@@ -86,7 +86,7 @@ define(["jquery", "../slick.core"], function ($, Slick) {
 
       $(icon_prefix + "ui-icon-lightbulb" + icon_suffix)
           .click(function () {
-            $(".slick-pager-settings-expanded").toggle()
+            $(".bk-slick-pager-settings-expanded").toggle()
           })
           .appendTo($settings);
 
@@ -118,7 +118,7 @@ define(["jquery", "../slick.core"], function ($, Slick) {
     function updatePager(pagingInfo) {
       var state = getNavState();
 
-      $container.find(".slick-pager-nav span").removeClass("ui-state-disabled");
+      $container.find(".bk-slick-pager-nav span").removeClass("ui-state-disabled");
       if (!state.canGotoFirst) {
         $container.find(".ui-icon-seek-first").addClass("ui-state-disabled");
       }
