@@ -5,7 +5,7 @@ require.config
         jquery_mousewheel: "vendor/jquery-mousewheel/jquery.mousewheel.min"
         jquery_event_drag: "vendor/jquery-event/jquery.event.drag-2.2"
         jquery_event_drop: "vendor/jquery-event/jquery.event.drop-2.2"
-        jqrangeslider:     "vendor/jqrangeslider/jQAllRangeSliders-withRuler-min"
+        jqrangeslider:     "vendor/jqrangeslider-5.7.0"
         slick_grid:        "vendor/slick-grid-2.1.0"
         underscore:        "vendor/underscore-amd/underscore"
         backbone:          "vendor/backbone-amd/backbone"

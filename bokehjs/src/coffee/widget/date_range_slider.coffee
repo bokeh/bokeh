@@ -1,7 +1,7 @@
 define [
   "underscore"
   "jquery"
-  "jqrangeslider"
+  "jqrangeslider/jQDateRangeSlider"
   "common/collection"
   "common/continuum_view"
   "common/has_properties"
