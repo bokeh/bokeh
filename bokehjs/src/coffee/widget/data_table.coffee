@@ -6,7 +6,8 @@ define [
   "common/collection"
   "slick_grid/slick.grid"
   "slick_grid/plugins/slick.rowselectionmodel"
-], (_, $, ContinuumView, HasProperties, Collection, SlickGrid, RowSelectionModel) ->
+  "jquery_ui/sortable"
+], (_, $, ContinuumView, HasProperties, Collection, SlickGrid, RowSelectionModel, $1) ->
 
   class DataProvider
 
@@ -50,7 +51,7 @@ define [
 
       options =
         enableCellNavigation: true
-        enableColumnReorder: false   # requires jquery-ui.sortable
+        enableColumnReorder: true
         forceFitColumns: true
 
       @$el.css(width: "#{@mget("width")}px", height: "#{@mget("height")}px")
