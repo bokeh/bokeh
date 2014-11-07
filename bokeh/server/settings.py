@@ -39,6 +39,10 @@ class Settings(object):
     def from_file(self, filename):
         raise NotImplementedError
 
+    def from_dict(self, input_dict):
+        for k,v in input_dict.items():
+            setattr(self, k, v)
+
     def from_args(self, args):
         self.ip = args.ip
         self.port = args.port
