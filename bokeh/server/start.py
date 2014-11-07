@@ -48,7 +48,7 @@ def start_redis():
     stderr = getattr(bokeh_app, 'stdout', sys.stderr)
     redis_save = getattr(bokeh_app, 'redis_save', True)
     mproc = services.start_redis(pidfilename=os.path.join(work_dir, "bokehpids.json"),
-                                 port=bokeh_app.backend.get('redis_port', REDIS_PORT),
+                                 port=bokeh_app.backend.get('redis_port', 6379),
                                  data_dir=work_dir,
                                  data_file=data_file,
                                  stdout=stdout,
@@ -61,6 +61,8 @@ server = None
 def start_simple_server(args=None):
     global server
     configure_flask(config_argparse=args)
+    if server_settings.model_backend.get('start-redis', False):
+        start_redis()
     register_blueprint()
     tornado_app = make_tornado_app(flask_app=app)
     server = HTTPServer(tornado_app)
