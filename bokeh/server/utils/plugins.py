@@ -16,7 +16,7 @@ from bokeh.resources import Resources
 from ..app import bokeh_app
 from ..views.backbone import init_bokeh
 from ..views.main import _makedoc
-
+from ..settings import settings as server_settings
 
 def object_page(prefix):
     """ Decorator for a function which turns an object into a web page
@@ -65,7 +65,7 @@ def object_page(prefix):
                                    objid=obj._id,
                                    hide_navbar=True,
                                    extra_generated_classes=extra_generated_classes,
-                                   splitjs=bokeh_app.splitjs,
+                                   splitjs=server_settings.splitjs,
                                    username=bokehuser.username,
                                    loglevel=resources.log_level)
         wrapper.__name__ = func.__name__

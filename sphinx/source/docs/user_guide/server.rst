@@ -24,7 +24,7 @@ additional capabilities, such as:
 
 The Bokeh server is built on top of `Flask <http://flask.pocoo.org>`_. Bokeh
 ships with a standalone executable ``bokeh-server`` that you can easily run,
-and you can also embded the Bokeh server functionality inside another Flask
+and you can also embed the Bokeh server functionality inside another Flask
 server using the Bokeh Server `Flask Blueprint <http://flask.pocoo.org/docs/0.10/blueprints/>`_.
 
 The basic task of the Bokeh Server is to be a mediator between the original data
