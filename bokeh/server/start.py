@@ -8,7 +8,7 @@ import os
 import re
 import sys
 import uuid
-
+import time
 from flask import Flask
 from six.moves.queue import Queue
 
@@ -35,33 +35,24 @@ from . import services
 from .app import bokeh_app
 from .models import user
 
-try:
-    from gevent.pywsgi import WSGIServer, WSGIHandler
-except ImportError:
-    log.info("no gevent - your websockets won't work")
-    from wsgiref.simple_server import make_server
-else:
-    class BokehWSGIServer(WSGIServer):
-        logger = log
+from wsgiref.simple_server import make_server, WSGIServer, WSGIRequestHandler
 
-    class BokehWSGIHandler(WSGIHandler):
-        _http_suffix = re.compile("\s*HTTP/\d+\.\d+$")
+class BokehWSGIHandler(WSGIRequestHandler):
+    _http_suffix = re.compile("\s*HTTP/\d+\.\d+$")
+    def format_request(self, code, size):
+        request = self._http_suffix.sub("", getattr(self, 'requestline', '-'))
+        status = code
+        length = size
+        time = "%.1f%s" % scale_delta(self.time_finish - self.time_start) if self.time_finish else '-'
+        return '%s %s %s %s' % (request, status, length, time)
 
-        def format_request(self):
-            request = self._http_suffix.sub("", getattr(self, 'requestline', '-'))
-            status = getattr(self, 'status', '-')
-            length = self.response_length or '-'
-            time = "%.1f%s" % scale_delta(self.time_finish - self.time_start) if self.time_finish else '-'
-            return '%s %s %s %s' % (request, status, length, time)
+    def handle(self):
+        self.time_start = time.time()
+        WSGIRequestHandler.handle(self)
 
-        def log_request(self):
-            log = self.server.log
-            if log:
-                log.debug(self.format_request() + '\n')
-
-    def make_server(host, port, app):
-        http_server = BokehWSGIServer((host, port), app, handler_class=BokehWSGIHandler, log=log)
-        return http_server
+    def log_request(self, code, size):
+        self.time_finish = time.time()
+        log.debug(self.format_request(code, size) + '\n')
 
 PORT = 5006
 REDIS_PORT = 6379
@@ -177,7 +168,8 @@ def stop_services():
 def start_app(host="127.0.0.1", port=PORT, verbose=False):
     global http_server
     Gzip(app)
-    http_server = make_server(host, port, app)
+    http_server = make_server(host, port, app,
+                              handler_class=BokehWSGIHandler)
     start_services()
     print("\nStarting Bokeh plot server on port %d..." % port)
     print("View http://%s:%d/bokeh to see plots\n" % (host, port))
