@@ -107,6 +107,7 @@ class ShelveServerModelStorage(object):
         _data.close()
 
     def create(self, key, val):
+        key = str(key)
         _data = shelve.open('bokeh.server')
         if key in _data:
             raise DataIntegrityException("%s already exists" % key)
@@ -563,4 +564,3 @@ class HDF5DataBackend(AbstractDataBackend):
           return result
         else:
           raise ValueError("Unknown resample op '{}'".format(resample_op))
-

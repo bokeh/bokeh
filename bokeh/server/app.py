@@ -1,4 +1,3 @@
-
 import flask
 from os import walk
 from os.path import join
@@ -48,3 +47,5 @@ bokeh_app = BokehBlueprint(
     static_url_path='/bokeh/static',
     template_folder='templates'
 )
+
+app = flask.Flask("bokeh.server")
