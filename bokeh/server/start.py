@@ -34,11 +34,11 @@ from .app import bokeh_app, app
 from .configure import (configure_flask, make_tornado_app,
                         register_blueprint, SimpleBokehTornadoApp)
 
-# def doc_prepare():
-#     server_settings.model_backend = {'type' : 'memory'}
-#     configure_flask()
-#     register_blueprint()
-#     return app
+def doc_prepare():
+    server_settings.model_backend = {'type' : 'memory'}
+    configure_flask()
+    register_blueprint()
+    return app
 
 http_server = None
 def start_redis():
