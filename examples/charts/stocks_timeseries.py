@@ -17,6 +17,11 @@ xyvalues = OrderedDict(AAPL=AAPL[['Date', 'Adj Close']],
                        IBM=IBM[['Date', 'Adj Close']])
 df = pd.concat(xyvalues, axis=1, names=["l0", "l1"])
 
-from bokeh.charts import TimeSeries
+from bokeh.charts import TimeSeries, DataObject
+#df = DataObject(df, force_alias=False)
+#df = DataObject(df.to_dict())
+#df = DataObject(df.values(), force_alias=False)
+#df = DataObject(np.array(df.values()), force_alias=False)
+
 ts = TimeSeries(df, title="timeseries, pd_input", filename="stocks_timeseries.html")
 ts.legend("top_left").show()

@@ -1,5 +1,5 @@
 import pandas as pd
-
+import numpy as np
 # we throw the data into a pandas df
 from bokeh.sampledata.olympics2014 import data
 df = pd.io.json.json_normalize(data['data'])
@@ -17,6 +17,10 @@ bronze = df['medals.bronze'].astype(float).values
 # later, we build a dict containing the grouped data
 medals = dict(bronze=bronze, silver=silver, gold=gold)
 
+from bokeh.charts import DataObject
+#medals = DataObject(medals) # not working
+#medals = DataObject(medals.values())
+medals = DataObject(np.array(medals.values()), force_alias=False)
 # and finally we drop the dict into our BoxPlot chart
 from bokeh.charts import BoxPlot
 boxplot = BoxPlot(medals, marker='circle', outliers=True, title="boxplot test", xlabel="medal type", ylabel="medal count", 
