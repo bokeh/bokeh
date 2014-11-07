@@ -132,7 +132,7 @@ def make_tornado_app(flask_app=None):
     tornado_app.start_threads()
     return tornado_app
 
-"""
-Gunicorn startup would look like
-gunicorn bokeh.server.configure.make_tornado_app(config_file=filename) -k tornado
-"""
+
+# Gunicorn startup would look like
+# gunicorn bokeh.server.configure.make_tornado_app(config_file=filename) -k tornado
+# untested - but should work
