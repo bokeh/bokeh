@@ -138,7 +138,7 @@ class TimeSeries(ChartObject):
         """
         super(TimeSeries, self).check_attr()
 
-    def get_data(self, **xy):
+    def get_data(self, xy):
         """Take the x/y data from the input **value.
 
         It calculates the chart properties accordingly. Then build a dict
@@ -210,6 +210,9 @@ class TimeSeries(ChartObject):
 
             self.xy = pdict
 
+        else:
+            self.labels = ['x', 'y']
+
         # we need to check the chained method attr
         self.check_attr()
 
@@ -223,7 +226,7 @@ class TimeSeries(ChartObject):
         # we start the plot (adds axis, grids and tools)
         self.start_plot()
         # we get the data from the incoming input
-        self.get_data(**self.xy)
+        self.get_data(self.xy)
         # we filled the source and ranges with the calculated data
         self.get_source()
         # we dynamically inject the source and ranges into the plot

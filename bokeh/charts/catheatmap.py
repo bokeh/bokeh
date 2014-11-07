@@ -130,7 +130,7 @@ class CategoricalHeatMap(ChartObject):
         """
         super(CategoricalHeatMap, self).check_attr()
 
-    def get_data(self, palette, **value):
+    def get_data(self, palette, value):
         """Take the CategoricalHeatMap data from the input **value.
 
         It calculates the chart properties accordingly. Then build a dict
@@ -201,10 +201,15 @@ class CategoricalHeatMap(ChartObject):
         at the end of the chain.
         """
         # if we pass a pandas df, the cats are guessed
-        if isinstance(self.value, pd.DataFrame):
-            self.catsx = self.value.columns.tolist()
-            self.catsy = self.value.index.tolist()
-        else:
+        #if isinstance(self.value, pd.DataFrame):
+        #    self.catsx = self.value.columns.tolist()
+        #    self.catsy = self.value.index.tolist()
+        #else:
+        try:
+            self.catsx = self.value.columns
+            self.catsy = self.value.index
+        except:
+            raise
             print("CategoricalHeatMap only support pandas dataframes loading for now.")
 
         # we need to check the chained method attr
@@ -216,7 +221,7 @@ class CategoricalHeatMap(ChartObject):
         # we add the HoverTool
         self.chart.plot.add_tools(HoverTool(tooltips=dict(value="@rate")))
         # we get the data from the incoming input
-        self.get_data(self.palette, **self.value)
+        self.get_data(self.palette, self.value)
         # we filled the source and ranges with the calculated data
         self.get_source()
         # we dynamically inject the source and ranges into the plot
