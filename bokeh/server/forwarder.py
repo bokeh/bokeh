@@ -6,7 +6,7 @@ class Forwarder(object):
         self.device = ThreadDevice(zmq.FORWARDER, in_type=zmq.SUB, out_type=zmq.PUB)
         self.device.bind_in(input_addr)
         self.device.bind_out(output_addr)
-        self.device.setsockopt_in(zmq.SUBSCRIBE, "")
+        self.device.setsockopt_in(zmq.SUBSCRIBE, b"")
 
     def start(self):
         self.device.start()
