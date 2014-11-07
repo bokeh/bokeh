@@ -211,7 +211,7 @@ class Scatter(ChartObject):
             self.pairs = pdict
 
         # asumming we get an groupby object
-        if isinstance(self.pairs, pd.core.groupby.DataFrameGroupBy):
+        elif isinstance(self.pairs, pd.core.groupby.DataFrameGroupBy):
             from collections import OrderedDict
             pdict = OrderedDict()
 
@@ -224,6 +224,9 @@ class Scatter(ChartObject):
                 pdict[i] = np.array([x.values, y.values]).T
 
             self.pairs = pdict
+
+        else:
+            self.labels = self.pairs.keys()
 
         # we need to check the chained method attr
         self.check_attr()

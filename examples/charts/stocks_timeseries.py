@@ -12,13 +12,14 @@ IBM = pd.read_csv(
     "http://ichart.yahoo.com/table.csv?s=IBM&a=0&b=1&c=2000",
     parse_dates=['Date'])
 
-xyvalues = OrderedDict(AAPL=AAPL[['Date', 'Adj Close']],
-                       MSFT=MSFT[['Date', 'Adj Close']],
-                       IBM=IBM[['Date', 'Adj Close']])
-df = pd.concat(xyvalues, axis=1, names=["l0", "l1"])
-
+#xyvalues = OrderedDict(AAPL=AAPL[['Date', 'Adj Close']],
+#                       MSFT=MSFT[['Date', 'Adj Close']],
+#                       IBM=IBM[['Date', 'Adj Close']])
+#xyvalues = OrderedDict(AAPL=zip(AAPL[['Date', 'Adj Close']].values[:, 0], AAPL[['Date', 'Adj Close']].values[:, 1]))
+#df = pd.concat(xyvalues, axis=1, names=["l0", "l1"])
+import pdb; pdb.set_trace()
 from bokeh.charts import TimeSeries, DataObject
-#df = DataObject(df, force_alias=False)
+df = DataObject(xyvalues, force_alias=False)
 #df = DataObject(df.to_dict())
 #df = DataObject(df.values(), force_alias=False)
 #df = DataObject(np.array(df.values()), force_alias=False)

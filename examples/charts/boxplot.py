@@ -21,6 +21,9 @@ from bokeh.charts import DataObject
 #medals = DataObject(medals) # not working
 #medals = DataObject(medals.values())
 medals = DataObject(np.array(medals.values()), force_alias=False)
+
+#import pdb; pdb.set_trace()
+
 # and finally we drop the dict into our BoxPlot chart
 from bokeh.charts import BoxPlot
 boxplot = BoxPlot(medals, marker='circle', outliers=True, title="boxplot test", xlabel="medal type", ylabel="medal count", 

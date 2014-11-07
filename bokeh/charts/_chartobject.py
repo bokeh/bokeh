@@ -468,14 +468,40 @@ class DataObject(object):
     def __getitem__(self, key):
         val = self._values[self.index_converter(key)]
 
-        if isinstance(val, dict):
-            val = val.values()
+        #values = getattr(val, 'values', None)
+        #if values is not None:
+        #    if callable(values):
+        #        return values()
+        #
+        #    else:
+        #        return values
 
         # if we have "index aliases" we need to remap the values...
         if hasattr(self, "_index"):
             val = dict(zip(self._index, val))
 
         return val
+
+    def get_cell_by_position(self, key, index):
+        print 'called'
+        row = self[key]
+
+        if isinstance(row, list):
+            return row[index]
+
+        try:
+            values = row.values
+
+            if callable(values):
+                values = values()
+
+            return values[index]
+
+        except AttributeError:
+            pass #TODO: raise some more meaningful error...
+
+    def get_cell_by_name(self, key, name):
+        pass
 
     def values(self):
         try:
@@ -518,10 +544,13 @@ class DataObject(object):
             return self._index
 
         except AttributeError:
+            print "@OOOOOPS", type( self._values)
             try:
                 index = self._values.index
+                print 'OP@'
                 if not callable(index):
                     # guess it's a pandas dataframe..
+                    print "WHERE"
                     return index
 
             except (AttributeError):
@@ -533,9 +562,11 @@ class DataObject(object):
         values = self.values()
 
         if isinstance(values, dict):
+            print "OWDk"
             return values.keys()
 
         else:
+            print "ADPW"
             indexes = range(0, len(self.values()[0]))
             self._index = indexes
             return indexes

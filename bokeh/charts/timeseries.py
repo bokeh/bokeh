@@ -161,10 +161,24 @@ class TimeSeries(ChartObject):
         self.groups.extend(self.xy.keys())
 
         # Grouping
+
+        #self._set_and_get("x_", val, [])
+        #self._set_and_get("y_", val, [])
         for i, val in enumerate(self.xy.keys()):
+            x_, y_ = [], []
             xy = self.xy[val]
-            self._set_and_get("x_", val, xy[:, 0])
-            self._set_and_get("y_", val, xy[:, 1])
+            for value in self.xy.index:
+                import pdb; pdb.set_trace()
+                #row = self.xy.get_cell_by_position(val, value)
+                x_.append(value[0])
+                y_.append(value[1])
+
+            self._set_and_get("x_", val, x_)
+            self._set_and_get("y_", val, y_)
+            #self._set_and_get("x_", val, xy[:, 0])
+            #self._set_and_get("y_", val, xy[:, #1])
+            #print val,# xy
+            #import pdb; pdb.set_trace()
 
     def get_source(self):
         "Push the TimeSeries data into the ColumnDataSource and calculate the proper ranges."
@@ -173,6 +187,7 @@ class TimeSeries(ChartObject):
         self.xdr = DataRange1d(sources=[self.source.columns(self.attr[0])])
 
         y_names = self.attr[1::2]
+        import pdb; pdb.set_trace()
         endy = max(max(self.data[i]) for i in y_names)
         starty = min(min(self.data[i]) for i in y_names)
         self.ydr = Range1d(start=starty - 0.1 * (endy - starty), end=endy + 0.1 * (endy - starty))
