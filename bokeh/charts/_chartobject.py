@@ -377,3 +377,165 @@ class ChartObject(object):
             colors.append(next(g))
 
         return colors
+
+class DataObject(object):
+    """
+    Adapter object used to normalize Charts inputs to a common know interface
+    """
+    def __init__(self, data, index=None, columns=None, force_alias=True):
+        self._values = data
+
+        self.convert_index_to_int = False
+
+        if columns is None and force_alias:
+            # no column 'labels' defined for data... in this case we use
+            # default names
+            try:
+                # assuming it's a dict or dataframe..
+                keys = self._values.keys
+                if callable(keys):
+                    columns = list(keys())
+
+                else:
+                    columns = list(keys)
+
+            except AttributeError:
+                # argh, it's not. So let's just use numbers...
+                columns = map(str, range(len(data)))
+
+        if columns:
+            self._columns = columns
+
+            # define a mapping between the real keys to access data and the aliases
+            # we have defined using 'columns'
+            self._columns_map = dict(zip(columns, self.keys()))
+
+        else:
+            self._columns_map = {}
+
+
+        if index is not None:
+            self._index = index
+
+        elif force_alias:
+            try:
+                # if it's a dataframe it already have everything we need
+                _index = self._values.index
+
+                # check because if it is a callable self._values is not a
+                # dataframe (probably a list)
+                if not callable(_index):
+                    self._index = list(_index)
+
+                else:
+                    self._index = list('abcdefghijklmnopqrstuvz1234567890')[:len(self.values()[0])]
+            except AttributeError:
+                self._index = list('abcdefghijklmnopqrstuvz1234567890')[:len(self.values()[0])]
+
+    def index_converter(self, x):
+        key = self._columns_map.get(x, x)
+        if self.convert_index_to_int:
+            key = int(key)
+        return key
+
+    def keys(self):
+        try:
+            # assuming it's a dict or dataframe
+            keys = self._values.keys
+            if callable(keys):
+                return list(keys())
+
+            else:
+                return list(keys)
+
+        except AttributeError:
+            # assuming that only non-dict like objects can raise this error
+            # it's probably because we have an iterable instead of a mapper
+            # in this case let's use indices as groups keys
+
+
+            self.convert_index_to_int = True
+
+            #indexes = range(1, len(self._values) + 1)
+            indexes = range(len(self._values))
+            #self._values = dict(zip(indexes, self._values))
+            return map(str, indexes)
+
+    def __iter__(self):
+        for k in self.keys():
+            yield k
+
+    def __getitem__(self, key):
+        val = self._values[self.index_converter(key)]
+
+        if isinstance(val, dict):
+            val = val.values()
+
+        # if we have "index aliases" we need to remap the values...
+        if hasattr(self, "_index"):
+            val = dict(zip(self._index, val))
+
+        return val
+
+    def values(self):
+        try:
+            values = self._values.values
+
+            if callable(values):
+                return values()
+
+            else:
+                return list(self._values)
+
+        except AttributeError:
+            return self._values
+
+    def items(self):
+        return [(key, self[key]) for key in self]
+
+    def iterkeys(self):
+        return iter(self)
+
+    def itervalues(self):
+        for k in self:
+            yield self[k]
+
+    def iteritems(self):
+        for k in self:
+            yield (k, self[k])
+
+    @property
+    def columns(self):
+        try:
+            return self._columns
+
+        except AttributeError:
+            return list(self.keys())
+
+    @property
+    def index(self):
+        try:
+            return self._index
+
+        except AttributeError:
+            try:
+                index = self._values.index
+                if not callable(index):
+                    # guess it's a pandas dataframe..
+                    return index
+
+            except (AttributeError):
+                # not a pandas dataframe...
+                pass
+
+        # no, it's not. So it's probably a list so let's get the
+        # values and check
+        values = self.values()
+
+        if isinstance(values, dict):
+            return values.keys()
+
+        else:
+            indexes = range(0, len(self.values()[0]))
+            self._index = indexes
+            return indexes
