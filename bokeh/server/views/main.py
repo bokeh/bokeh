@@ -54,6 +54,7 @@ def ping():
     # test route, to know if the server is up
     return "pong"
 
+@bokeh_app.route('/')
 @bokeh_app.route('/bokeh/')
 def index(*unused_all, **kwargs):
     ''' Render main page.
@@ -70,15 +71,6 @@ def index(*unused_all, **kwargs):
                   username=bokehuser.username,
                   title="Bokeh Documents for %s" % bokehuser.username
     )
-
-@bokeh_app.route('/')
-def welcome(*unused_all, **kwargs):
-    ''' Redirect to index
-
-    :status 302: redirect to index
-
-    '''
-    return redirect(url_for('.index'))
 
 @bokeh_app.route('/bokeh/favicon.ico')
 def favicon():
@@ -155,11 +147,6 @@ def get_user():
     content = protocol.serialize_web(bokehuser.to_public_json())
     return make_json(content)
 
-def _make_test_plot_file(username, userapikey, url):
-    lines = ["from bokeh import mpl",
-             "p = mpl.PlotClient(username='%s', serverloc='%s', userapikey='%s')" % (username, url, userapikey)]
-    return "\n".join(lines)
-
 @bokeh_app.route('/bokeh/doc/<docid>/', methods=['GET', 'OPTIONS'])
 @bokeh_app.route('/bokeh/bokehinfo/<docid>/', methods=['GET', 'OPTIONS'])
 @crossdomain(origin="*", headers=['BOKEH-API-KEY', 'Continuum-Clientid'])
@@ -215,50 +202,11 @@ def doc_by_title():
         docid = doc['docid']
     return get_bokeh_info(docid)
 
-# need to rethink public publishing
-# @bokeh_app.route('/bokeh/publicbokehinfo/<docid>')
-# def get_public_bokeh_info(docid):
-#     doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
-#     plot_context_ref = doc.plot_context_ref
-#     all_models = docs.prune_and_get_valid_models(bokeh_app.servermodel_storage,
-#                                                  bokeh_app.collections,
-#                                                  docid)
-#     public_models = [x for x in all_models if x.get('public', False)]
-#     if len(public_models) == 0:
-#         return False
-#     all_models_json = [x.to_broadcast_json() for x in all_models]
-#     returnval = {'plot_context_ref' : plot_context_ref,
-#                  'docid' : docid,
-#                  'all_models' : all_models_json,
-#                  }
-#     returnval = protocol.serialize_web(returnval)
-#     #return returnval
-
-#     return (returnval, "200",
-#             {"Access-Control-Allow-Origin": "*"})
-
 
 @bokeh_app.route('/bokeh/sampleerror')
 def sampleerror():
     return 1 + "sdf"
 
-def make_test_plot():
-    import numpy as np
-    from bokeh.plotting import output_server, line
-
-    N = 8000
-
-    x = np.linspace(0, 4*np.pi, N)
-    y = np.sin(x)
-
-    output_server("line.py example")
-
-    l = line(
-        x,y, color="#0000FF",
-        plot_height=300, plot_width=300,
-        tools="pan,resize")
-    return l
-    #show()
 
 @bokeh_app.route("/bokeh/autoload.js/<elementid>")
 def autoload_js(elementid):
