@@ -378,7 +378,7 @@ class ChartObject(object):
 
         return colors
 
-class DataObject(object):
+class DataAdapter(object):
     """
     Adapter object used to normalize Charts inputs to a common know interface
     """
