@@ -94,5 +94,4 @@ BokehServerTestCase = MemoryBokehServerTestCase
 def make_default_user(bokeh_app):
     bokehuser = user.new_user(bokeh_app.servermodel_storage, "defaultuser",
                               str(uuid.uuid4()), apikey='nokey', docs=[])
-    print bokeh_app.servermodel_storage._data
     return bokehuser
