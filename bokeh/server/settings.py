@@ -50,14 +50,14 @@ class Settings(object):
         import tempfile
         infile = tempfile.NamedTemporaryFile(prefix="bokeh-ws-in").name
         outfile = tempfile.NamedTemporaryFile(prefix="bokeh-ws-in").name
-        self.pub_zmq_addr = "ipc://%s" % infile
-        self.sub_zmq_addr = "ipc://%s" % outfile
+        self.pub_zmqaddr = "ipc://%s" % infile
+        self.sub_zmqaddr = "ipc://%s" % outfile
         self.multi_user = args.multi_user
         self.model_backend = {'type' : args.backend}
         if self.model_backend['type'] == 'redis':
             self.model_backend.update({
                 'redis_port' : args.redis_port,
-                'start-redis' : args.start-redis
+                'start-redis' : args.start_redis
             })
         self.ws_conn_string = args.ws_conn_string
         self.ws_port = args.ws_port
