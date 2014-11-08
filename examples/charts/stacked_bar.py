@@ -19,11 +19,11 @@ bronze = df['medals.bronze'].astype(float).values
 medals = dict(bronze=bronze, silver=silver, gold=gold)
 
 # and finally we drop the countries and medals dict into our Bar chart
-from bokeh.charts import Bar, DataObject
+from bokeh.charts import Bar, DataAdapter
 #medals = DataObject(medals, force_alias=False)
 #medals = DataObject(df) #not working
 #medals = DataObject(medals.values(), force_alias=False)
-medals = DataObject(np.array(medals.values()), force_alias=False)
+medals = DataAdapter(np.array(medals.values()), force_alias=False)
 
 bar = Bar(medals, countries, filename="stacked_bar.html")
 bar.title("Stacked bars").xlabel("countries").ylabel("medals")\

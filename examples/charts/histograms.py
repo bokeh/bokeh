@@ -13,32 +13,33 @@ dfd = df.to_dict()
 dfl = dfd.values()
 dfa = np.array(dfl)
 
-from bokeh.charts import DataObject
-data = DataObject(dfl)
-
-do = DataObject(dfa, force_alias=False)
-do.keys()
-import pdb
-pdb.set_trace()
+#from bokeh.charts import DataAdapter
+#data = DataAdapter(dfl)
+#
+#do = DataAdapter(dfa, force_alias=False)
+#do.keys()
+#import pdb
+#pdb.set_trace()
 #
 
-from collections import OrderedDict
-pdict = OrderedDict()
-
-for i in g.groups.keys():
-    labels = g.get_group(i).columns
-    xname = labels[0]
-    yname = labels[1]
-    x = getattr(g.get_group(i), xname)
-    y = getattr(g.get_group(i), yname)
-    pdict[i] = np.array([x.values, y.values]).T
+#from collections import OrderedDict
+#pdict = OrderedDict()
+#
+#for i in g.groups.keys():
+#    labels = g.get_group(i).columns
+#    xname = labels[0]
+#    yname = labels[1]
+#    x = getattr(g.get_group(i), xname)
+#    y = getattr(g.get_group(i), yname)
+#    pdict[i] = np.array([x.values, y.values]).T
 
 
 ## and finally we drop the df into out Histogram chart
-from bokeh.charts import Histogram
-hist = Histogram(DataObject(df, force_alias=False), bins=50, filename="histograms.html")
-#hist = Histogram(DataObject(dfd, force_alias=False), bins=50, filename="histograms.html")
-#hist = Histogram(DataObject(dfl, force_alias=False), bins=50, filename="histograms.html")
+from bokeh.charts import Histogram, DataAdapter
+#hist = Histogram(DataAdapter(df, force_alias=False), bins=50, filename="histograms.html")
+hist = Histogram(DataAdapter(dfd, force_alias=False), bins=50, filename="histograms.html")
+hist = Histogram(DataAdapter(dfl, force_alias=False), bins=50, filename="histograms.html")
+#hist = Histogram(DataAdapter(dfa, force_alias=False), bins=50, filename="histograms.html")
 #hist = Histogram(do, bins=50, filename="histograms.html")
 hist.title("Histograms").ylabel("frequency").legend(True).width(400).height(350).show()
 ##

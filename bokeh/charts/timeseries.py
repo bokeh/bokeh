@@ -138,7 +138,7 @@ class TimeSeries(ChartObject):
         """
         super(TimeSeries, self).check_attr()
 
-    def get_data(self, xy):
+    def get_data(self, **xy):
         """Take the x/y data from the input **value.
 
         It calculates the chart properties accordingly. Then build a dict
@@ -161,24 +161,10 @@ class TimeSeries(ChartObject):
         self.groups.extend(self.xy.keys())
 
         # Grouping
-
-        #self._set_and_get("x_", val, [])
-        #self._set_and_get("y_", val, [])
         for i, val in enumerate(self.xy.keys()):
-            x_, y_ = [], []
             xy = self.xy[val]
-            for value in self.xy.index:
-                import pdb; pdb.set_trace()
-                #row = self.xy.get_cell_by_position(val, value)
-                x_.append(value[0])
-                y_.append(value[1])
-
-            self._set_and_get("x_", val, x_)
-            self._set_and_get("y_", val, y_)
-            #self._set_and_get("x_", val, xy[:, 0])
-            #self._set_and_get("y_", val, xy[:, #1])
-            #print val,# xy
-            #import pdb; pdb.set_trace()
+            self._set_and_get("x_", val, xy[:, 0])
+            self._set_and_get("y_", val, xy[:, 1])
 
     def get_source(self):
         "Push the TimeSeries data into the ColumnDataSource and calculate the proper ranges."
@@ -187,7 +173,6 @@ class TimeSeries(ChartObject):
         self.xdr = DataRange1d(sources=[self.source.columns(self.attr[0])])
 
         y_names = self.attr[1::2]
-        import pdb; pdb.set_trace()
         endy = max(max(self.data[i]) for i in y_names)
         starty = min(min(self.data[i]) for i in y_names)
         self.ydr = Range1d(start=starty - 0.1 * (endy - starty), end=endy + 0.1 * (endy - starty))
@@ -202,6 +187,103 @@ class TimeSeries(ChartObject):
 
         for i, duplet in enumerate(self.duplet, start=1):
             self.chart.make_line(self.source, duplet[0], duplet[1], colors[i - 1])
+
+    def show(self):
+        """Main TimeSeries show method.
+
+        It essentially checks for chained methods, creates the chart,
+        pass data into the plot object, draws the glyphs according
+        to the data and shows the chart in the selected output.
+
+        .. note:: the show method can not be chained. It has to be called
+        at the end of the chain.
+        """
+        # asumming we get an hierchiral pandas object
+        if isinstance(self.xy, pd.DataFrame):
+            self.labels = self.xy.columns.levels[1].values
+
+            from collections import OrderedDict
+            pdict = OrderedDict()
+
+            for i in self.xy.columns.levels[0].values:
+                pdict[i] = self.xy[i].dropna().values
+
+            self.xy = pdict
+
+        # we need to check the chained method attr
+        self.check_attr()
+
+        if self._xlabel is None:
+            self._xlabel = self.labels[0]
+        if self._ylabel is None:
+            self._ylabel = self.labels[1]
+
+        # we create the chart object
+        self.create_chart()
+        # we start the plot (adds axis, grids and tools)
+        self.start_plot()
+        # we get the data from the incoming input
+        self.get_data(**self.xy)
+        # we filled the source and ranges with the calculated data
+        self.get_source()
+        # we dynamically inject the source and ranges into the plot
+        self.add_data_plot(self.xdr, self.ydr)
+        # we add the glyphs into the plot
+        self.draw()
+        # we pass info to build the legend
+        self.end_plot(self.groups)
+        # and finally we show it
+        self.show_chart()
+
+    # Some helper methods
+    def _set_and_get(self, prefix, val, content):
+        """Set a new attr and then get it to fill the self.data dict.
+
+        Keep track of the attributes created.
+
+        Args:
+            prefix (str): prefix of the new attribute
+            val (string): name of the new attribute
+            content (obj): content of the new attribute
+        """
+        setattr(self, prefix + val, content)
+        self.data[prefix + val] = getattr(self, prefix + val)
+        self.attr.append(prefix + val)
+
+
+class TimeSeries(TimeSeries):
+    def get_data(self, **xy):
+        """Take the x/y data from the input **value.
+
+        It calculates the chart properties accordingly. Then build a dict
+        containing references to all the points to be used by
+        the line glyph inside the ``draw`` method.
+
+        Args:
+            xy (dict): a dict containing the data with names as a key
+                and the data as a value.
+        """
+        self.data = dict()
+
+        # assuming value is an ordered dict
+        self.xy = xy
+
+        # list to save all the attributes we are going to create
+        self.attr = []
+
+        # list to save all the groups available in the incomming input
+        self.groups.extend(self.xy.keys())
+
+        # Grouping
+        for i, val in enumerate(self.xy.keys()):
+            x_, y_ = [], []
+            xy = self.xy[val]
+            for value in self.xy.index:
+                x_.append(value[0])
+                y_.append(value[1])
+
+            self._set_and_get("x_", val, x_)
+            self._set_and_get("y_", val, y_)
 
     def show(self):
         """Main TimeSeries show method.
@@ -252,18 +334,3 @@ class TimeSeries(ChartObject):
         self.end_plot(self.groups)
         # and finally we show it
         self.show_chart()
-
-    # Some helper methods
-    def _set_and_get(self, prefix, val, content):
-        """Set a new attr and then get it to fill the self.data dict.
-
-        Keep track of the attributes created.
-
-        Args:
-            prefix (str): prefix of the new attribute
-            val (string): name of the new attribute
-            content (obj): content of the new attribute
-        """
-        setattr(self, prefix + val, content)
-        self.data[prefix + val] = getattr(self, prefix + val)
-        self.attr.append(prefix + val)

@@ -130,7 +130,7 @@ class CategoricalHeatMap(ChartObject):
         """
         super(CategoricalHeatMap, self).check_attr()
 
-    def get_data(self, palette, value):
+    def get_data(self, palette, **value):
         """Take the CategoricalHeatMap data from the input **value.
 
         It calculates the chart properties accordingly. Then build a dict
@@ -201,16 +201,97 @@ class CategoricalHeatMap(ChartObject):
         at the end of the chain.
         """
         # if we pass a pandas df, the cats are guessed
-        #if isinstance(self.value, pd.DataFrame):
-        #    self.catsx = self.value.columns.tolist()
-        #    self.catsy = self.value.index.tolist()
-        #else:
+        if isinstance(self.value, pd.DataFrame):
+            self.catsx = self.value.columns.tolist()
+            self.catsy = self.value.index.tolist()
+        else:
+            print("CategoricalHeatMap only support pandas dataframes loading for now.")
+
+        # we need to check the chained method attr
+        self.check_attr()
+        # we create the chart object
+        self.create_chart()
+        # we start the plot (adds axis, grids and tools)
+        self.start_plot(xgrid=False, ygrid=False)
+        # we add the HoverTool
+        self.chart.plot.add_tools(HoverTool(tooltips=dict(value="@rate")))
+        # we get the data from the incoming input
+        self.get_data(self.palette, **self.value)
+        # we filled the source and ranges with the calculated data
+        self.get_source()
+        # we dynamically inject the source and ranges into the plot
+        self.add_data_plot(self.xdr, self.ydr)
+        # we add the glyphs into the plot
+        self.draw()
+        # we pass info to build the legend
+        self.end_plot(self.groups)
+        # and finally we show it
+        self.show_chart()
+
+
+class NewCategoricalHeatMap(CategoricalHeatMap):
+
+    def get_data(self, palette, **value):
+        """Take the CategoricalHeatMap data from the input **value.
+
+        It calculates the chart properties accordingly. Then build a dict
+        containing references to all the calculated points to be used by
+        the rect glyph inside the ``draw`` method.
+
+        Args:
+            pallete (list): the colormap as hex values.
+            values (pd obj): the pandas dataframe to be plotted as categorical heatmap.
+        """
+        # assuming value is a pandas df
+        self.value = value
+
+        if palette is None:
+            colors = ["#75968f", "#a5bab7", "#c9d9d3", "#e2e2e2", "#dfccce",
+            "#ddb7b1", "#cc7878", "#933b41", "#550b1d"]
+        else:
+            colors = palette
+
+        # Set up the data for plotting. We will need to have values for every
+        # pair of year/month names. Map the rate to a color.
+        catx = []
+        caty = []
+        color = []
+        rate = []
+        for y in self.catsy:
+            for m in self.catsx:
+                catx.append(m)
+                caty.append(y)
+                rate.append(self.value[m][y])
+
+        # Now that we have the min and max rates
+        for y in self.catsy:
+            for m in self.catsx:
+                c = int(round((len(colors) - 1) * (self.value[m][y] - min(rate)) / (max(rate) - min(rate))))
+                color.append(colors[c])
+
+        width = [0.95] * len(catx)
+        height = [0.95] * len(catx)
+
+        self.data = dict(catx=catx, caty=caty, color=color, rate=rate,
+                         width=width, height=height)
+
+    def show(self):
+        """Main CategoricalHeatMap show method.
+
+        It essentially checks for chained methods, creates the chart,
+        pass data into the plot object, draws the glyphs according
+        to the data and shows the chart in the selected output.
+
+        .. note:: the show method can not be chained. It has to be called
+        at the end of the chain.
+        """
+        # if we pass a pandas df, the cats are guessed
         try:
             self.catsx = self.value.columns
             self.catsy = self.value.index
         except:
             raise
-            print("CategoricalHeatMap only support pandas dataframes loading for now.")
+            #print("CategoricalHeatMap only support pandas dataframes loading for now.")
 
         # we need to check the chained method attr
         self.check_attr()

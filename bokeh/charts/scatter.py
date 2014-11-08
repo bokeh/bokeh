@@ -211,6 +211,85 @@ class Scatter(ChartObject):
             self.pairs = pdict
 
         # asumming we get an groupby object
+        if isinstance(self.pairs, pd.core.groupby.DataFrameGroupBy):
+            from collections import OrderedDict
+            pdict = OrderedDict()
+
+            for i in self.pairs.groups.keys():
+                self.labels = self.pairs.get_group(i).columns
+                xname = self.pairs.get_group(i).columns[0]
+                yname = self.pairs.get_group(i).columns[1]
+                x = getattr(self.pairs.get_group(i), xname)
+                y = getattr(self.pairs.get_group(i), yname)
+                pdict[i] = np.array([x.values, y.values]).T
+
+            self.pairs = pdict
+
+        # we need to check the chained method attr
+        self.check_attr()
+
+        if self._xlabel is None:
+            self._xlabel = self.labels[0]
+        if self._ylabel is None:
+            self._ylabel = self.labels[1]
+
+        # we create the chart object
+        self.create_chart()
+        # we start the plot (adds axis, grids and tools)
+        self.start_plot()
+        # we get the data from the incoming input
+        self.get_data(**self.pairs)
+        # we filled the source and ranges with the calculated data
+        self.get_source()
+        # we dynamically inject the source and ranges into the plot
+        self.add_data_plot(self.xdr, self.ydr)
+        # we add the glyphs into the plot
+        self.draw()
+        # we pass info to build the legend
+        self.end_plot(self.groups)
+        # and finally we show it
+        self.show_chart()
+
+    # Some helper methods
+    def _set_and_get(self, prefix, val, content):
+        """Set a new attr and then get it to fill the self.data dict.
+
+        Keep track of the attributes created.
+
+        Args:
+            prefix (str): prefix of the new attribute
+            val (string): name of the new attribute
+            content (obj): content of the new attribute
+        """
+        setattr(self, prefix + val, content)
+        self.data[prefix + val] = getattr(self, prefix + val)
+        self.attr.append(prefix + val)
+
+
+class NewScatter(Scatter):
+    def show(self):
+        """Main Scatter show method.
+
+        It essentially checks for chained methods, creates the chart,
+        pass data into the plot object, draws the glyphs according
+        to the data and shows the chart in the selected output.
+
+        .. note:: the show method can not be chained. It has to be called
+        at the end of the chain.
+        """
+        # assuming we get an hierchiral pandas object
+        if isinstance(self.pairs, pd.DataFrame):
+            self.labels = self.pairs.columns.levels[1].values
+
+            from collections import OrderedDict
+            pdict = OrderedDict()
+
+            for i in self.pairs.columns.levels[0].values:
+                pdict[i] = self.pairs[i].dropna().values
+
+            self.pairs = pdict
+
+        # assuming we get an groupby object
         elif isinstance(self.pairs, pd.core.groupby.DataFrameGroupBy):
             from collections import OrderedDict
             pdict = OrderedDict()
@@ -252,18 +331,3 @@ class Scatter(ChartObject):
         self.end_plot(self.groups)
         # and finally we show it
         self.show_chart()
-
-    # Some helper methods
-    def _set_and_get(self, prefix, val, content):
-        """Set a new attr and then get it to fill the self.data dict.
-
-        Keep track of the attributes created.
-
-        Args:
-            prefix (str): prefix of the new attribute
-            val (string): name of the new attribute
-            content (obj): content of the new attribute
-        """
-        setattr(self, prefix + val, content)
-        self.data[prefix + val] = getattr(self, prefix + val)
-        self.attr.append(prefix + val)

@@ -31,7 +31,7 @@ from ..objects import ColumnDataSource, Range1d
 #-----------------------------------------------------------------------------
 
 
-class Histogram(ChartObject):
+class OLDHistogram(ChartObject):
     """This is the Histogram class and it is in charge of plotting
     histograms in an easy and intuitive way.
 
@@ -131,7 +131,7 @@ class Histogram(ChartObject):
         self.groups = []
         self.data = dict()
         self.attr = []
-        super(Histogram, self).__init__(title, xlabel, ylabel, legend,
+        super(OLDHistogram, self).__init__(title, xlabel, ylabel, legend,
                                         xscale, yscale, width, height,
                                         tools, filename, server, notebook)
 
@@ -140,7 +140,7 @@ class Histogram(ChartObject):
 
         If they were not used, it assign the init parameters content by default.
         """
-        super(Histogram, self).check_attr()
+        super(OLDHistogram, self).check_attr()
 
     def get_data(self, bins, mu, sigma, **value):
         """Take the Histogram data from the input **value.
@@ -269,3 +269,83 @@ class Histogram(ChartObject):
         setattr(self, prefix + val, content)
         self.data[prefix + val] = getattr(self, prefix + val)
         self.attr.append(prefix + val)
+
+
+class Histogram(OLDHistogram):
+    def show(self):
+        """Main Histogram show method.
+
+        It essentially checks for chained methods, creates the chart,
+        pass data into the plot object, draws the glyphs according
+        to the data and shows the chart in the selected output.
+
+        .. note:: the show method can not be chained. It has to be called
+        at the end of the chain.
+        """
+        # we need to check the chained method attr
+        self.check_attr()
+        # we create the chart object
+        self.create_chart()
+        # we start the plot (adds axis, grids and tools)
+        self.start_plot()
+        # we get the data from the incoming input
+        self.get_data(self.bins, self.mu, self.sigma, self.measured)
+        # we filled the source and ranges with the calculated data
+        self.get_source()
+        # we dynamically inject the ranges into the plot
+        self.add_data_plot(self.xdr, self.ydr)
+        # we add the glyphs into the plot
+        self.draw()
+        # we pass info to build the legend
+        self.end_plot(self.groups)
+        # and finally we show it
+        self.show_chart()
+
+    def get_data(self, bins, mu, sigma, value):
+        """Take the Histogram data from the input **value.
+
+        It calculates the chart properties accordingly. Then build a dict
+        containing references to all the calculated points to be used by
+        the quad and line glyphs inside the ``draw`` method.
+
+        Args:
+            bins (int): number of bins to use in the Histogram building.
+            mu (float): theoretical mean value for the normal distribution.
+            sigma (float): theoretical sigma value for the normal distribution.
+            values (dict or pd obj): the values to be plotted as bars.
+        """
+        # assuming value is a dict, ordered dict
+        self.value = value
+
+        # list to save all the groups available in the incomming input
+        self.groups.extend(self.value.keys())
+
+        # fill the data dictionary with the proper values
+        for i, val in enumerate(self.value.keys()):
+            self._set_and_get("", val, self.value[val])
+            import pandas
+            hist, edges = np.histogram(
+                self.data[val].values(),
+                density=True,
+                bins=bins
+            )
+            self._set_and_get("hist", val, hist)
+            self._set_and_get("edges", val, edges)
+            self._set_and_get("left", val, edges[:-1])
+            self._set_and_get("right", val, edges[1:])
+            self._set_and_get("bottom", val, np.zeros(len(hist)))
+
+            self.mu_and_sigma = False
+
+            if mu is not None and sigma is not None:
+                if _is_scipy:
+                    self.mu_and_sigma = True
+                    self._set_and_get("x", val, np.linspace(-2, 2, len(self.data[val])))
+                    pdf = 1 / (sigma * np.sqrt(2 * np.pi)) * np.exp(-(self.data["x" + val] - mu) ** 2 / (2 * sigma ** 2))
+                    self._set_and_get("pdf", val, pdf)
+                    self.groups.append("pdf")
+                    cdf = (1 + scipy.special.erf((self.data["x" + val] - mu) / np.sqrt(2 * sigma ** 2))) / 2
+                    self._set_and_get("cdf", val, cdf)
+                    self.groups.append("cdf")
+                else:
+                    print("You need scipy to get the theoretical probability distributions.")

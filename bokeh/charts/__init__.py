@@ -1,4 +1,4 @@
-from ._chartobject import ChartObject, DataObject
+from ._chartobject import ChartObject, DataAdapter
 from._charts import Chart
 from .histogram import Histogram
 from .bar import Bar
