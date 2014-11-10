@@ -30,12 +30,14 @@ define [
     initialize: (options) ->
       super(options)
       @render()
-      # TODO: @listenTo(@model, 'change', () => ???)
+      @listenTo(@model, 'change', () => @render())
       source = @mget("source")
       @listenTo(source, 'change:data', () => @updateGrid())
       @listenTo(source, 'change:selected', () => @updateSelection())
 
     updateGrid: () ->
+      @data = new DataProvider(@mget("source"))
+      @grid.setData(@data)
       @grid.render()
 
     updateSelection: () ->
