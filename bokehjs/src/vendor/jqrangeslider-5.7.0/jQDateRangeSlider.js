@@ -7,10 +7,10 @@
  *
  */
 
-(function ($, undefined) {
+define(["jquery", "./jQRangeSlider"], function($) {
 	"use strict";
 
-	$.widget("ui.dateRangeSlider", $.ui.rangeSlider, {
+	return $.widget("ui.dateRangeSlider", $.ui.rangeSlider, {
 		options: {
 			bounds: {min: new Date(2010,0,1).valueOf(), max: new Date(2012,0,1).valueOf()},
 			defaultValues: {min: new Date(2010,1,11).valueOf(), max: new Date(2011,1,11).valueOf()}
@@ -134,4 +134,4 @@
 			return Array.prototype.slice.call(argsObject);
 		}
 	});
-}(jQuery));
+});

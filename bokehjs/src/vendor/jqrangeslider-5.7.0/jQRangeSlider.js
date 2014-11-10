@@ -7,10 +7,10 @@
  *
  */
 
-(function ($, undefined) {
+define(["jquery", "jquery_ui/core", "jquery_ui/widget", "jquery_ui/mouse", "jquery_mousewheel"], function($) {
 	"use strict";
 
-	$.widget("ui.rangeSlider", {
+	return $.widget("ui.rangeSlider", {
 		options: {
 			bounds: {min:0, max:100},
 			defaultValues: {min:20, max:50},
@@ -811,4 +811,4 @@
 			this.arrows = null;
 		}
 	});
-}(jQuery));
+});

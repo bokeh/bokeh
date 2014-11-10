@@ -20,9 +20,6 @@ require.config
     shim:
         sprintf:
             exports: 'sprintf'
-        jqrangeslider:
-            deps: ["jquery_ui/core", "jquery_ui/widget", "jquery_ui/mouse", "jquery_mousewheel"]
-            exports: "$.fn.rangeSlider"
         kiwi:
             exports: 'kiwi'
         jquery_event_drag:
