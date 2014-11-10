@@ -67,7 +67,8 @@ class Settings(object):
         self.robust_reload = args.robust_reload
         self.verbose = args.verbose
         self.run_forwarder = True
-
+        if args.script:
+            self.scripts = [args.script]
     def process_settings(self, bokeh_app):
         if self.url_prefix:
             if not self.url_prefix.startswith("/"):

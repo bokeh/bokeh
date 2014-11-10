@@ -1,4 +1,7 @@
 import logging
+from os.path import dirname
+import imp
+import sys
 
 from six.moves.queue import Queue
 from tornado import ioloop
@@ -66,12 +69,12 @@ def configure_flask(config_argparse=None, config_file=None, config_dict=None):
     bokeh_app.publisher = Publisher(server_settings.pub_zmqaddr, Queue())
 
     for script in server_settings.scripts:
-        script_dir = dirname(args.script)
+        script_dir = dirname(script)
         if script_dir not in sys.path:
             print ("adding %s to python path" % script_dir)
             sys.path.append(script_dir)
-        print ("importing %s" % args.script)
-        imp.load_source("_bokeh_app", args.script)
+        print ("importing %s" % script)
+        imp.load_source("_bokeh_app", script)
 
     #todo - push some of this into bokeh_app.setup?
     bokeh_app.setup(
