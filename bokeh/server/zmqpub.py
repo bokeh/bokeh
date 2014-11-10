@@ -14,10 +14,11 @@ class Publisher(object):
         self.kill = False
 
     def run(self):
-        print('zmqpub starting')
+        print('zmqpub starting', self.zmqaddr)
         ctx = zmq.Context()
         socket = ctx.socket(zmq.PUB)
-        socket.bind(self.zmqaddr)
+        print ('PUB CONNECT', self.zmqaddr)
+        socket.connect(self.zmqaddr)
         try:
             while not self.kill:
                 try:

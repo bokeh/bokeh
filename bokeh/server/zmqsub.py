@@ -17,6 +17,7 @@ class Subscriber(object):
         poller = zmq.Poller()
         for addr in self.addrs:
             socket = ctx.socket(zmq.SUB)
+            print ('SUB CONNECT', addr)
             socket.connect(addr)
             socket.setsockopt_string(zmq.SUBSCRIBE, u"")
             sockets.append(socket)
@@ -35,3 +36,6 @@ class Subscriber(object):
     def start(self):
         self.thread = Thread(target=self.run)
         self.thread.start()
+
+    def stop(self):
+        self.kill = True

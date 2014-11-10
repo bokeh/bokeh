@@ -8,7 +8,7 @@ define [
 
   logger = Logging.logger
 
-  class Events extends Backbone.Model
+  class UIEvents extends Backbone.Model
 
     initialize: (attrs, options) ->
       super(attrs, options)

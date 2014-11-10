@@ -97,3 +97,12 @@ directory.  Just run::
     ipython notebook
 
 in that directory, and open any of the notebooks.
+
+Sample Data
+-----------
+
+To download the sample data used in some of the Bokeh examples, execute the
+following commands at a python prompt::
+
+        >>> import bokeh.sampledata
+        >>> bokeh.sampledata.download()

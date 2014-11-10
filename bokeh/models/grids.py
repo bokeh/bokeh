@@ -8,8 +8,6 @@ from .tickers import Ticker
 
 class Grid(GuideRenderer):
     """ 1D Grid component """
-    type = String("grid")
-
     dimension = Int(0)
     bounds = String('auto')
 

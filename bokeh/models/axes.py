@@ -9,8 +9,6 @@ from .tickers import Ticker, BasicTicker, LogTicker, CategoricalTicker, Datetime
 from .formatters import TickFormatter, BasicTickFormatter, LogTickFormatter, CategoricalTickFormatter, DatetimeTickFormatter
 
 class Axis(GuideRenderer):
-    type = String("axis")
-
     location = Either(Enum('auto'), Enum(Location))
     bounds = Either(Enum('auto'), Tuple(Float, Float))
 
@@ -29,10 +27,14 @@ class Axis(GuideRenderer):
     major_label_props = Include(TextProps)
 
     axis_props = Include(LineProps)
-    major_tick_props = Include(LineProps)
 
+    major_tick_props = Include(LineProps)
     major_tick_in = Int
     major_tick_out = Int
+
+    minor_tick_props = Include(LineProps)
+    minor_tick_in = Int
+    minor_tick_out = Int
 
 class ContinuousAxis(Axis):
     pass

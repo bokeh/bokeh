@@ -44,6 +44,7 @@ define (require, exports, module) ->
   Bokeh.Plotting          = require("common/plotting")
   Bokeh.SelectionManager  = require("common/selection_manager")
   Bokeh.Selector          = require("common/selector")
+  Bokeh.ToolEvents        = require("common/tool_events")
 
   Bokeh.build_views   = require("common/build_views")
   Bokeh.bulk_save     = require("common/bulk_save")
@@ -112,7 +113,6 @@ define (require, exports, module) ->
 
   # tools
   Bokeh.ActionTool             = require("tool/actions/action_tool")
-  Bokeh.ObjectExplorerTool     = require("tool/actions/object_explorer_tool")
   Bokeh.PreviewSaveTool        = require("tool/actions/preview_save_tool")
   Bokeh.ResetTool              = require("tool/actions/reset_tool")
 
@@ -135,7 +135,6 @@ define (require, exports, module) ->
   Bokeh.VBox           = require("widget/vbox")
   Bokeh.TextInput      = require("widget/textinput")
   Bokeh.CrossFilter    = require("widget/crossfilter")
-  Bokeh.ObjectExplorer = require("widget/object_explorer")
 
   exports.Bokeh = Bokeh
 

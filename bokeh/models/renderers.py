@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 
 from ..plot_object import PlotObject
-from ..properties import Int, String, Enum, Instance, List, Dict, Tuple, OrElse, Include
+from ..properties import Int, String, Enum, Instance, List, Dict, Tuple, Include
 from ..mixins import LineProps, TextProps
 from ..enums import Units, Orientation
 
@@ -43,9 +43,8 @@ class Legend(Renderer):
     legend_padding = Int(10)
     legend_spacing = Int(3)
 
-    legends = OrElse(
-        List(Tuple(String, List(Instance(GlyphRenderer)))),
-        (Dict(String, List(Instance(GlyphRenderer))), lambda d: list(d.items())))
+    legends = List(Tuple(String, List(Instance(GlyphRenderer)))) \
+        .accepts(Dict(String, List(Instance(GlyphRenderer))), lambda d: list(d.items()))
 
 class GuideRenderer(Renderer):
     plot = Instance(".models.plots.Plot")

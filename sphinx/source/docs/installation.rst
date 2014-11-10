@@ -140,3 +140,15 @@ Alternatively, BokehJS is available from `npmjs.org <https://www.npmjs.org/packa
 through the node package manager::
 
     $ npm install bokehjs
+
+.. _install_sampledata:
+
+Sample Data
+===========
+
+Some of the Bokeh examples rely on sample data that is not included in the Bokeh GitHub
+repository or released packages, due to their size. Once Bokeh is installed, the sample
+data can be obtained by executing the following commands at a python prompt::
+
+        >>> import bokeh.sampledata
+        >>> bokeh.sampledata.download()
