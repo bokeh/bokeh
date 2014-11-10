@@ -1,5 +1,7 @@
 import pandas as pd
 import numpy as np
+from collections import OrderedDict
+
 # we throw the data into a pandas df
 from bokeh.sampledata.olympics2014 import data
 df = pd.io.json.json_normalize(data['data'])
@@ -15,17 +17,21 @@ silver = df['medals.silver'].astype(float).values
 bronze = df['medals.bronze'].astype(float).values
 
 # later, we build a dict containing the grouped data
-medals = dict(bronze=bronze, silver=silver, gold=gold)
+medals = OrderedDict(bronze=bronze, silver=silver, gold=gold)
+#medals = pd.DataFrame(medals)
+#medals = medals.values()
+medals = np.array(medals.values())
 
-from bokeh.charts import DataObject
-#medals = DataObject(medals) # not working
-#medals = DataObject(medals.values())
-medals = DataObject(np.array(medals.values()), force_alias=False)
-
-#import pdb; pdb.set_trace()
+# non ordered df
+#df.pop('name')
+#df.pop('abbr')
+#df.pop('medals.total')
+#df.index = countries
+#
+#medals = df
 
 # and finally we drop the dict into our BoxPlot chart
-from bokeh.charts import BoxPlot
-boxplot = BoxPlot(medals, marker='circle', outliers=True, title="boxplot test", xlabel="medal type", ylabel="medal count", 
+from bokeh.charts import BoxPlot, NewBoxPlot
+boxplot = NewBoxPlot(medals, marker='circle', outliers=True, title="boxplot test", xlabel="medal type", ylabel="medal count",
              width=600, height=400, filename="boxplot.html")
 boxplot.show()

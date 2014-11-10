@@ -20,7 +20,7 @@ It also add a new chained stacked method.
 import numpy as np
 import pandas as pd
 
-from ._chartobject import ChartObject
+from ._chartobject import ChartObject, DataAdapter
 
 from ..objects import ColumnDataSource, FactorRange, Range1d
 
@@ -194,6 +194,7 @@ class Bar(ChartObject):
         self.groups.extend(self.value.keys())
 
         for i, val in enumerate(self.value.keys()):
+            print "DATA", val, self.value[val]
             self._set_and_get("", val, self.value[val])
             self._set_and_get("mid", val, self.value[val] / 2)
             self._set_and_get("stacked", val, self.zero + self.value[val] / 2)
@@ -263,6 +264,7 @@ class Bar(ChartObject):
         self.add_data_plot(self.xdr, self.ydr)
         # we add the glyphs into the plot
         self.draw(self._stacked)
+        print "CAT", self.cat
         # we pass info to build the legend
         self.end_plot(self.groups)
         # and finally we show it
@@ -282,3 +284,192 @@ class Bar(ChartObject):
         setattr(self, prefix + val, content)
         self.data[prefix + val] = getattr(self, prefix + val)
         self.attr.append(prefix + val)
+
+
+class NewBar(Bar):
+    """This is the Bar class and it is in charge of plotting
+    Bar chart (grouped and stacked) in an easy and intuitive way.
+
+    Essentially, it provides a way to ingest the data, make the proper
+    calculations and push the references into a source object.
+    We additionally make calculations for the ranges.
+    And finally add the needed glyphs (rects) taking the references
+    from the source.
+
+    Examples:
+
+        from collections import OrderedDict
+
+        import numpy as np
+
+        from bokeh.charts import Bar
+        from bokeh.sampledata.olympics2014 import data
+
+        data = {d['abbr']: d['medals'] for d in data['data'] if d['medals']['total'] > 0}
+
+        countries = sorted(data.keys(), key=lambda x: data[x]['total'], reverse=True)
+
+        gold = np.array([data[abbr]['gold'] for abbr in countries], dtype=np.float)
+        silver = np.array([data[abbr]['silver'] for abbr in countries], dtype=np.float)
+        bronze = np.array([data[abbr]['bronze'] for abbr in countries], dtype=np.float)
+
+        medals = OrderedDict(bronze=bronze, silver=silver, gold=gold)
+
+        bar = Bar(medals, countries)
+        bar.title("stacked, dict_input").xlabel("countries").ylabel("medals")\
+.legend(True).width(600).height(400).stacked().notebook().show()
+    """
+    def __init__(self, value, cat=None, stacked=False,
+                 title=None, xlabel=None, ylabel=None, legend=False,
+                 xscale="categorical", yscale="linear", width=800, height=600,
+                 tools=True, filename=False, server=False, notebook=False):
+        """
+        Args:
+            value (dict): a dict containing the data with names as a key
+                and the data as a value.
+            cat (list or bool, optional): list of string representing the categories.
+                Defaults to None.
+            stacked (bool, optional): to see the bars stacked or grouped.
+                Defaults to False, so grouping is assumed.
+            title (str, optional): the title of your plot. Defaults to None.
+            xlabel (str, optional): the x-axis label of your plot.
+                Defaults to None.
+            ylabel (str, optional): the y-axis label of your plot.
+                Defaults to None.
+            legend (str, optional): the legend of your plot. The legend content is
+                inferred from incoming input.It can be ``top_left``,
+                ``top_right``, ``bottom_left``, ``bottom_right``.
+                It is ``top_right`` is you set it as True.
+                Defaults to None.
+            xscale (str, optional): the x-axis type scale of your plot. It can be
+                ``linear``, ``datetime`` or ``categorical``.
+                Defaults to ``linear``.
+            yscale (str, optional): the y-axis type scale of your plot. It can be
+                ``linear``, ``datetime`` or ``categorical``.
+                Defaults to ``linear``.
+            width (int, optional): the width of your plot in pixels.
+                Defaults to 800.
+            height (int, optional): the height of you plot in pixels.
+                Defaults to 600.
+            tools (bool, optional): to enable or disable the tools in your plot.
+                Defaults to True
+            filename (str or bool, optional): the name of the file where your plot.
+                will be written. If you pass True to this argument, it will use
+                ``untitled`` as a filename.
+                Defaults to False.
+            server (str or bool, optional): the name of your plot in the server.
+                If you pass True to this argument, it will use ``untitled``
+                as the name in the server.
+                Defaults to False.
+            notebook (bool or optional):if you want to output (or not) your plot into the
+                IPython notebook.
+                Defaults to False.
+
+        Attributes:
+            source (obj): datasource object for your plot,
+                initialized as a dummy None.
+            xdr (obj): x-associated datarange object for you plot,
+                initialized as a dummy None.
+            ydr (obj): y-associated datarange object for you plot,
+                initialized as a dummy None.
+            groups (list): to be filled with the incoming groups of data.
+                Useful for legend construction.
+            data (dict): to be filled with the incoming data and be passed
+                to the ColumnDataSource in each chart inherited class.
+                Needed for _set_And_get method.
+            attr (list): to be filled with the new attributes created after
+                loading the data dict.
+                Needed for _set_And_get method.
+        """
+        super(NewBar, self).__init__(
+            DataAdapter(value, force_alias=False),
+            cat,
+            stacked,
+            title,
+            xlabel,
+            ylabel,
+            legend,
+            xscale,
+            yscale,
+            width,
+            height,
+            tools,
+            filename,
+            server,
+            notebook
+        )
+
+    def get_data(self, cat, value):
+        """Take the Bar data from the input **value.
+
+        It calculates the chart properties accordingly. Then build a dict
+        containing references to all the calculated points to be used by
+        the rect glyph inside the ``draw`` method.
+
+        Args:
+            cat (list): categories as a list of strings
+            values (dict or pd obj): the values to be plotted as bars.
+        """
+        self.cat = cat
+        self.width = [0.8] * len(self.cat)
+        # width should decrease proportionally to the value length.
+        # 1./len(value) doesn't work well as the width needs to decrease a
+        # little bit faster
+        self.width_cat = [min(0.2, (1./len(value))**1.1)] * len(self.cat)
+        self.zero = np.zeros(len(self.cat))
+        self.data = dict(cat=self.cat, width=self.width, width_cat=self.width_cat, zero=self.zero)
+
+        # assuming value is a dict, ordered dict
+        self.value = value
+
+        # list to save all the attributes we are going to create
+        self.attr = []
+
+        # list to save all the groups available in the incomming input
+        # Grouping
+        step = np.linspace(0, 1.0, len(self.value.keys()) + 1, endpoint=False)
+
+        self.groups.extend(self.value.keys())
+
+        for i, val in enumerate(self.value.keys()):
+            self._set_and_get("", val, self.value[val])
+            self._set_and_get("mid", val, np.array(self.value[val]) / 2)
+            self._set_and_get("stacked", val, self.zero + np.array(self.value[val]) / 2)
+            # Grouped
+            self._set_and_get("cat", val, [c + ":" + str(step[i + 1]) for c in self.cat])
+            # Stacked
+            self.zero += self.value[val]
+
+    def show(self):
+        """Main Bar show method.
+
+        It essentially checks for chained methods, creates the chart,
+        pass data into the plot object, draws the glyphs according
+        to the data and shows the chart in the selected output.
+
+        .. note:: the show method can not be chained. It has to be called
+        at the end of the chain.
+        """
+        # if we pass a pandas df, the cat are guessed
+        #if isinstance(self.value, pd.DataFrame):
+        if not self.cat:
+            self.cat = self.value.columns
+
+        # we need to check the chained method attr
+        self.check_attr()
+        # we create the chart object
+        self.create_chart()
+        # we start the plot (adds axis, grids and tools)
+        self.start_plot(xgrid=False)
+        # we get the data from the incoming input
+        self.get_data(self.cat, self.value)
+        # we filled the source and ranges with the calculated data
+        self.get_source(self._stacked)
+        # we dynamically inject the source and ranges into the plot
+        self.add_data_plot(self.xdr, self.ydr)
+        # we add the glyphs into the plot
+        self.draw(self._stacked)
+        # we pass info to build the legend
+        self.end_plot(self.groups)
+        # and finally we show it
+        self.show_chart()

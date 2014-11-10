@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-
+from collections import OrderedDict
 # we throw the data into a pandas df
 from bokeh.sampledata.olympics2014 import data
 df = pd.io.json.json_normalize(data['data'])
@@ -16,15 +16,34 @@ silver = df['medals.silver'].astype(float).values
 bronze = df['medals.bronze'].astype(float).values
 
 # later, we build a dict containing the grouped data
-medals = dict(bronze=bronze, silver=silver, gold=gold)
+medals = OrderedDict(bronze=bronze, silver=silver, gold=gold)
 
 # and finally we drop the countries and medals dict into our Bar chart
-from bokeh.charts import Bar, DataAdapter
-#medals = DataObject(medals, force_alias=False)
-#medals = DataObject(df) #not working
-#medals = DataObject(medals.values(), force_alias=False)
-medals = DataAdapter(np.array(medals.values()), force_alias=False)
+from bokeh.charts import Bar, NewBar, DataAdapter
 
-bar = Bar(medals, countries, filename="stacked_bar.html")
+# Clean dataframe series that we don't care...
+df.pop('name')
+df.pop('abbr')
+df.pop('medals.total')
+df.index = countries
+
+# OK
+#bar = NewBar(medals, countries, filename="stacked_bar.html")
+
+#TODO: This version has issues with stached bars positions..
+#bar = NewBar(df, countries, filename="stacked_bar.html")
+
+# OK
+#bar = NewBar(pd.DataFrame(medals), countries, filename="stacked_bar.html")
+
+#TODO: This version has issues with stached bars positions..
+#bar = NewBar(df.T.values, countries, filename="stacked_bar.html")
+
+# OK
+#bar = NewBar(pd.DataFrame(medals).T.values, countries, filename="stacked_bar.html")
+
+# OK
+bar = NewBar(medals.values(), countries, filename="stacked_bar.html")
+
 bar.title("Stacked bars").xlabel("countries").ylabel("medals")\
    .legend(True).width(600).height(400).stacked().show()

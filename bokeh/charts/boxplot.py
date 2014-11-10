@@ -20,7 +20,7 @@ It also add a new chained stacked method.
 import numpy as np
 import pandas as pd
 
-from ._chartobject import ChartObject
+from ._chartobject import ChartObject, DataAdapter
 
 from ..objects import ColumnDataSource, FactorRange, Range1d
 
@@ -359,3 +359,190 @@ class BoxPlot(ChartObject):
         setattr(self, val, content)
         data[val] = getattr(self, val)
         attr.append(val)
+
+
+class NewBoxPlot(BoxPlot):
+    """This is the BoxPlot class and it is in charge of plotting
+    scatter plots in an easy and intuitive way.
+
+    Essentially, we provide a way to ingest the data, make the proper
+    calculations and push the references into a source object.
+    We additionally make calculations for the ranges.
+    And finally add the needed glyphs (rects, lines and markers)
+    taking the references from the source.
+
+    Examples:
+
+        from collections import OrderedDict
+
+        import numpy as np
+
+        from bokeh.charts import BoxPlot
+        from bokeh.sampledata.olympics2014 import data
+
+        data = {d['abbr']: d['medals'] for d in data['data'] if d['medals']['total'] > 0}
+
+        countries = sorted(data.keys(), key=lambda x: data[x]['total'], reverse=True)
+
+        gold = np.array([data[abbr]['gold'] for abbr in countries], dtype=np.float)
+        silver = np.array([data[abbr]['silver'] for abbr in countries], dtype=np.float)
+        bronze = np.array([data[abbr]['bronze'] for abbr in countries], dtype=np.float)
+
+        medals = OrderedDict(bronze=bronze, silver=silver, gold=gold)
+
+        boxplot = BoxPlot(medals, marker="circle", outliers=True,
+                          title="boxplot, dict_input", xlabel="medal type", ylabel="medal count",
+                          width=800, height=600, notebook=True)
+        boxplot.show()
+    """
+    def __init__(self, value, marker="circle", outliers=True,
+                 title=None, xlabel=None, ylabel=None, legend=False,
+                 xscale="categorical", yscale="linear", width=800, height=600,
+                 tools=True, filename=False, server=False, notebook=False):
+        super(NewBoxPlot, self).__init__(
+            DataAdapter(value, force_alias=False),
+            marker,
+            outliers,
+            title,
+            xlabel,
+            ylabel,
+            legend,
+            xscale,
+            yscale,
+            width,
+            height,
+            tools,
+            filename,
+            server,
+            notebook
+        )
+
+    def get_data(self, marker, outliers, value):
+        """Take the BoxPlot data from the input **value.
+
+        It calculates the chart properties accordingly. Then build a dict
+        containing references to all the calculated points to be used by
+        the quad, segments and markers glyphs inside the ``draw`` method.
+
+        Args:
+            cat (list): categories as a list of strings.
+            marker (int or string, optional): if outliers=True, the marker type to use
+                e.g., ``circle``.
+            outliers (bool, optional): Whether to plot outliers.
+            values (dict or pd obj): the values to be plotted as bars.
+        """
+        # assuming value is a OrdererDict
+        self.value = value
+
+        if isinstance(self.value, pd.DataFrame):
+            self.groups = self.value.columns
+        else:
+            self.groups = list(self.value.keys())
+
+        self.marker = marker
+        self.outliers = outliers
+
+        # add group to the self.data_segment dict
+        self.data_segment["groups"] = self.groups
+
+        # add group and witdh to the self.data_rect dict
+        self.data_rect["groups"] = self.groups
+        self.data_rect["width"] = [0.8] * len(self.groups)
+
+        # self.data_scatter does not need references to groups now,
+        # they will be added later.
+
+        # add group to the self.data_legend dict
+        self.data_legend["groups"] = self.groups
+
+        # all the list we are going to use to save calculated values
+        q0_points = []
+        q2_points = []
+        iqr_centers = []
+        iqr_lengths = []
+        lower_points = []
+        upper_points = []
+        upper_center_boxes = []
+        upper_height_boxes = []
+        lower_center_boxes = []
+        lower_height_boxes = []
+        out_x, out_y, out_color = ([], [], [])
+
+        self.palette = self._set_colors(self.groups)
+
+        for i, level in enumerate(self.groups):
+            # Compute quantiles, center points, heights, IQR, etc.
+            # quantiles
+            q = np.percentile(self.value[level], [25, 50, 75])
+            q0_points.append(q[0])
+            q2_points.append(q[2])
+
+            # IQR related stuff...
+            iqr_centers.append((q[2] + q[0]) / 2)
+            iqr = q[2] - q[0]
+            iqr_lengths.append(iqr)
+            lower = q[1] - 1.5 * iqr
+            upper = q[1] + 1.5 * iqr
+            lower_points.append(lower)
+            upper_points.append(upper)
+
+            # rect center points and heights
+            upper_center_boxes.append((q[2] + q[1]) / 2)
+            upper_height_boxes.append(q[2] - q[1])
+            lower_center_boxes.append((q[1] + q[0]) / 2)
+            lower_height_boxes.append(q[1] - q[0])
+
+            # Store indices of outliers as list
+            outliers = np.where((self.value[level] > upper) | (self.value[level] < lower))[0]
+            out = self.value[level][outliers]
+            for o in out:
+                out_x.append(level)
+                out_y.append(o)
+                out_color.append(self.palette[i])
+
+        # Store
+        self._set_and_get(self.data_scatter, self.attr_scatter, "out_x", out_x)
+        self._set_and_get(self.data_scatter, self.attr_scatter, "out_y", out_y)
+        self._set_and_get(self.data_scatter, self.attr_scatter, "colors", out_color)
+
+        self._set_and_get(self.data_segment, self.attr_segment, "q0", q0_points)
+        self._set_and_get(self.data_segment, self.attr_segment, "lower", lower_points)
+        self._set_and_get(self.data_segment, self.attr_segment, "q2", q2_points)
+        self._set_and_get(self.data_segment, self.attr_segment, "upper", upper_points)
+
+        self._set_and_get(self.data_rect, self.attr_rect, "iqr_centers", iqr_centers)
+        self._set_and_get(self.data_rect, self.attr_rect, "iqr_lengths", iqr_lengths)
+        self._set_and_get(self.data_rect, self.attr_rect, "upper_center_boxes", upper_center_boxes)
+        self._set_and_get(self.data_rect, self.attr_rect, "upper_height_boxes", upper_height_boxes)
+        self._set_and_get(self.data_rect, self.attr_rect, "lower_center_boxes", lower_center_boxes)
+        self._set_and_get(self.data_rect, self.attr_rect, "lower_height_boxes", lower_height_boxes)
+        self._set_and_get(self.data_rect, self.attr_rect, "colors", self.palette)
+
+    def show(self):
+        """Main BoxPlot show method.
+
+        It essentially checks for chained methods, creates the chart,
+        pass data into the plot object, draws the glyphs according
+        to the data and shows the chart in the selected output.
+
+        .. note:: the show method can not be chained. It has to be called
+        at the end of the chain.
+        """
+        # we need to check the chained method attr
+        self.check_attr()
+        # we create the chart object
+        self.create_chart()
+        # we start the plot (adds axis, grids and tools)
+        self.start_plot(xgrid=False)
+        # we get the data from the incoming input
+        self.get_data(self._marker, self._outliers, self.value)
+        # we filled the source and ranges with the calculated data
+        self.get_source()
+        # we dynamically inject the ranges into the plot
+        self.add_data_plot(self.xdr, self.ydr)
+        # we add the glyphs into the plot
+        self.draw()
+        # we pass info to build the legend
+        self.end_plot(self.groups)
+        # and finally we show it
+        self.show_chart()

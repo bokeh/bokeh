@@ -19,7 +19,7 @@ calling the proper functions.
 
 import pandas as pd
 
-from ._chartobject import ChartObject
+from ._chartobject import ChartObject, DataAdapter
 
 from ..objects import ColumnDataSource, FactorRange, HoverTool
 
@@ -230,8 +230,107 @@ class CategoricalHeatMap(ChartObject):
 
 
 class NewCategoricalHeatMap(CategoricalHeatMap):
+    """This is the CategoricalHeatMap class and it is in charge of plotting
+    CategoricalHeatMap chart in an easy and intuitive way.
 
-    def get_data(self, palette, **value):
+    Essentially, it provides a way to ingest the data, make the proper
+    calculations and push the references into a source object.
+    We additionally make calculations for the ranges.
+    And finally add the needed glyphs (rects) taking the references
+    from the source.
+
+    Examples:
+        from bokeh.sampledata.unemployment1948 import data
+
+        # pandas magic
+        df = data[data.columns[:-2]]
+        df2 = df.set_index(df[df.columns[0]].astype(str))
+        df2.drop(df.columns[0], axis=1, inplace=True)
+        df3 = df2.transpose()
+
+        # bokeh magic
+        from bokeh.charts import CategoricalHeatMap
+        hm = CategoricalHeatMap(df3, title="categorical heatmap, pd_input", notebook=True)
+        hm.width(1000).height(400).show()
+    """
+    def __init__(self, value, palette=None,
+                 title=None, xlabel=None, ylabel=None, legend=False,
+                 xscale="categorical", yscale="categorical", width=800, height=600,
+                 tools=True, filename=False, server=False, notebook=False):
+        """
+        Args:
+            value (pd obj): a pandas dataframe containing. Columns and Index must
+                be string type.
+            palette(list, optional): a list containing the colormap as hex values.
+            title (str, optional): the title of your plot. Defaults to None.
+            xlabel (str, optional): the x-axis label of your plot.
+                Defaults to None.
+            ylabel (str, optional): the y-axis label of your plot.
+                Defaults to None.
+            legend (str, optional): the legend of your plot. The legend content is
+                inferred from incoming input.It can be ``top_left``,
+                ``top_right``, ``bottom_left``, ``bottom_right``.
+                It is ``top_right`` is you set it as True.
+                Defaults to None.
+            xscale (str, optional): the x-axis type scale of your plot. It can be
+                ``linear``, ``datetime`` or ``categorical``.
+                Defaults to ``linear``.
+            yscale (str, optional): the y-axis type scale of your plot. It can be
+                ``linear``, ``datetime`` or ``categorical``.
+                Defaults to ``linear``.
+            width (int, optional): the width of your plot in pixels.
+                Defaults to 800.
+            height (int, optional): the height of you plot in pixels.
+                Defaults to 600.
+            tools (bool, optional): to enable or disable the tools in your plot.
+                Defaults to True
+            filename (str or bool, optional): the name of the file where your plot.
+                will be written. If you pass True to this argument, it will use
+                ``untitled`` as a filename.
+                Defaults to False.
+            server (str or bool, optional): the name of your plot in the server.
+                If you pass True to this argument, it will use ``untitled``
+                as the name in the server.
+                Defaults to False.
+            notebook (bool or optional):if you want to output (or not) your plot into the
+                IPython notebook.
+                Defaults to False.
+
+        Attributes:
+            source (obj): datasource object for your plot,
+                initialized as a dummy None.
+            xdr (obj): x-associated datarange object for you plot,
+                initialized as a dummy None.
+            ydr (obj): y-associated datarange object for you plot,
+                initialized as a dummy None.
+            groups (list): to be filled with the incoming groups of data.
+                Useful for legend construction.
+            data (dict): to be filled with the incoming data and be passed
+                to the ColumnDataSource in each chart inherited class.
+                Needed for _set_And_get method.
+            attr (list): to be filled with the new attributes created after
+                loading the data dict.
+                Needed for _set_And_get method.
+        """
+        super(NewCategoricalHeatMap, self).__init__(
+            DataAdapter(value),
+            palette,
+            title,
+            xlabel,
+            ylabel,
+            legend,
+            xscale,
+            yscale,
+            width,
+            height,
+            tools,
+            filename,
+            server,
+            notebook
+        )
+
+
+    def get_data(self, palette, value):
         """Take the CategoricalHeatMap data from the input **value.
 
         It calculates the chart properties accordingly. Then build a dict
@@ -289,9 +388,9 @@ class NewCategoricalHeatMap(CategoricalHeatMap):
         try:
             self.catsx = self.value.columns
             self.catsy = self.value.index
+
         except:
             raise
-            #print("CategoricalHeatMap only support pandas dataframes loading for now.")
 
         # we need to check the chained method attr
         self.check_attr()

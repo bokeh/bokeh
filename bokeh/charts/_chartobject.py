@@ -392,6 +392,7 @@ class DataAdapter(object):
             # default names
             try:
                 # assuming it's a dict or dataframe..
+                #import pdb; pdb.set_trace()
                 keys = self._values.keys
                 if callable(keys):
                     columns = list(keys())
@@ -430,7 +431,10 @@ class DataAdapter(object):
                 else:
                     self._index = list('abcdefghijklmnopqrstuvz1234567890')[:len(self.values()[0])]
             except AttributeError:
-                self._index = list('abcdefghijklmnopqrstuvz1234567890')[:len(self.values()[0])]
+                indexes = self.index
+
+                if isinstance(indexes[0], int):
+                    self._index = list('abcdefghijklmnopqrstuvz1234567890')[:len(self.values()[0])]
 
     def index_converter(self, x):
         key = self._columns_map.get(x, x)
@@ -461,6 +465,9 @@ class DataAdapter(object):
             #self._values = dict(zip(indexes, self._values))
             return map(str, indexes)
 
+    def __len__(self):
+        return len(self._values)
+
     def __iter__(self):
         for k in self.keys():
             yield k
@@ -477,6 +484,8 @@ class DataAdapter(object):
         #        return values
 
         # if we have "index aliases" we need to remap the values...
+        # TODO: this should be more explicit... we shouldn't rely on an implementation
+        # details to do something that is very subtle like remapping keys...
         if hasattr(self, "_index"):
             val = dict(zip(self._index, val))
 
@@ -567,6 +576,13 @@ class DataAdapter(object):
 
         else:
             print "ADPW"
-            indexes = range(0, len(self.values()[0]))
-            self._index = indexes
+
+            first_el = self.values()[0]
+
+            if isinstance(first_el, dict):
+                indexes = first_el.keys()
+
+            else:
+                indexes = range(0, len(self.values()[0]))
+                self._index = indexes
             return indexes

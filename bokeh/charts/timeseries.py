@@ -18,8 +18,9 @@ It also add detection of the incomming input to see if it is a pandas dataframe.
 #-----------------------------------------------------------------------------
 
 import pandas as pd
+from collections import OrderedDict
 
-from ._chartobject import ChartObject
+from ._chartobject import ChartObject, DataAdapter
 
 from ..objects import ColumnDataSource, Range1d, DataRange1d
 
@@ -251,8 +252,115 @@ class TimeSeries(ChartObject):
         self.attr.append(prefix + val)
 
 
-class TimeSeries(TimeSeries):
-    def get_data(self, **xy):
+class NewTimeSeries(TimeSeries):
+    """This is the TimeSeries class and it is in charge of plotting
+    TimeSeries charts in an easy and intuitive way.
+
+    Essentially, we provide a way to ingest the data, make the proper
+    calculations and push the references into a source object.
+    We additionally make calculations for the ranges.
+    And finally add the needed lines taking the references from the source.
+
+    Examples:
+
+        from collections import OrderedDict
+        import pandas as pd
+
+        # Here is some code to read in some stock data from the Yahoo Finance API
+        AAPL = pd.read_csv(
+            "http://ichart.yahoo.com/table.csv?s=AAPL&a=0&b=1&c=2000",
+            parse_dates=['Date'])
+        MSFT = pd.read_csv(
+            "http://ichart.yahoo.com/table.csv?s=MSFT&a=0&b=1&c=2000",
+            parse_dates=['Date'])
+        IBM = pd.read_csv(
+            "http://ichart.yahoo.com/table.csv?s=IBM&a=0&b=1&c=2000",
+            parse_dates=['Date'])
+
+        xyvalues = OrderedDict(AAPL=AAPL[['Date', 'Adj Close']],
+                               MSFT=MSFT[['Date', 'Adj Close']],
+                               IBM=IBM[['Date', 'Adj Close']])
+        df = pd.concat(xyvalues, axis=1, names=["l0", "l1"])
+
+        from bokeh.charts import TimeSeries
+        ts = TimeSeries(df, title="timeseries, pd_input", notebook=True)
+        ts.legend("top_left").show()
+    """
+    def __init__(self, xy,
+                 title=None, xlabel=None, ylabel=None, legend=False,
+                 xscale="datetime", yscale="linear", width=800, height=600,
+                 tools=True, filename=False, server=False, notebook=False):
+        """
+        Args:
+            xy (dict): a dict containing the data with names as a key
+                and the data as a value.
+            title (str, optional): the title of your plot. Defaults to None.
+            xlabel (str, optional): the x-axis label of your plot.
+                Defaults to None.
+            ylabel (str, optional): the y-axis label of your plot.
+                Defaults to None.
+            legend (str, optional): the legend of your plot. The legend content is
+                inferred from incoming input.It can be ``top_left``,
+                ``top_right``, ``bottom_left``, ``bottom_right``.
+                It is ``top_right`` is you set it as True.
+                Defaults to None.
+            xscale (str, optional): the x-axis type scale of your plot. It can be
+                ``linear``, ``datetime`` or ``categorical``.
+                Defaults to ``datetime``.
+            yscale (str, optional): the y-axis type scale of your plot. It can be
+                ``linear``, ``datetime`` or ``categorical``.
+                Defaults to ``linear``.
+            width (int, optional): the width of your plot in pixels.
+                Defaults to 800.
+            height (int, optional): the height of you plot in pixels.
+                Defaults to 600.
+            tools (bool, optional): to enable or disable the tools in your plot.
+                Defaults to True
+            filename (str or bool, optional): the name of the file where your plot.
+                will be written. If you pass True to this argument, it will use
+                ``untitled`` as a filename.
+                Defaults to False.
+            server (str or bool, optional): the name of your plot in the server.
+                If you pass True to this argument, it will use ``untitled``
+                as the name in the server.
+                Defaults to False.
+            notebook (bool, optional):if you want to output (or not) your plot into the
+                IPython notebook.
+                Defaults to False.
+
+        Attributes:
+            source (obj): datasource object for your plot,
+                initialized as a dummy None.
+            xdr (obj): x-associated datarange object for you plot,
+                initialized as a dummy None.
+            ydr (obj): y-associated datarange object for you plot,
+                initialized as a dummy None.
+            groups (list): to be filled with the incoming groups of data.
+                Useful for legend construction.
+            data (dict): to be filled with the incoming data and be passed
+                to the ColumnDataSource in each chart inherited class.
+                Needed for _set_And_get method.
+            attr (list): to be filled with the new attributes created after
+                loading the data dict.
+                Needed for _set_And_get method.
+        """
+        super(NewTimeSeries, self).__init__(
+            DataAdapter(xy, force_alias=False),
+            title,
+            xlabel,
+            ylabel,
+            legend,
+            xscale,
+            yscale,
+            width,
+            height,
+            tools,
+            filename,
+            server,
+            notebook
+        )
+
+    def get_data(self, xy):
         """Take the x/y data from the input **value.
 
         It calculates the chart properties accordingly. Then build a dict
@@ -279,8 +387,8 @@ class TimeSeries(TimeSeries):
             x_, y_ = [], []
             xy = self.xy[val]
             for value in self.xy.index:
-                x_.append(value[0])
-                y_.append(value[1])
+                x_.append(xy[value][0])
+                y_.append(xy[value][1])
 
             self._set_and_get("x_", val, x_)
             self._set_and_get("y_", val, y_)
@@ -298,8 +406,6 @@ class TimeSeries(TimeSeries):
         # asumming we get an hierchiral pandas object
         if isinstance(self.xy, pd.DataFrame):
             self.labels = self.xy.columns.levels[1].values
-
-            from collections import OrderedDict
             pdict = OrderedDict()
 
             for i in self.xy.columns.levels[0].values:
