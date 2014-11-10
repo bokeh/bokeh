@@ -316,7 +316,8 @@ if "sdist" in sys.argv:
 
 # check for package install, add "--install_js" to skip prompt
 if not exists(join(ROOT, 'MANIFEST.in')):
-    if "--install_js" not in sys.argv and "--build_js" not in sys.argv:
+    installing = any(arg in sys.argv for arg in ('install', 'develop', 'sdist', 'egg_info'))
+    if installing and "--install_js" not in sys.argv and "--build_js" not in sys.argv:
         print("Adding '--install_js' default for sdist package install")
         sys.argv.append('--install_js')
 

@@ -24,6 +24,7 @@ from ..models import docs
 from ..models import user
 from ..serverbb import prune
 from ..views import make_json
+from ..settings import settings as server_settings
 
 def request_resources():
     """Creates resources instance based on url info from
@@ -53,6 +54,7 @@ def ping():
     # test route, to know if the server is up
     return "pong"
 
+@bokeh_app.route('/')
 @bokeh_app.route('/bokeh/')
 def index(*unused_all, **kwargs):
     ''' Render main page.
@@ -65,19 +67,10 @@ def index(*unused_all, **kwargs):
     if not bokehuser:
         return redirect(url_for('.login_get'))
     return render('bokeh.html',
-                  splitjs=bokeh_app.splitjs,
+                  splitjs=server_settings.splitjs,
                   username=bokehuser.username,
                   title="Bokeh Documents for %s" % bokehuser.username
     )
-
-@bokeh_app.route('/')
-def welcome(*unused_all, **kwargs):
-    ''' Redirect to index
-
-    :status 302: redirect to index
-
-    '''
-    return redirect(url_for('.index'))
 
 @bokeh_app.route('/bokeh/favicon.ico')
 def favicon():
@@ -154,11 +147,6 @@ def get_user():
     content = protocol.serialize_web(bokehuser.to_public_json())
     return make_json(content)
 
-def _make_test_plot_file(username, userapikey, url):
-    lines = ["from bokeh import mpl",
-             "p = mpl.PlotClient(username='%s', serverloc='%s', userapikey='%s')" % (username, url, userapikey)]
-    return "\n".join(lines)
-
 @bokeh_app.route('/bokeh/doc/<docid>/', methods=['GET', 'OPTIONS'])
 @bokeh_app.route('/bokeh/bokehinfo/<docid>/', methods=['GET', 'OPTIONS'])
 @crossdomain(origin="*", headers=['BOKEH-API-KEY', 'Continuum-Clientid'])
@@ -190,7 +178,7 @@ def show_doc_by_title(title):
     docs = [ doc for doc in bokehuser.docs if doc['title'] == title ]
     doc = docs[0] if len(docs) != 0 else abort(404)
     docid = doc['docid']
-    return render('show.html', title=title, docid=docid, splitjs=bokeh_app.splitjs)
+    return render('show.html', title=title, docid=docid, splitjs=server_settings.splitjs)
 
 @bokeh_app.route('/bokeh/doc/', methods=['GET', 'OPTIONS'])
 @crossdomain(origin="*", headers=['BOKEH-API-KEY', 'Continuum-Clientid'])
@@ -214,50 +202,11 @@ def doc_by_title():
         docid = doc['docid']
     return get_bokeh_info(docid)
 
-# need to rethink public publishing
-# @bokeh_app.route('/bokeh/publicbokehinfo/<docid>')
-# def get_public_bokeh_info(docid):
-#     doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
-#     plot_context_ref = doc.plot_context_ref
-#     all_models = docs.prune_and_get_valid_models(bokeh_app.servermodel_storage,
-#                                                  bokeh_app.collections,
-#                                                  docid)
-#     public_models = [x for x in all_models if x.get('public', False)]
-#     if len(public_models) == 0:
-#         return False
-#     all_models_json = [x.to_broadcast_json() for x in all_models]
-#     returnval = {'plot_context_ref' : plot_context_ref,
-#                  'docid' : docid,
-#                  'all_models' : all_models_json,
-#                  }
-#     returnval = protocol.serialize_web(returnval)
-#     #return returnval
-
-#     return (returnval, "200",
-#             {"Access-Control-Allow-Origin": "*"})
-
 
 @bokeh_app.route('/bokeh/sampleerror')
 def sampleerror():
     return 1 + "sdf"
 
-def make_test_plot():
-    import numpy as np
-    from bokeh.plotting import output_server, line
-
-    N = 8000
-
-    x = np.linspace(0, 4*np.pi, N)
-    y = np.sin(x)
-
-    output_server("line.py example")
-
-    l = line(
-        x,y, color="#0000FF",
-        plot_height=300, plot_width=300,
-        tools="pan,resize")
-    return l
-    #show()
 
 @bokeh_app.route("/bokeh/autoload.js/<elementid>")
 def autoload_js(elementid):
@@ -308,20 +257,20 @@ def show_obj(docid, objid):
                   docid=docid,
                   objid=objid,
                   hide_navbar=True,
-                  splitjs=bokeh_app.splitjs,
+                  splitjs=server_settings.splitjs,
                   username=bokehuser.username,
                   loglevel=resources.log_level)
 
 @bokeh_app.route('/bokeh/wsurl/', methods=['GET'])
 @crossdomain(origin="*", headers=['BOKEH-API-KEY', 'Continuum-Clientid'])
 def wsurl():
-    if bokeh_app.websocket_params.get('ws_conn_string'):
-        return bokeh_app.websocket_params.get('ws_conn_string')
+    if server_settings.ws_conn_string:
+        return server_settings.ws_conn_string
+    if request.scheme == "http":
+        scheme = 'ws'
     else:
-        prefix = bokeh_app.url_prefix
-        if prefix is None or prefix == "/":
-            prefix = ""
-        ws_port = bokeh_app.websocket_params['ws_port']
-        host = request.host.split(":")[0]
-        #TODO:ssl..?
-        return "ws://%s:%d%s/bokeh/sub/" % (host, ws_port, prefix)
+        scheme = 'wss'
+    url = "%s://%s%s" % (scheme,
+                         request.host,
+                         server_settings.url_prefix + "/bokeh/sub")
+    return url
