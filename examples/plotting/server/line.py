@@ -10,5 +10,5 @@ x = np.linspace(0, 4*np.pi, N)
 y = np.sin(x)
 
 output_server("line")
-plot = line(x,y, color="#0000FF", tools="pan,wheel_zoom,box_zoom,reset,previewsave")
+plot = line(x,y, color="#ff0000", tools="pan,wheel_zoom,box_zoom,reset,previewsave")
 show()
