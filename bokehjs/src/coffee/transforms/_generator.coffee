@@ -17,11 +17,11 @@ define [
         @$el.html("")
 
     class Model extends HasParent
-      type : name.toUpperCase()
+      type: name.toUpperCase()
       default_view: View
 
     class Collection extends BaseCollection
-      model : Model
+      model: Model
 
     return {
       Model: Model
