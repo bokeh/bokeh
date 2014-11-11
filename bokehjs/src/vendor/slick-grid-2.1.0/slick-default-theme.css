@@ -1,0 +1,118 @@
+/*
+IMPORTANT:
+In order to preserve the uniform grid appearance, all cell styles need to have padding, margin and border sizes.
+No built-in (selected, editable, highlight, flashing, invalid, loading, :focus) or user-specified CSS
+classes should alter those!
+*/
+
+.bk-slick-header-columns {
+  background: url('images/header-columns-bg.gif') repeat-x center bottom;
+  border-bottom: 1px solid silver;
+}
+
+.bk-slick-header-column {
+  background: url('images/header-columns-bg.gif') repeat-x center bottom;
+  border-right: 1px solid silver;
+}
+
+.bk-slick-header-column:hover, .bk-slick-header-column-active {
+  background: white url('images/header-columns-over-bg.gif') repeat-x center bottom;
+}
+
+.bk-slick-headerrow {
+  background: #fafafa;
+}
+
+.bk-slick-headerrow-column {
+  background: #fafafa;
+  border-bottom: 0;
+  height: 100%;
+}
+
+.bk-slick-row.bk-ui-state-active {
+  background: #F5F7D7;
+}
+
+.bk-slick-row {
+  position: absolute;
+  background: white;
+  border: 0px;
+  line-height: 20px;
+}
+
+.bk-slick-row.selected {
+  z-index: 10;
+  background: #DFE8F6;
+}
+
+.bk-slick-cell {
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+.bk-slick-group {
+  border-bottom: 2px solid silver;
+}
+
+.bk-slick-group-toggle {
+  width: 9px;
+  height: 9px;
+  margin-right: 5px;
+}
+
+.bk-slick-group-toggle.expanded {
+  background: url(images/collapse.gif) no-repeat center center;
+}
+
+.bk-slick-group-toggle.collapsed {
+  background: url(images/expand.gif) no-repeat center center;
+}
+
+.bk-slick-group-totals {
+  color: gray;
+  background: white;
+}
+
+.bk-slick-cell.selected {
+  background-color: beige;
+}
+
+.bk-slick-cell.active {
+  border-color: gray;
+  border-style: solid;
+}
+
+.bk-slick-sortable-placeholder {
+  background: silver !important;
+}
+
+.bk-slick-row.odd {
+  background: #fafafa;
+}
+
+.bk-slick-row.bk-ui-state-active {
+  background: #F5F7D7;
+}
+
+.bk-slick-row.loading {
+  opacity: 0.5;
+  filter: alpha(opacity = 50);
+}
+
+.bk-slick-cell.invalid {
+  border-color: red;
+  -moz-animation-duration: 0.2s;
+  -webkit-animation-duration: 0.2s;
+  -moz-animation-name: slickgrid-invalid-hilite;
+  -webkit-animation-name: slickgrid-invalid-hilite;
+}
+
+@-moz-keyframes slickgrid-invalid-hilite {
+  from { box-shadow: 0 0 6px red; }
+  to { box-shadow: none; }
+}
+
+@-webkit-keyframes slickgrid-invalid-hilite {
+  from { box-shadow: 0 0 6px red; }
+  to { box-shadow: none; }
+}

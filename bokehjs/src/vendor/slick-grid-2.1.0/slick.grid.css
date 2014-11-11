@@ -1,0 +1,157 @@
+/*
+IMPORTANT:
+In order to preserve the uniform grid appearance, all cell styles need to have padding, margin and border sizes.
+No built-in (selected, editable, highlight, flashing, invalid, loading, :focus) or user-specified CSS
+classes should alter those!
+*/
+
+.bk-slick-header.bk-ui-state-default, .bk-slick-headerrow.bk-ui-state-default {
+  width: 100%;
+  overflow: hidden;
+  border-left: 0px;
+}
+
+.bk-slick-header-columns, .bk-slick-headerrow-columns {
+  position: relative;
+  white-space: nowrap;
+  cursor: default;
+  overflow: hidden;
+}
+
+.bk-slick-header-column.bk-ui-state-default {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  -o-text-overflow: ellipsis;
+  text-overflow: ellipsis;
+  height: 16px;
+  line-height: 16px;
+  margin: 0;
+  padding: 4px;
+  border-right: 1px solid silver;
+  border-left: 0px;
+  border-top: 0px;
+  border-bottom: 0px;
+  float: left;
+}
+
+.bk-slick-headerrow-column.bk-ui-state-default {
+  padding: 4px;
+}
+
+.bk-slick-header-column-sorted {
+  font-style: italic;
+}
+
+.bk-slick-sort-indicator {
+  display: inline-block;
+  width: 8px;
+  height: 5px;
+  margin-left: 4px;
+  margin-top: 6px;
+  float: left;
+}
+
+.bk-slick-sort-indicator-desc {
+  background: url(images/sort-desc.gif);
+}
+
+.bk-slick-sort-indicator-asc {
+  background: url(images/sort-asc.gif);
+}
+
+.bk-slick-resizable-handle {
+  position: absolute;
+  font-size: 0.1px;
+  display: block;
+  cursor: col-resize;
+  width: 4px;
+  right: 0px;
+  top: 0;
+  height: 100%;
+}
+
+.bk-slick-sortable-placeholder {
+  background: silver;
+}
+
+.grid-canvas {
+  position: relative;
+  outline: 0;
+}
+
+.bk-slick-row.bk-ui-widget-content, .bk-slick-row.bk-ui-state-active {
+  position: absolute;
+  border: 0px;
+  width: 100%;
+}
+
+.bk-slick-cell, .bk-slick-headerrow-column {
+  position: absolute;
+  border: 1px solid transparent;
+  border-right: 1px dotted silver;
+  border-bottom-color: silver;
+  overflow: hidden;
+  -o-text-overflow: ellipsis;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+  z-index: 1;
+  padding: 1px 2px 2px 1px;
+  margin: 0;
+  white-space: nowrap;
+  cursor: default;
+}
+
+.bk-slick-group {
+}
+
+.bk-slick-group-toggle {
+  display: inline-block;
+}
+
+.bk-slick-cell.highlighted {
+  background: lightskyblue;
+  background: rgba(0, 0, 255, 0.2);
+  -webkit-transition: all 0.5s;
+  -moz-transition: all 0.5s;
+  -o-transition: all 0.5s;
+  transition: all 0.5s;
+}
+
+.bk-slick-cell.flashing {
+  border: 1px solid red !important;
+}
+
+.bk-slick-cell.editable {
+  z-index: 11;
+  overflow: visible;
+  background: white;
+  border-color: black;
+  border-style: solid;
+}
+
+.bk-slick-cell:focus {
+  outline: none;
+}
+
+.bk-slick-reorder-proxy {
+  display: inline-block;
+  background: blue;
+  opacity: 0.15;
+  filter: alpha(opacity = 15);
+  cursor: move;
+}
+
+.bk-slick-reorder-guide {
+  display: inline-block;
+  height: 2px;
+  background: blue;
+  opacity: 0.7;
+  filter: alpha(opacity = 70);
+}
+
+.bk-slick-selection {
+  z-index: 10;
+  position: absolute;
+  border: 2px dashed black;
+}

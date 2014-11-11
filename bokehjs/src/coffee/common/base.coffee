@@ -117,10 +117,7 @@ define [
   "tool/inspectors/inspect_tool",
 
   "widget/data_table",
-  "widget/handson_table",
-  "widget/table_column"
-  "widget/pivot_table",
-
+  "widget/table_column",
   'widget/paragraph'
   'widget/hbox'
   'widget/vbox'
@@ -288,10 +285,7 @@ define [
     InspectTool:              'tool/inspectors/inspect_tool'
 
     DataTable:                'widget/data_table'
-    HandsonTable:             'widget/handson_table'
     TableColumn:              'widget/table_column'
-    PivotTable:               'widget/pivot_table'
-
     Paragraph:                'widget/paragraph'
     HBox:                     'widget/hbox'
     VBox:                     'widget/vbox'

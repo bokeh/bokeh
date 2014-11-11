@@ -52,10 +52,3 @@ User Interaction
 * DatePicker
 
 * Dialog
-
-* DataTable
-
-* HandsonTable
-
-* PivotTable
-

@@ -4,7 +4,7 @@ import Keys._
 object ProjectBuild extends Build {
     override lazy val settings = super.settings ++ Seq(
         organization := "org.continuumio",
-        version := "0.5.0-SNAPSHOT",
+        version := "0.7.0-SNAPSHOT",
         description := "Bokeh plotting library",
         homepage := Some(url("http://bokeh.pydata.org")),
         licenses := Seq("BSD-style" -> url("http://www.opensource.org/licenses/bsd-license.php")),
