@@ -13,10 +13,6 @@ define [
         super(options)
         @render_init()
 
-      delegateEvents: (events) ->
-        super(events)
-        null
-
       render_init: () ->
         @$el.html("")
 
