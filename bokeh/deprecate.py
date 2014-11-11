@@ -53,7 +53,7 @@ __all__ = [
     ]
 
 
-import new, sys, inspect, warnings
+import types, sys, inspect, warnings
 from warnings import warn, warn_explicit
 from dis import findlinestarts
 
@@ -74,7 +74,7 @@ def mergeFunctionMetadata(f, g):
         g.__name__ = f.__name__
     except TypeError:
         try:
-            merged = new.function(
+            merged = types.FunctionType(
                 g.func_code, g.func_globals,
                 f.__name__, inspect.getargspec(g)[-1],
                 g.func_closure)
