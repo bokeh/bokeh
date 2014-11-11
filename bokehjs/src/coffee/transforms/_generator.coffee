@@ -7,7 +7,7 @@ define [
   return (name) ->
     class View extends ContinuumView
       attributes:
-        class: View
+        class: "#{name.toUpperCase()}View"
 
       initialize: (options) ->
         super(options)
