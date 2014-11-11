@@ -516,7 +516,7 @@ class DataAdapter(object):
         except AttributeError:
             index = getattr(self._values, "index", None)
 
-            if not callable(index) and is not None:
+            if not callable(index) and index is not None:
                 # guess it's a pandas dataframe..
                 return index
 
