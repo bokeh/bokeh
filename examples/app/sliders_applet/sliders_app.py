@@ -62,7 +62,9 @@ class SlidersApp(HBox):
             value=1.0, start=0.1, end=5.1
         )
 
-        obj.plot = line('x', 'y', source=obj.source,
+        toolset = "crosshair,pan,reset,resize,save,wheel_zoom"
+
+        obj.plot = line('x', 'y', tools=toolset, source=obj.source,
                         plot_width=400, plot_height=400,
                         line_width=3, line_alpha=0.6,
                         title=obj.text.value,

@@ -323,7 +323,7 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
                  x_axis_type="auto", y_axis_type="auto",
                  x_axis_location="below", y_axis_location="left",
                  x_minor_ticks='auto', y_minor_ticks='auto',
-                 tools="pan,wheel_zoom,box_zoom,save,resize,select,reset", **kw):
+                 tools="pan,wheel_zoom,box_zoom,save,resize,reset", **kw):
     # Accept **kw to absorb other arguments which the actual factory functions
     # might pass in, but that we don't care about
 
