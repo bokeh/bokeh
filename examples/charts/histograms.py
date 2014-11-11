@@ -27,5 +27,5 @@ from bokeh.charts import Histogram, NewHistogram, DataAdapter
 #hist = Histogram(DataAdapter(dfd, force_alias=False), bins=50, filename="histograms.html")
 #hist = Histogram(DataAdapter(dfl, force_alias=False), bins=50, filename="histograms.html")
 #hist = Histogram(DataAdapter(dfa, force_alias=False), bins=50, filename="histograms.html")
-hist = NewHistogram(dfa, bins=50, filename="histograms.html")
+hist = NewHistogram(df, bins=50, filename="histograms.html")
 hist.title("Histograms").ylabel("frequency").legend(True).width(400).height(350).show()

@@ -378,6 +378,9 @@ class ChartObject(object):
 
         return colors
 
+DEFAULT_INDEX_ALIASES = list('abcdefghijklmnopqrstuvz1234567890')
+DEFAULT_INDEX_ALIASES += zip(DEFAULT_INDEX_ALIASES, DEFAULT_INDEX_ALIASES)
+
 class DataAdapter(object):
     """
     Adapter object used to normalize Charts inputs to a common know interface
@@ -386,23 +389,20 @@ class DataAdapter(object):
         self._values = data
 
         self.convert_index_to_int = False
+        self._columns_map = {}
 
         if columns is None and force_alias:
             # no column 'labels' defined for data... in this case we use
             # default names
-            try:
-                # assuming it's a dict or dataframe..
-                #import pdb; pdb.set_trace()
-                keys = self._values.keys
-                if callable(keys):
-                    columns = list(keys())
+            keys = getattr(self._values, 'keys', None)
+            if callable(keys):
+                columns = list(keys())
 
-                else:
-                    columns = list(keys)
-
-            except AttributeError:
-                # argh, it's not. So let's just use numbers...
+            elif keys is None:
                 columns = map(str, range(len(data)))
+
+            else:
+                columns = list(keys)
 
         if columns:
             self._columns = columns
@@ -411,30 +411,25 @@ class DataAdapter(object):
             # we have defined using 'columns'
             self._columns_map = dict(zip(columns, self.keys()))
 
-        else:
-            self._columns_map = {}
-
-
         if index is not None:
             self._index = index
 
         elif force_alias:
-            try:
-                # if it's a dataframe it already have everything we need
-                _index = self._values.index
+            _index = getattr(self._values, 'index', None)
 
-                # check because if it is a callable self._values is not a
-                # dataframe (probably a list)
-                if not callable(_index):
-                    self._index = list(_index)
-
-                else:
-                    self._index = list('abcdefghijklmnopqrstuvz1234567890')[:len(self.values()[0])]
-            except AttributeError:
+            # check because if it is a callable self._values is not a
+            # dataframe (probably a list)
+            if _index is None:
                 indexes = self.index
 
                 if isinstance(indexes[0], int):
-                    self._index = list('abcdefghijklmnopqrstuvz1234567890')[:len(self.values()[0])]
+                    self._index = DEFAULT_INDEX_ALIASES[:][:len(self.values()[0])]
+
+            elif not callable(_index):
+                self._index = list(_index)
+
+            else:
+                self._index = DEFAULT_INDEX_ALIASES[:][:len(self.values()[0])]
 
     def index_converter(self, x):
         key = self._columns_map.get(x, x)
@@ -443,27 +438,23 @@ class DataAdapter(object):
         return key
 
     def keys(self):
-        try:
-            # assuming it's a dict or dataframe
-            keys = self._values.keys
-            if callable(keys):
-                return list(keys())
+        # assuming it's a dict or dataframe
+        keys = getattr(self._values, "keys", None)
 
-            else:
-                return list(keys)
+        if callable(keys):
+            return list(keys())
 
-        except AttributeError:
+        elif keys is None:
             # assuming that only non-dict like objects can raise this error
             # it's probably because we have an iterable instead of a mapper
             # in this case let's use indices as groups keys
-
-
             self.convert_index_to_int = True
-
-            #indexes = range(1, len(self._values) + 1)
             indexes = range(len(self._values))
-            #self._values = dict(zip(indexes, self._values))
             return map(str, indexes)
+
+        else:
+            return list(keys)
+
 
     def __len__(self):
         return len(self._values)
@@ -475,14 +466,6 @@ class DataAdapter(object):
     def __getitem__(self, key):
         val = self._values[self.index_converter(key)]
 
-        #values = getattr(val, 'values', None)
-        #if values is not None:
-        #    if callable(values):
-        #        return values()
-        #
-        #    else:
-        #        return values
-
         # if we have "index aliases" we need to remap the values...
         # TODO: this should be more explicit... we shouldn't rely on an implementation
         # details to do something that is very subtle like remapping keys...
@@ -491,39 +474,17 @@ class DataAdapter(object):
 
         return val
 
-    def get_cell_by_position(self, key, index):
-        print 'called'
-        row = self[key]
-
-        if isinstance(row, list):
-            return row[index]
-
-        try:
-            values = row.values
-
-            if callable(values):
-                values = values()
-
-            return values[index]
-
-        except AttributeError:
-            pass #TODO: raise some more meaningful error...
-
-    def get_cell_by_name(self, key, name):
-        pass
-
     def values(self):
-        try:
-            values = self._values.values
+        values = getattr(self._values, "values", None)
 
-            if callable(values):
-                return values()
+        if callable(values):
+            return values()
 
-            else:
-                return list(self._values)
-
-        except AttributeError:
+        elif values is None:
             return self._values
+
+        else:
+            return list(self._values)
 
     def items(self):
         return [(key, self[key]) for key in self]
@@ -553,30 +514,20 @@ class DataAdapter(object):
             return self._index
 
         except AttributeError:
-            print "@OOOOOPS", type( self._values)
-            try:
-                index = self._values.index
-                print 'OP@'
-                if not callable(index):
-                    # guess it's a pandas dataframe..
-                    print "WHERE"
-                    return index
+            index = getattr(self._values, "index", None)
 
-            except (AttributeError):
-                # not a pandas dataframe...
-                pass
+            if not callable(index) and is not None:
+                # guess it's a pandas dataframe..
+                return index
 
         # no, it's not. So it's probably a list so let's get the
         # values and check
         values = self.values()
 
         if isinstance(values, dict):
-            print "OWDk"
             return values.keys()
 
         else:
-            print "ADPW"
-
             first_el = self.values()[0]
 
             if isinstance(first_el, dict):

@@ -26,7 +26,7 @@ xyvalues = OrderedDict(
 from bokeh.charts import TimeSeries, DataAdapter, NewTimeSeries
 #xyvalues = pd.DataFrame(xyvalues)
 #xyvalues = xyvalues.values()
-xyvalues = np.array(xyvalues.values())
+#xyvalues = np.array(xyvalues.values())
 
 ts = NewTimeSeries(xyvalues, title="timeseries, pd_input", filename="stocks_timeseries.html")
 ts.legend("top_left").show()
