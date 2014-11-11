@@ -1,6 +1,6 @@
 define [
   "common/continuum_view"
-  "common/collection",
+  "common/collection"
   "common/has_parent"
 ], (ContinuumView, BaseCollection, HasParent) ->
 
