@@ -17,7 +17,7 @@ define [
         @$el.html("")
 
     class Model extends HasParent
-      type: name.toUpperCase()
+      type: name
       default_view: View
 
     class Collection extends BaseCollection
