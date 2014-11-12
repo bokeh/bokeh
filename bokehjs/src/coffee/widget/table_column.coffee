@@ -1,9 +1,7 @@
 define [
-  "underscore"
-  "jquery"
-  "common/collection"
   "common/has_properties"
-], (_, $, Collection, HasProperties) ->
+  "common/collection"
+], (HasProperties, Collection) ->
 
   class TableColumn extends HasProperties
     type: 'TableColumn'
@@ -13,6 +11,6 @@ define [
     model: TableColumn
 
   return {
-    Model : TableColumn
+    Model: TableColumn
     Collection: new TableColumns()
   }

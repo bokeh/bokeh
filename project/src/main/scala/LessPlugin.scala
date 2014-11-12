@@ -53,7 +53,7 @@ object LessPlugin extends sbt.Plugin {
 
             val scope = ctx.initStandardObjects(global)
 
-            val lessScript = "less-rhino-1.7.0.js"
+            val lessScript = "less-rhino-1.7.5.js"
             val lessReader = new java.io.InputStreamReader(getClass.getResourceAsStream(lessScript))
 
             ctx.evaluateReader(scope, lessReader, lessScript, 1, null)

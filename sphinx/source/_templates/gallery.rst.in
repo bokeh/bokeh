@@ -5,11 +5,11 @@ Gallery
 =======
 
 All of these examples are located in the
-`examples <https://github.com/ContinuumIO/Bokeh/tree/master/examples>`_
+`examples <https://github.com/bokeh/bokeh/tree/master/examples>`_
 subdirectory of your Bokeh checkout.
 
 Click on an image below to see its code and interact with the live
-plot.  
+plot.
 
 .. cssclass:: gallery clearfix
 

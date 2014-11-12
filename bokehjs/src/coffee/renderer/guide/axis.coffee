@@ -485,15 +485,9 @@ define [
       side = @get('location')
 
       if side == 'left' or side == 'below'
-        if cstart < cend
-          loc = 'start'
-        else
-          loc = 'end'
+        loc = 'start'
       else if side == 'right' or side == 'above'
-        if cstart < cend
-          loc = 'end'
-        else
-          loc = 'start'
+        loc = 'end'
 
       return cross_range.get(loc)
 

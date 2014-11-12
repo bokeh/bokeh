@@ -105,7 +105,7 @@ def print_versions():
     """
     print(_print_versions())
 
-def report_issue(number=None , owner="ContinuumIO", repo="bokeh",
+def report_issue(number=None , owner="bokeh", repo="bokeh",
                  versions=True, browser=True):
     """ Open or add to a Github issue programmatically.
 
@@ -121,7 +121,7 @@ def report_issue(number=None , owner="ContinuumIO", repo="bokeh",
             Omit to create a new issue, otherwise supply to comment on an
             already created issue. (default: None)
 
-        owner (str, optional) : owner username (default: "ContinuumIO")
+        owner (str, optional) : owner username (default: "bokeh")
 
         repo (str, optional) : repository name (default: "bokeh")
 

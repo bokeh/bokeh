@@ -1,17 +1,18 @@
 require.config
     paths:
         jquery:            "vendor/jquery/jquery.min"
-        jquery_ui:         "vendor/jquery-ui-amd/jquery-ui-1.10.0/jqueryui"
+        jquery_ui:         "vendor/jquery-ui-1.11.2/js"
         jquery_mousewheel: "vendor/jquery-mousewheel/jquery.mousewheel.min"
-        jqrangeslider:     "vendor/jqrangeslider/jQAllRangeSliders-withRuler-min"
-        handsontable:      "vendor/handsontable/jquery.handsontable.full"
+        jquery_event_drag: "vendor/jquery-event/jquery.event.drag-2.2"
+        jquery_event_drop: "vendor/jquery-event/jquery.event.drop-2.2"
+        jqrangeslider:     "vendor/jqrangeslider-5.7.0"
+        slick_grid:        "vendor/slick-grid-2.1.0"
         underscore:        "vendor/underscore-amd/underscore"
         backbone:          "vendor/backbone-amd/backbone"
         bootstrap:         "vendor/bootstrap-3.1.1/js"
         timezone:          "vendor/timezone/src/timezone"
         sprintf:           "vendor/sprintf/src/sprintf"
         rbush:             "vendor/rbush/rbush"
-        jstree:            "vendor/jstree/dist/jstree"
         gear_utils:        "vendor/gear-utils/gear-utils"
         kiwi:              "vendor/kiwi/kiwi"
         jsnlog:            "vendor/jsnlog/jsnlog.min"
@@ -19,11 +20,11 @@ require.config
     shim:
         sprintf:
             exports: 'sprintf'
-        handsontable:
-            deps: ["jquery"]
-            exports: "$.fn.handsontable"
-        jqrangeslider:
-            deps: ["jquery_ui/core", "jquery_ui/widget", "jquery_ui/mouse", "jquery_mousewheel"]
-            exports: "$.fn.rangeSlider"
         kiwi:
             exports: 'kiwi'
+        jquery_event_drag:
+            deps: ["jquery"]
+            exports: "$.fn.drag"
+        jquery_event_drop:
+            deps: ["jquery"]
+            exports: "$.fn.drop"

@@ -67,7 +67,7 @@ def make_bar_plot(datasource, counts_name="counts",
 
     select_tool = _get_select_tool(plot)
     if select_tool:
-        select_tool.select_y = False
+        select_tool.dimensions = ['width']
 
     return plot
 

@@ -115,7 +115,7 @@ define [
       [left, top, width, height] = frame_box
 
       @canvas_view.map_div.attr("style", "top: #{top}px; left: #{left}px;")
-      @canvas_view.map_div.width("#{width}px").height("#{width}px")
+      @canvas_view.map_div.width("#{width}px").height("#{height}px")
 
     _paint_empty: (ctx, frame_box) ->
       ow = @canvas.get('width')
@@ -165,7 +165,7 @@ define [
 
     display_defaults: ->
       return _.extend {}, super(), {
-        border_fill: "#eee",
+        border_fill: "#fff",
       }
 
   class GMapPlots extends Collection

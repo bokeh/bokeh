@@ -27,10 +27,12 @@ define [
       return this
 
     render_plot : () ->
+      if @plot_view?
+        @plot_view.remove()
       plot = @mget('plot')
-      plot_view = new plot.default_view(model : plot)
-      @$el.find('.bk-plot').empty()
-      @$el.find('.bk-plot').append(plot_view.$el)
+      @plot_view = new plot.default_view(model : plot)
+      @$el.find('.bk-crossfilter-plot').empty()
+      @$el.find('.bk-crossfilter-plot').append(@plot_view.$el)
 
     render : () ->
       if @columnview?

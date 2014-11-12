@@ -110,4 +110,3 @@ class User(models.ServerModel):
                     obj['apikey'],
                     obj['docs'],
                     )
-

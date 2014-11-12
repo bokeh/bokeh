@@ -8,7 +8,7 @@ define [
   "./cartesian_frame"
   "./continuum_view"
   "./collection"
-  "./events"
+  "./ui_events"
   "./has_parent"
   "./layout_box"
   "./logging"
@@ -17,7 +17,7 @@ define [
   "./tool_manager"
   "./plot_template"
   "renderer/properties"
-], ( _, Backbone, kiwi, build_views, Canvas, CartesianFrame, ContinuumView, Collection, Events, HasParent, LayoutBox, Logging, plot_utils, Solver, ToolManager, plot_template, properties) ->
+], ( _, Backbone, kiwi, build_views, Canvas, CartesianFrame, ContinuumView, Collection, UIEvents, HasParent, LayoutBox, Logging, plot_utils, Solver, ToolManager, plot_template, properties) ->
 
   Expr = kiwi.Expression
   Constraint = kiwi.Constraint
@@ -85,12 +85,12 @@ define [
       @model.add_constraints(@canvas.solver)
       @listenTo(@canvas.solver, 'layout_update', @request_render)
 
-      @event_bus = new Events({
+      @ui_event_bus = new UIEvents({
         tool_manager: @mget('tool_manager')
         hit_area: @canvas_view.$el
       })
       for id, tool_view of @tools
-        @event_bus.register_tool(tool_view)
+        @ui_event_bus.register_tool(tool_view)
 
       toolbar_location = @mget('toolbar_location')
       if toolbar_location?

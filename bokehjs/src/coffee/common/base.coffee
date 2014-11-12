@@ -14,6 +14,7 @@ define [
   "common/plot_context",
   "common/selection_manager",
   "common/selector",
+  "common/tool_events",
 
   "mapper/categorical_mapper",
   "mapper/linear_mapper",
@@ -98,7 +99,6 @@ define [
   "tool/button_tool",
 
   "tool/actions/action_tool",
-  "tool/actions/object_explorer_tool",
   "tool/actions/preview_save_tool",
   "tool/actions/reset_tool",
 
@@ -117,11 +117,7 @@ define [
   "tool/inspectors/inspect_tool",
 
   "widget/data_table",
-  "widget/handson_table",
-  "widget/table_column"
-  "widget/pivot_table",
-  "widget/object_explorer",
-
+  "widget/table_column",
   'widget/paragraph'
   'widget/hbox'
   'widget/vbox'
@@ -190,6 +186,7 @@ define [
     CartesianFrame:           'common/cartesian_frame'
     SelectionManager:         'common/selection_manager'
     Selector:                 'common/selector'
+    ToolEvents:               'common/tool_events'
 
     LinearColorMapper:        'mapper/linear_color_mapper'
 
@@ -269,7 +266,6 @@ define [
 
     ButtonTool:               'tool/button_tool'
     ActionTool:               'tool/actions/action_tool'
-    ObjectExplorerTool:       'tool/actions/object_explorer_tool'
     PreviewSaveTool:          'tool/actions/preview_save_tool'
     ResetTool:                'tool/actions/reset_tool'
 
@@ -289,11 +285,7 @@ define [
     InspectTool:              'tool/inspectors/inspect_tool'
 
     DataTable:                'widget/data_table'
-    HandsonTable:             'widget/handson_table'
     TableColumn:              'widget/table_column'
-    PivotTable:               'widget/pivot_table'
-    ObjectExplorer:           'widget/object_explorer'
-
     Paragraph:                'widget/paragraph'
     HBox:                     'widget/hbox'
     VBox:                     'widget/vbox'

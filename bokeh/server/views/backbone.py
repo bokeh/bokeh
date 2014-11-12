@@ -224,7 +224,7 @@ def _handle_specific_model(docid, typename, id, method):
         return delete(docid, typename, id)
 
 # route for working with individual models
-@bokeh_app.route("/bokeh/bb/<docid>/<typename>/<id>/", methods=['GET'])
+@bokeh_app.route("/bokeh/bb/<docid>/<typename>/<id>/", methods=['GET', 'OPTIONS'])
 def _handle_specific_model_get(docid, typename, id):
     ''' Retrieve a specific model with a given id and typename for a
     given :class:`Document <bokeh.document.Document>`.
@@ -236,21 +236,6 @@ def _handle_specific_model_get(docid, typename, id):
 
     :status 200: when user is authorized
     :status 401: when user is not authorized
-
-    '''
-    return _handle_specific_model(docid, typename, id, request.method)
-
-@bokeh_app.route("/bokeh/bb/<docid>/<typename>/<id>/", methods=['OPTIONS'])
-def _handle_specific_model_options(docid, typename, id):
-    ''' Retrieve crossdomain options for a specific model with a
-    given id and typename for a given :class:`Document <bokeh.document.Document>`.
-
-    :param docid: id of the :class:`Document <bokeh.document.Document>`
-        to update or insert into
-    :param typename: the type of objects to find and return
-    :param id: unique id of the object to retrieve
-
-    :status 200:
 
     '''
     return _handle_specific_model(docid, typename, id, request.method)
@@ -324,10 +309,13 @@ def update(docid, typename, id):
     init_bokeh(clientdoc)
     log.info("updating")
     modeldata = protocol.deserialize_json(request.data.decode('utf-8'))
+    ### horrible hack, we need to pop off the noop object if it exists
+    modeldata.pop('noop', None)
     # patch id is not passed...
     modeldata['id'] = id
     modeldata = {'type' : typename,
                  'attributes' : modeldata}
+
     clientdoc.load(modeldata, events='existing', dirty=True)
     log.info("done")
     log.info("saving")
@@ -348,21 +336,3 @@ def delete(docid, typename, id):
     clientdoc.del_obj(docid, model)
     ws_delete(clientdoc, [model])
     return make_json(protocol.serialize_json(clientdoc.dump(model)[0]['attributes']))
-
-
-# rpc route
-@bokeh_app.route("/bokeh/bb/rpc/<docid>/<typename>/<id>/<funcname>/", methods=['POST', 'OPTIONS'])
-@crossdomain(origin="*", methods=['POST'], headers=['BOKEH-API-KEY', 'Continuum-Clientid', 'Content-Type'])
-@check_write_authentication_and_create_client
-def rpc(docid, typename, id, funcname):
-    clientdoc = bokeh_app.backbone_storage.get_document(docid)
-    prune(clientdoc)
-    model = clientdoc._models[id]
-    data = protocol.deserialize_json(request.data.decode('utf-8'))
-    args = data.get('args', [])
-    kwargs = data.get('kwargs', {})
-    result = getattr(model, funcname)(*args, **kwargs)
-    log.debug("rpc, %s, %s", docid, typename)
-    changed = bokeh_app.backbone_storage.store_document(clientdoc)
-    ws_update(clientdoc, changed)
-    return make_json(protocol.serialize_json(result))

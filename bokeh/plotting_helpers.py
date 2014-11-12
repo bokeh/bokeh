@@ -4,6 +4,7 @@ import itertools
 from numbers import Number
 import numpy as np
 import re
+import difflib
 from six import string_types
 
 from . import glyphs
@@ -12,11 +13,12 @@ from .objects import (
     BoxSelectionOverlay, BoxSelectTool, BoxZoomTool, CategoricalAxis,
     ColumnDataSource, TapTool, CrosshairTool, DataRange1d, DatetimeAxis,
     FactorRange, Grid, HoverTool, LassoSelectTool, Legend, LinearAxis,
-    LogAxis, ObjectExplorerTool, PanTool, Plot, PolySelectTool,
+    LogAxis, PanTool, Plot, PolySelectTool,
     PreviewSaveTool, Range, Range1d, ResetTool, ResizeTool, Tool,
     WheelZoomTool,
 )
 from .properties import ColorSpec, Datetime
+from .utils import nice_join
 import warnings
 
 def get_default_color(plot=None):
@@ -272,79 +274,124 @@ def _get_num_minor_ticks(axis_class, num_minor_ticks):
             return 10
         return 5
 
+_known_tools = {
+    "pan": lambda: PanTool(dimensions=["width", "height"]),
+    "xpan": lambda: PanTool(dimensions=["width"]),
+    "ypan": lambda: PanTool(dimensions=["height"]),
+    "wheel_zoom": lambda: WheelZoomTool(dimensions=["width", "height"]),
+    "xwheel_zoom": lambda: WheelZoomTool(dimensions=["width"]),
+    "ywheel_zoom": lambda: WheelZoomTool(dimensions=["height"]),
+    "save": lambda: PreviewSaveTool(),
+    "resize": lambda: ResizeTool(),
+    "click": "tap",
+    "tap": lambda: TapTool(always_active=True),
+    "crosshair": lambda: CrosshairTool(),
+    "select": "box_select", # TODO (bev) deprecate just "select"
+    "box_select": lambda: BoxSelectTool(),
+    "poly_select": lambda: PolySelectTool(),
+    "lasso_select": lambda: LassoSelectTool(),
+    "box_zoom": lambda: BoxZoomTool(),
+    "hover": lambda: HoverTool(always_active=True, tooltips={
+        "index": "$index",
+        "data (x, y)": "($x, $y)",
+        "canvas (x, y)": "($sx, $sy)",
+    }),
+    "previewsave": lambda: PreviewSaveTool(),
+    "reset": lambda: ResetTool(),
+}
+
+def _tool_from_string(name):
+    """ Takes a string and returns a corresponding `Tool` instance. """
+    known_tools = sorted(_known_tools.keys())
+
+    if name in known_tools:
+        tool_fn = _known_tools[name]
+
+        if isinstance(tool_fn, string_types):
+            tool_fn = _known_tools[tool_fn]
+
+        return tool_fn()
+    else:
+        matches, text = difflib.get_close_matches(name.lower(), known_tools), "similar"
+
+        if not matches:
+            matches, text = known_tools, "possible"
+
+        raise ValueError("unexpected tool name '%s', %s tools are %s" % (name, text, nice_join(matches)))
+
 def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
                  x_axis_type="auto", y_axis_type="auto",
                  x_axis_location="below", y_axis_location="left",
                  x_minor_ticks='auto', y_minor_ticks='auto',
-                 tools="pan,wheel_zoom,box_zoom,save,resize,select,reset", **kw):
+                 tools="pan,wheel_zoom,box_zoom,save,resize,reset", **kw):
     # Accept **kw to absorb other arguments which the actual factory functions
     # might pass in, but that we don't care about
 
-    p = Plot()
-    p.title = kw.pop("title", "Plot")
+    plot = Plot()
+    plot.title = kw.pop("title", "Plot")
 
-    p.toolbar_location = kw.pop("toolbar_location", "above")
+    plot.toolbar_location = kw.pop("toolbar_location", "above")
 
-    p.x_range = _get_range(x_range)
-    p.y_range = _get_range(y_range)
+    plot.x_range = _get_range(x_range)
+    plot.y_range = _get_range(y_range)
 
-    if plot_width: p.plot_width = plot_width
-    if plot_height: p.plot_height = plot_height
+    if plot_width: plot.plot_width = plot_width
+    if plot_height: plot.plot_height = plot_height
 
-    x_axiscls = _get_axis_class(x_axis_type, p.x_range)
+    x_axiscls = _get_axis_class(x_axis_type, plot.x_range)
     if x_axiscls:
         if x_axiscls is LogAxis:
-            p.x_mapper_type = 'log'
-        xaxis = x_axiscls(plot=p)
+            plot.x_mapper_type = 'log'
+        xaxis = x_axiscls(plot=plot)
         xaxis.ticker.num_minor_ticks = _get_num_minor_ticks(x_axiscls, x_minor_ticks)
         axis_label = kw.pop('x_axis_label', None)
         if axis_label:
             xaxis.axis_label = axis_label
-        xgrid = Grid(plot=p, dimension=0, ticker=xaxis.ticker)
+        xgrid = Grid(plot=plot, dimension=0, ticker=xaxis.ticker)
         if x_axis_location == "top":
             warnings.warn("'top' is deprecated, use 'above'")
-            p.above.append(xaxis)
+            plot.above.append(xaxis)
         elif x_axis_location == "bottom":
             warnings.warn("'bottom' is deprecated, use 'below'")
-            p.below.append(xaxis)
+            plot.below.append(xaxis)
         elif x_axis_location == "above":
-            p.above.append(xaxis)
+            plot.above.append(xaxis)
         elif x_axis_location == "below":
-            p.below.append(xaxis)
+            plot.below.append(xaxis)
 
-    y_axiscls = _get_axis_class(y_axis_type, p.y_range)
+    y_axiscls = _get_axis_class(y_axis_type, plot.y_range)
     if y_axiscls:
         if y_axiscls is LogAxis:
-            p.y_mapper_type = 'log'
-        yaxis = y_axiscls(plot=p)
+            plot.y_mapper_type = 'log'
+        yaxis = y_axiscls(plot=plot)
         yaxis.ticker.num_minor_ticks = _get_num_minor_ticks(y_axiscls, y_minor_ticks)
         axis_label = kw.pop('y_axis_label', None)
         if axis_label:
             yaxis.axis_label = axis_label
-        ygrid = Grid(plot=p, dimension=1, ticker=yaxis.ticker)
+        ygrid = Grid(plot=plot, dimension=1, ticker=yaxis.ticker)
         if y_axis_location == "left":
-            p.left.append(yaxis)
+            plot.left.append(yaxis)
         elif y_axis_location == "right":
-            p.right.append(yaxis)
+            plot.right.append(yaxis)
 
     border_args = ["min_border", "min_border_top", "min_border_bottom", "min_border_left", "min_border_right"]
     for arg in border_args:
         if arg in kw:
-            setattr(p, arg, kw.pop(arg))
+            setattr(plot, arg, kw.pop(arg))
 
     fill_args = ["background_fill", "border_fill"]
     for arg in fill_args:
         if arg in kw:
-            setattr(p, arg, kw.pop(arg))
+            setattr(plot, arg, kw.pop(arg))
 
     style_arg_prefix = ["title", "outline"]
     for prefix in style_arg_prefix:
         for k in list(kw):
             if k.startswith(prefix):
-                setattr(p, k, kw.pop(k))
+                setattr(plot, k, kw.pop(k))
 
     if 'toolbar_location' in list(kw):
-        p.toolbar_location = kw.pop('toolbar_location')
+        plot.toolbar_location = kw.pop('toolbar_location')
 
     tool_objs = []
     temp_tool_str = str()
@@ -356,92 +403,44 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
             elif isinstance(tool, string_types):
                 temp_tool_str+=tool + ','
             else:
-                raise ValueError("tool should be a valid str or Tool Object")
+                raise ValueError("tool should be a string or an instance of Tool class")
         tools = temp_tool_str
 
-
     # Remove pan/zoom tools in case of categorical axes
-    remove_pan_zoom = (isinstance(p.x_range, FactorRange) or
-                       isinstance(p.y_range, FactorRange))
-    removing = []
+    remove_pan_zoom = (isinstance(plot.x_range, FactorRange) or
+                       isinstance(plot.y_range, FactorRange))
+
+    repeated_tools = []
+    removed_tools = []
 
     for tool in re.split(r"\s*,\s*", tools.strip()):
         # re.split will return empty strings; ignore them.
-
-        if remove_pan_zoom and ("pan" in tool or "zoom" in tool):
-            removing.append(tool)
-            continue
-
         if tool == "":
             continue
 
-        if tool == "pan":
-            tool_obj = PanTool(plot=p, dimensions=["width", "height"])
-        elif tool == "xpan":
-            tool_obj = PanTool(plot=p, dimensions=["width"])
-        elif tool == "ypan":
-            tool_obj = PanTool(plot=p, dimensions=["height"])
-        elif tool == "wheel_zoom":
-            tool_obj = WheelZoomTool(plot=p, dimensions=["width", "height"])
-        elif tool == "xwheel_zoom":
-            tool_obj = WheelZoomTool(plot=p, dimensions=["width"])
-        elif tool == "ywheel_zoom":
-            tool_obj = WheelZoomTool(plot=p, dimensions=["height"])
-        elif tool == "save":
-            tool_obj = PreviewSaveTool(plot=p)
-        elif tool == "resize":
-            tool_obj = ResizeTool(plot=p)
-        elif tool == "click" or tool == "tap":
-            tool_obj = TapTool(plot=p, always_active=True)
-        elif tool == "crosshair":
-            tool_obj = CrosshairTool(plot=p)
-        elif tool == "select" or tool == "box_select":
-            # TODO (bev) deprecate just "select"
-            tool_obj = BoxSelectTool(plot=p)
-        elif tool == "poly_select":
-            tool_obj = PolySelectTool(plot=p)
-        elif tool == "lasso_select":
-            tool_obj = LassoSelectTool(plot=p)
-        elif tool == "box_zoom":
-            tool_obj = BoxZoomTool(plot=p)
-        elif tool == "hover":
-            tool_obj = HoverTool(plot=p, always_active=True, tooltips={
-                "index": "$index",
-                "data (x, y)": "($x, $y)",
-                "canvas (x, y)": "($sx, $sy)",
-            })
-        elif tool == "previewsave":
-            tool_obj = PreviewSaveTool(plot=p)
-        elif tool == "reset":
-            tool_obj = ResetTool(plot=p)
-        elif tool == "object_explorer":
-            tool_obj = ObjectExplorerTool()
-        else:
-            known_tools = "pan, xpan, ypan, wheel_zoom, xwheel_zoom, ywheel_zoom, box_zoom, save, resize, crosshair, select, previewsave, reset, or hover"
-            raise ValueError("invalid tool: %s (expected one of %s)" % (tool, known_tools))
+        tool_obj = _tool_from_string(tool)
+        tool_obj.plot = plot
+
+        if remove_pan_zoom and ("pan" in tool or "zoom" in tool):
+            removed_tools.append(tool)
+            continue
 
         tool_objs.append(tool_obj)
 
-        #Checking for repeated tools
-        repeated_tools = []
+    plot.tools.extend(tool_objs)
 
-        for typname, grp in itertools.groupby(sorted(str(type(i)) for i in tool_objs)):
-            if len(list(grp)) > 1: repeated_tools+=typname
+    for typename, group in itertools.groupby(sorted([ tool.__class__.__name__ for tool in plot.tools ])):
+        if len(list(group)) > 1:
+            repeated_tools.append(typename)
 
+    if repeated_tools:
+        warnings.warn("%s are being repeated" % ",".join(repeated_tools))
 
-        if repeated_tools:
-            repeated = str()
-            for tools in repeated_tools:
-                repeated += tools
-            warnings.warn("tools:%s are being repeated!"%repeated)
+    if removed_tools:
+        warnings.warn("categorical plots do not support pan and zoom operations.\n"
+                      "Removing tool(s): %s" %', '.join(removed_tools))
 
-    p.tools.extend(tool_objs)
-
-    if removing:
-        warnings.warn("Categorical plots do not support pan and zoom operations.\n"
-                      "Removing tool(s): %s" %', '.join(removing))
-
-    return p
+    return plot
 
 
 def _handle_1d_data_args(args, datasource=None, create_autoindex=True,
