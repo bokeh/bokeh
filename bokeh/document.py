@@ -230,7 +230,7 @@ class Document(object):
 
         for obj in objs:
             obj_id = obj['attributes']['id'] # XXX: obj['id']
-            obj_type = obj['type']
+            obj_type = obj.get('subtype', obj['type'])
             obj_attrs = obj['attributes']
 
             if "doc" in obj_attrs:
