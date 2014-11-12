@@ -1,32 +1,15 @@
 define [
-  "common/continuum_view"
   "common/collection",
-  "common/has_parent",
-], (ContinuumView, Collection, HasParent) ->
+  "common/has_properties",
+], (Collection, HasProperties) ->
 
-  class ContourView extends ContinuumView
-    attributes:
-      class: "ContourView"
-
-    initialize: (options) ->
-      super(options)
-      @render_init()
-
-    delegateEvents: (events) ->
-      super(events)
-      "pass"
-
-    render_init: () ->
-      @$el.html("")
-
-  class Contour extends HasParent
-    type : "Contour"
-    default_view: ContourView
+  class Contour extends HasProperties
+    type: "Contour"
 
   class Contours extends Collection
-    model : Contour
+    model: Contour
 
   return {
-    "Model" : Contour
-    "Collection" : new Contours()
+    "Model": Contour
+    "Collection": new Contours()
   }

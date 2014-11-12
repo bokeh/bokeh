@@ -1,32 +1,15 @@
 define [
-  "common/continuum_view"
   "common/collection",
-  "common/has_parent"
-], (ContinuumView, Collection, HasParent) ->
+  "common/has_properties",
+], (Collection, HasProperties) ->
 
-  class CountCategoriesView extends ContinuumView
-    attributes:
-      class: "CountCategoriesView"
-
-    initialize: (options) ->
-      super(options)
-      @render_init()
-
-    delegateEvents: (events) ->
-      super(events)
-      "pass"
-
-    render_init: () ->
-      @$el.html("")
-
-  class CountCategories extends HasParent
-    type : "CountCategories"
-    default_view: CountCategoriesView
+  class CountCategories extends HasProperties
+    type: "CountCategories"
 
   class CountCategoriess extends Collection
-    model : CountCategories
+    model: CountCategories
 
   return {
-    "Model" : CountCategories
-    "Collection" : new CountCategoriess()
+    "Model": CountCategories
+    "Collection": new CountCategoriess()
   }

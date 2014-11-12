@@ -1,32 +1,15 @@
 define [
-  "common/continuum_view"
   "common/collection",
-  "common/has_parent",
-], (ContinuumView, Collection, HasParent) ->
+  "common/has_properties",
+], (Collection, HasProperties) ->
 
-  class InterpolateView extends ContinuumView
-    attributes:
-      class: "InterpolateView"
-
-    initialize: (options) ->
-      super(options)
-      @render_init()
-
-    delegateEvents: (events) ->
-      super(events)
-      "pass"
-
-    render_init: () ->
-      @$el.html("")
-
-  class Interpolate extends HasParent
-    type : "Interpolate"
-    default_view: InterpolateView
+  class Interpolate extends HasProperties
+    type: "Interpolate"
 
   class Interpolates extends Collection
-    model : Interpolate
+    model: Interpolate
 
   return {
-    "Model" : Interpolate
-    "Collection" : new Interpolates()
+    "Model": Interpolate
+    "Collection": new Interpolates()
   }

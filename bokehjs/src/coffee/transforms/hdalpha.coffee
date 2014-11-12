@@ -1,32 +1,15 @@
-define [
-  "common/continuum_view"
+ddefine [
   "common/collection",
-  "common/has_parent"
-], (ContinuumView, Collection, HasParent) ->
+  "common/has_properties",
+], (Collection, HasProperties) ->
 
-  class HDAlphaView extends ContinuumView
-    attributes:
-      class: "HDAlphaView"
-
-    initialize: (options) ->
-      super(options)
-      @render_init()
-
-    delegateEvents: (events) ->
-      super(events)
-      "pass"
-
-    render_init: () ->
-      @$el.html("")
-
-  class HDAlpha extends HasParent
-    type : "HDAlpha"
-    default_view: HDAlphaView
+  class HDAlpha extends HasProperties
+    type: "HDAlpha"
 
   class HDAlphas extends Collection
-    model : HDAlpha
+    model: HDAlpha
 
   return {
-    "Model" : HDAlpha
-    "Collection" : new HDAlphas()
+    "Model": HDAlpha
+    "Collection": new HDAlphas()
   }

@@ -1,32 +1,15 @@
 define [
-  "common/continuum_view"
   "common/collection",
-  "common/has_parent",
-], (ContinuumView, Collection, HasParent) ->
+  "common/has_properties",
+], (Collection, HasProperties) ->
 
-  class BinarySegmentView extends ContinuumView
-    attributes:
-      class: "BinarySegmentView"
-
-    initialize: (options) ->
-      super(options)
-      @render_init()
-
-    delegateEvents: (events) ->
-      super(events)
-      "pass"
-
-    render_init: () ->
-      @$el.html("")
-
-  class BinarySegment extends HasParent
-    type : "BinarySegment"
-    default_view: BinarySegmentView
+  class BinarySegment extends HasProperties
+    type: "BinarySegment"
 
   class BinarySegments extends Collection
-    model : BinarySegment
+    model: BinarySegment
 
   return {
-    "Model" : BinarySegment
-    "Collection" : new BinarySegments()
+    "Model": BinarySegment
+    "Collection": new BinarySegments()
   }
