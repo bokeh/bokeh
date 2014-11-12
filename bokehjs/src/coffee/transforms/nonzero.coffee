@@ -1,4 +1,4 @@
-ddefine [
+define [
   "common/collection",
   "common/has_properties",
 ], (Collection, HasProperties) ->
