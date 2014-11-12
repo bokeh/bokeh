@@ -82,8 +82,9 @@ class Document(object):
                 del self._models[self._context._id]
         except AttributeError:
             pass
-        pcs = [x for x in self._models.values() if x.__view_model__ == 'PlotContext']
-        if len(pcs) != 0:
+        other_pcs = [x for x in self._models.values() if x.__view_model__ == 'PlotContext']
+        other_pcs = [x for x in other_pcs if x._id != value._id]
+        if len(other_pcs) != 0:
             raise DataIntegrityException("too many plot contexts found")
         self._add(value)
         self._add(*value.references())
@@ -411,3 +412,27 @@ class Document(object):
             self._add(self._context)
         else:
             raise DataIntegrityException("too many plot contexts found")
+
+    def merge(self, json_objs):
+        """Merge's json objects from another document into this one
+        using the plot context id from the json_objs which are passed in
+        children from this document are merged with the children from
+        the json that is passed in
+
+        Args:
+            json_objs : json objects from session.pull()
+
+        Returns:
+            None
+        """
+        plot_contexts = [x for x in json_objs if x['type'] == 'PlotContext']
+        other_objects = [x for x in json_objs if x['type'] != 'PlotContext']
+        plot_context_json = plot_contexts[0]
+        children = set([x['id'] for x in plot_context_json['attributes']['children']])
+        for child in self.context.children:
+            ref = child.ref
+            if ref['id'] not in children:
+                plot_context_json['attributes']['children'].append(ref)
+        self.load(plot_context_json, *other_objects)
+        # set the new Plot Context
+        self.context = self._models[plot_context_json['id']]
