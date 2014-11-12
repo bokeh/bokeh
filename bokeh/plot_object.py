@@ -95,7 +95,7 @@ class PlotObject(HasProps):
     @property
     def ref(self):
 
-        if self.__class__.__dict__.has_key("__subtype__"):
+        if "__subtype__" in self.__class__.__dict__:
             return {
                 'type': self.__view_model__,
                 'subtype': self.__subtype__,
