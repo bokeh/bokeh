@@ -10,6 +10,6 @@ define [
     model: Spread
 
   return {
-    "Model": Spread
-    "Collection": new Spreads()
+    Model: Spread
+    Collection: new Spreads()
   }

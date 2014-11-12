@@ -10,6 +10,6 @@ define [
     model: Log
 
   return {
-    "Model": Log
-    "Collection": new Logs()
+    Model: Log
+    Collection: new Logs()
   }

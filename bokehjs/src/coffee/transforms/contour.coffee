@@ -10,6 +10,6 @@ define [
     model: Contour
 
   return {
-    "Model": Contour
-    "Collection": new Contours()
+    Model: Contour
+    Collection: new Contours()
   }

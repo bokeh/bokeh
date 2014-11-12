@@ -10,6 +10,6 @@ define [
     model: Interpolate
 
   return {
-    "Model": Interpolate
-    "Collection": new Interpolates()
+    Model: Interpolate
+    Collection: new Interpolates()
   }

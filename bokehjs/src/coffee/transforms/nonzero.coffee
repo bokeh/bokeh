@@ -10,6 +10,6 @@ define [
     model: NonZero
 
   return {
-    "Model": NonZero
-    "Collection": new NonZeros()
+    Model: NonZero
+    Collection: new NonZeros()
   }

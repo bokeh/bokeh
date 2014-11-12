@@ -10,6 +10,6 @@ define [
     model: HDAlpha
 
   return {
-    "Model": HDAlpha
-    "Collection": new HDAlphas()
+    Model: HDAlpha
+    Collection: new HDAlphas()
   }

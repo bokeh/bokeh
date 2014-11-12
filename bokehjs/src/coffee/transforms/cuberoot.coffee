@@ -10,6 +10,6 @@ define [
     model: Cuberoot
 
   return {
-    "Model": Cuberoot
-    "Collection": new Cuberoots()
+    Model: Cuberoot
+    Collection: new Cuberoots()
   }

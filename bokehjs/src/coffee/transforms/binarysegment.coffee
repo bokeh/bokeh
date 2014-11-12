@@ -10,6 +10,6 @@ define [
     model: BinarySegment
 
   return {
-    "Model": BinarySegment
-    "Collection": new BinarySegments()
+    Model: BinarySegment
+    Collection: new BinarySegments()
   }

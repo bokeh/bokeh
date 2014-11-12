@@ -10,6 +10,6 @@ define [
     model: Ratio
 
   return {
-    "Model": Ratio
-    "Collection": new Ratios()
+    Model: Ratio
+    Collection: new Ratios()
   }

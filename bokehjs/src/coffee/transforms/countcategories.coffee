@@ -10,6 +10,6 @@ define [
     model: CountCategories
 
   return {
-    "Model": CountCategories
-    "Collection": new CountCategoriess()
+    Model: CountCategories
+    Collection: new CountCategoriess()
   }

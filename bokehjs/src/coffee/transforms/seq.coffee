@@ -10,6 +10,6 @@ define [
     model: Seq
 
   return {
-    "Model": Seq
-    "Collection": new Seqs()
+    Model: Seq
+    Collection: new Seqs()
   }

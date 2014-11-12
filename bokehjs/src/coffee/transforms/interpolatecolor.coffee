@@ -10,6 +10,6 @@ define [
     model: InterpolateColor
 
   return {
-    "Model": InterpolateColor
-    "Collection": new InterpolateColors()
+    Model: InterpolateColor
+    Collection: new InterpolateColors()
   }

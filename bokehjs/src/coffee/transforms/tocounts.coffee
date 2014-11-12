@@ -10,6 +10,6 @@ define [
     model: ToCounts
 
   return {
-    "Model": ToCounts
-    "Collection": new ToCountss()
+    Model: ToCounts
+    Collection: new ToCountss()
   }

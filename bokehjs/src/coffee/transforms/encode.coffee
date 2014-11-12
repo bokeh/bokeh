@@ -10,6 +10,6 @@ define [
     model: Encode
 
   return {
-    "Model": Encode
-    "Collection": new Encodes()
+    Model: Encode
+    Collection: new Encodes()
   }

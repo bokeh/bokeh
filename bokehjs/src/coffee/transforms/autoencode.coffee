@@ -10,6 +10,6 @@ define [
     model: AutoEncode
 
   return {
-    "Model": AutoEncode
-    "Collection": new AutoEncodes()
+    Model: AutoEncode
+    Collection: new AutoEncodes()
   }

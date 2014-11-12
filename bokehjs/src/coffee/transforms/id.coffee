@@ -10,6 +10,6 @@ define [
     model: Id
 
   return {
-    "Model": Id
-    "Collection": new Ids()
+    Model: Id
+    Collection: new Ids()
   }

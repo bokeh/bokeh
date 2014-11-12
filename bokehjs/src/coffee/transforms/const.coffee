@@ -10,6 +10,6 @@ define [
     model: Const
 
   return {
-    "Model": Const
-    "Collection": new Consts()
+    Model: Const
+    Collection: new Consts()
   }
