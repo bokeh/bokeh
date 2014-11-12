@@ -1,9 +1,9 @@
 define [
   "common/collection",
-  "common/has_properties",
-], (Collection, HasProperties) ->
+  "./transform",
+], (Collection, Transform) ->
 
-  class BinarySegment extends HasProperties
+  class BinarySegment extends Transform.Model
     type: "BinarySegment"
 
   class BinarySegments extends Collection

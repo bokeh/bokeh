@@ -1,9 +1,9 @@
 define [
   "common/collection",
-  "common/has_properties",
-], (Collection, HasProperties) ->
+  "./transform",
+], (Collection, Transform) ->
 
-  class Ratio extends HasProperties
+  class Ratio extends Transform.Model
     type: "Ratio"
 
   class Ratios extends Collection

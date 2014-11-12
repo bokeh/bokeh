@@ -1,9 +1,9 @@
 define [
   "common/collection",
-  "common/has_properties",
-], (Collection, HasProperties) ->
+  "./transform",
+], (Collection, Transform) ->
 
-  class Spread extends HasProperties
+  class Spread extends Transform.Model
     type: "Spread"
 
   class Spreads extends Collection

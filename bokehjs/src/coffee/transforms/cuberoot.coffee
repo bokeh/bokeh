@@ -1,9 +1,9 @@
 define [
   "common/collection",
-  "common/has_properties",
-], (Collection, HasProperties) ->
+  "./transform",
+], (Collection, Transform) ->
 
-  class Cuberoot extends HasProperties
+  class Cuberoot extends Transform.Model
     type: "Cuberoot"
 
   class Cuberoots extends Collection

@@ -1,9 +1,9 @@
 define [
   "common/collection",
-  "common/has_properties",
-], (Collection, HasProperties) ->
+  "./transform",
+], (Collection, Transform) ->
 
-  class Contour extends HasProperties
+  class Contour extends Transform.Model
     type: "Contour"
 
   class Contours extends Collection

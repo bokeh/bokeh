@@ -1,9 +1,9 @@
 define [
   "common/collection",
-  "common/has_properties",
-], (Collection, HasProperties) ->
+  "./transform",
+], (Collection, Transform) ->
 
-  class NonZero extends HasProperties
+  class NonZero extends Transform.Model
     type: "NonZero"
 
   class NonZeros extends Collection

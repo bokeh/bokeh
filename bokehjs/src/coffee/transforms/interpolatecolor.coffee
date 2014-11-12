@@ -1,9 +1,9 @@
 define [
   "common/collection",
-  "common/has_properties",
-], (Collection, HasProperties) ->
+  "./transform",
+], (Collection, Transform) ->
 
-  class InterpolateColor extends HasProperties
+  class InterpolateColor extends Transform.Model
     type: "InterpolateColor"
 
   class InterpolateColors extends Collection

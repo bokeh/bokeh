@@ -1,9 +1,9 @@
 define [
   "common/collection",
-  "common/has_properties",
-], (Collection, HasProperties) ->
+  "./transform",
+], (Collection, Transform) ->
 
-  class CountCategories extends HasProperties
+  class CountCategories extends Transform.Model
     type: "CountCategories"
 
   class CountCategoriess extends Collection

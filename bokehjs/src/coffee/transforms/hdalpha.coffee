@@ -1,9 +1,9 @@
 define [
   "common/collection",
-  "common/has_properties",
-], (Collection, HasProperties) ->
+  "./transform",
+], (Collection, Transform) ->
 
-  class HDAlpha extends HasProperties
+  class HDAlpha extends Transform.Model
     type: "HDAlpha"
 
   class HDAlphas extends Collection
