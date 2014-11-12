@@ -3,7 +3,7 @@ define [
   "./transform",
 ], (Collection, Transform) ->
 
-  class Const extends Transform.Model
+  class Const extends Transform
     type: "Const"
 
   class Consts extends Collection

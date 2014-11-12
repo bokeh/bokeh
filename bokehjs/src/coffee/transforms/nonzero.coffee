@@ -3,7 +3,7 @@ define [
   "./transform",
 ], (Collection, Transform) ->
 
-  class NonZero extends Transform.Model
+  class NonZero extends Transform
     type: "NonZero"
 
   class NonZeros extends Collection

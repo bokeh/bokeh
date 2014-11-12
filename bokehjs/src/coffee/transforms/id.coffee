@@ -3,7 +3,7 @@ define [
   "./transform",
 ], (Collection, Transform) ->
 
-  class Id extends Transform.Model
+  class Id extends Transform
     type: "Id"
 
   class Ids extends Collection

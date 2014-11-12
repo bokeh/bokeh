@@ -3,7 +3,7 @@ define [
   "./transform",
 ], (Collection, Transform) ->
 
-  class Ratio extends Transform.Model
+  class Ratio extends Transform
     type: "Ratio"
 
   class Ratios extends Collection

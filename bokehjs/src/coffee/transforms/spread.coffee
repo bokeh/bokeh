@@ -3,7 +3,7 @@ define [
   "./transform",
 ], (Collection, Transform) ->
 
-  class Spread extends Transform.Model
+  class Spread extends Transform
     type: "Spread"
 
   class Spreads extends Collection

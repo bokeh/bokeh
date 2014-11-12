@@ -3,7 +3,7 @@ define [
   "./transform",
 ], (Collection, Transform) ->
 
-  class Cuberoot extends Transform.Model
+  class Cuberoot extends Transform
     type: "Cuberoot"
 
   class Cuberoots extends Collection

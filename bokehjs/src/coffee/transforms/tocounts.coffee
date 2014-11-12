@@ -3,7 +3,7 @@ define [
   "./transform",
 ], (Collection, Transform) ->
 
-  class ToCounts extends Transform.Model
+  class ToCounts extends Transform
     type: "ToCounts"
 
   class ToCountss extends Collection

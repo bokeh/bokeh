@@ -3,7 +3,7 @@ define [
   "./transform",
 ], (Collection, Transform) ->
 
-  class Log extends Transform.Model
+  class Log extends Transform
     type: "Log"
 
   class Logs extends Collection

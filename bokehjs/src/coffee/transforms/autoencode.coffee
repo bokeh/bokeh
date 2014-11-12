@@ -3,7 +3,7 @@ define [
   "./transform",
 ], (Collection, Transform) ->
 
-  class AutoEncode extends Transform.Model
+  class AutoEncode extends Transform
     type: "AutoEncode"
 
   class AutoEncodes extends Collection

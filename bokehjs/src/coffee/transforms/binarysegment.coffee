@@ -3,7 +3,7 @@ define [
   "./transform",
 ], (Collection, Transform) ->
 
-  class BinarySegment extends Transform.Model
+  class BinarySegment extends Transform
     type: "BinarySegment"
 
   class BinarySegments extends Collection

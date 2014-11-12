@@ -3,7 +3,7 @@ define [
   "./transform",
 ], (Collection, Transform) ->
 
-  class Encode extends Transform.Model
+  class Encode extends Transform
     type: "Encode"
 
   class Encodes extends Collection

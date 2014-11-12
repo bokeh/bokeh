@@ -3,7 +3,7 @@ define [
   "./transform",
 ], (Collection, Transform) ->
 
-  class Interpolate extends Transform.Model
+  class Interpolate extends Transform
     type: "Interpolate"
 
   class Interpolates extends Collection

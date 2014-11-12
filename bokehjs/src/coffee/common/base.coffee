@@ -329,7 +329,6 @@ define [
     Seq:                      'transforms/seq'
     Spread:                   'transforms/spread'
     ToCounts:                 'transforms/tocounts'
-    Transform:                'transforms/transform'
 
   mod_cache = {}
   collection_overrides = {}

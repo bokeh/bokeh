@@ -3,7 +3,7 @@ define [
   "./transform",
 ], (Collection, Transform) ->
 
-  class HDAlpha extends Transform.Model
+  class HDAlpha extends Transform
     type: "HDAlpha"
 
   class HDAlphas extends Collection
