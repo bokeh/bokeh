@@ -3,7 +3,7 @@ define [
   "common/has_properties",
 ], (Collection, HasProperties) ->
 
-  class AutoEncode extends HasParent
+  class AutoEncode extends HasProperties
     type: "AutoEncode"
 
   class AutoEncodes extends Collection
