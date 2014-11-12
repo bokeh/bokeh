@@ -160,6 +160,7 @@ define [
   'transforms/seq'
   'transforms/spread'
   'transforms/tocounts'
+  'transforms/transform'
 ], (_, require) ->
 
   # add some useful functions to underscore
@@ -328,6 +329,7 @@ define [
     Seq:                      'transforms/seq'
     Spread:                   'transforms/spread'
     ToCounts:                 'transforms/tocounts'
+    Transform:                'transforms/transform'
 
   mod_cache = {}
   collection_overrides = {}
