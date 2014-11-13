@@ -208,5 +208,6 @@ Be sure to follow us on Twitter `@bokehplots <http://twitter.com/BokehPlots>`_!
 
 .. note:: If you try running the be sure that you have downloaded the examples sample data.
           To do this you just need to execute the following commands at a command prompt::
-          ``python -c "import bokeh.sampledata; bokeh.sampledata.download()"``
+
+          $ python -c "import bokeh.sampledata; bokeh.sampledata.download()"
 
