@@ -3,7 +3,7 @@ from __future__ import print_function
 import time
 
 from bokeh.browserlib import view
-from bokeh.objects import ColumnDataSource, Plot, DataRange1d, LinearAxis, Grid, GlyphRenderer, BoxSelectTool
+from bokeh.objects import ColumnDataSource, Plot, DataRange1d, LinearAxis, Grid, GlyphRenderer, HoverTool, BoxSelectTool
 from bokeh.glyphs import Circle
 from bokeh.widgets import TableColumn, DataTable, Select, HBox, VBox
 from bokeh.document import Document
@@ -74,8 +74,20 @@ class DataTables(object):
         hwy_glyph = Circle(x="index", y="hwy", fill_color="#CE603D", size=8, fill_alpha=0.5, line_alpha=0.5)
         cty = GlyphRenderer(data_source=self.source, glyph=cty_glyph)
         hwy = GlyphRenderer(data_source=self.source, glyph=hwy_glyph)
+        tooltips = [
+            ("Manufacturer", "@manufacturer"),
+            ("Model", "@model"),
+            ("Displacement", "@displ"),
+            ("Year", "@year"),
+            ("Cylinders", "@cyl"),
+            ("Transmission", "@trans"),
+            ("Drive", "@drv"),
+            ("Class", "@class"),
+        ]
+        cty_hover_tool = HoverTool(plot=plot, renderers=[cty], tooltips=tooltips + [("City MPG", "@cty")])
+        hwy_hover_tool = HoverTool(plot=plot, renderers=[hwy], tooltips=tooltips + [("Highway MPG", "@hwy")])
         select_tool = BoxSelectTool(plot=plot, renderers=[cty, hwy], dimensions=['width'])
-        plot.tools.append(select_tool)
+        plot.tools.extend([cty_hover_tool, hwy_hover_tool, select_tool])
         plot.renderers.extend([cty, hwy, ygrid])
 
         controls = VBox(children=[manufacturer_select, model_select, transmission_select, drive_select, class_select], width=200)
