@@ -14,11 +14,11 @@ easy way.
 
 Offering both powerful and flexible features to enable user very advanced customizations
 in on hand and simplicity on the other Bokeh exposes different interface levels
-to the users: a "Low Level" (and more flexible) glyph interface, a "High Level" level
-interface called plotting and "VeryHigh Level" interface that can be used to build
-common use case charts very quickly.
+to the users: a low Level (and more flexible) glyph interface, an intermediate level
+interface called plotting and a high level interface that can be used to build
+complexs plot in a simple way.
 
-Charts layer still experimental and may significantly change in the next releases.
+Charts layer is still experimental and may significantly change in the next releases.
 Plotting should be preferred for a more stable or production code. For this reason
 we will focus mainly on showing plotting in this quickstart section.
 
@@ -178,7 +178,9 @@ Using Bokeh with IPython Notebooks
 
 IPython notebooks are great and widely used. Bokeh integrates with IPython notebooks
 nicely. All you need to do is to use the function output_notebook() (instead of
-output_file) in conjuction with show() and the %bokeh IPython “magic” command.
+output_file) in conjuction with show(). You could also use the %bokeh IPython “magic”
+for the notebook that allows for configuring modes like autoshow, autohold for every
+cell.
 
 There are a number of IPython notebooks in the ``examples/plotting/notebook/``
 directory.  Just run::
