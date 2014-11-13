@@ -4,10 +4,11 @@ define [
   "common/continuum_view"
   "common/has_properties"
   "common/collection"
+  "util/dom_util"
   "slick_grid/slick.grid"
   "slick_grid/plugins/slick.rowselectionmodel"
   "jquery_ui/sortable"
-], (_, $, ContinuumView, HasProperties, Collection, SlickGrid, RowSelectionModel, $1) ->
+], (_, $, ContinuumView, HasProperties, Collection, DOMUtil, SlickGrid, RowSelectionModel, $1) ->
 
   class DataProvider
 
@@ -29,7 +30,7 @@ define [
 
     initialize: (options) ->
       super(options)
-      @render()
+      DOMUtil.wait_for_element(@el, () => @render())
       @listenTo(@model, 'change', () => @render())
       source = @mget("source")
       @listenTo(source, 'change:data', () => @updateGrid())
