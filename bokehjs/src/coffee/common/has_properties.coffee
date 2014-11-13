@@ -11,7 +11,10 @@ define [
   _is_ref = (arg) ->
     if _.isObject(arg)
       keys = _.keys(arg).sort()
-      return keys.length==2 and keys[0]=='id' and keys[1]=='type'
+      if keys.length==2
+        return keys[0]=='id' and keys[1]=='type'
+      if keys.length==3
+        return keys[0]=='id' and keys[1]=='subtype' and keys[2]=='type'
     return false
 
   class HasProperties extends Backbone.Model
