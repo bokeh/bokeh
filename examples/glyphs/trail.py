@@ -87,7 +87,7 @@ def trail_map(data):
     ygrid = Grid(plot=plot, dimension=1, ticker=yaxis.ticker, grid_line_dash="dashed", grid_line_color="gray")
     plot.renderers.extend([xgrid, ygrid])
 
-    hover = HoverTool(tooltips=dict(distance="@dist"))
+    hover = HoverTool(tooltips=[("distance", "@dist")])
     plot.add_tools(hover, PanTool(), WheelZoomTool(), ResetTool(), BoxSelectTool())
 
     line_source = ColumnDataSource(dict(x=data.lon, y=data.lat, dist=data.dist))
