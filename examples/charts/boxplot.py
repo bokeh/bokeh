@@ -20,7 +20,8 @@ bronze = df['medals.bronze'].astype(float).values
 medals = OrderedDict(bronze=bronze, silver=silver, gold=gold)
 #medals = pd.DataFrame(medals)
 #medals = medals.values()
-medals = np.array(medals.values())
+medals = tuples(medals.values())
+#medals = np.array(medals.values())
 
 # non ordered df
 #df.pop('name')
