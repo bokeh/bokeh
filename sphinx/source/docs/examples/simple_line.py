@@ -4,6 +4,6 @@ from quickstart_examples import *
 output_file("lines.html")
 
 # Plot a `line` renderer setting the color, line thickness, title, and legend value.
-line(arch_x, arch_y, color="red", line_width=2, title="Archimean", legend="Archimedean")
+line(x, y, title="One Line", legend="Temp.", x_axis_label='x', y_axis_label='y')
 
 show()

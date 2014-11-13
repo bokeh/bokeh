@@ -68,7 +68,6 @@ on all examples below.
 .. literalinclude:: examples/examples_boilerplate.py
    :language: python
    :linenos:
-   :emphasize-lines: 33,43,44,49,51,52
 
 
 Plotting data to a simple line chart can be quite easy if you already have your data
@@ -76,8 +75,8 @@ ready to use.
 
 .. literalinclude:: examples/simple_line.py
    :language: python
+   :lines: 3-9
    :linenos:
-   :emphasize-lines: 33,43,44,49,51,52
 
 .. image:: /_images/quickstart/simple_line.png
 
@@ -87,8 +86,8 @@ logarithmic axis, etc...
 
 .. literalinclude:: examples/log_line.py
    :language: python
+   :lines: 3-25
    :linenos:
-   :emphasize-lines: 33,43,44,49,51,52
 
 .. image:: /_images/quickstart/log_line.png
 
@@ -98,8 +97,8 @@ distributions:
 
 .. literalinclude:: examples/histogram.py
    :language: python
+   :lines: 5-19
    :linenos:
-   :emphasize-lines: 33,43,44,49,51,52
 
 .. image:: /_images/quickstart/histogram.png
 
@@ -107,8 +106,9 @@ and we can easily make it look better..
 
 .. literalinclude:: examples/histogram_more.py
    :language: python
+   :lines: 4-30
    :linenos:
-   :emphasize-lines: 33,43,44,49,51,52
+   :emphasize-lines: 4,10,11,22,23,25
 
 .. image:: /_images/quickstart/histogram_more.png
 
@@ -156,6 +156,7 @@ the previous examples run against the bokeh server is to simply replace the
 .. literalinclude:: quickstart/simple_line_server.py
    :language: python
    :linenos:
+   :lines: 47-51
    :emphasize-lines: 33,43,44,49,51,52
 
 
