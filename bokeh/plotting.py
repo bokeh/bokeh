@@ -14,7 +14,7 @@ from . import _glyph_functions as gf
 from .deprecate import deprecated
 from .document import Document
 from .embed import notebook_div, file_html, autoload_server
-from .objects import Axis, Grid, GridPlot, Legend, Plot
+from .objects import Axis, Grid, GridPlot, Legend, Plot, Widget
 from .palettes import brewer
 from .plotting_helpers import (
     get_default_color, get_default_alpha, _handle_1d_data_args, _list_attr_splat
@@ -205,7 +205,7 @@ def show(obj=None, browser=None, new="tab", url=None):
     it in an output cell (IPython notebook).
 
     Args:
-        obj (plot object, optional): it accepts a plot object and just shows it.
+        obj (Widget/Plot object, optional): it accepts a plot object and just shows it.
 
         browser (str, optional) : browser to show with (default: None)
             For systems that support it, the **browser** argument allows specifying
@@ -268,7 +268,7 @@ def save(filename=None, resources=None, obj=None):
         resources (Resources, optional) : BokehJS resource config to use
             if `resources` is None, the current default resource config is used
 
-        obj (Document or Plot object, optional)
+        obj (Document or Widget/Plot object, optional)
             if provided, then this is the object to save instead of curdoc()
             and its curplot()
 
@@ -295,7 +295,7 @@ def save(filename=None, resources=None, obj=None):
             warnings.warn("No current plot to save. Use renderer functions (circle, rect, etc.) to create a current plot (see http://bokeh.pydata.org/index.html)")
             return
         doc = curdoc()
-    elif isinstance(obj, Plot):
+    elif isinstance(obj, Widget):
         doc = Document()
         doc.add(obj)
     elif isinstance(obj, Document):

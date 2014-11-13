@@ -1,0 +1,175 @@
+/*!
+ * jQuery UI Datepicker 1.11.2
+ * http://jqueryui.com
+ *
+ * Copyright 2014 jQuery Foundation and other contributors
+ * Released under the MIT license.
+ * http://jquery.org/license
+ *
+ * http://api.jqueryui.com/datepicker/#theming
+ */
+.bk-ui-datepicker {
+	width: 17em;
+	padding: .2em .2em 0;
+	display: none;
+}
+.bk-ui-datepicker .bk-ui-datepicker-header {
+	position: relative;
+	padding: .2em 0;
+}
+.bk-ui-datepicker .bk-ui-datepicker-prev,
+.bk-ui-datepicker .bk-ui-datepicker-next {
+	position: absolute;
+	top: 2px;
+	width: 1.8em;
+	height: 1.8em;
+}
+.bk-ui-datepicker .bk-ui-datepicker-prev-hover,
+.bk-ui-datepicker .bk-ui-datepicker-next-hover {
+	top: 1px;
+}
+.bk-ui-datepicker .bk-ui-datepicker-prev {
+	left: 2px;
+}
+.bk-ui-datepicker .bk-ui-datepicker-next {
+	right: 2px;
+}
+.bk-ui-datepicker .bk-ui-datepicker-prev-hover {
+	left: 1px;
+}
+.bk-ui-datepicker .bk-ui-datepicker-next-hover {
+	right: 1px;
+}
+.bk-ui-datepicker .bk-ui-datepicker-prev span,
+.bk-ui-datepicker .bk-ui-datepicker-next span {
+	display: block;
+	position: absolute;
+	left: 50%;
+	margin-left: -8px;
+	top: 50%;
+	margin-top: -8px;
+}
+.bk-ui-datepicker .bk-ui-datepicker-title {
+	margin: 0 2.3em;
+	line-height: 1.8em;
+	text-align: center;
+}
+.bk-ui-datepicker .bk-ui-datepicker-title select {
+	font-size: 1em;
+	margin: 1px 0;
+}
+.bk-ui-datepicker select.bk-ui-datepicker-month,
+.bk-ui-datepicker select.bk-ui-datepicker-year {
+	width: 45%;
+}
+.bk-ui-datepicker table {
+	width: 100%;
+	font-size: .9em;
+	border-collapse: collapse;
+	margin: 0 0 .4em;
+}
+.bk-ui-datepicker th {
+	padding: .7em .3em;
+	text-align: center;
+	font-weight: bold;
+	border: 0;
+}
+.bk-ui-datepicker td {
+	border: 0;
+	padding: 1px;
+}
+.bk-ui-datepicker td span,
+.bk-ui-datepicker td a {
+	display: block;
+	padding: .2em;
+	text-align: right;
+	text-decoration: none;
+}
+.bk-ui-datepicker .bk-ui-datepicker-buttonpane {
+	background-image: none;
+	margin: .7em 0 0 0;
+	padding: 0 .2em;
+	border-left: 0;
+	border-right: 0;
+	border-bottom: 0;
+}
+.bk-ui-datepicker .bk-ui-datepicker-buttonpane button {
+	float: right;
+	margin: .5em .2em .4em;
+	cursor: pointer;
+	padding: .2em .6em .3em .6em;
+	width: auto;
+	overflow: visible;
+}
+.bk-ui-datepicker .bk-ui-datepicker-buttonpane button.bk-ui-datepicker-current {
+	float: left;
+}
+
+/* with multiple calendars */
+.bk-ui-datepicker.bk-ui-datepicker-multi {
+	width: auto;
+}
+.bk-ui-datepicker-multi .bk-ui-datepicker-group {
+	float: left;
+}
+.bk-ui-datepicker-multi .bk-ui-datepicker-group table {
+	width: 95%;
+	margin: 0 auto .4em;
+}
+.bk-ui-datepicker-multi-2 .bk-ui-datepicker-group {
+	width: 50%;
+}
+.bk-ui-datepicker-multi-3 .bk-ui-datepicker-group {
+	width: 33.3%;
+}
+.bk-ui-datepicker-multi-4 .bk-ui-datepicker-group {
+	width: 25%;
+}
+.bk-ui-datepicker-multi .bk-ui-datepicker-group-last .bk-ui-datepicker-header,
+.bk-ui-datepicker-multi .bk-ui-datepicker-group-middle .bk-ui-datepicker-header {
+	border-left-width: 0;
+}
+.bk-ui-datepicker-multi .bk-ui-datepicker-buttonpane {
+	clear: left;
+}
+.bk-ui-datepicker-row-break {
+	clear: both;
+	width: 100%;
+	font-size: 0;
+}
+
+/* RTL support */
+.bk-ui-datepicker-rtl {
+	direction: rtl;
+}
+.bk-ui-datepicker-rtl .bk-ui-datepicker-prev {
+	right: 2px;
+	left: auto;
+}
+.bk-ui-datepicker-rtl .bk-ui-datepicker-next {
+	left: 2px;
+	right: auto;
+}
+.bk-ui-datepicker-rtl .bk-ui-datepicker-prev:hover {
+	right: 1px;
+	left: auto;
+}
+.bk-ui-datepicker-rtl .bk-ui-datepicker-next:hover {
+	left: 1px;
+	right: auto;
+}
+.bk-ui-datepicker-rtl .bk-ui-datepicker-buttonpane {
+	clear: right;
+}
+.bk-ui-datepicker-rtl .bk-ui-datepicker-buttonpane button {
+	float: left;
+}
+.bk-ui-datepicker-rtl .bk-ui-datepicker-buttonpane button.bk-ui-datepicker-current,
+.bk-ui-datepicker-rtl .bk-ui-datepicker-group {
+	float: right;
+}
+.bk-ui-datepicker-rtl .bk-ui-datepicker-group-last .bk-ui-datepicker-header,
+.bk-ui-datepicker-rtl .bk-ui-datepicker-group-middle .bk-ui-datepicker-header {
+	border-right-width: 0;
+	border-left-width: 1px;
+}

@@ -6,6 +6,7 @@ import bokeh.document as document
 from bokeh.exceptions import DataIntegrityException
 from bokeh.objects import PlotContext
 from bokeh.plotting import circle
+import bokeh.protocol as protocol
 
 json_objs = [
     {'attributes': { u'doc': u'foo', u'children': [], u'id': u'bar' }, 'type': u'PlotContext'}
@@ -92,5 +93,18 @@ class TestDocument(unittest.TestCase):
         self.assertEqual(len(d._models), len(p.references())+1)
         self.assertTrue(d.context._dirty)
 
-
-
+    def test_merge(self):
+        d1 = document.Document()
+        d2 = document.Document()
+        p1 = circle([1], [2])
+        p2 = circle([1], [2])
+        d1.add(p1)
+        d2.add(p2)
+        json_objs = d1.dump()
+        json_objs = protocol.deserialize_json(protocol.serialize_json(json_objs))
+        d2.merge(json_objs)
+        assert d2.context._id == d1.context._id
+        assert len(d2.context.children) == 2
+        assert d2.context is d2._models[d2.context._id]
+        pcs = [x for x in d2._models.values() if x.__view_model__ == "PlotContext"]
+        assert len(pcs) == 1

@@ -84,7 +84,7 @@ IV  = make_plot('IV',  'xiv',  'yiv')
 
 grid = GridPlot(children=[[I, II], [III, IV]], plot_width=800)
 
-doc = Document( )
+doc = Document()
 doc.add(grid)
 
 if __name__ == "__main__":
