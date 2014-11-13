@@ -19,7 +19,7 @@ columns = [
     TableColumn(field="cty", title="City MPG"),
     TableColumn(field="hwy", title="Highway MPG"),
 ]
-data_table = DataTable(source=source, columns=columns, width=1000, height=500)
+data_table = DataTable(source=source, columns=columns)
 
 # TODO: rewrite this using plotting API {{{
 xdr = DataRange1d(sources=[source.columns("index")])

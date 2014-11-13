@@ -60,7 +60,7 @@ class DataTables(object):
             TableColumn(field="cty", title="City MPG"),
             TableColumn(field="hwy", title="Highway MPG"),
         ]
-        data_table = DataTable(source=self.source, columns=columns, width=1000, height=500)
+        data_table = DataTable(source=self.source, columns=columns)
 
         xdr = DataRange1d(sources=[self.source.columns("index")])
         ydr = DataRange1d(sources=[self.source.columns("cty"), self.source.columns("hwy")])

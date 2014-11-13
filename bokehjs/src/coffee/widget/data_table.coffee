@@ -27,6 +27,8 @@ define [
     getItemMetadata: (index) -> null
 
   class DataTableView extends ContinuumView
+    attributes:
+      class: "bk-data-table"
 
     initialize: (options) ->
       super(options)
@@ -50,14 +52,21 @@ define [
         id: _.uniqueId()
         field: column.get("field")
         name: column.get("title")
-        width: column.get("width") or 300
+        width: column.get("width")
+
+      width = @mget("width")
+      height = @mget("height")
 
       options =
         enableCellNavigation: true
         enableColumnReorder: true
-        forceFitColumns: true
+        forceFitColumns: @mget("fit_columns")
+        autoHeight: height == "auto"
 
-      @$el.css(width: "#{@mget("width")}px", height: "#{@mget("height")}px")
+      if width?
+          @$el.css(width: "#{@mget("width")}px")
+      if height? and height != "auto"
+          @$el.css(height: "#{@mget("height")}px")
 
       @data = new DataProvider(@mget("source"))
       @grid = new SlickGrid(@el, @data, columns, options)
@@ -71,7 +80,12 @@ define [
     default_view: DataTableView
 
     defaults: ->
-      return _.extend {}, super(), {}
+      return _.extend {}, super(), {
+        columns: []
+        width: null
+        height: 400
+        fit_columns: true
+      }
 
   class DataTables extends Collection
     model: DataTable

@@ -7,6 +7,13 @@ define [
     type: 'TableColumn'
     default_view: null
 
+    defaults: ->
+      return _.extend {}, super(), {
+        field: null
+        title: null
+        width: 300
+      }
+
   class TableColumns extends Collection
     model: TableColumn
 
