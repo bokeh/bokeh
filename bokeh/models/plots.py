@@ -231,7 +231,7 @@ class GridPlot(Plot):
             rwo (int) : index of the row to return
 
         Returns:
-            seq[Plot] : rwo of plots
+            seq[Plot] : row of plots
 
         '''
         try:

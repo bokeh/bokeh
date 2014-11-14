@@ -33,7 +33,6 @@ class Document(object):
 
     def __init__(self, json_objs=None):
         self._current_plot = None
-        self._next_figure_kwargs = dict()
         self._hold = False
         self._models = {}
 
@@ -115,8 +114,8 @@ class Document(object):
             None
 
         """
-        self._current_plot = None
-        self._next_figure_kwargs = kwargs
+        self._current_plot = _new_xy_plot(**kwargs)
+        return self._current_plot
 
     def curplot(self):
         """ Return the current plot of this Document.
@@ -373,22 +372,6 @@ class Document(object):
     #------------------------------------------------------------------------
     # Helper functions
     #------------------------------------------------------------------------
-
-    def _get_plot(self, kwargs):
-        """ Return the current plot, creating a new one if needed.
-
-        """
-        plot = kwargs.pop("plot", None)
-        if not plot:
-            if self._hold and self._current_plot:
-                plot = self._current_plot
-            else:
-                plot_kwargs = self._next_figure_kwargs
-                self._next_figure_kwargs = dict()
-                plot_kwargs.update(kwargs)
-                plot = _new_xy_plot(**plot_kwargs)
-        self._current_plot = plot
-        return plot
 
     def _add(self, *objects):
         """ Adds objects to this document.
