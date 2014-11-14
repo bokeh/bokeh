@@ -18,6 +18,19 @@ methods.
 #-----------------------------------------------------------------------------
 
 from ._charts import Chart
+from bokeh.properties import bokeh_integer_types
+
+try:
+    import numpy as np
+
+except ImportError:
+    np = None
+
+try:
+    import pandas as pd
+
+except ImportError:
+    pd = None
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -399,7 +412,7 @@ class DataAdapter(object):
     Adapter object used to normalize Charts inputs to a common know interface
     """
     def __init__(self, data, index=None, columns=None, force_alias=True):
-        self._values = data
+        self._values = self.validate_values(data)
 
         self.convert_index_to_int = False
         self._columns_map = {}
@@ -443,6 +456,32 @@ class DataAdapter(object):
 
             else:
                 self._index = DEFAULT_INDEX_ALIASES[:][:len(self.values()[0])]
+
+    @staticmethod
+    def validate_values(values):
+        numbers = (float, ) + bokeh_integer_types
+
+        if np and isinstance(values, np.ndarray):
+            return values
+
+        elif pd and isinstance(values, pd.DataFrame):
+            return values
+
+        elif isinstance(values, dict):
+            if all(isinstance(x, numbers) for x in values.values()):
+                return values
+
+            return values
+
+        elif isinstance(values, (list, tuple)):
+            if all(isinstance(x, numbers) for x in values):
+                return [values]
+
+            return values
+
+        # TODO: Improve this error message..
+        raise TypeError("Input type not supported!")
+
 
     def index_converter(self, x):
         key = self._columns_map.get(x, x)
