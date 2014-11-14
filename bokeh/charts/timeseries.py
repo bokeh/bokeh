@@ -64,13 +64,16 @@ class TimeSeries(ChartObject):
         ts.legend("top_left").show()
     """
     def __init__(self, xy,
+                 index=None,
                  title=None, xlabel=None, ylabel=None, legend=False,
                  xscale="datetime", yscale="linear", width=800, height=600,
-                 tools=True, filename=False, server=False, notebook=False):
+                 tools=True, filename=False, server=False, notebook=False,
+                 facet=False):
         """
         Args:
             xy (dict): a dict containing the data with names as a key
                 and the data as a value.
+            index (list): 1d iterable of any sort (of datetime values)
             title (str, optional): the title of your plot. Defaults to None.
             xlabel (str, optional): the x-axis label of your plot.
                 Defaults to None.
@@ -128,9 +131,10 @@ class TimeSeries(ChartObject):
         self.groups = []
         self.data = dict()
         self.attr = []
+        self.index = index
         super(TimeSeries, self).__init__(title, xlabel, ylabel, legend,
                                          xscale, yscale, width, height,
-                                         tools, filename, server, notebook)
+                                         tools, filename, server, notebook, facet)
 
     def check_attr(self):
         """Check if any of the chained method were used.
@@ -188,6 +192,9 @@ class TimeSeries(ChartObject):
 
         for i, duplet in enumerate(self.duplet, start=1):
             self.chart.make_line(self.source, duplet[0], duplet[1], colors[i - 1])
+
+            if i < len(self.duplet):
+                self.create_plot_if_facet()
 
     def show(self):
         """Main TimeSeries show method.
@@ -286,10 +293,11 @@ class NewTimeSeries(TimeSeries):
         ts = TimeSeries(df, title="timeseries, pd_input", notebook=True)
         ts.legend("top_left").show()
     """
-    def __init__(self, xy,
+    def __init__(self, xy, index=None,
                  title=None, xlabel=None, ylabel=None, legend=False,
                  xscale="datetime", yscale="linear", width=800, height=600,
-                 tools=True, filename=False, server=False, notebook=False):
+                 tools=True, filename=False, server=False, notebook=False,
+                 facet=False):
         """
         Args:
             xy (dict): a dict containing the data with names as a key
@@ -346,6 +354,7 @@ class NewTimeSeries(TimeSeries):
         """
         super(NewTimeSeries, self).__init__(
             DataAdapter(xy, force_alias=False),
+            index,
             title,
             xlabel,
             ylabel,
@@ -357,7 +366,8 @@ class NewTimeSeries(TimeSeries):
             tools,
             filename,
             server,
-            notebook
+            notebook,
+            facet
         )
 
     def get_data(self, xy):

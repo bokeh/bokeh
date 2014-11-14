@@ -35,7 +35,7 @@ class ChartObject(object):
     """
     def __init__(self, title, xlabel, ylabel, legend,
                  xscale, yscale, width, height,
-                 tools, filename, server, notebook):
+                 tools, filename, server, notebook, facet=False):
         """Common arguments to be used by all the inherited classes.
 
         Args:
@@ -80,6 +80,7 @@ class ChartObject(object):
         self.__filename = filename
         self.__server = server
         self.__notebook = notebook
+        self.facet = facet
 
     def title(self, title):
         """Set the title of your chart.
@@ -377,6 +378,18 @@ class ChartObject(object):
             colors.append(next(g))
 
         return colors
+
+    def create_plot_if_facet(self):
+        """
+        Generate a new plot if facet is true. This can be called after every
+        serie is draw so the next one is draw on a new separate plot instance
+        """
+        if self.facet:
+            self.chart.figure()
+
+            # we start the plot (adds axis, grids and tools)
+            self.start_plot()
+            self.add_data_plot(self.xdr, self.ydr)
 
 DEFAULT_INDEX_ALIASES = list('abcdefghijklmnopqrstuvz1234567890')
 DEFAULT_INDEX_ALIASES += zip(DEFAULT_INDEX_ALIASES, DEFAULT_INDEX_ALIASES)

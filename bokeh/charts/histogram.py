@@ -239,19 +239,6 @@ class Histogram(ChartObject):
                 if i < len(self.quintet)-1:
                     self.create_plot_if_facet()
 
-    def create_plot_if_facet(self):
-        """
-        Generate a new plot if facet is true. This can be called after every
-        serie is draw so the next one is draw on a new separate plot instance
-        """
-        if self.facet:
-            self.chart.figure()
-
-            # we start the plot (adds axis, grids and tools)
-            self.start_plot()
-            self.add_data_plot(self.xdr, self.ydr)
-
-
     def show(self):
         """Main Histogram show method.
 
