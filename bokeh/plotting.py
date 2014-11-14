@@ -6,6 +6,7 @@ logger = logging.getLogger(__name__)
 import io
 import itertools
 import os
+import re
 import time
 import warnings
 
@@ -14,10 +15,11 @@ from . import _glyph_functions as gf
 from .deprecate import deprecated
 from .document import Document
 from .embed import notebook_div, file_html, autoload_server
-from .objects import Axis, Grid, GridPlot, Legend, Plot, Widget
+from .objects import Axis, FactorRange, Grid, GridPlot, Legend, LogAxis, Plot, Widget
 from .palettes import brewer
 from .plotting_helpers import (
-    get_default_color, get_default_alpha, _handle_1d_data_args, _list_attr_splat
+    get_default_color, get_default_alpha, _handle_1d_data_args, _list_attr_splat,
+    _get_range, _get_axis_class, _get_num_minor_ticks, _tool_from_string
 )
 from .resources import Resources
 from .session import DEFAULT_SERVER_URL, Session
@@ -33,6 +35,148 @@ _default_session = None
 _default_file = None
 
 _default_notebook = None
+
+DEFAULT_TOOLS = "pan,wheel_zoom,box_zoom,save,resize,reset"
+
+class Figure(Plot):
+    __subtype__ = "Figure"
+    __view_model__ = "Plot"
+
+    def __init__(self, *arg, **kw):
+
+        tools = kw.pop("tools", DEFAULT_TOOLS)
+
+        x_range = kw.pop("x_range", None)
+        y_range = kw.pop("y_range", None)
+
+        x_axis_type = kw.pop("x_axis_type", "auto")
+        y_axis_type = kw.pop("y_axis_type", "auto")
+
+        x_minor_ticks = kw.pop('x_minor_ticks', 'auto')
+        y_minor_ticks = kw.pop('y_minor_ticks', 'auto')
+
+        x_axis_location = kw.pop("x_axis_location", "below")
+        y_axis_location = kw.pop("y_axis_location", "left")
+
+        x_axis_label = kw.pop("x_axis_label", "x-axis")
+        y_axis_label = kw.pop("y_axis_label", "y-axis")
+
+        super(Figure, self).__init__(*arg, **kw)
+
+        self.x_range = _get_range(x_range)
+        self.y_range = _get_range(y_range)
+
+        x_axiscls = _get_axis_class(x_axis_type, self.x_range)
+        if x_axiscls:
+            if x_axiscls is LogAxis:
+                self.x_mapper_type = 'log'
+            xaxis = x_axiscls(plot=self)
+            xaxis.ticker.num_minor_ticks = _get_num_minor_ticks(x_axiscls, x_minor_ticks)
+            axis_label = x_axis_label
+            if axis_label:
+                xaxis.axis_label = axis_label
+            xgrid = Grid(plot=self, dimension=0, ticker=xaxis.ticker)
+            if x_axis_location == "above":
+                self.above.append(xaxis)
+            elif x_axis_location == "below":
+                self.below.append(xaxis)
+
+        y_axiscls = _get_axis_class(y_axis_type, self.y_range)
+        if y_axiscls:
+            if y_axiscls is LogAxis:
+                self.y_mapper_type = 'log'
+            yaxis = y_axiscls(plot=self)
+            yaxis.ticker.num_minor_ticks = _get_num_minor_ticks(y_axiscls, y_minor_ticks)
+            axis_label = y_axis_label
+            if axis_label:
+                yaxis.axis_label = axis_label
+            ygrid = Grid(plot=self, dimension=1, ticker=yaxis.ticker)
+            if y_axis_location == "left":
+                self.left.append(yaxis)
+            elif y_axis_location == "right":
+                self.right.append(yaxis)
+
+        tool_objs = []
+        temp_tool_str = ""
+
+        if isinstance(tools, (list, tuple)):
+            for tool in tools:
+                if isinstance(tool, Tool):
+                    tool_objs.append(tool)
+                elif isinstance(tool, string_types):
+                    temp_tool_str += tool + ','
+                else:
+                    raise ValueError("tool should be a string or an instance of Tool class")
+            tools = temp_tool_str
+
+        # Remove pan/zoom tools in case of categorical axes
+        remove_pan_zoom = (isinstance(self.x_range, FactorRange) or
+                           isinstance(self.y_range, FactorRange))
+
+        repeated_tools = []
+        removed_tools = []
+
+        for tool in re.split(r"\s*,\s*", tools.strip()):
+            # re.split will return empty strings; ignore them.
+            if tool == "":
+                continue
+
+            if remove_pan_zoom and ("pan" in tool or "zoom" in tool):
+                removed_tools.append(tool)
+                continue
+
+            tool_obj = _tool_from_string(tool)
+            tool_obj.plot = self
+
+            tool_objs.append(tool_obj)
+
+        self.tools.extend(tool_objs)
+
+        for typename, group in itertools.groupby(sorted([ tool.__class__.__name__ for tool in self.tools ])):
+            if len(list(group)) > 1:
+                repeated_tools.append(typename)
+
+        if repeated_tools:
+            warnings.warn("%s are being repeated" % ",".join(repeated_tools))
+
+        if removed_tools:
+            warnings.warn("categorical plots do not support pan and zoom operations.\n"
+                          "Removing tool(s): %s" %', '.join(removed_tools))
+
+
+
+    annular_wedge     = gf.annular_wedge
+    annulus           = gf.annulus
+    arc               = gf.arc
+    asterisk          = gf.asterisk
+    bezier            = gf.bezier
+    circle            = gf.circle
+    circle_cross      = gf.circle_cross
+    circle_x          = gf. circle_x
+    cross             = gf.cross
+    diamond           = gf.diamond
+    diamond_cross     = gf.diamond_cross
+    image             = gf.image
+    image_rgba        = gf.image_rgba
+    image_url         = gf.image_url
+    inverted_triangle = gf.inverted_triangle
+    line              = gf.line
+    multi_line        = gf.multi_line
+    oval              = gf.oval
+    patch             = gf.patch
+    patches           = gf.patches
+    quad              = gf.quad
+    quadratic         = gf.quadratic
+    ray               = gf.ray
+    rect              = gf.rect
+    segment           = gf.segment
+    square            = gf.square
+    square_cross      = gf.square_cross
+    square_x          = gf.square_x
+    text              = gf.text
+    triangle          = gf.triangle
+    wedge             = gf.wedge
+    x                 = gf.x
 
 def curdoc():
     ''' Return the current document.
@@ -112,7 +256,9 @@ def figure(**kwargs):
         None
 
     '''
-    return curdoc().figure(**kwargs)
+    fig = Figure(**kwargs)
+    curdoc()._current_plot = fig
+    return fig
 
 def output_server(docname, session=None, url="default", name=None):
     """ Cause plotting commands to automatically persist plots to a Bokeh server.

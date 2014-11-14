@@ -40,30 +40,29 @@ for cat in cats:
 
 output_server('boxplot')
 
-figure(tools="previewsave", background_fill="#EFE8E2", title="")
+figure(tools="previewsave", background_fill="#EFE8E2", title="", x_range=cats)
 
 hold()
 
 # If no outliers, shrink lengths of stems to be no longer than the minimums or maximums
-qmin = groups.quantile(q=0.00) 
+qmin = groups.quantile(q=0.00)
 qmax = groups.quantile(q=1.00)
 upper.score = [min([x,y]) for (x,y) in zip(list(qmax.iloc[:,0]),upper.score) ]
 lower.score = [max([x,y]) for (x,y) in zip(list(qmin.iloc[:,0]),lower.score) ]
 
 # stems
-segment(cats, upper.score, cats, q3.score, x_range=cats,
-        line_width=2, line_color="black", )
-segment(cats, lower.score, cats, q1.score, x_range=cats,
-        line_width=2, line_color="black")
+segment(cats, upper.score, cats, q3.score, line_width=2, line_color="black")
+segment(cats, lower.score, cats, q1.score, line_width=2, line_color="black")
+
 # boxes
 rect(cats, (q3.score+q2.score)/2, 0.7, q3.score-q2.score,
      fill_color="#E08E79", line_width=2, line_color="black")
 rect(cats, (q2.score+q1.score)/2, 0.7, q2.score-q1.score,
      fill_color="#3B8686", line_width=2, line_color="black")
 
-# whisters (0-height rects simpler than segments)
-rect(cats, lower.score, 0.2, 0, line_color="black")
-rect(cats, upper.score, 0.2, 0, line_color="black")
+# whisters (almost-0 height rects simpler than segments)
+rect(cats, lower.score, 0.2, 0.01, line_color="black")
+rect(cats, upper.score, 0.2, 0.01, line_color="black")
 
 # outliers
 circle(outx, outy, size=6, color="#F38630", fill_alpha=0.6)
