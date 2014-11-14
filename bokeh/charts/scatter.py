@@ -62,7 +62,8 @@ class Scatter(ChartObject):
     def __init__(self, pairs,
                  title=None, xlabel=None, ylabel=None, legend=False,
                  xscale="linear", yscale="linear", width=800, height=600,
-                 tools=True, filename=False, server=False, notebook=False):
+                 tools=True, filename=False, server=False, notebook=False,
+                 facet=False):
         """
         Args:
             pairs (dict): a dict containing the data with names as a key
@@ -126,7 +127,8 @@ class Scatter(ChartObject):
         self.attr = []
         super(Scatter, self).__init__(title, xlabel, ylabel, legend,
                                       xscale, yscale, width, height,
-                                      tools, filename, server, notebook)
+                                      tools, filename, server, notebook,
+                                      facet)
 
     def check_attr(self):
         """Check if any of the chained method were used.
@@ -187,6 +189,9 @@ class Scatter(ChartObject):
 
         for i, duplet in enumerate(self.duplet, start=1):
             self.chart.make_scatter(self.source, duplet[0], duplet[1], i, colors[i - 1])
+
+            if i < len(self.duplet):
+                self.create_plot_if_facet()
 
     def show(self):
         """Main Scatter show method.
@@ -298,7 +303,8 @@ class NewScatter(Scatter):
     def __init__(self, pairs,
                  title=None, xlabel=None, ylabel=None, legend=False,
                  xscale="linear", yscale="linear", width=800, height=600,
-                 tools=True, filename=False, server=False, notebook=False):
+                 tools=True, filename=False, server=False, notebook=False,
+                 facet=False):
         """
         Args:
             pairs (dict): a dict containing the data with names as a key
@@ -366,7 +372,8 @@ class NewScatter(Scatter):
             tools,
             filename,
             server,
-            notebook
+            notebook,
+            facet
         )
 
     def show(self):

@@ -28,6 +28,6 @@ xyvalues = pdict
 #xyvalues = np.array(xyvalues.values())
 
 #scatter = Scatter(g, filename="iris_scatter.html")
-scatter = NewScatter(xyvalues, filename="iris_scatter.html")
+scatter = NewScatter(xyvalues, filename="iris_scatter.html", facet=False)
 
 scatter.title("iris dataset, gp_by_input").legend("top_left").width(600).height(400).show()
