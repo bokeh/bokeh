@@ -20,7 +20,7 @@ dfl = dfd.values()
 dft = tuple(dfl)
 dft = tuple([tuple(x) for x in dfl])
 dfa = np.array(dfl)
-
+dfscalar = dfd.values()[0]
 
 
 ## and finally we drop the df into out Histogram chart
@@ -29,5 +29,5 @@ from bokeh.charts import Histogram, NewHistogram, DataAdapter
 #hist = Histogram(DataAdapter(dfd, force_alias=False), bins=50, filename="histograms.html")
 #hist = Histogram(DataAdapter(dfl, force_alias=False), bins=50, filename="histograms.html")
 #hist = Histogram(DataAdapter(dfa, force_alias=False), bins=50, filename="histograms.html")
-hist = NewHistogram(dft, bins=50, filename="histograms.html")
+hist = NewHistogram(dfd, bins=50, filename="histograms.html", facet=True)
 hist.title("Histograms").ylabel("frequency").legend(True).width(400).height(350).show()
