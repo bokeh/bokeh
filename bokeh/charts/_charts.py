@@ -50,7 +50,7 @@ class Chart(object):
     subclassing the ChartObject class.
     """
     def __init__(self, title, xlabel, ylabel, legend, xscale, yscale, width, height,
-                 tools, filename, server, notebook):
+                 tools, filename, server, notebook, facet = False):
         """Common arguments to be used by all the inherited classes.
 
         Args:
@@ -97,13 +97,34 @@ class Chart(object):
         self.notebook = notebook
         self._xdr = None
         self._ydr = None
-        self.plot = Plot(title=self.title,
-                         x_range=self._xdr,
-                         y_range=self._ydr,
-                         plot_width=self.plot_width,
-                         plot_height=self.plot_height)
+        self.facet = facet
+        self._plots = []
+        self.figure()
         self.categorical = False
         self.glyphs = []
+
+    @property
+    def plot(self):
+        """
+        Returns the currently chart plot
+        """
+        return self._plots[-1]
+
+    def figure(self):
+        """
+        Creates a new plot as current plot.
+        """
+        # TODO: Should figure be validated by self.facet so we raise an exception
+        # if figure is called and facet is False?
+        self._plots.append(
+            Plot(
+                title=self.title,
+                x_range=self._xdr,
+                y_range=self._ydr,
+                plot_width=self.plot_width,
+                plot_height=self.plot_height
+            )
+        )
 
     def start_plot(self, xgrid, ygrid):
         """Add the axis, grids and tools to self.plot
@@ -124,13 +145,14 @@ class Chart(object):
 
         # Add tools
         if self.tools:
-            if not self.categorical:
-                pan = PanTool()
-                wheelzoom = WheelZoomTool()
-                reset = ResetTool()
-                self.plot.add_tools(pan, wheelzoom, reset)
-            previewsave = PreviewSaveTool()
-            self.plot.add_tools(previewsave)
+            for plot in self._plots:
+                if not self.categorical:
+                    pan = PanTool()
+                    wheelzoom = WheelZoomTool()
+                    reset = ResetTool()
+                    plot.add_tools(pan, wheelzoom, reset)
+                previewsave = PreviewSaveTool()
+                plot.add_tools(previewsave)
 
     def add_data_plot(self, x_range, y_range):
         """Add range data to the initialized empty attributes.
@@ -154,18 +176,27 @@ class Chart(object):
         """
         # Add legend
         if self.legend:
-            listed_glyphs = [[glyph] for glyph in self.glyphs]
-            legends = list(zip(groups, listed_glyphs))
-            if self.legend is True:
-                orientation = "top_right"
-            else:
-                orientation = self.legend
-            legend = Legend(orientation=orientation, legends=legends)
-            self.plot.add_layout(legend)
+            for i, plot in enumerate(self._plots):
+                listed_glyphs = [[glyph] for glyph in self.glyphs]
+                legends = list(zip(groups, listed_glyphs))
+                if self.legend is True:
+                    orientation = "top_right"
+                else:
+                    orientation = self.legend
+
+                # When we have more then on plot we need to break legend per plot
+                if len(self._plots) > 1:
+                    legend = Legend(orientation=orientation, legends=[legends[i]])
+                else:
+                    legend = Legend(orientation=orientation, legends=legends)
+
+                plot.add_layout(legend)
 
         # Add to document and session if server output is asked
         self.doc = Document()
-        self.doc.add(self.plot)
+        for plot in self._plots:
+            self.doc.add(plot)
+
         if self.server:
             if self.server is True:
                 self.servername = "untitled"

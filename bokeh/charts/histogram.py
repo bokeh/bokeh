@@ -61,7 +61,8 @@ class Histogram(ChartObject):
     def __init__(self, measured, bins, mu=None, sigma=None,
                  title=None, xlabel=None, ylabel=None, legend=False,
                  xscale="linear", yscale="linear", width=800, height=600,
-                 tools=True, filename=False, server=False, notebook=False):
+                 tools=True, filename=False, server=False, notebook=False,
+                 facet = False):
         """
         Args:
             measured (dict): a dict containing the data with name as a key
@@ -131,6 +132,7 @@ class Histogram(ChartObject):
         self.groups = []
         self.data = dict()
         self.attr = []
+        self.facet = facet
         super(Histogram, self).__init__(title, xlabel, ylabel, legend,
                                         xscale, yscale, width, height,
                                         tools, filename, server, notebook)
@@ -217,6 +219,12 @@ class Histogram(ChartObject):
 
             for i, quintet in enumerate(self.quintet):
                 self.chart.make_quad(self.source, quintet[1], quintet[5], quintet[3], quintet[4], colors[i], "white")
+
+                # if facet we need to generate multiple histograms of multiple
+                # series on multiple separate plots
+                if i < len(self.quintet)-1:
+                    self.create_plot_if_facet()
+
         else:
             self.octet = list(self._chunker(self.attr, 9))
             colors = self._set_colors(self.octet)
@@ -225,6 +233,24 @@ class Histogram(ChartObject):
                 self.chart.make_quad(self.source, octet[1], octet[5], octet[3], octet[4], colors[i], "white")
                 self.chart.make_line(self.source, octet[6], octet[7], "black")
                 self.chart.make_line(self.source, octet[6], octet[8], "blue")
+
+                # if facet we need to generate multiple histograms of multiple
+                # series on multiple separate plots
+                if i < len(self.quintet)-1:
+                    self.create_plot_if_facet()
+
+    def create_plot_if_facet(self):
+        """
+        Generate a new plot if facet is true. This can be called after every
+        serie is draw so the next one is draw on a new separate plot instance
+        """
+        if self.facet:
+            self.chart.figure()
+
+            # we start the plot (adds axis, grids and tools)
+            self.start_plot()
+            self.add_data_plot(self.xdr, self.ydr)
+
 
     def show(self):
         """Main Histogram show method.
@@ -301,7 +327,8 @@ class NewHistogram(Histogram):
     def __init__(self, measured, bins, mu=None, sigma=None,
                  title=None, xlabel=None, ylabel=None, legend=False,
                  xscale="linear", yscale="linear", width=800, height=600,
-                 tools=True, filename=False, server=False, notebook=False):
+                 tools=True, filename=False, server=False, notebook=False,
+                 facet = False):
         """
         Args:
             measured (dict): a dict containing the data with name as a key
@@ -377,7 +404,8 @@ class NewHistogram(Histogram):
             tools,
             filename,
             server,
-            notebook
+            notebook,
+            facet
         )
 
     def show(self):
