@@ -229,7 +229,7 @@ class CategoricalHeatMap(ChartObject):
         self.show_chart()
 
 
-class NewCategoricalHeatMap(CategoricalHeatMap):
+class HeatMap(CategoricalHeatMap):
     """This is the CategoricalHeatMap class and it is in charge of plotting
     CategoricalHeatMap chart in an easy and intuitive way.
 
@@ -312,7 +312,7 @@ class NewCategoricalHeatMap(CategoricalHeatMap):
                 loading the data dict.
                 Needed for _set_And_get method.
         """
-        super(NewCategoricalHeatMap, self).__init__(
+        super(HeatMap, self).__init__(
             DataAdapter(value),
             palette,
             title,

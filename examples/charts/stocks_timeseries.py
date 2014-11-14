@@ -28,5 +28,5 @@ from bokeh.charts import TimeSeries, DataAdapter, NewTimeSeries
 #xyvalues = xyvalues.values()
 #xyvalues = np.array(xyvalues.values())
 
-ts = NewTimeSeries(xyvalues, title="timeseries, pd_input", filename="stocks_timeseries.html")
+ts = NewTimeSeries(xyvalues, title="timeseries, pd_input", filename="stocks_timeseries.html", facet=True)
 ts.legend("top_left").show()

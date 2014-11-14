@@ -5,4 +5,4 @@ from .bar import Bar, NewBar
 from .scatter import Scatter, NewScatter
 from .boxplot import BoxPlot, NewBoxPlot
 from .timeseries import TimeSeries, NewTimeSeries
-from .catheatmap import CategoricalHeatMap, NewCategoricalHeatMap
+from .catheatmap import CategoricalHeatMap, HeatMap
