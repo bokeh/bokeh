@@ -5,7 +5,7 @@ from math import pi
 from bokeh.browserlib import view
 from bokeh.document import Document
 from bokeh.embed import file_html
-from bokeh.glyphs import Circle, Text
+from bokeh.models.glyphs import Circle, Text
 from bokeh.models import (
     BasicTicker, ColumnDataSource, Grid, GridPlot, LinearAxis,
     DataRange1d, PanTool, Plot, WheelZoomTool

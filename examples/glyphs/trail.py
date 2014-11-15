@@ -13,7 +13,7 @@ from bokeh.embed import file_html
 from bokeh.resources import INLINE
 from bokeh.browserlib import view
 
-from bokeh.glyphs import Line, Patches
+from bokeh.models.glyphs import Line, Patches
 from bokeh.widgets import VBox
 from bokeh.models import (
     Plot, GMapPlot, GMapOptions,

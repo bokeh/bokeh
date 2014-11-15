@@ -4,7 +4,7 @@ import numpy as np
 
 from bokeh.browserlib import view
 from bokeh.document import Document
-from bokeh.glyphs import *
+from bokeh.models.glyphs import *
 from bokeh.models import (
     Plot, Range1d, LinearAxis, Grid, ColumnDataSource, PanTool, WheelZoomTool
 )

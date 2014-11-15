@@ -7,7 +7,7 @@ import sympy as sy
 
 from bokeh.browserlib import view
 from bokeh.document import Document
-from bokeh.glyphs import Line
+from bokeh.models.glyphs import Line
 from bokeh.models import Plot, DataRange1d, LinearAxis, ColumnDataSource, Grid, Legend
 from bokeh.session import Session
 from bokeh.widgets import Slider, TextInput, HBox, VBox, Dialog

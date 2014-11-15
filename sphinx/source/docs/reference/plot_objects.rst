@@ -29,10 +29,10 @@ and reporting issues:
 
 .. _bokeh_dot_glyphs:
 
-``bokeh.glyphs``
+``bokeh.models.glyphs``
 ----------------
 
-.. automodule:: bokeh.glyphs
+.. automodule:: bokeh.models.glyphs
     :members:
 
 .. _bokeh_dot_objects:

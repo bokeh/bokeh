@@ -10,7 +10,7 @@ def large_plot(n):
         ColumnDataSource, DataRange1d, PanTool, WheelZoomTool, BoxZoomTool,
         BoxSelectTool, BoxSelectionOverlay, ResizeTool, PreviewSaveTool,
         ResetTool)
-    from bokeh.glyphs import Line
+    from bokeh.models.glyphs import Line
 
     context = PlotContext()
     objects = set([context])

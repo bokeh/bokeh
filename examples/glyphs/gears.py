@@ -8,7 +8,7 @@ from bokeh.resources import INLINE
 from bokeh.browserlib import view
 
 from bokeh.models import ColumnDataSource, Range1d, Plot, PanTool, WheelZoomTool, ResetTool
-from bokeh.glyphs import Gear
+from bokeh.models.glyphs import Gear
 
 def pitch_radius(module, teeth):
     return float(module*teeth)/2

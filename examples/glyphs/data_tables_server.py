@@ -4,7 +4,7 @@ import time
 
 from bokeh.browserlib import view
 from bokeh.models import ColumnDataSource, Plot, DataRange1d, LinearAxis, Grid, GlyphRenderer, BoxSelectTool
-from bokeh.glyphs import Circle
+from bokeh.models.glyphs import Circle
 from bokeh.widgets import TableColumn, DataTable, Select, HBox, VBox
 from bokeh.document import Document
 from bokeh.session import Session

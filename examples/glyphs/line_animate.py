@@ -6,7 +6,7 @@ from numpy import pi, sin, cos, linspace
 
 from bokeh.browserlib import view
 from bokeh.document import Document
-from bokeh.glyphs import Line
+from bokeh.models.glyphs import Line
 from bokeh.models import (
     Plot, DataRange1d, LinearAxis,
     ColumnDataSource, PanTool, WheelZoomTool

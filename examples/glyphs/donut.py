@@ -7,7 +7,7 @@ from bokeh.browserlib import view
 from bokeh.colors import skyblue, seagreen, tomato, orchid, firebrick, lightgray
 from bokeh.document import Document
 from bokeh.embed import file_html
-from bokeh.glyphs import Wedge, AnnularWedge, ImageURL, Text
+from bokeh.models.glyphs import Wedge, AnnularWedge, ImageURL, Text
 from bokeh.models import ColumnDataSource, Plot, Range1d
 from bokeh.resources import INLINE
 from bokeh.sampledata.browsers import browsers_nov_2013, icons

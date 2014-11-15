@@ -1,6 +1,6 @@
 import unittest
 
-from bokeh.glyphs import (
+from bokeh.models.glyphs import (
     AnnularWedge, Annulus, Arc,
     Bezier,
     Circle,
@@ -16,7 +16,7 @@ from bokeh.glyphs import (
     Text,
     Wedge)
 
-from bokeh.glyphs import (
+from bokeh.models.glyphs import (
     Asterisk,
     CircleCross, CircleX, Cross,
     Diamond, DiamondCross,

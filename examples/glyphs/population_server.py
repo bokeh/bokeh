@@ -5,7 +5,7 @@ from math import pi
 
 from bokeh.browserlib import view
 from bokeh.document import Document
-from bokeh.glyphs import Line, Quad
+from bokeh.models.glyphs import Line, Quad
 from bokeh.models import (
     Plot, ColumnDataSource, DataRange1d, FactorRange,
     LinearAxis, CategoricalAxis, Grid, Legend,
