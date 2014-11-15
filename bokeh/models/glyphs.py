@@ -186,3 +186,5 @@ class Wedge(Glyph, FillProps, LineProps):
     start_angle = DataSpec
     end_angle = DataSpec
     direction = Enum(Direction)
+
+from .markers import * # XXX: allow `from bokeh.models.glyphs import *`
