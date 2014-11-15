@@ -10,7 +10,7 @@ from bokeh.document import Document
 from bokeh.models.glyphs import Line
 from bokeh.models import Plot, DataRange1d, LinearAxis, ColumnDataSource, Grid, Legend
 from bokeh.session import Session
-from bokeh.widgets import Slider, TextInput, HBox, VBox, Dialog
+from bokeh.models.widgets import Slider, TextInput, HBox, VBox, Dialog
 
 document = Document()
 session = Session()

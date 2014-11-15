@@ -14,7 +14,7 @@ from bokeh.plotting import image_rgba, line, annular_wedge, grid
 from bokeh.resources import Resources
 from bokeh.templates import RESOURCES
 from bokeh.utils import encode_utf8
-from bokeh.widgets import HBox, Paragraph, Slider, VBox
+from bokeh.models.widgets import HBox, Paragraph, Slider, VBox
 
 app = flask.Flask(__name__)
 

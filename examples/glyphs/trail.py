@@ -14,7 +14,7 @@ from bokeh.resources import INLINE
 from bokeh.browserlib import view
 
 from bokeh.models.glyphs import Line, Patches
-from bokeh.widgets import VBox
+from bokeh.models.widgets import VBox
 from bokeh.models import (
     Plot, GMapPlot, GMapOptions,
     Range1d, DataRange1d,

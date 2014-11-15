@@ -13,7 +13,7 @@ from bokeh.models import (
     LinearAxis, DatetimeAxis, Grid, HoverTool
 )
 from bokeh.session import Session
-from bokeh.widgets import VBox, HBox, Paragraph, Button, TableColumn, DataTable
+from bokeh.models.widgets import VBox, HBox, Paragraph, Button, TableColumn, DataTable
 
 document = Document()
 session = Session()
