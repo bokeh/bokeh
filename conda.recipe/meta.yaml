@@ -22,7 +22,7 @@ requirements:
     - dateutil
     - pyyaml
     - pyzmq
-    - tornado
+    - tornado >=4.0
 
     # server
     - flask
