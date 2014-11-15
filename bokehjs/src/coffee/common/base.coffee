@@ -341,6 +341,11 @@ define [
 
     modulename = locations[typename]
 
+    if _.isArray(modulename)
+      [modulename, submodulename] = modulename
+    else
+      submodulename = null
+
     if not mod_cache[modulename]?
       mod = require(modulename)
 
@@ -349,7 +354,12 @@ define [
       else
           throw Error("improperly implemented collection: #{modulename}")
 
-    return mod_cache[modulename].Collection
+    mod = mod_cache[modulename]
+
+    if submodulename?
+      mod = mod[submodulename]
+
+    return mod.Collection
 
   Collections.register = (name, collection) ->
     collection_overrides[name] = collection
@@ -362,5 +372,5 @@ define [
     "locations": locations
     "index": index
     "Collections": Collections
-    "Config" : Config
+    "Config": Config
   }
