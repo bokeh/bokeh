@@ -12,6 +12,8 @@ define [
         field: null
         title: null
         width: 300
+        formatter: null
+        editor: null
       }
 
   class TableColumns extends Collection

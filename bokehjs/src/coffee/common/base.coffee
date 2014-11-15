@@ -116,8 +116,10 @@ define [
   "tool/inspectors/hover_tool",
   "tool/inspectors/inspect_tool",
 
-  "widget/data_table",
+  "widget/cell_formatters",
+  "widget/cell_editors",
   "widget/table_column",
+  "widget/data_table",
   'widget/paragraph'
   'widget/hbox'
   'widget/vbox'
@@ -284,8 +286,19 @@ define [
     HoverTool:                'tool/inspectors/hover_tool'
     InspectTool:              'tool/inspectors/inspect_tool'
 
-    DataTable:                'widget/data_table'
+    StringFormatter:          ['widget/cell_formatters', 'String']
+
+    StringEditor:             ['widget/cell_editors', 'String']
+    TextEditor:               ['widget/cell_editors', 'Text']
+    PercentEditor:            ['widget/cell_editors', 'Percent']
+    CheckboxEditor:           ['widget/cell_editors', 'Checkbox']
+    IntegerEditor:            ['widget/cell_editors', 'Integer']
+    NumberEditor:             ['widget/cell_editors', 'Number']
+    TimeEditor:               ['widget/cell_editors', 'Time']
+    DateEditor:               ['widget/cell_editors', 'Date']
+
     TableColumn:              'widget/table_column'
+    DataTable:                'widget/data_table'
     Paragraph:                'widget/paragraph'
     HBox:                     'widget/hbox'
     VBox:                     'widget/vbox'
