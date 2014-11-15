@@ -62,6 +62,7 @@ define [
         enableColumnReorder: true
         forceFitColumns: @mget("fit_columns")
         autoHeight: height == "auto"
+        editable: @mget("editable")
 
       if width?
           @$el.css(width: "#{@mget("width")}px")
@@ -85,6 +86,7 @@ define [
         width: null
         height: 400
         fit_columns: true
+        editable: false
       }
 
   class DataTables extends Collection

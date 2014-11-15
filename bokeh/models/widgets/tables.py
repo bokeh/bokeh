@@ -53,3 +53,4 @@ class DataTable(TableWidget):
     width = Int(None)                        # px, optional
     height = Either(Int(400), Enum("auto"))  # px, required, use "auto" only for small data
     fit_columns = Bool(True)
+    editable = Bool(False)
