@@ -19,7 +19,7 @@ line([0,4*np.pi], [-1, 1], color="#ee3333", tools="pan,wheel_zoom,box_zoom,reset
 show()
 
 import time
-from bokeh.objects import GlyphRenderer
+from bokeh.models import GlyphRenderer
 
 renderer = [r for r in curplot().renderers if isinstance(r, GlyphRenderer)][0]
 ds = renderer.data_source

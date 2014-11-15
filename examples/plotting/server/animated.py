@@ -5,7 +5,7 @@ import time
 import numpy as np
 from numpy import pi, cos, sin, linspace, roll, zeros_like
 from bokeh.plotting import *
-from bokeh.objects import GlyphRenderer
+from bokeh.models import GlyphRenderer
 
 N = 50 + 1
 r_base = 8

@@ -8,7 +8,7 @@ from random import randint
 from bokeh.browserlib import view
 from bokeh.document import Document
 from bokeh.glyphs import Line, Circle
-from bokeh.objects import (
+from bokeh.models import (
     Plot, ColumnDataSource, DataRange1d,
     LinearAxis, DatetimeAxis, Grid, HoverTool
 )

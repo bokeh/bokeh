@@ -1,6 +1,6 @@
 import numpy as np
 from bokeh.plotting import *
-from bokeh.objects import PanTool
+from bokeh.models import PanTool
 N = 80
 
 x = np.linspace(0, 4*np.pi, N)

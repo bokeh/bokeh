@@ -37,13 +37,13 @@ and reporting issues:
 
 .. _bokeh_dot_objects:
 
-``bokeh.objects``
+``bokeh.models``
 -----------------
 
-.. inheritance-diagram:: bokeh.objects
+.. inheritance-diagram:: bokeh.models
   :parts: 1
 
-.. automodule:: bokeh.objects
+.. automodule:: bokeh.models
     :members:
 
 .. _bokeh_dot_session:

@@ -2,7 +2,7 @@ import unittest
 
 import bokeh.query as query
 
-from bokeh.objects import (
+from bokeh.models import (
     Axis, BoxZoomTool, ColumnDataSource, DatetimeAxis, GlyphRenderer, Grid, LinearAxis,
     LogAxis, PanTool, Plot, PreviewSaveTool, Range1d, ResetTool, ResizeTool, Tool, WheelZoomTool,
 )

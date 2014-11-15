@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from bokeh.plotting import *
-from bokeh.objects import HoverTool
+from bokeh.models import HoverTool
 from bokeh.sampledata.unemployment1948 import data
 from collections import OrderedDict
 

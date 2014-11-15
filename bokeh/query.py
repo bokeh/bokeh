@@ -57,7 +57,7 @@ def match(obj, selector, context={}):
     is 'type', which will do an isinstance check::
 
         >>> from bokeh.plotting import line
-        >>> from bokeh.objects import Axis
+        >>> from bokeh.models import Axis
         >>> p = line([1,2,3], [4,5,6])
         >>> len(list(p.select({'type': Axis})))
         2
@@ -69,7 +69,7 @@ def match(obj, selector, context={}):
     object::
 
         >>> from bokeh.plotting import line
-        >>> from bokeh.objects import Axis
+        >>> from bokeh.models import Axis
         >>> p = line([1,2,3], [4,5,6])
         >>> p.tags = ["my plot", 10]
         >>> len(list(p.select({'tags': "my plot"})))

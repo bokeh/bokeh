@@ -1,6 +1,6 @@
 import numpy as np
 from bokeh.plotting import *
-from bokeh.objects import BoxSelectTool
+from bokeh.models import BoxSelectTool
 N = 100
 
 x = np.linspace(0, 4*np.pi, N)

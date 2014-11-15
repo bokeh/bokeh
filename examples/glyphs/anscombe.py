@@ -7,7 +7,7 @@ from bokeh.browserlib import view
 from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.glyphs import Circle, Line
-from bokeh.objects import (
+from bokeh.models import (
     ColumnDataSource, Grid, GridPlot, LinearAxis, Plot, Range1d
 )
 from bokeh.resources import INLINE

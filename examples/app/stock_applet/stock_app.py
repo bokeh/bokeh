@@ -13,7 +13,7 @@ from os.path import dirname, join, splitext
 import numpy as np
 import pandas as pd
 
-from bokeh.objects import ColumnDataSource, Plot
+from bokeh.models import ColumnDataSource, Plot
 from bokeh.plotting import circle, rect, curdoc
 from bokeh.properties import String, Instance
 from bokeh.server.app import bokeh_app

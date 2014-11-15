@@ -1,7 +1,7 @@
 
 from bokeh.sampledata import us_counties, unemployment
 from bokeh.plotting import *
-from bokeh.objects import HoverTool
+from bokeh.models import HoverTool
 from collections import OrderedDict
 
 county_xs=[

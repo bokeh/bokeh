@@ -15,7 +15,7 @@ from bokeh.browserlib import view
 
 from bokeh.glyphs import Line, Patches
 from bokeh.widgets import VBox
-from bokeh.objects import (
+from bokeh.models import (
     Plot, GMapPlot, GMapOptions,
     Range1d, DataRange1d,
     ColumnDataSource,

@@ -58,7 +58,7 @@ def _glyph_doc(args, props, desc):
 
     Returns
     -------
-    plot : :py:class:`Plot <bokeh.objects.Plot>`
+    plot : :py:class:`Plot <bokeh.models.Plot>`
     """ % (desc, params, props)
 
 def _match_data_params(argnames, glyphclass, datasource, serversource,

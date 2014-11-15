@@ -3,7 +3,7 @@ from __future__ import print_function
 import time
 
 from bokeh.browserlib import view
-from bokeh.objects import ColumnDataSource, Plot, DataRange1d, LinearAxis, Grid, GlyphRenderer, BoxSelectTool
+from bokeh.models import ColumnDataSource, Plot, DataRange1d, LinearAxis, Grid, GlyphRenderer, BoxSelectTool
 from bokeh.glyphs import Circle
 from bokeh.widgets import TableColumn, DataTable, Select, HBox, VBox
 from bokeh.document import Document

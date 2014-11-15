@@ -6,7 +6,7 @@ from bokeh.browserlib import view
 from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.glyphs import Circle
-from bokeh.objects import (
+from bokeh.models import (
     Plot, DataRange1d, LinearAxis, ColumnDataSource, PanTool, WheelZoomTool
 )
 from bokeh.resources import INLINE

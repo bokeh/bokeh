@@ -4,7 +4,7 @@ import time
 
 from bokeh.sampledata.stocks import AAPL, FB, GOOG, IBM, MSFT
 from bokeh.plotting import *
-from bokeh.objects import GridPlot
+from bokeh.models import GridPlot
 
 num_points = 300
 

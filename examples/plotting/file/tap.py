@@ -4,7 +4,7 @@ import numpy as np
 from six.moves import zip
 from collections import OrderedDict
 from bokeh.plotting import *
-from bokeh.objects import TapTool
+from bokeh.models import TapTool
 
 TOOLS="crosshair,pan,wheel_zoom,box_zoom,reset,tap,previewsave"
 

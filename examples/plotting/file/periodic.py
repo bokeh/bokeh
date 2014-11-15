@@ -1,5 +1,5 @@
 from bokeh.plotting import *
-from bokeh.objects import HoverTool, ColumnDataSource
+from bokeh.models import HoverTool, ColumnDataSource
 from bokeh.sampledata import periodic_table
 from collections import OrderedDict
 
