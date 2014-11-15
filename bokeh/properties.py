@@ -521,14 +521,11 @@ class HasProps(object):
             raise AttributeError("unexpected attribute '%s' to %s, %s attributes are %s" %
                 (name, self.__class__.__name__, text, nice_join(matches)))
 
-    def to_dict(self):
-        return dict((prop, getattr(self, prop)) for prop in self.properties())
-
     def clone(self):
         """ Returns a duplicate of this object with all its properties
         set appropriately.  Values which are containers are shallow-copied.
         """
-        return self.__class__(**self.to_dict())
+        return self.__class__(**self.changed_properties_with_values())
 
     @classmethod
     def lookup(cls, name):
@@ -599,8 +596,11 @@ class HasProps(object):
     def properties_with_values(self):
         return dict([ (attr, getattr(self, attr)) for attr in self.properties() ])
 
+    def changed_properties(self):
+        return self.changed_vars()
+
     def changed_properties_with_values(self):
-        return dict([ (attr, getattr(self, attr)) for attr in self.changed_vars() ])
+        return dict([ (attr, getattr(self, attr)) for attr in self.changed_properties() ])
 
     @classmethod
     def class_properties(cls, withbases=True):
