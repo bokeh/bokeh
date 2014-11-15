@@ -1,9 +1,10 @@
 """ A set of descriptors that document intended types for attributes on
 classes and implement convenience behaviors like default values, etc.
 """
-from __future__ import print_function
+from __future__ import absolute_import, print_function
 
 import re
+import types
 import difflib
 import datetime
 import dateutil.parser
@@ -29,13 +30,19 @@ class DeserializationError(Exception):
     pass
 
 class Property(object):
-    ''' Base class for all type properties. '''
+    """ Base class for all type properties. """
+
     def __init__(self, default=None, help=None):
         """ This is how the descriptor is created in the class declaration """
-        self.validate(default)
-        self.default = default
+        if isinstance(default, types.FunctionType): # aka. lazy value
+            self.validate(default())
+        else:
+            self.validate(default)
+
+        self._default = default
         self.help = help
         self.alternatives = []
+
         # This gets set by the class decorator at class creation time
         self.name = "unnamed"
 
@@ -45,6 +52,15 @@ class Property(object):
     @property
     def _name(self):
         return "_" + self.name
+
+    @property
+    def default(self):
+        if not isinstance(self._default, types.FunctionType):
+            return copy(self._default)
+        else:
+            value = self._default()
+            self.validate(value)
+            return value
 
     @classmethod
     def autocreate(cls, name=None):
@@ -84,8 +100,15 @@ class Property(object):
         else:
             return True
 
-    def __get__(self, obj, type=None):
-        return getattr(obj, self._name, self.default)
+    def __get__(self, obj, owner=None):
+        if obj is not None:
+            if not hasattr(obj, self._name):
+                setattr(obj, self._name, self.default)
+            return getattr(obj, self._name)
+        elif owner is not None:
+            return owner.lookup(self.name)
+        else:
+            raise ValueError("both 'obj' and 'owner' are None, don't know what to do")
 
     def __set__(self, obj, value):
         try:
@@ -189,8 +212,8 @@ class DataSpec(Property):
         # store the attribute name on this descriptor.
         self.field = field
         self.units = units
+        self._default = default
         self.min_value = min_value
-        self.default = default
         self.help = help
 
     @classmethod
@@ -305,8 +328,8 @@ class ColorSpec(DataSpec):
         # override the inferred value from the positional argument.
 
         self.field = field
+        self._default = default
         self.value = value
-        self.default = default
         self.help = help
 
         if field_or_value is not None:
@@ -705,7 +728,7 @@ class List(ContainerProperty):
     just create an empty list
     """
 
-    def __init__(self, item_type, default=None, help=None):
+    def __init__(self, item_type, default=[], help=None):
         self.item_type = self._validate_type_param(item_type)
         super(List, self).__init__(default=default, help=help)
 
@@ -723,18 +746,6 @@ class List(ContainerProperty):
 
     def __str__(self):
         return "%s(%s)" % (self.__class__.__name__, self.item_type)
-
-    def __get__(self, obj, type=None):
-        if hasattr(obj, self._name):
-            return getattr(obj, self._name)
-        if self.default is None:
-            val = []
-        elif isinstance(self.default, list):
-            val = copy(self.default)
-        else:
-            val = self.default
-        setattr(obj, self._name, val)
-        return val
 
     def from_json(self, json, models=None):
         if json is None:
@@ -757,13 +768,6 @@ class Dict(ContainerProperty):
     @property
     def type_params(self):
         return [self.keys_type, self.values_type]
-
-    def __get__(self, obj, type=None):
-        if not hasattr(obj, self._name) and isinstance(self.default, dict):
-            setattr(obj, self._name, copy(self.default))
-            return getattr(obj, self._name)
-        else:
-            return getattr(obj, self._name, self.default)
 
     def validate(self, value):
         super(Dict, self).validate(value)
@@ -827,12 +831,9 @@ class Array(ContainerProperty):
     def type_params(self):
         return [self.item_type]
 
-    def __get__(self, obj, type=None):
-        if not hasattr(obj, self._name) and self.default is not None:
-            setattr(obj, self._name, np.asarray(self.default))
-            return getattr(obj, self._name)
-        else:
-            return getattr(obj, self._name, self.default)
+    def validate(self, value):
+        super(Array, self).validate(value)
+        # TODO: implement validation of np.array, etc.
 
 class Instance(Property):
     ''' Instance type property for referneces to other Models in the object
@@ -861,15 +862,6 @@ class Instance(Property):
     @property
     def has_ref(self):
         return True
-
-    def __get__(self, obj, type=None):
-        # If the constructor for Instance() supplied a class name, we should
-        # instantiate that class here, instead of returning the class as the
-        # default object
-        if not hasattr(obj, self._name):
-             if type and self.default and isinstance(self.default, type):
-                setattr(obj, self._name, self.default())
-        return getattr(obj, self._name, None)
 
     def validate(self, value):
         super(Instance, self).validate(value)
