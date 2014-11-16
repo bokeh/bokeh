@@ -294,7 +294,7 @@ define [
     SelectEditor:             ['widget/cell_editors', 'Select']
     PercentEditor:            ['widget/cell_editors', 'Percent']
     CheckboxEditor:           ['widget/cell_editors', 'Checkbox']
-    IntegerEditor:            ['widget/cell_editors', 'Integer']
+    IntEditor:                ['widget/cell_editors', 'Int']
     NumberEditor:             ['widget/cell_editors', 'Number']
     TimeEditor:               ['widget/cell_editors', 'Time']
     DateEditor:               ['widget/cell_editors', 'Date']

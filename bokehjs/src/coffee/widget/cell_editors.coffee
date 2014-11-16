@@ -126,16 +126,14 @@ define [
   class CheckboxEditors extends CellEditorCollection
     model: CheckboxEditor
 
-  class IntegerEditorView extends CellEditorView
+  class IntEditorView extends CellEditorView
 
-  class IntegerEditor extends CellEditor
-    type: 'IntegerEditor'
-    default_view: IntegerEditorView
+  class IntEditor extends CellEditor
+    type: 'IntEditor'
+    default_view: IntEditorView
 
-  class EditorView extends CellEditorView
-
-  class IntegerEditors extends CellEditorCollection
-    model: IntegerEditor
+  class IntEditors extends CellEditorCollection
+    model: IntEditor
 
   class NumberEditorView extends CellEditorView
 
@@ -190,10 +188,10 @@ define [
       Collection: new CheckboxEditors()
       View: CheckboxEditorView
 
-    Integer:
-      Model: IntegerEditor
-      Collection: new IntegerEditors()
-      View: IntegerEditorView
+    Int:
+      Model: IntEditor
+      Collection: new IntEditors()
+      View: IntEditorView
 
     Number:
       Model: NumberEditor

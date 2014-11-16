@@ -32,11 +32,11 @@ class PercentEditor(CellEditor):
 class CheckboxEditor(CellEditor):
     pass
 
-class IntegerEditor(CellEditor):
-    increment = Int(1)
+class IntEditor(CellEditor):
+    step = Int(1)
 
 class NumberEditor(CellEditor):
-    increment = Float(0.01)
+    step = Float(0.01)
 
 class TimeEditor(CellEditor):
     pass
