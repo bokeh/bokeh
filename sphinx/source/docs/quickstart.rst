@@ -57,21 +57,19 @@ If you are using Windows, please see the
 Getting Started
 ---------------
 
-By it's nature Bokeh is wide and flexible, so this quickstart should only be
-considered as a quick taste of Bokeh capabilities and workflows. For more meaningful
-and detailed information please move forward the full docs.
+Bokeh is very large and flexible by it's nature, so this section should only be
+considered just as a quick taste of Bokeh capabilities and workflows. For more
+meaningful and detailed information please move forward the full :ref:`userguide`.
 
-
-First, let's write some boilerplate code to generate the data that we will be using
-on all examples below.
+Let's start with some examples. First, we start preparing some boilerplate code
+to generate the data that we will be using on all code samples below.
 
 .. literalinclude:: examples/examples_boilerplate.py
    :language: python
    :linenos:
 
 
-Plotting data to a simple line chart can be quite easy if you already have your data
-ready to use.
+Plotting this data as a simple line chart is very straightforward:
 
 .. literalinclude:: examples/simple_line.py
    :language: python
@@ -80,9 +78,14 @@ ready to use.
 
 .. image:: /_images/quickstart/simple_line.png
 
+All we had to do was tell bokeh.plotting that:
 
-Let's say we need to customize it a bit more fancy features like data series, glyphs,
-logarithmic axis, etc...
+1. We want to write our plots to the output file "lines.html"
+2. Build a line from our data and add some simple customizations
+3. Ask to show the result
+
+Plotting is also quite handy if we need to customize the output with some more
+features like adding more data series, glyphs, logarithmic axis, etc...
 
 .. literalinclude:: examples/log_line.py
    :language: python
@@ -91,9 +94,69 @@ logarithmic axis, etc...
 
 .. image:: /_images/quickstart/log_line.png
 
+Much better, right? At this point it's time to take a better look at the last example.
+We exposed quite a few structures like plot figures, line, circle, axes, figures
+without any premise. It's time define some core concepts of Bokeh:
 
-Another very common way of visualizing data is using a histogram to represent
-distributions:
+
+Plot
+~~~~
+
+Plots are a centric concept in Bokeh and are rendered as plot figured draw
+on the selected output. In both previous examples we have created a plot. In the
+first example this action has been implicit (when calling output_file followed by
+line glyph it automatically creates a new plot instance to contain the following
+glyph [line]) while we have explicitly used figure to create a new plot in the second
+example. Everytime figure is called it creates a new plot figure and, as you may
+have noticed from the previous example, defines a rich set of keyword arguments
+that control its appearence. See :ref:`userguide_plotting` for more details.
+
+
+Glyphs (Line/Circle)
+~~~~~~~~~~~~~~~~~~~~
+Line and Circle are just 2 of the many glyphs supported by Bokeh. Those are the basic
+geometrical shapes that are combined together to build a plot. In the first example
+we have just used one glyph (line) to represent our data while in the second example
+we have used combination of lines and circles.
+
+.. note:: There is a big variety of glyphs in Bokeh and they are often referred as
+          'glyphs' or 'markers' (used for simple markers placed at (x,y) locations).
+          Please see :ref:`userguide_objects_glyphs` for more information.
+
+
+Guides
+~~~~~~
+Axes are a very important type of guide and are automatically managed by bokeh
+when a new plot is created. It's very easy to customize plot axes as you have seen
+in the previous examples. With the plotting library you can have access to the axis
+configuration directly specifying some keyword arguments when calling figure or one
+of the glyphs. Plotting also expose access to the axes by explicitly calling axis
+method (as show in the next example). Please refer to :ref:`userguide_objects_axes`
+for more information.
+
+Legend is another very useful guide. As you can notice from the former examples
+you can use it to group more the one glyph to the same data series under the same
+legend text (in addition to the traditional use case of legends). Please refer
+to :ref:`userguide_objects_axes` for more information about it.
+
+
+Ranges
+~~~~~~
+There are two keyword parameters x_range and y_range to control the ranges of a plot.
+These may be passed into the bokeh.plotting.figure function, or into any of the high-level
+plotting Glyph Functions (like line or cycle). They may also be set as attributes on a
+plot object. As usual tale a look at the more detailed section :ref:`userguide_objects_ranges`.
+
+Bokeh offers a lot of structures and we really recommend the reader to spend some time
+looking at the tools at those.
+
+One very useful aspect to keep in mind is that the previous structures are always at the
+base the objects, also those created using higher interface levels like bokeh.plotting
+(or bokeh.charts).
+
+Let's now get back to more examples. Another very common way of visualizing data is
+using a histogram to represent distributions. Here's how the code for this use
+case looks like using bokeh.charts:
 
 .. literalinclude:: examples/histogram.py
    :language: python
@@ -102,7 +165,7 @@ distributions:
 
 .. image:: /_images/quickstart/histogram.png
 
-and we can easily make it look better..
+and (again) we can easily make it look better..
 
 .. literalinclude:: examples/histogram_more.py
    :language: python
@@ -111,7 +174,6 @@ and we can easily make it look better..
    :emphasize-lines: 4,10,11,22,23,25
 
 .. image:: /_images/quickstart/histogram_more.png
-
 
 One thing to notice is that we have always created static html files by
 calling output_file function. This output option will write a static HTML
