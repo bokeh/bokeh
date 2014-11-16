@@ -10,7 +10,65 @@ define [
   class CellEditorCollection extends Collection
   class CellEditorView extends ContinuumView
 
+    emptyValue: null
+    defaultValue: null
+
+    initialize: (args) ->
+      super({})
+      @args = args
+      @render()
+      @$el.appendTo(@args.container)
+
+    destroy: () -> @remove()
+
+    focus: () -> @$el.focus()
+
+    show: () ->
+
+    hide: () ->
+
+    position: () ->
+
+    getValue: () -> return @$el.val()
+
+    setValue: (val) -> @$el.val(val)
+
+    serializeValue: () -> return @getValue()
+
+    isValueChanged: () -> return not (@getValue() == "" and not @defaultValue?) and (@getValue() != @defaultValue)
+
+    applyValue: (item, state) -> item[@args.column.field] = state
+
+    loadValue: (item) ->
+      value = item[@args.column.field]
+      @defaultValue = if value? then value else @emptyValue
+      @setValue(@defaultValue)
+
+    validate: () ->
+      if @args.column.validator
+        result = @args.column.validator(@getValue())
+        if !result.valid
+          return result
+
+      return { valid: true, msg: null }
+
   class StringEditorView extends CellEditorView
+
+    emptyValue: ""
+
+    el: '<input type="text" class="bk-cell-editor-string" />'
+
+    render: () ->
+      @$el.bind "keydown.nav", (event) =>
+        if event.keyCode == $.ui.keyCode.LEFT or event.keyCode == $.ui.keyCode.RIGHT
+          event.stopImmediatePropagation()
+      @focus()
+      @$el.select()
+
+    loadValue: (item) ->
+      super(item)
+      @$el[0].defaultValue = @defaultValue
+      @$el.select()
 
   class StringEditor extends CellEditor
     type: 'StringEditor'

@@ -53,6 +53,8 @@ define [
         field: column.get("field")
         name: column.get("title")
         width: column.get("width")
+        #formatter: column.get("formatter")
+        editor: column.get("editor").default_view
 
       width = @mget("width")
       height = @mget("height")
@@ -63,6 +65,7 @@ define [
         forceFitColumns: @mget("fit_columns")
         autoHeight: height == "auto"
         editable: @mget("editable")
+        autoEdit: false
 
       if width?
           @$el.css(width: "#{@mget("width")}px")
