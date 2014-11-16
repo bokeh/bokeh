@@ -1,6 +1,6 @@
-
 import numpy as np
 from scipy.integrate import odeint
+
 from bokeh.plotting import *
 
 sigma = 10

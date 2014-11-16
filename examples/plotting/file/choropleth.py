@@ -1,4 +1,3 @@
-
 from bokeh.sampledata import us_states, us_counties, unemployment
 from bokeh.plotting import *
 

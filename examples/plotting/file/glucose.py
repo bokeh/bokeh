@@ -1,4 +1,3 @@
-
 import pandas as pd
 
 from bokeh.sampledata.glucose import data

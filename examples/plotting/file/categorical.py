@@ -1,5 +1,5 @@
-
 import numpy as np
+
 from bokeh.plotting import *
 
 N = 4000

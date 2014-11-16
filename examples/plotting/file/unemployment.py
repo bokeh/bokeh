@@ -1,9 +1,11 @@
+from collections import OrderedDict
+
 import numpy as np
 import pandas as pd
+
 from bokeh.plotting import *
 from bokeh.objects import HoverTool
 from bokeh.sampledata.unemployment1948 import data
-from collections import OrderedDict
 
 # Read in the data with pandas. Convert the year column to string
 data['Year'] = [str(x) for x in data['Year']]

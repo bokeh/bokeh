@@ -1,4 +1,3 @@
-
 from bokeh.sampledata.iris import flowers
 from bokeh.plotting import *
 

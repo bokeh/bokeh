@@ -1,5 +1,5 @@
-
 import numpy as np
+
 from bokeh.sampledata.stocks import AAPL, FB, GOOG, IBM, MSFT
 from bokeh.plotting import *
 

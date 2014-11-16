@@ -1,4 +1,5 @@
 import numpy as np
+
 from bokeh.plotting import *
 
 x = np.linspace(0, 4*np.pi, 80)

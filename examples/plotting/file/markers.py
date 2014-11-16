@@ -1,10 +1,6 @@
-
 from numpy.random import random
+
 from bokeh.plotting import *
-
-output_file("markers.html")
-
-figure(title="markers.py example", tools="pan,wheel_zoom,box_zoom,reset,previewsave")
 
 def mscatter(p, x, y, typestr):
     p.scatter(x, y, marker=typestr,
@@ -14,9 +10,9 @@ def mtext(p, x, y, textstr):
     p.text(x, y, text=textstr, angle=0,
          text_color="#449944", text_align="center", text_font_size="10pt")
 
-N = 10
+p = figure(title="markers.py example")
 
-p = figure()
+N = 10
 
 mscatter(p, random(N)+2, random(N)+1, "circle")
 mscatter(p, random(N)+4, random(N)+1, "square")
@@ -48,4 +44,5 @@ mtext(p, [4.5], [6.5], "square_cross")
 mtext(p, [6.5], [6.5], "diamond")
 mtext(p, [8.5], [6.5], "cross / +")
 
+output_file("markers.html")
 show(p)  # open a browser

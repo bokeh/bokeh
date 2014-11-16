@@ -1,7 +1,8 @@
-
 from collections import OrderedDict
+
 import numpy as np
 import pandas as pd
+
 from bokeh.plotting import *
 
 N = 20

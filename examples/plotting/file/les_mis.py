@@ -1,9 +1,11 @@
+from collections import OrderedDict
 import json
+
 import numpy as np
+
 from bokeh.plotting import *
 from bokeh.objects import HoverTool, ColumnDataSource
 from bokeh.sampledata.les_mis import data
-from collections import OrderedDict
 
 nodes = data['nodes']
 names = [node['name'] for node in sorted(data['nodes'], key=lambda x: x['group'])]

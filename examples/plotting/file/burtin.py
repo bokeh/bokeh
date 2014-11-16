@@ -1,9 +1,11 @@
+from collections import OrderedDict
+from math import log, sqrt
+
 import numpy as np
 import pandas as pd
-from bokeh.plotting import *
 from six.moves import cStringIO as StringIO
-from math import log, sqrt
-from collections import OrderedDict
+
+from bokeh.plotting import *
 
 antibiotics = """
 bacteria,                        penicillin, streptomycin, neomycin, gram

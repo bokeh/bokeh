@@ -5,6 +5,7 @@
 # do; you just pass in a few extra arguments to the output_file() command.
 
 import numpy as np
+
 from bokeh.plotting import *
 
 N = 100

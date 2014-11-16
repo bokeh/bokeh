@@ -1,6 +1,6 @@
-
 import numpy as np
 from six.moves import zip
+
 from bokeh.plotting import *
 
 N = 4000
