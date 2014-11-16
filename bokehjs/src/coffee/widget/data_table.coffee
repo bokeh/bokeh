@@ -24,6 +24,23 @@ define [
         item[field] = @data[field][index]
       return item
 
+    setItem: (index, item) ->
+      for field, value of @item
+        @data[field][index] = value
+      @updateSource()
+
+    getField: (index, field) ->
+      return @data[field][index]
+
+    setField: (index, field, value) ->
+      @data[field][index] = value
+      @updateSource()
+
+    updateSource: () ->
+      # XXX: We should say `@source.set('data', @data)`, but data was updated in-place,
+      # so that would be a no-op. We have to trigger change events manually instead.
+      @source.forceTrigger("data")
+
     getItemMetadata: (index) -> null
 
   class DataTableView extends ContinuumView

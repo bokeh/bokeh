@@ -37,7 +37,9 @@ define [
 
     isValueChanged: () -> return not (@getValue() == "" and not @defaultValue?) and (@getValue() != @defaultValue)
 
-    applyValue: (item, state) -> item[@args.column.field] = state
+    applyValue: (item, state) ->
+      # XXX: In perfect world this would be `item[@args.column.field] = state`.
+      @args.grid.getData().setField(item.index, @args.column.field, state)
 
     loadValue: (item) ->
       value = item[@args.column.field]
