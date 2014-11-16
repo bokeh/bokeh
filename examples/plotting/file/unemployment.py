@@ -32,36 +32,32 @@ for y in years:
         color.append(colors[min(int(monthly_rate)-2, 8)])
 
 source = ColumnDataSource(
-    data=dict(
-        month=month,
-        year=year,
-        color=color,
-        rate=rate,
-    )
+    data=dict(month=month, year=year, color=color, rate=rate)
 )
 
-output_file('unemployment.html')
+TOOLS = "resize,hover,save"
 
-figure()
+p = figure(title="US Unemployment (1948 - 2013)",
+    x_range=years, y_range=list(reversed(months)),
+    x_axis_location="above", plot_width=900, plot_height=400,
+    toolbar_location="left", tools=TOOLS)
 
-rect("year", "month", 1,1, source=source,
-     x_range=years, y_range=list(reversed(months)),
-     x_axis_location="above",
-     color="color", line_color=None,
-     tools="resize,hover,previewsave", title="US Unemployment (1948 - 2013)",
-     plot_width=900, plot_height=400, toolbar_location="left")
+p.rect("year", "month", 1, 1, source=source,
+    color="color", line_color=None)
 
-grid().grid_line_color = None
-axis().axis_line_color = None
-axis().major_tick_line_color = None
-axis().major_label_text_font_size = "5pt"
-axis().major_label_standoff = 0
-xaxis().major_label_orientation = np.pi/3
+p.grid.grid_line_color = None
+p.axis.axis_line_color = None
+p.axis.major_tick_line_color = None
+p.axis.major_label_text_font_size = "5pt"
+p.axis.major_label_standoff = 0
+p.xaxis.major_label_orientation = np.pi/3
 
-hover = curplot().select(dict(type=HoverTool))
+hover = p.select(dict(type=HoverTool))
+hover.snap_to_data = False
 hover.tooltips = OrderedDict([
     ('date', '@month @year'),
     ('rate', '@rate'),
 ])
 
-show()      # show the plot
+output_file('unemployment.html')
+show(p)      # show the plot

@@ -36,7 +36,6 @@ for i, n1 in enumerate(nodes):
         else:
             color.append('lightgrey')
 
-output_file("les_mis.html")
 
 source = ColumnDataSource(
     data=dict(
@@ -48,21 +47,21 @@ source = ColumnDataSource(
     )
 )
 
-figure()
+p = figure(title="Les Mis Occurrences",
+    x_axis_location="above", tools="resize,hover,save",
+    x_range=list(reversed(names)), y_range=names)
+p.plot_width = 800
+p.plot_height = 800
 
-rect('xname', 'yname', 0.9, 0.9, source=source,
-     x_range=list(reversed(names)), y_range=names,
-     x_axis_location="above",
-     color='colors', alpha='alphas', line_color=None,
-     tools="resize,hover,previewsave", title="Les Mis Occurrences (one at a time)",
-     plot_width=800, plot_height=800)
+p.rect('xname', 'yname', 0.9, 0.9, source=source,
+     color='colors', alpha='alphas', line_color=None)
 
-grid().grid_line_color = None
-axis().axis_line_color = None
-axis().major_tick_line_color = None
-axis().major_label_text_font_size = "5pt"
-axis().major_label_standoff = 0
-xaxis().major_label_orientation = np.pi/3
+p.grid.grid_line_color = None
+p.axis.axis_line_color = None
+p.axis.major_tick_line_color = None
+p.axis.major_label_text_font_size = "5pt"
+p.axis.major_label_standoff = 0
+p.xaxis.major_label_orientation = np.pi/3
 
 hover = curplot().select(dict(type=HoverTool))
 hover.tooltips = OrderedDict([
@@ -70,4 +69,5 @@ hover.tooltips = OrderedDict([
     ('count', '@count'),
 ])
 
-show()      # show the plot
+output_file("les_mis.html")
+show(p)      # show the plot

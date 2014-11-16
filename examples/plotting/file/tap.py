@@ -6,8 +6,6 @@ from collections import OrderedDict
 from bokeh.plotting import *
 from bokeh.objects import TapTool
 
-TOOLS="crosshair,pan,wheel_zoom,box_zoom,reset,tap,previewsave"
-
 xx, yy = np.meshgrid(range(0,101,4), range(0,101,4))
 x = xx.flatten()
 y = yy.flatten()
@@ -32,19 +30,20 @@ source = ColumnDataSource(
     )
 )
 
-output_file("tap.html")
+TOOLS="crosshair,pan,wheel_zoom,box_zoom,reset,tap,previewsave"
 
-hold()
+p = figure(title="Tappy Scatter", tools=TOOLS)
 
-circle(x, y, radius=radii, source=source, tools=TOOLS,
+p.circle(x, y, radius=radii, source=source,
        fill_color=colors, fill_alpha=0.6,
-       line_color=None, Title="Tappy Scatter", name="mystuff")
+       line_color=None, name="mystuff")
 
-text(x, y, text=inds, alpha=0.5, text_font_size="5pt",
+p.text(x, y, text=inds, alpha=0.5, text_font_size="5pt",
      text_baseline="middle", text_align="center", angle=0)
 
 # in the broswer console, you will see messages when circles are clicked
-click = [t for t in curplot().tools if isinstance(t, TapTool)][0]
-click.names.append("mystuff")
+tool = p.select(dict(type=TapTool))[0]
+tool.names.append("mystuff")
 
-show()  # open a browser
+output_file("tap.html")
+show(p)  # open a browser

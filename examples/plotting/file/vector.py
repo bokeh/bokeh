@@ -193,16 +193,13 @@ cm = np.array(["#C7E9B4", "#7FCDBB", "#41B6C4", "#1D91C0", "#225EA8", "#0C2C84"]
 ix = ((length-length.min())/(length.max()-length.min())*5).astype('int')
 colors = cm[ix]
 
+tools = "pan,wheel_zoom,box_zoom,reset,previewsave"
+
+p1 = figure(tools=tools)
+p1.segment(x0, y0, x1, y1, color=colors, line_width=2)
+
+p2 = figure(tools=tools)
+p2.multi_line(xs, ys, color="#ee6666", line_width=2, line_alpha=0.8)
+
 output_file("vector.html", title="vector.py example")
-
-figure(tools="pan,wheel_zoom,box_zoom,reset,previewsave")
-
-segment(x0, y0, x1, y1, 
-    line_color=colors, line_width=2,
-)
-multi_line(xs, ys, 
-    line_color="#ee6666", line_width=2, line_alpha=0.8, 
-    name="vector example"
-)
-
-show()  # open a browser
+show(VBox(p1,p2))  # open a browser

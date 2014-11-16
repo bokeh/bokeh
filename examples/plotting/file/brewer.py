@@ -23,14 +23,15 @@ def stacked(df, categories):
         last = next
     return areas
 
-output_file("brewer.html", title="brewer.py example")
-
 areas = stacked(df, categories)
 
 colors = brewer["Spectral"][len(areas)]
 
 x2 = np.hstack((data['x'][::-1], data['x']))
-patches([x2 for a in areas], list(areas.values()), color=colors, alpha=0.8, line_color=None)
 
-show()
+p = figure()
+p.patches([x2 for a in areas], list(areas.values()), color=colors, alpha=0.8, line_color=None)
+
+output_file("brewer.html", title="brewer.py example")
+show(p)
 

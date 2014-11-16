@@ -27,10 +27,12 @@ xprime = np.cos(theta) * x - np.sin(theta) * y
 
 colors = ["#C6DBEF", "#9ECAE1", "#6BAED6", "#4292C6", "#2171B5", "#08519C", "#08306B",]
 
+TOOLS = "pan,wheel_zoom,box_zoom,reset,save"
+
+p = figure(title="lorenz example", tools=TOOLS)
+
+p.multi_line(np.array_split(xprime, 7), np.array_split(z, 7),
+           line_color=colors, line_alpha=0.8, line_width=1.5)
+
 output_file("lorenz.html", title="lorenz.py example")
-
-multi_line(np.array_split(xprime, 7), np.array_split(z, 7),
-           line_color=colors, line_alpha=0.8, line_width=1.5,
-           tools="pan,wheel_zoom,box_zoom,reset,previewsave", title="lorenz example", name="lorenz_example")
-
-show()  # open a browser
+show(p)  # open a browser

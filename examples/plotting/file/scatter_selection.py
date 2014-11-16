@@ -6,31 +6,26 @@ N = 100
 x = np.linspace(0, 4*np.pi, N)
 y = np.sin(x)
 
-output_file("scatter_selection.html", title="scatter_selection.py example")
+TOOLS = "pan,wheel_zoom,box_zoom,reset,save,box_select"
 
-figure(tools="pan,wheel_zoom,box_zoom,reset,previewsave,select")
+p1 = figure(title="selection on mouseup", tools=TOOLS)
 
-l = scatter(x,y,
-    color="red",
-    title="select on mouseup"
-)
-select_tool = curplot().select(dict(type=BoxSelectTool))
+p1.circle(x, y, color="red", size=6)
+select_tool = p1.select(dict(type=BoxSelectTool))
 select_tool.select_every_mousemove = False
 
-l = scatter(x,y,
-    marker="square", color="green",
-    title='select on mousemove'
-    )
-select_tool = curplot().select(dict(type=BoxSelectTool))
+p2 = figure(title="selection on mousemove", tools=TOOLS)
+p2.circle(x, y, marker="square", color="green", size=6)
 
-scatter(x,y,
-    color="#FF00FF", nonselection_fill_color="#FFFF00", nonselection_fill_alpha=1
-)
-
+select_tool = p2.select(dict(type=BoxSelectTool))
 select_tool.select_every_mousemove = True
 
-scatter(x,y,
-    marker="square", color="blue", name="scatter_selection_example"
-)
+p3 = figure(title="default highlight", tools=TOOLS)
+p3.circle(x,y, color="#FF00FF", size=6)
 
-show()  # open a browser
+p4 = figure(title="custom highlight", tools=TOOLS)
+p4.square(x,y, color="blue", size=6,
+    nonselection_fill_color="#FFFF00", nonselection_fill_alpha=1)
+
+output_file("scatter_selection.html", title="scatter_selection.py example")
+show(VBox(p1,p2,p3,p4))  # open a browser

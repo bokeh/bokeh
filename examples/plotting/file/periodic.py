@@ -8,8 +8,6 @@ elements = periodic_table.elements[periodic_table.elements["group"] != "-"]
 group_range = [str(x) for x in range(1,19)]
 period_range = [str(x) for x in reversed(sorted(set(elements["period"])))]
 
-output_file("periodic.html")
-
 colormap = {
     "alkali metal"         : "#a6cee3",
     "alkaline earth metal" : "#1f78b4",
@@ -40,13 +38,15 @@ source = ColumnDataSource(
     )
 )
 
-hold()
+TOOLS = "resize,hover,resize,save"
 
-rect("group", "period", 0.9, 0.9, source=source,
-     x_range=group_range, y_range=period_range,
-     fill_alpha=0.6, color="type_color",
-     tools="resize,hover,previewsave", title="Periodic Table",
-     plot_width=1200, toolbar_location="left")
+p = figure(title="Periodic Table", tools=TOOLS,
+    x_range=group_range, y_range=period_range)
+p.plot_width = 1200
+p.toolbar_location = "left"
+
+p.rect("group", "period", 0.9, 0.9, source=source,
+    fill_alpha=0.6, color="type_color")
 
 text_props = {
     "source": source,
@@ -56,27 +56,27 @@ text_props = {
     "text_baseline": "middle"
 }
 
-text(x=dict(field="symx", units="data"),
-     y=dict(field="period", units="data"),
-     text=dict(field="sym", units="data"),
-     text_font_style="bold", text_font_size="15pt", **text_props)
+p.text(x=dict(field="symx", units="data"),
+    y=dict(field="period", units="data"),
+    text=dict(field="sym", units="data"),
+    text_font_style="bold", text_font_size="15pt", **text_props)
 
-text(x=dict(field="symx", units="data"),
-     y=dict(field="numbery", units="data"),
-     text=dict(field="atomic_number", units="data"),
-     text_font_size="9pt", **text_props)
+p.text(x=dict(field="symx", units="data"),
+    y=dict(field="numbery", units="data"),
+    text=dict(field="atomic_number", units="data"),
+    text_font_size="9pt", **text_props)
 
-text(x=dict(field="symx", units="data"),
-     y=dict(field="namey", units="data"),
-     text=dict(field="name", units="data"),
-     text_font_size="6pt", **text_props)
+p.text(x=dict(field="symx", units="data"),
+    y=dict(field="namey", units="data"),
+    text=dict(field="name", units="data"),
+    text_font_size="6pt", **text_props)
 
-text(x=dict(field="symx", units="data"),
-     y=dict(field="massy", units="data"),
-     text=dict(field="mass", units="data"),
-     text_font_size="5pt", **text_props)
+p.text(x=dict(field="symx", units="data"),
+    y=dict(field="massy", units="data"),
+    text=dict(field="mass", units="data"),
+    text_font_size="5pt", **text_props)
 
-grid().grid_line_color = None
+p.grid.grid_line_color = None
 
 hover = curplot().select(dict(type=HoverTool))
 hover.tooltips = OrderedDict([
@@ -88,4 +88,5 @@ hover.tooltips = OrderedDict([
     ("electronic configuration", "@electronic"),
 ])
 
-show()
+output_file("periodic.html")
+show(p)

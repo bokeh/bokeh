@@ -3,20 +3,20 @@ import numpy as np
 from bokeh.sampledata.stocks import AAPL, FB, GOOG, IBM, MSFT
 from bokeh.plotting import *
 
-output_file("stocks.html", title="stocks.py example")
+TOOLS = "pan,wheel_zoom,box_zoom,reset,save"
 
-hold()
+p1 = figure(x_axis_type = "datetime", tools=TOOLS)
 
-figure(x_axis_type = "datetime", tools="pan,wheel_zoom,box_zoom,reset,previewsave")
+p1.line(np.array(AAPL['date'], 'M64'), AAPL['adj_close'], color='#A6CEE3', legend='AAPL')
+p1.line(np.array(FB['date'], 'M64'), FB['adj_close'], color='#1F78B4', legend='FB')
+p1.line(np.array(GOOG['date'], 'M64'), GOOG['adj_close'], color='#B2DF8A', legend='GOOG')
+p1.line(np.array(IBM['date'], 'M64'), IBM['adj_close'], color='#33A02C', legend='IBM')
+p1.line(np.array(MSFT['date'], 'M64'), MSFT['adj_close'], color='#FB9A99', legend='MSFT')
 
-line(np.array(AAPL['date'], 'M64'), AAPL['adj_close'], color='#A6CEE3', legend='AAPL')
-line(np.array(FB['date'], 'M64'), FB['adj_close'], color='#1F78B4', legend='FB')
-line(np.array(GOOG['date'], 'M64'), GOOG['adj_close'], color='#B2DF8A', legend='GOOG')
-line(np.array(IBM['date'], 'M64'), IBM['adj_close'], color='#33A02C', legend='IBM')
-line(np.array(MSFT['date'], 'M64'), MSFT['adj_close'], color='#FB9A99', legend='MSFT')
-
-curplot().title = "Stock Closing Prices"
-grid().grid_line_alpha=0.3
+p1.title = "Stock Closing Prices"
+p1.grid.grid_line_alpha=0.3
+p1.xaxis.axis_label = 'Date'
+p1.yaxis.axis_label = 'Price'
 
 aapl = np.array(AAPL['adj_close'])
 aapl_dates = np.array(AAPL['date'], dtype=np.datetime64)
@@ -25,21 +25,16 @@ window_size = 30
 window = np.ones(window_size)/float(window_size)
 aapl_avg = np.convolve(aapl, window, 'same')
 
-xax, yax = axis()
-xax.axis_label = 'Date'
-yax.axis_label = 'Price'
+p2 = figure(x_axis_type="datetime", tools=TOOLS)
 
-figure(x_axis_type="datetime", tools="pan,wheel_zoom,box_zoom,reset,previewsave")
+p2.circle(aapl_dates, aapl, size=4, color='#A6CEE3', legend='close')
+p2.line(aapl_dates, aapl_avg, color='red', legend='avg')
 
-scatter(aapl_dates, aapl, size=4, color='#A6CEE3', legend='close')
-line(aapl_dates, aapl_avg, color='red', legend='avg')
+p2.title = "AAPL One-Month Average"
+p2.grid.grid_line_alpha=0.3
+p2.xaxis.axis_label = 'Date'
+p2.yaxis.axis_label = 'Price'
 
-curplot().title = "AAPL One-Month Average"
-grid().grid_line_alpha=0.3
-
-xax, yax = axis()
-xax.axis_label = 'Date'
-yax.axis_label = 'Price'
-
-show()  # open a browser
+output_file("stocks.html", title="stocks.py example")
+show(VBox(p1,p2))  # open a browser
 

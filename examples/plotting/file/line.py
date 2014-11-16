@@ -1,15 +1,11 @@
 import numpy as np
 from bokeh.plotting import *
-from bokeh.objects import PanTool
-N = 80
 
-x = np.linspace(0, 4*np.pi, N)
+x = np.linspace(0, 4*np.pi, 80)
 y = np.sin(x)
 
+p = figure(title="simple line example", tools='pan,wheel_zoom,box_zoom')
+p.line(x,y, color="#0000FF")
+
 output_file("line.html", title="line.py example")
-
-pantool = PanTool(dimensions=["width", "height"])
-line(x,y, color="#0000FF", tools=['wheel_zoom','box_zoom', pantool],
-     name="line_example")
-
-show()
+show(p)
