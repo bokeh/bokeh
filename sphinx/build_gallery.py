@@ -21,6 +21,13 @@ webbrowser.open = noop
 plotting.save = noop
 plotting.show = noop
 
+oldfig = plotting.figure
+def figure(*args, **kw):
+    f = oldfig(*args, **kw)
+    plotting.curdoc().context.children.append(f)
+    return f
+plotting.figure = figure
+
 def page_desc(module_desc):
     module_path, name = module_desc['file'], module_desc['name']
     var_name = module_desc.get('var_name', None)
