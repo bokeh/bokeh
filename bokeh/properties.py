@@ -148,6 +148,9 @@ class Property(object):
         self.alternatives.append((tp, converter))
         return self
 
+    def __or__(self, other):
+        return Either(self, other)
+
 class DataSpec(Property):
     """ Because the BokehJS glyphs support a fixed value or a named
     field for most data fields, we capture that in this descriptor.
@@ -977,6 +980,9 @@ class Either(ParameterizedProperty):
 
     def __str__(self):
         return "%s(%s)" % (self.__class__.__name__, ", ".join(map(str, self.type_params)))
+
+    def __or__(self, other):
+        return self.__class__(*(self.type_params + [other]), default=self._default, help=self.help)
 
 class Enum(Property):
     """ An Enum with a list of allowed values. The first value in the list is

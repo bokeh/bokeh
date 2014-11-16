@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 
-from ...properties import Bool, Int, Float, String, Instance, Auto, List, Either
+from ...properties import Bool, Int, Float, String, Instance, Auto, List
 from ...plot_object import PlotObject
 from ..sources import DataSource
 from ..widget import Widget
@@ -54,7 +54,7 @@ class TableWidget(Widget):
 class DataTable(TableWidget):
     columns = List(Instance(TableColumn))
     width = Int(None)                # px, optional
-    height = Either(Int(400), Auto)  # px, required, use "auto" only for small data
+    height = Int(400) | Auto         # px, required, use "auto" only for small data
     fit_columns = Bool(True)
     editable = Bool(False)
     selectable = Bool(True)
