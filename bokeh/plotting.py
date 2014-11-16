@@ -328,6 +328,7 @@ def curdoc():
     except (ImportError, RuntimeError, AttributeError):
         return _default_document
 
+@deprecated("Bokeh 0.7", "bokeh.plotting.Figure objects")
 def curplot():
     ''' Return the current default plot object.
 
@@ -363,6 +364,7 @@ def reset_output():
     _default_file = None
     _default_notebook = None
 
+@deprecated("Bokeh 0.7", "methods on bokeh.plotting.Figure objects")
 def hold(value=True):
     ''' Set or clear the plot hold status on the current document.
 
@@ -785,6 +787,7 @@ def markers():
 _color_fields = set(["color", "fill_color", "line_color"])
 _alpha_fields = set(["alpha", "fill_alpha", "line_alpha"])
 
+@deprecated("Bokeh 0.7", "bokeh.plotting.Figure.scatter")
 def scatter(*args, **kwargs):
     """ Creates a scatter plot of the given x and y items.
 
@@ -853,7 +856,7 @@ def gridplot(plot_arrangement, name=None, **kwargs):
         save()
     return grid
 
-
+# TODO (bev) remove after 0.7
 def _axis(*sides):
     p = curplot()
     if p is None:
@@ -864,6 +867,7 @@ def _axis(*sides):
     axis = [obj for obj in objs if isinstance(obj, Axis)]
     return _list_attr_splat(axis)
 
+@deprecated("Bokeh 0.7", "bokeh.plotting.Figure.xaxis")
 def xaxis():
     """ Get the current `x` axis object(s)
 
@@ -872,6 +876,7 @@ def xaxis():
     """
     return _axis("above", "below")
 
+@deprecated("Bokeh 0.7", "bokeh.plotting.Figure.yaxis")
 def yaxis():
     """ Get the current `y` axis object(s)
 
@@ -880,6 +885,7 @@ def yaxis():
     """
     return _axis("left", "right")
 
+@deprecated("Bokeh 0.7", "bokeh.plotting.Figure.axis")
 def axis():
     """ Get all the current axis objects
 
@@ -888,6 +894,7 @@ def axis():
     """
     return _list_attr_splat(xaxis() + yaxis())
 
+@deprecated("Bokeh 0.7", "bokeh.plotting.Figure.legend")
 def legend():
     """ Get the current :class:`legend <bokeh.objects.Legend>` object(s)
 
@@ -900,6 +907,7 @@ def legend():
     legends = [obj for obj in p.renderers if isinstance(obj, Legend)]
     return _list_attr_splat(legends)
 
+# TODO (bev): remove after 0.7
 def _grid(dimension):
     p = curplot()
     if p is None:
@@ -907,6 +915,7 @@ def _grid(dimension):
     grid = [obj for obj in p.renderers if isinstance(obj, Grid) and obj.dimension==dimension]
     return _list_attr_splat(grid)
 
+@deprecated("Bokeh 0.7", "bokeh.plotting.Figure.xgrid")
 def xgrid():
     """ Get the current `x` :class:`grid <bokeh.objects.Grid>` object(s)
 
@@ -915,6 +924,7 @@ def xgrid():
     """
     return _grid(0)
 
+@deprecated("Bokeh 0.7", "bokeh.plotting.Figure.ygrid")
 def ygrid():
     """ Get the current `y` :class:`grid <bokeh.objects.Grid>` object(s)
 
@@ -923,6 +933,7 @@ def ygrid():
     """
     return _grid(1)
 
+@deprecated("Bokeh 0.7", "bokeh.plotting.Figure.grid")
 def grid():
     """ Get the current :class:`grid <bokeh.objects.Grid>` object(s)
 
