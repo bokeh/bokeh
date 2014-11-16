@@ -1,6 +1,6 @@
 define ["underscore", "jquery"], (_, $) ->
 
-  wait_for_element = (el, fn) ->
+  waitForElement = (el, fn) ->
     handler = () =>
       if $.contains(document.documentElement, el)
         clearInterval(interval)
@@ -8,5 +8,5 @@ define ["underscore", "jquery"], (_, $) ->
     interval = setInterval(handler, 50)
 
   return {
-    wait_for_element: wait_for_element
+    waitForElement: waitForElement
   }

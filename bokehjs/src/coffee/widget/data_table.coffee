@@ -32,7 +32,7 @@ define [
 
     initialize: (options) ->
       super(options)
-      DOMUtil.wait_for_element(@el, () => @render())
+      DOMUtil.waitForElement(@el, () => @render())
       @listenTo(@model, 'change', () => @render())
       source = @mget("source")
       @listenTo(source, 'change:data', () => @updateGrid())
