@@ -1,7 +1,7 @@
 
 from bokeh.document import Document
-from bokeh.models import (ColumnDataSource, TableColumn, DataTable, DataRange1d,
-    Plot, LinearAxis, Grid, GlyphRenderer, Circle, HoverTool, BoxSelectTool, VBox)
+from bokeh.models import ColumnDataSource, DataRange1d, Plot, LinearAxis, Grid, GlyphRenderer, Circle, HoverTool, BoxSelectTool
+from bokeh.models.widgets import VBox, DataTable, TableColumn, SelectEditor, NumberEditor, IntEditor
 from bokeh.embed import file_html
 from bokeh.resources import INLINE
 from bokeh.browserlib import view
@@ -9,19 +9,25 @@ from bokeh.sampledata.autompg2 import autompg2 as mpg
 
 source = ColumnDataSource(mpg)
 
+manufacturers = sorted(mpg["manufacturer"].unique())
+models = sorted(mpg["model"].unique())
+transmissions = sorted(mpg["trans"].unique())
+drives = sorted(mpg["drv"].unique())
+classes = sorted(mpg["class"].unique())
+
 columns = [
-    TableColumn(field="manufacturer", title="Manufacturer"),
-    TableColumn(field="model", title="Model"),
-    TableColumn(field="displ", title="Displacement"),
-    TableColumn(field="year", title="Year"),
-    TableColumn(field="cyl", title="Cylinders"),
-    TableColumn(field="trans", title="Transmission"),
-    TableColumn(field="drv", title="Drive"),
-    TableColumn(field="class", title="Class"),
-    TableColumn(field="cty", title="City MPG"),
-    TableColumn(field="hwy", title="Highway MPG"),
+    TableColumn(field="manufacturer", title="Manufacturer", editor=SelectEditor(options=manufacturers)),
+    TableColumn(field="model",        title="Model",        editor=SelectEditor(options=models)),
+    TableColumn(field="displ",        title="Displacement", editor=NumberEditor(step=0.1)),
+    TableColumn(field="year",         title="Year",         editor=IntEditor()),
+    TableColumn(field="cyl",          title="Cylinders",    editor=IntEditor()),
+    TableColumn(field="trans",        title="Transmission", editor=SelectEditor(options=transmissions)),
+    TableColumn(field="drv",          title="Drive",        editor=SelectEditor(options=drives)),
+    TableColumn(field="class",        title="Class",        editor=SelectEditor(options=classes)),
+    TableColumn(field="cty",          title="City MPG",     editor=IntEditor()),
+    TableColumn(field="hwy",          title="Highway MPG",  editor=IntEditor()),
 ]
-data_table = DataTable(source=source, columns=columns)
+data_table = DataTable(source=source, columns=columns, editable=True)
 
 xdr = DataRange1d(sources=[source.columns("index")])
 ydr = DataRange1d(sources=[source.columns("cty"), source.columns("hwy")])
