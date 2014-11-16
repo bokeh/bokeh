@@ -86,7 +86,6 @@ class ColumnDataSource(DataSource):
             name = "Series %d"%n
         self.column_names.append(name)
         self.data[name] = data
-        return name
 
     def remove(self, name):
         try:
