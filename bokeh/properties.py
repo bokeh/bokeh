@@ -1002,6 +1002,14 @@ class Enum(Property):
     def __str__(self):
         return "%s(%s)" % (self.__class__.__name__, ", ".join(map(repr, self.allowed_values)))
 
+class Auto(Enum):
+
+    def __init__(self):
+        super(Auto, self).__init__("auto")
+
+    def __str__(self):
+        return self.__class__.__name__
+
 # Properties useful for defining visual attributes
 class Color(Either):
     """ Accepts color definition in a variety of ways, and produces an
