@@ -4,7 +4,8 @@ define [
   "common/has_properties"
   "common/collection"
   "common/continuum_view"
-], (_, $, HasProperties, Collection, ContinuumView) ->
+  "jquery_ui/spinner"
+], (_, $, HasProperties, Collection, ContinuumView, $1) ->
 
   class CellEditor extends HasProperties
   class CellEditorCollection extends Collection
@@ -16,6 +17,7 @@ define [
     initialize: (args) ->
       super({})
       @args = args
+      @model = @args.column.editorModel
       @render()
       @$el.appendTo(@args.container)
 
@@ -46,13 +48,26 @@ define [
       @defaultValue = if value? then value else @emptyValue
       @setValue(@defaultValue)
 
-    validate: () ->
+    validateValue: (value) ->
       if @args.column.validator
-        result = @args.column.validator(@getValue())
+        result = @args.column.validator(value)
         if !result.valid
           return result
 
       return { valid: true, msg: null }
+
+    validate: () -> return @validateValue(@getValue())
+
+    disable_horizontal_navigation: () ->
+      @$el.bind "keydown", (event) =>
+        if event.keyCode == $.ui.keyCode.LEFT or event.keyCode == $.ui.keyCode.RIGHT
+          event.stopImmediatePropagation()
+
+    disable_vertical_navigation: () ->
+      @$el.bind "keydown", (event) =>
+        if event.keyCode == $.ui.keyCode.UP   or event.keyCode == $.ui.keyCode.PAGE_UP   or
+           event.keyCode == $.ui.keyCode.DOWN or event.keyCode == $.ui.keyCode.PAGE_DOWN
+          event.stopImmediatePropagation()
 
   class StringEditorView extends CellEditorView
 
@@ -61,11 +76,8 @@ define [
     el: '<input type="text" class="bk-cell-editor bk-cell-editor-string" />'
 
     render: () ->
-      @$el.bind "keydown.nav", (event) =>
-        if event.keyCode == $.ui.keyCode.LEFT or event.keyCode == $.ui.keyCode.RIGHT
-          event.stopImmediatePropagation()
-      @focus()
-      @$el.select()
+      @disable_horizontal_navigation()
+      @$el.focus().select()
 
     loadValue: (item) ->
       super(item)
@@ -93,7 +105,8 @@ define [
     el: '<select tabIndex="0" class="bk-cell-editor bk-cell-editor-select" />'
 
     render: () ->
-      for option in @args.column.editorModel.get("options")
+      @disable_vertical_navigation()
+      for option in @model.get("options")
         @$el.append($('<option>').attr(value: option).text(option))
       @focus()
 
@@ -128,6 +141,32 @@ define [
 
   class IntEditorView extends CellEditorView
 
+    el: '<input type="text" class="bk-cell-editor bk-cell-editor-int" />'
+
+    render: () ->
+      @$el.spinner(step: @model.get("step"))
+      @disable_horizontal_navigation()
+      @disable_vertical_navigation()
+      @$el.focus().select()
+
+    remove: () ->
+      @$el.spinner("destroy")
+      super()
+
+    serializeValue: () ->
+      return parseInt(@getValue(), 10) || 0
+
+    loadValue: (item) ->
+      super(item)
+      @$el[0].defaultValue = @defaultValue
+      @$el.select()
+
+    validateValue: (value) ->
+      if isNaN(value)
+        return { valid: false, msg: "Please enter a valid integer"}
+      else
+        return super(value)
+
   class IntEditor extends CellEditor
     type: 'IntEditor'
     default_view: IntEditorView
@@ -136,6 +175,32 @@ define [
     model: IntEditor
 
   class NumberEditorView extends CellEditorView
+
+    el: '<input type="text" class="bk-cell-editor bk-cell-editor-number" />'
+
+    render: () ->
+      @$el.spinner(step: @model.get("step"))
+      @disable_horizontal_navigation()
+      @disable_vertical_navigation()
+      @$el.focus().select()
+
+    remove: () ->
+      @$el.spinner("destroy")
+      super()
+
+    serializeValue: () ->
+      return parseFloat(@getValue()) || 0.0
+
+    loadValue: (item) ->
+      super(item)
+      @$el[0].defaultValue = @defaultValue
+      @$el.select()
+
+    validateValue: (value) ->
+      if isNaN(value)
+        return { valid: false, msg: "Please enter a valid number"}
+      else
+        return super(value)
 
   class NumberEditor extends CellEditor
     type: 'NumberEditor'
