@@ -60,7 +60,7 @@ define [
       height = @mget("height")
 
       options =
-        enableCellNavigation: true
+        enableCellNavigation: @mget("selectable")
         enableColumnReorder: true
         forceFitColumns: @mget("fit_columns")
         autoHeight: height == "auto"
@@ -76,8 +76,9 @@ define [
       @grid = new SlickGrid(@el, @data, columns, options)
       @grid.setSelectionModel(new RowSelectionModel())
 
-      @grid.onSelectedRowsChanged.subscribe (event, args) =>
-        @mget("source").set("selected", args.rows)
+      if @mget("selectable")
+        @grid.onSelectedRowsChanged.subscribe (event, args) =>
+          @mget("source").set("selected", args.rows)
 
   class DataTable extends HasProperties
     type: 'DataTable'
@@ -90,6 +91,7 @@ define [
         height: 400
         fit_columns: true
         editable: false
+        selectable: true
       }
 
   class DataTables extends Collection

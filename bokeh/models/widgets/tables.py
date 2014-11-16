@@ -57,3 +57,4 @@ class DataTable(TableWidget):
     height = Either(Int(400), Auto)  # px, required, use "auto" only for small data
     fit_columns = Bool(True)
     editable = Bool(False)
+    selectable = Bool(True)
