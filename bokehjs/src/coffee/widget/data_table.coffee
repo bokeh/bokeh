@@ -66,12 +66,17 @@ define [
 
     render: () ->
       columns = for column in @mget("columns")
+        formatter = column.get("formatter")
+        editor = column.get("editor")
+
         id: _.uniqueId()
         field: column.get("field")
         name: column.get("title")
         width: column.get("width")
-        # formatter: column.get("formatter")
-        editor: column.get("editor").default_view
+        # formatter: formatter.default_view
+        # formatterModel: formatter
+        editor: editor.default_view
+        editorModel: editor
 
       width = @mget("width")
       height = @mget("height")

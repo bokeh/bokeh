@@ -58,7 +58,7 @@ define [
 
     emptyValue: ""
 
-    el: '<input type="text" class="bk-cell-editor-string" />'
+    el: '<input type="text" class="bk-cell-editor bk-cell-editor-string" />'
 
     render: () ->
       @$el.bind "keydown.nav", (event) =>
@@ -87,6 +87,26 @@ define [
 
   class TextEditors extends CellEditorCollection
     model: TextEditor
+
+  class SelectEditorView extends CellEditorView
+
+    el: '<select tabIndex="0" class="bk-cell-editor bk-cell-editor-select" />'
+
+    render: () ->
+      for option in @args.column.editorModel.get("options")
+        @$el.append($('<option>').attr(value: option).text(option))
+      @focus()
+
+    loadValue: (item) ->
+      super(item)
+      @$el.select()
+
+  class SelectEditor extends CellEditor
+    type: 'SelectEditor'
+    default_view: SelectEditorView
+
+  class SelectEditors extends CellEditorCollection
+    model: SelectEditor
 
   class PercentEditorView extends CellEditorView
 
@@ -154,6 +174,11 @@ define [
       Model: TextEditor
       Collection: new TextEditors()
       View: TextEditorView
+
+    Select:
+      Model: SelectEditor
+      Collection: new SelectEditors()
+      View: SelectEditorView
 
     Percent:
       Model: PercentEditor

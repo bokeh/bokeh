@@ -23,6 +23,9 @@ class StringEditor(CellEditor):
 class TextEditor(CellEditor):
     pass
 
+class SelectEditor(CellEditor):
+    options = List(String)
+
 class PercentEditor(CellEditor):
     pass
 

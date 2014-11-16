@@ -291,6 +291,7 @@ define [
 
     StringEditor:             ['widget/cell_editors', 'String']
     TextEditor:               ['widget/cell_editors', 'Text']
+    SelectEditor:             ['widget/cell_editors', 'Select']
     PercentEditor:            ['widget/cell_editors', 'Percent']
     CheckboxEditor:           ['widget/cell_editors', 'Checkbox']
     IntegerEditor:            ['widget/cell_editors', 'Integer']
