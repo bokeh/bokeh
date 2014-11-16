@@ -10,13 +10,15 @@ import re
 import time
 import warnings
 
+from six import string_types
+
 from . import browserlib
 from . import _glyph_functions as gf
 from .deprecate import deprecated
 from .document import Document
 from .embed import notebook_div, file_html, autoload_server
 from .objects import (
-    Axis, FactorRange, Grid, GridPlot, HBox, Legend, LogAxis, Plot, VBox, Widget
+    Axis, FactorRange, Grid, GridPlot, HBox, Legend, LogAxis, Plot, Tool, VBox, Widget
 )
 from .palettes import brewer
 from .plotting_helpers import (
@@ -27,7 +29,7 @@ from .resources import Resources
 from .session import DEFAULT_SERVER_URL, Session
 from .utils import decode_utf8, publish_display_data
 
-# extra imports -- just thigns to add to 'from plotting import *'
+# extra imports -- just things to add to 'from plotting import *'
 from bokeh.objects import ColumnDataSource
 
 _default_document = Document()
@@ -39,10 +41,6 @@ _default_file = None
 _default_notebook = None
 
 DEFAULT_TOOLS = "pan,wheel_zoom,box_zoom,save,resize,reset"
-
-
-
-
 
 class Figure(Plot):
     __subtype__ = "Figure"
