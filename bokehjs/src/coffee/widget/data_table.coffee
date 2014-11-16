@@ -53,7 +53,7 @@ define [
         field: column.get("field")
         name: column.get("title")
         width: column.get("width")
-        #formatter: column.get("formatter")
+        # formatter: column.get("formatter")
         editor: column.get("editor").default_view
 
       width = @mget("width")
@@ -68,9 +68,9 @@ define [
         autoEdit: false
 
       if width?
-          @$el.css(width: "#{@mget("width")}px")
+        @$el.css(width: "#{@mget("width")}px")
       if height? and height != "auto"
-          @$el.css(height: "#{@mget("height")}px")
+        @$el.css(height: "#{@mget("height")}px")
 
       @data = new DataProvider(@mget("source"))
       @grid = new SlickGrid(@el, @data, columns, options)
