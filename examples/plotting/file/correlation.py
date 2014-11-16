@@ -2,9 +2,7 @@ import time
 
 from numpy import cumprod, linspace, random
 
-from bokeh.sampledata.stocks import AAPL, FB, GOOG, IBM, MSFT
 from bokeh.plotting import *
-from bokeh.objects import GridPlot
 
 num_points = 300
 

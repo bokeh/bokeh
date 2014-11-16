@@ -1,7 +1,5 @@
 from __future__ import division
 
-from collections import OrderedDict
-
 import numpy as np
 from six.moves import zip
 

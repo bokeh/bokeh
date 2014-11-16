@@ -1,5 +1,4 @@
 from collections import OrderedDict
-import json
 
 import numpy as np
 

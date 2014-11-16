@@ -4,11 +4,11 @@ from bokeh.plotting import *
 
 # Generate some synthetic time series for six different categories
 cats = list("abcdef")
-y = np.random.randn(2000)
+yy = np.random.randn(2000)
 g = np.random.choice(cats, 2000)
 for i, l in enumerate(cats):
-    y[g == l] += i // 2
-df = pd.DataFrame(dict(score=y, group=g))
+    yy[g == l] += i // 2
+df = pd.DataFrame(dict(score=yy, group=g))
 
 # Find the quartiles and IQR foor each category
 groups = df.groupby('group')
