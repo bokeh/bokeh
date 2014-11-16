@@ -15,7 +15,9 @@ from . import _glyph_functions as gf
 from .deprecate import deprecated
 from .document import Document
 from .embed import notebook_div, file_html, autoload_server
-from .objects import Axis, FactorRange, Grid, GridPlot, Legend, LogAxis, Plot, Widget
+from .objects import (
+    Axis, FactorRange, Grid, GridPlot, HBox, Legend, LogAxis, Plot, VBox, Widget
+)
 from .palettes import brewer
 from .plotting_helpers import (
     get_default_color, get_default_alpha, _handle_1d_data_args, _list_attr_splat,
@@ -38,6 +40,10 @@ _default_notebook = None
 
 DEFAULT_TOOLS = "pan,wheel_zoom,box_zoom,save,resize,reset"
 
+
+
+
+
 class Figure(Plot):
     __subtype__ = "Figure"
     __view_model__ = "Plot"
@@ -58,8 +64,8 @@ class Figure(Plot):
         x_axis_location = kw.pop("x_axis_location", "below")
         y_axis_location = kw.pop("y_axis_location", "left")
 
-        x_axis_label = kw.pop("x_axis_label", "x-axis")
-        y_axis_label = kw.pop("y_axis_label", "y-axis")
+        x_axis_label = kw.pop("x_axis_label", "")
+        y_axis_label = kw.pop("y_axis_label", "")
 
         super(Figure, self).__init__(*arg, **kw)
 
@@ -144,6 +150,80 @@ class Figure(Plot):
                           "Removing tool(s): %s" %', '.join(removed_tools))
 
 
+    def _axis(self, *sides):
+        objs = []
+        for s in sides:
+            objs.extend(getattr(self, s, []))
+        axis = [obj for obj in objs if isinstance(obj, Axis)]
+        return _list_attr_splat(axis)
+
+    @property
+    def xaxis(self):
+        """ Get the current `x` axis object(s)
+
+        Returns:
+            splattable list of x-axis objects on this Plot
+        """
+        return self._axis("above", "below")
+
+    @property
+    def yaxis(self):
+        """ Get the current `y` axis object(s)
+
+        Returns:
+            splattable list of y-axis objects on this Plot
+        """
+        return self._axis("left", "right")
+
+    @property
+    def axis(self):
+        """ Get all the current axis objects
+
+        Returns:
+            splattable list of axis objects on this Plot
+        """
+        return _list_attr_splat(self.xaxis + self.yaxis)
+
+    @property
+    def legend(self):
+        """ Get the current :class:`legend <bokeh.objects.Legend>` object(s)
+
+        Returns:
+            splattable list of legend objects on this Plot
+        """
+        legends = [obj for obj in self.renderers if isinstance(obj, Legend)]
+        return _list_attr_splat(legends)
+
+    def _grid(self, dimension):
+        grid = [obj for obj in self.renderers if isinstance(obj, Grid) and obj.dimension==dimension]
+        return _list_attr_splat(grid)
+
+    @property
+    def xgrid(self):
+        """ Get the current `x` :class:`grid <bokeh.objects.Grid>` object(s)
+
+        Returns:
+            splattable list of legend objects on this Plot
+        """
+        return self._grid(0)
+
+    @property
+    def ygrid(self):
+        """ Get the current `y` :class:`grid <bokeh.objects.Grid>` object(s)
+
+        Returns:
+            splattable list of y-grid objects on this Plot
+        """
+        return self._grid(1)
+
+    @property
+    def grid(self):
+        """ Get the current :class:`grid <bokeh.objects.Grid>` object(s)
+
+        Returns:
+            splattable list of grid objects on this Plot
+        """
+        return _list_attr_splat(self.xgrid + self.ygrid)
 
     annular_wedge     = gf.annular_wedge
     annulus           = gf.annulus
@@ -177,6 +257,57 @@ class Figure(Plot):
     triangle          = gf.triangle
     wedge             = gf.wedge
     x                 = gf.x
+
+    def scatter(self, *args, **kwargs):
+        """ Creates a scatter plot of the given x and y items.
+
+        Args:
+            *args : The data to plot.  Can be of several forms:
+
+                (X, Y)
+                    Two 1D arrays or iterables
+                (XNAME, YNAME)
+                    Two bokeh DataSource/ColumnsRef
+
+            marker (str, optional): a valid marker_type, defaults to "circle"
+            color (color value, optional): shorthand to set both fill and line color
+
+        All the :ref:`userguide_objects_line_properties` and :ref:`userguide_objects_fill_properties` are
+        also accepted as keyword parameters.
+
+        Examples:
+
+            >>> p.scatter([1,2,3],[4,5,6], fill_color="red")
+            >>> p.scatter("data1", "data2", source=data_source, ...)
+
+        """
+        ds = kwargs.get("source", None)
+        names, datasource = _handle_1d_data_args(args, datasource=ds)
+        kwargs["source"] = datasource
+
+        markertype = kwargs.get("marker", "circle")
+
+        # TODO: How to handle this? Just call curplot()?
+        if not len(_color_fields.intersection(set(kwargs.keys()))):
+            kwargs['color'] = get_default_color()
+        if not len(_alpha_fields.intersection(set(kwargs.keys()))):
+            kwargs['alpha'] = get_default_alpha()
+
+        if markertype not in _marker_types:
+            raise ValueError("Invalid marker type '%s'. Use markers() to see a list of valid marker types." % markertype)
+
+        # TODO (bev) make better when plotting.scatter is removed
+        conversions = {
+            "*": "asterisk",
+            "+": "cross",
+            "o": "circle",
+            "ox": "circle_x",
+            "o+": "circle_cross"
+        }
+        if markertype in conversions:
+            markertype = conversions[markertype]
+
+        return getattr(self, markertype)(*args, **kwargs)
 
 def curdoc():
     ''' Return the current document.
