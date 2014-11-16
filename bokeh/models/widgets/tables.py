@@ -14,6 +14,9 @@ class CellEditor(PlotObject):
 class StringFormatter(CellFormatter):
     pass
 
+class CheckmarkFormatter(CellFormatter):
+    pass
+
 class StringEditor(CellEditor):
     pass
 

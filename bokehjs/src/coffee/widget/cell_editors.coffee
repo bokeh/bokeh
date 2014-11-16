@@ -7,79 +7,81 @@ define [
 ], (_, $, HasProperties, Collection, ContinuumView) ->
 
   class CellEditor extends HasProperties
+  class CellEditorCollection extends Collection
+  class CellEditorView extends ContinuumView
 
-  class StringEditorView extends ContinuumView
+  class StringEditorView extends CellEditorView
 
   class StringEditor extends CellEditor
     type: 'StringEditor'
     default_view: StringEditorView
 
-  class StringEditors extends Collection
+  class StringEditors extends CellEditorCollection
     model: StringEditor
 
-  class TextEditorView extends ContinuumView
+  class TextEditorView extends CellEditorView
 
   class TextEditor extends CellEditor
     type: 'TextEditor'
     default_view: TextEditorView
 
-  class TextEditors extends Collection
+  class TextEditors extends CellEditorCollection
     model: TextEditor
 
-  class PercentEditorView extends ContinuumView
+  class PercentEditorView extends CellEditorView
 
   class PercentEditor extends CellEditor
     type: 'PercentEditor'
     default_view: PercentEditorView
 
-  class PercentEditors extends Collection
+  class PercentEditors extends CellEditorCollection
     model: PercentEditor
 
-  class CheckboxEditorView extends ContinuumView
+  class CheckboxEditorView extends CellEditorView
 
   class CheckboxEditor extends CellEditor
     type: 'CheckboxEditor'
     default_view: CheckboxEditorView
 
-  class CheckboxEditors extends Collection
+  class CheckboxEditors extends CellEditorCollection
     model: CheckboxEditor
 
-  class IntegerEditorView extends ContinuumView
+  class IntegerEditorView extends CellEditorView
 
   class IntegerEditor extends CellEditor
     type: 'IntegerEditor'
     default_view: IntegerEditorView
 
-  class EditorView extends ContinuumView
+  class EditorView extends CellEditorView
 
-  class IntegerEditors extends Collection
+  class IntegerEditors extends CellEditorCollection
     model: IntegerEditor
 
-  class NumberEditorView extends ContinuumView
+  class NumberEditorView extends CellEditorView
 
   class NumberEditor extends CellEditor
     type: 'NumberEditor'
     default_view: NumberEditorView
 
-  class NumberEditors extends Collection
+  class NumberEditors extends CellEditorCollection
     model: NumberEditor
 
-  class TimeEditorView extends ContinuumView
+  class TimeEditorView extends CellEditorView
 
   class TimeEditor extends CellEditor
     type: 'TimeEditor'
     default_view: TimeEditorView
 
-  class TimeEditors extends Collection
+  class TimeEditors extends CellEditorCollection
     model: TimeEditor
 
-  class DateEditorView extends ContinuumView
+  class DateEditorView extends CellEditorView
 
   class DateEditor extends CellEditor
     type: 'DateEditor'
     default_view: DateEditorView
 
-  class DateEditors extends Collection
+  class DateEditors extends CellEditorCollection
     model: DateEditor
 
   return {
