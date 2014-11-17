@@ -132,10 +132,10 @@ class Histogram(ChartObject):
         self.groups = []
         self.data = dict()
         self.attr = []
-        self.facet = facet
         super(Histogram, self).__init__(title, xlabel, ylabel, legend,
                                         xscale, yscale, width, height,
-                                        tools, filename, server, notebook)
+                                        tools, filename, server, notebook,
+                                        facet=facet)
 
     def check_attr(self):
         """Check if any of the chained method were used.

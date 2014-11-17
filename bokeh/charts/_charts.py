@@ -404,7 +404,8 @@ class Chart(object):
 
         if self.notebook:
             from bokeh.embed import notebook_div
-            publish_display_data({'text/html': notebook_div(self.plot)})
+            for plot in self._plots:
+                publish_display_data({'text/html': notebook_div(plot)})
 
     ## Some helper methods
     def _append_glyph(self, source, glyph):
