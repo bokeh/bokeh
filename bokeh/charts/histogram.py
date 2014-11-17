@@ -236,7 +236,7 @@ class Histogram(ChartObject):
 
                 # if facet we need to generate multiple histograms of multiple
                 # series on multiple separate plots
-                if i < len(self.quintet)-1:
+                if i < len(self.octet)-1:
                     self.create_plot_if_facet()
 
     def show(self):
