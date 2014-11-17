@@ -4,11 +4,18 @@ define [
   "common/has_properties"
   "common/collection"
   "common/continuum_view"
+  "jquery_ui/autocomplete"
   "jquery_ui/spinner"
-], (_, $, HasProperties, Collection, ContinuumView, $1) ->
+], (_, $, HasProperties, Collection, ContinuumView) ->
 
   class CellEditor extends HasProperties
+
+    editor_defaults: {}
+
+    defaults: -> return _.extend {}, super(), @editor_defaults
+
   class CellEditorCollection extends Collection
+
   class CellEditorView extends ContinuumView
 
     emptyValue: null
@@ -76,7 +83,12 @@ define [
     el: '<input type="text" class="bk-cell-editor bk-cell-editor-string" />'
 
     render: () ->
+      completions = @model.get("completions")
+      if not _.isEmpty(completions)
+        @$el.autocomplete(source: completions)
+        @$el.autocomplete("widget").addClass("bk-cell-editor-completion")
       @disable_horizontal_navigation()
+      @disable_vertical_navigation()
       @$el.focus().select()
 
     loadValue: (item) ->
@@ -87,6 +99,8 @@ define [
   class StringEditor extends CellEditor
     type: 'StringEditor'
     default_view: StringEditorView
+    editor_defaults:
+      completions: []
 
   class StringEditors extends CellEditorCollection
     model: StringEditor
@@ -117,6 +131,8 @@ define [
   class SelectEditor extends CellEditor
     type: 'SelectEditor'
     default_view: SelectEditorView
+    editor_defaults:
+      options: []
 
   class SelectEditors extends CellEditorCollection
     model: SelectEditor
@@ -163,13 +179,15 @@ define [
 
     validateValue: (value) ->
       if isNaN(value)
-        return { valid: false, msg: "Please enter a valid integer"}
+        return { valid: false, msg: "Please enter a valid integer" }
       else
         return super(value)
 
   class IntEditor extends CellEditor
     type: 'IntEditor'
     default_view: IntEditorView
+    editor_defaults:
+      step: 1
 
   class IntEditors extends CellEditorCollection
     model: IntEditor
@@ -198,13 +216,15 @@ define [
 
     validateValue: (value) ->
       if isNaN(value)
-        return { valid: false, msg: "Please enter a valid number"}
+        return { valid: false, msg: "Please enter a valid number" }
       else
         return super(value)
 
   class NumberEditor extends CellEditor
     type: 'NumberEditor'
     default_view: NumberEditorView
+    editor_defaults:
+      step: 0.01
 
   class NumberEditors extends CellEditorCollection
     model: NumberEditor

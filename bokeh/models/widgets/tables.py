@@ -18,7 +18,7 @@ class CheckmarkFormatter(CellFormatter):
     pass
 
 class StringEditor(CellEditor):
-    pass
+    completions = List(String)
 
 class TextEditor(CellEditor):
     pass

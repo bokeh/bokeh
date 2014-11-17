@@ -1,6 +1,8 @@
+@dataTableFontSize: 11px;
+
 .bk-data-table {
   // TODO: this should be configured for all widgets
-  font-size: 11px;
+  font-size: @dataTableFontSize;
 
   input[type="checkbox"] {
     margin-left: 4px;
@@ -58,6 +60,10 @@
 
 .bk-cell-editor-string {
   .default-cell-padding;
+}
+
+.bk-cell-editor-completion {
+  font-size: @dataTableFontSize;
 }
 
 .bk-cell-editor-text {}

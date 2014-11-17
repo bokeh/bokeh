@@ -1,7 +1,7 @@
 
 from bokeh.document import Document
 from bokeh.models import ColumnDataSource, DataRange1d, Plot, LinearAxis, Grid, GlyphRenderer, Circle, HoverTool, BoxSelectTool
-from bokeh.models.widgets import VBox, DataTable, TableColumn, SelectEditor, NumberEditor, IntEditor
+from bokeh.models.widgets import VBox, DataTable, TableColumn, SelectEditor, StringEditor, NumberEditor, IntEditor
 from bokeh.embed import file_html
 from bokeh.resources import INLINE
 from bokeh.browserlib import view
@@ -17,7 +17,7 @@ classes = sorted(mpg["class"].unique())
 
 columns = [
     TableColumn(field="manufacturer", title="Manufacturer", editor=SelectEditor(options=manufacturers)),
-    TableColumn(field="model",        title="Model",        editor=SelectEditor(options=models)),
+    TableColumn(field="model",        title="Model",        editor=StringEditor(completions=models)),
     TableColumn(field="displ",        title="Displacement", editor=NumberEditor(step=0.1)),
     TableColumn(field="year",         title="Year",         editor=IntEditor()),
     TableColumn(field="cyl",          title="Cylinders",    editor=IntEditor()),
