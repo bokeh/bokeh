@@ -61,3 +61,4 @@ class DataTable(TableWidget):
     fit_columns = Bool(True)
     editable = Bool(False)
     selectable = Bool(True)
+    row_headers = Bool(True)

@@ -1,7 +1,8 @@
 define [
+  "underscore"
   "common/has_properties"
   "common/collection"
-], (HasProperties, Collection) ->
+], (_, HasProperties, Collection) ->
 
   class TableColumn extends HasProperties
     type: 'TableColumn'
@@ -14,6 +15,21 @@ define [
         width: 300
         formatter: null
         editor: null
+      }
+
+    toColumn: () ->
+      formatter = @get("formatter")
+      editor = @get("editor")
+
+      return {
+        id: _.uniqueId()
+        field: @get("field")
+        name: @get("title")
+        width: @get("width")
+        # formatter: formatter.default_view
+        # formatterModel: formatter
+        editor: editor.default_view
+        editorModel: editor
       }
 
   class TableColumns extends Collection

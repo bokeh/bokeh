@@ -64,19 +64,26 @@ define [
       selected = @mget("source").get("selected")
       @grid.setSelectedRows(selected)
 
-    render: () ->
-      columns = for column in @mget("columns")
-        formatter = column.get("formatter")
-        editor = column.get("editor")
-
+    addIndexColumn: (columns) ->
+      column = {
         id: _.uniqueId()
-        field: column.get("field")
-        name: column.get("title")
-        width: column.get("width")
-        # formatter: formatter.default_view
-        # formatterModel: formatter
-        editor: editor.default_view
-        editorModel: editor
+        name: "#"
+        field: "index"
+        width: 40
+        behavior: "select"
+        cannotTriggerInsert: true
+        resizable: false
+        selectable: false
+        cssClass: "bk-cell-index"
+      }
+
+      return [column].concat(columns)
+
+    render: () ->
+      columns = (column.toColumn() for column in @mget("columns"))
+
+      if @mget("row_headers")
+        columns = @addIndexColumn(columns)
 
       width = @mget("width")
       height = @mget("height")
@@ -114,6 +121,7 @@ define [
         fit_columns: true
         editable: false
         selectable: true
+        row_headers: true
       }
 
   class DataTables extends Collection
