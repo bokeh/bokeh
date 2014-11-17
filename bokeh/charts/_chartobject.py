@@ -462,7 +462,11 @@ class DataAdapter(object):
         numbers = (float, ) + bokeh_integer_types
 
         if np and isinstance(values, np.ndarray):
-            return values
+            if len(values.shape) == 1:
+                return np.array([values])
+
+            else:
+                return values
 
         elif pd and isinstance(values, pd.DataFrame):
             return values
