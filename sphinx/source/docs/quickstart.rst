@@ -247,7 +247,6 @@ an animated line plot:
 At this point you should really be asking if bokeh server could offer something
 else for you. Of course yes(!) and you should check the related documentation.
 
-TODO: REFERENCE Downsampling
 
 Using Bokeh with IPython Notebooks
 ----------------------------------
