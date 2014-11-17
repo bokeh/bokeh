@@ -1,4 +1,10 @@
-from quickstart_examples import *
+from bokeh.plotting import *
+
+# prepare some data
+x = [1, 2, 3, 4, 5]
+y1 = [el**2 for el in x]
+y2 = [10**el for el in x]
+y3 = [10**(el**2) for el in x]
 
 # output to static HTML file
 output_file("lines.html")

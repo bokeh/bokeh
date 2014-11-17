@@ -22,6 +22,7 @@ Charts layer is still experimental and may significantly change in the next rele
 Plotting should be preferred for a more stable or production code. For this reason
 we will focus mainly on showing plotting in this quickstart section.
 
+.. _quickstart_download:
 
 Downloading
 -----------
@@ -61,48 +62,52 @@ Bokeh is very large and flexible by it's nature, so this section should only be
 considered just as a quick taste of Bokeh capabilities and workflows. For more
 meaningful and detailed information please move forward the full :ref:`userguide`.
 
-Let's start with some examples. First, we start preparing some boilerplate code
-to generate the data that we will be using on all code samples below.
-
-.. literalinclude:: examples/examples_boilerplate.py
-   :language: python
-   :linenos:
-
+Let's start with some examples.
 
 Plotting this data as a simple line chart is very straightforward:
 
 .. literalinclude:: examples/simple_line.py
    :language: python
-   :lines: 3-9
    :linenos:
 
 .. image:: /_images/quickstart/simple_line.png
 
+
+What just happened?
+
+What you see when you execute this script is that after it's execution it opens
+your current browser in a new tab with a plot showing a line glyph representing
+the data we have on the script. Of course there is a lot more going on. Bokeh targets
+modern browser for presentation. This means while a lot is happening inside a python
+environment the presentation part is happening on your browser. That's BojehJS working
+for you. All your python code prepares the  context for BokehJS to display a nice
+looking plot on your browser for you. If you are curious about it an want to read
+more refer to the :ref:`bokehjs` section.
+
 All we had to do was tell bokeh.plotting that:
 
 1. We want to write our plots to the output file "lines.html"
-2. Build a line from our data and add some simple customizations
+2. Build a line from our data and add some simple customizations like title, legend and axes labels
 3. Ask to show the result
 
-Plotting is also quite handy if we need to customize the output with some more
-features like adding more data series, glyphs, logarithmic axis, etc...
+Plotting is also quite handy if we need to customize the output a bit more by adding
+more data series, glyphs, logarithmic axis, etc...
 
 .. literalinclude:: examples/log_line.py
    :language: python
-   :lines: 3-25
    :linenos:
 
 .. image:: /_images/quickstart/log_line.png
 
 Much better, right? At this point it's time to take a better look at the last example.
-We exposed quite a few structures like plot figures, line, circle, axes, figures
+We've exposed quite a few structures like plot figures, line, circle, axes, figures
 without any premise. It's time define some core concepts of Bokeh:
 
 
 Plot
 ~~~~
 
-Plots are a centric concept in Bokeh and are rendered as plot figured draw
+Plots are a centric concept in Bokeh and are rendered as a plot figure draw
 on the selected output. In both previous examples we have created a plot. In the
 first example this action has been implicit (when calling output_file followed by
 line glyph it automatically creates a new plot instance to contain the following
@@ -117,11 +122,9 @@ Glyphs (Line/Circle)
 Line and Circle are just 2 of the many glyphs supported by Bokeh. Those are the basic
 geometrical shapes that are combined together to build a plot. In the first example
 we have just used one glyph (line) to represent our data while in the second example
-we have used combination of lines and circles.
-
-.. note:: There is a big variety of glyphs in Bokeh and they are often referred as
-          'glyphs' or 'markers' (used for simple markers placed at (x,y) locations).
-          Please see :ref:`userguide_objects_glyphs` for more information.
+we have used combination of lines and circles. There is a big variety of glyphs in Bokeh
+and they are often referred as 'glyphs' or 'markers' (used for simple markers placed
+at (x,y) locations). Please see :ref:`userguide_objects_glyphs` for more information.
 
 
 Guides
@@ -142,21 +145,25 @@ to :ref:`userguide_objects_axes` for more information about it.
 
 Ranges
 ~~~~~~
-There are two keyword parameters x_range and y_range to control the ranges of a plot.
-These may be passed into the bokeh.plotting.figure function, or into any of the high-level
-plotting Glyph Functions (like line or cycle). They may also be set as attributes on a
-plot object. As usual tale a look at the more detailed section :ref:`userguide_objects_ranges`.
+With x_range and y_range figure keyword arguments it's possible to control the ranges
+of a plot. These may be passed into the bokeh.plotting.figure function, or into any
+of the high-level plotting Glyph Functions (like line or cycle). They may also be
+set as attributes on a plot object. As usual tale a look at the more detailed section
+:ref:`userguide_objects_ranges`.
 
 Bokeh offers a lot of structures and we really recommend the reader to spend some time
-looking at the tools at those.
+looking at :ref:`userguide`.
 
 One very useful aspect to keep in mind is that the previous structures are always at the
 base the objects, also those created using higher interface levels like bokeh.plotting
 (or bokeh.charts).
 
-Let's now get back to more examples. Another very common way of visualizing data is
-using a histogram to represent distributions. Here's how the code for this use
-case looks like using bokeh.charts:
+
+More examples
+-------------
+
+Another very common way of visualizing data is using a histogram to represent distributions.
+Here's how the code for this use case looks like using bokeh.charts:
 
 .. literalinclude:: examples/histogram.py
    :language: python
@@ -165,7 +172,9 @@ case looks like using bokeh.charts:
 
 .. image:: /_images/quickstart/histogram.png
 
-and (again) we can easily make it look better..
+
+and (again) we can easily add more elements to make it look better (we'll highlight the
+differences from the previous examples to help comparison):
 
 .. literalinclude:: examples/histogram_more.py
    :language: python
@@ -174,6 +183,7 @@ and (again) we can easily make it look better..
    :emphasize-lines: 4,10,11,22,23,25
 
 .. image:: /_images/quickstart/histogram_more.png
+
 
 One thing to notice is that we have always created static html files by
 calling output_file function. This output option will write a static HTML
@@ -184,7 +194,13 @@ the BokehJS JavaScript library, as well as the various Bokeh CSS), then you
 can modify any of the example scripts in ``examples/plotting/file`` and change
 the ``output_file()`` function calls by adding ``mode`` keyword argument.
 
-Bokeh offers easy access to other powerful options...
+.. note:: Please remember what we mentioned at the :ref:`quickstart_download`
+          section before: if you have installed bokeh using pip you won't have
+          the examples available and will need to clone the git
+          repository and look in the ``examples/`` directory there.
+
+
+Bokeh offers easy access to other powerful output options:
 
 
 Using Bokeh Plot Server
@@ -212,29 +228,26 @@ Once the plot server is started, you can make your bokeh server automagically
 manage your plots.
 At this point, with the bokeh server up and running, all you need to do to make
 the previous examples run against the bokeh server is to simply replace the
-"output_file" command with "output_server". So first example reviewed:
+"output_file" command with "output_server". Here's the first example reviewed:
 
-
-.. literalinclude:: quickstart/simple_line_server.py
+.. literalinclude:: examples/line_server.py
    :language: python
    :linenos:
-   :lines: 47-51
-   :emphasize-lines: 33,43,44,49,51,52
+   :emphasize-lines: 8
 
 
 Well... this is a quite boring thing to do with bokeh server. Now you can use it
 to live update your data creating nice dynamic plots. Here's a simple example of
 an animated line plot:
 
-.. literalinclude:: quickstart/simple_line_server_animated.py
+.. literalinclude:: examples/line_server_animated.py
    :language: python
    :linenos:
-   :emphasize-lines: 33,43,44,49,51,52
-
 
 At this point you should really be asking if bokeh server could offer something
 else for you. Of course yes(!) and you should check the related documentation.
 
+TODO: REFERENCE Downsampling
 
 Using Bokeh with IPython Notebooks
 ----------------------------------
