@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 
-from ...properties import Bool, Int, Float, String, Instance, Auto, List
+from ...properties import Bool, Int, Float, String, Instance, Enum, Auto, List
 from ...plot_object import PlotObject
 from ..sources import DataSource
 from ..widget import Widget
@@ -60,5 +60,5 @@ class DataTable(TableWidget):
     height = Int(400) | Auto         # px, required, use "auto" only for small data
     fit_columns = Bool(True)
     editable = Bool(False)
-    selectable = Bool(True)
+    selectable = Bool(True) | Enum("checkbox")
     row_headers = Bool(True)

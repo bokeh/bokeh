@@ -7,8 +7,9 @@ define [
   "util/dom_util"
   "slick_grid/slick.grid"
   "slick_grid/plugins/slick.rowselectionmodel"
+  "slick_grid/plugins/slick.checkboxselectcolumn"
   "jquery_ui/sortable"
-], (_, $, ContinuumView, HasProperties, Collection, DOMUtil, SlickGrid, RowSelectionModel, $1) ->
+], (_, $, ContinuumView, HasProperties, Collection, DOMUtil, SlickGrid, RowSelectionModel, CheckboxSelectColumn, $1) ->
 
   class DataProvider
 
@@ -64,8 +65,8 @@ define [
       selected = @mget("source").get("selected")
       @grid.setSelectedRows(selected)
 
-    addIndexColumn: (columns) ->
-      column = {
+    newIndexColumn: () ->
+      return {
         id: _.uniqueId()
         name: "#"
         field: "index"
@@ -77,19 +78,21 @@ define [
         cssClass: "bk-cell-index"
       }
 
-      return [column].concat(columns)
-
     render: () ->
       columns = (column.toColumn() for column in @mget("columns"))
 
+      if @mget("selectable") == "checkbox"
+        checkboxSelector = new CheckboxSelectColumn(cssClass: "bk-cell-select")
+        columns.unshift(checkboxSelector.getColumnDefinition())
+
       if @mget("row_headers")
-        columns = @addIndexColumn(columns)
+        columns.unshift(@newIndexColumn())
 
       width = @mget("width")
       height = @mget("height")
 
       options =
-        enableCellNavigation: @mget("selectable")
+        enableCellNavigation: @mget("selectable") != false
         enableColumnReorder: true
         forceFitColumns: @mget("fit_columns")
         autoHeight: height == "auto"
@@ -103,11 +106,13 @@ define [
 
       @data = new DataProvider(@mget("source"))
       @grid = new SlickGrid(@el, @data, columns, options)
-      @grid.setSelectionModel(new RowSelectionModel())
 
-      if @mget("selectable")
+      if @mget("selectable") != false
+        @grid.setSelectionModel(new RowSelectionModel(selectActiveRow: not checkboxSelector?))
+        if checkboxSelector? then @grid.registerPlugin(checkboxSelector)
+
         @grid.onSelectedRowsChanged.subscribe (event, args) =>
-          @mget("source").set("selected", args.rows)
+            @mget("source").set("selected", args.rows)
 
   class DataTable extends HasProperties
     type: 'DataTable'

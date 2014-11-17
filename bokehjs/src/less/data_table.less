@@ -1,14 +1,27 @@
 .bk-data-table {
   // TODO: this should be configured for all widgets
   font-size: 11px;
+
+  input[type="checkbox"] {
+    margin-left: 4px;
+    margin-right: 4px;
+  }
 }
 
-.bk-cell-index {
+.bk-cell-special-defaults {
   border-right-color: silver;
   border-right-style: solid;
   background: #f5f5f5;
-  color: gray;
+}
+
+.bk-cell-select {
+  .bk-cell-special-defaults;
+}
+
+.bk-cell-index {
+  .bk-cell-special-defaults;
   text-align: right;
+  color: gray;
 }
 
 .bk-slick-row.selected .bk-cell-index {
