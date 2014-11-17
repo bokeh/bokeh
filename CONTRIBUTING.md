@@ -25,8 +25,8 @@ and let everybody know that you intend to work on it.
 3. Try to include a *minimal*, self-contained, reproducible test case or example. The more code 
    or data we have to have to reproduce the issue, the less likely we will be able to. 
 4. Include relevant system information. At minimum, you should provide output of:
- 
-      python -c "import bokeh; print(bokeh.print_versions())"
+
+      `python -c "import bokeh; print(bokeh.print_versions())"`
 
 5. Include relevent browser information (if the issue is browser-related). Just saying that you 
    use Chrome is generally not sufficient. We may ask you for additional information to 
