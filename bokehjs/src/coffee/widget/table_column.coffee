@@ -30,6 +30,7 @@ define [
         # formatterModel: formatter
         editor: editor.default_view
         editorModel: editor
+        sortable: true
       }
 
   class TableColumns extends Collection

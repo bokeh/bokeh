@@ -25,16 +25,24 @@ define [
         item[field] = @data[field][index]
       return item
 
-    setItem: (index, item) ->
-      for field, value of @item
+    _setItem: (index, item) ->
+      for field, value of item
         @data[field][index] = value
+      return
+
+    setItem: (index, item) ->
+      @_setItem(index, item)
       @updateSource()
 
     getField: (index, field) ->
       return @data[field][index]
 
-    setField: (index, field, value) ->
+    _setField: (index, field, value) ->
       @data[field][index] = value
+      return
+
+    setField: (index, field, value) ->
+      @_setField(index, field, value)
       @updateSource()
 
     updateSource: () ->
@@ -43,6 +51,32 @@ define [
       @source.forceTrigger("data")
 
     getItemMetadata: (index) -> null
+
+    getRecords: () ->
+      return (@getItem(i) for i in [0...@getLength()])
+
+    sort: (columns) ->
+      cols = for column in columns
+        [column.sortCol.field, if column.sortAsc then 1 else -1]
+
+      records = @getRecords()
+      records.sort (record1, record2) ->
+        for [field, sign] in cols
+          value1 = record1[field]
+          value2 = record2[field]
+          result =
+            if      value1 == value2 then 0
+            else if value1 >  value2 then sign
+            else                         -sign
+          if result != 0
+            return result
+
+        return 0
+
+      for record, i in records
+        @_setItem(i, record)
+
+      @updateSource()
 
   class DataTableView extends ContinuumView
     attributes:
@@ -75,6 +109,7 @@ define [
         cannotTriggerInsert: true
         resizable: false
         selectable: false
+        sortable: true
         cssClass: "bk-cell-index"
       }
 
@@ -96,6 +131,7 @@ define [
         enableColumnReorder: true
         forceFitColumns: @mget("fit_columns")
         autoHeight: height == "auto"
+        multiColumnSort: @mget("sortable")
         editable: @mget("editable")
         autoEdit: false
 
@@ -106,6 +142,12 @@ define [
 
       @data = new DataProvider(@mget("source"))
       @grid = new SlickGrid(@el, @data, columns, options)
+
+      @grid.onSort.subscribe (event, args) =>
+        columns = args.sortCols
+        @data.sort(columns)
+        @grid.invalidate()
+        @grid.render()
 
       if @mget("selectable") != false
         @grid.setSelectionModel(new RowSelectionModel(selectActiveRow: not checkboxSelector?))
@@ -124,6 +166,7 @@ define [
         width: null
         height: 400
         fit_columns: true
+        sortable: true
         editable: false
         selectable: true
         row_headers: true

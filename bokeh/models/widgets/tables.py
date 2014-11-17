@@ -50,6 +50,7 @@ class TableColumn(PlotObject):
     width = Int(300) # px
     formatter = Instance(CellFormatter, lambda: StringFormatter())
     editor = Instance(CellEditor, lambda: StringEditor())
+    sortable = Bool(True)
 
 class TableWidget(Widget):
     source = Instance(DataSource)
@@ -59,6 +60,7 @@ class DataTable(TableWidget):
     width = Int(None)                # px, optional
     height = Int(400) | Auto         # px, required, use "auto" only for small data
     fit_columns = Bool(True)
+    sortable = Bool(True)
     editable = Bool(False)
     selectable = Bool(True) | Enum("checkbox")
     row_headers = Bool(True)
