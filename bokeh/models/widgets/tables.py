@@ -51,6 +51,7 @@ class TableColumn(PlotObject):
     formatter = Instance(CellFormatter, lambda: StringFormatter())
     editor = Instance(CellEditor, lambda: StringEditor())
     sortable = Bool(True)
+    default_sort = Enum("ascending", "descending")
 
 class TableWidget(Widget):
     source = Instance(DataSource)

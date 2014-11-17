@@ -15,6 +15,8 @@ define [
         width: 300
         formatter: null
         editor: null
+        sortable: true
+        default_sort: "ascending"
       }
 
     toColumn: () ->
@@ -30,7 +32,8 @@ define [
         # formatterModel: formatter
         editor: editor.default_view
         editorModel: editor
-        sortable: true
+        sortable: @get("sortable")
+        defaultSortAsc: @get("default_sort") == "ascending"
       }
 
   class TableColumns extends Collection
