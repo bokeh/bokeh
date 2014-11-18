@@ -39,6 +39,6 @@ plot.tools.append(select_tool)
 plot.renderers.extend([cty, hwy, ygrid])
 # }}}
 
-layout = VBox(children=[plot, data_table])
+layout = VBox(plot, data_table)
 
 show(layout)
