@@ -268,20 +268,20 @@ class Histogram(ChartObject):
         # and finally we show it
         self.show_chart()
 
-    # Some helper methods
-    def _set_and_get(self, prefix, val, content):
-        """Set a new attr and then get it to fill the self.data dict.
-
-        Keep track of the attributes created.
-
-        Args:
-            prefix (str): prefix of the new attribute
-            val (string): name of the new attribute
-            content (obj): content of the new attribute
-        """
-        setattr(self, prefix + val, content)
-        self.data[prefix + val] = getattr(self, prefix + val)
-        self.attr.append(prefix + val)
+    ## Some helper methods
+    #def _set_and_get(self, prefix, val, content):
+    #    """Set a new attr and then get it to fill the self.data dict.
+    #
+    #    Keep track of the attributes created.
+    #
+    #    Args:
+    #        prefix (str): prefix of the new attribute
+    #        val (string): name of the new attribute
+    #        content (obj): content of the new attribute
+    #    """
+    #    setattr(self, prefix + val, content)
+    #    self.data[prefix + val] = getattr(self, prefix + val)
+    #    self.attr.append(prefix + val)
 
 
 class NewHistogram(Histogram):

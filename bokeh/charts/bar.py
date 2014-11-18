@@ -264,26 +264,25 @@ class Bar(ChartObject):
         self.add_data_plot(self.xdr, self.ydr)
         # we add the glyphs into the plot
         self.draw(self._stacked)
-        print "CAT", self.cat
         # we pass info to build the legend
         self.end_plot(self.groups)
         # and finally we show it
         self.show_chart()
 
-    # Some helper methods
-    def _set_and_get(self, prefix, val, content):
-        """Set a new attr and then get it to fill the self.data dict.
-
-        Keep track of the attributes created.
-
-        Args:
-            prefix (str): prefix of the new attribute
-            val (string): name of the new attribute
-            content (obj): content of the new attribute
-        """
-        setattr(self, prefix + val, content)
-        self.data[prefix + val] = getattr(self, prefix + val)
-        self.attr.append(prefix + val)
+    ## Some helper methods
+    #def _set_and_get(self, prefix, val, content):
+    #    """Set a new attr and then get it to fill the self.data dict.
+    #
+    #    Keep track of the attributes created.
+    #
+    #    Args:
+    #        prefix (str): prefix of the new attribute
+    #        val (string): name of the new attribute
+    #        content (obj): content of the new attribute
+    #    """
+    #    setattr(self, prefix + val, content)
+    #    self.data[prefix + val] = getattr(self, prefix + val)
+    #    self.attr.append(prefix + val)
 
 
 class NewBar(Bar):

@@ -345,17 +345,17 @@ class BoxPlot(ChartObject):
         self.show_chart()
 
     # Some helper methods
-    def _set_and_get(self, data, attr, val, content):
-        """Set a new attr and then get it to fill the self.data dict.
-
-        Keep track of the attributes created.
-
-        Args:
-            data (dict): where to store the new attribute content
-            attr (list): where to store the new attribute names
-            val (string): name of the new attribute
-            content (obj): content of the new attribute
-        """
-        setattr(self, val, content)
-        data[val] = getattr(self, val)
-        attr.append(val)
+    #def _set_and_get(self, data, attr, val, content):
+    #    """Set a new attr and then get it to fill the self.data dict.
+    #
+    #    Keep track of the attributes created.
+    #
+    #    Args:
+    #        data (dict): where to store the new attribute content
+    #        attr (list): where to store the new attribute names
+    #        val (string): name of the new attribute
+    #        content (obj): content of the new attribute
+    #    """
+    #    setattr(self, val, content)
+    #    data[val] = getattr(self, val)
+    #    attr.append(val)

@@ -46,6 +46,7 @@ class ChartObject(object):
         * dynamically chart cration attributes, ie. `self.chart`
         * composition to easily use Chart clase methods
     """
+    
     def __init__(self, title, xlabel, ylabel, legend,
                  xscale, yscale, width, height,
                  tools, filename, server, notebook, facet=False):
@@ -365,6 +366,73 @@ class ChartObject(object):
         "Wrapper to call the ``chart.show`` method."
         self.chart.show()
 
+    def show(self):
+        """Main Chart show method.
+
+        It essentially checks for chained methods, creates the chart,
+        pass data into the plot object, draws the glyphs according
+        to the data and shows the chart in the selected output.
+
+        .. note:: the show method can not be chained. It has to be called
+        at the end of the chain.
+        """
+        self._setup_show()
+        self.prepare_show()
+        self._show_teardown()
+
+        # and finally we show it
+        self.show_chart()
+
+    def _setup_show(self):
+        """
+        Prepare context before main show method is invoked
+        """
+        pass
+
+    def _show(self):
+        """
+        Executes chart show core operations lik:
+         - checks for chain methods
+         - draw glyphs
+        """
+        # we need to check the chained method attr
+        self.check_attr()
+        # we create the chart object
+        self.create_chart()
+        # we start the plot (adds axis, grids and tools)
+        self.start_plot(xgrid=False)
+        # we get the data from the incoming input
+        self.get_data(self.cat, **self.value)
+        # we filled the source and ranges with the calculated data
+        self.get_source(self._stacked)
+        # we dynamically inject the source and ranges into the plot
+        self.add_data_plot(self.xdr, self.ydr)
+        # we add the glyphs into the plot
+        self.draw(self._stacked)
+        # we pass info to build the legend
+        self.end_plot(self.groups)
+
+
+    def _show_teardown(self):
+        """
+        Convenience method that can be override by inherited classes to
+        perform custom teardown or clean up actions after show method has
+        build chart objects
+        """
+        pass
+
+    def create_plot_if_facet(self):
+        """
+        Generate a new plot if facet is true. This can be called after every
+        serie is draw so the next one is draw on a new separate plot instance
+        """
+        if self.facet:
+            self.chart.figure()
+
+            # we start the plot (adds axis, grids and tools)
+            self.start_plot()
+            self.add_data_plot(self.xdr, self.ydr)
+
     # Some helper methods
     def _chunker(self, l, n):
         """Yield successive n-sized chunks from l.
@@ -392,17 +460,20 @@ class ChartObject(object):
 
         return colors
 
-    def create_plot_if_facet(self):
-        """
-        Generate a new plot if facet is true. This can be called after every
-        serie is draw so the next one is draw on a new separate plot instance
-        """
-        if self.facet:
-            self.chart.figure()
+    def _set_and_get(self, prefix, val, content):
+        """Set a new attr and then get it to fill the self.data dict.
 
-            # we start the plot (adds axis, grids and tools)
-            self.start_plot()
-            self.add_data_plot(self.xdr, self.ydr)
+        Keep track of the attributes created.
+
+        Args:
+            prefix (str): prefix of the new attribute
+            val (string): name of the new attribute
+            content (obj): content of the new attribute
+        """
+        setattr(self, prefix + val, content)
+        self.data[prefix + val] = getattr(self, prefix + val)
+        self.attr.append(prefix + val)
+
 
 DEFAULT_INDEX_ALIASES = list('abcdefghijklmnopqrstuvz1234567890')
 DEFAULT_INDEX_ALIASES += zip(DEFAULT_INDEX_ALIASES, DEFAULT_INDEX_ALIASES)

@@ -143,15 +143,17 @@ class TimeSeries(ChartObject):
                                          xscale, yscale, width, height,
                                          tools, filename, server, notebook, facet)
 
-    def check_attr(self):
-        """Check if any of the chained method were used.
-
-        If they were not used, it assign the init parameters content by default.
-        """
-        super(TimeSeries, self).check_attr()
+    #def check_attr(self):
+    #    """Check if any of the chained method were used.
+    #
+    #    If they were not used, it assign the init parameters content by default.
+    #    """
+    #    super(TimeSeries, self).check_attr()
 
     def get_source(self):
-        "Push the TimeSeries data into the ColumnDataSource and calculate the proper ranges."
+        """
+        Push the TimeSeries data into the ColumnDataSource and calculate the proper ranges.
+        """
         self.source = ColumnDataSource(self.data)
 
         self.xdr = DataRange1d(sources=[self.source.columns(self.attr[0])])
@@ -160,10 +162,13 @@ class TimeSeries(ChartObject):
 
         endy = max(max(self.data[i]) for i in y_names)
         starty = min(min(self.data[i]) for i in y_names)
-        self.ydr = Range1d(start=starty - 0.1 * (endy - starty), end=endy + 0.1 * (endy - starty))
+        self.ydr = Range1d(
+            start=starty - 0.1 * (endy - starty),
+            end=endy + 0.1 * (endy - starty)
+        )
 
     def draw(self):
-        """Use the line glyphs to conect the xy points in the time series.
+        """Use the line glyphs to connect the xy points in the time series.
 
         Takes reference points from the data loaded at the ColumnDataSurce.
         """
@@ -178,19 +183,19 @@ class TimeSeries(ChartObject):
 
 
     # Some helper methods
-    def _set_and_get(self, prefix, val, content):
-        """Set a new attr and then get it to fill the self.data dict.
-
-        Keep track of the attributes created.
-
-        Args:
-            prefix (str): prefix of the new attribute
-            val (string): name of the new attribute
-            content (obj): content of the new attribute
-        """
-        setattr(self, prefix + val, content)
-        self.data[prefix + val] = getattr(self, prefix + val)
-        self.attr.append(prefix + val)
+    #def _set_and_get(self, prefix, val, content):
+    #    """Set a new attr and then get it to fill the self.data dict.
+    #
+    #    Keep track of the attributes created.
+    #
+    #    Args:
+    #        prefix (str): prefix of the new attribute
+    #        val (string): name of the new attribute
+    #        content (obj): content of the new attribute
+    #    """
+    #    setattr(self, prefix + val, content)
+    #    self.data[prefix + val] = getattr(self, prefix + val)
+    #    self.attr.append(prefix + val)
 
     def prepare_data(self, xy):
         if hasattr(xy, 'keys'):
