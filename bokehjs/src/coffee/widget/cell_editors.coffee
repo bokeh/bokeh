@@ -26,7 +26,24 @@ define [
       @args = args
       @model = @args.column.editorModel
       @render()
+
+    render: () ->
+      @renderEditor()
+      @disableNavigation()
       @$el.appendTo(@args.container)
+
+    renderEditor: () ->
+
+    disableNavigation: () ->
+      @$el.keydown (event) =>
+        stop = () -> event.stopImmediatePropagation()
+        switch event.keyCode
+          when $.ui.keyCode.LEFT      then stop()
+          when $.ui.keyCode.RIGHT     then stop()
+          when $.ui.keyCode.UP        then stop()
+          when $.ui.keyCode.DOWN      then stop()
+          when $.ui.keyCode.PAGE_UP   then stop()
+          when $.ui.keyCode.PAGE_DOWN then stop()
 
     destroy: () -> @remove()
 
@@ -65,30 +82,17 @@ define [
 
     validate: () -> return @validateValue(@getValue())
 
-    disable_horizontal_navigation: () ->
-      @$el.bind "keydown", (event) =>
-        if event.keyCode == $.ui.keyCode.LEFT or event.keyCode == $.ui.keyCode.RIGHT
-          event.stopImmediatePropagation()
-
-    disable_vertical_navigation: () ->
-      @$el.bind "keydown", (event) =>
-        if event.keyCode == $.ui.keyCode.UP   or event.keyCode == $.ui.keyCode.PAGE_UP   or
-           event.keyCode == $.ui.keyCode.DOWN or event.keyCode == $.ui.keyCode.PAGE_DOWN
-          event.stopImmediatePropagation()
-
   class StringEditorView extends CellEditorView
 
     emptyValue: ""
 
     el: '<input type="text" class="bk-cell-editor bk-cell-editor-string" />'
 
-    render: () ->
+    renderEditor: () ->
       completions = @model.get("completions")
       if not _.isEmpty(completions)
         @$el.autocomplete(source: completions)
         @$el.autocomplete("widget").addClass("bk-cell-editor-completion")
-      @disable_horizontal_navigation()
-      @disable_vertical_navigation()
       @$el.focus().select()
 
     loadValue: (item) ->
@@ -116,10 +120,9 @@ define [
 
   class SelectEditorView extends CellEditorView
 
-    el: '<select tabIndex="0" class="bk-cell-editor bk-cell-editor-select" />'
+    el: '<select class="bk-cell-editor bk-cell-editor-select" />'
 
-    render: () ->
-      @disable_vertical_navigation()
+    renderEditor: () ->
       for option in @model.get("options")
         @$el.append($('<option>').attr(value: option).text(option))
       @focus()
@@ -159,10 +162,8 @@ define [
 
     el: '<input type="text" class="bk-cell-editor bk-cell-editor-int" />'
 
-    render: () ->
+    renderEditor: () ->
       @$el.spinner(step: @model.get("step"))
-      @disable_horizontal_navigation()
-      @disable_vertical_navigation()
       @$el.focus().select()
 
     remove: () ->
@@ -196,10 +197,8 @@ define [
 
     el: '<input type="text" class="bk-cell-editor bk-cell-editor-number" />'
 
-    render: () ->
+    renderEditor: () ->
       @$el.spinner(step: @model.get("step"))
-      @disable_horizontal_navigation()
-      @disable_vertical_navigation()
       @$el.focus().select()
 
     remove: () ->
