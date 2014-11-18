@@ -11,7 +11,7 @@ N = 100
 x = np.linspace(0, 4*np.pi, N)
 y = np.sin(x)
 
-output_server("scatter")
+output_server("scatter_selection")
 
 TOOLS = "pan,wheel_zoom,box_zoom,reset,save,box_select"
 
