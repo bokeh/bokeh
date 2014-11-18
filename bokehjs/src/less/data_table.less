@@ -45,58 +45,38 @@
   background-color: transparent;
 }
 
-.default-cell-padding {
+.bk-slick-cell {
   padding-left: 4px;
   padding-right: 4px;
-}
-
-.bk-slick-cell {
-  .default-cell-padding;
 
   &.active {
     border-style: dashed;
   }
-}
 
-.bk-slick-cell.editable {
-  padding-left: 0;
-  padding-right: 0;
+  &.editable {
+    padding-left: 0;
+    padding-right: 0;
+  }
 }
 
 .bk-cell-editor {
-  width: 100%;
-  height: 100%;
-  border: 0;
-  margin: 0;
-  padding: 0;
-  outline: 0;
-  background: transparent;
-}
+  input, select, .bk-ui-spinner {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    margin: 0;
+    padding: 0;
+    outline: 0;
+    background: transparent;
+    vertical-align: baseline;
+  }
 
-.bk-cell-editor-string {
-  .default-cell-padding;
+  input {
+    padding-left: 4px;
+    padding-right: 4px;
+  }
 }
 
 .bk-cell-editor-completion {
   font-size: @dataTableFontSize;
 }
-
-.bk-cell-editor-text {}
-
-.bk-cell-editor-select {}
-
-.bk-cell-editor-percent {}
-
-.bk-cell-editor-checkbox {}
-
-.bk-cell-editor-int {
-  .default-cell-padding;
-}
-
-.bk-cell-editor-number {
-  .default-cell-padding;
-}
-
-.bk-cell-editor-time {}
-
-.bk-cell-editor-date {}

@@ -19,6 +19,8 @@ define [
   class CellEditorView extends ContinuumView
 
     tagName: "div"
+    className: "bk-cell-editor"
+
     input: null
 
     emptyValue: null
@@ -32,9 +34,9 @@ define [
 
     render: () ->
       @$input = $(@input)
+      @$el.append(@$input)
       @renderEditor()
       @disableNavigation()
-      @$el.append(@$input)
       @$el.appendTo(@args.container)
 
     renderEditor: () ->
@@ -91,7 +93,7 @@ define [
 
     emptyValue: ""
 
-    input: '<input type="text" class="bk-cell-editor bk-cell-editor-string" />'
+    input: '<input type="text" />'
 
     renderEditor: () ->
       completions = @model.get("completions")
@@ -125,7 +127,7 @@ define [
 
   class SelectEditorView extends CellEditorView
 
-    input: '<select class="bk-cell-editor bk-cell-editor-select" />'
+    input: '<select />'
 
     renderEditor: () ->
       for option in @model.get("options")
@@ -165,7 +167,7 @@ define [
 
   class IntEditorView extends CellEditorView
 
-    input: '<input type="text" class="bk-cell-editor bk-cell-editor-int" />'
+    input: '<input type="text" />'
 
     renderEditor: () ->
       @$input.spinner(step: @model.get("step"))
@@ -200,7 +202,7 @@ define [
 
   class NumberEditorView extends CellEditorView
 
-    input: '<input type="text" class="bk-cell-editor bk-cell-editor-number" />'
+    input: '<input type="text" />'
 
     renderEditor: () ->
       @$input.spinner(step: @model.get("step"))
