@@ -495,7 +495,6 @@ def lookup_descriptor(cls, propname):
     for c in inspect.getmro(cls):
         if issubclass(c, HasProps) and propname in c.__dict__:
             return c.__dict__[propname]
-    import pdb; pdb.set_trace()
     raise KeyError("Property '%s' not found on class '%s'" % (propname, cls))
 
 @add_metaclass(MetaHasProps)
@@ -518,8 +517,6 @@ class HasProps(object):
 
             if not matches:
                 matches, text = props, "possible"
-
-            import pdb; pdb.set_trace()
 
             raise AttributeError("unexpected attribute '%s' to %s, %s attributes are %s" %
                 (name, self.__class__.__name__, text, nice_join(matches)))
