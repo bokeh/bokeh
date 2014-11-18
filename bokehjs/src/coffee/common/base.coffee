@@ -160,6 +160,7 @@ define [
   'transforms/seq'
   'transforms/spread'
   'transforms/tocounts'
+  'transforms/transform'
 ], (_, require) ->
 
   # add some useful functions to underscore
