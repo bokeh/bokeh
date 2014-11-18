@@ -70,8 +70,8 @@ define [
 
       @throttled_render = plot_utils.throttle_animation(@render, 15)
 
-      @outline_props = new properties.Line(@, 'outline_')
-      @title_props = new properties.Text(@, 'title_')
+      @outline_props = new properties.Line(@, 'outline')
+      @title_props = new properties.Text(@, 'title')
 
       @renderers = {}
       @tools = {}
@@ -385,21 +385,21 @@ define [
         min_border: 40,
 
         title_standoff: 8,
-        title_text_font: "helvetica",
-        title_text_font_size: "20pt",
-        title_text_font_style: "normal",
-        title_text_color: "#444444",
-        title_text_alpha: 1.0,
-        title_text_align: "center",
-        title_text_baseline: "alphabetic"
+        title_font: "helvetica",
+        title_font_size: "20pt",
+        title_font_style: "normal",
+        title_color: "#444444",
+        title_alpha: 1.0,
+        title_align: "center",
+        title_baseline: "alphabetic"
 
-        outline_line_color: '#aaaaaa'
-        outline_line_width: 1
-        outline_line_alpha: 1.0
-        outline_line_join: 'miter'
-        outline_line_cap: 'butt'
-        outline_line_dash: []
-        outline_line_dash_offset: 0
+        outline_color: '#aaaaaa'
+        outline_width: 1
+        outline_alpha: 1.0
+        outline_join: 'miter'
+        outline_cap: 'butt'
+        outline_dash: []
+        outline_dash_offset: 0
       }
 
   class Plots extends Collection

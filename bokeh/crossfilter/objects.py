@@ -259,7 +259,7 @@ class CrossFilter(PlotObject):
             else:
                 source = ColumnDataSource(data=df)
             plot = scatter(self.x, self.y, source=source,
-                           title_text_font_size="12pt",
+                           title_font_size="12pt",
                            plot_height=plot_height,
                            plot_width=plot_width,
                            tools=tools,
@@ -271,7 +271,7 @@ class CrossFilter(PlotObject):
             else:
                 source = ColumnDataSource(data=df)
             plot = line(self.x, self.y, source=source,
-                        title_text_font_size="12pt",
+                        title_font_size="12pt",
                         plot_height=plot_height,
                         plot_width=plot_width,
                         tools=tools,
@@ -411,7 +411,7 @@ class CrossFilter(PlotObject):
                     self.filter_sources[col] = source
                     hist_plot = make_histogram(self.filter_sources[col],
                                                plot_width=200, plot_height=100,
-                                               title_text_font_size='8pt',
+                                               title_font_size='8pt',
                                                tools='select'
                     )
                     hist_plot.title = col

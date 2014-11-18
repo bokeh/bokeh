@@ -37,6 +37,6 @@ text(elements["atomic mass"], elements["density"] +0.3,
 
 xaxis().axis_label="atomic weight (amu)"
 yaxis().axis_label="density (g/cm^3)"
-grid().grid_line_color="white"
+grid().grid_color="white"
 
 show()

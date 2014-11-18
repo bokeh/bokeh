@@ -57,10 +57,10 @@ rect('xname', 'yname', 0.9, 0.9, source=source,
      tools="resize,hover,previewsave", title="Les Mis Occurrences (one at a time)",
      plot_width=800, plot_height=800)
 
-grid().grid_line_color = None
-axis().axis_line_color = None
-axis().major_tick_line_color = None
-axis().major_label_text_font_size = "5pt"
+grid().grid_color = None
+axis().axis_color = None
+axis().major_tick_color = None
+axis().major_label_font_size = "5pt"
 axis().major_label_standoff = 0
 xaxis().major_label_orientation = np.pi/3
 

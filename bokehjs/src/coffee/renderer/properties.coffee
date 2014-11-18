@@ -192,15 +192,18 @@ define [
       # failing that, just log a problem
       logger.warn("selection for attribute '#{attrname}' failed on object: #{ obj }")
 
+    named: (prefix, infix, suffix) ->
+        if prefix? then "#{prefix}_#{suffix}" else "#{infix}_#{suffix}"
+
   class LineProperties extends Properties
-    constructor: (styleprovider, prefix="") ->
-      @line_color_name        = "#{prefix}line_color"
-      @line_width_name        = "#{prefix}line_width"
-      @line_alpha_name        = "#{prefix}line_alpha"
-      @line_join_name         = "#{prefix}line_join"
-      @line_cap_name          = "#{prefix}line_cap"
-      @line_dash_name         = "#{prefix}line_dash"
-      @line_dash_offset_name  = "#{prefix}line_dash_offset"
+    constructor: (styleprovider, prefix=null) ->
+      @line_color_name        = @named(prefix, "line", "color")
+      @line_width_name        = @named(prefix, "line", "width")
+      @line_alpha_name        = @named(prefix, "line", "alpha")
+      @line_join_name         = @named(prefix, "line", "join")
+      @line_cap_name          = @named(prefix, "line", "cap")
+      @line_dash_name         = @named(prefix, "line", "dash")
+      @line_dash_offset_name  = @named(prefix, "line", "dash_offset")
 
       @color(styleprovider, @line_color_name)
       @number(styleprovider, @line_width_name)
@@ -265,9 +268,9 @@ define [
       return did_change
 
   class FillProperties extends Properties
-    constructor: (styleprovider, prefix="") ->
-      @fill_color_name = "#{prefix}fill_color"
-      @fill_alpha_name = "#{prefix}fill_alpha"
+    constructor: (styleprovider, prefix=null) ->
+      @fill_color_name = @named(prefix, "fill", "color")
+      @fill_alpha_name = @named(prefix, "fill", "alpha")
 
       @color(styleprovider, @fill_color_name)
       @number(styleprovider, @fill_alpha_name)
@@ -298,14 +301,14 @@ define [
       return did_change
 
   class TextProperties extends Properties
-    constructor: (styleprovider, prefix="") ->
-      @text_font_name       = "#{prefix}text_font"
-      @text_font_size_name  = "#{prefix}text_font_size"
-      @text_font_style_name = "#{prefix}text_font_style"
-      @text_color_name      = "#{prefix}text_color"
-      @text_alpha_name      = "#{prefix}text_alpha"
-      @text_align_name      = "#{prefix}text_align"
-      @text_baseline_name   = "#{prefix}text_baseline"
+    constructor: (styleprovider, prefix=null) ->
+      @text_font_name       = @named(prefix, "text", "font")
+      @text_font_size_name  = @named(prefix, "text", "font_size")
+      @text_font_style_name = @named(prefix, "text", "font_style")
+      @text_color_name      = @named(prefix, "text", "color")
+      @text_alpha_name      = @named(prefix, "text", "alpha")
+      @text_align_name      = @named(prefix, "text", "align")
+      @text_baseline_name   = @named(prefix, "text", "baseline")
 
       @string(styleprovider, @text_font_name)
       @string(styleprovider, @text_font_size_name)

@@ -64,9 +64,9 @@ rect(cats, upper.score, 0.2, 0.01, line_color="black")
 # outliers
 circle(outx, outy, size=6, color="#F38630", fill_alpha=0.6)
 
-xgrid().grid_line_color = None
-ygrid().grid_line_color = "white"
-ygrid().grid_line_width = 2
-xaxis().major_label_text_font_size="12pt"
+xgrid().grid_color = None
+ygrid().grid_color = "white"
+ygrid().grid_width = 2
+xaxis().major_label_font_size="12pt"
 
 show()

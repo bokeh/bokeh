@@ -39,7 +39,7 @@ line(MSFT['Date'], MSFT['Adj Close'], color='#FB9A99', legend='MSFT')
 
 # EXERCISE: style the plot, set a title, lighten the gridlines, etc.
 curplot().title = "Stock Closing Prices"
-grid().grid_line_alpha=0.3
+grid().grid_alpha=0.3
 
 # EXERCISE: start a new figure
 figure()
@@ -62,7 +62,7 @@ line(aapl_dates, aapl_avg, color='red', legend='avg')
 
 # EXERCISE: style the plot, set a title, lighten the gridlines, etc.
 curplot().title = "AAPL One-Month Average"
-grid().grid_line_alpha=0.3
+grid().grid_alpha=0.3
 
 show()  # open a browser
 

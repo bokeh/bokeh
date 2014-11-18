@@ -155,11 +155,11 @@ define [
   class AxisView extends PlotWidget
     initialize: (options) ->
       super(options)
-      @rule_props = new properties.Line(@, 'axis_')
-      @major_tick_props = new properties.Line(@, 'major_tick_')
-      @minor_tick_props = new properties.Line(@, 'minor_tick_')
-      @major_label_props = new properties.Text(@, 'major_label_')
-      @axis_label_props = new properties.Text(@, 'axis_label_')
+      @rule_props = new properties.Line(@, 'axis')
+      @major_tick_props = new properties.Line(@, 'major_tick')
+      @minor_tick_props = new properties.Line(@, 'minor_tick')
+      @major_label_props = new properties.Text(@, 'major_label')
+      @axis_label_props = new properties.Text(@, 'axis_label')
       @x_range_name = @mget('x_range_name')
       @y_range_name = @mget('y_range_name')
 
@@ -573,53 +573,53 @@ define [
       return _.extend {}, super(), {
         level: 'overlay'
 
-        axis_line_color: 'black'
-        axis_line_width: 1
-        axis_line_alpha: 1.0
-        axis_line_join: 'miter'
-        axis_line_cap: 'butt'
-        axis_line_dash: []
-        axis_line_dash_offset: 0
+        axis_color: 'black'
+        axis_width: 1
+        axis_alpha: 1.0
+        axis_join: 'miter'
+        axis_cap: 'butt'
+        axis_dash: []
+        axis_dash_offset: 0
 
         major_tick_in: 2
         major_tick_out: 6
-        major_tick_line_color: 'black'
-        major_tick_line_width: 1
-        major_tick_line_alpha: 1.0
-        major_tick_line_join: 'miter'
-        major_tick_line_cap: 'butt'
-        major_tick_line_dash: []
-        major_tick_line_dash_offset: 0
+        major_tick_color: 'black'
+        major_tick_width: 1
+        major_tick_alpha: 1.0
+        major_tick_join: 'miter'
+        major_tick_cap: 'butt'
+        major_tick_dash: []
+        major_tick_dash_offset: 0
 
         minor_tick_in: 0
         minor_tick_out: 4
-        minor_tick_line_color: 'black'
-        minor_tick_line_width: 1
-        minor_tick_line_alpha: 1.0
-        minor_tick_line_join: 'miter'
-        minor_tick_line_cap: 'butt'
-        minor_tick_line_dash: []
-        minor_tick_line_dash_offset: 0
+        minor_tick_color: 'black'
+        minor_tick_width: 1
+        minor_tick_alpha: 1.0
+        minor_tick_join: 'miter'
+        minor_tick_cap: 'butt'
+        minor_tick_dash: []
+        minor_tick_dash_offset: 0
 
         major_label_standoff: 5
         major_label_orientation: "horizontal"
-        major_label_text_font: "helvetica"
-        major_label_text_font_size: "10pt"
-        major_label_text_font_style: "normal"
-        major_label_text_color: "#444444"
-        major_label_text_alpha: 1.0
-        major_label_text_align: "center"
-        major_label_text_baseline: "alphabetic"
+        major_label_font: "helvetica"
+        major_label_font_size: "10pt"
+        major_label_font_style: "normal"
+        major_label_color: "#444444"
+        major_label_alpha: 1.0
+        major_label_align: "center"
+        major_label_baseline: "alphabetic"
 
         axis_label: ""
         axis_label_standoff: 5
-        axis_label_text_font: "helvetica"
-        axis_label_text_font_size: "16pt"
-        axis_label_text_font_style: "normal"
-        axis_label_text_color: "#444444"
-        axis_label_text_alpha: 1.0
-        axis_label_text_align: "center"
-        axis_label_text_baseline: "alphabetic"
+        axis_label_font: "helvetica"
+        axis_label_font_size: "16pt"
+        axis_label_font_style: "normal"
+        axis_label_color: "#444444"
+        axis_label_alpha: 1.0
+        axis_label_align: "center"
+        axis_label_baseline: "alphabetic"
       }
 
   return {

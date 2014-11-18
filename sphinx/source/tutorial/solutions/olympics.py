@@ -36,8 +36,8 @@ rect(x=countries, y=bronze+silver+gold/2, width=0.8, height=gold, x_range=countr
 #   - change the major label standoff, and major_tick_out values
 #   - make the tick labels smaller
 #   - set the x-axis orientation to vertical, or angled
-xgrid().grid_line_color = None
-axis().major_label_text_font_size = "8pt"
+xgrid().grid_color = None
+axis().major_label_font_size = "8pt"
 axis().major_label_standoff = 0
 xaxis().major_label_orientation = np.pi/3
 xaxis().major_label_standoff = 6
@@ -65,8 +65,8 @@ rect(x=countries_gold, y=gold/2, width=0.2, height=gold, x_range=countries, colo
 #   - remove the major ticks
 #   - make the tick labels smaller
 #   - set the x-axis orientation to vertical, or angled
-xgrid().grid_line_color = None
-axis().major_label_text_font_size = "8pt"
+xgrid().grid_color = None
+axis().major_label_font_size = "8pt"
 axis().major_label_standoff = 0
 xaxis().major_label_orientation = np.pi/3
 xaxis().major_label_standoff = 6

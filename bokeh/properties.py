@@ -433,14 +433,18 @@ class MetaHasProps(type):
             prefix = re.sub("_props$", "", name) + "_"
 
             for subpropname in delegate.class_properties(withbases=False):
-                fullpropname = prefix + subpropname
                 subprop = lookup_descriptor(delegate, subpropname)
                 if isinstance(subprop, Property):
                     # If it's an actual instance, then we need to make a copy
                     # so two properties don't write to the same hidden variable
                     # inside the instance.
                     subprop = copy(subprop)
+
+                _, subpropname = subpropname.split("_", 1)
+                fullpropname = prefix + subpropname
+
                 includes[fullpropname] = subprop
+
             # Remove the name of the Include attribute itself
             removes.add(name)
 
@@ -449,6 +453,9 @@ class MetaHasProps(type):
         for key, val in includes.items():
             if key not in class_dict:
                 class_dict[key] = val
+            else:
+                raise RuntimeError("included property '%s' shadows an existing property in %s model" % (key, class_name))
+
         for tmp in removes:
             del class_dict[tmp]
 

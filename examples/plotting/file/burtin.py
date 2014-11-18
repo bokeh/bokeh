@@ -65,7 +65,7 @@ figure(plot_width=width, plot_height=height, title="",
        tools="pan,wheel_zoom,box_zoom,reset,previewsave",
        x_axis_type=None, y_axis_type=None,
        x_range=[-420, 420], y_range=[-420, 420],
-       min_border=0, outline_line_color=None,
+       min_border=0, outline_color=None,
        background_fill="#f0e1d2", border_fill="#f0e1d2")
 
 line(x+1, y+1, alpha=0)
@@ -114,7 +114,7 @@ rect([-40, -40, -40], [18, 0, -18], width=30, height=13,
         color=list(drug_color.values()))
 text([-15, -15, -15], [18, 0, -18], text=list(drug_color.keys()), angle=0, text_font_size="9pt", text_align="left", text_baseline="middle")
 
-xgrid().grid_line_color = None
-ygrid().grid_line_color = None
+xgrid().grid_color = None
+ygrid().grid_color = None
 
 show()

@@ -25,7 +25,7 @@ Plots can be configured with several keyword arguments that control appearance:
 * ``title`` --- a title to display above the plot.
   - "title" is also the prefix for a set of :ref:`userguide_objects_text_properties`, so you can set the font for the title with the parameter ``text_font``.
 
-* "outline" --- is the prefix for a set of :ref:`userguide_objects_line_properties` that control the appearance of an outline around the plot, for instance you can set the color of the outline with ``outline_line_color``.
+* "outline" --- is the prefix for a set of :ref:`userguide_objects_line_properties` that control the appearance of an outline around the plot, for instance you can set the color of the outline with ``outline_color``.
 
 * ``x_range`` --- the extent of the plotting area in the x-dimension. See :ref:`userguide_objects_ranges`
 
@@ -42,10 +42,10 @@ to pass them to a call to ``figure``::
 
     figure(
         title="My Plot",
-        title_text_font_size="20pt",
+        title_font_size="20pt",
         plot_width=200,
         plot_height=300,
-        outline_line_color="red",
+        outline_color="red",
         x_axis_type="datetime"
     )
 
@@ -187,7 +187,7 @@ properties, for the axis label and major tick labels. These are prefixed ``axis_
 
 Some examples::
 
-    axis.axis_line_color = "red"
+    axis.axis_color = "red"
     axis.bounds = (3, 7)
     axis.major_label_orientation = pi/4
 
@@ -195,8 +195,8 @@ Axes for the current plot may be conveniently obtained using the :func:`bokeh.pl
 and :func:`bokeh.plotting.axis` functions. These return collections of axes that can be indexed to retrieve
 individual axes, or can that have attributes set directly on them to update all axes. Examples::
 
-    xaxis().axis_line_width = 2 # update all x-axes
-    yaxis()[0].axis_line_color = "red" # only updates the first y-axis
+    xaxis().axis_width = 2 # update all x-axes
+    yaxis()[0].axis_color = "red" # only updates the first y-axis
     axis().bounds = (2, 8) # set bounds for all axes
 
 Typically after updating these attributes, a call to :func:`bokeh.plotting.show` will be required.
@@ -212,8 +212,8 @@ Grids are styled very similarly to axes in Bokeh. Grids have identical ``dimensi
 as well as line properties, prefixed with ``grid_``. There are also :func:`bokeh.plotting.xgrid`, :func:`bokeh.plotting.ygrid`,
 and :func:`bokeh.plotting.grid` functions available to obtain grids for the current plot. Examples::
 
-    xgrid().axis_line_dash = "3 3" # update all x-grids
-    ygrid()[0].axis_line_color = None # only updates the first y-grid
+    xgrid().axis_dash = "3 3" # update all x-grids
+    ygrid()[0].axis_color = None # only updates the first y-grid
     grid().bounds = (2, 8) # set bounds for all grids
 
 Typically after updating these attributes, a call to :func:`bokeh.plotting.show` will be required.

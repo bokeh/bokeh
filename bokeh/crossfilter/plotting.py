@@ -48,12 +48,12 @@ def make_bar_plot(datasource, counts_name="counts",
                   x_range=None,
                   plot_width=500, plot_height=500,
                   tools="pan,wheel_zoom,box_zoom,save,resize,select,reset",
-                  title_text_font_size="12pt"
+                  title_font_size="12pt"
               ):
     top = np.max(datasource.data[counts_name])
 
     figure(
-      title="", title_text_font_size=title_text_font_size,
+      title="", title_font_size=title_font_size,
       plot_width=plot_width, plot_height=plot_height,
       x_range=x_range, y_range=[0, top], tools=tools,
     )
@@ -80,11 +80,11 @@ def make_histogram(datasource,
                   plot_height=500,
                   min_border=40,
                   tools=None,
-                  title_text_font_size="12pt"):
+                  title_font_size="12pt"):
     start = np.min(datasource.data[centers_name]) - bar_width
     end = np.max(datasource.data[centers_name]) - bar_width
     plot = make_bar_plot(
         datasource, counts_name=counts_name, centers_name=centers_name,
         x_range=[start, end], plot_width=plot_width, plot_height=plot_height,
-        tools=tools, title_text_font_size=title_text_font_size)
+        tools=tools, title_font_size=title_font_size)
     return plot

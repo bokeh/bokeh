@@ -50,15 +50,15 @@ patches(xs, ys, x_range=categories, y_range=[0, 800],
         title="Categories of Brewering")
 
 # EXERCISE: configure all of the following plot properties
-ygrid().grid_line_color = "white"
-ygrid().grid_line_width = 2
-axis().major_label_text_font_size = "12pt"
-axis().major_label_text_font_style = "bold"
+ygrid().grid_color = "white"
+ygrid().grid_width = 2
+axis().major_label_font_size = "12pt"
+axis().major_label_font_style = "bold"
 axis().major_label_standoff = 10            # distance of tick labels from ticks
-axis().axis_line_color = None               # color, or None, to suppress the line
+axis().axis_color = None               # color, or None, to suppress the line
 xaxis().major_label_orientation = np.pi/4   # radians, "horizontal", "vertical", "normal"
 xaxis().major_tick_in = 10                  # distance ticks extends into the plot
 xaxis().major_tick_out = 0                  # and distance they extend out
-xaxis().major_tick_line_color = "white"
+xaxis().major_tick_color = "white"
 
 show()

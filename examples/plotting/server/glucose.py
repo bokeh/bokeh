@@ -35,8 +35,8 @@ scatter(highs.index.to_series(), highs['glucose'], size=6, color='tomato', legen
 scatter(lows.index.to_series(), lows['glucose'], size=6, color='navy', legend="low")
 
 curplot().title = "Glucose Range"
-xgrid()[0].grid_line_color=None
-ygrid()[0].grid_line_alpha=0.5
+xgrid()[0].grid_color=None
+ygrid()[0].grid_alpha=0.5
 
 data['inrange'] = (data['glucose'] < 180) & (data['glucose'] > 80)
 window = 30.5*288 #288 is average number of samples in a month

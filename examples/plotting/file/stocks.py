@@ -16,7 +16,7 @@ line(np.array(IBM['date'], 'M64'), IBM['adj_close'], color='#33A02C', legend='IB
 line(np.array(MSFT['date'], 'M64'), MSFT['adj_close'], color='#FB9A99', legend='MSFT')
 
 curplot().title = "Stock Closing Prices"
-grid().grid_line_alpha=0.3
+grid().grid_alpha=0.3
 
 aapl = np.array(AAPL['adj_close'])
 aapl_dates = np.array(AAPL['date'], dtype=np.datetime64)
@@ -35,7 +35,7 @@ scatter(aapl_dates, aapl, size=4, color='#A6CEE3', legend='close')
 line(aapl_dates, aapl_avg, color='red', legend='avg')
 
 curplot().title = "AAPL One-Month Average"
-grid().grid_line_alpha=0.3
+grid().grid_alpha=0.3
 
 xax, yax = axis()
 xax.axis_label = 'Date'

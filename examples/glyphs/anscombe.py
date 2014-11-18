@@ -56,10 +56,10 @@ def make_plot(title, xname, yname):
         border_fill='white', background_fill='#e9e0db'
     )
 
-    xaxis = LinearAxis(axis_line_color=None)
+    xaxis = LinearAxis(axis_color=None)
     plot.add_layout(xaxis, 'below')
 
-    yaxis = LinearAxis(axis_line_color=None)
+    yaxis = LinearAxis(axis_color=None)
     plot.add_layout(yaxis, 'left')
 
     plot.add_layout(Grid(dimension=0, ticker=xaxis.ticker))
