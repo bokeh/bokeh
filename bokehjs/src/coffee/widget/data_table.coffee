@@ -59,6 +59,9 @@ define [
       cols = for column in columns
         [column.sortCol.field, if column.sortAsc then 1 else -1]
 
+      if _.isEmpty(cols)
+        cols = [["index", 1]]
+
       records = @getRecords()
       records.sort (record1, record2) ->
         for [field, sign] in cols
