@@ -18,7 +18,7 @@ methods.
 #-----------------------------------------------------------------------------
 
 from ._charts import Chart
-from bokeh.properties import bokeh_integer_types
+from bokeh.properties import bokeh_integer_types, Datetime
 
 try:
     import numpy as np
@@ -458,9 +458,21 @@ class DataAdapter(object):
                 self._index = DEFAULT_INDEX_ALIASES[:][:len(self.values()[0])]
 
     @staticmethod
-    def validate_values(values):
+    def is_number(value):
         numbers = (float, ) + bokeh_integer_types
+        return isinstance(value, numbers)
 
+    @staticmethod
+    def is_datetime(value):
+        try:
+            dt = Datetime(value)
+            return True
+
+        except ValueError:
+            return False
+
+    @staticmethod
+    def validate_values(values):
         if np and isinstance(values, np.ndarray):
             if len(values.shape) == 1:
                 return np.array([values])
@@ -472,13 +484,13 @@ class DataAdapter(object):
             return values
 
         elif isinstance(values, dict):
-            if all(isinstance(x, numbers) for x in values.values()):
+            if all(DataAdapter.is_number(x) for x in values.values()):
                 return values
 
             return values
 
         elif isinstance(values, (list, tuple)):
-            if all(isinstance(x, numbers) for x in values):
+            if all(DataAdapter.is_number(x) for x in values):
                 return [values]
 
             return values

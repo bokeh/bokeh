@@ -19,7 +19,13 @@ or a pandas groupby object.
 #-----------------------------------------------------------------------------
 
 import numpy as np
-import pandas as pd
+
+try:
+    import pandas as pd
+
+except:
+    pd = None
+
 from collections import OrderedDict
 from ._chartobject import ChartObject, DataAdapter
 
@@ -137,7 +143,7 @@ class Scatter(ChartObject):
         """
         super(Scatter, self).check_attr()
 
-    def get_data(self, **pairs):
+    def get_data(self):
         """Take the x/y data from the input **value.
 
         It calculates the chart properties accordingly. Then build a dict
@@ -150,8 +156,8 @@ class Scatter(ChartObject):
         """
         self.data = dict()
 
-        # assuming value is an ordered dict
-        self.pairs = pairs
+        ## assuming value is an ordered dict
+        #self.pairs = pairs
 
         # list to save all the attributes we are going to create
         self.attr = []
@@ -159,11 +165,40 @@ class Scatter(ChartObject):
         # list to save all the groups available in the incomming input
         self.groups.extend(self.pairs.keys())
 
+        print "TYPPPP", self.pairs
+
         # Grouping
+        self.parse_data()
+        #for i, val in enumerate(self.pairs.keys()):
+        #    xy = self.pairs[val]
+        #    self._set_and_get("x_", val, xy[:, 0])
+        #    self._set_and_get("y_", val, xy[:, 1])
+
+    @property
+    def parse_data(self):
+        if pd is not None and \
+                isinstance(self.pairs, pd.core.groupby.DataFrameGroupBy):
+            return self._parse_groupped_data
+
+        else:
+            return self._parse_data
+
+    def _parse_groupped_data(self):
         for i, val in enumerate(self.pairs.keys()):
             xy = self.pairs[val]
             self._set_and_get("x_", val, xy[:, 0])
             self._set_and_get("y_", val, xy[:, 1])
+
+    def _parse_data(self):
+        for i, val in enumerate(self.pairs.keys()):
+            x_, y_ = [], []
+            xy = self.pairs[val]
+            for value in self.pairs.index:
+                x_.append(xy[value][0])
+                y_.append(xy[value][1])
+
+            self._set_and_get("x_", val, x_)
+            self._set_and_get("y_", val, y_)
 
     def get_source(self):
         "Push the Scatter data into the ColumnDataSource and calculate the proper ranges."
@@ -204,31 +239,43 @@ class Scatter(ChartObject):
         at the end of the chain.
         """
         # asumming we get an hierchiral pandas object
-        if isinstance(self.pairs, pd.DataFrame):
-            self.labels = self.pairs.columns.levels[1].values
+        if pd:
+            #if isinstance(self.pairs, pd.DataFrame):
+            #
+            #    self.labels = self.pairs.columns.levels[1].values
+            #
+            #    from collections import OrderedDict
+            #    pdict = OrderedDict()
+            #
+            #    for i in self.pairs.columns.levels[0].values:
+            #        pdict[i] = self.pairs[i].dropna().values
+            #
+            #    self.pairs = pdict
 
-            from collections import OrderedDict
-            pdict = OrderedDict()
+            # asumming we get an groupby object
+            if isinstance(self.pairs, pd.core.groupby.DataFrameGroupBy):
+                from collections import OrderedDict
+                pdict = OrderedDict()
 
-            for i in self.pairs.columns.levels[0].values:
-                pdict[i] = self.pairs[i].dropna().values
+                for i in self.pairs.groups.keys():
+                    self.labels = self.pairs.get_group(i).columns
+                    xname = self.pairs.get_group(i).columns[0]
+                    yname = self.pairs.get_group(i).columns[1]
+                    x = getattr(self.pairs.get_group(i), xname)
+                    y = getattr(self.pairs.get_group(i), yname)
+                    pdict[i] = np.array([x.values, y.values]).T
 
-            self.pairs = pdict
+                self.pairs = DataAdapter(pdict)
 
-        # asumming we get an groupby object
-        if isinstance(self.pairs, pd.core.groupby.DataFrameGroupBy):
-            from collections import OrderedDict
-            pdict = OrderedDict()
+            else:
+                self.pairs = DataAdapter(self.pairs)
+                self.labels = self.pairs.keys()
 
-            for i in self.pairs.groups.keys():
-                self.labels = self.pairs.get_group(i).columns
-                xname = self.pairs.get_group(i).columns[0]
-                yname = self.pairs.get_group(i).columns[1]
-                x = getattr(self.pairs.get_group(i), xname)
-                y = getattr(self.pairs.get_group(i), yname)
-                pdict[i] = np.array([x.values, y.values]).T
+        else:
+            self.pairs = DataAdapter(self.pairs)
+            self.labels = self.pairs.keys()
 
-            self.pairs = pdict
+        print "TYPE", type(self.pairs)
 
         # we need to check the chained method attr
         self.check_attr()
@@ -243,7 +290,7 @@ class Scatter(ChartObject):
         # we start the plot (adds axis, grids and tools)
         self.start_plot()
         # we get the data from the incoming input
-        self.get_data(**self.pairs)
+        self.get_data()
         # we filled the source and ranges with the calculated data
         self.get_source()
         # we dynamically inject the source and ranges into the plot
