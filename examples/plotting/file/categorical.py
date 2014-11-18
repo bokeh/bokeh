@@ -26,4 +26,4 @@ p2 = figure(title="Categorical Heatmap", tools="resize,hover,save",
 p2.rect(x, y, color=colors, width=1, height=1)
 
 output_file("categorical.html", title="categorical.py example")
-show([p1, p2])  # open a browser
+show(VBox(p1, p2))  # open a browser
