@@ -389,6 +389,7 @@ def figure(**kwargs):
     '''
     fig = Figure(**kwargs)
     curdoc()._current_plot = fig
+    curdoc().context.children.append(fig)
     return fig
 
 def output_server(docname, session=None, url="default", name=None):
