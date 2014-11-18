@@ -1,10 +1,10 @@
 require.config
     paths:
-        jquery:            "vendor/jquery/jquery.min"
+        jquery:            "vendor/jquery-1.11.1/jquery"
         jquery_ui:         "vendor/jquery-ui-1.11.2/js"
-        jquery_mousewheel: "vendor/jquery-mousewheel/jquery.mousewheel.min"
-        jquery_event_drag: "vendor/jquery-event/jquery.event.drag-2.2"
-        jquery_event_drop: "vendor/jquery-event/jquery.event.drop-2.2"
+        jquery_mousewheel: "vendor/jquery-mousewheel-3.1.12/jquery.mousewheel"
+        jquery_event_drag: "vendor/jquery-event-2.2/jquery.event.drag"
+        jquery_event_drop: "vendor/jquery-event-2.2/jquery.event.drop"
         jqrangeslider:     "vendor/jqrangeslider-5.7.0"
         slick_grid:        "vendor/slick-grid-2.1.0"
         underscore:        "vendor/underscore-amd/underscore"
@@ -15,8 +15,8 @@ require.config
         rbush:             "vendor/rbush/rbush"
         gear_utils:        "vendor/gear-utils/gear-utils"
         kiwi:              "vendor/kiwi/kiwi"
-        jsnlog:            "vendor/jsnlog/jsnlog.min"
-        hammer:            "vendor/hammer-2.0.4/hammer.min"
+        jsnlog:            "vendor/jsnlog.js-2.7.5/jsnlog"
+        hammer:            "vendor/hammer.js-2.0.4/hammer"
     shim:
         sprintf:
             exports: 'sprintf'
