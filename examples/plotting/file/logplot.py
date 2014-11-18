@@ -6,9 +6,7 @@ N = 100
 
 x = np.linspace(0.1, 5, N)
 
-TOOLS = "pan,wheel_zoom,box_zoom,reset,save"
-
-p = figure(title="log axis example", tools=TOOLS,
+p = figure(title="log axis example",
     y_axis_type="log", y_range=[0.001, 10**22])
 
 p.line(x, np.sqrt(x), line_dash="dotdash",

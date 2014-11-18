@@ -1,3 +1,6 @@
+# The plot server must be running
+# Go to http://localhost:5006/bokeh to view this plot
+
 from __future__ import division
 
 import numpy as np
@@ -33,6 +36,8 @@ source = ColumnDataSource(
     )
 )
 
+output_server("hover")
+
 p = figure(title="Hoverful Scatter", tools=TOOLS)
 
 p.circle(x, y, radius=radii, source=source,
@@ -51,5 +56,4 @@ hover.tooltips = OrderedDict([
     ("bar", "@bar"),
 ])
 
-output_file("hover.html")
 show(p)  # open a browser

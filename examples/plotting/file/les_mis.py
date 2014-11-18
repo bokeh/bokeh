@@ -64,7 +64,7 @@ p.axis.major_label_text_font_size = "5pt"
 p.axis.major_label_standoff = 0
 p.xaxis.major_label_orientation = np.pi/3
 
-hover = curplot().select(dict(type=HoverTool))
+hover = p.select(dict(type=HoverTool))
 hover.tooltips = OrderedDict([
     ('names', '@yname, @xname'),
     ('count', '@count'),
