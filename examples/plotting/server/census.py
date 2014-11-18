@@ -23,6 +23,6 @@ plot = square(
         title="Census Tracts")
 
 ar.heatmap(plot, palette="Reds9", reserve_val=0, points=True, client_color=True, title="Census Tracts (Client Colors)")
-#ar.heatmap(plot, low=(255, 200, 200), points=True, title="Census Tracts (Server Colors)")
-#ar.contours(plot, title="ISO Contours")
+ar.heatmap(plot, low=(255, 200, 200), points=True, title="Census Tracts (Server Colors)")
+ar.contours(plot, title="ISO Contours")
 show()
