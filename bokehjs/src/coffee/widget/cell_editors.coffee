@@ -18,6 +18,9 @@ define [
 
   class CellEditorView extends ContinuumView
 
+    tagName: "div"
+    input: null
+
     emptyValue: null
     defaultValue: null
 
@@ -28,14 +31,16 @@ define [
       @render()
 
     render: () ->
+      @$input = $(@input)
       @renderEditor()
       @disableNavigation()
+      @$el.append(@$input)
       @$el.appendTo(@args.container)
 
     renderEditor: () ->
 
     disableNavigation: () ->
-      @$el.keydown (event) =>
+      @$input.keydown (event) =>
         stop = () -> event.stopImmediatePropagation()
         switch event.keyCode
           when $.ui.keyCode.LEFT      then stop()
@@ -47,7 +52,7 @@ define [
 
     destroy: () -> @remove()
 
-    focus: () -> @$el.focus()
+    focus: () -> @$input.focus()
 
     show: () ->
 
@@ -55,9 +60,9 @@ define [
 
     position: () ->
 
-    getValue: () -> return @$el.val()
+    getValue: () -> return @$input.val()
 
-    setValue: (val) -> @$el.val(val)
+    setValue: (val) -> @$input.val(val)
 
     serializeValue: () -> return @getValue()
 
@@ -86,19 +91,19 @@ define [
 
     emptyValue: ""
 
-    el: '<input type="text" class="bk-cell-editor bk-cell-editor-string" />'
+    input: '<input type="text" class="bk-cell-editor bk-cell-editor-string" />'
 
     renderEditor: () ->
       completions = @model.get("completions")
       if not _.isEmpty(completions)
-        @$el.autocomplete(source: completions)
-        @$el.autocomplete("widget").addClass("bk-cell-editor-completion")
-      @$el.focus().select()
+        @$input.autocomplete(source: completions)
+        @$input.autocomplete("widget").addClass("bk-cell-editor-completion")
+      @$input.focus().select()
 
     loadValue: (item) ->
       super(item)
-      @$el[0].defaultValue = @defaultValue
-      @$el.select()
+      @$input[0].defaultValue = @defaultValue
+      @$input.select()
 
   class StringEditor extends CellEditor
     type: 'StringEditor'
@@ -120,16 +125,16 @@ define [
 
   class SelectEditorView extends CellEditorView
 
-    el: '<select class="bk-cell-editor bk-cell-editor-select" />'
+    input: '<select class="bk-cell-editor bk-cell-editor-select" />'
 
     renderEditor: () ->
       for option in @model.get("options")
-        @$el.append($('<option>').attr(value: option).text(option))
+        @$input.append($('<option>').attr(value: option).text(option))
       @focus()
 
     loadValue: (item) ->
       super(item)
-      @$el.select()
+      @$input.select()
 
   class SelectEditor extends CellEditor
     type: 'SelectEditor'
@@ -160,14 +165,14 @@ define [
 
   class IntEditorView extends CellEditorView
 
-    el: '<input type="text" class="bk-cell-editor bk-cell-editor-int" />'
+    input: '<input type="text" class="bk-cell-editor bk-cell-editor-int" />'
 
     renderEditor: () ->
-      @$el.spinner(step: @model.get("step"))
-      @$el.focus().select()
+      @$input.spinner(step: @model.get("step"))
+      @$input.focus().select()
 
     remove: () ->
-      @$el.spinner("destroy")
+      @$input.spinner("destroy")
       super()
 
     serializeValue: () ->
@@ -175,8 +180,8 @@ define [
 
     loadValue: (item) ->
       super(item)
-      @$el[0].defaultValue = @defaultValue
-      @$el.select()
+      @$input[0].defaultValue = @defaultValue
+      @$input.select()
 
     validateValue: (value) ->
       if isNaN(value)
@@ -195,14 +200,14 @@ define [
 
   class NumberEditorView extends CellEditorView
 
-    el: '<input type="text" class="bk-cell-editor bk-cell-editor-number" />'
+    input: '<input type="text" class="bk-cell-editor bk-cell-editor-number" />'
 
     renderEditor: () ->
-      @$el.spinner(step: @model.get("step"))
-      @$el.focus().select()
+      @$input.spinner(step: @model.get("step"))
+      @$input.focus().select()
 
     remove: () ->
-      @$el.spinner("destroy")
+      @$input.spinner("destroy")
       super()
 
     serializeValue: () ->
@@ -210,8 +215,8 @@ define [
 
     loadValue: (item) ->
       super(item)
-      @$el[0].defaultValue = @defaultValue
-      @$el.select()
+      @$input[0].defaultValue = @defaultValue
+      @$input.select()
 
     validateValue: (value) ->
       if isNaN(value)
