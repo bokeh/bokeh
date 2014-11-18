@@ -59,8 +59,13 @@ define [
 
       transform_params = serversource.attributes['transform']
       resample_op = transform_params['resample']
-      x_range = @plot_view.frame.get('h_range')
-      y_range = @plot_view.frame.get('v_range')
+      
+      
+      #TODO: Perhaps pass 'plot_view' through in the request instead of these fractions carved off 
+      plot_x_range = @plot_view.frame.get('h_range')
+      plot_y_range = @plot_view.frame.get('v_range')
+      data_x_range = @plot_view.x_range
+      data_y_range = @plot_view.y_range
 
       #TODO: This is weird.  For example, h_range is passed in twice.  Hugo or Joseph should clean it up
       if (resample_op == 'line1d')
@@ -68,9 +73,9 @@ define [
         if domain == 'x'
           serversource.listen_for_line1d_updates(
             @mget('data_source'),
-            x_range,  y_range,
-            @plot_view.x_range, @plot_view.y_range,
-            x_range,
+            plot_x_range, plot_y_range,
+            data_x_range, data_y_range,
+            plot_x_range,
             # XXX: @glyph.x.field (etc.) indicates this be moved to Glyph
             @glyph.y.field,
             @glyph.x.field,
@@ -82,9 +87,8 @@ define [
       else if (resample_op == 'heatmap')
         serversource.listen_for_heatmap_updates(
            @mget('data_source'),
-           x_range,  y_range,
-           @plot_view.x_range,
-           @plot_view.y_range,
+           plot_x_range, plot_y_range,
+           data_x_range, data_y_range,
            transform_params
         )
       else if (resample_op == 'abstract rendering')
@@ -92,9 +96,8 @@ define [
            @plot_view
            @mget('data_source'),
              #TODO: Joseph -- Get rid of the next four params because we're passing in the plot_view
-           x_range,  y_range,
-           @plot_view.x_range,
-           @plot_view.y_range,
+           plot_x_range, plot_y_range,
+           data_x_range, data_y_range,
            transform_params)
       else
         logger.warn("unknown resample op: '#{resample_op}'")
