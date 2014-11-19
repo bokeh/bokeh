@@ -460,7 +460,7 @@ class MetaHasProps(type):
 
             for subpropname in delegate.class_properties(withbases=False):
                 fullpropname = prefix + subpropname
-                subprop = lookup_descriptor(delegate, subpropname)
+                subprop = delegate.lookup(subpropname)
                 if isinstance(subprop, Property):
                     # If it's an actual instance, then we need to make a copy
                     # so two properties don't write to the same hidden variable
@@ -517,12 +517,6 @@ def accumulate_from_subclasses(cls, propname):
             s.update(getattr(c, propname))
     return s
 
-def lookup_descriptor(cls, propname):
-    for c in inspect.getmro(cls):
-        if issubclass(c, HasProps) and propname in c.__dict__:
-            return c.__dict__[propname]
-    raise KeyError("Property '%s' not found on class '%s'" % (propname, cls))
-
 @add_metaclass(MetaHasProps)
 class HasProps(object):
 
@@ -558,7 +552,7 @@ class HasProps(object):
 
     @classmethod
     def lookup(cls, name):
-        return lookup_descriptor(cls, name)
+        return getattr(cls, name)
 
     @classmethod
     def properties_with_refs(cls):
