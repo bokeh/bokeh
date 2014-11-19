@@ -52,7 +52,7 @@ class CategoricalHeatMap(ChartObject):
         hm = CategoricalHeatMap(df3, title="categorical heatmap, pd_input", notebook=True)
         hm.width(1000).height(400).show()
     """
-    # disable
+    # disable x and y grids
     xgrid=False
     ygrid=False
 
