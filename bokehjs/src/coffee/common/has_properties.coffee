@@ -77,7 +77,11 @@ define [
       # This is "trigger" part of backbone's set() method. set() is unable to work with
       # mutable data structures, so instead of using set() we update data in-place and
       # then call forceTrigger() which will make sure all listeners are notified of any
-      # changes.
+      # changes, e.g.:
+      #
+      #   source.get("data")[field][index] += 1
+      #   source.forceTrigger()
+      #
       if not _.isArray(changes)
         changes = [changes]
 
