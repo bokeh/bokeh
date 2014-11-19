@@ -106,7 +106,7 @@ class Property(object):
                 setattr(obj, self._name, self.default)
             return getattr(obj, self._name)
         elif owner is not None:
-            return owner.lookup(self.name)
+            return self
         else:
             raise ValueError("both 'obj' and 'owner' are None, don't know what to do")
 
