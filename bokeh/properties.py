@@ -76,7 +76,10 @@ class Property(object):
         # doesn't make sense, because most comparisons involving numpy arrays will fail with
         # ValueError exception, thus warning about inevitable.
         try:
-            return new == old
+            if new is None or old is None:
+                return new is old           # XXX: silence FutureWarning from NumPy
+            else:
+                return new == old
         except (KeyboardInterrupt, SystemExit):
             raise
         except Exception as e:
