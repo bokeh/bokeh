@@ -10,9 +10,8 @@ define [
 
   class CellEditor extends HasProperties
 
-    editor_defaults: {}
-
-    defaults: -> return _.extend {}, super(), @editor_defaults
+    editorDefaults: {}
+    defaults: -> return _.extend {}, super(), @editorDefaults
 
   class CellEditorCollection extends Collection
 
@@ -110,7 +109,7 @@ define [
   class StringEditor extends CellEditor
     type: 'StringEditor'
     default_view: StringEditorView
-    editor_defaults:
+    editorDefaults:
       completions: []
 
   class StringEditors extends CellEditorCollection
@@ -141,7 +140,7 @@ define [
   class SelectEditor extends CellEditor
     type: 'SelectEditor'
     default_view: SelectEditorView
-    editor_defaults:
+    editorDefaults:
       options: []
 
   class SelectEditors extends CellEditorCollection
@@ -194,7 +193,7 @@ define [
   class IntEditor extends CellEditor
     type: 'IntEditor'
     default_view: IntEditorView
-    editor_defaults:
+    editorDefaults:
       step: 1
 
   class IntEditors extends CellEditorCollection
@@ -229,7 +228,7 @@ define [
   class NumberEditor extends CellEditor
     type: 'NumberEditor'
     default_view: NumberEditorView
-    editor_defaults:
+    editorDefaults:
       step: 0.01
 
   class NumberEditors extends CellEditorCollection

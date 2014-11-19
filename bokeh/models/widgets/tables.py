@@ -1,7 +1,8 @@
 from __future__ import absolute_import
 
-from ...properties import Bool, Int, Float, String, Instance, Enum, Auto, List
+from ...properties import Bool, Int, Float, String, Color, Instance, Enum, Auto, List
 from ...plot_object import PlotObject
+from ...enums import FontStyle, TextAlign
 from ..sources import DataSource
 from ..widget import Widget
 
@@ -12,10 +13,18 @@ class CellEditor(PlotObject):
     pass
 
 class StringFormatter(CellFormatter):
-    pass
+    font_style = Enum(FontStyle)
+    text_align = Enum(TextAlign)
+    text_color = Color
 
-class CheckmarkFormatter(CellFormatter):
-    pass
+class NumberFormatter(StringFormatter):
+    format = String("0,0")
+    language = Enum("be-nl", "chs", "cs", "da-dk", "de-ch", "de", "en", "en-gb",
+        "es-ES", "es", "et", "fi", "fr-CA", "fr-ch", "fr", "hu", "it", "ja",
+        "nl-nl", "pl", "pt-br", "pt-pt", "ru", "ru-UA", "sk", "th", "tr", "uk-UA")
+
+class BooleanFormatter(CellFormatter):
+    icon = Enum('check', 'check-circle', 'check-circle-o', 'check-square', 'check-square-o')
 
 class StringEditor(CellEditor):
     completions = List(String)

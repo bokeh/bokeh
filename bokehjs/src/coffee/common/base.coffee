@@ -287,7 +287,8 @@ define [
     InspectTool:              'tool/inspectors/inspect_tool'
 
     StringFormatter:          ['widget/cell_formatters', 'String']
-    CheckmarkFormatter:       ['widget/cell_formatters', 'Checkmark']
+    NumberFormatter:          ['widget/cell_formatters', 'Number']
+    BooleanFormatter:         ['widget/cell_formatters', 'Boolean']
 
     StringEditor:             ['widget/cell_editors', 'String']
     TextEditor:               ['widget/cell_editors', 'Text']
