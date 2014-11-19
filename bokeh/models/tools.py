@@ -61,6 +61,7 @@ class HoverTool(Tool):
     renderers = List(Instance(Renderer))
     tooltips = Dict(String, String)
     always_active = Bool(True)
+    snap_to_data = Bool(True)
 
 class DataRangeBoxSelectTool(Tool):
     xselect = List(Instance(Range))

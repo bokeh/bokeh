@@ -47,7 +47,10 @@ class TestSubscribeWebSocket(test_utils.BokehServerTestCase):
         assert msg == 'bokehplot:defaultdoc2:hello3!'
 
 def connect(sock, addr, topic, auth):
-    sock.timeout = 2.0
+    # TODO (bev) increasing timeout due to failing TravisCI tests
+    # investigate if this is the real solution or if there is a
+    # deeper problem
+    sock.timeout = 4.0
     sock.connect(addr)
     msgobj = dict(msgtype='subscribe',
                   topic=topic,

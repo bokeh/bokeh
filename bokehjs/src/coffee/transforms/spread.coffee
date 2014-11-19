@@ -1,32 +1,15 @@
 define [
-  "common/continuum_view"
   "common/collection",
-  "common/has_parent",
-], (ContinuumView, Collection, HasParent) ->
+  "./transform",
+], (Collection, Transform) ->
 
-  class SpreadView extends ContinuumView
-    attributes:
-      class: "SpreadView"
-
-    initialize: (options) ->
-      super(options)
-      @render_init()
-
-    delegateEvents: (events) ->
-      super(events)
-      "pass"
-
-    render_init: () ->
-      @$el.html("")
-
-  class Spread extends HasParent
-    type : "Spread"
-    default_view: SpreadView
+  class Spread extends Transform
+    type: "Spread"
 
   class Spreads extends Collection
-    model : Spread
+    model: Spread
 
   return {
-    "Model" : Spread
-    "Collection" : new Spreads()
+    Model: Spread
+    Collection: new Spreads()
   }
