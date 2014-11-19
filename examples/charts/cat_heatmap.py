@@ -37,5 +37,5 @@ df17 = df3.values.T
 df18 = list(df3.values.T)
 
 #hm = CategoricalHeatMap(df3, title="categorical heatmap, pd_input", filename="cat_heatmap.html")
-hm = HeatMap(df18, title="categorical heatmap, pd_input", filename="cat_heatmap.html")
+hm = HeatMap(df15, title="categorical heatmap, pd_input", filename="cat_heatmap.html")
 hm.width(1000).height(400).show()

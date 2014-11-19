@@ -19,7 +19,7 @@ bronze = df['medals.bronze'].astype(float).values
 medals = OrderedDict(bronze=bronze, silver=silver, gold=gold)
 
 # and finally we drop the countries and medals dict into our Bar chart
-from bokeh.charts import Bar, NewBar, DataAdapter
+from bokeh.charts import Bar
 
 # Clean dataframe series that we don't care...
 df.pop('name')
@@ -28,22 +28,22 @@ df.pop('medals.total')
 df.index = countries
 
 # OK
-#bar = NewBar(medals, countries, filename="stacked_bar.html")
+#bar = Bar(medals, countries, filename="stacked_bar.html")
 
 #TODO: This version has issues with stached bars positions..
-#bar = NewBar(df, countries, filename="stacked_bar.html")
+#bar = Bar(df, countries, filename="stacked_bar.html")
 
 # OK
-#bar = NewBar(pd.DataFrame(medals), countries, filename="stacked_bar.html")
+#bar = Bar(pd.DataFrame(medals), countries, filename="stacked_bar.html")
 
 #TODO: This version has issues with stached bars positions..
-#bar = NewBar(df.T.values, countries, filename="stacked_bar.html")
+#bar = Bar(df.T.values, countries, filename="stacked_bar.html")
 
 # OK
-#bar = NewBar(pd.DataFrame(medals).T.values, countries, filename="stacked_bar.html")
+bar = Bar(pd.DataFrame(medals).T.values, countries, filename="stacked_bar.html")
 
 # OK
-bar = NewBar(medals.values(), countries, filename="stacked_bar.html")
+#bar = Bar(medals.values(), countries, filename="stacked_bar.html")
 
 bar.title("Stacked bars").xlabel("countries").ylabel("medals")\
    .legend(True).width(600).height(400).stacked().show()

@@ -7,7 +7,7 @@ df = flowers[["petal_length", "petal_width", "species"]]
 g = df.groupby("species")
 
 # here we only drop that groupby object into our Scatter chart
-from bokeh.charts import NewScatter, Scatter
+from bokeh.charts import Scatter
 
 from collections import OrderedDict
 pdict = OrderedDict()
@@ -27,7 +27,7 @@ xyvalues = pdict
 #xyvalues = xyvalues.values()
 #xyvalues = np.array(xyvalues.values())
 
-#scatter = Scatter(g, filename="iris_scatter.html")
-scatter = Scatter(xyvalues, filename="iris_scatter.html", ylabel='petal_width',  facet=False)
+scatter = Scatter(g, filename="iris_scatter.html")
+#scatter = Scatter(xyvalues, filename="iris_scatter.html", ylabel='petal_width',  facet=False)
 
 scatter.title("iris dataset, gp_by_input").legend("top_left").width(600).height(400).show()

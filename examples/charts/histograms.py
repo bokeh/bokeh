@@ -24,10 +24,10 @@ dfscalar = dfd.values()[0]
 
 
 ## and finally we drop the df into out Histogram chart
-from bokeh.charts import Histogram, NewHistogram, DataAdapter
+from bokeh.charts import Histogram#, NewHistogram, DataAdapter
 #hist = Histogram(DataAdapter(df, force_alias=False), bins=50, filename="histograms.html")
 #hist = Histogram(DataAdapter(dfd, force_alias=False), bins=50, filename="histograms.html")
 #hist = Histogram(DataAdapter(dfl, force_alias=False), bins=50, filename="histograms.html")
 #hist = Histogram(DataAdapter(dfa, force_alias=False), bins=50, filename="histograms.html")
-hist = NewHistogram(df, bins=50, filename="histograms.html", facet=True)
+hist = Histogram(df, bins=50, filename="histograms.html")
 hist.title("Histograms").ylabel("frequency").legend(True).width(400).height(350).show()

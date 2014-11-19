@@ -230,7 +230,7 @@ class TimeSeries(ChartObject):
 
         return xs, xy
 
-    def get_data(self, xy):
+    def get_data(self):#, xy):
         """Take the x/y data from the input **value.
 
         It calculates the chart properties accordingly. Then build a dict
@@ -243,17 +243,10 @@ class TimeSeries(ChartObject):
         """
         self.data = dict()
 
-        # TODO: normalize...
-        self.xy = xy
-
         # list to save all the attributes we are going to create
         self.attr = []
 
-        # list to
-
-        xs, self.xy = self.prepare_data(xy)
-        xy = self.xy
-
+        xs, self.xy = self.prepare_data(self.xy)
         for col in self.xy.keys():
             if isinstance(self.index, basestring) \
                 and col == self.index:
@@ -261,55 +254,63 @@ class TimeSeries(ChartObject):
 
             # save every the groups available in the incomming input
             self.groups.append(col)
-            self._set_and_get("x_", col, xs)
-            self._set_and_get("y_", col, self.xy[col])
+            self.set_and_get("x_", col, xs)
+            self.set_and_get("y_", col, self.xy[col])
+
+    #def _setup_show(self):
+    #    super(Scatter, self)._setup_show()
+    #
+    #    if self._xlabel is None:
+    #        self._xlabel = 'x' #self.labels[0]
+    #    if self._ylabel is None:
+    #        self._ylabel = 'y' #self.labels[1]
 
 
-    def show(self):
-        """Main TimeSeries show method.
-
-        It essentially checks for chained methods, creates the chart,
-        pass data into the plot object, draws the glyphs according
-        to the data and shows the chart in the selected output.
-
-        .. note:: the show method can not be chained. It has to be called
-        at the end of the chain.
-        """
-        # asumming we get an hierchiral pandas object
-        #if isinstance(self.xy, pd.DataFrame):
-        #    self.labels = self.xy.columns.levels[1].values
-        #    pdict = OrderedDict()
-        #
-        #    for i in self.xy.columns.levels[0].values:
-        #        pdict[i] = self.xy[i].dropna().values
-        #
-        #    self.xy = pdict
-        #
-        #else:
-        #    self.labels = ['x', 'y']
-
-
-        # we need to check the chained method attr
-        self.check_attr()
-
-        if self._xlabel is None:
-            self._xlabel = 'x' #self.labels[0]
-        if self._ylabel is None:
-            self._ylabel = 'y' #self.labels[1]
-
-        # we create the chart object
-        self.create_chart()
-        # we start the plot (adds axis, grids and tools)
-        self.start_plot()
-        # we get the data from the incoming input
-        self.get_data(self.xy)
-        # we filled the source and ranges with the calculated data
-        self.get_source()
-        # we dynamically inject the source and ranges into the plot
-        self.add_data_plot(self.xdr, self.ydr)
-        # we add the glyphs into the plot
-        self.draw()
-        # we pass info to build the legend
-        self.end_plot(self.groups)
-        # and finally we show it
-        self.show_chart()
+    #def show(self):
+    #    """Main TimeSeries show method.
+    #
+    #    It essentially checks for chained methods, creates the chart,
+    #    pass data into the plot object, draws the glyphs according
+    #    to the data and shows the chart in the selected output.
+    #
+    #    .. note:: the show method can not be chained. It has to be called
+    #    at the end of the chain.
+    #    """
+    #    # asumming we get an hierchiral pandas object
+    #    #if isinstance(self.xy, pd.DataFrame):
+    #    #    self.labels = self.xy.columns.levels[1].values
+    #    #    pdict = OrderedDict()
+    #    #
+    #    #    for i in self.xy.columns.levels[0].values:
+    #    #        pdict[i] = self.xy[i].dropna().values
+    #    #
+    #    #    self.xy = pdict
+    #    #
+    #    #else:
+    #    #    self.labels = ['x', 'y']
+    #
+    #
+    #    # we need to check the chained method attr
+    #    self.check_attr()
+    #
+    #    if self._xlabel is None:
+    #        self._xlabel = 'x' #self.labels[0]
+    #    if self._ylabel is None:
+    #        self._ylabel = 'y' #self.labels[1]
+    #
+    #    # we create the chart object
+    #    self.create_chart()
+    #    # we start the plot (adds axis, grids and tools)
+    #    self.start_plot()
+    #    # we get the data from the incoming input
+    #    self.get_data(self.xy)
+    #    # we filled the source and ranges with the calculated data
+    #    self.get_source()
+    #    # we dynamically inject the source and ranges into the plot
+    #    self.add_data_plot(self.xdr, self.ydr)
+    #    # we add the glyphs into the plot
+    #    self.draw()
+    #    # we pass info to build the legend
+    #    self.end_plot(self.groups)
+    #    # and finally we show it
+    #    self.show_chart()

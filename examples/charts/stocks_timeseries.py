@@ -42,9 +42,9 @@ from bokeh.charts import TimeSeries
 #xyvalues = xyvalues.values()
 #xyvalues = np.array(xyvalues.values())
 
-#ts = TimeSeries(xyvalues, index='Date', title="timeseries, pd_input",
-#                ylabel='Stock Prices', filename="stocks_timeseries.html")#, facet=True)
-index = xyvalues.pop('Date')
+ts = TimeSeries(xyvalues, index='Date', title="timeseries, pd_input",
+                ylabel='Stock Prices', filename="stocks_timeseries.html")#, facet=True)
+#index = xyvalues.pop('Date')
 #ts = TimeSeries(xyvalues, index=index, title="timeseries, pd_input",
 #                ylabel='Stock Prices', filename="stocks_timeseries.html")#, facet=True)
 #ts = TimeSeries(xyvalues.values(), index=index, title="timeseries, pd_input",
@@ -54,8 +54,8 @@ index = xyvalues.pop('Date')
 #raises an error
 #ts = TimeSeries([index]+xyvalues.values(), index="date", title="timeseries, pd_input",
 #                ylabel='Stock Prices', filename="stocks_timeseries.html")#, facet=True)
-ts = TimeSeries([index]+xyvalues.values(), title="timeseries, pd_input",
-                ylabel='Stock Prices', filename="stocks_timeseries.html")#, facet=True)
+#ts = TimeSeries([index]+xyvalues.values(), title="timeseries, pd_input",
+#                ylabel='Stock Prices', filename="stocks_timeseries.html")#, facet=True)
 #ts = TimeSeries(np.array([index]+xyvalues.values()), title="timeseries, pd_input",
 #                ylabel='Stock Prices', filename="stocks_timeseries.html")#, facet=True)
 

@@ -32,7 +32,7 @@ medals = OrderedDict(bronze=bronze, silver=silver, gold=gold)
 #medals = df
 
 # and finally we drop the dict into our BoxPlot chart
-from bokeh.charts import BoxPlot, NewBoxPlot
+from bokeh.charts import BoxPlot
 boxplot = BoxPlot(medals, marker='circle', outliers=True, title="boxplot test",
                   xlabel="medal type", ylabel="medal count",
              width=600, height=400, filename="boxplot.html")

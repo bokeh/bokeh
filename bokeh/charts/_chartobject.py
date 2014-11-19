@@ -46,7 +46,13 @@ class ChartObject(object):
         * dynamically chart cration attributes, ie. `self.chart`
         * composition to easily use Chart clase methods
     """
-    
+
+    # whether to show the xgrid
+    xgrid = True
+
+    # whether to show the ygrid
+    ygrid = True
+
     def __init__(self, title, xlabel, ylabel, legend,
                  xscale, yscale, width, height,
                  tools, filename, server, notebook, facet=False):
@@ -306,14 +312,12 @@ class ChartObject(object):
 
         return chart
 
-    def start_plot(self, xgrid=True, ygrid=True):
-        """Wrapper to call the ``chart.start_plot`` method.
-
-        Args:
-            xgrid(bool, optional): whether to show the xgrid
-            ygrid(bool, optional): whether to shoe the ygrid
+    def start_plot(self):
         """
-        self.chart.start_plot(xgrid, ygrid)
+        Wrapper to call the ``chart.start_plot`` method with self.xgrid &
+        self.ygrid
+        """
+        self.chart.start_plot(self.xgrid, self.ygrid)
 
     def get_data(self):
         """Get the input data.
@@ -332,16 +336,17 @@ class ChartObject(object):
         """
         pass
 
-    def add_data_plot(self, xdr, ydr):
-        """Wrapper to call the ``chart.add_data_plot`` method.
-
-        It pass ranges as parameters of the ``chart.add_data_plot`` method.
-
-        Args:
-            xdr (obj): x-associated datarange object for you plot.
-            ydr (obj): y-associated datarange object for you plot.
+    def add_data_plot(self):
         """
-        self.chart.add_data_plot(xdr, ydr)
+        Wrapper to call the ``chart.add_data_plot`` method.
+
+        It pass self.xdr and self.ydr ranges as parameters of the
+        ``chart.add_data_plot`` method, where those values should be:
+
+            self.xdr (obj): x-associated datarange object for you plot.
+            self.ydr (obj): y-associated datarange object for you plot.
+        """
+        self.chart.add_data_plot(self.xdr, self.ydr)
 
     def draw(self):
         """Draw the glyphs into the plot.
@@ -351,7 +356,7 @@ class ChartObject(object):
         """
         pass
 
-    def end_plot(self, groups):
+    def end_plot(self):
         """Wrapper to call the ``chart.end_plot`` method.
 
         It pass groups as parameters of the `chart.end_plot` method.
@@ -360,7 +365,7 @@ class ChartObject(object):
             groups (list): to be filled with the incoming groups of data.
                 Useful for legend construction.
         """
-        self.chart.end_plot(groups)
+        self.chart.end_plot(self.groups)
 
     def show_chart(self):
         "Wrapper to call the ``chart.show`` method."
@@ -376,8 +381,10 @@ class ChartObject(object):
         .. note:: the show method can not be chained. It has to be called
         at the end of the chain.
         """
+
+
         self._setup_show()
-        self.prepare_show()
+        self._prepare_show()
         self._show_teardown()
 
         # and finally we show it
@@ -387,31 +394,30 @@ class ChartObject(object):
         """
         Prepare context before main show method is invoked
         """
-        pass
+        # we need to check the chained method attr
+        self.check_attr()
 
-    def _show(self):
+    def _prepare_show(self):
         """
         Executes chart show core operations lik:
          - checks for chain methods
          - draw glyphs
         """
-        # we need to check the chained method attr
-        self.check_attr()
+
         # we create the chart object
         self.create_chart()
         # we start the plot (adds axis, grids and tools)
-        self.start_plot(xgrid=False)
+        self.start_plot()
         # we get the data from the incoming input
-        self.get_data(self.cat, **self.value)
+        self.get_data()
         # we filled the source and ranges with the calculated data
-        self.get_source(self._stacked)
+        self.get_source()
         # we dynamically inject the source and ranges into the plot
-        self.add_data_plot(self.xdr, self.ydr)
+        self.add_data_plot()
         # we add the glyphs into the plot
-        self.draw(self._stacked)
+        self.draw()
         # we pass info to build the legend
-        self.end_plot(self.groups)
-
+        self.end_plot()
 
     def _show_teardown(self):
         """
@@ -431,7 +437,7 @@ class ChartObject(object):
 
             # we start the plot (adds axis, grids and tools)
             self.start_plot()
-            self.add_data_plot(self.xdr, self.ydr)
+            self.add_data_plot()
 
     # Some helper methods
     def _chunker(self, l, n):
@@ -460,7 +466,36 @@ class ChartObject(object):
 
         return colors
 
-    def _set_and_get(self, prefix, val, content):
+    #def _set_and_get(self, prefix, val, content):
+    #    """Set a new attr and then get it to fill the self.data dict.
+    #
+    #    Keep track of the attributes created.
+    #
+    #    Args:
+    #        prefix (str): prefix of the new attribute
+    #        val (string): name of the new attribute
+    #        content (obj): content of the new attribute
+    #    """
+    #    setattr(self, prefix + val, content)
+    #    self.data[prefix + val] = getattr(self, prefix + val)
+    #    self.attr.append(prefix + val)
+
+    def _set_and_get(self, data, prefix, attr, val, content):
+        """Set a new attr and then get it to fill the self.data dict.
+
+        Keep track of the attributes created.
+
+        Args:
+            data (dict): where to store the new attribute content
+            attr (list): where to store the new attribute names
+            val (string): name of the new attribute
+            content (obj): content of the new attribute
+        """
+        setattr(self, prefix + val, content)
+        data[prefix + val] = getattr(self, prefix + val)
+        attr.append(prefix + val)
+
+    def set_and_get(self, prefix, val, content):
         """Set a new attr and then get it to fill the self.data dict.
 
         Keep track of the attributes created.
@@ -470,9 +505,7 @@ class ChartObject(object):
             val (string): name of the new attribute
             content (obj): content of the new attribute
         """
-        setattr(self, prefix + val, content)
-        self.data[prefix + val] = getattr(self, prefix + val)
-        self.attr.append(prefix + val)
+        self._set_and_get(self.data, prefix, self.attr, val, content)
 
 
 DEFAULT_INDEX_ALIASES = list('abcdefghijklmnopqrstuvz1234567890')
