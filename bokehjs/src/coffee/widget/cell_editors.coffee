@@ -157,6 +157,17 @@ define [
 
   class CheckboxEditorView extends CellEditorView
 
+    input: '<input type="checkbox" value="true" />'
+
+    renderEditor: () -> @focus()
+
+    loadValue: (item) ->
+      @defaultValue = !!item[@args.column.field]
+      @$input.prop('checked', @defaultValue)
+
+    serializeValue: () ->
+      return @$input.prop('checked')
+
   class CheckboxEditor extends CellEditor
     type: 'CheckboxEditor'
     default_view: CheckboxEditorView
