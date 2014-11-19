@@ -1,10 +1,16 @@
+# The plot server must be running
+# Go to http://localhost:5006/bokeh to view this plot
+
 from __future__ import division
 
 import numpy as np
 from six.moves import zip
+from collections import OrderedDict
 
 from bokeh.plotting import *
-from bokeh.objects import TapTool
+from bokeh.objects import HoverTool
+
+TOOLS="crosshair,pan,wheel_zoom,box_zoom,reset,hover,previewsave"
 
 xx, yy = np.meshgrid(range(0,101,4), range(0,101,4))
 x = xx.flatten()
@@ -30,20 +36,24 @@ source = ColumnDataSource(
     )
 )
 
-TOOLS="crosshair,pan,wheel_zoom,box_zoom,reset,tap,previewsave"
+output_server("hover")
 
-p = figure(title="Tappy Scatter", tools=TOOLS)
+p = figure(title="Hoverful Scatter", tools=TOOLS)
 
 p.circle(x, y, radius=radii, source=source,
-       fill_color=colors, fill_alpha=0.6,
-       line_color=None, name="mystuff")
+    fill_color=colors, fill_alpha=0.6, line_color=None)
 
 p.text(x, y, text=inds, alpha=0.5, text_font_size="5pt",
      text_baseline="middle", text_align="center", angle=0)
 
-# in the broswer console, you will see messages when circles are clicked
-tool = p.select(dict(type=TapTool))[0]
-tool.names.append("mystuff")
+hover =p.select(dict(type=HoverTool))
+hover.tooltips = OrderedDict([
+    ("index", "$index"),
+    ("(x,y)", "($x, $y)"),
+    ("radius", "@radius"),
+    ("fill color", "$color[hex, swatch]:fill_color"),
+    ("foo", "@foo"),
+    ("bar", "@bar"),
+])
 
-output_file("tap.html")
 show(p)  # open a browser

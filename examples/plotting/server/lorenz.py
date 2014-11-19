@@ -3,8 +3,8 @@
 
 import numpy as np
 from scipy.integrate import odeint
-from bokeh.plotting import *
 
+from bokeh.plotting import *
 
 sigma = 10
 rho = 28
@@ -19,7 +19,7 @@ def lorenz(xyz, t):
     return [x_dot, y_dot, z_dot]
 
 initial = (-10, -7, 35)
-t = np.arange(0, 100, 0.001)
+t = np.arange(0, 100, 0.006)
 
 solution = odeint(lorenz, initial, t)
 
@@ -32,8 +32,9 @@ colors = ["#C6DBEF", "#9ECAE1", "#6BAED6", "#4292C6", "#2171B5", "#08519C", "#08
 
 output_server("lorenz")
 
-multi_line(np.array_split(xprime, 7), np.array_split(z, 7),
-           line_color=colors, line_alpha=0.8, line_width=1.5,
-           tools="pan,wheel_zoom,box_zoom,reset,previewsave", title="lorenz example")
+p = figure(title="lorenz example")
 
-show()  # open a browser
+p.multi_line(np.array_split(xprime, 7), np.array_split(z, 7),
+           line_color=colors, line_alpha=0.8, line_width=1.5)
+
+show(p)  # open a browser

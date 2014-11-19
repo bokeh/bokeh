@@ -24,19 +24,21 @@ meltingpointcolors = [palette[i] for i in melting_point_inds]
 
 output_server("elements")
 
-hold()
+TOOLS = "pan,wheel_zoom,box_zoom,reset,resize,save"
 
-circle(elements["atomic mass"], elements["density"] ,
-       color=meltingpointcolors, plot_width=1200, line_color="black",fill_alpha=0.8,
-       size=12, title="Density vs Atomic Weight of Elements (colored by melting point)",
-       background_fill= "#cccccc", tools="pan, wheel_zoom, box_zoom, reset", toolbar_location="left")
+p = figure(tools=TOOLS, toolbar_location="left", plot_width=1200)
+p.title = "Density vs Atomic Weight of Elements (colored by melting point)"
+p.background_fill= "#cccccc"
 
-text(elements["atomic mass"], elements["density"] +0.3,
+p.circle(elements["atomic mass"], elements["density"], size=12,
+       color=meltingpointcolors, line_color="black", fill_alpha=0.8)
+
+p.text(elements["atomic mass"], elements["density"]+0.3,
     text=elements["symbol"],angle=0, text_color="#333333",
     text_align="center", text_font_size="10pt")
 
-xaxis().axis_label="atomic weight (amu)"
-yaxis().axis_label="density (g/cm^3)"
-grid().grid_line_color="white"
+p.xaxis.axis_label="atomic weight (amu)"
+p.yaxis.axis_label="density (g/cm^3)"
+p.grid.grid_line_color="white"
 
-show()
+show(p)
