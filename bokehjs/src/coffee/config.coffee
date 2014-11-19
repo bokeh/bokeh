@@ -17,6 +17,7 @@ require.config
     kiwi:              "vendor/kiwi/kiwi"
     jsnlog:            "vendor/jsnlog.js-2.7.5/jsnlog"
     hammer:            "vendor/hammer.js-2.0.4/hammer"
+    numeral:           "vendor/numeral.js-1.5.3/numeral"
   shim:
     sprintf:
       exports: 'sprintf'
