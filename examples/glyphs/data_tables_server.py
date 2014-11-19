@@ -4,7 +4,7 @@ import time
 
 from bokeh.browserlib import view
 from bokeh.models import ColumnDataSource, DataRange1d, Plot, LinearAxis, Grid, GlyphRenderer, Circle, HoverTool, BoxSelectTool
-from bokeh.models.widgets import Select, HBox, VBox, DataTable, TableColumn, SelectEditor, StringEditor, NumberEditor, IntEditor
+from bokeh.models.widgets import Select, HBox, VBox, DataTable, TableColumn, StringFormatter, NumberFormatter, StringEditor, IntEditor, NumberEditor, SelectEditor
 from bokeh.document import Document
 from bokeh.session import Session
 from bokeh.sampledata.autompg2 import autompg2 as mpg
@@ -48,9 +48,9 @@ class DataTables(object):
         class_select.on_change('value', self.on_class_change)
 
         columns = [
-            TableColumn(field="manufacturer", title="Manufacturer", editor=SelectEditor(options=manufacturers)),
+            TableColumn(field="manufacturer", title="Manufacturer", editor=SelectEditor(options=manufacturers), formatter=StringFormatter(font_style="bold")),
             TableColumn(field="model",        title="Model",        editor=StringEditor(completions=models)),
-            TableColumn(field="displ",        title="Displacement", editor=NumberEditor(step=0.1)),
+            TableColumn(field="displ",        title="Displacement", editor=NumberEditor(step=0.1),              formatter=NumberFormatter(format="0.0")),
             TableColumn(field="year",         title="Year",         editor=IntEditor()),
             TableColumn(field="cyl",          title="Cylinders",    editor=IntEditor()),
             TableColumn(field="trans",        title="Transmission", editor=SelectEditor(options=transmissions)),
