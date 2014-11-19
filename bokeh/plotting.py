@@ -184,7 +184,7 @@ class Figure(Plot):
 
     @property
     def legend(self):
-        """ Get the current :class:`legend <bokeh.objects.Legend>` object(s)
+        """ Get the current :class:`legend <bokeh.models.Legend>` object(s)
 
         Returns:
             splattable list of legend objects on this Plot
@@ -198,7 +198,7 @@ class Figure(Plot):
 
     @property
     def xgrid(self):
-        """ Get the current `x` :class:`grid <bokeh.objects.Grid>` object(s)
+        """ Get the current `x` :class:`grid <bokeh.models.Grid>` object(s)
 
         Returns:
             splattable list of legend objects on this Plot
@@ -207,7 +207,7 @@ class Figure(Plot):
 
     @property
     def ygrid(self):
-        """ Get the current `y` :class:`grid <bokeh.objects.Grid>` object(s)
+        """ Get the current `y` :class:`grid <bokeh.models.Grid>` object(s)
 
         Returns:
             splattable list of y-grid objects on this Plot
@@ -216,7 +216,7 @@ class Figure(Plot):
 
     @property
     def grid(self):
-        """ Get the current :class:`grid <bokeh.objects.Grid>` object(s)
+        """ Get the current :class:`grid <bokeh.models.Grid>` object(s)
 
         Returns:
             splattable list of grid objects on this Plot
