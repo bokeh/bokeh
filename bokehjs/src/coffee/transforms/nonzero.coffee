@@ -1,32 +1,15 @@
 define [
-  "common/continuum_view"
   "common/collection",
-  "common/has_parent",
-], (ContinuumView, Collection, HasParent) ->
+  "./transform",
+], (Collection, Transform) ->
 
-  class NonZeroView extends ContinuumView
-    attributes:
-      class: "NonZeroView"
-
-    initialize: (options) ->
-      super(options)
-      @render_init()
-
-    delegateEvents: (events) ->
-      super(events)
-      "pass"
-
-    render_init: () ->
-      @$el.html("")
-
-  class NonZero extends HasParent
-    type : "NonZero"
-    default_view: NonZeroView
+  class NonZero extends Transform
+    type: "NonZero"
 
   class NonZeros extends Collection
-    model : NonZero
+    model: NonZero
 
   return {
-    "Model" : NonZero
-    "Collection" : new NonZeros()
+    Model: NonZero
+    Collection: new NonZeros()
   }

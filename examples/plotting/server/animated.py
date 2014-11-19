@@ -2,8 +2,9 @@
 # Go to http://localhost:5006/bokeh to view this plot
 
 import time
-import numpy as np
+
 from numpy import pi, cos, sin, linspace, roll, zeros_like
+
 from bokeh.plotting import *
 from bokeh.objects import GlyphRenderer
 
@@ -20,11 +21,9 @@ cx = cy = zeros_like(rmin)
 
 output_server("animated")
 
-figure(x_range=[-11, 11], y_range=[-11, 11], tools="pan,wheel_zoom,box_zoom,reset,previewsave")
+p = figure(x_range=[-11, 11], y_range=[-11, 11])
 
-hold()
-
-annular_wedge(
+p.annular_wedge(
     cx, cy, rmin, rmax, theta[:-1], theta[1:],
     inner_radius_units="data",
     outer_radius_units="data",
@@ -32,17 +31,20 @@ annular_wedge(
     line_color="black",
 )
 
-show()
+show(p)
 
-renderer = [r for r in curplot().renderers if isinstance(r, GlyphRenderer)][0]
-ds = renderer.data_source
+renderer = p.select(dict(type=GlyphRenderer))
+ds = renderer[0].data_source
 
 while True:
+
     rmin = ds.data["inner_radius"]
     rmin = roll(rmin, 1)
     ds.data["inner_radius"] = rmin
+
     rmax = ds.data["outer_radius"]
     rmax = roll(rmax, -1)
     ds.data["outer_radius"] = rmax
+
     cursession().store_objects(ds)
     time.sleep(.10)

@@ -10,8 +10,6 @@ logger = logging.getLogger(__file__)
 
 import uuid
 
-from six import string_types
-
 from . import _glyph_functions as gf
 from .exceptions import DataIntegrityException
 from .objects import PlotContext

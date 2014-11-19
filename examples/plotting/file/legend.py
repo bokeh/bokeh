@@ -1,4 +1,5 @@
 import numpy as np
+
 from bokeh.plotting import *
 
 N = 100
@@ -6,25 +7,27 @@ N = 100
 x = np.linspace(0, 4*np.pi, N)
 y = np.sin(x)
 
+TOOLS = "pan,wheel_zoom,box_zoom,reset,save,box_select"
+
+p1 = figure(title="Legend Example", tools=TOOLS)
+
+p1.circle(x, y, legend="sin(x)")
+p1.circle(x, 2*y, legend="2*sin(x)", color="orange", )
+p1.circle(x, 3*y, legend="3*sin(x)", color="green", )
+
+p2 = figure(title="Another Legend Example", tools=TOOLS)
+
+p2.circle(x, y, legend="sin(x)")
+p2.line(x, y, legend="sin(x)")
+
+p2.line(x, 2*y, legend="2*sin(x)",
+    line_dash=[4, 4], line_color="orange", line_width=2)
+
+p2.square(x, 3*y, legend="3*sin(x)",
+    fill_color=None, line_color="green")
+p2.line(x, 3*y, legend="3*sin(x)",
+    fill_color=None, line_color="green")
+
 output_file("legend.html", title="legend.py example")
-
-hold()
-
-figure(tools="pan,wheel_zoom,box_zoom,reset,previewsave")
-
-scatter(x, y, legend="sin(x)")
-scatter(x, 2*y, color="orange", legend="2*sin(x)")
-scatter(x, 3*y, color="green", legend="3*sin(x)")
-
-figure(tools="pan,wheel_zoom,box_zoom,reset,previewsave,select")
-
-scatter(x, y, legend="sin(x)", name="legend_example")
-line(x, y, legend="sin(x)")
-
-line(x, 2*y, line_dash=[4, 4], line_color="orange", line_width=2, legend="2*sin(x)")
-
-square(x, 3*y, fill_color=None, line_color="green", legend="3*sin(x)")
-line(x, 3*y, fill_color=None, line_color="green", legend="3*sin(x)")
-
-show()  # open a browser
+show(VBox(p1, p2))  # open a browser
 

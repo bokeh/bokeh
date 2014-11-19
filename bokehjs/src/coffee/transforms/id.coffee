@@ -1,32 +1,15 @@
 define [
-  "common/continuum_view"
   "common/collection",
-  "common/has_parent",
-], (ContinuumView, Collection, HasParent) ->
+  "./transform",
+], (Collection, Transform) ->
 
-  class IdView extends ContinuumView
-    attributes:
-      class: "IdView"
-
-    initialize: (options) ->
-      super(options)
-      @render_init()
-
-    delegateEvents: (events) ->
-      super(events)
-      "pass"
-
-    render_init: () ->
-      @$el.html("")
-
-  class Id extends HasParent
-    type : "Id"
-    default_view: IdView
+  class Id extends Transform
+    type: "Id"
 
   class Ids extends Collection
-    model : Id
+    model: Id
 
   return {
-    "Model" : Id
-    "Collection" : new Ids()
+    Model: Id
+    Collection: new Ids()
   }

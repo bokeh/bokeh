@@ -53,7 +53,7 @@ __all__ = [
     ]
 
 
-import types, sys, inspect, warnings
+import types, sys, inspect
 from warnings import warn, warn_explicit
 from dis import findlinestarts
 

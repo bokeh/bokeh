@@ -1,3 +1,6 @@
+# The plot server must be running
+# Go to http://localhost:5006/bokeh to view this plot
+
 from __future__ import division
 
 import numpy as np
@@ -30,6 +33,8 @@ source = ColumnDataSource(
     )
 )
 
+output_server("tap")
+
 TOOLS="crosshair,pan,wheel_zoom,box_zoom,reset,tap,previewsave"
 
 p = figure(title="Tappy Scatter", tools=TOOLS)
@@ -45,5 +50,4 @@ p.text(x, y, text=inds, alpha=0.5, text_font_size="5pt",
 tool = p.select(dict(type=TapTool))[0]
 tool.names.append("mystuff")
 
-output_file("tap.html")
 show(p)  # open a browser
