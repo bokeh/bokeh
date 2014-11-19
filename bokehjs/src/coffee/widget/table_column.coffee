@@ -20,18 +20,13 @@ define [
       }
 
     toColumn: () ->
-      formatter = @get("formatter")
-      editor = @get("editor")
-
       return {
         id: _.uniqueId()
         field: @get("field")
         name: @get("title")
         width: @get("width")
-        # formatter: formatter.default_view
-        # formatterModel: formatter
-        editor: editor.default_view
-        editorModel: editor
+        formatter: @get("formatter")
+        editor: @get("editor")
         sortable: @get("sortable")
         defaultSortAsc: @get("default_sort") == "ascending"
       }

@@ -29,7 +29,7 @@ define [
     initialize: (args) ->
       super({})
       @args = args
-      @model = @args.column.editorModel
+      @model = @args.column.editor
       @render()
 
     render: () ->
