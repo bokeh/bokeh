@@ -1,3 +1,5 @@
+/* table element cleanup */
+
 .tableelem {
   padding: 2px 10px;
   border: 2px white;
@@ -242,9 +244,7 @@ li:hover .bk-toolbar-button span.tip {
   -moz-border-radius: 3px !important;
   -webkit-border-radius: 3px !important;
   display: inline-block;
-  //position: absolute;
   position: relative;
-  //top: 40px;
   top: 25px;
   padding: 3px 5px;
   transition:  all 0.6s ease;
@@ -254,6 +254,9 @@ li:hover .bk-toolbar-button span.tip {
   > * {
     display: block;
     text-align: left;
+  }
+  span {
+    max-width: 200px;
   }
  }
 
@@ -265,6 +268,17 @@ li:hover .bk-toolbar-button span.tip {
   outline: none !important;
   border-bottom: 2px solid #26aae1;
 }
+
+
+
+.bk-button-bar > .bk-toolbar-button.active {
+  border-bottom: 2px solid #26aae1;
+}
+
+
+
+/* css specific to toolbar orientation (above, below)*/
+
 .bk-plot-above.bk-toolbar-active {
   border-bottom: 2px solid #e5e5e5;
 }
@@ -289,6 +303,8 @@ li:hover .bk-toolbar-button span.tip {
       &.help {
         float: right;
         span.tip {
+          right: 0;
+          text-align: left;
           width: 200px;
           white-space: normal;
           > * {
@@ -318,14 +334,14 @@ li:hover .bk-toolbar-button span.tip {
   }
 }
 
-
+/* css specific to toolbar orientation (left, right)*/
 .bk-plot-left.bk-toolbar-active{
   border-right: 2px solid #e5e5e5;
 }
 .bk-plot-right.bk-toolbar-active {
   border-left: 2px solid #e5e5e5;
 }
-.bk-plot-left, .bk-plot-right {
+.bk-plot-left.bk-toolbar-active, .bk-plot-right.bk-toolbar-active {
   display: block;
   margin: 45px 0 0 0;
   .bk-logo  {
@@ -341,11 +357,24 @@ li:hover .bk-toolbar-button span.tip {
       clear: both;
     }
     .bk-button-bar-list {
-      li {
+      &.bk-bs-dropdown {
+        &:after {
+            content: " \2014";
+            float: none;
+            clear: both;
+            display: block;
+            width: 30px;
+            height: 8px;
+            line-height: 8px;
+            padding: 3px 0;
+            text-align: center;
+        }
+      }
+      > li {
         clear: both;
         &:last-child {
           &:after {
-            content: "-";
+            content: " \2014";
             float: none;
             clear: both;
             display: block;
@@ -356,38 +385,38 @@ li:hover .bk-toolbar-button span.tip {
             text-align: center;
           }
         }
+
         .bk-toolbar-button {
           &.active {
             border-bottom: none;
             border-right: 2px solid #26aae1;
           }
-          span.tip {
-            top: 4px;
-            left: 40px;
-            padding: 5px 10px 5px 10px;
-            &:before {
-              top: 2px;
-              left: -19px;
-              width: 9px;
-              height: 15px;
-              background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAPCAMAAAABFhU/AAAAA3NCSVQICAjb4U/gAAAAY1BMVEX////////8/Pz5+fn39/f19fX09PTv8fHv7+/t7e7s7Ozp6enn6Onm5ubj4+Ph4eHf39/X2drW1tfMzMzAw8S+wMGusbKorK6orK2nq6ufo6WcoaGYnZ+RlpiJj5GGjI6Bh4n1ho2QAAAAIXRSTlMA//////////////////////////////////////////9G9E6kAAAACXBIWXMAAAsSAAALEgHS3X78AAAAHHRFWHRTb2Z0d2FyZQBBZG9iZSBGaXJld29ya3MgQ1M26LyyjAAAABR0RVh0Q3JlYXRpb24gVGltZQA5LzUvMTTY+fXxAAAAUklEQVQImTXN2xZAIABE0VQUIfdLwvz/V1rL1DztpzOi4EoIQoekNoIaH1AL8EvvoExEUkBWfWZZvyWVzq/vL6kbP9/sKdtPF8vKdMPBN1m5AR+0BAnD6uP50QAAAABJRU5ErkJggg==);
+          &.help {
+            span.tip {
+              &:before {
+                left: -57%;
+              }
             }
           }
+            span.tip {
+              position: absolute;
+              top: 4px;
+              left: 40px;
+              padding: 5px 10px 5px 10px;
+              &:before {
+                top: 2px;
+                left: -19px;
+                width: 9px;
+                height: 15px;
+                background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAPCAMAAAABFhU/AAAAA3NCSVQICAjb4U/gAAAAY1BMVEX////////8/Pz5+fn39/f19fX09PTv8fHv7+/t7e7s7Ozp6enn6Onm5ubj4+Ph4eHf39/X2drW1tfMzMzAw8S+wMGusbKorK6orK2nq6ufo6WcoaGYnZ+RlpiJj5GGjI6Bh4n1ho2QAAAAIXRSTlMA//////////////////////////////////////////9G9E6kAAAACXBIWXMAAAsSAAALEgHS3X78AAAAHHRFWHRTb2Z0d2FyZQBBZG9iZSBGaXJld29ya3MgQ1M26LyyjAAAABR0RVh0Q3JlYXRpb24gVGltZQA5LzUvMTTY+fXxAAAAUklEQVQImTXN2xZAIABE0VQUIfdLwvz/V1rL1DztpzOi4EoIQoekNoIaH1AL8EvvoExEUkBWfWZZvyWVzq/vL6kbP9/sKdtPF8vKdMPBN1m5AR+0BAnD6uP50QAAAABJRU5ErkJggg==);
+              }
+            }
+
         }
       }
+      
     }
   }
-}
-
-.bk-toolbar-button.help {
-  > span.tip {
-      right: 0;
-      text-align: left;
-  }
-}
-
-.bk-button-bar > .bk-toolbar-button.active {
-  border-bottom: 2px solid #26aae1;
 }
 
 .bk-crossfilter-selector {
