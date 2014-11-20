@@ -1353,26 +1353,43 @@ define(["jquery", "./slick.core", "jquery_event_drag", "jquery_event_drop"], fun
           rowMetadata.columns &&
           (rowMetadata.columns[column.id] || rowMetadata.columns[getColumnIndex(column.id)]);
 
-      return (columnOverrides && columnOverrides.formatter) ||
+      var formatter =
+          (columnOverrides && columnOverrides.formatter) ||
           (rowMetadata && rowMetadata.formatter) ||
           column.formatter ||
           (options.formatterFactory && options.formatterFactory.getFormatter(column)) ||
           options.defaultFormatter;
+
+      if (formatter.format !== undefined) {
+        var model = formatter;
+        function format(row, cell, value, columnDef, dataContext) {
+          return model.format(row, cell, value, columnDef, dataContext);
+        }
+        formatter = format
+      }
+
+      return formatter;
     }
 
     function getEditor(row, cell) {
+      var editor;
       var column = columns[cell];
       var rowMetadata = data.getItemMetadata && data.getItemMetadata(row);
       var columnMetadata = rowMetadata && rowMetadata.columns;
 
       if (columnMetadata && columnMetadata[column.id] && columnMetadata[column.id].editor !== undefined) {
-        return columnMetadata[column.id].editor;
-      }
-      if (columnMetadata && columnMetadata[cell] && columnMetadata[cell].editor !== undefined) {
-        return columnMetadata[cell].editor;
+        editor = columnMetadata[column.id].editor;
+      } else if (columnMetadata && columnMetadata[cell] && columnMetadata[cell].editor !== undefined) {
+        editor = columnMetadata[cell].editor;
+      } else {
+        editor = column.editor || (options.editorFactory && options.editorFactory.getEditor(column));
       }
 
-      return column.editor || (options.editorFactory && options.editorFactory.getEditor(column));
+      if (editor.default_view !== undefined) {
+        editor = editor.default_view;
+      }
+
+      return editor;
     }
 
     function getDataItemValueForColumn(item, columnDef) {

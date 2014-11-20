@@ -2,7 +2,7 @@ from __future__ import absolute_import
 
 import six
 
-from ...properties import Bool, Int, Float, String, Date, RelativeDelta, Enum, List, Dict, Tuple, Either, lookup_descriptor
+from ...properties import Bool, Int, Float, String, Date, RelativeDelta, Enum, List, Dict, Tuple, Either
 from ..widget import Widget
 
 class InputWidget(Widget):
@@ -12,7 +12,7 @@ class InputWidget(Widget):
 
     @classmethod
     def coerce_value(cls, val):
-        prop_obj = lookup_descriptor(cls, 'value')
+        prop_obj = cls.lookup('value')
         if isinstance(prop_obj, Float):
             return float(val)
         elif isinstance(prop_obj, Int):

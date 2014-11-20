@@ -214,7 +214,7 @@ class CategoricalHeatMap(ChartObject):
         # we start the plot (adds axis, grids and tools)
         self.start_plot(xgrid=False, ygrid=False)
         # we add the HoverTool
-        self.chart.plot.add_tools(HoverTool(tooltips=dict(value="@rate")))
+        self.chart.plot.add_tools(HoverTool(tooltips=[("value", "@rate")]))
         # we get the data from the incoming input
         self.get_data(self.palette, **self.value)
         # we filled the source and ranges with the calculated data

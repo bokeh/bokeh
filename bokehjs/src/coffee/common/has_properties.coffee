@@ -76,6 +76,36 @@ define [
       if not options.defer_initialization
         this.initialize.apply(this, arguments)
 
+    forceTrigger: (changes) ->
+      # This is "trigger" part of backbone's set() method. set() is unable to work with
+      # mutable data structures, so instead of using set() we update data in-place and
+      # then call forceTrigger() which will make sure all listeners are notified of any
+      # changes, e.g.:
+      #
+      #   source.get("data")[field][index] += 1
+      #   source.forceTrigger()
+      #
+      if not _.isArray(changes)
+        changes = [changes]
+
+      options    = {}
+      changing   = @_changing
+      @_changing = true
+
+      if changes.length then @_pending = true
+      for change in changes
+        @trigger('change:' + change, this, @attributes[change], options)
+
+      if changing then return this
+      while @_pending
+        @_pending = false
+        @trigger('change', this, options)
+
+      @_pending = false
+      @_changing = false
+
+      return this
+
     set_obj: (key, value, options) ->
       if _.isObject(key) or key == null
         attrs = key
