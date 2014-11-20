@@ -598,6 +598,7 @@ class Session(object):
             models : list[PlotObject]
 
         """
+        doc._add_all()
         models = doc._models.values()
 
         if dirty_only:
