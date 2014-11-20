@@ -389,10 +389,10 @@ def figure(**kwargs):
     '''
     fig = Figure(**kwargs)
     curdoc()._current_plot = fig
-    curdoc().context.children.append(fig)
+    curdoc().add(fig)
     return fig
 
-def output_server(docname, session=None, url="default", name=None):
+def output_server(docname, session=None, url="default", name=None, clear=True):
     """ Cause plotting commands to automatically persist plots to a Bokeh server.
 
     Can use explicitly provided Session for persistence, or the default
@@ -407,6 +407,9 @@ def output_server(docname, session=None, url="default", name=None):
             if url is "default" use session.DEFAULT_SERVER_URL
         name (str, optional) :
             if name is None, use the server URL as the name
+        clear (bool, optional) :
+            should an existing server document be cleared of any existing
+            plots. (default: True)
 
     Additional keyword arguments like **username**, **userapikey**,
     and **base_url** can also be supplied.
@@ -417,7 +420,8 @@ def output_server(docname, session=None, url="default", name=None):
     .. note:: Generally, this should be called at the beginning of an
               interactive session or the top of a script.
 
-    .. note:: Calling this function will replaces any existing default Server session
+    .. note:: By default, calling this function will replaces any existing
+              default Server session.
 
     """
     global _default_session
@@ -431,6 +435,8 @@ def output_server(docname, session=None, url="default", name=None):
         session = _default_session
     session.use_doc(docname)
     session.load_document(curdoc())
+    if clear:
+        curdoc().clear()
 
 def output_notebook(url=None, docname=None, session=None, name=None,
                     force=False):
