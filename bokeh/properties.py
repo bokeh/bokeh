@@ -103,11 +103,14 @@ class Property(object):
         else:
             return True
 
+    def _get(self, obj):
+        if not hasattr(obj, self._name):
+            setattr(obj, self._name, self.default)
+        return getattr(obj, self._name)
+
     def __get__(self, obj, owner=None):
         if obj is not None:
-            if not hasattr(obj, self._name):
-                setattr(obj, self._name, self.default)
-            return getattr(obj, self._name)
+            return self._get(obj)
         elif owner is not None:
             return self
         else:
@@ -229,7 +232,7 @@ class DataSpec(Property):
         d = cls(field=name)
         return d
 
-    def __get__(self, obj, cls=None):
+    def _get(self, obj):
         """ Try to implement a "natural" interface: if the user just set
         simple values or field names, the getter just returns those.
         However, if the user has also overridden the "units" or "default"
@@ -251,6 +254,7 @@ class DataSpec(Property):
                 return self.field
             if self.default != _NotSet:
                 return self.default
+            # XXX: implicit `return None` or unreachable?
 
     def to_dict(self, obj):
         # Build the complete dict
@@ -365,7 +369,7 @@ class ColorSpec(DataSpec):
         else:
             return colortuple
 
-    def __get__(self, obj, cls=None):
+    def _get(self, obj):
         # One key difference in ColorSpec.__get__ from the base class is
         # that we do not call self.to_dict() in any circumstance, because
         # this could lead to formatting color tuples as "rgb(R,G,B)" instead
