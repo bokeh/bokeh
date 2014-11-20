@@ -1,15 +1,27 @@
 from __future__ import print_function
+
 import subprocess
 
-command = 'git describe'
-child = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+def get_version_from_git():
+    cmd = ["git", "describe", "--tags", "--always"]
 
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+    code = proc.wait()
 
-vers,err = child.communicate()
+    if code != 0:
+        print("Failed to run: %s" % " ".join(cmd))
+        sys.exit(1)
 
-#needed for py3/py2
-vers = vers.decode(encoding='utf-8').split('-')
-vers, mod = vers[0], vers[1]
+    version = proc.stdout.read().decode('utf-8').strip()
+
+    try:
+        vers, mod = version.split("-")[:2]
+    except ValueError:
+        vers, mod = version, ""
+
+    return vers, mod
+
+vers, mod = get_version_from_git()
 vals = vers.split('.')
 
 if not mod.startswith('rc'):
