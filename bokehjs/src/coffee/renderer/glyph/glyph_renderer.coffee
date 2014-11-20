@@ -15,7 +15,7 @@ define [
       super(options)
 
       # XXX: this will be slow (see later in this file), perhaps reuse @glyph.
-      @glyphView = @build_glyph(@mget("glyph"))
+      @glyph = @build_glyph(@mget("glyph"))
 
       selection_glyph = @mget("selection_glyph")
       if not selection_glyph?
@@ -72,9 +72,9 @@ define [
             @plot_view.x_range, @plot_view.y_range,
             x_range,
             # XXX: @glyph.x.field (etc.) indicates this be moved to Glyph
-            @glyphView.glyph.y.field,
-            @glyphView.glyph.x.field,
-            [@glyphView.glyph.y.field],
+            @glyph.glyph.y.field,
+            @glyph.glyph.x.field,
+            [@glyph.glyph.y.field],
             transform_params
           )
         else
@@ -103,13 +103,13 @@ define [
       source = @mget('data_source')
       t0 = Date.now()
 
-      @all_indices = @glyphView.set_data(source)
+      @all_indices = @glyph.set_data(source)
 
       @selection_glyph.set_data(source)
       @nonselection_glyph.set_data(source)
 
       dt = Date.now() - t0
-      logger.debug("#{@glyphView.model.type} glyph (#{@glyphView.model.id}): set_data finished in #{dt}ms")
+      logger.debug("#{@glyph.model.type} glyph (#{@glyph.model.id}): set_data finished in #{dt}ms")
 
       @have_new_data = true
 
@@ -121,7 +121,7 @@ define [
         @set_data(false)
         @need_set_data = false
 
-      @glyphView._map_data()
+      @glyph._map_data()
 
       @selection_glyph._map_data()
       @nonselection_glyph._map_data()
@@ -150,7 +150,7 @@ define [
       t0 = Date.now()
 
       if not (selected_indices and selected_indices.length and @have_selection_glyphs())
-        do_render(ctx, indices, @glyphView)
+        do_render(ctx, indices, @glyph)
       else
         # reset the selection mask
         selected_mask = (false for i in @all_indices)
@@ -170,7 +170,7 @@ define [
         do_render(ctx, nonselected, @nonselection_glyph)
 
       dt = Date.now() - t0
-      logger.trace("#{@glyphView.model.type} glyph (#{@glyphView.model.id}): do_render calls finished in #{dt}ms")
+      logger.trace("#{@glyph.model.type} glyph (#{@glyph.model.id}): do_render calls finished in #{dt}ms")
 
       @have_new_data = false
       ctx.restore()
@@ -185,10 +185,10 @@ define [
       @plot_view.map_to_screen(x, x_units, y, y_units, @mget("x_range_name"), @mget("y_range_name"))
 
     draw_legend: (ctx, x0, x1, y0, y1) ->
-      @glyphView.draw_legend(ctx, x0, x1, y0, y1)
+      @glyph.draw_legend(ctx, x0, x1, y0, y1)
 
     hit_test: (geometry) ->
-      @glyphView.hit_test(geometry)
+      @glyph.hit_test(geometry)
 
   class GlyphRenderer extends HasParent
     default_view: GlyphRendererView
