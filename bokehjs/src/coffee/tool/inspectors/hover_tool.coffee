@@ -91,7 +91,7 @@ define [
 
         table = $('<table></table>')
 
-        for label, value of @mget("tooltips")
+        for [label, value] in @mget("tooltips")
           row = $("<tr></tr>")
           row.append($("<td class='bk-tooltip-row-label'>#{ label }: </td>"))
           td = $("<td class='bk-tooltip-row-value'></td>")
@@ -165,11 +165,11 @@ define [
     defaults: () ->
       return _.extend({}, super(), {
         snap_to_data: true
-        tooltips: {
-          "index": "$index"
-          "data (x, y)": "($x, $y)"
-          "canvas (x, y)": "($sx, $sy)"
-        }
+        tooltips: [
+          ["index", "$index"]
+          ["data (x, y)", "($x, $y)"]
+          ["canvas (x, y)", "($sx, $sy)"]
+        ]
       })
 
   class HoverTools extends Collection

@@ -291,11 +291,11 @@ _known_tools = {
     "poly_select": lambda: PolySelectTool(),
     "lasso_select": lambda: LassoSelectTool(),
     "box_zoom": lambda: BoxZoomTool(),
-    "hover": lambda: HoverTool(always_active=True, tooltips={
-        "index": "$index",
-        "data (x, y)": "($x, $y)",
-        "canvas (x, y)": "($sx, $sy)",
-    }),
+    "hover": lambda: HoverTool(always_active=True, tooltips=[
+        ("index", "$index"),
+        ("data (x, y)", "($x, $y)"),
+        ("canvas (x, y)", "($sx, $sy)"),
+    ]),
     "previewsave": lambda: PreviewSaveTool(),
     "reset": lambda: ResetTool(),
 }
