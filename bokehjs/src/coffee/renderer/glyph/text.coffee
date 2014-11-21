@@ -13,7 +13,7 @@ define [
 
     _render: (ctx, indices) ->
       for i in indices
-        if isNaN(@sx[i] + @sy[i] + @angle[i])
+        if isNaN(@sx[i] + @sy[i] + @angle[i]) or not _.isString(@text[i])
           continue
 
         ctx.translate(@sx[i], @sy[i])
