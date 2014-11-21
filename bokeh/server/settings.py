@@ -1,8 +1,12 @@
-import logging
-from ..settings import settings as bokeh_settings
 import uuid
+import logging
+
+import zmq
+
+from ..settings import settings as bokeh_settings
 
 class Settings(object):
+    ctx = zmq.Context()
     ip = "0.0.0.0"
     port = 5006
     url_prefix = ""

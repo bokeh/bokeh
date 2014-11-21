@@ -12,16 +12,15 @@ import zmq
 timeout = 0.1
 
 class Publisher(object):
-    def __init__(self, zmqaddr, queue):
+    def __init__(self, ctx, zmqaddr, queue):
+        self.ctx = ctx
         self.zmqaddr = zmqaddr
         self.queue = queue
         self.kill = False
 
     def run(self):
         log.debug('zmqpub starting: %s' % self.zmqaddr)
-        ctx = zmq.Context()
-        socket = ctx.socket(zmq.PUB)
-        log.debug('PUB CONNECT: %s' % self.zmqaddr)
+        socket = self.ctx.socket(zmq.PUB)
         socket.connect(self.zmqaddr)
         try:
             while not self.kill:

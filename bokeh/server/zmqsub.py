@@ -9,17 +9,17 @@ import zmq
 timeout = 0.1
 
 class Subscriber(object):
-    def __init__(self, addrs, wsmanager):
+    def __init__(self, ctx, addrs, wsmanager):
+        self.ctx = ctx
         self.addrs = addrs
         self.wsmanager = wsmanager
         self.kill = False
 
     def run(self):
-        ctx = zmq.Context()
         sockets = []
         poller = zmq.Poller()
         for addr in self.addrs:
-            socket = ctx.socket(zmq.SUB)
+            socket = self.ctx.socket(zmq.SUB)
             log.debug('SUB CONNECT: %s' % addr)
             socket.connect(addr)
             socket.setsockopt_string(zmq.SUBSCRIBE, u"")
