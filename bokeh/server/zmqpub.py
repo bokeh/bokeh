@@ -1,3 +1,7 @@
+from __future__ import absolute_import, print_function
+
+import logging
+log = logging.getLogger(__name__)
 
 from threading import Thread
 
@@ -14,10 +18,10 @@ class Publisher(object):
         self.kill = False
 
     def run(self):
-        print('zmqpub starting', self.zmqaddr)
+        log.debug('zmqpub starting: %s' % self.zmqaddr)
         ctx = zmq.Context()
         socket = ctx.socket(zmq.PUB)
-        print ('PUB CONNECT', self.zmqaddr)
+        log.debug('PUB CONNECT: %s' % self.zmqaddr)
         socket.connect(self.zmqaddr)
         try:
             while not self.kill:
@@ -28,7 +32,7 @@ class Publisher(object):
                     pass
         finally:
             socket.close()
-        print('zmqpub exiting')
+        log.debug('zmqpub exiting')
     def send(self, topic, msg, exclude=[]):
         msg = json.dumps({'topic' : topic,
                           'msg' : msg,

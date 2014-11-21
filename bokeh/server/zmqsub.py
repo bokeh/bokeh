@@ -1,6 +1,9 @@
+from __future__ import absolute_import, print_function
+
+import logging
+log = logging.getLogger(__name__)
 
 from threading import Thread
-
 import zmq
 
 timeout = 0.1
@@ -17,7 +20,7 @@ class Subscriber(object):
         poller = zmq.Poller()
         for addr in self.addrs:
             socket = ctx.socket(zmq.SUB)
-            print ('SUB CONNECT', addr)
+            log.debug('SUB CONNECT: %s' % addr)
             socket.connect(addr)
             socket.setsockopt_string(zmq.SUBSCRIBE, u"")
             sockets.append(socket)
