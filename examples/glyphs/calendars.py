@@ -1,0 +1,68 @@
+from __future__ import absolute_import, print_function
+
+from calendar import Calendar, day_abbr as day_names, month_name as month_names
+
+from bokeh.models import GridPlot, Plot, ColumnDataSource, FactorRange, CategoricalAxis, HoverTool
+from bokeh.models.glyphs import Text, Rect
+from bokeh.document import Document
+from bokeh.embed import file_html
+from bokeh.resources import INLINE
+from bokeh.browserlib import view
+from bokeh.sampledata.us_holidays import us_holidays
+
+def make_calendar(year, month):
+    calendar = Calendar()
+
+    month_days  = [ None if not day else str(day) for day in calendar.itermonthdays(year, month) ]
+    month_weeks = len(month_days)//7
+
+    source = ColumnDataSource(data=dict(
+        days            = list(day_names)*month_weeks,
+        weeks           = sum([ [str(week)]*7 for week in range(month_weeks) ], []),
+        month_days      = month_days,
+        day_backgrounds = sum([["white"]*5 + ["lightgray"]*2]*month_weeks, []),
+    ))
+
+    holidays = [ (date, summary.replace("(US-OPM)", "").strip()) for (date, summary) in us_holidays
+        if date.year == year and date.month == month and "(US-OPM)" in summary ]
+
+    holidays_source = ColumnDataSource(data=dict(
+        holidays_days  = [ day_names[date.weekday()] for date, _ in holidays ],
+        holidays_weeks = [ str((date.replace(day=1).weekday() + date.day) // 7) for date, _ in holidays ],
+        month_holidays = [ summary for _, summary in holidays ],
+    ))
+
+    xdr = FactorRange(factors=list(day_names))
+    ydr = FactorRange(factors=list(reversed([ str(week) for week in range(month_weeks) ])))
+
+    plot = Plot(title=month_names[month], x_range=xdr, y_range=ydr, plot_width=300, plot_height=300, outline_line_color=None)
+
+    rect = Rect(x="days", y="weeks", width=0.9, height=0.9, fill_color="day_backgrounds", line_color="gray")
+    plot.add_glyph(source, rect)
+
+    rect = Rect(x="holidays_days", y="holidays_weeks", width=0.9, height=0.9, fill_color="pink", line_color="red")
+    rect_renderer = plot.add_glyph(holidays_source, rect)
+
+    text = Text(x="days", y="weeks", text="month_days", angle=0, text_align="center", text_baseline="middle")
+    plot.add_glyph(source, text)
+
+    xaxis = CategoricalAxis()
+    plot.add_layout(xaxis, 'above')
+
+    hover_tool = HoverTool(plot=plot, renderers=[rect_renderer], tooltips=[("Holiday", "@month_holidays")])
+    plot.tools.append(hover_tool)
+
+    return plot
+
+months = [ [ make_calendar(2014, 3*i + j + 1) for j in range(3) ] for i in range(4) ]
+grid = GridPlot(title="Calendar 2014", toolbar_location=None, children=months)
+
+doc = Document()
+doc.add(grid)
+
+if __name__ == "__main__":
+    filename = "calendars.html"
+    with open(filename, "w") as f:
+        f.write(file_html(doc, INLINE, "Calendar 2014"))
+    print("Wrote %s" % filename)
+    view(filename)
