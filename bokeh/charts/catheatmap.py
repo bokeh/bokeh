@@ -127,13 +127,6 @@ class CategoricalHeatMap(ChartObject):
                                       xscale, yscale, width, height,
                                       tools, filename, server, notebook)
 
-    #def check_attr(self):
-    #    """Check if any of the chained method were used.
-    #
-    #    If they were not used, it assign the init parameters content by default.
-    #    """
-    #    super(CategoricalHeatMap, self).check_attr()
-
     def get_data(self, palette, **value):
         """Take the CategoricalHeatMap data from the input **value.
 
@@ -206,45 +199,6 @@ class CategoricalHeatMap(ChartObject):
 
     def _show_teardown(self):
         self.chart.plot.add_tools(HoverTool(tooltips=dict(value="@rate")))
-
-
-    #def show(self):
-    #    """Main CategoricalHeatMap show method.
-    #
-    #    It essentially checks for chained methods, creates the chart,
-    #    pass data into the plot object, draws the glyphs according
-    #    to the data and shows the chart in the selected output.
-    #
-    #    .. note:: the show method can not be chained. It has to be called
-    #    at the end of the chain.
-    #    """
-    #    # if we pass a pandas df, the cats are guessed
-    #    if isinstance(self.value, pd.DataFrame):
-    #        self.catsx = self.value.columns.tolist()
-    #        self.catsy = self.value.index.tolist()
-    #    else:
-    #        print("CategoricalHeatMap only support pandas dataframes loading for now.")
-    #
-    #    # we need to check the chained method attr
-    #    self.check_attr()
-    #    # we create the chart object
-    #    self.create_chart()
-    #    # we start the plot (adds axis, grids and tools)
-    #    self.start_plot(xgrid=False, ygrid=False)
-    #    # we add the HoverTool
-    #    self.chart.plot.add_tools(HoverTool(tooltips=dict(value="@rate")))
-    #    # we get the data from the incoming input
-    #    self.get_data(self.palette, **self.value)
-    #    # we filled the source and ranges with the calculated data
-    #    self.get_source()
-    #    # we dynamically inject the source and ranges into the plot
-    #    self.add_data_plot(self.xdr, self.ydr)
-    #    # we add the glyphs into the plot
-    #    self.draw()
-    #    # we pass info to build the legend
-    #    self.end_plot(self.groups)
-    #    # and finally we show it
-    #    self.show_chart()
 
 
 class HeatMap(CategoricalHeatMap):
@@ -400,45 +354,3 @@ class HeatMap(CategoricalHeatMap):
 
         except:
             raise
-
-    #def _show_teardown(self):
-    #    self.chart.plot.add_tools(HoverTool(tooltips=dict(value="@rate")))
-
-    #def show(self):
-    #    """Main CategoricalHeatMap show method.
-    #
-    #    It essentially checks for chained methods, creates the chart,
-    #    pass data into the plot object, draws the glyphs according
-    #    to the data and shows the chart in the selected output.
-    #
-    #    .. note:: the show method can not be chained. It has to be called
-    #    at the end of the chain.
-    #    """
-    #    # if we pass a pandas df, the cats are guessed
-    #    try:
-    #        self.catsx = self.value.columns
-    #        self.catsy = self.value.index
-    #
-    #    except:
-    #        raise
-    #
-    #    # we need to check the chained method attr
-    #    self.check_attr()
-    #    # we create the chart object
-    #    self.create_chart()
-    #    # we start the plot (adds axis, grids and tools)
-    #    self.start_plot(xgrid=False, ygrid=False)
-    #    # we add the HoverTool
-    #    self.chart.plot.add_tools(HoverTool(tooltips=dict(value="@rate")))
-    #    # we get the data from the incoming input
-    #    self.get_data(self.palette, self.value)
-    #    # we filled the source and ranges with the calculated data
-    #    self.get_source()
-    #    # we dynamically inject the source and ranges into the plot
-    #    self.add_data_plot(self.xdr, self.ydr)
-    #    # we add the glyphs into the plot
-    #    self.draw()
-    #    # we pass info to build the legend
-    #    self.end_plot(self.groups)
-    #    # and finally we show it
-    #    self.show_chart()

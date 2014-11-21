@@ -321,35 +321,6 @@ class BoxPlot(ChartObject):
         indexes = [6, 7, 8]  # 1st group, 2nd group, 3rd group
         self.chart.glyphs = [self.chart.glyphs[i] for i in indexes]
 
-    #def show(self):
-    #    """Main BoxPlot show method.
-    #
-    #    It essentially checks for chained methods, creates the chart,
-    #    pass data into the plot object, draws the glyphs according
-    #    to the data and shows the chart in the selected output.
-    #
-    #    .. note:: the show method can not be chained. It has to be called
-    #    at the end of the chain.
-    #    """
-    #    # we need to check the chained method attr
-    #    self.check_attr()
-    #    # we create the chart object
-    #    self.create_chart()
-    #    # we start the plot (adds axis, grids and tools)
-    #    self.start_plot()
-    #    # we get the data from the incoming input
-    #    self.get_data(self._marker, self._outliers, self.value)
-    #    # we filled the source and ranges with the calculated data
-    #    self.get_source()
-    #    # we dynamically inject the ranges into the plot
-    #    self.add_data_plot(self.xdr, self.ydr)
-    #    # we add the glyphs into the plot
-    #    self.draw()
-    #    # we pass info to build the legend
-    #    self.end_plot(self.groups)
-    #    # and finally we show it
-    #    self.show_chart()
-
     # Some helper methods
     def set_and_get(self, data, attr, val, content):
         """Set a new attr and then get it to fill the self.data dict.
@@ -362,19 +333,4 @@ class BoxPlot(ChartObject):
             val (string): name of the new attribute
             content (obj): content of the new attribute
         """
-        #setattr(self, val, content)
-        #data[val] = getattr(self, val)
-        #attr.append(val)
         self._set_and_get(data, "", attr, val, content)
-
-    #def set_and_get(self, data, attr, val, content):
-    #    """Set a new attr and then get it to fill the self.data dict.
-    #
-    #    Keep track of the attributes created.
-    #
-    #    Args:
-    #        prefix (str): prefix of the new attribute
-    #        val (string): name of the new attribute
-    #        content (obj): content of the new attribute
-    #    """
-    #    self._set_and_get(data, "", attr, val, content)
