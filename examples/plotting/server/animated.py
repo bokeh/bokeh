@@ -6,7 +6,7 @@ import time
 from numpy import pi, cos, sin, linspace, roll, zeros_like
 
 from bokeh.plotting import *
-from bokeh.objects import GlyphRenderer
+from bokeh.objects import Glyph
 
 N = 50 + 1
 r_base = 8
@@ -21,9 +21,9 @@ cx = cy = zeros_like(rmin)
 
 output_server("animated")
 
-p = figure(x_range=[-11, 11], y_range=[-11, 11])
+figure(x_range=[-11, 11], y_range=[-11, 11])
 
-p.annular_wedge(
+annular_wedge(
     cx, cy, rmin, rmax, theta[:-1], theta[1:],
     inner_radius_units="data",
     outer_radius_units="data",
@@ -31,10 +31,10 @@ p.annular_wedge(
     line_color="black",
 )
 
-show(p)
+show()
 
-renderer = p.select(dict(type=GlyphRenderer))
-ds = renderer[0].data_source
+renderer = [r for r in curplot().renderers if isinstance(r, Glyph)][0]
+ds = renderer.data_source
 
 while True:
 
