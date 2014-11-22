@@ -230,7 +230,7 @@
       for (i = _i = 0, _ref1 = bins.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
         range = (function() {
           _results = [];
-          for (var _j = 0, _ref2 = Math.ceil(bins[i]); 0 <= _ref2 ? _j < _ref2 : _j > _ref2; 0 <= _ref2 ? _j++ : _j--){ _results.push(_j); }
+          for (var _j = 0, _ref2 = Math.min(Math.ceil(bins[i]), 20); 0 <= _ref2 ? _j < _ref2 : _j > _ref2; 0 <= _ref2 ? _j++ : _j--){ _results.push(_j); }
           return _results;
         }).apply(this);
         inner = inner.concat((function() {

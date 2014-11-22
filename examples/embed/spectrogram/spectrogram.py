@@ -196,7 +196,7 @@ def get_audio_data():
             fft = sp.fft(signal)
             spectrum = abs(fft)[:NUM_SAMPLES/2]
             power = spectrum**2
-            bins = [simps(a)*4 for a in np.split(power, 16)]
+            bins = [simps(a) for a in np.split(power, 16)]
             with mutex:
                 data = signal.tolist(), spectrum.tolist(), bins
         except:

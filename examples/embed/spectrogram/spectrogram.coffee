@@ -144,7 +144,7 @@ class RadialHistogramPlot
     angle = 2*Math.PI/bins.length
     [inner, outer, start, end, alpha] = [[], [], [], [], []]
     for i in [0...bins.length]
-      range = [0...(Math.ceil(bins[i]))]
+      range = [0...(Math.min(Math.ceil(bins[i]), 20))]
       inner = inner.concat(j+2 for j in range)
       outer = outer.concat(j+2.95 for j in range)
       start = start.concat((i+0.05) * angle for j in range)
