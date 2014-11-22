@@ -61,14 +61,16 @@ def root():
 @app.route("/params")
 def params():
     return json.dumps({
-        "FREQ_SAMPLES" : FREQ_SAMPLES,
-        "MAX_FREQ" : MAX_FREQ,
-        "NGRAMS" : NGRAMS,
-        "NUM_SAMPLES" : NUM_SAMPLES,
-        "SAMPLING_RATE" : SAMPLING_RATE,
-        "SPECTROGRAM_LENGTH" : SPECTROGRAM_LENGTH,
-        "TILE_WIDTH" : TILE_WIDTH,
-        "TIMESLICE" : TIMESLICE,
+        "FREQ_SAMPLES": FREQ_SAMPLES,
+        "MAX_FREQ": MAX_FREQ,
+        "NGRAMS": NGRAMS,
+        "NUM_SAMPLES": NUM_SAMPLES,
+        "SAMPLING_RATE": SAMPLING_RATE,
+        "SPECTROGRAM_LENGTH": SPECTROGRAM_LENGTH,
+        "TILE_WIDTH": TILE_WIDTH,
+        "TIMESLICE": TIMESLICE,
+        "EQ_CLAMP": 20,
+        "FRAMES_PER_SECOND": 20
     })
 
 
@@ -196,7 +198,7 @@ def get_audio_data():
             fft = sp.fft(signal)
             spectrum = abs(fft)[:NUM_SAMPLES/2]
             power = spectrum**2
-            bins = [simps(a)*4 for a in np.split(power, 16)]
+            bins = [simps(a) for a in np.split(power, 16)]
             with mutex:
                 data = signal.tolist(), spectrum.tolist(), bins
         except:
