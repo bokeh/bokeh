@@ -75,7 +75,7 @@
     };
 
     SpectrogramApp.prototype.request_data = function() {
-      var helper, in_flight,
+      var helper, in_flight, looper,
         _this = this;
       in_flight = false;
       helper = function() {
@@ -92,7 +92,19 @@
           return _this.on_data(data);
         });
       };
-      return setInterval(helper, 10);
+      this.interval = Math.floor(1000.0 / this.config.FRAMES_PER_SECOND);
+      this.thisTime = Date.now();
+      this.lastTime = Date.now();
+      looper = function() {
+        var delay, timeout;
+        _this.thisTime = Date.now();
+        _this.deltaTime = _this.thisTime - _this.lastTime;
+        delay = Math.max(_this.interval - _this.deltaTime, 0);
+        timeout = setTimeout(looper, delay);
+        _this.lastTime = _this.thisTime + delay;
+        return helper();
+      };
+      return setTimeout(looper, 0);
     };
 
     SpectrogramApp.prototype.on_data = function(data) {
@@ -230,7 +242,7 @@
       for (i = _i = 0, _ref1 = bins.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
         range = (function() {
           _results = [];
-          for (var _j = 0, _ref2 = Math.min(Math.ceil(bins[i]), 20); 0 <= _ref2 ? _j < _ref2 : _j > _ref2; 0 <= _ref2 ? _j++ : _j--){ _results.push(_j); }
+          for (var _j = 0, _ref2 = Math.min(Math.ceil(bins[i]), this.config.EQ_CLAMP); 0 <= _ref2 ? _j < _ref2 : _j > _ref2; 0 <= _ref2 ? _j++ : _j--){ _results.push(_j); }
           return _results;
         }).apply(this);
         inner = inner.concat((function() {
@@ -336,6 +348,6 @@
     return app = new SpectrogramApp(index[id].model);
   };
 
-  timer = setInterval(setup, 200);
+  timer = setInterval(setup, 100);
 
 }).call(this);

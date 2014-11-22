@@ -66,7 +66,21 @@ class SpectrogramApp
         in_flight = false
         @on_data(data)
       )
-    setInterval(helper, 10)
+
+    @interval = Math.floor(1000.0/@config.FRAMES_PER_SECOND)
+
+    @thisTime = Date.now()
+    @lastTime = Date.now()
+
+    looper = () =>
+      @thisTime = Date.now()
+      @deltaTime = @thisTime - @lastTime
+      delay = Math.max(@interval - @deltaTime, 0)
+      timeout = setTimeout(looper, delay)
+      @lastTime = @thisTime + delay
+      helper()
+
+    setTimeout(looper, 0)
 
   on_data: (data) ->
     if _.keys(data).length == 0
@@ -144,7 +158,7 @@ class RadialHistogramPlot
     angle = 2*Math.PI/bins.length
     [inner, outer, start, end, alpha] = [[], [], [], [], []]
     for i in [0...bins.length]
-      range = [0...(Math.min(Math.ceil(bins[i]), 20))]
+      range = [0...(Math.min(Math.ceil(bins[i]), @config.EQ_CLAMP))]
       inner = inner.concat(j+2 for j in range)
       outer = outer.concat(j+2.95 for j in range)
       start = start.concat((i+0.05) * angle for j in range)
@@ -183,5 +197,7 @@ setup = () ->
   id = keys[0]
   app = new SpectrogramApp(index[id].model)
 
-timer = setInterval(setup, 200)
+timer = setInterval(setup, 100)
+
+
 
