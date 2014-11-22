@@ -10,7 +10,7 @@ y = np.sin(x)
 
 output_server("line")
 
-p = figure(title="simple line example")
-p.line(x,y, color="#2222aa", line_width=2)
+figure(title="simple line example")
+line(x,y, color="#2222aa", line_width=2)
 
-show(p)
+show()
