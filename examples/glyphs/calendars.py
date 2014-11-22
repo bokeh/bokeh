@@ -20,7 +20,7 @@ def make_calendar(year, month):
         days            = list(day_names)*month_weeks,
         weeks           = sum([ [str(week)]*7 for week in range(month_weeks) ], []),
         month_days      = month_days,
-        day_backgrounds = sum([["white"]*5 + ["lightgray"]*2]*month_weeks, []),
+        day_backgrounds = sum([["linen"]*5 + ["lightsteelblue"]*2]*month_weeks, []),
     ))
 
     holidays = [ (date, summary.replace("(US-OPM)", "").strip()) for (date, summary) in us_holidays
@@ -36,17 +36,22 @@ def make_calendar(year, month):
     ydr = FactorRange(factors=list(reversed([ str(week) for week in range(month_weeks) ])))
 
     plot = Plot(title=month_names[month], x_range=xdr, y_range=ydr, plot_width=300, plot_height=300, outline_line_color=None)
+    plot.title_text_color = "darkolivegreen"
 
-    rect = Rect(x="days", y="weeks", width=0.9, height=0.9, fill_color="day_backgrounds", line_color="gray")
+    rect = Rect(x="days", y="weeks", width=0.9, height=0.9, fill_color="day_backgrounds", line_color="silver")
     plot.add_glyph(source, rect)
 
-    rect = Rect(x="holidays_days", y="holidays_weeks", width=0.9, height=0.9, fill_color="pink", line_color="red")
+    rect = Rect(x="holidays_days", y="holidays_weeks", width=0.9, height=0.9, fill_color="pink", line_color="indianred")
     rect_renderer = plot.add_glyph(holidays_source, rect)
 
     text = Text(x="days", y="weeks", text="month_days", angle=0, text_align="center", text_baseline="middle")
     plot.add_glyph(source, text)
 
     xaxis = CategoricalAxis()
+    xaxis.major_label_text_font_size = "8pt"
+    xaxis.major_label_standoff = 0
+    xaxis.major_tick_line_color = None
+    xaxis.axis_line_color = None
     plot.add_layout(xaxis, 'above')
 
     hover_tool = HoverTool(plot=plot, renderers=[rect_renderer], tooltips=[("Holiday", "@month_holidays")])
