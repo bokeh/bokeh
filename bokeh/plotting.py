@@ -29,7 +29,7 @@ from .resources import Resources
 from .session import DEFAULT_SERVER_URL, Session
 from .utils import decode_utf8, publish_display_data
 
-# extra imports -- just thigns to add to 'from plotting import *'
+# extra imports -- just things to add to 'from plotting import *'
 from bokeh.models import ColumnDataSource
 
 _default_document = Document()
