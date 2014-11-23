@@ -25,7 +25,7 @@ import numpy as np
 
 from ..glyphs import (Asterisk, Circle, CircleCross, CircleX, Cross, Diamond,
                       DiamondCross, InvertedTriangle, Line, Rect, Segment,
-                      Square, SquareCross, SquareX, Triangle, X, Quad)
+                      Square, SquareCross, SquareX, Triangle, X, Quad, Patch)
 from ..objects import (CategoricalAxis, DatetimeAxis, Grid, Legend,
                        LinearAxis, PanTool, Plot, PreviewSaveTool, ResetTool,
                        WheelZoomTool)
@@ -332,6 +332,12 @@ class Chart(object):
         self._append_glyph(source, rect)
 
         return rect
+
+    def make_patch(self, source, x, y, color):
+        patch = Patch(
+            x=x, y=y, fill_color=color, fill_alpha=0.9)
+
+        self._append_glyph(source, patch)
 
     def make_scatter(self, source, x, y, markertype, color):
         """Create a marker glyph and appends it to the renderers list.
