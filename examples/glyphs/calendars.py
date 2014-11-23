@@ -1,6 +1,6 @@
 from __future__ import absolute_import, print_function
 
-from calendar import Calendar, day_abbr as day_names, month_name as month_names
+from calendar import Calendar, day_abbr as day_abbrs, month_name as month_names
 
 from bokeh.models import GridPlot, Plot, ColumnDataSource, FactorRange, CategoricalAxis, HoverTool
 from bokeh.models.glyphs import Text, Rect
@@ -10,25 +10,38 @@ from bokeh.resources import INLINE
 from bokeh.browserlib import view
 from bokeh.sampledata.us_holidays import us_holidays
 
-def make_calendar(year, month):
-    calendar = Calendar()
+def make_calendar(year, month, firstweekday="Mon"):
+    firstweekday = list(day_abbrs).index(firstweekday)
+    calendar = Calendar(firstweekday=firstweekday)
 
     month_days  = [ None if not day else str(day) for day in calendar.itermonthdays(year, month) ]
     month_weeks = len(month_days)//7
+
+    workday = "linen"
+    weekend = "lightsteelblue"
+
+    def weekday(date):
+        return (date.weekday() - firstweekday) % 7
+
+    def pick_weekdays(days):
+        return [ days[i % 7] for i in range(firstweekday, firstweekday+7) ]
+
+    day_names = pick_weekdays(day_abbrs)
+    week_days = pick_weekdays([workday]*5 + [weekend]*2)
 
     source = ColumnDataSource(data=dict(
         days            = list(day_names)*month_weeks,
         weeks           = sum([ [str(week)]*7 for week in range(month_weeks) ], []),
         month_days      = month_days,
-        day_backgrounds = sum([["linen"]*5 + ["lightsteelblue"]*2]*month_weeks, []),
+        day_backgrounds = sum([week_days]*month_weeks, []),
     ))
 
     holidays = [ (date, summary.replace("(US-OPM)", "").strip()) for (date, summary) in us_holidays
         if date.year == year and date.month == month and "(US-OPM)" in summary ]
 
     holidays_source = ColumnDataSource(data=dict(
-        holidays_days  = [ day_names[date.weekday()] for date, _ in holidays ],
-        holidays_weeks = [ str((date.replace(day=1).weekday() + date.day) // 7) for date, _ in holidays ],
+        holidays_days  = [ day_names[weekday(date)] for date, _ in holidays ],
+        holidays_weeks = [ str((weekday(date.replace(day=1)) + date.day) // 7) for date, _ in holidays ],
         month_holidays = [ summary for _, summary in holidays ],
     ))
 
