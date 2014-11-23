@@ -93,6 +93,18 @@ class Document(object):
 
     # "current plot" related functions
 
+    def clear(self):
+        """ Remove all plots from this `Document`
+
+        Returns:
+            None
+
+        """
+        self.context.children = []
+        context = self.context
+        self._models = {}
+        self._add(context)
+
     def hold(self, value=True):
         """ Set the hold value for this Document.
 
