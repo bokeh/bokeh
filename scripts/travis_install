@@ -16,7 +16,7 @@ rm -rf $MINICONDA.sh
 
 python -V
 
-DEPS_TRAVIS="python=$TRAVIS_PYTHON_VERSION pip conda-build jinja2"
+DEPS_TRAVIS="python=$TRAVIS_PYTHON_VERSION conda-build jinja2"
 conda install --yes $DEPS_TRAVIS
 
 conda config --add channels bokeh
@@ -33,7 +33,6 @@ EOF
 
 conda install --yes $DEPS_TEST
 conda install --yes abstract-rendering
-pip install icalendar
 
 MATPLOTLIB_RC=$(python -c "import matplotlib; print(matplotlib.matplotlib_fname())")
 sed -i 's/^backend\s*:.*$/backend: agg/' $MATPLOTLIB_RC
