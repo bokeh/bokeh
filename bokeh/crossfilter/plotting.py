@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 
 from bokeh.models import ColumnDataSource
-from ..objects import Range1d
+from ..models import Range1d
 from ..plotting import figure, hold, rect
 from ..plotting_helpers import _get_select_tool
 

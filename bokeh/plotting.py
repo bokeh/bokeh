@@ -17,7 +17,7 @@ from . import _glyph_functions as gf
 from .deprecate import deprecated
 from .document import Document
 from .embed import notebook_div, file_html, autoload_server
-from .objects import (
+from .models import (
     Axis, FactorRange, Grid, GridPlot, HBox, Legend, LogAxis, Plot, Tool, VBox, Widget
 )
 from .palettes import brewer

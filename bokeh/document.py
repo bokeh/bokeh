@@ -12,7 +12,7 @@ import uuid
 
 from . import _glyph_functions as gf
 from .exceptions import DataIntegrityException
-from .objects import PlotContext
+from .models import PlotContext
 from .plot_object import PlotObject
 from .plotting_helpers import _new_xy_plot
 from .utils import dump

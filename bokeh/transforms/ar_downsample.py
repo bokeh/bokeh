@@ -1,7 +1,7 @@
 from __future__ import print_function
 from ..plotting import image_rgba, image, multi_line, curdoc
 from ..plot_object import PlotObject
-from ..objects import ServerDataSource,  GlyphRenderer, Range1d, Color
+from ..models import ServerDataSource,  GlyphRenderer, Range1d, Color
 from ..properties import (Instance, Any, Either,
                           Int, Float, List, Bool, String)
 from six import get_function_code
