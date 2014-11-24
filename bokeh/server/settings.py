@@ -6,7 +6,6 @@ import zmq
 from ..settings import settings as bokeh_settings
 
 class Settings(object):
-    ctx = zmq.Context()
     ip = "0.0.0.0"
     port = 5006
     url_prefix = ""
@@ -31,6 +30,13 @@ class Settings(object):
     run_forwarder = True
     secret_key = str(uuid.uuid4())
     _debugjs = False
+    _ctx = None
+
+    @property
+    def ctx(self):
+        if self._ctx is None or self._ctx.closed:
+            self._ctx = zmq.Context()
+        return self._ctx
 
     @property
     def debugjs(self):
