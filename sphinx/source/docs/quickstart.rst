@@ -12,11 +12,13 @@ for presentation providing elegant, concise construction of novel graphics with
 high-performance interactivity over very large or streaming datasets in quick and
 easy way.
 
-Offering both powerful and flexible features to enable user very advanced customizations
-in on hand and simplicity on the other Bokeh exposes different interface levels
-to the users: a low Level (and more flexible) glyph interface, an intermediate level
-interface called plotting and a high level interface that can be used to build
-complexs plot in a simple way.
+Offering both powerful and flexible features to enable very advanced customizations
+in one hand and simplicity on the other Bokeh exposes different interface levels
+to the users:
+
+* a low Level (and more flexible) glyph interface
+* an intermediate level interface called plotting
+* a high level interface that can be used to build complexs plot in a simple way.
 
 Charts layer is still experimental and may significantly change in the next releases.
 Plotting should be preferred for a more stable or production code. For this reason
@@ -36,7 +38,7 @@ If you are using the `Anaconda Python distribution <http://continuum.io/anaconda
 This will install all the dependencies that you need to be ready to run bokeh and we
 strongly recommend using it. It really reduces the installation effort near to zero
 on every platform and configuration (Windows included). It will also install the examples
-into the ``examples/`` subdirectory of your Anaconda installation directory.
+into the ``examples/`` subdirectory of your Anaconda (or miniconda) installation directory.
 
 If you are confident you have dependencies like NumPy, Pandas, and Redis installed,
 then you can use ``pip``::
@@ -58,7 +60,7 @@ If you are using Windows, please see the
 Getting Started
 ---------------
 
-Bokeh is very large and flexible by it's nature, so this section should only be
+Bokeh is very large and flexible by its nature, so this section should only be
 considered just as a quick taste of Bokeh capabilities and workflows. For more
 meaningful and detailed information please move forward the full :ref:`userguide`.
 
@@ -81,7 +83,7 @@ the data we have on the script. Of course there is a lot more going on. Bokeh ta
 modern browser for presentation. This means while a lot is happening inside a python
 environment the presentation part is happening on your browser. That's BojehJS working
 for you. All your python code prepares the  context for BokehJS to display a nice
-looking plot on your browser for you. If you are curious about it an want to read
+looking plot on your browser for you. If you are curious about it and want to read
 more refer to the :ref:`bokehjs` section.
 
 All we had to do was tell bokeh.plotting that:
@@ -131,7 +133,7 @@ Guides
 ~~~~~~
 Axes are a very important type of guide and are automatically managed by bokeh
 when a new plot is created. It's very easy to customize plot axes as you have seen
-in the previous examples. With the plotting library you can have access to the axis
+in the previous examples. With the plotting API you can have access to the axis
 configuration directly specifying some keyword arguments when calling figure or one
 of the glyphs. Plotting also expose access to the axes by explicitly calling axis
 method (as show in the next example). Please refer to :ref:`userguide_objects_axes`
