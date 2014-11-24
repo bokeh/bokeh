@@ -411,7 +411,8 @@ class Chart(object):
         glyph = Text(**kws)
         self._append_glyph(source, glyph)
 
-    def make_scatter(self, source, x, y, markertype, color):
+    def make_scatter(self, source, x, y, markertype, color, line_color=None,
+                     size=10, fill_alpha=0.2, line_alpha=1.0):
         """Create a marker glyph and appends it to the renderers list.
 
         Args:
@@ -424,6 +425,8 @@ class Chart(object):
         Return:
             scatter: Marker Glyph instance
         """
+        if line_color is None:
+            line_color = color
 
         _marker_types = OrderedDict([
             ("circle", Circle),
@@ -447,11 +450,11 @@ class Chart(object):
                 shape = next(g)
         else:
             shape = markertype
-        scatter = _marker_types[shape](x=x, y=y, size=10,
+        scatter = _marker_types[shape](x=x, y=y, size=size,
                                        fill_color=color,
-                                       fill_alpha=0.2,
-                                       line_color=color,
-                                       line_alpha=1.0)
+                                       fill_alpha=fill_alpha,
+                                       line_color=line_color,
+                                       line_alpha=line_alpha)
 
         self._append_glyph(source, scatter)
 
