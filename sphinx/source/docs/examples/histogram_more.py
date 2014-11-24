@@ -13,21 +13,19 @@ pdf = 1/(sigma * np.sqrt(2*np.pi)) * np.exp(-(x-mu)**2 / (2*sigma**2))
 cdf = (1+scipy.special.erf((x-mu)/np.sqrt(2*sigma**2)))/2
 
 # prepare the histogram
-output_file('histogram.html')
-hold()
-figure(title="Normal Distribution (μ=0, σ=0.5)",tools="previewsave",
+p = figure(title="Normal Distribution (μ=0, σ=0.5)",tools="previewsave",
        background_fill="#E8DDCB")
-quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:],
+p.quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:],
      fill_color="#036564", line_color="#033649",)
 
 # Use `line` renderers to display the PDF and CDF
-line(x, pdf, line_color="#D95B43", line_width=8, alpha=0.7, legend="PDF")
-line(x, cdf, line_color="white", line_width=2, alpha=0.7, legend="CDF")
+p.line(x, pdf, line_color="#D95B43", line_width=8, alpha=0.7, legend="PDF")
+p.line(x, cdf, line_color="white", line_width=2, alpha=0.7, legend="CDF")
 
 # customize axes
-legend().orientation = "top_left"
-xax, yax = axis()
-xax.axis_label = 'x'
-yax.axis_label = 'Pr(x)'
+p.legend_orientation = "top_left"
+p.x_axis_label = 'x'
+p.y_axis_label = 'Pr(x)'
 
+output_file('histogram.html')
 show()
