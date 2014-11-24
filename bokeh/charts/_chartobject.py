@@ -520,6 +520,7 @@ class DataAdapter(object):
 
         self.convert_index_to_int = False
         self._columns_map = {}
+        self.convert_items_to_dict = False
 
         if columns is None and force_alias:
             # no column 'labels' defined for data... in this case we use
@@ -543,9 +544,11 @@ class DataAdapter(object):
 
         if index is not None:
             self._index = index
+            self.convert_items_to_dict = True
 
         elif force_alias:
             _index = getattr(self._values, 'index', None)
+            self.convert_items_to_dict = True
 
             # check because if it is a callable self._values is not a
             # dataframe (probably a list)
@@ -639,9 +642,7 @@ class DataAdapter(object):
         val = self._values[self.index_converter(key)]
 
         # if we have "index aliases" we need to remap the values...
-        # TODO: this should be more explicit... we shouldn't rely on an implementation
-        # details to do something that is very subtle like remapping keys...
-        if hasattr(self, "_index"):
+        if self.convert_items_to_dict:
             val = dict(zip(self._index, val))
 
         return val
