@@ -68,7 +68,8 @@ class Bar(ChartObject):
     def __init__(self, value, cat=None, stacked=False,
                  title=None, xlabel=None, ylabel=None, legend=False,
                  xscale="categorical", yscale="linear", width=800, height=600,
-                 tools=True, filename=False, server=False, notebook=False):
+                 tools=True, filename=False, server=False, notebook=False,
+                 facet=False):
         """
         Args:
             value (dict): a dict containing the data with names as a key
@@ -138,7 +139,7 @@ class Bar(ChartObject):
         self.attr = []
         super(Bar, self).__init__(title, xlabel, ylabel, legend,
                                   xscale, yscale, width, height,
-                                  tools, filename, server, notebook)
+                                  tools, filename, server, notebook, facet)
 
     def stacked(self, stacked=True):
         """Set the bars stacked on your chart.
