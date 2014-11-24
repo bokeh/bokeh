@@ -23,9 +23,10 @@ p.line(x, pdf, line_color="#D95B43", line_width=8, alpha=0.7, legend="PDF")
 p.line(x, cdf, line_color="white", line_width=2, alpha=0.7, legend="CDF")
 
 # customize axes
-p.legend_orientation = "top_left"
-p.x_axis_label = 'x'
-p.y_axis_label = 'Pr(x)'
+p.legend.orientation = "top_left"
+xa, ya = p.axis
+xa.axis_label = 'x'
+ya.axis_label = 'Pr(x)'
 
 output_file('histogram.html')
 show()

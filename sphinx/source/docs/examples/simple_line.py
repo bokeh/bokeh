@@ -11,4 +11,4 @@ p.line(x, y, legend="Temp.", x_axis_label='x', y_axis_label='y')
 
 # output to static HTML file
 output_file("lines.html", title="line plot example")
-show()
+show(p)

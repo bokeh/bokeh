@@ -10,13 +10,14 @@ y = [6, 7, 2, 4, 5]
 output_server("animated_line")
 
 # Plot a `line` renderer setting the color, line thickness, title, and legend value.
-line(x, y, title="One Line", legend="Temp.", x_axis_label='x', y_axis_label='y')
+p = figure(title="One Line")
+p.line(x, y, legend="Temp.", x_axis_label='x', y_axis_label='y', name='example1')
 
-show()
+show(p)
 
 # create some simple animation
-renderer = [r for r in curplot().renderers if isinstance(r, GlyphRenderer)][0]
-ds = renderer.data_source
+renderer = p.select(dict(name="example1"))
+ds = renderer[0].data_source
 
 while True:
     values = []
