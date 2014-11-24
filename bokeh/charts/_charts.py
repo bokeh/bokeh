@@ -25,7 +25,8 @@ import numpy as np
 
 from ..glyphs import (Asterisk, Circle, CircleCross, CircleX, Cross, Diamond,
                       DiamondCross, InvertedTriangle, Line, Rect, Segment,
-                      Square, SquareCross, SquareX, Triangle, X, Quad, Patch)
+                      Square, SquareCross, SquareX, Triangle, X, Quad, Patch,
+                      Wedge, AnnularWedge, Text)
 from ..objects import (CategoricalAxis, DatetimeAxis, Grid, Legend,
                        LinearAxis, PanTool, Plot, PreviewSaveTool, ResetTool,
                        WheelZoomTool)
@@ -334,10 +335,81 @@ class Chart(object):
         return rect
 
     def make_patch(self, source, x, y, color):
+        """Create a patch glyph and append it to the renderers list.
+
+        Args:
+            source (obj): datasource object containing rect refereces.
+            x (str or list[float]) : values or field names of center ``x`` coordinates
+            y (str or list[float]) : values or field names of center ``y`` coordinates
+            color (str): the fill color
+
+        Return:
+            rect: Patch instance
+        """
         patch = Patch(
             x=x, y=y, fill_color=color, fill_alpha=0.9)
 
         self._append_glyph(source, patch)
+        return path
+
+    def make_wedge(self, source, **kws):
+        """Create a wedge glyph and append it to the renderers list.
+
+        Args:
+            source (obj): datasource object containing rect refereces.
+            x (str or list[float]) : values or field names of center ``x`` coordinates
+            y (str or list[float]) : values or field names of center ``y`` coordinates
+            width (str or list[float]) : values or field names of widths
+            height (str or list[float]) : values or field names of heights
+            color (str): the fill color
+            line_color (str): the line color
+            line_width (int): the line width
+
+        Return:
+            rect: Wedge instance
+        """
+        glyph = Wedge(**kws)
+        self._append_glyph(source, glyph)
+        return glyph
+
+    def make_annular(self, source, **kws):
+        """Create a annular wedge glyph and append it to the renderers list.
+
+        Args:
+            source (obj): datasource object containing rect refereces.
+            x (str or list[float]) : values or field names of center ``x`` coordinates
+            y (str or list[float]) : values or field names of center ``y`` coordinates
+            width (str or list[float]) : values or field names of widths
+            height (str or list[float]) : values or field names of heights
+            color (str): the fill color
+            line_color (str): the line color
+            line_width (int): the line width
+
+        Return:
+            rect: AnnularWedge instance
+        """
+        glyph = AnnularWedge(**kws)
+        self._append_glyph(source, glyph)
+        return glyph
+
+    def make_text(self, source, **kws):
+        """Create a text glyph and append it to the renderers list.
+
+        Args:
+            source (obj): datasource object containing rect refereces.
+            x (str or list[float]) : values or field names of center ``x`` coordinates
+            y (str or list[float]) : values or field names of center ``y`` coordinates
+            width (str or list[float]) : values or field names of widths
+            height (str or list[float]) : values or field names of heights
+            color (str): the fill color
+            line_color (str): the line color
+            line_width (int): the line width
+
+        Return:
+            rect: Text instance
+        """
+        glyph = Text(**kws)
+        self._append_glyph(source, glyph)
 
     def make_scatter(self, source, x, y, markertype, color):
         """Create a marker glyph and appends it to the renderers list.
