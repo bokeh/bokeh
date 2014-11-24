@@ -40,10 +40,10 @@ df.index = countries
 #bar = Bar(df.T.values, countries, filename="stacked_bar.html")
 
 # OK
-bar = Bar(pd.DataFrame(medals).T.values, countries, filename="stacked_bar.html")
+#bar = Bar(pd.DataFrame(medals).T.values, countries, filename="stacked_bar.html")
 
 # OK
-#bar = Bar(medals.values(), countries, filename="stacked_bar.html")
+bar = Bar(medals.values(), filename="stacked_bar.html")
 
 bar.title("Stacked bars").xlabel("countries").ylabel("medals")\
    .legend(True).width(600).height(400).stacked().show()

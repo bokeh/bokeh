@@ -204,7 +204,8 @@ class Bar(ChartObject):
         # normalize input to the common DataAdapter Interface
         self.value = DataAdapter(self.value, force_alias=False)
         if not self.cat:
-            self.cat = self.value.columns
+            vals = map(str, self.value.index)
+            self.cat = vals
 
     def get_data(self): #, cat, value):
         """Take the Bar data from the input **value.
