@@ -101,8 +101,7 @@ class SimpleBokehTornadoApp(Application):
         self.wsmanager = websocket.WebSocketManager()
         self.subscriber = Subscriber(server_settings.ctx, [server_settings.sub_zmqaddr], self.wsmanager)
         if server_settings.run_forwarder:
-            self.forwarder = Forwarder(server_settings.pub_zmqaddr,
-                                       server_settings.sub_zmqaddr)
+            self.forwarder = Forwarder(server_settings.ctx, server_settings.pub_zmqaddr, server_settings.sub_zmqaddr)
         else:
             self.forwarder = None
 

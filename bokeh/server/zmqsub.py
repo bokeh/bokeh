@@ -32,6 +32,8 @@ class Subscriber(object):
                     msg = socket.recv_json()
                     topic, msg, exclude = msg['topic'], msg['msg'], msg['exclude']
                     self.wsmanager.send(topic, msg, exclude=exclude)
+        except zmq.ContextTerminated:
+            pass
         finally:
             for s in sockets:
                 s.close()
