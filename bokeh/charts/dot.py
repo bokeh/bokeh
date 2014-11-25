@@ -1,7 +1,7 @@
 """This is the Bokeh charts interface. It gives you a high level API to build
 complex plot is a simple way.
 
-This is the TimeSeries class which lets you build your TimeSeries charts just
+This is the Dot class which lets you build your Dot charts just
 passing the arguments to the Chart class and calling the proper functions.
 It also add detection of the incomming input to see if it is a pandas dataframe.
 """
@@ -39,40 +39,18 @@ class Dot(Bar):
     And finally add the needed glyphs (rects) taking the references
     from the source.
 
-    Examples:
-
-        from collections import OrderedDict
-
-        import numpy as np
-
-        from bokeh.charts import Bar
-        from bokeh.sampledata.olympics2014 import data
-
-        data = {d['abbr']: d['medals'] for d in data['data'] if d['medals']['total'] > 0}
-
-        countries = sorted(data.keys(), key=lambda x: data[x]['total'], reverse=True)
-
-        gold = np.array([data[abbr]['gold'] for abbr in countries], dtype=np.float)
-        silver = np.array([data[abbr]['silver'] for abbr in countries], dtype=np.float)
-        bronze = np.array([data[abbr]['bronze'] for abbr in countries], dtype=np.float)
-
-        medals = OrderedDict(bronze=bronze, silver=silver, gold=gold)
-
-        bar = Bar(medals, countries)
-        bar.title("stacked, dict_input").xlabel("countries").ylabel("medals")\
-.legend(True).width(600).height(400).stacked().notebook().show()
     """
     # disable x grid
     xgrid=False
 
-    def __init__(self, value, cat=None, show_segment=False,
+    def __init__(self, values, cat=None, show_segment=False,
                  title=None, xlabel=None, ylabel=None, legend=False,
                  xscale="categorical", yscale="linear", width=800, height=600,
                  tools=True, filename=False, server=False, notebook=False,
                  facet=False):
         """
         Args:
-            value (dict): a dict containing the data with names as a key
+            values (dict): a dict containing the data with names as a key
                 and the data as a value.
             cat (list or bool, optional): list of string representing the categories.
                 Defaults to None.
@@ -130,7 +108,7 @@ class Dot(Bar):
         """
         self.show_segment = show_segment
         super(Dot, self).__init__(
-            value, cat, False, # stacked is always false
+            values, cat, False, # stacked is always false
             title, xlabel, ylabel, legend,
             xscale, yscale, width, height,
             tools, filename, server, notebook, facet)
@@ -144,41 +122,33 @@ class Dot(Bar):
         Args:
             stacked (bool): whether to stack the bars in your plot.
         """
-        self.tuples = list(self._chunker(self.attr, 6  ))
+        self.tuples = list(self._chunker(self.attr, 4))
         colors = self._set_colors(self.tuples)
 
-        # sixtet elements are: [data, mid, stacked, cat, zeros, segment_top]
-        for i, sixtet in enumerate(self.tuples):
+        # quartet elements are: [data, cat, zeros, segment_top]
+        for i, quartet in enumerate(self.tuples):
             self.chart.make_scatter(
-                self.source, sixtet[3], sixtet[0], 'circle',
+                self.source, quartet[1], quartet[0], 'circle',
                 colors[i - 1], line_color='black',
                 size=15,
                 fill_alpha=1.,
             )
 
             self.chart.make_segment(
-                self.source,
-                sixtet[3],
-                sixtet[4],
-                sixtet[3],
-                sixtet[5],
-                'black',
-                2,
+                self.source, quartet[1], quartet[2],
+                quartet[1], quartet[3], 'black', 2,
             )
 
             if i < len(self.tuples):
                 self.create_plot_if_facet()
 
-    def get_data(self): #, cat, value):
-        """Take the Bar data from the input **value.
+    def get_data(self):
+        """Take the Dot data from the input **value.
 
         It calculates the chart properties accordingly. Then build a dict
         containing references to all the calculated points to be used by
         the rect glyph inside the ``draw`` method.
 
-        Args:
-            cat (list): categories as a list of strings
-            values (dict or pd obj): the values to be plotted as bars.
         """
         # TODO: Clean useless code inherited from bars...
         self.zero = np.zeros(len(self.cat))
@@ -189,18 +159,16 @@ class Dot(Bar):
 
         # list to save all the groups available in the incomming input
         # Grouping
-        self.groups.extend(self.value.keys())
-        step = np.linspace(0, 1.0, len(self.value.keys()) + 1, endpoint=False)
+        self.groups.extend(self.values.keys())
+        step = np.linspace(0, 1.0, len(self.values.keys()) + 1, endpoint=False)
 
-        for i, val in enumerate(self.value.keys()):
-            values = self.value[val]
-            self.set_and_get("", val, self.value[val])
-            self.set_and_get("mid", val, np.array(self.value[val]) / 2)
-            self.set_and_get("stacked", val, self.zero + np.array(self.value[val]) / 2)
-            # Grouped
+        for i, val in enumerate(self.values.keys()):
+            values = self.values[val]
+            # original y value
+            self.set_and_get("", val, self.values[val])
+            # x value
             self.set_and_get("cat", val, [c + ":" + str(step[i + 1]) for c in self.cat])
-            # Stacked
-            self.zero += self.value[val]
-
-            self.set_and_get("z_", val, np.zeros(len(self.value[val])))
-            self.set_and_get("seg_top_", val, self.value[val] - np.array([2]*len(values)))
+            # zeros
+            self.set_and_get("z_", val, np.zeros(len(self.values[val])))
+            # segment top y value
+            self.set_and_get("seg_top_", val, self.values[val] - np.array([2]*len(values)))
