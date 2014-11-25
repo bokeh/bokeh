@@ -174,7 +174,7 @@ class Line(ChartObject):
         return xs, values
 
     def get_data(self):
-        """It calculates the chart properties accordingly from Line.values.
+        """Calculate the chart properties accordingly from line.values.
         Then build a dict containing references to all the points to be used by
         the line glyph inside the ``draw`` method.
 
