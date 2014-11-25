@@ -18,7 +18,7 @@ methods.
 #-----------------------------------------------------------------------------
 
 from ._charts import Chart
-from bokeh.properties import bokeh_integer_types, Datetime
+from ..properties import bokeh_integer_types, Datetime
 
 try:
     import numpy as np
@@ -627,7 +627,7 @@ class DataAdapter(object):
             # in this case let's use indices as groups keys
             self.convert_index_to_int = True
             indexes = range(len(self._values))
-            return map(str, indexes)
+            return list(map(str, indexes))
 
         else:
             return list(keys)
