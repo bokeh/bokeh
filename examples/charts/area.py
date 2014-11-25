@@ -1,8 +1,5 @@
 from collections import OrderedDict
 from bokeh.charts.area import Area
-#xyvalues = pd.DataFrame(xyvalues)
-#xyvalues = xyvalues.values()
-#xyvalues = np.array(xyvalues.values())
 
 xyvalues = [
     [2,3,7, 5,26,221,44,233,254,265,266,267,120,111],
@@ -11,11 +8,14 @@ xyvalues = [
 ]
 
 xyvalues = OrderedDict(
-    python = xyvalues[0],
-    pypy = xyvalues[1],
-    jython = xyvalues[2]
+    python=xyvalues[0],
+    pypy=xyvalues[1],
+    jython=xyvalues[2],
 )
 
-ts = Area(xyvalues, title="Lines, pd_input",
-                ylabel='Performance', filename="line.html")#, facet=True)
+ts = Area(
+    xyvalues, title="Lines, pd_input",
+    ylabel='Performance', filename="line.html",
+    facet=False, stacked=False
+)
 ts.legend("top_left").show()

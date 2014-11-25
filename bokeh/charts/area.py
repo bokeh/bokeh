@@ -1,35 +1,47 @@
 from .line import Line
-from collections import OrderedDict
-import numpy as np
 
+try:
+    import numpy as np
+
+except ImportError:
+    np = None
 
 class Area(Line):
+    def __init__(self, xy,
+                 index=None,
+                 title=None, xlabel=None, ylabel=None, legend=False,
+                 xscale="linear", yscale="linear", width=800, height=600,
+                 tools=True, filename=False, server=False, notebook=False,
+                 facet=False, stacked=False):
+        self.stacked = stacked
+
+        super(Area, self).__init__(
+            xy, index, title, xlabel, ylabel, legend,
+            xscale, yscale, width, height,
+            tools, filename, server, notebook, facet
+        )
+
     def draw(self):
-        """Use the line glyphs to connect the xy points in the time series.
+        """Use the patch glyphs to fill the area connecting the xy points
+         in the series.
 
         Takes reference points from the data loaded at the ColumnDataSurce.
         """
-
-        self.duplet = list(self._chunker(self.attr, 2))
         colors = self._set_colors(self.attr)
 
-        for i, duplet in enumerate(self.attr[1:], start=1):
-            self.chart.make_patch(self.source, 'x', duplet, colors[i - 1])
+        for i, series_name in enumerate(self.attr[1:]):
+            self.chart.make_patch(self.source, 'x', series_name, colors[i])
 
-            if i < len(self.duplet):
+            if i < len(self.attr) - 1:
                 self.create_plot_if_facet()
 
-
-    def get_data(self):#, xy):
-        """Take the x/y data from the input **value.
+    def get_data(self):
+        """Take the x/y data from the input instance values.
 
         It calculates the chart properties accordingly. Then build a dict
         containing references to all the points to be used by
-        the line glyph inside the ``draw`` method.
+        the patch glyph inside the ``draw`` method.
 
-        Args:
-            xy (dict): a dict containing the data with names as a key
-                and the data as a value.
         """
         self.data = dict()
 
@@ -37,47 +49,33 @@ class Area(Line):
         self.attr = []
 
         xs, self.xy = self.prepare_data(self.xy)
-        import numpy as np
-
         last = np.zeros(len(xs))
 
         x2 = np.hstack((xs[::-1], xs))
         self.set_and_get("x", "", x2)
-        #self.set_and_get("x", "", np.array(xs))
 
-        #prevs = [] #OrderedDict()
-        #cvals = np.array(self.xy.values()).T
-
-        #for row in cvals:
-        #    row = sorted(row)
-        #    prow = [0] + row[:-1]
-        #    vv = {}
-        #    for v, pv in zip(row, prow):
-        #        vv[v] = pv
-        #
-        #    prevs.append(vv)
-
-        for indrow, col in enumerate(self.xy.keys()):
+        for grp in self.xy.keys():
+            # TODO: This condition may be removed or changed depending on
+            # the validation of self.index
             if isinstance(self.index, basestring) \
-                and col == self.index:
+                and grp == self.index:
                 continue
 
-            values = []
-            #prevvalues = []
-            for indx, x in enumerate(xs):
-                v = self.xy[col][x]
-                values.append(v)
-            #    prevvalues.append(prevs[indx][v])
+            # get single series values
+            col_values = self.xy[grp]
+            _values = [col_values[x] for indx, x in enumerate(xs)]
 
-            #values = np.array(values)
-            next = last + values
-            #next = np.hstack((prevvalues[::-1], values))
-
+            # to draw area we need 2 coordinates. The lower values will always
+            # be 0 in case of non stacked area and will be the previous series
+            # top value in case of stacked charts
+            next = last + _values
             values = np.hstack((last[::-1], next))
-            #_values = np.hstack((prevvalues[::-1], next))
 
-            self.set_and_get("y_", col, values)
+            # only update when stacked, otherwise we always want to start from 0
+            if self.stacked:
+                last = next
 
-            # save every new group we find
-            self.groups.append(col)
+            # save values and new group
+            self.set_and_get("y_", grp, values)
+            self.groups.append(grp)
 
