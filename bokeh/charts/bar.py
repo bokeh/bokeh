@@ -17,11 +17,14 @@ It also add a new chained stacked method.
 # Imports
 #-----------------------------------------------------------------------------
 
-import numpy as np
-import pandas as pd
+try:
+    import numpy as np
+
+except ImportError:
+    print "bokeh.charts needs numpy installed to work properly!"
+    raise
 
 from ._chartobject import ChartObject, DataAdapter
-
 from ..objects import ColumnDataSource, FactorRange, Range1d
 
 #-----------------------------------------------------------------------------
@@ -207,7 +210,7 @@ class Bar(ChartObject):
             vals = map(str, self.value.index)
             self.cat = vals
 
-    def get_data(self): #, cat, value):
+    def get_data(self):
         """Take the Bar data from the input **value.
 
         It calculates the chart properties accordingly. Then build a dict
