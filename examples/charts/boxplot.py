@@ -1,9 +1,12 @@
-import pandas as pd
-import numpy as np
 from collections import OrderedDict
 
-# we throw the data into a pandas df
+import pandas as pd
+import numpy as np
+
 from bokeh.sampledata.olympics2014 import data
+from bokeh.charts import BoxPlot
+
+# create a DataFrame with the sampe data
 df = pd.io.json.json_normalize(data['data'])
 
 # we filter by countries with at least one medal and sort
@@ -19,16 +22,14 @@ bronze = df['medals.bronze'].astype(float).values
 # later, we build a dict containing the grouped data
 medals = OrderedDict(bronze=bronze, silver=silver, gold=gold)
 
-# any of the following commented are valid Bar inputs
+# any of the following commented are valid BoxPlot inputs
 #medals = pd.DataFrame(medals)
 #medals = medals.values()
 #medals = tuple(medals.values())
 #medals = np.array(medals.values())
 
-
-# and finally we drop the dict into our BoxPlot chart
-from bokeh.charts import BoxPlot
-boxplot = BoxPlot(medals, marker='circle', outliers=True, title="boxplot test",
-                  xlabel="medal type", ylabel="medal count",
-             width=600, height=400, filename="boxplot.html")
+boxplot = BoxPlot(
+    medals, marker='circle', outliers=True, title="boxplot test",
+    xlabel="medal type", ylabel="medal count", width=600, height=400,
+    filename="boxplot.html")
 boxplot.show()

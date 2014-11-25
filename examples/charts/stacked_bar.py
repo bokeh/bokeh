@@ -1,8 +1,10 @@
-import pandas as pd
 from collections import OrderedDict
+import pandas as pd
 
 # we throw the data into a pandas df
 from bokeh.sampledata.olympics2014 import data
+from bokeh.charts import Bar
+
 df = pd.io.json.json_normalize(data['data'])
 
 # we filter by countries with at least one medal and sort
@@ -18,25 +20,11 @@ bronze = df['medals.bronze'].astype(float).values
 # later, we build a dict containing the grouped data
 medals = OrderedDict(bronze=bronze, silver=silver, gold=gold)
 
-# and finally we drop the countries and medals dict into our Bar chart
-from bokeh.charts import Bar
-
-# Clean dataframe series that we don't care...
-df.pop('name')
-df.pop('abbr')
-df.pop('medals.total')
-df.index = countries
-
 # any of the following commented are valid Bar inputs
 #medals = pd.DataFrame(medals)
-#medals = pd.DataFrame(medals).T.values
-#medals = (medals.values()
+medals = medals.values()
 
 bar = Bar(medals, countries, filename="stacked_bar.html")
-
-#TODO: The following version has issues with stacked bars positions..
-#bar = Bar(df, countries, filename="stacked_bar.html")
-#bar = Bar(df.T.values, countries, filename="stacked_bar.html")
-
-bar.title("Stacked bars").xlabel("countries").ylabel("medals")\
-   .legend(True).width(600).height(400).stacked(True).show()
+bar.title("Stacked bars").xlabel("countries").ylabel("medals")
+bar.legend(True).width(600).height(400).stacked(True)
+bar.show()

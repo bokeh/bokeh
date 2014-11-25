@@ -17,12 +17,7 @@ index = df3.index.tolist()
 df = df3.to_dict()
 df = OrderedDict(
     sorted(
-        [
-            (
-                k,
-                OrderedDict([(kk, v[kk]) for kk in index])
-            ) for k, v in df.items()
-        ]
+        [(k, OrderedDict([(kk, v[kk]) for kk in index]) ) for k, v in df.items()]
     )
 )
 
@@ -31,6 +26,5 @@ df = OrderedDict(
 #df = df3.values.T
 #df = list(df3.values.T)
 
-#hm = CategoricalHeatMap(df3, title="categorical heatmap, pd_input", filename="cat_heatmap.html")
-hm = HeatMap(df, title="categorical heatmap, pd_input", filename="cat_heatmap.html")
+hm = HeatMap(df, title="categorical heatmap, pd_input", filename="heatmap.html")
 hm.width(1000).height(400).show()

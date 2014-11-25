@@ -1,5 +1,8 @@
 from collections import OrderedDict
-from bokeh.charts.dot import Dot
+import pandas as pd
+import numpy as np
+from bokeh.charts import Dot
+
 
 xyvalues = [
     [2,3,7, 5,26],
@@ -13,7 +16,11 @@ xyvalues = OrderedDict(
     jython = xyvalues[2]
 )
 
-ts = Dot(xyvalues, cat=['lists','loops','dicts', 'gen exp', 'exceptions'],
-         title="Lines, pd_input",
-         ylabel='Performance', filename="line.html")
-ts.legend("top_left").show()
+# any of the following commented are valid Bar inputs
+#xyvalues = pd.DataFrame(xyvalues)
+#xyvalues = xyvalues.values()
+#xyvalues = np.array(xyvalues.values())
+
+dots = Dot(xyvalues, cat=['lists','loops','dicts', 'gen exp', 'exceptions'],
+         title="Dots Example", ylabel='Performance', filename="dots.html")
+dots.legend("top_left").show()
