@@ -18,14 +18,10 @@ It also add a new chained stacked method.
 #-----------------------------------------------------------------------------
 
 from math import pi, cos, sin
-import numpy as np
 import pandas as pd
 
 from ._chartobject import ChartObject, DataAdapter
-from .bar import Bar
-from ..objects import ColumnDataSource, FactorRange, Range1d, DataRange1d
-from bokeh.glyphs import Wedge, AnnularWedge, ImageURL, Text
-from bokeh.colors import Color
+from ..objects import ColumnDataSource, Range1d
 
 #-----------------------------------------------------------------------------
 # Classes and functions
