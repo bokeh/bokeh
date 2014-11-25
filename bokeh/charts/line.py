@@ -126,7 +126,7 @@ class Line(ChartObject):
                 loading the data dict.
                 Needed for _set_And_get method.
         """
-        self.xy = xy#DataAdapter(xy, force_alias=False)
+        self.xy = xy
         self.source = None
         self.xdr = None
         self.ydr = None
