@@ -66,7 +66,7 @@ class BoxPlot(ChartObject):
     # not showing x grid
     xgrid=False
 
-    def __init__(self, value, marker="circle", outliers=True,
+    def __init__(self, values, marker="circle", outliers=True,
                  title=None, xlabel=None, ylabel=None, legend=False,
                  xscale="categorical", yscale="linear", width=800, height=600,
                  tools=True, filename=False, server=False, notebook=False):
@@ -126,7 +126,7 @@ class BoxPlot(ChartObject):
                 loading the data dict.
                 Needed for _set_And_get method.
         """
-        self.value = DataAdapter(value, force_alias=False)
+        self.values = DataAdapter(values, force_alias=False)
         self.__marker = marker
         self.__outliers = outliers
         self.xdr = None
@@ -182,16 +182,10 @@ class BoxPlot(ChartObject):
         self.marker = self._marker
         self.outliers = self._outliers
 
-        ## assuming value is a OrdererDict
-        #self.value = value
-
-        if isinstance(self.value, pd.DataFrame):
-            self.groups = self.value.columns
+        if isinstance(self.values, pd.DataFrame):
+            self.groups = self.values.columns
         else:
-            self.groups = list(self.value.keys())
-
-        #self.marker = marker
-        #self.outliers = outliers
+            self.groups = list(self.values.keys())
 
         # add group to the self.data_segment dict
         self.data_segment["groups"] = self.groups
@@ -224,7 +218,7 @@ class BoxPlot(ChartObject):
         for i, level in enumerate(self.groups):
             # Compute quantiles, center points, heights, IQR, etc.
             # quantiles
-            q = np.percentile(self.value[level], [25, 50, 75])
+            q = np.percentile(self.values[level], [25, 50, 75])
             q0_points.append(q[0])
             q2_points.append(q[2])
 
@@ -244,8 +238,8 @@ class BoxPlot(ChartObject):
             lower_height_boxes.append(q[1] - q[0])
 
             # Store indices of outliers as list
-            outliers = np.where((self.value[level] > upper) | (self.value[level] < lower))[0]
-            out = self.value[level][outliers]
+            outliers = np.where((self.values[level] > upper) | (self.values[level] < lower))[0]
+            out = self.values[level][outliers]
             for o in out:
                 out_x.append(level)
                 out_y.append(o)

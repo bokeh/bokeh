@@ -18,18 +18,13 @@ bronze = df['medals.bronze'].astype(float).values
 
 # later, we build a dict containing the grouped data
 medals = OrderedDict(bronze=bronze, silver=silver, gold=gold)
+
+# any of the following commented are valid Bar inputs
 #medals = pd.DataFrame(medals)
 #medals = medals.values()
 #medals = tuple(medals.values())
 #medals = np.array(medals.values())
 
-# non ordered df
-#df.pop('name')
-#df.pop('abbr')
-#df.pop('medals.total')
-#df.index = countries
-#
-#medals = df
 
 # and finally we drop the dict into our BoxPlot chart
 from bokeh.charts import BoxPlot
