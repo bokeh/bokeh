@@ -68,7 +68,7 @@ class Bar(ChartObject):
     # disable x grid
     xgrid=False
 
-    def __init__(self, value, cat=None, stacked=False,
+    def __init__(self, values, cat=None, stacked=False,
                  title=None, xlabel=None, ylabel=None, legend=False,
                  xscale="categorical", yscale="linear", width=800, height=600,
                  tools=True, filename=False, server=False, notebook=False,
@@ -132,7 +132,7 @@ class Bar(ChartObject):
                 Needed for _set_And_get method.
         """
         self.cat = cat
-        self.value = value
+        self.values = values
         self.__stacked = stacked
         self.source = None
         self.xdr = None
@@ -205,9 +205,9 @@ class Bar(ChartObject):
         super(Bar, self)._setup_show()
 
         # normalize input to the common DataAdapter Interface
-        self.value = DataAdapter(self.value, force_alias=False)
+        self.values = DataAdapter(self.values, force_alias=False)
         if not self.cat:
-            vals = map(str, self.value.index)
+            vals = map(str, self.values.index)
             self.cat = vals
 
     def get_data(self):
@@ -225,7 +225,7 @@ class Bar(ChartObject):
         # width should decrease proportionally to the value length.
         # 1./len(value) doesn't work well as the width needs to decrease a
         # little bit faster
-        self.width_cat = [min(0.2, (1./len(self.value))**1.1)] * len(self.cat)
+        self.width_cat = [min(0.2, (1./len(self.values))**1.1)] * len(self.cat)
         self.zero = np.zeros(len(self.cat))
         self.data = dict(cat=self.cat, width=self.width, width_cat=self.width_cat, zero=self.zero)
 
@@ -234,14 +234,14 @@ class Bar(ChartObject):
 
         # list to save all the groups available in the incomming input
         # Grouping
-        step = np.linspace(0, 1.0, len(self.value.keys()) + 1, endpoint=False)
+        step = np.linspace(0, 1.0, len(self.values.keys()) + 1, endpoint=False)
 
-        self.groups.extend(self.value.keys())
-        for i, val in enumerate(self.value.keys()):
-            self.set_and_get("", val, self.value[val])
-            self.set_and_get("mid", val, np.array(self.value[val]) / 2)
-            self.set_and_get("stacked", val, self.zero + np.array(self.value[val]) / 2)
+        self.groups.extend(self.values.keys())
+        for i, val in enumerate(self.values.keys()):
+            self.set_and_get("", val, self.values[val])
+            self.set_and_get("mid", val, np.array(self.values[val]) / 2)
+            self.set_and_get("stacked", val, self.zero + np.array(self.values[val]) / 2)
             # Grouped
             self.set_and_get("cat", val, [c + ":" + str(step[i + 1]) for c in self.cat])
             # Stacked
-            self.zero += self.value[val]
+            self.zero += self.values[val]

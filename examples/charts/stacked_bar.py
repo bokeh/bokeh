@@ -1,6 +1,6 @@
 import pandas as pd
-import numpy as np
 from collections import OrderedDict
+
 # we throw the data into a pandas df
 from bokeh.sampledata.olympics2014 import data
 df = pd.io.json.json_normalize(data['data'])
@@ -27,23 +27,16 @@ df.pop('abbr')
 df.pop('medals.total')
 df.index = countries
 
-# OK
-#bar = Bar(medals, countries, filename="stacked_bar.html")
+# any of the following commented are valid Bar inputs
+#medals = pd.DataFrame(medals)
+#medals = pd.DataFrame(medals).T.values
+#medals = (medals.values()
 
-#TODO: This version has issues with stached bars positions..
+bar = Bar(medals, countries, filename="stacked_bar.html")
+
+#TODO: The following version has issues with stacked bars positions..
 #bar = Bar(df, countries, filename="stacked_bar.html")
-
-# OK
-#bar = Bar(pd.DataFrame(medals), countries, filename="stacked_bar.html")
-
-#TODO: This version has issues with stached bars positions..
 #bar = Bar(df.T.values, countries, filename="stacked_bar.html")
 
-# OK
-#bar = Bar(pd.DataFrame(medals).T.values, countries, filename="stacked_bar.html")
-
-# OK
-bar = Bar(medals.values(), filename="stacked_bar.html")
-
 bar.title("Stacked bars").xlabel("countries").ylabel("medals")\
-   .legend(True).width(600).height(400).stacked().show()
+   .legend(True).width(600).height(400).stacked(True).show()
