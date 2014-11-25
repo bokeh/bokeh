@@ -350,7 +350,7 @@ class Chart(object):
             x=x, y=y, fill_color=color, fill_alpha=0.9)
 
         self._append_glyph(source, patch)
-        return path
+        return patch
 
     def make_wedge(self, source, **kws):
         """Create a wedge glyph and append it to the renderers list.
