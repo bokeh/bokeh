@@ -22,8 +22,6 @@ define [
       # better grid plot. This just mimics all the events that
       # any of the tool types might expect to get.
       @listenTo(@, 'do', @do)
-      #@set('active', true)
-      #@listenTo(@, 'change:active', @active)
       return null
 
     do: () ->
