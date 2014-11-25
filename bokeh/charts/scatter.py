@@ -65,7 +65,7 @@ class Scatter(ChartObject):
         scatter.title("iris dataset, dict_input").xlabel("petal_length").ylabel("petal_width")\
 .legend("top_left").width(600).height(400).notebook().show()
     """
-    def __init__(self, pairs,
+    def __init__(self, values,
                  title=None, xlabel=None, ylabel=None, legend=False,
                  xscale="linear", yscale="linear", width=800, height=600,
                  tools=True, filename=False, server=False, notebook=False,
@@ -124,7 +124,7 @@ class Scatter(ChartObject):
                 loading the data dict.
                 Needed for _set_And_get method.
         """
-        self.pairs = pairs
+        self.values = values
         self.source = None
         self.xdr = None
         self.ydr = None
@@ -144,26 +144,19 @@ class Scatter(ChartObject):
         super(Scatter, self).check_attr()
 
     def get_data(self):
-        """Take the x/y data from the input **value.
+        """Take the scatter.values data to calculate the chart properties
+        accordingly. Then build a dict containing references to all the
+        calculated points to be used by the marker glyph inside the
+        ``draw`` method.
 
-        It calculates the chart properties accordingly. Then build a dict
-        containing references to all the calculated points to be used by
-        the marker glyph inside the ``draw`` method.
-
-        Args:
-            pairs (dict): a dict containing the data with names as a key
-                and the data as a value.
         """
         self.data = dict()
-
-        ## assuming value is an ordered dict
-        #self.pairs = pairs
 
         # list to save all the attributes we are going to create
         self.attr = []
 
         # list to save all the groups available in the incomming input
-        self.groups.extend(self.pairs.keys())
+        self.groups.extend(self.values.keys())
 
         # Grouping
         self.parse_data()
@@ -171,23 +164,23 @@ class Scatter(ChartObject):
     @property
     def parse_data(self):
         if pd is not None and \
-                isinstance(self.pairs, pd.core.groupby.DataFrameGroupBy):
+                isinstance(self.values, pd.core.groupby.DataFrameGroupBy):
             return self._parse_groupped_data
 
         else:
             return self._parse_data
 
     def _parse_groupped_data(self):
-        for i, val in enumerate(self.pairs.keys()):
-            xy = self.pairs[val]
+        for i, val in enumerate(self.values.keys()):
+            xy = self.values[val]
             self._set_and_get("x_", val, xy[:, 0])
             self._set_and_get("y_", val, xy[:, 1])
 
     def _parse_data(self):
-        for i, val in enumerate(self.pairs.keys()):
+        for i, val in enumerate(self.values.keys()):
             x_, y_ = [], []
-            xy = self.pairs[val]
-            for value in self.pairs.index:
+            xy = self.values[val]
+            for value in self.values.index:
                 x_.append(xy[value][0])
                 y_.append(xy[value][1])
 
@@ -195,7 +188,8 @@ class Scatter(ChartObject):
             self.set_and_get("y_", val, y_)
 
     def get_source(self):
-        "Push the Scatter data into the ColumnDataSource and calculate the proper ranges."
+        """Push the Scatter data into the ColumnDataSource and
+        calculate the proper ranges."""
         self.source = ColumnDataSource(self.data)
 
         x_names, y_names = self.attr[::2], self.attr[1::2]
@@ -211,7 +205,7 @@ class Scatter(ChartObject):
     def draw(self):
         """Use the marker glyphs to display the points.
 
-        Takes reference points from data loaded at the ColumnDataSurce.
+        Takes reference points from data loaded at the ColumnDataSource.
         """
         self.duplet = list(self._chunker(self.attr, 2))
         colors = self._set_colors(self.duplet)
@@ -226,31 +220,31 @@ class Scatter(ChartObject):
     def _setup_show(self):
         super(Scatter, self)._setup_show()
 
+        # check if pandas is installed
         if pd:
-
+            # if it is we try to take advantage of it's data structures
             # asumming we get an groupby object
-            if isinstance(self.pairs, pd.core.groupby.DataFrameGroupBy):
-                from collections import OrderedDict
+            if isinstance(self.values, pd.core.groupby.DataFrameGroupBy):
                 pdict = OrderedDict()
 
-                for i in self.pairs.groups.keys():
-                    self.labels = self.pairs.get_group(i).columns
-                    xname = self.pairs.get_group(i).columns[0]
-                    yname = self.pairs.get_group(i).columns[1]
-                    x = getattr(self.pairs.get_group(i), xname)
-                    y = getattr(self.pairs.get_group(i), yname)
+                for i in self.values.groups.keys():
+                    self.labels = self.values.get_group(i).columns
+                    xname = self.values.get_group(i).columns[0]
+                    yname = self.values.get_group(i).columns[1]
+                    x = getattr(self.values.get_group(i), xname)
+                    y = getattr(self.values.get_group(i), yname)
                     pdict[i] = np.array([x.values, y.values]).T
 
-                self.pairs = DataAdapter(pdict)
-                self.labels = self.pairs.keys()
+                self.values = DataAdapter(pdict)
+                self.labels = self.values.keys()
 
             else:
-                self.pairs = DataAdapter(self.pairs)
-                self.labels = self.pairs.keys()
+                self.values = DataAdapter(self.values)
+                self.labels = self.values.keys()
 
         else:
-            self.pairs = DataAdapter(self.pairs)
-            self.labels = self.pairs.keys()
+            self.values = DataAdapter(self.values)
+            self.labels = self.values.keys()
 
         if self._xlabel is None:
             self._xlabel = self.labels[0]
