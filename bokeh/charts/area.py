@@ -4,7 +4,8 @@ try:
     import numpy as np
 
 except ImportError:
-    np = None
+    print "bokeh.charts needs numpy installed to work properly!"
+    raise
 
 class Area(Line):
     def __init__(self, xy,
