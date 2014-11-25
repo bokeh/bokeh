@@ -8,7 +8,7 @@ except ImportError:
     raise
 
 class Area(Line):
-    def __init__(self, xy,
+    def __init__(self, values,
                  index=None,
                  title=None, xlabel=None, ylabel=None, legend=False,
                  xscale="linear", yscale="linear", width=800, height=600,
@@ -17,7 +17,7 @@ class Area(Line):
         self.stacked = stacked
 
         super(Area, self).__init__(
-            xy, index, title, xlabel, ylabel, legend,
+            values, index, title, xlabel, ylabel, legend,
             xscale, yscale, width, height,
             tools, filename, server, notebook, facet
         )
@@ -26,7 +26,7 @@ class Area(Line):
         """Use the patch glyphs to fill the area connecting the xy points
          in the series.
 
-        Takes reference points from the data loaded at the ColumnDataSurce.
+        Takes reference points from the data loaded at the ColumnDataSource.
         """
         colors = self._set_colors(self.attr)
 
@@ -37,10 +37,8 @@ class Area(Line):
                 self.create_plot_if_facet()
 
     def get_data(self):
-        """Take the x/y data from the input instance values.
-
-        It calculates the chart properties accordingly. Then build a dict
-        containing references to all the points to be used by
+        """Calculate the chart properties accordingly from line.values.
+        Then build a dict containing references to all the points to be used by
         the patch glyph inside the ``draw`` method.
 
         """
@@ -49,13 +47,13 @@ class Area(Line):
         # list to save all the attributes we are going to create
         self.attr = []
 
-        xs, self.xy = self.prepare_data(self.xy)
+        xs, self.values = self.prepare_data(self.values)
         last = np.zeros(len(xs))
 
         x2 = np.hstack((xs[::-1], xs))
         self.set_and_get("x", "", x2)
 
-        for grp in self.xy.keys():
+        for grp in self.values.keys():
             # TODO: This condition may be removed or changed depending on
             # the validation of self.index
             if isinstance(self.index, basestring) \
@@ -63,7 +61,7 @@ class Area(Line):
                 continue
 
             # get single series values
-            col_values = self.xy[grp]
+            col_values = self.values[grp]
             _values = [col_values[x] for indx, x in enumerate(xs)]
 
             # to draw area we need 2 coordinates. The lower values will always
@@ -79,4 +77,3 @@ class Area(Line):
             # save values and new group
             self.set_and_get("y_", grp, values)
             self.groups.append(grp)
-
