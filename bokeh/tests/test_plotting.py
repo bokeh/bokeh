@@ -17,12 +17,19 @@ class TestPlotting(unittest.TestCase):
         self.assertEqual(plt._default_notebook, None)
 
     def test_figure(self):
-        plt.figure()
-        self.assertEqual(plt.curplot(), None)
-        p = plt.circle([1,2,3], [1,2,3])
+        p = plt.figure()
         self.assertEqual(plt.curplot(), p)
-        plt.figure()
-        self.assertEqual(plt.curplot(), None)
+        q = plt.circle([1,2,3], [1,2,3])
+        self.assertEqual(plt.curplot(), q)
+        self.assertNotEqual(p, q)
+        r = plt.figure()
+        self.assertEqual(plt.curplot(), r)
+        self.assertNotEqual(p, r)
+        self.assertNotEqual(q, r)
+        plt.hold()
+        s = plt.circle([1,2,3], [1,2,3])
+        self.assertEqual(plt.curplot(), s)
+        self.assertEqual(r, s)
 
     def test_xaxis(self):
         plt.figure()

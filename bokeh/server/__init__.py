@@ -84,15 +84,6 @@ def build_parser():
                             help="connection string for websocket (unnecessary if auto-starting)",
                             default=None
                             )
-    websockets.add_argument("--zmqaddr",
-                            help="ZeroMQ URL",
-                            default="tcp://127.0.0.1:5555"
-                            )
-    websockets.add_argument("--no-ws-start",
-                            help="don't automatically start a websocket worker",
-                            default=False,
-                            action="store_true"
-                            )
     websockets.add_argument("--ws-port",
                             help="port for websocket worker to listen on",
                            default=5007,
@@ -186,53 +177,12 @@ def run():
         None if not args.data_directory else args.data_directory,
     ))
 
-    if args.filter_logs:
-        class StaticFilter(logging.Filter):
-
-            def filter(self, record):
-                msg = record.getMessage()
-                return not (msg.startswith(("GET /static", "GET /bokehjs/static")) and \
-                            any(status in msg for status in ["200 OK", "304 NOT MODIFIED"]))
-
-        for handler in logging.getLogger().handlers:
-            handler.addFilter(StaticFilter())
     settings.debugjs = args.debugjs
-    if args.debug :
-        extra_files = settings.js_files() + settings.css_files()
-        start_with_reloader(args, extra_files, args.robust_reload)
-    else:
-        start_server(args)
+    start_server(args)
 
 def start_server(args):
     from . import start
-
-    bokeh_app.debug = args.debug
-    bokeh_app.splitjs = args.splitjs
-    bokeh_app.debugjs = args.debugjs
-
-    backend = {
-        "type": args.backend,
-        "redis_port": args.redis_port,
-        "start_redis": args.start_redis,
-    }
-    websocket = {
-        "ws_conn_string" : args.ws_conn_string,
-        "zmqaddr" : args.zmqaddr,
-        "no_ws_start" : args.no_ws_start,
-        "ws_port" : args.ws_port,
-    }
-    start.prepare_app(backend, single_user_mode=not args.multi_user,
-                      data_directory=args.data_directory)
-    start.configure_websocket(websocket)
-    if args.script:
-        script_dir = dirname(args.script)
-        if script_dir not in sys.path:
-            print ("adding %s to python path" % script_dir)
-            sys.path.append(script_dir)
-        print ("importing %s" % args.script)
-        imp.load_source("_bokeh_app", args.script)
-    start.register_blueprint(args.url_prefix)
-    start.start_app(host=args.ip, port=args.port, verbose=args.verbose)
+    start.start_simple_server(args)
 
 def start_with_reloader(args, js_files, robust):
     def helper():

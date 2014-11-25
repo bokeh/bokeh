@@ -58,9 +58,6 @@ define [
       width = @mget('width')
       height = @mget('height')
 
-      @canvas.width = width * @dpi_ratio
-      @canvas.height = height * @dpi_ratio
-
       @$el.attr('style', "z-index: 50; width:#{width}px; height:#{height}px")
       @canvas.attr('style', "width:#{width}px;height:#{height}px")
       @canvas.attr('width', width*ratio).attr('height', height*ratio)

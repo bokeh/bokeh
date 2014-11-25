@@ -67,13 +67,13 @@ define [
         if tools.length != @get('num_plots')
           continue
         proxy = new _ToolProxy({tools: tools})
-        @get('actions').tools.push(proxy)
+        @get('actions').push(proxy)
 
       for typ, tools of inspectors
         if tools.length != @get('num_plots')
           continue
         proxy = new _ToolProxy({tools: tools})
-        @get('inspectors').tools.push(proxy)
+        @get('inspectors').push(proxy)
 
       for et, info of @get('gestures')
         tools = info.tools

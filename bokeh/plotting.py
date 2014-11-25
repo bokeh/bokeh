@@ -6,23 +6,30 @@ logger = logging.getLogger(__name__)
 import io
 import itertools
 import os
+import re
 import time
 import warnings
 
+from six import string_types
+
 from . import browserlib
 from . import _glyph_functions as gf
+from .deprecate import deprecated
 from .document import Document
 from .embed import notebook_div, file_html, autoload_server
-from .objects import Axis, Grid, GridPlot, Legend, Plot
+from .objects import (
+    Axis, FactorRange, Grid, GridPlot, HBox, Legend, LogAxis, Plot, Tool, VBox, Widget
+)
 from .palettes import brewer
 from .plotting_helpers import (
-    get_default_color, get_default_alpha, _handle_1d_data_args, _list_attr_splat
+    get_default_color, get_default_alpha, _handle_1d_data_args, _list_attr_splat,
+    _get_range, _get_axis_class, _get_num_minor_ticks, _tool_from_string
 )
 from .resources import Resources
 from .session import DEFAULT_SERVER_URL, Session
 from .utils import decode_utf8, publish_display_data
 
-# extra imports -- just thigns to add to 'from plotting import *'
+# extra imports -- just things to add to 'from plotting import *'
 from bokeh.objects import ColumnDataSource
 
 _default_document = Document()
@@ -32,6 +39,273 @@ _default_session = None
 _default_file = None
 
 _default_notebook = None
+
+DEFAULT_TOOLS = "pan,wheel_zoom,box_zoom,save,resize,reset"
+
+class Figure(Plot):
+    __subtype__ = "Figure"
+    __view_model__ = "Plot"
+
+    def __init__(self, *arg, **kw):
+
+        tools = kw.pop("tools", DEFAULT_TOOLS)
+
+        x_range = kw.pop("x_range", None)
+        y_range = kw.pop("y_range", None)
+
+        x_axis_type = kw.pop("x_axis_type", "auto")
+        y_axis_type = kw.pop("y_axis_type", "auto")
+
+        x_minor_ticks = kw.pop('x_minor_ticks', 'auto')
+        y_minor_ticks = kw.pop('y_minor_ticks', 'auto')
+
+        x_axis_location = kw.pop("x_axis_location", "below")
+        y_axis_location = kw.pop("y_axis_location", "left")
+
+        x_axis_label = kw.pop("x_axis_label", "")
+        y_axis_label = kw.pop("y_axis_label", "")
+
+        super(Figure, self).__init__(*arg, **kw)
+
+        self.x_range = _get_range(x_range)
+        self.y_range = _get_range(y_range)
+
+        x_axiscls = _get_axis_class(x_axis_type, self.x_range)
+        if x_axiscls:
+            if x_axiscls is LogAxis:
+                self.x_mapper_type = 'log'
+            xaxis = x_axiscls(plot=self)
+            xaxis.ticker.num_minor_ticks = _get_num_minor_ticks(x_axiscls, x_minor_ticks)
+            axis_label = x_axis_label
+            if axis_label:
+                xaxis.axis_label = axis_label
+            xgrid = Grid(plot=self, dimension=0, ticker=xaxis.ticker)
+            if x_axis_location == "above":
+                self.above.append(xaxis)
+            elif x_axis_location == "below":
+                self.below.append(xaxis)
+
+        y_axiscls = _get_axis_class(y_axis_type, self.y_range)
+        if y_axiscls:
+            if y_axiscls is LogAxis:
+                self.y_mapper_type = 'log'
+            yaxis = y_axiscls(plot=self)
+            yaxis.ticker.num_minor_ticks = _get_num_minor_ticks(y_axiscls, y_minor_ticks)
+            axis_label = y_axis_label
+            if axis_label:
+                yaxis.axis_label = axis_label
+            ygrid = Grid(plot=self, dimension=1, ticker=yaxis.ticker)
+            if y_axis_location == "left":
+                self.left.append(yaxis)
+            elif y_axis_location == "right":
+                self.right.append(yaxis)
+
+        tool_objs = []
+        temp_tool_str = ""
+
+        if isinstance(tools, (list, tuple)):
+            for tool in tools:
+                if isinstance(tool, Tool):
+                    tool_objs.append(tool)
+                elif isinstance(tool, string_types):
+                    temp_tool_str += tool + ','
+                else:
+                    raise ValueError("tool should be a string or an instance of Tool class")
+            tools = temp_tool_str
+
+        # Remove pan/zoom tools in case of categorical axes
+        remove_pan_zoom = (isinstance(self.x_range, FactorRange) or
+                           isinstance(self.y_range, FactorRange))
+
+        repeated_tools = []
+        removed_tools = []
+
+        for tool in re.split(r"\s*,\s*", tools.strip()):
+            # re.split will return empty strings; ignore them.
+            if tool == "":
+                continue
+
+            if remove_pan_zoom and ("pan" in tool or "zoom" in tool):
+                removed_tools.append(tool)
+                continue
+
+            tool_obj = _tool_from_string(tool)
+            tool_obj.plot = self
+
+            tool_objs.append(tool_obj)
+
+        self.tools.extend(tool_objs)
+
+        for typename, group in itertools.groupby(sorted([ tool.__class__.__name__ for tool in self.tools ])):
+            if len(list(group)) > 1:
+                repeated_tools.append(typename)
+
+        if repeated_tools:
+            warnings.warn("%s are being repeated" % ",".join(repeated_tools))
+
+        if removed_tools:
+            warnings.warn("categorical plots do not support pan and zoom operations.\n"
+                          "Removing tool(s): %s" %', '.join(removed_tools))
+
+
+    def _axis(self, *sides):
+        objs = []
+        for s in sides:
+            objs.extend(getattr(self, s, []))
+        axis = [obj for obj in objs if isinstance(obj, Axis)]
+        return _list_attr_splat(axis)
+
+    @property
+    def xaxis(self):
+        """ Get the current `x` axis object(s)
+
+        Returns:
+            splattable list of x-axis objects on this Plot
+        """
+        return self._axis("above", "below")
+
+    @property
+    def yaxis(self):
+        """ Get the current `y` axis object(s)
+
+        Returns:
+            splattable list of y-axis objects on this Plot
+        """
+        return self._axis("left", "right")
+
+    @property
+    def axis(self):
+        """ Get all the current axis objects
+
+        Returns:
+            splattable list of axis objects on this Plot
+        """
+        return _list_attr_splat(self.xaxis + self.yaxis)
+
+    @property
+    def legend(self):
+        """ Get the current :class:`legend <bokeh.objects.Legend>` object(s)
+
+        Returns:
+            splattable list of legend objects on this Plot
+        """
+        legends = [obj for obj in self.renderers if isinstance(obj, Legend)]
+        return _list_attr_splat(legends)
+
+    def _grid(self, dimension):
+        grid = [obj for obj in self.renderers if isinstance(obj, Grid) and obj.dimension==dimension]
+        return _list_attr_splat(grid)
+
+    @property
+    def xgrid(self):
+        """ Get the current `x` :class:`grid <bokeh.objects.Grid>` object(s)
+
+        Returns:
+            splattable list of legend objects on this Plot
+        """
+        return self._grid(0)
+
+    @property
+    def ygrid(self):
+        """ Get the current `y` :class:`grid <bokeh.objects.Grid>` object(s)
+
+        Returns:
+            splattable list of y-grid objects on this Plot
+        """
+        return self._grid(1)
+
+    @property
+    def grid(self):
+        """ Get the current :class:`grid <bokeh.objects.Grid>` object(s)
+
+        Returns:
+            splattable list of grid objects on this Plot
+        """
+        return _list_attr_splat(self.xgrid + self.ygrid)
+
+    annular_wedge     = gf.annular_wedge
+    annulus           = gf.annulus
+    arc               = gf.arc
+    asterisk          = gf.asterisk
+    bezier            = gf.bezier
+    circle            = gf.circle
+    circle_cross      = gf.circle_cross
+    circle_x          = gf. circle_x
+    cross             = gf.cross
+    diamond           = gf.diamond
+    diamond_cross     = gf.diamond_cross
+    image             = gf.image
+    image_rgba        = gf.image_rgba
+    image_url         = gf.image_url
+    inverted_triangle = gf.inverted_triangle
+    line              = gf.line
+    multi_line        = gf.multi_line
+    oval              = gf.oval
+    patch             = gf.patch
+    patches           = gf.patches
+    quad              = gf.quad
+    quadratic         = gf.quadratic
+    ray               = gf.ray
+    rect              = gf.rect
+    segment           = gf.segment
+    square            = gf.square
+    square_cross      = gf.square_cross
+    square_x          = gf.square_x
+    text              = gf.text
+    triangle          = gf.triangle
+    wedge             = gf.wedge
+    x                 = gf.x
+
+    def scatter(self, *args, **kwargs):
+        """ Creates a scatter plot of the given x and y items.
+
+        Args:
+            *args : The data to plot.  Can be of several forms:
+
+                (X, Y)
+                    Two 1D arrays or iterables
+                (XNAME, YNAME)
+                    Two bokeh DataSource/ColumnsRef
+
+            marker (str, optional): a valid marker_type, defaults to "circle"
+            color (color value, optional): shorthand to set both fill and line color
+
+        All the :ref:`userguide_objects_line_properties` and :ref:`userguide_objects_fill_properties` are
+        also accepted as keyword parameters.
+
+        Examples:
+
+            >>> p.scatter([1,2,3],[4,5,6], fill_color="red")
+            >>> p.scatter("data1", "data2", source=data_source, ...)
+
+        """
+        ds = kwargs.get("source", None)
+        names, datasource = _handle_1d_data_args(args, datasource=ds)
+        kwargs["source"] = datasource
+
+        markertype = kwargs.get("marker", "circle")
+
+        # TODO: How to handle this? Just call curplot()?
+        if not len(_color_fields.intersection(set(kwargs.keys()))):
+            kwargs['color'] = get_default_color()
+        if not len(_alpha_fields.intersection(set(kwargs.keys()))):
+            kwargs['alpha'] = get_default_alpha()
+
+        if markertype not in _marker_types:
+            raise ValueError("Invalid marker type '%s'. Use markers() to see a list of valid marker types." % markertype)
+
+        # TODO (bev) make better when plotting.scatter is removed
+        conversions = {
+            "*": "asterisk",
+            "+": "cross",
+            "o": "circle",
+            "ox": "circle_x",
+            "o+": "circle_cross"
+        }
+        if markertype in conversions:
+            markertype = conversions[markertype]
+
+        return getattr(self, markertype)(*args, **kwargs)
 
 def curdoc():
     ''' Return the current document.
@@ -52,6 +326,7 @@ def curdoc():
     except (ImportError, RuntimeError, AttributeError):
         return _default_document
 
+@deprecated("Bokeh 0.7", "bokeh.plotting.Figure objects")
 def curplot():
     ''' Return the current default plot object.
 
@@ -87,6 +362,7 @@ def reset_output():
     _default_file = None
     _default_notebook = None
 
+@deprecated("Bokeh 0.7", "methods on bokeh.plotting.Figure objects")
 def hold(value=True):
     ''' Set or clear the plot hold status on the current document.
 
@@ -111,9 +387,12 @@ def figure(**kwargs):
         None
 
     '''
-    curdoc().figure(**kwargs)
+    fig = Figure(**kwargs)
+    curdoc()._current_plot = fig
+    curdoc().add(fig)
+    return fig
 
-def output_server(docname, session=None, url="default", name=None):
+def output_server(docname, session=None, url="default", name=None, clear=True):
     """ Cause plotting commands to automatically persist plots to a Bokeh server.
 
     Can use explicitly provided Session for persistence, or the default
@@ -128,6 +407,9 @@ def output_server(docname, session=None, url="default", name=None):
             if url is "default" use session.DEFAULT_SERVER_URL
         name (str, optional) :
             if name is None, use the server URL as the name
+        clear (bool, optional) :
+            should an existing server document be cleared of any existing
+            plots. (default: True)
 
     Additional keyword arguments like **username**, **userapikey**,
     and **base_url** can also be supplied.
@@ -138,7 +420,8 @@ def output_server(docname, session=None, url="default", name=None):
     .. note:: Generally, this should be called at the beginning of an
               interactive session or the top of a script.
 
-    .. note:: Calling this function will replaces any existing default Server session
+    .. note:: By default, calling this function will replaces any existing
+              default Server session.
 
     """
     global _default_session
@@ -152,6 +435,8 @@ def output_server(docname, session=None, url="default", name=None):
         session = _default_session
     session.use_doc(docname)
     session.load_document(curdoc())
+    if clear:
+        curdoc().clear()
 
 def output_notebook(url=None, docname=None, session=None, name=None,
                     force=False):
@@ -204,7 +489,7 @@ def show(obj=None, browser=None, new="tab", url=None):
     it in an output cell (IPython notebook).
 
     Args:
-        obj (plot object, optional): it accepts a plot object and just shows it.
+        obj (Widget/Plot object, optional): it accepts a plot object and just shows it.
 
         browser (str, optional) : browser to show with (default: None)
             For systems that support it, the **browser** argument allows specifying
@@ -267,7 +552,7 @@ def save(filename=None, resources=None, obj=None):
         resources (Resources, optional) : BokehJS resource config to use
             if `resources` is None, the current default resource config is used
 
-        obj (Document or Plot object, optional)
+        obj (Document or Widget/Plot object, optional)
             if provided, then this is the object to save instead of curdoc()
             and its curplot()
 
@@ -294,7 +579,7 @@ def save(filename=None, resources=None, obj=None):
             warnings.warn("No current plot to save. Use renderer functions (circle, rect, etc.) to create a current plot (see http://bokeh.pydata.org/index.html)")
             return
         doc = curdoc()
-    elif isinstance(obj, Plot):
+    elif isinstance(obj, Widget):
         doc = Document()
         doc.add(obj)
     elif isinstance(obj, Document):
@@ -331,9 +616,12 @@ def push(session=None, document=None):
         warnings.warn("push() called but no session was supplied and output_server(...) was never called, nothing pushed")
 
 def _doc_wrap(func):
-    extra_doc = "\nThis is a convenience function that acts on the current document, and is equivalent to curdoc().%s(...)" % func.__name__
+    extra_doc = "\nThis is a convenience function that acts on the current plot of the current document, and is equivalent to curlot().%s(...)\n\n" % func.__name__
     func.__doc__ = getattr(gf, func.__name__).__doc__ + extra_doc
-    return func
+    return deprecated(
+        "Bokeh 0.7",
+        "glyph methods on plots, e.g. plt.%s(...)" % func.__name__
+    )(func)
 
 def _plot_function(__func__, *args, **kwargs):
     retval = __func__(curdoc(), *args, **kwargs)
@@ -504,6 +792,7 @@ def markers():
 _color_fields = set(["color", "fill_color", "line_color"])
 _alpha_fields = set(["alpha", "fill_alpha", "line_alpha"])
 
+@deprecated("Bokeh 0.7", "bokeh.plotting.Figure.scatter")
 def scatter(*args, **kwargs):
     """ Creates a scatter plot of the given x and y items.
 
@@ -572,7 +861,7 @@ def gridplot(plot_arrangement, name=None, **kwargs):
         save()
     return grid
 
-
+# TODO (bev) remove after 0.7
 def _axis(*sides):
     p = curplot()
     if p is None:
@@ -583,6 +872,7 @@ def _axis(*sides):
     axis = [obj for obj in objs if isinstance(obj, Axis)]
     return _list_attr_splat(axis)
 
+@deprecated("Bokeh 0.7", "bokeh.plotting.Figure.xaxis")
 def xaxis():
     """ Get the current `x` axis object(s)
 
@@ -591,6 +881,7 @@ def xaxis():
     """
     return _axis("above", "below")
 
+@deprecated("Bokeh 0.7", "bokeh.plotting.Figure.yaxis")
 def yaxis():
     """ Get the current `y` axis object(s)
 
@@ -599,6 +890,7 @@ def yaxis():
     """
     return _axis("left", "right")
 
+@deprecated("Bokeh 0.7", "bokeh.plotting.Figure.axis")
 def axis():
     """ Get all the current axis objects
 
@@ -607,6 +899,7 @@ def axis():
     """
     return _list_attr_splat(xaxis() + yaxis())
 
+@deprecated("Bokeh 0.7", "bokeh.plotting.Figure.legend")
 def legend():
     """ Get the current :class:`legend <bokeh.objects.Legend>` object(s)
 
@@ -619,6 +912,7 @@ def legend():
     legends = [obj for obj in p.renderers if isinstance(obj, Legend)]
     return _list_attr_splat(legends)
 
+# TODO (bev): remove after 0.7
 def _grid(dimension):
     p = curplot()
     if p is None:
@@ -626,6 +920,7 @@ def _grid(dimension):
     grid = [obj for obj in p.renderers if isinstance(obj, Grid) and obj.dimension==dimension]
     return _list_attr_splat(grid)
 
+@deprecated("Bokeh 0.7", "bokeh.plotting.Figure.xgrid")
 def xgrid():
     """ Get the current `x` :class:`grid <bokeh.objects.Grid>` object(s)
 
@@ -634,6 +929,7 @@ def xgrid():
     """
     return _grid(0)
 
+@deprecated("Bokeh 0.7", "bokeh.plotting.Figure.ygrid")
 def ygrid():
     """ Get the current `y` :class:`grid <bokeh.objects.Grid>` object(s)
 
@@ -642,6 +938,7 @@ def ygrid():
     """
     return _grid(1)
 
+@deprecated("Bokeh 0.7", "bokeh.plotting.Figure.grid")
 def grid():
     """ Get the current :class:`grid <bokeh.objects.Grid>` object(s)
 

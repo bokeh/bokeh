@@ -34,10 +34,10 @@ class Viewable(MetaHasProps):
 
         # Create the new class
         newcls = super(Viewable,cls).__new__(cls, class_name, bases, class_dict)
-        entry = class_dict["__view_model__"]
+        entry = class_dict.get("__subtype__", class_dict["__view_model__"])
         # Add it to the reverse map, but check for duplicates first
         if entry in Viewable.model_class_reverse_map:
-            raise Warning("Duplicate __view_model__ declaration of '%s' for " \
+            raise Warning("Duplicate __view_model__ or __subtype__ declaration of '%s' for " \
                           "class %s.  Previous definition: %s" % \
                           (entry, class_name,
                            Viewable.model_class_reverse_map[entry]))
@@ -94,10 +94,18 @@ class PlotObject(HasProps):
 
     @property
     def ref(self):
-        return {
-            'type': self.__view_model__,
-            'id': self._id,
-        }
+
+        if "__subtype__" in self.__class__.__dict__:
+            return {
+                'type': self.__view_model__,
+                'subtype': self.__subtype__,
+                'id': self._id,
+            }
+        else:
+            return {
+                'type': self.__view_model__,
+                'id': self._id,
+            }
 
     def setup_events(self):
         pass

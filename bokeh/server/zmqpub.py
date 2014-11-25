@@ -1,3 +1,7 @@
+from __future__ import absolute_import, print_function
+
+import logging
+log = logging.getLogger(__name__)
 
 from threading import Thread
 
@@ -8,16 +12,16 @@ import zmq
 timeout = 0.1
 
 class Publisher(object):
-    def __init__(self, zmqaddr, queue):
+    def __init__(self, ctx, zmqaddr, queue):
+        self.ctx = ctx
         self.zmqaddr = zmqaddr
         self.queue = queue
         self.kill = False
 
     def run(self):
-        print('zmqpub starting')
-        ctx = zmq.Context()
-        socket = ctx.socket(zmq.PUB)
-        socket.bind(self.zmqaddr)
+        log.debug('zmqpub starting: %s' % self.zmqaddr)
+        socket = self.ctx.socket(zmq.PUB)
+        socket.connect(self.zmqaddr)
         try:
             while not self.kill:
                 try:
@@ -27,7 +31,7 @@ class Publisher(object):
                     pass
         finally:
             socket.close()
-        print('zmqpub exiting')
+        log.debug('zmqpub exiting')
     def send(self, topic, msg, exclude=[]):
         msg = json.dumps({'topic' : topic,
                           'msg' : msg,

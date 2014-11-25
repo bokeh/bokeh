@@ -1,286 +1,185 @@
 define [
-  "underscore",
-  "common/collection",
-  "common/has_parent",
-  "common/continuum_view",
-  "./data_table_template"
-], (_, Collection, HasParent, ContinuumView, data_table_template) ->
+  "underscore"
+  "jquery"
+  "common/continuum_view"
+  "common/has_properties"
+  "common/collection"
+  "util/dom_util"
+  "slick_grid/slick.grid"
+  "slick_grid/plugins/slick.rowselectionmodel"
+  "slick_grid/plugins/slick.checkboxselectcolumn"
+  "jquery_ui/sortable"
+], (_, $, ContinuumView, HasProperties, Collection, DOMUtil, SlickGrid, RowSelectionModel, CheckboxSelectColumn, $1) ->
 
-  ENTER = 13
+  class DataProvider
+
+    constructor: (@source) ->
+      @data = @source.get('data')
+      @fields = _.keys(@data)
+
+    getLength: () -> @source.get_length()
+
+    getItem: (index) ->
+      item = {}
+      for field in @fields
+        item[field] = @data[field][index]
+      return item
+
+    _setItem: (index, item) ->
+      for field, value of item
+        @data[field][index] = value
+      return
+
+    setItem: (index, item) ->
+      @_setItem(index, item)
+      @updateSource()
+
+    getField: (index, field) ->
+      return @data[field][index]
+
+    _setField: (index, field, value) ->
+      @data[field][index] = value
+      return
+
+    setField: (index, field, value) ->
+      @_setField(index, field, value)
+      @updateSource()
+
+    updateSource: () ->
+      # XXX: We should say `@source.set('data', @data)`, but data was updated in-place,
+      # so that would be a no-op. We have to trigger change events manually instead.
+      @source.forceTrigger("data")
+
+    getItemMetadata: (index) -> null
+
+    getRecords: () ->
+      return (@getItem(i) for i in [0...@getLength()])
+
+    sort: (columns) ->
+      cols = for column in columns
+        [column.sortCol.field, if column.sortAsc then 1 else -1]
+
+      if _.isEmpty(cols)
+        cols = [["index", 1]]
+
+      records = @getRecords()
+      records.sort (record1, record2) ->
+        for [field, sign] in cols
+          value1 = record1[field]
+          value2 = record2[field]
+          result =
+            if      value1 == value2 then 0
+            else if value1 >  value2 then sign
+            else                         -sign
+          if result != 0
+            return result
+
+        return 0
+
+      for record, i in records
+        @_setItem(i, record)
+
+      @updateSource()
 
   class DataTableView extends ContinuumView
-
-    template: data_table_template
+    attributes:
+      class: "bk-data-table"
 
     initialize: (options) ->
       super(options)
-      @listenTo(@model, 'destroy', @remove)
-      @listenTo(@model, 'change', @render)
-      @render()
+      DOMUtil.waitForElement(@el, () => @render())
+      @listenTo(@model, 'change', () => @render())
+      source = @mget("source")
+      @listenTo(source, 'change:data', () => @updateGrid())
+      @listenTo(source, 'change:selected', () => @updateSelection())
 
-    events:
-      "keyup .pandasgroup": 'pandasgroup'
-      "keyup .pandasoffset": 'pandasoffset'
-      "keyup .pandassize": 'pandassize'
-      "change .pandasagg": 'pandasagg'
-      "click .cdx-go-first": 'go_first'
-      "click .cdx-go-prev": 'go_prev'
-      "click .cdx-go-next": 'go_next'
-      "click .cdx-go-last": 'go_last'
-      "click .controlsmore": 'toggle_more_controls'
-      "click .cdx-column-sort": 'sort'
-      "click .pandasrow": 'rowclick'
-      "click .filterselected": 'toggle_filterselected'
-      "click .clearselected": 'clearselected'
-      "keyup .computedtxtbox": 'computedtxtbox'
-      "click .column_del": "column_del"
-      "keyup .search": 'search'
+    updateGrid: () ->
+      @data = new DataProvider(@mget("source"))
+      @grid.setData(@data)
+      @grid.render()
 
-    search: (e) =>
-      if e.keyCode == ENTER
-        code = $(e.currentTarget).val()
-        source = @model.get('source')
-        source.rpc('search', [code])
-        e.preventDefault()
+    updateSelection: () ->
+      selected = @mget("source").get("selected")
+      @grid.setSelectedRows(selected)
 
-    column_del: (e) =>
-      source = @model.get('source')
-      old = source.get('computed_columns')
-      name = $(e.currentTarget).attr('name')
-      computed_columns = _.filter(old, (x) ->
-        return x.name != name
-      )
-      source.rpc('set_computed_columns', [computed_columns])
-
-    computedtxtbox: (e) =>
-      if e.keyCode == ENTER
-        name = @$('.computedname').val()
-        code = @$('.computedtxtbox').val()
-        source = @model.get('source')
-        old = source.get('computed_columns')
-        old.push(name: name, code: code)
-        source.rpc('set_computed_columns', [old])
-        e.preventDefault()
-
-    clearselected: (e) =>
-      @model.rpc('setselect', [[]])
-
-    toggle_filterselected: (e) =>
-      checked = @$('.filterselected').is(":checked")
-      @mset('filterselected', checked)
-      @model.save()
-
-    rowclick: (e) =>
-      counts = @counts()
-      selected = @selected()
-      ratios = (select/count for [select,count] in _.zip(selected, counts))
-      selected = (idx for ratio, idx in ratios when ratio > 0.5)
-      rownum = Number($(e.currentTarget).attr('rownum'))
-      index = selected.indexOf(rownum)
-      if index == -1
-        resp = @model.rpc('select', [[rownum]])
-      else
-        resp = @model.rpc('deselect', [[rownum]])
-      return null
-
-    sort: (event) =>
-      column = $(event.currentTarget).parent().data("cdx-column")
-      @model.toggle_column_sort(column)
-
-    toggle_more_controls: () =>
-      if @controls_hide
-        @controls_hide = false
-      else
-        @controls_hide = true
-      @render()
-
-    go_first: () =>
-      @model.go_first()
-
-    go_prev: () =>
-      @model.go_prev()
-
-    go_next: () =>
-      @model.go_next()
-
-    go_last: () =>
-      @model.go_last()
-
-    pandasoffset: (e) ->
-      if e.keyCode == ENTER
-        offset = @$el.find('.pandasoffset').val()
-        offset = Number(offset)
-        if _.isNaN(offset)
-          offset = @model.defaults.offset
-        @model.save('offset', offset, {wait: true})
-        e.preventDefault()
-
-    pandassize: (e) ->
-      if e.keyCode == ENTER
-        sizetxt = @$el.find('.pandassize').val()
-        size = Number(sizetxt)
-        if _.isNaN(size) or sizetxt == ""
-          size = @model.defaults.length
-        if size + @mget('offset') > @mget('maxlength')
-          size = @mget('maxlength') - @mget('offset')
-        @model.save('length', size, {wait:true})
-        e.preventDefault()
-
-    pandasagg: () ->
-      @model.save('agg', @$el.find('.pandasagg').val(), {'wait':true})
-
-    fromcsv: (str) ->
-      #string of csvs, to list of those values
-      if not str
-        return []
-      return _.map(str.split(","), (x) -> return x.trim())
-
-    pandasgroup: (e) ->
-      if e.keyCode == ENTER
-        @model.set(
-          group: @fromcsv(@$el.find(".pandasgroup").val())
-          offset: 0
-        )
-        @model.save()
-        e.preventDefault()
-        return false
-
-    counts: () ->
-      @mget('tabledata').data._counts
-
-    selected: () ->
-      @mget('tabledata').data._selected
-
-    colors: () =>
-      counts = @counts()
-      selected = @selected()
-      if counts and selected
-        return _.map(_.zip(counts, selected), (temp) ->
-          [count, selected] = temp
-          alpha = 0.3 * selected / count
-          return "rgba(0,0,255,#{alpha})"
-        )
-      else
-        return null
+    newIndexColumn: () ->
+      return {
+        id: _.uniqueId()
+        name: "#"
+        field: "index"
+        width: 40
+        behavior: "select"
+        cannotTriggerInsert: true
+        resizable: false
+        selectable: false
+        sortable: true
+        cssClass: "bk-cell-index"
+      }
 
     render: () ->
-      group = @mget('group')
-      if _.isArray(group)
-        group = group.join(",")
-      sort = @mget('sort')
-      if _.isArray(sort)
-        sort = sort.join(",")
-      colors = @colors()
-      sort_ascendings = {}
-      for obj in  @mget('sort')
-        sort_ascendings[obj['column']] = obj['ascending']
-      source = @mget('source')
-      template_data =
-        skip:
-          _counts: true
-          _selected: true
-          index: true
-        computed_columns: @mget('source').get('computed_columns')
-        columns: @mget('tabledata').column_names
-        data: @mget('tabledata').data
-        group: group
-        sort_ascendings: sort_ascendings
-        offset: @mget('offset')
-        length: @model.length()
-        filterselected: @mget('filterselected')
-        totallength: @mget('totallength')
-        counts: @mget('tabledata').data._counts
-        selected: @mget('tabledata').data._selected
-        controls_hide: @controls_hide
-        colors: colors
-        index: @mget('tabledata').data.index
+      columns = (column.toColumn() for column in @mget("columns"))
 
-      @$el.empty()
-      html = @template(template_data)
-      @$el.html(html)
-      @$(".pandasagg")
-        .find("option[value=\"#{@mget('agg')}\"]")
-        .attr('selected', 'selected')
-      @$el.addClass("bk-table")
+      if @mget("selectable") == "checkbox"
+        checkboxSelector = new CheckboxSelectColumn(cssClass: "bk-cell-select")
+        columns.unshift(checkboxSelector.getColumnDefinition())
 
-  class DataTable extends HasParent
+      if @mget("row_headers")
+        columns.unshift(@newIndexColumn())
+
+      width = @mget("width")
+      height = @mget("height")
+
+      options =
+        enableCellNavigation: @mget("selectable") != false
+        enableColumnReorder: true
+        forceFitColumns: @mget("fit_columns")
+        autoHeight: height == "auto"
+        multiColumnSort: @mget("sortable")
+        editable: @mget("editable")
+        autoEdit: false
+
+      if width?
+        @$el.css(width: "#{@mget("width")}px")
+      if height? and height != "auto"
+        @$el.css(height: "#{@mget("height")}px")
+
+      @data = new DataProvider(@mget("source"))
+      @grid = new SlickGrid(@el, @data, columns, options)
+
+      @grid.onSort.subscribe (event, args) =>
+        columns = args.sortCols
+        @data.sort(columns)
+        @grid.invalidate()
+        @grid.render()
+
+      if @mget("selectable") != false
+        @grid.setSelectionModel(new RowSelectionModel(selectActiveRow: not checkboxSelector?))
+        if checkboxSelector? then @grid.registerPlugin(checkboxSelector)
+
+        @grid.onSelectedRowsChanged.subscribe (event, args) =>
+            @mget("source").set("selected", args.rows)
+
+  class DataTable extends HasProperties
     type: 'DataTable'
-
-    initialize: (attrs, options)->
-      super(attrs, options)
-      @throttled_fetch = _.throttle((() => @fetch()), 500)
-
-    fetch: (options) ->
-      super(options)
-
-    length: () ->
-      _.values(@get('tabledata').data)[0].length
-
-    toggle_column_sort: (colname) =>
-      sorting = @get('sort')
-      @unset('sort', {'silent': true})
-      sort = _.filter(sorting, (x) -> return x['column'] == colname)
-      if sort.length > 0
-        sort = sort[0]
-      else
-        sorting = _.clone(sorting)
-        sorting.push(column: colname, ascending: true)
-        @save('sort', sorting, {'wait':true})
-        return
-      if sort['ascending']
-        sort['ascending'] = false
-        @save('sort', sorting, {'wait':true})
-        return
-      else
-        sorting = _.filter(sorting, (x) -> return x['column'] != colname)
-        @save('sort', sorting, {'wait':true})
-        return
-
-    go_first: () ->
-      @set('offset', 0)
-      @save()
-
-    go_prev: () ->
-      offset = @get('offset')
-      offset = offset - @length()
-      if offset < 0
-        offset = 0
-      @set('offset', offset)
-      @save()
-
-    go_next: () ->
-      offset = @get('offset')
-      offset = offset + @length()
-      maxoffset = @get('maxlength') - @length()
-      if offset > maxoffset
-        offset = maxoffset
-      @set('offset', offset)
-      @save()
-
-    go_last: () ->
-      maxoffset = @get('maxlength') - @length()
-      @set('offset', maxoffset)
-      @save()
-
     default_view: DataTableView
 
     defaults: ->
       return _.extend {}, super(), {
-        sort: []
-        group: []
-        agg: 'sum'
-        offset: 0
-        length: 100
-        maxlength: 1000
-        tabledata: null
-        columns_names: []
+        columns: []
+        width: null
+        height: 400
+        fit_columns: true
+        sortable: true
+        editable: false
+        selectable: true
+        row_headers: true
       }
 
   class DataTables extends Collection
     model: DataTable
 
   return {
-    "Model" : DataTable,
-    "Collection": new DataTables(),
-    "View": DataTableView,
+    Model: DataTable
+    Collection: new DataTables()
+    View: DataTableView
   }

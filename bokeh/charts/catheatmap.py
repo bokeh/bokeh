@@ -197,8 +197,10 @@ class CategoricalHeatMap(ChartObject):
         else:
             print("CategoricalHeatMap only support pandas dataframes loading for now.")
 
+
     def _show_teardown(self):
-        self.chart.plot.add_tools(HoverTool(tooltips=dict(value="@rate")))
+        self.chart.plot.add_tools(HoverTool(tooltips=[("value", "@rate")]))
+        #self.chart.plot.add_tools(HoverTool(tooltips=dict(value="@rate")))
 
 
 class HeatMap(CategoricalHeatMap):

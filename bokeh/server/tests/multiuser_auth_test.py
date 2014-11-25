@@ -10,9 +10,8 @@ from ..app import bokeh_app
 from ..models import user
 
 class TestRegister(test_utils.BokehServerTestCase):
-    options = {'single_user_mode': False}
+    options = {'multi_user': True}
 
-    @skipIfPyPy("gevent requires pypycore and pypy-hacks branch of gevent.")
     def test_register(self):
         url = "http://localhost:5006/bokeh/register"
         session = requests.session()
@@ -55,9 +54,8 @@ class TestRegister(test_utils.BokehServerTestCase):
 
 
 class TestLogin(test_utils.BokehServerTestCase):
-    options = {'single_user_mode': False}
+    options = {'multi_user': True}
 
-    @skipIfPyPy("gevent requires pypycore and pypy-hacks branch of gevent.")
     def test_login(self):
         username = "testuser2"
         password = "fluffy"
@@ -94,9 +92,8 @@ class TestLogin(test_utils.BokehServerTestCase):
 
 
 class ServerConfigTestCase(test_utils.BokehServerTestCase):
-    options = {'single_user_mode': False}
+    options = {'multi_user': True}
 
-    @skipIfPyPy("gevent requires pypycore and pypy-hacks branch of gevent.")
     def test_register(self):
         #create a dummy config file
         config = tempfile.mkdtemp()
@@ -136,4 +133,3 @@ class ServerConfigTestCase(test_utils.BokehServerTestCase):
         server2.login("testuser", "fluffy")
         #make sure the userapikeys match
         assert server2.userapikey == server.userapikey
-

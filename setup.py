@@ -316,7 +316,8 @@ if "sdist" in sys.argv:
 
 # check for package install, add "--install_js" to skip prompt
 if not exists(join(ROOT, 'MANIFEST.in')):
-    if "--install_js" not in sys.argv and "--build_js" not in sys.argv:
+    installing = any(arg in sys.argv for arg in ('install', 'develop', 'sdist', 'egg_info'))
+    if installing and "--install_js" not in sys.argv and "--build_js" not in sys.argv:
         print("Adding '--install_js' default for sdist package install")
         sys.argv.append('--install_js')
 
@@ -327,7 +328,7 @@ if jsbuild:
 
 install_js()
 
-sampledata_suffixes = ('.csv', '.conf', '.gz', '.json', '.png')
+sampledata_suffixes = ('.csv', '.conf', '.gz', '.json', '.png', '.ics')
 
 package_path(join(SERVER, 'static'))
 package_path(join(SERVER, 'templates'))

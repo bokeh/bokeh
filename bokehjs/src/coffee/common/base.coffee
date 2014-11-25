@@ -99,7 +99,6 @@ define [
   "tool/button_tool",
 
   "tool/actions/action_tool",
-  "tool/actions/object_explorer_tool",
   "tool/actions/preview_save_tool",
   "tool/actions/reset_tool",
 
@@ -117,12 +116,10 @@ define [
   "tool/inspectors/hover_tool",
   "tool/inspectors/inspect_tool",
 
+  "widget/cell_formatters",
+  "widget/cell_editors",
+  "widget/table_column",
   "widget/data_table",
-  "widget/handson_table",
-  "widget/table_column"
-  "widget/pivot_table",
-  "widget/object_explorer",
-
   'widget/paragraph'
   'widget/hbox'
   'widget/vbox'
@@ -165,6 +162,7 @@ define [
   'transforms/seq'
   'transforms/spread'
   'transforms/tocounts'
+  'transforms/transform'
 ], (_, require) ->
 
   # add some useful functions to underscore
@@ -271,7 +269,6 @@ define [
 
     ButtonTool:               'tool/button_tool'
     ActionTool:               'tool/actions/action_tool'
-    ObjectExplorerTool:       'tool/actions/object_explorer_tool'
     PreviewSaveTool:          'tool/actions/preview_save_tool'
     ResetTool:                'tool/actions/reset_tool'
 
@@ -290,12 +287,22 @@ define [
     HoverTool:                'tool/inspectors/hover_tool'
     InspectTool:              'tool/inspectors/inspect_tool'
 
-    DataTable:                'widget/data_table'
-    HandsonTable:             'widget/handson_table'
-    TableColumn:              'widget/table_column'
-    PivotTable:               'widget/pivot_table'
-    ObjectExplorer:           'widget/object_explorer'
+    StringFormatter:          ['widget/cell_formatters', 'String']
+    NumberFormatter:          ['widget/cell_formatters', 'Number']
+    BooleanFormatter:         ['widget/cell_formatters', 'Boolean']
 
+    StringEditor:             ['widget/cell_editors', 'String']
+    TextEditor:               ['widget/cell_editors', 'Text']
+    SelectEditor:             ['widget/cell_editors', 'Select']
+    PercentEditor:            ['widget/cell_editors', 'Percent']
+    CheckboxEditor:           ['widget/cell_editors', 'Checkbox']
+    IntEditor:                ['widget/cell_editors', 'Int']
+    NumberEditor:             ['widget/cell_editors', 'Number']
+    TimeEditor:               ['widget/cell_editors', 'Time']
+    DateEditor:               ['widget/cell_editors', 'Date']
+
+    TableColumn:              'widget/table_column'
+    DataTable:                'widget/data_table'
     Paragraph:                'widget/paragraph'
     HBox:                     'widget/hbox'
     VBox:                     'widget/vbox'
@@ -351,6 +358,11 @@ define [
 
     modulename = locations[typename]
 
+    if _.isArray(modulename)
+      [modulename, submodulename] = modulename
+    else
+      submodulename = null
+
     if not mod_cache[modulename]?
       mod = require(modulename)
 
@@ -359,7 +371,12 @@ define [
       else
           throw Error("improperly implemented collection: #{modulename}")
 
-    return mod_cache[modulename].Collection
+    mod = mod_cache[modulename]
+
+    if submodulename?
+      mod = mod[submodulename]
+
+    return mod.Collection
 
   Collections.register = (name, collection) ->
     collection_overrides[name] = collection
@@ -372,5 +389,5 @@ define [
     "locations": locations
     "index": index
     "Collections": Collections
-    "Config" : Config
+    "Config": Config
   }

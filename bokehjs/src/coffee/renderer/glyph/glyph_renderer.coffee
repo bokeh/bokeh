@@ -14,11 +14,20 @@ define [
     initialize: (options) ->
       super(options)
 
-      @glyph              = @build_glyph(@mget("glyph"))
-
       # XXX: this will be slow (see later in this file), perhaps reuse @glyph.
-      @selection_glyph    = @build_glyph(@mget("selection_glyph")    or @mget("glyph"))
-      @nonselection_glyph = @build_glyph(@mget("nonselection_glyph") or @mget("glyph"))
+      @glyph = @build_glyph(@mget("glyph"))
+
+      selection_glyph = @mget("selection_glyph")
+      if not selection_glyph?
+        selection_glyph = @mget("glyph").clone()
+        selection_glyph.set(@model.selection_defaults, {silent: true})
+      @selection_glyph = @build_glyph(selection_glyph)
+
+      nonselection_glyph = @mget("nonselection_glyph")
+      if not nonselection_glyph?
+        nonselection_glyph = @mget("glyph").clone()
+        nonselection_glyph.set(@model.nonselection_defaults, {silent: true})
+      @nonselection_glyph = @build_glyph(nonselection_glyph)
 
       @need_set_data = true
 
@@ -37,8 +46,7 @@ define [
       @listenTo(@mget('data_source'), 'change', @set_data)
       @listenTo(@mget('data_source'), 'select', @request_render)
 
-    have_selection_glyphs: ->
-      @mget("selection_glyph")? or @mget("nonselection_glyph")?
+    have_selection_glyphs: () -> true
 
     #TODO: There are glyph sub-type-vs-resample_op concordance issues...
     setup_server_data: () ->
@@ -64,9 +72,9 @@ define [
             @plot_view.x_range, @plot_view.y_range,
             x_range,
             # XXX: @glyph.x.field (etc.) indicates this be moved to Glyph
-            @glyph.y.field,
-            @glyph.x.field,
-            [@glyph.y.field],
+            @glyph.glyph.y.field,
+            @glyph.glyph.x.field,
+            [@glyph.glyph.y.field],
             transform_params
           )
         else
@@ -185,6 +193,9 @@ define [
   class GlyphRenderer extends HasParent
     default_view: GlyphRendererView
     type: 'GlyphRenderer'
+
+    selection_defaults: {}
+    nonselection_defaults: {fill_alpha: 0.1, line_alpha: 0.1}
 
     defaults: ->
       return _.extend {}, super(), {

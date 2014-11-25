@@ -10,8 +10,6 @@ logger = logging.getLogger(__file__)
 
 import uuid
 
-from six import string_types
-
 from . import _glyph_functions as gf
 from .exceptions import DataIntegrityException
 from .objects import PlotContext
@@ -33,7 +31,6 @@ class Document(object):
 
     def __init__(self, json_objs=None):
         self._current_plot = None
-        self._next_figure_kwargs = dict()
         self._hold = False
         self._models = {}
 
@@ -82,8 +79,9 @@ class Document(object):
                 del self._models[self._context._id]
         except AttributeError:
             pass
-        pcs = [x for x in self._models.values() if x.__view_model__ == 'PlotContext']
-        if len(pcs) != 0:
+        other_pcs = [x for x in self._models.values() if x.__view_model__ == 'PlotContext']
+        other_pcs = [x for x in other_pcs if x._id != value._id]
+        if len(other_pcs) != 0:
             raise DataIntegrityException("too many plot contexts found")
         self._add(value)
         self._add(*value.references())
@@ -94,6 +92,18 @@ class Document(object):
         return self._context.ref
 
     # "current plot" related functions
+
+    def clear(self):
+        """ Remove all plots from this `Document`
+
+        Returns:
+            None
+
+        """
+        self.context.children = []
+        context = self.context
+        self._models = {}
+        self._add(context)
 
     def hold(self, value=True):
         """ Set the hold value for this Document.
@@ -114,8 +124,8 @@ class Document(object):
             None
 
         """
-        self._current_plot = None
-        self._next_figure_kwargs = kwargs
+        self._current_plot = _new_xy_plot(**kwargs)
+        return self._current_plot
 
     def curplot(self):
         """ Return the current plot of this Document.
@@ -229,7 +239,7 @@ class Document(object):
 
         for obj in objs:
             obj_id = obj['attributes']['id'] # XXX: obj['id']
-            obj_type = obj['type']
+            obj_type = obj.get('subtype', obj['type'])
             obj_attrs = obj['attributes']
 
             if "doc" in obj_attrs:
@@ -373,22 +383,6 @@ class Document(object):
     # Helper functions
     #------------------------------------------------------------------------
 
-    def _get_plot(self, kwargs):
-        """ Return the current plot, creating a new one if needed.
-
-        """
-        plot = kwargs.pop("plot", None)
-        if not plot:
-            if self._hold and self._current_plot:
-                plot = self._current_plot
-            else:
-                plot_kwargs = self._next_figure_kwargs
-                self._next_figure_kwargs = dict()
-                plot_kwargs.update(kwargs)
-                plot = _new_xy_plot(**plot_kwargs)
-        self._current_plot = plot
-        return plot
-
     def _add(self, *objects):
         """ Adds objects to this document.
 
@@ -411,3 +405,27 @@ class Document(object):
             self._add(self._context)
         else:
             raise DataIntegrityException("too many plot contexts found")
+
+    def merge(self, json_objs):
+        """Merge's json objects from another document into this one
+        using the plot context id from the json_objs which are passed in
+        children from this document are merged with the children from
+        the json that is passed in
+
+        Args:
+            json_objs : json objects from session.pull()
+
+        Returns:
+            None
+        """
+        plot_contexts = [x for x in json_objs if x['type'] == 'PlotContext']
+        other_objects = [x for x in json_objs if x['type'] != 'PlotContext']
+        plot_context_json = plot_contexts[0]
+        children = set([x['id'] for x in plot_context_json['attributes']['children']])
+        for child in self.context.children:
+            ref = child.ref
+            if ref['id'] not in children:
+                plot_context_json['attributes']['children'].append(ref)
+        self.load(plot_context_json, *other_objects)
+        # set the new Plot Context
+        self.context = self._models[plot_context_json['id']]

@@ -12,7 +12,7 @@ class InputWidget(Widget):
 
     @classmethod
     def coerce_value(cls, val):
-        prop_obj = lookup_descriptor(cls, 'value')
+        prop_obj = cls.lookup('value')
         if isinstance(prop_obj, Float):
             return float(val)
         elif isinstance(prop_obj, Int):
