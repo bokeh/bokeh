@@ -548,7 +548,6 @@ class DataAdapter(object):
 
         elif force_alias:
             _index = getattr(self._values, 'index', None)
-            self.convert_items_to_dict = True
 
             # check because if it is a callable self._values is not a
             # dataframe (probably a list)
@@ -557,12 +556,15 @@ class DataAdapter(object):
 
                 if isinstance(indexes[0], int):
                     self._index = DEFAULT_INDEX_ALIASES[:][:len(self.values()[0])]
+                    self.convert_items_to_dict = True
 
             elif not callable(_index):
                 self._index = list(_index)
+                self.convert_items_to_dict = True
 
             else:
                 self._index = DEFAULT_INDEX_ALIASES[:][:len(self.values()[0])]
+                self.convert_items_to_dict = True
 
     @staticmethod
     def is_number(value):
