@@ -1,4 +1,3 @@
-from __future__ import print_function
 import pandas as pd
 import numpy as np
 from collections import OrderedDict
@@ -20,7 +19,6 @@ bronze = df['medals.bronze'].astype(float).values
 medals = OrderedDict(bronze=bronze, silver=silver, gold=gold)
 
 # and finally we drop the countries and medals dict into our Bar chart
-from bokeh.charts import Bar
 from bokeh.charts.donut import Donut
 # Clean dataframe series that we don't care...
 df.pop('name')
@@ -30,12 +28,6 @@ df.index = countries
 
 # OK
 bar = Donut(medals, countries, filename="stacked_bar.html")
-
-#TODO: NOT WORKING!
-#bar = Donut(df, countries, filename="stacked_bar.html")
-
-#TODO: NOT WORKING!
-#bar = Donut(pd.DataFrame(medals), countries, filename="stacked_bar.html")
 
 # OK
 #bar = Donut(pd.DataFrame(medals).T.values, countries, filename="stacked_bar.html")

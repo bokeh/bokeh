@@ -1,7 +1,7 @@
 """This is the Bokeh charts interface. It gives you a high level API to build
 complex plot is a simple way.
 
-This is the Bar class which lets you build your Bar charts just passing
+This is the Donut class which lets you build your Donut charts just passing
 the arguments to the Chart class and calling the proper functions.
 It also add a new chained stacked method.
 """
@@ -32,37 +32,9 @@ from bokeh.colors import Color
 #-----------------------------------------------------------------------------
 
 class Donut(ChartObject):
-    """This is the Bar class and it is in charge of plotting
-    Bar chart (grouped and stacked) in an easy and intuitive way.
+    """This is the Donut class and it is in charge of plotting
+    Donut chart in an easy and intuitive way.
 
-    Essentially, it provides a way to ingest the data, make the proper
-    calculations and push the references into a source object.
-    We additionally make calculations for the ranges.
-    And finally add the needed glyphs (rects) taking the references
-    from the source.
-
-    Examples:
-
-        from collections import OrderedDict
-
-        import numpy as np
-
-        from bokeh.charts import Bar
-        from bokeh.sampledata.olympics2014 import data
-
-        data = {d['abbr']: d['medals'] for d in data['data'] if d['medals']['total'] > 0}
-
-        countries = sorted(data.keys(), key=lambda x: data[x]['total'], reverse=True)
-
-        gold = np.array([data[abbr]['gold'] for abbr in countries], dtype=np.float)
-        silver = np.array([data[abbr]['silver'] for abbr in countries], dtype=np.float)
-        bronze = np.array([data[abbr]['bronze'] for abbr in countries], dtype=np.float)
-
-        medals = OrderedDict(bronze=bronze, silver=silver, gold=gold)
-
-        bar = Bar(medals, countries)
-        bar.title("stacked, dict_input").xlabel("countries").ylabel("medals")\
-.legend(True).width(600).height(400).stacked().notebook().show()
     """
     # disable grids
     xgrid=False
@@ -74,7 +46,7 @@ class Donut(ChartObject):
                  tools=True, filename=False, server=False, notebook=False):
         """
         Args:
-            value (dict): a dict containing the data with names as a key
+            values (dict): a dict containing the data with names as a key
                 and the data as a value.
             cat (list or bool, optional): list of string representing the categories.
                 Defaults to None.
@@ -155,25 +127,14 @@ class Donut(ChartObject):
         self.xdr = Range1d(start=-2, end=2)
         self.ydr = Range1d(start=-2, end=2)
 
-    def draw(self):
-        """Use the rect glyphs to display the bars.
-
-        Takes reference points from data loaded at the ColumnDataSurce.
-
-        Args:
-            stacked (bool): whether to stack the bars in your plot.
-        """
-        self.quartet = list(self._chunker(self.attr, 4))
-        colors = self._set_colors(self.cat)
-
-        # build the central round area of the donut
+    def draw_central_wedge(self):
         self.chart.make_wedge(
             self.source, x=0, y=0, radius=1, line_color="white",
             line_width=2, start_angle="start", end_angle="end", fill_color="colors"
         )
 
-        # write central descriptions
-        text = [ "%s" % cat for cat in self.cat]
+    def draw_central_descriptions(self):
+        text = ["%s" % cat for cat in self.cat]
         x, y = polar_to_cartesian(0.7, self.data["start"], self.data["end"])
         text_source = ColumnDataSource(dict(text=text, x=x, y=y))
         self.chart.make_text(
@@ -181,7 +142,10 @@ class Donut(ChartObject):
             x="x", y="y", text="text", angle=0, text_align="center", text_baseline="middle"
         )
 
-        # build external donut ring
+    def draw_external_ring(self, colors=None):
+        if colors is None:
+            colors = self._set_colors(self.cat)
+
         first = True
         for i, (cat, start_angle, end_angle) in enumerate(zip(
                 self.cat, self.data['start'], self.data['end'])):
@@ -194,8 +158,8 @@ class Donut(ChartObject):
             start = [start_angle] + end[:-1]
             base_color = colors[i]
             #fill = [ base_color.lighten(i*0.05) for i in range(len(details) + 1) ]
-            fill = [ base_color for i in range(len(details) + 1) ]
-            text = [ rowlabel for rowlabel in details.index ]
+            fill = [base_color for i in range(len(details) + 1)]
+            text = [rowlabel for rowlabel in details.index]
             x, y = polar_to_cartesian(1.25, start, end)
 
             source = ColumnDataSource(dict(start=start, end=end, fill=fill))
@@ -220,31 +184,44 @@ class Donut(ChartObject):
             self.chart.make_text(text_source, x="x", y="y", text="text", angle="angle",
                 text_align="center", text_baseline="middle")
 
+    def draw(self):
+        """Use the rect glyphs to display the wedges.
+
+        Takes reference points from data loaded at the ColumnDataSurce.
+        """
+        colors = self._set_colors(self.cat)
+
+        # build the central round area of the donut
+        self.draw_central_wedge()
+
+        # write central descriptions
+        self.draw_central_descriptions()
+
+        # build external donut ring
+        self.draw_external_ring()
+
     def _setup_show(self):
         self.yscale('linear')
         self.xscale('linear')
         self.check_attr()
 
-        ## normalize input to the common DataAdapter Interface
+        # normalize input to the common DataAdapter Interface
         self.values = DataAdapter(self.values, force_alias=False)
 
     def get_data(self):
         """Take the chart data from self.values.
 
-        It calculates the chart properties accordingly. Then build a dict
-        containing references to all the calculated points to be used by
-        the rect glyph inside the ``draw`` method.
+        It calculates the chart properties accordingly (start/end angles).
+        Then build a dict containing references to all the calculated
+        points to be used by the Wedge glyph inside the ``draw`` method.
 
-        Args:
-            cat (list): categories as a list of strings
-            values (dict or pd obj): the values to be plotted as bars.
         """
         self.df = df = pd.DataFrame(self.values.values())
         df.columns = self.cat
         df.index = self.values.keys()
 
         aggregated = df.sum()
-        total = self.total_units = aggregated.sum()
+        self.total_units = total = aggregated.sum()
         radians = lambda x: 2*pi*(x/total)
         angles = aggregated.map(radians).cumsum()
 
