@@ -1,7 +1,7 @@
 """This is the Bokeh charts interface. It gives you a high level API to build
 complex plot is a simple way.
 
-This is the TimeSeries class which lets you build your TimeSeries charts just
+This is the Line class which lets you build your Line charts just
 passing the arguments to the Chart class and calling the proper functions.
 It also add detection of the incomming input to see if it is a pandas dataframe.
 """
@@ -17,12 +17,7 @@ It also add detection of the incomming input to see if it is a pandas dataframe.
 # Imports
 #-----------------------------------------------------------------------------
 
-try:
-    import pandas as pd
-
-except ImportError:
-    pd = None
-
+import numpy as np
 from ._chartobject import ChartObject, DataAdapter
 from ..objects import ColumnDataSource, Range1d, DataRange1d
 
@@ -32,40 +27,16 @@ from ..objects import ColumnDataSource, Range1d, DataRange1d
 
 
 class Line(ChartObject):
-    """This is the TimeSeries class and it is in charge of plotting
-    TimeSeries charts in an easy and intuitive way.
+    """This is the Line class and it is in charge of plotting
+    Line charts in an easy and intuitive way.
 
     Essentially, we provide a way to ingest the data, make the proper
     calculations and push the references into a source object.
     We additionally make calculations for the ranges.
     And finally add the needed lines taking the references from the source.
 
-    Examples:
-
-        from collections import OrderedDict
-        import pandas as pd
-
-        # Here is some code to read in some stock data from the Yahoo Finance API
-        AAPL = pd.read_csv(
-            "http://ichart.yahoo.com/table.csv?s=AAPL&a=0&b=1&c=2000",
-            parse_dates=['Date'])
-        MSFT = pd.read_csv(
-            "http://ichart.yahoo.com/table.csv?s=MSFT&a=0&b=1&c=2000",
-            parse_dates=['Date'])
-        IBM = pd.read_csv(
-            "http://ichart.yahoo.com/table.csv?s=IBM&a=0&b=1&c=2000",
-            parse_dates=['Date'])
-
-        xyvalues = OrderedDict(AAPL=AAPL[['Date', 'Adj Close']],
-                               MSFT=MSFT[['Date', 'Adj Close']],
-                               IBM=IBM[['Date', 'Adj Close']])
-        df = pd.concat(xyvalues, axis=1, names=["l0", "l1"])
-
-        from bokeh.charts import TimeSeries
-        ts = TimeSeries(df, title="timeseries, pd_input", notebook=True)
-        ts.legend("top_left").show()
     """
-    def __init__(self, xy,
+    def __init__(self, values,
                  index=None,
                  title=None, xlabel=None, ylabel=None, legend=False,
                  xscale="linear", yscale="linear", width=800, height=600,
@@ -126,7 +97,7 @@ class Line(ChartObject):
                 loading the data dict.
                 Needed for _set_And_get method.
         """
-        self.xy = xy
+        self.values = values
         self.source = None
         self.xdr = None
         self.ydr = None
@@ -143,14 +114,13 @@ class Line(ChartObject):
 
     def get_source(self):
         """
-        Push the TimeSeries data into the ColumnDataSource and calculate the proper ranges.
+        Push the Line data into the ColumnDataSource and calculate the proper ranges.
         """
         self.source = ColumnDataSource(self.data)
-
         self.xdr = DataRange1d(sources=[self.source.columns("x")])
-        #print "xxxxxxxx",  self.source.columns(self.attr[0])
+
         y_names = self.attr[1:]
-        print y_names
+
         endy = max(max(self.data[i]) for i in y_names)
         starty = min(min(self.data[i]) for i in y_names)
         self.ydr = Range1d(
@@ -159,74 +129,65 @@ class Line(ChartObject):
         )
 
     def draw(self):
-        """Use the line glyphs to connect the xy points in the time series.
+        """Use the line glyphs to connect the xy points in the Line.
 
         Takes reference points from the data loaded at the ColumnDataSurce.
         """
-        self.duplet = list(self._chunker(self.attr, 2))
         colors = self._set_colors(self.attr)
 
         for i, duplet in enumerate(self.attr[1:], start=1):
             self.chart.make_line(self.source, 'x', duplet, colors[i - 1])
 
-            if i < len(self.duplet):
+            if i < len(self.attr[1:]):
                 self.create_plot_if_facet()
 
-    def prepare_data(self, xy):
-        if hasattr(xy, 'keys'):
+    def prepare_data(self, values):
+        if hasattr(values, 'keys'):
             if self.index is not None:
                 if isinstance(self.index, basestring):
-                    xs = xy[self.index]
+                    xs = values[self.index]
 
                 else:
                     xs = self.index
 
             else:
                 try:
-                    xs = xy.index
+                    xs = values.index
 
                 except AttributeError:
-                    xy = DataAdapter(xy, force_alias=False)
-                    self.index = xs = xy.index
+                    values = DataAdapter(values, force_alias=False)
+                    self.index = xs = values.index
 
         else:
             if self.index is None:
-                #self.index = xs = xy[0]
-                xy = DataAdapter(xy, force_alias=False)
-                self.index = xs = xy.index
+                values = DataAdapter(values, force_alias=False)
+                self.index = xs = values.index
 
             elif isinstance(self.index, basestring):
-                raise TypeError(
-                    "String indexes are only supported for DataFrame and dict inputs"
-                )
+                msg = "String indexes are only supported for DataFrame and dict inputs"
+                raise TypeError(msg)
 
             else:
                 xs = self.index
-                xy = DataAdapter(xy, force_alias=False)
+                values = DataAdapter(values, force_alias=False)
 
-        return xs, xy
+        return xs, values
 
-    def get_data(self):#, xy):
-        """Take the x/y data from the input **value.
-
-        It calculates the chart properties accordingly. Then build a dict
-        containing references to all the points to be used by
+    def get_data(self):
+        """It calculates the chart properties accordingly from Line.values.
+        Then build a dict containing references to all the points to be used by
         the line glyph inside the ``draw`` method.
 
-        Args:
-            xy (dict): a dict containing the data with names as a key
-                and the data as a value.
         """
         self.data = dict()
 
         # list to save all the attributes we are going to create
         self.attr = []
 
-        xs, self.xy = self.prepare_data(self.xy)
-        import numpy as np
+        xs, self.values = self.prepare_data(self.values)
 
         self.set_and_get("x", "", np.array(xs))
-        for col in self.xy.keys():
+        for col in self.values.keys():
             if isinstance(self.index, basestring) \
                 and col == self.index:
                 continue
@@ -234,5 +195,5 @@ class Line(ChartObject):
             # save every new group we find
             self.groups.append(col)
 
-            values = [self.xy[col][x] for x in xs]
+            values = [self.values[col][x] for x in xs]
             self.set_and_get("y_", col, values)

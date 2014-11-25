@@ -1,11 +1,7 @@
 from collections import OrderedDict
-import pandas as pd
 import numpy as np
-# Here is some code to read in some stock data from the Yahoo Finance API
+import pandas as pd
 from bokeh.charts.line import Line
-#xyvalues = pd.DataFrame(xyvalues)
-#xyvalues = xyvalues.values()
-#xyvalues = np.array(xyvalues.values())
 
 xyvalues = [
     [2,3,7, 5,26,221,44,233,254,265,266,267,120,111],
@@ -19,6 +15,10 @@ xyvalues = OrderedDict(
     jython = xyvalues[2]
 )
 
+# any of the following commented are valid Bar inputs
+#xyvalues = pd.DataFrame(xyvalues)
+#xyvalues = xyvalues.values()
+#xyvalues = np.array(xyvalues.values())
 
 ts = Line(xyvalues, title="Lines, pd_input",
           ylabel='Stock Prices', filename="line.html")#, facet=True)
