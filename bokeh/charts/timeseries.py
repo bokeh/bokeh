@@ -67,7 +67,7 @@ class TimeSeries(ChartObject):
         ts = TimeSeries(df, title="timeseries, pd_input", notebook=True)
         ts.legend("top_left").show()
     """
-    def __init__(self, xy,
+    def __init__(self, values,
                  index=None,
                  title=None, xlabel=None, ylabel=None, legend=False,
                  xscale="datetime", yscale="linear", width=800, height=600,
@@ -128,7 +128,7 @@ class TimeSeries(ChartObject):
                 loading the data dict.
                 Needed for _set_And_get method.
         """
-        self.xy = xy#DataAdapter(xy, force_alias=False)
+        self.values = values
         self.source = None
         self.xdr = None
         self.ydr = None
@@ -174,26 +174,26 @@ class TimeSeries(ChartObject):
             if i < len(self.duplet):
                 self.create_plot_if_facet()
 
-    def prepare_data(self, xy):
-        if hasattr(xy, 'keys'):
+    def prepare_data(self, values):
+        if hasattr(values, 'keys'):
             if self.index is not None:
                 if isinstance(self.index, basestring):
-                    xs = xy[self.index]
+                    xs = values[self.index]
 
                 else:
                     xs = self.index
 
             else:
                 try:
-                    xs = xy.index
+                    xs = values.index
 
                 except AttributeError:
                     raise
 
         else:
             if self.index is None:
-                self.index = xs = xy[0]
-                xy = DataAdapter(xy[1:], force_alias=False)
+                self.index = xs = values[0]
+                values = DataAdapter(values[1:], force_alias=False)
 
 
             elif isinstance(self.index, basestring):
@@ -203,28 +203,25 @@ class TimeSeries(ChartObject):
 
             else:
                 xs = self.index
-                xy = DataAdapter(xy, force_alias=False)
+                values = DataAdapter(values, force_alias=False)
 
-        return xs, xy
+        return xs, values
 
-    def get_data(self):#, xy):
-        """Take the x/y data from the input **value.
+    def get_data(self):
+        """Take the x/y data from the timeseries values.
 
         It calculates the chart properties accordingly. Then build a dict
         containing references to all the points to be used by
         the line glyph inside the ``draw`` method.
 
-        Args:
-            xy (dict): a dict containing the data with names as a key
-                and the data as a value.
         """
         self.data = dict()
 
         # list to save all the attributes we are going to create
         self.attr = []
 
-        xs, self.xy = self.prepare_data(self.xy)
-        for col in self.xy.keys():
+        xs, self.values = self.prepare_data(self.values)
+        for col in self.values.keys():
             if isinstance(self.index, basestring) \
                 and col == self.index:
                 continue
@@ -232,4 +229,4 @@ class TimeSeries(ChartObject):
             # save every the groups available in the incomming input
             self.groups.append(col)
             self.set_and_get("x_", col, xs)
-            self.set_and_get("y_", col, self.xy[col])
+            self.set_and_get("y_", col, self.values[col])
