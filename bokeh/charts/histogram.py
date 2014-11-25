@@ -58,7 +58,7 @@ class Histogram(ChartObject):
         hist.title("chained_methods, dict_input").ylabel("frequency")\
 .legend(True).width(400).height(350).show()
     """
-    def __init__(self, measured, bins, mu=None, sigma=None,
+    def __init__(self, values, bins, mu=None, sigma=None,
                  title=None, xlabel=None, ylabel=None, legend=False,
                  xscale="linear", yscale="linear", width=800, height=600,
                  tools=True, filename=False, server=False, notebook=False,
@@ -122,7 +122,7 @@ class Histogram(ChartObject):
                 loading the data dict.
                 Needed for _set_And_get method.
         """
-        self.measured = DataAdapter(measured, force_alias=False)
+        self.values = DataAdapter(values, force_alias=False)
         self.bins = bins
         self.mu = mu
         self.sigma = sigma
@@ -214,15 +214,13 @@ class Histogram(ChartObject):
             sigma (float): theoretical sigma value for the normal distribution.
             values (dict or pd obj): the values to be plotted as bars.
         """
-        # assuming value is a dict, ordered dict
-        self.value = self.measured
 
         # list to save all the groups available in the incomming input
-        self.groups.extend(self.value.keys())
+        self.groups.extend(self.values.keys())
 
         # fill the data dictionary with the proper values
-        for i, val in enumerate(self.value.keys()):
-            self.set_and_get("", val, self.value[val])
+        for i, val in enumerate(self.values.keys()):
+            self.set_and_get("", val, self.values[val])
             hist, edges = np.histogram(
                 np.array(self.data[val]),
                 density=True,
