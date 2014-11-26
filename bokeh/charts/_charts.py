@@ -344,7 +344,7 @@ class Chart(object):
             color (str): the fill color
 
         Return:
-            rect: Patch instance
+            patch: Patch instance
         """
         patch = Patch(
             x=x, y=y, fill_color=color, fill_alpha=0.9)
@@ -356,17 +356,11 @@ class Chart(object):
         """Create a wedge glyph and append it to the renderers list.
 
         Args:
-            source (obj): datasource object containing rect refereces.
-            x (str or list[float]) : values or field names of center ``x`` coordinates
-            y (str or list[float]) : values or field names of center ``y`` coordinates
-            width (str or list[float]) : values or field names of widths
-            height (str or list[float]) : values or field names of heights
-            color (str): the fill color
-            line_color (str): the line color
-            line_width (int): the line width
+            source (obj): datasource object containing rect references.
+            **kws (refer to glyphs.Wedge for arguments specification details)
 
         Return:
-            rect: Wedge instance
+            glyph: Wedge instance
         """
         glyph = Wedge(**kws)
         self._append_glyph(source, glyph)
@@ -377,13 +371,7 @@ class Chart(object):
 
         Args:
             source (obj): datasource object containing rect refereces.
-            x (str or list[float]) : values or field names of center ``x`` coordinates
-            y (str or list[float]) : values or field names of center ``y`` coordinates
-            width (str or list[float]) : values or field names of widths
-            height (str or list[float]) : values or field names of heights
-            color (str): the fill color
-            line_color (str): the line color
-            line_width (int): the line width
+            **kws (refer to glyphs.AnnularWedge for arguments specification details)
 
         Return:
             rect: AnnularWedge instance
@@ -396,31 +384,29 @@ class Chart(object):
         """Create a text glyph and append it to the renderers list.
 
         Args:
-            source (obj): datasource object containing rect refereces.
-            x (str or list[float]) : values or field names of center ``x`` coordinates
-            y (str or list[float]) : values or field names of center ``y`` coordinates
-            width (str or list[float]) : values or field names of widths
-            height (str or list[float]) : values or field names of heights
-            color (str): the fill color
-            line_color (str): the line color
-            line_width (int): the line width
+            source (obj): datasource object containing rect references.
+            **kws (refer to glyphs.Text for arguments specification details)
 
         Return:
-            rect: Text instance
+            glyph: Text instance
         """
         glyph = Text(**kws)
         self._append_glyph(source, glyph)
+        return glyph
 
     def make_scatter(self, source, x, y, markertype, color, line_color=None,
                      size=10, fill_alpha=0.2, line_alpha=1.0):
         """Create a marker glyph and appends it to the renderers list.
 
         Args:
-            source (obj): datasource object containing markers refereces.
+            source (obj): datasource object containing markers references.
             x (str or list[float]) : values or field names of line ``x`` coordinates
             y (str or list[float]) : values or field names of line ``y`` coordinates
             markertype (int or str): Marker type to use (e.g., 2, 'circle', etc.)
             color (str): color of the points
+            size (int) : size of the scatter marker
+            fill_alpha(float) : alpha value of the fill color
+            line_alpha(float) : alpha value of the line color
 
         Return:
             scatter: Marker Glyph instance
