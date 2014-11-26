@@ -5,7 +5,7 @@ from flask import jsonify, request
 from six import iteritems
 
 from bokeh import protocol
-from bokeh.objects import Range1d
+from bokeh.models import Range1d
 
 from .backbone import init_bokeh
 from ..app import bokeh_app

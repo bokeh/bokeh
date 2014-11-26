@@ -22,7 +22,7 @@ import pandas as pd
 
 from ._chartobject import ChartObject
 
-from ..objects import ColumnDataSource, FactorRange, Range1d
+from ..models import ColumnDataSource, FactorRange, Range1d
 
 #-----------------------------------------------------------------------------
 # Classes and functions

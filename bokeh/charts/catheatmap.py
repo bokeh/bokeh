@@ -21,7 +21,7 @@ import pandas as pd
 
 from ._chartobject import ChartObject
 
-from ..objects import ColumnDataSource, FactorRange, HoverTool
+from ..models import ColumnDataSource, FactorRange, HoverTool
 
 #-----------------------------------------------------------------------------
 # Classes and functions

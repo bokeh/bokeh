@@ -2,7 +2,7 @@ import json
 import numpy as np
 from bokeh.plotting import *
 from bokeh.sampledata.olympics2014 import data
-from bokeh.objects import ColumnDataSource
+from bokeh.models import ColumnDataSource
 
 data = { d['abbr']: d['medals'] for d in data['data'] if d['medals']['total'] > 0}
 

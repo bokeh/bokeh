@@ -4,8 +4,8 @@ import numpy as np
 from bokeh.browserlib import view
 from bokeh.document import Document
 from bokeh.embed import file_html
-from bokeh.glyphs import ImageURL
-from bokeh.objects import ColumnDataSource, Range1d, Plot, LinearAxis, Grid
+from bokeh.models.glyphs import ImageURL
+from bokeh.models import ColumnDataSource, Range1d, Plot, LinearAxis, Grid
 from bokeh.resources import INLINE
 
 url = "http://bokeh.pydata.org/_static/bokeh-transparent.png"
