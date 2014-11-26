@@ -7,8 +7,8 @@ except ImportError:
     print("bokeh.charts needs numpy installed to work properly!")
     raise
 
-
 from ._chartobject import ChartObject, DataAdapter
+from ..objects import ColumnDataSource, Range1d, DataRange1d
 
 class Area(ChartObject):
     def __init__(self, values,
@@ -21,7 +21,6 @@ class Area(ChartObject):
         self.source = None
         self.xdr = None
         self.ydr = None
-
         self.__stacked = stacked
 
         # list to save all the groups available in the incomming input
@@ -46,6 +45,22 @@ class Area(ChartObject):
         """
         self._stacked = stacked
         return self
+
+    def get_source(self):
+        """
+        Push the Line data into the ColumnDataSource and calculate the proper ranges.
+        """
+        self.source = ColumnDataSource(self.data)
+        self.xdr = DataRange1d(sources=[self.source.columns("x")])
+
+        y_names = self.attr[1:]
+
+        endy = max(max(self.data[i]) for i in y_names)
+        starty = min(min(self.data[i]) for i in y_names)
+        self.ydr = Range1d(
+            start=starty - 0.1 * (endy - starty),
+            end=endy + 0.1 * (endy - starty)
+        )
 
     def draw(self):
         """Use the patch glyphs to fill the area connecting the xy points
