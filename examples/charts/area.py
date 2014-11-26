@@ -17,7 +17,7 @@ xyvalues = OrderedDict(
 # create an area chart
 area = Area(
     xyvalues, title="Area Chart",
-    ylabel='Performance', filename="area.html",
+    ylabel='Performance', filename="areas.html",
     facet=False, stacked=True
 )
 area.legend("top_left").show()
