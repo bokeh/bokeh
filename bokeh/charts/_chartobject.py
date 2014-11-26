@@ -96,7 +96,7 @@ class ChartObject(object):
         self.__yscale = yscale
         self.__width = width
         self.__height = height
-        s   elf.__tools = tools
+        self.__tools = tools
         self.__filename = filename
         self.__server = server
         self.__notebook = notebook
@@ -501,7 +501,8 @@ DEFAULT_INDEX_ALIASES += zip(DEFAULT_INDEX_ALIASES, DEFAULT_INDEX_ALIASES)
 
 class DataAdapter(object):
     """
-    Adapter object used to normalize Charts inputs to a common interface
+    Adapter object used to normalize Charts inputs to a common interface.
+    Supported inputs are dict, list, tuple, np.ndarray and pd.DataFrame.
     """
     def __init__(self, data, index=None, columns=None, force_alias=True):
         self._values = self.validate_values(data)
@@ -705,6 +706,18 @@ class DataAdapter(object):
     #-----------------------------------------------------------------------------
     @staticmethod
     def get_index_and_data(values, index=None):
+        """Parse values (that must be one of the DataAdapter supported
+        input types) and create an separate/create index and data
+        depending on values type and index.
+
+        Args:
+            values (iterable): container that holds data to be plotted using
+                on the Chart classes
+
+        Returns:
+            xs: iterable that represents the data index
+            values: iterable containing the values to be plotted
+        """
         if hasattr(values, 'keys'):
             if index is not None:
                 if isinstance(index, basestring):
