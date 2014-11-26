@@ -1,11 +1,14 @@
-from .line import Line
-from ._chartobject import ChartObject, DataAdapter
+from __future__ import print_function
+
 try:
     import numpy as np
 
 except ImportError:
-    print "bokeh.charts needs numpy installed to work properly!"
+    print("bokeh.charts needs numpy installed to work properly!")
     raise
+
+
+from ._chartobject import ChartObject, DataAdapter
 
 class Area(ChartObject):
     def __init__(self, values,
@@ -14,12 +17,12 @@ class Area(ChartObject):
                  xscale="linear", yscale="linear", width=800, height=600,
                  tools=True, filename=False, server=False, notebook=False,
                  facet=False, stacked=False):
-        self.stacked = stacked
-
         self.values = values
         self.source = None
         self.xdr = None
         self.ydr = None
+
+        self.__stacked = stacked
 
         # list to save all the groups available in the incomming input
         self.groups = []
@@ -30,20 +33,30 @@ class Area(ChartObject):
         super(Area, self).__init__(title, xlabel, ylabel, legend,
                                          xscale, yscale, width, height,
                                          tools, filename, server, notebook, facet)
-        #super(ChartObject, self).__init__(
-        #    values, index, title, xlabel, ylabel, legend,
-        #    xscale, yscale, width, height,
-        #    tools, filename, server, notebook, facet
-        #)
+
+    def stacked(self, stacked=True):
+        """Set the areas stacked on your chart.
+
+        Args:
+            stacked (bool, optional): whether to stack the areas
+                in your plot (default: True).
+
+        Returns:
+            self: the chart object being configured.
+        """
+        self._stacked = stacked
+        return self
 
     def draw(self):
         """Use the patch glyphs to fill the area connecting the xy points
-         in the series.
+         in the series taken from the data added with area.get_data.
 
         Takes reference points from the data loaded at the ColumnDataSource.
         """
         colors = self._set_colors(self.attr)
 
+        # parse all series. We exclude the first attr as it's the x values
+        # added for the index
         for i, series_name in enumerate(self.attr[1:]):
             self.chart.make_patch(self.source, 'x', series_name, colors[i])
 
@@ -51,7 +64,7 @@ class Area(ChartObject):
                 self.create_plot_if_facet()
 
     def get_data(self):
-        """Calculate the chart properties accordingly from line.values.
+        """Calculate the chart properties accordingly from area.values.
         Then build a dict containing references to all the points to be used by
         the patch glyph inside the ``draw`` method.
 
@@ -79,8 +92,9 @@ class Area(ChartObject):
             _values = [col_values[x] for indx, x in enumerate(xs)]
 
             # to draw area we need 2 coordinates. The lower values will always
-            # be 0 in case of non stacked area and will be the previous series
-            # top value in case of stacked charts
+            # be:
+            # - 0 in case of non stacked area
+            # - the previous series top value in case of stacked charts
             next = last + _values
             values = np.hstack((last[::-1], next))
 
