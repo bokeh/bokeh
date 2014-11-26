@@ -23,12 +23,12 @@ from collections import OrderedDict
 
 import numpy as np
 
-from ..glyphs import (Asterisk, Circle, CircleCross, CircleX, Cross, Diamond,
-                      DiamondCross, InvertedTriangle, Line, Rect, Segment,
-                      Square, SquareCross, SquareX, Triangle, X, Quad)
-from ..objects import (CategoricalAxis, DatetimeAxis, Grid, Legend,
-                       LinearAxis, PanTool, Plot, PreviewSaveTool, ResetTool,
-                       WheelZoomTool)
+from ..models.glyphs import (Asterisk, Circle, CircleCross, CircleX, Cross, Diamond,
+                             DiamondCross, InvertedTriangle, Line, Rect, Segment,
+                             Square, SquareCross, SquareX, Triangle, X, Quad)
+from ..models import (CategoricalAxis, DatetimeAxis, Grid, Legend,
+                      LinearAxis, PanTool, Plot, PreviewSaveTool, ResetTool,
+                      WheelZoomTool)
 
 from ..document import Document
 from ..session import Session

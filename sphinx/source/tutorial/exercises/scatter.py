@@ -3,7 +3,7 @@ from __future__ import division
 import numpy as np
 from six.moves import zip
 from bokeh.plotting import *
-from bokeh.objects import Range1d
+from bokeh.models import Range1d
 
 # Recreate the Fermat spiral from the last exercise, with some different scalings
 # and number of turnings

@@ -92,7 +92,7 @@ This first block defines the data and computes some derived quantities used in t
     import numpy as np
     import pandas as pd
     from bokeh.plotting import *
-    from bokeh.objects import Range1d
+    from bokeh.models import Range1d
     from StringIO import StringIO
     from math import log, sqrt
     from collections import OrderedDict

@@ -45,7 +45,7 @@ except ImportError as e:
 from . import browserlib
 from .embed import autoload_server
 from .exceptions import DataIntegrityException
-from .objects import ServerDataSource
+from .models import ServerDataSource
 from . import protocol
 from . import utils
 
@@ -598,6 +598,7 @@ class Session(object):
             models : list[PlotObject]
 
         """
+        doc._add_all()
         models = doc._models.values()
 
         if dirty_only:

@@ -63,6 +63,7 @@ test:
     - sympy
     - ggplot
     - seaborn
+    - icalendar
 
   commands:
     - bokeh-server -h        [linux64 or osx]

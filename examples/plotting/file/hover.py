@@ -5,7 +5,7 @@ from six.moves import zip
 from collections import OrderedDict
 
 from bokeh.plotting import *
-from bokeh.objects import HoverTool
+from bokeh.models import HoverTool
 
 output_file("hover.html")
 

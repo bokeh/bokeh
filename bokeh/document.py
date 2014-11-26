@@ -12,7 +12,7 @@ import uuid
 
 from . import _glyph_functions as gf
 from .exceptions import DataIntegrityException
-from .objects import PlotContext
+from .models import PlotContext
 from .plot_object import PlotObject
 from .plotting_helpers import _new_xy_plot
 from .utils import dump
@@ -92,6 +92,18 @@ class Document(object):
         return self._context.ref
 
     # "current plot" related functions
+
+    def clear(self):
+        """ Remove all plots from this `Document`
+
+        Returns:
+            None
+
+        """
+        self.context.children = []
+        context = self.context
+        self._models = {}
+        self._add(context)
 
     def hold(self, value=True):
         """ Set the hold value for this Document.

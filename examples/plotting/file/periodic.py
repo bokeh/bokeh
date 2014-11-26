@@ -1,7 +1,7 @@
 from collections import OrderedDict
 
 from bokeh.plotting import *
-from bokeh.objects import HoverTool, ColumnDataSource
+from bokeh.models import HoverTool, ColumnDataSource
 from bokeh.sampledata import periodic_table
 
 
@@ -42,7 +42,7 @@ source = ColumnDataSource(
 
 output_file("periodic.html")
 
-TOOLS = "resize,hover,resize,save"
+TOOLS = "resize,hover,save"
 
 p = figure(title="Periodic Table", tools=TOOLS,
     x_range=group_range, y_range=period_range)

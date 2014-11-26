@@ -1,8 +1,8 @@
 import numpy as np
 
-from bokeh.objects import ColumnDataSource, DataRange1d, Plot, LinearAxis, Grid
-from bokeh.widgets import VBox, Tabs, Panel
-from bokeh.glyphs import (AnnularWedge, Annulus, Arc, Bezier, Circle, Line, MultiLine, Oval,
+from bokeh.models import ColumnDataSource, DataRange1d, Plot, LinearAxis, Grid
+from bokeh.models.widgets import VBox, Tabs, Panel
+from bokeh.models.glyphs import (AnnularWedge, Annulus, Arc, Bezier, Circle, Line, MultiLine, Oval,
     Patch, Patches, Quad, Quadratic, Ray, Rect, Segment, Square, Wedge, CircleX, Triangle,
     Cross, Diamond, InvertedTriangle, SquareX, Asterisk, SquareCross, DiamondCross, CircleCross)
 from bokeh.document import Document

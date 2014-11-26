@@ -842,5 +842,13 @@ class TestProperties(unittest.TestCase):
         self.assertFalse(prop.is_valid({}))
         self.assertFalse(prop.is_valid(Foo()))
 
+def test_HasProps_clone():
+    from bokeh.models import Plot
+    p1 = Plot(plot_width=1000)
+    c1 = p1.changed_properties()
+    p2 = p1.clone()
+    c2 = p2.changed_properties()
+    assert c1 == c2
+
 if __name__ == "__main__":
     unittest.main()

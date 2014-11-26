@@ -17,7 +17,7 @@ from . import _glyph_functions as gf
 from .deprecate import deprecated
 from .document import Document
 from .embed import notebook_div, file_html, autoload_server
-from .objects import (
+from .models import (
     Axis, FactorRange, Grid, GridPlot, HBox, Legend, LogAxis, Plot, Tool, VBox, Widget
 )
 from .palettes import brewer
@@ -30,7 +30,7 @@ from .session import DEFAULT_SERVER_URL, Session
 from .utils import decode_utf8, publish_display_data
 
 # extra imports -- just things to add to 'from plotting import *'
-from bokeh.objects import ColumnDataSource
+from bokeh.models import ColumnDataSource
 
 _default_document = Document()
 
@@ -184,7 +184,7 @@ class Figure(Plot):
 
     @property
     def legend(self):
-        """ Get the current :class:`legend <bokeh.objects.Legend>` object(s)
+        """ Get the current :class:`legend <bokeh.models.Legend>` object(s)
 
         Returns:
             splattable list of legend objects on this Plot
@@ -198,7 +198,7 @@ class Figure(Plot):
 
     @property
     def xgrid(self):
-        """ Get the current `x` :class:`grid <bokeh.objects.Grid>` object(s)
+        """ Get the current `x` :class:`grid <bokeh.models.Grid>` object(s)
 
         Returns:
             splattable list of legend objects on this Plot
@@ -207,7 +207,7 @@ class Figure(Plot):
 
     @property
     def ygrid(self):
-        """ Get the current `y` :class:`grid <bokeh.objects.Grid>` object(s)
+        """ Get the current `y` :class:`grid <bokeh.models.Grid>` object(s)
 
         Returns:
             splattable list of y-grid objects on this Plot
@@ -216,7 +216,7 @@ class Figure(Plot):
 
     @property
     def grid(self):
-        """ Get the current :class:`grid <bokeh.objects.Grid>` object(s)
+        """ Get the current :class:`grid <bokeh.models.Grid>` object(s)
 
         Returns:
             splattable list of grid objects on this Plot
@@ -389,10 +389,10 @@ def figure(**kwargs):
     '''
     fig = Figure(**kwargs)
     curdoc()._current_plot = fig
-    curdoc().context.children.append(fig)
+    curdoc().add(fig)
     return fig
 
-def output_server(docname, session=None, url="default", name=None):
+def output_server(docname, session=None, url="default", name=None, clear=True):
     """ Cause plotting commands to automatically persist plots to a Bokeh server.
 
     Can use explicitly provided Session for persistence, or the default
@@ -407,6 +407,9 @@ def output_server(docname, session=None, url="default", name=None):
             if url is "default" use session.DEFAULT_SERVER_URL
         name (str, optional) :
             if name is None, use the server URL as the name
+        clear (bool, optional) :
+            should an existing server document be cleared of any existing
+            plots. (default: True)
 
     Additional keyword arguments like **username**, **userapikey**,
     and **base_url** can also be supplied.
@@ -417,7 +420,8 @@ def output_server(docname, session=None, url="default", name=None):
     .. note:: Generally, this should be called at the beginning of an
               interactive session or the top of a script.
 
-    .. note:: Calling this function will replaces any existing default Server session
+    .. note:: By default, calling this function will replaces any existing
+              default Server session.
 
     """
     global _default_session
@@ -431,6 +435,8 @@ def output_server(docname, session=None, url="default", name=None):
         session = _default_session
     session.use_doc(docname)
     session.load_document(curdoc())
+    if clear:
+        curdoc().clear()
 
 def output_notebook(url=None, docname=None, session=None, name=None,
                     force=False):
@@ -830,14 +836,14 @@ def gridplot(plot_arrangement, name=None, **kwargs):
     """ Generate a plot that arranges several subplots into a grid.
 
     Args:
-        plot_arrangement (list[:class:`Plot <bokeh.objects.Plot>`]) : plots to arrange in a grid
+        plot_arrangement (list[:class:`Plot <bokeh.models.Plot>`]) : plots to arrange in a grid
         name (str) : name for this plot
         **kwargs: additional attributes to pass in to GridPlot() constructor
 
     .. note:: `plot_arrangement` can be nested, e.g [[p1, p2], [p3, p4]]
 
     Returns:
-        grid_plot: the current :class:`GridPlot <bokeh.objects.GridPlot>`
+        grid_plot: the current :class:`GridPlot <bokeh.models.GridPlot>`
     """
     grid = GridPlot(children=plot_arrangement, **kwargs)
     if name:
@@ -895,7 +901,7 @@ def axis():
 
 @deprecated("Bokeh 0.7", "bokeh.plotting.Figure.legend")
 def legend():
-    """ Get the current :class:`legend <bokeh.objects.Legend>` object(s)
+    """ Get the current :class:`legend <bokeh.models.Legend>` object(s)
 
     Returns:
         Returns legend object or splattable list of legend objects on the current plot
@@ -916,7 +922,7 @@ def _grid(dimension):
 
 @deprecated("Bokeh 0.7", "bokeh.plotting.Figure.xgrid")
 def xgrid():
-    """ Get the current `x` :class:`grid <bokeh.objects.Grid>` object(s)
+    """ Get the current `x` :class:`grid <bokeh.models.Grid>` object(s)
 
     Returns:
         Returns legend object or splattable list of legend objects on the current plot
@@ -925,7 +931,7 @@ def xgrid():
 
 @deprecated("Bokeh 0.7", "bokeh.plotting.Figure.ygrid")
 def ygrid():
-    """ Get the current `y` :class:`grid <bokeh.objects.Grid>` object(s)
+    """ Get the current `y` :class:`grid <bokeh.models.Grid>` object(s)
 
     Returns:
         Returns y-grid object or splattable list of y-grid objects on the current plot
@@ -934,7 +940,7 @@ def ygrid():
 
 @deprecated("Bokeh 0.7", "bokeh.plotting.Figure.grid")
 def grid():
-    """ Get the current :class:`grid <bokeh.objects.Grid>` object(s)
+    """ Get the current :class:`grid <bokeh.models.Grid>` object(s)
 
     Returns:
         Returns grid object or splattable list of grid objects on the current plot

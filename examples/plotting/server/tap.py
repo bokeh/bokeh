@@ -7,7 +7,7 @@ import numpy as np
 from six.moves import zip
 
 from bokeh.plotting import *
-from bokeh.objects import TapTool
+from bokeh.models import TapTool
 
 xx, yy = np.meshgrid(range(0,101,4), range(0,101,4))
 x = xx.flatten()

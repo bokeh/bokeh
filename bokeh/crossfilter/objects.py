@@ -4,8 +4,8 @@ import six
 import pandas as pd
 import numpy as np
 from ..plotting import curdoc
-from ..objects import ColumnDataSource, Range1d, FactorRange, GridPlot
-from ..widgets import Select, MultiSelect, InputWidget
+from ..models import ColumnDataSource, Range1d, FactorRange, GridPlot
+from ..models.widgets import Select, MultiSelect, InputWidget
 #crossfilter plotting utilities
 from .plotting import (make_histogram_source,
                        make_histogram, make_continuous_bar_source,

@@ -13,9 +13,9 @@ from bokeh.embed import file_html
 from bokeh.resources import INLINE
 from bokeh.browserlib import view
 
-from bokeh.glyphs import Line, Patches
-from bokeh.widgets import VBox
-from bokeh.objects import (
+from bokeh.models.glyphs import Line, Patches
+from bokeh.models.widgets import VBox
+from bokeh.models import (
     Plot, GMapPlot, GMapOptions,
     Range1d, DataRange1d,
     ColumnDataSource,
@@ -87,7 +87,7 @@ def trail_map(data):
     ygrid = Grid(plot=plot, dimension=1, ticker=yaxis.ticker, grid_line_dash="dashed", grid_line_color="gray")
     plot.renderers.extend([xgrid, ygrid])
 
-    hover = HoverTool(tooltips=dict(distance="@dist"))
+    hover = HoverTool(tooltips=[("distance", "@dist")])
     plot.add_tools(hover, PanTool(), WheelZoomTool(), ResetTool(), BoxSelectTool())
 
     line_source = ColumnDataSource(dict(x=data.lon, y=data.lat, dist=data.dist))

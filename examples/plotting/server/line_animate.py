@@ -21,7 +21,6 @@ p.line([0,4*np.pi], [-1, 1], color="#ee3333")
 
 show(p)
 
-
 renderer = p.select(dict(name="sin"))
 ds = renderer[0].data_source
 

@@ -66,7 +66,7 @@ def configure_flask(config_argparse=None, config_file=None, config_dict=None):
     else:
         data_manager = FunctionBackend()
     bokeh_app.url_prefix = server_settings.url_prefix
-    bokeh_app.publisher = Publisher(server_settings.pub_zmqaddr, Queue())
+    bokeh_app.publisher = Publisher(server_settings.ctx, server_settings.pub_zmqaddr, Queue())
 
     for script in server_settings.scripts:
         script_dir = dirname(script)
@@ -99,10 +99,9 @@ class SimpleBokehTornadoApp(Application):
         ]
         super(SimpleBokehTornadoApp, self).__init__(handlers, **settings)
         self.wsmanager = websocket.WebSocketManager()
-        self.subscriber = Subscriber([server_settings.sub_zmqaddr], self.wsmanager)
+        self.subscriber = Subscriber(server_settings.ctx, [server_settings.sub_zmqaddr], self.wsmanager)
         if server_settings.run_forwarder:
-            self.forwarder = Forwarder(server_settings.pub_zmqaddr,
-                                       server_settings.sub_zmqaddr)
+            self.forwarder = Forwarder(server_settings.ctx, server_settings.pub_zmqaddr, server_settings.sub_zmqaddr)
         else:
             self.forwarder = None
 

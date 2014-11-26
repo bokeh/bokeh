@@ -5,15 +5,15 @@ from math import pi
 
 from bokeh.browserlib import view
 from bokeh.document import Document
-from bokeh.glyphs import Line, Quad
-from bokeh.objects import (
+from bokeh.models.glyphs import Line, Quad
+from bokeh.models import (
     Plot, ColumnDataSource, DataRange1d, FactorRange,
     LinearAxis, CategoricalAxis, Grid, Legend,
     SingleIntervalTicker
 )
 from bokeh.sampledata.population import load_population
 from bokeh.session import Session
-from bokeh.widgets import Select, HBox, VBox
+from bokeh.models.widgets import Select, HBox, VBox
 
 document = Document()
 session = Session()
