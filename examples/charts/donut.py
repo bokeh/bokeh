@@ -1,11 +1,12 @@
 import pandas as pd
 from collections import OrderedDict
-# we throw the data into a pandas df
+
 from bokeh.sampledata.olympics2014 import data
 from bokeh.charts import Donut
 
+# we throw the data into a pandas df
 df = pd.io.json.json_normalize(data['data'])
-# we filter by countries with at least one medal and sort
+# filter by countries with at least one medal and sort
 df = df[df['medals.total'] > 8]
 df = df.sort("medals.total", ascending=False)
 

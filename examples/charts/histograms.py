@@ -17,7 +17,7 @@ distributions = df.to_dict()
 for k, v in distributions.items():
     distributions[k] = v.values()
 
-# any of the following commented are valid Bar inputs
+# any of the following commented are valid Histogram inputs
 #df = distributions.values()
 #df = tuple(distributions.values())
 #df = tuple([tuple(x) for x in distributions.values()])
