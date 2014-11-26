@@ -17,6 +17,8 @@ methods.
 # Imports
 #-----------------------------------------------------------------------------
 
+from six import string_types
+from collections import OrderedDict
 from ._charts import Chart
 from ..properties import bokeh_integer_types, Datetime
 
@@ -35,7 +37,6 @@ except ImportError:
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
-
 
 class ChartObject(object):
     """A prototype class to inherit each new chart type.
@@ -497,7 +498,7 @@ class ChartObject(object):
 
 
 DEFAULT_INDEX_ALIASES = list('abcdefghijklmnopqrstuvz1234567890')
-DEFAULT_INDEX_ALIASES += zip(DEFAULT_INDEX_ALIASES, DEFAULT_INDEX_ALIASES)
+DEFAULT_INDEX_ALIASES += list(zip(DEFAULT_INDEX_ALIASES, DEFAULT_INDEX_ALIASES))
 
 class DataAdapter(object):
     """
@@ -581,7 +582,7 @@ class DataAdapter(object):
         elif pd and isinstance(values, pd.DataFrame):
             return values
 
-        elif isinstance(values, dict):
+        elif isinstance(values, (dict, OrderedDict)):
             if all(DataAdapter.is_number(x) for x in values.values()):
                 return values
 
@@ -594,7 +595,7 @@ class DataAdapter(object):
             return values
 
         # TODO: Improve this error message..
-        raise TypeError("Input type not supported!")
+        raise TypeError("Input type not supported! %s" % values)
 
 
     def index_converter(self, x):
@@ -641,7 +642,7 @@ class DataAdapter(object):
         values = getattr(self._values, "values", None)
 
         if callable(values):
-            return values()
+            return list(values())
 
         elif values is None:
             return self._values
@@ -688,13 +689,13 @@ class DataAdapter(object):
         values = self.values()
 
         if isinstance(values, dict):
-            return values.keys()
+            return list(values.keys())
 
         else:
             first_el = self.values()[0]
 
             if isinstance(first_el, dict):
-                indexes = first_el.keys()
+                indexes = list(first_el.keys())
 
             else:
                 indexes = range(0, len(self.values()[0]))
@@ -720,7 +721,7 @@ class DataAdapter(object):
         """
         if hasattr(values, 'keys'):
             if index is not None:
-                if isinstance(index, basestring):
+                if isinstance(index, string_types):
                     xs = values[index]
 
                 else:
@@ -739,7 +740,7 @@ class DataAdapter(object):
                 values = DataAdapter(values, force_alias=False)
                 xs = values.index
 
-            elif isinstance(index, basestring):
+            elif isinstance(index, string_types):
                 msg = "String indexes are only supported for DataFrame and dict inputs"
                 raise TypeError(msg)
 
@@ -748,4 +749,3 @@ class DataAdapter(object):
                 values = DataAdapter(values, force_alias=False)
 
         return xs, values
-

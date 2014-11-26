@@ -21,7 +21,7 @@ medals = OrderedDict(bronze=bronze, silver=silver, gold=gold)
 
 # any of the following commented are valid Bar inputs
 #medals = pd.DataFrame(medals).T.values
-#medals = medals.values()
+#medals = list(medals.values())
 #medas = pd.DataFrame(medals)
 
 donut = Donut(medals, countries, filename="donut.html")

@@ -1,5 +1,7 @@
 from __future__ import print_function
 
+from six import string_types
+
 try:
     import numpy as np
 
@@ -98,7 +100,7 @@ class Area(ChartObject):
         for grp in self.values.keys():
             # TODO: This condition may be removed or changed depending on
             # the validation of self.index
-            if isinstance(self.index, basestring) \
+            if isinstance(self.index, string_types) \
                 and grp == self.index:
                 continue
 

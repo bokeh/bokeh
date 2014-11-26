@@ -24,9 +24,9 @@ medals = OrderedDict(bronze=bronze, silver=silver, gold=gold)
 
 # any of the following commented are valid BoxPlot inputs
 #medals = pd.DataFrame(medals)
-#medals = medals.values()
+#medals = list(medals.values())
 #medals = tuple(medals.values())
-#medals = np.array(medals.values())
+#medals = np.array(list(medals.values()))
 
 boxplot = BoxPlot(
     medals, marker='circle', outliers=True, title="boxplot test",

@@ -18,11 +18,11 @@ for k, v in distributions.items():
     distributions[k] = v.values()
 
 # any of the following commented are valid Histogram inputs
-#df = distributions.values()
+#df = list(distributions.values())
 #df = tuple(distributions.values())
 #df = tuple([tuple(x) for x in distributions.values()])
-#df = np.array(distributions.values())
-#df = distributions.values()[0]
+#df = np.array(list(distributions.values()))
+#df = list(distributions.values())[0]
 
 hist = Histogram(df, bins=50, filename="histograms.html")
 hist.title("Histograms").ylabel("frequency").legend(True)

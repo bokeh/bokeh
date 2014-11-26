@@ -17,13 +17,16 @@ It also add detection of the incomming input to see if it is a pandas dataframe.
 # Imports
 #-----------------------------------------------------------------------------
 
+from six import string_types
+from collections import OrderedDict
+
 try:
     import pandas as pd
 
 except ImportError:
     pd = None
 
-from collections import OrderedDict
+
 from ._chartobject import ChartObject, DataAdapter
 
 from ..models import ColumnDataSource, Range1d, DataRange1d
@@ -177,7 +180,7 @@ class TimeSeries(ChartObject):
     def prepare_data(self, values):
         if hasattr(values, 'keys'):
             if self.index is not None:
-                if isinstance(self.index, basestring):
+                if isinstance(self.index, string_types):
                     xs = values[self.index]
 
                 else:
@@ -196,7 +199,7 @@ class TimeSeries(ChartObject):
                 values = DataAdapter(values[1:], force_alias=False)
 
 
-            elif isinstance(self.index, basestring):
+            elif isinstance(self.index, string_types):
                 raise TypeError(
                     "String indexes are only supported for DataFrame and dict inputs"
                 )
@@ -222,7 +225,7 @@ class TimeSeries(ChartObject):
 
         xs, self.values = self.prepare_data(self.values)
         for col in self.values.keys():
-            if isinstance(self.index, basestring) \
+            if isinstance(self.index, string_types) \
                 and col == self.index:
                 continue
 

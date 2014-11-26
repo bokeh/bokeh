@@ -25,7 +25,7 @@ xyvalues = OrderedDict(
 # any of the following commented are valid Bar inputs
 #xyvalues = pd.DataFrame(xyvalues)
 #lindex = xyvalues.pop('Date')
-#lxyvalues = xyvalues.values()
+#lxyvalues = list(xyvalues.values())
 #lxyvalues = np.array(xyvalues.values())
 
 ts = TimeSeries(xyvalues, index='Date', title="timeseries, pd_input",

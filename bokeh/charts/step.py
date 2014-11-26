@@ -17,6 +17,7 @@ It also add detection of the incomming input to see if it is a pandas dataframe.
 # Imports
 #-----------------------------------------------------------------------------
 
+from six import string_types
 import numpy as np
 from ._chartobject import ChartObject, DataAdapter
 from ..objects import ColumnDataSource, Range1d, DataRange1d
@@ -169,7 +170,7 @@ class Step(ChartObject):
         self.set_and_get("x", "", np.array(xs)[:-1])
         self.set_and_get("x2", "", np.array(xs)[1:])
         for col in self.values.keys():
-            if isinstance(self.index, basestring) \
+            if isinstance(self.index, string_types) \
                 and col == self.index:
                 continue
 

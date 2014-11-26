@@ -16,12 +16,13 @@ It also add a new chained stacked method.
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
+from __future__ import print_function
 
 try:
     import numpy as np
 
 except ImportError:
-    print "bokeh.charts needs numpy installed to work properly!"
+    print("bokeh.charts needs numpy installed to work properly!")
     raise
 
 from ._chartobject import ChartObject, DataAdapter
