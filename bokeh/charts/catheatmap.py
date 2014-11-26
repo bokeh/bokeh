@@ -200,7 +200,6 @@ class CategoricalHeatMap(ChartObject):
 
     def _show_teardown(self):
         self.chart.plot.add_tools(HoverTool(tooltips=[("value", "@rate")]))
-        #self.chart.plot.add_tools(HoverTool(tooltips=dict(value="@rate")))
 
 
 class HeatMap(CategoricalHeatMap):
