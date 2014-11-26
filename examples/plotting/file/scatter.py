@@ -7,6 +7,8 @@ N = 100
 x = np.linspace(0, 4*np.pi, N)
 y = np.sin(x)
 
+output_file("scatter.html", title="scatter.py example")
+
 TOOLS = "pan,wheel_zoom,box_zoom,reset,save,box_select"
 
 p1 = figure(tools=TOOLS)
@@ -21,5 +23,4 @@ p3.scatter(x,y, marker="square", color="green")
 p4 = figure(tools=TOOLS)
 p4.scatter(x,y, marker="square", color="blue")
 
-output_file("scatter.html", title="scatter.py example")
 show(VBox(p1, p2, p3, p4))

@@ -7,6 +7,8 @@ from collections import OrderedDict
 from bokeh.plotting import *
 from bokeh.objects import HoverTool
 
+output_file("hover.html")
+
 TOOLS="crosshair,pan,wheel_zoom,box_zoom,reset,hover,previewsave"
 
 xx, yy = np.meshgrid(range(0,101,4), range(0,101,4))
@@ -51,5 +53,4 @@ hover.tooltips = OrderedDict([
     ("bar", "@bar"),
 ])
 
-output_file("hover.html")
 show(p)  # open a browser

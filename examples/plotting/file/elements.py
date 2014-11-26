@@ -19,6 +19,8 @@ high= max(melting_points)
 melting_point_inds = [int(10*(x-low)/(high-low)) for x in melting_points] #gives items in colors a value from 0-10
 meltingpointcolors = [palette[i] for i in melting_point_inds]
 
+output_file("elements.html", title="elements.py example")
+
 TOOLS = "pan,wheel_zoom,box_zoom,reset,resize,save"
 
 p = figure(tools=TOOLS, toolbar_location="left", plot_width=1200)
@@ -36,5 +38,4 @@ p.xaxis.axis_label="atomic weight (amu)"
 p.yaxis.axis_label="density (g/cm^3)"
 p.grid.grid_line_color="white"
 
-output_file("elements.html", title="elements.py example")
 show(p)

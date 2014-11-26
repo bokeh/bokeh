@@ -40,6 +40,8 @@ source = ColumnDataSource(
     )
 )
 
+output_file("periodic.html")
+
 TOOLS = "resize,hover,resize,save"
 
 p = figure(title="Periodic Table", tools=TOOLS,
@@ -90,5 +92,4 @@ hover.tooltips = OrderedDict([
     ("electronic configuration", "@electronic"),
 ])
 
-output_file("periodic.html")
 show(p)

@@ -48,6 +48,8 @@ source = ColumnDataSource(
     )
 )
 
+output_file("les_mis.html")
+
 p = figure(title="Les Mis Occurrences",
     x_axis_location="above", tools="resize,hover,save",
     x_range=list(reversed(names)), y_range=names)
@@ -70,5 +72,4 @@ hover.tooltips = OrderedDict([
     ('count', '@count'),
 ])
 
-output_file("les_mis.html")
 show(p)      # show the plot

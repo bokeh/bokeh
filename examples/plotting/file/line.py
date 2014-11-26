@@ -5,8 +5,9 @@ from bokeh.plotting import *
 x = np.linspace(0, 4*np.pi, 200)
 y = np.sin(x)
 
+output_file("line.html", title="line.py example")
+
 p = figure(title="simple line example")
 p.line(x,y, color="#2222aa", line_with=2)
 
-output_file("line.html", title="line.py example")
 show(p)

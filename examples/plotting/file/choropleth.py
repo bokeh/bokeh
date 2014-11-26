@@ -27,6 +27,8 @@ for county_id in us_counties:
     except KeyError:
         county_colors.append("black")
 
+output_file("choropleth.html", title="choropleth.py example")
+
 p = figure(title="US Unemployment 2009", toolbar_location="left",
     plot_width=1100, plot_height=700)
 
@@ -35,5 +37,4 @@ p.patches(county_xs, county_ys, fill_color=county_colors, fill_alpha=0.7,
 p.patches(state_xs, state_ys, fill_alpha=0.0,
     line_color="#884444", line_width=2)
 
-output_file("choropleth.html", title="choropleth.py example")
 show(p)

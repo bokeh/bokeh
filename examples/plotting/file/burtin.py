@@ -59,6 +59,8 @@ small_angle = big_angle / 7
 x = np.zeros(len(df))
 y = np.zeros(len(df))
 
+output_file("burtin.html", title="burtin.py example")
+
 p = figure(plot_width=width, plot_height=height, title="",
     x_axis_type=None, y_axis_type=None,
     x_range=[-420, 420], y_range=[-420, 420],
@@ -118,5 +120,4 @@ p.text([-15, -15, -15], [18, 0, -18], text=list(drug_color.keys()),
 p.xgrid.grid_line_color = None
 p.ygrid.grid_line_color = None
 
-output_file("burtin.html", title="burtin.py example")
 show(p)
