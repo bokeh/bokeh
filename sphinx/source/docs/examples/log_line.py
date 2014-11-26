@@ -1,10 +1,13 @@
-from bokeh.plotting import *
+from bokeh.plotting import figure, output_file, show
 
 # prepare some data
 x = [1, 2, 3, 4, 5]
 y1 = [el**2 for el in x]
 y2 = [10**el for el in x]
 y3 = [10**(el**2) for el in x]
+
+# output to static HTML file
+output_file("log_lines.html")
 
 # create a new figure
 p = figure(
@@ -20,8 +23,5 @@ p.line(x, y1, legend="y=x**2")
 p.circle(x, y1, fill_color=None, line_color="green", legend="y=x**2")
 p.line(x, y2, line_color="red", line_width=2, legend="y=10^x")
 p.line(x, y3, line_color="orange", line_width=2, legend="y=10^(x^2)")
-
-# output to static HTML file
-output_file("lines.html")
 
 show()

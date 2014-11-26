@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-
 import numpy as np
 import scipy.special
-from bokeh.plotting import *
+from bokeh.plotting import figure, output_file, show
 
 # prepare data
 mu, sigma = 0, 0.5
@@ -11,6 +10,9 @@ hist, edges = np.histogram(measured, density=True, bins=50)
 x = np.linspace(-2, 2, 1000)
 pdf = 1/(sigma * np.sqrt(2*np.pi)) * np.exp(-(x-mu)**2 / (2*sigma**2))
 cdf = (1+scipy.special.erf((x-mu)/np.sqrt(2*sigma**2)))/2
+
+# output to static HTML file
+output_file('histogram.html')
 
 # prepare the histogram
 p = figure(title="Normal Distribution (μ=0, σ=0.5)",tools="previewsave",
@@ -28,5 +30,4 @@ xa, ya = p.axis
 xa.axis_label = 'x'
 ya.axis_label = 'Pr(x)'
 
-output_file('histogram.html')
 show()

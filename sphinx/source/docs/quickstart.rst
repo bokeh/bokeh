@@ -169,7 +169,6 @@ Here's how the code for this use case looks like using bokeh.charts:
 
 .. literalinclude:: examples/histogram.py
    :language: python
-   :lines: 5-19
    :linenos:
 
 .. image:: /_images/quickstart/histogram.png
@@ -180,9 +179,8 @@ differences from the previous examples to help comparison):
 
 .. literalinclude:: examples/histogram_more.py
    :language: python
-   :lines: 4-30
    :linenos:
-   :emphasize-lines: 4,10,11,22,23,25
+   :emphasize-lines: 3,11,12,24,25,28
 
 .. image:: /_images/quickstart/histogram_more.png
 
