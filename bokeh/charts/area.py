@@ -1,5 +1,5 @@
 from .line import Line
-
+from ._chartobject import ChartObject, DataAdapter
 try:
     import numpy as np
 
@@ -7,7 +7,7 @@ except ImportError:
     print "bokeh.charts needs numpy installed to work properly!"
     raise
 
-class Area(Line):
+class Area(ChartObject):
     def __init__(self, values,
                  index=None,
                  title=None, xlabel=None, ylabel=None, legend=False,
@@ -16,11 +16,25 @@ class Area(Line):
                  facet=False, stacked=False):
         self.stacked = stacked
 
-        super(Area, self).__init__(
-            values, index, title, xlabel, ylabel, legend,
-            xscale, yscale, width, height,
-            tools, filename, server, notebook, facet
-        )
+        self.values = values
+        self.source = None
+        self.xdr = None
+        self.ydr = None
+
+        # list to save all the groups available in the incomming input
+        self.groups = []
+        self.data = dict()
+        self.attr = []
+        self.index = index
+
+        super(Area, self).__init__(title, xlabel, ylabel, legend,
+                                         xscale, yscale, width, height,
+                                         tools, filename, server, notebook, facet)
+        #super(ChartObject, self).__init__(
+        #    values, index, title, xlabel, ylabel, legend,
+        #    xscale, yscale, width, height,
+        #    tools, filename, server, notebook, facet
+        #)
 
     def draw(self):
         """Use the patch glyphs to fill the area connecting the xy points
@@ -47,7 +61,7 @@ class Area(Line):
         # list to save all the attributes we are going to create
         self.attr = []
 
-        xs, self.values = self.prepare_data(self.values)
+        xs, self.values = DataAdapter.get_index_and_data(self.values, self.index)
         last = np.zeros(len(xs))
 
         x2 = np.hstack((xs[::-1], xs))

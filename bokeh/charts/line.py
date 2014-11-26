@@ -141,38 +141,6 @@ class Line(ChartObject):
             if i < len(self.attr[1:]):
                 self.create_plot_if_facet()
 
-    def prepare_data(self, values):
-        if hasattr(values, 'keys'):
-            if self.index is not None:
-                if isinstance(self.index, basestring):
-                    xs = values[self.index]
-
-                else:
-                    xs = self.index
-
-            else:
-                try:
-                    xs = values.index
-
-                except AttributeError:
-                    values = DataAdapter(values, force_alias=False)
-                    self.index = xs = values.index
-
-        else:
-            if self.index is None:
-                values = DataAdapter(values, force_alias=False)
-                self.index = xs = values.index
-
-            elif isinstance(self.index, basestring):
-                msg = "String indexes are only supported for DataFrame and dict inputs"
-                raise TypeError(msg)
-
-            else:
-                xs = self.index
-                values = DataAdapter(values, force_alias=False)
-
-        return xs, values
-
     def get_data(self):
         """Calculate the chart properties accordingly from line.values.
         Then build a dict containing references to all the points to be used by
@@ -184,7 +152,7 @@ class Line(ChartObject):
         # list to save all the attributes we are going to create
         self.attr = []
 
-        xs, self.values = self.prepare_data(self.values)
+        xs, self.values = DataAdapter.get_index_and_data(self.values, self.index)
 
         self.set_and_get("x", "", np.array(xs))
         for col in self.values.keys():

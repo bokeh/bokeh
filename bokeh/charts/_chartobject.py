@@ -699,3 +699,40 @@ class DataAdapter(object):
                 indexes = range(0, len(self.values()[0]))
                 self._index = indexes
             return indexes
+
+    #-----------------------------------------------------------------------------
+    # Convenience methods
+    #-----------------------------------------------------------------------------
+    @staticmethod
+    def get_index_and_data(values, index=None):
+        if hasattr(values, 'keys'):
+            if index is not None:
+                if isinstance(index, basestring):
+                    xs = values[index]
+
+                else:
+                    xs = index
+
+            else:
+                try:
+                    xs = values.index
+
+                except AttributeError:
+                    values = DataAdapter(values, force_alias=False)
+                    xs = values.index
+
+        else:
+            if index is None:
+                values = DataAdapter(values, force_alias=False)
+                xs = values.index
+
+            elif isinstance(index, basestring):
+                msg = "String indexes are only supported for DataFrame and dict inputs"
+                raise TypeError(msg)
+
+            else:
+                xs = index
+                values = DataAdapter(values, force_alias=False)
+
+        return xs, values
+
