@@ -1,7 +1,7 @@
 """This is the Bokeh charts interface. It gives you a high level API to build
 complex plot is a simple way.
 
-This is the Line class which lets you build your Line charts just
+This is the Step class which lets you build your Step charts just
 passing the arguments to the Chart class and calling the proper functions.
 It also add detection of the incomming input to see if it is a pandas dataframe.
 """
@@ -27,8 +27,8 @@ from ..objects import ColumnDataSource, Range1d, DataRange1d
 
 
 class Step(ChartObject):
-    """This is the Line class and it is in charge of plotting
-    Line charts in an easy and intuitive way.
+    """This is the Step class and it is in charge of plotting
+    Step charts in an easy and intuitive way.
 
     Essentially, we provide a way to ingest the data, make the proper
     calculations and push the references into a source object.
@@ -44,7 +44,7 @@ class Step(ChartObject):
                  facet=False):
         """
         Args:
-            xy (dict): a dict containing the data with names as a key
+            values (dict): a dict containing the data with names as a key
                 and the data as a value.
             index (list): 1d iterable of any sort (of datetime values)
             title (str, optional): the title of your plot. Defaults to None.
@@ -114,7 +114,7 @@ class Step(ChartObject):
 
     def get_source(self):
         """
-        Push the Line data into the ColumnDataSource and calculate the proper ranges.
+        Push the Step data into the ColumnDataSource and calculate the proper ranges.
         """
         self.source = ColumnDataSource(self.data)
         self.xdr = DataRange1d(sources=[self.source.columns("x"), self.source.columns("x2")])
@@ -129,23 +129,22 @@ class Step(ChartObject):
         )
 
     def draw(self):
-        """Use the line glyphs to connect the xy points in the Line.
+        """Use the line glyphs to connect the xy points in the Step.
 
         Takes reference points from the data loaded at the ColumnDataSurce.
         """
         self.tuples = list(self._chunker(self.attr[2:], 2))
         colors = self._set_colors(self.tuples)
 
-        #for i, duplet in enumerate(self.attr[1:], start=1):
         for i, duplet in enumerate(self.tuples):
-            print duplet
-            #self.chart.make_line(self.source, 'x', duplet, colors[i - 1])
 
+            # draw the step horizontal segment
             self.chart.make_segment(
                 self.source, 'x2', duplet[0],
                 'x2', duplet[1], colors[i], 2,
             )
 
+            # draw the step vertical segment
             self.chart.make_segment(
                 self.source, 'x', duplet[0],
                 'x2', duplet[0], colors[i], 2,
@@ -154,42 +153,10 @@ class Step(ChartObject):
             if i < len(self.attr[1:]):
                 self.create_plot_if_facet()
 
-    def prepare_data(self, values):
-        if hasattr(values, 'keys'):
-            if self.index is not None:
-                if isinstance(self.index, basestring):
-                    xs = values[self.index]
-
-                else:
-                    xs = self.index
-
-            else:
-                try:
-                    xs = values.index
-
-                except AttributeError:
-                    values = DataAdapter(values, force_alias=False)
-                    self.index = xs = values.index
-
-        else:
-            if self.index is None:
-                values = DataAdapter(values, force_alias=False)
-                self.index = xs = values.index
-
-            elif isinstance(self.index, basestring):
-                msg = "String indexes are only supported for DataFrame and dict inputs"
-                raise TypeError(msg)
-
-            else:
-                xs = self.index
-                values = DataAdapter(values, force_alias=False)
-
-        return xs, values
-
     def get_data(self):
-        """It calculates the chart properties accordingly from Line.values.
+        """It calculates the chart properties accordingly from Step.values.
         Then build a dict containing references to all the points to be used by
-        the line glyph inside the ``draw`` method.
+        the segment glyph inside the ``draw`` method.
 
         """
         self.data = dict()
@@ -197,7 +164,7 @@ class Step(ChartObject):
         # list to save all the attributes we are going to create
         self.attr = []
 
-        xs, self.values = self.prepare_data(self.values)
+        xs, self.values = DataAdapter.get_index_and_data(self.values, self.index)
 
         self.set_and_get("x", "", np.array(xs)[:-1])
         self.set_and_get("x2", "", np.array(xs)[1:])
