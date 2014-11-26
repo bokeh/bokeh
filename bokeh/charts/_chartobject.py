@@ -96,7 +96,7 @@ class ChartObject(object):
         self.__yscale = yscale
         self.__width = width
         self.__height = height
-        self.__tools = tools
+        s   elf.__tools = tools
         self.__filename = filename
         self.__server = server
         self.__notebook = notebook
@@ -381,8 +381,6 @@ class ChartObject(object):
         .. note:: the show method can not be chained. It has to be called
         at the end of the chain.
         """
-
-
         self._setup_show()
         self._prepare_show()
         self._show_teardown()
@@ -399,8 +397,12 @@ class ChartObject(object):
 
     def _prepare_show(self):
         """
-        Executes chart show core operations lik:
+        Executes chart show core operations:
+
          - checks for chain methods
+         - prepare chart data & source
+         - create indexes
+         - create glyphs
          - draw glyphs
         """
 
@@ -466,20 +468,6 @@ class ChartObject(object):
 
         return colors
 
-    #def _set_and_get(self, prefix, val, content):
-    #    """Set a new attr and then get it to fill the self.data dict.
-    #
-    #    Keep track of the attributes created.
-    #
-    #    Args:
-    #        prefix (str): prefix of the new attribute
-    #        val (string): name of the new attribute
-    #        content (obj): content of the new attribute
-    #    """
-    #    setattr(self, prefix + val, content)
-    #    self.data[prefix + val] = getattr(self, prefix + val)
-    #    self.attr.append(prefix + val)
-
     def _set_and_get(self, data, prefix, attr, val, content):
         """Set a new attr and then get it to fill the self.data dict.
 
@@ -513,7 +501,7 @@ DEFAULT_INDEX_ALIASES += zip(DEFAULT_INDEX_ALIASES, DEFAULT_INDEX_ALIASES)
 
 class DataAdapter(object):
     """
-    Adapter object used to normalize Charts inputs to a common know interface
+    Adapter object used to normalize Charts inputs to a common interface
     """
     def __init__(self, data, index=None, columns=None, force_alias=True):
         self._values = self.validate_values(data)
@@ -631,7 +619,6 @@ class DataAdapter(object):
 
         else:
             return list(keys)
-
 
     def __len__(self):
         return len(self._values)
