@@ -1,3 +1,10 @@
+/* button-specific variables */
+
+@buttonHeight: 28px;
+@buttonWidth: 30px;
+@buttonColor: lightgray;
+
+
 /* table element cleanup */
 
 .tableelem {
@@ -43,6 +50,9 @@
 .bk-table form table tr td input {
   padding: 0;
 }
+
+
+/* freestanding bokeh plot */ 
 
 .jsp:after, .bk-plot:after, .bk-canvas-wrapper:after, .bk-sidebar:after {
   content: " ";
@@ -106,27 +116,15 @@
 
 .bk-button-bar .bk-bs-dropdown {
   padding: 10px 10px 0 5px;
-  &:before {
-    content: "\25BE";
-    font-size: 90%;
-    color: lightgray;
-    display: inline-block;
-    height: 10px;
-    line-height: 10px;
-    width: 10px;
-    position: absolute;
-    right: 0px;
-    top: 10px;
-  }
   a {
     color: transparent;
     font-size: 0;
     display: block;
     float: left;
-    width: 16px;
-    height: 16px;
-    margin: 10px 5px 5px 3px;
-    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEgAACxIB0t1+/AAAABx0RVh0U29mdHdhcmUAQWRvYmUgRmlyZXdvcmtzIENTNui8sowAAAHeSURBVDiNpZPPS1RRFMc/5z6FLLKlQQ1IQi0y0L/AsF+00rC6M3eQN61buDDatWoXuRBahs5zeM/uiCi0aTKE2ktSrttY0NoIFzpzWnTHxscQRF/4Ls453++5nHM5Qhcspv62GByqlwAjIp+0xXKlbDfyWukMqqkfAeZEGAe+Av2h9AM4p7CJMFsp2e22xxyZMz8hwpYIg8Dd2NkCsAasxc6eB0oCg6JsVTM/caxBkvphgXWgoeho7OxqqPcGEjv7StFRoCGwXk39MICpZT4CXgC7ik5VXHGvY6pTgQBUXHFP0SlUd0WYr2UrPaYJ1xHGgJmKK+7ndjQbSEeTfUQeAeNNWmOSpD5FuBY7eza/4b8hyfx3VBs9CBeBviTzS0AU6k9iZ7/kDBeApyFsAicQudz+Bf2X1zvxvyO8MSosAQNJ5u90EQ0lmR/qkr8PDKhIzUTwTuGDwvzLlXpfTjsXeISFev0k8FxhM8K8N9PONkV5KFDoPdDVBe/7O/Q/A3+b/fKZ6FBfAwVRZqbdvUMDEJftDqKTwK2oyXY19TZ4DgKppt6apvkIXEV0Mi7bHcgdU5L6ERWeCdwAvgGnQ6l9TBuiPI7Lf47pWIM2FjN/00AJuBJSn1uw/MDZt3ntLzC5tBIPCBGPAAAAAElFTkSuQmCC);
+    width: 13px;
+    height: 13px;
+    margin: 5px;
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAYAAABy6+R8AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEgAACxIB0t1+/AAAABx0RVh0U29mdHdhcmUAQWRvYmUgRmlyZXdvcmtzIENTNui8sowAAAGdSURBVCiRXZJPSxtRFMV/dyYTunBREASRIkKwddPSjYIL+x2K9plR+owR7K7L7vsZutIkZqhO8jZ+h25aQilUkbaUgv2zEOpGpAsZnbld+BJC7ubAvYd77uEeYaTaB25bhJqi44Kcq9LYWDOt/lxVkQG542ZFaQP3gB6wBLwDFoGfKtQ2qua7qhIAJB1XEeUE9CtSPLCxWQbObGxWEL0P+k2Uk3barQBImrrgWvmE8NnGpgaQpO4OcArM2Nhc+d4e8DCUcL6UwZYIk0WYzw9Zy4CnHm+9hNcvJI/+3GhuJUndR+A3yCpoCGQ2NkWfnKQuAMqo5Ih2gakScBeYBj32vE3gw5DqAtBCFGAcuCwBF8CRIFX1SiNf6AGPQXLwSgq7Aq+zMGPLrPdNB16h50+92uvul4MiWlJ4FZShAZxFebQztL0MHHoEICiiBvCrRJiI31wBvii8zQt9WV9f/Zek7sjG5lFzvzsWBvJGYA2Ye1599mOQiKTjZlVpCcwA74En/UQonIqwaX0ihJFKUlcH6sAE8Bdo2tg0B/9S5T8JNaZ11wlT0wAAAABJRU5ErkJggg==);
   }
 }
 
@@ -144,15 +142,16 @@
     display: block;
     overflow: visible;
     background-color: transparent;
+    //outline: 1px solid teal;
     &:last-child {
       &:after {
         content: "|";
         font-size: 90%;
-        color: lightgray;
+        color: @buttonColor;
         display: inline-block;
         float: left;
-        height: 36px;
-        line-height: 36px;
+        height: @buttonHeight;
+        line-height: @buttonHeight;
         padding: 0 3px;
       }
     }
@@ -161,11 +160,11 @@
     &:after {
         content: "|";
         font-size: 90%;
-        color: lightgray;
+        color: @buttonColor;
         display: inline-block;
         float: left;
-        height: 36px;
-        line-height: 36px;
+        height: @buttonHeight;
+        line-height: @buttonHeight;
         padding: 0 3px;
       }
   }
@@ -181,11 +180,11 @@
   &:after {
       content: "|";
       font-size: 90%;
-      color: lightgray;
+      color: @buttonColor;
       display: inline-block;
       float: left;
-      height: 36px;
-      line-height: 36px;
+      height: @buttonHeight;
+      line-height: @buttonHeight;
       padding: 0 3px;
     }
 }
@@ -202,8 +201,8 @@
   margin-right: 8px;
 }
 .bk-button-bar-list .bk-toolbar-button {
-  width: 30px;
-  height: 36px;
+  width: @buttonWidth;
+  height: @buttonHeight;
   padding: 5px;
   border: none;
   border-radius: 0 !important;
@@ -299,7 +298,7 @@ li:hover .bk-toolbar-button span.tip {
   padding-bottom: 45px;
 }
 .bk-plot-above.bk-toolbar-active, .bk-plot-below.bk-toolbar-active {
-  height: 36px;
+  height: 30px;
   .bk-logo {
     float: left;
   }
@@ -399,7 +398,7 @@ li:hover .bk-toolbar-button span.tip {
             float: none;
             clear: both;
             display: block;
-            width: 30px;
+            width: @buttonWidth;
             height: 8px;
             line-height: 8px;
             padding: 3px 0;
@@ -414,7 +413,7 @@ li:hover .bk-toolbar-button span.tip {
             float: none;
             clear: both;
             display: block;
-            width: 30px;
+            width: @buttonWidth;
             height: 8px;
             line-height: 8px;
             padding: 3px 0;
@@ -465,4 +464,25 @@ li:hover .bk-toolbar-button span.tip {
   margin-bottom: 10px;
   padding-left: 10px;
   padding-right: 10px;
+}
+
+
+.bk-bs-caret {
+  color: @buttonColor;
+  display: inline-block;
+  width: 0;
+  height: 0;
+  position: relative;
+  left: 11px;
+  top: 3px;
+  vertical-align: middle;
+  border-top: 4px solid;
+  border-right: 4px solid transparent;
+  border-left: 4px solid transparent;
+}
+.bk-plot-left, .bk-plot-right {
+  
+}
+.bk-plot-above, .bk-plot-below {
+ 
 }
