@@ -27,8 +27,8 @@ class ColumnDataSource(DataSource):
 
     # Maps field/column name to a DataRange or FactorRange object. If the
     # field is not in the dict, then a range is created automatically.
-    cont_ranges = Dict(String, Instance(".objects.Range"))
-    discrete_ranges = Dict(String, Instance(".objects.Range"))
+    cont_ranges = Dict(String, Instance(".models.Range"))
+    discrete_ranges = Dict(String, Instance(".models.Range"))
 
     def __init__(self, *args, **kw):
         """ Modify the basic DataSource/PlotObj constructor so that if we

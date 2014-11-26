@@ -19,15 +19,15 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from .glyphs import (Asterisk, Circle, Cross, Diamond, InvertedTriangle, Line,
-                     MultiLine, Patches, Square, Text, Triangle, X)
+from .models.glyphs import (Asterisk, Circle, Cross, Diamond, InvertedTriangle, Line,
+                            MultiLine, Patches, Square, Text, Triangle, X)
 from .mplexporter.exporter import Exporter
 from .mplexporter.renderers import Renderer
 from .mpl_helpers import (convert_dashes, delete_last_col, get_props_cycled,
                           is_ax_end, xkcd_line)
-from .objects import (ColumnDataSource, DataRange1d, DatetimeAxis, GlyphRenderer,
-                      Grid, GridPlot, LinearAxis, PanTool, Plot, PreviewSaveTool,
-                      ResetTool, WheelZoomTool)
+from .models import (ColumnDataSource, DataRange1d, DatetimeAxis, GlyphRenderer,
+                     Grid, GridPlot, LinearAxis, PanTool, Plot, PreviewSaveTool,
+                     ResetTool, WheelZoomTool)
 from .plotting import (curdoc, output_file, output_notebook, output_server,
                        show)
 

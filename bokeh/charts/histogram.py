@@ -24,7 +24,7 @@ import numpy as np
 
 from ._chartobject import ChartObject
 
-from ..objects import ColumnDataSource, Range1d
+from ..models import ColumnDataSource, Range1d
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -201,7 +201,7 @@ class Histogram(ChartObject):
                            end=endx + 0.1 * (endx - startx))
 
         endy = max(max(self.data[i]) for i in y_names)
- 
+
         self.ydr = Range1d(start=0, end=1.1 * endy)
 
     def draw(self):

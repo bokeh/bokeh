@@ -9,7 +9,7 @@ from six import string_types
 
 from . import glyphs
 
-from .objects import (
+from .models import (
     BoxSelectionOverlay, BoxSelectTool, BoxZoomTool, CategoricalAxis,
     ColumnDataSource, TapTool, CrosshairTool, DataRange1d, DatetimeAxis,
     FactorRange, Grid, HoverTool, LassoSelectTool, Legend, LinearAxis,
@@ -58,7 +58,7 @@ def _glyph_doc(args, props, desc):
 
     Returns
     -------
-    plot : :py:class:`Plot <bokeh.objects.Plot>`
+    plot : :py:class:`Plot <bokeh.models.Plot>`
     """ % (desc, params, props)
 
 def _match_data_params(argnames, glyphclass, datasource, serversource,

@@ -16,7 +16,7 @@ import numpy as np
 from itertools import cycle, islice
 from scipy import interpolate, signal
 
-from .objects import GlyphRenderer
+from .models import GlyphRenderer
 
 #-----------------------------------------------------------------------------
 # Classes and functions

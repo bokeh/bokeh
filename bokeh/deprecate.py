@@ -45,6 +45,7 @@ See also L{Version}.
 
 
 __all__ = [
+    'deprecated_module',
     'deprecated',
     'getDeprecationWarningString',
     'getWarningMethod',
@@ -251,7 +252,9 @@ def getDeprecationWarningString(callableThing, version, format=None,
     return _getDeprecationWarningString(
         _fullyQualifiedName(callableThing), version, format, replacement)
 
-
+def deprecated_module(name, version, replacement):
+    message = _getDeprecationWarningString(name, version, DEPRECATION_WARNING_FORMAT + ': ' + replacement)
+    warn(message, DeprecationWarning, stacklevel=2)
 
 def deprecated(version, replacement=None):
     """

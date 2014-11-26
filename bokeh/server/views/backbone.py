@@ -28,7 +28,7 @@ def reset(docid):
     ''' Reset a specified :class:`Document <bokeh.document.Document>`.
 
     Deletes all stored objects except for the current
-    :class:`PlotContext <bokeh.objects.PlotContext>`, which has all of
+    :class:`PlotContext <bokeh.models.PlotContext>`, which has all of
     its children removed.
 
     :param docid: id of the :class:`Document <bokeh.document.Document>`

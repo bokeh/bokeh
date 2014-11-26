@@ -137,7 +137,7 @@ numbers with length two::
     figure(xrange=[0, 100])
 
 This will prepare a new plot that has an x-axis range that spans the interval `[0, 100]`.
-You can also pass a :class:`bokeh.objects.Range1D` object explicitly::
+You can also pass a :class:`bokeh.models.Range1D` object explicitly::
 
     figure(xrange=Range1d(start=2, end=8))
 

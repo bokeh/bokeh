@@ -11,7 +11,7 @@ log = logging.getLogger(__name__)
 
 import uuid
 
-from bokeh.objects import PlotContext
+from bokeh.models import PlotContext
 
 from .. import models
 

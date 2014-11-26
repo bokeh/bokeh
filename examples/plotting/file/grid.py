@@ -7,7 +7,7 @@ N = 50
 x = np.linspace(0, 4*np.pi, N)
 y = np.sin(x)
 
-TOOLS = "pan,wheel_zoom,box_zoom,reset,save"
+TOOLS = "pan,wheel_zoom,box_zoom,reset,save,crosshair"
 
 l = figure(title="line", tools=TOOLS)
 l.line(x,y, line_width=3, color="gold")
