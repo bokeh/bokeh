@@ -4,8 +4,8 @@ from numpy import pi, arange, sin, cos
 
 from bokeh.browserlib import view
 from bokeh.document import Document
-from bokeh.glyphs import Circle
-from bokeh.objects import (
+from bokeh.models.glyphs import Circle
+from bokeh.models import (
     Plot, DataRange1d, LinearAxis, Grid,
     ColumnDataSource, PanTool, WheelZoomTool
 )

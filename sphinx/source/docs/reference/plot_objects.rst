@@ -29,21 +29,21 @@ and reporting issues:
 
 .. _bokeh_dot_glyphs:
 
-``bokeh.glyphs``
+``bokeh.models.glyphs``
 ----------------
 
-.. automodule:: bokeh.glyphs
+.. automodule:: bokeh.models.glyphs
     :members:
 
 .. _bokeh_dot_objects:
 
-``bokeh.objects``
+``bokeh.models``
 -----------------
 
-.. inheritance-diagram:: bokeh.objects
+.. inheritance-diagram:: bokeh.models
   :parts: 1
 
-.. automodule:: bokeh.objects
+.. automodule:: bokeh.models
     :members:
 
 .. _bokeh_dot_session:

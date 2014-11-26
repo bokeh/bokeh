@@ -3,8 +3,9 @@ from __future__ import division
 import numpy as np
 from six.moves import zip
 from collections import OrderedDict
+
 from bokeh.plotting import *
-from bokeh.objects import HoverTool
+from bokeh.models import HoverTool
 
 TOOLS="crosshair,pan,wheel_zoom,box_zoom,reset,hover,previewsave"
 
@@ -32,18 +33,15 @@ source = ColumnDataSource(
     )
 )
 
-output_file("hover.html")
+p = figure(title="Hoverful Scatter", tools=TOOLS)
 
-hold()
+p.circle(x, y, radius=radii, source=source,
+    fill_color=colors, fill_alpha=0.6, line_color=None)
 
-circle(x, y, radius=radii, source=source, tools=TOOLS,
-       fill_color=colors, fill_alpha=0.6,
-       line_color=None, Title="Hoverful Scatter")
-
-text(x, y, text=inds, alpha=0.5, text_font_size="5pt",
+p.text(x, y, text=inds, alpha=0.5, text_font_size="5pt",
      text_baseline="middle", text_align="center", angle=0)
 
-hover = curplot().select(dict(type=HoverTool))
+hover =p.select(dict(type=HoverTool))
 hover.tooltips = OrderedDict([
     ("index", "$index"),
     ("(x,y)", "($x, $y)"),
@@ -53,4 +51,5 @@ hover.tooltips = OrderedDict([
     ("bar", "@bar"),
 ])
 
-show()  # open a browser
+output_file("hover.html")
+show(p)  # open a browser

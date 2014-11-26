@@ -24,7 +24,7 @@ object EcoPlugin extends sbt.Plugin {
         def modulePaths: List[String] = {
             val baseUrl = getClass.getClassLoader.getResource("")
             val baseDir = file(baseUrl.getPath)
-            modules.map(baseDir / _).map(_.getPath)
+            modules.map(baseDir / _).map(_.toURI.toString)
         }
 
         def ecoScope(ctx: Context): Scriptable = {

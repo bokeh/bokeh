@@ -72,9 +72,9 @@ define [
             @plot_view.x_range, @plot_view.y_range,
             x_range,
             # XXX: @glyph.x.field (etc.) indicates this be moved to Glyph
-            @glyph.y.field,
-            @glyph.x.field,
-            [@glyph.y.field],
+            @glyph.glyph.y.field,
+            @glyph.glyph.x.field,
+            [@glyph.glyph.y.field],
             transform_params
           )
         else

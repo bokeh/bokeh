@@ -1,32 +1,15 @@
 define [
-  "common/continuum_view"
   "common/collection",
-  "common/has_parent",
-], (ContinuumView, Collection, HasParent) ->
+  "./transform",
+], (Collection, Transform) ->
 
-  class RatioView extends ContinuumView
-    attributes:
-      class: "RatioView"
-
-    initialize: (options) ->
-      super(options)
-      @render_init()
-
-    delegateEvents: (events) ->
-      super(events)
-      "pass"
-
-    render_init: () ->
-      @$el.html("")
-
-  class Ratio extends HasParent
-    type : "Ratio"
-    default_view: RatioView
+  class Ratio extends Transform
+    type: "Ratio"
 
   class Ratios extends Collection
-    model : Ratio
+    model: Ratio
 
   return {
-    "Model" : Ratio
-    "Collection" : new Ratios()
+    Model: Ratio
+    Collection: new Ratios()
   }

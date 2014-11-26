@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 
 from ..plot_object import PlotObject
-from ..properties import Any, Bool, String, Enum, Instance, List, Dict
+from ..properties import Any, Bool, String, Enum, Instance, List, Dict, Tuple
 from ..enums import Dimension
 
 from .renderers import Renderer
@@ -59,8 +59,10 @@ class PolySelectTool(Tool):
 class HoverTool(Tool):
     names = List(String)
     renderers = List(Instance(Renderer))
-    tooltips = Dict(String, String)
+    tooltips = List(Tuple(String, String)) \
+        .accepts(Dict(String, String), lambda d: list(d.items()))
     always_active = Bool(True)
+    snap_to_data = Bool(True)
 
 class DataRangeBoxSelectTool(Tool):
     xselect = List(Instance(Range))

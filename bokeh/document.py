@@ -10,11 +10,9 @@ logger = logging.getLogger(__file__)
 
 import uuid
 
-from six import string_types
-
 from . import _glyph_functions as gf
 from .exceptions import DataIntegrityException
-from .objects import PlotContext
+from .models import PlotContext
 from .plot_object import PlotObject
 from .plotting_helpers import _new_xy_plot
 from .utils import dump
@@ -33,7 +31,6 @@ class Document(object):
 
     def __init__(self, json_objs=None):
         self._current_plot = None
-        self._next_figure_kwargs = dict()
         self._hold = False
         self._models = {}
 
@@ -96,6 +93,18 @@ class Document(object):
 
     # "current plot" related functions
 
+    def clear(self):
+        """ Remove all plots from this `Document`
+
+        Returns:
+            None
+
+        """
+        self.context.children = []
+        context = self.context
+        self._models = {}
+        self._add(context)
+
     def hold(self, value=True):
         """ Set the hold value for this Document.
 
@@ -115,8 +124,8 @@ class Document(object):
             None
 
         """
-        self._current_plot = None
-        self._next_figure_kwargs = kwargs
+        self._current_plot = _new_xy_plot(**kwargs)
+        return self._current_plot
 
     def curplot(self):
         """ Return the current plot of this Document.
@@ -230,7 +239,7 @@ class Document(object):
 
         for obj in objs:
             obj_id = obj['attributes']['id'] # XXX: obj['id']
-            obj_type = obj['type']
+            obj_type = obj.get('subtype', obj['type'])
             obj_attrs = obj['attributes']
 
             if "doc" in obj_attrs:
@@ -373,22 +382,6 @@ class Document(object):
     #------------------------------------------------------------------------
     # Helper functions
     #------------------------------------------------------------------------
-
-    def _get_plot(self, kwargs):
-        """ Return the current plot, creating a new one if needed.
-
-        """
-        plot = kwargs.pop("plot", None)
-        if not plot:
-            if self._hold and self._current_plot:
-                plot = self._current_plot
-            else:
-                plot_kwargs = self._next_figure_kwargs
-                self._next_figure_kwargs = dict()
-                plot_kwargs.update(kwargs)
-                plot = _new_xy_plot(**plot_kwargs)
-        self._current_plot = plot
-        return plot
 
     def _add(self, *objects):
         """ Adds objects to this document.

@@ -2,11 +2,11 @@ import unittest
 
 import bokeh.query as query
 
-from bokeh.objects import (
+from bokeh.models import (
     Axis, BoxZoomTool, ColumnDataSource, DatetimeAxis, GlyphRenderer, Grid, LinearAxis,
     LogAxis, PanTool, Plot, PreviewSaveTool, Range1d, ResetTool, ResizeTool, Tool, WheelZoomTool,
 )
-from bokeh.glyphs import Glyph, Circle, Line, Rect
+from bokeh.models.glyphs import Glyph, Circle, Line, Rect
 
 def large_plot():
     source = ColumnDataSource(data=dict(x=[0, 1], y=[0, 1]))

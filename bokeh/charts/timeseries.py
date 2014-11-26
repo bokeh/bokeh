@@ -21,7 +21,7 @@ import pandas as pd
 
 from ._chartobject import ChartObject
 
-from ..objects import ColumnDataSource, Range1d, DataRange1d
+from ..models import ColumnDataSource, Range1d, DataRange1d
 
 #-----------------------------------------------------------------------------
 # Classes and functions

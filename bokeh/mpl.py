@@ -19,15 +19,15 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from .glyphs import (Asterisk, Circle, Cross, Diamond, InvertedTriangle, Line,
-                     MultiLine, Patches, Square, Text, Triangle, X)
+from .models.glyphs import (Asterisk, Circle, Cross, Diamond, InvertedTriangle, Line,
+                            MultiLine, Patches, Square, Text, Triangle, X)
 from .mplexporter.exporter import Exporter
 from .mplexporter.renderers import Renderer
 from .mpl_helpers import (convert_dashes, delete_last_col, get_props_cycled,
                           is_ax_end, xkcd_line)
-from .objects import (ColumnDataSource, DataRange1d, DatetimeAxis, GlyphRenderer,
-                      Grid, GridPlot, LinearAxis, PanTool, Plot, PreviewSaveTool,
-                      ResetTool, WheelZoomTool)
+from .models import (ColumnDataSource, DataRange1d, DatetimeAxis, GlyphRenderer,
+                     Grid, GridPlot, LinearAxis, PanTool, Plot, PreviewSaveTool,
+                     ResetTool, WheelZoomTool)
 from .plotting import (curdoc, output_file, output_notebook, output_server,
                        show)
 
@@ -46,6 +46,7 @@ class BokehRenderer(Renderer):
         self.source = ColumnDataSource()
         self.xdr = DataRange1d()
         self.ydr = DataRange1d()
+        self.non_text = [] # to save the text we don't want to convert by draw_text
 
     def open_figure(self, fig, props):
         "Get the main plot properties and create the plot."
@@ -108,8 +109,11 @@ class BokehRenderer(Renderer):
 
     def open_axes(self, ax, props):
         "Get axes data and create the axes and grids"
-        # Get axes and grid into class attributes.
+        # Get axes, title and grid into class attributes.
         self.ax = ax
+        self.plot.title = ax.get_title()
+        # to avoid title conversion by draw_text later
+        self.non_text.append(self.plot.title)
         self.grid = ax.get_xgridlines()[0]
 
         # Add axis
@@ -130,7 +134,6 @@ class BokehRenderer(Renderer):
 
     def close_axes(self, ax):
         "Complete the axes adding axes-dependent plot props"
-        self.plot.title = ax.get_title()
         background_fill = ax.get_axis_bgcolor()
         if background_fill == 'w':
             background_fill = 'white'
@@ -228,29 +231,33 @@ class BokehRenderer(Renderer):
     def draw_text(self, text, position, coordinates, style,
                   text_type=None, mplobj=None):
         "Given a mpl text instance create a Bokeh Text glyph."
-        x, y = position
-        text = Text(x=x, y=y, text=text)
+        # mpl give you the title and axes names as a text object (with specific locations)
+        # inside the plot itself. That does not make sense inside Bokeh, so we
+        # just skip the title and axes names from the conversion and covert any other text.
+        if text not in self.non_text:
+          x, y = position
+          text = Text(x=x, y=y, text=[text])
 
-        alignment_map = {"center": "middle", "top": "top", "bottom": "bottom", "baseline": "bottom"}
-        # baseline not implemented in Bokeh, deafulting to bottom.
-        text.text_alpha = style['alpha']
-        text.text_font_size = "%dpx" % style['fontsize']
-        text.text_color = style['color']
-        text.text_align = style['halign']
-        text.text_baseline = alignment_map[style['valign']]
-        text.angle = style['rotation']
-        #style['zorder'] # not in Bokeh
+          alignment_map = {"center": "middle", "top": "top", "bottom": "bottom", "baseline": "bottom"}
+          # baseline not implemented in Bokeh, deafulting to bottom.
+          text.text_alpha = style['alpha']
+          text.text_font_size = "%dpx" % style['fontsize']
+          text.text_color = style['color']
+          text.text_align = style['halign']
+          text.text_baseline = alignment_map[style['valign']]
+          text.angle = style['rotation']
+          #style['zorder'] # not in Bokeh
 
-        ## Using get_fontname() works, but it's oftentimes not available in the browser,
-        ## so it's better to just use the font family here.
-        #text.text_font = mplText.get_fontname()) not in mplexporter
-        #text.text_font = mplText.get_fontfamily()[0] # not in mplexporter
-        #text.text_font_style = fontstyle_map[mplText.get_fontstyle()] # not in mplexporter
-        ## we don't really have the full range of font weights, but at least handle bold
-        #if mplText.get_weight() in ("bold", "heavy"):
-            #text.text_font_style = bold
+          ## Using get_fontname() works, but it's oftentimes not available in the browser,
+          ## so it's better to just use the font family here.
+          #text.text_font = mplText.get_fontname()) not in mplexporter
+          #text.text_font = mplText.get_fontfamily()[0] # not in mplexporter
+          #text.text_font_style = fontstyle_map[mplText.get_fontstyle()] # not in mplexporter
+          ## we don't really have the full range of font weights, but at least handle bold
+          #if mplText.get_weight() in ("bold", "heavy"):
+              #text.text_font_style = bold
 
-        self.plot.add_glyph(self.source, text)
+          self.plot.add_glyph(self.source, text)
 
     def draw_image(self, imdata, extent, coordinates, style, mplobj=None):
         pass
@@ -262,6 +269,10 @@ class BokehRenderer(Renderer):
         #  * map `labelpad` to `major_label_standoff`
         #  * deal with minor ticks once BokehJS supports them
         #  * handle custom tick locations once that is added to bokehJS
+
+        # we need to keep the current axes names to avoid writing them in draw_text
+        self.non_text.append(ax.get_label_text())
+
         if scale == "linear":
             laxis = LinearAxis(axis_label=ax.get_label_text())
         elif scale == "date":
