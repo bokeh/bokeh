@@ -42,12 +42,9 @@ class Donut(ChartObject):
                  tools=True, filename=False, server=False, notebook=False):
         """
         Args:
-            values (dict): a dict containing the data with names as a key
-                and the data as a value.
+            values (obj): value (iterable obj): Data adapter supported input type
             cat (list or bool, optional): list of string representing the categories.
                 Defaults to None.
-            stacked (bool, optional): to see the bars stacked or grouped.
-                Defaults to False, so grouping is assumed.
             title (str, optional): the title of your plot. Defaults to None.
             xlabel (str, optional): the x-axis label of your plot.
                 Defaults to None.
@@ -96,7 +93,7 @@ class Donut(ChartObject):
                 Needed for _set_And_get method.
             attr (list): to be filled with the new attributes created after
                 loading the data dict.
-                Needed for _set_And_get method.
+                Needed for _set_and_get method.
         """
         self.cat = cat
         self.values = values
@@ -114,22 +111,27 @@ class Donut(ChartObject):
         )
 
     def get_source(self):
-        """Push the Bar data into the ColumnDataSource and calculate the proper ranges.
+        """Push the Donut data into the ColumnDataSource and calculate the proper ranges.
 
-        Args:
-            stacked (bool): whether to stack the bars in your plot.
         """
         self.source = ColumnDataSource(self.data)
         self.xdr = Range1d(start=-2, end=2)
         self.ydr = Range1d(start=-2, end=2)
 
     def draw_central_wedge(self):
+        """Draw the central part of the donut wedge from donut.source and its
+        calculated start and end angles.
+
+        """
         self.chart.make_wedge(
             self.source, x=0, y=0, radius=1, line_color="white",
             line_width=2, start_angle="start", end_angle="end", fill_color="colors"
         )
 
     def draw_central_descriptions(self):
+        """Draw the descriptions to be placed on the central part of the donut wedge
+
+        """
         text = ["%s" % cat for cat in self.cat]
         x, y = polar_to_cartesian(0.7, self.data["start"], self.data["end"])
         text_source = ColumnDataSource(dict(text=text, x=x, y=y))
@@ -139,6 +141,10 @@ class Donut(ChartObject):
         )
 
     def draw_external_ring(self, colors=None):
+        """Draw the external part of the donut wedge from donut.source and its
+        related descriptions
+
+        """
         if colors is None:
             colors = self._set_colors(self.cat)
 
@@ -181,7 +187,7 @@ class Donut(ChartObject):
                 text_align="center", text_baseline="middle")
 
     def draw(self):
-        """Use the rect glyphs to display the wedges.
+        """Use the AnnularWedge and Wedge glyphs to display the wedges.
 
         Takes reference points from data loaded at the ColumnDataSurce.
         """
@@ -197,6 +203,12 @@ class Donut(ChartObject):
         self.draw_external_ring()
 
     def _setup_show(self):
+        """Prepare data before calling drawing methods.
+
+        It ensures that  x and y scales are forced to linear and that
+        donut.values is converted to a DataAdapter.
+
+        """
         self.yscale('linear')
         self.xscale('linear')
         self.check_attr()
