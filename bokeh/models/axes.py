@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 
-from ..properties import Int, Float, String, Enum, Instance, Tuple, Either, Include
+from ..properties import Int, Float, String, Enum, Auto, Instance, Tuple, Either, Include
 from ..mixins import LineProps, TextProps
 from ..enums import Location
 
@@ -9,8 +9,8 @@ from .tickers import Ticker, BasicTicker, LogTicker, CategoricalTicker, Datetime
 from .formatters import TickFormatter, BasicTickFormatter, LogTickFormatter, CategoricalTickFormatter, DatetimeTickFormatter
 
 class Axis(GuideRenderer):
-    location = Either(Enum('auto'), Enum(Location))
-    bounds = Either(Enum('auto'), Tuple(Float, Float))
+    location = Either(Auto, Enum(Location))
+    bounds = Either(Auto, Tuple(Float, Float))
 
     x_range_name = String('default')
     y_range_name = String('default')

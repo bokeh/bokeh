@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 
 from ..plot_object import PlotObject
-from ..properties import Bool, Int, String, Enum, List, Dict, Either
+from ..properties import Bool, Int, String, Enum, Auto, List, Dict, Either
 from ..enums import DatetimeUnits
 
 class TickFormatter(PlotObject):
@@ -19,7 +19,7 @@ class BasicTickFormatter(TickFormatter):
         power_limit_low (int) : use scientific notation on numbers this small
 
     """
-    precision = Either(Enum('auto'), Int)
+    precision = Either(Auto, Int)
     use_scientific = Bool(True)
     power_limit_high = Int(5)
     power_limit_low = Int(-3)

@@ -2,17 +2,19 @@
 # Go to http://localhost:5006/bokeh to view this plot
 
 import numpy as np
+
 from bokeh.plotting import *
 
-d = [[0,1,2,3,4],
-     [2,3,4,5,6],
-     [4,5,6,7,8],
-     [6,7,8,9,10]]
-output_server('image')
-image(
-    image=[d], x=[1], y=[2], dw=[10], dh=[10], palette="Reds9",
-    x_range=[1, 11], y_range=[2, 11],
-    tools="pan,wheel_zoom,box_zoom,reset,previewsave", name="image_example"
-)
+N = 1000
 
-show()
+x = np.linspace(0, 10, N)
+y = np.linspace(0, 10, N)
+xx, yy = np.meshgrid(x, y)
+d = np.sin(xx)*np.cos(yy)
+
+output_server("image")
+
+p = figure(x_range=[0, 10], y_range=[0, 10])
+p.image(image=[d], x=[0], y=[0], dw=[10], dh=[10], palette="Spectral11")
+
+show(p)  # open a browser

@@ -10,8 +10,6 @@ logger = logging.getLogger(__file__)
 
 import uuid
 
-from six import string_types
-
 from . import _glyph_functions as gf
 from .exceptions import DataIntegrityException
 from .objects import PlotContext
@@ -94,6 +92,18 @@ class Document(object):
         return self._context.ref
 
     # "current plot" related functions
+
+    def clear(self):
+        """ Remove all plots from this `Document`
+
+        Returns:
+            None
+
+        """
+        self.context.children = []
+        context = self.context
+        self._models = {}
+        self._add(context)
 
     def hold(self, value=True):
         """ Set the hold value for this Document.

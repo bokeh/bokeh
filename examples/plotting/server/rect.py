@@ -2,6 +2,7 @@
 # Go to http://localhost:5006/bokeh to view this plot
 
 import numpy as np
+
 from bokeh.plotting import *
 
 N = 80
@@ -11,17 +12,20 @@ y = np.sin(x)
 
 output_server("rect")
 
-figure(tools="pan,wheel_zoom,box_zoom,reset,previewsave")
-
 # fixed width and height
-rect(x, y, 4, 2, width_units="screen", height_units="screen",
-    color="#ff0000", name="rect_example")
+p1 = figure(title="width/height screen units")
+p1.rect(x, y, 6, 4, color="tomato",
+    width_units="screen", height_units="screen")
 
 # variable width and height
-rect(x, y, 0.01*np.exp(1+0.1*x), 0.2*abs(np.cos(x)),
-     fill_color="green", line_color=None, fill_alpha=0.6)
+w = 0.02*np.exp(1+0.1*x)
+h = 0.2*abs(np.cos(x))
+p2 = figure(title="variable width/height")
+p2.rect(x, y, w, h, color="olivedrab", alpha=0.6)
 
 # angle
-rect(x, y, 0.05, 0.1, color="#4444aa", angle=-np.pi/6, name="rect_example4")
+a = -np.pi/6
+p3 = figure(title="angle")
+p3.rect(x, y, 0.1, 0.1, alpha=0.5, color="navy", angle=a)
 
-show()
+show(VBox(p1, p2, p3))

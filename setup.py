@@ -328,7 +328,7 @@ if jsbuild:
 
 install_js()
 
-sampledata_suffixes = ('.csv', '.conf', '.gz', '.json', '.png')
+sampledata_suffixes = ('.csv', '.conf', '.gz', '.json', '.png', '.ics')
 
 package_path(join(SERVER, 'static'))
 package_path(join(SERVER, 'templates'))
