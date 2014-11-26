@@ -2,7 +2,7 @@ import json
 import numpy as np
 
 from bokeh.plotting import *
-from bokeh.objects import HoverTool, ColumnDataSource
+from bokeh.models import HoverTool, ColumnDataSource
 from bokeh.sampledata.les_mis import data
 
 from collections import OrderedDict

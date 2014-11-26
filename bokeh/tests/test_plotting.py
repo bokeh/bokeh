@@ -1,7 +1,7 @@
 import unittest
 
 import bokeh.plotting as plt
-from bokeh.objects import Grid, LinearAxis
+from bokeh.models import Grid, LinearAxis
 
 class TestPlotting(unittest.TestCase):
 

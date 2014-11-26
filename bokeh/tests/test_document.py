@@ -4,7 +4,7 @@ import unittest
 import bokeh
 import bokeh.document as document
 from bokeh.exceptions import DataIntegrityException
-from bokeh.objects import PlotContext
+from bokeh.models import PlotContext
 from bokeh.plotting import circle
 import bokeh.protocol as protocol
 

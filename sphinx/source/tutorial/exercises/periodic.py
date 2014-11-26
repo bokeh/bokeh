@@ -1,7 +1,7 @@
 import pandas as pd
 from bokeh.plotting import *
 from bokeh.sampledata import periodic_table
-from bokeh.objects import HoverTool, ColumnDataSource
+from bokeh.models import HoverTool, ColumnDataSource
 from collections import OrderedDict
 
 # categories need to be strings

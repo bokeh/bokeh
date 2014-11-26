@@ -26,7 +26,7 @@ except ImportError:
 from collections import OrderedDict
 from ._chartobject import ChartObject, DataAdapter
 
-from ..objects import ColumnDataSource, Range1d, DataRange1d
+from ..models import ColumnDataSource, Range1d, DataRange1d
 
 #-----------------------------------------------------------------------------
 # Classes and functions

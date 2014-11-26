@@ -1,6 +1,6 @@
 import numpy as np
 from bokeh.plotting import *
-from bokeh.objects import ColumnDataSource
+from bokeh.models import ColumnDataSource
 
 output_server("linked_panning")
 
@@ -14,10 +14,10 @@ s1 = figure(plot_width=350, plot_height=350)
 s1.scatter(x, y1)
 
 # Linked panning in Bokeh is expressed by sharing ranges between
-# plots. Note below that s2 is reated with the `x_range` and `y_range` 
-# keyword arguments, and supplied with the same ranges from s1. Here, 
+# plots. Note below that s2 is reated with the `x_range` and `y_range`
+# keyword arguments, and supplied with the same ranges from s1. Here,
 # this links both axes together.
-s2 = figure(plot_width=350, plot_height=350, 
+s2 = figure(plot_width=350, plot_height=350,
             x_range=s1.x_range, y_range=s1.y_range)
 s2.scatter(x, y2)
 

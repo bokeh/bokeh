@@ -1,6 +1,6 @@
 import numpy as np
 from bokeh.plotting import *
-from bokeh.objects import ColumnDataSource
+from bokeh.models import ColumnDataSource
 
 output_file("linked_brushing.html", title="linked_brushing.py example")
 
@@ -20,7 +20,7 @@ s1 = figure(tools=TOOLS, plot_width=350, plot_height=350)
 s1.scatter('x', 'y1', source=source)
 
 # Linked brushing in Bokeh is expressed by sharing data sources between
-# renderers. Note below that s2.scatter is called with the `source` 
+# renderers. Note below that s2.scatter is called with the `source`
 # keyword argument, and supplied with the same data source from s1.scatter
 s2 = figure(tools=TOOLS, plot_width=350, plot_height=350)
 s2.scatter('x', 'y2', source=source)

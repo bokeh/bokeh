@@ -24,7 +24,7 @@ import numpy as np
 
 from ._chartobject import ChartObject, DataAdapter
 
-from ..objects import ColumnDataSource, Range1d
+from ..models import ColumnDataSource, Range1d
 
 #-----------------------------------------------------------------------------
 # Classes and functions
