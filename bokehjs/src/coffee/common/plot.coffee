@@ -285,6 +285,7 @@ define [
       @set('tool_manager', new ToolManager.Model({
         tools: @get('tools')
         toolbar_location: @get('toolbar_location')
+        logo: @get('logo')
       }))
 
       logger.debug("Plot initialized")
@@ -375,6 +376,7 @@ define [
         left: [],
         right: [],
         toolbar_location: "above"
+        logo: "normal"
       }
 
     display_defaults: ->

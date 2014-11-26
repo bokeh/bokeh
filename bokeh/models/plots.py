@@ -174,6 +174,7 @@ class Plot(Widget):
     below = List(Instance(PlotObject))
 
     toolbar_location = Enum(Location)
+    logo = Enum("normal", "grey")
 
     plot_height = Int(600)
     plot_width = Int(600)
