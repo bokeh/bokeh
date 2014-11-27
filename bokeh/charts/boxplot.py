@@ -307,12 +307,17 @@ class BoxPlot(ChartObject):
             self.chart.make_scatter(self.source_scatter, self.attr_scatter[0],
                                     self.attr_scatter[1], self.marker, self.attr_scatter[2])
 
-        # We build the legend here using dummy glyphs
+        # We need to build the legend here using dummy glyphs
+        indexes = []
+        real_glyphs_count = len(self.chart.glyphs)
         for i, level in enumerate(self.groups):
             self.chart.make_rect(self.source_legend, "groups", None, None, None,
                                  self.palette[i], "black", None)
-        # We need to manually select the proper glyphs to be rendered as legends
-        indexes = [6, 7, 8]  # 1st group, 2nd group, 3rd group
+
+            # need to manually select the proper glyphs to be rendered as legends
+            indexes.append(real_glyphs_count+i)
+
+        # reset glyphs tho only contain the dummy
         self.chart.glyphs = [self.chart.glyphs[i] for i in indexes]
 
     # Some helper methods
