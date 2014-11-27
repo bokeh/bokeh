@@ -206,7 +206,9 @@ class Bar(ChartObject):
         super(Bar, self)._setup_show()
 
         # normalize input to the common DataAdapter Interface
-        self.values = DataAdapter(self.values, force_alias=False)
+        if not isinstance(self.values, DataAdapter):
+            self.values = DataAdapter(self.values, force_alias=False)
+
         if not self.cat:
             vals = map(str, self.values.index)
             self.cat = vals

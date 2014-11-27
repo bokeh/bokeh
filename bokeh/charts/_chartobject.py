@@ -623,7 +623,7 @@ class DataAdapter(object):
             return list(keys)
 
     def __len__(self):
-        return len(self._values)
+        return len(self.values())
 
     def __iter__(self):
         for k in self.keys():
