@@ -101,7 +101,20 @@ class ChartObject(object):
         self.__filename = filename
         self.__server = server
         self.__notebook = notebook
-        self.facet = facet
+        self.__facet = facet
+
+    def facet(self, facet=True):
+        """Set the facet flag of your chart. Facet splits the chart
+        creating a figure for every single series of the underlying data
+
+        Args:
+            facet (boolean): new facet value to use for your chart.
+
+        Returns:
+            self: the chart object being configured.
+        """
+        self._facet = facet
+        return self
 
     def title(self, title):
         """Set the title of your chart.
@@ -294,6 +307,8 @@ class ChartObject(object):
             self._server = self.__server
         if not hasattr(self, '_notebook'):
             self._notebook = self.__notebook
+        if not hasattr(self, '_facet'):
+            self._facet = self.__facet
 
     def create_chart(self):
         """Dynamically create a new chart object.
@@ -435,7 +450,7 @@ class ChartObject(object):
         Generate a new plot if facet is true. This can be called after every
         serie is draw so the next one is draw on a new separate plot instance
         """
-        if self.facet:
+        if self._facet:
             self.chart.figure()
 
             # we start the plot (adds axis, grids and tools)
