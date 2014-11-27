@@ -48,6 +48,17 @@ class Area(ChartObject):
         self._stacked = stacked
         return self
 
+    def check_attr(self):
+        """Check if any of the chained method were used.
+
+        If they were not used, it assign the init parameters content by default.
+        """
+        super(Area, self).check_attr()
+
+        # add specific chained method
+        if not hasattr(self, '_stacked'):
+            self._stacked = self.__stacked
+
     def get_source(self):
         """
         Push the Line data into the ColumnDataSource and calculate the proper ranges.
@@ -116,7 +127,7 @@ class Area(ChartObject):
             values = np.hstack((last[::-1], next))
 
             # only update when stacked, otherwise we always want to start from 0
-            if self.stacked:
+            if self._stacked:
                 last = next
 
             # save values and new group
