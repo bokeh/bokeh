@@ -195,7 +195,7 @@ class CategoricalHeatMap(ChartObject):
             self.catsx = self.value.columns.tolist()
             self.catsy = self.value.index.tolist()
         else:
-            print("CategoricalHeatMap only support pandas dataframes loading for now.")
+            print("HeatMap x and y ticks labels are only supported through pandas.DataFrame for now.")
 
 
     def _show_teardown(self):
@@ -203,8 +203,8 @@ class CategoricalHeatMap(ChartObject):
 
 
 class HeatMap(CategoricalHeatMap):
-    """This is the CategoricalHeatMap class and it is in charge of plotting
-    CategoricalHeatMap chart in an easy and intuitive way.
+    """This is the HeatMap class and it is in charge of plotting
+    HeatMap chart in an easy and intuitive way.
 
     Essentially, it provides a way to ingest the data, make the proper
     calculations and push the references into a source object.
@@ -213,18 +213,6 @@ class HeatMap(CategoricalHeatMap):
     from the source.
 
     Examples:
-        from bokeh.sampledata.unemployment1948 import data
-
-        # pandas magic
-        df = data[data.columns[:-2]]
-        df2 = df.set_index(df[df.columns[0]].astype(str))
-        df2.drop(df.columns[0], axis=1, inplace=True)
-        df3 = df2.transpose()
-
-        # bokeh magic
-        from bokeh.charts import CategoricalHeatMap
-        hm = CategoricalHeatMap(df3, title="categorical heatmap, pd_input", notebook=True)
-        hm.width(1000).height(400).show()
     """
     def __init__(self, value, palette=None,
                  title=None, xlabel=None, ylabel=None, legend=False,
