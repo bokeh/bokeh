@@ -19,17 +19,20 @@ show(p)
 renderer = p.select(dict(name="example1"))
 ds = renderer[0].data_source
 
-# now all we need to do is update the y values in that data source and
-# the the current session to store the change
+# we create 19 new lists of y-values to use them as steps in our animation
+values = []
+for i in range(1, 20):
+    values.append([y_ ** i for y_ in y])
+
 while True:
-    values = []
-    for i in range(1, 20):
-        new_values = ds.data["y"] = [y_ ** i for y_ in y]
+    # now we update the y column in the datasource with each y-value list in the values list
+    for val in values:
+        ds.data["y"] = val
         cursession().store_objects(ds)
         time.sleep(0.1)
-        values.append(new_values)
 
-    for new_values in values[::-1]:
-        ds.data["y"] = new_values
+    # and now we go back to the initial state just reversing the values list
+    for val in values[::-1]:
+        ds.data["y"] = val
         cursession().store_objects(ds)
         time.sleep(0.1)
