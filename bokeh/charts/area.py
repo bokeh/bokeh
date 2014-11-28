@@ -88,7 +88,7 @@ class Area(ChartObject):
         for i, series_name in enumerate(self.attr[1:]):
             self.chart.make_patch(self.source, 'x', series_name, colors[i])
 
-            if i < len(self.attr) - 1:
+            if i < len(self.attr[1:]) - 1:
                 self.create_plot_if_facet()
 
     def get_data(self):
