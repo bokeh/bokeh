@@ -21,7 +21,7 @@ meltingpointcolors = [palette[i] for i in melting_point_inds]
 
 TOOLS = "pan,wheel_zoom,box_zoom,reset,resize,save"
 
-p = figure(tools=TOOLS, toolbar_location="left", plot_width=1200)
+p = figure(tools=TOOLS, toolbar_location="left", logo="grey", plot_width=1200)
 p.title = "Density vs Atomic Weight of Elements (colored by melting point)"
 p.background_fill= "#cccccc"
 
