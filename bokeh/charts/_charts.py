@@ -147,13 +147,14 @@ class Chart(object):
         # Add tools
         if self.tools:
             for plot in self._plots:
-                if not self.categorical:
-                    pan = PanTool()
-                    wheelzoom = WheelZoomTool()
-                    reset = ResetTool()
-                    plot.add_tools(pan, wheelzoom, reset)
-                previewsave = PreviewSaveTool()
-                plot.add_tools(previewsave)
+                if not plot.tools:
+                    if not self.categorical:
+                        pan = PanTool()
+                        wheelzoom = WheelZoomTool()
+                        reset = ResetTool()
+                        plot.add_tools(pan, wheelzoom, reset)
+                    previewsave = PreviewSaveTool()
+                    plot.add_tools(previewsave)
 
     def add_data_plot(self, x_range, y_range):
         """Add range data to the initialized empty attributes.
@@ -185,13 +186,19 @@ class Chart(object):
                 else:
                     orientation = self.legend
 
+                legend = None
                 # When we have more then on plot we need to break legend per plot
                 if len(self._plots) > 1:
-                    legend = Legend(orientation=orientation, legends=[legends[i]])
+                    try:
+                        legend = Legend(orientation=orientation, legends=[legends[i]])
+
+                    except IndexError:
+                        pass
                 else:
                     legend = Legend(orientation=orientation, legends=legends)
 
-                plot.add_layout(legend)
+                if legend is not None:
+                    plot.add_layout(legend)
 
         # Add to document and session if server output is asked
         self.doc = Document()

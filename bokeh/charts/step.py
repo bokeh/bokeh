@@ -151,10 +151,11 @@ class Step(ChartObject):
                 'x2', duplet[0], colors[i], 2,
             )
 
-            if i < len(self.attr[1:]):
+            if i < len(self.tuples)-1:
                 self.create_plot_if_facet()
 
-        self.reset_legend()
+        if not self._facet:
+            self.reset_legend()
 
     def _make_legend_glyph(self, source_legend, color):
         self.chart.make_segment(
@@ -171,6 +172,7 @@ class Step(ChartObject):
 
         # list to save all the attributes we are going to create
         self.attr = []
+        self.groups = []
 
         xs, self.values = DataAdapter.get_index_and_data(self.values, self.index)
 

@@ -336,8 +336,7 @@ class HeatMap(CategoricalHeatMap):
         super(HeatMap, self)._setup_show()
 
         try:
-            self.catsx = self.value.columns
-            self.catsy = self.value.index
-
+            self.catsx = list(self.value.columns)
+            self.catsy = list(self.value.index)
         except:
             raise

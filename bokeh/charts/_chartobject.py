@@ -586,7 +586,7 @@ class DataAdapter(object):
                 columns = list(keys())
 
             elif keys is None:
-                columns = map(str, range(len(data)))
+                columns = list(map(str, range(len(data))))
 
             else:
                 columns = list(keys)
