@@ -1,16 +1,29 @@
+from collections import OrderedDict
 import numpy as np
+import pandas as pd
+
+from bokeh.charts import Histogram
 
 # we build some distributions and load them into a dict
 mu, sigma = 0, 0.5
 normal = np.random.normal(mu, sigma, 1000)
 lognormal = np.random.lognormal(mu, sigma, 1000)
-distributions = dict(normal=normal, lognormal=lognormal)
+distributions = OrderedDict(normal=normal, lognormal=lognormal)
 
 # then we create a pandas df from the dict
-import pandas as pd
 df = pd.DataFrame(distributions)
+distributions = df.to_dict()
 
-# and finally we drop the df into out Histogram chart
-from bokeh.charts import Histogram
+for k, v in distributions.items():
+    distributions[k] = v.values()
+
+# any of the following commented are valid Histogram inputs
+#df = list(distributions.values())
+#df = tuple(distributions.values())
+#df = tuple([tuple(x) for x in distributions.values()])
+#df = np.array(list(distributions.values()))
+#df = list(distributions.values())[0]
+
 hist = Histogram(df, bins=50, filename="histograms.html")
-hist.title("Histograms").ylabel("frequency").legend(True).width(400).height(350).show()
+hist.title("Histograms").ylabel("frequency").xlabel('distributions').legend(True)
+hist.width(400).height(350).show()

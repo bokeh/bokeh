@@ -1,9 +1,9 @@
 """This is the Bokeh charts interface. It gives you a high level API to build
 complex plot is a simple way.
 
-This is the Bar class which lets you build your Bar charts just passing
-the arguments to the Chart class and calling the proper functions.
-It also add a new chained stacked method.
+This is the Dot class which lets you build your Dot charts just
+passing the arguments to the Chart class and calling the proper functions.
+It also add detection of the incomming input to see if it is a pandas dataframe.
 """
 #-----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2014, Continuum Analytics, Inc. All rights reserved.
@@ -16,26 +16,22 @@ It also add a new chained stacked method.
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-from __future__ import print_function
-
+import numpy as np
 try:
-    import numpy as np
+    import pandas as pd
 
 except ImportError:
-    print("bokeh.charts needs numpy installed to work properly!")
-    raise
+    pd = None
 
-from ._chartobject import ChartObject, DataAdapter
-from ..objects import ColumnDataSource, FactorRange, Range1d
-
+from .bar import Bar
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
 
 
-class Bar(ChartObject):
-    """This is the Bar class and it is in charge of plotting
-    Bar chart (grouped and stacked) in an easy and intuitive way.
+class Dot(Bar):
+    """This is the Dot class and it is in charge of plotting
+    Dot chart (grouped and stacked) in an easy and intuitive way.
 
     Essentially, it provides a way to ingest the data, make the proper
     calculations and push the references into a source object.
@@ -43,40 +39,18 @@ class Bar(ChartObject):
     And finally add the needed glyphs (rects) taking the references
     from the source.
 
-    Examples:
-
-        from collections import OrderedDict
-
-        import numpy as np
-
-        from bokeh.charts import Bar
-        from bokeh.sampledata.olympics2014 import data
-
-        data = {d['abbr']: d['medals'] for d in data['data'] if d['medals']['total'] > 0}
-
-        countries = sorted(data.keys(), key=lambda x: data[x]['total'], reverse=True)
-
-        gold = np.array([data[abbr]['gold'] for abbr in countries], dtype=np.float)
-        silver = np.array([data[abbr]['silver'] for abbr in countries], dtype=np.float)
-        bronze = np.array([data[abbr]['bronze'] for abbr in countries], dtype=np.float)
-
-        medals = OrderedDict(bronze=bronze, silver=silver, gold=gold)
-
-        bar = Bar(medals, countries)
-        bar.title("stacked, dict_input").xlabel("countries").ylabel("medals")\
-.legend(True).width(600).height(400).stacked().notebook().show()
     """
     # disable x grid
     xgrid=False
 
-    def __init__(self, values, cat=None, stacked=False,
+    def __init__(self, values, cat=None, show_segment=False,
                  title=None, xlabel=None, ylabel=None, legend=False,
                  xscale="categorical", yscale="linear", width=800, height=600,
                  tools=True, filename=False, server=False, notebook=False,
                  facet=False):
         """
         Args:
-            value (dict): a dict containing the data with names as a key
+            values (dict): a dict containing the data with names as a key
                 and the data as a value.
             cat (list or bool, optional): list of string representing the categories.
                 Defaults to None.
@@ -132,119 +106,75 @@ class Bar(ChartObject):
                 loading the data dict.
                 Needed for _set_And_get method.
         """
-        self.cat = cat
-        self.values = values
-        self.__stacked = stacked
-        self.source = None
-        self.xdr = None
-        self.ydr = None
-        self.groups = []
-        self.data = dict()
-        self.attr = []
-        super(Bar, self).__init__(title, xlabel, ylabel, legend,
-                                  xscale, yscale, width, height,
-                                  tools, filename, server, notebook, facet)
+        self.show_segment = show_segment
+        super(Dot, self).__init__(
+            values, cat, False, # stacked is always false
+            title, xlabel, ylabel, legend,
+            xscale, yscale, width, height,
+            tools, filename, server, notebook, facet)
 
-    def stacked(self, stacked=True):
-        """Set the bars stacked on your chart.
-
-        Args:
-            stacked (bool, optional): whether to stack the bars
-                in your plot (default: True).
-
-        Returns:
-            self: the chart object being configured.
-        """
-        self._stacked = stacked
-        return self
-
-    def check_attr(self):
-        """Check if any of the chained method were used.
-
-        If they were not used, it assign the init parameters content by default.
-        """
-        super(Bar, self).check_attr()
-
-        # add specific chained method
-        if not hasattr(self, '_stacked'):
-            self._stacked = self.__stacked
-
-    def get_source(self):
-        """Push the Bar data into the ColumnDataSource and calculate the proper ranges.
-
-        Args:
-            stacked (bool): whether to stack the bars in your plot.
-        """
-        self.source = ColumnDataSource(self.data)
-        self.xdr = FactorRange(factors=self.source.data["cat"])
-        if self._stacked:
-            self.ydr = Range1d(start=0, end=1.1 * max(self.zero))
-        else:
-            cat = [i for i in self.attr if not i.startswith(("mid", "stacked", "cat"))]
-            end = 1.1 * max(max(self.data[i]) for i in cat)
-            self.ydr = Range1d(start=0, end=end)
 
     def draw(self):
         """Use the rect glyphs to display the bars.
 
-        Takes reference points from data loaded at the ColumnDataSurce.
+        Takes reference points from data loaded at the source   .
 
         Args:
             stacked (bool): whether to stack the bars in your plot.
         """
-        self.quartet = list(self._chunker(self.attr, 4))
-        colors = self._set_colors(self.quartet)
+        self.tuples = list(self._chunker(self.attr, 4))
+        colors = self._set_colors(self.tuples)
 
-        # quartet elements are: [data, mid, stacked, cat]
-        for i, quartet in enumerate(self.quartet):
-            if self._stacked:
-                self.chart.make_rect(self.source, "cat", quartet[2], "width", quartet[0], colors[i], "white", None)
-            else:  # Grouped
-                self.chart.make_rect(self.source, quartet[3], quartet[1], "width_cat", quartet[0], colors[i], "white", None)
+        # quartet elements are: [data, cat, zeros, segment_top]
+        for i, quartet in enumerate(self.tuples):
+            self.chart.make_scatter(
+                self.source, quartet[1], quartet[0], 'circle',
+                colors[i - 1], line_color='black',
+                size=15,
+                fill_alpha=1.,
+            )
 
-    def _setup_show(self):
-        super(Bar, self)._setup_show()
+            self.chart.make_segment(
+                self.source, quartet[1], quartet[2],
+                quartet[1], quartet[3], 'black', 2,
+            )
 
-        # normalize input to the common DataAdapter Interface
-        if not isinstance(self.values, DataAdapter):
-            self.values = DataAdapter(self.values, force_alias=False)
+            if i < len(self.tuples):
+                self.create_plot_if_facet()
 
-        if not self.cat:
-            vals = [str(x) for x in self.values.index]
-            self.cat = vals
+        self.reset_legend()
 
     def get_data(self):
-        """Take the Bar data from the input **value.
+        """Take the Dot data from the input **value.
 
         It calculates the chart properties accordingly. Then build a dict
         containing references to all the calculated points to be used by
         the rect glyph inside the ``draw`` method.
 
-        Args:
-            cat (list): categories as a list of strings
-            values (dict or pd obj): the values to be plotted as bars.
         """
-        self.width = [0.8] * len(self.cat)
-        # width should decrease proportionally to the value length.
-        # 1./len(value) doesn't work well as the width needs to decrease a
-        # little bit faster
-        self.width_cat = [min(0.2, (1./len(self.values))**1.1)] * len(self.cat)
+        # TODO: Clean useless code inherited from bars...
         self.zero = np.zeros(len(self.cat))
-        self.data = dict(cat=self.cat, width=self.width, width_cat=self.width_cat, zero=self.zero)
+        self.data = dict(cat=self.cat, zero=self.zero)
 
         # list to save all the attributes we are going to create
         self.attr = []
 
         # list to save all the groups available in the incomming input
         # Grouping
+        self.groups.extend(self.values.keys())
         step = np.linspace(0, 1.0, len(self.values.keys()) + 1, endpoint=False)
 
-        self.groups.extend(self.values.keys())
         for i, val in enumerate(self.values.keys()):
+            values = self.values[val]
+            # original y value
             self.set_and_get("", val, self.values[val])
-            self.set_and_get("mid", val, np.array(self.values[val]) / 2)
-            self.set_and_get("stacked", val, self.zero + np.array(self.values[val]) / 2)
-            # Grouped
+            # x value
             self.set_and_get("cat", val, [c + ":" + str(step[i + 1]) for c in self.cat])
-            # Stacked
-            self.zero += self.values[val]
+            # zeros
+            self.set_and_get("z_", val, np.zeros(len(self.values[val])))
+            # segment top y value
+            self.set_and_get("seg_top_", val, self.values[val] - np.array([2]*len(values)))
+
+    def _make_legend_glyph(self, source_legend, color):
+        self.chart.make_scatter(source_legend, "groups", None, 'circle',
+                                 color, "black", fill_alpha=1.)

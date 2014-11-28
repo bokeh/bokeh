@@ -23,12 +23,13 @@ from collections import OrderedDict
 
 import numpy as np
 
-from ..models.glyphs import (Asterisk, Circle, CircleCross, CircleX, Cross, Diamond,
-                             DiamondCross, InvertedTriangle, Line, Rect, Segment,
-                             Square, SquareCross, SquareX, Triangle, X, Quad)
-from ..models import (CategoricalAxis, DatetimeAxis, Grid, Legend,
-                      LinearAxis, PanTool, Plot, PreviewSaveTool, ResetTool,
-                      WheelZoomTool)
+from ..glyphs import (Asterisk, Circle, CircleCross, CircleX, Cross, Diamond,
+                      DiamondCross, InvertedTriangle, Line, Rect, Segment,
+                      Square, SquareCross, SquareX, Triangle, X, Quad, Patch,
+                      Wedge, AnnularWedge, Text)
+from ..objects import (CategoricalAxis, DatetimeAxis, Grid, Legend,
+                       LinearAxis, PanTool, Plot, PreviewSaveTool, ResetTool,
+                       WheelZoomTool)
 
 from ..document import Document
 from ..session import Session
@@ -50,7 +51,7 @@ class Chart(object):
     subclassing the ChartObject class.
     """
     def __init__(self, title, xlabel, ylabel, legend, xscale, yscale, width, height,
-                 tools, filename, server, notebook):
+                 tools, filename, server, notebook, facet = False):
         """Common arguments to be used by all the inherited classes.
 
         Args:
@@ -97,13 +98,34 @@ class Chart(object):
         self.notebook = notebook
         self._xdr = None
         self._ydr = None
-        self.plot = Plot(title=self.title,
-                         x_range=self._xdr,
-                         y_range=self._ydr,
-                         plot_width=self.plot_width,
-                         plot_height=self.plot_height)
+        self.facet = facet
+        self._plots = []
+        self.figure()
         self.categorical = False
         self.glyphs = []
+
+    @property
+    def plot(self):
+        """
+        Returns the currently chart plot
+        """
+        return self._plots[-1]
+
+    def figure(self):
+        """
+        Creates a new plot as current plot.
+        """
+        # TODO: Should figure be validated by self.facet so we raise an exception
+        # if figure is called and facet is False?
+        self._plots.append(
+            Plot(
+                title=self.title,
+                x_range=self._xdr,
+                y_range=self._ydr,
+                plot_width=self.plot_width,
+                plot_height=self.plot_height
+            )
+        )
 
     def start_plot(self, xgrid, ygrid):
         """Add the axis, grids and tools to self.plot
@@ -124,13 +146,15 @@ class Chart(object):
 
         # Add tools
         if self.tools:
-            if not self.categorical:
-                pan = PanTool()
-                wheelzoom = WheelZoomTool()
-                reset = ResetTool()
-                self.plot.add_tools(pan, wheelzoom, reset)
-            previewsave = PreviewSaveTool()
-            self.plot.add_tools(previewsave)
+            for plot in self._plots:
+                if not plot.tools:
+                    if not self.categorical:
+                        pan = PanTool()
+                        wheelzoom = WheelZoomTool()
+                        reset = ResetTool()
+                        plot.add_tools(pan, wheelzoom, reset)
+                    previewsave = PreviewSaveTool()
+                    plot.add_tools(previewsave)
 
     def add_data_plot(self, x_range, y_range):
         """Add range data to the initialized empty attributes.
@@ -154,18 +178,33 @@ class Chart(object):
         """
         # Add legend
         if self.legend:
-            listed_glyphs = [[glyph] for glyph in self.glyphs]
-            legends = list(zip(groups, listed_glyphs))
-            if self.legend is True:
-                orientation = "top_right"
-            else:
-                orientation = self.legend
-            legend = Legend(orientation=orientation, legends=legends)
-            self.plot.add_layout(legend)
+            for i, plot in enumerate(self._plots):
+                listed_glyphs = [[glyph] for glyph in self.glyphs]
+                legends = list(zip(groups, listed_glyphs))
+                if self.legend is True:
+                    orientation = "top_right"
+                else:
+                    orientation = self.legend
+
+                legend = None
+                # When we have more then on plot we need to break legend per plot
+                if len(self._plots) > 1:
+                    try:
+                        legend = Legend(orientation=orientation, legends=[legends[i]])
+
+                    except IndexError:
+                        pass
+                else:
+                    legend = Legend(orientation=orientation, legends=legends)
+
+                if legend is not None:
+                    plot.add_layout(legend)
 
         # Add to document and session if server output is asked
         self.doc = Document()
-        self.doc.add(self.plot)
+        for plot in self._plots:
+            self.doc.add(plot)
+
         if self.server:
             if self.server is True:
                 self.servername = "untitled"
@@ -302,19 +341,85 @@ class Chart(object):
 
         return rect
 
-    def make_scatter(self, source, x, y, markertype, color):
+    def make_patch(self, source, x, y, color):
+        """Create a patch glyph and append it to the renderers list.
+
+        Args:
+            source (obj): datasource object containing rect refereces.
+            x (str or list[float]) : values or field names of center ``x`` coordinates
+            y (str or list[float]) : values or field names of center ``y`` coordinates
+            color (str): the fill color
+
+        Return:
+            patch: Patch instance
+        """
+        patch = Patch(
+            x=x, y=y, fill_color=color, fill_alpha=0.9)
+
+        self._append_glyph(source, patch)
+        return patch
+
+    def make_wedge(self, source, **kws):
+        """Create a wedge glyph and append it to the renderers list.
+
+        Args:
+            source (obj): datasource object containing rect references.
+            **kws (refer to glyphs.Wedge for arguments specification details)
+
+        Return:
+            glyph: Wedge instance
+        """
+        glyph = Wedge(**kws)
+        self._append_glyph(source, glyph)
+        return glyph
+
+    def make_annular(self, source, **kws):
+        """Create a annular wedge glyph and append it to the renderers list.
+
+        Args:
+            source (obj): datasource object containing rect refereces.
+            **kws (refer to glyphs.AnnularWedge for arguments specification details)
+
+        Return:
+            rect: AnnularWedge instance
+        """
+        glyph = AnnularWedge(**kws)
+        self._append_glyph(source, glyph)
+        return glyph
+
+    def make_text(self, source, **kws):
+        """Create a text glyph and append it to the renderers list.
+
+        Args:
+            source (obj): datasource object containing rect references.
+            **kws (refer to glyphs.Text for arguments specification details)
+
+        Return:
+            glyph: Text instance
+        """
+        glyph = Text(**kws)
+        self._append_glyph(source, glyph)
+        return glyph
+
+    def make_scatter(self, source, x, y, markertype, color, line_color=None,
+                     size=10, fill_alpha=0.2, line_alpha=1.0):
         """Create a marker glyph and appends it to the renderers list.
 
         Args:
-            source (obj): datasource object containing markers refereces.
+            source (obj): datasource object containing markers references.
             x (str or list[float]) : values or field names of line ``x`` coordinates
             y (str or list[float]) : values or field names of line ``y`` coordinates
             markertype (int or str): Marker type to use (e.g., 2, 'circle', etc.)
             color (str): color of the points
+            size (int) : size of the scatter marker
+            fill_alpha(float) : alpha value of the fill color
+            line_alpha(float) : alpha value of the line color
 
         Return:
             scatter: Marker Glyph instance
         """
+        if line_color is None:
+            line_color = color
 
         _marker_types = OrderedDict([
             ("circle", Circle),
@@ -338,11 +443,11 @@ class Chart(object):
                 shape = next(g)
         else:
             shape = markertype
-        scatter = _marker_types[shape](x=x, y=y, size=10,
+        scatter = _marker_types[shape](x=x, y=y, size=size,
                                        fill_color=color,
-                                       fill_alpha=0.2,
-                                       line_color=color,
-                                       line_alpha=1.0)
+                                       fill_alpha=fill_alpha,
+                                       line_color=line_color,
+                                       line_alpha=line_alpha)
 
         self._append_glyph(source, scatter)
 
@@ -373,7 +478,8 @@ class Chart(object):
 
         if self.notebook:
             from bokeh.embed import notebook_div
-            publish_display_data({'text/html': notebook_div(self.plot)})
+            for plot in self._plots:
+                publish_display_data({'text/html': notebook_div(plot)})
 
     ## Some helper methods
     def _append_glyph(self, source, glyph):
