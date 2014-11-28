@@ -210,7 +210,7 @@ class Bar(ChartObject):
             self.values = DataAdapter(self.values, force_alias=False)
 
         if not self.cat:
-            vals = map(str, self.values.index)
+            vals = [str(x) for x in self.values.index]
             self.cat = vals
 
     def get_data(self):
