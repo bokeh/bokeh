@@ -202,6 +202,8 @@ class Donut(ChartObject):
         # build external donut ring
         self.draw_external_ring()
 
+        self.reset_legend()
+
     def _setup_show(self):
         """Prepare data before calling drawing methods.
 
@@ -225,7 +227,7 @@ class Donut(ChartObject):
 
         """
         self.df = df = pd.DataFrame(self.values.values())
-        df.columns = self.cat
+        self.groups = df.columns = self.cat
         df.index = self.values.keys()
 
         aggregated = df.sum()

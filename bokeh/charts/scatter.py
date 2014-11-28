@@ -211,10 +211,24 @@ class Scatter(ChartObject):
         colors = self._set_colors(self.duplet)
 
         for i, duplet in enumerate(self.duplet, start=1):
-            self.chart.make_scatter(self.source, duplet[0], duplet[1], i, colors[i - 1])
+            self.chart.make_scatter(self.source, duplet[0], duplet[1], 'circle', colors[i - 1])
 
             if i < len(self.duplet):
                 self.create_plot_if_facet()
+
+        self.reset_legend()
+
+    def _make_legend_glyph(self, source_legend, color):
+        """Create a new glyph to represent one of the chart data series with the
+        specified color
+
+        The glyph is added to chart.glyphs.
+
+        Args:
+            source_legend (ColumnDataSource): source to be used when creating the glyph
+            color (str): color of the glyph
+        """
+        self.chart.make_scatter(source_legend, "groups", None, 'circle', color)
 
 
     def _setup_show(self):

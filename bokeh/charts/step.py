@@ -154,6 +154,13 @@ class Step(ChartObject):
             if i < len(self.attr[1:]):
                 self.create_plot_if_facet()
 
+        self.reset_legend()
+
+    def _make_legend_glyph(self, source_legend, color):
+        self.chart.make_segment(
+            source_legend, "groups", None, 'groups', None, color, 2
+        )
+
     def get_data(self):
         """It calculates the chart properties accordingly from Step.values.
         Then build a dict containing references to all the points to be used by

@@ -213,8 +213,6 @@ class BoxPlot(ChartObject):
         lower_height_boxes = []
         out_x, out_y, out_color = ([], [], [])
 
-        self.palette = self._set_colors(self.groups)
-
         for i, level in enumerate(self.groups):
             # Compute quantiles, center points, heights, IQR, etc.
             # quantiles

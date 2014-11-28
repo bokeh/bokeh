@@ -15,5 +15,5 @@ xyvalues = OrderedDict(
 #xyvalues = list(xyvalues.values())
 #xyvalues = np.array(list(xyvalues.values()))
 
-step = Step(xyvalues, title="Steps", ylabel='Measures', filename="steps.html")
-step.legend("top_left").show()
+step = Step(xyvalues, title="Steps", ylabel='measures', filename="steps.html")
+step.xlabel('time').legend("top_left").show()

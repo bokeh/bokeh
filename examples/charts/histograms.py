@@ -25,5 +25,5 @@ for k, v in distributions.items():
 #df = list(distributions.values())[0]
 
 hist = Histogram(df, bins=50, filename="histograms.html")
-hist.title("Histograms").ylabel("frequency").legend(True)
+hist.title("Histograms").ylabel("frequency").xlabel('distributions').legend(True)
 hist.width(400).height(350).show()

@@ -21,6 +21,7 @@ from six import string_types
 from collections import OrderedDict
 from ._charts import Chart
 from ..properties import bokeh_integer_types, Datetime
+from ..models import ColumnDataSource
 
 try:
     import numpy as np
@@ -56,7 +57,7 @@ class ChartObject(object):
 
     def __init__(self, title, xlabel, ylabel, legend,
                  xscale, yscale, width, height,
-                 tools, filename, server, notebook, facet=False):
+                 tools, filename, server, notebook, facet=False, palette=None):
         """Common arguments to be used by all the inherited classes.
 
         Args:
@@ -102,6 +103,7 @@ class ChartObject(object):
         self.__server = server
         self.__notebook = notebook
         self.__facet = facet
+        self.__palette = palette
 
     def facet(self, facet=True):
         """Set the facet flag of your chart. Facet splits the chart
@@ -309,6 +311,8 @@ class ChartObject(object):
             self._notebook = self.__notebook
         if not hasattr(self, '_facet'):
             self._facet = self.__facet
+        if not hasattr(self, '_palette'):
+            self._palette = self.__palette
 
     def create_chart(self):
         """Dynamically create a new chart object.
@@ -457,6 +461,7 @@ class ChartObject(object):
             self.start_plot()
             self.add_data_plot()
 
+    #
     # Some helper methods
     def _chunker(self, l, n):
         """Yield successive n-sized chunks from l.
@@ -511,6 +516,52 @@ class ChartObject(object):
         """
         self._set_and_get(self.data, prefix, self.attr, val, content)
 
+    @property
+    def palette(self):
+        """Build a color list just cycling through a defined palette.
+
+        """
+        if not self._palette:
+            self._palette = self._set_colors(self.groups)
+
+        return self._palette
+
+    def reset_legend(self, marker='square'):
+        """Reset legends creating the right glyphs to represent each chart series.
+
+        Charts that use a composition of multiple underlying glyphs to represent
+        the data series need to create `dummy` glyphs to be used only to draw the
+        correct glyph to each series. This is done directly modifying chart.glyphs
+
+        """
+        # create a data source that maps the chart.groups
+        source_legend = ColumnDataSource({"groups": self.groups})
+
+        # We need to build the legend here using dummy glyphs
+        indexes = []
+        real_glyphs_count = len(self.chart.glyphs)
+
+        for i, level in enumerate(self.groups):
+            self._make_legend_glyph(source_legend, self.palette[i])
+
+            # need to manually select the proper glyphs to be rendered as legends
+            indexes.append(real_glyphs_count+i)
+
+        # reset glyphs tho only contain the dummy
+        self.chart.glyphs = [self.chart.glyphs[i] for i in indexes]
+
+    def _make_legend_glyph(self, source_legend, color):
+        """Create a new glyph to represent one of the chart data series with the
+        specified color
+
+        The glyph is added to chart.glyphs.
+
+        Args:
+            source_legend (ColumnDataSource): source to be used when creating the glyph
+            color (str): color of the glyph
+        """
+        self.chart.make_rect(source_legend, "groups", None, None, None,
+                                 color, "black", None)
 
 DEFAULT_INDEX_ALIASES = list('abcdefghijklmnopqrstuvz1234567890')
 DEFAULT_INDEX_ALIASES += list(zip(DEFAULT_INDEX_ALIASES, DEFAULT_INDEX_ALIASES))

@@ -116,7 +116,7 @@ class CategoricalHeatMap(ChartObject):
                 Needed for _set_And_get method.
         """
         self.value = value
-        self.palette = palette
+        #self.palette = palette
         self.source = None
         self.xdr = None
         self.ydr = None
@@ -125,7 +125,8 @@ class CategoricalHeatMap(ChartObject):
         self.attr = []
         super(CategoricalHeatMap, self).__init__(title, xlabel, ylabel, legend,
                                       xscale, yscale, width, height,
-                                      tools, filename, server, notebook)
+                                      tools, filename, server, notebook, facet=False,
+                                      palette=palette)
 
     def get_data(self, palette, **value):
         """Take the CategoricalHeatMap data from the input **value.
@@ -194,9 +195,6 @@ class CategoricalHeatMap(ChartObject):
         if isinstance(self.value, pd.DataFrame):
             self.catsx = self.value.columns.tolist()
             self.catsy = self.value.index.tolist()
-        else:
-            print("HeatMap x and y ticks labels are only supported through pandas.DataFrame for now.")
-
 
     def _show_teardown(self):
         self.chart.plot.add_tools(HoverTool(tooltips=[("value", "@rate")]))
@@ -304,11 +302,11 @@ class HeatMap(CategoricalHeatMap):
         # assuming value is a pandas df
         #self.value = value
 
-        if self.palette is None:
+        if self._palette is None:
             colors = ["#75968f", "#a5bab7", "#c9d9d3", "#e2e2e2", "#dfccce",
             "#ddb7b1", "#cc7878", "#933b41", "#550b1d"]
         else:
-            colors = self.palette
+            colors = self._palette
 
         # Set up the data for plotting. We will need to have values for every
         # pair of year/month names. Map the rate to a color.

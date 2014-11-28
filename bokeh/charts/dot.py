@@ -117,7 +117,7 @@ class Dot(Bar):
     def draw(self):
         """Use the rect glyphs to display the bars.
 
-        Takes reference points from data loaded at the ColumnDataSurce.
+        Takes reference points from data loaded at the source   .
 
         Args:
             stacked (bool): whether to stack the bars in your plot.
@@ -141,6 +141,8 @@ class Dot(Bar):
 
             if i < len(self.tuples):
                 self.create_plot_if_facet()
+
+        self.reset_legend()
 
     def get_data(self):
         """Take the Dot data from the input **value.
@@ -172,3 +174,7 @@ class Dot(Bar):
             self.set_and_get("z_", val, np.zeros(len(self.values[val])))
             # segment top y value
             self.set_and_get("seg_top_", val, self.values[val] - np.array([2]*len(values)))
+
+    def _make_legend_glyph(self, source_legend, color):
+        self.chart.make_scatter(source_legend, "groups", None, 'circle',
+                                 color, "black", fill_alpha=1.)
