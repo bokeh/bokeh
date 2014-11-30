@@ -25,15 +25,14 @@ ar.replot(plot,
 # Client-side colored heatmap
 ar.heatmap(plot, spread=3, client_color=True, palette="Reds9", title="Client-colored")
 
-# Contours come in the same framework, but since the results of the shader are lines you use a different plotting function...
+## Contours come in the same framework, but since the results of the shader are lines you use a different plotting function...
 colors = ["#C6DBEF", "#9ECAE1", "#6BAED6", "#4292C6", "#2171B5", "#08519C", "#08306B"]
 ar.contours(plot, palette=colors, title="ISO Contours")
 
 
-
-# Multiple categories
-plot = square('oneA', 'oneB', color='cats', source=source)
-ar.hdalpha(plot, spread=5, title="Multiple categories")
-
+## Multiple categories
+source = ServerDataSource(data_url="fn://gauss", owner_username="defaultuser")
+plot2 = square('oneA', 'oneB', color='cats', source=source)
+ar.hdalpha(plot2, spread=5, title="Multiple categories")
 
 show()
