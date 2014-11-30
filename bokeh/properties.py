@@ -657,6 +657,13 @@ class PrimitiveProperty(Property):
             raise ValueError("expected a value of type %s, got %s of type %s" %
                 (nice_join([ cls.__name__ for cls in self._underlying_type ]), value, type(value).__name__))
 
+    def from_json(self, json, models=None):
+        if json is None or isinstance(json, self._underlying_type):
+            return json
+        else:
+            expected = nice_join([ cls.__name__ for cls in self._underlying_type ])
+            raise DeserializationError("%s expected %s, got %s" % (self, expected, json))
+
 class Bool(PrimitiveProperty):
     ''' Boolean type property. '''
     _underlying_type = (bool,)
@@ -978,6 +985,15 @@ class Either(ParameterizedProperty):
                 pass
 
         raise ValueError("Could not transform %r" % value)
+
+    def from_json(self, json, models=None):
+        for tp in self.type_params:
+            try:
+                return tp.from_json(json, models)
+            except DeserializationError:
+                pass
+        else:
+            raise DeserializationError("%s couldn't deserialize %s" % (self, json))
 
     def __str__(self):
         return "%s(%s)" % (self.__class__.__name__, ", ".join(map(str, self.type_params)))

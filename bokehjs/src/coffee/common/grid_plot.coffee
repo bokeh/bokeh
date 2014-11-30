@@ -22,6 +22,7 @@ define [
       # better grid plot. This just mimics all the events that
       # any of the tool types might expect to get.
       @listenTo(@, 'do', @do)
+      @listenTo(@, 'change:active', @active)
       return null
 
     do: () ->
@@ -31,7 +32,7 @@ define [
 
     active: () ->
       for tool in @attributes.tools
-        tool.set('active', @get('active'))
+        tool.set('active', @attributes.active)
       return null
 
     attrs_and_props: () ->
