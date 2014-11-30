@@ -193,6 +193,8 @@ will need the following packages installed in order to build Bokeh documentation
 * docutils
 * sphinx
 * sphinxcontrib-napoleon
+* sphinx-bootstrap-theme
+* seaborn
 
 These can be installed using ``conda`` or ``pip`` or from source.
 

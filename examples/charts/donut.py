@@ -1,14 +1,13 @@
-from collections import OrderedDict
 import pandas as pd
+from collections import OrderedDict
+
+from bokeh.sampledata.olympics2014 import data
+from bokeh.charts import Donut
 
 # we throw the data into a pandas df
-from bokeh.sampledata.olympics2014 import data
-from bokeh.charts import Bar
-
 df = pd.io.json.json_normalize(data['data'])
-
-# we filter by countries with at least one medal and sort
-df = df[df['medals.total'] > 0]
+# filter by countries with at least one medal and sort
+df = df[df['medals.total'] > 8]
 df = df.sort("medals.total", ascending=False)
 
 # then, we get the countries and we group the data by medal type
@@ -21,10 +20,10 @@ bronze = df['medals.bronze'].astype(float).values
 medals = OrderedDict(bronze=bronze, silver=silver, gold=gold)
 
 # any of the following commented are valid Bar inputs
-#medals = pd.DataFrame(medals)
+#medals = pd.DataFrame(medals).T.values
 #medals = list(medals.values())
+#medas = pd.DataFrame(medals)
 
-bar = Bar(medals, countries, filename="stacked_bar.html")
-bar.title("Stacked bars").xlabel("countries").ylabel("medals")
-bar.legend(True).width(600).height(400).stacked(True)
-bar.show()
+donut = Donut(medals, countries, filename="donut.html")
+donut.title("Medals Donut").xlabel("countries").ylabel("medals")
+donut.legend(True).width(800).height(800).show()

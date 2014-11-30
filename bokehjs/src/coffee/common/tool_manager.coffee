@@ -23,7 +23,7 @@ define [
       @render()
 
     render: () ->
-      @$el.html(@template())
+      @$el.html(@template(@model.attributes))
       @$el.addClass("bk-sidebar")
       @$el.addClass("bk-toolbar-active")
       button_bar_list = @$('.bk-button-bar-list')

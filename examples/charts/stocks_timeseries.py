@@ -1,5 +1,8 @@
 from collections import OrderedDict
+
 import pandas as pd
+import numpy as np
+from bokeh.charts import TimeSeries
 
 # Here is some code to read in some stock data from the Yahoo Finance API
 AAPL = pd.read_csv(
@@ -12,11 +15,24 @@ IBM = pd.read_csv(
     "http://ichart.yahoo.com/table.csv?s=IBM&a=0&b=1&c=2000",
     parse_dates=['Date'])
 
-xyvalues = OrderedDict(AAPL=AAPL[['Date', 'Adj Close']],
-                       MSFT=MSFT[['Date', 'Adj Close']],
-                       IBM=IBM[['Date', 'Adj Close']])
-df = pd.concat(xyvalues, axis=1, names=["l0", "l1"])
+xyvalues = OrderedDict(
+    AAPL=AAPL['Adj Close'],
+    Date=AAPL['Date'],
+    MSFT=MSFT['Adj Close'],
+    IBM=IBM['Adj Close'],
+)
 
-from bokeh.charts import TimeSeries
-ts = TimeSeries(df, title="timeseries, pd_input", filename="stocks_timeseries.html")
+# any of the following commented are valid Bar inputs
+#xyvalues = pd.DataFrame(xyvalues)
+#lindex = xyvalues.pop('Date')
+#lxyvalues = list(xyvalues.values())
+#lxyvalues = np.array(xyvalues.values())
+
+ts = TimeSeries(xyvalues, index='Date', title="timeseries, pd_input",
+                ylabel='Stock Prices', filename="stocks_timeseries.html")
+
+# usage with iterable index
+#ts = TimeSeries(lxyvalues, index=lindex, title="timeseries, pd_input",
+#                ylabel='Stock Prices', filename="stocks_timeseries.html")
+
 ts.legend("top_left").show()
