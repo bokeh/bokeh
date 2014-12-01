@@ -77,8 +77,8 @@ tooltips = [
     ("Name",          "@Name"),
     ("Country",       "@Abbrev"),
     ("Year",          "@Year"),
-    ("Time",          "@{Time:0.00} s"),
-    ("Meters behind", "@{MetersBack:0.00} m"),
+    ("Time",          "@Time{0.00} s"),
+    ("Meters behind", "@{MetersBack}{0.00} m"),
 ]
 
 hover = HoverTool(tooltips=tooltips, renderers=[circle])

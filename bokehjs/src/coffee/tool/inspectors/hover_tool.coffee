@@ -131,14 +131,8 @@ define [
                 when "sy"    then "#{sy}"
               if replacement? then "#{prefix}#{replacement}" else match
 
-            value = value.replace /(^|[^@])@(?:(\w+)|{([^{}]+)})/g, (match, prefix, name, long_name) =>
-              if long_name?
-                split = long_name.split(":")
-                if split.length > 1
-                  [parts..., format] = split
-                  name = parts.join(":")
-                else
-                  name = long_name
+            value = value.replace /(^|[^@])@(?:(\w+)|{([^{}]+)})(?:{([^{}]+)})?/g, (match, prefix, name, long_name, format) =>
+              name = if long_name? then long_name else name
               column = ds.get_column(name)
               replacement =
                 if not column?
