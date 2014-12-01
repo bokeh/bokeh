@@ -23,12 +23,11 @@ def sample_gear():
     xdr = Range1d(start=-30, end=30)
     ydr = Range1d(start=-30, end=30)
 
-    source = ColumnDataSource(data=dict(dummy=[0]))
     plot = Plot(title=None, x_range=xdr, y_range=ydr, plot_width=800, plot_height=800)
     plot.add_tools(PanTool(), WheelZoomTool(), ResetTool())
 
     glyph = Gear(x=0, y=0, module=5, teeth=8, angle=0, shaft_size=0.2, fill_color=fill_color[2], line_color=line_color)
-    plot.add_glyph(source, glyph)
+    plot.add_glyph(glyph)
 
     return plot
 
@@ -36,7 +35,6 @@ def classical_gear(module, large_teeth, small_teeth):
     xdr = Range1d(start=-300, end=150)
     ydr = Range1d(start=-100, end=100)
 
-    source = ColumnDataSource(data=dict(dummy=[0]))
     plot = Plot(
         title=None,
         x_range=xdr, y_range=ydr,
@@ -51,7 +49,7 @@ def classical_gear(module, large_teeth, small_teeth):
         module=module, teeth=large_teeth, angle=angle,
         fill_color=fill_color[0], line_color=line_color
     )
-    plot.add_glyph(source, glyph)
+    plot.add_glyph(glyph)
 
     radius = pitch_radius(module, small_teeth)
     angle = half_tooth(small_teeth)
@@ -60,7 +58,7 @@ def classical_gear(module, large_teeth, small_teeth):
         module=module, teeth=small_teeth, angle=angle,
         fill_color=fill_color[1], line_color=line_color
     )
-    plot.add_glyph(source, glyph)
+    plot.add_glyph(glyph)
 
     return plot
 
@@ -68,7 +66,6 @@ def epicyclic_gear(module, sun_teeth, planet_teeth):
     xdr = Range1d(start=-150, end=150)
     ydr = Range1d(start=-150, end=150)
 
-    source = ColumnDataSource(data=dict(dummy=[0]))
     plot = Plot(
         title=None,
         x_range=xdr, y_range=ydr,
@@ -83,14 +80,14 @@ def epicyclic_gear(module, sun_teeth, planet_teeth):
         module=module, teeth=annulus_teeth, angle=0,
         fill_color=fill_color[0], line_color=line_color, internal=True
     )
-    plot.add_glyph(source, glyph)
+    plot.add_glyph(glyph)
 
     glyph = Gear(
         x=0, y=0,
         module=module, teeth=sun_teeth, angle=0,
         fill_color=fill_color[2], line_color=line_color
     )
-    plot.add_glyph(source, glyph)
+    plot.add_glyph(glyph)
 
     sun_radius = pitch_radius(module, sun_teeth)
     planet_radius = pitch_radius(module, planet_teeth)
@@ -104,7 +101,7 @@ def epicyclic_gear(module, sun_teeth, planet_teeth):
             module=module, teeth=planet_teeth, angle=angle,
             fill_color=fill_color[1], line_color=line_color
         )
-        plot.add_glyph(source, glyph)
+        plot.add_glyph(glyph)
 
     return plot
 
