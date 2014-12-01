@@ -45,6 +45,11 @@ define [
     default_view: TextView
     type: 'Text'
 
+    defaults: ->
+      return _.extend {}, super(), {
+        angle: 0
+      }
+
     display_defaults: ->
       return _.extend {}, super(), {
         text_font: "helvetica"

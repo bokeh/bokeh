@@ -184,7 +184,7 @@ class Text(Glyph, TextProps):
     x = DataSpec
     y = DataSpec
     text = DataSpec
-    angle = DataSpec
+    angle = DataSpec(default=0)
 
 class Wedge(Glyph, FillProps, LineProps):
     x = DataSpec
