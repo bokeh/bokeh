@@ -79,6 +79,11 @@ athlete_glyph = Text(x="MetersBack", y="Year", x_offset=10, text="SelectedName",
     text_align="left", text_baseline="middle", text_font_size="10pt")
 athlete = plot.add_glyph(source, athlete_glyph)
 
+no_olympics_glyph = Text(x=7.5, y=1942, text=["No Olympics in 1940 or 1944"],
+    text_align="center", text_baseline="middle",
+    text_font_size="10pt", text_font_style="italic", text_color="silver")
+no_olympics = plot.add_glyph(no_olympics_glyph)
+
 tooltips = [
     ("Name",          "@Name"),
     ("Country",       "@Abbrev"),
