@@ -44,13 +44,15 @@ line_color = { "gold": gold_line, "silver": silver_line, "bronze": bronze_line }
 
 t0 = sprint.Time[0]
 
-sprint["Abbrev"]     = sprint.Country
-sprint["Country"]    = sprint.Abbrev.map(lambda abbr: abbrev_to_country[abbr])
-sprint["Medal"]      = sprint.Medal.map(lambda medal: medal.lower())
-sprint["Speed"]      = 100.0/sprint.Time
-sprint["MetersBack"] = 100.0*(1.0 - t0/sprint.Time)
-sprint["MedalFill"]  = sprint.Medal.map(lambda medal: fill_color[medal])
-sprint["MedalLine"]  = sprint.Medal.map(lambda medal: line_color[medal])
+sprint["Abbrev"]       = sprint.Country
+sprint["Country"]      = sprint.Abbrev.map(lambda abbr: abbrev_to_country[abbr])
+sprint["Medal"]        = sprint.Medal.map(lambda medal: medal.lower())
+sprint["Speed"]        = 100.0/sprint.Time
+sprint["MetersBack"]   = 100.0*(1.0 - t0/sprint.Time)
+sprint["MedalFill"]    = sprint.Medal.map(lambda medal: fill_color[medal])
+sprint["MedalLine"]    = sprint.Medal.map(lambda medal: line_color[medal])
+sprint["SelectedName"] = sprint[["Name", "Medal", "Year"]].apply(tuple, axis=1) \
+    .map(lambda (name, medal, year): name if medal == "gold" and year in [1988, 1968, 1936, 1896] else None)
 
 source = ColumnDataSource(sprint)
 title = "Usain Bolt vs. 116 years of Olympic sprinters"
@@ -70,8 +72,12 @@ yaxis = LinearAxis(ticker=yticker, major_tick_in=-5, major_tick_out=10)
 plot.add_layout(yaxis, "right")
 
 radius = dict(value=5, units="screen")
-circle_glyph = Circle(x="MetersBack", y="Year", radius=radius, fill_color="MedalFill", line_color="MedalLine", fill_alpha=0.5)
-circle = plot.add_glyph(source, circle_glyph)
+medal_glyph = Circle(x="MetersBack", y="Year", radius=radius, fill_color="MedalFill", line_color="MedalLine", fill_alpha=0.5)
+medal = plot.add_glyph(source, medal_glyph)
+
+athlete_glyph = Text(x="MetersBack", y="Year", x_offset=10, text="SelectedName",
+    text_align="left", text_baseline="middle", text_font_size="10pt")
+athlete = plot.add_glyph(source, athlete_glyph)
 
 tooltips = [
     ("Name",          "@Name"),
@@ -81,7 +87,7 @@ tooltips = [
     ("Meters behind", "@{MetersBack}{0.00} m"),
 ]
 
-hover = HoverTool(tooltips=tooltips, renderers=[circle])
+hover = HoverTool(tooltips=tooltips, renderers=[medal])
 plot.add_tools(hover)
 
 doc = Document()
