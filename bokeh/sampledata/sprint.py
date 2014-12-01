@@ -7,4 +7,4 @@ try:
 except ImportError as e:
     raise RuntimeError("sprint data requires pandas (http://pandas.pydata.org) to be installed")
 
-sprint = pd.read_csv(join(dirname(__file__), 'sprint.csv'), skipinitialspace=True)
+sprint = pd.read_csv(join(dirname(__file__), 'sprint.csv'), skipinitialspace=True, escapechar="\\")
