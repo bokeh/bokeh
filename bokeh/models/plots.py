@@ -146,7 +146,7 @@ class Plot(Widget):
         if glyph is not None:
             source = source_or_glyph
         else:
-            source, glyph = ColumnDataSource(data=dict(dummy=[0])), source_or_glyph
+            source, glyph = ColumnDataSource(), source_or_glyph
 
         if not isinstance(source, DataSource):
             raise ValueError("'source' argument to add_glyph() must be DataSource subclass")
