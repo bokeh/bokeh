@@ -5,7 +5,8 @@ define [
   "common/collection"
   "renderer/annotation/tooltip"
   "./inspect_tool"
-], (_, sprintf, Collection, Tooltip, InspectTool) ->
+  "numeral"
+], (_, sprintf, Collection, Tooltip, InspectTool, Numeral) ->
 
   _color_to_hex = (color) ->
     if (color.substr(0, 1) == '#')
@@ -118,28 +119,41 @@ define [
               span = $("<span class='bk-tooltip-color-block'> </span>")
               span.css({ backgroundColor: color})
             td.append(span)
-
           else
-            value = value.replace("$index", "#{ i }")
-            value = value.replace("$x", "#{ _format_number(x) }")
-            value = value.replace("$y", "#{ _format_number(y) }")
-            value = value.replace("$vx", "#{ vx }")
-            value = value.replace("$vy", "#{ vy }")
-            value = value.replace("$sx", "#{ sx }")
-            value = value.replace("$sy", "#{ sy }")
-            while value.indexOf("@") >= 0
-              [match, unused, column_name] = value.match(/(@)(\w*)/)
-              column = ds.get_column(column_name)
-              if not column?
-                value = value.replace(column_name, "#{ column_name } unknown")
-                break
-              column = ds.get_column(column_name)
-              dsvalue = column[i]
-              if typeof(dsvalue) == "number"
-                value = value.replace(match, "#{ _format_number(dsvalue) }")
-              else
-                value = value.replace(match, "#{ dsvalue }")
-            span = $("<span>#{ value }</span>")
+            value = value.replace /(^|[^\$])\$(\w+)/g, (match, prefix, name) =>
+              replacement = switch name
+                when "index" then "#{i}"
+                when "x"     then "#{_format_number(x)}"
+                when "y"     then "#{_format_number(y)}"
+                when "vx"    then "#{vx}"
+                when "vy"    then "#{vy}"
+                when "sx"    then "#{sx}"
+                when "sy"    then "#{sy}"
+              if replacement? then "#{prefix}#{replacement}" else match
+
+            value = value.replace /(^|[^@])@(?:(\w+)|{([^{}]+)})/g, (match, prefix, name, long_name) =>
+              if long_name?
+                split = long_name.split(":")
+                if split.length > 1
+                  [parts..., format] = split
+                  name = parts.join(":")
+                else
+                  name = long_name
+              column = ds.get_column(name)
+              replacement =
+                if not column?
+                  "#{name} unknown"
+                else
+                  value = column[i]
+                  if format?
+                    Numeral(value).format(format)
+                  else if _.isNumber(value)
+                    _format_number(value)
+                  else
+                    value
+              "#{prefix}#{replacement}"
+
+            span = $('<span>').text(value)
             td.append(span)
 
           row.append(td)
