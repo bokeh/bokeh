@@ -5,25 +5,27 @@ define [
 
   class TextView extends Glyph.View
 
-    _fields: ['x', 'y', 'angle', 'text:string']
+    _fields: ['x', 'y', 'angle', 'text:string', 'x_offset', 'y_offset']
     _properties: ['text']
 
     _map_data: () ->
       [@sx, @sy] = @renderer.map_to_screen(@x, @glyph.x.units, @y, @glyph.y.units)
 
+      @sx_offset = @distance_vector('x', 'x_offset', 'edge')
+      @sy_offset = @distance_vector('y', 'y_offset', 'edge')
+
     _render: (ctx, indices) ->
       for i in indices
-        if isNaN(@sx[i] + @sy[i] + @angle[i]) or not @text[i]?
+        if isNaN(@sx[i] + @sy[i] + @sx_offset[i] + @sy_offset[i] + @angle[i]) or not @text[i]?
           continue
 
-        ctx.translate(@sx[i], @sy[i])
+        ctx.save()
+        ctx.translate(@sx[i] + @sx_offset[i], @sy[i] + @sy_offset[i])
         ctx.rotate(@angle[i])
 
         @props.text.set_vectorize(ctx, i)
         ctx.fillText(@text[i], 0, 0)
-
-        ctx.rotate(-@angle[i])
-        ctx.translate(-@sx[i], -@sy[i])
+        ctx.restore()
 
     draw_legend: (ctx, x1, x2, y1, y2) ->
       ctx.save()
@@ -48,6 +50,8 @@ define [
     defaults: ->
       return _.extend {}, super(), {
         angle: 0
+        x_offset: 0
+        y_offset: 0
       }
 
     display_defaults: ->
