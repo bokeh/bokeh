@@ -62,8 +62,8 @@ define [
       
       
       #TODO: Perhaps pass 'plot_view' through in the request instead of these fractions carved off 
-      plot_x_range = @plot_view.frame.get('h_range')
-      plot_y_range = @plot_view.frame.get('v_range')
+      plot_h_range = @plot_view.frame.get('h_range')
+      plot_v_range = @plot_view.frame.get('v_range')
       data_x_range = @plot_view.x_range
       data_y_range = @plot_view.y_range
 
@@ -73,9 +73,9 @@ define [
         if domain == 'x'
           serversource.listen_for_line1d_updates(
             @mget('data_source'),
-            plot_x_range, plot_y_range,
+            plot_h_range, plot_v_range,
             data_x_range, data_y_range,
-            plot_x_range,
+            plot_h_range,
             # XXX: @glyph.x.field (etc.) indicates this be moved to Glyph
             @glyph.glyph.y.field,
             @glyph.glyph.x.field,
@@ -87,7 +87,7 @@ define [
       else if (resample_op == 'heatmap')
         serversource.listen_for_heatmap_updates(
            @mget('data_source'),
-           plot_x_range, plot_y_range,
+           plot_h_range, plot_v_range,
            data_x_range, data_y_range,
            transform_params
         )
@@ -96,7 +96,7 @@ define [
            @plot_view
            @mget('data_source'),
              #TODO: Joseph -- Get rid of the next four params because we're passing in the plot_view
-           plot_x_range, plot_y_range,
+           plot_h_range, plot_v_range,
            data_x_range, data_y_range,
            transform_params)
       else
