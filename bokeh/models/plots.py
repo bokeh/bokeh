@@ -9,7 +9,7 @@ from ..utils import nice_join
 from ..query import find
 
 from .widget import Widget
-from .sources import DataSource
+from .sources import DataSource, ColumnDataSource
 from .ranges import Range, Range1d
 from .renderers import Renderer, GlyphRenderer
 from .tools import Tool, ToolEvents
@@ -125,14 +125,14 @@ class Plot(Widget):
             tool.plot = self
             self.tools.append(tool)
 
-    def add_glyph(self, source, glyph, **kw):
+    def add_glyph(self, source_or_glyph, glyph=None, **kw):
         ''' Adds a glyph to the plot with associated data sources and ranges.
 
         This function will take care of creating and configurinf a Glyph object,
         and then add it to the plot's list of renderers.
 
         Args:
-            source: (ColumnDataSource) : a data source for the glyphs to all use
+            source (DataSource) : a data source for the glyphs to all use
             glyph (Glyph) : the glyph to add to the Plot
 
         Keyword Arguments:
@@ -143,8 +143,16 @@ class Plot(Widget):
             glyph : Glyph
 
         '''
+        if glyph is not None:
+            source = source_or_glyph
+        else:
+            source, glyph = ColumnDataSource(data=dict(dummy=[0])), source_or_glyph
+
+        if not isinstance(source, DataSource):
+            raise ValueError("'source' argument to add_glyph() must be DataSource subclass")
+
         if not isinstance(glyph, Glyph):
-            raise ValueError("glyph arguments to add_glyph must be Glyph subclass.")
+            raise ValueError("'glyph' argument to add_glyph() must be Glyph subclass")
 
         g = GlyphRenderer(data_source=source, glyph=glyph, **kw)
         self.renderers.append(g)
