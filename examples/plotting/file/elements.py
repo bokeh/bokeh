@@ -29,7 +29,7 @@ p.circle(elements["atomic mass"], elements["density"], size=12,
        color=meltingpointcolors, line_color="black", fill_alpha=0.8)
 
 p.text(elements["atomic mass"], elements["density"]+0.3,
-    text=elements["symbol"],angle=0, text_color="#333333",
+    text=elements["symbol"],text_color="#333333",
     text_align="center", text_font_size="10pt")
 
 p.xaxis.axis_label="atomic weight (amu)"

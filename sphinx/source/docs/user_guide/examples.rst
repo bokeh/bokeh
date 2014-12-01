@@ -194,7 +194,7 @@ Add circular and radial axes lines using ``circle``, ``text``, and ``annular_wed
     labels = np.power(10.0, np.arange(-3, 4))
     radii = a * np.sqrt(np.log(labels * 1E4)) + b
     circle(x, y, radius=radii, fill_color=None, line_color="white")
-    text(x[:-1], radii[:-1], [str(r) for r in labels[:-1]], angle=0, text_font_size="8pt", text_align="center", text_baseline="middle")
+    text(x[:-1], radii[:-1], [str(r) for r in labels[:-1]], text_font_size="8pt", text_align="center", text_baseline="middle")
 
     annular_wedge(
         x, y, inner_radius-10, outer_radius+10, -big_angle+angles, -big_angle+angles, color="black",
@@ -211,10 +211,10 @@ Text labels for the bacteria using ``text``::
 Legends (by hand, for now) using ``circle``, ``text``, and ``rect``::
 
     circle([-40, -40], [-370, -390], color=gram_color.values(), radius=5)
-    text([-30, -30], [-370, -390], text=["Gram-" + x for x in gram_color.keys()], angle=0, text_font_size="7pt", text_align="left", text_baseline="middle")
+    text([-30, -30], [-370, -390], text=["Gram-" + x for x in gram_color.keys()], text_font_size="7pt", text_align="left", text_baseline="middle")
 
     rect([-40, -40, -40], [18, 0, -18], width=30, height=13, color=drug_color.values())
-    text([-15, -15, -15], [18, 0, -18], text=drug_color.keys(), angle=0, text_font_size="9pt", text_align="left", text_baseline="middle")
+    text([-15, -15, -15], [18, 0, -18], text=drug_color.keys(), text_font_size="9pt", text_align="left", text_baseline="middle")
 
 Finally, show the plot::
 

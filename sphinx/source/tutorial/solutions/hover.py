@@ -49,7 +49,7 @@ circle(x, y, radius=radii, source=source, tools=TOOLS,
 # EXERCISE (optional) add a `text` renderer to display the index of each circle
 # inside the circle
 text(x, y, text=inds, alpha=0.5, text_font_size="5pt",
-     text_baseline="middle", text_align="center", angle=0)
+     text_baseline="middle", text_align="center")
 
 # EXERCISE: try other "marker-like" renderers besides `circle`
 

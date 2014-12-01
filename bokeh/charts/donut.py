@@ -137,7 +137,7 @@ class Donut(ChartObject):
         text_source = ColumnDataSource(dict(text=text, x=x, y=y))
         self.chart.make_text(
             text_source,
-            x="x", y="y", text="text", angle=0, text_align="center", text_baseline="middle"
+            x="x", y="y", text="text", text_align="center", text_baseline="middle"
         )
 
     def draw_external_ring(self, colors=None):

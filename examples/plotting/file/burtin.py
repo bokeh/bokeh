@@ -90,8 +90,7 @@ labels = np.power(10.0, np.arange(-3, 4))
 radii = a * np.sqrt(np.log(labels * 1E4)) + b
 p.circle(x, y, radius=radii, fill_color=None, line_color="white")
 p.text(x[:-1], radii[:-1], [str(r) for r in labels[:-1]],
-    angle=0, text_font_size="8pt",
-    text_align="center", text_baseline="middle")
+    text_font_size="8pt", text_align="center", text_baseline="middle")
 
 # radial axes
 p.annular_wedge(x, y, inner_radius-10, outer_radius+10,
@@ -108,12 +107,12 @@ p.text(xr, yr, df.bacteria, angle=label_angle,
 # OK, these hand drawn legends are pretty clunky, will be improved in future release
 p.circle([-40, -40], [-370, -390], color=list(gram_color.values()), radius=5)
 p.text([-30, -30], [-370, -390], text=["Gram-" + gr for gr in gram_color.keys()],
-    angle=0, text_font_size="7pt", text_align="left", text_baseline="middle")
+    text_font_size="7pt", text_align="left", text_baseline="middle")
 
 p.rect([-40, -40, -40], [18, 0, -18], width=30, height=13,
     color=list(drug_color.values()))
 p.text([-15, -15, -15], [18, 0, -18], text=list(drug_color.keys()),
-    angle=0, text_font_size="9pt", text_align="left", text_baseline="middle")
+    text_font_size="9pt", text_align="left", text_baseline="middle")
 
 p.xgrid.grid_line_color = None
 p.ygrid.grid_line_color = None

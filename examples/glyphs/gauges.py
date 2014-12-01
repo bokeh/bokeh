@@ -27,8 +27,8 @@ major_step, minor_step = 25, 5
 plot.add_glyph(ds, Circle(x=0, y=0, radius=1.00, fill_color="white", line_color="black"))
 plot.add_glyph(ds, Circle(x=0, y=0, radius=0.05, fill_color="gray", line_color="black"))
 
-plot.add_glyph(ds, Text(x=0, y=+0.15, angle=0, text=["km/h"], text_color="red", text_align="center", text_baseline="bottom", text_font_style="bold"))
-plot.add_glyph(ds, Text(x=0, y=-0.15, angle=0, text=["mph"], text_color="blue", text_align="center", text_baseline="top", text_font_style="bold"))
+plot.add_glyph(ds, Text(x=0, y=+0.15, text=["km/h"], text_color="red", text_align="center", text_baseline="bottom", text_font_style="bold"))
+plot.add_glyph(ds, Text(x=0, y=-0.15, text=["mph"], text_color="blue", text_align="center", text_baseline="top", text_font_style="bold"))
 
 def data(value):
     """Shorthand to override default units with "data", for e.g. `Ray.length`. """

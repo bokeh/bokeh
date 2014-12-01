@@ -57,7 +57,7 @@ def make_calendar(year, month, firstweekday="Mon"):
     rect = Rect(x="holidays_days", y="holidays_weeks", width=0.9, height=0.9, fill_color="pink", line_color="indianred")
     rect_renderer = plot.add_glyph(holidays_source, rect)
 
-    text = Text(x="days", y="weeks", text="month_days", angle=0, text_align="center", text_baseline="middle")
+    text = Text(x="days", y="weeks", text="month_days", text_align="center", text_baseline="middle")
     plot.add_glyph(source, text)
 
     xaxis = CategoricalAxis()

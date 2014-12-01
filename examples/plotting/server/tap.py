@@ -44,7 +44,7 @@ p.circle(x, y, radius=radii, source=source,
        line_color=None, name="mystuff")
 
 p.text(x, y, text=inds, alpha=0.5, text_font_size="5pt",
-     text_baseline="middle", text_align="center", angle=0)
+     text_baseline="middle", text_align="center")
 
 # in the broswer console, you will see messages when circles are clicked
 tool = p.select(dict(type=TapTool))[0]
