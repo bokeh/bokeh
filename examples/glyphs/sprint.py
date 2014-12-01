@@ -57,8 +57,8 @@ sprint["SelectedName"] = sprint[["Name", "Medal", "Year"]].apply(tuple, axis=1) 
 source = ColumnDataSource(sprint)
 title = "Usain Bolt vs. 116 years of Olympic sprinters"
 
-xdr = Range1d(start=sprint.MetersBack.max()+3, end=0)
-ydr = DataRange1d(sources=[source.columns("Year")])
+xdr = Range1d(start=sprint.MetersBack.max()+2, end=0)                  # XXX: +2 is poor-man's padding (otherwise misses last tick)
+ydr = DataRange1d(sources=[source.columns("Year")], rangepadding=0.05) # XXX: should be 2 years (both sides)
 
 plot = Plot(title=title, x_range=xdr, y_range=ydr, plot_width=800, plot_height=800, toolbar_location=None, outline_line_color=None)
 
