@@ -51,7 +51,7 @@ with open("animated_embed.html", "w+") as f:
 print("""
 To view this example, run
 
-    python -m SimpleHTTPServer
+    python -m SimpleHTTPServer (or http.server on python 3)
 
 in this directory, then navigate to
 
