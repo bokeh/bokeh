@@ -671,7 +671,7 @@ Returns:
 """
 )
 
-text = _glyph_function(glyphs.Text, ("x", "y", "text", "angle"), (),
+text = _glyph_function(glyphs.Text, ("x", "y", "text"), (),
 """ The text glyph displays text at the given coordinates rotated by the given angle.
 
 Args:
