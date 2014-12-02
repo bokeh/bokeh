@@ -2,7 +2,7 @@
 
 from __future__ import print_function
 
-from bokeh.plotting import annular_wedge, cursession, figure, output_server, show
+from bokeh.plotting import annular_wedge, cursession, figure, output_server, show, push
 from bokeh.models import GlyphRenderer
 import bokeh.embed as embed
 
@@ -33,7 +33,7 @@ p.annular_wedge(
     line_color="black",
 )
 
-show(p)
+push()
 
 tag = embed.autoload_server(p, cursession())
 html = """
