@@ -25,10 +25,10 @@ define [
     $('body').append(link)
 
   add_plot_static = (element, model_id, model_type, all_models) ->
+    load_models(all_models);
     model = base.Collections(model_type).get(model_id)
     view = new model.default_view({model : model})
     if model_id not of index
-      load_models(all_models);
       index[model_id] = view
     _.delay(-> $(element).replaceWith(view.$el))
 
