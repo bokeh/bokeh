@@ -7,7 +7,7 @@ High Level Charts
     :local:
     :depth: 2
 
-.. warning:: ``bokeh.charts`` interface is still experimental an is vary likely to change in the
+.. warning:: ``bokeh.charts`` interface is still experimental an is very likely to change in the
   next upcoming releases. Although we will always try to be consistent and never break backwards
   compatibility we cannot garantee this will not happen. Please take this into consideration when
   using it.
@@ -161,28 +161,28 @@ Let see some examples using different kind of inputs:
 
 
 As you can see, in the first three cases, we inferred the ``x`` and ``y``
-labels from the pandas object, so you have not to be aware of specifying them by yourself. This is
+labels from the pandas object, so don't need to specify them by yourself. This is
 done whenever possible. The following image shows the result:
 
 .. image:: /_images/charts_scatter_w_labels.png
     :align: center
 
 When that's not possible (like the last two examples using a ``list`` and a numpy ``array``) ``Charts``
-will create a new figure without the inferred labels. Here's the result:
+will create a new figure without the inferred labels like the following:
 
 .. image:: /_images/charts_scatter_no_labels.png
     :align: center
 
 
-In general Charts have standard inputs, like we have showed earlier but, as we'll see
+In general ``Charts`` have standard inputs, like we have showed earlier but as we'll see
 in the next paragraph, some charts types still need specific inputs  to work effectively
 due to their own specific nature.
 
 Specific arguments
 ------------------
 
-For some chart type it really make sense to support specific arguments which only makes sense in that
-specific chart context. For instance, if you use a Timeseries chart, the x-value for each group has
+For some chart types it really make sense to support specific arguments which only makes sense in that
+specific chart context. For instance, if you use a Timeseries chart, the x-value (index) for eachgroup has
 to be datetime values. Or, if you want to use the Categorical HeatMap, columns names and the specified
 index have to be string type values.
 
@@ -195,11 +195,12 @@ In the Bar charts case, if you pass several groups, they will be shown ``grouped
 .. image:: /_images/charts_bar_grouped.png
     :align: center
 
-But if you specify the argument ``stacked`` as True, it will be shown as stacked bars as follow:
+But if you specify the argument ``stacked`` as True, it will be shown as stacked bars as follows:
 
 .. image:: /_images/charts_bar_stacked.png
     :align: center
 
+|
 
 So, besides the shared arguments specified in :ref:`charts_generic_arguments` and the general
 :ref:`charts_interface_inputs` we have listed in the previous paragraph, each class support the
@@ -210,7 +211,7 @@ Area
 ~~~~
 
 * ``values`` (see :ref:`charts_interface_inputs`): data series to be plotted. Container values must be 1d iterable of scalars.
-* ``index`` (str | 1d iterable of any sort, optional): can be used to specify a common custom index for all chart data series as follows:
+* ``index`` (str | 1d iterable of any sort, optional): can be used to specify a common custom index for all data series as follows:
 
   * As a 1d iterable of any sort that will be used as series common index
   * As a string that corresponds to the ``key`` of the mapping to be used as index (and not as data series) f ``area.values`` is a mapping (like a ``dict``, an ``OrderedDict`` or a pandas ``DataFrame``) ``index`` can be specified
