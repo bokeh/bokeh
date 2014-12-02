@@ -20,7 +20,7 @@ require [
 
   test('column_data_source_get_length', () ->
     r = new ColumnDataSource.Model()
-    equal(r.get_length(), 0)
+    equal(r.get_length(), null)
 
     r = new ColumnDataSource.Model({data:{"foo": []}})
     equal(r.get_length(), 0)
