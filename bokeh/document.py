@@ -11,6 +11,7 @@ logger = logging.getLogger(__file__)
 import uuid
 
 from . import _glyph_functions as gf
+from .deprecate import deprecated
 from .exceptions import DataIntegrityException
 from .models import PlotContext
 from .plot_object import PlotObject
@@ -140,38 +141,38 @@ class Document(object):
         """
         return self._current_plot;
 
-    annular_wedge     = gf.annular_wedge
-    annulus           = gf.annulus
-    arc               = gf.arc
-    asterisk          = gf.asterisk
-    bezier            = gf.bezier
-    circle            = gf.circle
-    circle_cross      = gf.circle_cross
-    circle_x          = gf.circle_x
-    cross             = gf.cross
-    diamond           = gf.diamond
-    diamond_cross     = gf.diamond_cross
-    image             = gf.image
-    image_rgba        = gf.image_rgba
-    image_url         = gf.image_url
-    inverted_triangle = gf.inverted_triangle
-    line              = gf.line
-    multi_line        = gf.multi_line
-    oval              = gf.oval
-    patch             = gf.patch
-    patches           = gf.patches
-    quad              = gf.quad
-    quadratic         = gf.quadratic
-    ray               = gf.ray
-    rect              = gf.rect
-    segment           = gf.segment
-    square            = gf.square
-    square_cross      = gf.square_cross
-    square_x          = gf.square_x
-    text              = gf.text
-    triangle          = gf.triangle
-    wedge             = gf.wedge
-    x                 = gf.x
+    # annular_wedge     = deprecated("Bokeh 0.7", "bokeh.plotting.Figure objects")(gf.annular_wedge)
+    # annulus           = deprecated("Bokeh 0.7", "bokeh.plotting.Figure objects")(gf.annulus)
+    # arc               = deprecated("Bokeh 0.7", "bokeh.plotting.Figure objects")(gf.arc)
+    # asterisk          = deprecated("Bokeh 0.7", "bokeh.plotting.Figure objects")(gf.asterisk)
+    # bezier            = deprecated("Bokeh 0.7", "bokeh.plotting.Figure objects")(gf.bezier)
+    # circle            = deprecated("Bokeh 0.7", "bokeh.plotting.Figure objects")(gf.circle)
+    # circle_cross      = deprecated("Bokeh 0.7", "bokeh.plotting.Figure objects")(gf.circle_cross)
+    # circle_x          = deprecated("Bokeh 0.7", "bokeh.plotting.Figure objects")(gf.circle_x)
+    # cross             = deprecated("Bokeh 0.7", "bokeh.plotting.Figure objects")(gf.cross)
+    # diamond           = deprecated("Bokeh 0.7", "bokeh.plotting.Figure objects")(gf.diamond)
+    # diamond_cross     = deprecated("Bokeh 0.7", "bokeh.plotting.Figure objects")(gf.diamond_cross)
+    # image             = deprecated("Bokeh 0.7", "bokeh.plotting.Figure objects")(gf.image)
+    # image_rgba        = deprecated("Bokeh 0.7", "bokeh.plotting.Figure objects")(gf.image_rgba)
+    # image_url         = deprecated("Bokeh 0.7", "bokeh.plotting.Figure objects")(gf.image_url)
+    # inverted_triangle = deprecated("Bokeh 0.7", "bokeh.plotting.Figure objects")(gf.inverted_triangle)
+    # line              = deprecated("Bokeh 0.7", "bokeh.plotting.Figure objects")(gf.line)
+    # multi_line        = deprecated("Bokeh 0.7", "bokeh.plotting.Figure objects")(gf.multi_line)
+    # oval              = deprecated("Bokeh 0.7", "bokeh.plotting.Figure objects")(gf.oval)
+    # patch             = deprecated("Bokeh 0.7", "bokeh.plotting.Figure objects")(gf.patch)
+    # patches           = deprecated("Bokeh 0.7", "bokeh.plotting.Figure objects")(gf.patches)
+    # quad              = deprecated("Bokeh 0.7", "bokeh.plotting.Figure objects")(gf.quad)
+    # quadratic         = deprecated("Bokeh 0.7", "bokeh.plotting.Figure objects")(gf.quadratic)
+    # ray               = deprecated("Bokeh 0.7", "bokeh.plotting.Figure objects")(gf.ray)
+    # rect              = deprecated("Bokeh 0.7", "bokeh.plotting.Figure objects")(gf.rect)
+    # segment           = deprecated("Bokeh 0.7", "bokeh.plotting.Figure objects")(gf.segment)
+    # square            = deprecated("Bokeh 0.7", "bokeh.plotting.Figure objects")(gf.square)
+    # square_cross      = deprecated("Bokeh 0.7", "bokeh.plotting.Figure objects")(gf.square_cross)
+    # square_x          = deprecated("Bokeh 0.7", "bokeh.plotting.Figure objects")(gf.square_x)
+    # text              = deprecated("Bokeh 0.7", "bokeh.plotting.Figure objects")(gf.text)
+    # triangle          = deprecated("Bokeh 0.7", "bokeh.plotting.Figure objects")(gf.triangle)
+    # wedge             = deprecated("Bokeh 0.7", "bokeh.plotting.Figure objects")(gf.wedge)
+    # x                 = deprecated("Bokeh 0.7", "bokeh.plotting.Figure objects")(gf.x)
 
 
     # functions for adding objects to documents
