@@ -24,39 +24,28 @@ app = Flask(__name__)
 
 @app.route('/')
 def render_plot():
-    distribution_plot = distribution()
-    tag1, id1 = make_snippet("plot", distribution_plot[0], distribution_plot[1])
+    """
+    Get the script tags from each plot object and "insert" them into the template.
 
-    animated_plot = animated()
-    tag2, id2 = make_snippet("animated", animated_plot[0], animated_plot[1], update_animation)
+    This also starts different threads for each update function, so you can have
+    a non-blocking update.
+    """
+    dist_plot, dist_session = distribution()
+    dist_tag = autoload_server(dist_plot, dist_session)
+
+    anim_plot, anim_session = animated()
+    anim_tag = autoload_server(anim_plot, anim_session)
+    # for update_animation as target we need to pass the anim_plot and anim_session as args
+    thread = Thread(target=update_animation, args=(anim_plot, anim_session))
+    thread.start()
 
     pop = Population()
-    pop.render()
-    tag3, id3 = make_snippet("widget", pop.layout, pop.session, update_population, pop)
+    pop_tag = autoload_server(pop.layout, pop.session)
+    # for update_population as target we need to pass the pop instance as args
+    thread = Thread(target=update_population, args=(pop,))
+    thread.start()
 
-    return render_template('app_plot.html',
-                           tag1=tag1, id1=id1,
-                           tag2=tag2, id2=id2,
-                           tag3=tag3, id3=id3)
-
-
-def make_snippet(kind, plot, session=None, target=None, wargs=None):
-    if kind == "plot":
-        tag = autoload_server(plot, session)
-        thread = Thread()
-        thread.start()
-    if kind == "animated":
-        tag = autoload_server(plot, session)
-        # for update_animation as target we need to pass the plot and session as args
-        thread = Thread(target=target, args=(plot, session))
-        thread.start()
-    elif kind == "widget":
-        tag = autoload_server(plot, session)
-        # for update_population as target we need to pass the pop instance as args
-        thread = Thread(target=target, args=(wargs,))
-        thread.start()
-
-    return tag, plot._id
+    return render_template('app_plot.html', tag1=dist_tag, tag2=anim_tag, tag3=pop_tag)
 
 
 def distribution():
@@ -167,7 +156,10 @@ class Population(object):
         self.df = load_population()
         self.source_pyramid = ColumnDataSource(data=dict())
 
-    def render(self):
+        # just render at the initialization
+        self._render()
+
+    def _render(self):
         self.pyramid_plot()
         self.create_layout()
         self.document.add(self.layout)
