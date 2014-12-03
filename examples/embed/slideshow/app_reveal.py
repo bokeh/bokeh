@@ -1,5 +1,13 @@
 # -*- coding: utf-8 -*-
-
+"""
+In this example, we want to show you how you can take isolated blocks of code
+(featuring different kinds of Bokeh visualizations) and rearrange them in a
+bigger (encompassing) flask-based application without losing the independence
+of each example. This is the reason of some weirdness through the code.
+We are using this "building blocks" approach here because we believe it has some
+conceptual advantages for people trying to quickly understand, and more
+importantly, use the embed API, in a more complex way that just a simple script.
+"""
 import time
 from threading import Thread
 
