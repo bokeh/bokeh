@@ -205,7 +205,7 @@ class Chart(object):
 
         if self.server:
             if self.server is True:
-                self.servername = "undefined_chart"
+                self.servername = "untitled_chart"
             else:
                 self.servername = self.server
 
