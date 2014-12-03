@@ -7,7 +7,7 @@ from bokeh.models import GlyphRenderer
 import bokeh.embed as embed
 
 import time
-from numpy import pi, cos, sin, linspace, roll, zeros_like
+from numpy import pi, cos, sin, linspace, roll
 
 N = 50 + 1
 r_base = 8
@@ -19,14 +19,12 @@ rmax = r_base + sin(r_x) + 1
 colors = ["FFFFCC", "#C7E9B4", "#7FCDBB", "#41B6C4", "#2C7FB8",
           "#253494", "#2C7FB8", "#41B6C4", "#7FCDBB", "#C7E9B4"] * 5
 
-cx = cy = zeros_like(rmin)
-
 output_server("animated")
 
 p = figure(x_range=[-11, 11], y_range=[-11, 11])
 
 p.annular_wedge(
-    cx, cy, rmin, rmax, theta[:-1], theta[1:],
+    0, 0, rmin, rmax, theta[:-1], theta[1:],
     inner_radius_units="data",
     outer_radius_units="data",
     fill_color = colors,
@@ -72,4 +70,4 @@ while True:
     ds.data["outer_radius"] = rmax
 
     cursession().store_objects(ds)
-    time.sleep(.10)
+    time.sleep(0.1)

@@ -14,7 +14,6 @@ from bokeh.plotting import (annular_wedge, curplot, cursession, figure, hold,
 from flask import Flask, render_template
 app = Flask(__name__)
 
-
 @app.route('/')
 def render_plot():
     distribution_plot = distribution()
@@ -23,7 +22,9 @@ def render_plot():
     animated_plot = animated()
     tag2, id2 = make_snippet("animated", animated_plot[0], animated_plot[1], update_animation)
 
-    tag3, id3 = make_snippet("widget", pop.layout, pop.session, update_population)
+    pop = Population()
+    pop.render()
+    tag3, id3 = make_snippet("widget", pop.layout, pop.session, update_population, pop)
 
     return render_template('app_plot.html',
                            tag1=tag1, id1=id1,
@@ -31,18 +32,20 @@ def render_plot():
                            tag3=tag3, id3=id3)
 
 
-def make_snippet(kind, plot, session=None, target=None):
+def make_snippet(kind, plot, session=None, target=None, wargs=None):
     if kind == "plot":
         tag = autoload_server(plot, session)
         thread = Thread()
         thread.start()
     if kind == "animated":
         tag = autoload_server(plot, session)
+        # for update_animation as target we need to pass the plot and session as args
         thread = Thread(target=target, args=(plot, session))
         thread.start()
     elif kind == "widget":
         tag = autoload_server(plot, session)
-        thread = Thread(target=target, args=(pop,))
+        # for update_population as target we need to pass the pop instance as args
+        thread = Thread(target=target, args=(wargs,))
         thread.start()
 
     return tag, plot._id
@@ -62,9 +65,8 @@ def distribution():
     output_server("distribution_reveal")
 
     p = figure(title="Interactive plots",
-               tools="pan, wheel_zoom, box_zoom, reset, previewsave",
                background_fill="#E5E5E5")
-    p.quad(top=hist, bottom=np.zeros(len(hist)), left=edges[:-1], right=edges[1:],
+    p.quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:],
            fill_color="#333333", line_color="#E5E5E5", line_width=3)
 
     # Use `line` renderers to display the PDF and CDF
@@ -88,7 +90,7 @@ def distribution():
 
 def animated():
 
-    from numpy import pi, cos, sin, linspace, zeros_like
+    from numpy import pi, cos, sin, linspace
 
     N = 50 + 1
     r_base = 8
@@ -100,15 +102,12 @@ def animated():
     colors = ["FFFFCC", "#C7E9B4", "#7FCDBB", "#41B6C4", "#2C7FB8",
               "#253494", "#2C7FB8", "#41B6C4", "#7FCDBB", "#C7E9B4"] * 5
 
-    cx = cy = zeros_like(rmin)
-
     output_server("animated_reveal")
 
-    p = figure(title="Animations", x_range=[-11, 11], y_range=[-11, 11],
-           tools="pan,wheel_zoom,box_zoom,reset,previewsave")
+    p = figure(title="Animations", x_range=[-11, 11], y_range=[-11, 11])
 
     p.annular_wedge(
-        cx, cy, rmin, rmax, theta[:-1], theta[1:],
+        0, 0, rmin, rmax, theta[:-1], theta[1:],
         inner_radius_units="data",
         outer_radius_units="data",
         fill_color=colors,
@@ -138,7 +137,7 @@ def update_animation(plot, session):
         ds.data["outer_radius"] = rmax
 
         cursession().store_objects(ds)
-        time.sleep(.10)
+        time.sleep(0.1)
 
 
 class Population(object):
@@ -217,8 +216,8 @@ class Population(object):
         year_select.on_change('value', self.on_year_change)
         location_select.on_change('value', self.on_location_change)
 
-        controls = HBox(children=[year_select, location_select])
-        self.layout = VBox(children=[controls, self.plot])
+        controls = HBox(year_select, location_select)
+        self.layout = VBox(controls, self.plot)
 
     def update_pyramid(self):
         pyramid = self.df[(self.df.Location == self.location) & (self.df.Year == self.year)]
@@ -243,12 +242,10 @@ class Population(object):
         self.session.store_document(self.document)
 
 
-def update_population(pop):
+def update_population(plot):
     while True:
-        pop.session.load_document(pop.document)
-        time.sleep(0.5)
+        plot.session.load_document(plot.document)
+        time.sleep(0.1)
 
 if __name__ == '__main__':
-    pop = Population()
-    pop.render()
     app.run(debug=True)

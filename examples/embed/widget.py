@@ -76,8 +76,8 @@ class Population(object):
         year_select.on_change('value', self.on_year_change)
         location_select.on_change('value', self.on_location_change)
 
-        controls = HBox(children=[year_select, location_select])
-        self.layout = VBox(children=[controls, self.plot])
+        controls = HBox(year_select, location_select)
+        self.layout = VBox(controls, self.plot)
 
     def update_pyramid(self):
         pyramid = self.df[(self.df.Location == self.location) & (self.df.Year == self.year)]
@@ -142,6 +142,6 @@ to see the plots on the Bokeh server directly""" % link)
 try:
     while True:
         pop.session.load_document(pop.document)
-        time.sleep(0.5)
+        time.sleep(0.1)
 except KeyboardInterrupt:
     print()
