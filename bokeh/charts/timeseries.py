@@ -17,9 +17,17 @@ It also add detection of the incomming input to see if it is a pandas dataframe.
 # Imports
 #-----------------------------------------------------------------------------
 
-import pandas as pd
+from six import string_types
+from collections import OrderedDict
 
-from ._chartobject import ChartObject
+try:
+    import pandas as pd
+
+except ImportError:
+    pd = None
+
+
+from ._chartobject import ChartObject, DataAdapter
 
 from ..models import ColumnDataSource, Range1d, DataRange1d
 
@@ -62,14 +70,17 @@ class TimeSeries(ChartObject):
         ts = TimeSeries(df, title="timeseries, pd_input", notebook=True)
         ts.legend("top_left").show()
     """
-    def __init__(self, xy,
+    def __init__(self, values,
+                 index=None,
                  title=None, xlabel=None, ylabel=None, legend=False,
                  xscale="datetime", yscale="linear", width=800, height=600,
-                 tools=True, filename=False, server=False, notebook=False):
+                 tools=True, filename=False, server=False, notebook=False,
+                 facet=False):
         """
         Args:
             xy (dict): a dict containing the data with names as a key
                 and the data as a value.
+            index (list): 1d iterable of any sort (of datetime values)
             title (str, optional): the title of your plot. Defaults to None.
             xlabel (str, optional): the x-axis label of your plot.
                 Defaults to None.
@@ -120,65 +131,40 @@ class TimeSeries(ChartObject):
                 loading the data dict.
                 Needed for _set_And_get method.
         """
-        self.xy = xy
+        self.values = values
         self.source = None
         self.xdr = None
         self.ydr = None
+
+        # list to save all the groups available in the incomming input
         self.groups = []
         self.data = dict()
         self.attr = []
+        self.index = index
+
         super(TimeSeries, self).__init__(title, xlabel, ylabel, legend,
                                          xscale, yscale, width, height,
-                                         tools, filename, server, notebook)
-
-    def check_attr(self):
-        """Check if any of the chained method were used.
-
-        If they were not used, it assign the init parameters content by default.
-        """
-        super(TimeSeries, self).check_attr()
-
-    def get_data(self, **xy):
-        """Take the x/y data from the input **value.
-
-        It calculates the chart properties accordingly. Then build a dict
-        containing references to all the points to be used by
-        the line glyph inside the ``draw`` method.
-
-        Args:
-            xy (dict): a dict containing the data with names as a key
-                and the data as a value.
-        """
-        self.data = dict()
-
-        # assuming value is an ordered dict
-        self.xy = xy
-
-        # list to save all the attributes we are going to create
-        self.attr = []
-
-        # list to save all the groups available in the incomming input
-        self.groups.extend(self.xy.keys())
-
-        # Grouping
-        for i, val in enumerate(self.xy.keys()):
-            xy = self.xy[val]
-            self._set_and_get("x_", val, xy[:, 0])
-            self._set_and_get("y_", val, xy[:, 1])
+                                         tools, filename, server, notebook, facet)
 
     def get_source(self):
-        "Push the TimeSeries data into the ColumnDataSource and calculate the proper ranges."
+        """
+        Push the TimeSeries data into the ColumnDataSource and calculate the proper ranges.
+        """
         self.source = ColumnDataSource(self.data)
 
         self.xdr = DataRange1d(sources=[self.source.columns(self.attr[0])])
 
         y_names = self.attr[1::2]
+
         endy = max(max(self.data[i]) for i in y_names)
         starty = min(min(self.data[i]) for i in y_names)
-        self.ydr = Range1d(start=starty - 0.1 * (endy - starty), end=endy + 0.1 * (endy - starty))
+        self.ydr = Range1d(
+            start=starty - 0.1 * (endy - starty),
+            end=endy + 0.1 * (endy - starty)
+        )
 
     def draw(self):
-        """Use the line glyphs to conect the xy points in the time series.
+        """Use the line glyphs to connect the xy points in the time series.
 
         Takes reference points from the data loaded at the ColumnDataSurce.
         """
@@ -188,64 +174,62 @@ class TimeSeries(ChartObject):
         for i, duplet in enumerate(self.duplet, start=1):
             self.chart.make_line(self.source, duplet[0], duplet[1], colors[i - 1])
 
-    def show(self):
-        """Main TimeSeries show method.
+            if i < len(self.duplet):
+                self.create_plot_if_facet()
 
-        It essentially checks for chained methods, creates the chart,
-        pass data into the plot object, draws the glyphs according
-        to the data and shows the chart in the selected output.
+    def prepare_data(self, values):
+        if hasattr(values, 'keys'):
+            if self.index is not None:
+                if isinstance(self.index, string_types):
+                    xs = values[self.index]
 
-        .. note:: the show method can not be chained. It has to be called
-        at the end of the chain.
+                else:
+                    xs = self.index
+
+            else:
+                try:
+                    xs = values.index
+
+                except AttributeError:
+                    raise
+
+        else:
+            if self.index is None:
+                self.index = xs = values[0]
+                values = DataAdapter(values[1:], force_alias=False)
+
+
+            elif isinstance(self.index, string_types):
+                raise TypeError(
+                    "String indexes are only supported for DataFrame and dict inputs"
+                )
+
+            else:
+                xs = self.index
+                values = DataAdapter(values, force_alias=False)
+
+        return xs, values
+
+    def get_data(self):
+        """Take the x/y data from the timeseries values.
+
+        It calculates the chart properties accordingly. Then build a dict
+        containing references to all the points to be used by
+        the line glyph inside the ``draw`` method.
+
         """
-        # asumming we get an hierchiral pandas object
-        if isinstance(self.xy, pd.DataFrame):
-            self.labels = self.xy.columns.levels[1].values
+        self.data = dict()
 
-            from collections import OrderedDict
-            pdict = OrderedDict()
+        # list to save all the attributes we are going to create
+        self.attr = []
 
-            for i in self.xy.columns.levels[0].values:
-                pdict[i] = self.xy[i].dropna().values
+        xs, self.values = self.prepare_data(self.values)
+        for col in self.values.keys():
+            if isinstance(self.index, string_types) \
+                and col == self.index:
+                continue
 
-            self.xy = pdict
-
-        # we need to check the chained method attr
-        self.check_attr()
-
-        if self._xlabel is None:
-            self._xlabel = self.labels[0]
-        if self._ylabel is None:
-            self._ylabel = self.labels[1]
-
-        # we create the chart object
-        self.create_chart()
-        # we start the plot (adds axis, grids and tools)
-        self.start_plot()
-        # we get the data from the incoming input
-        self.get_data(**self.xy)
-        # we filled the source and ranges with the calculated data
-        self.get_source()
-        # we dynamically inject the source and ranges into the plot
-        self.add_data_plot(self.xdr, self.ydr)
-        # we add the glyphs into the plot
-        self.draw()
-        # we pass info to build the legend
-        self.end_plot(self.groups)
-        # and finally we show it
-        self.show_chart()
-
-    # Some helper methods
-    def _set_and_get(self, prefix, val, content):
-        """Set a new attr and then get it to fill the self.data dict.
-
-        Keep track of the attributes created.
-
-        Args:
-            prefix (str): prefix of the new attribute
-            val (string): name of the new attribute
-            content (obj): content of the new attribute
-        """
-        setattr(self, prefix + val, content)
-        self.data[prefix + val] = getattr(self, prefix + val)
-        self.attr.append(prefix + val)
+            # save every the groups available in the incomming input
+            self.groups.append(col)
+            self.set_and_get("x_", col, xs)
+            self.set_and_get("y_", col, self.values[col])

@@ -100,7 +100,7 @@ class Image(Glyph):
     dh = DataSpec
     dilate = Bool(False)
 
-    color_mapper = Instance(HasProps) # LinearColorMapper but circular import
+    color_mapper = Instance(LinearColorMapper)
 
 class ImageRGBA(Glyph):
     image = DataSpec

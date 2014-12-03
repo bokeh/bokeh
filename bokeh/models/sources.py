@@ -96,6 +96,19 @@ class ColumnDataSource(DataSource):
             import warnings
             warnings.warn("Unable to find column '%s' in datasource" % name)
 
+    def push_notebook(self):
+        from IPython.core import display
+        from bokeh.protocol import serialize_json
+        id = self.ref['id']
+        model = self.ref['type']
+        json = serialize_json(self.vm_serialize())
+        js = """
+            var ds = Bokeh.Collections('{model}').get('{id}');
+            var data = {json};
+            ds.set(data);
+        """.format(model=model, id=id, json=json)
+        display.display_javascript(js, raw=True)
+
 class ServerDataSource(DataSource):
     data_url = String()
     owner_username = String()

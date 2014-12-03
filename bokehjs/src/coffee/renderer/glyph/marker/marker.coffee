@@ -39,7 +39,7 @@ define [
       size = { }
       size[reference_point] = Math.min(Math.abs(x1-x0), Math.abs(y1-y0))*0.4
 
-      @_render(ctx, indices, @props, sx, sy, size)
+      @_render(ctx, indices, sx, sy, size)
 
     _set_data: () ->
       @max_size = _.max(@size)
