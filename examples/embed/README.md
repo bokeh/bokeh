@@ -1,4 +1,4 @@
-To see these example you first have to start the bokeh-server, ie.:
+To see these example you first have to start the bokeh-server, ie., 
 
     bokeh-server --backend=memory
 
@@ -10,13 +10,14 @@ or
 
     python animated.py
 
-To see them, you can easily start a python-based webserver:
+To view them, start a web server in this directory, for instance, the server
+built into python. If you are using python 2, run:
 
     python -m SimpleHTTPServer
 
-or
+or if you are using python 3, run:
 
-    python -m http.server (if you are using python 3)
+    python -m http.server
 
 and use the links provided when you run the scripts.
 
@@ -28,7 +29,7 @@ and then navigate to:
 
     http://127.0.0.1:5000/
 
-Finally to run the spectogram example you need to have pyaudio installed
-and just run:
+The spectrogram example requires a working pyaudio library installed.
+To view it, run:
 
     python spectogram.py
