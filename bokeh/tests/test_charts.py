@@ -410,11 +410,6 @@ class TestArea(unittest.TestCase):
 
     def setUp(self):
         pass
-        #self.chart_object = Area(title="title", xlabel="xlabel", ylabel="ylabel",
-        #                        legend="top_left", xscale="linear", yscale="linear",
-        #                        width=800, height=600, tools=True,
-        #                        filename=False, server=False, notebook=False,
-        #                        facet=False, palette=["#FFFFFF", "#000000"])
 
     def create_chart(self, values, index=None, stacked=False):
         return Area(
@@ -441,7 +436,7 @@ class TestArea(unittest.TestCase):
             area._show_teardown()
 
             self.assertEqual(area.groups, xyvalues.keys())
-            #self.assertIsInstance(area.values, DataAdapter)
+
             zeros = np.zeros(5)
             self.assertListEqual(sorted(area.data.keys()), data_keys)
             np.testing.assert_array_equal(area.data['x'], np.array([4,3,2,1,0,0,1,2,3,4]))
