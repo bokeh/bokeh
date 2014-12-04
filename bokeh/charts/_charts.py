@@ -202,18 +202,19 @@ class Chart(object):
 
         # Add to document and session if server output is asked
         self.doc = Document()
-        for plot in self._plots:
-            self.doc.add(plot)
 
         if self.server:
             if self.server is True:
-                self.servername = "untitled"
+                self.servername = "untitled_chart"
             else:
                 self.servername = self.server
+
             self.session = Session()
             self.session.use_doc(self.servername)
             self.session.load_document(self.doc)
-            self.session.store_document(self.doc)
+
+        for plot in self._plots:
+            self.doc.add(plot)
 
     def make_axis(self, location, scale, label):
         """Create linear, date or categorical axis depending on the location,
@@ -472,9 +473,9 @@ class Chart(object):
                   " .filename('foo.html')) to save your plot.")
 
         if self.server:
-            self.session.use_doc(self.servername)
-            self.session.load_document(self.doc)
-            self.session.show(self.plot)
+            self.session.store_document(self.doc)
+            link = self.session.object_link(self.doc.context)
+            view(link)
 
         if self.notebook:
             from bokeh.embed import notebook_div
