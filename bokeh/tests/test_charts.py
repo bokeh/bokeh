@@ -463,59 +463,7 @@ class TestArea(unittest.TestCase):
             area._show_teardown()
 
             self.assertEqual(area.groups, ['0', '1', '2'])
-            #self.assertIsInstance(area.values, DataAdapter)
-            zeros = np.zeros(5)
-            self.assertListEqual(sorted(area.data.keys()), data_keys)
-            np.testing.assert_array_equal(area.data['x'], np.array([4,3,2,1,0,0,1,2,3,4]))
-            np.testing.assert_array_equal(
-                area.data['y_0'], np.hstack((zeros, np.array(_xy[0])))
-            )
-            np.testing.assert_array_equal(
-                area.data['y_1'], np.hstack((zeros, np.array(_xy[1])))
-            )
-            np.testing.assert_array_equal(
-                area.data['y_2'], np.hstack((zeros, np.array(_xy[2])))
-            )
 
-    def test_supported_input_stacked(self):
-        xyvalues = OrderedDict(
-                python=[2, 3, 7, 5, 26],
-                pypy=[12, 33, 47, 15, 126],
-                jython=[22, 43, 10, 25, 26],
-            )
-
-
-        data_keys = ['x', 'y_jython', 'y_pypy', 'y_python']
-        for _xy in [xyvalues, dict(xyvalues), pd.DataFrame(xyvalues)]:
-            area = self.create_chart(_xy, stacked=True)
-            area._setup_show()
-            area._prepare_show()
-            area._show_teardown()
-
-            self.assertEqual(area.groups, xyvalues.keys())
-            #self.assertIsInstance(area.values, DataAdapter)
-            zeros = np.zeros(5)
-            self.assertListEqual(sorted(area.data.keys()), data_keys)
-            np.testing.assert_array_equal(area.data['x'], np.array([4,3,2,1,0,0,1,2,3,4]))
-            np.testing.assert_array_equal(
-                area.data['y_jython'], np.hstack((zeros, np.array(xyvalues['jython'])))
-            )
-            np.testing.assert_array_equal(
-                area.data['y_pypy'], np.hstack((zeros, np.array(xyvalues['pypy'])))
-            )
-            np.testing.assert_array_equal(
-                area.data['y_python'], np.hstack((zeros, np.array(xyvalues['python'])))
-            )
-
-        data_keys = ['x', 'y_0', 'y_1', 'y_2']
-        for _xy in [xyvalues.values(), np.array(xyvalues.values())]:
-            area = self.create_chart(_xy)
-            area._setup_show()
-            area._prepare_show()
-            area._show_teardown()
-
-            self.assertEqual(area.groups, ['0', '1', '2'])
-            #self.assertIsInstance(area.values, DataAdapter)
             zeros = np.zeros(5)
             self.assertListEqual(sorted(area.data.keys()), data_keys)
             np.testing.assert_array_equal(area.data['x'], np.array([4,3,2,1,0,0,1,2,3,4]))
