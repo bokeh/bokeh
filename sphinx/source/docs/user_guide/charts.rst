@@ -8,9 +8,8 @@ High Level Charts
     :depth: 2
 
 .. warning:: ``bokeh.charts`` interface is still experimental an is very likely to change in the
-  next upcoming releases. Although we will always try to be consistent and never break backwards
-  compatibility we cannot garantee this will not happen. Please take this into consideration when
-  using it.
+  next upcoming releases. Although we will always try to be consistent we cannot guarantee
+  backwards compatibility for now. Please take this into consideration when using it.
 
 The main idea behind the ``bokeh.charts`` interface is to help the users to easily get their plot
 using a very high level API.
@@ -87,11 +86,11 @@ Interface inputs
 
 The ``bokeh.charts`` interface is ready to get your input as essentially any of the following:
 
-* ``OrderedDict``
-* ``dict``
-* pandas ``DataFrame objects``
 * ``list``
+* ``dict``
+* ``OrderedDict``
 * numpy ``arrays``
+* pandas ``DataFrame objects``
 
 In general elements are supposed to be iterables representing each single data series values
 (i.e: list of lists, dict/ordered dict of lists, etc.. containing scalar values).
@@ -106,8 +105,6 @@ Let see some examples using different kind of inputs:
 
 
 * Using a pandas ``groupby`` object (only supported by Scatter)::
-
-    from collections import OrderedDict
 
     from bokeh.sampledata.iris import flowers
     from bokeh.charts import Scatter
@@ -181,8 +178,8 @@ due to their own specific nature.
 Specific arguments
 ------------------
 
-For some chart types it really make sense to support specific arguments which only makes sense in that
-specific chart context. For instance, if you use a Timeseries chart, the x-value (index) for eachgroup has
+For some chart types we support specific arguments which only make sense in that
+specific chart context. For instance, if you use a Timeseries chart, the x-value (index) for each group has
 to be datetime values. Or, if you want to use the Categorical HeatMap, columns names and the specified
 index have to be string type values.
 
@@ -214,7 +211,7 @@ Area
 * ``index`` (str | 1d iterable of any sort, optional): can be used to specify a common custom index for all data series as follows:
 
   * As a 1d iterable of any sort that will be used as series common index
-  * As a string that corresponds to the ``key`` of the mapping to be used as index (and not as data series) f ``area.values`` is a mapping (like a ``dict``, an ``OrderedDict`` or a pandas ``DataFrame``) ``index`` can be specified
+  * As a string that corresponds to the ``key`` of the mapping to be used as index (and not as data series) if ``area.values`` is a mapping (like a ``dict``, an ``OrderedDict`` or a pandas ``DataFrame``)
 
 * ``facet`` (bool, optional): generate multiple areas on multiple separate plots for each series if ``True``. Defaults to ``False``
 * ``stacked`` (bool, optional):
@@ -335,7 +332,7 @@ Line
 * ``index`` (str | 1d iterable of any sort, optional): can be used to specify a common custom index for all chart data series as follows:
 
   * As a 1d iterable of any sort that will be used as series common index
-  * As a string that corresponds to the ``key`` of the mapping to be used as index (and not as data series) f ``area.values`` is a mapping (like a ``dict``, an ``OrderedDict`` or a pandas ``DataFrame``) ``index`` can be specified
+  * As a string that corresponds to the ``key`` of the mapping to be used as index (and not as data series) if ``area.values`` is a mapping (like a ``dict``, an ``OrderedDict`` or a pandas ``DataFrame``)
 
 * ``facet`` (bool, optional): generate multiple lines on multiple separate plots for each series if ``True``. Defaults to ``False``
 
@@ -364,7 +361,7 @@ Step
 * ``index`` (str | 1d iterable of any sort, optional): can be used to specify a common custom index for all chart data series as follows:
 
   * As a 1d iterable of any sort that will be used as series common index
-  * As a string that corresponds to the ``key`` of the mapping to be used as index (and not as data series) f ``area.values`` is a mapping (like a ``dict``, an ``OrderedDict`` or a pandas ``DataFrame``) ``index`` can be specified
+  * As a string that corresponds to the ``key`` of the mapping to be used as index (and not as data series) if ``area.values`` is a mapping (like a ``dict``, an ``OrderedDict`` or a pandas ``DataFrame``)
 
 * ``facet`` (bool, optional): generate multiple stepped lines on multiple separate plots for each series if ``True``. Defaults to ``False``
 
@@ -381,7 +378,7 @@ TimeSeries
 * ``index`` (str | 1d iterable of any sort of ``datetime`` values, optional): can be used to specify a common custom index for all chart data series as follows:
 
   * As a 1d iterable of any sort that will be used as series common index
-  * As a string that corresponds to the ``key`` of the mapping to be used as index (and not as data series) f ``area.values`` is a mapping (like a ``dict``, an ``OrderedDict`` or a pandas ``DataFrame``) ``index`` can be specified
+  * As a string that corresponds to the ``key`` of the mapping to be used as index (and not as data series) if ``area.values`` is a mapping (like a ``dict``, an ``OrderedDict`` or a pandas ``DataFrame``)
 
 * ``facet`` (bool, optional): generate multiple timeseries on multiple separate plots for each series if ``True``. Defaults to ``False``
 
@@ -408,7 +405,7 @@ mu          No          No            No          No          No            No  
 sigma       No          No            No          No          No            No          Yes         No            No          No          No
 ==========  ==========  ===========  ==========  ==========  ============  ==========  ==========  ===========  ==========  ==========  ===========
 
-.. note:: Scatter values are supposed to be iterables of coupled valies. I.e.: ``[[(1, 20), ..., (200, 21)], ..., [(1, 12),... (200, 19)]]``
+.. note:: Scatter values are supposed to be iterables of coupled values. I.e.: ``[[(1, 20), ..., (200, 21)], ..., [(1, 12),... (200, 19)]]``
 
 Interface outputs
 -----------------
