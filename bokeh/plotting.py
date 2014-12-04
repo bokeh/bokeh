@@ -744,8 +744,8 @@ def square_x(x, y, **kwargs):
     return _plot_function(gf.square_x, x, y, **kwargs)
 
 @_doc_wrap
-def text(x, y, text, angle, **kwargs):
-    return _plot_function(gf.text, x, y, text, angle, **kwargs)
+def text(x, y, text, **kwargs):
+    return _plot_function(gf.text, x, y, text, **kwargs)
 
 @_doc_wrap
 def triangle(x, y, **kwargs):
