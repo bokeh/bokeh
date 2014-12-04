@@ -8,7 +8,7 @@ from requests.exceptions import ConnectionError
 
 from .test_utils import skipIfPy3
 import bokeh.transforms.ar_downsample as ar_downsample
-from bokeh.objects import Range1d, ServerDataSource, GlyphRenderer
+from bokeh.models import Range1d, ServerDataSource, GlyphRenderer
 from bokeh.plotting import square, output_server, curdoc
 import types
 

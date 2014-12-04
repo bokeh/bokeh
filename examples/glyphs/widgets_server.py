@@ -7,13 +7,13 @@ from random import randint
 
 from bokeh.browserlib import view
 from bokeh.document import Document
-from bokeh.glyphs import Line, Circle
-from bokeh.objects import (
+from bokeh.models.glyphs import Line, Circle
+from bokeh.models import (
     Plot, ColumnDataSource, DataRange1d,
     LinearAxis, DatetimeAxis, Grid, HoverTool
 )
 from bokeh.session import Session
-from bokeh.widgets import VBox, HBox, Paragraph, Button, TableColumn, DataTable
+from bokeh.models.widgets import VBox, HBox, Paragraph, Button, TableColumn, DataTable
 
 document = Document()
 session = Session()

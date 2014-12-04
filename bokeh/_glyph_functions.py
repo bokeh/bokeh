@@ -16,7 +16,7 @@ def _glyph_function(glyphclass, dsnames, argnames, docstring, xfields=["x"], yfi
             _materialize_colors_and_alpha, _get_legend,
             _make_legend, _get_select_tool
         )
-        from .objects import ColumnDataSource, GlyphRenderer, Plot, ServerDataSource
+        from .models import ColumnDataSource, GlyphRenderer, Plot, ServerDataSource
         source = kwargs.pop('source', None)
         if isinstance(source, ServerDataSource):
             datasource = ColumnDataSource()

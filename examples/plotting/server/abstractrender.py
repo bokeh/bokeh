@@ -1,6 +1,6 @@
 import numpy as np
 from bokeh.plotting import square, output_server, image, show
-from bokeh.objects import ServerDataSource
+from bokeh.models import ServerDataSource
 
 import bokeh.transforms.ar_downsample as ar
 
@@ -30,10 +30,9 @@ colors = ["#C6DBEF", "#9ECAE1", "#6BAED6", "#4292C6", "#2171B5", "#08519C", "#08
 ar.contours(plot, palette=colors, title="ISO Contours")
 
 
-
 # Multiple categories
-plot = square('oneA', 'oneB', color='cats', source=source)
-ar.hdalpha(plot, spread=5, title="Multiple categories")
-
+source = ServerDataSource(data_url="fn://gauss", owner_username="defaultuser")
+plot2 = square('oneA', 'oneB', color='cats', source=source)
+ar.hdalpha(plot2, spread=5, title="Multiple categories")
 
 show()

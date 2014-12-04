@@ -16,9 +16,9 @@
 import unittest
 
 from ..charts import Chart, ChartObject
-from ..glyphs import Circle
-from ..objects import (ColumnDataSource, Grid, GlyphRenderer, Legend, LinearAxis,
-                       PanTool, Range1d, Ticker)
+from ..models.glyphs import Circle
+from ..models import (ColumnDataSource, Grid, GlyphRenderer, Legend, LinearAxis,
+                      PanTool, Range1d, Ticker)
 
 from ..document import Document
 #from ..session import Session

@@ -1,6 +1,6 @@
 import numpy as np
 import math
-from ..objects import ServerDataSource
+from ..models import ServerDataSource
 
 def source(domain='x', method='minmax', **kwargs):
   kwargs['transform'] = {'resample':'line1d', 'domain':domain, 'method':method}
@@ -10,9 +10,9 @@ def source(domain='x', method='minmax', **kwargs):
 def downsample(data,
                domain_column,
                primary_data_column,
-               domain_limit, 
+               domain_limit,
                range_limit,
-               domain_resolution, 
+               domain_resolution,
                method):
     """
     data : record numpy array of values, shape (N,)
@@ -21,28 +21,28 @@ def downsample(data,
     min/max decimation
     domain_limit : bounds of domain (tuple of length 2)
     domain_resolution : # of samples
-    method : 'maxmin' encodes the max/min point. 
-             'mid' encode the midpoint of each bin-range 
-    
+    method : 'maxmin' encodes the max/min point.
+             'mid' encode the midpoint of each bin-range
+
     output:
     list of (domain,data) pairs, where they are each 1d vectors
     """
     #sort data
     indexes = np.argsort(data[domain_column])
     data = data[indexes]
-    
+
     #truncate data based on domain_limits
     domain = data[domain_column]
     left_idx = np.searchsorted(domain, domain_limit[0], side='left')
     right_idx = np.searchsorted(domain, domain_limit[1], side='right')
     data = data[left_idx:right_idx + 1]
-    
+
     domain = data[domain_column]
     bucket_size = (domain_limit[1] - domain_limit[0]) / domain_resolution
     buckets = (domain - domain.min()) / bucket_size
     buckets = np.floor(buckets)
-    starting_boundaries = np.searchsorted(buckets, 
-                                          np.unique(buckets), 
+    starting_boundaries = np.searchsorted(buckets,
+                                          np.unique(buckets),
                                           side='left').tolist()
     ending_boundaries = starting_boundaries[1:]
     ending_boundaries.append(None)
@@ -54,7 +54,7 @@ def downsample(data,
         subdata = data[st:ed]
         if subdata.shape[0] == 0:
             continue
-        
+
         primary_column = subdata[primary_data_column]
         idx = np.argsort(primary_column)
         #downsample
@@ -79,7 +79,7 @@ def downsample(data,
       range_limit = [columns[primary_data_column].min(), columns[primary_data_column].max()]
 
     result = {
-        'data' : columns, 
+        'data' : columns,
         'domain_limit' : domain_limit,
         'range_limit' : range_limit
     }

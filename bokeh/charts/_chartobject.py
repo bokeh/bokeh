@@ -17,12 +17,27 @@ methods.
 # Imports
 #-----------------------------------------------------------------------------
 
+from six import string_types
+from collections import OrderedDict
 from ._charts import Chart
+from ..properties import bokeh_integer_types, Datetime
+from ..models import ColumnDataSource
+
+try:
+    import numpy as np
+
+except ImportError:
+    np = None
+
+try:
+    import pandas as pd
+
+except ImportError:
+    pd = None
 
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
-
 
 class ChartObject(object):
     """A prototype class to inherit each new chart type.
@@ -33,9 +48,16 @@ class ChartObject(object):
         * dynamically chart cration attributes, ie. `self.chart`
         * composition to easily use Chart clase methods
     """
+
+    # whether to show the xgrid
+    xgrid = True
+
+    # whether to show the ygrid
+    ygrid = True
+
     def __init__(self, title, xlabel, ylabel, legend,
                  xscale, yscale, width, height,
-                 tools, filename, server, notebook):
+                 tools, filename, server, notebook, facet=False, palette=None):
         """Common arguments to be used by all the inherited classes.
 
         Args:
@@ -80,6 +102,21 @@ class ChartObject(object):
         self.__filename = filename
         self.__server = server
         self.__notebook = notebook
+        self.__facet = facet
+        self.__palette = palette
+
+    def facet(self, facet=True):
+        """Set the facet flag of your chart. Facet splits the chart
+        creating a figure for every single series of the underlying data
+
+        Args:
+            facet (boolean): new facet value to use for your chart.
+
+        Returns:
+            self: the chart object being configured.
+        """
+        self._facet = facet
+        return self
 
     def title(self, title):
         """Set the title of your chart.
@@ -272,6 +309,10 @@ class ChartObject(object):
             self._server = self.__server
         if not hasattr(self, '_notebook'):
             self._notebook = self.__notebook
+        if not hasattr(self, '_facet'):
+            self._facet = self.__facet
+        if not hasattr(self, '_palette'):
+            self._palette = self.__palette
 
     def create_chart(self):
         """Dynamically create a new chart object.
@@ -291,14 +332,12 @@ class ChartObject(object):
 
         return chart
 
-    def start_plot(self, xgrid=True, ygrid=True):
-        """Wrapper to call the ``chart.start_plot`` method.
-
-        Args:
-            xgrid(bool, optional): whether to show the xgrid
-            ygrid(bool, optional): whether to shoe the ygrid
+    def start_plot(self):
         """
-        self.chart.start_plot(xgrid, ygrid)
+        Wrapper to call the ``chart.start_plot`` method with self.xgrid &
+        self.ygrid
+        """
+        self.chart.start_plot(self.xgrid, self.ygrid)
 
     def get_data(self):
         """Get the input data.
@@ -317,16 +356,17 @@ class ChartObject(object):
         """
         pass
 
-    def add_data_plot(self, xdr, ydr):
-        """Wrapper to call the ``chart.add_data_plot`` method.
-
-        It pass ranges as parameters of the ``chart.add_data_plot`` method.
-
-        Args:
-            xdr (obj): x-associated datarange object for you plot.
-            ydr (obj): y-associated datarange object for you plot.
+    def add_data_plot(self):
         """
-        self.chart.add_data_plot(xdr, ydr)
+        Wrapper to call the ``chart.add_data_plot`` method.
+
+        It pass self.xdr and self.ydr ranges as parameters of the
+        ``chart.add_data_plot`` method, where those values should be:
+
+            self.xdr (obj): x-associated datarange object for you plot.
+            self.ydr (obj): y-associated datarange object for you plot.
+        """
+        self.chart.add_data_plot(self.xdr, self.ydr)
 
     def draw(self):
         """Draw the glyphs into the plot.
@@ -336,7 +376,7 @@ class ChartObject(object):
         """
         pass
 
-    def end_plot(self, groups):
+    def end_plot(self):
         """Wrapper to call the ``chart.end_plot`` method.
 
         It pass groups as parameters of the `chart.end_plot` method.
@@ -345,12 +385,83 @@ class ChartObject(object):
             groups (list): to be filled with the incoming groups of data.
                 Useful for legend construction.
         """
-        self.chart.end_plot(groups)
+        self.chart.end_plot(self.groups)
 
     def show_chart(self):
         "Wrapper to call the ``chart.show`` method."
         self.chart.show()
 
+    def show(self):
+        """Main Chart show method.
+
+        It essentially checks for chained methods, creates the chart,
+        pass data into the plot object, draws the glyphs according
+        to the data and shows the chart in the selected output.
+
+        .. note:: the show method can not be chained. It has to be called
+        at the end of the chain.
+        """
+        self._setup_show()
+        self._prepare_show()
+        self._show_teardown()
+
+        # and finally we show it
+        self.show_chart()
+
+    def _setup_show(self):
+        """
+        Prepare context before main show method is invoked
+        """
+        # we need to check the chained method attr
+        self.check_attr()
+
+    def _prepare_show(self):
+        """
+        Executes chart show core operations:
+
+         - checks for chain methods
+         - prepare chart data & source
+         - create indexes
+         - create glyphs
+         - draw glyphs
+        """
+
+        # we create the chart object
+        self.create_chart()
+        # we start the plot (adds axis, grids and tools)
+        self.start_plot()
+        # we get the data from the incoming input
+        self.get_data()
+        # we filled the source and ranges with the calculated data
+        self.get_source()
+        # we dynamically inject the source and ranges into the plot
+        self.add_data_plot()
+        # we add the glyphs into the plot
+        self.draw()
+        # we pass info to build the legend
+        self.end_plot()
+
+    def _show_teardown(self):
+        """
+        Convenience method that can be override by inherited classes to
+        perform custom teardown or clean up actions after show method has
+        build chart objects
+        """
+        pass
+
+    def create_plot_if_facet(self):
+        """
+        Generate a new plot if facet is true. This can be called after every
+        serie is draw so the next one is draw on a new separate plot instance
+        """
+        if self._facet:
+            self.chart.figure()
+
+            # we start the plot (adds axis, grids and tools)
+            self.start_plot()
+            self.add_data_plot()
+
+    #
     # Some helper methods
     def _chunker(self, l, n):
         """Yield successive n-sized chunks from l.
@@ -377,3 +488,330 @@ class ChartObject(object):
             colors.append(next(g))
 
         return colors
+
+    def _set_and_get(self, data, prefix, attr, val, content):
+        """Set a new attr and then get it to fill the self.data dict.
+
+        Keep track of the attributes created.
+
+        Args:
+            data (dict): where to store the new attribute content
+            attr (list): where to store the new attribute names
+            val (string): name of the new attribute
+            content (obj): content of the new attribute
+        """
+        setattr(self, prefix + val, content)
+        data[prefix + val] = getattr(self, prefix + val)
+        attr.append(prefix + val)
+
+    def set_and_get(self, prefix, val, content):
+        """Set a new attr and then get it to fill the self.data dict.
+
+        Keep track of the attributes created.
+
+        Args:
+            prefix (str): prefix of the new attribute
+            val (string): name of the new attribute
+            content (obj): content of the new attribute
+        """
+        self._set_and_get(self.data, prefix, self.attr, val, content)
+
+    @property
+    def palette(self):
+        """Build a color list just cycling through a defined palette.
+
+        """
+        if not self._palette:
+            self._palette = self._set_colors(self.groups)
+
+        return self._palette
+
+    def reset_legend(self, marker='square'):
+        """Reset legends creating the right glyphs to represent each chart series.
+
+        Charts that use a composition of multiple underlying glyphs to represent
+        the data series need to create `dummy` glyphs to be used only to draw the
+        correct glyph to each series. This is done directly modifying chart.glyphs
+
+        """
+        # create a data source that maps the chart.groups
+        source_legend = ColumnDataSource({"groups": self.groups})
+
+        # We need to build the legend here using dummy glyphs
+        indexes = []
+        real_glyphs_count = len(self.chart.glyphs)
+
+        for i, level in enumerate(self.groups):
+            self._make_legend_glyph(source_legend, self.palette[i])
+
+            # need to manually select the proper glyphs to be rendered as legends
+            indexes.append(real_glyphs_count+i)
+
+        # reset glyphs tho only contain the dummy
+        self.chart.glyphs = [self.chart.glyphs[i] for i in indexes]
+
+    def _make_legend_glyph(self, source_legend, color):
+        """Create a new glyph to represent one of the chart data series with the
+        specified color
+
+        The glyph is added to chart.glyphs.
+
+        Args:
+            source_legend (ColumnDataSource): source to be used when creating the glyph
+            color (str): color of the glyph
+        """
+        self.chart.make_rect(source_legend, "groups", None, None, None,
+                                 color, "black", None)
+
+DEFAULT_INDEX_ALIASES = list('abcdefghijklmnopqrstuvz1234567890')
+DEFAULT_INDEX_ALIASES += list(zip(DEFAULT_INDEX_ALIASES, DEFAULT_INDEX_ALIASES))
+
+class DataAdapter(object):
+    """
+    Adapter object used to normalize Charts inputs to a common interface.
+    Supported inputs are dict, list, tuple, np.ndarray and pd.DataFrame.
+    """
+    def __init__(self, data, index=None, columns=None, force_alias=True):
+        self._values = self.validate_values(data)
+
+        self.convert_index_to_int = False
+        self._columns_map = {}
+        self.convert_items_to_dict = False
+
+        if columns is None and force_alias:
+            # no column 'labels' defined for data... in this case we use
+            # default names
+            keys = getattr(self._values, 'keys', None)
+            if callable(keys):
+                columns = list(keys())
+
+            elif keys is None:
+                columns = list(map(str, range(len(data))))
+
+            else:
+                columns = list(keys)
+
+        if columns:
+            self._columns = columns
+
+            # define a mapping between the real keys to access data and the aliases
+            # we have defined using 'columns'
+            self._columns_map = dict(zip(columns, self.keys()))
+
+        if index is not None:
+            self._index = index
+            self.convert_items_to_dict = True
+
+        elif force_alias:
+            _index = getattr(self._values, 'index', None)
+
+            # check because if it is a callable self._values is not a
+            # dataframe (probably a list)
+            if _index is None:
+                indexes = self.index
+
+                if isinstance(indexes[0], int):
+                    self._index = DEFAULT_INDEX_ALIASES[:][:len(self.values()[0])]
+                    self.convert_items_to_dict = True
+
+            elif not callable(_index):
+                self._index = list(_index)
+                self.convert_items_to_dict = True
+
+            else:
+                self._index = DEFAULT_INDEX_ALIASES[:][:len(self.values()[0])]
+                self.convert_items_to_dict = True
+
+    @staticmethod
+    def is_number(value):
+        numbers = (float, ) + bokeh_integer_types
+        return isinstance(value, numbers)
+
+    @staticmethod
+    def is_datetime(value):
+        try:
+            dt = Datetime(value)
+            return True
+
+        except ValueError:
+            return False
+
+    @staticmethod
+    def validate_values(values):
+        if np and isinstance(values, np.ndarray):
+            if len(values.shape) == 1:
+                return np.array([values])
+
+            else:
+                return values
+
+        elif pd and isinstance(values, pd.DataFrame):
+            return values
+
+        elif isinstance(values, (dict, OrderedDict)):
+            if all(DataAdapter.is_number(x) for x in values.values()):
+                return values
+
+            return values
+
+        elif isinstance(values, (list, tuple)):
+            if all(DataAdapter.is_number(x) for x in values):
+                return [values]
+
+            return values
+
+        # TODO: Improve this error message..
+        raise TypeError("Input type not supported! %s" % values)
+
+
+    def index_converter(self, x):
+        key = self._columns_map.get(x, x)
+        if self.convert_index_to_int:
+            key = int(key)
+        return key
+
+    def keys(self):
+        # assuming it's a dict or dataframe
+        keys = getattr(self._values, "keys", None)
+
+        if callable(keys):
+            return list(keys())
+
+        elif keys is None:
+            # assuming that only non-dict like objects can raise this error
+            # it's probably because we have an iterable instead of a mapper
+            # in this case let's use indices as groups keys
+            self.convert_index_to_int = True
+            indexes = range(len(self._values))
+            return list(map(str, indexes))
+
+        else:
+            return list(keys)
+
+    def __len__(self):
+        return len(self.values())
+
+    def __iter__(self):
+        for k in self.keys():
+            yield k
+
+    def __getitem__(self, key):
+        val = self._values[self.index_converter(key)]
+
+        # if we have "index aliases" we need to remap the values...
+        if self.convert_items_to_dict:
+            val = dict(zip(self._index, val))
+
+        return val
+
+    def values(self):
+        values = getattr(self._values, "values", None)
+
+        if callable(values):
+            return list(values())
+
+        elif values is None:
+            return self._values
+
+        else:
+            return list(self._values)
+
+    def items(self):
+        return [(key, self[key]) for key in self]
+
+    def iterkeys(self):
+        return iter(self)
+
+    def itervalues(self):
+        for k in self:
+            yield self[k]
+
+    def iteritems(self):
+        for k in self:
+            yield (k, self[k])
+
+    @property
+    def columns(self):
+        try:
+            return self._columns
+
+        except AttributeError:
+            return list(self.keys())
+
+    @property
+    def index(self):
+        try:
+            return self._index
+
+        except AttributeError:
+            index = getattr(self._values, "index", None)
+
+            if not callable(index) and index is not None:
+                # guess it's a pandas dataframe..
+                return index
+
+        # no, it's not. So it's probably a list so let's get the
+        # values and check
+        values = self.values()
+
+        if isinstance(values, dict):
+            return list(values.keys())
+
+        else:
+            first_el = self.values()[0]
+
+            if isinstance(first_el, dict):
+                indexes = list(first_el.keys())
+
+            else:
+                indexes = range(0, len(self.values()[0]))
+                self._index = indexes
+            return indexes
+
+    #-----------------------------------------------------------------------------
+    # Convenience methods
+    #-----------------------------------------------------------------------------
+    @staticmethod
+    def get_index_and_data(values, index=None):
+        """Parse values (that must be one of the DataAdapter supported
+        input types) and create an separate/create index and data
+        depending on values type and index.
+
+        Args:
+            values (iterable): container that holds data to be plotted using
+                on the Chart classes
+
+        Returns:
+            xs: iterable that represents the data index
+            values: iterable containing the values to be plotted
+        """
+        if hasattr(values, 'keys'):
+            if index is not None:
+                if isinstance(index, string_types):
+                    xs = values[index]
+
+                else:
+                    xs = index
+
+            else:
+                try:
+                    xs = values.index
+
+                except AttributeError:
+                    values = DataAdapter(values, force_alias=False)
+                    xs = values.index
+
+        else:
+            if index is None:
+                values = DataAdapter(values, force_alias=False)
+                xs = values.index
+
+            elif isinstance(index, string_types):
+                msg = "String indexes are only supported for DataFrame and dict inputs"
+                raise TypeError(msg)
+
+            else:
+                xs = index
+                values = DataAdapter(values, force_alias=False)
+
+        return xs, values

@@ -5,7 +5,7 @@ from collections import OrderedDict
 
 from bokeh.sampledata import us_counties, unemployment
 from bokeh.plotting import *
-from bokeh.objects import HoverTool
+from bokeh.models import HoverTool
 
 county_xs=[
     us_counties.data[code]['lons'] for code in us_counties.data

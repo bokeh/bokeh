@@ -3,7 +3,7 @@
 
 import numpy as np
 from bokeh.plotting import *
-from bokeh.objects import ServerDataSource
+from bokeh.models import ServerDataSource
 from bokeh.transforms import line_downsample
 
 """

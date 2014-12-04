@@ -16,12 +16,16 @@ It also add a new chained stacked method.
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
+from __future__ import print_function
 
-import numpy as np
-import pandas as pd
+try:
+    import numpy as np
 
-from ._chartobject import ChartObject
+except ImportError:
+    print("bokeh.charts needs numpy installed to work properly!")
+    raise
 
+from ._chartobject import ChartObject, DataAdapter
 from ..objects import ColumnDataSource, FactorRange, Range1d
 
 #-----------------------------------------------------------------------------
@@ -62,10 +66,14 @@ class Bar(ChartObject):
         bar.title("stacked, dict_input").xlabel("countries").ylabel("medals")\
 .legend(True).width(600).height(400).stacked().notebook().show()
     """
-    def __init__(self, value, cat=None, stacked=False,
+    # disable x grid
+    xgrid=False
+
+    def __init__(self, values, cat=None, stacked=False,
                  title=None, xlabel=None, ylabel=None, legend=False,
                  xscale="categorical", yscale="linear", width=800, height=600,
-                 tools=True, filename=False, server=False, notebook=False):
+                 tools=True, filename=False, server=False, notebook=False,
+                 facet=False):
         """
         Args:
             value (dict): a dict containing the data with names as a key
@@ -125,7 +133,7 @@ class Bar(ChartObject):
                 Needed for _set_And_get method.
         """
         self.cat = cat
-        self.value = value
+        self.values = values
         self.__stacked = stacked
         self.source = None
         self.xdr = None
@@ -135,7 +143,7 @@ class Bar(ChartObject):
         self.attr = []
         super(Bar, self).__init__(title, xlabel, ylabel, legend,
                                   xscale, yscale, width, height,
-                                  tools, filename, server, notebook)
+                                  tools, filename, server, notebook, facet)
 
     def stacked(self, stacked=True):
         """Set the bars stacked on your chart.
@@ -161,48 +169,7 @@ class Bar(ChartObject):
         if not hasattr(self, '_stacked'):
             self._stacked = self.__stacked
 
-    def get_data(self, cat, **value):
-        """Take the Bar data from the input **value.
-
-        It calculates the chart properties accordingly. Then build a dict
-        containing references to all the calculated points to be used by
-        the rect glyph inside the ``draw`` method.
-
-        Args:
-            cat (list): categories as a list of strings
-            values (dict or pd obj): the values to be plotted as bars.
-        """
-        self.cat = cat
-        self.width = [0.8] * len(self.cat)
-        # width should decrease proportionally to the value length.
-        # 1./len(value) doesn't work well as the width needs to decrease a
-        # little bit faster
-        self.width_cat = [min(0.2, (1./len(value))**1.1)] * len(self.cat)
-        self.zero = np.zeros(len(self.cat))
-        self.data = dict(cat=self.cat, width=self.width, width_cat=self.width_cat, zero=self.zero)
-
-        # assuming value is a dict, ordered dict
-        self.value = value
-
-        # list to save all the attributes we are going to create
-        self.attr = []
-
-        # list to save all the groups available in the incomming input
-        # Grouping
-        step = np.linspace(0, 1.0, len(self.value.keys()) + 1, endpoint=False)
-
-        self.groups.extend(self.value.keys())
-
-        for i, val in enumerate(self.value.keys()):
-            self._set_and_get("", val, self.value[val])
-            self._set_and_get("mid", val, self.value[val] / 2)
-            self._set_and_get("stacked", val, self.zero + self.value[val] / 2)
-            # Grouped
-            self._set_and_get("cat", val, [c + ":" + str(step[i + 1]) for c in self.cat])
-            # Stacked
-            self.zero += self.value[val]
-
-    def get_source(self, stacked):
+    def get_source(self):
         """Push the Bar data into the ColumnDataSource and calculate the proper ranges.
 
         Args:
@@ -210,14 +177,14 @@ class Bar(ChartObject):
         """
         self.source = ColumnDataSource(self.data)
         self.xdr = FactorRange(factors=self.source.data["cat"])
-        if stacked:
+        if self._stacked:
             self.ydr = Range1d(start=0, end=1.1 * max(self.zero))
         else:
             cat = [i for i in self.attr if not i.startswith(("mid", "stacked", "cat"))]
             end = 1.1 * max(max(self.data[i]) for i in cat)
             self.ydr = Range1d(start=0, end=end)
 
-    def draw(self, stacked):
+    def draw(self):
         """Use the rect glyphs to display the bars.
 
         Takes reference points from data loaded at the ColumnDataSurce.
@@ -230,55 +197,54 @@ class Bar(ChartObject):
 
         # quartet elements are: [data, mid, stacked, cat]
         for i, quartet in enumerate(self.quartet):
-            if stacked:
+            if self._stacked:
                 self.chart.make_rect(self.source, "cat", quartet[2], "width", quartet[0], colors[i], "white", None)
             else:  # Grouped
                 self.chart.make_rect(self.source, quartet[3], quartet[1], "width_cat", quartet[0], colors[i], "white", None)
 
-    def show(self):
-        """Main Bar show method.
+    def _setup_show(self):
+        super(Bar, self)._setup_show()
 
-        It essentially checks for chained methods, creates the chart,
-        pass data into the plot object, draws the glyphs according
-        to the data and shows the chart in the selected output.
+        # normalize input to the common DataAdapter Interface
+        if not isinstance(self.values, DataAdapter):
+            self.values = DataAdapter(self.values, force_alias=False)
 
-        .. note:: the show method can not be chained. It has to be called
-        at the end of the chain.
-        """
-        # if we pass a pandas df, the cat are guessed
-        if isinstance(self.value, pd.DataFrame):
-            self.cat = self.value.index.values.tolist()
+        if not self.cat:
+            vals = [str(x) for x in self.values.index]
+            self.cat = vals
 
-        # we need to check the chained method attr
-        self.check_attr()
-        # we create the chart object
-        self.create_chart()
-        # we start the plot (adds axis, grids and tools)
-        self.start_plot(xgrid=False)
-        # we get the data from the incoming input
-        self.get_data(self.cat, **self.value)
-        # we filled the source and ranges with the calculated data
-        self.get_source(self._stacked)
-        # we dynamically inject the source and ranges into the plot
-        self.add_data_plot(self.xdr, self.ydr)
-        # we add the glyphs into the plot
-        self.draw(self._stacked)
-        # we pass info to build the legend
-        self.end_plot(self.groups)
-        # and finally we show it
-        self.show_chart()
+    def get_data(self):
+        """Take the Bar data from the input **value.
 
-    # Some helper methods
-    def _set_and_get(self, prefix, val, content):
-        """Set a new attr and then get it to fill the self.data dict.
-
-        Keep track of the attributes created.
+        It calculates the chart properties accordingly. Then build a dict
+        containing references to all the calculated points to be used by
+        the rect glyph inside the ``draw`` method.
 
         Args:
-            prefix (str): prefix of the new attribute
-            val (string): name of the new attribute
-            content (obj): content of the new attribute
+            cat (list): categories as a list of strings
+            values (dict or pd obj): the values to be plotted as bars.
         """
-        setattr(self, prefix + val, content)
-        self.data[prefix + val] = getattr(self, prefix + val)
-        self.attr.append(prefix + val)
+        self.width = [0.8] * len(self.cat)
+        # width should decrease proportionally to the value length.
+        # 1./len(value) doesn't work well as the width needs to decrease a
+        # little bit faster
+        self.width_cat = [min(0.2, (1./len(self.values))**1.1)] * len(self.cat)
+        self.zero = np.zeros(len(self.cat))
+        self.data = dict(cat=self.cat, width=self.width, width_cat=self.width_cat, zero=self.zero)
+
+        # list to save all the attributes we are going to create
+        self.attr = []
+
+        # list to save all the groups available in the incomming input
+        # Grouping
+        step = np.linspace(0, 1.0, len(self.values.keys()) + 1, endpoint=False)
+
+        self.groups.extend(self.values.keys())
+        for i, val in enumerate(self.values.keys()):
+            self.set_and_get("", val, self.values[val])
+            self.set_and_get("mid", val, np.array(self.values[val]) / 2)
+            self.set_and_get("stacked", val, self.zero + np.array(self.values[val]) / 2)
+            # Grouped
+            self.set_and_get("cat", val, [c + ":" + str(step[i + 1]) for c in self.cat])
+            # Stacked
+            self.zero += self.values[val]

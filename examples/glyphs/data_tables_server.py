@@ -3,9 +3,8 @@ from __future__ import print_function
 import time
 
 from bokeh.browserlib import view
-from bokeh.objects import ColumnDataSource, Plot, DataRange1d, LinearAxis, Grid, GlyphRenderer, BoxSelectTool
-from bokeh.glyphs import Circle
-from bokeh.widgets import TableColumn, DataTable, Select, HBox, VBox
+from bokeh.models import ColumnDataSource, DataRange1d, Plot, LinearAxis, Grid, GlyphRenderer, Circle, HoverTool, BoxSelectTool
+from bokeh.models.widgets import Select, HBox, VBox, DataTable, TableColumn, StringFormatter, NumberFormatter, StringEditor, IntEditor, NumberEditor, SelectEditor
 from bokeh.document import Document
 from bokeh.session import Session
 from bokeh.sampledata.autompg2 import autompg2 as mpg
@@ -49,18 +48,18 @@ class DataTables(object):
         class_select.on_change('value', self.on_class_change)
 
         columns = [
-            TableColumn(field="manufacturer", title="Manufacturer"),
-            TableColumn(field="model", title="Model"),
-            TableColumn(field="displ", title="Displacement"),
-            TableColumn(field="year", title="Year"),
-            TableColumn(field="cyl", title="Cylinders"),
-            TableColumn(field="trans", title="Transmission"),
-            TableColumn(field="drv", title="Drive"),
-            TableColumn(field="class", title="Class"),
-            TableColumn(field="cty", title="City MPG"),
-            TableColumn(field="hwy", title="Highway MPG"),
+            TableColumn(field="manufacturer", title="Manufacturer", editor=SelectEditor(options=manufacturers), formatter=StringFormatter(font_style="bold")),
+            TableColumn(field="model",        title="Model",        editor=StringEditor(completions=models)),
+            TableColumn(field="displ",        title="Displacement", editor=NumberEditor(step=0.1),              formatter=NumberFormatter(format="0.0")),
+            TableColumn(field="year",         title="Year",         editor=IntEditor()),
+            TableColumn(field="cyl",          title="Cylinders",    editor=IntEditor()),
+            TableColumn(field="trans",        title="Transmission", editor=SelectEditor(options=transmissions)),
+            TableColumn(field="drv",          title="Drive",        editor=SelectEditor(options=drives)),
+            TableColumn(field="class",        title="Class",        editor=SelectEditor(options=classes)),
+            TableColumn(field="cty",          title="City MPG",     editor=IntEditor()),
+            TableColumn(field="hwy",          title="Highway MPG",  editor=IntEditor()),
         ]
-        data_table = DataTable(source=self.source, columns=columns, width=1000, height=500)
+        data_table = DataTable(source=self.source, columns=columns, editable=True)
 
         xdr = DataRange1d(sources=[self.source.columns("index")])
         ydr = DataRange1d(sources=[self.source.columns("cty"), self.source.columns("hwy")])
@@ -74,8 +73,20 @@ class DataTables(object):
         hwy_glyph = Circle(x="index", y="hwy", fill_color="#CE603D", size=8, fill_alpha=0.5, line_alpha=0.5)
         cty = GlyphRenderer(data_source=self.source, glyph=cty_glyph)
         hwy = GlyphRenderer(data_source=self.source, glyph=hwy_glyph)
+        tooltips = [
+            ("Manufacturer", "@manufacturer"),
+            ("Model", "@model"),
+            ("Displacement", "@displ"),
+            ("Year", "@year"),
+            ("Cylinders", "@cyl"),
+            ("Transmission", "@trans"),
+            ("Drive", "@drv"),
+            ("Class", "@class"),
+        ]
+        cty_hover_tool = HoverTool(plot=plot, renderers=[cty], tooltips=tooltips + [("City MPG", "@cty")])
+        hwy_hover_tool = HoverTool(plot=plot, renderers=[hwy], tooltips=tooltips + [("Highway MPG", "@hwy")])
         select_tool = BoxSelectTool(plot=plot, renderers=[cty, hwy], dimensions=['width'])
-        plot.tools.append(select_tool)
+        plot.tools.extend([cty_hover_tool, hwy_hover_tool, select_tool])
         plot.renderers.extend([cty, hwy, ygrid])
 
         controls = VBox(children=[manufacturer_select, model_select, transmission_select, drive_select, class_select], width=200)

@@ -15,6 +15,26 @@ define [
   logger = Logging.logger
 
   class _ToolProxy extends Backbone.Model
+
+    initialize: (options) ->
+      super(options)
+      # OK this is pretty lame but should work until we make a new
+      # better grid plot. This just mimics all the events that
+      # any of the tool types might expect to get.
+      @listenTo(@, 'do', @do)
+      @listenTo(@, 'change:active', @active)
+      return null
+
+    do: () ->
+      for tool in @attributes.tools
+        tool.trigger('do')
+      return null
+
+    active: () ->
+      for tool in @attributes.tools
+        tool.set('active', @attributes.active)
+      return null
+
     attrs_and_props: () ->
       return @attributes.tools[0].attrs_and_props()
 
@@ -25,6 +45,7 @@ define [
       super(attr, value)
       for tool in @attributes.tools
         tool.set(attr, value)
+      return null
 
   class GridToolManager extends ToolManager.Model
 
@@ -50,7 +71,7 @@ define [
             inspectors[tool.type] = []
           inspectors[tool.type].push(tool)
 
-        for tool in @get('actions')
+        for tool in tm.get('actions')
           if tool.type not of actions
             actions[tool.type] = []
           actions[tool.type].push(tool)
@@ -67,13 +88,17 @@ define [
         if tools.length != @get('num_plots')
           continue
         proxy = new _ToolProxy({tools: tools})
-        @get('actions').push(proxy)
+        tmp = @get('actions')
+        tmp.push(proxy)
+        @set('actions', tmp)
 
       for typ, tools of inspectors
         if tools.length != @get('num_plots')
           continue
         proxy = new _ToolProxy({tools: tools})
-        @get('inspectors').push(proxy)
+        tmp = @get('inspectors')
+        tmp.push(proxy)
+        @set('inspectors', tmp)
 
       for et, info of @get('gestures')
         tools = info.tools

@@ -1,4 +1,7 @@
+from collections import OrderedDict
+
 from bokeh.sampledata.unemployment1948 import data
+from bokeh.charts import HeatMap
 
 # pandas magic
 df = data[data.columns[:-2]]
@@ -6,7 +9,20 @@ df2 = df.set_index(df[df.columns[0]].astype(str))
 df2.drop(df.columns[0], axis=1, inplace=True)
 df3 = df2.transpose()
 
-# bokeh magic
-from bokeh.charts import CategoricalHeatMap
-hm = CategoricalHeatMap(df3, title="categorical heatmap, pd_input", filename="cat_heatmap.html")
+cols = df3.columns.tolist()
+index = df3.index.tolist()
+
+#prepare some inputs
+to_odict = lambda v: OrderedDict((kk, v[kk]) for kk in index)
+
+# Create an ordered dict (or ordered dicts) with the data from the DataFrame
+datadict = df3.to_dict()
+data = OrderedDict(sorted((k, to_odict(v)) for k, v in datadict.items()))
+
+# any of the following commented line is a valid HeatMap input
+#data = df3
+#data = df3.values.T
+#data = list(df3.values.T)
+
+hm = HeatMap(data, title="categorical heatmap, pd_input", filename="cat_heatmap.html")
 hm.width(1000).height(400).show()

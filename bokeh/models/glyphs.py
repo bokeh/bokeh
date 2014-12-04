@@ -75,15 +75,22 @@ class Gear(Glyph, LineProps, FillProps):
 class Image(Glyph):
     def __init__(self, **kwargs):
         if 'palette' in kwargs and 'color_mapper' in kwargs:
-            raise ValueError("Only one of 'palette' and 'color_mapper' may be specified")
+            raise ValueError("only one of 'palette' and 'color_mapper' may be specified")
 
         palette = kwargs.pop('palette', None)
-        if palette:
-            reserve_val = kwargs.pop('reserve_val', LinearColorMapper.reserve_val)
-            reserve_color = kwargs.pop('reserve_color', LinearColorMapper.reserve_color)
-            kwargs['color_mapper'] = LinearColorMapper(palette,
-                                                       reserve_val=reserve_val,
-                                                       reserve_color=reserve_color)
+        if palette is not None:
+            mapper = LinearColorMapper(palette)
+
+            reserve_val = kwargs.pop('reserve_val', None)
+            if reserve_val is not None:
+                mapper.reserve_val = reserve_val
+
+            reserve_color = kwargs.pop('reserve_color', None)
+            if reserve_color is not None:
+                mapper.reserve_color = reserve_color
+
+            kwargs['color_mapper'] = mapper
+
         super(Image, self).__init__(**kwargs)
 
     image = DataSpec
@@ -93,7 +100,7 @@ class Image(Glyph):
     dh = DataSpec
     dilate = Bool(False)
 
-    color_mapper = Instance(HasProps) # LinearColorMapper but circular import
+    color_mapper = Instance(LinearColorMapper)
 
 class ImageRGBA(Glyph):
     image = DataSpec
@@ -186,3 +193,5 @@ class Wedge(Glyph, FillProps, LineProps):
     start_angle = DataSpec
     end_angle = DataSpec
     direction = Enum(Direction)
+
+from .markers import * # XXX: allow `from bokeh.models.glyphs import *`

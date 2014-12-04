@@ -1,6 +1,9 @@
-import logging
-from ..settings import settings as bokeh_settings
 import uuid
+import logging
+
+import zmq
+
+from ..settings import settings as bokeh_settings
 
 class Settings(object):
     ip = "0.0.0.0"
@@ -17,8 +20,8 @@ class Settings(object):
     # model_backend = {'type' : shelve}
     filter_logs = False
     ws_conn_string = None
-    pub_zmqaddr = "ipc:///tmp/bokeh_in"
-    sub_zmqaddr = "ipc:///tmp/bokeh_out"
+    pub_zmqaddr = "inproc://bokeh_in"
+    sub_zmqaddr = "inproc://bokeh_out"
     debug = False
     dev = False
     splitjs = False
@@ -27,6 +30,13 @@ class Settings(object):
     run_forwarder = True
     secret_key = str(uuid.uuid4())
     _debugjs = False
+    _ctx = None
+
+    @property
+    def ctx(self):
+        if self._ctx is None or self._ctx.closed:
+            self._ctx = zmq.Context()
+        return self._ctx
 
     @property
     def debugjs(self):
@@ -47,11 +57,6 @@ class Settings(object):
         self.ip = args.ip
         self.port = args.port
         self.data_directory = args.data_directory
-        import tempfile
-        infile = tempfile.NamedTemporaryFile(prefix="bokeh-ws-in").name
-        outfile = tempfile.NamedTemporaryFile(prefix="bokeh-ws-in").name
-        self.pub_zmqaddr = "ipc://%s" % infile
-        self.sub_zmqaddr = "ipc://%s" % outfile
         self.multi_user = args.multi_user
         self.model_backend = {'type' : args.backend}
         if self.model_backend['type'] == 'redis':

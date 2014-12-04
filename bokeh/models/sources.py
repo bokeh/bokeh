@@ -28,8 +28,8 @@ class ColumnDataSource(DataSource):
     # Maps field/column name to a DataRange or FactorRange object. If the
     # field is not in the dict, then a range is created automatically.
     # TODO (bev) completely unused AFAIK but need to verify before removal
-    cont_ranges = Dict(String, Instance(".objects.Range"))
-    discrete_ranges = Dict(String, Instance(".objects.Range"))
+    cont_ranges = Dict(String, Instance(".models.Range"))
+    discrete_ranges = Dict(String, Instance(".models.Range"))
 
     def __init__(self, *args, **kw):
         """ Modify the basic DataSource/PlotObj constructor so that if we
@@ -97,6 +97,19 @@ class ColumnDataSource(DataSource):
         except (ValueError, KeyError):
             import warnings
             warnings.warn("Unable to find column '%s' in data source" % name)
+
+    def push_notebook(self):
+        from IPython.core import display
+        from bokeh.protocol import serialize_json
+        id = self.ref['id']
+        model = self.ref['type']
+        json = serialize_json(self.vm_serialize())
+        js = """
+            var ds = Bokeh.Collections('{model}').get('{id}');
+            var data = {json};
+            ds.set(data);
+        """.format(model=model, id=id, json=json)
+        display.display_javascript(js, raw=True)
 
 class ServerDataSource(DataSource):
     data_url = String()

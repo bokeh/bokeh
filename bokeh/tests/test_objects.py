@@ -6,11 +6,11 @@ from six.moves import xrange
 import copy
 
 def large_plot(n):
-    from bokeh.objects import (Plot, PlotContext, LinearAxis, Grid, GlyphRenderer,
+    from bokeh.models import (Plot, PlotContext, LinearAxis, Grid, GlyphRenderer,
         ColumnDataSource, DataRange1d, PanTool, WheelZoomTool, BoxZoomTool,
         BoxSelectTool, BoxSelectionOverlay, ResizeTool, PreviewSaveTool,
         ResetTool)
-    from bokeh.glyphs import Line
+    from bokeh.models.glyphs import Line
 
     context = PlotContext()
     objects = set([context])
@@ -79,7 +79,7 @@ class TestCollectPlotObjects(unittest.TestCase):
 class TestPlotObject(unittest.TestCase):
 
     def setUp(self):
-        from bokeh.objects import PlotObject
+        from bokeh.models import PlotObject
         self.pObjectClass = PlotObject
 
     def test_init(self):
@@ -114,7 +114,7 @@ class TestPlotObject(unittest.TestCase):
         self.assertEqual(obj.min_border, 100)
 
     def test_references_by_ref_by_value(self):
-        from bokeh.objects import PlotObject
+        from bokeh.models import PlotObject
         from bokeh.properties import HasProps, Instance, Int
 
         class T(PlotObject):
@@ -148,7 +148,7 @@ class TestPlotObject(unittest.TestCase):
         self.assertEqual(x2.references(), {t1, y, t2, z2, x2})
 
     def test_references_in_containers(self):
-        from bokeh.objects import PlotObject
+        from bokeh.models import PlotObject
         from bokeh.properties import Int, String, Instance, List, Tuple, Dict
 
         # XXX: can't use Y, because of:
