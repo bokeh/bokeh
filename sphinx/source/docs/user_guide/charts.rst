@@ -158,7 +158,7 @@ Let see some examples using different kind of inputs:
 
 
 As you can see, in the first three cases, we inferred the ``x`` and ``y``
-labels from the pandas object, so don't need to specify them by yourself. This is
+labels from the received object, so don't need to specify them by yourself. This is
 done whenever possible. The following image shows the result:
 
 .. image:: /_images/charts_scatter_w_labels.png
