@@ -29,7 +29,7 @@ def applet():
     return render_template(
         "stocks.html",
         app_url = bokeh_url + "/bokeh/jsgenerate/VBox/StockApp/StockApp",
-        app_tag = applet.tag
+        app_tag = applet._tag
     )
 
 if __name__ == "__main__":

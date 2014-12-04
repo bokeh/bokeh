@@ -81,10 +81,6 @@ class StockApp(VBox):
         super(StockApp, self).__init__(*args, **kwargs)
         self._dfs = {}
 
-    @property
-    def tag(self):
-        return self._tag
-
     @classmethod
     def create(cls):
         """
