@@ -140,40 +140,6 @@ class Document(object):
         """
         return self._current_plot;
 
-    annular_wedge     = gf.annular_wedge
-    annulus           = gf.annulus
-    arc               = gf.arc
-    asterisk          = gf.asterisk
-    bezier            = gf.bezier
-    circle            = gf.circle
-    circle_cross      = gf.circle_cross
-    circle_x          = gf.circle_x
-    cross             = gf.cross
-    diamond           = gf.diamond
-    diamond_cross     = gf.diamond_cross
-    image             = gf.image
-    image_rgba        = gf.image_rgba
-    image_url         = gf.image_url
-    inverted_triangle = gf.inverted_triangle
-    line              = gf.line
-    multi_line        = gf.multi_line
-    oval              = gf.oval
-    patch             = gf.patch
-    patches           = gf.patches
-    quad              = gf.quad
-    quadratic         = gf.quadratic
-    ray               = gf.ray
-    rect              = gf.rect
-    segment           = gf.segment
-    square            = gf.square
-    square_cross      = gf.square_cross
-    square_x          = gf.square_x
-    text              = gf.text
-    triangle          = gf.triangle
-    wedge             = gf.wedge
-    x                 = gf.x
-
-
     # functions for adding objects to documents
 
     def add(self, *objects):
