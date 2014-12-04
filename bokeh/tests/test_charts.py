@@ -13,10 +13,14 @@
 # Imports
 #-----------------------------------------------------------------------------
 
+from collections import OrderedDict
+
 import unittest
 from mock import patch
+import numpy as np
+import pandas as pd
 
-from ..charts import Chart, ChartObject
+from ..charts import Chart, ChartObject, DataAdapter, Area
 from ..models.glyphs import Circle
 from ..models import (ColumnDataSource, Grid, GlyphRenderer, Legend, LinearAxis,
                       PanTool, Range1d, Ticker, Text, Wedge, AnnularWedge)
@@ -357,11 +361,7 @@ class TestChartObject(unittest.TestCase):
         self.assertFalse(test_chart_created.server)
         self.assertFalse(test_chart_created.notebook)
 
-    # The following tests would test chart wrapping functions,
-    # but I am not sure if repeat all the things because we tests
-    # the specific charts functions above, inside the TestChart class.
-    # I have also commentining out to avoid spurious test count.
-
+    # The following tests would test chart wrapping functions
     @patch('bokeh.charts._charts.Chart.start_plot')
     def test_start_plot(self, mocked):
         self.chart_object.check_attr()
@@ -394,24 +394,6 @@ class TestChartObject(unittest.TestCase):
         self.chart_object.show_chart()
         self.chart_object.chart.show.assert_called_once_with()
 
-    #def test_get_data(self):
-        #pass
-
-    #def test_get_source(self):
-        #pass
-
-    #def test_add_data_plot(self):
-        #pass
-
-    #def test_draw(self):
-        #pass
-
-    #def test_end_plot(self):
-        #pass
-
-    #def test_show_chart(self):
-        #pass
-
     def test_chunker(self):
         chunk = self.chart_object._chunker(range(5), 2)
         chunk_list = list(chunk)
@@ -423,3 +405,126 @@ class TestChartObject(unittest.TestCase):
                            "#00ad9c", "#c33ff3", "#f22c40"]
         colors = self.chart_object._set_colors(range(7))
         self.assertListEqual(expected_colors, colors)
+
+class TestArea(unittest.TestCase):
+
+    def setUp(self):
+        pass
+        #self.chart_object = Area(title="title", xlabel="xlabel", ylabel="ylabel",
+        #                        legend="top_left", xscale="linear", yscale="linear",
+        #                        width=800, height=600, tools=True,
+        #                        filename=False, server=False, notebook=False,
+        #                        facet=False, palette=["#FFFFFF", "#000000"])
+
+    def create_chart(self, values, index=None, stacked=False):
+        return Area(
+            values, index=index, title="title", xlabel="xlabel", ylabel="ylabel",
+            legend="top_left", xscale="linear", yscale="linear",
+            width=800, height=600, tools=True,
+            filename=False, server=False, notebook=False,
+            facet=False, stacked=stacked
+        )
+
+    def test_supported_input(self):
+        xyvalues = OrderedDict(
+                python=[2, 3, 7, 5, 26],
+                pypy=[12, 33, 47, 15, 126],
+                jython=[22, 43, 10, 25, 26],
+            )
+
+
+        data_keys = ['x', 'y_jython', 'y_pypy', 'y_python']
+        for _xy in [xyvalues, dict(xyvalues), pd.DataFrame(xyvalues)]:
+            area = self.create_chart(_xy)
+            area._setup_show()
+            area._prepare_show()
+            area._show_teardown()
+
+            self.assertEqual(area.groups, xyvalues.keys())
+            #self.assertIsInstance(area.values, DataAdapter)
+            zeros = np.zeros(5)
+            self.assertListEqual(sorted(area.data.keys()), data_keys)
+            np.testing.assert_array_equal(area.data['x'], np.array([4,3,2,1,0,0,1,2,3,4]))
+            np.testing.assert_array_equal(
+                area.data['y_jython'], np.hstack((zeros, np.array(xyvalues['jython'])))
+            )
+            np.testing.assert_array_equal(
+                area.data['y_pypy'], np.hstack((zeros, np.array(xyvalues['pypy'])))
+            )
+            np.testing.assert_array_equal(
+                area.data['y_python'], np.hstack((zeros, np.array(xyvalues['python'])))
+            )
+
+        data_keys = ['x', 'y_0', 'y_1', 'y_2']
+        for _xy in [xyvalues.values(), np.array(xyvalues.values())]:
+            area = self.create_chart(_xy)
+            area._setup_show()
+            area._prepare_show()
+            area._show_teardown()
+
+            self.assertEqual(area.groups, ['0', '1', '2'])
+            #self.assertIsInstance(area.values, DataAdapter)
+            zeros = np.zeros(5)
+            self.assertListEqual(sorted(area.data.keys()), data_keys)
+            np.testing.assert_array_equal(area.data['x'], np.array([4,3,2,1,0,0,1,2,3,4]))
+            np.testing.assert_array_equal(
+                area.data['y_0'], np.hstack((zeros, np.array(_xy[0])))
+            )
+            np.testing.assert_array_equal(
+                area.data['y_1'], np.hstack((zeros, np.array(_xy[1])))
+            )
+            np.testing.assert_array_equal(
+                area.data['y_2'], np.hstack((zeros, np.array(_xy[2])))
+            )
+
+    def test_supported_input_stacked(self):
+        xyvalues = OrderedDict(
+                python=[2, 3, 7, 5, 26],
+                pypy=[12, 33, 47, 15, 126],
+                jython=[22, 43, 10, 25, 26],
+            )
+
+
+        data_keys = ['x', 'y_jython', 'y_pypy', 'y_python']
+        for _xy in [xyvalues, dict(xyvalues), pd.DataFrame(xyvalues)]:
+            area = self.create_chart(_xy, stacked=True)
+            area._setup_show()
+            area._prepare_show()
+            area._show_teardown()
+
+            self.assertEqual(area.groups, xyvalues.keys())
+            #self.assertIsInstance(area.values, DataAdapter)
+            zeros = np.zeros(5)
+            self.assertListEqual(sorted(area.data.keys()), data_keys)
+            np.testing.assert_array_equal(area.data['x'], np.array([4,3,2,1,0,0,1,2,3,4]))
+            np.testing.assert_array_equal(
+                area.data['y_jython'], np.hstack((zeros, np.array(xyvalues['jython'])))
+            )
+            np.testing.assert_array_equal(
+                area.data['y_pypy'], np.hstack((zeros, np.array(xyvalues['pypy'])))
+            )
+            np.testing.assert_array_equal(
+                area.data['y_python'], np.hstack((zeros, np.array(xyvalues['python'])))
+            )
+
+        data_keys = ['x', 'y_0', 'y_1', 'y_2']
+        for _xy in [xyvalues.values(), np.array(xyvalues.values())]:
+            area = self.create_chart(_xy)
+            area._setup_show()
+            area._prepare_show()
+            area._show_teardown()
+
+            self.assertEqual(area.groups, ['0', '1', '2'])
+            #self.assertIsInstance(area.values, DataAdapter)
+            zeros = np.zeros(5)
+            self.assertListEqual(sorted(area.data.keys()), data_keys)
+            np.testing.assert_array_equal(area.data['x'], np.array([4,3,2,1,0,0,1,2,3,4]))
+            np.testing.assert_array_equal(
+                area.data['y_0'], np.hstack((zeros, np.array(_xy[0])))
+            )
+            np.testing.assert_array_equal(
+                area.data['y_1'], np.hstack((zeros, np.array(_xy[1])))
+            )
+            np.testing.assert_array_equal(
+                area.data['y_2'], np.hstack((zeros, np.array(_xy[2])))
+            )
