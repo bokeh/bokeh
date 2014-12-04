@@ -58,33 +58,6 @@ class TestDocument(unittest.TestCase):
         self.assertEqual(d.autostore, False)
         self.assertRaises(TypeError, setattr, d, "autostore", "foo")
 
-    def test_curplot(self):
-        d = document.Document()
-        self.assertEqual(d.curplot(), None)
-        p = d.circle([1], [2])
-        self.assertEqual(d.curplot(), p)
-        p2 = d.line([1], [2])
-        self.assertEqual(d.curplot(), p2)
-
-    def test_hold(self):
-        d = document.Document()
-        self.assertEqual(d.curplot(), None)
-        d.hold()
-        p = d.circle([1], [2])
-        self.assertEqual(d.curplot(), p)
-        d.line([1], [2])
-        self.assertEqual(d.curplot(), p)
-
-    def test_figure(self):
-        d = document.Document()
-        self.assertEqual(d.curplot(), None)
-        d.hold()
-        p = d.circle([1], [2])
-        self.assertEqual(d.curplot(), p)
-        d.figure()
-        p2 = d.line([1], [2])
-        self.assertEqual(d.curplot(), p2)
-
     def test_add(self):
         d = document.Document()
         p = circle([1], [2])
