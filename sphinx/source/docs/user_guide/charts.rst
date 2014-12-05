@@ -391,19 +391,158 @@ TimeSeries
 
 Here you can find a summary table that makes it easier to group and visualize those differences:
 
-==========  ==========  ===========  ==========  ==========  ============  ==========  ==========  ===========  ==========  ==========  ===========
-Argument    Area        Bar           BoxPlot     HeatMap     Donut         Dot         Histogram   Line         Scatter     Step        TimeSeries
-==========  ==========  ===========  ==========  ==========  ============  ==========  ==========  ===========  ==========  ==========  ===========
-values      Yes         Yes           Yes         Yes         Yes           Yes         Yes         Yes           *Yes*        Yes         Yes
-index       Yes         No            No          No          No            No          No          Yes           No          Yes         Yes
-cat         No          Yes           No          Yes         No            Yes         No          No            No          No          No
-facet       Yes         Yes           No          No          No            Yes         Yes         Yes           Yes         Yes         Yes
-stacked     Yes         Yes           No          No          No            No          No          No            No          No          No
-pallette    No          No            No          Yes         No            No          No          No            No          No          No
-bins        No          No            No          No          No            No          Yes         No            No          No          No
-mu          No          No            No          No          No            No          Yes         No            No          No          No
-sigma       No          No            No          No          No            No          Yes         No            No          No          No
-==========  ==========  ===========  ==========  ==========  ============  ==========  ==========  ===========  ==========  ==========  ===========
+.. raw:: html
+
+    <table border="0" class="table">
+        <colgroup>
+        <col width="8%">
+        <col width="8%">
+        <col width="9%">
+        <col width="8%">
+        <col width="8%">
+        <col width="10%">
+        <col width="8%">
+        <col width="8%">
+        <col width="9%">
+        <col width="8%">
+        <col width="8%">
+        <col width="9%">
+        </colgroup>
+        <thead valign="bottom">
+        <tr class="row-odd"><th class="head">Argument</th>
+        <th class="head">Area</th>
+        <th class="head">Bar</th>
+        <th class="head">BoxPlot</th>
+        <th class="head">HeatMap</th>
+        <th class="head">Donut</th>
+        <th class="head">Dot</th>
+        <th class="head">Histogram</th>
+        <th class="head">Line</th>
+        <th class="head">Scatter</th>
+        <th class="head">Step</th>
+        <th class="head">TimeSeries</th>
+        </tr>
+        </thead>
+        <tbody valign="top">
+        <tr class="row-even"><td>values</td>
+        <td bgcolor="#D4F5CE">Yes</td>
+        <td bgcolor="#D4F5CE">Yes</td>
+        <td bgcolor="#D4F5CE">Yes</td>
+        <td bgcolor="#D4F5CE">Yes</td>
+        <td bgcolor="#D4F5CE">Yes</td>
+        <td bgcolor="#D4F5CE">Yes</td>
+        <td bgcolor="#D4F5CE">Yes</td>
+        <td bgcolor="#D4F5CE">Yes</td>
+        <td bgcolor="#D4F5CE"><em>Yes</em></td>
+        <td bgcolor="#D4F5CE">Yes</td>
+        <td bgcolor="#D4F5CE">Yes</td>
+        </tr>
+        <tr class="row-odd"><td>index</td>
+        <td bgcolor="#D4F5CE">Yes</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#D4F5CE">Yes</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#D4F5CE">Yes</td>
+        <td bgcolor="#D4F5CE">Yes</td>
+        </tr>
+        <tr class="row-even"><td>cat</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#D4F5CE">Yes</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#D4F5CE">Yes</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#D4F5CE">Yes</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        </tr>
+        <tr class="row-odd"><td>facet</td>
+        <td bgcolor="#D4F5CE">Yes</td>
+        <td bgcolor="#D4F5CE">Yes</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#D4F5CE">Yes</td>
+        <td bgcolor="#D4F5CE">Yes</td>
+        <td bgcolor="#D4F5CE">Yes</td>
+        <td bgcolor="#D4F5CE">Yes</td>
+        <td bgcolor="#D4F5CE">Yes</td>
+        <td bgcolor="#D4F5CE">Yes</td>
+        </tr>
+        <tr class="row-even"><td>stacked</td>
+        <td bgcolor="#D4F5CE">Yes</td>
+        <td bgcolor="#D4F5CE">Yes</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        </tr>
+        <tr class="row-odd"><td>pallette</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#D4F5CE">Yes</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        </tr>
+        <tr class="row-even"><td>bins</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#D4F5CE">Yes</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        </tr>
+        <tr class="row-odd"><td>mu</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#D4F5CE">Yes</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        </tr>
+        <tr class="row-even"><td>sigma</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#D4F5CE">Yes</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        </tr>
+        </tbody>
+    </table>
 
 .. note:: Scatter values are supposed to be iterables of coupled values. I.e.: ``[[(1, 20), ..., (200, 21)], ..., [(1, 12),... (200, 19)]]``
 
