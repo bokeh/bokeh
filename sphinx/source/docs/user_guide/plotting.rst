@@ -7,16 +7,14 @@ Basic Plotting
     :local:
     :depth: 2
 
-.. warning::
-    The basic plotting interface was originally conceived as a stateful,
-    Matlab-style interface. After some experience, it is evident that this
-    kind of interface is not ideal, especially in conjunction with the IPython
-    Notebook. While most of the material in this section will remain unaffected,
-    some aspects of this ``plotting.py`` interface will change in an upcoming
-    Bokeh releases.
-
 At a Glance
 -----------
+
+.. warning::
+    The plotting api was recently changed as of version 0.7. Some old functions (for
+    instance, ``hold``) are now deprecated but still function. They will be completely
+    removed in the next release. Usng  ``python -Wd`` when running Bokeh code will enable
+    printing of deprecation warnings.
 
 To access the ``plotting.py`` interface:
 
@@ -38,7 +36,7 @@ To select an output mode:
     # They can also be saved to file
     bk.output_file("output_filename.html", title="Hello World!")
 
-To create a new Bokeh plot (with optional plot parameters) use the `figure` function:
+To create a new Bokeh plot (with optional plot parameters) use the ``figure`` function:
 
 .. code-block:: python
 
@@ -46,7 +44,7 @@ To create a new Bokeh plot (with optional plot parameters) use the `figure` func
                   plot_height=600,
                   title="Hello World!")
 
-The plot objects returned by `figure` have methods on them for plotting all the different kinds of glyphs. A simple and common glyph is the line:
+The plot objects returned by ``figure`` have methods on them for plotting all the different kinds of glyphs. A simple and common glyph is the line:
 
 .. code-block:: python
 
@@ -59,7 +57,7 @@ The plot objects returned by `figure` have methods on them for plotting all the 
 
     At the moment, the glyph functions are vectorized by default.
     If you want to plot a single glyph, you will still have to pass in
-    the parameters as a list. For example: ``bk.circle([0], [0], radius=[1])``.
+    the parameters as a list. For example: ``p.circle([0], [0], radius=[1])``.
 
 To add subsequent glyphs on the same plot, use glyph methods on that plot:
 
@@ -73,16 +71,13 @@ To save a plot to file:
 .. code-block:: python
 
     # Assuming you have already declared `output_file()` above
-    bk.save(p)
+    bk.save(obj=p)
 
 To show a plot:
 
 .. code-block:: python
 
     bk.show(p)
-
-.. note: The plotting api was recently changed, some old function (for instance, ``hold``)
-are now deprecated but they still works on this release. It will be completely removed in the next releases.
 
 In Depth
 --------
@@ -125,50 +120,50 @@ to see all the glyphs that are currently supported, and to the
 `Glyph Functions <http://bokeh.pydata.org/docs/reference.html#glyphs-functions>`_
 section to see how they are configured for the ``plotting.py`` interface.
 
-N.B.: Placement syntax is *not* uniform across glyphs — for example,
-a ``rect`` glyph requires x- and y-coordinates (to define the center point)
-as well as ``width`` and ``height`` parameters, while the ``quad`` glyph
-takes a parameter each for the ``left``, ``right``, ``top``, and ``bottom``
-sides of a quadrangle:
+.. note::
+    Parameters are *not* completely uniform across glyphs. for example, a ``rect``
+    glyph requires x- and y-coordinates (to define the center point) as well as
+    ``width`` and ``height`` parameters, while the ``quad`` glyph takes a parameter
+    each for the ``left``, ``right``, ``top``, and ``bottom`` sides of a ``quad``:
 
 .. code-block:: python
 
     zeros = [0] * len(xs)
     ones = [1] * len(xs)
 
-    bk.rect(xs,    # x-coordinates
-             ys,    # y-coordinates
-             ones,  # widths
-             ones,  # heights
-             fill_color="steelblue")
+    p.rect(xs,    # x-coordinates
+           ys,    # y-coordinates
+           ones,  # widths
+           ones,  # heights
+           fill_color="steelblue")
 
-    bk.quad(xs[:-1],    # left
-             xs[1:],     # right
-             ys[:-1],    # top
-             ones[:-1],  # bottom
-             fill_color="crimson")
+    p.quad(xs[:-1],    # left
+           xs[1:],     # right
+           ys[:-1],    # top
+           ones[:-1],  # bottom
+           fill_color="crimson")
 
 Each glyph also has a number of styling properties (see :ref:`userguide_objects_styling`),
 with the associated prefixes ``line_``, ``fill_``, and ``text_``:
 
 .. code-block:: python
 
-    bk.circle(xs, ys,
-               size=ys, # px
-               fill_alpha=0.5,
-               fill_color="steelblue",
-               line_alpha=0.8,
-               line_color="crimson")
+    p.circle(xs, ys,
+             size=ys, # px
+             fill_alpha=0.5,
+             fill_color="steelblue",
+             line_alpha=0.8,
+             line_color="crimson")
 
 
 Many glyphs have both line and fill properties that can be set in unison by dropping the prefix:
 
 .. code-block:: python
 
-    bk.circle(xs, ys,
-               size=ys, # px
-               alpha=0.5,
-               color="steelblue")
+    p.circle(xs, ys,
+             size=ys, # px
+             alpha=0.5,
+             color="steelblue")
 
 Output
 ~~~~~~
@@ -180,13 +175,13 @@ To save the current plots to file:
 .. code-block:: python
 
     # If you have already declared `output_file()` above
-    bk.save()
+    bk.save(obj=p)
 
     # Else, specify the filename
-    bk.save(filename="output_filename.html")
+    bk.save(p, filename="output_filename.html")
 
 To show a plot:
 
 .. code-block:: python
 
-    bk.show()
+    bk.show(p)
