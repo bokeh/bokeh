@@ -11,6 +11,8 @@ sizes = np.linspace(10, 20, N)
 xpts = np.array([-.09, -.12, .0, .12, .09])
 ypts = np.array([-.1, .02, .1, .02, -.1])
 
+output_file("glyphs.html", title="glyphs.py example")
+
 vbox = VBox()
 
 p = figure(title="annular_wedge")
@@ -136,5 +138,4 @@ p.scatter(x, y, marker="circle_cross", size=sizes, color="#FB8072",
     fill_color=None, line_width=2)
 vbox.children.append(p)
 
-output_file("glyphs.html", title="glyphs.py example")
 show(vbox)  # open a browser

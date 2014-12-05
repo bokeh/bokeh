@@ -7,6 +7,8 @@ N = 80
 x = np.linspace(0, 4*np.pi, N)
 y = np.sin(x)
 
+output_file("rect.html", title="rect.py example")
+
 # fixed width and height
 p1 = figure(title="width/height screen units")
 p1.rect(x, y, 6, 4, color="tomato",
@@ -23,5 +25,4 @@ a = -np.pi/6
 p3 = figure(title="angle")
 p3.rect(x, y, 0.1, 0.1, alpha=0.5, color="navy", angle=a)
 
-output_file("rect.html", title="rect.py example")
 show(VBox(p1, p2, p3))

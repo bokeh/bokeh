@@ -6,6 +6,8 @@ N = 100
 
 x = np.linspace(0.1, 5, N)
 
+output_file("logplot.html", title="log axis example")
+
 p = figure(title="log axis example",
     y_axis_type="log", y_range=[0.001, 10**22])
 
@@ -29,5 +31,4 @@ p.line(x, 10**(x**2), line_color="coral", line_dash="dashed",
     line_width=2, legend="y=10^(x^2)")
 
 
-output_file("logplot.html", title="log axis example")
 show(p)  # open a browser

@@ -26,6 +26,8 @@ for county_id in us_counties.data:
     except KeyError:
         county_colors.append("black")
 
+output_file("texas.html", title="texas.py example")
+
 TOOLS="pan,wheel_zoom,box_zoom,reset,hover,save"
 
 p = figure(title="Texas Unemployment 2009", tools=TOOLS)
@@ -42,5 +44,4 @@ hover.tooltips = OrderedDict([
     ("fill color", "$color[hex, swatch]:fill_color"),
 ])
 
-output_file("texas.html", title="texas.py example")
 show(p)

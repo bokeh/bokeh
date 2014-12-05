@@ -36,6 +36,8 @@ source = ColumnDataSource(
     data=dict(month=month, year=year, color=color, rate=rate)
 )
 
+output_file('unemployment.html')
+
 TOOLS = "resize,hover,save"
 
 p = figure(title="US Unemployment (1948 - 2013)",
@@ -60,5 +62,4 @@ hover.tooltips = OrderedDict([
     ('rate', '@rate'),
 ])
 
-output_file('unemployment.html')
 show(p)      # show the plot

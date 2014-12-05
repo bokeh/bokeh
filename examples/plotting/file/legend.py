@@ -7,6 +7,8 @@ N = 100
 x = np.linspace(0, 4*np.pi, N)
 y = np.sin(x)
 
+output_file("legend.html", title="legend.py example")
+
 TOOLS = "pan,wheel_zoom,box_zoom,reset,save,box_select"
 
 p1 = figure(title="Legend Example", tools=TOOLS)
@@ -28,6 +30,4 @@ p2.square(x, 3*y, legend="3*sin(x)",
 p2.line(x, 3*y, legend="3*sin(x)",
     fill_color=None, line_color="green")
 
-output_file("legend.html", title="legend.py example")
 show(VBox(p1, p2))  # open a browser
-

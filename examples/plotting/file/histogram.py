@@ -5,6 +5,7 @@ import scipy.special
 
 from bokeh.plotting import *
 
+output_file('histogram.html')
 
 p1 = figure(title="Normal Distribution (μ=0, σ=0.5)",tools="save",
        background_fill="#E8DDCB")
@@ -121,5 +122,4 @@ p5.yaxis.axis_label = 'Pr(x)'
 
 
 
-output_file('histogram.html')
 show(VBox(p1,p2,p3,p4,p5))
