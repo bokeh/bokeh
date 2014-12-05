@@ -23,8 +23,8 @@ To access the ``plotting.py`` interface:
 .. code-block:: python
 
     # Clean alias
-    import bokeh.plotting as bk  
-    
+    import bokeh.plotting as bk
+
     # Alternatively, import plotting functions into the namespace
     from bokeh.plotting import *
 
@@ -38,28 +38,22 @@ To select an output mode:
     # They can also be saved to file
     bk.output_file("output_filename.html", title="Hello World!")
 
-To declare a new Bokeh plot (with optional plot parameters):
+To create a new Bokeh plot (with optional plot parameters) is use the `figure` function:
 
 .. code-block:: python
 
-    bk.figure(plot_width=600, # in units of px
-               plot_height=600,
-               title="Hello World!")
+    p = bk.figure(plot_width=600, # in units of px
+                  plot_height=600,
+                  title="Hello World!")
 
-To plot subsequent glyphs on the same plot:
-
-.. code-block:: python
-
-    bk.hold()
-
-A simple and common glyph is the line:
+The plot objects returned by `figure` have methods on them for plotting all the different kinds of glyphs. A simple and common glyph is the line:
 
 .. code-block:: python
-    
+
     xs = [0,1,2,3,4,5]
     ys = [x**2 for x in xs]
-    
-    bk.line(xs, ys, line_width=2)
+
+    p.line(xs, ys, line_width=2)
 
 .. note::
 
@@ -67,18 +61,25 @@ A simple and common glyph is the line:
     If you want to plot a single glyph, you will still have to pass in
     the parameters as a list. For example: ``bk.circle([0], [0], radius=[1])``.
 
+To add subsequent glyphs on the same plot, use glyph methods on that plot:
+
+.. code-block:: python
+
+    p.rect(x, y, w, h)
+    p.circle(x, y)
+
 To save a plot to file:
 
 .. code-block:: python
-    
+
     # Assuming you have already declared `output_file()` above
-    bk.save()
+    bk.save(p)
 
 To show a plot:
 
 .. code-block:: python
 
-    bk.show()
+    bk.show(p)
 
 
 In Depth
@@ -149,7 +150,7 @@ Each glyph also has a number of styling properties (see :ref:`userguide_objects_
 with the associated prefixes ``line_``, ``fill_``, and ``text_``:
 
 .. code-block:: python
-    
+
     bk.circle(xs, ys,
                size=ys, # px
                fill_alpha=0.5,
@@ -175,7 +176,7 @@ Bokeh plots can be saved to file, persisted to the server, or displayed inline i
 To save the current plots to file:
 
 .. code-block:: python
-    
+
     # If you have already declared `output_file()` above
     bk.save()
 
