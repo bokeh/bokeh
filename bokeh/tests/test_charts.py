@@ -20,7 +20,8 @@ from mock import patch
 import numpy as np
 import pandas as pd
 
-from ..charts import Chart, ChartObject, DataAdapter, Area
+from ..charts import (Chart, ChartObject, DataAdapter, Area, Bar, Dot, Donut,
+                      Line, HeatMap, Histogram, Scatter, Step, TimeSeries)
 from ..models.glyphs import Circle
 from ..models import (ColumnDataSource, Grid, GlyphRenderer, Legend, LinearAxis,
                       PanTool, Range1d, Ticker, Text, Wedge, AnnularWedge)
@@ -435,7 +436,7 @@ class TestArea(unittest.TestCase):
             area._prepare_show()
             area._show_teardown()
 
-            self.assertEqual(area.groups, xyvalues.keys())
+            self.assertEqual(sorted(area.groups), sorted(list(xyvalues.keys())))
 
             zeros = np.zeros(5)
             self.assertListEqual(sorted(area.data.keys()), data_keys)
@@ -451,7 +452,8 @@ class TestArea(unittest.TestCase):
             )
 
         data_keys = ['x', 'y_0', 'y_1', 'y_2']
-        for _xy in [xyvalues.values(), np.array(xyvalues.values())]:
+        lvalues = list(xyvalues.values())
+        for _xy in [lvalues, np.array(lvalues)]:
             area = self.create_chart(_xy)
             area._setup_show()
             area._prepare_show()
@@ -471,3 +473,52 @@ class TestArea(unittest.TestCase):
             np.testing.assert_array_equal(
                 area.data['y_2'], np.hstack((zeros, np.array(_xy[2])))
             )
+
+
+class TestBar(unittest.TestCase):
+
+    def setUp(self):
+        pass
+
+    def create_chart(self, values, cat=None, stacked=False):
+        return Bar(
+            values, cat=cat, title="title", xlabel="xlabel", ylabel="ylabel",
+            legend="top_left", xscale="linear", yscale="linear",
+            width=800, height=600, tools=True,
+            filename=False, server=False, notebook=False,
+            facet=False, stacked=stacked
+        )
+
+    def test_supported_input(self):
+        xyvalues = OrderedDict(
+                python=[2, 5],
+                pypy=[12, 40],
+                jython=[22, 30],
+            )
+
+        for i, _xy in enumerate([xyvalues, dict(xyvalues), pd.DataFrame(xyvalues)]):
+            bar = self.create_chart(_xy)
+            bar._setup_show()
+            bar._prepare_show()
+            bar._show_teardown()
+
+            np.testing.assert_array_equal(bar.data['pypy'], np.array(xyvalues['pypy']))
+            np.testing.assert_array_equal(bar.data['python'], np.array(xyvalues['python']))
+            np.testing.assert_array_equal(bar.data['jython'], np.array(xyvalues['jython']))
+            np.testing.assert_array_equal(bar.data['cat'], np.array(['0', '1']))
+            np.testing.assert_array_equal(bar.data['width'], np.array([0.8, 0.8]))
+            np.testing.assert_array_equal(bar.data['width_cat'], np.array([0.2, 0.2]))
+
+        lvalues = [[2, 5], [12, 40], [22, 30]]
+        for i, _xy in enumerate([lvalues, np.array(lvalues)]):
+            bar = self.create_chart(_xy)
+            bar._setup_show()
+            bar._prepare_show()
+            bar._show_teardown()
+
+            np.testing.assert_array_equal(bar.data['0'], np.array(lvalues[0]))
+            np.testing.assert_array_equal(bar.data['1'], np.array(lvalues[1]))
+            np.testing.assert_array_equal(bar.data['2'], np.array(lvalues[2]))
+            np.testing.assert_array_equal(bar.data['cat'], np.array(['0', '1']))
+            np.testing.assert_array_equal(bar.data['width'], np.array([0.8, 0.8]))
+            np.testing.assert_array_equal(bar.data['width_cat'], np.array([0.2, 0.2]))
