@@ -19,14 +19,10 @@ def noop(*args, **kwargs):
 
 webbrowser.open = noop
 plotting.save = noop
-plotting.show = noop
-
-oldfig = plotting.figure
-def figure(*args, **kw):
-    f = oldfig(*args, **kw)
-    plotting.curdoc().context.children.append(f)
-    return f
-plotting.figure = figure
+def show(obj=None):
+    if obj:
+        plotting._obj = obj
+plotting.show = show
 
 def page_desc(module_desc):
     module_path, name = module_desc['file'], module_desc['name']
@@ -46,8 +42,7 @@ def page_desc(module_desc):
         else:
             objs = [namespace[var_name]]
     else:
-        objs = plotting.curdoc().context.children
-
+        objs = [plotting._obj]
     embed_snippet = ""
     for i, obj in enumerate(objs):
         filename = name + "." + str(i) + ".js"
