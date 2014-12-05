@@ -38,7 +38,7 @@ To select an output mode:
     # They can also be saved to file
     bk.output_file("output_filename.html", title="Hello World!")
 
-To create a new Bokeh plot (with optional plot parameters) is use the `figure` function:
+To create a new Bokeh plot (with optional plot parameters) use the `figure` function:
 
 .. code-block:: python
 
@@ -81,6 +81,8 @@ To show a plot:
 
     bk.show(p)
 
+.. note: The plotting api was recently changed, some old function (for instance, ``hold``)
+are now deprecated but they still works on this release. It will be completely removed in the next releases.
 
 In Depth
 --------
@@ -123,7 +125,7 @@ to see all the glyphs that are currently supported, and to the
 `Glyph Functions <http://bokeh.pydata.org/docs/reference.html#glyphs-functions>`_
 section to see how they are configured for the ``plotting.py`` interface.
 
-N.B.: Placement syntax is *not* uniform across glyphs—for example,
+N.B.: Placement syntax is *not* uniform across glyphs — for example,
 a ``rect`` glyph requires x- and y-coordinates (to define the center point)
 as well as ``width`` and ``height`` parameters, while the ``quad`` glyph
 takes a parameter each for the ``left``, ``right``, ``top``, and ``bottom``
