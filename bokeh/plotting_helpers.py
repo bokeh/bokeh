@@ -7,16 +7,15 @@ import re
 import difflib
 from six import string_types
 
-from . import glyphs
-
+from .models import glyphs
 from .models import (
     BoxSelectionOverlay, BoxSelectTool, BoxZoomTool, CategoricalAxis,
     ColumnDataSource, TapTool, CrosshairTool, DataRange1d, DatetimeAxis,
     FactorRange, Grid, HoverTool, LassoSelectTool, Legend, LinearAxis,
     LogAxis, PanTool, Plot, PolySelectTool,
     PreviewSaveTool, Range, Range1d, ResetTool, ResizeTool, Tool,
-    WheelZoomTool,
-)
+    WheelZoomTool)
+
 from .properties import ColorSpec, Datetime
 from .utils import nice_join
 import warnings
@@ -116,7 +115,7 @@ def _match_data_params(argnames, glyphclass, datasource, serversource,
             # both strings and certain iterables are valid colors.
             glyph_val = val
         elif isinstance(val, string_types):
-            if glyphclass == glyphs.Text:
+            if glyphclass == glyphs.Text: # XXX: issubclass()
                 # TODO (bev) this is hacky, now that text is a DataSpec, it has to be a sequence
                 glyph_val = [val]
             elif serversource is None and val not in datasource.column_names:
