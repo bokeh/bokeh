@@ -42,6 +42,9 @@ bronze_line = "#98715d"
 fill_color = { "gold": gold_fill, "silver": silver_fill, "bronze": bronze_fill }
 line_color = { "gold": gold_line, "silver": silver_line, "bronze": bronze_line }
 
+def selected_name(name, medal, year):
+    return name if medal == "gold" and year in [1988, 1968, 1936, 1896] else None
+
 t0 = sprint.Time[0]
 
 sprint["Abbrev"]       = sprint.Country
@@ -51,8 +54,7 @@ sprint["Speed"]        = 100.0/sprint.Time
 sprint["MetersBack"]   = 100.0*(1.0 - t0/sprint.Time)
 sprint["MedalFill"]    = sprint.Medal.map(lambda medal: fill_color[medal])
 sprint["MedalLine"]    = sprint.Medal.map(lambda medal: line_color[medal])
-sprint["SelectedName"] = sprint[["Name", "Medal", "Year"]].apply(tuple, axis=1) \
-    .map(lambda (name, medal, year): name if medal == "gold" and year in [1988, 1968, 1936, 1896] else None)
+sprint["SelectedName"] = sprint[["Name", "Medal", "Year"]].apply(tuple, axis=1).map(lambda args: selected_name(*args))
 
 source = ColumnDataSource(sprint)
 title = "Usain Bolt vs. 116 years of Olympic sprinters"
