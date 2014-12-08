@@ -393,6 +393,11 @@ REQUIRES = [
         # tests
         #'nose>=1.3.0',
         #'mock>=1.0.1',
+        #'flask-testing>=0.4.1',
+        #'selenium>=2.43,0',
+        #'selenium-server-standalone>=2.42.1',
+        #'selenium-chromedriver>=2.1',
+        #'phantomjs>=1.9.7'
         'colorama>=0.2.7'
     ]
 
@@ -449,7 +454,8 @@ setup(
         'bokeh.server.utils',
         'bokeh.server.tests',
         'bokeh.tests',
-        'bokeh.transforms'
+        'bokeh.transforms',
+        'bokeh.selenium.tests',
     ],
     package_data={'bokeh': package_data},
     author='Continuum Analytics',
