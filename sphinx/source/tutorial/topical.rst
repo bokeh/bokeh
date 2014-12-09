@@ -18,7 +18,7 @@ ticks on datetime axes. Here we will plot some stock data taken from the `Yahoo 
 .. literalinclude:: exercises/stocks.py
    :language: python
    :linenos:
-   :emphasize-lines: 22,24,25,35,37,47,48,50,52
+   :emphasize-lines: 30,31,39,41,51,52,54,56
 
 See the :doc:`solutions/gallery/stocks`.
 
@@ -41,7 +41,7 @@ coordinates for left, right, top, and bottom.
 .. literalinclude:: exercises/histogram.py
    :language: python
    :linenos:
-   :emphasize-lines: 19,21,33,49,62,63,64,65,66
+   :emphasize-lines: 19,52
 
 See the :doc:`solutions/gallery/histogram`.
 
@@ -55,7 +55,7 @@ Boxplots
 .. literalinclude:: exercises/boxplot.py
    :language: python
    :linenos:
-   :emphasize-lines: 35,37,44,50,58,60,61,62
+   :emphasize-lines: 38,53,59,67,69,70,71
 
 See the :doc:`solutions/gallery/boxplot`.
 
@@ -72,7 +72,7 @@ using Bokeh. This data may be obtained from `The Bureau of Labor Statistics <htt
 .. literalinclude:: exercises/unemployment.py
    :language: python
    :linenos:
-   :emphasize-lines: 34,36,38,40,41,42,43,44,45,56,57,58,59,60,62
+   :emphasize-lines: 33,43,50,51,52,53,54,55,57,58,59,60,61,63
 
 See the :doc:`solutions/gallery/unemployment`.
 
@@ -90,7 +90,7 @@ bar charts of medals won by country. The data for this exercise was obtained usi
 .. literalinclude:: exercises/olympics.py
    :language: python
    :linenos:
-   :emphasize-lines: 18,20,29,31,32,33,34,35,37,44,45,46,48,49,50,51,52
+   :emphasize-lines: 17,30,32,33,34,35,36,48,49,50,52,53,54,55,56
 
 See the :doc:`solutions/gallery/olympics`.
 
