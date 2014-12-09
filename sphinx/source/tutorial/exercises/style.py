@@ -48,15 +48,15 @@ p = figure(title="Categories of Brewering", background_fill="lightgrey",
 #   - fill_alpha
 
 # EXERCISE: configure all of the following plot properties
-p.ygrid.grid_line_color
-p.ygrid.grid_line_width
-p.axis.major_label_text_font_size
-p.axis.major_label_text_font_style
-p.axis.major_label_standoff                 # distance of tick labels from ticks
-p.axis.axis_line_color                      # color, or None, to suppress the line
-p.xaxis.major_label_orientation = np.pi/4   # radians, "horizontal", "vertical", "normal"
-p.xaxis.major_tick_in                       # distance ticks extends into the plot
-p.xaxis.major_tick_out                       # and distance they extend out
-p.xaxis.major_tick_line_color
+p.ygrid.grid_line_color =
+p.ygrid.grid_line_width =
+p.axis.major_label_text_font_size =
+p.axis.major_label_text_font_style =
+p.axis.major_label_standoff =               # distance of tick labels from ticks
+p.axis.axis_line_color =                    # color, or None, to suppress the line
+p.xaxis.major_label_orientation =           # radians, "horizontal", "vertical", "normal"
+p.xaxis.major_tick_in =                     # distance ticks extends into the plot
+p.xaxis.major_tick_out =                    # and distance they extend out
+p.xaxis.major_tick_line_color =
 
 show(p)
