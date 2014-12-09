@@ -24,17 +24,17 @@ p1 = figure(plot_width=300, plot_height=300)
 p1.line(x1, y1, size=12, color="red", alpha=0.5)
 
 p2 = figure(plot_width=300, plot_height=300)
-p2.line(x2, y2, size=12, color="blue", alpha=0.5)
+p2.line(x2, y2, size=12, color="blue", line_dash=[2, 4])
 
 p3 = figure(plot_width=300, plot_height=300)
-p3.line(x3, y3, size=12, line_color="orange", line_width=2)
+p3.line(x3, y3, size=12, line_color="orange", line_width=3)
 
 # create a figure
 p4 = figure()
 
 # EXERCISE: add all the same renderers above, on this one plot
 p4.line(x1, y1, size=12, color="red", alpha=0.5)
-p4.line(x2, y2, size=12, color="blue", alpha=0.5)
+p4.line(x2, y2, size=12, color="blue", line_dash=[2, 4])
 p4.line(x3, y3, size=12, line_color="orange", line_width=2)
 
 # show the plots arrayed in a VBox
