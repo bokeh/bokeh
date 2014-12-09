@@ -42,3 +42,4 @@ ButtonType = enumeration("default", "primary", "success", "warning", "danger", "
 NamedColor = enumeration(*colors.__colors__)
 NamedIcon = enumeration(*icons.__icons__)
 MapType = enumeration("satellite", "roadmap", "terrain", "hybrid")
+Side = enumeration("near", "far", "both")

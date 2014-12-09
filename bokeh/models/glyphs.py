@@ -1,8 +1,10 @@
 from __future__ import absolute_import
 
+from math import pi
+
 from ..plot_object import PlotObject
 from ..mixins import FillProps, LineProps, TextProps
-from ..enums import Units, AngleUnits, Direction, Anchor
+from ..enums import Units, AngleUnits, Direction, Anchor, Side
 from ..properties import Align, Bool, DataSpec, Enum, HasProps, Instance, Size
 
 from .mappers import LinearColorMapper
@@ -179,6 +181,12 @@ class Segment(Glyph, LineProps):
     y0 = DataSpec
     x1 = DataSpec
     y1 = DataSpec
+
+class Arrow(Segment, FillProps):
+    length = DataSpec(units="screen", default=10)
+    angle = DataSpec(default=pi/4)
+    side = Enum(Side, default="far")
+    filled = DataSpec(default=False)          # Vectorized(Bool, default=False)
 
 class Text(Glyph, TextProps):
     x = DataSpec

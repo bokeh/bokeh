@@ -36,6 +36,7 @@ define [
   "renderer/glyph/annular_wedge",
   "renderer/glyph/annulus",
   "renderer/glyph/arc",
+  "renderer/glyph/arrow",
   "renderer/glyph/bezier",
   "renderer/glyph/circle",
   "renderer/glyph/gear",
@@ -207,6 +208,7 @@ define [
     AnnularWedge:             'renderer/glyph/annular_wedge'
     Annulus:                  'renderer/glyph/annulus'
     Arc:                      'renderer/glyph/arc'
+    Arrow:                    'renderer/glyph/arrow'
     Bezier:                   'renderer/glyph/bezier'
     Circle:                   'renderer/glyph/circle'
     Gear:                     'renderer/glyph/gear'
