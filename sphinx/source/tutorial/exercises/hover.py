@@ -59,7 +59,7 @@ hover = p.select(dict(type=HoverTool))
 #   - $x, $y     "data" coordinates under cursor
 #   - $sx, $sy   canvas coordinates under cursor
 #   - $color     color data from data source, syntax: $color[options]:field_name
-# NOTE: we use an OrderedDict to preserve the order in the displayed tooltip
+# NOTE: tooltips will show up in the order they are in the list
 hover.tooltips = [
     # add to this
     ("index", "$index"),
