@@ -20,29 +20,27 @@ IBM = pd.read_csv(
 
 output_file("stocks.html", title="stocks.py example")
 
-# EXERCISE: turn on plot hold
-hold()
+# create a figure
+p1 = figure(title="Stocks")
 
 # EXERCISE: finish this line plot, and add more for the other stocks. Each one should
 # have a legend, and its own color.
-line(
+p1.line(
     AAPL['Date'],                                       # x coordinates
     AAPL['Adj Close'],                                  # y coordinates
     color='#A6CEE3',                                    # set a color for the line
     legend='AAPL',                                      # attach a legend label
-    x_axis_type = "datetime",                           # NOTE: only needed on first
-    tools="pan,wheel_zoom,box_zoom,reset,previewsave"   # NOTE: only needed on first
 )
-line(GOOG['Date'], GOOG['Adj Close'], color='#B2DF8A', legend='GOOG')
-line(IBM['Date'], IBM['Adj Close'], color='#33A02C', legend='IBM')
-line(MSFT['Date'], MSFT['Adj Close'], color='#FB9A99', legend='MSFT')
+p1.line(GOOG['Date'], GOOG['Adj Close'], color='#B2DF8A', legend='GOOG')
+p1.line(IBM['Date'], IBM['Adj Close'], color='#33A02C', legend='IBM')
+p1.line(MSFT['Date'], MSFT['Adj Close'], color='#FB9A99', legend='MSFT')
 
 # EXERCISE: style the plot, set a title, lighten the gridlines, etc.
-curplot().title = "Stock Closing Prices"
-grid().grid_line_alpha=0.3
+p1.title = "Stock Closing Prices"
+p1.grid.grid_line_alpha=0.3
 
 # EXERCISE: start a new figure
-figure()
+p2 = figure(title="AAPL average")
 
 # Here is some code to compute the 30-day moving average for AAPL
 aapl = AAPL['Adj Close']
@@ -54,15 +52,14 @@ aapl_avg = np.convolve(aapl, window, 'same')
 
 # EXERCISE: plot a scatter of circles for the individual AAPL prices with legend
 # 'close'. Remember to set the x axis type and tools on the first renderer
-scatter(aapl_dates, aapl, size=4, color='#A6CEE3', legend='close',
-        x_axis_type="datetime", tools="pan,wheel_zoom,box_zoom,reset,previewsave")
+p2.scatter(aapl_dates, aapl, size=4, color='#A6CEE3', legend='close')
 
 # EXERCISE: plot a line of the AAPL moving average data with the legeng 'avg'
-line(aapl_dates, aapl_avg, color='red', legend='avg')
+p2.line(aapl_dates, aapl_avg, color='red', legend='avg')
 
 # EXERCISE: style the plot, set a title, lighten the gridlines, etc.
-curplot().title = "AAPL One-Month Average"
-grid().grid_line_alpha=0.3
+p2.title = "AAPL One-Month Average"
+p2.grid.grid_line_alpha=0.3
 
-show()  # open a browser
+show(VBox(p1, p2))  # open a browser
 

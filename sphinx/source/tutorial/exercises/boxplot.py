@@ -36,40 +36,37 @@ for cat in cats:
 
 # EXERCISE: output static HTML file
 
-# EXERCISE: turn on plot hold
+# create a figure with the categories as the default x-range
+p = figure(title="", tools="", background_fill="#EFE8E2", x_range=cats)
 
-# Draw the upper segment extending from the box plot using `segment` which
-# takes x0, x1 and y0, y1 as data
-
-# If no outliers, shrink lengths of stems to be no longer than the maximums
+# If no outliers, shrink lengths of stems to be no longer than the minimums or maximums
+qmin = groups.quantile(q=0.00)
 qmax = groups.quantile(q=1.00)
 upper.score = [min([x,y]) for (x,y) in zip(list(qmax.iloc[:,0]),upper.score) ]
+lower.score = [max([x,y]) for (x,y) in zip(list(qmin.iloc[:,0]),lower.score) ]
 
-segment(cats, upper.score, cats, q3.score, x_range=cats, line_width=2,
-        tools="", background_fill="#EFE8E2", line_color="black", title="")
+# Draw the upper segment extending from the box plot using `psegment` which
+# takes x0, x1 and y0, y1 as data
+p.segment(cats, upper.score, cats, q3.score, line_width=2, line_color="black")
 
 # EXERCISE: draw the lower segment
 
-# Draw the upper box of the box plot using `rect`
-rect(cats, (q3.score+q2.score)/2, 0.7, q3.score-q2.score,
-     fill_color="#E08E79", line_width=2, line_color="black")
+# Draw the upper box of the box plot using `p.rect`
+p.rect(cats, (q3.score+q2.score)/2, 0.7, q3.score-q2.score,
+       fill_color="#E08E79", line_width=2, line_color="black")
 
-# EXERCISE: use `rect` to draw the bottom box with a different color
+# EXERCISE: use `p.rect` to draw the bottom box with a different color
 
-# OK here we use `rect` to draw the whiskers. It's slightly cheating, but it's
+# OK here we use `p.rect` to draw the whiskers. It's slightly cheating, but it's
 # easier than using segments or lines, since we can specify widths simply with
 # categorical percentage units
-rect(cats, lower.score, 0.2, 0, line_color="black")
-rect(cats, upper.score, 0.2, 0, line_color="black")
+p.rect(cats, lower.score, 0.2, 0, line_color="black")
+p.rect(cats, upper.score, 0.2, 0, line_color="black")
 
-# EXERCISE: use `circle` to draw the outliers
+# EXERCISE: use `p.circle` to draw the outliers
 
-# EXERCISE: use grid(), axis(), etc. to style the plot. Some suggestions:
+# EXERCISE: use `p.grid`, `p.axis`, etc. to style the plot. Some suggestions:
 #   - remove the X grid lines, change the Y grid line color
 #   - make the tick labels bigger
-xgrid().grid_line_color = None
-ygrid().grid_line_color = "white"
-ygrid().grid_line_width = 2
-xaxis().major_label_text_font_size="12pt"
 
-show()
+show(p)

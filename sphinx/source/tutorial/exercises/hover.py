@@ -2,7 +2,6 @@ from __future__ import division
 
 import numpy as np
 from six.moves import zip
-from collections import OrderedDict
 from bokeh.plotting import *
 from bokeh.models import HoverTool
 
@@ -19,10 +18,8 @@ colors = [
     "#%02x%02x%02x" % (r, g, 150) for r, g in zip(np.floor(50+2*x), np.floor(30+2*y))
 ]
 
-# EXERCISE: create two new data fields for the hover tool to interrogate. They can
-# be anything you like, but it needs to have the same length as x, y, etc.
-foo =
-bar =
+# EXERCISE: create a new data field for the hover tool to interrogate. It can be
+# anything you like, but it needs to have the same length as x, y, etc. foo = list(itertools.permutations("abcdef"))[:N]
 
 # We need to put these data into a ColumnDataSource
 source = ColumnDataSource(
@@ -31,19 +28,17 @@ source = ColumnDataSource(
         y=y,
         radius=radii,
         colors=colors,
-        foo=foo,
-        bar=bar,
+        # your columns here
     )
 )
 
 # EXERCISE: output static HTML file
 
-hold()
+p = figure(title="Hoverful Scatter", tools=TOOLS)
 
 # This is identical to the scatter exercise, but adds the 'source' parameter
-circle(x, y, radius=radii, source=source, tools=TOOLS,
-       fill_color=colors, fill_alpha=0.6,
-       line_color=None, Title="Hoverful Scatter")
+p.circle(x, y, radius=radii, source=source,
+       fill_color=colors, fill_alpha=0.6, line_color=None)
 
 # EXERCISE (optional) add a `text` renderer to display the index of each circle
 # inside the circle
@@ -51,8 +46,8 @@ circle(x, y, radius=radii, source=source, tools=TOOLS,
 # EXERCISE: try other "marker-like" renderers besides `circle`
 
 # We want to add some fields for the hover tool to interrogate, but first we
-# have to get ahold of the tool. We can use the 'select' method for that.
-hover = curplot().select(dict(type=HoverTool))
+# have to get ahold of the tool. We can use the 'select' method to do that.
+hover = p.select(dict(type=HoverTool))
 
 # EXERCISE: add some new tooltip (name, value) pairs. Variables from the
 # data source are available with a "@" prefix, e.g., "@x" will display the
@@ -63,10 +58,9 @@ hover = curplot().select(dict(type=HoverTool))
 #   - $sx, $sy   canvas coordinates under cursor
 #   - $color     color data from data source, syntax: $color[options]:field_name
 # NOTE: we use an OrderedDict to preserve the order in the displayed tooltip
-hover.tooltips = OrderedDict([
+hover.tooltips = [
     # add to this
-    ("(x,y)", "($x, $y)"),
-    ("fill color", "$color[hex, swatch]:colors"),
-])
+    ("index", "$index"),
+]
 
-show()  # open a browser
+show(p)  # open a browser

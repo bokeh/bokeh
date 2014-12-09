@@ -5,8 +5,6 @@ from bokeh.plotting import *
 from bokeh.models import HoverTool, ColumnDataSource
 from bokeh.sampledata.les_mis import data
 
-from collections import OrderedDict
-
 # EXERCISE: try out different sort orders for the names
 nodes = data['nodes']
 names = [node['name'] for node in sorted(data['nodes'], key=lambda x: x['group'])]
@@ -59,37 +57,37 @@ source = ColumnDataSource(
     )
 )
 
-# EXERCISE: create a new figure
-figure()
+# create a new figure
+p = figure(title="Les Mis Occurrences (one at a time)",
+           x_axis_location="above", tools="resize,hover",
+           x_range=list(reversed(names)), y_range=names,
+           plot_width=800, plot_height=800)
 
-# EXERCISE: use the `rect` renderer to render a categorical heatmap of all the
+# EXERCISE: use the `p.rect` renderer to render a categorical heatmap of all the
 # data. Experiment with the widths and heights (use categorical percentage
-# unite) as well as colors and alphas. Add hover and resize tools.
-rect('xname', 'yname', 0.9, 0.9, source=source,
-     x_axis_location="above",
-     x_range=list(reversed(names)), y_range=names,
-     color='colors', alpha='alphas', line_color=None,
-     tools="resize,hover", title="Les Mis Occurrences (one at a time)",
-     plot_width=800, plot_height=800)
+# unite) as well as colors and alphas.
+p.rect('xname', 'yname', 0.9, 0.9, source=source,
+       color='colors', alpha='alphas', line_color=None)
 
-# EXERCISE: use grid(), axis(), etc. to style the plot. Some suggestions:
+# EXERCISE: use p.grid, p.axis, etc. to style the plot. Some suggestions:
 #   - remove the axis and grid lines
 #   - remove the major ticks
 #   - make the tick labels smaller
 #   - set the x-axis orientation to vertical, or angled
-grid().grid_line_color = None
-axis().axis_line_color = None
-axis().major_tick_line_color = None
-axis().major_label_text_font_size = "5pt"
-axis().major_label_standoff = 0
-xaxis().major_label_orientation = np.pi/3
+p.grid.grid_line_color = None
+p.axis.axis_line_color = None
+p.axis.major_tick_line_color = None
+p.axis.major_label_text_font_size = "5pt"
+p.axis.major_label_standoff = 0
+p.xaxis.major_label_orientation = np.pi/3
 
-# EXERCISE configure the hover tool to display both names as well as
+# EXERCISE: configure the hover tool to display both names as well as
 # the count value as tooltips
-hover = curplot().select(dict(type=HoverTool))
-hover.tooltips = OrderedDict([
+hover = p.select(dict(type=HoverTool))
+hover.tooltips = [
     ('names', '@yname, @xname'),
     ('count', '@count'),
-])
+]
 
-show()      # show the plot
+# EXERCISE: show the plot
+show(p)
