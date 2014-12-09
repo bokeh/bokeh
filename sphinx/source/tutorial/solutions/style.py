@@ -1,6 +1,5 @@
-
 import numpy as np
-import pandas as pd
+
 from bokeh.plotting import *
 
 # Define some categories

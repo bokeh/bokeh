@@ -1,8 +1,6 @@
-import pandas as pd
 from bokeh.plotting import *
 from bokeh.sampledata import periodic_table
 from bokeh.models import HoverTool, ColumnDataSource
-from collections import OrderedDict
 
 # categories need to be strings
 elements = periodic_table.elements[periodic_table.elements['group'] != "-"]
@@ -111,14 +109,14 @@ p.grid.grid_line_color = None
 # * CPK color
 # * electronic configuration
 hover = p.select(dict(type=HoverTool))
-hover.tooltips = OrderedDict([
+hover.tooltips = [
     ("name", "@name"),
     ("atomic number", "@atomic_number"),
     ("type", "@type"),
     ("atomic mass", "@mass"),
     ("CPK color", "$color[hex, swatch]:cpk"),
     ("electronic configuration", "@electronic"),
-])
+]
 
 # EXERCISE: show the plot
 show(p)

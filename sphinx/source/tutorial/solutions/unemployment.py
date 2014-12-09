@@ -1,9 +1,8 @@
 import numpy as np
-import pandas as pd
+
 from bokeh.plotting import *
 from bokeh.models import HoverTool
 from bokeh.sampledata.unemployment1948 import data
-from collections import OrderedDict
 
 # Read in the data with pandas. Convert the year column to string
 data['Year'] = [str(x) for x in data['Year']]
@@ -72,9 +71,9 @@ p.xaxis.major_label_orientation = np.pi/3
 
 # EXERCISE: configure the  hover tool to display the month, year and rate
 hover = p.select(dict(type=HoverTool))
-hover.tooltips = OrderedDict([
+hover.tooltips = [
     ('date', '@month @year'),
     ('rate', '@rate'),
-])
+]
 
 show()      # show the plot

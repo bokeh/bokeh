@@ -1,8 +1,6 @@
-import pandas as pd
 from bokeh.plotting import *
 from bokeh.sampledata import periodic_table
 from bokeh.models import HoverTool, ColumnDataSource
-from collections import OrderedDict
 
 # categories need to be strings
 elements = periodic_table.elements[periodic_table.elements['group'] != "-"]
@@ -75,24 +73,12 @@ p.text(x=dict(field="symx", units="data"),
 
 # EXERCISE: add text that displays the atomic number in each square with 9pt font.
 # Use 'numbery' for the y position.
-p.text(x=dict(field="symx", units="data"),
-       y=dict(field="numbery", units="data"),
-       text=dict(field="atomic_number", units="data"),
-       text_font_size="9pt", **text_props)
 
 # EXERCISE: add text that displays the full name in each square with 6pt font
 # Use 'namey' for the y position.
-p.text(x=dict(field="symx", units="data"),
-       y=dict(field="namey", units="data"),
-       text=dict(field="name", units="data"),
-       text_font_size="6pt", **text_props)
 
 # EXERCISE: add text that displays the atomic mass each square in 5pt font
 # Use 'massy' for the y position.
-p.text(x=dict(field="symx", units="data"),
-       y=dict(field="massy", units="data"),
-       text=dict(field="mass", units="data"),
-       text_font_size="5pt", **text_props)
 
 # turn off the grid lines
 p.grid.grid_line_color = None
@@ -104,14 +90,5 @@ p.grid.grid_line_color = None
 # * atomic mass
 # * CPK color
 # * electronic configuration
-hover = p.select(dict(type=HoverTool))
-hover.tooltips = OrderedDict([
-    ("name", "@name"),
-    ("atomic number", "@atomic_number"),
-    ("type", "@type"),
-    ("atomic mass", "@mass"),
-    ("CPK color", "$color[hex, swatch]:cpk"),
-    ("electronic configuration", "@electronic"),
-])
 
-show(p)
+# EXERCISE: show the plot

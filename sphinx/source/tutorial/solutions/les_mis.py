@@ -1,4 +1,3 @@
-import json
 import numpy as np
 
 from bokeh.plotting import *

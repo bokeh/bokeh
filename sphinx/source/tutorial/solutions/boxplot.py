@@ -4,11 +4,11 @@ from bokeh.plotting import *
 
 # Generate some synthetic time series for six different categories
 cats = list("abcdef")
-y = np.random.randn(2000)
+score = np.random.randn(2000)
 g = np.random.choice(cats, 2000)
 for i, l in enumerate(cats):
-    y[g == l] += i // 2
-df = pd.DataFrame(dict(score=y, group=g))
+    score[g == l] += i // 2
+df = pd.DataFrame(dict(score=score, group=g))
 
 # Find the quartiles, IQR, and outliers for each category
 groups = df.groupby('group')
@@ -64,8 +64,8 @@ p.rect(cats, (q2.score+q1.score)/2, 0.7, q2.score-q1.score,
 # OK here we use `p.rect` to draw the whiskers. It's slightly cheating, but it's
 # easier than using segments or lines, since we can specify widths simply with
 # categorical percentage units
-p.rect(cats, lower.score, 0.2, 0, line_color="black")
-p.rect(cats, upper.score, 0.2, 0, line_color="black")
+p.rect(cats, lower.score, 0.2, 0.01, line_color="black")
+p.rect(cats, upper.score, 0.2, 0.01, line_color="black")
 
 # EXERCISE: use `p.circle` to draw the outliers
 p.circle(outx, outy, size=6, color="#F38630", fill_alpha=0.6)
