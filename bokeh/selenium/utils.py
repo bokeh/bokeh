@@ -104,11 +104,6 @@ def check_for_proper_arg(arg, choices):
     return False
 
 
-def release_list(l):
-    del l[:]
-    del l
-
-
 def check_if_element_exists(driver, element, method='css_selector'):
     try:
         if method == 'css_selector':
