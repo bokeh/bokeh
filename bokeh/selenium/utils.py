@@ -240,7 +240,6 @@ class TestBrowserCaps(object):
     def __init__(self, metadata, **kwargs):
         self.metadata = metadata
 
-        # setup platform
         if kwargs.has_key('platform'):
             self.platform = kwargs['platform']
         else:
@@ -255,7 +254,6 @@ class TestBrowserCaps(object):
 
         param_type_check(self.platform, str)
 
-        # setup version
         if kwargs.has_key('version'):
             self.version = kwargs['version']
         else:
