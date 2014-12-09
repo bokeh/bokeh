@@ -23,11 +23,11 @@ from collections import OrderedDict
 
 import numpy as np
 
-from ..glyphs import (Asterisk, Circle, CircleCross, CircleX, Cross, Diamond,
-                      DiamondCross, InvertedTriangle, Line, Rect, Segment,
-                      Square, SquareCross, SquareX, Triangle, X, Quad, Patch,
-                      Wedge, AnnularWedge, Text)
-from ..objects import (CategoricalAxis, DatetimeAxis, Grid, Legend,
+from ..models.glyphs import (Asterisk, Circle, CircleCross, CircleX, Cross, Diamond,
+                             DiamondCross, InvertedTriangle, Line, Rect, Segment,
+                             Square, SquareCross, SquareX, Triangle, X, Quad, Patch,
+                             Wedge, AnnularWedge, Text)
+from ..models import (CategoricalAxis, DatetimeAxis, Grid, Legend,
                        LinearAxis, PanTool, Plot, PreviewSaveTool, ResetTool,
                        WheelZoomTool)
 
