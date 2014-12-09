@@ -1,7 +1,8 @@
 from __future__ import division
 
 import numpy as np
-from bokeh.plotting import *
+
+from bokeh.plotting import figure, output_file, show, VBox
 
 # NOTE: if you do have numba installed, uncomment out this import,
 # and the 'autojit' lines below (the example will run more quickly).

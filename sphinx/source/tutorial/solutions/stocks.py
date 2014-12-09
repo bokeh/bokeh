@@ -1,8 +1,12 @@
 
+###
+### NOTE: This exercise requires a network connection
+###
+
 import numpy as np
 import pandas as pd
 
-from bokeh.plotting import *
+from bokeh.plotting import figure, output_file, show, VBox
 
 # Here is some code to read in some stock data from the Yahoo Finance API
 AAPL = pd.read_csv(

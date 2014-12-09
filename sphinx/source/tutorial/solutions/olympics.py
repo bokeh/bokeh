@@ -1,6 +1,6 @@
 import numpy as np
 
-from bokeh.plotting import *
+from bokeh.plotting import figure, output_file, show, VBox
 from bokeh.sampledata.olympics2014 import data
 
 data = { d['abbr']: d['medals'] for d in data['data'] if d['medals']['total'] > 0}

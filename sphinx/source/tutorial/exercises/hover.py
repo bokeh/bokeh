@@ -1,8 +1,10 @@
 from __future__ import division
 
+import itertools
+
 import numpy as np
-from six.moves import zip
-from bokeh.plotting import *
+
+from bokeh.plotting import ColumnDataSource, figure, output_file, show
 from bokeh.models import HoverTool
 
 # Create a set of tools to use
@@ -63,4 +65,4 @@ hover.tooltips = [
     ("index", "$index"),
 ]
 
-show(p)  # open a browser
+show(p)

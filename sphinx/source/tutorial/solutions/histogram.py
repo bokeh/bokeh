@@ -2,7 +2,8 @@
 
 import numpy as np
 import scipy.special
-from bokeh.plotting import *
+
+from bokeh.plotting import figure, output_file, show, VBox
 
 mu, sigma = 0, 0.5       # NOTE: you can tinker with these values if you like
 

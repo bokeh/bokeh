@@ -1,4 +1,4 @@
-from bokeh.plotting import *
+from bokeh.plotting import ColumnDataSource, figure, gridplot, output_file, show
 from bokeh.sampledata.autompg import autompg
 
 output_file("panning.html")

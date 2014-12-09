@@ -1,6 +1,6 @@
-from bokeh.plotting import *
-from bokeh.sampledata import periodic_table
+from bokeh.plotting import figure, output_file, show
 from bokeh.models import HoverTool, ColumnDataSource
+from bokeh.sampledata import periodic_table
 
 # categories need to be strings
 elements = periodic_table.elements[periodic_table.elements['group'] != "-"]

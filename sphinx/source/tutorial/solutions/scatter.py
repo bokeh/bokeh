@@ -2,7 +2,7 @@ from __future__ import division
 
 import numpy as np
 
-from bokeh.plotting import *
+from bokeh.plotting import figure, HBox, output_file, show, VBox
 from bokeh.models import Range1d
 
 # create some data using python lists

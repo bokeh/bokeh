@@ -1,3 +1,1 @@
-from bokeh.plotting import *
-
-# Skip the first point because it can be troublesome
+from bokeh.plotting import figure, output_file, show, VBox

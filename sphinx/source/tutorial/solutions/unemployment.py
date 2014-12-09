@@ -1,7 +1,7 @@
 import numpy as np
 
-from bokeh.plotting import *
 from bokeh.models import HoverTool
+from bokeh.plotting import ColumnDataSource, figure, output_file, show
 from bokeh.sampledata.unemployment1948 import data
 
 # Read in the data with pandas. Convert the year column to string
@@ -43,7 +43,7 @@ source = ColumnDataSource(
 # EXERCISE: output to static HTML file
 output_file('unemployment.html')
 
-# EXERCISE: create a new figure
+# create a new figure
 p = figure(title="US Unemployment (1948 - 2013)", tools="resize,hover",
            x_range=years, y_range=list(reversed(months)),
            plot_width=900, plot_height=400, x_axis_location="above")
@@ -54,10 +54,9 @@ p = figure(title="US Unemployment (1948 - 2013)", tools="resize,hover",
 #   - line_color for the rectangles is None
 #   - tools are resize and hover tools
 #   - add a nice title, and set the plot_width and plot_height
-p.rect('year', 'month', 0.95, 0.95, source=source,
-       color='color', line_color=None)
+p.rect('year', 'month', 0.95, 0.95, source=source, color='color', line_color=None)
 
-# EXERCISE: use grid(), axis(), etc. to style the plot. Some suggestions:
+# EXERCISE: use p.grid, p.axis, etc. to style the plot. Some suggestions:
 #   - remove the axis and grid lines
 #   - remove the major ticks
 #   - make the tick labels smaller
@@ -76,4 +75,4 @@ hover.tooltips = [
     ('rate', '@rate'),
 ]
 
-show()      # show the plot
+show(p)

@@ -1,6 +1,6 @@
 import numpy as np
 
-from bokeh.plotting import *
+from bokeh.plotting import figure, output_file, show
 from bokeh.models import HoverTool, ColumnDataSource
 from bokeh.sampledata.les_mis import data
 
