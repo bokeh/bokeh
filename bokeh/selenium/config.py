@@ -178,8 +178,7 @@ class TestSettings(object):
         param_type_check(self.data_dir, str)
 
         if not os.path.exists(self.data_dir):
-            print "The data dir '%s' doesn't exists!" % (self.data_dir)
-            sys.exit(1)
+            os.makedirs(self.data_dir)
 
         if not os.path.isdir(self.data_dir):
             print "The data dir '%s' is not a directory!" % (self.data_dir)
