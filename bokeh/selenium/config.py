@@ -104,7 +104,7 @@ class TestSettings(object):
             self.metadata = metadata
 
         if kwargs.has_key('env_mode'):
-            self.env_mode = kwargs['env_mode']
+            self.env_mode = kwargs.get('env_mode')
         else:
             self.env_mode = None
 
@@ -116,7 +116,7 @@ class TestSettings(object):
             sys.exit(1)
 
         if kwargs.has_key('browser_engine'):
-            self.browser_engine = kwargs['browser_engine']
+            self.browser_engine = kwargs.get('browser_engine')
         else:
             self.browser_engine = None
 
@@ -128,7 +128,7 @@ class TestSettings(object):
             sys.exit(1)
 
         if kwargs.has_key('browser_caps'):
-            self.browser_caps = kwargs['browser_caps']
+            self.browser_caps = kwargs.get('browser_caps')
         else:
             self.browser_caps = None
 
@@ -138,7 +138,7 @@ class TestSettings(object):
         self.standalone_browsers_bin = self.metadata.standalone_browsers_bin.copy()
 
         if kwargs.has_key('standalone_browsers_bin'):
-            for key, value in kwargs['standalone_browsers_bin'].iteritems():
+            for key, value in kwargs.get('standalone_browsers_bin').iteritems():
 
                 if self.standalone_browsers_bin.has_key(key):
                     self.standalone_browsers_bin.update({key:value})
@@ -147,7 +147,7 @@ class TestSettings(object):
                     sys.exit(1)
 
         if kwargs.has_key('selenium_server_jar_path'):
-            self.selenium_server_jar_path = kwargs['selenium_server_jar_path']
+            self.selenium_server_jar_path = kwargs.get('selenium_server_jar_path')
         else:
             self.selenium_server_jar_path = None
 
@@ -155,7 +155,7 @@ class TestSettings(object):
             self.selenium_server_jar_path = self.metadata.selenium_server_jar_path
 
         if kwargs.has_key('data_dir'):
-            self.data_dir = kwargs['data_dir']
+            self.data_dir = kwargs.get('data_dir')
         else:
             self.data_dir = None
 
@@ -170,7 +170,7 @@ class TestSettings(object):
             sys.exit(1)
 
         if kwargs.has_key('down_dir'):
-            self.down_dir = kwargs['down_dir']
+            self.down_dir = kwargs.get('down_dir')
         else:
             self.down_dir = None
 
@@ -183,7 +183,7 @@ class TestSettings(object):
         os.makedirs(self.down_dir)
 
         if kwargs.has_key('headless_mode'):
-            self.headless_mode = kwargs['headless_mode']
+            self.headless_mode = kwargs.get('headless_mode')
         else:
             self.headless_mode = None
 
@@ -191,7 +191,7 @@ class TestSettings(object):
             self.headless_mode = self.metadata.headless_mode
 
         if kwargs.has_key('headless_mode_display'):
-            self.headless_mode_display = kwargs['headless_mode_display']
+            self.headless_mode_display = kwargs.get('headless_mode_display')
         else:
             self.headless_mode_display = None
 
@@ -199,7 +199,7 @@ class TestSettings(object):
             self.headless_mode_display = self.metadata.headless_mode_display
 
         if kwargs.has_key('selenium_hub_address'):
-            self.selenium_hub_address = kwargs['selenium_hub_address']
+            self.selenium_hub_address = kwargs.get('selenium_hub_address')
         else:
             self.selenium_hub_address = None
 

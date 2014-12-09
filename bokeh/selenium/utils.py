@@ -231,7 +231,7 @@ class TestBrowserCaps(object):
         self.metadata = metadata
 
         if kwargs.has_key('platform'):
-            self.platform = kwargs['platform']
+            self.platform = kwargs.get('platform')
         else:
             self.platform = None
 
@@ -243,7 +243,7 @@ class TestBrowserCaps(object):
             sys.exit(1)
 
         if kwargs.has_key('version'):
-            self.version = kwargs['version']
+            self.version = kwargs.get('version')
         else:
             self.version = None
 
