@@ -3,8 +3,9 @@ from __future__ import absolute_import, print_function
 
 import os
 import sys
+from shutil import rmtree
 
-from bokeh.selenium.utils import param_type_check, check_for_proper_arg
+from bokeh.selenium.utils import TestBrowserCaps, param_type_check, check_for_proper_arg, get_latest_selenium_server_jar_path
 
 
 DEF_CWD = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
@@ -20,9 +21,6 @@ DEF_SELENIUM_HUB_ADDRESS = 'http://178.62.188.78:4444/wd/hub'
 class TestMetadata(object):
 
     def __init__(self, cwd=DEF_CWD):
-        from bokeh.selenium.utils import get_latest_selenium_server_jar_path
-        from bokeh.selenium.utils import TestBrowserCaps
-
         self.cwd = cwd
 
         if not os.path.exists(self.cwd):
@@ -100,9 +98,6 @@ class TestMetadata(object):
 class TestSettings(object):
 
     def __init__(self, metadata=None, **kwargs):
-        from bokeh.selenium.utils import TestBrowserCaps
-        from shutil import rmtree
-
         if not metadata:
             self.metadata = TestMetadata()
         else:

@@ -4,6 +4,9 @@ from __future__ import absolute_import, print_function
 import os
 import re
 import sys
+import glob
+
+from subprocess import check_output
 
 from selenium import selenium, webdriver
 from selenium.webdriver.common.by import By
@@ -18,7 +21,6 @@ DEF_WDW_WAIT_TIME = 10
 
 
 def initialize_standalone_testing_env(browser, browser_bin):
-    from subprocess import check_output
 
     if not browser == 'ie':
         browser_bin_path = check_output(['which', browser_bin]).strip()
@@ -73,9 +75,6 @@ def initialize_distributive_testing_env(browser, browser_caps, selenium_hub_addr
 
 
 def get_latest_selenium_server_jar_path():
-    import glob
-    from subprocess import check_output
-
     selenium_servers = []
     selenium_server_jar_path = ''
     selenium_server_bin_path = check_output(['which', 'selenium-server-standalone']).strip()

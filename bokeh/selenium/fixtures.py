@@ -4,6 +4,11 @@ from __future__ import absolute_import, print_function
 import os
 from flask.ext.testing import LiveServerTestCase
 
+from bokeh.server.app import app
+
+from bokeh.selenium.utils import initialize_standalone_testing_env, initialize_distributive_testing_env
+from bokeh.selenium.run_selenium_tests import settings as test_settings
+
 
 class RawSeleniumTestFixture(LiveServerTestCase):
     """
@@ -11,8 +16,6 @@ class RawSeleniumTestFixture(LiveServerTestCase):
     """
 
     def setUp(self):
-        from bokeh.selenium.utils import initialize_standalone_testing_env, initialize_distributive_testing_env
-        from bokeh.selenium.run_selenium_tests import settings as test_settings
 
         LiveServerTestCase.setUp(self)
 
@@ -44,8 +47,6 @@ class RawSeleniumTestFixture(LiveServerTestCase):
         self.addCleanup(self.driver.quit)
 
     def create_app(self):
-        from bokeh.server.app import app
-
         # TODO:
         # - Setup appropriate bokeh server initialization.
 

@@ -5,9 +5,10 @@ import os
 import sys
 import unittest
 
+from selenium.common.exceptions import NoSuchElementException
+
 from bokeh.selenium.fixtures import BasicSeleniumTestFixture
 from bokeh.selenium.utils import look_for_element
-from selenium.common.exceptions import NoSuchElementException
 
 
 class TestSample(BasicSeleniumTestFixture):
