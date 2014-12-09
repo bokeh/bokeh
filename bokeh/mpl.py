@@ -454,4 +454,4 @@ def to_bokeh(fig=None, name=None, server=None, notebook=False, pd_obj=True,
     doc._current_plot = renderer.fig  # TODO (bev) do not rely on private attrs
     doc.add(renderer.fig)
 
-    show()
+    show(renderer.fig)
