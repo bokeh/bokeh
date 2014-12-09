@@ -56,6 +56,10 @@ test:
     - websocket-client
     - ipython
     - ipython-notebook
+    - selenium
+    - selenium-server-standalone
+    - selenium-chromedriver
+    - phantomjs
 
     # examples
     - scipy
