@@ -28,12 +28,12 @@ TOOLS="pan,wheel_zoom,box_zoom,reset,save"
 xr = Range1d(start=-10, end=10)
 yr = Range1d(start=-10, end=10)
 
-# EXERCISE: Plot all the sets of points on different plots p1, p2, p3. Use the r
-# ranges above for x_range and y_range for each figure. Set different colors as well.
-# Try setting line_color and fill_color instead of just color. You can also set alpha,
-# line_alpha, and fill_alpha if you like. Set tools to TOOLS on the figures. Change
-# the value of the 'marker' parameter, "circle", "square", "triangle", etc. One
-# example is given
+# EXERCISE: Plot all the sets of points on different plots p1, p2, p3. Use the
+# ranges above for `x_range` and `y_range` for each figure. Set different colors
+# as well. Try setting line_color and fill_color instead of just color. You can
+# also set alpha, line_alpha, and fill_alpha if you like. Set tools to TOOLS on
+# the figures. Change the value of the 'marker' parameter, "circle", "square",
+# "triangle", etc. One example is given
 p1 = figure(x_range=xr, y_range=yr, tools=TOOLS, plot_width=300, plot_height=300)
 p1.scatter(x1, y1, size=12, color="red", alpha=0.5)
 
