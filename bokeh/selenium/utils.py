@@ -104,11 +104,6 @@ def check_for_proper_arg(arg, choices):
     return False
 
 
-def param_type_check(param, type):
-    if not isinstance(param, type):
-        raise TypeError("Parameter '%s' is not %s" % (param, type))
-
-
 def release_list(l):
     del l[:]
     del l
@@ -252,8 +247,6 @@ class TestBrowserCaps(object):
             print("Invalid testing environment type: %s" % (self.platform))
             sys.exit(1)
 
-        param_type_check(self.platform, str)
-
         if kwargs.has_key('version'):
             self.version = kwargs['version']
         else:
@@ -261,5 +254,3 @@ class TestBrowserCaps(object):
 
         if not self.version:
             self.version = '1.0.0'
-
-        param_type_check(self.version, str)

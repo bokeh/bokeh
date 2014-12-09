@@ -5,7 +5,7 @@ import os
 import sys
 from shutil import rmtree
 
-from bokeh.selenium.utils import TestBrowserCaps, param_type_check, check_for_proper_arg, get_latest_selenium_server_jar_path
+from bokeh.selenium.utils import TestBrowserCaps, check_for_proper_arg, get_latest_selenium_server_jar_path
 
 
 DEF_CWD = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
@@ -115,8 +115,6 @@ class TestSettings(object):
             print("Invalid testing environment type: %s" % (self.env_mode))
             sys.exit(1)
 
-        param_type_check(self.env_mode, str)
-
         if kwargs.has_key('browser_engine'):
             self.browser_engine = kwargs['browser_engine']
         else:
@@ -129,8 +127,6 @@ class TestSettings(object):
             print("Invalid browser_engine: %s" % (self.browser_engine))
             sys.exit(1)
 
-        param_type_check(self.browser_engine, str)
-
         if kwargs.has_key('browser_caps'):
             self.browser_caps = kwargs['browser_caps']
         else:
@@ -139,13 +135,9 @@ class TestSettings(object):
         if not self.browser_caps:
             self.browser_caps = self.metadata.browser_caps
 
-        param_type_check(self.browser_caps, TestBrowserCaps)
-
         self.standalone_browsers_bin = self.metadata.standalone_browsers_bin.copy()
 
         if kwargs.has_key('standalone_browsers_bin'):
-            param_type_check(kwargs['standalone_browsers_bin'], dict)
-
             for key, value in kwargs['standalone_browsers_bin'].iteritems():
 
                 if self.standalone_browsers_bin.has_key(key):
@@ -162,8 +154,6 @@ class TestSettings(object):
         if not self.selenium_server_jar_path:
             self.selenium_server_jar_path = self.metadata.selenium_server_jar_path
 
-        param_type_check(self.selenium_server_jar_path, str)
-
         if kwargs.has_key('data_dir'):
             self.data_dir = kwargs['data_dir']
         else:
@@ -171,8 +161,6 @@ class TestSettings(object):
 
         if not self.data_dir:
             self.data_dir = self.metadata.data_dir
-
-        param_type_check(self.data_dir, str)
 
         if not os.path.exists(self.data_dir):
             os.makedirs(self.data_dir)
@@ -189,8 +177,6 @@ class TestSettings(object):
         if not self.down_dir:
             self.down_dir = self.metadata.down_dir
 
-        param_type_check(self.down_dir, str)
-
         if os.path.exists(self.down_dir):
             rmtree(self.down_dir)
 
@@ -204,8 +190,6 @@ class TestSettings(object):
         if not self.headless_mode:
             self.headless_mode = self.metadata.headless_mode
 
-        param_type_check(self.headless_mode, bool)
-
         if kwargs.has_key('headless_mode_display'):
             self.headless_mode_display = kwargs['headless_mode_display']
         else:
@@ -214,8 +198,6 @@ class TestSettings(object):
         if not self.headless_mode_display:
             self.headless_mode_display = self.metadata.headless_mode_display
 
-        param_type_check(self.headless_mode_display, str)
-
         if kwargs.has_key('selenium_hub_address'):
             self.selenium_hub_address = kwargs['selenium_hub_address']
         else:
@@ -223,8 +205,6 @@ class TestSettings(object):
 
         if not self.selenium_hub_address:
             self.selenium_hub_address = self.metadata.selenium_hub_address
-
-        param_type_check(self.selenium_hub_address, str)
 
     def get_server_address(self):
         return self.get_server_url()

@@ -9,7 +9,7 @@ import hashlib
 import unittest
 import argparse
 
-from bokeh.selenium.utils import release_list, param_type_check, TestBrowserCaps
+from bokeh.selenium.utils import release_list, TestBrowserCaps
 from bokeh.selenium.config import TestMetadata, TestSettings
 
 ########
@@ -377,9 +377,6 @@ class TestObject(object):
 
         self.namespace = test_namespace
         self.test = test
-
-        param_type_check(self.namespace, str)
-        param_type_check(self.test, unittest.TestCase)
 
     def partial_namespace(self):
         return self.namespace.split('.', 1)[1]
