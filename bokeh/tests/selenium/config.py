@@ -5,7 +5,7 @@ import os
 import sys
 from shutil import rmtree
 
-from bokeh.tests.selenium.utils import TestBrowserCaps, check_for_proper_arg, get_latest_selenium_server_jar_path
+from .utils import TestBrowserCaps, check_for_proper_arg, get_latest_selenium_server_jar_path
 
 
 DEF_CWD = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))

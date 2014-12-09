@@ -6,8 +6,8 @@ from flask.ext.testing import LiveServerTestCase
 
 from bokeh.server.app import app
 
-from bokeh.tests.selenium.utils import initialize_standalone_testing_env, initialize_distributive_testing_env
-from bokeh.tests.selenium.run_selenium_tests import settings as test_settings
+from .utils import initialize_standalone_testing_env, initialize_distributive_testing_env
+from .run_selenium_tests import settings as test_settings
 
 
 class RawSeleniumTestFixture(LiveServerTestCase):
