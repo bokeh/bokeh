@@ -454,8 +454,9 @@ setup(
         'bokeh.server.utils',
         'bokeh.server.tests',
         'bokeh.tests',
-        'bokeh.transforms',
-        'bokeh.selenium.tests',
+        'bokeh.tests.selenium',
+        'bokeh.tests.selenium.tests',
+        'bokeh.transforms'
     ],
     package_data={'bokeh': package_data},
     author='Continuum Analytics',

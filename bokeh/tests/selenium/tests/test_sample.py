@@ -7,8 +7,8 @@ import unittest
 
 from selenium.common.exceptions import NoSuchElementException
 
-from bokeh.selenium.fixtures import BasicSeleniumTestFixture
-from bokeh.selenium.utils import look_for_element
+from bokeh.tests.selenium.fixtures import BasicSeleniumTestFixture
+from bokeh.tests.selenium.utils import look_for_element
 
 
 class TestSample(BasicSeleniumTestFixture):

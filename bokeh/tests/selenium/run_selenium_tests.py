@@ -9,8 +9,8 @@ import hashlib
 import unittest
 import argparse
 
-from bokeh.selenium.utils import TestBrowserCaps
-from bokeh.selenium.config import TestMetadata, TestSettings
+from bokeh.tests.selenium.utils import TestBrowserCaps
+from bokeh.tests.selenium.config import TestMetadata, TestSettings
 
 ########
 # INFO #
