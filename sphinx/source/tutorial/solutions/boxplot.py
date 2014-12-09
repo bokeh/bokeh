@@ -47,11 +47,11 @@ qmax = groups.quantile(q=1.00)
 upper.score = [min([x,y]) for (x,y) in zip(list(qmax.iloc[:,0]),upper.score) ]
 lower.score = [max([x,y]) for (x,y) in zip(list(qmin.iloc[:,0]),lower.score) ]
 
-# Draw the upper segment extending from the box plot using `psegment` which
+# Draw the upper segment extending from the box plot using `p.segment` which
 # takes x0, x1 and y0, y1 as data
 p.segment(cats, upper.score, cats, q3.score, line_width=2, line_color="black")
 
-# EXERCISE: draw the lower segment
+# EXERCISE: use `p.segment` to  draw the lower segment
 p.segment(cats, lower.score, cats, q1.score, line_width=2, line_color="black")
 
 # Draw the upper box of the box plot using `p.rect`

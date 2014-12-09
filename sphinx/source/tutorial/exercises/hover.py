@@ -40,7 +40,7 @@ p = figure(title="Hoverful Scatter", tools=TOOLS)
 
 # This is identical to the scatter exercise, but adds the 'source' parameter
 p.circle(x, y, radius=radii, source=source,
-       fill_color=colors, fill_alpha=0.6, line_color=None)
+         fill_color=colors, fill_alpha=0.6, line_color=None)
 
 # EXERCISE (optional) add a `text` renderer to display the index of each circle
 # inside the circle
