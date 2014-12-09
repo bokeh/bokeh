@@ -1,4 +1,6 @@
 
+from __future__ import absolute_import, print_function
+
 import os
 from flask.ext.testing import LiveServerTestCase
 
@@ -34,7 +36,7 @@ class RawSeleniumTestFixture(LiveServerTestCase):
             self.driver = initialize_distributive_testing_env(self.test_settings.browser_engine,
                 self.test_settings.browser_caps, self.test_settings.selenium_hub_address)
         else:
-            print "Unsupported mode of testing environment: %s" % (self.test_settings.env_mode)
+            print("Unsupported mode of testing environment: %s" % (self.test_settings.env_mode))
             sys.exit(1)
 
         self.driver.start_client()

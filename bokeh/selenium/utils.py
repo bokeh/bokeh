@@ -1,5 +1,5 @@
 
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 
 import os
 import re
@@ -42,7 +42,7 @@ def initialize_standalone_testing_env(browser, browser_bin):
     elif browser == 'safari':
         return webdriver.Safari(executable_path=browser_bin_path)
     else:
-        print "Internal error, not supported browser: %s" % (browser)
+        print("Internal error, not supported browser: %s" % (browser))
         sys.exit(1)
 
 
@@ -56,14 +56,14 @@ def initialize_distributive_testing_env(browser, browser_caps, selenium_hub_addr
     elif browser == 'opera':
         caps = webdriver.DesiredCapabilities.OPERA.copy()
     elif browser == 'phantomjs':
-        print "The phantomjs browser engine is not available right now!"
-        print "Bug: https://code.google.com/p/selenium/issues/detail?id=8102"
+        print("The phantomjs browser engine is not available right now!")
+        print("Bug: https://code.google.com/p/selenium/issues/detail?id=8102")
         sys.exit(1)
         caps = webdriver.DesiredCapabilities.PHANTOMJS.copy()
     elif browser == 'safari':
         caps = webdriver.DesiredCapabilities.SAFARI.copy()
     else:
-        print "Internal error, not supported browser: %s" % (browser)
+        print("Internal error, not supported browser: %s" % (browser))
         sys.exit(1)
 
     caps.update({'platform':browser_caps.platform.upper()})
@@ -134,7 +134,7 @@ def check_if_element_exists(driver, element, method='css_selector'):
         elif method == 'xpath':
             ret = WDW(driver, DEF_WDW_WAIT_TIME).until(EC.presence_of_element_located((By.XPATH, element)))
         else:
-            print "Unsupported method: %s" % (method)
+            print("Unsupported method: %s" % (method))
             sys.exit(1)
     except TimeoutException:
         return False
@@ -161,7 +161,7 @@ def check_if_elements_exist(driver, element, method='css_selector'):
         elif method == 'xpath':
             ret = WDW(driver, DEF_WDW_WAIT_TIME).until(EC.presence_of_all_elements_located((By.XPATH, element)))
         else:
-            print "Unsupported method: %s" % (method)
+            print("Unsupported method: %s" % (method))
             sys.exit(1)
     except NoSuchElementException:
         return 0
@@ -188,7 +188,7 @@ def look_for_element(driver, element, method='css_selector'):
         elif method == 'xpath':
             ret = WDW(driver, DEF_WDW_WAIT_TIME).until(EC.presence_of_element_located((By.XPATH, element)))
         else:
-            print "Unsupported method: %s" % (method)
+            print("Unsupported method: %s" % (method))
             sys.exit(1)
     except TimeoutException:
         assert 0, "Can't find %s %s (handler: %s)!" % (element_name, element_type, element)
@@ -215,7 +215,7 @@ def look_for_elements(driver, element, method='css_selector'):
         elif method == 'xpath':
             ret = WDW(driver, DEF_WDW_WAIT_TIME).until(EC.presence_of_all_elements_located((By.XPATH, element)))
         else:
-            print "Unsupported method: %s" % (method)
+            print("Unsupported method: %s" % (method))
             sys.exit(1)
     except NoSuchElementException:
         assert 0, "Can't find %s %s (handler: %s)!" % (element_name, element_type, element)
@@ -252,7 +252,7 @@ class TestBrowserCaps(object):
             self.platform = 'linux'
 
         if not check_for_proper_arg(self.platform, self.metadata.platforms):
-            print "Invalid testing environment type: %s" % (self.platform)
+            print("Invalid testing environment type: %s" % (self.platform))
             sys.exit(1)
 
         param_type_check(self.platform, str)

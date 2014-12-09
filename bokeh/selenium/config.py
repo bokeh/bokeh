@@ -1,4 +1,6 @@
 
+from __future__ import absolute_import, print_function
+
 import os
 import sys
 
@@ -24,11 +26,11 @@ class TestMetadata(object):
         self.cwd = cwd
 
         if not os.path.exists(self.cwd):
-            print "The cwd '%s' doesn't exists!" % (self.cwd)
+            print("The cwd '%s' doesn't exists!" % (self.cwd))
             sys.exit(1)
 
         if not os.path.isdir(self.cwd):
-            print "The cwd'%s' is not a directory!" % (self.cwd)
+            print("The cwd'%s' is not a directory!" % (self.cwd))
             sys.exit(1)
 
         self.env_mode = 'standalone'
@@ -74,12 +76,12 @@ class TestMetadata(object):
         for browser, caps in self.distributive_browsers_caps.iteritems():
             _counter = 0
 
-            print "\n%s:" % (browser)
+            print("\n%s:" % (browser))
             for cap in caps:
-                print "\tplatform: %s" % (cap.platform)
-                print "\tversion:  %s" % (cap.version)
+                print("\tplatform: %s" % (cap.platform))
+                print("\tversion:  %s" % (cap.version))
                 if not _counter == 0:
-                    print ""
+                    print("")
                 _counter += 1
 
     def get_default_browser_caps(self, browser):
@@ -91,7 +93,7 @@ class TestMetadata(object):
         elif capability == 'version':
             return self.distributive_browsers_caps[browser][0].version
         else:
-            print "Internal error, no support for capability: %s" % (cap_name)
+            print("Internal error, no support for capability: %s" % (cap_name))
             sys.exit(1)
 
 
@@ -115,7 +117,7 @@ class TestSettings(object):
             self.env_mode = 'standalone'
 
         if not check_for_proper_arg(self.env_mode, self.metadata.env_modes):
-            print "Invalid testing environment type: %s" % (self.env_mode)
+            print("Invalid testing environment type: %s" % (self.env_mode))
             sys.exit(1)
 
         param_type_check(self.env_mode, str)
@@ -129,7 +131,7 @@ class TestSettings(object):
             self.browser_engine = self.metadata.browser_engine
 
         if not check_for_proper_arg(self.browser_engine, self.metadata.browser_engines):
-            print "Invalid browser_engine: %s" % (self.browser_engine)
+            print("Invalid browser_engine: %s" % (self.browser_engine))
             sys.exit(1)
 
         param_type_check(self.browser_engine, str)
@@ -154,7 +156,7 @@ class TestSettings(object):
                 if self.standalone_browsers_bin.has_key(key):
                     self.standalone_browsers_bin.update({key:value})
                 else:
-                    print "Non existent 'browser_engine' key: %s" % (key)
+                    print("Non existent 'browser_engine' key: %s" % (key))
                     sys.exit(1)
 
         if kwargs.has_key('selenium_server_jar_path'):
@@ -181,7 +183,7 @@ class TestSettings(object):
             os.makedirs(self.data_dir)
 
         if not os.path.isdir(self.data_dir):
-            print "The data dir '%s' is not a directory!" % (self.data_dir)
+            print("The data dir '%s' is not a directory!" % (self.data_dir))
             sys.exit(1)
 
         if kwargs.has_key('down_dir'):

@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import absolute_import, print_function
+
 import os
 import re
 import sys
@@ -135,7 +137,7 @@ settings = TestSettings(metadata=metadata, env_mode=myargs.env_mode,
 def prepare_list_of_tests(discover_dir):
     tests = []
 
-    print "Preparing list of available tests ..."
+    print("Preparing list of available tests ...")
 
     loader = unittest.loader.TestLoader()
     discovered_tests = loader.discover(discover_dir)
@@ -160,25 +162,25 @@ def prepare_list_of_tests(discover_dir):
 
 def list_available_test_cases(tests):
     if not tests:
-        print "\tNo tests were found!"
+        print("\tNo tests were found!")
         return False
 
-    print ""
+    print("")
 
     index_width = len(str(len(tests)))
 
     for index, test in enumerate(tests, 1):
-        print "\t --- Test ID: {id:>{width}} / HASH: {hash} ---".format(id=index, width=index_width, hash=test.hash_value())
-        print ""
+        print("\t --- Test ID: {id:>{width}} / HASH: {hash} ---".format(id=index, width=index_width, hash=test.hash_value()))
+        print("")
 
         msg = test.test.shortDescription()
 
-        print "description: %s" % (msg)
-        print ""
+        print("description: %s" % (msg))
+        print("")
 
         test.info()
 
-        print ""
+        print("")
 
     return True
 
@@ -192,7 +194,7 @@ def check_if_test_suite_is_unique(tests, chosen_suites):
         match = re.compile(r"\w+\.\w+").match(suite)
 
         if not match:
-            print "The test suite name '%s' doesn't meet naming convention (file_name.suite_name)!" % (suite)
+            print("The test suite name '%s' doesn't meet naming convention (file_name.suite_name)!" % (suite))
             sys.exit(1)
 
         for index, test in enumerate(tests):
@@ -201,7 +203,7 @@ def check_if_test_suite_is_unique(tests, chosen_suites):
                 test_indexes.add(index)
 
         if not check:
-            print "The test suite '%s' doesn't exists!" % (suite)
+            print("The test suite '%s' doesn't exists!" % (suite))
             sys.exit(1)
 
     return list(test_indexes)
@@ -230,12 +232,12 @@ def check_if_test_is_unique(tests, chosen_tests):
                         continue
 
                 if check == 0:
-                    print "Test case name '%s' was not found!" % (name)
+                    print("Test case name '%s' was not found!" % (name))
                     sys.exit(1)
                 elif check == 1:
                     continue
                 else:
-                    print "Test case name '%s' is not unique, please be more precise!" % (name)
+                    print("Test case name '%s' is not unique, please be more precise!" % (name))
                     sys.exit(1)
         elif key == 'ids':
             for id in values:
@@ -243,7 +245,7 @@ def check_if_test_is_unique(tests, chosen_tests):
                     id -= 1
                     test_indexes.add(id)
                 else:
-                    print "Test case ID '%i' is out of range!" % (id)
+                    print("Test case ID '%i' is out of range!" % (id))
                     sys.exit(1)
 
         elif key == 'hashes':
@@ -258,15 +260,15 @@ def check_if_test_is_unique(tests, chosen_tests):
                         test_indexes.add(index)
 
                 if check == 0:
-                    print "Test case hash '%s' was not found!" % (hash)
+                    print("Test case hash '%s' was not found!" % (hash))
                     sys.exit(1)
                 elif check == 1:
                     continue
                 else:
-                    print "Test case hash '%s' is not unique, please be more precise!" % (hash)
+                    print("Test case hash '%s' is not unique, please be more precise!" % (hash))
                     sys.exit(1)
         else:
-            print "Unsupported key: %s" % (key)
+            print("Unsupported key: %s" % (key))
             sys.exit(1)
 
     return list(test_indexes)
@@ -288,14 +290,14 @@ def manual_run(tests, test_indexes, verbosity):
 
 
 def auto_run():
-    print "Currently not implemented. Sorry."
+    print("Currently not implemented. Sorry.")
     sys.exit(1)
 
 
 def discover_run(discover_dir, verbosity):
     loader = unittest.loader.TestLoader()
 
-    print "Discovering tests in %s ..." % (discover_dir)
+    print("Discovering tests in %s ..." % (discover_dir))
 
     tests = loader.discover(discover_dir)
 
@@ -307,7 +309,7 @@ def main(args):
 
     if args.cmd == 'utils':
         if args.list_browsers_caps:
-            print "Available browser capabilities to use in 'distributive' mode:"
+            print("Available browser capabilities to use in 'distributive' mode:")
             metadata.print_default_browser_caps()
 
             return True
@@ -370,7 +372,7 @@ class TestObject(object):
         _match = _pattern.match(test_namespace)
 
         if not _match:
-            print "Given namespace '%s' doesn't meet pattern requirements: %s" % (test_namespace, _pattern.pattern)
+            print("Given namespace '%s' doesn't meet pattern requirements: %s" % (test_namespace, _pattern.pattern))
             sys.exit(1)
 
         self.namespace = test_namespace
@@ -402,9 +404,9 @@ class TestObject(object):
         return self.namespace.rsplit('.')[2]
 
     def info(self):
-        print "file name    = %s" % (self.file_name())
-        print "suite name   = %s" % (self.suite_name())
-        print "case name    = %s" % (self.case_name())
+        print("file name    = %s" % (self.file_name()))
+        print("suite name   = %s" % (self.suite_name()))
+        print("case name    = %s" % (self.case_name()))
 
 ########
 # MAIN #
