@@ -50,8 +50,8 @@ define [
     defaults: ->
       return _.extend {}, super(), {
         angle: 0
-        x_offset: 0
-        y_offset: 0
+        x_offset: {value: 0, units: "screen"}
+        y_offset: {value: 0, units: "screen"}
       }
 
     display_defaults: ->
