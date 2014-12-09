@@ -21,7 +21,8 @@ colors = [
 ]
 
 # EXERCISE: create a new data field for the hover tool to interrogate. It can be
-# anything you like, but it needs to have the same length as x, y, etc. foo = list(itertools.permutations("abcdef"))[:N]
+# anything you like, but it needs to have the same length as x, y, etc.
+foo = list(itertools.permutations("abcdef"))[:N]
 
 # We need to put these data into a ColumnDataSource
 source = ColumnDataSource(
