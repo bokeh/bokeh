@@ -14,6 +14,8 @@ choam = cumprod(random.lognormal(0.0, 0.04, size=num_points))
 
 TOOLS = "pan,wheel_zoom,box_zoom,reset,save"
 
+output_file("correlation.html", title="correlation.py example")
+
 r = figure(x_axis_type = "datetime", tools=TOOLS)
 
 r.line(dates, acme, color='#1F78B4', legend='ACME')
@@ -29,6 +31,4 @@ c.circle(acme, choam, color='#A6CEE3', legend='close')
 c.title = "ACME / CHOAM Correlations"
 c.grid.grid_line_alpha=0.3
 
-output_file("correlation.html", title="correlation.py example")
 show(VBox(r, c))  # open a browser
-

@@ -1,9 +1,8 @@
 import numpy as np
-import pandas as pd
-from bokeh.plotting import *
+
 from bokeh.models import HoverTool
+from bokeh.plotting import ColumnDataSource, figure, output_file, show
 from bokeh.sampledata.unemployment1948 import data
-from collections import OrderedDict
 
 # Read in the data with pandas. Convert the year column to string
 data['Year'] = [str(x) for x in data['Year']]
@@ -44,8 +43,10 @@ source = ColumnDataSource(
 # EXERCISE: output to static HTML file
 output_file('unemployment.html')
 
-# EXERCISE: create a new figure
-figure()
+# create a new figure
+p = figure(title="US Unemployment (1948 - 2013)", tools="resize,hover",
+           x_range=years, y_range=list(reversed(months)),
+           plot_width=900, plot_height=400, x_axis_location="above")
 
 # EXERCISE: use the `rect renderer with the following attributes:
 #   - x_range is years, y_range is months (reversed)
@@ -53,30 +54,25 @@ figure()
 #   - line_color for the rectangles is None
 #   - tools are resize and hover tools
 #   - add a nice title, and set the plot_width and plot_height
-rect('year', 'month', 0.95, 0.95, source=source,
-     x_axis_location="above",
-     x_range=years, y_range=list(reversed(months)),
-     color='color', line_color=None,
-     tools="resize,hover", title="US Unemployment (1948 - 2013)",
-     plot_width=900, plot_height=400)
+p.rect('year', 'month', 0.95, 0.95, source=source, color='color', line_color=None)
 
-# EXERCISE: use grid(), axis(), etc. to style the plot. Some suggestions:
+# EXERCISE: use p.grid, p.axis, etc. to style the plot. Some suggestions:
 #   - remove the axis and grid lines
 #   - remove the major ticks
 #   - make the tick labels smaller
 #   - set the x-axis orientation to vertical, or angled
-grid().grid_line_color = None
-axis().axis_line_color = None
-axis().major_tick_line_color = None
-axis().major_label_text_font_size = "5pt"
-axis().major_label_standoff = 0
-xaxis().major_label_orientation = np.pi/3
+p.grid.grid_line_color = None
+p.axis.axis_line_color = None
+p.axis.major_tick_line_color = None
+p.axis.major_label_text_font_size = "5pt"
+p.axis.major_label_standoff = 0
+p.xaxis.major_label_orientation = np.pi/3
 
 # EXERCISE: configure the  hover tool to display the month, year and rate
-hover = curplot().select(dict(type=HoverTool))
-hover.tooltips = OrderedDict([
+hover = p.select(dict(type=HoverTool))
+hover.tooltips = [
     ('date', '@month @year'),
     ('rate', '@rate'),
-])
+]
 
-show()      # show the plot
+show(p)

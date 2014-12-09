@@ -27,6 +27,7 @@ class ColumnDataSource(DataSource):
 
     # Maps field/column name to a DataRange or FactorRange object. If the
     # field is not in the dict, then a range is created automatically.
+    # TODO (bev) completely unused AFAIK but need to verify before removal
     cont_ranges = Dict(String, Instance(".models.Range"))
     discrete_ranges = Dict(String, Instance(".models.Range"))
 
@@ -37,6 +38,7 @@ class ColumnDataSource(DataSource):
         """
         if len(args) == 1 and "data" not in kw:
             kw["data"] = args[0]
+        # TODO (bev) invalid to pass args and "data", check and raise exception
         raw_data = kw.pop("data", {})
         if not isinstance(raw_data, dict):
             import pandas as pd
@@ -94,7 +96,20 @@ class ColumnDataSource(DataSource):
             del self.data[name]
         except (ValueError, KeyError):
             import warnings
-            warnings.warn("Unable to find column '%s' in datasource" % name)
+            warnings.warn("Unable to find column '%s' in data source" % name)
+
+    def push_notebook(self):
+        from IPython.core import display
+        from bokeh.protocol import serialize_json
+        id = self.ref['id']
+        model = self.ref['type']
+        json = serialize_json(self.vm_serialize())
+        js = """
+            var ds = Bokeh.Collections('{model}').get('{id}');
+            var data = {json};
+            ds.set(data);
+        """.format(model=model, id=id, json=json)
+        display.display_javascript(js, raw=True)
 
 class ServerDataSource(DataSource):
     data_url = String()

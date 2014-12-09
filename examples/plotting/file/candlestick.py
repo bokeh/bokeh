@@ -15,6 +15,8 @@ inc = df.close > df.open
 dec = df.open > df.close
 w = 12*60*60*1000 # half day in ms
 
+output_file("candlestick.html", title="candlestick.py example")
+
 TOOLS = "pan,wheel_zoom,box_zoom,reset,save"
 
 p = figure(x_axis_type="datetime", tools=TOOLS, plot_width=1000)
@@ -27,5 +29,4 @@ p.title = "MSFT Candlestick"
 p.xaxis.major_label_orientation = pi/4
 p.grid.grid_line_alpha=0.3
 
-output_file("candlestick.html", title="candlestick.py example")
 show(p)  # open a browser

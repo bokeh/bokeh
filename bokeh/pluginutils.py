@@ -18,7 +18,7 @@ def app_document(prefix, url="default"):
 
             obj = func(*args, **kwargs)
             tag = embed.autoload_server(obj, session)
-            obj.tag = tag
+            obj._tag = tag
 
             curdoc().add(obj)
             changed = session.store_document(curdoc())

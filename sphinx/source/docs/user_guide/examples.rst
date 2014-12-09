@@ -25,10 +25,11 @@ you must grab the glyph renderer off a plot, update its data source, then
 store the data source on the session. The code to animate the above plot is
 shown here::
 
-    renderer = [r for r in curplot().renderers if isinstance(r, GlyphRenderer)][0]
-    ds = renderer.data_source
+    renderer = p.select(dict(type=GlyphRenderer))
+    ds = renderer[0].data_source
 
     while True:
+
         rmin = ds.data["inner_radius"]
         rmin = roll(rmin, 1)
         ds.data["inner_radius"] = rmin
@@ -89,13 +90,14 @@ example, we will step through how to reproduce `Will Burtin's antibiotics chart
 This first block defines the data and computes some derived quantities used in the plot using
 `NumPy <http://www.numpy.org>`_ and `Pandas <http://pandas.pydata.org>`_::
 
+    from collections import OrderedDict
+    from math import log, sqrt
+
     import numpy as np
     import pandas as pd
+    from six.moves import cStringIO as StringIO
+
     from bokeh.plotting import *
-    from bokeh.models import Range1d
-    from StringIO import StringIO
-    from math import log, sqrt
-    from collections import OrderedDict
 
     antibiotics = """
     bacteria,                        penicillin, streptomycin, neomycin, gram
@@ -146,77 +148,79 @@ This first block defines the data and computes some derived quantities used in t
     big_angle = 2.0 * np.pi / (len(df) + 1)
     small_angle = big_angle / 7
 
+    x = np.zeros(len(df))
+    y = np.zeros(len(df))
+
 Configure Bokeh to generate static HTML output using ``output_file``::
 
     output_file("burtin.html", title="burtin.py example")
 
-We are going to be combining several glyph renderers on to one plot, first we need to tell Bokeh to
-reuse the same plot using ``hold``::
+We are going to be combining several glyph renderers on to one plot, so let define a figure::
 
-    hold()
+    p = figure(plot_width=width, plot_height=height, title="",
+        x_axis_type=None, y_axis_type=None,
+        x_range=[-420, 420], y_range=[-420, 420],
+        min_border=0, outline_line_color=None,
+        background_fill="#f0e1d2", border_fill="#f0e1d2")
 
-Next we add the first glyph, the red and blue regions using ``annular_wedge``. We also take this
-opportunity toset some of the overall properties of the plot::
+Next we add the first glyph::
 
-    angles = np.pi/2 - big_angle/2 - df.index*big_angle
+    p.line(x+1, y+1, alpha=0)
+
+then the red and blue regions using ``annular_wedge``::
+
+    # annular wedges
+    angles = np.pi/2 - big_angle/2 - df.index.to_series()*big_angle
     colors = [gram_color[gram] for gram in df.gram]
-    annular_wedge(
+    p.annular_wedge(
         x, y, inner_radius, outer_radius, -big_angle+angles, angles, color=colors,
-        plot_width=width, plot_height=height, title="", tools="", x_axis_type=None, y_axis_type=None
     )
 
-Next we grab the current plot using ``curplot`` and customize the look of the plot further::
+finally some others small wedges representing the antibiotic effectiveness and the radial axes::
 
-    plot = curplot()
-    plot.x_range = Range1d(start=-420, end=420)
-    plot.y_range = Range1d(start=-420, end=420)
-    plot.min_border = 0
-    plot.background_fill = "#f0e1d2"
-    plot.border_fill = "#f0e1d2"
-    plot.outline_line_color = None
-    xgrid().grid_line_color = None
-    ygrid().grid_line_color = None
+    # small wedges
+    p.annular_wedge(x, y, inner_radius, rad(df.penicillin),
+        -big_angle+angles+5*small_angle, -big_angle+angles+6*small_angle,
+        color=drug_color['Penicillin'])
+    p.annular_wedge(x, y, inner_radius, rad(df.streptomycin),
+        -big_angle+angles+3*small_angle, -big_angle+angles+4*small_angle,
+        color=drug_color['Streptomycin'])
+    p.annular_wedge(x, y, inner_radius, rad(df.neomycin),
+        -big_angle+angles+1*small_angle, -big_angle+angles+2*small_angle,
+        color=drug_color['Neomycin'])
 
-Add the small wedges representing the antibiotic effectiveness, also using ``annular_wedge``::
+    # radial axes
+    p.annular_wedge(x, y, inner_radius-10, outer_radius+10,
+        -big_angle+angles, -big_angle+angles, color="black")
 
-    annular_wedge(
-        x, y, inner_radius, rad(df.penicillin), -big_angle+angles + 5*small_angle, -big_angle+angles+6*small_angle, color=drug_color['Penicillin'],
-    )
-    annular_wedge(
-        x, y, inner_radius, rad(df.streptomycin), -big_angle+angles + 3*small_angle, -big_angle+angles+4*small_angle, color=drug_color['Streptomycin'],
-    )
-    annular_wedge(
-        x, y, inner_radius, rad(df.neomycin), -big_angle+angles + 1*small_angle, -big_angle+angles+2*small_angle, color=drug_color['Neomycin'],
-    )
+Then we add some text labels for the bacteria using ``text``::
 
-Add circular and radial axes lines using ``circle``, ``text``, and ``annular_wedge``::
-
-    labels = np.power(10.0, np.arange(-3, 4))
-    radii = a * np.sqrt(np.log(labels * 1E4)) + b
-    circle(x, y, radius=radii, fill_color=None, line_color="white")
-    text(x[:-1], radii[:-1], [str(r) for r in labels[:-1]], text_font_size="8pt", text_align="center", text_baseline="middle")
-
-    annular_wedge(
-        x, y, inner_radius-10, outer_radius+10, -big_angle+angles, -big_angle+angles, color="black",
-    )
-
-Text labels for the bacteria using ``text``::
-
+    # bacteria labels
     xr = radii[0]*np.cos(np.array(-big_angle/2 + angles))
     yr = radii[0]*np.sin(np.array(-big_angle/2 + angles))
     label_angle=np.array(-big_angle/2+angles)
     label_angle[label_angle < -np.pi/2] += np.pi # easier to read labels on the left side
-    text(xr, yr, df.bacteria, angle=label_angle, text_font_size="9pt", text_align="center", text_baseline="middle")
+    p.text(xr, yr, df.bacteria, angle=label_angle,
+        text_font_size="9pt", text_align="center", text_baseline="middle")
 
-Legends (by hand, for now) using ``circle``, ``text``, and ``rect``::
+some legends using ``circle``, ``text``, and ``rect``::
 
-    circle([-40, -40], [-370, -390], color=gram_color.values(), radius=5)
-    text([-30, -30], [-370, -390], text=["Gram-" + x for x in gram_color.keys()], text_font_size="7pt", text_align="left", text_baseline="middle")
+    # OK, these hand drawn legends are pretty clunky, will be improved in future release
+    p.circle([-40, -40], [-370, -390], color=list(gram_color.values()), radius=5)
+    p.text([-30, -30], [-370, -390], text=["Gram-" + gr for gr in gram_color.keys()],
+        text_font_size="7pt", text_align="left", text_baseline="middle")
 
-    rect([-40, -40, -40], [18, 0, -18], width=30, height=13, color=drug_color.values())
-    text([-15, -15, -15], [18, 0, -18], text=drug_color.keys(), text_font_size="9pt", text_align="left", text_baseline="middle")
+    p.rect([-40, -40, -40], [18, 0, -18], width=30, height=13,
+        color=list(drug_color.values()))
+    p.text([-15, -15, -15], [18, 0, -18], text=list(drug_color.keys()),
+        text_font_size="9pt", text_align="left", text_baseline="middle")
+
+and we get rid of the grid lines::
+
+    p.xgrid.grid_line_color = None
+    p.ygrid.grid_line_color = None
 
 Finally, show the plot::
 
-    show()
+    show(p)
 

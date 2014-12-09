@@ -3,6 +3,8 @@ import pandas as pd
 from bokeh.sampledata.glucose import data
 from bokeh.plotting import *
 
+output_file("glucose.html", title="glucose.py example")
+
 TOOLS = "pan,wheel_zoom,box_zoom,reset,save"
 
 p1 = figure(x_axis_type="datetime", tools=TOOLS)
@@ -45,6 +47,4 @@ p3.title = "Glucose In-Range Rolling Sum"
 p3.xaxis.axis_label = 'Date'
 p3.yaxis.axis_label = 'Proportion In-Range'
 
-output_file("glucose.html", title="glucose.py example")
 show(VBox(p1,p2,p3))
-

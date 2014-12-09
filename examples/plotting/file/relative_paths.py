@@ -12,10 +12,11 @@ N = 100
 x = np.linspace(0, 4*np.pi, N)
 y = np.sin(x)
 
+output_file("relative_paths.html", title="Relative path example", mode="relative")
+
 p = figure(tools="pan,wheel_zoom,box_zoom,reset,save")
 p.circle(x,y, alpha=0.5, color="tomato", radius=0.1)
 
-output_file("relative_paths.html", title="Relative path example", mode="relative")
 show(p)
 
 # By default, the URLs for the Javascript and CSS will be relative to
@@ -25,4 +26,3 @@ show(p)
 #
 # output_file("relative_paths.html", title="Relative path example",
 #             resources="relative", rootdir="some/other/path")
-

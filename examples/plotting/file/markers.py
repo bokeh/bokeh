@@ -10,6 +10,8 @@ def mtext(p, x, y, textstr):
     p.text(x, y, text=textstr,
          text_color="#449944", text_align="center", text_font_size="10pt")
 
+output_file("markers.html")
+
 p = figure(title="markers.py example")
 
 N = 10
@@ -44,5 +46,4 @@ mtext(p, [4.5], [6.5], "square_cross")
 mtext(p, [6.5], [6.5], "diamond")
 mtext(p, [8.5], [6.5], "cross / +")
 
-output_file("markers.html")
 show(p)  # open a browser

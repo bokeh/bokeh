@@ -3,6 +3,8 @@ import numpy as np
 from bokeh.sampledata.stocks import AAPL, FB, GOOG, IBM, MSFT
 from bokeh.plotting import *
 
+output_file("stocks.html", title="stocks.py example")
+
 p1 = figure(x_axis_type = "datetime")
 
 p1.line(np.array(AAPL['date'], 'M64'), AAPL['adj_close'], color='#A6CEE3', legend='AAPL')
@@ -33,6 +35,4 @@ p2.grid.grid_line_alpha=0.3
 p2.xaxis.axis_label = 'Date'
 p2.yaxis.axis_label = 'Price'
 
-output_file("stocks.html", title="stocks.py example")
 show(VBox(p1,p2))  # open a browser
-

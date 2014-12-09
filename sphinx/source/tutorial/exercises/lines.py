@@ -1,54 +1,26 @@
-from __future__ import division
+from bokeh.plotting import figure, HBox, output_file, show, VBox
+from bokeh.models import Range1d
 
-import numpy as np
-from bokeh.plotting import *
+# create some data using python lists
+x1 = [0, 1, 2, 3, 4, 5,  6,  7, 8,   9, 10]
+y1 = [0, 8, 2, 4, 6, 9, 15, 18, 19, 25, 28]
 
-# Skip the first point because it can be troublesome
-theta = np.linspace(0, 8*np.pi, 10000)[1:]
+# EXERCISE: create two more data sets, x2, y2 and x3, y3, however
+# you want. Make sure the corresponding x and y data are the same length
 
-# Compute the radial coordinates for some different spirals
-lituus = theta**(-1/2)          # lituus
-golden = np.exp(0.306349*theta) # golden
-arch   = theta                  # Archimedean
-fermat = theta**(1/2)           # Fermat's
+# specify and output static HTML file
+output_file("scatter.html")
 
-# Now compute the X and Y coordinates (polar mappers planned for Bokeh later)
-golden_x = golden*np.cos(theta)
-golden_y = golden*np.sin(theta)
-lituus_x = lituus*np.cos(theta)
-lituus_y = lituus*np.sin(theta)
-arch_x   = arch*np.cos(theta)
-arch_y   = arch*np.sin(theta)
-fermat_x = fermat*np.cos(theta)
-fermat_y = fermat*np.sin(theta)
+# EXERCISE: Plot all the sets of points on different plots p1, p2, p3.
+# Try setting `color` (or `line_color`) and `alpha` (or `line_alpha`).
+# You can also set `line_dash` and `line_width`. One example is given.
+p1 = figure(plot_width=300, plot_height=300)
+p1.line(x1, y1, size=12, color="red", alpha=0.5)
 
-# output to static HTML file
-output_file("lines.html")
+# create a figure
+p4 = figure()
 
-# Plot the Archimedean spiral using the `line` renderer. Note how we set the
-# color, line thickness, title, and legend value.
-line(arch_x, arch_y, color="red", line_width=2,
-     title="Archimean", legend="Archimedean")
+# EXERCISE: add all the same renderers above, on this one plot
 
-# EXERCISE: reproduce the above plot for one of the other spirals
-
-# Let's try to put all lines on one plot for comparison. First we need to
-# turn on `hold` so that each renderer does not create a brand new plot
-hold()
-
-# Next we need to actually create a new figure, so that the following
-# renderers work on a new plot, and not the last one.
-figure()
-
-# EXERCISE: add all four spirals to one plot, each with different line colors
-# and legend values. NOTE: title only set on the first renderer.
-
-# OK, so that doesn't look so good because Bokeh tried to autoscale to
-# accomodate all the data. We can use set the plot range explicitly
-
-# EXERCISE: create a new figure
-
-# EXERCISE: add x_range and y_range parameters to the first `line`, to set the
-# range to [-10, 10].
-
-show()      # show the plot
+# show the plots arrayed in a VBox
+show(VBox(HBox(p1, p2, p3), p4))

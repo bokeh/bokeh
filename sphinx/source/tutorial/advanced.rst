@@ -21,7 +21,7 @@ example of a larger categorical heatmap. Let's see if we can make our own chart 
 .. literalinclude:: exercises/les_mis.py
    :language: python
    :linenos:
-   :emphasize-lines: 10,47,49,50,52,54,55,56,58,59,60,61,62
+   :emphasize-lines: 7,44,46,47,55,56,57,59,60,61,62,63,65,66,68
 
 See the :doc:`solutions/gallery/les_mis`
 
@@ -33,6 +33,6 @@ Periodic Table of Elements
 .. literalinclude:: exercises/periodic.py
    :language: python
    :linenos:
-   :emphasize-lines: 52,53,54,56,57,58,72,73,75,76,78,79,84,85,86,87,88,89,90
+   :emphasize-lines: 56,57,59,60,61,74,75,77,78,80,81,86,87,88,89,90,91,92,94
 
 See the :doc:`solutions/gallery/periodic`.

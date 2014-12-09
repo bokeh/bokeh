@@ -1,8 +1,6 @@
-import pandas as pd
-from bokeh.plotting import *
-from bokeh.sampledata import periodic_table
+from bokeh.plotting import figure, output_file, show
 from bokeh.models import HoverTool, ColumnDataSource
-from collections import OrderedDict
+from bokeh.sampledata import periodic_table
 
 # categories need to be strings
 elements = periodic_table.elements[periodic_table.elements['group'] != "-"]
@@ -32,10 +30,13 @@ source = ColumnDataSource(
     data=dict(
         group=[str(x) for x in elements['group']],
         period=[str(y) for y in elements['period']],
+
+        # these are "categorical coordinates"
         symx=[str(x)+":0.1" for x in elements['group']],
         numbery=[str(x)+":0.8" for x in elements['period']],
         massy=[str(x)+":0.15" for x in elements['period']],
         namey=[str(x)+":0.3" for x in elements['period']],
+
         sym=elements['symbol'],
         name=elements['name'],
         cpk=elements['CPK'],
@@ -47,27 +48,28 @@ source = ColumnDataSource(
     )
 )
 
-hold()
+# create a figure
+p = figure(title="Periodic Table", tools="resize,hover",
+           x_range=group_range, y_range=period_range,
+           plot_width=1200)
 
 # EXERCISE: add a `rect` renderer to display a rectangle at each group and column
-# Use group_range for x_range and period_range for y_range. Rememeber to add a
-# 'hover' to the tools and make your plot fairly wide.
+# Use group_range for x_range and period_range for y_range.
 
 # EXERCISE: we will be setting several of the same properties on the text renderers
 # below. Add to this dictionary to set the text alignment to 'left' and the text
 # baseline to 'middle'
 text_props = {
-    "source": source,
-    "angle": 0,
-    "color": "black",
+
 }
 
-# Since text can be interpreted as a data source field name in general, we have
-# to specify the text a little more verbosely with a dictionary, as below
-text(x=dict(field="symx", units="data"),
-     y=dict(field="period", units="data"),
-     text=dict(field="sym", units="data"),
-     text_font_style="bold", text_font_size="15pt", **text_props)
+# Since text can be interpreted as a data source field name in general, and the
+# category names and locations are text, we have to specify the fields a little
+# more verbosely with a dictionary, as below
+p.text(x=dict(field="symx", units="data"),
+       y=dict(field="period", units="data"),
+       text=dict(field="sym", units="data"),
+       text_font_style="bold", text_font_size="15pt", **text_props)
 
 # EXERCISE: add text that displays the atomic number in each square with 9pt font.
 # Use 'numbery' for the y position.
@@ -79,7 +81,7 @@ text(x=dict(field="symx", units="data"),
 # Use 'massy' for the y position.
 
 # turn off the grid lines
-grid().grid_line_color = None
+p.grid.grid_line_color = None
 
 # EXERCISE: configure a hover tool that displays the following:
 # * name
@@ -88,9 +90,5 @@ grid().grid_line_color = None
 # * atomic mass
 # * CPK color
 # * electronic configuration
-hover = curplot().select(dict(type=HoverTool))
-hover.tooltips = OrderedDict([
-    # add to me
-])
 
-show()
+# EXERCISE: show the plot
