@@ -133,8 +133,7 @@ def check_if_element_exists(driver, element, method='css_selector'):
         elif method == 'xpath':
             ret = WDW(driver, DEF_WDW_WAIT_TIME).until(EC.presence_of_element_located((By.XPATH, element)))
         else:
-            print("Unsupported method: %s" % (method))
-            sys.exit(1)
+            raise ValueError("Unsupported method: %s" % (method))
     except TimeoutException:
         return False
 
