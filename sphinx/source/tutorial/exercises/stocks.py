@@ -1,4 +1,3 @@
-
 ###
 ### NOTE: This exercise requires a network connection
 ###

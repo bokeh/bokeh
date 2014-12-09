@@ -57,7 +57,7 @@ p2.line(x, pdf, line_color="#D95B43", line_width=8, alpha=0.7, legend="PDF")
 p2.line(x, cdf, line_color="white", line_width=2, alpha=0.7, legend="CDF")
 p2.legend.orientation = "bottom_right"
 
-# EXERCISE (optional): Add new plots for the following distributions:
+# EXERCISE: (optional): Add new plots for the following distributions:
 # * Gamma
 # * Beta
 # * Weibull

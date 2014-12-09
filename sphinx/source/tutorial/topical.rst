@@ -18,7 +18,7 @@ ticks on datetime axes. Here we will plot some stock data taken from the `Yahoo 
 .. literalinclude:: exercises/stocks.py
    :language: python
    :linenos:
-   :emphasize-lines: 30,31,39,41,51,52,54,56
+   :emphasize-lines: 29,30,38,40,50,51,53,55
 
 See the :doc:`solutions/gallery/stocks`.
 
@@ -41,7 +41,7 @@ coordinates for left, right, top, and bottom.
 .. literalinclude:: exercises/histogram.py
    :language: python
    :linenos:
-   :emphasize-lines: 19,52
+   :emphasize-lines: 19,52,54,55,56,57,58
 
 See the :doc:`solutions/gallery/histogram`.
 

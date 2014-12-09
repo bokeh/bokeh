@@ -51,7 +51,7 @@ cdf = (1+scipy.special.erf((np.log(x)-mu)/(np.sqrt(2)*sigma)))/2
 
 # EXERCISE: recreate the first plot for this new data
 
-# EXERCISE (optional): Add new plots for the following distributions:
+# EXERCISE: (optional): Add new plots for the following distributions:
 # * Gamma
 # * Beta
 # * Weibull
