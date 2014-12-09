@@ -1,11 +1,8 @@
-import json
 import numpy as np
 
-from bokeh.plotting import *
+from bokeh.plotting import figure, output_file, show
 from bokeh.models import HoverTool, ColumnDataSource
 from bokeh.sampledata.les_mis import data
-
-from collections import OrderedDict
 
 # EXERCISE: try out different sort orders for the names
 nodes = data['nodes']
@@ -49,23 +46,23 @@ for i, n1 in enumerate(nodes):
 # EXERCISE: create a ColumnDataSource to hold the xnames, ynames, colors, alphas,
 # and counts. NOTE: the counts array is 2D and will need to be flattened
 
-# EXERCISE: create a new figure
+# create a new figure
+p = figure(title="Les Mis Occurrences (one at a time)",
+           x_axis_location="above", tools="resize,hover",
+           x_range=list(reversed(names)), y_range=names,
+           plot_width=800, plot_height=800)
 
-# EXERCISE: use the `rect` renderer to render a categorical heatmap of all the
+# EXERCISE: use the `p.rect` renderer to render a categorical heatmap of all the
 # data. Experiment with the widths and heights (use categorical percentage
-# unite) as well as colors and alphas. Add hover and resize tools.
+# unite) as well as colors and alphas.
 
-# EXERCISE: use grid(), axis(), etc. to style the plot. Some suggestions:
+# EXERCISE: use p.grid, p.axis, etc. to style the plot. Some suggestions:
 #   - remove the axis and grid lines
 #   - remove the major ticks
 #   - make the tick labels smaller
 #   - set the x-axis orientation to vertical, or angled
 
-# EXERCISE configure the hover tool to display both names as well as
+# EXERCISE: configure the hover tool to display both names as well as
 # the count value as tooltips
-hover = curplot().select(dict(type=HoverTool))
-hover.tooltips = OrderedDict([
-    # fill me in
-])
 
-show()      # show the plot
+# EXERCISE: show the plot
