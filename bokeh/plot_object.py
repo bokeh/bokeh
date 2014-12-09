@@ -46,7 +46,7 @@ class Viewable(MetaHasProps):
 
     @classmethod
     def _preload_models(cls):
-        from . import objects, widgets
+        from . import models
         from .crossfilter import objects
 
     @classmethod
