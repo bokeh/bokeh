@@ -23,7 +23,7 @@ from bokeh.transforms import image_downsample
 from bokeh.transforms import ar_downsample
 
 from .app import bokeh_app
-from .models import user
+from .models import user, docs, convenience
 from .models import UnauthorizedException
 
 class AbstractServerModelStorage(object):
@@ -174,7 +174,23 @@ class AbstractAuthentication(object):
         """
         raise NotImplementedError
 
+    def can_write_doc(self, docid):
+        """whether or not a user can write to a doc
+        """
+        raise NotImplementedError
+
+    def can_read_doc(self, docid):
+        """whether or not a user can read a doc
+        """
+        raise NotImplementedError
+
 class SingleUserAuthentication(AbstractAuthentication):
+    def can_write_doc(self, docid):
+        return True
+
+    def can_read_doc(self, docid):
+        return True
+
     def current_user_name(self):
         return "defaultuser"
 
@@ -191,6 +207,13 @@ class SingleUserAuthentication(AbstractAuthentication):
         return bokehuser
 
 class MultiUserAuthentication(AbstractAuthentication):
+    def can_write_doc(self, docid):
+        doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
+        return convenience.can_write_from_request(doc, request, bokeh_app)
+
+    def can_read_doc(self, docid):
+        doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
+        return convenience.can_read_from_request(doc, request, bokeh_app)
 
     def login(self, username):
         session['username'] = username

@@ -16,7 +16,7 @@ from bokeh.exceptions import DataIntegrityException
 from bokeh.resources import Resources
 from bokeh.templates import AUTOLOAD
 
-from .bbauth import check_read_authentication_and_create_client
+from .bbauth import check_read_authentication
 from ..app import bokeh_app
 from ..crossdomain import crossdomain
 from ..models import convenience as mconv
@@ -150,7 +150,7 @@ def get_user():
 @bokeh_app.route('/bokeh/doc/<docid>/', methods=['GET', 'OPTIONS'])
 @bokeh_app.route('/bokeh/bokehinfo/<docid>/', methods=['GET', 'OPTIONS'])
 @crossdomain(origin="*", headers=['BOKEH-API-KEY', 'Continuum-Clientid'])
-@check_read_authentication_and_create_client
+@check_read_authentication
 def get_bokeh_info(docid):
     return _get_bokeh_info(docid)
 
@@ -228,7 +228,7 @@ def autoload_js(elementid):
 
 @bokeh_app.route('/bokeh/objinfo/<docid>/<objid>', methods=['GET', 'OPTIONS'])
 @crossdomain(origin="*", headers=['BOKEH-API-KEY', 'Continuum-Clientid'])
-@check_read_authentication_and_create_client
+@check_read_authentication
 def get_bokeh_info_one_object(docid, objid):
     doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
     clientdoc = bokeh_app.backbone_storage.get_document(docid)
