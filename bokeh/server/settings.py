@@ -67,7 +67,7 @@ class Settings(object):
         self.ws_conn_string = args.ws_conn_string
         self.ws_port = args.ws_port
         self.debug = args.debug
-        self.dev = args.dev
+        self.debugjs = args.debugjs
         self.splitjs = args.splitjs
         self.robust_reload = args.robust_reload
         self.verbose = args.verbose
