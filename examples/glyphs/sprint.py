@@ -65,7 +65,8 @@ ydr = DataRange1d(sources=[source.columns("Year")], rangepadding=0.05) # XXX: sh
 plot = Plot(title=title, x_range=xdr, y_range=ydr, plot_width=1000, plot_height=600, toolbar_location=None, outline_line_color=None)
 
 xticker = SingleIntervalTicker(interval=5, num_minor_ticks=0)
-xaxis = LinearAxis(ticker=xticker, axis_line_color=None, major_tick_line_color=None)
+xaxis = LinearAxis(ticker=xticker, axis_line_color=None, major_tick_line_color=None,
+    axis_label="Meters behind 2012 Bolt", axis_label_text_font_size="10pt", axis_label_text_font_style="bold")
 plot.add_layout(xaxis, "below")
 xgrid = Grid(dimension=0, ticker=xaxis.ticker, grid_line_dash="dashed")
 plot.add_layout(xgrid)
@@ -78,12 +79,12 @@ medal_glyph = Circle(x="MetersBack", y="Year", radius=radius, fill_color="MedalF
 medal = plot.add_glyph(source, medal_glyph)
 
 athlete_glyph = Text(x="MetersBack", y="Year", x_offset=10, text="SelectedName",
-    text_align="left", text_baseline="middle", text_font_size="10pt")
+    text_align="left", text_baseline="middle", text_font_size="9pt")
 athlete = plot.add_glyph(source, athlete_glyph)
 
 no_olympics_glyph = Text(x=7.5, y=1942, text=["No Olympics in 1940 or 1944"],
     text_align="center", text_baseline="middle",
-    text_font_size="10pt", text_font_style="italic", text_color="silver")
+    text_font_size="9pt", text_font_style="italic", text_color="silver")
 no_olympics = plot.add_glyph(no_olympics_glyph)
 
 tooltips = [
