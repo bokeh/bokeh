@@ -112,7 +112,7 @@ def NonInteractiveParser(parser):
 
     return parser
 
-parser = argparse.ArgumentParser(prog=SCRIPT_NAME)
+parser = argparse.ArgumentParser(prog=SCRIPT_NAME, description="Flexible tool responsbile of launching selenium tests for a number of different ways.")
 
 if __name__ == '__main__':
     parser = InteractiveParser(parser)
