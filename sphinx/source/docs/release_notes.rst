@@ -4,15 +4,25 @@
 Release Notes
 #############
 
+v0.7.0 (Dic 2014)
+=================
+* IPython widgets and animations without a Bokeh server
+* Touch UI working for tools on mobile devices
+* Vastly improved linked data table
+* More new (and improving) bokeh.charts (high level charting interface)
+* Color mappers on the python side
+* Improved toolbar
+* Many new tools: lasso, poly, and point selection, crosshair inspector
+
 v0.6.1 (Sep 2014)
 =================
-  * Toolbar enhancements
-  * bokeh-server fixes
-  * Improved documentation
-  * Button widgets
-  * Google map support in the Python side
-  * Code cleanup in the JS side and examples
-  * New examples
+* Toolbar enhancements
+* bokeh-server fixes
+* Improved documentation
+* Button widgets
+* Google map support in the Python side
+* Code cleanup in the JS side and examples
+* New examples
 
 v0.6.0 (Sep 2014)
 =================

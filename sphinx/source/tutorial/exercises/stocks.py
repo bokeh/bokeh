@@ -1,7 +1,11 @@
+###
+### NOTE: This exercise requires a network connection
+###
+
 import numpy as np
 import pandas as pd
 
-from bokeh.plotting import *
+from bokeh.plotting import figure, output_file, show, VBox
 
 # Here is some code to read in some stock data from the Yahoo Finance API
 AAPL = pd.read_csv(
@@ -19,17 +23,16 @@ IBM = pd.read_csv(
 
 output_file("stocks.html", title="stocks.py example")
 
-# EXERCISE: turn on plot hold
+# create a figure
+p1 = figure(title="Stocks")
 
 # EXERCISE: finish this line plot, and add more for the other stocks. Each one should
 # have a legend, and its own color.
-line(
+p1.line(
     AAPL['Date'],                                       # x coordinates
     AAPL['Adj Close'],                                  # y coordinates
     color='#A6CEE3',                                    # set a color for the line
     legend='AAPL',                                      # attach a legend label
-    x_axis_type = "datetime",                           # NOTE: only needed on first
-    tools="pan,wheel_zoom,box_zoom,reset,previewsave"   # NOTE: only needed on first
 )
 
 # EXERCISE: style the plot, set a title, lighten the gridlines, etc.
@@ -45,11 +48,11 @@ window = np.ones(window_size)/float(window_size)
 aapl_avg = np.convolve(aapl, window, 'same')
 
 # EXERCISE: plot a scatter of circles for the individual AAPL prices with legend
-# 'close'. Remember to set the x axis type and tools on the first renderer.
+# 'close'. Remember to set the x axis type and tools on the first renderer
 
 # EXERCISE: plot a line of the AAPL moving average data with the legeng 'avg'
 
 # EXERCISE: style the plot, set a title, lighten the gridlines, etc.
 
-show()  # open a browser
+show(VBox(p1, p2))  # open a browser
 

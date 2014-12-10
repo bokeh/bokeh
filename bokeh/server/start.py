@@ -25,10 +25,10 @@ from .serverbb import (
     InMemoryBackboneStorage, RedisBackboneStorage, ShelveBackboneStorage
 )
 from bokeh import plotting # imports custom objects for plugin
-from bokeh import glyphs, objects, protocol # import objects so that we can resolve them
+from bokeh import models, protocol # import objects so that we can resolve them
 from bokeh.utils import scale_delta
 # this just shuts up pyflakes
-glyphs, objects, plotting, protocol
+models, plotting, protocol
 from . import services
 from .app import bokeh_app, app
 from .configure import (configure_flask, make_tornado_app,

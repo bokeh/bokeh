@@ -143,7 +143,7 @@ class Population(object):
     location = "World"
 
     def __init__(self):
-        from bokeh.objects import ColumnDataSource
+        from bokeh.models import ColumnDataSource
         from bokeh.document import Document
         from bokeh.session import Session
         from bokeh.sampledata.population import load_population
@@ -166,9 +166,9 @@ class Population(object):
         self.update_pyramid()
 
     def pyramid_plot(self):
-        from bokeh.objects import (Plot, DataRange1d, LinearAxis, Grid,
-                                   Legend, SingleIntervalTicker)
-        from bokeh.glyphs import Quad
+        from bokeh.models import (Plot, DataRange1d, LinearAxis, Grid,
+                                  Legend, SingleIntervalTicker)
+        from bokeh.models.glyphs import Quad
 
         xdr = DataRange1d(sources=[self.source_pyramid.columns("male"),
                                    self.source_pyramid.columns("female")])

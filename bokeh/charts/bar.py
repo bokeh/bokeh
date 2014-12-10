@@ -26,7 +26,7 @@ except ImportError:
     raise
 
 from ._chartobject import ChartObject, DataAdapter
-from ..objects import ColumnDataSource, FactorRange, Range1d
+from ..models import ColumnDataSource, FactorRange, Range1d
 
 #-----------------------------------------------------------------------------
 # Classes and functions
