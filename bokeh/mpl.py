@@ -201,10 +201,14 @@ class BokehRenderer(Renderer):
             "D": Diamond,
             "*": Asterisk,
         }
-        if style['marker'] not in marker_map:
-            warnings.warn("Unable to handle marker: %s" % style['marker'])
-
-        marker = marker_map[style['marker']]()
+       
+        # Not all matplotlib markers are currently handled; fall back to Circle if we encounter an
+        # unhandled marker.  See http://matplotlib.org/api/markers_api.html for a list of markers.
+        try:
+            marker = marker_map[style['marker']]()
+        except KeyError:
+            warnings.warn("Unable to handle marker: %s; defaulting to Circle" % style['marker'])
+            marker = Circle()
         marker.x = self.source.add(x)
         marker.y = self.source.add(y)
         self.xdr.sources.append(self.source.columns(marker.x))
@@ -454,4 +458,4 @@ def to_bokeh(fig=None, name=None, server=None, notebook=False, pd_obj=True,
     doc._current_plot = renderer.fig  # TODO (bev) do not rely on private attrs
     doc.add(renderer.fig)
 
-    show()
+    show(renderer.fig)

@@ -20,7 +20,7 @@ It also add detection of the incomming input to see if it is a pandas dataframe.
 from six import string_types
 import numpy as np
 from ._chartobject import ChartObject, DataAdapter
-from ..objects import ColumnDataSource, Range1d, DataRange1d
+from ..models import ColumnDataSource, Range1d, DataRange1d
 
 #-----------------------------------------------------------------------------
 # Classes and functions

@@ -1,7 +1,8 @@
 from __future__ import division
 
 import numpy as np
-from bokeh.plotting import *
+
+from bokeh.plotting import figure, output_file, show, VBox
 
 # NOTE: if you do have numba installed, uncomment out this import,
 # and the 'autojit' lines below (the example will run more quickly).
@@ -55,50 +56,44 @@ create_fractal(min_x, max_x, min_y, max_y, img, 20)
 # EXERCISE: output static HTML file
 output_file("image.html")
 
+# create a figure, setting the x and y ranges to the appropriate data bounds
+p1 = figure(title="Mandelbrot", plot_width=900, plot_height=600,
+  x_range = [min_x, max_x], y_range = [min_y, max_y])
+
 # EXERCISE: Fill in the missing parameters to use the `image` renderer to
-# display the Mandelbrot image with the title 'Mandelbrot', colormapped
-# with the palette 'Spectral11', and a fixed range given by (min_x, max_x)
-# and (min_y, max_y).
+# display the Mandelbrot image color mapped with the palette 'Spectral11'
 #
 # NOTE: the `image` renderer can display many images at once, so it takes
 # **lists** of images, coordinates, and palettes. Remember to supply sequences
 # for these parameters, even if you are just supplying one.
-image(image=[img],
-      x=[min_x],
-      y=[min_y],
-      dw=[max_x-min_x],
-      dh=[max_y-min_y],
-      palette="Spectral11",
-      x_range = [min_x, max_x],
-      y_range = [min_y, max_y],
-      title="Mandelbrot",
-      tools="pan,wheel_zoom,box_zoom,reset,previewsave",
-      plot_width=900,
-      plot_height=600
+p1.image(image=[img],             # image data
+         x=[min_x],               # lower left x coord
+         y=[min_y],               # lower left y coord
+         dw=[max_x-min_x],        # *data space* width of image
+         dh=[max_y-min_y],        # *data space* height of image
+         palette="Spectral11",    # palette name
 )
 
-# EXERCISE: create a new figure
-figure()
+# create a new figure
+p2 = figure(title="RGBA image", x_range = [0,10], y_range = [0,10])
 
 # We can also use the `image_rgba` renderer to display RGBA images that
-# we have colormapped ourselves.
+# we have color mapped ourselves.
 N = 20
 img = np.empty((N,N), dtype=np.uint32)
 view = img.view(dtype=np.uint8).reshape((N, N, 4))
 for i in range(N):
     for j in range(N):
-        view[i, j, 0] = int(i/N*255)
-        view[i, j, 1] = 158
-        view[i, j, 2] = int(j/N*255)
-        view[i, j, 3] = 255
+        view[i, j, 0] = int(i/N*255) # red
+        view[i, j, 1] = 158          # green
+        view[i, j, 2] = int(j/N*255) # blue
+        view[i, j, 3] = 255          # alpha
 
 # EXERCISE: use `image_rgba` to display the image above. Use the following
 # cordinates: (x0,y0) = (0,0)  and (x1,y1) = (10,10). Remember to set the
 # x_range and y_range explicitly as above.
-image_rgba(
-    image=[img], x=[0], y=[0], dw=[10], dh=[10],
-    x_range = [0, 10], y_range = [0, 10],
-    tools="pan,wheel_zoom,box_zoom,reset,previewsave", name="image_example")
+p2.image_rgba(image=[img], x=[0], y=[0], dw=[10], dh=[10])
 
-show()      # show the plot
+# show the plots arrayed in a VBox
+show(VBox(p1, p2))
 

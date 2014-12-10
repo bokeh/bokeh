@@ -1,7 +1,6 @@
-
 import numpy as np
-import pandas as pd
-from bokeh.plotting import *
+
+from bokeh.plotting import brewer, figure, output_file, show
 
 # Define some categories
 categories = [
@@ -37,6 +36,10 @@ colors = brewer["Spectral"][len(ys)]
 # EXERCISE: output static HTML file
 output_file("style.html")
 
+# create a figure
+p = figure(title="Categories of Brewering", background_fill="lightgrey",
+           tools="resize,reset,save", x_range=categories, y_range=[0, 800])
+
 # EXERCISE: play around with parameters like:
 #   - line_color
 #   - line_alpha
@@ -44,21 +47,18 @@ output_file("style.html")
 #   - line_dash   (e.g., [2,4])
 #   - fill_color
 #   - fill_alpha
-#   - background_fill
-patches(xs, ys, x_range=categories, y_range=[0, 800],
-        color=colors, alpha=0.8, line_color=None, background_fill="lightgrey",
-        title="Categories of Brewering")
+p.patches(xs, ys, color=colors, alpha=0.8, line_color=None)
 
 # EXERCISE: configure all of the following plot properties
-ygrid().grid_line_color = "white"
-ygrid().grid_line_width = 2
-axis().major_label_text_font_size = "12pt"
-axis().major_label_text_font_style = "bold"
-axis().major_label_standoff = 10            # distance of tick labels from ticks
-axis().axis_line_color = None               # color, or None, to suppress the line
-xaxis().major_label_orientation = np.pi/4   # radians, "horizontal", "vertical", "normal"
-xaxis().major_tick_in = 10                  # distance ticks extends into the plot
-xaxis().major_tick_out = 0                  # and distance they extend out
-xaxis().major_tick_line_color = "white"
+p.ygrid.grid_line_color = "white"
+p.ygrid.grid_line_width = 2
+p.axis.major_label_text_font_size = "12pt"
+p.axis.major_label_text_font_style = "bold"
+p.axis.major_label_standoff = 10            # distance of tick labels from ticks
+p.axis.axis_line_color = None               # color, or None, to suppress the line
+p.xaxis.major_label_orientation = np.pi/4   # radians, "horizontal", "vertical", "normal"
+p.xaxis.major_tick_in = 10                  # distance ticks extends into the plot
+p.xaxis.major_tick_out = 0                  # and distance they extend out
+p.xaxis.major_tick_line_color = "white"
 
-show()
+show(p)

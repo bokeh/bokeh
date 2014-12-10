@@ -1,3 +1,159 @@
+2014-12-05    0.7.0:
+--------------------
+  * IPython widgets and animations without a Bokeh server
+  * Touch UI working for tools on mobile devices
+  * Vastly improved linked data table
+  * More new (and improving) bokeh.charts (high level charting interface)
+  * Color mappers on the python side
+  * Improved toolbar
+  * Many new tools: lasso, poly, and point selection, crosshair inspector
+  * bugfixes:
+    - #598 Hover tool doesn't work with gridplot
+    - #616 Less build doesn't properly detect changes
+    - #623 Issue with inverted ranges
+    - #704 Errow message in windows
+    - #798 Embedded notebook style problem
+    - #802 Toolbar hidden behind gridplot when wrapped
+    - #804 Spaces in file name causes problems when distributing via rdist on unix-like os
+    - #808 Cannot style minor ticks
+    - #827 Spectrogram app not working: custom.coffee missing
+    - #870 Need real solution for mpl plot clone problem
+    - #881 Changes script output needs manual intervention
+    - #919 Bokeh/examples/glyphs examples broken 
+    - #926 Legends don't appear on a plot in the order they're given
+    - #927 [docs] Bad state on save
+    - #936 Remove google maps js from _page_base.html
+    - #972 Hover in plots stops working in angularjs upon navigation
+    - #983 [docs] Bar chart is not documented
+    - #1021 Running stock_app and slider_app fails on reload
+    - #1027 [regression] Bokeh 0.5 over 10x slower than 0.4.4
+    - #1055 Current setup.py install released js with devel build using pip but not with conda
+    - #1062 Cleaning some examples failures
+    - #1076 [tests] Mpl 1.4.0 is causing failures in test through the mplexporter
+    - #1192 `conda install bokeh` not installing pyzmq
+    - #1202 Gridplot() renders new toolbar in a funky way
+    - #1245 Wheel zoom not working with chrome
+    - #1252 Tool order inconsistent across all examples
+    - #1267 Mapoptions json encoding problem
+    - #1271 Fix for axis types string comparision (is vs ==)
+    - #1287 Sorting/selecting broken in ht example
+    - #1293 [regression] Plots with vertical toolbar have extra space above the plot
+    - #1295 Make selection geometry available to the python side
+    - #1298 Line_color=none not respected
+    - #1299 Multiple plots now stack horizontally
+    - #1300 Hover tool does not display
+    - #1303 Stocks app histograms do no update on selection
+    - #1306 Crossfilter filter does not work
+    - #1313 'help' button text box sometimes disappears before you can click 'learn more'
+    - #1314 Tools don't have a blue underline in notebook and server examples
+    - #1319 Bokeh.charts.bar displays overlapping bars
+    - #1320 Multiple gmapplot instances on a single document causes errors
+    - #1337 Build_palettes.py not python 3 compatable
+    - #1338 Bugfix/py3 palettes (closes #1337)
+    - #1342 Linked brushing broken in notebook
+    - #1343 Gridplot causes javascript error in notebook
+    - #1348 Fix gridplots with hover tools
+    - #1367 Properly set map div height
+    - #1377 Data table not displaying
+    - #1378 [docs] Fix spelling: s/embded/embed/
+    - #1380 Fix "python setup.py build"
+    - #1384 - fixing document merging
+    - #1386 [regression] Fixing crossfilter
+    - #1400 Hasprops.clone() should use changed_properties_with_values()
+    - #1403 [build] Meta.yaml doesn't specify minimal tornado version
+    - #1414 Broken server downsample -- property 'type' not found
+    - #1415 Server downsample -- pandas error
+    - #1417 Fix typo
+    - #1422 Strange "nan" string in some mpl plots
+    - #1425 Bokeh cdn assets are currently unavailable
+    - #1427 Plotting/file/periodic and plotting/file/hover broken on master
+    - #1429 Broken examples on master
+    - #1431 [windows] Notebooks/animated not working (only on windows) on master
+    - #1433 Tools get lost on grid plots
+    - #1435 Embed fontawesome's fonts in css (to avoid 404 errors)
+    - #1442 [regression] Fix spectrogram issues
+    - #1446 Plotting/server/image example broken on master
+    - #1461 Some gridplot issues
+    - #1466 Abstract rendering -- deserialize on client js not working
+    - #1474 Charts markers not showing correctly on legend
+    - #1485 More specific css - otherwise when bokeh plots are embedded inside list 
+    - #1496 Fix unitialized var usage in bokeh.index
+    - #1500 Fix charts not working with server output
+  * features:
+    - #72 Mechanism to express color mappings to bokehjs
+    - #144 Add an example with multiple axes
+    - #543 Websockets refactoring
+    - #546 Plotting.show for server session should just show a single object
+    - #547 Don't include gmaps api script in templates
+    - #683 Remove pandasdatasource
+    - #693 Examples/app/applet should use bokeh.sampledata
+    - #761 [docs] Hard to find example notebooks
+    - #774 Modify build_and_install.sh to handle release candidates
+    - #849 We need a tools refactor
+    - #863 Allow plot frame/tools to be configurable 
+    - #911 Rewrite spectrogram demo to use mostly python
+    - #918 Multiple axis exposed on the python side
+    - #1198 Abstract rendering: version check
+    - #1225 Replace glyphspecs with the properties system
+    - #1240 Support for geojs maps
+    - #1273 Feature/geojs
+    - #1285 Single axis zoom
+    - #1294 Feature/more tools
+    - #1309 Passing iterables straight to bokeh.charts (histogram)
+    - #1321 Small tweaks to the coffeescript
+    - #1327 Add 'help' to properties
+    - #1345 Refactor plotting interface
+    - #1351 Allow to specify alternative types for properties
+    - #1359 Cleanup of table widgets
+    - #1368 Add option (maybe default?) for bokeh logo to be de-saturated and placed on the rhs of the toolbar
+    - #1372 More systematic approach to tool validation
+    - #1374 Feature/server startup cleanup
+    - #1392 Support subtyping for view models
+    - #1411 Update examples to use new plotting api
+    - #1437 Need methods to clear docs
+    - #1451 Add glyphs/calendars example
+    - #1488 Method to update data source contents in the notebook
+  * tasks:
+    - #836 Dev packages should be available at least for linux-64 and osx
+    - #862 Remove data files in bokeh/tests
+    - #880 Credentials for the release
+    - #907 Rename widgetobjects.py
+    - #909 Simplify dataspecs
+    - #950 [docs] Update quickstart/bokeh.js build instructions
+    - #999 Migration to bokeh organization
+    - #1004 Change setup.py - building js
+    - #1243 Clicking buttons in plots embedded in forms triggers form submit 
+    - #1250 Add more properties to handsontable, e.g. {row,column}_resize
+    - #1251 Tools hidden by default in plotting/server/elements.py
+    - #1253 Release 0.6.1
+    - #1261 [docs] Add info about sample data download to user guide and faq
+    - #1310 Rename glyph-> glyphrenderer and baseglyph -> glyph
+    - #1311 Introduce bokeh.api module
+    - #1325 Set {np.}random.seed(1) in examples/test
+    - #1330 Reduce weight of gallery images
+    - #1333 [docs] Dvreed77/palette docs
+    - #1336 Hotfix for problem with pandas 0.15
+    - #1353 Remove 'type' property from guides
+    - #1357 Add missing icon files
+    - #1364 Replace continuumio organization with bokeh and remove kinectjs
+    - #1370 Removing gevent
+    - #1371 Remove objectexplorer
+    - #1382 Improve implementation of slickgrid-based datatable
+    - #1389 Remove unused ar views, inherit from hasproperties instead of hasparent
+    - #1391 [docs] Improve documentation: make it easier for users to get started
+    - #1401 Hotfix/figure subclass of plot
+    - #1407 Deprecate bokeh.{objects,glyphs,widgets}
+    - #1408 [docs] Add contributing guidelines
+    - #1418 [tests] Increase socket timeout
+    - #1424 [tests] More unit tests
+    - #1436 [BEP] [docs] Conventions for tying issues and prs
+    - #1458 Try to recover the slideshow example featuring the embed api
+    - #1465 Task/examples
+    - #1473 [docs] Document new bokeh.chart implementation
+    - #1498 [BEP] [docs] Add bep 0 with meta-information about bep process
+    - #1499 [docs] Add deprecations to glyph funcs on document
+    - #1504 Documentation updates for release 0.7
+
 2014-09-24    0.6.1:
 --------------------
   * Toolbar enhancements
