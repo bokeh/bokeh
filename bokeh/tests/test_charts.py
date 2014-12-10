@@ -550,19 +550,19 @@ class TestBar(unittest.TestCase):
 
 class TestHeatMap(unittest.TestCase):
     def test_supported_input(self):
-        xyvaluesdf = pd.DataFrame(
-            {'apples': [4,5,8], 'pears': [6,5,4], 'bananas': [1,2,4]},
-            index=['2009', '2010', '2011']
-        )
         xyvalues = OrderedDict()
         xyvalues['apples'] = [4,5,8]
         xyvalues['bananas'] = [1,2,4]
         xyvalues['pears'] = [6,5,4]
 
+        xyvaluesdf = pd.DataFrame(xyvalues, index=['2009', '2010', '2011'])
+
         # prepare some data to check tests results...
         heights = widths = [0.95] * 9
-        colors = ['#e2e2e2', '#75968f', '#cc7878', '#ddb7b1', '#a5bab7', '#ddb7b1',
-               '#550b1d', '#e2e2e2', '#e2e2e2']
+        colors = ['#e2e2e2', '#75968f', '#ddb7b1', '#dfccce', '#a5bab7', '#dfccce',
+       '#550b1d', '#e2e2e2', '#e2e2e2']
+       # ['#e2e2e2', '#75968f', '#cc7878', '#ddb7b1', '#a5bab7', '#ddb7b1',
+       #'#550b1d', '#e2e2e2', '#e2e2e2']
         catx = ['apples', 'bananas', 'pears', 'apples', 'bananas', 'pears',
                 'apples', 'bananas', 'pears']
         rates = [4, 1, 6, 5, 2, 5, 8, 4, 4]
@@ -570,7 +570,7 @@ class TestHeatMap(unittest.TestCase):
         caty = ['a', 'a', 'a', 'b', 'b', 'b', 'c', 'c', 'c']
         for i, _xy in enumerate([xyvalues, xyvaluesdf]):
             hm = create_chart(HeatMap, _xy)
-
+            print ("I", i)
             # TODO: Fix bug
             #self.assertEqual(sorted(hm.groups), sorted(list(xyvalues.keys())))
             assert_array_equal(hm.data['height'], heights)

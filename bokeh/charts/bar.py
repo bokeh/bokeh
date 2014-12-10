@@ -16,7 +16,7 @@ It also add a new chained stacked method.
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-from __future__ import print_function
+from __future__ import print_function, division
 
 try:
     import numpy as np
@@ -26,7 +26,7 @@ except ImportError:
     raise
 
 from ._chartobject import ChartObject, DataAdapter
-from ..models import ColumnDataSource, FactorRange, Range1d
+from ..objects import ColumnDataSource, FactorRange, Range1d
 
 #-----------------------------------------------------------------------------
 # Classes and functions
