@@ -37,6 +37,7 @@ requirements:
 test:
   requires:
     # docs
+    - graphviz
     - sphinx
     - pygments
     - sphinx-bootstrap-theme

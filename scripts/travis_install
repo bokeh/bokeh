@@ -5,10 +5,6 @@ set -x # echo commands
 
 git fetch origin master
 
-sudo apt-get update # update listing because of graphviz, remove later
-
-sudo apt-get install -qq -y --force-yes graphviz
-
 MINICONDA="Miniconda-$MINICONDA_VERSION-Linux-x86_64"
 MINICONDA_URL="http://repo.continuum.io/miniconda/$MINICONDA.sh"
 
