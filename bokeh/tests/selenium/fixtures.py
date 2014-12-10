@@ -4,7 +4,7 @@ from __future__ import absolute_import, print_function
 import os
 from flask.ext.testing import LiveServerTestCase
 
-from bokeh.server.app import app
+from bokeh.server.app import app as bokeh_app
 
 from .utils import initialize_standalone_testing_env, initialize_distributive_testing_env
 from .run_selenium_tests import settings as test_settings
@@ -50,7 +50,7 @@ class RawSeleniumTestFixture(LiveServerTestCase):
         # TODO:
         # - Setup appropriate bokeh server initialization.
 
-        return app
+        return bokeh_app
 
     def check_if_server_is_up_and_running(self):
         from urllib2 import urlopen
