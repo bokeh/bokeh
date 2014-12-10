@@ -70,7 +70,7 @@ xaxis = LinearAxis(ticker=xticker, axis_line_color=None, major_tick_line_color=N
 plot.add_layout(xaxis, "below")
 xgrid = Grid(dimension=0, ticker=xaxis.ticker, grid_line_dash="dashed")
 plot.add_layout(xgrid)
-yticker = SingleIntervalTicker(interval=4, num_minor_ticks=0)
+yticker = SingleIntervalTicker(interval=12, num_minor_ticks=0)
 yaxis = LinearAxis(ticker=yticker, major_tick_in=-5, major_tick_out=10)
 plot.add_layout(yaxis, "right")
 
