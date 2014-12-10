@@ -382,7 +382,7 @@ Notes:
 """
 )
 
-image_url = _glyph_function(glyphs.ImageURL, ("url", "x", "y", "angle"), (),
+image_url = _glyph_function(glyphs.ImageURL, ("url", "x", "y"), (),
 """The image_url glyph takes a urls for images to display.
 
 Args:

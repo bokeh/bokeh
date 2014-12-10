@@ -172,7 +172,7 @@ def test_ImageURL():
     assert glyph.y == "y"
     assert glyph.w == "w"
     assert glyph.h == "h"
-    assert glyph.angle == "angle"
+    assert glyph.angle == 0
     assert glyph.dilate == False
     assert glyph.anchor == Anchor.top_left
     yield check_props, glyph, ["url", "x", "y", "w", "h", "angle", "dilate", "anchor"]
