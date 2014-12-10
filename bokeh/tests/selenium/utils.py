@@ -149,8 +149,7 @@ def check_if_elements_exist(driver, element, method='css_selector'):
         elif method == 'xpath':
             ret = WDW(driver, DEF_WDW_WAIT_TIME).until(EC.presence_of_all_elements_located((By.XPATH, element)))
         else:
-            print("Unsupported method: %s" % (method))
-            sys.exit(1)
+            raise ValueError("Unsupported method: %s" % (method))
     except NoSuchElementException:
         return 0
 
@@ -176,8 +175,7 @@ def look_for_element(driver, element, method='css_selector'):
         elif method == 'xpath':
             ret = WDW(driver, DEF_WDW_WAIT_TIME).until(EC.presence_of_element_located((By.XPATH, element)))
         else:
-            print("Unsupported method: %s" % (method))
-            sys.exit(1)
+            raise ValueError("Unsupported method: %s" % (method))
     except TimeoutException:
         assert 0, "Can't find %s %s (handler: %s)!" % (element_name, element_type, element)
 
@@ -203,8 +201,7 @@ def look_for_elements(driver, element, method='css_selector'):
         elif method == 'xpath':
             ret = WDW(driver, DEF_WDW_WAIT_TIME).until(EC.presence_of_all_elements_located((By.XPATH, element)))
         else:
-            print("Unsupported method: %s" % (method))
-            sys.exit(1)
+            raise ValueError("Unsupported method: %s" % (method))
     except NoSuchElementException:
         assert 0, "Can't find %s %s (handler: %s)!" % (element_name, element_type, element)
 
