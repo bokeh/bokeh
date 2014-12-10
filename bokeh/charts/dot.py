@@ -127,6 +127,8 @@ class Dot(Bar):
 
         # quartet elements are: [data, cat, zeros, segment_top]
         for i, quartet in enumerate(self.tuples):
+            # draw segment first so when scatter will be place on top of it
+            # and it won't show segment chunk on top of the circle
             self.chart.make_segment(
                 self.source, quartet[1], quartet[2],
                 quartet[1], quartet[3], 'black', 2,
