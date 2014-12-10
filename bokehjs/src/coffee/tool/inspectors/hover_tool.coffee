@@ -45,12 +45,14 @@ define [
       vx = canvas.sx_to_vx(e.bokeh.sx)
       vy = canvas.sy_to_vy(e.bokeh.sy)
       if not @plot_view.frame.contains(vx, vy)
-        @mget('tooltip').clear()
+        for rid, tt of @mget('ttmodels')
+          tt.clear()
         return
       @_inspect(vx, vy)
 
     _move_exit: ()->
-      @mget('tooltip').clear()
+      for rid, tt of @mget('ttmodels')
+        tt.clear()
 
     _inspect: (vx, vy, e) ->
       geometry = {
@@ -61,9 +63,15 @@ define [
       for r in @mget('renderers')
         sm = r.get('data_source').get('selection_manager')
         sm.inspect(@, @plot_view.renderers[r.id], geometry, {"geometry": geometry})
+      return
 
     _update: (indices, tool, renderer, ds, {geometry}) ->
-      @mget('tooltip').clear()
+
+      tooltip = @mget('ttmodels')[renderer.model.id] ? null
+      if not tooltip?
+        return
+
+      tooltip.clear()
 
       if indices.length == 0
         return
@@ -153,7 +161,7 @@ define [
           row.append(td)
           table.append(row)
 
-        @mget('tooltip').add(rx, ry, table)
+        tooltip.add(rx, ry, table)
 
       return null
 
@@ -165,10 +173,15 @@ define [
 
     initialize: (attrs, options) ->
       super(attrs, options)
-      @set('tooltip', new Tooltip.Model())
+      ttmodels = {}
       renderers = @get('plot').get('renderers')
-      renderers.push(@get('tooltip'))
+      for r in @get('renderers')
+        tooltip = new Tooltip.Model()
+        ttmodels[r.id] = tooltip
+        renderers.push(tooltip)
+      @set('ttmodels', ttmodels)
       @get('plot').set('renderers', renderers)
+      return
 
     defaults: () ->
       return _.extend({}, super(), {

@@ -7,8 +7,8 @@ from flask import request
 from bokeh import protocol
 
 from .bbauth import (
-    check_read_authentication_and_create_client,
-    check_write_authentication_and_create_client
+    check_read_authentication,
+    check_write_authentication
 )
 from ..app import bokeh_app
 from ..crossdomain import crossdomain
@@ -23,7 +23,7 @@ def init_bokeh(clientdoc):
 # Management Functions
 
 @bokeh_app.route("/bokeh/bb/<docid>/reset", methods=['GET'])
-@check_write_authentication_and_create_client
+@check_write_authentication
 def reset(docid):
     ''' Reset a specified :class:`Document <bokeh.document.Document>`.
 
@@ -49,7 +49,7 @@ def reset(docid):
     return 'success'
 
 @bokeh_app.route("/bokeh/bb/<docid>/rungc", methods=['GET'])
-@check_write_authentication_and_create_client
+@check_write_authentication
 def rungc(docid):
     ''' Run the Bokeh Server garbage collector for a given
     :class:`Document <bokeh.document.Document>`.
@@ -66,7 +66,7 @@ def rungc(docid):
     return 'success'
 
 @bokeh_app.route("/bokeh/bb/<docid>/callbacks", methods=['POST'])
-@check_write_authentication_and_create_client
+@check_write_authentication
 def callbacks_post(docid):
     ''' Update callbacks for a given :class:`Document <bokeh.document.Document>`.
 
@@ -85,7 +85,7 @@ def callbacks_post(docid):
     return make_json(protocol.serialize_json(jsondata))
 
 @bokeh_app.route("/bokeh/bb/<docid>/callbacks", methods=['GET'])
-@check_write_authentication_and_create_client
+@check_write_authentication
 def callbacks_get(docid):
     ''' Retrieve callbacks for a given :class:`Document <bokeh.document.Document>`.
 
@@ -104,7 +104,7 @@ def callbacks_get(docid):
 
 # bulk upsert
 @bokeh_app.route("/bokeh/bb/<docid>/bulkupsert", methods=['POST'])
-@check_write_authentication_and_create_client
+@check_write_authentication
 def bulk_upsert(docid):
     ''' Update or insert new objects for a given :class:`Document <bokeh.document.Document>`.
 
@@ -149,7 +149,7 @@ def ws_delete(clientdoc, models):
 
 # backbone functionality
 @bokeh_app.route("/bokeh/bb/<docid>/<typename>/", methods=['POST'])
-@check_write_authentication_and_create_client
+@check_write_authentication
 def create(docid, typename):
     ''' Update or insert new objects for a given :class:`Document <bokeh.document.Document>`.
 
@@ -170,7 +170,7 @@ def create(docid, typename):
     ws_update(clientdoc, modeldata)
     return protocol.serialize_json(modeldata[0]['attributes'])
 
-@check_read_authentication_and_create_client
+@check_read_authentication
 def _bulkget(docid, typename=None):
     clientdoc = bokeh_app.backbone_storage.get_document(docid)
     prune(clientdoc)
@@ -290,14 +290,14 @@ def _handle_specific_model_delete(docid, typename, id):
 
 
 # individual model methods
-@check_read_authentication_and_create_client
+@check_read_authentication
 def getbyid(docid, typename, id):
     clientdoc = bokeh_app.backbone_storage.get_document(docid)
     prune(clientdoc)
     attr = clientdoc.dump(clientdoc._models[id])[0]['attributes']
     return make_json(protocol.serialize_json(attr))
 
-@check_write_authentication_and_create_client
+@check_write_authentication
 def update(docid, typename, id):
     """we need to distinguish between writing and patching models
     namely in writing, we shouldn't remove unspecified attrs
@@ -328,7 +328,7 @@ def update(docid, typename, id):
     # all go out over the websocket channel
     return make_json(protocol.serialize_json({'noop' : True}))
 
-@check_write_authentication_and_create_client
+@check_write_authentication
 def delete(docid, typename, id):
     clientdoc = bokeh_app.backbone_storage.get_document(docid)
     prune(clientdoc)

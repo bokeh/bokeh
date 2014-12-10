@@ -7,21 +7,19 @@ from ..app import bokeh_app
 from ..models import docs
 from ..models import convenience
 
-def check_read_authentication_and_create_client(func):
+def check_read_authentication(func):
     @wraps(func)
     def wrapper(docid, *args, **kwargs):
-        doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
-        if convenience.can_read_from_request(doc, request, bokeh_app):
+        if bokeh_app.authentication.can_read_doc(docid):
             return func(docid, *args, **kwargs)
         else:
             abort(401)
     return wrapper
 
-def check_write_authentication_and_create_client(func):
+def check_write_authentication(func):
     @wraps(func)
     def wrapper(docid, *args, **kwargs):
-        doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
-        if convenience.can_write_from_request(doc, request, bokeh_app):
+        if bokeh_app.authentication.can_write_doc(docid):
             return func(docid, *args, **kwargs)
         else:
             abort(401)
@@ -82,5 +80,3 @@ def logout():
 
     '''
     return bokeh_app.authentication.logout()
-
-

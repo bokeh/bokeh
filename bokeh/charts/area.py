@@ -10,7 +10,7 @@ except ImportError:
     raise
 
 from ._chartobject import ChartObject, DataAdapter
-from ..objects import ColumnDataSource, Range1d, DataRange1d
+from ..models import ColumnDataSource, Range1d, DataRange1d
 
 class Area(ChartObject):
     def __init__(self, values,

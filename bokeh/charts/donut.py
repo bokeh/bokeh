@@ -21,7 +21,7 @@ from math import pi, cos, sin
 import pandas as pd
 
 from ._chartobject import ChartObject, DataAdapter
-from ..objects import ColumnDataSource, Range1d
+from ..models import ColumnDataSource, Range1d
 
 #-----------------------------------------------------------------------------
 # Classes and functions
