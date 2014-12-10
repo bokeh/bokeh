@@ -119,7 +119,7 @@ class ImageURL(Glyph):
     y = DataSpec
     w = DataSpec
     h = DataSpec
-    angle = DataSpec
+    angle = DataSpec(default=0)
     dilate = Bool(False)
     anchor = Enum(Anchor)
 
