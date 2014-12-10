@@ -62,7 +62,7 @@ title = "Usain Bolt vs. 116 years of Olympic sprinters"
 xdr = Range1d(start=sprint.MetersBack.max()+2, end=0)                  # XXX: +2 is poor-man's padding (otherwise misses last tick)
 ydr = DataRange1d(sources=[source.columns("Year")], rangepadding=0.05) # XXX: should be 2 years (both sides)
 
-plot = Plot(title=title, x_range=xdr, y_range=ydr, plot_width=800, plot_height=800, toolbar_location=None, outline_line_color=None)
+plot = Plot(title=title, x_range=xdr, y_range=ydr, plot_width=1000, plot_height=600, toolbar_location=None, outline_line_color=None)
 
 xticker = SingleIntervalTicker(interval=5, num_minor_ticks=0)
 xaxis = LinearAxis(ticker=xticker, axis_line_color=None, major_tick_line_color=None)
