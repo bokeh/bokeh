@@ -22,14 +22,16 @@ from numpy.testing import assert_array_equal, assert_array_almost_equal
 
 import pandas as pd
 
-from ..charts import (Chart, ChartObject, DataAdapter, Area, Bar, Dot, Donut,
-                      Line, HeatMap, Histogram, Scatter, Step, TimeSeries)
+
 from ..models.glyphs import Circle
 from ..models import (ColumnDataSource, Grid, GlyphRenderer, Legend, LinearAxis,
                       PanTool, Range1d, Ticker, Text, Wedge, AnnularWedge,
                       FactorRange, DataRange1d)
 
 from ..document import Document
+
+from ..charts import (Chart, ChartObject, DataAdapter, Area, Bar, Dot, Donut,
+                      Line, HeatMap, Histogram, Scatter, Step, TimeSeries)
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -559,7 +561,7 @@ class TestHeatMap(unittest.TestCase):
 
         # prepare some data to check tests results...
         heights = widths = [0.95] * 9
-        colors = ['#e2e2e2', '#75968f', '#ddb7b1', '#dfccce', '#a5bab7', '#dfccce',
+        colors = ['#e2e2e2', '#75968f', '#cc7878', '#ddb7b1', '#a5bab7', '#ddb7b1',
        '#550b1d', '#e2e2e2', '#e2e2e2']
        # ['#e2e2e2', '#75968f', '#cc7878', '#ddb7b1', '#a5bab7', '#ddb7b1',
        #'#550b1d', '#e2e2e2', '#e2e2e2']

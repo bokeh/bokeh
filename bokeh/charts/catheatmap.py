@@ -16,7 +16,7 @@ calling the proper functions.
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
+from __future__ import print_function, division
 import pandas as pd
 
 from ._chartobject import ChartObject, DataAdapter
