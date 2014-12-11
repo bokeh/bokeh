@@ -1,5 +1,6 @@
 #!/bin/bash
 
+#CLI user interface
 if [ "$1" == "-h" ]; then
     usage="$(basename "$0") [-h] [--tag] -- program to build and upload bokeh pkgs to binstar
 
@@ -9,17 +10,25 @@ if [ "$1" == "-h" ]; then
         -t     the tag in the form X.X.X-devel[rc]
         -u     RackSpace username
         -k     RackSpace APIkey
+        -n     the numpy version to use ie. --numpy=1.9 #FIXME
+        -c     whether to clean the builded packages, defaults to true
     "
     echo "$usage"
     exit 0
 fi
 
-while getopts t:i:u:k: option;
+#defauls
+clean=true
+
+#handling of arguments
+while getopts t:u:k:n:c: option;
 do
     case "${option}" in
         t) tag=${OPTARG};;
         u) username=${OPTARG};;
-        k) key=$OPTARG;;
+        k) key=${OPTARG};;
+        n) numpy=${OPTARG};; #FIXME
+        c) clean=${OPTARG};;
     esac 
 done
 
@@ -52,7 +61,7 @@ fi
 for py in 27 33 34;
 do
     echo "Building py$py pkg"
-    CONDA_PY=$py conda build conda.recipe --quiet
+    CONDA_PY=$py conda build conda.recipe --quiet $numpy #FIXME
 done
 
 # get conda info about root_prefix and platform
@@ -83,18 +92,25 @@ BOKEH_DEV_VERSION=$version python setup.py sdist --formats=gztar
 
 echo "I'm done uploading to binstar"
 
-#general clean up
+########################
+#   General clean up   #
+########################
 
 #delete the tag
 git tag -d $tag
 
 #clean up platform folders
-for i in "${array[@]}"
-do
-    rm -rf $i
-done
+if [ $clean == true ]; then
+    for i in "${array[@]}"
+    do
+        rm -rf $i
+    done
+    rm -rf dist/
+else
+    echo "Not cleaning the packages."
+fi
 
-rm -rf dist/
+#and the additional building stuff
 rm -rf build/
 rm -rf bokeh.egg-info/
 rm -rf record.txt
@@ -126,9 +142,8 @@ curl -XPUT -T bokehjs/build/css/bokeh.min.css -v -H "X-Auth-Token:$token" -H "Co
 echo "I'm done uploading to Rackspace"
 
 ########################
-####Removing on binstar#
+#Removing from binstar #
 ########################
-
 
 # remove entire release
 # binstar remove user/package/release
