@@ -562,9 +562,7 @@ class TestHeatMap(unittest.TestCase):
         # prepare some data to check tests results...
         heights = widths = [0.95] * 9
         colors = ['#e2e2e2', '#75968f', '#cc7878', '#ddb7b1', '#a5bab7', '#ddb7b1',
-       '#550b1d', '#e2e2e2', '#e2e2e2']
-       # ['#e2e2e2', '#75968f', '#cc7878', '#ddb7b1', '#a5bab7', '#ddb7b1',
-       #'#550b1d', '#e2e2e2', '#e2e2e2']
+            '#550b1d', '#e2e2e2', '#e2e2e2']
         catx = ['apples', 'bananas', 'pears', 'apples', 'bananas', 'pears',
                 'apples', 'bananas', 'pears']
         rates = [4, 1, 6, 5, 2, 5, 8, 4, 4]
@@ -572,7 +570,6 @@ class TestHeatMap(unittest.TestCase):
         caty = ['a', 'a', 'a', 'b', 'b', 'b', 'c', 'c', 'c']
         for i, _xy in enumerate([xyvalues, xyvaluesdf]):
             hm = create_chart(HeatMap, _xy)
-            print ("I", i)
             # TODO: Fix bug
             #self.assertEqual(sorted(hm.groups), sorted(list(xyvalues.keys())))
             assert_array_equal(hm.data['height'], heights)

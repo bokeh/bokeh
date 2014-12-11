@@ -175,7 +175,6 @@ class Dot(Bar):
             # zeros
             self.set_and_get("z_", val, np.zeros(len(self.values[val])))
             # segment top y value
-            segspace = 0.4 * len(values)
             self.set_and_get("seg_top_", val, self.values[val])
 
     def _make_legend_glyph(self, source_legend, color):
