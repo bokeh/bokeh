@@ -27,9 +27,10 @@ version=`python scripts/get_bump_version.py`
 # exit if there is no new tag
 if [ "$version" == "No X.X.X-devel[rc] tag." ]; then
     echo You need to tag using the X.X.X-devel"[rc]" form before building.
-    # delete the tag and checkout master
+    # delete the tag and checkout master and delete building branch
     git tag -d $tag
     git checkout task/devel_build #change to master
+    git branch -d builds/devel
     exit 0
 fi
 
