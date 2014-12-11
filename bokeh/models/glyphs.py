@@ -119,7 +119,7 @@ class ImageURL(Glyph):
     y = DataSpec
     w = DataSpec
     h = DataSpec
-    angle = DataSpec
+    angle = DataSpec(default=0)
     dilate = Bool(False)
     anchor = Enum(Anchor)
 
@@ -184,7 +184,9 @@ class Text(Glyph, TextProps):
     x = DataSpec
     y = DataSpec
     text = DataSpec
-    angle = DataSpec
+    angle = DataSpec(default=0)
+    x_offset = DataSpec(units="screen", default=0)
+    y_offset = DataSpec(units="screen", default=0)
 
 class Wedge(Glyph, FillProps, LineProps):
     x = DataSpec

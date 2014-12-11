@@ -22,8 +22,11 @@ define [
         # like e.g. ImageUrl.w (yeah, meaningful name). Use NaN to indicate that we do
         # things on purpose. Not a great idea, but still seems better than carrying
         # undefineds or nulls around.
+        length = datasource.get_length()
+        length = 1 if not length?
+
         value = if obj.value? then obj.value else NaN
-        value for i in [0...datasource.get_length()]
+        return (value for i in [0...length])
       else
         throw new Error("requested vector selection of '#{attrname}' failed for #{obj}")
 

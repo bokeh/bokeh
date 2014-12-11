@@ -684,8 +684,8 @@ def image_rgba(image, x, y, dw, dh, **kwargs):
     return _plot_function(gf.image_rgba, image, x, y, dw, dh, **kwargs)
 
 @_doc_wrap
-def image_url(url, x, y, angle, **kwargs):
-    return _plot_function(gf.image_url, url, x, y, angle, **kwargs)
+def image_url(url, x, y, **kwargs):
+    return _plot_function(gf.image_url, url, x, y, **kwargs)
 
 @_doc_wrap
 def inverted_triangle(x, y, **kwargs):
@@ -744,8 +744,8 @@ def square_x(x, y, **kwargs):
     return _plot_function(gf.square_x, x, y, **kwargs)
 
 @_doc_wrap
-def text(x, y, text, angle, **kwargs):
-    return _plot_function(gf.text, x, y, text, angle, **kwargs)
+def text(x, y, text, **kwargs):
+    return _plot_function(gf.text, x, y, text, **kwargs)
 
 @_doc_wrap
 def triangle(x, y, **kwargs):

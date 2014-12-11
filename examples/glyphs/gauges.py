@@ -12,7 +12,6 @@ from bokeh.models import ColumnDataSource, Range1d, Plot
 
 xdr = Range1d(start=-1.25, end=1.25)
 ydr = Range1d(start=-1.25, end=1.25)
-ds = ColumnDataSource(dict(dummy=[0]))
 
 plot = Plot(title="Speedometer", x_range=xdr, y_range=ydr, plot_width=600, plot_height=600)
 
@@ -24,11 +23,11 @@ max_mph = max_kmh*0.621371
 
 major_step, minor_step = 25, 5
 
-plot.add_glyph(ds, Circle(x=0, y=0, radius=1.00, fill_color="white", line_color="black"))
-plot.add_glyph(ds, Circle(x=0, y=0, radius=0.05, fill_color="gray", line_color="black"))
+plot.add_glyph(Circle(x=0, y=0, radius=1.00, fill_color="white", line_color="black"))
+plot.add_glyph(Circle(x=0, y=0, radius=0.05, fill_color="gray", line_color="black"))
 
-plot.add_glyph(ds, Text(x=0, y=+0.15, angle=0, text=["km/h"], text_color="red", text_align="center", text_baseline="bottom", text_font_style="bold"))
-plot.add_glyph(ds, Text(x=0, y=-0.15, angle=0, text=["mph"], text_color="blue", text_align="center", text_baseline="top", text_font_style="bold"))
+plot.add_glyph(Text(x=0, y=+0.15, text=["km/h"], text_color="red", text_align="center", text_baseline="bottom", text_font_style="bold"))
+plot.add_glyph(Text(x=0, y=-0.15, text=["mph"], text_color="blue", text_align="center", text_baseline="top", text_font_style="bold"))
 
 def data(value):
     """Shorthand to override default units with "data", for e.g. `Ray.length`. """
@@ -43,8 +42,8 @@ def speed_to_angle(speed, units):
 
 def add_needle(speed, units):
     angle = speed_to_angle(speed, units)
-    plot.add_glyph(ds, Ray(x=0, y=0, length=data(0.75), angle=angle,    line_color="black", line_width=3))
-    plot.add_glyph(ds, Ray(x=0, y=0, length=data(0.10), angle=angle-pi, line_color="black", line_width=3))
+    plot.add_glyph(Ray(x=0, y=0, length=data(0.75), angle=angle,    line_color="black", line_width=3))
+    plot.add_glyph(Ray(x=0, y=0, length=data(0.10), angle=angle-pi, line_color="black", line_width=3))
 
 def polar_to_cartesian(r, alpha):
     return r*cos(alpha), r*sin(alpha)
@@ -78,7 +77,7 @@ def add_gauge(radius, max_value, length, direction, color, major_step, minor_ste
     minor_labels = [ x for i, x in enumerate(minor_labels) if i % n != 0 ]
 
     glyph = Arc(x=0, y=0, radius=radius, start_angle=start_angle, end_angle=end_angle, direction="clock", line_color=color, line_width=2)
-    plot.add_glyph(ds, glyph)
+    plot.add_glyph(glyph)
 
     rotation = 0 if direction == 1 else -pi
 

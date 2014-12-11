@@ -382,7 +382,7 @@ Notes:
 """
 )
 
-image_url = _glyph_function(glyphs.ImageURL, ("url", "x", "y", "angle"), (),
+image_url = _glyph_function(glyphs.ImageURL, ("url", "x", "y"), (),
 """The image_url glyph takes a urls for images to display.
 
 Args:
@@ -671,7 +671,7 @@ Returns:
 """
 )
 
-text = _glyph_function(glyphs.Text, ("x", "y", "text", "angle"), (),
+text = _glyph_function(glyphs.Text, ("x", "y", "text"), (),
 """ The text glyph displays text at the given coordinates rotated by the given angle.
 
 Args:

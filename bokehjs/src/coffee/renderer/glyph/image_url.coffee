@@ -81,6 +81,11 @@ define [
     default_view: ImageURLView
     type: 'ImageURL'
 
+    defaults: ->
+      return _.extend {}, super(), {
+        angle: 0
+      }
+
     display_defaults: ->
       return _.extend {}, super(), {
         level: 'underlay'

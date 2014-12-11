@@ -10,7 +10,7 @@ def mscatter(p, x, y, typestr):
             line_color="#6666ee", fill_color="#ee6666", fill_alpha=0.5, size=12)
 
 def mtext(p, x, y, textstr):
-    p.text(x, y, text=textstr, angle=0,
+    p.text(x, y, text=textstr,
          text_color="#449944", text_align="center", text_font_size="10pt")
 
 output_server("markers")
