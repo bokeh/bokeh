@@ -5,15 +5,23 @@ if [ "$1" == "-h" ]; then
 
     where:
         -h     show this help text
-        --tag X.X.X-devel[rc] the tag string
+
+        -t     the tag in the form X.X.X-devel[rc]
+        -u     RackSpace username
+        -k     RackSpace APIkey
     "
     echo "$usage"
     exit 0
-
-elif [ "$1" == "--tag" ]; then
-    tag=$2
-    echo "$tag"
 fi
+
+while getopts t:i:u:k: option;
+do
+    case "${option}" in
+        t) tag=${OPTARG};;
+        u) username=${OPTARG};;
+        k) key=$OPTARG;;
+    esac 
+done
 
 # tag the branch
 git tag -a $tag -m 'devel'
@@ -62,11 +70,11 @@ done
 BOKEH_DEV_VERSION=$version python setup.py sdist --formats=gztar
 #binstar upload -u bokeh dist/bokeh*$version* --package-type pypi -c dev --force;
 
-echo "I'm done uploading"
+echo "I'm done uploading to binstar"
 
 #general clean up
 
-# delete the tag
+#delete the tag
 git tag -d $tag
 
 #clean up platform folders
@@ -82,9 +90,33 @@ rm -rf record.txt
 rm -rf __conda_version__.txt
 rm -rf bokeh/__conda_version__.py
 
-#####################
-#Removing on binstar#
-#####################
+#upload js and css to the cdn
+
+#get token
+token=`curl -s -XPOST https://identity.api.rackspacecloud.com/v2.0/tokens \
+-d'{"auth":{"RAX-KSKEY:apiKeyCredentials":{"username":"'$username'","apiKey":"'$key'"}}}' \
+-H"Content-type:application/json" | python -c 'import sys,json;data=json.loads(sys.stdin.read());print(data["access"]["token"]["id"])'`
+
+#get unique url id
+id=`curl -s -XPOST https://identity.api.rackspacecloud.com/v2.0/tokens \
+-d'{"auth":{"RAX-KSKEY:apiKeyCredentials":{"username":"'$username'","apiKey":"'$key'"}}}' \
+-H"Content-type:application/json" | python -c 'import sys,json;data=json.loads(sys.stdin.read());print(data["access"]["serviceCatalog"][-1]["endpoints"][0]["tenantId"])'`
+
+#push the js and css files
+curl -XPUT -T bokehjs/build/js/bokeh.js -v -H "X-Auth-Token:$token" -H "Content-Type: text/plain" \
+"https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh.$version.js";
+curl -XPUT -T bokehjs/build/js/bokeh.min.js -v -H "X-Auth-Token:$token" -H "Content-Type: text/plain" \
+"https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh.$version.min.js";
+curl -XPUT -T bokehjs/build/css/bokeh.css -v -H "X-Auth-Token:$token" -H "Content-Type: text/plain" \
+"https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh.$version.css";
+curl -XPUT -T bokehjs/build/css/bokeh.min.css -v -H "X-Auth-Token:$token" -H "Content-Type: text/plain" \
+"https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh.$version.min.css";
+
+echo "I'm done uploading to Rackspace"
+
+########################
+####Removing on binstar#
+########################
 
 
 # remove entire release
