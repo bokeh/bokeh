@@ -23,6 +23,17 @@ do
     esac 
 done
 
+#get user and key from env variables if they are not provided with args
+if [ "$username" == "" ]; then
+    username=$BOKEH_DEVEL_USERNAME
+    echo "$username"
+fi
+
+if [ "$key" == "" ]; then
+    key=$BOKEH_DEVEL_APIKEY
+    echo "$key"
+fi
+
 # tag the branch
 git tag -a $tag -m 'devel'
 
