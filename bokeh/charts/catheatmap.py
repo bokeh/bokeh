@@ -16,7 +16,7 @@ calling the proper functions.
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
+from __future__ import print_function, division
 import pandas as pd
 
 from ._chartobject import ChartObject, DataAdapter
@@ -200,7 +200,7 @@ class CategoricalHeatMap(ChartObject):
         self.chart.plot.add_tools(HoverTool(tooltips=[("value", "@rate")]))
 
 
-class HeatMap(CategoricalHeatMap):
+class HeatMap(ChartObject):
     """This is the HeatMap class and it is in charge of plotting
     HeatMap chart in an easy and intuitive way.
 
@@ -212,7 +212,10 @@ class HeatMap(CategoricalHeatMap):
 
     Examples:
     """
-    def __init__(self, value, palette=None,
+    # disable x and y grids
+    xgrid=False
+    ygrid=False
+    def __init__(self, values, palette=None,
                  title=None, xlabel=None, ylabel=None, legend=False,
                  xscale="categorical", yscale="categorical", width=800, height=600,
                  tools=True, filename=False, server=False, notebook=False):
@@ -271,22 +274,18 @@ class HeatMap(CategoricalHeatMap):
                 loading the data dict.
                 Needed for _set_And_get method.
         """
-        super(HeatMap, self).__init__(
-            DataAdapter(value),
-            palette,
-            title,
-            xlabel,
-            ylabel,
-            legend,
-            xscale,
-            yscale,
-            width,
-            height,
-            tools,
-            filename,
-            server,
-            notebook
-        )
+        self.values = values
+        self.source = None
+        self.xdr = None
+        self.ydr = None
+        self.groups = []
+        self.data = dict()
+        self.attr = []
+        super(HeatMap, self).__init__(title, xlabel, ylabel, legend,
+                                      xscale, yscale, width, height,
+                                      tools, filename, server, notebook, facet=False,
+                                      palette=palette)
+
 
     def get_data(self):
         """Take the CategoricalHeatMap data from the input **value.
@@ -318,12 +317,12 @@ class HeatMap(CategoricalHeatMap):
             for m in self.catsx:
                 catx.append(m)
                 caty.append(y)
-                rate.append(self.value[m][y])
+                rate.append(self.values[m][y])
 
         # Now that we have the min and max rates
         for y in self.catsy:
             for m in self.catsx:
-                c = int(round((len(colors) - 1) * (self.value[m][y] - min(rate)) / (max(rate) - min(rate))))
+                c = int(round((len(colors) - 1) * (self.values[m][y] - min(rate)) / (max(rate) - min(rate))))
                 color.append(colors[c])
 
         width = [0.95] * len(catx)
@@ -335,8 +334,15 @@ class HeatMap(CategoricalHeatMap):
     def _setup_show(self):
         super(HeatMap, self)._setup_show()
 
+        # normalize input to the common DataAdapter Interface
+        if not isinstance(self.values, DataAdapter):
+            self.values = DataAdapter(self.values)
+
         try:
-            self.catsx = list(self.value.columns)
-            self.catsy = list(self.value.index)
+            self.catsx = list(self.values.columns)
+            self.catsy = list(self.values.index)
         except:
             raise
+
+    def _show_teardown(self):
+        self.chart.plot.add_tools(HoverTool(tooltips=[("value", "@rate")]))
