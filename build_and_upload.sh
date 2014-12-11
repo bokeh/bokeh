@@ -57,14 +57,14 @@ array=(osx-64 linux-64 win-64 linux-32 win-32)
 for i in "${array[@]}"
 do
     echo Uploading: $i;
-    binstar upload -u bokeh $i/bokeh*$version*.tar.bz2 -c dev --force;
+    #binstar upload -u bokeh $i/bokeh*$version*.tar.bz2 -c dev --force;
 done
 
 #create and upload pypi pkgs to binstar
 #zip is currently not working
 
 BOKEH_DEV_VERSION=$version python setup.py sdist --formats=gztar
-binstar upload -u bokeh dist/bokeh*$version* --package-type pypi -c dev --force;
+#binstar upload -u bokeh dist/bokeh*$version* --package-type pypi -c dev --force;
 
 echo "I'm done uploading"
 
