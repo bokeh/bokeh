@@ -127,16 +127,18 @@ class Dot(Bar):
 
         # quartet elements are: [data, cat, zeros, segment_top]
         for i, quartet in enumerate(self.tuples):
+            # draw segment first so when scatter will be place on top of it
+            # and it won't show segment chunk on top of the circle
+            self.chart.make_segment(
+                self.source, quartet[1], quartet[2],
+                quartet[1], quartet[3], 'black', 2,
+            )
+
             self.chart.make_scatter(
                 self.source, quartet[1], quartet[0], 'circle',
                 colors[i - 1], line_color='black',
                 size=15,
                 fill_alpha=1.,
-            )
-
-            self.chart.make_segment(
-                self.source, quartet[1], quartet[2],
-                quartet[1], quartet[3], 'black', 2,
             )
 
             if i < len(self.tuples):
@@ -173,7 +175,7 @@ class Dot(Bar):
             # zeros
             self.set_and_get("z_", val, np.zeros(len(self.values[val])))
             # segment top y value
-            self.set_and_get("seg_top_", val, self.values[val] - np.array([2]*len(values)))
+            self.set_and_get("seg_top_", val, self.values[val])
 
     def _make_legend_glyph(self, source_legend, color):
         self.chart.make_scatter(source_legend, "groups", None, 'circle',
