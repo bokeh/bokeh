@@ -28,6 +28,7 @@ version=`python scripts/get_bump_version.py`
 if [ "$version" == "You need to tag before building." ]; then
     echo You need to tag before building.
     exit 0
+fi
 
 # build for each python version
 for py in 27 33 34;
