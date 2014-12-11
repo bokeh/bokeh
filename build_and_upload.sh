@@ -68,13 +68,15 @@ git tag -a $tag -m 'devel'
 
 #clean up
 touch a.txt
+git add .
+git commit -m "Added a.txt"
 
 # delete the tag
 git tag -d $tag
 
 git checkout -- .
 git checkout task/devel_build #change to master
-git branch -d builds/devel
+git branch -D builds/devel
 
 #clean up
 #for i in "${array[@]}"
