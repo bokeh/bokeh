@@ -27,5 +27,5 @@ vers, status, since, gsha = get_version_from_git()
 if status == "":
     print("No X.X.X-devel[rc] tag.")
 else:
-    print(vers + "-" + status + "-"+ gsha[1:])
+    print(vers + "." + status + "."+ gsha[1:])
 
