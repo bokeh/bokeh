@@ -918,3 +918,41 @@ class TestDataAdapter(unittest.TestCase):
         self.assertEqual(da.columns, ['first', 'second', 'third'])
         self.assertEqual(da.keys(), ['first', 'second', 'third'])
         self.assertEqual(da.index, ['a', 'b', 'c'])
+
+
+class TestTimeSeries(unittest.TestCase):
+    def test_supported_input(self):
+        import datetime
+        now = datetime.datetime.now()
+        delta = datetime.timedelta(minutes=1)
+        dts = [now + delta*i for i in range(5)]
+        dtss = ['%s'%dt for dt in dts]
+        xyvalues = OrderedDict({'Date': dts})
+        y_python = xyvalues['python'] = [2, 3, 7, 5, 26]
+        y_pypy = xyvalues['pypy'] = [12, 33, 47, 15, 126]
+        y_jython = xyvalues['jython'] = [22, 43, 10, 25, 26]
+
+        xyvaluesdf = pd.DataFrame(xyvalues)
+        groups = ['python', 'pypy', 'jython']
+        for i, _xy in enumerate([xyvalues, xyvaluesdf]):
+            ts = create_chart(TimeSeries, _xy, index='Date')
+
+            self.assertEqual(ts.groups, groups)
+            assert_array_equal(ts.data['x_python'], _xy['Date'])
+            assert_array_equal(ts.data['x_pypy'], _xy['Date'])
+            assert_array_equal(ts.data['x_jython'], _xy['Date'])
+            assert_array_equal(ts.data['y_python'], y_python)
+            assert_array_equal(ts.data['y_pypy'], y_pypy)
+            assert_array_equal(ts.data['y_jython'], y_jython)
+
+        lvalues = [[2, 3, 7, 5, 26], [12, 33, 47, 15, 126], [22, 43, 10, 25, 26]]
+        for _xy in [lvalues, np.array(lvalues)]:
+            hm = create_chart(TimeSeries, _xy, index=dts)
+
+            self.assertEqual(hm.groups, ['0', '1', '2'])
+            assert_array_equal(hm.data['x_0'], dts)
+            assert_array_equal(hm.data['x_1'], dts)
+            assert_array_equal(hm.data['x_2'], dts)
+            assert_array_equal(hm.data['y_0'], y_python)
+            assert_array_equal(hm.data['y_1'], y_pypy)
+            assert_array_equal(hm.data['y_2'], y_jython)

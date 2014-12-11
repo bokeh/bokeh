@@ -195,7 +195,7 @@ class TimeSeries(ChartObject):
 
         else:
             if self.index is None:
-                self.index = xs = values[0]
+                xs = values[0]
                 values = DataAdapter(values[1:], force_alias=False)
 
 
