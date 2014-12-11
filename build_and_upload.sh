@@ -15,9 +15,6 @@ elif [ "$1" == "--tag" ]; then
     echo "$tag"
 fi
 
-# create a new branch from master
-git checkout -b builds/devel task/devel_build #remove task/devel_build
-
 # tag the branch
 git tag -a $tag -m 'devel'
 
@@ -27,10 +24,8 @@ version=`python scripts/get_bump_version.py`
 # exit if there is no new tag
 if [ "$version" == "No X.X.X-devel[rc] tag." ]; then
     echo You need to tag using the X.X.X-devel"[rc]" form before building.
-    # delete the tag and checkout master and delete building branch
+    # delete the tag
     git tag -d $tag
-    git checkout task/devel_build #change to master
-    git branch -d builds/devel
     exit 0
 fi
 
@@ -74,23 +69,18 @@ echo "I'm done uploading"
 # delete the tag
 git tag -d $tag
 
-# add all the generated files
-git add .
-git commit -m "Add all files."
+#clean up platform folders
+for i in "${array[@]}"
+do
+    rm -rf $i
+done
 
-# add all the generated files
-git checkout -- .
-git checkout task/devel_build #change to master
-git branch -D builds/devel
-
-#clean up
-#for i in "${array[@]}"
-#do
-#    rm -rf $i
-#done
-
-#rm -rf dist/
-#rm using_tags.txt
+rm -rf dist/
+rm -rf build/
+rm -rf bokeh.egg-info/
+rm -rf record.txt
+rm -rf __conda_version__.txt
+rm -rf bokeh/__conda_version__.py
 
 #####################
 #Removing on binstar#
