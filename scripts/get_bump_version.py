@@ -25,7 +25,7 @@ def get_version_from_git():
 vers, status, since, gsha = get_version_from_git()
 
 if status == "":
-    print("You need to tag before building.")
+    print("No X.X.X-devel tag.")
 else:
     print(vers + "." + status + "."+ gsha[1:])
 
