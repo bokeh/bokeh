@@ -229,13 +229,13 @@ define [
 
     set_prop_cache: (datasource) ->
       @cache = {}
-      @cache.strokeStyle       = @source_v_select(@line_color_name, datasource)
-      @cache.globalAlpha       = @source_v_select(@line_alpha_name, datasource)
-      @cache.lineWidth         = @source_v_select(@line_width_name, datasource)
-      @cache.lineJoin          = @source_v_select(@line_join_name,  datasource)
-      @cache.lineCap           = @source_v_select(@line_cap_name,   datasource)
-      @cache.setLineDash       = @source_v_select(@line_dash_name,  datasource)
-      @cache.setLineDashOffset = @source_v_select(@line_dash_offset_name, datasource)
+      @cache.strokeStyle    = @source_v_select(@line_color_name,       datasource)
+      @cache.globalAlpha    = @source_v_select(@line_alpha_name,       datasource)
+      @cache.lineWidth      = @source_v_select(@line_width_name,       datasource)
+      @cache.lineJoin       = @source_v_select(@line_join_name,        datasource)
+      @cache.lineCap        = @source_v_select(@line_cap_name,         datasource)
+      @cache.lineDash       = @source_v_select(@line_dash_name,        datasource)
+      @cache.lineDashOffset = @source_v_select(@line_dash_offset_name, datasource)
 
     set_vectorize: (ctx, i) ->
       did_change = false
@@ -254,12 +254,11 @@ define [
       if @cache.lineCap[i]? and ctx.lineCap != @cache.lineCap[i]
         ctx.lineCap = @cache.lineCap[i]
         did_change = true
-      if @cache.setLineDash[i]? and ctx.getLineDash() != @cache.setLineDash[i]
-        ctx.setLineDash(@cache.setLineDash[i])
+      if @cache.lineDash[i]? and ctx.getLineDash() != @cache.lineDash[i]
+        ctx.setLineDash(@cache.lineDash[i])
         did_change = true
-      if @cache.setLineDashOffset[i]? and \
-          ctx.getLineDashOffset() != @cache.setLineDashOffset[i]
-        ctx.setLineDashOffset(@cache.setLineDashOffset[i])
+      if @cache.lineDashOffset[i]? and ctx.getLineDashOffset() != @cache.lineDashOffset[i]
+        ctx.setLineDashOffset(@cache.lineDashOffset[i])
         did_change = true
 
       return did_change
