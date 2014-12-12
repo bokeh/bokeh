@@ -25,7 +25,11 @@ define [
       if 'text' in @_properties
         @props.text = new properties.Text(@)
 
-    render: (ctx, indicies) -> @_render(ctx, indicies)
+    render: (ctx, indicies) ->
+      t0 = Date.now()
+      @_render(ctx, indicies)
+      dt = Date.now() - t0
+      logger.debug("#{@model.type} glyph (#{@model.id}): render() finished in #{dt}ms")
 
     _map_data: () -> null
 

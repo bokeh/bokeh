@@ -59,9 +59,8 @@ define [
 
       transform_params = serversource.attributes['transform']
       resample_op = transform_params['resample']
-      
-      
-      #TODO: Perhaps pass 'plot_view' through in the request instead of these fractions carved off 
+
+      #TODO: Perhaps pass 'plot_view' through in the request instead of these fractions carved off
       plot_h_range = @plot_view.frame.get('h_range')
       plot_v_range = @plot_view.frame.get('v_range')
       data_x_range = @plot_view.x_range
@@ -112,7 +111,7 @@ define [
       @nonselection_glyph.set_data(source)
 
       dt = Date.now() - t0
-      logger.debug("#{@glyph.model.type} glyph (#{@glyph.model.id}): set_data finished in #{dt}ms")
+      logger.debug("#{@glyph.model.type} glyph (#{@glyph.model.id}): set_data() finished in #{dt}ms")
 
       @have_new_data = true
 
