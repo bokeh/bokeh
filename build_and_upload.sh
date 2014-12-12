@@ -50,7 +50,7 @@ git tag -a $tag -m 'devel'
 version=`python scripts/get_bump_version.py`
 
 # exit if there is no new tag
-if [ "$version" == "No X.X.X-devel[rc] tag." ]; then
+if [[ $version != *"devel"* ]]; then
     echo You need to tag using the X.X.X-devel"[rc]" form before building.
     # delete the tag
     git tag -d $tag
