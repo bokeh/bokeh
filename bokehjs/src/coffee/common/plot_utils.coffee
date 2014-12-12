@@ -34,10 +34,7 @@ define [], () ->
         pending = true
         delay_animation(later)
       else if (!timeout)
-        timeout = setTimeout(
-         (->
-            delay_animation(later)),
-         remaining)
+        timeout = setTimeout((-> delay_animation(later)), remaining)
       return result
 
   return {
