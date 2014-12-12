@@ -1,9 +1,8 @@
 """This is the Bokeh charts interface. It gives you a high level API to build
 complex plot is a simple way.
 
-This is the CategoricalHeatMap class which lets you build your
-CategoricalHeatMap charts just passing the arguments to the Chart class and
-calling the proper functions.
+This is the HeatMap class which lets you build your HeatMap charts just passing
+the arguments to the Chart class and calling the proper functions.
 """
 #-----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2014, Continuum Analytics, Inc. All rights reserved.
@@ -17,10 +16,8 @@ calling the proper functions.
 # Imports
 #-----------------------------------------------------------------------------
 from __future__ import print_function, division
-import pandas as pd
 
 from ._chartobject import ChartObject, DataAdapter
-
 from ..models import ColumnDataSource, FactorRange, HoverTool
 
 #-----------------------------------------------------------------------------
@@ -47,8 +44,7 @@ class HeatMap(ChartObject):
                  tools=True, filename=False, server=False, notebook=False):
         """
         Args:
-            value (pd obj): a pandas dataframe containing. Columns and Index must
-                be string type.
+            values (iterable 2d): iterable 2d representing the data series matrix.
             palette(list, optional): a list containing the colormap as hex values.
             title (str, optional): the title of your plot. Defaults to None.
             xlabel (str, optional): the x-axis label of your plot.
@@ -124,9 +120,6 @@ class HeatMap(ChartObject):
             pallete (list): the colormap as hex values.
             values (pd obj): the pandas dataframe to be plotted as categorical heatmap.
         """
-        # assuming value is a pandas df
-        #self.value = value
-
         if self._palette is None:
             colors = ["#75968f", "#a5bab7", "#c9d9d3", "#e2e2e2", "#dfccce",
             "#ddb7b1", "#cc7878", "#933b41", "#550b1d"]
@@ -146,9 +139,12 @@ class HeatMap(ChartObject):
                 rate.append(self.values[m][y])
 
         # Now that we have the min and max rates
+        min_rate, max_rate = min(rate), max(rate)
+        factor = len(colors) - 1
+        den = max(rate) - min(rate)
         for y in self.catsy:
             for m in self.catsx:
-                c = int(round((len(colors) - 1) * (self.values[m][y] - min(rate)) / (max(rate) - min(rate))))
+                c = int(round(factor*(self.values[m][y] - min(rate)) / den))
                 color.append(colors[c])
 
         width = [0.95] * len(catx)
@@ -174,6 +170,9 @@ class HeatMap(ChartObject):
                              "color", "white", None)
 
     def _setup_show(self):
+        """
+        Prepare context before main show method is invoked
+        """
         super(HeatMap, self)._setup_show()
 
         # normalize input to the common DataAdapter Interface
@@ -187,4 +186,5 @@ class HeatMap(ChartObject):
             raise
 
     def _show_teardown(self):
+        """Add hover tool to HetMap chart"""
         self.chart.plot.add_tools(HoverTool(tooltips=[("value", "@rate")]))
