@@ -51,8 +51,8 @@ def check_props(glyph, *props):
     found = set(glyph.properties())
     missing = expected.difference(found)
     extra = found.difference(expected)
-    assert len(missing) == 0, "Properties missing: {0}".format(missing)
-    assert len(extra) == 0, "Extra properties: {0}".format(extra)
+    assert len(missing) == 0, "Properties missing: {0}".format(", ".join(sorted(missing)))
+    assert len(extra) == 0, "Extra properties: {0}".format(", ".join(sorted(extra)))
 
 def check_fill(glyph):
     assert glyph.fill_color == Color.gray
@@ -172,7 +172,7 @@ def test_ImageURL():
     assert glyph.y == "y"
     assert glyph.w == "w"
     assert glyph.h == "h"
-    assert glyph.angle == "angle"
+    assert glyph.angle == 0
     assert glyph.dilate == False
     assert glyph.anchor == Anchor.top_left
     yield check_props, glyph, ["url", "x", "y", "w", "h", "angle", "dilate", "anchor"]
@@ -274,9 +274,9 @@ def test_Text():
     assert glyph.x == "x"
     assert glyph.y == "y"
     assert glyph.text == "text"
-    assert glyph.angle == "angle"
+    assert glyph.angle == 0
     yield check_text, glyph
-    yield check_props, glyph, ["x", "y", "text", "angle"], TEXT
+    yield check_props, glyph, ["x", "y", "text", "angle", "x_offset", "y_offset"], TEXT
 
 def test_Wedge():
     glyph = Wedge()

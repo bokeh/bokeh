@@ -208,12 +208,12 @@ some legends using ``circle``, ``text``, and ``rect``::
     # OK, these hand drawn legends are pretty clunky, will be improved in future release
     p.circle([-40, -40], [-370, -390], color=list(gram_color.values()), radius=5)
     p.text([-30, -30], [-370, -390], text=["Gram-" + gr for gr in gram_color.keys()],
-        angle=0, text_font_size="7pt", text_align="left", text_baseline="middle")
+        text_font_size="7pt", text_align="left", text_baseline="middle")
 
     p.rect([-40, -40, -40], [18, 0, -18], width=30, height=13,
         color=list(drug_color.values()))
     p.text([-15, -15, -15], [18, 0, -18], text=list(drug_color.keys()),
-        angle=0, text_font_size="9pt", text_align="left", text_baseline="middle")
+        text_font_size="9pt", text_align="left", text_baseline="middle")
 
 and we get rid of the grid lines::
 

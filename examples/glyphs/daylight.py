@@ -74,7 +74,7 @@ line1_glyph = plot.add_glyph(source, line1)
 line2 = Line(x="dates", y="sunsets", line_color="red", line_width=2)
 line2_glyph = plot.add_glyph(source, line2)
 
-text = Text(x="dates", y="times", text="texts", angle=0, text_align="center")
+text = Text(x="dates", y="times", text="texts", text_align="center")
 plot.add_glyph(text_source, text)
 
 xformatter = DatetimeTickFormatter(formats=dict(months=["%b %Y"]))

@@ -1,0 +1,86 @@
+Name,                          Country, Medal,     Time, Year
+"Usain Bolt",                  "JAM",   "GOLD",    9.63, 2012
+"Yohan Blake",                 "JAM",   "SILVER",  9.75, 2012
+"Justin Gatlin",               "USA",   "BRONZE",  9.79, 2012
+"Usain Bolt",                  "JAM",   "GOLD",    9.69, 2008
+"Richard Thompson",            "TRI",   "SILVER",  9.89, 2008
+"Walter Dix",                  "USA",   "BRONZE",  9.91, 2008
+"Justin Gatlin",               "USA",   "GOLD",    9.85, 2004
+"Francis Obikwelu",            "POR",   "SILVER",  9.86, 2004
+"Maurice Greene",              "USA",   "BRONZE",  9.87, 2004
+"Maurice Greene",              "USA",   "GOLD",    9.87, 2000
+"Ato Boldon",                  "TRI",   "SILVER",  9.99, 2000
+"Obadele Thompson",            "BAR",   "BRONZE", 10.04, 2000
+"Donovan Bailey",              "CAN",   "GOLD",    9.84, 1996
+"Frankie Fredericks",          "NAM",   "SILVER",  9.89, 1996
+"Ato Boldon",                  "TRI",   "BRONZE",  9.90, 1996
+"Linford Christie",            "GBR",   "GOLD",    9.96, 1992
+"Frankie Fredericks",          "NAM",   "SILVER", 10.02, 1992
+"Dennis Mitchell",             "USA",   "BRONZE", 10.04, 1992
+"Carl Lewis",                  "USA",   "GOLD",    9.92, 1988
+"Linford Christie",            "GBR",   "SILVER",  9.97, 1988
+"Calvin Smith",                "USA",   "BRONZE",  9.99, 1988
+"Carl Lewis",                  "USA",   "GOLD",    9.99, 1984
+"Sam Graddy",                  "USA",   "SILVER", 10.19, 1984
+"Ben Johnson",                 "CAN",   "BRONZE", 10.22, 1984
+"Allan Wells",                 "GBR",   "GOLD",   10.25, 1980
+"Silvio Leonard Tartabull",    "CUB",   "SILVER", 10.25, 1980
+"Petar Petrov",                "BUL",   "BRONZE", 10.39, 1980
+"Hasely Crawford",             "TRI",   "GOLD",   10.06, 1976
+"Donald Quarrie",              "JAM",   "SILVER", 10.08, 1976
+"Valery Borzov",               "URS",   "BRONZE", 10.14, 1976
+"Valery Borzov",               "URS",   "GOLD",   10.14, 1972
+"Robert Taylor",               "USA",   "SILVER", 10.24, 1972
+"Lennox Miller",               "JAM",   "BRONZE", 10.33, 1972
+"Jim Hines",                   "USA",   "GOLD",    9.95, 1968
+"Lennox Miller",               "JAM",   "SILVER", 10.04, 1968
+"Charles Greene",              "USA",   "BRONZE", 10.07, 1968
+"Bob Hayes",                   "USA",   "GOLD",   10.00, 1964
+"Enrique Figuerola Camue",     "CUB",   "SILVER", 10.20, 1964
+"Harry Jerome",                "CAN",   "BRONZE", 10.20, 1964
+"Armin Hary",                  "EUA",   "GOLD",   10.20, 1960
+"David Sime",                  "USA",   "SILVER", 10.20, 1960
+"Peter Radford",               "GBR",   "BRONZE", 10.30, 1960
+"Bobby Joe Morrow",            "USA",   "GOLD",   10.50, 1956
+"W. Thane Baker",              "USA",   "SILVER", 10.50, 1956
+"Hector Hogan",                "AUS",   "BRONZE", 10.60, 1956
+"Lindy Remigino",              "USA",   "GOLD",   10.40, 1952
+"Herbert McKenley",            "JAM",   "SILVER", 10.40, 1952
+"E. McDonald Bailey",          "GBR",   "BRONZE", 10.40, 1952
+"W. Harrison Dillard",         "USA",   "GOLD",   10.30, 1948
+"H. Norwood \"Barney\" Ewell", "USA",   "SILVER", 10.40, 1948
+"Lloyd LaBeach",               "PAN",   "BRONZE", 10.40, 1948
+"Jesse Owens",                 "USA",   "GOLD",   10.30, 1936
+"Ralph Metcalfe",              "USA",   "SILVER", 10.40, 1936
+"Martinus Osendarp",           "NED",   "BRONZE", 10.50, 1936
+"T. \"Eddie\" Tolan",          "USA",   "GOLD",   10.30, 1932
+"Ralph Metcalfe",              "USA",   "SILVER", 10.30, 1932
+"Arthur Jonath",               "GER",   "BRONZE", 10.40, 1932
+"Percy Williams",              "CAN",   "GOLD",   10.80, 1928
+"John \"Jack\" London",        "GBR",   "SILVER", 10.90, 1928
+"Georg Lammers",               "GER",   "BRONZE", 10.90, 1928
+"Harold Abrahams",             "GBR",   "GOLD",   10.60, 1924
+"Jackson Scholz",              "USA",   "SILVER", 10.80, 1924
+"Arthur Porritt",              "NZL",   "BRONZE", 10.90, 1924
+"Charles Paddock",             "USA",   "GOLD",   10.80, 1920
+"Morris Kirksey",              "USA",   "SILVER", 10.90, 1920
+"Harry Edward",                "GBR",   "BRONZE", 10.90, 1920
+"Ralph Craig",                 "USA",   "GOLD",   10.80, 1912
+"Alvah Meyer",                 "USA",   "SILVER", 10.90, 1912
+"Donald Lippincott",           "USA",   "BRONZE", 10.90, 1912
+"Reginald Walker",             "RSA",   "GOLD",   10.80, 1908
+"James Rector",                "USA",   "SILVER", 11.00, 1908
+"Robert Kerr",                 "CAN",   "BRONZE", 11.00, 1908
+"Charles \"Archie\" Hahn",     "USA",   "GOLD",   11.20, 1906
+"Fay Moulton",                 "USA",   "SILVER", 11.30, 1906
+"Nigel Barker",                "AUS",   "BRONZE", 11.30, 1906
+"Charles \"Archie\" Hahn",     "USA",   "GOLD",   11.00, 1904
+"Nathaniel Cartmell",          "USA",   "SILVER", 11.20, 1904
+"Bill Hogenson",               "USA",   "BRONZE", 11.20, 1904
+"Frank Jarvis",                "USA",   "GOLD",   11.00, 1900
+"J. Walter Tewksbury",         "USA",   "SILVER", 11.10, 1900
+"Stanley Rowley",              "AUS",   "BRONZE", 11.20, 1900
+"Thomas Burke",                "USA",   "GOLD",   12.00, 1896
+"Fritz Hofmann",               "GER",   "SILVER", 12.20, 1896
+"Alojz Sokol",                 "HUN",   "BRONZE", 12.60, 1896
+"Francis Lane",                "USA",   "BRONZE", 12.60, 1896

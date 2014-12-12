@@ -246,10 +246,15 @@ define [
         ctx.clip()
         ctx.beginPath()
 
+      indices = {}
+      for renderer, i in @mget("renderers")
+        indices[renderer.id] = i
+      sortKey = (renderer) -> indices[renderer.model.id]
+
       for level in levels
-        renderers = @levels[level]
-        for k, v of renderers
-          v.render()
+        renderers = _.sortBy(_.values(@levels[level]), sortKey)
+        for renderer in renderers
+          renderer.render()
 
       ctx.restore()
 

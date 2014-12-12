@@ -41,7 +41,7 @@ p.circle(x, y, radius=radii, source=source,
     fill_color=colors, fill_alpha=0.6, line_color=None)
 
 p.text(x, y, text=inds, alpha=0.5, text_font_size="5pt",
-     text_baseline="middle", text_align="center", angle=0)
+     text_baseline="middle", text_align="center")
 
 hover =p.select(dict(type=HoverTool))
 hover.tooltips = OrderedDict([
