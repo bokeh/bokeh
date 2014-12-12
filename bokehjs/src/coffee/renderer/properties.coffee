@@ -237,9 +237,6 @@ define [
       @cache.setLineDash       = @source_v_select(@line_dash_name,  datasource)
       @cache.setLineDashOffset = @source_v_select(@line_dash_offset_name, datasource)
 
-    clear_prop_cache: () ->
-      @cache = {}
-
     set_vectorize: (ctx, i) ->
       did_change = false
       if @cache.strokeStyle[i]? and ctx.strokeStyle != @cache.strokeStyle[i]
@@ -343,9 +340,6 @@ define [
       @cache.globalAlpha  = @source_v_select(@text_alpha_name, datasource)
       @cache.textAlign    = @source_v_select(@text_align_name, datasource)
       @cache.textBaseline = @source_v_select(@text_baseline_name, datasource)
-
-    clear_prop_cache: () ->
-      @cache = {}
 
     set_vectorize: (ctx, i) ->
       did_change = false
