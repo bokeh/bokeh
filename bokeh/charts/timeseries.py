@@ -78,7 +78,7 @@ class TimeSeries(ChartObject):
                  facet=False):
         """
         Args:
-            xy (dict): a dict containing the data with names as a key
+            values (iterable 2d): a dict containing the data with names as a key
                 and the data as a value.
             index (list): 1d iterable of any sort (of datetime values)
             title (str, optional): the title of your plot. Defaults to None.
