@@ -86,6 +86,15 @@ define [
     _render: (ctx, indices, sx=@sx, sy=@sy, radius=@radius) ->
       pi2 = 2*Math.PI
 
+      do_fill = @props.fill.do_fill
+      do_line = @props.line.do_line
+
+      is_fill_scalar = @props.fill.is_scalar
+      is_line_scalar = @props.line.is_scalar
+
+      if is_fill_scalar then @props.fill.set_scalar(ctx)
+      if is_line_scalar then @props.line.set_scalar(ctx)
+
       for i in indices
         x = sx[i]
         y = sy[i]
@@ -97,12 +106,12 @@ define [
         ctx.beginPath()
         ctx.arc(x, y, r, 0, pi2, false)
 
-        if @props.fill.do_fill
-          @props.fill.set_vectorize(ctx, i)
+        if do_fill
+          if not is_fill_scalar then @props.fill.set_vectorize(ctx, i)
           ctx.fill()
 
-        if @props.line.do_stroke
-          @props.line.set_vectorize(ctx, i)
+        if do_line
+          if not is_line_scalar then @props.line.set_vectorize(ctx, i)
           ctx.stroke()
 
       return null
