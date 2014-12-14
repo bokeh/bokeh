@@ -3,7 +3,6 @@ complex plot is a simple way.
 
 This is the Step class which lets you build your Step charts just
 passing the arguments to the Chart class and calling the proper functions.
-It also add detection of the incomming input to see if it is a pandas dataframe.
 """
 #-----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2014, Continuum Analytics, Inc. All rights reserved.

@@ -69,48 +69,54 @@ class Area(ChartObject):
                  facet=False, stacked=False):
         """
         Args:
-            values (iterable): iterable 2d representing the data series values matrix.
-            index (str|1d iterable, optional): can be used to specify a common custom
-                index for all data series as follows:
-                    - As a 1d iterable of any sort that will be used as series common index
-                    - As a string that corresponds to the key of the mapping to be used as
-                     index (and not as data series) if area.values is a mapping (like a dict,
-                      an OrderedDict or a pandas DataFrame)
-            title (str, optional): the title of your chart. Defaults to None.
+            values (iterable): iterable 2d representing the data series
+                values matrix.
+            index (str|1d iterable, optional): can be used to specify a
+                common custom index for all data series as follows:
+                    - As a 1d iterable of any sort that will be used as
+                        series common index
+                    - As a string that corresponds to the key of the
+                        mapping to be used as index (and not as data
+                        series) if area.values is a mapping (like a dict,
+                        an OrderedDict or a pandas DataFrame)
+            title (str, optional): the title of your chart. Defaults
+                to None.
             xlabel (str, optional): the x-axis label of your chart.
                 Defaults to None.
             ylabel (str, optional): the y-axis label of your chart.
                 Defaults to None.
-            legend (str, optional): the legend of your chart. The legend content is
-                inferred from incoming input.It can be ``top_left``,
-                ``top_right``, ``bottom_left``, ``bottom_right``.
-                It is ``top_right`` is you set it as True.
-                Defaults to None.
-            xscale (str, optional): the x-axis type scale of your chart. It can be
-                ``linear``, ``datetime`` or ``categorical``.
+            legend (str, optional): the legend of your chart. The legend
+                content is inferred from incoming input.It can be
+                ``top_left``, ``top_right``, ``bottom_left``,
+                ``bottom_right``. ``top_right`` is set if you set it
+                 as True. Defaults to None.
+            xscale (str, optional): the x-axis type scale of your chart.
+                It can be ``linear``, ``datetime`` or ``categorical``.
                 Defaults to ``datetime``.
-            yscale (str, optional): the y-axis type scale of your chart. It can be
-                ``linear``, ``datetime`` or ``categorical``.
+            yscale (str, optional): the y-axis type scale of your chart.
+                It can be ``linear``, ``datetime`` or ``categorical``.
                 Defaults to ``linear``.
             width (int, optional): the width of your chart in pixels.
                 Defaults to 800.
             height (int, optional): the height of you chart in pixels.
                 Defaults to 600.
-            tools (bool, optional): to enable or disable the tools in your chart.
-                Defaults to True
-            filename (str or bool, optional): the name of the file where your chart.
-                will be written. If you pass True to this argument, it will use
-                ``untitled`` as a filename.
+            tools (bool, optional): to enable or disable the tools in
+                your chart. Defaults to True
+            filename (str or bool, optional): the name of the file where
+                your chart. will be written. If you pass True to this
+                argument, it will use ``untitled`` as a filename.
                 Defaults to False.
-            server (str or bool, optional): the name of your chart in the server.
-                If you pass True to this argument, it will use ``untitled``
-                as the name in the server.
+            server (str or bool, optional): the name of your chart in
+                the server. If you pass True to this argument, it will
+                use ``untitled`` as the name in the server.
                 Defaults to False.
-            notebook (bool, optional):if you want to output (or not) your chart into the
-                IPython notebook.
+            notebook (bool, optional):if you want to output (or not)
+                your chart into the IPython notebook.
                 Defaults to False.
-            facet (bool, optional): generate multiple areas on multiple separate charts
-                for each series if True. Defaults to False
+            facet (bool, optional): generate multiple areas on multiple
+                separate charts for each series if True. Defaults to
+                False
+
             stacked (bool, optional): if:
                 True: areas are draw as a stack to show the relationship of parts to a whole
                 False: areas are layered on the same chart figure. Defaults to False.
@@ -144,9 +150,10 @@ class Area(ChartObject):
         self.attr = []
         self.index = index
 
-        super(Area, self).__init__(title, xlabel, ylabel, legend,
-                                         xscale, yscale, width, height,
-                                         tools, filename, server, notebook, facet)
+        super(Area, self).__init__(
+            title, xlabel, ylabel, legend, xscale, yscale, width, height,
+            tools, filename, server, notebook, facet
+        )
 
     def stacked(self, stacked=True):
         """Set the areas stacked on your chart.
