@@ -72,41 +72,44 @@ class Bar(ChartObject):
                 Defaults to None.
             stacked (bool, optional): to see the bars stacked or grouped.
                 Defaults to False, so grouping is assumed.
-            title (str, optional): the title of your chart. Defaults to None.
+            title (str, optional): the title of your chart. Defaults
+                to None.
             xlabel (str, optional): the x-axis label of your chart.
                 Defaults to None.
             ylabel (str, optional): the y-axis label of your chart.
                 Defaults to None.
-            legend (str, optional): the legend of your chart. The legend content is
-                inferred from incoming input.It can be ``top_left``,
-                ``top_right``, ``bottom_left``, ``bottom_right``.
-                It is ``top_right`` is you set it as True.
-                Defaults to None.
-            xscale (str, optional): the x-axis type scale of your chart. It can be
-                ``linear``, ``datetime`` or ``categorical``.
+            legend (str, optional): the legend of your chart. The legend
+                content is inferred from incoming input.It can be
+                ``top_left``, ``top_right``, ``bottom_left``,
+                ``bottom_right``. ``top_right`` is set if you set it
+                 as True. Defaults to None.
+            xscale (str, optional): the x-axis type scale of your chart.
+                It can be ``linear``, ``datetime`` or ``categorical``.
                 Defaults to ``datetime``.
-            yscale (str, optional): the y-axis type scale of your chart. It can be
-                ``linear``, ``datetime`` or ``categorical``.
+            yscale (str, optional): the y-axis type scale of your chart.
+                It can be ``linear``, ``datetime`` or ``categorical``.
                 Defaults to ``linear``.
             width (int, optional): the width of your chart in pixels.
                 Defaults to 800.
             height (int, optional): the height of you chart in pixels.
                 Defaults to 600.
-            tools (bool, optional): to enable or disable the tools in your chart.
-                Defaults to True
-            filename (str or bool, optional): the name of the file where your chart.
-                will be written. If you pass True to this argument, it will use
-                ``untitled`` as a filename.
+            tools (bool, optional): to enable or disable the tools in
+                your chart. Defaults to True
+            filename (str or bool, optional): the name of the file where
+                your chart. will be written. If you pass True to this
+                argument, it will use ``untitled`` as a filename.
                 Defaults to False.
-            server (str or bool, optional): the name of your chart in the server.
-                If you pass True to this argument, it will use ``untitled``
-                as the name in the server.
+            server (str or bool, optional): the name of your chart in
+                the server. If you pass True to this argument, it will
+                use ``untitled`` as the name in the server.
                 Defaults to False.
-            notebook (bool, optional):if you want to output (or not) your chart into the
-                IPython notebook.
+            notebook (bool, optional):if you want to output (or not)
+                your chart into the IPython notebook.
                 Defaults to False.
-            facet (bool, optional): generate multiple areas on multiple separate charts
-                for each series if True. Defaults to False
+            facet (bool, optional): generate multiple areas on multiple
+                separate charts for each series if True. Defaults to
+                False
+
 
         Attributes:
             source (obj): datasource object for your chart,
