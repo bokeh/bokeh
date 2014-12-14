@@ -4,7 +4,7 @@
 Release Notes
 #############
 
-v0.7.0 (Dic 2014)
+v0.7.0 (Dec 2014)
 =================
 * IPython widgets and animations without a Bokeh server
 * Touch UI working for tools on mobile devices
