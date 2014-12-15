@@ -208,7 +208,7 @@ class Dot(ChartObject):
 
         The glyph is added to chart.glyphs.
 
-        NOTE: Overwrites default ChartObject in order to dray a circle glyph
+        NOTE: Overwrites default ChartObject in order to draw a circle glyph
         on the legend instead of the default `rect`
 
         Args:
