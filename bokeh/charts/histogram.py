@@ -143,6 +143,47 @@ class Histogram(ChartObject):
         """
         super(Histogram, self).check_attr()
 
+    def get_data(self):
+        """Take the Histogram data from the input **value.
+
+        It calculates the chart properties accordingly. Then build a dict
+        containing references to all the calculated points to be used by
+        the quad and line glyphs inside the ``draw`` method.
+        """
+        # list to save all the groups available in the incomming input
+        self.groups.extend(self.values.keys())
+
+        # fill the data dictionary with the proper values
+        for i, val in enumerate(self.values.keys()):
+            self.set_and_get("", val, self.values[val])
+            #build the histogram using the set bins number
+            hist, edges = np.histogram(
+                np.array(self.data[val]), density=True, bins=self.bins
+            )
+            self.set_and_get("hist", val, hist)
+            self.set_and_get("edges", val, edges)
+            self.set_and_get("left", val, edges[:-1])
+            self.set_and_get("right", val, edges[1:])
+            self.set_and_get("bottom", val, np.zeros(len(hist)))
+
+            self.mu_and_sigma = False
+            if self.mu is not None and self.sigma is not None:
+                if _is_scipy:
+                    self.mu_and_sigma = True
+                    self.set_and_get("x", val, np.linspace(-2, 2, len(self.data[val])))
+                    den = 2 * self.sigma ** 2
+                    x_val = self.data["x" + val]
+                    x_val_mu = x_val - self.mu
+                    sigsqr2pi = self.sigma * np.sqrt(2 * np.pi)
+                    pdf = 1 / (sigsqr2pi) * np.exp(-x_val_mu ** 2 / den)
+                    self.set_and_get("pdf", val, pdf)
+                    self.groups.append("pdf")
+                    cdf = (1 + scipy.special.erf(x_val_mu / np.sqrt(den))) / 2
+                    self.set_and_get("cdf", val, cdf)
+                    self.groups.append("cdf")
+                else:
+                    print("You need scipy to get the theoretical probability distributions.")
+
     def get_source(self):
         """Push the Histogram data into the ColumnDataSource and calculate
         the proper ranges."""
@@ -202,44 +243,3 @@ class Histogram(ChartObject):
                 # series on multiple separate plots
                 if i < len(nonets)-1:
                     self.create_plot_if_facet()
-
-    def get_data(self):
-        """Take the Histogram data from the input **value.
-
-        It calculates the chart properties accordingly. Then build a dict
-        containing references to all the calculated points to be used by
-        the quad and line glyphs inside the ``draw`` method.
-        """
-        # list to save all the groups available in the incomming input
-        self.groups.extend(self.values.keys())
-
-        # fill the data dictionary with the proper values
-        for i, val in enumerate(self.values.keys()):
-            self.set_and_get("", val, self.values[val])
-            #build the histogram using the set bins number
-            hist, edges = np.histogram(
-                np.array(self.data[val]), density=True, bins=self.bins
-            )
-            self.set_and_get("hist", val, hist)
-            self.set_and_get("edges", val, edges)
-            self.set_and_get("left", val, edges[:-1])
-            self.set_and_get("right", val, edges[1:])
-            self.set_and_get("bottom", val, np.zeros(len(hist)))
-
-            self.mu_and_sigma = False
-            if self.mu is not None and self.sigma is not None:
-                if _is_scipy:
-                    self.mu_and_sigma = True
-                    self.set_and_get("x", val, np.linspace(-2, 2, len(self.data[val])))
-                    den = 2 * self.sigma ** 2
-                    x_val = self.data["x" + val]
-                    x_val_mu = x_val - self.mu
-                    sigsqr2pi = self.sigma * np.sqrt(2 * np.pi)
-                    pdf = 1 / (sigsqr2pi) * np.exp(-x_val_mu ** 2 / den)
-                    self.set_and_get("pdf", val, pdf)
-                    self.groups.append("pdf")
-                    cdf = (1 + scipy.special.erf(x_val_mu / np.sqrt(den))) / 2
-                    self.set_and_get("cdf", val, cdf)
-                    self.groups.append("cdf")
-                else:
-                    print("You need scipy to get the theoretical probability distributions.")

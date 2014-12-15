@@ -123,6 +123,31 @@ class Line(ChartObject):
             tools, filename, server, notebook, facet
         )
 
+    def get_data(self):
+        """Calculate the chart properties accordingly from line.values.
+        Then build a dict containing references to all the points to be
+        used by the line glyph inside the ``draw`` method.
+
+        """
+        self.data = dict()
+
+        # list to save all the attributes we are going to create
+        self.attr = []
+
+        xs, self.values = DataAdapter.get_index_and_data(
+            self.values, self.index
+        )
+
+        self.set_and_get("x", "", np.array(xs))
+        for col in self.values.keys():
+            if isinstance(self.index, string_types) and col == self.index:
+                continue
+
+            # save every new group we find
+            self.groups.append(col)
+            values = [self.values[col][x] for x in xs]
+            self.set_and_get("y_", col, values)
+
     def get_source(self):
         """
         Push the Line data into the ColumnDataSource and calculate the
@@ -152,28 +177,3 @@ class Line(ChartObject):
 
             if i < len(self.attr[1:]):
                 self.create_plot_if_facet()
-
-    def get_data(self):
-        """Calculate the chart properties accordingly from line.values.
-        Then build a dict containing references to all the points to be
-        used by the line glyph inside the ``draw`` method.
-
-        """
-        self.data = dict()
-
-        # list to save all the attributes we are going to create
-        self.attr = []
-
-        xs, self.values = DataAdapter.get_index_and_data(
-            self.values, self.index
-        )
-
-        self.set_and_get("x", "", np.array(xs))
-        for col in self.values.keys():
-            if isinstance(self.index, string_types) and col == self.index:
-                continue
-
-            # save every new group we find
-            self.groups.append(col)
-            values = [self.values[col][x] for x in xs]
-            self.set_and_get("y_", col, values)

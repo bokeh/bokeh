@@ -179,6 +179,45 @@ class Area(ChartObject):
         if not hasattr(self, '_stacked'):
             self._stacked = self.__stacked
 
+    def get_data(self):
+        """Calculate the chart properties accordingly from area.values.
+        Then build a dict containing references to all the points to be used by
+        the patch glyph inside the ``draw`` method.
+
+        """
+        self.data = dict()
+        # list to save all the attributes we are going to create
+        self.attr = []
+        xs, self.values = DataAdapter.get_index_and_data(self.values, self.index)
+        last = np.zeros(len(xs))
+        x2 = np.hstack((xs[::-1], xs))
+        self.set_and_get("x", "", x2)
+
+        for grp in self.values.keys():
+            # TODO: This condition may be removed or changed depending on
+            # the validation of self.index
+            if isinstance(self.index, string_types) and grp == self.index:
+                continue
+
+            # get single series values
+            col_values = self.values[grp]
+            _values = [col_values[x] for indx, x in enumerate(xs)]
+
+            # to draw area we need 2 coordinates. The lower values will always
+            # be:
+            # - 0 in case of non stacked area
+            # - the previous series top value in case of stacked charts
+            next = last + _values
+            values = np.hstack((last[::-1], next))
+
+            # only update when stacked, otherwise we always want to start from 0
+            if self._stacked:
+                last = next
+
+            # save values and new group
+            self.set_and_get("y_", grp, values)
+            self.groups.append(grp)
+
     def get_source(self):
         """
         Push the Line data into the ColumnDataSource and calculate the proper ranges.
@@ -210,43 +249,3 @@ class Area(ChartObject):
 
             if i < len(self.attr[1:]) - 1:
                 self.create_plot_if_facet()
-
-    def get_data(self):
-        """Calculate the chart properties accordingly from area.values.
-        Then build a dict containing references to all the points to be used by
-        the patch glyph inside the ``draw`` method.
-
-        """
-        self.data = dict()
-        # list to save all the attributes we are going to create
-        self.attr = []
-        xs, self.values = DataAdapter.get_index_and_data(self.values, self.index)
-        last = np.zeros(len(xs))
-        x2 = np.hstack((xs[::-1], xs))
-        self.set_and_get("x", "", x2)
-
-        for grp in self.values.keys():
-            # TODO: This condition may be removed or changed depending on
-            # the validation of self.index
-            if isinstance(self.index, string_types) \
-                and grp == self.index:
-                continue
-
-            # get single series values
-            col_values = self.values[grp]
-            _values = [col_values[x] for indx, x in enumerate(xs)]
-
-            # to draw area we need 2 coordinates. The lower values will always
-            # be:
-            # - 0 in case of non stacked area
-            # - the previous series top value in case of stacked charts
-            next = last + _values
-            values = np.hstack((last[::-1], next))
-
-            # only update when stacked, otherwise we always want to start from 0
-            if self._stacked:
-                last = next
-
-            # save values and new group
-            self.set_and_get("y_", grp, values)
-            self.groups.append(grp)

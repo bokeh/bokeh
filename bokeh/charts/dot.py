@@ -120,37 +120,6 @@ class Dot(ChartObject):
                                   xscale, yscale, width, height,
                                   tools, filename, server, notebook, facet)
 
-
-    def draw(self):
-        """Use the rect glyphs to display the bars.
-
-        Takes reference points from data loaded at the source and
-        renders circle glyphs (and segments) on the related
-        coordinates.
-        """
-        self.tuples = list(self._chunker(self.attr, 4))
-        colors = self._set_colors(self.tuples)
-
-        # quartet elements are: [data, cat, zeros, segment_top]
-        for i, quartet in enumerate(self.tuples):
-            # draw segment first so when scatter will be place on top of it
-            # and it won't show segment chunk on top of the circle
-            if self.show_segment:
-                self.chart.make_segment(
-                    self.source, quartet[1], quartet[2],
-                    quartet[1], quartet[3], 'black', 2,
-                )
-
-            self.chart.make_scatter(
-                self.source, quartet[1], quartet[0], 'circle',
-                colors[i - 1], line_color='black', size=15, fill_alpha=1.,
-            )
-
-            if i < len(self.tuples):
-                self.create_plot_if_facet()
-
-        self.reset_legend()
-
     def get_data(self):
         """Take the Dot data from the input **value.
 
@@ -188,6 +157,36 @@ class Dot(ChartObject):
         cat = [i for i in self.attr if not i.startswith(("cat",))]
         end = 1.1 * max(max(self.data[i]) for i in cat)
         self.ydr = Range1d(start=0, end=end)
+
+    def draw(self):
+        """Use the rect glyphs to display the bars.
+
+        Takes reference points from data loaded at the source and
+        renders circle glyphs (and segments) on the related
+        coordinates.
+        """
+        self.tuples = list(self._chunker(self.attr, 4))
+        colors = self._set_colors(self.tuples)
+
+        # quartet elements are: [data, cat, zeros, segment_top]
+        for i, quartet in enumerate(self.tuples):
+            # draw segment first so when scatter will be place on top of it
+            # and it won't show segment chunk on top of the circle
+            if self.show_segment:
+                self.chart.make_segment(
+                    self.source, quartet[1], quartet[2],
+                    quartet[1], quartet[3], 'black', 2,
+                )
+
+            self.chart.make_scatter(
+                self.source, quartet[1], quartet[0], 'circle',
+                colors[i - 1], line_color='black', size=15, fill_alpha=1.,
+            )
+
+            if i < len(self.tuples):
+                self.create_plot_if_facet()
+
+        self.reset_legend()
 
     def _setup_show(self):
         """

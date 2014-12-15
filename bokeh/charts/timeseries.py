@@ -146,16 +146,38 @@ class TimeSeries(ChartObject):
             tools, filename, server, notebook, facet
         )
 
+    def get_data(self):
+        """Take the x/y data from the timeseries values.
+
+        It calculates the chart properties accordingly. Then build a dict
+        containing references to all the points to be used by
+        the line glyph inside the ``draw`` method.
+
+        """
+        self.data = dict()
+
+        # list to save all the attributes we are going to create
+        self.attr = []
+
+        xs, self.values = self.prepare_data(self.values)
+        for col in self.values.keys():
+            if isinstance(self.index, string_types) \
+                and col == self.index:
+                continue
+
+            # save every the groups available in the incomming input
+            self.groups.append(col)
+            self.set_and_get("x_", col, xs)
+            self.set_and_get("y_", col, self.values[col])
+
     def get_source(self):
         """Push the TimeSeries data into the ColumnDataSource and
         calculate the proper ranges.
         """
         self.source = ColumnDataSource(self.data)
-
         self.xdr = DataRange1d(sources=[self.source.columns(self.attr[0])])
 
         y_names = self.attr[1::2]
-
         endy = max(max(self.data[i]) for i in y_names)
         starty = min(min(self.data[i]) for i in y_names)
         self.ydr = Range1d(
@@ -204,27 +226,3 @@ class TimeSeries(ChartObject):
                 values = DataAdapter(values, force_alias=False)
 
         return xs, values
-
-    def get_data(self):
-        """Take the x/y data from the timeseries values.
-
-        It calculates the chart properties accordingly. Then build a dict
-        containing references to all the points to be used by
-        the line glyph inside the ``draw`` method.
-
-        """
-        self.data = dict()
-
-        # list to save all the attributes we are going to create
-        self.attr = []
-
-        xs, self.values = self.prepare_data(self.values)
-        for col in self.values.keys():
-            if isinstance(self.index, string_types) \
-                and col == self.index:
-                continue
-
-            # save every the groups available in the incomming input
-            self.groups.append(col)
-            self.set_and_get("x_", col, xs)
-            self.set_and_get("y_", col, self.values[col])

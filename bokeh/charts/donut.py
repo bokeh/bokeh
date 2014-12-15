@@ -126,6 +126,29 @@ class Donut(ChartObject):
             tools, filename, server, notebook
         )
 
+    def get_data(self):
+        """Take the chart data from self.values.
+
+        It calculates the chart properties accordingly (start/end angles).
+        Then build a dict containing references to all the calculated
+        points to be used by the Wedge glyph inside the ``draw`` method.
+
+        """
+        self.df = df = pd.DataFrame(self.values.values())
+        self.groups = df.columns = self.cat
+        df.index = self.values.keys()
+        aggregated = df.sum()
+        self.total_units = total = aggregated.sum()
+        radians = lambda x: 2*pi*(x/total)
+        angles = aggregated.map(radians).cumsum()
+
+        end_angles = angles.tolist()
+        start_angles = [0] + end_angles[:-1]
+        colors = self._set_colors(self.cat)
+        self.set_and_get("", "colors", colors)
+        self.set_and_get("", "end", end_angles)
+        self.set_and_get("", "start", start_angles)
+
     def get_source(self):
         """Push the Donut data into the ColumnDataSource and calculate
          the proper ranges.
@@ -233,29 +256,6 @@ class Donut(ChartObject):
 
         # normalize input to the common DataAdapter Interface
         self.values = DataAdapter(self.values, force_alias=False)
-
-    def get_data(self):
-        """Take the chart data from self.values.
-
-        It calculates the chart properties accordingly (start/end angles).
-        Then build a dict containing references to all the calculated
-        points to be used by the Wedge glyph inside the ``draw`` method.
-
-        """
-        self.df = df = pd.DataFrame(self.values.values())
-        self.groups = df.columns = self.cat
-        df.index = self.values.keys()
-        aggregated = df.sum()
-        self.total_units = total = aggregated.sum()
-        radians = lambda x: 2*pi*(x/total)
-        angles = aggregated.map(radians).cumsum()
-
-        end_angles = angles.tolist()
-        start_angles = [0] + end_angles[:-1]
-        colors = self._set_colors(self.cat)
-        self.set_and_get("", "colors", colors)
-        self.set_and_get("", "end", end_angles)
-        self.set_and_get("", "start", start_angles)
 
 def polar_to_cartesian(r, start_angles, end_angles):
     """Translate polar coordinates to cartesian.

@@ -165,6 +165,40 @@ class Bar(ChartObject):
         if not hasattr(self, '_stacked'):
             self._stacked = self.__stacked
 
+    def get_data(self):
+        """Take the Bar data from the input **value.
+
+        It calculates the chart properties accordingly. Then build a dict
+        containing references to all the calculated points to be used by
+        the rect glyph inside the ``draw`` method.
+        """
+        width = [0.8] * len(self.cat)
+        # width should decrease proportionally to the value length.
+        # 1./len(value) doesn't work well as the width needs to decrease a
+        # little bit faster
+        width_cat = [min(0.2, (1./len(self.values))**1.1)] * len(self.cat)
+        zero = np.zeros(len(self.cat))
+        self.data = dict(
+            cat=self.cat, width=width, width_cat=width_cat,
+            zero=zero
+        )
+        # list to save all the attributes we are going to create
+        self.attr = []
+        # list to save all the groups available in the incomming input grouping
+        step = np.linspace(0, 1.0, len(self.values.keys()) + 1, endpoint=False)
+        self.groups.extend(self.values.keys())
+
+        for i, val in enumerate(self.values.keys()):
+            self.set_and_get("", val, self.values[val])
+            mid = np.array(self.values[val]) / 2
+            self.set_and_get("mid", val, mid)
+            self.set_and_get("stacked", val, zero + mid)
+            # Grouped
+            grouped = [c + ":" + str(step[i + 1]) for c in self.cat]
+            self.set_and_get("cat", val, grouped)
+            # Stacked
+            zero += self.values[val]
+
     def get_source(self):
         """Push the Bar data into the ColumnDataSource and calculate
         the proper ranges.
@@ -213,37 +247,3 @@ class Bar(ChartObject):
 
         if not self.cat:
             self.cat = [str(x) for x in self.values.index]
-
-    def get_data(self):
-        """Take the Bar data from the input **value.
-
-        It calculates the chart properties accordingly. Then build a dict
-        containing references to all the calculated points to be used by
-        the rect glyph inside the ``draw`` method.
-        """
-        width = [0.8] * len(self.cat)
-        # width should decrease proportionally to the value length.
-        # 1./len(value) doesn't work well as the width needs to decrease a
-        # little bit faster
-        width_cat = [min(0.2, (1./len(self.values))**1.1)] * len(self.cat)
-        zero = np.zeros(len(self.cat))
-        self.data = dict(
-            cat=self.cat, width=width, width_cat=width_cat,
-            zero=zero
-        )
-        # list to save all the attributes we are going to create
-        self.attr = []
-        # list to save all the groups available in the incomming input grouping
-        step = np.linspace(0, 1.0, len(self.values.keys()) + 1, endpoint=False)
-        self.groups.extend(self.values.keys())
-
-        for i, val in enumerate(self.values.keys()):
-            self.set_and_get("", val, self.values[val])
-            mid = np.array(self.values[val]) / 2
-            self.set_and_get("mid", val, mid)
-            self.set_and_get("stacked", val, zero + mid)
-            # Grouped
-            grouped = [c + ":" + str(step[i + 1]) for c in self.cat]
-            self.set_and_get("cat", val, grouped)
-            # Stacked
-            zero += self.values[val]

@@ -124,6 +124,33 @@ class Step(ChartObject):
             tools, filename, server, notebook, facet
         )
 
+    def get_data(self):
+        """It calculates the chart properties accordingly from Step.values.
+        Then build a dict containing references to all the points to be
+        used by the segment glyph inside the ``draw`` method.
+        """
+        self.data = dict()
+
+        # list to save all the attributes we are going to create
+        self.attr = []
+        self.groups = []
+
+        xs, self.values = DataAdapter.get_index_and_data(
+            self.values, self.index
+        )
+
+        self.set_and_get("x", "", np.array(xs)[:-1])
+        self.set_and_get("x2", "", np.array(xs)[1:])
+        for col in self.values.keys():
+            if isinstance(self.index, string_types) and col == self.index:
+                continue
+
+            # save every new group we find
+            self.groups.append(col)
+            values = [self.values[col][x] for x in xs]
+            self.set_and_get("y1_", col, values[:-1])
+            self.set_and_get("y2_", col, values[1:])
+
     def get_source(self):
         """ Push the Step data into the ColumnDataSource and calculate
         the proper ranges.
@@ -183,30 +210,3 @@ class Step(ChartObject):
         self.chart.make_segment(
             source_legend, "groups", None, 'groups', None, color, 2
         )
-
-    def get_data(self):
-        """It calculates the chart properties accordingly from Step.values.
-        Then build a dict containing references to all the points to be
-        used by the segment glyph inside the ``draw`` method.
-        """
-        self.data = dict()
-
-        # list to save all the attributes we are going to create
-        self.attr = []
-        self.groups = []
-
-        xs, self.values = DataAdapter.get_index_and_data(
-            self.values, self.index
-        )
-
-        self.set_and_get("x", "", np.array(xs)[:-1])
-        self.set_and_get("x2", "", np.array(xs)[1:])
-        for col in self.values.keys():
-            if isinstance(self.index, string_types) and col == self.index:
-                continue
-
-            # save every new group we find
-            self.groups.append(col)
-            values = [self.values[col][x] for x in xs]
-            self.set_and_get("y1_", col, values[:-1])
-            self.set_and_get("y2_", col, values[1:])
