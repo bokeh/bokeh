@@ -82,7 +82,7 @@ class Plot(Widget):
         ''' Adds an object to the plot in a specified place.
 
         Args:
-            obj (PlotObject) : the object to add to the Plot
+            obj (Renderer) : the object to add to the Plot
             place (str, optional) : where to add the object (default: 'center')
                 Valid places are: 'left', 'right', 'above', 'below', 'center'.
 
@@ -176,10 +176,10 @@ class Plot(Widget):
     tools = List(Instance(Tool))
     tool_events = Instance(ToolEvents)
 
-    left = List(Instance(PlotObject))
-    right = List(Instance(PlotObject))
-    above = List(Instance(PlotObject))
-    below = List(Instance(PlotObject))
+    left  = List(Instance(Renderer))
+    right = List(Instance(Renderer))
+    above = List(Instance(Renderer))
+    below = List(Instance(Renderer))
 
     toolbar_location = Enum(Location)
     logo = Enum("normal", "grey")
