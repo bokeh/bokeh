@@ -41,7 +41,10 @@ gram_color = {
     "negative" : "#e69584",
 }
 
-df = pd.read_csv(StringIO(antibiotics), skiprows=1, skipinitialspace=True)
+df = pd.read_csv(StringIO(antibiotics),
+                 skiprows=1,
+                 skipinitialspace=True,
+                 engine='python')
 
 width = 800
 height = 800
