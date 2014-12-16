@@ -41,7 +41,7 @@ class HeatMap(ChartObject):
     xyvalues['apples'] = [4,5,8]
     xyvalues['bananas'] = [1,2,4]
     xyvalues['pears'] = [6,5,4]
-    hm = HeatMap(data, title="categorical heatmap", filename="cat_heatmap.html")
+    hm = HeatMap(xyvalues, title="categorical heatmap", filename="cat_heatmap.html")
     hm.width(1000).height(400).show()
     """
     # disable x and y grids
