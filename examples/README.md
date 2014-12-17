@@ -21,7 +21,7 @@ This directory contains examples that use the low-level interface and examples t
 This directory contains examples of plots that allow the user to invoke methods of other plotting packages  (e.g. `matplotlib`, `seaborn` and `ggplots`) through Bokeh.
 
 #### [`embed`](https://github.com/bokeh/bokeh/tree/master/examples/embed)
-This directory includes examples that show how to embed Bokeh plots in an full site as objects within an HTML document.
+This directory includes examples that show how to embed Bokeh plots in as DOM objects within an HTML document.
 
 ## Notes
 
