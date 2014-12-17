@@ -75,14 +75,14 @@ You can also provide your own custom palette by specifying a list colors. I.e.:
          "default the first series found on the input file is taken."
 )
 @click.option(
-    '--tools', default='pan,wheel_zoom,box_zoom,reset,previewsave,hover',
+    '--tools',# default='pan,wheel_zoom,box_zoom,reset,previewsave,hover',
 )
 @click.option(
     '--series', default='',
     help="Name of the series from the source to include in the plot. "
          "If not specified all source series will be included."
 )
-@click.option('--palette', default="RdYlGn", help=help)
+@click.option('--palette')#, default="RdYlGn", help=help)
 @click.option(
     '--buffer', default='f',
     help="""Reads data source as String from input buffer. Usage example:
@@ -226,7 +226,7 @@ def get_data_series(series, source, index):
             plotted
         index (str): name of the series of source to be used as index.
     """
-    series = filter_series(series, index, source)
+    series = define_series(series, source, index)
     # generate charts data
     data_series = OrderedDict()
     for i, colname in enumerate(series+[index]):
