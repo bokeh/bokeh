@@ -2,16 +2,14 @@
 
 This directory contains several examples that show how to use Bokeh to build plots, widgets and apps, and how to embed them directly in a website. The directory also includes the plot examples displayed in the [Bokeh gallery](http://bokeh.pydata.org/docs/gallery.html) on the official site. 
 
-The examples are organized in six different folders explained below. We recommend that newcomers start with `plotting` and `charts` then move through `glyphs`, `compat`, `app` and `embed` to learn how to build apps with Bokeh and its low-level plotting interface.
-
+The examples are organized in the folders explained below. We recommend that newcomers start with `plotting` and `charts`, and then move through `glyphs`, `compat`, `app` and `embed` to learn how to build apps with Bokeh and its low-level plotting interface.
 
 #### [`plotting`](https://github.com/bokeh/bokeh/tree/master/examples/plotting)
-This directory contains example using the high level plotting interface, and is the interface most users should want to start with.
-There are three subdirectories illustrating output in three different modes:
+This directory contains example using the high level plotting interface. This is the interface that most users should want start with. There are three subdirectories illustrating output in three different modes:
 
 * `file` - Examples that output static HTML files
 * `notebook` - Examples that output inline within IPython notebooks
-* `server` - Examples that send their output to the Bokeh server. These examples require the Bokeh server to be running (to do so, execute 'bokeh-server' from the command line)
+* `server` - Examples that send their output to the Bokeh server, so they require the server to be running (to do this, you can invoke  'bokeh-server' from the command line)
 
 #### [`charts`](https://github.com/bokeh/bokeh/tree/master/examples/charts)
 This directory includes examples that use the high level interface of Bokeh, e.g. for easily building histograms, 
