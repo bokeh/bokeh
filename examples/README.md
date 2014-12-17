@@ -20,7 +20,7 @@ This directory includes examples that use the high level interface of Bokeh, e.g
 This directory contains examples that use the low-level interface and examples that mirror the `bokehjs` browser library interface. 
 
 #### [`compat`](https://github.com/bokeh/bokeh/tree/master/examples/compat)
-This directory contains examples that illustrate the creation of Bokeh plots that can directly access the functionality made available from other (compatible) plotting packages  (e.g. `seaborn` and `ggplots`).
+This directory contains examples of plots that allow the user to invoke methods of other plotting packages  (e.g. `matplotlib`, `seaborn` and `ggplots`) through Bokeh.
 
 #### [`embed`](https://github.com/bokeh/bokeh/tree/master/examples/embed)
 This directory includes examples that show how to embed Bokeh plots in an full site as objects within an HTML document.
