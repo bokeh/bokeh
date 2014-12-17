@@ -12,7 +12,7 @@ This directory contains example using the high level plotting interface. This is
 * `server` - Examples that send their output to the Bokeh server, so they require the server to be running (to do this, you can invoke  'bokeh-server' from the command line)
 
 #### [`charts`](https://github.com/bokeh/bokeh/tree/master/examples/charts)
-This directory includes examples that use the high level interface of Bokeh, e.g. for easily building [histograms](http://bokeh.pydata.org/docs/gallery/histograms_chart.html), [area charts](http://bokeh.pydata.org/docs/gallery/area_chart.html) or [donut plots](http://bokeh.pydata.org/docs/gallery/donut_chart.html)
+This directory includes examples that use the high level interface of Bokeh, e.g. for easily building [histograms](http://bokeh.pydata.org/docs/gallery/histograms_chart.html), [area charts](http://bokeh.pydata.org/docs/gallery/area_chart.html) or [donut plots](http://bokeh.pydata.org/docs/gallery/donut_chart.html).
 
 #### [`glyphs`](https://github.com/bokeh/bokeh/tree/master/examples/glyphs)
 This directory contains examples that use the low-level interface and examples that mirror the `bokehjs` browser library interface. 
