@@ -409,9 +409,7 @@ class ChartObject(object):
         self.show_chart()
 
     def _setup_show(self):
-        """
-        Prepare context before main show method is invoked
-        """
+        """Prepare context before main show method is invoked """
         # we need to check the chained method attr
         self.check_attr()
 

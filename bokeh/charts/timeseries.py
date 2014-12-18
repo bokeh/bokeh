@@ -3,7 +3,6 @@ complex plot is a simple way.
 
 This is the TimeSeries class which lets you build your TimeSeries charts just
 passing the arguments to the Chart class and calling the proper functions.
-It also add detection of the incomming input to see if it is a pandas dataframe.
 """
 #-----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2014, Continuum Analytics, Inc. All rights reserved.
@@ -22,13 +21,10 @@ from collections import OrderedDict
 
 try:
     import pandas as pd
-
 except ImportError:
     pd = None
 
-
 from ._chartobject import ChartObject, DataAdapter
-
 from ..models import ColumnDataSource, Range1d, DataRange1d
 
 #-----------------------------------------------------------------------------
@@ -46,74 +42,78 @@ class TimeSeries(ChartObject):
     And finally add the needed lines taking the references from the source.
 
     Examples:
-
+        import datetime
         from collections import OrderedDict
-        import pandas as pd
-
-        # Here is some code to read in some stock data from the Yahoo Finance API
-        AAPL = pd.read_csv(
-            "http://ichart.yahoo.com/table.csv?s=AAPL&a=0&b=1&c=2000",
-            parse_dates=['Date'])
-        MSFT = pd.read_csv(
-            "http://ichart.yahoo.com/table.csv?s=MSFT&a=0&b=1&c=2000",
-            parse_dates=['Date'])
-        IBM = pd.read_csv(
-            "http://ichart.yahoo.com/table.csv?s=IBM&a=0&b=1&c=2000",
-            parse_dates=['Date'])
-
-        xyvalues = OrderedDict(AAPL=AAPL[['Date', 'Adj Close']],
-                               MSFT=MSFT[['Date', 'Adj Close']],
-                               IBM=IBM[['Date', 'Adj Close']])
-        df = pd.concat(xyvalues, axis=1, names=["l0", "l1"])
-
         from bokeh.charts import TimeSeries
-        ts = TimeSeries(df, title="timeseries, pd_input", notebook=True)
+
+        now = datetime.datetime.now()
+        delta = datetime.timedelta(minutes=1)
+        dts = [now + delta*i for i in range(5)]
+        dtss = ['%s'%dt for dt in dts]
+        xyvalues = OrderedDict({'Date': dts})
+        y_python = xyvalues['python'] = [2, 3, 7, 5, 26]
+        y_pypy = xyvalues['pypy'] = [12, 33, 47, 15, 126]
+        y_jython = xyvalues['jython'] = [22, 43, 10, 25, 26]
+
+        ts = TimeSeries(xyvalues, index='Date', title="timeseries",
+                        ylabel='Stock Prices', filename="stocks_ts.html")
         ts.legend("top_left").show()
+
     """
-    def __init__(self, values,
-                 index=None,
-                 title=None, xlabel=None, ylabel=None, legend=False,
-                 xscale="datetime", yscale="linear", width=800, height=600,
-                 tools=True, filename=False, server=False, notebook=False,
-                 facet=False):
+    def __init__(self, values, index=None, title=None, xlabel=None, ylabel=None,
+                 legend=False, xscale="datetime", yscale="linear", width=800,
+                 height=600, tools=True, filename=False, server=False,
+                 notebook=False, facet=False):
         """
         Args:
-            xy (dict): a dict containing the data with names as a key
-                and the data as a value.
-            index (list): 1d iterable of any sort (of datetime values)
-            title (str, optional): the title of your plot. Defaults to None.
-            xlabel (str, optional): the x-axis label of your plot.
+            values (iterable): iterable 2d representing the data series
+                values matrix.
+            index (str|1d iterable, optional): can be used to specify a
+                common custom index for all data series as follows:
+                    - As a 1d iterable of any sort (of datetime values)
+                        that will be used as series common index
+                    - As a string that corresponds to the key of the
+                        mapping to be used as index (and not as data
+                        series) if area.values is a mapping (like a dict,
+                        an OrderedDict or a pandas DataFrame). The values
+                        must be datetime values.
+            title (str, optional): the title of your chart. Defaults
+                to None.
+            xlabel (str, optional): the x-axis label of your chart.
                 Defaults to None.
-            ylabel (str, optional): the y-axis label of your plot.
+            ylabel (str, optional): the y-axis label of your chart.
                 Defaults to None.
-            legend (str, optional): the legend of your plot. The legend content is
-                inferred from incoming input.It can be ``top_left``,
-                ``top_right``, ``bottom_left``, ``bottom_right``.
-                It is ``top_right`` is you set it as True.
-                Defaults to None.
-            xscale (str, optional): the x-axis type scale of your plot. It can be
-                ``linear``, ``datetime`` or ``categorical``.
+            legend (str, optional): the legend of your chart. The legend
+                content is inferred from incoming input.It can be
+                ``top_left``, ``top_right``, ``bottom_left``,
+                ``bottom_right``. ``top_right`` is set if you set it
+                 as True. Defaults to None.
+            xscale (str, optional): the x-axis type scale of your chart.
+                It can be ``linear``, ``datetime`` or ``categorical``.
                 Defaults to ``datetime``.
-            yscale (str, optional): the y-axis type scale of your plot. It can be
-                ``linear``, ``datetime`` or ``categorical``.
+            yscale (str, optional): the y-axis type scale of your chart.
+                It can be ``linear``, ``datetime`` or ``categorical``.
                 Defaults to ``linear``.
-            width (int, optional): the width of your plot in pixels.
+            width (int, optional): the width of your chart in pixels.
                 Defaults to 800.
-            height (int, optional): the height of you plot in pixels.
+            height (int, optional): the height of you chart in pixels.
                 Defaults to 600.
-            tools (bool, optional): to enable or disable the tools in your plot.
-                Defaults to True
-            filename (str or bool, optional): the name of the file where your plot.
-                will be written. If you pass True to this argument, it will use
-                ``untitled`` as a filename.
+            tools (bool, optional): to enable or disable the tools in
+                your chart. Defaults to True
+            filename (str or bool, optional): the name of the file where
+                your chart. will be written. If you pass True to this
+                argument, it will use ``untitled`` as a filename.
                 Defaults to False.
-            server (str or bool, optional): the name of your plot in the server.
-                If you pass True to this argument, it will use ``untitled``
-                as the name in the server.
+            server (str or bool, optional): the name of your chart in
+                the server. If you pass True to this argument, it will
+                use ``untitled`` as the name in the server.
                 Defaults to False.
-            notebook (bool, optional):if you want to output (or not) your plot into the
-                IPython notebook.
+            notebook (bool, optional):if you want to output (or not)
+                your chart into the IPython notebook.
                 Defaults to False.
+            facet (bool, optional): generate multiple areas on multiple
+                separate charts for each series if True. Defaults to
+                False
 
         Attributes:
             source (obj): datasource object for your plot,
@@ -135,80 +135,16 @@ class TimeSeries(ChartObject):
         self.source = None
         self.xdr = None
         self.ydr = None
-
         # list to save all the groups available in the incomming input
         self.groups = []
         self.data = dict()
         self.attr = []
         self.index = index
 
-        super(TimeSeries, self).__init__(title, xlabel, ylabel, legend,
-                                         xscale, yscale, width, height,
-                                         tools, filename, server, notebook, facet)
-
-    def get_source(self):
-        """
-        Push the TimeSeries data into the ColumnDataSource and calculate the proper ranges.
-        """
-        self.source = ColumnDataSource(self.data)
-
-        self.xdr = DataRange1d(sources=[self.source.columns(self.attr[0])])
-
-        y_names = self.attr[1::2]
-
-        endy = max(max(self.data[i]) for i in y_names)
-        starty = min(min(self.data[i]) for i in y_names)
-        self.ydr = Range1d(
-            start=starty - 0.1 * (endy - starty),
-            end=endy + 0.1 * (endy - starty)
+        super(TimeSeries, self).__init__(
+            title, xlabel, ylabel, legend, xscale, yscale, width, height,
+            tools, filename, server, notebook, facet
         )
-
-    def draw(self):
-        """Use the line glyphs to connect the xy points in the time series.
-
-        Takes reference points from the data loaded at the ColumnDataSurce.
-        """
-        self.duplet = list(self._chunker(self.attr, 2))
-        colors = self._set_colors(self.duplet)
-
-        for i, duplet in enumerate(self.duplet, start=1):
-            self.chart.make_line(self.source, duplet[0], duplet[1], colors[i - 1])
-
-            if i < len(self.duplet):
-                self.create_plot_if_facet()
-
-    def prepare_data(self, values):
-        if hasattr(values, 'keys'):
-            if self.index is not None:
-                if isinstance(self.index, string_types):
-                    xs = values[self.index]
-
-                else:
-                    xs = self.index
-
-            else:
-                try:
-                    xs = values.index
-
-                except AttributeError:
-                    raise
-
-        else:
-            if self.index is None:
-                xs = values[0]
-                values = DataAdapter(values[1:], force_alias=False)
-
-
-            elif isinstance(self.index, string_types):
-                raise TypeError(
-                    "String indexes are only supported for DataFrame and dict inputs"
-                )
-
-            else:
-                xs = self.index
-                values = DataAdapter(values, force_alias=False)
-
-        return xs, values
 
     def get_data(self):
         """Take the x/y data from the timeseries values.
@@ -233,3 +169,60 @@ class TimeSeries(ChartObject):
             self.groups.append(col)
             self.set_and_get("x_", col, xs)
             self.set_and_get("y_", col, self.values[col])
+
+    def get_source(self):
+        """Push the TimeSeries data into the ColumnDataSource and
+        calculate the proper ranges.
+        """
+        self.source = ColumnDataSource(self.data)
+        self.xdr = DataRange1d(sources=[self.source.columns(self.attr[0])])
+
+        y_names = self.attr[1::2]
+        endy = max(max(self.data[i]) for i in y_names)
+        starty = min(min(self.data[i]) for i in y_names)
+        self.ydr = Range1d(
+            start=starty - 0.1 * (endy - starty),
+            end=endy + 0.1 * (endy - starty)
+        )
+
+    def draw(self):
+        """Use the line glyphs to connect the xy points in the time series.
+
+        Takes reference points from the data loaded at the ColumnDataSource.
+        """
+        self.duplet = list(self._chunker(self.attr, 2))
+        colors = self._set_colors(self.duplet)
+
+        for i, (x, y) in enumerate(self.duplet, start=1):
+            self.chart.make_line(self.source, x, y, colors[i - 1])
+
+            if i < len(self.duplet):
+                self.create_plot_if_facet()
+
+    def prepare_data(self, values):
+        if hasattr(values, 'keys'):
+            if self.index is not None:
+                if isinstance(self.index, string_types):
+                    xs = values[self.index]
+                else:
+                    xs = self.index
+            else:
+                try:
+                    xs = values.index
+                except AttributeError:
+                    raise
+        else:
+            if self.index is None:
+                xs = values[0]
+                values = DataAdapter(values[1:], force_alias=False)
+
+            elif isinstance(self.index, string_types):
+                raise TypeError(
+                    "String indexes are only supported for DataFrame and dict inputs"
+                )
+
+            else:
+                xs = self.index
+                values = DataAdapter(values, force_alias=False)
+
+        return xs, values
