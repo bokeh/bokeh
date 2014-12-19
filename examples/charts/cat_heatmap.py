@@ -24,5 +24,5 @@ data = OrderedDict(sorted((k, to_odict(v)) for k, v in datadict.items()))
 #data = df3.values.T
 #data = list(df3.values.T)
 
-hm = HeatMap(data, title="categorical heatmap, pd_input", filename="cat_heatmap.html")
+hm = HeatMap(data, title="categorical heatmap", filename="cat_heatmap.html")
 hm.width(1000).height(400).show()

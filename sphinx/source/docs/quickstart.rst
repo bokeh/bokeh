@@ -81,7 +81,7 @@ What you see when you execute this script is that after it's execution it opens
 your current browser in a new tab with a plot showing a line glyph representing
 the data we have on the script. Of course there is a lot more going on. Bokeh targets
 modern browser for presentation. This means while a lot is happening inside a python
-environment the presentation part is happening on your browser. That's BojehJS working
+environment the presentation part is happening on your browser. That's BokehJS working
 for you. All your python code prepares the  context for BokehJS to display a nice
 looking plot on your browser for you. If you are curious about it and want to read
 more refer to the :ref:`bokehjs` section.
