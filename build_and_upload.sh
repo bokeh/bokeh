@@ -112,8 +112,11 @@ fi
 rm -rf build/
 rm -rf bokeh.egg-info/
 rm -rf record.txt
+rm -rf versioneer.pyc
 rm -rf __conda_version__.txt
 rm -rf bokeh/__conda_version__.py
+rm -rf bokeh/__conda_version__.pyc
+rm -rf bokeh/__pycache__/__conda_version__.pyc
 
 #upload js and css to the cdn
 
