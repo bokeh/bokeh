@@ -66,7 +66,7 @@ class Area(ChartObject):
                  title=None, xlabel=None, ylabel=None, legend=False,
                  xscale="linear", yscale="linear", width=800, height=600,
                  tools=True, filename=False, server=False, notebook=False,
-                 facet=False, stacked=False):
+                 facet=False, stacked=False, xgrid=True, ygrid=True):
         """
         Args:
             values (iterable): iterable 2d representing the data series
@@ -116,10 +116,15 @@ class Area(ChartObject):
             facet (bool, optional): generate multiple areas on multiple
                 separate charts for each series if True. Defaults to
                 False
-
             stacked (bool, optional): if:
-                True: areas are draw as a stack to show the relationship of parts to a whole
-                False: areas are layered on the same chart figure. Defaults to False.
+                True: areas are draw as a stack to show the relationship of
+                    parts to a whole
+                False: areas are layered on the same chart figure. Defaults
+                    to False.
+            xgrid (bool, optional): defines if x-grid of your plot is
+                visible or not
+            ygrid (bool, optional): defines if y-grid of your plot is
+                visible or not
 
         Attributes:
             source (obj): datasource object for your chart,
@@ -152,7 +157,7 @@ class Area(ChartObject):
 
         super(Area, self).__init__(
             title, xlabel, ylabel, legend, xscale, yscale, width, height,
-            tools, filename, server, notebook, facet
+            tools, filename, server, notebook, facet, xgrid, ygrid
         )
 
     def stacked(self, stacked=True):

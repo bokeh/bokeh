@@ -45,12 +45,11 @@ class HeatMap(ChartObject):
     hm.width(1000).height(400).show()
     """
     # disable x and y grids
-    xgrid=False
-    ygrid=False
     def __init__(self, values, palette=None,
                  title=None, xlabel=None, ylabel=None, legend=False,
                  xscale="categorical", yscale="categorical", width=800, height=600,
-                 tools=True, filename=False, server=False, notebook=False):
+                 tools=True, filename=False, server=False, notebook=False, xgrid=False,
+                 ygrid=False):
         """
         Args:
             values (iterable 2d): iterable 2d representing the data series matrix.
@@ -88,6 +87,8 @@ class HeatMap(ChartObject):
             notebook (bool or optional):if you want to output (or not) your plot into the
                 IPython notebook.
                 Defaults to False.
+            xgrid (bool, optional): defines if x-grid of your plot is visible or not
+            ygrid (bool, optional): defines if y-grid of your plot is visible or not
 
         Attributes:
             source (obj): datasource object for your plot,
@@ -112,10 +113,11 @@ class HeatMap(ChartObject):
         self.groups = []
         self.data = dict()
         self.attr = []
-        super(HeatMap, self).__init__(title, xlabel, ylabel, legend,
-                                      xscale, yscale, width, height,
-                                      tools, filename, server, notebook, facet=False,
-                                      palette=palette)
+        super(HeatMap, self).__init__(
+            title, xlabel, ylabel, legend,xscale, yscale, width, height,
+            tools, filename, server, notebook, facet=False,
+            xgrid=xgrid, ygrid=ygrid, palette=palette,
+        )
 
 
     def get_data(self):

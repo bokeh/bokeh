@@ -57,7 +57,8 @@ class ChartObject(object):
 
     def __init__(self, title, xlabel, ylabel, legend,
                  xscale, yscale, width, height,
-                 tools, filename, server, notebook, facet=False, palette=None):
+                 tools, filename, server, notebook, facet=False,
+                 xgrid=True, ygrid=True, palette=None):
         """Common arguments to be used by all the inherited classes.
 
         Args:
@@ -83,7 +84,9 @@ class ChartObject(object):
                 as the name in the server.
             notebook (bool):if you want to output (or not) your plot into the
                 IPython notebook.
-
+            palette(list, optional): a list containing the colormap as hex values.
+            xgrid (bool, optional): defines if x-grid of your plot is visible or not
+            ygrid (bool, optional): defines if y-grid of your plot is visible or not
         .. note::
             These Args are assigned to private attributes that will be used
             by default at the time of chart instantiation, except in the case
@@ -104,6 +107,8 @@ class ChartObject(object):
         self.__notebook = notebook
         self.__facet = facet
         self.__palette = palette
+        self.__xgrid = xgrid
+        self.__ygrid = ygrid
 
     def facet(self, facet=True):
         """Set the facet flag of your chart. Facet splits the chart
@@ -152,6 +157,30 @@ class ChartObject(object):
             self: the chart object being configured.
         """
         self._ylabel = ylabel
+        return self
+
+    def xgrid(self, xgrid):
+        """Set the xgrid of your chart.
+
+        Args:
+            xgrid (bool): defines if x-grid of your plot is visible or not
+
+        Returns:
+            self: the chart object being configured.
+        """
+        self._xgrid = xgrid
+        return self
+
+    def ygrid(self, ygrid):
+        """Set the ygrid of your chart.
+
+        Args:
+            ygrid (bool): defines if y-grid of your plot is visible or not
+
+        Returns:
+            self: the chart object being configured.
+        """
+        self._ygrid = ygrid
         return self
 
     def legend(self, legend):
@@ -313,6 +342,10 @@ class ChartObject(object):
             self._facet = self.__facet
         if not hasattr(self, '_palette'):
             self._palette = self.__palette
+        if not hasattr(self, '_xgrid'):
+            self._xgrid = self.__xgrid
+        if not hasattr(self, '_ygrid'):
+            self._ygrid = self.__ygrid
 
     def create_chart(self):
         """Dynamically create a new chart object.
@@ -337,7 +370,7 @@ class ChartObject(object):
         Wrapper to call the ``chart.start_plot`` method with self.xgrid &
         self.ygrid
         """
-        self.chart.start_plot(self.xgrid, self.ygrid)
+        self.chart.start_plot(self._xgrid, self._ygrid)
 
     def prepare_values(self):
         """Prepare the input data.

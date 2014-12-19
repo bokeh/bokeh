@@ -48,14 +48,12 @@ class Donut(ChartObject):
         donut.title("Medals Donut").xlabel("Cat").ylabel("Lang")
         donut.legend(True).width(800).height(800).show()
     """
-    # disable grids
-    xgrid=False
-    ygrid=False
 
     def __init__(self, values, cat=None,
                  title=None, xlabel=None, ylabel=None, legend=False,
                  xscale="linear", yscale="linear", width=800, height=600,
-                 tools=True, filename=False, server=False, notebook=False):
+                 tools=True, filename=False, server=False, notebook=False,
+                 xgrid=False, ygrid=False):
         """
         Args:
             values (obj): value (iterable obj): Data adapter supported input type
@@ -123,7 +121,7 @@ class Donut(ChartObject):
         super(Donut, self).__init__(
             title, xlabel, ylabel, legend,
             xscale, yscale, width, height,
-            tools, filename, server, notebook
+            tools, filename, server, notebook, xgrid=xgrid, ygrid=ygrid
         )
 
     def get_data(self):

@@ -63,13 +63,11 @@ class BoxPlot(ChartObject):
                           width=800, height=600, notebook=True)
         boxplot.show()
     """
-    # not showing x grid
-    xgrid=False
-
     def __init__(self, values, marker="circle", outliers=True,
                  title=None, xlabel=None, ylabel=None, legend=False,
                  xscale="categorical", yscale="linear", width=800, height=600,
-                 tools=True, filename=False, server=False, notebook=False):
+                 tools=True, filename=False, server=False, notebook=False,
+                 xgrid=False, ygrid=True):
         """ Initialize a new BoxPlot.
 
         Args:
@@ -108,9 +106,13 @@ class BoxPlot(ChartObject):
                 If you pass True to this argument, it will use ``untitled``
                 as the name in the server.
                 Defaults to False.
-            notebook (bool, optional):if you want to output (or not) your plot into the
-                IPython notebook.
+            notebook (bool, optional):if you want to output (or not) your
+                plot into the IPython notebook.
                 Defaults to False.
+            xgrid (bool, optional): defines if x-grid of your plot is
+                visible or not
+            ygrid (bool, optional): defines if y-grid of your plot is
+                visible or not
 
         Attributes:
             source (obj): datasource object for your plot,
@@ -138,9 +140,10 @@ class BoxPlot(ChartObject):
         self.data_scatter = dict()
         self.attr_scatter = []
         self.data_legend = dict()
-        super(BoxPlot, self).__init__(title, xlabel, ylabel, legend,
-                                      xscale, yscale, width, height,
-                                      tools, filename, server, notebook)
+        super(BoxPlot, self).__init__(
+            title, xlabel, ylabel, legend, xscale, yscale, width, height,
+            tools, filename, server, notebook, False, xgrid, ygrid
+        )
 
     def marker(self, marker="circle"):
         "marker (str, int): the marker type of your plot outliers."

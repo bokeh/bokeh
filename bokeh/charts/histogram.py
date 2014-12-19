@@ -56,7 +56,7 @@ class Histogram(ChartObject):
                  title=None, xlabel=None, ylabel=None, legend=False,
                  xscale="linear", yscale="linear", width=800, height=600,
                  tools=True, filename=False, server=False, notebook=False,
-                 facet=False):
+                 facet=False, xgrid=True, ygrid=True):
         """
         Args:
             values (iterable): iterable 2d representing the data series
@@ -103,6 +103,10 @@ class Histogram(ChartObject):
             facet (bool, optional): generate multiple areas on multiple
                 separate charts for each series if True. Defaults to
                 False
+            xgrid (bool, optional): defines if x-grid of your plot is
+                visible or not
+            ygrid (bool, optional): defines if y-grid of your plot is
+                visible or not
 
         Attributes:
             source (obj): datasource object for your plot,
@@ -132,7 +136,7 @@ class Histogram(ChartObject):
         self.attr = []
         super(Histogram, self).__init__(
             title, xlabel, ylabel, legend, xscale, yscale, width, height,
-            tools, filename, server, notebook, facet=facet
+            tools, filename, server, notebook, facet, xgrid, ygrid
         )
 
     def check_attr(self):

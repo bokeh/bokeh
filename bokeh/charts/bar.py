@@ -57,14 +57,12 @@ class Bar(ChartObject):
         bar.legend(True).width(600).height(400).stacked(True)
         bar.show()
     """
-    # disable x grid
-    xgrid=False
 
     def __init__(self, values, cat=None, stacked=False,
                  title=None, xlabel=None, ylabel=None, legend=False,
                  xscale="categorical", yscale="linear", width=800, height=600,
                  tools=True, filename=False, server=False, notebook=False,
-                 facet=False):
+                 facet=False, xgrid=False, ygrid=True):
         """
         Args:
             values (iterable): iterable 2d representing the data series values matrix.
@@ -109,7 +107,10 @@ class Bar(ChartObject):
             facet (bool, optional): generate multiple areas on multiple
                 separate charts for each series if True. Defaults to
                 False
-
+            xgrid (bool, optional): defines if x-grid of your plot is
+                visible or not
+            ygrid (bool, optional): defines if y-grid of your plot is
+                visible or not
 
         Attributes:
             source (obj): datasource object for your chart,
@@ -136,9 +137,10 @@ class Bar(ChartObject):
         self.groups = []
         self.data = dict()
         self.attr = []
-        super(Bar, self).__init__(title, xlabel, ylabel, legend,
-                                  xscale, yscale, width, height,
-                                  tools, filename, server, notebook, facet)
+        super(Bar, self).__init__(
+            title, xlabel, ylabel, legend, xscale, yscale, width, height,
+            tools, filename, server, notebook, facet, xgrid, ygrid
+        )
 
     def stacked(self, stacked=True):
         """Set the bars stacked on your chart.

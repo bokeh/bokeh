@@ -39,14 +39,11 @@ class Dot(ChartObject):
     the references from the source.
 
     """
-    # disable x grid
-    xgrid=False
-
     def __init__(self, values, cat=None, show_segment=True,
                  title=None, xlabel=None, ylabel=None, legend=False,
                  xscale="categorical", yscale="linear", width=800, height=600,
                  tools=True, filename=False, server=False, notebook=False,
-                 facet=False):
+                 facet=False, xgrid=False, ygrid=True):
         """
         Args:
             values (dict): a dict containing the data with names as a key
@@ -90,6 +87,10 @@ class Dot(ChartObject):
                 Defaults to False.
             facet (bool, optional): generate multiple areas on multiple
                 separate charts for each series if True. Defaults to False
+            xgrid (bool, optional): defines if x-grid of your plot is
+                visible or not
+            ygrid (bool, optional): defines if y-grid of your plot is
+                visible or not
 
         Attributes:
             source (obj): datasource object for your plot,
@@ -116,9 +117,10 @@ class Dot(ChartObject):
         self.groups = []
         self.data = dict()
         self.attr = []
-        super(Dot, self).__init__(title, xlabel, ylabel, legend,
-                                  xscale, yscale, width, height,
-                                  tools, filename, server, notebook, facet)
+        super(Dot, self).__init__(
+            title, xlabel, ylabel, legend, xscale, yscale, width, height,
+            tools, filename, server, notebook, facet, xgrid, ygrid
+        )
 
     def get_data(self):
         """Take the Dot data from the input **value.
