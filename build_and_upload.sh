@@ -10,7 +10,6 @@ if [ "$1" == "-h" ]; then
         -t     the tag in the form X.X.X-devel[rc]
         -u     RackSpace username
         -k     RackSpace APIkey
-        -n     the numpy version to use ie. --numpy=1.9 #FIXME
         -c     whether to clean the builded packages, defaults to true
     "
     echo "$usage"
@@ -21,13 +20,12 @@ fi
 clean=true
 
 #handling of arguments
-while getopts t:u:k:n:c: option;
+while getopts t:u:k:c: option;
 do
     case "${option}" in
         t) tag=${OPTARG};;
         u) username=${OPTARG};;
         k) key=${OPTARG};;
-        n) numpy=${OPTARG};; #FIXME
         c) clean=${OPTARG};;
     esac 
 done
@@ -61,7 +59,7 @@ fi
 for py in 27 33 34;
 do
     echo "Building py$py pkg"
-    CONDA_PY=$py conda build conda.recipe --quiet $numpy #FIXME
+    CONDA_PY=$py conda build conda.recipe --quiet
 done
 
 # get conda info about root_prefix and platform
