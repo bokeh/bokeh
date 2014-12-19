@@ -6,6 +6,7 @@ if [ "$1" == "-h" ]; then
         -h     show this help text
 
         -t     the tag in the form X.X.X
+        -s     the subdirectory to upload: release or dev
         -u     RackSpace username
         -k     RackSpace APIkey
     "
@@ -14,10 +15,11 @@ if [ "$1" == "-h" ]; then
 fi
 
 #options management
-while getopts t:i:u:k: option;
+while getopts t:s:i:u:k: option;
 do
     case "${option}" in
         t) tag=${OPTARG};;
+        s) subdir=${OPTARG};;
         u) username=${OPTARG};;
         k) key=$OPTARG;;
     esac 
@@ -44,11 +46,11 @@ id=`curl -s -XPOST https://identity.api.rackspacecloud.com/v2.0/tokens \
 -H"Content-type:application/json" | python -c 'import sys,json;data=json.loads(sys.stdin.read());print(data["access"]["serviceCatalog"][-1]["endpoints"][0]["tenantId"])'`
 
 #push the js and css files
-curl -XPUT -T bokehjs/build/js/bokeh.js -v -H "X-Auth-Token:$token" -H "Content-Type: text/plain" \
-"https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh.$tag.js";
-curl -XPUT -T bokehjs/build/js/bokeh.min.js -v -H "X-Auth-Token:$token" -H "Content-Type: text/plain" \
-"https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh.$tag.min.js";
-curl -XPUT -T bokehjs/build/css/bokeh.css -v -H "X-Auth-Token:$token" -H "Content-Type: text/plain" \
-"https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh.$tag.css";
-curl -XPUT -T bokehjs/build/css/bokeh.min.css -v -H "X-Auth-Token:$token" -H "Content-Type: text/plain" \
-"https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh.$tag.min.css";
+curl -XPUT -T ../bokehjs/build/js/bokeh.js -v -H "X-Auth-Token:$token" -H "Content-Type: text/plain" \
+"https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh/$subdir/bokeh.$tag.js";
+curl -XPUT -T ../bokehjs/build/js/bokeh.min.js -v -H "X-Auth-Token:$token" -H "Content-Type: text/plain" \
+"https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh/$subdir/bokeh.$tag.min.js";
+curl -XPUT -T ../bokehjs/build/css/bokeh.css -v -H "X-Auth-Token:$token" -H "Content-Type: text/plain" \
+"https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh/$subdir/bokeh.$tag.css";
+curl -XPUT -T ../bokehjs/build/css/bokeh.min.css -v -H "X-Auth-Token:$token" -H "Content-Type: text/plain" \
+"https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh/$subdir/bokeh.$tag.min.css";
