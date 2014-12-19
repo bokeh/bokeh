@@ -286,7 +286,8 @@ class TestChartObject(unittest.TestCase):
                                         legend="top_left", xscale="linear", yscale="linear",
                                         width=800, height=600, tools=True,
                                         filename=False, server=False, notebook=False,
-                                        facet=False, palette=["#FFFFFF", "#000000"])
+                                        facet=False, palette=["#FFFFFF", "#000000"],
+                                        xgrid=True, ygrid=False)
 
     def test_args(self):
         self.assertEqual(self.chart_object._ChartObject__title, "title")
@@ -303,6 +304,8 @@ class TestChartObject(unittest.TestCase):
         self.assertFalse(self.chart_object._ChartObject__filename)
         self.assertFalse(self.chart_object._ChartObject__server)
         self.assertFalse(self.chart_object._ChartObject__notebook)
+        self.assertEqual(self.chart_object._ChartObject__xgrid, True)
+        self.assertEqual(self.chart_object._ChartObject__ygrid, False)
 
     def test_title(self):
         self.chart_object.title("new_title")
@@ -326,7 +329,7 @@ class TestChartObject(unittest.TestCase):
         self.chart_object.xscale("datetime")
         self.assertEqual(self.chart_object._xscale, "datetime")
 
-    def yscale(self):
+    def test_yscale(self):
         self.chart_object.yscale("datetime")
         self.assertEqual(self.chart_object._yscale, "datetime")
 
@@ -376,6 +379,9 @@ class TestChartObject(unittest.TestCase):
         self.assertFalse(self.chart_object._filename)
         self.assertFalse(self.chart_object._server)
         self.assertFalse(self.chart_object._notebook)
+        self.assertEqual(self.chart_object._facet, False)
+        self.assertEqual(self.chart_object._xgrid, True)
+        self.assertEqual(self.chart_object._ygrid, False)
 
     def test_create_chart(self):
         self.chart_object.check_attr()
@@ -394,6 +400,9 @@ class TestChartObject(unittest.TestCase):
         self.assertFalse(test_chart_created.filename)
         self.assertFalse(test_chart_created.server)
         self.assertFalse(test_chart_created.notebook)
+        self.assertEqual(self.chart_object._facet, False)
+        self.assertEqual(self.chart_object._xgrid, True)
+        self.assertEqual(self.chart_object._ygrid, False)
 
     # The following tests would test chart wrapping functions
     @patch('bokeh.charts._charts.Chart.start_plot')
@@ -401,7 +410,7 @@ class TestChartObject(unittest.TestCase):
         self.chart_object.check_attr()
         self.chart_object.create_chart()
         self.chart_object.start_plot()
-        xgrd, ygrd = self.chart_object.xgrid, self.chart_object.ygrid
+        xgrd, ygrd = self.chart_object._xgrid, self.chart_object._ygrid
         self.chart_object.chart.start_plot.assert_called_once_with(xgrd, ygrd)
 
     @patch('bokeh.charts._charts.Chart.add_data_plot')
