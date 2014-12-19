@@ -31,7 +31,8 @@ from ..models import (ColumnDataSource, Grid, GlyphRenderer, Legend, LinearAxis,
 from ..document import Document
 
 from ..charts import (Chart, ChartObject, DataAdapter, Area, Bar, Dot, Donut,
-                      Line, HeatMap, Histogram, Scatter, Step, TimeSeries)
+                      Line, HeatMap, Histogram, Scatter, Step, TimeSeries,
+                      BoxPlot)
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -952,3 +953,81 @@ class TestTimeSeries(unittest.TestCase):
             assert_array_equal(hm.data['y_0'], y_python)
             assert_array_equal(hm.data['y_1'], y_pypy)
             assert_array_equal(hm.data['y_2'], y_jython)
+
+
+class TestBoxPlot(unittest.TestCase):
+    def test_supported_input(self):
+        xyvalues = OrderedDict([
+            ('bronze', np.array([7.0, 10.0, 8.0, 7.0, 4.0, 4.0, 1.0, 5.0, 2.0, 1.0,
+                        4.0, 2.0, 1.0, 2.0, 4.0, 1.0, 0.0, 1.0, 1.0, 2.0,
+                        0.0, 1.0, 0.0, 0.0, 1.0, 1.0])),
+            ('silver', np.array([8., 4., 6., 4., 8., 3., 3., 2., 5., 6.,
+                        1., 4., 2., 3., 2., 0., 0., 1., 2., 1.,
+                        3.,  0.,  0.,  1.,  0.,  0.])),
+            ('gold', np.array([6., 6., 6., 8., 4., 8., 6., 3., 2., 2.,  2.,  1.,
+                      3., 1., 0., 5., 4., 2., 0., 0., 0., 1., 1., 0., 0.,
+                      0.]))
+        ])
+        xyvaluesdf = pd.DataFrame(xyvalues)
+        exptected_datarect = {
+            'colors': ['#f22c40', '#5ab738', '#407ee7'],
+            'groups': ['bronze', 'silver', 'gold'],
+            'iqr_centers': [2.5, 2.5, 2.5],
+            'iqr_lengths': [3.0, 3.0, 4.5],
+            'lower_center_boxes': [1.25, 1.5, 1.125],
+            'lower_height_boxes': [0.5, 1.0, 1.75],
+            'upper_center_boxes': [2.75, 3.0, 3.375],
+            'upper_height_boxes': [2.5, 2.0, 2.75],
+            'width': [0.8, 0.8, 0.8]
+        }
+        expected_scatter = {
+            'colors': ['#f22c40', '#f22c40', '#f22c40', '#f22c40', '#5ab738', '#5ab738'],
+            'out_x': ['bronze', 'bronze', 'bronze', 'bronze', 'silver', 'silver'],
+            'out_y': [7.0, 10.0, 8.0, 7.0, 8.0, 8.0]
+        }
+        expected_seg = {
+            'lower': [-3.0, -2.5, -4.75],
+             'q0': [1.0, 1.0, 0.25],
+             'q2': [4.0, 4.0, 4.75],
+             'upper': [6.0, 6.5, 8.75]
+        }
+        groups = ['bronze', 'silver', 'gold']
+
+        for i, _xy in enumerate([xyvalues, xyvaluesdf]):
+            bp = create_chart(BoxPlot, _xy, marker='circle', outliers=True)
+
+            self.assertEqual(sorted(bp.groups), sorted(groups))
+            for key, expected_v in exptected_datarect.items():
+                self.assertEqual(bp.data_rect[key], expected_v)
+
+            for key, expected_v in expected_scatter.items():
+                self.assertEqual(bp.data_scatter[key], expected_v)
+
+            for key, expected_v in expected_seg.items():
+                self.assertEqual(bp.data_segment[key], expected_v)
+
+        lvalues = [
+            np.array([7.0, 10.0, 8.0, 7.0, 4.0, 4.0, 1.0, 5.0, 2.0, 1.0,
+                    4.0, 2.0, 1.0, 2.0, 4.0, 1.0, 0.0, 1.0, 1.0, 2.0,
+                    0.0, 1.0, 0.0, 0.0, 1.0, 1.0]),
+            np.array([8., 4., 6., 4., 8., 3., 3., 2., 5., 6.,
+                    1., 4., 2., 3., 2., 0., 0., 1., 2., 1.,
+                    3.,  0.,  0.,  1.,  0.,  0.]),
+            np.array([6., 6., 6., 8., 4., 8., 6., 3., 2., 2.,  2.,  1.,
+                    3., 1., 0., 5., 4., 2., 0., 0., 0., 1., 1., 0., 0.,
+                    0.])
+        ]
+        groups = exptected_datarect['groups'] = ['0', '1', '2']
+        expected_scatter['out_x'] = ['0', '0', '0', '0', '1', '1']
+        for i, _xy in enumerate([lvalues, np.array(lvalues)]):
+            bp = create_chart(BoxPlot, _xy, marker='circle', outliers=True)
+
+            self.assertEqual(sorted(bp.groups), sorted(groups))
+            for key, expected_v in exptected_datarect.items():
+                self.assertEqual(bp.data_rect[key], expected_v)
+
+            for key, expected_v in expected_scatter.items():
+                self.assertEqual(bp.data_scatter[key], expected_v)
+
+            for key, expected_v in expected_seg.items():
+                self.assertEqual(bp.data_segment[key], expected_v)
