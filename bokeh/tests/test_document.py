@@ -5,7 +5,7 @@ import bokeh
 import bokeh.document as document
 from bokeh.exceptions import DataIntegrityException
 from bokeh.models import PlotContext
-from bokeh.plotting import circle
+from bokeh.plotting import figure
 import bokeh.protocol as protocol
 
 json_objs = [
@@ -60,7 +60,8 @@ class TestDocument(unittest.TestCase):
 
     def test_add(self):
         d = document.Document()
-        p = circle([1], [2])
+        p = figure()
+        p.circle([1], [2])
         d.add(p)
         self.assertListEqual(d.context.children, [p])
         self.assertEqual(len(d._models), len(p.references())+1)
@@ -69,9 +70,11 @@ class TestDocument(unittest.TestCase):
     def test_merge(self):
         d1 = document.Document()
         d2 = document.Document()
-        p1 = circle([1], [2])
-        p2 = circle([1], [2])
+        p1 = figure()
+        p1.circle([1], [2])
         d1.add(p1)
+        p2 = figure()
+        p2.circle([1], [2])
         d2.add(p2)
         json_objs = d1.dump()
         json_objs = protocol.deserialize_json(protocol.serialize_json(json_objs))

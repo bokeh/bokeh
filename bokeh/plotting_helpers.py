@@ -285,7 +285,6 @@ _known_tools = {
     "click": "tap",
     "tap": lambda: TapTool(always_active=True),
     "crosshair": lambda: CrosshairTool(),
-    "select": "box_select", # TODO (bev) deprecate just "select"
     "box_select": lambda: BoxSelectTool(),
     "poly_select": lambda: PolySelectTool(),
     "lasso_select": lambda: LassoSelectTool(),
@@ -347,13 +346,7 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
         if axis_label:
             xaxis.axis_label = axis_label
         xgrid = Grid(plot=plot, dimension=0, ticker=xaxis.ticker)
-        if x_axis_location == "top":
-            warnings.warn("'top' is deprecated, use 'above'")
-            plot.above.append(xaxis)
-        elif x_axis_location == "bottom":
-            warnings.warn("'bottom' is deprecated, use 'below'")
-            plot.below.append(xaxis)
-        elif x_axis_location == "above":
+        if x_axis_location == "above":
             plot.above.append(xaxis)
         elif x_axis_location == "below":
             plot.below.append(xaxis)
