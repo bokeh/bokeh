@@ -158,8 +158,8 @@ class TimeSeries(ChartObject):
 
         # list to save all the attributes we are going to create
         self.attr = []
-
-        xs, self.values = self.prepare_data(self.values)
+        xs = self.values_index
+        # xs, self.values = self.prepare_data(self.values)
         for col in self.values.keys():
             if isinstance(self.index, string_types) \
                 and col == self.index:
@@ -199,30 +199,30 @@ class TimeSeries(ChartObject):
             if i < len(self.duplet):
                 self.create_plot_if_facet()
 
-    def prepare_data(self, values):
-        if hasattr(values, 'keys'):
-            if self.index is not None:
-                if isinstance(self.index, string_types):
-                    xs = values[self.index]
-                else:
-                    xs = self.index
-            else:
-                try:
-                    xs = values.index
-                except AttributeError:
-                    raise
-        else:
-            if self.index is None:
-                xs = values[0]
-                values = DataAdapter(values[1:], force_alias=False)
-
-            elif isinstance(self.index, string_types):
-                raise TypeError(
-                    "String indexes are only supported for DataFrame and dict inputs"
-                )
-
-            else:
-                xs = self.index
-                values = DataAdapter(values, force_alias=False)
-
-        return xs, values
+    # def prepare_data(self, values):
+    #     if hasattr(values, 'keys'):
+    #         if self.index is not None:
+    #             if isinstance(self.index, string_types):
+    #                 xs = values[self.index]
+    #             else:
+    #                 xs = self.index
+    #         else:
+    #             try:
+    #                 xs = values.index
+    #             except AttributeError:
+    #                 raise
+    #     else:
+    #         if self.index is None:
+    #             xs = values[0]
+    #             values = DataAdapter(values[1:], force_alias=False)
+    #
+    #         elif isinstance(self.index, string_types):
+    #             raise TypeError(
+    #                 "String indexes are only supported for DataFrame and dict inputs"
+    #             )
+    #
+    #         else:
+    #             xs = self.index
+    #             values = DataAdapter(values, force_alias=False)
+    #
+    #     return xs, values

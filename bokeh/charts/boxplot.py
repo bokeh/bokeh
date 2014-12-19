@@ -20,7 +20,7 @@ It also add a new chained stacked method.
 import numpy as np
 import pandas as pd
 
-from ._chartobject import ChartObject, DataAdapter
+from ._chartobject import ChartObject
 
 from ..models import ColumnDataSource, FactorRange, Range1d
 
@@ -126,7 +126,7 @@ class BoxPlot(ChartObject):
                 loading the data dict.
                 Needed for _set_And_get method.
         """
-        self.values = DataAdapter(values, force_alias=False)
+        self.values = values
         self.__marker = marker
         self.__outliers = outliers
         self.xdr = None

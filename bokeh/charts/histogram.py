@@ -22,7 +22,7 @@ except ImportError as e:
     _is_scipy = False
 import numpy as np
 
-from ._chartobject import ChartObject, DataAdapter
+from ._chartobject import ChartObject
 from ..models import ColumnDataSource, Range1d
 
 #-----------------------------------------------------------------------------
@@ -120,7 +120,7 @@ class Histogram(ChartObject):
                 after loading the data dict.
                 Needed for _set_And_get method.
         """
-        self.values = DataAdapter(values, force_alias=False)
+        self.values = values
         self.bins = bins
         self.mu = mu
         self.sigma = sigma
@@ -130,10 +130,10 @@ class Histogram(ChartObject):
         self.groups = []
         self.data = dict()
         self.attr = []
-        super(Histogram, self).__init__(title, xlabel, ylabel, legend,
-                                        xscale, yscale, width, height,
-                                        tools, filename, server, notebook,
-                                        facet=facet)
+        super(Histogram, self).__init__(
+            title, xlabel, ylabel, legend, xscale, yscale, width, height,
+            tools, filename, server, notebook, facet=facet
+        )
 
     def check_attr(self):
         """Check if any of the chained method were used.

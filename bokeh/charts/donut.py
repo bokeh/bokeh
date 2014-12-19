@@ -19,7 +19,7 @@ It also add a new chained stacked method.
 from math import pi, cos, sin
 import pandas as pd
 
-from ._chartobject import ChartObject, DataAdapter
+from ._chartobject import ChartObject
 from ..models import ColumnDataSource, Range1d
 from .utils import polar_to_cartesian
 #-----------------------------------------------------------------------------
@@ -246,13 +246,8 @@ class Donut(ChartObject):
     def _setup_show(self):
         """Prepare data before calling drawing methods.
 
-        It ensures that  x and y scales are forced to linear and that
-        donut.values is converted to a DataAdapter.
-
+        It ensures that  x and y scales are forced to linear
         """
         self.yscale('linear')
         self.xscale('linear')
         self.check_attr()
-
-        # normalize input to the common DataAdapter Interface
-        self.values = DataAdapter(self.values, force_alias=False)

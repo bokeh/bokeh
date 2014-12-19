@@ -339,6 +339,20 @@ class ChartObject(object):
         """
         self.chart.start_plot(self.xgrid, self.ygrid)
 
+    def prepare_values(self):
+        """Prepare the input data.
+
+        Converts data input (self.values) to a DataAdapter and creates
+        instance index if needed
+        """
+        if hasattr(self, 'index'):
+            self.values_index, self.values = DataAdapter.get_index_and_data(
+                self.values, self.index
+            )
+        else:
+            if not isinstance(self.values, DataAdapter):
+                self.values = DataAdapter(self.values, force_alias=False)
+
     def get_data(self):
         """Get the input data.
 
@@ -428,6 +442,8 @@ class ChartObject(object):
         self.create_chart()
         # we start the plot (adds axis, grids and tools)
         self.start_plot()
+        # we prepare values
+        self.prepare_values()
         # we get the data from the incoming input
         self.get_data()
         # we filled the source and ranges with the calculated data

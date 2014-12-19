@@ -22,7 +22,7 @@ try:
 except ImportError:
     pd = None
 
-from ._chartobject import ChartObject, DataAdapter
+from ._chartobject import ChartObject
 from ..models import ColumnDataSource, FactorRange, Range1d
 
 #-----------------------------------------------------------------------------
@@ -128,6 +128,9 @@ class Dot(ChartObject):
         the rect glyph inside the ``draw`` method.
 
         """
+        if not self.cat:
+            self.cat = [str(x) for x in self.values.index]
+
         self.data = dict(cat=self.cat, zero=np.zeros(len(self.cat)))
         # list to save all the attributes we are going to create
         self.attr = []
@@ -187,19 +190,6 @@ class Dot(ChartObject):
                 self.create_plot_if_facet()
 
         self.reset_legend()
-
-    def _setup_show(self):
-        """
-        Prepare context before main show method is invoked
-        """
-        super(Dot, self)._setup_show()
-
-        # normalize input to the common DataAdapter Interface
-        if not isinstance(self.values, DataAdapter):
-            self.values = DataAdapter(self.values, force_alias=False)
-
-        if not self.cat:
-            self.cat = [str(x) for x in self.values.index]
 
     def _make_legend_glyph(self, source_legend, color):
         '''Create a new glyph to represent one of the chart data series with the

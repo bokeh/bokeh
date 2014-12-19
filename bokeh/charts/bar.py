@@ -25,7 +25,7 @@ except ImportError:
     print("bokeh.charts needs numpy installed to work properly!")
     raise
 
-from ._chartobject import ChartObject, DataAdapter
+from ._chartobject import ChartObject
 from ..models import ColumnDataSource, FactorRange, Range1d
 
 #-----------------------------------------------------------------------------
@@ -172,6 +172,9 @@ class Bar(ChartObject):
         containing references to all the calculated points to be used by
         the rect glyph inside the ``draw`` method.
         """
+        if not self.cat:
+            self.cat = [str(x) for x in self.values.index]
+
         width = [0.8] * len(self.cat)
         # width should decrease proportionally to the value length.
         # 1./len(value) doesn't work well as the width needs to decrease a
@@ -234,16 +237,3 @@ class Bar(ChartObject):
                     self.source, quartet[3], quartet[1], "width_cat",
                     quartet[0], colors[i], "white", None
                 )
-
-    def _setup_show(self):
-        """
-        Prepare context before main show method is invoked
-        """
-        super(Bar, self)._setup_show()
-
-        # normalize input to the common DataAdapter Interface
-        if not isinstance(self.values, DataAdapter):
-            self.values = DataAdapter(self.values, force_alias=False)
-
-        if not self.cat:
-            self.cat = [str(x) for x in self.values.index]

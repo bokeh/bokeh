@@ -18,7 +18,7 @@ passing the arguments to the Chart class and calling the proper functions.
 
 from six import string_types
 import numpy as np
-from ._chartobject import ChartObject, DataAdapter
+from ._chartobject import ChartObject
 from ..models import ColumnDataSource, Range1d, DataRange1d
 
 #-----------------------------------------------------------------------------
@@ -134,11 +134,7 @@ class Step(ChartObject):
         # list to save all the attributes we are going to create
         self.attr = []
         self.groups = []
-
-        xs, self.values = DataAdapter.get_index_and_data(
-            self.values, self.index
-        )
-
+        xs = self.values_index
         self.set_and_get("x", "", np.array(xs)[:-1])
         self.set_and_get("x2", "", np.array(xs)[1:])
         for col in self.values.keys():

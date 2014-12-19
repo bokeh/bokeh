@@ -129,6 +129,12 @@ class HeatMap(ChartObject):
             pallete (list): the colormap as hex values.
             values (pd obj): the pandas dataframe to be plotted as categorical heatmap.
         """
+        try:
+            self.catsx = list(self.values.columns)
+            self.catsy = list(self.values.index)
+        except:
+            raise
+
         if self._palette is None:
             colors = ["#75968f", "#a5bab7", "#c9d9d3", "#e2e2e2", "#dfccce",
             "#ddb7b1", "#cc7878", "#933b41", "#550b1d"]
@@ -178,22 +184,13 @@ class HeatMap(ChartObject):
         self.chart.make_rect(self.source, "catx", "caty", "width", "height",
                              "color", "white", None)
 
-    def _setup_show(self):
-        """
-        Prepare context before main show method is invoked
-        """
-        super(HeatMap, self)._setup_show()
-
-        # normalize input to the common DataAdapter Interface
-        if not isinstance(self.values, DataAdapter):
-            self.values = DataAdapter(self.values)
-
-        try:
-            self.catsx = list(self.values.columns)
-            self.catsy = list(self.values.index)
-        except:
-            raise
-
     def _show_teardown(self):
         """Add hover tool to HetMap chart"""
         self.chart.plot.add_tools(HoverTool(tooltips=[("value", "@rate")]))
+
+    def prepare_values(self):
+        """Prepare the input data.
+
+        Converts data input (self.values) to a DataAdapter
+        """
+        self.values = DataAdapter(self.values, force_alias=True)

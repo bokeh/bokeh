@@ -26,7 +26,7 @@ except ImportError:
     print("bokeh.charts needs numpy installed to work properly!")
     raise
 
-from ._chartobject import ChartObject, DataAdapter
+from ._chartobject import ChartObject
 from ..models import ColumnDataSource, Range1d, DataRange1d
 
 #-----------------------------------------------------------------------------
@@ -188,7 +188,7 @@ class Area(ChartObject):
         self.data = dict()
         # list to save all the attributes we are going to create
         self.attr = []
-        xs, self.values = DataAdapter.get_index_and_data(self.values, self.index)
+        xs = self.values_index
         last = np.zeros(len(xs))
         x2 = np.hstack((xs[::-1], xs))
         self.set_and_get("x", "", x2)
