@@ -21,7 +21,7 @@ import pandas as pd
 
 from ._chartobject import ChartObject, DataAdapter
 from ..models import ColumnDataSource, Range1d
-
+from .utils import polar_to_cartesian
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
@@ -256,22 +256,3 @@ class Donut(ChartObject):
 
         # normalize input to the common DataAdapter Interface
         self.values = DataAdapter(self.values, force_alias=False)
-
-def polar_to_cartesian(r, start_angles, end_angles):
-    """Translate polar coordinates to cartesian.
-
-    Args:
-    r (float): radial coordinate
-    start_angles (list(float)): list of start angles
-    end_angles (list(float)): list of end_angles angles
-
-    Returns:
-        x, y points
-    """
-    cartesian = lambda r, alpha: (r*cos(alpha), r*sin(alpha))
-    points = []
-
-    for start, end in zip(start_angles, end_angles):
-        points.append(cartesian(r, (end + start)/2))
-
-    return zip(*points)
