@@ -1,3 +1,4 @@
+#a simple help
 if [ "$1" == "-h" ]; then
     usage="$(basename "$0") [-h] [--tag] -- program to upload bokeh js and css to Rackspace
 
@@ -12,6 +13,7 @@ if [ "$1" == "-h" ]; then
     exit 0
 fi
 
+#options management
 while getopts t:i:u:k: option;
 do
     case "${option}" in
@@ -32,6 +34,7 @@ if [ "$key" == "" ]; then
     echo "$key"
 fi
 
+#get the token and id
 token=`curl -s -XPOST https://identity.api.rackspacecloud.com/v2.0/tokens \
 -d'{"auth":{"RAX-KSKEY:apiKeyCredentials":{"username":"'$username'","apiKey":"'$key'"}}}' \
 -H"Content-type:application/json" | python -c 'import sys,json;data=json.loads(sys.stdin.read());print(data["access"]["token"]["id"])'`
@@ -49,11 +52,3 @@ curl -XPUT -T bokehjs/build/css/bokeh.css -v -H "X-Auth-Token:$token" -H "Conten
 "https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh.$tag.css";
 curl -XPUT -T bokehjs/build/css/bokeh.min.css -v -H "X-Auth-Token:$token" -H "Content-Type: text/plain" \
 "https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh.$tag.min.css";
-
-
-
-
-
-
-
-
