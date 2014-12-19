@@ -14,7 +14,7 @@
 #-----------------------------------------------------------------------------
 
 from collections import OrderedDict
-
+import datetime
 import unittest
 from mock import patch
 import numpy as np
@@ -919,7 +919,6 @@ class TestDataAdapter(unittest.TestCase):
 
 class TestTimeSeries(unittest.TestCase):
     def test_supported_input(self):
-        import datetime
         now = datetime.datetime.now()
         delta = datetime.timedelta(minutes=1)
         dts = [now + delta*i for i in range(5)]
