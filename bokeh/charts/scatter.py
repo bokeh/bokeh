@@ -267,6 +267,14 @@ class Scatter(ChartObject):
                 self.values = DataAdapter(pdict)
                 self.labels = self.values.keys()
 
+                # create axis labels from group by object only if the input
+                # values is a DataFrameGroupBy
+                if self._xlabel is None:
+                    self._xlabel = self.labels[0]
+
+                if self._ylabel is None:
+                    self._ylabel = self.labels[1]
+
             else:
                 self.values = DataAdapter(self.values)
                 self.labels = self.values.keys()
@@ -274,9 +282,3 @@ class Scatter(ChartObject):
         else:
             self.values = DataAdapter(self.values)
             self.labels = self.values.keys()
-
-        if self._xlabel is None:
-            self._xlabel = self.labels[0]
-
-        if self._ylabel is None:
-            self._ylabel = self.labels[1]
