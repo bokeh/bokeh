@@ -124,7 +124,6 @@ define [
       else if _.isArray(value)
         @[attrname].value = value
       else if _.isObject(value)
-        value = @_fix_singleton_array_value(value)
         @[attrname] = _.extend(@[attrname], value)
       else
         logger.warn("array property '#{attrname}' given invalid value: #{value}")
