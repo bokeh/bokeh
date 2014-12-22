@@ -84,11 +84,12 @@ class HeatMap(ChartObject):
                 If you pass True to this argument, it will use ``untitled``
                 as the name in the server.
                 Defaults to False.
-            notebook (bool or optional):if you want to output (or not) your plot into the
-                IPython notebook.
-                Defaults to False.
-            xgrid (bool, optional): defines if x-grid of your plot is visible or not
-            ygrid (bool, optional): defines if y-grid of your plot is visible or not
+            notebook (bool, optional): whether to output to IPython notebook
+                (default: False)
+            xgrid (bool, optional): whether to display x grid lines
+                (default: False)
+            ygrid (bool, optional): whether to display x grid lines
+                (default: False)
 
         Attributes:
             source (obj): datasource object for your plot,
@@ -127,9 +128,6 @@ class HeatMap(ChartObject):
         containing references to all the calculated points to be used by
         the rect glyph inside the ``draw`` method.
 
-        Args:
-            pallete (list): the colormap as hex values.
-            values (pd obj): the pandas dataframe to be plotted as categorical heatmap.
         """
         try:
             self.catsx = list(self.values.columns)

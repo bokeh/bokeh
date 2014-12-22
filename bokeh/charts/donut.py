@@ -89,9 +89,12 @@ class Donut(ChartObject):
                 If you pass True to this argument, it will use ``untitled``
                 as the name in the server.
                 Defaults to False.
-            notebook (bool, optional):if you want to output (or not) your chart into the
-                IPython notebook.
-                Defaults to False.
+            notebook (bool, optional): whether to output to IPython notebook
+                (default: False)
+            xgrid (bool, optional): whether to display x grid lines
+                (default: False)
+            ygrid (bool, optional): whether to display y grid lines
+                (default: False)
 
         Attributes:
             source (obj): datasource object for your plot,
@@ -244,7 +247,7 @@ class Donut(ChartObject):
     def _setup_show(self):
         """Prepare data before calling drawing methods.
 
-        It ensures that  x and y scales are forced to linear
+        Ensure that x and y scales are linear.
         """
         self.yscale('linear')
         self.xscale('linear')
