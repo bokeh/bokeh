@@ -1,8 +1,7 @@
 define [
   "underscore",
-  "rbush",
   "../glyph",
-], (_, rbush, Glyph) ->
+], (_, Glyph) ->
 
 
   point_in_poly = (x, y, px, py) ->
@@ -45,13 +44,7 @@ define [
       @max_size = _.max(@size)
 
     _reindex: () ->
-      index = rbush()
-      pts = []
-      for i in [0...@x.length]
-        if not isNaN(@x[i] + @y[i])
-          pts.push([@x[i], @y[i], @x[i], @y[i], {'i': i}])
-      index.load(pts)
-      return index
+      return @_generic_xy_reindex()
 
     _map_data: () ->
       [@sx, @sy] = @renderer.map_to_screen(@x, @glyph.x.units, @y, @glyph.y.units)

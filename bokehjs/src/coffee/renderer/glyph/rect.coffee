@@ -1,9 +1,8 @@
 define [
   "underscore",
-  "rbush",
   "renderer/properties",
   "./glyph",
-], (_, rbush, Properties, Glyph) ->
+], (_, Properties, Glyph) ->
 
   class RectView extends Glyph.View
 
@@ -30,13 +29,7 @@ define [
       @max_height = _.max(@height)
 
     _reindex: () ->
-      index = rbush()
-      pts = []
-      for i in [0...@x.length]
-        if not isNaN(@x[i] + @y[i])
-          pts.push([@x[i], @y[i], @x[i], @y[i], {'i': i}])
-      index.load(pts)
-      return index
+      return @_generic_xy_reindex()
 
     _render: (ctx, indices, sx=@sx, sy=@sy, sw=@sw, sh=@sh) ->
       if @props.fill.do_fill
