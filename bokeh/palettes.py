@@ -262,6 +262,8 @@ brewer = {
     },
 }
 
+__palettes__ = sum([ [ name + str(i) for i in sorted(brewer[name].keys()) ] for name in sorted(brewer) ], [])
+
 Blues3 = brewer['Blues'][3]
 Blues4 = brewer['Blues'][4]
 Blues5 = brewer['Blues'][5]
