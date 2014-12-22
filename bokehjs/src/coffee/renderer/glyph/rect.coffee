@@ -29,13 +29,14 @@ define [
       @max_width = _.max(@width)
       @max_height = _.max(@height)
 
-    _set_data: () ->
-      @index = rbush()
+    _reindex: () ->
+      index = rbush()
       pts = []
       for i in [0...@x.length]
         if not isNaN(@x[i] + @y[i])
           pts.push([@x[i], @y[i], @x[i], @y[i], {'i': i}])
-      @index.load(pts)
+      index.load(pts)
+      return index
 
     _render: (ctx, indices, sx=@sx, sy=@sy, sw=@sw, sh=@sh) ->
       if @props.fill.do_fill
@@ -88,7 +89,7 @@ define [
       [x0, x1] = @renderer.xmapper.v_map_from_target([geometry.vx0, geometry.vx1])
       [y0, y1] = @renderer.ymapper.v_map_from_target([geometry.vy0, geometry.vy1])
 
-      return (x[4].i for x in @index.search([x0, y0, x1, y1]))
+      return (x[4].i for x in @index().search([x0, y0, x1, y1]))
 
     _hit_point: (geometry) ->
       [vx, vy] = [geometry.vx, geometry.vy]
@@ -127,7 +128,7 @@ define [
           y0 = y - 2*@max_height
           y1 = y + 2*@max_height
 
-        candidates = (pt[4].i for pt in @index.search([x0, y0, x1, y1]))
+        candidates = (pt[4].i for pt in @index().search([x0, y0, x1, y1]))
 
       hits = []
       for i in candidates

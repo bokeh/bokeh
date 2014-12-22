@@ -61,11 +61,21 @@ define [
 
       @_set_data()
 
+      @_need_reindex = true
+
       # just use the length of the last added field
       [0...@[field].length]
 
     # any additional customization can happen here
     _set_data: () -> null
+
+    index: () ->
+      if @_need_reindex
+        @_index = @_reindex()
+        @_need_reindex = false
+      return @_index
+
+    _reindex: () -> null
 
     distance_vector: (pt, span_prop_name, position, dilate=false) ->
       """ returns an array """

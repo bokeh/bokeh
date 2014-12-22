@@ -13,12 +13,15 @@ define [
 
     _set_data: () ->
       @max_radius = _.max(@outer_radius)
-      @index = rbush()
+
+    _reindex: () ->
+      index = rbush()
       pts = []
       for i in [0...@x.length]
         if not isNaN(@x[i] + @y[i])
           pts.push([@x[i], @y[i], @x[i], @y[i], {'i': i}])
-      @index.load(pts)
+      index.load(pts)
+      return index
 
     _map_data: () ->
       [@sx, @sy] = @renderer.map_to_screen(@x, @glyph.x.units, @y, @glyph.y.units)
@@ -76,7 +79,7 @@ define [
         y0 = y - @max_radius
         y1 = y + @max_radius
 
-      candidates = (pt[4].i for pt in @index.search([x0, y0, x1, y1]))
+      candidates = (pt[4].i for pt in @index().search([x0, y0, x1, y1]))
 
       candidates2 = []
       if @outer_radius_units == "screen"
