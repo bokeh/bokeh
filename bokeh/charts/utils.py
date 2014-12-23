@@ -1,7 +1,4 @@
-"""This is the Bokeh charts interface. It gives you a high level API to build
-complex plot is a simple way.
-
-This is the utils module that collects convenience functions and code that are
+""" This is the utils module that collects convenience functions and code that are
 useful for charts ecosystem.
 """
 #-----------------------------------------------------------------------------

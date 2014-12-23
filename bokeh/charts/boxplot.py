@@ -141,7 +141,8 @@ class BoxPlot(ChartObject):
         self.data_legend = dict()
         super(BoxPlot, self).__init__(
             title, xlabel, ylabel, legend, xscale, yscale, width, height,
-            tools, filename, server, notebook, False, xgrid, ygrid
+            tools, filename, server, notebook, facet=False, xgrid=xgrid,
+            ygrid=ygrid
         )
 
     def marker(self, marker="circle"):

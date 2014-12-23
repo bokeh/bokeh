@@ -129,11 +129,8 @@ class HeatMap(ChartObject):
         the rect glyph inside the ``draw`` method.
 
         """
-        try:
-            self.catsx = list(self.values.columns)
-            self.catsy = list(self.values.index)
-        except:
-            raise
+        self.catsx = list(self.values.columns)
+        self.catsy = list(self.values.index)
 
         if self._palette is None:
             colors = ["#75968f", "#a5bab7", "#c9d9d3", "#e2e2e2", "#dfccce",
