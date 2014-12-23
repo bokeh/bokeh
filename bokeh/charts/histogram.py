@@ -22,7 +22,7 @@ except ImportError as e:
     _is_scipy = False
 import numpy as np
 
-from ._chartobject import ChartObject, DataAdapter
+from ._chartobject import ChartObject
 from ..models import ColumnDataSource, Range1d
 
 #-----------------------------------------------------------------------------
@@ -56,7 +56,7 @@ class Histogram(ChartObject):
                  title=None, xlabel=None, ylabel=None, legend=False,
                  xscale="linear", yscale="linear", width=800, height=600,
                  tools=True, filename=False, server=False, notebook=False,
-                 facet=False):
+                 facet=False, xgrid=True, ygrid=True):
         """
         Args:
             values (iterable): iterable 2d representing the data series
@@ -97,12 +97,15 @@ class Histogram(ChartObject):
                 the server. If you pass True to this argument, it will
                 use ``untitled`` as the name in the server.
                 Defaults to False.
-            notebook (bool, optional):if you want to output (or not)
-                your chart into the IPython notebook.
-                Defaults to False.
+            notebook (bool, optional): whether to output to IPython notebook
+                (default: False)
             facet (bool, optional): generate multiple areas on multiple
                 separate charts for each series if True. Defaults to
                 False
+            xgrid (bool, optional): whether to display x grid lines
+                (default: True)
+            ygrid (bool, optional): whether to display y grid lines
+                (default: True)
 
         Attributes:
             source (obj): datasource object for your plot,
@@ -120,7 +123,7 @@ class Histogram(ChartObject):
                 after loading the data dict.
                 Needed for _set_And_get method.
         """
-        self.values = DataAdapter(values, force_alias=False)
+        self.values = values
         self.bins = bins
         self.mu = mu
         self.sigma = sigma
@@ -130,10 +133,10 @@ class Histogram(ChartObject):
         self.groups = []
         self.data = dict()
         self.attr = []
-        super(Histogram, self).__init__(title, xlabel, ylabel, legend,
-                                        xscale, yscale, width, height,
-                                        tools, filename, server, notebook,
-                                        facet=facet)
+        super(Histogram, self).__init__(
+            title, xlabel, ylabel, legend, xscale, yscale, width, height,
+            tools, filename, server, notebook, facet, xgrid, ygrid
+        )
 
     def check_attr(self):
         """Check if any of the chained method were used.

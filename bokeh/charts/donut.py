@@ -19,9 +19,9 @@ It also add a new chained stacked method.
 from math import pi, cos, sin
 import pandas as pd
 
-from ._chartobject import ChartObject, DataAdapter
+from ._chartobject import ChartObject
 from ..models import ColumnDataSource, Range1d
-
+from .utils import polar_to_cartesian
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
@@ -48,14 +48,12 @@ class Donut(ChartObject):
         donut.title("Medals Donut").xlabel("Cat").ylabel("Lang")
         donut.legend(True).width(800).height(800).show()
     """
-    # disable grids
-    xgrid=False
-    ygrid=False
 
     def __init__(self, values, cat=None,
                  title=None, xlabel=None, ylabel=None, legend=False,
                  xscale="linear", yscale="linear", width=800, height=600,
-                 tools=True, filename=False, server=False, notebook=False):
+                 tools=True, filename=False, server=False, notebook=False,
+                 xgrid=False, ygrid=False):
         """
         Args:
             values (obj): value (iterable obj): Data adapter supported input type
@@ -91,9 +89,12 @@ class Donut(ChartObject):
                 If you pass True to this argument, it will use ``untitled``
                 as the name in the server.
                 Defaults to False.
-            notebook (bool, optional):if you want to output (or not) your chart into the
-                IPython notebook.
-                Defaults to False.
+            notebook (bool, optional): whether to output to IPython notebook
+                (default: False)
+            xgrid (bool, optional): whether to display x grid lines
+                (default: False)
+            ygrid (bool, optional): whether to display y grid lines
+                (default: False)
 
         Attributes:
             source (obj): datasource object for your plot,
@@ -123,7 +124,7 @@ class Donut(ChartObject):
         super(Donut, self).__init__(
             title, xlabel, ylabel, legend,
             xscale, yscale, width, height,
-            tools, filename, server, notebook
+            tools, filename, server, notebook, xgrid=xgrid, ygrid=ygrid
         )
 
     def get_data(self):
@@ -246,32 +247,8 @@ class Donut(ChartObject):
     def _setup_show(self):
         """Prepare data before calling drawing methods.
 
-        It ensures that  x and y scales are forced to linear and that
-        donut.values is converted to a DataAdapter.
-
+        Ensure that x and y scales are linear.
         """
         self.yscale('linear')
         self.xscale('linear')
         self.check_attr()
-
-        # normalize input to the common DataAdapter Interface
-        self.values = DataAdapter(self.values, force_alias=False)
-
-def polar_to_cartesian(r, start_angles, end_angles):
-    """Translate polar coordinates to cartesian.
-
-    Args:
-    r (float): radial coordinate
-    start_angles (list(float)): list of start angles
-    end_angles (list(float)): list of end_angles angles
-
-    Returns:
-        x, y points
-    """
-    cartesian = lambda r, alpha: (r*cos(alpha), r*sin(alpha))
-    points = []
-
-    for start, end in zip(start_angles, end_angles):
-        points.append(cartesian(r, (end + start)/2))
-
-    return zip(*points)

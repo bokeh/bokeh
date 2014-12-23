@@ -26,7 +26,7 @@ except ImportError:
     print("bokeh.charts needs numpy installed to work properly!")
     raise
 
-from ._chartobject import ChartObject, DataAdapter
+from ._chartobject import ChartObject
 from ..models import ColumnDataSource, Range1d, DataRange1d
 
 #-----------------------------------------------------------------------------
@@ -66,7 +66,7 @@ class Area(ChartObject):
                  title=None, xlabel=None, ylabel=None, legend=False,
                  xscale="linear", yscale="linear", width=800, height=600,
                  tools=True, filename=False, server=False, notebook=False,
-                 facet=False, stacked=False):
+                 facet=False, stacked=False, xgrid=True, ygrid=True):
         """
         Args:
             values (iterable): iterable 2d representing the data series
@@ -110,16 +110,20 @@ class Area(ChartObject):
                 the server. If you pass True to this argument, it will
                 use ``untitled`` as the name in the server.
                 Defaults to False.
-            notebook (bool, optional):if you want to output (or not)
-                your chart into the IPython notebook.
-                Defaults to False.
+            notebook (bool, optional): whether to output to IPython notebook
+                (default: False)
             facet (bool, optional): generate multiple areas on multiple
                 separate charts for each series if True. Defaults to
                 False
-
             stacked (bool, optional): if:
-                True: areas are draw as a stack to show the relationship of parts to a whole
-                False: areas are layered on the same chart figure. Defaults to False.
+                True: areas are draw as a stack to show the relationship of
+                    parts to a whole
+                False: areas are layered on the same chart figure. Defaults
+                    to False.
+            xgrid (bool, optional): whether to display x grid lines
+                (default: True)
+            ygrid (bool, optional): whether to display x grid lines
+                (default: True)
 
         Attributes:
             source (obj): datasource object for your chart,
@@ -152,7 +156,7 @@ class Area(ChartObject):
 
         super(Area, self).__init__(
             title, xlabel, ylabel, legend, xscale, yscale, width, height,
-            tools, filename, server, notebook, facet
+            tools, filename, server, notebook, facet, xgrid, ygrid
         )
 
     def stacked(self, stacked=True):
@@ -188,7 +192,7 @@ class Area(ChartObject):
         self.data = dict()
         # list to save all the attributes we are going to create
         self.attr = []
-        xs, self.values = DataAdapter.get_index_and_data(self.values, self.index)
+        xs = self.values_index
         last = np.zeros(len(xs))
         x2 = np.hstack((xs[::-1], xs))
         self.set_and_get("x", "", x2)
