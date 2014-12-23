@@ -31,7 +31,8 @@ from ..models import (ColumnDataSource, Grid, GlyphRenderer, Legend, LinearAxis,
 from ..document import Document
 
 from ..charts import (Chart, ChartObject, DataAdapter, Area, Bar, Dot, Donut,
-                      Line, HeatMap, Histogram, Scatter, Step, TimeSeries)
+                      Line, HeatMap, Histogram, Scatter, Step, TimeSeries,
+                      BoxPlot)
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -286,7 +287,8 @@ class TestChartObject(unittest.TestCase):
                                         legend="top_left", xscale="linear", yscale="linear",
                                         width=800, height=600, tools=True,
                                         filename=False, server=False, notebook=False,
-                                        facet=False, palette=["#FFFFFF", "#000000"])
+                                        facet=False, palette=["#FFFFFF", "#000000"],
+                                        xgrid=True, ygrid=False)
 
     def test_args(self):
         self.assertEqual(self.chart_object._ChartObject__title, "title")
@@ -303,6 +305,8 @@ class TestChartObject(unittest.TestCase):
         self.assertFalse(self.chart_object._ChartObject__filename)
         self.assertFalse(self.chart_object._ChartObject__server)
         self.assertFalse(self.chart_object._ChartObject__notebook)
+        self.assertEqual(self.chart_object._ChartObject__xgrid, True)
+        self.assertEqual(self.chart_object._ChartObject__ygrid, False)
 
     def test_title(self):
         self.chart_object.title("new_title")
@@ -326,7 +330,7 @@ class TestChartObject(unittest.TestCase):
         self.chart_object.xscale("datetime")
         self.assertEqual(self.chart_object._xscale, "datetime")
 
-    def yscale(self):
+    def test_yscale(self):
         self.chart_object.yscale("datetime")
         self.assertEqual(self.chart_object._yscale, "datetime")
 
@@ -376,6 +380,9 @@ class TestChartObject(unittest.TestCase):
         self.assertFalse(self.chart_object._filename)
         self.assertFalse(self.chart_object._server)
         self.assertFalse(self.chart_object._notebook)
+        self.assertEqual(self.chart_object._facet, False)
+        self.assertEqual(self.chart_object._xgrid, True)
+        self.assertEqual(self.chart_object._ygrid, False)
 
     def test_create_chart(self):
         self.chart_object.check_attr()
@@ -394,6 +401,9 @@ class TestChartObject(unittest.TestCase):
         self.assertFalse(test_chart_created.filename)
         self.assertFalse(test_chart_created.server)
         self.assertFalse(test_chart_created.notebook)
+        self.assertEqual(self.chart_object._facet, False)
+        self.assertEqual(self.chart_object._xgrid, True)
+        self.assertEqual(self.chart_object._ygrid, False)
 
     # The following tests would test chart wrapping functions
     @patch('bokeh.charts._charts.Chart.start_plot')
@@ -401,7 +411,7 @@ class TestChartObject(unittest.TestCase):
         self.chart_object.check_attr()
         self.chart_object.create_chart()
         self.chart_object.start_plot()
-        xgrd, ygrd = self.chart_object.xgrid, self.chart_object.ygrid
+        xgrd, ygrd = self.chart_object._xgrid, self.chart_object._ygrid
         self.chart_object.chart.start_plot.assert_called_once_with(xgrd, ygrd)
 
     @patch('bokeh.charts._charts.Chart.add_data_plot')
@@ -952,3 +962,81 @@ class TestTimeSeries(unittest.TestCase):
             assert_array_equal(hm.data['y_0'], y_python)
             assert_array_equal(hm.data['y_1'], y_pypy)
             assert_array_equal(hm.data['y_2'], y_jython)
+
+
+class TestBoxPlot(unittest.TestCase):
+    def test_supported_input(self):
+        xyvalues = OrderedDict([
+            ('bronze', np.array([7.0, 10.0, 8.0, 7.0, 4.0, 4.0, 1.0, 5.0, 2.0, 1.0,
+                        4.0, 2.0, 1.0, 2.0, 4.0, 1.0, 0.0, 1.0, 1.0, 2.0,
+                        0.0, 1.0, 0.0, 0.0, 1.0, 1.0])),
+            ('silver', np.array([8., 4., 6., 4., 8., 3., 3., 2., 5., 6.,
+                        1., 4., 2., 3., 2., 0., 0., 1., 2., 1.,
+                        3.,  0.,  0.,  1.,  0.,  0.])),
+            ('gold', np.array([6., 6., 6., 8., 4., 8., 6., 3., 2., 2.,  2.,  1.,
+                      3., 1., 0., 5., 4., 2., 0., 0., 0., 1., 1., 0., 0.,
+                      0.]))
+        ])
+        xyvaluesdf = pd.DataFrame(xyvalues)
+        exptected_datarect = {
+            'colors': ['#f22c40', '#5ab738', '#407ee7'],
+            'groups': ['bronze', 'silver', 'gold'],
+            'iqr_centers': [2.5, 2.5, 2.5],
+            'iqr_lengths': [3.0, 3.0, 4.5],
+            'lower_center_boxes': [1.25, 1.5, 1.125],
+            'lower_height_boxes': [0.5, 1.0, 1.75],
+            'upper_center_boxes': [2.75, 3.0, 3.375],
+            'upper_height_boxes': [2.5, 2.0, 2.75],
+            'width': [0.8, 0.8, 0.8]
+        }
+        expected_scatter = {
+            'colors': ['#f22c40', '#f22c40', '#f22c40', '#f22c40', '#5ab738', '#5ab738'],
+            'out_x': ['bronze', 'bronze', 'bronze', 'bronze', 'silver', 'silver'],
+            'out_y': [7.0, 10.0, 8.0, 7.0, 8.0, 8.0]
+        }
+        expected_seg = {
+            'lower': [-3.0, -2.5, -4.75],
+             'q0': [1.0, 1.0, 0.25],
+             'q2': [4.0, 4.0, 4.75],
+             'upper': [6.0, 6.5, 8.75]
+        }
+        groups = ['bronze', 'silver', 'gold']
+
+        for i, _xy in enumerate([xyvalues, xyvaluesdf]):
+            bp = create_chart(BoxPlot, _xy, marker='circle', outliers=True)
+
+            self.assertEqual(sorted(bp.groups), sorted(groups))
+            for key, expected_v in exptected_datarect.items():
+                self.assertEqual(bp.data_rect[key], expected_v)
+
+            for key, expected_v in expected_scatter.items():
+                self.assertEqual(bp.data_scatter[key], expected_v)
+
+            for key, expected_v in expected_seg.items():
+                self.assertEqual(bp.data_segment[key], expected_v)
+
+        lvalues = [
+            np.array([7.0, 10.0, 8.0, 7.0, 4.0, 4.0, 1.0, 5.0, 2.0, 1.0,
+                    4.0, 2.0, 1.0, 2.0, 4.0, 1.0, 0.0, 1.0, 1.0, 2.0,
+                    0.0, 1.0, 0.0, 0.0, 1.0, 1.0]),
+            np.array([8., 4., 6., 4., 8., 3., 3., 2., 5., 6.,
+                    1., 4., 2., 3., 2., 0., 0., 1., 2., 1.,
+                    3.,  0.,  0.,  1.,  0.,  0.]),
+            np.array([6., 6., 6., 8., 4., 8., 6., 3., 2., 2.,  2.,  1.,
+                    3., 1., 0., 5., 4., 2., 0., 0., 0., 1., 1., 0., 0.,
+                    0.])
+        ]
+        groups = exptected_datarect['groups'] = ['0', '1', '2']
+        expected_scatter['out_x'] = ['0', '0', '0', '0', '1', '1']
+        for i, _xy in enumerate([lvalues, np.array(lvalues)]):
+            bp = create_chart(BoxPlot, _xy, marker='circle', outliers=True)
+
+            self.assertEqual(sorted(bp.groups), sorted(groups))
+            for key, expected_v in exptected_datarect.items():
+                self.assertEqual(bp.data_rect[key], expected_v)
+
+            for key, expected_v in expected_scatter.items():
+                self.assertEqual(bp.data_scatter[key], expected_v)
+
+            for key, expected_v in expected_seg.items():
+                self.assertEqual(bp.data_segment[key], expected_v)
