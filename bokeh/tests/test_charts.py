@@ -729,6 +729,35 @@ class TestHistogram(unittest.TestCase):
                 key = key.replace('lognormal', '1').replace('normal', '0')
                 assert_array_almost_equal(hm.data[key], expected_v, decimal=2)
 
+    @patch('bokeh.charts.histogram.np.histogram', return_value=('a', 'b'))
+    def test_histogram_params(self, histogram_mock):
+        # histogram_mock.return_value =
+        mu, sigma = 0, 0.5
+        inputs = [[5, 0, 0.5, True], [3, 1, 0, False]]
+        normal = [1, 2, 3, 1]
+        lognormal = [5, 4, 4, 1]
+        xyvalues = OrderedDict(normal=normal, lognormal=lognormal)
+
+        for (bins, mu, sigma, dens) in inputs:
+            histogram_mock.reset_mock()
+            kws = dict(bins=bins, mu=mu, sigma=sigma, density=dens)
+            hm = create_chart(Histogram, xyvalues, compute_values=False, **kws)
+
+            # ensure all class attributes have been correctly set
+            for key, value in kws.items():
+                self.assertEqual(getattr(hm, key), value)
+
+            hm.get_data()
+            # ensure we are calling numpy.histogram with the right args
+            calls = histogram_mock.call_args_list
+            assert_array_equal(calls[0][0][0], np.array([5, 4, 4, 1]))
+            assert_array_equal(calls[1][0][0], np.array([1, 2, 3, 1]))
+            self.assertEqual(calls[0][1]['bins'], bins)
+            self.assertEqual(calls[1][1]['bins'], bins)
+            self.assertEqual(calls[0][1]['density'], dens)
+            self.assertEqual(calls[1][1]['density'], dens)
+
+
 class TestLine(unittest.TestCase):
     def test_supported_input(self):
         xyvalues = OrderedDict()
