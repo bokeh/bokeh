@@ -731,8 +731,6 @@ class TestHistogram(unittest.TestCase):
 
     @patch('bokeh.charts.histogram.np.histogram', return_value=('a', 'b'))
     def test_histogram_params(self, histogram_mock):
-        # histogram_mock.return_value =
-        mu, sigma = 0, 0.5
         inputs = [[5, 0, 0.5, True], [3, 1, 0, False]]
         normal = [1, 2, 3, 1]
         lognormal = [5, 4, 4, 1]
