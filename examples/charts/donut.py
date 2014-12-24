@@ -20,10 +20,10 @@ bronze = df['medals.bronze'].astype(float).values
 # later, we build a dict containing the grouped data
 medals = OrderedDict(bronze=bronze, silver=silver, gold=gold)
 
-# any of the following commented are valid Bar inputs
+# any of the following commented are valid Donut inputs
 # medals = list(medals.values())
 # medals = np.array(list(medals.values()))
-medals = pd.DataFrame(medals)
+# medals = pd.DataFrame(medals)
 
 donut = Donut(medals, countries, filename="donut.html")
 donut.title("Medals Donut").xlabel("countries").ylabel("medals")
