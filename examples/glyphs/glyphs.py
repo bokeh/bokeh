@@ -57,7 +57,7 @@ glyphs = [
 ]
 
 markers = [
-    ("circle", Circle(x="x", y="y", radius=0.1, radius_units="data", fill_color="#3288BD")),
+    ("circle", Circle(x="x", y="y", radius=0.1, fill_color="#3288BD")),
     ("circle_x", CircleX(x="x", y="y", size="sizes", line_color="#DD1C77", fill_color=None)),
     ("circle_cross", CircleCross(x="x", y="y", size="sizes", line_color="#FB8072", fill_color=None, line_width=2)),
     ("square", Square(x="x", y="y", size="sizes", fill_color="#74ADD1")),
