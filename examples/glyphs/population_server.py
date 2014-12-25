@@ -74,7 +74,7 @@ def population():
 
     plot.add_layout(
         Legend(
-            orientation="bottom_right",
+            anchor="bottom_right",
             legends=[("known", [line_known_glyph]), ("predicted", [line_predicted_glyph])],
         )
     )

@@ -55,26 +55,31 @@ define [
       text_width = _.max(text_widths)
       @label_width = _.max([text_width, label_width])
       @legend_width = @label_width + @glyph_width + 3 * legend_spacing
-      orientation = @mget('orientation')
+      anchor = @mget('anchor')
       legend_padding = @mget('legend_padding')
       h_range = @plot_view.frame.get('h_range')
       v_range = @plot_view.frame.get('v_range')
-      if orientation == "top_right"
-        x = h_range.get('end') - legend_padding - @legend_width
-        y = v_range.get('end') - legend_padding
-      else if orientation == "top_left"
-        x = h_range.get('start') + legend_padding
-        y = v_range.get('end') - legend_padding
-      else if orientation == "bottom_left"
-        x = h_range.get('start') + legend_padding
-        y = v_range.get('start') + legend_padding + @legend_height
-      else if orientation == "bottom_right"
-        x = h_range.get('end') - legend_padding - @legend_width
-        y = v_range.get('start') + legend_padding + @legend_height
-      else if orientation == "absolute"
-        [x,y] = @absolute_coords
+
+      #  top_left    top_center    top_right
+      #  center_left center_center center_right
+      #  bottom_left bottom_center bottom_right
+
+      if anchor == "center" then anchor = "center_center"
+      [v_anchor, h_anchor] = anchor.split("_")
+
+      switch h_anchor
+        when "left"   then x = h_range.get('start') + legend_padding
+        when "right"  then x = h_range.get('end')   - legend_padding - @legend_width
+        when "center" then x = (h_range.get('end') + h_range.get('start') - @legend_width)/2
+
+      switch v_anchor
+        when "top"    then y = v_range.get('end')   - legend_padding
+        when "bottom" then y = v_range.get('start') + legend_padding + @legend_height
+        when "center" then y = (v_range.get('end') + v_range.get('start') + @legend_height)/2
+
       x = @plot_view.canvas.vx_to_sx(x)
       y = @plot_view.canvas.vy_to_sy(y)
+
       @box_coords = [x,y]
 
     render: () ->
@@ -117,6 +122,7 @@ define [
     defaults: ->
       return _.extend {}, super(), {
         legends: []
+        anchor: "top_right"
       }
 
     display_defaults: ->
@@ -146,7 +152,6 @@ define [
         label_width: 50
         legend_padding: 10
         legend_spacing: 3
-        orientation: "top_right"
         datapoint: null
       }
 

@@ -26,7 +26,7 @@ ydr = Range1d(start=-100, end=200)
 
 plot = Plot(title="ImageURL", x_range=xdr, y_range=ydr)
 
-image1 = ImageURL(url="url", x="x1", y="y1", w="w1", h="h1", anchor="center")
+image1 = ImageURL(url="url", x="x1", y="y1", w="w1", h="h1", anchor="center_center")
 plot.add_glyph(source, image1)
 
 image2 = ImageURL(url="url", x="x2", y="y2", w=20, h=20, anchor="top_left")

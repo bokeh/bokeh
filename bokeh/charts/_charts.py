@@ -182,20 +182,20 @@ class Chart(object):
                 listed_glyphs = [[glyph] for glyph in self.glyphs]
                 legends = list(zip(groups, listed_glyphs))
                 if self.legend is True:
-                    orientation = "top_right"
+                    anchor = "top_right"
                 else:
-                    orientation = self.legend
+                    anchor = self.legend
 
                 legend = None
                 # When we have more then on plot we need to break legend per plot
                 if len(self._plots) > 1:
                     try:
-                        legend = Legend(orientation=orientation, legends=[legends[i]])
+                        legend = Legend(anchor=anchor, legends=[legends[i]])
 
                     except IndexError:
                         pass
                 else:
-                    legend = Legend(orientation=orientation, legends=legends)
+                    legend = Legend(anchor=anchor, legends=legends)
 
                 if legend is not None:
                     plot.add_layout(legend)

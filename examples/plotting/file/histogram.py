@@ -25,7 +25,7 @@ p1.quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:],
 p1.line(x, pdf, line_color="#D95B43", line_width=8, alpha=0.7, legend="PDF")
 p1.line(x, cdf, line_color="white", line_width=2, alpha=0.7, legend="CDF")
 
-p1.legend.orientation = "top_left"
+p1.legend.anchor = "top_left"
 p1.xaxis.axis_label = 'x'
 p1.yaxis.axis_label = 'Pr(x)'
 
@@ -48,7 +48,7 @@ p2.quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:],
 p2.line(x, pdf, line_color="#D95B43", line_width=8, alpha=0.7, legend="PDF")
 p2.line(x, cdf, line_color="white", line_width=2, alpha=0.7, legend="CDF")
 
-p2.legend.orientation = "bottom_right"
+p2.legend.anchor = "bottom_right"
 p2.xaxis.axis_label = 'x'
 p2.yaxis.axis_label = 'Pr(x)'
 
@@ -71,7 +71,7 @@ p3.quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:],
 p3.line(x, pdf, line_color="#D95B43", line_width=8, alpha=0.7, legend="PDF")
 p3.line(x, cdf, line_color="white", line_width=2, alpha=0.7, legend="CDF")
 
-p3.legend.orientation = "top_left"
+p3.legend.anchor = "top_left"
 p3.xaxis.axis_label = 'x'
 p3.yaxis.axis_label = 'Pr(x)'
 
@@ -116,7 +116,7 @@ p5.quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:],
 p5.line(x, pdf, line_color="#D95B43", line_width=8, alpha=0.7, legend="PDF")
 p5.line(x, cdf, line_color="white", line_width=2, alpha=0.7, legend="CDF")
 
-p5.legend.orientation = "top_left"
+p5.legend.anchor = "top_left"
 p5.xaxis.axis_label = 'x'
 p5.yaxis.axis_label = 'Pr(x)'
 

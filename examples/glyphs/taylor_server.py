@@ -73,7 +73,7 @@ plot.add_layout(yaxis, 'left')
 xgrid = Grid(dimension=0, ticker=xaxis.ticker)
 ygrid = Grid(dimension=1, ticker=yaxis.ticker)
 
-legend = Legend(orientation="bottom_left")
+legend = Legend(anchor="bottom_left")
 plot.add_layout(legend)
 
 def on_slider_value_change(obj, attr, old, new):

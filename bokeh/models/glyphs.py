@@ -111,7 +111,6 @@ class ImageRGBA(Glyph):
     dw = DataSpec
     dh = DataSpec
     dilate = Bool(False)
-    anchor = Enum(Anchor)
 
 class ImageURL(Glyph):
     url = DataSpec
@@ -121,7 +120,7 @@ class ImageURL(Glyph):
     h = DataSpec
     angle = DataSpec(default=0)
     dilate = Bool(False)
-    anchor = Enum(Anchor)
+    anchor = Enum(Anchor, default="top_left")
 
 class Line(Glyph, LineProps):
     x = DataSpec

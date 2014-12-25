@@ -32,7 +32,7 @@ from bokeh.enums import (
     Direction,
     Units, AngleUnits, DatetimeUnits,
     Dimension,
-    Anchor, Location, Orientation,
+    Anchor, Location,
     DashPattern,
     ButtonType, MapType,
     NamedColor as Color, NamedIcon)
@@ -162,8 +162,7 @@ def test_ImageRGBA():
     assert glyph.rows == "rows"
     assert glyph.cols == "cols"
     assert glyph.dilate == False
-    assert glyph.anchor == Anchor.top_left
-    yield check_props, glyph, ["image", "x", "y", "dw", "dh", "rows", "cols", "dilate", "anchor"]
+    yield check_props, glyph, ["image", "x", "y", "dw", "dh", "rows", "cols", "dilate"]
 
 def test_ImageURL():
     glyph = ImageURL()

@@ -3,7 +3,7 @@ from __future__ import absolute_import
 from ..plot_object import PlotObject
 from ..properties import Int, String, Enum, Instance, List, Dict, Tuple, Include
 from ..mixins import LineProps, TextProps
-from ..enums import Units, Orientation
+from ..enums import Units, Anchor
 
 from .sources import DataSource, ServerDataSource
 from .glyphs import Glyph
@@ -29,7 +29,7 @@ class GlyphRenderer(Renderer):
 
 class Legend(Renderer):
     plot = Instance(".models.plots.Plot")
-    orientation = Enum(Orientation)
+    anchor = Enum(Anchor, default="top_right")
     border_props = Include(LineProps)
 
     label_props = Include(TextProps)

@@ -49,18 +49,18 @@ define [
           @_render_image(ctx, i, @image[i])
 
     _final_sx_sy: () ->
-      anchor = @mget('anchor') or "top_left"
+      anchor = @mget('anchor')
 
       switch anchor
         when "top_left"      then (i) => [@sx[i]           , @sy[i]           ]
         when "top_center"    then (i) => [@sx[i] - @sw[i]/2, @sy[i]           ]
         when "top_right"     then (i) => [@sx[i] - @sw[i]  , @sy[i]           ]
-        when "right_center"  then (i) => [@sx[i] - @sw[i]  , @sy[i] - @sh[i]/2]
-        when "bottom_right"  then (i) => [@sx[i] - @sw[i]  , @sy[i] - @sh[i]  ]
-        when "bottom_center" then (i) => [@sx[i] - @sw[i]/2, @sy[i] - @sh[i]  ]
+        when "center_left"   then (i) => [@sx[i]           , @sy[i] - @sh[i]/2]
+        when "center_center" then (i) => [@sx[i] - @sw[i]/2, @sy[i] - @sh[i]/2]
+        when "center_right"  then (i) => [@sx[i] - @sw[i]  , @sy[i] - @sh[i]/2]
         when "bottom_left"   then (i) => [@sx[i]           , @sy[i] - @sh[i]  ]
-        when "left_center"   then (i) => [@sx[i]           , @sy[i] - @sh[i]/2]
-        when "center"        then (i) => [@sx[i] - @sw[i]/2, @sy[i] - @sh[i]/2]
+        when "bottom_center" then (i) => [@sx[i] - @sw[i]/2, @sy[i] - @sh[i]  ]
+        when "bottom_right"  then (i) => [@sx[i] - @sw[i]  , @sy[i] - @sh[i]  ]
 
     _render_image: (ctx, i, img) ->
       if isNaN(@sw[i]) then @sw[i] = img.width
@@ -84,6 +84,7 @@ define [
     defaults: ->
       return _.extend {}, super(), {
         angle: 0
+        anchor: "top_left"
       }
 
     display_defaults: ->

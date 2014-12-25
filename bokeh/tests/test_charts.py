@@ -114,7 +114,7 @@ class TestChart(unittest.TestCase):
     def test_end_plot(self):
         legend = self.chart.plot.renderers[4]
         self.assertIsInstance(legend, Legend)
-        self.assertEqual(legend.orientation, "top_left")
+        self.assertEqual(legend.anchor, "top_left")
         self.assertIsInstance(self.chart.doc, Document)
         #TODO test server-base charts
         #self.assertIsInstance(self.chart.session, Session)

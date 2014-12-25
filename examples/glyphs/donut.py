@@ -96,7 +96,7 @@ urls = [ to_base64(icons.get(browser, b"")) for browser in browsers ]
 x, y = polar_to_cartesian(1.7, start_angles, end_angles)
 
 icons_source = ColumnDataSource(dict(urls=urls, x=x, y=y))
-glyph = ImageURL(url="urls", x="x", y="y", anchor="center")
+glyph = ImageURL(url="urls", x="x", y="y", anchor="center_center")
 plot.add_glyph(icons_source, glyph)
 
 text = [ "%.02f%%" % value for value in selected.Share ]
