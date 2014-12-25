@@ -7,27 +7,9 @@ from ..properties import Align, Bool, DataSpec, Enum, HasProps, Instance, Size
 
 from .mappers import LinearColorMapper
 
-# Size is a way to preserve a data-space-related metric all the way until
-#   render time, when the screen dimensions are known
-# Align may be "center", "min", "max", or "jitter(func)" where func is name
-#   of a random distribution to draw random samples from. Defaults to uniform
-#   but gaussian could certainly be useful.
-
 class Glyph(PlotObject):
     """ Base class for all glyphs/marks/geoms/whatever-you-call-'em in Bokeh.  """
-
     visible = Bool
-    margin = Size   # the amount of desired space around this glyph
-    halign = Align  # when there is horizontal wiggle room (e.g. categorical)
-    valign = Align  # when there is vertical wiggle room
-
-    # TODO: all *_units properties should be removed
-    size_units = Enum(Units, default=Units.screen)
-    radius_units = Enum(Units, default=Units.data)
-    length_units = Enum(Units, default=Units.screen)
-    angle_units = Enum(AngleUnits, default=AngleUnits.deg)
-    start_angle_units = Enum(AngleUnits, default=AngleUnits.deg)
-    end_angle_units = Enum(AngleUnits, default=AngleUnits.deg)
 
 class AnnularWedge(Glyph, FillProps, LineProps):
     x = DataSpec
