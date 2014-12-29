@@ -20,7 +20,7 @@ It also add a new chained stacked method.
 import numpy as np
 import pandas as pd
 
-from ._chartobject import ChartObject, DataAdapter
+from ._chartobject import ChartObject
 
 from ..models import ColumnDataSource, FactorRange, Range1d
 
@@ -63,13 +63,11 @@ class BoxPlot(ChartObject):
                           width=800, height=600, notebook=True)
         boxplot.show()
     """
-    # not showing x grid
-    xgrid=False
-
     def __init__(self, values, marker="circle", outliers=True,
                  title=None, xlabel=None, ylabel=None, legend=False,
                  xscale="categorical", yscale="linear", width=800, height=600,
-                 tools=True, filename=False, server=False, notebook=False):
+                 tools=True, filename=False, server=False, notebook=False,
+                 xgrid=False, ygrid=True):
         """ Initialize a new BoxPlot.
 
         Args:
@@ -108,9 +106,12 @@ class BoxPlot(ChartObject):
                 If you pass True to this argument, it will use ``untitled``
                 as the name in the server.
                 Defaults to False.
-            notebook (bool, optional):if you want to output (or not) your plot into the
-                IPython notebook.
-                Defaults to False.
+            notebook (bool, optional): whether to output to IPython notebook
+                (default: False)
+            xgrid (bool, optional): whether to display x grid lines
+                (default: False)
+            ygrid (bool, optional): whether to display x grid lines
+                (default: True)
 
         Attributes:
             source (obj): datasource object for your plot,
@@ -126,7 +127,7 @@ class BoxPlot(ChartObject):
                 loading the data dict.
                 Needed for _set_And_get method.
         """
-        self.values = DataAdapter(values, force_alias=False)
+        self.values = values
         self.__marker = marker
         self.__outliers = outliers
         self.xdr = None
@@ -138,9 +139,11 @@ class BoxPlot(ChartObject):
         self.data_scatter = dict()
         self.attr_scatter = []
         self.data_legend = dict()
-        super(BoxPlot, self).__init__(title, xlabel, ylabel, legend,
-                                      xscale, yscale, width, height,
-                                      tools, filename, server, notebook)
+        super(BoxPlot, self).__init__(
+            title, xlabel, ylabel, legend, xscale, yscale, width, height,
+            tools, filename, server, notebook, facet=False, xgrid=xgrid,
+            ygrid=ygrid
+        )
 
     def marker(self, marker="circle"):
         "marker (str, int): the marker type of your plot outliers."

@@ -25,7 +25,7 @@ except ImportError:
     print("bokeh.charts needs numpy installed to work properly!")
     raise
 
-from ._chartobject import ChartObject, DataAdapter
+from ._chartobject import ChartObject
 from ..models import ColumnDataSource, FactorRange, Range1d
 
 #-----------------------------------------------------------------------------
@@ -47,81 +47,76 @@ class Bar(ChartObject):
 
         from collections import OrderedDict
 
-        import numpy as np
+        xyvalues = OrderedDict()
+        xyvalues['python']=[2, 5]
+        xyvalues['pypy']=[12, 40]
+        xyvalues['jython']=[22, 30]
 
-        from bokeh.charts import Bar
-        from bokeh.sampledata.olympics2014 import data
-
-        data = {d['abbr']: d['medals'] for d in data['data'] if d['medals']['total'] > 0}
-
-        countries = sorted(data.keys(), key=lambda x: data[x]['total'], reverse=True)
-
-        gold = np.array([data[abbr]['gold'] for abbr in countries], dtype=np.float)
-        silver = np.array([data[abbr]['silver'] for abbr in countries], dtype=np.float)
-        bronze = np.array([data[abbr]['bronze'] for abbr in countries], dtype=np.float)
-
-        medals = OrderedDict(bronze=bronze, silver=silver, gold=gold)
-
-        bar = Bar(medals, countries)
-        bar.title("stacked, dict_input").xlabel("countries").ylabel("medals")\
-.legend(True).width(600).height(400).stacked().notebook().show()
+        bar = Bar(xyvalues, ['1st', '2nd'], filename="stacked_bar.html")
+        bar.title("Stacked bars").xlabel("countries").ylabel("medals")
+        bar.legend(True).width(600).height(400).stacked(True)
+        bar.show()
     """
-    # disable x grid
-    xgrid=False
 
     def __init__(self, values, cat=None, stacked=False,
                  title=None, xlabel=None, ylabel=None, legend=False,
                  xscale="categorical", yscale="linear", width=800, height=600,
                  tools=True, filename=False, server=False, notebook=False,
-                 facet=False):
+                 facet=False, xgrid=False, ygrid=True):
         """
         Args:
-            value (dict): a dict containing the data with names as a key
-                and the data as a value.
+            values (iterable): iterable 2d representing the data series values matrix.
             cat (list or bool, optional): list of string representing the categories.
                 Defaults to None.
             stacked (bool, optional): to see the bars stacked or grouped.
                 Defaults to False, so grouping is assumed.
-            title (str, optional): the title of your plot. Defaults to None.
-            xlabel (str, optional): the x-axis label of your plot.
+            title (str, optional): the title of your chart. Defaults
+                to None.
+            xlabel (str, optional): the x-axis label of your chart.
                 Defaults to None.
-            ylabel (str, optional): the y-axis label of your plot.
+            ylabel (str, optional): the y-axis label of your chart.
                 Defaults to None.
-            legend (str, optional): the legend of your plot. The legend content is
-                inferred from incoming input.It can be ``top_left``,
-                ``top_right``, ``bottom_left``, ``bottom_right``.
-                It is ``top_right`` is you set it as True.
-                Defaults to None.
-            xscale (str, optional): the x-axis type scale of your plot. It can be
-                ``linear``, ``datetime`` or ``categorical``.
+            legend (str, optional): the legend of your chart. The legend
+                content is inferred from incoming input.It can be
+                ``top_left``, ``top_right``, ``bottom_left``,
+                ``bottom_right``. ``top_right`` is set if you set it
+                 as True. Defaults to None.
+            xscale (str, optional): the x-axis type scale of your chart.
+                It can be ``linear``, ``datetime`` or ``categorical``.
+                Defaults to ``datetime``.
+            yscale (str, optional): the y-axis type scale of your chart.
+                It can be ``linear``, ``datetime`` or ``categorical``.
                 Defaults to ``linear``.
-            yscale (str, optional): the y-axis type scale of your plot. It can be
-                ``linear``, ``datetime`` or ``categorical``.
-                Defaults to ``linear``.
-            width (int, optional): the width of your plot in pixels.
+            width (int, optional): the width of your chart in pixels.
                 Defaults to 800.
-            height (int, optional): the height of you plot in pixels.
+            height (int, optional): the height of you chart in pixels.
                 Defaults to 600.
-            tools (bool, optional): to enable or disable the tools in your plot.
-                Defaults to True
-            filename (str or bool, optional): the name of the file where your plot.
-                will be written. If you pass True to this argument, it will use
-                ``untitled`` as a filename.
+            tools (bool, optional): to enable or disable the tools in
+                your chart. Defaults to True
+            filename (str or bool, optional): the name of the file where
+                your chart. will be written. If you pass True to this
+                argument, it will use ``untitled`` as a filename.
                 Defaults to False.
-            server (str or bool, optional): the name of your plot in the server.
-                If you pass True to this argument, it will use ``untitled``
-                as the name in the server.
+            server (str or bool, optional): the name of your chart in
+                the server. If you pass True to this argument, it will
+                use ``untitled`` as the name in the server.
                 Defaults to False.
-            notebook (bool or optional):if you want to output (or not) your plot into the
-                IPython notebook.
-                Defaults to False.
+            notebook (bool, optional): whether to output to IPython notebook
+                (default: False)
+            facet (bool, optional): generate multiple areas on multiple
+                separate charts for each series if True. Defaults to
+                False
+            xgrid (bool, optional): whether to display x grid lines
+                (default: False)
+            ygrid (bool, optional): whether to display x grid lines
+                (default: True)
 
         Attributes:
-            source (obj): datasource object for your plot,
+            source (obj): datasource object for your chart,
                 initialized as a dummy None.
-            xdr (obj): x-associated datarange object for you plot,
+            xdr (obj): x-associated datarange object for you chart,
                 initialized as a dummy None.
-            ydr (obj): y-associated datarange object for you plot,
+            ydr (obj): y-associated datarange object for you chart,
                 initialized as a dummy None.
             groups (list): to be filled with the incoming groups of data.
                 Useful for legend construction.
@@ -141,12 +136,13 @@ class Bar(ChartObject):
         self.groups = []
         self.data = dict()
         self.attr = []
-        super(Bar, self).__init__(title, xlabel, ylabel, legend,
-                                  xscale, yscale, width, height,
-                                  tools, filename, server, notebook, facet)
+        super(Bar, self).__init__(
+            title, xlabel, ylabel, legend, xscale, yscale, width, height,
+            tools, filename, server, notebook, facet, xgrid, ygrid
+        )
 
     def stacked(self, stacked=True):
-        """Set the bars stacked on your chart.
+        """ Set the bars stacked on your chart.
 
         Args:
             stacked (bool, optional): whether to stack the bars
@@ -161,7 +157,8 @@ class Bar(ChartObject):
     def check_attr(self):
         """Check if any of the chained method were used.
 
-        If they were not used, it assign the init parameters content by default.
+        If they were not used, it assign the init parameters content
+        by default.
         """
         super(Bar, self).check_attr()
 
@@ -169,82 +166,75 @@ class Bar(ChartObject):
         if not hasattr(self, '_stacked'):
             self._stacked = self.__stacked
 
-    def get_source(self):
-        """Push the Bar data into the ColumnDataSource and calculate the proper ranges.
-
-        Args:
-            stacked (bool): whether to stack the bars in your plot.
-        """
-        self.source = ColumnDataSource(self.data)
-        self.xdr = FactorRange(factors=self.source.data["cat"])
-        if self._stacked:
-            self.ydr = Range1d(start=0, end=1.1 * max(self.zero))
-        else:
-            cat = [i for i in self.attr if not i.startswith(("mid", "stacked", "cat"))]
-            end = 1.1 * max(max(self.data[i]) for i in cat)
-            self.ydr = Range1d(start=0, end=end)
-
-    def draw(self):
-        """Use the rect glyphs to display the bars.
-
-        Takes reference points from data loaded at the ColumnDataSurce.
-
-        Args:
-            stacked (bool): whether to stack the bars in your plot.
-        """
-        self.quartet = list(self._chunker(self.attr, 4))
-        colors = self._set_colors(self.quartet)
-
-        # quartet elements are: [data, mid, stacked, cat]
-        for i, quartet in enumerate(self.quartet):
-            if self._stacked:
-                self.chart.make_rect(self.source, "cat", quartet[2], "width", quartet[0], colors[i], "white", None)
-            else:  # Grouped
-                self.chart.make_rect(self.source, quartet[3], quartet[1], "width_cat", quartet[0], colors[i], "white", None)
-
-    def _setup_show(self):
-        super(Bar, self)._setup_show()
-
-        # normalize input to the common DataAdapter Interface
-        if not isinstance(self.values, DataAdapter):
-            self.values = DataAdapter(self.values, force_alias=False)
-
-        if not self.cat:
-            vals = [str(x) for x in self.values.index]
-            self.cat = vals
-
     def get_data(self):
         """Take the Bar data from the input **value.
 
         It calculates the chart properties accordingly. Then build a dict
         containing references to all the calculated points to be used by
         the rect glyph inside the ``draw`` method.
-
-        Args:
-            cat (list): categories as a list of strings
-            values (dict or pd obj): the values to be plotted as bars.
         """
-        self.width = [0.8] * len(self.cat)
+        if not self.cat:
+            self.cat = [str(x) for x in self.values.index]
+
+        width = [0.8] * len(self.cat)
         # width should decrease proportionally to the value length.
         # 1./len(value) doesn't work well as the width needs to decrease a
         # little bit faster
-        self.width_cat = [min(0.2, (1./len(self.values))**1.1)] * len(self.cat)
-        self.zero = np.zeros(len(self.cat))
-        self.data = dict(cat=self.cat, width=self.width, width_cat=self.width_cat, zero=self.zero)
-
+        width_cat = [min(0.2, (1./len(self.values))**1.1)] * len(self.cat)
+        zero = np.zeros(len(self.cat))
+        self.data = dict(
+            cat=self.cat, width=width, width_cat=width_cat,
+            zero=zero
+        )
         # list to save all the attributes we are going to create
         self.attr = []
-
-        # list to save all the groups available in the incomming input
-        # Grouping
+        # list to save all the groups available in the incomming input grouping
         step = np.linspace(0, 1.0, len(self.values.keys()) + 1, endpoint=False)
-
         self.groups.extend(self.values.keys())
+
         for i, val in enumerate(self.values.keys()):
             self.set_and_get("", val, self.values[val])
-            self.set_and_get("mid", val, np.array(self.values[val]) / 2)
-            self.set_and_get("stacked", val, self.zero + np.array(self.values[val]) / 2)
+            mid = np.array(self.values[val]) / 2
+            self.set_and_get("mid", val, mid)
+            self.set_and_get("stacked", val, zero + mid)
             # Grouped
-            self.set_and_get("cat", val, [c + ":" + str(step[i + 1]) for c in self.cat])
+            grouped = [c + ":" + str(step[i + 1]) for c in self.cat]
+            self.set_and_get("cat", val, grouped)
             # Stacked
-            self.zero += self.values[val]
+            zero += self.values[val]
+
+    def get_source(self):
+        """Push the Bar data into the ColumnDataSource and calculate
+        the proper ranges.
+        """
+        self.source = ColumnDataSource(self.data)
+        self.xdr = FactorRange(factors=self.source.data["cat"])
+
+        if self._stacked:
+            self.ydr = Range1d(start=0, end=1.1 * max(self.data['zero']))
+        else:
+            cat = [i for i in self.attr
+                   if not i.startswith(("mid", "stacked", "cat"))]
+            end = 1.1 * max(max(self.data[i]) for i in cat)
+            self.ydr = Range1d(start=0, end=end)
+
+    def draw(self):
+        """Use the rect glyphs to display the bars.
+
+        Takes reference points from data loaded at the ColumnDataSource.
+        """
+        quartets = list(self._chunker(self.attr, 4))
+        colors = self._set_colors(quartets)
+
+        # quartet elements are: [data, mid, stacked, cat]
+        for i, quartet in enumerate(quartets):
+            if self._stacked:
+                self.chart.make_rect(
+                    self.source, "cat", quartet[2], "width", quartet[0],
+                    colors[i], "white", None
+                )
+            else:  # Grouped
+                self.chart.make_rect(
+                    self.source, quartet[3], quartet[1], "width_cat",
+                    quartet[0], colors[i], "white", None
+                )
