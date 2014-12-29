@@ -63,12 +63,12 @@ def cli(input, output, title, plot_type, series, palette,
         print("\nanimating... press ctrl-C to stop")
         while True:
             try:
-                source = pd.read_csv(source_filename)
+                source = get_input(input, buffer)
 
             except ValueError:
                 print("OOOPS, error!")
 
-            _chart = create_chart(series, source, index, x_axis_type, factories, extra)
+            _chart = create_chart(series, source, index, factories, **args)
             _chart._setup_show()
             _chart._prepare_show()
             _chart._show_teardown()
