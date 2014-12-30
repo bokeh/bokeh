@@ -48,65 +48,65 @@
     </table>
     </p>
 
-.. |image| image:: /_images/thumbs/image_t.png
-    :target: ../docs/gallery/image.html
+.. |image| image:: _images/thumbs/image_t.png
+    :target: docs/gallery/image.html
 
-.. |anscombe| image:: /_images/thumbs/anscombe_t.png
-    :target: ../docs/gallery/anscombe.html
+.. |anscombe| image:: _images/thumbs/anscombe_t.png
+    :target: docs/gallery/anscombe.html
 
-.. |stocks| image:: /_images/thumbs/stocks_t.png
-    :target: ../docs/gallery/stocks.html
+.. |stocks| image:: _images/thumbs/stocks_t.png
+    :target: docs/gallery/stocks.html
 
-.. |lorenz| image:: /_images/thumbs/lorenz_t.png
-    :target: ../docs/gallery/lorenz.html
+.. |lorenz| image:: _images/thumbs/lorenz_t.png
+    :target: docs/gallery/lorenz.html
 
-.. |candlestick| image:: /_images/thumbs/candlestick_t.png
-    :target: ../docs/gallery/candlestick.html
+.. |candlestick| image:: _images/thumbs/candlestick_t.png
+    :target: docs/gallery/candlestick.html
 
-.. |scatter| image:: /_images/thumbs/scatter_t.png
-    :target: ../docs/gallery/color_scatter.html
+.. |scatter| image:: _images/thumbs/scatter_t.png
+    :target: docs/gallery/color_scatter.html
 
-.. |les_mis| image:: /_images/thumbs/les_mis_t.png
-    :target: ../docs/gallery/les_mis.html
+.. |les_mis| image:: _images/thumbs/les_mis_t.png
+    :target: docs/gallery/les_mis.html
 
-.. |histogram| image:: /_images/thumbs/histogram_t.png
-    :target: ../docs/gallery/histogram.html
+.. |histogram| image:: _images/thumbs/histogram_t.png
+    :target: docs/gallery/histogram.html
 
-.. |iris| image:: /_images/thumbs/iris_t.png
-    :target: ../docs/gallery/iris.html
+.. |iris| image:: _images/thumbs/iris_t.png
+    :target: docs/gallery/iris.html
 
-.. |choropleth| image:: /_images/thumbs/choropleth_t.png
-    :target: ../docs/gallery/texas.html
+.. |choropleth| image:: _images/thumbs/choropleth_t.png
+    :target: docs/gallery/texas.html
 
-.. |splom| image:: /_images/thumbs/splom_t.png
-    :target: ../docs/gallery/iris_splom.html
+.. |splom| image:: _images/thumbs/splom_t.png
+    :target: docs/gallery/iris_splom.html
 
-.. |burtin| image:: /_images/thumbs/burtin_t.png
-    :target: ../docs/gallery/burtin.html
+.. |burtin| image:: _images/thumbs/burtin_t.png
+    :target: docs/gallery/burtin.html
 
-.. |streamline| image:: /_images/thumbs/streamline_t.png
-    :target: ../docs/gallery/streamline.html
+.. |streamline| image:: _images/thumbs/streamline_t.png
+    :target: docs/gallery/streamline.html
 
-.. |periodic| image:: /_images/thumbs/periodic_t.png
-    :target: ../docs/gallery/periodic.html
+.. |periodic| image:: _images/thumbs/periodic_t.png
+    :target: docs/gallery/periodic.html
 
-.. |quiver| image:: /_images/thumbs/quiver_t.png
-    :target: ../docs/gallery/quiver.html
+.. |quiver| image:: _images/thumbs/quiver_t.png
+    :target: docs/gallery/quiver.html
 
-.. |stacked| image:: /_images/thumbs/stacked_t.png
-    :target: ../docs/gallery/brewer.html
+.. |stacked| image:: _images/thumbs/stacked_t.png
+    :target: docs/gallery/brewer.html
 
-.. |categorical| image:: /_images/thumbs/categorical_t.png
-    :target: ../docs/gallery/categorical.html
+.. |categorical| image:: _images/thumbs/categorical_t.png
+    :target: docs/gallery/categorical.html
 
-.. |elements| image:: /_images/thumbs/elements_t.png
-    :target: ../docs/gallery/elements.html
+.. |elements| image:: _images/thumbs/elements_t.png
+    :target: docs/gallery/elements.html
 
-.. |boxplot| image:: /_images/thumbs/boxplot_t.png
-    :target: ../docs/gallery/boxplot.html
+.. |boxplot| image:: _images/thumbs/boxplot_t.png
+    :target: docs/gallery/boxplot.html
 
-.. |image_rgba| image:: /_images/thumbs/image_rgba_t.png
-    :target: ../docs/gallery/image_rgba.html
+.. |image_rgba| image:: _images/thumbs/image_rgba_t.png
+    :target: docs/gallery/image_rgba.html
 
-.. |unemployment| image:: /_images/thumbs/unemployment_t.png
-    :target: ../docs/gallery/unemployment.html
+.. |unemployment| image:: _images/thumbs/unemployment_t.png
+    :target: docs/gallery/unemployment.html
