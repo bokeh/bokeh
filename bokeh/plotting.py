@@ -550,13 +550,13 @@ def save(filename=None, resources=None, obj=None, title=None):
         filename (str, optional) : filename to save document under (default: None)
             if `filename` is None, the current output_file(...) filename is used if present
         resources (Resources, optional) : BokehJS resource config to use
-            if `resources` is None, the current default resource config is used
+            if `resources` is None, the current default resource config is used, failing that resources.INLINE is used
 
         obj (Document or Widget/Plot object, optional)
             if provided, then this is the object to save instead of curdoc()
             and its curplot()
         title (str, optional) : title of the bokeh plot (default: None)
-        	if 'title' is None, the current default title config is used
+        	if 'title' is None, the current default title config is used, failing that 'Bokeh Plot' is used
 
     Returns:
         None
@@ -576,12 +576,14 @@ def save(filename=None, resources=None, obj=None, title=None):
         return
 
     if not resources:
-        warnings.warn("save() called but no resources was supplied and output_file(...) was never called, nothing saved")
-        return
+        warnings.warn("save() called but no resources was supplied and output_file(...) was never called, defaulting to resources.INLINE")
+        from .resources import INLINE
+        resources = INLINE
+
 
     if not title:
-        warnings.warn("save() called but no title was supplied and output_file(...) was never called, nothing saved")
-        return
+        warnings.warn("save() called but no title was supplied and output_file(...) was never called, using default title 'Bokeh Plot'")
+        title = "Bokeh Plot"
 
     if obj is None:
         if not curplot():
