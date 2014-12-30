@@ -11,7 +11,7 @@ from pygments.formatters import HtmlFormatter
 from bokeh import plotting
 from bokeh.document import Document
 from bokeh.embed import autoload_static
-from bokeh.resources import Resources
+from bokeh.resources import CDN
 
 # patch open and show and save to be no-ops
 def noop(*args, **kwargs):
@@ -48,7 +48,7 @@ def page_desc(module_desc):
         filename = name + "." + str(i) + ".js"
         js, tag = autoload_static(
             obj,
-            Resources(mode="server", root_url=HOSTED_STATIC_ROOT),
+            CDN, #Resources(mode="cdn", root_url=HOSTED_STATIC_ROOT),
             os.path.join(DETAIL_URL_ROOT, filename)
         )
         embed_snippet += tag
@@ -127,7 +127,7 @@ if __name__ == "__main__":
     GALLERY_RST_PATH = gallery_info['gallery_rst_path']
     if len(sys.argv) >= 5:
         GALLERY_RST_PATH = os.path.join(BASE_DIR, GALLERY_RST_PATH)
-    HOSTED_STATIC_ROOT="/docs/"
+    HOSTED_STATIC_ROOT=".."
     DETAIL_URL_ROOT="./"
 
     make_gallery(gallery_info['details'])
