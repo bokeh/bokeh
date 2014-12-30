@@ -13,10 +13,10 @@ class Range1d(Range):
     end = Either(Float, Datetime, Int)
 
     def __init__(self, *args, **kwargs):
-        if args and kwargs:
-            raise ValueError('Only Range1d(a, b) or Range1d(start=a, end=b) are valid')
+        if args and ('start' in kwargs or 'end' in kwargs):
+            raise ValueError("'start' and 'end' keywords cannot be used with positional arguments")
         elif args and len(args) != 2:
-            raise ValueError('Only Range1d(a, b) acceptable')
+            raise ValueError('Only Range1d(start, end) acceptable when using positional arguments')
         elif args:
             kwargs['start'] = args[0]
             kwargs['end'] = args[1]
@@ -37,8 +37,8 @@ class FactorRange(Range):
     factors = List(Any)
 
     def __init__(self, *args, **kwargs):
-        if args and kwargs:
-            raise ValueError('Only FactorRange(a, b, c, ...) or FactorRange(factors=[a, b, c, ...]) are valid')
+        if args and "factors" in kwargs:
+            raise ValueError("'factors' keyword cannot be used with positional arguments")
         elif args:
             kwargs['factors'] = list(args)
         super(FactorRange, self).__init__(**kwargs)
