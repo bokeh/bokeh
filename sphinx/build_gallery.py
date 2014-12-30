@@ -48,7 +48,7 @@ def page_desc(module_desc):
         filename = name + "." + str(i) + ".js"
         js, tag = autoload_static(
             obj,
-            CDN, #Resources(mode="cdn", root_url=HOSTED_STATIC_ROOT),
+            CDN,
             os.path.join(DETAIL_URL_ROOT, filename)
         )
         embed_snippet += tag
