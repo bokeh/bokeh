@@ -38,9 +38,7 @@ class FactorRange(Range):
 
     def __init__(self, *args, **kwargs):
         if args and kwargs:
-            raise ValueError('Only FactorRange(a) or FactorRange(factors=a) are valid')
-        elif args and len(args) != 1:
-            raise ValueError('Only FactorRange(a) acceptable')
+            raise ValueError('Only FactorRange(a, b, c, ...) or FactorRange(factors=[a, b, c, ...]) are valid')
         elif args:
-            kwargs['factors'] = args[0]
+            kwargs['factors'] = list(args)
         super(FactorRange, self).__init__(**kwargs)
