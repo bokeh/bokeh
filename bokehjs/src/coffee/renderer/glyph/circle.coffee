@@ -194,6 +194,12 @@ define [
         size: 4 # XXX: Circle should be a marker, then this wouldn't be necessary.
       }
 
+    defaults: ->
+      return _.extend {}, super(), {
+        size_units: 'screen'
+        radius_units: 'data'
+      }
+
   class Circles extends Glyph.Collection
     model: Circle
 

@@ -63,7 +63,3 @@ class HoverTool(Tool):
         .accepts(Dict(String, String), lambda d: list(d.items()))
     always_active = Bool(True)
     snap_to_data = Bool(True)
-
-class DataRangeBoxSelectTool(Tool):
-    xselect = List(Instance(Range))
-    yselect = List(Instance(Range))
