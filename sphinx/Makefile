@@ -69,7 +69,7 @@ main_gallery:
 	python build_gallery.py main_gallery.json
 
 tutorial_gallery:
-	rm -rf $(BUILDDIR)/xhtml/tutorial/solutions/gallery source/tutorial/solutions/gallery
+	rm -rf $(BUILDDIR)/tutorial_gallery
 	mkdir -p $(BUILDDIR)/tutorial_gallery
 	python build_gallery.py tutorial_gallery.json
 
