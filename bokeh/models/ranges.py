@@ -12,6 +12,17 @@ class Range1d(Range):
     start = Either(Float, Datetime, Int)
     end = Either(Float, Datetime, Int)
 
+    def __init__(self, *args, **kwargs):
+        if args and kwargs:
+            raise ValueError('Only Range1d(a, b) or Range1d(start=a, end=b) are valid')
+        elif args and len(args) != 2:
+            raise ValueError('Only Range1d(a, b) acceptable')
+        elif args:
+            kwargs['start'] = args[0]
+            kwargs['end'] = args[1]
+        super(Range1d, self).__init__(**kwargs)
+
+
 class DataRange(Range):
     sources = List(Instance(ColumnsRef))
 
@@ -24,3 +35,12 @@ class DataRange1d(DataRange):
 class FactorRange(Range):
     """ Represents a range in a categorical dimension """
     factors = List(Any)
+
+    def __init__(self, *args, **kwargs):
+        if args and kwargs:
+            raise ValueError('Only FactorRange(a) or FactorRange(factors=a) are valid')
+        elif args and len(args) != 1:
+            raise ValueError('Only FactorRange(a) acceptable')
+        elif args:
+            kwargs['factors'] = args[0]
+        super(FactorRange, self).__init__(**kwargs)
