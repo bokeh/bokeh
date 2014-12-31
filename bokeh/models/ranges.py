@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 
 from ..plot_object import PlotObject
-from ..properties import Any, Int, Float, Datetime, Instance, List, Either
+from ..properties import Int, Float, String, Datetime, Instance, List, Either
 from .sources import ColumnsRef
 
 class Range(PlotObject):
@@ -34,7 +34,7 @@ class DataRange1d(DataRange):
 
 class FactorRange(Range):
     """ Represents a range in a categorical dimension """
-    factors = List(Any)
+    factors = Either(List(String), List(Int))
 
     def __init__(self, *args, **kwargs):
         if args and "factors" in kwargs:
