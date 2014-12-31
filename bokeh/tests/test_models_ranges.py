@@ -20,10 +20,10 @@ class TestFactorRange(unittest.TestCase):
         self.factorRange = FactorRange
 
     def test_init(self):
-        self.assertRaises(ValueError, self.factorRange, [1,2,3], factors=[1,2,3])
+        self.assertRaises(ValueError, self.factorRange, [1, 2, 3], factors=[1, 2, 3])
+        self.assertRaises(ValueError, self.factorRange, [1, 2, 3, 4])
         factorRange = self.factorRange(1, 2)
-        factorRange = self.factorRange([1,2,3,4])
-        factorRange = self.factorRange(factors=[1,2,3,4,5])
+        factorRange = self.factorRange(factors=[1, 2, 3, 4, 5])
 
 
 
