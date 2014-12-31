@@ -1,3 +1,5 @@
+#Just for fun, taking a jpg image and plotting it pointillistic style on a bokeh canvas using circle glyphs!
+#Requires PIL!
 import Image
 import numpy
 import random
@@ -13,6 +15,7 @@ src = Image.open('bluebells.jpg').rotate(270)
 src.thumbnail((640, 360), Image.ANTIALIAS)
 src = src.convert(mode='RGB')
 imageArray = numpy.asarray(src)
+#only every 4th pixel
 imageArray_SS = numpy.asarray(src)[::4, ::4]
 x, y, colorpart = imageArray_SS.shape
 xvector = numpy.arange(0, imageArray_SS.shape[0])
