@@ -16,6 +16,7 @@ It also add a new chained stacked method.
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
+from __future__ import division
 from math import pi, cos, sin
 import pandas as pd
 
@@ -135,14 +136,17 @@ class Donut(ChartObject):
         points to be used by the Wedge glyph inside the ``draw`` method.
 
         """
-        self.df = df = pd.DataFrame(self.values.values())
-        self.groups = df.columns = self.cat
-        df.index = self.values.keys()
-        aggregated = df.sum()
+        dd = dict(zip(self.values.keys(), self.values.values()))
+        self.df = df = pd.DataFrame(dd)
+        self.groups = df.index = self.cat
+        df.columns = self.values.keys()
+
+        # Get the sum per category
+        aggregated = df.T.sum()
+        # Get the total (sum of all categories)
         self.total_units = total = aggregated.sum()
         radians = lambda x: 2*pi*(x/total)
         angles = aggregated.map(radians).cumsum()
-
         end_angles = angles.tolist()
         start_angles = [0] + end_angles[:-1]
         colors = self._set_colors(self.cat)
@@ -193,8 +197,7 @@ class Donut(ChartObject):
         first = True
         for i, (cat, start_angle, end_angle) in enumerate(zip(
                 self.cat, self.data['start'], self.data['end'])):
-
-            details = self.df[cat]
+            details = self.df.ix[i]
             radians = lambda x: 2*pi*(x/self.total_units)
 
             angles = details.map(radians).cumsum() + start_angle
@@ -207,6 +210,7 @@ class Donut(ChartObject):
             x, y = polar_to_cartesian(1.25, start, end)
 
             source = ColumnDataSource(dict(start=start, end=end, fill=fill))
+
             self.chart.make_annular(
                 source, x=0, y=0, inner_radius=1, outer_radius=1.5,
                 start_angle="start", end_angle="end", line_color="white",

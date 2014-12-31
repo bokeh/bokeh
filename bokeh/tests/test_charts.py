@@ -879,35 +879,43 @@ class TestDonut(unittest.TestCase):
         xyvalues['python'] = [2., 5., 3.]
         xyvalues['pypy'] = [4., 1., 4.]
         xyvalues['jython'] = [6., 4., 3.]
-        cat = ["sets", "dicts", "odicts"]
-        start = [0, 2.3561944901923448, 4.3196898986859651]
-        end = [2.3561944901923448, 4.3196898986859651, 6.2831853071795862]
-        colors = ['#f22c40', '#5ab738', '#407ee7']
 
-        # TODO: Chart is not working with DataFrames anymore.
-        #       Fix it and add test case for , pd.DataFrame(xyvalues)
-        for i, _xy in enumerate([xyvalues]):
-            _chart = create_chart(Donut, _xy, cat=cat)
+        xyvalues_int = OrderedDict()
+        for k, values in xyvalues.items():
+            xyvalues_int[k] = [int(val) for val in values]
 
-            self.assertEqual(_chart.groups, cat)
-            assert_array_equal(_chart.data['start'], start)
-            assert_array_equal(_chart.data['end'], end)
-            assert_array_equal(_chart.data['colors'], colors)
+        for xyvalues in [xyvalues, xyvalues_int]:
+            cat = ["sets", "dicts", "odicts"]
+            start = [0, 2.3561944901923448, 4.3196898986859651]
+            end = [2.3561944901923448, 4.3196898986859651, 6.2831853071795862]
+            colors = ['#f22c40', '#5ab738', '#407ee7']
 
-            # TODO: Test for external ring source values is missing as it needs
-            #       some refactoring to expose those values calculation
+            # TODO: Chart is not working with DataFrames anymore.
+            #       Fix it and add test case for , pd.DataFrame(xyvalues)
+            for i, _xy in enumerate([xyvalues]):
+                _chart = create_chart(Donut, _xy, cat=cat)
+
+                self.assertEqual(_chart.groups, cat)
+                assert_array_equal(_chart.data['start'], start)
+                assert_array_equal(_chart.data['end'], end)
+                assert_array_equal(_chart.data['colors'], colors)
+
+                # TODO: Test for external ring source values is missing as it needs
+                #       some refactoring to expose those values calculation
 
         lvalues = [[2., 5., 3.], [4., 1., 4.], [6., 4., 3.]]
-        for i, _xy in enumerate([lvalues, np.array(lvalues)]):
-            _chart = create_chart(Donut, _xy, cat=cat)
+        lvalues_int = [[2, 5, 3], [4, 1, 4], [6, 4, 3]]
+        for lvalues in [lvalues, lvalues_int]:
+            for i, _xy in enumerate([lvalues, np.array(lvalues)]):
+                _chart = create_chart(Donut, _xy, cat=cat)
 
-            self.assertEqual(_chart.groups, cat)
-            assert_array_equal(_chart.data['start'], start)
-            assert_array_equal(_chart.data['end'], end)
-            assert_array_equal(_chart.data['colors'], colors)
+                self.assertEqual(_chart.groups, cat)
+                assert_array_equal(_chart.data['start'], start)
+                assert_array_equal(_chart.data['end'], end)
+                assert_array_equal(_chart.data['colors'], colors)
 
-            # TODO: Test for external ring source values is missing as it needs
-            #       some refactoring to expose those values calculation
+                # TODO: Test for external ring source values is missing as it needs
+                #       some refactoring to expose those values calculation
 
 
 class TestDataAdapter(unittest.TestCase):

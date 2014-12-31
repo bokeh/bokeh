@@ -761,7 +761,9 @@ class DataAdapter(object):
             return self._values
 
         else:
-            return list(self._values)
+            # assuming it's a dataframe, in that case it returns transposed
+            # values compared to it's dict equivalent..
+            return list(values.T)
 
     def items(self):
         return [(key, self[key]) for key in self]
