@@ -469,7 +469,7 @@ class Chart(object):
             print("Wrote %s" % filename)
             view(filename)
         elif self.filename is False and self.server is False and self.notebook is False:
-            print("You have a provide a filename (filename='foo.html' or"
+            print("You have to provide a filename (filename='foo.html' or"
                   " .filename('foo.html')) to save your plot.")
 
         if self.server:
