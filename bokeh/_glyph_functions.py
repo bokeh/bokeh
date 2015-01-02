@@ -49,8 +49,6 @@ def _glyph_function(glyphclass, dsnames, argnames, docstring, xfields=["x"], yfi
             raise ValueError("expected document or plot object for first argument")
 
         name = kwargs.pop('name', None)
-        if name:
-            plot._id = name
 
         select_tool = _get_select_tool(plot)
 
