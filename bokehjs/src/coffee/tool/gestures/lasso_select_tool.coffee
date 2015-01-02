@@ -43,11 +43,13 @@ define [
       new_data.vy = _.clone(@data.vy)
       overlay.set('data', new_data)
 
-      append = e.srcEvent.shiftKey ? false
-      @_select(@data.vx, @data.vy, append)
+      if @mget('select_every_mousemove')
+        append = e.srcEvent.shiftKey ? false
+        @_select(@data.vx, @data.vy, append)
 
     _pan_end: (e) ->
       @_clear_overlay()
+      @_select(@data.vx, @data.vy, false)
 
     _clear_overlay: () ->
       @mget('overlay').set('data', null)
@@ -82,6 +84,11 @@ define [
       plot_renderers = @get('plot').get('renderers')
       plot_renderers.push(@get('overlay'))
       @get('plot').set('renderers', plot_renderers)
+
+    defaults: () ->
+      return _.extend({}, super(), {
+        select_every_mousemove: true
+      })
 
   class LassoSelectTools extends Collection
     model: LassoSelectTool
