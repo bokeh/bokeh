@@ -4,6 +4,12 @@ from six.moves import cStringIO as StringIO
 import pandas as pd
 from .. import charts
 from .help_messages import *
+import io
+import os
+import time
+import urllib
+import sys
+import urllib2
 
 
 def get_input(filepath, buffer):
@@ -15,15 +21,91 @@ def get_input(filepath, buffer):
         filepath (str): path to the file to read from to retrieve data
         buffer (str): if == 't' reads data from input buffer
     """
+    last_byte = -1
     if buffer != 'f':
         filepath = StringIO(sys.stdin.read())
     elif filepath is None:
         msg = "No Input! Please specify --source_filename or --buffer t"
         raise IOError(msg)
+    else:
+        filepath = open(filepath, 'r').read()
+        last_byte = len(filepath)
+        filepath = StringIO(filepath)
+
+    source = pd.read_csv(filepath)
+    return source, last_byte
+
+def keep_source_input_sync(filepath, callback, start=0):
+    if filepath is None:
+        msg = "No Input! Please specify --source_filename or --buffer t"
+        raise IOError(msg)
+
+    if filepath.lower().startswith('http'):
+        # Create a request for the given URL.
+
+        while True:
+            request = urllib2.Request(filepath)
+            data = get_data_from_url(request, start)
+
+            f = io.BytesIO(data)
+            f.seek(start)
+            line = f.readline()     # See note below
+
+            if not line:
+                continue   # No data, try again
+
+            callback(line)
+            start = len(data)
+    else:
+        f = open(filepath, 'r')
+        f.seek(start)
+        while True:
+            line = f.readline()     # See note below
+            if not line:
+                continue   # No data, try again
+            callback(line)
 
     source = pd.read_csv(filepath)
     return source
 
+# Try to get the response. This will raise a urllib2.URLError if there is a
+# problem (e.g., invalid URL).
+# Reference:
+# - http://stackoverflow.com/questions/5209087/python-seek-in-http-response-stream
+# - http://stackoverflow.com/questions/1971240/python-seek-on-remote-file-using-http
+def get_data_from_url(request, start = 0, length = 0):
+    ranged = False
+    # Add the header to specify the range to download.
+    if start and length:
+        request.add_header("Range", "bytes=%d-%d" % (start, start + length - 1))
+    elif start:
+        request.add_header("Range", "bytes=%s-" % start)
+
+    response = urllib2.urlopen(request)
+    # If a content-range header is present, partial retrieval worked.
+    if "content-range" in response.headers:
+        print "Partial retrieval successful."
+
+        # The header contains the string 'bytes', followed by a space, then the
+        # range in the format 'start-end', followed by a slash and then the total
+        # size of the page (or an asterix if the total size is unknown). Lets get
+        # the range and total size from this.
+        range, total = response.headers['content-range'].split(' ')[-1].split('/')
+        ranged = True
+        # Print a message giving the range information.
+        if total == '*':
+            print "Bytes %s of an unknown total were retrieved." % range
+        else:
+            print "Bytes %s of a total of %s were retrieved." % (range, total)
+
+    # # No header, so partial retrieval was unsuccessful.
+    # else:
+    #     print "Unable to use partial retrieval."
+
+    # And for good measure, lets check how much data we downloaded.
+    data = response.read()
+    # print "Retrieved data size: %d bytes" % len(data)
+    return data
 
 def parse_output_config(output):
     """Parse the output specification string and return the related chart

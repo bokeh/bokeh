@@ -2,12 +2,14 @@ from __future__ import print_function
 
 import time
 import numpy as np
+import urllib2
+from six.moves import cStringIO as StringIO
 import pandas as pd
 import click
 
 from .help_messages import *
 from .utils import (get_input, get_chart_params, get_charts_mapping,
-                    get_data_series)
+                    get_data_series, keep_source_input_sync, get_data_from_url)
 from .. import charts as bc
 
 # Define a mapping to connect chart types supported arguments and chart classes
@@ -40,41 +42,109 @@ def cli(input, output, title, plot_type, series, palette,
 
     >> python bokeh-cli.py --help
     """
-    source = get_input(input, buffer)
-    # get the charts specified by the user
-    factories = create_chart_factories(plot_type)
+    cli = CLI(input, output, title, plot_type, series, palette,
+        index, buffer, sync_with_source)
+    cli.run()
 
-    if palette:
-        print ("Sorry, custom palettes not supported yet, coming soon!")
 
-    # define charts init parameters specified from cmd line and create chart
-    args = get_chart_params(title, output)
-    chart = create_chart(series, source, index, factories, **args)
+class CLI(object):
+    def __init__(self, input, output, title, plot_type, series, palette,
+                 index, buffer, sync_with_source):
+        self.input = input
+        self.series = series
+        self.index = index
+        self.last_byte = -1
+        self.sync_with_source = sync_with_source
 
-    try:
-        chart.show()
-    except TypeError:
-        if not series:
-            series_list = ', '.join(chart.values.keys())
-            print(ERR_MSG_TEMPL % series_list)
-            raise
+        self.source = self.get_input(input, buffer)
+        # get the charts specified by the user
+        self.factories = create_chart_factories(plot_type)
 
-    if sync_with_source:
-        print("\nanimating... press ctrl-C to stop")
-        while True:
-            try:
-                source = get_input(input, buffer)
+        if palette:
+            print ("Sorry, custom palettes not supported yet, coming soon!")
 
-            except ValueError:
-                print("OOOPS, error!")
+        # define charts init parameters specified from cmd line and create chart
+        self.chart_args = get_chart_params(title, output)
 
-            _chart = create_chart(series, source, index, factories, **args)
-            _chart._setup_show()
-            _chart._prepare_show()
-            _chart._show_teardown()
-            chart.source.data = _chart.source.data
-            chart.chart.session.store_objects(chart.source)
-            time.sleep(0.5)
+    def run(self):
+        try:
+            self.chart = create_chart(
+                self.series, self.source, self.index, self.factories, **self.chart_args
+            )
+            self.chart.show()
+
+            self.has_ranged_x_axis = 'ranged_x_axis' in self.source.columns
+            self.columns = [c for c in self.source.columns if c != 'ranged_x_axis']
+
+        except TypeError:
+            if not self.series:
+                series_list = ', '.join(self.chart.values.keys())
+                print(ERR_MSG_TEMPL % series_list)
+                raise
+
+        if self.sync_with_source:
+            print("animating... press ctrl-C to stop")
+            keep_source_input_sync(self.input, self.update_source, self.last_byte)
+
+    def update_source(self, new_source):
+        ns = pd.read_csv(StringIO(new_source), names=self.columns)
+        len_source = len(self.source)
+
+        if self.has_ranged_x_axis:
+            ns['ranged_x_axis'] = [len_source]
+            self.index = 'ranged_x_axis'
+
+        ns.index = [len_source]
+        self.source = pd.concat([self.source, ns])
+
+        _c = create_chart(self.series, ns, self.index, self.factories, **self.chart_args)
+        _c._setup_show()
+        _c._prepare_show()
+        _c._show_teardown()
+
+        for k, v in _c.source.data.items():
+            self.chart.source.data[k] = list(self.chart.source.data[k]) + list(v)
+
+        chart = self.chart.chart
+        plot = chart.plot
+        plot.y_range.end = max(
+            plot.y_range.end, _c.chart.plot.y_range.end
+        )
+        plot.y_range.start = min(
+            plot.y_range.start, _c.chart.plot.y_range.start
+        )
+        chart.session.store_objects(self.chart.source)
+        chart.session.store_objects(plot)
+
+    def get_input(self, filepath, buffer):
+        """Parse received input options. If buffer is not false (=='f') if
+        gets input data from input buffer othewise opens file specified in
+        sourcefilename,
+
+        Args:
+            filepath (str): path to the file to read from to retrieve data
+            buffer (str): if == 't' reads data from input buffer
+        """
+
+        if buffer != 'f':
+            filepath = StringIO(sys.stdin.read())
+        elif filepath is None:
+            msg = "No Input! Please specify --source_filename or --buffer t"
+            raise IOError(msg)
+        else:
+            if filepath.lower().startswith('http'):
+                # Create a request for the given URL.
+                request = urllib2.Request(filepath)
+                data = get_data_from_url(request)
+                self.last_byte = len(data)
+
+            else:
+                filepath = open(filepath, 'r').read()
+                self.last_byte = len(filepath)
+                filepath = StringIO(filepath)
+
+        source = pd.read_csv(filepath)
+        return source
 
 def create_chart(series, source, index, factories, **args):
     """Create charts instances from types specified in factories using
