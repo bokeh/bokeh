@@ -1,10 +1,13 @@
 from __future__ import print_function
 
 import time
-import numpy as np
-from urllib.request import Request
+try:
+    import urllib.request as urllib2
+except ImportError:
+    import urllib2
 from six.moves import cStringIO as StringIO
 import pandas as pd
+import numpy as np
 import click
 
 from .help_messages import *
@@ -193,7 +196,7 @@ class CLI(object):
         else:
             if filepath.lower().startswith('http'):
                 # Create a request for the given URL.
-                request = Request(filepath)
+                request = urllib2.Request(filepath)
                 data = get_data_from_url(request)
                 self.last_byte = len(data)
 
