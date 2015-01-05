@@ -23,7 +23,7 @@ define [
 
     _doubletap: (e)->
       append = e.srcEvent.shiftKey ? false
-      @_select(@data.vx, @data.vy, append)
+      @_select(@data.vx, @data.vy, true, append)
 
       @_clear_data()
 
@@ -49,7 +49,7 @@ define [
       new_data.vy = _.clone(@data.vy)
       overlay.set('data', new_data)
 
-    _select: (vx, vy, append) ->
+    _select: (vx, vy, final, append) ->
       geometry = {
         type: 'poly'
         vx: vx
@@ -59,9 +59,9 @@ define [
       for r in @mget('renderers')
         ds = r.get('data_source')
         sm = ds.get('selection_manager')
-        sm.select(@, @plot_view.renderers[r.id], geometry, true, append)
+        sm.select(@, @plot_view.renderers[r.id], geometry, final, append)
 
-      @_save_geometry(geometry, true, append)
+      @_save_geometry(geometry, final, append)
 
       return null
 
