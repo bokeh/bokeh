@@ -28,21 +28,23 @@ lasso_select_tool = p.select(dict(type=LassoSelectTool))
 lasso_select_tool.select_every_mousemove = False
 
 # create the horizontal historgram
-hist, hedges = np.histogram(x, bins=20)
+hhist, hedges = np.histogram(x, bins=20)
 
 ph = figure(toolbar_location=None, plot_width=p.plot_width, plot_height=200, x_range=p.x_range, title=None)
-ph.quad(bottom=0, left=hedges[:-1], right=hedges[1:], top=hist, color="#3A5785", alpha=0.6, line_color=None)
-ph.quad(bottom=0, left=hedges[:-1], right=hedges[1:], top=hist, color="white", alpha=0.6, line_color="#3A5785", name="hhist")
+ph.quad(bottom=0, left=hedges[:-1], right=hedges[1:], top=hhist, color="white", line_color="#3A5785")
+ph.quad(bottom=0, left=hedges[:-1], right=hedges[1:], top=[0]*(len(hedges)-1), color="#3A5785", alpha=0.6, line_color=None, name="hhist")
+ph.xgrid.grid_line_color = None
 
 renderer = ph.select(dict(name="hhist"))
 ph_source = renderer[0].data_source
 
 # create the vertical historgram
-hist, vedges = np.histogram(y, bins=20)
+vhist, vedges = np.histogram(y, bins=20)
 
 pv = figure(toolbar_location=None, plot_width=200, plot_height=p.plot_height, y_range=p.y_range, title=None)
-pv.quad(left=0, bottom=vedges[:-1], top=vedges[1:], right=hist, color="#3A5785", alpha=0.6, line_color=None)
-pv.quad(left=0, bottom=vedges[:-1], top=vedges[1:], right=hist, color="white", alpha=0.6, line_color="#3A5785", name="vhist")
+pv.quad(left=0, bottom=vedges[:-1], top=vedges[1:], right=vhist, color="white", line_color="#3A5785")
+pv.quad(left=0, bottom=vedges[:-1], top=vedges[1:], right=[0]*(len(vedges)-1), color="#3A5785", alpha=0.6, line_color=None, name="vhist")
+pv.ygrid.grid_line_color = None
 
 renderer = pv.select(dict(name="vhist"))
 pv_source = renderer[0].data_source
@@ -53,18 +55,14 @@ pfill = figure(toolbar_location=None, plot_width=200, plot_height=200)
 # set up callbacks
 def on_selection_change(obj, attr, old, new):
     inds = np.array(new)
-    if len(inds) == 0:
-        hhist, new_hedges = np.histogram(x, bins=hedges)
-        vhist, new_vedges = np.histogram(y, bins=vedges)
+    if len(inds) == 0 or len(inds) == len(x):
+        hhist = [0]*(len(hedges)-1)
+        vhist = [0]*(len(vedges)-1)
     else:
-        hhist, new_hedges = np.histogram(x[inds], bins=hedges)
-        vhist, new_vedges = np.histogram(y[inds], bins=vedges)
-    #ph_source.data["left"] = hedges[:-1]
-    #ph_source.data["right"] = hedges[1:]
-    ph_source.data["top"] = hhist
+        hhist, _ = np.histogram(x[inds], bins=hedges)
+        vhist, _ = np.histogram(y[inds], bins=vedges)
 
-    #pv_source.data["bottom"] = vedges[:-1]
-    #pv_source.data["top"] = vedges[1:]
+    ph_source.data["top"] = hhist
     pv_source.data["right"] = vhist
 
     cursession().store_objects(ph_source, pv_source)
