@@ -43,11 +43,14 @@ define [
       new_data.vy = _.clone(@data.vy)
       overlay.set('data', new_data)
 
-      append = e.srcEvent.shiftKey ? false
-      @_select(@data.vx, @data.vy, append)
+      if @mget('select_every_mousemove')
+        append = e.srcEvent.shiftKey ? false
+        @_select(@data.vx, @data.vy, false, append)
 
     _pan_end: (e) ->
       @_clear_overlay()
+      append = e.srcEvent.shiftKey ? false
+      @_select(@data.vx, @data.vy, true, append)
 
     _clear_overlay: () ->
       @mget('overlay').set('data', null)
