@@ -3,8 +3,8 @@
 
 import numpy as np
 
-from bokeh.models import BoxSelectTool, HBox, LassoSelectTool, Paragraph, VBox
-from bokeh.plotting import curdoc, cursession, figure, output_server, show
+from bokeh.models import BoxSelectTool, LassoSelectTool, Paragraph
+from bokeh.plotting import curdoc, cursession, figure, output_server, show, vbox, hbox
 
 N = 1000
 
@@ -84,7 +84,7 @@ def on_selection_change(obj, attr, old, new):
 
 scatter_ds.on_change('selected', on_selection_change)
 
-layout = VBox(HBox(p, pv), HBox(ph, Paragraph()))
-show(layout) # open a browser
+layout = vbox(hbox(p, pv), hbox(ph, Paragraph()))
+show(layout)
 
 cursession().poll_document(curdoc(), 0.05)
