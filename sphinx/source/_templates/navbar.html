@@ -12,7 +12,7 @@
           <span class="icon-bar"></span>
         </button>
 
-        <a class="logo"> <img height="32" width="32" src="/_static/bokeh-transparent.png" /></a>
+        <a class="logo"> <img height="32" width="32" src="{{pathto("_static/bokeh-transparent.png", 1)}}" /></a>
         <a class="navbar-brand" href="{{ pathto(master_doc) }}">{% if theme_navbar_title -%}{{ theme_navbar_title|e }}{%- else -%}{{ project|e }}{%- endif -%}</a>
         <span class="navbar-text navbar-version pull-left"><b>{{ version|e }}</b></span>
       </div>

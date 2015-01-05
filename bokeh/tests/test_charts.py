@@ -729,6 +729,35 @@ class TestHistogram(unittest.TestCase):
                 key = key.replace('lognormal', '1').replace('normal', '0')
                 assert_array_almost_equal(hm.data[key], expected_v, decimal=2)
 
+    @patch('bokeh.charts.histogram.np.histogram', return_value=('a', 'b'))
+    def test_histogram_params(self, histogram_mock):
+        inputs = [[5, 0, 0.5, True], [3, 1, 0, False]]
+        normal = [1, 2, 3, 1]
+        lognormal = [5, 4, 4, 1]
+        xyvalues = OrderedDict()
+        xyvalues['normal'] = normal
+        xyvalues['lognormal'] = lognormal
+
+        for (bins, mu, sigma, dens) in inputs:
+            histogram_mock.reset_mock()
+            kws = dict(bins=bins, mu=mu, sigma=sigma, density=dens)
+            hm = create_chart(Histogram, xyvalues, compute_values=False, **kws)
+
+            # ensure all class attributes have been correctly set
+            for key, value in kws.items():
+                self.assertEqual(getattr(hm, key), value)
+
+            hm.get_data()
+            # ensure we are calling numpy.histogram with the right args
+            calls = histogram_mock.call_args_list
+            assert_array_equal(calls[0][0][0], np.array([1, 2, 3, 1]))
+            assert_array_equal(calls[1][0][0], np.array([5, 4, 4, 1]))
+            self.assertEqual(calls[0][1]['bins'], bins)
+            self.assertEqual(calls[1][1]['bins'], bins)
+            self.assertEqual(calls[0][1]['density'], dens)
+            self.assertEqual(calls[1][1]['density'], dens)
+
+
 class TestLine(unittest.TestCase):
     def test_supported_input(self):
         xyvalues = OrderedDict()
@@ -850,35 +879,43 @@ class TestDonut(unittest.TestCase):
         xyvalues['python'] = [2., 5., 3.]
         xyvalues['pypy'] = [4., 1., 4.]
         xyvalues['jython'] = [6., 4., 3.]
-        cat = ["sets", "dicts", "odicts"]
-        start = [0, 2.3561944901923448, 4.3196898986859651]
-        end = [2.3561944901923448, 4.3196898986859651, 6.2831853071795862]
-        colors = ['#f22c40', '#5ab738', '#407ee7']
 
-        # TODO: Chart is not working with DataFrames anymore.
-        #       Fix it and add test case for , pd.DataFrame(xyvalues)
-        for i, _xy in enumerate([xyvalues]):
-            _chart = create_chart(Donut, _xy, cat=cat)
+        xyvalues_int = OrderedDict()
+        for k, values in xyvalues.items():
+            xyvalues_int[k] = [int(val) for val in values]
 
-            self.assertEqual(_chart.groups, cat)
-            assert_array_equal(_chart.data['start'], start)
-            assert_array_equal(_chart.data['end'], end)
-            assert_array_equal(_chart.data['colors'], colors)
+        for xyvalues in [xyvalues, xyvalues_int]:
+            cat = ["sets", "dicts", "odicts"]
+            start = [0, 2.3561944901923448, 4.3196898986859651]
+            end = [2.3561944901923448, 4.3196898986859651, 6.2831853071795862]
+            colors = ['#f22c40', '#5ab738', '#407ee7']
 
-            # TODO: Test for external ring source values is missing as it needs
-            #       some refactoring to expose those values calculation
+            # TODO: Chart is not working with DataFrames anymore.
+            #       Fix it and add test case for , pd.DataFrame(xyvalues)
+            for i, _xy in enumerate([xyvalues]):
+                _chart = create_chart(Donut, _xy, cat=cat)
+
+                self.assertEqual(_chart.groups, cat)
+                assert_array_equal(_chart.data['start'], start)
+                assert_array_equal(_chart.data['end'], end)
+                assert_array_equal(_chart.data['colors'], colors)
+
+                # TODO: Test for external ring source values is missing as it needs
+                #       some refactoring to expose those values calculation
 
         lvalues = [[2., 5., 3.], [4., 1., 4.], [6., 4., 3.]]
-        for i, _xy in enumerate([lvalues, np.array(lvalues)]):
-            _chart = create_chart(Donut, _xy, cat=cat)
+        lvalues_int = [[2, 5, 3], [4, 1, 4], [6, 4, 3]]
+        for lvalues in [lvalues, lvalues_int]:
+            for i, _xy in enumerate([lvalues, np.array(lvalues)]):
+                _chart = create_chart(Donut, _xy, cat=cat)
 
-            self.assertEqual(_chart.groups, cat)
-            assert_array_equal(_chart.data['start'], start)
-            assert_array_equal(_chart.data['end'], end)
-            assert_array_equal(_chart.data['colors'], colors)
+                self.assertEqual(_chart.groups, cat)
+                assert_array_equal(_chart.data['start'], start)
+                assert_array_equal(_chart.data['end'], end)
+                assert_array_equal(_chart.data['colors'], colors)
 
-            # TODO: Test for external ring source values is missing as it needs
-            #       some refactoring to expose those values calculation
+                # TODO: Test for external ring source values is missing as it needs
+                #       some refactoring to expose those values calculation
 
 
 class TestDataAdapter(unittest.TestCase):
