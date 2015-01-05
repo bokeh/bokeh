@@ -65,6 +65,8 @@ def on_selection_change(obj, attr, old, new):
     if len(inds) == 0 or len(inds) == len(x):
         hhist = hzeros
         vhist = vzeros
+        hhist2 = hzeros
+        vhist2 = vzeros
     else:
         hhist, _ = np.histogram(x[inds], bins=hedges)
         vhist, _ = np.histogram(y[inds], bins=vedges)
