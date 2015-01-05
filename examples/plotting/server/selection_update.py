@@ -4,7 +4,7 @@
 import numpy as np
 
 from bokeh.models import BoxSelectTool, HBox, LassoSelectTool, Paragraph, VBox
-from bokeh.plotting import curdoc, cursession, figure, output_server, show, VBox
+from bokeh.plotting import curdoc, cursession, figure, output_server, show
 
 N = 1000
 
@@ -13,10 +13,10 @@ y = np.random.normal(size=N) * 100
 
 output_server("selection_update")
 
-TOOLS="box_select,lasso_select"
+TOOLS="pan,wheel_zoom,box_select,lasso_select"
 
 # create the scatter plot
-p = figure(tools=TOOLS, plot_width=600, plot_height=600)
+p = figure(tools=TOOLS, plot_width=600, plot_height=600, title=None, min_border=10, min_border_left=50)
 p.scatter(x, y, size=3, color="#3A5785", alpha=0.6, name="scatter")
 
 renderer = p.select(dict(name="scatter"))
@@ -29,10 +29,11 @@ lasso_select_tool.select_every_mousemove = False
 
 # create the horizontal historgram
 hhist, hedges = np.histogram(x, bins=20)
+hzeros = [0]*(len(hedges)-1)
 
-ph = figure(toolbar_location=None, plot_width=p.plot_width, plot_height=200, x_range=p.x_range, title=None)
+ph = figure(toolbar_location=None, plot_width=p.plot_width, plot_height=200, x_range=p.x_range, title=None, min_border=10, min_border_left=50)
 ph.quad(bottom=0, left=hedges[:-1], right=hedges[1:], top=hhist, color="white", line_color="#3A5785")
-ph.quad(bottom=0, left=hedges[:-1], right=hedges[1:], top=[0]*(len(hedges)-1), color="#3A5785", alpha=0.6, line_color=None, name="hhist")
+ph.quad(bottom=0, left=hedges[:-1], right=hedges[1:], top=hzeros, color="#3A5785", alpha=0.6, line_color=None, name="hhist")
 ph.xgrid.grid_line_color = None
 
 renderer = ph.select(dict(name="hhist"))
@@ -40,24 +41,25 @@ ph_source = renderer[0].data_source
 
 # create the vertical historgram
 vhist, vedges = np.histogram(y, bins=20)
+vzeros = [0]*(len(vedges)-1)
 
-pv = figure(toolbar_location=None, plot_width=200, plot_height=p.plot_height, y_range=p.y_range, title=None)
+# need to adjust for toolbar height, unfortunately
+th = 42
+
+pv = figure(toolbar_location=None, plot_width=200, plot_height=p.plot_height+th-10, y_range=p.y_range, title=None, min_border=10, min_border_top=th)
 pv.quad(left=0, bottom=vedges[:-1], top=vedges[1:], right=vhist, color="white", line_color="#3A5785")
-pv.quad(left=0, bottom=vedges[:-1], top=vedges[1:], right=[0]*(len(vedges)-1), color="#3A5785", alpha=0.6, line_color=None, name="vhist")
+pv.quad(left=0, bottom=vedges[:-1], top=vedges[1:], right=vzeros, color="#3A5785", alpha=0.6, line_color=None, name="vhist")
 pv.ygrid.grid_line_color = None
 
 renderer = pv.select(dict(name="vhist"))
 pv_source = renderer[0].data_source
 
-# TODO (bev) hopefully replace wit Paragraph()
-pfill = figure(toolbar_location=None, plot_width=200, plot_height=200)
-
 # set up callbacks
 def on_selection_change(obj, attr, old, new):
     inds = np.array(new)
     if len(inds) == 0 or len(inds) == len(x):
-        hhist = [0]*(len(hedges)-1)
-        vhist = [0]*(len(vedges)-1)
+        hhist = hzeros
+        vhist = vzeros
     else:
         hhist, _ = np.histogram(x[inds], bins=hedges)
         vhist, _ = np.histogram(y[inds], bins=vedges)
@@ -69,7 +71,7 @@ def on_selection_change(obj, attr, old, new):
 
 scatter_ds.on_change('selected', on_selection_change)
 
-layout = VBox(HBox(p, pv), HBox(ph, pfill))
+layout = VBox(HBox(p, pv), HBox(ph, Paragraph()))
 show(layout) # open a browser
 
 cursession().poll_document(curdoc(), 0.05)
