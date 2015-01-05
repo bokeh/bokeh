@@ -1,0 +1,1 @@
+python ../../bokeh-cli --title "My Nice Plot" --series "bid" --plot_type "timeseries" --input "http://hopey.netfonds.no/posdump.php?date=20141231&paper=AAPL.O&csv_format=csv" --index time --output server://clistockdemo1 --sync_with_source t

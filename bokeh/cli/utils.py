@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import sys
 from collections import OrderedDict
 from six.moves import cStringIO as StringIO
@@ -9,8 +11,7 @@ import os
 import time
 import urllib
 import sys
-import urllib2
-
+from urllib.request import Request, urlopen
 
 def get_input(filepath, buffer):
     """Parse received input options. If buffer is not false (=='f') if
@@ -44,7 +45,7 @@ def keep_source_input_sync(filepath, callback, start=0):
         # Create a request for the given URL.
 
         while True:
-            request = urllib2.Request(filepath)
+            request = Request(filepath)
             data = get_data_from_url(request, start)
 
             f = io.BytesIO(data)
@@ -81,10 +82,10 @@ def get_data_from_url(request, start = 0, length = 0):
     elif start:
         request.add_header("Range", "bytes=%s-" % start)
 
-    response = urllib2.urlopen(request)
+    response = urlopen(request)
     # If a content-range header is present, partial retrieval worked.
     if "content-range" in response.headers:
-        print "Partial retrieval successful."
+        print("Partial retrieval successful.")
 
         # The header contains the string 'bytes', followed by a space, then the
         # range in the format 'start-end', followed by a slash and then the total
@@ -94,9 +95,9 @@ def get_data_from_url(request, start = 0, length = 0):
         ranged = True
         # Print a message giving the range information.
         if total == '*':
-            print "Bytes %s of an unknown total were retrieved." % range
+            print("Bytes %s of an unknown total were retrieved." % range)
         else:
-            print "Bytes %s of a total of %s were retrieved." % (range, total)
+            print("Bytes %s of a total of %s were retrieved." % (range, total))
 
     # # No header, so partial retrieval was unsuccessful.
     # else:
