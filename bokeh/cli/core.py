@@ -1,11 +1,12 @@
 from __future__ import print_function
 
+import sys
 from six.moves.urllib import request as urllib2
 from six.moves import cStringIO as StringIO
 import pandas as pd
 import click
 
-from .help_messages import *
+from . import help_messages as hm
 from .utils import (get_chart_params, get_charts_mapping,
                     get_data_series, keep_source_input_sync, get_data_from_url)
 from .. import charts as bc
@@ -14,14 +15,14 @@ from .. import charts as bc
 CHARTS_MAP = get_charts_mapping()
 
 @click.command()
-@click.option('--input', 'input_source', default=None,help=HELP_INPUT)
-@click.option('--output', default='file://cli_output.html', help=HELP_OUTPUT)
+@click.option('--input', 'input_source', default=None,help=hm.HELP_INPUT)
+@click.option('--output', default='file://cli_output.html', help=hm.HELP_OUTPUT)
 @click.option('--title', default='Bokeh CLI')
 @click.option('--plot_type', default='Line')
-@click.option('--index', default='', help=HELP_INDEX)
-@click.option('--series', default='', help=HELP_SERIES)
+@click.option('--index', default='', help=hm.HELP_INDEX)
+@click.option('--series', default='', help=hm.HELP_SERIES)
 @click.option('--palette')
-@click.option('--buffer', default='f', help=HELP_BUFFER)
+@click.option('--buffer', default='f', help=hm.HELP_BUFFER)
 @click.option('--sync_with_source', default=False)
 def cli(input_source, output, title, plot_type, series, palette,
         index, buffer, sync_with_source):
@@ -135,7 +136,7 @@ class CLI(object):
         except TypeError:
             if not self.series:
                 series_list = ', '.join(self.chart.values.keys())
-                print(ERR_MSG_TEMPL % series_list)
+                print(hm.ERR_MSG_TEMPL % series_list)
                 raise
 
         if self.sync_with_source:

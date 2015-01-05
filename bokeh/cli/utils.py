@@ -5,7 +5,7 @@ from six.moves.urllib import request as urllib2
 import io
 import pandas as pd
 from .. import charts
-from .help_messages import *
+from . import help_messages as hm
 
 
 def keep_source_input_sync(filepath, callback, start=0):
@@ -190,7 +190,7 @@ def get_data_series(series, source, index):
         try:
             data_series[colname] = source[colname]
         except KeyError:
-            raise KeyError(ERR_MSG_SERIES_NOT_FOUND % (colname, source.keys()))
+            raise KeyError(hm.ERR_MSG_SERIES_NOT_FOUND % (colname, source.keys()))
 
     return data_series
 
