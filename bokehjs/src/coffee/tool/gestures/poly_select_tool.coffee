@@ -22,11 +22,14 @@ define [
         @_clear_data()
 
     _doubletap: (e)->
+      append = e.srcEvent.shiftKey ? false
+      @_select(@data.vx, @data.vy, append)
+
       @_clear_data()
 
     _clear_data: () ->
-        @data = null
-        @mget('overlay').set('data', null)
+      @data = null
+      @mget('overlay').set('data', null)
 
     _tap: (e) ->
       canvas = @plot_view.canvas
@@ -45,9 +48,6 @@ define [
       new_data.vx = _.clone(@data.vx)
       new_data.vy = _.clone(@data.vy)
       overlay.set('data', new_data)
-
-      append = e.srcEvent.shiftKey ? false
-      @_select(@data.vx, @data.vy, append)
 
     _select: (vx, vy, append) ->
       geometry = {
