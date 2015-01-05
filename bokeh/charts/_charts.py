@@ -19,8 +19,10 @@ the generation of several outputs (file, server, notebook).
 #-----------------------------------------------------------------------------
 
 import itertools
+import warnings
 from collections import OrderedDict
-
+from six import string_types
+import re
 import numpy as np
 
 from ..models.glyphs import (Asterisk, Circle, CircleCross, CircleX, Cross, Diamond,
@@ -37,6 +39,7 @@ from ..embed import file_html
 from ..resources import INLINE
 from ..browserlib import view
 from ..utils import publish_display_data
+from ..plotting_helpers import _tool_from_string
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -144,17 +147,44 @@ class Chart(object):
         if ygrid:
             self.make_grid(1, yaxis.ticker)
 
-        # Add tools
+        # Add tools if supposed to
         if self.tools:
+            # need to add tool to all underlying plots
             for plot in self._plots:
+                removed_tools = []
+                # only add tools if the underlying plot hasn't been customized
+                # by some user injection
                 if not plot.tools:
-                    if not self.categorical:
-                        pan = PanTool()
-                        wheelzoom = WheelZoomTool()
-                        reset = ResetTool()
-                        plot.add_tools(pan, wheelzoom, reset)
-                    previewsave = PreviewSaveTool()
-                    plot.add_tools(previewsave)
+                    tools = []
+                    # if tools have been specified as string let's reuse
+                    # plotting machinery to create the related tools
+                    if isinstance(self.tools, string_types):
+                        for tool in re.split(r"\s*,\s*", self.tools.strip()):
+                            # re.split will return empty strings; ignore them.
+                            if tool == "":
+                                continue
+
+                            if self.categorical and ("pan" in tool or "zoom" in tool):
+                                removed_tools.append(tool)
+                                continue
+
+                            tool = _tool_from_string(tool)
+                            tools.append(tool)
+                    # otherwise let's create the default tools
+                    else:
+                        if not self.categorical:
+                            tools = [PanTool(),  WheelZoomTool(), ResetTool()]
+                        tools.append(PreviewSaveTool())
+
+                    plot.add_tools(*tools)
+
+            # if any tools have been removed because not supported by a
+            # specific chart type we raise a warning
+            if removed_tools:
+                warnings.warn(
+                    "categorical plots do not support pan and zoom operations.\n"
+                    "Removing tool(s): %s" % ', '.join(removed_tools)
+                )
 
     def add_data_plot(self, x_range, y_range):
         """Add range data to the initialized empty attributes.

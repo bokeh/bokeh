@@ -26,7 +26,10 @@ for i in g.groups.keys():
 #xyvalues = xyvalues.values()
 #xyvalues = np.array(xyvalues.values())
 
-scatter = Scatter(xyvalues, filename="iris_scatter.html",
-                  ylabel='petal_width',  facet=False)
+TOOLS="resize,crosshair,pan,wheel_zoom,box_zoom,reset,tap,previewsave,box_select,poly_select,lasso_select"
+scatter = Scatter(
+    xyvalues, filename="iris_scatter.html", tools=TOOLS, ylabel='petal_width',
+    facet=False
+)
 scatter.title("iris dataset").legend("top_left")
 scatter.width(600).height(400).show()

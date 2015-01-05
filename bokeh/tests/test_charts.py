@@ -26,8 +26,9 @@ import pandas as pd
 from ..models.glyphs import Circle
 from ..models import (ColumnDataSource, Grid, GlyphRenderer, Legend, LinearAxis,
                       PanTool, Range1d, Ticker, Text, Wedge, AnnularWedge,
-                      FactorRange, DataRange1d)
-
+                      FactorRange, DataRange1d, BoxZoomTool, LassoSelectTool,
+                      PanTool, PreviewSaveTool, ResetTool, ResizeTool,
+                      WheelZoomTool)
 from ..document import Document
 
 from ..charts import (Chart, ChartObject, DataAdapter, Area, Bar, Dot, Donut,
@@ -130,6 +131,52 @@ class TestChart(unittest.TestCase):
         grid = self.chart.make_grid(0, axis.ticker)
         self.assertEqual(grid.dimension, 0)
         self.assertIsInstance(grid.ticker, Ticker)
+
+    def test_chart_tools(self):
+        base_args = dict(
+            title="title", xlabel="xlabel", ylabel="ylabel",
+            legend="top_left", xscale="linear", yscale="linear",
+            width=800, height=600, filename=False, server=False, notebook=False
+        )
+        expected = [
+            [PanTool,  WheelZoomTool, ResetTool, PreviewSaveTool],
+            [],
+            [ResizeTool, PanTool,  BoxZoomTool, ResetTool, LassoSelectTool],
+        ]
+        scenarios = zip(
+                [True, False, "resize,pan,box_zoom,reset,lasso_select"],
+                expected
+        )
+        for tools, expected_tools in scenarios:
+            base_args['tools'] = tools
+            chart = Chart(**base_args)
+            chart.start_plot(xgrid=True, ygrid=True)
+            for i, _type in enumerate(expected_tools):
+                self.assertIsInstance(chart.plot.tools[i], _type)
+                self.assertEqual(len(chart.plot.tools), len(expected_tools))
+
+        # need to change the expected tools because categorical scales
+        # automatically removes pan and zoom tools
+        expected = [
+            [PreviewSaveTool],
+            [],
+            [ResizeTool, ResetTool, LassoSelectTool],
+        ]
+        scenarios = zip(
+                [True, False, "resize,pan,box_zoom,reset,lasso_select"],
+                expected
+        )
+        for scale in ['xscale', 'yscale']:
+            base_args[scale] = 'categorical'
+            for i, (tools, expected_tools) in enumerate(scenarios):
+                base_args['tools'] = tools
+                chart = Chart(**base_args)
+                chart.start_plot(xgrid=True, ygrid=True)
+
+                for i, _type in enumerate(expected_tools):
+                    self.assertIsInstance(chart.plot.tools[i], _type)
+                    self.assertEqual(len(chart.plot.tools), len(expected_tools))
+
 
     @patch('bokeh.charts._charts.Chart._append_glyph')
     def test_make_segment(self, mock_append_glyph):
