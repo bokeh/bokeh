@@ -1,17 +1,12 @@
 from __future__ import print_function
 
-import time
-try:
-    import urllib.request as urllib2
-except ImportError:
-    import urllib2
+from six.moves.urllib import request as urllib2
 from six.moves import cStringIO as StringIO
 import pandas as pd
-import numpy as np
 import click
 
 from .help_messages import *
-from .utils import (get_input, get_chart_params, get_charts_mapping,
+from .utils import (get_chart_params, get_charts_mapping,
                     get_data_series, keep_source_input_sync, get_data_from_url)
 from .. import charts as bc
 
@@ -42,8 +37,10 @@ def cli(input, output, title, plot_type, series, palette,
 
     >> python bokeh-cli.py --help
     """
-    cli = CLI(input, output, title, plot_type, series, palette,
-        index, buffer, sync_with_source)
+    cli = CLI(
+        input, output, title, plot_type, series, palette, index, buffer,
+        sync_with_source
+    )
     cli.run()
 
 
@@ -53,10 +50,10 @@ class CLI(object):
     extends it with functionality.
 
     """
-    def __init__(self, input, output, title, plot_type, series, palette,
+    def __init__(self, input_source, output, title, plot_type, series, palette,
                  index, buffer, sync_with_source):
         """Args:
-        input (str): path to the series data file (i.e.:
+        input_source (str): path to the series data file (i.e.:
             /source/to/my/data.csv)
             NOTE: this can be either a path to a local file or an url
         output (str, optional): Selects the plotting output, which
@@ -106,13 +103,13 @@ class CLI(object):
             source (obj): datasource object for the created chart.
             chart (obj): created chart object.
         """
-        self.input = input
+        self.input = input_source
         self.series = series
         self.index = index
         self.last_byte = -1
         self.sync_with_source = sync_with_source
 
-        self.source = self.get_input(input, buffer)
+        self.source = self.get_input(input_source, buffer)
         # get the charts specified by the user
         self.factories = create_chart_factories(plot_type)
 
@@ -146,8 +143,15 @@ class CLI(object):
             keep_source_input_sync(self.input, self.update_source, self.last_byte)
 
     def update_source(self, new_source):
-        """ Start the CLI logic creating the input source, data conversions,
-        chart instances to show and all other niceties provided by CLI
+        """ Update self.chart source with the new data retrieved from
+         new_source. It is done by parsing the new source line,
+         trasforming it to data to be appended to self.chart source
+         updating it on chart.session and actually updating chart.session
+         objects.
+
+        Args:
+            new_source (str): string that contains the new source row to
+                read to the current chart source.
         """
         ns = pd.read_csv(StringIO(new_source), names=self.columns)
         len_source = len(self.source)
@@ -186,6 +190,9 @@ class CLI(object):
         Args:
             filepath (str): path to the file to read from to retrieve data
             buffer (str): if == 't' reads data from input buffer
+
+        Returns:
+            string read from filepath/buffer
         """
 
         if buffer != 'f':
@@ -207,6 +214,7 @@ class CLI(object):
 
         source = pd.read_csv(filepath)
         return source
+
 
 def create_chart(series, source, index, factories, **args):
     """Create charts instances from types specified in factories using
@@ -242,6 +250,7 @@ def create_chart(series, source, index, factories, **args):
         chart.index = index
     return chart
 
+
 def create_chart_factories(chart_types):
     """Receive the chart type(s) specified by the user and build a
     list of the their related functions.
@@ -256,6 +265,7 @@ def create_chart_factories(chart_types):
       [Line, Step]
     """
     return [get_chart(name) for name in chart_types.split(',') if name]
+
 
 def get_chart(class_name):
     """Return the bokeh class specified in class_name.

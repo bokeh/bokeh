@@ -1,43 +1,30 @@
 from __future__ import print_function
 
-import sys
 from collections import OrderedDict
-from six.moves import cStringIO as StringIO
+from six.moves.urllib import request as urllib2
+import io
 import pandas as pd
 from .. import charts
 from .help_messages import *
-import io
-import sys
-try:
-    import urllib.request as urllib2
-except ImportError:
-    import urllib2
 
-
-def get_input(filepath, buffer):
-    """Parse received input options. If buffer is not false (=='f') if
-    gets input data from input buffer othewise opens file specified in
-    sourcefilename,
-
-    Args:
-        filepath (str): path to the file to read from to retrieve data
-        buffer (str): if == 't' reads data from input buffer
-    """
-    last_byte = -1
-    if buffer != 'f':
-        filepath = StringIO(sys.stdin.read())
-    elif filepath is None:
-        msg = "No Input! Please specify --source_filename or --buffer t"
-        raise IOError(msg)
-    else:
-        filepath = open(filepath, 'r').read()
-        last_byte = len(filepath)
-        filepath = StringIO(filepath)
-
-    source = pd.read_csv(filepath)
-    return source, last_byte
 
 def keep_source_input_sync(filepath, callback, start=0):
+    """ Monitor file at filepath checking for new lines (similar to
+    tail -f) and calls callback on every new line found.
+
+    Args:
+        filepath (str): path to the series data file (
+            i.e.: /source/to/my/data.csv)
+        callback (callable): function to be called with the a DataFrame
+            created from the new lines found from file at filepath
+            starting byte start
+        start (int): specifies where to start reading from the file at
+            filepath.
+            Default: 0
+
+    Returns:
+        DataFrame created from data read from filepath
+    """
     if filepath is None:
         msg = "No Input! Please specify --source_filename or --buffer t"
         raise IOError(msg)
@@ -75,7 +62,20 @@ def keep_source_input_sync(filepath, callback, start=0):
 # Reference:
 # - http://stackoverflow.com/questions/5209087/python-seek-in-http-response-stream
 # - http://stackoverflow.com/questions/1971240/python-seek-on-remote-file-using-http
-def get_data_from_url(request, start = 0, length = 0):
+def get_data_from_url(request, start=0, length=0):
+    """ Read from request after adding headers to retrieve data from byte
+    specified in start.
+
+    request (urllib2.Request): request object related to the data to read
+    start (int, optional): byte to start reading from.
+        Default: 0
+    length: length of the data range to read from start. If 0 it reads
+        until the end of the stream.
+        Default: 0
+
+    Returns:
+        String read from request
+    """
     ranged = False
     # Add the header to specify the range to download.
     if start and length:
@@ -93,7 +93,6 @@ def get_data_from_url(request, start = 0, length = 0):
         # size of the page (or an asterix if the total size is unknown). Lets get
         # the range and total size from this.
         range, total = response.headers['content-range'].split(' ')[-1].split('/')
-        ranged = True
         # Print a message giving the range information.
         if total == '*':
             print("Bytes %s of an unknown total were retrieved." % range)
@@ -103,10 +102,8 @@ def get_data_from_url(request, start = 0, length = 0):
     # # No header, so partial retrieval was unsuccessful.
     # else:
     #     print "Unable to use partial retrieval."
-
-    # And for good measure, lets check how much data we downloaded.
     data = response.read()
-    # print "Retrieved data size: %d bytes" % len(data)
+
     return data
 
 def parse_output_config(output):
@@ -121,6 +118,9 @@ def parse_output_config(output):
                 type_arg:
                     file_path if output_type is file
                     serve path if output_type is server
+
+    Returns:
+        dictionary containing the output arguments to pass to a chart object
     """
     output_type, output_options = output.split('://')
 
@@ -156,6 +156,10 @@ def get_chart_params(title, output):
             `file` (in that case type_arg specifies the file path) or
             `server` (in that case type_arg specify the server name).
 
+
+    Returns:
+        dictionary containing the arguments to pass to a chart object
+        related to title and output options
     """
     params = {'title': title}
     output_params = parse_output_config(output)
@@ -175,6 +179,9 @@ def get_data_series(series, source, index):
         source (DataFrame): pandas DataFrame with the data series to be
             plotted
         index (str): name of the series of source to be used as index.
+
+    Returns:
+        OrderedDict with the data series from source
     """
     series = define_series(series, source, index)
     # generate charts data
@@ -198,6 +205,9 @@ def define_series(series, source, index):
         source (DataFrame): pandas DataFrame with the data series to be
             plotted
         index (str): name of the series of source to be used as index.
+
+    Returns:
+        list of the names (as str) of the series except index
     """
     if not series:
         return [c for c in source.columns if c != index]
@@ -208,6 +218,9 @@ def define_series(series, source, index):
 def get_charts_mapping():
     """Return a dict with chart classes names (lower case) as keys and
     their related class as values.
+
+    Returns:
+        dict mapping chart classes names to chart classes
     """
     mapping = {}
     for (clsname, cls) in charts.__dict__.items():
