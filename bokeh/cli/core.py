@@ -16,16 +16,13 @@ from .. import charts as bc
 CHARTS_MAP = get_charts_mapping()
 
 @click.command()
-@click.option('--input', default=None,
-              help=HELP_INPUT)
-@click.option('--output', default='file://cli_output.html',
-    help=HELP_OUTPUT
-)
+@click.option('--input', default=None,help=HELP_INPUT)
+@click.option('--output', default='file://cli_output.html', help=HELP_OUTPUT)
 @click.option('--title', default='Bokeh CLI')
 @click.option('--plot_type', default='Line')
 @click.option('--index', default='', help=HELP_INDEX)
 @click.option('--series', default='', help=HELP_SERIES)
-@click.option('--palette')#, default="RdYlGn", help=help)
+@click.option('--palette')
 @click.option('--buffer', default='f', help=HELP_BUFFER)
 @click.option('--sync_with_source', default=False)
 def cli(input, output, title, plot_type, series, palette,
@@ -48,8 +45,64 @@ def cli(input, output, title, plot_type, series, palette,
 
 
 class CLI(object):
+    """This is the Bokeh Command Line Interface class and it is in
+    charge of providing a very high level access to bokeh charts and
+    extends it with functionality.
+
+    """
     def __init__(self, input, output, title, plot_type, series, palette,
                  index, buffer, sync_with_source):
+        """Args:
+        input (str): path to the series data file (i.e.:
+            /source/to/my/data.csv)
+            NOTE: this can be either a path to a local file or an url
+        output (str, optional): Selects the plotting output, which
+            could either be sent to an html file or a bokeh server
+            instance. Syntax convention for this option is as follows:
+            <output_type>://<type_arg>
+
+            where:
+              - output_type: 'file' or 'server'
+              - 'file' type options: path_to_output_file
+              - 'server' type options syntax: docname[@url][@name]
+
+            Defaults to: --output file://cli_output.html
+
+            Examples:
+                --output file://cli_output.html
+                --output file:///home/someuser/bokeh_rocks/cli_output.html
+                --output server://clidemo
+
+            Default: file://cli_output.html.
+        title (str, optional): the title of your chart.
+            Default: None.
+        plot_type (str, optional): charts classes to use to consume and
+            render the input data.
+            Default: Line.
+        series (str, optional): Name of the series from the input source
+            to include in the plot. If not specified all source series
+            will be included.
+            Defaults to None.
+        palette (str, optional): name of the colors palette to use.
+            Default: None.
+        index (str, optional): Name of the data series to be used as index
+            when plotting. By default the first series found on the input
+            file is taken
+            Default: None
+        buffer (str, optional): if is `t` reads data source as string from
+            input buffer using StringIO(sys.stdin.read()) instead of
+            reading from a file or an url.
+            Default: "f"
+        sync_with_source (bool, optional): if True keep the charts source
+            created on bokeh-server sync'ed with the source acting like
+            `tail -f`.
+            Default: False
+
+
+        Attributes:
+            source (obj): datasource object for the created chart.
+            chart (obj): created chart object.
+        """
         self.input = input
         self.series = series
         self.index = index
@@ -67,6 +120,9 @@ class CLI(object):
         self.chart_args = get_chart_params(title, output)
 
     def run(self):
+        """ Start the CLI logic creating the input source, data conversions,
+        chart instances to show and all other niceties provided by CLI
+        """
         try:
             self.chart = create_chart(
                 self.series, self.source, self.index, self.factories, **self.chart_args
@@ -87,6 +143,9 @@ class CLI(object):
             keep_source_input_sync(self.input, self.update_source, self.last_byte)
 
     def update_source(self, new_source):
+        """ Start the CLI logic creating the input source, data conversions,
+        chart instances to show and all other niceties provided by CLI
+        """
         ns = pd.read_csv(StringIO(new_source), names=self.columns)
         len_source = len(self.source)
 
