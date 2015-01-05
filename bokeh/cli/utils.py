@@ -7,11 +7,12 @@ import pandas as pd
 from .. import charts
 from .help_messages import *
 import io
-import os
-import time
-import urllib
 import sys
-from urllib.request import Request, urlopen
+try:
+    import urllib.request as urllib2
+except ImportError:
+    import urllib2
+
 
 def get_input(filepath, buffer):
     """Parse received input options. If buffer is not false (=='f') if
@@ -45,7 +46,7 @@ def keep_source_input_sync(filepath, callback, start=0):
         # Create a request for the given URL.
 
         while True:
-            request = Request(filepath)
+            request = urllib2.Request(filepath)
             data = get_data_from_url(request, start)
 
             f = io.BytesIO(data)
@@ -82,7 +83,7 @@ def get_data_from_url(request, start = 0, length = 0):
     elif start:
         request.add_header("Range", "bytes=%s-" % start)
 
-    response = urlopen(request)
+    response = urllib2.urlopen(request)
     # If a content-range header is present, partial retrieval worked.
     if "content-range" in response.headers:
         print("Partial retrieval successful.")
