@@ -384,7 +384,7 @@ def figure(**kwargs):
     This function accepts all plot style keyword parameters.
 
     Returns:
-        None
+       figure : a new :class:`Plot <bokeh.models.plots.Plot>`
 
     '''
     fig = Figure(**kwargs)
@@ -847,14 +847,14 @@ def gridplot(plot_arrangement, name=None, **kwargs):
     """ Generate a plot that arranges several subplots into a grid.
 
     Args:
-        plot_arrangement (list[:class:`Plot <bokeh.models.Plot>`]) : plots to arrange in a grid
+        plot_arrangement (nested list of Plots) : plots to arrange in a grid
         name (str) : name for this plot
         **kwargs: additional attributes to pass in to GridPlot() constructor
 
     .. note:: `plot_arrangement` can be nested, e.g [[p1, p2], [p3, p4]]
 
     Returns:
-        grid_plot: the current :class:`GridPlot <bokeh.models.GridPlot>`
+        grid_plot: a new :class:`GridPlot <bokeh.models.plots.GridPlot>`
     """
     grid = GridPlot(children=plot_arrangement, **kwargs)
     if name:
