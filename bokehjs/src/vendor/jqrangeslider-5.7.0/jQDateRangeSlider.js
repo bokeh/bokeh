@@ -74,7 +74,7 @@ define(["jquery", "./jQRangeSlider"], function($) {
 		_getFormatter: function(){
 			var formatter = this.options.formatter;
 
-			if (this.options.formatter === false || this.options.formatter === null){
+			if (this.options.formatter === false || this.options.formatter === null){
 				formatter = this._defaultFormatter;
 			}
 
