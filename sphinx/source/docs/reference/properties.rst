@@ -6,6 +6,8 @@
 Properties System
 =================
 
+.. _bokeh_dot_properties:
+
 ``bokeh.properties``
 --------------------
 
