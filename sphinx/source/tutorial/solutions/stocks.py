@@ -9,16 +9,16 @@ from bokeh.plotting import figure, output_file, show, VBox
 
 # Here is some code to read in some stock data from the Yahoo Finance API
 AAPL = pd.read_csv(
-    "http://ichart.yahoo.com/table.csv?s=AAPL&a=0&b=1&c=2000",
+    "http://ichart.yahoo.com/table.csv?s=AAPL&a=0&b=1&c=2000&d=0&e=1&f=2010",
     parse_dates=['Date'])
 GOOG = pd.read_csv(
-    "http://ichart.yahoo.com/table.csv?s=GOOG&a=0&b=1&c=2000",
+    "http://ichart.yahoo.com/table.csv?s=GOOG&a=0&b=1&c=2000&d=0&e=1&f=2010",
     parse_dates=['Date'])
 MSFT = pd.read_csv(
-    "http://ichart.yahoo.com/table.csv?s=MSFT&a=0&b=1&c=2000",
+    "http://ichart.yahoo.com/table.csv?s=MSFT&a=0&b=1&c=2000&d=0&e=1&f=2010",
     parse_dates=['Date'])
 IBM = pd.read_csv(
-    "http://ichart.yahoo.com/table.csv?s=IBM&a=0&b=1&c=2000",
+    "http://ichart.yahoo.com/table.csv?s=IBM&a=0&b=1&c=2000&d=0&e=1&f=2010",
     parse_dates=['Date'])
 
 output_file("stocks.html", title="stocks.py example")
