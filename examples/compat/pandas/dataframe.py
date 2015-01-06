@@ -9,4 +9,4 @@ df = pd.DataFrame(np.random.randn(1000, 4), index=ts.index, columns=list('ABCD')
 df = df.cumsum()
 df.plot(legend=False)
 
-mpl.to_bokeh(name="dataframe")
+mpl.show(mpl.to_bokeh(name="dataframe"))

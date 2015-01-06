@@ -27,4 +27,4 @@ plt.plot(xx, np.sin(xx / b) + a, c="#444444")
 
 plt.title("Seaborn tsplot with CI in bokeh.")
 
-mpl.to_bokeh(name="sinerror")
+mpl.show(mpl.to_bokeh(name="sinerror"))

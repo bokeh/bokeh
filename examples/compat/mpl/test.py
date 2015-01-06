@@ -12,8 +12,8 @@ plt.title("Matplotlib Figure in Bokeh")
 # dashed lines work
 plt.plot(x, z, "g-x", linestyle="-.")
 
-#mpl.to_bokeh()
-#mpl.to_bokeh(name="test")
-mpl.to_bokeh(plt.gcf(), name="test")
-#mpl.to_bokeh(plt.gcf(), server="default")
-#mpl.to_bokeh(plt.gcf(), name="test", server="default")
+#mpl.show(mpl.to_bokeh())
+#mpl.show(mpl.to_bokeh(name="test"))
+mpl.show(mpl.to_bokeh(plt.gcf(), name="test"))
+#mpl.show(mpl.to_bokeh(plt.gcf(), server="default"))
+#mpl.show(mpl.to_bokeh(plt.gcf(), name="test", server="default"))

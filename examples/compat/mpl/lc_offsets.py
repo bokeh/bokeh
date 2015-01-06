@@ -34,4 +34,4 @@ ax.set_title('Successive data offsets')
 
 fig = plt.gcf()
 
-mpl.to_bokeh(name="lc_offsets")
+mpl.show(mpl.to_bokeh(name="lc_offsets"))

@@ -9,4 +9,4 @@ g.draw()
 
 plt.title("xkcd-ggplot-mpl based plot in Bokeh.")
 
-mpl.to_bokeh(name="xkcd_density", xkcd=True)
+mpl.show(mpl.to_bokeh(name="xkcd_density", xkcd=True))
