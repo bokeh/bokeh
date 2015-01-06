@@ -1,0 +1,13 @@
+0.1.0 (Apr 2013)
+================
+
+* Basic low-level interface, consisting of wrapper objects for BokehJS rendering primitives, glyphs, tools
+* Beginnings of the ggplot-style interface that wraps the low-level interface
+* Simple line/scatter/bar/image plots with a Matplotlib-like interface
+* Static HTML output
+* Live server output
+* IPython notebook embedding capability
+* Table widget
+* Pan, Zoom, Select, Resize tools
+* initial Python implementation of Abstract Rendering
+
