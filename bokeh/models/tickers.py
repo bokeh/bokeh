@@ -51,7 +51,7 @@ class SingleIntervalTicker(Ticker):
     """
     interval = Float
 
-class DaysTicker(Ticker):
+class DaysTicker(SingleIntervalTicker):
     """ Generate ticks spaced apart by specific, even multiples of days.
 
     Attributes:
@@ -60,7 +60,7 @@ class DaysTicker(Ticker):
     """
     days = List(Int)
 
-class MonthsTicker(Ticker):
+class MonthsTicker(SingleIntervalTicker):
     """ Generate ticks spaced apart by specific, even multiples of months.
 
     Attributes:
@@ -69,15 +69,15 @@ class MonthsTicker(Ticker):
     """
     months = List(Int)
 
-class YearsTicker(Ticker):
+class YearsTicker(SingleIntervalTicker):
     """ Generate ticks spaced even numbers of years apart. """
     pass
 
-class BasicTicker(Ticker):
+class BasicTicker(AdaptiveTicker):
     """ Generate ticks on a linear scale. """
     pass
 
-class LogTicker(Ticker):
+class LogTicker(AdaptiveTicker):
     """ Generate ticks on a log scale. """
     pass
 
@@ -85,6 +85,6 @@ class CategoricalTicker(Ticker):
     """ Generate ticks for categorical ranges. """
     pass
 
-class DatetimeTicker(Ticker):
+class DatetimeTicker(CompositeTicker):
     """ Generate nice ticks across different date and time scales. """
     pass
