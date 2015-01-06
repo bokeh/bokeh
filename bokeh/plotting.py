@@ -474,7 +474,7 @@ def output_file(filename, title="Bokeh Plot", autosave=False, mode="inline", roo
     global _default_file
     _default_file = {
         'filename'  : filename,
-        'resources' : Resources(mode=mode, root_dir=root_dir, minified=False),
+        'resources' : Resources(mode=mode, root_dir=root_dir),
         'autosave'  : autosave,
         'title'     : title,
     }
