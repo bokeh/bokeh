@@ -91,18 +91,18 @@ General Questions
     your project.
 
 *Does Bokeh implement R's ggplot2?*
-----------------------------------
+-----------------------------------
 
-    No, Bokeh does not implement R's ggplot2. Experimental version of ggplot was 
-    prototyped at early stages, but it was never fully developed and has been 
-    removed in later releases. At the moment there are no plans to implement 
+    No, Bokeh does not implement R's ggplot2. Experimental version of ggplot was
+    prototyped at early stages, but it was never fully developed and has been
+    removed in later releases. At the moment there are no plans to implement
     R's ggplot2 within Bokeh library.
 
 ..
 
-    Partially Bokeh was influenced by Wilkinson's Grammar of Graphics (e.g. 
-    the idea of tight, well-defined, composable abstractions that can be tied 
-    directly to data). But Bokeh is based on novel approaches and does not implement 
+    Partially Bokeh was influenced by Wilkinson's Grammar of Graphics (e.g.
+    the idea of tight, well-defined, composable abstractions that can be tied
+    directly to data). But Bokeh is based on novel approaches and does not implement
     GoG system. Please see :ref:`technicalvision` for more details.
 
 
@@ -110,7 +110,7 @@ Technical Questions
 ===================
 
 *Does Bokeh use D3.js?*
-----------------------
+-----------------------
 
     No. D3 is very cool and its predecessor Protovis was one of the
     inspirations for Bokeh.  However, we understand the goals of D3 to be about

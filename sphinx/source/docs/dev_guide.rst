@@ -318,7 +318,7 @@ rendering of larger data sets. Its interface is declarative, in the style of
 a reactive scene graph (similar to `Chaco <http://code.enthought.com/chaco/>`_). Some
 examples for different types of plots are show below in `bokehjs_examples`_.
 
-The full BokehJS interface is described detail in :doc:`bokehjs`
+The full BokehJS interface is described detail in :doc:`reference/bokehjs`
 
 .. _bokehjs_dependencies:
 
