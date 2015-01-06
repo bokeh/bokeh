@@ -102,7 +102,7 @@
 		},
 
 		_setWheelModeOption: function(value){
-			if (value === null || value === false || value === "zoom" || value === "scroll"){
+			if (value === null || value === false || value === "zoom" || value === "scroll"){
 				if (this.options.wheelMode !== value){
 					this.element.parent().unbind("mousewheel.bar");
 				}
@@ -469,7 +469,7 @@
 		},
 
 		zoomIn: function(quantity){
-			quantity = quantity || 1;
+			quantity = quantity || 1;
 
 			if (quantity < 0){
 				return this.zoomOut(-quantity);

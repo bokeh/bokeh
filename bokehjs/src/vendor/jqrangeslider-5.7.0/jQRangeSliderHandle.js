@@ -91,7 +91,7 @@
 		_initElement: function(){
 			$.ui.rangeSliderDraggable.prototype._initElement.apply(this);
 
-			if (this.cache.parent.width === 0 || this.cache.parent.width === null){
+			if (this.cache.parent.width === 0 || this.cache.parent.width === null){
 				setTimeout($.proxy(this._initElementIfNotDestroyed, this), 500);
 			}else{
 				this._position(this._value);
