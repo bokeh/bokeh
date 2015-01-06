@@ -360,7 +360,7 @@ def figure(**kwargs):
     This function accepts all plot style keyword parameters.
 
     Returns:
-        None
+       figure : a new :class:`Plot <bokeh.models.plots.Plot>`
 
     '''
     fig = Figure(**kwargs)
@@ -516,7 +516,7 @@ def show(obj=None, browser=None, new="tab", url=None):
         controller.open("file://" + os.path.abspath(filename), new=new_param)
 
 
-def save(filename=None, resources=None, obj=None):
+def save(filename=None, resources=None, obj=None, title=None):
     """ Updates the file with the data for the current document.
 
     If a filename is supplied, or output_file(...) has been called, this will
@@ -526,11 +526,13 @@ def save(filename=None, resources=None, obj=None):
         filename (str, optional) : filename to save document under (default: None)
             if `filename` is None, the current output_file(...) filename is used if present
         resources (Resources, optional) : BokehJS resource config to use
-            if `resources` is None, the current default resource config is used
+            if `resources` is None, the current default resource config is used, failing that resources.INLINE is used
 
         obj (Document or Widget/Plot object, optional)
             if provided, then this is the object to save instead of curdoc()
             and its curplot()
+        title (str, optional) : title of the bokeh plot (default: None)
+        	if 'title' is None, the current default title config is used, failing that 'Bokeh Plot' is used
 
     Returns:
         None
@@ -542,13 +544,22 @@ def save(filename=None, resources=None, obj=None):
     if resources is None and _default_file:
         resources = _default_file['resources']
 
+    if title is None and _default_file:
+        title = _default_file['title']
+
     if not filename:
         warnings.warn("save() called but no filename was supplied and output_file(...) was never called, nothing saved")
         return
 
     if not resources:
-        warnings.warn("save() called but no resources was supplied and output_file(...) was never called, nothing saved")
-        return
+        warnings.warn("save() called but no resources was supplied and output_file(...) was never called, defaulting to resources.INLINE")
+        from .resources import INLINE
+        resources = INLINE
+
+
+    if not title:
+        warnings.warn("save() called but no title was supplied and output_file(...) was never called, using default title 'Bokeh Plot'")
+        title = "Bokeh Plot"
 
     if obj is None:
         if not curplot():
@@ -563,7 +574,7 @@ def save(filename=None, resources=None, obj=None):
     else:
         raise RuntimeError("Unable to save object of type '%s'" % type(obj))
 
-    html = file_html(doc, resources, _default_file['title'])
+    html = file_html(doc, resources, title)
     with io.open(filename, "w", encoding="utf-8") as f:
         f.write(decode_utf8(html))
 
@@ -627,14 +638,14 @@ def gridplot(plot_arrangement, name=None, **kwargs):
     """ Generate a plot that arranges several subplots into a grid.
 
     Args:
-        plot_arrangement (list[:class:`Plot <bokeh.models.Plot>`]) : plots to arrange in a grid
+        plot_arrangement (nested list of Plots) : plots to arrange in a grid
         name (str) : name for this plot
         **kwargs: additional attributes to pass in to GridPlot() constructor
 
     .. note:: `plot_arrangement` can be nested, e.g [[p1, p2], [p3, p4]]
 
     Returns:
-        grid_plot: the current :class:`GridPlot <bokeh.models.GridPlot>`
+        grid_plot: a new :class:`GridPlot <bokeh.models.plots.GridPlot>`
     """
     grid = GridPlot(children=plot_arrangement, **kwargs)
     if name:

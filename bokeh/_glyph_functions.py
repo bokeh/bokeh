@@ -38,8 +38,6 @@ def _glyph_function(glyphclass, dsnames, argnames, docstring, xfields=["x"], yfi
         # plot.update(**kwargs)
 
         name = kwargs.pop('name', None)
-        if name:
-            plot._id = name
 
         select_tool = _get_select_tool(plot)
 

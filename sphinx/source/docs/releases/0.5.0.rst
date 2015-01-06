@@ -1,0 +1,8 @@
+0.5.0 (Jul 2014)
+================
+
+* Widgets
+* Initial AR integration
+* bokeh.charts (scatter, bar, histogram)
+* improved embedding API
+* minor ticks, plot frame, and log axes

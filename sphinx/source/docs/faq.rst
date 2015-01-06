@@ -90,11 +90,31 @@ General Questions
     of interacting from languages besides python, please consider Bokeh for
     your project.
 
+*Does Bokeh implement R's ggplot2?*
+-----------------------------------
+
+    No, Bokeh does not implement R's ggplot2 interface. Bokeh was influenced
+    by Wilkinson's Grammar of Graphics (e.g. the idea of tight, well-defined,
+    composable abstractions that can be tied directly to data). However, Bokeh
+    does not implement a "GoG" system. Please see :ref:`technicalvision`
+    for more details.
+
+..
+
+    An experimental ggplot interface was prototyped at early stages, (circa
+    Bokeh 0.1), but it was never fully developed and has since been removed.
+    At present there are no plans to implement R's ggplot2 interface directly
+    within Bokeh. However, since Bokeh provides some level of Matplotlib
+    compatibility, it is often possible to convert plots created using the
+    third-party python library `ggplot.py <https://github.com/yhat/ggplot>`_
+    into Bokeh plots very easily. There are several examples in the gallery;
+    you can see one `here <http://bokeh.pydata.org/en/latest/docs/gallery/step.html>`_.
+
 Technical Questions
 ===================
 
-*Does Bokeh us D3.js?*
-----------------------
+*Does Bokeh use D3.js?*
+-----------------------
 
     No. D3 is very cool and its predecessor Protovis was one of the
     inspirations for Bokeh.  However, we understand the goals of D3 to be about
