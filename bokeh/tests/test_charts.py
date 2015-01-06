@@ -151,9 +151,9 @@ class TestChart(unittest.TestCase):
             base_args['tools'] = tools
             chart = Chart(**base_args)
             chart.start_plot(xgrid=True, ygrid=True)
+            self.assertEqual(len(chart.plot.tools), len(expected_tools))
             for i, _type in enumerate(expected_tools):
                 self.assertIsInstance(chart.plot.tools[i], _type)
-                self.assertEqual(len(chart.plot.tools), len(expected_tools))
 
         # need to change the expected tools because categorical scales
         # automatically removes pan and zoom tools
@@ -172,10 +172,9 @@ class TestChart(unittest.TestCase):
                 base_args['tools'] = tools
                 chart = Chart(**base_args)
                 chart.start_plot(xgrid=True, ygrid=True)
-
+                self.assertEqual(len(chart.plot.tools), len(expected_tools))
                 for i, _type in enumerate(expected_tools):
                     self.assertIsInstance(chart.plot.tools[i], _type)
-                    self.assertEqual(len(chart.plot.tools), len(expected_tools))
 
 
     @patch('bokeh.charts._charts.Chart._append_glyph')

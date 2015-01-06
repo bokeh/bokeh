@@ -39,7 +39,7 @@ from ..embed import file_html
 from ..resources import INLINE
 from ..browserlib import view
 from ..utils import publish_display_data
-from ..plotting_helpers import _tool_from_string
+from ..plotting_helpers import _tool_from_string, _add_tools_to_plot
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -149,42 +149,26 @@ class Chart(object):
 
         # Add tools if supposed to
         if self.tools:
+            # only create pan and zoom tools if chart is not categorical...
+            if self.categorical:
+                tools_to_remove = ['pan', 'zoom']
+            else:
+                tools_to_remove = []
+
             # need to add tool to all underlying plots
             for plot in self._plots:
-                removed_tools = []
                 # only add tools if the underlying plot hasn't been customized
                 # by some user injection
                 if not plot.tools:
                     tools = []
-                    # if tools have been specified as string let's reuse
-                    # plotting machinery to create the related tools
-                    if isinstance(self.tools, string_types):
-                        for tool in re.split(r"\s*,\s*", self.tools.strip()):
-                            # re.split will return empty strings; ignore them.
-                            if tool == "":
-                                continue
-
-                            if self.categorical and ("pan" in tool or "zoom" in tool):
-                                removed_tools.append(tool)
-                                continue
-
-                            tool = _tool_from_string(tool)
-                            tools.append(tool)
-                    # otherwise let's create the default tools
-                    else:
+                    # if True let's create the default tools
+                    if isinstance(self.tools, bool) and self.tools:
                         if not self.categorical:
                             tools = [PanTool(),  WheelZoomTool(), ResetTool()]
                         tools.append(PreviewSaveTool())
+                        self.tools = tools
 
-                    plot.add_tools(*tools)
-
-            # if any tools have been removed because not supported by a
-            # specific chart type we raise a warning
-            if removed_tools:
-                warnings.warn(
-                    "categorical plots do not support pan and zoom operations.\n"
-                    "Removing tool(s): %s" % ', '.join(removed_tools)
-                )
+                    _add_tools_to_plot(plot, self.tools, tools_to_remove)
 
     def add_data_plot(self, x_range, y_range):
         """Add range data to the initialized empty attributes.

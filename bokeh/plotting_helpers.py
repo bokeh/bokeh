@@ -318,6 +318,71 @@ def _tool_from_string(name):
 
         raise ValueError("unexpected tool name '%s', %s tools are %s" % (name, text, nice_join(matches)))
 
+
+def _add_tools_to_plot(plot, tools, tools_to_remove=None):
+    """ Adds tools to the plot object skipping those specified in
+    tools_to_remove.
+
+    Args:
+        plot (Plot): instance of a plot object
+        tools (list(Tool)|str): list of tool types or string listing the
+            tool names. Those are converted using the _tool_from_string
+            function.
+    tools_to_remove (lst(str), optional): list of string names
+            representation of the tools to exclude.
+            Default: None
+
+    Returns:
+        list of Tools objects added to plot
+    """
+    if tools_to_remove is None:
+        tools_to_remove = []
+
+    tool_objs = []
+    temp_tool_str = ""
+
+    if isinstance(tools, (list, tuple)):
+        for tool in tools:
+            if isinstance(tool, Tool):
+                tool_objs.append(tool)
+            elif isinstance(tool, string_types):
+                temp_tool_str += tool + ','
+            else:
+                raise ValueError("tool should be a string or an instance of Tool class")
+        tools = temp_tool_str
+
+    repeated_tools = []
+    removed_tools = []
+
+    for tool in re.split(r"\s*,\s*", tools.strip()):
+        # re.split will return empty strings; ignore them.
+        if tool == "":
+            continue
+
+        if any(x in tool for x in tools_to_remove):
+            removed_tools.append(tool)
+            continue
+
+        tool_obj = _tool_from_string(tool)
+        tool_objs.append(tool_obj)
+
+    plot.add_tools(*tool_objs)
+
+    for typename, group in itertools.groupby(
+            sorted([tool.__class__.__name__ for tool in plot.tools])):
+        if len(list(group)) > 1:
+            repeated_tools.append(typename)
+
+    if repeated_tools:
+        warnings.warn("%s are being repeated" % ",".join(repeated_tools))
+
+    if removed_tools:
+        warnings.warn("categorical plots do not support pan and zoom operations.\n"
+                      "Removing tool(s): %s" %', '.join(removed_tools))
+
+    return tool_objs
+
+
 def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
                  x_axis_type="auto", y_axis_type="auto",
                  x_axis_location="below", y_axis_location="left",

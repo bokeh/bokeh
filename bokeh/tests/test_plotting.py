@@ -1,7 +1,8 @@
 import unittest
 
 import bokeh.plotting as plt
-from bokeh.models import Grid, LinearAxis
+from ..models import (Grid, LinearAxis, PanTool, BoxZoomTool, LassoSelectTool,
+                      PanTool, PreviewSaveTool, ResetTool, ResizeTool)
 
 class TestPlotting(unittest.TestCase):
 
@@ -120,6 +121,24 @@ class TestPlotting(unittest.TestCase):
         plt.figure()
         p = plt.circle([1,2,3], [1,2,3])
         self.assertEqual(len(plt.grid()), 2)
+
+    def test_tools(self):
+        TOOLS = "resize,pan,box_zoom,reset,lasso_select"
+        fig = plt.figure(tools=TOOLS)
+        expected = [ResizeTool, PanTool,  BoxZoomTool, ResetTool, LassoSelectTool]
+
+        self.assertEqual(len(fig.tools), len(expected))
+        for i, _type in enumerate(expected):
+            self.assertIsInstance(fig.tools[i], _type)
+
+        # need to change the expected tools because categorical scales
+        # automatically removes pan and zoom tools
+        factors = ["a", "b", "c", "d", "e", "f", "g", "h"]
+        fig = plt.figure(tools=TOOLS, y_range=factors)
+        expected = [ResizeTool, ResetTool, LassoSelectTool]
+        self.assertEqual(len(fig.tools), len(expected))
+        for i, _type in enumerate(expected):
+            self.assertIsInstance(fig.tools[i], _type)
 
 
 
