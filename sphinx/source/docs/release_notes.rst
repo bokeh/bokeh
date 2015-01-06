@@ -67,7 +67,7 @@ Core Plotting
 * CSS styling/theming mechanism
 * New layout capabilities
 
-  - mulitple axes
+  - multiple axes
   - colorbar axes
   - plot (e.g., histogram axes)
   - better grid plots
