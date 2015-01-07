@@ -16,3 +16,7 @@ class LinearColorMapper(ColorMapper):
 
     reserve_color = Color("#ffffff")    # TODO: What is the color code for transparent?
     reserve_val = Float(default=None)
+
+    def __init__(self, palette=None, **kwargs):
+        if palette is not None: kwargs['palette'] = palette
+        super(LinearColorMapper, self).__init__(**kwargs)
