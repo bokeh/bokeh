@@ -245,7 +245,7 @@ class Resources(object):
         def pad(text, n=4):
             return "\n".join([ " "*n + line for line in text.split("\n") ])
 
-        wrapper = lambda code: '$(function() {\n%s\n});' % pad(code)
+        wrapper = lambda code: 'Bokeh.$(function() {\n%s\n});' % pad(code)
 
         if self.dev:
             js_wrapper = lambda code: 'require(["jquery", "main"], function($, Bokeh) {\nBokeh.set_log_level("%s");\n%s\n});' % (self.log_level, pad(wrapper(code)))
