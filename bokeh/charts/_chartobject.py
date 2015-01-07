@@ -58,7 +58,7 @@ class ChartObject(object):
     def __init__(self, title, xlabel, ylabel, legend,
                  xscale, yscale, width, height,
                  tools, filename, server, notebook, facet=False,
-                 xgrid=True, ygrid=True, palette=None):
+                 xgrid=True, ygrid=True, palette=None, doc=None):
         """Common arguments to be used by all the inherited classes.
 
         Args:
@@ -109,6 +109,7 @@ class ChartObject(object):
         self.__palette = palette
         self.__xgrid = xgrid
         self.__ygrid = ygrid
+        self.doc = doc
 
     def facet(self, facet=True):
         """Set the facet flag of your chart. Facet splits the chart
@@ -359,7 +360,8 @@ class ChartObject(object):
         """
         chart = Chart(self._title, self._xlabel, self._ylabel, self._legend,
                       self._xscale, self._yscale, self._width, self._height,
-                      self._tools, self._filename, self._server, self._notebook)
+                      self._tools, self._filename, self._server, self._notebook,
+                      doc=self.doc)
 
         self.chart = chart
 

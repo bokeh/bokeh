@@ -51,7 +51,7 @@ class Chart(object):
     subclassing the ChartObject class.
     """
     def __init__(self, title, xlabel, ylabel, legend, xscale, yscale, width, height,
-                 tools, filename, server, notebook, facet = False):
+                 tools, filename, server, notebook, facet = False, doc=None):
         """Common arguments to be used by all the inherited classes.
 
         Args:
@@ -100,9 +100,19 @@ class Chart(object):
         self._ydr = None
         self.facet = facet
         self._plots = []
-        self.figure()
         self.categorical = False
         self.glyphs = []
+
+        # Add to document and session if server output is asked
+        if doc:
+            self.doc = doc
+            if not self.doc._current_plot:
+                self.figure()
+            else:
+                self._plots = [self.doc._current_plot]
+        else:
+            self.figure()
+            self.doc = Document()
 
     @property
     def plot(self):
@@ -134,27 +144,28 @@ class Chart(object):
             xgrid(bool): whether to show the xgrid
             ygrid(bool): whether to shoe the ygrid
         """
-        # Add axis
-        xaxis = self.make_axis("below", self.xscale, self.xlabel)
-        yaxis = self.make_axis("left", self.yscale, self.ylabel)
+        if not self.doc._current_plot:
+            # Add axis
+            xaxis = self.make_axis("below", self.xscale, self.xlabel)
+            yaxis = self.make_axis("left", self.yscale, self.ylabel)
 
-        # Add grids
-        if xgrid:
-            self.make_grid(0, xaxis.ticker)
-        if ygrid:
-            self.make_grid(1, yaxis.ticker)
+            # Add grids
+            if xgrid:
+                self.make_grid(0, xaxis.ticker)
+            if ygrid:
+                self.make_grid(1, yaxis.ticker)
 
-        # Add tools
-        if self.tools:
-            for plot in self._plots:
-                if not plot.tools:
-                    if not self.categorical:
-                        pan = PanTool()
-                        wheelzoom = WheelZoomTool()
-                        reset = ResetTool()
-                        plot.add_tools(pan, wheelzoom, reset)
-                    previewsave = PreviewSaveTool()
-                    plot.add_tools(previewsave)
+            # Add tools
+            if self.tools:
+                for plot in self._plots:
+                    if not plot.tools:
+                        if not self.categorical:
+                            pan = PanTool()
+                            wheelzoom = WheelZoomTool()
+                            reset = ResetTool()
+                            plot.add_tools(pan, wheelzoom, reset)
+                        previewsave = PreviewSaveTool()
+                        plot.add_tools(previewsave)
 
     def add_data_plot(self, x_range, y_range):
         """Add range data to the initialized empty attributes.
@@ -179,29 +190,27 @@ class Chart(object):
         # Add legend
         if self.legend:
             for i, plot in enumerate(self._plots):
-                listed_glyphs = [[glyph] for glyph in self.glyphs]
-                legends = list(zip(groups, listed_glyphs))
-                if self.legend is True:
-                    orientation = "top_right"
-                else:
-                    orientation = self.legend
+                if plot not in self.doc.context.children:
+                    listed_glyphs = [[glyph] for glyph in self.glyphs]
+                    legends = list(zip(groups, listed_glyphs))
+                    if self.legend is True:
+                        orientation = "top_right"
+                    else:
+                        orientation = self.legend
 
-                legend = None
-                # When we have more then on plot we need to break legend per plot
-                if len(self._plots) > 1:
-                    try:
-                        legend = Legend(orientation=orientation, legends=[legends[i]])
+                    legend = None
+                    # When we have more then on plot we need to break legend per plot
+                    if len(self._plots) > 1:
+                        try:
+                            legend = Legend(orientation=orientation, legends=[legends[i]])
 
-                    except IndexError:
-                        pass
-                else:
-                    legend = Legend(orientation=orientation, legends=legends)
+                        except IndexError:
+                            pass
+                    else:
+                        legend = Legend(orientation=orientation, legends=legends)
 
-                if legend is not None:
-                    plot.add_layout(legend)
-
-        # Add to document and session if server output is asked
-        self.doc = Document()
+                    if legend is not None:
+                        plot.add_layout(legend)
 
         if self.server:
             if self.server is True:
@@ -214,7 +223,10 @@ class Chart(object):
             self.session.load_document(self.doc)
 
         for plot in self._plots:
-            self.doc.add(plot)
+            if plot not in self.doc.context.children:
+                print "ADDING PLOT", plot, self.doc, self.doc._hold
+                self.doc._current_plot = plot
+                self.doc.add(plot)
 
     def make_axis(self, location, scale, label):
         """Create linear, date or categorical axis depending on the location,
@@ -492,6 +504,7 @@ class Chart(object):
             source (obj): datasource containing data for the glyph
             glyph (obj): glyph type
         """
+        print "ADDING!", glyph, self.plot
         _glyph = self.plot.add_glyph(source, glyph)
 
         self.glyphs.append(_glyph)

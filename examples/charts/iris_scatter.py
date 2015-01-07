@@ -25,8 +25,8 @@ for i in g.groups.keys():
 #xyvalues = pd.DataFrame(xyvalues)
 #xyvalues = xyvalues.values()
 #xyvalues = np.array(xyvalues.values())
-
-scatter = Scatter(xyvalues, filename="iris_scatter.html",
+print pdict
+scatter = Scatter(pdict, filename="iris_scatter.html",
                   ylabel='petal_width',  facet=False)
 scatter.title("iris dataset").legend("top_left")
 scatter.width(600).height(400).show()
