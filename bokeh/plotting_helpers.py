@@ -319,27 +319,28 @@ def _tool_from_string(name):
         raise ValueError("unexpected tool name '%s', %s tools are %s" % (name, text, nice_join(matches)))
 
 
-def _add_tools_to_plot(plot, tools, tools_to_remove=None):
+def _process_tools_arg(plot, tools):
     """ Adds tools to the plot object skipping those specified in
     tools_to_remove.
 
     Args:
         plot (Plot): instance of a plot object
-        tools (list(Tool)|str): list of tool types or string listing the
+        tools (seq[Tool or str]|str): list of tool types or string listing the
             tool names. Those are converted using the _tool_from_string
-            function.
-    tools_to_remove (lst(str), optional): list of string names
-            representation of the tools to exclude.
-            Default: None
+            function. I.e.: `wheel_zoom,box_zoom,reset`.
 
     Returns:
         list of Tools objects added to plot
     """
-    if tools_to_remove is None:
-        tools_to_remove = []
-
     tool_objs = []
     temp_tool_str = ""
+    repeated_tools = []
+    removed_tools = []
+    tools_to_remove = []
+    # Remove pan/zoom tools in case of categorical axes
+    if isinstance(plot.x_range, FactorRange) or \
+            isinstance(plot.y_range, FactorRange):
+        tools_to_remove = ['pan', 'zoom']
 
     if isinstance(tools, (list, tuple)):
         for tool in tools:
@@ -350,9 +351,6 @@ def _add_tools_to_plot(plot, tools, tools_to_remove=None):
             else:
                 raise ValueError("tool should be a string or an instance of Tool class")
         tools = temp_tool_str
-
-    repeated_tools = []
-    removed_tools = []
 
     for tool in re.split(r"\s*,\s*", tools.strip()):
         # re.split will return empty strings; ignore them.
@@ -366,10 +364,8 @@ def _add_tools_to_plot(plot, tools, tools_to_remove=None):
         tool_obj = _tool_from_string(tool)
         tool_objs.append(tool_obj)
 
-    plot.add_tools(*tool_objs)
-
     for typename, group in itertools.groupby(
-            sorted([tool.__class__.__name__ for tool in plot.tools])):
+            sorted([tool.__class__.__name__ for tool in tool_objs])):
         if len(list(group)) > 1:
             repeated_tools.append(typename)
 
@@ -378,7 +374,7 @@ def _add_tools_to_plot(plot, tools, tools_to_remove=None):
 
     if removed_tools:
         warnings.warn("categorical plots do not support pan and zoom operations.\n"
-                      "Removing tool(s): %s" %', '.join(removed_tools))
+                      "Removing tool(s): %s" % ', '.join(removed_tools))
 
     return tool_objs
 

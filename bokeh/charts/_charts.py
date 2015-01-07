@@ -39,7 +39,8 @@ from ..embed import file_html
 from ..resources import INLINE
 from ..browserlib import view
 from ..utils import publish_display_data
-from ..plotting_helpers import _tool_from_string, _add_tools_to_plot
+from ..plotting_helpers import _process_tools_arg
+from ..plotting import DEFAULT_TOOLS
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -71,7 +72,12 @@ class Chart(object):
                 ``linear``, ``datetime`` or ``categorical``.
             width (int): the width of your plot in pixels.
             height (int): the height of you plot in pixels.
-            tools (bool): to enable or disable the tools in your plot.
+            tools (seq[Tool or str]|str|bool): list of tool types or
+                string listing the tool names.
+                I.e.: `wheel_zoom,box_zoom,reset`. If a bool value
+                is specified:
+                    - `True` enables defaults tools
+                    - `False` disables all tools
             filename (str or bool): the name of the file where your plot.
                 will be written. If you pass True to this argument, it will use
                 ``untitled`` as a filename.
@@ -149,26 +155,17 @@ class Chart(object):
 
         # Add tools if supposed to
         if self.tools:
-            # only create pan and zoom tools if chart is not categorical...
-            if self.categorical:
-                tools_to_remove = ['pan', 'zoom']
-            else:
-                tools_to_remove = []
-
             # need to add tool to all underlying plots
             for plot in self._plots:
                 # only add tools if the underlying plot hasn't been customized
                 # by some user injection
                 if not plot.tools:
-                    tools = []
                     # if True let's create the default tools
                     if isinstance(self.tools, bool) and self.tools:
-                        if not self.categorical:
-                            tools = [PanTool(),  WheelZoomTool(), ResetTool()]
-                        tools.append(PreviewSaveTool())
-                        self.tools = tools
+                        self.tools = DEFAULT_TOOLS
 
-                    _add_tools_to_plot(plot, self.tools, tools_to_remove)
+                    tool_objs = _process_tools_arg(plot, self.tools)
+                    plot.add_tools(*tool_objs)
 
     def add_data_plot(self, x_range, y_range):
         """Add range data to the initialized empty attributes.

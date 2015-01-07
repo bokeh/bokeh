@@ -24,7 +24,7 @@ from .palettes import brewer
 from .plotting_helpers import (
     get_default_color, get_default_alpha, _handle_1d_data_args, _list_attr_splat,
     _get_range, _get_axis_class, _get_num_minor_ticks, _tool_from_string,
-    _add_tools_to_plot
+    _process_tools_arg
 )
 from .resources import Resources
 from .session import DEFAULT_SERVER_URL, Session
@@ -101,13 +101,8 @@ class Figure(Plot):
             elif y_axis_location == "right":
                 self.right.append(yaxis)
 
-        tools_to_remove = []
-        # Remove pan/zoom tools in case of categorical axes
-        if isinstance(self.x_range, FactorRange) or \
-                isinstance(self.y_range, FactorRange):
-            tools_to_remove = ['pan', 'zoom']
-
-        _add_tools_to_plot(self, tools, tools_to_remove)
+        tool_objs = _process_tools_arg(self, tools)
+        self.add_tools(*tool_objs)
 
     def _axis(self, *sides):
         objs = []

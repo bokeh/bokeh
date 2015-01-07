@@ -26,7 +26,7 @@ xyvalues = OrderedDict(
 #lindex = xyvalues.pop('Date')
 #lxyvalues = list(xyvalues.values())
 #lxyvalues = np.array(xyvalues.values())
-TOOLS="resize,pan,wheel_zoom,box_zoom,reset,previewsave,lasso_select"
+TOOLS="resize,pan,wheel_zoom,box_zoom,reset,previewsave"
 ts = TimeSeries(xyvalues, index='Date', title="timeseries, pd_input", tools=TOOLS,
                 ylabel='Stock Prices', filename="stocks_timeseries.html")
 
