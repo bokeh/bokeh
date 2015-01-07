@@ -85,6 +85,6 @@ class CategoricalTicker(Ticker):
     """ Generate ticks for categorical ranges. """
     pass
 
-class DatetimeTicker(CompositeTicker):
+class DatetimeTicker(Ticker):
     """ Generate nice ticks across different date and time scales. """
     pass
