@@ -18,13 +18,13 @@ CHARTS_MAP = get_charts_mapping()
 @click.option('--input', 'input_source', default=None,help=hm.HELP_INPUT)
 @click.option('--output', default='file://cli_output.html', help=hm.HELP_OUTPUT)
 @click.option('--title', default='Bokeh CLI')
-@click.option('--plot_type', default='Line')
+@click.option('--chart_type', default='Line')
 @click.option('--index', default='', help=hm.HELP_INDEX)
 @click.option('--series', default='', help=hm.HELP_SERIES)
 @click.option('--palette')
 @click.option('--buffer', default='f', help=hm.HELP_BUFFER)
 @click.option('--sync_with_source', default=False)
-def cli(input_source, output, title, plot_type, series, palette,
+def cli(input_source, output, title, chart_type, series, palette,
         index, buffer, sync_with_source):
     """Bokeh Command Line Tool is a minimal client to access high level plotting
     functionality provided by bokeh.charts API.
@@ -32,14 +32,14 @@ def cli(input_source, output, title, plot_type, series, palette,
     Examples:
 
     >> python bokeh-cli.py --title "My Nice Plot" --series "High,Low,Close"
-    --plot_type "Line" --palette Reds --input sample_data/stocks_data.csv
+    --chart_type "Line" --palette Reds --input sample_data/stocks_data.csv
 
     >> cat sample_data/stocks_data.csv | python bokeh-cli.py --buffer t
 
     >> python bokeh-cli.py --help
     """
     cli = CLI(
-        input_source, output, title, plot_type, series, palette, index, buffer,
+        input_source, output, title, chart_type, series, palette, index, buffer,
         sync_with_source
     )
     cli.run()
@@ -51,7 +51,7 @@ class CLI(object):
     extends it with functionality.
 
     """
-    def __init__(self, input_source, output, title, plot_type, series, palette,
+    def __init__(self, input_source, output, title, chart_type, series, palette,
                  index, buffer, sync_with_source):
         """Args:
         input_source (str): path to the series data file (i.e.:
@@ -77,7 +77,7 @@ class CLI(object):
             Default: file://cli_output.html.
         title (str, optional): the title of your chart.
             Default: None.
-        plot_type (str, optional): charts classes to use to consume and
+        chart_type (str, optional): charts classes to use to consume and
             render the input data.
             Default: Line.
         series (str, optional): Name of the series from the input source
@@ -86,9 +86,9 @@ class CLI(object):
             Defaults to None.
         palette (str, optional): name of the colors palette to use.
             Default: None.
-        index (str, optional): Name of the data series to be used as index
-            when plotting. By default the first series found on the input
-            file is taken
+        index (str, optional): Name of the data series to be used as the
+            index when plotting. By default the first series found on the
+            input file is taken
             Default: None
         buffer (str, optional): if is `t` reads data source as string from
             input buffer using StringIO(sys.stdin.read()) instead of
@@ -112,7 +112,7 @@ class CLI(object):
 
         self.source = self.get_input(input_source, buffer)
         # get the charts specified by the user
-        self.factories = create_chart_factories(plot_type)
+        self.factories = create_chart_factories(chart_type)
 
         if palette:
             print ("Sorry, custom palettes not supported yet, coming soon!")

@@ -92,12 +92,12 @@ def get_data_from_url(request, start=0, length=0):
         # range in the format 'start-end', followed by a slash and then the total
         # size of the page (or an asterix if the total size is unknown). Lets get
         # the range and total size from this.
-        range, total = response.headers['content-range'].split(' ')[-1].split('/')
+        _range, total = response.headers['content-range'].split(' ')[-1].split('/')
         # Print a message giving the range information.
         if total == '*':
-            print("Bytes %s of an unknown total were retrieved." % range)
+            print("Bytes %s of an unknown total were retrieved." % _range)
         else:
-            print("Bytes %s of a total of %s were retrieved." % (range, total))
+            print("Bytes %s of a total of %s were retrieved." % (_range, total))
 
     # # No header, so partial retrieval was unsuccessful.
     # else:
