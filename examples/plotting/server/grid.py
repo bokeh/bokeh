@@ -29,5 +29,4 @@ q = figure(title="quad", tools=TOOLS)
 q.quad(x, x-0.2, y, y-0.2, color="tomato", alpha=0.4)
 
 p = gridplot([[l,aw],[bez,q]])
-
 show(p)

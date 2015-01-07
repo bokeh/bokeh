@@ -86,6 +86,11 @@ define [
       plot_renderers.push(@get('overlay'))
       @get('plot').set('renderers', plot_renderers)
 
+    defaults: () ->
+      return _.extend({}, super(), {
+        select_every_mousemove: true
+      })
+
   class LassoSelectTools extends Collection
     model: LassoSelectTool
 
