@@ -11,7 +11,7 @@ class Basictest(unittest.TestCase):
         class Foo(HasProps):
             x = Int(12)
             y = String("hello")
-            z = Array(Int, [1, 2, 3])
+            z = Array(Int, np.array([1, 2, 3]))
             s = String(None)
 
         f = Foo()
