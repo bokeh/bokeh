@@ -71,7 +71,7 @@ class TestMetadata(object):
         return self.standalone_browsers_bin[browser]
 
     def print_default_browser_caps(self):
-        for browser, caps in self.distributive_browsers_caps.iteritems():
+        for browser, caps in iter(self.distributive_browsers_caps.items()):
             _counter = 0
 
             print("\n%s:" % (browser))
@@ -138,7 +138,7 @@ class TestSettings(object):
         self.standalone_browsers_bin = self.metadata.standalone_browsers_bin.copy()
 
         if 'standalone_browsers_bin' in kwargs:
-            for key, value in kwargs.get('standalone_browsers_bin').iteritems():
+            for key, value in iter(kwargs.get('standalone_browsers_bin').items()):
 
                 if key in self.standalone_browsers_bin:
                     self.standalone_browsers_bin.update({key:value})

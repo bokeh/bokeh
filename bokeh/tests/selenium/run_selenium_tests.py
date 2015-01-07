@@ -212,7 +212,7 @@ def check_if_test_suite_is_unique(tests, chosen_suites):
 def check_if_test_is_unique(tests, chosen_tests):
     test_indexes = set()
 
-    for key, values in chosen_tests.iteritems():
+    for key, values in iter(chosen_tests.items()):
         if key == 'names':
             for name in values:
                 check = 0
