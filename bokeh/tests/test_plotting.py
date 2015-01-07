@@ -121,5 +121,11 @@ class TestPlotting(unittest.TestCase):
         p = plt.circle([1,2,3], [1,2,3])
         self.assertEqual(len(plt.grid()), 2)
 
+    def test_default_resources_minified(self):
+        plt.output_file("foo.html")
+        self.assertEqual(plt._default_file['resources'].minified, True)
+        plt.reset_output()
+
+
 
 
