@@ -26,7 +26,7 @@ class RawSeleniumTestFixture(LiveServerTestCase):
         self.test_settings = test_settings
 
         if self.test_settings.headless_mode:
-            if os.environ.has_key('DISPLAY'):
+            if 'DISPLAY' in os.environ:
                 os.environ['OLD_DISPLAY'] = os.environ['DISPLAY']
             os.environ['DISPLAY'] = self.test_settings.headless_mode_display
 
@@ -60,7 +60,7 @@ class RawSeleniumTestFixture(LiveServerTestCase):
 
     def tearDown(self):
         if self.test_settings.headless_mode:
-            if os.environ.has_key('OLD_DISPLAY'):
+            if 'OLD_DISPLAY' in os.environ:
                 os.environ['DISPLAY'] = os.environ['OLD_DISPLAY']
                 del os.environ['DISPLAY']
 

@@ -103,7 +103,7 @@ class TestSettings(object):
         else:
             self.metadata = metadata
 
-        if kwargs.has_key('env_mode'):
+        if 'env_mode' in kwargs:
             self.env_mode = kwargs.get('env_mode')
         else:
             self.env_mode = None
@@ -115,7 +115,7 @@ class TestSettings(object):
             print("Invalid testing environment type: %s" % (self.env_mode))
             sys.exit(1)
 
-        if kwargs.has_key('browser_engine'):
+        if 'browser_engine' in kwargs:
             self.browser_engine = kwargs.get('browser_engine')
         else:
             self.browser_engine = None
@@ -127,7 +127,7 @@ class TestSettings(object):
             print("Invalid browser_engine: %s" % (self.browser_engine))
             sys.exit(1)
 
-        if kwargs.has_key('browser_caps'):
+        if 'browser_caps' in kwargs:
             self.browser_caps = kwargs.get('browser_caps')
         else:
             self.browser_caps = None
@@ -137,16 +137,16 @@ class TestSettings(object):
 
         self.standalone_browsers_bin = self.metadata.standalone_browsers_bin.copy()
 
-        if kwargs.has_key('standalone_browsers_bin'):
+        if 'standalone_browsers_bin' in kwargs:
             for key, value in kwargs.get('standalone_browsers_bin').iteritems():
 
-                if self.standalone_browsers_bin.has_key(key):
+                if key in self.standalone_browsers_bin:
                     self.standalone_browsers_bin.update({key:value})
                 else:
                     print("Non existent 'browser_engine' key: %s" % (key))
                     sys.exit(1)
 
-        if kwargs.has_key('selenium_server_jar_path'):
+        if 'selenium_server_jar_path' in kwargs:
             self.selenium_server_jar_path = kwargs.get('selenium_server_jar_path')
         else:
             self.selenium_server_jar_path = None
@@ -154,7 +154,7 @@ class TestSettings(object):
         if not self.selenium_server_jar_path:
             self.selenium_server_jar_path = self.metadata.selenium_server_jar_path
 
-        if kwargs.has_key('data_dir'):
+        if 'data_dir' in kwargs:
             self.data_dir = kwargs.get('data_dir')
         else:
             self.data_dir = None
@@ -169,7 +169,7 @@ class TestSettings(object):
             print("The data dir '%s' is not a directory!" % (self.data_dir))
             sys.exit(1)
 
-        if kwargs.has_key('down_dir'):
+        if 'down_dir' in kwargs:
             self.down_dir = kwargs.get('down_dir')
         else:
             self.down_dir = None
@@ -182,7 +182,7 @@ class TestSettings(object):
 
         os.makedirs(self.down_dir)
 
-        if kwargs.has_key('headless_mode'):
+        if 'headless_mode' in kwargs:
             self.headless_mode = kwargs.get('headless_mode')
         else:
             self.headless_mode = None
@@ -190,7 +190,7 @@ class TestSettings(object):
         if not self.headless_mode:
             self.headless_mode = self.metadata.headless_mode
 
-        if kwargs.has_key('headless_mode_display'):
+        if 'headless_mode_display' in kwargs:
             self.headless_mode_display = kwargs.get('headless_mode_display')
         else:
             self.headless_mode_display = None
@@ -198,7 +198,7 @@ class TestSettings(object):
         if not self.headless_mode_display:
             self.headless_mode_display = self.metadata.headless_mode_display
 
-        if kwargs.has_key('selenium_hub_address'):
+        if 'selenium_hub_address' in kwargs:
             self.selenium_hub_address = kwargs.get('selenium_hub_address')
         else:
             self.selenium_hub_address = None
