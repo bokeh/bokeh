@@ -80,7 +80,7 @@ def get_latest_selenium_server_jar_path():
     selenium_server_bin_path = check_output(['which', 'selenium-server-standalone']).strip()
 
     dir = os.path.dirname(selenium_server_bin_path)
-    dir = os.path.join(dir, '../share/')
+    dir = os.path.join(str(dir), '../share/')
 
     for file in glob.glob(dir+"selenium-server-standalone-*.jar"):
         if os.path.isfile(file):
