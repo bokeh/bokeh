@@ -2,10 +2,12 @@
 CPUs and Memory information to the file sys_stats.csv every 0.3 seconds.
 
 """
-
 import datetime as dt
 import psutil
 import time
+import os
+here = os.path.dirname(os.path.realpath(__file__))
+filepath = os.path.join(here, 'sys_stats.csv')
 
 def using():
     now = dt.datetime.now()
@@ -16,12 +18,12 @@ def using():
 # write headers first
 cpu_count = ','.join('CPU_%s'%x for x in range(psutil.cpu_count()))
 header = 'timestamp,mem_used,mem_perc,%s\n' % cpu_count
-with file('sys_stats.csv', 'w') as f:
+with file(filepath, 'w') as f:
     f.write(header)
 
 # loop to register system cpus and memory data
 while True:
-    with file('sys_stats.csv', 'a') as f:
+    with file(filepath, 'a') as f:
         f.write(using())
 
     time.sleep(0.3)
