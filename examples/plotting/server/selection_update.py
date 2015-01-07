@@ -3,10 +3,27 @@
 
 import numpy as np
 
-from bokeh.models import BoxSelectTool, LassoSelectTool, Paragraph
-from bokeh.plotting import curdoc, cursession, figure, output_server, show, vbox, hbox
+from bokeh.models import BoxSelectTool, HBox, LassoSelectTool, Paragraph, VBox
+from bokeh.plotting import (
+        curdoc, cursession, figure, output_server, show, _deduplicate_plots, _push_or_save
+    )
 
-N = 1000
+# TODO (bev): remove these when plotting.py is fixed up to work better
+def hbox(*children, **kwargs):
+    """ Generate a plot that arranges several subplots horizontally. """
+    layout = HBox(children=list(children), **kwargs)
+    _deduplicate_plots(layout, children)
+    _push_or_save()
+    return layout
+
+def vbox(*children, **kwargs):
+    """ Generate a plot that arranges several subplots vertically. """
+    layout = VBox(children=list(children), **kwargs)
+    _deduplicate_plots(layout, children)
+    _push_or_save()
+    return layout
+
+N = 5000
 
 x = np.random.normal(size=N) * 100
 y = np.random.normal(size=N) * 100

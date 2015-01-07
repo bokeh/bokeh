@@ -876,20 +876,6 @@ def gridplot(plot_arrangement, name=None, **kwargs):
     _push_or_save()
     return grid
 
-def hbox(*children, **kwargs):
-    """ Generate a plot that arranges several subplots horizontally. """
-    layout = HBox(children=list(children), **kwargs)
-    _deduplicate_plots(layout, children)
-    _push_or_save()
-    return layout
-
-def vbox(*children, **kwargs):
-    """ Generate a plot that arranges several subplots vertically. """
-    layout = VBox(children=list(children), **kwargs)
-    _deduplicate_plots(layout, children)
-    _push_or_save()
-    return layout
-
 # TODO (bev) remove after 0.7
 def _axis(*sides):
     p = curplot()
