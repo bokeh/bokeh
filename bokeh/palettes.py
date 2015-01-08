@@ -1,473 +1,293 @@
+YlGn3       = ["#31a354", "#addd8e", "#f7fcb9"]
+YlGn4       = ["#238443", "#78c679", "#c2e699", "#ffffcc"]
+YlGn5       = ["#006837", "#31a354", "#78c679", "#c2e699", "#ffffcc"]
+YlGn6       = ["#006837", "#31a354", "#78c679", "#addd8e", "#d9f0a3", "#ffffcc"]
+YlGn7       = ["#005a32", "#238443", "#41ab5d", "#78c679", "#addd8e", "#d9f0a3", "#ffffcc"]
+YlGn8       = ["#005a32", "#238443", "#41ab5d", "#78c679", "#addd8e", "#d9f0a3", "#f7fcb9", "#ffffe5"]
+YlGn9       = ["#004529", "#006837", "#238443", "#41ab5d", "#78c679", "#addd8e", "#d9f0a3", "#f7fcb9", "#ffffe5"]
 
+YlGnBu3     = ["#2c7fb8", "#7fcdbb", "#edf8b1"]
+YlGnBu4     = ["#225ea8", "#41b6c4", "#a1dab4", "#ffffcc"]
+YlGnBu5     = ["#253494", "#2c7fb8", "#41b6c4", "#a1dab4", "#ffffcc"]
+YlGnBu6     = ["#253494", "#2c7fb8", "#41b6c4", "#7fcdbb", "#c7e9b4", "#ffffcc"]
+YlGnBu7     = ["#0c2c84", "#225ea8", "#1d91c0", "#41b6c4", "#7fcdbb", "#c7e9b4", "#ffffcc"]
+YlGnBu8     = ["#0c2c84", "#225ea8", "#1d91c0", "#41b6c4", "#7fcdbb", "#c7e9b4", "#edf8b1", "#ffffd9"]
+YlGnBu9     = ["#081d58", "#253494", "#225ea8", "#1d91c0", "#41b6c4", "#7fcdbb", "#c7e9b4", "#edf8b1", "#ffffd9"]
+
+GnBu3       = ["#43a2ca", "#a8ddb5", "#e0f3db"]
+GnBu4       = ["#2b8cbe", "#7bccc4", "#bae4bc", "#f0f9e8"]
+GnBu5       = ["#0868ac", "#43a2ca", "#7bccc4", "#bae4bc", "#f0f9e8"]
+GnBu6       = ["#0868ac", "#43a2ca", "#7bccc4", "#a8ddb5", "#ccebc5", "#f0f9e8"]
+GnBu7       = ["#08589e", "#2b8cbe", "#4eb3d3", "#7bccc4", "#a8ddb5", "#ccebc5", "#f0f9e8"]
+GnBu8       = ["#08589e", "#2b8cbe", "#4eb3d3", "#7bccc4", "#a8ddb5", "#ccebc5", "#e0f3db", "#f7fcf0"]
+GnBu9       = ["#084081", "#0868ac", "#2b8cbe", "#4eb3d3", "#7bccc4", "#a8ddb5", "#ccebc5", "#e0f3db", "#f7fcf0"]
+
+BuGn3       = ["#2ca25f", "#99d8c9", "#e5f5f9"]
+BuGn4       = ["#238b45", "#66c2a4", "#b2e2e2", "#edf8fb"]
+BuGn5       = ["#006d2c", "#2ca25f", "#66c2a4", "#b2e2e2", "#edf8fb"]
+BuGn6       = ["#006d2c", "#2ca25f", "#66c2a4", "#99d8c9", "#ccece6", "#edf8fb"]
+BuGn7       = ["#005824", "#238b45", "#41ae76", "#66c2a4", "#99d8c9", "#ccece6", "#edf8fb"]
+BuGn8       = ["#005824", "#238b45", "#41ae76", "#66c2a4", "#99d8c9", "#ccece6", "#e5f5f9", "#f7fcfd"]
+BuGn9       = ["#00441b", "#006d2c", "#238b45", "#41ae76", "#66c2a4", "#99d8c9", "#ccece6", "#e5f5f9", "#f7fcfd"]
+
+PuBuGn3     = ["#1c9099", "#a6bddb", "#ece2f0"]
+PuBuGn4     = ["#02818a", "#67a9cf", "#bdc9e1", "#f6eff7"]
+PuBuGn5     = ["#016c59", "#1c9099", "#67a9cf", "#bdc9e1", "#f6eff7"]
+PuBuGn6     = ["#016c59", "#1c9099", "#67a9cf", "#a6bddb", "#d0d1e6", "#f6eff7"]
+PuBuGn7     = ["#016450", "#02818a", "#3690c0", "#67a9cf", "#a6bddb", "#d0d1e6", "#f6eff7"]
+PuBuGn8     = ["#016450", "#02818a", "#3690c0", "#67a9cf", "#a6bddb", "#d0d1e6", "#ece2f0", "#fff7fb"]
+PuBuGn9     = ["#014636", "#016c59", "#02818a", "#3690c0", "#67a9cf", "#a6bddb", "#d0d1e6", "#ece2f0", "#fff7fb"]
+
+PuBu3       = ["#2b8cbe", "#a6bddb", "#ece7f2"]
+PuBu4       = ["#0570b0", "#74a9cf", "#bdc9e1", "#f1eef6"]
+PuBu5       = ["#045a8d", "#2b8cbe", "#74a9cf", "#bdc9e1", "#f1eef6"]
+PuBu6       = ["#045a8d", "#2b8cbe", "#74a9cf", "#a6bddb", "#d0d1e6", "#f1eef6"]
+PuBu7       = ["#034e7b", "#0570b0", "#3690c0", "#74a9cf", "#a6bddb", "#d0d1e6", "#f1eef6"]
+PuBu8       = ["#034e7b", "#0570b0", "#3690c0", "#74a9cf", "#a6bddb", "#d0d1e6", "#ece7f2", "#fff7fb"]
+PuBu9       = ["#023858", "#045a8d", "#0570b0", "#3690c0", "#74a9cf", "#a6bddb", "#d0d1e6", "#ece7f2", "#fff7fb"]
+
+BuPu3       = ["#8856a7", "#9ebcda", "#e0ecf4"]
+BuPu4       = ["#88419d", "#8c96c6", "#b3cde3", "#edf8fb"]
+BuPu5       = ["#810f7c", "#8856a7", "#8c96c6", "#b3cde3", "#edf8fb"]
+BuPu6       = ["#810f7c", "#8856a7", "#8c96c6", "#9ebcda", "#bfd3e6", "#edf8fb"]
+BuPu7       = ["#6e016b", "#88419d", "#8c6bb1", "#8c96c6", "#9ebcda", "#bfd3e6", "#edf8fb"]
+BuPu8       = ["#6e016b", "#88419d", "#8c6bb1", "#8c96c6", "#9ebcda", "#bfd3e6", "#e0ecf4", "#f7fcfd"]
+BuPu9       = ["#4d004b", "#810f7c", "#88419d", "#8c6bb1", "#8c96c6", "#9ebcda", "#bfd3e6", "#e0ecf4", "#f7fcfd"]
+
+RdPu3       = ["#c51b8a", "#fa9fb5", "#fde0dd"]
+RdPu4       = ["#ae017e", "#f768a1", "#fbb4b9", "#feebe2"]
+RdPu5       = ["#7a0177", "#c51b8a", "#f768a1", "#fbb4b9", "#feebe2"]
+RdPu6       = ["#7a0177", "#c51b8a", "#f768a1", "#fa9fb5", "#fcc5c0", "#feebe2"]
+RdPu7       = ["#7a0177", "#ae017e", "#dd3497", "#f768a1", "#fa9fb5", "#fcc5c0", "#feebe2"]
+RdPu8       = ["#7a0177", "#ae017e", "#dd3497", "#f768a1", "#fa9fb5", "#fcc5c0", "#fde0dd", "#fff7f3"]
+RdPu9       = ["#49006a", "#7a0177", "#ae017e", "#dd3497", "#f768a1", "#fa9fb5", "#fcc5c0", "#fde0dd", "#fff7f3"]
+
+PuRd3       = ["#dd1c77", "#c994c7", "#e7e1ef"]
+PuRd4       = ["#ce1256", "#df65b0", "#d7b5d8", "#f1eef6"]
+PuRd5       = ["#980043", "#dd1c77", "#df65b0", "#d7b5d8", "#f1eef6"]
+PuRd6       = ["#980043", "#dd1c77", "#df65b0", "#c994c7", "#d4b9da", "#f1eef6"]
+PuRd7       = ["#91003f", "#ce1256", "#e7298a", "#df65b0", "#c994c7", "#d4b9da", "#f1eef6"]
+PuRd8       = ["#91003f", "#ce1256", "#e7298a", "#df65b0", "#c994c7", "#d4b9da", "#e7e1ef", "#f7f4f9"]
+PuRd9       = ["#67001f", "#980043", "#ce1256", "#e7298a", "#df65b0", "#c994c7", "#d4b9da", "#e7e1ef", "#f7f4f9"]
+
+OrRd3       = ["#e34a33", "#fdbb84", "#fee8c8"]
+OrRd4       = ["#d7301f", "#fc8d59", "#fdcc8a", "#fef0d9"]
+OrRd5       = ["#b30000", "#e34a33", "#fc8d59", "#fdcc8a", "#fef0d9"]
+OrRd6       = ["#b30000", "#e34a33", "#fc8d59", "#fdbb84", "#fdd49e", "#fef0d9"]
+OrRd7       = ["#990000", "#d7301f", "#ef6548", "#fc8d59", "#fdbb84", "#fdd49e", "#fef0d9"]
+OrRd8       = ["#990000", "#d7301f", "#ef6548", "#fc8d59", "#fdbb84", "#fdd49e", "#fee8c8", "#fff7ec"]
+OrRd9       = ["#7f0000", "#b30000", "#d7301f", "#ef6548", "#fc8d59", "#fdbb84", "#fdd49e", "#fee8c8", "#fff7ec"]
+
+YlOrRd3     = ["#f03b20", "#feb24c", "#ffeda0"]
+YlOrRd4     = ["#e31a1c", "#fd8d3c", "#fecc5c", "#ffffb2"]
+YlOrRd5     = ["#bd0026", "#f03b20", "#fd8d3c", "#fecc5c", "#ffffb2"]
+YlOrRd6     = ["#bd0026", "#f03b20", "#fd8d3c", "#feb24c", "#fed976", "#ffffb2"]
+YlOrRd7     = ["#b10026", "#e31a1c", "#fc4e2a", "#fd8d3c", "#feb24c", "#fed976", "#ffffb2"]
+YlOrRd8     = ["#b10026", "#e31a1c", "#fc4e2a", "#fd8d3c", "#feb24c", "#fed976", "#ffeda0", "#ffffcc"]
+YlOrRd9     = ["#800026", "#bd0026", "#e31a1c", "#fc4e2a", "#fd8d3c", "#feb24c", "#fed976", "#ffeda0", "#ffffcc"]
+
+YlOrBr3     = ["#d95f0e", "#fec44f", "#fff7bc"]
+YlOrBr4     = ["#cc4c02", "#fe9929", "#fed98e", "#ffffd4"]
+YlOrBr5     = ["#993404", "#d95f0e", "#fe9929", "#fed98e", "#ffffd4"]
+YlOrBr6     = ["#993404", "#d95f0e", "#fe9929", "#fec44f", "#fee391", "#ffffd4"]
+YlOrBr7     = ["#8c2d04", "#cc4c02", "#ec7014", "#fe9929", "#fec44f", "#fee391", "#ffffd4"]
+YlOrBr8     = ["#8c2d04", "#cc4c02", "#ec7014", "#fe9929", "#fec44f", "#fee391", "#fff7bc", "#ffffe5"]
+YlOrBr9     = ["#662506", "#993404", "#cc4c02", "#ec7014", "#fe9929", "#fec44f", "#fee391", "#fff7bc", "#ffffe5"]
+
+Purples3    = ["#756bb1", "#bcbddc", "#efedf5"]
+Purples4    = ["#6a51a3", "#9e9ac8", "#cbc9e2", "#f2f0f7"]
+Purples5    = ["#54278f", "#756bb1", "#9e9ac8", "#cbc9e2", "#f2f0f7"]
+Purples6    = ["#54278f", "#756bb1", "#9e9ac8", "#bcbddc", "#dadaeb", "#f2f0f7"]
+Purples7    = ["#4a1486", "#6a51a3", "#807dba", "#9e9ac8", "#bcbddc", "#dadaeb", "#f2f0f7"]
+Purples8    = ["#4a1486", "#6a51a3", "#807dba", "#9e9ac8", "#bcbddc", "#dadaeb", "#efedf5", "#fcfbfd"]
+Purples9    = ["#3f007d", "#54278f", "#6a51a3", "#807dba", "#9e9ac8", "#bcbddc", "#dadaeb", "#efedf5", "#fcfbfd"]
+
+Blues3      = ["#3182bd", "#9ecae1", "#deebf7"]
+Blues4      = ["#2171b5", "#6baed6", "#bdd7e7", "#eff3ff"]
+Blues5      = ["#08519c", "#3182bd", "#6baed6", "#bdd7e7", "#eff3ff"]
+Blues6      = ["#08519c", "#3182bd", "#6baed6", "#9ecae1", "#c6dbef", "#eff3ff"]
+Blues7      = ["#084594", "#2171b5", "#4292c6", "#6baed6", "#9ecae1", "#c6dbef", "#eff3ff"]
+Blues8      = ["#084594", "#2171b5", "#4292c6", "#6baed6", "#9ecae1", "#c6dbef", "#deebf7", "#f7fbff"]
+Blues9      = ["#08306b", "#08519c", "#2171b5", "#4292c6", "#6baed6", "#9ecae1", "#c6dbef", "#deebf7", "#f7fbff"]
+
+Greens3     = ["#31a354", "#a1d99b", "#e5f5e0"]
+Greens4     = ["#238b45", "#74c476", "#bae4b3", "#edf8e9"]
+Greens5     = ["#006d2c", "#31a354", "#74c476", "#bae4b3", "#edf8e9"]
+Greens6     = ["#006d2c", "#31a354", "#74c476", "#a1d99b", "#c7e9c0", "#edf8e9"]
+Greens7     = ["#005a32", "#238b45", "#41ab5d", "#74c476", "#a1d99b", "#c7e9c0", "#edf8e9"]
+Greens8     = ["#005a32", "#238b45", "#41ab5d", "#74c476", "#a1d99b", "#c7e9c0", "#e5f5e0", "#f7fcf5"]
+Greens9     = ["#00441b", "#006d2c", "#238b45", "#41ab5d", "#74c476", "#a1d99b", "#c7e9c0", "#e5f5e0", "#f7fcf5"]
+
+Oranges3    = ["#e6550d", "#fdae6b", "#fee6ce"]
+Oranges4    = ["#d94701", "#fd8d3c", "#fdbe85", "#feedde"]
+Oranges5    = ["#a63603", "#e6550d", "#fd8d3c", "#fdbe85", "#feedde"]
+Oranges6    = ["#a63603", "#e6550d", "#fd8d3c", "#fdae6b", "#fdd0a2", "#feedde"]
+Oranges7    = ["#8c2d04", "#d94801", "#f16913", "#fd8d3c", "#fdae6b", "#fdd0a2", "#feedde"]
+Oranges8    = ["#8c2d04", "#d94801", "#f16913", "#fd8d3c", "#fdae6b", "#fdd0a2", "#fee6ce", "#fff5eb"]
+Oranges9    = ["#7f2704", "#a63603", "#d94801", "#f16913", "#fd8d3c", "#fdae6b", "#fdd0a2", "#fee6ce", "#fff5eb"]
+
+Reds3       = ["#de2d26", "#fc9272", "#fee0d2"]
+Reds4       = ["#cb181d", "#fb6a4a", "#fcae91", "#fee5d9"]
+Reds5       = ["#a50f15", "#de2d26", "#fb6a4a", "#fcae91", "#fee5d9"]
+Reds6       = ["#a50f15", "#de2d26", "#fb6a4a", "#fc9272", "#fcbba1", "#fee5d9"]
+Reds7       = ["#99000d", "#cb181d", "#ef3b2c", "#fb6a4a", "#fc9272", "#fcbba1", "#fee5d9"]
+Reds8       = ["#99000d", "#cb181d", "#ef3b2c", "#fb6a4a", "#fc9272", "#fcbba1", "#fee0d2", "#fff5f0"]
+Reds9       = ["#67000d", "#a50f15", "#cb181d", "#ef3b2c", "#fb6a4a", "#fc9272", "#fcbba1", "#fee0d2", "#fff5f0"]
+
+Greys3      = ["#636363", "#bdbdbd", "#f0f0f0"]
+Greys4      = ["#525252", "#969696", "#cccccc", "#f7f7f7"]
+Greys5      = ["#252525", "#636363", "#969696", "#cccccc", "#f7f7f7"]
+Greys6      = ["#252525", "#636363", "#969696", "#bdbdbd", "#d9d9d9", "#f7f7f7"]
+Greys7      = ["#252525", "#525252", "#737373", "#969696", "#bdbdbd", "#d9d9d9", "#f7f7f7"]
+Greys8      = ["#252525", "#525252", "#737373", "#969696", "#bdbdbd", "#d9d9d9", "#f0f0f0", "#ffffff"]
+Greys9      = ["#000000", "#252525", "#525252", "#737373", "#969696", "#bdbdbd", "#d9d9d9", "#f0f0f0", "#ffffff"]
+
+PuOr3       = ["#998ec3", "#f7f7f7", "#f1a340"]
+PuOr4       = ["#5e3c99", "#b2abd2", "#fdb863", "#e66101"]
+PuOr5       = ["#5e3c99", "#b2abd2", "#f7f7f7", "#fdb863", "#e66101"]
+PuOr6       = ["#542788", "#998ec3", "#d8daeb", "#fee0b6", "#f1a340", "#b35806"]
+PuOr7       = ["#542788", "#998ec3", "#d8daeb", "#f7f7f7", "#fee0b6", "#f1a340", "#b35806"]
+PuOr8       = ["#542788", "#8073ac", "#b2abd2", "#d8daeb", "#fee0b6", "#fdb863", "#e08214", "#b35806"]
+PuOr9       = ["#542788", "#8073ac", "#b2abd2", "#d8daeb", "#f7f7f7", "#fee0b6", "#fdb863", "#e08214", "#b35806"]
+PuOr10      = ["#2d004b", "#542788", "#8073ac", "#b2abd2", "#d8daeb", "#fee0b6", "#fdb863", "#e08214", "#b35806", "#7f3b08"]
+PuOr11      = ["#2d004b", "#542788", "#8073ac", "#b2abd2", "#d8daeb", "#f7f7f7", "#fee0b6", "#fdb863", "#e08214", "#b35806", "#7f3b08"]
+
+BrBG3       = ["#5ab4ac", "#f5f5f5", "#d8b365"]
+BrBG4       = ["#018571", "#80cdc1", "#dfc27d", "#a6611a"]
+BrBG5       = ["#018571", "#80cdc1", "#f5f5f5", "#dfc27d", "#a6611a"]
+BrBG6       = ["#01665e", "#5ab4ac", "#c7eae5", "#f6e8c3", "#d8b365", "#8c510a"]
+BrBG7       = ["#01665e", "#5ab4ac", "#c7eae5", "#f5f5f5", "#f6e8c3", "#d8b365", "#8c510a"]
+BrBG8       = ["#01665e", "#35978f", "#80cdc1", "#c7eae5", "#f6e8c3", "#dfc27d", "#bf812d", "#8c510a"]
+BrBG9       = ["#01665e", "#35978f", "#80cdc1", "#c7eae5", "#f5f5f5", "#f6e8c3", "#dfc27d", "#bf812d", "#8c510a"]
+BrBG10      = ["#003c30", "#01665e", "#35978f", "#80cdc1", "#c7eae5", "#f6e8c3", "#dfc27d", "#bf812d", "#8c510a", "#543005"]
+BrBG11      = ["#003c30", "#01665e", "#35978f", "#80cdc1", "#c7eae5", "#f5f5f5", "#f6e8c3", "#dfc27d", "#bf812d", "#8c510a", "#543005"]
+
+PRGn3       = ["#7fbf7b", "#f7f7f7", "#af8dc3"]
+PRGn4       = ["#008837", "#a6dba0", "#c2a5cf", "#7b3294"]
+PRGn5       = ["#008837", "#a6dba0", "#f7f7f7", "#c2a5cf", "#7b3294"]
+PRGn6       = ["#1b7837", "#7fbf7b", "#d9f0d3", "#e7d4e8", "#af8dc3", "#762a83"]
+PRGn7       = ["#1b7837", "#7fbf7b", "#d9f0d3", "#f7f7f7", "#e7d4e8", "#af8dc3", "#762a83"]
+PRGn8       = ["#1b7837", "#5aae61", "#a6dba0", "#d9f0d3", "#e7d4e8", "#c2a5cf", "#9970ab", "#762a83"]
+PRGn9       = ["#1b7837", "#5aae61", "#a6dba0", "#d9f0d3", "#f7f7f7", "#e7d4e8", "#c2a5cf", "#9970ab", "#762a83"]
+PRGn10      = ["#00441b", "#1b7837", "#5aae61", "#a6dba0", "#d9f0d3", "#e7d4e8", "#c2a5cf", "#9970ab", "#762a83", "#40004b"]
+PRGn11      = ["#00441b", "#1b7837", "#5aae61", "#a6dba0", "#d9f0d3", "#f7f7f7", "#e7d4e8", "#c2a5cf", "#9970ab", "#762a83", "#40004b"]
+
+PiYG3       = ["#a1d76a", "#f7f7f7", "#e9a3c9"]
+PiYG4       = ["#4dac26", "#b8e186", "#f1b6da", "#d01c8b"]
+PiYG5       = ["#4dac26", "#b8e186", "#f7f7f7", "#f1b6da", "#d01c8b"]
+PiYG6       = ["#4d9221", "#a1d76a", "#e6f5d0", "#fde0ef", "#e9a3c9", "#c51b7d"]
+PiYG7       = ["#4d9221", "#a1d76a", "#e6f5d0", "#f7f7f7", "#fde0ef", "#e9a3c9", "#c51b7d"]
+PiYG8       = ["#4d9221", "#7fbc41", "#b8e186", "#e6f5d0", "#fde0ef", "#f1b6da", "#de77ae", "#c51b7d"]
+PiYG9       = ["#4d9221", "#7fbc41", "#b8e186", "#e6f5d0", "#f7f7f7", "#fde0ef", "#f1b6da", "#de77ae", "#c51b7d"]
+PiYG10      = ["#276419", "#4d9221", "#7fbc41", "#b8e186", "#e6f5d0", "#fde0ef", "#f1b6da", "#de77ae", "#c51b7d", "#8e0152"]
+PiYG11      = ["#276419", "#4d9221", "#7fbc41", "#b8e186", "#e6f5d0", "#f7f7f7", "#fde0ef", "#f1b6da", "#de77ae", "#c51b7d", "#8e0152"]
+
+RdBu3       = ["#67a9cf", "#f7f7f7", "#ef8a62"]
+RdBu4       = ["#0571b0", "#92c5de", "#f4a582", "#ca0020"]
+RdBu5       = ["#0571b0", "#92c5de", "#f7f7f7", "#f4a582", "#ca0020"]
+RdBu6       = ["#2166ac", "#67a9cf", "#d1e5f0", "#fddbc7", "#ef8a62", "#b2182b"]
+RdBu7       = ["#2166ac", "#67a9cf", "#d1e5f0", "#f7f7f7", "#fddbc7", "#ef8a62", "#b2182b"]
+RdBu8       = ["#2166ac", "#4393c3", "#92c5de", "#d1e5f0", "#fddbc7", "#f4a582", "#d6604d", "#b2182b"]
+RdBu9       = ["#2166ac", "#4393c3", "#92c5de", "#d1e5f0", "#f7f7f7", "#fddbc7", "#f4a582", "#d6604d", "#b2182b"]
+RdBu10      = ["#053061", "#2166ac", "#4393c3", "#92c5de", "#d1e5f0", "#fddbc7", "#f4a582", "#d6604d", "#b2182b", "#67001f"]
+RdBu11      = ["#053061", "#2166ac", "#4393c3", "#92c5de", "#d1e5f0", "#f7f7f7", "#fddbc7", "#f4a582", "#d6604d", "#b2182b", "#67001f"]
+
+RdGy3       = ["#999999", "#ffffff", "#ef8a62"]
+RdGy4       = ["#404040", "#bababa", "#f4a582", "#ca0020"]
+RdGy5       = ["#404040", "#bababa", "#ffffff", "#f4a582", "#ca0020"]
+RdGy6       = ["#4d4d4d", "#999999", "#e0e0e0", "#fddbc7", "#ef8a62", "#b2182b"]
+RdGy7       = ["#4d4d4d", "#999999", "#e0e0e0", "#ffffff", "#fddbc7", "#ef8a62", "#b2182b"]
+RdGy8       = ["#4d4d4d", "#878787", "#bababa", "#e0e0e0", "#fddbc7", "#f4a582", "#d6604d", "#b2182b"]
+RdGy9       = ["#4d4d4d", "#878787", "#bababa", "#e0e0e0", "#ffffff", "#fddbc7", "#f4a582", "#d6604d", "#b2182b"]
+RdGy10      = ["#1a1a1a", "#4d4d4d", "#878787", "#bababa", "#e0e0e0", "#fddbc7", "#f4a582", "#d6604d", "#b2182b", "#67001f"]
+RdGy11      = ["#1a1a1a", "#4d4d4d", "#878787", "#bababa", "#e0e0e0", "#ffffff", "#fddbc7", "#f4a582", "#d6604d", "#b2182b", "#67001f"]
+
+RdYlBu3     = ["#91bfdb", "#ffffbf", "#fc8d59"]
+RdYlBu4     = ["#2c7bb6", "#abd9e9", "#fdae61", "#d7191c"]
+RdYlBu5     = ["#2c7bb6", "#abd9e9", "#ffffbf", "#fdae61", "#d7191c"]
+RdYlBu6     = ["#4575b4", "#91bfdb", "#e0f3f8", "#fee090", "#fc8d59", "#d73027"]
+RdYlBu7     = ["#4575b4", "#91bfdb", "#e0f3f8", "#ffffbf", "#fee090", "#fc8d59", "#d73027"]
+RdYlBu8     = ["#4575b4", "#74add1", "#abd9e9", "#e0f3f8", "#fee090", "#fdae61", "#f46d43", "#d73027"]
+RdYlBu9     = ["#4575b4", "#74add1", "#abd9e9", "#e0f3f8", "#ffffbf", "#fee090", "#fdae61", "#f46d43", "#d73027"]
+RdYlBu10    = ["#313695", "#4575b4", "#74add1", "#abd9e9", "#e0f3f8", "#fee090", "#fdae61", "#f46d43", "#d73027", "#a50026"]
+RdYlBu11    = ["#313695", "#4575b4", "#74add1", "#abd9e9", "#e0f3f8", "#ffffbf", "#fee090", "#fdae61", "#f46d43", "#d73027", "#a50026"]
+
+Spectral3   = ["#99d594", "#ffffbf", "#fc8d59"]
+Spectral4   = ["#2b83ba", "#abdda4", "#fdae61", "#d7191c"]
+Spectral5   = ["#2b83ba", "#abdda4", "#ffffbf", "#fdae61", "#d7191c"]
+Spectral6   = ["#3288bd", "#99d594", "#e6f598", "#fee08b", "#fc8d59", "#d53e4f"]
+Spectral7   = ["#3288bd", "#99d594", "#e6f598", "#ffffbf", "#fee08b", "#fc8d59", "#d53e4f"]
+Spectral8   = ["#3288bd", "#66c2a5", "#abdda4", "#e6f598", "#fee08b", "#fdae61", "#f46d43", "#d53e4f"]
+Spectral9   = ["#3288bd", "#66c2a5", "#abdda4", "#e6f598", "#ffffbf", "#fee08b", "#fdae61", "#f46d43", "#d53e4f"]
+Spectral10  = ["#5e4fa2", "#3288bd", "#66c2a5", "#abdda4", "#e6f598", "#fee08b", "#fdae61", "#f46d43", "#d53e4f", "#9e0142"]
+Spectral11  = ["#5e4fa2", "#3288bd", "#66c2a5", "#abdda4", "#e6f598", "#ffffbf", "#fee08b", "#fdae61", "#f46d43", "#d53e4f", "#9e0142"]
+
+RdYlGn3     = ["#91cf60", "#ffffbf", "#fc8d59"]
+RdYlGn4     = ["#1a9641", "#a6d96a", "#fdae61", "#d7191c"]
+RdYlGn5     = ["#1a9641", "#a6d96a", "#ffffbf", "#fdae61", "#d7191c"]
+RdYlGn6     = ["#1a9850", "#91cf60", "#d9ef8b", "#fee08b", "#fc8d59", "#d73027"]
+RdYlGn7     = ["#1a9850", "#91cf60", "#d9ef8b", "#ffffbf", "#fee08b", "#fc8d59", "#d73027"]
+RdYlGn8     = ["#1a9850", "#66bd63", "#a6d96a", "#d9ef8b", "#fee08b", "#fdae61", "#f46d43", "#d73027"]
+RdYlGn9     = ["#1a9850", "#66bd63", "#a6d96a", "#d9ef8b", "#ffffbf", "#fee08b", "#fdae61", "#f46d43", "#d73027"]
+RdYlGn10    = ["#006837", "#1a9850", "#66bd63", "#a6d96a", "#d9ef8b", "#fee08b", "#fdae61", "#f46d43", "#d73027", "#a50026"]
+RdYlGn11    = ["#006837", "#1a9850", "#66bd63", "#a6d96a", "#d9ef8b", "#ffffbf", "#fee08b", "#fdae61", "#f46d43", "#d73027", "#a50026"]
+
+__palettes__ = [
+    "YlGn3",      "YlGn4",      "YlGn5",      "YlGn6",      "YlGn7",      "YlGn8",      "YlGn9",
+    "YlGnBu3",    "YlGnBu4",    "YlGnBu5",    "YlGnBu6",    "YlGnBu7",    "YlGnBu8",    "YlGnBu9",
+    "GnBu3",      "GnBu4",      "GnBu5",      "GnBu6",      "GnBu7",      "GnBu8",      "GnBu9",
+    "BuGn3",      "BuGn4",      "BuGn5",      "BuGn6",      "BuGn7",      "BuGn8",      "BuGn9",
+    "PuBuGn3",    "PuBuGn4",    "PuBuGn5",    "PuBuGn6",    "PuBuGn7",    "PuBuGn8",    "PuBuGn9",
+    "PuBu3",      "PuBu4",      "PuBu5",      "PuBu6",      "PuBu7",      "PuBu8",      "PuBu9",
+    "BuPu3",      "BuPu4",      "BuPu5",      "BuPu6",      "BuPu7",      "BuPu8",      "BuPu9",
+    "RdPu3",      "RdPu4",      "RdPu5",      "RdPu6",      "RdPu7",      "RdPu8",      "RdPu9",
+    "PuRd3",      "PuRd4",      "PuRd5",      "PuRd6",      "PuRd7",      "PuRd8",      "PuRd9",
+    "OrRd3",      "OrRd4",      "OrRd5",      "OrRd6",      "OrRd7",      "OrRd8",      "OrRd9",
+    "YlOrRd3",    "YlOrRd4",    "YlOrRd5",    "YlOrRd6",    "YlOrRd7",    "YlOrRd8",    "YlOrRd9",
+    "YlOrBr3",    "YlOrBr4",    "YlOrBr5",    "YlOrBr6",    "YlOrBr7",    "YlOrBr8",    "YlOrBr9",
+    "Purples3",   "Purples4",   "Purples5",   "Purples6",   "Purples7",   "Purples8",   "Purples9",
+    "Blues3",     "Blues4",     "Blues5",     "Blues6",     "Blues7",     "Blues8",     "Blues9",
+    "Greens3",    "Greens4",    "Greens5",    "Greens6",    "Greens7",    "Greens8",    "Greens9",
+    "Oranges3",   "Oranges4",   "Oranges5",   "Oranges6",   "Oranges7",   "Oranges8",   "Oranges9",
+    "Reds3",      "Reds4",      "Reds5",      "Reds6",      "Reds7",      "Reds8",      "Reds9",
+    "Greys3",     "Greys4",     "Greys5",     "Greys6",     "Greys7",     "Greys8",     "Greys9",
+    "PuOr3",      "PuOr4",      "PuOr5",      "PuOr6",      "PuOr7",      "PuOr8",      "PuOr9",      "PuOr10",      "PuOr11",
+    "BrBG3",      "BrBG4",      "BrBG5",      "BrBG6",      "BrBG7",      "BrBG8",      "BrBG9",      "BrBG10",      "BrBG11",
+    "PRGn3",      "PRGn4",      "PRGn5",      "PRGn6",      "PRGn7",      "PRGn8",      "PRGn9",      "PRGn10",      "PRGn11",
+    "PiYG3",      "PiYG4",      "PiYG5",      "PiYG6",      "PiYG7",      "PiYG8",      "PiYG9",      "PiYG10",      "PiYG11",
+    "RdBu3",      "RdBu4",      "RdBu5",      "RdBu6",      "RdBu7",      "RdBu8",      "RdBu9",      "RdBu10",      "RdBu11",
+    "RdGy3",      "RdGy4",      "RdGy5",      "RdGy6",      "RdGy7",      "RdGy8",      "RdGy9",      "RdGy10",      "RdGy11",
+    "RdYlBu3",    "RdYlBu4",    "RdYlBu5",    "RdYlBu6",    "RdYlBu7",    "RdYlBu8",    "RdYlBu9",    "RdYlBu10",    "RdYlBu11",
+    "Spectral3",  "Spectral4",  "Spectral5",  "Spectral6",  "Spectral7",  "Spectral8",  "Spectral9",  "Spectral10",  "Spectral11",
+    "RdYlGn3",    "RdYlGn4",    "RdYlGn5",    "RdYlGn6",    "RdYlGn7",    "RdYlGn8",    "RdYlGn9",    "RdYlGn10",    "RdYlGn11",
+]
 
 brewer = {
-    "YlGn": {
-        3: ["#f7fcb9", "#addd8e", "#31a354"],
-        4: ["#ffffcc", "#c2e699", "#78c679", "#238443"],
-        5: ["#ffffcc", "#c2e699", "#78c679", "#31a354", "#006837"],
-        6: ["#ffffcc", "#d9f0a3", "#addd8e", "#78c679", "#31a354", "#006837"],
-        7: ["#ffffcc", "#d9f0a3", "#addd8e", "#78c679", "#41ab5d", "#238443", "#005a32"],
-        8: ["#ffffe5", "#f7fcb9", "#d9f0a3", "#addd8e", "#78c679", "#41ab5d", "#238443", "#005a32"],
-        9: ["#ffffe5", "#f7fcb9", "#d9f0a3", "#addd8e", "#78c679", "#41ab5d", "#238443", "#006837", "#004529"],
-    },
-    "YlGnBu": {
-        3: ["#edf8b1", "#7fcdbb", "#2c7fb8"],
-        4: ["#ffffcc", "#a1dab4", "#41b6c4", "#225ea8"],
-        5: ["#ffffcc", "#a1dab4", "#41b6c4", "#2c7fb8", "#253494"],
-        6: ["#ffffcc", "#c7e9b4", "#7fcdbb", "#41b6c4", "#2c7fb8", "#253494"],
-        7: ["#ffffcc", "#c7e9b4", "#7fcdbb", "#41b6c4", "#1d91c0", "#225ea8", "#0c2c84"],
-        8: ["#ffffd9", "#edf8b1", "#c7e9b4", "#7fcdbb", "#41b6c4", "#1d91c0", "#225ea8", "#0c2c84"],
-        9: ["#ffffd9", "#edf8b1", "#c7e9b4", "#7fcdbb", "#41b6c4", "#1d91c0", "#225ea8", "#253494", "#081d58"],
-    },
-    "GnBu": {
-        3: ["#e0f3db", "#a8ddb5", "#43a2ca"],
-        4: ["#f0f9e8", "#bae4bc", "#7bccc4", "#2b8cbe"],
-        5: ["#f0f9e8", "#bae4bc", "#7bccc4", "#43a2ca", "#0868a"],
-        6: ["#f0f9e8", "#ccebc5", "#a8ddb5", "#7bccc4", "#43a2ca", "#0868a"],
-        7: ["#f0f9e8", "#ccebc5", "#a8ddb5", "#7bccc4", "#4eb3d3", "#2b8cbe", "#08589e"],
-        8: ["#f7fcf0", "#e0f3db", "#ccebc5", "#a8ddb5", "#7bccc4", "#4eb3d3", "#2b8cbe", "#08589e"],
-        9: ["#f7fcf0", "#e0f3db", "#ccebc5", "#a8ddb5", "#7bccc4", "#4eb3d3", "#2b8cbe", "#0868ac", "#084081"],
-    },
-    "BuGn": {
-        3: ["#e5f5f9", "#99d8c9", "#2ca25f"],
-        4: ["#edf8fb", "#b2e2e2", "#66c2a4", "#238b45"],
-        5: ["#edf8fb", "#b2e2e2", "#66c2a4", "#2ca25f", "#006d2"],
-        6: ["#edf8fb", "#ccece6", "#99d8c9", "#66c2a4", "#2ca25f", "#006d2"],
-        7: ["#edf8fb", "#ccece6", "#99d8c9", "#66c2a4", "#41ae76", "#238b45", "#005824"],
-        8: ["#f7fcfd", "#e5f5f9", "#ccece6", "#99d8c9", "#66c2a4", "#41ae76", "#238b45", "#005824"],
-        9: ["#f7fcfd", "#e5f5f9", "#ccece6", "#99d8c9", "#66c2a4", "#41ae76", "#238b45", "#006d2c", "#00441b"],
-    },
-    "PuBuGn": {
-        3: ["#ece2f0", "#a6bddb", "#1c9099"],
-        4: ["#f6eff7", "#bdc9e1", "#67a9cf", "#02818a"],
-        5: ["#f6eff7", "#bdc9e1", "#67a9cf", "#1c9099", "#016c59"],
-        6: ["#f6eff7", "#d0d1e6", "#a6bddb", "#67a9cf", "#1c9099", "#016c59"],
-        7: ["#f6eff7", "#d0d1e6", "#a6bddb", "#67a9cf", "#3690c0", "#02818a", "#016450"],
-        8: ["#fff7fb", "#ece2f0", "#d0d1e6", "#a6bddb", "#67a9cf", "#3690c0", "#02818a", "#016450"],
-        9: ["#fff7fb", "#ece2f0", "#d0d1e6", "#a6bddb", "#67a9cf", "#3690c0", "#02818a", "#016c59", "#014636"],
-    },
-    "PuBu": {
-        3: ["#ece7f2", "#a6bddb", "#2b8cbe"],
-        4: ["#f1eef6", "#bdc9e1", "#74a9cf", "#0570b0"],
-        5: ["#f1eef6", "#bdc9e1", "#74a9cf", "#2b8cbe", "#045a8d"],
-        6: ["#f1eef6", "#d0d1e6", "#a6bddb", "#74a9cf", "#2b8cbe", "#045a8d"],
-        7: ["#f1eef6", "#d0d1e6", "#a6bddb", "#74a9cf", "#3690c0", "#0570b0", "#034e7b"],
-        8: ["#fff7fb", "#ece7f2", "#d0d1e6", "#a6bddb", "#74a9cf", "#3690c0", "#0570b0", "#034e7b"],
-        9: ["#fff7fb", "#ece7f2", "#d0d1e6", "#a6bddb", "#74a9cf", "#3690c0", "#0570b0", "#045a8d", "#023858"],
-    },
-    "BuPu": {
-        3: ["#e0ecf4", "#9ebcda", "#8856a7"],
-        4: ["#edf8fb", "#b3cde3", "#8c96c6", "#88419d"],
-        5: ["#edf8fb", "#b3cde3", "#8c96c6", "#8856a7", "#810f7"],
-        6: ["#edf8fb", "#bfd3e6", "#9ebcda", "#8c96c6", "#8856a7", "#810f7"],
-        7: ["#edf8fb", "#bfd3e6", "#9ebcda", "#8c96c6", "#8c6bb1", "#88419d", "#6e016b"],
-        8: ["#f7fcfd", "#e0ecf4", "#bfd3e6", "#9ebcda", "#8c96c6", "#8c6bb1", "#88419d", "#6e016b"],
-        9: ["#f7fcfd", "#e0ecf4", "#bfd3e6", "#9ebcda", "#8c96c6", "#8c6bb1", "#88419d", "#810f7c", "#4d004b"],
-    },
-    "RdPu": {
-        3: ["#fde0dd", "#fa9fb5", "#c51b8a"],
-        4: ["#feebe2", "#fbb4b9", "#f768a1", "#ae017e"],
-        5: ["#feebe2", "#fbb4b9", "#f768a1", "#c51b8a", "#7a0177"],
-        6: ["#feebe2", "#fcc5c0", "#fa9fb5", "#f768a1", "#c51b8a", "#7a0177"],
-        7: ["#feebe2", "#fcc5c0", "#fa9fb5", "#f768a1", "#dd3497", "#ae017e", "#7a0177"],
-        8: ["#fff7f3", "#fde0dd", "#fcc5c0", "#fa9fb5", "#f768a1", "#dd3497", "#ae017e", "#7a0177"],
-        9: ["#fff7f3", "#fde0dd", "#fcc5c0", "#fa9fb5", "#f768a1", "#dd3497", "#ae017e", "#7a0177", "#49006a"],
-    },
-    "PuRd": {
-        3: ["#e7e1ef", "#c994c7", "#dd1c77"],
-        4: ["#f1eef6", "#d7b5d8", "#df65b0", "#ce1256"],
-        5: ["#f1eef6", "#d7b5d8", "#df65b0", "#dd1c77", "#980043"],
-        6: ["#f1eef6", "#d4b9da", "#c994c7", "#df65b0", "#dd1c77", "#980043"],
-        7: ["#f1eef6", "#d4b9da", "#c994c7", "#df65b0", "#e7298a", "#ce1256", "#91003f"],
-        8: ["#f7f4f9", "#e7e1ef", "#d4b9da", "#c994c7", "#df65b0", "#e7298a", "#ce1256", "#91003f"],
-        9: ["#f7f4f9", "#e7e1ef", "#d4b9da", "#c994c7", "#df65b0", "#e7298a", "#ce1256", "#980043", "#67001f"],
-    },
-    "OrRd": {
-        3: ["#fee8c8", "#fdbb84", "#e34a33"],
-        4: ["#fef0d9", "#fdcc8a", "#fc8d59", "#d7301f"],
-        5: ["#fef0d9", "#fdcc8a", "#fc8d59", "#e34a33", "#b30000"],
-        6: ["#fef0d9", "#fdd49e", "#fdbb84", "#fc8d59", "#e34a33", "#b30000"],
-        7: ["#fef0d9", "#fdd49e", "#fdbb84", "#fc8d59", "#ef6548", "#d7301f", "#990000"],
-        8: ["#fff7ec", "#fee8c8", "#fdd49e", "#fdbb84", "#fc8d59", "#ef6548", "#d7301f", "#990000"],
-        9: ["#fff7ec", "#fee8c8", "#fdd49e", "#fdbb84", "#fc8d59", "#ef6548", "#d7301f", "#b30000", "#7f0000"],
-    },
-    "YlOrRd": {
-        3: ["#ffeda0", "#feb24c", "#f03b20"],
-        4: ["#ffffb2", "#fecc5c", "#fd8d3c", "#e31a1"],
-        5: ["#ffffb2", "#fecc5c", "#fd8d3c", "#f03b20", "#bd0026"],
-        6: ["#ffffb2", "#fed976", "#feb24c", "#fd8d3c", "#f03b20", "#bd0026"],
-        7: ["#ffffb2", "#fed976", "#feb24c", "#fd8d3c", "#fc4e2a", "#e31a1c", "#b10026"],
-        8: ["#ffffcc", "#ffeda0", "#fed976", "#feb24c", "#fd8d3c", "#fc4e2a", "#e31a1c", "#b10026"],
-        9: ["#ffffcc", "#ffeda0", "#fed976", "#feb24c", "#fd8d3c", "#fc4e2a", "#e31a1c", "#bd0026", "#800026"],
-    },
-    "YlOrBr": {
-        3: ["#fff7bc", "#fec44f", "#d95f0e"],
-        4: ["#ffffd4", "#fed98e", "#fe9929", "#cc4c02"],
-        5: ["#ffffd4", "#fed98e", "#fe9929", "#d95f0e", "#993404"],
-        6: ["#ffffd4", "#fee391", "#fec44f", "#fe9929", "#d95f0e", "#993404"],
-        7: ["#ffffd4", "#fee391", "#fec44f", "#fe9929", "#ec7014", "#cc4c02", "#8c2d04"],
-        8: ["#ffffe5", "#fff7bc", "#fee391", "#fec44f", "#fe9929", "#ec7014", "#cc4c02", "#8c2d04"],
-        9: ["#ffffe5", "#fff7bc", "#fee391", "#fec44f", "#fe9929", "#ec7014", "#cc4c02", "#993404", "#662506"],
-    },
-    "Purples": {
-        3: ["#efedf5", "#bcbddc", "#756bb1"],
-        4: ["#f2f0f7", "#cbc9e2", "#9e9ac8", "#6a51a3"],
-        5: ["#f2f0f7", "#cbc9e2", "#9e9ac8", "#756bb1", "#54278f"],
-        6: ["#f2f0f7", "#dadaeb", "#bcbddc", "#9e9ac8", "#756bb1", "#54278f"],
-        7: ["#f2f0f7", "#dadaeb", "#bcbddc", "#9e9ac8", "#807dba", "#6a51a3", "#4a1486"],
-        8: ["#fcfbfd", "#efedf5", "#dadaeb", "#bcbddc", "#9e9ac8", "#807dba", "#6a51a3", "#4a1486"],
-        9: ["#fcfbfd", "#efedf5", "#dadaeb", "#bcbddc", "#9e9ac8", "#807dba", "#6a51a3", "#54278f", "#3f007d"],
-    },
-    "Blues": {
-        3: ["#deebf7", "#9ecae1", "#3182bd"],
-        4: ["#eff3ff", "#bdd7e7", "#6baed6", "#2171b5"],
-        5: ["#eff3ff", "#bdd7e7", "#6baed6", "#3182bd", "#08519"],
-        6: ["#eff3ff", "#c6dbef", "#9ecae1", "#6baed6", "#3182bd", "#08519"],
-        7: ["#eff3ff", "#c6dbef", "#9ecae1", "#6baed6", "#4292c6", "#2171b5", "#084594"],
-        8: ["#f7fbff", "#deebf7", "#c6dbef", "#9ecae1", "#6baed6", "#4292c6", "#2171b5", "#084594"],
-        9: ["#f7fbff", "#deebf7", "#c6dbef", "#9ecae1", "#6baed6", "#4292c6", "#2171b5", "#08519c", "#08306b"],
-    },
-    "Greens": {
-        3: ["#e5f5e0", "#a1d99b", "#31a354"],
-        4: ["#edf8e9", "#bae4b3", "#74c476", "#238b45"],
-        5: ["#edf8e9", "#bae4b3", "#74c476", "#31a354", "#006d2"],
-        6: ["#edf8e9", "#c7e9c0", "#a1d99b", "#74c476", "#31a354", "#006d2"],
-        7: ["#edf8e9", "#c7e9c0", "#a1d99b", "#74c476", "#41ab5d", "#238b45", "#005a32"],
-        8: ["#f7fcf5", "#e5f5e0", "#c7e9c0", "#a1d99b", "#74c476", "#41ab5d", "#238b45", "#005a32"],
-        9: ["#f7fcf5", "#e5f5e0", "#c7e9c0", "#a1d99b", "#74c476", "#41ab5d", "#238b45", "#006d2c", "#00441b"],
-    },
-    "Oranges": {
-        3: ["#fee6ce", "#fdae6b", "#e6550d"],
-        4: ["#feedde", "#fdbe85", "#fd8d3c", "#d94701"],
-        5: ["#feedde", "#fdbe85", "#fd8d3c", "#e6550d", "#a63603"],
-        6: ["#feedde", "#fdd0a2", "#fdae6b", "#fd8d3c", "#e6550d", "#a63603"],
-        7: ["#feedde", "#fdd0a2", "#fdae6b", "#fd8d3c", "#f16913", "#d94801", "#8c2d04"],
-        8: ["#fff5eb", "#fee6ce", "#fdd0a2", "#fdae6b", "#fd8d3c", "#f16913", "#d94801", "#8c2d04"],
-        9: ["#fff5eb", "#fee6ce", "#fdd0a2", "#fdae6b", "#fd8d3c", "#f16913", "#d94801", "#a63603", "#7f2704"],
-    },
-    "Reds": {
-        3: ["#fee0d2", "#fc9272", "#de2d26"],
-        4: ["#fee5d9", "#fcae91", "#fb6a4a", "#cb181d"],
-        5: ["#fee5d9", "#fcae91", "#fb6a4a", "#de2d26", "#a50f15"],
-        6: ["#fee5d9", "#fcbba1", "#fc9272", "#fb6a4a", "#de2d26", "#a50f15"],
-        7: ["#fee5d9", "#fcbba1", "#fc9272", "#fb6a4a", "#ef3b2c", "#cb181d", "#99000d"],
-        8: ["#fff5f0", "#fee0d2", "#fcbba1", "#fc9272", "#fb6a4a", "#ef3b2c", "#cb181d", "#99000d"],
-        9: ["#fff5f0", "#fee0d2", "#fcbba1", "#fc9272", "#fb6a4a", "#ef3b2c", "#cb181d", "#a50f15", "#67000d"],
-    },
-    "Greys": {
-        3: ["#f0f0f0", "#bdbdbd", "#636363"],
-        4: ["#f7f7f7", "#cccccc", "#969696", "#525252"],
-        5: ["#f7f7f7", "#cccccc", "#969696", "#636363", "#252525"],
-        6: ["#f7f7f7", "#d9d9d9", "#bdbdbd", "#969696", "#636363", "#252525"],
-        7: ["#f7f7f7", "#d9d9d9", "#bdbdbd", "#969696", "#737373", "#525252", "#252525"],
-        8: ["#ffffff", "#f0f0f0", "#d9d9d9", "#bdbdbd", "#969696", "#737373", "#525252", "#252525"],
-        9: ["#ffffff", "#f0f0f0", "#d9d9d9", "#bdbdbd", "#969696", "#737373", "#525252", "#252525", "#000000"],
-    },
-    "PuOr": {
-        3: ["#f1a340", "#f7f7f7", "#998ec3"],
-        4: ["#e66101", "#fdb863", "#b2abd2", "#5e3c99"],
-        5: ["#e66101", "#fdb863", "#f7f7f7", "#b2abd2", "#5e3c99"],
-        6: ["#b35806", "#f1a340", "#fee0b6", "#d8daeb", "#998ec3", "#542788"],
-        7: ["#b35806", "#f1a340", "#fee0b6", "#f7f7f7", "#d8daeb", "#998ec3", "#542788"],
-        8: ["#b35806", "#e08214", "#fdb863", "#fee0b6", "#d8daeb", "#b2abd2", "#8073ac", "#542788"],
-        9: ["#b35806", "#e08214", "#fdb863", "#fee0b6", "#f7f7f7", "#d8daeb", "#b2abd2", "#8073ac", "#542788"],
-        10: ["#7f3b08", "#b35806", "#e08214", "#fdb863", "#fee0b6", "#d8daeb", "#b2abd2", "#8073ac", "#542788", "#2d004b"],
-        11: ["#7f3b08", "#b35806", "#e08214", "#fdb863", "#fee0b6", "#f7f7f7", "#d8daeb", "#b2abd2", "#8073ac", "#542788", "#2d004b"],
-    },
-    "BrBG": {
-        3: ["#d8b365", "#f5f5f5", "#5ab4a"],
-        4: ["#a6611a", "#dfc27d", "#80cdc1", "#018571"],
-        5: ["#a6611a", "#dfc27d", "#f5f5f5", "#80cdc1", "#018571"],
-        6: ["#8c510a", "#d8b365", "#f6e8c3", "#c7eae5", "#5ab4ac", "#01665e"],
-        7: ["#8c510a", "#d8b365", "#f6e8c3", "#f5f5f5", "#c7eae5", "#5ab4ac", "#01665e"],
-        8: ["#8c510a", "#bf812d", "#dfc27d", "#f6e8c3", "#c7eae5", "#80cdc1", "#35978f", "#01665e"],
-        9: ["#8c510a", "#bf812d", "#dfc27d", "#f6e8c3", "#f5f5f5", "#c7eae5", "#80cdc1", "#35978f", "#01665e"],
-        10: ["#543005", "#8c510a", "#bf812d", "#dfc27d", "#f6e8c3", "#c7eae5", "#80cdc1", "#35978f", "#01665e", "#003c30"],
-        11: ["#543005", "#8c510a", "#bf812d", "#dfc27d", "#f6e8c3", "#f5f5f5", "#c7eae5", "#80cdc1", "#35978f", "#01665e", "#003c30"],
-    },
-    "PRGn": {
-        3: ["#af8dc3", "#f7f7f7", "#7fbf7b"],
-        4: ["#7b3294", "#c2a5cf", "#a6dba0", "#008837"],
-        5: ["#7b3294", "#c2a5cf", "#f7f7f7", "#a6dba0", "#008837"],
-        6: ["#762a83", "#af8dc3", "#e7d4e8", "#d9f0d3", "#7fbf7b", "#1b7837"],
-        7: ["#762a83", "#af8dc3", "#e7d4e8", "#f7f7f7", "#d9f0d3", "#7fbf7b", "#1b7837"],
-        8: ["#762a83", "#9970ab", "#c2a5cf", "#e7d4e8", "#d9f0d3", "#a6dba0", "#5aae61", "#1b7837"],
-        9: ["#762a83", "#9970ab", "#c2a5cf", "#e7d4e8", "#f7f7f7", "#d9f0d3", "#a6dba0", "#5aae61", "#1b7837"],
-        10: ["#40004b", "#762a83", "#9970ab", "#c2a5cf", "#e7d4e8", "#d9f0d3", "#a6dba0", "#5aae61", "#1b7837", "#00441b"],
-        11: ["#40004b", "#762a83", "#9970ab", "#c2a5cf", "#e7d4e8", "#f7f7f7", "#d9f0d3", "#a6dba0", "#5aae61", "#1b7837", "#00441b"],
-    },
-    "PiYG": {
-        3: ["#e9a3c9", "#f7f7f7", "#a1d76a"],
-        4: ["#d01c8b", "#f1b6da", "#b8e186", "#4dac26"],
-        5: ["#d01c8b", "#f1b6da", "#f7f7f7", "#b8e186", "#4dac26"],
-        6: ["#c51b7d", "#e9a3c9", "#fde0ef", "#e6f5d0", "#a1d76a", "#4d9221"],
-        7: ["#c51b7d", "#e9a3c9", "#fde0ef", "#f7f7f7", "#e6f5d0", "#a1d76a", "#4d9221"],
-        8: ["#c51b7d", "#de77ae", "#f1b6da", "#fde0ef", "#e6f5d0", "#b8e186", "#7fbc41", "#4d9221"],
-        9: ["#c51b7d", "#de77ae", "#f1b6da", "#fde0ef", "#f7f7f7", "#e6f5d0", "#b8e186", "#7fbc41", "#4d9221"],
-        10: ["#8e0152", "#c51b7d", "#de77ae", "#f1b6da", "#fde0ef", "#e6f5d0", "#b8e186", "#7fbc41", "#4d9221", "#276419"],
-        11: ["#8e0152", "#c51b7d", "#de77ae", "#f1b6da", "#fde0ef", "#f7f7f7", "#e6f5d0", "#b8e186", "#7fbc41", "#4d9221", "#276419"],
-    },
-    "RdBu": {
-        3: ["#ef8a62", "#f7f7f7", "#67a9cf"],
-        4: ["#ca0020", "#f4a582", "#92c5de", "#0571b0"],
-        5: ["#ca0020", "#f4a582", "#f7f7f7", "#92c5de", "#0571b0"],
-        6: ["#b2182b", "#ef8a62", "#fddbc7", "#d1e5f0", "#67a9cf", "#2166a"],
-        7: ["#b2182b", "#ef8a62", "#fddbc7", "#f7f7f7", "#d1e5f0", "#67a9cf", "#2166a"],
-        8: ["#b2182b", "#d6604d", "#f4a582", "#fddbc7", "#d1e5f0", "#92c5de", "#4393c3", "#2166a"],
-        9: ["#b2182b", "#d6604d", "#f4a582", "#fddbc7", "#f7f7f7", "#d1e5f0", "#92c5de", "#4393c3", "#2166a"],
-        10: ["#67001f", "#b2182b", "#d6604d", "#f4a582", "#fddbc7", "#d1e5f0", "#92c5de", "#4393c3", "#2166ac", "#053061"],
-        11: ["#67001f", "#b2182b", "#d6604d", "#f4a582", "#fddbc7", "#f7f7f7", "#d1e5f0", "#92c5de", "#4393c3", "#2166ac", "#053061"],
-    },
-    "RdGy": {
-        3: ["#ef8a62", "#ffffff", "#999999"],
-        4: ["#ca0020", "#f4a582", "#bababa", "#404040"],
-        5: ["#ca0020", "#f4a582", "#ffffff", "#bababa", "#404040"],
-        6: ["#b2182b", "#ef8a62", "#fddbc7", "#e0e0e0", "#999999", "#4d4d4d"],
-        7: ["#b2182b", "#ef8a62", "#fddbc7", "#ffffff", "#e0e0e0", "#999999", "#4d4d4d"],
-        8: ["#b2182b", "#d6604d", "#f4a582", "#fddbc7", "#e0e0e0", "#bababa", "#878787", "#4d4d4d"],
-        9: ["#b2182b", "#d6604d", "#f4a582", "#fddbc7", "#ffffff", "#e0e0e0", "#bababa", "#878787", "#4d4d4d"],
-        10: ["#67001f", "#b2182b", "#d6604d", "#f4a582", "#fddbc7", "#e0e0e0", "#bababa", "#878787", "#4d4d4d", "#1a1a1a"],
-        11: ["#67001f", "#b2182b", "#d6604d", "#f4a582", "#fddbc7", "#ffffff", "#e0e0e0", "#bababa", "#878787", "#4d4d4d", "#1a1a1a"],
-    },
-    "RdYlBu": {
-        3: ["#fc8d59", "#ffffbf", "#91bfdb"],
-        4: ["#d7191c", "#fdae61", "#abd9e9", "#2c7bb6"],
-        5: ["#d7191c", "#fdae61", "#ffffbf", "#abd9e9", "#2c7bb6"],
-        6: ["#d73027", "#fc8d59", "#fee090", "#e0f3f8", "#91bfdb", "#4575b4"],
-        7: ["#d73027", "#fc8d59", "#fee090", "#ffffbf", "#e0f3f8", "#91bfdb", "#4575b4"],
-        8: ["#d73027", "#f46d43", "#fdae61", "#fee090", "#e0f3f8", "#abd9e9", "#74add1", "#4575b4"],
-        9: ["#d73027", "#f46d43", "#fdae61", "#fee090", "#ffffbf", "#e0f3f8", "#abd9e9", "#74add1", "#4575b4"],
-        10: ["#a50026", "#d73027", "#f46d43", "#fdae61", "#fee090", "#e0f3f8", "#abd9e9", "#74add1", "#4575b4", "#313695"],
-        11: ["#a50026", "#d73027", "#f46d43", "#fdae61", "#fee090", "#ffffbf", "#e0f3f8", "#abd9e9", "#74add1", "#4575b4", "#313695"],
-    },
-    "Spectral": {
-        3: ["#fc8d59", "#ffffbf", "#99d594"],
-        4: ["#d7191c", "#fdae61", "#abdda4", "#2b83ba"],
-        5: ["#d7191c", "#fdae61", "#ffffbf", "#abdda4", "#2b83ba"],
-        6: ["#d53e4f", "#fc8d59", "#fee08b", "#e6f598", "#99d594", "#3288bd"],
-        7: ["#d53e4f", "#fc8d59", "#fee08b", "#ffffbf", "#e6f598", "#99d594", "#3288bd"],
-        8: ["#d53e4f", "#f46d43", "#fdae61", "#fee08b", "#e6f598", "#abdda4", "#66c2a5", "#3288bd"],
-        9: ["#d53e4f", "#f46d43", "#fdae61", "#fee08b", "#ffffbf", "#e6f598", "#abdda4", "#66c2a5", "#3288bd"],
-        10: ["#9e0142", "#d53e4f", "#f46d43", "#fdae61", "#fee08b", "#e6f598", "#abdda4", "#66c2a5", "#3288bd", "#5e4fa2"],
-        11: ["#9e0142", "#d53e4f", "#f46d43", "#fdae61", "#fee08b", "#ffffbf", "#e6f598", "#abdda4", "#66c2a5", "#3288bd", "#5e4fa2"],
-    },
-    "RdYlGn": {
-        3: ["#fc8d59", "#ffffbf", "#91cf60"],
-        4: ["#d7191c", "#fdae61", "#a6d96a", "#1a9641"],
-        5: ["#d7191c", "#fdae61", "#ffffbf", "#a6d96a", "#1a9641"],
-        6: ["#d73027", "#fc8d59", "#fee08b", "#d9ef8b", "#91cf60", "#1a9850"],
-        7: ["#d73027", "#fc8d59", "#fee08b", "#ffffbf", "#d9ef8b", "#91cf60", "#1a9850"],
-        8: ["#d73027", "#f46d43", "#fdae61", "#fee08b", "#d9ef8b", "#a6d96a", "#66bd63", "#1a9850"],
-        9: ["#d73027", "#f46d43", "#fdae61", "#fee08b", "#ffffbf", "#d9ef8b", "#a6d96a", "#66bd63", "#1a9850"],
-        10: ["#a50026", "#d73027", "#f46d43", "#fdae61", "#fee08b", "#d9ef8b", "#a6d96a", "#66bd63", "#1a9850", "#006837"],
-        11: ["#a50026", "#d73027", "#f46d43", "#fdae61", "#fee08b", "#ffffbf", "#d9ef8b", "#a6d96a", "#66bd63", "#1a9850", "#006837"],
-    },
+    "YlGn"     : { 3: YlGn3,     4: YlGn4,     5: YlGn5,     6: YlGn6,     7: YlGn7,     8: YlGn8,     9: YlGn9 },
+    "YlGnBu"   : { 3: YlGnBu3,   4: YlGnBu4,   5: YlGnBu5,   6: YlGnBu6,   7: YlGnBu7,   8: YlGnBu8,   9: YlGnBu9 },
+    "GnBu"     : { 3: GnBu3,     4: GnBu4,     5: GnBu5,     6: GnBu6,     7: GnBu7,     8: GnBu8,     9: GnBu9 },
+    "BuGn"     : { 3: BuGn3,     4: BuGn4,     5: BuGn5,     6: BuGn6,     7: BuGn7,     8: BuGn8,     9: BuGn9 },
+    "PuBuGn"   : { 3: PuBuGn3,   4: PuBuGn4,   5: PuBuGn5,   6: PuBuGn6,   7: PuBuGn7,   8: PuBuGn8,   9: PuBuGn9 },
+    "PuBu"     : { 3: PuBu3,     4: PuBu4,     5: PuBu5,     6: PuBu6,     7: PuBu7,     8: PuBu8,     9: PuBu9 },
+    "BuPu"     : { 3: BuPu3,     4: BuPu4,     5: BuPu5,     6: BuPu6,     7: BuPu7,     8: BuPu8,     9: BuPu9 },
+    "RdPu"     : { 3: RdPu3,     4: RdPu4,     5: RdPu5,     6: RdPu6,     7: RdPu7,     8: RdPu8,     9: RdPu9 },
+    "PuRd"     : { 3: PuRd3,     4: PuRd4,     5: PuRd5,     6: PuRd6,     7: PuRd7,     8: PuRd8,     9: PuRd9 },
+    "OrRd"     : { 3: OrRd3,     4: OrRd4,     5: OrRd5,     6: OrRd6,     7: OrRd7,     8: OrRd8,     9: OrRd9 },
+    "YlOrRd"   : { 3: YlOrRd3,   4: YlOrRd4,   5: YlOrRd5,   6: YlOrRd6,   7: YlOrRd7,   8: YlOrRd8,   9: YlOrRd9 },
+    "YlOrBr"   : { 3: YlOrBr3,   4: YlOrBr4,   5: YlOrBr5,   6: YlOrBr6,   7: YlOrBr7,   8: YlOrBr8,   9: YlOrBr9 },
+    "Purples"  : { 3: Purples3,  4: Purples4,  5: Purples5,  6: Purples6,  7: Purples7,  8: Purples8,  9: Purples9 },
+    "Blues"    : { 3: Blues3,    4: Blues4,    5: Blues5,    6: Blues6,    7: Blues7,    8: Blues8,    9: Blues9 },
+    "Greens"   : { 3: Greens3,   4: Greens4,   5: Greens5,   6: Greens6,   7: Greens7,   8: Greens8,   9: Greens9 },
+    "Oranges"  : { 3: Oranges3,  4: Oranges4,  5: Oranges5,  6: Oranges6,  7: Oranges7,  8: Oranges8,  9: Oranges9 },
+    "Reds"     : { 3: Reds3,     4: Reds4,     5: Reds5,     6: Reds6,     7: Reds7,     8: Reds8,     9: Reds9 },
+    "Greys"    : { 3: Greys3,    4: Greys4,    5: Greys5,    6: Greys6,    7: Greys7,    8: Greys8,    9: Greys9 },
+    "PuOr"     : { 3: PuOr3,     4: PuOr4,     5: PuOr5,     6: PuOr6,     7: PuOr7,     8: PuOr8,     9: PuOr9,      10: PuOr10,     11: PuOr11 },
+    "BrBG"     : { 3: BrBG3,     4: BrBG4,     5: BrBG5,     6: BrBG6,     7: BrBG7,     8: BrBG8,     9: BrBG9,      10: BrBG10,     11: BrBG11 },
+    "PRGn"     : { 3: PRGn3,     4: PRGn4,     5: PRGn5,     6: PRGn6,     7: PRGn7,     8: PRGn8,     9: PRGn9,      10: PRGn10,     11: PRGn11 },
+    "PiYG"     : { 3: PiYG3,     4: PiYG4,     5: PiYG5,     6: PiYG6,     7: PiYG7,     8: PiYG8,     9: PiYG9,      10: PiYG10,     11: PiYG11 },
+    "RdBu"     : { 3: RdBu3,     4: RdBu4,     5: RdBu5,     6: RdBu6,     7: RdBu7,     8: RdBu8,     9: RdBu9,      10: RdBu10,     11: RdBu11 },
+    "RdGy"     : { 3: RdGy3,     4: RdGy4,     5: RdGy5,     6: RdGy6,     7: RdGy7,     8: RdGy8,     9: RdGy9,      10: RdGy10,     11: RdGy11 },
+    "RdYlBu"   : { 3: RdYlBu3,   4: RdYlBu4,   5: RdYlBu5,   6: RdYlBu6,   7: RdYlBu7,   8: RdYlBu8,   9: RdYlBu9,    10: RdYlBu10,   11: RdYlBu11 },
+    "Spectral" : { 3: Spectral3, 4: Spectral4, 5: Spectral5, 6: Spectral6, 7: Spectral7, 8: Spectral8, 9: Spectral9,  10: Spectral10, 11: Spectral11 },
+    "RdYlGn"   : { 3: RdYlGn3,   4: RdYlGn4,   5: RdYlGn5,   6: RdYlGn6,   7: RdYlGn7,   8: RdYlGn8,   9: RdYlGn9,    10: RdYlGn10,   11: RdYlGn11 },
 }
-
-Blues3 = brewer['Blues'][3]
-Blues4 = brewer['Blues'][4]
-Blues5 = brewer['Blues'][5]
-Blues6 = brewer['Blues'][6]
-Blues7 = brewer['Blues'][7]
-Blues8 = brewer['Blues'][8]
-Blues9 = brewer['Blues'][9]
-BrBG3 = brewer['BrBG'][3]
-BrBG4 = brewer['BrBG'][4]
-BrBG5 = brewer['BrBG'][5]
-BrBG6 = brewer['BrBG'][6]
-BrBG7 = brewer['BrBG'][7]
-BrBG8 = brewer['BrBG'][8]
-BrBG9 = brewer['BrBG'][9]
-BrBG10 = brewer['BrBG'][10]
-BrBG11 = brewer['BrBG'][11]
-BuGn3 = brewer['BuGn'][3]
-BuGn4 = brewer['BuGn'][4]
-BuGn5 = brewer['BuGn'][5]
-BuGn6 = brewer['BuGn'][6]
-BuGn7 = brewer['BuGn'][7]
-BuGn8 = brewer['BuGn'][8]
-BuGn9 = brewer['BuGn'][9]
-BuPu3 = brewer['BuPu'][3]
-BuPu4 = brewer['BuPu'][4]
-BuPu5 = brewer['BuPu'][5]
-BuPu6 = brewer['BuPu'][6]
-BuPu7 = brewer['BuPu'][7]
-BuPu8 = brewer['BuPu'][8]
-BuPu9 = brewer['BuPu'][9]
-GnBu3 = brewer['GnBu'][3]
-GnBu4 = brewer['GnBu'][4]
-GnBu5 = brewer['GnBu'][5]
-GnBu6 = brewer['GnBu'][6]
-GnBu7 = brewer['GnBu'][7]
-GnBu8 = brewer['GnBu'][8]
-GnBu9 = brewer['GnBu'][9]
-Greens3 = brewer['Greens'][3]
-Greens4 = brewer['Greens'][4]
-Greens5 = brewer['Greens'][5]
-Greens6 = brewer['Greens'][6]
-Greens7 = brewer['Greens'][7]
-Greens8 = brewer['Greens'][8]
-Greens9 = brewer['Greens'][9]
-Greys3 = brewer['Greys'][3]
-Greys4 = brewer['Greys'][4]
-Greys5 = brewer['Greys'][5]
-Greys6 = brewer['Greys'][6]
-Greys7 = brewer['Greys'][7]
-Greys8 = brewer['Greys'][8]
-Greys9 = brewer['Greys'][9]
-OrRd3 = brewer['OrRd'][3]
-OrRd4 = brewer['OrRd'][4]
-OrRd5 = brewer['OrRd'][5]
-OrRd6 = brewer['OrRd'][6]
-OrRd7 = brewer['OrRd'][7]
-OrRd8 = brewer['OrRd'][8]
-OrRd9 = brewer['OrRd'][9]
-Oranges3 = brewer['Oranges'][3]
-Oranges4 = brewer['Oranges'][4]
-Oranges5 = brewer['Oranges'][5]
-Oranges6 = brewer['Oranges'][6]
-Oranges7 = brewer['Oranges'][7]
-Oranges8 = brewer['Oranges'][8]
-Oranges9 = brewer['Oranges'][9]
-PRGn3 = brewer['PRGn'][3]
-PRGn4 = brewer['PRGn'][4]
-PRGn5 = brewer['PRGn'][5]
-PRGn6 = brewer['PRGn'][6]
-PRGn7 = brewer['PRGn'][7]
-PRGn8 = brewer['PRGn'][8]
-PRGn9 = brewer['PRGn'][9]
-PRGn10 = brewer['PRGn'][10]
-PRGn11 = brewer['PRGn'][11]
-PiYG3 = brewer['PiYG'][3]
-PiYG4 = brewer['PiYG'][4]
-PiYG5 = brewer['PiYG'][5]
-PiYG6 = brewer['PiYG'][6]
-PiYG7 = brewer['PiYG'][7]
-PiYG8 = brewer['PiYG'][8]
-PiYG9 = brewer['PiYG'][9]
-PiYG10 = brewer['PiYG'][10]
-PiYG11 = brewer['PiYG'][11]
-PuBu3 = brewer['PuBu'][3]
-PuBu4 = brewer['PuBu'][4]
-PuBu5 = brewer['PuBu'][5]
-PuBu6 = brewer['PuBu'][6]
-PuBu7 = brewer['PuBu'][7]
-PuBu8 = brewer['PuBu'][8]
-PuBu9 = brewer['PuBu'][9]
-PuBuGn3 = brewer['PuBuGn'][3]
-PuBuGn4 = brewer['PuBuGn'][4]
-PuBuGn5 = brewer['PuBuGn'][5]
-PuBuGn6 = brewer['PuBuGn'][6]
-PuBuGn7 = brewer['PuBuGn'][7]
-PuBuGn8 = brewer['PuBuGn'][8]
-PuBuGn9 = brewer['PuBuGn'][9]
-PuOr3 = brewer['PuOr'][3]
-PuOr4 = brewer['PuOr'][4]
-PuOr5 = brewer['PuOr'][5]
-PuOr6 = brewer['PuOr'][6]
-PuOr7 = brewer['PuOr'][7]
-PuOr8 = brewer['PuOr'][8]
-PuOr9 = brewer['PuOr'][9]
-PuOr10 = brewer['PuOr'][10]
-PuOr11 = brewer['PuOr'][11]
-PuRd3 = brewer['PuRd'][3]
-PuRd4 = brewer['PuRd'][4]
-PuRd5 = brewer['PuRd'][5]
-PuRd6 = brewer['PuRd'][6]
-PuRd7 = brewer['PuRd'][7]
-PuRd8 = brewer['PuRd'][8]
-PuRd9 = brewer['PuRd'][9]
-Purples3 = brewer['Purples'][3]
-Purples4 = brewer['Purples'][4]
-Purples5 = brewer['Purples'][5]
-Purples6 = brewer['Purples'][6]
-Purples7 = brewer['Purples'][7]
-Purples8 = brewer['Purples'][8]
-Purples9 = brewer['Purples'][9]
-RdBu3 = brewer['RdBu'][3]
-RdBu4 = brewer['RdBu'][4]
-RdBu5 = brewer['RdBu'][5]
-RdBu6 = brewer['RdBu'][6]
-RdBu7 = brewer['RdBu'][7]
-RdBu8 = brewer['RdBu'][8]
-RdBu9 = brewer['RdBu'][9]
-RdBu10 = brewer['RdBu'][10]
-RdBu11 = brewer['RdBu'][11]
-RdGy3 = brewer['RdGy'][3]
-RdGy4 = brewer['RdGy'][4]
-RdGy5 = brewer['RdGy'][5]
-RdGy6 = brewer['RdGy'][6]
-RdGy7 = brewer['RdGy'][7]
-RdGy8 = brewer['RdGy'][8]
-RdGy9 = brewer['RdGy'][9]
-RdGy10 = brewer['RdGy'][10]
-RdGy11 = brewer['RdGy'][11]
-RdPu3 = brewer['RdPu'][3]
-RdPu4 = brewer['RdPu'][4]
-RdPu5 = brewer['RdPu'][5]
-RdPu6 = brewer['RdPu'][6]
-RdPu7 = brewer['RdPu'][7]
-RdPu8 = brewer['RdPu'][8]
-RdPu9 = brewer['RdPu'][9]
-RdYlBu3 = brewer['RdYlBu'][3]
-RdYlBu4 = brewer['RdYlBu'][4]
-RdYlBu5 = brewer['RdYlBu'][5]
-RdYlBu6 = brewer['RdYlBu'][6]
-RdYlBu7 = brewer['RdYlBu'][7]
-RdYlBu8 = brewer['RdYlBu'][8]
-RdYlBu9 = brewer['RdYlBu'][9]
-RdYlBu10 = brewer['RdYlBu'][10]
-RdYlBu11 = brewer['RdYlBu'][11]
-RdYlGn3 = brewer['RdYlGn'][3]
-RdYlGn4 = brewer['RdYlGn'][4]
-RdYlGn5 = brewer['RdYlGn'][5]
-RdYlGn6 = brewer['RdYlGn'][6]
-RdYlGn7 = brewer['RdYlGn'][7]
-RdYlGn8 = brewer['RdYlGn'][8]
-RdYlGn9 = brewer['RdYlGn'][9]
-RdYlGn10 = brewer['RdYlGn'][10]
-RdYlGn11 = brewer['RdYlGn'][11]
-Reds3 = brewer['Reds'][3]
-Reds4 = brewer['Reds'][4]
-Reds5 = brewer['Reds'][5]
-Reds6 = brewer['Reds'][6]
-Reds7 = brewer['Reds'][7]
-Reds8 = brewer['Reds'][8]
-Reds9 = brewer['Reds'][9]
-Spectral3 = brewer['Spectral'][3]
-Spectral4 = brewer['Spectral'][4]
-Spectral5 = brewer['Spectral'][5]
-Spectral6 = brewer['Spectral'][6]
-Spectral7 = brewer['Spectral'][7]
-Spectral8 = brewer['Spectral'][8]
-Spectral9 = brewer['Spectral'][9]
-Spectral10 = brewer['Spectral'][10]
-Spectral11 = brewer['Spectral'][11]
-YlGn3 = brewer['YlGn'][3]
-YlGn4 = brewer['YlGn'][4]
-YlGn5 = brewer['YlGn'][5]
-YlGn6 = brewer['YlGn'][6]
-YlGn7 = brewer['YlGn'][7]
-YlGn8 = brewer['YlGn'][8]
-YlGn9 = brewer['YlGn'][9]
-YlGnBu3 = brewer['YlGnBu'][3]
-YlGnBu4 = brewer['YlGnBu'][4]
-YlGnBu5 = brewer['YlGnBu'][5]
-YlGnBu6 = brewer['YlGnBu'][6]
-YlGnBu7 = brewer['YlGnBu'][7]
-YlGnBu8 = brewer['YlGnBu'][8]
-YlGnBu9 = brewer['YlGnBu'][9]
-YlOrBr3 = brewer['YlOrBr'][3]
-YlOrBr4 = brewer['YlOrBr'][4]
-YlOrBr5 = brewer['YlOrBr'][5]
-YlOrBr6 = brewer['YlOrBr'][6]
-YlOrBr7 = brewer['YlOrBr'][7]
-YlOrBr8 = brewer['YlOrBr'][8]
-YlOrBr9 = brewer['YlOrBr'][9]
-YlOrRd3 = brewer['YlOrRd'][3]
-YlOrRd4 = brewer['YlOrRd'][4]
-YlOrRd5 = brewer['YlOrRd'][5]
-YlOrRd6 = brewer['YlOrRd'][6]
-YlOrRd7 = brewer['YlOrRd'][7]
-YlOrRd8 = brewer['YlOrRd'][8]
-YlOrRd9 = brewer['YlOrRd'][9]

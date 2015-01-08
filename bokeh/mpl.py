@@ -28,8 +28,7 @@ from .mpl_helpers import (convert_dashes, delete_last_col, get_props_cycled,
 from .models import (ColumnDataSource, DataRange1d, DatetimeAxis, GlyphRenderer,
                      Grid, GridPlot, LinearAxis, PanTool, Plot, PreviewSaveTool,
                      ResetTool, WheelZoomTool)
-from .plotting import (curdoc, output_file, output_notebook, output_server,
-                       show)
+from .plotting import (curdoc, output_file, output_notebook, output_server)
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -201,7 +200,7 @@ class BokehRenderer(Renderer):
             "D": Diamond,
             "*": Asterisk,
         }
-       
+
         # Not all matplotlib markers are currently handled; fall back to Circle if we encounter an
         # unhandled marker.  See http://matplotlib.org/api/markers_api.html for a list of markers.
         try:
@@ -390,8 +389,7 @@ class BokehRenderer(Renderer):
         patches.line_dash = list(convert_dashes(tuple(on_off)))
 
 
-def to_bokeh(fig=None, name=None, server=None, notebook=False, pd_obj=True,
-             xkcd=False):
+def to_bokeh(fig=None, name=None, server=None, notebook=False, pd_obj=True, xkcd=False):
     """ Uses bokeh to display a Matplotlib Figure.
 
     You can store a bokeh plot in a standalone HTML file, as a document in
@@ -458,4 +456,4 @@ def to_bokeh(fig=None, name=None, server=None, notebook=False, pd_obj=True,
     doc._current_plot = renderer.fig  # TODO (bev) do not rely on private attrs
     doc.add(renderer.fig)
 
-    show(renderer.fig)
+    return renderer.fig

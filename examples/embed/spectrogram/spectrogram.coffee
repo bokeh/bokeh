@@ -105,7 +105,7 @@ class SpectrogramPlot
   constructor: (@model, @config) ->
     @source = @model.get('data_source')
     @cmap = new Bokeh.LinearColorMapper.Model({
-      palette: Bokeh.Palettes.all_palettes["YlGnBu-9"], low: 0, high: 5
+      palette: Bokeh.Palettes.YlGnBu9, low: 0, high: 5
     })
 
     plot = @model.attributes.parent

@@ -102,7 +102,6 @@ define [
         })
 
       @unpause()
-      @request_render()
 
       logger.debug("PlotView initialized")
 
