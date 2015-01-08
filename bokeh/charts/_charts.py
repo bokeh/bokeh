@@ -224,7 +224,6 @@ class Chart(object):
 
         for plot in self._plots:
             if plot not in self.doc.context.children:
-                print "ADDING PLOT", plot, self.doc, self.doc._hold
                 self.doc._current_plot = plot
                 self.doc.add(plot)
 
@@ -504,7 +503,6 @@ class Chart(object):
             source (obj): datasource containing data for the glyph
             glyph (obj): glyph type
         """
-        print "ADDING!", glyph, self.plot
         _glyph = self.plot.add_glyph(source, glyph)
 
         self.glyphs.append(_glyph)

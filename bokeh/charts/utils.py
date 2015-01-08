@@ -63,28 +63,23 @@ class Figure(object):
         xdr, ydr = None, None
         for i, chart in enumerate(self.charts):
             chart.doc = self.doc
-            if i>0:
-                chart.xdr = xdr
-                chart.ydr = ydr
-            else:
-                xdr, ydr = chart.xdr, chart.ydr
 
+            # Force the chart to create the underlying plot
             chart._setup_show()
             chart._prepare_show()
             chart._show_teardown()
 
-            # self.doc.._current_plot = fig
-            # curdoc().add(fig)
-
             if not self.title:
                 self.title = chart.chart.title
+
+        # reset the pot title with the one set for the Figure
+        self.doc._current_plot.title = self.title
 
     def show(self):
         """Main show function.
 
         It shows the plot in file, server and notebook outputs.
         """
-
 
 
         if self.filename:
@@ -166,6 +161,9 @@ def show(obj=None, title='test', filename=False, server=False, notebook=False):
             showing the current output file.  If **new** is 'tab', then
             opens a new tab. If **new** is 'window', then opens a new window.
     """
+    if isinstance(obj, Figure):
+        return obj.show()
+
     if filename:
         if filename is True:
             filename = "untitled"
