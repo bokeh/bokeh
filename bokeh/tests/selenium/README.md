@@ -84,7 +84,7 @@ It seems that currently none of additional steps to perform are required.
 
 # Manual launching tests (mostly dedicated for developer usage)
 
-1. To get general help, try:
+1. To get general help, try (this script is in `bokeh/bokeh/tests/selenium` directory):
 
 ```
 $ ./run_selenium_tests.py -h
