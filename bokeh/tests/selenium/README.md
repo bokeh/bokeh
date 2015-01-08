@@ -63,12 +63,16 @@ Of course binaries of all of above browsers should be easily find on your `PATH`
 
 ```
 $ conda install selenium-server-standalone
-$ conda install selenium-chromedriver
 $ conda install phantomjs
 ```
 
-**Note:**
-If you are using `MacOS X` machine, then instead of installing `selenium-chromedriver`, please run this command:
+And now if you are NOT on MacOSX, run:
+
+```
+$ conda install selenium-chromedriver
+```
+
+otherwise, please run:
 
 ```
 $ brew install chromedriver
