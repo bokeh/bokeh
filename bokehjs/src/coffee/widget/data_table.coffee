@@ -123,7 +123,7 @@ define [
         checkboxSelector = new CheckboxSelectColumn(cssClass: "bk-cell-select")
         columns.unshift(checkboxSelector.getColumnDefinition())
 
-      if @mget("row_headers")
+      if @mget("row_headers") and @mget("source").get_column("index")?
         columns.unshift(@newIndexColumn())
 
       width = @mget("width")
