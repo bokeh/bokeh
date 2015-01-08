@@ -4,6 +4,7 @@ import seaborn as sns
 import matplotlib as mplc
 import matplotlib.pyplot as plt
 from bokeh import mpl
+from bokeh.plotting import show
 
 # Generate the pandas dataframe
 data = np.random.multivariate_normal([0, 0], [[1, 2], [2, 20]], size=100)
@@ -15,4 +16,4 @@ sns.kdeplot(data, cmap="BuGn_d")
 
 plt.title("Seaborn kdeplot in bokeh.")
 
-mpl.show(mpl.to_bokeh(name="kde"))
+show(mpl.to_bokeh(name="kde"))

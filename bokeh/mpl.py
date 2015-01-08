@@ -28,7 +28,7 @@ from .mpl_helpers import (convert_dashes, delete_last_col, get_props_cycled,
 from .models import (ColumnDataSource, DataRange1d, DatetimeAxis, GlyphRenderer,
                      Grid, GridPlot, LinearAxis, PanTool, Plot, PreviewSaveTool,
                      ResetTool, WheelZoomTool)
-from .plotting import (curdoc, output_file, output_notebook, output_server, show)
+from .plotting import (curdoc, output_file, output_notebook, output_server)
 
 #-----------------------------------------------------------------------------
 # Classes and functions
