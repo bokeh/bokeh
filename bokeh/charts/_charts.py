@@ -475,7 +475,8 @@ class Chart(object):
         if self.server:
             self.session.store_document(self.doc)
             link = self.session.object_link(self.doc.context)
-            view(link)
+            if not self.notebook:
+                view(link)
 
         if self.notebook:
             from bokeh.embed import notebook_div
