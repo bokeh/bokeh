@@ -81,11 +81,8 @@ class BokehRenderer(Renderer):
                              plot_height=self.height)
                 _plot.title = ""
                 # and add new tools
-                _pan = PanTool()
-                _wheelzoom = WheelZoomTool()
-                _reset = ResetTool()
-                _previewsave = PreviewSaveTool()
-                _plot.add_tools(_pan, _wheelzoom, _reset, _previewsave)
+                _tool_objs = _process_tools_arg(_plot, DEFAULT_TOOLS)
+                _plot.add_tools(*_tool_objs)
                 # clean the plot ref from axis and grids
                 _plot_rends = subrends[i]
                 for r in _plot_rends:
