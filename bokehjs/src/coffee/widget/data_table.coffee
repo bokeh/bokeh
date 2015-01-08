@@ -20,7 +20,7 @@ define [
     getLength: () -> @source.get_length()
 
     getItem: (index) ->
-      item = {}
+      item = {index: index}
       for field in @fields
         item[field] = @data[field][index]
       return item
