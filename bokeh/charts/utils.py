@@ -48,7 +48,7 @@ def polar_to_cartesian(r, start_angles, end_angles):
 
     return zip(*points)
 
-class OverlayBox(object):
+class Figure(object):
     def __init__(self, *charts, **kwargs):
         self.filename = kwargs.pop('filename', None)
         self.server = kwargs.pop('server', None)
@@ -56,57 +56,6 @@ class OverlayBox(object):
         self.title = kwargs.pop('title', '')
 
         self.charts = charts
-
-    def show(self):
-        """Main show function.
-
-        It shows the plot in file, server and notebook outputs.
-        """
-        # self.doc = Document()
-        # self.doc.hold(True)
-        # self.plot = None
-        # xdr, ydr = None, None
-        # _chart = None
-        # for i, chart in enumerate(self.charts):
-        #     chart.doc = self.doc
-        #     if i>0:
-        #         chart.xdr = xdr
-        #         chart.ydr = ydr
-        #
-        #         chart.chart = _chart
-        #         # self.create_chart()
-        #         # we start the plot (adds axis, grids and tools)
-        #         # self.start_plot()
-        #         # we prepare values
-        #         chart.prepare_values()
-        #         # we get the data from the incoming input
-        #         chart.get_data()
-        #         # we filled the source and ranges with the calculated data
-        #         chart.get_source()
-        #         # we dynamically inject the source and ranges into the plot
-        #         # self.add_data_plot()
-        #         chart._palette = None
-        #         # we add the glyphs into the plot
-        #         chart.draw()
-        #         # we pass info to build the legend
-        #         # self.end_plot()
-        #     else:
-        #         xdr, ydr = chart.xdr, chart.ydr
-        #
-        #         chart._setup_show()
-        #         chart._prepare_show()
-        #         chart._show_teardown()
-        #
-        #         _chart = chart.chart
-        #
-        #     # self.doc.._current_plot = fig
-        #     # curdoc().add(fig)
-        #
-        #     if not self.title:
-        #         self.title = chart.chart.title
-        #
-        # print self.doc.context.children
-        # print self.doc._current_plot.renderers
 
         self.doc = Document()
         self.doc.hold(True)
@@ -129,6 +78,13 @@ class OverlayBox(object):
 
             if not self.title:
                 self.title = chart.chart.title
+
+    def show(self):
+        """Main show function.
+
+        It shows the plot in file, server and notebook outputs.
+        """
+
 
 
         if self.filename:
@@ -156,10 +112,6 @@ class OverlayBox(object):
 
 
 def VBox(*charts):
-        #
-        # self._filename = kwargs.pop('filename', None)
-        # self._server = kwargs.pop('server', None)
-        # self._notebook = kwargs.pop('notebook', None)
 
     # self.doc = Document()
     # self.doc.hold(True)
