@@ -227,10 +227,7 @@ class TestBrowserCaps(object):
     def __init__(self, metadata, **kwargs):
         self.metadata = metadata
 
-        if 'platform' in kwargs:
-            self.platform = kwargs.get('platform')
-        else:
-            self.platform = None
+        self.platform = kwargs.get('platform', None)
 
         if not self.platform:
             self.platform = 'linux'
@@ -239,10 +236,7 @@ class TestBrowserCaps(object):
             print("Invalid testing environment type: %s" % (self.platform))
             sys.exit(1)
 
-        if 'version' in kwargs:
-            self.version = kwargs.get('version')
-        else:
-            self.version = None
+        self.version = kwargs.get('version', None)
 
         if not self.version:
             self.version = '1.0.0'
