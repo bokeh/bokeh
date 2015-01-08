@@ -9,4 +9,4 @@ g.draw()
 
 plt.title("Line ggplot-based plot in Bokeh.")
 
-mpl.to_bokeh(name="line")
+mpl.show(mpl.to_bokeh(name="line"))

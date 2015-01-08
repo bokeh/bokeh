@@ -6,4 +6,4 @@ ts = pd.Series(np.random.randn(1000), index=pd.date_range('1/1/2000', periods=10
 ts = ts.cumsum()
 p = ts.plot()
 
-mpl.to_bokeh(name="series")
+mpl.show(mpl.to_bokeh(name="series"))

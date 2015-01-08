@@ -34,4 +34,4 @@ plt.ylim([-60, 60])
 
 plt.title("MPL-PolyCollection support in Bokeh")
 
-mpl.to_bokeh(name="polycollection")
+mpl.show(mpl.to_bokeh(name="polycollection"))

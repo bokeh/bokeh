@@ -9,4 +9,4 @@ g.draw()
 
 plt.title("Density ggplot-based plot in Bokeh.")
 
-mpl.to_bokeh(name="density")
+mpl.show(mpl.to_bokeh(name="density"))

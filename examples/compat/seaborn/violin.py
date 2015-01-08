@@ -11,4 +11,4 @@ sns.violinplot(data, color="Set3")
 
 plt.title("Seaborn violin plot in bokeh.")
 
-mpl.to_bokeh(name="violin")
+mpl.show(mpl.to_bokeh(name="violin"))

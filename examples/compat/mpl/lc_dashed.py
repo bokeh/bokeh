@@ -21,4 +21,4 @@ ax = plt.axes()
 ax.add_collection(line_segments)
 ax.set_title('Line Collection with dashed colors')
 
-mpl.to_bokeh(name="lc_dashed")
+mpl.show(mpl.to_bokeh(name="lc_dashed"))
