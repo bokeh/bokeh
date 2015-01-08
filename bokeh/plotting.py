@@ -20,7 +20,6 @@ from .embed import notebook_div, file_html, autoload_server
 from .models import (
     Axis, FactorRange, Grid, GridPlot, HBox, Legend, LogAxis, Plot, Tool, VBox, Widget
 )
-from .palettes import brewer
 from .plotting_helpers import (
     get_default_color, get_default_alpha, _handle_1d_data_args, _list_attr_splat,
     _get_range, _get_axis_class, _get_num_minor_ticks, _tool_from_string
