@@ -14,13 +14,17 @@ define [
       else
         return (value + "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
 
-  class CellFormatterCollection extends Collection
-
     formatterDefaults: {}
     defaults: -> return _.extend {}, super(), @formatterDefaults
 
+  class CellFormatterCollection extends Collection
+
   class StringFormatter extends CellFormatter
     type: 'StringFormatter'
+    formatterDefaults:
+      font_style: null
+      text_align: null
+      text_color: null
 
     format: (row, cell, value, columnDef, dataContext) ->
       text = super(row, cell, value, columnDef, dataContext)
@@ -42,13 +46,15 @@ define [
 
   class StringFormatters extends CellFormatterCollection
     model: StringFormatter
+
+  class NumberFormatter extends StringFormatter
+    type: 'NumberFormatter'
     formatterDefaults:
       font_style: null
       text_align: null
       text_color: null
-
-  class NumberFormatter extends StringFormatter
-    type: 'NumberFormatter'
+      format: '0,0'
+      language: 'en'
 
     format: (row, cell, value, columnDef, dataContext) ->
       Numeral.language(@get("language"))
@@ -57,26 +63,22 @@ define [
 
   class NumberFormatters extends CellFormatterCollection
     model: NumberFormatter
-    formatterDefaults:
-      font_style: null
-      text_align: null
-      text_color: null
-      format: '0,0'
-      language: 'en'
 
   class BooleanFormatter extends CellFormatter
     type: 'BooleanFormatter'
+    formatterDefaults:
+      icon: 'check'
 
     format: (row, cell, value, columnDef, dataContext) ->
       if !!value then $('<i>').addClass(@get("icon")).html() else ""
 
   class BooleanFormatters extends CellFormatterCollection
     model: BooleanFormatter
-    formatterDefaults:
-      icon: 'check'
 
   class DateFormatter extends CellFormatter
     type: 'DateFormatter'
+    formatterDefaults:
+      format: 'yy M d'
 
     getFormat: () ->
       format = @get("format")
@@ -100,8 +102,6 @@ define [
 
   class DateFormatters extends CellFormatterCollection
     model: DateFormatter
-    formatterDefaults:
-      format: 'yy M d'
 
   return {
     String:
