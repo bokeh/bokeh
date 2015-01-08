@@ -1,0 +1,8 @@
+0.4.1 (Feb 2014)
+================
+
+* Improved MPL interface, LineCollection plus examples
+* Scala interface
+* Categorical axes and ranges
+* Hover tool
+* Improved pan/zoom tool interactions

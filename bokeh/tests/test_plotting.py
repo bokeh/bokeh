@@ -122,6 +122,11 @@ class TestPlotting(unittest.TestCase):
         p = plt.circle([1,2,3], [1,2,3])
         self.assertEqual(len(plt.grid()), 2)
 
+    def test_default_resources_minified(self):
+        plt.output_file("foo.html")
+        self.assertEqual(plt._default_file['resources'].minified, True)
+        plt.reset_output()
+
     def test_tools(self):
         TOOLS = "resize,pan,box_zoom,reset,lasso_select"
         fig = plt.figure(tools=TOOLS)
@@ -139,6 +144,5 @@ class TestPlotting(unittest.TestCase):
         self.assertEqual(len(fig.tools), len(expected))
         for i, _type in enumerate(expected):
             self.assertIsInstance(fig.tools[i], _type)
-
 
 

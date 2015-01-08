@@ -121,7 +121,7 @@ class Plot(Widget):
 
         for tool in tools:
             if tool.plot is not None:
-                 raise ValueError("tool %s to be added already has 'plot' attribute set" % tools)
+                 raise ValueError("tool %s to be added already has 'plot' attribute set" % tool)
             tool.plot = self
             self.tools.append(tool)
 

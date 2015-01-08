@@ -12,9 +12,9 @@ define [
       vx = canvas.sx_to_vx(e.bokeh.sx)
       vy = canvas.sy_to_vy(e.bokeh.sy)
       append = e.srcEvent.shiftKey ? false
-      @_select(vx, vy, append)
+      @_select(vx, vy, true, append)
 
-    _select: (vx, vy, append) ->
+    _select: (vx, vy, final, append) ->
       geometry = {
         type: 'point'
         vx: vx
@@ -24,9 +24,9 @@ define [
       for r in @mget('renderers')
         ds = r.get('data_source')
         sm = ds.get('selection_manager')
-        sm.select(@, @plot_view.renderers[r.id], geometry, true, append)
+        sm.select(@, @plot_view.renderers[r.id], geometry, final, append)
 
-      @_save_geometry(geometry, true, append)
+      @_save_geometry(geometry, final, append)
 
       return null
 

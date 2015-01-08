@@ -340,7 +340,7 @@ def figure(**kwargs):
     This function accepts all plot style keyword parameters.
 
     Returns:
-        None
+       figure : a new :class:`Plot <bokeh.models.plots.Plot>`
 
     '''
     fig = Figure(**kwargs)
@@ -430,7 +430,7 @@ def output_file(filename, title="Bokeh Plot", autosave=False, mode="inline", roo
     global _default_file
     _default_file = {
         'filename'  : filename,
-        'resources' : Resources(mode=mode, root_dir=root_dir, minified=False),
+        'resources' : Resources(mode=mode, root_dir=root_dir),
         'autosave'  : autosave,
         'title'     : title,
     }
@@ -799,33 +799,37 @@ def scatter(*args, **kwargs):
         raise ValueError("Invalid marker type '%s'. Use markers() to see a list of valid marker types." % markertype)
     return _marker_types[markertype](*args, **kwargs)
 
+def _deduplicate_plots(plot, subplots):
+    doc = curdoc()
+    doc.context.children = list(set(doc.context.children) - set(subplots))
+    doc.add(plot)
+    doc._current_plot = plot # TODO (bev) don't use private attrs
+
+def _push_or_save():
+    if cursession() and curdoc().autostore:
+        push()
+    if _default_file and _default_file['autosave']:
+        save()
+
 def gridplot(plot_arrangement, name=None, **kwargs):
     """ Generate a plot that arranges several subplots into a grid.
 
     Args:
-        plot_arrangement (list[:class:`Plot <bokeh.models.Plot>`]) : plots to arrange in a grid
+        plot_arrangement (nested list of Plots) : plots to arrange in a grid
         name (str) : name for this plot
         **kwargs: additional attributes to pass in to GridPlot() constructor
 
     .. note:: `plot_arrangement` can be nested, e.g [[p1, p2], [p3, p4]]
 
     Returns:
-        grid_plot: the current :class:`GridPlot <bokeh.models.GridPlot>`
+        grid_plot: a new :class:`GridPlot <bokeh.models.plots.GridPlot>`
     """
     grid = GridPlot(children=plot_arrangement, **kwargs)
     if name:
         grid._id = name
-    # Walk the plot_arrangement and remove them from the plotcontext,
-    # so they don't show up twice
     subplots = itertools.chain.from_iterable(plot_arrangement)
-    curdoc().context.children = list(set(curdoc().context.children) - set(subplots))
-    curdoc().add(grid)
-    curdoc()._current_plot = grid # TODO (bev) don't use private attrs
-
-    if _default_session:
-        push()
-    if _default_file and _default_file['autosave']:
-        save()
+    _deduplicate_plots(grid, subplots)
+    _push_or_save()
     return grid
 
 # TODO (bev) remove after 0.7

@@ -6,6 +6,7 @@ Reference Guide
    :maxdepth: 2
 
    reference/properties
+   reference/models
    reference/resources_embedding
    reference/plot_objects
    reference/plotting

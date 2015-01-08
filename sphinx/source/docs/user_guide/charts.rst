@@ -7,9 +7,9 @@ High Level Charts
     :local:
     :depth: 2
 
-.. warning:: ``bokeh.charts`` interface is still experimental an is very likely to change in the
-  next upcoming releases. Although we will always try to be consistent we cannot guarantee
-  backwards compatibility for now. Please take this into consideration when using it.
+.. warning:: ``bokeh.charts`` interface is still new, and is very likely to change
+    in upcoming releases. Although we always try to be consistent, we cannot guarantee
+    backwards compatibility for now. Please take this into consideration when using it.
 
 The main idea behind the ``bokeh.charts`` interface is to help the users to easily get their plot
 using a very high level API.
@@ -97,9 +97,9 @@ In general elements are supposed to be iterables representing each single data s
 The idea behind this canonical format is to easily represent groups of data and easily plot
 them through the interface.
 
-.. note:: Scatter chart also supports pandas ``groupby objects`` as input. As we have mentioned
-``Charts`` is still very experimental so the number of supported inputs is very likely to grow.
-
+.. note:: Scatter chart also supports pandas groupby objects as input. As we have
+        mentioned ``bokeh.charts`` is still very experimental so the number of supported
+        inputs is very likely to grow.
 
 Let see some examples using different kind of inputs:
 

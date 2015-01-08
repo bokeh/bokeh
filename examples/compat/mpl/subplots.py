@@ -9,6 +9,7 @@ matplotlib fun for a rainy day
 import matplotlib.pyplot as plt
 import numpy as np
 from bokeh import mpl
+from bokeh.plotting import show
 
 x = np.array([10, 8, 13, 9, 11, 14, 6, 4, 12, 7, 5])
 y1 = np.array([8.04, 6.95, 7.58, 8.81, 8.33, 9.96, 7.24, 4.26, 10.84, 4.82, 5.68])
@@ -51,4 +52,4 @@ plt.ylabel('IV', fontsize=20)
 
 # We create the figure in matplotlib and then we "pass it" to Bokeh
 
-mpl.to_bokeh(name="subplots")
+show(mpl.to_bokeh(name="subplots"))
