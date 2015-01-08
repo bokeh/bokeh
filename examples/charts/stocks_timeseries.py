@@ -1,7 +1,6 @@
 from collections import OrderedDict
 
 import pandas as pd
-import numpy as np
 from bokeh.charts import TimeSeries
 
 # Here is some code to read in some stock data from the Yahoo Finance API
@@ -27,8 +26,8 @@ xyvalues = OrderedDict(
 #lindex = xyvalues.pop('Date')
 #lxyvalues = list(xyvalues.values())
 #lxyvalues = np.array(xyvalues.values())
-
-ts = TimeSeries(xyvalues, index='Date', title="timeseries, pd_input",
+TOOLS="resize,pan,wheel_zoom,box_zoom,reset,previewsave"
+ts = TimeSeries(xyvalues, index='Date', title="timeseries, pd_input", tools=TOOLS,
                 ylabel='Stock Prices', filename="stocks_timeseries.html")
 
 # usage with iterable index

@@ -19,8 +19,10 @@ the generation of several outputs (file, server, notebook).
 #-----------------------------------------------------------------------------
 
 import itertools
+import warnings
 from collections import OrderedDict
-
+from six import string_types
+import re
 import numpy as np
 
 from ..models.glyphs import (Asterisk, Circle, CircleCross, CircleX, Cross, Diamond,
@@ -37,6 +39,8 @@ from ..embed import file_html
 from ..resources import INLINE
 from ..browserlib import view
 from ..utils import publish_display_data
+from ..plotting_helpers import _process_tools_arg
+from ..plotting import DEFAULT_TOOLS
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -68,7 +72,12 @@ class Chart(object):
                 ``linear``, ``datetime`` or ``categorical``.
             width (int): the width of your plot in pixels.
             height (int): the height of you plot in pixels.
-            tools (bool): to enable or disable the tools in your plot.
+            tools (seq[Tool or str]|str|bool): list of tool types or
+                string listing the tool names.
+                I.e.: `wheel_zoom,box_zoom,reset`. If a bool value
+                is specified:
+                    - `True` enables defaults tools
+                    - `False` disables all tools
             filename (str or bool): the name of the file where your plot.
                 will be written. If you pass True to this argument, it will use
                 ``untitled`` as a filename.
@@ -144,17 +153,19 @@ class Chart(object):
         if ygrid:
             self.make_grid(1, yaxis.ticker)
 
-        # Add tools
+        # Add tools if supposed to
         if self.tools:
+            # need to add tool to all underlying plots
             for plot in self._plots:
+                # only add tools if the underlying plot hasn't been customized
+                # by some user injection
                 if not plot.tools:
-                    if not self.categorical:
-                        pan = PanTool()
-                        wheelzoom = WheelZoomTool()
-                        reset = ResetTool()
-                        plot.add_tools(pan, wheelzoom, reset)
-                    previewsave = PreviewSaveTool()
-                    plot.add_tools(previewsave)
+                    # if True let's create the default tools
+                    if isinstance(self.tools, bool) and self.tools:
+                        self.tools = DEFAULT_TOOLS
+
+                    tool_objs = _process_tools_arg(plot, self.tools)
+                    plot.add_tools(*tool_objs)
 
     def add_data_plot(self, x_range, y_range):
         """Add range data to the initialized empty attributes.
