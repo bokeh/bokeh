@@ -47,29 +47,31 @@ def downsample(data,
     ending_boundaries = starting_boundaries[1:]
     ending_boundaries.append(None)
     if len(starting_boundaries) * 2 > len(data):
-        return data
+        # So little data, don't bother downsampling it
+        downsampled_data = data
+    else:
+        downsampled_data = []
+        for st, ed in zip(starting_boundaries, ending_boundaries):
+            subdata = data[st:ed]
+            if subdata.shape[0] == 0:
+                continue
 
-    downsampled_data = []
-    for st, ed in zip(starting_boundaries, ending_boundaries):
-        subdata = data[st:ed]
-        if subdata.shape[0] == 0:
-            continue
+            primary_column = subdata[primary_data_column]
+            idx = np.argsort(primary_column)
+            #downsample
+            if (method == 'minmax'):
+              min_idx = idx[0]
+              max_idx = idx[-1]
+              subdata = subdata[[min_idx, max_idx]]
+            elif (method == 'mid'):
+              mid_idx = idx[len(idx)/2]
+              part = subdata[[mid_idx]]
+            else :
+              raise ValueError("Line downsample method not known: " + method)
+            downsampled_data.append(subdata)
 
-        primary_column = subdata[primary_data_column]
-        idx = np.argsort(primary_column)
-        #downsample
-        if (method == 'minmax'):
-          min_idx = idx[0]
-          max_idx = idx[-1]
-          subdata = subdata[[min_idx, max_idx]]
-        elif (method == 'mid'):
-          mid_idx = idx[len(idx)/2]
-          part = subdata[[mid_idx]]
-        else :
-          raise ValueError("Line downsample method not known: " + method)
-        downsampled_data.append(subdata)
-
-    downsampled_data = np.concatenate(downsampled_data)
+        downsampled_data = np.concatenate(downsampled_data)
+    
     #resort data
     indexes = np.argsort(downsampled_data[domain_column])
     downsampled_data = downsampled_data[indexes]

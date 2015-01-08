@@ -60,8 +60,8 @@ def get_data(username, docid, datasourceid):
             plot_state,
             render_state)
 
-    result = make_json(protocol.serialize_json(result))
-    return result
+    json_result = make_json(protocol.serialize_json(result))
+    return json_result 
 
 @bokeh_app.route("/bokeh/data/upload/<username>/<name>", methods=['POST'])
 def upload(username, name):
