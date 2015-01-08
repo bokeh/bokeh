@@ -32,11 +32,11 @@ define [
       @render()
 
     render: () ->
+      @$el.appendTo(@args.container)
       @$input = $(@input)
       @$el.append(@$input)
       @renderEditor()
       @disableNavigation()
-      @$el.appendTo(@args.container)
 
     renderEditor: () ->
 
