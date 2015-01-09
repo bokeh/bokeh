@@ -33,11 +33,13 @@ CHARTS_MAP = get_charts_mapping()
               default=False)
 @click.option('--window_size', default='0', help=hm.HELP_WIN_SIZE)
 @click.option('--map', 'map_', default=None)
+@click.option('--map_zoom', 'map_zoom', default=12)
+@click.option('--map_layer', 'map_layer', default="hybrid")
 @click.option('--smart_filters', 'smart_filters', flag_value=True,
               default=False)
 def cli(input_source, output, title, chart_type, series, palette, index,
         buffer, sync_with_source, update_ranges, show_legend, window_size,
-        map_, smart_filters):
+        map_, smart_filters, map_zoom, map_layer):
     """Bokeh Command Line Tool is a minimal client to access high level plotting
     functionality provided by bokeh.charts API.
 
@@ -50,10 +52,11 @@ def cli(input_source, output, title, chart_type, series, palette, index,
 
     >> python bokeh-cli.py --help
     """
+    print ("ASD", map_zoom)
     cli = CLI(
         input_source, output, title, chart_type, series, palette, index, buffer,
         sync_with_source, update_ranges, show_legend, window_size, map_,
-        smart_filters
+        smart_filters, map_zoom, map_layer
     )
     cli.run()
 
@@ -66,7 +69,7 @@ class CLI(object):
     """
     def __init__(self, input_source, output, title, chart_type, series, palette,
                  index, buffer, sync_with_source, update_ranges, show_legend,
-                 window_size, map_, smart_filters):
+                 window_size, map_, smart_filters, map_zoom, map_layer):
         """Args:
         input_source (str): path to the series data file (i.e.:
             /source/to/my/data.csv)
@@ -152,6 +155,10 @@ class CLI(object):
         if map_:
             self.map_options['lat'], self.map_options['lng'] = \
                 [float(x) for x in map_.strip().split(',')]
+
+            self.map_options['zoom'] = int(map_zoom)
+            # Yeah, unfortunate namings.. :-)
+            self.map_options['map_type'] = map_layer
 
     def on_selection_changed(self, obj, attrname, old, new):
         self.current_selection = new
@@ -334,7 +341,9 @@ def create_chart(series, source, index, factories, map_options=None, children=No
                     not all([x in map_options for x in ['lat', 'lng']]):
                 raise ValueError("GMap Charts need lat and lon coordinates!")
 
-            chart = chart_type(map_options['lat'], map_options['lng'], **args)
+            all_args = dict(map_options)
+            all_args.update(args)
+            chart = chart_type(**all_args)
 
         else:
             if chart_type == bc.TimeSeries:
