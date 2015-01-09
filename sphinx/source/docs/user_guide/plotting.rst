@@ -13,7 +13,7 @@ At a Glance
 .. warning::
     The plotting api was recently changed as of version 0.7. Some old functions (for
     instance, ``hold``) are now deprecated but still function. They will be completely
-    removed in the next release. Usng  ``python -Wd`` when running Bokeh code will enable
+    removed in the next release. Using  ``python -Wd`` when running Bokeh code will enable
     printing of deprecation warnings.
 
 To access the ``plotting.py`` interface:
