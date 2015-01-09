@@ -55,7 +55,8 @@ class Chart(object):
     subclassing the ChartObject class.
     """
     def __init__(self, title, xlabel, ylabel, legend, xscale, yscale, width, height,
-                 tools, filename, server, notebook, facet = False, doc=None):
+                 tools, filename, server, notebook, facet = False, doc=None,
+                 session=None):
         """Common arguments to be used by all the inherited classes.
 
         Args:
@@ -122,6 +123,13 @@ class Chart(object):
         else:
             self.figure()
             self.doc = Document()
+
+        if self.server:
+            if session:
+                self.session = session
+
+            else:
+                self.session = Session()
 
     @property
     def plot(self):
@@ -229,7 +237,7 @@ class Chart(object):
             else:
                 self.servername = self.server
 
-            self.session = Session()
+            # self.session = Session()
             self.session.use_doc(self.servername)
             self.session.load_document(self.doc)
 

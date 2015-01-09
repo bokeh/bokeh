@@ -59,10 +59,19 @@ class Figure(object):
 
         self.doc = Document()
         self.doc.hold(True)
+
+        if self.server:
+            self.session = Session()
+            self.session.use_doc(self.server)
+            self.session.load_document(self.doc)
+
+
         self.plot = None
         xdr, ydr = None, None
         for i, chart in enumerate(self.charts):
             chart.doc = self.doc
+            if self.server:
+                chart.session = self.session
 
             # Force the chart to create the underlying plot
             chart._setup_show()
@@ -74,7 +83,10 @@ class Figure(object):
 
         # reset the pot title with the one set for the Figure
         self.doc._current_plot.title = self.title
-        self.session = chart.chart.session
+        # if hasattr(chart.chart, 'session'):
+        #     self.session = chart.chart.session
+        # else:
+        #     self.session = None
 
     def show(self):
         """Main show function.

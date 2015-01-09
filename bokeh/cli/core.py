@@ -141,7 +141,7 @@ class CLI(object):
         )
 
         if map_:
-            self.map_options['lat'], self.map_options['lon'] = \
+            self.map_options['lat'], self.map_options['lng'] = \
                 [float(x) for x in map_.strip().split(',')]
 
     def limit_source(self, source):
@@ -300,10 +300,10 @@ def create_chart(series, source, index, factories, map_options=None, **args):
     # chart_type = factories[0]
         if chart_type == bc.GMap:
             if not map_options or \
-                    not all([x in map_options for x in ['lat', 'lon']]):
+                    not all([x in map_options for x in ['lat', 'lng']]):
                 raise ValueError("GMap Charts need lat and lon coordinates!")
 
-            chart = chart_type(map_options['lat'], map_options['lon'], **args)
+            chart = chart_type(map_options['lat'], map_options['lng'], **args)
 
         else:
             if chart_type == bc.TimeSeries:
@@ -330,7 +330,8 @@ def create_chart(series, source, index, factories, map_options=None, **args):
                     values = data_series[key].values
                     data_series[key] = zip(scatter_ind[ind], values)
 
-
+                print (map_options)
+                print (data_series)
 
 
             chart = chart_type(data_series, **args)
