@@ -199,7 +199,6 @@ class CLI(object):
                 self.chart.session.poll_document(self.chart.doc)
 
         except TypeError:
-            raise
             if not self.series:
                 series_list = ', '.join(self.chart.values.keys())
                 print(hm.ERR_MSG_TEMPL % series_list)

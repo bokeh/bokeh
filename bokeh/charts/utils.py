@@ -46,7 +46,11 @@ def polar_to_cartesian(r, start_angles, end_angles):
     return zip(*points)
 
 # TODO: Experimental implementation. This should really be a shared
-#       pattern between plotting/charts and other bokeh interfaces
+#       pattern between plotting/charts and other bokeh interfaces.
+#       This will probably be part of the future charts re-design
+#       to make them inherit from plot (or at least be closer to).
+#       In this was both charts and plotting could share figure,
+#       show, save, push methods as well as VBox, etc...
 class Figure(object):
     def __init__(self, *charts, **kwargs):
         self.filename = kwargs.pop('filename', None)
