@@ -132,6 +132,7 @@ class CLI(object):
         self.window_size = int(self.window_size)
         self.smart_filters = smart_filters
         self.map_options = {}
+        self.current_selection = []
 
         self.source = self.get_input(input_source, buffer)
         # get the charts specified by the user
@@ -151,6 +152,9 @@ class CLI(object):
         if map_:
             self.map_options['lat'], self.map_options['lng'] = \
                 [float(x) for x in map_.strip().split(',')]
+
+    def on_selection_changed(self, obj, attrname, old, new):
+        self.current_selection = new
 
     def limit_source(self, source):
         """ Limit source to cli.window_size, if set.
@@ -184,6 +188,11 @@ class CLI(object):
             self.has_ranged_x_axis = 'ranged_x_axis' in self.source.columns
             self.columns = [c for c in self.source.columns if c != 'ranged_x_axis']
 
+            if self.smart_filters:
+                for chart in self.chart.charts:
+                    chart.source.on_change('selected', self, 'on_selection_changed')
+                self.chart.session.poll_document(self.chart.doc)
+
         except TypeError:
             raise
             if not self.series:
@@ -192,15 +201,18 @@ class CLI(object):
                 raise
 
         if self.sync_with_source:
-            print("animating... press ctrl-C to stop")
             keep_source_input_sync(self.input, self.update_source, self.last_byte)
 
     def on_copy(self, *args, **kws):
         print("COPYING CONTENT!")
         # TODO: EXPERIMENTAL!!! THIS EXPOSE MANY SECURITY ISSUES AND SHOULD
         #       BE REMOVED ASAP!
-        data = "hello world"
-        os.system("echo '%s' | pbcopy" % data)
+        txt = ''
+        for rowind in self.current_selection:
+            row = self.source.iloc[rowind]
+            txt += u"%s\n" % (u",".join(str(row[c]) for c in self.columns))
+
+        os.system("echo '%s' | pbcopy" % txt)
 
     def update_source(self, new_source):
         """ Update self.chart source with the new data retrieved from
