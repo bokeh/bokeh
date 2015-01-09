@@ -19,8 +19,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from .models.glyphs import (Asterisk, Circle, Cross, Diamond, InvertedTriangle, Line,
-                            MultiLine, Patches, Square, Text, Triangle, X)
+from .models.glyphs import (Asterisk, Circle, Cross, Diamond, InvertedTriangle,
+                            Line, MultiLine, Patches, Square, Text, Triangle, X)
 from .mplexporter.exporter import Exporter
 from .mplexporter.renderers import Renderer
 from .mpl_helpers import (convert_dashes, delete_last_col, get_props_cycled,
@@ -28,7 +28,9 @@ from .mpl_helpers import (convert_dashes, delete_last_col, get_props_cycled,
 from .models import (ColumnDataSource, DataRange1d, DatetimeAxis, GlyphRenderer,
                      Grid, GridPlot, LinearAxis, PanTool, Plot, PreviewSaveTool,
                      ResetTool, WheelZoomTool)
-from .plotting import (curdoc, output_file, output_notebook, output_server)
+from .plotting import (curdoc, output_file, output_notebook, output_server,
+                       DEFAULT_TOOLS)
+from .plotting_helpers import _process_tools_arg
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -59,11 +61,8 @@ class BokehRenderer(Renderer):
     def close_figure(self, fig):
         "Complete the plot: add tools."
         # Add tools
-        pan = PanTool()
-        wheelzoom = WheelZoomTool()
-        reset = ResetTool()
-        previewsave = PreviewSaveTool()
-        self.plot.add_tools(pan, wheelzoom, reset, previewsave)
+        tool_objs = _process_tools_arg(self.plot, DEFAULT_TOOLS)
+        self.plot.add_tools(*tool_objs)
 
         # Simple or Grid plot setup
         if len(fig.axes) <= 1:
@@ -82,11 +81,8 @@ class BokehRenderer(Renderer):
                              plot_height=self.height)
                 _plot.title = ""
                 # and add new tools
-                _pan = PanTool()
-                _wheelzoom = WheelZoomTool()
-                _reset = ResetTool()
-                _previewsave = PreviewSaveTool()
-                _plot.add_tools(_pan, _wheelzoom, _reset, _previewsave)
+                _tool_objs = _process_tools_arg(_plot, DEFAULT_TOOLS)
+                _plot.add_tools(*_tool_objs)
                 # clean the plot ref from axis and grids
                 _plot_rends = subrends[i]
                 for r in _plot_rends:
