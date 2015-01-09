@@ -20,9 +20,9 @@ from ..embed import file_html
 from ..resources import INLINE
 from ..browserlib import view
 from ..utils import publish_display_data
-from ..models import Layout, List, Instance, Widget
-from ..models import HBox as _HBox
-from ..models import VBox as _VBox
+# from ..models import Layout, List, Instance, Widget
+# from ..models import HBox as _HBox
+# from ..models import VBox as _VBox
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -106,41 +106,41 @@ class Figure(object):
                 publish_display_data({'text/html': notebook_div(plot)})
 
 
-def VBox(*charts):
-
-    # self.doc = Document()
-    # self.doc.hold(True)
-    plots = []
-    xdr, ydr = None, None
-    for i, chart in enumerate(charts):
-        chart._setup_show()
-        chart._prepare_show()
-        chart._show_teardown()
-
-        plots.append(chart.chart.plot)
-
-
-    return _VBox(*plots)
-
-def HBox(*charts):
-        #
-        # self._filename = kwargs.pop('filename', None)
-        # self._server = kwargs.pop('server', None)
-        # self._notebook = kwargs.pop('notebook', None)
-
-    # self.doc = Document()
-    # self.doc.hold(True)
-    plots = []
-    xdr, ydr = None, None
-    for i, chart in enumerate(charts):
-        chart._setup_show()
-        chart._prepare_show()
-        chart._show_teardown()
-
-        plots.append(chart.chart.plot)
-
-
-    return _HBox(*plots)
+# def VBox(*charts):
+#
+#     # self.doc = Document()
+#     # self.doc.hold(True)
+#     plots = []
+#     xdr, ydr = None, None
+#     for i, chart in enumerate(charts):
+#         chart._setup_show()
+#         chart._prepare_show()
+#         chart._show_teardown()
+#
+#         plots.append(chart.chart.plot)
+#
+#
+#     return _VBox(*plots)
+#
+# def HBox(*charts):
+#         #
+#         # self._filename = kwargs.pop('filename', None)
+#         # self._server = kwargs.pop('server', None)
+#         # self._notebook = kwargs.pop('notebook', None)
+#
+#     # self.doc = Document()
+#     # self.doc.hold(True)
+#     plots = []
+#     xdr, ydr = None, None
+#     for i, chart in enumerate(charts):
+#         chart._setup_show()
+#         chart._prepare_show()
+#         chart._show_teardown()
+#
+#         plots.append(chart.chart.plot)
+#
+#
+#     return _HBox(*plots)
 
 def show(obj=None, title='test', filename=False, server=False, notebook=False):
     """ 'shows' a plot object or the current plot, by auto-raising the window or tab
