@@ -52,7 +52,6 @@ def cli(input_source, output, title, chart_type, series, palette, index,
 
     >> python bokeh-cli.py --help
     """
-    print ("ASD", map_zoom)
     cli = CLI(
         input_source, output, title, chart_type, series, palette, index, buffer,
         sync_with_source, update_ranges, show_legend, window_size, map_,
