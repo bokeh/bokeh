@@ -20,9 +20,6 @@ from ..embed import file_html
 from ..resources import INLINE
 from ..browserlib import view
 from ..utils import publish_display_data
-# from ..models import Layout, List, Instance, Widget
-# from ..models import HBox as _HBox
-# from ..models import VBox as _VBox
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -48,6 +45,8 @@ def polar_to_cartesian(r, start_angles, end_angles):
 
     return zip(*points)
 
+# TODO: Experimental implementation. This should really be a shared
+#       pattern between plotting/charts and other bokeh interfaces
 class Figure(object):
     def __init__(self, *charts, **kwargs):
         self.filename = kwargs.pop('filename', None)
@@ -55,9 +54,7 @@ class Figure(object):
         self.notebook = kwargs.pop('notebook', None)
         self.title = kwargs.pop('title', '')
         self.children = kwargs.pop('children', None)
-
         self.charts = charts
-
         self.doc = Document()
         self.doc.hold(True)
 
@@ -87,18 +84,12 @@ class Figure(object):
 
         # reset the pot title with the one set for the Figure
         self.doc._current_plot.title = self.title
-        # if hasattr(chart.chart, 'session'):
-        #     self.session = chart.chart.session
-        # else:
-        #     self.session = None
 
     def show(self):
         """Main show function.
 
-        It shows the plot in file, server and notebook outputs.
+        It shows the Figure in file, server and notebook outputs.
         """
-
-
         if self.filename:
             if self.filename is True:
                 filename = "untitled"
@@ -108,6 +99,7 @@ class Figure(object):
                 f.write(file_html(self.doc, INLINE, self.title))
             print("Wrote %s" % filename)
             view(filename)
+
         elif self.filename is False and self.server is False and self.notebook is False:
             print("You have to provide a filename (filename='foo.html' or"
                   " .filename('foo.html')) to save your plot.")
@@ -123,60 +115,14 @@ class Figure(object):
                 publish_display_data({'text/html': notebook_div(plot)})
 
 
-# def VBox(*charts):
-#
-#     # self.doc = Document()
-#     # self.doc.hold(True)
-#     plots = []
-#     xdr, ydr = None, None
-#     for i, chart in enumerate(charts):
-#         chart._setup_show()
-#         chart._prepare_show()
-#         chart._show_teardown()
-#
-#         plots.append(chart.chart.plot)
-#
-#
-#     return _VBox(*plots)
-#
-# def HBox(*charts):
-#         #
-#         # self._filename = kwargs.pop('filename', None)
-#         # self._server = kwargs.pop('server', None)
-#         # self._notebook = kwargs.pop('notebook', None)
-#
-#     # self.doc = Document()
-#     # self.doc.hold(True)
-#     plots = []
-#     xdr, ydr = None, None
-#     for i, chart in enumerate(charts):
-#         chart._setup_show()
-#         chart._prepare_show()
-#         chart._show_teardown()
-#
-#         plots.append(chart.chart.plot)
-#
-#
-#     return _HBox(*plots)
-
-def show(obj=None, title='test', filename=False, server=False, notebook=False, **kws):
-    """ 'shows' a plot object or the current plot, by auto-raising the window or tab
+def show(obj, title='test', filename=False, server=False, notebook=False, **kws):
+    """ 'shows' a plot object, by auto-raising the window or tab
     displaying the current plot (for file/server output modes) or displaying
     it in an output cell (IPython notebook).
 
     Args:
         obj (Widget/Plot object, optional): it accepts a plot object and just shows it.
 
-        browser (str, optional) : browser to show with (default: None)
-            For systems that support it, the **browser** argument allows specifying
-            which browser to display in, e.g. "safari", "firefox", "opera",
-            "windows-default".  (See the webbrowser module documentation in the
-            standard lib for more details.)
-
-        new (str, optional) : new file output mode (default: "tab")
-            For file-based output, opens or raises the browser window
-            showing the current output file.  If **new** is 'tab', then
-            opens a new tab. If **new** is 'window', then opens a new window.
     """
     if isinstance(obj, Figure):
         return obj.show()

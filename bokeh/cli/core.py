@@ -1,6 +1,6 @@
 from __future__ import print_function
 
-import sys
+import sys, os
 from six.moves.urllib import request as urllib2
 from six.moves import cStringIO as StringIO
 from six import string_types
@@ -199,7 +199,6 @@ class CLI(object):
         print("COPYING CONTENT!")
         # TODO: EXPERIMENTAL!!! THIS EXPOSE MANY SECURITY ISSUES AND SHOULD
         #       BE REMOVED ASAP!
-        import os
         data = "hello world"
         os.system("echo '%s' | pbcopy" % data)
 
@@ -224,14 +223,12 @@ class CLI(object):
         ns.index = [len_source]
         self.source = pd.concat([self.source, ns])
 
+        # TODO: This should be replaced with something that just computes
+        #       the new data and source
         fig = create_chart(self.series, ns, self.index, self.factories,
                           self.map_options, **self.chart_args)
 
         for i, _c in enumerate(fig.charts):
-            # _c._setup_show()
-            # _c._prepare_show()
-            # _c._show_teardown()
-            #
             if not isinstance(_c, bc.GMap):
                 # TODO: nested charts are getting ridiculous. Need a better
                 #       better interface for charts :-)
@@ -320,7 +317,6 @@ def create_chart(series, source, index, factories, map_options=None, children=No
 
     charts = []
     for chart_type in factories:
-    # chart_type = factories[0]
         if chart_type == bc.GMap:
             if not map_options or \
                     not all([x in map_options for x in ['lat', 'lng']]):
@@ -352,10 +348,6 @@ def create_chart(series, source, index, factories, map_options=None, children=No
                 for ind, key in enumerate(data_series):
                     values = data_series[key].values
                     data_series[key] = zip(scatter_ind[ind], values)
-
-                print (map_options)
-                print (data_series)
-
 
             chart = chart_type(data_series, **args)
             if hasattr(chart, 'index'):
