@@ -144,7 +144,7 @@ def parse_output_config(output):
         return {}
 
 
-def get_chart_params(title, output):
+def get_chart_params(title, output, show_legend=False):
     """Parse output type and output options and return related chart
     parameters. For example: returns filename if output_type is file
     or server it output_type is server
@@ -161,7 +161,7 @@ def get_chart_params(title, output):
         dictionary containing the arguments to pass to a chart object
         related to title and output options
     """
-    params = {'title': title}
+    params = {'title': title, 'legend': show_legend}
     output_params = parse_output_config(output)
     if output_params:
         params.update(output_params)
@@ -169,7 +169,7 @@ def get_chart_params(title, output):
     return params
 
 
-def get_data_series(series, source, index):
+def get_data_series(series, source, indexes):
     """Generate an OrderedDict from the source series excluding index
     and all series not specified in series.
 
@@ -178,15 +178,15 @@ def get_data_series(series, source, index):
             series to keep from source
         source (DataFrame): pandas DataFrame with the data series to be
             plotted
-        index (str): name of the series of source to be used as index.
+        indexes (lst(str)): name of the series of source to be used as index.
 
     Returns:
         OrderedDict with the data series from source
     """
-    series = define_series(series, source, index)
+    series = define_series(series, source, indexes)
     # generate charts data
     data_series = OrderedDict()
-    for i, colname in enumerate(series+[index]):
+    for i, colname in enumerate(series+indexes):
         try:
             data_series[colname] = source[colname]
         except KeyError:
@@ -195,7 +195,7 @@ def get_data_series(series, source, index):
     return data_series
 
 
-def define_series(series, source, index):
+def define_series(series, source, indexes):
     """If series is empty returns source_columns excluding the column
     where column == index. Otherwise returns the series.split(',')
 
@@ -204,13 +204,13 @@ def define_series(series, source, index):
             series to keep from source, separated by `,`
         source (DataFrame): pandas DataFrame with the data series to be
             plotted
-        index (str): name of the series of source to be used as index.
+        indexes (lst(str)): name of the series of source to be used as index.
 
     Returns:
         list of the names (as str) of the series except index
     """
     if not series:
-        return [c for c in source.columns if c != index]
+        return [c for c in source.columns if c not in indexes]
     else:
         return series.split(',')
 

@@ -1,8 +1,9 @@
 from __future__ import print_function
 
-import sys
+import sys, os
 from six.moves.urllib import request as urllib2
 from six.moves import cStringIO as StringIO
+from six import string_types
 import pandas as pd
 import click
 
@@ -10,6 +11,8 @@ from . import help_messages as hm
 from .utils import (get_chart_params, get_charts_mapping,
                     get_data_series, keep_source_input_sync, get_data_from_url)
 from .. import charts as bc
+from ..charts import utils as bc_utils
+from bokeh.models.widgets import Button, VBox
 
 # Define a mapping to connect chart types supported arguments and chart classes
 CHARTS_MAP = get_charts_mapping()
@@ -24,8 +27,19 @@ CHARTS_MAP = get_charts_mapping()
 @click.option('--palette')
 @click.option('--buffer', default='f', help=hm.HELP_BUFFER)
 @click.option('--sync_with_source', default=False)
-def cli(input_source, output, title, chart_type, series, palette,
-        index, buffer, sync_with_source):
+@click.option('--update_ranges', 'update_ranges', flag_value=True,
+              default=False)
+@click.option('--legend', 'show_legend', flag_value=True,
+              default=False)
+@click.option('--window_size', default='0', help=hm.HELP_WIN_SIZE)
+@click.option('--map', 'map_', default=None)
+@click.option('--map_zoom', 'map_zoom', default=12)
+@click.option('--map_layer', 'map_layer', default="hybrid")
+@click.option('--smart_filters', 'smart_filters', flag_value=True,
+              default=False)
+def cli(input_source, output, title, chart_type, series, palette, index,
+        buffer, sync_with_source, update_ranges, show_legend, window_size,
+        map_, smart_filters, map_zoom, map_layer):
     """Bokeh Command Line Tool is a minimal client to access high level plotting
     functionality provided by bokeh.charts API.
 
@@ -40,7 +54,8 @@ def cli(input_source, output, title, chart_type, series, palette,
     """
     cli = CLI(
         input_source, output, title, chart_type, series, palette, index, buffer,
-        sync_with_source
+        sync_with_source, update_ranges, show_legend, window_size, map_,
+        smart_filters, map_zoom, map_layer
     )
     cli.run()
 
@@ -52,7 +67,8 @@ class CLI(object):
 
     """
     def __init__(self, input_source, output, title, chart_type, series, palette,
-                 index, buffer, sync_with_source):
+                 index, buffer, sync_with_source, update_ranges, show_legend,
+                 window_size, map_, smart_filters, map_zoom, map_layer):
         """Args:
         input_source (str): path to the series data file (i.e.:
             /source/to/my/data.csv)
@@ -98,6 +114,9 @@ class CLI(object):
             created on bokeh-server sync'ed with the source acting like
             `tail -f`.
             Default: False
+        window_size (int, optional): show up to N values then start dropping
+            off older ones
+            Default: '0'
 
 
         Attributes:
@@ -109,6 +128,12 @@ class CLI(object):
         self.index = index
         self.last_byte = -1
         self.sync_with_source = sync_with_source
+        self.update_ranges = update_ranges
+        self.show_legend = show_legend
+        self.window_size = int(window_size)
+        self.smart_filters = smart_filters
+        self.map_options = {}
+        self.current_selection = []
 
         self.source = self.get_input(input_source, buffer)
         # get the charts specified by the user
@@ -118,20 +143,60 @@ class CLI(object):
             print ("Sorry, custom palettes not supported yet, coming soon!")
 
         # define charts init parameters specified from cmd line and create chart
-        self.chart_args = get_chart_params(title, output)
+        self.chart_args = get_chart_params(
+            title, output, show_legend=self.show_legend
+        )
+        if self.smart_filters:
+            self.chart_args['tools'] = "pan,wheel_zoom,box_zoom,reset,save," \
+                                       "box_select,lasso_select"
+
+        if map_:
+            self.map_options['lat'], self.map_options['lng'] = \
+                [float(x) for x in map_.strip().split(',')]
+
+            self.map_options['zoom'] = int(map_zoom)
+            # Yeah, unfortunate namings.. :-)
+            self.map_options['map_type'] = map_layer
+
+    def on_selection_changed(self, obj, attrname, old, new):
+        self.current_selection = new
+
+    def limit_source(self, source):
+        """ Limit source to cli.window_size, if set.
+
+        Args:
+            source (mapping): dict-like object
+        """
+        if self.window_size:
+            for key in source.keys():
+                source[key] = source[key][-self.window_size:]
 
     def run(self):
         """ Start the CLI logic creating the input source, data conversions,
         chart instances to show and all other niceties provided by CLI
         """
         try:
+            self.limit_source(self.source)
+
+            children = []
+            if self.smart_filters:
+                copy_selection = Button(label="copy current selection")
+                copy_selection.on_click(self.on_copy)
+                children.append(copy_selection)
+
             self.chart = create_chart(
-                self.series, self.source, self.index, self.factories, **self.chart_args
+                self.series, self.source, self.index, self.factories,
+                self.map_options, children=children, **self.chart_args
             )
             self.chart.show()
 
             self.has_ranged_x_axis = 'ranged_x_axis' in self.source.columns
             self.columns = [c for c in self.source.columns if c != 'ranged_x_axis']
+
+            if self.smart_filters:
+                for chart in self.chart.charts:
+                    chart.source.on_change('selected', self, 'on_selection_changed')
+                self.chart.session.poll_document(self.chart.doc)
 
         except TypeError:
             if not self.series:
@@ -140,8 +205,18 @@ class CLI(object):
                 raise
 
         if self.sync_with_source:
-            print("animating... press ctrl-C to stop")
             keep_source_input_sync(self.input, self.update_source, self.last_byte)
+
+    def on_copy(self, *args, **kws):
+        print("COPYING CONTENT!")
+        # TODO: EXPERIMENTAL!!! THIS EXPOSE MANY SECURITY ISSUES AND SHOULD
+        #       BE REMOVED ASAP!
+        txt = ''
+        for rowind in self.current_selection:
+            row = self.source.iloc[rowind]
+            txt += u"%s\n" % (u",".join(str(row[c]) for c in self.columns))
+
+        os.system("echo '%s' | pbcopy" % txt)
 
     def update_source(self, new_source):
         """ Update self.chart source with the new data retrieved from
@@ -164,24 +239,38 @@ class CLI(object):
         ns.index = [len_source]
         self.source = pd.concat([self.source, ns])
 
-        _c = create_chart(self.series, ns, self.index, self.factories, **self.chart_args)
-        _c._setup_show()
-        _c._prepare_show()
-        _c._show_teardown()
+        # TODO: This should be replaced with something that just computes
+        #       the new data and source
+        fig = create_chart(self.series, ns, self.index, self.factories,
+                          self.map_options, **self.chart_args)
 
-        for k, v in _c.source.data.items():
-            self.chart.source.data[k] = list(self.chart.source.data[k]) + list(v)
+        for i, _c in enumerate(fig.charts):
+            if not isinstance(_c, bc.GMap):
+                # TODO: nested charts are getting ridiculous. Need a better
+                #       better interface for charts :-)
+                scc = self.chart.charts[i]
+                for k, v in _c.source.data.items():
+                    scc.source.data[k] = list(scc.source.data[k]) + list(v)
 
-        chart = self.chart.chart
-        plot = chart.plot
-        plot.y_range.end = max(
-            plot.y_range.end, _c.chart.plot.y_range.end
-        )
-        plot.y_range.start = min(
-            plot.y_range.start, _c.chart.plot.y_range.start
-        )
-        chart.session.store_objects(self.chart.source)
-        chart.session.store_objects(plot)
+                self.limit_source(scc.source.data)
+                chart = scc.chart
+                chart.session.store_objects(scc.source)
+
+                if self.update_ranges:
+                    plot = chart.plot
+                    plot.y_range.start = min(
+                        plot.y_range.start, _c.chart.plot.y_range.start
+                    )
+                    plot.y_range.end = max(
+                        plot.y_range.end, _c.chart.plot.y_range.end
+                    )
+                    plot.x_range.start = min(
+                        plot.x_range.start, _c.chart.plot.x_range.start
+                    )
+                    plot.x_range.end = max(
+                        plot.x_range.end, _c.chart.plot.x_range.end
+                    )
+                    chart.session.store_objects(plot)
 
     def get_input(self, filepath, buffer):
         """Parse received input options. If buffer is not false (=='f') if
@@ -217,7 +306,7 @@ class CLI(object):
         return source
 
 
-def create_chart(series, source, index, factories, **args):
+def create_chart(series, source, index, factories, map_options=None, children=None, **args):
     """Create charts instances from types specified in factories using
     data series names, source, index and args
 
@@ -238,18 +327,54 @@ def create_chart(series, source, index, factories, **args):
         # add the new x range data to the source dataframe
         source[index] = range(len(source[source.columns[0]]))
 
-    data_series = get_data_series(series, source, index)
+    indexes = [x for x in index.split(',') if x]
+    data_series = get_data_series(series, source, indexes)
     # parse queries to create the charts..
-    chart_type = factories[0]
-    if chart_type == bc.TimeSeries:
-        # in case the x axis type is datetime that column must be converted to
-        # datetime
-        data_series[index] = pd.to_datetime(source[index])
 
-    chart = chart_type(data_series, **args)
-    if hasattr(chart, 'index'):
-        chart.index = index
-    return chart
+    charts = []
+    for chart_type in factories:
+        if chart_type == bc.GMap:
+            if not map_options or \
+                    not all([x in map_options for x in ['lat', 'lng']]):
+                raise ValueError("GMap Charts need lat and lon coordinates!")
+
+            all_args = dict(map_options)
+            all_args.update(args)
+            chart = chart_type(**all_args)
+
+        else:
+            if chart_type == bc.TimeSeries:
+                # in case the x axis type is datetime that column must be converted to
+                # datetime
+                data_series[index] = pd.to_datetime(source[index])
+
+            elif chart_type == bc.Scatter:
+                if len(indexes) == 1:
+                    scatter_ind = [x for x in data_series.pop(indexes[0]).values]
+                    scatter_ind = [scatter_ind] * len(data_series)
+
+                else:
+                    scatter_ind = []
+                    for key in indexes:
+                        scatter_ind.append([x for x in data_series.pop(key).values])
+
+                    if len(scatter_ind) != len(data_series):
+                        err_msg = "Number of multiple indexes must be equals" \
+                                  " to the number of series"
+                        raise ValueError(err_msg)
+
+                for ind, key in enumerate(data_series):
+                    values = data_series[key].values
+                    data_series[key] = zip(scatter_ind[ind], values)
+
+            chart = chart_type(data_series, **args)
+            if hasattr(chart, 'index'):
+                chart.index = index
+
+        charts.append(chart)
+
+    fig = bc_utils.Figure(*charts, children=children, **args)
+    return fig
 
 
 def create_chart_factories(chart_types):
