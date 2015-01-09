@@ -236,7 +236,6 @@ class Chart(object):
             else:
                 self.servername = self.server
 
-            # self.session = Session()
             self.session.use_doc(self.servername)
             self.session.load_document(self.doc)
 
