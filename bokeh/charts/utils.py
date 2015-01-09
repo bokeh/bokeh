@@ -74,6 +74,7 @@ class Figure(object):
 
         # reset the pot title with the one set for the Figure
         self.doc._current_plot.title = self.title
+        self.session = chart.chart.session
 
     def show(self):
         """Main show function.

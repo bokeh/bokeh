@@ -11,6 +11,7 @@ from . import help_messages as hm
 from .utils import (get_chart_params, get_charts_mapping,
                     get_data_series, keep_source_input_sync, get_data_from_url)
 from .. import charts as bc
+from ..charts import utils as bc_utils
 
 # Define a mapping to connect chart types supported arguments and chart classes
 CHARTS_MAP = get_charts_mapping()
@@ -30,8 +31,10 @@ CHARTS_MAP = get_charts_mapping()
 @click.option('--legend', 'show_legend', flag_value=True,
               default=False)
 @click.option('--window_size', default='0', help=hm.HELP_WIN_SIZE)
+@click.option('--map', 'map_', default=None)
 def cli(input_source, output, title, chart_type, series, palette, index,
-        buffer, sync_with_source, update_ranges, show_legend, window_size):
+        buffer, sync_with_source, update_ranges, show_legend, window_size,
+        map_):
     """Bokeh Command Line Tool is a minimal client to access high level plotting
     functionality provided by bokeh.charts API.
 
@@ -46,7 +49,7 @@ def cli(input_source, output, title, chart_type, series, palette, index,
     """
     cli = CLI(
         input_source, output, title, chart_type, series, palette, index, buffer,
-        sync_with_source, update_ranges, show_legend, window_size
+        sync_with_source, update_ranges, show_legend, window_size, map_
     )
     cli.run()
 
@@ -59,7 +62,7 @@ class CLI(object):
     """
     def __init__(self, input_source, output, title, chart_type, series, palette,
                  index, buffer, sync_with_source, update_ranges, show_legend,
-                 window_size):
+                 window_size, map_):
         """Args:
         input_source (str): path to the series data file (i.e.:
             /source/to/my/data.csv)
@@ -122,7 +125,8 @@ class CLI(object):
         self.update_ranges = update_ranges
         self.show_legend = show_legend
         self.window_size = window_size
-        self.window_size=int(self.window_size)
+        self.window_size = int(self.window_size)
+        self.map_options = {}
 
         self.source = self.get_input(input_source, buffer)
         # get the charts specified by the user
@@ -135,6 +139,10 @@ class CLI(object):
         self.chart_args = get_chart_params(
             title, output, show_legend=self.show_legend
         )
+
+        if map_:
+            self.map_options['lat'], self.map_options['lon'] = \
+                [float(x) for x in map_.strip().split(',')]
 
     def limit_source(self, source):
         """ Limit source to cli.window_size, if set.
@@ -153,7 +161,8 @@ class CLI(object):
         try:
             self.limit_source(self.source)
             self.chart = create_chart(
-                self.series, self.source, self.index, self.factories, **self.chart_args
+                self.series, self.source, self.index, self.factories,
+                self.map_options, **self.chart_args
             )
             self.chart.show()
 
@@ -161,6 +170,7 @@ class CLI(object):
             self.columns = [c for c in self.source.columns if c != 'ranged_x_axis']
 
         except TypeError:
+            raise
             if not self.series:
                 series_list = ', '.join(self.chart.values.keys())
                 print(hm.ERR_MSG_TEMPL % series_list)
@@ -191,33 +201,40 @@ class CLI(object):
         ns.index = [len_source]
         self.source = pd.concat([self.source, ns])
 
-        _c = create_chart(self.series, ns, self.index, self.factories, **self.chart_args)
-        _c._setup_show()
-        _c._prepare_show()
-        _c._show_teardown()
+        fig = create_chart(self.series, ns, self.index, self.factories,
+                          self.map_options, **self.chart_args)
 
-        for k, v in _c.source.data.items():
-            self.chart.source.data[k] = list(self.chart.source.data[k]) + list(v)
+        for i, _c in enumerate(fig.charts):
+            # _c._setup_show()
+            # _c._prepare_show()
+            # _c._show_teardown()
+            #
+            if not isinstance(_c, bc.GMap):
+                # TODO: nested charts are getting ridiculous. Need a better
+                #       better interface for charts :-)
+                scc = self.chart.charts[i]
+                for k, v in _c.source.data.items():
+                    scc.source.data[k] = list(scc.source.data[k]) + list(v)
 
-        self.limit_source(self.chart.source.data)
-        chart = self.chart.chart
-        chart.session.store_objects(self.chart.source)
+                self.limit_source(scc.source.data)
+                chart = scc.chart
+                chart.session.store_objects(scc.source)
 
-        if self.update_ranges:
-            plot = chart.plot
-            plot.y_range.end = max(
-                plot.y_range.end, _c.chart.plot.y_range.end
-            )
-            plot.y_range.start = min(
-                plot.y_range.start, _c.chart.plot.y_range.start
-            )
-            plot.x_range.end = max(
-                plot.x_range.end, _c.chart.plot.x_range.end
-            )
-            plot.x_range.start = min(
-                plot.x_range.start, _c.chart.plot.x_range.start
-            )
-            chart.session.store_objects(plot)
+                if self.update_ranges:
+                    plot = chart.plot
+                    plot.y_range.end = max(
+                        plot.y_range.end, _c.chart.plot.y_range.end
+                    )
+                    plot.y_range.start = min(
+                        plot.y_range.start, _c.chart.plot.y_range.start
+                    )
+                    plot.x_range.end = max(
+                        plot.x_range.end, _c.chart.plot.x_range.end
+                    )
+                    plot.x_range.start = min(
+                        plot.x_range.start, _c.chart.plot.x_range.start
+                    )
+                    chart.session.store_objects(plot)
 
     def get_input(self, filepath, buffer):
         """Parse received input options. If buffer is not false (=='f') if
@@ -253,7 +270,7 @@ class CLI(object):
         return source
 
 
-def create_chart(series, source, index, factories, **args):
+def create_chart(series, source, index, factories, map_options=None, **args):
     """Create charts instances from types specified in factories using
     data series names, source, index and args
 
@@ -277,39 +294,53 @@ def create_chart(series, source, index, factories, **args):
     indexes = [x for x in index.split(',') if x]
     data_series = get_data_series(series, source, indexes)
     # parse queries to create the charts..
-    chart_type = factories[0]
-    if chart_type == bc.TimeSeries:
-        # in case the x axis type is datetime that column must be converted to
-        # datetime
-        data_series[index] = pd.to_datetime(source[index])
 
-    elif chart_type == bc.Scatter:
-        if len(indexes) == 1:
-            scatter_ind = [x for x in data_series.pop(indexes[0]).values]
-            scatter_ind = [scatter_ind] * len(data_series)
+    charts = []
+    for chart_type in factories:
+    # chart_type = factories[0]
+        if chart_type == bc.GMap:
+            if not map_options or \
+                    not all([x in map_options for x in ['lat', 'lon']]):
+                raise ValueError("GMap Charts need lat and lon coordinates!")
+
+            chart = chart_type(map_options['lat'], map_options['lon'], **args)
 
         else:
-            scatter_ind = []
-            for key in indexes:
-                scatter_ind.append([x for x in data_series.pop(key).values])
+            if chart_type == bc.TimeSeries:
+                # in case the x axis type is datetime that column must be converted to
+                # datetime
+                data_series[index] = pd.to_datetime(source[index])
 
-            if not len(scatter_ind) == len(data_series):
-                err_msg = "Number of multiple indexes must be equals" \
-                          " to the number of series"
-                raise ValueError(err_msg)
+            elif chart_type == bc.Scatter:
+                if len(indexes) == 1:
+                    scatter_ind = [x for x in data_series.pop(indexes[0]).values]
+                    scatter_ind = [scatter_ind] * len(data_series)
+
+                else:
+                    scatter_ind = []
+                    for key in indexes:
+                        scatter_ind.append([x for x in data_series.pop(key).values])
+
+                    if not len(scatter_ind) == len(data_series):
+                        err_msg = "Number of multiple indexes must be equals" \
+                                  " to the number of series"
+                        raise ValueError(err_msg)
+
+                for ind, key in enumerate(data_series):
+                    values = data_series[key].values
+                    data_series[key] = zip(scatter_ind[ind], values)
 
 
 
-        for ind, key in enumerate(data_series):
-            values = data_series[key].values
-            data_series[key] = zip(scatter_ind[ind], values)
-            print(data_series[key])
 
-    chart = chart_type(data_series, **args)
-    if hasattr(chart, 'index'):
-        chart.index = index
+            chart = chart_type(data_series, **args)
+            if hasattr(chart, 'index'):
+                chart.index = index
 
-    return chart
+        charts.append(chart)
+
+    fig = bc_utils.Figure(*charts, **args)
+    return fig
 
 
 def create_chart_factories(chart_types):
