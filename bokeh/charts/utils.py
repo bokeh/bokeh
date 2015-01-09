@@ -54,6 +54,7 @@ class Figure(object):
         self.server = kwargs.pop('server', None)
         self.notebook = kwargs.pop('notebook', None)
         self.title = kwargs.pop('title', '')
+        self.children = kwargs.pop('children', None)
 
         self.charts = charts
 
@@ -65,6 +66,9 @@ class Figure(object):
             self.session.use_doc(self.server)
             self.session.load_document(self.doc)
 
+        if self.children:
+            from bokeh.models import VBox
+            self.doc.add(VBox(children=self.children))
 
         self.plot = None
         xdr, ydr = None, None
@@ -155,7 +159,7 @@ class Figure(object):
 #
 #     return _HBox(*plots)
 
-def show(obj=None, title='test', filename=False, server=False, notebook=False):
+def show(obj=None, title='test', filename=False, server=False, notebook=False, **kws):
     """ 'shows' a plot object or the current plot, by auto-raising the window or tab
     displaying the current plot (for file/server output modes) or displaying
     it in an output cell (IPython notebook).

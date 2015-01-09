@@ -12,6 +12,7 @@ from .utils import (get_chart_params, get_charts_mapping,
                     get_data_series, keep_source_input_sync, get_data_from_url)
 from .. import charts as bc
 from ..charts import utils as bc_utils
+from bokeh.models.widgets import Button, VBox
 
 # Define a mapping to connect chart types supported arguments and chart classes
 CHARTS_MAP = get_charts_mapping()
@@ -32,9 +33,11 @@ CHARTS_MAP = get_charts_mapping()
               default=False)
 @click.option('--window_size', default='0', help=hm.HELP_WIN_SIZE)
 @click.option('--map', 'map_', default=None)
+@click.option('--smart_filters', 'smart_filters', flag_value=True,
+              default=False)
 def cli(input_source, output, title, chart_type, series, palette, index,
         buffer, sync_with_source, update_ranges, show_legend, window_size,
-        map_):
+        map_, smart_filters):
     """Bokeh Command Line Tool is a minimal client to access high level plotting
     functionality provided by bokeh.charts API.
 
@@ -49,7 +52,8 @@ def cli(input_source, output, title, chart_type, series, palette, index,
     """
     cli = CLI(
         input_source, output, title, chart_type, series, palette, index, buffer,
-        sync_with_source, update_ranges, show_legend, window_size, map_
+        sync_with_source, update_ranges, show_legend, window_size, map_,
+        smart_filters
     )
     cli.run()
 
@@ -62,7 +66,7 @@ class CLI(object):
     """
     def __init__(self, input_source, output, title, chart_type, series, palette,
                  index, buffer, sync_with_source, update_ranges, show_legend,
-                 window_size, map_):
+                 window_size, map_, smart_filters):
         """Args:
         input_source (str): path to the series data file (i.e.:
             /source/to/my/data.csv)
@@ -126,6 +130,7 @@ class CLI(object):
         self.show_legend = show_legend
         self.window_size = window_size
         self.window_size = int(self.window_size)
+        self.smart_filters = smart_filters
         self.map_options = {}
 
         self.source = self.get_input(input_source, buffer)
@@ -139,6 +144,9 @@ class CLI(object):
         self.chart_args = get_chart_params(
             title, output, show_legend=self.show_legend
         )
+        if self.smart_filters:
+            self.chart_args['tools'] = "pan,wheel_zoom,box_zoom,reset,save," \
+                                       "box_select,lasso_select"
 
         if map_:
             self.map_options['lat'], self.map_options['lng'] = \
@@ -160,9 +168,16 @@ class CLI(object):
         """
         try:
             self.limit_source(self.source)
+
+            children = []
+            if self.smart_filters:
+                copy_selection = Button(label="copy current selection")
+                copy_selection.on_click(self.on_copy)
+                children.append(copy_selection)
+
             self.chart = create_chart(
                 self.series, self.source, self.index, self.factories,
-                self.map_options, **self.chart_args
+                self.map_options, children=children, **self.chart_args
             )
             self.chart.show()
 
@@ -179,6 +194,14 @@ class CLI(object):
         if self.sync_with_source:
             print("animating... press ctrl-C to stop")
             keep_source_input_sync(self.input, self.update_source, self.last_byte)
+
+    def on_copy(self, *args, **kws):
+        print("COPYING CONTENT!")
+        # TODO: EXPERIMENTAL!!! THIS EXPOSE MANY SECURITY ISSUES AND SHOULD
+        #       BE REMOVED ASAP!
+        import os
+        data = "hello world"
+        os.system("echo '%s' | pbcopy" % data)
 
     def update_source(self, new_source):
         """ Update self.chart source with the new data retrieved from
@@ -270,7 +293,7 @@ class CLI(object):
         return source
 
 
-def create_chart(series, source, index, factories, map_options=None, **args):
+def create_chart(series, source, index, factories, map_options=None, children=None, **args):
     """Create charts instances from types specified in factories using
     data series names, source, index and args
 
@@ -340,7 +363,7 @@ def create_chart(series, source, index, factories, map_options=None, **args):
 
         charts.append(chart)
 
-    fig = bc_utils.Figure(*charts, **args)
+    fig = bc_utils.Figure(*charts, children=children, **args)
     return fig
 
 

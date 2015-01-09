@@ -127,7 +127,6 @@ class Chart(object):
         if self.server:
             if session:
                 self.session = session
-
             else:
                 self.session = Session()
 
