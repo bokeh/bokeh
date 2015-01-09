@@ -258,17 +258,17 @@ class CLI(object):
 
                 if self.update_ranges:
                     plot = chart.plot
-                    plot.y_range.end = max(
-                        plot.y_range.end, _c.chart.plot.y_range.end
-                    )
                     plot.y_range.start = min(
                         plot.y_range.start, _c.chart.plot.y_range.start
                     )
-                    plot.x_range.end = max(
-                        plot.x_range.end, _c.chart.plot.x_range.end
+                    plot.y_range.end = max(
+                        plot.y_range.end, _c.chart.plot.y_range.end
                     )
                     plot.x_range.start = min(
                         plot.x_range.start, _c.chart.plot.x_range.start
+                    )
+                    plot.x_range.end = max(
+                        plot.x_range.end, _c.chart.plot.x_range.end
                     )
                     chart.session.store_objects(plot)
 
@@ -358,7 +358,7 @@ def create_chart(series, source, index, factories, map_options=None, children=No
                     for key in indexes:
                         scatter_ind.append([x for x in data_series.pop(key).values])
 
-                    if not len(scatter_ind) == len(data_series):
+                    if len(scatter_ind) != len(data_series):
                         err_msg = "Number of multiple indexes must be equals" \
                                   " to the number of series"
                         raise ValueError(err_msg)
