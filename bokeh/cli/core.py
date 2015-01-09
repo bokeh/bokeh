@@ -131,8 +131,7 @@ class CLI(object):
         self.sync_with_source = sync_with_source
         self.update_ranges = update_ranges
         self.show_legend = show_legend
-        self.window_size = window_size
-        self.window_size = int(self.window_size)
+        self.window_size = int(window_size)
         self.smart_filters = smart_filters
         self.map_options = {}
         self.current_selection = []

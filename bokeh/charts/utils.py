@@ -57,6 +57,7 @@ class Figure(object):
         self.charts = charts
         self.doc = Document()
         self.doc.hold(True)
+        self._plots = []
 
         if self.server:
             self.session = Session()
@@ -82,6 +83,8 @@ class Figure(object):
             if not self.title:
                 self.title = chart.chart.title
 
+            self._plots += chart.chart._plots
+
         # reset the pot title with the one set for the Figure
         self.doc._current_plot.title = self.title
 
@@ -90,29 +93,7 @@ class Figure(object):
 
         It shows the Figure in file, server and notebook outputs.
         """
-        if self.filename:
-            if self.filename is True:
-                filename = "untitled"
-            else:
-                filename = self.filename
-            with open(filename, "w") as f:
-                f.write(file_html(self.doc, INLINE, self.title))
-            print("Wrote %s" % filename)
-            view(filename)
-
-        elif self.filename is False and self.server is False and self.notebook is False:
-            print("You have to provide a filename (filename='foo.html' or"
-                  " .filename('foo.html')) to save your plot.")
-
-        if self.server:
-            self.session.store_document(self.doc)
-            link = self.session.object_link(self.doc.context)
-            view(link)
-
-        if self.notebook:
-            from bokeh.embed import notebook_div
-            for plot in self._plots:
-                publish_display_data({'text/html': notebook_div(plot)})
+        show(self, self.title, self.filename, self.server, self.notebook)
 
 
 def show(obj, title='test', filename=False, server=False, notebook=False, **kws):
@@ -124,16 +105,14 @@ def show(obj, title='test', filename=False, server=False, notebook=False, **kws)
         obj (Widget/Plot object, optional): it accepts a plot object and just shows it.
 
     """
-    if isinstance(obj, Figure):
-        return obj.show()
-
     if filename:
         if filename is True:
             filename = "untitled"
         else:
             filename = filename
+
         with open(filename, "w") as f:
-            f.write(file_html(obj, INLINE, title))
+            f.write(file_html(obj.doc, INLINE, title))
         print("Wrote %s" % filename)
         view(filename)
 
