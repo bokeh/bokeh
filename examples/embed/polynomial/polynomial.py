@@ -1,5 +1,14 @@
-'''This script is loosely based on the bokeh spectogram example, but is much simpler:
-  https://github.com/bokeh/bokeh/tree/master/examples/embed/spectrogram
+'''
+This script is loosely based on the bokeh spectogram example,
+    but is much simpler:
+    https://github.com/bokeh/bokeh/tree/master/examples/embed/spectrogram
+
+This creates a simple form for generating polynomials of the form y = x^2
+
+This is done using a form that has a method of GET, allowing you to share the
+    graphs you create with your friends though the link!
+
+You should know Flask to understand this example
 '''
 import flask
 
@@ -9,7 +18,6 @@ from bokeh.resources import Resources, CDN
 from bokeh.templates import RESOURCES
 from bokeh.utils import encode_utf8
 
-# template_folder allows everything to go in one directory
 app = flask.Flask(__name__)
 
 colors = {
@@ -33,7 +41,7 @@ def polynomial():
     # Grab the inputs arguments from the URL
     #  This is automated by the button
     args = flask.request.args
-    print(args)
+
     # Get all the form arguments in the url with defaults
     color = colors[getitem(args, 'color', 'Black')]
     _from = int(getitem(args, '_from', 0))
@@ -44,8 +52,6 @@ def polynomial():
     fig = figure(title="Polynomial")
     fig.line(x, [i ** 2 for i in x], color=color)
 
-    # This is necessary to generate the resources data.
-    #  I'm not yet sure on how this works or why it is necessary exactly...
     resources = Resources("inline")
     plot_resources = RESOURCES.render(
         js_raw=resources.js_raw,
@@ -53,6 +59,7 @@ def polynomial():
         js_files=resources.js_files,
         css_files=resources.css_files,
     )
+
     # taken from the documentation on embedding:
     #   http://bokeh.pydata.org/en/latest/docs/user_guide/embedding.html#id2
     script, div = components(fig, CDN)
