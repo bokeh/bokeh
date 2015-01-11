@@ -1,14 +1,14 @@
 '''
 This script is loosely based on the bokeh spectogram example,
-    but is much simpler:
-    https://github.com/bokeh/bokeh/tree/master/examples/embed/spectrogram
+but is much simpler:
+https://github.com/bokeh/bokeh/tree/master/examples/embed/spectrogram
 
-This creates a simple form for generating polynomials of the form y = x^2
+This creates a simple form for generating polynomials of the form y = x^2.
 
 This is done using a form that has a method of GET, allowing you to share the
-    graphs you create with your friends though the link!
+graphs you create with your friends though the link!
 
-You should know Flask to understand this example
+You should know at least the basics of Flask to understand this example
 '''
 import flask
 
