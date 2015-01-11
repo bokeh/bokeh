@@ -1,5 +1,4 @@
 #!/bin/sh
-PID1=()
 python sample_data/create_tweets_file.py &
 PID1=$!
 python ../../bokeh-server --backend memory &

@@ -1,5 +1,4 @@
 #!/bin/sh
-PID1=()
 python sample_data/profile_system.py &
 PID1=$!
 python ../../bokeh-server --backend memory &
