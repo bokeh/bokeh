@@ -52,6 +52,9 @@ def polynomial():
     fig = figure(title="Polynomial")
     fig.line(x, [i ** 2 for i in x], color=color)
 
+    # Create resources to handle all possible combinations of loading BokehJS.
+    # For more details on Resources see:
+    # https://github.com/bokeh/bokeh/issues/1663#issuecomment-69513502
     resources = Resources("inline")
     plot_resources = RESOURCES.render(
         js_raw=resources.js_raw,
