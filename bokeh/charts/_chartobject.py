@@ -476,8 +476,6 @@ class ChartObject(object):
 
         # we create the chart object
         self.create_chart()
-        # we start the plot (adds axis, grids and tools)
-        self.start_plot()
         # we prepare values
         self.prepare_values()
         # we get the data from the incoming input
@@ -486,6 +484,8 @@ class ChartObject(object):
         self.get_source()
         # we dynamically inject the source and ranges into the plot
         self.add_data_plot()
+        # we start the plot (adds axis, grids and tools)
+        self.start_plot()
         # we add the glyphs into the plot
         self.draw()
         # we pass info to build the legend
