@@ -1,7 +1,8 @@
 '''
 This script is loosely based on the bokeh spectogram example,
 but is much simpler:
-https://github.com/bokeh/bokeh/tree/master/examples/embed/spectrogram
+
+    https://github.com/bokeh/bokeh/tree/master/examples/embed/spectrogram
 
 This creates a simple form for generating polynomials of the form y = x^2.
 
@@ -14,7 +15,7 @@ import flask
 
 from bokeh.embed import components
 from bokeh.plotting import figure
-from bokeh.resources import Resources, CDN
+from bokeh.resources import INLINE
 from bokeh.templates import RESOURCES
 from bokeh.utils import encode_utf8
 
@@ -39,7 +40,7 @@ def getitem(obj, item, default):
 def polynomial():
     """ Very simple embedding of a polynomial chart"""
     # Grab the inputs arguments from the URL
-    #  This is automated by the button
+    # This is automated by the button
     args = flask.request.args
 
     # Get all the form arguments in the url with defaults
@@ -50,22 +51,21 @@ def polynomial():
     # Create a polynomial line graph
     x = list(range(_from, to + 1))
     fig = figure(title="Polynomial")
-    fig.line(x, [i ** 2 for i in x], color=color)
+    fig.line(x, [i ** 2 for i in x], color=color, line_width=2)
 
-    # Create resources to handle all possible combinations of loading BokehJS.
-    # For more details on Resources see:
-    # https://github.com/bokeh/bokeh/issues/1663#issuecomment-69513502
-    resources = Resources("inline")
+    # Configure resources to include BokehJS inline in the document.
+    # For more details see:
+    #   http://bokeh.pydata.org/en/latest/docs/reference/resources_embedding.html#module-bokeh.resources
     plot_resources = RESOURCES.render(
-        js_raw=resources.js_raw,
-        css_raw=resources.css_raw,
-        js_files=resources.js_files,
-        css_files=resources.css_files,
+        js_raw=INLINE.js_raw,
+        css_raw=INLINE.css_raw,
+        js_files=INLINE.js_files,
+        css_files=INLINE.css_files,
     )
 
-    # taken from the documentation on embedding:
-    #   http://bokeh.pydata.org/en/latest/docs/user_guide/embedding.html#id2
-    script, div = components(fig, CDN)
+    # For more details see:
+    #   http://bokeh.pydata.org/en/latest/docs/user_guide/embedding.html#components
+    script, div = components(fig, INLINE)
     html = flask.render_template(
         'embed.html',
         plot_script=script, plot_div=div, plot_resources=plot_resources,
@@ -75,7 +75,6 @@ def polynomial():
 
 
 def main():
-    # start our app
     app.debug = True
     app.run()
 
