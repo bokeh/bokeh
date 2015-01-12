@@ -46,3 +46,4 @@ HELP_SERIES = "Name of the series from the source to include in the plot. " \
 HELP_BUFFER = """Reads data source as String from input buffer. Usage example:
     cat stocks_data.csv | python cli.py --buffer t
 """
+HELP_WIN_SIZE = """show up to N values then start dropping off older ones"""
