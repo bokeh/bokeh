@@ -1,11 +1,8 @@
 This folder contains a few examples on how to use Bokeh Command Line
 Tool (CLI).
 
-To run the examples you first have to start the bokeh-server, ie.,
-
-    bokeh-server --backend=memory
-
-and cd into the examples/cli folder.
+Examples are saved as bash scripts and are self contained. To run the
+examples you need to cd into the examples/cli folder.
 
 stream_netfond.sh
 -----------------
@@ -16,12 +13,7 @@ streaming new data into bokeh-server creating an animated plot.
 
 Usage:
 
-on unix:
-
 $ sh stream_netfond.sh
 
-on windows:
-
-$ stream_netfond.bat
 
 
