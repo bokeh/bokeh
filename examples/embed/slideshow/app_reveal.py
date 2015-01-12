@@ -205,7 +205,7 @@ class Population(object):
         self.update_pyramid()
 
     def create_layout(self):
-        from bokeh.widgets import Select, HBox, VBox
+        from bokeh.models.widgets import Select, HBox, VBox
 
         years = list(map(str, sorted(self.df.Year.unique())))
         locations = sorted(self.df.Location.unique())
