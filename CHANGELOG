@@ -1,3 +1,107 @@
+2015-01-12    0.7.1:
+--------------------
+  * Several bokeh.charts bug fixes and enhancements, such as configurable tools
+  * Docs improvements, in particular, documenting json for bokeh.models
+  * Mpl compatility improved, now returning the plot object
+  * A lot of encoding fixes, including fixes in some of our sample data
+  * Faster runs in TravisCI using the new docker-based containerized infrastructure
+  * New and improved examples, such as the Interactive Image Processing with Numba and Bokeh notebook
+  * bugfixes:
+    - #127 Implement proper caching headers and gzip on bokeh.pydata.org
+    - #167 It is possible to outrun the resize tool edit
+    - #236 Opening a notebook containing embed.js causes typeerror if bokeh-server was restarted
+    - #382 Hover tool pops up in odd places in the notebook
+    - #520 Let escape reset selections
+    - #593 Gridplot breaks layout / overlaps next input cell in ipython notbook
+    - #821 Need explicit synchronization for render loop
+    - #1265 Handontable rendering issue
+    - #1316 Examples/app/stock_applet does not work when embedded
+    - #1385 Server/image.py example failing on master
+    - #1397 Dropdown tool buttons don't have tooltips and dropdown menus broken
+    - #1409 [tests] Tests sometimes fail with `websockettimeoutexception` on travis-ci
+    - #1490 Scatter chart auto creates wrong x/y labels
+    - #1510 [regression] Hover tool behaviour with multiple renderers
+    - #1513 [build] Update tutorial gallery to new plotting.py api
+    - #1523 [docs] Gallery thumbs out of sync
+    - #1527 Dot chart segment badly renders in some use cases
+    - #1529 Donut chart is broken when called with dataframe inputs
+    - #1535 [docs] Obsolete returned value in plotting.figure() documentation
+    - #1539 Debugjs setting was broken
+    - #1545 Grey9 very light with 0.7.0
+    - #1551 Donut chart is broken when called with iterables of non float values
+    - #1554 Mpl.to_bokeh() should return a handle to the plot
+    - #1556 Travis ci failures
+    - #1592 Bokehjs unrecoverable errors in notebook
+    - #1601 Plotting.save still relies on global state
+    - #1605 [regression] Remove 0xa0 characters (and encode source files properly)
+    - #1606 $ can get overridden in the notebook
+    - #1613 [docs] Corrected typo to fix issue #1612
+    - #1621 Charts behaviour when notebook=true and server arguments are specified
+    - #1622 Minor selection bugs
+    - #1625 Plot.add_tool wrong error message
+    - #1627 [regression] Resources(..., minified=false) in bokeh.plotting
+    - #1628 Typo fix ``line_with`` -> ``line_width`` in ipython interactive widgets notebook example
+    - #1643 Don't request_render() twice during plot initialization
+    - #1644 Hovertool with snap_to_data=true fails on some glyphs
+    - #1654 Line downsample zoom to fine-level detail results in error on js client
+    - #1658 [docs] Fix typo
+    - #1660 Pan/zoom being allowed on categorical charts
+    - #1679 Slider should accept float stepwise
+  * features:
+    - #190 Selection architecture
+    - #596 Need to support italic+bold font style in textproperties enum
+    - #646 [docs] Specifing a parameter without any usage does not result in a warning
+    - #696 There should be a way to control order that renderers are drawn
+    - #978 Bokeh command line tool
+    - #1134 Add_glyph()'s signature should have `glyph` as the first argument
+    - #1220 Histogram normalization
+    - #1459 Charts should make tools configurable
+    - #1484 Add glyphs/sprint example
+    - #1489 Authentication refactoring
+    - #1507 Odd histogram behaviour
+    - #1516 Easy range1d interface
+    - #1524 Some matplotlib markers are not handled correctly
+    - #1538 [tests] Add charts base tests
+    - #1557 Mpl.to_bokeh() should use the same tools found in bokeh.plotting.figure
+    - #1567 Use the containerized travisci infrastructure
+    - #1629 Charts.gmap class
+    - #1636 Gridplot should accept none for empty positions
+    - #1657 Add/improve minimal cli features
+    - #1663 [docs] [documentation] on embedding
+    - #1665 [docs] Embed simple
+  * tasks:
+    - #1129 [docs] Bokehjs documentation nor source does not mention that it uses jquery and jqueryui
+    - #1406 Remove bokeh.{objects,glyphs,widgets}
+    - #1471 [tests] Add tests for dataadapter and new charts implementation
+    - #1472 Remove bokeh.charts.categoricalheatmap and promote heatmap as only heatmap chart available
+    - #1475 Improve bokeh.chart code style and docstrings
+    - #1506 Release 0.7.0
+    - #1537 Use conda graphviz package
+    - #1544 Use more specific type for plot.{left,right,above,below}
+    - #1548 [docs] S/dic/dec
+    - #1550 [docs] Fixed typo: bojehjs -> bokehjs
+    - #1553 [docs] Update readme.md
+    - #1575 Don't "fix" singleton array case when expected type is array
+    - #1579 [docs] Auto document json for bokeh.models
+    - #1580 Provide hooks to easily dump models with all properties
+    - #1581 [docs] Write script to integrate all bokeh.models and their json into dev docs
+    - #1583 Remove crufty glyph properties
+    - #1590 Add missing properties to ticker classes
+    - #1593 Scatter plot demo with linked density histograms
+    - #1594 Additional kernels for numba examples
+    - #1596 Streaming netcat example for bokeh cli tool
+    - #1597 Interactive filter using cli tool
+    - #1598 Twitter scrapping map demo using cli tool
+    - #1600 [docs] Documenting relations between bokeh and yhat/ggplot?
+    - #1604 [tests] Add some widget testing and minor fix for object testing
+    - #1607 [docs] Update release notes on pydata.org
+    - #1608 [docs] Docs build/deploy improvements
+    - #1610 [tests] Examples using yahoo's finance data should use a fixed period
+    - #1612 Typo in chartobject error message when filename argument is missing
+    - #1619 [docs] Fix broken link to quickstart
+    - #1661 Small fixes or updates to demos leading to 0.7.1 release
+    - #1675 [docs] Misc docs updates leading to 0.7.1 release
+
 2014-12-05    0.7.0:
 --------------------
   * IPython widgets and animations without a Bokeh server

@@ -12,6 +12,7 @@ Release Notes
 .. toctree::
     :maxdepth: 1
 
+    releases/0.7.1.rst
     releases/0.7.0.rst
     releases/0.6.1.rst
     releases/0.6.0.rst
@@ -31,23 +32,17 @@ Release Notes
 Roadmap
 '''''''
 
-0.7.1 Goals (January 2015)
-==========================
-* more charts
-* start of CLI interface
-* bugfixes
-* new demos
-
-  - linked histogram
-  - numba/notebook/interactors example
-  - streaming stocks plot
-  - simple CLI examples
-
 0.8.0 Goals (February 2015)
 ===========================
 
 * R language binding
 * server/widget/AR examples in gallery
+* more charts
+* CLI interface
+
+  - streaming stocks plot
+  - simple CLI examples
+
 * Blaze integration
 
   - volume slicer
