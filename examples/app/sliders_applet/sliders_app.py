@@ -47,7 +47,7 @@ class SlidersApp(HBox):
 
         obj.offset = Slider(
             title="offset", name='offset',
-            value=0.0, start=-5.0, end=5.0
+            value=0.0, start=-5.0, end=5.0, step=0.5
         )
         obj.amplitude = Slider(
             title="amplitude", name='amplitude',
