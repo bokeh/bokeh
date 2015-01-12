@@ -1,6 +1,11 @@
 This folder contains a few examples on how to use Bokeh Command Line
 Tool (CLI).
 
+.. warning::
+        The ``CLI Tool`` is experimental and in early alpha status! Please
+        take this into account when using it.
+
+
 Examples are saved as bash scripts and are self contained. To run the
 examples you need to cd into the examples/cli folder.
 
