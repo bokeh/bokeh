@@ -13,11 +13,11 @@ from sphinx.util.nodes import nested_parse_with_titles
 
 from .utils import out_of_date
 
-CODE_TEMPLATE = jinja2.Template("""
+SOURCE_TEMPLATE = jinja2.Template("""
 .. code-block:: python
     :linenos:
 
-    {{ code|indent(4)}}
+    {{ source|indent(4)}}
 """)
 
 PLOT_TEMPLATE = jinja2.Template("""
@@ -40,6 +40,7 @@ def _source_position(argument):
 class BokehPlotDirective(Directive):
 
     has_content = True
+    optional_arguments = 1
 
     option_spec = {
         'basedir'         : unchanged,
@@ -61,13 +62,15 @@ class BokehPlotDirective(Directive):
 
         source_position = self.options.get('source-position', 'below')
 
-        if source_position is 'above':
-            self._add_source()
+        source = self._get_source()
 
-        self._add_plot()
+        if source_position is 'above':
+            self._add_source(source)
+
+        self._add_plot(source)
 
         if source_position is 'below':
-            self._add_source()
+            self._add_source(source)
 
         node = nodes.paragraph()
         node.document = self.state.document
@@ -75,15 +78,22 @@ class BokehPlotDirective(Directive):
 
         return [target_node] + node.children
 
+    def _get_source(self):
+        if self.arguments:
+            self.source = open(self.arguments[0], "r").read()
+        else:
+            source = ""
+            for line in self.content:
+                source += "%s\n" % line
+        return source
 
-    def _add_source(self):
-        # TODO: (bev) extract actual source code
-        text = CODE_TEMPLATE.render(code="import foo")
+    def _add_source(self, source):
+        text = SOURCE_TEMPLATE.render(source=source)
         for line in text.split("\n"):
             self.result.append(line, "<bokeh-plot>")
 
 
-    def _add_plot(self):
+    def _add_plot(self, source):
         # TODO: (bev) run source code and create plot embed snippet
         text = PLOT_TEMPLATE.render(plot="FOO")
         for line in text.split("\n"):
