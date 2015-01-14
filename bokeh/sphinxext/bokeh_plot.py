@@ -19,11 +19,11 @@ from .utils import out_of_date
 
 SOURCE_TEMPLATE = jinja2.Template("""
 .. code-block:: python
-    {% if linenos %}
-    :linenos:
-    {% endif %}
+   {% if linenos %}:linenos:{% endif %}
+   {% if emphasize_lines %}:emphasize-lines: {{ emphasize_lines }}{% endif %}
 
-    {{ source|indent(4)}}
+   {{ source|indent(3) }}
+
 """)
 
 
@@ -54,9 +54,9 @@ class BokehPlotDirective(Directive):
     option_spec = {
         'basedir'         : unchanged,
         'source-position' : _source_position,
+        'linenos'         : unchanged,
+        'emphasize-lines' : unchanged,
     }
-
-
 
     def run(self):
 
@@ -104,9 +104,11 @@ class BokehPlotDirective(Directive):
         return source
 
     def _get_source_nodes(self, source):
-        linenos = self.options.get('linenos', False)
+        linenos = 'linenos' in self.options
+        emphasize_lines = self.options.get('emphasize-lines', False)
+        if emphasize_lines: linenos = True
         result = ViewList()
-        text = SOURCE_TEMPLATE.render(source=source, linenos=linenos)
+        text = SOURCE_TEMPLATE.render(source=source, linenos=linenos, emphasize_lines=emphasize_lines)
         for line in text.split("\n"):
             result.append(line, "<bokeh-plot>")
         node = nodes.paragraph()
@@ -146,9 +148,7 @@ def html_visit_bokeh_plot(self, node):
         path = join(self.builder.outdir, node["relpath"])
         filename = node['target_id'] + ".js"
         plot = _render_plot(node['source'])
-        js, script = autoload_static(
-            plot, CDN, join(node["relpath"], filename)
-        )
+        js, script = autoload_static(plot, CDN, filename)
         with open(join(path, filename), "w") as f:
             f.write(js)
 
