@@ -33,6 +33,7 @@ extensions = [
     'sphinx.ext.inheritance_diagram',
     'sphinxcontrib.napoleon',
     'sphinxcontrib.autohttp.flask',
+    'bokeh.sphinxext.bokeh_plot',
 ]
 
 # Add any paths that contain templates here, relative to this directory.

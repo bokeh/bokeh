@@ -68,12 +68,23 @@ Let's start with some examples.
 
 Plotting this data as a simple line chart is very straightforward:
 
-.. literalinclude:: examples/simple_line.py
-   :language: python
-   :linenos:
+.. bokeh-plot::
+   :source-position: above
 
-.. image:: /_images/quickstart/simple_line.png
+   from bokeh.plotting import figure, output_file, show
 
+   # prepare some data
+   x = [1, 2, 3, 4, 5]
+   y = [6, 7, 2, 4, 5]
+
+   # output to static HTML file
+   output_file("lines.html", title="line plot example")
+
+   # Plot a `line` renderer setting the color, line thickness, title, and legend value.
+   p = figure(title="simple line example")
+   p.line(x, y, legend="Temp.", x_axis_label='x', y_axis_label='y')
+
+   show(p)
 
 What just happened?
 
@@ -95,11 +106,36 @@ All we had to do was tell bokeh.plotting that:
 Plotting is also quite handy if we need to customize the output a bit more by adding
 more data series, glyphs, logarithmic axis, etc...
 
-.. literalinclude:: examples/log_line.py
-   :language: python
-   :linenos:
+.. bokeh-plot::
+   :source-position: above
 
-.. image:: /_images/quickstart/log_line.png
+   from bokeh.plotting import figure, output_file, show
+
+   # prepare some data
+   x0 = [1, 2, 3, 4, 5]
+   y1 = [x**2 for x in x0]
+   y2 = [10**x for x in x0]
+   y3 = [10**(x**2) for x in x0]
+
+   # output to static HTML file
+   output_file("log_lines.html")
+
+   # create a new figure
+   p = figure(
+       tools="pan,box_zoom,reset,save",
+       y_axis_type="log", y_range=[0.001, 10**22], title="log axis example",
+       x_axis_label='sections', y_axis_label='particles'
+   )
+
+   # create plots!
+   p.line(x0, x0, legend="y=x")
+   p.circle(x0, x0, legend="y=x")
+   p.line(x0, y1, legend="y=x**2")
+   p.circle(x0, y1, fill_color=None, line_color="green", legend="y=x**2")
+   p.line(x0, y2, line_color="red", line_width=2, legend="y=10^x")
+   p.line(x0, y3, line_color="orange", line_width=2, legend="y=10^(x^2)")
+
+   show(p)
 
 Much better, right? At this point it's time to take a better look at the last example.
 We've exposed quite a few structures like plot figures, line, circle, axes, figures
@@ -167,23 +203,71 @@ More examples
 Another very common way of visualizing data is using a histogram to represent distributions.
 Here's how the code for this use case looks like using bokeh.charts:
 
-.. literalinclude:: examples/histogram.py
-   :language: python
-   :linenos:
+.. bokeh-plot::
+   :source-position: above
 
-.. image:: /_images/quickstart/histogram.png
+   import numpy as np
+   from bokeh.plotting import figure, output_file, show
 
+   # prepare data
+   mu, sigma = 0, 0.5
+   measured = np.random.normal(mu, sigma, 1000)
+   hist, edges = np.histogram(measured, density=True, bins=50)
+   x = np.linspace(-2, 2, 1000)
+
+   # output to static HTML file
+   output_file('histogram.html')
+
+   p = figure(title="Histogram", background_fill="#E8DDCB")
+   p.quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:],
+          fill_color="#036564", line_color="#033649")
+
+   # customize axes
+   xa, ya = p.axis
+   xa.axis_label = 'x'
+   ya.axis_label = 'Pr(x)'
+
+   show(p)
 
 and (again) we can easily add more elements to make it look better (we'll highlight the
 differences from the previous examples to help comparison):
 
-.. literalinclude:: examples/histogram_more.py
-   :language: python
-   :linenos:
-   :emphasize-lines: 3,11,12,24,25,28
+.. bokeh-plot::
+   :source-position: above
+   :emphasize-lines: 2,10,11,23,24,27
 
-.. image:: /_images/quickstart/histogram_more.png
+   import numpy as np
+   import scipy.special
+   from bokeh.plotting import figure, output_file, show
 
+   # prepare data
+   mu, sigma = 0, 0.5
+   measured = np.random.normal(mu, sigma, 1000)
+   hist, edges = np.histogram(measured, density=True, bins=50)
+   x = np.linspace(-2, 2, 1000)
+   pdf = 1/(sigma * np.sqrt(2*np.pi)) * np.exp(-(x-mu)**2 / (2*sigma**2))
+   cdf = (1+scipy.special.erf((x-mu)/np.sqrt(2*sigma**2)))/2
+
+   # output to static HTML file
+   output_file('histogram.html')
+
+   # prepare the histogram
+   p = figure(title="Normal Distribution (μ=0, σ=0.5)",tools="previewsave",
+              background_fill="#E8DDCB")
+   p.quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:],
+          fill_color="#036564", line_color="#033649",)
+
+   # Use `line` renderers to display the PDF and CDF
+   p.line(x, pdf, line_color="#D95B43", line_width=8, alpha=0.7, legend="PDF")
+   p.line(x, cdf, line_color="white", line_width=2, alpha=0.7, legend="CDF")
+
+   # customize axes
+   p.legend.orientation = "top_left"
+   xa, ya = p.axis
+   xa.axis_label = 'x'
+   ya.axis_label = 'Pr(x)'
+
+   show(p)
 
 One thing to notice is that we have always created static html files by
 calling output_file function. This output option will write a static HTML
