@@ -19,10 +19,10 @@ from .embed import notebook_div, file_html, autoload_server
 from .models import (
     Axis, FactorRange, Grid, GridPlot, HBox, Legend, LogAxis, Plot, Tool, VBox, Widget
 )
-from .palettes import brewer
 from .plotting_helpers import (
     get_default_color, get_default_alpha, _handle_1d_data_args, _list_attr_splat,
-    _get_range, _get_axis_class, _get_num_minor_ticks, _tool_from_string
+    _get_range, _get_axis_class, _get_num_minor_ticks, _tool_from_string,
+    _process_tools_arg
 )
 from .resources import Resources
 from .session import DEFAULT_SERVER_URL, Session
@@ -99,53 +99,8 @@ class Figure(Plot):
             elif y_axis_location == "right":
                 self.right.append(yaxis)
 
-        tool_objs = []
-        temp_tool_str = ""
-
-        if isinstance(tools, (list, tuple)):
-            for tool in tools:
-                if isinstance(tool, Tool):
-                    tool_objs.append(tool)
-                elif isinstance(tool, string_types):
-                    temp_tool_str += tool + ','
-                else:
-                    raise ValueError("tool should be a string or an instance of Tool class")
-            tools = temp_tool_str
-
-        # Remove pan/zoom tools in case of categorical axes
-        remove_pan_zoom = (isinstance(self.x_range, FactorRange) or
-                           isinstance(self.y_range, FactorRange))
-
-        repeated_tools = []
-        removed_tools = []
-
-        for tool in re.split(r"\s*,\s*", tools.strip()):
-            # re.split will return empty strings; ignore them.
-            if tool == "":
-                continue
-
-            if remove_pan_zoom and ("pan" in tool or "zoom" in tool):
-                removed_tools.append(tool)
-                continue
-
-            tool_obj = _tool_from_string(tool)
-            tool_obj.plot = self
-
-            tool_objs.append(tool_obj)
-
-        self.tools.extend(tool_objs)
-
-        for typename, group in itertools.groupby(sorted([ tool.__class__.__name__ for tool in self.tools ])):
-            if len(list(group)) > 1:
-                repeated_tools.append(typename)
-
-        if repeated_tools:
-            warnings.warn("%s are being repeated" % ",".join(repeated_tools))
-
-        if removed_tools:
-            warnings.warn("categorical plots do not support pan and zoom operations.\n"
-                          "Removing tool(s): %s" %', '.join(removed_tools))
-
+        tool_objs = _process_tools_arg(self, tools)
+        self.add_tools(*tool_objs)
 
     def _axis(self, *sides):
         objs = []
@@ -450,7 +405,7 @@ def output_file(filename, title="Bokeh Plot", autosave=False, mode="inline", roo
     global _default_file
     _default_file = {
         'filename'  : filename,
-        'resources' : Resources(mode=mode, root_dir=root_dir, minified=False),
+        'resources' : Resources(mode=mode, root_dir=root_dir),
         'autosave'  : autosave,
         'title'     : title,
     }
@@ -634,6 +589,18 @@ def markers():
 _color_fields = set(["color", "fill_color", "line_color"])
 _alpha_fields = set(["alpha", "fill_alpha", "line_alpha"])
 
+def _deduplicate_plots(plot, subplots):
+    doc = curdoc()
+    doc.context.children = list(set(doc.context.children) - set(subplots))
+    doc.add(plot)
+    doc._current_plot = plot # TODO (bev) don't use private attrs
+
+def _push_or_save():
+    if cursession() and curdoc().autostore:
+        push()
+    if _default_file and _default_file['autosave']:
+        save()
+
 def gridplot(plot_arrangement, name=None, **kwargs):
     """ Generate a plot that arranges several subplots into a grid.
 
@@ -650,17 +617,9 @@ def gridplot(plot_arrangement, name=None, **kwargs):
     grid = GridPlot(children=plot_arrangement, **kwargs)
     if name:
         grid._id = name
-    # Walk the plot_arrangement and remove them from the plotcontext,
-    # so they don't show up twice
     subplots = itertools.chain.from_iterable(plot_arrangement)
-    curdoc().context.children = list(set(curdoc().context.children) - set(subplots))
-    curdoc().add(grid)
-    curdoc()._current_plot = grid # TODO (bev) don't use private attrs
-
-    if _default_session:
-        push()
-    if _default_file and _default_file['autosave']:
-        save()
+    _deduplicate_plots(grid, subplots)
+    _push_or_save()
     return grid
 
 def load_object(obj):

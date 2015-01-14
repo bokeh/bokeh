@@ -2,7 +2,7 @@ from __future__ import absolute_import
 
 from ...properties import Bool, Int, Float, String, Color, Instance, Enum, Auto, List, Either
 from ...plot_object import PlotObject
-from ...enums import FontStyle, TextAlign
+from ...enums import FontStyle, TextAlign, DateFormat
 from ..sources import DataSource
 from ..widget import Widget
 
@@ -25,6 +25,30 @@ class NumberFormatter(StringFormatter):
 
 class BooleanFormatter(CellFormatter):
     icon = Enum('check', 'check-circle', 'check-circle-o', 'check-square', 'check-square-o')
+
+class DateFormatter(CellFormatter):
+    """Format a date according to a format string.
+
+       The format can be combinations of the following::
+
+       `d`     - day of month (no leading zero)
+       `dd`    - day of month (two digit)
+       `o`     - day of year (no leading zeros)
+       `oo`    - day of year (three digit)
+       `D`     - day name short
+       `DD`    - day name long
+       `m`     - month of year (no leading zero)
+       `mm`    - month of year (two digit)
+       `M`     - month name short
+       `MM`    - month name long
+       `y`     - year (two digit)
+       `yy`    - year (four digit)
+       `@`     - Unix timestamp (ms since 01/01/1970)
+       `!`     - Windows ticks (100ns since 01/01/0001)
+       `"..."` - literal text
+       `''`    - single quote
+    """
+    format = Either(Enum(DateFormat), String, default='yy M d')
 
 class StringEditor(CellEditor):
     completions = List(String)

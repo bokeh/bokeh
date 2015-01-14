@@ -32,11 +32,11 @@ define [
       @render()
 
     render: () ->
+      @$el.appendTo(@args.container)
       @$input = $(@input)
       @$el.append(@$input)
       @renderEditor()
       @disableNavigation()
-      @$el.appendTo(@args.container)
 
     renderEditor: () ->
 
@@ -255,6 +255,47 @@ define [
     model: TimeEditor
 
   class DateEditorView extends CellEditorView
+
+    emptyValue: new Date()
+
+    input: '<input type="text" />'
+
+    renderEditor: () ->
+      @calendarOpen = false
+
+      @$input.datepicker
+        showOn: "button"
+        buttonImageOnly: true
+        beforeShow: () => @calendarOpen = true
+        onClose: () => @calendarOpen = false
+      @$input.siblings(".bk-ui-datepicker-trigger").css("vertical-align": "middle")
+      @$input.width(@$input.width() - (14 + 2*4 + 4)) # img width + margins + edge distance
+      @$input.focus().select()
+
+    destroy: () ->
+      $.datepicker.dpDiv.stop(true, true)
+      @$input.datepicker("hide")
+      @$input.datepicker("destroy")
+      super()
+
+    show: () ->
+      if @calendarOpen
+        $.datepicker.dpDiv.stop(true, true).show()
+      super()
+
+    hide: () ->
+      if @calendarOpen
+        $.datepicker.dpDiv.stop(true, true).hide()
+      super()
+
+    position: (position) ->
+      if @calendarOpen
+        $.datepicker.dpDiv.css(top: position.top + 30, left: position.left)
+      super()
+
+    getValue: () -> return @$input.datepicker("getDate").getTime()
+
+    setValue: (val) -> @$input.datepicker("setDate", new Date(val))
 
   class DateEditor extends CellEditor
     type: 'DateEditor'

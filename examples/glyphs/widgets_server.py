@@ -13,7 +13,7 @@ from bokeh.models import (
     LinearAxis, DatetimeAxis, Grid, HoverTool
 )
 from bokeh.session import Session
-from bokeh.models.widgets import VBox, HBox, Paragraph, Button, TableColumn, DataTable
+from bokeh.models.widgets import VBox, HBox, Paragraph, Button, TableColumn, DataTable, DateEditor, DateFormatter, IntEditor
 
 document = Document()
 session = Session()
@@ -61,10 +61,10 @@ def click_handler():
 def make_layout():
     plot, source = make_plot()
     columns = [
-        TableColumn(field="dates", title="Date"),
-        TableColumn(field="downloads", title="Downloads"),
+        TableColumn(field="dates", title="Date", editor=DateEditor(), formatter=DateFormatter()),
+        TableColumn(field="downloads", title="Downloads", editor=IntEditor()),
     ]
-    data_table = DataTable(source=source, columns=columns, width=400, height=400)
+    data_table = DataTable(source=source, columns=columns, width=400, height=400, editable=True)
     button = Button(label="Randomize data", type="success")
     button.on_click(click_handler)
     buttons = VBox(children=[button])
