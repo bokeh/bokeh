@@ -1,9 +1,12 @@
+from os.path import dirname, join
 import uuid
 import logging
 
 import zmq
 
 from ..settings import settings as bokeh_settings
+
+default_blaze_config = join(dirname(__file__), 'mbs', 'config.py')
 
 class Settings(object):
     ip = "0.0.0.0"
@@ -31,6 +34,7 @@ class Settings(object):
     secret_key = str(uuid.uuid4())
     _debugjs = False
     _ctx = None
+    blaze_config = default_blaze_config
 
     @property
     def ctx(self):

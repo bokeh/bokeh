@@ -13,7 +13,7 @@ from tornado import ioloop
 from bokeh.tests.test_utils import skipIfPy3
 from ..models import user
 from .. import start, configure
-from ..app import bokeh_app
+from ..app import bokeh_app, app
 from ..settings import settings as server_settings
 
 def wait_flask():
@@ -95,3 +95,16 @@ def make_default_user(bokeh_app):
     bokehuser = user.new_user(bokeh_app.servermodel_storage, "defaultuser",
                               str(uuid.uuid4()), apikey='nokey', docs=[])
     return bokehuser
+
+class FlaskClientTestCase(BaseBokehServerTestCase):
+    def setUp(self):
+        for k,v in self.options.items():
+            setattr(server_settings, k, v)
+        server_settings.model_backend = {'type' : 'memory'}
+        configure.configure_flask()
+        configure.register_blueprint()
+        app.debug = True
+        self.client = app.test_client()
+
+    def tearDown(self):
+        pass

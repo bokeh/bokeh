@@ -433,6 +433,8 @@ def output_server(docname, session=None, url="default", name=None, clear=True):
         if not _default_session:
             _default_session = Session(name=name, root_url=url)
         session = _default_session
+    else:
+        _default_session = session
     session.use_doc(docname)
     session.load_document(curdoc())
     if clear:

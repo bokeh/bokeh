@@ -593,7 +593,7 @@ def downsample(data, transform, plot_state, render_state):
 
     if not isinstance(data, dict):
         columns = [xcol, ycol] + ([datacol] if datacol else [])
-        data = data.select(columns=columns)
+        data = data[columns]
 
     xcol = data[xcol]
     ycol = data[ycol]

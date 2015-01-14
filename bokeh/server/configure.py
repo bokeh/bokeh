@@ -17,9 +17,10 @@ from .models import user
 from .zmqpub import Publisher
 from .zmqsub import Subscriber
 from .forwarder import Forwarder
+from .mbs import get_blueprint as get_mbs_blueprint
 
 from .server_backends import (
-    FunctionBackend, HDF5DataBackend, InMemoryServerModelStorage,
+    InMemoryServerModelStorage,
     MultiUserAuthentication, RedisServerModelStorage, ShelveServerModelStorage,
     SingleUserAuthentication,
 )
@@ -61,10 +62,6 @@ def configure_flask(config_argparse=None, config_file=None, config_dict=None):
     else:
         authentication = MultiUserAuthentication()
 
-    if server_settings.data_directory:
-        data_manager = HDF5DataBackend(server_settings.data_directory)
-    else:
-        data_manager = FunctionBackend()
     bokeh_app.url_prefix = server_settings.url_prefix
     bokeh_app.publisher = Publisher(server_settings.ctx, server_settings.pub_zmqaddr, Queue())
 
@@ -82,11 +79,13 @@ def configure_flask(config_argparse=None, config_file=None, config_dict=None):
         bbstorage,
         servermodel_storage,
         authentication,
-        data_manager
     )
 
 def register_blueprint():
+    blaze_blueprint = get_mbs_blueprint(config_file=server_settings.blaze_config)
     app.register_blueprint(bokeh_app, url_prefix=server_settings.url_prefix)
+    if blaze_blueprint:
+        app.register_blueprint(blaze_blueprint, url_prefix=server_settings.url_prefix)
 
 class SimpleBokehTornadoApp(Application):
     def __init__(self, flask_app, **settings):
