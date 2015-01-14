@@ -30,26 +30,36 @@ def _make_range(r):
 
 @mbsbp.route("/render/<docid>/<datasourceid>", methods=['POST'])
 def render(docid, datasourceid):
+    #load bokeh document
     bokehuser = bokeh_app.authentication.current_user()
     request_username = bokehuser.username
-    # handle docid later...
     clientdoc = bokeh_app.backbone_storage.get_document(docid)
     prune(clientdoc)
+    #
+
+    #init plotting.py
     init_bokeh(clientdoc)
+
     serverdatasource = clientdoc._models[datasourceid]
     parameters = serverdatasource.transform
     json_data = request.json
     plot_state = json_data['plot_state']
     render_state = json_data.get('render_state', None)
+
+    #convert json objects into actual range objects (hacky!)
     plot_state=dict([(k, _make_range(r)) for k,r in iteritems(plot_state)])
 
-    #compute blaze data
+    #compute blaze data using the blaze server blueprint
     expr, result = _compserver()
+
+    #convert blaze server output into other dataframe or numpy
     data_type = parameters.get('type', 'DataFrame')
     if  data_type == 'DataFrame':
         data = into(pd.DataFrame, result)
     elif data_type == 'ndarray':
         data = into(np.ndarray, result)
+
+    #call downsampling
     resample_op = serverdatasource.transform['resample']
     if resample_op == 'abstract rendering':
         result = ar_downsample.downsample(
@@ -60,6 +70,7 @@ def render(docid, datasourceid):
         pass
     elif resample_op == 'heatmap':
         pass
-    import pdb;pdb.set_trace()
+
+    #return results
     result = make_json(protocol.serialize_json(result))
     return result
