@@ -18,7 +18,10 @@ silver = df['medals.silver'].astype(float).values
 bronze = df['medals.bronze'].astype(float).values
 
 # later, we build a dict containing the grouped data
-medals = OrderedDict(bronze=bronze, silver=silver, gold=gold)
+medals = OrderedDict()
+medals['bronze'] = bronze
+medals['silver'] = silver
+medals['gold'] = gold
 
 # any of the following commented are valid Donut inputs
 # medals = list(medals.values())
