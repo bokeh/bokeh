@@ -492,8 +492,8 @@ def source(plot,
     rend = _renderer(plot)
     datasource = rend.server_data_source
     kwargs['data_url'] = datasource.data_url
-    kwargs['owner_username'] = datasource.owner_username
-
+    kwargs['expr'] = datasource.expr
+    kwargs['namespace'] = datasource.namespace
     spec = get_glyphspec(rend.glyph)
 
     # TODO: Use reformat here?
@@ -524,6 +524,7 @@ def source(plot,
         'glyphspec': spec,
         'balancedZoom': balancedZoom,
         'points': points}
+
     return ServerDataSource(**kwargs)
 
 

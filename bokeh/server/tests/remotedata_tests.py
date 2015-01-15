@@ -58,15 +58,7 @@ class TestAr(test_utils.FlaskClientTestCase):
 
         #save data to server
         push()
-
-        # note we actually have to pass the expr as part of the json payload like this
-        # so that blaze understands it even though it's encoded in the server source
-        # that the server already has.. actually that's not even true because it
-        # gets lost when we clone the server source in the replot call
-
-        data = {'plot_state' : plot_state,
-                'expr' : orig_source.expr
-        }
+        data = {'plot_state' : plot_state}
         url = "/render/%s/%s" % (curdoc().docid, source._id)
         result = self.client.post(
             url,

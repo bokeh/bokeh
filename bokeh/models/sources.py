@@ -120,4 +120,5 @@ class ServerDataSource(DataSource):
 
     #blaze parts
     expr = Dict(String, Any())
+    namespace = Dict(String, Any())
     polling_interval = Int() # in millis

@@ -43,6 +43,8 @@ def render(docid, datasourceid):
     serverdatasource = clientdoc._models[datasourceid]
     parameters = serverdatasource.transform
     json_data = request.json
+    json_data['expr'] = serverdatasource.expr
+    json_data['namespace'] = serverdatasource.namespace
     plot_state = json_data['plot_state']
     render_state = json_data.get('render_state', None)
 
@@ -50,7 +52,7 @@ def render(docid, datasourceid):
     plot_state=dict([(k, _make_range(r)) for k,r in iteritems(plot_state)])
 
     #compute blaze data using the blaze server blueprint
-    expr, result = _compserver()
+    expr, result = _compserver(json_data)
 
     #convert blaze server output into other dataframe or numpy
     data_type = parameters.get('type', 'DataFrame')
