@@ -1,5 +1,7 @@
 import json
 
+import numpy as np
+
 from ..app import bokeh_app, app
 from ..models import user
 
@@ -32,6 +34,10 @@ class TestAr(test_utils.FlaskClientTestCase):
             spread=3,
             transform=None,
             title="Server-rendered, uncorrected")
+        arplot.x_range.start = -2.0
+        arplot.x_range.end = 2.0
+        arplot.y_range.start = -2.0
+        arplot.y_range.end = 2.0
 
         #extract the original data source because it was replaced?!
         source = arplot.select({'type' : ServerDataSource})[0]
@@ -46,9 +52,9 @@ class TestAr(test_utils.FlaskClientTestCase):
 
         #this dumping to json thing is terrible
         plot_state = {'screen_x' : curdoc().dump(screen_x_range)[0]['attributes'],
-                      'screen_y' : curdoc().dump(screen_x_range)[0]['attributes'],
-                      'data_x' : curdoc().dump(screen_x_range)[0]['attributes'],
-                      'data_y' : curdoc().dump(screen_x_range)[0]['attributes']}
+                      'screen_y' : curdoc().dump(screen_y_range)[0]['attributes'],
+                      'data_x' : curdoc().dump(arplot.x_range)[0]['attributes'],
+                      'data_y' : curdoc().dump(arplot.y_range)[0]['attributes']}
 
         #save data to server
         push()
@@ -61,7 +67,6 @@ class TestAr(test_utils.FlaskClientTestCase):
         data = {'plot_state' : plot_state,
                 'expr' : orig_source.expr
         }
-
         url = "/render/%s/%s" % (curdoc().docid, source._id)
         result = self.client.post(
             url,
@@ -69,3 +74,8 @@ class TestAr(test_utils.FlaskClientTestCase):
             headers={'content-type' : 'application/json'}
         )
         data = json.loads(result.data)
+        image = np.array(data['image'][0])
+
+        #I guess it's data dependent so the shape changes....
+        assert image.shape[0] >200
+        assert image.shape[1] >200
