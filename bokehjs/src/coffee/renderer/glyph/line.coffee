@@ -33,6 +33,22 @@ define [
       if drawing
         ctx.stroke()
 
+    _hit_line: (geometry) ->
+      [vx, vy] = [geometry.vx, geometry.vy]
+      sx = @renderer.plot_view.canvas.vx_to_sx(vx)
+
+      nearest_ind = 0
+      nearest_val = Math.abs sx-@sx[0]
+
+      for i in [0...@sx.length]
+        ival = Math.abs sx-@sx[i]
+
+        if nearest_val>ival
+          nearest_ind = i
+          nearest_val = ival
+
+      return [nearest_ind]
+
     draw_legend: (ctx, x0, x1, y0, y1) ->
       @_generic_line_legend(ctx, x0, x1, y0, y1)
 
