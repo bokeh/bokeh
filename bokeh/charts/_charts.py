@@ -107,31 +107,8 @@ class Chart(Plot):
         )
         self._glyphs = []
 
-    # @property
-    # def plot(self):
-    #     """
-    #     Returns the currently chart plot
-    #     """
-    #     return self
-
-    def figure(self):
-        """
-        Creates a new plot as current plot.
-        """
-        # TODO: Should figure be validated by self.facet so we raise an exception
-        # if figure is called and facet is False?
-        self._plots.append(
-            Plot(
-                title=self.title,
-                x_range=self._xdr,
-                y_range=self._ydr,
-                plot_width=self.plot_width,
-                plot_height=self.plot_height
-            )
-        )
-
     def start_plot(self): #, xgrid, ygrid):
-        """Add the axis, grids and tools to self.plot
+        """Add the axis, grids and tools
 
         Args:
             xgrid(bool): whether to show the xgrid
@@ -188,7 +165,7 @@ class Chart(Plot):
     #     """Add range data to the initialized empty attributes.
     #
     #     Args:
-    #         x_range (obj): x-associated datarange object for your `self.plot`.
+    #         x_range (obj): x-associated datarange object for your `self.`.
     #         y_range (obj): y-associated datarange object for your `self.plot`.
     #     """
     #     # Overwrite the ranges in the plot
@@ -301,7 +278,7 @@ class Chart(Plot):
             grid: Grid instance
         """
         grid = Grid(dimension=dimension, ticker=ticker)
-        self.plot.add_layout(grid)
+        self.add_layout(grid)
 
         return grid
 
@@ -646,7 +623,7 @@ class Chart(Plot):
             source (obj): datasource containing data for the glyph
             glyph (obj): glyph type
         """
-        _glyph = self.plot.add_glyph(source, glyph)
+        _glyph = self.add_glyph(source, glyph)
 
         self._glyphs.append(_glyph)
 
