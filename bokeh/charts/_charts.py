@@ -543,14 +543,17 @@ class Chart(Plot):
         """
         self._set_and_get(self._data, prefix, self._attr, val, content)
 
+    def build(self):
+        self._setup_show()
+        self._prepare_show()
+        self._show_teardown()
+
     def show(self):
         """Main show function.
 
         It shows the plot in file, server and notebook outputs.
         """
-        self._setup_show()
-        self._prepare_show()
-        self._show_teardown()
+        self.build()
 
         if self._c['filename']:
             if self._c['filename'] is True:
