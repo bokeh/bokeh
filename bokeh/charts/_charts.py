@@ -178,17 +178,19 @@ class Chart(Plot):
             self.make_grid(1, yaxis.ticker)
 
         # Add tools if supposed to
-        # if self._c['tools']:
-        #     # need to add tool to all underlying plots
-        #         # only add tools if the underlying plot hasn't been customized
-        #         # by some user injection
-        #         if not plot.tools:
-        #             # if True let's create the default tools
-        #             if isinstance(self.tools, bool) and self.tools:
-        #                 self.tools = DEFAULT_TOOLS
-        #
-        #             tool_objs = _process_tools_arg(plot, self.tools)
-        #             plot.add_tools(*tool_objs)
+        if self._c['tools']:
+            # need to add tool to all underlying plots
+            # only add tools if the underlying plot hasn't been customized
+            # by some user injection
+            if not self.tools: #if not plot.tools:
+                # if True let's create the default tools
+                tools_conf = self._c['tools']
+                if isinstance(tools_conf, bool) and tools_conf:
+                # if isinstance(self.tools, bool) and self.tools:
+                    tools_conf = DEFAULT_TOOLS
+
+                tool_objs = _process_tools_arg(self, tools_conf)
+                self.add_tools(*tool_objs)
 
         # # Add axis
         # xaxis = self.make_axis("below", self._xscale, self._xlabel)
@@ -564,6 +566,7 @@ class Chart(Plot):
         Converts data input (self.values) to a DataAdapter and creates
         instance index if needed
         """
+        from ._chartobject import DataAdapter
         if hasattr(self, '_index'):
             self._values_index, self._values = DataAdapter.get_index_and_data(
                 self._values, self._index
