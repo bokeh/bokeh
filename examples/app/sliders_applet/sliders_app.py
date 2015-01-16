@@ -9,12 +9,13 @@ logging.basicConfig(level=logging.DEBUG)
 
 import numpy as np
 
-from bokeh.plotting import line
-from bokeh.models import Plot, ColumnDataSource, Range1d
+from bokeh.plotting import figure
+from bokeh.models import Plot, ColumnDataSource
 from bokeh.properties import Instance
 from bokeh.server.app import bokeh_app
 from bokeh.server.utils.plugins import object_page
 from bokeh.models.widgets import HBox, Slider, TextInput, VBoxForm
+
 
 class SlidersApp(HBox):
     extra_generated_classes = [["SlidersApp", "SlidersApp", "HBox"]]
@@ -42,7 +43,7 @@ class SlidersApp(HBox):
         obj.source = ColumnDataSource(data=dict(x=[], y=[]))
 
         obj.text = TextInput(
-            title="title", name='title', value='my sin wave'
+            title="title", name='title', value='my sine wave'
         )
 
         obj.offset = Slider(
@@ -64,13 +65,21 @@ class SlidersApp(HBox):
 
         toolset = "crosshair,pan,reset,resize,save,wheel_zoom"
 
-        obj.plot = line('x', 'y', tools=toolset, source=obj.source,
-                        plot_width=400, plot_height=400,
-                        line_width=3, line_alpha=0.6,
-                        title=obj.text.value,
-                        x_range=[0, 4*np.pi], y_range=[-2.5, 2.5]
-        )
+        # Generate a figure container
+        plot = figure(title_text_font_size="12pt",
+                      plot_height=400,
+                      plot_width=400,
+                      tools=toolset,
+                      title=obj.text.value,
+                      x_range=[0, 4 * np.pi],
+                      y_range=[-2.5, 2.5])
 
+        # Plot the line by the x,y values in the source property
+        plot.line('x', 'y', source=obj.source,
+                  line_width=3,
+                  line_alpha=0.6)
+
+        obj.plot = plot
         obj.update_data()
 
         obj.inputs = VBoxForm(
@@ -85,10 +94,20 @@ class SlidersApp(HBox):
         return obj
 
     def setup_events(self):
+        """Attaches the on_change event to the value property of the widget.
+
+        The callback is set to the input_change method of this app.
+
+        :return: None
+        """
         super(SlidersApp, self).setup_events()
         if not self.text:
             return
+
+        # Text box event registration
         self.text.on_change('value', self, 'input_change')
+
+        # Slider event registration
         for w in ["offset", "amplitude", "phase", "freq"]:
             getattr(self, w).on_change('value', self, 'input_change')
 
@@ -109,12 +128,22 @@ class SlidersApp(HBox):
         self.plot.title = self.text.value
 
     def update_data(self):
+        """ Called each time that any watched property changes.
+
+        This updates the sin wave data with the most recent values of the sliders. This
+        is stored as two numpy arrays in a dict into the app's data source property.
+
+        :return: None
+        """
         N = 200
+
+        # Get the current slider values
         a = self.amplitude.value
         b = self.offset.value
         w = self.phase.value
         k = self.freq.value
 
+        # Generate the sine wave
         x = np.linspace(0, 4*np.pi, N)
         y = a * np.sin(k*x + w) + b
 
@@ -125,7 +154,7 @@ class SlidersApp(HBox):
         self.source.data = dict(x=x, y=y)
 
 # The following code adds a "/bokeh/sliders/" url to the bokeh-server. This
-# URL will render this StockApp. If you don't want to serve this applet from
+# URL will render this sine wave sliders app. If you don't want to serve this applet from
 # a Bokeh server (for instance if you are embedding in a separate Flask
 # application), then just remove this block of code.
 @bokeh_app.route("/bokeh/sliders/")
