@@ -17,10 +17,8 @@ It also add a new chained stacked method.
 # Imports
 #-----------------------------------------------------------------------------
 from __future__ import division, print_function
-from math import pi, cos, sin
+from math import pi
 from collections import OrderedDict
-import pandas as pd
-import numpy as np
 
 from ._chartobject import ChartObject
 from ..models import ColumnDataSource, Range1d
