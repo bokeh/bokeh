@@ -348,24 +348,30 @@ directory.  Just run::
 
 in that directory, and open any of the notebooks.
 
+Sample Data
+-----------
+
+Some of the examples included in the Bokeh source make use of sample data files that are
+distributed separately. To download this data, execute the following commands at a
+command prompt::
+
+    $ python -c "import bokeh.sampledata; bokeh.sampledata.download()"
+
 What's next?
 ------------
 
 For more information about the goals and direction of the project, please
 see the :ref:`technicalvision`.
 
-For a more detailed guide about plotting and charts , follow the :ref:`quickstart`.
-
 To see examples of how you might use Bokeh with your own data, check out
 the :ref:`gallery`.
+
+For questions and technical assistance, come join the `bokeh users mailing list <https://groups.google.com/a/continuum.io/forum/#!forum/bokeh>`_.
 
 Visit the source repository: `https://github.com/bokeh/bokeh <https://github.com/bokeh/bokeh>`_
 and try the examples.
 
-Be sure to follow us on Twitter `@bokehplots <http://twitter.com/BokehPlots>`_!
+Be sure to follow us on Twitter `@bokehplots <http://twitter.com/BokehPlots>`_, as well as on `Vine <https://vine.co/bokehplots>`_, and `Youtube <https://www.youtube.com/channel/UCK0rSk29mmg4UT4bIOvPYhw>`_!
 
-.. note:: If you try running the be sure that you have downloaded the examples sample data.
-          To do this you just need to execute the following commands at a command prompt::
 
-          $ python -c "import bokeh.sampledata; bokeh.sampledata.download()"
 
