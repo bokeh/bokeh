@@ -126,52 +126,16 @@ class Chart(Plot):
 
         # Add tools if supposed to
         if self._c['tools']:
-            # need to add tool to all underlying plots
-            # only add tools if the underlying plot hasn't been customized
+            # only add tools if the underlying it hasn't been customized
             # by some user injection
-            if not self.tools: #if not plot.tools:
-                # if True let's create the default tools
+            if not self.tools:
                 tools_conf = self._c['tools']
+                # if no tools customization let's create the default tools
                 if isinstance(tools_conf, bool) and tools_conf:
-                # if isinstance(self.tools, bool) and self.tools:
                     tools_conf = DEFAULT_TOOLS
 
                 tool_objs = _process_tools_arg(self, tools_conf)
                 self.add_tools(*tool_objs)
-
-        # # Add axis
-        # xaxis = self.make_axis("below", self._xscale, self._xlabel)
-        # yaxis = self.make_axis("left", self._yscale, self._ylabel)
-        #
-        # # Add grids
-        # if self._x_grid:
-        #     self.make_grid(0, xaxis.ticker)
-        # if self._ygrid:
-        #     self.make_grid(1, yaxis.ticker)
-        #
-        # # Add tools
-        # if self.tools:
-        #     for plot in self._plots:
-        #         if not plot.tools:
-        #             if not self.categorical:
-        #                 pan = PanTool()
-        #                 wheelzoom = WheelZoomTool()
-        #                 reset = ResetTool()
-        #                 plot.add_tools(pan, wheelzoom, reset)
-        #             previewsave = PreviewSaveTool()
-        #             plot.add_tools(previewsave)
-
-    # def add_data_plot(self, x_range, y_range):
-    #     """Add range data to the initialized empty attributes.
-    #
-    #     Args:
-    #         x_range (obj): x-associated datarange object for your `self.`.
-    #         y_range (obj): y-associated datarange object for your `self.plot`.
-    #     """
-    #     # Overwrite the ranges in the plot
-    #     # self.xdr, self.ydr
-    #     # self.plot.x_range = x_range
-    #     # self.plot.y_range = y_range
 
     def _set_colors(self, chunk):
         """Build a color list just cycling through a defined palette.
