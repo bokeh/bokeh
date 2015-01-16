@@ -58,7 +58,8 @@ class Chart(Plot):
     __subtype__ = "Chart"
     __view_model__ = "Plot"
     def __init__(self, title, xlabel, ylabel, legend, xscale, yscale, width, height,
-                 tools, filename, server, notebook, facet = False, _doc=None, _session=None):
+                 tools, filename, server, notebook, facet=False, xgrid=True,
+                 ygrid=True, palette=False, _doc=None, _session=None):
         """Common arguments to be used by all the inherited classes.
 
         Args:
@@ -93,18 +94,24 @@ class Chart(Plot):
         """
         kw = dict(title=title, plot_width=width, plot_height=height)
         super(Chart, self).__init__(**kw)
-        self._c = dict(
-            xlabel=xlabel,
-            ylabel=ylabel,
-            legend=legend,
-            xscale=xscale,
-            yscale=yscale,
-            server=server,
-            filename=filename,
-            notebook=notebook,
-            tools=tools,
-            facet=facet,
-        )
+
+        self.__title = title
+        self.__xlabel = xlabel
+        self.__ylabel = ylabel
+        self.__legend = legend
+        self.__xscale = xscale
+        self.__yscale = yscale
+        self.__width = width
+        self.__height = height
+        self.__enabled_tools = tools
+        self.__filename = filename
+        self.__server = server
+        self.__notebook = notebook
+        self.__facet = facet
+        self.__palette = palette
+        self.__xgrid = xgrid
+        self.__ygrid = ygrid
+
         self._glyphs = []
         self._built = False
 
@@ -114,7 +121,7 @@ class Chart(Plot):
         else:
             self._doc = Document()
 
-        if self._c['server']:
+        if self.__server:
             if _session:
                 self._session = _session
             else:
@@ -128,8 +135,8 @@ class Chart(Plot):
             ygrid(bool): whether to shoe the ygrid
         """
         # Add axis
-        xaxis = self.make_axis("below", self._c['xscale'], self._c['xlabel'])
-        yaxis = self.make_axis("left", self._c['yscale'], self._c['ylabel'])
+        xaxis = self.make_axis("below", self.__xscale, self.__xlabel)
+        yaxis = self.make_axis("left", self.__yscale, self.__ylabel)
 
         # Add grids
         if self._xgrid:
@@ -138,11 +145,11 @@ class Chart(Plot):
             self.make_grid(1, yaxis.ticker)
 
         # Add tools if supposed to
-        if self._c['tools']:
+        if self._enabled_tools:
             # only add tools if the underlying it hasn't been customized
             # by some user injection
             if not self.tools:
-                tools_conf = self._c['tools']
+                tools_conf = self._enabled_tools
                 # if no tools customization let's create the default tools
                 if isinstance(tools_conf, bool) and tools_conf:
                     tools_conf = DEFAULT_TOOLS
@@ -159,7 +166,6 @@ class Chart(Plot):
         colors = []
 
         pal = ["#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33ff3"]
-        import itertools
         g = itertools.cycle(pal)
         for i in range(len(chunk)):
             colors.append(next(g))
@@ -176,14 +182,14 @@ class Chart(Plot):
                 Useful to automatically setup the legend.
         """
         # Add legend
-        if self._c['legend']:
+        if self.__legend:
             for i, plot in enumerate([self]): #self._plots):
                 listed_glyphs = [[glyph] for glyph in self._glyphs]
                 legends = list(zip(self._groups, listed_glyphs))
-                if self._c['legend'] is True:
+                if self.__legend is True:
                     orientation = "top_right"
                 else:
-                    orientation = self._c['legend']
+                    orientation = self.__legend
 
                 legend = None
                 # When we have more then on plot we need to break legend per plot
@@ -492,7 +498,7 @@ class Chart(Plot):
     def _setup_show(self):
         """Prepare context before main show method is invoked """
         # we need to check the chained method attr
-        # self.check_attr()
+        self.check_attr()
 
     def _show_teardown(self):
         """
@@ -517,40 +523,40 @@ class Chart(Plot):
         self.build()
 
         # Add to document and session
-        if self._c['server']:
-            if self._c['server'] is True:
-                self._c['servername'] = "untitled_chart"
+        if self._server:
+            if self._server is True:
+                self._servername = "untitled_chart"
             else:
-                self._c['servername'] = self._c['server']
+                self._servername = self.__server
 
-            self._session.use_doc(self._c['servername'])
+            self._session.use_doc(self._servername)
             self._session.load_document(self._doc)
 
         if not self._doc._current_plot == self:
             self._doc._current_plot = self
             self._doc.add(self)
 
-        if self._c['filename']:
-            if self._c['filename'] is True:
+        if self._filename:
+            if self._filename is True:
                 filename = "untitled"
             else:
-                filename = self._c['filename']
+                filename = self._filename
             with open(filename, "w") as f:
                 f.write(file_html(self._doc, INLINE, self.title))
             print("Wrote %s" % filename)
             view(filename)
-        elif self._c['filename'] is False and \
-                        self._c['server'] is False and \
-                        self._c['notebook'] is False:
+        elif self.__filename is False and \
+                        self.__server is False and \
+                        self.__notebook is False:
             print("You have a provide a filename (filename='foo.html' or"
                   " .filename('foo.html')) to save your plot.")
 
-        if self._c['server']:
+        if self.__server:
             self.session.store_document(self._doc)
             link = self._session.object_link(self._doc.context)
             view(link)
 
-        if self._c['notebook']:
+        if self.__notebook:
             from bokeh.embed import notebook_div
             # for plot in self._plots:
             publish_display_data({'text/html': notebook_div(self)})
@@ -601,8 +607,224 @@ class Chart(Plot):
         Generate a new plot if facet is true. This can be called after every
         serie is draw so the next one is draw on a new separate plot instance
         """
-        if self._c['facet']:
+        if self.__facet:
             print("WARNING: Faceting not supported!")
+
+
+    #########################
+    # Me
+    #########################
+    def facet(self, facet=True):
+        """Set the facet flag of your chart. Facet splits the chart
+        creating a figure for every single series of the underlying data
+
+        Args:
+            facet (boolean): new facet value to use for your chart.
+
+        Returns:
+            self: the chart object being configured.
+        """
+        self._facet = facet
+        return self
+
+
+    def xlabel(self, xlabel):
+        """Set the xlabel of your chart.
+
+        Args:
+            xlabel (str): the x-axis label of your plot.
+
+        Returns:
+            self: the chart object being configured.
+        """
+        self._xlabel = xlabel
+        return self
+
+    def ylabel(self, ylabel):
+        """Set the ylabel of your chart.
+
+        Args:
+            ylabel (str): the y-axis label of your plot.
+
+        Returns:
+            self: the chart object being configured.
+        """
+        self._ylabel = ylabel
+        return self
+
+    def xgrid(self, xgrid):
+        """Set the xgrid of your chart.
+
+        Args:
+            xgrid (bool): defines if x-grid of your plot is visible or not
+
+        Returns:
+            self: the chart object being configured.
+        """
+        self._xgrid = xgrid
+        return self
+
+    def ygrid(self, ygrid):
+        """Set the ygrid of your chart.
+
+        Args:
+            ygrid (bool): defines if y-grid of your plot is visible or not
+
+        Returns:
+            self: the chart object being configured.
+        """
+        self._ygrid = ygrid
+        return self
+
+    def legend(self, legend):
+        """Set the legend of your chart.
+
+        The legend content is inferred from incoming input.
+        It can be ``top_left``, ``top_right``, ``bottom_left``, ``bottom_right``.
+        It is ``top_right`` is you set it as True.
+
+        Args:
+            legend (str or bool): the legend of your plot.
+
+        Returns:
+            self: the chart object being configured.
+        """
+        self._legend = legend
+        return self
+
+    def xscale(self, xscale):
+        """Set the xscale of your chart.
+
+        It can be ``linear``, ``datetime`` or ``categorical``.
+
+        Args:
+            xscale (str): the x-axis scale of your plot.
+
+        Returns:
+            self: the chart object being configured.
+        """
+        self._xscale = xscale
+        return self
+
+    def yscale(self, yscale):
+        """Set the yscale of your chart.
+
+        It can be ``linear``, ``datetime`` or ``categorical``.
+
+        Args:
+            yscale (str): the y-axis scale of your plot.
+
+        Returns:
+            self: the chart object being configured.
+        """
+        self._yscale = yscale
+        return self
+
+    def width(self, width):
+        """Set the width of your chart.
+
+        Args:
+            width (int): the width of your plot in pixels.
+
+        Returns:
+            self: the chart object being configured.
+        """
+        self._width = width
+        return self
+
+    def height(self, height):
+        """Set the height of your chart.
+
+        Args:
+            height (int): the height of you plot in pixels.
+
+        Returns:
+            self: the chart object being configured.
+        """
+        self._height = height
+        return self
+
+
+    def filename(self, filename):
+        """Set the file name of your chart.
+
+        If you pass True to this argument, it will use ``untitled`` as a filename.
+
+        Args:
+            filename (str or bool): the file name where your plot will be written.
+
+        Returns:
+            self: the chart object being configured.
+        """
+        self._filename = filename
+        return self
+
+    def server(self, server):
+        """Set the server name of your chart.
+
+        If you pass True to this argument, it will use ``untitled``
+        as the name in the server.
+
+        Args:
+            server (str or bool): the name of your plot in the server
+
+        Returns:
+            self: the chart object being configured.
+        """
+        self._server = server
+        return self
+
+    def notebook(self, notebook=True):
+        """Show your chart inside the IPython notebook.
+
+        Args:
+            notebook (bool, optional) : whether to output to the
+                IPython notebook (default: True).
+
+        Returns:
+            self: the chart object being configured.
+        """
+        self._notebook = notebook
+        return self
+
+    def check_attr(self):
+        """Check if any of the underscored attributes exists.
+
+        It checks if any of the chained method were used. If they were
+        not used, it assigns the parameters content by default.
+        """
+        if not hasattr(self, '_title'):
+            self._title = self.__title
+        if not hasattr(self, '_xlabel'):
+            self._xlabel = self.__xlabel
+        if not hasattr(self, '_ylabel'):
+            self._ylabel = self.__ylabel
+        if not hasattr(self, '_legend'):
+            self._legend = self.__legend
+        if not hasattr(self, '_xscale'):
+            self._xscale = self.__xscale
+        if not hasattr(self, '_yscale'):
+            self._yscale = self.__yscale
+        if not hasattr(self, '_width'):
+            self._width = self.__width
+        if not hasattr(self, '_height'):
+            self._height = self.__height
+        if not hasattr(self, '_enabled_tools'):
+            self._enabled_tools = self.__enabled_tools
+        if not hasattr(self, '_filename'):
+            self._filename = self.__filename
+        if not hasattr(self, '_server'):
+            self._server = self.__server
+        if not hasattr(self, '_notebook'):
+            self._notebook = self.__notebook
+        if not hasattr(self, '_facet'):
+            self._facet = self.__facet
+        if not hasattr(self, '_palette'):
+            self._palette = self.__palette
+        if not hasattr(self, '_xgrid'):
+            self._xgrid = self.__xgrid
+        if not hasattr(self, '_ygrid'):
+            self._ygrid = self.__ygrid
 
 
 class OldChart(object):

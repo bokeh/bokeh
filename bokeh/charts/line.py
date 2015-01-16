@@ -148,7 +148,7 @@ class Line(Chart):
         self._values = values
         self._source = None
 
-        # list to save all the groups available in the incomming input
+        # list to save all the groups available in the incoming input
         self._groups = []
         self._data = dict()
         self._attr = []

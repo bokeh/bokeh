@@ -19,9 +19,10 @@ output_file("line.html", title="line.py example")
 line = Line(xyvalues, title="Lines", ylabel='measures', xlabel='time')#, filename="lines.html")
 # line.xlabel('time').legend("top_left")\
 # line.show()
+
 line.build()
 show(line)
-line._c['filename'] = 'lines.html'
+line._filename = 'lines.html'
 line.show()
 output_file("line.html", title="line 2 example")
 show(line)
