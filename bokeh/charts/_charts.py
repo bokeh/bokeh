@@ -516,20 +516,16 @@ class Chart(Plot):
         """
         self.build()
 
-        # Add to document and session if server output is asked
-
+        # Add to document and session
         if self._c['server']:
             if self._c['server'] is True:
                 self._c['servername'] = "untitled_chart"
             else:
                 self._c['servername'] = self._c['server']
 
-            # self._session = Session()
             self._session.use_doc(self._c['servername'])
             self._session.load_document(self._doc)
 
-        # for plot in self._plots:
-        #     self.doc.add(plot)
         if not self._doc._current_plot == self:
             self._doc._current_plot = self
             self._doc.add(self)
