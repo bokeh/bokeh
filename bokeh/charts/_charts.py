@@ -838,7 +838,9 @@ class Chart(Plot):
         if not hasattr(self, '_facet'):
             self._facet = self.__facet
         if not hasattr(self, '_palette'):
-            self._palette = self.__palette
+            default_palette = ["#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33ff3"]
+            self._palette = self.__palette or default_palette
+            print (self._palette)
         if not hasattr(self, '_xgrid'):
             self._xgrid = self.__xgrid
         if not hasattr(self, '_ygrid'):
