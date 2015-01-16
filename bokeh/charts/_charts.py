@@ -107,13 +107,12 @@ class Chart(Plot):
         )
         self._glyphs = []
 
-    @property
-    def plot(self):
-        """
-        Returns the currently chart plot
-        """
-        return self
-        # return self._plots[-1]
+    # @property
+    # def plot(self):
+    #     """
+    #     Returns the currently chart plot
+    #     """
+    #     return self
 
     def figure(self):
         """
