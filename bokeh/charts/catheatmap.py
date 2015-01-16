@@ -17,13 +17,14 @@ the arguments to the Chart class and calling the proper functions.
 #-----------------------------------------------------------------------------
 from __future__ import print_function, division
 
-from ._chartobject import ChartObject, DataAdapter
+from ._charts import Chart
+from ._chartobject import DataAdapter
 from ..models import ColumnDataSource, FactorRange, HoverTool
 
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
-class HeatMap(ChartObject):
+class HeatMap(Chart):
     """This is the HeatMap class and it is in charge of plotting
     HeatMap chart in an easy and intuitive way.
 
@@ -44,7 +45,9 @@ class HeatMap(ChartObject):
     hm = HeatMap(xyvalues, title="categorical heatmap", filename="cat_heatmap.html")
     hm.width(1000).height(400).show()
     """
-    # disable x and y grids
+    __subtype__ = "BoxPlotChart"
+    __view_model__ = "Plot"
+
     def __init__(self, values, palette=None,
                  title=None, xlabel=None, ylabel=None, legend=False,
                  xscale="categorical", yscale="categorical", width=800, height=600,
@@ -108,12 +111,12 @@ class HeatMap(ChartObject):
                 Needed for _set_And_get method.
         """
         self.values = values
-        self.source = None
-        self.xdr = None
-        self.ydr = None
-        self.groups = []
-        self.data = dict()
-        self.attr = []
+        # self.source = None
+        # self.xdr = None
+        # self.ydr = None
+        # self.groups = []
+        # self.data = dict()
+        # self.attr = []
         super(HeatMap, self).__init__(
             title, xlabel, ylabel, legend,xscale, yscale, width, height,
             tools, filename, server, notebook, facet=False,
@@ -129,8 +132,8 @@ class HeatMap(ChartObject):
         the rect glyph inside the ``draw`` method.
 
         """
-        self.catsx = list(self.values.columns)
-        self.catsy = list(self.values.index)
+        self._catsx = list(self._values.columns)
+        self._catsy = list(self._values.index)
 
         if self._palette is None:
             colors = ["#75968f", "#a5bab7", "#c9d9d3", "#e2e2e2", "#dfccce",
@@ -144,50 +147,50 @@ class HeatMap(ChartObject):
         caty = []
         color = []
         rate = []
-        for y in self.catsy:
-            for m in self.catsx:
+        for y in self._catsy:
+            for m in self._catsx:
                 catx.append(m)
                 caty.append(y)
-                rate.append(self.values[m][y])
+                rate.append(self._values[m][y])
 
         # Now that we have the min and max rates
         min_rate, max_rate = min(rate), max(rate)
         factor = len(colors) - 1
         den = max(rate) - min(rate)
-        for y in self.catsy:
-            for m in self.catsx:
-                c = int(round(factor*(self.values[m][y] - min(rate)) / den))
+        for y in self._catsy:
+            for m in self._catsx:
+                c = int(round(factor*(self._values[m][y] - min(rate)) / den))
                 color.append(colors[c])
 
         width = [0.95] * len(catx)
         height = [0.95] * len(catx)
 
-        self.data = dict(catx=catx, caty=caty, color=color, rate=rate,
+        self._data = dict(catx=catx, caty=caty, color=color, rate=rate,
                          width=width, height=height)
 
     def get_source(self):
         """Push the CategoricalHeatMap data into the ColumnDataSource
         and calculate the proper ranges.
         """
-        self.source = ColumnDataSource(self.data)
-        self.xdr = FactorRange(factors=self.catsx)
-        self.ydr = FactorRange(factors=self.catsy)
+        self._source = ColumnDataSource(self._data)
+        self.x_range = FactorRange(factors=self._catsx)
+        self.y_range = FactorRange(factors=self._catsy)
 
     def draw(self):
         """Use the rect glyphs to display the categorical heatmap.
 
         Takes reference points from data loaded at the ColumnDataSurce.
         """
-        self.chart.make_rect(self.source, "catx", "caty", "width", "height",
+        self.make_rect(self._source, "catx", "caty", "width", "height",
                              "color", "white", None)
 
     def _show_teardown(self):
         """Add hover tool to HetMap chart"""
-        self.chart.plot.add_tools(HoverTool(tooltips=[("value", "@rate")]))
+        self.add_tools(HoverTool(tooltips=[("value", "@rate")]))
 
     def prepare_values(self):
         """Prepare the input data.
 
         Converts data input (self.values) to a DataAdapter
         """
-        self.values = DataAdapter(self.values, force_alias=True)
+        self._values = DataAdapter(self._values, force_alias=True)
