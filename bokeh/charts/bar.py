@@ -25,7 +25,7 @@ except ImportError:
     print("bokeh.charts needs numpy installed to work properly!")
     raise
 
-from ._chartobject import ChartObject
+from ._charts import Chart
 from ..models import ColumnDataSource, FactorRange, Range1d
 
 #-----------------------------------------------------------------------------
@@ -33,7 +33,7 @@ from ..models import ColumnDataSource, FactorRange, Range1d
 #-----------------------------------------------------------------------------
 
 
-class Bar(ChartObject):
+class Bar(Chart):
     """This is the Bar class and it is in charge of plotting
     Bar chart (grouped and stacked) in an easy and intuitive way.
 
@@ -57,6 +57,8 @@ class Bar(ChartObject):
         bar.legend(True).width(600).height(400).stacked(True)
         bar.show()
     """
+    __subtype__ = "BarChart"
+    __view_model__ = "Plot"
 
     def __init__(self, values, cat=None, stacked=False,
                  title=None, xlabel=None, ylabel=None, legend=False,
