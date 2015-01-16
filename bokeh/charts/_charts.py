@@ -619,6 +619,15 @@ class Chart(Plot):
         if self.__facet:
             print("WARNING: Faceting not supported!")
 
+    def _chunker(self, l, n):
+        """Yield successive n-sized chunks from l.
+
+        Args:
+            l (list: the incomming list to be chunked
+            n (int): lenght of you chucks
+        """
+        for i in range(0, len(l), n):
+            yield l[i:i + n]
 
     ##################################################
     # Methods related to method chaining

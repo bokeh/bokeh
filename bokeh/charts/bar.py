@@ -129,15 +129,10 @@ class Bar(Chart):
                 loading the data dict.
                 Needed for _set_And_get method.
         """
-        self.cat = cat
-        self.values = values
+        self._cat = cat
+        self._values = values
         self.__stacked = stacked
-        self.source = None
-        self.xdr = None
-        self.ydr = None
-        self.groups = []
-        self.data = dict()
-        self.attr = []
+
         super(Bar, self).__init__(
             title, xlabel, ylabel, legend, xscale, yscale, width, height,
             tools, filename, server, notebook, facet, xgrid, ygrid
@@ -175,68 +170,66 @@ class Bar(Chart):
         containing references to all the calculated points to be used by
         the rect glyph inside the ``draw`` method.
         """
-        if not self.cat:
-            self.cat = [str(x) for x in self.values.index]
+        if not self._cat:
+            self._cat = [str(x) for x in self._values.index]
 
-        width = [0.8] * len(self.cat)
+        width = [0.8] * len(self._cat)
         # width should decrease proportionally to the value length.
         # 1./len(value) doesn't work well as the width needs to decrease a
         # little bit faster
-        width_cat = [min(0.2, (1./len(self.values))**1.1)] * len(self.cat)
-        zero = np.zeros(len(self.cat))
-        self.data = dict(
-            cat=self.cat, width=width, width_cat=width_cat,
-            zero=zero
+        width_cat = [min(0.2, (1./len(self._values))**1.1)] * len(self._cat)
+        zero = np.zeros(len(self._cat))
+        self._data = dict(
+            cat=self._cat, width=width, width_cat=width_cat, zero=zero
         )
-        # list to save all the attributes we are going to create
-        self.attr = []
-        # list to save all the groups available in the incomming input grouping
-        step = np.linspace(0, 1.0, len(self.values.keys()) + 1, endpoint=False)
-        self.groups.extend(self.values.keys())
 
-        for i, val in enumerate(self.values.keys()):
-            self.set_and_get("", val, self.values[val])
-            mid = np.array(self.values[val]) / 2
+        # list to save all the groups available in the incomming input grouping
+        step = np.linspace(0, 1.0, len(self._values.keys()) + 1, endpoint=False)
+        self._groups.extend(self._values.keys())
+
+        for i, val in enumerate(self._values.keys()):
+            self.set_and_get("", val, self._values[val])
+            mid = np.array(self._values[val]) / 2
             self.set_and_get("mid", val, mid)
             self.set_and_get("stacked", val, zero + mid)
             # Grouped
-            grouped = [c + ":" + str(step[i + 1]) for c in self.cat]
+            grouped = [c + ":" + str(step[i + 1]) for c in self._cat]
             self.set_and_get("cat", val, grouped)
             # Stacked
-            zero += self.values[val]
+            zero += self._values[val]
 
     def get_source(self):
         """Push the Bar data into the ColumnDataSource and calculate
         the proper ranges.
         """
-        self.source = ColumnDataSource(self.data)
-        self.xdr = FactorRange(factors=self.source.data["cat"])
+        self._source = ColumnDataSource(self._data)
+        self.x_range = FactorRange(factors=self._source.data["cat"])
 
         if self._stacked:
-            self.ydr = Range1d(start=0, end=1.1 * max(self.data['zero']))
+            self.y_range = Range1d(start=0, end=1.1 * max(self._data['zero']))
         else:
-            cat = [i for i in self.attr
+            cat = [i for i in self._attr
                    if not i.startswith(("mid", "stacked", "cat"))]
-            end = 1.1 * max(max(self.data[i]) for i in cat)
-            self.ydr = Range1d(start=0, end=end)
+            end = 1.1 * max(max(self._data[i]) for i in cat)
+            self.y_range = Range1d(start=0, end=end)
 
     def draw(self):
         """Use the rect glyphs to display the bars.
 
         Takes reference points from data loaded at the ColumnDataSource.
         """
-        quartets = list(self._chunker(self.attr, 4))
+        quartets = list(self._chunker(self._attr, 4))
         colors = self._set_colors(quartets)
 
         # quartet elements are: [data, mid, stacked, cat]
         for i, quartet in enumerate(quartets):
             if self._stacked:
-                self.chart.make_rect(
-                    self.source, "cat", quartet[2], "width", quartet[0],
+                self.make_rect(
+                    self._source, "cat", quartet[2], "width", quartet[0],
                     colors[i], "white", None
                 )
             else:  # Grouped
-                self.chart.make_rect(
-                    self.source, quartet[3], quartet[1], "width_cat",
+                self.make_rect(
+                    self._source, quartet[3], quartet[1], "width_cat",
                     quartet[0], colors[i], "white", None
                 )
