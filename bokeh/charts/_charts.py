@@ -187,18 +187,8 @@ class Chart(Plot):
 
                 legend = None
                 # When we have more then on plot we need to break legend per plot
-                if False: #len(self._plots) > 1:
-                    # try:
-                    #     legend = Legend(orientation=orientation, legends=[legends[i]])
-                    #
-                    # except IndexError:
-                    #     pass
-                    pass
-                else:
-                    legend = Legend(orientation=orientation, legends=legends)
-
-                if legend is not None:
-                    plot.add_layout(legend)
+                legend = Legend(orientation=orientation, legends=legends)
+                plot.add_layout(legend)
 
     def make_axis(self, location, scale, label):
         """Create linear, date or categorical axis depending on the location,
@@ -256,7 +246,9 @@ class Chart(Plot):
         Return:
             segment: Segment instance
         """
-        segment = Segment(x0=x0, y0=y0, x1=x1, y1=y1, line_color=color, line_width=width)
+        segment = Segment(
+            x0=x0, y0=y0, x1=x1, y1=y1, line_color=color, line_width=width
+        )
 
         self._append_glyph(source, segment)
 
@@ -295,8 +287,10 @@ class Chart(Plot):
         Return:
             quad: Quad instance
         """
-        quad = Quad(top=top, bottom=bottom, left=left, right=right,
-                    fill_color=color, fill_alpha=0.7, line_color=line_color, line_alpha=1.0)
+        quad = Quad(
+            top=top, bottom=bottom, left=left, right=right, fill_color=color,
+            fill_alpha=0.7, line_color=line_color, line_alpha=1.0
+        )
 
         self._append_glyph(source, quad)
 
@@ -318,9 +312,11 @@ class Chart(Plot):
         Return:
             rect: Rect instance
         """
-        rect = Rect(x=x, y=y, width=width, height=height, fill_color=color,
-                    fill_alpha=0.7, line_color=line_color, line_alpha=1.0, line_width=line_width)
-
+        rect = Rect(
+            x=x, y=y, width=width, height=height, fill_color=color,
+            fill_alpha=0.7, line_color=line_color, line_alpha=1.0,
+            line_width=line_width
+        )
         self._append_glyph(source, rect)
 
         return rect
@@ -337,9 +333,7 @@ class Chart(Plot):
         Return:
             patch: Patch instance
         """
-        patch = Patch(
-            x=x, y=y, fill_color=color, fill_alpha=0.9)
-
+        patch = Patch(x=x, y=y, fill_color=color, fill_alpha=0.9)
         self._append_glyph(source, patch)
         return patch
 
@@ -405,21 +399,23 @@ class Chart(Plot):
         if line_color is None:
             line_color = color
 
-        _marker_types = OrderedDict([
-            ("circle", Circle),
-            ("square", Square),
-            ("triangle", Triangle),
-            ("diamond", Diamond),
-            ("inverted_triangle", InvertedTriangle),
-            ("asterisk", Asterisk),
-            ("cross", Cross),
-            ("x", X),
-            ("circle_cross", CircleCross),
-            ("circle_x", CircleX),
-            ("square_x", SquareX),
-            ("square_cross", SquareCross),
-            ("diamond_cross", DiamondCross),
-            ])
+        _marker_types = OrderedDict(
+            [
+                ("circle", Circle),
+                ("square", Square),
+                ("triangle", Triangle),
+                ("diamond", Diamond),
+                ("inverted_triangle", InvertedTriangle),
+                ("asterisk", Asterisk),
+                ("cross", Cross),
+                ("x", X),
+                ("circle_cross", CircleCross),
+                ("circle_x", CircleX),
+                ("square_x", SquareX),
+                ("square_cross", SquareCross),
+                ("diamond_cross", DiamondCross),
+            ]
+        )
 
         g = itertools.cycle(_marker_types.keys())
         if isinstance(markertype, int):
@@ -427,11 +423,10 @@ class Chart(Plot):
                 shape = next(g)
         else:
             shape = markertype
-        scatter = _marker_types[shape](x=x, y=y, size=size,
-                                       fill_color=color,
-                                       fill_alpha=fill_alpha,
-                                       line_color=line_color,
-                                       line_alpha=line_alpha)
+        scatter = _marker_types[shape](
+            x=x, y=y, size=size, fill_color=color, fill_alpha=fill_alpha,
+            line_color=line_color, line_alpha=line_alpha
+        )
 
         self._append_glyph(source, scatter)
 
@@ -447,14 +442,11 @@ class Chart(Plot):
          - create glyphs
          - draw glyphs
         """
-
-        # we create the chart object
-        # self.create_chart()
-        # we prepare values
+        # prepare values
         self.prepare_values()
-        # we get the data from the incoming input
+        # get the data from the incoming input
         self.get_data()
-        # we filled the source and ranges with the calculated data
+        # filled the source and ranges with the calculated data
         self.get_source()
         # we dynamically inject the source and ranges into the plot
         # self.add_data_plot()
@@ -509,34 +501,6 @@ class Chart(Plot):
         build chart objects
         """
         pass
-
-    def _set_and_get(self, data, prefix, attr, val, content):
-        """Set a new attr and then get it to fill the self.data dict.
-
-        Keep track of the attributes created.
-
-        Args:
-            data (dict): where to store the new attribute content
-            attr (list): where to store the new attribute names
-            val (string): name of the new attribute
-            content (obj): content of the new attribute
-        """
-        _val = content
-        # setattr(self, prefix + val, content)
-        data[prefix + val] = _val
-        attr.append(prefix + val)
-
-    def set_and_get(self, prefix, val, content):
-        """Set a new attr and then get it to fill the self.data dict.
-
-        Keep track of the attributes created.
-
-        Args:
-            prefix (str): prefix of the new attribute
-            val (string): name of the new attribute
-            content (obj): content of the new attribute
-        """
-        self._set_and_get(self._data, prefix, self._attr, val, content)
 
     def build(self):
         if not self._built:
@@ -596,6 +560,34 @@ class Chart(Plot):
             publish_display_data({'text/html': notebook_div(self)})
 
     ## Some helper methods
+    def _set_and_get(self, data, prefix, attr, val, content):
+        """Set a new attr and then get it to fill the self.data dict.
+
+        Keep track of the attributes created.
+
+        Args:
+            data (dict): where to store the new attribute content
+            attr (list): where to store the new attribute names
+            val (string): name of the new attribute
+            content (obj): content of the new attribute
+        """
+        _val = content
+        # setattr(self, prefix + val, content)
+        data[prefix + val] = _val
+        attr.append(prefix + val)
+
+    def set_and_get(self, prefix, val, content):
+        """Set a new attr and then get it to fill the self.data dict.
+
+        Keep track of the attributes created.
+
+        Args:
+            prefix (str): prefix of the new attribute
+            val (string): name of the new attribute
+            content (obj): content of the new attribute
+        """
+        self._set_and_get(self._data, prefix, self._attr, val, content)
+
     def _append_glyph(self, source, glyph):
         """ Append the glyph to the plot.renderer.
 
@@ -606,7 +598,6 @@ class Chart(Plot):
             glyph (obj): glyph type
         """
         _glyph = self.add_glyph(source, glyph)
-
         self._glyphs.append(_glyph)
 
     def create_plot_if_facet(self):
@@ -615,11 +606,7 @@ class Chart(Plot):
         serie is draw so the next one is draw on a new separate plot instance
         """
         if self._c['facet']:
-            self.chart.figure()
-
-            # we start the plot (adds axis, grids and tools)
-            self.start_plot()
-            self.add_data_plot()
+            print("WARNING: Faceting not supported!")
 
 
 class OldChart(object):
