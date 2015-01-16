@@ -141,13 +141,8 @@ class Line(Chart):
                 loading the data dict.
                 Needed for _set_And_get method.
         """
-        self._values = values
-        self._source = None
-
         # list to save all the groups available in the incoming input
-        self._groups = []
-        self._data = dict()
-        self._attr = []
+        self._values = values
         self._index = index
 
         super(Line, self).__init__(

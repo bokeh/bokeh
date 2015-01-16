@@ -93,6 +93,13 @@ class Chart(Plot):
             glyphs (list): to keep track of the glyphs added to the plot.
         """
         kw = dict(title=title, plot_width=width, plot_height=height)
+
+        self._source = None
+        # list to save all the groups available in the incomming input
+        self._groups = []
+        self._data = dict()
+        self._attr = []
+
         super(Chart, self).__init__(**kw)
 
         self.__title = title

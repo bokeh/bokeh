@@ -147,14 +147,8 @@ class Area(Chart):
             index(see inputs): received index input
         """
         self._values = values
-        self._source = None
-        self.__stacked = stacked
-
-        # list to save all the groups available in the incomming input
-        self._groups = []
-        self._data = dict()
-        self._attr = []
         self._index = index
+        self.__stacked = stacked
 
         super(Area, self).__init__(
             title, xlabel, ylabel, legend, xscale, yscale, width, height,
