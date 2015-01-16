@@ -13,6 +13,7 @@ from .plotting import (make_histogram_source,
                        make_bar_plot, cross)
 #bokeh plotting functions
 from ..plotting import figure
+from ..charts.scatter import Scatter
 from ..plot_object import PlotObject
 from ..properties import Dict, Enum, Instance, List, String, Any, Int
 
@@ -146,7 +147,7 @@ class CrossFilter(PlotObject):
 
     def make_plot_choices(self):
         x, y = [x['name'] for x in self.continuous_columns()[:2]]
-        return {'x' : x, 'y' : y, 'plot_type' : scatter}
+        return {'x': x, 'y': y, 'plot_type': Scatter}
 
     def set_plot(self):
         if self.x == self.y:
@@ -184,15 +185,16 @@ class CrossFilter(PlotObject):
                 start = cross(start, facets)
             else:
                 categorical, bins = pd.qcut(self.df[field], 4, retbins=True)
-                values = categorical.levels
+                cats = categorical.cat.categories
                 bins = [[bins[idx], bins[idx+1]] for idx in range(len(bins) - 1)]
                 bins[0][0] = None
-                facets = [ContinuousFacet(field, value, bin) for bin, value in zip(bins, values)]
+                facets = [ContinuousFacet(field, value, bin) for bin, value in zip(bins, cats)]
                 start = cross(start, facets)
 
         return start
 
-    def facet_title(self, facets):
+    @staticmethod
+    def facet_title(facets):
         title = ",".join([str(x) for x in facets])
         return title
 
@@ -244,11 +246,9 @@ class CrossFilter(PlotObject):
         grid = GridPlot(children=grid_plots, plot_width=200 * len(all_facets_x))
         return grid
 
-
     def make_single_plot(self, df=None, title=None,
                          plot_width=700, plot_height=680,
-                         tools="pan,wheel_zoom,box_zoom,save,resize,select,reset"
-                     ):
+                         tools="pan,wheel_zoom,box_zoom,save,resize,box_select,reset"):
         column_descriptor_dict = self.column_descriptor_dict()
         if title is None:
             title ="%s by %s" % (self.x, self.y)
@@ -294,10 +294,8 @@ class CrossFilter(PlotObject):
                                      x_range=x_range)
                 return plot
             else:
-                source = make_categorical_bar_source(
-                    df, self.x, self.y, self.agg
-                    )
-                x_range = FactorRange(source[self.x])
+                source = make_categorical_bar_source(df, self.x, self.y, self.agg)
+                x_range = FactorRange(source.data[self.x])
                 plot = make_bar_plot(source, counts_name=self.y,
                                      centers_name=self.x,
                                      plot_height=plot_height,
@@ -412,7 +410,7 @@ class CrossFilter(PlotObject):
                     hist_plot = make_histogram(self.filter_sources[col],
                                                plot_width=200, plot_height=100,
                                                title_text_font_size='8pt',
-                                               tools='select'
+                                               tools='box_select'
                     )
                     hist_plot.title = col
                     self.filter_widgets[col] = hist_plot
