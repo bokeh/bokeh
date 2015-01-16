@@ -116,11 +116,11 @@ class Chart(Plot):
         # self._xscale = xscale
         # self._yscale = yscale
         # self.title = title
-        self._xlabel = xlabel
-        self._ylabel = ylabel
-        self._legend = legend
-        self._xscale = xscale
-        self._yscale = yscale
+        # self._xlabel = xlabel
+        # self._ylabel = ylabel
+        # self._legend = legend
+        # self._xscale = xscale
+        # self._yscale = yscale
         # self.plot_width = width
         # self.plot_height = height
         # self.tools = tools
@@ -168,8 +168,8 @@ class Chart(Plot):
             ygrid(bool): whether to shoe the ygrid
         """
         # Add axis
-        xaxis = self.make_axis("below", self._xscale, self._xlabel)
-        yaxis = self.make_axis("left", self._yscale, self._ylabel)
+        xaxis = self.make_axis("below", self._c['xscale'], self._c['xlabel'])
+        yaxis = self.make_axis("left", self._c['yscale'], self._c['ylabel'])
 
         # Add grids
         if self._xgrid:
@@ -313,12 +313,11 @@ class Chart(Plot):
         elif scale == "datetime":
             axis = DatetimeAxis(axis_label=label)
         elif scale == "categorical":
-            axis = CategoricalAxis(major_label_orientation=np.pi / 4,
-                                   axis_label=label)
-            # self._categorical = True
+            axis = CategoricalAxis(
+                major_label_orientation=np.pi / 4, axis_label=label
+            )
 
         self.add_layout(axis, location)
-
         return axis
 
     def make_grid(self, dimension, ticker):
