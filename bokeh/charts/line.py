@@ -26,7 +26,35 @@ from ..models import ColumnDataSource, Range1d, DataRange1d
 #-----------------------------------------------------------------------------
 
 
-class Line(ChartObject):
+"""This is the Bokeh charts interface. It gives you a high level API to build
+complex plot is a simple way.
+
+This is the Line class which lets you build your Line charts just
+passing the arguments to the Chart class and calling the proper functions.
+"""
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2014, Continuum Analytics, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENCE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+from six import string_types
+import numpy as np
+from ._charts import Chart
+from ..models import ColumnDataSource, Range1d, DataRange1d
+
+#-----------------------------------------------------------------------------
+# Classes and functions
+#-----------------------------------------------------------------------------
+
+
+class Line(Chart):
     """This is the Line class and it is in charge of plotting
     Line charts in an easy and intuitive way.
 
@@ -36,6 +64,13 @@ class Line(ChartObject):
     And finally add the needed lines taking the references from the source.
 
     """
+    __subtype__ = "LineChart"
+    __view_model__ = "Plot"
+
+    # whether to show the xgrid
+    _xgrid = True
+    # whether to show the ygrid
+    _ygrid = True
     def __init__(self, values, index=None,
                  title=None, xlabel=None, ylabel=None, legend=False,
                  xscale="linear", yscale="linear", width=800, height=600,
@@ -110,20 +145,20 @@ class Line(ChartObject):
                 loading the data dict.
                 Needed for _set_And_get method.
         """
-        self.values = values
-        self.source = None
-        self.xdr = None
-        self.ydr = None
+        self._values = values
+        self._source = None
+        self._xdr = None
+        self._ydr = None
 
         # list to save all the groups available in the incomming input
-        self.groups = []
-        self.data = dict()
-        self.attr = []
-        self.index = index
+        self._groups = []
+        self._data = dict()
+        self._attr = []
+        self._index = index
 
         super(Line, self).__init__(
             title, xlabel, ylabel, legend, xscale, yscale, width, height,
-            tools, filename, server, notebook, facet, xgrid, ygrid
+            tools, filename, server, notebook, facet
         )
 
     def get_data(self):
@@ -132,19 +167,19 @@ class Line(ChartObject):
         used by the line glyph inside the ``draw`` method.
 
         """
-        self.data = dict()
+        self._data = dict()
 
         # list to save all the attributes we are going to create
-        self.attr = []
-        xs = self.values_index
+        self._attr = []
+        xs = self._values_index
         self.set_and_get("x", "", np.array(xs))
-        for col in self.values.keys():
-            if isinstance(self.index, string_types) and col == self.index:
+        for col in self._values.keys():
+            if isinstance(self._index, string_types) and col == self._index:
                 continue
 
             # save every new group we find
-            self.groups.append(col)
-            values = [self.values[col][x] for x in xs]
+            self._groups.append(col)
+            values = [self._values[col][x] for x in xs]
             self.set_and_get("y_", col, values)
 
     def get_source(self):
@@ -152,14 +187,14 @@ class Line(ChartObject):
         Push the Line data into the ColumnDataSource and calculate the
         proper ranges.
         """
-        self.source = ColumnDataSource(self.data)
-        self.xdr = DataRange1d(sources=[self.source.columns("x")])
+        self._source = ColumnDataSource(self._data)
+        self.x_range = self._xdr = DataRange1d(sources=[self._source.columns("x")])
 
-        y_names = self.attr[1:]
+        y_names = self._attr[1:]
 
-        endy = max(max(self.data[i]) for i in y_names)
-        starty = min(min(self.data[i]) for i in y_names)
-        self.ydr = Range1d(
+        endy = max(max(self._data[i]) for i in y_names)
+        starty = min(min(self._data[i]) for i in y_names)
+        self.y_range = self._ydr = Range1d(
             start=starty - 0.1 * (endy - starty),
             end=endy + 0.1 * (endy - starty)
         )
@@ -169,10 +204,10 @@ class Line(ChartObject):
 
         Takes reference points from the data loaded at the ColumnDataSource.
         """
-        colors = self._set_colors(self.attr)
+        colors = self._set_colors(self._attr)
 
-        for i, duplet in enumerate(self.attr[1:], start=1):
-            self.chart.make_line(self.source, 'x', duplet, colors[i - 1])
+        for i, duplet in enumerate(self._attr[1:], start=1):
+            self.make_line(self._source, 'x', duplet, colors[i - 1])
 
-            if i < len(self.attr[1:]):
+            if i < len(self._attr[1:]):
                 self.create_plot_if_facet()

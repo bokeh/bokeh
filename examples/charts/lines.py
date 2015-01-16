@@ -15,4 +15,5 @@ xyvalues = OrderedDict(
 #xyvalues = np.array(xyvalues.values())
 
 line = Line(xyvalues, title="Lines", ylabel='measures', filename="lines.html")
-line.xlabel('time').legend("top_left").show()
+# line.xlabel('time').legend("top_left")\
+line.show()
