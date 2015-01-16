@@ -91,50 +91,21 @@ class Chart(Plot):
                 categorical plot.
             glyphs (list): to keep track of the glyphs added to the plot.
         """
-        kw = dict(title=title, #xlabel=xlabel, ylabel=ylabel,
-                  #legend=legend,
-                  # xscale=xscale, yscale=yscale,
-                  plot_width=width, plot_height=height,
-                 # tools, filename, server, notebook
-        )
+        kw = dict(title=title, plot_width=width, plot_height=height)
         super(Chart, self).__init__(**kw)
         self._c = dict(
-            xlabel = xlabel,
-            ylabel = ylabel,
-            legend = legend,
-            xscale = xscale,
-            yscale = yscale,
-            server = server,
-            filename = filename,
-            notebook = notebook,
-            tools = tools,
-            facet = facet,
+            xlabel=xlabel,
+            ylabel=ylabel,
+            legend=legend,
+            xscale=xscale,
+            yscale=yscale,
+            server=server,
+            filename=filename,
+            notebook=notebook,
+            tools=tools,
+            facet=facet,
         )
-        # self._xlabel = xlabel
-        # self._ylabel = ylabel
-        # self._legend = legend
-        # self._xscale = xscale
-        # self._yscale = yscale
-        # self.title = title
-        # self._xlabel = xlabel
-        # self._ylabel = ylabel
-        # self._legend = legend
-        # self._xscale = xscale
-        # self._yscale = yscale
-        # self.plot_width = width
-        # self.plot_height = height
-        # self.tools = tools
-        # self.filename = filename
-        # self.server = server
-        # self.notebook = notebook
-        # self._xdr = None
-        # self._ydr = None
-        # self.facet = facet
-        # self._plots = []
-        # self.figure()
-        # self.categorical = False
         self._glyphs = []
-
 
     @property
     def plot(self):
