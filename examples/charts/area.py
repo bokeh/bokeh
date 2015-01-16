@@ -14,4 +14,4 @@ area = Area(
     ylabel='memory', filename="area.html",
     facet=False, stacked=True,
 )
-area.legend("top_left").show()
+area.legend("top_left").stacked(False).show()

@@ -26,13 +26,14 @@ except ImportError:
     print("bokeh.charts needs numpy installed to work properly!")
     raise
 
-from ._chartobject import ChartObject
+# from ._chartobject import ChartObject
+from ._charts import Chart
 from ..models import ColumnDataSource, Range1d, DataRange1d
 
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
-class Area(ChartObject):
+class Area(Chart):
     """This is the Area class and it is in charge of plotting
     Area chart in an easy and intuitive way.
 
@@ -61,6 +62,9 @@ class Area(ChartObject):
         )
         area.legend("top_left").show()
     """
+
+    __subtype__ = "AreaChart"
+    __view_model__ = "Plot"
     def __init__(self, values,
                  index=None,
                  title=None, xlabel=None, ylabel=None, legend=False,
@@ -142,17 +146,15 @@ class Area(ChartObject):
                 Needed for _set_And_get method.
             index(see inputs): received index input
         """
-        self.values = values
-        self.source = None
-        self.xdr = None
-        self.ydr = None
+        self._values = values
+        self._source = None
         self.__stacked = stacked
 
         # list to save all the groups available in the incomming input
-        self.groups = []
-        self.data = dict()
-        self.attr = []
-        self.index = index
+        self._groups = []
+        self._data = dict()
+        self._attr = []
+        self._index = index
 
         super(Area, self).__init__(
             title, xlabel, ylabel, legend, xscale, yscale, width, height,
@@ -189,22 +191,22 @@ class Area(ChartObject):
         the patch glyph inside the ``draw`` method.
 
         """
-        self.data = dict()
+        self._data = dict()
         # list to save all the attributes we are going to create
-        self.attr = []
-        xs = self.values_index
+        self._attr = []
+        xs = self._values_index
         last = np.zeros(len(xs))
         x2 = np.hstack((xs[::-1], xs))
         self.set_and_get("x", "", x2)
 
-        for grp in self.values.keys():
+        for grp in self._values.keys():
             # TODO: This condition may be removed or changed depending on
             # the validation of self.index
-            if isinstance(self.index, string_types) and grp == self.index:
+            if isinstance(self._index, string_types) and grp == self._index:
                 continue
 
             # get single series values
-            col_values = self.values[grp]
+            col_values = self._values[grp]
             _values = [col_values[x] for indx, x in enumerate(xs)]
 
             # to draw area we need 2 coordinates. The lower values will always
@@ -220,20 +222,20 @@ class Area(ChartObject):
 
             # save values and new group
             self.set_and_get("y_", grp, values)
-            self.groups.append(grp)
+            self._groups.append(grp)
 
     def get_source(self):
         """
         Push the Line data into the ColumnDataSource and calculate the proper ranges.
         """
-        self.source = ColumnDataSource(self.data)
-        self.xdr = DataRange1d(sources=[self.source.columns("x")])
+        self._source = ColumnDataSource(self._data)
+        self.x_range = DataRange1d(sources=[self._source.columns("x")])
 
-        y_names = self.attr[1:]
+        y_names = self._attr[1:]
 
-        endy = max(max(self.data[i]) for i in y_names)
-        starty = min(min(self.data[i]) for i in y_names)
-        self.ydr = Range1d(
+        endy = max(max(self._data[i]) for i in y_names)
+        starty = min(min(self._data[i]) for i in y_names)
+        self.y_range = Range1d(
             start=starty - 0.1 * (endy - starty),
             end=endy + 0.1 * (endy - starty)
         )
@@ -244,12 +246,12 @@ class Area(ChartObject):
 
         Takes reference points from the data loaded at the ColumnDataSource.
         """
-        colors = self._set_colors(self.attr)
+        colors = self._set_colors(self._attr)
 
         # parse all series. We exclude the first attr as it's the x values
         # added for the index
-        for i, series_name in enumerate(self.attr[1:]):
-            self.chart.make_patch(self.source, 'x', series_name, colors[i])
+        for i, series_name in enumerate(self._attr[1:]):
+            self.make_patch(self._source, 'x', series_name, colors[i])
 
-            if i < len(self.attr[1:]) - 1:
+            if i < len(self._attr[1:]) - 1:
                 self.create_plot_if_facet()

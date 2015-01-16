@@ -561,7 +561,9 @@ class Chart(Plot):
             # for plot in self._plots:
             publish_display_data({'text/html': notebook_div(self)})
 
-    ## Some helper methods
+    ##################################################
+    # Some helper methods
+    ##################################################
     def _set_and_get(self, data, prefix, attr, val, content):
         """Set a new attr and then get it to fill the self.data dict.
 
@@ -611,9 +613,9 @@ class Chart(Plot):
             print("WARNING: Faceting not supported!")
 
 
-    #########################
-    # Me
-    #########################
+    ##################################################
+    # Methods related to method chaining
+    ##################################################
     def facet(self, facet=True):
         """Set the facet flag of your chart. Facet splits the chart
         creating a figure for every single series of the underlying data

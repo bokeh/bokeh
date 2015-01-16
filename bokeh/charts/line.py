@@ -67,10 +67,6 @@ class Line(Chart):
     __subtype__ = "LineChart"
     __view_model__ = "Plot"
 
-    # whether to show the xgrid
-    _xgrid = True
-    # whether to show the ygrid
-    _ygrid = True
     def __init__(self, values, index=None,
                  title=None, xlabel=None, ylabel=None, legend=False,
                  xscale="linear", yscale="linear", width=800, height=600,
