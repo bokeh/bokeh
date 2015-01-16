@@ -16,8 +16,12 @@ xyvalues = OrderedDict(
 #xyvalues = np.array(xyvalues.values())
 
 output_file("line.html", title="line.py example")
-line = Line(xyvalues, title="Lines", ylabel='measures', filename="lines.html")
+line = Line(xyvalues, title="Lines", ylabel='measures', xlabel='time')#, filename="lines.html")
 # line.xlabel('time').legend("top_left")\
 # line.show()
 line.build()
+show(line)
+line._c['filename'] = 'lines.html'
+line.show()
+output_file("line.html", title="line 2 example")
 show(line)

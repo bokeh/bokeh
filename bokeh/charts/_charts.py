@@ -58,7 +58,7 @@ class Chart(Plot):
     __subtype__ = "Chart"
     __view_model__ = "Plot"
     def __init__(self, title, xlabel, ylabel, legend, xscale, yscale, width, height,
-                 tools, filename, server, notebook, facet = False):
+                 tools, filename, server, notebook, facet = False, _doc=None, _session=None):
         """Common arguments to be used by all the inherited classes.
 
         Args:
@@ -106,6 +106,19 @@ class Chart(Plot):
             facet=facet,
         )
         self._glyphs = []
+        self._built = False
+
+        # Add to document and session if server output is asked
+        if _doc:
+            self._doc = _doc
+        else:
+            self._doc = Document()
+
+        if self._c['server']:
+            if _session:
+                self._session = _session
+            else:
+                self._session = Session()
 
     def start_plot(self): #, xgrid, ygrid):
         """Add the axis, grids and tools
@@ -186,24 +199,6 @@ class Chart(Plot):
 
                 if legend is not None:
                     plot.add_layout(legend)
-
-        # Add to document and session if server output is asked
-        doc = self._doc = Document()
-        doc._current_plot = self
-
-        if self._c['server']:
-            if self._c['server'] is True:
-                self._c['servername'] = "untitled_chart"
-            else:
-                self._c['servername'] = self._c['server']
-
-            self._session = Session()
-            self._session.use_doc(self._c['servername'])
-            self._session.load_document(doc)
-
-        # for plot in self._plots:
-        #     self.doc.add(plot)
-        doc.add(self)
 
     def make_axis(self, location, scale, label):
         """Create linear, date or categorical axis depending on the location,
@@ -544,9 +539,11 @@ class Chart(Plot):
         self._set_and_get(self._data, prefix, self._attr, val, content)
 
     def build(self):
-        self._setup_show()
-        self._prepare_show()
-        self._show_teardown()
+        if not self._built:
+            self._setup_show()
+            self._prepare_show()
+            self._show_teardown()
+            self._built = True
 
     def show(self):
         """Main show function.
@@ -554,6 +551,24 @@ class Chart(Plot):
         It shows the plot in file, server and notebook outputs.
         """
         self.build()
+
+        # Add to document and session if server output is asked
+
+        if self._c['server']:
+            if self._c['server'] is True:
+                self._c['servername'] = "untitled_chart"
+            else:
+                self._c['servername'] = self._c['server']
+
+            # self._session = Session()
+            self._session.use_doc(self._c['servername'])
+            self._session.load_document(self._doc)
+
+        # for plot in self._plots:
+        #     self.doc.add(plot)
+        if not self._doc._current_plot == self:
+            self._doc._current_plot = self
+            self._doc.add(self)
 
         if self._c['filename']:
             if self._c['filename'] is True:

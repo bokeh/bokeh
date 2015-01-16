@@ -147,8 +147,6 @@ class Line(Chart):
         """
         self._values = values
         self._source = None
-        self._xdr = None
-        self._ydr = None
 
         # list to save all the groups available in the incomming input
         self._groups = []
