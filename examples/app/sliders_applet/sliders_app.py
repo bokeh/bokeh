@@ -37,7 +37,8 @@ class SlidersApp(HBox):
 
     @classmethod
     def create(cls):
-        """Ont-time creation of app's objects.
+        """One-time creation of app's objects.
+
         This function is called once, and is responsible for
         creating all objects (plots, datasources, etc)
         """
@@ -115,7 +116,8 @@ class SlidersApp(HBox):
             getattr(self, w).on_change('value', self, 'input_change')
 
     def input_change(self, obj, attrname, old, new):
-        """This callback is executed whenever the input form changes.
+        """Executes whenever the input form changes.
+
         It is responsible for updating the plot, or anything else you want.
 
         Args:
@@ -128,7 +130,7 @@ class SlidersApp(HBox):
         self.plot.title = self.text.value
 
     def update_data(self):
-        """ Called each time that any watched property changes.
+        """Called each time that any watched property changes.
 
         This updates the sin wave data with the most recent values of the
         sliders. This is stored as two numpy arrays in a dict into the app's
