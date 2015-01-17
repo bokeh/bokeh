@@ -5,6 +5,7 @@ instructions on running.
 """
 
 import logging
+
 logging.basicConfig(level=logging.DEBUG)
 
 import numpy as np
@@ -18,6 +19,8 @@ from bokeh.models.widgets import HBox, Slider, TextInput, VBoxForm
 
 
 class SlidersApp(HBox):
+    """An example of a browser-based, interactive plot with slider controls."""
+
     extra_generated_classes = [["SlidersApp", "SlidersApp", "HBox"]]
 
     inputs = Instance(VBoxForm)
@@ -34,7 +37,7 @@ class SlidersApp(HBox):
 
     @classmethod
     def create(cls):
-        """
+        """Ont-time creation of app's objects.
         This function is called once, and is responsible for
         creating all objects (plots, datasources, etc)
         """
@@ -71,13 +74,15 @@ class SlidersApp(HBox):
                       plot_width=400,
                       tools=toolset,
                       title=obj.text.value,
-                      x_range=[0, 4 * np.pi],
-                      y_range=[-2.5, 2.5])
+                      x_range=[0, 4*np.pi],
+                      y_range=[-2.5, 2.5]
+        )
 
         # Plot the line by the x,y values in the source property
         plot.line('x', 'y', source=obj.source,
                   line_width=3,
-                  line_alpha=0.6)
+                  line_alpha=0.6
+        )
 
         obj.plot = plot
         obj.update_data()
@@ -97,8 +102,6 @@ class SlidersApp(HBox):
         """Attaches the on_change event to the value property of the widget.
 
         The callback is set to the input_change method of this app.
-
-        :return: None
         """
         super(SlidersApp, self).setup_events()
         if not self.text:
@@ -112,17 +115,14 @@ class SlidersApp(HBox):
             getattr(self, w).on_change('value', self, 'input_change')
 
     def input_change(self, obj, attrname, old, new):
-        """
-        This callback is executed whenever the input form changes. It is
-        responsible for updating the plot, or anything else you want.
-        The signature is:
+        """This callback is executed whenever the input form changes.
+        It is responsible for updating the plot, or anything else you want.
 
         Args:
             obj : the object that changed
             attrname : the attr that changed
             old : old value of attr
             new : new value of attr
-
         """
         self.update_data()
         self.plot.title = self.text.value
@@ -130,10 +130,9 @@ class SlidersApp(HBox):
     def update_data(self):
         """ Called each time that any watched property changes.
 
-        This updates the sin wave data with the most recent values of the sliders. This
-        is stored as two numpy arrays in a dict into the app's data source property.
-
-        :return: None
+        This updates the sin wave data with the most recent values of the
+        sliders. This is stored as two numpy arrays in a dict into the app's
+        data source property.
         """
         N = 200
 
@@ -145,18 +144,20 @@ class SlidersApp(HBox):
 
         # Generate the sine wave
         x = np.linspace(0, 4*np.pi, N)
-        y = a * np.sin(k*x + w) + b
+        y = a*np.sin(k*x + w) + b
 
         logging.debug(
-            "PARAMS: offset: %s amplitude: %s", self.offset.value, self.amplitude.value
+            "PARAMS: offset: %s amplitude: %s", self.offset.value,
+            self.amplitude.value
         )
 
         self.source.data = dict(x=x, y=y)
 
+
 # The following code adds a "/bokeh/sliders/" url to the bokeh-server. This
-# URL will render this sine wave sliders app. If you don't want to serve this applet from
-# a Bokeh server (for instance if you are embedding in a separate Flask
-# application), then just remove this block of code.
+# URL will render this sine wave sliders app. If you don't want to serve this
+# applet from a Bokeh server (for instance if you are embedding in a separate
+# Flask application), then just remove this block of code.
 @bokeh_app.route("/bokeh/sliders/")
 @object_page("sin")
 def make_object():
