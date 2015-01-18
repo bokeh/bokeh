@@ -9,7 +9,7 @@ from shutil import copy
 from tempfile import mkdtemp
 
 from docutils import nodes
-from docutils.parsers.rst.directives import choice, unchanged
+from docutils.parsers.rst.directives import choice, flag, path, unchanged
 from docutils.statemachine import ViewList
 
 import jinja2
@@ -55,9 +55,9 @@ class BokehPlotDirective(Directive):
     optional_arguments = 1
 
     option_spec = {
-        'basedir'         : unchanged,
+        'basedir'         : path,
         'source-position' : _source_position,
-        'linenos'         : unchanged,
+        'linenos'         : flag,
         'emphasize-lines' : unchanged,
     }
 
