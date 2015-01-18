@@ -3,7 +3,10 @@
 """
 from __future__ import absolute_import
 
-from os.path import dirname, join, relpath
+from os import makedirs
+from os.path import dirname, exists, isdir, join, relpath
+from shutil import copy
+from tempfile import mkdtemp
 
 from docutils import nodes
 from docutils.parsers.rst.directives import choice, unchanged
@@ -38,12 +41,12 @@ SCRIPT_TEMPLATE = jinja2.Template("""
 """)
 
 
-def _source_position(argument):
-    return choice(argument, ('below', 'above', 'none'))
-
-
 class bokeh_plot(nodes.General, nodes.Element):
     pass
+
+
+def _source_position(argument):
+    return choice(argument, ('below', 'above', 'none'))
 
 
 class BokehPlotDirective(Directive):
@@ -66,15 +69,26 @@ class BokehPlotDirective(Directive):
 
         env = self.state.document.settings.env
         app = env.app
+        config = app.config
+
+        if not hasattr(env, 'bokeh_plot_tmpdir'):
+            env.bokeh_plot_tmpdir = mkdtemp()
+            app.debug("creating new temp dir for bokeh-plot cache: %s" % env.bokeh_plot_tmpdir)
+        else:
+            tmpdir = env.bokeh_plot_tmpdir
+            if not exists(tmpdir) or not isdir(tmpdir):
+                app.debug("creating new temp dir for bokeh-plot cache: %s" % env.bokeh_plot_tmpdir)
+                env.bokeh_plot_tmpdir = mkdtemp()
+            else:
+                app.debug("using existing temp dir for bokeh-plot cache: %s" % env.bokeh_plot_tmpdir)
 
         target_id = "bokeh-plot-%d" % env.new_serialno('bokeh-plot')
         target_node = nodes.target('', '', ids=[target_id])
-
-        source_position = self.options.get('source-position', 'below')
+        result = [target_node]
 
         source = self._get_source()
 
-        result = [target_node]
+        source_position = self.options.get('source-position', 'below')
 
         if source_position == 'above':
             result += self._get_source_nodes(source)
@@ -87,6 +101,7 @@ class BokehPlotDirective(Directive):
             node['alt'] = self.options['alt']
         if self.arguments:
             node['path'] = self.arguments[0]
+            env.note_dependency(node['path'])
         result += [node]
 
         if source_position == 'below':
@@ -142,14 +157,34 @@ def _render_plot(source):
     return plotting._obj
 
 def html_visit_bokeh_plot(self, node):
+    env = self.builder.env
+    dest_dir = join(self.builder.outdir, node["relpath"])
+    filename = node['target_id'] + ".js"
+    dest_path = join(dest_dir, filename)
+
     if node.has_key('path'):
-        pass
+        path = node['path']
+        tmpdir = join(env.bokeh_plot_tmpdir, node["relpath"])
+        if not exists(tmpdir): makedirs(tmpdir)
+        cached_path = join(tmpdir, filename)
+
+        if out_of_date(path, cached_path) or not exists(cached_path+".script"):
+            self.builder.info("generating new plot for '%s'" % path)
+            plot = _render_plot(node['source'])
+            js, script = autoload_static(plot, CDN, filename)
+            with open(cached_path, "w") as f:
+                f.write(js)
+            with open(cached_path+".script", "w") as f:
+                f.write(script)
+        else:
+            self.builder.info("using cached plot for '%s'" % path)
+            script = open(cached_path+".script", "r").read()
+
+        copy(cached_path, dest_path)
     else:
-        path = join(self.builder.outdir, node["relpath"])
-        filename = node['target_id'] + ".js"
         plot = _render_plot(node['source'])
         js, script = autoload_static(plot, CDN, filename)
-        with open(join(path, filename), "w") as f:
+        with open(dest_path, "w") as f:
             f.write(js)
 
     html = SCRIPT_TEMPLATE.render(script=script)
@@ -162,7 +197,7 @@ def latex_visit_bokeh_plot(self, node):
         self.body.append(_('[graph: %s]') % node['alt'])
     else:
         self.body.append(_('[graph]'))
-    raise nodes.SkipNodepass
+    raise nodes.SkipNode
 
 
 def texinfo_visit_bokeh_plot(self, node):
