@@ -1,9 +1,8 @@
 
 .. _installation:
 
-************
 Installation
-************
+############
 
 .. contents::
     :local:

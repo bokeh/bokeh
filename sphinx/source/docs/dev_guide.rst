@@ -1,6 +1,5 @@
 .. _devguide:
 
-###############
 Developer Guide
 ###############
 
