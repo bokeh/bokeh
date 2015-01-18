@@ -1,9 +1,5 @@
 .. _quickstart:
 
-##########
-Quickstart
-##########
-
 Introduction
 ------------
 
