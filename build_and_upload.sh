@@ -2,15 +2,14 @@
 
 #CLI user interface
 if [ "$1" == "-h" ]; then
-    usage="$(basename "$0") [-h] [--tag] -- program to build and upload bokeh pkgs to binstar
+    usage="$(basename "$0") [-h] -- program to build and upload bokeh pkgs to binstar
 
     where:
         -h     show this help text
 
-        -t     the tag in the form X.X.X-devel[rc]
         -u     RackSpace username
         -k     RackSpace APIkey
-        -c     whether to clean the builded packages, defaults to true
+        -c     whether to clean the built packages, defaults to true
     "
     echo "$usage"
     exit 0
@@ -20,10 +19,9 @@ fi
 clean=true
 
 #handling of arguments
-while getopts t:u:k:c: option;
+while getopts u:k:c: option;
 do
     case "${option}" in
-        t) tag=${OPTARG};;
         u) username=${OPTARG};;
         k) key=${OPTARG};;
         c) clean=${OPTARG};;
@@ -39,20 +37,6 @@ fi
 if [ "$key" == "" ]; then
     key=$BOKEH_DEVEL_APIKEY
     echo "$key"
-fi
-
-# tag the branch
-git tag -a $tag -m 'devel'
-
-# get version number
-version=`python scripts/get_bump_version.py`
-
-# exit if there is no new tag
-if [[ $version != *"devel"* ]]; then
-    echo You need to tag using the X.X.X-devel"[rc]" form before building.
-    # delete the tag
-    git tag -d $tag
-    exit 0
 fi
 
 # build for each python version
@@ -71,22 +55,26 @@ CONDA_ENV=$(conda_info root_prefix)
 PLATFORM=$(conda_info platform)
 BUILD_PATH=$CONDA_ENV/conda-bld/$PLATFORM
 
+# get version and date
+version=`python scripts/get_bump_version.py`
+date=`date "+%s"`
+
 # convert to platform-specific builds
-conda convert -p all -f $BUILD_PATH/bokeh*$version*.tar.bz2;
+conda convert -p all -f $BUILD_PATH/bokeh*$date*.tar.bz2;
 
 #upload conda pkgs to binstar
 array=(osx-64 linux-64 win-64 linux-32 win-32)
 for i in "${array[@]}"
 do
     echo Uploading: $i;
-    binstar upload -u bokeh $i/bokeh*$version*.tar.bz2 -c dev --force;
+    binstar upload -u bokeh $i/bokeh*$date*.tar.bz2 -c dev --force;
 done
 
 #create and upload pypi pkgs to binstar
 #zip is currently not working
 
-BOKEH_DEV_VERSION=$version python setup.py sdist --formats=gztar
-binstar upload -u bokeh dist/bokeh*$version* --package-type pypi -c dev --force;
+BOKEH_DEV_VERSION=$version.dev.$date python setup.py sdist --formats=gztar
+binstar upload -u bokeh dist/bokeh*$date* --package-type pypi -c dev --force;
 
 echo "I'm done uploading to binstar"
 
@@ -132,13 +120,13 @@ id=`curl -s -XPOST https://identity.api.rackspacecloud.com/v2.0/tokens \
 
 #push the js and css files
 curl -XPUT -T bokehjs/build/js/bokeh.js -v -H "X-Auth-Token:$token" -H "Content-Type: text/plain" \
-"https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh.$version.js";
+"https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh/dev/bokeh-$version.dev.$date.js";
 curl -XPUT -T bokehjs/build/js/bokeh.min.js -v -H "X-Auth-Token:$token" -H "Content-Type: text/plain" \
-"https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh.$version.min.js";
+"https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh/dev/bokeh-$version.dev.$date.min.js";
 curl -XPUT -T bokehjs/build/css/bokeh.css -v -H "X-Auth-Token:$token" -H "Content-Type: text/plain" \
-"https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh.$version.css";
+"https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh/dev/bokeh-$version.dev.$date.css";
 curl -XPUT -T bokehjs/build/css/bokeh.min.css -v -H "X-Auth-Token:$token" -H "Content-Type: text/plain" \
-"https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh.$version.min.css";
+"https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh/dev/bokeh-$version.dev.$date.min.css";
 
 echo "I'm done uploading to Rackspace"
 

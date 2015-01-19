@@ -10,7 +10,9 @@ pushd $SRC_DIR
 
 version=`$PYTHON scripts/get_bump_version.py`
 
-echo $version > __conda_version__.txt
+date=`date "+%s"`
+echo $version.dev.$date > __conda_version__.txt
+
 cp __conda_version__.txt $BLD_DIR
 
 pushd bokehjs
