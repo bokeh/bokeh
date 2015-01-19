@@ -24,7 +24,6 @@ def source(**kwargs):
 
 def downsample(image, image_x_axis, image_y_axis,
                x_bounds, y_bounds, x_resolution, y_resolution):
-    import pdb;pdb.set_trace()
     x_resolution, y_resolution = int(round(x_resolution)), int(round(y_resolution))
     x_bounds = [x_bounds.start, x_bounds.end]
     y_bounds = [y_bounds.start, y_bounds.end]

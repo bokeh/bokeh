@@ -145,7 +145,6 @@ def heatmap_downsample(raw_data, data_source, glyph, plot_state, render_state):
     image_y_axis = np.linspace(global_y_range[0],
                                global_y_range[1],
                                raw_data.shape[0])
-    import pdb;pdb.set_trace()
     result = image_downsample.downsample(
         raw_data, image_x_axis, image_y_axis,
         plot_state['data_x'], plot_state['data_y'], x_resolution,
