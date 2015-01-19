@@ -21,7 +21,13 @@ IBM = pd.read_csv(
 output_file("stocks.html", title="stocks.py example")
 
 # create a figure
-p1 = figure(title="Stocks")
+p1 = figure(title="Stocks",
+            x_axis_label="Date",
+            y_axis_label="Close price",
+            x_axis_type="datetime")
+p1.below[0].formatter.formats = dict(years=['%Y'],
+                                     months=['%b %Y'],
+                                     days=['%d %b %Y'])
 
 # EXERCISE: finish this line plot, and add more for the other stocks. Each one should
 # have a legend, and its own color.
@@ -39,7 +45,13 @@ p1.title = "Stock Closing Prices"
 p1.grid.grid_line_alpha=0.3
 
 # EXERCISE: start a new figure
-p2 = figure(title="AAPL average")
+p2 = figure(title="AAPL average",
+            x_axis_label="Date",
+            y_axis_label="Close price",
+            x_axis_type="datetime")
+p2.below[0].formatter.formats = dict(years=['%Y'],
+                                     months=['%b %Y'],
+                                     days=['%d %b %Y'])
 
 # Here is some code to compute the 30-day moving average for AAPL
 aapl = AAPL['Adj Close']
