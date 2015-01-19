@@ -29,8 +29,13 @@ bivariate = pd.DataFrame(bivariate)
 import bokeh.server.tests
 path = join(dirname(bokeh.server.tests.__file__), 'data', 'AAPL.hdf5')
 aapl = resource("hdfstore://%s::__data__" % path)
+
+path = join(dirname(bokeh.server.tests.__file__), 'data', 'array.hdf5')
+arr = resource(path + "::" + "array")
+
 data = dict(uniform=uniform,
             gauss=gauss,
             bivariate=bivariate,
-            aapl=aapl
+            aapl=aapl,
+            array=arr
 )

@@ -24,7 +24,7 @@ def source(**kwargs):
 
 def downsample(image, image_x_axis, image_y_axis,
                x_bounds, y_bounds, x_resolution, y_resolution):
-
+    import pdb;pdb.set_trace()
     x_resolution, y_resolution = int(round(x_resolution)), int(round(y_resolution))
     x_bounds = [x_bounds.start, x_bounds.end]
     y_bounds = [y_bounds.start, y_bounds.end]
@@ -40,8 +40,8 @@ def downsample(image, image_x_axis, image_y_axis,
         x_downsample_factor = max(round(subset.shape[1] / x_resolution / 3.), 1)
         y_downsample_factor = max(round(subset.shape[0] / y_resolution / 3.), 1)
         subset = subset[::x_downsample_factor, ::y_downsample_factor]
-        image = scipy.misc.imresize(subset, (x_resolution, y_resolution),
-                            interp='nearest')
+        subset = scipy.misc.imresize(subset, (x_resolution, y_resolution),
+                                     interp='nearest')
 
     bounds = image_x_axis[x_bounds[0]:x_bounds[1]]
     dw = np.max(bounds) - np.min(bounds)

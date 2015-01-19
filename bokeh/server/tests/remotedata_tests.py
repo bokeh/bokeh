@@ -112,3 +112,48 @@ class TestAr(test_utils.FlaskClientTestCase):
         data = json.loads(result.data)
         #2 x plot size (200)
         assert len(data['data']['close']) == 400
+
+    def test_heatmap_downsample(self):
+        reset_output()
+        sess = TestSession(client=app.test_client())
+        output_server('ar', session=sess)
+        source = ServerDataSource(expr={'op': 'Field', 'args': [':leaf', 'array']})
+        source.transform = dict(resample='heatmap',
+                                global_x_range=[0, 10],
+                                global_y_range=[0, 10],
+                                global_offset_x=0,
+                                global_offset_y=0,
+                                type="ndarray",
+        )
+        # hacky - we have to specify range, otherwise code doesn't know how to serialize
+        # data ranges
+        p = figure(x_range=Range1d(start=0, end=10), y_range=Range1d(start=0, end=10))
+        plot = p.image(image="image",
+                       x='x',
+                       y='y',
+                       dw='dw',
+                       dh='dh',
+                       source=source,
+        )
+        push()
+        screen_x_range = Range1d(start=0, end=200)
+        screen_y_range = Range1d(start=0, end=200)
+
+        plot_state = {'screen_x' : curdoc().dump(screen_x_range)[0]['attributes'],
+                      'screen_y' : curdoc().dump(screen_y_range)[0]['attributes'],
+                      'data_x' : curdoc().dump(plot.x_range)[0]['attributes'],
+                      'data_y' : curdoc().dump(plot.y_range)[0]['attributes']}
+
+        data = {'plot_state' : plot_state}
+        glyph = plot.select({'type' : GlyphRenderer})[0].glyph
+        url = "/render/%s/%s/%s" % (curdoc().docid, source._id, glyph._id)
+
+        result = self.client.post(
+            url,
+            data=json.dumps(data),
+            headers={'content-type' : 'application/json'}
+        )
+        assert result.status_code == 200
+        data = json.loads(result.data)
+        #2 x plot size (200)
+        assert np.array(data['image'][0]).shape == (200,200)

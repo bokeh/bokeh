@@ -83,7 +83,14 @@ def render(docid, datasourceid, glyphid):
             render_state
         )
     elif resample_op == 'heatmap':
-        pass
+        result = heatmap_downsample(
+            data,
+            serverdatasource,
+            glyph,
+            plot_state,
+            render_state
+        )
+
 
     #return results
     result = make_json(protocol.serialize_json(result))
@@ -117,3 +124,36 @@ def line1d_downsample(raw_data, data_source, glyph, plot_state, render_state):
                                         screen_d_span,
                                         method='minmax')
     return result
+
+def heatmap_downsample(raw_data, data_source, glyph, plot_state, render_state):
+    x_r = plot_state['data_x']
+    y_r = plot_state['data_y']
+
+    screen_x_r = plot_state['screen_x']
+    screen_y_r = plot_state['screen_x']
+    x_resolution = float(_span(screen_x_r))
+    y_resolution = float(_span(screen_y_r))
+
+    global_x_range = data_source.transform['global_x_range']
+    global_y_range = data_source.transform['global_y_range']
+    global_offset_x = data_source.transform.get('global_offset_x', 0)
+    global_offset_y = data_source.transform.get('global_offset_y', 0)
+
+    image_x_axis = np.linspace(global_x_range[0],
+                               global_x_range[1],
+                               raw_data.shape[1])
+    image_y_axis = np.linspace(global_y_range[0],
+                               global_y_range[1],
+                               raw_data.shape[0])
+    import pdb;pdb.set_trace()
+    result = image_downsample.downsample(
+        raw_data, image_x_axis, image_y_axis,
+        plot_state['data_x'], plot_state['data_y'], x_resolution,
+        y_resolution)
+    output = {}
+    output['image'] = [result['data']]
+    output['x'] = [global_offset_x + result['offset_x']]
+    output['y'] = [global_offset_y + result['offset_y']]
+    output['dw'] = [result['dw']]
+    output['dh'] = [result['dh']]
+    return output
