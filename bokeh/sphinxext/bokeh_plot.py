@@ -3,6 +3,7 @@
 """
 from __future__ import absolute_import
 
+import hashlib
 from os import makedirs
 from os.path import dirname, exists, isdir, join, relpath
 import re
@@ -21,7 +22,7 @@ from sphinx.util.nodes import nested_parse_with_titles
 
 
 from .utils import out_of_date
-from ..utils import decode_utf8
+from ..utils import decode_utf8, encode_utf8
 
 SOURCE_TEMPLATE = jinja2.Template(u"""
 .. code-block:: python
@@ -169,7 +170,7 @@ def html_visit_bokeh_plot(self, node):
 
     if node.has_key('path'):
         path = node['path']
-        filename = "bokeh-plot-%d.js" % hash(path)
+        filename = "bokeh-plot-%s.js" %  hashlib.md5(path.encode('utf-8')).hexdigest()
         dest_path = join(dest_dir, filename)
         tmpdir = join(env.bokeh_plot_tmpdir, node["relpath"])
         if not exists(tmpdir): makedirs(tmpdir)
