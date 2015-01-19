@@ -11,3 +11,4 @@ from .scatter import Scatter
 from .boxplot import BoxPlot
 from .timeseries import TimeSeries
 from .catheatmap import HeatMap
+from .horizon import Horizon

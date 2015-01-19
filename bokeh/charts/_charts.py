@@ -342,7 +342,7 @@ class Chart(object):
 
         return rect
 
-    def make_patch(self, source, x, y, color):
+    def make_patch(self, source, x, y, color, fill_alpha=0.9):
         """Create a patch glyph and append it to the renderers list.
 
         Args:
@@ -355,7 +355,7 @@ class Chart(object):
             patch: Patch instance
         """
         patch = Patch(
-            x=x, y=y, fill_color=color, fill_alpha=0.9)
+            x=x, y=y, fill_color=color, fill_alpha=fill_alpha)
 
         self._append_glyph(source, patch)
         return patch
