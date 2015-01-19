@@ -1,6 +1,9 @@
+from os.path import dirname, abspath, join
+
 import numpy as np
 import pandas as pd
 
+from blaze import resource
 
 qty=10000
 gauss = {'oneA': np.random.randn(qty),
@@ -23,6 +26,11 @@ bivariate = {'A1': np.hstack([np.random.randn(qty/2), np.random.randn(qty/2)+1])
              'B': np.random.randn(qty),
              'C': np.hstack([np.zeros(qty/2), np.ones(qty/2)])}
 bivariate = pd.DataFrame(bivariate)
+import bokeh.server.tests
+path = join(dirname(bokeh.server.tests.__file__), 'data', 'AAPL.hdf5')
+aapl = resource("hdfstore://%s::__data__" % path)
 data = dict(uniform=uniform,
             gauss=gauss,
-            bivariate=bivariate)
+            bivariate=bivariate,
+            aapl=aapl
+)

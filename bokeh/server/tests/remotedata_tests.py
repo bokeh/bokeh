@@ -6,11 +6,13 @@ from ..app import bokeh_app, app
 from ..models import user
 
 from . import test_utils
-from ...plotting import (reset_output, output_server, square, push, curdoc)
+from ...plotting import (reset_output, output_server, square, push, curdoc, figure)
 from ...session import TestSession
 from ...models.sources import ServerDataSource
 from ...models.ranges import Range1d
+from ...models.renderers import GlyphRenderer
 from ...transforms import ar_downsample as ar
+from ...transforms import line_downsample
 
 class TestAr(test_utils.FlaskClientTestCase):
     def test_ar(self):
@@ -34,11 +36,13 @@ class TestAr(test_utils.FlaskClientTestCase):
             spread=3,
             transform=None,
             title="Server-rendered, uncorrected")
+        # set explicit value for ranges, or else they are set at 0
+        # until the javascript auto-sets it
         arplot.x_range.start = -2.0
         arplot.x_range.end = 2.0
         arplot.y_range.start = -2.0
         arplot.y_range.end = 2.0
-
+        glyph = arplot.select({'type' : GlyphRenderer})[0].glyph
         #extract the original data source because it was replaced?!
         source = arplot.select({'type' : ServerDataSource})[0]
 
@@ -59,15 +63,52 @@ class TestAr(test_utils.FlaskClientTestCase):
         #save data to server
         push()
         data = {'plot_state' : plot_state}
-        url = "/render/%s/%s" % (curdoc().docid, source._id)
+        url = "/render/%s/%s/%s" % (curdoc().docid, source._id, glyph._id)
         result = self.client.post(
             url,
             data=json.dumps(data),
             headers={'content-type' : 'application/json'}
         )
+        assert result.status_code == 200
         data = json.loads(result.data)
         image = np.array(data['image'][0])
 
         #I guess it's data dependent so the shape changes....
         assert image.shape[0] >200
         assert image.shape[1] >200
+
+    def test_line1d_downsample(self):
+        reset_output()
+        sess = TestSession(client=app.test_client())
+        output_server('ar', session=sess)
+        source = ServerDataSource(expr={'op': 'Field', 'args': [':leaf', 'aapl']})
+        source.transform = dict(direction='x',
+                                     resample='line1d',
+                                     method='minmax')
+        # hacky - we have to specify range, otherwise code doesn't know how to serialize
+        # data ranges
+        p = figure(x_range=Range1d(start=0, end=0), y_range=Range1d(start=0, end=0))
+        plot = p.line('date', 'close',
+                      x_axis_type = "datetime",
+                      color='#A6CEE3', tools="pan,wheel_zoom,box_zoom,reset,previewsave",
+                      source=source,
+                      legend='AAPL')
+        push()
+        screen_x_range = Range1d(start=0, end=200)
+        screen_y_range = Range1d(start=0, end=200)
+        plot_state = {'screen_x' : curdoc().dump(screen_x_range)[0]['attributes'],
+                      'screen_y' : curdoc().dump(screen_y_range)[0]['attributes'],
+                      'data_x' : curdoc().dump(plot.x_range)[0]['attributes'],
+                      'data_y' : curdoc().dump(plot.y_range)[0]['attributes']}
+        data = {'plot_state' : plot_state}
+        glyph = plot.select({'type' : GlyphRenderer})[0].glyph
+        url = "/render/%s/%s/%s" % (curdoc().docid, source._id, glyph._id)
+        result = self.client.post(
+            url,
+            data=json.dumps(data),
+            headers={'content-type' : 'application/json'}
+        )
+        assert result.status_code == 200
+        data = json.loads(result.data)
+        #2 x plot size (200)
+        assert len(data['data']['close']) == 400

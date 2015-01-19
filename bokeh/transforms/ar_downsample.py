@@ -494,8 +494,6 @@ def source(plot,
     kwargs['data_url'] = datasource.data_url
     kwargs['expr'] = datasource.expr
     kwargs['namespace'] = datasource.namespace
-    spec = get_glyphspec(rend.glyph)
-
     # TODO: Use reformat here?
     if shader.out == "image" or shader.out == "image_rgb":
         kwargs['data'] = {'image': [],
@@ -521,7 +519,7 @@ def source(plot,
         'agg': agg,
         'info': info,
         'shader': shader,
-        'glyphspec': spec,
+        'glyphspec': rend.glyph,
         'balancedZoom': balancedZoom,
         'points': points}
 
@@ -576,10 +574,15 @@ def _generate_render_state(plot_state):
             'y_span': data_y_span}
 
 
-def downsample(data, transform, plot_state, render_state):
+def downsample(raw_data, data_source, glyph, plot_state, render_state):
     _loadAR()  # Must be called before any attempts to use AR proper
 
     # XXX: transform['glyphspec'] is really a glyph
+    data = raw_data
+    transform = data_source.transform
+    # the glyph which is passed in is the glyph asking for this computation
+    # the glyph that is stored on the data source is the original glyph that
+    # generated the data source (so if original is square, then new is image_rgba)
     glyphspec = get_glyphspec(transform['glyphspec'])
     xcol = glyphspec['x']['field']
     ycol = glyphspec['y']['field']
@@ -591,7 +594,6 @@ def downsample(data, transform, plot_state, render_state):
 
     # Translate the resample parameters to server-side rendering....
     # TODO: Do more to preserve the 'natural' data form and have make_glyphset build the 'right thing' (tm)
-
     if not isinstance(data, dict):
         columns = [xcol, ycol] + ([datacol] if datacol else [])
         data = data[columns]
@@ -733,7 +735,6 @@ def _datacolumn(glyphspec):
         return (key in glyphspec
                 and isinstance(glyphspec[key], dict)
                 and glyphspec[key].get('field', False))
-
     return (maybe_get('type')
             or maybe_get('fill_color')
             or maybe_get('fill_alpha')
