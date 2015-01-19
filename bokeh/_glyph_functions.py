@@ -8,7 +8,7 @@ from .mixins import FillProps, LineProps
 
 def _glyph_function(glyphclass, dsnames, argnames, docstring, xfields=["x"], yfields=["y"]):
 
-    def func(document_or_plot, *args, **kwargs):
+    def func(plot, *args, **kwargs):
         # Note: We want to reuse the glyph functions by attaching them the Plot
         # class. Imports are here to prevent circular imports.
         from .plotting_helpers import (
@@ -30,27 +30,14 @@ def _glyph_function(glyphclass, dsnames, argnames, docstring, xfields=["x"], yfi
 
         legend_name = kwargs.pop("legend", None)
 
-        from .document import Document
-        document = None
-        plot = None
-        if isinstance(document_or_plot, Plot):
-            plot = document_or_plot
-            # TODO (bev) this seems like it should be here but invalid kwargs
-            # currently get through (see also below)
-            # plot.update(**kwargs)
-        elif isinstance(document_or_plot, Document):
-            document = document_or_plot
-            if document.curplot() is not None and document._hold:
-                plot = document.curplot()
-                # plot.update(**kwargs)
-            else:
-                plot = document.figure(**kwargs)
-        else:
-            raise ValueError("expected document or plot object for first argument")
+        if not isinstance(plot, Plot):
+            raise ValueError("expected plot object for first argument")
+
+        # TODO (bev) this seems like it should be here but invalid kwargs
+        # currently get through (see also below)
+        # plot.update(**kwargs)
 
         name = kwargs.pop('name', None)
-        if name:
-            plot._id = name
 
         select_tool = _get_select_tool(plot)
 
@@ -113,8 +100,6 @@ def _glyph_function(glyphclass, dsnames, argnames, docstring, xfields=["x"], yfi
 
         plot.renderers.append(glyph_renderer)
         plot._dirty = True
-        if document and document.autoadd:
-            document.add(plot)
         return plot
     func.__name__ = glyphclass.__view_model__
     func.__doc__ = docstring

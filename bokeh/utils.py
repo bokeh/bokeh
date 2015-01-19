@@ -82,11 +82,17 @@ def convert_references(json_obj):
     json_apply(json_obj, helper)
     return json_obj
 
-def dump(objs, docid):
+def dump(objs, docid, changed_only=True):
+    """ Dump a sequence of objects into JSON
+
+        Args:
+            changed_only (bool, optional) : whether to dump only attributes
+                that have had their values changed at some point (default: True)
+    """
     json_objs = []
     for obj in objs:
         ref = obj.ref
-        ref["attributes"] = obj.vm_serialize()
+        ref["attributes"] = obj.vm_serialize(changed_only=changed_only)
         ref["attributes"].update({"id": ref["id"], "doc" : docid})
         json_objs.append(ref)
     return json_objs

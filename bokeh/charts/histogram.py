@@ -22,7 +22,7 @@ except ImportError as e:
     _is_scipy = False
 import numpy as np
 
-from ._chartobject import ChartObject, DataAdapter
+from ._chartobject import ChartObject
 from ..models import ColumnDataSource, Range1d
 
 #-----------------------------------------------------------------------------
@@ -52,57 +52,65 @@ class Histogram(ChartObject):
         hist.title("Histogram").ylabel("frequency")
         hist.legend(True).width(400).height(350).show()
     """
-    def __init__(self, values, bins, mu=None, sigma=None,
+    def __init__(self, values, bins, mu=None, sigma=None, density=True,
                  title=None, xlabel=None, ylabel=None, legend=False,
                  xscale="linear", yscale="linear", width=800, height=600,
                  tools=True, filename=False, server=False, notebook=False,
-                 facet=False):
+                 facet=False, xgrid=True, ygrid=True):
         """
         Args:
             values (iterable): iterable 2d representing the data series
                 values matrix.
             bins (int): number of bins to use in the Histogram building.
             mu (float, optional): theoretical mean value for the normal
-                distribution. Defaults to None.
+                distribution. (default: None)
             sigma (float, optional): theoretical sigma value for the
-                normal distribution. Defaults to None.
-            title (str, optional): the title of your chart. Defaults
-                to None.
+                normal distribution. (default: None)
+            density (bool, optional):  If False, the result will contain
+                the number of samples in each bin.  If True, the result
+                is the value of the probability *density* function at
+                the bin, normalized such that the *integral* over the
+                range is 1. For more info check numpy.histogram
+                function documentation. (default: True)
+            title (str, optional): the title of your chart.
+                (default: None)
             xlabel (str, optional): the x-axis label of your chart.
-                Defaults to None.
+                (default: None)
             ylabel (str, optional): the y-axis label of your chart.
-                Defaults to None.
+                (default: None)
             legend (str, optional): the legend of your chart. The legend
                 content is inferred from incoming input.It can be
                 ``top_left``, ``top_right``, ``bottom_left``,
                 ``bottom_right``. ``top_right`` is set if you set it
-                 as True. Defaults to None.
+                 as True. (default: False)
             xscale (str, optional): the x-axis type scale of your chart.
                 It can be ``linear``, ``datetime`` or ``categorical``.
-                Defaults to ``datetime``.
+                (default: ``linear``)
             yscale (str, optional): the y-axis type scale of your chart.
                 It can be ``linear``, ``datetime`` or ``categorical``.
-                Defaults to ``linear``.
+                (default: ``linear``)
             width (int, optional): the width of your chart in pixels.
-                Defaults to 800.
+                (default: 800)
             height (int, optional): the height of you chart in pixels.
-                Defaults to 600.
+                (default: 600)
             tools (bool, optional): to enable or disable the tools in
-                your chart. Defaults to True
+                your chart. (default: True)
             filename (str or bool, optional): the name of the file where
                 your chart. will be written. If you pass True to this
                 argument, it will use ``untitled`` as a filename.
-                Defaults to False.
+                (default: False)
             server (str or bool, optional): the name of your chart in
                 the server. If you pass True to this argument, it will
                 use ``untitled`` as the name in the server.
-                Defaults to False.
-            notebook (bool, optional):if you want to output (or not)
-                your chart into the IPython notebook.
-                Defaults to False.
+                (default: False)
+            notebook (bool, optional): whether to output to IPython
+                notebook (default: False)
             facet (bool, optional): generate multiple areas on multiple
-                separate charts for each series if True. Defaults to
-                False
+                separate charts for each series if True. (default: False)
+            xgrid (bool, optional): whether to display x grid lines
+                (default: True)
+            ygrid (bool, optional): whether to display y grid lines
+                (default: True)
 
         Attributes:
             source (obj): datasource object for your plot,
@@ -120,20 +128,21 @@ class Histogram(ChartObject):
                 after loading the data dict.
                 Needed for _set_And_get method.
         """
-        self.values = DataAdapter(values, force_alias=False)
+        self.values = values
         self.bins = bins
         self.mu = mu
         self.sigma = sigma
+        self.density = density
         self.source = None
         self.xdr = None
         self.ydr = None
         self.groups = []
         self.data = dict()
         self.attr = []
-        super(Histogram, self).__init__(title, xlabel, ylabel, legend,
-                                        xscale, yscale, width, height,
-                                        tools, filename, server, notebook,
-                                        facet=facet)
+        super(Histogram, self).__init__(
+            title, xlabel, ylabel, legend, xscale, yscale, width, height,
+            tools, filename, server, notebook, facet, xgrid, ygrid
+        )
 
     def check_attr(self):
         """Check if any of the chained method were used.
@@ -158,7 +167,7 @@ class Histogram(ChartObject):
             self.set_and_get("", val, self.values[val])
             #build the histogram using the set bins number
             hist, edges = np.histogram(
-                np.array(self.data[val]), density=True, bins=self.bins
+                np.array(self.data[val]), density=self.density, bins=self.bins
             )
             self.set_and_get("hist", val, hist)
             self.set_and_get("edges", val, edges)

@@ -4,7 +4,7 @@ Bokeh Glyph Quick Reference
 ===========================
 
 This section is intended to give a quick overview of what properties all the various Bokeh
-glyphs support. For complete details, consult the full :doc:`reference`.
+glyphs support. For complete details, consult the full :doc:`../reference`.
 
 .. contents::
     :local:

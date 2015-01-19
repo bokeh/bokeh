@@ -22,7 +22,7 @@ try:
 except ImportError:
     pd = None
 
-from ._chartobject import ChartObject, DataAdapter
+from ._chartobject import ChartObject
 from ..models import ColumnDataSource, FactorRange, Range1d
 
 #-----------------------------------------------------------------------------
@@ -39,14 +39,11 @@ class Dot(ChartObject):
     the references from the source.
 
     """
-    # disable x grid
-    xgrid=False
-
     def __init__(self, values, cat=None, show_segment=True,
                  title=None, xlabel=None, ylabel=None, legend=False,
                  xscale="categorical", yscale="linear", width=800, height=600,
                  tools=True, filename=False, server=False, notebook=False,
-                 facet=False):
+                 facet=False, xgrid=False, ygrid=True):
         """
         Args:
             values (dict): a dict containing the data with names as a key
@@ -85,11 +82,14 @@ class Dot(ChartObject):
                 the server. If you pass True to this argument, it will
                 use ``untitled`` as the name in the server.
                 Defaults to False.
-            notebook (bool, optional):if you want to output (or not)
-                your chart into the IPython notebook.
-                Defaults to False.
+            notebook (bool, optional): whether to output to IPython notebook
+                (default: False)
             facet (bool, optional): generate multiple areas on multiple
                 separate charts for each series if True. Defaults to False
+            xgrid (bool, optional): whether to display x grid lines
+                (default: False)
+            ygrid (bool, optional): whether to display y grid lines
+                (default: True)
 
         Attributes:
             source (obj): datasource object for your plot,
@@ -116,9 +116,10 @@ class Dot(ChartObject):
         self.groups = []
         self.data = dict()
         self.attr = []
-        super(Dot, self).__init__(title, xlabel, ylabel, legend,
-                                  xscale, yscale, width, height,
-                                  tools, filename, server, notebook, facet)
+        super(Dot, self).__init__(
+            title, xlabel, ylabel, legend, xscale, yscale, width, height,
+            tools, filename, server, notebook, facet, xgrid, ygrid
+        )
 
     def get_data(self):
         """Take the Dot data from the input **value.
@@ -128,6 +129,9 @@ class Dot(ChartObject):
         the rect glyph inside the ``draw`` method.
 
         """
+        if not self.cat:
+            self.cat = [str(x) for x in self.values.index]
+
         self.data = dict(cat=self.cat, zero=np.zeros(len(self.cat)))
         # list to save all the attributes we are going to create
         self.attr = []
@@ -187,19 +191,6 @@ class Dot(ChartObject):
                 self.create_plot_if_facet()
 
         self.reset_legend()
-
-    def _setup_show(self):
-        """
-        Prepare context before main show method is invoked
-        """
-        super(Dot, self)._setup_show()
-
-        # normalize input to the common DataAdapter Interface
-        if not isinstance(self.values, DataAdapter):
-            self.values = DataAdapter(self.values, force_alias=False)
-
-        if not self.cat:
-            self.cat = [str(x) for x in self.values.index]
 
     def _make_legend_glyph(self, source_legend, color):
         '''Create a new glyph to represent one of the chart data series with the

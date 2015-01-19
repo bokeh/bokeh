@@ -507,7 +507,7 @@ define(["jquery", "jquery_ui/core", "jquery_ui/widget", "jquery_ui/mouse", "jque
 		},
 
 		_getFormatter: function(){
-			if (this.options.formatter === false || this.options.formatter === null){
+			if (this.options.formatter === false || this.options.formatter === null){
 				return this._defaultFormatter;
 			}
 
@@ -651,7 +651,7 @@ define(["jquery", "jquery_ui/core", "jquery_ui/widget", "jquery_ui/mouse", "jque
 		values: function(min, max){
 			var val;
 
-			if (typeof min !== "undefined" && typeof max !== "undefined"){
+			if (typeof min !== "undefined" && typeof max !== "undefined"){
 				if (!this._initialized){
 					this._values.min = min;
 					this._values.max = max;

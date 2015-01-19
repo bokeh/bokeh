@@ -37,8 +37,10 @@ define [
       if data_low > data_high
         [data_low, data_high] = [data_high, data_low]
 
-      log_low = Math.log(data_low) / Math.log(10)
-      log_high = Math.log(data_high) / Math.log(10)
+      base = @get('base')
+
+      log_low = Math.log(data_low) / Math.log(base)
+      log_high = Math.log(data_high) / Math.log(base)
       log_interval = log_high - log_low
 
       if log_interval < 2
@@ -71,10 +73,10 @@ define [
         if (endlog - startlog) % interval == 0
           ticks = ticks.concat [endlog]
 
-        ticks = ticks.map (i) -> Math.pow(10, i)
+        ticks = ticks.map (i) -> Math.pow(base, i)
 
         if num_minor_ticks > 1
-          minor_interval = Math.pow(10, interval) / num_minor_ticks
+          minor_interval = Math.pow(base, interval) / num_minor_ticks
           minor_offsets = (i*minor_interval for i in [1..num_minor_ticks])
           for x in minor_offsets
             minor_ticks.push(ticks[0] / x)

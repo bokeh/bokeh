@@ -52,7 +52,7 @@ class LogAxis(ContinuousAxis):
         if ticker is None:
             ticker = LogTicker(num_minor_ticks=10)
         if formatter is None:
-            formatter = LogTickFormatter()
+            formatter = LogTickFormatter(ticker=ticker)
         super(LogAxis, self).__init__(ticker=ticker, formatter=formatter, **kwargs)
 
 class CategoricalAxis(Axis):

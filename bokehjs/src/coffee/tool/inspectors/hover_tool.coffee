@@ -92,7 +92,7 @@ define [
 
       for i in  indices
 
-        if @mget('snap_to_data')
+        if @mget('snap_to_data') and renderer.glyph.sx? and renderer.glyph.sy?
           rx = canvas.sx_to_vx(renderer.glyph.sx[i])
           ry = canvas.sy_to_vy(renderer.glyph.sy[i])
         else

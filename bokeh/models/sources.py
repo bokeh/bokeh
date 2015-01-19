@@ -25,12 +25,6 @@ class ColumnDataSource(DataSource):
     # Maps names of columns to sequences or arrays
     data = Dict(String, Any)
 
-    # Maps field/column name to a DataRange or FactorRange object. If the
-    # field is not in the dict, then a range is created automatically.
-    # TODO (bev) completely unused AFAIK but need to verify before removal
-    cont_ranges = Dict(String, Instance(".models.Range"))
-    discrete_ranges = Dict(String, Instance(".models.Range"))
-
     def __init__(self, *args, **kw):
         """ Modify the basic DataSource/PlotObj constructor so that if we
         are called with a single argument that is a dict, then we treat

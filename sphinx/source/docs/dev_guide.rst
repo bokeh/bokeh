@@ -318,7 +318,37 @@ rendering of larger data sets. Its interface is declarative, in the style of
 a reactive scene graph (similar to `Chaco <http://code.enthought.com/chaco/>`_). Some
 examples for different types of plots are show below in `bokehjs_examples`_.
 
-The full BokehJS interface is described detail in :doc:`bokehjs`
+The full BokehJS interface is described detail in :doc:`reference/bokehjs`
+
+.. _bokehjs_dependencies:
+
+Dependencies
+------------
+BokehJS ships with all of its vendor dependencies built in. For reference, the vendor libraries that BokehJS includes are:
+
+* almond
+* backbone-amd
+* bootstrap-3.1.1
+* font-awesome-4.2.0
+* gear-utils
+* hammer.js-2.0.4
+* jqrangeslider-5.7.0
+* jquery-1.11.1
+* jquery-event-2.2
+* jquery-mousewheel-3.1.12
+* jquery-ui-1.11.2
+* jsnlog.js-2.7.5
+* kiwi
+* numeral.js-1.5.3
+* qunit
+* rbush
+* requirejs
+* slick-grid-2.1.0
+* sprintf
+* text
+* timezone
+* underscore-amd
+
 
 .. _bokehjs_examples:
 

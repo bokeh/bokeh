@@ -58,7 +58,7 @@ class Scatter(ChartObject):
     def __init__(self, values, title=None, xlabel=None, ylabel=None,
                  legend=False, xscale="linear", yscale="linear", width=800,
                  height=600, tools=True, filename=False, server=False,
-                 notebook=False, facet=False):
+                 notebook=False, facet=False, xgrid=True, ygrid=True):
         """
         Args:
             values (iterable(tuples)): an iterable containing the data as
@@ -94,12 +94,15 @@ class Scatter(ChartObject):
                 the server. If you pass True to this argument, it will
                 use ``untitled`` as the name in the server.
                 Defaults to False.
-            notebook (bool, optional):if you want to output (or not)
-                your chart into the IPython notebook.
-                Defaults to False.
+            notebook (bool, optional): whether to output to IPython notebook
+                (default: False)
             facet (bool, optional): generate multiple areas on multiple
                 separate charts for each series if True. Defaults to
                 False
+            xgrid (bool, optional): whether to display x grid lines
+                (default: True)
+            ygrid (bool, optional): whether to display y grid lines
+                (default: True)
 
         Attributes:
             source (obj): datasource object for your plot,
@@ -126,7 +129,7 @@ class Scatter(ChartObject):
         self.attr = []
         super(Scatter, self).__init__(
             title, xlabel, ylabel, legend, xscale, yscale, width, height,
-            tools, filename, server, notebook, facet
+            tools, filename, server, notebook, facet, xgrid, ygrid
         )
 
     def check_attr(self):
@@ -263,6 +266,14 @@ class Scatter(ChartObject):
                 self.values = DataAdapter(pdict)
                 self.labels = self.values.keys()
 
+                # create axis labels from group by object only if the input
+                # values is a DataFrameGroupBy
+                if self._xlabel is None:
+                    self._xlabel = self.labels[0]
+
+                if self._ylabel is None:
+                    self._ylabel = self.labels[1]
+
             else:
                 self.values = DataAdapter(self.values)
                 self.labels = self.values.keys()
@@ -270,9 +281,3 @@ class Scatter(ChartObject):
         else:
             self.values = DataAdapter(self.values)
             self.labels = self.values.keys()
-
-        if self._xlabel is None:
-            self._xlabel = self.labels[0]
-
-        if self._ylabel is None:
-            self._ylabel = self.labels[1]

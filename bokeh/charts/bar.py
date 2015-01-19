@@ -25,7 +25,7 @@ except ImportError:
     print("bokeh.charts needs numpy installed to work properly!")
     raise
 
-from ._chartobject import ChartObject, DataAdapter
+from ._chartobject import ChartObject
 from ..models import ColumnDataSource, FactorRange, Range1d
 
 #-----------------------------------------------------------------------------
@@ -57,14 +57,12 @@ class Bar(ChartObject):
         bar.legend(True).width(600).height(400).stacked(True)
         bar.show()
     """
-    # disable x grid
-    xgrid=False
 
     def __init__(self, values, cat=None, stacked=False,
                  title=None, xlabel=None, ylabel=None, legend=False,
                  xscale="categorical", yscale="linear", width=800, height=600,
                  tools=True, filename=False, server=False, notebook=False,
-                 facet=False):
+                 facet=False, xgrid=False, ygrid=True):
         """
         Args:
             values (iterable): iterable 2d representing the data series values matrix.
@@ -103,13 +101,15 @@ class Bar(ChartObject):
                 the server. If you pass True to this argument, it will
                 use ``untitled`` as the name in the server.
                 Defaults to False.
-            notebook (bool, optional):if you want to output (or not)
-                your chart into the IPython notebook.
-                Defaults to False.
+            notebook (bool, optional): whether to output to IPython notebook
+                (default: False)
             facet (bool, optional): generate multiple areas on multiple
                 separate charts for each series if True. Defaults to
                 False
-
+            xgrid (bool, optional): whether to display x grid lines
+                (default: False)
+            ygrid (bool, optional): whether to display x grid lines
+                (default: True)
 
         Attributes:
             source (obj): datasource object for your chart,
@@ -136,12 +136,13 @@ class Bar(ChartObject):
         self.groups = []
         self.data = dict()
         self.attr = []
-        super(Bar, self).__init__(title, xlabel, ylabel, legend,
-                                  xscale, yscale, width, height,
-                                  tools, filename, server, notebook, facet)
+        super(Bar, self).__init__(
+            title, xlabel, ylabel, legend, xscale, yscale, width, height,
+            tools, filename, server, notebook, facet, xgrid, ygrid
+        )
 
     def stacked(self, stacked=True):
-        """Set the bars stacked on your chart.
+        """ Set the bars stacked on your chart.
 
         Args:
             stacked (bool, optional): whether to stack the bars
@@ -172,6 +173,9 @@ class Bar(ChartObject):
         containing references to all the calculated points to be used by
         the rect glyph inside the ``draw`` method.
         """
+        if not self.cat:
+            self.cat = [str(x) for x in self.values.index]
+
         width = [0.8] * len(self.cat)
         # width should decrease proportionally to the value length.
         # 1./len(value) doesn't work well as the width needs to decrease a
@@ -234,16 +238,3 @@ class Bar(ChartObject):
                     self.source, quartet[3], quartet[1], "width_cat",
                     quartet[0], colors[i], "white", None
                 )
-
-    def _setup_show(self):
-        """
-        Prepare context before main show method is invoked
-        """
-        super(Bar, self)._setup_show()
-
-        # normalize input to the common DataAdapter Interface
-        if not isinstance(self.values, DataAdapter):
-            self.values = DataAdapter(self.values, force_alias=False)
-
-        if not self.cat:
-            self.cat = [str(x) for x in self.values.index]

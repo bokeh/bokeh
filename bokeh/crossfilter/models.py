@@ -12,7 +12,7 @@ from .plotting import (make_histogram_source,
                        make_categorical_bar_source,
                        make_bar_plot, cross)
 #bokeh plotting functions
-from ..plotting import line, scatter
+from ..plotting import figure
 from ..plot_object import PlotObject
 from ..properties import Dict, Enum, Instance, List, String, Any, Int
 
@@ -258,24 +258,24 @@ class CrossFilter(PlotObject):
                 source = self.filtered_data
             else:
                 source = ColumnDataSource(data=df)
-            plot = scatter(self.x, self.y, source=source,
-                           title_text_font_size="12pt",
-                           plot_height=plot_height,
-                           plot_width=plot_width,
-                           tools=tools,
-                           title=title)
+            plot = figure(title_text_font_size="12pt",
+                          plot_height=plot_height,
+                          plot_width=plot_width,
+                          tools=tools,
+                          title=title)
+            plot.scatter(self.x, self.y, source=source)
             return plot
         elif self.plot_type == "line":
             if df is None:
                 source = self.filtered_data
             else:
                 source = ColumnDataSource(data=df)
-            plot = line(self.x, self.y, source=source,
-                        title_text_font_size="12pt",
-                        plot_height=plot_height,
-                        plot_width=plot_width,
-                        tools=tools,
-                        title=title)
+            plot = figure(title_text_font_size="12pt",
+                          plot_height=plot_height,
+                          plot_width=plot_width,
+                          tools=tools,
+                          title=title)
+            plot.line(self.x, self.y, source=source)
             return plot
         elif self.plot_type == 'bar':
             if df is None:

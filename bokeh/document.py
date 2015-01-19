@@ -91,8 +91,6 @@ class Document(object):
     def ref(self):
         return self._context.ref
 
-    # "current plot" related functions
-
     def clear(self):
         """ Remove all plots from this `Document`
 
@@ -104,41 +102,6 @@ class Document(object):
         context = self.context
         self._models = {}
         self._add(context)
-
-    def hold(self, value=True):
-        """ Set the hold value for this Document.
-
-        Args:
-            value (bool, optional) : whether hold should be turned on or off (default: True)
-
-        Returns:
-            None
-
-        """
-        self._hold = value
-
-    def figure(self, **kwargs):
-        """ Create a new figure for the next rendering.
-
-        Returns:
-            None
-
-        """
-        self._current_plot = _new_xy_plot(**kwargs)
-        return self._current_plot
-
-    def curplot(self):
-        """ Return the current plot of this Document.
-
-        The "current plot" is the plot that is acted on by all the
-        rendering methods, e.g.``doc.circle(...)`` will render a
-        circle on the current plot.
-
-        Returns:
-            plot : the current plot_kwargs
-
-        """
-        return self._current_plot;
 
     # functions for adding objects to documents
 

@@ -27,22 +27,6 @@ and reporting issues:
 .. automodule:: bokeh.document
     :members:
 
-.. _bokeh_dot_glyphs:
-
-``bokeh.models.glyphs``
-----------------
-
-.. automodule:: bokeh.models.glyphs
-    :members:
-
-.. _bokeh_dot_objects:
-
-``bokeh.models``
------------------
-
-.. inheritance-diagram:: bokeh.models
-  :parts: 1
-
 .. automodule:: bokeh.models
     :members:
 
