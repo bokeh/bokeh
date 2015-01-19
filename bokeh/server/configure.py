@@ -2,6 +2,7 @@ import logging
 from os.path import dirname
 import imp
 import sys
+import warnings
 
 from six.moves.queue import Queue
 from tornado import ioloop
@@ -80,12 +81,19 @@ def configure_flask(config_argparse=None, config_file=None, config_dict=None):
         servermodel_storage,
         authentication,
     )
-
+registered = False
 def register_blueprint():
+    global registered
+    if registered:
+        warnings.warn(
+            "register_blueprint has already been called, why is it being called again"
+        )
+        return
     blaze_blueprint = get_mbs_blueprint(config_file=server_settings.blaze_config)
     app.register_blueprint(bokeh_app, url_prefix=server_settings.url_prefix)
     if blaze_blueprint:
         app.register_blueprint(blaze_blueprint, url_prefix=server_settings.url_prefix)
+    registered = True
 
 class SimpleBokehTornadoApp(Application):
     def __init__(self, flask_app, **settings):
