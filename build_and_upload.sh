@@ -55,9 +55,10 @@ CONDA_ENV=$(conda_info root_prefix)
 PLATFORM=$(conda_info platform)
 BUILD_PATH=$CONDA_ENV/conda-bld/$PLATFORM
 
-# get version and date
-version=`python scripts/get_bump_version.py`
-date=`date "+%s"`
+# get version and date from __conda_version__.txt
+complete_ver=$(cat __conda_version__.txt)
+version=${complete_ver:0:5}
+date=${complete_ver:10}
 
 # convert to platform-specific builds
 conda convert -p all -f $BUILD_PATH/bokeh*$date*.tar.bz2;
@@ -81,9 +82,6 @@ echo "I'm done uploading to binstar"
 ########################
 #   General clean up   #
 ########################
-
-#delete the tag
-git tag -d $tag
 
 #clean up platform folders
 if [ $clean == true ]; then
