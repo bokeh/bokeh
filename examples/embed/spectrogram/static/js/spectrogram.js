@@ -175,7 +175,7 @@
       this.config = config;
       this.source = this.model.get('data_source');
       this.cmap = new Bokeh.LinearColorMapper.Model({
-        palette: Bokeh.Palettes.all_palettes["YlGnBu-9"],
+        palette: Bokeh.Palettes.YlGnBu9,
         low: 0,
         high: 5
       });

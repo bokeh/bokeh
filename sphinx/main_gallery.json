@@ -1,7 +1,7 @@
 {
-    "snippet_build_dir" : "_build/gallery",
+    "snippet_build_dir" : "_build/main_gallery",
     "detail_template"   : "source/_templates/gallery_detail.html",
-    "detail_build_dir"  : "_build/gallery",
+    "detail_build_dir"  : "_build/main_gallery",
     "gallery_rst_path"  : "source/docs/gallery.rst",
     "details": [
         { "file": "../examples/plotting/file/iris.py",          "name": "iris"                                          },

@@ -2,7 +2,7 @@
 
 from six import string_types
 
-from . import colors, icons
+from . import colors, icons, palettes
 
 class Enumeration(object):
     pass
@@ -41,4 +41,6 @@ DashPattern = enumeration("solid", "dashed", "dotted", "dotdash", "dashdot")
 ButtonType = enumeration("default", "primary", "success", "warning", "danger", "link")
 NamedColor = enumeration(*colors.__colors__)
 NamedIcon = enumeration(*icons.__icons__)
+Palette = enumeration(*palettes.__palettes__)
 MapType = enumeration("satellite", "roadmap", "terrain", "hybrid")
+DateFormat = enumeration("ATOM", "W3C", "RFC-3339", "ISO-8601", "COOKIE", "RFC-822", "RFC-850", "RFC-1036", "RFC-1123", "RFC-2822", "RSS", "TICKS", "TIMESTAMP")

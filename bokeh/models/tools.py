@@ -51,6 +51,7 @@ class BoxSelectionOverlay(Renderer):
 class LassoSelectTool(Tool):
     names = List(String)
     renderers = List(Instance(Renderer))
+    select_every_mousemove = Bool(True)
 
 class PolySelectTool(Tool):
     names = List(String)
@@ -63,7 +64,3 @@ class HoverTool(Tool):
         .accepts(Dict(String, String), lambda d: list(d.items()))
     always_active = Bool(True)
     snap_to_data = Bool(True)
-
-class DataRangeBoxSelectTool(Tool):
-    xselect = List(Instance(Range))
-    yselect = List(Instance(Range))

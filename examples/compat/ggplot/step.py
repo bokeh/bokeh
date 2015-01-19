@@ -1,5 +1,6 @@
 from ggplot import *
 from bokeh import mpl
+from bokeh.plotting import show
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -17,4 +18,4 @@ g.draw()
 
 plt.title("Step ggplot-based plot in Bokeh.")
 
-mpl.to_bokeh(name="step")
+show(mpl.to_bokeh(name="step"))

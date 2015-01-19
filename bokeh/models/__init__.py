@@ -1,7 +1,6 @@
 from __future__ import absolute_import
 
 from .axes import *
-from .canvas import *
 from .formatters import *
 from .glyphs import *
 from .grids import *

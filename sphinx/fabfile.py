@@ -1,42 +1,59 @@
-from fabric.api import run, env, roles, put
+from fabric.api import run, env, roles
 from fabric.contrib.project import rsync_project
 
-env.roledefs = {
-    'web': ['bokeh.pydata.org']}
+import sys
+sys.path.append("source")
+import conf
 
-dirs = ['_images', '_sources', '_static', 'docs', 'tutorial']
-files = ['genindex.html', 'index.html', 'objects.inv', 'py-modindex.html', 'search.html', 'searchindex.js']
+env.roledefs = {
+    'web': ['bokeh.pydata.org']
+}
+env.user = "bokeh"
 
 @roles('web')
-def deploy(user=False):
-    if user:
-        env.user = user
+def deploy():
 
-    # remove and archive old files and directories
-    for dir in dirs:
-        run("rm -rf /www/bokeh-old/%s" % dir)
-        run("cp -ar /www/bokeh-latest/%s /www/bokeh-old/%s" % (dir, dir))
-    for file in files:
-        run("rm -f /www/bokeh-old/%s" % file)
-        run("cp -a /www/bokeh-latest/%s /www/bokeh-old/%s" % (file, file))
+    v = conf.version
 
-    # switch current symlink to archive docs
-    run("rm /www/bokeh")
-    run("ln -s /www/bokeh-old /www/bokeh")
+    # make a backup of the old directory
+    run("rm -rf /www/bokeh/en/%s.bak" % v)
+    run("mkdir -p /www/bokeh/en/%s" % v)
+    run("cp -ar /www/bokeh/en/%s /www/bokeh/en/%s.bak" % (v, v))
 
-    # upload the new files and directories
-    for dir in dirs:
-        rsync_project(
-            local_dir="_build/html/%s/" % dir,
-            remote_dir="/www/bokeh-latest/%s" % dir, delete=True)
-    for file in files:
-        put(
-            local_path="_build/html/%s" % file,
-            remote_path="/www/bokeh-latest/%s" % file)
+    # switch latest symlink to archive docs
+    run("rm /www/bokeh/en/latest")
+    run("ln -s /www/bokeh/en/%s.bak /www/bokeh/en/latest" % v)
 
-    # switch the current symlink to new docs
-    run("rm /www/bokeh")
-    run("ln -s /www/bokeh-latest /www/bokeh")
+    rsync_project(
+        local_dir="_build/html/",
+        remote_dir="/www/bokeh/en/%s" % v,
+        delete=True
+    )
 
     # set permissions
-    run("chmod -R g+w /www/bokeh-latest")
+    run("chmod -R g+w /www/bokeh/en/%s" % v)
+
+    # switch the current symlink to new docs
+    run("rm /www/bokeh/en/latest")
+    run("ln -s /www/bokeh/en/%s /www/bokeh/en/latest" % v)
+
+@roles('web')
+def update(v=None):
+
+    # TODO (bev) confirm this version is not the latest
+    if v is None:
+        v = conf.version
+
+    # make a backup of the old directory
+    run("rm -rf /www/bokeh/en/%s.bak" % v)
+    run("mkdir -p /www/bokeh/en/%s" % v)
+    run("cp -ar /www/bokeh/en/%s /www/bokeh/en/%s.bak" % (v, v))
+
+    rsync_project(
+        local_dir="_build/html/",
+        remote_dir="/www/bokeh/en/%s" % v,
+        delete=True
+    )
+
+    # set permissions
+    run("chmod -R g+w /www/bokeh/en/%s" % v)

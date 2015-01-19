@@ -1,6 +1,7 @@
 import numpy as np
 
-from bokeh.plotting import brewer, figure, output_file, show
+from bokeh.plotting import figure, output_file, show
+from bokeh.palettes import brewer
 
 # Define some categories
 categories = [

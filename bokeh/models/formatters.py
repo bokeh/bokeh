@@ -1,7 +1,8 @@
 from __future__ import absolute_import
 
+from .tickers import Ticker
 from ..plot_object import PlotObject
-from ..properties import Bool, Int, String, Enum, Auto, List, Dict, Either
+from ..properties import Bool, Int, String, Enum, Auto, List, Dict, Either, Instance
 from ..enums import DatetimeUnits
 
 class TickFormatter(PlotObject):
@@ -30,7 +31,7 @@ class LogTickFormatter(TickFormatter):
     Often useful in conjuction with a `LogTicker`
 
     """
-    pass
+    ticker = Instance(Ticker)
 
 class CategoricalTickFormatter(TickFormatter):
     """ Format ticks as categories from categorical ranges"""

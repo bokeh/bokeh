@@ -9,16 +9,13 @@ from bokeh.plotting import figure, output_file, show, VBox
 
 # Here is some code to read in some stock data from the Yahoo Finance API
 AAPL = pd.read_csv(
-    "http://ichart.yahoo.com/table.csv?s=AAPL&a=0&b=1&c=2000",
-    parse_dates=['Date'])
-GOOG = pd.read_csv(
-    "http://ichart.yahoo.com/table.csv?s=GOOG&a=0&b=1&c=2000",
+    "http://ichart.yahoo.com/table.csv?s=AAPL&a=0&b=1&c=2000&d=0&e=1&f=2010",
     parse_dates=['Date'])
 MSFT = pd.read_csv(
-    "http://ichart.yahoo.com/table.csv?s=MSFT&a=0&b=1&c=2000",
+    "http://ichart.yahoo.com/table.csv?s=MSFT&a=0&b=1&c=2000&d=0&e=1&f=2010",
     parse_dates=['Date'])
 IBM = pd.read_csv(
-    "http://ichart.yahoo.com/table.csv?s=IBM&a=0&b=1&c=2000",
+    "http://ichart.yahoo.com/table.csv?s=IBM&a=0&b=1&c=2000&d=0&e=1&f=2010",
     parse_dates=['Date'])
 
 output_file("stocks.html", title="stocks.py example")
@@ -34,7 +31,6 @@ p1.line(
     color='#A6CEE3',                                    # set a color for the line
     legend='AAPL',                                      # attach a legend label
 )
-p1.line(GOOG['Date'], GOOG['Adj Close'], color='#B2DF8A', legend='GOOG')
 p1.line(IBM['Date'], IBM['Adj Close'], color='#33A02C', legend='IBM')
 p1.line(MSFT['Date'], MSFT['Adj Close'], color='#FB9A99', legend='MSFT')
 

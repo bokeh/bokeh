@@ -63,7 +63,7 @@ class TimeSeries(ChartObject):
     def __init__(self, values, index=None, title=None, xlabel=None, ylabel=None,
                  legend=False, xscale="datetime", yscale="linear", width=800,
                  height=600, tools=True, filename=False, server=False,
-                 notebook=False, facet=False):
+                 notebook=False, facet=False, xgrid=True, ygrid=True):
         """
         Args:
             values (iterable): iterable 2d representing the data series
@@ -108,12 +108,15 @@ class TimeSeries(ChartObject):
                 the server. If you pass True to this argument, it will
                 use ``untitled`` as the name in the server.
                 Defaults to False.
-            notebook (bool, optional):if you want to output (or not)
-                your chart into the IPython notebook.
-                Defaults to False.
+            notebook (bool, optional): whether to output to IPython notebook
+                (default: False)
             facet (bool, optional): generate multiple areas on multiple
                 separate charts for each series if True. Defaults to
                 False
+            xgrid (bool, optional): whether to display x grid lines
+                (default: True)
+            ygrid (bool, optional): whether to display y grid lines
+                (default: True)
 
         Attributes:
             source (obj): datasource object for your plot,
@@ -143,7 +146,7 @@ class TimeSeries(ChartObject):
 
         super(TimeSeries, self).__init__(
             title, xlabel, ylabel, legend, xscale, yscale, width, height,
-            tools, filename, server, notebook, facet
+            tools, filename, server, notebook, facet, xgrid, ygrid
         )
 
     def get_data(self):
@@ -158,8 +161,8 @@ class TimeSeries(ChartObject):
 
         # list to save all the attributes we are going to create
         self.attr = []
-
-        xs, self.values = self.prepare_data(self.values)
+        xs = self.values_index
+        # xs, self.values = self.prepare_data(self.values)
         for col in self.values.keys():
             if isinstance(self.index, string_types) \
                 and col == self.index:
@@ -198,31 +201,3 @@ class TimeSeries(ChartObject):
 
             if i < len(self.duplet):
                 self.create_plot_if_facet()
-
-    def prepare_data(self, values):
-        if hasattr(values, 'keys'):
-            if self.index is not None:
-                if isinstance(self.index, string_types):
-                    xs = values[self.index]
-                else:
-                    xs = self.index
-            else:
-                try:
-                    xs = values.index
-                except AttributeError:
-                    raise
-        else:
-            if self.index is None:
-                xs = values[0]
-                values = DataAdapter(values[1:], force_alias=False)
-
-            elif isinstance(self.index, string_types):
-                raise TypeError(
-                    "String indexes are only supported for DataFrame and dict inputs"
-                )
-
-            else:
-                xs = self.index
-                values = DataAdapter(values, force_alias=False)
-
-        return xs, values
