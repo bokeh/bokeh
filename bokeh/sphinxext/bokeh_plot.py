@@ -5,6 +5,7 @@ from __future__ import absolute_import
 
 from os import makedirs
 from os.path import dirname, exists, isdir, join, relpath
+import re
 from shutil import copy
 from tempfile import mkdtemp
 
@@ -18,9 +19,11 @@ from sphinx.locale import _
 from sphinx.util.compat import Directive
 from sphinx.util.nodes import nested_parse_with_titles
 
-from .utils import out_of_date
 
-SOURCE_TEMPLATE = jinja2.Template("""
+from .utils import out_of_date
+from ..utils import decode_utf8
+
+SOURCE_TEMPLATE = jinja2.Template(u"""
 .. code-block:: python
    {% if linenos %}:linenos:{% endif %}
    {% if emphasize_lines %}:emphasize-lines: {{ emphasize_lines }}{% endif %}
@@ -30,7 +33,7 @@ SOURCE_TEMPLATE = jinja2.Template("""
 """)
 
 
-SCRIPT_TEMPLATE = jinja2.Template("""
+SCRIPT_TEMPLATE = jinja2.Template(u"""
 <table>
   <tr>
     <td>
@@ -112,8 +115,9 @@ class BokehPlotDirective(Directive):
     def _get_source(self):
         if self.arguments:
             source = open(self.arguments[0], "r").read()
+            source = decode_utf8(source)
         else:
-            source = ""
+            source = u""
             for line in self.content:
                 source += "%s\n" % line
         return source
@@ -152,6 +156,9 @@ plotting.show = _show
 def _render_plot(source):
     plotting._default_document = Document()
     namespace = {}
+    # need to remove any encoding comment before compiling unicode
+    pat = re.compile(r"^# -\*- coding: (.*) -\*-$", re.M)
+    source = pat.sub("", source)
     code = compile(source, "<string>", mode="exec")
     eval(code, namespace)
     return plotting._obj
@@ -159,11 +166,11 @@ def _render_plot(source):
 def html_visit_bokeh_plot(self, node):
     env = self.builder.env
     dest_dir = join(self.builder.outdir, node["relpath"])
-    filename = node['target_id'] + ".js"
-    dest_path = join(dest_dir, filename)
 
     if node.has_key('path'):
         path = node['path']
+        filename = "bokeh-plot-%d.js" % hash(path)
+        dest_path = join(dest_dir, filename)
         tmpdir = join(env.bokeh_plot_tmpdir, node["relpath"])
         if not exists(tmpdir): makedirs(tmpdir)
         cached_path = join(tmpdir, filename)
@@ -180,8 +187,11 @@ def html_visit_bokeh_plot(self, node):
             self.builder.info("using cached plot for '%s'" % path)
             script = open(cached_path+".script", "r").read()
 
+        if not exists(dest_dir): makedirs(dest_dir)
         copy(cached_path, dest_path)
     else:
+        filename = node['target_id'] + ".js"
+        dest_path = join(dest_dir, filename)
         plot = _render_plot(node['source'])
         js, script = autoload_static(plot, CDN, filename)
         with open(dest_path, "w") as f:

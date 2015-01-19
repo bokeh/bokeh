@@ -103,12 +103,11 @@ def make_gallery(module_descs):
             f.write(detail_template.render(info).encode('utf-8'))
         print("wrote", fname)
 
-    if GALLERY_RST_PATH:
-        gallery_template = load_template("source/_templates/gallery.rst.in")
-        gallery_rst = gallery_template.render(page_infos=page_infos)
-        with open(GALLERY_RST_PATH, "w") as f:
-            f.write(gallery_rst)
-            print("wrote", GALLERY_RST_PATH)
+    gallery_template = load_template("source/_templates/gallery.rst.in")
+    gallery_rst = gallery_template.render(page_infos=page_infos)
+    with open(GALLERY_RST_PATH, "w") as f:
+        f.write(gallery_rst)
+        print("wrote", GALLERY_RST_PATH)
 
 if __name__ == "__main__":
     import json
@@ -125,9 +124,6 @@ if __name__ == "__main__":
     DETAIL_BUILD_DIR = gallery_info['detail_build_dir']
     DETAIL_TEMPLATE = gallery_info['detail_template']
     GALLERY_RST_PATH = gallery_info['gallery_rst_path']
-    if len(sys.argv) >= 5:
-        GALLERY_RST_PATH = os.path.join(BASE_DIR, GALLERY_RST_PATH)
-    HOSTED_STATIC_ROOT=".."
     DETAIL_URL_ROOT="./"
 
     make_gallery(gallery_info['details'])
