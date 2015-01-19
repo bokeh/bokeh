@@ -47,6 +47,7 @@ passing the arguments to the Chart class and calling the proper functions.
 from six import string_types
 import numpy as np
 from ._charts import Chart
+from ._chartobject import Builder
 from ..models import ColumnDataSource, Range1d, DataRange1d
 
 #-----------------------------------------------------------------------------
@@ -54,19 +55,14 @@ from ..models import ColumnDataSource, Range1d, DataRange1d
 #-----------------------------------------------------------------------------
 
 
-class Line(Chart):
+class Line(Builder):
     """This is the Line class and it is in charge of plotting
     Line charts in an easy and intuitive way.
-
     Essentially, we provide a way to ingest the data, make the proper
     calculations and push the references into a source object.
     We additionally make calculations for the ranges.
     And finally add the needed lines taking the references from the source.
-
     """
-    __subtype__ = "LineChart"
-    __view_model__ = "Plot"
-
     def __init__(self, values, index=None,
                  title=None, xlabel=None, ylabel=None, legend=False,
                  xscale="linear", yscale="linear", width=800, height=600,
@@ -124,7 +120,6 @@ class Line(Chart):
                 (default: True)
             ygrid (bool, optional): whether to display y grid lines
                 (default: True)
-
         Attributes:
             source (obj): datasource object for your plot,
                 initialized as a dummy None.
@@ -141,34 +136,40 @@ class Line(Chart):
                 loading the data dict.
                 Needed for _set_And_get method.
         """
-        # list to save all the groups available in the incoming input
-        self._values = values
-        self._index = index
+        self.values = values
+        self.source = None
+        self.xdr = None
+        self.ydr = None
+
+        # list to save all the groups available in the incomming input
+        self.groups = []
+        self.data = dict()
+        self.attr = []
+        self.index = index
 
         super(Line, self).__init__(
             title, xlabel, ylabel, legend, xscale, yscale, width, height,
-            tools, filename, server, notebook, facet
+            tools, filename, server, notebook, facet, xgrid, ygrid
         )
 
     def get_data(self):
         """Calculate the chart properties accordingly from line.values.
         Then build a dict containing references to all the points to be
         used by the line glyph inside the ``draw`` method.
-
         """
-        self._data = dict()
+        self.data = dict()
 
         # list to save all the attributes we are going to create
-        self._attr = []
-        xs = self._values_index
+        self.attr = []
+        xs = self.values_index
         self.set_and_get("x", "", np.array(xs))
-        for col in self._values.keys():
-            if isinstance(self._index, string_types) and col == self._index:
+        for col in self.values.keys():
+            if isinstance(self.index, string_types) and col == self.index:
                 continue
 
             # save every new group we find
-            self._groups.append(col)
-            values = [self._values[col][x] for x in xs]
+            self.groups.append(col)
+            values = [self.values[col][x] for x in xs]
             self.set_and_get("y_", col, values)
 
     def get_source(self):
@@ -176,27 +177,26 @@ class Line(Chart):
         Push the Line data into the ColumnDataSource and calculate the
         proper ranges.
         """
-        self._source = ColumnDataSource(self._data)
-        self.x_range = self._xdr = DataRange1d(sources=[self._source.columns("x")])
+        self.source = ColumnDataSource(self.data)
+        self.chart.x_range = DataRange1d(sources=[self.source.columns("x")])
 
-        y_names = self._attr[1:]
+        y_names = self.attr[1:]
 
-        endy = max(max(self._data[i]) for i in y_names)
-        starty = min(min(self._data[i]) for i in y_names)
-        self.y_range = self._ydr = Range1d(
+        endy = max(max(self.data[i]) for i in y_names)
+        starty = min(min(self.data[i]) for i in y_names)
+        self.chart.y_range = Range1d(
             start=starty - 0.1 * (endy - starty),
             end=endy + 0.1 * (endy - starty)
         )
 
     def draw(self):
         """Use the line glyphs to connect the xy points in the Line.
-
         Takes reference points from the data loaded at the ColumnDataSource.
         """
-        colors = self._set_colors(self._attr)
+        colors = self._set_colors(self.attr)
 
-        for i, duplet in enumerate(self._attr[1:], start=1):
-            self.make_line(self._source, 'x', duplet, colors[i - 1])
+        for i, duplet in enumerate(self.attr[1:], start=1):
+            self.chart.make_line(self.source, 'x', duplet, colors[i - 1])
 
-            if i < len(self._attr[1:]):
+            if i < len(self.attr[1:]):
                 self.create_plot_if_facet()

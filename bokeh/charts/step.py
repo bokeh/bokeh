@@ -18,7 +18,7 @@ passing the arguments to the Chart class and calling the proper functions.
 
 from six import string_types
 import numpy as np
-from ._chartobject import ChartObject
+from ._chartobject import ChartObject, Builder
 from ..models import ColumnDataSource, Range1d, DataRange1d
 
 #-----------------------------------------------------------------------------
@@ -26,7 +26,7 @@ from ..models import ColumnDataSource, Range1d, DataRange1d
 #-----------------------------------------------------------------------------
 
 
-class Step(ChartObject):
+class Step(Builder):
     """This is the Step class and it is in charge of plotting
     Step charts in an easy and intuitive way.
 
@@ -37,12 +37,11 @@ class Step(ChartObject):
     source.
 
     """
-    def __init__(self, values,
-                 index=None,
-                 title=None, xlabel=None, ylabel=None, legend=False,
-                 xscale="linear", yscale="linear", width=800, height=600,
-                 tools=True, filename=False, server=False, notebook=False,
-                 facet=False, xgrid=True, ygrid=True):
+    def __init__(self, values, index=None, title=None, xlabel=None, ylabel=None,
+                 legend=False, xscale="linear", yscale="linear", width=800,
+                 height=600, tools=True, filename=False, server=False,
+                 notebook=False, facet=False, xgrid=True, ygrid=True,
+                 chart=None):
         """
         Args:
             values (iterable): iterable 2d representing the data series
@@ -124,7 +123,7 @@ class Step(ChartObject):
 
         super(Step, self).__init__(
             title, xlabel, ylabel, legend, xscale, yscale, width, height,
-            tools, filename, server, notebook, facet, xgrid, ygrid
+            tools, filename, server, notebook, facet, xgrid, ygrid, chart=chart
         )
 
     def get_data(self):
@@ -155,15 +154,16 @@ class Step(ChartObject):
         the proper ranges.
         """
         sc = self.source = ColumnDataSource(self.data)
-        self.xdr = DataRange1d(sources=[sc.columns("x"), sc.columns("x2")])
+        self.chart.x_range = DataRange1d(sources=[sc.columns("x"), sc.columns("x2")])
 
         y_names = self.attr[1:]
         endy = max(max(self.data[i]) for i in y_names)
         starty = min(min(self.data[i]) for i in y_names)
-        self.ydr = Range1d(
+        self.chart.y_range = Range1d(
             start=starty - 0.1 * (endy - starty),
             end=endy + 0.1 * (endy - starty)
         )
+        print ("SET RANGES", self.chart)
 
     def draw(self):
         """Use the line glyphs to connect the xy points in the Step.

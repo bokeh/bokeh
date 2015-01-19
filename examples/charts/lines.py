@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 from bokeh.charts import Line
 from bokeh.plotting import show, output_file
-
+from bokeh.charts import Chart, Step, Line
 xyvalues = OrderedDict(
     python=[2, 3, 7, 5, 26, 221, 44, 233, 254, 265, 266, 267, 120, 111],
     pypy=[12, 33, 47, 15, 126, 121, 144, 233, 254, 225, 226, 267, 110, 130],
@@ -16,13 +16,5 @@ xyvalues = OrderedDict(
 #xyvalues = np.array(xyvalues.values())
 
 output_file("line.html", title="line.py example")
-line = Line(xyvalues, title="Lines", ylabel='measures', xlabel='time')#, filename="lines.html")
-# line.xlabel('time').legend("top_left")\
-# line.show()
-
-line.build()
-show(line)
-line._filename = 'lines.html'
-line.show()
-output_file("line.html", title="line 2 example")
-show(line)
+chart = Line(xyvalues, title="Lines", ylabel='measures', filename="lines.html", legend=True).create()
+show(chart)

@@ -2,7 +2,8 @@ from collections import OrderedDict
 
 import numpy as np
 import pandas as pd
-from bokeh.charts import Step
+from bokeh.charts import Chart, Step, Line
+from bokeh.plotting import show,output_file
 
 xyvalues = OrderedDict(
     python=[2, 3, 7, 5, 26, 81, 44, 93, 94, 105, 66, 67, 90, 83],
@@ -14,6 +15,11 @@ xyvalues = OrderedDict(
 #xyvalues = pd.DataFrame(xyvalues)
 #xyvalues = list(xyvalues.values())
 #xyvalues = np.array(list(xyvalues.values()))
-
-step = Step(xyvalues, title="Steps", ylabel='measures', filename="steps.html")
-step.xlabel('time').legend("top_left").show()
+output_file("line.html", title="line.py example")
+# step = Step(xyvalues, title="Steps", ylabel='measures', filename="steps.html")
+# step.xlabel('time').legend("top_left").show()
+chart = Chart(title="Steps", ylabel='measures', filename="steps.html", legend=True)
+chart.add_builder(Step(xyvalues))
+chart.add_builder(Line(xyvalues))
+# chart.show()
+show(chart)

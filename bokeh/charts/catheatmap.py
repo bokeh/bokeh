@@ -45,7 +45,7 @@ class HeatMap(Chart):
     hm = HeatMap(xyvalues, title="categorical heatmap", filename="cat_heatmap.html")
     hm.width(1000).height(400).show()
     """
-    __subtype__ = "BoxPlotChart"
+    __subtype__ = "HeatMap"
     __view_model__ = "Plot"
 
     def __init__(self, values, palette=None,
