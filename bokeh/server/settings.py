@@ -8,33 +8,40 @@ from ..settings import settings as bokeh_settings
 
 default_blaze_config = join(dirname(__file__), 'mbs', 'config.py')
 
-class Settings(object):
-    ip = "0.0.0.0"
-    port = 5006
-    url_prefix = ""
-    data_directory = None
-    multi_user = False
+_defaults = dict(
+    ip="0.0.0.0",
+    port=5006,
+    url_prefix="",
+    data_directory=None,
+    multi_user=False,
     # make scripts for now - for now cli will only
     # pass one script
-    scripts = []
-    model_backend = {'type' : 'shelve'}
-    # model_backend = {'type' : redis, 'redis_port' : 7001, 'start-redis' : True}
-    # model_backend = {'type' : memory}
-    # model_backend = {'type' : shelve}
-    filter_logs = False
-    ws_conn_string = None
-    pub_zmqaddr = "inproc://bokeh_in"
-    sub_zmqaddr = "inproc://bokeh_out"
-    debug = False
-    dev = False
-    splitjs = False
-    robust_reload = False
-    verbose = False
-    run_forwarder = True
-    secret_key = str(uuid.uuid4())
+    scripts="",
+    model_backend={'type' : 'shelve'},
+    # model_backend={'type' : redis, 'redis_port' : 7001, 'start-redis' : True},
+    # model_backend={'type' : memory},
+    # model_backend={'type' : shelve},
+    filter_logs=False,
+    ws_conn_string=None,
+    pub_zmqaddr="inproc://bokeh_in",
+    sub_zmqaddr="inproc://bokeh_out",
+    debug=False,
+    dev=False,
+    splitjs=False,
+    robust_reload=False,
+    verbose=False,
+    run_forwarder=True,
+    secret_key=str(uuid.uuid4()),
+    blaze_config=default_blaze_config,
+)
+
+class Settings(object):
     _debugjs = False
     _ctx = None
-    blaze_config = default_blaze_config
+
+    def reset(self):
+        for k,v in _defaults.items():
+            setattr(self, k, v)
 
     @property
     def ctx(self):
@@ -85,5 +92,9 @@ class Settings(object):
             if self.url_prefix.endswith("/"):
                 self.url_prefix = self.url_prefix[:-1]
 
+def reset():
+    global settings
+
 settings = Settings()
 del Settings
+reset()

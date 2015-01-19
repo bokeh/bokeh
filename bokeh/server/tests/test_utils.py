@@ -73,6 +73,7 @@ class MemoryBokehServerTestCase(BaseBokehServerTestCase):
     @skipIfPy3("gevent does not work in py3.")
     def setUp(self):
         #clear tornado ioloop instance
+        server_settings.reset()
         server_settings.model_backend = {'type' : 'memory'}
         for k,v in self.options.items():
             setattr(server_settings, k, v)
@@ -98,6 +99,7 @@ def make_default_user(bokeh_app):
 
 class FlaskClientTestCase(BaseBokehServerTestCase):
     def setUp(self):
+        server_settings.reset()
         for k,v in self.options.items():
             setattr(server_settings, k, v)
         server_settings.model_backend = {'type' : 'memory'}
