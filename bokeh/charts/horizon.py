@@ -10,7 +10,7 @@ from collections import OrderedDict
 import math
 
 from ._chartobject import ChartObject
-from ..models import ColumnDataSource, Range1d, DataRange1d, FactorRange, HoverTool, LinearAxis
+from ..models import ColumnDataSource, Range1d, DataRange1d, FactorRange, HoverTool, CategoricalAxis
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -215,9 +215,16 @@ class Horizon(ChartObject):
         """Add the serie names to the y axis and the hover tooltips"""
         p = self.chart.plot
 
-        # TODO: Find a way to add the serie names on the y axis like such:
-        #     p.extra_y_ranges = {"series": FactorRange(factors=self.series)}
-        #     p.add_layout(LinearAxis(y_range_name="series"), 'left')
+        # Hide numerical axis
+        p.left[0].axis_label_text_color = None
+        p.left[0].axis_line_color = None
+        p.left[0].major_label_text_color = None
+        p.left[0].major_tick_line_color = None
+        p.left[0].minor_tick_line_color = None
+
+        # Add the series names to the y axis
+        p.extra_y_ranges = {"series": FactorRange(factors=self.series)}
+        p.add_layout(CategoricalAxis(y_range_name="series"), 'left')
 
         # TODO: Add the other tooltips like the serie name and the y value of that serie for that position
         p.add_tools(HoverTool(tooltips=[("index", "$values_index")]))
