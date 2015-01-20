@@ -164,7 +164,7 @@ class Plot(Widget):
     y_mapper_type = Either(Auto, String)
 
     extra_x_ranges = Dict(String, Instance(Range1d))
-    extra_y_ranges = Dict(String, Instance(Range1d))
+    extra_y_ranges = Dict(String, Instance(Range))
 
     title = String('')
     title_props = Include(TextProps)
