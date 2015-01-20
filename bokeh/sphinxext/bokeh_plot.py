@@ -8,6 +8,7 @@ from os import makedirs
 from os.path import dirname, exists, isdir, join, relpath
 import re
 from shutil import copy
+import sys
 from tempfile import mkdtemp
 import webbrowser
 
@@ -92,7 +93,15 @@ class BokehPlotDirective(Directive):
         target_node = nodes.target('', '', ids=[target_id])
         result = [target_node]
 
-        source = self._get_source()
+        rst_source = self.state_machine.input_lines.source(self.lineno - self.state_machine.input_offset - 1)
+
+        try:
+            source = self._get_source()
+        except Exception:
+            node = nodes.error(None,
+                               nodes.paragraph(text="Unable to generate Bokeh plot at %s:%d:" % (basename(rst_source), self.lineno)),
+                               nodes.paragraph(text=str(sys.exc_info()[1])))
+            return [node]
 
         source_position = self.options.get('source-position', 'below')
 
@@ -107,6 +116,8 @@ class BokehPlotDirective(Directive):
         node['target_id'] = target_id
         node['source'] = source
         node['relpath'] = dirname(relpath(source_dir, env.srcdir))
+        node['rst_source'] = rst_source
+        node['rst_lineno'] = self.lineno
         if 'alt' in self.options:
             node['alt'] = self.options['alt']
         if self.arguments:
@@ -178,39 +189,47 @@ def html_visit_bokeh_plot(self, node):
     env = self.builder.env
     dest_dir = join(self.builder.outdir, node["relpath"])
 
-    if node.has_key('path'):
-        path = node['path']
-        filename = "bokeh-plot-%s.js" %  hashlib.md5(path.encode('utf-8')).hexdigest()
-        dest_path = join(dest_dir, filename)
-        tmpdir = join(env.bokeh_plot_tmpdir, node["relpath"])
-        if not exists(tmpdir): makedirs(tmpdir)
-        cached_path = join(tmpdir, filename)
+    try:
+        if node.has_key('path'):
+            path = node['path']
+            filename = "bokeh-plot-%s.js" %  hashlib.md5(path.encode('utf-8')).hexdigest()
+            dest_path = join(dest_dir, filename)
+            tmpdir = join(env.bokeh_plot_tmpdir, node["relpath"])
+            if not exists(tmpdir): makedirs(tmpdir)
+            cached_path = join(tmpdir, filename)
 
-        if out_of_date(path, cached_path) or not exists(cached_path+".script"):
-            self.builder.info("generating new plot for '%s'" % path)
-            plot = _render_plot(node['source'], node.get('symbol'))
-            js, script = autoload_static(plot, CDN, filename)
-            with open(cached_path, "w") as f:
-                f.write(js)
-            with open(cached_path+".script", "w") as f:
-                f.write(script)
+            if out_of_date(path, cached_path) or not exists(cached_path+".script"):
+                self.builder.info("generating new plot for '%s'" % path)
+                plot = _render_plot(node['source'], node.get('symbol'))
+                js, script = autoload_static(plot, CDN, filename)
+                with open(cached_path, "w") as f:
+                    f.write(js)
+                with open(cached_path+".script", "w") as f:
+                    f.write(script)
+            else:
+                self.builder.info("using cached plot for '%s'" % path)
+                script = open(cached_path+".script", "r").read()
+
+            if not exists(dest_dir): makedirs(dest_dir)
+            copy(cached_path, dest_path)
         else:
-            self.builder.info("using cached plot for '%s'" % path)
-            script = open(cached_path+".script", "r").read()
+            filename = node['target_id'] + ".js"
+            dest_path = join(dest_dir, filename)
+            plot = _render_plot(node['source'], None)
+            js, script = autoload_static(plot, CDN, filename)
+            with open(dest_path, "w") as f:
+                f.write(js)
 
-        if not exists(dest_dir): makedirs(dest_dir)
-        copy(cached_path, dest_path)
+        html = SCRIPT_TEMPLATE.render(script=script)
+        self.body.append(html)
+    except Exception:
+        err_node = nodes.error(None,
+                               nodes.paragraph(text="Unable to generate Bokeh plot at %s:%d:" % (node['rst_source'], node['rst_lineno'])),
+                               nodes.paragraph(text=str(sys.exc_info()[1])))
+        node.children.append(err_node)
+        raise nodes.SkipDeparture
     else:
-        filename = node['target_id'] + ".js"
-        dest_path = join(dest_dir, filename)
-        plot = _render_plot(node['source'], None)
-        js, script = autoload_static(plot, CDN, filename)
-        with open(dest_path, "w") as f:
-            f.write(js)
-
-    html = SCRIPT_TEMPLATE.render(script=script)
-    self.body.append(html)
-    raise nodes.SkipNode
+        raise nodes.SkipNode
 
 
 def latex_visit_bokeh_plot(self, node):
