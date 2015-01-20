@@ -68,7 +68,7 @@ Linking your Brushing
 .. literalinclude:: exercises/brushing.py
    :language: python
    :linenos:
-   :emphasize-lines: 23,24,25,27,28,29
+   :emphasize-lines: 26,27,28,30,31,32
 
 .. _hover:
 

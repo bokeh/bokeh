@@ -12,8 +12,11 @@ output_file("panning.html")
 source = ColumnDataSource(autompg.to_dict("list"))
 source.add(autompg["yr"], name="yr")
 
+# define some tools to add
+TOOLS = "pan,wheel_zoom,box_zoom,box_select,lasso_select"# Let's set up some plot options in a dict that we can re-use on multiple plots
+
 # Let's set up some plot options in a dict that we can re-use on multiple plots
-plot_config = dict(plot_width=300, plot_height=300, tools="pan,wheel_zoom,box_zoom,select")
+plot_config = dict(plot_width=300, plot_height=300, tools=TOOLS)
 
 # First let's plot the "yr" vs "mpg" using the plot config above
 # Note that we are supplying our our data source to the renderer explicitly

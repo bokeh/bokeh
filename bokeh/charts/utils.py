@@ -12,7 +12,7 @@ useful for charts ecosystem.
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
+from __future__ import division, print_function
 from math import cos, sin
 from ..document import Document
 from ..session import Session
