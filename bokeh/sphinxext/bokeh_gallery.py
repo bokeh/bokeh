@@ -15,6 +15,19 @@ import jinja2
 
 from sphinx.util.compat import Directive
 
+GALLERY_TEMPLATE = jinja2.Template(u"""
+
+{% for name in names %}
+* |{{ name }}|
+{% endfor %}
+
+{% for name in names %}
+.. |{{ name }}| image:: /_images/gallery/{{ name }}.png
+    :target: gallery/{{ name }}.html
+    :class: gallery
+{% endfor %}
+
+""")
 
 DETAIL_TEMPLATE = jinja2.Template(u"""
 
@@ -84,9 +97,10 @@ class BokehGalleryDirective(Directive):
             env.read_doc(join("docs", "gallery", name), app=app)
 
         result = ViewList()
-        # text = SOURCE_TEMPLATE.render(source=source, linenos=linenos, emphasize_lines=emphasize_lines)
-        # for line in text.split("\n"):
-        #     result.append(line, "<bokeh-gallery>")
+        names = [detail['name'] for detail in details]
+        text = GALLERY_TEMPLATE.render(names=names)
+        for line in text.split("\n"):
+            result.append(line, "<bokeh-gallery>")
         node = nodes.paragraph()
         node.document = self.state.document
         self.state.nested_parse(result, 0, node)
