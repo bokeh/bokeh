@@ -5,13 +5,13 @@ from os.path import join
 import bokeh
 import bokeh.resources as resources
 
-WRAPPER = """$(function() {
+WRAPPER = """Bokeh.$(function() {
     foo
 });"""
 
 WRAPPER_DEV = '''require(["jquery", "main"], function($, Bokeh) {
 Bokeh.set_log_level("info");
-    $(function() {
+    Bokeh.$(function() {
         foo
     });
 });'''

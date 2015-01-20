@@ -23,7 +23,7 @@ Plots can be configured with several keyword arguments that control appearance:
 * ``h_symmetry``, ``v_symmetry`` --- whether to symmetrize plot borders on opposite horizontal or vertical sides of the plot.
 
 * ``title`` --- a title to display above the plot.
-  - "title" is also the prefix for a set of :ref:`userguide_objects_text_properties`, so you can set the font for the title with the parameter ``text_font``.
+  - "title" is also the prefix for a set of :ref:`userguide_objects_text_properties`, so you can set the font for the title with the parameter ``title_text_font``.
 
 * "outline" --- is the prefix for a set of :ref:`userguide_objects_line_properties` that control the appearance of an outline around the plot, for instance you can set the color of the outline with ``outline_line_color``.
 
