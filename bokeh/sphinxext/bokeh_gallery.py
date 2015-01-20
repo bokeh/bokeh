@@ -40,7 +40,7 @@ DETAIL_TEMPLATE = jinja2.Template(u"""
 back to :ref:`{{ up_ref }}`
 {%- if next_ref %} | :ref:`{{ next_ref }}` >{% endif %}
 
-.. bokeh-plot:: {{ path }}
+.. bokeh-plot:: {{ path }} {%- if symbol %} {{ symbol }} {% endif %}
    {% if source_position -%}:source-position: {{ source_position }} {% endif %}
 
 """)
@@ -87,6 +87,7 @@ class BokehGalleryDirective(Directive):
                 name=name,
                 underline="#"*len(name),
                 path=abspath("../" + path),
+                symbol=detail.get('symbol'),
                 prev_ref=prev_ref,
                 up_ref="gallery",
                 next_ref=next_ref,

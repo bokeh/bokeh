@@ -60,7 +60,7 @@ def _source_position(argument):
 class BokehPlotDirective(Directive):
 
     has_content = True
-    optional_arguments = 1
+    optional_arguments = 2
 
     option_spec = {
         'basedir'         : path,
@@ -112,6 +112,8 @@ class BokehPlotDirective(Directive):
         if self.arguments:
             node['path'] = self.arguments[0]
             env.note_dependency(node['path'])
+        if len(self.arguments) == 2:
+            node['symbol'] = self.arguments[1]
         result += [node]
 
         if source_position == 'below':
@@ -154,7 +156,7 @@ webbrowser.open = _noop
 plotting.save = _noop
 plotting.show = _show
 
-def _render_plot(source):
+def _render_plot(source, symbol):
     plotting._default_document = Document()
     namespace = {}
     # need to remove any encoding comment before compiling unicode
@@ -162,7 +164,15 @@ def _render_plot(source):
     source = pat.sub("", source)
     code = compile(source, "<string>", mode="exec")
     eval(code, namespace)
-    return plotting._obj
+    # TODO (bev) remove this crap
+    if symbol is not None:
+        if 'bokeh.charts' in source:
+            obj = namespace[symbol].chart.plot
+        else:
+            obj = namespace[symbol]
+    else:
+        obj = plotting._obj
+    return obj
 
 def html_visit_bokeh_plot(self, node):
     env = self.builder.env
@@ -178,7 +188,7 @@ def html_visit_bokeh_plot(self, node):
 
         if out_of_date(path, cached_path) or not exists(cached_path+".script"):
             self.builder.info("generating new plot for '%s'" % path)
-            plot = _render_plot(node['source'])
+            plot = _render_plot(node['source'], node.get('symbol'))
             js, script = autoload_static(plot, CDN, filename)
             with open(cached_path, "w") as f:
                 f.write(js)
@@ -193,7 +203,7 @@ def html_visit_bokeh_plot(self, node):
     else:
         filename = node['target_id'] + ".js"
         dest_path = join(dest_dir, filename)
-        plot = _render_plot(node['source'])
+        plot = _render_plot(node['source'], None)
         js, script = autoload_static(plot, CDN, filename)
         with open(dest_path, "w") as f:
             f.write(js)
