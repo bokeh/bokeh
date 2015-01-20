@@ -3,7 +3,7 @@ import pandas as pd
 
 from bokeh.models import ColumnDataSource
 from ..models import Range1d
-from ..plotting import figure, hold, rect
+from ..plotting import figure
 from ..plotting_helpers import _get_select_tool
 
 def cross(start, facets):
@@ -52,14 +52,13 @@ def make_bar_plot(datasource, counts_name="counts",
               ):
     top = np.max(datasource.data[counts_name])
 
-    figure(
+    plot = figure(
       title="", title_text_font_size=title_text_font_size,
       plot_width=plot_width, plot_height=plot_height,
       x_range=x_range, y_range=[0, top], tools=tools,
     )
-    hold()
     y = [val/2.0 for val in datasource.data[counts_name]]
-    plot = rect(centers_name, y, bar_width, counts_name, source=datasource)
+    plot.rect(centers_name, y, bar_width, counts_name, source=datasource)
 
     plot.min_border = 0
     plot.h_symmetry = False
