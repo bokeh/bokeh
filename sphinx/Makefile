@@ -41,7 +41,7 @@ help:
 	@echo "  linkcheck        to check all external links for integrity"
 	@echo "  doctest          to run all doctests embedded in the documentation (if enabled)"
 
-tutorial: tutorial_gallery tutorial_html
+tutorial: tutorial_html
 	cp -r $(BUILDDIR)/tutorial_gallery $(BUILDDIR)/html/tutorial/solutions/gallery
 
 tutorial_html:
@@ -49,21 +49,15 @@ tutorial_html:
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
 
-all: main_gallery html
+all: html
 
 clean:
 	-rm -rf $(BUILDDIR)/*
 
 html:
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
-	cp -r $(BUILDDIR)/main_gallery $(BUILDDIR)/html/docs/gallery
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
-
-main_gallery:
-	rm -rf $(BUILDDIR)/main_gallery source/docs/gallery.rst
-	mkdir -p $(BUILDDIR)/main_gallery
-	python build_gallery.py main_gallery.json
 
 serve: html
 	python docserver.py

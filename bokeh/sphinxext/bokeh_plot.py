@@ -18,8 +18,6 @@ import jinja2
 
 from sphinx.locale import _
 from sphinx.util.compat import Directive
-from sphinx.util.nodes import nested_parse_with_titles
-
 
 from .utils import out_of_date
 from ..utils import decode_utf8, encode_utf8
@@ -66,7 +64,6 @@ class BokehPlotDirective(Directive):
     }
 
     def run(self):
-
         # filename *or* python code content, but not both
         if self.arguments and self.content:
             raise RuntimeError("bokeh-plot:: directive can't have both args and content")
@@ -97,10 +94,14 @@ class BokehPlotDirective(Directive):
         if source_position == 'above':
             result += self._get_source_nodes(source)
 
+        # TODO (bev) not sure why this is needs, gallery directive does not
+        # work without it, though
+        source_dir = self.state_machine.node.get('source', self.state_machine.node.source)
+
         node = bokeh_plot()
         node['target_id'] = target_id
         node['source'] = source
-        node['relpath'] = dirname(relpath(self.state_machine.node.source, env.srcdir))
+        node['relpath'] = dirname(relpath(source_dir, env.srcdir))
         if 'alt' in self.options:
             node['alt'] = self.options['alt']
         if self.arguments:
