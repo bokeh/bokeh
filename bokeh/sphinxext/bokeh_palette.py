@@ -4,7 +4,6 @@
 from __future__ import absolute_import
 
 from docutils import nodes
-from docutils.parsers.rst.directives import unchanged
 
 import jinja2
 
@@ -46,10 +45,6 @@ class BokehPaletteDirective(Directive):
     required_arguments = 1
 
     def run(self):
-        env = self.state.document.settings.env
-        app = env.app
-        config = app.config
-
         node = bokeh_palette()
         node['module'] = self.arguments[0]
         return [node]

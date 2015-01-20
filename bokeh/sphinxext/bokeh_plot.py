@@ -9,6 +9,7 @@ from os.path import dirname, exists, isdir, join, relpath
 import re
 from shutil import copy
 from tempfile import mkdtemp
+import webbrowser
 
 from docutils import nodes
 from docutils.parsers.rst.directives import choice, flag, path, unchanged
@@ -20,7 +21,12 @@ from sphinx.locale import _
 from sphinx.util.compat import Directive
 
 from .utils import out_of_date
-from ..utils import decode_utf8, encode_utf8
+from .. import plotting
+from ..document import Document
+from ..embed import autoload_static
+from ..resources import CDN
+from ..utils import decode_utf8
+
 
 SOURCE_TEMPLATE = jinja2.Template(u"""
 .. code-block:: python
@@ -70,7 +76,6 @@ class BokehPlotDirective(Directive):
 
         env = self.state.document.settings.env
         app = env.app
-        config = app.config
 
         if not hasattr(env, 'bokeh_plot_tmpdir'):
             env.bokeh_plot_tmpdir = mkdtemp()
@@ -136,12 +141,6 @@ class BokehPlotDirective(Directive):
         node.document = self.state.document
         self.state.nested_parse(result, 0, node)
         return node.children
-
-from bokeh import plotting
-from bokeh.document import Document
-from bokeh.embed import autoload_static
-from bokeh.resources import CDN
-import webbrowser
 
 # patch open and show and save to be no-ops
 def _noop(*args, **kwargs):
