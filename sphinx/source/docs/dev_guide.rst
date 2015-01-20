@@ -624,10 +624,10 @@ not be picked up. It is recommended that during normal development,
 browser caching be disabled. Instructions for different browsers can be
 found here:
 
-* `Chrome <https://developer.chrome.com/devtools/docs/settings>`_
-* `Firefox <https://developer.mozilla.org/en-US/docs/Mozilla/Preferences/Mozilla_networking_preferences#Cache>`_
+* `Chrome <https://developer.chrome.com/devtools/docs/settings>`__
+* `Firefox <https://developer.mozilla.org/en-US/docs/Mozilla/Preferences/Mozilla_networking_preferences#Cache>`__
 * `Safari <https://developer.apple.com/library/mac/documentation/AppleApplications/Conceptual/Safari_Developer_Guide/TheDevelopMenu/TheDevelopMenu.html>`_
-* `Internet Explorer <http://msdn.microsoft.com/en-us/library/hh968260(v=vs.85).aspx#cacheMenu>`_
+* `Internet Explorer <http://msdn.microsoft.com/en-us/library/hh968260(v=vs.85).aspx#cacheMenu>`__
 
 Additionlly some browsers also provide a "private mode" that may disable
 caching automatically.
@@ -636,10 +636,10 @@ Even with caching disabled, on some browsers, it may still be required to
 sometimes force a page reload. Keyboard shortcuts for forcing page
 refreshes can be found here:
 
-* Chrome `Windows <https://support.google.com/chrome/answer/157179?hl=en&ref_topic=25799>`_ / `OSX <https://support.google.com/chrome/answer/165450?hl=en&ref_topic=25799>`_ / `Linux <https://support.google.com/chrome/answer/171571?hl=en&ref_topic=25799>`_
-* `Firefox <https://support.mozilla.org/en-US/kb/keyboard-shortcuts-perform-firefox-tasks-quickly#w_navigation>`_
-* `Safari <https://developer.apple.com/library/mac/documentation/AppleApplications/Conceptual/Safari_Developer_Guide/KeyboardShortcuts/KeyboardShortcuts.html>`_
-* Internet Explorer `10 <http://msdn.microsoft.com/en-us/library/dd565630(v=vs.85).aspx>`_ / `11 <http://msdn.microsoft.com/en-us/library/ie/dn322041(v=vs.85).aspx>`_
+* Chrome `Windows <https://support.google.com/chrome/answer/157179?hl=en&ref_topic=25799>`__ / `OSX <https://support.google.com/chrome/answer/165450?hl=en&ref_topic=25799>`__ / `Linux <https://support.google.com/chrome/answer/171571?hl=en&ref_topic=25799>`__
+* `Firefox <https://support.mozilla.org/en-US/kb/keyboard-shortcuts-perform-firefox-tasks-quickly#w_navigation>`__
+* `Safari <https://developer.apple.com/library/mac/documentation/AppleApplications/Conceptual/Safari_Developer_Guide/KeyboardShortcuts/KeyboardShortcuts.html>`__
+* Internet Explorer `10 <http://msdn.microsoft.com/en-us/library/dd565630(v=vs.85).aspx>`__ / `11 <http://msdn.microsoft.com/en-us/library/ie/dn322041(v=vs.85).aspx>`__
 
 If it appears that new changes are not being executed when they should be, it
 is recommended to try this first.
