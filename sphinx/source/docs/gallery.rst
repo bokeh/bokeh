@@ -4,6 +4,13 @@
 Gallery
 =======
 
+.. toctree::
+   :hidden:
+   :glob:
+
+   gallery/*
+
+
 All of these examples are located in the
 `examples <https://github.com/bokeh/bokeh/tree/master/examples>`_
 subdirectory of your Bokeh checkout.
