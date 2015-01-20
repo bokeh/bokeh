@@ -4,6 +4,7 @@ complex plot is a simple way.
 This is the Horizon class which lets you build your Horizon charts just
 passing the arguments to the Chart class and calling the proper functions.
 """
+from __future__ import division
 
 from six import string_types
 from collections import OrderedDict
@@ -18,6 +19,7 @@ from ..models import ColumnDataSource, Range1d, DataRange1d, FactorRange, HoverT
 
 
 class Horizon(ChartObject):
+
     """This is the Horizon class and it is in charge of plotting
     Horizon charts in an easy and intuitive way.
 
@@ -45,11 +47,12 @@ class Horizon(ChartObject):
         ts.legend("top_left").show()
 
     """
+
     def __init__(self, values, index=None, title=None, xlabel=None, ylabel=None,
                  legend=False, xscale="datetime", yscale="linear", width=800,
-                 height=600, tools=True, filename=False, server=False, nb_folds=3,
+                 height=600, tools=True, filename=False, server=False,
                  notebook=False, facet=False, xgrid=False, ygrid=False,
-                 pos_color='#006400', neg_color='#6495ed'):
+                 nb_folds=3, pos_color='#006400', neg_color='#6495ed'):
         """
         Args:
             values (iterable): iterable 2d representing the data series
@@ -103,9 +106,14 @@ class Horizon(ChartObject):
                 (default: True)
             ygrid (bool, optional): whether to display y grid lines
                 (default: True)
-            pos_color (hex color string): the color of the positive folds
+            nb_folds (int, optional): the number of folds stacked on
+                top of each others.
+                (default: 3)
+            pos_color (hex color string, optional): the color of the
+                positive folds
                 (default: #006400)
-            neg_color (hex color string): the color of the negative folds
+            neg_color (hex color string, optional): the color of
+                the negative folds
                 (default: #6495ed)
 
         Attributes:
@@ -132,7 +140,7 @@ class Horizon(ChartObject):
         self.series = []
         self.fold_height = {}
         self.max_y = 0
-        self.data = dict()
+        self.data = {}
         self.attr = []
         self.index = index
         self.nb_folds = nb_folds
@@ -144,29 +152,39 @@ class Horizon(ChartObject):
             tools, filename, server, notebook, facet, xgrid, ygrid
         )
 
+    def fold_coordinates(self, y, fold_no, fold_height, y_origin=0):
+        """ Function that calculate the coordinates for a value given a fold
+        """
+        height = fold_no * fold_height
+        quotient, remainder = divmod(abs(y), float(height))
+        v = fold_height
+
+        # quotient would be 0 if the coordinate is represented in this fold
+        # layer
+        if math.floor(quotient) == 0:
+            v = 0
+            if remainder >= height - fold_height:
+                v = remainder - height + fold_height
+
+        # Return tuple of the positive and negative relevant position of
+        # the coordinate against the provided fold layer
+        if y > 0:
+            return (v + y_origin, fold_height + y_origin)
+        else:
+            return (y_origin, fold_height - v + y_origin)
+
     def get_data(self):
-        """Take the x/y data from the horizon values.
+        """Use x/y data from the horizon values.
 
         It calculates the chart properties accordingly. Then build a dict
         containing references to all the points to be used by
         the multiple area glyphes inside the ``draw`` method.
 
         """
-
-        def fold_coordinates(y, fold_no, fold_height, y_origin=0):
-            """ Function that calculate the coordinates for a value given a fold
-            """
-            height = fold_no * fold_height
-            quotient, remainder = divmod(abs(y), float(height))
-            v = fold_height
-            if math.floor(quotient) == 0:
-                v = (remainder - height + fold_height) if remainder >= height - fold_height else 0
-            return (v + y_origin, fold_height + y_origin) if y > 0 else (y_origin, fold_height - v + y_origin)
-
         for col in self.values.keys():
             if isinstance(self.index, string_types) and col == self.index:
                 continue
- 
+
             self.series.append(col)
             self.set_and_get("x_", col, self.values_index)
             self.max_y = max(max(self.values[col]), self.max_y)
@@ -175,15 +193,17 @@ class Horizon(ChartObject):
         for serie_no, serie in enumerate(self.series):
             y_origin = serie_no * self.fold_height
             for fold_itr in range(1, self.nb_folds + 1):
-                layers_datapoints = [fold_coordinates(x, fold_itr, self.fold_height, y_origin) for x in self.values[serie]]
+                layers_datapoints = [self.fold_coordinates(
+                    x, fold_itr, self.fold_height, y_origin) for x in self.values[serie]]
                 pos_points, neg_points = zip(*(layers_datapoints))
-                
+
                 # *************
                 # This is clearly a hack in order to correctly close the area from the origin
                 # by removing the starting and tailing points from the list and replacing by a value at the
                 # origin of the layer on the y axis
                 pos_points = (y_origin,) + pos_points[1:-1] + (y_origin,)
-                neg_points = (self.fold_height+y_origin,) + neg_points[1:-1] + (self.fold_height+y_origin,)
+                neg_points = (self.fold_height + y_origin,) + \
+                    neg_points[1:-1] + (self.fold_height + y_origin,)
                 # *************
 
                 self.set_and_get("y_fold%s_" % fold_itr, serie, pos_points)
@@ -204,10 +224,12 @@ class Horizon(ChartObject):
         """
         for serie_no, serie in enumerate(self.series):
             for fold_itr in range(-self.nb_folds, self.nb_folds + 1):
-                if fold_itr == 0: continue
+                if fold_itr == 0:
+                    continue
                 alpha = 1.0 * (abs(fold_itr)) / self.nb_folds
                 color = self.pos_color if fold_itr > 0 else self.neg_color
-                self.chart.make_patch(self.source, 'x_%s' % serie, 'y_fold%s_%s' % (fold_itr, serie), color, fill_alpha=alpha)
+                self.chart.make_patch(self.source, 'x_%s' % serie, 'y_fold%s_%s' % (
+                    fold_itr, serie), color, fill_alpha=alpha)
                 if serie_no == 0:
                     self.groups.append(str(self.fold_height * fold_itr))
 
@@ -226,5 +248,6 @@ class Horizon(ChartObject):
         p.extra_y_ranges = {"series": FactorRange(factors=self.series)}
         p.add_layout(CategoricalAxis(y_range_name="series"), 'left')
 
-        # TODO: Add the other tooltips like the serie name and the y value of that serie for that position
-        p.add_tools(HoverTool(tooltips=[("index", "$values_index")]))
+        # TODO: Add the other tooltips like the serie name and the y value of
+        # that serie for that position
+        p.add_tools(HoverTool(tooltips=[("(index)", "$values_index")]))
