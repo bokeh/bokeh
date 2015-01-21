@@ -23,7 +23,7 @@ xyvalues = OrderedDict(
 )
 
 h = Horizon(xyvalues, index='Date', title="horizon plot using stock inputs",
-                width=1200, height=300, filename="stocks_horizon.html")
+                width=1200, height=300, filename="horizon.html")
 
 h.legend("top_right").show()
 
