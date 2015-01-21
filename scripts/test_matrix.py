@@ -1,35 +1,3 @@
-# Things I need to do:
-#
-#     Have a google spreadsheet template set up with very specific cell placement for the test matrix.
-#
-#     Learn the google API such that I can map true or false values to green and red, respectively (cont.)
-#     Next, I will have the tests include the cell they need to go as a value in their dictionary.
-#
-#     Then it's just a matter of having the google API instatiate a copy of the template, plug the values in,
-#     then return a URL to the spreadsheet it has created.
-#
-
-#     All pip installs failing, but in different ways depending on if they're
-#     clean or updates.
-#     I don't know how, but updates are still getting bokeh and running it, though
-#     the tests fail due to absence of bs4 and websocket.
-
-#     Another note, on windows, you just say "activate" not "source activate" and
-#     also the dos command separator is "&&" not ";" so you have to do like
-#     "activate foo && stuff" the ; in the python code parts stay tho.
-
-#     --keep-envs (don't delete them at the end)
-
-#     option to only do pip or only do conda
-
-# a --dry-run option that shows (for each env) all the commands that will be run
-# (but doesn't actually run them)
-
-# output options. By default prints a human readable table, with --json output
-# the JSON data it does now
-
-# option to suppress output from all the commands
-
 import argparse
 import os
 import shutil
