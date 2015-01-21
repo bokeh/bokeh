@@ -38,6 +38,7 @@ extensions = [
     'bokeh.sphinxext.bokeh_model',
     'bokeh.sphinxext.bokeh_palette',
     'bokeh.sphinxext.bokeh_plot',
+    'bokeh.sphinxext.bokeh_prop',
 ]
 
 # Add any paths that contain templates here, relative to this directory.

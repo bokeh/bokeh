@@ -18,6 +18,7 @@ class Axis(GuideRenderer):
     ticker = Instance(Ticker)
     formatter = Instance(TickFormatter)
 
+    #: A text label for the axis, displayed parallel to the axis rule
     axis_label = String
     axis_label_standoff = Int
     axis_label_props = Include(TextProps)
