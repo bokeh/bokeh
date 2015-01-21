@@ -5,7 +5,7 @@ from __future__ import absolute_import
 
 import hashlib
 from os import makedirs
-from os.path import dirname, exists, isdir, join, relpath
+from os.path import basename, dirname, exists, isdir, join, relpath
 import re
 from shutil import copy
 import sys
