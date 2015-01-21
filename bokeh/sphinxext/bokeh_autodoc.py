@@ -15,7 +15,9 @@ class ModelDocumenter(ClassDocumenter):
         return isinstance(member, class_types) and issubclass(member, PlotObject)
 
     def add_directive_header(self, sig):
-        """Add the directive header and options to the generated content."""
+        # Note: we are supplying our own version of this function because
+        # bokeh-model should not be passed `sig` as an argument, and there is
+        # no way to suppress this behaviour in the default version
         domain = getattr(self, 'domain', 'py')
         directive = getattr(self, 'directivetype', self.objtype)
         name = self.format_name()
@@ -23,10 +25,6 @@ class ModelDocumenter(ClassDocumenter):
                       '<autodoc>')
         if self.options.noindex:
             self.add_line(u'   :noindex:', '<autodoc>')
-        # if self.objpath:
-        #     # Be explicit about the module, this is necessary since .. class::
-        #     # etc. don't support a prepended module name
-        #     self.add_line(u'   :module: %s' % self.modname, '<autodoc>')
 
 def setup(app):
     app.add_autodocumenter(ModelDocumenter)
