@@ -19,7 +19,7 @@ ticks on datetime axes. Here we will plot some stock data taken from the `Yahoo 
 .. literalinclude:: exercises/stocks.py
    :language: python
    :linenos:
-   :emphasize-lines: 29,30,38,40,50,51,53,55
+   :emphasize-lines: 32,33,41,43,53,54,56,58
 
 .. _histogram:
 
