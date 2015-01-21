@@ -5,7 +5,7 @@
     :depth: 2
 
 Models
-------
+######
 
 .. _bokeh_dot_models_dot_axes:
 

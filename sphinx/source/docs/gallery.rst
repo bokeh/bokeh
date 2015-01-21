@@ -4,6 +4,13 @@
 Gallery
 =======
 
+.. toctree::
+   :hidden:
+   :glob:
+
+   gallery/*
+
+
 All of these examples are located in the
 `examples <https://github.com/bokeh/bokeh/tree/master/examples>`_
 subdirectory of your Bokeh checkout.
@@ -13,14 +20,5 @@ plot.
 
 .. cssclass:: gallery clearfix
 
-{% for info in page_infos %}
-* |{{info.name}}|
-{% endfor %}
+.. bokeh-gallery:: main_gallery.json
 
-{% for info in page_infos %}
-
-.. |{{info.name}}| image:: /_images/gallery/{{info.name}}.png
-    :target: gallery/{{info.detail_page_url}}
-    :class: gallery
-
-{% endfor %}

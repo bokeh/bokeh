@@ -33,6 +33,9 @@ extensions = [
     'sphinx.ext.inheritance_diagram',
     'sphinxcontrib.napoleon',
     'sphinxcontrib.autohttp.flask',
+    'bokeh.sphinxext.bokeh_gallery',
+    'bokeh.sphinxext.bokeh_palette',
+    'bokeh.sphinxext.bokeh_plot',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -199,8 +202,15 @@ html_static_path = ['_static']
 #html_use_smartypants = True
 
 # Custom sidebar templates, maps document names to template names.
-html_sidebars = {'**': ['sidebartoc.html', 'sourcelink.html', 'searchbox.html'],
-                 'docs/gallery': []}
+html_sidebars = {
+    '*': ['sidebartoc.html', 'sourcelink.html', 'searchbox.html'],
+    'tutorial/**': ['sidebartoc.html', 'sourcelink.html', 'searchbox.html'],
+    'docs/*': ['sidebartoc.html', 'sourcelink.html', 'searchbox.html'],
+    'docs/reference/**': ['sidebartoc.html', 'sourcelink.html', 'searchbox.html'],
+    'docs/user_guide/**': ['sidebartoc.html', 'sourcelink.html', 'searchbox.html'],
+    'docs/gallery': [],
+    'docs/gallery/*': [],
+}
 
 # Additional templates that should be rendered to pages, maps page names to
 # template names.

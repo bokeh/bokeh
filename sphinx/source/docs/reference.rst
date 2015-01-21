@@ -1,4 +1,5 @@
-###############
+.. _refguide:
+
 Reference Guide
 ###############
 
