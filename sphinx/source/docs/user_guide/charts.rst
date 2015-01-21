@@ -568,10 +568,4 @@ and to the IPython notebook::
 
 * ``notebook``, bool type, if you want to output (or not) to the notebook.
 
-Keep in mind that, as with any other ``Bokeh`` plots in the IPython notebook,
-you have to load the ``BokehJS`` library into the notebook just doing::
-
-    import bokeh
-    bokeh.load_notebook()
-
 .. note:: You can output to any or all of these 3 possibilities because, right now, they are not mutually exclusive.
