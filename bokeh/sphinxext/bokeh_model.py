@@ -19,6 +19,16 @@ MODEL_TEMPLATE = jinja2.Template(u"""
 .. autoclass::  {{ model_path }}
     :members:
 
+.. currentmodule:: {{ module_name }}
+
+{% for prop in properties %}
+.. attribute:: {{ prop.name }}
+
+    type: `{{ prop.type_name }} <{{ prop.type_link }}>`_
+    {% if prop.description %}{{ prop.description }}{% endif %}
+
+{% endfor %}
+
 .. code-block:: javascript
 
     {{ model_json|indent(4) }}
@@ -48,16 +58,35 @@ class BokehModelDirective(Directive):
         if type(model) != Viewable:
             pass
 
+        model_obj = model()
+
         model_json = json.dumps(
-            json.loads(serialize_json(model().dump(changed_only=False))),
+            json.loads(serialize_json(model_obj.dump(changed_only=False))),
             sort_keys=True,
             indent=2,
             separators=(',', ': ')
         )
 
+        properties = []
+        for prop_name in sorted(model_obj.properties()):
+
+            # NOTE: (bev) session not really relevant for anyone
+            if prop_name == "session": continue
+
+            prop = getattr(model_obj.__class__, prop_name)
+
+            properties.append({
+                "name"        : prop_name,
+                "type_name"   : str(prop),
+                "type_link"   : "properties.html#bokeh.properties.%s"  % prop.__class__.__name__,
+                "description" : None,
+            })
+
         rst_text = MODEL_TEMPLATE.render(
             model_path=model_path,
+            module_name=module_name,
             model_json=model_json,
+            properties=properties,
         )
 
         result = ViewList()
