@@ -52,6 +52,15 @@ class Settings(object):
     def simple_ids(self, default=None):
         return self._get_bool("SIMPLE_IDS", default)
 
+    def notebook_resources(self, default=None):
+        return self._get_str("NOTEBOOK_RESOURCES", default)
+
+    def notebook_verbose(self, default=None):
+        return self._get_bool("NOTEBOOK_VERBOSE", default)
+
+    def notebook_skip(self, default=None):
+        return self._get_bool("NOTEBOOK_SKIP", default)
+
     """
     Server settings go here:
     """
