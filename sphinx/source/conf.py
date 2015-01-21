@@ -33,6 +33,7 @@ extensions = [
     'sphinx.ext.inheritance_diagram',
     'sphinxcontrib.napoleon',
     'sphinxcontrib.autohttp.flask',
+    'bokeh.sphinxext.bokeh_autodoc',
     'bokeh.sphinxext.bokeh_gallery',
     'bokeh.sphinxext.bokeh_model',
     'bokeh.sphinxext.bokeh_palette',

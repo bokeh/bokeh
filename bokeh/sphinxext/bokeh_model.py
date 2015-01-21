@@ -98,5 +98,5 @@ class BokehModelDirective(Directive):
         return node.children
 
 def setup(app):
-    app.add_directive('bokeh-model', BokehModelDirective)
+    app.add_directive_to_domain('py', 'bokeh-model', BokehModelDirective)
 
