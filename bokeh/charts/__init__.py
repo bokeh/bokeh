@@ -12,4 +12,4 @@ from .boxplot import BoxPlot
 from .timeseries import TimeSeries
 from .catheatmap import HeatMap
 from .gmap import GMap
-from horizon import Horizon
+from .horizon import Horizon
