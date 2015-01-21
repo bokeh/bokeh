@@ -34,6 +34,7 @@ extensions = [
     'sphinxcontrib.napoleon',
     'sphinxcontrib.autohttp.flask',
     'bokeh.sphinxext.bokeh_gallery',
+    'bokeh.sphinxext.bokeh_model',
     'bokeh.sphinxext.bokeh_palette',
     'bokeh.sphinxext.bokeh_plot',
 ]
