@@ -44,7 +44,7 @@ class Settings(object):
     def log_level(self, default=None):
         return self._get_str("LOG_LEVEL", default)
 
-    def py_log_level(self, default=None):
+    def py_log_level(self, default='info'):
         level = self._get_str("PY_LOG_LEVEL", default)
         LEVELS = {'trace': logging.NOTSET,
                   'debug': logging.DEBUG,
