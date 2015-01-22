@@ -199,7 +199,7 @@ def html_visit_bokeh_plot(self, node):
             cached_path = join(tmpdir, filename)
 
             if out_of_date(path, cached_path) or not exists(cached_path+".script"):
-                self.builder.debug("generating new plot for '%s'" % path)
+                self.builder.app.debug("generating new plot for '%s'" % path)
                 plot = _render_plot(node['source'], node.get('symbol'))
                 js, script = autoload_static(plot, CDN, filename)
                 with open(cached_path, "w") as f:
@@ -207,7 +207,7 @@ def html_visit_bokeh_plot(self, node):
                 with open(cached_path+".script", "w") as f:
                     f.write(script)
             else:
-                self.builder.debug("using cached plot for '%s'" % path)
+                self.builder.app.debug("using cached plot for '%s'" % path)
                 script = open(cached_path+".script", "r").read()
 
             if not exists(dest_dir): makedirs(dest_dir)
