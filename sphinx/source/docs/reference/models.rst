@@ -8,8 +8,8 @@ Model Objects
 
 .. _bokeh.models.axes:
 
-bokeh.models.axes
------------------
+``bokeh.models.axes``
+---------------------
 
 .. automodule:: bokeh.models.axes
    :members:
@@ -17,8 +17,8 @@ bokeh.models.axes
 
 .. _bokeh.models.formatters:
 
-bokeh.models.formatters
------------------------
+``bokeh.models.formatters``
+---------------------------
 
 .. automodule:: bokeh.models.formatters
    :members:
@@ -26,8 +26,8 @@ bokeh.models.formatters
 
 .. _bokeh.models.glyphs:
 
-bokeh.models.glyphs
--------------------
+``bokeh.models.glyphs``
+-----------------------
 
 .. automodule:: bokeh.models.glyphs
    :members:
@@ -35,8 +35,8 @@ bokeh.models.glyphs
 
 .. _bokeh.models.grids:
 
-bokeh.models.grids
-------------------
+``bokeh.models.grids``
+----------------------
 
 .. automodule:: bokeh.models.grids
    :members:
@@ -44,8 +44,8 @@ bokeh.models.grids
 
 .. _bokeh.models.map_plots:
 
-bokeh.models.map_plots
-----------------------
+``bokeh.models.map_plots``
+--------------------------
 
 .. automodule:: bokeh.models.map_plots
    :members:
@@ -53,8 +53,8 @@ bokeh.models.map_plots
 
 .. _bokeh.models.mappers:
 
-bokeh.models.mappers
---------------------
+``bokeh.models.mappers``
+------------------------
 
 .. automodule:: bokeh.models.mappers
    :members:
@@ -62,8 +62,8 @@ bokeh.models.mappers
 
 .. _bokeh.models.markers:
 
-bokeh.models.markers
---------------------
+``bokeh.models.markers``
+------------------------
 
 .. automodule:: bokeh.models.markers
    :members:
@@ -71,8 +71,8 @@ bokeh.models.markers
 
 .. _bokeh.models_plots:
 
-bokeh.models.plots
-------------------
+``bokeh.models.plots``
+----------------------
 
 .. automodule:: bokeh.models.plots
    :members:
@@ -80,8 +80,8 @@ bokeh.models.plots
 
 .. _bokeh.models.ranges:
 
-bokeh.models.ranges
--------------------
+``bokeh.models.ranges``
+-----------------------
 
 .. automodule:: bokeh.models.ranges
    :members:
@@ -89,8 +89,8 @@ bokeh.models.ranges
 
 .. _bokeh.models.renderers:
 
-bokeh.models.renderers
-----------------------
+``bokeh.models.renderers``
+--------------------------
 
 .. automodule:: bokeh.models.renderers
    :members:
@@ -98,8 +98,8 @@ bokeh.models.renderers
 
 .. _bokeh.models.sources:
 
-bokeh.models.sources
---------------------
+``bokeh.models.sources``
+------------------------
 
 .. automodule:: bokeh.models.sources
    :members:
@@ -107,8 +107,8 @@ bokeh.models.sources
 
 .. _bokeh.models.tickers:
 
-bokeh.models.tickers
---------------------
+``bokeh.models.tickers``
+------------------------
 
 .. automodule:: bokeh.models.tickers
    :members:
@@ -116,8 +116,8 @@ bokeh.models.tickers
 
 .. _bokeh.models.tools:
 
-bokeh.models.tools
-------------------
+``bokeh.models.tools``
+----------------------
 
 .. automodule:: bokeh.models.tools
    :members:
@@ -125,8 +125,8 @@ bokeh.models.tools
 
 .. _bokeh.models.widget:
 
-bokeh.models.widget
---------------------
+``bokeh.models.widget``
+------------------------
 
 .. automodule:: bokeh.models.widget
    :members:
