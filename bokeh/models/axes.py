@@ -9,39 +9,100 @@ from .tickers import Ticker, BasicTicker, LogTicker, CategoricalTicker, Datetime
 from .formatters import TickFormatter, BasicTickFormatter, LogTickFormatter, CategoricalTickFormatter, DatetimeTickFormatter
 
 class Axis(GuideRenderer):
-    location = Either(Auto, Enum(Location))
-    bounds = Either(Auto, Tuple(Float, Float))
+    """ Axis is a base class for all Axis objects, and is not generally
+    useful to instantiate on its own.
 
-    x_range_name = String('default')
-    y_range_name = String('default')
+    """
 
-    ticker = Instance(Ticker)
-    formatter = Instance(TickFormatter)
+    location = Either(Auto, Enum(Location), help="""
+    Where the axis should be positioned on the plot.
+    """)
 
-    #: A text label for the axis, displayed parallel to the axis rule
-    #:
-    #:.. note::
-    #:    LaTeX notation is not currently supported; please see
-    #:    `issue 647 <https://github.com/bokeh/bokeh/issues/647>`_ to
-    #:    track progress or contribute.
-    axis_label = String
+    bounds = Either(Auto, Tuple(Float, Float), help="""
+    Constrain the Axis to only draw between specified bounds.
+    """)
 
-    axis_label_standoff = Int
-    axis_label_props = Include(TextProps)
+    x_range_name = String('default', help="""
+    Configure this Axis to use a particular (named) Range of
+    the associated Plot.
+    """)
 
-    major_label_standoff = Int
-    major_label_orientation = Either(Enum("horizontal", "vertical"), Float)
-    major_label_props = Include(TextProps)
+    y_range_name = String('default', help="""
+    Configure this Axis to use a particular (named) Range of
+    the associated Plot.
+    """)
 
-    axis_props = Include(LineProps)
+    ticker = Instance(Ticker, help="""
+    Configure a Ticker to specify how major tick locations are chosen.
+    """)
 
-    major_tick_props = Include(LineProps)
-    major_tick_in = Int
-    major_tick_out = Int
+    formatter = Instance(TickFormatter, help="""
+    Configure a TickFormatter to specify how tick values are formatted.
+    """)
 
-    minor_tick_props = Include(LineProps)
-    minor_tick_in = Int
-    minor_tick_out = Int
+    axis_label = String(help="""
+    A text label for the axis, displayed parallel to the axis rule
+
+    .. note::
+        LaTeX notation is not currently supported; please see
+        `issue 647 <https://github.com/bokeh/bokeh/issues/647>`_ to
+        track progress or contribute.
+    """)
+
+    axis_label_standoff = Int(help="""
+    Distance in pixels that the axis labels should be offset from
+    the tick labels.
+    """)
+
+    axis_label_props = Include(TextProps, help="""
+    Set the %s of the axis label.
+    """)
+
+    major_label_standoff = Int(help="""
+    Distance in pixels that the major tick labels should be offset
+    from the associated ticks.
+    """)
+
+    major_label_orientation = Either(Enum("horizontal", "vertical"), Float, help="""
+    What direction the major label text should be oriented. If a number
+    is supplied, the angle of the text is measured from horizontal.
+    """)
+
+    major_label_props = Include(TextProps, help="""
+    Set the %s of the major tick labels.
+    """)
+
+    axis_props = Include(LineProps, help="""
+    Set the %s of the axis line.
+    """)
+
+    major_tick_props = Include(LineProps, help="""
+    Set the %s of the major ticks.
+    """)
+
+    major_tick_in = Int(help="""
+    Distance in pixels that major ticks should extend into the main
+    plot area.
+    """)
+
+    major_tick_out = Int(help="""
+    Distance in pixels that major ticks should extend out of the main
+    plot area.
+    """)
+
+    minor_tick_props = Include(LineProps, help="""
+    Set the %s of the minor ticks.
+    """)
+
+    minor_tick_in = Int(help="""
+    Distance in pixels that minor ticks should extend into the main
+    plot area.
+    """)
+
+    minor_tick_out = Int(help="""
+    Distance in pixels that major ticks should extend out of the main
+    plot area.
+    """)
 
 class ContinuousAxis(Axis):
     pass

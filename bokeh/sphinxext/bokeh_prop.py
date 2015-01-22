@@ -6,6 +6,7 @@ from docutils import nodes
 from docutils.statemachine import ViewList
 
 import re
+import textwrap
 
 import jinja2
 
@@ -59,20 +60,11 @@ class BokehPropDirective(Directive):
 
         type_info = self._get_type_info(prop)
 
-        # This test is not great, but it will do. We only want to
-        # individual property attributes docs, not the general doc
-        # for the property doc, which is what happens if there is
-        # no explicit doc provided
-        if len(self.content) > 0 and self.content[0] in prop.__doc__:
-            doc = None
-        else:
-            doc = "%s\n" % "\n".join(self.content)
-
         rst_text = PROP_TEMPLATE.render(
             name=prop_name,
             module=module_path,
             type_info=type_info,
-            doc=doc,
+            doc="" if prop.__doc__ is None else textwrap.dedent(prop.__doc__),
         )
 
         result = ViewList()
