@@ -116,11 +116,6 @@ the :func:`~bokeh.embed.components` function above returns.
     in conjuction with :func:`~bokeh.plotting.show` and the ``%bokeh`` IPython
     "magic" command.
 
-.. note::
-    Using the result of this function assumes that BokehJS has already been
-    loaded, for instance either by using :func:`~bokeh.plotting.output_notebook`,
-    or by explicitly calling :func:`~bokeh.load_notebook`.
-
 .. _user_guide_embedding_autoload:
 
 Autoloading

@@ -1,7 +1,11 @@
 from __future__ import absolute_import, print_function
+
 import warnings
-from ._version import get_versions
 from . import utils
+from . import sampledata
+from ._version import get_versions
+from .settings import settings
+
 try:
     from .__conda_version__ import conda_version
     __version__ = conda_version.replace("'","")
@@ -10,10 +14,9 @@ except ImportError:
     __version__ = get_versions()['version']
     del get_versions
 
-
 _notebook_loaded = None
 
-def load_notebook(resources=None, verbose=False, force=False, skip=False):
+def load_notebook(resources=None, verbose=False, hide_banner=False):
     ''' Prepare the IPython notebook for displaying Bokeh plots.
 
     Args:
@@ -23,26 +26,14 @@ def load_notebook(resources=None, verbose=False, force=False, skip=False):
         verbose (bool, optional) :
             whether to report detailed settings (default: False)
 
-        force (bool, optional) :
-            whether to skip IPython notebook check (default: False)
+        hide_banner (bool, optional):
+            whether to hide the Bokeh banner (default: False)
 
     Returns:
         None
 
     '''
     global _notebook_loaded
-
-    # It's possible the IPython folks will chance things in the future, `force` parameter
-    # provides an escape hatch as long as `displaypub` works
-    if not force:
-        notebook = False
-        try:
-            notebook = 'notebook' in get_ipython().config.IPKernelApp.parent_appname
-        except Exception:
-            pass
-        if not notebook:
-            raise RuntimeError('load_notebook only works inside an '
-                               'IPython notebook, try using force=True.')
 
     from .resources import INLINE
     from .templates import NOTEBOOK_LOAD, RESOURCES
@@ -79,12 +70,24 @@ def load_notebook(resources=None, verbose=False, force=False, skip=False):
         css_info = css_info,
         bokeh_version = __version__,
         warnings = warnings,
-        skip = skip,
+        hide_banner = hide_banner,
     )
     utils.publish_display_data({'text/html': html})
 
-from .settings import settings
-from . import sampledata
+# load the notebook by default but let the door open for customization, also
+# fail silently if IPython is not there.
+resources = settings.notebook_resources()
+verbose = settings.notebook_verbose()
+hide_banner = settings.notebook_hide_banner()
+
+# whether to skip the load_notebook at __init__
+skip_load = settings.notebook_skip_load()
+
+try:
+    if not skip_load:
+        load_notebook(resources=resources, verbose=verbose, hide_banner=hide_banner)
+except ImportError:
+    pass
 
 def _print_versions():
     import platform as pt
