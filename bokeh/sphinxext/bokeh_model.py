@@ -9,6 +9,7 @@ from docutils.statemachine import ViewList
 import jinja2
 
 from sphinx.util.compat import Directive
+from sphinx.util.nodes import nested_parse_with_titles
 
 from bokeh.plot_object import Viewable
 from bokeh.protocol import serialize_json
@@ -18,6 +19,12 @@ MODEL_TEMPLATE = jinja2.Template(u"""
 .. autoclass::  {{ model_path }}
     :members:
     :undoc-members:
+    :show-inheritance:
+
+.. _{{ model_path }}.json:
+
+JSON prototype
+~~~~~~~~~~~~~~
 
 .. code-block:: javascript
 
@@ -67,7 +74,7 @@ class BokehModelDirective(Directive):
             result.append(line, "<bokeh-model>")
         node = nodes.paragraph()
         node.document = self.state.document
-        self.state.nested_parse(result, 0, node)
+        nested_parse_with_titles(self.state, result, node)
         return node.children
 
 def setup(app):

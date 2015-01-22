@@ -5,23 +5,31 @@ import importlib
 from docutils import nodes
 from docutils.statemachine import ViewList
 
+import re
+
 import jinja2
 
 from sphinx.util.compat import Directive
 
 from bokeh.plot_object import Viewable
+import bokeh.properties
 
 
 PROP_TEMPLATE = jinja2.Template(u"""
 .. attribute:: {{ name }}
     :module: {{ module }}
 
-    type: {{ type_info }}
+    property type: {{ type_info }}
 
-{% if doc %}{{ doc|indent(3) }}{% endif %}
+    {% if doc %}{{ doc|indent(4) }}{% endif %}
 
 """)
 
+PROP_NAMES = [
+    name for name, cls in bokeh.properties.__dict__.items()
+    if isinstance(cls, type) and issubclass(cls, bokeh.properties.Property)
+]
+PROP_NAMES.sort(reverse=True, key=len)
 
 class BokehPropDirective(Directive):
 
@@ -49,7 +57,7 @@ class BokehPropDirective(Directive):
 
         prop = getattr(model_obj.__class__, prop_name)
 
-        type_info = "`%s <properties.html#bokeh.properties.%s>`_"  % (str(prop), prop.__class__.__name__)
+        type_info = self._get_type_info(prop)
 
         # This test is not great, but it will do. We only want to
         # individual property attributes docs, not the general doc
@@ -58,7 +66,7 @@ class BokehPropDirective(Directive):
         if len(self.content) > 0 and self.content[0] in prop.__doc__:
             doc = None
         else:
-            doc = "%s\n\n" % "\n\n".join(self.content)
+            doc = "%s\n" % "\n".join(self.content)
 
         rst_text = PROP_TEMPLATE.render(
             name=prop_name,
@@ -74,6 +82,21 @@ class BokehPropDirective(Directive):
         node.document = self.state.document
         self.state.nested_parse(result, 0, node)
         return node.children
+
+    def _get_type_info(self, prop):
+        desc = str(prop)
+        template = ":class:`~bokeh.properties.%s`\ "
+        # some of the property names are substrings of other property names
+        # so first go through greedily replacing the longest possible match
+        # with a unique id (PROP_NAMES is reverse sorted by length)
+        for i, name in enumerate(PROP_NAMES):
+            desc = desc.replace(name, "__ID%d" % i)
+        # now replace the unique id with the corresponding prop name. Go in
+        # reverse to make sure replacements are greedy
+        for i in range(len(PROP_NAMES)-1, 0, -1):
+            name = PROP_NAMES[i]
+            desc = desc.replace("__ID%d" % i, template % name)
+        return desc
 
 def setup(app):
     app.add_directive_to_domain('py', 'bokeh-prop', BokehPropDirective)

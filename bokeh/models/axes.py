@@ -19,7 +19,13 @@ class Axis(GuideRenderer):
     formatter = Instance(TickFormatter)
 
     #: A text label for the axis, displayed parallel to the axis rule
+    #:
+    #:.. note::
+    #:    LaTeX notation is not currently supported; please see
+    #:    `issue 647 <https://github.com/bokeh/bokeh/issues/647>`_ to
+    #:    track progress or contribute.
     axis_label = String
+
     axis_label_standoff = Int
     axis_label_props = Include(TextProps)
 
