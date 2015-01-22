@@ -45,8 +45,7 @@ class Axis(GuideRenderer):
 
     .. note::
         LaTeX notation is not currently supported; please see
-        `issue 647 <https://github.com/bokeh/bokeh/issues/647>`_ to
-        track progress or contribute.
+        :bokeh-issue:`647` to track progress or contribute.
     """)
 
     axis_label_standoff = Int(help="""
