@@ -58,8 +58,11 @@ class Settings(object):
     def notebook_verbose(self, default=None):
         return self._get_bool("NOTEBOOK_VERBOSE", default)
 
-    def notebook_skip(self, default=None):
-        return self._get_bool("NOTEBOOK_SKIP", default)
+    def notebook_hide_banner(self, default=None):
+        return self._get_bool("NOTEBOOK_HIDE_BANNER", default)
+
+    def notebook_skip_load(self, default=None):
+        return self._get_bool("NOTEBOOK_SKIP_LOAD", default)
 
     """
     Server settings go here:

@@ -16,7 +16,7 @@ except ImportError:
 
 _notebook_loaded = None
 
-def load_notebook(resources=None, verbose=False, skip=False):
+def load_notebook(resources=None, verbose=False, hide_banner=False):
     ''' Prepare the IPython notebook for displaying Bokeh plots.
 
     Args:
@@ -25,6 +25,9 @@ def load_notebook(resources=None, verbose=False, skip=False):
 
         verbose (bool, optional) :
             whether to report detailed settings (default: False)
+
+        hide_banner (bool, optional):
+            whether to hide the Bokeh banner (default: False)
 
     Returns:
         None
@@ -67,7 +70,7 @@ def load_notebook(resources=None, verbose=False, skip=False):
         css_info = css_info,
         bokeh_version = __version__,
         warnings = warnings,
-        skip = skip,
+        hide_banner = hide_banner,
     )
     utils.publish_display_data({'text/html': html})
 
@@ -75,9 +78,14 @@ def load_notebook(resources=None, verbose=False, skip=False):
 # fail silently if IPython is not there.
 resources = settings.notebook_resources()
 verbose = settings.notebook_verbose()
-skip = settings.notebook_skip()
+hide_banner = settings.notebook_hide_banner()
+
+# whether to skip the load_notebook at __init__
+skip_load = settings.notebook_skip_load()
+
 try:
-    load_notebook(resources=resources, verbose=verbose, skip=skip)
+    if not skip_load:
+        load_notebook(resources=resources, verbose=verbose, hide_banner=hide_banner)
 except ImportError:
     pass
 
