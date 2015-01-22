@@ -1,10 +1,13 @@
 from __future__ import absolute_import, print_function
 
+import logging
 import warnings
 from . import utils
 from . import sampledata
 from ._version import get_versions
 from .settings import settings
+
+log = logging.getLogger(__name__)
 
 try:
     from .__conda_version__ import conda_version
@@ -87,7 +90,9 @@ try:
     if not skip_load:
         load_notebook(resources=resources, verbose=verbose, hide_banner=hide_banner)
 except ImportError:
-    pass
+    log.debug("You don't have IPython/Jupyter installed.")
+except IOError:
+    log.debug("You don't have the static files available.")
 
 def _print_versions():
     import platform as pt
