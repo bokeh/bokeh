@@ -89,11 +89,14 @@ class BokehPlotDirective(Directive):
             else:
                 app.debug("using existing temp dir for bokeh-plot cache: %s" % env.bokeh_plot_tmpdir)
 
-        target_id = "bokeh-plot-%d" % env.new_serialno('bokeh-plot')
+        # TODO (bev) verify that this is always the correct thing
+        rst_source = self.state_machine.node.document['source']
+        rst_dir = dirname(rst_source)
+        rst_filename = basename(rst_source)
+
+        target_id = "%s.bokeh-plot-%d" % (rst_filename, env.new_serialno('bokeh-plot'))
         target_node = nodes.target('', '', ids=[target_id])
         result = [target_node]
-
-        rst_source = self.state_machine.input_lines.source(self.lineno - self.state_machine.input_offset - 1)
 
         try:
             source = self._get_source()
@@ -108,14 +111,10 @@ class BokehPlotDirective(Directive):
         if source_position == 'above':
             result += self._get_source_nodes(source)
 
-        # TODO (bev) not sure why this is needs, gallery directive does not
-        # work without it, though
-        source_dir = self.state_machine.node.get('source', self.state_machine.node.source)
-
         node = bokeh_plot()
         node['target_id'] = target_id
         node['source'] = source
-        node['relpath'] = dirname(relpath(source_dir, env.srcdir))
+        node['relpath'] = relpath(rst_dir, env.srcdir)
         node['rst_source'] = rst_source
         node['rst_lineno'] = self.lineno
         if 'alt' in self.options:
@@ -217,6 +216,7 @@ def html_visit_bokeh_plot(self, node):
             dest_path = join(dest_dir, filename)
             plot = _render_plot(node['source'], None)
             js, script = autoload_static(plot, CDN, filename)
+            self.builder.app.debug("saving inline plot at: %s" % dest_path)
             with open(dest_path, "w") as f:
                 f.write(js)
 
