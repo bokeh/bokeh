@@ -1,6 +1,7 @@
 from __future__ import print_function
 
 import subprocess
+import sys
 
 def get_version_from_git():
     cmd = ["git", "describe", "--tags", "--always"]
