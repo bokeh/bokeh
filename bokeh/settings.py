@@ -1,5 +1,6 @@
-from os.path import join, dirname, abspath
+import logging
 import os
+from os.path import join, dirname, abspath
 
 class Settings(object):
     _prefix = "BOKEH_"
@@ -43,11 +44,17 @@ class Settings(object):
     def log_level(self, default=None):
         return self._get_str("LOG_LEVEL", default)
 
+    def py_log_level(self, default='info'):
+        level = self._get_str("PY_LOG_LEVEL", default)
+        LEVELS = {'debug': logging.DEBUG,
+                  'info' : logging.INFO,
+                  'warn' : logging.WARNING,
+                  'error': logging.ERROR,
+                  'fatal': logging.CRITICAL}
+        return LEVELS[level]
+
     def pretty(self, default=None):
         return self._get_bool("PRETTY", default)
-
-    def pythonlib(self, default=None):
-        return self._get_str("PYTHONLIB", default)
 
     def simple_ids(self, default=None):
         return self._get_bool("SIMPLE_IDS", default)
