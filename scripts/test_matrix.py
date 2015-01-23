@@ -26,14 +26,16 @@ def get_parser():
                     By default, all envs created will be deleted when the
                     script finishes.  You can elect to keep these environments
                     with the --keep option.
+
+                    Ex: ' python test_matrix.py -v 0.7.1 -p 0.7.0'
                     """), formatter_class=argparse.RawTextHelpFormatter)
 
     parser.add_argument('-p', '--previous', action='store', default=False,
-                        help='previous version of bokeh', required=True)
+                        help='Previous version of bokeh', required=True)
     parser.add_argument('-v', '--version', action='store', default=False,
-                        help='version of bokeh to test', required=True)
+                        help='Version of bokeh to test', required=True)
     parser.add_argument('--keep', action='store_true', default=False,
-                        help="don't delete conda envs created by this script")
+                        help="Don't delete conda envs created by this script")
 
     return parser
 
@@ -172,11 +174,14 @@ if __name__ == '__main__':
     results = {}
     test_failures = []
 
+    # Use this method rather than os.path.expanduser('~/anaconda') to provide
+    # miniconda support
+    root = subprocess.check_output(['conda', 'info', '--root']).rstrip()
+
     for environment in envs:
         results[environment] = {}
-        cleaner(os.path.expanduser('~/anaconda/envs/%s' % environment))
+        cleaner("%s/envs/%s" % (root, environment))
         conda_creator(environment, envs[environment]["init"])
-
 
         results[environment]['install'] = bokeh_installer(environment, envs[environment]["install"])
 
@@ -185,7 +190,7 @@ if __name__ == '__main__':
         results[environment]['test'], failure = run_tests(environment)
 
         if not ops.keep:
-            cleaner(os.path.expanduser('~/anaconda/envs/%s'  % environment))
+            cleaner("%s/envs/%s" % (root, environment))
         if failure:
             test_failures.append(failure)
 
