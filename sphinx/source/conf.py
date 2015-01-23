@@ -33,9 +33,13 @@ extensions = [
     'sphinx.ext.inheritance_diagram',
     'sphinxcontrib.napoleon',
     'sphinxcontrib.autohttp.flask',
+    'bokeh.sphinxext.bokeh_autodoc',
     'bokeh.sphinxext.bokeh_gallery',
+    'bokeh.sphinxext.bokeh_github',
+    'bokeh.sphinxext.bokeh_model',
     'bokeh.sphinxext.bokeh_palette',
     'bokeh.sphinxext.bokeh_plot',
+    'bokeh.sphinxext.bokeh_prop',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -85,7 +89,7 @@ exclude_patterns = ['_build']
 
 # If true, the current module name will be prepended to all description
 # unit titles (such as .. function::).
-#add_module_names = True
+add_module_names = False
 
 # If true, sectionauthor and moduleauthor directives will be shown in the
 # output. They are ignored by default.
