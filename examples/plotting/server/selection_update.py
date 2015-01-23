@@ -47,7 +47,7 @@ lasso_select_tool.select_every_mousemove = False
 
 # create the horizontal histogram
 hhist, hedges = np.histogram(x, bins=20)
-hzeros = [0]*(len(hedges)-1)
+hzeros = np.zeros(len(hedges)-1)
 hmax = max(hhist)*1.1
 
 ph = figure(toolbar_location=None, plot_width=p.plot_width, plot_height=200, x_range=p.x_range, y_range=(-hmax, hmax), title=None, min_border=10, min_border_left=50)
@@ -61,7 +61,7 @@ ph_source2 = ph.select(dict(name="hhist2"))[0].data_source
 
 # create the vertical histogram
 vhist, vedges = np.histogram(y, bins=20)
-vzeros = [0]*(len(vedges)-1)
+vzeros = np.zeros(len(vedges)-1)
 vmax = max(vhist)*1.1
 
 # need to adjust for toolbar height, unfortunately
