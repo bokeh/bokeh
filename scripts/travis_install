@@ -15,7 +15,6 @@ rm -rf $MINICONDA.sh
 python -V
 
 PINNED_PKGS=$(cat <<EOF
-conda <3.8.0
 scipy <0.15.0
 EOF
 )
@@ -26,6 +25,12 @@ conda install --yes $DEPS_TRAVIS
 
 conda config --add channels bokeh
 conda config --add channels mutirri   # TODO: remove when packages are moved to bokeh
+
+echo "---------- conda info ----------"
+conda info
+echo "---------- conda list ----------"
+conda list
+echo "---------- ---------- ----------"
 
 CONDA_PY="${TRAVIS_PYTHON_VERSION/./}" conda build conda.recipe
 conda install --use-local --yes bokeh
