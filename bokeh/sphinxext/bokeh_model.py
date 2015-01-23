@@ -1,9 +1,34 @@
 """ Thoroughly document Bokeh model classes.
 
-The ``:bokeh-model:`` directive will automatically document
+The ``bokeh-model`` directive will automatically document
 all the attributes (including Bokeh properties) of a Bokeh
 model class. A JSON prototype showing all the possible
 JSON fields will also be generated.
+
+Usage
+-----
+
+This directive takes the path to a Bokeh model class as an
+argument::
+
+    .. bokeh-model:: bokeh.sphinxext.sample.Foo
+
+Examples
+--------
+
+For the following definition of ``bokeh.sphinxext.sample.Foo``::
+
+    class Foo(PlotObject):
+        ''' This is a Foo model. '''
+        index = Either(Auto, Enum('abc', 'def', 'xzy'), help="doc for index")
+        value = Tuple(Float, Float, help="doc for value")
+
+
+the above usage yields the output:
+
+----
+
+    .. bokeh-model:: bokeh.sphinxext.sample.Foo
 
 """
 from __future__ import print_function
@@ -27,6 +52,7 @@ MODEL_TEMPLATE = jinja2.Template(u"""
 .. autoclass::  {{ model_path }}
     :members:
     :undoc-members:
+    :exclude-members: get_class
     :show-inheritance:
 
 .. _{{ model_path }}.json:

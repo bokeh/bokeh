@@ -1,9 +1,32 @@
 """ Thoroughly document Bokeh property attributes.
 
-The ``:bokeh-prop:`` directive generates useful type information
+The ``bokeh-prop`` directive generates useful type information
 for the property attribute, including cross links to the relevant
 property types. Additionally, any per-attribute docstrings are
 also displayed.
+
+Usage
+-----
+
+This directive takes the path to an attribute on a Bokeh
+model class as an argument::
+
+    .. bokeh-prop:: bokeh.sphinxext.sample.Bar.thing
+
+Examples
+--------
+
+For the following definition of ``bokeh.sphinxext.sample.Bar``::
+
+    class Bar(PlotObject):
+        ''' This is a Bar model. '''
+        thing = List(Int, help="doc for thing")
+
+the above usage yields the output:
+
+----
+
+    .. bokeh-prop:: bokeh.sphinxext.sample.Bar.thing
 
 """
 from __future__ import print_function

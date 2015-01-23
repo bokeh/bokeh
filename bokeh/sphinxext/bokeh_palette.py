@@ -1,5 +1,10 @@
 """ Generate color representations of all known Bokeh palettes.
 
+Usage
+-----
+
+This directive takes no arguments.
+
 """
 from __future__ import absolute_import
 

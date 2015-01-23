@@ -12,60 +12,51 @@ in their own Sphinx docs.
     :local:
     :depth: 1
 
-.. bokeh.sphinxext.bokeh_autodoc:
+.. _bokeh.sphinxext.bokeh_autodoc:
 
-``bokeh.sphinxext.bokeh_autodoc``
-=================================
+bokeh_autodoc
+=============
 
 .. automodule:: bokeh.sphinxext.bokeh_autodoc
 
-.. bokeh.sphinxext.bokeh_gallery:
+.. _bokeh.sphinxext.bokeh_gallery:
 
-``bokeh.sphinxext.bokeh_gallery``
-=================================
+bokeh_gallery
+=============
 
 .. automodule:: bokeh.sphinxext.bokeh_gallery
 
-.. bokeh.sphinxext.bokeh_github:
+.. _bokeh.sphinxext.bokeh_github:
 
-``bokeh.sphinxext.bokeh_github``
-================================
+bokeh_github
+============
 
 .. automodule:: bokeh.sphinxext.bokeh_github
 
-.. bokeh.sphinxext.bokeh_model:
+.. _bokeh.sphinxext.bokeh_model:
 
-``bokeh.sphinxext.bokeh_model``
-===============================
+bokeh_model
+===========
 
 .. automodule:: bokeh.sphinxext.bokeh_model
 
-.. bokeh.sphinxext.bokeh_palette:
+.. _bokeh.sphinxext.bokeh_palette:
 
-``bokeh.sphinxext.bokeh_palette``
-=================================
+bokeh_palette
+=============
 
 .. automodule:: bokeh.sphinxext.bokeh_palette
 
-.. bokeh.sphinxext.bokeh_plot:
+.. _bokeh.sphinxext.bokeh_plot:
 
-``bokeh.sphinxext.bokeh_plot``
-==============================
+bokeh_plot
+==========
 
 .. automodule:: bokeh.sphinxext.bokeh_plot
 
-.. bokeh.sphinxext.bokeh_prop:
+.. _bokeh.sphinxext.bokeh_prop:
 
-``bokeh.sphinxext.bokeh_prop``
-==============================
+bokeh_prop
+==========
 
 .. automodule:: bokeh.sphinxext.bokeh_prop
-
-.. bokeh.sphinxext.utils.py
-
-``bokeh.sphinxext.utils``
-=========================
-
-.. automodule:: bokeh.sphinxext.utils
-   :members:
-
