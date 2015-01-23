@@ -5,8 +5,8 @@ import numpy as np
 
 from bokeh.models import BoxSelectTool, HBox, LassoSelectTool, Paragraph, VBox
 from bokeh.plotting import (
-        curdoc, cursession, figure, output_server, show, _deduplicate_plots, _push_or_save
-    )
+    curdoc, cursession, figure, output_server, show, _deduplicate_plots, _push_or_save
+)
 
 # TODO (bev): remove these when plotting.py is fixed up to work better
 def hbox(*children, **kwargs):
