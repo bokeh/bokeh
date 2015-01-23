@@ -564,7 +564,6 @@ There are several environment variables that can be useful for developers:
 * ``BOKEH_PY_LOG_LEVEL`` --- The Python logging level to set
     As in the JS side, valid values are, in order of increasing severity:
 
-  - ``trace``
   - ``debug``
   - ``info``
   - ``warn``
