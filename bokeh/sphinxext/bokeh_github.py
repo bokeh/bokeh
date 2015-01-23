@@ -2,6 +2,8 @@
 from docutils import nodes, utils
 from docutils.parsers.rst.roles import set_classes
 
+from six.moves import urllib
+
 BOKEH_GH = "https://github.com/bokeh/bokeh"
 
 def bokeh_commit(name, rawtext, text, lineno, inliner, options={}, content=[]):
@@ -12,7 +14,8 @@ def bokeh_commit(name, rawtext, text, lineno, inliner, options={}, content=[]):
     empty.
 
     """
-    node = make_gh_link_node(rawtext, 'commit', 'commit', text, options)
+    app = inliner.document.settings.env.app
+    node = make_gh_link_node(app, rawtext, 'commit', 'commit', 'commit', text, options)
     return [node], []
 
 def bokeh_issue(name, rawtext, text, lineno, inliner, options={}, content=[]):
@@ -23,6 +26,7 @@ def bokeh_issue(name, rawtext, text, lineno, inliner, options={}, content=[]):
     empty.
 
     """
+    app = inliner.document.settings.env.app
     try:
         issue_num = int(text)
         if issue_num <= 0:
@@ -33,7 +37,7 @@ def bokeh_issue(name, rawtext, text, lineno, inliner, options={}, content=[]):
             '"%s" is invalid.' % text, line=lineno)
         prb = inliner.problematic(rawtext, rawtext, msg)
         return [prb], [msg]
-    node = make_gh_link_node(rawtext, 'issue', 'issues', str(issue_num), options)
+    node = make_gh_link_node(app, rawtext, 'issue', 'issue', 'issues', str(issue_num), options)
     return [node], []
 
 def bokeh_milestone(name, rawtext, text, lineno, inliner, options={}, content=[]):
@@ -44,7 +48,8 @@ def bokeh_milestone(name, rawtext, text, lineno, inliner, options={}, content=[]
     empty.
 
     """
-    node = make_gh_link_node(rawtext, 'milestone', 'milestones', text, options)
+    app = inliner.document.settings.env.app
+    node = make_gh_link_node(app, rawtext, 'milestone', 'milestone', 'milestones', text, options)
     return [node], []
 
 def bokeh_pull(name, rawtext, text, lineno, inliner, options={}, content=[]):
@@ -55,6 +60,7 @@ def bokeh_pull(name, rawtext, text, lineno, inliner, options={}, content=[]):
     empty.
 
     """
+    app = inliner.document.settings.env.app
     try:
         issue_num = int(text)
         if issue_num <= 0:
@@ -65,24 +71,35 @@ def bokeh_pull(name, rawtext, text, lineno, inliner, options={}, content=[]):
             '"%s" is invalid.' % text, line=lineno)
         prb = inliner.problematic(rawtext, rawtext, msg)
         return [prb], [msg]
-    node = make_gh_link_node(rawtext, 'pull request', 'pull', str(issue_num), options)
+    node = make_gh_link_node(app, rawtext, 'pull', 'pull request', 'pull', str(issue_num), options)
     return [node], []
 
-def make_gh_link_node(rawtext, kind, api_type, id, options={}):
+def make_gh_link_node(app, rawtext, role, kind, api_type, id, options={}):
     """ Return a link to a Bokeh Github resource.
 
     Args:
+        app (Sphinx app) : current app
         rawtext (str) : text being replaced with link node.
+        role (str) : role name
         kind (str) : resource type (issue, pull, etc.)
         api_type (str) : type for api link
         id : (str) : id of the resource to link to
         options (dict) : options dictionary passed to role function
 
     """
-    ref = "%s/%s/%s" % (BOKEH_GH, api_type, id)
+    url = "%s/%s/%s" % (BOKEH_GH, api_type, id)
+    request = urllib.request.Request(url)
+    request.get_method = lambda : 'HEAD'
+    try:
+        response = urllib.request.urlopen(request)
+    except urllib.error.HTTPError:
+        app.warn("URL '%s' for :bokeh-%s: role could not be loaded" % (url, role))
+    else:
+        if response.getcode() >= 400:
+            app.warn("URL '%s' for :bokeh-%s: role could not be loaded" % (url, role))
     set_classes(options)
     node = nodes.reference(
-        rawtext, kind + ' ' + utils.unescape(id), refuri=ref, **options)
+        rawtext, kind + ' ' + utils.unescape(id), refuri=url, **options)
     return node
 
 def setup(app):
