@@ -29,7 +29,7 @@ x = np.random.normal(size=N) * 100
 y = np.random.normal(size=N) * 100
 all_inds = np.arange(len(x))
 
-output_server("selection_update")
+output_server("selection_histogram")
 
 TOOLS="pan,wheel_zoom,box_select,lasso_select"
 
