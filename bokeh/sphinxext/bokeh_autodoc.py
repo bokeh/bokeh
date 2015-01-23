@@ -1,8 +1,8 @@
 """ Integrate Bokeh extensions into Sphinx autodoc.
 
-Ensures that autodoc directives such as ``:autoclass:``
-automatically use Bokeh-specific directives (e.g., ``bokeh-prop:``
-and ``:bokeh-model:``) when appropriate.
+Ensures that autodoc directives such as ``:autoclass:`` automatically
+use Bokeh-specific directives (e.g., ``bokeh-prop:`` and ``:bokeh-model:``)
+when appropriate.
 
 """
 from six import class_types
