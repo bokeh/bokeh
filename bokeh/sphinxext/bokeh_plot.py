@@ -80,14 +80,14 @@ class BokehPlotDirective(Directive):
 
         if not hasattr(env, 'bokeh_plot_tmpdir'):
             env.bokeh_plot_tmpdir = mkdtemp()
-            app.debug("creating new temp dir for bokeh-plot cache: %s" % env.bokeh_plot_tmpdir)
+            app.verbose("creating new temp dir for bokeh-plot cache: %s" % env.bokeh_plot_tmpdir)
         else:
             tmpdir = env.bokeh_plot_tmpdir
             if not exists(tmpdir) or not isdir(tmpdir):
-                app.debug("creating new temp dir for bokeh-plot cache: %s" % env.bokeh_plot_tmpdir)
+                app.verbose("creating new temp dir for bokeh-plot cache: %s" % env.bokeh_plot_tmpdir)
                 env.bokeh_plot_tmpdir = mkdtemp()
             else:
-                app.debug("using existing temp dir for bokeh-plot cache: %s" % env.bokeh_plot_tmpdir)
+                app.verbose("using existing temp dir for bokeh-plot cache: %s" % env.bokeh_plot_tmpdir)
 
         # TODO (bev) verify that this is always the correct thing
         rst_source = self.state_machine.node.document['source']
@@ -198,7 +198,7 @@ def html_visit_bokeh_plot(self, node):
             cached_path = join(tmpdir, filename)
 
             if out_of_date(path, cached_path) or not exists(cached_path+".script"):
-                self.builder.app.debug("generating new plot for '%s'" % path)
+                self.builder.app.verbose("generating new plot for '%s'" % path)
                 plot = _render_plot(node['source'], node.get('symbol'))
                 js, script = autoload_static(plot, CDN, filename)
                 with open(cached_path, "w") as f:
@@ -206,7 +206,7 @@ def html_visit_bokeh_plot(self, node):
                 with open(cached_path+".script", "w") as f:
                     f.write(script)
             else:
-                self.builder.app.debug("using cached plot for '%s'" % path)
+                self.builder.app.verbose("using cached plot for '%s'" % path)
                 script = open(cached_path+".script", "r").read()
 
             if not exists(dest_dir): makedirs(dest_dir)
@@ -216,7 +216,7 @@ def html_visit_bokeh_plot(self, node):
             dest_path = join(dest_dir, filename)
             plot = _render_plot(node['source'], None)
             js, script = autoload_static(plot, CDN, filename)
-            self.builder.app.debug("saving inline plot at: %s" % dest_path)
+            self.builder.app.verbose("saving inline plot at: %s" % dest_path)
             with open(dest_path, "w") as f:
                 f.write(js)
 
