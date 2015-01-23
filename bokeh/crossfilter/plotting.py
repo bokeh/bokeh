@@ -7,13 +7,17 @@ from ..plotting_helpers import _get_select_tool
 
 
 def cross(start, facets):
-    """
-    A cross product of an initial set of starting facets with a new set of facets, producing a unique combination of
-    all types of facets.
+    """Creates a unique combination of provided facets.
+    A cross product of an initial set of starting facets with a new set of
+    facets.
 
-    :param start: List of lists of facets
-    :param facets: List of facets
-    :return: list of lists of combination of facets
+    Args:
+      start (list): List of lists of facets
+      facets (list): List of facets
+
+    Returns:
+      list: a list of lists of unique combinations of facets
+
     """
     new = [[facet] for facet in facets]
     result = []
@@ -24,12 +28,14 @@ def cross(start, facets):
 
 
 def make_histogram_source(series):
-    """
-    Converts a continuous series of data into a ColumnDataSource that represents the bins of the series.
+    """Creates a ColumnDataSource containing the bins of the input series.
 
-    :param series: pandas series of continuous data
-    :return: ColumnDataSource with the centers of the histogram bins, corresponding to the count of items in the
-    associated bin.
+    Args:
+      series (:py:class:`~pandas.Series`): description
+
+    Returns:
+      ColumnDataSource: includes bin centers with count of items in the bins
+
     """
     counts, bins = np.histogram(series, bins=50)
     centers = pd.rolling_mean(bins, 2)[1:]
@@ -38,14 +44,17 @@ def make_histogram_source(series):
 
 
 def make_continuous_bar_source(df, x_field, y_field, agg):
-    """
-    Creates a new data source that represents the bars to be plotted after converting continuous data to discrete.
+    """Makes discrete, then creates representation of the bars to be plotted.
 
-    :param df: pandas DataFrame
-    :param x_field: the column in df that maps to the x dimension of the plot, as a string
-    :param y_field: the column in the df that maps to the y dimension of the plot, as a string
-    :param agg: the type aggregation to be used, as a string
-    :return: ColumnDataSource based on the df columns, but aggregated based on the type requested
+    Args:
+      df (DataFrame): contains the data to be converted to a discrete form
+      x_field (str): the column in df that maps to the x dim of the plot
+      y_field (str):  the column in df that maps to the y dim of the plot
+      agg (str): the type of aggregation to be used
+
+    Returns:
+      ColumnDataSource: aggregated, discrete form of x,y values
+
     """
 
     # Generate dataframe required to use the categorical bar source function
@@ -54,21 +63,22 @@ def make_continuous_bar_source(df, x_field, y_field, agg):
     labels = centers[labels]
     df[x_field] = labels
 
+    # After making it discrete, create the categorical bar source
     return make_categorical_bar_source(df, x_field, y_field, agg)
 
 
 def make_categorical_bar_source(df, x_field, y_field, agg):
-    """
-    Creates a new data source that represents the bars to be plotted.
-    This is based on the existing configuration for the data structure being plotted, name of the columns that maps to
-    the x and y fields, and the type of aggregation that is currently configured. The type of aggregation is what
-    determines the values of the bars.
+    """Creates representation of the bars to be plotted.
 
-    :param df: pandas DataFrame
-    :param x_field: the column in df that maps to the x dimension of the plot, as a string
-    :param y_field: the column in the df that maps to the y dimension of the plot, as a string
-    :param agg: the type aggregation to be used, as a string
-    :return: ColumnDataSource based on the df columns, but aggregated based on the type requested
+    Args:
+      df (DataFrame): contains the data to be converted to a discrete form
+      x_field (str): the column in df that maps to the x dim of the plot
+      y_field (str):  the column in df that maps to the y dim of the plot
+      agg (str): the type of aggregation to be used
+
+    Returns:
+      ColumnDataSource: aggregated, discrete form of x,y values
+
     """
 
     # Get the y values after grouping by the x values
@@ -82,11 +92,14 @@ def make_categorical_bar_source(df, x_field, y_field, agg):
 
 
 def make_factor_source(series):
-    """
-    Generate data source that is based on the unique values in the series.
+    """Generate data source that is based on the unique values in the series.
 
-    :param series: pandas series object
-    :return: ColumnDataSource with unique values of the series
+    Args:
+      series (:py:class:`~pandas.Series`): contains categorical-like data
+
+    Returns:
+      ColumnDataSource: contains the unique values from the series
+
     """
     return ColumnDataSource(data={'factors': series.unique()})
 
@@ -98,29 +111,35 @@ def make_bar_plot(datasource, counts_name="counts",
                   plot_width=500, plot_height=500,
                   tools="pan,wheel_zoom,box_zoom,save,resize,box_select,reset",
                   title_text_font_size="12pt"):
-    """
-    Utility function to set/calculate default parameters of a bar plot for the datasource.
+    """Utility function to set/calculate default parameters of a bar plot.
 
-    :param datasource: ColumnDataSource of the data to plot
-    :param counts_name: the column in datasource that corresponds to height of the bars
-    :param centers_name: the column in the datasource that corresponds to the location of the bars
-    :param bar_width: the width of the bars in the bar plot as a float/int
-    :param x_range: list of two values, the min and max of the x axis range
-    :param plot_width: value for the width of the plot in pixels
-    :param plot_height: value for the height of the plot in pixels
-    :param tools: string of comma separated tool names to add to the plot
-    :param title_text_font_size: string of size of the plot title, e.g., '12pt'
-    :return: Figure generated from the provided parameters
-    """
+    Args:
+      datasource (ColumnDataSource): represents bars to plot
+      counts_name (str): column corresponding to height of the bars
+      centers_name (str): column corresponding to the location of the bars
+      bar_width (float): the width of the bars in the bar plot
+      x_range (list): list of two values, the min and max of the x axis range
+      plot_width (float): width of the plot in pixels
+      plot_height (float): height of the plot in pixels
+      tools (str): comma separated tool names to add to the plot
+      title_text_font_size (str): size of the plot title, e.g., '12pt'
 
+    Returns:
+      figure: plot generated from the provided parameters
+
+    """
     top = np.max(datasource.data[counts_name])
 
+    # Create the figure container
     plot = figure(
         title="", title_text_font_size=title_text_font_size,
         plot_width=plot_width, plot_height=plot_height,
         x_range=x_range, y_range=[0, top], tools=tools)
 
+    # Get the bar values
     y = [val/2.0 for val in datasource.data[counts_name]]
+
+    # Generate the bars in the figure
     plot.rect(centers_name, y, bar_width, counts_name, source=datasource)
 
     plot.min_border = 0
@@ -133,7 +152,6 @@ def make_bar_plot(datasource, counts_name="counts",
 
     return plot
 
-
 def make_histogram(datasource,
                    counts_name="counts",
                    centers_name="centers",
@@ -144,7 +162,27 @@ def make_histogram(datasource,
                    min_border=40,
                    tools=None,
                    title_text_font_size="12pt"):
+    """Utility function to create a histogram figure.
 
+    This is used to create the filter widgets for continuous data in
+    CrossFilter.
+
+    Args:
+      datasource (ColumnDataSource): represents bars to plot
+      counts_name (str): column corresponding to height of the bars
+      centers_name (str): column corresponding to the location of the bars
+      x_range (list): list of two values, the min and max of the x axis range
+      bar_width (float): the width of the bars in the bar plot
+      plot_width (float): width of the plot in pixels
+      plot_height (float): height of the plot in pixels
+      min_border (float): minimum border width of figure in pixels
+      tools (str): comma separated tool names to add to the plot
+      title_text_font_size (str): size of the plot title, e.g., '12pt'
+
+    Returns:
+      figure: histogram plot generated from the provided parameters
+
+    """
     start = np.min(datasource.data[centers_name]) - bar_width
     end = np.max(datasource.data[centers_name]) - bar_width
     plot = make_bar_plot(
