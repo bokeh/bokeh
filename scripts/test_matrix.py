@@ -5,28 +5,35 @@ import subprocess
 import sys
 import textwrap
 
-# preversion = 0.6
-
 
 def get_parser():
     """Create the parser that will be used to add arguments to the script.
     """
 
     parser = argparse.ArgumentParser(description=textwrap.dedent("""
-                    Creates and runs tests on environments for a given version of bokeh installed using pip and
+                    Creates and runs tests on conda environments for a given
+                    version of bokeh installed using pip and
                     conda and including python 2.7 and python 3.4.
 
-                    The --previous ('-p') option takes an earlier version of bokeh to test against, and for use
+                    The --previous ('-p') option takes an earlier version of
+                    bokeh to test against, and for use
                     in creating environments where bokeh will be updated.
 
-                    The --version (-v) option takes the latest version of bokeh to test against in enviornments
+                    The --version (-v) option takes the latest version of bokeh
+                    to test against in enviornments
                     in which bokeh is updated.
+
+                    By default, all envs created will be deleted when the
+                    script finishes.  You can elect to keep these environments
+                    with the --keep option.
                     """), formatter_class=argparse.RawTextHelpFormatter)
 
     parser.add_argument('-p', '--previous', action='store', default=False,
-                        help="previous version of bokeh", required=True)
+                        help='previous version of bokeh', required=True)
     parser.add_argument('-v', '--version', action='store', default=False,
-                        help="version of bokeh to test", required=True)
+                        help='version of bokeh to test', required=True)
+    parser.add_argument('--keep', action='store_true', default=False,
+                        help="don't delete conda envs created by this script")
 
     return parser
 
@@ -123,9 +130,9 @@ def logger(failure_list):
 if __name__ == '__main__':
 
     parser = get_parser()
-    results = parser.parse_args()
-    preversion = results.previous
-    current_version = results.version
+    ops = parser.parse_args()
+    preversion = ops.previous
+    current_version = ops.version
 
     envs = {
         "py27_conda_clean"    : {
@@ -162,13 +169,11 @@ if __name__ == '__main__':
             }
     }
 
-
     results = {}
     test_failures = []
 
     for environment in envs:
         results[environment] = {}
-        # It needs to clean up after itself AFTERWARDS, too.
         cleaner(os.path.expanduser('~/anaconda/envs/%s' % environment))
         conda_creator(environment, envs[environment]["init"])
 
@@ -178,8 +183,9 @@ if __name__ == '__main__':
         results[environment]['version'] = version_check(environment, current_version)
 
         results[environment]['test'], failure = run_tests(environment)
-        # reproducing line 221.  Better way?
-        cleaner(os.path.expanduser('~/anaconda/envs/%s'  % environment))
+
+        if not ops.keep:
+            cleaner(os.path.expanduser('~/anaconda/envs/%s'  % environment))
         if failure:
             test_failures.append(failure)
 
