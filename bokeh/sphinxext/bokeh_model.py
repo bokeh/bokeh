@@ -1,3 +1,11 @@
+""" Thoroughly document Bokeh model classes.
+
+The ``:bokeh-model:`` directive will automatically document
+all the attributes (including Bokeh properties) of a Bokeh
+model class. A JSON prototype showing all the possible
+JSON fields will also be generated.
+
+"""
 from __future__ import print_function
 
 import importlib
