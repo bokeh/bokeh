@@ -1,4 +1,7 @@
+""" Functions useful to directives and roles contained in
+the ``bokeh.sphinxext`` package.
 
+"""
 import os
 from os.path import exists
 

@@ -16,6 +16,7 @@ Properties System
 
 .. automodule:: bokeh.properties
     :members:
+    :undoc-members:
 
 .. _bokeh_dot_mixins:
 

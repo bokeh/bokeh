@@ -1,4 +1,4 @@
-"""
+""" Generate a gallery of Bokeh plots from a configuration file.
 
 """
 from __future__ import absolute_import

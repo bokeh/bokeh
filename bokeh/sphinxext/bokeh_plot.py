@@ -1,11 +1,81 @@
-"""
+""" Include Bokeh plots in Sphinx HTML documentation.
+
+For other output types, the placeholder text ``[graph]`` will
+be generated.
+
+Usage
+-----
+
+The ``bokeh-plot`` directive can be used by either supplying:
+
+1. **A path to a source file** as the argument to the directive::
+
+    .. bokeh-plot:: path/to/plot.py
+
+
+2. **Inline code** as the content of the directive::
+
+    .. bokeh-plot::
+
+        from bokeh.plotting import figure, output_file, show
+
+        output_file("example.html")
+
+        x = [1, 2, 3, 4, 5]
+        y = [6, 7, 6, 4, 5]
+
+        p = figure(title="example", plot_width=300, plot_height=300)
+        p.line(x, y, line_width=2)
+        p.circle(x, y, size=10, fill_color="white")
+
+        show(p)
+
+This directive also works in conjunction with Sphinx autodoc, when
+used in docstrings.
+
+Options
+-------
+
+The ``bokeh-plot`` directive accepts the following options:
+
+source-position : enum('above', 'below', 'none')
+    Where to locate the the block of formatted source
+    code (if anywhere).
+
+linenos : bool
+    Whether to display line numbers along with the source.
+
+emphasize-lines : list[int]
+    A list of source code lines to emphasize.
+
+Examples
+--------
+
+The inline example code above produces the following output:
+
+----
+
+.. bokeh-plot::
+
+    from bokeh.plotting import figure, output_file, show
+
+    output_file("example.html")
+
+    x = [1, 2, 3, 4, 5]
+    y = [6, 7, 6, 4, 5]
+
+    p = figure(title="example", plot_width=300, plot_height=300)
+    p.line(x, y, line_width=2)
+    p.circle(x, y, size=10, fill_color="white")
+
+    show(p)
 
 """
 from __future__ import absolute_import
 
 import hashlib
 from os import makedirs
-from os.path import dirname, exists, isdir, join, relpath
+from os.path import basename, dirname, exists, isdir, join, relpath
 import re
 from shutil import copy
 import sys
@@ -64,7 +134,6 @@ class BokehPlotDirective(Directive):
     optional_arguments = 2
 
     option_spec = {
-        'basedir'         : path,
         'source-position' : _source_position,
         'linenos'         : flag,
         'emphasize-lines' : unchanged,
@@ -80,20 +149,23 @@ class BokehPlotDirective(Directive):
 
         if not hasattr(env, 'bokeh_plot_tmpdir'):
             env.bokeh_plot_tmpdir = mkdtemp()
-            app.debug("creating new temp dir for bokeh-plot cache: %s" % env.bokeh_plot_tmpdir)
+            app.verbose("creating new temp dir for bokeh-plot cache: %s" % env.bokeh_plot_tmpdir)
         else:
             tmpdir = env.bokeh_plot_tmpdir
             if not exists(tmpdir) or not isdir(tmpdir):
-                app.debug("creating new temp dir for bokeh-plot cache: %s" % env.bokeh_plot_tmpdir)
+                app.verbose("creating new temp dir for bokeh-plot cache: %s" % env.bokeh_plot_tmpdir)
                 env.bokeh_plot_tmpdir = mkdtemp()
             else:
-                app.debug("using existing temp dir for bokeh-plot cache: %s" % env.bokeh_plot_tmpdir)
+                app.verbose("using existing temp dir for bokeh-plot cache: %s" % env.bokeh_plot_tmpdir)
 
-        target_id = "bokeh-plot-%d" % env.new_serialno('bokeh-plot')
+        # TODO (bev) verify that this is always the correct thing
+        rst_source = self.state_machine.node.document['source']
+        rst_dir = dirname(rst_source)
+        rst_filename = basename(rst_source)
+
+        target_id = "%s.bokeh-plot-%d" % (rst_filename, env.new_serialno('bokeh-plot'))
         target_node = nodes.target('', '', ids=[target_id])
         result = [target_node]
-
-        rst_source = self.state_machine.input_lines.source(self.lineno - self.state_machine.input_offset - 1)
 
         try:
             source = self._get_source()
@@ -108,14 +180,10 @@ class BokehPlotDirective(Directive):
         if source_position == 'above':
             result += self._get_source_nodes(source)
 
-        # TODO (bev) not sure why this is needs, gallery directive does not
-        # work without it, though
-        source_dir = self.state_machine.node.get('source', self.state_machine.node.source)
-
         node = bokeh_plot()
         node['target_id'] = target_id
         node['source'] = source
-        node['relpath'] = dirname(relpath(source_dir, env.srcdir))
+        node['relpath'] = relpath(rst_dir, env.srcdir)
         node['rst_source'] = rst_source
         node['rst_lineno'] = self.lineno
         if 'alt' in self.options:
@@ -199,7 +267,7 @@ def html_visit_bokeh_plot(self, node):
             cached_path = join(tmpdir, filename)
 
             if out_of_date(path, cached_path) or not exists(cached_path+".script"):
-                self.builder.debug("generating new plot for '%s'" % path)
+                self.builder.app.verbose("generating new plot for '%s'" % path)
                 plot = _render_plot(node['source'], node.get('symbol'))
                 js, script = autoload_static(plot, CDN, filename)
                 with open(cached_path, "w") as f:
@@ -207,7 +275,7 @@ def html_visit_bokeh_plot(self, node):
                 with open(cached_path+".script", "w") as f:
                     f.write(script)
             else:
-                self.builder.debug("using cached plot for '%s'" % path)
+                self.builder.app.verbose("using cached plot for '%s'" % path)
                 script = open(cached_path+".script", "r").read()
 
             if not exists(dest_dir): makedirs(dest_dir)
@@ -217,6 +285,7 @@ def html_visit_bokeh_plot(self, node):
             dest_path = join(dest_dir, filename)
             plot = _render_plot(node['source'], None)
             js, script = autoload_static(plot, CDN, filename)
+            self.builder.app.verbose("saving inline plot at: %s" % dest_path)
             with open(dest_path, "w") as f:
                 f.write(js)
 
