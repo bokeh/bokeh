@@ -119,7 +119,7 @@ def make_gh_link_node(app, rawtext, role, kind, api_type, id, options={}):
     request = urllib.request.Request(url)
     request.get_method = lambda : 'HEAD'
     try:
-        response = urllib.request.urlopen(request)
+        response = urllib.request.urlopen(request, timeout=5)
     except urllib.error.HTTPError:
         app.warn("URL '%s' for :bokeh-%s: role could not be loaded" % (url, role))
     else:
