@@ -1,4 +1,4 @@
-"""
+""" Generate color representations of all known Bokeh palettes.
 
 """
 from __future__ import absolute_import

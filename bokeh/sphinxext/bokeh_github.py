@@ -1,4 +1,32 @@
+""" Simplify linking to Bokeh Github resources.
 
+This module proved four new roles that can be uses to easily link
+to various resources in the Bokeh Github repository:
+
+``:bokeh-commit:`` : link to a specific commit
+
+``:bokeh-issue:`` : link to an issue
+
+``:bokeh-milestone:`` : link to a milestone page
+
+``:bokeh-pull:`` : link to a pull request
+
+Examples
+--------
+
+The following code::
+
+    The repo history shows that :bokeh-commit:`bf19bcb` was made in
+    in :bokeh-pull:`1698`,which closed :bokeh-issue:`1694` as part of
+    :bokeh-milestone:`0.8`.
+
+yields the output:
+
+The repo history shows that :bokeh-commit:`bf19bcb` was made in
+in :bokeh-pull:`1698`,which closed :bokeh-issue:`1694` as part of
+:bokeh-milestone:`0.8`.
+
+"""
 from docutils import nodes, utils
 from docutils.parsers.rst.roles import set_classes
 

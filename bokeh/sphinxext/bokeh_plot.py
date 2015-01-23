@@ -1,4 +1,62 @@
-"""
+""" Include Bokeh plots in Sphinx HTML documentation.
+
+For other output types, the placeholder text ``[graph]`` will
+be generated.
+
+Usage
+-----
+
+The ``bokeh-plot`` directive can be used by either supplying:
+
+1. **A path to a source file** as the argument to the directive::
+
+    .. bokeh-plot:: path/to/plot.py
+
+
+2. **Inline code** as the content of the directive::
+
+    .. bokeh-plot::
+
+        from bokeh.plotting import figure, output_file, show
+
+        output_file("example.html")
+
+        p = figure(title="example", plot_width=300, plot_height=300)
+        p.circle([1, 2, 3, 4, 5], [6, 7, 6, 4, 5], size=8)
+
+        show(p)
+
+
+Options
+-------
+
+The ``bokeh-plot`` directive accepts the following options:
+
+source-position : enum('above', 'below', 'none')
+    Where to locate the the block of formatted source
+    code (if anywhere).
+
+linenos : bool
+    Whether to display line numbers along with the source.
+
+emphasize-lines : list[int]
+    A list of source code lines to emphasize.
+
+Examples
+--------
+
+The inline example code above produces the following output:
+
+.. bokeh-plot::
+
+    from bokeh.plotting import figure, output_file, show
+
+    output_file("example.html")
+
+    p = figure(title="example", plot_width=300, plot_height=300)
+    p.circle([1, 2, 3, 4, 5], [6, 7, 6, 4, 5], size=8)
+
+    show(p)
 
 """
 from __future__ import absolute_import
@@ -64,7 +122,6 @@ class BokehPlotDirective(Directive):
     optional_arguments = 2
 
     option_spec = {
-        'basedir'         : path,
         'source-position' : _source_position,
         'linenos'         : flag,
         'emphasize-lines' : unchanged,

@@ -1,3 +1,11 @@
+""" Thoroughly document Bokeh property attributes.
+
+The ``:bokeh-prop:`` directive generates useful type information
+for the property attribute, including cross links to the relevant
+property types. Additionally, any per-attribute docstrings are
+also displayed.
+
+"""
 from __future__ import print_function
 
 import importlib
