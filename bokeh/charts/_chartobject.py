@@ -636,7 +636,7 @@ class Builder(object):
         self.chart.make_rect(source_legend, "groups", None, None, None,
                                  color, "black", None)
 
-        def make_segment(self, source, x0, y0, x1, y1, color, width):
+    def make_segment(self, source, x0, y0, x1, y1, color, width):
         """ Create a segment glyph and append it to the plot.renderers list.
 
         Args:
