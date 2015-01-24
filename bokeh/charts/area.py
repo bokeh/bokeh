@@ -190,7 +190,7 @@ class AreaBuilder(Builder):
 
         If they were not used, it assign the init parameters content by default.
         """
-        super(Area, self).check_attr()
+        super(AreaBuilder, self).check_attr()
 
         # add specific chained method
         if not hasattr(self, '_stacked'):
