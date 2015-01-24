@@ -181,8 +181,8 @@ class Chart(Plot):
             xgrid(bool): whether to show the xgrid
             ygrid(bool): whether to shoe the ygrid
         """
-        # self.create_axes()
-        # self.create_grids(self._xgrid, self._ygrid)
+        self.create_axes()
+        self.create_grids(self._xgrid, self._ygrid)
 
         # Add tools if supposed to
         if self._enabled_tools:
