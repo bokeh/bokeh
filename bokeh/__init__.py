@@ -90,8 +90,16 @@ hide_banner = settings.notebook_hide_banner()
 # whether to skip the load_notebook at __init__
 skip_load = settings.notebook_skip_load()
 
+# detect if we are in a IPython instance
 try:
-    if not skip_load:
+    ip = get_ipython()
+except NameError:
+    ip = None
+    log.debug("You are not inside an IPython/Jupyter instance.")
+
+# load the notebook resources
+try:
+    if ip and not skip_load:
         load_notebook(resources=resources, verbose=verbose, hide_banner=hide_banner)
 except ImportError:
     log.debug("You don't have IPython/Jupyter installed.")
