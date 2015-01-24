@@ -262,7 +262,7 @@ class AreaBuilder(Builder):
         # parse all series. We exclude the first attr as it's the x values
         # added for the index
         for i, series_name in enumerate(self.attr[1:]):
-            self.chart.make_patch(self.source, 'x', series_name, colors[i])
+            self.make_patch(self.source, 'x', series_name, colors[i])
 
             if i < len(self.attr[1:]) - 1:
                 self.create_plot_if_facet()
