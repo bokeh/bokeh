@@ -636,6 +636,209 @@ class Builder(object):
         self.chart.make_rect(source_legend, "groups", None, None, None,
                                  color, "black", None)
 
+        def make_segment(self, source, x0, y0, x1, y1, color, width):
+        """ Create a segment glyph and append it to the plot.renderers list.
+
+        Args:
+            source (obj): datasource object containing segment refereces.
+            x0 (str or list[float]) : values or field names of starting ``x`` coordinates
+            y0 (str or list[float]) : values or field names of starting ``y`` coordinates
+            x1 (str or list[float]) : values or field names of ending ``x`` coordinates
+            y1 (str or list[float]) : values or field names of ending ``y`` coordinates
+            color (str): the segment color
+            width (int): the segment width
+
+        Return:
+            segment: Segment instance
+        """
+        segment = Segment(
+            x0=x0, y0=y0, x1=x1, y1=y1, line_color=color, line_width=width
+        )
+
+        self._append_glyph(source, segment)
+
+        return segment
+
+    def make_line(self, source, x, y, color):
+        """Create a line glyph and append it to the plot.renderers list.
+
+        Args:
+            source (obj): datasource object containing line refereces.
+            x (str or list[float]) : values or field names of line ``x`` coordinates
+            y (str or list[float]) : values or field names of line ``y`` coordinates
+            color (str): the line color
+
+        Return:
+            line: Line instance
+        """
+        line = Line(x=x, y=y, line_color=color)
+
+        self._append_glyph(source, line)
+
+        return line
+
+    def make_quad(self, source, top, bottom, left, right, color, line_color):
+        """Create a quad glyph and append it to the plot.renderers list.
+
+        Args:
+            source (obj): datasource object containing quad refereces.
+            left (str or list[float]) : values or field names of left edges
+            right (str or list[float]) : values or field names of right edges
+            top (str or list[float]) : values or field names of top edges
+            bottom (str or list[float]) : values or field names of bottom edges
+            color (str): the fill color
+            line_color (str): the line color
+
+        Return:
+            quad: Quad instance
+        """
+        quad = Quad(
+            top=top, bottom=bottom, left=left, right=right, fill_color=color,
+            fill_alpha=0.7, line_color=line_color, line_alpha=1.0
+        )
+
+        self._append_glyph(source, quad)
+
+        return quad
+
+    def make_rect(self, source, x, y, width, height, color, line_color, line_width):
+        """Create a rect glyph and append it to the renderers list.
+
+        Args:
+            source (obj): datasource object containing rect refereces.
+            x (str or list[float]) : values or field names of center ``x`` coordinates
+            y (str or list[float]) : values or field names of center ``y`` coordinates
+            width (str or list[float]) : values or field names of widths
+            height (str or list[float]) : values or field names of heights
+            color (str): the fill color
+            line_color (str): the line color
+            line_width (int): the line width
+
+        Return:
+            rect: Rect instance
+        """
+        rect = Rect(
+            x=x, y=y, width=width, height=height, fill_color=color,
+            fill_alpha=0.7, line_color=line_color, line_alpha=1.0,
+            line_width=line_width
+        )
+        self._append_glyph(source, rect)
+
+        return rect
+
+    def make_patch(self, source, x, y, color):
+        """Create a patch glyph and append it to the renderers list.
+
+        Args:
+            source (obj): datasource object containing rect refereces.
+            x (str or list[float]) : values or field names of center ``x`` coordinates
+            y (str or list[float]) : values or field names of center ``y`` coordinates
+            color (str): the fill color
+
+        Return:
+            patch: Patch instance
+        """
+        patch = Patch(x=x, y=y, fill_color=color, fill_alpha=0.9)
+        self._append_glyph(source, patch)
+        return patch
+
+    def make_wedge(self, source, **kws):
+        """Create a wedge glyph and append it to the renderers list.
+
+        Args:
+            source (obj): datasource object containing rect references.
+            **kws (refer to glyphs.Wedge for arguments specification details)
+
+        Return:
+            glyph: Wedge instance
+        """
+        glyph = Wedge(**kws)
+        self._append_glyph(source, glyph)
+        return glyph
+
+    def make_annular(self, source, **kws):
+        """Create a annular wedge glyph and append it to the renderers list.
+
+        Args:
+            source (obj): datasource object containing rect refereces.
+            **kws (refer to glyphs.AnnularWedge for arguments specification details)
+
+        Return:
+            rect: AnnularWedge instance
+        """
+        glyph = AnnularWedge(**kws)
+        self._append_glyph(source, glyph)
+        return glyph
+
+    def make_text(self, source, **kws):
+        """Create a text glyph and append it to the renderers list.
+
+        Args:
+            source (obj): datasource object containing rect references.
+            **kws (refer to glyphs.Text for arguments specification details)
+
+        Return:
+            glyph: Text instance
+        """
+        glyph = Text(**kws)
+        self._append_glyph(source, glyph)
+        return glyph
+
+    def make_scatter(self, source, x, y, markertype, color, line_color=None,
+                     size=10, fill_alpha=0.2, line_alpha=1.0):
+        """Create a marker glyph and appends it to the renderers list.
+
+        Args:
+            source (obj): datasource object containing markers references.
+            x (str or list[float]) : values or field names of line ``x`` coordinates
+            y (str or list[float]) : values or field names of line ``y`` coordinates
+            markertype (int or str): Marker type to use (e.g., 2, 'circle', etc.)
+            color (str): color of the points
+            size (int) : size of the scatter marker
+            fill_alpha(float) : alpha value of the fill color
+            line_alpha(float) : alpha value of the line color
+
+        Return:
+            scatter: Marker Glyph instance
+        """
+        if line_color is None:
+            line_color = color
+
+        _marker_types = OrderedDict(
+            [
+                ("circle", Circle),
+                ("square", Square),
+                ("triangle", Triangle),
+                ("diamond", Diamond),
+                ("inverted_triangle", InvertedTriangle),
+                ("asterisk", Asterisk),
+                ("cross", Cross),
+                ("x", X),
+                ("circle_cross", CircleCross),
+                ("circle_x", CircleX),
+                ("square_x", SquareX),
+                ("square_cross", SquareCross),
+                ("diamond_cross", DiamondCross),
+            ]
+        )
+
+        g = itertools.cycle(_marker_types.keys())
+        if isinstance(markertype, int):
+            for i in range(markertype):
+                shape = next(g)
+        else:
+            shape = markertype
+        scatter = _marker_types[shape](
+            x=x, y=y, size=size, fill_color=color, fill_alpha=fill_alpha,
+            line_color=line_color, line_alpha=line_alpha
+        )
+
+        self._append_glyph(source, scatter)
+
+        return scatter
+
+
+
 
 class ChartObject(object):
     """A prototype class to inherit each new chart type.
