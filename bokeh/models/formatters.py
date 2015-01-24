@@ -26,9 +26,9 @@ class BasicTickFormatter(TickFormatter):
     """)
 
     use_scientific = Bool(True, help="""
-    Whether to ever display scientific notation. If ``True`, t when to
-    use scientific notation is controlled by ``power_limit_low`` and
-    ``power_limit_high``.
+    Whether to ever display scientific notation. If ``True``, then
+    when to use scientific notation is controlled by ``power_limit_low``
+    and ``power_limit_high``.
     """)
 
     power_limit_high = Int(5, help="""
