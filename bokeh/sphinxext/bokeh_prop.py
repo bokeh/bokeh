@@ -42,6 +42,7 @@ import textwrap
 import jinja2
 
 from sphinx.util.compat import Directive
+from sphinx.util.nodes import nested_parse_with_titles
 
 from bokeh.plot_object import Viewable
 import bokeh.properties
@@ -51,7 +52,7 @@ PROP_TEMPLATE = jinja2.Template(u"""
 .. attribute:: {{ name }}
     :module: {{ module }}
 
-    property type: {{ type_info }}
+    *property type:* {{ type_info }}
 
     {% if doc %}{{ doc|indent(4) }}{% endif %}
 
@@ -103,7 +104,7 @@ class BokehPropDirective(Directive):
             result.append(line, "<bokeh-prop>")
         node = nodes.paragraph()
         node.document = self.state.document
-        self.state.nested_parse(result, 0, node)
+        nested_parse_with_titles(self.state, result, node)
         return node.children
 
     def _get_type_info(self, prop):
