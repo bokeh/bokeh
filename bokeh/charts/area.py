@@ -34,10 +34,10 @@ from ..models import ColumnDataSource, Range1d, DataRange1d
 # Classes and functions
 #-----------------------------------------------------------------------------
 
-def Area(**kw):
+def Area(values, index=None, **kw):
 
     # create a Histogram builder
-    builder = AreaBuilder(**kw)
+    builder = AreaBuilder(values, index=None, **kw)
 
     # create a chart to return, since there isn't one already
     chart = Chart(**kw)
@@ -167,7 +167,7 @@ class AreaBuilder(Builder):
         self.attr = []
         self.index = index
 
-        super(Area, self).__init__(
+        super(AreaBuilder, self).__init__(
             title, xlabel, ylabel, legend, xscale, yscale, width, height,
             tools, filename, server, notebook, facet, xgrid, ygrid
         )

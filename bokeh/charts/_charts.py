@@ -60,7 +60,7 @@ class Chart(Plot):
     def __init__(self, title=None, xlabel=None, ylabel=None, legend=False,
                  xscale="linear", yscale="linear", width=800, height=600,
                  tools=True, filename=False, server=False, notebook=False,
-                 facet=False, xgrid=True, ygrid=True, palette=False, _doc=None, _session=None):
+                 facet=False, xgrid=True, ygrid=True, palette=False, _doc=None, _session=None, **kws):
         """Common arguments to be used by all the inherited classes.
 
         Args:
