@@ -13,5 +13,5 @@ area = Area(
     xyvalues, title="Area Chart", xlabel='time',
     ylabel='memory', filename="area.html",
     facet=False, stacked=True,
-).legend("top_left").stacked(False).create()
+).legend("top_left")
 area.show()

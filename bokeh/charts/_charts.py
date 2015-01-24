@@ -124,6 +124,7 @@ class Chart(Plot):
         self._built = False
 
         self._builders = []
+        self._renderer_map = []
 
         # Add to document and session if server output is asked
         if _doc:
@@ -139,6 +140,11 @@ class Chart(Plot):
 
         self._setup_show()
         self._prepare_show()
+
+    def add_renderers(self, builder, renderers):
+        self.renderers += renderers
+
+        self._renderer_map.extend({ r._id : builder for r in renderers })
 
     def add_builder(self, builder):
         self._builders.append(builder)

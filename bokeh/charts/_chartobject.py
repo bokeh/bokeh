@@ -498,7 +498,7 @@ class Builder(object):
         # we start the plot (adds axis, grids and tools)
         # self.start_plot()
         # we add the glyphs into the plot
-        self.draw()
+        return self.draw()
         # we pass info to build the legend
         # self.end_plot()
 
@@ -519,10 +519,13 @@ class Builder(object):
             self.chart = self.create_chart()
 
         self._setup_show()
-        self._prepare_show()
-        self._show_teardown()
+        # self._prepare_show()
+        # self._show_teardown()
 
-        self.chart._show_teardown()
+        renderers = self._prepare_show()
+
+        # pass these renderers to the chart and then forget about the chart
+        chart.add_renderers(self, renderers)
 
         return self.chart
 
