@@ -1,5 +1,5 @@
 from __future__ import print_function
-from ..plotting import image_rgba, image, multi_line, curdoc
+from ..plotting import figure, curdoc
 from ..plot_object import PlotObject
 from ..models import ServerDataSource,  GlyphRenderer, Range1d, Color
 from ..properties import (Instance, Any, Either,
@@ -443,20 +443,21 @@ def replot(plot,
             source_opts[name] = kwargs.pop(name)
 
     # Transfer specific items from the source plot, then updates from kwargs
-    plot_opts['plot_width'] = plot.plot_width
-    plot_opts['plot_height'] = plot.plot_height
-    plot_opts['title'] = plot.title
-    plot_opts.update(kwargs)
+    fig_opts = {}
+    fig_opts['plot_width'] = kwargs.pop('plot_width', plot.plot_width)
+    fig_opts['plot_height'] = kwargs.pop('plot_height', plot.plot_height)
+    fig_opts['title'] = kwargs.pop('title', plot.title)
 
     src = source(plot, agg, info, shader, **source_opts)
     plot_opts.update(mapping(src))
 
+    new_plot = figure(**fig_opts)
     if shader.out == "image":
-        new_plot = image(source=src, **plot_opts)
+        new_plot.image(source=src, **plot_opts)
     elif shader.out == "image_rgb":
-        new_plot = image_rgba(source=src, **plot_opts)
+        new_plot.image_rgba(source=src, **plot_opts)
     elif shader.out == "multi_line":
-        new_plot = multi_line(source=src, **plot_opts)
+        new_plot.multi_line(source=src, **plot_opts)
     else:
         raise ValueError("Unhandled output type %s" % shader.out)
 

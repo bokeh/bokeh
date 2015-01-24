@@ -86,7 +86,7 @@
 		_setOption: function(key, value){
 			if (key === "show"){
 				this._updateShowOption(value);
-			} else if (key === "durationIn" || key === "durationOut" || key === "delayOut"){
+			} else if (key === "durationIn" || key === "durationOut" || key === "delayOut"){
 				this._updateDurations(key, value);
 			}
 
@@ -403,7 +403,7 @@
 		}
 
 		this.ShowIfNecessary = function(){
-			if (this.options.show === "show" || this.moving || !this.initialized || this.updating) return;
+			if (this.options.show === "show" || this.moving || !this.initialized || this.updating) return;
 
 			this.label1.stop(true, true).fadeIn(this.options.durationIn || 0);
 			this.label2.stop(true, true).fadeIn(this.options.durationIn || 0);

@@ -8,6 +8,7 @@ import types
 import difflib
 import datetime
 import dateutil.parser
+import collections
 from importlib import import_module
 from copy import copy
 import inspect
@@ -40,7 +41,7 @@ class Property(object):
             self.validate(default)
 
         self._default = default
-        self.help = help
+        self.__doc__ = help
         self.alternatives = []
 
         # This gets set by the class decorator at class creation time
@@ -443,11 +444,12 @@ class ColorSpec(DataSpec):
 class Include(object):
     ''' Include other properties from mixin Models, with a given prefix. '''
 
-    def __init__(self, delegate):
+    def __init__(self, delegate, help=""):
         if not (isinstance(delegate, type) and issubclass(delegate, HasProps)):
             raise ValueError("expected a subclass of HasProps, got %r" % delegate)
 
         self.delegate = delegate
+        self.help = help
 
 class MetaHasProps(type):
     def __new__(cls, class_name, bases, class_dict):
@@ -473,7 +475,15 @@ class MetaHasProps(type):
                     # so two properties don't write to the same hidden variable
                     # inside the instance.
                     subprop = copy(subprop)
-                includes[fullpropname] = subprop
+                if "%s" in prop.help:
+                    doc = prop.help % subpropname.split('_', 1)[1].replace('_', ' ')
+                else:
+                    doc = prop.help
+                try:
+                    includes[fullpropname] = subprop(help=doc)
+                except TypeError:
+                    includes[fullpropname] = subprop
+                    subprop.__doc__ = doc
             # Remove the name of the Include attribute itself
             removes.add(name)
 
@@ -730,29 +740,27 @@ class ContainerProperty(ParameterizedProperty):
     # and attribute change detection code
     pass
 
-class List(ContainerProperty):
-    """ If a default value is passed in, then a shallow copy of it will be
-    used for each new use of this property.
+class Seq(ContainerProperty):
 
-    People will also frequently pass in some other kind of property or a
-    class (to indicate a list of instances).  In those cases, we want to
-    just create an empty list
-    """
+    def _is_seq(self, value):
+        return isinstance(value, collections.Container) and not isinstance(value, collections.Mapping)
 
-    def __init__(self, item_type, default=[], help=None):
+    def _new_instance(self, value):
+        return value
+
+    def __init__(self, item_type, default=None, help=None):
         self.item_type = self._validate_type_param(item_type)
-        super(List, self).__init__(default=default, help=help)
+        super(Seq, self).__init__(default=default, help=help)
 
     @property
     def type_params(self):
         return [self.item_type]
 
     def validate(self, value):
-        super(List, self).validate(value)
+        super(Seq, self).validate(value)
 
         if value is not None:
-            if not (isinstance(value, list) and \
-                    all(self.item_type.is_valid(item) for item in value)):
+            if not (self._is_seq(value) and all(self.item_type.is_valid(item) for item in value)):
                 raise ValueError("expected an element of %s, got %r" % (self, value))
 
     def __str__(self):
@@ -762,9 +770,26 @@ class List(ContainerProperty):
         if json is None:
             return None
         elif isinstance(json, list):
-            return [ self.item_type.from_json(item, models) for item in json ]
+            return self._new_instance([ self.item_type.from_json(item, models) for item in json ])
         else:
             raise DeserializationError("%s expected a list or None, got %s" % (self, json))
+
+class List(Seq):
+
+    def __init__(self, item_type, default=[], help=None):
+        super(List, self).__init__(item_type, default=default, help=help)
+
+    def _is_seq(self, value):
+        return isinstance(value, list)
+
+class Array(Seq):
+
+    def _is_seq(self, value):
+        import numpy as np
+        return isinstance(value, np.ndarray)
+
+    def _new_instance(self, value):
+        return np.array(value)
 
 class Dict(ContainerProperty):
     """ If a default value is passed in, then a shallow copy of it will be
@@ -827,24 +852,6 @@ class Tuple(ContainerProperty):
             return tuple(type_param.from_json(item, models) for type_param, item in zip(self.type_params, json))
         else:
             raise DeserializationError("%s expected a list or None, got %s" % (self, json))
-
-class Array(ContainerProperty):
-    """ Whatever object is passed in as a default value, np.asarray() is
-    called on it to create a copy for the default value for each use of
-    this property.
-    """
-
-    def __init__(self, item_type, default=None, help=None):
-        self.item_type = self._validate_type_param(item_type)
-        super(Array, self).__init__(default=default, help=help)
-
-    @property
-    def type_params(self):
-        return [self.item_type]
-
-    def validate(self, value):
-        super(Array, self).validate(value)
-        # TODO: implement validation of np.array, etc.
 
 class Instance(Property):
     ''' Instance type property for referneces to other Models in the object

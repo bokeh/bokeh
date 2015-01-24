@@ -51,6 +51,7 @@ class BoxSelectionOverlay(Renderer):
 class LassoSelectTool(Tool):
     names = List(String)
     renderers = List(Instance(Renderer))
+    select_every_mousemove = Bool(True)
 
 class PolySelectTool(Tool):
     names = List(String)

@@ -1,0 +1,8 @@
+0.2.0 (Oct 2013)
+================
+
+* bokeh.plotting interface for schematized plotting, that wraps the low-level interface
+* Performance improvements in BokehJS
+* Fixed rendering glitches for HiDPI/Retina displays
+* Greatly improved Python interface architecture
+* Many more examples, much improved docs

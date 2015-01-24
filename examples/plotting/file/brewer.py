@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 
 from bokeh.plotting import *
+from bokeh.palettes import brewer
 
 N = 20
 categories = ['y' + str(x) for x in range(10)]

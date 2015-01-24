@@ -58,7 +58,7 @@ class ChartObject(object):
     def __init__(self, title, xlabel, ylabel, legend,
                  xscale, yscale, width, height,
                  tools, filename, server, notebook, facet=False,
-                 xgrid=True, ygrid=True, palette=None):
+                 xgrid=True, ygrid=True, palette=None, _doc=None, _session=None):
         """Common arguments to be used by all the inherited classes.
 
         Args:
@@ -109,6 +109,8 @@ class ChartObject(object):
         self.__palette = palette
         self.__xgrid = xgrid
         self.__ygrid = ygrid
+        self.doc = _doc
+        self.session = _session
 
     def facet(self, facet=True):
         """Set the facet flag of your chart. Facet splits the chart
@@ -359,7 +361,8 @@ class ChartObject(object):
         """
         chart = Chart(self._title, self._xlabel, self._ylabel, self._legend,
                       self._xscale, self._yscale, self._width, self._height,
-                      self._tools, self._filename, self._server, self._notebook)
+                      self._tools, self._filename, self._server, self._notebook,
+                      doc=self.doc, session=self.session)
 
         self.chart = chart
 
@@ -473,8 +476,6 @@ class ChartObject(object):
 
         # we create the chart object
         self.create_chart()
-        # we start the plot (adds axis, grids and tools)
-        self.start_plot()
         # we prepare values
         self.prepare_values()
         # we get the data from the incoming input
@@ -483,6 +484,8 @@ class ChartObject(object):
         self.get_source()
         # we dynamically inject the source and ranges into the plot
         self.add_data_plot()
+        # we start the plot (adds axis, grids and tools)
+        self.start_plot()
         # we add the glyphs into the plot
         self.draw()
         # we pass info to build the legend
@@ -761,7 +764,9 @@ class DataAdapter(object):
             return self._values
 
         else:
-            return list(self._values)
+            # assuming it's a dataframe, in that case it returns transposed
+            # values compared to it's dict equivalent..
+            return list(values.T)
 
     def items(self):
         return [(key, self[key]) for key in self]

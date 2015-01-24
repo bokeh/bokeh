@@ -7,9 +7,9 @@ High Level Charts
     :local:
     :depth: 2
 
-.. warning:: ``bokeh.charts`` interface is still experimental an is very likely to change in the
-  next upcoming releases. Although we will always try to be consistent we cannot guarantee
-  backwards compatibility for now. Please take this into consideration when using it.
+.. warning:: ``bokeh.charts`` interface is still new, and is very likely to change
+    in upcoming releases. Although we always try to be consistent, we cannot guarantee
+    backwards compatibility for now. Please take this into consideration when using it.
 
 The main idea behind the ``bokeh.charts`` interface is to help the users to easily get their plot
 using a very high level API.
@@ -97,9 +97,9 @@ In general elements are supposed to be iterables representing each single data s
 The idea behind this canonical format is to easily represent groups of data and easily plot
 them through the interface.
 
-.. note:: Scatter chart also supports pandas ``groupby objects`` as input. As we have mentioned
-``Charts`` is still very experimental so the number of supported inputs is very likely to grow.
-
+.. note:: Scatter chart also supports pandas groupby objects as input. As we have
+        mentioned ``bokeh.charts`` is still very experimental so the number of supported
+        inputs is very likely to grow.
 
 Let see some examples using different kind of inputs:
 
@@ -567,11 +567,5 @@ and to the IPython notebook::
     hist = Histogram(distributions, bins=50, notebook=True)
 
 * ``notebook``, bool type, if you want to output (or not) to the notebook.
-
-Keep in mind that, as with any other ``Bokeh`` plots in the IPython notebook,
-you have to load the ``BokehJS`` library into the notebook just doing::
-
-    import bokeh
-    bokeh.load_notebook()
 
 .. note:: You can output to any or all of these 3 possibilities because, right now, they are not mutually exclusive.

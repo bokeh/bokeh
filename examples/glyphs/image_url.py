@@ -8,7 +8,7 @@ from bokeh.models.glyphs import ImageURL
 from bokeh.models import ColumnDataSource, Range1d, Plot, LinearAxis, Grid
 from bokeh.resources import INLINE
 
-url = "http://bokeh.pydata.org/_static/bokeh-transparent.png"
+url = "http://bokeh.pydata.org/en/latest/_static/bokeh-transparent.png"
 N = 5
 
 source = ColumnDataSource(dict(

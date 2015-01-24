@@ -290,6 +290,7 @@ define [
     StringFormatter:          ['widget/cell_formatters', 'String']
     NumberFormatter:          ['widget/cell_formatters', 'Number']
     BooleanFormatter:         ['widget/cell_formatters', 'Boolean']
+    DateFormatter:            ['widget/cell_formatters', 'Date']
 
     StringEditor:             ['widget/cell_editors', 'String']
     TextEditor:               ['widget/cell_editors', 'Text']
