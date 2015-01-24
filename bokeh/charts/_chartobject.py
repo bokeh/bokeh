@@ -119,6 +119,8 @@ class Builder(object):
 
         self.chart = None
 
+        self._legends = []
+
     def facet(self, facet=True):
         """Set the facet flag of your chart. Facet splits the chart
         creating a figure for every single series of the underlying data
@@ -510,6 +512,9 @@ class Builder(object):
         """
         pass
 
+    def make_legends(self):
+        raise NotImplementedError
+
     def create(self, chart=None):
         if chart:
             self.chart = chart
@@ -527,7 +532,16 @@ class Builder(object):
         # pass these renderers to the chart and then forget about the chart
         chart.add_renderers(self, renderers)
 
-        return self.chart
+        if self.__legend:
+            if self.__legend is True:
+                orientation = "top_right"
+            else:
+                orientation = self.__legend
+
+            legends = self._legends
+            chart.add_legend(orientation, legends)
+
+        return chart
 
     def create_plot_if_facet(self):
         """

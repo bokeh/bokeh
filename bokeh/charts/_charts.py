@@ -137,13 +137,18 @@ class Chart(Plot):
                 self._session = _session
             else:
                 self._session = Session()
+        #
+        # self._setup_show()
+        # self._prepare_show()
 
-        self._setup_show()
-        self._prepare_show()
+
+        self.check_attr()
+
+        # create chart axis, grids and tools
+        self.start_plot()
 
     def add_renderers(self, builder, renderers):
         self.renderers += renderers
-
         self._renderer_map.extend({ r._id : builder for r in renderers })
 
     def add_builder(self, builder):
@@ -203,7 +208,7 @@ class Chart(Plot):
 
         return colors
 
-    def end_plot(self):
+    def add_legend(self, orientation, legends):
         """Add the legend to your plot, and the plot to a new Document.
 
         It also add the Document to a new Session in the case of server output.
@@ -212,20 +217,8 @@ class Chart(Plot):
             groups(list): keeping track of the incoming groups of data.
                 Useful to automatically setup the legend.
         """
-        # Add legend
-        if self.__legend:
-            for i, plot in enumerate([self]): #self._plots):
-                listed_glyphs = [[glyph] for glyph in self._glyphs]
-                legends = list(zip(self._groups, listed_glyphs))
-                if self.__legend is True:
-                    orientation = "top_right"
-                else:
-                    orientation = self.__legend
-
-                legend = None
-                # When we have more then on plot we need to break legend per plot
-                legend = Legend(orientation=orientation, legends=legends)
-                plot.add_layout(legend)
+        legend = Legend(orientation=orientation, legends=legends)
+        self.add_layout(legend)
 
     def make_axis(self, location, scale, label):
         """Create linear, date or categorical axis depending on the location,
@@ -469,30 +462,30 @@ class Chart(Plot):
     #
     #     return scatter
 
-    def _prepare_show(self):
-        """
-        Executes chart show core operations:
-
-         - checks for chain methods
-         - prepare chart data & source
-         - create indexes
-         - create glyphs
-         - draw glyphs
-        """
-        # # prepare values
-        # self.prepare_values()
-        # # get the data from the incoming input
-        # self.get_data()
-        # # filled the source and ranges with the calculated data
-        # self.get_source()
-        # # we dynamically inject the source and ranges into the plot
-        # # self.add_data_plot()
-        # we start the plot (adds axis, grids and tools)
-        self.start_plot()
-        # # we add the glyphs into the plot
-        # self.draw()
-        # # we pass info to build the legend
-        # self.end_plot()
+    # def _prepare_show(self):
+    #     """
+    #     Executes chart show core operations:
+    #
+    #      - checks for chain methods
+    #      - prepare chart data & source
+    #      - create indexes
+    #      - create glyphs
+    #      - draw glyphs
+    #     """
+    #     # # prepare values
+    #     # self.prepare_values()
+    #     # # get the data from the incoming input
+    #     # self.get_data()
+    #     # # filled the source and ranges with the calculated data
+    #     # self.get_source()
+    #     # # we dynamically inject the source and ranges into the plot
+    #     # # self.add_data_plot()
+    #     # we start the plot (adds axis, grids and tools)
+    #     self.start_plot()
+    #     # # we add the glyphs into the plot
+    #     # self.draw()
+    #     # # we pass info to build the legend
+    #     # self.end_plot()
 
     def prepare_values(self):
         """Prepare the input data.
@@ -525,11 +518,11 @@ class Chart(Plot):
         representing each different chart type.
         """
         pass
-
-    def _setup_show(self):
-        """Prepare context before main show method is invoked """
-        # we need to check the chained method attr
-        self.check_attr()
+    #
+    # def _setup_show(self):
+    #     """Prepare context before main show method is invoked """
+    #     # we need to check the chained method attr
+    #     self.check_attr()
 
     def _show_teardown(self):
         """

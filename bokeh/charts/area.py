@@ -262,7 +262,14 @@ class AreaBuilder(Builder):
         # parse all series. We exclude the first attr as it's the x values
         # added for the index
         for i, series_name in enumerate(self.attr[1:]):
-            yield self.make_patch(self.source, 'x', series_name, colors[i])
+            renderer = self.make_patch(self.source, 'x', series_name, colors[i])
+            self._legends.append((self.groups[i], [renderer]))
+            yield renderer
 
             # if i < len(self.attr[1:]) - 1:
             #     self.create_plot_if_facet()
+
+    def make_legends(self):
+        listed_glyphs = [[glyph] for glyph in self.renderers]
+        legends = list(zip(self._groups, listed_glyphs))
+        return legends
