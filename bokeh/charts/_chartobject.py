@@ -636,6 +636,7 @@ class Builder(object):
         self.chart.make_rect(source_legend, "groups", None, None, None,
                                  color, "black", None)
 
+
     def make_segment(self, source, x0, y0, x1, y1, color, width):
         """ Create a segment glyph and append it to the plot.renderers list.
 
@@ -651,13 +652,10 @@ class Builder(object):
         Return:
             segment: Segment instance
         """
-        segment = Segment(
+        glyph = Segment(
             x0=x0, y0=y0, x1=x1, y1=y1, line_color=color, line_width=width
         )
-
-        self._append_glyph(source, segment)
-
-        return segment
+        return GlyphRenderer(data_source=source, glyph=glyph)
 
     def make_line(self, source, x, y, color):
         """Create a line glyph and append it to the plot.renderers list.
@@ -671,11 +669,8 @@ class Builder(object):
         Return:
             line: Line instance
         """
-        line = Line(x=x, y=y, line_color=color)
-
-        self._append_glyph(source, line)
-
-        return line
+        glyph = Line(x=x, y=y, line_color=color)
+        return GlyphRenderer(data_source=source, glyph=glyph)
 
     def make_quad(self, source, top, bottom, left, right, color, line_color):
         """Create a quad glyph and append it to the plot.renderers list.
@@ -692,14 +687,11 @@ class Builder(object):
         Return:
             quad: Quad instance
         """
-        quad = Quad(
+        glyph = Quad(
             top=top, bottom=bottom, left=left, right=right, fill_color=color,
             fill_alpha=0.7, line_color=line_color, line_alpha=1.0
         )
-
-        self._append_glyph(source, quad)
-
-        return quad
+        return GlyphRenderer(data_source=source, glyph=glyph)
 
     def make_rect(self, source, x, y, width, height, color, line_color, line_width):
         """Create a rect glyph and append it to the renderers list.
@@ -722,9 +714,7 @@ class Builder(object):
             fill_alpha=0.7, line_color=line_color, line_alpha=1.0,
             line_width=line_width
         )
-        self._append_glyph(source, rect)
-
-        return rect
+        return GlyphRenderer(data_source=source, glyph=glyph)
 
     def make_patch(self, source, x, y, color):
         """Create a patch glyph and append it to the renderers list.
@@ -738,9 +728,8 @@ class Builder(object):
         Return:
             patch: Patch instance
         """
-        patch = Patch(x=x, y=y, fill_color=color, fill_alpha=0.9)
-        self._append_glyph(source, patch)
-        return patch
+        glyph = Patch(x=x, y=y, fill_color=color, fill_alpha=0.9)
+        return GlyphRenderer(data_source=source, glyph=glyph)
 
     def make_wedge(self, source, **kws):
         """Create a wedge glyph and append it to the renderers list.
@@ -753,8 +742,7 @@ class Builder(object):
             glyph: Wedge instance
         """
         glyph = Wedge(**kws)
-        self._append_glyph(source, glyph)
-        return glyph
+        return GlyphRenderer(data_source=source, glyph=glyph)
 
     def make_annular(self, source, **kws):
         """Create a annular wedge glyph and append it to the renderers list.
@@ -767,8 +755,7 @@ class Builder(object):
             rect: AnnularWedge instance
         """
         glyph = AnnularWedge(**kws)
-        self._append_glyph(source, glyph)
-        return glyph
+        return GlyphRenderer(data_source=source, glyph=glyph)
 
     def make_text(self, source, **kws):
         """Create a text glyph and append it to the renderers list.
@@ -781,8 +768,7 @@ class Builder(object):
             glyph: Text instance
         """
         glyph = Text(**kws)
-        self._append_glyph(source, glyph)
-        return glyph
+        return GlyphRenderer(data_source=source, glyph=glyph)
 
     def make_scatter(self, source, x, y, markertype, color, line_color=None,
                      size=10, fill_alpha=0.2, line_alpha=1.0):
@@ -828,16 +814,12 @@ class Builder(object):
                 shape = next(g)
         else:
             shape = markertype
-        scatter = _marker_types[shape](
+        glyph = _marker_types[shape](
             x=x, y=y, size=size, fill_color=color, fill_alpha=fill_alpha,
             line_color=line_color, line_alpha=line_alpha
         )
 
-        self._append_glyph(source, scatter)
-
-        return scatter
-
-
+        return GlyphRenderer(data_source=source, glyph=glyph)
 
 
 class ChartObject(object):
