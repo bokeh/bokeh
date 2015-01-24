@@ -27,12 +27,25 @@ except ImportError:
     raise
 
 from ._chartobject import Builder
+from ._charts import Chart
 from ..models import ColumnDataSource, Range1d, DataRange1d
 
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
-class Area(Builder):
+
+def Area(**kw):
+
+    # create a Histogram builder
+    builder = AreaBuilder(**kw)
+
+    # create a chart to return, since there isn't one already
+    chart = Chart(**kw)
+    chart.add_builder(builder)
+
+    return chart
+
+class AreaBuilder(Builder):
     """This is the Area class and it is in charge of plotting
     Area chart in an easy and intuitive way.
 
