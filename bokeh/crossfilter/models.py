@@ -290,17 +290,16 @@ class CrossFilter(PlotObject):
                 len(self.facet_tab) == 0]):
             return self.make_single_plot()
 
-        # x faceting
-        if all([len(self.facet_x) != 0,
-                len(self.facet_y) == 0,
+        # x xor y faceting
+        if all([(len(self.facet_x) != 0) ^ (len(self.facet_y) != 0),
                 len(self.facet_tab) == 0]):
-            return self.make_all_facet_plot()
+            return self.make_1d_facet_plot()
 
         # x and y faceting
         if all([len(self.facet_x) != 0,
                 len(self.facet_y) != 0,
                 len(self.facet_tab) == 0]):
-            return self.make_xy_facet_plot()
+            return self.make_2d_facet_plot()
 
     def make_facets(self, dimension):
         """Creates combination of all facets for the provided dimension
@@ -379,14 +378,17 @@ class CrossFilter(PlotObject):
             df = f.filter(df)
         return df
 
-    def make_all_facet_plot(self):
+    def make_1d_facet_plot(self):
         """Creates the faceted plots when a facet is added to the x axis.
 
         Returns:
           GridPlot: a grid of plots, where each plot has subset of data
 
         """
-        all_facets = self.make_facets('x')
+        if self.facet_x:
+            all_facets = self.make_facets('x')
+        else:
+            all_facets = self.make_facets('y')
         plots = []
 
         # loop over facets and create single plots for data subset
@@ -415,7 +417,7 @@ class CrossFilter(PlotObject):
         grid = GridPlot(children=grid_plots, plot_width=200*chunk_size)
         return grid
 
-    def make_xy_facet_plot(self):
+    def make_2d_facet_plot(self):
         """Creates the grid of plots when there are both x and y facets.
 
         Returns:
