@@ -21,7 +21,11 @@ from six import string_types
 from collections import OrderedDict
 from ._charts import Chart
 from ..properties import bokeh_integer_types, Datetime
-from ..models import ColumnDataSource
+from ..models import ColumnDataSource, GlyphRenderer
+from ..models.glyphs import (Asterisk, Circle, CircleCross, CircleX, Cross, Diamond,
+                             DiamondCross, InvertedTriangle, Line, Rect, Segment,
+                             Square, SquareCross, SquareX, Triangle, X, Quad, Patch,
+                             Wedge, AnnularWedge, Text)
 
 try:
     import numpy as np
