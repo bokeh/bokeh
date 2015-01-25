@@ -25,7 +25,7 @@ except:
     pd = None
 
 from collections import OrderedDict
-from ._chartobject import ChartObject, DataAdapter
+from ._chartobject import DataAdapter, create_and_build, Builder
 from ..models import ColumnDataSource, Range1d
 
 #-----------------------------------------------------------------------------
@@ -33,7 +33,12 @@ from ..models import ColumnDataSource, Range1d
 #-----------------------------------------------------------------------------
 
 
-class Scatter(ChartObject):
+def Scatter(values, **kws):
+    return create_and_build(ScatterBuilder, values, **kws)
+
+
+
+class ScatterBuilder(Builder):
     """This is the Scatter class and it is in charge of plotting
     Scatter charts in an easy and intuitive way.
 
@@ -55,10 +60,7 @@ class Scatter(ChartObject):
         scatter.title("Languages Scatter").legend("top_left")
         scatter.width(600).height(400).show()
     """
-    def __init__(self, values, title=None, xlabel=None, ylabel=None,
-                 legend=False, xscale="linear", yscale="linear", width=800,
-                 height=600, tools=True, filename=False, server=False,
-                 notebook=False, facet=False, xgrid=True, ygrid=True):
+    def __init__(self, values, legend=False, palette=None, **kws):
         """
         Args:
             values (iterable(tuples)): an iterable containing the data as
@@ -121,24 +123,13 @@ class Scatter(ChartObject):
                 Needed for _set_And_get method.
         """
         self.values = values
-        self.source = None
-        self.xdr = None
-        self.ydr = None
-        self.groups = []
-        self.data = dict()
-        self.attr = []
-        super(Scatter, self).__init__(
-            title, xlabel, ylabel, legend, xscale, yscale, width, height,
-            tools, filename, server, notebook, facet, xgrid, ygrid
-        )
-
-    def check_attr(self):
-        """Check if any of the chained method were used.
-
-        If they were not used, it assign the init parameters content
-        by default.
-        """
-        super(Scatter, self).check_attr()
+        # self.source = None
+        # self.xdr = None
+        # self.ydr = None
+        # self.groups = []
+        # self.data = dict()
+        # self.attr = []
+        super(ScatterBuilder, self).__init__(legend=legend, palette=palette)
 
     def get_data(self):
         """Take the scatter.values data to calculate the chart properties
@@ -201,13 +192,13 @@ class Scatter(ChartObject):
 
         endx = max(max(self.data[i]) for i in x_names)
         startx = min(min(self.data[i]) for i in x_names)
-        self.xdr = Range1d(
+        self.x_range = Range1d(
             start=startx - 0.1 * (endx - startx),
             end=endx + 0.1 * (endx - startx)
         )
         endy = max(max(self.data[i]) for i in y_names)
         starty = min(min(self.data[i]) for i in y_names)
-        self.ydr = Range1d(
+        self.y_range = Range1d(
             start=starty - 0.1 * (endy - starty),
             end=endy + 0.1 * (endy - starty)
         )
@@ -221,32 +212,34 @@ class Scatter(ChartObject):
         colors = self._set_colors(duplets)
 
         for i, duplet in enumerate(duplets, start=1):
-            self.chart.make_scatter(self.source, duplet[0], duplet[1], 'circle', colors[i - 1])
+            renderer = self.make_scatter(self.source, duplet[0], duplet[1], 'circle', colors[i - 1])
+            self._legends.append((self.groups[i-1], [renderer]))
+            yield renderer
 
-            if i < len(duplets):
-                self.create_plot_if_facet()
+        #     if i < len(duplets):
+        #         self.create_plot_if_facet()
+        #
+        # self.reset_legend()
+    #
+    # def _make_legend_glyph(self, source_legend, color):
+    #     """Create a new glyph to represent one of the chart data series with the
+    #     specified color
+    #
+    #     The glyph is added to chart.glyphs.
+    #
+    #     Args:
+    #         source_legend (ColumnDataSource): source to be used when creating the glyph
+    #         color (str): color of the glyph
+    #     """
+    #     self.chart.make_scatter(source_legend, "groups", None, 'circle', color)
 
-        self.reset_legend()
 
-    def _make_legend_glyph(self, source_legend, color):
-        """Create a new glyph to represent one of the chart data series with the
-        specified color
-
-        The glyph is added to chart.glyphs.
-
-        Args:
-            source_legend (ColumnDataSource): source to be used when creating the glyph
-            color (str): color of the glyph
-        """
-        self.chart.make_scatter(source_legend, "groups", None, 'circle', color)
-
-
-    def _setup_show(self):
+    def prepare_values(self):
         """Prepare context before main show method is invoked.
 
         Customize show preliminary actions by handling DataFrameGroupBy
         values in order to create the series values and labels."""
-        super(Scatter, self)._setup_show()
+        # super(ScatterBuilder, self)._setup_show()
 
         # check if pandas is installed
         if pd:
@@ -268,11 +261,11 @@ class Scatter(ChartObject):
 
                 # create axis labels from group by object only if the input
                 # values is a DataFrameGroupBy
-                if self._xlabel is None:
-                    self._xlabel = self.labels[0]
-
-                if self._ylabel is None:
-                    self._ylabel = self.labels[1]
+                # if self._xlabel is None:
+                #     self._xlabel = self.labels[0]
+                #
+                # if self._ylabel is None:
+                #     self._ylabel = self.labels[1]
 
             else:
                 self.values = DataAdapter(self.values)
