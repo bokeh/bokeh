@@ -1,3 +1,6 @@
+""" Models for representing top-level plot objects.
+
+"""
 from __future__ import absolute_import
 
 from ..plot_object import PlotObject
@@ -24,10 +27,16 @@ class _list_attr_splat(list):
 class PlotContext(PlotObject):
     """ A container for multiple plot objects.
 
+    ``PlotContext`` objects are a source of confusion. Their purpose
+    is to collect together different top-level objects (e.g., ``Plot``
+    or layout widgets). The reason for this is that different plots may
+    need to share ranges or data sources between them. A ``PlotContext``
+    is a container in which such sharing can occur between the contained
+    objects.
     """
 
     children = List(Instance(PlotObject), help="""
-
+    A list of top level objects in this ``PlotContext`` container.
     """)
 
 # TODO (bev) : is this used anywhere?
@@ -166,84 +175,115 @@ class Plot(Widget):
         return g
 
     x_range = Instance(Range, help="""
-
+    The (default) data range of the horizontal dimension of the plot.
     """)
 
     y_range = Instance(Range, help="""
-
+    The (default) data range of the vertical dimension of the plot.
     """)
 
     x_mapper_type = Either(Auto, String, help="""
+    What kind of mapper to use to convert x-coordinates in data space
+    into x-coordinates in screen space.
 
+    Typically this can be determined automatically, but this property
+    can be useful to, e.g., show datetime values as floating point
+    "seconds since epoch" instead of formatted dates.
     """)
 
     y_mapper_type = Either(Auto, String, help="""
+    What kind of mapper to use to convert y-coordinates in data space
+    into y-coordinates in screen space.
 
+    Typically this can be determined automatically, but this property
+    can be useful to, e.g., show datetime values as floating point
+    "seconds since epoch" instead of formatted dates
     """)
 
     extra_x_ranges = Dict(String, Instance(Range1d), help="""
+    Additional named ranges to make available for mapping x-coordinates.
 
+    This is useful for adding additional axes.
     """)
 
     extra_y_ranges = Dict(String, Instance(Range1d), help="""
+    Additional named ranges to make available for mapping y-coordinates.
 
+    This is useful for adding additional axes.
     """)
 
     title = String('', help="""
-
+    A title for the plot.
     """)
 
     title_props = Include(TextProps, help="""
-
+    The %s for the plot title.
     """)
 
     outline_props = Include(LineProps, help="""
-
+    The %s for the plot border outline.
     """)
 
-    # A list of all renderers on this plot; this includes guides as well
-    # as glyph renderers
     renderers = List(Instance(Renderer), help="""
+    A list of all renderers for this plot, including guides and annotations
+    in addition to glyphs and markers.
 
+    This property can be manipulated by hand, but the ``add_glyph`` and
+    ``add_layout`` methods are recommended to help make sure all necessary
+    setup is performed.
     """)
 
     tools = List(Instance(Tool), help="""
-
+    A list of tools to add to the plot.
     """)
 
     tool_events = Instance(ToolEvents, help="""
-
+    A ToolEvents object to share and report tool events.
     """)
 
     left  = List(Instance(Renderer), help="""
-
+    A list of renderers to occupy the area to the left of the plot.
     """)
 
     right = List(Instance(Renderer), help="""
-
+    A list of renderers to occupy the area to the right of the plot.
     """)
 
     above = List(Instance(Renderer), help="""
-
+    A list of renderers to occupy the area above of the plot.
     """)
 
     below = List(Instance(Renderer), help="""
-
+    A list of renderers to occupy the area below of the plot.
     """)
 
     toolbar_location = Enum(Location, help="""
-
+    Where the toolbar will be located. If set to None, no toolbar
+    will be attached to the plot.
     """)
 
     logo = Enum("normal", "grey", help="""
-
+    What version of the Bokeh logo to display on the toolbar. If
+    set to None, no logo will be displayed.
     """)
 
     plot_height = Int(600, help="""
+    Total height of the entire plot (including any axes, titles,
+    border padding, etc.)
+
+    .. note::
+        This corresponds directly to the height of the HTML
+        canvas that will be used.
 
     """)
 
     plot_width = Int(600, help="""
+    Total width of the entire plot (including any axes, titles,
+    border padding, etc.)
+
+    .. note::
+        This corresponds directly to the width of the HTML
+        canvas that will be used.
 
     """)
 
@@ -256,31 +296,59 @@ class Plot(Widget):
     """)
 
     min_border_top = Int(50, help="""
+    Minimum size in pixels of the padding region above the top of the
+    central plot region.
+
+    .. note::
+        This is a *minimum*. The padding region may expand as needed to
+        accommodate titles or axes, etc.
 
     """)
 
     min_border_bottom = Int(50, help="""
+    Minimum size in pixels of the padding region below the bottom of
+    the central plot region.
+
+    .. note::
+        This is a *minimum*. The padding region may expand as needed to
+        accommodate titles or axes, etc.
 
     """)
 
     min_border_left = Int(50, help="""
+    Minimum size in pixels of the padding region to the left of
+    the central plot region.
+
+    .. note::
+        This is a *minimum*. The padding region may expand as needed to
+        accommodate titles or axes, etc.
 
     """)
 
     min_border_right = Int(50, help="""
+    Minimum size in pixels of the padding region to the right of
+    the central plot region.
+
+    .. note::
+        This is a *minimum*. The padding region may expand as needed to
+        accommodate titles or axes, etc.
 
     """)
 
     min_border = Int(50, help="""
-
+    A convenience property to set all all the ``min_X_border`` properties
+    to the same value. If an individual border property is explicitly set,
+    it will override ``min_border``.
     """)
 
     h_symmetry = Bool(True, help="""
-
+    Whether the total horizontal padding on both sides of the plot will
+    be made equal (the left or right padding amount, whichever is larger).
     """)
 
     v_symmetry = Bool(False, help="""
-
+    Whether the total vertical padding on both sides of the plot will
+    be made equal (the top or bottom padding amount, whichever is larger).
     """)
 
 class GridPlot(Plot):
@@ -289,11 +357,13 @@ class GridPlot(Plot):
     """
 
     children = List(List(Instance(Plot)), help="""
-
+    An array of plots to display in a grid, given as a list of lists of
+    Plot objects. To leave a position in the grid empty, pass None for
+    that position in the ``children`` list.
     """)
 
     border_space = Int(0, help="""
-
+    Distance (in pixels) between adjacent plots.
     """)
 
     def select(self, selector):
