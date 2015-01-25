@@ -272,17 +272,12 @@ class CrossFilter(PlotObject):
     def set_plot(self):
         """Makes and sets the plot based on the current configuration of app."""
 
-        # ToDo: better handle where x and y columns are the same
-        if self.x == self.y:
-            return
-
         plot = self.make_plot()
         self.plot = plot
         curdoc()._add_all()
 
     def make_plot(self):
         """Makes the correct plot layout type, based on app's current config."""
-        # ToDo: why is there x specific faceting, but no y?
 
         # no faceting
         if all([len(self.facet_x) == 0,
@@ -473,38 +468,55 @@ class CrossFilter(PlotObject):
 
         """
         column_descriptor_dict = self.column_descriptor_dict()
-
+        do_plot = True
+        faceting = False
 
         if df is None:
             source = self.filtered_data
+
+            if len(source.data[self.x]) == 0 or len(source.data[self.y]) == 0:
+                do_plot = False
+                title = 'All data is filtered out'
         else:
             source = ColumnDataSource(data=df)
+            faceting = True
 
         # scatter plot
         if self.plot_type == "scatter":
             if title is None:
                 title = "%s by %s"%(self.x, self.y)
 
+            x_range, y_range = self.get_xy_ranges(source)
+
+            # create the figure and configure the source fields to scatter plot
             plot = figure(title_text_font_size="12pt",
                           plot_height=plot_height,
                           plot_width=plot_width,
                           tools=tools,
-                          title=title)
-            plot.scatter(self.x, self.y, source=source)
-            return plot
+                          title=title,
+                          x_range=x_range,
+                          y_range=y_range)
+
+            if do_plot:
+                plot.scatter(self.x, self.y, source=source)
 
         # line plot
         elif self.plot_type == "line":
             if title is None:
                 title = "%s by %s"%(self.x, self.y)
 
+            x_range, y_range = self.get_xy_ranges(source)
+
             plot = figure(title_text_font_size="12pt",
                           plot_height=plot_height,
                           plot_width=plot_width,
                           tools=tools,
-                          title=title)
-            plot.line(self.x, self.y, source=source)
-            return plot
+                          title=title,
+                          x_range=x_range,
+                          y_range=y_range)
+
+            if do_plot:
+                plot.line(self.x, self.y, source=source)
 
         # bar plot
         elif self.plot_type == 'bar':
@@ -515,7 +527,24 @@ class CrossFilter(PlotObject):
             if df is None:
                 df = self.filtered_df
 
-            if not df.empty:
+            # detect all cases that we don't support for this chart
+            if df.empty:
+                do_plot = False
+
+                if not faceting:
+                    title = 'All data is filtered out'
+
+            if self.x == self.y:
+                do_plot = False
+                title = 'Bar does not support two of same column'
+
+            if column_descriptor_dict[self.y]['type'] == 'DiscreteColumn':
+                do_plot = False
+                title = 'Bar does not support discrete y column'
+
+            # plot if we can, otherwise return an empty figure
+            if do_plot:
+
                 # discrete data on x axis
                 if column_descriptor_dict[self.x]['type'] != 'DiscreteColumn':
                     source = make_continuous_bar_source(
@@ -528,7 +557,7 @@ class CrossFilter(PlotObject):
                 else:
                     source = make_categorical_bar_source(df, self.x, self.y,
                                                          self.agg)
-                    x_range = FactorRange(source.data[self.x])
+                    x_range = FactorRange(factors=source.data[self.x])
 
                 plot = make_bar_plot(source, counts_name=self.y,
                                      centers_name=self.x,
@@ -538,7 +567,6 @@ class CrossFilter(PlotObject):
                                      x_range=x_range)
                 plot.title = title
 
-            # handle if we have filtered out everything for this faceted plot
             else:
                 plot = figure(title_text_font_size="12pt",
                               plot_height=plot_height,
@@ -546,11 +574,38 @@ class CrossFilter(PlotObject):
                               tools=tools,
                               title=title)
 
-            return plot
-
         # the plot requested is not known
         else:
             raise NotImplementedError("The chosen plot is not defined")
+
+        return plot
+
+    def get_xy_ranges(self, source):
+        """Provides input required for x_range, y_range when creating a figure.
+
+        Args:
+          source (ColumnDataSource): the source to return correct range for
+
+        Returns:
+          (FactorRange or None, FactorRange or None): returns both x and y
+            ranges for the selected x and y columns. Only if the column is
+            discrete do we need to create a range and later pass that to figure.
+
+        """
+        column_descriptor_dict = self.column_descriptor_dict()
+
+        # detect discrete columns and return a FactorRange if required
+        if column_descriptor_dict[self.x]['type'] == 'DiscreteColumn':
+            x_range = FactorRange(factors=sorted(set(source.data[self.x])))
+        else:
+            x_range = None
+
+        if column_descriptor_dict[self.y]['type'] == 'DiscreteColumn':
+            y_range = FactorRange(factors=sorted(set(source.data[self.y])))
+        else:
+            y_range = None
+
+        return x_range, y_range
 
     def plot_attribute_change(self, obj, attrname, old, new):
         """Updates app's attribute and plot when view configuration changes.
