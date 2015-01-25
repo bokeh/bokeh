@@ -35,12 +35,14 @@ class BasicTickFormatter(TickFormatter):
     Display tick values in scientific notation when::
 
         log(x) >= power_limit_high
+
     """)
 
     power_limit_low = Int(-3, help="""
     Display tick values in scientific notation when::
 
         log(x) <= power_limit_low
+
     """)
 
 class LogTickFormatter(TickFormatter):
@@ -67,6 +69,7 @@ class DatetimeTickFormatter(TickFormatter):
     datetimes.
 
     """
+
     formats = Dict(Enum(DatetimeUnits), List(String), help="""
     Supply specific formats for displaying datetime values.
 
