@@ -157,8 +157,6 @@ class AreaBuilder(Builder):
         """
         self.values = values
         self.source = None
-        self.xdr = None
-        self.ydr = None
         self.__stacked = stacked
 
         # list to save all the groups available in the incomming input
@@ -202,9 +200,9 @@ class AreaBuilder(Builder):
         the patch glyph inside the ``draw`` method.
 
         """
-        self.data = dict()
-        # list to save all the attributes we are going to create
-        self.attr = []
+        # self.data = dict()
+        # # list to save all the attributes we are going to create
+        # self.attr = []
         xs = self.values_index
         last = np.zeros(len(xs))
         x2 = np.hstack((xs[::-1], xs))
