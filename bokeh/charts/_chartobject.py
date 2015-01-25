@@ -516,21 +516,28 @@ class Builder(object):
         raise NotImplementedError
 
     def create(self, chart=None):
-        if chart:
-            self.chart = chart
-
-        if not self.chart:
-            print("CREATING CHART")
-            self.chart = self.create_chart()
+        # if chart:
+        #     self.chart = chart
+        #
+        # if not self.chart:
+        #     print("CREATING CHART")
+        #     self.chart = self.create_chart()
 
         self._setup_show()
         # self._prepare_show()
         # self._show_teardown()
 
-        renderers = self._prepare_show()
-
         # pass these renderers to the chart and then forget about the chart
+        renderers = self._prepare_show()
         chart.add_renderers(self, renderers)
+
+        # create chart ranges..
+        if not chart.x_range:
+            chart.x_range = self.x_range
+
+        if not chart.y_range:
+            chart.y_range = self.y_range
+
 
         if self.__legend:
             if self.__legend is True:

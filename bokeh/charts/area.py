@@ -240,13 +240,18 @@ class AreaBuilder(Builder):
         Push the Line data into the ColumnDataSource and calculate the proper ranges.
         """
         self.source = ColumnDataSource(self.data)
-        self.chart.x_range = DataRange1d(sources=[self.source.columns("x")])
 
+    @property
+    def x_range(self):
+        return DataRange1d(sources=[self.source.columns("x")])
+
+    @property
+    def y_range(self):
         y_names = self.attr[1:]
 
         endy = max(max(self.data[i]) for i in y_names)
         starty = min(min(self.data[i]) for i in y_names)
-        self.chart.y_range = Range1d(
+        return Range1d(
             start=starty - 0.1 * (endy - starty),
             end=endy + 0.1 * (endy - starty)
         )
