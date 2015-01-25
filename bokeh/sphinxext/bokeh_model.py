@@ -57,10 +57,7 @@ MODEL_TEMPLATE = jinja2.Template(u"""
 
 .. _{{ model_path }}.json:
 
-JSON prototype
-~~~~~~~~~~~~~~
-
-.. code-block:: javascript
+.. collapsible-code-block:: javascript
 
     {{ model_json|indent(4) }}
 

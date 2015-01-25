@@ -36,7 +36,6 @@ import importlib
 from docutils import nodes
 from docutils.statemachine import ViewList
 
-import re
 import textwrap
 
 import jinja2
