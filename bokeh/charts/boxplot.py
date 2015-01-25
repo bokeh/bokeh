@@ -69,55 +69,20 @@ class BoxPlotBuilder(Builder):
                           width=800, height=600, notebook=True)
         boxplot.show()
     """
-    def __init__(self, values, marker="circle", outliers=True,
-                 title=None, xlabel=None, ylabel=None, legend=False,
-                 xscale="categorical", yscale="linear", width=800, height=600,
-                 tools=True, filename=False, server=False, notebook=False,
-                 xgrid=False, ygrid=True):
+    def __init__(self, values, marker="circle", outliers=True, legend=False, **kws):
         """ Initialize a new BoxPlot.
 
         Args:
-            value (DataFrame or OrderedDict/dict): containing the data with names as a key
+            values (DataFrame or OrderedDict/dict): containing the data with names as a key
                 and the data as a value.
             marker (int or string, optional): if outliers=True, the marker type to use
                 e.g., `circle`.
             outliers (bool, optional): Whether or not to plot outliers.
-            title (str, optional): the title of your plot. Defaults to None.
-            xlabel (str, optional): the x-axis label of your plot.
-                Defaults to None.
-            ylabel (str, optional): the y-axis label of your plot.
-                Defaults to None.
             legend (str, optional): the legend of your plot. The legend content is
                 inferred from incoming input.It can be ``top_left``,
                 ``top_right``, ``bottom_left``, ``bottom_right``.
                 It is ``top_right`` is you set it as True.
                 Defaults to None.
-            xscale (str, optional): the x-axis type scale of your plot. It can be
-                ``linear``, ``datetime`` or ``categorical``.
-                Defaults to ``linear``.
-            yscale (str, optional): the y-axis type scale of your plot. It can be
-                ``linear``, ``date`` or ``categorical``.
-                Defaults to ``linear``.
-            width (int, optional): the width of your plot in pixels.
-                Defaults to 800.
-            height (int, optional): the height of you plot in pixels.
-                Defaults to 600.
-            tools (bool, optional): to enable or disable the tools in your plot.
-                Defaults to True
-            filename (str or bool, optional): the name of the file where your plot.
-                will be written. If you pass True to this argument, it will use
-                ``untitled`` as a filename.
-                Defaults to False.
-            server (str or bool, optional): the name of your plot in the server.
-                If you pass True to this argument, it will use ``untitled``
-                as the name in the server.
-                Defaults to False.
-            notebook (bool, optional): whether to output to IPython notebook
-                (default: False)
-            xgrid (bool, optional): whether to display x grid lines
-                (default: False)
-            ygrid (bool, optional): whether to display x grid lines
-                (default: True)
 
         Attributes:
             source (obj): datasource object for your plot,
@@ -143,11 +108,7 @@ class BoxPlotBuilder(Builder):
         self._data_scatter = dict()
         self._attr_scatter = []
         self._data_legend = dict()
-        super(BoxPlotBuilder, self).__init__(
-            title, xlabel, ylabel, legend, xscale, yscale, width, height,
-            tools, filename, server, notebook, facet=False, xgrid=xgrid,
-            ygrid=ygrid
-        )
+        super(BoxPlotBuilder, self).__init__(legend)
 
     def get_data(self):
         """Take the BoxPlot data from the input **value.

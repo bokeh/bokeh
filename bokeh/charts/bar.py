@@ -64,11 +64,7 @@ class BarBuilder(Builder):
         bar.show()
     """
 
-    def __init__(self, values, cat=None, stacked=False,
-                 title=None, xlabel=None, ylabel=None, legend=False,
-                 xscale="categorical", yscale="linear", width=800, height=600,
-                 tools=True, filename=False, server=False, notebook=False,
-                 facet=False, xgrid=False, ygrid=True):
+    def __init__(self, values, cat=None, stacked=False, legend=False, **kws):
         """
         Args:
             values (iterable): iterable 2d representing the data series values matrix.
@@ -76,46 +72,11 @@ class BarBuilder(Builder):
                 Defaults to None.
             stacked (bool, optional): to see the bars stacked or grouped.
                 Defaults to False, so grouping is assumed.
-            title (str, optional): the title of your chart. Defaults
-                to None.
-            xlabel (str, optional): the x-axis label of your chart.
-                Defaults to None.
-            ylabel (str, optional): the y-axis label of your chart.
-                Defaults to None.
             legend (str, optional): the legend of your chart. The legend
                 content is inferred from incoming input.It can be
                 ``top_left``, ``top_right``, ``bottom_left``,
                 ``bottom_right``. ``top_right`` is set if you set it
                  as True. Defaults to None.
-            xscale (str, optional): the x-axis type scale of your chart.
-                It can be ``linear``, ``datetime`` or ``categorical``.
-                Defaults to ``datetime``.
-            yscale (str, optional): the y-axis type scale of your chart.
-                It can be ``linear``, ``datetime`` or ``categorical``.
-                Defaults to ``linear``.
-            width (int, optional): the width of your chart in pixels.
-                Defaults to 800.
-            height (int, optional): the height of you chart in pixels.
-                Defaults to 600.
-            tools (bool, optional): to enable or disable the tools in
-                your chart. Defaults to True
-            filename (str or bool, optional): the name of the file where
-                your chart. will be written. If you pass True to this
-                argument, it will use ``untitled`` as a filename.
-                Defaults to False.
-            server (str or bool, optional): the name of your chart in
-                the server. If you pass True to this argument, it will
-                use ``untitled`` as the name in the server.
-                Defaults to False.
-            notebook (bool, optional): whether to output to IPython notebook
-                (default: False)
-            facet (bool, optional): generate multiple areas on multiple
-                separate charts for each series if True. Defaults to
-                False
-            xgrid (bool, optional): whether to display x grid lines
-                (default: False)
-            ygrid (bool, optional): whether to display x grid lines
-                (default: True)
 
         Attributes:
             source (obj): datasource object for your chart,
@@ -137,22 +98,7 @@ class BarBuilder(Builder):
         self.cat = cat
         self._stacked = stacked
 
-        super(BarBuilder, self).__init__(
-            title, xlabel, ylabel, legend, xscale, yscale, width, height,
-            tools, filename, server, notebook, facet, xgrid, ygrid
-        )
-
-    def check_attr(self):
-        """Check if any of the chained method were used.
-
-        If they were not used, it assign the init parameters content
-        by default.
-        """
-        super(BarBuilder, self).check_attr()
-
-        # add specific chained method
-        if not hasattr(self, '_stacked'):
-            self._stacked = self.__stacked
+        super(BarBuilder, self).__init__(legend)
 
     def get_data(self):
         """Take the Bar data from the input **value.

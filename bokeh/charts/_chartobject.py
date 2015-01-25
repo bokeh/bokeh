@@ -73,11 +73,7 @@ class Builder(object):
     # whether to show the ygrid
     ygrid = True
 
-    def __init__(self, title, xlabel, ylabel, legend,
-                 xscale, yscale, width, height,
-                 tools, filename, server, notebook, facet=False,
-                 xgrid=True, ygrid=True, palette=None, _doc=None, _session=None,
-                 chart=None):
+    def __init__(self, legend=False, palette=None, **kws):
         """Common arguments to be used by all the inherited classes.
 
         Args:
@@ -112,24 +108,24 @@ class Builder(object):
             we call any of the chained methods available, in that case the
             value used with the chained method will overwrite the default one.
         """
-        self.__title = title
-        self.__xlabel = xlabel
-        self.__ylabel = ylabel
-        self.__legend = legend
-        self.__xscale = xscale
-        self.__yscale = yscale
-        self.__width = width
-        self.__height = height
-        self.__tools = tools
-        self.__filename = filename
-        self.__server = server
-        self.__notebook = notebook
-        self.__facet = facet
-        self.__palette = palette or DEFAULT_PALETTE
-        self.__xgrid = xgrid
-        self.__ygrid = ygrid
-        self.doc = _doc
-        self.session = _session
+        # self.__title = title
+        # self.__xlabel = xlabel
+        # self.__ylabel = ylabel
+        self._legend = legend
+        # self.__xscale = xscale
+        # self.__yscale = yscale
+        # self.__width = width
+        # self.__height = height
+        # self.__tools = tools
+        # self.__filename = filename
+        # self.__server = server
+        # self.__notebook = notebook
+        # self.__facet = facet
+        self._palette = palette or DEFAULT_PALETTE
+        # self.__xgrid = xgrid
+        # self.__ygrid = ygrid
+        # self.doc = _doc
+        # self.session = _session
 
         # self.chart = None
 
@@ -492,7 +488,7 @@ class Builder(object):
     def _pre_create(self):
         """Prepare context before main show method is invoked """
         # we need to check the chained method attr
-        self.check_attr()
+        # self.check_attr()
 
     def make_renderers(self):
         """
@@ -530,11 +526,11 @@ class Builder(object):
         if not chart.y_range:
             chart.y_range = self.y_range
 
-        if self.__legend:
-            if self.__legend is True:
+        if self._legend:
+            if self._legend is True:
                 orientation = "top_right"
             else:
-                orientation = self.__legend
+                orientation = self._legend
 
             legends = self._legends
             chart.add_legend(orientation, legends)
