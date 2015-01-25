@@ -26,7 +26,7 @@ except ImportError:
     print("bokeh.charts needs numpy installed to work properly!")
     raise
 
-from ._chartobject import Builder
+from ._chartobject import Builder, create_and_build
 from ._charts import Chart
 from ..models import ColumnDataSource, Range1d, DataRange1d
 
@@ -34,16 +34,10 @@ from ..models import ColumnDataSource, Range1d, DataRange1d
 # Classes and functions
 #-----------------------------------------------------------------------------
 
-def Area(values, index=None, **kw):
 
-    # create a Area builder
-    builder = AreaBuilder(values, index=index, **kw)
+def Area(values, index=None, **kws):
+    return create_and_build(AreaBuilder, values, index=index, **kws)
 
-    # create a chart to return, since there isn't one already
-    chart = Chart(**kw)
-    chart.add_builder(builder)
-
-    return chart
 
 class AreaBuilder(Builder):
     """This is the Area class and it is in charge of plotting
