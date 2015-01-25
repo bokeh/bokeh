@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ Models for display visual shapes whose attributes can be associated
 with data columns from data sources.
 
