@@ -18,13 +18,24 @@ the arguments to the Chart class and calling the proper functions.
 from __future__ import print_function, division
 
 from ._charts import Chart
-from ._chartobject import DataAdapter
+from ._chartobject import DataAdapter, Builder, create_and_build
 from ..models import ColumnDataSource, FactorRange, HoverTool
 
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
-class HeatMap(Chart):
+
+
+def HeatMap(values, xscale="categorical", yscale="categorical",
+            xgrid=False, ygrid=False, **kw):
+    chart = create_and_build(
+        HeatMapBuilder, values, xscale=xscale, yscale=yscale,
+        xgrid=xgrid, ygrid=ygrid, **kw
+    )
+    chart.add_tools(HoverTool(tooltips=[("value", "@rate")]))
+    return chart
+
+class HeatMapBuilder(Builder):
     """This is the HeatMap class and it is in charge of plotting
     HeatMap chart in an easy and intuitive way.
 
@@ -45,61 +56,20 @@ class HeatMap(Chart):
     hm = HeatMap(xyvalues, title="categorical heatmap", filename="cat_heatmap.html")
     hm.width(1000).height(400).show()
     """
-    __subtype__ = "HeatMap"
-    __view_model__ = "Plot"
 
-    def __init__(self, values, palette=None,
-                 title=None, xlabel=None, ylabel=None, legend=False,
-                 xscale="categorical", yscale="categorical", width=800, height=600,
-                 tools=True, filename=False, server=False, notebook=False, xgrid=False,
-                 ygrid=False):
+    def __init__(self, values, legend=False, palette=None, **kws):
         """
         Args:
             values (iterable 2d): iterable 2d representing the data series matrix.
             palette(list, optional): a list containing the colormap as hex values.
-            title (str, optional): the title of your plot. Defaults to None.
-            xlabel (str, optional): the x-axis label of your plot.
-                Defaults to None.
-            ylabel (str, optional): the y-axis label of your plot.
-                Defaults to None.
             legend (str, optional): the legend of your plot. The legend content is
                 inferred from incoming input.It can be ``top_left``,
                 ``top_right``, ``bottom_left``, ``bottom_right``.
                 It is ``top_right`` is you set it as True.
                 Defaults to None.
-            xscale (str, optional): the x-axis type scale of your plot. It can be
-                ``linear``, ``datetime`` or ``categorical``.
-                Defaults to ``linear``.
-            yscale (str, optional): the y-axis type scale of your plot. It can be
-                ``linear``, ``datetime`` or ``categorical``.
-                Defaults to ``linear``.
-            width (int, optional): the width of your plot in pixels.
-                Defaults to 800.
-            height (int, optional): the height of you plot in pixels.
-                Defaults to 600.
-            tools (bool, optional): to enable or disable the tools in your plot.
-                Defaults to True
-            filename (str or bool, optional): the name of the file where your plot.
-                will be written. If you pass True to this argument, it will use
-                ``untitled`` as a filename.
-                Defaults to False.
-            server (str or bool, optional): the name of your plot in the server.
-                If you pass True to this argument, it will use ``untitled``
-                as the name in the server.
-                Defaults to False.
-            notebook (bool, optional): whether to output to IPython notebook
-                (default: False)
-            xgrid (bool, optional): whether to display x grid lines
-                (default: False)
-            ygrid (bool, optional): whether to display x grid lines
-                (default: False)
 
         Attributes:
             source (obj): datasource object for your plot,
-                initialized as a dummy None.
-            xdr (obj): x-associated datarange object for you plot,
-                initialized as a dummy None.
-            ydr (obj): y-associated datarange object for you plot,
                 initialized as a dummy None.
             groups (list): to be filled with the incoming groups of data.
                 Useful for legend construction.
@@ -111,17 +81,10 @@ class HeatMap(Chart):
                 Needed for _set_And_get method.
         """
         self.values = values
-        # self.source = None
-        # self.xdr = None
-        # self.ydr = None
-        # self.groups = []
-        # self.data = dict()
-        # self.attr = []
-        super(HeatMap, self).__init__(
-            title, xlabel, ylabel, legend,xscale, yscale, width, height,
-            tools, filename, server, notebook, facet=False,
-            xgrid=xgrid, ygrid=ygrid, palette=palette,
-        )
+        if not palette:
+            palette = ["#75968f", "#a5bab7", "#c9d9d3", "#e2e2e2", "#dfccce",
+                       "#ddb7b1", "#cc7878", "#933b41", "#550b1d"]
+        super(HeatMapBuilder, self).__init__(legend, palette=palette)
 
 
     def get_data(self):
@@ -132,14 +95,8 @@ class HeatMap(Chart):
         the rect glyph inside the ``draw`` method.
 
         """
-        self._catsx = list(self._values.columns)
-        self._catsy = list(self._values.index)
-
-        if self._palette is None:
-            colors = ["#75968f", "#a5bab7", "#c9d9d3", "#e2e2e2", "#dfccce",
-            "#ddb7b1", "#cc7878", "#933b41", "#550b1d"]
-        else:
-            colors = self._palette
+        self.catsx = list(self.values.columns)
+        self.catsy = list(self.values.index)
 
         # Set up the data for plotting. We will need to have values for every
         # pair of year/month names. Map the rate to a color.
@@ -147,50 +104,52 @@ class HeatMap(Chart):
         caty = []
         color = []
         rate = []
-        for y in self._catsy:
-            for m in self._catsx:
+        for y in self.catsy:
+            for m in self.catsx:
                 catx.append(m)
                 caty.append(y)
-                rate.append(self._values[m][y])
+                rate.append(self.values[m][y])
 
         # Now that we have the min and max rates
-        min_rate, max_rate = min(rate), max(rate)
-        factor = len(colors) - 1
+        factor = len(self._palette) - 1
         den = max(rate) - min(rate)
-        for y in self._catsy:
-            for m in self._catsx:
-                c = int(round(factor*(self._values[m][y] - min(rate)) / den))
-                color.append(colors[c])
+        for y in self.catsy:
+            for m in self.catsx:
+                c = int(round(factor*(self.values[m][y] - min(rate)) / den))
+                color.append(self._palette[c])
 
         width = [0.95] * len(catx)
         height = [0.95] * len(catx)
 
-        self._data = dict(catx=catx, caty=caty, color=color, rate=rate,
+        self.data = dict(catx=catx, caty=caty, color=color, rate=rate,
                          width=width, height=height)
 
     def get_source(self):
         """Push the CategoricalHeatMap data into the ColumnDataSource
         and calculate the proper ranges.
         """
-        self._source = ColumnDataSource(self._data)
-        self.x_range = FactorRange(factors=self._catsx)
-        self.y_range = FactorRange(factors=self._catsy)
+        self.source = ColumnDataSource(self.data)
+        self.x_range = FactorRange(factors=self.catsx)
+        self.y_range = FactorRange(factors=self.catsy)
 
     def draw(self):
         """Use the rect glyphs to display the categorical heatmap.
 
         Takes reference points from data loaded at the ColumnDataSurce.
         """
-        self.make_rect(self._source, "catx", "caty", "width", "height",
-                             "color", "white", None)
+        renderer = self.make_rect(
+            self.source, "catx", "caty", "width", "height", "color", "white", None)
+        # TODO: Legend??
+        # self._legends.append((self.groups[i], [renderer]))
+        yield renderer
 
-    def _show_teardown(self):
-        """Add hover tool to HetMap chart"""
-        self.add_tools(HoverTool(tooltips=[("value", "@rate")]))
+    # def _show_teardown(self):
+    #     """Add hover tool to HetMap chart"""
+    #     self.add_tools(HoverTool(tooltips=[("value", "@rate")]))
 
     def prepare_values(self):
         """Prepare the input data.
 
         Converts data input (self.values) to a DataAdapter
         """
-        self._values = DataAdapter(self._values, force_alias=True)
+        self.values = DataAdapter(self.values, force_alias=True)

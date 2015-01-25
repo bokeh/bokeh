@@ -81,10 +81,6 @@ class BarBuilder(Builder):
         Attributes:
             source (obj): datasource object for your chart,
                 initialized as a dummy None.
-            xdr (obj): x-associated datarange object for you chart,
-                initialized as a dummy None.
-            ydr (obj): y-associated datarange object for you chart,
-                initialized as a dummy None.
             groups (list): to be filled with the incoming groups of data.
                 Useful for legend construction.
             data (dict): to be filled with the incoming data and be passed
