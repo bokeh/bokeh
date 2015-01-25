@@ -1095,7 +1095,7 @@ class DashPattern(Either):
     }
 
     def __init__(self, default=[], help=None):
-        types = Enum(enums.DashPattern), Regex(r"^(\d+(\s+\d+)*)?$"), List(Int)
+        types = Enum(enums.DashPattern), Regex(r"^(\d+(\s+\d+)*)?$"), Seq(Int)
         super(DashPattern, self).__init__(*types, default=default, help=help)
 
     def transform(self, value):
