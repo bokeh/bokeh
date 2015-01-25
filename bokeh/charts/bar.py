@@ -37,7 +37,7 @@ from ..models import ColumnDataSource, FactorRange, Range1d
 def Bar(values, cat=None, stacked=False, xscale="categorical", yscale="linear",
         xgrid=False, ygrid=True, **kw):
     return create_and_build(
-        BarBuilder, cat=cat, stacked=stacked, xscale=xscale, yscale=yscale,
+        BarBuilder, values, cat=cat, stacked=stacked, xscale=xscale, yscale=yscale,
         xgrid=xgrid, ygrid=ygrid, **kw
     )
     # create a Area builder

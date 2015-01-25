@@ -45,7 +45,7 @@ except ImportError:
 
 def create_and_build(builder_class, values, **kws):
     # create a Area builder
-    builder = builder_class(**kws)
+    builder = builder_class(values, **kws)
 
     # create a chart to return, since there isn't one already
     chart = Chart(**kws)
