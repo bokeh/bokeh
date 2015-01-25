@@ -22,7 +22,7 @@ class BasicTickFormatter(TickFormatter):
 
     """
     precision = Either(Auto, Int, help="""
-    How many digits of precision to display.
+    How many digits of precision to display in tick labels.
     """)
 
     use_scientific = Bool(True, help="""
@@ -32,14 +32,14 @@ class BasicTickFormatter(TickFormatter):
     """)
 
     power_limit_high = Int(5, help="""
-    Display tick values in scientific notation when::
+    Limit the use of scientific notation to when::
 
         log(x) >= power_limit_high
 
     """)
 
     power_limit_low = Int(-3, help="""
-    Display tick values in scientific notation when::
+    Limit the use of scientific notation to when::
 
         log(x) <= power_limit_low
 
@@ -53,8 +53,8 @@ class LogTickFormatter(TickFormatter):
 
     """
     ticker = Instance(Ticker, help="""
-    Configure with a corresponding ``LogTicker`` to support bases
-    other than the default base 10.
+    The corresponding ``LogTicker``, used to determine the correct
+    base to use. If unset, the formatter will use base 10 as a default.
     """)
 
 class CategoricalTickFormatter(TickFormatter):
@@ -71,7 +71,7 @@ class DatetimeTickFormatter(TickFormatter):
     """
 
     formats = Dict(Enum(DatetimeUnits), List(String), help="""
-    Supply specific formats for displaying datetime values.
+    User defined formats for displaying datetime values.
 
     The enum values correspond roughly to different "time scales". The
     corresponding value is a list of `strftime`_ formats to use for

@@ -22,16 +22,23 @@ class _list_attr_splat(list):
             setattr(x, attr, value)
 
 class PlotContext(PlotObject):
-    """ A container for multiple plot objects. """
-    children = List(Instance(PlotObject))
+    """ A container for multiple plot objects.
 
+    """
+
+    children = List(Instance(PlotObject), help="""
+
+    """)
+
+# TODO (bev) : is this used anywhere?
 class PlotList(PlotContext):
     # just like plot context, except plot context has special meaning
     # everywhere, so plotlist is the generic one
     pass
 
 class Plot(Widget):
-    """ Object representing a plot, containing glyphs, guides, annotations.
+    """ Model representing a plot, containing glyphs, guides, annotations.
+
     """
 
     def __init__(self, **kwargs):
@@ -158,52 +165,136 @@ class Plot(Widget):
         self.renderers.append(g)
         return g
 
-    x_range = Instance(Range)
-    y_range = Instance(Range)
-    x_mapper_type = Either(Auto, String)
-    y_mapper_type = Either(Auto, String)
+    x_range = Instance(Range, help="""
 
-    extra_x_ranges = Dict(String, Instance(Range1d))
-    extra_y_ranges = Dict(String, Instance(Range1d))
+    """)
 
-    title = String('')
-    title_props = Include(TextProps)
-    outline_props = Include(LineProps)
+    y_range = Instance(Range, help="""
+
+    """)
+
+    x_mapper_type = Either(Auto, String, help="""
+
+    """)
+
+    y_mapper_type = Either(Auto, String, help="""
+
+    """)
+
+    extra_x_ranges = Dict(String, Instance(Range1d), help="""
+
+    """)
+
+    extra_y_ranges = Dict(String, Instance(Range1d), help="""
+
+    """)
+
+    title = String('', help="""
+
+    """)
+
+    title_props = Include(TextProps, help="""
+
+    """)
+
+    outline_props = Include(LineProps, help="""
+
+    """)
 
     # A list of all renderers on this plot; this includes guides as well
     # as glyph renderers
-    renderers = List(Instance(Renderer))
-    tools = List(Instance(Tool))
-    tool_events = Instance(ToolEvents)
+    renderers = List(Instance(Renderer), help="""
 
-    left  = List(Instance(Renderer))
-    right = List(Instance(Renderer))
-    above = List(Instance(Renderer))
-    below = List(Instance(Renderer))
+    """)
 
-    toolbar_location = Enum(Location)
-    logo = Enum("normal", "grey")
+    tools = List(Instance(Tool), help="""
 
-    plot_height = Int(600)
-    plot_width = Int(600)
+    """)
 
-    background_fill = Color("white")
-    border_fill = Color("white")
+    tool_events = Instance(ToolEvents, help="""
 
-    min_border_top = Int(50)
-    min_border_bottom = Int(50)
-    min_border_left = Int(50)
-    min_border_right = Int(50)
-    min_border = Int(50)
+    """)
 
-    h_symmetry = Bool(True)
-    v_symmetry = Bool(False)
+    left  = List(Instance(Renderer), help="""
+
+    """)
+
+    right = List(Instance(Renderer), help="""
+
+    """)
+
+    above = List(Instance(Renderer), help="""
+
+    """)
+
+    below = List(Instance(Renderer), help="""
+
+    """)
+
+    toolbar_location = Enum(Location, help="""
+
+    """)
+
+    logo = Enum("normal", "grey", help="""
+
+    """)
+
+    plot_height = Int(600, help="""
+
+    """)
+
+    plot_width = Int(600, help="""
+
+    """)
+
+    background_fill = Color("white", help="""
+
+    """)
+
+    border_fill = Color("white", help="""
+
+    """)
+
+    min_border_top = Int(50, help="""
+
+    """)
+
+    min_border_bottom = Int(50, help="""
+
+    """)
+
+    min_border_left = Int(50, help="""
+
+    """)
+
+    min_border_right = Int(50, help="""
+
+    """)
+
+    min_border = Int(50, help="""
+
+    """)
+
+    h_symmetry = Bool(True, help="""
+
+    """)
+
+    v_symmetry = Bool(False, help="""
+
+    """)
 
 class GridPlot(Plot):
-    """ A 2D grid of plots """
+    """ A 2D grid of plots rendered on separate canvases in an HTML table.
 
-    children = List(List(Instance(Plot)))
-    border_space = Int(0)
+    """
+
+    children = List(List(Instance(Plot)), help="""
+
+    """)
+
+    border_space = Int(0, help="""
+
+    """)
 
     def select(self, selector):
         ''' Query this object and all of its references for objects that

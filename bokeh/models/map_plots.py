@@ -15,11 +15,11 @@ class GMapOptions(HasProps):
     """
 
     lat = Float(help="""
-    Latitude where the map should be centered.
+    The latitude where the map should be centered.
     """)
 
     lng = Float(help="""
-    Longitude where the map should be centered.
+    The longitude where the map should be centered.
     """)
 
     zoom = Int(12, help="""
@@ -53,11 +53,11 @@ class GeoJSOptions(HasProps):
     """
 
     lat = Float(help="""
-    Latitude where the map should be centered.
+    The latitude where the map should be centered.
     """)
 
     lng = Float(help="""
-    Longitude where the map should be centered.
+    The longitude where the map should be centered.
     """)
 
     zoom = Int(12, help="""
@@ -68,7 +68,8 @@ class GeoJSPlot(Plot):
     """ A Bokeh Plot with a `GeoJS Map`_ displayed underneath.
 
     .. warning::
-        GeoJSPlot is currently experimental.
+        GeoJSPlot support should be considered experimental, a subject
+        to revision or removal.
 
     .. _GeoJS Map: https://github.com/OpenGeoscience/geojs
 

@@ -23,88 +23,93 @@ class Axis(GuideRenderer):
     """)
 
     bounds = Either(Auto, Tuple(Float, Float), help="""
-    Constrain the Axis to only draw between specified bounds.
+    Bounds for the rendered axis. If unset, the axis will span the
+    entire plot in the given dimension.
     """)
 
     x_range_name = String('default', help="""
-    Configure this Axis to use a particular (named) Range of the
-    associated Plot.
+    A particular (named) x-range to use for computing screen
+    locations when rendering an axis on the plot. If unset, use the
+    default x-range.
     """)
 
     y_range_name = String('default', help="""
-    Configure this Axis to use a particular (named) Range of the
-    associated Plot.
+    A particular (named) y-range to use for computing screen
+    locations when rendering an axis on the plot. If unset, use the
+    default y-range.
     """)
 
     ticker = Instance(Ticker, help="""
-    Configure a Ticker to specify how major tick locations are chosen.
+    A Ticker to use for computing locations of axis components.
     """)
 
     formatter = Instance(TickFormatter, help="""
-    Configure a TickFormatter to specify how tick values are formatted.
+    A TickFormatter to use for formatting the visual appearance
+    of ticks.
     """)
 
     axis_label = String(help="""
-    A text label for the axis, displayed parallel to the axis rule
+    A text label for the axis, displayed parallel to the axis rule.
 
     .. note::
         LaTeX notation is not currently supported; please see
         :bokeh-issue:`647` to track progress or contribute.
+
     """)
 
     axis_label_standoff = Int(help="""
-    Distance in pixels that the axis labels should be offset from
-    the tick labels.
+    The distance in pixels that the axis labels should be offset
+    from the tick labels.
     """)
 
     axis_label_props = Include(TextProps, help="""
-    Set the %s of the axis label.
+    The %s of the axis label.
     """)
 
     major_label_standoff = Int(help="""
-    Distance in pixels that the major tick labels should be offset
-    from the associated ticks.
+    The distance in pixels that the major tick labels should be
+    offset from the associated ticks.
     """)
 
     major_label_orientation = Either(Enum("horizontal", "vertical"), Float, help="""
-    What direction the major label text should be oriented. If a number
-    is supplied, the angle of the text is measured from horizontal.
+    What direction the major label text should be oriented. If a i
+    number is supplied, the angle of the text is measured from horizontal.
     """)
 
     major_label_props = Include(TextProps, help="""
-    Set the %s of the major tick labels.
+    The %s of the major tick labels.
     """)
 
     axis_props = Include(LineProps, help="""
-    Set the %s of the axis line.
+    The %s of the axis line.
     """)
 
     major_tick_props = Include(LineProps, help="""
-    Set the %s of the major ticks.
+    The %s of the major ticks.
     """)
 
     major_tick_in = Int(help="""
-    Distance in pixels that major ticks should extend into the main
-    plot area.
+    The distance in pixels that major ticks should extend into the
+    main plot area.
     """)
 
     major_tick_out = Int(help="""
-    Distance in pixels that major ticks should extend out of the main
-    plot area.
+    The distance in pixels that major ticks should extend out of the
+    main plot area.
     """)
 
     minor_tick_props = Include(LineProps, help="""
-    Set the %s of the minor ticks.
+    The %s of the minor ticks.
     """)
 
     minor_tick_in = Int(help="""
-    Distance in pixels that minor ticks should extend into the main
-    plot area.
+    The distance in pixels that minor ticks should extend into the
+    main plot area.
     """)
 
     minor_tick_out = Int(help="""
-    Distance in pixels that major ticks should extend out of the main
-    plot area.
+    The distance in pixels that major ticks should extend out of the
+    main plot area.
     """)
 
 class ContinuousAxis(Axis):
@@ -158,9 +163,10 @@ class DatetimeAxis(LinearAxis):
 
     """
     axis_label = String("date", help="""
-    Supply a default axis label value of 'date'
+    DateTime ``axis_label`` defaults to "date".
     """)
 
+    # TODO: (bev) this should be an Enum, if it is exposed at all
     scale = String("time")
 
     num_labels = Int(8)

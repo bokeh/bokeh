@@ -1,3 +1,6 @@
+"""
+
+"""
 from __future__ import absolute_import
 
 from ..plot_object import PlotObject
@@ -9,45 +12,118 @@ from .sources import DataSource, ServerDataSource
 from .glyphs import Glyph
 
 class Renderer(PlotObject):
-    pass
+     """ A base class for renderer types. ``Renderer`` is not
+     generally useful to instantiate on its own.
+
+    """
 
 class GlyphRenderer(Renderer):
-    server_data_source = Instance(ServerDataSource)
-    data_source = Instance(DataSource)
-    x_range_name = String('default')
-    y_range_name = String('default')
+    """
 
-    # How to intepret the values in the data_source
+    """
+
+    data_source = Instance(DataSource, help="""
+    Local data source to use when rendering glyphs on the plot.
+    """)
+
+    server_data_source = Instance(ServerDataSource, help="""
+
+    """)
+
+    x_range_name = String('default', help="""
+    A particular (named) x-range to use for computing screen
+    locations when rendering glyphs on the plot. If unset, use the
+    default x-range.
+    """)
+
+    y_range_name = String('default', help="""
+    A particular (named) y-range to use for computing screen
+    locations when rendering glyphs on the plot. If unset, use the
+    default -range.
+    """)
+
+    # TODO: (bev) is this actually used?
     units = Enum(Units)
 
-    glyph = Instance(Glyph)
+    glyph = Instance(Glyph, help="""
+    The glyph to render, in conjunction with the supplied data source
+    and ranges.
+    """)
 
-    # Optional glyph used when data is selected.
-    selection_glyph = Instance(Glyph)
-    # Optional glyph used when data is unselected.
-    nonselection_glyph = Instance(Glyph)
+    selection_glyph = Instance(Glyph, help="""
+    An optional glyph used for selected points.
+    """)
 
+    nonselection_glyph = Instance(Glyph, help="""
+    An optional glyph used for explicitly non-selected points
+    (i.e., non-selected when there are other points that are selected,
+    but not when no points at all are selected.)
+    """)
+
+# TODO: (bev) This should really go in a separate module
 class Legend(Renderer):
-    plot = Instance(".models.plots.Plot")
-    orientation = Enum(Orientation)
-    border_props = Include(LineProps)
+    """
 
-    label_props = Include(TextProps)
-    label_standoff = Int(15)
-    label_height = Int(20)
-    label_width = Int(50)
+    """
 
-    glyph_height = Int(20)
-    glyph_width = Int(20)
+    plot = Instance(".models.plots.Plot", help="""
+    The Plot to which this Legend is attached.
+    """)
 
-    legend_padding = Int(10)
-    legend_spacing = Int(3)
+    orientation = Enum(Orientation, help="""
+    The location where the legend should draw itself.
+    """)
 
-    legends = List(Tuple(String, List(Instance(GlyphRenderer)))) \
-        .accepts(Dict(String, List(Instance(GlyphRenderer))), lambda d: list(d.items()))
+    border_props = Include(LineProps, help="""
+    The %s for the legend border outline.
+    """)
+
+    label_props = Include(TextProps, help="""
+    The %s for the legend labels.
+    """)
+
+    label_standoff = Int(15, help="""
+    The distance in pixels
+    """)
+
+    label_height = Int(20, help="""
+    The height in pixels that the area that legend labels should occupy.
+    """)
+
+    label_width = Int(50, help="""
+    The width in pixels that the area that legend labels should occupy.
+    """)
+
+    glyph_height = Int(20, help="""
+    The height in pixels that the rendered legend glyph should occupy.
+    """)
+
+    glyph_width = Int(20, help="""
+    The width in pixels that the rendered legend glyph should occupy.
+    """)
+
+    legend_padding = Int(10, help="""
+
+    """)
+
+    legend_spacing = Int(3, help="""
+
+    """)
+
+    legends = List(Tuple(String, List(Instance(GlyphRenderer))), help="""
+
+    """).accepts(
+        Dict(String, List(Instance(GlyphRenderer))), lambda d: list(d.items())
+    )
 
 class GuideRenderer(Renderer):
-    plot = Instance(".models.plots.Plot")
+    """
+
+    """
+
+    plot = Instance(".models.plots.Plot", help="""
+    The plot to which this guide renderer is attached.
+    """)
 
     def __init__(self, **kwargs):
         super(GuideRenderer, self).__init__(**kwargs)

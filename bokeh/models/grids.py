@@ -15,29 +15,36 @@ class Grid(GuideRenderer):
 
     """
     dimension = Int(0, help="""
-    Which dimension's Axis the Grid lines should intersect. The
+    Which dimension the Axis Grid lines will intersect. The
     x-axis is dimension 0 (vertical Grid lines) and the y-axis
     is dimension 1 (horizontal Grid lines).
     """)
 
     bounds = Either(Auto, Tuple(Float, Float), help="""
-    Constrain the Grid to only draw between specified bounds.
+    Bounds for the rendered grid lines. If unset, the grid
+    lines will span the entire plot in the given dimension.
     """)
 
+    # Note: we must allow the possibility of setting both
+    # range names be cause if a grid line is "traced" along
+    # a path, ranges in both dimensions will matter.
+
     x_range_name = String('default', help="""
-    Configure this Grid to use a particular (named) Range of the
-    associated Plot.
+    A particular (named) x-range to use for computing screen
+    locations when rendering a grid on the plot. If unset, use the
+    default x-range.
     """)
 
     y_range_name = String('default', help="""
-    Configure this Grid to use a particular (named) Range of the
-    associated Plot.
+    A particular (named) y-range to use for computing screen
+    locations when rendering a grid on the plot. If unset, use the
+    default y-range.
     """)
 
     ticker = Instance(Ticker, help="""
-    A Ticker to use to determine locations for the Grid lines.
+    The Ticker to use for computing locations for the Grid lines.
     """)
 
     grid_props = Include(LineProps, help="""
-    Set the %s of the Grid lines.
+    The %s of the Grid lines.
     """)

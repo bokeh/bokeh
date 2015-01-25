@@ -1,3 +1,6 @@
+"""
+
+"""
 from __future__ import absolute_import
 
 import six
@@ -6,12 +9,27 @@ from ...properties import Bool, Int, Float, String, Date, RelativeDelta, Enum, L
 from ..widget import Widget
 
 class InputWidget(Widget):
-    title = String()
-    name = String()
-    value = String()
+    """
+
+    """
+
+    title = String(help="""
+
+    """)
+
+    name = String(help="""
+
+    """)
+
+    value = String(help="""
+
+    """)
 
     @classmethod
     def coerce_value(cls, val):
+        """
+
+        """
         prop_obj = cls.lookup('value')
         if isinstance(prop_obj, Float):
             return float(val)
@@ -24,8 +42,9 @@ class InputWidget(Widget):
 
     @classmethod
     def create(cls, *args, **kwargs):
-        """Only called the first time we make an object,
+        """ Only called the first time we make an object,
         whereas __init__ is called every time it's loaded
+
         """
         if kwargs.get('title') is None:
             kwargs['title'] = kwargs['name']
@@ -34,14 +53,31 @@ class InputWidget(Widget):
         return cls(**kwargs)
 
 class TextInput(InputWidget):
-    value = String()
+    """
+
+    """
+    value = String(help="""
+
+    """)
 
 class Select(InputWidget):
-    options = List(Either(String, Dict(String, String)))
-    value = String
+    """
+
+    """
+
+    options = List(Either(String, Dict(String, String)), help="""
+
+    """)
+
+    value = String(help="""
+
+    """)
 
     @classmethod
     def create(self, *args, **kwargs):
+        """
+
+        """
         options = kwargs.pop('options', [])
         new_options = []
         for opt in options:
@@ -52,10 +88,19 @@ class Select(InputWidget):
         return super(Select, self).create(*args, **kwargs)
 
 class MultiSelect(Select):
-    value = List(String)
+    """
+
+    """
+
+    value = List(String, help="""
+
+    """)
 
     @classmethod
     def create(self, *args, **kwargs):
+        """
+
+        """
         options = kwargs.pop('options', [])
         new_options = []
         for opt in options:
@@ -66,25 +111,82 @@ class MultiSelect(Select):
         return super(Select, self).create(*args, **kwargs)
 
 class Slider(InputWidget):
-    value = Float()
-    start = Float()
-    end = Float()
-    step = Float()
-    orientation = Enum("horizontal", "vertical")
+    """
+
+    """
+
+    value = Float(help="""
+
+    """)
+
+    start = Float(help="""
+
+    """)
+
+    end = Float(help="""
+
+    """)
+
+    step = Float(help="""
+
+    """)
+
+    orientation = Enum("horizontal", "vertical", help="""
+
+    """)
 
 class DateRangeSlider(InputWidget):
-    value = Tuple(Date, Date)
-    bounds = Tuple(Date, Date)
-    range = Tuple(RelativeDelta, RelativeDelta)
-    step = RelativeDelta
+    """
+
+    """
+
+    value = Tuple(Date, Date, help="""
+
+    """)
+
+    bounds = Tuple(Date, Date, help="""
+
+    """)
+
+    range = Tuple(RelativeDelta, RelativeDelta, help="""
+
+    """)
+
+    step = RelativeDelta(help="""
+
+    """)
+
     # formatter = Either(String, Function(Date))
     # scales = DateRangeSliderScales ... # first, next, stop, label, format
-    enabled = Bool(True)
-    arrows = Bool(True)
-    value_labels = Enum("show", "hide", "change")
-    wheel_mode = Enum("scroll", "zoom", default=None) # nullable=True
+
+    enabled = Bool(True, help="""
+
+    """)
+
+    arrows = Bool(True, help="""
+
+    """)
+
+    value_labels = Enum("show", "hide", "change", help="""
+
+    """)
+
+    wheel_mode = Enum("scroll", "zoom", default=None, help="""
+
+    """) # nullable=True
 
 class DatePicker(InputWidget):
-    value = Date
-    min_date = Date(default=None)
-    max_date = Date(default=None)
+    """
+
+    """
+
+    value = Date(help="""
+
+    """)
+
+    min_date = Date(default=None, help="""
+
+    """)
+    max_date = Date(default=None, help="""
+
+    """)

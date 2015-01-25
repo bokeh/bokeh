@@ -16,33 +16,38 @@ class Marker(Glyph):
     """
 
     x = DataSpec("x", help="""
-    Set the x-axis coordinates for the center of the markers.
+    The x-axis coordinates for the center of the markers.
     """)
 
     y = DataSpec("y", help="""
-    Set the y-axis coordinates for the center of the markers.
+    The y-axis coordinates for the center of the markers.
     """)
 
     size = DataSpec(units="screen", min_value=0, default=4, help="""
-    Set the size (diameter) values for the markers. Interpreted as
+    The size (diameter) values for the markers. Interpreted as
     "screen space" units by default.
     """)
 
     line_props = Include(LineProps, use_prefix=False, help="""
-    Set the %s values for the markers.
+    The %s values for the markers.
     """)
 
     fill_props = Include(FillProps, use_prefix=False, help="""
-    Set the %s values for the markers.
+    The %s values for the markers.
     """)
 
 class Asterisk(Marker):
-    pass
+    """
+
+    """
 
 class Circle(Marker):
+    """
+
+    """
 
     radius = DataSpec(units="data", min_value=0, default=None, help="""
-    Set the radius values for circle markers. Interpreted in
+    The radius values for circle markers. Interpreted in
     "data space" units by default.
 
     .. note::
@@ -62,36 +67,60 @@ class Circle(Marker):
     """)
 
 class CircleCross(Marker):
-    pass
+    """
+
+    """
 
 class CircleX(Marker):
-    pass
+    """
+
+    """
 
 class Cross(Marker):
-    pass
+    """
+
+    """
 
 class Diamond(Marker):
-    pass
+    """
+
+    """
 
 class DiamondCross(Marker):
-    pass
+    """
+
+    """
 
 class InvertedTriangle(Marker):
-    pass
+    """
+
+    """
 
 class Square(Marker):
+    """
+
+    """
+
     angle = DataSpec("angle", help="""
-    Set the angle (in radians) to rotate square markers.
+    The angle (in radians) to rotate square markers.
     """)
 
 class SquareCross(Marker):
-    pass
+    """
+
+    """
 
 class SquareX(Marker):
-    pass
+    """
+
+    """
 
 class Triangle(Marker):
-    pass
+    """
+
+    """
 
 class X(Marker):
-    pass
+    """
+
+    """

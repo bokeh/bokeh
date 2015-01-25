@@ -38,13 +38,13 @@ class LinearColorMapper(ColorMapper):
     """).accepts(Enum(Palette), lambda pal: getattr(palettes, pal))
 
     low = Float(help="""
-    Minimum value of the range to map into the palette. Values below this
-    are clamped to ``low``.
+    The minimum value of the range to map into the palette. Values below
+    this are clamped to ``low``.
     """)
 
     high = Float(help="""
-    Maximum value of the range to map into the palette. Values above this
-    are clamped to ``high``.
+    The maximum value of the range to map into the palette. Values above
+    this are clamped to ``high``.
     """)
 
     # TODO: (jc) what is the color code for transparent?

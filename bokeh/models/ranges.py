@@ -1,3 +1,8 @@
+""" Models for describing different kinds of ranges of values
+in different kinds of spaces (e.g., continuous or categorical)
+and with options for "auto sizing".
+
+"""
 from __future__ import absolute_import
 
 from ..plot_object import PlotObject

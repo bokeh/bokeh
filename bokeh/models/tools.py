@@ -43,7 +43,7 @@ class Tool(PlotObject):
     """
 
     plot = Instance(".models.plots.Plot", help="""
-    A reference to the Plot that this tool should at on.
+    The Plot that this tool will act on.
     """)
 
 class PanTool(Tool):
@@ -62,8 +62,9 @@ class PanTool(Tool):
         :height: 18pt
 
     """
+
     dimensions = List(Enum(Dimension), default=["width", "height"], help="""
-    Set which dimensions the pan tool is constrained to act in. By default
+    Which dimensions the pan tool is constrained to act in. By default
     the pan tool will pan in any dimension, but can be configured to only
     pan horizontally across the width of the plot, or vertically across the
     height of the plot.
@@ -86,7 +87,7 @@ class WheelZoomTool(Tool):
     """
 
     dimensions = List(Enum(Dimension), default=["width", "height"], help="""
-    Set which dimensions the wheel zoom tool is constrained to act in. By
+    Which dimensions the wheel zoom tool is constrained to act in. By
     default the wheel zoom tool will zoom in any dimension, but can be
     configured to only zoom horizontally across the width of the plot, or
     vertically across the height of the plot.
@@ -154,11 +155,17 @@ class TapTool(Tool):
     """
 
     names = List(String, help="""
+    A list of names to query for. If set, only renderers that
+    have a matching value for their ``name`` attribute will be used.
+    """)
 
+    renderers = List(Instance(Renderer), help="""
+    An explicit list of renderers to hit test again. If unset,
+    defaults to all renderers on a plot.
     """)
 
     always_active = Bool(True, help="""
-
+    Whether the hover tool must be explicitly activated.
     """)
 
 class CrosshairTool(Tool):
@@ -192,7 +199,7 @@ class BoxZoomTool(Tool):
     """
 
     dimensions = List(Enum(Dimension), default=["width", "height"], help="""
-    Set which dimensions the zoom box is to be free in. By default,
+    Which dimensions the zoom box is to be free in. By default,
     users may freely draw zoom boxes with any dimensions. If only
     "width" is supplied, the box will be constrained to span the entire
     vertical space of the plot, only the horizontal dimension can be
@@ -215,22 +222,22 @@ class BoxSelectTool(Tool):
     """
 
     names = List(String, help="""
-    Set a list of names to query for. If set, only renderers that
+    A list of names to query for. If set, only renderers that
     have a matching value for their ``name`` attribute will be used.
     """)
 
     renderers = List(Instance(Renderer), help="""
-    Set an explicit list of renderers to hit test again. If unset,
+    An explicit list of renderers to hit test again. If unset,
     defaults to all renderers on a plot.
     """)
 
     select_every_mousemove = Bool(True, help="""
-    Set an explicit list of renderers to hit test again. If unset,
+    An explicit list of renderers to hit test again. If unset,
     defaults to all renderers on a plot.
     """)
 
     dimensions = List(Enum(Dimension), default=["width", "height"], help="""
-    Set which dimensions the box selection is to be free in. By default,
+    Which dimensions the box selection is to be free in. By default,
     users may freely draw selections boxes with any dimensions. If only
     "width" is supplied, the box will be constrained to span the entire
     vertical space of the plot, only the horizontal dimension can be
@@ -248,7 +255,7 @@ class BoxSelectionOverlay(Renderer):
     __view_model__ = 'BoxSelection'
 
     tool = Instance(Tool, help="""
-    Set the tool that this overlay should respond to.
+    The tool that this overlay should respond to.
     """)
 
 class LassoSelectTool(Tool):
@@ -270,17 +277,17 @@ class LassoSelectTool(Tool):
     """
 
     names = List(String, help="""
-    Set a list of names to query for. If set, only renderers that
+    A list of names to query for. If set, only renderers that
     have a matching value for their ``name`` attribute will be used.
     """)
 
     renderers = List(Instance(Renderer), help="""
-    Set an explicit list of renderers to hit test again. If unset,
+    An explicit list of renderers to hit test again. If unset,
     defaults to all renderers on a plot.
     """)
 
     select_every_mousemove = Bool(True, help="""
-    Set whether a selection computation should happen on every mouse
+    Whether a selection computation should happen on every mouse
     event, or only once, when the selection region is completed.
     """)
 
@@ -304,12 +311,12 @@ class PolySelectTool(Tool):
     """
 
     names = List(String, help="""
-    Set a list of names to query for. If set, only renderers that
+    A list of names to query for. If set, only renderers that
     have a matching value for their ``name`` attribute will be used.
     """)
 
     renderers = List(Instance(Renderer), help="""
-    Set an explicit list of renderers to hit test again. If unset,
+    An explicit list of renderers to hit test again. If unset,
     defaults to all renderers on a plot.
     """)
 
@@ -348,17 +355,18 @@ class HoverTool(Tool):
     """
 
     names = List(String, help="""
-    Set a list of names to query for. If set, only renderers that
+    A list of names to query for. If set, only renderers that
     have a matching value for their ``name`` attribute will be used.
     """)
 
     renderers = List(Instance(Renderer), help="""
-    Set an explicit list of renderers to hit test again. If unset,
+    An explicit list of renderers to hit test again. If unset,
     defaults to all renderers on a plot.
     """)
 
     tooltips = List(Tuple(String, String), help="""
-    Set (name, field) pairs for the hover tool to display on hits. The
+    The (name, field) pairs describing what the hover tool should
+    display when there is a hit.
 
     Field names starting with "@" are interpreted as columns on the
     data source. For instance, "@temp" would look up values to display
@@ -384,11 +392,11 @@ class HoverTool(Tool):
     """).accepts(Dict(String, String), lambda d: list(d.items()))
 
     always_active = Bool(True, help="""
-    Set whether the hover tool must be explicitly activated.
+    Whether the hover tool must be explicitly activated.
     """)
 
     snap_to_data = Bool(True, help="""
-    Set whether the tooltip position should snap to the "center" position
+    Whether the tooltip position should snap to the "center" position
     of the associated glyph. For instance, if set to True, the tooltip
     will point to the center of any marker (e.g., ``Circle``, `` Square``)
     regardless of the cursor position, as long as the cursor hits the
