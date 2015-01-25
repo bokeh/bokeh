@@ -22,7 +22,7 @@ try:
 except ImportError:
     pd = None
 
-from ._chartobject import ChartObject, Builder, create_and_build
+from ._chartobject import Builder, create_and_build
 from ..models import ColumnDataSource, FactorRange, Range1d
 
 

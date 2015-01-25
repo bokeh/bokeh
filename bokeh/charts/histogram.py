@@ -22,7 +22,7 @@ except ImportError as e:
     _is_scipy = False
 import numpy as np
 
-from ._chartobject import ChartObject
+from ._chartobject import Builder, create_and_build
 from ..models import ColumnDataSource, Range1d
 
 #-----------------------------------------------------------------------------
@@ -30,7 +30,14 @@ from ..models import ColumnDataSource, Range1d
 #-----------------------------------------------------------------------------
 
 
-class Histogram(ChartObject):
+def Histogram(values, bins, mu=None, sigma=None, density=True, **kws):
+    return create_and_build(
+        HistogramBuilder, values, bins=bins, mu=mu, sigma=sigma, density=density,
+        **kws
+    )
+
+
+class HistogramBuilder(Builder):
     """This is the Histogram class and it is in charge of plotting
     histograms in an easy and intuitive way.
 
@@ -53,10 +60,7 @@ class Histogram(ChartObject):
         hist.legend(True).width(400).height(350).show()
     """
     def __init__(self, values, bins, mu=None, sigma=None, density=True,
-                 title=None, xlabel=None, ylabel=None, legend=False,
-                 xscale="linear", yscale="linear", width=800, height=600,
-                 tools=True, filename=False, server=False, notebook=False,
-                 facet=False, xgrid=True, ygrid=True):
+                 legend=False, palette=None, **kws):
         """
         Args:
             values (iterable): iterable 2d representing the data series
@@ -72,52 +76,15 @@ class Histogram(ChartObject):
                 the bin, normalized such that the *integral* over the
                 range is 1. For more info check numpy.histogram
                 function documentation. (default: True)
-            title (str, optional): the title of your chart.
-                (default: None)
-            xlabel (str, optional): the x-axis label of your chart.
-                (default: None)
-            ylabel (str, optional): the y-axis label of your chart.
-                (default: None)
             legend (str, optional): the legend of your chart. The legend
                 content is inferred from incoming input.It can be
                 ``top_left``, ``top_right``, ``bottom_left``,
                 ``bottom_right``. ``top_right`` is set if you set it
                  as True. (default: False)
-            xscale (str, optional): the x-axis type scale of your chart.
-                It can be ``linear``, ``datetime`` or ``categorical``.
-                (default: ``linear``)
-            yscale (str, optional): the y-axis type scale of your chart.
-                It can be ``linear``, ``datetime`` or ``categorical``.
-                (default: ``linear``)
-            width (int, optional): the width of your chart in pixels.
-                (default: 800)
-            height (int, optional): the height of you chart in pixels.
-                (default: 600)
-            tools (bool, optional): to enable or disable the tools in
-                your chart. (default: True)
-            filename (str or bool, optional): the name of the file where
-                your chart. will be written. If you pass True to this
-                argument, it will use ``untitled`` as a filename.
-                (default: False)
-            server (str or bool, optional): the name of your chart in
-                the server. If you pass True to this argument, it will
-                use ``untitled`` as the name in the server.
-                (default: False)
-            notebook (bool, optional): whether to output to IPython
-                notebook (default: False)
-            facet (bool, optional): generate multiple areas on multiple
-                separate charts for each series if True. (default: False)
-            xgrid (bool, optional): whether to display x grid lines
-                (default: True)
-            ygrid (bool, optional): whether to display y grid lines
-                (default: True)
+
 
         Attributes:
             source (obj): datasource object for your plot,
-                initialized as a dummy None.
-            xdr (obj): x-associated datarange object for you plot,
-                initialized as a dummy None.
-            ydr (obj): y-associated datarange object for you plot,
                 initialized as a dummy None.
             groups (list): to be filled with the incoming groups of data.
                 Useful for legend construction.
@@ -133,24 +100,7 @@ class Histogram(ChartObject):
         self.mu = mu
         self.sigma = sigma
         self.density = density
-        self.source = None
-        self.xdr = None
-        self.ydr = None
-        self.groups = []
-        self.data = dict()
-        self.attr = []
-        super(Histogram, self).__init__(
-            title, xlabel, ylabel, legend, xscale, yscale, width, height,
-            tools, filename, server, notebook, facet, xgrid, ygrid
-        )
-
-    def check_attr(self):
-        """Check if any of the chained method were used.
-
-        If they were not used, it assign the init parameters content
-        by default.
-        """
-        super(Histogram, self).check_attr()
+        super(HistogramBuilder, self).__init__(legend=legend, palette=palette)
 
     def get_data(self):
         """Take the Histogram data from the input **value.
@@ -205,12 +155,12 @@ class Histogram(ChartObject):
 
         endx = max(max(self.data[i]) for i in x_names)
         startx = min(min(self.data[i]) for i in x_names)
-        self.xdr = Range1d(start=startx - 0.1 * (endx - startx),
+        self.x_range = Range1d(start=startx - 0.1 * (endx - startx),
                            end=endx + 0.1 * (endx - startx))
 
         endy = max(max(self.data[i]) for i in y_names)
 
-        self.ydr = Range1d(start=0, end=1.1 * endy)
+        self.y_range = Range1d(start=0, end=1.1 * endy)
 
     def draw(self):
         """Use the several glyphs to display the Histogram and pdf/cdf.
@@ -225,15 +175,16 @@ class Histogram(ChartObject):
 
             # sixtet: values, his, edges, left, right, bottom
             for i, sextet in enumerate(sextets):
-                self.chart.make_quad(
+                renderer = self.make_quad(
                     self.source, sextet[1], sextet[5], sextet[3],
                     sextet[4], colors[i], "white"
                 )
-
-                # if facet we need to generate multiple histograms of multiple
-                # series on multiple separate plots
-                if i < len(sextets)-1:
-                    self.create_plot_if_facet()
+                self._legends.append((self.groups[i], [renderer]))
+                yield renderer
+                # # if facet we need to generate multiple histograms of multiple
+                # # series on multiple separate plots
+                # if i < len(sextets)-1:
+                #     self.create_plot_if_facet()
 
         else:
             nonets = list(self._chunker(self.attr, 9))
@@ -241,14 +192,16 @@ class Histogram(ChartObject):
 
             # nonetet: values, his, edges, left, right, bottom, x, pdf, cdf
             for i, nonet in enumerate(nonets):
-                self.chart.make_quad(
+                renderer = self.make_quad(
                     self.source, nonet[1], nonet[5], nonet[3],
                     nonet[4], colors[i], "white"
                 )
-                self.chart.make_line(self.source, nonet[6], nonet[7], "black")
-                self.chart.make_line(self.source, nonet[6], nonet[8], "blue")
-
-                # if facet we need to generate multiple histograms of multiple
-                # series on multiple separate plots
-                if i < len(nonets)-1:
-                    self.create_plot_if_facet()
+                self._legends.append((self.groups[i], [renderer]))
+                yield renderer
+                yield self.make_line(self.source, nonet[6], nonet[7], "black")
+                yield self.make_line(self.source, nonet[6], nonet[8], "blue")
+                #
+                # # if facet we need to generate multiple histograms of multiple
+                # # series on multiple separate plots
+                # if i < len(nonets)-1:
+                #     self.create_plot_if_facet()
