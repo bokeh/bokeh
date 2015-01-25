@@ -117,7 +117,7 @@ class Builder(object):
         self.doc = _doc
         self.session = _session
 
-        self.chart = None
+        # self.chart = None
 
         self._legends = []
 
@@ -358,35 +358,35 @@ class Builder(object):
         if not hasattr(self, '_ygrid'):
             self._ygrid = self.__ygrid
 
-    def create_chart(self):
-        """Dynamically create a new chart object.
-
-        It creates a chart instance customized with the parameters
-        we have passed at the __init__ step or through the chained
-        methods.
-
-        Returns:
-            chart: the chart object being configured.
-        """
-        self.check_attr()
-        print("CALLING CHART", self._title, self._xlabel, self._ylabel, self._legend,
-                      self._xscale, self._yscale, self._width, self._height,
-                      self._tools, self._filename, self._server, self._notebook)
-        chart = Chart(self._title, self._xlabel, self._ylabel, self._legend,
-                      self._xscale, self._yscale, self._width, self._height,
-                      self._tools, self._filename, self._server, self._notebook,
-                      _doc=self.doc, _session=self.session)
-
-        # self.chart = chart
-
-        return chart
-
-    def start_plot(self):
-        """
-        Wrapper to call the ``chart.start_plot`` method with self.xgrid &
-        self.ygrid
-        """
-        self.chart.start_plot(self._xgrid, self._ygrid)
+    # def create_chart(self):
+    #     """Dynamically create a new chart object.
+    #
+    #     It creates a chart instance customized with the parameters
+    #     we have passed at the __init__ step or through the chained
+    #     methods.
+    #
+    #     Returns:
+    #         chart: the chart object being configured.
+    #     """
+    #     self.check_attr()
+    #     print("CALLING CHART", self._title, self._xlabel, self._ylabel, self._legend,
+    #                   self._xscale, self._yscale, self._width, self._height,
+    #                   self._tools, self._filename, self._server, self._notebook)
+    #     chart = Chart(self._title, self._xlabel, self._ylabel, self._legend,
+    #                   self._xscale, self._yscale, self._width, self._height,
+    #                   self._tools, self._filename, self._server, self._notebook,
+    #                   _doc=self.doc, _session=self.session)
+    #
+    #     # self.chart = chart
+    #
+    #     return chart
+    #
+    # def start_plot(self):
+    #     """
+    #     Wrapper to call the ``chart.start_plot`` method with self.xgrid &
+    #     self.ygrid
+    #     """
+    #     self.chart.start_plot(self._xgrid, self._ygrid)
 
     def prepare_values(self):
         """Prepare the input data.
@@ -438,45 +438,45 @@ class Builder(object):
         representing each different chart type.
         """
         pass
+    #
+    # def end_plot(self):
+    #     """Wrapper to call the ``chart.end_plot`` method.
+    #
+    #     It pass groups as parameters of the `chart.end_plot` method.
+    #
+    #     Args:
+    #         groups (list): to be filled with the incoming groups of data.
+    #             Useful for legend construction.
+    #     """
+    #     self.chart.end_plot(self.groups)
 
-    def end_plot(self):
-        """Wrapper to call the ``chart.end_plot`` method.
+    # def show_chart(self):
+    #     "Wrapper to call the ``chart.show`` method."
+    #     self.chart.show()
+    #
+    # def show(self):
+    #     """Main Chart show method.
+    #
+    #     It essentially checks for chained methods, creates the chart,
+    #     pass data into the plot object, draws the glyphs according
+    #     to the data and shows the chart in the selected output.
+    #
+    #     .. note:: the show method can not be chained. It has to be called
+    #     at the end of the chain.
+    #     """
+    #     self._setup_show()
+    #     self._prepare_show()
+    #     self._show_teardown()
+    #
+    #     # and finally we show it
+    #     self.show_chart()
 
-        It pass groups as parameters of the `chart.end_plot` method.
-
-        Args:
-            groups (list): to be filled with the incoming groups of data.
-                Useful for legend construction.
-        """
-        self.chart.end_plot(self.groups)
-
-    def show_chart(self):
-        "Wrapper to call the ``chart.show`` method."
-        self.chart.show()
-
-    def show(self):
-        """Main Chart show method.
-
-        It essentially checks for chained methods, creates the chart,
-        pass data into the plot object, draws the glyphs according
-        to the data and shows the chart in the selected output.
-
-        .. note:: the show method can not be chained. It has to be called
-        at the end of the chain.
-        """
-        self._setup_show()
-        self._prepare_show()
-        self._show_teardown()
-
-        # and finally we show it
-        self.show_chart()
-
-    def _setup_show(self):
+    def _pre_create(self):
         """Prepare context before main show method is invoked """
         # we need to check the chained method attr
         self.check_attr()
 
-    def _prepare_show(self):
+    def make_renderers(self):
         """
         Executes chart show core operations:
 
@@ -486,31 +486,23 @@ class Builder(object):
          - create glyphs
          - draw glyphs
         """
-
-        # we create the chart object
-        # self.create_chart()
-        # we prepare values
+        # prepare values to for the specific chart type
         self.prepare_values()
         # we get the data from the incoming input
         self.get_data()
         # we filled the source and ranges with the calculated data
         self.get_source()
-        # # we dynamically inject the source and ranges into the plot
-        # self.add_data_plot()
-        # we start the plot (adds axis, grids and tools)
-        # self.start_plot()
         # we add the glyphs into the plot
         return self.draw()
-        # we pass info to build the legend
-        # self.end_plot()
 
-    def _show_teardown(self):
-        """
-        Convenience method that can be override by inherited classes to
-        perform custom teardown or clean up actions after show method has
-        build chart objects
-        """
-        pass
+    #
+    # def _show_teardown(self):
+    #     """
+    #     Convenience method that can be override by inherited classes to
+    #     perform custom teardown or clean up actions after show method has
+    #     build chart objects
+    #     """
+    #     pass
 
     def make_legends(self):
         raise NotImplementedError
@@ -523,12 +515,12 @@ class Builder(object):
         #     print("CREATING CHART")
         #     self.chart = self.create_chart()
 
-        self._setup_show()
+        self._pre_create()
         # self._prepare_show()
         # self._show_teardown()
 
         # pass these renderers to the chart and then forget about the chart
-        renderers = self._prepare_show()
+        renderers = self.make_renderers()
         chart.add_renderers(self, renderers)
 
         # create chart ranges..
@@ -537,7 +529,6 @@ class Builder(object):
 
         if not chart.y_range:
             chart.y_range = self.y_range
-
 
         if self.__legend:
             if self.__legend is True:
@@ -550,17 +541,17 @@ class Builder(object):
 
         return chart
 
-    def create_plot_if_facet(self):
-        """
-        Generate a new plot if facet is true. This can be called after every
-        serie is draw so the next one is draw on a new separate plot instance
-        """
-        if self._facet:
-            self.chart.figure()
-
-            # we start the plot (adds axis, grids and tools)
-            self.start_plot()
-            self.add_data_plot()
+    # def create_plot_if_facet(self):
+    #     """
+    #     Generate a new plot if facet is true. This can be called after every
+    #     serie is draw so the next one is draw on a new separate plot instance
+    #     """
+    #     if self._facet:
+    #         self.chart.figure()
+    #
+    #         # we start the plot (adds axis, grids and tools)
+    #         self.start_plot()
+    #         self.add_data_plot()
 
     #
     # Some helper methods
@@ -627,42 +618,42 @@ class Builder(object):
 
         return self._palette
 
-    def reset_legend(self, marker='square'):
-        """Reset legends creating the right glyphs to represent each chart series.
+    # def reset_legend(self, marker='square'):
+    #     """Reset legends creating the right glyphs to represent each chart series.
+    #
+    #     Charts that use a composition of multiple underlying glyphs to represent
+    #     the data series need to create `dummy` glyphs to be used only to draw the
+    #     correct glyph to each series. This is done directly modifying chart.glyphs
+    #
+    #     """
+    #     # create a data source that maps the chart.groups
+    #     source_legend = ColumnDataSource({"groups": self.groups})
+    #
+    #     # We need to build the legend here using dummy glyphs
+    #     indexes = []
+    #     real_glyphs_count = len(self.chart._glyphs)
+    #
+    #     for i, level in enumerate(self.groups):
+    #         self._make_legend_glyph(source_legend, self.palette[i])
+    #
+    #         # need to manually select the proper glyphs to be rendered as legends
+    #         indexes.append(real_glyphs_count+i)
+    #
+    #     # reset glyphs tho only contain the dummy
+    #     self.chart._glyphs = [self.chart._glyphs[i] for i in indexes]
 
-        Charts that use a composition of multiple underlying glyphs to represent
-        the data series need to create `dummy` glyphs to be used only to draw the
-        correct glyph to each series. This is done directly modifying chart.glyphs
-
-        """
-        # create a data source that maps the chart.groups
-        source_legend = ColumnDataSource({"groups": self.groups})
-
-        # We need to build the legend here using dummy glyphs
-        indexes = []
-        real_glyphs_count = len(self.chart._glyphs)
-
-        for i, level in enumerate(self.groups):
-            self._make_legend_glyph(source_legend, self.palette[i])
-
-            # need to manually select the proper glyphs to be rendered as legends
-            indexes.append(real_glyphs_count+i)
-
-        # reset glyphs tho only contain the dummy
-        self.chart._glyphs = [self.chart._glyphs[i] for i in indexes]
-
-    def _make_legend_glyph(self, source_legend, color):
-        """Create a new glyph to represent one of the chart data series with the
-        specified color
-
-        The glyph is added to chart.glyphs.
-
-        Args:
-            source_legend (ColumnDataSource): source to be used when creating the glyph
-            color (str): color of the glyph
-        """
-        self.chart.make_rect(source_legend, "groups", None, None, None,
-                                 color, "black", None)
+    # def _make_legend_glyph(self, source_legend, color):
+    #     """Create a new glyph to represent one of the chart data series with the
+    #     specified color
+    #
+    #     The glyph is added to chart.glyphs.
+    #
+    #     Args:
+    #         source_legend (ColumnDataSource): source to be used when creating the glyph
+    #         color (str): color of the glyph
+    #     """
+    #     self.chart.make_rect(source_legend, "groups", None, None, None,
+    #                              color, "black", None)
 
 
     def make_segment(self, source, x0, y0, x1, y1, color, width):
