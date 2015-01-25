@@ -142,9 +142,8 @@ class BarBuilder(Builder):
                 loading the data dict.
                 Needed for _set_And_get method.
         """
-        self.cat = cat
         self.values = values
-        self.groups = []
+        self.cat = cat
         self._stacked = stacked
 
         super(BarBuilder, self).__init__(

@@ -123,6 +123,7 @@ class Builder(object):
         self.data = {}
         self.groups = []
         self.attr = []
+        self.groups = []
 
     def facet(self, facet=True):
         """Set the facet flag of your chart. Facet splits the chart
