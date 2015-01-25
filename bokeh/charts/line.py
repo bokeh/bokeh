@@ -67,8 +67,7 @@ class LineBuilder(Builder):
     We additionally make calculations for the ranges.
     And finally add the needed lines taking the references from the source.
     """
-    def __init__(self, values, index=None, stacked=False, legend=False,
-                 palette=None, **kws):
+    def __init__(self, values, index=None, legend=False, palette=None, **kws):
         """
         Args:
             values (iterable): iterable 2d representing the data series

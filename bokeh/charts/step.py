@@ -18,7 +18,7 @@ passing the arguments to the Chart class and calling the proper functions.
 
 from six import string_types
 import numpy as np
-from ._chartobject import ChartObject, Builder
+from ._chartobject import create_and_build, Builder
 from ..models import ColumnDataSource, Range1d, DataRange1d
 
 #-----------------------------------------------------------------------------
@@ -26,7 +26,11 @@ from ..models import ColumnDataSource, Range1d, DataRange1d
 #-----------------------------------------------------------------------------
 
 
-class Step(Builder):
+def Step(values, index=None, **kws):
+    return create_and_build(StepBuilder, values, index=index, **kws)
+
+
+class StepBuilder(Builder):
     """This is the Step class and it is in charge of plotting
     Step charts in an easy and intuitive way.
 
@@ -37,11 +41,7 @@ class Step(Builder):
     source.
 
     """
-    def __init__(self, values, index=None, title=None, xlabel=None, ylabel=None,
-                 legend=False, xscale="linear", yscale="linear", width=800,
-                 height=600, tools=True, filename=False, server=False,
-                 notebook=False, facet=False, xgrid=True, ygrid=True,
-                 chart=None):
+    def __init__(self, values, index=None, legend=False, palette=None, **kws):
         """
         Args:
             values (iterable): iterable 2d representing the data series
@@ -54,46 +54,11 @@ class Step(Builder):
                         mapping to be used as index (and not as data
                         series) if area.values is a mapping (like a dict,
                         an OrderedDict or a pandas DataFrame)
-            title (str, optional): the title of your chart. Defaults
-                to None.
-            xlabel (str, optional): the x-axis label of your chart.
-                Defaults to None.
-            ylabel (str, optional): the y-axis label of your chart.
-                Defaults to None.
             legend (str, optional): the legend of your chart. The legend
                 content is inferred from incoming input.It can be
                 ``top_left``, ``top_right``, ``bottom_left``,
                 ``bottom_right``. ``top_right`` is set if you set it
                  as True. Defaults to None.
-            xscale (str, optional): the x-axis type scale of your chart.
-                It can be ``linear``, ``datetime`` or ``categorical``.
-                Defaults to ``datetime``.
-            yscale (str, optional): the y-axis type scale of your chart.
-                It can be ``linear``, ``datetime`` or ``categorical``.
-                Defaults to ``linear``.
-            width (int, optional): the width of your chart in pixels.
-                Defaults to 800.
-            height (int, optional): the height of you chart in pixels.
-                Defaults to 600.
-            tools (bool, optional): to enable or disable the tools in
-                your chart. Defaults to True
-            filename (str or bool, optional): the name of the file where
-                your chart. will be written. If you pass True to this
-                argument, it will use ``untitled`` as a filename.
-                Defaults to False.
-            server (str or bool, optional): the name of your chart in
-                the server. If you pass True to this argument, it will
-                use ``untitled`` as the name in the server.
-                Defaults to False.
-            notebook (bool, optional): whether to output to IPython notebook
-                (default: False)
-            facet (bool, optional): generate multiple areas on multiple
-                separate charts for each series if True. Defaults to
-                False
-            xgrid (bool, optional): whether to display x grid lines
-                (default: True)
-            ygrid (bool, optional): whether to display y grid lines
-                (default: True)
 
         Attributes:
             source (obj): datasource object for your plot,
@@ -112,19 +77,16 @@ class Step(Builder):
                 Needed for _set_And_get method.
         """
         self.values = values
-        self.source = None
-        self.xdr = None
-        self.ydr = None
-        # list to save all the groups available in the incoming input
-        self.groups = []
-        self.data = dict()
-        self.attr = []
+        # self.source = None
+        # self.xdr = None
+        # self.ydr = None
+        # # list to save all the groups available in the incoming input
+        # self.groups = []
+        # self.data = dict()
+        # self.attr = []
         self.index = index
 
-        super(Step, self).__init__(
-            title, xlabel, ylabel, legend, xscale, yscale, width, height,
-            tools, filename, server, notebook, facet, xgrid, ygrid, chart=chart
-        )
+        super(StepBuilder, self).__init__(legend=legend, palette=palette)
 
     def get_data(self):
         """It calculates the chart properties accordingly from Step.values.
@@ -154,16 +116,15 @@ class Step(Builder):
         the proper ranges.
         """
         sc = self.source = ColumnDataSource(self.data)
-        self.chart.x_range = DataRange1d(sources=[sc.columns("x"), sc.columns("x2")])
+        self.x_range = DataRange1d(sources=[sc.columns("x"), sc.columns("x2")])
 
         y_names = self.attr[1:]
         endy = max(max(self.data[i]) for i in y_names)
         starty = min(min(self.data[i]) for i in y_names)
-        self.chart.y_range = Range1d(
+        self.y_range = Range1d(
             start=starty - 0.1 * (endy - starty),
             end=endy + 0.1 * (endy - starty)
         )
-        print ("SET RANGES", self.chart)
 
     def draw(self):
         """Use the line glyphs to connect the xy points in the Step.
@@ -176,36 +137,14 @@ class Step(Builder):
         # duplet: y1, y2 values of each series
         for i, duplet in enumerate(tuples):
             # draw the step horizontal segment
-            self.chart.make_segment(
+            yield self.make_segment(
                 self.source, 'x2', duplet[0],
-                'x2', duplet[1], colors[i], 2,
+                'x2', duplet[1], colors[i], 1,
             )
             # draw the step vertical segment
-            self.chart.make_segment(
+            renderer = self.make_segment(
                 self.source, 'x', duplet[0],
-                'x2', duplet[0], colors[i], 2,
+                'x2', duplet[0], colors[i], 1,
             )
-
-            if i < len(tuples)-1:
-                self.create_plot_if_facet()
-
-        if not self._facet:
-            self.reset_legend()
-
-    def _make_legend_glyph(self, source_legend, color):
-        """Create a new glyph to represent one of the chart data
-        series with the specified color
-
-        The glyph is added to chart.glyphs.
-
-        NOTE: Overwrites default ChartObject in order to draw the
-            right number of segments on legend
-
-        Args:
-            source_legend (ColumnDataSource): source to be used when
-                creating the glyph
-            color (str): color of the glyph
-        """
-        self.chart.make_segment(
-            source_legend, "groups", None, 'groups', None, color, 2
-        )
+            self._legends.append((self.groups[i], [renderer]))
+            yield renderer
