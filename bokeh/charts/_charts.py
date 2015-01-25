@@ -234,6 +234,7 @@ class Chart(Plot):
         Return:
             axis: Axis instance
         """
+
         if scale == "linear":
             axis = LinearAxis(axis_label=label)
         elif scale == "datetime":
@@ -256,6 +257,7 @@ class Chart(Plot):
         Return:
             grid: Grid instance
         """
+
         grid = Grid(dimension=dimension, ticker=ticker)
         self.add_layout(grid)
 

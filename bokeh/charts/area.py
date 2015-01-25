@@ -36,8 +36,8 @@ from ..models import ColumnDataSource, Range1d, DataRange1d
 
 def Area(values, index=None, **kw):
 
-    # create a Histogram builder
-    builder = AreaBuilder(values, index=None, **kw)
+    # create a Area builder
+    builder = AreaBuilder(values, index=index, **kw)
 
     # create a chart to return, since there isn't one already
     chart = Chart(**kw)

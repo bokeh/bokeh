@@ -120,6 +120,9 @@ class Builder(object):
         # self.chart = None
 
         self._legends = []
+        self.data = {}
+        self.groups = []
+        self.attr = []
 
     def facet(self, facet=True):
         """Set the facet flag of your chart. Facet splits the chart
@@ -728,7 +731,7 @@ class Builder(object):
         Return:
             rect: Rect instance
         """
-        rect = Rect(
+        glyph = Rect(
             x=x, y=y, width=width, height=height, fill_color=color,
             fill_alpha=0.7, line_color=line_color, line_alpha=1.0,
             line_width=line_width
