@@ -1,4 +1,5 @@
-"""
+""" Models (mostly base classes) for the various kinds of renderer
+types that Bokeh supports.
 
 """
 from __future__ import absolute_import
@@ -12,8 +13,8 @@ from .sources import DataSource, ServerDataSource
 from .glyphs import Glyph
 
 class Renderer(PlotObject):
-     """ A base class for renderer types. ``Renderer`` is not
-     generally useful to instantiate on its own.
+    """ A base class for renderer types. ``Renderer`` is not
+    generally useful to instantiate on its own.
 
     """
 
@@ -62,7 +63,7 @@ class GlyphRenderer(Renderer):
 
 # TODO: (bev) This should really go in a separate module
 class Legend(Renderer):
-    """
+    """ Render informational legends for a plot.
 
     """
 
@@ -103,21 +104,29 @@ class Legend(Renderer):
     """)
 
     legend_padding = Int(10, help="""
-
+    Amount of padding around the legend.
     """)
 
     legend_spacing = Int(3, help="""
-
+    Amount of spacing between legend entried
     """)
 
     legends = List(Tuple(String, List(Instance(GlyphRenderer))), help="""
+    A list of tuples that maps text labels to the legend to corresponding
+    renderers that should draw sample representations for those labels.
+
+    .. note::
+        The ``legends`` attribute may also be set from a dict or OrderedDict,
+        but note that if a dict is used, the order of the legend entries is
+        unspecified.
 
     """).accepts(
         Dict(String, List(Instance(GlyphRenderer))), lambda d: list(d.items())
     )
 
 class GuideRenderer(Renderer):
-    """
+    """ A base class for all guide renderer types. ``GuideRenderer`` is
+    not generally useful to instantiate on its own.
 
     """
 

@@ -10,8 +10,6 @@ class DataSource(PlotObject):
 
     """
 
-    # List of names of the fields of each tuple in self.data
-    # ordering is incoporated here
     column_names = List(String, help="""
     An list of names for all the columns in this DataSource.
     """)
@@ -34,16 +32,17 @@ class DataSource(PlotObject):
         return ColumnsRef(source=self, columns=list(columns))
 
 class ColumnsRef(HasProps):
-    """
+    """ A utility object to allow referring to a collection of columns
+    from a specified data source, all together.
 
     """
 
     source = Instance(DataSource, help="""
-
+    A data source to reference.
     """)
 
     columns = List(String, help="""
-
+    A list of column names to reference from ``source``.
     """)
 
 class ColumnDataSource(DataSource):
@@ -84,6 +83,7 @@ class ColumnDataSource(DataSource):
             self.add(data, name)
         super(ColumnDataSource, self).__init__(**kw)
 
+    # TODO: (bev) why not just return a ColumnDataSource?
     @classmethod
     def from_df(cls, data):
         """ Create a ``dict`` of columns from a Pandas DataFrame,
@@ -196,27 +196,32 @@ class ColumnDataSource(DataSource):
         display.display_javascript(js, raw=True)
 
 class ServerDataSource(DataSource):
-    """
+    """ A data source that referes to data located on a Bokeh server.
+
+    The data from the server is loaded on-demand by the client.
 
     """
 
     data_url = String(help="""
-
+    The URL to the Bokeh server endpoint for the data.
     """)
 
     owner_username = String(help="""
-
+    A username to use for authentication when Bokeh server is operating
+    in multi-user mode.
     """)
 
-    # allow us to add some data that isn't on the remote source
-    # and join it to the remote data
     data = Dict(String, Any, help="""
-
+    Additional data to include directly in this data source object. The
+    columns provided here are merged with those from the Bokeh server.
     """)
 
     # Paramters of data transformation operations
-    # The 'Any' is used to pass primtives around.  Minimally, a tag to say which downsample routine to use.  In some downsamplers, parameters are passed this way too.
-    # TODO: Find/create a property type for 'any primitive/atomic value'
+    # The 'Any' is used to pass primtives around.
+    # TODO: (jc) Find/create a property type for 'any primitive/atomic value'
     transform = Dict(String,Either(Instance(PlotObject), Any), help="""
+    Paramters of the data transformation operations.
 
+    The associated valuse is minimally a tag that says which downsample routine
+    to use.  For some downsamplers, parameters are passed this way too.
     """)
