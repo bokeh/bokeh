@@ -72,7 +72,7 @@ class BarBuilder(Builder):
         bar.legend(True).width(600).height(400).stacked(True)
         bar.show()
     """
-    
+
     def __init__(self, values, cat=None, stacked=False,
                  title=None, xlabel=None, ylabel=None, legend=False,
                  xscale="categorical", yscale="linear", width=800, height=600,

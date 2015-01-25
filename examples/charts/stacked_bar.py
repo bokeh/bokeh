@@ -4,6 +4,7 @@ import pandas as pd
 # we throw the data into a pandas df
 from bokeh.sampledata.olympics2014 import data
 from bokeh.charts import Bar
+from bokeh.plotting import output_file, show
 
 df = pd.io.json.json_normalize(data['data'])
 
@@ -23,8 +24,9 @@ medals = OrderedDict(bronze=bronze, silver=silver, gold=gold)
 # any of the following commented are valid Bar inputs
 #medals = pd.DataFrame(medals)
 #medals = list(medals.values())
-
+output_file("stacked_bar.html")
 bar = Bar(medals, countries, title="Stacked bars", filename="stacked_bar.html", stacked=True)
 bar.xlabel("countries").ylabel("medals")
 bar.legend(True).width(600).height(400)#.stacked(True)
-bar.show()
+# bar.show()
+show(bar)
