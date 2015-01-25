@@ -40,17 +40,6 @@ def Bar(values, cat=None, stacked=False, xscale="categorical", yscale="linear",
         BarBuilder, values, cat=cat, stacked=stacked, xscale=xscale, yscale=yscale,
         xgrid=xgrid, ygrid=ygrid, **kw
     )
-    # create a Area builder
-    builder = BarBuilder(
-        values, cat=cat, stacked=stacked,
-        **kw)
-
-    # create a chart to return, since there isn't one already
-    chart = Chart(xscale=xscale, yscale=yscale, xgrid=xgrid, ygrid=ygrid, **kw)
-    chart.add_builder(builder)
-
-    return chart
-
 class BarBuilder(Builder):
     """This is the Bar class and it is in charge of plotting
     Bar chart (grouped and stacked) in an easy and intuitive way.
