@@ -27,7 +27,6 @@ except ImportError:
     raise
 
 from ._chartobject import Builder, create_and_build
-from ._charts import Chart
 from ..models import ColumnDataSource, Range1d, DataRange1d
 
 #-----------------------------------------------------------------------------

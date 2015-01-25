@@ -20,8 +20,7 @@ It also add a new chained stacked method.
 import numpy as np
 import pandas as pd
 
-from ._charts import Chart
-from ._chartobject import Builder
+from ._chartobject import Builder, create_and_build
 from ..models import ColumnDataSource, FactorRange, Range1d
 
 #-----------------------------------------------------------------------------
@@ -29,21 +28,14 @@ from ..models import ColumnDataSource, FactorRange, Range1d
 #-----------------------------------------------------------------------------
 
 
-def Bar(values, cat=None, stacked=False, xscale="categorical", yscale="linear",
+def BoxPlot(values, marker="circle", outliers=True, xscale="categorical", yscale="linear",
         xgrid=False, ygrid=True, **kw):
+    return create_and_build(
+        BoxPlotBuilder, values, marker=marker, outliers=outliers,
+        xscale=xscale, yscale=yscale, xgrid=xgrid, ygrid=ygrid, **kw
+    )
 
-    # create a Area builder
-    builder = BarBuilder(
-        values, cat=cat, stacked=stacked,
-        **kw)
-
-    # create a chart to return, since there isn't one already
-    chart = Chart(xscale=xscale, yscale=yscale, xgrid=xgrid, ygrid=ygrid, **kw)
-    chart.add_builder(builder)
-
-    return chart
-
-class BoxPlot(Builder):
+class BoxPlotBuilder(Builder):
     """This is the BoxPlot class and it is in charge of plotting
     scatter plots in an easy and intuitive way.
 
@@ -77,9 +69,6 @@ class BoxPlot(Builder):
                           width=800, height=600, notebook=True)
         boxplot.show()
     """
-    __subtype__ = "BoxPlotChart"
-    __view_model__ = "Plot"
-
     def __init__(self, values, marker="circle", outliers=True,
                  title=None, xlabel=None, ylabel=None, legend=False,
                  xscale="categorical", yscale="linear", width=800, height=600,
@@ -144,9 +133,9 @@ class BoxPlot(Builder):
                 loading the data dict.
                 Needed for _set_And_get method.
         """
-        self._values = values
-        self.__marker = marker
-        self.__outliers = outliers
+        self.values = values
+        self._marker = marker
+        self._outliers = outliers
         self._data_segment = dict()
         self._attr_segment = []
         self._data_rect = dict()
@@ -154,34 +143,11 @@ class BoxPlot(Builder):
         self._data_scatter = dict()
         self._attr_scatter = []
         self._data_legend = dict()
-        super(BoxPlot, self).__init__(
+        super(BoxPlotBuilder, self).__init__(
             title, xlabel, ylabel, legend, xscale, yscale, width, height,
             tools, filename, server, notebook, facet=False, xgrid=xgrid,
             ygrid=ygrid
         )
-
-    def marker(self, marker="circle"):
-        "marker (str, int): the marker type of your plot outliers."
-        self._marker = marker
-        return self
-
-    def outliers(self, outliers=True):
-        "outliers (bool): to show (or not) the outliers in each group of your plot."
-        self._outliers = outliers
-        return self
-
-    def check_attr(self):
-        """Check if any of the chained method were used.
-
-        If they were not used, it assign the init parameters content by default.
-        """
-        super(BoxPlot, self).check_attr()
-
-        if not hasattr(self, '_marker'):
-            self._marker = self.__marker
-
-        if not hasattr(self, '_outliers'):
-            self._outliers = self.__outliers
 
     def get_data(self):
         """Take the BoxPlot data from the input **value.
@@ -197,23 +163,23 @@ class BoxPlot(Builder):
             outliers (bool, optional): Whether to plot outliers.
             values (dict or pd obj): the values to be plotted as bars.
         """
-        if isinstance(self._values, pd.DataFrame):
-            self._groups = self.values.columns
+        if isinstance(self.values, pd.DataFrame):
+            self.groups = self.values.columns
         else:
-            self._groups = list(self._values.keys())
+            self.groups = list(self.values.keys())
 
         # add group to the self.data_segment dict
-        self._data_segment["groups"] = self._groups
+        self._data_segment["groups"] = self.groups
 
         # add group and witdh to the self.data_rect dict
-        self._data_rect["groups"] = self._groups
-        self._data_rect["width"] = [0.8] * len(self._groups)
+        self._data_rect["groups"] = self.groups
+        self._data_rect["width"] = [0.8] * len(self.groups)
 
         # self.data_scatter does not need references to groups now,
         # they will be added later.
 
         # add group to the self.data_legend dict
-        self._data_legend["groups"] = self._groups
+        self._data_legend["groups"] = self.groups
 
         # all the list we are going to use to save calculated values
         q0_points = []
@@ -228,10 +194,10 @@ class BoxPlot(Builder):
         lower_height_boxes = []
         out_x, out_y, out_color = ([], [], [])
 
-        for i, level in enumerate(self._groups):
+        for i, level in enumerate(self.groups):
             # Compute quantiles, center points, heights, IQR, etc.
             # quantiles
-            q = np.percentile(self._values[level], [25, 50, 75])
+            q = np.percentile(self.values[level], [25, 50, 75])
             q0_points.append(q[0])
             q2_points.append(q[2])
 
@@ -252,9 +218,9 @@ class BoxPlot(Builder):
 
             # Store indices of outliers as list
             outliers = np.where(
-                (self._values[level] > upper) | (self._values[level] < lower)
+                (self.values[level] > upper) | (self.values[level] < lower)
             )[0]
-            out = self._values[level][outliers]
+            out = self.values[level][outliers]
             for o in out:
                 out_x.append(level)
                 out_y.append(o)
@@ -307,38 +273,33 @@ class BoxPlot(Builder):
         points the data loaded at the ColumnDataSurce.
         """
         ats = self._attr_segment
-        self.make_segment(self._source_segment, "groups", ats[1],
+        yield self.make_segment(self._source_segment, "groups", ats[1],
                                 "groups", ats[0], "black", 2)
-        self.make_segment(self._source_segment, "groups", ats[2],
+        yield self.make_segment(self._source_segment, "groups", ats[2],
                                 "groups", ats[3], "black", 2)
 
         atr = self._attr_rect
-        self.make_rect(self._source_rect, "groups", atr[0],
+        yield self.make_rect(self._source_rect, "groups", atr[0],
                              "width", atr[1], None, "black", 2)
-        self.make_rect(self._source_rect, "groups", atr[2],
+        yield self.make_rect(self._source_rect, "groups", atr[2],
                              "width", atr[3], atr[6], "black", None)
-        self.make_rect(self._source_rect, "groups", atr[4],
+        yield self.make_rect(self._source_rect, "groups", atr[4],
                              "width", atr[5], atr[6], "black", None)
 
         if self._outliers:
-            self.make_scatter(self._source_scatter, self._attr_scatter[0],
+            yield self.make_scatter(self._source_scatter, self._attr_scatter[0],
                               self._attr_scatter[1], self._marker,
                               self._attr_scatter[2])
 
-        # We need to build the legend here using dummy glyphs
-        indexes = []
-        real_glyphs_count = len(self._glyphs)
-        for i, level in enumerate(self._groups):
-            self.make_rect(
+        # We need to build the legend here using dummy glyphs import itertools
+        for i, level in enumerate(self.groups):
+            renderer = self.make_rect(
                 self._source_legend, "groups", None, None, None,
                 self._palette[i], "black", None
             )
 
             # need to manually select the proper glyphs to be rendered as legends
-            indexes.append(real_glyphs_count+i)
-
-        # reset glyphs tho only contain the dummy
-        self._glyphs = [self._glyphs[i] for i in indexes]
+            self._legends.append(renderer)
 
     # Some helper methods
     def set_and_get(self, data, attr, val, content):

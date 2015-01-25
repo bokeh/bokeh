@@ -25,7 +25,6 @@ except ImportError:
     print("bokeh.charts.Bar needs numpy installed to work properly!")
     raise
 
-from ._charts import Chart
 from ._chartobject import Builder, create_and_build
 from ..models import ColumnDataSource, FactorRange, Range1d
 

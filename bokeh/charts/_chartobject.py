@@ -19,6 +19,7 @@ methods.
 
 from six import string_types
 from collections import OrderedDict
+import itertools
 from ._charts import Chart
 from ..properties import bokeh_integer_types, Datetime
 from ..models import ColumnDataSource, GlyphRenderer
@@ -38,6 +39,8 @@ try:
 
 except ImportError:
     pd = None
+
+DEFAULT_PALETTE = ["#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33ff3"]
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -122,7 +125,7 @@ class Builder(object):
         self.__server = server
         self.__notebook = notebook
         self.__facet = facet
-        self.__palette = palette
+        self.__palette = palette or DEFAULT_PALETTE
         self.__xgrid = xgrid
         self.__ygrid = ygrid
         self.doc = _doc
