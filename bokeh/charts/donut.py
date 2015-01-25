@@ -20,14 +20,22 @@ from __future__ import division
 from math import pi, cos, sin
 import pandas as pd
 
-from ._chartobject import ChartObject
+from ._chartobject import Builder, create_and_build
 from ..models import ColumnDataSource, Range1d
 from .utils import polar_to_cartesian
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
 
-class Donut(ChartObject):
+
+def Donut(values,  cat=None, width=800, height=800, xgrid=False, ygrid=False, **kws):
+    return create_and_build(
+        DonutBuilder, values, cat=cat, width=width, height=height,
+        xgrid=xgrid, ygrid=ygrid, **kws
+    )
+
+
+class DonutBuilder(Builder):
     """This is the Donut class and it is in charge of plotting
     Donut chart in an easy and intuitive way.
 
@@ -50,11 +58,7 @@ class Donut(ChartObject):
         donut.legend(True).width(800).height(800).show()
     """
 
-    def __init__(self, values, cat=None,
-                 title=None, xlabel=None, ylabel=None, legend=False,
-                 xscale="linear", yscale="linear", width=800, height=600,
-                 tools=True, filename=False, server=False, notebook=False,
-                 xgrid=False, ygrid=False):
+    def __init__(self, values, cat=None, legend=False, palette=None, **kws):
         """
         Args:
             values (obj): value (iterable obj): Data adapter supported input type
@@ -115,18 +119,14 @@ class Donut(ChartObject):
         """
         self.cat = cat
         self.values = values
-        self.source = None
-        self.xdr = None
-        self.ydr = None
-        self.groups = []
-        self.data = dict()
-        self.attr = []
+        # self.source = None
+        # self.xdr = None
+        # self.ydr = None
+        # self.groups = []
+        # self.data = dict()
+        # self.attr = []
 
-        super(Donut, self).__init__(
-            title, xlabel, ylabel, legend,
-            xscale, yscale, width, height,
-            tools, filename, server, notebook, xgrid=xgrid, ygrid=ygrid
-        )
+        super(DonutBuilder, self).__init__(legend=legend, palette=palette)
 
     def get_data(self):
         """Take the chart data from self.values.
@@ -160,15 +160,15 @@ class Donut(ChartObject):
 
         """
         self.source = ColumnDataSource(self.data)
-        self.xdr = Range1d(start=-2, end=2)
-        self.ydr = Range1d(start=-2, end=2)
+        self.x_range = Range1d(start=-2, end=2)
+        self.y_range = Range1d(start=-2, end=2)
 
     def draw_central_wedge(self):
         """Draw the central part of the donut wedge from donut.source and
          its calculated start and end angles.
 
         """
-        self.chart.make_wedge(
+        yield self.make_wedge(
             self.source, x=0, y=0, radius=1, line_color="white",
             line_width=2, start_angle="start", end_angle="end",
             fill_color="colors"
@@ -181,7 +181,7 @@ class Donut(ChartObject):
         text = ["%s" % cat for cat in self.cat]
         x, y = polar_to_cartesian(0.7, self.data["start"], self.data["end"])
         text_source = ColumnDataSource(dict(text=text, x=x, y=y))
-        self.chart.make_text(
+        yield self.make_text(
             text_source,
             x="x", y="y", text="text", text_align="center",
             text_baseline="middle"
@@ -211,7 +211,7 @@ class Donut(ChartObject):
 
             source = ColumnDataSource(dict(start=start, end=end, fill=fill))
 
-            self.chart.make_annular(
+            yield self.make_annular(
                 source, x=0, y=0, inner_radius=1, outer_radius=1.5,
                 start_angle="start", end_angle="end", line_color="white",
                 line_width=2, fill_color="fill"
@@ -230,7 +230,7 @@ class Donut(ChartObject):
                 first = False
             data = dict(text=text, x=x, y=y, angle=text_angle)
             text_source = ColumnDataSource(data)
-            self.chart.make_text(
+            yield self.make_text(
                 text_source, x="x", y="y", text="text", angle="angle",
                 text_align="center", text_baseline="middle"
             )
@@ -241,18 +241,20 @@ class Donut(ChartObject):
         Takes reference points from data loaded at the ColumnDataSurce.
         """
         # build the central round area of the donut
-        self.draw_central_wedge()
+        renderers = []
+        renderers += self.draw_central_wedge()
         # write central descriptions
-        self.draw_central_descriptions()
+        renderers += self.draw_central_descriptions()
         # build external donut ring
-        self.draw_external_ring()
-        self.reset_legend()
+        renderers += self.draw_external_ring()
+        # self.reset_legend()
+        return renderers
 
-    def _setup_show(self):
-        """Prepare data before calling drawing methods.
-
-        Ensure that x and y scales are linear.
-        """
-        self.yscale('linear')
-        self.xscale('linear')
-        self.check_attr()
+    # def _setup_show(self):
+    #     """Prepare data before calling drawing methods.
+    #
+    #     Ensure that x and y scales are linear.
+    #     """
+    #     self.yscale('linear')
+    #     self.xscale('linear')
+    #     self.check_attr()

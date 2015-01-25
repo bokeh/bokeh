@@ -22,13 +22,22 @@ try:
 except ImportError:
     pd = None
 
-from ._chartobject import ChartObject
+from ._chartobject import ChartObject, Builder, create_and_build
 from ..models import ColumnDataSource, FactorRange, Range1d
+
+
+def Dot(values, cat=None, show_segment=True, xscale="categorical", yscale="linear",
+        xgrid=False, ygrid=True, **kws):
+    return create_and_build(
+        DotBuilder, values, cat=cat, show_segment=show_segment, xscale=xscale, yscale=yscale,
+        xgrid=xgrid, ygrid=ygrid, **kws
+    )
+
 
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
-class Dot(ChartObject):
+class DotBuilder(Builder):
     """This is the Dot class and it is in charge of plotting Dot chart
      in an easy and intuitive way.
 
@@ -40,10 +49,7 @@ class Dot(ChartObject):
 
     """
     def __init__(self, values, cat=None, show_segment=True,
-                 title=None, xlabel=None, ylabel=None, legend=False,
-                 xscale="categorical", yscale="linear", width=800, height=600,
-                 tools=True, filename=False, server=False, notebook=False,
-                 facet=False, xgrid=False, ygrid=True):
+                 legend=False, palette=None, **kws):
         """
         Args:
             values (dict): a dict containing the data with names as a key
@@ -53,43 +59,11 @@ class Dot(ChartObject):
                 Defaults to None.
             show_segment (bool, optional): shows a segment from x label to
                 the rendered dot.
-            title (str, optional): the title of your chart. Defaults to None.
-            xlabel (str, optional): the x-axis label of your chart.
-                Defaults to None.
-            ylabel (str, optional): the y-axis label of your chart.
-                Defaults to None.
             legend (str, optional): the legend of your chart. The legend
                 content is inferred from incoming input.It can be
                 ``top_left``, ``top_right``, ``bottom_left``, ``bottom_right``.
                 It is ``top_right`` is you set it as True. Defaults to None.
-            xscale (str, optional): the x-axis type scale of your chart.
-                It can be ``linear``, ``datetime`` or ``categorical``.
-                Defaults to ``datetime``.
-            yscale (str, optional): the y-axis type scale of your chart.
-                It can be ``linear``, ``datetime`` or ``categorical``.
-                Defaults to ``linear``.
-            width (int, optional): the width of your chart in pixels.
-                Defaults to 800.
-            height (int, optional): the height of you chart in pixels.
-                Defaults to 600.
-            tools (bool, optional): to enable or disable the tools in your
-                chart. Defaults to True
-            filename (str or bool, optional): the name of the file where
-                your chart. will be written. If you pass True to this
-                argument, it will use ``untitled`` as a filename.
-                Defaults to False.
-            server (str or bool, optional): the name of your chart in
-                the server. If you pass True to this argument, it will
-                use ``untitled`` as the name in the server.
-                Defaults to False.
-            notebook (bool, optional): whether to output to IPython notebook
-                (default: False)
-            facet (bool, optional): generate multiple areas on multiple
-                separate charts for each series if True. Defaults to False
-            xgrid (bool, optional): whether to display x grid lines
-                (default: False)
-            ygrid (bool, optional): whether to display y grid lines
-                (default: True)
+
 
         Attributes:
             source (obj): datasource object for your plot,
@@ -110,16 +84,7 @@ class Dot(ChartObject):
         self.show_segment = show_segment
         self.cat = cat
         self.values = values
-        self.source = None
-        self.xdr = None
-        self.ydr = None
-        self.groups = []
-        self.data = dict()
-        self.attr = []
-        super(Dot, self).__init__(
-            title, xlabel, ylabel, legend, xscale, yscale, width, height,
-            tools, filename, server, notebook, facet, xgrid, ygrid
-        )
+        super(DotBuilder, self).__init__(legend=legend, palette=palette)
 
     def get_data(self):
         """Take the Dot data from the input **value.
@@ -157,10 +122,10 @@ class Dot(ChartObject):
         the proper ranges.
         """
         self.source = ColumnDataSource(self.data)
-        self.xdr = FactorRange(factors=self.source.data["cat"])
+        self.x_range = FactorRange(factors=self.source.data["cat"])
         cat = [i for i in self.attr if not i.startswith(("cat",))]
         end = 1.1 * max(max(self.data[i]) for i in cat)
-        self.ydr = Range1d(start=0, end=end)
+        self.y_range = Range1d(start=0, end=end)
 
     def draw(self):
         """Use the rect glyphs to display the bars.
@@ -177,33 +142,36 @@ class Dot(ChartObject):
             # draw segment first so when scatter will be place on top of it
             # and it won't show segment chunk on top of the circle
             if self.show_segment:
-                self.chart.make_segment(
+                renderer = self.make_segment(
                     self.source, quartet[1], quartet[2],
                     quartet[1], quartet[3], 'black', 2,
                 )
+                yield renderer
 
-            self.chart.make_scatter(
+            renderer = self.make_scatter(
                 self.source, quartet[1], quartet[0], 'circle',
                 colors[i - 1], line_color='black', size=15, fill_alpha=1.,
             )
+            self._legends.append((self.groups[i], [renderer]))
+            yield renderer
 
-            if i < len(self.tuples):
-                self.create_plot_if_facet()
+            # if i < len(self.tuples):
+            #     self.create_plot_if_facet()
 
-        self.reset_legend()
+        # self.reset_legend()
 
-    def _make_legend_glyph(self, source_legend, color):
-        '''Create a new glyph to represent one of the chart data series with the
-        specified color
-
-        The glyph is added to chart.glyphs.
-
-        NOTE: Overwrites default ChartObject in order to draw a circle glyph
-        on the legend instead of the default `rect`
-
-        Args:
-            source_legend (ColumnDataSource): source to be used when creating the glyph
-            color (str): color of the glyph
-        '''
-        self.chart.make_scatter(source_legend, "groups", None, 'circle',
-                                 color, "black", fill_alpha=1.)
+    # def _make_legend_glyph(self, source_legend, color):
+    #     '''Create a new glyph to represent one of the chart data series with the
+    #     specified color
+    #
+    #     The glyph is added to chart.glyphs.
+    #
+    #     NOTE: Overwrites default ChartObject in order to draw a circle glyph
+    #     on the legend instead of the default `rect`
+    #
+    #     Args:
+    #         source_legend (ColumnDataSource): source to be used when creating the glyph
+    #         color (str): color of the glyph
+    #     '''
+    #     self.chart.make_scatter(source_legend, "groups", None, 'circle',
+    #                              color, "black", fill_alpha=1.)
