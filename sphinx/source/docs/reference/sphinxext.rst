@@ -60,3 +60,11 @@ bokeh_prop
 ==========
 
 .. automodule:: bokeh.sphinxext.bokeh_prop
+
+.. _bokeh.sphinxext.collapsible_code_block:
+
+collapsible_code_block
+======================
+
+.. automodule:: bokeh.sphinxext.collapsible_code_block
+
