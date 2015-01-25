@@ -90,7 +90,6 @@ class CollapsibleCodeBlock(CodeBlock):
         target_id = "%s.ccb-%d" % (rst_filename, env.new_serialno('bokeh-plot'))
         target_id = target_id.replace(".", "-")
         target_node = nodes.target('', '', ids=[target_id])
-        result = [target_node]
 
         node = collapsible_code_block()
         node['target_id'] = target_id
@@ -100,7 +99,7 @@ class CollapsibleCodeBlock(CodeBlock):
         node.setup_child(cb[0])
         node.children.append(cb[0])
 
-        return [node]
+        return [target_node, node]
 
 def html_visit_collapsible_code_block(self, node):
     self.body.append(

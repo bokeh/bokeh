@@ -247,7 +247,7 @@ class Image(Glyph):
     dw = DataSpec("dw", help="""
     The widths of the plot regions that the images will occupy.
 
-    ..note::
+    .. note::
         This is not the number of pixels that an image is wide.
         That number is fixed by the image itself.
 
@@ -256,7 +256,7 @@ class Image(Glyph):
     dh = DataSpec("dh", help="""
     The height of the plot region that the image will occupy.
 
-    ..note::
+    .. note::
         This is not the number of pixels that an image is tall.
         That number is fixed by the image itself.
 
@@ -311,7 +311,7 @@ class ImageRGBA(Glyph):
     dw = DataSpec("dw", help="""
     The widths of the plot regions that the images will occupy.
 
-    ..note::
+    .. note::
         This is not the number of pixels that an image is wide.
         That number is fixed by the image itself.
 
@@ -320,7 +320,7 @@ class ImageRGBA(Glyph):
     dh = DataSpec("dh", help="""
     The height of the plot region that the image will occupy.
 
-    ..note::
+    .. note::
         This is not the number of pixels that an image is tall.
         That number is fixed by the image itself.
 
@@ -363,7 +363,7 @@ class ImageURL(Glyph):
     w = DataSpec("w", help="""
     The widths of the plot regions that the images will occupy.
 
-    ..note::
+    .. note::
         This is not the number of pixels that an image is wide.
         That number is fixed by the image itself.
 
@@ -376,7 +376,7 @@ class ImageURL(Glyph):
     h = DataSpec("h", help="""
     The height of the plot region that the image will occupy.
 
-   ..note::
+    .. note::
         This is not the number of pixels that an image is tall.
         That number is fixed by the image itself.
 
