@@ -37,12 +37,12 @@ class Marker(Glyph):
     """)
 
 class Asterisk(Marker):
-    """
+    """ Render asterisk '*' markers.
 
     """
 
 class Circle(Marker):
-    """
+    """ Render circle markers.
 
     """
 
@@ -56,7 +56,7 @@ class Circle(Marker):
         should be given.
 
     .. warning::
-        Note that Cicle glyphs are always drawn as circles on the screen,
+        Note that ``Circle`` glyphs are always drawn as circles on the screen,
         even in cases where the data space aspect ratio is not 1-1. In all
         cases where radius or size units are specified as "data", the
         "distance" for the radius is measured along the horizontal axis.
@@ -67,60 +67,60 @@ class Circle(Marker):
     """)
 
 class CircleCross(Marker):
-    """
+    """ Render circle markers with a '+' cross through the center.
 
     """
 
 class CircleX(Marker):
-    """
+    """ Render circle markers with an 'X' cross through the center.
 
     """
 
 class Cross(Marker):
-    """
+    """ Render '+' cross markers.
 
     """
 
 class Diamond(Marker):
-    """
+    """ Render diamond markers.
 
     """
 
 class DiamondCross(Marker):
-    """
+    """ Render diamond markers with a '+' cross through the center.
 
     """
 
 class InvertedTriangle(Marker):
-    """
+    """ Render upside-down triangle markers.
 
     """
 
 class Square(Marker):
-    """
+    """ Render a square marker, optionally rotated.
 
     """
 
     angle = DataSpec("angle", help="""
-    The angle (in radians) to rotate square markers.
+    The angles (in radians) to rotate square markers.
     """)
 
 class SquareCross(Marker):
-    """
+    """ Render square markers with a '+' cross through the center.
 
     """
 
 class SquareX(Marker):
-    """
+    """ Render square markers with an 'X' cross through the center.
 
     """
 
 class Triangle(Marker):
-    """
+    """ Render triangle markers.
 
     """
 
 class X(Marker):
-    """
+    """ Render a 'X' cross markers.
 
     """
