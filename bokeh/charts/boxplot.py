@@ -21,7 +21,7 @@ import numpy as np
 import pandas as pd
 
 from ._charts import Chart
-
+from ._chartobject import Builder
 from ..models import ColumnDataSource, FactorRange, Range1d
 
 #-----------------------------------------------------------------------------
@@ -29,7 +29,21 @@ from ..models import ColumnDataSource, FactorRange, Range1d
 #-----------------------------------------------------------------------------
 
 
-class BoxPlot(Chart):
+def Bar(values, cat=None, stacked=False, xscale="categorical", yscale="linear",
+        xgrid=False, ygrid=True, **kw):
+
+    # create a Area builder
+    builder = BarBuilder(
+        values, cat=cat, stacked=stacked,
+        **kw)
+
+    # create a chart to return, since there isn't one already
+    chart = Chart(xscale=xscale, yscale=yscale, xgrid=xgrid, ygrid=ygrid, **kw)
+    chart.add_builder(builder)
+
+    return chart
+
+class BoxPlot(Builder):
     """This is the BoxPlot class and it is in charge of plotting
     scatter plots in an easy and intuitive way.
 

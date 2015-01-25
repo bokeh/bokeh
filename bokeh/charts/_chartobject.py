@@ -43,6 +43,17 @@ except ImportError:
 # Classes and functions
 #-----------------------------------------------------------------------------
 
+def create_and_build(builder_class, values, **kws):
+    # create a Area builder
+    builder = builder_class(**kws)
+
+    # create a chart to return, since there isn't one already
+    chart = Chart(**kws)
+    chart.add_builder(builder)
+
+    return chart
+
+
 class Builder(object):
     """A prototype class to inherit each new chart type.
 

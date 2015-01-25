@@ -26,7 +26,7 @@ except ImportError:
     raise
 
 from ._charts import Chart
-from ._chartobject import Builder
+from ._chartobject import Builder, create_and_build
 from ..models import ColumnDataSource, FactorRange, Range1d
 
 #-----------------------------------------------------------------------------
@@ -36,7 +36,10 @@ from ..models import ColumnDataSource, FactorRange, Range1d
 
 def Bar(values, cat=None, stacked=False, xscale="categorical", yscale="linear",
         xgrid=False, ygrid=True, **kw):
-
+    return create_and_build(
+        BarBuilder, cat=cat, stacked=stacked, xscale=xscale, yscale=yscale,
+        xgrid=xgrid, ygrid=ygrid, **kw
+    )
     # create a Area builder
     builder = BarBuilder(
         values, cat=cat, stacked=stacked,
