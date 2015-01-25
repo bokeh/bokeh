@@ -498,29 +498,11 @@ class Builder(object):
         # we add the glyphs into the plot
         return self.draw()
 
-    #
-    # def _show_teardown(self):
-    #     """
-    #     Convenience method that can be override by inherited classes to
-    #     perform custom teardown or clean up actions after show method has
-    #     build chart objects
-    #     """
-    #     pass
-
     def make_legends(self):
         raise NotImplementedError
 
     def create(self, chart=None):
-        # if chart:
-        #     self.chart = chart
-        #
-        # if not self.chart:
-        #     print("CREATING CHART")
-        #     self.chart = self.create_chart()
-
         self._pre_create()
-        # self._prepare_show()
-        # self._show_teardown()
 
         # pass these renderers to the chart and then forget about the chart
         renderers = self.make_renderers()
@@ -544,19 +526,6 @@ class Builder(object):
 
         return chart
 
-    # def create_plot_if_facet(self):
-    #     """
-    #     Generate a new plot if facet is true. This can be called after every
-    #     serie is draw so the next one is draw on a new separate plot instance
-    #     """
-    #     if self._facet:
-    #         self.chart.figure()
-    #
-    #         # we start the plot (adds axis, grids and tools)
-    #         self.start_plot()
-    #         self.add_data_plot()
-
-    #
     # Some helper methods
     def _chunker(self, l, n):
         """Yield successive n-sized chunks from l.
