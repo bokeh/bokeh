@@ -66,69 +66,19 @@ class Builder(object):
         * dynamically chart cration attributes, ie. `self.chart`
         * composition to easily use Chart clase methods
     """
-
-    # whether to show the xgrid
-    xgrid = True
-
-    # whether to show the ygrid
-    ygrid = True
-
     def __init__(self, legend=False, palette=None, **kws):
         """Common arguments to be used by all the inherited classes.
 
         Args:
-            title (str): the title of your plot.
-            xlabel (str): the x-axis label of your plot.
-            ylabel (str): the y-axis label of your plot.
             legend (str, bool): the legend of your plot. The legend content is
                 inferred from incoming input.It can be ``top_left``,
                 ``top_right``, ``bottom_left``, ``bottom_right``.
                 It is ``top_right`` is you set it as True.
-            xscale (str): the x-axis type scale of your plot. It can be
-                ``linear``, ``datetime`` or ``categorical``.
-            yscale (str): the y-axis type scale of your plot. It can be
-                ``linear``, ``datetime`` or ``categorical``.
-            width (int): the width of your plot in pixels.
-            height (int): the height of you plot in pixels.
-            tools (bool): to enable or disable the tools in your plot.
-            filename (str or bool): the name of the file where your plot.
-                will be written. If you pass True to this argument, it will use
-                ``untitled`` as a filename.
-            server (str or bool): the name of your plot in the server.
-                If you pass True to this argument, it will use ``untitled``
-                as the name in the server.
-            notebook (bool):if you want to output (or not) your plot into the
-                IPython notebook.
             palette(list, optional): a list containing the colormap as hex values.
-            xgrid (bool, optional): defines if x-grid of your plot is visible or not
-            ygrid (bool, optional): defines if y-grid of your plot is visible or not
-        .. note::
-            These Args are assigned to private attributes that will be used
-            by default at the time of chart instantiation, except in the case
-            we call any of the chained methods available, in that case the
-            value used with the chained method will overwrite the default one.
+
         """
-        # self.__title = title
-        # self.__xlabel = xlabel
-        # self.__ylabel = ylabel
         self._legend = legend
-        # self.__xscale = xscale
-        # self.__yscale = yscale
-        # self.__width = width
-        # self.__height = height
-        # self.__tools = tools
-        # self.__filename = filename
-        # self.__server = server
-        # self.__notebook = notebook
-        # self.__facet = facet
         self._palette = palette or DEFAULT_PALETTE
-        # self.__xgrid = xgrid
-        # self.__ygrid = ygrid
-        # self.doc = _doc
-        # self.session = _session
-
-        # self.chart = None
-
         self._legends = []
         self.data = {}
         self.groups = []
