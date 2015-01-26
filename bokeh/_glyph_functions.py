@@ -418,6 +418,20 @@ are also accepted as keyword parameters.
 
 Returns:
     plot
+
+Examples:
+
+    .. bokeh-plot::
+       :source-position: above
+
+       from bokeh.plotting import figure, output_file, show
+
+       output_file("lines.html")
+
+       p = figure(title="line", plot_width=300, plot_height=300)
+       p.line([1, 2, 3, 4, 5], [6, 7, 2, 4, 5])
+
+       show(p)
 """
 )
 

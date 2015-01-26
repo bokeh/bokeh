@@ -369,15 +369,11 @@ def output_server(docname, session=None, url="default", name=None, clear=True):
     if clear:
         curdoc().clear()
 
-def output_notebook(url=None, docname=None, session=None, name=None,
-                    force=False):
+def output_notebook(url=None, docname=None, session=None, name=None):
     if session or url or name:
         if docname is None:
             docname = "IPython Session at %s" % time.ctime()
         output_server(docname, url=url, session=session, name=name)
-    else:
-        from . import load_notebook
-        load_notebook(force=force)
     global _default_notebook
     _default_notebook = True
 

@@ -2,7 +2,6 @@
 Bokeh Tutorial
 ==============
 
-
 .. _about:
 
 Bokeh is a Python interactive visualization library for large datasets that
@@ -15,12 +14,12 @@ delivering high-performance interactivity over large data to thin clients.
 .. toctree::
    :maxdepth: 2
 
-   intro.rst
-   quick_install.rst
+   intro
+   quick_install
    basic.rst
-   topical.rst
-   advanced.rst
-   more_info.rst
+   topical
+   advanced
+   more_info
 
 
 

@@ -33,6 +33,13 @@ extensions = [
     'sphinx.ext.inheritance_diagram',
     'sphinxcontrib.napoleon',
     'sphinxcontrib.autohttp.flask',
+    'bokeh.sphinxext.bokeh_autodoc',
+    'bokeh.sphinxext.bokeh_gallery',
+    'bokeh.sphinxext.bokeh_github',
+    'bokeh.sphinxext.bokeh_model',
+    'bokeh.sphinxext.bokeh_palette',
+    'bokeh.sphinxext.bokeh_plot',
+    'bokeh.sphinxext.bokeh_prop',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -82,7 +89,7 @@ exclude_patterns = ['_build']
 
 # If true, the current module name will be prepended to all description
 # unit titles (such as .. function::).
-#add_module_names = True
+add_module_names = False
 
 # If true, sectionauthor and moduleauthor directives will be shown in the
 # output. They are ignored by default.
@@ -199,8 +206,15 @@ html_static_path = ['_static']
 #html_use_smartypants = True
 
 # Custom sidebar templates, maps document names to template names.
-html_sidebars = {'**': ['sidebartoc.html', 'sourcelink.html', 'searchbox.html'],
-                 'docs/gallery': []}
+html_sidebars = {
+    '*': ['sidebartoc.html', 'sourcelink.html', 'searchbox.html'],
+    'tutorial/**': ['sidebartoc.html', 'sourcelink.html', 'searchbox.html'],
+    'docs/*': ['sidebartoc.html', 'sourcelink.html', 'searchbox.html'],
+    'docs/reference/**': ['sidebartoc.html', 'sourcelink.html', 'searchbox.html'],
+    'docs/user_guide/**': ['sidebartoc.html', 'sourcelink.html', 'searchbox.html'],
+    'docs/gallery': [],
+    'docs/gallery/*': [],
+}
 
 # Additional templates that should be rendered to pages, maps page names to
 # template names.

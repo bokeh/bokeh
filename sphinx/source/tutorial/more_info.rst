@@ -1,11 +1,20 @@
 More Information
 ================
 
+.. toctree::
+    :glob:
+    :hidden:
+
+    solutions/gallery/*
+
+
 For the full documentation, see `http://bokeh.pydata.org <http://bokeh.pydata.org>`_.
+
+For questions and technical assistance, come join the `bokeh users mailing list <https://groups.google.com/a/continuum.io/forum/#!forum/bokeh>`_.
 
 To see the Bokeh source code, visit the GitHub repository: `https://github.com/bokeh/bokeh <https://github.com/bokeh/bokeh>`_
 
-Be sure to follow us on Twitter `@bokehplots <http://twitter.com/BokehPlots>`_!
+Be sure to follow us on Twitter `@bokehplots <http://twitter.com/BokehPlots>`_, as well as on `Vine <https://vine.co/bokehplots>`_, and `Youtube <https://www.youtube.com/channel/UCK0rSk29mmg4UT4bIOvPYhw>`_!
 
 .. _tutorial_contact:
 

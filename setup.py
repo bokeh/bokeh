@@ -450,6 +450,7 @@ setup(
         'bokeh.server.views',
         'bokeh.server.utils',
         'bokeh.server.tests',
+        'bokeh.sphinxext',
         'bokeh.tests',
         'bokeh.transforms'
     ],

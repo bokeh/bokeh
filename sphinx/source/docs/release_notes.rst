@@ -1,13 +1,12 @@
 .. _release_notes_roadmap:
 
-#########################
 Release Notes and Roadmap
 #########################
 
 .. _release_notes:
 
 Release Notes
-'''''''''''''
+=============
 
 .. toctree::
     :maxdepth: 1
@@ -30,10 +29,10 @@ Release Notes
 .. _roadmap:
 
 Roadmap
-'''''''
+=======
 
 0.8.0 Goals (February 2015)
-===========================
+---------------------------
 
 * R language binding
 * server/widget/AR examples in gallery
@@ -51,12 +50,12 @@ Roadmap
   - crossfilter
 
 
-
 Long-term TODO List
-===================
+-------------------
 
 Core Plotting
--------------
+~~~~~~~~~~~~~
+
 * BokehJS interface
 * Backbuffering
 * CSS styling/theming mechanism
@@ -99,7 +98,7 @@ Core Plotting
 * LaTeX support
 
 Backends
---------
+~~~~~~~~
 
 * More efficient binary data transfers to BokehJS
 * Check compatibility with mobile browsers
@@ -108,12 +107,11 @@ Backends
 
 
 Interactions
-------------
-
+~~~~~~~~~~~~
 
 
 Docs & Testing
---------------
+~~~~~~~~~~~~~~
 
 * tests:
 

@@ -1,6 +1,6 @@
 
 Contributing
-============
+############
 
 We are always looking for contributors, and want grow the developer/contributor
 base for Bokeh.
@@ -34,7 +34,8 @@ Specific areas we'd like to get help on:
 * Connectors to various data APIs (public data or even commercial software suites)
 
 Core Team
----------
+=========
+
 The Bokeh core team comprises:
 
 * Damián Avila
