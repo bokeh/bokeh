@@ -15,22 +15,6 @@ from bokeh.models import PlotContext
 
 from .. import models
 
-def prune_and_get_valid_models(clientdoc, delete=False):
-    """
-    retrieve all models that the plot_context points to.
-    if delete is True,
-    wipe out any models that are orphaned.  Also call transform_models, which
-    performs any backwards compatibility data transformations.
-    """
-    objs = clientdoc.context.references()
-    log.info("num models: %d", len(objs))
-    if delete:
-        for obj in clientdoc._models.values():
-            if obj not in objs:
-                #not impl yet...
-                clientdoc.del_obj(obj)
-    return objs
-
 def new_doc(flaskapp, docid, title, clientdoc, rw_users=None, r_users=None,
             apikey=None, readonlyapikey=None):
     if not apikey: apikey = str(uuid.uuid4())

@@ -3,7 +3,7 @@ In our python interface to the backbone system, we separate the local collection
 which stores models, from the http client which interacts with a remote store
 In applications, we would use a class that combines both
 """
-
+import warnings
 import logging
 logger = logging.getLogger(__name__)
 
@@ -58,11 +58,10 @@ def parse_modelkey(key):
     return typename, docid, modelid
 
 def prune(document, delete=False):
-    all_models = docs.prune_and_get_valid_models(document, delete=delete)
-    to_keep = set([x._id for x in all_models])
-    to_delete = set(document._models.keys()) - to_keep
-    for k in to_delete:
-        del document._models[k]
+    to_delete = document.prune()
+    if delete:
+        warnings.warn("model deletion not from persistent storage not implemented yet")
+        #TODO: delete from persistent storage here
 
 class PersistentBackboneStorage(object):
     """Base class for `RedisBackboneStorage`, `InMemoryBackboneStorage`, etc. """

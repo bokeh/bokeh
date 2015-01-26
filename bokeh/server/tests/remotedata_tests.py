@@ -6,7 +6,7 @@ from ..app import bokeh_app, app
 from ..models import user
 
 from . import test_utils
-from ...plotting import (reset_output, output_server, square, push, curdoc, figure)
+from ...plotting import (reset_output, output_server, push, curdoc, figure)
 from ...session import TestSession
 from ...models.sources import ServerDataSource
 from ...models.ranges import Range1d
@@ -28,7 +28,8 @@ class TestAr(test_utils.FlaskClientTestCase):
         orig_source = ServerDataSource(expr={'op': 'Field', 'args': [':leaf', 'gauss']})
 
         #make template plot
-        plot = square('oneA', 'oneB', color='#FF00FF', source=orig_source)
+        p = figure(x_range=Range1d(start=0, end=0), y_range=Range1d(start=0, end=0))
+        plot = p.square('oneA', 'oneB', color='#FF00FF', source=orig_source)
 
         #replace that plot with an abstract rendering one
         arplot = ar.heatmap(
@@ -38,10 +39,8 @@ class TestAr(test_utils.FlaskClientTestCase):
             title="Server-rendered, uncorrected")
         # set explicit value for ranges, or else they are set at 0
         # until the javascript auto-sets it
-        arplot.x_range.start = -2.0
-        arplot.x_range.end = 2.0
-        arplot.y_range.start = -2.0
-        arplot.y_range.end = 2.0
+        arplot.x_range = Range1d(start=-2.0, end=2.0)
+        arplot.y_range = Range1d(start=-2.0, end=2.0)
         glyph = arplot.select({'type' : GlyphRenderer})[0].glyph
         #extract the original data source because it was replaced?!
         source = arplot.select({'type' : ServerDataSource})[0]
@@ -61,6 +60,10 @@ class TestAr(test_utils.FlaskClientTestCase):
                       'data_y' : curdoc().dump(arplot.y_range)[0]['attributes']}
 
         #save data to server
+        #hack - because recent changes broke AR
+        curdoc().context.children = [arplot]
+        for obj in curdoc().context.references():
+            obj._dirty = True
         push()
         data = {'plot_state' : plot_state}
         url = "/render/%s/%s/%s" % (curdoc().docid, source._id, glyph._id)
