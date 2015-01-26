@@ -1,12 +1,13 @@
 
 define [
+  "backbone"
   "underscore"
   "common/collection"
   "common/has_properties"
   "common/logging"
   "range/range1d"
   "range/data_range1d"
-], (_, Collection, HasProperties, Logging, Range1d, DataRange1d) ->
+], (Backbone, _, Collection, HasProperties, Logging, Range1d, DataRange1d) ->
 
   logger = Logging.logger
 
@@ -36,13 +37,10 @@ define [
         )
 
     return callback
-  class ServerDataSource extends HasProperties
-    # Datasource where the data is defined column-wise, i.e. each key in the
-    # the data attribute is a column name, and its value is an array of scalars.
-    # Each column should be the same length.
-    type: 'ServerDataSource'
 
-    initialize : (attrs, options) =>
+  class AbstractRenderingSource extends Backbone.Model
+
+    initialize : (attrs, options) ->
       super(attrs, options)
       @callbacks = {}
 
@@ -51,99 +49,15 @@ define [
         for entry in @callbacks[column_data_source.get('id')]
           @stopListening.apply(this, entry)
 
-    update_url : () ->
-      owner_username = @get('owner_username')
-      prefix = @get_base().Config.prefix
-      url = "#{prefix}bokeh/data/#{owner_username}/#{@get('doc')}/#{@get('id')}"
-
-    listen_for_line1d_updates : (column_data_source,
-                                  plot_x_span, plot_y_span,
-                                  domain_span, range_span,
-                                  screen_span,
-                                  primary_column, domain_name, columns, input_params) ->
-
-      plot_state = {screen_x: plot_x_span, screen_y: plot_y_span}
-      #ensure we only have one set of events bound
+    listen_for_ar_updates : (plot_x_range, plot_y_range, x_data_range, y_data_range,
+      column_data_source) ->
+      plot_state =
+        data_x: x_data_range
+        data_y: y_data_range
+        screen_x: plot_x_range
+        screen_y: plot_y_range
       @stoplistening_for_updates(column_data_source)
-      @line1d_update(column_data_source, plot_state, domain_span, range_span, screen_span,
-                     primary_column, domain_name, columns, input_params)
-
-      throttle = _.throttle(@line1d_update, 300)
-
-      callback = () => throttle(column_data_source, plot_state, domain_span, range_span, screen_span,
-                                primary_column, domain_name, columns, input_params)
-
-      @listenTo(screen_span, 'change', callback)
-      @listenTo(domain_span, 'change', callback)
-      @callbacks[column_data_source.get('id')] = [
-        [screen_span, 'change', callback],
-        [domain_span, 'change', callback]
-      ]
-
-    #TODO: Move some of the passed paramters in to the plot_state object...when plot_state can handle more than just ranges
-    line1d_update : (column_data_source, plot_state,
-                     domain_span, range_span,
-                     screen_span,
-                     primary_column, domain_name, columns, input_params) =>
-
-      domain_resolution = (screen_span.get('end') - screen_span.get('start')) / 2
-      domain_resolution = Math.floor(domain_resolution)
-      domain_limit = [domain_span.get('start'), domain_span.get('end')]
-      range_limit = [range_span.get('start'), range_span.get('end')]
-
-      if plot_state['screen_x'].get('start') == plot_state['screen_x'].get('end') or
-         plot_state['screen_y'].get('start') == plot_state['screen_y'].get('end') or
-         domain_limit[0] > domain_limit[1] or
-         range_limit[0] > range_limit[1]
-       return $.ajax()
-
-      if (_.any(_.map(domain_limit, (x) -> _.isNaN(x))) or
-         _.every(_.map(domain_limit, (x) -> _.isEqual(0,x))))
-        domain_limit = 'auto'
-
-      if (_.any(_.map(range_limit, (x) -> _.isNaN(x))) or
-         _.every(_.map(range_limit, (x) -> _.isEqual(0,x))))
-        range_limit = 'auto'
-
-      params = [primary_column, domain_name, columns,
-          domain_limit, range_limit, domain_resolution, input_params]
-
-      $.ajax(
-        dataType: 'json'
-        url : @update_url()
-        xhrField :
-          withCredentials : true
-        success : (data) ->
-          if domain_limit == 'auto'
-            domain_span.set(
-                start : data.domain_limit[0],
-                end : data.domain_limit[1],
-            )
-
-          if range_limit == 'auto'
-            range_span.set(
-                start : data.range_limit[0],
-                end : data.range_limit[1],
-            )
-
-          column_data_source.set('data', data.data)
-        data :
-          resample_parameters : JSON.stringify(params)
-          plot_state: JSON.stringify(plot_state)
-      )
-
-    listen_for_ar_updates : (plot_view,
-                             column_data_source,
-                             plot_x_range, plot_y_range,
-                             x_data_range, y_data_range,
-                             input_params) ->
-
-      plot_state = {data_x: x_data_range, data_y: y_data_range, screen_x: plot_x_range, screen_y: plot_y_range}
-
-      #TODO: Can this ar_updates be merged with line1d_updates and heatmap_updates?
-      #TODO: Do we need other descriptors for AR or are these data and view parameters sufficient?
-      @stoplistening_for_updates(column_data_source)
-      callback =ajax_throttle( () => return @ar_update(plot_view, column_data_source, plot_state, input_params))
+      callback = ajax_throttle( () => return @ar_update(plot_view, column_data_source, plot_state, input_params))
 
       callback()
       @callbacks[column_data_source.get('id')] = []
@@ -223,6 +137,94 @@ define [
           render_state: JSON.stringify(render_state)
       )
       return resp
+
+
+  class ServerDataSource extends HasProperties
+    # Datasource where the data is defined column-wise, i.e. each key in the
+    # the data attribute is a column name, and its value is an array of scalars.
+    # Each column should be the same length.
+    type: 'ServerDataSource'
+
+    initialize : (attrs, options) =>
+      super(attrs, options)
+      if @get('transform')['resample'] == 'abstract rendering'
+        @proxy = AbstractRenderingSource()
+
+    listen_for_line1d_updates : (column_data_source,
+                                  plot_x_span, plot_y_span,
+                                  domain_span, range_span,
+                                  screen_span,
+                                  primary_column, domain_name, columns, input_params) ->
+
+      plot_state = {screen_x: plot_x_span, screen_y: plot_y_span}
+      #ensure we only have one set of events bound
+      @stoplistening_for_updates(column_data_source)
+      @line1d_update(column_data_source, plot_state, domain_span, range_span, screen_span,
+                     primary_column, domain_name, columns, input_params)
+
+      throttle = _.throttle(@line1d_update, 300)
+
+      callback = () => throttle(column_data_source, plot_state, domain_span, range_span, screen_span,
+                                primary_column, domain_name, columns, input_params)
+
+      @listenTo(screen_span, 'change', callback)
+      @listenTo(domain_span, 'change', callback)
+      @callbacks[column_data_source.get('id')] = [
+        [screen_span, 'change', callback],
+        [domain_span, 'change', callback]
+      ]
+
+    #TODO: Move some of the passed paramters in to the plot_state object...when plot_state can handle more than just ranges
+    line1d_update : (column_data_source, plot_state,
+                     domain_span, range_span,
+                     screen_span,
+                     primary_column, domain_name, columns, input_params) =>
+
+      domain_resolution = (screen_span.get('end') - screen_span.get('start')) / 2
+      domain_resolution = Math.floor(domain_resolution)
+      domain_limit = [domain_span.get('start'), domain_span.get('end')]
+      range_limit = [range_span.get('start'), range_span.get('end')]
+
+      if plot_state['screen_x'].get('start') == plot_state['screen_x'].get('end') or
+         plot_state['screen_y'].get('start') == plot_state['screen_y'].get('end') or
+         domain_limit[0] > domain_limit[1] or
+         range_limit[0] > range_limit[1]
+       return $.ajax()
+
+      if (_.any(_.map(domain_limit, (x) -> _.isNaN(x))) or
+         _.every(_.map(domain_limit, (x) -> _.isEqual(0,x))))
+        domain_limit = 'auto'
+
+      if (_.any(_.map(range_limit, (x) -> _.isNaN(x))) or
+         _.every(_.map(range_limit, (x) -> _.isEqual(0,x))))
+        range_limit = 'auto'
+
+      params = [primary_column, domain_name, columns,
+          domain_limit, range_limit, domain_resolution, input_params]
+
+      $.ajax(
+        dataType: 'json'
+        url : @update_url()
+        xhrField :
+          withCredentials : true
+        success : (data) ->
+          if domain_limit == 'auto'
+            domain_span.set(
+                start : data.domain_limit[0],
+                end : data.domain_limit[1],
+            )
+
+          if range_limit == 'auto'
+            range_span.set(
+                start : data.range_limit[0],
+                end : data.range_limit[1],
+            )
+
+          column_data_source.set('data', data.data)
+        data :
+          resample_parameters : JSON.stringify(params)
+          plot_state: JSON.stringify(plot_state)
+      )
 
 
     listen_for_heatmap_updates : (column_data_source,
