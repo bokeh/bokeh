@@ -480,7 +480,7 @@ class MetaHasProps(type):
                     # inside the instance.
                     subprop = copy(subprop)
                 if "%s" in prop.help:
-                    doc = prop.help % subpropname.split('_', 1)[1].replace('_', ' ')
+                    doc = prop.help % subpropname.replace('_', ' ')
                 else:
                     doc = prop.help
                 try:
