@@ -173,6 +173,16 @@ class Horizon(ChartObject):
         else:
             return (y_origin, fold_height - v + y_origin)
 
+    def pad_list(self, l, padded_value=None):
+        """ Function that insert padded values at the start and end of
+        the list (l). If padded_value not provided, then duplicate the
+        values next to each end of the list
+        """
+        if len(l) > 0:
+            l.insert(0, l[0] if padded_value is None else padded_value)
+            l.append(l[-1] if padded_value is None else padded_value)
+        return l
+
     def get_data(self):
         """Use x/y data from the horizon values.
 
@@ -186,7 +196,7 @@ class Horizon(ChartObject):
                 continue
 
             self.series.append(col)
-            self.set_and_get("x_", col, self.values_index)
+            self.set_and_get("x_", col, self.pad_list(self.values_index.tolist()))
             self.max_y = max(max(self.values[col]), self.max_y)
 
         self.fold_height = self.max_y / self.nb_folds
@@ -195,17 +205,9 @@ class Horizon(ChartObject):
             for fold_itr in range(1, self.nb_folds + 1):
                 layers_datapoints = [self.fold_coordinates(
                     x, fold_itr, self.fold_height, y_origin) for x in self.values[serie]]
-                pos_points, neg_points = zip(*(layers_datapoints))
-
-                # *************
-                # This is clearly a hack in order to correctly close the area from the origin
-                # by removing the starting and tailing points from the list and replacing by a value at the
-                # origin of the layer on the y axis
-                pos_points = (y_origin,) + pos_points[1:-1] + (y_origin,)
-                neg_points = (self.fold_height + y_origin,) + \
-                    neg_points[1:-1] + (self.fold_height + y_origin,)
-                # *************
-
+                pos_points, neg_points = map(list, zip(*(layers_datapoints)))
+                pos_points = self.pad_list(pos_points, y_origin)
+                neg_points = self.pad_list(neg_points, self.fold_height + y_origin)
                 self.set_and_get("y_fold%s_" % fold_itr, serie, pos_points)
                 self.set_and_get("y_fold-%s_" % fold_itr, serie, neg_points)
 
@@ -250,4 +252,4 @@ class Horizon(ChartObject):
 
         # TODO: Add the other tooltips like the serie name and the y value of
         # that serie for that position
-        p.add_tools(HoverTool(tooltips=[("(index)", "$values_index")]))
+        p.add_tools(HoverTool(tooltips=[("(x, y)", "($sx, $sy)")]))
