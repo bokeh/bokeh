@@ -61,9 +61,6 @@ class TestAr(test_utils.FlaskClientTestCase):
 
         #save data to server
         #hack - because recent changes broke AR
-        curdoc().context.children = [arplot]
-        for obj in curdoc().context.references():
-            obj._dirty = True
         push()
         data = {'plot_state' : plot_state}
         url = "/render/%s/%s/%s" % (curdoc().docid, source._id, glyph._id)
