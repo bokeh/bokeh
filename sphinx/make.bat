@@ -18,10 +18,8 @@ if "%1" == "" goto help
 if "%1" == "help" (
 	:help
 	echo.Please use `make ^<target^>` where ^<target^> is one of
-	echo.  all               to make all HTML files
+	echo.  all               to make standalone HTML files
 	echo.  html              to make standalone HTML files
-    echo.  main_gallery      to make standalone main gallery HTML files
-	echo.  tutorial_gallery  to make standalone tutorial gallery HTML files
 	echo.  dirhtml           to make HTML files named index.html in directories
 	echo.  singlehtml        to make a single large HTML file
 	echo.  pickle            to make pickle files
@@ -49,34 +47,16 @@ if "%1" == "clean" (
 )
 
 if "%1" == "all" (
-	make main_gallery
-	make tutorial_gallery
-	make html
+    make html
 )
 
 if "%1" == "html" (
 	%SPHINXBUILD% -b html %ALLSPHINXOPTS% %BUILDDIR%\html
-	xcopy /E /I /Y %BUILDDIR%\main_gallery %BUILDDIR%\html\docs\gallery
-	mkdir %BUILDDIR%\html\tutorial\solutions\gallery
-	xcopy /E /I /Y %BUILDDIR%\tutorial_gallery %BUILDDIR%\html\tutorial\solutions\gallery
-	python .\build_palettes.py
 
 	if errorlevel 1 exit /b 1
 	echo.
 	echo.Build finished. The HTML pages are in %BUILDDIR%/html.
 	goto end
-)
-
-if "%1" == "main_gallery" (
-	rd /s /q %BUILDDIR%\main_gallery
-	mkdir %BUILDDIR%\main_gallery
-	python .\build_gallery.py .\main_gallery.json
-)
-
-if "%1" == "tutorial_gallery" (
-	rd /s /q %BUILDDIR%\tutorial_gallery
-	mkdir %BUILDDIR%\tutorial_gallery
-	python .\build_gallery.py .\tutorial_gallery.json
 )
 
 if "%1" == "dirhtml" (

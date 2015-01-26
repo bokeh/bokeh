@@ -174,6 +174,17 @@ have the python requirements installed. You can install these via ``conda
 install`` or ``pip install`` for the packages referenced at
 :ref:`install_dependencies`.
 
+Testing dependencies include the following additional libraries:
+
+* beautiful-soup
+* colorama
+* pdiff
+* boto
+* nose
+* mock
+* coverage
+* websocket-client
+
 Windows Notes
 ~~~~~~~~~~~~~
 If you build bokeh on a Windows machine in a Conda environment with either
@@ -232,6 +243,10 @@ To generate the full HTML documentation, navigate to the ``sphinx`` subdirectory
 of the Bokeh source checkout, and execute the corresponding command::
 
     make all
+
+or::
+
+    make html
 
 To start a server and automatically open the built documentation in a browser,
 execute the command::
