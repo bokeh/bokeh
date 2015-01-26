@@ -22,7 +22,7 @@ from collections import OrderedDict
 import itertools
 from ._charts import Chart
 from ..properties import bokeh_integer_types, Datetime
-from ..models import ColumnDataSource, GlyphRenderer
+from ..models import GlyphRenderer
 from ..models.glyphs import (Asterisk, Circle, CircleCross, CircleX, Cross, Diamond,
                              DiamondCross, InvertedTriangle, Line, Rect, Segment,
                              Square, SquareCross, SquareX, Triangle, X, Quad, Patch,
