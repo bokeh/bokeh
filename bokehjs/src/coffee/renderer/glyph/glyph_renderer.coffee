@@ -57,50 +57,54 @@ define [
       @mget('data_source').set('data', data)
       @set_data(false)
 
-      transform_params = serversource.attributes['transform']
-      resample_op = transform_params['resample']
-      
-      
-      #TODO: Perhaps pass 'plot_view' through in the request instead of these fractions carved off 
+      #TODO: Perhaps pass 'plot_view' through in the request instead of these fractions carved off
       plot_h_range = @plot_view.frame.get('h_range')
       plot_v_range = @plot_view.frame.get('v_range')
       data_x_range = @plot_view.x_range
       data_y_range = @plot_view.y_range
-
-      #TODO: This is weird.  For example, h_range is passed in twice.  Hugo or Joseph should clean it up
-      if (resample_op == 'line1d')
-        domain = transform_params['domain']
-        if domain == 'x'
-          serversource.listen_for_line1d_updates(
-            @mget('data_source'),
-            plot_h_range, plot_v_range,
-            data_x_range, data_y_range,
-            plot_h_range,
-            # XXX: @glyph.x.field (etc.) indicates this be moved to Glyph
-            @glyph.glyph.y.field,
-            @glyph.glyph.x.field,
-            [@glyph.glyph.y.field],
-            transform_params
-          )
-        else
-          throw new Error("Domains other than 'x' not supported yet.")
-      else if (resample_op == 'heatmap')
-        serversource.listen_for_heatmap_updates(
-           @mget('data_source'),
-           plot_h_range, plot_v_range,
-           data_x_range, data_y_range,
-           transform_params
-        )
-      else if (resample_op == 'abstract rendering')
-        serversource.listen_for_ar_updates(
-           @plot_view
-           @mget('data_source'),
-             #TODO: Joseph -- Get rid of the next four params because we're passing in the plot_view
-           plot_h_range, plot_v_range,
-           data_x_range, data_y_range,
-           transform_params)
-      else
-        logger.warn("unknown resample op: '#{resample_op}'")
+      window.pv = @plot_view
+      serversource.setup_proxy(
+        data_x : data_x_range
+        data_y : data_y_range
+        screen_x : plot_h_range
+        screen_y : plot_v_range
+        glyph : @glyph.model,
+        column_data_source : @mget('data_source')
+      )
+      # #TODO: This is weird.  For example, h_range is passed in twice.  Hugo or Joseph should clean it up
+      # if (resample_op == 'line1d')
+      #   domain = transform_params['domain']
+      #   if domain == 'x'
+      #     serversource.listen_for_line1d_updates(
+      #       @mget('data_source'),
+      #       plot_h_range, plot_v_range,
+      #       data_x_range, data_y_range,
+      #       plot_h_range,
+      #       # XXX: @glyph.x.field (etc.) indicates this be moved to Glyph
+      #       @glyph.glyph.y.field,
+      #       @glyph.glyph.x.field,
+      #       [@glyph.glyph.y.field],
+      #       transform_params
+      #     )
+      #   else
+      #     throw new Error("Domains other than 'x' not supported yet.")
+      # else if (resample_op == 'heatmap')
+      #   serversource.listen_for_heatmap_updates(
+      #      @mget('data_source'),
+      #      plot_h_range, plot_v_range,
+      #      data_x_range, data_y_range,
+      #      transform_params
+      #   )
+      # else if (resample_op == 'abstract rendering')
+      #   serversource.listen_for_ar_updates(
+      #      @plot_view
+      #      @mget('data_source'),
+      #        #TODO: Joseph -- Get rid of the next four params because we're passing in the plot_view
+      #      plot_h_range, plot_v_range,
+      #      data_x_range, data_y_range,
+      #      transform_params)
+      # else
+      #   logger.warn("unknown resample op: '#{resample_op}'")
 
     set_data: (request_render=true) ->
       source = @mget('data_source')

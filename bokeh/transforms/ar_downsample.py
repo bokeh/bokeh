@@ -517,6 +517,7 @@ def source(plot,
 
     kwargs['transform'] = {
         'resample': "abstract rendering",
+        'auto_bounds' : True,
         'agg': agg,
         'info': info,
         'shader': shader,

@@ -31,7 +31,7 @@ def _make_range(r):
     """
     return Range1d(start=r['start'], end=r['end'])
 
-@mbsbp.route("/render/<docid>/<datasourceid>/<glyphid>", methods=['POST'])
+@mbsbp.route("/render/<docid>/<datasourceid>/<glyphid>", methods=['GET', 'POST'])
 def render(docid, datasourceid, glyphid):
     #load bokeh document
     bokehuser = bokeh_app.authentication.current_user()
@@ -42,7 +42,6 @@ def render(docid, datasourceid, glyphid):
 
     #init plotting.py
     init_bokeh(clientdoc)
-
     serverdatasource = clientdoc._models[datasourceid]
     glyph = clientdoc._models[glyphid]
     parameters = serverdatasource.transform
@@ -51,7 +50,7 @@ def render(docid, datasourceid, glyphid):
     json_data['namespace'] = serverdatasource.namespace
     plot_state = json_data['plot_state']
     render_state = json_data.get('render_state', None)
-    auto_bounds = json_data.get('auto_bounds', 'False').lower() == 'true'
+    auto_bounds = json_data.get('auto_bounds', False)
 
     #convert json objects into actual range objects (hacky!)
     plot_state=dict([(k, _make_range(r)) for k,r in iteritems(plot_state)])

@@ -85,6 +85,7 @@ class Settings(object):
         self.run_forwarder = True
         if args.script:
             self.scripts = [args.script]
+
     def process_settings(self, bokeh_app):
         if self.url_prefix:
             if not self.url_prefix.startswith("/"):
@@ -92,9 +93,6 @@ class Settings(object):
             if self.url_prefix.endswith("/"):
                 self.url_prefix = self.url_prefix[:-1]
 
-def reset():
-    global settings
-
 settings = Settings()
+settings.reset()
 del Settings
-reset()
