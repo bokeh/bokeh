@@ -39,10 +39,26 @@ class Marker(Glyph):
 class Asterisk(Marker):
     """ Render asterisk '*' markers.
 
+    Example
+    -------
+
+    .. bokeh-plot:: ../tests/glyphs/Asterisk.py
+        :source-position: none
+
+    *source:* ``tests/glyphs/Asterisk.py``
+
     """
 
 class Circle(Marker):
     """ Render circle markers.
+
+    Example
+    -------
+
+    .. bokeh-plot:: ../tests/glyphs/Circle.py
+        :source-position: none
+
+    *source:* ``tests/glyphs/Circle.py``
 
     """
 
@@ -69,35 +85,91 @@ class Circle(Marker):
 class CircleCross(Marker):
     """ Render circle markers with a '+' cross through the center.
 
+    Example
+    -------
+
+    .. bokeh-plot:: ../tests/glyphs/CircleCross.py
+        :source-position: none
+
+    *source:* ``tests/glyphs/CircleCross.py``
+
     """
 
 class CircleX(Marker):
     """ Render circle markers with an 'X' cross through the center.
+
+    Example
+    -------
+
+    .. bokeh-plot:: ../tests/glyphs/CircleX.py
+        :source-position: none
+
+    *source:* ``tests/glyphs/CircleX.py``
 
     """
 
 class Cross(Marker):
     """ Render '+' cross markers.
 
+    Example
+    -------
+
+    .. bokeh-plot:: ../tests/glyphs/Cross.py
+        :source-position: none
+
+    *source:* ``tests/glyphs/Cross.py``
+
     """
 
 class Diamond(Marker):
     """ Render diamond markers.
+
+    Example
+    -------
+
+    .. bokeh-plot:: ../tests/glyphs/Diamond.py
+        :source-position: none
+
+    *source:* ``tests/glyphs/Diamond.py``
 
     """
 
 class DiamondCross(Marker):
     """ Render diamond markers with a '+' cross through the center.
 
+    Example
+    -------
+
+    .. bokeh-plot:: ../tests/glyphs/DiamondCross.py
+        :source-position: none
+
+    *source:* ``tests/glyphs/DiamondCross.py``
+
     """
 
 class InvertedTriangle(Marker):
     """ Render upside-down triangle markers.
 
+    Example
+    -------
+
+    .. bokeh-plot:: ../tests/glyphs/InvertedTriangle.py
+        :source-position: none
+
+    *source:* ``tests/glyphs/InvertedTriangle.py``
+
     """
 
 class Square(Marker):
     """ Render a square marker, optionally rotated.
+
+    Example
+    -------
+
+    .. bokeh-plot:: ../tests/glyphs/Square.py
+        :source-position: none
+
+    *source:* ``tests/glyphs/Square.py``
 
     """
 
@@ -108,19 +180,51 @@ class Square(Marker):
 class SquareCross(Marker):
     """ Render square markers with a '+' cross through the center.
 
+    Example
+    -------
+
+    .. bokeh-plot:: ../tests/glyphs/SquareCross.py
+        :source-position: none
+
+    *source:* ``tests/glyphs/SquareCross.py``
+
     """
 
 class SquareX(Marker):
     """ Render square markers with an 'X' cross through the center.
+
+    Example
+    -------
+
+    .. bokeh-plot:: ../tests/glyphs/SquareX.py
+        :source-position: none
+
+    *source:* ``tests/glyphs/SquareX.py``
 
     """
 
 class Triangle(Marker):
     """ Render triangle markers.
 
+    Example
+    -------
+
+    .. bokeh-plot:: ../tests/glyphs/Triangle.py
+        :source-position: none
+
+    *source:* ``tests/glyphs/Triangle.py``
+
     """
 
 class X(Marker):
     """ Render a 'X' cross markers.
+
+    Example
+    -------
+
+    .. bokeh-plot:: ../tests/glyphs/X.py
+        :source-position: none
+
+    *source:* ``tests/glyphs/X.py``
 
     """
