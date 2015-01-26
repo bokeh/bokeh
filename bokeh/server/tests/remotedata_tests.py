@@ -100,7 +100,7 @@ class TestAr(test_utils.FlaskClientTestCase):
                       'screen_y' : curdoc().dump(screen_y_range)[0]['attributes'],
                       'data_x' : curdoc().dump(plot.x_range)[0]['attributes'],
                       'data_y' : curdoc().dump(plot.y_range)[0]['attributes']}
-        data = {'plot_state' : plot_state}
+        data = {'plot_state' : plot_state, 'auto_bounds' : 'True'}
         glyph = plot.select({'type' : GlyphRenderer})[0].glyph
         url = "/render/%s/%s/%s" % (curdoc().docid, source._id, glyph._id)
         result = self.client.post(

@@ -51,6 +51,7 @@ def render(docid, datasourceid, glyphid):
     json_data['namespace'] = serverdatasource.namespace
     plot_state = json_data['plot_state']
     render_state = json_data.get('render_state', None)
+    auto_bounds = json_data.get('auto_bounds', 'False').lower() == 'true'
 
     #convert json objects into actual range objects (hacky!)
     plot_state=dict([(k, _make_range(r)) for k,r in iteritems(plot_state)])
@@ -73,14 +74,17 @@ def render(docid, datasourceid, glyphid):
             serverdatasource,
             glyph,
             plot_state,
-            render_state)
+            render_state,
+            auto_bounds,
+        )
     elif resample_op == 'line1d':
         result = line1d_downsample(
             data,
             serverdatasource,
             glyph,
             plot_state,
-            render_state
+            render_state,
+            auto_bounds,
         )
     elif resample_op == 'heatmap':
         result = heatmap_downsample(
@@ -88,7 +92,8 @@ def render(docid, datasourceid, glyphid):
             serverdatasource,
             glyph,
             plot_state,
-            render_state
+            render_state,
+            auto_bounds,
         )
 
 
@@ -96,7 +101,8 @@ def render(docid, datasourceid, glyphid):
     result = make_json(protocol.serialize_json(result))
     return result
 
-def line1d_downsample(raw_data, data_source, glyph, plot_state, render_state):
+def line1d_downsample(raw_data, data_source, glyph, plot_state,
+                      render_state, auto_bounds):
     if data_source.transform.get('direction', 'x') == 'x':
         domain_r = plot_state['data_x']
         range_r = plot_state['data_y']
@@ -109,7 +115,7 @@ def line1d_downsample(raw_data, data_source, glyph, plot_state, render_state):
     domain_name = glyph.x['field']
     range_name = glyph.y['field']
     domain = raw_data[domain_name]
-    if data_d_span == 0:
+    if auto_bounds:
         domain_limit = [domain.min(), domain.max()]
     else:
         domain_limit = [domain_r.start, domain_r.end]
@@ -122,10 +128,11 @@ def line1d_downsample(raw_data, data_source, glyph, plot_state, render_state):
                                         domain_limit,
                                         data_r_span,
                                         screen_d_span,
-                                        method='minmax')
+                                        'minmax', auto_bounds)
     return result
 
-def heatmap_downsample(raw_data, data_source, glyph, plot_state, render_state):
+def heatmap_downsample(raw_data, data_source, glyph, plot_state,
+                       render_state, auto_bounds):
     x_r = plot_state['data_x']
     y_r = plot_state['data_y']
 

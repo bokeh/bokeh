@@ -15,7 +15,7 @@ def downsample(data,
                domain_limit,
                range_limit,
                domain_resolution,
-               method):
+               method, auto_bounds):
     """
     data : record numpy array of values, shape (N,)
     domain_column : column index representing the domain of the plot
@@ -25,7 +25,7 @@ def downsample(data,
     domain_resolution : # of samples
     method : 'maxmin' encodes the max/min point.
              'mid' encode the midpoint of each bin-range
-
+    auto_bounds : auto scale range limits
     output:
     list of (domain,data) pairs, where they are each 1d vectors
     """
@@ -80,7 +80,7 @@ def downsample(data,
 
     columns = dict([(k, downsampled_data[k]) \
                     for k in downsampled_data.dtype.names])
-    if range_limit == 0:
+    if auto_bounds:
       range_limit = [columns[primary_data_column].min(),
                      columns[primary_data_column].max()]
 

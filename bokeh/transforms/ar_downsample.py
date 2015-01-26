@@ -575,7 +575,7 @@ def _generate_render_state(plot_state):
             'y_span': data_y_span}
 
 
-def downsample(raw_data, data_source, glyph, plot_state, render_state):
+def downsample(raw_data, data_source, glyph, plot_state, render_state, auto_bounds):
     _loadAR()  # Must be called before any attempts to use AR proper
 
     # XXX: transform['glyphspec'] is really a glyph
@@ -606,9 +606,9 @@ def downsample(raw_data, data_source, glyph, plot_state, render_state):
     shader = transform['shader']
 
     if shader.out == "image" or shader.out == "image_rgb":
-        rslt = downsample_image(xcol, ycol, glyphs, transform, plot_state)
+        rslt = downsample_image(xcol, ycol, glyphs, transform, plot_state, auto_bounds)
     elif shader.out == "multi_line":
-        rslt = downsample_line(xcol, ycol, glyphs, transform, plot_state)
+        rslt = downsample_line(xcol, ycol, glyphs, transform, plot_state, auto_bounds)
     else:
         raise ValueError("Unhandled shader output '{0}.".format(shader.out))
 
@@ -617,15 +617,14 @@ def downsample(raw_data, data_source, glyph, plot_state, render_state):
     return rslt
 
 
-def downsample_line(xcol, ycol, glyphs, transform, plot_state):
-    logger.info("Starting line-producing downsample")
+def downsample_line(xcol, ycol, glyphs, transform, plot_state, auto_bounds):
     screen_x_span = float(_span(plot_state['screen_x']))
     screen_y_span = float(_span(plot_state['screen_y']))
     data_x_span = float(_span(plot_state['data_x']))
     data_y_span = float(_span(plot_state['data_y']))
     shader = transform['shader']
 
-    if data_x_span == 0 or data_y_span == 0:
+    if auto_bounds:
         # How big would a full plot of the data be at the current resolution?
         # If scale is zero for either axis, don't actual render,
         # instead report back data bounds and wait for the next request
@@ -654,7 +653,7 @@ def downsample_line(xcol, ycol, glyphs, transform, plot_state):
     return parts
 
 
-def downsample_image(xcol, ycol, glyphs, transform, plot_state):
+def downsample_image(xcol, ycol, glyphs, transform, plot_state, auto_bounds):
     logger.info("Starting image-producing downsample")
     screen_x_span = float(_span(plot_state['screen_x']))
     screen_y_span = float(_span(plot_state['screen_y']))
@@ -663,7 +662,7 @@ def downsample_image(xcol, ycol, glyphs, transform, plot_state):
     shader = transform['shader']
     balanced_zoom = transform.get('balancedZoom', False)
 
-    if data_x_span == 0 or data_y_span == 0:
+    if auto_bounds:
         # How big would a full plot of the data be at the current resolution?
         # If scale is zero for either axis, don't actual render,
         # instead report back data bounds and wait for the next request

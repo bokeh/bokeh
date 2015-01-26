@@ -2,12 +2,13 @@
 define [
   "backbone"
   "underscore"
+  "common/base"
   "common/collection"
   "common/has_properties"
   "common/logging"
   "range/range1d"
   "range/data_range1d"
-], (Backbone, _, Collection, HasProperties, Logging, Range1d, DataRange1d) ->
+], (Backbone, _, base, Collection, HasProperties, Logging, Range1d, DataRange1d) ->
 
   logger = Logging.logger
 
@@ -38,62 +39,39 @@ define [
 
     return callback
 
-  class AbstractRenderingSource extends Backbone.Model
-
+  class ServerSourceUpdater extends Backbone.Model
     initialize : (attrs, options) ->
       super(attrs, options)
-      @callbacks = {}
+      @callbacks = []
+      @plot_state =
+        plot_x_range : options.plot_x_range
+        plot_y_range : options.plot_y_range
+        screen_x_range : options.screen_x_range
+        screen_y_range : options.screen_y_range
+      @glyph = options.glyph
+      @column_data_source = options.column_data_source
+      @render_state = options.render_state
 
-    stoplistening_for_updates : (column_data_source) ->
-      if @callbacks[column_data_source.get('id')]
-        for entry in @callbacks[column_data_source.get('id')]
-          @stopListening.apply(this, entry)
+    stoplistening_for_updates : () ->
+      for entry in @callbacks
+        @stopListening.apply(this, entry)
 
-    listen_for_ar_updates : (plot_x_range, plot_y_range, x_data_range, y_data_range,
-      column_data_source) ->
-      plot_state =
-        data_x: x_data_range
-        data_y: y_data_range
-        screen_x: plot_x_range
-        screen_y: plot_y_range
-      @stoplistening_for_updates(column_data_source)
-      callback = ajax_throttle( () => return @ar_update(plot_view, column_data_source, plot_state, input_params))
-
+    listen_for_updates : () ->
+      @stoplistening_for_updates()
+      callback = ajax_throttle(
+        () =>
+          return @update()
+      )
       callback()
-      @callbacks[column_data_source.get('id')] = []
       for param in [x_data_range, y_data_range, plot_x_range, plot_y_range]
         @listenTo(param, 'change', callback)
-        @callbacks[column_data_source.get('id')].push([param, 'change', callback])
-      @listenTo(this, 'change:index_slice', callback)
-      @callbacks[column_data_source.get('id')].push(
-        [this, 'change:index_slice', callback])
-      @listenTo(this, 'change:data_slice', callback)
-      @callbacks[column_data_source.get('id')].push(
-        [this, 'change:data_slice', callback])
+        @callbacks.push([param, 'change', callback])
       return null
 
+    update : () ->
+        return null
 
-    ar_update : (plot_view, column_data_source, plot_state, input_params) ->
-      #TODO: Share the x/y range information back to the server in some way...
-      domain_limit = 'not auto'
-
-      render_state = column_data_source.get('data')['render_state']
-      if not render_state
-        render_state = {}
-
-      if plot_state['screen_x'].get('start') == plot_state['screen_x'].get('end') or
-         plot_state['screen_y'].get('start') == plot_state['screen_y'].get('end')
-       logger.debug("skipping due to under-defined view state")
-       return $.ajax()
-
-      if plot_view.x_range.get('start') == plot_view.x_range.get('end') or
-         _.isNaN(plot_view.x_range.get('start')) or
-         _.isNaN(plot_view.x_range.get('end')) or
-         plot_view.y_range.get('start') == plot_view.y_range.get('end') or
-         _.isNaN(plot_view.y_range.get('start')) or
-         _.isNaN(plot_view.y_range.get('end'))
-        domain_limit = 'auto'
-
+    plot_state_json : (plot_state) ->
       sendable_plot_state = {}
       for key,item of plot_state
         # This copy is to reformat a datarange1d to a range1d without
@@ -105,8 +83,33 @@ define [
         proxy.set('start', item.get('start'))
         proxy.set('end', item.get('end'))
         sendable_plot_state[key] = proxy
-      logger.debug("Sent render State", render_state)
+      return JSON.stringify(sendable_plot_state)
 
+    update_url : () ->
+      # TODO: better way to handle this?  the data_url is the
+      # blaze compute endpoint, but we need the render endpoint here
+      glyph = @glyph
+      if @get('data_url')
+        url = data_url
+        base_url = url.replace("/compute.json", "/render")
+      else
+        base_url = base.Config.prefix + "render"
+      url = "#{base_url}/#{docid}/#{sourceid}/#{glyphid}"
+      return url
+
+  class AbstractRenderingSource extends ServerSourceUpdater
+    update : () ->
+      #TODO: Share the x/y range information back to the server in some way...
+      plot_state = @plot_state
+      render_state = @render_state
+      if not render_state
+        render_state = {}
+      if plot_state['screen_x'].get('start') == plot_state['screen_x'].get('end') or
+         plot_state['screen_y'].get('start') == plot_state['screen_y'].get('end')
+       logger.debug("skipping due to under-defined view state")
+        #?! how should this be handled, returning a bogus ajax call makes no sense
+       return $.ajax()
+      logger.debug("Sent render State", render_state)
       resp = $.ajax(
         dataType: 'json'
         url : @update_url()
@@ -116,7 +119,6 @@ define [
           if data.render_state == "NO UPDATE"
             logger.info("No update")
             return
-
           if (domain_limit == 'auto')
             plot_state['data_x'].set(
               {start : data.x_range.start, end : data.x_range.end},
