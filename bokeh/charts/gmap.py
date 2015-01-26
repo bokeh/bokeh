@@ -16,7 +16,7 @@ passing the arguments to the Chart class and calling the proper functions.
 # Imports
 #-----------------------------------------------------------------------------
 
-from ._chartobject import ChartObject
+from ._chartobject import Builder
 from ..models import (Range1d, GMapPlot, GMapOptions)
 
 #-----------------------------------------------------------------------------
@@ -24,7 +24,7 @@ from ..models import (Range1d, GMapPlot, GMapOptions)
 #-----------------------------------------------------------------------------
 
 
-class GMap(ChartObject):
+class GMap(Builder):
     """This is the GMap class and it is in charge of plotting
     GMap charts in an easy and intuitive way.
 

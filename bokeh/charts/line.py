@@ -18,34 +18,6 @@ passing the arguments to the Chart class and calling the proper functions.
 
 from six import string_types
 import numpy as np
-from ._chartobject import ChartObject
-from ..models import ColumnDataSource, Range1d, DataRange1d
-
-#-----------------------------------------------------------------------------
-# Classes and functions
-#-----------------------------------------------------------------------------
-
-
-"""This is the Bokeh charts interface. It gives you a high level API to build
-complex plot is a simple way.
-
-This is the Line class which lets you build your Line charts just
-passing the arguments to the Chart class and calling the proper functions.
-"""
-#-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2014, Continuum Analytics, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
-#
-# The full license is in the file LICENCE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------
-# Imports
-#-----------------------------------------------------------------------------
-
-from six import string_types
-import numpy as np
 
 from ._chartobject import Builder, create_and_build
 from ..models import ColumnDataSource, Range1d, DataRange1d
