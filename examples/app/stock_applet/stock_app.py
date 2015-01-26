@@ -14,7 +14,7 @@ import numpy as np
 import pandas as pd
 
 from bokeh.models import ColumnDataSource, Plot
-from bokeh.plotting import circle, rect, curdoc
+from bokeh.plotting import figure, curdoc
 from bokeh.properties import String, Instance
 from bokeh.server.app import bokeh_app
 from bokeh.server.utils.plugins import object_page
@@ -131,19 +131,21 @@ class StockApp(VBox):
         self.source = ColumnDataSource(data=self.df)
 
     def line_plot(self, ticker, x_range=None):
-        plot = circle(
-            'date', ticker,
+        p = figure(
             title=ticker,
-            size=2,
             x_range=x_range,
             x_axis_type='datetime',
-            source=self.source,
-            title_text_font_size="10pt",
             plot_width=1000, plot_height=200,
-            nonselection_alpha=0.02,
-            tools="pan,wheel_zoom,select"
+            title_text_font_size="10pt",
+            tools="pan,wheel_zoom,box_select"
         )
-        return plot
+        p.circle(
+            'date', ticker,
+            size=2,
+            source=self.source,
+            nonselection_alpha=0.02
+        )
+        return p
 
     def hist_plot(self, ticker):
         global_hist, global_bins = np.histogram(self.df[ticker + "_returns"], bins=50)
@@ -153,29 +155,34 @@ class StockApp(VBox):
         start = global_bins.min()
         end = global_bins.max()
         top = hist.max()
-        return rect(
-            center, hist/2.0, width, hist,
-            title="%s hist" % ticker,
+
+        p = figure(
+            title="%s hist"%ticker,
             plot_width=500, plot_height=200,
             tools="",
             title_text_font_size="10pt",
             x_range=[start, end],
             y_range=[0, top],
         )
+        p.rect(center, hist/2.0, width, hist)
+        return p
 
     def make_plots(self):
         ticker1 = self.ticker1
         ticker2 = self.ticker2
-        self.plot = circle(
-            ticker1 + "_returns", ticker2 + "_returns",
-            size=2,
+        p = figure(
             title="%s vs %s" %(ticker1, ticker2),
-            source=self.source,
             plot_width=400, plot_height=400,
-            tools="pan,wheel_zoom,select",
+            tools="pan,wheel_zoom,box_select",
             title_text_font_size="10pt",
-            nonselection_alpha=0.02,
         )
+        p.circle(ticker1 + "_returns", ticker2 + "_returns",
+            size=2,
+            nonselection_alpha=0.02,
+            source=self.source
+        )
+        self.plot = p
+
         self.line_plot1 = self.line_plot(ticker1)
         self.line_plot2 = self.line_plot(ticker2, self.line_plot1.x_range)
         self.hist_plots()
