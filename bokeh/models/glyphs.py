@@ -24,6 +24,14 @@ class Glyph(PlotObject):
 class AnnularWedge(Glyph, FillProps, LineProps):
     """ Render annular wedges.
 
+    Example
+    -------
+
+    .. bokeh-plot:: ../tests/glyphs/AnnularWedge.py
+        :source-position: none
+
+    *source:* ``tests/glyphs/AnnularWedge.py``
+
     """
 
     x = DataSpec("x", help="""
@@ -61,6 +69,14 @@ class AnnularWedge(Glyph, FillProps, LineProps):
 class Annulus(Glyph, FillProps, LineProps):
     """ Render annuli.
 
+    Example
+    -------
+
+    .. bokeh-plot:: ../tests/glyphs/Annulus.py
+        :source-position: none
+
+    *source:* ``tests/glyphs/Annulus.py``
+
     """
 
     x = DataSpec("x", help="""
@@ -83,6 +99,14 @@ class Annulus(Glyph, FillProps, LineProps):
 
 class Arc(Glyph, LineProps):
     """ Render arcs.
+
+    Example
+    -------
+
+    .. bokeh-plot:: ../tests/glyphs/Arc.py
+        :source-position: none
+
+    *source:* ``tests/glyphs/Arc.py``
 
     """
 
@@ -117,6 +141,14 @@ class Bezier(Glyph, LineProps):
     For more information consult the `Wikipedia article for Bézier curve`_.
 
     .. _Wikipedia article for Bézier curve: http://en.wikipedia.org/wiki/Bézier_curve
+
+    Example
+    -------
+
+    .. bokeh-plot:: ../tests/glyphs/Bezier.py
+        :source-position: none
+
+    *source:* ``tests/glyphs/Bezier.py``
 
     """
 
@@ -160,6 +192,14 @@ class Gear(Glyph, LineProps, FillProps):
     article for Gear`_.
 
     .. _Wikipedia article for Gear: http://en.wikipedia.org/wiki/Gear
+
+    Example
+    -------
+
+    .. bokeh-plot:: ../tests/glyphs/Gear.py
+        :source-position: none
+
+    *source:* ``tests/glyphs/Gear.py``
 
     """
 
@@ -340,6 +380,14 @@ class ImageRGBA(Glyph):
 class ImageURL(Glyph):
     """ Render images loaded from given URLs.
 
+    Example
+    -------
+
+    .. bokeh-plot:: ../tests/glyphs/ImageURL.py
+        :source-position: none
+
+    *source:* ``tests/glyphs/ImageURL.py``
+
     """
 
     url = DataSpec("url", help="""
@@ -410,6 +458,14 @@ class Line(Glyph, LineProps):
         The ``Line`` glyph is different from most other glyphs in that
         the vector of values only produces one glyph on the Plot.
 
+    Example
+    -------
+
+    .. bokeh-plot:: ../tests/glyphs/Line.py
+        :source-position: none
+
+    *source:* ``tests/glyphs/Line.py``
+
     """
 
     x = DataSpec("x", help="""
@@ -428,6 +484,14 @@ class MultiLine(Glyph, LineProps):
         vector of values is not a vector of scalars. Rather, it is a
         "list of lists".
 
+    Example
+    -------
+
+    .. bokeh-plot:: ../tests/glyphs/MultiLine.py
+        :source-position: none
+
+    *source:* ``tests/glyphs/MultiLine.py``
+
     """
     xs = DataSpec("xs", help="""
     The x-coordinates for all the lines, given as a "list of lists".
@@ -443,6 +507,14 @@ class Oval(Glyph, FillProps, LineProps):
     .. note::
         This glyph renders ovals using Bézier curves, which are similar,
         but not identical to ellipses.
+
+    Example
+    -------
+
+    .. bokeh-plot:: ../tests/glyphs/Oval.py
+        :source-position: none
+
+    *source:* ``tests/glyphs/Oval.py``
 
     """
 
@@ -472,6 +544,15 @@ class Patch(Glyph, FillProps, LineProps):
     .. note::
         The ``Patch`` glyph is different from most other glyphs in that
         the vector of values only produces one glyph on the Plot.
+
+    Example
+    -------
+
+    .. bokeh-plot:: ../tests/glyphs/Patch.py
+        :source-position: none
+
+    *source:* ``tests/glyphs/Patch.py``
+
     """
 
     x = DataSpec("x", help="""
@@ -502,6 +583,14 @@ class Patches(Glyph, LineProps, FillProps):
         vector of values is not a vector of scalars. Rather, it is a
         "list of lists".
 
+    Example
+    -------
+
+    .. bokeh-plot:: ../tests/glyphs/Patches.py
+        :source-position: none
+
+    *source:* ``tests/glyphs/Patches.py``
+
     """
 
     xs = DataSpec("xs", help="""
@@ -527,6 +616,14 @@ class Patches(Glyph, LineProps, FillProps):
 class Quad(Glyph, FillProps, LineProps):
     """ Render axis-aligned quads.
 
+    Example
+    -------
+
+    .. bokeh-plot:: ../tests/glyphs/Quad.py
+        :source-position: none
+
+    *source:* ``tests/glyphs/Quad.py``
+
     """
 
     left = DataSpec("left", help="""
@@ -547,6 +644,14 @@ class Quad(Glyph, FillProps, LineProps):
 
 class Quadratic(Glyph, LineProps):
     """ Render quadratic curves.
+
+    Example
+    -------
+
+    .. bokeh-plot:: ../tests/glyphs/Quadratic.py
+        :source-position: none
+
+    *source:* ``tests/glyphs/Quadratic.py``
 
     """
 
@@ -577,6 +682,14 @@ class Quadratic(Glyph, LineProps):
 class Ray(Glyph, LineProps):
     """ Render rays.
 
+    Example
+    -------
+
+    .. bokeh-plot:: ../tests/glyphs/Ray.py
+        :source-position: none
+
+    *source:* ``tests/glyphs/Ray.py``
+
     """
 
     x = DataSpec("x", help="""
@@ -600,6 +713,14 @@ class Ray(Glyph, LineProps):
 
 class Rect(Glyph, FillProps, LineProps):
     """ Render rectangles.
+
+    Example
+    -------
+
+    .. bokeh-plot:: ../tests/glyphs/Rect.py
+        :source-position: none
+
+    *source:* ``tests/glyphs/Rect.py``
 
     """
 
@@ -636,6 +757,14 @@ class Rect(Glyph, FillProps, LineProps):
 class Segment(Glyph, LineProps):
     """ Render segments.
 
+    Example
+    -------
+
+    .. bokeh-plot:: ../tests/glyphs/Segment.py
+        :source-position: none
+
+    *source:* ``tests/glyphs/Segment.py``
+
     """
 
     x0 = DataSpec("x0", help="""
@@ -656,6 +785,14 @@ class Segment(Glyph, LineProps):
 
 class Text(Glyph, TextProps):
     """ Render text.
+
+    Example
+    -------
+
+    .. bokeh-plot:: ../tests/glyphs/Text.py
+        :source-position: none
+
+    *source:* ``tests/glyphs/Text.py``
 
     """
 
@@ -691,6 +828,14 @@ class Text(Glyph, TextProps):
 
 class Wedge(Glyph, FillProps, LineProps):
     """ Render wedges.
+
+    Example
+    -------
+
+    .. bokeh-plot:: ../tests/glyphs/Wedge.py
+        :source-position: none
+
+    *source:* ``tests/glyphs/Wedge.py``
 
     """
 
