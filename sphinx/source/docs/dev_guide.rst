@@ -167,6 +167,36 @@ to ``setup.py``:
 If you have any problems with the steps here, please contact the developers
 (see :ref:`contact`).
 
+Dependencies
+~~~~~~~~~~~~
+If you are working within a Conda environment, you will need to make sure you
+have the python requirements installed. You can install these via ``conda
+install`` or ``pip install`` for the packages referenced at
+:ref:`install_dependencies`.
+
+Testing dependencies include the following additional libraries:
+
+* beautiful-soup
+* colorama
+* pdiff
+* boto
+* nose
+* mock
+* coverage
+* websocket-client
+
+Windows Notes
+~~~~~~~~~~~~~
+If you build bokeh on a Windows machine in a Conda environment with either
+``setup.py install`` or ``setup.py develop``, running ``bokeh-server`` will
+not work correctly. The .exe will not be available within the Conda
+environment, which means you will use the version available in the base
+install, if it is available. Instead, you can make sure you use the version
+within the environment by explicitly running the bokeh-server python script
+in the root of the bokeh repository, similar to the following example::
+
+    python bokeh-server --script path\to\<yourapp>.py
+
 "Developer" Mode Setup
 ----------------------
 The processes described about result in building and using a full `bokeh.js`
@@ -192,18 +222,31 @@ will need the following packages installed in order to build Bokeh documentation
 * docutils
 * sphinx
 * sphinxcontrib-napoleon
+* sphinxcontrib-httpdomain
 * sphinx-bootstrap-theme
 * seaborn
+* pygments
+* yaml
+* pyyaml
+* ggplot
+* seaborn
 
-These can be installed using ``conda`` or ``pip`` or from source.
+These can be installed using ``conda`` or ``pip`` or from source. In
+addition to the package requirements, you will also need to have the sample
+data downloaded. See :ref:`install_sampledata` instructions on how to
+download it.
 
 Building
 --------
 
 To generate the full HTML documentation, navigate to the ``sphinx`` subdirectory
-of the Bokeh source checkout, and execute the command::
+of the Bokeh source checkout, and execute the corresponding command::
 
     make all
+
+or::
+
+    make html
 
 To start a server and automatically open the built documentation in a browser,
 execute the command::
@@ -219,11 +262,11 @@ to process docstrings for our reference documentation. All docstrings are `Googl
 Docstrings should generally begin with a verb stating what the function or method does in
 short statement. For example::
 
-    "Create and return a new Foo."
+    """Create and return a new Foo."""
 
 is to be preferred over::
 
-    "This function creates and returns a new Foo."
+    """This function creates and returns a new Foo."""
 
 All docstrings for functions and methods should have an **Args:** section (if any
 arguments are accepted) and also a **Returns:** section (even if the function just
