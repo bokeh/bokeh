@@ -13,6 +13,12 @@ class Marker(Glyph):
     fill properties, located at an (x, y) location with a specified
     size.
 
+    .. note::
+        For simplicity, all markers have both line and fill properties
+        declared, however some markers (`Asterisk`, `Cross`, `X`) only
+        draw lines. For these markers, the fill values are simply
+        ignored.
+
     """
 
     x = DataSpec("x", help="""

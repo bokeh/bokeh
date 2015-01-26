@@ -8,7 +8,7 @@ from __future__ import absolute_import
 from ..plot_object import PlotObject
 from ..mixins import FillProps, LineProps, TextProps
 from ..enums import Units, AngleUnits, Direction, Anchor
-from ..properties import Align, Bool, DataSpec, Enum, HasProps, Instance, Size
+from ..properties import Align, Bool, DataSpec, Enum, HasProps, Include, Instance, Size
 
 from .mappers import LinearColorMapper
 
@@ -21,7 +21,7 @@ class Glyph(PlotObject):
     Whether the glyph should render or not.
     """)
 
-class AnnularWedge(Glyph, FillProps, LineProps):
+class AnnularWedge(Glyph):
     """ Render annular wedges.
 
     Example
@@ -66,7 +66,15 @@ class AnnularWedge(Glyph, FillProps, LineProps):
     Which direction to stroke between the start and end angles.
     """)
 
-class Annulus(Glyph, FillProps, LineProps):
+    line_props = Include(LineProps, use_prefix=False, help="""
+    The %s values for the annular wedges.
+    """)
+
+    fill_props = Include(FillProps, use_prefix=False, help="""
+    The %s values for the annular wedges.
+    """)
+
+class Annulus(Glyph):
     """ Render annuli.
 
     Example
@@ -97,7 +105,15 @@ class Annulus(Glyph, FillProps, LineProps):
     The outer radii of the annuli.
     """)
 
-class Arc(Glyph, LineProps):
+    line_props = Include(LineProps, use_prefix=False, help="""
+    The %s values for the annuli.
+    """)
+
+    fill_props = Include(FillProps, use_prefix=False, help="""
+    The %s values for the annuli.
+    """)
+
+class Arc(Glyph):
     """ Render arcs.
 
     Example
@@ -134,8 +150,11 @@ class Arc(Glyph, LineProps):
     direction = Enum(Direction, help="""
     Which direction to stroke between the start and end angles.
     """)
+    line_props = Include(LineProps, use_prefix=False, help="""
+    The %s values for the arcs.
+    """)
 
-class Bezier(Glyph, LineProps):
+class Bezier(Glyph):
     """ Render Bézier curves.
 
     For more information consult the `Wikipedia article for Bézier curve`_.
@@ -184,7 +203,11 @@ class Bezier(Glyph, LineProps):
     The y-coordinates of second control points.
     """)
 
-class Gear(Glyph, LineProps, FillProps):
+    line_props = Include(LineProps, use_prefix=False, help="""
+    The %s values for the Bézier curves.
+    """)
+
+class Gear(Glyph):
     """ Render gears.
 
     The details and nomenclature concerning gear construction can
@@ -244,6 +267,14 @@ class Gear(Glyph, LineProps, FillProps):
     # TODO: (bev) evidently missing a test for default value
     internal = DataSpec(default=False, help="""
     Whether the gear teeth are internal. [bool]
+    """)
+
+    line_props = Include(LineProps, use_prefix=False, help="""
+    The %s values for the gears.
+    """)
+
+    fill_props = Include(FillProps, use_prefix=False, help="""
+    The %s values for the gears.
     """)
 
 class Image(Glyph):
@@ -451,7 +482,7 @@ class ImageURL(Glyph):
     coordinates.
     """)
 
-class Line(Glyph, LineProps):
+class Line(Glyph):
     """ Render a single line.
 
     .. note::
@@ -476,7 +507,11 @@ class Line(Glyph, LineProps):
     The y-coordinates for the points of the line.
     """)
 
-class MultiLine(Glyph, LineProps):
+    line_props = Include(LineProps, use_prefix=False, help="""
+    The %s values for the line.
+    """)
+
+class MultiLine(Glyph):
     """ Render several lines.
 
     .. note::
@@ -501,7 +536,11 @@ class MultiLine(Glyph, LineProps):
     The x-coordinates for all the lines, given as a "list of lists".
     """)
 
-class Oval(Glyph, FillProps, LineProps):
+    line_props = Include(LineProps, use_prefix=False, help="""
+    The %s values for the lines.
+    """)
+
+class Oval(Glyph):
     """ Render ovals.
 
     .. note::
@@ -538,7 +577,15 @@ class Oval(Glyph, FillProps, LineProps):
     The angle the ovals are rotated from horizontal. [rad]
     """)
 
-class Patch(Glyph, FillProps, LineProps):
+    line_props = Include(LineProps, use_prefix=False, help="""
+    The %s values for the ovals.
+    """)
+
+    fill_props = Include(FillProps, use_prefix=False, help="""
+    The %s values for the ovals.
+    """)
+
+class Patch(Glyph):
     """ Render a single patch.
 
     .. note::
@@ -575,7 +622,15 @@ class Patch(Glyph, FillProps, LineProps):
 
     """)
 
-class Patches(Glyph, LineProps, FillProps):
+    line_props = Include(LineProps, use_prefix=False, help="""
+    The %s values for the patch.
+    """)
+
+    fill_props = Include(FillProps, use_prefix=False, help="""
+    The %s values for the patch.
+    """)
+
+class Patches(Glyph):
     """ Render several patches.
 
     .. note::
@@ -613,7 +668,15 @@ class Patches(Glyph, LineProps, FillProps):
 
     """)
 
-class Quad(Glyph, FillProps, LineProps):
+    line_props = Include(LineProps, use_prefix=False, help="""
+    The %s values for the patches.
+    """)
+
+    fill_props = Include(FillProps, use_prefix=False, help="""
+    The %s values for the patches.
+    """)
+
+class Quad(Glyph):
     """ Render axis-aligned quads.
 
     Example
@@ -642,8 +705,16 @@ class Quad(Glyph, FillProps, LineProps):
     The y-coordinates of the top edges.
     """)
 
-class Quadratic(Glyph, LineProps):
-    """ Render quadratic curves.
+    line_props = Include(LineProps, use_prefix=False, help="""
+    The %s values for the quads.
+    """)
+
+    fill_props = Include(FillProps, use_prefix=False, help="""
+    The %s values for the quads.
+    """)
+
+class Quadratic(Glyph):
+    """ Render parabolas.
 
     Example
     -------
@@ -679,7 +750,11 @@ class Quadratic(Glyph, LineProps):
     The y-coordinates of the control points.
     """)
 
-class Ray(Glyph, LineProps):
+    line_props = Include(LineProps, use_prefix=False, help="""
+    The %s values for the parabolas.
+    """)
+
+class Ray(Glyph):
     """ Render rays.
 
     Example
@@ -711,7 +786,11 @@ class Ray(Glyph, LineProps):
     to screen units.
     """)
 
-class Rect(Glyph, FillProps, LineProps):
+    line_props = Include(LineProps, use_prefix=False, help="""
+    The %s values for the rays.
+    """)
+
+class Rect(Glyph):
     """ Render rectangles.
 
     Example
@@ -754,7 +833,15 @@ class Rect(Glyph, FillProps, LineProps):
     flush.
     """)
 
-class Segment(Glyph, LineProps):
+    line_props = Include(LineProps, use_prefix=False, help="""
+    The %s values for the rectangles.
+    """)
+
+    fill_props = Include(FillProps, use_prefix=False, help="""
+    The %s values for the rectangles.
+    """)
+
+class Segment(Glyph):
     """ Render segments.
 
     Example
@@ -783,7 +870,11 @@ class Segment(Glyph, LineProps):
     The y-coordinates of the ending points.
     """)
 
-class Text(Glyph, TextProps):
+    line_props = Include(LineProps, use_prefix=False, help="""
+    The %s values for the segments.
+    """)
+
+class Text(Glyph):
     """ Render text.
 
     Example
@@ -826,7 +917,11 @@ class Text(Glyph, TextProps):
     distance in screen units from a given data position.
     """)
 
-class Wedge(Glyph, FillProps, LineProps):
+    text_props = Include(TextProps, use_prefix=False, help="""
+    The %s values for the text.
+    """)
+
+class Wedge(Glyph):
     """ Render wedges.
 
     Example
@@ -862,6 +957,14 @@ class Wedge(Glyph, FillProps, LineProps):
 
     direction = Enum(Direction, help="""
     Which direction to stroke between the start and end angles.
+    """)
+
+    line_props = Include(LineProps, use_prefix=False, help="""
+    The %s values for the wedges.
+    """)
+
+    fill_props = Include(FillProps, use_prefix=False, help="""
+    The %s values for the wedges.
     """)
 
 # XXX: allow `from bokeh.models.glyphs import *`
