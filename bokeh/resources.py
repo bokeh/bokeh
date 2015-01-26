@@ -33,25 +33,36 @@ def _cdn_base_url():
 def _get_cdn_urls(version=None, minified=True):
     if version is None:
         version = __version__.split('-')[0]
-    min = ".min" if minified else ""
+
+    # check the 'dev' fingerprint
+    dev = version.split('.')[-2]
+    # check if we want minified js and css
+    _min = ".min" if minified else ""
+
     base_url = _cdn_base_url()
+    rel_container = 'bokeh/release'
+    dev_container = 'bokeh/dev'
+    container = rel_container if dev != 'dev' else dev_container
+
     result = {
-        'js_files'  : ['%s/bokeh-%s%s.js' % (base_url, version, min)],
-        'css_files' : ['%s/bokeh-%s%s.css' % (base_url, version, min)],
+        'js_files'  : ['%s/%s/bokeh-%s%s.js' % (base_url, container, version, _min)],
+        'css_files' : ['%s/%s/bokeh-%s%s.css' % (base_url, container, version,_min)],
         'messages'  : [],
     }
+
     if len(__version__.split('-')) > 1:
         result['messages'].append({
             "type" : "warn",
             "text" : "Requesting CDN BokehJS version '%s' from Bokeh development version '%s'. This configuration is unsupported and may not work!" % (version, __version__)
         })
+
     return result
 
 def _get_server_urls(root_url, minified=True):
-    min = ".min" if minified else ""
+    _min = ".min" if minified else ""
     result = {
-        'js_files'  : ['%sbokehjs/static/js/bokeh%s.js' % (root_url,  min)],
-        'css_files' : ['%sbokehjs/static/css/bokeh%s.css' % (root_url,  min)],
+        'js_files'  : ['%sbokehjs/static/js/bokeh%s.js' % (root_url, _min)],
+        'css_files' : ['%sbokehjs/static/css/bokeh%s.css' % (root_url, _min)],
         'messages'  : [],
     }
     return result
@@ -245,7 +256,7 @@ class Resources(object):
         def pad(text, n=4):
             return "\n".join([ " "*n + line for line in text.split("\n") ])
 
-        wrapper = lambda code: '$(function() {\n%s\n});' % pad(code)
+        wrapper = lambda code: 'Bokeh.$(function() {\n%s\n});' % pad(code)
 
         if self.dev:
             js_wrapper = lambda code: 'require(["jquery", "main"], function($, Bokeh) {\nBokeh.set_log_level("%s");\n%s\n});' % (self.log_level, pad(wrapper(code)))

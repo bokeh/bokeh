@@ -11,7 +11,7 @@ class Basictest(unittest.TestCase):
         class Foo(HasProps):
             x = Int(12)
             y = String("hello")
-            z = Array(Int, [1, 2, 3])
+            z = Array(Int, np.array([1, 2, 3]))
             s = String(None)
 
         f = Foo()
@@ -329,6 +329,25 @@ class TestDashPattern(unittest.TestCase):
             f.pat = [2, 4.2]
         with self.assertRaises(ValueError):
             f.pat = [2, "a"]
+
+    def test_list(self):
+        class Foo(HasProps):
+            pat = DashPattern
+        f = Foo()
+
+        f.pat = ()
+        self.assertEqual(f.pat, ())
+        f.pat = (2,)
+        self.assertEqual(f.pat, (2,))
+        f.pat = (2, 4)
+        self.assertEqual(f.pat, (2, 4))
+        f.pat = (2, 4, 6)
+        self.assertEqual(f.pat, (2, 4, 6))
+
+        with self.assertRaises(ValueError):
+            f.pat = (2, 4.2)
+        with self.assertRaises(ValueError):
+            f.pat = (2, "a")
 
     def test_invalid(self):
         class Foo(HasProps):
@@ -764,7 +783,7 @@ class TestProperties(unittest.TestCase):
         self.assertFalse(prop.is_valid(1.0))
         self.assertFalse(prop.is_valid(1.0+1.0j))
         self.assertTrue(prop.is_valid(""))
-        self.assertFalse(prop.is_valid(()))
+        self.assertTrue(prop.is_valid(()))
         self.assertTrue(prop.is_valid([]))
         self.assertFalse(prop.is_valid({}))
         self.assertFalse(prop.is_valid(Foo()))

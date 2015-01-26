@@ -1,5 +1,6 @@
-from os.path import join, dirname, abspath
+import logging
 import os
+from os.path import join, dirname, abspath
 
 class Settings(object):
     _prefix = "BOKEH_"
@@ -43,14 +44,32 @@ class Settings(object):
     def log_level(self, default=None):
         return self._get_str("LOG_LEVEL", default)
 
+    def py_log_level(self, default='info'):
+        level = self._get_str("PY_LOG_LEVEL", default)
+        LEVELS = {'debug': logging.DEBUG,
+                  'info' : logging.INFO,
+                  'warn' : logging.WARNING,
+                  'error': logging.ERROR,
+                  'fatal': logging.CRITICAL}
+        return LEVELS[level]
+
     def pretty(self, default=None):
         return self._get_bool("PRETTY", default)
 
-    def pythonlib(self, default=None):
-        return self._get_str("PYTHONLIB", default)
-
     def simple_ids(self, default=None):
         return self._get_bool("SIMPLE_IDS", default)
+
+    def notebook_resources(self, default=None):
+        return self._get_str("NOTEBOOK_RESOURCES", default)
+
+    def notebook_verbose(self, default=None):
+        return self._get_bool("NOTEBOOK_VERBOSE", default)
+
+    def notebook_hide_banner(self, default=None):
+        return self._get_bool("NOTEBOOK_HIDE_BANNER", default)
+
+    def notebook_skip_load(self, default=None):
+        return self._get_bool("NOTEBOOK_SKIP_LOAD", default)
 
     """
     Server settings go here:

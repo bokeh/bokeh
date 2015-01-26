@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from bokeh import mpl
+from bokeh.plotting import show
 
 x = np.linspace(-2 * np.pi, 2 * np.pi, 100)
 y = np.sin(x)
@@ -12,8 +13,8 @@ plt.title("Matplotlib Figure in Bokeh")
 # dashed lines work
 plt.plot(x, z, "g-x", linestyle="-.")
 
-#mpl.to_bokeh()
-#mpl.to_bokeh(name="test")
-mpl.to_bokeh(plt.gcf(), name="test")
-#mpl.to_bokeh(plt.gcf(), server="default")
-#mpl.to_bokeh(plt.gcf(), name="test", server="default")
+#show(mpl.to_bokeh())
+#show(mpl.to_bokeh(name="test"))
+show(mpl.to_bokeh(plt.gcf(), name="test"))
+#show(mpl.to_bokeh(plt.gcf(), server="default"))
+#show(mpl.to_bokeh(plt.gcf(), name="test", server="default"))

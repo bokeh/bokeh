@@ -26,7 +26,7 @@ define [
 
       indices = renderer_view.hit_test(geometry)
 
-      selector = @_get_selector(tool)
+      selector = @_get_selector(renderer_view)
       selector.update(indices, final, append)
 
       @_save_indices(selector.get('indices'))
@@ -48,15 +48,18 @@ define [
           'inspect' + renderer_view.mget('id'), indices, tool, renderer_view, source, data
         )
 
-    clear: (tool) ->
-      if tool?
-        selector = @_get_selector(tool)
+    clear: (rview) ->
+      if rview?
+        selector = @_get_selector(rview)
         selector.clear()
+      else
+        for k, s of @selectors
+          s.clear()
       @_save_indices([])
 
-    _get_selector: (tool) ->
-      _.setdefault(@selectors, tool.model.id, new Selector())
-      return @selectors[tool.model.id]
+    _get_selector: (rview) ->
+      _.setdefault(@selectors, rview.model.id, new Selector())
+      return @selectors[rview.model.id]
 
     _save_indices: (indices) ->
       @get('source').save({

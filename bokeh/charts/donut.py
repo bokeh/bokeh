@@ -16,8 +16,9 @@ It also add a new chained stacked method.
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-from math import pi, cos, sin
-import pandas as pd
+from __future__ import division, print_function
+from math import pi
+from collections import OrderedDict
 
 from ._chartobject import ChartObject
 from ..models import ColumnDataSource, Range1d
@@ -120,6 +121,8 @@ class Donut(ChartObject):
         self.groups = []
         self.data = dict()
         self.attr = []
+        # Holds sub categories angles for every category
+        self._cat_angles = OrderedDict()
 
         super(Donut, self).__init__(
             title, xlabel, ylabel, legend,
@@ -130,20 +133,47 @@ class Donut(ChartObject):
     def get_data(self):
         """Take the chart data from self.values.
 
-        It calculates the chart properties accordingly (start/end angles).
+        It calculates the chart properties accordingly (start/end angles
+        for categories and sub-categories).
         Then build a dict containing references to all the calculated
         points to be used by the Wedge glyph inside the ``draw`` method.
 
         """
-        self.df = df = pd.DataFrame(self.values.values())
-        self.groups = df.columns = self.cat
-        df.index = self.values.keys()
-        aggregated = df.sum()
-        self.total_units = total = aggregated.sum()
-        radians = lambda x: 2*pi*(x/total)
-        angles = aggregated.map(radians).cumsum()
+        # Create OD with list of values per catogory
+        dt = OrderedDict()
+        total = 0
+        for k, v in self.values.items():
+            for i, cat in enumerate(self.cat):
+                cat_vals = dt.get(cat, [])
+                val = v[i]
+                cat_vals.append(val)
+                total += val
+                dt[cat] = cat_vals
 
-        end_angles = angles.tolist()
+        # create callable to convert to radians
+        radians = lambda x: 2*pi*(x/total)
+
+        # compute categories and subcategories angles
+        end_angles = []
+        last = 0
+        for cat, details in dt.items():
+            aggr_val = sum(details)
+            rad = radians(aggr_val)
+            val = last + rad
+            end_angles.append(val)
+            last = val
+
+            details_angles = []
+            last_det = 0
+            for det in details:
+                rad = radians(det)
+                last_det += rad
+                details_angles.append(last_det)
+
+            self._cat_angles[cat] = details_angles
+
+        self.groups = self.cat
+        self.total_units = total
         start_angles = [0] + end_angles[:-1]
         colors = self._set_colors(self.cat)
         self.set_and_get("", "colors", colors)
@@ -190,25 +220,24 @@ class Donut(ChartObject):
         if colors is None:
             colors = self._set_colors(self.cat)
 
-        first = True
         for i, (cat, start_angle, end_angle) in enumerate(zip(
                 self.cat, self.data['start'], self.data['end'])):
-
-            details = self.df[cat]
-            radians = lambda x: 2*pi*(x/self.total_units)
-
-            angles = details.map(radians).cumsum() + start_angle
-            end = angles.tolist() + [end_angle]
+            # compute sub-categories angles being careful to not exceed category
+            # end angle (due to approximations)
+            angles = [min(x + start_angle, end_angle) for x in self._cat_angles[cat]]
+            end = list(angles) + [end_angle]
             start = [start_angle] + end[:-1]
             base_color = colors[i]
-            #fill = [ base_color.lighten(i*0.05) for i in range(len(details) + 1) ]
-            fill = [base_color for i in range(len(details) + 1)]
-            text = [rowlabel for rowlabel in details.index]
+            text = [rowlabel for rowlabel in self.values.keys()]
+            fill = [base_color for i in range(len(text) + 1)]
+            # TODO: Would be nice to have the subcategories lighten when it's
+            #       supported on HexColors, so the follow would work
+            # fill = [ base_color.lighten(i*0.05) for i in range(len(details) + 1) ]
             x, y = polar_to_cartesian(1.25, start, end)
-
             source = ColumnDataSource(dict(start=start, end=end, fill=fill))
+
             self.chart.make_annular(
-                source, x=0, y=0, inner_radius=1, outer_radius=1.5,
+                source, x=0., y=0., inner_radius=1., outer_radius=1.5,
                 start_angle="start", end_angle="end", line_color="white",
                 line_width=2, fill_color="fill"
             )
@@ -216,14 +245,6 @@ class Donut(ChartObject):
             text_angle = [angle + pi if pi/2 < angle < 3*pi/2 else angle
                           for angle in text_angle]
 
-            if first and text:
-                text.insert(0, '')
-                offset = pi / 48
-                text_angle.insert(0, text_angle[0] - offset)
-                start.insert(0, start[0] - offset)
-                end.insert(0, end[0] - offset)
-                x, y = polar_to_cartesian(1.25, start, end)
-                first = False
             data = dict(text=text, x=x, y=y, angle=text_angle)
             text_source = ColumnDataSource(data)
             self.chart.make_text(

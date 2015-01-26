@@ -9,7 +9,7 @@ from requests.exceptions import ConnectionError
 from .test_utils import skipIfPy3
 import bokeh.transforms.ar_downsample as ar_downsample
 from bokeh.models import Range1d, ServerDataSource, GlyphRenderer
-from bokeh.plotting import square, output_server, curdoc
+from bokeh.plotting import figure, output_server, curdoc
 import types
 
 import abstract_rendering.numeric as numeric
@@ -107,7 +107,8 @@ class Test_AR(unittest.TestCase):
         ar_downsample._loadAR()
         output_server("Census")
         source = ServerDataSource(data_url="fn://bivariate", owner_username="defaultuser")
-        plot = square('A', 'B', source=source)
+        plot = figure()
+        plot.square('A', 'B', source=source)
         ar_downsample.replot(plot, remove_original=False)
 
         self.assertTrue(plot in curdoc().context.children, "Not retained")
@@ -130,7 +131,8 @@ class Test_AR(unittest.TestCase):
         plot_height = 408
         plot_title = "Test title"
 
-        plot = square('A', 'B', source=source, plot_width=plot_width, plot_height=plot_height, title=plot_title)
+        plot = figure(lot_width=plot_width, plot_height=plot_height, title=plot_title)
+        plot.square('A', 'B', source=source)
         ar_plot = ar_downsample.replot(plot)
 
         self.assertEquals(ar_plot.plot_width, plot_width, "Plot width not transfered")
@@ -154,7 +156,8 @@ class Test_AR(unittest.TestCase):
     def test_replot_result_type(self):
         ar_downsample._loadAR()
         source = ServerDataSource(data_url="fn://bivariate", owner_username="defaultuser")
-        plot = square('A', 'B', source=source)
+        plot = figure()
+        plot.square('A', 'B', source=source)
 
         expected = {"image": "Image", "image_rgb": "ImageRGBA", "multi_line": "MultiLine"}
 
@@ -175,7 +178,8 @@ class Test_AR(unittest.TestCase):
     def test_source(self):
         ar_downsample._loadAR()
         source = ServerDataSource(data_url="fn://bivariate", owner_username="defaultuser")
-        plot = square('A', 'B', source=source)
+        plot = figure()
+        plot.square('A', 'B', source=source)
 
         agg = ar_downsample.CountCategories()
         info = ar_downsample.Const(val=1)
@@ -364,11 +368,10 @@ class Test_AR(unittest.TestCase):
 
     def test_contour_recipe(self):
         source = ServerDataSource(data_url="fn://bivariate", owner_username="defaultuser")
-        plot = square('A', 'B',
-                      source=source,
-                      plot_width=600,
+        plot = figure(plot_width=600,
                       plot_height=400,
                       title="Test Title")
+        plot.square('A', 'B', source=source)
 
         plot2 = ar_downsample.contours(plot, title="Contour")
         source2 = self._find_source(plot2)
@@ -384,11 +387,10 @@ class Test_AR(unittest.TestCase):
 
     def test_heatmap_recipe(self):
         source = ServerDataSource(data_url="fn://bivariate", owner_username="defaultuser")
-        plot = square('A', 'B',
-                      source=source,
-                      plot_width=600,
+        plot = figure(plot_width=600,
                       plot_height=400,
                       title="Test Title")
+        plot.square('A', 'B', source=source)
 
         plot2 = ar_downsample.heatmap(plot, palette="Reds9", reserve_val=0, points=True, client_color=True, title="Test Title 2")
         source2 = self._find_source(plot2)

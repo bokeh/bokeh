@@ -14,6 +14,13 @@ rm -rf $MINICONDA.sh
 
 python -V
 
+PINNED_PKGS=$(cat <<EOF
+conda <3.8.0
+scipy <0.15.0
+EOF
+)
+echo -e "$PINNED_PKGS" > /home/travis/miniconda/conda-meta/pinned
+
 DEPS_TRAVIS="python=$TRAVIS_PYTHON_VERSION conda-build jinja2"
 conda install --yes $DEPS_TRAVIS
 

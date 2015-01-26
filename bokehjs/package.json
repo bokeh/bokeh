@@ -1,6 +1,6 @@
 {
   "name": "bokehjs",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "Interactive, novel data visualization",
   "keywords": ["bokeh", "datavis", "dataviz", "visualization", "plotting", "plot", "graph"],
   "license": "BSD-3-Clause",

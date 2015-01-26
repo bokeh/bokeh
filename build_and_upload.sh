@@ -1,30 +1,52 @@
 #!/bin/bash
 
+#CLI user interface
 if [ "$1" == "-h" ]; then
-    usage="$(basename "$0") [-h] [--tags] -- program to build and upload bokeh pkgs to binstar
+    usage="$(basename "$0") [-h] -- program to build and upload bokeh pkgs to binstar
 
     where:
-        -h  show this help text
-        --tags instructs the version number to be the tagged branch
+        -h     show this help text
+
+        -u     RackSpace username
+        -k     RackSpace APIkey
+        -c     whether to clean the built packages, defaults to true
     "
     echo "$usage"
     exit 0
-elif [ "$1" == "--tags" ]; then
-    tag_flag=1
-
-    #needed for build.sh in conda build script
-    touch using_tags.txt
-else
-    tag_flag=0
 fi
-echo The tag flag: $tag_flag
 
+#defauls
+clean=true
+
+#handling of arguments
+while getopts u:k:c: option;
+do
+    case "${option}" in
+        u) username=${OPTARG};;
+        k) key=${OPTARG};;
+        c) clean=${OPTARG};;
+    esac 
+done
+
+#get user and key from env variables if they are not provided with args
+if [ "$username" == "" ]; then
+    username=$BOKEH_DEVEL_USERNAME
+    echo "$username"
+fi
+
+if [ "$key" == "" ]; then
+    key=$BOKEH_DEVEL_APIKEY
+    echo "$key"
+fi
+
+# build for each python version
 for py in 27 33 34;
 do
     echo "Building py$py pkg"
     CONDA_PY=$py conda build conda.recipe --quiet
 done
 
+# get conda info about root_prefix and platform
 function conda_info {
     conda info --json | python -c "import json, sys; print(json.load(sys.stdin)['$1'])"
 }
@@ -33,9 +55,12 @@ CONDA_ENV=$(conda_info root_prefix)
 PLATFORM=$(conda_info platform)
 BUILD_PATH=$CONDA_ENV/conda-bld/$PLATFORM
 
-#echo build path: $BUILD_PATH
-date=`date "+%Y%m%d"`
+# get version and date from __conda_version__.txt
+complete_ver=$(cat __conda_version__.txt)
+version=${complete_ver:0:5}
+date=${complete_ver:10}
 
+# convert to platform-specific builds
 conda convert -p all -f $BUILD_PATH/bokeh*$date*.tar.bz2;
 
 #upload conda pkgs to binstar
@@ -43,37 +68,69 @@ array=(osx-64 linux-64 win-64 linux-32 win-32)
 for i in "${array[@]}"
 do
     echo Uploading: $i;
-	binstar upload -u bokeh $i/bokeh*$date*.tar.bz2 -c dev --force;
+    binstar upload -u bokeh $i/bokeh*$date*.tar.bz2 -c dev --force;
 done
 
-if [ "$tag_flag" = "1" ]; then
-    version=`git describe --tags`
-else
-    version=`python scripts/get_bump_version.py`
-fi
-
 #create and upload pypi pkgs to binstar
-
 #zip is currently not working
 
 BOKEH_DEV_VERSION=$version.dev.$date python setup.py sdist --formats=gztar
 binstar upload -u bokeh dist/bokeh*$date* --package-type pypi -c dev --force;
 
-echo "I'm done uploading"
+echo "I'm done uploading to binstar"
 
-#clean up
-for i in "${array[@]}"
-do
-    rm -rf $i
-done
+########################
+#   General clean up   #
+########################
 
-rm -rf dist/
-rm using_tags.txt
+#clean up platform folders
+if [ $clean == true ]; then
+    for i in "${array[@]}"
+    do
+        rm -rf $i
+    done
+    rm -rf dist/
+else
+    echo "Not cleaning the packages."
+fi
 
-#####################
-#Removing on binstar#
-#####################
+#and the additional building stuff
+rm -rf build/
+rm -rf bokeh.egg-info/
+rm -rf record.txt
+rm -rf versioneer.pyc
+rm -rf __conda_version__.txt
+rm -rf bokeh/__conda_version__.py
+rm -rf bokeh/__conda_version__.pyc
+rm -rf bokeh/__pycache__/__conda_version__.pyc
 
+#upload js and css to the cdn
+
+#get token
+token=`curl -s -XPOST https://identity.api.rackspacecloud.com/v2.0/tokens \
+-d'{"auth":{"RAX-KSKEY:apiKeyCredentials":{"username":"'$username'","apiKey":"'$key'"}}}' \
+-H"Content-type:application/json" | python -c 'import sys,json;data=json.loads(sys.stdin.read());print(data["access"]["token"]["id"])'`
+
+#get unique url id
+id=`curl -s -XPOST https://identity.api.rackspacecloud.com/v2.0/tokens \
+-d'{"auth":{"RAX-KSKEY:apiKeyCredentials":{"username":"'$username'","apiKey":"'$key'"}}}' \
+-H"Content-type:application/json" | python -c 'import sys,json;data=json.loads(sys.stdin.read());print(data["access"]["serviceCatalog"][-1]["endpoints"][0]["tenantId"])'`
+
+#push the js and css files
+curl -XPUT -T bokehjs/build/js/bokeh.js -v -H "X-Auth-Token:$token" -H "Content-Type: application/javascript" -H "Origin: https://mycloud.rackspace.com" \
+"https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh/dev/bokeh-$version.dev.$date.js";
+curl -XPUT -T bokehjs/build/js/bokeh.min.js -v -H "X-Auth-Token:$token" -H "Content-Type: application/javascript" -H "Origin: https://mycloud.rackspace.com" \
+"https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh/dev/bokeh-$version.dev.$date.min.js";
+curl -XPUT -T bokehjs/build/css/bokeh.css -v -H "X-Auth-Token:$token" -H "Content-Type: text/css" -H "Origin: https://mycloud.rackspace.com" \
+"https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh/dev/bokeh-$version.dev.$date.css";
+curl -XPUT -T bokehjs/build/css/bokeh.min.css -v -H "X-Auth-Token:$token" -H "Content-Type: text/css" -H "Origin: https://mycloud.rackspace.com" \
+"https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh/dev/bokeh-$version.dev.$date.min.css";
+
+echo "I'm done uploading to Rackspace"
+
+########################
+#Removing from binstar #
+########################
 
 # remove entire release
 # binstar remove user/package/release

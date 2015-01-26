@@ -1,6 +1,5 @@
 .. _devguide:
 
-###############
 Developer Guide
 ###############
 
@@ -168,6 +167,36 @@ to ``setup.py``:
 If you have any problems with the steps here, please contact the developers
 (see :ref:`contact`).
 
+Dependencies
+~~~~~~~~~~~~
+If you are working within a Conda environment, you will need to make sure you
+have the python requirements installed. You can install these via ``conda
+install`` or ``pip install`` for the packages referenced at
+:ref:`install_dependencies`.
+
+Testing dependencies include the following additional libraries:
+
+* beautiful-soup
+* colorama
+* pdiff
+* boto
+* nose
+* mock
+* coverage
+* websocket-client
+
+Windows Notes
+~~~~~~~~~~~~~
+If you build bokeh on a Windows machine in a Conda environment with either
+``setup.py install`` or ``setup.py develop``, running ``bokeh-server`` will
+not work correctly. The .exe will not be available within the Conda
+environment, which means you will use the version available in the base
+install, if it is available. Instead, you can make sure you use the version
+within the environment by explicitly running the bokeh-server python script
+in the root of the bokeh repository, similar to the following example::
+
+    python bokeh-server --script path\to\<yourapp>.py
+
 "Developer" Mode Setup
 ----------------------
 The processes described about result in building and using a full `bokeh.js`
@@ -193,18 +222,31 @@ will need the following packages installed in order to build Bokeh documentation
 * docutils
 * sphinx
 * sphinxcontrib-napoleon
+* sphinxcontrib-httpdomain
 * sphinx-bootstrap-theme
 * seaborn
+* pygments
+* yaml
+* pyyaml
+* ggplot
+* seaborn
 
-These can be installed using ``conda`` or ``pip`` or from source.
+These can be installed using ``conda`` or ``pip`` or from source. In
+addition to the package requirements, you will also need to have the sample
+data downloaded. See :ref:`install_sampledata` instructions on how to
+download it.
 
 Building
 --------
 
 To generate the full HTML documentation, navigate to the ``sphinx`` subdirectory
-of the Bokeh source checkout, and execute the command::
+of the Bokeh source checkout, and execute the corresponding command::
 
     make all
+
+or::
+
+    make html
 
 To start a server and automatically open the built documentation in a browser,
 execute the command::
@@ -220,11 +262,11 @@ to process docstrings for our reference documentation. All docstrings are `Googl
 Docstrings should generally begin with a verb stating what the function or method does in
 short statement. For example::
 
-    "Create and return a new Foo."
+    """Create and return a new Foo."""
 
 is to be preferred over::
 
-    "This function creates and returns a new Foo."
+    """This function creates and returns a new Foo."""
 
 All docstrings for functions and methods should have an **Args:** section (if any
 arguments are accepted) and also a **Returns:** section (even if the function just
@@ -318,7 +360,37 @@ rendering of larger data sets. Its interface is declarative, in the style of
 a reactive scene graph (similar to `Chaco <http://code.enthought.com/chaco/>`_). Some
 examples for different types of plots are show below in `bokehjs_examples`_.
 
-The full BokehJS interface is described detail in :doc:`bokehjs`
+The full BokehJS interface is described detail in :doc:`reference/bokehjs`
+
+.. _bokehjs_dependencies:
+
+Dependencies
+------------
+BokehJS ships with all of its vendor dependencies built in. For reference, the vendor libraries that BokehJS includes are:
+
+* almond
+* backbone-amd
+* bootstrap-3.1.1
+* font-awesome-4.2.0
+* gear-utils
+* hammer.js-2.0.4
+* jqrangeslider-5.7.0
+* jquery-1.11.1
+* jquery-event-2.2
+* jquery-mousewheel-3.1.12
+* jquery-ui-1.11.2
+* jsnlog.js-2.7.5
+* kiwi
+* numeral.js-1.5.3
+* qunit
+* rbush
+* requirejs
+* slick-grid-2.1.0
+* sprintf
+* text
+* timezone
+* underscore-amd
+
 
 .. _bokehjs_examples:
 
@@ -532,6 +604,17 @@ There are several environment variables that can be useful for developers:
 * ``BOKEH_PRETTY`` --- Whether to emit "pretty printed" JSON
     Accepted values are ``yes``/``no``, ``true``/``false`` or ``0``/``1``.
 
+* ``BOKEH_PY_LOG_LEVEL`` --- The Python logging level to set
+    As in the JS side, valid values are, in order of increasing severity:
+
+  - ``debug``
+  - ``info``
+  - ``warn``
+  - ``error``
+  - ``fatal``
+
+    The default logging level is ``info``.
+
 * ``BOKEH_RESOURCES`` --- What kind of BokehJS resources to configure
     For example:  ``inline``, ``cdn``, ``server``. See the :class:`~bokeh.resources.Resources`
     class reference for full details.
@@ -547,6 +630,17 @@ There are several environment variables that can be useful for developers:
 
 * ``BOKEH_VERSION`` --- What version of BokehJS to use with ``cdn`` resources
     See the :class:`~bokeh.resources.Resources` class reference for full details.
+
+The next four environment variable are related to the IPython/Jupyter notebook:
+
+* ``BOKEH_NOTEBOOK_RESOURCES`` --- How and where to load BokehJS from
+
+* ``BOKEH_NOTEBOOK_VERBOSE`` --- Whether to report detailed settings, defaults to False
+
+* ``BOKEH_NOTEBOOK_HIDE_BANNER`` --- Whether to hide the Bokeh banner, defaults to False
+
+* ``BOKEH_NOTEBOOK_SKIP_LOAD`` --- Whether to skip ``load_notebook`` at Bokeh initialization
+
 
 CSS class names
 ---------------
@@ -595,10 +689,10 @@ not be picked up. It is recommended that during normal development,
 browser caching be disabled. Instructions for different browsers can be
 found here:
 
-* `Chrome <https://developer.chrome.com/devtools/docs/settings>`_
-* `Firefox <https://developer.mozilla.org/en-US/docs/Mozilla/Preferences/Mozilla_networking_preferences#Cache>`_
+* `Chrome <https://developer.chrome.com/devtools/docs/settings>`__
+* `Firefox <https://developer.mozilla.org/en-US/docs/Mozilla/Preferences/Mozilla_networking_preferences#Cache>`__
 * `Safari <https://developer.apple.com/library/mac/documentation/AppleApplications/Conceptual/Safari_Developer_Guide/TheDevelopMenu/TheDevelopMenu.html>`_
-* `Internet Explorer <http://msdn.microsoft.com/en-us/library/hh968260(v=vs.85).aspx#cacheMenu>`_
+* `Internet Explorer <http://msdn.microsoft.com/en-us/library/hh968260(v=vs.85).aspx#cacheMenu>`__
 
 Additionlly some browsers also provide a "private mode" that may disable
 caching automatically.
@@ -607,10 +701,10 @@ Even with caching disabled, on some browsers, it may still be required to
 sometimes force a page reload. Keyboard shortcuts for forcing page
 refreshes can be found here:
 
-* Chrome `Windows <https://support.google.com/chrome/answer/157179?hl=en&ref_topic=25799>`_ / `OSX <https://support.google.com/chrome/answer/165450?hl=en&ref_topic=25799>`_ / `Linux <https://support.google.com/chrome/answer/171571?hl=en&ref_topic=25799>`_
-* `Firefox <https://support.mozilla.org/en-US/kb/keyboard-shortcuts-perform-firefox-tasks-quickly#w_navigation>`_
-* `Safari <https://developer.apple.com/library/mac/documentation/AppleApplications/Conceptual/Safari_Developer_Guide/KeyboardShortcuts/KeyboardShortcuts.html>`_
-* Internet Explorer `10 <http://msdn.microsoft.com/en-us/library/dd565630(v=vs.85).aspx>`_ / `11 <http://msdn.microsoft.com/en-us/library/ie/dn322041(v=vs.85).aspx>`_
+* Chrome `Windows <https://support.google.com/chrome/answer/157179?hl=en&ref_topic=25799>`__ / `OSX <https://support.google.com/chrome/answer/165450?hl=en&ref_topic=25799>`__ / `Linux <https://support.google.com/chrome/answer/171571?hl=en&ref_topic=25799>`__
+* `Firefox <https://support.mozilla.org/en-US/kb/keyboard-shortcuts-perform-firefox-tasks-quickly#w_navigation>`__
+* `Safari <https://developer.apple.com/library/mac/documentation/AppleApplications/Conceptual/Safari_Developer_Guide/KeyboardShortcuts/KeyboardShortcuts.html>`__
+* Internet Explorer `10 <http://msdn.microsoft.com/en-us/library/dd565630(v=vs.85).aspx>`__ / `11 <http://msdn.microsoft.com/en-us/library/ie/dn322041(v=vs.85).aspx>`__
 
 If it appears that new changes are not being executed when they should be, it
 is recommended to try this first.

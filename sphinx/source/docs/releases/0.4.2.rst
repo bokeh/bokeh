@@ -1,0 +1,7 @@
+0.4.2 (Mar 2014)
+================
+
+* Improved MPL interface, PolyCollection plus examples
+* Extensive tutorial with exercises and solutions
+* %bokeh magic for IPython notebook
+* InMemory storage backend for bokeh-server (usable without Redis)

@@ -1,0 +1,8 @@
+0.4.4 (Apr 2014)
+================
+
+* Improved MPL interface, subplots, styling plus more examples
+* TravisCI testing integration
+* Tool enhancements, constrained pan/zoom, more hover glyphs
+* Server remote data and downsampling examples
+* Initial work for Bokeh "app" concept

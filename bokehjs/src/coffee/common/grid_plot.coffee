@@ -217,18 +217,26 @@ define [
       childmodels = []
       for row in @mget('children')
         for plot in row
+          if not plot?
+            continue
           plot.set('toolbar_location', null)
           childmodels.push(plot)
       build_views(@child_views, childmodels, {})
 
       viewstates = []
       for row in @mget('children')
-        vsrow = (@child_views[x.id].canvas for x in row)
+        vsrow = []
+        for plot in row
+          if not plot?
+            continue
+          vsrow.push(@child_views[plot.id].canvas)
         viewstates.push(vsrow)
       @viewstate.set('viewstates', viewstates)
 
       for row in @mget('children')
         for plot in row
+          if not plot?
+            continue
           @listenTo(plot.solver, 'layout_update', @render)
 
     render: () ->
@@ -275,8 +283,10 @@ define [
       plot_divs = []
       last_plot = null
       for row, ridx in @mget('children')
-        for plotspec, cidx in row
-          view = @child_views[plotspec.id]
+        for plot, cidx in row
+          if not plot?
+            continue
+          view = @child_views[plot.id]
           ypos = @viewstate.position_child_y(y_coords[ridx], view.canvas.get('height'))
           xpos = @viewstate.position_child_x(x_coords[cidx], view.canvas.get('width'))
           plot_wrapper = $("<div class='gp_plotwrapper'></div>")
@@ -298,11 +308,15 @@ define [
 
     initialize: (attrs, options) ->
       super(attrs, options)
-      @register_property('tool_manager',
-          () -> new GridToolManager({
-            tool_managers: (plot.get('tool_manager') for plot in _.flatten(@get('children')))
+      @register_property('tool_manager', () ->
+          children = []
+          for plot in _.flatten(@get('children'))
+            if plot?
+              children.push(plot)
+          new GridToolManager({
+            tool_managers: (plot.get('tool_manager') for plot in children)
             toolbar_location: @get('toolbar_location')
-            num_plots: _.flatten(@get('children')).length
+            num_plots: children.length
           })
         , true)
 

@@ -285,7 +285,6 @@ _known_tools = {
     "click": "tap",
     "tap": lambda: TapTool(always_active=True),
     "crosshair": lambda: CrosshairTool(),
-    "select": "box_select", # TODO (bev) deprecate just "select"
     "box_select": lambda: BoxSelectTool(),
     "poly_select": lambda: PolySelectTool(),
     "lasso_select": lambda: LassoSelectTool(),
@@ -318,6 +317,67 @@ def _tool_from_string(name):
 
         raise ValueError("unexpected tool name '%s', %s tools are %s" % (name, text, nice_join(matches)))
 
+
+def _process_tools_arg(plot, tools):
+    """ Adds tools to the plot object skipping those specified in
+    tools_to_remove.
+
+    Args:
+        plot (Plot): instance of a plot object
+        tools (seq[Tool or str]|str): list of tool types or string listing the
+            tool names. Those are converted using the _tool_from_string
+            function. I.e.: `wheel_zoom,box_zoom,reset`.
+
+    Returns:
+        list of Tools objects added to plot
+    """
+    tool_objs = []
+    temp_tool_str = ""
+    repeated_tools = []
+    removed_tools = []
+    tools_to_remove = []
+    # Remove pan/zoom tools in case of categorical axes
+    if isinstance(plot.x_range, FactorRange) or \
+            isinstance(plot.y_range, FactorRange):
+        tools_to_remove = ['pan', 'zoom']
+
+    if isinstance(tools, (list, tuple)):
+        for tool in tools:
+            if isinstance(tool, Tool):
+                tool_objs.append(tool)
+            elif isinstance(tool, string_types):
+                temp_tool_str += tool + ','
+            else:
+                raise ValueError("tool should be a string or an instance of Tool class")
+        tools = temp_tool_str
+
+    for tool in re.split(r"\s*,\s*", tools.strip()):
+        # re.split will return empty strings; ignore them.
+        if tool == "":
+            continue
+
+        if any(x in tool for x in tools_to_remove):
+            removed_tools.append(tool)
+            continue
+
+        tool_obj = _tool_from_string(tool)
+        tool_objs.append(tool_obj)
+
+    for typename, group in itertools.groupby(
+            sorted([tool.__class__.__name__ for tool in tool_objs])):
+        if len(list(group)) > 1:
+            repeated_tools.append(typename)
+
+    if repeated_tools:
+        warnings.warn("%s are being repeated" % ",".join(repeated_tools))
+
+    if removed_tools:
+        warnings.warn("categorical plots do not support pan and zoom operations.\n"
+                      "Removing tool(s): %s" % ', '.join(removed_tools))
+
+    return tool_objs
+
+
 def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
                  x_axis_type="auto", y_axis_type="auto",
                  x_axis_location="below", y_axis_location="left",
@@ -347,13 +407,7 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
         if axis_label:
             xaxis.axis_label = axis_label
         xgrid = Grid(plot=plot, dimension=0, ticker=xaxis.ticker)
-        if x_axis_location == "top":
-            warnings.warn("'top' is deprecated, use 'above'")
-            plot.above.append(xaxis)
-        elif x_axis_location == "bottom":
-            warnings.warn("'bottom' is deprecated, use 'below'")
-            plot.below.append(xaxis)
-        elif x_axis_location == "above":
+        if x_axis_location == "above":
             plot.above.append(xaxis)
         elif x_axis_location == "below":
             plot.below.append(xaxis)

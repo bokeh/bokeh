@@ -26,8 +26,9 @@ import pandas as pd
 from ..models.glyphs import Circle
 from ..models import (ColumnDataSource, Grid, GlyphRenderer, Legend, LinearAxis,
                       PanTool, Range1d, Ticker, Text, Wedge, AnnularWedge,
-                      FactorRange, DataRange1d)
-
+                      FactorRange, DataRange1d, BoxZoomTool, LassoSelectTool,
+                      PanTool, PreviewSaveTool, ResetTool, ResizeTool,
+                      WheelZoomTool)
 from ..document import Document
 
 from ..charts import (Chart, ChartObject, DataAdapter, Area, Bar, Dot, Donut,
@@ -130,6 +131,75 @@ class TestChart(unittest.TestCase):
         grid = self.chart.make_grid(0, axis.ticker)
         self.assertEqual(grid.dimension, 0)
         self.assertIsInstance(grid.ticker, Ticker)
+
+    @patch('bokeh.plotting_helpers.warnings.warn')
+    def test_chart_tools(self, mock_warn):
+        base_args = dict(
+            title="title", xlabel="xlabel", ylabel="ylabel",
+            legend="top_left", xscale="linear", yscale="linear",
+            width=800, height=600, filename=False, server=False, notebook=False
+        )
+        expected = [
+            [PanTool,  WheelZoomTool, BoxZoomTool, PreviewSaveTool, ResizeTool, ResetTool],
+            [],
+            [ResizeTool, PanTool,  BoxZoomTool, ResetTool, LassoSelectTool],
+        ]
+        scenarios = zip(
+                [True, False, "resize,pan,box_zoom,reset,lasso_select"],
+                expected
+        )
+        for tools, expected_tools in scenarios:
+            base_args['tools'] = tools
+            chart = Chart(**base_args)
+            chart.start_plot(xgrid=True, ygrid=True)
+            self.assertEqual(len(chart.plot.tools), len(expected_tools))
+            for i, _type in enumerate(expected_tools):
+                self.assertIsInstance(chart.plot.tools[i], _type)
+
+        # need to change the expected tools because categorical scales
+        # automatically removes pan and zoom tools
+        expected = [
+            [PreviewSaveTool, ResizeTool, ResetTool],
+            [],
+            [ResizeTool, ResetTool, LassoSelectTool],
+        ]
+        scenarios = zip(
+                [True, False, "resize,pan,box_zoom,reset,lasso_select"],
+                expected
+        )
+        for (scale, ranges) in zip(['xscale', 'yscale'],
+                                   [(FactorRange(), DataRange1d()),
+                                    (DataRange1d(), FactorRange())]):
+            base_args[scale] = 'categorical'
+            for i, (tools, expected_tools) in enumerate(scenarios):
+                base_args['tools'] = tools
+                chart = Chart(**base_args)
+                # Add FactorRanges to simulate categorical plots
+                chart.add_data_plot(*ranges)
+                chart.start_plot(xgrid=True, ygrid=True)
+                self.assertEqual(len(chart.plot.tools), len(expected_tools))
+                for i, _type in enumerate(expected_tools):
+                    self.assertIsInstance(chart.plot.tools[i], _type)
+
+        msg_repeat = "LassoSelectTool are being repeated"
+        msg_removed = "categorical plots do not support pan and zoom operations.\n" \
+                      "Removing tool(s): pan, box_zoom"
+        expected_tools = [ResizeTool, ResetTool, LassoSelectTool, LassoSelectTool]
+        mock_warn.reset_mock()
+
+        # Finally check repeated tools
+        base_args['tools'] = "resize,pan,box_zoom,reset,lasso_select,lasso_select"
+        chart = Chart(**base_args)
+        # Add FactorRanges to simulate categorical plots
+        chart.add_data_plot(DataRange1d(), FactorRange())
+        chart.start_plot(xgrid=True, ygrid=True)
+
+        self.assertEqual(len(chart.plot.tools), len(expected_tools))
+        for i, _type in enumerate(expected_tools):
+            self.assertIsInstance(chart.plot.tools[i], _type)
+
+        mock_warn.assert_any_call(msg_repeat)
+        mock_warn.assert_any_call(msg_removed)
 
     @patch('bokeh.charts._charts.Chart._append_glyph')
     def test_make_segment(self, mock_append_glyph):
@@ -879,35 +949,43 @@ class TestDonut(unittest.TestCase):
         xyvalues['python'] = [2., 5., 3.]
         xyvalues['pypy'] = [4., 1., 4.]
         xyvalues['jython'] = [6., 4., 3.]
-        cat = ["sets", "dicts", "odicts"]
-        start = [0, 2.3561944901923448, 4.3196898986859651]
-        end = [2.3561944901923448, 4.3196898986859651, 6.2831853071795862]
-        colors = ['#f22c40', '#5ab738', '#407ee7']
 
-        # TODO: Chart is not working with DataFrames anymore.
-        #       Fix it and add test case for , pd.DataFrame(xyvalues)
-        for i, _xy in enumerate([xyvalues]):
-            _chart = create_chart(Donut, _xy, cat=cat)
+        xyvalues_int = OrderedDict()
+        for k, values in xyvalues.items():
+            xyvalues_int[k] = [int(val) for val in values]
 
-            self.assertEqual(_chart.groups, cat)
-            assert_array_equal(_chart.data['start'], start)
-            assert_array_equal(_chart.data['end'], end)
-            assert_array_equal(_chart.data['colors'], colors)
+        for xyvalues in [xyvalues, xyvalues_int]:
+            cat = ["sets", "dicts", "odicts"]
+            start = [0, 2.3561944901923448, 4.3196898986859651]
+            end = [2.3561944901923448, 4.3196898986859651, 6.2831853071795862]
+            colors = ['#f22c40', '#5ab738', '#407ee7']
 
-            # TODO: Test for external ring source values is missing as it needs
-            #       some refactoring to expose those values calculation
+            # TODO: Chart is not working with DataFrames anymore.
+            #       Fix it and add test case for , pd.DataFrame(xyvalues)
+            for i, _xy in enumerate([xyvalues]):
+                _chart = create_chart(Donut, _xy, cat=cat)
+
+                self.assertEqual(_chart.groups, cat)
+                assert_array_equal(_chart.data['start'], start)
+                assert_array_equal(_chart.data['end'], end)
+                assert_array_equal(_chart.data['colors'], colors)
+
+                # TODO: Test for external ring source values is missing as it needs
+                #       some refactoring to expose those values calculation
 
         lvalues = [[2., 5., 3.], [4., 1., 4.], [6., 4., 3.]]
-        for i, _xy in enumerate([lvalues, np.array(lvalues)]):
-            _chart = create_chart(Donut, _xy, cat=cat)
+        lvalues_int = [[2, 5, 3], [4, 1, 4], [6, 4, 3]]
+        for lvalues in [lvalues, lvalues_int]:
+            for i, _xy in enumerate([lvalues, np.array(lvalues)]):
+                _chart = create_chart(Donut, _xy, cat=cat)
 
-            self.assertEqual(_chart.groups, cat)
-            assert_array_equal(_chart.data['start'], start)
-            assert_array_equal(_chart.data['end'], end)
-            assert_array_equal(_chart.data['colors'], colors)
+                self.assertEqual(_chart.groups, cat)
+                assert_array_equal(_chart.data['start'], start)
+                assert_array_equal(_chart.data['end'], end)
+                assert_array_equal(_chart.data['colors'], colors)
 
-            # TODO: Test for external ring source values is missing as it needs
-            #       some refactoring to expose those values calculation
+                # TODO: Test for external ring source values is missing as it needs
+                #       some refactoring to expose those values calculation
 
 
 class TestDataAdapter(unittest.TestCase):

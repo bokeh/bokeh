@@ -19,9 +19,11 @@ To get started quickly, follow the :ref:`quickstart`.
 To see examples of how you might use Bokeh with your own data, check out
 the :ref:`gallery`.
 
+For questions and technical assistance, come join the `bokeh users mailing list <https://groups.google.com/a/continuum.io/forum/#!forum/bokeh>`_.
+
 Visit the source repository: `https://github.com/bokeh/bokeh <https://github.com/bokeh/bokeh>`_
 
-Be sure to follow us on Twitter `@bokehplots <http://twitter.com/BokehPlots>`_!
+Be sure to follow us on Twitter `@bokehplots <http://twitter.com/BokehPlots>`_, as well as on `Vine <https://vine.co/bokehplots>`_, and `Youtube <https://www.youtube.com/channel/UCK0rSk29mmg4UT4bIOvPYhw>`_!
 
 .. include:: docs/includes/hero.txt
 

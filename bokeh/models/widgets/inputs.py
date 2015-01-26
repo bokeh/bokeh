@@ -69,7 +69,7 @@ class Slider(InputWidget):
     value = Float()
     start = Float()
     end = Float()
-    step = Int()
+    step = Float()
     orientation = Enum("horizontal", "vertical")
 
 class DateRangeSlider(InputWidget):

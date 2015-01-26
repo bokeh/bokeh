@@ -43,16 +43,19 @@ define [
       new_data.vy = _.clone(@data.vy)
       overlay.set('data', new_data)
 
-      append = e.srcEvent.shiftKey ? false
-      @_select(@data.vx, @data.vy, append)
+      if @mget('select_every_mousemove')
+        append = e.srcEvent.shiftKey ? false
+        @_select(@data.vx, @data.vy, false, append)
 
     _pan_end: (e) ->
       @_clear_overlay()
+      append = e.srcEvent.shiftKey ? false
+      @_select(@data.vx, @data.vy, true, append)
 
     _clear_overlay: () ->
       @mget('overlay').set('data', null)
 
-    _select: (vx, vy, append) ->
+    _select: (vx, vy, final, append) ->
       geometry = {
         type: 'poly'
         vx: vx
@@ -62,9 +65,9 @@ define [
       for r in @mget('renderers')
         ds = r.get('data_source')
         sm = ds.get('selection_manager')
-        sm.select(@, @plot_view.renderers[r.id], geometry, true, append)
+        sm.select(@, @plot_view.renderers[r.id], geometry, final, append)
 
-      @_save_geometry(geometry, true, append)
+      @_save_geometry(geometry, final, append)
 
       return null
 
@@ -78,10 +81,15 @@ define [
 
     initialize: (attrs, options) ->
       super(attrs, options)
-      @set('overlay', new PolySelection.Model)
+      @set('overlay', new PolySelection.Model({line_width: 2}))
       plot_renderers = @get('plot').get('renderers')
       plot_renderers.push(@get('overlay'))
       @get('plot').set('renderers', plot_renderers)
+
+    defaults: () ->
+      return _.extend({}, super(), {
+        select_every_mousemove: true
+      })
 
   class LassoSelectTools extends Collection
     model: LassoSelectTool
