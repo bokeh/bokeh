@@ -189,6 +189,7 @@ def check_remove_bokeh_install(site_packages):
             sys.exit(-1)
     else:
         print ("Not removing old bokeh install")
+        sys.exit(1)
 
 def remove_bokeh_pth(path_file):
     if exists(path_file):
@@ -314,19 +315,26 @@ if "sdist" in sys.argv:
         print("Adding '--build_js' required for 'sdist'")
         sys.argv.append('--build_js')
 
-# check for package install, add "--install_js" to skip prompt
+# check for package install, set jsinstall to False to skip prompt
+jsinstall = True
 if not exists(join(ROOT, 'MANIFEST.in')):
     installing = any(arg in sys.argv for arg in ('install', 'develop', 'sdist', 'egg_info'))
-    if installing and "--install_js" not in sys.argv and "--build_js" not in sys.argv:
-        print("Adding '--install_js' default for sdist package install")
-        sys.argv.append('--install_js')
-
-jsbuild = parse_jsargs()
+    if installing:
+        print("Avoid building or installing JS when BokehJS is not available")
+        if "--build_js"  in sys.argv:
+            sys.argv.remove('--build_js')
+        if "--install_js"  in sys.argv: 
+            sys.argv.remove('--install_js')
+        jsbuild = False
+        jsinstall = False
+else:
+    jsbuild = parse_jsargs()
 
 if jsbuild:
     build_js()
 
-install_js()
+if jsinstall:
+    install_js()
 
 sampledata_suffixes = ('.csv', '.conf', '.gz', '.json', '.png', '.ics')
 
@@ -353,7 +361,10 @@ if 'develop' in sys.argv:
         f.write(path)
     print("Installing Bokeh for development:")
     print("  - writing path '%s' to %s" % (path, path_file))
-    print("  - using %s built bokehjs from bokehjs/build\n" % ("NEWLY" if jsbuild else "PREVIOUSLY"))
+    if jsinstall:
+        print("  - using %s built bokehjs from bokehjs/build\n" % ("NEWLY" if jsbuild else "PREVIOUSLY"))
+    else:
+        print("  - using 'PACKAGED' built bokehjs\n")
     sys.exit()
 
 elif 'clean' in sys.argv:
@@ -364,7 +375,10 @@ elif 'install' in sys.argv:
     print("Installing Bokeh:")
     if pth_removed:
         print("  - removed path file at %s" % path_file)
-    print("  - using %s built bokehjs from bokehjs/build\n" % ("NEWLY" if jsbuild else "PREVIOUSLY"))
+    if jsinstall:
+        print("  - using %s built bokehjs from bokehjs/build\n" % ("NEWLY" if jsbuild else "PREVIOUSLY"))
+    else:
+        print("  - using 'PACKAGED' built bokehjs\n")
 
 elif '--help' in sys.argv:
     print("Bokeh-specific options available with 'install' or 'develop':\n")
