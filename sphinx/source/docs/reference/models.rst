@@ -2,6 +2,18 @@
 Model Objects
 #############
 
+One of the central design principals of Bokeh is that, regardless of
+how the plot creation code is spelled in Python (or other languages),
+the result is an object graph of that encompass all the visual and
+data aspects of the scene. Furthermore, this scene graph is to be
+serialized, and it is this serialized graph that the client library
+BokehJS uses to render the plot. The low-level objects that comprise
+a Bokeh scene graph are called **Models**.
+
+This reference documents all the Bokeh models, together with their
+property attributes, as well as a JSON prototype illustrating what
+a serialized version of the model looks like.
+
 .. contents::
     :local:
     :depth: 1
@@ -131,4 +143,68 @@ Model Objects
 .. automodule:: bokeh.models.widget
    :members:
    :undoc-members:
+
+``bokeh.models.widgets.buttons``
+--------------------------------
+
+.. automodule:: bokeh.models.widgets.buttons
+   :members:
+   :undoc-members:
+
+``bokeh.models.widgets.dialogs``
+--------------------------------
+
+.. automodule:: bokeh.models.widgets.dialogs
+   :members:
+   :undoc-members:
+
+``bokeh.models.widgets.groups``
+-------------------------------
+
+.. automodule:: bokeh.models.widgets.groups
+   :members:
+   :undoc-members:
+
+``bokeh.models.widgets.icons``
+------------------------------
+
+.. automodule:: bokeh.models.widgets.icons
+   :members:
+   :undoc-members:
+
+``bokeh.models.widgets.inputs``
+-------------------------------
+
+.. automodule:: bokeh.models.widgets.inputs
+   :members:
+   :undoc-members:
+
+``bokeh.models.widgets.layouts``
+--------------------------------
+
+.. automodule:: bokeh.models.widgets.layouts
+   :members:
+   :undoc-members:
+
+``bokeh.models.widgets.markups``
+--------------------------------
+
+.. automodule:: bokeh.models.widgets.markups
+   :members:
+   :undoc-members:
+
+``bokeh.models.widgets.panels``
+-------------------------------
+
+.. automodule:: bokeh.models.widgets.panels
+   :members:
+   :undoc-members:
+
+``bokeh.models.widgets.tables``
+-------------------------------
+
+.. automodule:: bokeh.models.widgets.tables
+   :members:
+   :undoc-members:
+
 

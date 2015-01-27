@@ -19,11 +19,12 @@ To get started quickly, follow the :ref:`quickstart`.
 To see examples of how you might use Bokeh with your own data, check out
 the :ref:`gallery`.
 
-For questions and technical assistance, come join the `bokeh users mailing list <https://groups.google.com/a/continuum.io/forum/#!forum/bokeh>`_.
+For questions and technical assistance, come join the `Bokeh mailing list`_.
 
-Visit the source repository: `https://github.com/bokeh/bokeh <https://github.com/bokeh/bokeh>`_
+Visit the `GitHub source repository <Bokeh GitHub_>`_.
 
-Be sure to follow us on Twitter `@bokehplots <http://twitter.com/BokehPlots>`_, as well as on `Vine <https://vine.co/bokehplots>`_, and `Youtube <https://www.youtube.com/channel/UCK0rSk29mmg4UT4bIOvPYhw>`_!
+Be sure to follow us on Twitter `@bokehplots <Twitter_>`_, as well as on `Vine`_, and
+`Youtube`_!
 
 .. include:: docs/includes/hero.txt
 
@@ -90,17 +91,16 @@ address fundamental challenges of large dataset visualization:
 Some of the core ideas for the backend processing in bokeh-server are currently
 implemented as a standalone library, and are being developed under the term
 "Abstract Rendering", which we will be presenting at VDA 2014.  For more
-information, you can visit the
-`Abstract Rendering github <http://github.com/JosephCottam/AbstractRendering>`_.
+information, you can visit the `Abstract Rendering GitHub page <AR GitHub_>`_.
 
 Bokeh is one of several open-source components of the broader technical
-vision of `Continuum Analytics <http://continuum.io>`_.  By providing powerful data
+vision of `Continuum Analytics`_.  By providing powerful data
 description and vector computing on remote and distributed data via
-`Blaze <http://blaze.pydata.org>`_ and `Numba <http://numba.pydata.org>`_, and
-providing interactive visualizations of them via Bokeh, we enable teams
-to collaboratively perform rich analysis, share them with others (potentially
-non-technical members of their team or business), and rapidly create
-analytical dashboards and monitoring interfaces.
+`Blaze`_ and `Numba`_, and providing interactive visualizations of them
+via Bokeh, we enable teams to collaboratively perform rich analysis,
+share them with others (potentially non-technical members of their team
+or business), and rapidly create analytical dashboards and monitoring
+interfaces.
 
 One guiding principle for the development of Bokeh is to provide useful
 software for people, while incorporating novel ideas from the academic world of
@@ -116,30 +116,28 @@ processing workflow.
 Contact
 -------
 
-For questions, please join the bokeh mailing list:
-`https://groups.google.com/a/continuum.io/forum/#!forum/bokeh <https://groups.google.com/a/continuum.io/forum/#!forum/bokeh>`_
+For questions and technical assistance, come join the `Bokeh mailing list`_.
 
-You can also ask questions on StackOverflow and use the #bokeh tag:
-`http://stackoverflow.com/questions/tagged/bokeh <http://stackoverflow.com/questions/tagged/bokeh>`_.
+You can also ask and read questions on StackOverflow with the
+`#bokeh tag <Bokeh SO_>`_.
 
-Follow us on Twitter `@bokehplots <http://twitter.com/BokehPlots>`_!
-When tweeting about how awesome Bokeh is, be sure to use the #bokeh tag!
+Follow us on Twitter `@bokehplots <Twitter_>`_! When tweeting about
+how awesome Bokeh is, be sure to use the #bokeh hashtag!
 
-For information about commercial development, custom visualization development
-or embedding Bokeh in your applications, please contact
-`pwang@continuum.io <mailto://pwang@continuum.io>`_.
+For information about commercial development, custom visualization
+development or embedding Bokeh in your applications, please contact
+`pwang@continuum.io <pwang email_>`_.
 
 To donate funds to support the development of Bokeh, please contact
-`info@pydata.org <mailto://info@pydata.org>`_.
+`info@pydata.org <info email_>`_.
 
 
 Thanks
 ------
 
-Bokeh is developed with funding from `DARPA <http://www.darpa.mil>`_'s
-`XDATA <http://www.darpa.mil/Our_Work/I2O/Programs/XDATA.aspx>`_ program.
+Bokeh is developed with funding from `DARPA`_'s `XDATA`_ program.
 
-Additionally, many thanks to `all of the Bokeh Github contributors <https://github.com/bokeh/bokeh/graphs/contributors>`_.
+Additionally, many thanks to all of the `Bokeh contributors`_.
 
 
 License
@@ -147,20 +145,36 @@ License
 
 Traditional 3-clause BSD license:
 
-..
+----
 
-    Copyright (c) 2012, Continuum Analytics, Inc.
-    All rights reserved.
+Copyright (c) 2012, Continuum Analytics, Inc.
+All rights reserved.
 
-    Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
 
-    Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+Redistributions of source code must retain the above copyright notice, this
+list of conditions and the following disclaimer.
 
-    Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+Redistributions in binary form must reproduce the above copyright notice,
+this list of conditions and the following disclaimer in the documentation
+and/or other materials provided with the distribution.
 
-    Neither the name of Continuum Analytics nor the names of any contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+Neither the name of Continuum Analytics nor the names of any contributors
+may be used to endorse or promote products derived from this software without
+specific prior written permission.
 
-    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS”
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
 
 
 
@@ -171,6 +185,21 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 
+.. _AR GitHub: http://github.com/JosephCottam/AbstractRendering>
+.. _Blaze: http://blaze.pydata.org
+.. _Bokeh contributors: https://github.com/bokeh/bokeh/graphs/contributors
+.. _Bokeh GitHub: https://github.com/bokeh/bokeh
+.. _Bokeh mailing list: https://groups.google.com/a/continuum.io/forum/#!forum/bokeh
+.. _Bokeh SO: http://stackoverflow.com/questions/tagged/bokeh
+.. _Continuum Analytics: http://continuum.io
+.. _DARPA: http://www.darpa.mil
+.. _info email: mailto:info@pydata.org
+.. _Numba: http://numba.pydata.org
+.. _pwang email: mailto:pwang@continuum.io
+.. _Twitter: http://twitter.com/BokehPlots
+.. _Vine: https://vine.co/bokehplots
+.. _YouTube: https://www.youtube.com/channel/UCK0rSk29mmg4UT4bIOvPYhw
+.. _XDATA: http://www.darpa.mil/Our_Work/I2O/Programs/XDATA.aspx
 
 
 

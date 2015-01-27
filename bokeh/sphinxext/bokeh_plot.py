@@ -83,7 +83,7 @@ from tempfile import mkdtemp
 import webbrowser
 
 from docutils import nodes
-from docutils.parsers.rst.directives import choice, flag, path, unchanged
+from docutils.parsers.rst.directives import choice, flag, unchanged
 from docutils.statemachine import ViewList
 
 import jinja2

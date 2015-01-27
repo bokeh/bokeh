@@ -1,3 +1,6 @@
+""" Various kinds of input widgets and form controls.
+
+"""
 from __future__ import absolute_import
 
 import six
@@ -6,9 +9,22 @@ from ...properties import Bool, Int, Float, String, Date, RelativeDelta, Enum, L
 from ..widget import Widget
 
 class InputWidget(Widget):
-    title = String()
-    name = String()
-    value = String()
+    """ Abstract base class for input widgets. `InputWidget`` is not
+    generally useful to instantiate on its own.
+
+    """
+
+    title = String(help="""
+    Widget's label.
+    """)
+
+    name = String(help="""
+    Widget's name.
+    """)
+
+    value = String(help="""
+    Initial or input value.
+    """)
 
     @classmethod
     def coerce_value(cls, val):
@@ -24,8 +40,9 @@ class InputWidget(Widget):
 
     @classmethod
     def create(cls, *args, **kwargs):
-        """Only called the first time we make an object,
+        """ Only called the first time we make an object,
         whereas __init__ is called every time it's loaded
+
         """
         if kwargs.get('title') is None:
             kwargs['title'] = kwargs['name']
@@ -34,11 +51,24 @@ class InputWidget(Widget):
         return cls(**kwargs)
 
 class TextInput(InputWidget):
-    value = String()
+    """ Single-line input widget. """
+
+    value = String(help="""
+    Initial or entered value.
+    """)
 
 class Select(InputWidget):
-    options = List(Either(String, Dict(String, String)))
-    value = String
+    """ Single-select widget.
+
+    """
+
+    options = List(Either(String, Dict(String, String)), help="""
+    Available selection options.
+    """)
+
+    value = String(help="""
+    Initial or selected value.
+    """)
 
     @classmethod
     def create(self, *args, **kwargs):
@@ -52,7 +82,13 @@ class Select(InputWidget):
         return super(Select, self).create(*args, **kwargs)
 
 class MultiSelect(Select):
-    value = List(String)
+    """ Multi-select widget.
+
+    """
+
+    value = List(String, help="""
+    Initial or selected values.
+    """)
 
     @classmethod
     def create(self, *args, **kwargs):
@@ -66,25 +102,84 @@ class MultiSelect(Select):
         return super(Select, self).create(*args, **kwargs)
 
 class Slider(InputWidget):
-    value = Float()
-    start = Float()
-    end = Float()
-    step = Float()
-    orientation = Enum("horizontal", "vertical")
+    """ Slider-based number selection widget.
+
+    """
+
+    value = Float(help="""
+    Initial or selected value.
+    """)
+
+    start = Float(help="""
+    The minimum allowable value.
+    """)
+
+    end = Float(help="""
+    The maximum allowable value.
+    """)
+
+    step = Float(help="""
+    The step between consecutive values.
+    """)
+
+    orientation = Enum("horizontal", "vertical", help="""
+    Orient the slider either horizontally (default) or vertically.
+    """)
 
 class DateRangeSlider(InputWidget):
-    value = Tuple(Date, Date)
-    bounds = Tuple(Date, Date)
-    range = Tuple(RelativeDelta, RelativeDelta)
-    step = RelativeDelta
+    """ Slider-based date range selection widget.
+
+    """
+
+    value = Tuple(Date, Date, help="""
+    The initial or selected date range.
+    """)
+
+    bounds = Tuple(Date, Date, help="""
+    The earliest and latest allowable dates.
+    """)
+
+    range = Tuple(RelativeDelta, RelativeDelta, help="""
+    [TDB]
+    """)
+
+    step = RelativeDelta(help="""
+    The step between consecutive dates.
+    """)
+
     # formatter = Either(String, Function(Date))
     # scales = DateRangeSliderScales ... # first, next, stop, label, format
-    enabled = Bool(True)
-    arrows = Bool(True)
-    value_labels = Enum("show", "hide", "change")
-    wheel_mode = Enum("scroll", "zoom", default=None) # nullable=True
+
+    enabled = Bool(True, help="""
+    Enable or disable this widget.
+    """)
+
+    arrows = Bool(True, help="""
+    Whether to show clickable arrows on both ends of the slider.
+    """)
+
+    value_labels = Enum("show", "hide", "change", help="""
+    Show or hide value labels on both sides of the slider.
+    """)
+
+    wheel_mode = Enum("scroll", "zoom", default=None, help="""
+    Whether mouse zoom should scroll or zoom selected range (or
+    do nothing).
+    """)
 
 class DatePicker(InputWidget):
-    value = Date
-    min_date = Date(default=None)
-    max_date = Date(default=None)
+    """ Calendar-based date picker widget.
+
+    """
+
+    value = Date(help="""
+    The initial or picked date.
+    """)
+
+    min_date = Date(default=None, help="""
+    Optional earliest allowable date.
+    """)
+
+    max_date = Date(default=None, help="""
+    Optional latest allowable date.
+    """)
