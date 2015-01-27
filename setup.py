@@ -322,7 +322,10 @@ if not exists(join(ROOT, 'MANIFEST.in')):
     options = ('install', 'develop', 'sdist', 'egg_info', 'build', 'clean', '--help')
     installing = any(arg in sys.argv for arg in options)
     if installing:
-        print("Avoid building or installing JS when BokehJS is not available")
+        print("BokehJS source code is not shipped in sdist packages; "
+              "building/installing from the bokehjs source directory is disabled. "
+              "To build or develop BokehJS yourself, you must clone the full "
+              "Bokeh repository from https://github.com/bokeh/bokeh")
         if "--build_js"  in sys.argv:
             sys.argv.remove('--build_js')
         if "--install_js"  in sys.argv: 
@@ -366,7 +369,7 @@ if 'develop' in sys.argv:
     if jsinstall:
         print("  - using %s built BokehJS from bokehjs/build\n" % ("NEWLY" if jsbuild else "PREVIOUSLY"))
     else:
-        print("  - using 'PACKAGED' built BokehJS\n")
+        print("  - using PACKAGED BokehJS, located in 'bokeh.server.static'\n")
     sys.exit()
 
 elif 'clean' in sys.argv:
@@ -380,7 +383,7 @@ elif 'install' in sys.argv:
     if jsinstall:
         print("  - using %s built BokehJS from bokehjs/build\n" % ("NEWLY" if jsbuild else "PREVIOUSLY"))
     else:
-        print("  - using 'PACKAGED' built BokehJS\n")
+        print("  - using PACKAGED BokehJS, located in 'bokeh.server.static'\n")
 
 elif '--help' in sys.argv:
     if jsinstall:
@@ -388,7 +391,7 @@ elif '--help' in sys.argv:
         print("  --build_js          build and install a fresh BokehJS")
         print("  --install_js        install only last previously built BokehJS")
     else:
-        print("Bokeh using 'PACKAGED' built BokehJS\n")
+        print("Bokeh is using PACKAGED BokehJS, located in 'bokeh.server.static'\n")
 
 print()
 
