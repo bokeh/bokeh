@@ -155,7 +155,7 @@ class Arc(Glyph):
     """)
 
 class Bezier(Glyph):
-    """ Render Bézier curves.
+    u""" Render Bézier curves.
 
     For more information consult the `Wikipedia article for Bézier curve`_.
 
@@ -203,7 +203,7 @@ class Bezier(Glyph):
     The y-coordinates of second control points.
     """)
 
-    line_props = Include(LineProps, use_prefix=False, help="""
+    line_props = Include(LineProps, use_prefix=False, help=u"""
     The %s values for the Bézier curves.
     """)
 
@@ -541,7 +541,7 @@ class MultiLine(Glyph):
     """)
 
 class Oval(Glyph):
-    """ Render ovals.
+    u""" Render ovals.
 
     .. note::
         This glyph renders ovals using Bézier curves, which are similar,
