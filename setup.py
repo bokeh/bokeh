@@ -318,7 +318,8 @@ if "sdist" in sys.argv:
 # check for package install, set jsinstall to False to skip prompt
 jsinstall = True
 if not exists(join(ROOT, 'MANIFEST.in')):
-    installing = any(arg in sys.argv for arg in ('install', 'develop', 'sdist', 'egg_info'))
+    options = ('install', 'develop', 'sdist', 'egg_info', 'clean', '--help')
+    installing = any(arg in sys.argv for arg in options)
     if installing:
         print("Avoid building or installing JS when BokehJS is not available")
         if "--build_js"  in sys.argv:
@@ -381,9 +382,12 @@ elif 'install' in sys.argv:
         print("  - using 'PACKAGED' built bokehjs\n")
 
 elif '--help' in sys.argv:
-    print("Bokeh-specific options available with 'install' or 'develop':\n")
-    print("  --build_js          build and install a fresh BokehJS")
-    print("  --install_js        install only last previously built BokehJS")
+    if jsinstall:
+        print("Bokeh-specific options available with 'install' or 'develop':\n")
+        print("  --build_js          build and install a fresh BokehJS")
+        print("  --install_js        install only last previously built BokehJS")
+    else:
+        print("Bokeh using 'PACKAGED' built bokehjs\n")
 
 print()
 
