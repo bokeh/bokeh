@@ -97,6 +97,8 @@ class Dropdown(AbstractButton):
         Returns:
             None
 
+        """
         self.on_change('action', lambda obj, attr, old, new: handler(new))
+
 
 
