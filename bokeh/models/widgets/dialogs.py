@@ -6,14 +6,17 @@ from ...properties import Bool, String, List
 from ..widget import Widget
 
 class Dialog(Widget):
-    """ Simple dialog box with string message. """
+    """ Simple dialog box with string message.
+
+    """
 
     visible = Bool(False, help="""
-    Indicates whether this dialog is visible or not.
+    Whether this dialog is visible or not.
     """)
 
+    # TODO (bev) : "closeable" would be more common spelling
     closable = Bool(True, help="""
-    Indicates whether this dialog is closable or not.
+    Whether this dialog is closable or not.
     """)
 
     title = String(help="""

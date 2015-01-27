@@ -1,5 +1,6 @@
-""" Various kinds of input widgets and form controls. """
+""" Various kinds of input widgets and form controls.
 
+"""
 from __future__ import absolute_import
 
 import six
@@ -8,7 +9,10 @@ from ...properties import Bool, Int, Float, String, Date, RelativeDelta, Enum, L
 from ..widget import Widget
 
 class InputWidget(Widget):
-    """ Abstract base class for input widgets. """
+    """ Abstract base class for input widgets. `InputWidget`` is not
+    generally useful to instantiate on its own.
+
+    """
 
     title = String(help="""
     Widget's label.
@@ -54,7 +58,9 @@ class TextInput(InputWidget):
     """)
 
 class Select(InputWidget):
-    """ Single-select widget. """
+    """ Single-select widget.
+
+    """
 
     options = List(Either(String, Dict(String, String)), help="""
     Available selection options.
@@ -76,7 +82,9 @@ class Select(InputWidget):
         return super(Select, self).create(*args, **kwargs)
 
 class MultiSelect(Select):
-    """ Multi-select widget. """
+    """ Multi-select widget.
+
+    """
 
     value = List(String, help="""
     Initial or selected values.
@@ -94,18 +102,20 @@ class MultiSelect(Select):
         return super(Select, self).create(*args, **kwargs)
 
 class Slider(InputWidget):
-    """ Slider-based number selection widget. """
+    """ Slider-based number selection widget.
+
+    """
 
     value = Float(help="""
     Initial or selected value.
     """)
 
     start = Float(help="""
-    The lowest allowed value.
+    The minimum allowable value.
     """)
 
     end = Float(help="""
-    The biggest allowed value.
+    The maximum allowable value.
     """)
 
     step = Float(help="""
@@ -113,22 +123,24 @@ class Slider(InputWidget):
     """)
 
     orientation = Enum("horizontal", "vertical", help="""
-    Orient the slider either horizontally (the default) or vertically.
+    Orient the slider either horizontally (default) or vertically.
     """)
 
 class DateRangeSlider(InputWidget):
-    """ Slider-based date range selection widget. """
+    """ Slider-based date range selection widget.
+
+    """
 
     value = Tuple(Date, Date, help="""
     The initial or selected date range.
     """)
 
     bounds = Tuple(Date, Date, help="""
-    The earlies and latest allowed dates.
+    The earliest and latest allowable dates.
     """)
 
     range = Tuple(RelativeDelta, RelativeDelta, help="""
-    ???
+    [TDB]
     """)
 
     step = RelativeDelta(help="""
@@ -143,7 +155,7 @@ class DateRangeSlider(InputWidget):
     """)
 
     arrows = Bool(True, help="""
-    Show clickable arrows on both ends of the slider.
+    Whether to show clickable arrows on both ends of the slider.
     """)
 
     value_labels = Enum("show", "hide", "change", help="""
@@ -151,19 +163,23 @@ class DateRangeSlider(InputWidget):
     """)
 
     wheel_mode = Enum("scroll", "zoom", default=None, help="""
-    Optional usage of mouse wheel to do either nothing or scroll/zoom selected range.
+    Whether mouse zoom should scroll or zoom selected range (or
+    do nothing).
     """)
 
 class DatePicker(InputWidget):
-    """ Calendar-based date picker widget. """
+    """ Calendar-based date picker widget.
+
+    """
 
     value = Date(help="""
     The initial or picked date.
     """)
 
     min_date = Date(default=None, help="""
-    Optional earlies allowed date.
+    Optional earliest allowable date.
     """)
+
     max_date = Date(default=None, help="""
-    Optional latest allowed date.
+    Optional latest allowable date.
     """)

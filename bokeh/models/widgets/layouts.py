@@ -1,23 +1,29 @@
-""" Various kinds of lyaout widgets. """
+""" Various kinds of lyaout widgets.
 
+"""
 from __future__ import absolute_import
 
 from ...properties import Int, Instance, List
 from ..widget import Widget
 
 class Layout(Widget):
-    """ An abstract base class for layout widgets. """
+    """ An abstract base class for layout widgets. ``Layout`` is not
+    generally useful to instantiate on its own.
+
+    """
 
     width = Int(help="""
-    The optional width of the widget in pixels.
+    An optional width for the widget (in pixels).
     """)
 
     height = Int(help="""
-    The optional height of the widget in pixels.
+    An optional height for the widget (in pixels).
     """)
 
 class HBox(Layout):
-    """ ``HBox`` lays out its child widgets in a single horizontal row. """
+    """ Lay out child widgets in a single horizontal row.
+
+    """
 
     def __init__(self, *args, **kwargs):
         if len(args) > 0 and "children" in kwargs:
@@ -27,11 +33,14 @@ class HBox(Layout):
         super(HBox, self).__init__(**kwargs)
 
     children = List(Instance(Widget), help="""
-    The list of children, which can be other widgets (including layouts) and plots.
+    The list of children, which can be other widgets (including layouts)
+    and plots.
     """)
 
 class VBox(Layout):
-    """ ``VBox`` lays out its child widgets in a single vertical row. """
+    """ Lay out child widgets in a single vertical row.
+
+    """
 
     def __init__(self, *args, **kwargs):
         if len(args) > 0 and "children" in kwargs:
@@ -41,7 +50,8 @@ class VBox(Layout):
         super(VBox, self).__init__(**kwargs)
 
     children = List(Instance(Widget), help="""
-    The list of children, which can be other widgets (including layouts) and plots.
+    The list of children, which can be other widgets (including layouts)
+    and plots.
     """)
 
 # parent class only, you need to set the fields you want

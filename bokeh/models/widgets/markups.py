@@ -1,12 +1,15 @@
-""" Various kinds of markup (static content) widgets. """
+""" Various kinds of markup (static content) widgets.
 
+"""
 from __future__ import absolute_import
 
 from ...properties import Int, String
 from ..widget import Widget
 
 class Paragraph(Widget):
-    """ A block (paragraph) of text. """
+    """ A block (paragraph) of text.
+
+    """
 
     text = String(help="""
     The contents of the widget.
@@ -22,4 +25,6 @@ class Paragraph(Widget):
 
 
 class PreText(Paragraph):
-    """ A block (paragraph) of pre-formatted text. """
+    """ A block (paragraph) of pre-formatted text.
+
+    """

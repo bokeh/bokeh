@@ -1,5 +1,6 @@
-""" Various kinds of data table (data grid) widgets. """
+""" Various kinds of data table (data grid) widgets.
 
+"""
 from __future__ import absolute_import
 
 from ...properties import Bool, Int, Float, String, Color, Instance, Enum, Auto, List, Either
@@ -9,28 +10,37 @@ from ..sources import DataSource
 from ..widget import Widget
 
 class CellFormatter(PlotObject):
-    """ Abstract base class for data table's cell formatters. """
+    """ Abstract base class for data table's cell formatters.
+
+    """
 
 class CellEditor(PlotObject):
-    """ Abstract base class for data table's cell editors. """
+    """ Abstract base class for data table's cell editors.
+
+    """
 
 class StringFormatter(CellFormatter):
-    """ Basic string cell formatter. """
+    """ Basic string cell formatter.
+
+    """
 
     font_style = Enum(FontStyle, help="""
-    Optional text font style, e.g. bold, italic.
+    An optional text font style, e.g. bold, italic.
     """)
 
     text_align = Enum(TextAlign, help="""
-    Optional text align, i.e. left, center or right.
+    An optional text align, i.e. left, center or right.
     """)
 
     text_color = Color(help="""
-    Optional text color. See :class:`bokeh.properties.Color` for details.
+    An optional text color. See :class:`bokeh.properties.Color` for
+    details.
     """)
 
 class NumberFormatter(StringFormatter):
-    """ Number cell formatter. """
+    """ Number cell formatter.
+
+    """
 
     format = String("0,0", help="""
     The numer format, as defined in the following tables.
@@ -113,14 +123,18 @@ class NumberFormatter(StringFormatter):
     """)
 
 class BooleanFormatter(CellFormatter):
-    """ Boolean (check mark) cell formatter. """
+    """ Boolean (check mark) cell formatter.
+
+    """
 
     icon = Enum('check', 'check-circle', 'check-circle-o', 'check-square', 'check-square-o', help="""
-    The icon visualising the check mark.
+    The icon visualizing the check mark.
     """)
 
 class DateFormatter(CellFormatter):
-    """ Date cell formatter. """
+    """ Date cell formatter.
+
+    """
 
     format = Either(Enum(DateFormat), String, default='yy M d', help="""
     The date format can be combinations of the following:
@@ -175,126 +189,159 @@ class DateFormatter(CellFormatter):
     """)
 
 class StringEditor(CellEditor):
-    """ Basic string cell editor with auto-completion. """
+    """ Basic string cell editor with auto-completion.
+
+    """
 
     completions = List(String, help="""
-    Optional list of completion strings.
+    An optional list of completion strings.
     """)
 
 class TextEditor(CellEditor):
-    """ Multi-line string cell editor. """
+    """ Multi-line string cell editor.
+
+    """
 
 class SelectEditor(CellEditor):
-    """ Select cell editor. """
+    """ Select cell editor.
+
+    """
 
     options = List(String, help="""
     The list of options to select from.
     """)
 
 class PercentEditor(CellEditor):
-    """ ``IntEditor`` optimized for editing percentages. """
+    """ ``IntEditor`` optimized for editing percentages.
+
+    """
 
 class CheckboxEditor(CellEditor):
-    """ Boolean value cell editor. """
+    """ Boolean value cell editor.
+
+    """
 
 class IntEditor(CellEditor):
-    """ Spinner-based integer cell editor. """
+    """ Spinner-based integer cell editor.
+
+    """
 
     step = Int(1, help="""
     The major step value.
     """)
 
 class NumberEditor(CellEditor):
-    """ Spinner-based number cell editor. """
+    """ Spinner-based number cell editor.
+
+    """
 
     step = Float(0.01, help="""
     The major step value.
     """)
 
 class TimeEditor(CellEditor):
-    """ Spinner-based time cell editor. """
+    """ Spinner-based time cell editor.
+
+    """
 
 class DateEditor(CellEditor):
-    """ Calendar-based date cell editor. """
+    """ Calendar-based date cell editor.
+
+    """
 
 class TableColumn(PlotObject):
-    """ Table column widget. """
+    """ Table column widget.
+
+    """
 
     field = String(help="""
     The name of the field mapping to a column in the data source.
     """)
 
     title = String(help="""
-    The title of this column. If not set, column's data field is used instead.
+    The title of this column. If not set, column's data field is
+    used instead.
     """)
 
     width = Int(300, help="""
-    The width or maximum width (depending on data table's configuration) in pixels of this column.
+    The width or maximum width (depending on data table's configuration)
+    in pixels of this column.
     """)
 
     formatter = Instance(CellFormatter, lambda: StringFormatter(), help="""
-    The cell formatter for this column. By default, a simple string formatter is used.
+    The cell formatter for this column. By default, a simple string
+    formatter is used.
     """)
 
     editor = Instance(CellEditor, lambda: StringEditor(), help="""
-    The cell editor for this column. By default, a simple string editor is used.
+    The cell editor for this column. By default, a simple string editor
+    is used.
     """)
 
     sortable = Bool(True, help="""
-    Indicates whether this column is sortable or not. Note that data table has
+    Whether this column is sortable or not. Note that data table has
     to have sorting enabled to allow sorting in general.
     """)
 
     default_sort = Enum("ascending", "descending", help="""
-    Indicates the default sorting order. By default ``ascending`` order is used.
+    The default sorting order. By default ``ascending`` order is used.
     """)
 
 class TableWidget(Widget):
-    """ Abstract base class for data table (data grid) widgets. """
+    """ Abstract base class for data table (data grid) widgets.
+
+    """
 
     source = Instance(DataSource, help="""
     The source of data for the widget.
     """)
 
 class DataTable(TableWidget):
-    """ Two dimensional grid for visualisation and editing large amounts of data. """
+    """ Two dimensional grid for visualisation and editing large amounts
+    of data.
+
+    """
 
     columns = List(Instance(TableColumn), help="""
     The list of child column widgets.
     """)
 
     width = Int(None, help="""
-    Optional width in pixels of the table widget. By default, uses all horizontal space available.
+    Optional width in pixels of the table widget. By default, uses all
+    horizontal space available.
     """)
 
     height = Either(Int(400), Auto, help="""
-    Height in pixels of the table widget. Use ``Auto`` to make the widget adjust its height
-    automatically. Note that ``Auto`` is inefficient for large amounts of data, so should be
-    used with care.
+    Height in pixels of the table widget. Use ``Auto`` to make the widget
+    adjust its height automatically. Note that ``Auto`` is inefficient for
+    large amounts of data, so should be used with care.
     """)
 
     fit_columns = Bool(True, help="""
-    Indicates whether columns should be fit to the available width. This results in no horizontal
-    scrollbar showing up, but data can get unreadable if there is no enough space available. If
-    set to ``True``, columns' width is understood as maximum width.
+    Whether columns should be fit to the available width. This results in no
+    horizontal scrollbar showing up, but data can get unreadable if there is
+    no enough space available. If set to ``True``, columns' width is
+    understood as maximum width.
     """)
 
     sortable = Bool(True, help="""
-    Allows to sort table's contents. By default natural order is preserved. To sort a column,
-    click on it's header. Clicking one more time changes sort direction. Use Ctrl + click to
-    return to natural order. Use Shift + click to sort multiple columns simultaneously.
+    Allows to sort table's contents. By default natural order is preserved.
+    To sort a column, click on it's header. Clicking one more time changes
+    sort direction. Use Ctrl + click to return to natural order. Use
+    Shift + click to sort multiple columns simultaneously.
     """)
 
     editable = Bool(False, help="""
-    Allows to edit table's contents. Needs cell editors to be configured on columns that are
-    required to be editable.
+    Allows to edit table's contents. Needs cell editors to be configured on
+    columns that are required to be editable.
     """)
 
     selectable = Either(Bool(True), Enum("checkbox"), help="""
-    Indicates whether table's rows can be selected or not. Using ``checkbox`` is equivalent to ``True``,
-    but makes selection visible through a checkbox for each row, instead of highlighting rows. Multiple
-    selection is allowed and can be achieved by either clicking multiple checkboxes (if enabled) or using
-    Shift + click on rows.
+    Whether a table's rows can be selected or not. Using ``checkbox`` is
+    equivalent  to ``True``, but makes selection visible through a checkbox
+    for each row,  instead of highlighting rows. Multiple selection is
+    allowed and can be achieved by either clicking multiple checkboxes (if
+    enabled) or using Shift + click on rows.
     """)
 
     row_headers = Bool(True, help="""
