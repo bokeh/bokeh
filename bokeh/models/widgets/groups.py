@@ -8,71 +8,54 @@ from ...enums import ButtonType
 from ..widget import Widget
 
 class AbstractGroup(Widget):
-    """
-
-    """
+    """ Abstract base class for all kinds of groups. """
 
     labels = List(String, help="""
-
+    List of text labels contained in this group.
     """)
 
     def on_click(self, handler):
-        """
-
-        """
-
+        """ Handles check/radio box click event and gives selected indices. """
         self.on_change('active', lambda obj, attr, old, new: handler(new))
 
-class Group(AbstractGroup):
-    """
-
-    """
-
-    inline = Bool(False, help="""
-
-    """)
-
 class ButtonGroup(AbstractGroup):
-    """
-
-    """
+    """ Abstract base class for groups with items rendered as buttons. """
 
     type = Enum(ButtonType, help="""
+    Mostly affects stylistic aspect of a button, signifying it's role.
+    """)
 
+class Group(AbstractGroup):
+    """ Abstract base class for groups with items rendered as check/radio boxes. """
+
+    inline = Bool(False, help="""
+    Should items be arrange vertically (``False``) or horizontally (in-line, ``True``).
     """)
 
 class CheckboxGroup(Group):
-    """
-
-    """
+    """ A group of check boxes. """
 
     active = List(Int, help="""
-
+    The list of indices of selected check boxes.
     """)
 
 class RadioGroup(Group):
-    """
-
-    """
+    """ A group of radio boxes. """
 
     active = Int(None, help="""
-
+    The index of the selected radio box, or ``None`` if nothing is selected.
     """)
 
 class CheckboxButtonGroup(ButtonGroup):
-    """
-
-    """
+    """ A group of check boxes rendered as toggle buttons. """
 
     active = List(Int, help="""
-
+    The list of indices of selected check boxes.
     """)
 
 class RadioButtonGroup(ButtonGroup):
-    """
-
-    """
+    """ A group of radio boxes rendered as toggle buttons. """
 
     active = Int(None, help="""
-
+    The index of the selected radio box, or ``None`` if nothing is selected.
     """)
