@@ -11,7 +11,7 @@ require.config
     backbone:          "vendor/backbone-amd/backbone"
     bootstrap:         "vendor/bootstrap-3.1.1/js"
     timezone:          "vendor/timezone/src/timezone"
-    sprintf:           "vendor/sprintf/src/sprintf"
+    sprintf:           "vendor/sprintf-1.0.2/sprintf"
     rbush:             "vendor/rbush/rbush"
     gear_utils:        "vendor/gear-utils/gear-utils"
     kiwi:              "vendor/kiwi/kiwi"
@@ -19,8 +19,6 @@ require.config
     hammer:            "vendor/hammer.js-2.0.4/hammer"
     numeral:           "vendor/numeral.js-1.5.3/numeral"
   shim:
-    sprintf:
-      exports: 'sprintf'
     kiwi:
       exports: 'kiwi'
     jquery_event_drag:
