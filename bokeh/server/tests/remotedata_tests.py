@@ -71,7 +71,7 @@ class TestAr(test_utils.FlaskClientTestCase):
         )
         assert result.status_code == 200
         data = json.loads(result.data)
-        image = np.array(data['image'][0])
+        image = np.array(data['data']['image'][0])
 
         #I guess it's data dependent so the shape changes....
         assert image.shape[0] >200
@@ -156,4 +156,4 @@ class TestAr(test_utils.FlaskClientTestCase):
         assert result.status_code == 200
         data = json.loads(result.data)
         #2 x plot size (200)
-        assert np.array(data['image'][0]).shape == (200,200)
+        assert np.array(data['data']['image'][0]).shape == (200,200)
