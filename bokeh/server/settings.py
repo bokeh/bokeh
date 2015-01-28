@@ -12,7 +12,6 @@ _defaults = dict(
     ip="0.0.0.0",
     port=5006,
     url_prefix="",
-    data_directory=None,
     multi_user=False,
     # make scripts for now - for now cli will only
     # pass one script
@@ -67,7 +66,6 @@ class Settings(object):
     def from_args(self, args):
         self.ip = args.ip
         self.port = args.port
-        self.data_directory = args.data_directory
         self.multi_user = args.multi_user
         self.model_backend = {'type' : args.backend}
         if self.model_backend['type'] == 'redis':
@@ -83,6 +81,7 @@ class Settings(object):
         self.robust_reload = args.robust_reload
         self.verbose = args.verbose
         self.run_forwarder = True
+        self.blaze_config = args.blaze_config
         if args.script:
             self.scripts = [args.script]
 

@@ -39,9 +39,10 @@ def build_parser():
 
     # advanced configuration
     advanced = parser.add_argument_group('Advanced Options')
-    advanced.add_argument("-D", "--data-directory",
-                          help="location for server data sources",
-                          type=str
+    advanced.add_argument("-D", "--blaze-config",
+                          help="blaze_config_File",
+                          type=str,
+                          default=None
                           )
     advanced.add_argument("-m", "--multi-user",
                           help="start in multi-user configuration (default: False)",
@@ -167,14 +168,12 @@ def run():
     backend        : %s
     python options : %s
     js options     : %s
-    data-directory : %s
     """ % (
         sys.version.split()[0], __version__,
         args.ip, args.port,
         backend_options,
         py_options,
         js_options,
-        None if not args.data_directory else args.data_directory,
     ))
 
     settings.debugjs = args.debugjs
