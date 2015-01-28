@@ -1,11 +1,12 @@
 define [
+  "jquery"
   "common/base"
   "common/socket"
   "common/load_models"
   "common/logging"
   "backbone"
   "common/has_properties"
-], (base, socket, load_models, Logging, Backbone, HasProperties) ->
+], ($, base, socket, load_models, Logging, Backbone, HasProperties) ->
 
   logger = Logging.logger
 
@@ -19,7 +20,7 @@ define [
   Deferreds._doc_requested = $.Deferred()
   Promises.doc_loaded = Deferreds._doc_loaded.promise()
   Promises.doc_requested = Deferreds._doc_requested.promise()
-  Promises.doc_promises = {};
+  Promises.doc_promises = {}
 
   # these get set out later
   exports.wswrapper = null
@@ -71,7 +72,7 @@ define [
       return promise
 
     load_doc: (docid) ->
-      resp = utility.make_websocket();
+      resp = utility.make_websocket()
       resp = resp.then(() ->
         Config = require("common/base").Config
         return $.get(Config.prefix + "bokeh/bokehinfo/#{docid}/", {})
