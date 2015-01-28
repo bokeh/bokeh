@@ -198,9 +198,10 @@ class Horizon(ChartObject):
                 continue
 
             self.series.append(col)
-            self.set_and_get(
-                "x_", col, self.pad_list(self.values_index.tolist()))
             self.max_y = max(max(self.values[col]), self.max_y)
+
+            v_index = [x for x in self.values_index]
+            self.set_and_get("x_", col, self.pad_list(v_index))
 
         self.fold_height = self.max_y / self.nb_folds
 

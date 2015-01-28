@@ -1157,29 +1157,32 @@ class TestHorizon(unittest.TestCase):
         dtss = ['%s'%dt for dt in dts]
         xyvalues = OrderedDict({'Date': dts})
         # Repeat the starting and trailing points in order to 
-        y_python = xyvalues['python'] = [-120, -120, -30, 50, 100, 100]
+        y_python = xyvalues['python'] = [-120, -120, -30, 50, 100, 103]
         y_pypy = xyvalues['pypy'] = [-75, -75, -33, 15, 126, 126]
 
         xyvaluesdf = pd.DataFrame(xyvalues)
         groups = ['python', 'pypy']
         for i, _xy in enumerate([xyvalues, xyvaluesdf]):
             ts = create_chart(Horizon, _xy, index='Date')
+            padded_date = [x for x in _xy['Date']]
+            padded_date.insert(0, padded_date[0])
+            padded_date.append(padded_date[-1])
 
             self.assertEqual(ts.nb_folds, 3)
             self.assertEqual(ts.series, groups)
             self.assertEqual(ts.fold_height, 126.0 / 3)
-            self.assertEqual(ts.groups, ['-126.0', '-84.0', '-42.0', '42.0', '84.0', '126.0'])
-            assert_array_equal(ts.data['x_python'], _xy['Date'])
-            assert_array_equal(ts.data['x_pypy'], _xy['Date'])
-            assert_array_equal(ts.data['y_fold-3_python'], [42, 6 ,42, 42, 42, 42])
-            assert_array_equal(ts.data['y_fold-2_python'], [42, 0, 42, 42, 42, 42])
-            assert_array_equal(ts.data['y_fold-1_python'], [42, 0, 12, 42, 42, 42])
-            assert_array_equal(ts.data['y_fold1_python'], [0, 0, 0, 42, 42, 0])
-            assert_array_equal(ts.data['y_fold2_python'], [0, 0, 0, 8, 42, 0])
-            assert_array_equal(ts.data['y_fold3_python'], [0, 0, 0, 0, 16, 0])
-            assert_array_equal(ts.data['y_fold-3_pypy'], [84, 84, 84, 84, 84, 84])
-            assert_array_equal(ts.data['y_fold-2_pypy'], [84, 51, 84, 84, 84, 84])
-            assert_array_equal(ts.data['y_fold-1_pypy'], [84, 42, 51, 84, 84, 84])
-            assert_array_equal(ts.data['y_fold1_pypy'], [42, 42, 42, 57, 84, 42])
-            assert_array_equal(ts.data['y_fold2_pypy'], [42, 42, 42, 42, 84, 42])
-            assert_array_equal(ts.data['y_fold3_pypy'], [42, 42, 42, 42, 84, 42])
+            self.assertEqual(ts.groups, ['42.0', '-42.0', '84.0', '-84.0', '126.0', '-126.0'])
+            assert_array_equal(ts.data['x_python'], padded_date)
+            assert_array_equal(ts.data['x_pypy'], padded_date)
+            assert_array_equal(ts.data['y_fold-3_python'], [42, 6, 6 ,42, 42, 42, 42, 42])
+            assert_array_equal(ts.data['y_fold-2_python'], [42, 0, 0, 42, 42, 42, 42, 42])
+            assert_array_equal(ts.data['y_fold-1_python'], [42, 0, 0, 12, 42, 42, 42, 42])
+            assert_array_equal(ts.data['y_fold1_python'], [0, 0, 0, 0, 42, 42, 42, 0])
+            assert_array_equal(ts.data['y_fold2_python'], [0, 0, 0, 0, 8, 42, 42, 0])
+            assert_array_equal(ts.data['y_fold3_python'], [0, 0, 0, 0, 0, 16, 19, 0])
+            assert_array_equal(ts.data['y_fold-3_pypy'], [84, 84, 84, 84, 84, 84, 84, 84])
+            assert_array_equal(ts.data['y_fold-2_pypy'], [84, 51, 51, 84, 84, 84, 84, 84])
+            assert_array_equal(ts.data['y_fold-1_pypy'], [84, 42, 42, 51, 84, 84, 84, 84])
+            assert_array_equal(ts.data['y_fold1_pypy'], [42, 42, 42, 42, 57, 84, 84, 42])
+            assert_array_equal(ts.data['y_fold2_pypy'], [42, 42, 42, 42, 42, 84, 84, 42])
+            assert_array_equal(ts.data['y_fold3_pypy'], [42, 42, 42, 42, 42, 84, 84, 42])
