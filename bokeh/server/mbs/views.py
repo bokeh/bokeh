@@ -1,4 +1,5 @@
 import json
+import datetime as dt
 
 import pandas as pd
 import numpy as np
@@ -100,34 +101,55 @@ def render(docid, datasourceid, glyphid):
     result = make_json(protocol.serialize_json(result))
     return result
 
+def convert_range_to_time(range_obj):
+    #assume millis from javascript
+    if isinstance(range_obj.start, int):
+        range_obj.start = dt.datetime.fromtimestamp(range_obj.start / 1000.0)
+    if isinstance(range_obj.end, int):
+        range_obj.end = dt.datetime.fromtimestamp(range_obj.end / 1000.0)
+
+
+
 def line1d_downsample(raw_data, data_source, glyph, plot_state,
                       render_state, auto_bounds):
+    domain_name = glyph.x['field']
+    range_name = glyph.y['field']
+    domain_col = raw_data[domain_name]
+    range_col = raw_data[range_name]
+
+    if auto_bounds:
+        plot_state['data_x'].start = domain_col.min()
+        plot_state['data_x'].end = domain_col.max()
+        plot_state['data_y'].start = range_col.min()
+        plot_state['data_y'].end = range_col.max()
+    if domain_col.dtype.kind == "M":
+        convert_range_to_time(plot_state['data_x'])
+    if range_col.dtype.kind == "M":
+        convert_range_to_time(plot_state['data_y'])
     if data_source.transform.get('direction', 'x') == 'x':
         domain_r = plot_state['data_x']
         range_r = plot_state['data_y']
         domain_screen_r = plot_state['screen_x']
     else:
         raise NotImplementedError
-    screen_d_span = float(_span(domain_screen_r))
-    data_d_span = float(_span(domain_r))
-    data_r_span = float(_span(range_r))
-    domain_name = glyph.x['field']
-    range_name = glyph.y['field']
-    domain = raw_data[domain_name]
-    if auto_bounds:
-        domain_limit = [domain.min(), domain.max()]
-    else:
-        domain_limit = [domain_r.start, domain_r.end]
-    if domain.dtype.kind == "M":
-        domain_limit = np.array(domain_limit).astype('datetime64[ns]')
-    raw_data = raw_data[(domain > domain_limit[0]) & (domain < domain_limit[1])]
+    screen_d_span = _span(domain_screen_r)
+    data_d_span = _span(domain_r)
+    data_r_span = _span(range_r)
+    domain_limit = [domain_r.start, domain_r.end]
+    if domain_col.dtype.kind == "M":
+        domain_limit = np.array(domain_limit).astype('datetime64[ms]')
+    raw_data = raw_data[(domain_col > domain_limit[0]) & (domain_col < domain_limit[1])]
     result = line_downsample.downsample(raw_data.to_records(),
                                         domain_name,
                                         range_name,
                                         domain_limit,
                                         data_r_span,
                                         screen_d_span,
-                                        'minmax', auto_bounds)
+                                        'minmax')
+    result['x_range'] = {'start': plot_state['data_x'].start,
+                         'end': plot_state['data_x'].end}
+    result['y_range'] = {'start': plot_state['data_y'].start,
+                         'end': plot_state['data_y'].end}
     return result
 
 def heatmap_downsample(raw_data, data_source, glyph, plot_state,
