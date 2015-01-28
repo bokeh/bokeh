@@ -23,7 +23,8 @@ except ImportError:
     pd = None
 
 from ._chartobject import Builder, create_and_build
-from ..models import ColumnDataSource, FactorRange, Range1d
+from ..models import ColumnDataSource, FactorRange, GlyphRenderer, Range1d
+from ..models.glyphs import Segment
 
 
 def Dot(values, cat=None, show_segment=True, xscale="categorical", yscale="linear",
@@ -142,11 +143,12 @@ class DotBuilder(Builder):
             # draw segment first so when scatter will be place on top of it
             # and it won't show segment chunk on top of the circle
             if self.show_segment:
-                renderer = self.make_segment(
-                    self.source, quartet[1], quartet[2],
-                    quartet[1], quartet[3], 'black', 2,
+
+                glyph = Segment(
+                    x0=quartet[1], y0=quartet[2], x1=quartet[1], y1=quartet[3],
+                    line_color="black", line_width=2
                 )
-                yield renderer
+                yield GlyphRenderer(data_source=self.source, glyph=glyph)
 
             renderer = self.make_scatter(
                 self.source, quartet[1], quartet[0], 'circle',

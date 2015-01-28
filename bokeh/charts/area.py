@@ -187,7 +187,10 @@ class AreaBuilder(Builder):
         # parse all series. We exclude the first attr as it's the x values
         # added for the index
         for i, series_name in enumerate(self.attr[1:]):
-            renderer = self.make_patch(self.source, 'x', series_name, colors[i])
+
+            glyph = Patch(
+                x='x', y=series_name, fill_color=colors[i], fill_alpha=0.9)
+            renderer = GlyphRenderer(data_source=self.source, glyph=glyph)
             self._legends.append((self.groups[i], [renderer]))
             yield renderer
 

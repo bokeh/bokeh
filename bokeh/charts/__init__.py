@@ -1,5 +1,5 @@
 from ._chartobject import DataAdapter
-from._charts import Chart
+from ._charts import Chart
 from .area import Area
 from .donut import Donut
 from .dot import Dot

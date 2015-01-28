@@ -20,7 +20,7 @@ from six import string_types
 import numpy as np
 
 from ._chartobject import Builder, create_and_build
-from ..models import ColumnDataSource, Range1d, DataRange1d
+from ..models import ColumnDataSource, DataRange1d, GlyphRenderer, Range1d
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -127,7 +127,11 @@ class LineBuilder(Builder):
         colors = self._set_colors(self.attr)
         print("g1orup", self.groups)
         for i, duplet in enumerate(self.attr[1:], start=1):
-            renderer = self.make_line(self.source, 'x', duplet, colors[i - 1])
+
+            from ..models.glyphs import Line
+
+            glyph = Line(x='x', y=duplet, line_color=colors[i - 1])
+            renderer = GlyphRenderer(data_source=self.source, glyph=glyph)
             self._legends.append((self.groups[i-1], [renderer]))
             yield renderer
 

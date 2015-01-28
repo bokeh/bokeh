@@ -19,7 +19,8 @@ passing the arguments to the Chart class and calling the proper functions.
 from six import string_types
 import numpy as np
 from ._chartobject import create_and_build, Builder
-from ..models import ColumnDataSource, Range1d, DataRange1d
+from ..models import ColumnDataSource, DataRange1d, GlyphRenderer, Range1d
+from ..models.glyphs import Segment
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -136,15 +137,19 @@ class StepBuilder(Builder):
 
         # duplet: y1, y2 values of each series
         for i, duplet in enumerate(tuples):
+
             # draw the step horizontal segment
-            yield self.make_segment(
-                self.source, 'x2', duplet[0],
-                'x2', duplet[1], colors[i], 1,
+            glyph = Segment(
+                x0="x2", y0=duplet[0], x1="x2", y1=duplet[1],
+                line_color=colors[i]
             )
+            yield GlyphRenderer(data_source=self.source, glyph=glyph)
+
             # draw the step vertical segment
-            renderer = self.make_segment(
-                self.source, 'x', duplet[0],
-                'x2', duplet[0], colors[i], 1,
+            glyph = Segment(
+                x0="x", y0=duplet[0], x1="x2", y1=duplet[0],
+                line_color=colors[i]
             )
+            renderer = GlyphRenderer(data_source=self.source, glyph=glyph)
             self._legends.append((self.groups[i], [renderer]))
             yield renderer

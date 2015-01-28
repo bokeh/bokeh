@@ -21,8 +21,10 @@ the generation of several outputs (file, server, notebook).
 import itertools
 import numpy as np
 
-from ..models import (CategoricalAxis, DatetimeAxis, Grid, Legend,
-                       LinearAxis, Plot)
+from ..models import (
+    CategoricalAxis, DatetimeAxis, GlyphRenderer,
+    Grid, Legend, LinearAxis, Plot)
+from ..models.glyphs import Patch
 
 from ..document import Document
 from ..session import Session

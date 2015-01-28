@@ -21,7 +21,8 @@ import numpy as np
 import pandas as pd
 
 from ._chartobject import Builder, create_and_build
-from ..models import ColumnDataSource, FactorRange, Range1d
+from ..models import ColumnDataSource, FactorRange, GlyphRenderer, Range1d
+from ..models.glyphs import Rect, Segment
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -234,18 +235,38 @@ class BoxPlotBuilder(Builder):
         points the data loaded at the ColumnDataSurce.
         """
         ats = self._attr_segment
-        yield self.make_segment(self._source_segment, "groups", ats[1],
-                                "groups", ats[0], "black", 2)
-        yield self.make_segment(self._source_segment, "groups", ats[2],
-                                "groups", ats[3], "black", 2)
+
+        glyph = Segment(
+            x0="groups", y0=ats[1], x1="groups", y1=ats[0],
+            line_color="black", line_width=2
+        )
+        yield GlyphRenderer(data_source=self._source_segment, glyph=glyph)
+
+        glyph = Segment(
+            x0="groups", y0=ats[2], x1="groups", y1=ats[3],
+            line_color="black", line_width=2
+        )
+        yield GlyphRenderer(data_source=self._source_segment, glyph=glyph)
 
         atr = self._attr_rect
-        yield self.make_rect(self._source_rect, "groups", atr[0],
-                             "width", atr[1], None, "black", 2)
-        yield self.make_rect(self._source_rect, "groups", atr[2],
-                             "width", atr[3], atr[6], "black", None)
-        yield self.make_rect(self._source_rect, "groups", atr[4],
-                             "width", atr[5], atr[6], "black", None)
+
+        glyph = Rect(
+            x="groups", y=atr[0], width="width", height=atr[1],
+            line_color="black", line_width=2, fill_color=None,
+        )
+        yield GlyphRenderer(data_source=self._source_rect, glyph=glyph)
+
+        glyph = Rect(
+            x="groups", y=atr[2], width="width", height=atr[3],
+            line_color="black", fill_color=atr[6],
+        )
+        yield GlyphRenderer(data_source=self._source_rect, glyph=glyph)
+
+        glyph = Rect(
+            x="groups", y=atr[4], width="width", height=atr[5],
+            line_color="black", fill_color=atr[6],
+        )
+        yield GlyphRenderer(data_source=self._source_rect, glyph=glyph)
 
         if self._outliers:
             yield self.make_scatter(self._source_scatter, self._attr_scatter[0],
@@ -254,10 +275,13 @@ class BoxPlotBuilder(Builder):
 
         # We need to build the legend here using dummy glyphs import itertools
         for i, level in enumerate(self.groups):
-            renderer = self.make_rect(
-                self._source_legend, "groups", None, None, None,
-                self._palette[i], "black", None
-            )
+
+            # TODO: (bev) what is this None business?
+            glyph = Rect(
+                x="groups", y=None,
+                width=None, height=None,
+                line_color="black", fill_color=self._palette[i])
+            renderer = GlyphRenderer(data_source=self._source_legend, glyph=glyph)
 
             # need to manually select the proper glyphs to be rendered as legends
             self._legends.append(renderer)

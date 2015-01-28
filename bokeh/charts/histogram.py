@@ -23,7 +23,8 @@ except ImportError as e:
 import numpy as np
 
 from ._chartobject import Builder, create_and_build
-from ..models import ColumnDataSource, Range1d
+from ..models import ColumnDataSource, GlyphRenderer, Range1d
+from ..models.glyphs import Line, Quad
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -173,14 +174,19 @@ class HistogramBuilder(Builder):
             sextets = list(self._chunker(self.attr, 6))
             colors = self._set_colors(sextets)
 
-            # sixtet: values, his, edges, left, right, bottom
+            # TODO (bev) this is a perfect use for a namedtuple
+            # sextet: values, his, edges, left, right, bottom
             for i, sextet in enumerate(sextets):
-                renderer = self.make_quad(
-                    self.source, sextet[1], sextet[5], sextet[3],
-                    sextet[4], colors[i], "white"
+
+                glyph = Quad(
+                    top=sextet[1], bottom=sextet[5], left=sextet[3], right=sextet[4],
+                    fill_color=colors[i], fill_alpha=0.7,
+                    line_color="white", line_alpha=1.0
                 )
+                renderer = GlyphRenderer(data_source=self.source, glyph=glyph)
                 self._legends.append((self.groups[i], [renderer]))
                 yield renderer
+
                 # # if facet we need to generate multiple histograms of multiple
                 # # series on multiple separate plots
                 # if i < len(sextets)-1:
@@ -190,17 +196,25 @@ class HistogramBuilder(Builder):
             nonets = list(self._chunker(self.attr, 9))
             colors = self._set_colors(nonets)
 
-            # nonetet: values, his, edges, left, right, bottom, x, pdf, cdf
+            # TODO (bev) this is a perfect use for a namedtuple
+            # nonet: values, his, edges, left, right, bottom, x, pdf, cdf
             for i, nonet in enumerate(nonets):
-                renderer = self.make_quad(
-                    self.source, nonet[1], nonet[5], nonet[3],
-                    nonet[4], colors[i], "white"
+
+                glyph = Quad(
+                    top=nonet[1], bottom=nonet[5], left=nonet[3], right=nonet[4],
+                    fill_color=colors[i], fill_alpha=0.7,
+                    line_color="white", line_alpha=1.0
                 )
+                renderer = GlyphRenderer(data_source=self.source, glyph=glyph)
                 self._legends.append((self.groups[i], [renderer]))
                 yield renderer
-                yield self.make_line(self.source, nonet[6], nonet[7], "black")
-                yield self.make_line(self.source, nonet[6], nonet[8], "blue")
-                #
+
+                glyph = Line(x=nonet[6], y=nonet[7], line_color="black")
+                yield GlyphRenderer(data_source=self.source, glyph=glyph)
+
+                glyph = Line(x=nonet[6], y=nonet[8], line_color="blue")
+                yield GlyphRenderer(data_source=self.source, glyph=glyph)
+
                 # # if facet we need to generate multiple histograms of multiple
                 # # series on multiple separate plots
                 # if i < len(nonets)-1:

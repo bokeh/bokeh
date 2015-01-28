@@ -19,7 +19,8 @@ from __future__ import print_function, division
 
 from ._charts import Chart
 from ._chartobject import DataAdapter, Builder, create_and_build
-from ..models import ColumnDataSource, FactorRange, HoverTool
+from ..models import ColumnDataSource, FactorRange, GlyphRenderer, HoverTool
+from ..models.glyphs import Rect
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -137,8 +138,12 @@ class HeatMapBuilder(Builder):
 
         Takes reference points from data loaded at the ColumnDataSurce.
         """
-        renderer = self.make_rect(
-            self.source, "catx", "caty", "width", "height", "color", "white", None)
+        glyph = Rect(
+            x="catx", y="caty",
+            width="width", height="height",
+            fill_color="color", fill_alpha=0.7,
+        )
+        return GlyphRenderer(data_source=self.source, glyph=glyph)
         # TODO: Legend??
         # self._legends.append((self.groups[i], [renderer]))
         yield renderer

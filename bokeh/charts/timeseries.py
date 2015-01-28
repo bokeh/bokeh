@@ -25,7 +25,8 @@ except ImportError:
     pd = None
 
 from ._chartobject import Builder, create_and_build
-from ..models import ColumnDataSource, Range1d, DataRange1d
+from ..models import ColumnDataSource, DataRange1d, GlyphRenderer, Range1d
+from ..models.glyphs import Line
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -163,6 +164,7 @@ class TimeSeriesBuilder(Builder):
         colors = self._set_colors(self.duplet)
 
         for i, (x, y) in enumerate(self.duplet, start=1):
-            renderer = self.make_line(self.source, x, y, colors[i - 1])
+            glyph = Line(x=x, y=y, line_color=colors[i - 1])
+            renderer = GlyphRenderer(data_source=self.source, glyph=glyph)
             self._legends.append((self.groups[i-1], [renderer]))
             yield renderer

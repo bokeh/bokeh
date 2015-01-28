@@ -26,7 +26,8 @@ except ImportError:
     raise
 
 from ._chartobject import Builder, create_and_build
-from ..models import ColumnDataSource, FactorRange, Range1d
+from ..models import ColumnDataSource, FactorRange, GlyphRenderer, Range1d
+from ..models.glyphs import Rect
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -158,14 +159,19 @@ class BarBuilder(Builder):
         # quartet elements are: [data, mid, stacked, cat]
         for i, quartet in enumerate(quartets):
             if self._stacked:
-                renderer = self.make_rect(
-                    self.source, "cat", quartet[2], "width", quartet[0],
-                    colors[i], "white", None
+                glyph = Rect(
+                    x="cat", y=quartet[2],
+                    width="width", height=quartet[0],
+                    fill_color=colors[i], fill_alpha=0.7,
+                    line_color="white"
                 )
             else:  # Grouped
-                renderer = self.make_rect(
-                    self.source, quartet[3], quartet[1], "width_cat",
-                    quartet[0], colors[i], "white", None
+                glyph = Rect(
+                    x=quartet[3], y=quartet[1],
+                    width="width_cat", height=quartet[0],
+                    fill_color=colors[i], fill_alpha=0.7,
+                    line_color="white"
                 )
+            renderer = GlyphRenderer(data_source=self.source, glyph=glyph)
             self._legends.append((self.groups[i], [renderer]))
             yield renderer

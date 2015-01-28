@@ -21,7 +21,8 @@ from math import pi, cos, sin
 import pandas as pd
 
 from ._chartobject import Builder, create_and_build
-from ..models import ColumnDataSource, Range1d
+from ..models import ColumnDataSource, GlyphRenderer, Range1d
+from ..models.glyphs import AnnularWedge, Text, Wedge
 from .utils import polar_to_cartesian
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -168,11 +169,13 @@ class DonutBuilder(Builder):
          its calculated start and end angles.
 
         """
-        yield self.make_wedge(
-            self.source, x=0, y=0, radius=1, line_color="white",
-            line_width=2, start_angle="start", end_angle="end",
+        glyph = Wedge(
+            x=0, y=0,
+            radius=1, start_angle="start", end_angle="end",
+            line_color="white", line_width=2,
             fill_color="colors"
         )
+        yield GlyphRenderer(data_source=self.source, glyph=glyph)
 
     def draw_central_descriptions(self):
         """Draw the descriptions to be placed on the central part of the
@@ -181,11 +184,11 @@ class DonutBuilder(Builder):
         text = ["%s" % cat for cat in self.cat]
         x, y = polar_to_cartesian(0.7, self.data["start"], self.data["end"])
         text_source = ColumnDataSource(dict(text=text, x=x, y=y))
-        yield self.make_text(
-            text_source,
-            x="x", y="y", text="text", text_align="center",
-            text_baseline="middle"
-        )
+        glyph = Text(
+                x="x", y="y", text="text",
+                text_align="center", text_baseline="middle"
+            )
+        yield GlyphRenderer(data_source=text_source, glyph=glyph)
 
     def draw_external_ring(self, colors=None):
         """Draw the external part of the donut wedge from donut.source
@@ -211,11 +214,14 @@ class DonutBuilder(Builder):
 
             source = ColumnDataSource(dict(start=start, end=end, fill=fill))
 
-            yield self.make_annular(
-                source, x=0, y=0, inner_radius=1, outer_radius=1.5,
-                start_angle="start", end_angle="end", line_color="white",
-                line_width=2, fill_color="fill"
+            glyph = AnnularWedge(
+                x=0, y=0, inner_radius=1, outer_radius=1.5,
+                start_angle="start", end_angle="end",
+                line_color="white", line_width=2,
+                fill_color="fill"
             )
+            yield GlyphRenderer(data_source=self.source, glyph=glyph)
+
             text_angle = [(start[i]+end[i])/2 for i in range(len(start))]
             text_angle = [angle + pi if pi/2 < angle < 3*pi/2 else angle
                           for angle in text_angle]
@@ -230,10 +236,11 @@ class DonutBuilder(Builder):
                 first = False
             data = dict(text=text, x=x, y=y, angle=text_angle)
             text_source = ColumnDataSource(data)
-            yield self.make_text(
-                text_source, x="x", y="y", text="text", angle="angle",
+            glyph = Text(
+                x="x", y="y", text="text", angle="angle",
                 text_align="center", text_baseline="middle"
             )
+            yield GlyphRenderer(data_source=text_source, glyph=glyph)
 
     def draw(self):
         """Use the AnnularWedge and Wedge glyphs to display the wedges.

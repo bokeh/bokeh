@@ -24,9 +24,8 @@ from ._charts import Chart
 from ..properties import bokeh_integer_types, Datetime
 from ..models import GlyphRenderer
 from ..models.glyphs import (Asterisk, Circle, CircleCross, CircleX, Cross, Diamond,
-                             DiamondCross, InvertedTriangle, Line, Rect, Segment,
-                             Square, SquareCross, SquareX, Triangle, X, Quad, Patch,
-                             Wedge, AnnularWedge, Text)
+                             DiamondCross, InvertedTriangle,
+                             Square, SquareCross, SquareX, Triangle, X)
 
 try:
     import numpy as np
@@ -238,139 +237,6 @@ class Builder(object):
             self._palette = self._set_colors(self.groups)
 
         return self._palette
-
-    def make_segment(self, source, x0, y0, x1, y1, color, width):
-        """ Create a segment glyph and append it to the plot.renderers list.
-
-        Args:
-            source (obj): datasource object containing segment refereces.
-            x0 (str or list[float]) : values or field names of starting ``x`` coordinates
-            y0 (str or list[float]) : values or field names of starting ``y`` coordinates
-            x1 (str or list[float]) : values or field names of ending ``x`` coordinates
-            y1 (str or list[float]) : values or field names of ending ``y`` coordinates
-            color (str): the segment color
-            width (int): the segment width
-
-        Return:
-            segment: Segment instance
-        """
-        glyph = Segment(
-            x0=x0, y0=y0, x1=x1, y1=y1, line_color=color, line_width=width
-        )
-        return GlyphRenderer(data_source=source, glyph=glyph)
-
-    def make_line(self, source, x, y, color):
-        """Create a line glyph and append it to the plot.renderers list.
-
-        Args:
-            source (obj): datasource object containing line refereces.
-            x (str or list[float]) : values or field names of line ``x`` coordinates
-            y (str or list[float]) : values or field names of line ``y`` coordinates
-            color (str): the line color
-
-        Return:
-            line: Line instance
-        """
-        glyph = Line(x=x, y=y, line_color=color)
-        return GlyphRenderer(data_source=source, glyph=glyph)
-
-    def make_quad(self, source, top, bottom, left, right, color, line_color):
-        """Create a quad glyph and append it to the plot.renderers list.
-
-        Args:
-            source (obj): datasource object containing quad refereces.
-            left (str or list[float]) : values or field names of left edges
-            right (str or list[float]) : values or field names of right edges
-            top (str or list[float]) : values or field names of top edges
-            bottom (str or list[float]) : values or field names of bottom edges
-            color (str): the fill color
-            line_color (str): the line color
-
-        Return:
-            quad: Quad instance
-        """
-        glyph = Quad(
-            top=top, bottom=bottom, left=left, right=right, fill_color=color,
-            fill_alpha=0.7, line_color=line_color, line_alpha=1.0
-        )
-        return GlyphRenderer(data_source=source, glyph=glyph)
-
-    def make_rect(self, source, x, y, width, height, color, line_color, line_width):
-        """Create a rect glyph and append it to the renderers list.
-
-        Args:
-            source (obj): datasource object containing rect refereces.
-            x (str or list[float]) : values or field names of center ``x`` coordinates
-            y (str or list[float]) : values or field names of center ``y`` coordinates
-            width (str or list[float]) : values or field names of widths
-            height (str or list[float]) : values or field names of heights
-            color (str): the fill color
-            line_color (str): the line color
-            line_width (int): the line width
-
-        Return:
-            rect: Rect instance
-        """
-        glyph = Rect(
-            x=x, y=y, width=width, height=height, fill_color=color,
-            fill_alpha=0.7, line_color=line_color, line_alpha=1.0,
-            line_width=line_width
-        )
-        return GlyphRenderer(data_source=source, glyph=glyph)
-
-    def make_patch(self, source, x, y, color):
-        """Create a patch glyph and append it to the renderers list.
-
-        Args:
-            source (obj): datasource object containing rect refereces.
-            x (str or list[float]) : values or field names of center ``x`` coordinates
-            y (str or list[float]) : values or field names of center ``y`` coordinates
-            color (str): the fill color
-
-        Return:
-            patch: Patch instance
-        """
-        glyph = Patch(x=x, y=y, fill_color=color, fill_alpha=0.9)
-        return GlyphRenderer(data_source=source, glyph=glyph)
-
-    def make_wedge(self, source, **kws):
-        """Create a wedge glyph and append it to the renderers list.
-
-        Args:
-            source (obj): datasource object containing rect references.
-            **kws (refer to glyphs.Wedge for arguments specification details)
-
-        Return:
-            glyph: Wedge instance
-        """
-        glyph = Wedge(**kws)
-        return GlyphRenderer(data_source=source, glyph=glyph)
-
-    def make_annular(self, source, **kws):
-        """Create a annular wedge glyph and append it to the renderers list.
-
-        Args:
-            source (obj): datasource object containing rect refereces.
-            **kws (refer to glyphs.AnnularWedge for arguments specification details)
-
-        Return:
-            rect: AnnularWedge instance
-        """
-        glyph = AnnularWedge(**kws)
-        return GlyphRenderer(data_source=source, glyph=glyph)
-
-    def make_text(self, source, **kws):
-        """Create a text glyph and append it to the renderers list.
-
-        Args:
-            source (obj): datasource object containing rect references.
-            **kws (refer to glyphs.Text for arguments specification details)
-
-        Return:
-            glyph: Text instance
-        """
-        glyph = Text(**kws)
-        return GlyphRenderer(data_source=source, glyph=glyph)
 
     def make_scatter(self, source, x, y, markertype, color, line_color=None,
                      size=10, fill_alpha=0.2, line_alpha=1.0):
