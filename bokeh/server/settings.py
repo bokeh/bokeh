@@ -81,7 +81,8 @@ class Settings(object):
         self.robust_reload = args.robust_reload
         self.verbose = args.verbose
         self.run_forwarder = True
-        self.blaze_config = args.blaze_config
+        if args.blaze_config is not None:
+            self.blaze_config = args.blaze_config
         if args.script:
             self.scripts = [args.script]
 
