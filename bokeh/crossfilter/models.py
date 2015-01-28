@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 
 from ..plotting import curdoc
-from ..models import ColumnDataSource, Range1d, FactorRange, GridPlot
+from ..models import ColumnDataSource, FactorRange, GridPlot, VBox, Panel, Tabs
 from ..models.widgets import Select, MultiSelect, InputWidget
 # crossfilter plotting utilities
 from .plotting import (make_histogram_source,
@@ -279,22 +279,31 @@ class CrossFilter(PlotObject):
     def make_plot(self):
         """Makes the correct plot layout type, based on app's current config."""
 
+        if self.facet_tab:
+            facets = self.make_facets(dimension='tab')
+            tabs = [self.make_tab(content=self.create_plot_page(
+                    tab_facet=facet), tab_label=str(facet)) for facet in facets]
+            return Tabs(tabs=tabs)
+        else:
+            return self.create_plot_page()
+
+    def create_plot_page(self, tab_facet=None):
         # no faceting
         if all([len(self.facet_x) == 0,
-                len(self.facet_y) == 0,
-                len(self.facet_tab) == 0]):
-            return self.make_single_plot()
+                len(self.facet_y) == 0]):
+            return self.make_single_plot(facet=tab_facet)
 
         # x xor y faceting
-        if all([(len(self.facet_x) != 0) ^ (len(self.facet_y) != 0),
-                len(self.facet_tab) == 0]):
-            return self.make_1d_facet_plot()
+        if all([(len(self.facet_x) != 0) ^ (len(self.facet_y) != 0)]):
+            return self.make_1d_facet_plot(facet=tab_facet)
 
         # x and y faceting
         if all([len(self.facet_x) != 0,
-                len(self.facet_y) != 0,
-                len(self.facet_tab) == 0]):
-            return self.make_2d_facet_plot()
+                len(self.facet_y) != 0]):
+            return self.make_2d_facet_plot(facet=tab_facet)
+
+    def make_tab(self, content, tab_label):
+        return Panel(child=content, title=tab_label)
 
     def make_facets(self, dimension):
         """Creates combination of all facets for the provided dimension
@@ -309,8 +318,10 @@ class CrossFilter(PlotObject):
         """
         if dimension == 'x':
             facets = self.facet_x
-        else:
+        elif dimension == 'y':
             facets = self.facet_y
+        else:
+            facets = self.facet_tab
 
         # create facets for each column
         column_descriptor_dict = self.column_descriptor_dict()
@@ -373,7 +384,7 @@ class CrossFilter(PlotObject):
             df = f.filter(df)
         return df
 
-    def make_1d_facet_plot(self):
+    def make_1d_facet_plot(self, facet=None):
         """Creates the faceted plots when a facet is added to the x axis.
 
         Returns:
@@ -384,11 +395,16 @@ class CrossFilter(PlotObject):
             all_facets = self.make_facets('x')
         else:
             all_facets = self.make_facets('y')
+
         plots = []
 
         # loop over facets and create single plots for data subset
         for facets in all_facets:
             title = self.facet_title(facets)
+
+            if facet:
+                facets += facet
+
             df = self.facet_data(facets, self.filtered_df)
             plot = self.make_single_plot(
                 df=df, title=title, plot_height=200, plot_width=200,
@@ -412,7 +428,7 @@ class CrossFilter(PlotObject):
         grid = GridPlot(children=grid_plots, plot_width=200*chunk_size)
         return grid
 
-    def make_2d_facet_plot(self):
+    def make_2d_facet_plot(self, facet=None):
         """Creates the grid of plots when there are both x and y facets.
 
         Returns:
@@ -423,6 +439,7 @@ class CrossFilter(PlotObject):
         # ToDo: gracefully handle large combinations of facets
         all_facets_x = self.make_facets('x')
         all_facets_y = self.make_facets('y')
+
         grid_plots = []
 
         # y faceting down column
@@ -432,7 +449,12 @@ class CrossFilter(PlotObject):
             row = []
             for facets_x in all_facets_x:
                 facets = facets_x + facets_y
+
                 title = self.facet_title(facets)
+
+                if facet:
+                    facets.append(facet)
+
                 df = self.facet_data(facets, self.filtered_df)
                 plot = self.make_single_plot(
                     df=df, title=title, plot_height=200, plot_width=200,
@@ -453,7 +475,7 @@ class CrossFilter(PlotObject):
     def make_single_plot(self, df=None, title=None,
                          plot_width=700, plot_height=680,
                          tools="pan,wheel_zoom,box_zoom,save,resize,"
-                               "box_select,reset"):
+                               "box_select,reset", facet=None):
         """Creates a plot based on the current app configuration.
 
         Args:
@@ -472,12 +494,19 @@ class CrossFilter(PlotObject):
         faceting = False
 
         if df is None:
-            source = self.filtered_data
+            df = self.filtered_df
+
+            if facet:
+                df = self.facet_data(facets=facet, df=df)
+
+            source = ColumnDataSource(data=df)
 
             if len(source.data[self.x]) == 0 or len(source.data[self.y]) == 0:
                 do_plot = False
                 title = 'All data is filtered out'
         else:
+            if facet:
+                df = facet.filter(df=df)
             source = ColumnDataSource(data=df)
             faceting = True
 
@@ -526,6 +555,9 @@ class CrossFilter(PlotObject):
 
             if df is None:
                 df = self.filtered_df
+
+                if facet:
+                    df = facet.filter(df=df)
 
             # detect all cases that we don't support for this chart
             if df.empty:
@@ -696,6 +728,7 @@ class CrossFilter(PlotObject):
         # register to watch the app's facet attributes
         self.on_change('facet_x', self, 'facet_change')
         self.on_change('facet_y', self, 'facet_change')
+        self.on_change('facet_tab', self, 'facet_change')
 
     def handle_filter_selection(self, obj, attrname, old, new):
         """Filters the data source whenever a filter widget changes.
