@@ -7,11 +7,12 @@ passing the arguments to the Chart class and calling the proper functions.
 from __future__ import division
 
 from six import string_types
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 import math
 
 from ._chartobject import ChartObject
 from ..models import ColumnDataSource, Range1d, DataRange1d, FactorRange, HoverTool, CategoricalAxis
+from ..models.glyphs import Patches
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -146,6 +147,7 @@ class Horizon(ChartObject):
         self.nb_folds = nb_folds
         self.pos_color = pos_color
         self.neg_color = neg_color
+        self.fold_names = []
 
         super(Horizon, self).__init__(
             title, xlabel, ylabel, legend, xscale, yscale, width, height,
@@ -196,20 +198,54 @@ class Horizon(ChartObject):
                 continue
 
             self.series.append(col)
-            self.set_and_get("x_", col, self.pad_list(self.values_index.tolist()))
+            self.set_and_get(
+                "x_", col, self.pad_list(self.values_index.tolist()))
             self.max_y = max(max(self.values[col]), self.max_y)
 
         self.fold_height = self.max_y / self.nb_folds
+
+        fill_alpha = []
+        fill_color = []
+
         for serie_no, serie in enumerate(self.series):
+
+            self.set_and_get('y_', serie, self.values[serie])
             y_origin = serie_no * self.fold_height
+
             for fold_itr in range(1, self.nb_folds + 1):
+
                 layers_datapoints = [self.fold_coordinates(
                     x, fold_itr, self.fold_height, y_origin) for x in self.values[serie]]
                 pos_points, neg_points = map(list, zip(*(layers_datapoints)))
+
+                alpha = 1.0 * (abs(fold_itr)) / self.nb_folds
+
+                # Y coordinates above 0
                 pos_points = self.pad_list(pos_points, y_origin)
-                neg_points = self.pad_list(neg_points, self.fold_height + y_origin)
                 self.set_and_get("y_fold%s_" % fold_itr, serie, pos_points)
+                self.fold_names.append("y_fold%s_%s" % (fold_itr, serie))
+                fill_color.append(self.pos_color)
+                fill_alpha.append(alpha)
+
+                # Y coordinates below 0
+                neg_points = self.pad_list(
+                    neg_points, self.fold_height + y_origin)
                 self.set_and_get("y_fold-%s_" % fold_itr, serie, neg_points)
+                self.fold_names.append("y_fold-%s_%s" % (fold_itr, serie))
+                fill_color.append(self.neg_color)
+                fill_alpha.append(alpha)
+
+                # Groups shown in the legend will only appear once
+                if serie_no == 0:
+                    self.groups.append(str(self.fold_height * fold_itr))
+                    self.groups.append(str(self.fold_height * -fold_itr))
+
+        self.set_and_get('fill_', 'alpha', fill_alpha)
+        self.set_and_get('fill_', 'color', fill_color)
+        self.set_and_get('x_', 'all', [self.data[
+                         'x_%s' % serie] for serie in self.series for y in range(self.nb_folds * 2)])
+        self.set_and_get(
+            'y_', 'all', [self.data[f_name] for f_name in self.fold_names])
 
     def get_source(self):
         """Push the Horizon data into the ColumnDataSource and
@@ -224,16 +260,9 @@ class Horizon(ChartObject):
         It requires the positive and negative layers
         Takes reference points from the data loaded at the ColumnDataSource.
         """
-        for serie_no, serie in enumerate(self.series):
-            for fold_itr in range(-self.nb_folds, self.nb_folds + 1):
-                if fold_itr == 0:
-                    continue
-                alpha = 1.0 * (abs(fold_itr)) / self.nb_folds
-                color = self.pos_color if fold_itr > 0 else self.neg_color
-                self.chart.make_patch(self.source, 'x_%s' % serie, 'y_fold%s_%s' % (
-                    fold_itr, serie), color, fill_alpha=alpha)
-                if serie_no == 0:
-                    self.groups.append(str(self.fold_height * fold_itr))
+        patches = Patches(
+            fill_color='fill_color', fill_alpha='fill_alpha', xs='x_all', ys='y_all')
+        self.chart.plot.add_glyph(self.source, patches)
 
     def _show_teardown(self):
         """Add the serie names to the y axis and the hover tooltips"""
@@ -252,4 +281,7 @@ class Horizon(ChartObject):
 
         # TODO: Add the other tooltips like the serie name and the y value of
         # that serie for that position
-        p.add_tools(HoverTool(tooltips=[("(x, y)", "($sx, $sy)")]))
+        tooltips = [('date', '$x')]
+        tooltips.extend([(serie, '$y_%s' % serie) for serie in self.series])
+        p.add_tools(HoverTool(tooltips=tooltips))
+        #p.add_tools(HoverTool(tooltips=[("(x, y)", "($sx, $sy)")]))
