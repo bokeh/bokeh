@@ -5,6 +5,7 @@ See the README.md file in this directory for instructions on running.
 """
 
 import logging
+
 logging.basicConfig(level=logging.DEBUG)
 
 from os import listdir
@@ -20,9 +21,19 @@ from bokeh.server.app import bokeh_app
 from bokeh.server.utils.plugins import object_page
 from bokeh.models.widgets import HBox, VBox, VBoxForm, PreText, Select
 
+
+# build up list of stock data in the daily folder
 data_dir = join(dirname(__file__), "daily")
-tickers = listdir(data_dir)
+try:
+    tickers = listdir(data_dir)
+except OSError as e:
+    print('Stock data not available, see README for download instructions.')
+    raise e
 tickers = [splitext(x)[0].split("table_")[-1] for x in tickers]
+
+# cache stock data as dict of pandas DataFrames
+pd_cache = {}
+
 
 def get_ticker_data(ticker):
     fname = join(data_dir, "table_%s.csv" % ticker.lower())
@@ -33,10 +44,9 @@ def get_ticker_data(ticker):
         parse_dates=['date']
     )
     data = data.set_index('date')
-    data = pd.DataFrame({ticker : data.c, ticker + "_returns" : data.c.diff()})
+    data = pd.DataFrame({ticker: data.c, ticker + "_returns": data.c.diff()})
     return data
 
-pd_cache = {}
 
 def get_data(ticker1, ticker2):
     if pd_cache.get((ticker1, ticker2)) is not None:
@@ -45,8 +55,9 @@ def get_data(ticker1, ticker2):
     data2 = get_ticker_data(ticker2)
     data = pd.concat([data1, data2], axis=1)
     data = data.dropna()
-    pd_cache[(ticker1, ticker2)]= data
+    pd_cache[(ticker1, ticker2)] = data
     return data
+
 
 class StockApp(VBox):
     extra_generated_classes = [["StockApp", "StockApp", "VBox"]]
@@ -158,29 +169,29 @@ class StockApp(VBox):
         top = hist.max()
 
         p = figure(
-            title="%s hist"%ticker,
+            title="%s hist" % ticker,
             plot_width=500, plot_height=200,
             tools="",
             title_text_font_size="10pt",
             x_range=[start, end],
             y_range=[0, top],
         )
-        p.rect(center, hist/2.0, width, hist)
+        p.rect(center, hist / 2.0, width, hist)
         return p
 
     def make_plots(self):
         ticker1 = self.ticker1
         ticker2 = self.ticker2
         p = figure(
-            title="%s vs %s" %(ticker1, ticker2),
+            title="%s vs %s" % (ticker1, ticker2),
             plot_width=400, plot_height=400,
             tools="pan,wheel_zoom,box_select,reset",
             title_text_font_size="10pt",
         )
         p.circle(ticker1 + "_returns", ticker2 + "_returns",
-            size=2,
-            nonselection_alpha=0.02,
-            source=self.source
+                 size=2,
+                 nonselection_alpha=0.02,
+                 source=self.source
         )
         self.plot = p
 
@@ -236,6 +247,7 @@ class StockApp(VBox):
     @property
     def df(self):
         return get_data(self.ticker1, self.ticker2)
+
 
 # The following code adds a "/bokeh/stocks/" url to the bokeh-server. This URL
 # will render this StockApp. If you don't want serve this applet from a Bokeh

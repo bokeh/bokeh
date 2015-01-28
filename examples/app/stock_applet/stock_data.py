@@ -1,4 +1,5 @@
 import os
+import six
 from six.moves import urllib
 import zipfile
 
@@ -11,9 +12,9 @@ def extract_hosted_zip(data_url, save_dir, exclude_term=None):
     # get the zip file
     try:
         zip_name, hdrs = urllib.request.urlretrieve(url=data_url, filename=zip_name)
-    except IOError, e:
-      print "Can't retrieve %r to %r: %s" % (data_url, save_dir, e)
-      return
+    except IOError as e:
+        print("Can't retrieve %r to %r: %s" % (data_url, save_dir))
+        raise e
 
     # extract, then remove temp file
     extract_zip(zip_name=zip_name, exclude_term=exclude_term)
@@ -29,14 +30,14 @@ def extract_zip(zip_name, exclude_term=None):
         with zipfile.ZipFile(zip_name) as z:
 
             # write each zipped file out if it isn't a directory
-            files = [file for file in z.namelist() if not file.endswith('/')]
-            for file in files:
+            files = [zip_file for zip_file in z.namelist() if not zip_file.endswith('/')]
+            for zip_file in files:
 
                 # remove any provided extra directory term from zip file
                 if exclude_term:
-                    dest_file = file.replace(exclude_term, '')
+                    dest_file = zip_file.replace(exclude_term, '')
                 else:
-                    dest_file = file
+                    dest_file = zip_file
 
                 dest_file = os.path.normpath(os.path.join(zip_dir, dest_file))
                 dest_dir = os.path.dirname(dest_file)
@@ -45,15 +46,17 @@ def extract_zip(zip_name, exclude_term=None):
                 if not os.path.isdir(dest_dir):
                     os.makedirs(dest_dir)
 
-                # read file from zip, then write to
-                data = z.read(file)
+                # read file from zip, then write to new directory
+                data = z.read(zip_file)
                 with open(dest_file, 'w') as f:
-                    f.write(data)
+                    if six.PY3:
+                        f.write(data.decode('utf-8'))
+                    else:
+                        f.write(data)
 
-    except zipfile.error, e:
-        print "Bad zipfile (%r): %s"%(zip_name, e)
-        return
-
+    except zipfile.error as e:
+        print("Bad zipfile (%r): %s" % (zip_name, e))
+        raise e
 
 if __name__ == '__main__':
 
