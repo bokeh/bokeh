@@ -17,8 +17,8 @@ the arguments to the Chart class and calling the proper functions.
 #-----------------------------------------------------------------------------
 from __future__ import print_function, division
 
-from ._charts import Chart
-from ._chartobject import DataAdapter, Builder, create_and_build
+from ._chartobject import Builder, create_and_build
+from ._data_adapter import DataAdapter
 from ..models import ColumnDataSource, FactorRange, GlyphRenderer, HoverTool
 from ..models.glyphs import Rect
 
@@ -142,8 +142,9 @@ class HeatMapBuilder(Builder):
             x="catx", y="caty",
             width="width", height="height",
             fill_color="color", fill_alpha=0.7,
+            line_color="white"
         )
-        return GlyphRenderer(data_source=self.source, glyph=glyph)
+        renderer =  GlyphRenderer(data_source=self.source, glyph=glyph)
         # TODO: Legend??
         # self._legends.append((self.groups[i], [renderer]))
         yield renderer

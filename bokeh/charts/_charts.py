@@ -18,13 +18,10 @@ the generation of several outputs (file, server, notebook).
 # Imports
 #-----------------------------------------------------------------------------
 
-import itertools
 import numpy as np
 
 from ..models import (
-    CategoricalAxis, DatetimeAxis, GlyphRenderer,
-    Grid, Legend, LinearAxis, Plot)
-from ..models.glyphs import Patch
+    CategoricalAxis, DatetimeAxis, Grid, Legend, LinearAxis, Plot)
 
 from ..document import Document
 from ..session import Session
@@ -244,7 +241,7 @@ class Chart(Plot):
     #     Converts data input (self.values) to a DataAdapter and creates
     #     instance index if needed
     #     """
-    #     from ._chartobject import DataAdapter
+    #     from ._data_adapter import DataAdapter
     #     if hasattr(self, '_index'):
     #         self._values_index, self._values = DataAdapter.get_index_and_data(
     #             self._values, self._index

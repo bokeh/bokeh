@@ -17,7 +17,7 @@ It also add a new chained stacked method.
 # Imports
 #-----------------------------------------------------------------------------
 from __future__ import division
-from math import pi, cos, sin
+from math import pi
 import pandas as pd
 
 from ._chartobject import Builder, create_and_build
@@ -220,7 +220,7 @@ class DonutBuilder(Builder):
                 line_color="white", line_width=2,
                 fill_color="fill"
             )
-            yield GlyphRenderer(data_source=self.source, glyph=glyph)
+            yield GlyphRenderer(data_source=source, glyph=glyph)
 
             text_angle = [(start[i]+end[i])/2 for i in range(len(start))]
             text_angle = [angle + pi if pi/2 < angle < 3*pi/2 else angle

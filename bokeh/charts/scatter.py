@@ -25,7 +25,8 @@ except:
     pd = None
 
 from collections import OrderedDict
-from ._chartobject import DataAdapter, create_and_build, Builder
+from ._chartobject import create_and_build, Builder
+from ._data_adapter import DataAdapter
 from ..models import ColumnDataSource, Range1d
 
 #-----------------------------------------------------------------------------

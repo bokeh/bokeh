@@ -17,7 +17,6 @@ passing the arguments to the Chart class and calling the proper functions.
 #-----------------------------------------------------------------------------
 
 from six import string_types
-from collections import OrderedDict
 
 try:
     import pandas as pd
