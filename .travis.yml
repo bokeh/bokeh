@@ -29,6 +29,10 @@ matrix:
         - python: 3.3
         - python: 3.4
 
+branches:
+  only:
+    - master
+
 before_install:
     - export PATH="$HOME/miniconda/bin:$PATH"
 
