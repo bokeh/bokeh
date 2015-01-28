@@ -21,9 +21,3 @@ require.config
   shim:
     kiwi:
       exports: 'kiwi'
-    jquery_event_drag:
-      deps: ["jquery"]
-      exports: "$.fn.drag"
-    jquery_event_drop:
-      deps: ["jquery"]
-      exports: "$.fn.drop"
