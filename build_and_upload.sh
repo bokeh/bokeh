@@ -128,6 +128,15 @@ curl -XPUT -T bokehjs/build/css/bokeh.min.css -v -H "X-Auth-Token:$token" -H "Co
 
 echo "I'm done uploading to Rackspace"
 
+
+# upload devel docs
+pushd sphinx
+make clean all
+fab update:dev
+popd
+
+echo "I'm done uploading the devel docs"
+
 ########################
 #Removing from binstar #
 ########################
