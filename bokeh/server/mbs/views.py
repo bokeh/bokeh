@@ -177,10 +177,5 @@ def heatmap_downsample(raw_data, data_source, glyph, plot_state,
         raw_data, image_x_axis, image_y_axis,
         plot_state['data_x'], plot_state['data_y'], x_resolution,
         y_resolution)
-    output = {}
-    output['image'] = [result['data']]
-    output['x'] = [global_offset_x + result['offset_x']]
-    output['y'] = [global_offset_y + result['offset_y']]
-    output['dw'] = [result['dw']]
-    output['dh'] = [result['dh']]
+    output = result
     return output

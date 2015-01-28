@@ -9,13 +9,16 @@ except ImportError as e:
 
 
 def source(**kwargs):
-  kwargs['transform'] = {'resample':'heatmap'}
+  kwargs['transform'] = {'resample':'heatmap',
+                         'global_x_range' : [0, 10],
+                         'global_y_range' : [0, 10],
+                         'global_offset_x' : [0],
+                         'global_offset_y' : [0],
+                         'type' : 'ndarray'
+
+  }
   kwargs['data'] = {'x': [0],
                     'y': [0],
-                    'global_x_range' : [0, 10],
-                    'global_y_range' : [0, 10],
-                    'global_offset_x' : [0],
-                    'global_offset_y' : [0],
                     'dw' : [10],
                     'dh' : [10],
                    }
@@ -46,9 +49,10 @@ def downsample(image, image_x_axis, image_y_axis,
     dw = np.max(bounds) - np.min(bounds)
     bounds = image_y_axis[y_bounds[0]:y_bounds[1]]
     dh = np.max(bounds) - np.min(bounds)
-    return {'data': subset,
-            'offset_x': image_x_axis[x_bounds[0]],
-            'offset_y': image_y_axis[y_bounds[0]],
-            'dw': dw,
-            'dh': dh,
-    }
+    return {'data' : {'image': [subset],
+                      'x': [image_x_axis[x_bounds[0]]],
+                      'y': [image_y_axis[y_bounds[0]]],
+                      'dw': [dw],
+                      'dh': [dh],
+                  }
+        }

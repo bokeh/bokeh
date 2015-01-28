@@ -199,6 +199,53 @@ define [
           return null
       )
       return resp
+
+  class HeatmapSource extends ServerSourceUpdater
+    update : () ->
+      #TODO: Share the x/y range information back to the server in some way...
+      plot_state = @plot_state
+      render_state = @render_state
+      if not render_state
+        render_state = {}
+      if plot_state['screen_x'].get('start') == plot_state['screen_x'].get('end') or
+         plot_state['screen_y'].get('start') == plot_state['screen_y'].get('end')
+       logger.debug("skipping due to under-defined view state")
+        #?! how should this be handled, returning a bogus ajax call makes no sense
+       return $.ajax()
+      logger.debug("Sent render State", render_state)
+      data =
+        plot_state: @plot_state_json()
+        render_state : render_state
+        auto_bounds : @auto_bounds
+      resp = $.ajax(
+        method : 'POST'
+        dataType: 'json'
+        url : @update_url()
+        xhrField :
+          withCredentials : true
+        contentType : 'application/json'
+        data : JSON.stringify(data)
+        success : (data) =>
+          if data.render_state == "NO UPDATE"
+            logger.info("No update")
+            return
+          if @auto_bounds
+            plot_state['data_x'].set(
+              {start : data.x_range.start, end : data.x_range.end},
+            )
+
+            plot_state['data_y'].set(
+              {start : data.y_range.start, end : data.y_range.end},
+            )
+            @auto_bounds = false
+          logger.debug("New render State:", data.render_state)
+          new_data = _.clone(@column_data_source.get('data'))  # the "clone" is a hack
+          _.extend(new_data, data['data'])
+          @column_data_source.set('data', new_data)
+          return null
+      )
+      return resp
+
   class ServerDataSource extends HasProperties
     # Datasource where the data is defined column-wise, i.e. each key in the
     # the data attribute is a column name, and its value is an array of scalars.
@@ -212,8 +259,10 @@ define [
       options['server_data_source'] = this
       if @get('transform')['resample'] == 'abstract rendering'
         @proxy = new AbstractRenderingSource({}, options)
-      if @get('transform')['resample'] == 'line1d'
+      else if @get('transform')['resample'] == 'line1d'
         @proxy = new Line1dSource({}, options)
+      else if @get('transform')['resample'] == 'heatmap'
+        @proxy = new HeatmapSource({}, options)
       @proxy.listen_for_updates()
 
     listen_for_line1d_updates : (column_data_source,
