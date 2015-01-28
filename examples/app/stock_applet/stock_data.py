@@ -11,14 +11,17 @@ def extract_hosted_zip(data_url, save_dir, exclude_term=None):
 
     # get the zip file
     try:
+        print('Downloading %r to %r' % (data_url, zip_name))
         zip_name, hdrs = urllib.request.urlretrieve(url=data_url, filename=zip_name)
+        print('Download successfully completed')
     except IOError as e:
-        print("Can't retrieve %r to %r: %s" % (data_url, save_dir))
+        print("Could not successfully retrieve %r" % data_url)
         raise e
 
     # extract, then remove temp file
     extract_zip(zip_name=zip_name, exclude_term=exclude_term)
     os.unlink(zip_name)
+    print("Extraction Complete")
 
 
 def extract_zip(zip_name, exclude_term=None):
@@ -31,6 +34,8 @@ def extract_zip(zip_name, exclude_term=None):
 
             # write each zipped file out if it isn't a directory
             files = [zip_file for zip_file in z.namelist() if not zip_file.endswith('/')]
+
+            print('Extracting %i files from %r.' % (len(files), zip_name))
             for zip_file in files:
 
                 # remove any provided extra directory term from zip file
