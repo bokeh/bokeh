@@ -22,7 +22,7 @@ except ImportError as e:
     _is_scipy = False
 import numpy as np
 
-from ._chartobject import Builder, create_and_build
+from ._builder import Builder, create_and_build
 from ..models import ColumnDataSource, GlyphRenderer, Range1d
 from ..models.glyphs import Line, Quad
 

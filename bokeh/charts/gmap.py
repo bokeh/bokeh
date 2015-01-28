@@ -16,7 +16,7 @@ passing the arguments to the Chart class and calling the proper functions.
 # Imports
 #-----------------------------------------------------------------------------
 
-from ._chartobject import Builder
+from ._builder import Builder
 from ..models import (Range1d, GMapPlot, GMapOptions)
 
 #-----------------------------------------------------------------------------

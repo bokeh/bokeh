@@ -19,7 +19,7 @@ passing the arguments to the Chart class and calling the proper functions.
 from six import string_types
 import numpy as np
 
-from ._chartobject import Builder, create_and_build
+from ._builder import Builder, create_and_build
 from ..models import ColumnDataSource, DataRange1d, GlyphRenderer, Range1d
 
 #-----------------------------------------------------------------------------

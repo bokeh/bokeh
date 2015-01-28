@@ -20,7 +20,7 @@ It also add a new chained stacked method.
 import numpy as np
 import pandas as pd
 
-from ._chartobject import Builder, create_and_build
+from ._builder import Builder, create_and_build
 from ..models import ColumnDataSource, FactorRange, GlyphRenderer, Range1d
 from ..models.glyphs import Rect, Segment
 

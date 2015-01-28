@@ -20,7 +20,7 @@ from __future__ import division
 from math import pi
 import pandas as pd
 
-from ._chartobject import Builder, create_and_build
+from ._builder import Builder, create_and_build
 from ..models import ColumnDataSource, GlyphRenderer, Range1d
 from ..models.glyphs import AnnularWedge, Text, Wedge
 from .utils import polar_to_cartesian

@@ -18,7 +18,7 @@ passing the arguments to the Chart class and calling the proper functions.
 
 from six import string_types
 import numpy as np
-from ._chartobject import create_and_build, Builder
+from ._builder import create_and_build, Builder
 from ..models import ColumnDataSource, DataRange1d, GlyphRenderer, Range1d
 from ..models.glyphs import Segment
 
