@@ -180,7 +180,7 @@ if __name__ == '__main__':
 
     for environment in envs:
         results[environment] = {}
-        cleaner("%s/envs/%s" % (root, environment))
+        cleaner(os.path.join(root, "envs", environment))
         conda_creator(environment, envs[environment]["init"])
 
         results[environment]['install'] = bokeh_installer(environment, envs[environment]["install"])
@@ -190,7 +190,7 @@ if __name__ == '__main__':
         results[environment]['test'], failure = run_tests(environment)
 
         if not ops.keep:
-            cleaner("%s/envs/%s" % (root, environment))
+            cleaner(os.path.join(root, "envs", environment))
         if failure:
             test_failures.append(failure)
 
