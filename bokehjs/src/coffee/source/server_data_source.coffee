@@ -63,11 +63,10 @@ define [
       # ranges while the bounds are auto updating
       callback = ajax_throttle(
         () =>
-          if @auto_bounds
-            return
           return @update()
       )
-      @update()
+      callback = _.debounce(callback, 50)
+      callback()
       ranges = [@plot_state['data_x'], @plot_state['data_x'],
         @plot_state['screen_x'], @plot_state['screen_y']]
       for param in ranges
@@ -141,12 +140,10 @@ define [
           if @auto_bounds
             plot_state['data_x'].set(
               {start : data.x_range.start, end : data.x_range.end},
-              {silent : true}
             )
 
             plot_state['data_y'].set(
               {start : data.y_range.start, end : data.y_range.end},
-              {silent : true}
             )
             @auto_bounds = false
           logger.debug("New render State:", data.render_state)

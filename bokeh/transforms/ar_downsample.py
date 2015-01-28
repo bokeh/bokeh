@@ -619,36 +619,36 @@ def downsample(raw_data, data_source, glyph, plot_state, render_state, auto_boun
 
 
 def downsample_line(xcol, ycol, glyphs, transform, plot_state, auto_bounds):
+    # todo handle flipped axes (start < end)
+    if auto_bounds:
+        plot_state['data_x'].start = xcol.min()
+        plot_state['data_x'].end = xcol.max()
+        plot_state['data_y'].start = ycol.min()
+        plot_state['data_y'].end = ycol.max()
     screen_x_span = float(_span(plot_state['screen_x']))
     screen_y_span = float(_span(plot_state['screen_y']))
     data_x_span = float(_span(plot_state['data_x']))
     data_y_span = float(_span(plot_state['data_y']))
     shader = transform['shader']
 
-    if auto_bounds:
-        # How big would a full plot of the data be at the current resolution?
-        # If scale is zero for either axis, don't actual render,
-        # instead report back data bounds and wait for the next request
-        # This enables guide creation...which changes the available plot size.
-        plot_size = [screen_x_span, screen_y_span]
-        parts = shader.reformat(None)
-    else:
-        bounds = glyphs.bounds()
-        plot_size = [bounds[2], bounds[3]]
-        balancedZoom = transform.get('balancedZoom', False)
+    bounds = glyphs.bounds()
+    plot_size = [bounds[2], bounds[3]]
+    balancedZoom = transform.get('balancedZoom', False)
 
-        vt = util.zoom_fit(plot_size, bounds, balanced=balancedZoom)
+    vt = util.zoom_fit(plot_size, bounds, balanced=balancedZoom)
 
-        lines = ar.render(glyphs,
-                          transform['info'].reify(),
-                          transform['agg'].reify(glyphset=glyphs),
-                          shader.reify(),
-                          plot_size, vt)
+    lines = ar.render(glyphs,
+                      transform['info'].reify(),
+                      transform['agg'].reify(glyphset=glyphs),
+                      shader.reify(),
+                      plot_size, vt)
 
-        parts = shader.reformat(lines, xcol.min(), ycol.min())
+    parts = shader.reformat(lines, xcol.min(), ycol.min())
 
-    parts['x_range'] = {'start': xcol.min(), 'end': xcol.max()}
-    parts['y_range'] = {'start': ycol.min(), 'end': ycol.max()}
+    parts['x_range'] = {'start': plot_state['data_x'].start,
+                        'end': plot_state['data_x'].end}
+    parts['y_range'] = {'start': plot_state['data_y'].start,
+                        'end': plot_state['data_y'].end}
 
     logger.info("Finished line-producing downsample")
     return parts
@@ -656,6 +656,12 @@ def downsample_line(xcol, ycol, glyphs, transform, plot_state, auto_bounds):
 
 def downsample_image(xcol, ycol, glyphs, transform, plot_state, auto_bounds):
     logger.info("Starting image-producing downsample")
+    # todo handle flipped axes (start < end)
+    if auto_bounds:
+        plot_state['data_x'].start = xcol.min()
+        plot_state['data_x'].end = xcol.max()
+        plot_state['data_y'].start = ycol.min()
+        plot_state['data_y'].end = ycol.max()
     screen_x_span = float(_span(plot_state['screen_x']))
     screen_y_span = float(_span(plot_state['screen_y']))
     data_x_span = float(_span(plot_state['data_x']))
@@ -663,57 +669,31 @@ def downsample_image(xcol, ycol, glyphs, transform, plot_state, auto_bounds):
     shader = transform['shader']
     balanced_zoom = transform.get('balancedZoom', False)
 
-    if auto_bounds:
-        # How big would a full plot of the data be at the current resolution?
-        # If scale is zero for either axis, don't actual render,
-        # instead report back data bounds and wait for the next request
-        # This enables guide creation...which changes the available plot size.
-        image = shader.reformat(None)
-        if balanced_zoom:
-            bounds = glyphs.bounds()
-            scale_x = 1
-            scale_y = (bounds[2]/bounds[3])/(screen_x_span/screen_y_span)
-        else:
-            scale_x = 1
-            scale_y = 1
-    else:
-        bounds = glyphs.bounds()
-        scale_x = data_x_span/screen_x_span
-        scale_y = data_y_span/screen_y_span
-        plot_size = (bounds[2]/scale_x, bounds[3]/scale_y)
+    bounds = glyphs.bounds()
+    scale_x = data_x_span/screen_x_span
+    scale_y = data_y_span/screen_y_span
+    plot_size = (bounds[2]/scale_x, bounds[3]/scale_y)
 
-        vt = util.zoom_fit(plot_size, bounds, balanced=False)
-        (tx, ty, sx, sy) = vt
+    vt = util.zoom_fit(plot_size, bounds, balanced=False)
+    (tx, ty, sx, sy) = vt
 
-        image = ar.render(glyphs,
-                          transform['info'].reify(),
-                          transform['agg'].reify(glyphset=glyphs),
-                          shader.reify(),
-                          plot_size, vt)
+    image = ar.render(glyphs,
+                      transform['info'].reify(),
+                      transform['agg'].reify(glyphset=glyphs),
+                      shader.reify(),
+                      plot_size, vt)
 
-        image = shader.reformat(image)
+    image = shader.reformat(image)
 
     rslt = {'image': [image],
-            'global_offset_x': [0],
-            'global_offset_y': [0],
-
-            # Screen-mapping values.
-            # x_range is the left and right data space values corresponding to
-            #     the bottom left and bottom right of the plot
-            # y_range is the bottom and top data space values corresponding to
-            #     the bottom left and top left of the plot
-            'x_range': {'start': xcol.min()*scale_x,
-                        'end': xcol.max()*scale_x},
-            'y_range': {'start': ycol.min()*scale_y,
-                        'end': ycol.max()*scale_y},
-
-            # Data-image parameters.
-            # x/y are lower left data-space coord of the image.
-            # dw/dh are the width and height in data space
-            'x': [xcol.min()],
-            'y': [ycol.min()],
-            'dw': [xcol.max()-xcol.min()],
-            'dh': [ycol.max()-ycol.min()]
+            'x_range': {'start': plot_state['data_x'].start,
+                        'end': plot_state['data_x'].end},
+            'y_range': {'start': plot_state['data_y'].start,
+                        'end': plot_state['data_y'].end},
+            'x': [plot_state['data_x'].start],
+            'y': [plot_state['data_y'].start],
+            'dw': [data_x_span],
+            'dh': [data_y_span]
             }
 
     logger.info("Finished image-producing downsample")
