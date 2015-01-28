@@ -24,7 +24,8 @@ define (require, exports, module) ->
   # Make sure that we don't clobber any existing definition of $ (most
   # likely a previous version of jQuery.
   _oldJQ = window.$
-  window.jQuery.noConflict()
+  if typeof(window.jQuery) != "undefined"
+    window.jQuery.noConflict()
   if typeof($) == "undefined"
     # if there was no previous definition of $, put our definition into window.$.
     window.$ = _oldJQ
