@@ -108,6 +108,7 @@ class StockApp(VBox):
         return obj
 
     def make_inputs(self):
+
         self.ticker1_select = Select(
             name='ticker1',
             value='AAPL',
@@ -137,7 +138,7 @@ class StockApp(VBox):
             x_axis_type='datetime',
             plot_width=1000, plot_height=200,
             title_text_font_size="10pt",
-            tools="pan,wheel_zoom,box_select"
+            tools="pan,wheel_zoom,box_select,reset"
         )
         p.circle(
             'date', ticker,
@@ -173,7 +174,7 @@ class StockApp(VBox):
         p = figure(
             title="%s vs %s" %(ticker1, ticker2),
             plot_width=400, plot_height=400,
-            tools="pan,wheel_zoom,box_select",
+            tools="pan,wheel_zoom,box_select,reset",
             title_text_font_size="10pt",
         )
         p.circle(ticker1 + "_returns", ticker2 + "_returns",
@@ -205,10 +206,13 @@ class StockApp(VBox):
             self.ticker2 = new
         if obj == self.ticker1_select:
             self.ticker1 = new
-        self.make_source()
-        self.make_plots()
-        self.set_children()
-        curdoc().add(self)
+
+        # avoid trying to compare same stocks
+        if self.ticker2 != self.ticker1:
+            self.make_source()
+            self.make_plots()
+            self.set_children()
+            curdoc().add(self)
 
     def setup_events(self):
         super(StockApp, self).setup_events()
