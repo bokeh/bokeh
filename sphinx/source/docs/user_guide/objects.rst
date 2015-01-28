@@ -112,10 +112,9 @@ Text Properties
 Ranges
 ------
 
-To control the ranges that Bokeh plots show, there are two keyword parameters `x_range` and
-`y_range`. These may be passed into the :class:`bokeh.plotting.figure` function, or into any
-of the high-level plotting :ref:`bokeh_plotting_glyphs`. They may also be set as attributes on
-a plot object.
+To control the ranges that Bokeh plots show, there are two keyword parameters
+`x_range` and `y_range`. These may be passed into the :class:`bokeh.plotting.figure`
+function, or they may also be set as attributes on a plot object.
 
 Automatic Ranges
 ''''''''''''''''

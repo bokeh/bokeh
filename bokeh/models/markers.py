@@ -1,53 +1,236 @@
+""" Glyph renderer models for displaying simple scatter-type
+markers on Bokeh plots.
+
+"""
 from __future__ import absolute_import
 
 from .glyphs import Glyph
 from ..mixins import FillProps, LineProps
-from ..properties import DataSpec
+from ..properties import DataSpec, Include
 
-class Marker(Glyph, FillProps, LineProps):
-    """ Base class for glyphs which are just simple markers placed at (x,y)
-    locations.
+class Marker(Glyph):
+    """ Base class for glyphs that are simple markers with line and
+    fill properties, located at an (x, y) location with a specified
+    size.
+
+    .. note::
+        For simplicity, all markers have both line and fill properties
+        declared, however some markers (`Asterisk`, `Cross`, `X`) only
+        draw lines. For these markers, the fill values are simply
+        ignored.
+
     """
 
-    x = DataSpec
-    y = DataSpec
-    size = DataSpec(units="screen", min_value=0, default=4)
+    x = DataSpec("x", help="""
+    The x-axis coordinates for the center of the markers.
+    """)
+
+    y = DataSpec("y", help="""
+    The y-axis coordinates for the center of the markers.
+    """)
+
+    size = DataSpec(units="screen", min_value=0, default=4, help="""
+    The size (diameter) values for the markers. Interpreted as
+    "screen space" units by default.
+    """)
+
+    line_props = Include(LineProps, use_prefix=False, help="""
+    The %s values for the markers.
+    """)
+
+    fill_props = Include(FillProps, use_prefix=False, help="""
+    The %s values for the markers.
+    """)
 
 class Asterisk(Marker):
-    pass
+    """ Render asterisk '*' markers.
+
+    Example
+    -------
+
+    .. bokeh-plot:: ../tests/glyphs/Asterisk.py
+        :source-position: none
+
+    *source:* ``tests/glyphs/Asterisk.py``
+
+    """
 
 class Circle(Marker):
-    radius = DataSpec(units="data", min_value=0)
+    """ Render circle markers.
+
+    Example
+    -------
+
+    .. bokeh-plot:: ../tests/glyphs/Circle.py
+        :source-position: none
+
+    *source:* ``tests/glyphs/Circle.py``
+
+    """
+
+    radius = DataSpec(units="data", min_value=0, default=None, help="""
+    The radius values for circle markers. Interpreted in
+    "data space" units by default.
+
+    .. note::
+        Circle markers are slightly unusual in that they support specifying
+        a radius in addition to a size. Only one of ``radius`` or ``size``
+        should be given.
+
+    .. warning::
+        Note that ``Circle`` glyphs are always drawn as circles on the screen,
+        even in cases where the data space aspect ratio is not 1-1. In all
+        cases where radius or size units are specified as "data", the
+        "distance" for the radius is measured along the horizontal axis.
+        If the aspect ratio is very large or small, the drawn circles may
+        appear much larger or smaller than expected. See :bokeh-issue:`626`
+        for more information.
+
+    """)
 
 class CircleCross(Marker):
-    pass
+    """ Render circle markers with a '+' cross through the center.
+
+    Example
+    -------
+
+    .. bokeh-plot:: ../tests/glyphs/CircleCross.py
+        :source-position: none
+
+    *source:* ``tests/glyphs/CircleCross.py``
+
+    """
 
 class CircleX(Marker):
-    pass
+    """ Render circle markers with an 'X' cross through the center.
+
+    Example
+    -------
+
+    .. bokeh-plot:: ../tests/glyphs/CircleX.py
+        :source-position: none
+
+    *source:* ``tests/glyphs/CircleX.py``
+
+    """
 
 class Cross(Marker):
-    pass
+    """ Render '+' cross markers.
+
+    Example
+    -------
+
+    .. bokeh-plot:: ../tests/glyphs/Cross.py
+        :source-position: none
+
+    *source:* ``tests/glyphs/Cross.py``
+
+    """
 
 class Diamond(Marker):
-    pass
+    """ Render diamond markers.
+
+    Example
+    -------
+
+    .. bokeh-plot:: ../tests/glyphs/Diamond.py
+        :source-position: none
+
+    *source:* ``tests/glyphs/Diamond.py``
+
+    """
 
 class DiamondCross(Marker):
-    pass
+    """ Render diamond markers with a '+' cross through the center.
+
+    Example
+    -------
+
+    .. bokeh-plot:: ../tests/glyphs/DiamondCross.py
+        :source-position: none
+
+    *source:* ``tests/glyphs/DiamondCross.py``
+
+    """
 
 class InvertedTriangle(Marker):
-    pass
+    """ Render upside-down triangle markers.
+
+    Example
+    -------
+
+    .. bokeh-plot:: ../tests/glyphs/InvertedTriangle.py
+        :source-position: none
+
+    *source:* ``tests/glyphs/InvertedTriangle.py``
+
+    """
 
 class Square(Marker):
-    angle = DataSpec
+    """ Render a square marker, optionally rotated.
+
+    Example
+    -------
+
+    .. bokeh-plot:: ../tests/glyphs/Square.py
+        :source-position: none
+
+    *source:* ``tests/glyphs/Square.py``
+
+    """
+
+    angle = DataSpec("angle", help="""
+    The angles (in radians) to rotate square markers.
+    """)
 
 class SquareCross(Marker):
-    pass
+    """ Render square markers with a '+' cross through the center.
+
+    Example
+    -------
+
+    .. bokeh-plot:: ../tests/glyphs/SquareCross.py
+        :source-position: none
+
+    *source:* ``tests/glyphs/SquareCross.py``
+
+    """
 
 class SquareX(Marker):
-    pass
+    """ Render square markers with an 'X' cross through the center.
+
+    Example
+    -------
+
+    .. bokeh-plot:: ../tests/glyphs/SquareX.py
+        :source-position: none
+
+    *source:* ``tests/glyphs/SquareX.py``
+
+    """
 
 class Triangle(Marker):
-    pass
+    """ Render triangle markers.
+
+    Example
+    -------
+
+    .. bokeh-plot:: ../tests/glyphs/Triangle.py
+        :source-position: none
+
+    *source:* ``tests/glyphs/Triangle.py``
+
+    """
 
 class X(Marker):
-    pass
+    """ Render a 'X' cross markers.
+
+    Example
+    -------
+
+    .. bokeh-plot:: ../tests/glyphs/X.py
+        :source-position: none
+
+    *source:* ``tests/glyphs/X.py``
+
+    """

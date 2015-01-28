@@ -1,9 +1,8 @@
 
 .. _installation:
 
-************
 Installation
-************
+############
 
 .. contents::
     :local:
@@ -30,12 +29,20 @@ dependency on several compiled libraries.
 Ideally, you should have the following libraries installed:
 
 * NumPy
+* Pandas
 * Flask
 * Redis
+* Redis-py
+* Six
 * Requests
-* gevent
-* gevent-websocket
-* Pandas
+* Tornado >= 4.0
+* Werkzeug
+* Greenlet
+* Gevent
+* Gevent-websocket
+* PyZMQ
+* PyYaml
+* DateUtil
 
 .. _install_packages:
 

@@ -1,8 +1,7 @@
 .. _userguide:
 
 User Guide
-==========
-
+##########
 
 The User Guide is being continuously updated, but please also consult the numerous
 `examples <https://github.com/bokeh/bokeh/tree/master/examples>`_
