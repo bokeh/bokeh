@@ -14,7 +14,8 @@ import traceback
 import subprocess
 
 from subprocess import CalledProcessError
-from os.path import exists, abspath, realpath, relpath, dirname, basename, join, split, splitext
+from os.path import (abspath, basename, dirname, exists, join, pardir, realpath,
+                     relpath, split, splitext)
 
 import yaml
 import jinja2
@@ -208,6 +209,7 @@ def human_bytes(n):
     return '%.2f GB' % g
 
 base_dir = dirname(__file__)
+example_dir = abspath(join(dirname(__file__), pardir, pardir, 'examples'))
 examples = []
 
 class Flags(object):
@@ -223,7 +225,7 @@ def example_type(flags):
     elif flags & Flags.notebook: return "notebook"
 
 def add_examples(examples_dir, example_type=None, skip=None):
-    examples_path = join(base_dir, examples_dir)
+    examples_path = join(example_dir, examples_dir)
 
     if skip is not None:
         skip = set(skip)
@@ -578,7 +580,7 @@ $([IPython.events]).on('status_started.Kernel', function(){
 def start_ipython_notebook():
     located_profile = locate_ipython_profile()
 
-    notebook_dir = split(dirname(realpath(__file__)))[0]
+    notebook_dir = split(example_dir)[0]
 
     cmd = ["ipython", "notebook"]
     argv = ["--no-browser","--profile=bokeh_test", "--port=%s" % args.ipython_port,
