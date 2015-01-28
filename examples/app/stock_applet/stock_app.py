@@ -51,9 +51,15 @@ def get_ticker_data(ticker):
 def get_data(ticker1, ticker2):
     if pd_cache.get((ticker1, ticker2)) is not None:
         return pd_cache.get((ticker1, ticker2))
-    data1 = get_ticker_data(ticker1)
-    data2 = get_ticker_data(ticker2)
-    data = pd.concat([data1, data2], axis=1)
+
+    # only append columns if it is the same ticker
+    if ticker1 != ticker2:
+        data1 = get_ticker_data(ticker1)
+        data2 = get_ticker_data(ticker2)
+        data = pd.concat([data1, data2], axis=1)
+    else:
+        data = get_ticker_data(ticker1)
+
     data = data.dropna()
     pd_cache[(ticker1, ticker2)] = data
     return data
@@ -218,12 +224,10 @@ class StockApp(VBox):
         if obj == self.ticker1_select:
             self.ticker1 = new
 
-        # avoid trying to compare same stocks
-        if self.ticker2 != self.ticker1:
-            self.make_source()
-            self.make_plots()
-            self.set_children()
-            curdoc().add(self)
+        self.make_source()
+        self.make_plots()
+        self.set_children()
+        curdoc().add(self)
 
     def setup_events(self):
         super(StockApp, self).setup_events()
