@@ -5,7 +5,8 @@ import pandas as pd
 import numpy as np
 
 from ..plotting import curdoc
-from ..models import ColumnDataSource, FactorRange, GridPlot, VBox, Panel, Tabs
+from ..models import ColumnDataSource, FactorRange, GridPlot, Panel, Tabs, \
+    Range, DataRange1d
 from ..models.widgets import Select, MultiSelect, InputWidget
 # crossfilter plotting utilities
 from .plotting import (make_histogram_source,
@@ -119,6 +120,8 @@ class CrossFilter(PlotObject):
 
     # the displayed plot object
     plot = Instance(PlotObject)
+    x_range = Instance(Range)
+    y_range = Instance(Range)
 
     # configuration properties for the plot
     plot_type = Enum("line", "scatter", "bar")
@@ -272,6 +275,7 @@ class CrossFilter(PlotObject):
     def set_plot(self):
         """Makes and sets the plot based on the current configuration of app."""
 
+        self.update_xy_ranges(source=self.df)
         plot = self.make_plot()
         self.plot = plot
         curdoc()._add_all()
@@ -434,7 +438,7 @@ class CrossFilter(PlotObject):
             df = self.facet_data(facets, self.filtered_df)
             plot = self.make_single_plot(
                 df=df, title=title, plot_height=200, plot_width=200,
-                tools="pan,wheel_zoom"
+                tools="pan,wheel_zoom,reset"
             )
             plot.min_border = 0
 
@@ -483,7 +487,7 @@ class CrossFilter(PlotObject):
                 df = self.facet_data(facets, self.filtered_df)
                 plot = self.make_single_plot(
                     df=df, title=title, plot_height=200, plot_width=200,
-                    tools="pan,wheel_zoom"
+                    tools="pan,wheel_zoom,reset"
                 )
                 plot.min_border = 0
                 plot.v_symmetry = False
@@ -539,16 +543,14 @@ class CrossFilter(PlotObject):
             if title is None:
                 title = "%s by %s"%(self.x, self.y)
 
-            x_range, y_range = self.get_xy_ranges(source)
-
             # create the figure and configure the source fields to scatter plot
             plot = figure(title_text_font_size="12pt",
                           plot_height=plot_height,
                           plot_width=plot_width,
                           tools=tools,
                           title=title,
-                          x_range=x_range,
-                          y_range=y_range)
+                          x_range=self.x_range,
+                          y_range=self.y_range)
 
             if do_plot:
                 plot.scatter(self.x, self.y, source=source)
@@ -558,15 +560,13 @@ class CrossFilter(PlotObject):
             if title is None:
                 title = "%s by %s"%(self.x, self.y)
 
-            x_range, y_range = self.get_xy_ranges(source)
-
             plot = figure(title_text_font_size="12pt",
                           plot_height=plot_height,
                           plot_width=plot_width,
                           tools=tools,
                           title=title,
-                          x_range=x_range,
-                          y_range=y_range)
+                          x_range=self.x_range,
+                          y_range=self.y_range)
 
             if do_plot:
                 plot.line(self.x, self.y, source=source)
@@ -620,7 +620,7 @@ class CrossFilter(PlotObject):
                                      plot_height=plot_height,
                                      plot_width=plot_width,
                                      tools=tools,
-                                     x_range=x_range)
+                                     x_range=self.x_range)
                 plot.title = title
 
             else:
@@ -628,7 +628,9 @@ class CrossFilter(PlotObject):
                               plot_height=plot_height,
                               plot_width=plot_width,
                               tools=tools,
-                              title=title)
+                              title=title,
+                              x_range=self.x_range,
+                              y_range=self.y_range)
 
         # the plot requested is not known
         else:
@@ -636,32 +638,27 @@ class CrossFilter(PlotObject):
 
         return plot
 
-    def get_xy_ranges(self, source):
-        """Provides input required for x_range, y_range when creating a figure.
+    def update_xy_ranges(self, source):
+        """Updates common x_range, y_range to use for creating figures.
 
         Args:
           source (ColumnDataSource): the source to return correct range for
-
-        Returns:
-          (FactorRange or None, FactorRange or None): returns both x and y
-            ranges for the selected x and y columns. Only if the column is
-            discrete do we need to create a range and later pass that to figure.
 
         """
         column_descriptor_dict = self.column_descriptor_dict()
 
         # detect discrete columns and return a FactorRange if required
         if column_descriptor_dict[self.x]['type'] == 'DiscreteColumn':
-            x_range = FactorRange(factors=sorted(set(source.data[self.x])))
+            self.x_range = FactorRange(factors=sorted(set(source[self.x])))
         else:
-            x_range = None
+            x_vals = source[self.x]
+            self.x_range = DataRange1d(start=x_vals.min(), end=x_vals.max())
 
         if column_descriptor_dict[self.y]['type'] == 'DiscreteColumn':
-            y_range = FactorRange(factors=sorted(set(source.data[self.y])))
+            self.y_range = FactorRange(factors=sorted(set(source.data[self.y])))
         else:
-            y_range = None
-
-        return x_range, y_range
+            y_vals = source[self.y]
+            self.y_range = DataRange1d(start=y_vals.min(), end=y_vals.max())
 
     def plot_attribute_change(self, obj, attrname, old, new):
         """Updates app's attribute and plot when view configuration changes.
