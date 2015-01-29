@@ -15,6 +15,6 @@ xyvalues = OrderedDict(
 #xyvalues = xyvalues.values()
 #xyvalues = np.array(xyvalues.values())
 
-output_file("line.html", title="line.py example")
+output_file("lines.html", title="line.py example")
 chart = Line(xyvalues, title="Lines", ylabel='measures', filename="lines.html", legend=True)
 show(chart)
