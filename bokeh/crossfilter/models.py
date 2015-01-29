@@ -277,10 +277,17 @@ class CrossFilter(PlotObject):
         curdoc()._add_all()
 
     def make_plot(self):
-        """Makes the correct plot layout type, based on app's current config."""
+        """Makes the correct plot layout type, based on app's current config.
+
+        Returns:
+          PlotObject: one plot, grid of plots, or tabs of plots/grids of plots
+
+        """
 
         if self.facet_tab:
             facets = self.make_facets(dimension='tab')
+
+            # generate a list of panels, containing plot/plots for each facet
             tabs = [self.make_tab(content=self.create_plot_page(
                     tab_facet=facet), tab_label=str(facet)) for facet in facets]
             return Tabs(tabs=tabs)
@@ -288,6 +295,15 @@ class CrossFilter(PlotObject):
             return self.create_plot_page()
 
     def create_plot_page(self, tab_facet=None):
+        """Generates a single visible page of a plot or plots.
+
+        Args:
+          tab_facet (DiscreteFacet or ContinuousFacet): a facet to filter on
+
+        Returns:
+          PlotObject: a single or grid of plots
+
+        """
         # no faceting
         if all([len(self.facet_x) == 0,
                 len(self.facet_y) == 0]):
@@ -303,6 +319,16 @@ class CrossFilter(PlotObject):
             return self.make_2d_facet_plot(facet=tab_facet)
 
     def make_tab(self, content, tab_label):
+        """Creates a container for the contents of a tab.
+
+        Args:
+          content (PlotObject): the primary content of the tab
+          tab_label (str): the text to place in the tab
+
+        Returns:
+          Panel: represents a single tab in a group of tabs
+
+        """
         return Panel(child=content, title=tab_label)
 
     def make_facets(self, dimension):
@@ -425,8 +451,7 @@ class CrossFilter(PlotObject):
             grid_plots.append(chunk)
 
         # return the grid as the plot
-        grid = GridPlot(children=grid_plots, plot_width=200*chunk_size)
-        return grid
+        return GridPlot(children=grid_plots, plot_width=200*chunk_size)
 
     def make_2d_facet_plot(self, facet=None):
         """Creates the grid of plots when there are both x and y facets.
@@ -453,7 +478,7 @@ class CrossFilter(PlotObject):
                 title = self.facet_title(facets)
 
                 if facet:
-                    facets.append(facet)
+                    facets += facet
 
                 df = self.facet_data(facets, self.filtered_df)
                 plot = self.make_single_plot(
@@ -469,8 +494,7 @@ class CrossFilter(PlotObject):
             grid_plots.append(row)
 
         # return the grid of plots as the plot
-        grid = GridPlot(children=grid_plots, plot_width=200*len(all_facets_x))
-        return grid
+        return GridPlot(children=grid_plots, plot_width=200*len(all_facets_x))
 
     def make_single_plot(self, df=None, title=None,
                          plot_width=700, plot_height=680,
@@ -649,7 +673,6 @@ class CrossFilter(PlotObject):
           new (type): the new value of unknown type
 
         """
-        # ToDo: why pass attribute name? 'value' is passed instead of 'name'
         setattr(self, obj.name, new)
         self.set_plot()
 
