@@ -460,13 +460,9 @@ def test_example(example, flags):
 def test_nbexecuter():
     if use_notebook and need_notebook:
         import nbexecuter
-        example_nbconverted = join("examples", "glyphs", "glyph.ipynb")
-        try:
-            nbexecuter.main(example_nbconverted)
-        except IOError as e:
-            example_nbconverted = example_nbconverted[example_nbconverted.find('glyphs'):]
-            nbexecuter.main(example_nbconverted)
-        write(example_nbconverted)
+        example_nbconverted = join(example_dir, "glyphs", "glyph.ipynb")
+        nbexecuter.main(example_nbconverted)
+        write("glyph.ipynb nbconverted")
 
 def start_bokeh_server():
     cmd = ["python", "-c", "import bokeh.server; bokeh.server.run()"]
