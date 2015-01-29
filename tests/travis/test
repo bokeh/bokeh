@@ -209,7 +209,7 @@ def human_bytes(n):
     return '%.2f GB' % g
 
 base_dir = dirname(__file__)
-example_dir = abspath(join(dirname(__file__), pardir, pardir, 'examples'))
+example_dir = abspath(join(base_dir, pardir, pardir, 'examples'))
 examples = []
 
 class Flags(object):
@@ -419,7 +419,7 @@ def test_example(example, flags):
             fail(example)
         else:
             if args.diff:
-                example_path = relpath(splitext(example)[0], base_dir)
+                example_path = relpath(splitext(example)[0], example_dir)
                 ref_loc = join(args.diff, example_path + ".png")
                 ref_url = join(s3, ref_loc)
                 response = requests.get(ref_url)
@@ -656,7 +656,7 @@ try:
 
         for example, _ in sorted(selected_examples):
             no_ext = splitext(abspath(example))[0]
-            example_path = relpath(no_ext, base_dir)
+            example_path = relpath(no_ext, example_dir)
             s3_path = join(__version__, example_path)
 
             png_file = "%s-%s.png" % (no_ext, __version__)
