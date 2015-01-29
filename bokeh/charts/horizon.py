@@ -12,7 +12,7 @@ import math
 
 from ._chartobject import ChartObject
 from ..models import ColumnDataSource, Range1d, DataRange1d, FactorRange, HoverTool, CategoricalAxis
-from ..models.glyphs import Patches
+from ..models.glyphs import Patches, Quad
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -141,6 +141,8 @@ class Horizon(ChartObject):
         self.series = []
         self.fold_height = {}
         self.max_y = 0
+        self.min_x = None
+        self.max_x = None
         self.data = {}
         self.attr = []
         self.index = index
@@ -195,6 +197,8 @@ class Horizon(ChartObject):
         """
         for col in self.values.keys():
             if isinstance(self.index, string_types) and col == self.index:
+                self.min_x = min(self.values[col])
+                self.max_x = max(self.values[col])
                 continue
 
             self.series.append(col)
@@ -261,9 +265,14 @@ class Horizon(ChartObject):
         It requires the positive and negative layers
         Takes reference points from the data loaded at the ColumnDataSource.
         """
-        patches = Patches(
-            fill_color='fill_color', fill_alpha='fill_alpha', xs='x_all', ys='y_all')
-        self.chart.plot.add_glyph(self.source, patches)
+        self.patches = Patches(fill_color='fill_color', fill_alpha='fill_alpha',
+        	xs='x_all', ys='y_all')
+        self.patches_renderer = self.chart.plot.add_glyph(self.source, self.patches)
+
+        # Quad as big as the canvas to be used for tooltip
+        self.quad = Quad(top=self.max_y, bottom=0, left=self.min_x, right=self.max_x,
+        	fill_color='white', fill_alpha=0, line_color='white', line_alpha=0)
+        self.quad_renderer = self.chart.plot.add_glyph(self.source, self.quad)
 
     def _show_teardown(self):
         """Add the serie names to the y axis and the hover tooltips"""
@@ -283,6 +292,5 @@ class Horizon(ChartObject):
         # TODO: Add the other tooltips like the serie name and the y value of
         # that serie for that position
         tooltips = [('date', '$x')]
-        tooltips.extend([(serie, '$y_%s' % serie) for serie in self.series])
-        p.add_tools(HoverTool(tooltips=tooltips))
-        #p.add_tools(HoverTool(tooltips=[("(x, y)", "($sx, $sy)")]))
+        tooltips.extend([(serie, '@y_%s' % serie) for serie in self.series])
+        p.add_tools(HoverTool(tooltips=tooltips, renderers=[self.quad_renderer]))
