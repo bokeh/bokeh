@@ -195,27 +195,32 @@ class ColumnDataSource(DataSource):
         """.format(model=model, id=id, json=json)
         display.display_javascript(js, raw=True)
 
-class ServerDataSource(DataSource):
-    """ A data source that referes to data located on a Bokeh server.
-
-    The data from the server is loaded on-demand by the client.
-
-    """
-
+class RemoteSource(DataSource):
     data_url = String(help="""
     The URL to the Bokeh server endpoint for the data.
     """)
-
-    owner_username = String(help="""
-    A username to use for authentication when Bokeh server is operating
-    in multi-user mode.
-    """)
-
     data = Dict(String, Any, help="""
     Additional data to include directly in this data source object. The
     columns provided here are merged with those from the Bokeh server.
     """)
+    polling_interval = Int(help="""
+    polling interval for updating data source in milliseconds
+    """)
 
+class BlazeDataSource(RemoteSource):
+    #blaze parts
+    expr = Dict(String, Any(), help="""
+    blaze expression graph in json form
+    """)
+    namespace = Dict(String, Any(), help="""
+    namespace in json form for evaluating blaze expression graph
+    """)
+
+class ServerDataSource(BlazeDataSource):
+    """ A data source that referes to data located on a Bokeh server.
+
+    The data from the server is loaded on-demand by the client.
+    """
     # Paramters of data transformation operations
     # The 'Any' is used to pass primtives around.
     # TODO: (jc) Find/create a property type for 'any primitive/atomic value'
@@ -225,8 +230,3 @@ class ServerDataSource(DataSource):
     The associated valuse is minimally a tag that says which downsample routine
     to use.  For some downsamplers, parameters are passed this way too.
     """)
-
-    #blaze parts
-    expr = Dict(String, Any())
-    namespace = Dict(String, Any())
-    polling_interval = Int() # in millis

@@ -475,9 +475,7 @@ def _renderer(plot):
     """
     return [r for r in plot.renderers
             if (isinstance(r, GlyphRenderer)
-                and hasattr(r, "server_data_source")
-                and r.server_data_source is not None)][0]
-
+                and isinstance(r.data_source, ServerDataSource))][0]
 
 # TODO: just use glyph instead of obsolete glyphspec
 def get_glyphspec(glyph):
@@ -491,7 +489,7 @@ def source(plot,
            points=False, balancedZoom=False, **kwargs):
     # Acquire information from renderer...
     rend = _renderer(plot)
-    datasource = rend.server_data_source
+    datasource = rend.data_source
     kwargs['data_url'] = datasource.data_url
     kwargs['expr'] = datasource.expr
     kwargs['namespace'] = datasource.namespace

@@ -5,7 +5,8 @@ define [
   "common/collection"
   "common/plot_widget"
   "range/factor_range"
-], (_, Logging, HasParent, Collection, PlotWidget, FactorRange) ->
+  "source/server_data_source"
+], (_, Logging, HasParent, Collection, PlotWidget, FactorRange, ServerDataSource) ->
 
   logger = Logging.logger
 
@@ -34,9 +35,8 @@ define [
       @xmapper = @plot_view.frame.get('x_mappers')[@mget("x_range_name")]
       @ymapper = @plot_view.frame.get('y_mappers')[@mget("y_range_name")]
 
-      if @mget('server_data_source')
+      if @mget('data_source') instanceof ServerDataSource.Model
         @setup_server_data()
-      @listenTo(this, 'change:server_data_source', @setup_server_data)
 
     build_glyph: (model) ->
       new model.default_view({model: model, renderer: this})
@@ -50,13 +50,7 @@ define [
 
     #TODO: There are glyph sub-type-vs-resample_op concordance issues...
     setup_server_data: () ->
-      serversource = @mget('server_data_source')
-      # hack, call set data, becuase there are some attrs that we need
-      # that are in it
-      data = _.extend({}, @mget('data_source').get('data'), serversource.get('data'))
-      @mget('data_source').set('data', data)
-      @set_data(false)
-
+      serversource = @mget('data_source')
       #TODO: Perhaps pass 'plot_view' through in the request instead of these fractions carved off
       plot_h_range = @plot_view.frame.get('h_range')
       plot_v_range = @plot_view.frame.get('v_range')

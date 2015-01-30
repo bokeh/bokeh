@@ -2,12 +2,14 @@
 define [
   "backbone"
   "underscore"
+  "./column_data_source"
   "common/collection"
   "common/has_properties"
   "common/logging"
   "range/range1d"
   "range/data_range1d"
-], (Backbone, _, Collection, HasProperties, Logging, Range1d, DataRange1d) ->
+], (Backbone, _, ColumnDataSource, Collection,
+  HasProperties, Logging, Range1d, DataRange1d) ->
 
   logger = Logging.logger
 
@@ -48,10 +50,9 @@ define [
         screen_x : options.screen_x
         screen_y : options.screen_y
       @glyph = options.glyph
-      @column_data_source = options.column_data_source
+      @data_source = options.data_source
       @render_state = options.render_state
-      @server_data_source = options.server_data_source
-      @auto_bounds = options.server_data_source.get('transform')['auto_bounds']
+      @auto_bounds = options.data_source.get('transform')['auto_bounds']
 
     stoplistening_for_updates : () ->
       for entry in @callbacks
@@ -65,7 +66,7 @@ define [
         () =>
           return @update()
       )
-      callback = _.debounce(callback, 50)
+      callback = _.debounce(callback, 100)
       callback()
       ranges = [@plot_state['data_x'], @plot_state['data_x'],
         @plot_state['screen_x'], @plot_state['screen_y']]
@@ -103,7 +104,7 @@ define [
         # so we use get_base instead
         base_url = glyph.get_base().Config.prefix + "render"
       docid = @glyph.get('doc')
-      sourceid = @server_data_source.get('id')
+      sourceid = @data_source.get('id')
       glyphid = glyph.get('id')
       url = "#{base_url}/#{docid}/#{sourceid}/#{glyphid}"
       return url
@@ -150,9 +151,9 @@ define [
             )
             @auto_bounds = false
           logger.debug("New render State:", data.render_state)
-          new_data = _.clone(@column_data_source.get('data'))  # the "clone" is a hack
+          new_data = _.clone(@data_source.get('data'))  # the "clone" is a hack
           _.extend(new_data, data['data'])
-          @column_data_source.set('data', new_data)
+          @data_source.set('data', new_data)
           return null
       )
       return resp
@@ -196,9 +197,9 @@ define [
             )
             @auto_bounds = false
           logger.debug("New render State:", data.render_state)
-          new_data = _.clone(@column_data_source.get('data'))  # the "clone" is a hack
+          new_data = _.clone(@data_source.get('data'))  # the "clone" is a hack
           _.extend(new_data, data['data'])
-          @column_data_source.set('data', new_data)
+          @data_source.set('data', new_data)
           return null
       )
       return resp
@@ -242,14 +243,14 @@ define [
             )
             @auto_bounds = false
           logger.debug("New render State:", data.render_state)
-          new_data = _.clone(@column_data_source.get('data'))  # the "clone" is a hack
+          new_data = _.clone(@data_source.get('data'))  # the "clone" is a hack
           _.extend(new_data, data['data'])
-          @column_data_source.set('data', new_data)
+          @data_source.set('data', new_data)
           return null
       )
       return resp
 
-  class ServerDataSource extends HasProperties
+  class ServerDataSource extends ColumnDataSource.Model
     # Datasource where the data is defined column-wise, i.e. each key in the
     # the data attribute is a column name, and its value is an array of scalars.
     # Each column should be the same length.
@@ -259,7 +260,7 @@ define [
       super(attrs, options)
 
     setup_proxy : (options) =>
-      options['server_data_source'] = this
+      options['data_source'] = this
       if @get('transform')['resample'] == 'abstract rendering'
         @proxy = new AbstractRenderingSource({}, options)
       else if @get('transform')['resample'] == 'line1d'
