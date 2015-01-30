@@ -26,10 +26,10 @@ import sphinx_bootstrap_theme
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = [
-    'sphinx.ext.ifconfig',
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
     'sphinx.ext.graphviz',
+    'sphinx.ext.ifconfig',
     'sphinx.ext.inheritance_diagram',
     'sphinxcontrib.napoleon',
     'sphinxcontrib.autohttp.flask',
@@ -40,6 +40,7 @@ extensions = [
     'bokeh.sphinxext.bokeh_palette',
     'bokeh.sphinxext.bokeh_plot',
     'bokeh.sphinxext.bokeh_prop',
+    'bokeh.sphinxext.collapsible_code_block',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -101,6 +102,8 @@ pygments_style = 'sphinx'
 # A list of ignored prefixes for module index sorting.
 #modindex_common_prefix = []
 
+# Sort members by type
+autodoc_member_order = 'groupwise'
 
 # -- Options for HTML output ---------------------------------------------------
 

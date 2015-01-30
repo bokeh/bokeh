@@ -558,7 +558,7 @@ case, as well::
         """ `IncludesExtends` model. """
 
         some = String
-        some_props = Include(FilleProps)
+        some_props = Include(FillProps)
 
 but note that this is  equivalent to::
 

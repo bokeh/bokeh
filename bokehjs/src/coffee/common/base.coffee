@@ -171,7 +171,7 @@ define [
   Config = {}
   url = window.location.href
   if url.indexOf('/bokeh') > 0
-    Config.prefix = url.slice(0, url.indexOf('/bokeh')) + "/" #keep trailing slash
+    Config.prefix = url.slice(0, url.lastIndexOf('/bokeh')) + "/" #keep trailing slash
   else
     Config.prefix = '/'
   console.log('Bokeh: setting prefix to', Config.prefix)
