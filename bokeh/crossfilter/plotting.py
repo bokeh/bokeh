@@ -27,6 +27,26 @@ def cross(start, facets):
     return result
 
 
+def hide_axes(plot, axes=('x', 'y')):
+    """Hides the axes of the plot by setting component alphas.
+
+    Args:
+      plot (Figure): a valid figure with x and y axes
+      axes (tuple or list or str, optional): the axes to hide the axis on.
+
+    """
+    if isinstance(axes, str):
+        axes = tuple(axes)
+
+    for label in axes:
+        axis = getattr(plot, label + 'axis')
+        axis = axis[0]
+        axis.major_label_text_alpha = 0.0
+        axis.axis_line_alpha = 0.0
+        axis.major_tick_line_alpha = 0.0
+        axis.minor_tick_line_alpha = 0.0
+
+
 def make_histogram_source(series):
     """Creates a ColumnDataSource containing the bins of the input series.
 

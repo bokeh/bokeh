@@ -8,11 +8,12 @@ from ..plotting import curdoc
 from ..models import ColumnDataSource, FactorRange, GridPlot, Panel, Tabs, \
     Range, DataRange1d, Range1d
 from ..models.widgets import Select, MultiSelect, InputWidget
+
 # crossfilter plotting utilities
 from .plotting import (make_histogram_source,
                        make_histogram, make_continuous_bar_source,
-                       make_categorical_bar_source,
-                       make_bar_plot, cross)
+                       make_categorical_bar_source, cross, hide_axes)
+
 # bokeh plotting functions
 from ..plotting import figure
 from ..plotting_helpers import _get_select_tool
@@ -93,6 +94,27 @@ class ContinuousFacet(DiscreteFacet):
 
 
 class CrossFilterPlugin(object):
+    """An adapter class between CrossFilter and custom plotting plugins.
+
+    This adapter is used to provide a consistent interface between single
+    plot generation and CrossFilter through some core behaviors. A simple
+    plugin can simply override only make_plot to provide a custom plot type.
+
+    See CrossLinePlugin for a simple example.
+
+    Kwargs:
+      crossfilter (CrossFilter): reference to the CrossFilter app
+      source (ColumnDataSource): the pre-filtered source for the plot
+      x_range (Range): the common x range to use for plotting
+      y_range (Range): the common y range to use for plotting
+      title_text_font_size (str): string of font size, e.g., "12pt"
+      plot_height (float): height of the plot in pixels
+      plot_width (float): width of the plot in pixels
+      tools (str): the string of tools to add to the plot
+      facet (bool): whether or not we are faceting
+      title (str, optional): overrides the derived title property
+
+    """
     def __init__(self, *args, **kwargs):
         self.cf = kwargs.pop('crossfilter', None)
         self.x = self.cf.x
@@ -110,6 +132,13 @@ class CrossFilterPlugin(object):
         self.kwargs = kwargs
 
     def get_plot(self):
+        """Validates, makes blank figure, then makes the plot as necessary.
+
+        It is meant for this method to not be overridden. The methods called
+        by this method should be overridden first, and this one only as a last
+        resort, since it provides a common interface for plugins.
+
+        """
         self.validate_plot()
         plot = self.make_figure(**self.kwargs)
         if self.valid_plot:
@@ -117,14 +146,31 @@ class CrossFilterPlugin(object):
         return plot
 
     def make_figure(self, **kwargs):
+        """Generates the blank figure for the provided options.
+
+        The purpose of this is to avoid for child plugins to have to repeat
+        this functionality. It is likely to not need to override this behavior.
+
+        """
         kwargs['title'] = self._title
         return figure(**kwargs)
 
     def make_plot(self, plot):
+        """Plots the data into the provided plot.
+
+        The primary method to be overridden to create a custom plugin.
+
+        """
         plot.scatter(self.x, self.y, source=self.source)
         return plot
 
     def validate_plot(self):
+        """Called before plotting data to check to see if we should plot.
+
+        If valid_plot is set to False in this method, then the figure will
+        still be created, but no data will be plotted.
+
+        """
         if not self.facet:
             if len(self.source.data[self.x]) == 0 or len(
                     self.source.data[self.y]) == 0:
@@ -133,7 +179,13 @@ class CrossFilterPlugin(object):
 
     @property
     def title(self):
-        return "%s by %s"%(self.x, self.y)
+        """Generates a title for the plot, and can be overridden per plugin.
+
+        Returns:
+          str: a string to place into the title that provides additional plot info
+
+        """
+        return "%s by %s" % (self.x, self.y)
 
     @property
     def x_type(self):
@@ -148,7 +200,22 @@ class CrossFilterPlugin(object):
         return self.source.to_df()
 
     @staticmethod
-    def make_xy_ranges(cf, col_meta):
+    def make_xy_ranges(cf):
+        """Generates x/y ranges specific to the plot type for the plugin.
+
+        This method is static so that CrossFilter can generate common ranges
+        to construct multiple plots from the plugin. A custom plugin would
+        override this method if it has unique range types.
+
+        Args:
+          cf (CrossFilter): a reference to the CrossFilter object, used to
+            get data to generate the ranges.
+
+        Returns:
+          (Range, Range): returns xrange, yrange
+
+        """
+        col_meta = cf.column_descriptor_dict()
         x_col = cf.x
         y_col = cf.y
         df = cf.df
@@ -169,6 +236,8 @@ class CrossFilterPlugin(object):
 
 
 class CrossBarPlugin(CrossFilterPlugin):
+    """Bar plot plugin for CrossFilter."""
+
     def __init__(self, *args, **kwargs):
 
         cf = kwargs['crossfilter']
@@ -190,6 +259,8 @@ class CrossBarPlugin(CrossFilterPlugin):
         return plot
 
     def transform_data(self):
+        """Generates custom source that describes the bars to be plotted."""
+
         if self.y_type == 'DiscreteColumn':
             self.source = make_continuous_bar_source(self.df, self.x, self.y,
                                                      self.agg)
@@ -198,6 +269,7 @@ class CrossBarPlugin(CrossFilterPlugin):
                                                       self.agg)
 
     def validate_plot(self):
+        super(CrossBarPlugin, self).validate_plot()
 
         if self.y_type == 'DiscreteColumn':
             self._title = 'Bar does not support discrete y column'
@@ -213,14 +285,25 @@ class CrossBarPlugin(CrossFilterPlugin):
 
     @property
     def title(self):
-        return "%s(%s) by %s"%(self.agg, self.y, self.x)
+        return "%s(%s) by %s" % (self.agg, self.y, self.x)
 
     @staticmethod
-    def make_xy_ranges(cf, col_meta, bar_width=0.7):
+    def make_xy_ranges(cf, bar_width=0.7):
+        """Returns ranges for a given bar width.
+
+        Args:
+          cf (CrossFilter): the CrossFilter app
+          bar_width (float, optional): width of bar that affects ranges
+
+        Returns:
+          (xrange, yrange): the x/y ranges to use for the bar plot
+
+        """
         x_col = cf.x
         y_col = cf.y
         df = cf.df
         agg = cf.agg
+        col_meta = cf.column_descriptor_dict()
 
         if col_meta[x_col]['type'] != 'DiscreteColumn':
             source = make_continuous_bar_source(df, x_col, y_col, agg)
@@ -237,11 +320,15 @@ class CrossBarPlugin(CrossFilterPlugin):
 
 
 class CrossScatterPlugin(CrossFilterPlugin):
+    """Scatter plot plugin for CrossFilter."""
+
     def __init__(self, *args, **kwargs):
         super(CrossScatterPlugin, self).__init__(*args, **kwargs)
 
 
 class CrossLinePlugin(CrossFilterPlugin):
+    """Line plot plugin for CrossFilter."""
+
     def __init__(self, *args, **kwargs):
         super(CrossLinePlugin, self).__init__(*args, **kwargs)
 
@@ -324,6 +411,9 @@ class CrossFilter(PlotObject):
         # default aggregation type
         if 'agg' not in kwargs:
             kwargs['agg'] = 'sum'
+
+        if 'plot_map' in kwargs:
+            self.plot_map = kwargs.pop('plot_map')
 
         super(CrossFilter, self).__init__(**kwargs)
 
@@ -488,7 +578,8 @@ class CrossFilter(PlotObject):
                 len(self.facet_y) != 0]):
             return self.make_2d_facet_plot(facet=tab_facet)
 
-    def make_tab(self, content, tab_label):
+    @staticmethod
+    def make_tab(content, tab_label):
         """Creates a container for the contents of a tab.
 
         Args:
@@ -621,6 +712,8 @@ class CrossFilter(PlotObject):
             chunk = plots[i:i + chunk_size]
             grid_plots.append(chunk)
 
+        self.hide_internal_axes(grid_plots)
+
         # return the grid as the plot
         return GridPlot(children=grid_plots, plot_width=200*chunk_size)
 
@@ -668,8 +761,38 @@ class CrossFilter(PlotObject):
             # append the row to the list of rows
             grid_plots.append(row)
 
+            self.hide_internal_axes(grid_plots)
+
         # return the grid of plots as the plot
         return GridPlot(children=grid_plots, plot_width=200*len(all_facets_x))
+
+    @staticmethod
+    def hide_internal_axes(grid_plots):
+        """Hides the internal axes for a grid of plots.
+
+        Args:
+          grid_plots (list(list(Figure))): list of rows (list), containing plots
+
+        """
+        for i, row in enumerate(grid_plots):
+            is_bottom = i + 1 == len(grid_plots)
+            next_bottom = i + 2 == len(grid_plots)
+
+            if next_bottom:
+                next_len = len(grid_plots[i + 1])
+            else:
+                next_len = None
+
+            for j, plot in enumerate(row):
+
+                if j != 0:
+                    if is_bottom or j >= next_len:
+                        hide_axes(plot, axes='y')
+                    else:
+                        hide_axes(plot)
+
+                elif j == 0 and not is_bottom:
+                    hide_axes(plot, axes='x')
 
     def make_single_plot(self, df=None, title=None,
                          plot_width=700, plot_height=680,
@@ -729,12 +852,10 @@ class CrossFilter(PlotObject):
           source (ColumnDataSource): the source to return correct range for
 
         """
-        column_descriptor_dict = self.column_descriptor_dict()
-
-        # get x and y range from the plot class
         plt_cls = self.get_plot_class()
-        x_range, y_range = plt_cls.make_xy_ranges(cf=self,
-                                                  col_meta=column_descriptor_dict)
+        x_range, y_range = plt_cls.make_xy_ranges(cf=self)
+
+        # store x and y range from the plot class
         self.x_range = x_range
         self.y_range = y_range
 
