@@ -25,7 +25,7 @@ xyvalues = OrderedDict(
 h = Horizon(xyvalues, index='Date', title="horizon plot using stock inputs",
                 width=1200, height=300, filename="horizon.html")
 
-h.show()
+h.legend("top_right").show()
 
 
 # x = np.linspace(0, np.pi*4, 137)
@@ -36,5 +36,5 @@ h.show()
 
 # h2 = Horizon(xyvalues, index='x', title="test horizon", ylabel='Random', filename="horizon.html")
 
-# h2.show()
+# h2.legend("top_right").show()
 
