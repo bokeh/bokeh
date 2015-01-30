@@ -266,10 +266,10 @@ class Horizon(ChartObject):
         self.chart.plot.add_glyph(self.source, patches)
 
     def _show_teardown(self):
-        """Add the serie names to the y axis and the hover tooltips"""
+        """Add the serie names to the y axis, the hover tooltips and legend"""
         p = self.chart.plot
 
-        # Hide numerical axis
+        # Hide numerical axis / TODO: adapt for https://github.com/bokeh/bokeh/issues/1730
         p.left[0].axis_label_text_color = None
         p.left[0].axis_line_color = None
         p.left[0].major_label_text_color = None
@@ -280,9 +280,7 @@ class Horizon(ChartObject):
         p.extra_y_ranges = {"series": FactorRange(factors=self.series)}
         p.add_layout(CategoricalAxis(y_range_name="series"), 'left')
 
-        # TODO: Add the other tooltips like the serie name and the y value of
-        # that serie for that position
-        tooltips = [('date', '$x')]
-        tooltips.extend([(serie, '$y_%s' % serie) for serie in self.series])
-        p.add_tools(HoverTool(tooltips=tooltips))
-        #p.add_tools(HoverTool(tooltips=[("(x, y)", "($sx, $sy)")]))
+        # TODO: Add the tooltips to display the dates and all absolute y values for each series
+        # at any vertical places on the plot
+
+        # TODO: Add the legend to display the fold ranges based on the color of the fold
