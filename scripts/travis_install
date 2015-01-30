@@ -38,6 +38,7 @@ EOF
 
 conda install --yes $DEPS_TEST
 conda install --yes abstract-rendering
+conda install --yes blaze into multiuserblazeserver
 
 MATPLOTLIB_RC=$(python -c "import matplotlib; print(matplotlib.matplotlib_fname())")
 sed -i 's/^backend\s*:.*$/backend: agg/' $MATPLOTLIB_RC
