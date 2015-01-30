@@ -328,7 +328,7 @@ if not exists(join(ROOT, 'MANIFEST.in')):
               "Bokeh repository from https://github.com/bokeh/bokeh")
         if "--build_js"  in sys.argv:
             sys.argv.remove('--build_js')
-        if "--install_js"  in sys.argv: 
+        if "--install_js"  in sys.argv:
             sys.argv.remove('--install_js')
         jsbuild = False
         jsinstall = False
@@ -470,11 +470,13 @@ setup(
         'bokeh.server',
         'bokeh.server.models',
         'bokeh.server.views',
+        'bokeh.server.mbs',
         'bokeh.server.utils',
         'bokeh.server.tests',
         'bokeh.sphinxext',
         'bokeh.tests',
         'bokeh.transforms'
+
     ],
     package_data={'bokeh': package_data},
     author='Continuum Analytics',
