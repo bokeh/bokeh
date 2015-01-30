@@ -108,6 +108,7 @@ def make_bar_plot(datasource, counts_name="counts",
                   centers_name="centers",
                   bar_width=0.7,
                   x_range=None,
+                  y_range=None,
                   plot_width=500, plot_height=500,
                   tools="pan,wheel_zoom,box_zoom,save,resize,box_select,reset",
                   title_text_font_size="12pt"):
@@ -151,6 +152,7 @@ def make_bar_plot(datasource, counts_name="counts",
         select_tool.dimensions = ['width']
 
     return plot
+
 
 def make_histogram(datasource,
                    counts_name="counts",

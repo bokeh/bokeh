@@ -6,15 +6,16 @@ import numpy as np
 
 from ..plotting import curdoc
 from ..models import ColumnDataSource, FactorRange, GridPlot, Panel, Tabs, \
-    Range, DataRange1d
+    Range, DataRange1d, Range1d
 from ..models.widgets import Select, MultiSelect, InputWidget
 # crossfilter plotting utilities
 from .plotting import (make_histogram_source,
                        make_histogram, make_continuous_bar_source,
                        make_categorical_bar_source,
                        make_bar_plot, cross)
-#bokeh plotting functions
+# bokeh plotting functions
 from ..plotting import figure
+from ..plotting_helpers import _get_select_tool
 from ..plot_object import PlotObject
 from ..properties import Dict, Enum, Instance, List, String, Any, Int
 
@@ -91,6 +92,164 @@ class ContinuousFacet(DiscreteFacet):
         return df
 
 
+class CrossFilterPlugin(object):
+    def __init__(self, *args, **kwargs):
+        self.cf = kwargs.pop('crossfilter', None)
+        self.x = self.cf.x
+        self.y = self.cf.y
+        self.source = kwargs.pop('source', None)
+        self.facet = kwargs.pop('facet', False)
+        self.col_meta = self.cf.column_descriptor_dict()
+        self.valid_plot = True
+
+        # get any provided title, else generate our own
+        self._title = kwargs.pop('title', None)
+        if not self._title:
+            self._title = self.title
+        self.args = args
+        self.kwargs = kwargs
+
+    def get_plot(self):
+        self.validate_plot()
+        plot = self.make_figure(**self.kwargs)
+        if self.valid_plot:
+            plot = self.make_plot(plot)
+        return plot
+
+    def make_figure(self, **kwargs):
+        kwargs['title'] = self._title
+        return figure(**kwargs)
+
+    def make_plot(self, plot):
+        plot.scatter(self.x, self.y, source=self.source)
+        return plot
+
+    def validate_plot(self):
+        if not self.facet:
+            if len(self.source.data[self.x]) == 0 or len(
+                    self.source.data[self.y]) == 0:
+                self._title = 'All data is filtered out.'
+                self.valid_plot = False
+
+    @property
+    def title(self):
+        return "%s by %s"%(self.x, self.y)
+
+    @property
+    def x_type(self):
+        return self.col_meta[self.x]['type']
+
+    @property
+    def y_type(self):
+        return self.col_meta[self.y]['type']
+
+    @property
+    def df(self):
+        return self.source.to_df()
+
+    @staticmethod
+    def make_xy_ranges(cf, col_meta):
+        x_col = cf.x
+        y_col = cf.y
+        df = cf.df
+
+        if col_meta[x_col]['type'] == 'DiscreteColumn':
+            x_range = FactorRange(factors=sorted(set(df[x_col])))
+        else:
+            x_vals = df[x_col]
+            x_range = DataRange1d(start=x_vals.min(), end=x_vals.max())
+
+        if col_meta[y_col]['type'] == 'DiscreteColumn':
+            y_range = FactorRange(factors=sorted(set(df[y_col])))
+        else:
+            y_vals = df[y_col]
+            y_range = DataRange1d(start=y_vals.min(), end=y_vals.max())
+
+        return x_range, y_range
+
+
+class CrossBarPlugin(CrossFilterPlugin):
+    def __init__(self, *args, **kwargs):
+
+        cf = kwargs['crossfilter']
+        self.agg = cf.agg
+        super(CrossBarPlugin, self).__init__(*args, **kwargs)
+        self.bar_width = 0.7
+
+    def make_plot(self, plot):
+        self.transform_data()
+        y = [val/2.0 for val in self.source.data[self.y]]
+        plot.rect(self.x, y, self.bar_width, self.y, source=self.source)
+        plot.min_border = 0
+        plot.h_symmetry = False
+        plot.v_symmetry = False
+
+        select_tool = _get_select_tool(plot)
+        if select_tool:
+            select_tool.dimensions = ['width']
+        return plot
+
+    def transform_data(self):
+        if self.y_type == 'DiscreteColumn':
+            self.source = make_continuous_bar_source(self.df, self.x, self.y,
+                                                     self.agg)
+        else:
+            self.source = make_categorical_bar_source(self.df, self.x, self.y,
+                                                      self.agg)
+
+    def validate_plot(self):
+
+        if self.y_type == 'DiscreteColumn':
+            self._title = 'Bar does not support discrete y column'
+            self.valid_plot = False
+
+        if self.x == self.y:
+            self._title = 'Bar does not support x and y of same column'
+            self.valid_plot = False
+
+        if self.df.empty:
+            self._title = 'All data is filtered out'
+            self.valid_plot = False
+
+    @property
+    def title(self):
+        return "%s(%s) by %s"%(self.agg, self.y, self.x)
+
+    @staticmethod
+    def make_xy_ranges(cf, col_meta, bar_width=0.7):
+        x_col = cf.x
+        y_col = cf.y
+        df = cf.df
+        agg = cf.agg
+
+        if col_meta[x_col]['type'] != 'DiscreteColumn':
+            source = make_continuous_bar_source(df, x_col, y_col, agg)
+            x_range = Range1d(start=df[x_col].min() - bar_width,
+                              end=df[x_col].max() - bar_width)
+        else:
+            source = make_categorical_bar_source(df, x_col, y_col, agg)
+            x_range = FactorRange(factors=source.data[x_col])
+
+        top = np.max(source.data[y_col])
+        y_range = Range1d(start=0, end=top)
+
+        return x_range, y_range
+
+
+class CrossScatterPlugin(CrossFilterPlugin):
+    def __init__(self, *args, **kwargs):
+        super(CrossScatterPlugin, self).__init__(*args, **kwargs)
+
+
+class CrossLinePlugin(CrossFilterPlugin):
+    def __init__(self, *args, **kwargs):
+        super(CrossLinePlugin, self).__init__(*args, **kwargs)
+
+    def make_plot(self, plot):
+        plot.line(self.x, self.y, source=self.source)
+        return plot
+
+
 class CrossFilter(PlotObject):
     """Interactive filtering and faceting application with multiple plot
     types"""
@@ -125,6 +284,9 @@ class CrossFilter(PlotObject):
 
     # configuration properties for the plot
     plot_type = Enum("line", "scatter", "bar")
+    plot_map = {'line': CrossLinePlugin,
+                'scatter': CrossScatterPlugin,
+                'bar': CrossBarPlugin}
     x = String
     y = String
     agg = String
@@ -232,6 +394,10 @@ class CrossFilter(PlotObject):
             if getattr(self, k) is None:
                 setattr(self, k, v)
 
+    def get_plot_class(self):
+        """Return the class for the current plot selection."""
+        return self.plot_map[self.plot_type]
+
     def column_descriptor_dict(self):
         """Creates column stats dict with keys of column names.
 
@@ -293,7 +459,7 @@ class CrossFilter(PlotObject):
 
             # generate a list of panels, containing plot/plots for each facet
             tabs = [self.make_tab(content=self.create_plot_page(
-                    tab_facet=facet), tab_label=str(facet)) for facet in facets]
+                tab_facet=facet), tab_label=str(facet)) for facet in facets]
             return Tabs(tabs=tabs)
         else:
             return self.create_plot_page()
@@ -361,7 +527,7 @@ class CrossFilter(PlotObject):
             # create facets from discrete columns
             if column_descriptor_dict[field]['type'] == 'DiscreteColumn':
                 field_facets = [DiscreteFacet(field, val) for val in
-                          np.unique(self.df[field].values)]
+                                np.unique(self.df[field].values)]
 
                 # combine any facets as required
                 all_facets = cross(all_facets, field_facets)
@@ -369,7 +535,8 @@ class CrossFilter(PlotObject):
                 # create quantile based discrete data and pairs of bins
                 categorical, bins = pd.qcut(self.df[field], 4, retbins=True)
                 cats = categorical.cat.categories
-                bins = [[bins[idx], bins[idx + 1]] for idx in range(len(bins)- 1)]
+                bins = [[bins[idx], bins[idx + 1]] for idx in
+                        range(len(bins) - 1)]
                 bins[0][0] = None
 
                 # create list of facets
@@ -438,7 +605,7 @@ class CrossFilter(PlotObject):
             df = self.facet_data(facets, self.filtered_df)
             plot = self.make_single_plot(
                 df=df, title=title, plot_height=200, plot_width=200,
-                tools="pan,wheel_zoom,reset"
+                tools="pan,wheel_zoom,reset", facet=facets
             )
             plot.min_border = 0
 
@@ -477,17 +644,21 @@ class CrossFilter(PlotObject):
             # x faceting across row
             row = []
             for facets_x in all_facets_x:
-                facets = facets_x + facets_y
 
+                # build the facets and title
+                facets = facets_x + facets_y
                 title = self.facet_title(facets)
 
+                # must filter by any extra facets provided for facet tab
                 if facet:
-                    facets += facet
+                    filter_facets = facets + facet
+                else:
+                    filter_facets = facets
 
-                df = self.facet_data(facets, self.filtered_df)
+                df = self.facet_data(filter_facets, self.filtered_df)
                 plot = self.make_single_plot(
                     df=df, title=title, plot_height=200, plot_width=200,
-                    tools="pan,wheel_zoom,reset"
+                    tools="pan,wheel_zoom,reset", facet=facets
                 )
                 plot.min_border = 0
                 plot.v_symmetry = False
@@ -517,126 +688,39 @@ class CrossFilter(PlotObject):
           PlotObject: the generated plot
 
         """
-        column_descriptor_dict = self.column_descriptor_dict()
-        do_plot = True
         faceting = False
 
+        # df is not provided when we are not faceting
         if df is None:
             df = self.filtered_df
-
-            if facet:
-                df = self.facet_data(facets=facet, df=df)
-
-            source = ColumnDataSource(data=df)
-
-            if len(source.data[self.x]) == 0 or len(source.data[self.y]) == 0:
-                do_plot = False
-                title = 'All data is filtered out'
         else:
-            if facet:
-                df = facet.filter(df=df)
-            source = ColumnDataSource(data=df)
+            df = self.facet_data(facets=facet, df=df)
             faceting = True
 
-        # scatter plot
-        if self.plot_type == "scatter":
-            if title is None:
-                title = "%s by %s"%(self.x, self.y)
+        # check for tab faceting and filter if provided
+        if facet:
+            df = self.facet_data(facets=facet, df=df)
 
-            # create the figure and configure the source fields to scatter plot
-            plot = figure(title_text_font_size="12pt",
+        # create column data source with filtered df
+        source = ColumnDataSource(data=df)
+
+        # get the helper class for the plot type selected
+        plot_class = self.get_plot_class()
+
+        # initialize the helper class
+        plot = plot_class(source=source,
+                          title_text_font_size="12pt",
                           plot_height=plot_height,
                           plot_width=plot_width,
                           tools=tools,
                           title=title,
                           x_range=self.x_range,
-                          y_range=self.y_range)
+                          y_range=self.y_range,
+                          facet=faceting,
+                          crossfilter=self)
 
-            if do_plot:
-                plot.scatter(self.x, self.y, source=source)
-
-        # line plot
-        elif self.plot_type == "line":
-            if title is None:
-                title = "%s by %s"%(self.x, self.y)
-
-            plot = figure(title_text_font_size="12pt",
-                          plot_height=plot_height,
-                          plot_width=plot_width,
-                          tools=tools,
-                          title=title,
-                          x_range=self.x_range,
-                          y_range=self.y_range)
-
-            if do_plot:
-                plot.line(self.x, self.y, source=source)
-
-        # bar plot
-        elif self.plot_type == 'bar':
-
-            if title is None:
-                title = "%s(%s) by %s"%(self.agg, self.y, self.x)
-
-            if df is None:
-                df = self.filtered_df
-
-                if facet:
-                    df = facet.filter(df=df)
-
-            # detect all cases that we don't support for this chart
-            if df.empty:
-                do_plot = False
-
-                if not faceting:
-                    title = 'All data is filtered out'
-
-            if self.x == self.y:
-                do_plot = False
-                title = 'Bar does not support two of same column'
-
-            if column_descriptor_dict[self.y]['type'] == 'DiscreteColumn':
-                do_plot = False
-                title = 'Bar does not support discrete y column'
-
-            # plot if we can, otherwise return an empty figure
-            if do_plot:
-
-                # discrete data on x axis
-                if column_descriptor_dict[self.x]['type'] != 'DiscreteColumn':
-                    source = make_continuous_bar_source(
-                        df, self.x, self.y, self.agg)
-                    bar_width = 0.7
-                    x_range = [df[self.x].min() - bar_width,
-                               df[self.x].max() - bar_width]
-
-                # continuous/other data on x axis
-                else:
-                    source = make_categorical_bar_source(df, self.x, self.y,
-                                                         self.agg)
-                    x_range = FactorRange(factors=source.data[self.x])
-
-                plot = make_bar_plot(source, counts_name=self.y,
-                                     centers_name=self.x,
-                                     plot_height=plot_height,
-                                     plot_width=plot_width,
-                                     tools=tools,
-                                     x_range=self.x_range)
-                plot.title = title
-
-            else:
-                plot = figure(title_text_font_size="12pt",
-                              plot_height=plot_height,
-                              plot_width=plot_width,
-                              tools=tools,
-                              title=title,
-                              x_range=self.x_range,
-                              y_range=self.y_range)
-
-        # the plot requested is not known
-        else:
-            raise NotImplementedError("The chosen plot is not defined")
-
-        return plot
+        # return the generated plot
+        return plot.get_plot()
 
     def update_xy_ranges(self, source):
         """Updates common x_range, y_range to use for creating figures.
@@ -647,18 +731,12 @@ class CrossFilter(PlotObject):
         """
         column_descriptor_dict = self.column_descriptor_dict()
 
-        # detect discrete columns and return a FactorRange if required
-        if column_descriptor_dict[self.x]['type'] == 'DiscreteColumn':
-            self.x_range = FactorRange(factors=sorted(set(source[self.x])))
-        else:
-            x_vals = source[self.x]
-            self.x_range = DataRange1d(start=x_vals.min(), end=x_vals.max())
-
-        if column_descriptor_dict[self.y]['type'] == 'DiscreteColumn':
-            self.y_range = FactorRange(factors=sorted(set(source.data[self.y])))
-        else:
-            y_vals = source[self.y]
-            self.y_range = DataRange1d(start=y_vals.min(), end=y_vals.max())
+        # get x and y range from the plot class
+        plt_cls = self.get_plot_class()
+        x_range, y_range = plt_cls.make_xy_ranges(cf=self,
+                                                  col_meta=column_descriptor_dict)
+        self.x_range = x_range
+        self.y_range = y_range
 
     def plot_attribute_change(self, obj, attrname, old, new):
         """Updates app's attribute and plot when view configuration changes.
