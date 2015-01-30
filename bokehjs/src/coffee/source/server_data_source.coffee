@@ -2,13 +2,13 @@
 define [
   "backbone"
   "underscore"
-  "./column_data_source"
+  "./remote_data_source"
   "common/collection"
   "common/has_properties"
   "common/logging"
   "range/range1d"
   "range/data_range1d"
-], (Backbone, _, ColumnDataSource, Collection,
+], (Backbone, _, RemoteDataSource, Collection,
   HasProperties, Logging, Range1d, DataRange1d) ->
 
   logger = Logging.logger
@@ -250,7 +250,7 @@ define [
       )
       return resp
 
-  class ServerDataSource extends ColumnDataSource.Model
+  class ServerDataSource extends RemoteDataSource.RemoteDataSource
     # Datasource where the data is defined column-wise, i.e. each key in the
     # the data attribute is a column name, and its value is an array of scalars.
     # Each column should be the same length.
@@ -258,6 +258,19 @@ define [
 
     initialize : (attrs, options) =>
       super(attrs, options)
+
+    setup : (plot_view, glyph) =>
+      plot_h_range =
+      plot_v_range =
+      data_x_range =
+      data_y_range =
+      options =
+        data_x : plot_view.x_range
+        data_y : plot_view.y_range
+        screen_x : plot_view.frame.get('h_range')
+        screen_y : plot_view.frame.get('v_range')
+        glyph : glyph.model
+      @setup_proxy(options)
 
     setup_proxy : (options) =>
       options['data_source'] = this

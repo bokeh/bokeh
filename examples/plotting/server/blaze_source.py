@@ -6,13 +6,12 @@ from bokeh.plotting import *
 from bokeh.models import ServerDataSource, BlazeDataSource
 from bokeh.transforms import line_downsample
 
-output_server("remotedata")
+output_server("blaze")
 source = BlazeDataSource(data_url="http://localhost:5006/compute.json",
-                         expr={'op': 'Field', 'args': [':leaf', 'aapl']})
-p = figure(x_axis_type = "datetime")
-p.line('date', 'close',
+                         expr={'op': 'Field', 'args': [':leaf', 'gauss']})
+p = figure()
+p.circle('oneA', 'oneB',
        color='#A6CEE3',
        tools="pan,wheel_zoom,box_zoom,reset,previewsave",
-       source=source,
-       legend='AAPL')
+       source=source)
 show()
