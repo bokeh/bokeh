@@ -31,7 +31,7 @@ from ..models import (ColumnDataSource, Grid, GlyphRenderer, Legend, LinearAxis,
                       WheelZoomTool)
 from ..document import Document
 
-from ..charts import (Chart, ChartObject, DataAdapter, Area, Bar, Dot, Donut,
+from ..charts import (Chart, DataAdapter, Area, Bar, Dot, Donut,
                       Line, HeatMap, Histogram, Scatter, Step, TimeSeries,
                       BoxPlot)
 
@@ -353,12 +353,14 @@ class TestChart(unittest.TestCase):
 class TestChartObject(unittest.TestCase):
 
     def setUp(self):
-        self.chart_object = ChartObject(title="title", xlabel="xlabel", ylabel="ylabel",
-                                        legend="top_left", xscale="linear", yscale="linear",
-                                        width=800, height=600, tools=True,
-                                        filename=False, server=False, notebook=False,
-                                        facet=False, palette=["#FFFFFF", "#000000"],
-                                        xgrid=True, ygrid=False)
+        self.chart_object = ChartObject(
+            title="title", xlabel="xlabel", ylabel="ylabel",
+            legend="top_left", xscale="linear", yscale="linear",
+            width=800, height=600, tools=True,
+            filename=False, server=False, notebook=False,
+            facet=False, palette=["#FFFFFF", "#000000"],
+            xgrid=True, ygrid=False
+    )
 
     def test_args(self):
         self.assertEqual(self.chart_object._ChartObject__title, "title")
