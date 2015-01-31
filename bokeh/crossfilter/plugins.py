@@ -1,3 +1,5 @@
+import numpy as np
+
 from ..models import FactorRange, DataRange1d, Range1d
 
 from ..plotting import figure
@@ -192,13 +194,14 @@ class CrossBarPlugin(CrossFilterPlugin):
             self._title = 'Bar does not support x and y of same column'
             self.valid_plot = False
 
-        if self.df.empty:
+        if self.df.empty and not self.facet:
             self._title = 'All data is filtered out'
             self.valid_plot = False
 
     @property
     def title(self):
-        return "%s(%s) by %s" % (self.agg, self.y, self.x)
+        return "%s(%s) by %s" % (self.agg.title(), self.y.title(),
+                                 self.x.title())
 
     @staticmethod
     def make_xy_ranges(cf, bar_width=0.7):
@@ -218,16 +221,21 @@ class CrossBarPlugin(CrossFilterPlugin):
         agg = cf.agg
         col_meta = cf.column_descriptor_dict()
 
-        if col_meta[x_col]['type'] != 'DiscreteColumn':
-            source = make_continuous_bar_source(df, x_col, y_col, agg)
-            x_range = Range1d(start=df[x_col].min() - bar_width,
-                              end=df[x_col].max() - bar_width)
-        else:
-            source = make_categorical_bar_source(df, x_col, y_col, agg)
-            x_range = FactorRange(factors=source.data[x_col])
+        if x_col != y_col:
 
-        top = np.max(source.data[y_col])
-        y_range = Range1d(start=0, end=top)
+            if col_meta[x_col]['type'] != 'DiscreteColumn':
+                source = make_continuous_bar_source(df, x_col, y_col, agg)
+                x_range = Range1d(start=df[x_col].min() - bar_width,
+                                  end=df[x_col].max() - bar_width)
+            else:
+                source = make_categorical_bar_source(df, x_col, y_col, agg)
+                x_range = FactorRange(factors=source.data[x_col])
+
+            top = np.max(source.data[y_col])
+            y_range = Range1d(start=0, end=top)
+        else:
+            x_range = cf.x_range
+            y_range = cf.y_range
 
         return x_range, y_range
 

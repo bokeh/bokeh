@@ -592,17 +592,18 @@ class CrossFilter(PlotObject):
 
         # df is not provided when we are not faceting
         if df is None:
-            df = self.filtered_df
+            source = self.filtered_data
         else:
             df = self.facet_data(facets=facet, df=df)
+
+            # create column data source with filtered df
+            source = ColumnDataSource(data=df)
             faceting = True
 
         # check for tab faceting and filter if provided
         if facet:
             df = self.facet_data(facets=facet, df=df)
-
-        # create column data source with filtered df
-        source = ColumnDataSource(data=df)
+            source = ColumnDataSource(data=df)
 
         # get the helper class for the plot type selected
         plot_class = self.get_plot_class()
