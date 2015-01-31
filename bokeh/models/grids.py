@@ -4,7 +4,7 @@
 from __future__ import absolute_import
 
 from ..properties import Int, String, Float, Auto, Instance, Tuple, Either, Include
-from ..mixins import LineProps
+from ..mixins import FillProps, LineProps
 
 from .renderers import GuideRenderer
 from .tickers import Ticker
@@ -48,3 +48,8 @@ class Grid(GuideRenderer):
     grid_props = Include(LineProps, help="""
     The %s of the Grid lines.
     """)
+
+    alt_props = Include(FillProps, help="""
+    The %s of alternating regions between Grid lines.
+    """)
+
