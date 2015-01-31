@@ -42,9 +42,12 @@ def hide_axes(plot, axes=('x', 'y')):
         axis = getattr(plot, label + 'axis')
         axis = axis[0]
         axis.major_label_text_alpha = 0.0
+        axis.major_label_text_font_size = '0pt'
         axis.axis_line_alpha = 0.0
         axis.major_tick_line_alpha = 0.0
         axis.minor_tick_line_alpha = 0.0
+
+    plot.min_border = 0
 
 
 def make_histogram_source(series):
