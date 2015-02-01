@@ -131,20 +131,18 @@ class CrossFilterPlugin(object):
 
         """
         col_meta = cf.column_descriptor_dict()
-        x_col = cf.x
-        y_col = cf.y
         df = cf.df
 
-        if col_meta[x_col]['type'] == 'DiscreteColumn':
-            x_range = FactorRange(factors=sorted(set(df[x_col])))
+        if col_meta[cf.x]['type'] == 'DiscreteColumn':
+            x_range = FactorRange(factors=sorted(set(df[cf.x])))
         else:
-            x_vals = df[x_col]
+            x_vals = df[cf.x]
             x_range = DataRange1d(start=x_vals.min(), end=x_vals.max())
 
-        if col_meta[y_col]['type'] == 'DiscreteColumn':
-            y_range = FactorRange(factors=sorted(set(df[y_col])))
+        if col_meta[cf.y]['type'] == 'DiscreteColumn':
+            y_range = FactorRange(factors=sorted(set(df[cf.y])))
         else:
-            y_vals = df[y_col]
+            y_vals = df[cf.y]
             y_range = DataRange1d(start=y_vals.min(), end=y_vals.max())
 
         return x_range, y_range
@@ -158,7 +156,6 @@ class CrossBarPlugin(CrossFilterPlugin):
         cf = kwargs['crossfilter']
         self.agg = cf.agg
         super(CrossBarPlugin, self).__init__(*args, **kwargs)
-        self.bar_width = 0.7
 
     def make_plot(self, plot):
         self.transform_data()
@@ -174,13 +171,17 @@ class CrossBarPlugin(CrossFilterPlugin):
 
     def transform_data(self):
         """Generates custom source that describes the bars to be plotted."""
+        width_factor = 0.8
 
-        if self.y_type == 'DiscreteColumn':
+        if self.x_type != 'DiscreteColumn':
             self.source = make_continuous_bar_source(self.df, self.x, self.y,
                                                      self.agg)
+            x_vals = self.source.data[self.x]
+            self.bar_width = (x_vals[1] - x_vals[0]) * width_factor
         else:
             self.source = make_categorical_bar_source(self.df, self.x, self.y,
                                                       self.agg)
+            self.bar_width = width_factor
 
     def validate_plot(self):
         super(CrossBarPlugin, self).validate_plot()
@@ -214,29 +215,27 @@ class CrossBarPlugin(CrossFilterPlugin):
           (xrange, yrange): the x/y ranges to use for the bar plot
 
         """
-        x_col = cf.x
-        y_col = cf.y
         df = cf.df
-        agg = cf.agg
         col_meta = cf.column_descriptor_dict()
 
-        if x_col != y_col:
+        # only return new ranges if x and y aren't identical
+        if cf.x != cf.y:
 
-            if col_meta[x_col]['type'] != 'DiscreteColumn':
-                source = make_continuous_bar_source(df, x_col, y_col, agg)
-                x_range = Range1d(start=df[x_col].min() - bar_width,
-                                  end=df[x_col].max() - bar_width)
+            # create x range
+            if col_meta[cf.x]['type'] != 'DiscreteColumn':
+                source = make_continuous_bar_source(df, cf.x, cf.y, cf.agg)
+                x_range = Range1d(start=df[cf.x].min() - bar_width,
+                                  end=df[cf.x].max() + bar_width)
             else:
-                source = make_categorical_bar_source(df, x_col, y_col, agg)
-                x_range = FactorRange(factors=source.data[x_col])
+                source = make_categorical_bar_source(df, cf.x, cf.y, cf.agg)
+                x_range = FactorRange(factors=source.data[cf.x])
 
-            top = np.max(source.data[y_col])
+            # create y range
+            top = np.max(source.data[cf.y])
             y_range = Range1d(start=0, end=top)
+            return x_range, y_range
         else:
-            x_range = cf.x_range
-            y_range = cf.y_range
-
-        return x_range, y_range
+            return cf.x_range, cf.y_range
 
 
 class CrossScatterPlugin(CrossFilterPlugin):

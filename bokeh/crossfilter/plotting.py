@@ -81,10 +81,11 @@ def make_continuous_bar_source(df, x_field, y_field, agg):
     """
 
     # Generate dataframe required to use the categorical bar source function
-    labels, edges = pd.cut(x=df[x_field], bins=50, retbins=True, labels=False)
+    labels, edges = pd.cut(x=df[x_field], bins=20, retbins=True, labels=False)
     centers = pd.rolling_mean(edges, 2)[1:]
-    labels = centers[labels]
-    df[x_field] = labels
+
+    # store new value of x as the bin it fell into
+    df[x_field] = centers[labels]
 
     # After making it discrete, create the categorical bar source
     return make_categorical_bar_source(df, x_field, y_field, agg)
