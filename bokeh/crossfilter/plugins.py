@@ -164,7 +164,6 @@ class CrossBarPlugin(CrossFilterPlugin):
         self.transform_data()
         y = [val/2.0 for val in self.source.data[self.y]]
         plot.rect(self.x, y, self.bar_width, self.y, source=self.source)
-        plot.min_border = 0
         plot.h_symmetry = False
         plot.v_symmetry = False
 
