@@ -349,7 +349,6 @@ package_path(join('bokeh', 'sampledata'), sampledata_suffixes)
 package_path(join('bokeh', 'server', 'redis.conf'))
 package_path(join(SERVER, 'tests', 'config'))
 package_path(join(SERVER, 'tests', 'data'))
-import pdb;pdb.set_trace()
 scripts = ['bokeh-server', 'websocket_worker.py']
 
 if '--user' in sys.argv:
