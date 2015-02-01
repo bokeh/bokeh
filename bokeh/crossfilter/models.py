@@ -536,6 +536,15 @@ class CrossFilter(PlotObject):
         plot.title_text_font_size = "9pt"
         plot.min_border = 0
 
+    def apply_single_plot_style(self, plot):
+        """Applies styles when we have only one plot.
+
+        Override this method to modify the look of a customized CrossFilter
+        for all plugins.
+
+        """
+        plot.min_border_left = 60
+
     def apply_grid_style(self, grid_plot):
         """Applies facet-specific style for the grid of faceted plots.
 
@@ -629,6 +638,7 @@ class CrossFilter(PlotObject):
             self.apply_facet_style(plot)
             self.title = plugin.title
         else:
+            self.apply_single_plot_style(plot)
             self.title = plot.title
 
         return plot

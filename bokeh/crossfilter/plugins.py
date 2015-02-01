@@ -177,7 +177,11 @@ class CrossBarPlugin(CrossFilterPlugin):
             self.source = make_continuous_bar_source(self.df, self.x, self.y,
                                                      self.agg)
             x_vals = self.source.data[self.x]
-            self.bar_width = (x_vals[1] - x_vals[0]) * width_factor
+            if len(x_vals) >= 2:
+                # ToDo: handle widely spaced x_vals for filtered data
+                self.bar_width = (x_vals[1] - x_vals[0]) * width_factor
+            else:
+                self.bar_width = width_factor
         else:
             self.source = make_categorical_bar_source(self.df, self.x, self.y,
                                                       self.agg)
@@ -194,8 +198,9 @@ class CrossBarPlugin(CrossFilterPlugin):
             self._title = 'Bar does not support x and y of same column'
             self.valid_plot = False
 
-        if self.df.empty and not self.facet:
-            self._title = 'All data is filtered out'
+        if self.df.empty:
+            if not self.facet:
+                self._title = 'All data is filtered out'
             self.valid_plot = False
 
     @property
@@ -215,7 +220,7 @@ class CrossBarPlugin(CrossFilterPlugin):
           (xrange, yrange): the x/y ranges to use for the bar plot
 
         """
-        df = cf.df
+        df = cf.filtered_df
         col_meta = cf.column_descriptor_dict()
 
         # only return new ranges if x and y aren't identical
