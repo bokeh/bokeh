@@ -26,12 +26,6 @@ conda install --yes $DEPS_TRAVIS
 conda config --add channels bokeh
 conda config --add channels mutirri   # TODO: remove when packages are moved to bokeh
 
-echo "---------- conda info ----------"
-conda info
-echo "---------- conda list ----------"
-conda list
-echo "---------- ---------- ----------"
-
 CONDA_PY="${TRAVIS_PYTHON_VERSION/./}" conda build conda.recipe
 conda install --use-local --yes bokeh
 
