@@ -37,7 +37,7 @@ EOF
 
 conda install --yes $DEPS_TEST
 conda install --yes abstract-rendering
-conda install --yes blaze multiuserblazeserver
+conda install --yes blaze multiuserblazeserver pillow
 ##hack - we need a later version of into which blaze is not yet built against
 conda install --yes into
 
