@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import datetime
 import unittest
-from mock import patch
+from mock import patch, Mock
 import numpy as np
 from numpy.testing import assert_array_equal, assert_array_almost_equal
 
@@ -34,6 +34,7 @@ from ..document import Document
 from ..charts import (Chart, DataAdapter, Area, Bar, Dot, Donut,
                       Line, HeatMap, Histogram, Scatter, Step, TimeSeries,
                       BoxPlot)
+from ..charts._builder import Builder
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -77,7 +78,6 @@ class TestChart(unittest.TestCase):
            width=800, height=600, tools=True,
            filename=False, server=False, notebook=False
         )
-        self.chart.start_plot()
 
     def test_args(self):
         """ Tests attributes have been set after chart object creation
@@ -212,123 +212,58 @@ class TestChart(unittest.TestCase):
         mock_warn.assert_any_call(msg_removed)
 
 
-# class Test Builder:
-#     @patch('bokeh.charts._charts.Chart._append_glyph')
-#     def test_make_segment(self, mock_append_glyph):
-#         segment = self.chart.make_segment(self.source, 0, 1, 0, 1, "black", 1)
-#         self.assertEqual(segment.x0, 0)
-#         self.assertEqual(segment.y0, 1)
-#         self.assertEqual(segment.x1, 0)
-#         self.assertEqual(segment.y1, 1)
-#         self.assertEqual(segment.line_color, "black")
-#         self.assertEqual(segment.line_width, 1)
-#         self.chart._append_glyph.assert_called_once_with(self.source, segment)
-#
-#     @patch('bokeh.charts._charts.Chart._append_glyph')
-#     def test_make_line(self, mock_append_glyph):
-#         line = self.chart.make_line(self.source, [0, 1], [0, 1], "black")
-#         self.assertEqual(line.x, [0, 1])
-#         self.assertEqual(line.y, [0, 1])
-#         self.assertEqual(line.line_color, "black")
-#         self.chart._append_glyph.assert_called_once_with(self.source, line)
-#
-#     @patch('bokeh.charts._charts.Chart._append_glyph')
-#     def test_make_quad(self, mock_append_glyph):
-#         quad = self.chart.make_quad(self.source, [1], [0], [0], [1], "black", "black")
-#         self.assertEqual(quad.top, [1])
-#         self.assertEqual(quad.bottom, [0])
-#         self.assertEqual(quad.left, [0])
-#         self.assertEqual(quad.right, [1])
-#         self.assertEqual(quad.fill_color, "black")
-#         self.assertEqual(quad.line_color, "black")
-#         self.chart._append_glyph.assert_called_once_with(self.source, quad)
-#
-#     @patch('bokeh.charts._charts.Chart._append_glyph')
-#     def test_rect(self, mock_append_glyph):
-#         rect = self.chart.make_rect(self.source, [1], [0], [0], [1], "black", "black", 1)
-#         self.assertEqual(rect.x, [1])
-#         self.assertEqual(rect.y, [0])
-#         self.assertEqual(rect.width, [0])
-#         self.assertEqual(rect.height, [1])
-#         self.assertEqual(rect.fill_color, "black")
-#         self.assertEqual(rect.line_color, "black")
-#         self.assertEqual(rect.line_width, 1)
-#         self.chart._append_glyph.assert_called_once_with(self.source, rect)
-#
-#     @patch('bokeh.charts._charts.Chart._append_glyph')
-#     def test_scatter(self, mock_append_glyph):
-#         scatter = self.chart.make_scatter(self.source, [0], [1], "circle", "black")
-#         self.assertEqual(scatter.x, [0])
-#         self.assertEqual(scatter.y, [1])
-#         self.assertIsInstance(scatter, Circle)
-#         self.assertEqual(scatter.line_color, "black")
-#         self.chart._append_glyph.assert_called_once_with(self.source, scatter)
-#
-#     @patch('bokeh.charts._charts.Chart._append_glyph')
-#     def test_make_patch(self, mock_append_glyph):
-#         patch = self.chart.make_patch(self.source, [0, 1], [0, 1], "black")
-#         self.assertEqual(patch.x, [0, 1])
-#         self.assertEqual(patch.y, [0, 1])
-#         self.assertEqual(patch.fill_color, "black")
-#         self.chart._append_glyph.assert_called_once_with(self.source, patch)
-#
-#     @patch('bokeh.charts._charts.Chart._append_glyph')
-#     def test_text(self, mock_append_glyph):
-#         text = self.chart.make_text(
-#             self.source, x="x", y="y", text="text", angle=0,
-#             text_align="center", text_baseline="middle"
-#         )
-#         self.assertIsInstance(text, Text)
-#         self.assertEqual(text.x, "x")
-#         self.assertEqual(text.y, "y")
-#         self.assertEqual(text.text, "text")
-#         self.assertEqual(text.angle, 0)
-#         self.assertEqual(text.text_align, "center")
-#         self.assertEqual(text.text_baseline, "middle")
-#         self.chart._append_glyph.assert_called_once_with(self.source, text)
-#
-#     @patch('bokeh.charts._charts.Chart._append_glyph')
-#     def test_wedge(self, mock_append_glyph):
-#         wedge = self.chart.make_wedge(
-#             self.source, x=0, y=1, radius=1, line_color="white",
-#             line_width=2, start_angle="start", end_angle="end", fill_color="colors"
-#         )
-#
-#         self.assertIsInstance(wedge, Wedge)
-#         self.assertEqual(wedge.x, 0)
-#         self.assertEqual(wedge.y, 1)
-#         self.assertEqual(wedge.radius, 1)
-#         self.assertEqual(wedge.line_color, "white")
-#         self.assertEqual(wedge.fill_color, "colors")
-#         self.assertEqual(wedge.line_width, 2)
-#         self.assertEqual(wedge.start_angle, "start")
-#         self.assertEqual(wedge.end_angle, "end")
-#
-#         self.chart._append_glyph.assert_called_once_with(self.source, wedge)
-#
-#     @patch('bokeh.charts._charts.Chart._append_glyph')
-#     def test_annular(self, mock_append_glyph):
-#         annular = self.chart.make_annular(
-#             self.source, x=0, y=10, inner_radius=1, outer_radius=1.5,
-#             start_angle="start", end_angle="end",
-#             line_color="white", line_width=2, fill_color="fill"
-#         )
-#         self.assertIsInstance(annular, AnnularWedge)
-#         self.assertEqual(annular.x, 0)
-#         self.assertEqual(annular.y, 10)
-#         self.assertEqual(annular.inner_radius, 1)
-#         self.assertEqual(annular.outer_radius, 1.5)
-#         self.assertEqual(annular.line_color, "white")
-#         self.assertEqual(annular.fill_color, "fill")
-#         self.assertEqual(annular.line_width, 2)
-#         self.assertEqual(annular.start_angle, "start")
-#         self.assertEqual(annular.end_angle, "end")
-#         self.chart._append_glyph.assert_called_once_with(self.source, annular)
-#
-#     # Thinking about the best way to test the 3 outputs.
-#     #def test_show(self):
-#         #pass
-#
+class TestBuilder(unittest.TestCase):
+    def setUp(self):
+        self.builder = Builder("bottom_left", ['red', 'green'])
+
+    def test_instantiate(self):
+        self.builder._legend = "Test Leg"
+        self.builder._palette = ['red', 'green']
+        self.builder._legends = []
+        self.builder.data = {}
+        self.builder.groups = []
+        self.builder.attr = []
+        self.builder.groups = []
+
+    @patch('bokeh.charts._builder.DataAdapter')
+    def test_prepare_values(self, adapter_mock):
+        self.builder = Builder("bottom_left", ['red', 'green'])
+        adapter_mock.assert_callled_once_with([], force_alias=False)
+
+
+        self.builder = Builder([1, 2, 3], "Test Leg", ['red', 'green'])
+        self.builder.index = ['b']
+        adapter_mock.get_index_and_data.assert_callled_once_with(
+            [1, 2, 3], ['b'], force_alias=False
+        )
+
+    def test_create(self):
+        chart = Mock()
+
+        # prepare the builder with the mocks
+        self.builder.make_renderers = Mock(return_value='called!')
+        self.legends = ['l1', 'l2']
+        self.builder.x_range = "X-Range"
+        self.builder.y_range = "Y-Range"
+
+        self.builder.create(chart)
+
+        chart.add_renderers.assert_called_once('called')
+        chart.orientation = 'bottom_left'
+        chart.add_legend('bottom_left', self.legends)
+
+    def test_scatter(self):
+        source = ColumnDataSource({"a": [2, 4, 5]})
+        renderer = self.builder.make_scatter(source, [0], [1], "circle", "black")
+        scatter = renderer.glyph
+        self.assertIsInstance(renderer, GlyphRenderer)
+        self.assertEqual(renderer.data_source, source)
+        self.assertEqual(scatter.x, [0])
+        self.assertEqual(scatter.y, [1])
+        self.assertIsInstance(scatter, Circle)
+        self.assertEqual(scatter.line_color, "black")
+
+
 #     def test__append_glyph(self):
 #         scatter = self.chart.make_scatter(self.source, 0, 1, "circle", "black")
 #         self.chart._append_glyph(self.source, scatter)
