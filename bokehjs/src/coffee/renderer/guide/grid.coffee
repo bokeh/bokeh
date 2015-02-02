@@ -11,7 +11,7 @@ define [
     initialize: (attrs, options) ->
       super(attrs, options)
       @grid_props = new properties.Line(@, 'grid_')
-      @alt_props = new properties.Fill(@, 'alt_')
+      @band_props = new properties.Fill(@, 'band_')
       @x_range_name = @mget('x_range_name')
       @y_range_name = @mget('y_range_name')
 
@@ -27,10 +27,10 @@ define [
       @listenTo(@model, 'change', @request_render)
 
     _draw_regions: (ctx) ->
-      if not @alt_props.do_fill
+      if not @band_props.do_fill
         return
       [xs, ys] = @mget('grid_coords')
-      @alt_props.set(ctx, @)
+      @band_props.set(ctx, @)
       for i in [0...xs.length-1]
         if i % 2 == 1
           [sx0, sy0] = @plot_view.map_to_screen(xs[i], "data", ys[i], "data", @x_range_name, @y_range_name)
@@ -144,8 +144,8 @@ define [
     display_defaults: ->
       return _.extend {}, super(), {
         level: 'underlay'
-        alt_fill_color: null
-        alt_fill_alpha: 0
+        band_fill_color: null
+        band_fill_alpha: 0
         grid_line_color: '#cccccc'
         grid_line_width: 1
         grid_line_alpha: 1.0

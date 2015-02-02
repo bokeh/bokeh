@@ -49,7 +49,7 @@ class Grid(GuideRenderer):
     The %s of the Grid lines.
     """)
 
-    alt_props = Include(FillProps, help="""
-    The %s of alternating regions between Grid lines.
+    band_props = Include(FillProps, help="""
+    The %s of alternating bands between Grid lines.
     """)
 

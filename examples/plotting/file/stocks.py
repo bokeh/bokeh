@@ -34,7 +34,7 @@ p2.title = "AAPL One-Month Average"
 p2.grid.grid_line_alpha=0
 p2.xaxis.axis_label = 'Date'
 p2.yaxis.axis_label = 'Price'
-p2.ygrid.alt_fill_color="olive"
-p2.ygrid.alt_fill_alpha = 0.1
+p2.ygrid.band_fill_color="olive"
+p2.ygrid.band_fill_alpha = 0.1
 
 show(VBox(p1,p2))  # open a browser
