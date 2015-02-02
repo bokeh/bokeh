@@ -59,7 +59,7 @@ BUILD_PATH=$CONDA_ENV/conda-bld/$PLATFORM
 travis_build_id=$(cat __travis_build_id__.txt)
 
 # convert to platform-specific builds
-conda convert -p all -f $BUILD_PATH/bokeh*travis_build_id*.tar.bz2;
+conda convert -p all -f $BUILD_PATH/bokeh*$travis_build_id*.tar.bz2;
 
 #upload conda pkgs to binstar
 array=(osx-64 linux-64 win-64 linux-32 win-32)
