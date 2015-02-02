@@ -14,5 +14,4 @@ area = Area(
     ylabel='memory', filename="area.html",
     facet=False, stacked=True, legend="top_left"
 ).legend("top_left")
-import pdb; pdb.set_trace()
 area.show()
