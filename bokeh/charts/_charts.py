@@ -142,6 +142,13 @@ class Chart(Plot):
         self._builders.append(builder)
         builder.create(self)
 
+        # Add tools if supposed to
+        if self._enabled_tools:
+            # reset tools so a categorical builder can add only the
+            # supported tools
+            self.tools = []
+            self.create_tools(self._enabled_tools)
+
     def create_axes(self):
         # Add axis
         self._xaxis = self.make_axis("below", self.__xscale, self.__xlabel)
@@ -155,16 +162,15 @@ class Chart(Plot):
             self.make_grid(1, self._yaxis.ticker)
 
     def create_tools(self, tools):
-        # only add tools if the underlying it hasn't been customized
-        # by some user injection
-        if not self.tools:
-            # if no tools customization let's create the default tools
-            if isinstance(tools, bool) and tools:
-                tools = DEFAULT_TOOLS
+        # if no tools customization let's create the default tools
+        if isinstance(tools, bool) and tools:
+            tools = DEFAULT_TOOLS
+        elif isinstance(tools, bool):
+            # in case tools == False just exit
+            return
 
-            tool_objs = _process_tools_arg(self, tools)
-            self.add_tools(*tool_objs)
-
+        tool_objs = _process_tools_arg(self, tools)
+        self.add_tools(*tool_objs)
 
     def start_plot(self):
         """Add the axis, grids and tools
@@ -553,6 +559,19 @@ class Chart(Plot):
             self: the chart object being configured.
         """
         self._notebook = notebook
+        return self
+
+    def enabled_tools(self, tools=True):
+        """Set your chart tools.
+
+        Args:
+            tools (bool, optional) : whether to output to the
+                IPython notebook (default: True).
+
+        Returns:
+            self: the chart object being configured.
+        """
+        self._enabled_tools = tools
         return self
 
     def check_attr(self):
