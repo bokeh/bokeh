@@ -1,9 +1,24 @@
+from __future__ import print_function
+
 import argparse
 import os
 import shutil
 import subprocess
 import sys
 import textwrap
+
+OPTIONS = {
+    "dry-run"  :  False,
+}
+
+def call_wrapper(cmd_str, *args, **kw):
+    """A wrapper for subprocess.call to support 'dry-run' option"""
+
+    if OPTIONS["dry-run"]:
+        print(cmd_str)
+        return 0
+    else:
+        return subprocess.call(cmd_str, *args, **kw)
 
 
 def get_parser():
@@ -36,6 +51,10 @@ def get_parser():
                         help='Version of bokeh to test', required=True)
     parser.add_argument('--keep', action='store_true', default=False,
                         help="Don't delete conda envs created by this script")
+    parser.add_argument('--dry-run', action='store_true', default=False,
+                        help="""Display commands that will be run in each environment
+                        without executing them.""")
+    # parser.add_argument('')
 
     return parser
 
@@ -52,7 +71,7 @@ def conda_creator(env_name, pkgs):
     """Create a conda environment of a given name containing a given string of pkgs.
     """
 
-    subprocess.call("conda create --yes -n %s %s" % (env_name, pkgs), shell=True)
+    call_wrapper("conda create --yes -n %s %s" % (env_name, pkgs), shell=True)
 
 
 def bokeh_installer(env_name, install_string):
@@ -62,7 +81,7 @@ def bokeh_installer(env_name, install_string):
 
     command_string = 'source activate %s; %s' % (env_name, install_string)
 
-    result = subprocess.call(command_string, shell=True)
+    result = call_wrapper(command_string, shell=True)
 
     return result == 0
 
@@ -73,9 +92,7 @@ def version_check(env_name, expected_ver):
 
     command_string = 'source activate %s; python -c "import sys, bokeh; sys.exit(0 if bokeh.__version__ == %r else 1)"' % (env_name, expected_ver)
 
-
-
-    result = subprocess.call(command_string, shell=True)
+    result = call_wrapper(command_string, shell=True)
 
     return result == 0
 
@@ -90,8 +107,7 @@ def run_tests(env_name):
     tmpfile = open(file_name, "w+")
     command_string = 'source activate %s; python -c "import nose, os, sys, bokeh; bokeh.test(exit=True)"' % env_name
 
-    result = subprocess.call(command_string, shell=True, stderr=tmpfile)
-
+    result = call_wrapper(command_string, shell=True, stderr=tmpfile)
 
     tmpfile.close()
 
@@ -133,6 +149,7 @@ if __name__ == '__main__':
 
     parser = get_parser()
     ops = parser.parse_args()
+    OPTIONS["dry-run"] = ops.dry_run
     preversion = ops.previous
     current_version = ops.version
 
@@ -194,6 +211,7 @@ if __name__ == '__main__':
         if failure:
             test_failures.append(failure)
 
-    print results
-    if test_failures:
-        logger(test_failures)
+    if not ops.dry_run:
+        print(results)
+        if test_failures:
+            logger(test_failures)
