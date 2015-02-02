@@ -23,19 +23,5 @@ def get_version_from_git():
     return vers, mod
 
 vers, mod = get_version_from_git()
-vals = vers.split('.')
+print(vers + '.' + mod)
 
-if not mod.startswith('rc'):
-    #check for X.X and increment to X.X.1
-    if len(vals) < 3:
-        new_ver = '.'.join(vals) + '.1'
-        print(new_ver)
-    else:
-        new_val = int(vals[-1]) + 1
-        new_val = str(new_val)
-        vals[-1] = new_val
-        new_ver = '.'.join(vals)
-        print(new_ver)
-else:
-    new_ver = vers + '-' + mod
-    print(new_ver)

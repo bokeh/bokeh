@@ -55,26 +55,24 @@ CONDA_ENV=$(conda_info root_prefix)
 PLATFORM=$(conda_info platform)
 BUILD_PATH=$CONDA_ENV/conda-bld/$PLATFORM
 
-# get version and date from __conda_version__.txt
-complete_ver=$(cat __conda_version__.txt)
-version=${complete_ver:0:5}
-date=${complete_ver:10}
-
 # convert to platform-specific builds
-conda convert -p all -f $BUILD_PATH/bokeh*$date*.tar.bz2;
+conda convert -p all -f $BUILD_PATH/bokeh*$TRAVIS_BUILD_ID*.tar.bz2;
 
 #upload conda pkgs to binstar
 array=(osx-64 linux-64 win-64 linux-32 win-32)
 for i in "${array[@]}"
 do
     echo Uploading: $i;
-    binstar upload -u bokeh $i/bokeh*$date*.tar.bz2 -c dev --force;
+    binstar upload -u bokeh $i/bokeh*$TRAVIS_BUILD_ID*.tar.bz2 -c dev --force;
 done
+
+# get version and date from __conda_version__.txt
+version=`$PYTHON scripts/get_bump_version.py`
 
 #create and upload pypi pkgs to binstar
 #zip is currently not working
 
-BOKEH_DEV_VERSION=$version.dev.$date python setup.py sdist --formats=gztar
+BOKEH_DEV_VERSION=$version.$TRAVIS_BUILD_ID python setup.py sdist --formats=gztar
 binstar upload -u bokeh dist/bokeh*$date* --package-type pypi -c dev --force;
 
 echo "I'm done uploading to binstar"
