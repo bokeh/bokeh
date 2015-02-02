@@ -41,7 +41,7 @@ class Property(object):
             self.validate(default)
 
         self._default = default
-        self.help = help
+        self.__doc__ = help
         self.alternatives = []
 
         # This gets set by the class decorator at class creation time
@@ -224,7 +224,7 @@ class DataSpec(Property):
         self.units = units
         self._default = default
         self.min_value = min_value
-        self.help = help
+        self.__doc__ = help
 
     @classmethod
     def autocreate(cls, name=None):
@@ -341,7 +341,7 @@ class ColorSpec(DataSpec):
         self.field = field
         self._default = default
         self.value = value
-        self.help = help
+        self.__doc__ = help
 
         if field_or_value is not None:
             if self.isconst(field_or_value):
@@ -444,11 +444,13 @@ class ColorSpec(DataSpec):
 class Include(object):
     ''' Include other properties from mixin Models, with a given prefix. '''
 
-    def __init__(self, delegate):
+    def __init__(self, delegate, help="", use_prefix=True):
         if not (isinstance(delegate, type) and issubclass(delegate, HasProps)):
             raise ValueError("expected a subclass of HasProps, got %r" % delegate)
 
         self.delegate = delegate
+        self.help = help
+        self.use_prefix = use_prefix
 
 class MetaHasProps(type):
     def __new__(cls, class_name, bases, class_dict):
@@ -464,7 +466,10 @@ class MetaHasProps(type):
                 continue
 
             delegate = prop.delegate
-            prefix = re.sub("_props$", "", name) + "_"
+            if prop.use_prefix:
+                prefix = re.sub("_props$", "", name) + "_"
+            else:
+                prefix = ""
 
             for subpropname in delegate.class_properties(withbases=False):
                 fullpropname = prefix + subpropname
@@ -474,7 +479,15 @@ class MetaHasProps(type):
                     # so two properties don't write to the same hidden variable
                     # inside the instance.
                     subprop = copy(subprop)
-                includes[fullpropname] = subprop
+                if "%s" in prop.help:
+                    doc = prop.help % subpropname.replace('_', ' ')
+                else:
+                    doc = prop.help
+                try:
+                    includes[fullpropname] = subprop(help=doc)
+                except TypeError:
+                    includes[fullpropname] = subprop
+                    subprop.__doc__ = doc
             # Remove the name of the Include attribute itself
             removes.add(name)
 
@@ -1082,7 +1095,7 @@ class DashPattern(Either):
     }
 
     def __init__(self, default=[], help=None):
-        types = Enum(enums.DashPattern), Regex(r"^(\d+(\s+\d+)*)?$"), List(Int)
+        types = Enum(enums.DashPattern), Regex(r"^(\d+(\s+\d+)*)?$"), Seq(Int)
         super(DashPattern, self).__init__(*types, default=default, help=help)
 
     def transform(self, value):

@@ -4,14 +4,15 @@ import bs4
 
 import bokeh.embed as embed
 from bokeh.resources import CDN, INLINE, Resources
-from bokeh.plotting import circle
+from bokeh.plotting import figure
 from bokeh.session import Session
 
 _embed_test_plot = None
 
 def setUpModule():
     global _embed_test_plot
-    _embed_test_plot = circle([1,2], [2,3])
+    _embed_test_plot = figure()
+    _embed_test_plot.circle([1,2], [2,3])
 
 class TestComponents(unittest.TestCase):
 

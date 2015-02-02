@@ -1,9 +1,15 @@
+from __future__ import print_function
+
 import flask
 import os
-from gevent.pywsgi import WSGIServer
-app = flask.Flask(__name__, static_path="/unused")
+
+from tornado.wsgi import WSGIContainer
+from tornado.httpserver import HTTPServer
+from tornado.ioloop import IOLoop
 
 _basedir = os.path.join("..", os.path.dirname(__file__))
+
+app = flask.Flask(__name__, static_path="/unused")
 PORT=5009
 
 """this is a simple server to facilitate developing the docs.  by
@@ -27,20 +33,20 @@ def send_pic(filename):
 
 
 if __name__ == "__main__":
-    #app.run(port=PORT)
-    http_server = WSGIServer(('', PORT), app)
-    print "\nStarting Bokeh plot server on port %d..." % PORT
-    print "Visit http://localhost:%d/en/latest/index.html to see plots\n" % PORT
+    http_server = HTTPServer(WSGIContainer(app))
+    print("\nStarting Bokeh plot server on port %d..." % PORT)
+    print("Visit http://localhost:%d/en/latest/index.html to see plots\n" % PORT)
 
     pid = os.fork()
     if pid != 0:
         # Parent process
-        http_server.serve_forever()
+        http_server.listen(PORT)
+        IOLoop.instance().start()
     else:
         # Child process
         import time
         import webbrowser
         time.sleep(0.5)
-        webbrowser.open("http://localhost:%d/en/latest/index.html"%PORT, new="tab")
+        webbrowser.open("http://localhost:%d/en/latest/index.html" % PORT, new="tab")
 
 

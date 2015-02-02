@@ -1,17 +1,17 @@
 .. _release_notes_roadmap:
 
-#########################
 Release Notes and Roadmap
 #########################
 
 .. _release_notes:
 
 Release Notes
-'''''''''''''
+=============
 
 .. toctree::
     :maxdepth: 1
 
+    releases/0.7.1.rst
     releases/0.7.0.rst
     releases/0.6.1.rst
     releases/0.6.0.rst
@@ -29,25 +29,19 @@ Release Notes
 .. _roadmap:
 
 Roadmap
-'''''''
-
-0.7.1 Goals (January 2015)
-==========================
-* more charts
-* start of CLI interface
-* bugfixes
-* new demos
-
-  - linked histogram
-  - numba/notebook/interactors example
-  - streaming stocks plot
-  - simple CLI examples
+=======
 
 0.8.0 Goals (February 2015)
-===========================
+---------------------------
 
 * R language binding
 * server/widget/AR examples in gallery
+* more charts
+* CLI interface
+
+  - streaming stocks plot
+  - simple CLI examples
+
 * Blaze integration
 
   - volume slicer
@@ -56,12 +50,12 @@ Roadmap
   - crossfilter
 
 
-
 Long-term TODO List
-===================
+-------------------
 
 Core Plotting
--------------
+~~~~~~~~~~~~~
+
 * BokehJS interface
 * Backbuffering
 * CSS styling/theming mechanism
@@ -104,7 +98,7 @@ Core Plotting
 * LaTeX support
 
 Backends
---------
+~~~~~~~~
 
 * More efficient binary data transfers to BokehJS
 * Check compatibility with mobile browsers
@@ -113,12 +107,11 @@ Backends
 
 
 Interactions
-------------
-
+~~~~~~~~~~~~
 
 
 Docs & Testing
---------------
+~~~~~~~~~~~~~~
 
 * tests:
 
