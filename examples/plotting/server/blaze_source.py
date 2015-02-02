@@ -6,7 +6,7 @@ from bokeh.plotting import *
 from bokeh.models import ServerDataSource, BlazeDataSource
 from bokeh.transforms import line_downsample
 
-output_server("blaze")
+output_server("blaze_source")
 source = BlazeDataSource(data_url="http://localhost:5006/compute.json",
                          expr={'op': 'Field', 'args': [':leaf', 'gauss']})
 p = figure()
