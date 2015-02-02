@@ -91,11 +91,9 @@ class BarBuilder(Builder):
                 loading the data dict.
                 Needed for _set_And_get method.
         """
-        self.values = values
         self.cat = cat
         self._stacked = stacked
-
-        super(BarBuilder, self).__init__(legend)
+        super(BarBuilder, self).__init__(values, legend)
 
     def get_data(self):
         """Take the Bar data from the input **value.

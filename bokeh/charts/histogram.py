@@ -96,12 +96,11 @@ class HistogramBuilder(Builder):
                 after loading the data dict.
                 Needed for _set_And_get method.
         """
-        self.values = values
         self.bins = bins
         self.mu = mu
         self.sigma = sigma
         self.density = density
-        super(HistogramBuilder, self).__init__(legend=legend, palette=palette)
+        super(HistogramBuilder, self).__init__(values, legend=legend, palette=palette)
 
     def get_data(self):
         """Take the Histogram data from the input **value.

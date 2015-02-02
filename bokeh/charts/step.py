@@ -77,17 +77,8 @@ class StepBuilder(Builder):
                 loading the data dict.
                 Needed for _set_And_get method.
         """
-        self.values = values
-        # self.source = None
-        # self.xdr = None
-        # self.ydr = None
-        # # list to save all the groups available in the incoming input
-        # self.groups = []
-        # self.data = dict()
-        # self.attr = []
         self.index = index
-
-        super(StepBuilder, self).__init__(legend=legend, palette=palette)
+        super(StepBuilder, self).__init__(values, legend=legend, palette=palette)
 
     def get_data(self):
         """It calculates the chart properties accordingly from Step.values.

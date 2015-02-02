@@ -99,7 +99,6 @@ class BoxPlotBuilder(Builder):
                 loading the data dict.
                 Needed for _set_And_get method.
         """
-        self.values = values
         self._marker = marker
         self._outliers = outliers
         self._data_segment = dict()
@@ -109,7 +108,7 @@ class BoxPlotBuilder(Builder):
         self._data_scatter = dict()
         self._attr_scatter = []
         self._data_legend = dict()
-        super(BoxPlotBuilder, self).__init__(legend)
+        super(BoxPlotBuilder, self).__init__(values, legend)
 
     def get_data(self):
         """Take the BoxPlot data from the input **value.

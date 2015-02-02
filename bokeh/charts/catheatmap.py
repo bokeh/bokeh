@@ -81,11 +81,10 @@ class HeatMapBuilder(Builder):
                 loading the data dict.
                 Needed for _set_And_get method.
         """
-        self.values = values
         if not palette:
             palette = ["#75968f", "#a5bab7", "#c9d9d3", "#e2e2e2", "#dfccce",
                        "#ddb7b1", "#cc7878", "#933b41", "#550b1d"]
-        super(HeatMapBuilder, self).__init__(legend, palette=palette)
+        super(HeatMapBuilder, self).__init__(values, legend, palette=palette)
 
 
     def get_data(self):

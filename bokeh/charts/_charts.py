@@ -166,7 +166,7 @@ class Chart(Plot):
         if isinstance(tools, bool) and tools:
             tools = DEFAULT_TOOLS
         elif isinstance(tools, bool):
-            # in case tools == False just exit
+            # in case tools == False just
             return
 
         tool_objs = _process_tools_arg(self, tools)

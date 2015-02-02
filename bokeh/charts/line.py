@@ -70,18 +70,9 @@ class LineBuilder(Builder):
                 loading the data dict.
                 Needed for _set_And_get method.
         """
-        self.values = values
         self.source = None
-        # self.xdr = None
-        # self.ydr = None
-        #
-        # # list to save all the groups available in the incomming input
-        # self.groups = []
-        # self.data = dict()
-        # self.attr = []
         self.index = index
-
-        super(LineBuilder, self).__init__(legend=legend, palette=palette)
+        super(LineBuilder, self).__init__(values, legend=legend, palette=palette)
 
     def get_data(self):
         """Calculate the chart properties accordingly from line.values.

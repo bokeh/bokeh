@@ -123,14 +123,7 @@ class ScatterBuilder(Builder):
                 loading the data dict.
                 Needed for _set_And_get method.
         """
-        self.values = values
-        # self.source = None
-        # self.xdr = None
-        # self.ydr = None
-        # self.groups = []
-        # self.data = dict()
-        # self.attr = []
-        super(ScatterBuilder, self).__init__(legend=legend, palette=palette)
+        super(ScatterBuilder, self).__init__(values, legend=legend, palette=palette)
 
     def get_data(self):
         """Take the scatter.values data to calculate the chart properties

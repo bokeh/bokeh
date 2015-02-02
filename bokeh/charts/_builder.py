@@ -52,7 +52,7 @@ class Builder(object):
         * dynamically chart cration attributes, ie. `self.chart`
         * composition to easily use Chart clase methods
     """
-    def __init__(self, legend=False, palette=None, **kws):
+    def __init__(self, values=None, legend=False, palette=None, **kws):
         """Common arguments to be used by all the inherited classes.
 
         Args:
@@ -63,6 +63,10 @@ class Builder(object):
             palette(list, optional): a list containing the colormap as hex values.
 
         """
+        if values is None:
+            values = []
+
+        self.values = values
         self._legend = legend
         self._palette = palette or DEFAULT_PALETTE
         self._legends = []

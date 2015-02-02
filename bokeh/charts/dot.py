@@ -84,8 +84,7 @@ class DotBuilder(Builder):
         """
         self.show_segment = show_segment
         self.cat = cat
-        self.values = values
-        super(DotBuilder, self).__init__(legend=legend, palette=palette)
+        super(DotBuilder, self).__init__(values, legend=legend, palette=palette)
 
     def get_data(self):
         """Take the Dot data from the input **value.

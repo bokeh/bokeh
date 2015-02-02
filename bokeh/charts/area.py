@@ -115,7 +115,7 @@ class AreaBuilder(Builder):
         self.attr = []
         self.index = index
 
-        super(AreaBuilder, self).__init__(legend)
+        super(AreaBuilder, self).__init__(values, legend)
 
     def get_data(self):
         """Calculate the chart properties accordingly from area.values.

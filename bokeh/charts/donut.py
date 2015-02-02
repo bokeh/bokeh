@@ -119,15 +119,7 @@ class DonutBuilder(Builder):
                 Needed for _set_and_get method.
         """
         self.cat = cat
-        self.values = values
-        # self.source = None
-        # self.xdr = None
-        # self.ydr = None
-        # self.groups = []
-        # self.data = dict()
-        # self.attr = []
-
-        super(DonutBuilder, self).__init__(legend=legend, palette=palette)
+        super(DonutBuilder, self).__init__(values, legend=legend, palette=palette)
 
     def get_data(self):
         """Take the chart data from self.values.
