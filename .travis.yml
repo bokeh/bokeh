@@ -46,9 +46,12 @@ script:
 after_success:
     |
     if [[ ! -z "$TRAVIS_TAG" && BOKEH_DEFAULT_NO_DEV==true]]; then
+        echo "Building the packages and uploading to binstar. Also uploading JS and CSS to the CDN and uploading the devel docs."
         conda install binstar --yes
-        binstar login --hostname=$TRAVIS_BUILD_ID --username=$BINUSER --password=$BINKEY
-        bash build_and_upload.sh -u $RSUSER -k $RSAPIKEY
+        #binstar login --hostname=$TRAVIS_BUILD_ID --username=$BINUSER --password=$BINKEY
+        #bash build_and_upload.sh -u $RSUSER -k $RSAPIKEY
+    else
+        echo "Not building because there is no tag (or BOKEH_DEFAULT_NO_DEV is false)."
     fi
 
 notifications:
