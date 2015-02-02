@@ -178,8 +178,7 @@ class CrossBarPlugin(CrossFilterPlugin):
                                                      self.agg)
             x_vals = self.source.data[self.x]
             if len(x_vals) >= 2:
-                # ToDo: handle widely spaced x_vals for filtered data
-                self.bar_width = (x_vals[1] - x_vals[0]) * width_factor
+                self.bar_width = np.min(np.diff(x_vals) * width_factor)
             else:
                 self.bar_width = width_factor
         else:
