@@ -113,7 +113,7 @@ class TestAr(test_utils.FlaskClientTestCase):
         data = json.loads(result.data.decode('utf-8'))
         #2 x plot size (200)
         assert len(data['data']['close']) == 400
-    @skipIfPy3("cannot test_heatmap_downsample, scipy.misc.imresize missing without pil")
+
     def test_heatmap_downsample(self):
         reset_output()
         sess = TestSession(client=app.test_client())
