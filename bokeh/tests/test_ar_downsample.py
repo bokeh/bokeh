@@ -163,6 +163,10 @@ class Test_AR(test_utils.FlaskClientTestCase):
                           plot.select({'type' : GlyphRenderer})[0].glyph)
         self.assertEquals(trans['points'], False)
     def test_init_AR(self):
+        # simulate un-loading AR.. this test fails if ar is imported elsewhere before
+        # this test is run
+        if 'general' in ar_downsample.__dict__:
+            ar_downsample.__dict__.pop('general')
         self.assertRaises(NameError, ar_downsample.Id().reify)
         ar_downsample._loadAR()
         self.assertIsNotNone(ar_downsample.Id().reify())

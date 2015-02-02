@@ -34,7 +34,7 @@ def get_json(response):
     """
     if isinstance(response, flask.Response):
         #flask testing
-        return json.loads(response.data)
+        return json.loads(response.data.decode('utf-8'))
     else:
         #requests
         if hasattr(response.json, '__call__'):

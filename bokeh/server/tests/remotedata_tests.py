@@ -6,6 +6,7 @@ from ..app import bokeh_app, app
 from ..models import user
 
 from . import test_utils
+from ..tests.test_utils import skipIfPy3
 from ...plotting import (reset_output, output_server, push, curdoc, figure)
 from ...session import TestSession
 from ...models.sources import ServerDataSource
@@ -70,7 +71,7 @@ class TestAr(test_utils.FlaskClientTestCase):
             headers={'content-type' : 'application/json'}
         )
         assert result.status_code == 200
-        data = json.loads(result.data)
+        data = json.loads(result.data.decode('utf-8'))
         image = np.array(data['data']['image'][0])
 
         #I guess it's data dependent so the shape changes....
@@ -109,10 +110,10 @@ class TestAr(test_utils.FlaskClientTestCase):
             headers={'content-type' : 'application/json'}
         )
         assert result.status_code == 200
-        data = json.loads(result.data)
+        data = json.loads(result.data.decode('utf-8'))
         #2 x plot size (200)
         assert len(data['data']['close']) == 400
-
+    @skipIfPy3("cannot test_heatmap_downsample, scipy.misc.imresize missing without pil")
     def test_heatmap_downsample(self):
         reset_output()
         sess = TestSession(client=app.test_client())
@@ -154,6 +155,6 @@ class TestAr(test_utils.FlaskClientTestCase):
             headers={'content-type' : 'application/json'}
         )
         assert result.status_code == 200
-        data = json.loads(result.data)
+        data = json.loads(result.data.decode('utf-8'))
         #2 x plot size (200)
         assert np.array(data['data']['image'][0]).shape == (200,200)
