@@ -272,9 +272,8 @@ class BoxPlotBuilder(Builder):
                               self._attr_scatter[1], self._marker,
                               self._attr_scatter[2])
 
-        # We need to build the legend here using dummy glyphs import itertools
+        # We need to build the legend here using dummy glyphs
         for i, level in enumerate(self.groups):
-
             # TODO: (bev) what is this None business?
             glyph = Rect(
                 x="groups", y=None,

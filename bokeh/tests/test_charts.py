@@ -943,6 +943,8 @@ class TestBoxPlot(unittest.TestCase):
             for key, expected_v in expected_seg.items():
                 self.assertEqual(builder._data_segment[key], expected_v)
 
+            self.assertEqual(len(builder._legends), 3)
+
         lvalues = [
             np.array([7.0, 10.0, 8.0, 7.0, 4.0, 4.0, 1.0, 5.0, 2.0, 1.0,
                     4.0, 2.0, 1.0, 2.0, 4.0, 1.0, 0.0, 1.0, 1.0, 2.0,
@@ -954,6 +956,7 @@ class TestBoxPlot(unittest.TestCase):
                     3., 1., 0., 5., 4., 2., 0., 0., 0., 1., 1., 0., 0.,
                     0.])
         ]
+
         groups = exptected_datarect['groups'] = ['0', '1', '2']
         expected_scatter['out_x'] = ['0', '0', '0', '0', '1', '1']
         for i, _xy in enumerate([lvalues, np.array(lvalues)]):
@@ -968,3 +971,5 @@ class TestBoxPlot(unittest.TestCase):
 
             for key, expected_v in expected_seg.items():
                 self.assertEqual(builder._data_segment[key], expected_v)
+
+            self.assertEqual(len(builder._legends), 3)
