@@ -17,11 +17,16 @@ def get_version_from_git():
 
     try:
         vers, mod = version.split("-")[:2]
+        if not mod.startswith(('rc', 'dev')):
+            mod = ""
     except ValueError:
         vers, mod = version, ""
 
     return vers, mod
 
 vers, mod = get_version_from_git()
-print(vers + '.' + mod)
+if mod == "":
+    print(vers)
+else:
+    print(vers + '.' + mod)
 
