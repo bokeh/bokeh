@@ -264,43 +264,9 @@ class TestBuilder(unittest.TestCase):
         self.assertEqual(scatter.line_color, "black")
 
 
-#     def test__append_glyph(self):
-#         scatter = self.chart.make_scatter(self.source, 0, 1, "circle", "black")
-#         self.chart._append_glyph(self.source, scatter)
-#         circle = self.chart.plot.renderers[-1]
-#         self.assertIsInstance(circle.glyph, Circle)
-#
-#     def test_figure(self):
-#         prev_plot = self.chart.plot
-#         self.assertEqual(self.chart._plots, [prev_plot])
-#         self.chart.figure()
-#         self.assertEqual(self.chart._plots, [prev_plot, self.chart.plot])
-#
-#         for attr in ["title", "plot_width", "plot_height"]:
-#             self.assertEqual(getattr(prev_plot, attr), getattr(self.chart.plot, attr))
-#
-#         # "x_range" and "y_range" are not set because chart explicitly set
-#         # plot ranges by calling add_data_plot
-#         self.assertEqual(prev_plot.x_range, self.xdr)
-#         self.assertEqual(prev_plot.y_range, self.ydr)
-#         self.assertEqual(self.chart.plot.x_range, None)
-#         self.assertEqual(self.chart.plot.y_range, None)
-#
-#         # check that add_data_plot only set ranges for self.chart.plot and not
-#         # all underlying plots..
-#         xdr = Range1d()
-#         ydr = Range1d()
-#         self.chart.add_data_plot(xdr, ydr)
-#         self.assertEqual(self.chart.plot.x_range, xdr)
-#         self.assertEqual(self.chart.plot.y_range, ydr)
-#         self.assertEqual(prev_plot.x_range, self.xdr)
-#         self.assertEqual(prev_plot.y_range, self.ydr)
-
-
 class TestChartObject(unittest.TestCase):
-
     def setUp(self):
-        self.chart_object = Chart(
+        self.chart = Chart(
             title="title", xlabel="xlabel", ylabel="ylabel",
             legend="top_left", xscale="linear", yscale="linear",
             width=800, height=600, tools=True,
@@ -310,96 +276,96 @@ class TestChartObject(unittest.TestCase):
     )
 
     def test_args(self):
-        self.assertEqual(self.chart_object._Chart__title, "title")
-        self.assertEqual(self.chart_object._Chart__xlabel, "xlabel")
-        self.assertEqual(self.chart_object._Chart__ylabel, "ylabel")
-        self.assertEqual(self.chart_object._Chart__legend, "top_left")
-        self.assertEqual(self.chart_object._Chart__xscale, "linear")
-        self.assertEqual(self.chart_object._Chart__yscale, "linear")
-        self.assertEqual(self.chart_object._Chart__width, 800)
-        self.assertEqual(self.chart_object._Chart__height, 600)
-        self.assertTrue(self.chart_object._Chart__enabled_tools)
-        self.assertEqual(self.chart_object._Chart__palette, ["#FFFFFF", "#000000"])
-        self.assertFalse(self.chart_object._Chart__filename)
-        self.assertFalse(self.chart_object._Chart__server)
-        self.assertFalse(self.chart_object._Chart__notebook)
-        self.assertEqual(self.chart_object._Chart__xgrid, True)
-        self.assertEqual(self.chart_object._Chart__ygrid, False)
+        self.assertEqual(self.chart._Chart__title, "title")
+        self.assertEqual(self.chart._Chart__xlabel, "xlabel")
+        self.assertEqual(self.chart._Chart__ylabel, "ylabel")
+        self.assertEqual(self.chart._Chart__legend, "top_left")
+        self.assertEqual(self.chart._Chart__xscale, "linear")
+        self.assertEqual(self.chart._Chart__yscale, "linear")
+        self.assertEqual(self.chart._Chart__width, 800)
+        self.assertEqual(self.chart._Chart__height, 600)
+        self.assertTrue(self.chart._Chart__enabled_tools)
+        self.assertEqual(self.chart._Chart__palette, ["#FFFFFF", "#000000"])
+        self.assertFalse(self.chart._Chart__filename)
+        self.assertFalse(self.chart._Chart__server)
+        self.assertFalse(self.chart._Chart__notebook)
+        self.assertEqual(self.chart._Chart__xgrid, True)
+        self.assertEqual(self.chart._Chart__ygrid, False)
 
     def test_title(self):
-        self.chart_object.title = "new_title"
-        self.assertEqual(self.chart_object.title, "new_title")
+        self.chart.title = "new_title"
+        self.assertEqual(self.chart.title, "new_title")
 
     def test_xlabel(self):
-        self.chart_object.xlabel("new_xlabel")
-        self.assertEqual(self.chart_object._xlabel, "new_xlabel")
+        self.chart.xlabel("new_xlabel")
+        self.assertEqual(self.chart._xlabel, "new_xlabel")
 
     def test_ylabel(self):
-        self.chart_object.ylabel("new_ylabel")
-        self.assertEqual(self.chart_object._ylabel, "new_ylabel")
+        self.chart.ylabel("new_ylabel")
+        self.assertEqual(self.chart._ylabel, "new_ylabel")
 
     def test_legend(self):
-        self.chart_object.legend("bottom_right")
-        self.assertEqual(self.chart_object._legend, "bottom_right")
-        self.chart_object.legend(True)
-        self.assertTrue(self.chart_object._legend)
+        self.chart.legend("bottom_right")
+        self.assertEqual(self.chart._legend, "bottom_right")
+        self.chart.legend(True)
+        self.assertTrue(self.chart._legend)
 
     def test_xscale(self):
-        self.chart_object.xscale("datetime")
-        self.assertEqual(self.chart_object._xscale, "datetime")
+        self.chart.xscale("datetime")
+        self.assertEqual(self.chart._xscale, "datetime")
 
     def test_yscale(self):
-        self.chart_object.yscale("datetime")
-        self.assertEqual(self.chart_object._yscale, "datetime")
+        self.chart.yscale("datetime")
+        self.assertEqual(self.chart._yscale, "datetime")
 
     def test_width(self):
-        self.chart_object.width(400)
-        self.assertEqual(self.chart_object._width, 400)
+        self.chart.width(400)
+        self.assertEqual(self.chart._width, 400)
 
     def test_height(self):
-        self.chart_object.height(400)
-        self.assertEqual(self.chart_object._height, 400)
+        self.chart.height(400)
+        self.assertEqual(self.chart._height, 400)
 
     def test_tools(self):
-        self.chart_object.enabled_tools(False)
-        self.assertFalse(self.chart_object._enabled_tools)
-        self.chart_object.enabled_tools()
-        self.assertTrue(self.chart_object._enabled_tools)
+        self.chart.enabled_tools(False)
+        self.assertFalse(self.chart._enabled_tools)
+        self.chart.enabled_tools()
+        self.assertTrue(self.chart._enabled_tools)
 
     def test_filename(self):
-        self.chart_object.filename("bar.html")
-        self.assertEqual(self.chart_object._filename, "bar.html")
-        self.chart_object.filename(True)
-        self.assertTrue(self.chart_object._filename)
+        self.chart.filename("bar.html")
+        self.assertEqual(self.chart._filename, "bar.html")
+        self.chart.filename(True)
+        self.assertTrue(self.chart._filename)
 
     def test_server(self):
-        self.chart_object.server("baz")
-        self.assertEqual(self.chart_object._server, "baz")
-        self.chart_object.server(True)
-        self.assertTrue(self.chart_object._server)
+        self.chart.server("baz")
+        self.assertEqual(self.chart._server, "baz")
+        self.chart.server(True)
+        self.assertTrue(self.chart._server)
 
     def test_notebook(self):
-        self.chart_object.notebook()
-        self.assertTrue(self.chart_object._notebook)
-        self.chart_object.notebook(False)
-        self.assertFalse(self.chart_object._notebook)
+        self.chart.notebook()
+        self.assertTrue(self.chart._notebook)
+        self.chart.notebook(False)
+        self.assertFalse(self.chart._notebook)
 
     def test_check_attr(self):
-        self.chart_object.check_attr()
-        self.assertEqual(self.chart_object._title, "title")
-        self.assertEqual(self.chart_object._xlabel, "xlabel")
-        self.assertEqual(self.chart_object._ylabel, "ylabel")
-        self.assertEqual(self.chart_object._legend, "top_left")
-        self.assertEqual(self.chart_object._xscale, "linear")
-        self.assertEqual(self.chart_object._yscale, "linear")
-        self.assertEqual(self.chart_object._width, 800)
-        self.assertEqual(self.chart_object._height, 600)
-        self.assertTrue(self.chart_object._tools)
-        self.assertFalse(self.chart_object._filename)
-        self.assertFalse(self.chart_object._server)
-        self.assertFalse(self.chart_object._notebook)
-        self.assertEqual(self.chart_object._xgrid, True)
-        self.assertEqual(self.chart_object._ygrid, False)
+        self.chart.check_attr()
+        self.assertEqual(self.chart._title, "title")
+        self.assertEqual(self.chart._xlabel, "xlabel")
+        self.assertEqual(self.chart._ylabel, "ylabel")
+        self.assertEqual(self.chart._legend, "top_left")
+        self.assertEqual(self.chart._xscale, "linear")
+        self.assertEqual(self.chart._yscale, "linear")
+        self.assertEqual(self.chart._width, 800)
+        self.assertEqual(self.chart._height, 600)
+        self.assertTrue(self.chart._tools)
+        self.assertFalse(self.chart._filename)
+        self.assertFalse(self.chart._server)
+        self.assertFalse(self.chart._notebook)
+        self.assertEqual(self.chart._xgrid, True)
+        self.assertEqual(self.chart._ygrid, False)
 
     # def test_create_chart(self):
     #     self.chart_object.check_attr()
