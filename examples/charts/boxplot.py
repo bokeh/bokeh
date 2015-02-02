@@ -31,5 +31,5 @@ medals = OrderedDict(bronze=bronze, silver=silver, gold=gold)
 boxplot = BoxPlot(
     medals, marker='circle', outliers=True, title="boxplot test",
     xlabel="medal type", ylabel="medal count", width=800, height=600,
-    filename="boxplot.html", legend=True)
+    filename="boxplot.html") #, legend=True)
 boxplot.show()
