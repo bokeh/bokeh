@@ -283,7 +283,7 @@ class BoxPlotBuilder(Builder):
             renderer = GlyphRenderer(data_source=self._source_legend, glyph=glyph)
 
             # need to manually select the proper glyphs to be rendered as legends
-            self._legends.append(renderer)
+            self._legends.append((self.groups[i], [renderer]))
 
     # Some helper methods
     def set_and_get(self, data, attr, val, content):
