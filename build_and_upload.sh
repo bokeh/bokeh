@@ -66,14 +66,14 @@ do
     binstar upload -u bokeh $i/bokeh*$TRAVIS_BUILD_ID*.tar.bz2 -c dev --force;
 done
 
-# get version and date from __conda_version__.txt
+# get version
 version=`$PYTHON scripts/get_bump_version.py`
 
 #create and upload pypi pkgs to binstar
 #zip is currently not working
 
 BOKEH_DEV_VERSION=$version.$TRAVIS_BUILD_ID python setup.py sdist --formats=gztar
-binstar upload -u bokeh dist/bokeh*$date* --package-type pypi -c dev --force;
+binstar upload -u bokeh dist/bokeh*$TRAVIS_BUILD_ID* --package-type pypi -c dev --force;
 
 echo "I'm done uploading to binstar"
 
@@ -116,13 +116,13 @@ id=`curl -s -XPOST https://identity.api.rackspacecloud.com/v2.0/tokens \
 
 #push the js and css files
 curl -XPUT -T bokehjs/build/js/bokeh.js -v -H "X-Auth-Token:$token" -H "Content-Type: application/javascript" -H "Origin: https://mycloud.rackspace.com" \
-"https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh/dev/bokeh-$version.dev.$date.js";
+"https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh/dev/bokeh-$version.$TRAVIS_BUILD_ID.js";
 curl -XPUT -T bokehjs/build/js/bokeh.min.js -v -H "X-Auth-Token:$token" -H "Content-Type: application/javascript" -H "Origin: https://mycloud.rackspace.com" \
-"https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh/dev/bokeh-$version.dev.$date.min.js";
+"https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh/dev/bokeh-$version.$TRAVIS_BUILD_ID.min.js";
 curl -XPUT -T bokehjs/build/css/bokeh.css -v -H "X-Auth-Token:$token" -H "Content-Type: text/css" -H "Origin: https://mycloud.rackspace.com" \
-"https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh/dev/bokeh-$version.dev.$date.css";
+"https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh/dev/bokeh-$version.$TRAVIS_BUILD_ID.css";
 curl -XPUT -T bokehjs/build/css/bokeh.min.css -v -H "X-Auth-Token:$token" -H "Content-Type: text/css" -H "Origin: https://mycloud.rackspace.com" \
-"https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh/dev/bokeh-$version.dev.$date.min.css";
+"https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh/dev/bokeh-$version.$TRAVIS_BUILD_ID.min.css";
 
 echo "I'm done uploading to Rackspace"
 
