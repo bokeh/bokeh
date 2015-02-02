@@ -45,7 +45,7 @@ script:
 
 after_success:
     |
-    if [[ ! -z "$TRAVIS_TAG" && BOKEH_DEFAULT_NO_DEV==true]]; then
+    if [[ ! -z "$TRAVIS_TAG" && BOKEH_DEFAULT_NO_DEV == true ]]; then
         echo "Building the packages and uploading to binstar. Also uploading JS and CSS to the CDN and uploading the devel docs."
         conda install binstar --yes
         #binstar login --hostname=$TRAVIS_BUILD_ID --username=$BINUSER --password=$BINKEY
