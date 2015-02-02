@@ -36,8 +36,6 @@ class Horizon(ChartObject):
 
         now = datetime.datetime.now()
         delta = datetime.timedelta(minutes=1)
-        dts = [now + delta*i for i in range(5)]
-        dtss = ['%s'%dt for dt in dts]
         xyvalues = OrderedDict({'Date': dts})
         y_python = xyvalues['python'] = [2, 3, 7, 5, 26]
         y_pypy = xyvalues['pypy'] = [12, 33, 47, 15, 126]
@@ -154,7 +152,20 @@ class Horizon(ChartObject):
             tools, filename, server, notebook, facet, xgrid, ygrid
         )
 
-    def fold_coordinates(self, y, fold_no, fold_height, y_origin=0):
+    def check_attr(self):
+        """ Disable zoom and pan tools since horizon plots display a predetermined
+        data range. Also, secondary axis is broken during zooming.
+        """
+        super(Horizon, self).check_attr()
+        if self._tools == True:
+            self._tools = "save,resize,reset"
+        elif isinstance(self._tools, string_types):
+            self._tools = self._tools.replace('pan', '')
+            self._tools = self._tools.replace('wheel_zoom', '')
+            self._tools = self._tools.replace('box_zoom', '')
+            self._tools = self._tools.replace(',,', ',')
+
+    def fold_coordinates(self, y, fold_no, fold_height, y_origin=0, graph_ratio=1):
         """ Function that calculate the coordinates for a value given a fold
         """
         height = fold_no * fold_height
@@ -168,12 +179,13 @@ class Horizon(ChartObject):
             if remainder >= height - fold_height:
                 v = remainder - height + fold_height
 
+        v = v * graph_ratio
         # Return tuple of the positive and negative relevant position of
         # the coordinate against the provided fold layer
         if y > 0:
-            return (v + y_origin, fold_height + y_origin)
+            return (v + y_origin, fold_height * graph_ratio + y_origin)
         else:
-            return (y_origin, fold_height - v + y_origin)
+            return (y_origin, fold_height * graph_ratio - v + y_origin)
 
     def pad_list(self, l, padded_value=None):
         """ Function that insert padded values at the start and end of
@@ -204,6 +216,7 @@ class Horizon(ChartObject):
             self.set_and_get("x_", col, self.pad_list(v_index))
 
         self.fold_height = self.max_y / self.nb_folds
+        self.graph_ratio = self.nb_folds / len(self.series)
 
         fill_alpha = []
         fill_color = []
@@ -211,12 +224,12 @@ class Horizon(ChartObject):
         for serie_no, serie in enumerate(self.series):
 
             self.set_and_get('y_', serie, self.values[serie])
-            y_origin = serie_no * self.fold_height
+            y_origin = serie_no * self.max_y / len(self.series)
 
             for fold_itr in range(1, self.nb_folds + 1):
 
                 layers_datapoints = [self.fold_coordinates(
-                    x, fold_itr, self.fold_height, y_origin) for x in self.values[serie]]
+                    x, fold_itr, self.fold_height, y_origin, self.graph_ratio) for x in self.values[serie]]
                 pos_points, neg_points = map(list, zip(*(layers_datapoints)))
 
                 alpha = 1.0 * (abs(fold_itr)) / self.nb_folds
@@ -230,7 +243,7 @@ class Horizon(ChartObject):
 
                 # Y coordinates below 0
                 neg_points = self.pad_list(
-                    neg_points, self.fold_height + y_origin)
+                    neg_points, self.fold_height * self.graph_ratio + y_origin)
                 self.set_and_get("y_fold-%s_" % fold_itr, serie, neg_points)
                 self.fold_names.append("y_fold-%s_%s" % (fold_itr, serie))
                 fill_color.append(self.neg_color)
@@ -269,7 +282,8 @@ class Horizon(ChartObject):
         """Add the serie names to the y axis, the hover tooltips and legend"""
         p = self.chart.plot
 
-        # Hide numerical axis / TODO: adapt for https://github.com/bokeh/bokeh/issues/1730
+        # Hide numerical axis / TODO: adapt for
+        # https://github.com/bokeh/bokeh/issues/1730
         p.left[0].axis_label_text_color = None
         p.left[0].axis_line_color = None
         p.left[0].major_label_text_color = None
@@ -283,4 +297,5 @@ class Horizon(ChartObject):
         # TODO: Add the tooltips to display the dates and all absolute y values for each series
         # at any vertical places on the plot
 
-        # TODO: Add the legend to display the fold ranges based on the color of the fold
+        # TODO: Add the legend to display the fold ranges based on the color of
+        # the fold
