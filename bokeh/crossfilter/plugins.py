@@ -235,7 +235,7 @@ class CrossBarPlugin(CrossFilterPlugin):
                 x_range = FactorRange(factors=source.data[cf.x])
 
             # create y range
-            top = np.max(source.data[cf.y])
+            top = np.max(source.data[cf.y]) * 1.05
             y_range = Range1d(start=0, end=top)
             return x_range, y_range
         else:
