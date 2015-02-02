@@ -55,15 +55,18 @@ CONDA_ENV=$(conda_info root_prefix)
 PLATFORM=$(conda_info platform)
 BUILD_PATH=$CONDA_ENV/conda-bld/$PLATFORM
 
+# get travis_build_id
+travis_build_id=$(cat __travis_build_id__.txt)
+
 # convert to platform-specific builds
-conda convert -p all -f $BUILD_PATH/bokeh*$TRAVIS_BUILD_ID*.tar.bz2;
+conda convert -p all -f $BUILD_PATH/bokeh*travis_build_id*.tar.bz2;
 
 #upload conda pkgs to binstar
 array=(osx-64 linux-64 win-64 linux-32 win-32)
 for i in "${array[@]}"
 do
     echo Uploading: $i;
-    binstar upload -u bokeh $i/bokeh*$TRAVIS_BUILD_ID*.tar.bz2 -c dev --force;
+    binstar upload -u bokeh $i/bokeh*$travis_build_id*.tar.bz2 -c dev --force;
 done
 
 # get version
@@ -72,8 +75,8 @@ version=`$PYTHON scripts/get_bump_version.py`
 #create and upload pypi pkgs to binstar
 #zip is currently not working
 
-BOKEH_DEV_VERSION=$version.$TRAVIS_BUILD_ID python setup.py sdist --formats=gztar
-binstar upload -u bokeh dist/bokeh*$TRAVIS_BUILD_ID* --package-type pypi -c dev --force;
+BOKEH_DEV_VERSION=$version.$travis_build_id python setup.py sdist --formats=gztar
+binstar upload -u bokeh dist/bokeh*$travis_build_id* --package-type pypi -c dev --force;
 
 echo "I'm done uploading to binstar"
 
@@ -116,13 +119,13 @@ id=`curl -s -XPOST https://identity.api.rackspacecloud.com/v2.0/tokens \
 
 #push the js and css files
 curl -XPUT -T bokehjs/build/js/bokeh.js -v -H "X-Auth-Token:$token" -H "Content-Type: application/javascript" -H "Origin: https://mycloud.rackspace.com" \
-"https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh/dev/bokeh-$version.$TRAVIS_BUILD_ID.js";
+"https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh/dev/bokeh-$version.$travis_build_id.js";
 curl -XPUT -T bokehjs/build/js/bokeh.min.js -v -H "X-Auth-Token:$token" -H "Content-Type: application/javascript" -H "Origin: https://mycloud.rackspace.com" \
-"https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh/dev/bokeh-$version.$TRAVIS_BUILD_ID.min.js";
+"https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh/dev/bokeh-$version.$travis_build_id.min.js";
 curl -XPUT -T bokehjs/build/css/bokeh.css -v -H "X-Auth-Token:$token" -H "Content-Type: text/css" -H "Origin: https://mycloud.rackspace.com" \
-"https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh/dev/bokeh-$version.$TRAVIS_BUILD_ID.css";
+"https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh/dev/bokeh-$version.$travis_build_id.css";
 curl -XPUT -T bokehjs/build/css/bokeh.min.css -v -H "X-Auth-Token:$token" -H "Content-Type: text/css" -H "Origin: https://mycloud.rackspace.com" \
-"https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh/dev/bokeh-$version.$TRAVIS_BUILD_ID.min.css";
+"https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh/dev/bokeh-$version.$travis_build_id.min.css";
 
 echo "I'm done uploading to Rackspace"
 

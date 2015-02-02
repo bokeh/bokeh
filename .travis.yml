@@ -35,6 +35,7 @@ matrix:
 
 before_install:
     - export PATH="$HOME/miniconda/bin:$PATH"
+    - echo $TRAVIS_BUILD_ID > __travis_build_id__.txt
 
 install:
     - scripts/travis_install

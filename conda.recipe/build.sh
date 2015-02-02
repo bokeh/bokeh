@@ -10,7 +10,9 @@ pushd $SRC_DIR
 
 version=`$PYTHON scripts/get_bump_version.py`
 
-echo $version.$TRAVIS_BUILD_ID > __conda_version__.txt
+travis_build_id=$(cat __travis_build_id__.txt)
+
+echo $version.$travis_build_id > __conda_version__.txt
 
 cp __conda_version__.txt $BLD_DIR
 
