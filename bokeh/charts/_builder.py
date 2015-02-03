@@ -2,7 +2,7 @@
 complex plot is a simple way.
 
 This is the Builder class, a minimal prototype class to build more chart
-types on top of it. 
+types on top of it.
 """
 #-----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2014, Continuum Analytics, Inc. All rights reserved.

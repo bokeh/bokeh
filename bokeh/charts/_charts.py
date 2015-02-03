@@ -44,14 +44,12 @@ class Chart(Plot):
     needed attributes and methods to draw any of the Charts that you can build
     subclassing the ChartObject class.
     """
-
-    __subtype__ = "Chart"
     __view_model__ = "Plot"
+    __subtype__ = "Chart"
     def __init__(self, title=None, xlabel=None, ylabel=None, legend=False,
                  xscale="linear", yscale="linear", width=800, height=600,
                  tools=True, filename=False, server=False, notebook=False,
-                 facet=False, xgrid=True, ygrid=True, palette=False, _doc=None,
-                 _session=None, **kws):
+                 xgrid=True, ygrid=True, _doc=None, _session=None, **kws):
         """Common arguments to be used by all the inherited classes.
 
         Args:
@@ -77,6 +75,11 @@ class Chart(Plot):
                 as the name in the server.
             notebook (bool): if you want to output (or not) your plot into the
                 IPython notebook.
+                lt: False)
+            xgrid (bool, optional): whether to display x grid lines
+                (default: True)
+            ygrid (bool, optional): whether to display x grid lines
+                (default: True)
 
         Attributes:
             plot (obj): main Plot object.
@@ -106,8 +109,6 @@ class Chart(Plot):
         self.__filename = filename
         self.__server = server
         self.__notebook = notebook
-        self.__facet = facet
-        self.__palette = palette
         self.__xgrid = xgrid
         self.__ygrid = ygrid
 
@@ -130,7 +131,6 @@ class Chart(Plot):
                 self._session = Session()
 
         self.check_attr()
-
         # create chart axis, grids and tools
         self.start_plot()
 
