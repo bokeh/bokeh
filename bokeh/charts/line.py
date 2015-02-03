@@ -57,9 +57,15 @@ class LineBuilder(Builder):
                 ``top_left``, ``top_right``, ``bottom_left``,
                 ``bottom_right``. ``top_right`` is set if you set it
                  as True. Defaults to None.
+            palette(list, optional): a list containing the colormap as
+                hex values.
 
         Attributes:
             source (obj): datasource object for your plot,
+                initialized as a dummy None.
+            x_range (obj): x-associated datarange object for you plot,
+                initialized as a dummy None.
+            y_range (obj): y-associated datarange object for you plot,
                 initialized as a dummy None.
             groups (list): to be filled with the incoming groups of data.
                 Useful for legend construction.

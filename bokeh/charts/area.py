@@ -95,6 +95,10 @@ class AreaBuilder(Builder):
         Attributes:
             source (obj): datasource object for your chart,
                 initialized as a dummy None.
+            x_range (obj): x-associated datarange object for you plot,
+                initialized as a dummy None.
+            y_range (obj): y-associated datarange object for you plot,
+                initialized as a dummy None.
             groups (list): to be filled with the incoming groups of data.
                 Useful for legend construction.
             data (dict): to be filled with the incoming data and be passed

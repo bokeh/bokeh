@@ -88,9 +88,9 @@ class BoxPlotBuilder(Builder):
         Attributes:
             source (obj): datasource object for your plot,
                 initialized as a dummy None.
-            xdr (obj): x-associated datarange object for you plot,
+            x_range (obj): x-associated datarange object for you plot,
                 initialized as a dummy None.
-            ydr (obj): y-associated datarange object for you plot,
+            y_range (obj): y-associated datarange object for you plot,
                 initialized as a dummy None.
             data (dict): to be filled with the incoming data and be passed
                 to the ColumnDataSource in each chart inherited class.

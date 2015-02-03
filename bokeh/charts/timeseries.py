@@ -85,14 +85,16 @@ class TimeSeriesBuilder(Builder):
                 ``top_left``, ``top_right``, ``bottom_left``,
                 ``bottom_right``. ``top_right`` is set if you set it
                  as True. Defaults to None.
+            palette(list, optional): a list containing the colormap as
+                hex values.
 
 
         Attributes:
             source (obj): datasource object for your plot,
                 initialized as a dummy None.
-            xdr (obj): x-associated datarange object for you plot,
+            x_range (obj): x-associated datarange object for you plot,
                 initialized as a dummy None.
-            ydr (obj): y-associated datarange object for you plot,
+            y_range (obj): y-associated datarange object for you plot,
                 initialized as a dummy None.
             groups (list): to be filled with the incoming groups of data.
                 Useful for legend construction.
@@ -119,7 +121,6 @@ class TimeSeriesBuilder(Builder):
         # list to save all the attributes we are going to create
         self.attr = []
         xs = self.values_index
-        # xs, self.values = self.prepare_data(self.values)
         for col in self.values.keys():
             if isinstance(self.index, string_types) \
                 and col == self.index:
