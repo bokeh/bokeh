@@ -526,6 +526,10 @@ class Session(object):
         url = utils.urljoin(self.base_url, self.docid + "/", "bulkupsert")
         self.post_json(url, data=data)
 
+    def gc(self):
+        url = utils.urljoin(self.base_url, self.docid + "/", "gc")
+        self.post_json(url)
+
     # convenience functions to use a session and store/fetch from server
 
     def load_document(self, doc):
@@ -538,6 +542,7 @@ class Session(object):
             None
 
         """
+        self.gc()
         json_objs = self.pull()
         doc.merge(json_objs)
         doc.docid = self.docid

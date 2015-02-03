@@ -16,13 +16,13 @@ from bokeh.exceptions import DataIntegrityException
 from bokeh.resources import Resources
 from bokeh.templates import AUTOLOAD
 
-from .bbauth import check_read_authentication
+from .bbauth import handle_auth_error
 from ..app import bokeh_app
 from ..crossdomain import crossdomain
 from ..models import convenience as mconv
 from ..models import docs
 from ..models import user
-from ..serverbb import prune
+from ..serverbb import prune, BokehServerTransaction
 from ..views import make_json
 from ..settings import settings as server_settings
 
@@ -128,14 +128,16 @@ def deletedoc(docid):
     return make_json(jsonstring)
 
 @bokeh_app.route('/bokeh/getdocapikey/<docid>')
+@handle_auth_error
 def get_doc_api_key(docid):
     doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
-    if mconv.can_write_from_request(doc, request, bokeh_app):
-        return jsonify({'apikey' : doc.apikey})
-    elif mconv.can_write_from_request(doc, request, bokeh_app):
-        return jsonify({'readonlyapikey' : doc.readonlyapikey})
-    else:
-        return abort(401)
+    bokehuser = bokeh_app.current_user()
+    context = BokehServerTransaction(bokehuser, doc, 'auto')
+    with context as t:
+        if t.mode == 'rw':
+            return jsonify({'apikey' : t.server_docobj.apikey})
+        else:
+            return jsonify({'readonlyapikey' : t.server_docobj.readonlyapikey})
 
 
 @bokeh_app.route('/bokeh/userinfo/', methods=['GET', 'OPTIONS'])
@@ -150,17 +152,15 @@ def get_user():
 @bokeh_app.route('/bokeh/doc/<docid>/', methods=['GET', 'OPTIONS'])
 @bokeh_app.route('/bokeh/bokehinfo/<docid>/', methods=['GET', 'OPTIONS'])
 @crossdomain(origin="*", headers=['BOKEH-API-KEY', 'Continuum-Clientid'])
-@check_read_authentication
+@handle_auth_error
 def get_bokeh_info(docid):
-    return _get_bokeh_info(docid)
-
-def _get_bokeh_info(docid):
     doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
-    clientdoc = bokeh_app.backbone_storage.get_document(docid)
-    prune(clientdoc)
-    all_models = clientdoc._models.values()
-    log.info("num models: %s", len(all_models))
-    all_models = clientdoc.dump(*all_models)
+    bokehuser = bokeh_app.current_user()
+    with BokehServerTransaction(bokehuser, doc, 'r') as t:
+        clientdoc = t.clientdoc
+        all_models = clientdoc._models.values()
+        log.info("num models: %s", len(all_models))
+        all_models = clientdoc.dump(*all_models)
     returnval = {'plot_context_ref' : doc.plot_context_ref,
                  'docid' : docid,
                  'all_models' : all_models,
@@ -228,13 +228,15 @@ def autoload_js(elementid):
 
 @bokeh_app.route('/bokeh/objinfo/<docid>/<objid>', methods=['GET', 'OPTIONS'])
 @crossdomain(origin="*", headers=['BOKEH-API-KEY', 'Continuum-Clientid'])
-@check_read_authentication
+@handle_auth_error
 def get_bokeh_info_one_object(docid, objid):
     doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
-    clientdoc = bokeh_app.backbone_storage.get_document(docid)
-    obj = clientdoc._models[objid]
-    objs = obj.references()
-    all_models = clientdoc.dump(*objs)
+    bokehuser = bokeh_app.current_user()
+    with BokehServerTransaction(bokehuser, doc, 'r') as t:
+        clientdoc = t.clientdoc
+        obj = clientdoc._models[objid]
+        objs = obj.references()
+        all_models = clientdoc.dump(*objs)
     returnval = {'plot_context_ref' : doc.plot_context_ref,
                  'docid' : docid,
                  'all_models' : all_models,

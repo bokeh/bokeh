@@ -1,4 +1,4 @@
-
+import logging
 from functools import wraps
 
 from flask import abort, request
@@ -6,6 +6,22 @@ from flask import abort, request
 from ..app import bokeh_app
 from ..models import docs
 from ..models import convenience
+from ...exceptions import AuthenticationException
+
+logger = logging.getLogger(__name__)
+
+def handle_auth_error(func):
+    """Decorator wraps a function and watches for AuthenticationException
+    If one is thrown, log and abort 401 instead
+    """
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except AuthenticationException as e:
+            logger.exception(e)
+            return abort(401)
+    return wrapper
 
 def check_read_authentication(func):
     @wraps(func)

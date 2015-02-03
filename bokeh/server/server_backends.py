@@ -185,10 +185,10 @@ class AbstractAuthentication(object):
         raise NotImplementedError
 
 class SingleUserAuthentication(AbstractAuthentication):
-    def can_write_doc(self, docid):
+    def can_write_doc(self, doc_or_docid, temporary_docid=None, userobj=None):
         return True
 
-    def can_read_doc(self, docid):
+    def can_read_doc(self, doc_or_docid, temporary_docid=None, userobj=None):
         return True
 
     def current_user_name(self):
@@ -207,13 +207,25 @@ class SingleUserAuthentication(AbstractAuthentication):
         return bokehuser
 
 class MultiUserAuthentication(AbstractAuthentication):
-    def can_write_doc(self, docid):
-        doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
-        return convenience.can_write_from_request(doc, request, bokeh_app)
+    def can_write_doc(self, doc_or_docid, temporary_docid=None, userobj=None):
+        if not isinstance(doc_or_docid, docs.Doc):
+            doc = docs.Doc.load(bokeh_app.servermodel_storage, doc_or_docid)
+        else:
+            doc = doc_or_docid
+        if userobj is None:
+            userobj = self.current_user()
+        return convenience.can_write_from_request(doc, request, userobj,
+                                                  temporary_docid=temporary_docid)
 
-    def can_read_doc(self, docid):
-        doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
-        return convenience.can_read_from_request(doc, request, bokeh_app)
+    def can_read_doc(self, doc_or_docid, temporary_docid=None, userobj=None):
+        if not isinstance(doc_or_docid, docs.Doc):
+            doc = docs.Doc.load(bokeh_app.servermodel_storage, doc_or_docid)
+        else:
+            doc = doc_or_docid
+        if userobj is None:
+            userobj = self.current_user()
+        return convenience.can_read_from_request(doc, request, userobj)
+
 
     def login(self, username):
         session['username'] = username

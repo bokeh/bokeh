@@ -24,7 +24,7 @@ def new_doc(flaskapp, docid, title, clientdoc, rw_users=None, r_users=None,
     if rw_users is None: rw_users = []
     if r_users is None: r_users = []
     doc = Doc(docid, title, rw_users, r_users,
-              plot_context.ref, apikey, readonlyapikey)
+              plot_context.ref, apikey, readonlyapikey, False)
     doc.save(flaskapp.servermodel_storage)
     return doc
 
@@ -33,7 +33,9 @@ class Doc(models.ServerModel):
     idfield = 'docid'
 
     def __init__(self, docid, title, rw_users, r_users,
-                 plot_context_ref, apikey, readonlyapikey):
+                 plot_context_ref, apikey, readonlyapikey, published):
+
+        self.published = published
         self.docid = docid
         self.title = title
         self.rw_users = rw_users
@@ -49,7 +51,8 @@ class Doc(models.ServerModel):
                 'r_users' : self.r_users,
                 'plot_context_ref' : self.plot_context_ref,
                 'apikey' : self.apikey,
-                'readonlyapikey' : self.readonlyapikey
+                'readonlyapikey' : self.readonlyapikey,
+                'published' : self.published
                 }
 
     @classmethod
@@ -58,6 +61,8 @@ class Doc(models.ServerModel):
         #adding readonly api key if it's not there
         if 'readonlyapikey' not in attrs:
             attrs['readonlyapikey'] = str(uuid.uuid4())
+        if 'published' not in attrs:
+            attrs['published'] = False
         obj = cls.from_json(attrs)
         obj.save(client)
         return obj
@@ -67,4 +72,6 @@ class Doc(models.ServerModel):
         return Doc(obj['docid'], obj['title'],
                    obj['rw_users'], obj['r_users'],
                    obj['plot_context_ref'], obj['apikey'],
-                   obj['readonlyapikey'])
+                   obj['readonlyapikey'],
+                   obj['published']
+        )
