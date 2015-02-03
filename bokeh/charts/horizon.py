@@ -10,16 +10,35 @@ from six import string_types
 from collections import OrderedDict, defaultdict
 import math
 
-from ._chartobject import ChartObject
-from ..models import ColumnDataSource, Range1d, DataRange1d, FactorRange, HoverTool, CategoricalAxis
+from ._builder import Builder, create_and_build
+from ..models import ColumnDataSource, Range1d, DataRange1d, FactorRange, GlyphRenderer, CategoricalAxis
 from ..models.glyphs import Patches
 
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
 
+def Horizon(values, index=None, nb_folds=3, pos_color='#006400',
+              neg_color='#6495ed', xscale='datetime', **kws):
+    tools = kws.get('tools', True)
 
-class Horizon(ChartObject):
+    if tools == True:
+        tools = "save,resize,reset"
+    elif isinstance(tools, string_types):
+        tools = tools.replace('pan', '')
+        tools = tools.replace('wheel_zoom', '')
+        tools = tools.replace('box_zoom', '')
+        tools = tools.replace(',,', ',')
+    kws['tools'] = tools
+
+    chart = create_and_build(
+        HorizonBuilder, values, index=index, nb_folds=nb_folds, pos_color=pos_color,
+        neg_color=neg_color, xscale=xscale, **kws
+    )
+
+    return chart
+
+class HorizonBuilder(Builder):
 
     """This is the Horizon class and it is in charge of plotting
     Horizon charts in an easy and intuitive way.
@@ -41,17 +60,19 @@ class Horizon(ChartObject):
         y_pypy = xyvalues['pypy'] = [12, 33, 47, 15, 126]
         y_jython = xyvalues['jython'] = [22, 43, 10, 25, 26]
 
-        ts = Horizon(xyvalues, index='Date', title="horizon",
+        hz = Horizon(xyvalues, index='Date', title="horizon", legend="top_left",
                         ylabel='Stock Prices', filename="stocks_ts.html")
-        ts.legend("top_left").show()
+        hz.show()
 
     """
-
-    def __init__(self, values, index=None, title=None, xlabel=None, ylabel=None,
-                 legend=False, xscale="datetime", yscale="linear", width=800,
-                 height=600, tools=True, filename=False, server=False,
-                 notebook=False, facet=False, xgrid=False, ygrid=False,
-                 nb_folds=3, pos_color='#006400', neg_color='#6495ed'):
+    def __init__(self, values, index=None, legend=False, palette=None,
+                 nb_folds=3, pos_color='#006400', neg_color='#6495ed', **kws):
+    #
+    # def __init__(self, values, index=None, title=None, xlabel=None, ylabel=None,
+    #              legend=False, xscale="datetime", yscale="linear", width=800,
+    #              height=600, tools=True, filename=False, server=False,
+    #              notebook=False, facet=False, xgrid=False, ygrid=False,
+    #              nb_folds=3, pos_color='#006400', neg_color='#6495ed'):
         """
         Args:
             values (iterable): iterable 2d representing the data series
@@ -131,39 +152,40 @@ class Horizon(ChartObject):
                 loading the data dict.
                 Needed for _set_And_get method.
         """
-        self.values = values
-        self.source = None
-        self.xdr = None
-        self.ydr = None
-        self.groups = []
-        self.series = []
-        self.fold_height = {}
-        self.max_y = 0
-        self.data = {}
-        self.attr = []
         self.index = index
         self.nb_folds = nb_folds
         self.pos_color = pos_color
         self.neg_color = neg_color
         self.fold_names = []
 
-        super(Horizon, self).__init__(
-            title, xlabel, ylabel, legend, xscale, yscale, width, height,
-            tools, filename, server, notebook, facet, xgrid, ygrid
-        )
+#     -        self.source = None
+# -        self.xdr = None
+# -        self.ydr = None
+# -        self.groups = []
+        self.series = []
+# -        self.fold_height = {}
+        self.max_y = 0
 
-    def check_attr(self):
-        """ Disable zoom and pan tools since horizon plots display a predetermined
-        data range. Also, secondary axis is broken during zooming.
-        """
-        super(Horizon, self).check_attr()
-        if self._tools == True:
-            self._tools = "save,resize,reset"
-        elif isinstance(self._tools, string_types):
-            self._tools = self._tools.replace('pan', '')
-            self._tools = self._tools.replace('wheel_zoom', '')
-            self._tools = self._tools.replace('box_zoom', '')
-            self._tools = self._tools.replace(',,', ',')
+        super(HorizonBuilder, self).__init__(
+            values, legend=legend, palette=palette
+        )
+        # super(Horizon, self).__init__(
+        #     title, xlabel, ylabel, legend, xscale, yscale, width, height,
+        #     tools, filename, server, notebook, facet, xgrid, ygrid
+        # )
+
+    # def check_attr(self):
+    #     """ Disable zoom and pan tools since horizon plots display a predetermined
+    #     data range. Also, secondary axis is broken during zooming.
+    #     """
+    #     super(Horizon, self).check_attr()
+    #     if self._tools == True:
+    #         self._tools = "save,resize,reset"
+    #     elif isinstance(self._tools, string_types):
+    #         self._tools = self._tools.replace('pan', '')
+    #         self._tools = self._tools.replace('wheel_zoom', '')
+    #         self._tools = self._tools.replace('box_zoom', '')
+    #         self._tools = self._tools.replace(',,', ',')
 
     def fold_coordinates(self, y, fold_no, fold_height, y_origin=0, graph_ratio=1):
         """ Function that calculate the coordinates for a value given a fold
@@ -266,8 +288,8 @@ class Horizon(ChartObject):
         calculate the proper ranges.
         """
         self.source = ColumnDataSource(self.data)
-        self.xdr = DataRange1d(sources=[self.source.columns(self.attr[0])])
-        self.ydr = Range1d(start=0, end=self.max_y)
+        self.x_range = DataRange1d(sources=[self.source.columns(self.attr[0])])
+        self.y_range = Range1d(start=0, end=self.max_y)
 
     def draw(self):
         """Use the patch glyphs to connect the xy points in the time series.
@@ -276,7 +298,11 @@ class Horizon(ChartObject):
         """
         patches = Patches(
             fill_color='fill_color', fill_alpha='fill_alpha', xs='x_all', ys='y_all')
-        self.chart.plot.add_glyph(self.source, patches)
+        # self.chart.plot.add_glyph(self.source, patches)
+
+        renderer = GlyphRenderer(data_source=self.source, glyph=patches)
+        # self._legends.append((self.groups[i-1], [renderer]))
+        yield renderer
 
     def _show_teardown(self):
         """Add the serie names to the y axis, the hover tooltips and legend"""
