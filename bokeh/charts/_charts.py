@@ -166,7 +166,7 @@ class Chart(Plot):
         if isinstance(tools, bool) and tools:
             tools = DEFAULT_TOOLS
         elif isinstance(tools, bool):
-            # in case tools == False just
+            # in case tools == False just exit
             return
 
         tool_objs = _process_tools_arg(self, tools)
@@ -174,10 +174,6 @@ class Chart(Plot):
 
     def start_plot(self):
         """Add the axis, grids and tools
-
-        Args:
-            xgrid(bool): whether to show the xgrid
-            ygrid(bool): whether to shoe the ygrid
         """
         self.create_axes()
         self.create_grids(self._xgrid, self._ygrid)
@@ -192,8 +188,11 @@ class Chart(Plot):
         It also add the Document to a new Session in the case of server output.
 
         Args:
-            groups(list): keeping track of the incoming groups of data.
-                Useful to automatically setup the legend.
+            orientation(str): position of the legend on the chart.
+            legends(List(Tuple(String, List(GlyphRenderer)): A list of
+                tuples that maps text labels to the legend to corresponding
+                renderers that should draw sample representations for those
+                labels.
         """
         legend = Legend(orientation=orientation, legends=legends)
         self.add_layout(legend)
@@ -241,49 +240,11 @@ class Chart(Plot):
 
         return grid
 
-    # def prepare_values(self):
-    #     """Prepare the input data.
-    #
-    #     Converts data input (self.values) to a DataAdapter and creates
-    #     instance index if needed
-    #     """
-    #     from ._data_adapter import DataAdapter
-    #     if hasattr(self, '_index'):
-    #         self._values_index, self._values = DataAdapter.get_index_and_data(
-    #             self._values, self._index
-    #         )
-    #     else:
-    #         if not isinstance(self._values, DataAdapter):
-    #             self._values = DataAdapter(self._values, force_alias=False)
-
-
-    # def _show_teardown(self):
-    #     """
-    #     Convenience method that can be override by inherited classes to
-    #     perform custom teardown or clean up actions after show method has
-    #     build chart objects
-    #     """
-    #     self.end_plot()
-
-    # def build(self):
-    #     if not self._built:
-    #
-    #         self._setup_show()
-    #         self._prepare_show()
-    #         for builder in self._builders:
-    #             builder.create(self)
-    #
-    #         self._built = True
-    #
-    #         self._show_teardown()
-
     def show(self):
         """Main show function.
 
         It shows the plot in file, server and notebook outputs.
         """
-        # self.build()
-
         # Add to document and session
         if self._server:
             if self._server is True:
@@ -323,85 +284,9 @@ class Chart(Plot):
             # for plot in self._plots:
             publish_display_data({'text/html': notebook_div(self)})
 
-    # ##################################################
-    # # Some helper methods
-    # ##################################################
-    # def _set_and_get(self, data, prefix, attr, val, content):
-    #     """Set a new attr and then get it to fill the self.data dict.
-    #
-    #     Keep track of the attributes created.
-    #
-    #     Args:
-    #         data (dict): where to store the new attribute content
-    #         attr (list): where to store the new attribute names
-    #         val (string): name of the new attribute
-    #         content (obj): content of the new attribute
-    #     """
-    #     _val = content
-    #     # setattr(self, prefix + val, content)
-    #     data[prefix + val] = _val
-    #     attr.append(prefix + val)
-    #
-    # def set_and_get(self, prefix, val, content):
-    #     """Set a new attr and then get it to fill the self.data dict.
-    #
-    #     Keep track of the attributes created.
-    #
-    #     Args:
-    #         prefix (str): prefix of the new attribute
-    #         val (string): name of the new attribute
-    #         content (obj): content of the new attribute
-    #     """
-    #     self._set_and_get(self._data, prefix, self._attr, val, content)
-    #
-    # def _append_glyph(self, source, glyph):
-    #     """ Append the glyph to the plot.renderer.
-    #
-    #     Also add the glyph to the glyphs list.
-    #
-    #     Args:
-    #         source (obj): datasource containing data for the glyph
-    #         glyph (obj): glyph type
-    #     """
-    #     _glyph = self.add_glyph(source, glyph)
-    #     # print ("appended glyph", glyph, source.data)
-    #     self._glyphs.append(_glyph)
-    #
-    # def create_plot_if_facet(self):
-    #     """
-    #     Generate a new plot if facet is true. This can be called after every
-    #     serie is draw so the next one is draw on a new separate plot instance
-    #     """
-    #     if self.__facet:
-    #         print("WARNING: Faceting not supported!")
-    #
-    # def _chunker(self, l, n):
-    #     """Yield successive n-sized chunks from l.
-    #
-    #     Args:
-    #         l (list: the incomming list to be chunked
-    #         n (int): lenght of you chucks
-    #     """
-    #     for i in range(0, len(l), n):
-    #         yield l[i:i + n]
-
     ##################################################
     # Methods related to method chaining
     ##################################################
-    # def facet(self, facet=True):
-    #     """Set the facet flag of your chart. Facet splits the chart
-    #     creating a figure for every single series of the underlying data
-    #
-    #     Args:
-    #         facet (boolean): new facet value to use for your chart.
-    #
-    #     Returns:
-    #         self: the chart object being configured.
-    #     """
-    #     self._facet = facet
-    #     return self
-
-
     def xlabel(self, xlabel):
         """Set the xlabel of your chart.
 
