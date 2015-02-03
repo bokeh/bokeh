@@ -55,14 +55,21 @@ define [
         else
           vx = new Float64Array(x.length)
           vx.set(x)
+        hoff = @get('h_range').get('start')
+        for i in [0...vx.length]
+          vx[i] += hoff
       else
         vx = @get('x_mappers')[x_name].v_map_to_target(x)
+
       if y_units == 'screen'
         if _.isArray(y)
           vy = y[..]
         else
           vy = new Float64Array(y.length)
           vy.set(y)
+        voff = @get('v_range').get('start')
+        for i in [0...vy.length]
+          vy[i] += voff
       else
         vy = @get('y_mappers')[y_name].v_map_to_target(y)
 
