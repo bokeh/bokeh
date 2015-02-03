@@ -27,6 +27,29 @@ def cross(start, facets):
     return result
 
 
+def hide_axes(plot, axes=('x', 'y')):
+    """Hides the axes of the plot by setting component alphas.
+
+    Args:
+      plot (Figure): a valid figure with x and y axes
+      axes (tuple or list or str, optional): the axes to hide the axis on.
+
+    """
+    if isinstance(axes, str):
+        axes = tuple(axes)
+
+    for label in axes:
+        axis = getattr(plot, label + 'axis')
+        axis = axis[0]
+        axis.major_label_text_alpha = 0.0
+        axis.major_label_text_font_size = '0pt'
+        axis.axis_line_alpha = 0.0
+        axis.major_tick_line_alpha = 0.0
+        axis.minor_tick_line_alpha = 0.0
+
+    plot.min_border = 0
+
+
 def make_histogram_source(series):
     """Creates a ColumnDataSource containing the bins of the input series.
 
@@ -58,10 +81,11 @@ def make_continuous_bar_source(df, x_field, y_field, agg):
     """
 
     # Generate dataframe required to use the categorical bar source function
-    labels, edges = pd.cut(df[x_field], 50, retbins=True, labels=False)
+    labels, edges = pd.cut(x=df[x_field], bins=20, retbins=True, labels=False)
     centers = pd.rolling_mean(edges, 2)[1:]
-    labels = centers[labels]
-    df[x_field] = labels
+
+    # store new value of x as the bin it fell into
+    df[x_field] = centers[labels]
 
     # After making it discrete, create the categorical bar source
     return make_categorical_bar_source(df, x_field, y_field, agg)
@@ -108,6 +132,7 @@ def make_bar_plot(datasource, counts_name="counts",
                   centers_name="centers",
                   bar_width=0.7,
                   x_range=None,
+                  y_range=None,
                   plot_width=500, plot_height=500,
                   tools="pan,wheel_zoom,box_zoom,save,resize,box_select,reset",
                   title_text_font_size="12pt"):
@@ -151,6 +176,7 @@ def make_bar_plot(datasource, counts_name="counts",
         select_tool.dimensions = ['width']
 
     return plot
+
 
 def make_histogram(datasource,
                    counts_name="counts",

@@ -33,9 +33,8 @@ from ..document import Document
 
 from ..charts import (Chart, DataAdapter, Area, Bar, Dot, Donut,
                       Line, HeatMap, Histogram, Scatter, Step, TimeSeries,
-                      BoxPlot)
+                      BoxPlot, Horizon)
 from ..charts._builder import Builder
-
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
@@ -973,3 +972,42 @@ class TestBoxPlot(unittest.TestCase):
                 self.assertEqual(builder._data_segment[key], expected_v)
 
             self.assertEqual(len(builder._legends), 3)
+
+class TestHorizon(unittest.TestCase):
+    def test_supported_input(self):
+        now = datetime.datetime.now()
+        delta = datetime.timedelta(minutes=1)
+        dts = [now + delta*i for i in range(6)]
+        dtss = ['%s'%dt for dt in dts]
+        xyvalues = OrderedDict({'Date': dts})
+        # Repeat the starting and trailing points in order to 
+        y_python = xyvalues['python'] = [-120, -120, -30, 50, 100, 103]
+        y_pypy = xyvalues['pypy'] = [-75, -75, -33, 15, 126, 126]
+
+        xyvaluesdf = pd.DataFrame(xyvalues)
+        groups = ['python', 'pypy']
+        for i, _xy in enumerate([xyvalues, xyvaluesdf]):
+            ts = create_chart(Horizon, _xy, index='Date')
+            padded_date = [x for x in _xy['Date']]
+            padded_date.insert(0, padded_date[0])
+            padded_date.append(padded_date[-1])
+
+            self.assertEqual(ts.nb_folds, 3)
+            self.assertEqual(ts.series, groups)
+            self.assertEqual(ts.fold_height, 126.0 / 3)
+            self.assertEqual(ts.groups, ['42.0', '-42.0', '84.0', '-84.0', '126.0', '-126.0'])
+            assert_array_equal(ts.data['x_python'], padded_date)
+            assert_array_equal(ts.data['x_pypy'], padded_date)
+            assert_array_equal(ts.data['y_fold-3_python'], [63, 9, 9 ,63, 63, 63, 63, 63])
+            assert_array_equal(ts.data['y_fold-2_python'], [63, 0, 0, 63, 63, 63, 63, 63])
+            assert_array_equal(ts.data['y_fold-1_python'], [63, 0, 0, 18, 63, 63, 63, 63])
+            assert_array_equal(ts.data['y_fold1_python'], [0, 0, 0, 0, 63, 63, 63, 0])
+            assert_array_equal(ts.data['y_fold2_python'], [0, 0, 0, 0, 12, 63, 63, 0])
+            assert_array_equal(ts.data['y_fold3_python'], [0, 0, 0, 0, 0, 24, 28.5, 0])
+            assert_array_equal(ts.data['y_fold-3_pypy'], [126, 126, 126, 126, 126, 126, 126, 126])
+            assert_array_equal(ts.data['y_fold-2_pypy'], [126, 76.5, 76.5, 126, 126, 126, 126, 126])
+            assert_array_equal(ts.data['y_fold-1_pypy'], [126, 63, 63, 76.5, 126, 126, 126, 126])
+            assert_array_equal(ts.data['y_fold1_pypy'], [63, 63, 63, 63, 85.5, 126, 126, 63])
+            assert_array_equal(ts.data['y_fold2_pypy'], [63, 63, 63, 63, 63, 126, 126, 63])
+            assert_array_equal(ts.data['y_fold3_pypy'], [63, 63, 63, 63, 63, 126, 126, 63])
+
