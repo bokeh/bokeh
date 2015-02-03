@@ -68,7 +68,8 @@ class AreaBuilder(Builder):
         )
         area.legend("top_left").show()
     """
-    def __init__(self, values, index=None, stacked=False, legend=False, **kws):
+    def __init__(self, values, index=None, stacked=False, legend=False,
+                 palette=None, **kws):
         """
         Args:
             values (iterable): iterable 2d representing the data series
@@ -81,16 +82,18 @@ class AreaBuilder(Builder):
                         mapping to be used as index (and not as data
                         series) if area.values is a mapping (like a dict,
                         an OrderedDict or a pandas DataFrame)
-            legend (str, optional): the legend of your chart. The legend
-                content is inferred from incoming input.It can be
-                ``top_left``, ``top_right``, ``bottom_left``,
-                ``bottom_right``. ``top_right`` is set if you set it
-                 as True. Defaults to None.
             stacked (bool, optional): if:
                 True: areas are draw as a stack to show the relationship of
                     parts to a whole
                 False: areas are layered on the same chart figure. Defaults
                     to False.
+            legend (str, optional): the legend of your chart. The legend
+                content is inferred from incoming input.It can be
+                ``top_left``, ``top_right``, ``bottom_left``,
+                ``bottom_right``. ``top_right`` is set if you set it
+                 as True. Defaults to None.
+            palette(list, optional): a list containing the colormap as
+                hex values.
 
         Attributes:
             source (obj): datasource object for your chart,
@@ -109,17 +112,11 @@ class AreaBuilder(Builder):
                 Needed for _set_And_get method.
             index(see inputs): received index input
         """
-        self.values = values
         self.source = None
         self._stacked = stacked
-
-        # list to save all the groups available in the incomming input
-        self.groups = []
-        self.data = dict()
-        self.attr = []
         self.index = index
 
-        super(AreaBuilder, self).__init__(values, legend)
+        super(AreaBuilder, self).__init__(values, legend=legend, palette=palette)
 
     def get_data(self):
         """Calculate the chart properties accordingly from area.values.
@@ -127,9 +124,6 @@ class AreaBuilder(Builder):
         the patch glyph inside the ``draw`` method.
 
         """
-        # self.data = dict()
-        # # list to save all the attributes we are going to create
-        # self.attr = []
         xs = self.values_index
         last = np.zeros(len(xs))
         x2 = np.hstack((xs[::-1], xs))
@@ -165,18 +159,11 @@ class AreaBuilder(Builder):
         Push the Line data into the ColumnDataSource and calculate the proper ranges.
         """
         self.source = ColumnDataSource(self.data)
-
-    @property
-    def x_range(self):
-        return DataRange1d(sources=[self.source.columns("x")])
-
-    @property
-    def y_range(self):
+        self.x_range = DataRange1d(sources=[self.source.columns("x")])
         y_names = self.attr[1:]
-
         endy = max(max(self.data[i]) for i in y_names)
         starty = min(min(self.data[i]) for i in y_names)
-        return Range1d(
+        self.y_range =  Range1d(
             start=starty - 0.1 * (endy - starty),
             end=endy + 0.1 * (endy - starty)
         )
@@ -188,7 +175,6 @@ class AreaBuilder(Builder):
         Takes reference points from the data loaded at the ColumnDataSource.
         """
         colors = self._set_colors(self.attr)
-
         # parse all series. We exclude the first attr as it's the x values
         # added for the index
         for i, series_name in enumerate(self.attr[1:]):
@@ -198,11 +184,3 @@ class AreaBuilder(Builder):
             renderer = GlyphRenderer(data_source=self.source, glyph=glyph)
             self._legends.append((self.groups[i], [renderer]))
             yield renderer
-
-            # if i < len(self.attr[1:]) - 1:
-            #     self.create_plot_if_facet()
-
-    def make_legends(self):
-        listed_glyphs = [[glyph] for glyph in self.renderers]
-        legends = list(zip(self._groups, listed_glyphs))
-        return legends

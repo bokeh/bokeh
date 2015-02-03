@@ -193,7 +193,7 @@ class Builder(object):
         # create the legends if needed
         if self._legend:
             if self._legend is True:
-                orientation = "top_right"
+                    orientation = "top_right"
             else:
                 orientation = self._legend
 
