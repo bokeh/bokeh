@@ -37,6 +37,8 @@ def Horizon(values, index=None, nb_folds=3, pos_color='#006400',
         neg_color=neg_color, xscale=xscale, xgrid=xgrid, ygrid=ygrid, **kws
     )
 
+    # Hide numerical axis / TODO: adapt for
+    #  https://github.com/bokeh/bokeh/issues/1730
     chart.left[0].axis_label_text_color = None
     chart.left[0].axis_line_color = None
     chart.left[0].major_label_text_color = None
@@ -78,12 +80,6 @@ class HorizonBuilder(Builder):
     """
     def __init__(self, values, index=None, legend=False, palette=None,
                  nb_folds=3, pos_color='#006400', neg_color='#6495ed', **kws):
-    #
-    # def __init__(self, values, index=None, title=None, xlabel=None, ylabel=None,
-    #              legend=False, xscale="datetime", yscale="linear", width=800,
-    #              height=600, tools=True, filename=False, server=False,
-    #              notebook=False, facet=False, xgrid=False, ygrid=False,
-    #              nb_folds=3, pos_color='#006400', neg_color='#6495ed'):
         """
         Args:
             values (iterable): iterable 2d representing the data series
@@ -168,35 +164,14 @@ class HorizonBuilder(Builder):
         self.pos_color = pos_color
         self.neg_color = neg_color
         self.fold_names = []
-
-#     -        self.source = None
-# -        self.xdr = None
-# -        self.ydr = None
-# -        self.groups = []
+        self.source = None
         self.series = []
-# -        self.fold_height = {}
+        self.fold_height = {}
         self.max_y = 0
 
         super(HorizonBuilder, self).__init__(
             values, legend=legend, palette=palette
         )
-        # super(Horizon, self).__init__(
-        #     title, xlabel, ylabel, legend, xscale, yscale, width, height,
-        #     tools, filename, server, notebook, facet, xgrid, ygrid
-        # )
-
-    # def check_attr(self):
-    #     """ Disable zoom and pan tools since horizon plots display a predetermined
-    #     data range. Also, secondary axis is broken during zooming.
-    #     """
-    #     super(Horizon, self).check_attr()
-    #     if self._tools == True:
-    #         self._tools = "save,resize,reset"
-    #     elif isinstance(self._tools, string_types):
-    #         self._tools = self._tools.replace('pan', '')
-    #         self._tools = self._tools.replace('wheel_zoom', '')
-    #         self._tools = self._tools.replace('box_zoom', '')
-    #         self._tools = self._tools.replace(',,', ',')
 
     def fold_coordinates(self, y, fold_no, fold_height, y_origin=0, graph_ratio=1):
         """ Function that calculate the coordinates for a value given a fold
@@ -309,30 +284,13 @@ class HorizonBuilder(Builder):
         """
         patches = Patches(
             fill_color='fill_color', fill_alpha='fill_alpha', xs='x_all', ys='y_all')
-        # self.chart.plot.add_glyph(self.source, patches)
-
         renderer = GlyphRenderer(data_source=self.source, glyph=patches)
         # self._legends.append((self.groups[i-1], [renderer]))
         yield renderer
 
-    # def _show_teardown(self):
-    #     """Add the serie names to the y axis, the hover tooltips and legend"""
-    #     p = self.chart.plot
-    #
-    #     # Hide numerical axis / TODO: adapt for
-    #     # https://github.com/bokeh/bokeh/issues/1730
-    #     p.left[0].axis_label_text_color = None
-    #     p.left[0].axis_line_color = None
-    #     p.left[0].major_label_text_color = None
-    #     p.left[0].major_tick_line_color = None
-    #     p.left[0].minor_tick_line_color = None
-    #
-    #     # Add the series names to the y axis
-    #     p.extra_y_ranges = {"series": FactorRange(factors=self.series)}
-    #     p.add_layout(CategoricalAxis(y_range_name="series"), 'left')
-    #
-    #     # TODO: Add the tooltips to display the dates and all absolute y values for each series
-    #     # at any vertical places on the plot
-    #
-    #     # TODO: Add the legend to display the fold ranges based on the color of
-    #     # the fold
+
+        # TODO: Add the tooltips to display the dates and all absolute y values for each series
+        # at any vertical places on the plot
+
+        # TODO: Add the legend to display the fold ranges based on the color of
+        # the fold
