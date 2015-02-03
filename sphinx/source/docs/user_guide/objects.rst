@@ -189,7 +189,7 @@ Some examples::
     ax.bounds = (3, 7)
     ax.major_label_orientation = pi/4
 
-Axes for a may be conveniently obtained using the ``xaxis``, ``yaxis``,
+Axes for a plot may be conveniently obtained using the ``xaxis``, ``yaxis``,
 and ``axis`` properties. These return collections of axes that can be
 indexed to retrieve individual axes, or can that have attributes set
 directly on them to update all axes. Examples::
@@ -207,7 +207,7 @@ Typically after updating these attributes, a call to :func:`bokeh.plotting.show`
 Grids
 '''''
 
-Grids for a may be conveniently obtained using the ``xgrid``, ``ygrid``,
+Grids for a plot may be conveniently obtained using the ``xgrid``, ``ygrid``,
 and ``grid`` properties. These return collections of axes that can be
 indexed to retrieve individual grids, or can that have attributes set
 directly on them to update all axes. Examples::
