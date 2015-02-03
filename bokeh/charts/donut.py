@@ -54,9 +54,9 @@ class DonutBuilder(Builder):
         xyvalues['pypy'] = [4., 1., 4.]
         xyvalues['jython'] = [6., 4., 3.]
         cat = ['Devs', 'Dev Ops', 'Scientists']
-        donut = Donut(xyvalues, cat, filename="donut.html")
-        donut.title("Medals Donut").xlabel("Cat").ylabel("Lang")
-        donut.legend(True).width(800).height(800).show()
+        donut = Donut(xyvalues, cat, title="Medals Donut",
+            xlabel='Cat', ylabel='Lang', filename="donut.html")
+        donut.show()
     """
 
     def __init__(self, values, cat=None, legend=False, palette=None, **kws):
@@ -134,10 +134,8 @@ class DonutBuilder(Builder):
 
         """
         glyph = Wedge(
-            x=0, y=0,
-            radius=1, start_angle="start", end_angle="end",
-            line_color="white", line_width=2,
-            fill_color="colors"
+            x=0, y=0, radius=1, start_angle="start", end_angle="end",
+            line_color="white", line_width=2, fill_color="colors"
         )
         yield GlyphRenderer(data_source=self.source, glyph=glyph)
 

@@ -60,12 +60,11 @@ class BarBuilder(Builder):
         xyvalues['jython']=[22, 30]
 
         bar = Bar(xyvalues, ['1st', '2nd'], filename="stacked_bar.html")
-        bar.title("Stacked bars").xlabel("countries").ylabel("medals")
-        bar.legend(True).width(600).height(400).stacked(True)
         bar.show()
     """
 
-    def __init__(self, values, cat=None, stacked=False, legend=False, **kws):
+    def __init__(self, values, cat=None, stacked=False, legend=False,
+                 palette=None,  **kws):
         """
         Args:
             values (iterable): iterable 2d representing the data series values matrix.
@@ -78,6 +77,8 @@ class BarBuilder(Builder):
                 ``top_left``, ``top_right``, ``bottom_left``,
                 ``bottom_right``. ``top_right`` is set if you set it
                  as True. Defaults to None.
+            palette(list, optional): a list containing the colormap as
+                hex values.
 
         Attributes:
             source (obj): datasource object for your chart,
@@ -97,7 +98,7 @@ class BarBuilder(Builder):
         """
         self.cat = cat
         self._stacked = stacked
-        super(BarBuilder, self).__init__(values, legend)
+        super(BarBuilder, self).__init__(values, legend=legend, palette=palette)
 
     def get_data(self):
         """Take the Bar data from the input **value.
@@ -118,7 +119,6 @@ class BarBuilder(Builder):
         self.data = dict(
             cat=self.cat, width=width, width_cat=width_cat, zero=zero
         )
-
         # list to save all the groups available in the incomming input grouping
         step = np.linspace(0, 1.0, len(self.values.keys()) + 1, endpoint=False)
         self.groups.extend(self.values.keys())
@@ -139,7 +139,6 @@ class BarBuilder(Builder):
         the proper ranges.
         """
         self.source = ColumnDataSource(self.data)
-
         self.x_range = FactorRange(factors=self.source.data["cat"])
 
         if self._stacked:

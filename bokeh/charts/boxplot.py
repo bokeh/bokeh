@@ -49,14 +49,11 @@ class BoxPlotBuilder(Builder):
     Examples:
 
         from collections import OrderedDict
-
         import numpy as np
-
         from bokeh.charts import BoxPlot
         from bokeh.sampledata.olympics2014 import data
 
         data = {d['abbr']: d['medals'] for d in data['data'] if d['medals']['total'] > 0}
-
         countries = sorted(data.keys(), key=lambda x: data[x]['total'], reverse=True)
 
         gold = np.array([data[abbr]['gold'] for abbr in countries], dtype=np.float)
@@ -70,7 +67,8 @@ class BoxPlotBuilder(Builder):
                           width=800, height=600, notebook=True)
         boxplot.show()
     """
-    def __init__(self, values, marker="circle", outliers=True, legend=False, **kws):
+    def __init__(self, values, marker="circle", outliers=True, legend=False,
+                 palette=None, **kws):
         """ Initialize a new BoxPlot.
 
         Args:
@@ -84,6 +82,8 @@ class BoxPlotBuilder(Builder):
                 ``top_right``, ``bottom_left``, ``bottom_right``.
                 It is ``top_right`` is you set it as True.
                 Defaults to None.
+            palette(list, optional): a list containing the colormap as
+                hex values.
 
         Attributes:
             source (obj): datasource object for your plot,
@@ -108,7 +108,7 @@ class BoxPlotBuilder(Builder):
         self._data_scatter = dict()
         self._attr_scatter = []
         self._data_legend = dict()
-        super(BoxPlotBuilder, self).__init__(values, legend)
+        super(BoxPlotBuilder, self).__init__(values, legend=legend, palette=palette)
 
     def get_data(self):
         """Take the BoxPlot data from the input **value.
@@ -138,7 +138,6 @@ class BoxPlotBuilder(Builder):
 
         # self.data_scatter does not need references to groups now,
         # they will be added later.
-
         # add group to the self.data_legend dict
         self._data_legend["groups"] = self.groups
 

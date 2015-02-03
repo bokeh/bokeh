@@ -21,7 +21,7 @@ import numpy as np
 
 from ._builder import Builder, create_and_build
 from ..models import ColumnDataSource, DataRange1d, GlyphRenderer, Range1d
-
+from ..models.glyphs import Line as LineGlyph
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
@@ -86,7 +86,6 @@ class LineBuilder(Builder):
         used by the line glyph inside the ``draw`` method.
         """
         self.data = dict()
-
         # list to save all the attributes we are going to create
         self.attr = []
         xs = self.values_index
@@ -109,7 +108,6 @@ class LineBuilder(Builder):
         self.x_range = DataRange1d(sources=[self.source.columns("x")])
 
         y_names = self.attr[1:]
-
         endy = max(max(self.data[i]) for i in y_names)
         starty = min(min(self.data[i]) for i in y_names)
         self.y_range = Range1d(
@@ -122,15 +120,8 @@ class LineBuilder(Builder):
         Takes reference points from the data loaded at the ColumnDataSource.
         """
         colors = self._set_colors(self.attr)
-        print("g1orup", self.groups)
         for i, duplet in enumerate(self.attr[1:], start=1):
-
-            from ..models.glyphs import Line
-
-            glyph = Line(x='x', y=duplet, line_color=colors[i - 1])
+            glyph = LineGlyph(x='x', y=duplet, line_color=colors[i - 1])
             renderer = GlyphRenderer(data_source=self.source, glyph=glyph)
             self._legends.append((self.groups[i-1], [renderer]))
             yield renderer
-
-            # if i < len(self.attr[1:]):
-            #     self.create_plot_if_facet()

@@ -55,7 +55,7 @@ class HeatMapBuilder(Builder):
     xyvalues['bananas'] = [1,2,4]
     xyvalues['pears'] = [6,5,4]
     hm = HeatMap(xyvalues, title="categorical heatmap", filename="cat_heatmap.html")
-    hm.width(1000).height(400).show()
+    hm.show()
     """
 
     def __init__(self, values, legend=False, palette=None, **kws):
@@ -90,7 +90,7 @@ class HeatMapBuilder(Builder):
         if not palette:
             palette = ["#75968f", "#a5bab7", "#c9d9d3", "#e2e2e2", "#dfccce",
                        "#ddb7b1", "#cc7878", "#933b41", "#550b1d"]
-        super(HeatMapBuilder, self).__init__(values, legend, palette=palette)
+        super(HeatMapBuilder, self).__init__(values, legend=legend, palette=palette)
 
 
     def get_data(self):
@@ -149,14 +149,9 @@ class HeatMapBuilder(Builder):
             fill_color="color", fill_alpha=0.7,
             line_color="white"
         )
-        renderer =  GlyphRenderer(data_source=self.source, glyph=glyph)
+        renderer = GlyphRenderer(data_source=self.source, glyph=glyph)
         # TODO: Legend??
-        # self._legends.append((self.groups[i], [renderer]))
         yield renderer
-
-    # def _show_teardown(self):
-    #     """Add hover tool to HetMap chart"""
-    #     self.add_tools(HoverTool(tooltips=[("value", "@rate")]))
 
     def prepare_values(self):
         """Prepare the input data.

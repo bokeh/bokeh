@@ -66,7 +66,7 @@ class AreaBuilder(Builder):
             ylabel='memory', filename="area.html",
             facet=False, stacked=True,
         )
-        area.legend("top_left").show()
+        area.show()
     """
     def __init__(self, values, index=None, stacked=False, legend=False,
                  palette=None, **kws):

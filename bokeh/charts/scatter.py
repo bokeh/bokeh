@@ -37,8 +37,6 @@ from ..models import ColumnDataSource, Range1d
 def Scatter(values, **kws):
     return create_and_build(ScatterBuilder, values, **kws)
 
-
-
 class ScatterBuilder(Builder):
     """This is the Scatter class and it is in charge of plotting
     Scatter charts in an easy and intuitive way.
@@ -57,9 +55,9 @@ class ScatterBuilder(Builder):
         xyvalues['pypy'] = [(1, 12), (2, 23), (4, 47), (5, 15), (8, 46)]
         xyvalues['jython'] = [(1, 22), (2, 43), (4, 10), (6, 25), (8, 26)]
 
-        scatter = Scatter(xyvalues, filename="scatter.html")
-        scatter.title("Languages Scatter").legend("top_left")
-        scatter.width(600).height(400).show()
+        scatter = Scatter(xyvalues, title="Languages Scatter",
+            filename="scatter.html")
+        scatter.show()
     """
     def __init__(self, values, legend=False, palette=None, **kws):
         """
@@ -150,7 +148,6 @@ class ScatterBuilder(Builder):
         self.source = ColumnDataSource(self.data)
 
         x_names, y_names = self.attr[::2], self.attr[1::2]
-
         endx = max(max(self.data[i]) for i in x_names)
         startx = min(min(self.data[i]) for i in x_names)
         self.x_range = Range1d(
@@ -184,8 +181,6 @@ class ScatterBuilder(Builder):
 
         Customize show preliminary actions by handling DataFrameGroupBy
         values in order to create the series values and labels."""
-        # super(ScatterBuilder, self)._setup_show()
-
         # check if pandas is installed
         if pd:
             # if it is we try to take advantage of it's data structures

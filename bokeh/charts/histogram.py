@@ -56,9 +56,9 @@ class HistogramBuilder(Builder):
         normal = [1, 2, 3, 1]
         lognormal = [5, 4, 4, 1]
         distributions = OrderedDict(normal=normal, lognormal=lognormal)
-        hist = Histogram(distributions, bins=5, notebook=True)
-        hist.title("Histogram").ylabel("frequency")
-        hist.legend(True).width(400).height(350).show()
+        hist = Histogram(distributions, bins=5, notebook=True,
+            title='Histogram', ylabel="frequency", legend=True)
+        hist.show()
     """
     def __init__(self, values, bins, mu=None, sigma=None, density=True,
                  legend=False, palette=None, **kws):
@@ -84,7 +84,6 @@ class HistogramBuilder(Builder):
                  as True. (default: False)
             palette(list, optional): a list containing the colormap as
                 hex values.
-
 
         Attributes:
             source (obj): datasource object for your plot,
@@ -165,7 +164,6 @@ class HistogramBuilder(Builder):
                            end=endx + 0.1 * (endx - startx))
 
         endy = max(max(self.data[i]) for i in y_names)
-
         self.y_range = Range1d(start=0, end=1.1 * endy)
 
     def draw(self):
@@ -192,11 +190,6 @@ class HistogramBuilder(Builder):
                 self._legends.append((self.groups[i], [renderer]))
                 yield renderer
 
-                # # if facet we need to generate multiple histograms of multiple
-                # # series on multiple separate plots
-                # if i < len(sextets)-1:
-                #     self.create_plot_if_facet()
-
         else:
             nonets = list(self._chunker(self.attr, 9))
             colors = self._set_colors(nonets)
@@ -219,8 +212,3 @@ class HistogramBuilder(Builder):
 
                 glyph = Line(x=nonet[6], y=nonet[8], line_color="blue")
                 yield GlyphRenderer(data_source=self.source, glyph=glyph)
-
-                # # if facet we need to generate multiple histograms of multiple
-                # # series on multiple separate plots
-                # if i < len(nonets)-1:
-                #     self.create_plot_if_facet()

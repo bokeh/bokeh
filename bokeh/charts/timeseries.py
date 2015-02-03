@@ -63,7 +63,7 @@ class TimeSeriesBuilder(Builder):
 
         ts = TimeSeries(xyvalues, index='Date', title="timeseries",
                         ylabel='Stock Prices', filename="stocks_ts.html")
-        ts.legend("top_left").show()
+        ts.show()
 
     """
     def __init__(self, values, index=None,legend=False, palette=None, **kws):
@@ -137,7 +137,6 @@ class TimeSeriesBuilder(Builder):
         """
         self.source = ColumnDataSource(self.data)
         self.x_range = DataRange1d(sources=[self.source.columns(self.attr[0])])
-
         y_names = self.attr[1::2]
         endy = max(max(self.data[i]) for i in y_names)
         starty = min(min(self.data[i]) for i in y_names)

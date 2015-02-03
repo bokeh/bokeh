@@ -49,8 +49,8 @@ class DotBuilder(Builder):
     the references from the source.
 
     """
-    def __init__(self, values, cat=None, show_segment=True,
-                 legend=False, palette=None, **kws):
+    def __init__(self, values, cat=None, show_segment=True, legend=False,
+                 palette=None, **kws):
         """
         Args:
             values (dict): a dict containing the data with names as a key
@@ -100,8 +100,7 @@ class DotBuilder(Builder):
 
         self.data = dict(cat=self.cat, zero=np.zeros(len(self.cat)))
         # list to save all the attributes we are going to create
-        self.attr = []
-        # list to save all the groups available in the incomming input
+        # list to save all the groups available in the incoming input
         # Grouping
         self.groups.extend(self.values.keys())
         step = np.linspace(0, 1.0, len(self.values.keys()) + 1, endpoint=False)
@@ -143,7 +142,6 @@ class DotBuilder(Builder):
             # draw segment first so when scatter will be place on top of it
             # and it won't show segment chunk on top of the circle
             if self.show_segment:
-
                 glyph = Segment(
                     x0=quartet[1], y0=quartet[2], x1=quartet[1], y1=quartet[3],
                     line_color="black", line_width=2
@@ -156,24 +154,3 @@ class DotBuilder(Builder):
             )
             self._legends.append((self.groups[i], [renderer]))
             yield renderer
-
-            # if i < len(self.tuples):
-            #     self.create_plot_if_facet()
-
-        # self.reset_legend()
-
-    # def _make_legend_glyph(self, source_legend, color):
-    #     '''Create a new glyph to represent one of the chart data series with the
-    #     specified color
-    #
-    #     The glyph is added to chart.glyphs.
-    #
-    #     NOTE: Overwrites default ChartObject in order to draw a circle glyph
-    #     on the legend instead of the default `rect`
-    #
-    #     Args:
-    #         source_legend (ColumnDataSource): source to be used when creating the glyph
-    #         color (str): color of the glyph
-    #     '''
-    #     self.chart.make_scatter(source_legend, "groups", None, 'circle',
-    #                              color, "black", fill_alpha=1.)

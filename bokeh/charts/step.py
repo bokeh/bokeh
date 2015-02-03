@@ -111,7 +111,6 @@ class StepBuilder(Builder):
         """
         sc = self.source = ColumnDataSource(self.data)
         self.x_range = DataRange1d(sources=[sc.columns("x"), sc.columns("x2")])
-
         y_names = self.attr[1:]
         endy = max(max(self.data[i]) for i in y_names)
         starty = min(min(self.data[i]) for i in y_names)
@@ -130,7 +129,6 @@ class StepBuilder(Builder):
 
         # duplet: y1, y2 values of each series
         for i, duplet in enumerate(tuples):
-
             # draw the step horizontal segment
             glyph = Segment(
                 x0="x2", y0=duplet[0], x1="x2", y1=duplet[1],
