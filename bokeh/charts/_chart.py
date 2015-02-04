@@ -20,17 +20,16 @@ the generation of several outputs (file, server, notebook).
 
 import numpy as np
 
+from ..browserlib import view
+from ..document import Document
+from ..embed import file_html
 from ..models import (
     CategoricalAxis, DatetimeAxis, Grid, Legend, LinearAxis, Plot)
-
-from ..document import Document
-from ..session import Session
-from ..embed import file_html
-from ..resources import INLINE
-from ..browserlib import view
-from ..utils import publish_display_data
-from ..plotting_helpers import _process_tools_arg
 from ..plotting import DEFAULT_TOOLS
+from ..plotting_helpers import _process_tools_arg
+from ..resources import INLINE
+from ..session import Session
+from ..utils import publish_display_data
 
 #-----------------------------------------------------------------------------
 # Classes and functions

@@ -19,9 +19,10 @@ passing the arguments to the Chart class and calling the proper functions.
 from six import string_types
 import numpy as np
 
-from ._builder import Builder, create_and_build
-from ..models import ColumnDataSource, DataRange1d, GlyphRenderer, Range1d
-from ..models.glyphs import Line as LineGlyph
+from .._builder import Builder, create_and_build
+from ...models import ColumnDataSource, DataRange1d, GlyphRenderer, Range1d
+from ...models.glyphs import Line as LineGlyph
+
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------

@@ -18,12 +18,13 @@ types on top of it.
 
 from collections import OrderedDict
 import itertools
-from ._charts import Chart
+
+from ._chart import Chart
 from ._data_adapter import DataAdapter
 from ..models import GlyphRenderer
-from ..models.glyphs import (Asterisk, Circle, CircleCross, CircleX, Cross, Diamond,
-                             DiamondCross, InvertedTriangle,
-                             Square, SquareCross, SquareX, Triangle, X)
+from ..models.glyphs import (
+    Asterisk, Circle, CircleCross, CircleX, Cross, Diamond, DiamondCross,
+    InvertedTriangle, Square, SquareCross, SquareX, Triangle, X)
 
 DEFAULT_PALETTE = ["#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33ff3"]
 

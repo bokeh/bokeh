@@ -23,9 +23,9 @@ try:
 except ImportError:
     pd = None
 
-from ._builder import Builder, create_and_build
-from ..models import ColumnDataSource, DataRange1d, GlyphRenderer, Range1d
-from ..models.glyphs import Line
+from .._builder import Builder, create_and_build
+from ...models import ColumnDataSource, DataRange1d, GlyphRenderer, Range1d
+from ...models.glyphs import Line
 
 #-----------------------------------------------------------------------------
 # Classes and functions

@@ -619,7 +619,7 @@ class TestHistogram(unittest.TestCase):
                 key = key.replace('lognormal', '1').replace('normal', '0')
                 assert_array_almost_equal(builder.data[key], expected_v, decimal=2)
 
-    @patch('bokeh.charts.histogram.np.histogram', return_value=([1, 3, 4], [2.4, 4]))
+    @patch('bokeh.charts.builder.histogram_builder.np.histogram', return_value=([1, 3, 4], [2.4, 4]))
     def test_histogram_params(self, histogram_mock):
         inputs = [[5, 0, 0.5, True], [3, 1, 0, False]]
         normal = [1, 2, 3, 1]
@@ -979,7 +979,7 @@ class TestHorizon(unittest.TestCase):
         delta = datetime.timedelta(minutes=1)
         dts = [now + delta*i for i in range(6)]
         xyvalues = OrderedDict({'Date': dts})
-        # Repeat the starting and trailing points in order to 
+        # Repeat the starting and trailing points in order to
         xyvalues['python'] = [-120, -120, -30, 50, 100, 103]
         xyvalues['pypy'] = [-75, -75, -33, 15, 126, 126]
 

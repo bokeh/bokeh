@@ -17,10 +17,10 @@ the arguments to the Chart class and calling the proper functions.
 #-----------------------------------------------------------------------------
 from __future__ import print_function, division
 
-from ._builder import Builder, create_and_build
-from ._data_adapter import DataAdapter
-from ..models import ColumnDataSource, FactorRange, GlyphRenderer, HoverTool
-from ..models.glyphs import Rect
+from .._builder import Builder, create_and_build
+from .._data_adapter import DataAdapter
+from ...models import ColumnDataSource, FactorRange, GlyphRenderer, HoverTool
+from ...models.glyphs import Rect
 
 #-----------------------------------------------------------------------------
 # Classes and functions

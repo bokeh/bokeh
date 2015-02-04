@@ -25,9 +25,10 @@ except:
     pd = None
 
 from collections import OrderedDict
-from ._builder import create_and_build, Builder
-from ._data_adapter import DataAdapter
-from ..models import ColumnDataSource, Range1d
+
+from .._builder import create_and_build, Builder
+from .._data_adapter import DataAdapter
+from ...models import ColumnDataSource, Range1d
 
 #-----------------------------------------------------------------------------
 # Classes and functions

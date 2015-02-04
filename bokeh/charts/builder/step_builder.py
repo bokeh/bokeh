@@ -16,11 +16,12 @@ passing the arguments to the Chart class and calling the proper functions.
 # Imports
 #-----------------------------------------------------------------------------
 
-from six import string_types
 import numpy as np
-from ._builder import create_and_build, Builder
-from ..models import ColumnDataSource, DataRange1d, GlyphRenderer, Range1d
-from ..models.glyphs import Segment
+from six import string_types
+
+from .._builder import create_and_build, Builder
+from ...models import ColumnDataSource, DataRange1d, GlyphRenderer, Range1d
+from ...models.glyphs import Segment
 
 #-----------------------------------------------------------------------------
 # Classes and functions

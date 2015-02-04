@@ -22,9 +22,9 @@ try:
 except ImportError:
     pd = None
 
-from ._builder import Builder, create_and_build
-from ..models import ColumnDataSource, FactorRange, GlyphRenderer, Range1d
-from ..models.glyphs import Segment
+from .._builder import Builder, create_and_build
+from ...models import ColumnDataSource, FactorRange, GlyphRenderer, Range1d
+from ...models.glyphs import Segment
 
 
 def Dot(values, cat=None, show_segment=True, xscale="categorical", yscale="linear",

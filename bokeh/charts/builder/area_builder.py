@@ -26,9 +26,9 @@ except ImportError:
     print("bokeh.charts needs numpy installed to work properly!")
     raise
 
-from ._builder import Builder, create_and_build
-from ..models import ColumnDataSource, DataRange1d, GlyphRenderer, Range1d
-from ..models import Patch
+from .._builder import Builder, create_and_build
+from ...models import ColumnDataSource, DataRange1d, GlyphRenderer, Range1d
+from ...models.glyphs import Patch
 
 #-----------------------------------------------------------------------------
 # Classes and functions

@@ -10,9 +10,9 @@ from six import string_types
 from collections import OrderedDict, defaultdict
 import math
 
-from ._builder import Builder, create_and_build
-from ..models import ColumnDataSource, Range1d, DataRange1d, FactorRange, GlyphRenderer, CategoricalAxis
-from ..models.glyphs import Patches
+from .._builder import Builder, create_and_build
+from ...models import ColumnDataSource, Range1d, DataRange1d, FactorRange, GlyphRenderer, CategoricalAxis
+from ...models.glyphs import Patches
 
 #-----------------------------------------------------------------------------
 # Classes and functions
