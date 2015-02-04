@@ -419,19 +419,20 @@ def output_file(filename, title="Bokeh Plot", autosave=False, mode="inline", roo
         print("Session output file '%s' already exists, will be overwritten." % filename)
 
 
-def show(obj=None, browser=None, new="tab", url=None):
-    """ 'shows' a plot object or the current plot, by auto-raising the window or tab
-    displaying the current plot (for file/server output modes) or displaying
-    it in an output cell (IPython notebook).
+def show(obj, browser=None, new="tab", url=None):
+    """ Immediately display a plot object.
+
+    In an IPython/Jupyter notebook, the output is displayed in an output cell.
+    Otherwise, a browser window or tab is autoraised to display the plot object.
 
     Args:
-        obj (Widget/Plot object, optional): it accepts a plot object and just shows it.
+        obj (Widget/Plot object): a plot object to display
 
         browser (str, optional) : browser to show with (default: None)
             For systems that support it, the **browser** argument allows specifying
             which browser to display in, e.g. "safari", "firefox", "opera",
-            "windows-default".  (See the webbrowser module documentation in the
-            standard lib for more details.)
+            "windows-default" (see the webbrowser module documentation in the
+            standard lib for more details).
 
         new (str, optional) : new file output mode (default: "tab")
             For file-based output, opens or raises the browser window
@@ -446,23 +447,14 @@ def show(obj=None, browser=None, new="tab", url=None):
     new_param = {'tab': 2, 'window': 1}[new]
 
     controller = browserlib.get_browser_controller(browser=browser)
-    if obj is None:
-        if notebook:
-            plot = curplot()
-        else:
-            plot = curdoc()
-    else:
-        plot = obj
-    if not plot:
-        warnings.warn("No current plot to show. Use renderer functions (circle, rect, etc.) to create a current plot (see http://bokeh.pydata.org/index.html)")
-        return
+
     if notebook and session:
         push(session=session)
-        snippet = autoload_server(plot, cursession())
+        snippet = autoload_server(obj, cursession())
         publish_display_data({'text/html': snippet})
 
     elif notebook:
-        publish_display_data({'text/html': notebook_div(plot)})
+        publish_display_data({'text/html': notebook_div(obj)})
 
     elif session:
         push()
@@ -472,7 +464,7 @@ def show(obj=None, browser=None, new="tab", url=None):
             controller.open(session.object_link(curdoc().context))
 
     elif filename:
-        save(filename, obj=plot)
+        save(filename, obj=obj)
         controller.open("file://" + os.path.abspath(filename), new=new_param)
 
 
