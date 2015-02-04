@@ -1,8 +1,10 @@
 
-def can_read_doc_api(doc, apikey, app):
-    return apikey == doc.apikey
+def can_read_doc_api(doc, apikey):
+    if can_write_doc_api(doc, apikey):
+        return True
+    return apikey == doc.readonlyapikey
 
-def can_write_doc_api(doc, apikey, app):
+def can_write_doc_api(doc, apikey):
     return apikey == doc.apikey
 
 def can_read_doc(doc, bokehuser):

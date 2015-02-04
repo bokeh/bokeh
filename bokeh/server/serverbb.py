@@ -115,6 +115,7 @@ class PersistentBackboneStorage(object):
             storage_id = temporary_docid
         else:
             storage_id = doc.docid
+        logger.debug("storing objects to %s", storage_id)
         models = doc._models.values()
         if dirty_only:
             models = [x for x in models if hasattr(x, '_dirty') and x._dirty]
@@ -319,7 +320,10 @@ class BokehServerTransaction(object):
         temporary_docid : temporary docid for copy on write
         gc : whether or not to run garbage collection
         """
-
+        logger.debug(
+            "created transaction with %s, %s",
+            server_docobj.docid, temporary_docid
+        )
         self.server_userobj = server_userobj
         self.server_docobj = server_docobj
         self.temporary_docid = temporary_docid
