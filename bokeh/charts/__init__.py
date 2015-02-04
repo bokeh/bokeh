@@ -9,7 +9,7 @@ from .builder.bar_builder import Bar
 from .builder.scatter_builder import Scatter
 from .builder.boxplot_builder import BoxPlot
 from .builder.timeseries_builder import TimeSeries
-from .builder.catheatmap_builder import HeatMap
+from .builder.heatmap_builder import HeatMap
 from .builder.horizon_builder import Horizon
 
 from ._chart import Chart
