@@ -73,7 +73,6 @@ class Figure(object):
             self.doc.add(VBox(children=self.children))
 
         self.plot = None
-        xdr, ydr = None, None
         for i, chart in enumerate(self.charts):
             chart.doc = self.doc
             if self.server:

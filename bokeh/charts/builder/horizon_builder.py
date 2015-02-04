@@ -6,9 +6,9 @@ passing the arguments to the Chart class and calling the proper functions.
 """
 from __future__ import division
 
-from six import string_types
-from collections import OrderedDict, defaultdict
 import math
+
+from six import string_types
 
 from .._builder import Builder, create_and_build
 from ...models import ColumnDataSource, Range1d, DataRange1d, FactorRange, GlyphRenderer, CategoricalAxis

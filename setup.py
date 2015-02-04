@@ -464,6 +464,8 @@ setup(
         'bokeh.models.widgets',
         'bokeh.charts',
         'bokeh.charts.builder',
+        'bokeh.charts.builder.tests',
+        'bokeh.charts.tests',
         'bokeh.crossfilter',
         'bokeh.mplexporter',
         'bokeh.mplexporter.renderers',

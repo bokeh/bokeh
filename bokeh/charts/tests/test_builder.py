@@ -1,0 +1,83 @@
+"""This is the Bokeh charts testing interface.
+
+"""
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2014, Continuum Analytics, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENCE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+import unittest
+from mock import patch, Mock
+
+from bokeh.charts._builder import Builder
+from bokeh.models import ColumnDataSource, GlyphRenderer
+from bokeh.models.glyphs import Circle
+
+#-----------------------------------------------------------------------------
+# Classes and functions
+#-----------------------------------------------------------------------------
+
+class TestBuilder(unittest.TestCase):
+    def setUp(self):
+        self.builder = Builder("bottom_left", ['red', 'green'])
+
+    def test_instantiate(self):
+        self.builder._legend = "Test Leg"
+        self.builder._palette = ['red', 'green']
+        self.builder._legends = []
+        self.builder.data = {}
+        self.builder.groups = []
+        self.builder.attr = []
+        self.builder.groups = []
+
+    @patch('bokeh.charts._builder.DataAdapter')
+    def test_prepare_values(self, adapter_mock):
+        self.builder = Builder("bottom_left", ['red', 'green'])
+        adapter_mock.assert_callled_once_with([], force_alias=False)
+
+
+        self.builder = Builder([1, 2, 3], "Test Leg", ['red', 'green'])
+        self.builder.index = ['b']
+        adapter_mock.get_index_and_data.assert_callled_once_with(
+            [1, 2, 3], ['b'], force_alias=False
+        )
+
+    def test_create(self):
+        chart = Mock()
+
+        # prepare the builder with the mocks
+        self.builder.make_renderers = Mock(return_value='called!')
+        self.legends = ['l1', 'l2']
+        self.builder.x_range = "X-Range"
+        self.builder.y_range = "Y-Range"
+
+        self.builder.create(chart)
+
+        chart.add_renderers.assert_called_once('called')
+        chart.orientation = 'bottom_left'
+        chart.add_legend('bottom_left', self.legends)
+
+    def test_scatter(self):
+        source = ColumnDataSource({"a": [2, 4, 5]})
+        renderer = self.builder.make_scatter(source, [0], [1], "circle", "black")
+        scatter = renderer.glyph
+        self.assertIsInstance(renderer, GlyphRenderer)
+        self.assertEqual(renderer.data_source, source)
+        self.assertEqual(scatter.x, [0])
+        self.assertEqual(scatter.y, [1])
+        self.assertIsInstance(scatter, Circle)
+        self.assertEqual(scatter.line_color, "black")
+
+    def test_chunker(self):
+        chunk = self.builder._chunker(range(5), 2)
+        chunk_list = list(chunk)
+        self.assertEqual(len(chunk_list), 3)
+        self.assertEqual(len(chunk_list[0]), 2)
+
