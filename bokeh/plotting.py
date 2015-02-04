@@ -319,11 +319,9 @@ def figure(**kwargs):
 
     '''
     if 'plot_width' in kwargs and 'width' in kwargs:
-        warnings.warn("figure() called but both plot_width and width supplied, supply only one")
-        return
+        raise ValueError("figure() called but both plot_width and width supplied, supply only one")
     if 'plot_height' in kwargs and 'height' in kwargs:
-        warnings.warn("figure() called but both plot_height and height supplied, supply only one")
-        return
+        raise ValueError("figure() called but both plot_height and height supplied, supply only one")
     if 'height' in kwargs:
         kwargs['plot_height'] = kwargs['height']
         del kwargs['height']

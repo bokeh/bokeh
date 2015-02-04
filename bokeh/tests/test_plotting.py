@@ -31,10 +31,8 @@ class TestPlotting(unittest.TestCase):
         p = plt.figure(plot_width=100, plot_height=120)
         self.assertEqual(p.plot_width, 100)
         self.assertEqual(p.plot_height, 120)
-        p = plt.figure(plot_width=100, width=120)
-        self.assertIsNone(p)
-        p = plt.figure(plot_height=100, height=120)
-        self.assertIsNone(p)
+        self.assertRaises(ValueError, plt.figure, plot_width=100, width=120)
+        self.assertRaises(ValueError, plt.figure, plot_height=100, height=120)
 
     def test_xaxis(self):
         p = plt.figure()
