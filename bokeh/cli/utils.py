@@ -225,8 +225,10 @@ def get_charts_mapping():
     mapping = {}
     for (clsname, cls) in charts.__dict__.items():
         try:
-            if issubclass(cls, charts.ChartObject):
-                mapping[clsname.lower()] = cls
+            # TODO: We may need to restore the objects filtering
+            # when charts creators (or builders registration) is added
+            # to the charts API
+            mapping[clsname.lower()] = cls
         except TypeError:
             pass
     return mapping
