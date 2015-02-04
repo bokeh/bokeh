@@ -254,10 +254,16 @@ def show_obj(docid, objid):
     if not bokehuser:
         return redirect(url_for(".login_get", next=request.url))
     resources = request_resources()
+    public = request.values.get('public', 'false').lower() == 'true'
+    if public:
+        public = 'true'
+    else:
+        public = 'false'
     return render("oneobj.html",
                   elementid=str(uuid.uuid4()),
                   docid=docid,
                   objid=objid,
+                  public=public,
                   hide_navbar=True,
                   splitjs=server_settings.splitjs,
                   username=bokehuser.username,

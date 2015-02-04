@@ -1,12 +1,13 @@
 define [
     "jquery",
+    "underscore",
     "./serverutils",
     "./usercontext/usercontext",
     "common/base",
     "common/has_properties",
     "common/load_models",
     "common/logging",
-],  ($, serverutils, usercontext, base, HasProperties, load_models, Logging) ->
+],  ($, _, serverutils, usercontext, base, HasProperties, load_models, Logging) ->
 
   index = base.index
   logger = Logging.logger
@@ -32,7 +33,15 @@ define [
       index[model_id] = view
     _.delay(-> $(element).replaceWith(view.$el))
 
-  add_plot_server = (element, doc_id, model_id) ->
+  copy_on_write_mapping = {}
+
+  add_plot_server = (element, doc_id, model_id, is_public) ->
+    if is_public
+      if not copy_on_write_mapping[doc_id]
+        copy_on_write_mapping[doc_id] = _.uniqueId('temporary')
+      #todo : stop using ajaxsetup
+      key = "temporary-#{doc_id}"
+      $.ajaxSetup({'headers' : {key : copy_on_write_mapping[doc_id]}})
     resp = serverutils.utility.load_one_object_chain(doc_id, model_id)
     resp.done((data) ->
       model = base.Collections(data.type).get(model_id)
@@ -67,7 +76,7 @@ define [
       add_plot_static(container, info["bokehModelid"], info["bokehModeltype"], all_models)
     else if info.bokehData == "server"
       logger.info("  - using server data")
-      add_plot_server(container, info["bokehDocid"], info["bokehModelid"])
+      add_plot_server(container, info["bokehDocid"], info["bokehModelid"], info["public"])
     else
       throw "Unknown bokehData value for inject_plot: " + info.bokehData
 

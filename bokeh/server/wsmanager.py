@@ -63,6 +63,7 @@ class WebSocketManager(object):
         #topic - string topic, of syntax type:value.
         #topic type maps to auth function
         authtype, topic = topic.split(":", 1)
+        import pdb;pdb.set_trace()
         if self.auth_functions.get(authtype):
             return self.auth_functions[authtype](authtoken, topic)
         else:
