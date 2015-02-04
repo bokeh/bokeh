@@ -411,18 +411,19 @@ def output_file(filename, title="Bokeh Plot", autosave=False, mode="inline", roo
 
 
 def show(obj, browser=None, new="tab", url=None):
-    """ 'shows' a plot object, by auto-raising the window or tab displaying the
-    current plot (for file/server output modes) or displaying it in an output
-    cell (IPython/Jupyter notebook).
+    """ Immediately display a plot object.
+
+    In an IPython/Jupyter notebook, the output is displayed in an output cell.
+    Otherwise, a browser window or tab is autoraised to display the plot object.
 
     Args:
-        obj (Widget/Plot object): requires a plot object and just shows it.
+        obj (Widget/Plot object): a plot object to display
 
         browser (str, optional) : browser to show with (default: None)
             For systems that support it, the **browser** argument allows specifying
             which browser to display in, e.g. "safari", "firefox", "opera",
-            "windows-default".  (See the webbrowser module documentation in the
-            standard lib for more details.)
+            "windows-default" (see the webbrowser module documentation in the
+            standard lib for more details).
 
         new (str, optional) : new file output mode (default: "tab")
             For file-based output, opens or raises the browser window
