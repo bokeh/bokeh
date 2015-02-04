@@ -323,11 +323,9 @@ def figure(**kwargs):
     if 'plot_height' in kwargs and 'height' in kwargs:
         raise ValueError("figure() called but both plot_height and height supplied, supply only one")
     if 'height' in kwargs:
-        kwargs['plot_height'] = kwargs['height']
-        del kwargs['height']
+        kwargs['plot_height'] = kwargs.pop('height')
     if 'width' in kwargs:
-        kwargs['plot_width'] = kwargs['width']
-        del kwargs['width']
+        kwargs['plot_width'] = kwargs.pop('width')
 
     fig = Figure(**kwargs)
     curdoc()._current_plot = fig
