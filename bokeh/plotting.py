@@ -318,6 +318,19 @@ def figure(**kwargs):
        figure : a new :class:`Plot <bokeh.models.plots.Plot>`
 
     '''
+    if 'plot_width' in kwargs and 'width' in kwargs:
+        warnings.warn("figure() called but both plot_width and width supplied, supply only one")
+        return
+    if 'plot_height' in kwargs and 'height' in kwargs:
+        warnings.warn("figure() called but both plot_height and height supplied, supply only one")
+        return
+    if 'height' in kwargs:
+        kwargs['plot_height'] = kwargs['height']
+        del kwargs['height']
+    if 'width' in kwargs:
+        kwargs['plot_width'] = kwargs['width']
+        del kwargs['width']
+
     fig = Figure(**kwargs)
     curdoc()._current_plot = fig
     curdoc().add(fig)
