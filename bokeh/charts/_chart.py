@@ -114,11 +114,11 @@ class Chart(Plot):
         builder.create(self)
 
         # Add tools if supposed to
-        # if self._enabled_tools:
-        #     # reset tools so a categorical builder can add only the
-        #     # supported tools
-        #     self.tools = []
-        #     self.create_tools(self._enabled_tools)
+        if self._options.tools:
+            # reset tools so a categorical builder can add only the
+            # supported tools
+            self.tools = []
+            self.create_tools(self._options.tools)
 
     def create_axes(self):
         self._xaxis = self.make_axis("below", self._options.xscale, self._options.xlabel)
