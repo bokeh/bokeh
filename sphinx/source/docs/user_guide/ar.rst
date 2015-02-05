@@ -35,13 +35,19 @@ Abstract rendering is tied to the bokeh server infrastructure, and can
 thus only be used with an active bokeh server and with plots employing
 a ServerDataSource.
 
-*Note:* Because abstract rendering relies on server-side processing,
+.. note:: Because abstract rendering relies on server-side processing,
 it will only work with bokeh server.  Furthermore, it requires server-side
 data sources, so the server must be started with the ``-D`` option followed
 by the directory holding the data, e.g. ``bokeh-server -D remotedata`` will
 start the server and point at the example data directory. Example snippets
 assume that bokeh has been properly imported and configured and that
 abstract rendering is imported as ``import bokeh.transforms.ar_downsample as ar``.
+
+.. note:: Because abstract rendering uses some functions from the `scipy.misc`
+module in its internal machinery, you need to install PIL (or Pillow) to make
+it work. These libraries are not a dependency of SciPy and therefore, in general,
+some of the functions from this module are not available on systems that don’t
+have PIL (or Pillow) installed.
 
 Recipes Interface
 ---------------------
