@@ -41,7 +41,10 @@ install:
     - scripts/travis_install
 
 script:
-    - nosetests --with-coverage --cover-package=bokeh
+    # TODO: remove the condition when conda build --quiet is available
+    # Examples testing + building generates enough output to kill the build so
+    # we avoid testing for now.
+    - if [[ -z "$TRAVIS_TAG" ]]; then nosetests --with-coverage --cover-package=bokeh; fi
     - ( cd sphinx; make all )
 
 after_success:
