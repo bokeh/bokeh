@@ -148,28 +148,12 @@ class Builder(object):
         """
         pass
 
-    def make_renderers(self):
-        """
-        Executes the methods to build the chart in sequence:
-
-         - prepare values
-         - get data (creating data)
-         - get source (building source and ranges)
-         - and return created glyphs
-        """
-        # prepare values to for the specific chart type
-        self.prepare_values()
-        # we get the data from the incoming input
-        self.get_data()
-        # we filled the source and ranges with the calculated data
-        self.get_source()
-        # we add the glyphs into the plot
-        return self.draw()
-
-
     def create(self, chart=None):
-        # pass these renderers to the chart and then forget about the chart
-        renderers = self.make_renderers()
+        self.prepare_values()
+        self.get_data()
+        self.get_source()
+        renderers = self.draw()
+
         chart.add_renderers(self, renderers)
 
         # create chart ranges..
