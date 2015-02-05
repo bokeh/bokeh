@@ -22,6 +22,7 @@ try:
 except ImportError:
     pd = None
 
+from ..utils import chunk
 from .._builder import Builder, create_and_build
 from ...models import ColumnDataSource, FactorRange, GlyphRenderer, Range1d
 from ...models.glyphs import Segment
@@ -134,7 +135,7 @@ class DotBuilder(Builder):
         renders circle glyphs (and segments) on the related
         coordinates.
         """
-        self.tuples = list(self._chunker(self.attr, 4))
+        self.tuples = list(chunk(self.attr, 4))
         colors = self._set_colors(self.tuples)
 
         # quartet elements are: [data, cat, zeros, segment_top]

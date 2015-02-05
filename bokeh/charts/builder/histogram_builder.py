@@ -22,6 +22,7 @@ except ImportError as e:
     _is_scipy = False
 import numpy as np
 
+from ..utils import chunk
 from .._builder import Builder, create_and_build
 from ...models import ColumnDataSource, GlyphRenderer, Range1d
 from ...models.glyphs import Line, Quad
@@ -174,7 +175,7 @@ class HistogramBuilder(Builder):
         ColumnDataSurce.
         """
         if not self.mu_and_sigma:
-            sextets = list(self._chunker(self.attr, 6))
+            sextets = list(chunk(self.attr, 6))
             colors = self._set_colors(sextets)
 
             # TODO (bev) this is a perfect use for a namedtuple
@@ -191,7 +192,7 @@ class HistogramBuilder(Builder):
                 yield renderer
 
         else:
-            nonets = list(self._chunker(self.attr, 9))
+            nonets = list(chunk(self.attr, 9))
             colors = self._set_colors(nonets)
 
             # TODO (bev) this is a perfect use for a namedtuple

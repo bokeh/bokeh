@@ -23,6 +23,7 @@ try:
 except ImportError:
     pd = None
 
+from ..utils import chunk
 from .._builder import Builder, create_and_build
 from ...models import ColumnDataSource, DataRange1d, GlyphRenderer, Range1d
 from ...models.glyphs import Line
@@ -150,7 +151,7 @@ class TimeSeriesBuilder(Builder):
 
         Takes reference points from the data loaded at the ColumnDataSource.
         """
-        self.duplet = list(self._chunker(self.attr, 2))
+        self.duplet = list(chunk(self.attr, 2))
         colors = self._set_colors(self.duplet)
 
         for i, (x, y) in enumerate(self.duplet, start=1):

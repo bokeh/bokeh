@@ -75,9 +75,3 @@ class TestBuilder(unittest.TestCase):
         self.assertIsInstance(scatter, Circle)
         self.assertEqual(scatter.line_color, "black")
 
-    def test_chunker(self):
-        chunk = self.builder._chunker(range(5), 2)
-        chunk_list = list(chunk)
-        self.assertEqual(len(chunk_list), 3)
-        self.assertEqual(len(chunk_list[0]), 2)
-

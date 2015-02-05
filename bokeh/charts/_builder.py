@@ -206,15 +206,6 @@ class Builder(object):
     #***************************
     # Some helper methods
     #***************************
-    def _chunker(self, l, n):
-        """Yield successive n-sized chunks from l.
-
-        Args:
-            l (list: the incomming list to be chunked
-            n (int): lenght of you chucks
-        """
-        for i in range(0, len(l), n):
-            yield l[i:i + n]
 
     def _set_colors(self, chunk):
         """Build a color list just cycling through a defined palette.

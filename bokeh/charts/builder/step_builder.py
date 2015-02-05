@@ -19,6 +19,7 @@ passing the arguments to the Chart class and calling the proper functions.
 import numpy as np
 from six import string_types
 
+from ..utils import chunk
 from .._builder import create_and_build, Builder
 from ...models import ColumnDataSource, DataRange1d, GlyphRenderer, Range1d
 from ...models.glyphs import Segment
@@ -125,7 +126,7 @@ class StepBuilder(Builder):
 
         Takes reference points from the data loaded at the ColumnDataSource.
         """
-        tuples = list(self._chunker(self.attr[2:], 2))
+        tuples = list(chunk(self.attr[2:], 2))
         colors = self._set_colors(tuples)
 
         # duplet: y1, y2 values of each series
