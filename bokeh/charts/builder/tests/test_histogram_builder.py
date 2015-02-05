@@ -55,19 +55,19 @@ class TestHistogram(unittest.TestCase):
         for i, _xy in enumerate([xyvalues, xyvaluesdf]):
             hm = create_chart(Histogram, _xy, bins=5)
             builder = hm._builders[0]
-            self.assertEqual(sorted(builder.groups), sorted(list(xyvalues.keys())))
+            self.assertEqual(sorted(builder._groups), sorted(list(xyvalues.keys())))
             for key, expected_v in exptected.items():
-                assert_array_almost_equal(builder.data[key], expected_v, decimal=2)
+                assert_array_almost_equal(builder._data[key], expected_v, decimal=2)
 
         lvalues = [[1, 2, 3, 1], [5, 4, 4, 1]]
         for i, _xy in enumerate([lvalues, np.array(lvalues)]):
             hm = create_chart(Histogram, _xy, bins=5)
             builder = hm._builders[0]
-            self.assertEqual(builder.groups, ['0', '1'])
+            self.assertEqual(builder._groups, ['0', '1'])
             for key, expected_v in exptected.items():
                 # replace the keys because we have 0, 1 instead of normal and lognormal
                 key = key.replace('lognormal', '1').replace('normal', '0')
-                assert_array_almost_equal(builder.data[key], expected_v, decimal=2)
+                assert_array_almost_equal(builder._data[key], expected_v, decimal=2)
 
     @patch('bokeh.charts.builder.histogram_builder.np.histogram', return_value=([1, 3, 4], [2.4, 4]))
     def test_histogram_params(self, histogram_mock):

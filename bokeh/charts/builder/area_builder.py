@@ -124,7 +124,7 @@ class AreaBuilder(Builder):
             values = np.hstack((last[::-1], next))
 
             # only update when stacked, otherwise we always want to start from 0
-            if self._stacked:
+            if self.stacked:
                 last = next
 
             # save values and new group

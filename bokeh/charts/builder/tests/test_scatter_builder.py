@@ -47,23 +47,23 @@ class TestScatter(unittest.TestCase):
         for i, _xy in enumerate([xyvalues, xyvaluesdf]):
             hm = create_chart(Scatter, _xy)
             builder = hm._builders[0]
-            self.assertEqual(sorted(builder.groups), sorted(list(xyvalues.keys())))
-            assert_array_equal(builder.data['y_python'], y_python)
-            assert_array_equal(builder.data['y_jython'], y_jython)
-            assert_array_equal(builder.data['y_pypy'], y_pypy)
-            assert_array_equal(builder.data['x_python'], x_python)
-            assert_array_equal(builder.data['x_jython'], x_jython)
-            assert_array_equal(builder.data['x_pypy'], x_pypy)
+            self.assertEqual(sorted(builder._groups), sorted(list(xyvalues.keys())))
+            assert_array_equal(builder._data['y_python'], y_python)
+            assert_array_equal(builder._data['y_jython'], y_jython)
+            assert_array_equal(builder._data['y_pypy'], y_pypy)
+            assert_array_equal(builder._data['x_python'], x_python)
+            assert_array_equal(builder._data['x_jython'], x_jython)
+            assert_array_equal(builder._data['x_pypy'], x_pypy)
 
         lvalues = [xyvalues['python'], xyvalues['pypy'], xyvalues['jython']]
         for _xy in [lvalues, np.array(lvalues)]:
             hm = create_chart(Scatter, _xy)
             builder = hm._builders[0]
-            self.assertEqual(builder.groups, ['0', '1', '2'])
-            assert_array_equal(builder.data['y_0'], y_python)
-            assert_array_equal(builder.data['y_1'], y_pypy)
-            assert_array_equal(builder.data['y_2'], y_jython)
-            assert_array_equal(builder.data['x_0'], x_python)
-            assert_array_equal(builder.data['x_1'], x_pypy)
-            assert_array_equal(builder.data['x_2'], x_jython)
+            self.assertEqual(builder._groups, ['0', '1', '2'])
+            assert_array_equal(builder._data['y_0'], y_python)
+            assert_array_equal(builder._data['y_1'], y_pypy)
+            assert_array_equal(builder._data['y_2'], y_jython)
+            assert_array_equal(builder._data['x_0'], x_python)
+            assert_array_equal(builder._data['x_1'], x_pypy)
+            assert_array_equal(builder._data['x_2'], x_jython)
 

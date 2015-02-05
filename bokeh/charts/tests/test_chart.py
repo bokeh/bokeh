@@ -45,22 +45,6 @@ class TestChart(unittest.TestCase):
             xgrid=True, ygrid=False
         )
 
-    # def test_args(self):
-    #     self.assertEqual(self.chart.title, "title")
-    #     self.assertEqual(self.chart._Chart__xlabel, "xlabel")
-    #     self.assertEqual(self.chart._Chart__ylabel, "ylabel")
-    #     self.assertEqual(self.chart._Chart__legend, "top_left")
-    #     self.assertEqual(self.chart._Chart__xscale, "linear")
-    #     self.assertEqual(self.chart._Chart__yscale, "linear")
-    #     self.assertEqual(self.chart.plot_width, 800)
-    #     self.assertEqual(self.chart.plot_height, 600)
-    #     self.assertTrue(self.chart._Chart__enabled_tools)
-    #     self.assertFalse(self.chart._Chart__filename)
-    #     self.assertFalse(self.chart._Chart__server)
-    #     self.assertFalse(self.chart._Chart__notebook)
-    #     self.assertEqual(self.chart._Chart__xgrid, True)
-    #     self.assertEqual(self.chart._Chart__ygrid, False)
-
     def test_title(self):
         self.chart.title = "new_title"
         self.assertEqual(self.chart.title, "new_title")
@@ -95,12 +79,6 @@ class TestChart(unittest.TestCase):
         self.chart.height(400)
         self.assertEqual(self.chart._options.height, 400)
 
-    def test_tools(self):
-        self.chart.enabled_tools(False)
-        self.assertFalse(self.chart._enabled_tools)
-        self.chart.enabled_tools()
-        self.assertTrue(self.chart._enabled_tools)
-
     def test_filename(self):
         self.chart.filename("bar.html")
         self.assertEqual(self.chart._options.filename, "bar.html")
@@ -114,7 +92,7 @@ class TestChart(unittest.TestCase):
         self.assertTrue(self.chart._options.server)
 
     def test_notebook(self):
-        self.chart.notebook()
+        self.chart.notebook(True)
         self.assertTrue(self.chart._options.notebook)
         self.chart.notebook(False)
         self.assertFalse(self.chart._options.notebook)
@@ -165,13 +143,13 @@ class TestChart(unittest.TestCase):
             if categorical:
                 chart.x_range = FactorRange()
                 chart.tools = []
-                chart.create_tools(chart._enabled_tools)
+                chart.create_tools(chart._options.tools)
                 self.compare_tools(chart.tools, expected_tools)
 
                 chart = Chart(**base_args)
                 chart.y_range = FactorRange()
                 chart.tools = []
-                chart.create_tools(chart._enabled_tools)
+                chart.create_tools(chart._options.tools)
                 self.compare_tools(chart.tools, expected_tools)
 
             else:
@@ -224,7 +202,7 @@ class TestChart(unittest.TestCase):
         chart = Chart(**base_args)
         chart.x_range = FactorRange()
         chart.tools = []
-        chart.create_tools(chart._enabled_tools)
+        chart.create_tools(chart._options.tools)
 
         self.compare_tools(chart.tools, expected_tools)
         mock_warn.assert_any_call(msg_repeat)

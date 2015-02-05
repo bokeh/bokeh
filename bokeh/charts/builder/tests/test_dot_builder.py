@@ -49,24 +49,24 @@ class TestDot(unittest.TestCase):
         for i, _xy in enumerate([xyvalues, xyvaluesdf]):
             hm = create_chart(Dot, _xy, cat=cat)
             builder = hm._builders[0]
-            self.assertEqual(sorted(builder.groups), sorted(list(xyvalues.keys())))
-            assert_array_equal(builder.data['cat'], cat)
-            assert_array_equal(builder.data['catjython'], catjython)
-            assert_array_equal(builder.data['catpython'], catpython)
-            assert_array_equal(builder.data['catpypy'], catpypy)
+            self.assertEqual(sorted(builder._groups), sorted(list(xyvalues.keys())))
+            assert_array_equal(builder._data['cat'], cat)
+            assert_array_equal(builder._data['catjython'], catjython)
+            assert_array_equal(builder._data['catpython'], catpython)
+            assert_array_equal(builder._data['catpypy'], catpypy)
 
-            assert_array_equal(builder.data['python'], python)
-            assert_array_equal(builder.data['jython'], jython)
-            assert_array_equal(builder.data['pypy'], pypy)
+            assert_array_equal(builder._data['python'], python)
+            assert_array_equal(builder._data['jython'], jython)
+            assert_array_equal(builder._data['pypy'], pypy)
 
-            assert_array_equal(builder.data['seg_top_python'], seg_top_python)
-            assert_array_equal(builder.data['seg_top_jython'], seg_top_jython)
-            assert_array_equal(builder.data['seg_top_pypy'], seg_top_pypy)
+            assert_array_equal(builder._data['seg_top_python'], seg_top_python)
+            assert_array_equal(builder._data['seg_top_jython'], seg_top_jython)
+            assert_array_equal(builder._data['seg_top_pypy'], seg_top_pypy)
 
-            assert_array_equal(builder.data['z_python'], zero)
-            assert_array_equal(builder.data['z_pypy'], zero)
-            assert_array_equal(builder.data['z_jython'], zero)
-            assert_array_equal(builder.data['zero'], zero)
+            assert_array_equal(builder._data['z_python'], zero)
+            assert_array_equal(builder._data['z_pypy'], zero)
+            assert_array_equal(builder._data['z_jython'], zero)
+            assert_array_equal(builder._data['zero'], zero)
 
 
         lvalues = [[2, 5], [12, 40], [22, 30]]
@@ -74,21 +74,21 @@ class TestDot(unittest.TestCase):
             hm = create_chart(Dot, _xy, cat=cat)
             builder = hm._builders[0]
 
-            self.assertEqual(builder.groups, ['0', '1', '2'])
-            assert_array_equal(builder.data['cat'], cat)
-            assert_array_equal(builder.data['cat0'], catpython)
-            assert_array_equal(builder.data['cat1'], catpypy)
-            assert_array_equal(builder.data['cat2'], catjython)
-            assert_array_equal(builder.data['0'], python)
-            assert_array_equal(builder.data['1'], pypy)
-            assert_array_equal(builder.data['2'], jython)
+            self.assertEqual(builder._groups, ['0', '1', '2'])
+            assert_array_equal(builder._data['cat'], cat)
+            assert_array_equal(builder._data['cat0'], catpython)
+            assert_array_equal(builder._data['cat1'], catpypy)
+            assert_array_equal(builder._data['cat2'], catjython)
+            assert_array_equal(builder._data['0'], python)
+            assert_array_equal(builder._data['1'], pypy)
+            assert_array_equal(builder._data['2'], jython)
 
-            assert_array_equal(builder.data['seg_top_0'], seg_top_python)
-            assert_array_equal(builder.data['seg_top_1'], seg_top_pypy)
-            assert_array_equal(builder.data['seg_top_2'], seg_top_jython)
+            assert_array_equal(builder._data['seg_top_0'], seg_top_python)
+            assert_array_equal(builder._data['seg_top_1'], seg_top_pypy)
+            assert_array_equal(builder._data['seg_top_2'], seg_top_jython)
 
-            assert_array_equal(builder.data['z_0'], zero)
-            assert_array_equal(builder.data['z_1'], zero)
-            assert_array_equal(builder.data['z_2'], zero)
-            assert_array_equal(builder.data['zero'], zero)
+            assert_array_equal(builder._data['z_0'], zero)
+            assert_array_equal(builder._data['z_1'], zero)
+            assert_array_equal(builder._data['z_2'], zero)
+            assert_array_equal(builder._data['zero'], zero)
 

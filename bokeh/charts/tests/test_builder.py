@@ -24,16 +24,10 @@ from bokeh.charts._builder import Builder
 
 class TestBuilder(unittest.TestCase):
     def setUp(self):
-        self.builder = Builder("bottom_left", ['red', 'green'])
+        self.builder = Builder([], palette=['red', 'green'])
 
     def test_instantiate(self):
-        self.builder._legend = "Test Leg"
-        self.builder._palette = ['red', 'green']
-        self.builder._legends = []
-        self.builder.data = {}
-        self.builder.groups = []
-        self.builder.attr = []
-        self.builder.groups = []
+        self.builder.palette = ['red', 'green']
 
     # @patch('bokeh.charts._data_adapter.DataAdapter')
     # def test_prepare_values(self, adapter_mock):

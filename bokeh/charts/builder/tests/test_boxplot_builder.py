@@ -68,7 +68,7 @@ class TestBoxPlot(unittest.TestCase):
         for i, _xy in enumerate([xyvalues, xyvaluesdf]):
             bp = create_chart(BoxPlot, _xy, marker='circle', outliers=True)
             builder = bp._builders[0]
-            self.assertEqual(sorted(builder.groups), sorted(groups))
+            self.assertEqual(sorted(builder._groups), sorted(groups))
             for key, expected_v in exptected_datarect.items():
                 self.assertEqual(builder._data_rect[key], expected_v)
 
@@ -97,7 +97,7 @@ class TestBoxPlot(unittest.TestCase):
         for i, _xy in enumerate([lvalues, np.array(lvalues)]):
             bp = create_chart(BoxPlot, _xy, marker='circle', outliers=True)
             builder = bp._builders[0]
-            self.assertEqual(sorted(builder.groups), sorted(groups))
+            self.assertEqual(sorted(builder._groups), sorted(groups))
             for key, expected_v in exptected_datarect.items():
                 self.assertEqual(builder._data_rect[key], expected_v)
 
