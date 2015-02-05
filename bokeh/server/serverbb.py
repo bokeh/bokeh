@@ -327,7 +327,6 @@ class BokehServerTransaction(object):
         self.server_userobj = server_userobj
         self.server_docobj = server_docobj
         self.temporary_docid = temporary_docid
-
         can_write = bokeh_app.authentication.can_write_doc(
             self.server_docobj,
             userobj=self.server_userobj,

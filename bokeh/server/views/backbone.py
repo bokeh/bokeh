@@ -160,7 +160,7 @@ def bulkget_with_typename(docid):
     '''
     return _bulkget(docid, typename)
 
-@crossdomain(origin="*", methods=['PATCH', 'GET', 'PUT'], headers=['BOKEH-API-KEY', 'Continuum-Clientid', 'Content-Type'])
+@crossdomain(origin="*", methods=['PATCH', 'GET', 'PUT'], headers=None)
 def _handle_specific_model(docid, typename, id, method):
     if method == 'PUT':
         return update(docid, typename, id)
