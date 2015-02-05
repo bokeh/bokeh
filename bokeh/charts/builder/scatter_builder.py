@@ -26,7 +26,7 @@ except:
 
 from collections import OrderedDict
 
-from ..utils import chunk
+from ..utils import chunk, make_scatter
 from .._builder import create_and_build, Builder
 from .._data_adapter import DataAdapter
 from ...models import ColumnDataSource, Range1d
@@ -172,7 +172,7 @@ class ScatterBuilder(Builder):
         colors = self._set_colors(duplets)
 
         for i, duplet in enumerate(duplets, start=1):
-            renderer = self.make_scatter(
+            renderer = make_scatter(
                 self.source, duplet[0], duplet[1], 'circle', colors[i - 1]
             )
             self._legends.append((self.groups[i-1], [renderer]))

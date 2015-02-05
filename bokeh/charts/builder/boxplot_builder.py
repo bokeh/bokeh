@@ -20,6 +20,7 @@ It also add a new chained stacked method.
 import numpy as np
 import pandas as pd
 
+from ..utils import make_scatter
 from .._builder import Builder, create_and_build
 from ...models import ColumnDataSource, FactorRange, GlyphRenderer, Range1d
 from ...models.glyphs import Rect, Segment
@@ -267,7 +268,7 @@ class BoxPlotBuilder(Builder):
         yield GlyphRenderer(data_source=self._source_rect, glyph=glyph)
 
         if self._outliers:
-            yield self.make_scatter(self._source_scatter, self._attr_scatter[0],
+            yield make_scatter(self._source_scatter, self._attr_scatter[0],
                               self._attr_scatter[1], self._marker,
                               self._attr_scatter[2])
 

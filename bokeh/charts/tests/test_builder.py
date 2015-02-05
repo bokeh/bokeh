@@ -17,8 +17,6 @@ import unittest
 from mock import patch, Mock
 
 from bokeh.charts._builder import Builder
-from bokeh.models import ColumnDataSource, GlyphRenderer
-from bokeh.models.glyphs import Circle
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -64,14 +62,4 @@ class TestBuilder(unittest.TestCase):
         chart.orientation = 'bottom_left'
         chart.add_legend('bottom_left', self.legends)
 
-    def test_scatter(self):
-        source = ColumnDataSource({"a": [2, 4, 5]})
-        renderer = self.builder.make_scatter(source, [0], [1], "circle", "black")
-        scatter = renderer.glyph
-        self.assertIsInstance(renderer, GlyphRenderer)
-        self.assertEqual(renderer.data_source, source)
-        self.assertEqual(scatter.x, [0])
-        self.assertEqual(scatter.y, [1])
-        self.assertIsInstance(scatter, Circle)
-        self.assertEqual(scatter.line_color, "black")
 

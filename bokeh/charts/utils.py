@@ -13,17 +13,77 @@ useful for charts ecosystem.
 # Imports
 #-----------------------------------------------------------------------------
 from __future__ import division, print_function
+
+from collections import OrderedDict
+import itertools
 from math import cos, sin
-from ..document import Document
-from ..session import Session
-from ..embed import file_html
-from ..resources import INLINE
+
 from ..browserlib import view
+from ..document import Document
+from ..embed import file_html
+from ..models import GlyphRenderer
+from ..models.glyphs import (
+    Asterisk, Circle, CircleCross, CircleX, Cross, Diamond, DiamondCross,
+    InvertedTriangle, Square, SquareCross, SquareX, Triangle, X)
+from ..resources import INLINE
+from ..session import Session
 from ..utils import publish_display_data
 
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
+
+# TODO: (bev) this should go in a plotting utils one level up
+def make_scatter(source, x, y, markertype, color, line_color=None,
+                 size=10, fill_alpha=0.2, line_alpha=1.0):
+    """Create a marker glyph and appends it to the renderers list.
+
+    Args:
+        source (obj): datasource object containing markers references.
+        x (str or list[float]) : values or field names of line ``x`` coordinates
+        y (str or list[float]) : values or field names of line ``y`` coordinates
+        markertype (int or str): Marker type to use (e.g., 2, 'circle', etc.)
+        color (str): color of the points
+        size (int) : size of the scatter marker
+        fill_alpha(float) : alpha value of the fill color
+        line_alpha(float) : alpha value of the line color
+
+    Return:
+        scatter: Marker Glyph instance
+    """
+    if line_color is None:
+        line_color = color
+
+    _marker_types = OrderedDict(
+        [
+            ("circle", Circle),
+            ("square", Square),
+            ("triangle", Triangle),
+            ("diamond", Diamond),
+            ("inverted_triangle", InvertedTriangle),
+            ("asterisk", Asterisk),
+            ("cross", Cross),
+            ("x", X),
+            ("circle_cross", CircleCross),
+            ("circle_x", CircleX),
+            ("square_x", SquareX),
+            ("square_cross", SquareCross),
+            ("diamond_cross", DiamondCross),
+        ]
+    )
+
+    g = itertools.cycle(_marker_types.keys())
+    if isinstance(markertype, int):
+        for i in range(markertype):
+            shape = next(g)
+    else:
+        shape = markertype
+    glyph = _marker_types[shape](
+        x=x, y=y, size=size, fill_color=color, fill_alpha=fill_alpha,
+        line_color=line_color, line_alpha=line_alpha
+    )
+
+    return GlyphRenderer(data_source=source, glyph=glyph)
 
 def chunk(l, n):
     """Yield successive n-sized chunks from l.

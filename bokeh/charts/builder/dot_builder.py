@@ -22,7 +22,7 @@ try:
 except ImportError:
     pd = None
 
-from ..utils import chunk
+from ..utils import chunk, make_scatter
 from .._builder import Builder, create_and_build
 from ...models import ColumnDataSource, FactorRange, GlyphRenderer, Range1d
 from ...models.glyphs import Segment
@@ -149,7 +149,7 @@ class DotBuilder(Builder):
                 )
                 yield GlyphRenderer(data_source=self.source, glyph=glyph)
 
-            renderer = self.make_scatter(
+            renderer = make_scatter(
                 self.source, quartet[1], quartet[0], 'circle',
                 colors[i - 1], line_color='black', size=15, fill_alpha=1.,
             )

@@ -16,15 +16,11 @@ types on top of it.
 # Imports
 #-----------------------------------------------------------------------------
 
-from collections import OrderedDict
 import itertools
 
 from ._chart import Chart
 from ._data_adapter import DataAdapter
-from ..models import GlyphRenderer
-from ..models.glyphs import (
-    Asterisk, Circle, CircleCross, CircleX, Cross, Diamond, DiamondCross,
-    InvertedTriangle, Square, SquareCross, SquareX, Triangle, X)
+
 
 DEFAULT_PALETTE = ["#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33ff3"]
 
@@ -216,7 +212,6 @@ class Builder(object):
         colors = []
 
         pal = ["#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33ff3"]
-        import itertools
         g = itertools.cycle(pal)
         for i in range(len(chunk)):
             colors.append(next(g))
@@ -260,54 +255,4 @@ class Builder(object):
 
         return self._palette
 
-    def make_scatter(self, source, x, y, markertype, color, line_color=None,
-                     size=10, fill_alpha=0.2, line_alpha=1.0):
-        """Create a marker glyph and appends it to the renderers list.
-
-        Args:
-            source (obj): datasource object containing markers references.
-            x (str or list[float]) : values or field names of line ``x`` coordinates
-            y (str or list[float]) : values or field names of line ``y`` coordinates
-            markertype (int or str): Marker type to use (e.g., 2, 'circle', etc.)
-            color (str): color of the points
-            size (int) : size of the scatter marker
-            fill_alpha(float) : alpha value of the fill color
-            line_alpha(float) : alpha value of the line color
-
-        Return:
-            scatter: Marker Glyph instance
-        """
-        if line_color is None:
-            line_color = color
-
-        _marker_types = OrderedDict(
-            [
-                ("circle", Circle),
-                ("square", Square),
-                ("triangle", Triangle),
-                ("diamond", Diamond),
-                ("inverted_triangle", InvertedTriangle),
-                ("asterisk", Asterisk),
-                ("cross", Cross),
-                ("x", X),
-                ("circle_cross", CircleCross),
-                ("circle_x", CircleX),
-                ("square_x", SquareX),
-                ("square_cross", SquareCross),
-                ("diamond_cross", DiamondCross),
-            ]
-        )
-
-        g = itertools.cycle(_marker_types.keys())
-        if isinstance(markertype, int):
-            for i in range(markertype):
-                shape = next(g)
-        else:
-            shape = markertype
-        glyph = _marker_types[shape](
-            x=x, y=y, size=size, fill_color=color, fill_alpha=fill_alpha,
-            line_color=line_color, line_alpha=line_alpha
-        )
-
-        return GlyphRenderer(data_source=source, glyph=glyph)
 
