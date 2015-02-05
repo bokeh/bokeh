@@ -205,8 +205,7 @@ class Builder(object):
             val (string): name of the new attribute
             content (obj): content of the new attribute
         """
-        setattr(self, prefix + val, content)
-        data[prefix + val] = getattr(self, prefix + val)
+        data[prefix + val] = content
         attr.append(prefix + val)
 
     def set_and_get(self, prefix, val, content):
