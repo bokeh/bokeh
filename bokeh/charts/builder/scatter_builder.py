@@ -149,7 +149,7 @@ class ScatterBuilder(Builder):
         Takes reference points from data loaded at the ColumnDataSource.
         """
         duplets = list(chunk(self._attr, 2))
-        colors = cycle_colors(duplets)
+        colors = cycle_colors(duplets, self.palette)
 
         for i, duplet in enumerate(duplets, start=1):
             renderer = make_scatter(

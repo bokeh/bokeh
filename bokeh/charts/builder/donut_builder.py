@@ -90,7 +90,7 @@ class DonutBuilder(Builder):
         angles = aggregated.map(radians).cumsum()
         end_angles = angles.tolist()
         start_angles = [0] + end_angles[:-1]
-        colors = cycle_colors(self.cat)
+        colors = cycle_colors(self.cat, self.palette)
         self.set_and_get("", "colors", colors)
         self.set_and_get("", "end", end_angles)
         self.set_and_get("", "start", start_angles)
@@ -133,7 +133,7 @@ class DonutBuilder(Builder):
          and its related descriptions
         """
         if colors is None:
-            colors = cycle_colors(self.cat)
+            colors = cycle_colors(self.cat, self.palette)
 
         first = True
         for i, (cat, start_angle, end_angle) in enumerate(zip(

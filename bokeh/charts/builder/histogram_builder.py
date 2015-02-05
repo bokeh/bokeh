@@ -155,7 +155,7 @@ class HistogramBuilder(Builder):
         """
         if not self._mu_and_sigma:
             sextets = list(chunk(self._attr, 6))
-            colors = cycle_colors(sextets)
+            colors = cycle_colors(sextets, self.palette)
 
             # TODO (bev) this is a perfect use for a namedtuple
             # sextet: values, his, edges, left, right, bottom
@@ -172,7 +172,7 @@ class HistogramBuilder(Builder):
 
         else:
             nonets = list(chunk(self._attr, 9))
-            colors = cycle_colors(nonets)
+            colors = cycle_colors(nonets, self.palette)
 
             # TODO (bev) this is a perfect use for a namedtuple
             # nonet: values, his, edges, left, right, bottom, x, pdf, cdf

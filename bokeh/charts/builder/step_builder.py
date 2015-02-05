@@ -102,7 +102,7 @@ class StepBuilder(Builder):
         Takes reference points from the data loaded at the ColumnDataSource.
         """
         tuples = list(chunk(self._attr[2:], 2))
-        colors = cycle_colors(tuples)
+        colors = cycle_colors(tuples, self.palette)
 
         # duplet: y1, y2 values of each series
         for i, duplet in enumerate(tuples):

@@ -107,7 +107,7 @@ class DotBuilder(Builder):
         coordinates.
         """
         self._tuples = list(chunk(self._attr, 4))
-        colors = cycle_colors(self._tuples)
+        colors = cycle_colors(self._tuples, self.palette)
 
         # quartet elements are: [data, cat, zeros, segment_top]
         for i, quartet in enumerate(self._tuples):

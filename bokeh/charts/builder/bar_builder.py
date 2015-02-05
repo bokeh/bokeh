@@ -132,7 +132,7 @@ class BarBuilder(Builder):
         Takes reference points from data loaded at the ColumnDataSource.
         """
         quartets = list(chunk(self._attr, 4))
-        colors = cycle_colors(quartets)
+        colors = cycle_colors(quartets, self.palette)
 
         # quartet elements are: [data, mid, stacked, cat]
         for i, quartet in enumerate(quartets):

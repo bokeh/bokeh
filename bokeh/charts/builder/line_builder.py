@@ -95,7 +95,7 @@ class LineBuilder(Builder):
         """Use the line glyphs to connect the xy points in the Line.
         Takes reference points from the data loaded at the ColumnDataSource.
         """
-        colors = cycle_colors(self._attr)
+        colors = cycle_colors(self._attr, self.palette)
         for i, duplet in enumerate(self._attr[1:], start=1):
             glyph = LineGlyph(x='x', y=duplet, line_color=colors[i - 1])
             renderer = GlyphRenderer(data_source=self._source, glyph=glyph)

@@ -125,7 +125,7 @@ class TimeSeriesBuilder(Builder):
         Takes reference points from the data loaded at the ColumnDataSource.
         """
         self._duplet = list(chunk(self._attr, 2))
-        colors = cycle_colors(self._duplet)
+        colors = cycle_colors(self._duplet, self.palette)
 
         for i, (x, y) in enumerate(self._duplet, start=1):
             glyph = Line(x=x, y=y, line_color=colors[i - 1])

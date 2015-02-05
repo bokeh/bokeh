@@ -151,7 +151,7 @@ class AreaBuilder(Builder):
 
         Takes reference points from the data loaded at the ColumnDataSource.
         """
-        colors = cycle_colors(self._attr)
+        colors = cycle_colors(self._attr, self.palette)
         # parse all series. We exclude the first attr as it's the x values
         # added for the index
         for i, series_name in enumerate(self._attr[1:]):
