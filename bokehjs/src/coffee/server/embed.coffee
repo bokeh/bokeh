@@ -36,13 +36,7 @@ define [
   copy_on_write_mapping = {}
 
   add_plot_server = (element, doc_id, model_id, is_public) ->
-    if is_public
-      if not copy_on_write_mapping[doc_id]
-        copy_on_write_mapping[doc_id] = _.uniqueId('temporary')
-      #todo : stop using ajaxsetup
-      key = "temporary-#{doc_id}"
-      $.ajaxSetup({'headers' : {key : copy_on_write_mapping[doc_id]}})
-    resp = serverutils.utility.load_one_object_chain(doc_id, model_id)
+    resp = serverutils.utility.load_one_object_chain(doc_id, model_id, is_public)
     resp.done((data) ->
       model = base.Collections(data.type).get(model_id)
       view = new model.default_view(model : model)

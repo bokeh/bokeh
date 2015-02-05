@@ -22,7 +22,7 @@ from ..crossdomain import crossdomain
 from ..models import convenience as mconv
 from ..models import docs
 from ..models import user
-from ..serverbb import prune, BokehServerTransaction
+from ..serverbb import prune, BokehServerTransaction, get_temporary_docid
 from ..views import make_json
 from ..settings import settings as server_settings
 
@@ -232,7 +232,11 @@ def autoload_js(elementid):
 def get_bokeh_info_one_object(docid, objid):
     doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
     bokehuser = bokeh_app.current_user()
-    with BokehServerTransaction(bokehuser, doc, 'r') as t:
+    temporary_docid = get_temporary_docid(request, docid)
+    context = BokehServerTransaction(
+        bokehuser, doc, 'r', temporary_docid=temporary_docid
+    )
+    with context as t:
         clientdoc = t.clientdoc
         obj = clientdoc._models[objid]
         objs = obj.references()

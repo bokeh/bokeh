@@ -1,12 +1,13 @@
 define [
+  "jquery",
+  "underscore"
   "common/base"
-  "underscore",
   "common/socket"
   "common/load_models"
   "common/logging"
   "backbone"
   "common/has_properties"
-], (base, _, socket, load_models, Logging, Backbone, HasProperties) ->
+], ($, _, base, socket, load_models, Logging, Backbone, HasProperties) ->
 
   logger = Logging.logger
 
@@ -35,8 +36,9 @@ define [
           copy_on_write_mapping[docid] = _.uniqueId('temporary')
         tempdocid = copy_on_write_mapping[docid]
         key = "temporary-#{docid}"
-        #todo : stop using ajaxsetup
-        $.ajaxSetup({'headers' : {key : tempdocid}})
+        headers = {}
+        headers[key] = tempdocid
+        $.ajaxSetup({'headers' : headers})
       HasProperties.prototype.sync = Backbone.sync
       resp = utility.make_websocket()
       resp = resp.then(() ->

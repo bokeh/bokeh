@@ -4,9 +4,6 @@ from os.path import join
 
 from bokeh.settings import settings
 
-from .models import convenience as mconv
-from .models import docs
-
 class BokehBlueprint(flask.Blueprint):
 
     def __init__(self, *args, **kwargs):
@@ -19,11 +16,6 @@ class BokehBlueprint(flask.Blueprint):
         self.backbone_storage = backbone_storage
         self.servermodel_storage = servermodel_storage
         self.authentication = authentication
-
-        def auth(auth, docid):
-            doc = docs.Doc.load(self.servermodel_storage, docid)
-            status = mconv.can_write_doc_api(doc, auth, self)
-            return status
         self.bokehjsdir = settings.bokehjsdir()
         self.bokehjssrcdir = settings.bokehjssrcdir()
 

@@ -319,7 +319,10 @@ class BokehServerTransaction(object):
         temporary_docid : temporary docid for copy on write
         gc : whether or not to run garbage collection
         """
-
+        logger.info(
+            "created transaction with %s, %s",
+            server_docobj.docid, temporary_docid
+        )
         self.server_userobj = server_userobj
         self.server_docobj = server_docobj
         self.temporary_docid = temporary_docid
