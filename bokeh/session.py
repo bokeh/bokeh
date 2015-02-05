@@ -311,9 +311,6 @@ class Session(object):
         """
         import requests
         import warnings
-
-        if headers is None:
-            headers={'content-type':'application/json'}
         func = getattr(self.http_session, method)
         try:
             resp = func(url, headers=headers, **kwargs)
