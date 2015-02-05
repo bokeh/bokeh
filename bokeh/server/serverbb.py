@@ -356,6 +356,10 @@ class BokehServerTransaction(object):
                 if not can_read:
                     raise AuthenticationException("could not read from %s" % docid)
         self.mode = mode
+        if self.mode == 'rw':
+            self.apikey = self.server_docobj.apikey
+        else:
+            self.apikey = self.server_docobj.readonlyapikey
         if self.mode != 'rw' and gc:
             logger.warning("could not set gc parameter because no permissions to write")
         else:

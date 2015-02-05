@@ -24,6 +24,7 @@ from ..models import docs
 from ..models import user
 from ..serverbb import prune, BokehServerTransaction, get_temporary_docid
 from ..views import make_json
+from ..views.decorators import login_required
 from ..settings import settings as server_settings
 
 def request_resources():
@@ -98,6 +99,7 @@ def _makedoc(redisconn, u, title):
 
 @bokeh_app.route('/bokeh/doc', methods=['POST'])
 @bokeh_app.route('/bokeh/doc/', methods=['POST'])
+@login_required
 def makedoc():
     if request.json:
         title = request.json['title']
@@ -115,6 +117,7 @@ def makedoc():
 
 @bokeh_app.route('/bokeh/doc/<docid>', methods=['delete'])
 @bokeh_app.route('/bokeh/doc/<docid>/', methods=['delete'])
+@login_required
 def deletedoc(docid):
     bokehuser = bokeh_app.current_user()
     try:
@@ -142,10 +145,9 @@ def get_doc_api_key(docid):
 
 @bokeh_app.route('/bokeh/userinfo/', methods=['GET', 'OPTIONS'])
 @crossdomain(origin="*", headers=['BOKEH-API-KEY', 'Continuum-Clientid'])
+@login_required
 def get_user():
     bokehuser = bokeh_app.current_user()
-    if not bokehuser:
-        abort(403)
     content = protocol.serialize_web(bokehuser.to_public_json())
     return make_json(content)
 
@@ -156,7 +158,11 @@ def get_user():
 def get_bokeh_info(docid):
     doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
     bokehuser = bokeh_app.current_user()
-    with BokehServerTransaction(bokehuser, doc, 'r') as t:
+    temporary_docid = get_temporary_docid(request, docid)
+    context = BokehServerTransaction(
+        bokehuser, doc, 'r', temporary_docid=temporary_docid
+    )
+    with context as t:
         clientdoc = t.clientdoc
         all_models = clientdoc._models.values()
         log.info("num models: %s", len(all_models))
@@ -164,7 +170,7 @@ def get_bokeh_info(docid):
     returnval = {'plot_context_ref' : doc.plot_context_ref,
                  'docid' : docid,
                  'all_models' : all_models,
-                 'apikey' : doc.apikey}
+                 'apikey' : t.apikey}
     returnval = protocol.serialize_json(returnval)
     #i don't think we need to set the header here...
     result = make_json(returnval,
@@ -173,6 +179,7 @@ def get_bokeh_info(docid):
 
 @bokeh_app.route('/bokeh/doc/<title>/show', methods=['GET', 'OPTIONS'])
 @crossdomain(origin="*", headers=['BOKEH-API-KEY', 'Continuum-Clientid'])
+@login_required
 def show_doc_by_title(title):
     bokehuser = bokeh_app.current_user()
     docs = [ doc for doc in bokehuser.docs if doc['title'] == title ]
@@ -182,6 +189,7 @@ def show_doc_by_title(title):
 
 @bokeh_app.route('/bokeh/doc/', methods=['GET', 'OPTIONS'])
 @crossdomain(origin="*", headers=['BOKEH-API-KEY', 'Continuum-Clientid'])
+@login_required
 def doc_by_title():
     if request.json:
         title = request.json['title']
@@ -244,7 +252,7 @@ def get_bokeh_info_one_object(docid, objid):
     returnval = {'plot_context_ref' : doc.plot_context_ref,
                  'docid' : docid,
                  'all_models' : all_models,
-                 'apikey' : doc.apikey,
+                 'apikey' : t.apikey,
                  'type' : obj.__view_model__
     }
     returnval = protocol.serialize_json(returnval)
