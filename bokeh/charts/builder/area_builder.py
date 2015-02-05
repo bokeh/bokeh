@@ -26,6 +26,7 @@ except ImportError:
     print("bokeh.charts needs numpy installed to work properly!")
     raise
 
+from ..utils import cycle_colors
 from .._builder import Builder, create_and_build
 from ...models import ColumnDataSource, DataRange1d, GlyphRenderer, Range1d
 from ...models.glyphs import Patch
@@ -174,7 +175,7 @@ class AreaBuilder(Builder):
 
         Takes reference points from the data loaded at the ColumnDataSource.
         """
-        colors = self._set_colors(self.attr)
+        colors = cycle_colors(self.attr)
         # parse all series. We exclude the first attr as it's the x values
         # added for the index
         for i, series_name in enumerate(self.attr[1:]):

@@ -25,7 +25,7 @@ except ImportError:
     print("bokeh.charts.Bar needs numpy installed to work properly!")
     raise
 
-from ..utils import chunk
+from ..utils import chunk, cycle_colors
 from .._builder import Builder, create_and_build
 from ...models import ColumnDataSource, FactorRange, GlyphRenderer, Range1d
 from ...models.glyphs import Rect
@@ -156,7 +156,7 @@ class BarBuilder(Builder):
         Takes reference points from data loaded at the ColumnDataSource.
         """
         quartets = list(chunk(self.attr, 4))
-        colors = self._set_colors(quartets)
+        colors = cycle_colors(quartets)
 
         # quartet elements are: [data, mid, stacked, cat]
         for i, quartet in enumerate(quartets):

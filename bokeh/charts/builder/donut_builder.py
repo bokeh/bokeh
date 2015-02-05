@@ -20,10 +20,10 @@ from __future__ import division
 from math import pi
 import pandas as pd
 
+from ..utils import cycle_colors, polar_to_cartesian
 from .._builder import Builder, create_and_build
 from ...models import ColumnDataSource, GlyphRenderer, Range1d
 from ...models.glyphs import AnnularWedge, Text, Wedge
-from ..utils import polar_to_cartesian
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -115,7 +115,7 @@ class DonutBuilder(Builder):
         angles = aggregated.map(radians).cumsum()
         end_angles = angles.tolist()
         start_angles = [0] + end_angles[:-1]
-        colors = self._set_colors(self.cat)
+        colors = cycle_colors(self.cat)
         self.set_and_get("", "colors", colors)
         self.set_and_get("", "end", end_angles)
         self.set_and_get("", "start", start_angles)
@@ -158,7 +158,7 @@ class DonutBuilder(Builder):
          and its related descriptions
         """
         if colors is None:
-            colors = self._set_colors(self.cat)
+            colors = cycle_colors(self.cat)
 
         first = True
         for i, (cat, start_angle, end_angle) in enumerate(zip(

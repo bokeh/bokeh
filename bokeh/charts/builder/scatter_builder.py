@@ -26,7 +26,7 @@ except:
 
 from collections import OrderedDict
 
-from ..utils import chunk, make_scatter
+from ..utils import chunk, cycle_colors, make_scatter
 from .._builder import create_and_build, Builder
 from .._data_adapter import DataAdapter
 from ...models import ColumnDataSource, Range1d
@@ -169,7 +169,7 @@ class ScatterBuilder(Builder):
         Takes reference points from data loaded at the ColumnDataSource.
         """
         duplets = list(chunk(self.attr, 2))
-        colors = self._set_colors(duplets)
+        colors = cycle_colors(duplets)
 
         for i, duplet in enumerate(duplets, start=1):
             renderer = make_scatter(

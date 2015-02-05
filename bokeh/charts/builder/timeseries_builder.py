@@ -23,7 +23,7 @@ try:
 except ImportError:
     pd = None
 
-from ..utils import chunk
+from ..utils import chunk, cycle_colors
 from .._builder import Builder, create_and_build
 from ...models import ColumnDataSource, DataRange1d, GlyphRenderer, Range1d
 from ...models.glyphs import Line
@@ -152,7 +152,7 @@ class TimeSeriesBuilder(Builder):
         Takes reference points from the data loaded at the ColumnDataSource.
         """
         self.duplet = list(chunk(self.attr, 2))
-        colors = self._set_colors(self.duplet)
+        colors = cycle_colors(self.duplet)
 
         for i, (x, y) in enumerate(self.duplet, start=1):
             glyph = Line(x=x, y=y, line_color=colors[i - 1])

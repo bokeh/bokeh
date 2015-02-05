@@ -22,7 +22,7 @@ try:
 except ImportError:
     pd = None
 
-from ..utils import chunk, make_scatter
+from ..utils import chunk, cycle_colors, make_scatter
 from .._builder import Builder, create_and_build
 from ...models import ColumnDataSource, FactorRange, GlyphRenderer, Range1d
 from ...models.glyphs import Segment
@@ -136,7 +136,7 @@ class DotBuilder(Builder):
         coordinates.
         """
         self.tuples = list(chunk(self.attr, 4))
-        colors = self._set_colors(self.tuples)
+        colors = cycle_colors(self.tuples)
 
         # quartet elements are: [data, cat, zeros, segment_top]
         for i, quartet in enumerate(self.tuples):

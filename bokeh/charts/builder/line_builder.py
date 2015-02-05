@@ -19,6 +19,7 @@ passing the arguments to the Chart class and calling the proper functions.
 from six import string_types
 import numpy as np
 
+from ..utils import cycle_colors
 from .._builder import Builder, create_and_build
 from ...models import ColumnDataSource, DataRange1d, GlyphRenderer, Range1d
 from ...models.glyphs import Line as LineGlyph
@@ -120,7 +121,7 @@ class LineBuilder(Builder):
         """Use the line glyphs to connect the xy points in the Line.
         Takes reference points from the data loaded at the ColumnDataSource.
         """
-        colors = self._set_colors(self.attr)
+        colors = cycle_colors(self.attr)
         for i, duplet in enumerate(self.attr[1:], start=1):
             glyph = LineGlyph(x='x', y=duplet, line_color=colors[i - 1])
             renderer = GlyphRenderer(data_source=self.source, glyph=glyph)

@@ -34,6 +34,29 @@ from ..utils import publish_display_data
 #-----------------------------------------------------------------------------
 
 # TODO: (bev) this should go in a plotting utils one level up
+_default_cycle_palette = [
+    "#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33ff3"
+]
+def cycle_colors(chunk, palette=_default_cycle_palette):
+    """ Build a color list just cycling through a given palette.
+
+    Args:
+        chuck (seq): the chunk of elements to generate the color list
+        palette (seq[color]) : a palette of colors to cycle through
+
+    Returns:
+        colors
+
+    """
+    colors = []
+
+    g = itertools.cycle(palette)
+    for i in range(len(chunk)):
+        colors.append(next(g))
+
+    return colors
+
+# TODO: (bev) this should go in a plotting utils one level up
 def make_scatter(source, x, y, markertype, color, line_color=None,
                  size=10, fill_alpha=0.2, line_alpha=1.0):
     """Create a marker glyph and appends it to the renderers list.

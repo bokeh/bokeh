@@ -16,11 +16,9 @@ types on top of it.
 # Imports
 #-----------------------------------------------------------------------------
 
-import itertools
-
+from .utils import cycle_colors
 from ._chart import Chart
 from ._data_adapter import DataAdapter
-
 
 DEFAULT_PALETTE = ["#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33ff3"]
 
@@ -196,21 +194,6 @@ class Builder(object):
     # Some helper methods
     #***************************
 
-    def _set_colors(self, chunk):
-        """Build a color list just cycling through a defined palette.
-
-        Args:
-            chuck (list): the chunk of elements to generate the color list.
-        """
-        colors = []
-
-        pal = ["#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33ff3"]
-        g = itertools.cycle(pal)
-        for i in range(len(chunk)):
-            colors.append(next(g))
-
-        return colors
-
     def _set_and_get(self, data, prefix, attr, val, content):
         """Set a new attr and then get it to fill the self.data dict.
 
@@ -244,7 +227,7 @@ class Builder(object):
 
         """
         if not self._palette:
-            self._palette = self._set_colors(self.groups)
+            self._palette = cycle_colors(self.groups)
 
         return self._palette
 
