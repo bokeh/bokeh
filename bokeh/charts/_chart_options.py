@@ -37,7 +37,7 @@ class ChartOptions(HasProps):
     """)
 
     ygrid = Bool(True, help="""
-    Whether to draw an x-grid.
+    Whether to draw an y-grid.
     """)
 
     xlabel = String("x-axis", help="""
@@ -45,7 +45,7 @@ class ChartOptions(HasProps):
     """)
 
     ylabel = String("y-axis", help="""
-    A label for the (default) x-axis.
+    A label for the (default) y-axis.
     """)
 
     xscale = Either(Auto, Enum(Scale), help="""
@@ -53,7 +53,7 @@ class ChartOptions(HasProps):
     """)
 
     yscale = Either(Auto, Enum(Scale), help="""
-    What kind of scale to use for the x-axis.
+    What kind of scale to use for the y-axis.
     """)
 
     width = Int(600, help="""
@@ -78,7 +78,7 @@ class ChartOptions(HasProps):
     """)
 
     tools = Either(Bool(True), String, help="""
-    Whether to add defaut tools the the chart.
+    Whether to add default tools the the chart.
     """)
 
 

@@ -157,7 +157,6 @@ class Chart(Plot):
         It also add the Document to a new Session in the case of server output.
 
         Args:
-            orientation(str): position of the legend on the chart.
             legends(List(Tuple(String, List(GlyphRenderer)): A list of
                 tuples that maps text labels to the legend to corresponding
                 renderers that should draw sample representations for those
