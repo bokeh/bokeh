@@ -6,7 +6,7 @@
 #
 # Powered by the Bokeh Development Team.
 #
-# The full license is in the file LICENCE.txt, distributed with this software.
+# The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
