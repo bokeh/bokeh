@@ -268,6 +268,9 @@ region by left-dragging a mouse, or dragging a finger across the plot area.
 The box select tool may be configured to select across only one dimension by
 setting the ``dimension`` property to ``width`` or ``height``.
 
+.. note:: To make a multiple selection, you have to press the SHIFT key and
+to clear the selection you have to press ESC key
+
 BoxZoomTool
 ***********
 
@@ -286,6 +289,9 @@ LassoSelectTool
 
 The lasso selection tool allows the user to define an arbitrary region for
 selection by left-dragging a mouse, or dragging a finger across the plot area.
+
+.. note:: To make a multiple selection, you have to press the SHIFT key and
+to clear the selection you have to press ESC key
 
 PanTool
 *******
@@ -325,6 +331,10 @@ The polygon selection tool allows the user to define an arbitrary polygonal
 regions for selection by left-clicking a mouse, or tapping a finger at different
 locations.
 
+.. note:: To complete the selection, you have to make a double left-click or tapping
+Also, to make a multiple selection, you have to press the SHIFT key and
+to clear the selection you have to press ESC key
+
 TapSelectTool
 *************
 
@@ -333,6 +343,9 @@ TapSelectTool
 
 The tap selection tool allows the user to select at single points by clicking
 a left mouse button, or tapping with a finger.
+
+.. note:: To make a multiple selection, you have to press the SHIFT key and
+to clear the selection you have to press ESC key
 
 Scroll/Pinch Tools
 ''''''''''''''''''
