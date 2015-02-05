@@ -80,16 +80,22 @@ class Settings(object):
     def bokehjssrcdir(self):
         if self.debugjs:
             basedir = dirname(dirname(self.serverdir()))
-            return join(basedir, 'bokehjs', 'src')
-        else:
-            return None
+            bokehjsdir = join(basedir, 'bokehjs', 'src')
+
+            if exists(bokehjsdir):
+                return bokehjsdir
+
+        return None
 
     def bokehjsdir(self):
         if self.debugjs:
             basedir = dirname(dirname(self.serverdir()))
-            return join(basedir, 'bokehjs', 'build')
-        else:
-            return join(self.serverdir(), 'static')
+            bokehjsdir = join(basedir, 'bokehjs', 'build')
+
+            if exists(bokehjsdir):
+                return bokehjsdir
+
+        return join(self.serverdir(), 'static')
 
     def js_files(self):
         bokehjsdir = self.bokehjsdir()
