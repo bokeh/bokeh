@@ -61,36 +61,6 @@ class ScatterBuilder(Builder):
             filename="scatter.html")
         scatter.show()
     """
-    def __init__(self, values, **kws):
-        """
-        Args:
-            values (iterable(tuples)): an iterable containing the data as
-                (x, y) tuples.
-            legend (str, optional): the legend of your chart. The legend
-                content is inferred from incoming input.It can be
-                ``top_left``, ``top_right``, ``bottom_left``,
-                ``bottom_right``. ``top_right`` is set if you set it
-                 as True. Defaults to None.
-            palette(list, optional): a list containing the colormap as
-                hex values.
-
-        Attributes:
-            source (obj): datasource object for your plot,
-                initialized as a dummy None.
-            x_range (obj): x-associated datarange object for you plot,
-                initialized as a dummy None.
-            y_range (obj): y-associated datarange object for you plot,
-                initialized as a dummy None.
-            groups (list): to be filled with the incoming groups of data.
-                Useful for legend construction.
-            data (dict): to be filled with the incoming data and be passed
-                to the ColumnDataSource in each chart inherited class.
-                Needed for _set_And_get method.
-            attr (list): to be filled with the new attributes created after
-                loading the data dict.
-                Needed for _set_And_get method.
-        """
-        super(ScatterBuilder, self).__init__(values, **kws)
 
     def get_data(self):
         """Take the scatter.values data to calculate the chart properties

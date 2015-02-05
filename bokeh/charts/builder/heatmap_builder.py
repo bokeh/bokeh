@@ -58,41 +58,6 @@ class HeatMapBuilder(Builder):
     hm.show()
     """
 
-    def __init__(self, values, **kws):
-        """
-        Args:
-            values (iterable 2d): iterable 2d representing the data series matrix.
-            palette(list, optional): a list containing the colormap as hex values.
-            legend (str, optional): the legend of your plot. The legend content is
-                inferred from incoming input.It can be ``top_left``,
-                ``top_right``, ``bottom_left``, ``bottom_right``.
-                It is ``top_right`` is you set it as True.
-                Defaults to None.
-            palette(list, optional): a list containing the colormap as
-                hex values.
-
-        Attributes:
-            source (obj): datasource object for your plot,
-                initialized as a dummy None.
-            x_range (obj): x-associated datarange object for you plot,
-                initialized as a dummy None.
-            y_range (obj): y-associated datarange object for you plot,
-                initialized as a dummy None.
-            groups (list): to be filled with the incoming groups of data.
-                Useful for legend construction.
-            data (dict): to be filled with the incoming data and be passed
-                to the ColumnDataSource in each chart inherited class.
-                Needed for _set_And_get method.
-            attr (list): to be filled with the new attributes created after
-                loading the data dict.
-                Needed for _set_And_get method.
-        """
-        super(HeatMapBuilder, self).__init__(values, **kws)
-        # if not self.palette:
-        #     self.palette = ["#75968f", "#a5bab7", "#c9d9d3", "#e2e2e2", "#dfccce",
-        #                "#ddb7b1", "#cc7878", "#933b41", "#550b1d"]
-
-
     def get_data(self):
         """Take the CategoricalHeatMap data from the input **value.
 

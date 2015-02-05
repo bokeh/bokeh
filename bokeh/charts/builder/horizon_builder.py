@@ -13,7 +13,7 @@ from six import string_types
 from .._builder import Builder, create_and_build
 from ...models import ColumnDataSource, Range1d, DataRange1d, FactorRange, GlyphRenderer, CategoricalAxis
 from ...models.glyphs import Patches
-from ...properties import Any, Int
+from ...properties import Any, Color, Int
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -80,10 +80,31 @@ class HorizonBuilder(Builder):
 
     """
 
-    index = Any
-    neg_color = Any
-    num_folds = Int(3)
-    pos_color = Any
+    index = Any(help="""
+    An index to be used for all data series as follows:
+
+    - A 1d iterable of any sort that will be used as
+        series common index
+
+    - As a string that corresponds to the key of the
+        mapping to be used as index (and not as data
+        series) if area.values is a mapping (like a dict,
+        an OrderedDict or a pandas DataFrame)
+
+    """)
+
+    neg_color = Color("#6495ed", help="""
+    The color of the positive folds. (default: "#6495ed")
+    """)
+
+    num_folds = Int(3, help="""
+    The number of folds stacked on top of each other. (default: 3)
+    """)
+
+    pos_color = Color("#006400", help="""
+    The color of the positive folds. (default: "#006400")
+    """)
+
 
     def __init__(self, values, **kws):
         """
@@ -106,12 +127,8 @@ class HorizonBuilder(Builder):
                  as True. Defaults to None.
             palette(list, optional): a list containing the colormap as
                 hex values.
-            num_folds (int, optional): the number of folds stacked on
-                top of each others.
-                (default: 3)
-            pos_color (hex color string, optional): the color of the
-                positive folds
-                (default: #006400)
+            num_folds (int, optional):
+            pos_color (hex color string, optional): t
             neg_color (hex color string, optional): the color of
                 the negative folds
                 (default: #6495ed)

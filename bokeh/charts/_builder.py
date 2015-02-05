@@ -20,7 +20,7 @@ from .utils import cycle_colors
 from ._chart import Chart
 from ._data_adapter import DataAdapter
 from ..models.ranges import Range
-from ..properties import Any, Bool, HasProps, Instance
+from ..properties import Bool, Color, HasProps, Instance, Seq
 
 DEFAULT_PALETTE = ["#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33ff3"]
 
@@ -76,7 +76,7 @@ class Builder(HasProps):
     x_range = Instance(Range)
     y_range = Instance(Range)
 
-    alette = Any
+    palette = Seq(Color, default=DEFAULT_PALETTE)
 
     def __init__(self, values=None, **kws):
         """Common arguments to be used by all the inherited classes.

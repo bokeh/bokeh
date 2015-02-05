@@ -163,7 +163,11 @@ class Chart(Plot):
                 renderers that should draw sample representations for those
                 labels.
         """
-        legend = Legend(orientation=self._options.legend, legends=legends)
+        if self._options.legend is True:
+            orientation = "top_left"
+        else:
+            orientation = self._options.legend
+        legend = Legend(orientation=orientation, legends=legends)
         self.add_layout(legend)
 
     def make_axis(self, location, scale, label):

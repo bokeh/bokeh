@@ -28,7 +28,7 @@ from ..utils import chunk, cycle_colors
 from .._builder import Builder, create_and_build
 from ...models import ColumnDataSource, FactorRange, GlyphRenderer, Range1d
 from ...models.glyphs import Rect
-from ...properties import Any, Bool
+from ...properties import Any, Bool, Either, List
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -65,42 +65,17 @@ class BarBuilder(Builder):
         bar.show()
     """
 
-    cat = Any
-    stacked = Bool
+    cat = Either(Bool, List(Any), help="""
+    List of string representing the categories. (Defaults to None.)
+    """)
 
-    def __init__(self, values, **kws):
-        """
-        Args:
-            values (iterable): iterable 2d representing the data series values matrix.
-            cat (list or bool, optional): list of string representing the categories.
-                Defaults to None.
-            stacked (bool, optional): to see the bars stacked or grouped.
-                Defaults to False, so grouping is assumed.
-            legend (str, optional): the legend of your chart. The legend
-                content is inferred from incoming input.It can be
-                ``top_left``, ``top_right``, ``bottom_left``,
-                ``bottom_right``. ``top_right`` is set if you set it
-                 as True. Defaults to None.
-            palette(list, optional): a list containing the colormap as
-                hex values.
+    stacked = Bool(False, help="""
+    Whether to stack the bars. (Defaults to False)
 
-        Attributes:
-            source (obj): datasource object for your chart,
-                initialized as a dummy None.
-            x_range (obj): x-associated datarange object for you plot,
-                initialized as a dummy None.
-            y_range (obj): y-associated datarange object for you plot,
-                initialized as a dummy None.
-            groups (list): to be filled with the incoming groups of data.
-                Useful for legend construction.
-            data (dict): to be filled with the incoming data and be passed
-                to the ColumnDataSource in each chart inherited class.
-                Needed for _set_And_get method.
-            attr (list): to be filled with the new attributes created after
-                loading the data dict.
-                Needed for _set_And_get method.
-        """
-        super(BarBuilder, self).__init__(values, **kws)
+    If True, bars are draw as a stack, to show the relationship of
+    parts to a whole. Otherwise, bars are grouped on the same chart.
+
+    """)
 
     def get_data(self):
         """Take the Bar data from the input **value.

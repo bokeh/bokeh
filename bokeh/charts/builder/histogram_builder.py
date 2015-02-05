@@ -63,53 +63,29 @@ class HistogramBuilder(Builder):
         hist.show()
     """
 
-    bins = Int(10)
-    mu = Float
-    sigma = Float
-    density = Bool
+    bins = Int(10, help="""
+    Number of bins to use for the histogram. (default: 10)
+    """)
 
-    def __init__(self, values, bins, mu=None, sigma=None, density=True,
-                 legend=False, palette=None, **kws):
-        """
-        Args:
-            values (iterable): iterable 2d representing the data series
-                values matrix.
-            bins (int): number of bins to use in the Histogram building.
-            mu (float, optional): theoretical mean value for the normal
-                distribution. (default: None)
-            sigma (float, optional): theoretical sigma value for the
-                normal distribution. (default: None)
-            density (bool, optional):  If False, the result will contain
-                the number of samples in each bin.  If True, the result
-                is the value of the probability *density* function at
-                the bin, normalized such that the *integral* over the
-                range is 1. For more info check numpy.histogram
-                function documentation. (default: True)
-            legend (str, optional): the legend of your chart. The legend
-                content is inferred from incoming input.It can be
-                ``top_left``, ``top_right``, ``bottom_left``,
-                ``bottom_right``. ``top_right`` is set if you set it
-                 as True. (default: False)
-            palette(list, optional): a list containing the colormap as
-                hex values.
+    mu = Float(help="""
+    Theoretical mean value for the normal distribution. (default: None)
+    """)
 
-        Attributes:
-            source (obj): datasource object for your plot,
-                initialized as a dummy None.
-            x_range (obj): x-associated datarange object for you plot,
-                initialized as a dummy None.
-            y_range (obj): y-associated datarange object for you plot,
-                initialized as a dummy None.
-            groups (list): to be filled with the incoming groups of data.
-                Useful for legend construction.
-            data (dict): to be filled with the incoming data and be
-                passed to the ColumnDataSource in each chart inherited
-                class. Needed for _set_And_get method.
-            attr (list): to be filled with the new attributes created
-                after loading the data dict.
-                Needed for _set_And_get method.
-        """
-        super(HistogramBuilder, self).__init__(values, legend=legend, palette=palette)
+    sigma = Float(help="""
+    Theoretical standard deviation value for the normal distribution.
+    (default: None)
+    """)
+
+    density = Bool(True, help="""
+    Whether to normalize the histogram. (default: True)
+
+    If True, the result is the value of the probability *density* function
+    at the bin, normalized such that the *integral* over the range is 1. If
+    False, the result will contain the number of samples in each bin.
+
+    For more info check ``numpy.histogram`` function documentation.
+
+    """)
 
     def get_data(self):
         """Take the Histogram data from the input **value.

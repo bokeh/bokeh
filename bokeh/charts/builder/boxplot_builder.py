@@ -70,49 +70,14 @@ class BoxPlotBuilder(Builder):
         boxplot.show()
     """
 
-    marker = String
-    outliers = Bool
+    # TODO: (bev) should be an enumeration
+    marker = String(help="""
+    The marker type to use (e.g., ``circle``) if outliers=True.
+    """)
 
-    def __init__(self, values, **kws):
-        """ Initialize a new BoxPlot.
-
-        Args:
-            values (DataFrame or OrderedDict/dict): containing the data with names as a key
-                and the data as a value.
-            marker (int or string, optional): if outliers=True, the marker type to use
-                e.g., `circle`.
-            outliers (bool, optional): Whether or not to plot outliers.
-            legend (str, optional): the legend of your plot. The legend content is
-                inferred from incoming input.It can be ``top_left``,
-                ``top_right``, ``bottom_left``, ``bottom_right``.
-                It is ``top_right`` is you set it as True.
-                Defaults to None.
-            palette(list, optional): a list containing the colormap as
-                hex values.
-
-        Attributes:
-            source (obj): datasource object for your plot,
-                initialized as a dummy None.
-            x_range (obj): x-associated datarange object for you plot,
-                initialized as a dummy None.
-            y_range (obj): y-associated datarange object for you plot,
-                initialized as a dummy None.
-            data (dict): to be filled with the incoming data and be passed
-                to the ColumnDataSource in each chart inherited class.
-                Needed for _set_And_get method.
-            attr (list): to be filled with the new attributes created after
-                loading the data dict.
-                Needed for _set_And_get method.
-        """
-        super(BoxPlotBuilder, self).__init__(values, **kws)
-
-        self._data_segment = dict()
-        self._attr_segment = []
-        self._data_rect = dict()
-        self._attr_rect = []
-        self._data_scatter = dict()
-        self._attr_scatter = []
-        self._data_legend = dict()
+    outliers = Bool(help="""
+    Whether to display markers for any outliers.
+    """)
 
     def get_data(self):
         """Take the BoxPlot data from the input **value.
@@ -128,6 +93,14 @@ class BoxPlotBuilder(Builder):
             outliers (bool, optional): Whether to plot outliers.
             values (dict or pd obj): the values to be plotted as bars.
         """
+        self._data_segment = dict()
+        self._attr_segment = []
+        self._data_rect = dict()
+        self._attr_rect = []
+        self._data_scatter = dict()
+        self._attr_scatter = []
+        self._data_legend = dict()
+
         if isinstance(self._values, pd.DataFrame):
             self._groups = self._values.columns
         else:
@@ -188,7 +161,7 @@ class BoxPlotBuilder(Builder):
             for o in out:
                 out_x.append(level)
                 out_y.append(o)
-                out_color.append(self._palette[i])
+                out_color.append(self.palette[i])
 
         # Store
         self.set_and_get(self._data_scatter, self._attr_scatter, "out_x", out_x)
@@ -206,7 +179,7 @@ class BoxPlotBuilder(Builder):
         self.set_and_get(self._data_rect, self._attr_rect, "upper_height_boxes", upper_height_boxes)
         self.set_and_get(self._data_rect, self._attr_rect, "lower_center_boxes", lower_center_boxes)
         self.set_and_get(self._data_rect, self._attr_rect, "lower_height_boxes", lower_height_boxes)
-        self.set_and_get(self._data_rect, self._attr_rect, "colors", self._palette)
+        self.set_and_get(self._data_rect, self._attr_rect, "colors", self.palette)
 
     def get_source(self):
         "Push the BoxPlot data into the ColumnDataSource and calculate the proper ranges."
@@ -281,7 +254,7 @@ class BoxPlotBuilder(Builder):
             glyph = Rect(
                 x="groups", y=None,
                 width=None, height=None,
-                line_color="black", fill_color=self._palette[i])
+                line_color="black", fill_color=self.palette[i])
             renderer = GlyphRenderer(data_source=self._source_legend, glyph=glyph)
 
             # need to manually select the proper glyphs to be rendered as legends

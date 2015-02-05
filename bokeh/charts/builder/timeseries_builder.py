@@ -69,48 +69,18 @@ class TimeSeriesBuilder(Builder):
 
     """
 
-    index = Any
+    index = Any(help="""
+    An index to be used for all data series as follows:
 
-    def __init__(self, values, **kws):
-        """
-        Args:
-            values (iterable): iterable 2d representing the data series
-                values matrix.
-            index (str|1d iterable, optional): can be used to specify a
-                common custom index for all data series as follows:
-                    - As a 1d iterable of any sort (of datetime values)
-                        that will be used as series common index
-                    - As a string that corresponds to the key of the
-                        mapping to be used as index (and not as data
-                        series) if area.values is a mapping (like a dict,
-                        an OrderedDict or a pandas DataFrame). The values
-                        must be datetime values.
-            legend (str, optional): the legend of your chart. The legend
-                content is inferred from incoming input.It can be
-                ``top_left``, ``top_right``, ``bottom_left``,
-                ``bottom_right``. ``top_right`` is set if you set it
-                 as True. Defaults to None.
-            palette(list, optional): a list containing the colormap as
-                hex values.
+    - A 1d iterable of any sort that will be used as
+        series common index
 
+    - As a string that corresponds to the key of the
+        mapping to be used as index (and not as data
+        series) if area.values is a mapping (like a dict,
+        an OrderedDict or a pandas DataFrame)
 
-        Attributes:
-            source (obj): datasource object for your plot,
-                initialized as a dummy None.
-            x_range (obj): x-associated datarange object for you plot,
-                initialized as a dummy None.
-            y_range (obj): y-associated datarange object for you plot,
-                initialized as a dummy None.
-            groups (list): to be filled with the incoming groups of data.
-                Useful for legend construction.
-            data (dict): to be filled with the incoming data and be passed
-                to the ColumnDataSource in each chart inherited class.
-                Needed for _set_And_get method.
-            attr (list): to be filled with the new attributes created after
-                loading the data dict.
-                Needed for _set_And_get method.
-        """
-        super(TimeSeriesBuilder, self).__init__(values, **kws)
+    """)
 
     def get_data(self):
         """Take the x/y data from the timeseries values.

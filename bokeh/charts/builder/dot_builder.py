@@ -26,12 +26,12 @@ from ..utils import chunk, cycle_colors, make_scatter
 from .._builder import Builder, create_and_build
 from ...models import ColumnDataSource, FactorRange, GlyphRenderer, Range1d
 from ...models.glyphs import Segment
-from ...properties import Any, Bool
+from ...properties import Any, Bool, Either, List
 
-def Dot(values, cat=None, show_segment=True, xscale="categorical", yscale="linear",
+def Dot(values, cat=None, stem=True, xscale="categorical", yscale="linear",
         xgrid=False, ygrid=True, **kws):
     return create_and_build(
-        DotBuilder, values, cat=cat, show_segment=show_segment, xscale=xscale, yscale=yscale,
+        DotBuilder, values, cat=cat, stem=stem, xscale=xscale, yscale=yscale,
         xgrid=xgrid, ygrid=ygrid, **kws
     )
 
@@ -51,43 +51,13 @@ class DotBuilder(Builder):
 
     """
 
-    cat = Any
-    show_segment = Bool
+    cat = Either(Bool, List(Any), help="""
+    List of string representing the categories. (Defaults to None.)
+    """)
 
-    def __init__(self, values, **kws):
-        """
-        Args:
-            values (dict): a dict containing the data with names as a key
-                and the data as a value.
-            cat (list or bool, optional): list of string representing the
-                categories.
-                Defaults to None.
-            show_segment (bool, optional): shows a segment from x label to
-                the rendered dot.
-            legend (str, optional): the legend of your chart. The legend
-                content is inferred from incoming input.It can be
-                ``top_left``, ``top_right``, ``bottom_left``, ``bottom_right``.
-                It is ``top_right`` is you set it as True. Defaults to None.
-            palette(list, optional): a list containing the colormap as
-                hex values.
-
-        Attributes:
-            source (obj): datasource object for your plot,
-                initialized as a dummy None.
-            x_range (obj): x-associated datarange object for you plot,
-                initialized as a dummy None.
-            y_range (obj): y-associated datarange object for you plot,
-                initialized as a dummy None.
-            groups (list): to be filled with the incoming groups of data.
-                Useful for legend construction.
-            data (dict): to be filled with the incoming data and be passed
-                to the ColumnDataSource in each chart inherited class.
-                Needed for _set_And_get method.
-            attr (list): to be filled with the new attributes created after
-                loading the data dict.
-                Needed for _set_And_get method.
-        """
-        super(DotBuilder, self).__init__(values, **kws)
+    stem = Bool(True, help="""
+    Whether to draw a stem from each do to the axis.
+    """)
 
     def get_data(self):
         """Take the Dot data from the input **value.
@@ -143,7 +113,7 @@ class DotBuilder(Builder):
         for i, quartet in enumerate(self._tuples):
             # draw segment first so when scatter will be place on top of it
             # and it won't show segment chunk on top of the circle
-            if self.show_segment:
+            if self.stem:
                 glyph = Segment(
                     x0=quartet[1], y0=quartet[2], x1=quartet[1], y1=quartet[3],
                     line_color="black", line_width=2

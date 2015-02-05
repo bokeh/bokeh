@@ -70,57 +70,30 @@ class AreaBuilder(Builder):
         area.show()
     """
 
-    facet = Bool
-    stacked = Bool
-    index = Any
+    facet = Bool(False, help="""
+    Whether to Facet.
+    """)
 
-    def __init__(self, values, **kws):
-        """
-        Args:
-            values (iterable): iterable 2d representing the data series
-                values matrix.
-            index (str|1d iterable, optional): can be used to specify a
-                common custom index for all data series as follows:
-                    - As a 1d iterable of any sort that will be used as
-                        series common index
-                    - As a string that corresponds to the key of the
-                        mapping to be used as index (and not as data
-                        series) if area.values is a mapping (like a dict,
-                        an OrderedDict or a pandas DataFrame)
-            stacked (bool, optional): if:
-                True: areas are draw as a stack to show the relationship of
-                    parts to a whole
-                False: areas are layered on the same chart figure. Defaults
-                    to False.
-            legend (str, optional): the legend of your chart. The legend
-                content is inferred from incoming input.It can be
-                ``top_left``, ``top_right``, ``bottom_left``,
-                ``bottom_right``. ``top_right`` is set if you set it
-                 as True. Defaults to None.
-            palette(list, optional): a list containing the colormap as
-                hex values.
+    stacked = Bool(False, help="""
+    Whether to stack the areas. (Defaults to False)
 
-        Attributes:
-            source (obj): datasource object for your chart,
-                initialized as a dummy None.
-            x_range (obj): x-associated datarange object for you plot,
-                initialized as a dummy None.
-            y_range (obj): y-associated datarange object for you plot,
-                initialized as a dummy None.
-            groups (list): to be filled with the incoming groups of data.
-                Useful for legend construction.
-            data (dict): to be filled with the incoming data and be passed
-                to the ColumnDataSource in each chart inherited class.
-                Needed for _set_And_get method.
-            attr (list): to be filled with the new attributes created after
-                loading the data dict.
-                Needed for _set_And_get method.
-            index(see inputs): received index input
-        """
-        super(AreaBuilder, self).__init__(values, **kws)
+    If True, areas are draw as a stack, to show the relationship of
+    parts to a whole. Otherwise, areas are layered above one another.
 
-        self._source = None
+    """)
 
+    index = Any(help="""
+    An index to be used for all data series as follows:
+
+    - A 1d iterable of any sort that will be used as
+        series common index
+
+    - As a string that corresponds to the key of the
+        mapping to be used as index (and not as data
+        series) if area.values is a mapping (like a dict,
+        an OrderedDict or a pandas DataFrame)
+
+    """)
 
     def get_data(self):
         """Calculate the chart properties accordingly from area.values.

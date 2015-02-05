@@ -24,7 +24,7 @@ from ..utils import cycle_colors, polar_to_cartesian
 from .._builder import Builder, create_and_build
 from ...models import ColumnDataSource, GlyphRenderer, Range1d
 from ...models.glyphs import AnnularWedge, Text, Wedge
-from ...properties import Any, Bool
+from ...properties import Any, Bool, Either, List
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -61,41 +61,13 @@ class DonutBuilder(Builder):
         donut.show()
     """
 
-    cat = Any
-    facet = Bool
+    cat = Either(Bool, List(Any), help="""
+    List of string representing the categories. (Defaults to None.)
+    """)
 
-    def __init__(self, values, **kws):
-        """
-        Args:
-            values (obj): value (iterable obj): Data adapter supported input type
-            cat (list or bool, optional): list of string representing the categories.
-                Defaults to None.
-            title (str, optional): the title of your chart. Defaults to None.
-            legend (str, optional): the legend of your chart. The legend content is
-                inferred from incoming input.It can be ``top_left``,
-                ``top_right``, ``bottom_left``, ``bottom_right``.
-                It is ``top_right`` is you set it as True.
-                Defaults to None.
-            palette(list, optional): a list containing the colormap as
-                hex values.
-
-        Attributes:
-            source (obj): datasource object for your plot,
-                initialized as a dummy None.
-            x_range (obj): x-associated datarange object for you plot,
-                initialized as a dummy None.
-            y_range (obj): y-associated datarange object for you plot,
-                initialized as a dummy None.
-            groups (list): to be filled with the incoming groups of data.
-                Useful for legend construction.
-            data (dict): to be filled with the incoming data and be passed
-                to the ColumnDataSource in each chart inherited class.
-                Needed for _set_And_get method.
-            attr (list): to be filled with the new attributes created after
-                loading the data dict.
-                Needed for _set_and_get method.
-        """
-        super(DonutBuilder, self).__init__(values, **kws)
+    facet = Bool(False, help="""
+    Whether to facet.
+    """)
 
     def get_data(self):
         """Take the chart data from self._values.
