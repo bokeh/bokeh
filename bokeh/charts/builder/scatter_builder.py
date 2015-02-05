@@ -30,6 +30,7 @@ from ..utils import chunk, cycle_colors, make_scatter
 from .._builder import create_and_build, Builder
 from .._data_adapter import DataAdapter
 from ...models import ColumnDataSource, Range1d
+from ...properties import String
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -61,6 +62,11 @@ class ScatterBuilder(Builder):
             filename="scatter.html")
         scatter.show()
     """
+
+    # TODO: (bev) should be an enumeration
+    marker = String("circle", help="""
+    The marker type to use (default: ``circle``).
+    """)
 
     def get_data(self):
         """Take the scatter.values data to calculate the chart properties
@@ -143,7 +149,7 @@ class ScatterBuilder(Builder):
 
         for i, duplet in enumerate(duplets, start=1):
             renderer = make_scatter(
-                self._source, duplet[0], duplet[1], 'circle', colors[i - 1]
+                self._source, duplet[0], duplet[1], self.marker, colors[i - 1]
             )
             self._legends.append((self._groups[i-1], [renderer]))
             yield renderer
