@@ -221,14 +221,4 @@ class Builder(object):
         """
         self._set_and_get(self.data, prefix, self.attr, val, content)
 
-    @property
-    def palette(self):
-        """Build a color list just cycling through a defined palette.
-
-        """
-        if not self._palette:
-            self._palette = cycle_colors(self.groups)
-
-        return self._palette
-
 
