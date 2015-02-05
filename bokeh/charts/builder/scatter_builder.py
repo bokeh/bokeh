@@ -63,10 +63,6 @@ class ScatterBuilder(Builder):
         scatter.show()
     """
 
-    facet = Bool(False, help="""
-    Whether to facet.
-    """)
-
     # TODO: (bev) should be an enumeration
     marker = String("circle", help="""
     The marker type to use (default: ``circle``).

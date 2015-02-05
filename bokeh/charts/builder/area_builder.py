@@ -64,15 +64,10 @@ class AreaBuilder(Builder):
         # create an area chart
         area = Area(
             xyvalues, title="Area Chart", xlabel='time',
-            ylabel='memory', filename="area.html",
-            facet=False, stacked=True,
+            ylabel='memory', filename="area.html", stacked=True,
         )
         area.show()
     """
-
-    facet = Bool(False, help="""
-    Whether to Facet.
-    """)
 
     stacked = Bool(False, help="""
     Whether to stack the areas. (Defaults to False)

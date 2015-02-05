@@ -65,10 +65,6 @@ class DonutBuilder(Builder):
     List of string representing the categories. (Defaults to None.)
     """)
 
-    facet = Bool(False, help="""
-    Whether to facet.
-    """)
-
     def get_data(self):
         """Take the chart data from self._values.
 
