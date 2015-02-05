@@ -1,6 +1,6 @@
 import logging
 import os
-from os.path import join, dirname, abspath
+from os.path import join, dirname, abspath, exists
 
 class Settings(object):
     _prefix = "BOKEH_"
