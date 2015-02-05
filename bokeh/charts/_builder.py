@@ -109,7 +109,6 @@ class Builder(object):
         self.data = {}
         self.groups = []
         self.attr = []
-        self.groups = []
 
     def prepare_values(self):
         """Prepare the input data.
@@ -151,10 +150,6 @@ class Builder(object):
         """
         pass
 
-    def pre_create(self):
-        """ Hook method that can be overwritten to inject chart logic to
-        be executed before make renderers method"""
-
     def make_renderers(self):
         """
         Executes the methods to build the chart in sequence:
@@ -175,8 +170,6 @@ class Builder(object):
 
 
     def create(self, chart=None):
-        self.pre_create()
-
         # pass these renderers to the chart and then forget about the chart
         renderers = self.make_renderers()
         chart.add_renderers(self, renderers)
