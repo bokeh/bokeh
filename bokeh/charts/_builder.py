@@ -173,13 +173,6 @@ class Builder(HasProps):
         if not chart.y_range:
             chart.y_range = self.y_range
 
-        # create the legends if needed
-#         if self.legend:
-#             if self.legend is True:
-#                     orientation = "top_right"
-#             else:
-#                 orientation = self._legend
-#
         # always contribute legends, let Chart sort it out
         legends = self._legends
         chart.add_legend(legends)
