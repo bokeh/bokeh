@@ -148,8 +148,8 @@ class Chart(Plot):
         self.create_grids(self._options.xgrid, self._options.ygrid)
 
         # Add tools if supposed to
-        # if self._enabled_tools:
-        #     self.create_tools(self._enabled_tools)
+        if self._options.tools:
+            self.create_tools(self._options.tools)
 
     def add_legend(self, legends):
         """Add the legend to your plot, and the plot to a new Document.
