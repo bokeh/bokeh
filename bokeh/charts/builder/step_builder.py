@@ -23,6 +23,7 @@ from ..utils import chunk, cycle_colors
 from .._builder import create_and_build, Builder
 from ...models import ColumnDataSource, DataRange1d, GlyphRenderer, Range1d
 from ...models.glyphs import Segment
+from ...properties import Any
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -44,7 +45,10 @@ class StepBuilder(Builder):
     source.
 
     """
-    def __init__(self, values, index=None, legend=False, palette=None, **kws):
+
+    index = Any
+
+    def __init__(self, values, **kws):
         """
         Args:
             values (iterable): iterable 2d representing the data series
@@ -81,29 +85,28 @@ class StepBuilder(Builder):
                 loading the data dict.
                 Needed for _set_And_get method.
         """
-        self.index = index
-        super(StepBuilder, self).__init__(values, legend=legend, palette=palette)
+        super(StepBuilder, self).__init__(values, **kws)
 
     def get_data(self):
         """It calculates the chart properties accordingly from Step.values.
         Then build a dict containing references to all the points to be
         used by the segment glyph inside the ``draw`` method.
         """
-        self.data = dict()
+        self._data = dict()
 
         # list to save all the attributes we are going to create
-        self.attr = []
-        self.groups = []
-        xs = self.values_index
+        self._attr = []
+        self._groups = []
+        xs = self._values_index
         self.set_and_get("x", "", np.array(xs)[:-1])
         self.set_and_get("x2", "", np.array(xs)[1:])
-        for col in self.values.keys():
+        for col in self._values.keys():
             if isinstance(self.index, string_types) and col == self.index:
                 continue
 
             # save every new group we find
-            self.groups.append(col)
-            values = [self.values[col][x] for x in xs]
+            self._groups.append(col)
+            values = [self._values[col][x] for x in xs]
             self.set_and_get("y1_", col, values[:-1])
             self.set_and_get("y2_", col, values[1:])
 
@@ -111,11 +114,11 @@ class StepBuilder(Builder):
         """ Push the Step data into the ColumnDataSource and calculate
         the proper ranges.
         """
-        sc = self.source = ColumnDataSource(self.data)
+        sc = self._source = ColumnDataSource(self._data)
         self.x_range = DataRange1d(sources=[sc.columns("x"), sc.columns("x2")])
-        y_names = self.attr[1:]
-        endy = max(max(self.data[i]) for i in y_names)
-        starty = min(min(self.data[i]) for i in y_names)
+        y_names = self._attr[1:]
+        endy = max(max(self._data[i]) for i in y_names)
+        starty = min(min(self._data[i]) for i in y_names)
         self.y_range = Range1d(
             start=starty - 0.1 * (endy - starty),
             end=endy + 0.1 * (endy - starty)
@@ -126,7 +129,7 @@ class StepBuilder(Builder):
 
         Takes reference points from the data loaded at the ColumnDataSource.
         """
-        tuples = list(chunk(self.attr[2:], 2))
+        tuples = list(chunk(self._attr[2:], 2))
         colors = cycle_colors(tuples)
 
         # duplet: y1, y2 values of each series
@@ -136,13 +139,13 @@ class StepBuilder(Builder):
                 x0="x2", y0=duplet[0], x1="x2", y1=duplet[1],
                 line_color=colors[i]
             )
-            yield GlyphRenderer(data_source=self.source, glyph=glyph)
+            yield GlyphRenderer(data_source=self._source, glyph=glyph)
 
             # draw the step vertical segment
             glyph = Segment(
                 x0="x", y0=duplet[0], x1="x2", y1=duplet[0],
                 line_color=colors[i]
             )
-            renderer = GlyphRenderer(data_source=self.source, glyph=glyph)
-            self._legends.append((self.groups[i], [renderer]))
+            renderer = GlyphRenderer(data_source=self._source, glyph=glyph)
+            self._legends.append((self._groups[i], [renderer]))
             yield renderer

@@ -77,7 +77,7 @@ class ChartOptions(HasProps):
     notebook.
     """)
 
-    tools = Bool(True, help="""
+    tools = Either(Bool(True), String, help="""
     Whether to add defaut tools the the chart.
     """)
 

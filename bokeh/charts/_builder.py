@@ -19,6 +19,8 @@ types on top of it.
 from .utils import cycle_colors
 from ._chart import Chart
 from ._data_adapter import DataAdapter
+from ..models.ranges import Range
+from ..properties import Any, Bool, HasProps, Instance
 
 DEFAULT_PALETTE = ["#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33ff3"]
 
@@ -27,17 +29,21 @@ DEFAULT_PALETTE = ["#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33f
 #-----------------------------------------------------------------------------
 
 def create_and_build(builder_class, values, **kws):
+    builder_props = set(builder_class.properties())
+
     # create the new builder
-    builder = builder_class(values, **kws)
+    builder_kws = { k:v for k,v in kws.items() if k in builder_props}
+    builder = builder_class(values, **builder_kws)
 
     # create a chart to return, since there isn't one already
-    chart = Chart(**kws)
+    chart_kws = { k:v for k,v in kws.items() if k not in builder_props}
+    chart = Chart(**chart_kws)
     chart.add_builder(builder)
 
     return chart
 
 
-class Builder(object):
+class Builder(HasProps):
     """ A prototype class to inherit each new chart Builder type.
 
     It provides useful methods to be used by the inherited builder classes,
@@ -66,7 +72,13 @@ class Builder(object):
     create method.
 
     """
-    def __init__(self, values=None, legend=False, palette=None, **kws):
+
+    x_range = Instance(Range)
+    y_range = Instance(Range)
+
+    alette = Any
+
+    def __init__(self, values=None, **kws):
         """Common arguments to be used by all the inherited classes.
 
         Args:
@@ -95,32 +107,31 @@ class Builder(object):
                 loading the data dict.
                 Needed for _set_And_get method.
         """
+        super(Builder, self).__init__(**kws)
         if values is None:
             values = []
 
-        self.values = values
-        self._legend = legend
-        self._palette = palette or DEFAULT_PALETTE
+        self._values = values
         # TODO: No real reason why legends should be *private*, should be
         # legends
         self._legends = []
-        self.data = {}
-        self.groups = []
-        self.attr = []
+        self._data = {}
+        self._groups = []
+        self._attr = []
 
     def prepare_values(self):
         """Prepare the input data.
 
-        Converts data input (self.values) to a DataAdapter and creates
+        Converts data input (self._values) to a DataAdapter and creates
         instance index if needed
         """
         if hasattr(self, 'index'):
-            self.values_index, self.values = DataAdapter.get_index_and_data(
-                self.values, self.index
+            self._values_index, self._values = DataAdapter.get_index_and_data(
+                self._values, self.index
             )
         else:
-            if not isinstance(self.values, DataAdapter):
-                self.values = DataAdapter(self.values, force_alias=False)
+            if not isinstance(self._values, DataAdapter):
+                self._values = DataAdapter(self._values, force_alias=False)
 
     def get_data(self):
         """Get the input data.
@@ -163,14 +174,15 @@ class Builder(object):
             chart.y_range = self.y_range
 
         # create the legends if needed
-        if self._legend:
-            if self._legend is True:
-                    orientation = "top_right"
-            else:
-                orientation = self._legend
-
-            legends = self._legends
-            chart.add_legend(orientation, legends)
+#         if self.legend:
+#             if self.legend is True:
+#                     orientation = "top_right"
+#             else:
+#                 orientation = self._legend
+#
+        # always contribute legends, let Chart sort it out
+        legends = self._legends
+        chart.add_legend(legends)
 
         return chart
 
@@ -179,7 +191,7 @@ class Builder(object):
     #***************************
 
     def _set_and_get(self, data, prefix, attr, val, content):
-        """Set a new attr and then get it to fill the self.data dict.
+        """Set a new attr and then get it to fill the self._data dict.
 
         Keep track of the attributes created.
 
@@ -193,7 +205,7 @@ class Builder(object):
         attr.append(prefix + val)
 
     def set_and_get(self, prefix, val, content):
-        """Set a new attr and then get it to fill the self.data dict.
+        """Set a new attr and then get it to fill the self._data dict.
 
         Keep track of the attributes created.
 
@@ -202,6 +214,6 @@ class Builder(object):
             val (string): name of the new attribute
             content (obj): content of the new attribute
         """
-        self._set_and_get(self.data, prefix, self.attr, val, content)
+        self._set_and_get(self._data, prefix, self._attr, val, content)
 
 

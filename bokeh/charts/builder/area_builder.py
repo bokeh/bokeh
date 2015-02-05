@@ -23,13 +23,13 @@ try:
     import numpy as np
 
 except ImportError:
-    print("bokeh.charts needs numpy installed to work properly!")
-    raise
+    raise RuntimeError("bokeh.charts Area chart requires NumPy.")
 
 from ..utils import cycle_colors
 from .._builder import Builder, create_and_build
 from ...models import ColumnDataSource, DataRange1d, GlyphRenderer, Range1d
 from ...models.glyphs import Patch
+from ...properties import Any, Bool
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -69,8 +69,12 @@ class AreaBuilder(Builder):
         )
         area.show()
     """
-    def __init__(self, values, index=None, stacked=False, legend=False,
-                 palette=None, **kws):
+
+    facet = Bool
+    stacked = Bool
+    index = Any
+
+    def __init__(self, values, **kws):
         """
         Args:
             values (iterable): iterable 2d representing the data series
@@ -113,11 +117,10 @@ class AreaBuilder(Builder):
                 Needed for _set_And_get method.
             index(see inputs): received index input
         """
-        self.source = None
-        self._stacked = stacked
-        self.index = index
+        super(AreaBuilder, self).__init__(values, **kws)
 
-        super(AreaBuilder, self).__init__(values, legend=legend, palette=palette)
+        self._source = None
+
 
     def get_data(self):
         """Calculate the chart properties accordingly from area.values.
@@ -125,19 +128,19 @@ class AreaBuilder(Builder):
         the patch glyph inside the ``draw`` method.
 
         """
-        xs = self.values_index
+        xs = self._values_index
         last = np.zeros(len(xs))
         x2 = np.hstack((xs[::-1], xs))
         self.set_and_get("x", "", x2)
 
-        for grp in self.values.keys():
+        for grp in self._values.keys():
             # TODO: This condition may be removed or changed depending on
             # the validation of self.index
             if isinstance(self.index, string_types) and grp == self.index:
                 continue
 
             # get single series values
-            col_values = self.values[grp]
+            col_values = self._values[grp]
             _values = [col_values[x] for indx, x in enumerate(xs)]
 
             # to draw area we need 2 coordinates. The lower values will always
@@ -153,17 +156,17 @@ class AreaBuilder(Builder):
 
             # save values and new group
             self.set_and_get("y_", grp, values)
-            self.groups.append(grp)
+            self._groups.append(grp)
 
     def get_source(self):
         """
         Push the Line data into the ColumnDataSource and calculate the proper ranges.
         """
-        self.source = ColumnDataSource(self.data)
-        self.x_range = DataRange1d(sources=[self.source.columns("x")])
-        y_names = self.attr[1:]
-        endy = max(max(self.data[i]) for i in y_names)
-        starty = min(min(self.data[i]) for i in y_names)
+        self._source = ColumnDataSource(self._data)
+        self.x_range = DataRange1d(sources=[self._source.columns("x")])
+        y_names = self._attr[1:]
+        endy = max(max(self._data[i]) for i in y_names)
+        starty = min(min(self._data[i]) for i in y_names)
         self.y_range =  Range1d(
             start=starty - 0.1 * (endy - starty),
             end=endy + 0.1 * (endy - starty)
@@ -175,13 +178,13 @@ class AreaBuilder(Builder):
 
         Takes reference points from the data loaded at the ColumnDataSource.
         """
-        colors = cycle_colors(self.attr)
+        colors = cycle_colors(self._attr)
         # parse all series. We exclude the first attr as it's the x values
         # added for the index
-        for i, series_name in enumerate(self.attr[1:]):
+        for i, series_name in enumerate(self._attr[1:]):
 
             glyph = Patch(
                 x='x', y=series_name, fill_color=colors[i], fill_alpha=0.9)
-            renderer = GlyphRenderer(data_source=self.source, glyph=glyph)
-            self._legends.append((self.groups[i], [renderer]))
+            renderer = GlyphRenderer(data_source=self._source, glyph=glyph)
+            self._legends.append((self._groups[i], [renderer]))
             yield renderer

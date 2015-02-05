@@ -26,7 +26,7 @@ from ..utils import chunk, cycle_colors, make_scatter
 from .._builder import Builder, create_and_build
 from ...models import ColumnDataSource, FactorRange, GlyphRenderer, Range1d
 from ...models.glyphs import Segment
-
+from ...properties import Any, Bool
 
 def Dot(values, cat=None, show_segment=True, xscale="categorical", yscale="linear",
         xgrid=False, ygrid=True, **kws):
@@ -50,8 +50,11 @@ class DotBuilder(Builder):
     the references from the source.
 
     """
-    def __init__(self, values, cat=None, show_segment=True, legend=False,
-                 palette=None, **kws):
+
+    cat = Any
+    show_segment = Bool
+
+    def __init__(self, values, **kws):
         """
         Args:
             values (dict): a dict containing the data with names as a key
@@ -84,9 +87,7 @@ class DotBuilder(Builder):
                 loading the data dict.
                 Needed for _set_And_get method.
         """
-        self.show_segment = show_segment
-        self.cat = cat
-        super(DotBuilder, self).__init__(values, legend=legend, palette=palette)
+        super(DotBuilder, self).__init__(values, **kws)
 
     def get_data(self):
         """Take the Dot data from the input **value.
@@ -97,17 +98,17 @@ class DotBuilder(Builder):
 
         """
         if not self.cat:
-            self.cat = [str(x) for x in self.values.index]
+            self.cat = [str(x) for x in self._values.index]
 
-        self.data = dict(cat=self.cat, zero=np.zeros(len(self.cat)))
+        self._data = dict(cat=self.cat, zero=np.zeros(len(self.cat)))
         # list to save all the attributes we are going to create
         # list to save all the groups available in the incoming input
         # Grouping
-        self.groups.extend(self.values.keys())
-        step = np.linspace(0, 1.0, len(self.values.keys()) + 1, endpoint=False)
+        self._groups.extend(self._values.keys())
+        step = np.linspace(0, 1.0, len(self._values.keys()) + 1, endpoint=False)
 
-        for i, val in enumerate(self.values.keys()):
-            values = self.values[val]
+        for i, val in enumerate(self._values.keys()):
+            values = self._values[val]
             # original y value
             self.set_and_get("", val, values)
             # x value
@@ -122,10 +123,10 @@ class DotBuilder(Builder):
         """Push the Dot data into the ColumnDataSource and calculate
         the proper ranges.
         """
-        self.source = ColumnDataSource(self.data)
-        self.x_range = FactorRange(factors=self.source.data["cat"])
-        cat = [i for i in self.attr if not i.startswith(("cat",))]
-        end = 1.1 * max(max(self.data[i]) for i in cat)
+        self._source = ColumnDataSource(self._data)
+        self.x_range = FactorRange(factors=self._source.data["cat"])
+        cat = [i for i in self._attr if not i.startswith(("cat",))]
+        end = 1.1 * max(max(self._data[i]) for i in cat)
         self.y_range = Range1d(start=0, end=end)
 
     def draw(self):
@@ -135,11 +136,11 @@ class DotBuilder(Builder):
         renders circle glyphs (and segments) on the related
         coordinates.
         """
-        self.tuples = list(chunk(self.attr, 4))
-        colors = cycle_colors(self.tuples)
+        self._tuples = list(chunk(self._attr, 4))
+        colors = cycle_colors(self._tuples)
 
         # quartet elements are: [data, cat, zeros, segment_top]
-        for i, quartet in enumerate(self.tuples):
+        for i, quartet in enumerate(self._tuples):
             # draw segment first so when scatter will be place on top of it
             # and it won't show segment chunk on top of the circle
             if self.show_segment:
@@ -147,11 +148,11 @@ class DotBuilder(Builder):
                     x0=quartet[1], y0=quartet[2], x1=quartet[1], y1=quartet[3],
                     line_color="black", line_width=2
                 )
-                yield GlyphRenderer(data_source=self.source, glyph=glyph)
+                yield GlyphRenderer(data_source=self._source, glyph=glyph)
 
             renderer = make_scatter(
-                self.source, quartet[1], quartet[0], 'circle',
+                self._source, quartet[1], quartet[0], 'circle',
                 colors[i - 1], line_color='black', size=15, fill_alpha=1.,
             )
-            self._legends.append((self.groups[i], [renderer]))
+            self._legends.append((self._groups[i], [renderer]))
             yield renderer

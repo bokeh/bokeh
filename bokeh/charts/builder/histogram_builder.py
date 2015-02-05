@@ -26,6 +26,7 @@ from ..utils import chunk, cycle_colors
 from .._builder import Builder, create_and_build
 from ...models import ColumnDataSource, GlyphRenderer, Range1d
 from ...models.glyphs import Line, Quad
+from ...properties import Any, Bool, Float, Int
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -61,6 +62,12 @@ class HistogramBuilder(Builder):
             title='Histogram', ylabel="frequency", legend=True)
         hist.show()
     """
+
+    bins = Int(10)
+    mu = Float
+    sigma = Float
+    density = Bool
+
     def __init__(self, values, bins, mu=None, sigma=None, density=True,
                  legend=False, palette=None, **kws):
         """
@@ -102,10 +109,6 @@ class HistogramBuilder(Builder):
                 after loading the data dict.
                 Needed for _set_And_get method.
         """
-        self.bins = bins
-        self.mu = mu
-        self.sigma = sigma
-        self.density = density
         super(HistogramBuilder, self).__init__(values, legend=legend, palette=palette)
 
     def get_data(self):
@@ -116,14 +119,14 @@ class HistogramBuilder(Builder):
         the quad and line glyphs inside the ``draw`` method.
         """
         # list to save all the groups available in the incomming input
-        self.groups.extend(self.values.keys())
+        self._groups.extend(self._values.keys())
 
         # fill the data dictionary with the proper values
-        for i, val in enumerate(self.values.keys()):
-            self.set_and_get("", val, self.values[val])
+        for i, val in enumerate(self._values.keys()):
+            self.set_and_get("", val, self._values[val])
             #build the histogram using the set bins number
             hist, edges = np.histogram(
-                np.array(self.data[val]), density=self.density, bins=self.bins
+                np.array(self._data[val]), density=self.density, bins=self.bins
             )
             self.set_and_get("hist", val, hist)
             self.set_and_get("edges", val, edges)
@@ -131,40 +134,40 @@ class HistogramBuilder(Builder):
             self.set_and_get("right", val, edges[1:])
             self.set_and_get("bottom", val, np.zeros(len(hist)))
 
-            self.mu_and_sigma = False
+            self._mu_and_sigma = False
             if self.mu is not None and self.sigma is not None:
                 if _is_scipy:
-                    self.mu_and_sigma = True
-                    self.set_and_get("x", val, np.linspace(-2, 2, len(self.data[val])))
+                    self._mu_and_sigma = True
+                    self.set_and_get("x", val, np.linspace(-2, 2, len(self._data[val])))
                     den = 2 * self.sigma ** 2
-                    x_val = self.data["x" + val]
+                    x_val = self._data["x" + val]
                     x_val_mu = x_val - self.mu
                     sigsqr2pi = self.sigma * np.sqrt(2 * np.pi)
                     pdf = 1 / (sigsqr2pi) * np.exp(-x_val_mu ** 2 / den)
                     self.set_and_get("pdf", val, pdf)
-                    self.groups.append("pdf")
+                    self._groups.append("pdf")
                     cdf = (1 + scipy.special.erf(x_val_mu / np.sqrt(den))) / 2
                     self.set_and_get("cdf", val, cdf)
-                    self.groups.append("cdf")
+                    self._groups.append("cdf")
                 else:
                     print("You need scipy to get the theoretical probability distributions.")
 
     def get_source(self):
         """Push the Histogram data into the ColumnDataSource and calculate
         the proper ranges."""
-        self.source = ColumnDataSource(data=self.data)
+        self._source = ColumnDataSource(data=self._data)
 
-        if not self.mu_and_sigma:
-            x_names, y_names = self.attr[2::6], self.attr[1::6]
+        if not self._mu_and_sigma:
+            x_names, y_names = self._attr[2::6], self._attr[1::6]
         else:
-            x_names, y_names = self.attr[2::9], self.attr[1::9]
+            x_names, y_names = self._attr[2::9], self._attr[1::9]
 
-        endx = max(max(self.data[i]) for i in x_names)
-        startx = min(min(self.data[i]) for i in x_names)
+        endx = max(max(self._data[i]) for i in x_names)
+        startx = min(min(self._data[i]) for i in x_names)
         self.x_range = Range1d(start=startx - 0.1 * (endx - startx),
                            end=endx + 0.1 * (endx - startx))
 
-        endy = max(max(self.data[i]) for i in y_names)
+        endy = max(max(self._data[i]) for i in y_names)
         self.y_range = Range1d(start=0, end=1.1 * endy)
 
     def draw(self):
@@ -174,8 +177,8 @@ class HistogramBuilder(Builder):
         bars, taking as reference points the data loaded at the
         ColumnDataSurce.
         """
-        if not self.mu_and_sigma:
-            sextets = list(chunk(self.attr, 6))
+        if not self._mu_and_sigma:
+            sextets = list(chunk(self._attr, 6))
             colors = cycle_colors(sextets)
 
             # TODO (bev) this is a perfect use for a namedtuple
@@ -187,12 +190,12 @@ class HistogramBuilder(Builder):
                     fill_color=colors[i], fill_alpha=0.7,
                     line_color="white", line_alpha=1.0
                 )
-                renderer = GlyphRenderer(data_source=self.source, glyph=glyph)
-                self._legends.append((self.groups[i], [renderer]))
+                renderer = GlyphRenderer(data_source=self._source, glyph=glyph)
+                self._legends.append((self._groups[i], [renderer]))
                 yield renderer
 
         else:
-            nonets = list(chunk(self.attr, 9))
+            nonets = list(chunk(self._attr, 9))
             colors = cycle_colors(nonets)
 
             # TODO (bev) this is a perfect use for a namedtuple
@@ -204,12 +207,12 @@ class HistogramBuilder(Builder):
                     fill_color=colors[i], fill_alpha=0.7,
                     line_color="white", line_alpha=1.0
                 )
-                renderer = GlyphRenderer(data_source=self.source, glyph=glyph)
-                self._legends.append((self.groups[i], [renderer]))
+                renderer = GlyphRenderer(data_source=self._source, glyph=glyph)
+                self._legends.append((self._groups[i], [renderer]))
                 yield renderer
 
                 glyph = Line(x=nonet[6], y=nonet[7], line_color="black")
-                yield GlyphRenderer(data_source=self.source, glyph=glyph)
+                yield GlyphRenderer(data_source=self._source, glyph=glyph)
 
                 glyph = Line(x=nonet[6], y=nonet[8], line_color="blue")
-                yield GlyphRenderer(data_source=self.source, glyph=glyph)
+                yield GlyphRenderer(data_source=self._source, glyph=glyph)

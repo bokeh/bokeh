@@ -28,35 +28,35 @@ from bokeh.charts import DataAdapter
 
 class TestDataAdapter(unittest.TestCase):
     def setUp(self):
-        self.values = OrderedDict()
-        self.values['first'] = [2., 5., 3.]
-        self.values['second'] = [4., 1., 4.]
-        self.values['third'] = [6., 4., 3.]
+        self._values = OrderedDict()
+        self._values['first'] = [2., 5., 3.]
+        self._values['second'] = [4., 1., 4.]
+        self._values['third'] = [6., 4., 3.]
 
     def test_list(self):
-        values = list(self.values.values())
+        values = list(self._values.values())
         da = DataAdapter(values)
 
-        self.assertEqual(da.values(), list(self.values.values()))
+        self.assertEqual(da.values(), list(self._values.values()))
         self.assertEqual(da.columns, ['0', '1', '2'])
         self.assertEqual(da.keys(), ['0', '1', '2'])
         self.assertEqual(da.index, ['a', 'b', 'c'])
 
     def test_array(self):
-        values = np.array(list(self.values.values()))
+        values = np.array(list(self._values.values()))
         da = DataAdapter(values)
 
-        assert_array_equal(da.values(), list(self.values.values()))
+        assert_array_equal(da.values(), list(self._values.values()))
         self.assertEqual(da.columns, ['0', '1', '2'])
         self.assertEqual(da.keys(), ['0', '1', '2'])
         self.assertEqual(da.index, ['a', 'b', 'c'])
 
     def test_pandas(self):
-        values = pd.DataFrame(self.values)
+        values = pd.DataFrame(self._values)
         da = DataAdapter(values)
 
         # TODO: THIS SHOULD BE FIXED..
-        #self.assertEqual(da.values(), list(self.values.values()))
+        #self.assertEqual(da.values(), list(self._values.values()))
         self.assertEqual(da.columns, ['first', 'second', 'third'])
         self.assertEqual(da.keys(), ['first', 'second', 'third'])
         # We expect data adapter index to be the same as the underlying pandas
@@ -64,9 +64,9 @@ class TestDataAdapter(unittest.TestCase):
         self.assertEqual(da.index, [0, 1, 2])
 
     def test_ordered_dict(self):
-        da = DataAdapter(self.values)
+        da = DataAdapter(self._values)
 
-        self.assertEqual(da.values(), list(self.values.values()))
+        self.assertEqual(da.values(), list(self._values.values()))
         self.assertEqual(da.columns, ['first', 'second', 'third'])
         self.assertEqual(da.keys(), ['first', 'second', 'third'])
         self.assertEqual(da.index, ['a', 'b', 'c'])

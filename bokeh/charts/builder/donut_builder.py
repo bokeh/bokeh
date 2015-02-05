@@ -24,6 +24,7 @@ from ..utils import cycle_colors, polar_to_cartesian
 from .._builder import Builder, create_and_build
 from ...models import ColumnDataSource, GlyphRenderer, Range1d
 from ...models.glyphs import AnnularWedge, Text, Wedge
+from ...properties import Any, Bool
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -60,7 +61,10 @@ class DonutBuilder(Builder):
         donut.show()
     """
 
-    def __init__(self, values, cat=None, legend=False, palette=None, **kws):
+    cat = Any
+    facet = Bool
+
+    def __init__(self, values, **kws):
         """
         Args:
             values (obj): value (iterable obj): Data adapter supported input type
@@ -91,26 +95,25 @@ class DonutBuilder(Builder):
                 loading the data dict.
                 Needed for _set_and_get method.
         """
-        self.cat = cat
-        super(DonutBuilder, self).__init__(values, legend=legend, palette=palette)
+        super(DonutBuilder, self).__init__(values, **kws)
 
     def get_data(self):
-        """Take the chart data from self.values.
+        """Take the chart data from self._values.
 
         It calculates the chart properties accordingly (start/end angles).
         Then build a dict containing references to all the calculated
         points to be used by the Wedge glyph inside the ``draw`` method.
 
         """
-        dd = dict(zip(self.values.keys(), self.values.values()))
-        self.df = df = pd.DataFrame(dd)
-        self.groups = df.index = self.cat
-        df.columns = self.values.keys()
+        dd = dict(zip(self._values.keys(), self._values.values()))
+        self._df = df = pd.DataFrame(dd)
+        self._groups = df.index = self.cat
+        df.columns = self._values.keys()
 
         # Get the sum per category
         aggregated = df.T.sum()
         # Get the total (sum of all categories)
-        self.total_units = total = aggregated.sum()
+        self._total_units = total = aggregated.sum()
         radians = lambda x: 2*pi*(x/total)
         angles = aggregated.map(radians).cumsum()
         end_angles = angles.tolist()
@@ -125,7 +128,7 @@ class DonutBuilder(Builder):
          the proper ranges.
 
         """
-        self.source = ColumnDataSource(self.data)
+        self._source = ColumnDataSource(self._data)
         self.x_range = Range1d(start=-2, end=2)
         self.y_range = Range1d(start=-2, end=2)
 
@@ -138,14 +141,14 @@ class DonutBuilder(Builder):
             x=0, y=0, radius=1, start_angle="start", end_angle="end",
             line_color="white", line_width=2, fill_color="colors"
         )
-        yield GlyphRenderer(data_source=self.source, glyph=glyph)
+        yield GlyphRenderer(data_source=self._source, glyph=glyph)
 
     def draw_central_descriptions(self):
         """Draw the descriptions to be placed on the central part of the
         donut wedge
         """
         text = ["%s" % cat for cat in self.cat]
-        x, y = polar_to_cartesian(0.7, self.data["start"], self.data["end"])
+        x, y = polar_to_cartesian(0.7, self._data["start"], self._data["end"])
         text_source = ColumnDataSource(dict(text=text, x=x, y=y))
         glyph = Text(
                 x="x", y="y", text="text",
@@ -162,9 +165,9 @@ class DonutBuilder(Builder):
 
         first = True
         for i, (cat, start_angle, end_angle) in enumerate(zip(
-                self.cat, self.data['start'], self.data['end'])):
-            details = self.df.ix[i]
-            radians = lambda x: 2*pi*(x/self.total_units)
+                self.cat, self._data['start'], self._data['end'])):
+            details = self._df.ix[i]
+            radians = lambda x: 2*pi*(x/self._total_units)
 
             angles = details.map(radians).cumsum() + start_angle
             end = angles.tolist() + [end_angle]

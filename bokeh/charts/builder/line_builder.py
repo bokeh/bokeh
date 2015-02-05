@@ -23,6 +23,7 @@ from ..utils import cycle_colors
 from .._builder import Builder, create_and_build
 from ...models import ColumnDataSource, DataRange1d, GlyphRenderer, Range1d
 from ...models.glyphs import Line as LineGlyph
+from ...properties import Any
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -41,6 +42,9 @@ class LineBuilder(Builder):
     We additionally make calculations for the ranges.
     And finally add the needed lines taking the references from the source.
     """
+
+    index = Any
+
     def __init__(self, values, index=None, legend=False, palette=None, **kws):
         """
         Args:
@@ -78,27 +82,26 @@ class LineBuilder(Builder):
                 loading the data dict.
                 Needed for _set_And_get method.
         """
-        self.source = None
-        self.index = index
-        super(LineBuilder, self).__init__(values, legend=legend, palette=palette)
+        super(LineBuilder, self).__init__(values, **kws)
+        self._source = None
 
     def get_data(self):
         """Calculate the chart properties accordingly from line.values.
         Then build a dict containing references to all the points to be
         used by the line glyph inside the ``draw`` method.
         """
-        self.data = dict()
+        self._data = dict()
         # list to save all the attributes we are going to create
-        self.attr = []
-        xs = self.values_index
+        self._attr = []
+        xs = self._values_index
         self.set_and_get("x", "", np.array(xs))
-        for col in self.values.keys():
+        for col in self._values.keys():
             if isinstance(self.index, string_types) and col == self.index:
                 continue
 
             # save every new group we find
-            self.groups.append(col)
-            values = [self.values[col][x] for x in xs]
+            self._groups.append(col)
+            values = [self._values[col][x] for x in xs]
             self.set_and_get("y_", col, values)
 
     def get_source(self):
@@ -106,12 +109,12 @@ class LineBuilder(Builder):
         Push the Line data into the ColumnDataSource and calculate the
         proper ranges.
         """
-        self.source = ColumnDataSource(self.data)
-        self.x_range = DataRange1d(sources=[self.source.columns("x")])
+        self._source = ColumnDataSource(self._data)
+        self.x_range = DataRange1d(sources=[self._source.columns("x")])
 
-        y_names = self.attr[1:]
-        endy = max(max(self.data[i]) for i in y_names)
-        starty = min(min(self.data[i]) for i in y_names)
+        y_names = self._attr[1:]
+        endy = max(max(self._data[i]) for i in y_names)
+        starty = min(min(self._data[i]) for i in y_names)
         self.y_range = Range1d(
             start=starty - 0.1 * (endy - starty),
             end=endy + 0.1 * (endy - starty)
@@ -121,9 +124,9 @@ class LineBuilder(Builder):
         """Use the line glyphs to connect the xy points in the Line.
         Takes reference points from the data loaded at the ColumnDataSource.
         """
-        colors = cycle_colors(self.attr)
-        for i, duplet in enumerate(self.attr[1:], start=1):
+        colors = cycle_colors(self._attr)
+        for i, duplet in enumerate(self._attr[1:], start=1):
             glyph = LineGlyph(x='x', y=duplet, line_color=colors[i - 1])
-            renderer = GlyphRenderer(data_source=self.source, glyph=glyph)
-            self._legends.append((self.groups[i-1], [renderer]))
+            renderer = GlyphRenderer(data_source=self._source, glyph=glyph)
+            self._legends.append((self._groups[i-1], [renderer]))
             yield renderer

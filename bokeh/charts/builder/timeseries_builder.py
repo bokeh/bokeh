@@ -27,6 +27,7 @@ from ..utils import chunk, cycle_colors
 from .._builder import Builder, create_and_build
 from ...models import ColumnDataSource, DataRange1d, GlyphRenderer, Range1d
 from ...models.glyphs import Line
+from ...properties import Any
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -67,7 +68,10 @@ class TimeSeriesBuilder(Builder):
         ts.show()
 
     """
-    def __init__(self, values, index=None,legend=False, palette=None, **kws):
+
+    index = Any
+
+    def __init__(self, values, **kws):
         """
         Args:
             values (iterable): iterable 2d representing the data series
@@ -106,8 +110,7 @@ class TimeSeriesBuilder(Builder):
                 loading the data dict.
                 Needed for _set_And_get method.
         """
-        self.index = index
-        super(TimeSeriesBuilder, self).__init__(values, legend=legend, palette=palette)
+        super(TimeSeriesBuilder, self).__init__(values, **kws)
 
     def get_data(self):
         """Take the x/y data from the timeseries values.
@@ -117,30 +120,30 @@ class TimeSeriesBuilder(Builder):
         the line glyph inside the ``draw`` method.
 
         """
-        self.data = dict()
+        self._data = dict()
 
         # list to save all the attributes we are going to create
-        self.attr = []
-        xs = self.values_index
-        for col in self.values.keys():
+        self._attr = []
+        xs = self._values_index
+        for col in self._values.keys():
             if isinstance(self.index, string_types) \
                 and col == self.index:
                 continue
 
             # save every the groups available in the incomming input
-            self.groups.append(col)
+            self._groups.append(col)
             self.set_and_get("x_", col, xs)
-            self.set_and_get("y_", col, self.values[col])
+            self.set_and_get("y_", col, self._values[col])
 
     def get_source(self):
         """Push the TimeSeries data into the ColumnDataSource and
         calculate the proper ranges.
         """
-        self.source = ColumnDataSource(self.data)
-        self.x_range = DataRange1d(sources=[self.source.columns(self.attr[0])])
-        y_names = self.attr[1::2]
-        endy = max(max(self.data[i]) for i in y_names)
-        starty = min(min(self.data[i]) for i in y_names)
+        self._source = ColumnDataSource(self._data)
+        self.x_range = DataRange1d(sources=[self._source.columns(self._attr[0])])
+        y_names = self._attr[1::2]
+        endy = max(max(self._data[i]) for i in y_names)
+        starty = min(min(self._data[i]) for i in y_names)
         self.y_range = Range1d(
             start=starty - 0.1 * (endy - starty),
             end=endy + 0.1 * (endy - starty)
@@ -151,11 +154,11 @@ class TimeSeriesBuilder(Builder):
 
         Takes reference points from the data loaded at the ColumnDataSource.
         """
-        self.duplet = list(chunk(self.attr, 2))
-        colors = cycle_colors(self.duplet)
+        self._duplet = list(chunk(self._attr, 2))
+        colors = cycle_colors(self._duplet)
 
-        for i, (x, y) in enumerate(self.duplet, start=1):
+        for i, (x, y) in enumerate(self._duplet, start=1):
             glyph = Line(x=x, y=y, line_color=colors[i - 1])
-            renderer = GlyphRenderer(data_source=self.source, glyph=glyph)
-            self._legends.append((self.groups[i-1], [renderer]))
+            renderer = GlyphRenderer(data_source=self._source, glyph=glyph)
+            self._legends.append((self._groups[i-1], [renderer]))
             yield renderer

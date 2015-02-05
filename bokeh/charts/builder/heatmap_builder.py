@@ -58,7 +58,7 @@ class HeatMapBuilder(Builder):
     hm.show()
     """
 
-    def __init__(self, values, legend=False, palette=None, **kws):
+    def __init__(self, values, **kws):
         """
         Args:
             values (iterable 2d): iterable 2d representing the data series matrix.
@@ -87,10 +87,10 @@ class HeatMapBuilder(Builder):
                 loading the data dict.
                 Needed for _set_And_get method.
         """
-        if not palette:
-            palette = ["#75968f", "#a5bab7", "#c9d9d3", "#e2e2e2", "#dfccce",
-                       "#ddb7b1", "#cc7878", "#933b41", "#550b1d"]
-        super(HeatMapBuilder, self).__init__(values, legend=legend, palette=palette)
+        super(HeatMapBuilder, self).__init__(values, **kws)
+        # if not self.palette:
+        #     self.palette = ["#75968f", "#a5bab7", "#c9d9d3", "#e2e2e2", "#dfccce",
+        #                "#ddb7b1", "#cc7878", "#933b41", "#550b1d"]
 
 
     def get_data(self):
@@ -101,8 +101,8 @@ class HeatMapBuilder(Builder):
         the rect glyph inside the ``draw`` method.
 
         """
-        self.catsx = list(self.values.columns)
-        self.catsy = list(self.values.index)
+        self._catsx = list(self._values.columns)
+        self._catsy = list(self._values.index)
 
         # Set up the data for plotting. We will need to have values for every
         # pair of year/month names. Map the rate to a color.
@@ -110,33 +110,33 @@ class HeatMapBuilder(Builder):
         caty = []
         color = []
         rate = []
-        for y in self.catsy:
-            for m in self.catsx:
+        for y in self._catsy:
+            for m in self._catsx:
                 catx.append(m)
                 caty.append(y)
-                rate.append(self.values[m][y])
+                rate.append(self._values[m][y])
 
         # Now that we have the min and max rates
         factor = len(self._palette) - 1
         den = max(rate) - min(rate)
-        for y in self.catsy:
-            for m in self.catsx:
-                c = int(round(factor*(self.values[m][y] - min(rate)) / den))
+        for y in self._catsy:
+            for m in self._catsx:
+                c = int(round(factor*(self._values[m][y] - min(rate)) / den))
                 color.append(self._palette[c])
 
         width = [0.95] * len(catx)
         height = [0.95] * len(catx)
 
-        self.data = dict(catx=catx, caty=caty, color=color, rate=rate,
+        self._data = dict(catx=catx, caty=caty, color=color, rate=rate,
                          width=width, height=height)
 
     def get_source(self):
         """Push the CategoricalHeatMap data into the ColumnDataSource
         and calculate the proper ranges.
         """
-        self.source = ColumnDataSource(self.data)
-        self.x_range = FactorRange(factors=self.catsx)
-        self.y_range = FactorRange(factors=self.catsy)
+        self._source = ColumnDataSource(self._data)
+        self.x_range = FactorRange(factors=self._catsx)
+        self.y_range = FactorRange(factors=self._catsy)
 
     def draw(self):
         """Use the rect glyphs to display the categorical heatmap.
@@ -149,13 +149,13 @@ class HeatMapBuilder(Builder):
             fill_color="color", fill_alpha=0.7,
             line_color="white"
         )
-        renderer = GlyphRenderer(data_source=self.source, glyph=glyph)
+        renderer = GlyphRenderer(data_source=self._source, glyph=glyph)
         # TODO: Legend??
         yield renderer
 
     def prepare_values(self):
         """Prepare the input data.
 
-        Converts data input (self.values) to a DataAdapter
+        Converts data input (self._values) to a DataAdapter
         """
-        self.values = DataAdapter(self.values, force_alias=True)
+        self._values = DataAdapter(self._values, force_alias=True)

@@ -24,6 +24,7 @@ from ..utils import make_scatter
 from .._builder import Builder, create_and_build
 from ...models import ColumnDataSource, FactorRange, GlyphRenderer, Range1d
 from ...models.glyphs import Rect, Segment
+from ...properties import Bool, String
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -68,8 +69,11 @@ class BoxPlotBuilder(Builder):
                           width=800, height=600, notebook=True)
         boxplot.show()
     """
-    def __init__(self, values, marker="circle", outliers=True, legend=False,
-                 palette=None, **kws):
+
+    marker = String
+    outliers = Bool
+
+    def __init__(self, values, **kws):
         """ Initialize a new BoxPlot.
 
         Args:
@@ -100,8 +104,8 @@ class BoxPlotBuilder(Builder):
                 loading the data dict.
                 Needed for _set_And_get method.
         """
-        self._marker = marker
-        self._outliers = outliers
+        super(BoxPlotBuilder, self).__init__(values, **kws)
+
         self._data_segment = dict()
         self._attr_segment = []
         self._data_rect = dict()
@@ -109,7 +113,6 @@ class BoxPlotBuilder(Builder):
         self._data_scatter = dict()
         self._attr_scatter = []
         self._data_legend = dict()
-        super(BoxPlotBuilder, self).__init__(values, legend=legend, palette=palette)
 
     def get_data(self):
         """Take the BoxPlot data from the input **value.
@@ -125,22 +128,22 @@ class BoxPlotBuilder(Builder):
             outliers (bool, optional): Whether to plot outliers.
             values (dict or pd obj): the values to be plotted as bars.
         """
-        if isinstance(self.values, pd.DataFrame):
-            self.groups = self.values.columns
+        if isinstance(self._values, pd.DataFrame):
+            self._groups = self._values.columns
         else:
-            self.groups = list(self.values.keys())
+            self._groups = list(self._values.keys())
 
-        # add group to the self.data_segment dict
-        self._data_segment["groups"] = self.groups
+        # add group to the self._data_segment dict
+        self._data_segment["groups"] = self._groups
 
-        # add group and witdh to the self.data_rect dict
-        self._data_rect["groups"] = self.groups
-        self._data_rect["width"] = [0.8] * len(self.groups)
+        # add group and witdh to the self._data_rect dict
+        self._data_rect["groups"] = self._groups
+        self._data_rect["width"] = [0.8] * len(self._groups)
 
-        # self.data_scatter does not need references to groups now,
+        # self._data_scatter does not need references to groups now,
         # they will be added later.
-        # add group to the self.data_legend dict
-        self._data_legend["groups"] = self.groups
+        # add group to the self._data_legend dict
+        self._data_legend["groups"] = self._groups
 
         # all the list we are going to use to save calculated values
         q0_points = []
@@ -155,10 +158,10 @@ class BoxPlotBuilder(Builder):
         lower_height_boxes = []
         out_x, out_y, out_color = ([], [], [])
 
-        for i, level in enumerate(self.groups):
+        for i, level in enumerate(self._groups):
             # Compute quantiles, center points, heights, IQR, etc.
             # quantiles
-            q = np.percentile(self.values[level], [25, 50, 75])
+            q = np.percentile(self._values[level], [25, 50, 75])
             q0_points.append(q[0])
             q2_points.append(q[2])
 
@@ -179,9 +182,9 @@ class BoxPlotBuilder(Builder):
 
             # Store indices of outliers as list
             outliers = np.where(
-                (self.values[level] > upper) | (self.values[level] < lower)
+                (self._values[level] > upper) | (self._values[level] < lower)
             )[0]
-            out = self.values[level][outliers]
+            out = self._values[level][outliers]
             for o in out:
                 out_x.append(level)
                 out_y.append(o)
@@ -217,7 +220,7 @@ class BoxPlotBuilder(Builder):
         end_y = max(self._data_segment[self._attr_segment[3]])
 
         ## Expand min/max to encompass outliers
-        if self._outliers:
+        if self.outliers:
             start_out_y = min(self._data_scatter[self._attr_scatter[1]])
             end_out_y = max(self._data_scatter[self._attr_scatter[1]])
             # it could be no outliers in some sides...
@@ -267,13 +270,13 @@ class BoxPlotBuilder(Builder):
         )
         yield GlyphRenderer(data_source=self._source_rect, glyph=glyph)
 
-        if self._outliers:
+        if self.outliers:
             yield make_scatter(self._source_scatter, self._attr_scatter[0],
-                              self._attr_scatter[1], self._marker,
+                              self._attr_scatter[1], self.marker,
                               self._attr_scatter[2])
 
         # We need to build the legend here using dummy glyphs
-        for i, level in enumerate(self.groups):
+        for i, level in enumerate(self._groups):
             # TODO: (bev) what is this None business?
             glyph = Rect(
                 x="groups", y=None,
@@ -282,11 +285,11 @@ class BoxPlotBuilder(Builder):
             renderer = GlyphRenderer(data_source=self._source_legend, glyph=glyph)
 
             # need to manually select the proper glyphs to be rendered as legends
-            self._legends.append((self.groups[i], [renderer]))
+            self._legends.append((self._groups[i], [renderer]))
 
     # Some helper methods
     def set_and_get(self, data, attr, val, content):
-        """Set a new attr and then get it to fill the self.data dict.
+        """Set a new attr and then get it to fill the self._data dict.
 
         Keep track of the attributes created.
 

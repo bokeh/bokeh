@@ -13,12 +13,13 @@ from six import string_types
 from .._builder import Builder, create_and_build
 from ...models import ColumnDataSource, Range1d, DataRange1d, FactorRange, GlyphRenderer, CategoricalAxis
 from ...models.glyphs import Patches
+from ...properties import Any, Int
 
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
 
-def Horizon(values, index=None, nb_folds=3, pos_color='#006400',
+def Horizon(values, index=None, num_folds=3, pos_color='#006400',
             neg_color='#6495ed', xscale='datetime', xgrid=False, ygrid=False,
             **kws):
     tools = kws.get('tools', True)
@@ -33,7 +34,7 @@ def Horizon(values, index=None, nb_folds=3, pos_color='#006400',
     kws['tools'] = tools
 
     chart = create_and_build(
-        HorizonBuilder, values, index=index, nb_folds=nb_folds, pos_color=pos_color,
+        HorizonBuilder, values, index=index, num_folds=num_folds, pos_color=pos_color,
         neg_color=neg_color, xscale=xscale, xgrid=xgrid, ygrid=ygrid, **kws
     )
 
@@ -46,7 +47,7 @@ def Horizon(values, index=None, nb_folds=3, pos_color='#006400',
     chart.left[0].minor_tick_line_color = None
 
     # Add the series names to the y axis
-    chart.extra_y_ranges = {"series": FactorRange(factors=chart._builders[0].series)}
+    chart.extra_y_ranges = {"series": FactorRange(factors=chart._builders[0]._series)}
     chart.add_layout(CategoricalAxis(y_range_name="series"), 'left')
 
     return chart
@@ -78,8 +79,13 @@ class HorizonBuilder(Builder):
         hz.show()
 
     """
-    def __init__(self, values, index=None, legend=False, palette=None,
-                 nb_folds=3, pos_color='#006400', neg_color='#6495ed', **kws):
+
+    index = Any
+    neg_color = Any
+    num_folds = Int(3)
+    pos_color = Any
+
+    def __init__(self, values, **kws):
         """
         Args:
             values (iterable): iterable 2d representing the data series
@@ -100,7 +106,7 @@ class HorizonBuilder(Builder):
                  as True. Defaults to None.
             palette(list, optional): a list containing the colormap as
                 hex values.
-            nb_folds (int, optional): the number of folds stacked on
+            num_folds (int, optional): the number of folds stacked on
                 top of each others.
                 (default: 3)
             pos_color (hex color string, optional): the color of the
@@ -126,19 +132,14 @@ class HorizonBuilder(Builder):
                 loading the data dict.
                 Needed for _set_And_get method.
         """
-        self.index = index
-        self.nb_folds = nb_folds
-        self.pos_color = pos_color
-        self.neg_color = neg_color
-        self.fold_names = []
-        self.source = None
-        self.series = []
-        self.fold_height = {}
-        self.max_y = 0
+        super(HorizonBuilder, self).__init__(values, **kws)
 
-        super(HorizonBuilder, self).__init__(
-            values, legend=legend, palette=palette
-        )
+        self._fold_names = []
+        self._source = None
+        self._series = []
+        self._fold_height = {}
+        self._max_y = 0
+
 
     def fold_coordinates(self, y, fold_no, fold_height, y_origin=0, graph_ratio=1):
         """ Function that calculate the coordinates for a value given a fold
@@ -180,69 +181,69 @@ class HorizonBuilder(Builder):
         the multiple area glyphes inside the ``draw`` method.
 
         """
-        for col in self.values.keys():
+        for col in self._values.keys():
             if isinstance(self.index, string_types) and col == self.index:
                 continue
 
-            self.series.append(col)
-            self.max_y = max(max(self.values[col]), self.max_y)
+            self._series.append(col)
+            self._max_y = max(max(self._values[col]), self._max_y)
 
-            v_index = [x for x in self.values_index]
+            v_index = [x for x in self._values_index]
             self.set_and_get("x_", col, self.pad_list(v_index))
 
-        self.fold_height = self.max_y / self.nb_folds
-        self.graph_ratio = self.nb_folds / len(self.series)
+        self._fold_height = self._max_y / self.num_folds
+        self._graph_ratio = self.num_folds / len(self._series)
 
         fill_alpha = []
         fill_color = []
 
-        for serie_no, serie in enumerate(self.series):
+        for serie_no, serie in enumerate(self._series):
 
-            self.set_and_get('y_', serie, self.values[serie])
-            y_origin = serie_no * self.max_y / len(self.series)
+            self.set_and_get('y_', serie, self._values[serie])
+            y_origin = serie_no * self._max_y / len(self._series)
 
-            for fold_itr in range(1, self.nb_folds + 1):
+            for fold_itr in range(1, self.num_folds + 1):
 
                 layers_datapoints = [self.fold_coordinates(
-                    x, fold_itr, self.fold_height, y_origin, self.graph_ratio) for x in self.values[serie]]
+                    x, fold_itr, self._fold_height, y_origin, self._graph_ratio) for x in self._values[serie]]
                 pos_points, neg_points = map(list, zip(*(layers_datapoints)))
 
-                alpha = 1.0 * (abs(fold_itr)) / self.nb_folds
+                alpha = 1.0 * (abs(fold_itr)) / self.num_folds
 
                 # Y coordinates above 0
                 pos_points = self.pad_list(pos_points, y_origin)
                 self.set_and_get("y_fold%s_" % fold_itr, serie, pos_points)
-                self.fold_names.append("y_fold%s_%s" % (fold_itr, serie))
+                self._fold_names.append("y_fold%s_%s" % (fold_itr, serie))
                 fill_color.append(self.pos_color)
                 fill_alpha.append(alpha)
 
                 # Y coordinates below 0
                 neg_points = self.pad_list(
-                    neg_points, self.fold_height * self.graph_ratio + y_origin)
+                    neg_points, self._fold_height * self._graph_ratio + y_origin)
                 self.set_and_get("y_fold-%s_" % fold_itr, serie, neg_points)
-                self.fold_names.append("y_fold-%s_%s" % (fold_itr, serie))
+                self._fold_names.append("y_fold-%s_%s" % (fold_itr, serie))
                 fill_color.append(self.neg_color)
                 fill_alpha.append(alpha)
 
                 # Groups shown in the legend will only appear once
                 if serie_no == 0:
-                    self.groups.append(str(self.fold_height * fold_itr))
-                    self.groups.append(str(self.fold_height * -fold_itr))
+                    self._groups.append(str(self._fold_height * fold_itr))
+                    self._groups.append(str(self._fold_height * -fold_itr))
 
         self.set_and_get('fill_', 'alpha', fill_alpha)
         self.set_and_get('fill_', 'color', fill_color)
-        self.set_and_get('x_', 'all', [self.data[
-                         'x_%s' % serie] for serie in self.series for y in range(self.nb_folds * 2)])
+        self.set_and_get('x_', 'all', [self._data[
+                         'x_%s' % serie] for serie in self._series for y in range(self.num_folds * 2)])
         self.set_and_get(
-            'y_', 'all', [self.data[f_name] for f_name in self.fold_names])
+            'y_', 'all', [self._data[f_name] for f_name in self._fold_names])
 
     def get_source(self):
         """Push the Horizon data into the ColumnDataSource and
         calculate the proper ranges.
         """
-        self.source = ColumnDataSource(self.data)
-        self.x_range = DataRange1d(sources=[self.source.columns(self.attr[0])])
-        self.y_range = Range1d(start=0, end=self.max_y)
+        self._source = ColumnDataSource(self._data)
+        self.x_range = DataRange1d(sources=[self._source.columns(self._attr[0])])
+        self.y_range = Range1d(start=0, end=self._max_y)
 
     def draw(self):
         """Use the patch glyphs to connect the xy points in the time series.
@@ -251,8 +252,8 @@ class HorizonBuilder(Builder):
         """
         patches = Patches(
             fill_color='fill_color', fill_alpha='fill_alpha', xs='x_all', ys='y_all')
-        renderer = GlyphRenderer(data_source=self.source, glyph=patches)
-        # self._legends.append((self.groups[i-1], [renderer]))
+        renderer = GlyphRenderer(data_source=self._source, glyph=patches)
+        # self._legends.append((self._groups[i-1], [renderer]))
         yield renderer
 
 
