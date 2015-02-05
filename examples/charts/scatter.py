@@ -40,6 +40,6 @@ scatter3 = Scatter(df, title="iris dataset, dict_input", xlabel="petal_length",
 scatter4 = Scatter(list(xyvalues.values()), title="iris dataset, dict_input", xlabel="petal_length",
                   ylabel="petal_width", legend='top_left')
 
-output_file("lines.html")
+output_file("scatter.html")
 
 show(VBox(scatter1, scatter2, scatter3, scatter4))

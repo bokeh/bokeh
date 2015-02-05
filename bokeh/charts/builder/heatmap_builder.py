@@ -82,12 +82,12 @@ class HeatMapBuilder(Builder):
                 rate.append(self._values[m][y])
 
         # Now that we have the min and max rates
-        factor = len(self._palette) - 1
+        factor = len(self.palette) - 1
         den = max(rate) - min(rate)
         for y in self._catsy:
             for m in self._catsx:
                 c = int(round(factor*(self._values[m][y] - min(rate)) / den))
-                color.append(self._palette[c])
+                color.append(self.palette[c])
 
         width = [0.95] * len(catx)
         height = [0.95] * len(catx)

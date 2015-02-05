@@ -30,7 +30,7 @@ from ..utils import chunk, cycle_colors, make_scatter
 from .._builder import create_and_build, Builder
 from .._data_adapter import DataAdapter
 from ...models import ColumnDataSource, Range1d
-from ...properties import String
+from ...properties import Bool, String
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -62,6 +62,10 @@ class ScatterBuilder(Builder):
             filename="scatter.html")
         scatter.show()
     """
+
+    facet = Bool(False, help="""
+    Whether to facet.
+    """)
 
     # TODO: (bev) should be an enumeration
     marker = String("circle", help="""
