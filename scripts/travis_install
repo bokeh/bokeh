@@ -15,7 +15,7 @@ rm -rf $MINICONDA.sh
 python -V
 
 PINNED_PKGS=$(cat <<EOF
-#conda-env <2.1.0
+conda-env <2.1.0
 scipy <0.15.0
 EOF
 )
