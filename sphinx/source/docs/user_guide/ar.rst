@@ -43,11 +43,12 @@ start the server and point at the example data directory. Example snippets
 assume that bokeh has been properly imported and configured and that
 abstract rendering is imported as ``import bokeh.transforms.ar_downsample as ar``.
 
-.. note:: Because abstract rendering uses some functions from the `scipy.misc`
-module in its internal machinery, you need to install PIL (or Pillow) to make
-it work. These libraries are not a dependency of SciPy and therefore, in general,
-some of the functions from this module are not available on systems that don’t
-have PIL (or Pillow) installed.
+.. note:: 
+    Because abstract rendering uses some functions from the `scipy.misc`
+    module in its internal machinery, you need to install PIL (or Pillow) to make
+    it work. These libraries are not a dependency of SciPy and therefore, in general,
+    some of the functions from this module are not available on systems that don’t
+    have PIL (or Pillow) installed.
 
 Recipes Interface
 ---------------------

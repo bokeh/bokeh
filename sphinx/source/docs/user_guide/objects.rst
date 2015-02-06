@@ -200,7 +200,12 @@ directly on them to update all axes. Examples::
 
 Typically after updating these attributes, a call to :func:`bokeh.plotting.show` will be required.
 
-.. note:: The ``bounds`` attribute here controls only the extent of the axis! It does not set the range of the plot. For that, see :ref:`userguide_objects_ranges`. As an example, a plot window may extend from 0 to 10, but you may only want the axis to render between 4 and 8, in order to highlight a particular sub-area of the plot.
+.. note::
+    The ``bounds`` attribute here controls only the extent of the axis! It does
+    not set the range of the plot. For that, see :ref:`userguide_objects_ranges`.
+    As an example, a plot window may extend from 0 to 10, but you may only want
+    the axis to render between 4 and 8, in order to highlight a particular
+    sub-area of the plot.
 
 .. _userguide_objects_grids:
 
@@ -218,7 +223,12 @@ directly on them to update all axes. Examples::
 
 Typically after updating these attributes, a call to :func:`bokeh.plotting.show` will be required.
 
-.. note:: The ``bounds`` attribute here controls only the extent of the grid! It does not set the range of the plot. For that, see :ref:`userguide_objects_ranges`. As an example, a plot window may extend from 0 to 10, but you may only want the grid to render between 4 and 8, in order to highlight a particular sub-area of the plot.
+.. note::
+    The ``bounds`` attribute here controls only the extent of the grid! It does
+    not set the range of the plot. For that, see :ref:`userguide_objects_ranges`.
+    As an example, a plot window may extend from 0 to 10, but you may only want
+    the grid to render between 4 and 8, in order to highlight a particular
+    sub-area of the plot.
 
 
 .. _userguide_objects_legends:
@@ -268,8 +278,9 @@ region by left-dragging a mouse, or dragging a finger across the plot area.
 The box select tool may be configured to select across only one dimension by
 setting the ``dimension`` property to ``width`` or ``height``.
 
-.. note:: To make a multiple selection, you have to press the SHIFT key and
-to clear the selection you have to press ESC key
+.. note::
+    To make a multiple selection, you have to press the SHIFT key and
+    to clear the selection you have to press ESC key.
 
 BoxZoomTool
 ***********
@@ -290,8 +301,9 @@ LassoSelectTool
 The lasso selection tool allows the user to define an arbitrary region for
 selection by left-dragging a mouse, or dragging a finger across the plot area.
 
-.. note:: To make a multiple selection, you have to press the SHIFT key and
-to clear the selection you have to press ESC key
+.. note::
+    To make a multiple selection, you have to press the SHIFT key and
+    to clear the selection you have to press ESC key.
 
 PanTool
 *******
@@ -331,9 +343,10 @@ The polygon selection tool allows the user to define an arbitrary polygonal
 regions for selection by left-clicking a mouse, or tapping a finger at different
 locations.
 
-.. note:: To complete the selection, you have to make a double left-click or tapping
-Also, to make a multiple selection, you have to press the SHIFT key and
-to clear the selection you have to press ESC key
+.. note::
+    To complete the selection, you have to make a double left-click or tapping
+    Also, to make a multiple selection, you have to press the SHIFT key and
+    to clear the selection you have to press ESC key.
 
 TapSelectTool
 *************
@@ -344,8 +357,9 @@ TapSelectTool
 The tap selection tool allows the user to select at single points by clicking
 a left mouse button, or tapping with a finger.
 
-.. note:: To make a multiple selection, you have to press the SHIFT key and
-to clear the selection you have to press ESC key
+.. note::
+    To make a multiple selection, you have to press the SHIFT key and
+    to clear the selection you have to press ESC key.
 
 Scroll/Pinch Tools
 ''''''''''''''''''
