@@ -14,7 +14,8 @@ import traceback
 import subprocess
 
 from subprocess import CalledProcessError
-from os.path import exists, abspath, realpath, relpath, dirname, basename, join, split, splitext
+from os.path import (abspath, basename, dirname, exists, join, pardir, realpath,
+                     relpath, split, splitext)
 
 import yaml
 import jinja2
@@ -208,6 +209,7 @@ def human_bytes(n):
     return '%.2f GB' % g
 
 base_dir = dirname(__file__)
+example_dir = abspath(join(base_dir, pardir, pardir, 'examples'))
 examples = []
 
 class Flags(object):
@@ -223,7 +225,7 @@ def example_type(flags):
     elif flags & Flags.notebook: return "notebook"
 
 def add_examples(examples_dir, example_type=None, skip=None):
-    examples_path = join(base_dir, examples_dir)
+    examples_path = join(example_dir, examples_dir)
 
     if skip is not None:
         skip = set(skip)
@@ -417,7 +419,7 @@ def test_example(example, flags):
             fail(example)
         else:
             if args.diff:
-                example_path = relpath(splitext(example)[0], base_dir)
+                example_path = relpath(splitext(example)[0], example_dir)
                 ref_loc = join(args.diff, example_path + ".png")
                 ref_url = join(s3, ref_loc)
                 response = requests.get(ref_url)
@@ -458,13 +460,9 @@ def test_example(example, flags):
 def test_nbexecuter():
     if use_notebook and need_notebook:
         import nbexecuter
-        example_nbconverted = join("examples", "glyphs", "glyph.ipynb")
-        try:
-            nbexecuter.main(example_nbconverted)
-        except IOError as e:
-            example_nbconverted = example_nbconverted[example_nbconverted.find('glyphs'):]
-            nbexecuter.main(example_nbconverted)
-        write(example_nbconverted)
+        example_nbconverted = join(example_dir, "glyphs", "glyph.ipynb")
+        nbexecuter.main(example_nbconverted)
+        write("glyph.ipynb nbconverted")
 
 def start_bokeh_server():
     cmd = ["python", "-c", "import bokeh.server; bokeh.server.run()"]
@@ -578,7 +576,7 @@ $([IPython.events]).on('status_started.Kernel', function(){
 def start_ipython_notebook():
     located_profile = locate_ipython_profile()
 
-    notebook_dir = split(dirname(realpath(__file__)))[0]
+    notebook_dir = split(example_dir)[0]
 
     cmd = ["ipython", "notebook"]
     argv = ["--no-browser","--profile=bokeh_test", "--port=%s" % args.ipython_port,
@@ -658,7 +656,7 @@ try:
 
         for example, _ in sorted(selected_examples):
             no_ext = splitext(abspath(example))[0]
-            example_path = relpath(no_ext, base_dir)
+            example_path = relpath(no_ext, example_dir)
             s3_path = join(__version__, example_path)
 
             png_file = "%s-%s.png" % (no_ext, __version__)
