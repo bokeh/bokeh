@@ -9,7 +9,7 @@ the arguments to the Chart class and calling the proper functions.
 #
 # Powered by the Bokeh Development Team.
 #
-# The full license is in the file LICENCE.txt, distributed with this software.
+# The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
@@ -22,9 +22,11 @@ except ImportError as e:
     _is_scipy = False
 import numpy as np
 
-from ._builder import Builder, create_and_build
-from ..models import ColumnDataSource, GlyphRenderer, Range1d
-from ..models.glyphs import Line, Quad
+from ..utils import chunk, cycle_colors
+from .._builder import Builder, create_and_build
+from ...models import ColumnDataSource, GlyphRenderer, Range1d
+from ...models.glyphs import Line, Quad
+from ...properties import Bool, Float, Int
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -60,52 +62,30 @@ class HistogramBuilder(Builder):
             title='Histogram', ylabel="frequency", legend=True)
         hist.show()
     """
-    def __init__(self, values, bins, mu=None, sigma=None, density=True,
-                 legend=False, palette=None, **kws):
-        """
-        Args:
-            values (iterable): iterable 2d representing the data series
-                values matrix.
-            bins (int): number of bins to use in the Histogram building.
-            mu (float, optional): theoretical mean value for the normal
-                distribution. (default: None)
-            sigma (float, optional): theoretical sigma value for the
-                normal distribution. (default: None)
-            density (bool, optional):  If False, the result will contain
-                the number of samples in each bin.  If True, the result
-                is the value of the probability *density* function at
-                the bin, normalized such that the *integral* over the
-                range is 1. For more info check numpy.histogram
-                function documentation. (default: True)
-            legend (str, optional): the legend of your chart. The legend
-                content is inferred from incoming input.It can be
-                ``top_left``, ``top_right``, ``bottom_left``,
-                ``bottom_right``. ``top_right`` is set if you set it
-                 as True. (default: False)
-            palette(list, optional): a list containing the colormap as
-                hex values.
 
-        Attributes:
-            source (obj): datasource object for your plot,
-                initialized as a dummy None.
-            x_range (obj): x-associated datarange object for you plot,
-                initialized as a dummy None.
-            y_range (obj): y-associated datarange object for you plot,
-                initialized as a dummy None.
-            groups (list): to be filled with the incoming groups of data.
-                Useful for legend construction.
-            data (dict): to be filled with the incoming data and be
-                passed to the ColumnDataSource in each chart inherited
-                class. Needed for _set_And_get method.
-            attr (list): to be filled with the new attributes created
-                after loading the data dict.
-                Needed for _set_And_get method.
-        """
-        self.bins = bins
-        self.mu = mu
-        self.sigma = sigma
-        self.density = density
-        super(HistogramBuilder, self).__init__(values, legend=legend, palette=palette)
+    bins = Int(10, help="""
+    Number of bins to use for the histogram. (default: 10)
+    """)
+
+    mu = Float(help="""
+    Theoretical mean value for the normal distribution. (default: None)
+    """)
+
+    sigma = Float(help="""
+    Theoretical standard deviation value for the normal distribution.
+    (default: None)
+    """)
+
+    density = Bool(True, help="""
+    Whether to normalize the histogram. (default: True)
+
+    If True, the result is the value of the probability *density* function
+    at the bin, normalized such that the *integral* over the range is 1. If
+    False, the result will contain the number of samples in each bin.
+
+    For more info check ``numpy.histogram`` function documentation.
+
+    """)
 
     def get_data(self):
         """Take the Histogram data from the input **value.
@@ -115,14 +95,14 @@ class HistogramBuilder(Builder):
         the quad and line glyphs inside the ``draw`` method.
         """
         # list to save all the groups available in the incomming input
-        self.groups.extend(self.values.keys())
+        self._groups.extend(self._values.keys())
 
         # fill the data dictionary with the proper values
-        for i, val in enumerate(self.values.keys()):
-            self.set_and_get("", val, self.values[val])
+        for i, val in enumerate(self._values.keys()):
+            self.set_and_get("", val, self._values[val])
             #build the histogram using the set bins number
             hist, edges = np.histogram(
-                np.array(self.data[val]), density=self.density, bins=self.bins
+                np.array(self._data[val]), density=self.density, bins=self.bins
             )
             self.set_and_get("hist", val, hist)
             self.set_and_get("edges", val, edges)
@@ -130,40 +110,40 @@ class HistogramBuilder(Builder):
             self.set_and_get("right", val, edges[1:])
             self.set_and_get("bottom", val, np.zeros(len(hist)))
 
-            self.mu_and_sigma = False
+            self._mu_and_sigma = False
             if self.mu is not None and self.sigma is not None:
                 if _is_scipy:
-                    self.mu_and_sigma = True
-                    self.set_and_get("x", val, np.linspace(-2, 2, len(self.data[val])))
+                    self._mu_and_sigma = True
+                    self.set_and_get("x", val, np.linspace(-2, 2, len(self._data[val])))
                     den = 2 * self.sigma ** 2
-                    x_val = self.data["x" + val]
+                    x_val = self._data["x" + val]
                     x_val_mu = x_val - self.mu
                     sigsqr2pi = self.sigma * np.sqrt(2 * np.pi)
                     pdf = 1 / (sigsqr2pi) * np.exp(-x_val_mu ** 2 / den)
                     self.set_and_get("pdf", val, pdf)
-                    self.groups.append("pdf")
+                    self._groups.append("pdf")
                     cdf = (1 + scipy.special.erf(x_val_mu / np.sqrt(den))) / 2
                     self.set_and_get("cdf", val, cdf)
-                    self.groups.append("cdf")
+                    self._groups.append("cdf")
                 else:
                     print("You need scipy to get the theoretical probability distributions.")
 
     def get_source(self):
         """Push the Histogram data into the ColumnDataSource and calculate
         the proper ranges."""
-        self.source = ColumnDataSource(data=self.data)
+        self._source = ColumnDataSource(data=self._data)
 
-        if not self.mu_and_sigma:
-            x_names, y_names = self.attr[2::6], self.attr[1::6]
+        if not self._mu_and_sigma:
+            x_names, y_names = self._attr[2::6], self._attr[1::6]
         else:
-            x_names, y_names = self.attr[2::9], self.attr[1::9]
+            x_names, y_names = self._attr[2::9], self._attr[1::9]
 
-        endx = max(max(self.data[i]) for i in x_names)
-        startx = min(min(self.data[i]) for i in x_names)
+        endx = max(max(self._data[i]) for i in x_names)
+        startx = min(min(self._data[i]) for i in x_names)
         self.x_range = Range1d(start=startx - 0.1 * (endx - startx),
                            end=endx + 0.1 * (endx - startx))
 
-        endy = max(max(self.data[i]) for i in y_names)
+        endy = max(max(self._data[i]) for i in y_names)
         self.y_range = Range1d(start=0, end=1.1 * endy)
 
     def draw(self):
@@ -173,9 +153,9 @@ class HistogramBuilder(Builder):
         bars, taking as reference points the data loaded at the
         ColumnDataSurce.
         """
-        if not self.mu_and_sigma:
-            sextets = list(self._chunker(self.attr, 6))
-            colors = self._set_colors(sextets)
+        if not self._mu_and_sigma:
+            sextets = list(chunk(self._attr, 6))
+            colors = cycle_colors(sextets, self.palette)
 
             # TODO (bev) this is a perfect use for a namedtuple
             # sextet: values, his, edges, left, right, bottom
@@ -186,13 +166,13 @@ class HistogramBuilder(Builder):
                     fill_color=colors[i], fill_alpha=0.7,
                     line_color="white", line_alpha=1.0
                 )
-                renderer = GlyphRenderer(data_source=self.source, glyph=glyph)
-                self._legends.append((self.groups[i], [renderer]))
+                renderer = GlyphRenderer(data_source=self._source, glyph=glyph)
+                self._legends.append((self._groups[i], [renderer]))
                 yield renderer
 
         else:
-            nonets = list(self._chunker(self.attr, 9))
-            colors = self._set_colors(nonets)
+            nonets = list(chunk(self._attr, 9))
+            colors = cycle_colors(nonets, self.palette)
 
             # TODO (bev) this is a perfect use for a namedtuple
             # nonet: values, his, edges, left, right, bottom, x, pdf, cdf
@@ -203,12 +183,12 @@ class HistogramBuilder(Builder):
                     fill_color=colors[i], fill_alpha=0.7,
                     line_color="white", line_alpha=1.0
                 )
-                renderer = GlyphRenderer(data_source=self.source, glyph=glyph)
-                self._legends.append((self.groups[i], [renderer]))
+                renderer = GlyphRenderer(data_source=self._source, glyph=glyph)
+                self._legends.append((self._groups[i], [renderer]))
                 yield renderer
 
                 glyph = Line(x=nonet[6], y=nonet[7], line_color="black")
-                yield GlyphRenderer(data_source=self.source, glyph=glyph)
+                yield GlyphRenderer(data_source=self._source, glyph=glyph)
 
                 glyph = Line(x=nonet[6], y=nonet[8], line_color="blue")
-                yield GlyphRenderer(data_source=self.source, glyph=glyph)
+                yield GlyphRenderer(data_source=self._source, glyph=glyph)

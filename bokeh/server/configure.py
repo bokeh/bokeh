@@ -38,6 +38,8 @@ def configure_flask(config_argparse=None, config_file=None, config_dict=None):
         server_settings.from_args(config_argparse)
     if config_dict:
         server_settings.from_dict(config_dict)
+    if config_file:
+        server_settings.from_file(config_file)
     for handler in logging.getLogger().handlers:
         handler.addFilter(StaticFilter())
     # must import views before running apps
