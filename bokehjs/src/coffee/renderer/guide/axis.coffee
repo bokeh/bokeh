@@ -164,6 +164,9 @@ define [
       @y_range_name = @mget('y_range_name')
 
     render: () ->
+      if @mget('hide')
+        return 0
+
       ctx = @plot_view.canvas_view.ctx
 
       ctx.save()
@@ -352,7 +355,10 @@ define [
         logger.error("unrecognized side: '#{ side }'")
 
     update_layout: (view, solver) ->
-      size = @_tick_extent(view) + @_tick_label_extent(view) + @_axis_label_extent(view)
+      if @get('hide')
+        size = 0
+      else
+        size = @_tick_extent(view) + @_tick_label_extent(view) + @_axis_label_extent(view)
       if not @_last_size?
         @_last_size = -1
       if size == @_last_size
@@ -572,6 +578,7 @@ define [
     display_defaults: ->
       return _.extend {}, super(), {
         level: 'overlay'
+        hide: false
 
         axis_line_color: 'black'
         axis_line_width: 1
