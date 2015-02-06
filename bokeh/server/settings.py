@@ -38,6 +38,7 @@ _defaults = dict(
 class Settings(object):
     _debugjs = False
     _ctx = None
+    fields = _defaults.keys()
 
     def reset(self):
         for k,v in _defaults.items():
