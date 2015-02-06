@@ -19,10 +19,10 @@ passing the arguments to the Chart class and calling the proper functions.
 import numpy as np
 from six import string_types
 
-from ..utils import chunk, cycle_colors
+from ..utils import cycle_colors
 from .._builder import create_and_build, Builder
-from ...models import ColumnDataSource, DataRange1d, GlyphRenderer, Range1d
-from ...models.glyphs import Segment
+from ...models import ColumnDataSource, DataRange1d, GlyphRenderer
+from ...models.glyphs import Line
 from ...properties import Any
 
 #-----------------------------------------------------------------------------
@@ -65,59 +65,47 @@ class StepBuilder(Builder):
         used by the segment glyph inside the ``draw`` method.
         """
         self._data = dict()
-
-        # list to save all the attributes we are going to create
-        self._attr = []
         self._groups = []
-        xs = self._values_index
-        self.set_and_get("x", "", np.array(xs)[:-1])
-        self.set_and_get("x2", "", np.array(xs)[1:])
-        for col in self._values.keys():
+
+        orig_xs = self._values_index
+        xs = np.empty(2*(len(orig_xs)-1), dtype=np.int)
+        xs[::2] = orig_xs[:-1]
+        xs[1::2] = orig_xs[1:]
+        self._data['x'] = xs
+
+        for i, col in enumerate(self._values.keys()):
             if isinstance(self.index, string_types) and col == self.index:
                 continue
 
             # save every new group we find
             self._groups.append(col)
-            values = [self._values[col][x] for x in xs]
-            self.set_and_get("y1_", col, values[:-1])
-            self.set_and_get("y2_", col, values[1:])
+
+            orig_ys = np.array([self._values[col][x] for x in orig_xs])
+            ys = np.empty(2*(len(orig_ys)-1))
+            ys[::2] = orig_ys[:-1]
+            ys[1::2] = orig_ys[:-1]
+            self._data['y_%s' % col] = ys
 
     def get_source(self):
         """ Push the Step data into the ColumnDataSource and calculate
         the proper ranges.
         """
         sc = self._source = ColumnDataSource(self._data)
-        self.x_range = DataRange1d(sources=[sc.columns("x"), sc.columns("x2")])
-        y_names = self._attr[1:]
-        endy = max(max(self._data[i]) for i in y_names)
-        starty = min(min(self._data[i]) for i in y_names)
-        self.y_range = Range1d(
-            start=starty - 0.1 * (endy - starty),
-            end=endy + 0.1 * (endy - starty)
-        )
+        self.x_range = DataRange1d(sources=[sc.columns("x")])
+
+        y_sources = [sc.columns("y_%s" % col) for col in self._groups]
+        self.y_range = DataRange1d(sources=y_sources)
 
     def draw(self):
         """Use the line glyphs to connect the xy points in the Step.
 
         Takes reference points from the data loaded at the ColumnDataSource.
         """
-        tuples = list(chunk(self._attr[2:], 2))
-        colors = cycle_colors(tuples, self.palette)
+        colors = cycle_colors(self._groups, self.palette)
 
-        # duplet: y1, y2 values of each series
-        for i, duplet in enumerate(tuples):
+        for i, name in enumerate(self._groups):
             # draw the step horizontal segment
-            glyph = Segment(
-                x0="x2", y0=duplet[0], x1="x2", y1=duplet[1],
-                line_color=colors[i]
-            )
-            yield GlyphRenderer(data_source=self._source, glyph=glyph)
-
-            # draw the step vertical segment
-            glyph = Segment(
-                x0="x", y0=duplet[0], x1="x2", y1=duplet[0],
-                line_color=colors[i]
-            )
+            glyph = Line(x="x", y="y_%s" % name, line_color=colors[i], line_width=2)
             renderer = GlyphRenderer(data_source=self._source, glyph=glyph)
             self._legends.append((self._groups[i], [renderer]))
             yield renderer
