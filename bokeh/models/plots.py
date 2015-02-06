@@ -206,7 +206,7 @@ class Plot(Widget):
     This is useful for adding additional axes.
     """)
 
-    extra_y_ranges = Dict(String, Instance(Range1d), help="""
+    extra_y_ranges = Dict(String, Instance(Range), help="""
     Additional named ranges to make available for mapping y-coordinates.
 
     This is useful for adding additional axes.

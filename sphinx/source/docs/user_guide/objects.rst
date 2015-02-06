@@ -143,7 +143,6 @@ You can also pass a :class:`bokeh.models.Range1D` object explicitly::
 This will prepare a new plot that has an x-axis range that spans the interval `[2, 8]`.
 Alternatively, you can set the range as a property on a Plot object::
 
-    plot = curplot()
     plot.y_range = Range1d(start=0, end=10)
 
 Categorical Ranges
@@ -176,7 +175,7 @@ properties, for the axis label and major tick labels. These are prefixed ``axis_
 ``major_tick_label_``, respectively.
 
 * **dimension**: currently ``0`` or ``1``, corresponding to "x" or "y" axis
-* **location**: where along the cross-dimension to locate this axis: ``"min", "max", "left", "right", "top", "bottom"`` or a floating point value
+* **location**: where should labels and ticks be located in relation to the axis rule: ``"auto", "left", "right", "above", "below"``
 * **bounds**: bounds for the axis, either ``"auto"`` or a 2-tuple of ``(start, stop)``
 * **axis_label_standoff**: a number of pixels to stand tick labels away from ticks
 * **major_label_standoff**: a number of pixels to stand axis labels away from tick labels
@@ -186,17 +185,18 @@ properties, for the axis label and major tick labels. These are prefixed ``axis_
 
 Some examples::
 
-    axis.axis_line_color = "red"
-    axis.bounds = (3, 7)
-    axis.major_label_orientation = pi/4
+    ax.axis_line_color = "red"
+    ax.bounds = (3, 7)
+    ax.major_label_orientation = pi/4
 
-Axes for the current plot may be conveniently obtained using the :func:`bokeh.plotting.xaxis`, :func:`bokeh.plotting.yaxis`,
-and :func:`bokeh.plotting.axis` functions. These return collections of axes that can be indexed to retrieve
-individual axes, or can that have attributes set directly on them to update all axes. Examples::
+Axes for a plot may be conveniently obtained using the ``xaxis``, ``yaxis``,
+and ``axis`` properties. These return collections of axes that can be
+indexed to retrieve individual axes, or can that have attributes set
+directly on them to update all axes. Examples::
 
-    xaxis().axis_line_width = 2 # update all x-axes
-    yaxis()[0].axis_line_color = "red" # only updates the first y-axis
-    axis().bounds = (2, 8) # set bounds for all axes
+    p.xaxis.axis_line_width = 2 # update all x-axes
+    p.yaxis[0].axis_line_color = "red" # only updates the first y-axis
+    p.axis.bounds = (2, 8) # set bounds for all axes
 
 Typically after updating these attributes, a call to :func:`bokeh.plotting.show` will be required.
 
@@ -207,13 +207,14 @@ Typically after updating these attributes, a call to :func:`bokeh.plotting.show`
 Grids
 '''''
 
-Grids are styled very similarly to axes in Bokeh. Grids have identical ``dimension`` and ``bounds`` properties
-as well as line properties, prefixed with ``grid_``. There are also :func:`bokeh.plotting.xgrid`, :func:`bokeh.plotting.ygrid`,
-and :func:`bokeh.plotting.grid` functions available to obtain grids for the current plot. Examples::
+Grids for a plot may be conveniently obtained using the ``xgrid``, ``ygrid``,
+and ``grid`` properties. These return collections of axes that can be
+indexed to retrieve individual grids, or can that have attributes set
+directly on them to update all axes. Examples::
 
-    xgrid().axis_line_dash = "3 3" # update all x-grids
-    ygrid()[0].axis_line_color = None # only updates the first y-grid
-    grid().bounds = (2, 8) # set bounds for all grids
+    p.xgrid.axis_line_dash = "3 3" # update all x-grids
+    p.ygrid[0].axis_line_color = None # only updates the first y-grid
+    p.grid.bounds = (2, 8) # set bounds for all grids
 
 Typically after updating these attributes, a call to :func:`bokeh.plotting.show` will be required.
 
@@ -408,7 +409,7 @@ or to special known variables. Here is an example of how to configure the hover 
 
     # We want to add some fields for the hover tool to interrogate, but first we
     # have to get ahold of the tool. We can use the 'select' method for that.
-    hover = curplot().select(dict(type=HoverTool))
+    hover = plot.select(dict(type=HoverTool))
 
     # Add tooltip (name, value) pairs to tooltips. Variables from the data source
     # are available with a "@" prefix, e.g., "@foo" will display the value for

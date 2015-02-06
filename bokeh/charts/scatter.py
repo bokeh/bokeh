@@ -25,7 +25,8 @@ except:
     pd = None
 
 from collections import OrderedDict
-from ._chartobject import ChartObject, DataAdapter
+from ._builder import create_and_build, Builder
+from ._data_adapter import DataAdapter
 from ..models import ColumnDataSource, Range1d
 
 #-----------------------------------------------------------------------------
@@ -33,7 +34,10 @@ from ..models import ColumnDataSource, Range1d
 #-----------------------------------------------------------------------------
 
 
-class Scatter(ChartObject):
+def Scatter(values, **kws):
+    return create_and_build(ScatterBuilder, values, **kws)
+
+class ScatterBuilder(Builder):
     """This is the Scatter class and it is in charge of plotting
     Scatter charts in an easy and intuitive way.
 
@@ -51,65 +55,29 @@ class Scatter(ChartObject):
         xyvalues['pypy'] = [(1, 12), (2, 23), (4, 47), (5, 15), (8, 46)]
         xyvalues['jython'] = [(1, 22), (2, 43), (4, 10), (6, 25), (8, 26)]
 
-        scatter = Scatter(xyvalues, filename="scatter.html")
-        scatter.title("Languages Scatter").legend("top_left")
-        scatter.width(600).height(400).show()
+        scatter = Scatter(xyvalues, title="Languages Scatter",
+            filename="scatter.html")
+        scatter.show()
     """
-    def __init__(self, values, title=None, xlabel=None, ylabel=None,
-                 legend=False, xscale="linear", yscale="linear", width=800,
-                 height=600, tools=True, filename=False, server=False,
-                 notebook=False, facet=False, xgrid=True, ygrid=True):
+    def __init__(self, values, legend=False, palette=None, **kws):
         """
         Args:
             values (iterable(tuples)): an iterable containing the data as
                 (x, y) tuples.
-            title (str, optional): the title of your chart. Defaults
-                to None.
-            xlabel (str, optional): the x-axis label of your chart.
-                Defaults to None.
-            ylabel (str, optional): the y-axis label of your chart.
-                Defaults to None.
             legend (str, optional): the legend of your chart. The legend
                 content is inferred from incoming input.It can be
                 ``top_left``, ``top_right``, ``bottom_left``,
                 ``bottom_right``. ``top_right`` is set if you set it
                  as True. Defaults to None.
-            xscale (str, optional): the x-axis type scale of your chart.
-                It can be ``linear``, ``datetime`` or ``categorical``.
-                Defaults to ``datetime``.
-            yscale (str, optional): the y-axis type scale of your chart.
-                It can be ``linear``, ``datetime`` or ``categorical``.
-                Defaults to ``linear``.
-            width (int, optional): the width of your chart in pixels.
-                Defaults to 800.
-            height (int, optional): the height of you chart in pixels.
-                Defaults to 600.
-            tools (bool, optional): to enable or disable the tools in
-                your chart. Defaults to True
-            filename (str or bool, optional): the name of the file where
-                your chart. will be written. If you pass True to this
-                argument, it will use ``untitled`` as a filename.
-                Defaults to False.
-            server (str or bool, optional): the name of your chart in
-                the server. If you pass True to this argument, it will
-                use ``untitled`` as the name in the server.
-                Defaults to False.
-            notebook (bool, optional): whether to output to IPython notebook
-                (default: False)
-            facet (bool, optional): generate multiple areas on multiple
-                separate charts for each series if True. Defaults to
-                False
-            xgrid (bool, optional): whether to display x grid lines
-                (default: True)
-            ygrid (bool, optional): whether to display y grid lines
-                (default: True)
+            palette(list, optional): a list containing the colormap as
+                hex values.
 
         Attributes:
             source (obj): datasource object for your plot,
                 initialized as a dummy None.
-            xdr (obj): x-associated datarange object for you plot,
+            x_range (obj): x-associated datarange object for you plot,
                 initialized as a dummy None.
-            ydr (obj): y-associated datarange object for you plot,
+            y_range (obj): y-associated datarange object for you plot,
                 initialized as a dummy None.
             groups (list): to be filled with the incoming groups of data.
                 Useful for legend construction.
@@ -120,25 +88,7 @@ class Scatter(ChartObject):
                 loading the data dict.
                 Needed for _set_And_get method.
         """
-        self.values = values
-        self.source = None
-        self.xdr = None
-        self.ydr = None
-        self.groups = []
-        self.data = dict()
-        self.attr = []
-        super(Scatter, self).__init__(
-            title, xlabel, ylabel, legend, xscale, yscale, width, height,
-            tools, filename, server, notebook, facet, xgrid, ygrid
-        )
-
-    def check_attr(self):
-        """Check if any of the chained method were used.
-
-        If they were not used, it assign the init parameters content
-        by default.
-        """
-        super(Scatter, self).check_attr()
+        super(ScatterBuilder, self).__init__(values, legend=legend, palette=palette)
 
     def get_data(self):
         """Take the scatter.values data to calculate the chart properties
@@ -149,7 +99,7 @@ class Scatter(ChartObject):
         self.data = dict()
         # list to save all the attributes we are going to create
         self.attr = []
-        # list to save all the groups available in the incomming input
+        # list to save all the groups available in the incoming input
         self.groups.extend(self.values.keys())
         # Grouping
         self.parse_data()
@@ -198,16 +148,15 @@ class Scatter(ChartObject):
         self.source = ColumnDataSource(self.data)
 
         x_names, y_names = self.attr[::2], self.attr[1::2]
-
         endx = max(max(self.data[i]) for i in x_names)
         startx = min(min(self.data[i]) for i in x_names)
-        self.xdr = Range1d(
+        self.x_range = Range1d(
             start=startx - 0.1 * (endx - startx),
             end=endx + 0.1 * (endx - startx)
         )
         endy = max(max(self.data[i]) for i in y_names)
         starty = min(min(self.data[i]) for i in y_names)
-        self.ydr = Range1d(
+        self.y_range = Range1d(
             start=starty - 0.1 * (endy - starty),
             end=endy + 0.1 * (endy - starty)
         )
@@ -221,33 +170,17 @@ class Scatter(ChartObject):
         colors = self._set_colors(duplets)
 
         for i, duplet in enumerate(duplets, start=1):
-            self.chart.make_scatter(self.source, duplet[0], duplet[1], 'circle', colors[i - 1])
+            renderer = self.make_scatter(
+                self.source, duplet[0], duplet[1], 'circle', colors[i - 1]
+            )
+            self._legends.append((self.groups[i-1], [renderer]))
+            yield renderer
 
-            if i < len(duplets):
-                self.create_plot_if_facet()
-
-        self.reset_legend()
-
-    def _make_legend_glyph(self, source_legend, color):
-        """Create a new glyph to represent one of the chart data series with the
-        specified color
-
-        The glyph is added to chart.glyphs.
-
-        Args:
-            source_legend (ColumnDataSource): source to be used when creating the glyph
-            color (str): color of the glyph
-        """
-        self.chart.make_scatter(source_legend, "groups", None, 'circle', color)
-
-
-    def _setup_show(self):
+    def prepare_values(self):
         """Prepare context before main show method is invoked.
 
         Customize show preliminary actions by handling DataFrameGroupBy
         values in order to create the series values and labels."""
-        super(Scatter, self)._setup_show()
-
         # check if pandas is installed
         if pd:
             # if it is we try to take advantage of it's data structures
@@ -265,15 +198,6 @@ class Scatter(ChartObject):
 
                 self.values = DataAdapter(pdict)
                 self.labels = self.values.keys()
-
-                # create axis labels from group by object only if the input
-                # values is a DataFrameGroupBy
-                if self._xlabel is None:
-                    self._xlabel = self.labels[0]
-
-                if self._ylabel is None:
-                    self._ylabel = self.labels[1]
-
             else:
                 self.values = DataAdapter(self.values)
                 self.labels = self.values.keys()

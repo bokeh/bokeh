@@ -30,7 +30,7 @@
               </div>
 
               <div class="bk-bs-panel bk-bs-panel-primary bk-facet bk-facet-tab">
-                <div class="bk-bs-panel-heading bk-crossfilter-panel-heading"> Facet Tab (Coming Soon) </div>
+                <div class="bk-bs-panel-heading bk-crossfilter-panel-heading"> Facet Tab </div>
                 <div class="bk-facets-selections " />
               </div>
 
