@@ -68,8 +68,8 @@ class StepBuilder(Builder):
         self._groups = []
 
         orig_xs = self._values_index
-        xs = np.empty(2*(len(orig_xs)-1), dtype=np.int)
-        xs[::2] = orig_xs[:-1]
+        xs = np.empty(2*len(orig_xs)-1, dtype=np.int)
+        xs[::2] = orig_xs[:]
         xs[1::2] = orig_xs[1:]
         self._data['x'] = xs
 
@@ -81,8 +81,8 @@ class StepBuilder(Builder):
             self._groups.append(col)
 
             orig_ys = np.array([self._values[col][x] for x in orig_xs])
-            ys = np.empty(2*(len(orig_ys)-1))
-            ys[::2] = orig_ys[:-1]
+            ys = np.empty(2*len(orig_ys)-1)
+            ys[::2] = orig_ys[:]
             ys[1::2] = orig_ys[:-1]
             self._data['y_%s' % col] = ys
 
