@@ -18,8 +18,6 @@ the generation of several outputs (file, server, notebook).
 # Imports
 #-----------------------------------------------------------------------------
 
-import string
-
 import numpy as np
 
 from ._chart_options import ChartOptions
@@ -41,12 +39,14 @@ from ..utils import publish_display_data
 def _make_method(prop_name):
     def method(self, value):
         setattr(self._options, prop_name, value)
+        if hasattr(self, prop_name):
+            setattr(self, prop_name, value)
         return self
     method.__doc__ = """ Chained method for %s option.
     """ % prop_name
     return method
 
-def chained_options(opts_type):
+def _chained_options(opts_type):
     def wrapper(cls):
         orig_init = cls.__init__
 
@@ -59,13 +59,13 @@ def chained_options(opts_type):
         cls.__init__ = __init__
 
         for prop_name in opts_type.properties():
-            PropName = string.capwords(prop_name, sep='_').replace('_', '')
-            setattr(cls, PropName, _make_method(prop_name))
+            if prop_name not in cls_props:
+                setattr(cls, prop_name, _make_method(prop_name))
 
         return cls
     return wrapper
 
-@chained_options(ChartOptions)
+@_chained_options(ChartOptions)
 class Chart(Plot):
     """ The main Chart class, the core of the ``Bokeh.charts`` interface.
 

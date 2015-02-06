@@ -16,11 +16,10 @@ types on top of it.
 # Imports
 #-----------------------------------------------------------------------------
 
-from .utils import cycle_colors
 from ._chart import Chart
 from ._data_adapter import DataAdapter
 from ..models.ranges import Range
-from ..properties import Bool, Color, HasProps, Instance, Seq
+from ..properties import Color, HasProps, Instance, Seq
 
 DEFAULT_PALETTE = ["#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33ff3"]
 

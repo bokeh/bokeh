@@ -30,7 +30,7 @@ from ..utils import chunk, cycle_colors, make_scatter
 from .._builder import create_and_build, Builder
 from .._data_adapter import DataAdapter
 from ...models import ColumnDataSource, Range1d
-from ...properties import Bool, String
+from ...properties import String
 
 #-----------------------------------------------------------------------------
 # Classes and functions

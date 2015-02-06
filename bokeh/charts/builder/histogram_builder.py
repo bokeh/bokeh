@@ -26,7 +26,7 @@ from ..utils import chunk, cycle_colors
 from .._builder import Builder, create_and_build
 from ...models import ColumnDataSource, GlyphRenderer, Range1d
 from ...models.glyphs import Line, Quad
-from ...properties import Any, Bool, Float, Int
+from ...properties import Bool, Float, Int
 
 #-----------------------------------------------------------------------------
 # Classes and functions
