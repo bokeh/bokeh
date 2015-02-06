@@ -55,27 +55,28 @@ CONDA_ENV=$(conda_info root_prefix)
 PLATFORM=$(conda_info platform)
 BUILD_PATH=$CONDA_ENV/conda-bld/$PLATFORM
 
-# get version and date from __conda_version__.txt
-complete_ver=$(cat __conda_version__.txt)
-version=${complete_ver:0:5}
-date=${complete_ver:10}
+# get travis_build_id
+travis_build_id=$(cat __travis_build_id__.txt)
 
 # convert to platform-specific builds
-conda convert -p all -f $BUILD_PATH/bokeh*$date*.tar.bz2;
+conda convert -p all -f $BUILD_PATH/bokeh*$travis_build_id*.tar.bz2; # --quiet option will be available soon
 
 #upload conda pkgs to binstar
 array=(osx-64 linux-64 win-64 linux-32 win-32)
 for i in "${array[@]}"
 do
     echo Uploading: $i;
-    binstar upload -u bokeh $i/bokeh*$date*.tar.bz2 -c dev --force;
+    binstar upload -u bokeh $i/bokeh*$travis_build_id*.tar.bz2 -c dev --force --no-progress;
 done
+
+# get complete version
+complete_version=$(cat __conda_version__.txt)
 
 #create and upload pypi pkgs to binstar
 #zip is currently not working
 
-BOKEH_DEV_VERSION=$version.dev.$date python setup.py sdist --formats=gztar
-binstar upload -u bokeh dist/bokeh*$date* --package-type pypi -c dev --force;
+BOKEH_DEV_VERSION=$complete_version python setup.py sdist --formats=gztar
+binstar upload -u bokeh dist/bokeh*$travis_build_id* --package-type pypi -c dev --force --no-progress;
 
 echo "I'm done uploading to binstar"
 
@@ -118,13 +119,13 @@ id=`curl -s -XPOST https://identity.api.rackspacecloud.com/v2.0/tokens \
 
 #push the js and css files
 curl -XPUT -T bokehjs/build/js/bokeh.js -v -H "X-Auth-Token:$token" -H "Content-Type: application/javascript" -H "Origin: https://mycloud.rackspace.com" \
-"https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh/dev/bokeh-$version.dev.$date.js";
+"https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh/dev/bokeh-$complete_version.js";
 curl -XPUT -T bokehjs/build/js/bokeh.min.js -v -H "X-Auth-Token:$token" -H "Content-Type: application/javascript" -H "Origin: https://mycloud.rackspace.com" \
-"https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh/dev/bokeh-$version.dev.$date.min.js";
+"https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh/dev/bokeh-$complete_version.min.js";
 curl -XPUT -T bokehjs/build/css/bokeh.css -v -H "X-Auth-Token:$token" -H "Content-Type: text/css" -H "Origin: https://mycloud.rackspace.com" \
-"https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh/dev/bokeh-$version.dev.$date.css";
+"https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh/dev/bokeh-$complete_version.css";
 curl -XPUT -T bokehjs/build/css/bokeh.min.css -v -H "X-Auth-Token:$token" -H "Content-Type: text/css" -H "Origin: https://mycloud.rackspace.com" \
-"https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh/dev/bokeh-$version.dev.$date.min.css";
+"https://storage101.dfw1.clouddrive.com/v1/$id/bokeh/bokeh/dev/bokeh-$complete_version.min.css";
 
 echo "I'm done uploading to Rackspace"
 

@@ -40,13 +40,13 @@ def _get_cdn_urls(version=None, minified=True):
     _min = ".min" if minified else ""
 
     base_url = _cdn_base_url()
-    rel_container = 'bokeh/release'
     dev_container = 'bokeh/dev'
-    container = rel_container if dev != 'dev' else dev_container
+    rel_container = 'bokeh/release'
+    container = dev_container if dev.startswith(('dev', 'rc')) else rel_container
 
     result = {
         'js_files'  : ['%s/%s/bokeh-%s%s.js' % (base_url, container, version, _min)],
-        'css_files' : ['%s/%s/bokeh-%s%s.css' % (base_url, container, version,_min)],
+        'css_files' : ['%s/%s/bokeh-%s%s.css' % (base_url, container, version, _min)],
         'messages'  : [],
     }
 
