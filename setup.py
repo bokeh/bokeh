@@ -470,7 +470,7 @@ setup(
         'bokeh.server',
         'bokeh.server.models',
         'bokeh.server.views',
-        'bokeh.server.mbs',
+        'bokeh.server.blaze',
         'bokeh.server.utils',
         'bokeh.server.tests',
         'bokeh.sphinxext',
