@@ -18,6 +18,8 @@ the generation of several outputs (file, server, notebook).
 # Imports
 #-----------------------------------------------------------------------------
 
+import string
+
 import numpy as np
 
 from ._chart_options import ChartOptions
@@ -57,8 +59,8 @@ def chained_options(opts_type):
         cls.__init__ = __init__
 
         for prop_name in opts_type.properties():
-            if prop_name not in cls_props:
-                setattr(cls, prop_name, _make_method(prop_name))
+            PropName = string.capwords(prop_name, sep='_').replace('_', '')
+            setattr(cls, PropName, _make_method(prop_name))
 
         return cls
     return wrapper
