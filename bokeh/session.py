@@ -679,6 +679,8 @@ class TestSession(Session):
     in theory, but we'll have to test this as we go along and convert tests
     """
     def __init__(self, *args, **kwargs):
+        if 'load_from_config' not in kwargs:
+            kwargs['load_from_config'] = False
         self.client = kwargs.pop('client')
         self.headers = {}
         super(TestSession, self).__init__(*args, **kwargs)
