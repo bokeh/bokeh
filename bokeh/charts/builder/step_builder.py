@@ -9,18 +9,21 @@ passing the arguments to the Chart class and calling the proper functions.
 #
 # Powered by the Bokeh Development Team.
 #
-# The full license is in the file LICENCE.txt, distributed with this software.
+# The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
-from six import string_types
 import numpy as np
-from ._builder import create_and_build, Builder
-from ..models import ColumnDataSource, DataRange1d, GlyphRenderer, Range1d
-from ..models.glyphs import Segment
+from six import string_types
+
+from ..utils import chunk, cycle_colors
+from .._builder import create_and_build, Builder
+from ...models import ColumnDataSource, DataRange1d, GlyphRenderer, Range1d
+from ...models.glyphs import Segment
+from ...properties import Any
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -42,66 +45,40 @@ class StepBuilder(Builder):
     source.
 
     """
-    def __init__(self, values, index=None, legend=False, palette=None, **kws):
-        """
-        Args:
-            values (iterable): iterable 2d representing the data series
-                values matrix.
-            index (str|1d iterable, optional): can be used to specify a
-                common custom index for all data series as follows:
-                    - As a 1d iterable of any sort that will be used as
-                        series common index
-                    - As a string that corresponds to the key of the
-                        mapping to be used as index (and not as data
-                        series) if area.values is a mapping (like a dict,
-                        an OrderedDict or a pandas DataFrame)
-            legend (str, optional): the legend of your chart. The legend
-                content is inferred from incoming input.It can be
-                ``top_left``, ``top_right``, ``bottom_left``,
-                ``bottom_right``. ``top_right`` is set if you set it
-                 as True. Defaults to None.
-            palette(list, optional): a list containing the colormap as
-                hex values.
 
-        Attributes:
-            source (obj): datasource object for your plot,
-                initialized as a dummy None.
-            x_range (obj): x-associated datarange object for you plot,
-                initialized as a dummy None.
-            y_range (obj): y-associated datarange object for you plot,
-                initialized as a dummy None.
-            groups (list): to be filled with the incoming groups of data.
-                Useful for legend construction.
-            data (dict): to be filled with the incoming data and be passed
-                to the ColumnDataSource in each chart inherited class.
-                Needed for _set_And_get method.
-            attr (list): to be filled with the new attributes created after
-                loading the data dict.
-                Needed for _set_And_get method.
-        """
-        self.index = index
-        super(StepBuilder, self).__init__(values, legend=legend, palette=palette)
+    index = Any(help="""
+    An index to be used for all data series as follows:
+
+    - A 1d iterable of any sort that will be used as
+        series common index
+
+    - As a string that corresponds to the key of the
+        mapping to be used as index (and not as data
+        series) if area.values is a mapping (like a dict,
+        an OrderedDict or a pandas DataFrame)
+
+    """)
 
     def get_data(self):
         """It calculates the chart properties accordingly from Step.values.
         Then build a dict containing references to all the points to be
         used by the segment glyph inside the ``draw`` method.
         """
-        self.data = dict()
+        self._data = dict()
 
         # list to save all the attributes we are going to create
-        self.attr = []
-        self.groups = []
-        xs = self.values_index
+        self._attr = []
+        self._groups = []
+        xs = self._values_index
         self.set_and_get("x", "", np.array(xs)[:-1])
         self.set_and_get("x2", "", np.array(xs)[1:])
-        for col in self.values.keys():
+        for col in self._values.keys():
             if isinstance(self.index, string_types) and col == self.index:
                 continue
 
             # save every new group we find
-            self.groups.append(col)
-            values = [self.values[col][x] for x in xs]
+            self._groups.append(col)
+            values = [self._values[col][x] for x in xs]
             self.set_and_get("y1_", col, values[:-1])
             self.set_and_get("y2_", col, values[1:])
 
@@ -109,11 +86,11 @@ class StepBuilder(Builder):
         """ Push the Step data into the ColumnDataSource and calculate
         the proper ranges.
         """
-        sc = self.source = ColumnDataSource(self.data)
+        sc = self._source = ColumnDataSource(self._data)
         self.x_range = DataRange1d(sources=[sc.columns("x"), sc.columns("x2")])
-        y_names = self.attr[1:]
-        endy = max(max(self.data[i]) for i in y_names)
-        starty = min(min(self.data[i]) for i in y_names)
+        y_names = self._attr[1:]
+        endy = max(max(self._data[i]) for i in y_names)
+        starty = min(min(self._data[i]) for i in y_names)
         self.y_range = Range1d(
             start=starty - 0.1 * (endy - starty),
             end=endy + 0.1 * (endy - starty)
@@ -124,8 +101,8 @@ class StepBuilder(Builder):
 
         Takes reference points from the data loaded at the ColumnDataSource.
         """
-        tuples = list(self._chunker(self.attr[2:], 2))
-        colors = self._set_colors(tuples)
+        tuples = list(chunk(self._attr[2:], 2))
+        colors = cycle_colors(tuples, self.palette)
 
         # duplet: y1, y2 values of each series
         for i, duplet in enumerate(tuples):
@@ -134,13 +111,13 @@ class StepBuilder(Builder):
                 x0="x2", y0=duplet[0], x1="x2", y1=duplet[1],
                 line_color=colors[i]
             )
-            yield GlyphRenderer(data_source=self.source, glyph=glyph)
+            yield GlyphRenderer(data_source=self._source, glyph=glyph)
 
             # draw the step vertical segment
             glyph = Segment(
                 x0="x", y0=duplet[0], x1="x2", y1=duplet[0],
                 line_color=colors[i]
             )
-            renderer = GlyphRenderer(data_source=self.source, glyph=glyph)
-            self._legends.append((self.groups[i], [renderer]))
+            renderer = GlyphRenderer(data_source=self._source, glyph=glyph)
+            self._legends.append((self._groups[i], [renderer]))
             yield renderer

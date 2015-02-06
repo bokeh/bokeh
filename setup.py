@@ -328,7 +328,7 @@ if not exists(join(ROOT, 'MANIFEST.in')):
               "Bokeh repository from https://github.com/bokeh/bokeh")
         if "--build_js"  in sys.argv:
             sys.argv.remove('--build_js')
-        if "--install_js"  in sys.argv: 
+        if "--install_js"  in sys.argv:
             sys.argv.remove('--install_js')
         jsbuild = False
         jsinstall = False
@@ -463,6 +463,9 @@ setup(
         'bokeh.models',
         'bokeh.models.widgets',
         'bokeh.charts',
+        'bokeh.charts.builder',
+        'bokeh.charts.builder.tests',
+        'bokeh.charts.tests',
         'bokeh.crossfilter',
         'bokeh.mplexporter',
         'bokeh.mplexporter.renderers',

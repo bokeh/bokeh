@@ -9,7 +9,7 @@ the arguments to the Chart class and calling the proper functions.
 #
 # Powered by the Bokeh Development Team.
 #
-# The full license is in the file LICENCE.txt, distributed with this software.
+# The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
@@ -23,12 +23,13 @@ try:
     import numpy as np
 
 except ImportError:
-    print("bokeh.charts needs numpy installed to work properly!")
-    raise
+    raise RuntimeError("bokeh.charts Area chart requires NumPy.")
 
-from ._builder import Builder, create_and_build
-from ..models import ColumnDataSource, DataRange1d, GlyphRenderer, Range1d
-from ..models import Patch
+from ..utils import cycle_colors
+from .._builder import Builder, create_and_build
+from ...models import ColumnDataSource, DataRange1d, GlyphRenderer, Range1d
+from ...models.glyphs import Patch
+from ...properties import Any, Bool
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -63,60 +64,31 @@ class AreaBuilder(Builder):
         # create an area chart
         area = Area(
             xyvalues, title="Area Chart", xlabel='time',
-            ylabel='memory', filename="area.html",
-            facet=False, stacked=True,
+            ylabel='memory', filename="area.html", stacked=True,
         )
         area.show()
     """
-    def __init__(self, values, index=None, stacked=False, legend=False,
-                 palette=None, **kws):
-        """
-        Args:
-            values (iterable): iterable 2d representing the data series
-                values matrix.
-            index (str|1d iterable, optional): can be used to specify a
-                common custom index for all data series as follows:
-                    - As a 1d iterable of any sort that will be used as
-                        series common index
-                    - As a string that corresponds to the key of the
-                        mapping to be used as index (and not as data
-                        series) if area.values is a mapping (like a dict,
-                        an OrderedDict or a pandas DataFrame)
-            stacked (bool, optional): if:
-                True: areas are draw as a stack to show the relationship of
-                    parts to a whole
-                False: areas are layered on the same chart figure. Defaults
-                    to False.
-            legend (str, optional): the legend of your chart. The legend
-                content is inferred from incoming input.It can be
-                ``top_left``, ``top_right``, ``bottom_left``,
-                ``bottom_right``. ``top_right`` is set if you set it
-                 as True. Defaults to None.
-            palette(list, optional): a list containing the colormap as
-                hex values.
 
-        Attributes:
-            source (obj): datasource object for your chart,
-                initialized as a dummy None.
-            x_range (obj): x-associated datarange object for you plot,
-                initialized as a dummy None.
-            y_range (obj): y-associated datarange object for you plot,
-                initialized as a dummy None.
-            groups (list): to be filled with the incoming groups of data.
-                Useful for legend construction.
-            data (dict): to be filled with the incoming data and be passed
-                to the ColumnDataSource in each chart inherited class.
-                Needed for _set_And_get method.
-            attr (list): to be filled with the new attributes created after
-                loading the data dict.
-                Needed for _set_And_get method.
-            index(see inputs): received index input
-        """
-        self.source = None
-        self._stacked = stacked
-        self.index = index
+    stacked = Bool(False, help="""
+    Whether to stack the areas. (Defaults to False)
 
-        super(AreaBuilder, self).__init__(values, legend=legend, palette=palette)
+    If True, areas are draw as a stack, to show the relationship of
+    parts to a whole. Otherwise, areas are layered above one another.
+
+    """)
+
+    index = Any(help="""
+    An index to be used for all data series as follows:
+
+    - A 1d iterable of any sort that will be used as
+        series common index
+
+    - As a string that corresponds to the key of the
+        mapping to be used as index (and not as data
+        series) if area.values is a mapping (like a dict,
+        an OrderedDict or a pandas DataFrame)
+
+    """)
 
     def get_data(self):
         """Calculate the chart properties accordingly from area.values.
@@ -124,19 +96,19 @@ class AreaBuilder(Builder):
         the patch glyph inside the ``draw`` method.
 
         """
-        xs = self.values_index
+        xs = self._values_index
         last = np.zeros(len(xs))
         x2 = np.hstack((xs[::-1], xs))
         self.set_and_get("x", "", x2)
 
-        for grp in self.values.keys():
+        for grp in self._values.keys():
             # TODO: This condition may be removed or changed depending on
             # the validation of self.index
             if isinstance(self.index, string_types) and grp == self.index:
                 continue
 
             # get single series values
-            col_values = self.values[grp]
+            col_values = self._values[grp]
             _values = [col_values[x] for indx, x in enumerate(xs)]
 
             # to draw area we need 2 coordinates. The lower values will always
@@ -147,22 +119,22 @@ class AreaBuilder(Builder):
             values = np.hstack((last[::-1], next))
 
             # only update when stacked, otherwise we always want to start from 0
-            if self._stacked:
+            if self.stacked:
                 last = next
 
             # save values and new group
             self.set_and_get("y_", grp, values)
-            self.groups.append(grp)
+            self._groups.append(grp)
 
     def get_source(self):
         """
         Push the Line data into the ColumnDataSource and calculate the proper ranges.
         """
-        self.source = ColumnDataSource(self.data)
-        self.x_range = DataRange1d(sources=[self.source.columns("x")])
-        y_names = self.attr[1:]
-        endy = max(max(self.data[i]) for i in y_names)
-        starty = min(min(self.data[i]) for i in y_names)
+        self._source = ColumnDataSource(self._data)
+        self.x_range = DataRange1d(sources=[self._source.columns("x")])
+        y_names = self._attr[1:]
+        endy = max(max(self._data[i]) for i in y_names)
+        starty = min(min(self._data[i]) for i in y_names)
         self.y_range =  Range1d(
             start=starty - 0.1 * (endy - starty),
             end=endy + 0.1 * (endy - starty)
@@ -174,13 +146,13 @@ class AreaBuilder(Builder):
 
         Takes reference points from the data loaded at the ColumnDataSource.
         """
-        colors = self._set_colors(self.attr)
+        colors = cycle_colors(self._attr, self.palette)
         # parse all series. We exclude the first attr as it's the x values
         # added for the index
-        for i, series_name in enumerate(self.attr[1:]):
+        for i, series_name in enumerate(self._attr[1:]):
 
             glyph = Patch(
                 x='x', y=series_name, fill_color=colors[i], fill_alpha=0.9)
-            renderer = GlyphRenderer(data_source=self.source, glyph=glyph)
-            self._legends.append((self.groups[i], [renderer]))
+            renderer = GlyphRenderer(data_source=self._source, glyph=glyph)
+            self._legends.append((self._groups[i], [renderer]))
             yield renderer
