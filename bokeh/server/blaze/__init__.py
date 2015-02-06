@@ -14,7 +14,8 @@ def get_blueprint(config_file=None):
         retval = mbs.app.mbsbp
         mbs.app.setup_app(config_file=config_file)
     except ImportError as e:
-        logger.exception(e)
-        warnings.warn("could not import multiuser blaze server")
+        msg = "could not import multiuser blaze server %s.  This is fine if you do not intend to use blaze capabilities in the bokeh server"
+        msg = msg % str(e)
+        warnings.warn(msg)
     else:
         return retval
