@@ -16,7 +16,7 @@
 from collections import OrderedDict
 import datetime
 import unittest
-from mock import patch
+from mock import patch, Mock
 import numpy as np
 from numpy.testing import assert_array_equal, assert_array_almost_equal
 
@@ -31,10 +31,10 @@ from ..models import (ColumnDataSource, Grid, GlyphRenderer, Legend, LinearAxis,
                       WheelZoomTool)
 from ..document import Document
 
-from ..charts import (Chart, ChartObject, DataAdapter, Area, Bar, Dot, Donut,
+from ..charts import (Chart, DataAdapter, Area, Bar, Dot, Donut,
                       Line, HeatMap, Histogram, Scatter, Step, TimeSeries,
                       BoxPlot, Horizon)
-
+from ..charts._builder import Builder
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
@@ -62,63 +62,130 @@ def create_chart(klass, values, compute_values=True, **kws):
         **kws
     )
 
-    if compute_values:
-        _chart._setup_show()
-        _chart._prepare_show()
-        _chart._show_teardown()
-
     return _chart
 
 class TestChart(unittest.TestCase):
-
     def setUp(self):
         self.source = ColumnDataSource()
         self.xdr = Range1d()
         self.ydr = Range1d()
         self.glyph = GlyphRenderer()
         self.groups = [self.glyph] * 3
-        self.chart = Chart(title="title", xlabel="xlabel", ylabel="ylabel",
-                           legend="top_left", xscale="linear", yscale="linear",
-                           width=800, height=600, tools=True,
-                           filename=False, server=False, notebook=False)
-        self.chart.start_plot(xgrid=True, ygrid=True)
-        self.chart.add_data_plot(self.xdr, self.ydr)
-        self.chart.end_plot(self.groups)
+        self.chart = Chart(
+            title="title", xlabel="xlabel", ylabel="ylabel",
+            legend="top_left", xscale="linear", yscale="linear",
+            width=800, height=600, tools=True,
+            filename=False, server=False, notebook=False,
+            xgrid=True, ygrid=False
+        )
 
     def test_args(self):
         self.assertEqual(self.chart.title, "title")
-        self.assertEqual(self.chart.xlabel, "xlabel")
-        self.assertEqual(self.chart.ylabel, "ylabel")
-        self.assertEqual(self.chart.legend, "top_left")
-        self.assertEqual(self.chart.xscale, "linear")
-        self.assertEqual(self.chart.yscale, "linear")
+        self.assertEqual(self.chart._Chart__xlabel, "xlabel")
+        self.assertEqual(self.chart._Chart__ylabel, "ylabel")
+        self.assertEqual(self.chart._Chart__legend, "top_left")
+        self.assertEqual(self.chart._Chart__xscale, "linear")
+        self.assertEqual(self.chart._Chart__yscale, "linear")
         self.assertEqual(self.chart.plot_width, 800)
         self.assertEqual(self.chart.plot_height, 600)
-        self.assertTrue(self.chart.tools)
-        self.assertFalse(self.chart.filename)
-        self.assertFalse(self.chart.server)
-        self.assertFalse(self.chart.notebook)
+        self.assertTrue(self.chart._Chart__enabled_tools)
+        self.assertFalse(self.chart._Chart__filename)
+        self.assertFalse(self.chart._Chart__server)
+        self.assertFalse(self.chart._Chart__notebook)
+        self.assertEqual(self.chart._Chart__xgrid, True)
+        self.assertEqual(self.chart._Chart__ygrid, False)
 
-    def test_start_plot(self):
-        self.assertIsInstance(self.chart.plot.left[0], LinearAxis)
-        self.assertIsInstance(self.chart.plot.renderers[0], LinearAxis)
-        self.assertIsInstance(self.chart.plot.below[0], LinearAxis)
-        self.assertIsInstance(self.chart.plot.renderers[1], LinearAxis)
-        self.assertIsInstance(self.chart.plot.renderers[2], Grid)
-        self.assertIsInstance(self.chart.plot.renderers[3], Grid)
-        self.assertIsInstance(self.chart.plot.tools[0], PanTool)
+    def test_title(self):
+        self.chart.title = "new_title"
+        self.assertEqual(self.chart.title, "new_title")
 
-    def test_add_data_plot(self):
-        self.assertIsInstance(self.chart.plot.x_range, Range1d)
-        self.assertIsInstance(self.chart.plot.y_range, Range1d)
+    def test_xlabel(self):
+        self.chart.xlabel("new_xlabel")
+        self.assertEqual(self.chart._xlabel, "new_xlabel")
 
-    def test_end_plot(self):
-        legend = self.chart.plot.renderers[4]
-        self.assertIsInstance(legend, Legend)
-        self.assertEqual(legend.orientation, "top_left")
-        self.assertIsInstance(self.chart.doc, Document)
-        #TODO test server-base charts
-        #self.assertIsInstance(self.chart.session, Session)
+    def test_ylabel(self):
+        self.chart.ylabel("new_ylabel")
+        self.assertEqual(self.chart._ylabel, "new_ylabel")
+
+    def test_legend(self):
+        self.chart.legend("bottom_right")
+        self.assertEqual(self.chart._legend, "bottom_right")
+        self.chart.legend(True)
+        self.assertTrue(self.chart._legend)
+
+    def test_xscale(self):
+        self.chart.xscale("datetime")
+        self.assertEqual(self.chart._xscale, "datetime")
+
+    def test_yscale(self):
+        self.chart.yscale("datetime")
+        self.assertEqual(self.chart._yscale, "datetime")
+
+    def test_width(self):
+        self.chart.width(400)
+        self.assertEqual(self.chart._width, 400)
+
+    def test_height(self):
+        self.chart.height(400)
+        self.assertEqual(self.chart._height, 400)
+
+    def test_tools(self):
+        self.chart.enabled_tools(False)
+        self.assertFalse(self.chart._enabled_tools)
+        self.chart.enabled_tools()
+        self.assertTrue(self.chart._enabled_tools)
+
+    def test_filename(self):
+        self.chart.filename("bar.html")
+        self.assertEqual(self.chart._filename, "bar.html")
+        self.chart.filename(True)
+        self.assertTrue(self.chart._filename)
+
+    def test_server(self):
+        self.chart.server("baz")
+        self.assertEqual(self.chart._server, "baz")
+        self.chart.server(True)
+        self.assertTrue(self.chart._server)
+
+    def test_notebook(self):
+        self.chart.notebook()
+        self.assertTrue(self.chart._notebook)
+        self.chart.notebook(False)
+        self.assertFalse(self.chart._notebook)
+
+    def test_check_attr(self):
+        self.chart.check_attr()
+        self.assertEqual(self.chart._title, "title")
+        self.assertEqual(self.chart._xlabel, "xlabel")
+        self.assertEqual(self.chart._ylabel, "ylabel")
+        self.assertEqual(self.chart._legend, "top_left")
+        self.assertEqual(self.chart._xscale, "linear")
+        self.assertEqual(self.chart._yscale, "linear")
+        self.assertEqual(self.chart._width, 800)
+        self.assertEqual(self.chart._height, 600)
+        self.assertTrue(self.chart._tools)
+        self.assertFalse(self.chart._filename)
+        self.assertFalse(self.chart._server)
+        self.assertFalse(self.chart._notebook)
+        self.assertEqual(self.chart._xgrid, True)
+        self.assertEqual(self.chart._ygrid, False)
+
+    def check_chart_elements(self, expected_tools):
+        self.assertIsInstance(self.chart.left[0], LinearAxis)
+        self.assertIsInstance(self.chart.renderers[0], LinearAxis)
+        self.assertIsInstance(self.chart.below[0], LinearAxis)
+        self.assertIsInstance(self.chart.renderers[1], LinearAxis)
+        self.assertIsInstance(self.chart.renderers[2], Grid)
+        self.assertIsInstance(self.chart.renderers[3], Grid)
+        for i, type_ in enumerate(expected_tools):
+            self.assertIsInstance(self.chart.tools[i], type_)
+
+    def test_ranges(self):
+        """
+        Test ranges are not created buy the chart
+        """
+        self.assertEqual(self.chart.x_range, None)
+        self.assertEqual(self.chart.y_range, None)
 
     def test_make_axis(self):
         axis = self.chart.make_axis("left", "datetime", "foo")
@@ -126,17 +193,51 @@ class TestChart(unittest.TestCase):
         self.assertEqual(axis.scale, "time")
         self.assertEqual(axis.axis_label, "foo")
 
+        axis = self.chart.make_axis("left", "categorical", "bar")
+        self.assertEqual(axis.location, "auto")
+        self.assertEqual(axis.axis_label, "bar")
+        self.assertEqual(axis.major_label_orientation, np.pi/4)
+
+        axis = self.chart.make_axis("left", "linear", "foobar")
+        self.assertEqual(axis.location, "auto")
+        self.assertEqual(axis.axis_label, "foobar")
+
     def test_make_grid(self):
         axis = self.chart.make_axis("left", "datetime", "foo")
         grid = self.chart.make_grid(0, axis.ticker)
         self.assertEqual(grid.dimension, 0)
         self.assertIsInstance(grid.ticker, Ticker)
 
+    def check_tools_scenario(self, base_args, scenarios, categorical=False):
+        for tools, expected_tools in scenarios:
+            base_args['tools'] = tools
+            chart = Chart(**base_args)
+
+            if categorical:
+                chart.x_range = FactorRange()
+                chart.tools = []
+                chart.create_tools(chart._enabled_tools)
+                self.compare_tools(chart.tools, expected_tools)
+
+                chart = Chart(**base_args)
+                chart.y_range = FactorRange()
+                chart.tools = []
+                chart.create_tools(chart._enabled_tools)
+                self.compare_tools(chart.tools, expected_tools)
+
+            else:
+                self.compare_tools(chart.tools, expected_tools)
+
+    def compare_tools(self, tools, expected_tools):
+        self.assertEqual(len(tools), len(expected_tools))
+        for i, _type in enumerate(expected_tools):
+            self.assertIsInstance(tools[i], _type)
+
     @patch('bokeh.plotting_helpers.warnings.warn')
-    def test_chart_tools(self, mock_warn):
+    def test_chart_tools_linear(self, mock_warn):
         base_args = dict(
             title="title", xlabel="xlabel", ylabel="ylabel",
-            legend="top_left", xscale="linear", yscale="linear",
+            legend="top_left", xscale="linear", yscale="linear", xgrid=True, ygrid=True,
             width=800, height=600, filename=False, server=False, notebook=False
         )
         expected = [
@@ -145,41 +246,22 @@ class TestChart(unittest.TestCase):
             [ResizeTool, PanTool,  BoxZoomTool, ResetTool, LassoSelectTool],
         ]
         scenarios = zip(
-                [True, False, "resize,pan,box_zoom,reset,lasso_select"],
-                expected
+            [True, False, "resize,pan,box_zoom,reset,lasso_select"], expected
         )
-        for tools, expected_tools in scenarios:
-            base_args['tools'] = tools
-            chart = Chart(**base_args)
-            chart.start_plot(xgrid=True, ygrid=True)
-            self.assertEqual(len(chart.plot.tools), len(expected_tools))
-            for i, _type in enumerate(expected_tools):
-                self.assertIsInstance(chart.plot.tools[i], _type)
+
+        self.check_tools_scenario(base_args, scenarios)
 
         # need to change the expected tools because categorical scales
         # automatically removes pan and zoom tools
         expected = [
-            [PreviewSaveTool, ResizeTool, ResetTool],
-            [],
+            [PreviewSaveTool, ResizeTool, ResetTool], [],
             [ResizeTool, ResetTool, LassoSelectTool],
         ]
         scenarios = zip(
                 [True, False, "resize,pan,box_zoom,reset,lasso_select"],
                 expected
         )
-        for (scale, ranges) in zip(['xscale', 'yscale'],
-                                   [(FactorRange(), DataRange1d()),
-                                    (DataRange1d(), FactorRange())]):
-            base_args[scale] = 'categorical'
-            for i, (tools, expected_tools) in enumerate(scenarios):
-                base_args['tools'] = tools
-                chart = Chart(**base_args)
-                # Add FactorRanges to simulate categorical plots
-                chart.add_data_plot(*ranges)
-                chart.start_plot(xgrid=True, ygrid=True)
-                self.assertEqual(len(chart.plot.tools), len(expected_tools))
-                for i, _type in enumerate(expected_tools):
-                    self.assertIsInstance(chart.plot.tools[i], _type)
+        self.check_tools_scenario(base_args, scenarios, categorical=True)
 
         msg_repeat = "LassoSelectTool are being repeated"
         msg_removed = "categorical plots do not support pan and zoom operations.\n" \
@@ -189,337 +271,73 @@ class TestChart(unittest.TestCase):
 
         # Finally check repeated tools
         base_args['tools'] = "resize,pan,box_zoom,reset,lasso_select,lasso_select"
+
         chart = Chart(**base_args)
-        # Add FactorRanges to simulate categorical plots
-        chart.add_data_plot(DataRange1d(), FactorRange())
-        chart.start_plot(xgrid=True, ygrid=True)
+        chart.x_range = FactorRange()
+        chart.tools = []
+        chart.create_tools(chart._enabled_tools)
 
-        self.assertEqual(len(chart.plot.tools), len(expected_tools))
-        for i, _type in enumerate(expected_tools):
-            self.assertIsInstance(chart.plot.tools[i], _type)
-
+        self.compare_tools(chart.tools, expected_tools)
         mock_warn.assert_any_call(msg_repeat)
         mock_warn.assert_any_call(msg_removed)
 
-    @patch('bokeh.charts._charts.Chart._append_glyph')
-    def test_make_segment(self, mock_append_glyph):
-        segment = self.chart.make_segment(self.source, 0, 1, 0, 1, "black", 1)
-        self.assertEqual(segment.x0, 0)
-        self.assertEqual(segment.y0, 1)
-        self.assertEqual(segment.x1, 0)
-        self.assertEqual(segment.y1, 1)
-        self.assertEqual(segment.line_color, "black")
-        self.assertEqual(segment.line_width, 1)
-        self.chart._append_glyph.assert_called_once_with(self.source, segment)
 
-    @patch('bokeh.charts._charts.Chart._append_glyph')
-    def test_make_line(self, mock_append_glyph):
-        line = self.chart.make_line(self.source, [0, 1], [0, 1], "black")
-        self.assertEqual(line.x, [0, 1])
-        self.assertEqual(line.y, [0, 1])
-        self.assertEqual(line.line_color, "black")
-        self.chart._append_glyph.assert_called_once_with(self.source, line)
+class TestBuilder(unittest.TestCase):
+    def setUp(self):
+        self.builder = Builder("bottom_left", ['red', 'green'])
 
-    @patch('bokeh.charts._charts.Chart._append_glyph')
-    def test_make_quad(self, mock_append_glyph):
-        quad = self.chart.make_quad(self.source, [1], [0], [0], [1], "black", "black")
-        self.assertEqual(quad.top, [1])
-        self.assertEqual(quad.bottom, [0])
-        self.assertEqual(quad.left, [0])
-        self.assertEqual(quad.right, [1])
-        self.assertEqual(quad.fill_color, "black")
-        self.assertEqual(quad.line_color, "black")
-        self.chart._append_glyph.assert_called_once_with(self.source, quad)
+    def test_instantiate(self):
+        self.builder._legend = "Test Leg"
+        self.builder._palette = ['red', 'green']
+        self.builder._legends = []
+        self.builder.data = {}
+        self.builder.groups = []
+        self.builder.attr = []
+        self.builder.groups = []
 
-    @patch('bokeh.charts._charts.Chart._append_glyph')
-    def test_rect(self, mock_append_glyph):
-        rect = self.chart.make_rect(self.source, [1], [0], [0], [1], "black", "black", 1)
-        self.assertEqual(rect.x, [1])
-        self.assertEqual(rect.y, [0])
-        self.assertEqual(rect.width, [0])
-        self.assertEqual(rect.height, [1])
-        self.assertEqual(rect.fill_color, "black")
-        self.assertEqual(rect.line_color, "black")
-        self.assertEqual(rect.line_width, 1)
-        self.chart._append_glyph.assert_called_once_with(self.source, rect)
+    @patch('bokeh.charts._builder.DataAdapter')
+    def test_prepare_values(self, adapter_mock):
+        self.builder = Builder("bottom_left", ['red', 'green'])
+        adapter_mock.assert_callled_once_with([], force_alias=False)
 
-    @patch('bokeh.charts._charts.Chart._append_glyph')
-    def test_scatter(self, mock_append_glyph):
-        scatter = self.chart.make_scatter(self.source, [0], [1], "circle", "black")
+
+        self.builder = Builder([1, 2, 3], "Test Leg", ['red', 'green'])
+        self.builder.index = ['b']
+        adapter_mock.get_index_and_data.assert_callled_once_with(
+            [1, 2, 3], ['b'], force_alias=False
+        )
+
+    def test_create(self):
+        chart = Mock()
+
+        # prepare the builder with the mocks
+        self.builder.make_renderers = Mock(return_value='called!')
+        self.legends = ['l1', 'l2']
+        self.builder.x_range = "X-Range"
+        self.builder.y_range = "Y-Range"
+
+        self.builder.create(chart)
+
+        chart.add_renderers.assert_called_once('called')
+        chart.orientation = 'bottom_left'
+        chart.add_legend('bottom_left', self.legends)
+
+    def test_scatter(self):
+        source = ColumnDataSource({"a": [2, 4, 5]})
+        renderer = self.builder.make_scatter(source, [0], [1], "circle", "black")
+        scatter = renderer.glyph
+        self.assertIsInstance(renderer, GlyphRenderer)
+        self.assertEqual(renderer.data_source, source)
         self.assertEqual(scatter.x, [0])
         self.assertEqual(scatter.y, [1])
         self.assertIsInstance(scatter, Circle)
         self.assertEqual(scatter.line_color, "black")
-        self.chart._append_glyph.assert_called_once_with(self.source, scatter)
-
-    @patch('bokeh.charts._charts.Chart._append_glyph')
-    def test_make_patch(self, mock_append_glyph):
-        patch = self.chart.make_patch(self.source, [0, 1], [0, 1], "black")
-        self.assertEqual(patch.x, [0, 1])
-        self.assertEqual(patch.y, [0, 1])
-        self.assertEqual(patch.fill_color, "black")
-        self.chart._append_glyph.assert_called_once_with(self.source, patch)
-
-    @patch('bokeh.charts._charts.Chart._append_glyph')
-    def test_text(self, mock_append_glyph):
-        text = self.chart.make_text(
-            self.source, x="x", y="y", text="text", angle=0,
-            text_align="center", text_baseline="middle"
-        )
-        self.assertIsInstance(text, Text)
-        self.assertEqual(text.x, "x")
-        self.assertEqual(text.y, "y")
-        self.assertEqual(text.text, "text")
-        self.assertEqual(text.angle, 0)
-        self.assertEqual(text.text_align, "center")
-        self.assertEqual(text.text_baseline, "middle")
-        self.chart._append_glyph.assert_called_once_with(self.source, text)
-
-    @patch('bokeh.charts._charts.Chart._append_glyph')
-    def test_wedge(self, mock_append_glyph):
-        wedge = self.chart.make_wedge(
-            self.source, x=0, y=1, radius=1, line_color="white",
-            line_width=2, start_angle="start", end_angle="end", fill_color="colors"
-        )
-
-        self.assertIsInstance(wedge, Wedge)
-        self.assertEqual(wedge.x, 0)
-        self.assertEqual(wedge.y, 1)
-        self.assertEqual(wedge.radius, 1)
-        self.assertEqual(wedge.line_color, "white")
-        self.assertEqual(wedge.fill_color, "colors")
-        self.assertEqual(wedge.line_width, 2)
-        self.assertEqual(wedge.start_angle, "start")
-        self.assertEqual(wedge.end_angle, "end")
-
-        self.chart._append_glyph.assert_called_once_with(self.source, wedge)
-
-    @patch('bokeh.charts._charts.Chart._append_glyph')
-    def test_annular(self, mock_append_glyph):
-        annular = self.chart.make_annular(
-            self.source, x=0, y=10, inner_radius=1, outer_radius=1.5,
-            start_angle="start", end_angle="end",
-            line_color="white", line_width=2, fill_color="fill"
-        )
-        self.assertIsInstance(annular, AnnularWedge)
-        self.assertEqual(annular.x, 0)
-        self.assertEqual(annular.y, 10)
-        self.assertEqual(annular.inner_radius, 1)
-        self.assertEqual(annular.outer_radius, 1.5)
-        self.assertEqual(annular.line_color, "white")
-        self.assertEqual(annular.fill_color, "fill")
-        self.assertEqual(annular.line_width, 2)
-        self.assertEqual(annular.start_angle, "start")
-        self.assertEqual(annular.end_angle, "end")
-        self.chart._append_glyph.assert_called_once_with(self.source, annular)
-
-    # Thinking about the best way to test the 3 outputs.
-    #def test_show(self):
-        #pass
-
-    def test__append_glyph(self):
-        scatter = self.chart.make_scatter(self.source, 0, 1, "circle", "black")
-        self.chart._append_glyph(self.source, scatter)
-        circle = self.chart.plot.renderers[-1]
-        self.assertIsInstance(circle.glyph, Circle)
-
-    def test_figure(self):
-        prev_plot = self.chart.plot
-        self.assertEqual(self.chart._plots, [prev_plot])
-        self.chart.figure()
-        self.assertEqual(self.chart._plots, [prev_plot, self.chart.plot])
-
-        for attr in ["title", "plot_width", "plot_height"]:
-            self.assertEqual(getattr(prev_plot, attr), getattr(self.chart.plot, attr))
-
-        # "x_range" and "y_range" are not set because chart explicitly set
-        # plot ranges by calling add_data_plot
-        self.assertEqual(prev_plot.x_range, self.xdr)
-        self.assertEqual(prev_plot.y_range, self.ydr)
-        self.assertEqual(self.chart.plot.x_range, None)
-        self.assertEqual(self.chart.plot.y_range, None)
-
-        # check that add_data_plot only set ranges for self.chart.plot and not
-        # all underlying plots..
-        xdr = Range1d()
-        ydr = Range1d()
-        self.chart.add_data_plot(xdr, ydr)
-        self.assertEqual(self.chart.plot.x_range, xdr)
-        self.assertEqual(self.chart.plot.y_range, ydr)
-        self.assertEqual(prev_plot.x_range, self.xdr)
-        self.assertEqual(prev_plot.y_range, self.ydr)
-
-
-class TestChartObject(unittest.TestCase):
-
-    def setUp(self):
-        self.chart_object = ChartObject(title="title", xlabel="xlabel", ylabel="ylabel",
-                                        legend="top_left", xscale="linear", yscale="linear",
-                                        width=800, height=600, tools=True,
-                                        filename=False, server=False, notebook=False,
-                                        facet=False, palette=["#FFFFFF", "#000000"],
-                                        xgrid=True, ygrid=False)
-
-    def test_args(self):
-        self.assertEqual(self.chart_object._ChartObject__title, "title")
-        self.assertEqual(self.chart_object._ChartObject__xlabel, "xlabel")
-        self.assertEqual(self.chart_object._ChartObject__ylabel, "ylabel")
-        self.assertEqual(self.chart_object._ChartObject__legend, "top_left")
-        self.assertEqual(self.chart_object._ChartObject__xscale, "linear")
-        self.assertEqual(self.chart_object._ChartObject__yscale, "linear")
-        self.assertEqual(self.chart_object._ChartObject__width, 800)
-        self.assertEqual(self.chart_object._ChartObject__height, 600)
-        self.assertTrue(self.chart_object._ChartObject__tools)
-        self.assertEqual(self.chart_object._ChartObject__facet, False)
-        self.assertEqual(self.chart_object._ChartObject__palette, ["#FFFFFF", "#000000"])
-        self.assertFalse(self.chart_object._ChartObject__filename)
-        self.assertFalse(self.chart_object._ChartObject__server)
-        self.assertFalse(self.chart_object._ChartObject__notebook)
-        self.assertEqual(self.chart_object._ChartObject__xgrid, True)
-        self.assertEqual(self.chart_object._ChartObject__ygrid, False)
-
-    def test_title(self):
-        self.chart_object.title("new_title")
-        self.assertEqual(self.chart_object._title, "new_title")
-
-    def test_xlabel(self):
-        self.chart_object.xlabel("new_xlabel")
-        self.assertEqual(self.chart_object._xlabel, "new_xlabel")
-
-    def test_ylabel(self):
-        self.chart_object.ylabel("new_ylabel")
-        self.assertEqual(self.chart_object._ylabel, "new_ylabel")
-
-    def test_legend(self):
-        self.chart_object.legend("bottom_right")
-        self.assertEqual(self.chart_object._legend, "bottom_right")
-        self.chart_object.legend(True)
-        self.assertTrue(self.chart_object._legend)
-
-    def test_xscale(self):
-        self.chart_object.xscale("datetime")
-        self.assertEqual(self.chart_object._xscale, "datetime")
-
-    def test_yscale(self):
-        self.chart_object.yscale("datetime")
-        self.assertEqual(self.chart_object._yscale, "datetime")
-
-    def test_width(self):
-        self.chart_object.width(400)
-        self.assertEqual(self.chart_object._width, 400)
-
-    def test_height(self):
-        self.chart_object.height(400)
-        self.assertEqual(self.chart_object._height, 400)
-
-    def test_tools(self):
-        self.chart_object.tools()
-        self.assertTrue(self.chart_object._tools)
-        self.chart_object.tools(False)
-        self.assertFalse(self.chart_object._tools)
-
-    def test_filename(self):
-        self.chart_object.filename("bar.html")
-        self.assertEqual(self.chart_object._filename, "bar.html")
-        self.chart_object.filename(True)
-        self.assertTrue(self.chart_object._filename)
-
-    def test_server(self):
-        self.chart_object.server("baz")
-        self.assertEqual(self.chart_object._server, "baz")
-        self.chart_object.server(True)
-        self.assertTrue(self.chart_object._server)
-
-    def test_notebook(self):
-        self.chart_object.notebook()
-        self.assertTrue(self.chart_object._notebook)
-        self.chart_object.notebook(False)
-        self.assertFalse(self.chart_object._notebook)
-
-    def test_check_attr(self):
-        self.chart_object.check_attr()
-        self.assertEqual(self.chart_object._title, "title")
-        self.assertEqual(self.chart_object._xlabel, "xlabel")
-        self.assertEqual(self.chart_object._ylabel, "ylabel")
-        self.assertEqual(self.chart_object._legend, "top_left")
-        self.assertEqual(self.chart_object._xscale, "linear")
-        self.assertEqual(self.chart_object._yscale, "linear")
-        self.assertEqual(self.chart_object._width, 800)
-        self.assertEqual(self.chart_object._height, 600)
-        self.assertTrue(self.chart_object._tools)
-        self.assertFalse(self.chart_object._filename)
-        self.assertFalse(self.chart_object._server)
-        self.assertFalse(self.chart_object._notebook)
-        self.assertEqual(self.chart_object._facet, False)
-        self.assertEqual(self.chart_object._xgrid, True)
-        self.assertEqual(self.chart_object._ygrid, False)
-
-    def test_create_chart(self):
-        self.chart_object.check_attr()
-        test_chart_created = self.chart_object.create_chart()
-        self.assertIsInstance(test_chart_created, Chart)
-        self.assertEqual(self.chart_object.chart, test_chart_created)
-        self.assertEqual(test_chart_created.title, "title")
-        self.assertEqual(test_chart_created.xlabel, "xlabel")
-        self.assertEqual(test_chart_created.ylabel, "ylabel")
-        self.assertEqual(test_chart_created.legend, "top_left")
-        self.assertEqual(test_chart_created.xscale, "linear")
-        self.assertEqual(test_chart_created.yscale, "linear")
-        self.assertEqual(test_chart_created.plot_width, 800)
-        self.assertEqual(test_chart_created.plot_height, 600)
-        self.assertTrue(test_chart_created.tools)
-        self.assertFalse(test_chart_created.filename)
-        self.assertFalse(test_chart_created.server)
-        self.assertFalse(test_chart_created.notebook)
-        self.assertEqual(self.chart_object._facet, False)
-        self.assertEqual(self.chart_object._xgrid, True)
-        self.assertEqual(self.chart_object._ygrid, False)
-
-    # The following tests would test chart wrapping functions
-    @patch('bokeh.charts._charts.Chart.start_plot')
-    def test_start_plot(self, mocked):
-        self.chart_object.check_attr()
-        self.chart_object.create_chart()
-        self.chart_object.start_plot()
-        xgrd, ygrd = self.chart_object._xgrid, self.chart_object._ygrid
-        self.chart_object.chart.start_plot.assert_called_once_with(xgrd, ygrd)
-
-    @patch('bokeh.charts._charts.Chart.add_data_plot')
-    def test_add_data_plot(self, mocked):
-        self.chart_object.check_attr()
-        self.chart_object.create_chart()
-        xdr = self.chart_object.xdr = 0
-        ydr = self.chart_object.ydr = 1
-        self.chart_object.add_data_plot()
-        self.chart_object.chart.add_data_plot.assert_called_once_with(xdr, ydr)
-
-    @patch('bokeh.charts._charts.Chart.end_plot')
-    def test_end_plot(self, mocked):
-        self.chart_object.check_attr()
-        self.chart_object.create_chart()
-        groups = self.chart_object.groups = ["A", "B"]
-        self.chart_object.end_plot()
-        self.chart_object.chart.end_plot.assert_called_once_with(groups)
-
-    @patch('bokeh.charts._charts.Chart.show')
-    def test_show_chart(self, mocked):
-        self.chart_object.check_attr()
-        self.chart_object.create_chart()
-        self.chart_object.show_chart()
-        self.chart_object.chart.show.assert_called_once_with()
 
     def test_chunker(self):
-        chunk = self.chart_object._chunker(range(5), 2)
+        chunk = self.builder._chunker(range(5), 2)
         chunk_list = list(chunk)
         self.assertEqual(len(chunk_list), 3)
         self.assertEqual(len(chunk_list[0]), 2)
-
-    def test_set_colors(self):
-        expected_colors = ["#f22c40", "#5ab738", "#407ee7", "#df5320",
-                           "#00ad9c", "#c33ff3", "#f22c40"]
-        colors = self.chart_object._set_colors(range(7))
-        self.assertListEqual(expected_colors, colors)
-
 
 class TestArea(unittest.TestCase):
     def test_supported_input(self):
@@ -539,42 +357,41 @@ class TestArea(unittest.TestCase):
         data_keys = ['x', 'y_jython', 'y_pypy', 'y_python']
         for _xy in [xyvalues, dict(xyvalues), pd.DataFrame(xyvalues)]:
             area = create_chart(Area, _xy)
+            builder = area._builders[0]
+            self.assertEqual(sorted(builder.groups), sorted(list(xyvalues.keys())))
+            self.assertListEqual(sorted(builder.data.keys()), data_keys)
+            assert_array_equal(builder.data['x'], x)
+            assert_array_equal(builder.data['y_jython'], y_jython)
+            assert_array_equal(builder.data['y_pypy'], y_pypy)
+            assert_array_equal(builder.data['y_python'], y_python)
 
-            self.assertEqual(sorted(area.groups), sorted(list(xyvalues.keys())))
-            self.assertListEqual(sorted(area.data.keys()), data_keys)
-            assert_array_equal(area.data['x'], x)
-            assert_array_equal(area.data['y_jython'], y_jython)
-            assert_array_equal(area.data['y_pypy'], y_pypy)
-            assert_array_equal(area.data['y_python'], y_python)
-
-            self.assertIsInstance(area.xdr, DataRange1d)
-            self.assertEqual(area.xdr.sources[0].source, area.source.columns('x').source)
-            self.assertIsInstance(area.ydr, Range1d)
-            assert_array_almost_equal(area.ydr.start, -12.6, decimal=4)
-            assert_array_almost_equal(area.ydr.end, 138.6, decimal=4)
-            self.assertEqual(area.source.data, area.data)
+            self.assertIsInstance(area.x_range, DataRange1d)
+            self.assertEqual(area.x_range.sources[0].source, builder.source.columns('x').source)
+            self.assertIsInstance(area.y_range, Range1d)
+            assert_array_almost_equal(area.y_range.start, -12.6, decimal=4)
+            assert_array_almost_equal(area.y_range.end, 138.6, decimal=4)
+            self.assertEqual(builder.source.data, builder.data)
 
         data_keys = ['x', 'y_0', 'y_1', 'y_2']
         lvalues = [[2, 3, 7, 5, 26], [12, 33, 47, 15, 126], [22, 43, 10, 25, 26]]
         y_0, y_1, y_2 = y_python, y_pypy, y_jython
         for _xy in [lvalues, np.array(lvalues)]:
             area = create_chart(Area, _xy)
+            builder = area._builders[0]
 
-            # TODO: Fix bug
-            #self.assertEqual(area.groups, ['0', '1', '2'])
-            self.assertListEqual(sorted(area.data.keys()), data_keys)
-            assert_array_equal(area.data['x'], x)
-            assert_array_equal(area.data['y_0'], y_0)
-            assert_array_equal(area.data['y_1'], y_1)
-            assert_array_equal(area.data['y_2'], y_2)
+            self.assertEqual(builder.groups, ['0', '1', '2'])
+            self.assertListEqual(sorted(builder.data.keys()), data_keys)
+            assert_array_equal(builder.data['x'], x)
+            assert_array_equal(builder.data['y_0'], y_0)
+            assert_array_equal(builder.data['y_1'], y_1)
+            assert_array_equal(builder.data['y_2'], y_2)
 
-            self.assertIsInstance(area.xdr, DataRange1d)
-            self.assertEqual(area.xdr.sources[0].source, area.source.columns('x').source)
-            self.assertIsInstance(area.ydr, Range1d)
-            assert_array_almost_equal(area.ydr.start, -12.6, decimal=4)
-            assert_array_almost_equal(area.ydr.end, 138.6, decimal=4)
-            self.assertEqual(area.source.data, area.data)
-
+            self.assertIsInstance(area.x_range, DataRange1d)
+            self.assertEqual(area.x_range.sources[0].source, builder.source.columns('x').source)
+            self.assertIsInstance(area.y_range, Range1d)
+            assert_array_almost_equal(area.y_range.start, -12.6, decimal=4)
+            assert_array_almost_equal(area.y_range.end, 138.6, decimal=4)
+            self.assertEqual(builder.source.data, builder.data)
 
 class TestBar(unittest.TestCase):
     def test_supported_input(self):
@@ -585,49 +402,49 @@ class TestBar(unittest.TestCase):
 
         for i, _xy in enumerate([xyvalues, dict(xyvalues), pd.DataFrame(xyvalues)]):
             bar = create_chart(Bar, _xy)
-
-            np.testing.assert_array_equal(bar.data['pypy'], np.array(xyvalues['pypy']))
-            np.testing.assert_array_equal(bar.data['python'], np.array(xyvalues['python']))
-            np.testing.assert_array_equal(bar.data['jython'], np.array(xyvalues['jython']))
+            builder = bar._builders[0]
+            np.testing.assert_array_equal(builder.data['pypy'], np.array(xyvalues['pypy']))
+            np.testing.assert_array_equal(builder.data['python'], np.array(xyvalues['python']))
+            np.testing.assert_array_equal(builder.data['jython'], np.array(xyvalues['jython']))
 
             # test mid values, that should always be y/2 ..
-            np.testing.assert_array_equal(bar.data['midpython'], np.array([1, 2.5]))
-            np.testing.assert_array_equal(bar.data['midpypy'], np.array([6, 20]))
-            np.testing.assert_array_equal(bar.data['midjython'], np.array([11, 15]))
+            np.testing.assert_array_equal(builder.data['midpython'], np.array([1, 2.5]))
+            np.testing.assert_array_equal(builder.data['midpypy'], np.array([6, 20]))
+            np.testing.assert_array_equal(builder.data['midjython'], np.array([11, 15]))
 
             # stacked values should be 0 as base and + y/2 of the column
             # skipping plain dict case as stacked values randomly fails due to
             # dictionary unordered nature
             if i != 1:
-                np.testing.assert_array_equal(bar.data['stackedpython'], np.array([1, 2.5]))
-                np.testing.assert_array_equal(bar.data['stackedpypy'], np.array([8, 25]))
-                np.testing.assert_array_equal(bar.data['stackedjython'], np.array([25, 60]))
+                np.testing.assert_array_equal(builder.data['stackedpython'], np.array([1, 2.5]))
+                np.testing.assert_array_equal(builder.data['stackedpypy'], np.array([8, 25]))
+                np.testing.assert_array_equal(builder.data['stackedjython'], np.array([25, 60]))
 
-            np.testing.assert_array_equal(bar.data['cat'], np.array(['0', '1']))
-            np.testing.assert_array_equal(bar.data['width'], np.array([0.8, 0.8]))
-            np.testing.assert_array_equal(bar.data['width_cat'], np.array([0.2, 0.2]))
+            np.testing.assert_array_equal(builder.data['cat'], np.array(['0', '1']))
+            np.testing.assert_array_equal(builder.data['width'], np.array([0.8, 0.8]))
+            np.testing.assert_array_equal(builder.data['width_cat'], np.array([0.2, 0.2]))
 
         lvalues = [[2, 5], [12, 40], [22, 30]]
         for i, _xy in enumerate([lvalues, np.array(lvalues)]):
             bar = create_chart(Bar, _xy)
-
-            np.testing.assert_array_equal(bar.data['0'], np.array(lvalues[0]))
-            np.testing.assert_array_equal(bar.data['1'], np.array(lvalues[1]))
-            np.testing.assert_array_equal(bar.data['2'], np.array(lvalues[2]))
+            builder = bar._builders[0]
+            np.testing.assert_array_equal(builder.data['0'], np.array(lvalues[0]))
+            np.testing.assert_array_equal(builder.data['1'], np.array(lvalues[1]))
+            np.testing.assert_array_equal(builder.data['2'], np.array(lvalues[2]))
 
             # test mid values, that should always be y/2 ..
-            np.testing.assert_array_equal(bar.data['mid0'], np.array([1, 2.5]))
-            np.testing.assert_array_equal(bar.data['mid1'], np.array([6, 20]))
-            np.testing.assert_array_equal(bar.data['mid2'], np.array([11, 15]))
+            np.testing.assert_array_equal(builder.data['mid0'], np.array([1, 2.5]))
+            np.testing.assert_array_equal(builder.data['mid1'], np.array([6, 20]))
+            np.testing.assert_array_equal(builder.data['mid2'], np.array([11, 15]))
 
             # stacked values should be 0 as base and + y/2 of the column
-            np.testing.assert_array_equal(bar.data['stacked0'], np.array([1, 2.5]))
-            np.testing.assert_array_equal(bar.data['stacked1'], np.array([8, 25]))
-            np.testing.assert_array_equal(bar.data['stacked2'], np.array([25, 60]))
+            np.testing.assert_array_equal(builder.data['stacked0'], np.array([1, 2.5]))
+            np.testing.assert_array_equal(builder.data['stacked1'], np.array([8, 25]))
+            np.testing.assert_array_equal(builder.data['stacked2'], np.array([25, 60]))
 
-            np.testing.assert_array_equal(bar.data['cat'], np.array(['0', '1']))
-            np.testing.assert_array_equal(bar.data['width'], np.array([0.8, 0.8]))
-            np.testing.assert_array_equal(bar.data['width_cat'], np.array([0.2, 0.2]))
+            np.testing.assert_array_equal(builder.data['cat'], np.array(['0', '1']))
+            np.testing.assert_array_equal(builder.data['width'], np.array([0.8, 0.8]))
+            np.testing.assert_array_equal(builder.data['width_cat'], np.array([0.2, 0.2]))
 
 
 class TestHeatMap(unittest.TestCase):
@@ -650,44 +467,46 @@ class TestHeatMap(unittest.TestCase):
         caty = ['a', 'a', 'a', 'b', 'b', 'b', 'c', 'c', 'c']
         for i, _xy in enumerate([xyvalues, xyvaluesdf]):
             hm = create_chart(HeatMap, _xy)
+            builder = hm._builders[0]
             # TODO: Fix bug
             #self.assertEqual(sorted(hm.groups), sorted(list(xyvalues.keys())))
-            assert_array_equal(hm.data['height'], heights)
-            assert_array_equal(hm.data['width'], widths)
-            assert_array_equal(hm.data['catx'], catx)
-            assert_array_equal(hm.data['rate'], rates)
-            assert_array_equal(hm.source.data, hm.data)
-            assert_array_equal(hm.xdr.factors, hm.catsx)
-            assert_array_equal(hm.ydr.factors, hm.catsy)
-            self.assertIsInstance(hm.xdr, FactorRange)
-            self.assertIsInstance(hm.ydr, FactorRange)
-            assert_array_equal(hm.data['color'], colors)
+            assert_array_equal(builder.data['height'], heights)
+            assert_array_equal(builder.data['width'], widths)
+            assert_array_equal(builder.data['catx'], catx)
+            assert_array_equal(builder.data['rate'], rates)
+            assert_array_equal(builder.source.data, builder.data)
+            assert_array_equal(hm.x_range.factors, builder.catsx)
+            assert_array_equal(hm.y_range.factors, builder.catsy)
+            self.assertIsInstance(hm.x_range, FactorRange)
+            self.assertIsInstance(hm.y_range, FactorRange)
+            assert_array_equal(builder.data['color'], colors)
 
             if i == 0: # if DataFrame
-                assert_array_equal(hm.data['caty'], caty)
+                assert_array_equal(builder.data['caty'], caty)
             else:
                 _caty = ['2009']*3 + ['2010']*3 + ['2011']*3
-                assert_array_equal(hm.data['caty'], _caty)
+                assert_array_equal(builder.data['caty'], _caty)
 
 
         catx = ['0', '1', '2', '0', '1', '2', '0', '1', '2']
         lvalues = [[4,5,8], [1,2,4], [6,5,4]]
         for _xy in [lvalues, np.array(lvalues)]:
             hm = create_chart(HeatMap, _xy)
+            builder = hm._builders[0]
 
             # TODO: FIX bug
             #self.assertEqual(sorted(hm.groups), sorted(list(xyvalues.keys())))
-            assert_array_equal(hm.data['height'], heights)
-            assert_array_equal(hm.data['width'], widths)
-            assert_array_equal(hm.data['catx'], catx)
-            assert_array_equal(hm.data['rate'], rates)
-            assert_array_equal(hm.source.data, hm.data)
-            assert_array_equal(hm.xdr.factors, hm.catsx)
-            assert_array_equal(hm.ydr.factors, hm.catsy)
-            self.assertIsInstance(hm.xdr, FactorRange)
-            self.assertIsInstance(hm.ydr, FactorRange)
-            assert_array_equal(hm.data['color'], colors)
-            assert_array_equal(hm.data['caty'], caty)
+            assert_array_equal(builder.data['height'], heights)
+            assert_array_equal(builder.data['width'], widths)
+            assert_array_equal(builder.data['catx'], catx)
+            assert_array_equal(builder.data['rate'], rates)
+            assert_array_equal(builder.source.data, builder.data)
+            assert_array_equal(hm.x_range.factors, builder.catsx)
+            assert_array_equal(hm.y_range.factors, builder.catsy)
+            self.assertIsInstance(hm.x_range, FactorRange)
+            self.assertIsInstance(hm.y_range, FactorRange)
+            assert_array_equal(builder.data['color'], colors)
+            assert_array_equal(builder.data['caty'], caty)
 
 
 class TestDot(unittest.TestCase):
@@ -710,48 +529,49 @@ class TestDot(unittest.TestCase):
 
         for i, _xy in enumerate([xyvalues, xyvaluesdf]):
             hm = create_chart(Dot, _xy, cat=cat)
+            builder = hm._builders[0]
+            self.assertEqual(sorted(builder.groups), sorted(list(xyvalues.keys())))
+            assert_array_equal(builder.data['cat'], cat)
+            assert_array_equal(builder.data['catjython'], catjython)
+            assert_array_equal(builder.data['catpython'], catpython)
+            assert_array_equal(builder.data['catpypy'], catpypy)
 
-            self.assertEqual(sorted(hm.groups), sorted(list(xyvalues.keys())))
-            assert_array_equal(hm.data['cat'], cat)
-            assert_array_equal(hm.data['catjython'], catjython)
-            assert_array_equal(hm.data['catpython'], catpython)
-            assert_array_equal(hm.data['catpypy'], catpypy)
+            assert_array_equal(builder.data['python'], python)
+            assert_array_equal(builder.data['jython'], jython)
+            assert_array_equal(builder.data['pypy'], pypy)
 
-            assert_array_equal(hm.data['python'], python)
-            assert_array_equal(hm.data['jython'], jython)
-            assert_array_equal(hm.data['pypy'], pypy)
+            assert_array_equal(builder.data['seg_top_python'], seg_top_python)
+            assert_array_equal(builder.data['seg_top_jython'], seg_top_jython)
+            assert_array_equal(builder.data['seg_top_pypy'], seg_top_pypy)
 
-            assert_array_equal(hm.data['seg_top_python'], seg_top_python)
-            assert_array_equal(hm.data['seg_top_jython'], seg_top_jython)
-            assert_array_equal(hm.data['seg_top_pypy'], seg_top_pypy)
-
-            assert_array_equal(hm.data['z_python'], zero)
-            assert_array_equal(hm.data['z_pypy'], zero)
-            assert_array_equal(hm.data['z_jython'], zero)
-            assert_array_equal(hm.data['zero'], zero)
+            assert_array_equal(builder.data['z_python'], zero)
+            assert_array_equal(builder.data['z_pypy'], zero)
+            assert_array_equal(builder.data['z_jython'], zero)
+            assert_array_equal(builder.data['zero'], zero)
 
 
         lvalues = [[2, 5], [12, 40], [22, 30]]
         for _xy in [lvalues, np.array(lvalues)]:
             hm = create_chart(Dot, _xy, cat=cat)
+            builder = hm._builders[0]
 
-            self.assertEqual(hm.groups, ['0', '1', '2'])
-            assert_array_equal(hm.data['cat'], cat)
-            assert_array_equal(hm.data['cat0'], catpython)
-            assert_array_equal(hm.data['cat1'], catpypy)
-            assert_array_equal(hm.data['cat2'], catjython)
-            assert_array_equal(hm.data['0'], python)
-            assert_array_equal(hm.data['1'], pypy)
-            assert_array_equal(hm.data['2'], jython)
+            self.assertEqual(builder.groups, ['0', '1', '2'])
+            assert_array_equal(builder.data['cat'], cat)
+            assert_array_equal(builder.data['cat0'], catpython)
+            assert_array_equal(builder.data['cat1'], catpypy)
+            assert_array_equal(builder.data['cat2'], catjython)
+            assert_array_equal(builder.data['0'], python)
+            assert_array_equal(builder.data['1'], pypy)
+            assert_array_equal(builder.data['2'], jython)
 
-            assert_array_equal(hm.data['seg_top_0'], seg_top_python)
-            assert_array_equal(hm.data['seg_top_1'], seg_top_pypy)
-            assert_array_equal(hm.data['seg_top_2'], seg_top_jython)
+            assert_array_equal(builder.data['seg_top_0'], seg_top_python)
+            assert_array_equal(builder.data['seg_top_1'], seg_top_pypy)
+            assert_array_equal(builder.data['seg_top_2'], seg_top_jython)
 
-            assert_array_equal(hm.data['z_0'], zero)
-            assert_array_equal(hm.data['z_1'], zero)
-            assert_array_equal(hm.data['z_2'], zero)
-            assert_array_equal(hm.data['zero'], zero)
+            assert_array_equal(builder.data['z_0'], zero)
+            assert_array_equal(builder.data['z_1'], zero)
+            assert_array_equal(builder.data['z_2'], zero)
+            assert_array_equal(builder.data['zero'], zero)
 
 
 class TestHistogram(unittest.TestCase):
@@ -784,22 +604,22 @@ class TestHistogram(unittest.TestCase):
 
         for i, _xy in enumerate([xyvalues, xyvaluesdf]):
             hm = create_chart(Histogram, _xy, bins=5)
-
-            self.assertEqual(sorted(hm.groups), sorted(list(xyvalues.keys())))
+            builder = hm._builders[0]
+            self.assertEqual(sorted(builder.groups), sorted(list(xyvalues.keys())))
             for key, expected_v in exptected.items():
-                assert_array_almost_equal(hm.data[key], expected_v, decimal=2)
+                assert_array_almost_equal(builder.data[key], expected_v, decimal=2)
 
         lvalues = [[1, 2, 3, 1], [5, 4, 4, 1]]
         for i, _xy in enumerate([lvalues, np.array(lvalues)]):
             hm = create_chart(Histogram, _xy, bins=5)
-
-            self.assertEqual(hm.groups, ['0', '1'])
+            builder = hm._builders[0]
+            self.assertEqual(builder.groups, ['0', '1'])
             for key, expected_v in exptected.items():
                 # replace the keys because we have 0, 1 instead of normal and lognormal
                 key = key.replace('lognormal', '1').replace('normal', '0')
-                assert_array_almost_equal(hm.data[key], expected_v, decimal=2)
+                assert_array_almost_equal(builder.data[key], expected_v, decimal=2)
 
-    @patch('bokeh.charts.histogram.np.histogram', return_value=('a', 'b'))
+    @patch('bokeh.charts.histogram.np.histogram', return_value=([1, 3, 4], [2.4, 4]))
     def test_histogram_params(self, histogram_mock):
         inputs = [[5, 0, 0.5, True], [3, 1, 0, False]]
         normal = [1, 2, 3, 1]
@@ -812,12 +632,12 @@ class TestHistogram(unittest.TestCase):
             histogram_mock.reset_mock()
             kws = dict(bins=bins, mu=mu, sigma=sigma, density=dens)
             hm = create_chart(Histogram, xyvalues, compute_values=False, **kws)
-
+            builder = hm._builders[0]
             # ensure all class attributes have been correctly set
             for key, value in kws.items():
-                self.assertEqual(getattr(hm, key), value)
+                self.assertEqual(getattr(builder, key), value)
 
-            hm.get_data()
+            builder.get_data()
             # ensure we are calling numpy.histogram with the right args
             calls = histogram_mock.call_args_list
             assert_array_equal(calls[0][0][0], np.array([1, 2, 3, 1]))
@@ -839,22 +659,22 @@ class TestLine(unittest.TestCase):
 
         for i, _xy in enumerate([xyvalues, xyvaluesdf]):
             hm = create_chart(Line, _xy)
-
-            self.assertEqual(sorted(hm.groups), sorted(list(xyvalues.keys())))
-            assert_array_equal(hm.data['x'], [0, 1, 2, 3, 4])
-            assert_array_equal(hm.data['y_python'], y_python)
-            assert_array_equal(hm.data['y_pypy'], y_pypy)
-            assert_array_equal(hm.data['y_jython'], y_jython)
+            builder = hm._builders[0]
+            self.assertEqual(sorted(builder.groups), sorted(list(xyvalues.keys())))
+            assert_array_equal(builder.data['x'], [0, 1, 2, 3, 4])
+            assert_array_equal(builder.data['y_python'], y_python)
+            assert_array_equal(builder.data['y_pypy'], y_pypy)
+            assert_array_equal(builder.data['y_jython'], y_jython)
 
         lvalues = [[2, 3, 7, 5, 26], [12, 33, 47, 15, 126], [22, 43, 10, 25, 26]]
         for _xy in [lvalues, np.array(lvalues)]:
             hm = create_chart(Line, _xy)
-
-            self.assertEqual(hm.groups, ['0', '1', '2'])
-            assert_array_equal(hm.data['x'], [0, 1, 2, 3, 4])
-            assert_array_equal(hm.data['y_0'], y_python)
-            assert_array_equal(hm.data['y_1'], y_pypy)
-            assert_array_equal(hm.data['y_2'], y_jython)
+            builder = hm._builders[0]
+            self.assertEqual(builder.groups, ['0', '1', '2'])
+            assert_array_equal(builder.data['x'], [0, 1, 2, 3, 4])
+            assert_array_equal(builder.data['y_0'], y_python)
+            assert_array_equal(builder.data['y_1'], y_pypy)
+            assert_array_equal(builder.data['y_2'], y_jython)
 
 class TestScatter(unittest.TestCase):
     def test_supported_input(self):
@@ -874,26 +694,26 @@ class TestScatter(unittest.TestCase):
 
         for i, _xy in enumerate([xyvalues, xyvaluesdf]):
             hm = create_chart(Scatter, _xy)
-
-            self.assertEqual(sorted(hm.groups), sorted(list(xyvalues.keys())))
-            assert_array_equal(hm.data['y_python'], y_python)
-            assert_array_equal(hm.data['y_jython'], y_jython)
-            assert_array_equal(hm.data['y_pypy'], y_pypy)
-            assert_array_equal(hm.data['x_python'], x_python)
-            assert_array_equal(hm.data['x_jython'], x_jython)
-            assert_array_equal(hm.data['x_pypy'], x_pypy)
+            builder = hm._builders[0]
+            self.assertEqual(sorted(builder.groups), sorted(list(xyvalues.keys())))
+            assert_array_equal(builder.data['y_python'], y_python)
+            assert_array_equal(builder.data['y_jython'], y_jython)
+            assert_array_equal(builder.data['y_pypy'], y_pypy)
+            assert_array_equal(builder.data['x_python'], x_python)
+            assert_array_equal(builder.data['x_jython'], x_jython)
+            assert_array_equal(builder.data['x_pypy'], x_pypy)
 
         lvalues = [xyvalues['python'], xyvalues['pypy'], xyvalues['jython']]
         for _xy in [lvalues, np.array(lvalues)]:
             hm = create_chart(Scatter, _xy)
-
-            self.assertEqual(hm.groups, ['0', '1', '2'])
-            assert_array_equal(hm.data['y_0'], y_python)
-            assert_array_equal(hm.data['y_1'], y_pypy)
-            assert_array_equal(hm.data['y_2'], y_jython)
-            assert_array_equal(hm.data['x_0'], x_python)
-            assert_array_equal(hm.data['x_1'], x_pypy)
-            assert_array_equal(hm.data['x_2'], x_jython)
+            builder = hm._builders[0]
+            self.assertEqual(builder.groups, ['0', '1', '2'])
+            assert_array_equal(builder.data['y_0'], y_python)
+            assert_array_equal(builder.data['y_1'], y_pypy)
+            assert_array_equal(builder.data['y_2'], y_jython)
+            assert_array_equal(builder.data['x_0'], x_python)
+            assert_array_equal(builder.data['x_1'], x_pypy)
+            assert_array_equal(builder.data['x_2'], x_jython)
 
 
 class TestStep(unittest.TestCase):
@@ -915,30 +735,30 @@ class TestStep(unittest.TestCase):
 
         for i, _xy in enumerate([xyvalues, xyvaluesdf]):
             hm = create_chart(Step, _xy)
+            builder = hm._builders[0]
+            self.assertEqual(sorted(builder.groups), sorted(list(xyvalues.keys())))
+            assert_array_equal(builder.data['x'], x)
+            assert_array_equal(builder.data['x2'], x2)
 
-            self.assertEqual(sorted(hm.groups), sorted(list(xyvalues.keys())))
-            assert_array_equal(hm.data['x'], x)
-            assert_array_equal(hm.data['x2'], x2)
-
-            assert_array_equal(hm.data['y1_python'], y1_python)
-            assert_array_equal(hm.data['y2_python'], y2_python)
-            assert_array_equal(hm.data['y1_jython'], y1_jython)
-            assert_array_equal(hm.data['y2_jython'], y2_jython)
-            assert_array_equal(hm.data['y1_pypy'], y1_pypy)
-            assert_array_equal(hm.data['y2_pypy'], y2_pypy)
+            assert_array_equal(builder.data['y1_python'], y1_python)
+            assert_array_equal(builder.data['y2_python'], y2_python)
+            assert_array_equal(builder.data['y1_jython'], y1_jython)
+            assert_array_equal(builder.data['y2_jython'], y2_jython)
+            assert_array_equal(builder.data['y1_pypy'], y1_pypy)
+            assert_array_equal(builder.data['y2_pypy'], y2_pypy)
 
 
         lvalues = [[2, 3, 7, 5, 26], [12, 33, 47, 15, 126], [22, 43, 10, 25, 26]]
         for _xy in [lvalues, np.array(lvalues)]:
             hm = create_chart(Step, _xy)
-
-            self.assertEqual(hm.groups, ['0', '1', '2'])
-            assert_array_equal(hm.data['y1_0'], y1_python)
-            assert_array_equal(hm.data['y2_0'], y2_python)
-            assert_array_equal(hm.data['y1_1'], y1_pypy)
-            assert_array_equal(hm.data['y2_1'], y2_pypy)
-            assert_array_equal(hm.data['y1_2'], y1_jython)
-            assert_array_equal(hm.data['y2_2'], y2_jython)
+            builder = hm._builders[0]
+            self.assertEqual(builder.groups, ['0', '1', '2'])
+            assert_array_equal(builder.data['y1_0'], y1_python)
+            assert_array_equal(builder.data['y2_0'], y2_python)
+            assert_array_equal(builder.data['y1_1'], y1_pypy)
+            assert_array_equal(builder.data['y2_1'], y2_pypy)
+            assert_array_equal(builder.data['y1_2'], y1_jython)
+            assert_array_equal(builder.data['y2_2'], y2_jython)
 
 
 class TestDonut(unittest.TestCase):
@@ -964,11 +784,11 @@ class TestDonut(unittest.TestCase):
             #       Fix it and add test case for , pd.DataFrame(xyvalues)
             for i, _xy in enumerate([xyvalues]):
                 _chart = create_chart(Donut, _xy, cat=cat)
-
-                self.assertEqual(_chart.groups, cat)
-                assert_array_equal(_chart.data['start'], start)
-                assert_array_equal(_chart.data['end'], end)
-                assert_array_equal(_chart.data['colors'], colors)
+                builder = _chart._builders[0]
+                self.assertEqual(builder.groups, cat)
+                assert_array_equal(builder.data['start'], start)
+                assert_array_equal(builder.data['end'], end)
+                assert_array_equal(builder.data['colors'], colors)
 
                 # TODO: Test for external ring source values is missing as it needs
                 #       some refactoring to expose those values calculation
@@ -978,11 +798,11 @@ class TestDonut(unittest.TestCase):
         for lvalues in [lvalues, lvalues_int]:
             for i, _xy in enumerate([lvalues, np.array(lvalues)]):
                 _chart = create_chart(Donut, _xy, cat=cat)
-
-                self.assertEqual(_chart.groups, cat)
-                assert_array_equal(_chart.data['start'], start)
-                assert_array_equal(_chart.data['end'], end)
-                assert_array_equal(_chart.data['colors'], colors)
+                builder = _chart._builders[0]
+                self.assertEqual(builder.groups, cat)
+                assert_array_equal(builder.data['start'], start)
+                assert_array_equal(builder.data['end'], end)
+                assert_array_equal(builder.data['colors'], colors)
 
                 # TODO: Test for external ring source values is missing as it needs
                 #       some refactoring to expose those values calculation
@@ -1049,26 +869,26 @@ class TestTimeSeries(unittest.TestCase):
         groups = ['python', 'pypy', 'jython']
         for i, _xy in enumerate([xyvalues, xyvaluesdf]):
             ts = create_chart(TimeSeries, _xy, index='Date')
-
-            self.assertEqual(ts.groups, groups)
-            assert_array_equal(ts.data['x_python'], _xy['Date'])
-            assert_array_equal(ts.data['x_pypy'], _xy['Date'])
-            assert_array_equal(ts.data['x_jython'], _xy['Date'])
-            assert_array_equal(ts.data['y_python'], y_python)
-            assert_array_equal(ts.data['y_pypy'], y_pypy)
-            assert_array_equal(ts.data['y_jython'], y_jython)
+            builder = ts._builders[0]
+            self.assertEqual(builder.groups, groups)
+            assert_array_equal(builder.data['x_python'], _xy['Date'])
+            assert_array_equal(builder.data['x_pypy'], _xy['Date'])
+            assert_array_equal(builder.data['x_jython'], _xy['Date'])
+            assert_array_equal(builder.data['y_python'], y_python)
+            assert_array_equal(builder.data['y_pypy'], y_pypy)
+            assert_array_equal(builder.data['y_jython'], y_jython)
 
         lvalues = [[2, 3, 7, 5, 26], [12, 33, 47, 15, 126], [22, 43, 10, 25, 26]]
         for _xy in [lvalues, np.array(lvalues)]:
             hm = create_chart(TimeSeries, _xy, index=dts)
-
-            self.assertEqual(hm.groups, ['0', '1', '2'])
-            assert_array_equal(hm.data['x_0'], dts)
-            assert_array_equal(hm.data['x_1'], dts)
-            assert_array_equal(hm.data['x_2'], dts)
-            assert_array_equal(hm.data['y_0'], y_python)
-            assert_array_equal(hm.data['y_1'], y_pypy)
-            assert_array_equal(hm.data['y_2'], y_jython)
+            builder = hm._builders[0]
+            self.assertEqual(builder.groups, ['0', '1', '2'])
+            assert_array_equal(builder.data['x_0'], dts)
+            assert_array_equal(builder.data['x_1'], dts)
+            assert_array_equal(builder.data['x_2'], dts)
+            assert_array_equal(builder.data['y_0'], y_python)
+            assert_array_equal(builder.data['y_1'], y_pypy)
+            assert_array_equal(builder.data['y_2'], y_jython)
 
 
 class TestBoxPlot(unittest.TestCase):
@@ -1086,7 +906,7 @@ class TestBoxPlot(unittest.TestCase):
         ])
         xyvaluesdf = pd.DataFrame(xyvalues)
         exptected_datarect = {
-            'colors': ['#f22c40', '#5ab738', '#407ee7'],
+            'colors': ['#f22c40', '#5ab738', '#407ee7', '#df5320', '#00ad9c', '#c33ff3'],
             'groups': ['bronze', 'silver', 'gold'],
             'iqr_centers': [2.5, 2.5, 2.5],
             'iqr_lengths': [3.0, 3.0, 4.5],
@@ -1111,16 +931,18 @@ class TestBoxPlot(unittest.TestCase):
 
         for i, _xy in enumerate([xyvalues, xyvaluesdf]):
             bp = create_chart(BoxPlot, _xy, marker='circle', outliers=True)
-
-            self.assertEqual(sorted(bp.groups), sorted(groups))
+            builder = bp._builders[0]
+            self.assertEqual(sorted(builder.groups), sorted(groups))
             for key, expected_v in exptected_datarect.items():
-                self.assertEqual(bp.data_rect[key], expected_v)
+                self.assertEqual(builder._data_rect[key], expected_v)
 
             for key, expected_v in expected_scatter.items():
-                self.assertEqual(bp.data_scatter[key], expected_v)
+                self.assertEqual(builder._data_scatter[key], expected_v)
 
             for key, expected_v in expected_seg.items():
-                self.assertEqual(bp.data_segment[key], expected_v)
+                self.assertEqual(builder._data_segment[key], expected_v)
+
+            self.assertEqual(len(builder._legends), 3)
 
         lvalues = [
             np.array([7.0, 10.0, 8.0, 7.0, 4.0, 4.0, 1.0, 5.0, 2.0, 1.0,
@@ -1133,56 +955,60 @@ class TestBoxPlot(unittest.TestCase):
                     3., 1., 0., 5., 4., 2., 0., 0., 0., 1., 1., 0., 0.,
                     0.])
         ]
+
         groups = exptected_datarect['groups'] = ['0', '1', '2']
         expected_scatter['out_x'] = ['0', '0', '0', '0', '1', '1']
         for i, _xy in enumerate([lvalues, np.array(lvalues)]):
             bp = create_chart(BoxPlot, _xy, marker='circle', outliers=True)
-
-            self.assertEqual(sorted(bp.groups), sorted(groups))
+            builder = bp._builders[0]
+            self.assertEqual(sorted(builder.groups), sorted(groups))
             for key, expected_v in exptected_datarect.items():
-                self.assertEqual(bp.data_rect[key], expected_v)
+                self.assertEqual(builder._data_rect[key], expected_v)
 
             for key, expected_v in expected_scatter.items():
-                self.assertEqual(bp.data_scatter[key], expected_v)
+                self.assertEqual(builder._data_scatter[key], expected_v)
 
             for key, expected_v in expected_seg.items():
-                self.assertEqual(bp.data_segment[key], expected_v)
+                self.assertEqual(builder._data_segment[key], expected_v)
 
+            self.assertEqual(len(builder._legends), 3)
 
 class TestHorizon(unittest.TestCase):
     def test_supported_input(self):
         now = datetime.datetime.now()
         delta = datetime.timedelta(minutes=1)
         dts = [now + delta*i for i in range(6)]
-        dtss = ['%s'%dt for dt in dts]
         xyvalues = OrderedDict({'Date': dts})
         # Repeat the starting and trailing points in order to 
-        y_python = xyvalues['python'] = [-120, -120, -30, 50, 100, 103]
-        y_pypy = xyvalues['pypy'] = [-75, -75, -33, 15, 126, 126]
+        xyvalues['python'] = [-120, -120, -30, 50, 100, 103]
+        xyvalues['pypy'] = [-75, -75, -33, 15, 126, 126]
 
         xyvaluesdf = pd.DataFrame(xyvalues)
         groups = ['python', 'pypy']
         for i, _xy in enumerate([xyvalues, xyvaluesdf]):
             ts = create_chart(Horizon, _xy, index='Date')
+            builder = ts._builders[0]
+
             padded_date = [x for x in _xy['Date']]
             padded_date.insert(0, padded_date[0])
             padded_date.append(padded_date[-1])
 
-            self.assertEqual(ts.nb_folds, 3)
-            self.assertEqual(ts.series, groups)
-            self.assertEqual(ts.fold_height, 126.0 / 3)
-            self.assertEqual(ts.groups, ['42.0', '-42.0', '84.0', '-84.0', '126.0', '-126.0'])
-            assert_array_equal(ts.data['x_python'], padded_date)
-            assert_array_equal(ts.data['x_pypy'], padded_date)
-            assert_array_equal(ts.data['y_fold-3_python'], [63, 9, 9 ,63, 63, 63, 63, 63])
-            assert_array_equal(ts.data['y_fold-2_python'], [63, 0, 0, 63, 63, 63, 63, 63])
-            assert_array_equal(ts.data['y_fold-1_python'], [63, 0, 0, 18, 63, 63, 63, 63])
-            assert_array_equal(ts.data['y_fold1_python'], [0, 0, 0, 0, 63, 63, 63, 0])
-            assert_array_equal(ts.data['y_fold2_python'], [0, 0, 0, 0, 12, 63, 63, 0])
-            assert_array_equal(ts.data['y_fold3_python'], [0, 0, 0, 0, 0, 24, 28.5, 0])
-            assert_array_equal(ts.data['y_fold-3_pypy'], [126, 126, 126, 126, 126, 126, 126, 126])
-            assert_array_equal(ts.data['y_fold-2_pypy'], [126, 76.5, 76.5, 126, 126, 126, 126, 126])
-            assert_array_equal(ts.data['y_fold-1_pypy'], [126, 63, 63, 76.5, 126, 126, 126, 126])
-            assert_array_equal(ts.data['y_fold1_pypy'], [63, 63, 63, 63, 85.5, 126, 126, 63])
-            assert_array_equal(ts.data['y_fold2_pypy'], [63, 63, 63, 63, 63, 126, 126, 63])
-            assert_array_equal(ts.data['y_fold3_pypy'], [63, 63, 63, 63, 63, 126, 126, 63])
+            self.assertEqual(builder.nb_folds, 3)
+            self.assertEqual(builder.series, groups)
+            self.assertEqual(builder.fold_height, 126.0 / 3)
+            self.assertEqual(builder.groups, ['42.0', '-42.0', '84.0', '-84.0', '126.0', '-126.0'])
+            assert_array_equal(builder.data['x_python'], padded_date)
+            assert_array_equal(builder.data['x_pypy'], padded_date)
+            assert_array_equal(builder.data['y_fold-3_python'], [63, 9, 9 ,63, 63, 63, 63, 63])
+            assert_array_equal(builder.data['y_fold-2_python'], [63, 0, 0, 63, 63, 63, 63, 63])
+            assert_array_equal(builder.data['y_fold-1_python'], [63, 0, 0, 18, 63, 63, 63, 63])
+            assert_array_equal(builder.data['y_fold1_python'], [0, 0, 0, 0, 63, 63, 63, 0])
+            assert_array_equal(builder.data['y_fold2_python'], [0, 0, 0, 0, 12, 63, 63, 0])
+            assert_array_equal(builder.data['y_fold3_python'], [0, 0, 0, 0, 0, 24, 28.5, 0])
+            assert_array_equal(builder.data['y_fold-3_pypy'], [126, 126, 126, 126, 126, 126, 126, 126])
+            assert_array_equal(builder.data['y_fold-2_pypy'], [126, 76.5, 76.5, 126, 126, 126, 126, 126])
+            assert_array_equal(builder.data['y_fold-1_pypy'], [126, 63, 63, 76.5, 126, 126, 126, 126])
+            assert_array_equal(builder.data['y_fold1_pypy'], [63, 63, 63, 63, 85.5, 126, 126, 63])
+            assert_array_equal(builder.data['y_fold2_pypy'], [63, 63, 63, 63, 63, 126, 126, 63])
+            assert_array_equal(builder.data['y_fold3_pypy'], [63, 63, 63, 63, 63, 126, 126, 63])
+

@@ -31,5 +31,5 @@ scatter = Scatter(
     xyvalues, filename="iris_scatter.html", tools=TOOLS, ylabel='petal_width',
     facet=False
 )
-scatter.title("iris dataset").legend("top_left")
-scatter.width(600).height(400).show()
+# scatter.title("iris dataset").legend("top_left")
+scatter.show()

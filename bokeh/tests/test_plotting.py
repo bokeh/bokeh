@@ -1,7 +1,7 @@
 import unittest
 
 import bokeh.plotting as plt
-from ..models import (Grid, LinearAxis, PanTool, BoxZoomTool, LassoSelectTool,
+from bokeh.models import (Grid, LinearAxis, PanTool, BoxZoomTool, LassoSelectTool,
                       PanTool, PreviewSaveTool, ResetTool, ResizeTool)
 
 class TestPlotting(unittest.TestCase):
@@ -25,6 +25,14 @@ class TestPlotting(unittest.TestCase):
         r = plt.figure()
         self.assertNotEqual(p, r)
         self.assertNotEqual(q, r)
+        p = plt.figure(width=100, height=120)
+        self.assertEqual(p.plot_width, 100)
+        self.assertEqual(p.plot_height, 120)
+        p = plt.figure(plot_width=100, plot_height=120)
+        self.assertEqual(p.plot_width, 100)
+        self.assertEqual(p.plot_height, 120)
+        self.assertRaises(ValueError, plt.figure, plot_width=100, width=120)
+        self.assertRaises(ValueError, plt.figure, plot_height=100, height=120)
 
     def test_xaxis(self):
         p = plt.figure()
@@ -140,3 +148,5 @@ class TestPlotting(unittest.TestCase):
             self.assertIsInstance(fig.tools[i], _type)
 
 
+if __name__ == "__main__":
+    unittest.main()

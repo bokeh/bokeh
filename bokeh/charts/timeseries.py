@@ -17,22 +17,28 @@ passing the arguments to the Chart class and calling the proper functions.
 #-----------------------------------------------------------------------------
 
 from six import string_types
-from collections import OrderedDict
 
 try:
     import pandas as pd
 except ImportError:
     pd = None
 
-from ._chartobject import ChartObject, DataAdapter
-from ..models import ColumnDataSource, Range1d, DataRange1d
+from ._builder import Builder, create_and_build
+from ..models import ColumnDataSource, DataRange1d, GlyphRenderer, Range1d
+from ..models.glyphs import Line
 
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
 
 
-class TimeSeries(ChartObject):
+def TimeSeries(values, index=None, xscale='datetime', **kws):
+    return create_and_build(
+        TimeSeriesBuilder, values, index=index, xscale=xscale, **kws
+    )
+
+
+class TimeSeriesBuilder(Builder):
     """This is the TimeSeries class and it is in charge of plotting
     TimeSeries charts in an easy and intuitive way.
 
@@ -57,13 +63,10 @@ class TimeSeries(ChartObject):
 
         ts = TimeSeries(xyvalues, index='Date', title="timeseries",
                         ylabel='Stock Prices', filename="stocks_ts.html")
-        ts.legend("top_left").show()
+        ts.show()
 
     """
-    def __init__(self, values, index=None, title=None, xlabel=None, ylabel=None,
-                 legend=False, xscale="datetime", yscale="linear", width=800,
-                 height=600, tools=True, filename=False, server=False,
-                 notebook=False, facet=False, xgrid=True, ygrid=True):
+    def __init__(self, values, index=None,legend=False, palette=None, **kws):
         """
         Args:
             values (iterable): iterable 2d representing the data series
@@ -77,53 +80,21 @@ class TimeSeries(ChartObject):
                         series) if area.values is a mapping (like a dict,
                         an OrderedDict or a pandas DataFrame). The values
                         must be datetime values.
-            title (str, optional): the title of your chart. Defaults
-                to None.
-            xlabel (str, optional): the x-axis label of your chart.
-                Defaults to None.
-            ylabel (str, optional): the y-axis label of your chart.
-                Defaults to None.
             legend (str, optional): the legend of your chart. The legend
                 content is inferred from incoming input.It can be
                 ``top_left``, ``top_right``, ``bottom_left``,
                 ``bottom_right``. ``top_right`` is set if you set it
                  as True. Defaults to None.
-            xscale (str, optional): the x-axis type scale of your chart.
-                It can be ``linear``, ``datetime`` or ``categorical``.
-                Defaults to ``datetime``.
-            yscale (str, optional): the y-axis type scale of your chart.
-                It can be ``linear``, ``datetime`` or ``categorical``.
-                Defaults to ``linear``.
-            width (int, optional): the width of your chart in pixels.
-                Defaults to 800.
-            height (int, optional): the height of you chart in pixels.
-                Defaults to 600.
-            tools (bool, optional): to enable or disable the tools in
-                your chart. Defaults to True
-            filename (str or bool, optional): the name of the file where
-                your chart. will be written. If you pass True to this
-                argument, it will use ``untitled`` as a filename.
-                Defaults to False.
-            server (str or bool, optional): the name of your chart in
-                the server. If you pass True to this argument, it will
-                use ``untitled`` as the name in the server.
-                Defaults to False.
-            notebook (bool, optional): whether to output to IPython notebook
-                (default: False)
-            facet (bool, optional): generate multiple areas on multiple
-                separate charts for each series if True. Defaults to
-                False
-            xgrid (bool, optional): whether to display x grid lines
-                (default: True)
-            ygrid (bool, optional): whether to display y grid lines
-                (default: True)
+            palette(list, optional): a list containing the colormap as
+                hex values.
+
 
         Attributes:
             source (obj): datasource object for your plot,
                 initialized as a dummy None.
-            xdr (obj): x-associated datarange object for you plot,
+            x_range (obj): x-associated datarange object for you plot,
                 initialized as a dummy None.
-            ydr (obj): y-associated datarange object for you plot,
+            y_range (obj): y-associated datarange object for you plot,
                 initialized as a dummy None.
             groups (list): to be filled with the incoming groups of data.
                 Useful for legend construction.
@@ -134,20 +105,8 @@ class TimeSeries(ChartObject):
                 loading the data dict.
                 Needed for _set_And_get method.
         """
-        self.values = values
-        self.source = None
-        self.xdr = None
-        self.ydr = None
-        # list to save all the groups available in the incomming input
-        self.groups = []
-        self.data = dict()
-        self.attr = []
         self.index = index
-
-        super(TimeSeries, self).__init__(
-            title, xlabel, ylabel, legend, xscale, yscale, width, height,
-            tools, filename, server, notebook, facet, xgrid, ygrid
-        )
+        super(TimeSeriesBuilder, self).__init__(values, legend=legend, palette=palette)
 
     def get_data(self):
         """Take the x/y data from the timeseries values.
@@ -162,7 +121,6 @@ class TimeSeries(ChartObject):
         # list to save all the attributes we are going to create
         self.attr = []
         xs = self.values_index
-        # xs, self.values = self.prepare_data(self.values)
         for col in self.values.keys():
             if isinstance(self.index, string_types) \
                 and col == self.index:
@@ -178,12 +136,11 @@ class TimeSeries(ChartObject):
         calculate the proper ranges.
         """
         self.source = ColumnDataSource(self.data)
-        self.xdr = DataRange1d(sources=[self.source.columns(self.attr[0])])
-
+        self.x_range = DataRange1d(sources=[self.source.columns(self.attr[0])])
         y_names = self.attr[1::2]
         endy = max(max(self.data[i]) for i in y_names)
         starty = min(min(self.data[i]) for i in y_names)
-        self.ydr = Range1d(
+        self.y_range = Range1d(
             start=starty - 0.1 * (endy - starty),
             end=endy + 0.1 * (endy - starty)
         )
@@ -197,7 +154,7 @@ class TimeSeries(ChartObject):
         colors = self._set_colors(self.duplet)
 
         for i, (x, y) in enumerate(self.duplet, start=1):
-            self.chart.make_line(self.source, x, y, colors[i - 1])
-
-            if i < len(self.duplet):
-                self.create_plot_if_facet()
+            glyph = Line(x=x, y=y, line_color=colors[i - 1])
+            renderer = GlyphRenderer(data_source=self.source, glyph=glyph)
+            self._legends.append((self.groups[i-1], [renderer]))
+            yield renderer

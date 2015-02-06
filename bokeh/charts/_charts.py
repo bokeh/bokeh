@@ -18,20 +18,10 @@ the generation of several outputs (file, server, notebook).
 # Imports
 #-----------------------------------------------------------------------------
 
-import itertools
-import warnings
-from collections import OrderedDict
-from six import string_types
-import re
 import numpy as np
 
-from ..models.glyphs import (Asterisk, Circle, CircleCross, CircleX, Cross, Diamond,
-                             DiamondCross, InvertedTriangle, Line, Rect, Segment,
-                             Square, SquareCross, SquareX, Triangle, X, Quad, Patch,
-                             Wedge, AnnularWedge, Text)
-from ..models import (CategoricalAxis, DatetimeAxis, Grid, Legend,
-                       LinearAxis, PanTool, Plot, PreviewSaveTool, ResetTool,
-                       WheelZoomTool)
+from ..models import (
+    CategoricalAxis, DatetimeAxis, Grid, Legend, LinearAxis, Plot)
 
 from ..document import Document
 from ..session import Session
@@ -47,16 +37,19 @@ from ..plotting import DEFAULT_TOOLS
 #-----------------------------------------------------------------------------
 
 
-class Chart(object):
+class Chart(Plot):
     """This is the main Chart class, the core of the ``Bokeh.charts`` interface.
 
     This class essentially set up a "universal" Plot object containing all the
     needed attributes and methods to draw any of the Charts that you can build
     subclassing the ChartObject class.
     """
-    def __init__(self, title, xlabel, ylabel, legend, xscale, yscale, width, height,
-                 tools, filename, server, notebook, facet = False, doc=None,
-                 session=None):
+    __view_model__ = "Plot"
+    __subtype__ = "Chart"
+    def __init__(self, title=None, xlabel=None, ylabel=None, legend=False,
+                 xscale="linear", yscale="linear", width=800, height=600,
+                 tools=True, filename=False, server=False, notebook=False,
+                 xgrid=True, ygrid=True, _doc=None, _session=None, **kws):
         """Common arguments to be used by all the inherited classes.
 
         Args:
@@ -73,12 +66,7 @@ class Chart(object):
                 ``linear``, ``datetime`` or ``categorical``.
             width (int): the width of your plot in pixels.
             height (int): the height of you plot in pixels.
-            tools (seq[Tool or str]|str|bool): list of tool types or
-                string listing the tool names.
-                I.e.: `wheel_zoom,box_zoom,reset`. If a bool value
-                is specified:
-                    - `True` enables defaults tools
-                    - `False` disables all tools
+            tools (bool): to enable or disable the tools in your plot.
             filename (str or bool): the name of the file where your plot.
                 will be written. If you pass True to this argument, it will use
                 ``untitled`` as a filename.
@@ -87,6 +75,11 @@ class Chart(object):
                 as the name in the server.
             notebook (bool): if you want to output (or not) your plot into the
                 IPython notebook.
+                lt: False)
+            xgrid (bool, optional): whether to display x grid lines
+                (default: True)
+            ygrid (bool, optional): whether to display x grid lines
+                (default: True)
 
         Attributes:
             plot (obj): main Plot object.
@@ -94,155 +87,115 @@ class Chart(object):
                 categorical plot.
             glyphs (list): to keep track of the glyphs added to the plot.
         """
-        self.title = title
-        self.xlabel = xlabel
-        self.ylabel = ylabel
-        self.legend = legend
-        self.xscale = xscale
-        self.yscale = yscale
-        self.plot_width = width
-        self.plot_height = height
-        self.tools = tools
-        self.filename = filename
-        self.server = server
-        self.notebook = notebook
-        self._xdr = None
-        self._ydr = None
-        self.facet = facet
-        self._plots = []
-        self.categorical = False
-        self.glyphs = []
+        kw = dict(title=title, plot_width=width, plot_height=height)
+
+        self._source = None
+        # list to save all the groups available in the incomming input
+        self._groups = []
+        self._data = dict()
+        self._attr = []
+
+        super(Chart, self).__init__(**kw)
+
+        self.__title = title
+        self.__xlabel = xlabel
+        self.__ylabel = ylabel
+        self.__legend = legend
+        self.__xscale = xscale
+        self.__yscale = yscale
+        self.__width = width
+        self.__height = height
+        self.__enabled_tools = tools
+        self.__filename = filename
+        self.__server = server
+        self.__notebook = notebook
+        self.__xgrid = xgrid
+        self.__ygrid = ygrid
+
+        self._glyphs = []
+        self._built = False
+
+        self._builders = []
+        self._renderer_map = []
 
         # Add to document and session if server output is asked
-        if doc:
-            self.doc = doc
-            if not self.doc._current_plot:
-                self.figure()
-            else:
-                self._plots = [self.doc._current_plot]
+        if _doc:
+            self._doc = _doc
         else:
-            self.figure()
-            self.doc = Document()
+            self._doc = Document()
 
-        if self.server:
-            if session:
-                self.session = session
+        if self.__server:
+            if _session:
+                self._session = _session
             else:
-                self.session = Session()
+                self._session = Session()
 
-    @property
-    def plot(self):
+        self.check_attr()
+        # create chart axis, grids and tools
+        self.start_plot()
+
+    def add_renderers(self, builder, renderers):
+        self.renderers += renderers
+        self._renderer_map.extend({ r._id : builder for r in renderers })
+
+    def add_builder(self, builder):
+        self._builders.append(builder)
+        builder.create(self)
+
+        # Add tools if supposed to
+        if self._enabled_tools:
+            # reset tools so a categorical builder can add only the
+            # supported tools
+            self.tools = []
+            self.create_tools(self._enabled_tools)
+
+    def create_axes(self):
+        # Add axis
+        self._xaxis = self.make_axis("below", self.__xscale, self.__xlabel)
+        self._yaxis = self.make_axis("left", self.__yscale, self.__ylabel)
+
+    def create_grids(self, xgrid=True, ygrid=True):
+        # Add grids
+        if xgrid:
+            self.make_grid(0, self._xaxis.ticker)
+        if ygrid:
+            self.make_grid(1, self._yaxis.ticker)
+
+    def create_tools(self, tools):
+        # if no tools customization let's create the default tools
+        if isinstance(tools, bool) and tools:
+            tools = DEFAULT_TOOLS
+        elif isinstance(tools, bool):
+            # in case tools == False just exit
+            return
+
+        tool_objs = _process_tools_arg(self, tools)
+        self.add_tools(*tool_objs)
+
+    def start_plot(self):
+        """Add the axis, grids and tools
         """
-        Returns the currently chart plot
-        """
-        return self._plots[-1]
+        self.create_axes()
+        self.create_grids(self._xgrid, self._ygrid)
 
-    def figure(self):
-        """
-        Creates a new plot as current plot.
-        """
-        # TODO: Should figure be validated by self.facet so we raise an exception
-        # if figure is called and facet is False?
-        self._plots.append(
-            Plot(
-                title=self.title,
-                x_range=self._xdr,
-                y_range=self._ydr,
-                plot_width=self.plot_width,
-                plot_height=self.plot_height
-            )
-        )
+        # Add tools if supposed to
+        if self._enabled_tools:
+            self.create_tools(self._enabled_tools)
 
-    def start_plot(self, xgrid, ygrid):
-        """Add the axis, grids and tools to self.plot
-
-        Args:
-            xgrid(bool): whether to show the xgrid
-            ygrid(bool): whether to shoe the ygrid
-        """
-        if not self.doc._current_plot:
-            # Add axis
-            xaxis = self.make_axis("below", self.xscale, self.xlabel)
-            yaxis = self.make_axis("left", self.yscale, self.ylabel)
-
-            # Add grids
-            if xgrid:
-                self.make_grid(0, xaxis.ticker)
-            if ygrid:
-                self.make_grid(1, yaxis.ticker)
-
-            # Add tools if supposed to
-            if self.tools:
-                # need to add tool to all underlying plots
-                for plot in self._plots:
-                    # only add tools if the underlying plot hasn't been customized
-                    # by some user injection
-                    if not plot.tools:
-                        # if True let's create the default tools
-                        if isinstance(self.tools, bool) and self.tools:
-                            self.tools = DEFAULT_TOOLS
-
-                        tool_objs = _process_tools_arg(plot, self.tools)
-                        plot.add_tools(*tool_objs)
-
-    def add_data_plot(self, x_range, y_range):
-        """Add range data to the initialized empty attributes.
-
-        Args:
-            x_range (obj): x-associated datarange object for your `self.plot`.
-            y_range (obj): y-associated datarange object for your `self.plot`.
-        """
-        # Overwrite the ranges in the plot
-        self.plot.x_range = x_range
-        self.plot.y_range = y_range
-
-    def end_plot(self, groups):
+    def add_legend(self, orientation, legends):
         """Add the legend to your plot, and the plot to a new Document.
 
         It also add the Document to a new Session in the case of server output.
 
         Args:
-            groups(list): keeping track of the incoming groups of data.
-                Useful to automatically setup the legend.
+            orientation(str): position of the legend on the chart.
+            legends(List(Tuple(String, List(GlyphRenderer)): A list of
+                tuples that maps text labels to the legend to corresponding
+                renderers that should draw sample representations for those
+                labels.
         """
-        # Add legend
-        if self.legend:
-            for i, plot in enumerate(self._plots):
-                if plot not in self.doc.context.children:
-                    listed_glyphs = [[glyph] for glyph in self.glyphs]
-                    legends = list(zip(groups, listed_glyphs))
-                    if self.legend is True:
-                        orientation = "top_right"
-                    else:
-                        orientation = self.legend
-
-                    legend = None
-                    # When we have more then on plot we need to break legend per plot
-                    if len(self._plots) > 1:
-                        try:
-                            legend = Legend(orientation=orientation, legends=[legends[i]])
-
-                        except IndexError:
-                            pass
-                    else:
-                        legend = Legend(orientation=orientation, legends=legends)
-
-                    if legend is not None:
-                        plot.add_layout(legend)
-
-        if self.server:
-            if self.server is True:
-                self.servername = "untitled_chart"
-            else:
-                self.servername = self.server
-
-            self.session.use_doc(self.servername)
-            self.session.load_document(self.doc)
-
-        for plot in self._plots:
-            if plot not in self.doc.context.children:
-                self.doc._current_plot = plot
-                self.doc.add(plot)
+        legend = Legend(orientation=orientation, legends=legends)
+        self.add_layout(legend)
 
     def make_axis(self, location, scale, label):
         """Create linear, date or categorical axis depending on the location,
@@ -258,17 +211,17 @@ class Chart(object):
         Return:
             axis: Axis instance
         """
+
         if scale == "linear":
             axis = LinearAxis(axis_label=label)
         elif scale == "datetime":
             axis = DatetimeAxis(axis_label=label)
         elif scale == "categorical":
-            axis = CategoricalAxis(major_label_orientation=np.pi / 4,
-                                   axis_label=label)
-            self.categorical = True
+            axis = CategoricalAxis(
+                major_label_orientation=np.pi / 4, axis_label=label
+            )
 
-        self.plot.add_layout(axis, location)
-
+        self.add_layout(axis, location)
         return axis
 
     def make_grid(self, dimension, ticker):
@@ -281,246 +234,262 @@ class Chart(object):
         Return:
             grid: Grid instance
         """
+
         grid = Grid(dimension=dimension, ticker=ticker)
-        self.plot.add_layout(grid)
+        self.add_layout(grid)
 
         return grid
-
-    def make_segment(self, source, x0, y0, x1, y1, color, width):
-        """ Create a segment glyph and append it to the plot.renderers list.
-
-        Args:
-            source (obj): datasource object containing segment refereces.
-            x0 (str or list[float]) : values or field names of starting ``x`` coordinates
-            y0 (str or list[float]) : values or field names of starting ``y`` coordinates
-            x1 (str or list[float]) : values or field names of ending ``x`` coordinates
-            y1 (str or list[float]) : values or field names of ending ``y`` coordinates
-            color (str): the segment color
-            width (int): the segment width
-
-        Return:
-            segment: Segment instance
-        """
-        segment = Segment(x0=x0, y0=y0, x1=x1, y1=y1, line_color=color, line_width=width)
-
-        self._append_glyph(source, segment)
-
-        return segment
-
-    def make_line(self, source, x, y, color):
-        """Create a line glyph and append it to the plot.renderers list.
-
-        Args:
-            source (obj): datasource object containing line refereces.
-            x (str or list[float]) : values or field names of line ``x`` coordinates
-            y (str or list[float]) : values or field names of line ``y`` coordinates
-            color (str): the line color
-
-        Return:
-            line: Line instance
-        """
-        line = Line(x=x, y=y, line_color=color)
-
-        self._append_glyph(source, line)
-
-        return line
-
-    def make_quad(self, source, top, bottom, left, right, color, line_color):
-        """Create a quad glyph and append it to the plot.renderers list.
-
-        Args:
-            source (obj): datasource object containing quad refereces.
-            left (str or list[float]) : values or field names of left edges
-            right (str or list[float]) : values or field names of right edges
-            top (str or list[float]) : values or field names of top edges
-            bottom (str or list[float]) : values or field names of bottom edges
-            color (str): the fill color
-            line_color (str): the line color
-
-        Return:
-            quad: Quad instance
-        """
-        quad = Quad(top=top, bottom=bottom, left=left, right=right,
-                    fill_color=color, fill_alpha=0.7, line_color=line_color, line_alpha=1.0)
-
-        self._append_glyph(source, quad)
-
-        return quad
-
-    def make_rect(self, source, x, y, width, height, color, line_color, line_width):
-        """Create a rect glyph and append it to the renderers list.
-
-        Args:
-            source (obj): datasource object containing rect refereces.
-            x (str or list[float]) : values or field names of center ``x`` coordinates
-            y (str or list[float]) : values or field names of center ``y`` coordinates
-            width (str or list[float]) : values or field names of widths
-            height (str or list[float]) : values or field names of heights
-            color (str): the fill color
-            line_color (str): the line color
-            line_width (int): the line width
-
-        Return:
-            rect: Rect instance
-        """
-        rect = Rect(x=x, y=y, width=width, height=height, fill_color=color,
-                    fill_alpha=0.7, line_color=line_color, line_alpha=1.0, line_width=line_width)
-
-        self._append_glyph(source, rect)
-
-        return rect
-
-    def make_patch(self, source, x, y, color, fill_alpha=0.9):
-        """Create a patch glyph and append it to the renderers list.
-
-        Args:
-            source (obj): datasource object containing rect refereces.
-            x (str or list[float]) : values or field names of center ``x`` coordinates
-            y (str or list[float]) : values or field names of center ``y`` coordinates
-            color (str): the fill color
-
-        Return:
-            patch: Patch instance
-        """
-        patch = Patch(
-            x=x, y=y, fill_color=color, fill_alpha=fill_alpha)
-
-        self._append_glyph(source, patch)
-        return patch
-
-    def make_wedge(self, source, **kws):
-        """Create a wedge glyph and append it to the renderers list.
-
-        Args:
-            source (obj): datasource object containing rect references.
-            **kws (refer to glyphs.Wedge for arguments specification details)
-
-        Return:
-            glyph: Wedge instance
-        """
-        glyph = Wedge(**kws)
-        self._append_glyph(source, glyph)
-        return glyph
-
-    def make_annular(self, source, **kws):
-        """Create a annular wedge glyph and append it to the renderers list.
-
-        Args:
-            source (obj): datasource object containing rect refereces.
-            **kws (refer to glyphs.AnnularWedge for arguments specification details)
-
-        Return:
-            rect: AnnularWedge instance
-        """
-        glyph = AnnularWedge(**kws)
-        self._append_glyph(source, glyph)
-        return glyph
-
-    def make_text(self, source, **kws):
-        """Create a text glyph and append it to the renderers list.
-
-        Args:
-            source (obj): datasource object containing rect references.
-            **kws (refer to glyphs.Text for arguments specification details)
-
-        Return:
-            glyph: Text instance
-        """
-        glyph = Text(**kws)
-        self._append_glyph(source, glyph)
-        return glyph
-
-    def make_scatter(self, source, x, y, markertype, color, line_color=None,
-                     size=10, fill_alpha=0.2, line_alpha=1.0):
-        """Create a marker glyph and appends it to the renderers list.
-
-        Args:
-            source (obj): datasource object containing markers references.
-            x (str or list[float]) : values or field names of line ``x`` coordinates
-            y (str or list[float]) : values or field names of line ``y`` coordinates
-            markertype (int or str): Marker type to use (e.g., 2, 'circle', etc.)
-            color (str): color of the points
-            size (int) : size of the scatter marker
-            fill_alpha(float) : alpha value of the fill color
-            line_alpha(float) : alpha value of the line color
-
-        Return:
-            scatter: Marker Glyph instance
-        """
-        if line_color is None:
-            line_color = color
-
-        _marker_types = OrderedDict([
-            ("circle", Circle),
-            ("square", Square),
-            ("triangle", Triangle),
-            ("diamond", Diamond),
-            ("inverted_triangle", InvertedTriangle),
-            ("asterisk", Asterisk),
-            ("cross", Cross),
-            ("x", X),
-            ("circle_cross", CircleCross),
-            ("circle_x", CircleX),
-            ("square_x", SquareX),
-            ("square_cross", SquareCross),
-            ("diamond_cross", DiamondCross),
-            ])
-
-        g = itertools.cycle(_marker_types.keys())
-        if isinstance(markertype, int):
-            for i in range(markertype):
-                shape = next(g)
-        else:
-            shape = markertype
-        scatter = _marker_types[shape](x=x, y=y, size=size,
-                                       fill_color=color,
-                                       fill_alpha=fill_alpha,
-                                       line_color=line_color,
-                                       line_alpha=line_alpha)
-
-        self._append_glyph(source, scatter)
-
-        return scatter
 
     def show(self):
         """Main show function.
 
         It shows the plot in file, server and notebook outputs.
         """
-        if self.filename:
-            if self.filename is True:
+        # Add to document and session
+        if self._server:
+            if self._server is True:
+                self._servername = "untitled_chart"
+            else:
+                self._servername = self.__server
+
+            self._session.use_doc(self._servername)
+            self._session.load_document(self._doc)
+
+        if not self._doc._current_plot == self:
+            self._doc._current_plot = self
+            self._doc.add(self)
+
+        if self._filename:
+            if self._filename is True:
                 filename = "untitled"
             else:
-                filename = self.filename
+                filename = self._filename
             with open(filename, "w") as f:
-                f.write(file_html(self.doc, INLINE, self.title))
+                f.write(file_html(self._doc, INLINE, self.title))
             print("Wrote %s" % filename)
             view(filename)
-        elif self.filename is False and self.server is False and self.notebook is False:
-            print("You have to provide a filename (filename='foo.html' or"
+        elif self.__filename is False and \
+                        self.__server is False and \
+                        self.__notebook is False:
+            print("You have a provide a filename (filename='foo.html' or"
                   " .filename('foo.html')) to save your plot.")
 
-        if self.server:
-            self.session.store_document(self.doc)
-            link = self.session.object_link(self.doc.context)
-            if not self.notebook:
-                view(link)
+        if self.__server:
+            self.session.store_document(self._doc)
+            link = self._session.object_link(self._doc.context)
+            view(link)
 
-        if self.notebook:
+        if self.__notebook:
             from bokeh.embed import notebook_div
-            for plot in self._plots:
-                publish_display_data({'text/html': notebook_div(plot)})
+            # for plot in self._plots:
+            publish_display_data({'text/html': notebook_div(self)})
 
-    ## Some helper methods
-    def _append_glyph(self, source, glyph):
-        """ Append the glyph to the plot.renderer.
-
-        Also add the glyph to the glyphs list.
+    ##################################################
+    # Methods related to method chaining
+    ##################################################
+    def xlabel(self, xlabel):
+        """Set the xlabel of your chart.
 
         Args:
-            source (obj): datasource containing data for the glyph
-            glyph (obj): glyph type
-        """
-        _glyph = self.plot.add_glyph(source, glyph)
+            xlabel (str): the x-axis label of your plot.
 
-        self.glyphs.append(_glyph)
+        Returns:
+            self: the chart object being configured.
+        """
+        self._xlabel = xlabel
+        return self
+
+    def ylabel(self, ylabel):
+        """Set the ylabel of your chart.
+
+        Args:
+            ylabel (str): the y-axis label of your plot.
+
+        Returns:
+            self: the chart object being configured.
+        """
+        self._ylabel = ylabel
+        return self
+
+    def xgrid(self, xgrid):
+        """Set the xgrid of your chart.
+
+        Args:
+            xgrid (bool): defines if x-grid of your plot is visible or not
+
+        Returns:
+            self: the chart object being configured.
+        """
+        self._xgrid = xgrid
+        return self
+
+    def ygrid(self, ygrid):
+        """Set the ygrid of your chart.
+
+        Args:
+            ygrid (bool): defines if y-grid of your plot is visible or not
+
+        Returns:
+            self: the chart object being configured.
+        """
+        self._ygrid = ygrid
+        return self
+
+    def legend(self, legend):
+        """Set the legend of your chart.
+
+        The legend content is inferred from incoming input.
+        It can be ``top_left``, ``top_right``, ``bottom_left``, ``bottom_right``.
+        It is ``top_right`` is you set it as True.
+
+        Args:
+            legend (str or bool): the legend of your plot.
+
+        Returns:
+            self: the chart object being configured.
+        """
+        self._legend = legend
+        return self
+
+    def xscale(self, xscale):
+        """Set the xscale of your chart.
+
+        It can be ``linear``, ``datetime`` or ``categorical``.
+
+        Args:
+            xscale (str): the x-axis scale of your plot.
+
+        Returns:
+            self: the chart object being configured.
+        """
+        self._xscale = xscale
+        return self
+
+    def yscale(self, yscale):
+        """Set the yscale of your chart.
+
+        It can be ``linear``, ``datetime`` or ``categorical``.
+
+        Args:
+            yscale (str): the y-axis scale of your plot.
+
+        Returns:
+            self: the chart object being configured.
+        """
+        self._yscale = yscale
+        return self
+
+    def width(self, width):
+        """Set the width of your chart.
+
+        Args:
+            width (int): the width of your plot in pixels.
+
+        Returns:
+            self: the chart object being configured.
+        """
+        self._width = width
+        return self
+
+    def height(self, height):
+        """Set the height of your chart.
+
+        Args:
+            height (int): the height of you plot in pixels.
+
+        Returns:
+            self: the chart object being configured.
+        """
+        self._height = height
+        return self
+
+
+    def filename(self, filename):
+        """Set the file name of your chart.
+
+        If you pass True to this argument, it will use ``untitled`` as a filename.
+
+        Args:
+            filename (str or bool): the file name where your plot will be written.
+
+        Returns:
+            self: the chart object being configured.
+        """
+        self._filename = filename
+        return self
+
+    def server(self, server):
+        """Set the server name of your chart.
+
+        If you pass True to this argument, it will use ``untitled``
+        as the name in the server.
+
+        Args:
+            server (str or bool): the name of your plot in the server
+
+        Returns:
+            self: the chart object being configured.
+        """
+        self._server = server
+        return self
+
+    def notebook(self, notebook=True):
+        """Show your chart inside the IPython notebook.
+
+        Args:
+            notebook (bool, optional) : whether to output to the
+                IPython notebook (default: True).
+
+        Returns:
+            self: the chart object being configured.
+        """
+        self._notebook = notebook
+        return self
+
+    def enabled_tools(self, tools=True):
+        """Set your chart tools.
+
+        Args:
+            tools (bool, optional) : whether to output to the
+                IPython notebook (default: True).
+
+        Returns:
+            self: the chart object being configured.
+        """
+        self._enabled_tools = tools
+        return self
+
+    def check_attr(self):
+        """Check if any of the underscored attributes exists.
+
+        It checks if any of the chained method were used. If they were
+        not used, it assigns the parameters content by default.
+        """
+        if not hasattr(self, '_title'):
+            self._title = self.__title
+        if not hasattr(self, '_xlabel'):
+            self._xlabel = self.__xlabel
+        if not hasattr(self, '_ylabel'):
+            self._ylabel = self.__ylabel
+        if not hasattr(self, '_legend'):
+            self._legend = self.__legend
+        if not hasattr(self, '_xscale'):
+            self._xscale = self.__xscale
+        if not hasattr(self, '_yscale'):
+            self._yscale = self.__yscale
+        if not hasattr(self, '_width'):
+            self._width = self.__width
+        if not hasattr(self, '_height'):
+            self._height = self.__height
+        if not hasattr(self, '_enabled_tools'):
+            self._enabled_tools = self.__enabled_tools
+        if not hasattr(self, '_filename'):
+            self._filename = self.__filename
+        if not hasattr(self, '_server'):
+            self._server = self.__server
+        if not hasattr(self, '_notebook'):
+            self._notebook = self.__notebook
+        if not hasattr(self, '_xgrid'):
+            self._xgrid = self.__xgrid
+        if not hasattr(self, '_ygrid'):
+            self._ygrid = self.__ygrid

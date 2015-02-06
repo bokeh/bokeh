@@ -6,7 +6,7 @@ import zmq
 
 from ..settings import settings as bokeh_settings
 
-default_blaze_config = join(dirname(__file__), 'mbs', 'config.py')
+default_blaze_config = join(dirname(__file__), 'blaze', 'config.py')
 
 _defaults = dict(
     ip="0.0.0.0",

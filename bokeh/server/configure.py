@@ -20,7 +20,7 @@ from .models import docs
 from .zmqpub import Publisher
 from .zmqsub import Subscriber
 from .forwarder import Forwarder
-from .mbs import get_blueprint as get_mbs_blueprint
+from .blaze import get_blueprint as get_mbs_blueprint
 
 from .server_backends import (
     InMemoryServerModelStorage,
