@@ -39,8 +39,6 @@ from ..utils import publish_display_data
 def _make_method(prop_name):
     def method(self, value):
         setattr(self._options, prop_name, value)
-        if hasattr(self, prop_name):
-            setattr(self, prop_name, value)
         return self
     method.__doc__ = """ Chained method for %s option.
     """ % prop_name
