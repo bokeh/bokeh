@@ -6,7 +6,7 @@ define [
   "renderer/annotation/tooltip"
   "./inspect_tool"
   "numeral"
-], (_, sprintf, Collection, Tooltip, InspectTool, Numeral) ->
+], (_, sprintf, Collection, Tooltip, InspectTool, numeral) ->
 
   _color_to_hex = (color) ->
     if (color.substr(0, 1) == '#')
@@ -148,7 +148,7 @@ define [
                 else
                   value = column[i]
                   if format?
-                    Numeral(value).format(format)
+                    numeral.format(value, format)
                   else if _.isNumber(value)
                     _format_number(value)
                   else

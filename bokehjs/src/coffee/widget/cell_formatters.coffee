@@ -4,7 +4,7 @@ define [
   "common/has_properties"
   "common/collection"
   "numeral"
-], (_, $, HasProperties, Collection, Numeral) ->
+], (_, $, HasProperties, Collection, numeral) ->
 
   class CellFormatter extends HasProperties
 
@@ -57,8 +57,7 @@ define [
       language: 'en'
 
     format: (row, cell, value, columnDef, dataContext) ->
-      Numeral.language(@get("language"))
-      value = Numeral(value).format(@get("format"))
+      value = numeral.format(value, @get("format"), @get("language"))
       return super(row, cell, value, columnDef, dataContext)
 
   class NumberFormatters extends CellFormatterCollection
