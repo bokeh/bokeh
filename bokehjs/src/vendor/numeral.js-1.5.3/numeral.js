@@ -43,7 +43,7 @@
         var power = Math.pow(10, precision),
             optionalsRegExp,
             output;
-            
+
         //roundingFunction = (roundingFunction !== undefined ? roundingFunction : Math.round);
         // Multiply up by precision, round accurately, then divide and use native toFixed():
         output = (roundingFunction(value * power) / power).toFixed(precision);
@@ -77,52 +77,6 @@
 
         // return string
         return output;
-    }
-
-    // revert to number
-    function unformatNumeral (n, string) {
-        var stringOriginal = string,
-            thousandRegExp,
-            millionRegExp,
-            billionRegExp,
-            trillionRegExp,
-            suffixes = ['KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
-            bytesMultiplier = false,
-            power;
-
-        if (string.indexOf(':') > -1) {
-            n._value = unformatTime(string);
-        } else {
-            if (string === zeroFormat) {
-                n._value = 0;
-            } else {
-                if (languages[currentLanguage].delimiters.decimal !== '.') {
-                    string = string.replace(/\./g,'').replace(languages[currentLanguage].delimiters.decimal, '.');
-                }
-
-                // see if abbreviations are there so that we can multiply to the correct number
-                thousandRegExp = new RegExp('[^a-zA-Z]' + languages[currentLanguage].abbreviations.thousand + '(?:\\)|(\\' + languages[currentLanguage].currency.symbol + ')?(?:\\))?)?$');
-                millionRegExp = new RegExp('[^a-zA-Z]' + languages[currentLanguage].abbreviations.million + '(?:\\)|(\\' + languages[currentLanguage].currency.symbol + ')?(?:\\))?)?$');
-                billionRegExp = new RegExp('[^a-zA-Z]' + languages[currentLanguage].abbreviations.billion + '(?:\\)|(\\' + languages[currentLanguage].currency.symbol + ')?(?:\\))?)?$');
-                trillionRegExp = new RegExp('[^a-zA-Z]' + languages[currentLanguage].abbreviations.trillion + '(?:\\)|(\\' + languages[currentLanguage].currency.symbol + ')?(?:\\))?)?$');
-
-                // see if bytes are there so that we can multiply to the correct number
-                for (power = 0; power <= suffixes.length; power++) {
-                    bytesMultiplier = (string.indexOf(suffixes[power]) > -1) ? Math.pow(1024, power + 1) : false;
-
-                    if (bytesMultiplier) {
-                        break;
-                    }
-                }
-
-                // do some math to create our number
-                n._value = ((bytesMultiplier) ? bytesMultiplier : 1) * ((stringOriginal.match(thousandRegExp)) ? Math.pow(10, 3) : 1) * ((stringOriginal.match(millionRegExp)) ? Math.pow(10, 6) : 1) * ((stringOriginal.match(billionRegExp)) ? Math.pow(10, 9) : 1) * ((stringOriginal.match(trillionRegExp)) ? Math.pow(10, 12) : 1) * ((string.indexOf('%') > -1) ? 0.01 : 1) * (((string.split('-').length + Math.min(string.split('(').length-1, string.split(')').length-1)) % 2)? 1: -1) * Number(string.replace(/[^0-9\.]+/g, ''));
-
-                // round if we are talking about bytes
-                n._value = (bytesMultiplier) ? Math.ceil(n._value) : n._value;
-            }
-        }
-        return n._value;
     }
 
     function formatCurrency (n, format, roundingFunction) {
@@ -188,7 +142,7 @@
         }
 
         output = formatNumber(value, format, roundingFunction);
-        
+
         if (output.indexOf(')') > -1 ) {
             output = output.split('');
             output.splice(-1, 0, space + '%');
@@ -205,26 +159,6 @@
             minutes = Math.floor((n._value - (hours * 60 * 60))/60),
             seconds = Math.round(n._value - (hours * 60 * 60) - (minutes * 60));
         return hours + ':' + ((minutes < 10) ? '0' + minutes : minutes) + ':' + ((seconds < 10) ? '0' + seconds : seconds);
-    }
-
-    function unformatTime (string) {
-        var timeArray = string.split(':'),
-            seconds = 0;
-        // turn hours and minutes into seconds and add them all up
-        if (timeArray.length === 3) {
-            // hours
-            seconds = seconds + (Number(timeArray[0]) * 60 * 60);
-            // minutes
-            seconds = seconds + (Number(timeArray[1]) * 60);
-            // seconds
-            seconds = seconds + Number(timeArray[2]);
-        } else if (timeArray.length === 2) {
-            // minutes
-            seconds = seconds + (Number(timeArray[0]) * 60);
-            // seconds
-            seconds = seconds + Number(timeArray[1]);
-        }
-        return Number(seconds);
     }
 
     function formatNumber (value, format, roundingFunction) {
@@ -397,8 +331,6 @@
             input = input.value();
         } else if (input === 0 || typeof input === 'undefined') {
             input = 0;
-        } else if (!Number(input)) {
-            input = numeral.fn.unformat(input);
         }
 
         return new Numeral(Number(input));
@@ -433,7 +365,7 @@
 
         return numeral;
     };
-    
+
     // This function provides access to the loaded language data.  If
     // no arguments are passed in, it will simply return the current
     // global language object.
@@ -441,11 +373,11 @@
         if (!key) {
             return languages[currentLanguage];
         }
-        
+
         if (!languages[key]) {
             throw new Error('Unknown language : ' + key);
         }
-        
+
         return languages[key];
     };
 
@@ -502,14 +434,14 @@
     if ('function' !== typeof Array.prototype.reduce) {
         Array.prototype.reduce = function (callback, opt_initialValue) {
             'use strict';
-            
+
             if (null === this || 'undefined' === typeof this) {
                 // At the moment all modern browsers, that support strict mode, have
                 // native implementation of Array.prototype.reduce. For instance, IE8
                 // does not support strict mode, so this check is actually useless.
                 throw new TypeError('Array.prototype.reduce called on null or undefined');
             }
-            
+
             if ('function' !== typeof callback) {
                 throw new TypeError(callback + ' is not a function');
             }
@@ -543,7 +475,7 @@
         };
     }
 
-    
+
     /**
      * Computes the multiplier necessary to make x >= 1,
      * effectively eliminating miscalculations caused by
@@ -569,7 +501,7 @@
                 mn = multiplier(next);
         return mp > mn ? mp : mn;
         }, -Infinity);
-    }        
+    }
 
 
     /************************************
@@ -584,17 +516,10 @@
         },
 
         format : function (inputString, roundingFunction) {
-            return formatNumeral(this, 
-                  inputString ? inputString : defaultFormat, 
+            return formatNumeral(this,
+                  inputString ? inputString : defaultFormat,
                   (roundingFunction !== undefined) ? roundingFunction : Math.round
               );
-        },
-
-        unformat : function (inputString) {
-            if (Object.prototype.toString.call(inputString) === '[object Number]') { 
-                return inputString; 
-            }
-            return unformatNumeral(this, inputString ? inputString : defaultFormat);
         },
 
         value : function () {
@@ -624,7 +549,7 @@
             function cback(accum, curr, currI, O) {
                 return accum - corrFactor * curr;
             }
-            this._value = [value].reduce(cback, this._value * corrFactor) / corrFactor;            
+            this._value = [value].reduce(cback, this._value * corrFactor) / corrFactor;
             return this;
         },
 
@@ -643,7 +568,7 @@
                 var corrFactor = correctionFactor(accum, curr);
                 return (accum * corrFactor) / (curr * corrFactor);
             }
-            this._value = [this._value, value].reduce(cback);            
+            this._value = [this._value, value].reduce(cback);
             return this;
         },
 
