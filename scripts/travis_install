@@ -16,6 +16,7 @@ python -V
 
 PINNED_PKGS=$(cat <<EOF
 conda-env <2.1.0
+conda-build <1.10.1
 scipy <0.15.0
 EOF
 )
