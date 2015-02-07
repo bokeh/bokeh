@@ -80,3 +80,10 @@ class TestBar(unittest.TestCase):
             np.testing.assert_array_equal(builder._data['width'], np.array([0.8, 0.8]))
             np.testing.assert_array_equal(builder._data['width_cat'], np.array([0.2, 0.2]))
 
+    def test_negative_input(self):
+        source = OrderedDict()
+        source['percent change 1'] = [-1, -13]
+        source['percent change 2'] = [-12, -40]
+        bar_chart = create_chart(Bar, source)
+        self.assertEqual(bar_chart._builders[0].y_range.start, 0)
+        self.assertEqual(bar_chart._builders[0].y_range.end, -40 * 1.1)

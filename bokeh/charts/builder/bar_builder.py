@@ -119,12 +119,18 @@ class BarBuilder(Builder):
         self.x_range = FactorRange(factors=self._source.data["cat"])
 
         if self.stacked:
-            self.y_range = Range1d(start=0, end=1.1 * max(self._data['zero']))
+            data = np.array(self._data['zero'])
         else:
-            cat = [i for i in self._attr
-                   if not i.startswith(("mid", "stacked", "cat"))]
-            end = 1.1 * max(max(self._data[i]) for i in cat)
-            self.y_range = Range1d(start=0, end=end)
+            cats = [
+                i for i in self._attr
+                if not i.startswith(("mid", "stacked", "cat"))
+            ]
+            data = np.array([self._data[cat] for cat in cats])
+
+        sig = -1 if np.all(data < 0) else 1
+        start = 0  # If you want non-zero start, set a custom y_range.
+        end = sig * 1.1 * np.absolute(data).max()
+        self.y_range = Range1d(start=start, end=end)
 
     def draw(self):
         """Use the rect glyphs to display the bars.
