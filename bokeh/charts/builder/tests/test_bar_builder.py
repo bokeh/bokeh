@@ -20,8 +20,8 @@ import numpy as np
 import pandas as pd
 
 from bokeh.charts import Bar
-
 from bokeh.charts.builder.tests._utils import create_chart
+from bokeh.models import Range1d
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -87,3 +87,13 @@ class TestBar(unittest.TestCase):
         bar_chart = create_chart(Bar, source)
         self.assertEqual(bar_chart._builders[0].y_range.start, 0)
         self.assertEqual(bar_chart._builders[0].y_range.end, -40 * 1.1)
+
+    def test_set_custom_y_range(self):
+        # Users can specify their own y_range for cases where the
+        # default guess is not what's desired.
+        source = OrderedDict()
+        source['percent change 1'] = [25, -13]
+        source['percent change 2'] = [-12, -40]
+        custom_y_range = Range1d(50, -50)
+        bar_chart = create_chart(Bar, source, y_range=custom_y_range)
+        self.assertEqual(bar_chart._builders[0].y_range, custom_y_range)
