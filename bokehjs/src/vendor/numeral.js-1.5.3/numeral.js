@@ -6,32 +6,12 @@
  * http://adamwdraper.github.com/Numeral-js/
  */
 
-(function () {
+define(["underscore"], function(_) {
 
-    /************************************
-        Constants
-    ************************************/
-
-    var numeral,
-        VERSION = '1.5.3',
-        // internal storage for language config files
-        languages = {},
-        currentLanguage = 'en',
-        zeroFormat = null,
-        defaultFormat = '0,0',
-        // check for nodeJS
-        hasModule = (typeof module !== 'undefined' && module.exports);
-
-
-    /************************************
-        Constructors
-    ************************************/
-
-
-    // Numeral prototype object
-    function Numeral (number) {
-        this._value = number;
-    }
+    var languages = {};
+    var zeroFormat = null;
+    var defaultFormat = '0,0';
+    var defaultLanguage = 'en';
 
     /**
      * Implementation of toFixed() that treats floats more like decimals
@@ -39,12 +19,12 @@
      * Fixes binary rounding issues (eg. (0.615).toFixed(2) === '0.61') that present
      * problems for accounting- and finance-related software.
      */
-    function toFixed (value, precision, roundingFunction, optionals) {
+    function toFixed(value, precision, roundingFunction, optionals) {
         var power = Math.pow(10, precision),
             optionalsRegExp,
             output;
 
-        //roundingFunction = (roundingFunction !== undefined ? roundingFunction : Math.round);
+        // roundingFunction = (roundingFunction !== undefined ? roundingFunction : Math.round);
         // Multiply up by precision, round accurately, then divide and use native toFixed():
         output = (roundingFunction(value * power) / power).toFixed(precision);
 
@@ -56,30 +36,25 @@
         return output;
     }
 
-    /************************************
-        Formatting
-    ************************************/
-
     // determine what type of formatting we need to do
-    function formatNumeral (n, format, roundingFunction) {
+    function formatNumeral(value, format, language, roundingFunction) {
         var output;
 
         // figure out what kind of format we are dealing with
         if (format.indexOf('$') > -1) { // currency!!!!!
-            output = formatCurrency(n, format, roundingFunction);
+            output = formatCurrency(value, format, language, roundingFunction);
         } else if (format.indexOf('%') > -1) { // percentage
-            output = formatPercentage(n, format, roundingFunction);
+            output = formatPercentage(value, format, language, roundingFunction);
         } else if (format.indexOf(':') > -1) { // time
-            output = formatTime(n, format);
+            output = formatTime(value, format, language);
         } else { // plain ol' numbers or bytes
-            output = formatNumber(n._value, format, roundingFunction);
+            output = formatNumber(value, format, language, roundingFunction);
         }
 
-        // return string
         return output;
     }
 
-    function formatCurrency (n, format, roundingFunction) {
+    function formatCurrency(value, format, language, roundingFunction) {
         var symbolIndex = format.indexOf('$'),
             openParenIndex = format.indexOf('('),
             minusSignIndex = format.indexOf('-'),
@@ -99,7 +74,7 @@
         }
 
         // format the number
-        output = formatNumber(n._value, format, roundingFunction);
+        output = formatNumber(value, format, language, roundingFunction);
 
         // position the symbol
         if (symbolIndex <= 1) {
@@ -110,28 +85,28 @@
                     // the symbol appears before the "(" or "-"
                     spliceIndex = 0;
                 }
-                output.splice(spliceIndex, 0, languages[currentLanguage].currency.symbol + space);
+                output.splice(spliceIndex, 0, language.currency.symbol + space);
                 output = output.join('');
             } else {
-                output = languages[currentLanguage].currency.symbol + space + output;
+                output = language.currency.symbol + space + output;
             }
         } else {
             if (output.indexOf(')') > -1) {
                 output = output.split('');
-                output.splice(-1, 0, space + languages[currentLanguage].currency.symbol);
+                output.splice(-1, 0, space + language.currency.symbol);
                 output = output.join('');
             } else {
-                output = output + space + languages[currentLanguage].currency.symbol;
+                output = output + space + language.currency.symbol;
             }
         }
 
         return output;
     }
 
-    function formatPercentage (n, format, roundingFunction) {
+    function formatPercentage(value, format, language, roundingFunction) {
         var space = '',
             output,
-            value = n._value * 100;
+            value = value * 100;
 
         // check for space before %
         if (format.indexOf(' %') > -1) {
@@ -141,7 +116,7 @@
             format = format.replace('%', '');
         }
 
-        output = formatNumber(value, format, roundingFunction);
+        output = formatNumber(value, format, language, roundingFunction);
 
         if (output.indexOf(')') > -1 ) {
             output = output.split('');
@@ -154,14 +129,14 @@
         return output;
     }
 
-    function formatTime (n) {
-        var hours = Math.floor(n._value/60/60),
-            minutes = Math.floor((n._value - (hours * 60 * 60))/60),
-            seconds = Math.round(n._value - (hours * 60 * 60) - (minutes * 60));
+    function formatTime(value, language) {
+        var hours = Math.floor(value/60/60),
+            minutes = Math.floor((value - (hours * 60 * 60))/60),
+            seconds = Math.round(value - (hours * 60 * 60) - (minutes * 60));
         return hours + ':' + ((minutes < 10) ? '0' + minutes : minutes) + ':' + ((seconds < 10) ? '0' + seconds : seconds);
     }
 
-    function formatNumber (value, format, roundingFunction) {
+    function formatNumber(value, format, language, roundingFunction) {
         var negP = false,
             signed = false,
             optDec = false,
@@ -217,19 +192,19 @@
 
                 if (abs >= Math.pow(10, 12) && !abbrForce || abbrT) {
                     // trillion
-                    abbr = abbr + languages[currentLanguage].abbreviations.trillion;
+                    abbr = abbr + language.abbreviations.trillion;
                     value = value / Math.pow(10, 12);
                 } else if (abs < Math.pow(10, 12) && abs >= Math.pow(10, 9) && !abbrForce || abbrB) {
                     // billion
-                    abbr = abbr + languages[currentLanguage].abbreviations.billion;
+                    abbr = abbr + language.abbreviations.billion;
                     value = value / Math.pow(10, 9);
                 } else if (abs < Math.pow(10, 9) && abs >= Math.pow(10, 6) && !abbrForce || abbrM) {
                     // million
-                    abbr = abbr + languages[currentLanguage].abbreviations.million;
+                    abbr = abbr + language.abbreviations.million;
                     value = value / Math.pow(10, 6);
                 } else if (abs < Math.pow(10, 6) && abs >= Math.pow(10, 3) && !abbrForce || abbrK) {
                     // thousand
-                    abbr = abbr + languages[currentLanguage].abbreviations.thousand;
+                    abbr = abbr + language.abbreviations.thousand;
                     value = value / Math.pow(10, 3);
                 }
             }
@@ -268,7 +243,7 @@
                     format = format.replace('o', '');
                 }
 
-                ord = ord + languages[currentLanguage].ordinal(value);
+                ord = ord + language.ordinal(value);
             }
 
             if (format.indexOf('[.]') > -1) {
@@ -292,7 +267,7 @@
                 w = d.split('.')[0];
 
                 if (d.split('.')[1].length) {
-                    d = languages[currentLanguage].delimiters.decimal + d.split('.')[1];
+                    d = language.delimiters.decimal + d.split('.')[1];
                 } else {
                     d = '';
                 }
@@ -311,7 +286,7 @@
             }
 
             if (thousands > -1) {
-                w = w.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1' + languages[currentLanguage].delimiters.thousands);
+                w = w.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1' + language.delimiters.thousands);
             }
 
             if (format.indexOf('.') === 0) {
@@ -322,74 +297,19 @@
         }
     }
 
-    /************************************
-        Top Level Functions
-    ************************************/
+    function addLanguage(key, spec) {
+        languages[key] = spec;
+    }
 
-    numeral = function (input) {
-        if (numeral.isNumeral(input)) {
-            input = input.value();
-        } else if (input === 0 || typeof input === 'undefined') {
-            input = 0;
-        }
-
-        return new Numeral(Number(input));
-    };
-
-    // version number
-    numeral.version = VERSION;
-
-    // compare numeral object
-    numeral.isNumeral = function (obj) {
-        return obj instanceof Numeral;
-    };
-
-    // This function will load languages and then set the global language.  If
-    // no arguments are passed in, it will simply return the current global
-    // language key.
-    numeral.language = function (key, values) {
-        if (!key) {
-            return currentLanguage;
-        }
-
-        if (key && !values) {
-            if(!languages[key]) {
-                throw new Error('Unknown language : ' + key);
-            }
-            currentLanguage = key;
-        }
-
-        if (values || !languages[key]) {
-            loadLanguage(key, values);
-        }
-
-        return numeral;
-    };
-
-    // This function provides access to the loaded language data.  If
-    // no arguments are passed in, it will simply return the current
-    // global language object.
-    numeral.languageData = function (key) {
-        if (!key) {
-            return languages[currentLanguage];
-        }
-
-        if (!languages[key]) {
-            throw new Error('Unknown language : ' + key);
-        }
-
-        return languages[key];
-    };
-
-    numeral.language('en', {
+    addLanguage('en', {
         delimiters: {
             thousands: ',',
-            decimal: '.'
+            decimal:   '.'
         },
         abbreviations: {
             thousand: 'k',
-            million: 'm',
-            billion: 'b',
+            million:  'm',
+            billion:  'b',
             trillion: 't'
         },
         ordinal: function (number) {
@@ -404,201 +324,13 @@
         }
     });
 
-    numeral.zeroFormat = function (format) {
-        zeroFormat = typeof(format) === 'string' ? format : null;
-    };
-
-    numeral.defaultFormat = function (format) {
-        defaultFormat = typeof(format) === 'string' ? format : '0.0';
-    };
-
-    /************************************
-        Helpers
-    ************************************/
-
-    function loadLanguage(key, values) {
-        languages[key] = values;
+    function format(input, formatString, language, roundingFunction) {
+        return formatNumeral(
+            Number(input),
+            _.isString(formatString)        ? formatString        : defaultFormat,
+            _.isString(language)            ? languages[language] : languages[defaultLanguage],
+            _.isUndefined(roundingFunction) ? Math.round          : roundingFunction);
     }
 
-    /************************************
-        Floating-point helpers
-    ************************************/
-
-    // The floating-point helper functions and implementation
-    // borrows heavily from sinful.js: http://guipn.github.io/sinful.js/
-
-    /**
-     * Array.prototype.reduce for browsers that don't support it
-     * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/Reduce#Compatibility
-     */
-    if ('function' !== typeof Array.prototype.reduce) {
-        Array.prototype.reduce = function (callback, opt_initialValue) {
-            'use strict';
-
-            if (null === this || 'undefined' === typeof this) {
-                // At the moment all modern browsers, that support strict mode, have
-                // native implementation of Array.prototype.reduce. For instance, IE8
-                // does not support strict mode, so this check is actually useless.
-                throw new TypeError('Array.prototype.reduce called on null or undefined');
-            }
-
-            if ('function' !== typeof callback) {
-                throw new TypeError(callback + ' is not a function');
-            }
-
-            var index,
-                value,
-                length = this.length >>> 0,
-                isValueSet = false;
-
-            if (1 < arguments.length) {
-                value = opt_initialValue;
-                isValueSet = true;
-            }
-
-            for (index = 0; length > index; ++index) {
-                if (this.hasOwnProperty(index)) {
-                    if (isValueSet) {
-                        value = callback(value, this[index], index, this);
-                    } else {
-                        value = this[index];
-                        isValueSet = true;
-                    }
-                }
-            }
-
-            if (!isValueSet) {
-                throw new TypeError('Reduce of empty array with no initial value');
-            }
-
-            return value;
-        };
-    }
-
-
-    /**
-     * Computes the multiplier necessary to make x >= 1,
-     * effectively eliminating miscalculations caused by
-     * finite precision.
-     */
-    function multiplier(x) {
-        var parts = x.toString().split('.');
-        if (parts.length < 2) {
-            return 1;
-        }
-        return Math.pow(10, parts[1].length);
-    }
-
-    /**
-     * Given a variable number of arguments, returns the maximum
-     * multiplier that must be used to normalize an operation involving
-     * all of them.
-     */
-    function correctionFactor() {
-        var args = Array.prototype.slice.call(arguments);
-        return args.reduce(function (prev, next) {
-            var mp = multiplier(prev),
-                mn = multiplier(next);
-        return mp > mn ? mp : mn;
-        }, -Infinity);
-    }
-
-
-    /************************************
-        Numeral Prototype
-    ************************************/
-
-
-    numeral.fn = Numeral.prototype = {
-
-        clone : function () {
-            return numeral(this);
-        },
-
-        format : function (inputString, roundingFunction) {
-            return formatNumeral(this,
-                  inputString ? inputString : defaultFormat,
-                  (roundingFunction !== undefined) ? roundingFunction : Math.round
-              );
-        },
-
-        value : function () {
-            return this._value;
-        },
-
-        valueOf : function () {
-            return this._value;
-        },
-
-        set : function (value) {
-            this._value = Number(value);
-            return this;
-        },
-
-        add : function (value) {
-            var corrFactor = correctionFactor.call(null, this._value, value);
-            function cback(accum, curr, currI, O) {
-                return accum + corrFactor * curr;
-            }
-            this._value = [this._value, value].reduce(cback, 0) / corrFactor;
-            return this;
-        },
-
-        subtract : function (value) {
-            var corrFactor = correctionFactor.call(null, this._value, value);
-            function cback(accum, curr, currI, O) {
-                return accum - corrFactor * curr;
-            }
-            this._value = [value].reduce(cback, this._value * corrFactor) / corrFactor;
-            return this;
-        },
-
-        multiply : function (value) {
-            function cback(accum, curr, currI, O) {
-                var corrFactor = correctionFactor(accum, curr);
-                return (accum * corrFactor) * (curr * corrFactor) /
-                    (corrFactor * corrFactor);
-            }
-            this._value = [this._value, value].reduce(cback, 1);
-            return this;
-        },
-
-        divide : function (value) {
-            function cback(accum, curr, currI, O) {
-                var corrFactor = correctionFactor(accum, curr);
-                return (accum * corrFactor) / (curr * corrFactor);
-            }
-            this._value = [this._value, value].reduce(cback);
-            return this;
-        },
-
-        difference : function (value) {
-            return Math.abs(numeral(this._value).subtract(value).value());
-        }
-
-    };
-
-    /************************************
-        Exposing Numeral
-    ************************************/
-
-    // CommonJS module is defined
-    if (hasModule) {
-        module.exports = numeral;
-    }
-
-    /*global ender:false */
-    if (typeof ender === 'undefined') {
-        // here, `this` means `window` in the browser, or `global` on the server
-        // add `numeral` as a global object via a string identifier,
-        // for Closure Compiler 'advanced' mode
-        this['numeral'] = numeral;
-    }
-
-    /*global define:false */
-    if (typeof define === 'function' && define.amd) {
-        define([], function () {
-            return numeral;
-        });
-    }
-}).call(this);
+    return {"format": format};
+});
