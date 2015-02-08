@@ -132,12 +132,11 @@ def deletedoc(docid):
 def get_doc_api_key(docid):
     doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
     bokehuser = bokeh_app.current_user()
-    context = BokehServerTransaction(bokehuser, doc, 'auto')
-    with context as t:
-        if t.mode == 'rw':
-            return jsonify({'apikey' : t.server_docobj.apikey})
-        else:
-            return jsonify({'readonlyapikey' : t.server_docobj.readonlyapikey})
+    t = BokehServerTransaction(bokehuser, doc, 'auto')
+    if t.mode == 'rw':
+        return jsonify({'apikey' : t.server_docobj.apikey})
+    else:
+        return jsonify({'readonlyapikey' : t.server_docobj.readonlyapikey})
 
 
 @bokeh_app.route('/bokeh/userinfo/', methods=['GET', 'OPTIONS'])
@@ -156,11 +155,12 @@ def get_user():
 def get_bokeh_info(docid):
     doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
     bokehuser = bokeh_app.current_user()
-    with BokehServerTransaction(bokehuser, doc, 'r') as t:
-        clientdoc = t.clientdoc
-        all_models = clientdoc._models.values()
-        log.info("num models: %s", len(all_models))
-        all_models = clientdoc.dump(*all_models)
+    t = BokehServerTransaction(bokehuser, doc, 'r')
+    t.load()
+    clientdoc = t.clientdoc
+    all_models = clientdoc._models.values()
+    log.info("num models: %s", len(all_models))
+    all_models = clientdoc.dump(*all_models)
     returnval = {'plot_context_ref' : doc.plot_context_ref,
                  'docid' : docid,
                  'all_models' : all_models,
@@ -233,14 +233,14 @@ def get_bokeh_info_one_object(docid, objid):
     doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
     bokehuser = bokeh_app.current_user()
     temporary_docid = get_temporary_docid(request, docid)
-    context = BokehServerTransaction(
+    t = BokehServerTransaction(
         bokehuser, doc, 'r', temporary_docid=temporary_docid
     )
-    with context as t:
-        clientdoc = t.clientdoc
-        obj = clientdoc._models[objid]
-        objs = obj.references()
-        all_models = clientdoc.dump(*objs)
+    t.load()
+    clientdoc = t.clientdoc
+    obj = clientdoc._models[objid]
+    objs = obj.references()
+    all_models = clientdoc.dump(*objs)
     returnval = {'plot_context_ref' : doc.plot_context_ref,
                  'docid' : docid,
                  'all_models' : all_models,
@@ -255,7 +255,8 @@ def get_bokeh_info_one_object(docid, objid):
 @bokeh_app.route('/bokeh/doc/<docid>/<objid>', methods=['GET'])
 def show_obj(docid, objid):
     bokehuser = bokeh_app.current_user()
-    if not bokehuser:
+    doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
+    if not bokehuser and not doc.public:
         return redirect(url_for(".login_get", next=request.url))
     resources = request_resources()
     public = request.values.get('public', 'false').lower() == 'true'

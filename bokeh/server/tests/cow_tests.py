@@ -87,29 +87,45 @@ class TransactionManagerTestCase(test_utils.FlaskClientTestCase):
 
     def test_base_object_exists_in_cow_context(self):
         with app.test_request_context("/"):
-            with self.transaction('test1') as t:
-                assert t.clientdoc.context.children[0].title == 'plot1'
+            t = self.transaction('test1')
+            t.load()
+            assert t.clientdoc.context.children[0].title == 'plot1'
 
     def test_writing_in_cow_context_persists(self):
         with app.test_request_context("/"):
-            with self.transaction('test1') as t:
-                t.clientdoc.add(Plot(title='plot2'))
-            with self.transaction('test1') as t:
-                assert len(t.clientdoc.context.children) == 2
-                assert t.clientdoc.context.children[1].title == 'plot2'
+            t = self.transaction('test1')
+            t.load()
+            t.clientdoc.add(Plot(title='plot2'))
+            t.save()
+
+            t = self.transaction('test1')
+            t.load()
+            assert len(t.clientdoc.context.children) == 2
+            assert t.clientdoc.context.children[1].title == 'plot2'
 
     def test_writing_in_cow_context_does_not_modify_original(self):
         with app.test_request_context("/"):
-            with self.transaction('test1') as t:
-                t.clientdoc.add(Plot(title='plot2'))
-            with self.transaction(None) as t:
-                assert len(t.clientdoc.context.children) == 1
-            with self.transaction('test1') as t:
-                assert len(t.clientdoc.context.children) == 2
+            t = self.transaction('test1')
+            t.load()
+            t.clientdoc.add(Plot(title='plot2'))
+            t.save()
 
-    def test_read_only_context_does_not_write(self):
+            t = self.transaction('test1')
+            t.load()
+            assert len(t.clientdoc.context.children) == 2
+
+            t = self.transaction(None)
+            t.load()
+            assert len(t.clientdoc.context.children) == 1
+
+    def test_cannot_save_to_read_only_context(self):
         with app.test_request_context("/"):
-            with self.transaction(None, mode='r') as t:
-                t.clientdoc.add(Plot(title='plot2'))
-            with self.transaction(None, mode='r') as t:
-                assert len(t.clientdoc.context.children) == 1
+            t = self.transaction(None, mode='r')
+            t.load()
+            t.clientdoc.add(Plot(title='plot2'))
+            self.assertRaises(AuthenticationException, t.save)
+
+    def test_cannot_gc_read_only_context(self):
+        with app.test_request_context("/"):
+            t = self.transaction(None, mode='r')
+            self.assertRaises(AuthenticationException, t.load, gc=True)

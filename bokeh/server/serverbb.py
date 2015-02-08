@@ -308,7 +308,6 @@ class BokehServerTransaction(object):
     don't really make use of model deletions yet
     """
     def __init__(self, server_userobj, server_docobj, mode,
-                 gc=False,
                  temporary_docid=None):
         """
         bokeh_app : bokeh_app blueprint
@@ -317,7 +316,6 @@ class BokehServerTransaction(object):
         server_docobj : instance of bokeh.server.models.docs.Doc
         mode : 'r', or 'rw', or 'auto' - auto means rw if possible, else r
         temporary_docid : temporary docid for copy on write
-        gc : whether or not to run garbage collection
         """
         logger.info(
             "created transaction with %s, %s",
@@ -355,10 +353,7 @@ class BokehServerTransaction(object):
                 if not can_read:
                     raise AuthenticationException("could not read from %s" % docid)
         self.mode = mode
-        if self.mode != 'rw' and gc:
-            logger.warning("could not set gc parameter because no permissions to write")
-        else:
-            self.gc = gc
+
     @property
     def write_docid(self):
         if self.temporary_docid:
@@ -366,32 +361,25 @@ class BokehServerTransaction(object):
         else:
             return self.server_docobj.docid
 
-    def __enter__(self):
-        #TODO : move this function to another module
+    def load(self, gc=False):
         from .views.backbone import init_bokeh
         clientdoc = bokeh_app.backbone_storage.get_document(self.server_docobj.docid)
         if self.temporary_docid:
             temporary_json = bokeh_app.backbone_storage.pull(self.temporary_docid)
             #no events - because we're loading from datastore, so nothing is new
             clientdoc.load(*temporary_json, events='none', dirty=False)
-        if self.gc:
+        if gc and self.mode != 'rw':
+            raise AuthenticationException("cannot run garbage collection in read only mode")
+        elif gc and self.mode == 'rw':
             prune(clientdoc, delete=True)
         else:
             prune(clientdoc)
         init_bokeh(clientdoc)
         self.clientdoc = clientdoc
-        return self
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def save(self):
         if self.mode != 'rw':
-            self.changed = []
-            return
-        if exc_type is not None:
-            logger.warning(
-                "BokehServerTransaction hit exception (%s, %s, %s) skipping saving",
-                exc_type, exc_value, traceback)
-            self.changed = []
-            return
+            raise AuthenticationException("cannot save in read only mode")
         self.changed = bokeh_app.backbone_storage.store_document(
             self.clientdoc,
             temporary_docid=self.temporary_docid
