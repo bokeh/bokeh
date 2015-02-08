@@ -142,12 +142,11 @@ AUTOLOAD_SERVER = jinja2.Template(
     open(join(_templates_path, "autoload_server.html")).read()
 )
 
+AUTOLOAD_SERVER_PUBLIC = jinja2.Template(
+    open(join(_templates_path, "autoload_server.html")).read()
+)
+
 
 AUTOLOAD_STATIC= jinja2.Template(
     open(join(_templates_path, "autoload_static.html")).read()
 )
-
-
-
-
-

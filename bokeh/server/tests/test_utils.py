@@ -105,6 +105,8 @@ class FlaskClientTestCase(BaseBokehServerTestCase):
         server_settings.model_backend = {'type' : 'memory'}
         configure.configure_flask()
         configure.register_blueprint()
+        #ugh..need better way to initialize this
+        app.secret_key = server_settings.secret_key
         app.debug = True
         self.client = app.test_client()
 

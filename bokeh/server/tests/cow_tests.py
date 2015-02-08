@@ -1,6 +1,8 @@
+
 from werkzeug.exceptions import Unauthorized
 import mock
 from flask import request
+
 from . import test_utils
 from ..views.bbauth import handle_auth_error
 from ...exceptions import AuthenticationException
@@ -10,6 +12,8 @@ from ..models.docs import Doc
 from ..serverbb import BokehServerTransaction
 from ..app import app, bokeh_app
 from ..views.main import _makedoc
+from ...session import TestSession
+
 class AuthTestCase(test_utils.FlaskClientTestCase):
     options = {'multi_user' : True}
     def test_handle_auth_error_decorator(self):
@@ -85,6 +89,18 @@ class TransactionManagerTestCase(test_utils.FlaskClientTestCase):
             temporary_docid=temporary_docid)
         return context
 
+    def test_transaction_with_anonymous_user(self):
+        self.server_docobj.published = True
+        with app.test_request_context("/"):
+            self.assertRaises(
+                AuthenticationException,
+                BokehServerTransaction,
+                None, self.server_docobj, 'rw'
+            )
+        with app.test_request_context("/"):
+            doc = BokehServerTransaction(None, self.server_docobj, 'rw',
+                                         temporary_docid='temp')
+
     def test_base_object_exists_in_cow_context(self):
         with app.test_request_context("/"):
             t = self.transaction('test1')
@@ -129,3 +145,23 @@ class TransactionManagerTestCase(test_utils.FlaskClientTestCase):
         with app.test_request_context("/"):
             t = self.transaction(None, mode='r')
             self.assertRaises(AuthenticationException, t.load, gc=True)
+
+class PublishTestCase(test_utils.FlaskClientTestCase):
+    options = {'multi_user' : True}
+    def test_publish(self):
+        sess = TestSession(client=app.test_client())
+        sess.register('testuser', 'testpassword')
+        sess.use_doc('test_cow')
+        sess.publish()
+        doc = Doc.load(bokeh_app.servermodel_storage, sess.docid)
+        assert doc.title == 'test_cow'
+        assert doc.published == True
+
+    def test_publish_fails_for_invalid_auth(self):
+        sess = TestSession(client=app.test_client())
+        sess.register('testuser', 'testpassword')
+        sess.use_doc('test_cow')
+        sess2 = TestSession(client=app.test_client())
+        sess2.register('testuser2', 'testpassword')
+        sess2.docid = sess.docid
+        self.assertRaises(Exception, sess2.publish)

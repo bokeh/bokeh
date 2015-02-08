@@ -70,7 +70,7 @@ define [
       add_plot_static(container, info["bokehModelid"], info["bokehModeltype"], all_models)
     else if info.bokehData == "server"
       logger.info("  - using server data")
-      add_plot_server(container, info["bokehDocid"], info["bokehModelid"], info["public"])
+      add_plot_server(container, info["bokehDocid"], info["bokehModelid"], info["bokehPublic"])
     else
       throw "Unknown bokehData value for inject_plot: " + info.bokehData
 

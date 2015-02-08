@@ -1,7 +1,7 @@
 import logging
 from functools import wraps
 
-from flask import abort, request
+from flask import abort, request, jsonify
 
 from ..app import bokeh_app
 from ..models import docs
@@ -96,3 +96,13 @@ def logout():
 
     '''
     return bokeh_app.authentication.logout()
+
+@bokeh_app.route('/bokeh/<docid>/publish', methods=['POST'])
+def publish(docid):
+    bokehuser = bokeh_app.current_user()
+    doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
+    if not bokeh_app.authentication.can_write_doc(docid):
+        return abort(401)
+    doc.published = True
+    doc.save(bokeh_app.servermodel_storage)
+    return jsonify(status='success')

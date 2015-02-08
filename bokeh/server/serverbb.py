@@ -115,6 +115,7 @@ class PersistentBackboneStorage(object):
             storage_id = temporary_docid
         else:
             storage_id = doc.docid
+        logger.debug("storing objects to %s", storage_id)
         models = doc._models.values()
         if dirty_only:
             models = [x for x in models if hasattr(x, '_dirty') and x._dirty]
@@ -317,14 +318,13 @@ class BokehServerTransaction(object):
         mode : 'r', or 'rw', or 'auto' - auto means rw if possible, else r
         temporary_docid : temporary docid for copy on write
         """
-        logger.info(
+        logger.debug(
             "created transaction with %s, %s",
             server_docobj.docid, temporary_docid
         )
         self.server_userobj = server_userobj
         self.server_docobj = server_docobj
         self.temporary_docid = temporary_docid
-
         can_write = bokeh_app.authentication.can_write_doc(
             self.server_docobj,
             userobj=self.server_userobj,
@@ -353,7 +353,10 @@ class BokehServerTransaction(object):
                 if not can_read:
                     raise AuthenticationException("could not read from %s" % docid)
         self.mode = mode
-
+        if self.mode == 'rw':
+            self.apikey = self.server_docobj.apikey
+        else:
+            self.apikey = self.server_docobj.readonlyapikey
     @property
     def write_docid(self):
         if self.temporary_docid:

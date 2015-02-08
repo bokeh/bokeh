@@ -68,21 +68,22 @@ def bulk_upsert(docid):
     return make_json(msg)
 
 def ws_update(clientdoc, docid, models):
+    log.debug("sending wsupdate to %s", docid)
     attrs = clientdoc.dump(*models)
     msg = protocol.serialize_json({'msgtype' : 'modelpush',
                                    'modelspecs' : attrs
                                })
-    bokeh_app.publisher.send("bokehplot:" + clientdoc.docid, msg)
+    bokeh_app.publisher.send("bokehplot:" + docid, msg)
     return msg
 
-def ws_delete(clientdoc, models):
+def ws_delete(clientdoc, docid, models):
     attrs = clientdoc.dump(*models)
     msg = {
         'msgtype'    : 'modeldel',
         'modelspecs' : attrs,
     }
     msg = protocol.serialize_json(msg)
-    bokeh_app.wsmanager.send("bokehplot:" + clientdoc.docid, msg)
+    bokeh_app.wsmanager.send("bokehplot:" + docid, msg)
     return msg
 
 # backbone functionality
@@ -161,7 +162,7 @@ def bulkget_with_typename(docid):
     '''
     return _bulkget(docid, typename)
 
-@crossdomain(origin="*", methods=['PATCH', 'GET', 'PUT'], headers=['BOKEH-API-KEY', 'Continuum-Clientid', 'Content-Type'])
+@crossdomain(origin="*", methods=['PATCH', 'GET', 'PUT'], headers=None)
 def _handle_specific_model(docid, typename, id, method):
     if method == 'PUT':
         return update(docid, typename, id)

@@ -29,5 +29,6 @@ medals['gold'] = gold
 # medals = pd.DataFrame(medals)
 
 donut = Donut(medals, countries, filename="donut.html")
-donut.title("Medals Donut").xlabel("countries").ylabel("medals")
-donut.legend(True).width(800).height(800).show()
+# donut.title("Medals Donut").xlabel("countries").ylabel("medals")
+# donut.legend(True).width(800).height(800)
+donut.show()

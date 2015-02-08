@@ -137,6 +137,8 @@ class AbstractAuthentication(object):
         """returns bokeh User object from self.current_user_name
         """
         username = self.current_user_name()
+        if username is None:
+            return None
         bokehuser = user.User.load(bokeh_app.servermodel_storage, username)
         return bokehuser
 
@@ -247,6 +249,7 @@ class MultiUserAuthentication(AbstractAuthentication):
             bokehuser = user.apiuser_from_request(bokeh_app, request)
             if bokehuser:
                 return bokehuser.username
+        return None
 
     def register_get(self):
         return render_template("register.html", title="Register")
