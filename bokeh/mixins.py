@@ -12,7 +12,7 @@ class FillProps(HasProps):
 
     """
 
-    fill_color = ColorSpec("gray", help="""
+    fill_color = ColorSpec(default="gray", help="""
     A color to use to fill paths with.
 
     Acceptable values are:
@@ -26,7 +26,7 @@ class FillProps(HasProps):
 
     """)
 
-    fill_alpha = DataSpec(1.0, help="""
+    fill_alpha = DataSpec(default=1.0, help="""
     An alpha value to use to fill paths with.
 
     Acceptable values are floating point numbers between 0 (transparent)
@@ -41,7 +41,7 @@ class LineProps(HasProps):
 
     """
 
-    line_color = ColorSpec("black", help="""
+    line_color = ColorSpec(default="black", help="""
     A color to use to stroke paths with.
 
     Acceptable values are:
@@ -55,11 +55,11 @@ class LineProps(HasProps):
 
     """)
 
-    line_width = DataSpec(help="""
+    line_width = DataSpec("line_width", default=1, help="""
     Stroke width in units of pixels.
     """)
 
-    line_alpha = DataSpec(1.0, help="""
+    line_alpha = DataSpec(default=1.0, help="""
     An alpha value to use to stroke paths with.
 
     Acceptable values are floating point numbers between 0 (transparent)
@@ -143,7 +143,7 @@ class TextProps(HasProps):
 
     """)
 
-    text_color = ColorSpec("#444444", help="""
+    text_color = ColorSpec(default="#444444", help="""
     A color to use to fill text with.
 
     Acceptable values are:
@@ -157,7 +157,7 @@ class TextProps(HasProps):
 
     """)
 
-    text_alpha = DataSpec(1.0, help="""
+    text_alpha = DataSpec(default=1.0, help="""
     An alpha value to use to fill text with.
 
     Acceptable values are floating point numbers between 0 (transparent)
