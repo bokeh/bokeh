@@ -241,6 +241,14 @@ Bar
 
   * ``True``: bars are draw as a stack to show the relationship of parts to a whole.
   * ``False``: bars are groupped on the same chart figure. Defaults to ``False``.
+* ``y_range`` (Range, optional): supply a Range object for the y_range 
+
+In the case where no ``y_range`` object is passed, the y-range is calculated
+based on the data provided in values, according to the following rules:
+
+* with all positive data: start = 0, end = 1.1 * max (end is +ve)
+* with all negative data: start = 0, end = 1.1 * min (end is -ve)
+* with mixed sign data:   start = 1.1 * min, end = 1.1 * max (start is -ve, end is +ve)
 
 
 .. image:: /_images/charts_bar_stacked.png
