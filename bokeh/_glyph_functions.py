@@ -144,6 +144,20 @@ are also accepted as keyword parameters.
 
 Returns:
     plot
+
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.annulus(x=[1, 2, 3], y=[1, 2, 3], inner_radius=0.2,
+                    outer_radius=0.5, color="#7FC97F"
+                    )
+
+        show(plot)
 """
 )
 
@@ -183,6 +197,19 @@ are also accepted as keyword parameters.
 
 Returns:
     plot
+
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.asterisk(x=[1,2,3], y=[1,2,3], size=20, color="#F0027F")
+
+        show(plot)
+
 """
 )
 
@@ -228,6 +255,19 @@ Returns:
 
 Notes:
     Only one of `size` or `radius` should be provided. Note that `radius` defaults to data units.
+
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.circle(x=[1, 2, 3], y=[1, 2, 3], radius=0.1, size=20)
+
+        show(plot)
+
 """
 )
 
@@ -246,6 +286,19 @@ are also accepted as keyword parameters.
 
 Returns:
     plot
+
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.circle_cross(x=[1,2,3], y=[4,5,6], fill_alpha=0, line_width=2,
+                         color="#FB8072", size=20)
+
+        show(plot)
 """
 )
 
@@ -264,6 +317,19 @@ are also accepted as keyword parameters.
 
 Returns:
     plot
+
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.circle_x(x=[1, 2, 3], y=[1, 2, 3], radius=0.1, size=20,
+                     fill_alpha=0, color="#DD1C77")
+
+        show(plot)
 """
 )
 
