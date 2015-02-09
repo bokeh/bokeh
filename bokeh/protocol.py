@@ -19,9 +19,12 @@ try:
 except ImportError:
     is_dateutil = False
 
+from .settings import settings
+
 log = logging.getLogger(__name__)
 
-millifactor = 10 ** 6.
+millifactor = 10**6.0
+
 class BokehJSONEncoder(json.JSONEncoder):
     def transform_series(self, obj):
         """transform series
@@ -108,8 +111,9 @@ class BokehJSONEncoder(json.JSONEncoder):
             return self.transform_python_types(obj)
 
 def serialize_json(obj, encoder=BokehJSONEncoder, **kwargs):
-    rslt =  json.dumps(obj, cls=encoder, **kwargs)
-    return rslt
+    if settings.pretty(False):
+        kwargs["indent"] = 4
+    return json.dumps(obj, cls=encoder, **kwargs)
 
 deserialize_json = json.loads
 
