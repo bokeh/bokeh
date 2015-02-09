@@ -75,7 +75,7 @@ complete_version=$(cat __conda_version__.txt)
 #create and upload pypi pkgs to binstar
 #zip is currently not working
 
-BOKEH_DEV_VERSION=$complete_version python setup.py sdist --formats=gztar
+python setup.py sdist --formats=gztar
 binstar upload -u bokeh dist/bokeh*$travis_build_id* --package-type pypi -c dev --force --no-progress;
 
 echo "I'm done uploading to binstar"
