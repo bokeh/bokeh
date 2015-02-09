@@ -38,13 +38,8 @@ def Horizon(values, index=None, num_folds=3, pos_color='#006400',
         neg_color=neg_color, xscale=xscale, xgrid=xgrid, ygrid=ygrid, **kws
     )
 
-    # Hide numerical axis / TODO: adapt for
-    #  https://github.com/bokeh/bokeh/issues/1730
-    chart.left[0].axis_label_text_color = None
-    chart.left[0].axis_line_color = None
-    chart.left[0].major_label_text_color = None
-    chart.left[0].major_tick_line_color = None
-    chart.left[0].minor_tick_line_color = None
+    # Hide numerical axis
+    chart.left[0].hide = True
 
     # Add the series names to the y axis
     chart.extra_y_ranges = {"series": FactorRange(factors=chart._builders[0]._series)}
