@@ -1,5 +1,43 @@
-""" A set of descriptors that document intended types for attributes on
-classes and implement convenience behaviors like default values, etc.
+""" Properties are objects that can be assigned as class level
+attributes on Bokeh models, to provide automatic serialization
+and validation.
+
+For example, the following defines a model that has integer,
+string, and list[float] properties::
+
+    class Model(HasProps):
+        foo = Int
+        bar = String
+        baz = List(Float)
+
+The properties of this class can be initialized by specifying
+keyword arguments to the initializer::
+
+    m = Model(foo=10, bar="a str", baz=[1,2,3,4])
+
+But also by setting the attributes on an instance::
+
+    m.foo = 20
+
+Attempts to set a property to a value of the wrong type will
+result in a ``ValueError`` exception::
+
+    >>> m.foo = 2.3
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+      File "/Users/bryan/work/bokeh/bokeh/properties.py", line 585, in __setattr__
+        super(HasProps, self).__setattr__(name, value)
+      File "/Users/bryan/work/bokeh/bokeh/properties.py", line 159, in __set__
+        raise e
+      File "/Users/bryan/work/bokeh/bokeh/properties.py", line 152, in __set__
+        self.validate(value)
+      File "/Users/bryan/work/bokeh/bokeh/properties.py", line 707, in validate
+        (nice_join([ cls.__name__ for cls in self._underlying_type ]), value, type(value).__name__))
+    ValueError: expected a value of type int8, int16, int32, int64 or int, got 2.3 of type float
+
+Additionally, properties know how to serialize themselves,
+to be understood by BokehJS.
+
 """
 from __future__ import absolute_import, print_function
 
@@ -449,7 +487,7 @@ class ColorSpec(DataSpec):
         return "ColorSpec(field=%r)" % self.field
 
 class Include(object):
-    ''' Include other properties from mixin Models, with a given prefix. '''
+    """ Include other properties from mixin Models, with a given prefix. """
 
     def __init__(self, delegate, help="", use_prefix=True):
         if not (isinstance(delegate, type) and issubclass(delegate, HasProps)):
@@ -668,6 +706,11 @@ class HasProps(object):
             print("%s%s: %r" % ("  "*indent, key, value))
 
 class PrimitiveProperty(Property):
+    """ A base class for simple property types. Subclasses should
+    define a class attribute ``_underlying_type`` that is a tuple
+    of acceptable type values for the property.
+
+    """
 
     _underlying_type = None
 
@@ -686,29 +729,29 @@ class PrimitiveProperty(Property):
             raise DeserializationError("%s expected %s, got %s" % (self, expected, json))
 
 class Bool(PrimitiveProperty):
-    ''' Boolean type property. '''
+    """ Boolean type property. """
     _underlying_type = (bool,)
 
 class Int(PrimitiveProperty):
-    ''' Signed integer type property. '''
+    """ Signed integer type property. """
     _underlying_type = bokeh_integer_types
 
 class Float(PrimitiveProperty):
-    ''' Floating point type property. '''
+    """ Floating point type property. """
     _underlying_type = (float, ) + bokeh_integer_types
 
 class Complex(PrimitiveProperty):
-    ''' Complex floating point type property. '''
+    """ Complex floating point type property. """
     _underlying_type = (complex, float) + bokeh_integer_types
 
 class String(PrimitiveProperty):
-    ''' String type property. '''
+    """ String type property. """
     _underlying_type = string_types
 
 class Regex(String):
-    ''' Regex type property validates that text values match the
+    """ Regex type property validates that text values match the
     given regular expression.
-    '''
+    """
     def __init__(self, regex, default=None, help=None):
         self.regex = re.compile(regex)
         super(Regex, self).__init__(default=default, help=help)
@@ -723,7 +766,10 @@ class Regex(String):
         return "%s(%r)" % (self.__class__.__name__, self.regex.pattern)
 
 class ParameterizedProperty(Property):
-    """ Base class for Properties that have type parameters, e.g. `List(String)`. """
+    """ Base class for Properties that have type parameters, e.g.
+    ``List(String)``.
+
+    """
 
     @staticmethod
     def _validate_type_param(type_param):
@@ -746,12 +792,13 @@ class ParameterizedProperty(Property):
         return any(type_param.has_ref for type_param in self.type_params)
 
 class ContainerProperty(ParameterizedProperty):
-    ''' Base class for Container-like type properties. '''
-    # Base class for container-like things; this helps the auto-serialization
-    # and attribute change detection code
+    """ Base class for Container-like type properties. """
     pass
 
 class Seq(ContainerProperty):
+    """ Sequence (list, tuple) type property.
+
+    """
 
     def _is_seq(self, value):
         return isinstance(value, collections.Container) and not isinstance(value, collections.Mapping)
@@ -786,6 +833,9 @@ class Seq(ContainerProperty):
             raise DeserializationError("%s expected a list or None, got %s" % (self, json))
 
 class List(Seq):
+    """ Python list type property.
+
+    """
 
     def __init__(self, item_type, default=[], help=None):
         super(List, self).__init__(item_type, default=default, help=help)
@@ -794,6 +844,9 @@ class List(Seq):
         return isinstance(value, list)
 
 class Array(Seq):
+    """ NumPy array type property.
+
+    """
 
     def _is_seq(self, value):
         import numpy as np
@@ -803,8 +856,11 @@ class Array(Seq):
         return np.array(value)
 
 class Dict(ContainerProperty):
-    """ If a default value is passed in, then a shallow copy of it will be
+    """ Python dict type property.
+
+    If a default value is passed in, then a shallow copy of it will be
     used for each new use of this property.
+
     """
 
     def __init__(self, keys_type, values_type, default={}, help=None):
@@ -836,7 +892,7 @@ class Dict(ContainerProperty):
             raise DeserializationError("%s expected a dict or None, got %s" % (self, json))
 
 class Tuple(ContainerProperty):
-    ''' Tuple type property. '''
+    """ Tuple type property. """
     def __init__(self, tp1, tp2, *type_params, **kwargs):
         self._type_params = list(map(self._validate_type_param, (tp1, tp2) + type_params))
         super(Tuple, self).__init__(default=kwargs.get("default"), help=kwargs.get("help"))
@@ -865,10 +921,10 @@ class Tuple(ContainerProperty):
             raise DeserializationError("%s expected a list or None, got %s" % (self, json))
 
 class Instance(Property):
-    ''' Instance type property for referneces to other Models in the object
+    """ Instance type property, for references to other Models in the object
     graph.
 
-    '''
+    """
     def __init__(self, instance_type, default=None, help=None):
         if not isinstance(instance_type, (type,) + string_types):
             raise ValueError("expected a type or string, got %s" % instance_type)
@@ -937,19 +993,19 @@ class This(Property):
 
 # Fake types, ABCs
 class Any(Property):
-    ''' Any type property accepts any values. '''
+    """ Any type property accepts any values. """
     pass
 
 class Function(Property):
-    ''' Function type property. '''
+    """ Function type property. """
     pass
 
 class Event(Property):
-    ''' Event type property. '''
+    """ Event type property. """
     pass
 
 class Range(ParameterizedProperty):
-    ''' Range type property ensures values are between a range. '''
+    """ Range type property ensures values are between a range. """
     def __init__(self, range_type, start, end, default=None, help=None):
         self.range_type = self._validate_type_param(range_type)
         self.range_type.validate(start)
@@ -972,7 +1028,7 @@ class Range(ParameterizedProperty):
         return "%s(%s, %r, %r)" % (self.__class__.__name__, self.range_type, self.start, self.end)
 
 class Byte(Range):
-    ''' Byte type property. '''
+    """ Byte type property. """
     def __init__(self, default=0, help=None):
         super(Byte, self).__init__(Int, 0, 255, default=default, help=help)
 
@@ -1080,17 +1136,21 @@ class Align(Property):
     pass
 
 class DashPattern(Either):
-    """
-    This is a property that expresses line dashes.  It can be specified in
-    a variety of forms:
+    """ Dash type property.
 
-    * "solid", "dashed", "dotted", "dotdash", "dashdot"
-    * A tuple or list of integers in the HTML5 Canvas dash specification
-      style: http://www.w3.org/html/wg/drafts/2dcontext/html5_canvas/#dash-list
+    Express patterns that describe line dashes.  ``DashPattern`` values
+    can be specified in a variety of ways:
+
+    * An enum: "solid", "dashed", "dotted", "dotdash", "dashdot"
+    * a tuple or list of integers in the `HTML5 Canvas dash specification style`_.
       Note that if the list of integers has an odd number of elements, then
       it is duplicated, and that duplicated list becomes the new dash list.
 
-    If dash is turned off, then the dash pattern is the empty list [].
+    To indicate that dashing is turned off (solid lines), specify the empty
+    list [].
+
+    .. _HTML5 Canvas dash specification style: http://www.w3.org/html/wg/drafts/2dcontext/html5_canvas/#dash-list
+
     """
 
     _dash_patterns = {
@@ -1120,7 +1180,12 @@ class DashPattern(Either):
         return self.__class__.__name__
 
 class Size(Float):
-    """ Equivalent to an unsigned int """
+    """ Size type property.
+
+    .. note::
+        ``Size`` is equivalent to an unsigned int.
+
+    """
     def validate(self, value):
         super(Size, self).validate(value)
 
@@ -1128,8 +1193,11 @@ class Size(Float):
             raise ValueError("expected a non-negative number, got %r" % value)
 
 class Percent(Float):
-    """ Percent is useful for alphas and coverage and extents; more
-    semantically meaningful than Float(0..1)
+    """ Percentage type property.
+
+    Percents are useful for specifying alphas and coverage and extents; more
+    semantically meaningful than Float(0..1).
+
     """
     def validate(self, value):
         super(Percent, self).validate(value)
@@ -1138,11 +1206,13 @@ class Percent(Float):
             raise ValueError("expected a value in range [0, 1], got %r" % value)
 
 class Angle(Float):
-    ''' Angle type property. '''
+    """ Angle type property. """
     pass
 
 class Date(Property):
-    ''' Date (not datetime) type property. '''
+    """ Date (not datetime) type property.
+
+    """
     def __init__(self, default=datetime.date.today(), help=None):
         super(Date, self).__init__(default=default, help=help)
 
@@ -1166,7 +1236,10 @@ class Date(Property):
         return value
 
 class Datetime(Property):
-    ''' Datetime type property. '''
+    """ Datetime type property.
+
+    """
+
     def __init__(self, default=datetime.date.today(), help=None):
         super(Datetime, self).__init__(default=default, help=help)
 
@@ -1191,7 +1264,10 @@ class Datetime(Property):
 
 
 class RelativeDelta(Dict):
-    ''' RelativeDelta type property for time deltas. '''
+    """ RelativeDelta type property for time deltas.
+
+    """
+
     def __init__(self, default={}, help=None):
         keys = Enum("years", "months", "days", "hours", "minutes", "seconds", "microseconds")
         values = Int

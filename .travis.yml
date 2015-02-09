@@ -36,6 +36,8 @@ matrix:
 branches:
   only:
     - master
+    - /^\d.\d.\d-dev-.+$/
+    - /^\d.\d.\d-rc-.+$/
 
 before_install:
     - export PATH="$HOME/miniconda/bin:$PATH"
@@ -57,9 +59,9 @@ after_success:
         echo "Building the packages and uploading to binstar. Also uploading JS and CSS to the CDN and uploading the devel docs."
         conda install binstar fabric --yes
         binstar login --hostname=$TRAVIS_BUILD_ID --username=$BINUSER --password=$BINKEY
-        openssl aes-256-cbc -K $encrypted_c3cdf0ba7bf3_key -iv $encrypted_c3cdf0ba7bf3_iv -in bokeh.enc -out bokeh_key -d
+        openssl aes-256-cbc -K $encrypted_d63f580d5c2a_key -iv $encrypted_d63f580d5c2a_iv -in secrets.tar.enc -out secrets.tar -d
+        tar xvf secrets.tar
         chmod 600 bokeh_key
-        openssl aes-256-cbc -K $encrypted_c3cdf0ba7bf3_key -iv $encrypted_c3cdf0ba7bf3_iv -in known_hosts.enc -out known_hosts -d
         cp known_hosts ~/.ssh/known_hosts
         eval `ssh-agent -s`
         ssh-add bokeh_key
