@@ -102,7 +102,7 @@ class Resources(object):
 
         minified (bool, optional) : whether JavaScript and CSS should be minified or not (default: True)
 
-        host (str, optional) : URL and port of Bokeh Server to load resources from
+        root_url (str, optional) : URL and port of Bokeh Server to load resources from
 
             Only valid with ``'server'`` and ``'server-dev'`` modes
 
