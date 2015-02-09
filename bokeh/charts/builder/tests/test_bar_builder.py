@@ -113,3 +113,9 @@ class TestBar(unittest.TestCase):
         custom_y_range = Range1d(50, -50)
         bar_chart = create_chart(Bar, source, y_range=custom_y_range)
         self.assertEqual(bar_chart._builders[0].y_range, custom_y_range)
+
+    def test_invalid_y_range_raises_error(self):
+        source = OrderedDict({'p': [0, 1]})
+        bad_y_range = range(0, 50)  # Not a Range object
+        with self.assertRaises(ValueError):
+            create_chart(Bar, source, y_range=bad_y_range)
