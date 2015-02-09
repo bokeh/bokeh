@@ -6,25 +6,117 @@ useful for charts ecosystem.
 #
 # Powered by the Bokeh Development Team.
 #
-# The full license is in the file LICENCE.txt, distributed with this software.
+# The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 from __future__ import division, print_function
+
+from collections import OrderedDict
+import itertools
 from math import cos, sin
-from ..document import Document
-from ..session import Session
-from ..embed import file_html
-from ..resources import INLINE
+
 from ..browserlib import view
+from ..document import Document
+from ..embed import file_html
+from ..models import GlyphRenderer
+from ..models.glyphs import (
+    Asterisk, Circle, CircleCross, CircleX, Cross, Diamond, DiamondCross,
+    InvertedTriangle, Square, SquareCross, SquareX, Triangle, X)
+from ..resources import INLINE
+from ..session import Session
 from ..utils import publish_display_data
 
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
 
+# TODO: (bev) this should go in a plotting utils one level up
+_default_cycle_palette = [
+    "#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33ff3"
+]
+def cycle_colors(chunk, palette=_default_cycle_palette):
+    """ Build a color list just cycling through a given palette.
+
+    Args:
+        chuck (seq): the chunk of elements to generate the color list
+        palette (seq[color]) : a palette of colors to cycle through
+
+    Returns:
+        colors
+
+    """
+    colors = []
+
+    g = itertools.cycle(palette)
+    for i in range(len(chunk)):
+        colors.append(next(g))
+
+    return colors
+
+# TODO: (bev) this should go in a plotting utils one level up
+def make_scatter(source, x, y, markertype, color, line_color=None,
+                 size=10, fill_alpha=0.2, line_alpha=1.0):
+    """Create a marker glyph and appends it to the renderers list.
+
+    Args:
+        source (obj): datasource object containing markers references.
+        x (str or list[float]) : values or field names of line ``x`` coordinates
+        y (str or list[float]) : values or field names of line ``y`` coordinates
+        markertype (int or str): Marker type to use (e.g., 2, 'circle', etc.)
+        color (str): color of the points
+        size (int) : size of the scatter marker
+        fill_alpha(float) : alpha value of the fill color
+        line_alpha(float) : alpha value of the line color
+
+    Return:
+        scatter: Marker Glyph instance
+    """
+    if line_color is None:
+        line_color = color
+
+    _marker_types = OrderedDict(
+        [
+            ("circle", Circle),
+            ("square", Square),
+            ("triangle", Triangle),
+            ("diamond", Diamond),
+            ("inverted_triangle", InvertedTriangle),
+            ("asterisk", Asterisk),
+            ("cross", Cross),
+            ("x", X),
+            ("circle_cross", CircleCross),
+            ("circle_x", CircleX),
+            ("square_x", SquareX),
+            ("square_cross", SquareCross),
+            ("diamond_cross", DiamondCross),
+        ]
+    )
+
+    g = itertools.cycle(_marker_types.keys())
+    if isinstance(markertype, int):
+        for i in range(markertype):
+            shape = next(g)
+    else:
+        shape = markertype
+    glyph = _marker_types[shape](
+        x=x, y=y, size=size, fill_color=color, fill_alpha=fill_alpha,
+        line_color=line_color, line_alpha=line_alpha
+    )
+
+    return GlyphRenderer(data_source=source, glyph=glyph)
+
+def chunk(l, n):
+    """Yield successive n-sized chunks from l.
+
+    Args:
+        l (list: the incomming list to be chunked
+        n (int): lenght of you chucks
+    """
+    for i in range(0, len(l), n):
+        yield l[i:i + n]
 
 def polar_to_cartesian(r, start_angles, end_angles):
     """Translate polar coordinates to cartesian.
@@ -73,7 +165,6 @@ class Figure(object):
             self.doc.add(VBox(children=self.children))
 
         self.plot = None
-        xdr, ydr = None, None
         for i, chart in enumerate(self.charts):
             chart.doc = self.doc
             if self.server:

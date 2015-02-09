@@ -57,6 +57,11 @@ def start_redis():
     bokeh_app.redis_proc = mproc
 
 server = None
+def make_tornado(config_file=None):
+    configure_flask(config_file=config_file)
+    register_blueprint()
+    tornado_app = make_tornado_app(flask_app=app)
+    return tornado_app
 
 def start_simple_server(args=None):
     global server

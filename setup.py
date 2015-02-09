@@ -328,7 +328,7 @@ if not exists(join(ROOT, 'MANIFEST.in')):
               "Bokeh repository from https://github.com/bokeh/bokeh")
         if "--build_js"  in sys.argv:
             sys.argv.remove('--build_js')
-        if "--install_js"  in sys.argv: 
+        if "--install_js"  in sys.argv:
             sys.argv.remove('--install_js')
         jsbuild = False
         jsinstall = False
@@ -442,17 +442,8 @@ if platform.python_implementation() != "PyPy":
         'pandas>=0.11.0'
     ])
 
-#need to create throw away class for cmdclass call in setup
-from distutils.command.build_py import build_py as _build_py
-class build_py(_build_py):
-    pass
-
-if 'BOKEH_DEV_VERSION' in os.environ:
-    _version = os.environ['BOKEH_DEV_VERSION']
-    _cmdclass = {'build_py': build_py}
-else:
-    _version = versioneer.get_version()
-    _cmdclass = versioneer.get_cmdclass()
+_version = versioneer.get_version()
+_cmdclass = versioneer.get_cmdclass()
 
 setup(
     name='bokeh',
@@ -463,6 +454,9 @@ setup(
         'bokeh.models',
         'bokeh.models.widgets',
         'bokeh.charts',
+        'bokeh.charts.builder',
+        'bokeh.charts.builder.tests',
+        'bokeh.charts.tests',
         'bokeh.crossfilter',
         'bokeh.mplexporter',
         'bokeh.mplexporter.renderers',

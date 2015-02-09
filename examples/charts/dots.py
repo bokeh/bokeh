@@ -16,5 +16,5 @@ xyvalues = OrderedDict(
 #xyvalues = np.array(list(xyvalues.values()))
 
 dots = Dot(xyvalues, cat=['lists','loops','dicts', 'gen exp', 'exceptions'],
-         title="Dots Example", ylabel='Performance', filename="dots.html")
+         title="Dots Example", ylabel='Performance', filename="dots.html", legend=True)
 dots.legend("top_left").show()
