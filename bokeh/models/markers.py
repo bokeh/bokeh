@@ -5,8 +5,9 @@ markers on Bokeh plots.
 from __future__ import absolute_import
 
 from .glyphs import Glyph
+from ..enums import enumeration
 from ..mixins import FillProps, LineProps
-from ..properties import DataSpec, Include
+from ..properties import DataSpec, Enum, Include
 
 class Marker(Glyph):
     """ Base class for glyphs that are simple markers with line and
@@ -86,6 +87,14 @@ class Circle(Marker):
         appear much larger or smaller than expected. See :bokeh-issue:`626`
         for more information.
 
+    """)
+
+    radius_dimension = Enum(enumeration('x', 'y'), help="""
+    What dimension to measure circle radii along.
+
+    When the data space aspect ratio is not 1-1, then the size of the drawn
+    circles depends on what direction is used to measure the "distance" of
+    the radius. This property allows that direction to be controlled.
     """)
 
 class CircleCross(Marker):
