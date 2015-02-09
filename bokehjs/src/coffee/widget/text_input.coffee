@@ -4,7 +4,7 @@ define [
   "common/continuum_view"
   "common/has_parent"
   "common/logging"
-  "./textinputtemplate"
+  "./text_input_template"
 ], (Collection, build_views, ContinuumView, HasParent, Logging, template) ->
 
   logger = Logging.logger
@@ -19,7 +19,7 @@ define [
 
     change_input : () ->
       value = @$('input').val()
-      logger.debug("textinput: value = #{value}")
+      logger.debug("widget/text_input: value = #{value}")
       @mset('value', value)
       @model.save()
 
