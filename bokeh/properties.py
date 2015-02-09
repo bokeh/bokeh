@@ -220,7 +220,11 @@ class DataSpec(Property):
         """
         # Don't use .name because the HasProps metaclass uses that to
         # store the attribute name on this descriptor.
-        self.field = field
+        if field is None or isinstance(field, string_types):
+            self.field = field
+        else:
+            raise ValueError("'field' must be a string or None, got %r" % field)
+
         self.units = units
         self._default = default
         self.min_value = min_value
@@ -316,7 +320,7 @@ class ColorSpec(DataSpec):
     and indicating a field name to look for on the datasource:
 
     >>> class Bar(HasProps):
-    ...     col = ColorSpec("green")
+    ...     col = ColorSpec(default="green")
     ...     col2 = ColorSpec("colorfield")
 
     >>> b = Bar()
@@ -348,6 +352,9 @@ class ColorSpec(DataSpec):
                 self.value = field_or_value
             else:
                 self.field = field_or_value
+
+        if not (self.field is None or isinstance(self.field, string_types)):
+            raise ValueError("'field' must be a string or None, got %r" % self.field)
 
         # We need to distinguish if the user ever explicitly sets the attribute; if
         # they explicitly set it to None, we should pass on None in the dict.

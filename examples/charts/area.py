@@ -12,6 +12,6 @@ xyvalues = OrderedDict(
 area = Area(
     xyvalues, title="Area Chart", xlabel='time',
     ylabel='memory', filename="area.html",
-    facet=False, stacked=True,
-)
-area.legend("top_left").show()
+    stacked=True, legend="top_left"
+).legend("top_left")
+area.show()

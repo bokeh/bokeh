@@ -189,6 +189,7 @@ def check_remove_bokeh_install(site_packages):
             sys.exit(-1)
     else:
         print ("Not removing old bokeh install")
+        sys.exit(1)
 
 def remove_bokeh_pth(path_file):
     if exists(path_file):
@@ -223,7 +224,7 @@ Have you run `npm install` from the bokehjs subdirectory?
         os.chdir('..')
 
     if proc.wait() != 0:
-        print("ERROR: could not build bokehjs")
+        print("ERROR: could not build BokehJS")
         sys.exit(1)
 
 def install_js():
@@ -272,7 +273,8 @@ build process. How would you like to handle BokehJS:
     return mapping[value]
 
 def parse_jsargs():
-    installing = any(arg in sys.argv for arg in ('install', 'develop', 'sdist', 'egg_info'))
+    options = ('install', 'develop', 'sdist', 'egg_info', 'build')
+    installing = any(arg in sys.argv for arg in options)
 
     if '--build_js' in sys.argv:
         if not installing:
@@ -314,19 +316,30 @@ if "sdist" in sys.argv:
         print("Adding '--build_js' required for 'sdist'")
         sys.argv.append('--build_js')
 
-# check for package install, add "--install_js" to skip prompt
+# check for package install, set jsinstall to False to skip prompt
+jsinstall = True
 if not exists(join(ROOT, 'MANIFEST.in')):
-    installing = any(arg in sys.argv for arg in ('install', 'develop', 'sdist', 'egg_info'))
-    if installing and "--install_js" not in sys.argv and "--build_js" not in sys.argv:
-        print("Adding '--install_js' default for sdist package install")
-        sys.argv.append('--install_js')
-
-jsbuild = parse_jsargs()
+    options = ('install', 'develop', 'sdist', 'egg_info', 'build', 'clean', '--help')
+    installing = any(arg in sys.argv for arg in options)
+    if installing:
+        print("BokehJS source code is not shipped in sdist packages; "
+              "building/installing from the bokehjs source directory is disabled. "
+              "To build or develop BokehJS yourself, you must clone the full "
+              "Bokeh repository from https://github.com/bokeh/bokeh")
+        if "--build_js"  in sys.argv:
+            sys.argv.remove('--build_js')
+        if "--install_js"  in sys.argv:
+            sys.argv.remove('--install_js')
+        jsbuild = False
+        jsinstall = False
+else:
+    jsbuild = parse_jsargs()
 
 if jsbuild:
     build_js()
 
-install_js()
+if jsinstall:
+    install_js()
 
 sampledata_suffixes = ('.csv', '.conf', '.gz', '.json', '.png', '.ics')
 
@@ -353,7 +366,10 @@ if 'develop' in sys.argv:
         f.write(path)
     print("Installing Bokeh for development:")
     print("  - writing path '%s' to %s" % (path, path_file))
-    print("  - using %s built bokehjs from bokehjs/build\n" % ("NEWLY" if jsbuild else "PREVIOUSLY"))
+    if jsinstall:
+        print("  - using %s built BokehJS from bokehjs/build\n" % ("NEWLY" if jsbuild else "PREVIOUSLY"))
+    else:
+        print("  - using PACKAGED BokehJS, located in 'bokeh.server.static'\n")
     sys.exit()
 
 elif 'clean' in sys.argv:
@@ -364,12 +380,18 @@ elif 'install' in sys.argv:
     print("Installing Bokeh:")
     if pth_removed:
         print("  - removed path file at %s" % path_file)
-    print("  - using %s built bokehjs from bokehjs/build\n" % ("NEWLY" if jsbuild else "PREVIOUSLY"))
+    if jsinstall:
+        print("  - using %s built BokehJS from bokehjs/build\n" % ("NEWLY" if jsbuild else "PREVIOUSLY"))
+    else:
+        print("  - using PACKAGED BokehJS, located in 'bokeh.server.static'\n")
 
 elif '--help' in sys.argv:
-    print("Bokeh-specific options available with 'install' or 'develop':\n")
-    print("  --build_js          build and install a fresh BokehJS")
-    print("  --install_js        install only last previously built BokehJS")
+    if jsinstall:
+        print("Bokeh-specific options available with 'install' or 'develop':\n")
+        print("  --build_js          build and install a fresh BokehJS")
+        print("  --install_js        install only last previously built BokehJS")
+    else:
+        print("Bokeh is using PACKAGED BokehJS, located in 'bokeh.server.static'\n")
 
 print()
 
@@ -420,17 +442,8 @@ if platform.python_implementation() != "PyPy":
         'pandas>=0.11.0'
     ])
 
-#need to create throw away class for cmdclass call in setup
-from distutils.command.build_py import build_py as _build_py
-class build_py(_build_py):
-    pass
-
-if 'BOKEH_DEV_VERSION' in os.environ:
-    _version = os.environ['BOKEH_DEV_VERSION']
-    _cmdclass = {'build_py': build_py}
-else:
-    _version = versioneer.get_version()
-    _cmdclass = versioneer.get_cmdclass()
+_version = versioneer.get_version()
+_cmdclass = versioneer.get_cmdclass()
 
 setup(
     name='bokeh',
@@ -441,6 +454,9 @@ setup(
         'bokeh.models',
         'bokeh.models.widgets',
         'bokeh.charts',
+        'bokeh.charts.builder',
+        'bokeh.charts.builder.tests',
+        'bokeh.charts.tests',
         'bokeh.crossfilter',
         'bokeh.mplexporter',
         'bokeh.mplexporter.renderers',

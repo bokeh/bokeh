@@ -19,7 +19,7 @@ class Axis(GuideRenderer):
     """
 
     location = Either(Auto, Enum(Location), help="""
-    Where the axis should be positioned on the plot.
+    Where should labels and ticks be located in relation to the axis rule.
     """)
 
     bounds = Either(Auto, Tuple(Float, Float), help="""

@@ -110,9 +110,6 @@ define [
     map_to_screen: (x, x_units, y, y_units, x_name='default', y_name='default') ->
       @frame.map_to_screen(x, x_units, y, y_units, @canvas, x_name, y_name)
 
-    map_from_screen: (sx, sy, units) ->
-      @frame.map_from_screen(sx, sy, units, @canvas, name)
-
     update_range: (range_info) ->
       if not range_info?
         range_info = @initial_range_info
