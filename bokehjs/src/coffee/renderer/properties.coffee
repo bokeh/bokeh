@@ -30,6 +30,18 @@ define [
       else
         throw new Error("requested vector selection of '#{attrname}' failed for #{obj}")
 
+    source_v_select_property: (attrname, datasource) ->
+      obj = @[attrname]
+
+      if not obj?
+        throw new Error("requested vector selection of unknown property '#{attrname}'")
+      else if obj.field? and (obj.field of datasource.get('data'))
+        return {vector: true, scalar: false, array: datasource.get_column(obj.field)}
+      else if _.isObject(obj)
+        return {scalar: true, vector: false, value: if obj.value? then obj.value else NaN}
+      else
+        throw new Error("requested vector selection of '#{attrname}' failed for #{obj}")
+
     _fix_singleton_array_value: (obj) ->
       # XXX: this is required because we can't distinguish between
       # cases like Text(text="field") and Text(text="actual text").
@@ -212,59 +224,58 @@ define [
       @array(styleprovider, @line_dash_name)
       @number(styleprovider, @line_dash_offset_name)
 
-      @do_stroke = true
+      @do_line = @do_stroke = true
       if not _.isUndefined(@[@line_color_name].value)
         if _.isNull(@[@line_color_name].value)
-          @do_stroke = false
+          @do_line = @do_stroke = false
 
     set: (ctx, obj) ->
-      ctx.strokeStyle = @select(@line_color_name, obj)
-      ctx.globalAlpha = @select(@line_alpha_name, obj)
-      ctx.lineWidth   = @select(@line_width_name, obj)
-      ctx.lineJoin    = @select(@line_join_name,  obj)
-      ctx.lineCap     = @select(@line_cap_name,   obj)
-      ctx.setLineDash(@select(@line_dash_name, obj))
+      ctx.strokeStyle     = @select(@line_color_name,       obj)
+      ctx.globalAlpha     = @select(@line_alpha_name,       obj)
+      ctx.lineWidth       = @select(@line_width_name,       obj)
+      ctx.lineJoin        = @select(@line_join_name,        obj)
+      ctx.lineCap         = @select(@line_cap_name,         obj)
+      ctx.setLineDash      (@select(@line_dash_name,        obj))
       ctx.setLineDashOffset(@select(@line_dash_offset_name, obj))
 
     set_prop_cache: (datasource) ->
-      @cache = {}
-      @cache.strokeStyle       = @source_v_select(@line_color_name, datasource)
-      @cache.globalAlpha       = @source_v_select(@line_alpha_name, datasource)
-      @cache.lineWidth         = @source_v_select(@line_width_name, datasource)
-      @cache.lineJoin          = @source_v_select(@line_join_name,  datasource)
-      @cache.lineCap           = @source_v_select(@line_cap_name,   datasource)
-      @cache.setLineDash       = @source_v_select(@line_dash_name,  datasource)
-      @cache.setLineDashOffset = @source_v_select(@line_dash_offset_name, datasource)
+      @cache = {
+        strokeStyle    : @source_v_select_property(@line_color_name,       datasource)
+        globalAlpha    : @source_v_select_property(@line_alpha_name,       datasource)
+        lineWidth      : @source_v_select_property(@line_width_name,       datasource)
+        lineJoin       : @source_v_select_property(@line_join_name,        datasource)
+        lineCap        : @source_v_select_property(@line_cap_name,         datasource)
+        lineDash       : @source_v_select_property(@line_dash_name,        datasource)
+        lineDashOffset : @source_v_select_property(@line_dash_offset_name, datasource)
+      }
 
-    clear_prop_cache: () ->
-      @cache = {}
+    is_scalar: () ->
+      @cache.strokeStyle.scalar    and @cache.globalAlpha.scalar    and
+      @cache.lineWidth.scalar      and @cache.lineJoin.scalar       and
+      @cache.lineCap.scalar        and @cache.lineDash.scalar       and
+      @cache.lineDashOffset.scalar
 
-    set_vectorize: (ctx, i) ->
-      did_change = false
-      if @cache.strokeStyle[i]? and ctx.strokeStyle != @cache.strokeStyle[i]
-        ctx.strokeStyle = @cache.strokeStyle[i]
-        did_change = true
-      if @cache.globalAlpha[i]? and ctx.globalAlpha != @cache.globalAlpha[i]
-        ctx.globalAlpha = @cache.globalAlpha[i]
-        did_change = true
-      if @cache.lineWidth[i]? and ctx.lineWidth != @cache.lineWidth[i]
-        ctx.lineWidth = @cache.lineWidth[i]
-        did_change = true
-      if @cache.lineJoin[i]? and ctx.lineJoin != @cache.lineJoin[i]
-        ctx.lineJoin = @cache.lineJoin[i]
-        did_change = true
-      if @cache.lineCap[i]? and ctx.lineCap != @cache.lineCap[i]
-        ctx.lineCap = @cache.lineCap[i]
-        did_change = true
-      if @cache.setLineDash[i]? and ctx.getLineDash() != @cache.setLineDash[i]
-        ctx.setLineDash(@cache.setLineDash[i])
-        did_change = true
-      if @cache.setLineDashOffset[i]? and \
-          ctx.getLineDashOffset() != @cache.setLineDashOffset[i]
-        ctx.setLineDashOffset(@cache.setLineDashOffset[i])
-        did_change = true
+    is_vector: () -> not @is_scalar()
 
-      return did_change
+    set_scalar: (ctx) ->
+      if @cache.strokeStyle.scalar    then ctx.strokeStyle     = @cache.strokeStyle.value
+      if @cache.globalAlpha.scalar    then ctx.globalAlpha     = @cache.globalAlpha.value
+      if @cache.lineWidth.scalar      then ctx.lineWidth       = @cache.lineWidth.value
+      if @cache.lineJoin.scalar       then ctx.lineJoin        = @cache.lineJoin.value
+      if @cache.lineCap.scalar        then ctx.lineCap         = @cache.lineCap.value
+      if @cache.lineDash.scalar       then ctx.setLineDash      (@cache.lineDash.value)
+      if @cache.lineDashOffset.scalar then ctx.setLineDashOffset(@cache.lineDashOffset.value)
+
+    set_vector: (ctx, i) ->
+      ctx.strokeStyle     = if @cache.strokeStyle.vector    then @cache.strokeStyle.array[i]    else @cache.strokeStyle.value
+      ctx.globalAlpha     = if @cache.globalAlpha.vector    then @cache.globalAlpha.array[i]    else @cache.globalAlpha.value
+      ctx.lineWidth       = if @cache.lineWidth.vector      then @cache.lineWidth.array[i]      else @cache.lineWidth.value
+      ctx.lineJoin        = if @cache.lineJoin.vector       then @cache.lineJoin.array[i]       else @cache.lineJoin.value
+      ctx.lineCap         = if @cache.lineCap.vector        then @cache.lineCap.array[i]        else @cache.lineCap.value
+      ctx.setLineDash      (if @cache.lineDash.vector       then @cache.lineDash.array[i]       else @cache.lineDash.value)
+      ctx.setLineDashOffset(if @cache.lineDashOffset.vector then @cache.lineDashOffset.array[i] else @cache.lineDashOffset.value)
+
+    set_vectorize: (ctx, i) -> @set_vector(ctx, i)
 
   class FillProperties extends Properties
     constructor: (styleprovider, prefix="") ->
@@ -284,20 +295,24 @@ define [
       ctx.globalAlpha = @select(@fill_alpha_name, obj)
 
     set_prop_cache: (datasource) ->
-      @cache = {}
-      @cache.fillStyle         = @source_v_select(@fill_color_name, datasource)
-      @cache.globalAlpha       = @source_v_select(@fill_alpha_name, datasource)
+      @cache = {
+        fillStyle   : @source_v_select_property(@fill_color_name, datasource)
+        globalAlpha : @source_v_select_property(@fill_alpha_name, datasource)
+      }
 
-    set_vectorize: (ctx, i) ->
-      did_change = false
-      if ctx.fillStyle != @cache.fillStyle[i]
-        ctx.fillStyle = @cache.fillStyle[i]
-        did_change = true
-      if ctx.globalAlpha != @cache.globalAlpha[i]
-        ctx.globalAlpha = @cache.globalAlpha[i]
-        did_change = true
+    is_scalar: () -> @cache.fillStyle.scalar and @cache.globalAlpha.scalar
 
-      return did_change
+    is_vector: () -> not @is_scalar()
+
+    set_scalar: (ctx) ->
+      if @cache.fillStyle.scalar   then ctx.fillStyle   = @cache.fillStyle.value
+      if @cache.globalAlpha.scalar then ctx.globalAlpha = @cache.globalAlpha.value
+
+    set_vector: (ctx, i) ->
+      ctx.fillStyle   = if @cache.fillStyle.vector   then @cache.fillStyle.array[i]   else @cache.fillStyle.value
+      ctx.globalAlpha = if @cache.globalAlpha.vector then @cache.globalAlpha.array[i] else @cache.globalAlpha.value
+
+    set_vectorize: (ctx, i) -> @set_vector(ctx, i)
 
   class TextProperties extends Properties
     constructor: (styleprovider, prefix="") ->
@@ -342,9 +357,6 @@ define [
       @cache.globalAlpha  = @source_v_select(@text_alpha_name, datasource)
       @cache.textAlign    = @source_v_select(@text_align_name, datasource)
       @cache.textBaseline = @source_v_select(@text_baseline_name, datasource)
-
-    clear_prop_cache: () ->
-      @cache = {}
 
     set_vectorize: (ctx, i) ->
       did_change = false

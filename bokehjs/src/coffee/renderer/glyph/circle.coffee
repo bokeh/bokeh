@@ -88,20 +88,37 @@ define [
       return (x[4].i for x in @index.search([x0, y0, x1, y1]))
 
     _render: (ctx, indices, sx=@sx, sy=@sy, radius=@radius) ->
+      pi2 = 2*Math.PI
+
+      do_fill = @props.fill.do_fill
+      do_line = @props.line.do_line
+
+      is_fill_scalar = @props.fill.is_scalar
+      is_line_scalar = @props.line.is_scalar
+
+      if is_fill_scalar then @props.fill.set_scalar(ctx)
+      if is_line_scalar then @props.line.set_scalar(ctx)
+
       for i in indices
-        if isNaN(sx[i] + sy[i] + radius[i])
+        x = sx[i]
+        y = sy[i]
+        r = radius[i]
+
+        if isNaN(x + y + r)
             continue
 
         ctx.beginPath()
-        ctx.arc(sx[i], sy[i], radius[i], 0, 2*Math.PI, false)
+        ctx.arc(x, y, r, 0, pi2, false)
 
-        if @props.fill.do_fill
-          @props.fill.set_vectorize(ctx,i)
+        if do_fill
+          if not is_fill_scalar then @props.fill.set_vectorize(ctx, i)
           ctx.fill()
 
-        if @props.line.do_stroke
-          @props.line.set_vectorize(ctx, i)
+        if do_line
+          if not is_line_scalar then @props.line.set_vectorize(ctx, i)
           ctx.stroke()
+
+      return null
 
     _hit_point: (geometry) ->
       [vx, vy] = [geometry.vx, geometry.vy]

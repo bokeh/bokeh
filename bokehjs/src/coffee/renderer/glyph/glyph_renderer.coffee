@@ -46,8 +46,6 @@ define [
       @listenTo(@mget('data_source'), 'change', @set_data)
       @listenTo(@mget('data_source'), 'select', @request_render)
 
-    have_selection_glyphs: () -> true
-
     #TODO: There are glyph sub-type-vs-resample_op concordance issues...
     setup_server_data: () ->
       serversource = @mget('server_data_source')
@@ -59,9 +57,8 @@ define [
 
       transform_params = serversource.attributes['transform']
       resample_op = transform_params['resample']
-      
-      
-      #TODO: Perhaps pass 'plot_view' through in the request instead of these fractions carved off 
+
+      #TODO: Perhaps pass 'plot_view' through in the request instead of these fractions carved off
       plot_h_range = @plot_view.frame.get('h_range')
       plot_v_range = @plot_view.frame.get('v_range')
       data_x_range = @plot_view.x_range
@@ -107,12 +104,20 @@ define [
       t0 = Date.now()
 
       @all_indices = @glyph.set_data(source)
+      @glyph._map_data()
 
-      @selection_glyph.set_data(source)
-      @nonselection_glyph.set_data(source)
+      @_set_selection_data = () =>
+        t0 = Date.now()
+        @selection_glyph.set_data(source)
+        @selection_glyph._map_data()
+
+        @nonselection_glyph.set_data(source)
+        @nonselection_glyph._map_data()
+        dt = Date.now() - t0
+        logger.debug("#{@glyph.model.type} glyph (#{@glyph.model.id}): _set_selection_data() finished in #{dt}ms")
 
       dt = Date.now() - t0
-      logger.debug("#{@glyph.model.type} glyph (#{@glyph.model.id}): set_data finished in #{dt}ms")
+      logger.debug("#{@glyph.model.type} glyph (#{@glyph.model.id}): set_data() finished in #{dt}ms")
 
       @have_new_data = true
 
@@ -123,11 +128,6 @@ define [
       if @need_set_data
         @set_data(false)
         @need_set_data = false
-
-      @glyph._map_data()
-
-      @selection_glyph._map_data()
-      @nonselection_glyph._map_data()
 
       # XXX: this ignores (non)selection glyphs
       if @_mask_data? and not (@plot_view.x_range instanceof FactorRange.Model) \
@@ -152,9 +152,14 @@ define [
 
       t0 = Date.now()
 
-      if not (selected_indices and selected_indices.length and @have_selection_glyphs())
+      if not (selected_indices and selected_indices.length)
         do_render(ctx, indices, @glyph)
       else
+        # lazy update of (non)selection glyph data
+        if @_set_selection_data?
+          @_set_selection_data()
+          @_set_selection_data = null
+
         # reset the selection mask
         selected_mask = (false for i in @all_indices)
         for idx in selected_indices
