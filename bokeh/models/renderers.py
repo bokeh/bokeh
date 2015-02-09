@@ -5,7 +5,7 @@ types that Bokeh supports.
 from __future__ import absolute_import
 
 from ..plot_object import PlotObject
-from ..properties import Int, String, Enum, Instance, List, Dict, Tuple, Include, Bool
+from ..properties import Int, String, Enum, Instance, List, Dict, Tuple, Include
 from ..mixins import LineProps, TextProps
 from ..enums import Units, Orientation
 
@@ -17,7 +17,6 @@ class Renderer(PlotObject):
     generally useful to instantiate on its own.
 
     """
-    hide = Bool(False)
 
 class GlyphRenderer(Renderer):
     """

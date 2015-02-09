@@ -4,7 +4,7 @@ Bokeh plots
 """
 from __future__ import absolute_import
 
-from ..properties import Int, Float, String, Enum, Auto, Instance, Tuple, Either, Include
+from ..properties import Int, Float, String, Enum, Bool, Auto, Instance, Tuple, Either, Include
 from ..mixins import LineProps, TextProps
 from ..enums import Location
 
@@ -17,6 +17,10 @@ class Axis(GuideRenderer):
     ``Axis`` is not generally useful to instantiate on its own.
 
     """
+
+    hide = Bool(False, help="""
+    Ability to hide the entire axis from the plot.
+    """)
 
     location = Either(Auto, Enum(Location), help="""
     Where should labels and ticks be located in relation to the axis rule.
