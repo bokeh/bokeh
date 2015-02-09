@@ -27,14 +27,17 @@ from bokeh.models import Range1d
 # Classes and functions
 #-----------------------------------------------------------------------------
 
+
 class TestBar(unittest.TestCase):
     def test_supported_input(self):
         xyvalues = OrderedDict()
-        xyvalues['python']=[2, 5]
-        xyvalues['pypy']=[12, 40]
-        xyvalues['jython']=[22, 30]
+        xyvalues['python'] = [2, 5]
+        xyvalues['pypy'] = [12, 40]
+        xyvalues['jython'] = [22, 30]
 
-        for i, _xy in enumerate([xyvalues, dict(xyvalues), pd.DataFrame(xyvalues)]):
+        for i, _xy in enumerate([xyvalues,
+                                 dict(xyvalues),
+                                 pd.DataFrame(xyvalues)]):
             bar = create_chart(Bar, _xy)
             builder = bar._builders[0]
             np.testing.assert_array_equal(builder._data['pypy'], np.array(xyvalues['pypy']))
