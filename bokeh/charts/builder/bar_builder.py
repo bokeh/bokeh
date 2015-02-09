@@ -38,9 +38,11 @@ from ...properties import Any, Bool, Either, List
 def Bar(values, cat=None, stacked=False, xscale="categorical", yscale="linear",
         xgrid=False, ygrid=True, **kw):
     return create_and_build(
-        BarBuilder, values, cat=cat, stacked=stacked, xscale=xscale, yscale=yscale,
+        BarBuilder, values, cat=cat, stacked=stacked,
+        xscale=xscale, yscale=yscale,
         xgrid=xgrid, ygrid=ygrid, **kw
     )
+
 
 class BarBuilder(Builder):
     """This is the Bar class and it is in charge of plotting
@@ -52,6 +54,14 @@ class BarBuilder(Builder):
     And finally add the needed glyphs (rects) taking the references
     from the source.
 
+    The x_range is categorical, and is made either from the cat argument
+    or from the indexes of the passed values if no cat is supplied.  The
+    y_range can be supplied as a parameter, or will be calculated as a linear
+    range (Range1d) based on the supplied values using the following rules:
+        * with all positive data: start = 0,         end = 1.1 * max
+        * with all negative data: start = 0,         end = 1.1 * min
+        * with mixed sign data:   start = 1.1 * min, end = 1.1 * max
+
     Examples:
 
         from collections import OrderedDict
@@ -61,8 +71,21 @@ class BarBuilder(Builder):
         xyvalues['pypy']=[12, 40]
         xyvalues['jython']=[22, 30]
 
-        bar = Bar(xyvalues, ['1st', '2nd'], filename="stacked_bar.html")
-        bar.show()
+        # For a stacked bar chart
+        stacked_bar = Bar(
+            xyvalues, ['1st', '2nd'], stacked=True, filename="stacked_bar.html"
+        )
+        stacked_bar.show()
+
+        # For a grouped bar chart with a custom y_range
+
+        from bokeh.models import Range1d
+
+        y_range = Range1d(start=2, end=40)
+        grouped_bar = Bar(
+            xyvalues, ['1st', '2nd'], y_range=y_range, filename="grouped.html"
+        )
+        grouped_bar.show()
     """
 
     cat = Either(Bool, List(Any), help="""
@@ -91,13 +114,15 @@ class BarBuilder(Builder):
         # width should decrease proportionally to the value length.
         # 1./len(value) doesn't work well as the width needs to decrease a
         # little bit faster
-        width_cat = [min(0.2, (1./len(self._values))**1.1)] * len(self.cat)
+        width_cat = [min(0.2, (1. / len(self._values)) ** 1.1)] * len(self.cat)
         zero = np.zeros(len(self.cat))
         self._data = dict(
             cat=self.cat, width=width, width_cat=width_cat, zero=zero
         )
         # list to save all the groups available in the incomming input grouping
-        step = np.linspace(0, 1.0, len(self._values.keys()) + 1, endpoint=False)
+        step = np.linspace(0,
+                           1.0, len(self._values.keys()) + 1,
+                           endpoint=False)
         self._groups.extend(self._values.keys())
 
         for i, val in enumerate(self._values.keys()):
@@ -128,9 +153,20 @@ class BarBuilder(Builder):
                 ]
                 data = np.array([self._data[cat] for cat in cats])
 
-            sig = -1 if np.all(data < 0) else 1
-            start = 0  # If you want non-zero start, set a custom y_range.
-            end = sig * 1.1 * np.absolute(data).max()
+            all_positive = True if np.all(data > 0) else False
+            all_negative = True if np.all(data < 0) else False
+            # Set the start value
+            if all_positive or all_negative:
+                start = 0
+            else:
+                start = 1.1 * data.min()  # Will always be negative
+
+            # Set the end value
+            if all_negative:
+                end = 1.1 * data.min()  # Will always be negative
+            else:
+                end = 1.1 * data.max()
+
             self.y_range = Range1d(start=start, end=end)
 
     def draw(self):
