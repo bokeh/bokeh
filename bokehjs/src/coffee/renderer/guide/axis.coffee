@@ -165,7 +165,7 @@ define [
 
     render: () ->
       if @mget('hide')
-        return 0
+        return
 
       ctx = @plot_view.canvas_view.ctx
 
