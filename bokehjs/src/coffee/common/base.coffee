@@ -82,19 +82,20 @@ define [
 
   "ticking/abstract_ticker",
   "ticking/adaptive_ticker",
-  "ticking/basic_tick_formatter",
   "ticking/basic_ticker",
-  "ticking/log_ticker",
-  "ticking/log_tick_formatter",
-  "ticking/categorical_tick_formatter",
   "ticking/categorical_ticker",
   "ticking/composite_ticker",
-  "ticking/datetime_tick_formatter",
   "ticking/datetime_ticker",
   "ticking/days_ticker",
+  "ticking/log_ticker",
   "ticking/months_ticker",
   "ticking/single_interval_ticker",
   "ticking/years_ticker",
+
+  "ticking/basic_tick_formatter",
+  "ticking/categorical_tick_formatter",
+  "ticking/datetime_tick_formatter",
+  "ticking/log_tick_formatter",
 
   "tool/button_tool",
 
@@ -255,18 +256,19 @@ define [
     AbstractTicker:           'ticking/abstract_ticker'
     AdaptiveTicker:           'ticking/adaptive_ticker'
     BasicTicker:              'ticking/basic_ticker'
-    BasicTickFormatter:       'ticking/basic_tick_formatter'
-    LogTicker:                'ticking/log_ticker'
-    LogTickFormatter:         'ticking/log_tick_formatter'
     CategoricalTicker:        'ticking/categorical_ticker'
-    CategoricalTickFormatter: 'ticking/categorical_tick_formatter'
     CompositeTicker:          'ticking/composite_ticker'
     DatetimeTicker:           'ticking/datetime_ticker'
-    DatetimeTickFormatter:    'ticking/datetime_tick_formatter'
     DaysTicker:               'ticking/days_ticker'
+    LogTicker:                'ticking/log_ticker'
     MonthsTicker:             'ticking/months_ticker'
     SingleIntervalTicker:     'ticking/single_interval_ticker'
     YearsTicker:              'ticking/years_ticker'
+
+    BasicTickFormatter:       'ticking/basic_tick_formatter'
+    LogTickFormatter:         'ticking/log_tick_formatter'
+    CategoricalTickFormatter: 'ticking/categorical_tick_formatter'
+    DatetimeTickFormatter:    'ticking/datetime_tick_formatter'
 
     ButtonTool:               'tool/button_tool'
     ActionTool:               'tool/actions/action_tool'
