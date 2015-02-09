@@ -47,6 +47,7 @@ define [
     model : TextInput
 
   return {
-    Model : TextInput
-    Collection : new TextInputs()
+    View: TextInputView
+    Model: TextInput
+    Collection: new TextInputs()
   }
