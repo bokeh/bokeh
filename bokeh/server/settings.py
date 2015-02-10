@@ -14,8 +14,6 @@ _defaults = dict(
     port=5006,
     url_prefix="",
     multi_user=False,
-
-class Settings(object):
     # make scripts for now - for now cli will only
     # pass one script
     scripts="",
@@ -40,6 +38,7 @@ class Settings(object):
 class Settings(object):
     _debugjs = False
     _ctx = None
+    fields = _defaults.keys()
 
     def reset(self):
         for k,v in _defaults.items():
@@ -83,7 +82,6 @@ class Settings(object):
                 'start-redis' : args.start_redis
             })
         self.ws_conn_string = args.ws_conn_string
-        self.ws_port = args.ws_port
         self.debug = args.debug
         self.debugjs = args.debugjs
         self.splitjs = args.splitjs
