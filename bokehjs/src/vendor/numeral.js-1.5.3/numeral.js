@@ -288,7 +288,16 @@ define(["underscore"], function(_) {
             w = '';
         }
 
-        return ((negP && neg) ? '(' : '') + ((!negP && neg) ? '-' : '') + ((!neg && signed) ? '+' : '') + w + d + ((ord) ? ord : '') + ((abbr) ? abbr : '') + ((bytes) ? bytes : '') + ((negP && neg) ? ')' : '');
+        return
+            ((negP && neg) ? '(' : '') +
+            ((!negP && neg) ? '-' : '') +
+            ((!neg && signed) ? '+' : '') +
+            w +
+            d +
+            ((ord) ? ord : '') +
+            ((abbr) ? abbr : '') +
+            ((bytes) ? bytes : '') +
+            ((negP && neg) ? ')' : '');
     }
 
     function addLanguage(key, spec) {
