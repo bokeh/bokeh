@@ -4,7 +4,7 @@ define [
   "common/has_properties"
   "common/collection"
   "numeral"
-], (_, $, HasProperties, Collection, numeral) ->
+], (_, $, HasProperties, Collection, Numeral) ->
 
   class CellFormatter extends HasProperties
 
@@ -55,9 +55,16 @@ define [
       text_color: null
       format: '0,0'
       language: 'en'
+      rounding: 'round'
 
     format: (row, cell, value, columnDef, dataContext) ->
-      value = numeral.format(value, @get("format"), @get("language"))
+      format = @mget("format")
+      language = @mget("language")
+      rounding = switch @mget("rounding")
+        when "round", "nearest"   then Math.round
+        when "floor", "rounddown" then Math.floor
+        when "ceil",  "roundup"   then Math.ceil
+      value = Numeral.format(value, format, language, rounding)
       return super(row, cell, value, columnDef, dataContext)
 
   class NumberFormatters extends CellFormatterCollection
