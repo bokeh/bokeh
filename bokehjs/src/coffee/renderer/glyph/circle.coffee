@@ -30,7 +30,7 @@ define [
     # to data units) or a marker-style size (defaults to screen units)
     initialize: (options) ->
       if @mget("radius")?
-        @_fields = ['x', 'y', 'radius']
+        @_fields = ['x', 'y', 'radius', 'radius_dimension']
       else
         @_fields = ['x', 'y', 'size']
       super(options)
@@ -53,7 +53,11 @@ define [
         @radius = (s/2 for s in @distance_vector('x', 'size', 'edge'))
         @radius_units = @glyph.size.units
       else
-        @radius = @distance_vector('x', 'radius', 'edge')
+        rd = @mget('radius_dimension')
+        if rd != 'x' and rd != 'y'
+          # TODO: (bev) logging here
+          rd = 'x'
+        @radius = @distance_vector(rd, 'radius', 'edge')
 
     _mask_data: () ->
       hr = @renderer.plot_view.frame.get('h_range')
@@ -198,6 +202,7 @@ define [
       return _.extend {}, super(), {
         size_units: 'screen'
         radius_units: 'data'
+        radius_dimension: 'x'
       }
 
   class Circles extends Glyph.Collection

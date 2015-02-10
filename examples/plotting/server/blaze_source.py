@@ -14,4 +14,4 @@ p.circle('oneA', 'oneB',
        color='#A6CEE3',
        tools="pan,wheel_zoom,box_zoom,reset,previewsave",
        source=source)
-show()
+show(p)

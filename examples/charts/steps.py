@@ -15,11 +15,14 @@ xyvalues = OrderedDict(
 #xyvalues = pd.DataFrame(xyvalues)
 #xyvalues = list(xyvalues.values())
 #xyvalues = np.array(list(xyvalues.values()))
+
 output_file("steps.html", title="line.py example")
+
 chart = Step(xyvalues, title="Steps", ylabel='measures', filename="steps.html", legend='top_left')
+
 # step.xlabel('time').legend("top_left").show()
 # chart = Chart(title="Steps", ylabel='measures', filename="steps.html", legend=True)
 # chart.add_builder(Step(xyvalues))
 # chart.add_builder(Line(xyvalues))
-# chart.show()
+
 show(chart)
