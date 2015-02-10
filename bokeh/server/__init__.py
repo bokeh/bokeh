@@ -85,12 +85,6 @@ def build_parser():
                             help="connection string for websocket (unnecessary if auto-starting)",
                             default=None
                             )
-    websockets.add_argument("--ws-port",
-                            help="port for websocket worker to listen on",
-                           default=5007,
-                            type=int
-                            )
-
     # dev, debugging, etc.
     class DevAction(argparse.Action):
         def __call__(self, parser, namespace, values, option_string=None):
@@ -140,7 +134,10 @@ def run():
     args = parser.parse_args(sys.argv[1:])
 
     level = logging.DEBUG if args.debug else logging.INFO
+    # TODO: this does nothing - because bokeh/__init__.py is already imported
+    # and basicConfig was already called
     logging.basicConfig(level=level, format="%(asctime)s:%(levelname)s:%(name)s:%(message)s")
+
 
     backend_options = args.backend
     if backend_options == 'redis':

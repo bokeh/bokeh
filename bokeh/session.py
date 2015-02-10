@@ -199,18 +199,13 @@ class Session(object):
 
         '''
         url = urljoin(self.root_url, "bokeh/register")
-        result = self.http_session.post(
-            url,
-            data={
-                'username': username,
-                'password': password,
-                'api': 'true'
-            }
-        )
-
+        result = self.execute('post', url, data={
+            'username': username,
+            'password': password,
+            'api': 'true'
+        })
         if result.status_code != 200:
             raise RuntimeError("Unknown Error")
-
         result = utils.get_json(result)
         if result['status']:
             self.username = username
@@ -234,18 +229,13 @@ class Session(object):
 
         '''
         url = urljoin(self.root_url, "bokeh/login")
-        result = self.http_session.post(
-            url,
-            data={
-                'username': username,
-                'password': password,
-                'api': 'true'
-            }
-        )
-
+        result = self.execute('post', url, data={
+            'username': username,
+            'password': password,
+            'api': 'true'
+        })
         if result.status_code != 200:
             raise RuntimeError("Unknown Error")
-
         result = utils.get_json(result)
         if result['status']:
             self.username = username
@@ -297,10 +287,14 @@ class Session(object):
         """
         raise NotImplementedError
 
-    def execute_json(self, method, url, headers=None, **kwargs):
+    def publish(self):
+        url = utils.urljoin(self.root_url, "/bokeh/%s/publish" % self.docid)
+        self.post_json(url)
+
+    def execute(self, method, url, headers=None, **kwargs):
         """ Execute an HTTP request using the current session.
 
-        Returns the JSON response (assuming the endpoint returns JSON).
+        Returns the response
 
         Args:
             method (string) : 'get' or 'post'
@@ -311,29 +305,33 @@ class Session(object):
             Any extra arguments to pass into the requests library
 
         Returns:
-            response: JSON
+            response
 
+        Returns the response
         """
         import requests
         import warnings
-
-        if headers is None:
-            headers={'content-type':'application/json'}
-
         func = getattr(self.http_session, method)
-
         try:
             resp = func(url, headers=headers, **kwargs)
         except requests.exceptions.ConnectionError as e:
             warnings.warn("You need to start the bokeh-server to see this example.")
             raise e
-
         if resp.status_code == 409:
             raise DataIntegrityException
 
         if resp.status_code == 401:
             raise Exception('HTTP Unauthorized accessing')
+        return resp
 
+    def execute_json(self, method, url, headers=None, **kwargs):
+        """ same as execute, except ensure that json content-type is
+        set in headers and interprets and returns the json response
+        """
+        if headers is None:
+            headers = {}
+        headers['content-type'] = 'application/json'
+        resp = self.execute(method, url, headers=headers, **kwargs)
         return utils.get_json(resp)
 
     def get_json(self, url, headers=None, **kwargs):
@@ -526,6 +524,10 @@ class Session(object):
         url = utils.urljoin(self.base_url, self.docid + "/", "bulkupsert")
         self.post_json(url, data=data)
 
+    def gc(self):
+        url = utils.urljoin(self.base_url, self.docid + "/", "gc")
+        self.post_json(url)
+
     # convenience functions to use a session and store/fetch from server
 
     def load_document(self, doc):
@@ -538,6 +540,7 @@ class Session(object):
             None
 
         """
+        self.gc()
         json_objs = self.pull()
         doc.merge(json_objs)
         doc.docid = self.docid
@@ -676,6 +679,8 @@ class TestSession(Session):
     in theory, but we'll have to test this as we go along and convert tests
     """
     def __init__(self, *args, **kwargs):
+        if 'load_from_config' not in kwargs:
+            kwargs['load_from_config'] = False
         self.client = kwargs.pop('client')
         self.headers = {}
         super(TestSession, self).__init__(*args, **kwargs)
@@ -696,40 +701,13 @@ class TestSession(Session):
     def userapikey(self, val):
         self.headers.update({'BOKEHUSER-API-KEY': val})
 
-    def execute_json(self, method, url, headers=None, **kwargs):
-        """ Execute an HTTP request using the current session.
-
-        Returns the JSON response (assuming the endpoint returns JSON).
-
-        Args:
-            method (string) : 'get' or 'post'
-            url (string) : url
-            headers (dict, optional) : any extra HTTP headers
-
-        Keyword Args:
-            Any extra arguments to pass into the requests library
-
-        Returns:
-            response: JSON
-
-        """
-        import requests
-        import warnings
-
+    def execute(self, method, url, headers=None, **kwargs):
         if headers is None:
-            headers={'content-type':'application/json'}
-        else:
             headers = {}
-        headers.update(self.headers)
-
         func = getattr(self.client, method)
-
         resp = func(url, headers=headers, **kwargs)
-
         if resp.status_code == 409:
             raise DataIntegrityException
-
         if resp.status_code == 401:
             raise Exception('HTTP Unauthorized accessing')
-
-        return utils.get_json(resp)
+        return resp

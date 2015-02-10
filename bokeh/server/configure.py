@@ -15,6 +15,8 @@ from . import websocket
 ##bokeh_app is badly named - it's really a blueprint
 from .app import bokeh_app, app
 from .models import user
+from .models import convenience as mconv
+from .models import docs
 from .zmqpub import Publisher
 from .zmqsub import Subscriber
 from .forwarder import Forwarder
@@ -107,7 +109,18 @@ class SimpleBokehTornadoApp(Application):
         ]
         super(SimpleBokehTornadoApp, self).__init__(handlers, **settings)
         self.wsmanager = websocket.WebSocketManager()
-        self.subscriber = Subscriber(server_settings.ctx, [server_settings.sub_zmqaddr], self.wsmanager)
+        def auth(auth, docid):
+            #HACKY
+            if docid.startswith("temporary-"):
+                return True
+            doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
+            status = mconv.can_read_doc_api(doc, auth)
+            return status
+        self.wsmanager.register_auth('bokehplot', auth)
+
+        self.subscriber = Subscriber(server_settings.ctx,
+                                     [server_settings.sub_zmqaddr],
+                                     self.wsmanager)
         if server_settings.run_forwarder:
             self.forwarder = Forwarder(server_settings.ctx, server_settings.pub_zmqaddr, server_settings.sub_zmqaddr)
         else:

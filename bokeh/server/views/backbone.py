@@ -2,109 +2,41 @@
 import logging
 log = logging.getLogger(__name__)
 
-from flask import request
+from flask import request, jsonify
 
 from bokeh import protocol
 
 from .bbauth import (
-    check_read_authentication,
-    check_write_authentication
+    handle_auth_error
 )
 from ..app import bokeh_app
 from ..crossdomain import crossdomain
-from ..serverbb import prune
+from ..serverbb import prune, get_temporary_docid, BokehServerTransaction
 from ..views import make_json
+from ..models import docs
 
 def init_bokeh(clientdoc):
     request.bokeh_server_document = clientdoc
     clientdoc.autostore = False
     clientdoc.autoadd = False
 
-# Management Functions
-
-@bokeh_app.route("/bokeh/bb/<docid>/reset", methods=['GET'])
-@check_write_authentication
-def reset(docid):
-    ''' Reset a specified :class:`Document <bokeh.document.Document>`.
-
-    Deletes all stored objects except for the current
-    :class:`PlotContext <bokeh.models.PlotContext>`, which has all of
-    its children removed.
-
-    :param docid: id of the :class:`Document <bokeh.document.Document>`
-        to reset
-
-    :status 200: when user is authorized
-    :status 401: when user is not authorized
-
-    '''
-    clientdoc = bokeh_app.backbone_storage.get_document(docid)
-    prune(clientdoc)
-    for m in clientdoc._models:
-        if not m.typename.endswith('PlotContext'):
-            bokeh_app.backbone_storage.del_obj(docid, m)
-        else:
-            m.children = []
-            bokeh_app.backbone_storage.store_objects(docid, m)
-    return 'success'
-
-@bokeh_app.route("/bokeh/bb/<docid>/rungc", methods=['GET'])
-@check_write_authentication
-def rungc(docid):
-    ''' Run the Bokeh Server garbage collector for a given
-    :class:`Document <bokeh.document.Document>`.
-
-    :param docid: id of the :class:`Document <bokeh.document.Document>`
-        to collect
-
-    :status 200: when user is authorized
-    :status 401: when user is not authorized
-
-    '''
-    clientdoc = bokeh_app.backbone_storage.get_document(docid)
-    prune(clientdoc, delete=True)
-    return 'success'
-
-@bokeh_app.route("/bokeh/bb/<docid>/callbacks", methods=['POST'])
-@check_write_authentication
-def callbacks_post(docid):
-    ''' Update callbacks for a given :class:`Document <bokeh.document.Document>`.
-
-    :param docid: id of the :class:`Document <bokeh.document.Document>`
-        to update callbacks for
-
-    :status 200: when user is authorized
-    :status 401: when user is not authorized
-
-    '''
-    # broken...
-    clientdoc = bokeh_app.backbone_storage.get_document(docid)
-    prune(clientdoc)
-    jsondata = protocol.deserialize_json(request.data.decode('utf-8'))
-    bokeh_app.backbone_storage.push_callbacks(jsondata)
-    return make_json(protocol.serialize_json(jsondata))
-
-@bokeh_app.route("/bokeh/bb/<docid>/callbacks", methods=['GET'])
-@check_write_authentication
-def callbacks_get(docid):
-    ''' Retrieve callbacks for a given :class:`Document <bokeh.document.Document>`.
-
-    :param docid: id of the :class:`Document <bokeh.document.Document>`
-        to get callbacks for
-
-    :status 200: when user is authorized
-    :status 401: when user is not authorized
-
-    '''
-    # broken...
-    clientdoc = bokeh_app.backbone_storage.get_document(docid)
-    prune(clientdoc)
-    jsondata = bokeh_app.backbone_storage.load_callbacks()
-    return make_json(protocol.serialize_json(jsondata))
+@bokeh_app.route("/bokeh/bb/<docid>/gc", methods=['POST'])
+@handle_auth_error
+def gc(docid):
+    client = request.headers.get('client', 'python')
+    doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
+    bokehuser = bokeh_app.current_user()
+    temporary_docid = get_temporary_docid(request, docid)
+    t = BokehServerTransaction(
+        bokehuser, doc, 'rw', temporary_docid=temporary_docid
+    )
+    t.load(gc=True)
+    t.save()
+    return jsonify(status='success')
 
 # bulk upsert
 @bokeh_app.route("/bokeh/bb/<docid>/bulkupsert", methods=['POST'])
-@check_write_authentication
+@handle_auth_error
 def bulk_upsert(docid):
     ''' Update or insert new objects for a given :class:`Document <bokeh.document.Document>`.
 
@@ -118,38 +50,45 @@ def bulk_upsert(docid):
     # endpoint is only used by python, therefore we don't process
     # callbacks here
     client = request.headers.get('client', 'python')
-    clientdoc = bokeh_app.backbone_storage.get_document(docid)
-    prune(clientdoc)
+    doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
+    bokehuser = bokeh_app.current_user()
+    temporary_docid = get_temporary_docid(request, docid)
+    t = BokehServerTransaction(
+        bokehuser, doc, 'rw', temporary_docid=temporary_docid
+    )
+    t.load()
+    clientdoc = t.clientdoc
     data = protocol.deserialize_json(request.data.decode('utf-8'))
     if client == 'python':
         clientdoc.load(*data, events='none', dirty=True)
     else:
         clientdoc.load(*data, events='existing', dirty=True)
-    changed = bokeh_app.backbone_storage.store_document(clientdoc)
-    msg = ws_update(clientdoc, changed)
+    t.save()
+    msg = ws_update(clientdoc, t.write_docid, t.changed)
     return make_json(msg)
 
-def ws_update(clientdoc, models):
+def ws_update(clientdoc, docid, models):
+    log.debug("sending wsupdate to %s", docid)
     attrs = clientdoc.dump(*models)
     msg = protocol.serialize_json({'msgtype' : 'modelpush',
                                    'modelspecs' : attrs
                                })
-    bokeh_app.publisher.send("bokehplot:" + clientdoc.docid, msg)
+    bokeh_app.publisher.send("bokehplot:" + docid, msg)
     return msg
 
-def ws_delete(clientdoc, models):
+def ws_delete(clientdoc, docid, models):
     attrs = clientdoc.dump(*models)
     msg = {
         'msgtype'    : 'modeldel',
         'modelspecs' : attrs,
     }
     msg = protocol.serialize_json(msg)
-    bokeh_app.wsmanager.send("bokehplot:" + clientdoc.docid, msg)
+    bokeh_app.wsmanager.send("bokehplot:" + docid, msg)
     return msg
 
 # backbone functionality
 @bokeh_app.route("/bokeh/bb/<docid>/<typename>/", methods=['POST'])
-@check_write_authentication
+@handle_auth_error
 def create(docid, typename):
     ''' Update or insert new objects for a given :class:`Document <bokeh.document.Document>`.
 
@@ -160,24 +99,35 @@ def create(docid, typename):
     :status 401: when user is not authorized
 
     '''
-    clientdoc = bokeh_app.backbone_storage.get_document(docid)
-    prune(clientdoc)
+    doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
+    bokehuser = bokeh_app.current_user()
+    temporary_docid = get_temporary_docid(request, docid)
+    t = BokehServerTransaction(
+        bokehuser, doc, 'rw', temporary_docid=temporary_docid
+    )
+    t.load()
     modeldata = protocol.deserialize_json(request.data.decode('utf-8'))
-    modeldata = {'type' : typename,
-                 'attributes' : modeldata}
-    clientdoc.load(modeldata, dirty=True)
-    bokeh_app.backbone_storage.store_document(clientdoc)
-    ws_update(clientdoc, modeldata)
+    modeldata = [{'type' : typename,
+                  'attributes' : modeldata}]
+    clientdoc.load(*modeldata, dirty=True)
+    t.save()
+    ws_update(clientdoc, t.write_docid, modeldata)
     return protocol.serialize_json(modeldata[0]['attributes'])
 
-@check_read_authentication
+@handle_auth_error
 def _bulkget(docid, typename=None):
-    clientdoc = bokeh_app.backbone_storage.get_document(docid)
-    prune(clientdoc)
+    doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
+    bokehuser = bokeh_app.current_user()
+    temporary_docid = get_temporary_docid(request, docid)
+    t = BokehServerTransaction(
+        bokehuser, doc, 'r', temporary_docid=temporary_docid
+    )
+    t.load()
+    clientdoc = t.clientdoc
     all_models = clientdoc._models.values()
     if typename is not None:
         attrs = clientdoc.dump(*[x for x in all_models \
-                                if x.__view_model__==typename])
+                                 if x.__view_model__==typename])
         attrs = [x['attributes'] for x in attrs]
         return make_json(protocol.serialize_json(attrs))
     else:
@@ -212,7 +162,7 @@ def bulkget_with_typename(docid):
     '''
     return _bulkget(docid, typename)
 
-@crossdomain(origin="*", methods=['PATCH', 'GET', 'PUT'], headers=['BOKEH-API-KEY', 'Continuum-Clientid', 'Content-Type'])
+@crossdomain(origin="*", methods=['PATCH', 'GET', 'PUT'], headers=None)
 def _handle_specific_model(docid, typename, id, method):
     if method == 'PUT':
         return update(docid, typename, id)
@@ -290,49 +240,60 @@ def _handle_specific_model_delete(docid, typename, id):
 
 
 # individual model methods
-@check_read_authentication
+@handle_auth_error
 def getbyid(docid, typename, id):
-    clientdoc = bokeh_app.backbone_storage.get_document(docid)
-    prune(clientdoc)
+    doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
+    bokehuser = bokeh_app.current_user()
+    temporary_docid = get_temporary_docid(request, docid)
+    t = BokehServerTransaction(
+        bokehuser, doc, 'r', temporary_docid=temporary_docid
+    )
+    t.load()
+    clientdoc = t.clientdoc
     attr = clientdoc.dump(clientdoc._models[id])[0]['attributes']
     return make_json(protocol.serialize_json(attr))
 
-@check_write_authentication
+@handle_auth_error
 def update(docid, typename, id):
     """we need to distinguish between writing and patching models
     namely in writing, we shouldn't remove unspecified attrs
     (we currently don't handle this correctly)
     """
-    clientdoc = bokeh_app.backbone_storage.get_document(docid)
-    log.info("loading done %s", len(clientdoc._models.values()))
-    prune(clientdoc)
-    init_bokeh(clientdoc)
-    log.info("updating")
+    doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
+    bokehuser = bokeh_app.current_user()
+    temporary_docid = get_temporary_docid(request, docid)
+    t = BokehServerTransaction(
+        bokehuser, doc, 'rw', temporary_docid=temporary_docid
+    )
+    t.load()
     modeldata = protocol.deserialize_json(request.data.decode('utf-8'))
     ### horrible hack, we need to pop off the noop object if it exists
     modeldata.pop('noop', None)
+    clientdoc = t.clientdoc
+    log.info("loading done %s", len(clientdoc._models.values()))
     # patch id is not passed...
     modeldata['id'] = id
     modeldata = {'type' : typename,
                  'attributes' : modeldata}
-
     clientdoc.load(modeldata, events='existing', dirty=True)
-    log.info("done")
-    log.info("saving")
-    changed = bokeh_app.backbone_storage.store_document(clientdoc)
-    log.debug("changed, %s", str(changed))
-    ws_update(clientdoc, changed)
-    log.debug("update, %s, %s", docid, typename)
+    t.save()
+    ws_update(clientdoc, t.write_docid, t.changed)
     # backbone expects us to send back attrs of this model, but it doesn't
     # make sense to do so because we modify other models, and we want this to
     # all go out over the websocket channel
     return make_json(protocol.serialize_json({'noop' : True}))
 
-@check_write_authentication
+@handle_auth_error
 def delete(docid, typename, id):
-    clientdoc = bokeh_app.backbone_storage.get_document(docid)
-    prune(clientdoc)
-    model = clientdoc._models[id]
-    clientdoc.del_obj(docid, model)
-    ws_delete(clientdoc, [model])
+    #I don't think this works right now
+    doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
+    bokehuser = bokeh_app.current_user()
+    temporary_docid = get_temporary_docid(request, docid)
+    t = BokehServerTransaction(
+        bokehuser, doc, 'rw', temporary_docid=temporary_docid
+    )
+    model = t.clientdoc._models[id]
+    bokeh_app.backbone_storage.del_obj(t.write_docid, obj)
+    t.save()
+    ws_delete(clientdoc, t.write_docid, [model])
     return make_json(protocol.serialize_json(clientdoc.dump(model)[0]['attributes']))

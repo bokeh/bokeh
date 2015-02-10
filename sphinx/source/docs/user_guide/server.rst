@@ -49,11 +49,45 @@ query or analysis (possibly resulting in updates pushed back the plot).
 
 We will explore the capabilities afforded by the Bokeh server in detail below.
 
+.. _userguide_server_authentication:
+
+Authentication
+--------------
+Bokeh defaults to single user mode - where every request is automatically logged in as a user with username ``defaultuser``.  However for teams, and for plot publishing, it makes more sense to add an authentication layer.  This way users won't be able to overwrite each other's plots.
+
+To do enable multi user mode, You need to turn on the ``multi_user`` bokeh server setting.  This can be done using the command line parameter ``-m``.  Once this is done, all scripts that use the bokeh server must authenticate with the bokeh server.  A user can be created with::
+
+    session = Session(root_url=url)
+    session.register(username, password)
+
+Or logged in with::
+
+    session = Session(root_url=url)
+    session.login(username, password)
+
+The bokeh client library will store authentication keys in the ``~/.bokeh`` directory, so that in subsequent invocations, logging in is not necessary
+
 .. _userguide_server_hosting:
 
 Plot Hosting
 ------------
 
+For plot hosting, we generally recommend running the server in multi user mode.  See the Authentication section for instructions on how to do this.
+
+Once a plot is created, you have to publish it.  Assuming you have a session that is authenticated against a document::
+
+    session = Session()
+    session.use_doc('mydocument')
+    #do some plots here
+    session.publish()
+
+Or if you are using ``output_server``::
+
+    output_server('myplot')
+    #make some plots
+    cursession().publish()
+
+A public link to a plot on the bokeh server page can be viewed by append ``?public=true`` To the url - for example if you have the url to a plot ``http://localhost:5006/bokeh/doc/some-doc-id/some-plot-id``, You can generate a public link to the published plot using ``http://localhost:5006/bokeh/doc/some-doc-id/some-plot-id?public=true``.   In addition, the ``autoload_server`` function call in ``bokeh.embed`` also takes a ``public=true`` keyword argument, which will generate an embeddable html snippet that will load the public version of a given plot
 
 
 .. _userguide_server_streaming:
@@ -182,14 +216,6 @@ use of websockets:
 
     ZeroMQ URL
 
-.. option:: --no-ws-start
-
-    don't automatically start a websocket worker
-
-.. option:: --ws-port <WS_PORT>
-
-    port for websocket worker to listen on
-
 Typically these values do not require much attention. By default,
 ``bokeh-server`` automatically starts a ZeroMQ websocket worker.
 
@@ -221,6 +247,3 @@ Development Options
     protect debug server reloading from syntax errors
 
 .. option:: -v, --verbose
-
-
-
