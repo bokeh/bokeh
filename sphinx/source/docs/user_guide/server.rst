@@ -182,14 +182,6 @@ use of websockets:
 
     ZeroMQ URL
 
-.. option:: --no-ws-start
-
-    don't automatically start a websocket worker
-
-.. option:: --ws-port <WS_PORT>
-
-    port for websocket worker to listen on
-
 Typically these values do not require much attention. By default,
 ``bokeh-server`` automatically starts a ZeroMQ websocket worker.
 
@@ -221,6 +213,3 @@ Development Options
     protect debug server reloading from syntax errors
 
 .. option:: -v, --verbose
-
-
-
