@@ -82,7 +82,6 @@ class Settings(object):
                 'start-redis' : args.start_redis
             })
         self.ws_conn_string = args.ws_conn_string
-        self.ws_port = args.ws_port
         self.debug = args.debug
         self.debugjs = args.debugjs
         self.splitjs = args.splitjs

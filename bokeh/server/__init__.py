@@ -85,12 +85,6 @@ def build_parser():
                             help="connection string for websocket (unnecessary if auto-starting)",
                             default=None
                             )
-    websockets.add_argument("--ws-port",
-                            help="port for websocket worker to listen on",
-                           default=5007,
-                            type=int
-                            )
-
     # dev, debugging, etc.
     class DevAction(argparse.Action):
         def __call__(self, parser, namespace, values, option_string=None):
