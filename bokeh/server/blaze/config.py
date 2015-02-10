@@ -33,9 +33,13 @@ aapl = resource("hdfstore://%s::__data__" % path)
 path = join(dirname(bokeh.server.tests.__file__), 'data', 'array.hdf5')
 arr = resource(path + "::" + "array")
 
+path = join(dirname(bokeh.server.tests.__file__), 'data', 'CensusTracts.hdf5')
+census = resource("hdfstore://%s::__data__" % path)
+
 data = dict(uniform=uniform,
             gauss=gauss,
             bivariate=bivariate,
             aapl=aapl,
-            array=arr
+            array=arr,
+            census=census
 )

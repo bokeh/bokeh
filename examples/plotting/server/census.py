@@ -14,7 +14,7 @@ https://github.com/ContinuumIO/ArrayManagement
 
 output_server("Census")
 # 2010 US Census tracts
-source = ServerDataSource(data_url="/defaultuser/CensusTracts.hdf5")
+source = ServerDataSource(expr={'op': 'Field', 'args': [':leaf', 'census']})
 plot = figure()
 arplot = plot.square(
             'LON', 'LAT',
