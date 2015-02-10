@@ -96,6 +96,8 @@ define [
   "ticking/categorical_tick_formatter",
   "ticking/datetime_tick_formatter",
   "ticking/log_tick_formatter",
+  "ticking/numeral_tick_formatter"
+  "ticking/printf_tick_formatter"
 
   "tool/button_tool",
 
@@ -269,6 +271,8 @@ define [
     LogTickFormatter:         'ticking/log_tick_formatter'
     CategoricalTickFormatter: 'ticking/categorical_tick_formatter'
     DatetimeTickFormatter:    'ticking/datetime_tick_formatter'
+    NumeralTickFormatter:     'ticking/numeral_tick_formatter'
+    PrintfTickFormatter:      'ticking/printf_tick_formatter'
 
     ButtonTool:               'tool/button_tool'
     ActionTool:               'tool/actions/action_tool'
