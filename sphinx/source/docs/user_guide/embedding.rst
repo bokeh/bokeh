@@ -48,11 +48,12 @@ function returns a ``<script>`` that contains the data for your plot,
 together with an accompanying ``<div>`` tag that the plot view is loaded
 into. These tags can be used in HTML documents however you like::
 
-    from bokeh.plotting import circle
+    from bokeh.plotting import figure
     from bokeh.resources import CDN
     from bokeh.embed import components
 
-    plot = circle([1,2], [3,4])
+    plot = figure()
+    plot.circle([1,2], [3,4])
 
     script, div = components(plot, CDN)
 
@@ -75,6 +76,7 @@ The returned ``<script>`` will look something like::
             var view = new model.default_view({
                 model: model, el: '#8ed68feb-d258-4953-9dfb-fb1c13326509'
             });
+            Bokeh.index[modelid] = view
         });
     </script>
 
@@ -99,10 +101,11 @@ IPython Notebook
 Bokeh can also generate ``<div>`` tags suitable for inline display in the
 IPython notebook using the :func:`bokeh.embed.notebook_div` function::
 
-    from bokeh.plotting import circle
+    from bokeh.plotting import figure
     from bokeh.embed import notebook_div
 
-    plot = circle([1,2], [3,4])
+    plot = figure()
+    plot.circle([1,2], [3,4])
 
     div = notebook_div(plot)
 
@@ -143,13 +146,19 @@ Bokeh server.
 As a concrete example, here is some simple code using :func:`~bokeh.embed.autoload_server`
 with a default session::
 
-    from bokeh.plotting import circle
+    from bokeh.plotting import figure
     from bokeh.embed import autoload_server
     from bokeh.session import Session
+    from bokeh.document import Document
 
+    # alternative to these lines, plotting.output_server(...)
+    document = Document()
     session = Session()
+    session.use_doc('population_reveal')
+    session.load_document(document)
 
-    plot = circle([1,2], [3,4])
+    plot = figure()
+    plot.circle([1,2], [3,4])
 
     script = autoload_server(plot, session)
 
@@ -157,16 +166,15 @@ The resulting ``<script>`` tag that you can use to embed the plot inside
 a document looks like::
 
     <script
-        src="http://localhost:5006/bokeh/autoload.js/7b6e5722-b7e1-4b9e-b8d9-84e1059f7dea"
-        id="7b6e5722-b7e1-4b9e-b8d9-84e1059f7dea"
+        src="http://localhost:5006/bokeh/autoload.js/f64f7959-017d-4d1b-924e-899a61fed42b"
+        id="f64f7959-017d-4d1b-924e-899a61fed42b"
         async="true"
         data-bokeh-data="server"
-        data-bokeh-modelid="da023ae3-b88b-45b5-8fc1-f45c53f09fa2"
-        data-bokeh-modeltype="Plot"
+        data-bokeh-modelid="82ef36f7-9d58-47c8-9b0d-201947febb00"
         data-bokeh-root-url="http://localhost:5006/"
-        data-bokeh-docid="db499b59-c06e-4415-a482-af9802512ede"
-        data-bokeh-docapikey="45959c87-3120-4ce5-a1ec-ca0720023951"
-        data-bokeh-conn-string="ws://localhost:5006/bokeh/sub"
+        data-bokeh-docid="2b4c75a2-8311-4b4d-b014-370b430d6469"
+        data-bokeh-docapikey="8c4e34e5-04f9-4c1c-b92f-fb1ec0d52cae"
+        data-bokeh-loglevel="info"
     ></script>
 
 .. _user_guide_embedding_autoload_static:
@@ -185,10 +193,11 @@ separate script to realize your plot.
 Here is how you might use :func:`~bokeh.embed.autoload_static` with a simple plot::
 
     from bokeh.resources import CDN
-    from bokeh.plotting import circle
+    from bokeh.plotting import figure
     from bokeh.embed import autoload_static
 
-    plot = circle([1,2], [3,4])
+    plot = figure()
+    plot.circle([1,2], [3,4])
 
     js, tag = autoload_static(plot, CDN, "some/path")
 
@@ -196,12 +205,14 @@ The resulting ``<script>`` tag looks like::
 
     <script
         src="some/path"
-        id="f1a5ad43-8d26-4199-8916-6405fe53b143"
+        id="c5339dfd-a354-4e09-bba4-466f58a574f1"
         async="true"
         data-bokeh-data="static"
-        data-bokeh-modelid="5dd89f11-1f06-4408-a6be-281933ee3e0c"
+        data-bokeh-modelid="7b226555-8e16-4c29-ba2a-df2d308588dc"
         data-bokeh-modeltype="Plot"
+        data-bokeh-loglevel="info"
     ></script>
+
 
 The resulting JavaScript code should be saved to a file that can be reached
 on the server at `"some/path"`, from the document that has the plot embedded.

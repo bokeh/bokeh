@@ -1,6 +1,7 @@
 from os.path import dirname, join
 import uuid
 import logging
+import imp
 
 import zmq
 
@@ -13,6 +14,8 @@ _defaults = dict(
     port=5006,
     url_prefix="",
     multi_user=False,
+
+class Settings(object):
     # make scripts for now - for now cli will only
     # pass one script
     scripts="",
@@ -56,8 +59,14 @@ class Settings(object):
     def debugjs(self, val):
         bokeh_settings.debugjs = val
 
-    def from_file(self, filename):
-        raise NotImplementedError
+    def from_file(self, filename=None):
+        name = "_bokeh_server_configuration"
+        mod = imp.load_source(name, filename)
+        for k in self.fields:
+            v = getattr(mod, k, None)
+            if v is not None:
+                setattr(self, k, v)
+        self.process_settings()
 
     def from_dict(self, input_dict):
         for k,v in input_dict.items():
@@ -86,7 +95,7 @@ class Settings(object):
         if args.script:
             self.scripts = [args.script]
 
-    def process_settings(self, bokeh_app):
+    def process_settings(self):
         if self.url_prefix:
             if not self.url_prefix.startswith("/"):
                 self.url_prefix = "/" + self.url_prefix
