@@ -973,6 +973,7 @@ class Instance(Property):
                     if model is not None:
                         return model
                     else:
+                        import pdb;pdb.set_trace()
                         raise DeserializationError("%s failed to deserilize reference to %s" % (self, json))
             else:
                 attrs = {}

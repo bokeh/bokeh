@@ -817,3 +817,11 @@ open two browser tabs to the same bokeh plot, and you select some data points.  
 Bokeh has implemented a copy on write notion on top of documents.  Every document (if published)  can be viewed in a public mode.  In which case the javascript client will open up the document in public mode, and choose a unique ``temporary_docid`` for use in viewing plots.  These temporary documents are not full fledged bokeh documents - there is no serverside ``Document`` object backing this.  Instead what we do is, on loading a document, we first load models from the original document id, and then we load additional models from the ``temporary_docid``.  On saves, we save data only into the ``temporary_docid``.  Temporary docids need to be prefixed with ``temporary-``, this is a bit hacky, but this tells Bokeh that we don't implement any authentiation controls over the temporary context
 
 In the future, it may be worthwhile to implement full ACL systems around published documents, as well as the temporary context
+
+Anonymous Users
+---------------
+This is only really relevant for the multiuser case.  If no user is authenticated, the current_user function of the authentication backend will return ``None``.  In the future it may be worthwhile to replace this with a full fledged ``AnonymousUser`` object but at present this is not implemented.
+
+The impact of this is generally negligible - The only impact is with bokeh server applets which currently create a new document per page view.  In the future, we may migrate this to take advantage of the copy on write facilities, however right now we create a brand new document.
+
+Bokeh creates new documents for bokeh applets.  These documents are orphaned - that is, they don't belong to any Bokeh users list of documents.  We will replace this mechanism with the copy on write functionality in the future
