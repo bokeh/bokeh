@@ -28,6 +28,7 @@ from ..enums import Dimension
 
 from .renderers import Renderer
 from .ranges import Range
+from .actions import Action
 
 class ToolEvents(PlotObject):
     """
@@ -162,6 +163,11 @@ class TapTool(Tool):
     renderers = List(Instance(Renderer), help="""
     An explicit list of renderers to hit test again. If unset,
     defaults to all renderers on a plot.
+    """)
+
+    action = Instance(Action, help="""
+    A client-side action specification, like opening a URL, showing
+    a dialog box, etc. See :class:`bokeh.models.Action` for details.
     """)
 
     always_active = Bool(True, help="""

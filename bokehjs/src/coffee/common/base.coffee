@@ -3,6 +3,8 @@ define [
   "underscore",
   "require",
 
+  "action/open_url",
+
   "common/custom",
   "common/canvas",
   "common/cartesian_frame",
@@ -181,6 +183,7 @@ define [
   console.log('Bokeh: setting prefix to', Config.prefix)
 
   locations =
+    OpenURL:                  'action/open_url'
 
     Plot:                     'common/plot'
     GMapPlot:                 'common/gmap_plot'

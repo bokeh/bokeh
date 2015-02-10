@@ -1,12 +1,11 @@
 
 define [
   "underscore"
-  "sprintf"
   "common/collection"
   "renderer/annotation/tooltip"
   "./inspect_tool"
-  "numeral"
-], (_, sprintf, Collection, Tooltip, InspectTool, numeral) ->
+  "util/util"
+], (_, Collection, Tooltip, InspectTool, Util) ->
 
   _color_to_hex = (color) ->
     if (color.substr(0, 1) == '#')
@@ -19,16 +18,6 @@ define [
 
     rgb = blue | (green << 8) | (red << 16)
     return digits[1] + '#' + rgb.toString(16)
-
-  _format_number = (number) ->
-    # will get strings for categorical types, just pass back
-    if typeof(number) == "string"
-      return number
-    if Math.floor(number) == number
-      return sprintf("%d", number)
-    if Math.abs(number) > 0.1 and Math.abs(number) < 1000
-      return sprintf("%0.3f", number)
-    return sprintf("%0.3e", number)
 
   class HoverToolView extends InspectTool.View
 
@@ -90,8 +79,7 @@ define [
       x = xmapper.map_from_target(vx)
       y = ymapper.map_from_target(vy)
 
-      for i in  indices
-
+      for i in indices
         if @mget('snap_to_data') and renderer.glyph.sx? and renderer.glyph.sy?
           rx = canvas.sx_to_vx(renderer.glyph.sx[i])
           ry = canvas.sy_to_vy(renderer.glyph.sy[i])
@@ -128,35 +116,8 @@ define [
               span.css({ backgroundColor: color})
             td.append(span)
           else
-            value = value.replace /(^|[^\$])\$(\w+)/g, (match, prefix, name) =>
-              replacement = switch name
-                when "index" then "#{i}"
-                when "x"     then "#{_format_number(x)}"
-                when "y"     then "#{_format_number(y)}"
-                when "vx"    then "#{vx}"
-                when "vy"    then "#{vy}"
-                when "sx"    then "#{sx}"
-                when "sy"    then "#{sy}"
-              if replacement? then "#{prefix}#{replacement}" else match
-
-            value = value.replace /(^|[^@])@(?:(\w+)|{([^{}]+)})(?:{([^{}]+)})?/g, (match, prefix, name, long_name, format) =>
-              name = if long_name? then long_name else name
-              column = ds.get_column(name)
-              replacement =
-                if not column?
-                  "#{name} unknown"
-                else
-                  value = column[i]
-                  if format?
-                    numeral.format(value, format)
-                  else if _.isNumber(value)
-                    _format_number(value)
-                  else
-                    value
-              "#{prefix}#{replacement}"
-
-            span = $('<span>').text(value)
-            td.append(span)
+            value = Util.replace_placeholders(value, ds, i, x, y, vx, vy, sx, sy)
+            td.append($('<span>').text(value))
 
           row.append(td)
           table.append(row)
