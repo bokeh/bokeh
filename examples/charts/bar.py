@@ -30,20 +30,9 @@ dict_stacked = Bar(
     stacked=True
 )
 
-#dict_grouped = Bar(
-#    medals, countries, title="OrderedDict input | Grouped", legend=legend_position,
-#    xlabel="countries", ylabel="medals", width=width, height=height
-#)
-
 # Data frame input
 
 df = pd.DataFrame(medals, index=countries)
-
-#df_stacked = Bar(
-#    df, title="Data Frame input | Stacked", legend=legend_position,
-#    xlabel="countries", ylabel="medals", width=width, height=height,
-#    stacked=True
-#)
 
 df_grouped = Bar(
     df, title="Data Frame input | Grouped", legend=legend_position,
