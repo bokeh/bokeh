@@ -7,8 +7,13 @@ define [
     type: 'CategoricalTicker'
 
     get_ticks: (start, end, range, {desired_n_ticks}) ->
+      majors = []
+      factors = range.get("factors")
+      for i in [0...factors.length]
+        if (i+1) > start and (i+1) < end
+          majors.push(factors[i])
       return {
-        "major": range.get("factors")
+        "major": majors
         "minor": []
       }
 

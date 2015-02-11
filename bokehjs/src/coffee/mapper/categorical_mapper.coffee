@@ -31,16 +31,22 @@ define [
           results[i] = factors.indexOf(x) + 1
       return super(results)
 
-    map_from_target: (xprime) ->
+    map_from_target: (xprime, skip_cat=false) ->
       xprime = super(xprime) - 0.5
+      if skip_cat
+        return xprime
       factors = @get('source_range').get('factors')
+      start = @get('source_range').get('start')
       return factors[Math.floor(xprime)]
 
-    v_map_from_target: (xprimes) ->
+    v_map_from_target: (xprimes, skip_cat=false) ->
       result = super(xprimes)
+      if skip_cat
+        return result
       factors = @get('source_range').get('factors')
+      start = @get('source_range').get('start')
       for i in [0...result.length]
-        result[i] = factors[Math.floor(result[i]-0.5)]
+        result[i] = factors[Math.floor(result[i] - 0.5)]
       return result
 
   class CategoricalMappers extends Collection
