@@ -254,7 +254,7 @@ class HorizonBuilder(Builder):
         calculate the proper ranges.
         """
         self._source = ColumnDataSource(self._data)
-        self.x_range = DataRange1d(sources=[self._source.columns(self._attr[0])])
+        self.x_range = DataRange1d(rangepadding=0, sources=[self._source.columns(self._attr[0])])
         self.y_range = Range1d(start=0, end=self._max_y)
 
     def draw(self):
