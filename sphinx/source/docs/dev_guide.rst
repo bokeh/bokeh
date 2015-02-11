@@ -14,4 +14,3 @@ Developer Guide
    dev_guide/bokehjs.rst
    dev_guide/bindings.rst
    dev_guide/notes.rst
-
