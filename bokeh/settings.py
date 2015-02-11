@@ -49,6 +49,9 @@ class Settings(object):
     def version(self, default=None):
         return self._get_str("VERSION", default)
 
+    def cdn_version(self, default=None):
+        return self._get_str("CDN_VERSION", default)
+
     def minified(self, default=None):
         return self._get_bool("MINIFIED", default, False)
 
