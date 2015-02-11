@@ -36,3 +36,10 @@ To deploy the docs to bokeh.pydata.org:
     $ fab deploy
 
 Note: requires having SSH keys for "bokeh" user.
+
+
+objects.graffle
+===============
+The objects.graffle file was created using the commercial OmniGraffle package. It 
+was exported as a PNG image in _images/objects.png.
+

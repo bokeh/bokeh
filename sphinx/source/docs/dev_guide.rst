@@ -438,8 +438,14 @@ Python Interface
 Low-level Object Interface
 --------------------------
 
-Here is a notional diagram showing the overall object system in Bokeh. We will discuss each
-of these in turn.
+Below is a notional diagram that shows many of the most common kinds
+of models that comprise the Bokeh object system. To create Bokeh plots, these
+objects are created and assembled, and then this object graph is serialized
+to JSON. This JSON representation is consumed by the BokehJS client library,
+which uses it to render the plot.
+
+Where space permits, the attributes of the model are show inline. Not all
+objects are shown below; see the :ref:`refguide` for full details.
 
 .. image:: /_images/objects.png
     :align: center
