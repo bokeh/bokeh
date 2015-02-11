@@ -6,7 +6,7 @@ We are always looking for contributors, and want grow the developer/contributor
 base for Bokeh.
 
 If you are the author of an existing plotting library and would like your
-interfaces to generate output that can be rendered by the :ref:`bokehjs`
+interfaces to generate output that can be rendered by the :ref:`devguide_bokehjs`
 runtime, take a look through the :ref:`devguide` and we'd love to help you out.
 
 If you have a data API or other web-based tool that you think would be great

@@ -94,7 +94,7 @@ modern browser for presentation. This means while a lot is happening inside a py
 environment the presentation part is happening on your browser. That's BokehJS working
 for you. All your python code prepares the  context for BokehJS to display a nice
 looking plot on your browser for you. If you are curious about it and want to read
-more refer to the :ref:`bokehjs` section.
+more refer to the :ref:`devguide_bokehjs` section.
 
 All we had to do was tell bokeh.plotting that:
 

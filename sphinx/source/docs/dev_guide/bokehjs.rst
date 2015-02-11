@@ -55,7 +55,7 @@ in the style of Protovis_, but its implementation consists of a reactive scene
 graph (similar to Chaco_. Some examples for different types of plots are show
 below in `devguide_bokehjs_examples`_.
 
-The full BokehJS interface is described detail in :doc:`reference/bokehjs`
+The full BokehJS interface is described detail in :doc:`../reference/bokehjs`
 
 .. _devguide_bokehjs_dependencies:
 
@@ -150,7 +150,7 @@ the data source.
         frameborder="0"
     ></iframe>
 
-.. _Chaco_: http://code.enthought.com/chaco/
+.. _Chaco: http://code.enthought.com/chaco/
 .. _JSFiddle: http://jsfiddle.net/
 .. _Protovis: http://mbostock.github.io/protovis/
 
