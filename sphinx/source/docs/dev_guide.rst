@@ -438,8 +438,14 @@ Python Interface
 Low-level Object Interface
 --------------------------
 
-Here is a notional diagram showing the overall object system in Bokeh. We will discuss each
-of these in turn.
+Below is a notional diagram that shows many of the most common kinds
+of models that comprise the Bokeh object system. To create Bokeh plots, these
+objects are created and assembled, and then this object graph is serialized
+to JSON. This JSON representation is consumed by the BokehJS client library,
+which uses it to render the plot.
+
+Where space permits, the attributes of the model are show inline. Not all
+objects are shown below; see the :ref:`refguide` for full details.
 
 .. image:: /_images/objects.png
     :align: center
@@ -630,6 +636,9 @@ There are several environment variables that can be useful for developers:
 
 * ``BOKEH_VERSION`` --- What version of BokehJS to use with ``cdn`` resources
     See the :class:`~bokeh.resources.Resources` class reference for full details.
+
+* ``BOKEH_LOCAL_DOCS_CDN`` --- What version of BokehJS to use when you are working
+    with sphinx docs locally.
 
 The next four environment variable are related to the IPython/Jupyter notebook:
 
