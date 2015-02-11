@@ -21,7 +21,7 @@ import pandas as pd
 
 from bokeh.charts import Bar
 from bokeh.charts.builder.tests._utils import create_chart
-from bokeh.models import Range1d
+from bokeh.models import Range1d, FactorRange
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -123,3 +123,9 @@ class TestBar(unittest.TestCase):
         bad_y_range = range(0, 50)  # Not a Range object
         with self.assertRaises(ValueError):
             create_chart(Bar, source, continuous_range=bad_y_range)
+
+    def test_non_range1d_continuous_range_raises_value_error(self):
+        source = OrderedDict({'p': [0, 1]})
+        non_1d_range = FactorRange(factors=['a', 'b'])
+        with self.assertRaises(ValueError):
+            create_chart(Bar, source, continuous_range=non_1d_range)

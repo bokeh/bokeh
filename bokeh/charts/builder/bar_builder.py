@@ -38,6 +38,11 @@ from ...properties import Any, Bool, Either, List
 def Bar(values, cat=None, stacked=False, xscale="categorical", yscale="linear",
         xgrid=False, ygrid=True, continuous_range=None, **kw):
 
+    if continuous_range and not isinstance(continuous_range, Range1d):
+        raise ValueError(
+            "continuous_range must be an instance of bokeh.models.ranges.Range1d"
+        )
+
     # The continuous_range is the y_range (until we implement HBar charts)
     y_range = continuous_range
 
