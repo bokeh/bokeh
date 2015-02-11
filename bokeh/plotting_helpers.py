@@ -10,7 +10,7 @@ from six import string_types
 from .models import glyphs
 from .models import (
     BoxSelectionOverlay, BoxSelectTool, BoxZoomTool, CategoricalAxis,
-    ColumnDataSource, TapTool, CrosshairTool, DataRange1d, DatetimeAxis,
+    ColumnDataSource, RemoteSource, TapTool, CrosshairTool, DataRange1d, DatetimeAxis,
     FactorRange, Grid, HoverTool, LassoSelectTool, Legend, LinearAxis,
     LogAxis, PanTool, Plot, PolySelectTool,
     PreviewSaveTool, Range, Range1d, ResetTool, ResizeTool, Tool,
@@ -60,7 +60,7 @@ def _glyph_doc(args, props, desc):
     plot : :py:class:`Plot <bokeh.models.Plot>`
     """ % (desc, params, props)
 
-def _match_data_params(argnames, glyphclass, datasource, serversource,
+def _match_data_params(argnames, glyphclass, datasource,
                        args, kwargs):
     """ Processes the arguments and kwargs passed in to __call__ to line
     them up with the argnames of the underlying Glyph
@@ -118,7 +118,7 @@ def _match_data_params(argnames, glyphclass, datasource, serversource,
             if glyphclass == glyphs.Text: # XXX: issubclass()
                 # TODO (bev) this is hacky, now that text is a DataSpec, it has to be a sequence
                 glyph_val = [val]
-            elif serversource is None and val not in datasource.column_names:
+            elif not isinstance(datasource, RemoteSource) and val not in datasource.column_names:
                 raise RuntimeError("Column name '%s' does not appear in data source %r" % (val, datasource))
             else:
                 if val not in datasource.column_names:

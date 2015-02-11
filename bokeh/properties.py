@@ -1004,31 +1004,31 @@ class Event(Property):
     """ Event type property. """
     pass
 
-class Range(ParameterizedProperty):
-    """ Range type property ensures values are between a range. """
-    def __init__(self, range_type, start, end, default=None, help=None):
-        self.range_type = self._validate_type_param(range_type)
-        self.range_type.validate(start)
-        self.range_type.validate(end)
+class Interval(ParameterizedProperty):
+    ''' Range type property ensures values are contained inside a given interval. '''
+    def __init__(self, interval_type, start, end, default=None, help=None):
+        self.interval_type = self._validate_type_param(interval_type)
+        self.interval_type.validate(start)
+        self.interval_type.validate(end)
         self.start = start
         self.end = end
-        super(Range, self).__init__(default=default, help=help)
+        super(Interval, self).__init__(default=default, help=help)
 
     @property
     def type_params(self):
-        return [self.range_type]
+        return [self.interval_type]
 
     def validate(self, value):
-        super(Range, self).validate(value)
+        super(Interval, self).validate(value)
 
-        if not (value is None or self.range_type.is_valid(value) and value >= self.start and value <= self.end):
-            raise ValueError("expected a value of type %s in range [%s, %s], got %r" % (self.range_type, self.start, self.end, value))
+        if not (value is None or self.interval_type.is_valid(value) and value >= self.start and value <= self.end):
+            raise ValueError("expected a value of type %s in range [%s, %s], got %r" % (self.interval_type, self.start, self.end, value))
 
     def __str__(self):
-        return "%s(%s, %r, %r)" % (self.__class__.__name__, self.range_type, self.start, self.end)
+        return "%s(%s, %r, %r)" % (self.__class__.__name__, self.interval_type, self.start, self.end)
 
-class Byte(Range):
-    """ Byte type property. """
+class Byte(Interval):
+    ''' Byte type property. '''
     def __init__(self, default=0, help=None):
         super(Byte, self).__init__(Int, 0, 255, default=default, help=help)
 
