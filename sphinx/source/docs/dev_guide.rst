@@ -631,6 +631,9 @@ There are several environment variables that can be useful for developers:
 * ``BOKEH_VERSION`` --- What version of BokehJS to use with ``cdn`` resources
     See the :class:`~bokeh.resources.Resources` class reference for full details.
 
+* ``BOKEH_LOCAL_DOCS_CDN`` --- What version of BokehJS to use when you are working
+    with sphinx docs locally.
+
 The next four environment variable are related to the IPython/Jupyter notebook:
 
 * ``BOKEH_NOTEBOOK_RESOURCES`` --- How and where to load BokehJS from
