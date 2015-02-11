@@ -77,8 +77,9 @@ define [
   "renderer/overlay/box_selection",
   "renderer/overlay/poly_selection",
 
-  "source/column_data_source",
+  "source/ajax_data_source",
   "source/blaze_data_source",
+  "source/column_data_source",
   "source/server_data_source",
 
   "ticking/abstract_ticker",
@@ -252,6 +253,8 @@ define [
     ColumnDataSource:         'source/column_data_source'
     ServerDataSource:         'source/server_data_source'
     BlazeDataSource:          'source/blaze_data_source'
+    AjaxDataSource:           'source/ajax_data_source'
+
     AbstractTicker:           'ticking/abstract_ticker'
     AdaptiveTicker:           'ticking/adaptive_ticker'
     BasicTicker:              'ticking/basic_ticker'
