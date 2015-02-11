@@ -36,11 +36,15 @@ from ...properties import Any, Bool, Either, List
 
 
 def Bar(values, cat=None, stacked=False, xscale="categorical", yscale="linear",
-        xgrid=False, ygrid=True, **kw):
+        xgrid=False, ygrid=True, continuous_range=None, **kw):
+
+    # The continuous_range is the y_range (until we implement HBar charts)
+    y_range = continuous_range
+
     return create_and_build(
         BarBuilder, values, cat=cat, stacked=stacked,
         xscale=xscale, yscale=yscale,
-        xgrid=xgrid, ygrid=ygrid, **kw
+        xgrid=xgrid, ygrid=ygrid, y_range=y_range, **kw
     )
 
 
@@ -56,11 +60,13 @@ class BarBuilder(Builder):
 
     The x_range is categorical, and is made either from the cat argument
     or from the indexes of the passed values if no cat is supplied.  The
-    y_range can be supplied as a parameter, or will be calculated as a linear
-    range (Range1d) based on the supplied values using the following rules:
-        * with all positive data: start = 0,         end = 1.1 * max
-        * with all negative data: start = 0,         end = 1.1 * min
-        * with mixed sign data:   start = 1.1 * min, end = 1.1 * max
+    y_range can be supplied as the parameter continuous_range,
+    or will be calculated as a linear range (Range1d) based on the supplied
+    values using the following rules:
+
+     * with all positive data: start = 0, end = 1.1 * max
+     * with all negative data: start = 1.1 * min, end = 0
+     * with mixed sign data:   start = 1.1 * min, end = 1.1 * max
 
     Examples:
 
@@ -81,9 +87,10 @@ class BarBuilder(Builder):
 
         from bokeh.models import Range1d
 
-        y_range = Range1d(start=2, end=40)
+        custom_range = Range1d(start=2, end=40)
         grouped_bar = Bar(
-            xyvalues, ['1st', '2nd'], y_range=y_range, filename="grouped.html"
+            xyvalues, ['1st', '2nd'],
+            continuous_range=custom_range, filename="grouped.html"
         )
         grouped_bar.show()
     """
@@ -120,9 +127,7 @@ class BarBuilder(Builder):
             cat=self.cat, width=width, width_cat=width_cat, zero=zero
         )
         # list to save all the groups available in the incomming input grouping
-        step = np.linspace(0,
-                           1.0, len(self._values.keys()) + 1,
-                           endpoint=False)
+        step = np.linspace(0, 1.0, len(self._values.keys()) + 1, endpoint=False)
         self._groups.extend(self._values.keys())
 
         for i, val in enumerate(self._values.keys()):
@@ -147,23 +152,20 @@ class BarBuilder(Builder):
             if self.stacked:
                 data = np.array(self._data['zero'])
             else:
-                cats = [
-                    i for i in self._attr
-                    if not i.startswith(("mid", "stacked", "cat"))
-                ]
+                cats = [i for i in self._attr if not i.startswith(("mid", "stacked", "cat"))]
                 data = np.array([self._data[cat] for cat in cats])
 
             all_positive = True if np.all(data > 0) else False
             all_negative = True if np.all(data < 0) else False
             # Set the start value
-            if all_positive or all_negative:
+            if all_positive:
                 start = 0
             else:
                 start = 1.1 * data.min()  # Will always be negative
 
             # Set the end value
             if all_negative:
-                end = 1.1 * data.min()  # Will always be negative
+                end = 0
             else:
                 end = 1.1 * data.max()
 
