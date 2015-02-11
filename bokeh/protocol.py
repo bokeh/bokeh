@@ -75,6 +75,8 @@ class BokehJSONEncoder(json.JSONEncoder):
             return float(obj)
         elif np.issubdtype(type(obj), np.int):
             return int(obj)
+        elif np.issubdtype(type(obj), np.bool_):
+            return bool(obj)
         # Datetime, Date
         elif isinstance(obj, (dt.datetime, dt.date)):
             return calendar.timegm(obj.timetuple()) * 1000.
@@ -120,7 +122,6 @@ deserialize_json = json.loads
 serialize_web = serialize_json
 
 deserialize_web = deserialize_json
-
 
 def status_obj(status):
     return {'msgtype': 'status',
