@@ -305,7 +305,7 @@ some such, and run the command there::
 
     $ bokeh-server
 
-If you have Bokeh installed for development mode (see :ref:`developer_install`),
+If you have Bokeh installed for development mode (see :ref:`devguide_building`),
 then you should go into the checked-out source directory and run::
 
     $ python ./bokeh-server

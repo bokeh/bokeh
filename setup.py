@@ -48,7 +48,6 @@ import versioneer
 
 ROOT = dirname(realpath(__file__))
 BOKEHJSROOT = join(ROOT, 'bokehjs')
-print(BOKEHJSROOT)
 BOKEHJSBUILD = join(BOKEHJSROOT, 'build')
 CSS = join(BOKEHJSBUILD, 'css')
 JS  = join(BOKEHJSBUILD, 'js')
