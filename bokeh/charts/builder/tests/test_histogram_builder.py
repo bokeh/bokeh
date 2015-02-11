@@ -87,7 +87,7 @@ class TestHistogram(unittest.TestCase):
             for key, value in kws.items():
                 self.assertEqual(getattr(builder, key), value)
 
-            builder.get_data()
+            builder._process_data()
             # ensure we are calling numpy.histogram with the right args
             calls = histogram_mock.call_args_list
             assert_array_equal(calls[0][0][0], np.array([1, 2, 3, 1]))

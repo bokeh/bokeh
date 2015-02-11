@@ -77,12 +77,12 @@ class BarBuilder(Builder):
 
     """)
 
-    def get_data(self):
+    def _process_data(self):
         """Take the Bar data from the input **value.
 
         It calculates the chart properties accordingly. Then build a dict
         containing references to all the calculated points to be used by
-        the rect glyph inside the ``draw`` method.
+        the rect glyph inside the ``_yield_renderers`` method.
         """
         if not self.cat:
             self.cat = [str(x) for x in self._values.index]
@@ -111,7 +111,7 @@ class BarBuilder(Builder):
             # Stacked
             zero += self._values[val]
 
-    def get_source(self):
+    def _set_sources(self):
         """Push the Bar data into the ColumnDataSource and calculate
         the proper ranges.
         """
@@ -126,7 +126,7 @@ class BarBuilder(Builder):
             end = 1.1 * max(max(self._data[i]) for i in cat)
             self.y_range = Range1d(start=0, end=end)
 
-    def draw(self):
+    def _yield_renderers(self):
         """Use the rect glyphs to display the bars.
 
         Takes reference points from data loaded at the ColumnDataSource.

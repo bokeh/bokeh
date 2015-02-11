@@ -68,11 +68,11 @@ class ScatterBuilder(Builder):
     The marker type to use (default: ``circle``).
     """)
 
-    def get_data(self):
+    def _process_data(self):
         """Take the scatter.values data to calculate the chart properties
         accordingly. Then build a dict containing references to all the
         calculated points to be used by the marker glyph inside the
-        ``draw`` method.
+        ``_yield_renderers`` method.
         """
         self._data = dict()
         # list to save all the attributes we are going to create
@@ -120,7 +120,7 @@ class ScatterBuilder(Builder):
             self.set_and_get("x_", val, x_)
             self.set_and_get("y_", val, y_)
 
-    def get_source(self):
+    def _set_sources(self):
         """Push the Scatter data into the ColumnDataSource and
         calculate the proper ranges."""
         self._source = ColumnDataSource(self._data)
@@ -139,7 +139,7 @@ class ScatterBuilder(Builder):
             end=endy + 0.1 * (endy - starty)
         )
 
-    def draw(self):
+    def _yield_renderers(self):
         """Use the marker glyphs to display the points.
 
         Takes reference points from data loaded at the ColumnDataSource.
@@ -154,7 +154,7 @@ class ScatterBuilder(Builder):
             self._legends.append((self._groups[i-1], [renderer]))
             yield renderer
 
-    def prepare_values(self):
+    def _adapt_values(self):
         """Prepare context before main show method is invoked.
 
         Customize show preliminary actions by handling DataFrameGroupBy

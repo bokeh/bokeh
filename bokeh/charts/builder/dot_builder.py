@@ -59,12 +59,12 @@ class DotBuilder(Builder):
     Whether to draw a stem from each do to the axis.
     """)
 
-    def get_data(self):
+    def _process_data(self):
         """Take the Dot data from the input **value.
 
         It calculates the chart properties accordingly. Then build a dict
         containing references to all the calculated points to be used by
-        the rect glyph inside the ``draw`` method.
+        the rect glyph inside the ``_yield_renderers`` method.
 
         """
         if not self.cat:
@@ -89,7 +89,7 @@ class DotBuilder(Builder):
             # segment top y value
             self.set_and_get("seg_top_", val, values)
 
-    def get_source(self):
+    def _set_sources(self):
         """Push the Dot data into the ColumnDataSource and calculate
         the proper ranges.
         """
@@ -99,7 +99,7 @@ class DotBuilder(Builder):
         end = 1.1 * max(max(self._data[i]) for i in cat)
         self.y_range = Range1d(start=0, end=end)
 
-    def draw(self):
+    def _yield_renderers(self):
         """Use the rect glyphs to display the bars.
 
         Takes reference points from data loaded at the source and

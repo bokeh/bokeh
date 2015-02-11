@@ -82,12 +82,12 @@ class TimeSeriesBuilder(Builder):
 
     """)
 
-    def get_data(self):
+    def _process_data(self):
         """Take the x/y data from the timeseries values.
 
         It calculates the chart properties accordingly. Then build a dict
         containing references to all the points to be used by
-        the line glyph inside the ``draw`` method.
+        the line glyph inside the ``_yield_renderers`` method.
 
         """
         self._data = dict()
@@ -105,7 +105,7 @@ class TimeSeriesBuilder(Builder):
             self.set_and_get("x_", col, xs)
             self.set_and_get("y_", col, self._values[col])
 
-    def get_source(self):
+    def _set_sources(self):
         """Push the TimeSeries data into the ColumnDataSource and
         calculate the proper ranges.
         """
@@ -119,7 +119,7 @@ class TimeSeriesBuilder(Builder):
             end=endy + 0.1 * (endy - starty)
         )
 
-    def draw(self):
+    def _yield_renderers(self):
         """Use the line glyphs to connect the xy points in the time series.
 
         Takes reference points from the data loaded at the ColumnDataSource.

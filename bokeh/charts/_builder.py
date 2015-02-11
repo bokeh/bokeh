@@ -51,13 +51,13 @@ class Builder(HasProps):
     inherited builders just need to provide:
 
      - the following methods:
-        * draw: yields the glyphs to be rendered into the plot (and
+        * _yield_renderers: yields the glyphs to be rendered into the plot (and
             eventually create the self._legends attribute to be used to
             create the proper legends when builder is called to build
             the glyphs on a Chart object
-        * get_data(optional): Get the input data and calculates the 'data'
+        * _process_data(optional): Get the input data and calculates the 'data'
             attribute to be used to calculate the source data
-        * get_source(optional): Push data into the self.source attribute
+        * _set_sources(optional): Push data into the self.source attribute
             (of type ColumnDataSource) and build the proper ranges
             (self.x_range and self.y_range).
 
@@ -67,7 +67,7 @@ class Builder(HasProps):
         _legends:
 
 
-    so Builder can use it all to draw on a chart when called with the
+    so Builder can use it all to _yield_renderers on a chart when called with the
     create method.
 
     """
@@ -118,7 +118,7 @@ class Builder(HasProps):
         self._groups = []
         self._attr = []
 
-    def prepare_values(self):
+    def _adapt_values(self):
         """Prepare the input data.
 
         Converts data input (self._values) to a DataAdapter and creates
@@ -132,7 +132,7 @@ class Builder(HasProps):
             if not isinstance(self._values, DataAdapter):
                 self._values = DataAdapter(self._values, force_alias=False)
 
-    def get_data(self):
+    def _process_data(self):
         """Get the input data.
 
         It has to be implemented by any of the inherited class
@@ -141,7 +141,7 @@ class Builder(HasProps):
         """
         pass
 
-    def get_source(self):
+    def _set_sources(self):
         """Push data into the ColumnDataSource and build the
         proper ranges.
 
@@ -150,7 +150,7 @@ class Builder(HasProps):
         """
         pass
 
-    def draw(self):
+    def _yield_renderers(self):
         """ Generator that yields the glyphs to be draw on the plot
 
         It has to be implemented by any of the inherited class
@@ -159,10 +159,10 @@ class Builder(HasProps):
         pass
 
     def create(self, chart=None):
-        self.prepare_values()
-        self.get_data()
-        self.get_source()
-        renderers = self.draw()
+        self._adapt_values()
+        self._process_data()
+        self._set_sources()
+        renderers = self._yield_renderers()
 
         chart.add_renderers(self, renderers)
 
