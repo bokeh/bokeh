@@ -11,15 +11,17 @@ from bokeh.models import GlyphRenderer
 
 N = 80
 x = np.linspace(0, 4*np.pi, N)
-# output_server("line_animate")
+output_server("line_animate")
 xyvalues = OrderedDict(sin=np.sin(x), cos=np.cos(x))
 
-chart = Line(xyvalues, title="Lines", ylabel='measures', server='line_animate')
+chart = Line(xyvalues, title="Lines", ylabel='measures')
+curdoc().add(chart)
+show(chart)
+_session = cursession()
 
-# show(chart)
-# _session = cursession()
-chart.show()
-_session = chart.session
+# it's also possible to use the following with the server='line_animate' arg on chart
+# chart.show()
+# _session = chart.session
 
 renderer = chart.select(dict(type=GlyphRenderer))
 ds = renderer[0].data_source
