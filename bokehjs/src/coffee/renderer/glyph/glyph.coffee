@@ -115,6 +115,8 @@ define [
           type = @model.type
           logger.warn("'point' selection not available on #{type} renderer")
           @_point_hit_warned = true
+        else if @_hit_line?
+          result = @_hit_line(geometry)
       else if geometry.type == "rect"
         if @_hit_rect?
           result = @_hit_rect(geometry)

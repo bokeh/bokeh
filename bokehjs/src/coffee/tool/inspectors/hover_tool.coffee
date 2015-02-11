@@ -66,7 +66,6 @@ define [
       return
 
     _update: (indices, tool, renderer, ds, {geometry}) ->
-
       tooltip = @mget('ttmodels')[renderer.model.id] ? null
       if not tooltip?
         return
@@ -87,11 +86,14 @@ define [
 
       xmapper = frame.get('x_mappers')[renderer.mget('x_range_name')]
       ymapper = frame.get('y_mappers')[renderer.mget('y_range_name')]
-      x = xmapper.map_from_target(vx)
-      y = ymapper.map_from_target(vy)
+      # get x, y values from the rendered glyph
+      geom_x = xmapper.map_from_target(vx)
+      geom_y = ymapper.map_from_target(vy)
 
       for i in  indices
-
+        # get x, y values from the rendered glyph
+        x = renderer.glyph.x[i]
+        y = renderer.glyph.y[i]
         if @mget('snap_to_data') and renderer.glyph.sx? and renderer.glyph.sy?
           rx = canvas.sx_to_vx(renderer.glyph.sx[i])
           ry = canvas.sy_to_vy(renderer.glyph.sy[i])
