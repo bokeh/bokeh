@@ -17,6 +17,9 @@ define [
           () -> @get('end')
         , false)
       @add_dependencies('max', this, ['factors'])
+      @listenTo(@, 'change:factors', () ->
+        @set('end', @get('factors').length + 0.5)
+      )
 
     defaults: ->
       return _.extend {}, super(), {

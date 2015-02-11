@@ -37,8 +37,7 @@ define [
         return xprime
       factors = @get('source_range').get('factors')
       start = @get('source_range').get('start')
-      end = @get('source_range').get('end')
-      return factors[Math.floor(xprime-0.5-start)]
+      return factors[Math.floor(xprime)]
 
     v_map_from_target: (xprimes, skip_cat=false) ->
       result = super(xprimes)
@@ -46,9 +45,8 @@ define [
         return result
       factors = @get('source_range').get('factors')
       start = @get('source_range').get('start')
-      end = @get('source_range').get('end')
       for i in [0...result.length]
-        result[i] = factors[Math.floor(result[i]-0.5-start)]
+        result[i] = factors[Math.floor(result[i] - 0.5)]
       return result
 
   class CategoricalMappers extends Collection
