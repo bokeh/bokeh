@@ -27,10 +27,6 @@ class GlyphRenderer(Renderer):
     Local data source to use when rendering glyphs on the plot.
     """)
 
-    server_data_source = Instance(ServerDataSource, help="""
-
-    """)
-
     x_range_name = String('default', help="""
     A particular (named) x-range to use for computing screen
     locations when rendering glyphs on the plot. If unset, use the

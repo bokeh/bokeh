@@ -6,6 +6,10 @@
     data-bokeh-modelid="{{ modelid }}"
     data-bokeh-root-url="{{ root_url }}"
     data-bokeh-docid="{{ docid }}"
+    {% if public %}
+    data-bokeh-public="true"
+    {% else %}
     data-bokeh-docapikey="{{ docapikey }}"
+    {% endif %}
     data-bokeh-loglevel="{{ loglevel }}"
 ></script>

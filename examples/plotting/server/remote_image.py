@@ -5,15 +5,6 @@ import numpy as np
 from bokeh.plotting import *
 from bokeh.models import ServerDataSource
 from bokeh.transforms import image_downsample
-"""
-In order to run this example, you have to execute
-./bokeh-server -D remotedata
-
-the remote data directory in the bokeh checkout has the sample data for this example
-
-In addition, you must install ArrayManagement from this branch (soon to be master)
-https://github.com/ContinuumIO/ArrayManagement
-"""
 
 N = 1000
 
@@ -23,21 +14,19 @@ xx, yy = np.meshgrid(x, y)
 d = np.sin(xx)*np.cos(yy)
 
 output_server("remote_image")
-source = image_downsample.source(data_url="/defaultuser/array.table/array",
-                                 owner_username="defaultuser")
 
-image(
+source = image_downsample.source(expr={'op': 'Field', 'args': [':leaf', 'array']})
+plot = figure(x_range=[0,10],
+              y_range=[0,10],
+)
+plot.image(
     source=source,
     image="image",
     x="x",
     y="y",
     dw="dw",
     dh="dh",
-    width=200,
-    height=200,
     palette="Spectral11",
-    x_range=[0,10],
-    y_range=[0,10],
     tools="pan,wheel_zoom,box_zoom,reset,previewsave"
 )
 

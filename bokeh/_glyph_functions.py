@@ -16,17 +16,12 @@ def _glyph_function(glyphclass, dsnames, argnames, docstring, xfields=["x"], yfi
             _materialize_colors_and_alpha, _get_legend,
             _make_legend, _get_select_tool
         )
-        from .models import ColumnDataSource, GlyphRenderer, Plot, ServerDataSource
+        from .models import ColumnDataSource, GlyphRenderer, Plot, RemoteSource
         source = kwargs.pop('source', None)
-        if isinstance(source, ServerDataSource):
+        if source is None:
             datasource = ColumnDataSource()
-            serversource = source
-        elif source is None:
-            datasource = ColumnDataSource()
-            serversource = None
         else:
             datasource = source
-            serversource = None
 
         legend_name = kwargs.pop("legend", None)
 
@@ -43,7 +38,7 @@ def _glyph_function(glyphclass, dsnames, argnames, docstring, xfields=["x"], yfi
 
         # Process the glyph dataspec parameters
         glyph_params = _match_data_params(dsnames, glyphclass,
-                                          datasource, serversource,
+                                          datasource,
                                           args, _materialize_colors_and_alpha(kwargs))
 
         x_data_fields = []
@@ -76,7 +71,6 @@ def _glyph_function(glyphclass, dsnames, argnames, docstring, xfields=["x"], yfi
 
         glyph_renderer = GlyphRenderer(
             data_source=datasource,
-            server_data_source=serversource,
             glyph=glyph,
             nonselection_glyph=nonselection_glyph,
             name=name)
