@@ -1,7 +1,7 @@
 .. _devguide_building:
 
-Building and installing from source
-===================================
+Building and Installing
+=======================
 
 .. contents::
     :local:
