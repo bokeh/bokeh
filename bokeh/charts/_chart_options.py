@@ -24,6 +24,10 @@ Scale = enumeration('linear', 'categorical', 'datetime')
 
 class ChartOptions(HasProps):
 
+    id = String(None, help="""
+    Id of the chart.
+    """)
+
     title = String(None, help="""
     A title for the chart.
     """)

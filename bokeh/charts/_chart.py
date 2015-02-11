@@ -30,7 +30,7 @@ from ..plotting import DEFAULT_TOOLS
 from ..plotting_helpers import _process_tools_arg
 from ..resources import INLINE
 from ..session import Session
-from ..utils import publish_display_data
+from ..utils import publish_display_data, make_id
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -80,6 +80,7 @@ class Chart(Plot):
             title=self._options.title,
             plot_height=self._options.height,
             plot_width=self._options.width,
+            id=self._options.id or make_id()
         )
 
         self._glyphs = []

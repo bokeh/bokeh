@@ -48,6 +48,7 @@ class Viewable(MetaHasProps):
     def _preload_models(cls):
         from . import models
         from .crossfilter import models
+        from .charts import Chart
 
     @classmethod
     def get_class(cls, view_model_name):
