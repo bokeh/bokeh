@@ -9,9 +9,9 @@ define [
     type: 'NumeralTickFormatter'
 
     format: (ticks) ->
-      format = @mget("format")
-      language = @mget("language")
-      rounding = switch @mget("rounding")
+      format = @get("format")
+      language = @get("language")
+      rounding = switch @get("rounding")
         when "round", "nearest"   then Math.round
         when "floor", "rounddown" then Math.floor
         when "ceil",  "roundup"   then Math.ceil

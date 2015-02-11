@@ -9,7 +9,7 @@ define [
     type: 'PrintfTickFormatter'
 
     format: (ticks) ->
-      format = @mget("format")
+      format = @get("format")
       labels = ( sprintf(format, tick) for tick in ticks )
       return labels
 
