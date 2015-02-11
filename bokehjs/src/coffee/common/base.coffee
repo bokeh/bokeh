@@ -77,10 +77,10 @@ define [
   "renderer/overlay/box_selection",
   "renderer/overlay/poly_selection",
 
-  "source/column_data_source",
-  "source/blaze_data_source",
-  "source/server_data_source",
   "source/ajax_data_source",
+  "source/blaze_data_source",
+  "source/column_data_source",
+  "source/server_data_source",
 
   "ticking/abstract_ticker",
   "ticking/adaptive_ticker",
