@@ -33,36 +33,41 @@ this document.
 
 .. _devguide_building_bokehjs:
 
+
 Building BokehJS
 ----------------
-
-BokehJS Prerequisites
-~~~~~~~~~~~~~~~~~~~~~
 
 The BokehJS build process is handled by Grunt_, which in turn depends on
 `Node.js <NodeJS>`_. Grunt is used to compile CoffeeScript and Less (CSS)
 sources (as well as Eco templates), and to combine these resources into
 optimized and minified ``bokeh.js`` and ``bokeh.css`` files.
 
-You can download and install Node.js directly, or use conda_ to install
-Node.js from the Bokeh channel on `Binstar.org <Binstar>`_::
+Install npm and node
+~~~~~~~~~~~~~~~~~~~~
+
+First, install Node.js and npm (node package manager).
+You can download and install these directly, or use
+`conda <http://conda.pydata.org/>`_ to install them
+from the Bokeh channel on `Binstar <https://binstar.org>`_::
 
     $ conda install -c bokeh nodejs
 
-.. note::
-    The following commands should be executed in the ``bokehjs`` subdirectory
-    of the Bokeh source checkout.
+Alternatively, on Ubuntu you can use ``apt-get``::
 
-Once you have Node.js installed, you must use it to install the required
-dependencies (including Grunt) before you can build BokehJS. Change
-directory to the ``bokehjs`` subdirectoruy of the source checkout and
-issue the following command::
+    $ apt-get install npm node
 
+
+Install Grunt and necessary plugins
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Once you have npm and Node.js installed, you must use them to install
+the required dependencies before you can build BokehJS.
+Execute the following command in the ``bokehjs`` subdirectory::
+    
     $ npm install
 
-This command will install the necessary packages (listed as
-``devDependencies`` in ``package.json``) into a ``node_modules``
-subdirectory.
+This command will install the necessary packages into the ``node_modules``
+subdirectory (and list them as ``devDependencies`` in ``package.json``).
 
 At this point you can typically use the ``setup.py`` script at the top level
 of the source chekcout to manage building and installing BokehJS as part of
@@ -75,7 +80,14 @@ Grunt for development purposes.
 Building BokehJS with Grunt
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-There are three main Grunt commands for development:
+If you want to be able to run the commands below, you can either use
+``bokehjs/node_modules/.bin/grunt`` or globally install 
+the grunt command line interface::
+
+    $ npm install -g grunt-cli
+
+There are three main Grunt commands for development (to be executed from the
+``bokehjs`` subdirectory):
 
 .. code-block:: sh
 
