@@ -36,29 +36,42 @@ you must first be able to build BokehJS.
 Building BokehJS
 ----------------
 
-Install Prerequisites
-~~~~~~~~~~~~~~~~~~~~~
-
 The BokehJS build process is handled by `Grunt <http://gruntjs.com/>`_,
 which in turn depends on `Node.js <http://nodejs.org/>`_.
 Grunt is used to compile CoffeeScript, Less and Eco sources, combine JavaScript resources,
 and generate optimized and minified ``bokeh.js`` and ``bokeh.css`` files.
 
-You can download and install Node.js directly, or use
-`conda <http://conda.pydata.org/>`_ to install Node.js
+
+Install npm and node
+~~~~~~~~~~~~~~~~~~~~
+
+First, install Node.js and npm (node package manager).
+You can download and install these directly, or use
+`conda <http://conda.pydata.org/>`_ to install them
 from the Bokeh channel on `Binstar <https://binstar.org>`_::
 
     $ conda install -c bokeh nodejs
+    
+Alternatively, on Ubuntu you can use ``apt-get``::
+    
+    $ apt-get install npm node
 
-.. note:: The following commands should be executed in the ``bokehjs``
-          subdirectory of the Bokeh source checkout.
 
-In order to build BokehJS, you must first install the dependencies::
+Install Grunt and necessary plugins
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Install grunt itself::
+
+    $ npm install -g grunt-cli
+
+Install the build dependencies
+by running the following command in the ``bokehjs`` subdirectory::
 
     $ npm install
 
 This command will install the necessary packages
-(listed as ``devDependencies`` in ``package.json``) in the ``node_modules`` subdirectory.
+in the ``node_modules`` subdirectory 
+(and listed as ``devDependencies`` in ``package.json``).
 
 At this point you can typically use the ``setup.py`` script at the top level directory
 to manage building and installing BokehJS as part of the complete Bokeh library
@@ -71,7 +84,8 @@ build BokehJS with Grunt for development purposes.
 Building with Grunt
 ~~~~~~~~~~~~~~~~~~~
 
-There are three main Grunt commands for development:
+There are three main Grunt commands for development (to be executed from the 
+``bokehjs`` subdirectory):
 
 .. code-block:: sh
 
