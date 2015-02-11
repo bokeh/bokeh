@@ -32,7 +32,10 @@ def _cdn_base_url():
 
 def _get_cdn_urls(version=None, minified=True):
     if version is None:
-        version = __version__.split('-')[0]
+        if settings.local_docs_cdn():
+            version = settings.local_docs_cdn()
+        else:
+            version = __version__.split('-')[0]
 
     # check the 'dev' fingerprint
     dev = version.split('.')[-2]
@@ -102,7 +105,7 @@ class Resources(object):
 
         minified (bool, optional) : whether JavaScript and CSS should be minified or not (default: True)
 
-        host (str, optional) : URL and port of Bokeh Server to load resources from
+        root_url (str, optional) : URL and port of Bokeh Server to load resources from
 
             Only valid with ``'server'`` and ``'server-dev'`` modes
 

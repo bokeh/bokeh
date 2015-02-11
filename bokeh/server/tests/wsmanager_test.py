@@ -11,40 +11,42 @@ ws_address = "ws://localhost:5006/bokeh/sub"
 
 class TestSubscribeWebSocket(test_utils.BokehServerTestCase):
     def test_basic_subscribe(self):
-        self.doc1 = document.Document()
         self.sess1 = session.Session()
         self.sess1.use_doc('first')
-        self.doc2 = document.Document()
         self.sess2 = session.Session()
         self.sess2.use_doc('second')
         #connect sock to defaultdoc
         #connect sock2 to defaultdoc
         #connect sock3 to defaultdoc2
+        firstid = self.sess1.docid
+        secondid = self.sess2.docid
+        firsttoken = self.sess1.apikey
+        secondtoken = self.sess2.apikey
         import websocket
         sock = websocket.WebSocket()
-        connect(sock, ws_address, 'bokehplot:defaultdoc', 'nokey')
+        connect(sock, ws_address, 'bokehplot:%s' % firstid, firsttoken)
         sock2 = websocket.WebSocket()
-        connect(sock2, ws_address, 'bokehplot:defaultdoc', 'nokey')
+        connect(sock2, ws_address, 'bokehplot:%s' % firstid, firsttoken)
 
         sock3 = websocket.WebSocket()
-        connect(sock3, ws_address, 'bokehplot:defaultdoc2', 'nokey')
+        connect(sock3, ws_address, 'bokehplot:%s' % secondid, secondtoken)
         #make sure sock and sock2 receive message
-        bokeh_app.publisher.send('bokehplot:defaultdoc', 'hello!')
+        bokeh_app.publisher.send('bokehplot:%s' % firstid, 'hello!')
         msg = sock.recv()
-        assert msg == 'bokehplot:defaultdoc:hello!'
+        assert msg == 'bokehplot:%s:hello!' % firstid
         msg = sock2.recv()
-        assert msg == 'bokehplot:defaultdoc:hello!'
+        assert msg == 'bokehplot:%s:hello!' % firstid
 
         # send messages on 2 topics, make sure that sockets receive
         # the right messages
-        bokeh_app.publisher.send('bokehplot:defaultdoc', 'hello2!')
-        bokeh_app.publisher.send('bokehplot:defaultdoc2', 'hello3!')
+        bokeh_app.publisher.send('bokehplot:%s' % firstid, 'hello2!')
+        bokeh_app.publisher.send('bokehplot:%s' % secondid, 'hello3!')
         msg = sock.recv()
-        assert msg == 'bokehplot:defaultdoc:hello2!'
+        assert msg == 'bokehplot:%s:hello2!' % firstid
         msg = sock2.recv()
-        assert msg == 'bokehplot:defaultdoc:hello2!'
+        assert msg == 'bokehplot:%s:hello2!' % firstid
         msg = sock3.recv()
-        assert msg == 'bokehplot:defaultdoc2:hello3!'
+        assert msg == 'bokehplot:%s:hello3!' % secondid
 
 def connect(sock, addr, topic, auth):
     # TODO (bev) increasing timeout due to failing TravisCI tests

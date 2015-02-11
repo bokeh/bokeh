@@ -6,129 +6,79 @@ from bokeh.session import Session
 from bokeh.tests.test_utils import skipIfPyPy
 
 from . import test_utils
-from ..app import bokeh_app
+from ..app import bokeh_app, app
 from ..models import user
+from ...session import TestSession
 
-class TestRegister(test_utils.BokehServerTestCase):
-    options = {'multi_user': True}
-
+class TestMultiUserAuth(test_utils.FlaskClientTestCase):
+    options = {'multi_user' : True}
     def test_register(self):
-        url = "http://localhost:5006/bokeh/register"
-        session = requests.session()
-        result = session.post(url, data={'username': 'testuser1',
-                                         'password': 'mypassword',
-                                         'password_confirm': 'mypassword'},
-                              allow_redirects=False
-                              )
-        assert result.status_code == 302
-        # we redirect to bokeh on success, but we redirect to
-        # /bokeh/register on errror
-        assert result.headers["location"] == 'http://localhost:5006/bokeh/'
-        url = "http://localhost:5006/bokeh/userinfo"
-        userinfo = session.get(url).json()
-        assert userinfo['username'] == 'testuser1'
+        sess = TestSession(client=app.test_client())
+        sess.register('testuser1', 'testpassword1')
+        sess.userinfo['username'] == 'testuser1'
 
-    @skipIfPyPy("gevent requires pypycore and pypy-hacks branch of gevent.")
     def test_register_twice_should_fail(self):
-        url = "http://localhost:5006/bokeh/register"
-        session = requests.session()
-        result = session.post(url, data={'username': 'testuser1',
-                                         'password': 'mypassword',
-                                         'password_confirm': 'mypassword'},
-                              allow_redirects=False
-                              )
-        assert result.status_code == 302
-        # we redirect to bokeh on success, but we redirect to
-        # /bokeh/register on errror
-        assert result.headers["location"] == 'http://localhost:5006/bokeh/'
-
-        result = session.post(url, data={'username': 'testuser1',
-                                         'password': 'mypassword',
-                                         'password_confirm': 'mypassword'},
-                              allow_redirects=False
-                              )
-        assert result.status_code == 302
-        # we redirect to bokeh on success, but we redirect to
-        # /bokeh/register on errror
-        assert result.headers["location"] == 'http://localhost:5006/bokeh/register'
-
-
-class TestLogin(test_utils.BokehServerTestCase):
-    options = {'multi_user': True}
+        sess = TestSession(client=app.test_client())
+        sess.register('testuser1', 'testpassword1')
+        self.assertRaises(RuntimeError, sess.register, 'testuser1', 'testpassword1')
 
     def test_login(self):
         username = "testuser2"
         password = "fluffy"
         user.new_user(bokeh_app.servermodel_storage, username, password)
-        session = requests.session()
-
-        #haven't logged in yet, so this should  be 403
-        url = "http://localhost:5006/bokeh/userinfo"
-        result = session.get(url)
-        assert result.status_code == 403
+        sess = TestSession(client=app.test_client())
+        #have not logged in yet, so userinfo should return http error
+        self.assertRaises(Exception, lambda : sess.userinfo)
 
         #try logging in with wrong password, should be 403
-        url = "http://localhost:5006/bokeh/login"
-        result = session.post(url, data={'username': 'testuser2',
-                                         'password': 'wrong password'},
-                              allow_redirects=False
-                              )
+        self.assertRaises(Exception, sess.login, 'testuser2', 'wrong password')
 
-        #haven't logged in yet, so this should  be 403
-        url = "http://localhost:5006/bokeh/userinfo"
-        result = session.get(url)
-        assert result.status_code == 403
+        #actually login
+        sess.login('testuser2', 'fluffy')
+        assert sess.userinfo['username'] == 'testuser2'
 
-        #login
-        url = "http://localhost:5006/bokeh/login"
-        result = session.post(url, data={'username': 'testuser2',
-                                         'password': 'fluffy'},
-                              allow_redirects=False
-                              )
-
-        url = "http://localhost:5006/bokeh/userinfo"
-        result = session.get(url).json()
-        assert result['username'] == 'testuser2'
-
-
-class ServerConfigTestCase(test_utils.BokehServerTestCase):
-    options = {'multi_user': True}
-
-    def test_register(self):
+    def test_register_configuration(self):
         #create a dummy config file
         config = tempfile.mkdtemp()
         #create server
-        server = Session(name="foo", root_url="http://localhost:5006/",
-                        configdir=config
-                        )
+        server = TestSession(name="foo",
+                             client=app.test_client(),
+                             configdir=config,
+                             load_from_config=True
+        )
         assert server.userapikey == "nokey"
         #register a user
         server.register("testuser", "fluffy")
         assert server.userapikey and server.userapikey != "nokey"
-        #create a second server configuration
-        #make sure it loads the proper api key
-        server2 = Session(name="foo",
-                         configdir=config
-                         )
+        server2 = TestSession(name="foo",
+                              client=app.test_client(),
+                              configdir=config,
+                              load_from_config=True
+        )
         assert server2.userapikey == server.userapikey
         assert server2.root_url == server.root_url
 
-    @skipIfPyPy("gevent requires pypycore and pypy-hacks branch of gevent.")
+    def test_login_configuration(self):
+        pass
+
     def test_login(self):
         #create a server config, register a user
         config1 = tempfile.mkdtemp()
-        server = Session(name="foo", root_url="http://localhost:5006/",
-                        configdir=config1
-                        )
+        server = TestSession(name="foo",
+                             client=app.test_client(),
+                             configdir=config1,
+                             load_from_config=True
+        )
         assert server.userapikey == "nokey"
         server.register("testuser", "fluffy")
         assert server.userapikey and server.userapikey != "nokey"
 
-        #create a separate server config, login a user
         config2 = tempfile.mkdtemp()
-        server2 = Session(name="foo", root_url="http://localhost:5006/",
-                         configdir=config2
-                         )
+        server2 = TestSession(name="foo",
+                             client=app.test_client(),
+                             configdir=config2,
+                             load_from_config=True
+        )
         assert server2.userapikey == "nokey"
         server2.login("testuser", "fluffy")
         #make sure the userapikeys match

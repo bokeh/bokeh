@@ -1,85 +1,160 @@
-
-import datetime as dt
 import json
-from os.path import dirname, join, exists
-import tempfile
-import time
-from unittest import skipIf
 
 import numpy as np
-import pandas as pd
 
-import requests
-from six.moves.urllib.parse import urlencode
+from ..app import bokeh_app, app
+from ..models import user
 
 from . import test_utils
-from ...session import Session
-from ...tests.test_utils import skipIfPyPy
-arraymanagement_missing = False
-try:
-    import arraymanagement
+from ..tests.test_utils import skipIfPy3
+from ...plotting import (reset_output, output_server, push, curdoc, figure)
+from ...session import TestSession
+from ...models.sources import ServerDataSource
+from ...models.ranges import Range1d
+from ...models.renderers import GlyphRenderer
+from ...transforms import ar_downsample as ar
+from ...transforms import line_downsample
 
-    # this just shuts up pyflakes
-    arraymanagement
-except:
-    arraymanagement_missing = True
+class TestAr(test_utils.FlaskClientTestCase):
+    def test_ar(self):
+        #move to setUp
+        reset_output()
+        sess = TestSession(client=app.test_client())
+        output_server('ar', session=sess)
 
-datadir = join(dirname(dirname(dirname(dirname(__file__)))), 'remotedata')
+        # wierd - server source has no params now besides the blaze expression
+        # we don't pass a data_url right now because right now we assume the
+        # server is the bokeh server, however that can be handled later
 
-class RemoteDataTestCase(test_utils.BokehServerTestCase):
-    options = {'data_directory': datadir}
+        orig_source = ServerDataSource(expr={'op': 'Field', 'args': [':leaf', 'gauss']})
 
-    @skipIf(arraymanagement_missing, "array management not installed")
-    @skipIfPyPy("gevent requires pypycore and pypy-hacks branch of gevent.")
-    def test_list(self):
-        config = tempfile.mkdtemp()
-        s = Session(configdir=config)
-        sources = s.list_data()
-        result = set(['/defaultuser/GOOG.hdf5',
-                      '/defaultuser/FB.hdf5',
-                      '/defaultuser/MSFT.hdf5',
-                      '/defaultuser/AAPL.hdf5',
-                      '/defaultuser/volume.table',
-                      '/defaultuser/array.table'
-                  ])
-        assert result == set(sources)
+        #make template plot
+        p = figure(x_range=Range1d(start=0, end=0), y_range=Range1d(start=0, end=0))
+        plot = p.square('oneA', 'oneB', color='#FF00FF', source=orig_source)
 
-    @skipIf(arraymanagement_missing, "array management not installed")
-    @skipIfPyPy("gevent requires pypycore and pypy-hacks branch of gevent.")
-    def test_line_downsample(self):
-        tempfile.mkdtemp()
-        url = "http://localhost:5006/bokeh/data/defaultuser/defaultuser/AAPL.hdf5"
-        params = ('close', 'date', ['close', 'open', 'date'],
-                  [1000 * time.mktime(dt.datetime(2012,1,1).timetuple()),
-                   1000 * time.mktime(dt.datetime(2013,1,1).timetuple())],
-                  10)
-        url += "?" + urlencode({'downsample_function': 'line1d',
-                                'downsample_parameters': json.dumps(params)})
-        requests.get(url).json()
+        #replace that plot with an abstract rendering one
+        arplot = ar.heatmap(
+            plot,
+            spread=3,
+            transform=None,
+            title="Server-rendered, uncorrected")
+        # set explicit value for ranges, or else they are set at 0
+        # until the javascript auto-sets it
+        arplot.x_range = Range1d(start=-2.0, end=2.0)
+        arplot.y_range = Range1d(start=-2.0, end=2.0)
+        glyph = arplot.select({'type' : GlyphRenderer})[0].glyph
+        #extract the original data source because it was replaced?!
+        source = arplot.select({'type' : ServerDataSource})[0]
 
-temp_data_dir = tempfile.mkdtemp(prefix="remote_data_test")
-class RemoteDataTestCase(test_utils.BokehServerTestCase):
-    options = {'data_directory':  temp_data_dir}
+        #what is render state?
+        render_state = None
 
-    @skipIf(arraymanagement_missing, "array management not installed")
-    @skipIfPyPy("gevent requires pypycore and pypy-hacks branch of gevent.")
-    def test_upload(self):
-        f = join(datadir, "defaultuser", "AAPL.hdf5")
-        url = "http://localhost:5006/bokeh/data/upload/defaultuser/myfile.hdf5"
-        with open(f) as myfile:
-            result = requests.post(url, files={'file' : ("myfile.hdf5", myfile)})
-        assert result.content == "/defaultuser/myfile.hdf5"
-        destination = join(temp_data_dir, "defaultuser", "myfile.hdf5")
-        assert exists(destination)
+        #our docs don't have screen ranges, because we make those on the fly in javascript
+        #so we make fake ones!
+        screen_x_range = Range1d(start=0, end=200)
+        screen_y_range = Range1d(start=0, end=200)
 
-    @skipIf(arraymanagement_missing, "array management not installed")
-    def test_client(self):
-        s = Session()
-        fname = s._prep_data_source_numpy("foo", np.array([1,2,3,4,5]))
-        assert exists(fname)
-        data = pd.DataFrame({'a' : [1,2,3,4,5], 'b' :[1,2,3,4,5]})
-        fname = s._prep_data_source_df("foo", data)
-        assert exists(fname)
+        #this dumping to json thing is terrible
+        plot_state = {'screen_x' : curdoc().dump(screen_x_range)[0]['attributes'],
+                      'screen_y' : curdoc().dump(screen_y_range)[0]['attributes'],
+                      'data_x' : curdoc().dump(arplot.x_range)[0]['attributes'],
+                      'data_y' : curdoc().dump(arplot.y_range)[0]['attributes']}
 
+        #save data to server
+        #hack - because recent changes broke AR
+        push()
+        data = {'plot_state' : plot_state}
+        url = "/render/%s/%s/%s" % (curdoc().docid, source._id, glyph._id)
+        result = self.client.post(
+            url,
+            data=json.dumps(data),
+            headers={'content-type' : 'application/json'}
+        )
+        assert result.status_code == 200
+        data = json.loads(result.data.decode('utf-8'))
+        image = np.array(data['data']['image'][0])
 
+        #I guess it's data dependent so the shape changes....
+        assert image.shape[0] >200
+        assert image.shape[1] >200
 
+    def test_line1d_downsample(self):
+        reset_output()
+        sess = TestSession(client=app.test_client())
+        output_server('ar', session=sess)
+        source = ServerDataSource(expr={'op': 'Field', 'args': [':leaf', 'aapl']})
+        source.transform = dict(direction='x',
+                                     resample='line1d',
+                                     method='minmax')
+        # hacky - we have to specify range, otherwise code doesn't know how to serialize
+        # data ranges
+        p = figure(x_range=Range1d(start=0, end=0), y_range=Range1d(start=0, end=0))
+        plot = p.line('date', 'close',
+                      x_axis_type = "datetime",
+                      color='#A6CEE3', tools="pan,wheel_zoom,box_zoom,reset,previewsave",
+                      source=source,
+                      legend='AAPL')
+        push()
+        screen_x_range = Range1d(start=0, end=200)
+        screen_y_range = Range1d(start=0, end=200)
+        plot_state = {'screen_x' : curdoc().dump(screen_x_range)[0]['attributes'],
+                      'screen_y' : curdoc().dump(screen_y_range)[0]['attributes'],
+                      'data_x' : curdoc().dump(plot.x_range)[0]['attributes'],
+                      'data_y' : curdoc().dump(plot.y_range)[0]['attributes']}
+        data = {'plot_state' : plot_state, 'auto_bounds' : 'True'}
+        glyph = plot.select({'type' : GlyphRenderer})[0].glyph
+        url = "/render/%s/%s/%s" % (curdoc().docid, source._id, glyph._id)
+        result = self.client.post(
+            url,
+            data=json.dumps(data),
+            headers={'content-type' : 'application/json'}
+        )
+        assert result.status_code == 200
+        data = json.loads(result.data.decode('utf-8'))
+        #2 x plot size (200)
+        assert len(data['data']['close']) == 400
+
+    def test_heatmap_downsample(self):
+        reset_output()
+        sess = TestSession(client=app.test_client())
+        output_server('ar', session=sess)
+        source = ServerDataSource(expr={'op': 'Field', 'args': [':leaf', 'array']})
+        source.transform = dict(resample='heatmap',
+                                global_x_range=[0, 10],
+                                global_y_range=[0, 10],
+                                global_offset_x=0,
+                                global_offset_y=0,
+                                type="ndarray",
+        )
+        # hacky - we have to specify range, otherwise code doesn't know how to serialize
+        # data ranges
+        p = figure(x_range=Range1d(start=0, end=10), y_range=Range1d(start=0, end=10))
+        plot = p.image(image="image",
+                       x='x',
+                       y='y',
+                       dw='dw',
+                       dh='dh',
+                       source=source,
+        )
+        push()
+        screen_x_range = Range1d(start=0, end=200)
+        screen_y_range = Range1d(start=0, end=200)
+
+        plot_state = {'screen_x' : curdoc().dump(screen_x_range)[0]['attributes'],
+                      'screen_y' : curdoc().dump(screen_y_range)[0]['attributes'],
+                      'data_x' : curdoc().dump(plot.x_range)[0]['attributes'],
+                      'data_y' : curdoc().dump(plot.y_range)[0]['attributes']}
+
+        data = {'plot_state' : plot_state}
+        glyph = plot.select({'type' : GlyphRenderer})[0].glyph
+        url = "/render/%s/%s/%s" % (curdoc().docid, source._id, glyph._id)
+
+        result = self.client.post(
+            url,
+            data=json.dumps(data),
+            headers={'content-type' : 'application/json'}
+        )
+        assert result.status_code == 200
+        data = json.loads(result.data.decode('utf-8'))
+        #2 x plot size (200)
+        assert np.array(data['data']['image'][0]).shape == (200,200)

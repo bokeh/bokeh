@@ -42,4 +42,4 @@ scatter4 = Scatter(list(xyvalues.values()), title="iris dataset, dict_input", xl
 
 output_file("scatter.html")
 
-show(VBox(scatter1, scatter2, scatter3, scatter4))
+show(VBox([scatter1, scatter2, scatter3, scatter4]))

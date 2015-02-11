@@ -222,6 +222,7 @@ html_sidebars = {
     '*': ['sidebartoc.html', 'sourcelink.html', 'searchbox.html'],
     'tutorial/**': ['sidebartoc.html', 'sourcelink.html', 'searchbox.html'],
     'docs/*': ['sidebartoc.html', 'sourcelink.html', 'searchbox.html'],
+    'docs/dev_guide/**': ['sidebartoc.html', 'sourcelink.html', 'searchbox.html'],
     'docs/reference/**': ['sidebartoc.html', 'sourcelink.html', 'searchbox.html'],
     'docs/user_guide/**': ['sidebartoc.html', 'sourcelink.html', 'searchbox.html'],
     'docs/gallery': [],
