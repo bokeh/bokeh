@@ -197,7 +197,7 @@ class ColumnDataSource(DataSource):
 
 class RemoteSource(DataSource):
     data_url = String(help="""
-    The URL to the Bokeh server endpoint for the data.
+    The URL to the endpoint for the data.
     """)
     data = Dict(String, Any, help="""
     Additional data to include directly in this data source object. The
@@ -206,6 +206,9 @@ class RemoteSource(DataSource):
     polling_interval = Int(help="""
     polling interval for updating data source in milliseconds
     """)
+
+class AjaxDataSource(RemoteSource):
+    method = String('POST', help="http method - GET or POST")
 
 class BlazeDataSource(RemoteSource):
     #blaze parts
