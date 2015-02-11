@@ -24,7 +24,6 @@ define [
         @set_obj('formatter', CategoricalTickFormatter.Collection.create())
 
     _computed_bounds: () ->
-      i = @get('dimension')
       [range, cross_range] = @get('ranges')
 
       user_bounds = @get('bounds') ? 'auto'
