@@ -22,7 +22,6 @@ define [
   "mapper/grid_mapper",
   "mapper/linear_color_mapper",
 
-  "range/data_factor_range",
   "range/data_range1d",
   "range/factor_range",
   "range/range1d",
@@ -195,7 +194,6 @@ define [
 
     LinearColorMapper:        'mapper/linear_color_mapper'
 
-    DataFactorRange:          'range/data_factor_range'
     DataRange1d:              'range/data_range1d'
     FactorRange:              'range/factor_range'
     Range1d:                  'range/range1d'
