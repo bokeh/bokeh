@@ -133,7 +133,7 @@ class HorizonBuilder(Builder):
     """)
 
     neg_color = Color("#6495ed", help="""
-    The color of the positive folds. (default: "#6495ed")
+    The color of the negative folds. (default: "#6495ed")
     """)
 
     num_folds = Int(3, help="""
