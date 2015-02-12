@@ -40,10 +40,10 @@ box_select = BoxSelectTool()
 
 plot.add_tools(pan, wheel_zoom, box_select)
 
-xaxis = LinearAxis(axis_label="lat", major_tick_in=0, formatter=NumeralTickFormatter(format="0.00"))
+xaxis = LinearAxis(axis_label="lat", major_tick_in=0, formatter=NumeralTickFormatter(format="0.000"))
 plot.add_layout(xaxis, 'below')
 
-yaxis = LinearAxis(axis_label="lon", major_tick_in=0, formatter=PrintfTickFormatter(format="%.2f"))
+yaxis = LinearAxis(axis_label="lon", major_tick_in=0, formatter=PrintfTickFormatter(format="%.3f"))
 plot.add_layout(yaxis, 'left')
 
 overlay = BoxSelectionOverlay(tool=box_select)
