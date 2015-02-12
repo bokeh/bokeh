@@ -157,8 +157,8 @@ class BoxPlotBuilder(Builder):
             outliers = np.where(
                 (self._values[level] > upper) | (self._values[level] < lower)
             )[0]
-            out = self._values[level][outliers]
-            for o in out:
+            for out in outliers:
+                o = self._values[level][out]
                 out_x.append(level)
                 out_y.append(o)
                 out_color.append(self.palette[i])

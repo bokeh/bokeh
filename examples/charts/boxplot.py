@@ -15,9 +15,9 @@ df = df.sort("medals.total", ascending=False)
 
 # then, we get the countries and we group the data by medal type
 countries = df.abbr.values.tolist()
-gold = df['medals.gold'].astype(float).values
-silver = df['medals.silver'].astype(float).values
-bronze = df['medals.bronze'].astype(float).values
+gold = list(df['medals.gold'].astype(float).values)
+silver = list(df['medals.silver'].astype(float).values)
+bronze = list(df['medals.bronze'].astype(float).values)
 
 # later, we build a dict containing the grouped data
 medals = OrderedDict(bronze=bronze, silver=silver, gold=gold)
