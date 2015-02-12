@@ -55,10 +55,16 @@ define [
       text_color: null
       format: '0,0'
       language: 'en'
+      rounding: 'round'
 
     format: (row, cell, value, columnDef, dataContext) ->
-      Numeral.language(@get("language"))
-      value = Numeral(value).format(@get("format"))
+      format = @get("format")
+      language = @get("language")
+      rounding = switch @get("rounding")
+        when "round", "nearest"   then Math.round
+        when "floor", "rounddown" then Math.floor
+        when "ceil",  "roundup"   then Math.ceil
+      value = Numeral.format(value, format, language, rounding)
       return super(row, cell, value, columnDef, dataContext)
 
   class NumberFormatters extends CellFormatterCollection

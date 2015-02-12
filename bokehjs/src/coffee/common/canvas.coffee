@@ -190,10 +190,10 @@ define [
         @solver.update_variables()
       @new_bounds = true
 
-    _set_dims: (dims) ->
+    _set_dims: (dims, trigger=true) ->
       @_set_width(dims[0], false)
       @_set_height(dims[1], false)
-      @solver.update_variables()
+      @solver.update_variables(trigger)
 
     defaults: ->
       return _.extend {}, super(), {

@@ -5,7 +5,7 @@ from __future__ import absolute_import
 
 from ...properties import Bool, Int, Float, String, Color, Instance, Enum, Auto, List, Either
 from ...plot_object import PlotObject
-from ...enums import FontStyle, TextAlign, DateFormat
+from ...enums import FontStyle, TextAlign, DateFormat, RoundingFunction, NumeralLanguage
 from ..sources import DataSource
 from ..widget import Widget
 
@@ -43,7 +43,7 @@ class NumberFormatter(StringFormatter):
     """
 
     format = String("0,0", help="""
-    The numer format, as defined in the following tables.
+    The numer format, as defined in the following tables:
 
     * numbers:
 
@@ -116,10 +116,12 @@ class NumberFormatter(StringFormatter):
     +------------+--------------+---------------+
     """)
 
-    language = Enum("be-nl", "chs", "cs", "da-dk", "de-ch", "de", "en", "en-gb",
-        "es-ES", "es", "et", "fi", "fr-CA", "fr-ch", "fr", "hu", "it", "ja",
-        "nl-nl", "pl", "pt-br", "pt-pt", "ru", "ru-UA", "sk", "th", "tr", "uk-UA", help="""
+    language = Enum(NumeralLanguage, default="en", help="""
     The language to use for formatting language-specific features (e.g. thousands separator).
+    """)
+
+    rounding = Enum(RoundingFunction, help="""
+    Rounding functions (round, floor, ceil) and their synonyms (nearest, rounddown, roundup).
     """)
 
 class BooleanFormatter(CellFormatter):

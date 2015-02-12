@@ -30,15 +30,21 @@
   z-index: -5;
 }
 
+@defaultTooltipBorder: #1E4B6C;
+@defaultTooltipColor: #1E4B6C;
+
+@customTooltipBorder: black;
+@customTooltipColor: white;
+
 .bk-tooltip.bk-left::before {
   position: absolute;
   top: 40%;
   width: 0;
   height: 0;
-  left: -9px;
+  left: -10px;
   border-style: solid;
   border-width: 7px 10px 7px 0;
-  border-color: transparent #1e4B6c transparent transparent;
+  border-color: transparent @defaultTooltipBorder transparent transparent;
   content: " ";
   display: block;
 }
@@ -48,10 +54,10 @@
   top: 40%;
   width: 0;
   height: 0;
-  right: -9px;
+  right: -10px;
   border-style: solid;
   border-width: 7px 0 7px 10px;
-  border-color: transparent transparent transparent #1e4B6c;
+  border-color: transparent transparent transparent @defaultTooltipBorder;
   content: " ";
   display: block;
 }
@@ -59,9 +65,23 @@
 .bk-tooltip {
   position: absolute;
   padding: 5px;
-  background-color: #1e4B6c;
+  border: 1px solid @defaultTooltipBorder;
+  background-color: @defaultTooltipColor;
   border-radius: 10px;
   pointer-events: none;
+}
+
+.bk-tooltip.bk-tooltip-custom.bk-left::before {
+  border-right-color: @customTooltipBorder;
+}
+
+.bk-tooltip.bk-tooltip-custom.bk-right::after {
+  border-left-color: @customTooltipBorder;
+}
+
+.bk-tooltip.bk-tooltip-custom {
+  border-color: @customTooltipBorder;
+  background-color: @customTooltipColor;
 }
 
 .bk-tooltip-row-label {

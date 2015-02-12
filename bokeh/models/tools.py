@@ -23,11 +23,12 @@ always be active regardless of what other tools are currently active.
 from __future__ import absolute_import
 
 from ..plot_object import PlotObject
-from ..properties import Any, Bool, String, Enum, Instance, List, Dict, Tuple
+from ..properties import Any, Bool, String, Enum, Instance, Either, List, Dict, Tuple
 from ..enums import Dimension
 
 from .renderers import Renderer
 from .ranges import Range
+from .actions import Action
 
 class ToolEvents(PlotObject):
     """
@@ -162,6 +163,11 @@ class TapTool(Tool):
     renderers = List(Instance(Renderer), help="""
     An explicit list of renderers to hit test again. If unset,
     defaults to all renderers on a plot.
+    """)
+
+    action = Instance(Action, help="""
+    A client-side action specification, like opening a URL, showing
+    a dialog box, etc. See :class:`bokeh.models.Action` for details.
     """)
 
     always_active = Bool(True, help="""
@@ -364,7 +370,7 @@ class HoverTool(Tool):
     defaults to all renderers on a plot.
     """)
 
-    tooltips = List(Tuple(String, String), help="""
+    tooltips = Either(String, List(Tuple(String, String)), help="""
     The (name, field) pairs describing what the hover tool should
     display when there is a hit.
 

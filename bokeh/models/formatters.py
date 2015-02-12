@@ -7,7 +7,7 @@ from __future__ import absolute_import
 from .tickers import Ticker
 from ..plot_object import PlotObject
 from ..properties import Bool, Int, String, Enum, Auto, List, Dict, Either, Instance
-from ..enums import DatetimeUnits
+from ..enums import DatetimeUnits, RoundingFunction, NumeralLanguage
 
 class TickFormatter(PlotObject):
     """ A base class for all tick formatter types. ``TickFormatter`` is
@@ -43,6 +43,127 @@ class BasicTickFormatter(TickFormatter):
 
         log(x) <= power_limit_low
 
+    """)
+
+class NumeralTickFormatter(TickFormatter):
+    """ Tick formatter based on a human-readable format string. """
+
+    format = String("0,0", help="""
+    The numer format, as defined in the following tables:
+
+    * numbers:
+
+    +------------+--------------+---------------+
+    | Number     | Format       | String        |
+    +============+==============+===============+
+    | 10000      | '0,0.0000'   | 10,000.0000   |
+    | 10000.23   | '0,0'        | 10,000        |
+    | 10000.23   | '+0,0'       | +10,000       |
+    | -10000     | '0,0.0'      | -10,000.0     |
+    | 10000.1234 | '0.000'      | 10000.123     |
+    | 10000.1234 | '0[.]00000'  | 10000.12340   |
+    | -10000     | '(0,0.0000)' | (10,000.0000) |
+    | -0.23      | '.00'        | -.23          |
+    | -0.23      | '(.00)'      | (.23)         |
+    | 0.23       | '0.00000'    | 0.23000       |
+    | 0.23       | '0.0[0000]'  | 0.23          |
+    | 1230974    | '0.0a'       | 1.2m          |
+    | 1460       | '0 a'        | 1 k           |
+    | -104000    | '0a'         | -104k         |
+    | 1          | '0o'         | 1st           |
+    | 52         | '0o'         | 52nd          |
+    | 23         | '0o'         | 23rd          |
+    | 100        | '0o'         | 100th         |
+    +------------+--------------+---------------+
+
+    * currency:
+
+    +------------+--------------+---------------+
+    | Number     | Format       | String        |
+    +============+==============+===============+
+    | 1000.234   | '$0,0.00'    | $1,000.23     |
+    | 1000.2     | '0,0[.]00 $' | 1,000.20 $    |
+    | 1001       | '$ 0,0[.]00' | $ 1,001       |
+    | -1000.234  | '($0,0)'     | ($1,000)      |
+    | -1000.234  | '$0.00'      | -$1000.23     |
+    | 1230974    | '($ 0.00 a)' | $ 1.23 m      |
+    +------------+--------------+---------------+
+
+    * bytes:
+
+    +---------------+-----------+---------------+
+    | Number        | Format    | String        |
+    +===============+===========+===============+
+    | 100           | '0b'      | 100B          |
+    | 2048          | '0 b'     | 2 KB          |
+    | 7884486213    | '0.0b'    | 7.3GB         |
+    | 3467479682787 | '0.000 b' | 3.154 TB      |
+    +---------------+-----------+---------------+
+
+    * percentages:
+
+    +-------------+-------------+---------------+
+    | Number      | Format      | String        |
+    +=============+=============+===============+
+    | 1           | '0%'        | 100%          |
+    | 0.974878234 | '0.000%'    | 97.488%       |
+    | -0.43       | '0 %'       | -43 %         |
+    | 0.43        | '(0.000 %)' | 43.000 %      |
+    +-------------+-------------+---------------+
+
+    * time:
+
+    +------------+--------------+---------------+
+    | Number     | Format       | String        |
+    +============+==============+===============+
+    | 25         | '00:00:00'   | 0:00:25       |
+    | 238        | '00:00:00'   | 0:03:58       |
+    | 63846      | '00:00:00'   | 17:44:06      |
+    +------------+--------------+---------------+
+    """)
+
+    language = Enum(NumeralLanguage, default="en", help="""
+    The language to use for formatting language-specific features (e.g. thousands separator).
+    """)
+
+    rounding = Enum(RoundingFunction, help="""
+    Rounding functions (round, floor, ceil) and their synonyms (nearest, rounddown, roundup).
+    """)
+
+class PrintfTickFormatter(TickFormatter):
+    """ Tick formatter based on a printf-style format string. """
+
+    format = String("%s", help="""
+    The numer format, as defined as follows: the placeholder in the format
+    string is marked by % and is followed by one or more of these elements,
+    in this order:
+
+    * An optional ``+`` sign that forces to preceed the result with a plus
+    or minus sign on numeric values. By default, only the - sign is used
+    on negative numbers.
+    * An optional padding specifier that says what character to use for
+    padding (if specified). Possible values are 0 or any other character
+    precedeed by a ``'`` (single quote). The default is to pad with spaces.
+    * An optional ``-`` sign, that causes sprintf to left-align the result
+    of this placeholder. The default is to right-align the result.
+    * An optional number, that says how many characters the result should
+    have. If the value to be returned is shorter than this number, the result
+    will be padded.
+    * An optional precision modifier, consisting of a ``.`` (dot) followed by
+    a number, that says how many digits should be displayed for floating point
+    numbers. When used on a string, it causes the result to be truncated.
+    * A type specifier that can be any of:
+    ** `%` --- yields a literal % character
+    ** `b` --- yields an integer as a binary number
+    ** `c` --- yields an integer as the character with that ASCII value
+    ** `d` or `i` --- yields an integer as a signed decimal number
+    ** `e` --- yields a float using scientific notation
+    ** `u` --- yields an integer as an unsigned decimal number
+    ** `f` --- yields a float as is
+    ** `o` --- yields an integer as an octal number
+    ** `s` --- yields a string as is
+    ** `x` --- yields an integer as a hexadecimal number (lower-case)
+    ** `X` --- yields an integer as a hexadecimal number (upper-case)
     """)
 
 class LogTickFormatter(TickFormatter):
