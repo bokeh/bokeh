@@ -87,12 +87,12 @@ class HistogramBuilder(Builder):
 
     """)
 
-    def get_data(self):
+    def _process_data(self):
         """Take the Histogram data from the input **value.
 
         It calculates the chart properties accordingly. Then build a dict
         containing references to all the calculated points to be used by
-        the quad and line glyphs inside the ``draw`` method.
+        the quad and line glyphs inside the ``_yield_renderers`` method.
         """
         # list to save all the groups available in the incomming input
         self._groups.extend(self._values.keys())
@@ -128,7 +128,7 @@ class HistogramBuilder(Builder):
                 else:
                     print("You need scipy to get the theoretical probability distributions.")
 
-    def get_source(self):
+    def _set_sources(self):
         """Push the Histogram data into the ColumnDataSource and calculate
         the proper ranges."""
         self._source = ColumnDataSource(data=self._data)
@@ -146,7 +146,7 @@ class HistogramBuilder(Builder):
         endy = max(max(self._data[i]) for i in y_names)
         self.y_range = Range1d(start=0, end=1.1 * endy)
 
-    def draw(self):
+    def _yield_renderers(self):
         """Use the several glyphs to display the Histogram and pdf/cdf.
 
         It uses the quad (and line) glyphs to display the Histogram
