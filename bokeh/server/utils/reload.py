@@ -5,7 +5,12 @@ import sys
 import time
 import traceback
 
-from werkzeug.serving import _iter_module_files
+try:
+    from werkzeug._reloader import _iter_module_files
+except ImportError:
+    # backward compat with old versions of werkzeug
+    from werkzeug.serving import _iter_module_files
+
 
 def broadcast_reload():
     from bokeh.server.app import bokeh_app

@@ -16,17 +16,12 @@ def _glyph_function(glyphclass, dsnames, argnames, docstring, xfields=["x"], yfi
             _materialize_colors_and_alpha, _get_legend,
             _make_legend, _get_select_tool
         )
-        from .models import ColumnDataSource, GlyphRenderer, Plot, ServerDataSource
+        from .models import ColumnDataSource, GlyphRenderer, Plot, RemoteSource
         source = kwargs.pop('source', None)
-        if isinstance(source, ServerDataSource):
+        if source is None:
             datasource = ColumnDataSource()
-            serversource = source
-        elif source is None:
-            datasource = ColumnDataSource()
-            serversource = None
         else:
             datasource = source
-            serversource = None
 
         legend_name = kwargs.pop("legend", None)
 
@@ -43,7 +38,7 @@ def _glyph_function(glyphclass, dsnames, argnames, docstring, xfields=["x"], yfi
 
         # Process the glyph dataspec parameters
         glyph_params = _match_data_params(dsnames, glyphclass,
-                                          datasource, serversource,
+                                          datasource,
                                           args, _materialize_colors_and_alpha(kwargs))
 
         x_data_fields = []
@@ -65,17 +60,17 @@ def _glyph_function(glyphclass, dsnames, argnames, docstring, xfields=["x"], yfi
         nonselection_glyph_params = _materialize_colors_and_alpha(kwargs, prefix='nonselection_', default_alpha=0.1)
         nonselection_glyph = glyph.clone()
 
-        if isinstance(nonselection_glyph, FillProps):
+        # TODO: (bev) This is a bit hacky.
+        if hasattr(nonselection_glyph, 'fill_color'):
             nonselection_glyph.fill_color = nonselection_glyph_params['fill_color']
             nonselection_glyph.fill_alpha = nonselection_glyph_params['fill_alpha']
 
-        if isinstance(nonselection_glyph, LineProps):
+        if hasattr(nonselection_glyph, 'line_color'):
             nonselection_glyph.line_color = nonselection_glyph_params['line_color']
             nonselection_glyph.line_alpha = nonselection_glyph_params['line_alpha']
 
         glyph_renderer = GlyphRenderer(
             data_source=datasource,
-            server_data_source=serversource,
             glyph=glyph,
             nonselection_glyph=nonselection_glyph,
             name=name)

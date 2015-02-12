@@ -131,6 +131,7 @@ class Document(object):
         # ensure that the entire graph is added before dump
         for obj in self.context.references():
             self._add(obj)
+        self.prune()
 
     # functions for turning json objects into json models
 
@@ -358,3 +359,14 @@ class Document(object):
         self.load(plot_context_json, *other_objects)
         # set the new Plot Context
         self.context = self._models[plot_context_json['id']]
+
+    def prune(self):
+        """Remove all models that are not in the plot context
+        """
+        all_models = self.context.references()
+        to_keep = set([x._id for x in all_models])
+        to_delete = set(self._models.keys()) - to_keep
+        to_delete_objs = []
+        for k in to_delete:
+            to_delete_objs.append(self._models.pop(k))
+        return to_delete_objs

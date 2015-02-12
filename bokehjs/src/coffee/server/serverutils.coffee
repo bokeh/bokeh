@@ -1,12 +1,13 @@
 define [
   "jquery"
+  "underscore"
   "common/base"
   "common/socket"
   "common/load_models"
   "common/logging"
   "backbone"
   "common/has_properties"
-], ($, base, socket, load_models, Logging, Backbone, HasProperties) ->
+], ($, _, base, socket, load_models, Logging, Backbone, HasProperties) ->
 
   logger = Logging.logger
 
@@ -27,9 +28,17 @@ define [
   exports.plotcontext = null
   exports.plotcontextview = null
   exports.Promises = Promises
-
+  copy_on_write_mapping = {}
   utility =
-    load_one_object_chain : (docid, objid) ->
+    load_one_object_chain : (docid, objid, is_public) ->
+      if is_public
+        if not copy_on_write_mapping[docid]
+          copy_on_write_mapping[docid] = _.uniqueId('temporary')
+        tempdocid = copy_on_write_mapping[docid]
+        key = "temporary-#{docid}"
+        headers = {}
+        headers[key] = tempdocid
+        $.ajaxSetup({'headers' : headers})
       HasProperties.prototype.sync = Backbone.sync
       resp = utility.make_websocket()
       resp = resp.then(() ->
@@ -44,6 +53,8 @@ define [
         load_models(all_models)
         apikey = data['apikey']
         submodels(exports.wswrapper, "bokehplot:#{docid}", apikey)
+        if is_public
+          submodels(exports.wswrapper, "bokehplot:#{tempdocid}", null)
       )
       return resp
 

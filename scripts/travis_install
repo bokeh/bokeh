@@ -15,6 +15,7 @@ rm -rf $MINICONDA.sh
 python -V
 
 PINNED_PKGS=$(cat <<EOF
+conda-build <1.10.1
 scipy <0.15.0
 EOF
 )
@@ -25,12 +26,6 @@ conda install --yes $DEPS_TRAVIS
 
 conda config --add channels bokeh
 conda config --add channels mutirri   # TODO: remove when packages are moved to bokeh
-
-echo "---------- conda info ----------"
-conda info
-echo "---------- conda list ----------"
-conda list
-echo "---------- ---------- ----------"
 
 CONDA_PY="${TRAVIS_PYTHON_VERSION/./}" conda build conda.recipe
 conda install --use-local --yes bokeh
@@ -43,6 +38,9 @@ EOF
 
 conda install --yes $DEPS_TEST
 conda install --yes abstract-rendering
+conda install --yes blaze multiuserblazeserver pillow
+##hack - we need a later version of into which blaze is not yet built against
+conda install --yes into
 
 MATPLOTLIB_RC=$(python -c "import matplotlib; print(matplotlib.matplotlib_fname())")
 sed -i 's/^backend\s*:.*$/backend: agg/' $MATPLOTLIB_RC

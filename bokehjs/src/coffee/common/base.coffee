@@ -22,7 +22,6 @@ define [
   "mapper/grid_mapper",
   "mapper/linear_color_mapper",
 
-  "range/data_factor_range",
   "range/data_range1d",
   "range/factor_range",
   "range/range1d",
@@ -77,6 +76,8 @@ define [
   "renderer/overlay/box_selection",
   "renderer/overlay/poly_selection",
 
+  "source/ajax_data_source",
+  "source/blaze_data_source",
   "source/column_data_source",
   "source/server_data_source",
 
@@ -171,7 +172,7 @@ define [
   Config = {}
   url = window.location.href
   if url.indexOf('/bokeh') > 0
-    Config.prefix = url.slice(0, url.indexOf('/bokeh')) + "/" #keep trailing slash
+    Config.prefix = url.slice(0, url.lastIndexOf('/bokeh')) + "/" #keep trailing slash
   else
     Config.prefix = '/'
   console.log('Bokeh: setting prefix to', Config.prefix)
@@ -193,7 +194,6 @@ define [
 
     LinearColorMapper:        'mapper/linear_color_mapper'
 
-    DataFactorRange:          'range/data_factor_range'
     DataRange1d:              'range/data_range1d'
     FactorRange:              'range/factor_range'
     Range1d:                  'range/range1d'
@@ -250,6 +250,8 @@ define [
 
     ColumnDataSource:         'source/column_data_source'
     ServerDataSource:         'source/server_data_source'
+    BlazeDataSource:          'source/blaze_data_source'
+    AjaxDataSource:           'source/ajax_data_source'
 
     AbstractTicker:           'ticking/abstract_ticker'
     AdaptiveTicker:           'ticking/adaptive_ticker'

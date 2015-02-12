@@ -4,7 +4,7 @@ Bokeh plots
 """
 from __future__ import absolute_import
 
-from ..properties import Int, Float, String, Enum, Auto, Instance, Tuple, Either, Include
+from ..properties import Int, Float, String, Enum, Bool, Datetime, Auto, Instance, Tuple, Either, Include
 from ..mixins import LineProps, TextProps
 from ..enums import Location
 
@@ -18,11 +18,15 @@ class Axis(GuideRenderer):
 
     """
 
-    location = Either(Auto, Enum(Location), help="""
-    Where the axis should be positioned on the plot.
+    hide = Bool(False, help="""
+    Ability to hide the entire axis from the plot.
     """)
 
-    bounds = Either(Auto, Tuple(Float, Float), help="""
+    location = Either(Auto, Enum(Location), help="""
+    Where should labels and ticks be located in relation to the axis rule.
+    """)
+
+    bounds = Either(Auto, Tuple(Float, Float), Tuple(Datetime, Datetime), help="""
     Bounds for the rendered axis. If unset, the axis will span the
     entire plot in the given dimension.
     """)

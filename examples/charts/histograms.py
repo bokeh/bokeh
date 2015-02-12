@@ -24,6 +24,7 @@ for k, v in distributions.items():
 #df = np.array(list(distributions.values()))
 #df = list(distributions.values())[0]
 
-hist = Histogram(df, bins=50, filename="histograms.html")
-hist.title("Histograms").ylabel("frequency").xlabel('distributions').legend(True)
-hist.width(400).height(350).show()
+hist = Histogram(df, bins=50, filename="histograms.html", legend=True)
+# hist.title("Histograms").ylabel("frequency").xlabel('distributions').legend(True)
+# hist.width(400).height(350)
+hist.show()

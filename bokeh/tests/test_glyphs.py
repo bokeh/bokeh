@@ -301,7 +301,7 @@ def test_Circle():
     assert marker.radius == None
     yield check_fill, marker
     yield check_line, marker
-    yield check_props, marker, ["radius"], MARKER, FILL, LINE
+    yield check_props, marker, ["radius", "radius_dimension"], MARKER, FILL, LINE
 
 def test_CircleCross():
     marker = CircleCross()

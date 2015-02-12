@@ -7,6 +7,8 @@ import math
 import platform
 import sys
 import uuid
+import flask
+import json
 
 from six.moves.urllib.parse import urljoin as sys_urljoin
 from six import iteritems
@@ -26,14 +28,19 @@ def make_id():
 def urljoin(*args):
     return reduce(sys_urljoin, args)
 
-def get_json(request):
-    """request from requests library handles backwards compatability for
-    requests < 1.0
+def get_json(response):
+    """unifying retrieving json from an http response,for requests <1.0, >1.0, and
+    flask test client
     """
-    if hasattr(request.json, '__call__'):
-        return request.json()
+    if isinstance(response, flask.Response):
+        #flask testing
+        return json.loads(response.data.decode('utf-8'))
     else:
-        return request.json
+        #requests
+        if hasattr(response.json, '__call__'):
+            return response.json()
+        else:
+            return response.json
 
 def encode_utf8(u):
     if sys.version_info[0] == 2:

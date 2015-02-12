@@ -27,4 +27,4 @@ s3 = figure(plot_width=350, plot_height=350, x_range=s1.x_range)
 s3.scatter(x, y3)
 
 p = gridplot([[s1,s2, s3]])
-show()
+show(p)

@@ -20,7 +20,7 @@
   $(document).ready(function() {
     container = $("#PlotPane");
     Bokeh.set_log_level("{{ loglevel }}")
-    Bokeh.embed.add_plot_server(container, "{{ docid }}", "{{ objid }}");
+    Bokeh.embed.add_plot_server(container, "{{ docid }}", "{{ objid }}", {{ public }});
   });
 {% endblock %}
 
