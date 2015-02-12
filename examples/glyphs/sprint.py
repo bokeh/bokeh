@@ -89,12 +89,12 @@ no_olympics = plot.add_glyph(no_olympics_glyph)
 
 tooltips = """
 <div>
-    <span style="font-size: 15px;">@Name</span>
+    <span style="font-size: 15px;">@Name</span>&nbsp;
     <span style="font-size: 10px; color: #666;">(@Abbrev)</span>
 </div>
 <div>
-    <span style="font-size: 17px; font-weight: bold;">@Time{0.00}</span>
-    <span style="font-size:10px; color: #666; padding-left:4px;">@Year</span>
+    <span style="font-size: 17px; font-weight: bold;">@Time{0.00}</span>&nbsp;
+    <span style="font-size: 10px; color: #666;">@Year</span>
 </div>
 <div style="font-size: 11px; color: #666;">@{MetersBack}{0.00} meters behind</div>
 """

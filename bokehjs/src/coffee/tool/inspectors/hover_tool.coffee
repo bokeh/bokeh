@@ -146,6 +146,7 @@ define [
       renderers = @get('plot').get('renderers')
       for r in @get('renderers')
         tooltip = new Tooltip.Model()
+        tooltip.set("custom", _.isString(@get("tooltips")))
         ttmodels[r.id] = tooltip
         renderers.push(tooltip)
       @set('ttmodels', ttmodels)
@@ -156,8 +157,8 @@ define [
       return _.extend({}, super(), {
         snap_to_data: true
         tooltips: [
-          ["index", "$index"]
-          ["data (x, y)", "($x, $y)"]
+          ["index",         "$index"]
+          ["data (x, y)",   "($x, $y)"]
           ["canvas (x, y)", "($sx, $sy)"]
         ]
       })
@@ -166,7 +167,7 @@ define [
     model: HoverTool
 
   return {
-    "Model": HoverTool,
-    "Collection": new HoverTools(),
-    "View": HoverToolView,
+    Model: HoverTool
+    Collection: new HoverTools()
+    View: HoverToolView
   }
