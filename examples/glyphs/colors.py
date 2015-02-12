@@ -176,7 +176,7 @@ plot.add_layout(xaxis_below, 'below')
 plot.add_layout(CategoricalAxis(), 'left')
 
 url = "http://www.colors.commutercreative.com/@names/"
-tooltips = """Click here to go to:<br /><a href="{url}">{url}</a>""".format(url=url)
+tooltips = """Click the color to go to:<br /><a href="{url}">{url}</a>""".format(url=url)
 
 tap = TapTool(plot=plot, renderers=[rect_renderer], action=OpenURL(url=url))
 hover = HoverTool(plot=plot, renderers=[rect_renderer], tooltips=tooltips)
