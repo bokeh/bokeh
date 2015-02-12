@@ -88,8 +88,14 @@ no_olympics_glyph = Text(x=7.5, y=1942, text=["No Olympics in 1940 or 1944"],
 no_olympics = plot.add_glyph(no_olympics_glyph)
 
 tooltips = """
-<div><span style="font-size: 15px;">@Name</span><span style="font-size: 10px; color: #666;">(@Abbrev)</span></div>
-<div><span style="font-size: 17px; font-weight: bold;">@Time{0.00}</span><span style="font-size:10px; color: #666; padding-left:4px;">@Year</span></div>
+<div>
+    <span style="font-size: 15px;">@Name</span>
+    <span style="font-size: 10px; color: #666;">(@Abbrev)</span>
+</div>
+<div>
+    <span style="font-size: 17px; font-weight: bold;">@Time{0.00}</span>
+    <span style="font-size:10px; color: #666; padding-left:4px;">@Year</span>
+</div>
 <div style="font-size: 11px; color: #666;">@{MetersBack}{0.00} meters behind</div>
 """
 
