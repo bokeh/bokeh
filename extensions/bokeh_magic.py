@@ -32,9 +32,8 @@ class BokehMagics(Magics):
     """Magic to embed Bokeh into the IPython notebook."""
 
     if old_bokeh:
-        raise RuntimeError("We are deprecating the Bokeh magic. "
-                           "The Bokeh magic will not work with Bokeh versions "
-                           "above 0.7.1.")
+        raise DeprecationWarning("%bokeh magic is deprecated, "
+                                 "and will not work in versions > 0.7.1")
 
     if IPython.__version__.startswith("1"):
         is_ipytwo = False
