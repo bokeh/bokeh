@@ -139,21 +139,7 @@ class TestChart(unittest.TestCase):
         for tools, expected_tools in scenarios:
             base_args['tools'] = tools
             chart = Chart(**base_args)
-
-            if categorical:
-                chart.x_range = FactorRange()
-                chart.tools = []
-                chart.create_tools(chart._options.tools)
-                self.compare_tools(chart.tools, expected_tools)
-
-                chart = Chart(**base_args)
-                chart.y_range = FactorRange()
-                chart.tools = []
-                chart.create_tools(chart._options.tools)
-                self.compare_tools(chart.tools, expected_tools)
-
-            else:
-                self.compare_tools(chart.tools, expected_tools)
+            self.compare_tools(chart.tools, expected_tools)
 
     def compare_tools(self, tools, expected_tools):
         self.assertEqual(len(tools), len(expected_tools))
@@ -178,22 +164,10 @@ class TestChart(unittest.TestCase):
 
         self.check_tools_scenario(base_args, scenarios)
 
-        # need to change the expected tools because categorical scales
-        # automatically removes pan and zoom tools
-        expected = [
-            [PreviewSaveTool, ResizeTool, ResetTool], [],
-            [ResizeTool, ResetTool, LassoSelectTool],
-        ]
-        scenarios = zip(
-                [True, False, "resize,pan,box_zoom,reset,lasso_select"],
-                expected
-        )
         self.check_tools_scenario(base_args, scenarios, categorical=True)
 
         msg_repeat = "LassoSelectTool are being repeated"
-        msg_removed = "categorical plots do not support pan and zoom operations.\n" \
-                      "Removing tool(s): pan, box_zoom"
-        expected_tools = [ResizeTool, ResetTool, LassoSelectTool, LassoSelectTool]
+        expected_tools = [ResizeTool, PanTool, BoxZoomTool, ResetTool, LassoSelectTool, LassoSelectTool]
         mock_warn.reset_mock()
 
         # Finally check repeated tools
@@ -206,5 +180,4 @@ class TestChart(unittest.TestCase):
 
         self.compare_tools(chart.tools, expected_tools)
         mock_warn.assert_any_call(msg_repeat)
-        mock_warn.assert_any_call(msg_removed)
 

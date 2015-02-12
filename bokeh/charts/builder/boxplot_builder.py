@@ -116,12 +116,12 @@ class BoxPlotBuilder(Builder):
     Whether to display markers for any outliers.
     """)
 
-    def get_data(self):
+    def _process_data(self):
         """Take the BoxPlot data from the input **value.
 
         It calculates the chart properties accordingly. Then build a dict
         containing references to all the calculated points to be used by
-        the quad, segments and markers glyphs inside the ``draw`` method.
+        the quad, segments and markers glyphs inside the ``_yield_renderers`` method.
 
         Args:
             cat (list): categories as a list of strings.
@@ -218,7 +218,7 @@ class BoxPlotBuilder(Builder):
         self.set_and_get(self._data_rect, self._attr_rect, "lower_height_boxes", lower_height_boxes)
         self.set_and_get(self._data_rect, self._attr_rect, "colors", self.palette)
 
-    def get_source(self):
+    def _set_sources(self):
         "Push the BoxPlot data into the ColumnDataSource and calculate the proper ranges."
         self._source_segment = ColumnDataSource(self._data_segment)
         self._source_scatter = ColumnDataSource(self._data_scatter)
@@ -239,7 +239,7 @@ class BoxPlotBuilder(Builder):
         self.y_range = Range1d(start=start_y - 0.1 * (end_y - start_y),
                            end=end_y + 0.1 * (end_y - start_y))
 
-    def draw(self):
+    def _yield_renderers(self):
         """Use the several glyphs to display the Boxplot.
 
         It uses the selected marker glyph to display the points, segments to

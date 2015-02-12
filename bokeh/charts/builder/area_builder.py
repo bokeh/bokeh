@@ -129,10 +129,10 @@ class AreaBuilder(Builder):
 
     """)
 
-    def get_data(self):
+    def _process_data(self):
         """Calculate the chart properties accordingly from area.values.
         Then build a dict containing references to all the points to be used by
-        the patch glyph inside the ``draw`` method.
+        the patch glyph inside the ``_yield_renderers`` method.
 
         """
         xs = self._values_index
@@ -165,7 +165,7 @@ class AreaBuilder(Builder):
             self.set_and_get("y_", grp, values)
             self._groups.append(grp)
 
-    def get_source(self):
+    def _set_sources(self):
         """
         Push the Line data into the ColumnDataSource and calculate the proper ranges.
         """
@@ -179,9 +179,9 @@ class AreaBuilder(Builder):
             end=endy + 0.1 * (endy - starty)
         )
 
-    def draw(self):
+    def _yield_renderers(self):
         """Use the patch glyphs to fill the area connecting the xy points
-         in the series taken from the data added with area.get_data.
+         in the series taken from the data added with area._process_data.
 
         Takes reference points from the data loaded at the ColumnDataSource.
         """

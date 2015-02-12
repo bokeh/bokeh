@@ -36,7 +36,7 @@ from ...properties import Any, Bool, Either, List
 
 
 def Bar(values, cat=None, stacked=False, xscale="categorical", yscale="linear",
-        xgrid=False, ygrid=True, **kw):
+        xgrid=False, ygrid=True, continuous_range=None, **kw):
     """ The `Bar` chart creates a Bar chart using the `BarBuilder` to
      render the geometry from `values`, `cat` and `stacked`.
 
@@ -44,9 +44,11 @@ def Bar(values, cat=None, stacked=False, xscale="categorical", yscale="linear",
             values (iterable): iterable 2d representing the data series
                 values matrix.
             cat (list or bool, optional): list of string representing the categories.
-                Defaults to None.
+                (Defaults to None)
             stacked (bool, optional): to see the bars stacked or grouped.
-                Defaults to False, so grouping is assumed.
+                (Defaults to False, so grouping is assumed)
+            continuous_range(Range1d, optional): Custom continuous_range to be
+                used. (Defaults to None)
 
     In addition the the parameters specific to this chart,
     :ref:`charts_generic_arguments` and :ref:`chart_builders_generic_arguments`
@@ -59,18 +61,28 @@ def Bar(values, cat=None, stacked=False, xscale="categorical", yscale="linear",
         from bokeh.charts import Bar
 
         xyvalues = OrderedDict()
-        xyvalues['python']=[2, 5]
+        xyvalues['python']=[-2, 5]
         xyvalues['pypy']=[12, 40]
         xyvalues['jython']=[22, 30]
-        cat = ['mem', 'cpu']
-        bar = Bar(xyvalues, cat, stacked=True, title="Stacked bars",
+        cat = ['1st', '2nd']
+        bar = Bar(xyvalues, cat, title="Stacked bars",
                 filename="stacked_bar.html", xlabel="category", ylabel="language")
         bar.show()
     """
+    if continuous_range and not isinstance(continuous_range, Range1d):
+        raise ValueError(
+            "continuous_range must be an instance of bokeh.models.ranges.Range1d"
+        )
+
+    # The continuous_range is the y_range (until we implement HBar charts)
+    y_range = continuous_range
+
     return create_and_build(
-        BarBuilder, values, cat=cat, stacked=stacked, xscale=xscale, yscale=yscale,
-        xgrid=xgrid, ygrid=ygrid, **kw
+        BarBuilder, values, cat=cat, stacked=stacked,
+        xscale=xscale, yscale=yscale,
+        xgrid=xgrid, ygrid=ygrid, y_range=y_range, **kw
     )
+
 
 class BarBuilder(Builder):
     """This is the Bar class and it is in charge of plotting
@@ -82,6 +94,16 @@ class BarBuilder(Builder):
     And finally add the needed glyphs (rects) taking the references
     from the source.
 
+    The x_range is categorical, and is made either from the cat argument
+    or from the indexes of the passed values if no cat is supplied.  The
+    y_range can be supplied as the parameter continuous_range,
+    or will be calculated as a linear range (Range1d) based on the supplied
+    values using the following rules:
+
+     * with all positive data: start = 0, end = 1.1 * max
+     * with all negative data: start = 1.1 * min, end = 0
+     * with mixed sign data:   start = 1.1 * min, end = 1.1 * max
+
     Examples:
 
         from collections import OrderedDict
@@ -91,8 +113,22 @@ class BarBuilder(Builder):
         xyvalues['pypy']=[12, 40]
         xyvalues['jython']=[22, 30]
 
-        bar = Bar(xyvalues, ['1st', '2nd'], filename="stacked_bar.html")
-        bar.show()
+        # For a stacked bar chart
+        stacked_bar = Bar(
+            xyvalues, ['1st', '2nd'], stacked=True, filename="stacked_bar.html"
+        )
+        stacked_bar.show()
+
+        # For a grouped bar chart with a custom y_range
+
+        from bokeh.models import Range1d
+
+        custom_range = Range1d(start=2, end=40)
+        grouped_bar = Bar(
+            xyvalues, ['1st', '2nd'],
+            continuous_range=custom_range, filename="grouped.html"
+        )
+        grouped_bar.show()
     """
 
     cat = Either(Bool, List(Any), help="""
@@ -107,12 +143,12 @@ class BarBuilder(Builder):
 
     """)
 
-    def get_data(self):
+    def _process_data(self):
         """Take the Bar data from the input **value.
 
         It calculates the chart properties accordingly. Then build a dict
         containing references to all the calculated points to be used by
-        the rect glyph inside the ``draw`` method.
+        the rect glyph inside the ``_yield_renderers`` method.
         """
         if not self.cat:
             self.cat = [str(x) for x in self._values.index]
@@ -121,7 +157,7 @@ class BarBuilder(Builder):
         # width should decrease proportionally to the value length.
         # 1./len(value) doesn't work well as the width needs to decrease a
         # little bit faster
-        width_cat = [min(0.2, (1./len(self._values))**1.1)] * len(self.cat)
+        width_cat = [min(0.2, (1. / len(self._values)) ** 1.1)] * len(self.cat)
         zero = np.zeros(len(self.cat))
         self._data = dict(
             cat=self.cat, width=width, width_cat=width_cat, zero=zero
@@ -141,22 +177,37 @@ class BarBuilder(Builder):
             # Stacked
             zero += self._values[val]
 
-    def get_source(self):
+    def _set_sources(self):
         """Push the Bar data into the ColumnDataSource and calculate
         the proper ranges.
         """
         self._source = ColumnDataSource(self._data)
         self.x_range = FactorRange(factors=self._source.data["cat"])
 
-        if self.stacked:
-            self.y_range = Range1d(start=0, end=1.1 * max(self._data['zero']))
-        else:
-            cat = [i for i in self._attr
-                   if not i.startswith(("mid", "stacked", "cat"))]
-            end = 1.1 * max(max(self._data[i]) for i in cat)
-            self.y_range = Range1d(start=0, end=end)
+        if not self.y_range:
+            if self.stacked:
+                data = np.array(self._data['zero'])
+            else:
+                cats = [i for i in self._attr if not i.startswith(("mid", "stacked", "cat"))]
+                data = np.array([self._data[cat] for cat in cats])
 
-    def draw(self):
+            all_positive = True if np.all(data > 0) else False
+            all_negative = True if np.all(data < 0) else False
+            # Set the start value
+            if all_positive:
+                start = 0
+            else:
+                start = 1.1 * data.min()  # Will always be negative
+
+            # Set the end value
+            if all_negative:
+                end = 0
+            else:
+                end = 1.1 * data.max()
+
+            self.y_range = Range1d(start=start, end=end)
+
+    def _yield_renderers(self):
         """Use the rect glyphs to display the bars.
 
         Takes reference points from data loaded at the ColumnDataSource.

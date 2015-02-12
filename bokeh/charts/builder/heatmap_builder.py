@@ -84,12 +84,12 @@ class HeatMapBuilder(Builder):
     hm.show()
     """
 
-    def get_data(self):
+    def _process_data(self):
         """Take the CategoricalHeatMap data from the input **value.
 
         It calculates the chart properties accordingly. Then build a dict
         containing references to all the calculated points to be used by
-        the rect glyph inside the ``draw`` method.
+        the rect glyph inside the ``_yield_renderers`` method.
 
         """
         self._catsx = list(self._values.columns)
@@ -121,7 +121,7 @@ class HeatMapBuilder(Builder):
         self._data = dict(catx=catx, caty=caty, color=color, rate=rate,
                          width=width, height=height)
 
-    def get_source(self):
+    def _set_sources(self):
         """Push the CategoricalHeatMap data into the ColumnDataSource
         and calculate the proper ranges.
         """
@@ -129,7 +129,7 @@ class HeatMapBuilder(Builder):
         self.x_range = FactorRange(factors=self._catsx)
         self.y_range = FactorRange(factors=self._catsy)
 
-    def draw(self):
+    def _yield_renderers(self):
         """Use the rect glyphs to display the categorical heatmap.
 
         Takes reference points from data loaded at the ColumnDataSurce.
@@ -144,7 +144,7 @@ class HeatMapBuilder(Builder):
         # TODO: Legend??
         yield renderer
 
-    def prepare_values(self):
+    def _adapt_values(self):
         """Prepare the input data.
 
         Converts data input (self._values) to a DataAdapter

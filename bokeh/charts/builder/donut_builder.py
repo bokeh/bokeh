@@ -93,12 +93,12 @@ class DonutBuilder(Builder):
     List of string representing the categories. (Defaults to None.)
     """)
 
-    def get_data(self):
+    def _process_data(self):
         """Take the chart data from self._values.
 
         It calculates the chart properties accordingly (start/end angles).
         Then build a dict containing references to all the calculated
-        points to be used by the Wedge glyph inside the ``draw`` method.
+        points to be used by the Wedge glyph inside the ``_yield_renderers`` method.
 
         """
         dd = dict(zip(self._values.keys(), self._values.values()))
@@ -119,7 +119,7 @@ class DonutBuilder(Builder):
         self.set_and_get("", "end", end_angles)
         self.set_and_get("", "start", start_angles)
 
-    def get_source(self):
+    def _set_sources(self):
         """Push the Donut data into the ColumnDataSource and calculate
          the proper ranges.
 
@@ -204,7 +204,7 @@ class DonutBuilder(Builder):
             )
             yield GlyphRenderer(data_source=text_source, glyph=glyph)
 
-    def draw(self):
+    def _yield_renderers(self):
         """Use the AnnularWedge and Wedge glyphs to display the wedges.
 
         Takes reference points from data loaded at the ColumnDataSurce.

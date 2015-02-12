@@ -229,12 +229,12 @@ class HorizonBuilder(Builder):
             l.append(l[-1] if padded_value is None else padded_value)
         return l
 
-    def get_data(self):
+    def _process_data(self):
         """Use x/y data from the horizon values.
 
         It calculates the chart properties accordingly. Then build a dict
         containing references to all the points to be used by
-        the multiple area glyphes inside the ``draw`` method.
+        the multiple area glyphes inside the ``_yield_renderers`` method.
 
         """
         for col in self._values.keys():
@@ -293,15 +293,15 @@ class HorizonBuilder(Builder):
         self.set_and_get(
             'y_', 'all', [self._data[f_name] for f_name in self._fold_names])
 
-    def get_source(self):
+    def _set_sources(self):
         """Push the Horizon data into the ColumnDataSource and
         calculate the proper ranges.
         """
         self._source = ColumnDataSource(self._data)
-        self.x_range = DataRange1d(sources=[self._source.columns(self._attr[0])])
+        self.x_range = DataRange1d(rangepadding=0, sources=[self._source.columns(self._attr[0])])
         self.y_range = Range1d(start=0, end=self._max_y)
 
-    def draw(self):
+    def _yield_renderers(self):
         """Use the patch glyphs to connect the xy points in the time series.
         It requires the positive and negative layers
         Takes reference points from the data loaded at the ColumnDataSource.

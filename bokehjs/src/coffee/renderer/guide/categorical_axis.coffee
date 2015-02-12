@@ -23,15 +23,14 @@ define [
       if not @get('formatter')?
         @set_obj('formatter', CategoricalTickFormatter.Collection.create())
 
-    _bounds: () ->
-      i = @get('dimension')
-      ranges = [@get('plot').get('x_range'), @get('plot').get('y_range')]
+    _computed_bounds: () ->
+      [range, cross_range] = @get('ranges')
 
       user_bounds = @get('bounds') ? 'auto'
+      range_bounds = [range.get('min'), range.get('max')]
+
       if user_bounds != 'auto'
         logger.warn("Categorical Axes only support user_bounds='auto', ignoring")
-
-      range_bounds = [ranges[i].get('min'), ranges[i].get('max')]
 
       return range_bounds
 

@@ -90,10 +90,10 @@ class LineBuilder(Builder):
 
     """)
 
-    def get_data(self):
+    def _process_data(self):
         """Calculate the chart properties accordingly from line.values.
         Then build a dict containing references to all the points to be
-        used by the line glyph inside the ``draw`` method.
+        used by the line glyph inside the ``_yield_renderers`` method.
         """
         self._data = dict()
         # list to save all the attributes we are going to create
@@ -109,7 +109,7 @@ class LineBuilder(Builder):
             values = [self._values[col][x] for x in xs]
             self.set_and_get("y_", col, values)
 
-    def get_source(self):
+    def _set_sources(self):
         """
         Push the Line data into the ColumnDataSource and calculate the
         proper ranges.
@@ -125,7 +125,7 @@ class LineBuilder(Builder):
             end=endy + 0.1 * (endy - starty)
         )
 
-    def draw(self):
+    def _yield_renderers(self):
         """Use the line glyphs to connect the xy points in the Line.
         Takes reference points from the data loaded at the ColumnDataSource.
         """
