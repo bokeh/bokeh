@@ -60,10 +60,11 @@ def Histogram(values, bins, mu=None, sigma=None, density=True, **kws):
     .. bokeh-plot::
         :source-position: above
 
-        from collections import OrderedDict
+        import pandas as pd
         from bokeh.charts import Histogram
 
-        xyvalues = OrderedDict(normal=[1, 2, 3, 1], lognormal=[5, 4, 4, 1])
+        # (dict, OrderedDict, lists, arrays and DataFrames are valid inputs)
+        xyvalues = pd.DataFrame(dict(normal=[1, 2, 3, 1], lognormal=[5, 4, 4, 1]))
         hm = Histogram(xyvalues, bins=5, title='Histogram', filename="histogram.html")
         hm.show()
 

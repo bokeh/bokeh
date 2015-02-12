@@ -48,14 +48,10 @@ def Donut(values,  cat=None, width=800, height=800, xgrid=False, ygrid=False, **
     .. bokeh-plot::
         :source-position: above
 
-        from collections import OrderedDict
         from bokeh.charts import Donut
 
-        xyvalues = OrderedDict()
-        xyvalues['python'] = [2., 5., 3.]
-        xyvalues['pypy'] = [4., 1., 4.]
-        xyvalues['jython'] = [6., 4., 3.]
-
+        # dict, OrderedDict, lists, arrays and DataFrames are valid inputs
+        xyvalues = [[2., 5., 3.], [4., 1., 4.], [6., 4., 3.]]
         donut = Donut(xyvalues, ['cpu1', 'cpu2', 'cpu3'], filename="donut.html")
         donut.show()
 

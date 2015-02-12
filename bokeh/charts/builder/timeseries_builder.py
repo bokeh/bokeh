@@ -61,6 +61,7 @@ def TimeSeries(values, index=None, xscale='datetime', **kws):
         import datetime
         from bokeh.charts import TimeSeries
 
+        # (dict, OrderedDict, lists, arrays and DataFrames are valid inputs)
         now = datetime.datetime.now()
         delta = datetime.timedelta(minutes=1)
         dts = [now + delta*i for i in range(5)]

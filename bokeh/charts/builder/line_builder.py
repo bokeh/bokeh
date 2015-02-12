@@ -53,13 +53,11 @@ def Line(values, index=None, **kws):
     .. bokeh-plot::
         :source-position: above
 
-        from collections import OrderedDict
+        import numpy as np
         from bokeh.charts import Line
 
-        xyvalues = OrderedDict()
-        xyvalues['python'] = [2, 3, 7, 5, 26]
-        xyvalues['pypy'] = [12, 33, 47, 15, 126]
-        xyvalues['jython'] = [22, 43, 10, 25, 26]
+        # (dict, OrderedDict, lists, arrays and DataFrames are valid inputs)
+        xyvalues = np.array([[2, 3, 7, 5, 26], [12, 33, 47, 15, 126], [22, 43, 10, 25, 26]])
         line = Line(xyvalues, title="line", legend="top_left", ylabel='Languages',
                   filename="line.html")
         line.show()

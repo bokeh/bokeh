@@ -50,10 +50,11 @@ def BoxPlot(values, marker="circle", outliers=True, xscale="categorical", yscale
     .. bokeh-plot::
         :source-position: above
 
-        from collections import OrderedDict
         from bokeh.charts import BoxPlot
         import numpy as np
-        medals = OrderedDict([
+
+        # (dict, OrderedDict, lists, arrays and DataFrames of arrays are valid inputs)
+        medals = dict([
                     ('bronze', np.array([7.0, 10.0, 8.0, 7.0, 4.0, 4.0, 1.0, 5.0, 2.0, 1.0,
                                 4.0, 2.0, 1.0, 2.0, 4.0, 1.0, 0.0, 1.0, 1.0, 2.0,
                                 0.0, 1.0, 0.0, 0.0, 1.0, 1.0])),
@@ -64,9 +65,8 @@ def BoxPlot(values, marker="circle", outliers=True, xscale="categorical", yscale
                               3., 1., 0., 5., 4., 2., 0., 0., 0., 1., 1., 0., 0.,
                               0.]))
                 ])
-        boxplot = BoxPlot(medals, marker="circle", outliers=True,
-                          title="boxplot, dict_input", xlabel="medal type", ylabel="medal count",
-                          width=800, height=600, filename='boxplot.html')
+        boxplot = BoxPlot(medals, marker="circle", outliers=True, title="boxplot",
+            xlabel="medal type", ylabel="medal count", filename='boxplot.html')
         boxplot.show()
 
     """

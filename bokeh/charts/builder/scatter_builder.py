@@ -55,6 +55,7 @@ def Scatter(values, **kws):
         from collections import OrderedDict
         from bokeh.charts import Scatter
 
+        # (dict, OrderedDict, lists, arrays and DataFrames of (x, y) tuples are valid inputs)
         xyvalues = OrderedDict()
         xyvalues['python'] = [(1, 2), (3, 3), (4, 7), (5, 5), (8, 26)]
         xyvalues['pypy'] = [(1, 12), (2, 23), (4, 47), (5, 15), (8, 46)]

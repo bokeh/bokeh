@@ -60,6 +60,7 @@ def Bar(values, cat=None, stacked=False, xscale="categorical", yscale="linear",
         from collections import OrderedDict
         from bokeh.charts import Bar
 
+        # (dict, OrderedDict, lists, arrays and DataFrames are valid inputs)
         xyvalues = OrderedDict()
         xyvalues['python']=[-2, 5]
         xyvalues['pypy']=[12, 40]

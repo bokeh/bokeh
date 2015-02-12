@@ -59,11 +59,10 @@ def Area(values, index=None, **kws):
     .. bokeh-plot::
         :source-position: above
 
-        from collections import OrderedDict
         from bokeh.charts import Area
 
-        # create some example data
-        xyvalues = OrderedDict(
+        # (dict, OrderedDict, lists, arrays and DataFrames are valid inputs)
+        xyvalues = dict(
             python=[2, 3, 7, 5, 26, 221, 44, 233, 254, 265, 266, 267, 120],
             pypy=[12, 33, 47, 15, 126, 121, 144, 233, 254, 225, 226, 267, 110],
             jython=[22, 43, 10, 25, 26, 101, 114, 203, 194, 215, 201, 227, 139],
@@ -71,7 +70,7 @@ def Area(values, index=None, **kws):
 
         # create an area chart
         area = Area(
-            xyvalues, title="Area Chart", xlabel='time',
+            xyvalues, title="Area Chart", xlabel='time', legend=True,
             ylabel='memory', filename="area.html", stacked=True,
         )
         area.show()

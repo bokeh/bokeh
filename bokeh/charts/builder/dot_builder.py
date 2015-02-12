@@ -49,6 +49,7 @@ def Dot(values, cat=None, stem=True, xscale="categorical", yscale="linear",
         from collections import OrderedDict
         from bokeh.charts import Dot
 
+        # dict, OrderedDict, lists, arrays and DataFrames are valid inputs
         xyvalues = OrderedDict()
         xyvalues['python']=[2, 5]
         xyvalues['pypy']=[12, 40]

@@ -46,6 +46,7 @@ def HeatMap(values, xscale="categorical", yscale="categorical",
         from collections import OrderedDict
         from bokeh.charts import HeatMap
 
+        # (dict, OrderedDict, lists, arrays and DataFrames are valid inputs)
         xyvalues = OrderedDict()
         xyvalues['apples'] = [4,5,8]
         xyvalues['bananas'] = [1,2,4]

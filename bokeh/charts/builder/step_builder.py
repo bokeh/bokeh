@@ -56,10 +56,8 @@ def Step(values, index=None, **kws):
         from collections import OrderedDict
         from bokeh.charts import Step
 
-        xyvalues = OrderedDict()
-        xyvalues['python'] = [2, 3, 7, 5, 26]
-        xyvalues['pypy'] = [12, 33, 47, 15, 126]
-        xyvalues['jython'] = [22, 43, 10, 25, 26]
+        # (dict, OrderedDict, lists, arrays and DataFrames are valid inputs)
+        xyvalues = [[2, 3, 7, 5, 26], [12, 33, 47, 15, 126], [22, 43, 10, 25, 26]]
         step = Step(xyvalues, title="Steps", legend="top_left", ylabel='Languages',
                   filename="step.html")
         step.show()
