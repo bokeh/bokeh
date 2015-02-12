@@ -6,7 +6,7 @@ define [
   "renderer/annotation/tooltip"
   "./inspect_tool"
   "numeral"
-], (_, sprintf, Collection, Tooltip, InspectTool, Numeral) ->
+], (_, SPrintf, Collection, Tooltip, InspectTool, Numeral) ->
 
   _color_to_hex = (color) ->
     if (color.substr(0, 1) == '#')
@@ -25,10 +25,10 @@ define [
     if typeof(number) == "string"
       return number
     if Math.floor(number) == number
-      return sprintf("%d", number)
+      return SPrintf.sprintf("%d", number)
     if Math.abs(number) > 0.1 and Math.abs(number) < 1000
-      return sprintf("%0.3f", number)
-    return sprintf("%0.3e", number)
+      return SPrintf.sprintf("%0.3f", number)
+    return SPrintf.sprintf("%0.3e", number)
 
   class HoverToolView extends InspectTool.View
 
