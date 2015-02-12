@@ -17,5 +17,6 @@ Reference Guide
    reference/bokehjs
    reference/glyphs
    reference/sphinxext
+   reference/charts
 
 
