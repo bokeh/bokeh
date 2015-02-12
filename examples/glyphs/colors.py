@@ -3,7 +3,7 @@ from __future__ import print_function
 from math import pi
 import pandas as pd
 
-from bokeh.models import Plot, ColumnDataSource, FactorRange, CategoricalAxis, TapTool, OpenURL
+from bokeh.models import Plot, ColumnDataSource, FactorRange, CategoricalAxis, TapTool, HoverTool, OpenURL
 from bokeh.models.glyphs import Rect
 from bokeh.document import Document
 from bokeh.embed import file_html
@@ -175,8 +175,12 @@ plot.add_layout(xaxis_below, 'below')
 
 plot.add_layout(CategoricalAxis(), 'left')
 
-tap = TapTool(renderers=[rect_renderer], action=OpenURL(url="http://www.colors.commutercreative.com/@names/"))
-plot.tools.append(tap)
+url = "http://www.colors.commutercreative.com/@names/"
+tooltips = """Click here to go to:<br /><a href="{url}">{url}</a>""".format(url=url)
+
+tap = TapTool(plot=plot, renderers=[rect_renderer], action=OpenURL(url=url))
+hover = HoverTool(plot=plot, renderers=[rect_renderer], tooltips=tooltips)
+plot.tools.extend([tap, hover])
 
 doc = Document()
 doc.add(plot)
