@@ -44,10 +44,10 @@ def Area(values, index=None, **kws):
             values matrix.
         index (str|1d iterable, optional): can be used to specify a common custom
             index for all data series as an **1d iterable** of any sort that will be used as
-                    series common index or a **string** that corresponds to the key of the
-                    mapping to be used as index (and not as data series) if
-                    area.values is a mapping (like a dict, an OrderedDict
-                    or a pandas DataFrame)
+            series common index or a **string** that corresponds to the key of the
+            mapping to be used as index (and not as data series) if
+            area.values is a mapping (like a dict, an OrderedDict
+            or a pandas DataFrame)
 
     In addition the the parameters specific to this chart,
     :ref:`charts_generic_arguments` and :ref:`chart_builders_generic_arguments`

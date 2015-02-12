@@ -30,14 +30,14 @@ from ...properties import Any, Bool, Either, List
 
 def Dot(values, cat=None, stem=True, xscale="categorical", yscale="linear",
         xgrid=False, ygrid=True, **kws):
-    """ The `Dot` chart creates a dot chart using the `DotBuilder` to
-     render the geometry from `values` and `cat`.
+    """ Create a dot chart using the `DotBuilder` to
+    render the geometry from `values` and `cat`.
 
-     Args:
-            values (iterable): iterable 2d representing the data series
-                values matrix.
-            cat (list or bool, optional): list of string representing the categories.
-                Defaults to None.
+    Args:
+        values (iterable): iterable 2d representing the data series
+            values matrix.
+        cat (list or bool, optional): list of string representing the categories.
+            Defaults to None.
 
     In addition the the parameters specific to this chart,
     :ref:`charts_generic_arguments` and :ref:`chart_builders_generic_arguments`

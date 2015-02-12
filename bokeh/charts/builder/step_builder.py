@@ -31,20 +31,18 @@ from ...properties import Any
 
 
 def Step(values, index=None, **kws):
-    """  The `Step` chart creates a step chart using the StepBuilder to
-     render the geometry from `values` and `index`.
+    """ Create a step chart using the StepBuilder to
+    render the geometry from `values` and `index`.
 
-     Args:
-            values (iterable): iterable 2d representing the data series
-                values matrix.
-            index (str|1d iterable, optional): can be used to specify a
-                common custom index for all data series as follows:
-                    - As a 1d iterable of any sort that will be used as
-                        series common index
-                    - As a string that corresponds to the key of the
-                        mapping to be used as index (and not as data
-                        series) if area.values is a mapping (like a dict,
-                        an OrderedDict or a pandas DataFrame)
+    Args:
+        values (iterable): iterable 2d representing the data series
+            values matrix.
+        index (str|1d iterable, optional): can be used to specify a common custom
+            index for all data series as an **1d iterable** of any sort that will be used as
+            series common index or a **string** that corresponds to the key of the
+            mapping to be used as index (and not as data series) if
+            area.values is a mapping (like a dict, an OrderedDict
+            or a pandas DataFrame)
 
     In addition the the parameters specific to this chart,
     :ref:`charts_generic_arguments` and :ref:`chart_builders_generic_arguments`

@@ -32,14 +32,14 @@ from ...properties import Any, Bool, Either, List
 
 
 def Donut(values,  cat=None, width=800, height=800, xgrid=False, ygrid=False, **kws):
-    """ The `Donut` chart creates a Donut chart using the `DonutBuilder` to
-     render the geometry from `values` and `cat`.
+    """ Creates a Donut chart using the `DonutBuilder` to render the geometry
+    from `values` and `cat`.
 
-     Args:
-            values (iterable): iterable 2d representing the data series
-                values matrix.
-            cat (list or bool, optional): list of string representing the categories.
-                Defaults to None.
+    Args:
+        values (iterable): iterable 2d representing the data series
+            values matrix.
+        cat (list or bool, optional): list of string representing the categories.
+            Defaults to None.
 
     In addition the the parameters specific to this chart,
     :ref:`charts_generic_arguments` and :ref:`chart_builders_generic_arguments`

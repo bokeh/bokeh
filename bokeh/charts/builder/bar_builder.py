@@ -37,18 +37,18 @@ from ...properties import Any, Bool, Either, List
 
 def Bar(values, cat=None, stacked=False, xscale="categorical", yscale="linear",
         xgrid=False, ygrid=True, continuous_range=None, **kw):
-    """ The `Bar` chart creates a Bar chart using the `BarBuilder` to
-     render the geometry from `values`, `cat` and `stacked`.
+    """ Create a Bar chart using the `BarBuilder` to
+    render the geometry from `values`, `cat` and `stacked`.
 
-     Args:
-            values (iterable): iterable 2d representing the data series
-                values matrix.
-            cat (list or bool, optional): list of string representing the categories.
-                (Defaults to None)
-            stacked (bool, optional): to see the bars stacked or grouped.
-                (Defaults to False, so grouping is assumed)
-            continuous_range(Range1d, optional): Custom continuous_range to be
-                used. (Defaults to None)
+    Args:
+        values (iterable): iterable 2d representing the data series
+            values matrix.
+        cat (list or bool, optional): list of string representing the categories.
+            (Defaults to None)
+        stacked (bool, optional): to see the bars stacked or grouped.
+            (Defaults to False, so grouping is assumed)
+        continuous_range(Range1d, optional): Custom continuous_range to be
+            used. (Defaults to None)
 
     In addition the the parameters specific to this chart,
     :ref:`charts_generic_arguments` and :ref:`chart_builders_generic_arguments`

@@ -29,12 +29,12 @@ from ...models.glyphs import Rect
 
 def HeatMap(values, xscale="categorical", yscale="categorical",
             xgrid=False, ygrid=False, **kw):
-    """ The `HeatMap` chart creates a HeatMap chart using the `HeatMapBuilder` to
-     render the geometry from `values`.
+    """ Create a HeatMap chart using the `HeatMapBuilder` to
+    render the geometry from `values`.
 
-     Args:
-            values (iterable): iterable 2d representing the data series
-                values matrix.
+    Args:
+        values (iterable): iterable 2d representing the data series
+            values matrix.
 
     In addition the the parameters specific to this chart,
     :ref:`charts_generic_arguments` and :ref:`chart_builders_generic_arguments`

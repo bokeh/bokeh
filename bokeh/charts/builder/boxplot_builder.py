@@ -33,15 +33,15 @@ from ...properties import Bool, String
 
 def BoxPlot(values, marker="circle", outliers=True, xscale="categorical", yscale="linear",
         xgrid=False, ygrid=True, **kw):
-    """ The `BoxPlot` chart creates a BoxPlot chart using the `BoxPlotBuilder` to
-     render the geometry from `values`, the `marker` and `outliers` arguments.
+    """ Create a BoxPlot chart using the `BoxPlotBuilder` to render the
+    geometry from `values`, the `marker` and `outliers` arguments.
 
-     Args:
-            values (iterable): iterable 2d representing the data series
-                values matrix.
-            marker (int or string, optional): if outliers=True, the marker type to use
-                e.g., `circle`.
-            outliers (bool, optional): Whether or not to plot outliers.
+    Args:
+        values (iterable): iterable 2d representing the data series
+            values matrix.
+        marker (int or string, optional): if outliers=True, the marker type to use
+            e.g., `circle`.
+        outliers (bool, optional): Whether or not to plot outliers.
 
     In addition the the parameters specific to this chart,
     :ref:`charts_generic_arguments` and :ref:`chart_builders_generic_arguments`

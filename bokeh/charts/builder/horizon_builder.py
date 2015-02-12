@@ -22,26 +22,24 @@ from ...properties import Any, Color, Int
 def Horizon(values, index=None, num_folds=3, pos_color='#006400',
             neg_color='#6495ed', xscale='datetime', xgrid=False, ygrid=False,
             **kws):
-    """ The `Horizon` chart creates a Horizon chart using the `HorizonBuilder` to
-     render the geometry from `values`, `index` and `num_folds`.
+    """ Create a Horizon chart using the `HorizonBuilder` to
+    render the geometry from `values`, `index` and `num_folds`.
 
-     Args:
-            values (iterable): iterable 2d representing the data series
-                values matrix.
-            index (str|1d iterable, optional): can be used to specify a
-                common custom index for all data series as follows:
-                    - As a 1d iterable of any sort that will be used as
-                        series common index
-                    - As a string that corresponds to the key of the
-                        mapping to be used as index (and not as data
-                        series) if area.values is a mapping (like a dict,
-                        an OrderedDict or a pandas DataFrame)
-            num_folds (int, optional): The number of folds stacked on top
-                of each other. (default: 3)
-            pos_color (color, optional): The color of the positive folds.
-                (default: "#006400")
-            ned_color (color, optional): The color of the negative folds.
-                (default: "#6495ed")
+    Args:
+        values (iterable): iterable 2d representing the data series
+            values matrix.
+        index (str|1d iterable, optional): can be used to specify a common custom
+            index for all data series as an **1d iterable** of any sort that will be used as
+            series common index or a **string** that corresponds to the key of the
+            mapping to be used as index (and not as data series) if
+            area.values is a mapping (like a dict, an OrderedDict
+            or a pandas DataFrame)
+        num_folds (int, optional): The number of folds stacked on top
+            of each other. (default: 3)
+        pos_color (color, optional): The color of the positive folds.
+            (default: "#006400")
+        ned_color (color, optional): The color of the negative folds.
+            (default: "#6495ed")
 
     In addition the the parameters specific to this chart,
     :ref:`charts_generic_arguments` and :ref:`chart_builders_generic_arguments`

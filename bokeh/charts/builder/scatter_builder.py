@@ -38,12 +38,12 @@ from ...properties import String
 
 
 def Scatter(values, **kws):
-    """  The `Scatter` chart creates a scatter chart using the ScatterBuilder to
-     render the geometry from `values`.
+    """ Create a scatter chart using the ScatterBuilder to
+    render the geometry from `values`.
 
-     Args:
-            values (iterable): iterable 2d representing the data series
-                values matrix.
+    Args:
+        values (iterable): iterable 2d representing the data series
+            values matrix.
 
     In addition the the parameters specific to this chart,
     :ref:`charts_generic_arguments` and :ref:`chart_builders_generic_arguments`
