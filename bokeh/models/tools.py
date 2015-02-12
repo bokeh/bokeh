@@ -23,7 +23,7 @@ always be active regardless of what other tools are currently active.
 from __future__ import absolute_import
 
 from ..plot_object import PlotObject
-from ..properties import Any, Bool, String, Enum, Instance, List, Dict, Tuple
+from ..properties import Any, Bool, String, Enum, Instance, Either, List, Dict, Tuple
 from ..enums import Dimension
 
 from .renderers import Renderer
@@ -370,7 +370,7 @@ class HoverTool(Tool):
     defaults to all renderers on a plot.
     """)
 
-    tooltips = List(Tuple(String, String), help="""
+    tooltips = Either(String, List(Tuple(String, String)), help="""
     The (name, field) pairs describing what the hover tool should
     display when there is a hit.
 

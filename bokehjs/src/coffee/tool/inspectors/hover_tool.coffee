@@ -1,4 +1,3 @@
-
 define [
   "underscore"
   "common/collection"
@@ -55,7 +54,6 @@ define [
       return
 
     _update: (indices, tool, renderer, ds, {geometry}) ->
-
       tooltip = @mget('ttmodels')[renderer.model.id] ? null
       if not tooltip?
         return
@@ -79,6 +77,8 @@ define [
       x = xmapper.map_from_target(vx)
       y = ymapper.map_from_target(vy)
 
+      vars = {x: x, y: y, vx: vx, vy: vy, sx: sx, sy: sy}
+
       for i in indices
         if @mget('snap_to_data') and renderer.glyph.sx? and renderer.glyph.sy?
           rx = canvas.sx_to_vx(renderer.glyph.sx[i])
@@ -86,9 +86,19 @@ define [
         else
           [rx, ry] = [vx, vy]
 
+        tooltip.add(rx, ry, @_render_tooltips(ds, i, vars))
+
+      return null
+
+    _render_tooltips: (ds, i, vars) ->
+      tooltips = @mget("tooltips")
+
+      if _.isString(tooltips)
+        return $('<div>').html(Util.replace_placeholders(tooltips, ds, i, vars))
+      else
         table = $('<table></table>')
 
-        for [label, value] in @mget("tooltips")
+        for [label, value] in tooltips
           row = $("<tr></tr>")
           row.append($("<td class='bk-tooltip-row-label'>#{ label }: </td>"))
           td = $("<td class='bk-tooltip-row-value'></td>")
@@ -116,15 +126,13 @@ define [
               span.css({ backgroundColor: color})
             td.append(span)
           else
-            value = Util.replace_placeholders(value, ds, i, x, y, vx, vy, sx, sy)
+            value = Util.replace_placeholders(value, ds, i, vars)
             td.append($('<span>').text(value))
 
           row.append(td)
           table.append(row)
 
-        tooltip.add(rx, ry, table)
-
-      return null
+        return table
 
   class HoverTool extends InspectTool.Model
     default_view: HoverToolView

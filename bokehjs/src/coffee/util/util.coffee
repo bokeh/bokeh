@@ -14,7 +14,8 @@ define [
       return sprintf("%0.3f", number)
     return sprintf("%0.3e", number)
 
-  replace_placeholders = (string, data_source, i, x, y, vx, vy, sx, sy) ->
+  replace_placeholders = (string, data_source, i, special_vars={}) ->
+    # OBSOLETE {
     string = string.replace /(^|[^\$])\$(\w+)/g, (match, prefix, name) =>
       replacement = switch name
         when "index" then "#{i}"
@@ -25,22 +26,24 @@ define [
         when "sx"    then "#{sx}"
         when "sy"    then "#{sy}"
       if replacement? then "#{prefix}#{replacement}" else match
+    # }
 
-    string = string.replace /(^|[^@])@(?:(\w+)|{([^{}]+)})(?:{([^{}]+)})?/g, (match, prefix, name, long_name, format) =>
+    string = string.replace /(^|[^@])@(?:(\$?\w+)|{([^{}]+)})(?:{([^{}]+)})?/g, (match, prefix, name, long_name, format) =>
       name = if long_name? then long_name else name
-      column = data_source.get_column(name)
-      replacement =
-        if not column?
-          "#{name} unknown"
+      value =
+        if name[0] == "$"
+          special_vars[name.substring(1)]
         else
-          string = column[i]
+          column = data_source.get_column(name)
+          if column? then column[i] else special_vars[name]
+      replacement =
+        if not value? then "???"
+        else
           if format?
-            Numeral.format(string, format)
-          else if _.isNumber(string)
-            _format_number(string)
+            Numeral.format(value, format)
           else
-            string
-      "#{prefix}#{replacement}"
+            _format_number(value)
+      "#{prefix}#{_.escape(replacement)}"
 
     return string
 
