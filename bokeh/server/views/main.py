@@ -89,11 +89,16 @@ def _makedoc(redisconn, u, title):
         u = user.User.load(redisconn, u)
     clientdoc = bokeh_app.backbone_storage.get_document(docid)
     prune(clientdoc)
-    u.add_doc(docid, title)
+    if u is not None:
+        rw_users = [u.username]
+        u.add_doc(docid, title)
+        u.save(redisconn)
+    else:
+        #anonyomus user case
+        rw_users = []
     doc = docs.new_doc(bokeh_app, docid,
                        title, clientdoc,
-                       rw_users=[u.username])
-    u.save(redisconn)
+                       rw_users=rw_users)
     bokeh_app.backbone_storage.store_document(clientdoc)
     return doc
 

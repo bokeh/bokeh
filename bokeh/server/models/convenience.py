@@ -17,6 +17,9 @@ def can_write_doc(doc, bokehuser):
 def can_write_from_request(doc, request, user, temporary_docid=None):
     # temporary_docid is a uuid - we're not too concerned about auth around it
     # since it's a UUID and disposable
+
+    # hack - temporary workaround for multiuser server and bokeh applets,
+    # to be removed once bokeh applet infrastructure uses copy on write functionality
     if temporary_docid:
         return can_read_from_request(doc, request, user)
     if request.headers.get('BOKEH-API-KEY'):
