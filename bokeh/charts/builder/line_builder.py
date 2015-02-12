@@ -31,6 +31,40 @@ from ...properties import Any
 
 
 def Line(values, index=None, **kws):
+    """  The `Line` chart creates a line chart using the LineBuilder to
+     render the geometry from `values` and `index`.
+
+     Args:
+            values (iterable): iterable 2d representing the data series
+                values matrix.
+            index (str|1d iterable, optional): can be used to specify a
+                common custom index for all data series as follows:
+                    - As a 1d iterable of any sort that will be used as
+                        series common index
+                    - As a string that corresponds to the key of the
+                        mapping to be used as index (and not as data
+                        series) if area.values is a mapping (like a dict,
+                        an OrderedDict or a pandas DataFrame)
+
+    In addition the the parameters specific to this chart,
+    :ref:`charts_generic_arguments` and :ref:`chart_builders_generic_arguments`
+    are also accepted as keyword parameters.
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from collections import OrderedDict
+        from bokeh.charts import Line
+
+        xyvalues = OrderedDict()
+        xyvalues['python'] = [2, 3, 7, 5, 26]
+        xyvalues['pypy'] = [12, 33, 47, 15, 126]
+        xyvalues['jython'] = [22, 43, 10, 25, 26]
+        line = Line(xyvalues, title="line", legend="top_left", ylabel='Languages',
+                  filename="line.html")
+        line.show()
+
+    """
     return create_and_build(LineBuilder, values, index=index, **kws)
 
 

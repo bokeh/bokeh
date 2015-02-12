@@ -32,6 +32,34 @@ from ...properties import Any, Bool, Either, List
 
 
 def Donut(values,  cat=None, width=800, height=800, xgrid=False, ygrid=False, **kws):
+    """ The `Donut` chart creates a Donut chart using the `DonutBuilder` to
+     render the geometry from `values` and `cat`.
+
+     Args:
+            values (iterable): iterable 2d representing the data series
+                values matrix.
+            cat (list or bool, optional): list of string representing the categories.
+                Defaults to None.
+
+    In addition the the parameters specific to this chart,
+    :ref:`charts_generic_arguments` and :ref:`chart_builders_generic_arguments`
+    are also accepted as keyword parameters.
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from collections import OrderedDict
+        from bokeh.charts import Donut
+
+        xyvalues = OrderedDict()
+        xyvalues['python'] = [2., 5., 3.]
+        xyvalues['pypy'] = [4., 1., 4.]
+        xyvalues['jython'] = [6., 4., 3.]
+
+        donut = Donut(xyvalues, ['cpu1', 'cpu2', 'cpu3'], filename="donut.html")
+        donut.show()
+
+    """
     return create_and_build(
         DonutBuilder, values, cat=cat, width=width, height=height,
         xgrid=xgrid, ygrid=ygrid, **kws

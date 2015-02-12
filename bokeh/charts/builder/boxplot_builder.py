@@ -33,6 +33,43 @@ from ...properties import Bool, String
 
 def BoxPlot(values, marker="circle", outliers=True, xscale="categorical", yscale="linear",
         xgrid=False, ygrid=True, **kw):
+    """ The `BoxPlot` chart creates a BoxPlot chart using the `BoxPlotBuilder` to
+     render the geometry from `values`, the `marker` and `outliers` arguments.
+
+     Args:
+            values (iterable): iterable 2d representing the data series
+                values matrix.
+            marker (int or string, optional): if outliers=True, the marker type to use
+                e.g., `circle`.
+            outliers (bool, optional): Whether or not to plot outliers.
+
+    In addition the the parameters specific to this chart,
+    :ref:`charts_generic_arguments` and :ref:`chart_builders_generic_arguments`
+    are also accepted as keyword parameters.
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from collections import OrderedDict
+        from bokeh.charts import BoxPlot
+        import numpy as np
+        medals = OrderedDict([
+                    ('bronze', np.array([7.0, 10.0, 8.0, 7.0, 4.0, 4.0, 1.0, 5.0, 2.0, 1.0,
+                                4.0, 2.0, 1.0, 2.0, 4.0, 1.0, 0.0, 1.0, 1.0, 2.0,
+                                0.0, 1.0, 0.0, 0.0, 1.0, 1.0])),
+                    ('silver', np.array([8., 4., 6., 4., 8., 3., 3., 2., 5., 6.,
+                                1., 4., 2., 3., 2., 0., 0., 1., 2., 1.,
+                                3.,  0.,  0.,  1.,  0.,  0.])),
+                    ('gold', np.array([6., 6., 6., 8., 4., 8., 6., 3., 2., 2.,  2.,  1.,
+                              3., 1., 0., 5., 4., 2., 0., 0., 0., 1., 1., 0., 0.,
+                              0.]))
+                ])
+        boxplot = BoxPlot(medals, marker="circle", outliers=True,
+                          title="boxplot, dict_input", xlabel="medal type", ylabel="medal count",
+                          width=800, height=600, filename='boxplot.html')
+        boxplot.show()
+
+    """
     return create_and_build(
         BoxPlotBuilder, values, marker=marker, outliers=outliers,
         xscale=xscale, yscale=yscale, xgrid=xgrid, ygrid=ygrid, **kw

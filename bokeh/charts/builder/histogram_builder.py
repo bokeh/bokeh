@@ -34,6 +34,40 @@ from ...properties import Bool, Float, Int
 
 
 def Histogram(values, bins, mu=None, sigma=None, density=True, **kws):
+    """ The `Histogram` chart creates a histogram chart using the `HistogramBuilder` to
+     render the geometry from `values`, `bins`, `sigma` and `density`.
+
+     Args:
+            values (iterable): iterable 2d representing the data series
+                values matrix.
+            bins (int): number of bins to use in the Histogram building.
+            mu (float, optional): theoretical mean value for the normal
+                distribution. (default: None)
+            sigma (float, optional): theoretical sigma value for the
+                normal distribution. (default: None)
+            density (bool, optional):  If False, the result will contain
+                the number of samples in each bin.  If True, the result
+                is the value of the probability *density* function at
+                the bin, normalized such that the *integral* over the
+                range is 1. For more info check numpy.histogram
+                function documentation. (default: True)
+
+
+    In addition the the parameters specific to this chart,
+    :ref:`charts_generic_arguments` and :ref:`chart_builders_generic_arguments`
+    are also accepted as keyword parameters.
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from collections import OrderedDict
+        from bokeh.charts import Histogram
+
+        xyvalues = OrderedDict(normal=[1, 2, 3, 1], lognormal=[5, 4, 4, 1])
+        hm = Histogram(xyvalues, bins=5, title='Histogram', filename="histogram.html")
+        hm.show()
+
+    """
     return create_and_build(
         HistogramBuilder, values, bins=bins, mu=mu, sigma=sigma, density=density,
         **kws

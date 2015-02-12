@@ -37,6 +37,36 @@ from ...properties import Any, Bool, Either, List
 
 def Bar(values, cat=None, stacked=False, xscale="categorical", yscale="linear",
         xgrid=False, ygrid=True, **kw):
+    """ The `Bar` chart creates a Bar chart using the `BarBuilder` to
+     render the geometry from `values`, `cat` and `stacked`.
+
+     Args:
+            values (iterable): iterable 2d representing the data series
+                values matrix.
+            cat (list or bool, optional): list of string representing the categories.
+                Defaults to None.
+            stacked (bool, optional): to see the bars stacked or grouped.
+                Defaults to False, so grouping is assumed.
+
+    In addition the the parameters specific to this chart,
+    :ref:`charts_generic_arguments` and :ref:`chart_builders_generic_arguments`
+    are also accepted as keyword parameters.
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from collections import OrderedDict
+        from bokeh.charts import Bar
+
+        xyvalues = OrderedDict()
+        xyvalues['python']=[2, 5]
+        xyvalues['pypy']=[12, 40]
+        xyvalues['jython']=[22, 30]
+        cat = ['mem', 'cpu']
+        bar = Bar(xyvalues, cat, stacked=True, title="Stacked bars",
+                filename="stacked_bar.html", xlabel="category", ylabel="language")
+        bar.show()
+    """
     return create_and_build(
         BarBuilder, values, cat=cat, stacked=stacked, xscale=xscale, yscale=yscale,
         xgrid=xgrid, ygrid=ygrid, **kw

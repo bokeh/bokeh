@@ -37,6 +37,45 @@ from ...properties import Any, Bool
 
 
 def Area(values, index=None, **kws):
+    """ The `Area` chart creates an area chart using the AreaBuilder to
+     render the geometry from `values`.
+
+     Args:
+            values (iterable): iterable 2d representing the data series
+                values matrix.
+            index (str|1d iterable, optional): can be used to specify a
+                common custom index for all data series as follows:
+                    - As a 1d iterable of any sort that will be used as
+                        series common index
+                    - As a string that corresponds to the key of the
+                        mapping to be used as index (and not as data
+                        series) if area.values is a mapping (like a dict,
+                        an OrderedDict or a pandas DataFrame)
+
+    In addition the the parameters specific to this chart,
+    :ref:`charts_generic_arguments` and :ref:`chart_builders_generic_arguments`
+    are also accepted as keyword parameters.
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from collections import OrderedDict
+        from bokeh.charts import Area
+
+        # create some example data
+        xyvalues = OrderedDict(
+            python=[2, 3, 7, 5, 26, 221, 44, 233, 254, 265, 266, 267, 120],
+            pypy=[12, 33, 47, 15, 126, 121, 144, 233, 254, 225, 226, 267, 110],
+            jython=[22, 43, 10, 25, 26, 101, 114, 203, 194, 215, 201, 227, 139],
+        )
+
+        # create an area chart
+        area = Area(
+            xyvalues, title="Area Chart", xlabel='time',
+            ylabel='memory', filename="area.html", stacked=True,
+        )
+        area.show()
+    """
     return create_and_build(AreaBuilder, values, index=index, **kws)
 
 
