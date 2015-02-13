@@ -54,8 +54,7 @@ def Histogram(values, bins, mu=None, sigma=None, density=True, **kws):
 
 
     In addition the the parameters specific to this chart,
-    :ref:`charts_generic_arguments` and :ref:`chart_builders_generic_arguments`
-    are also accepted as keyword parameters.
+    :ref:`charts_generic_arguments` are also accepted as keyword parameters.
 
     .. bokeh-plot::
         :source-position: above

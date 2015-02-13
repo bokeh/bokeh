@@ -51,8 +51,7 @@ def Bar(values, cat=None, stacked=False, xscale="categorical", yscale="linear",
             used. (Defaults to None)
 
     In addition the the parameters specific to this chart,
-    :ref:`charts_generic_arguments` and :ref:`chart_builders_generic_arguments`
-    are also accepted as keyword parameters.
+    :ref:`charts_generic_arguments` are also accepted as keyword parameters.
 
     .. bokeh-plot::
         :source-position: above

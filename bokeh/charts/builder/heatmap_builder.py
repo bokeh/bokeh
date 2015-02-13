@@ -37,8 +37,7 @@ def HeatMap(values, xscale="categorical", yscale="categorical",
             values matrix.
 
     In addition the the parameters specific to this chart,
-    :ref:`charts_generic_arguments` and :ref:`chart_builders_generic_arguments`
-    are also accepted as keyword parameters.
+    :ref:`charts_generic_arguments` are also accepted as keyword parameters.
 
     .. bokeh-plot::
         :source-position: above

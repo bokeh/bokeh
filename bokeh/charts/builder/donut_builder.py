@@ -42,8 +42,7 @@ def Donut(values,  cat=None, width=800, height=800, xgrid=False, ygrid=False, **
             Defaults to None.
 
     In addition the the parameters specific to this chart,
-    :ref:`charts_generic_arguments` and :ref:`chart_builders_generic_arguments`
-    are also accepted as keyword parameters.
+    :ref:`charts_generic_arguments` are also accepted as keyword parameters.
 
     .. bokeh-plot::
         :source-position: above
