@@ -31,11 +31,15 @@ The current ``bokeh.charts`` interface implementation supports the following cha
 * ``Timeseries``
 
 
-To use them, you only have to import the chart factory of interest from ``bokeh.charts``::
+To use them, you only have to import the chart factory of interest from ``bokeh.charts``:
+
+.. code-block:: python
 
     from bokeh.charts import Histogram
 
-initialize your plot with the chart specific arguments to customize the chart::
+initialize your plot with the chart specific arguments to customize the chart:
+
+.. code-block:: python
 
     mu, sigma = 0, 0.5
     normal = np.random.normal(mu, sigma, 1000)
@@ -44,49 +48,57 @@ initialize your plot with the chart specific arguments to customize the chart::
                      title="kwargs, dict_input", ylabel="frequency", legend="top_left",
                      width=400, height=350, notebook=True)
 
-and finally call the ``show()`` method::
+and finally call the ``show()`` method:
+
+
+.. code-block:: python
 
     hist.show()
+
+or use the plotting interface functions:
+
+.. code-block:: python
+
+    from bokeh.plotting import output_file, show
+    output_file('histogram.html')
+    show(hist)
+
 
 .. image:: /_images/charts_histogram_cdf.png
     :align: center
 
+
 .. _charts_generic_arguments:
 
-Generic arguments and chained methods
--------------------------------------
+Generic arguments
+-----------------
 
-Charts support a long list of arguments that you can pass when instantiating a class, as we have shown before,
-but you can also use chained methods to set those attributes as in the following example::
+Charts support a long list of arguments that you can pass when instantiating a class, as we have shown before.
+Available optional arguments are:
 
-    hist = Histogram(distributions, bins=50, notebook=True)
-    hist.title("chained_methods, dict_input").ylabel("frequency").legend(True).width(400).height(350).show()
-
-.. note:: Be aware that the ``show()`` method can not be chained. It has to be called at the end of your chain.
-
-Available arguments and chained methods are:
-
-* ``title`` (str): the title of your plot.
-* ``xlabel`` (str): the x-axis label of your plot.
-* ``ylabel`` (str): the y-axis label of your plot.
-* ``legend`` (str, bool): the legend of your plot.
-* ``xscale`` (str): the x-axis type scale of your plot.
-* ``yscale`` (str): the y-axis type scale of your plot.
+* ``title`` (str): the title of your chart.
+* ``xlabel`` (str): the x-axis label of your chart.
+* ``ylabel`` (str): the y-axis label of your chart.
+* ``legend`` (str, bool): the legend of your chart.
+* ``xscale`` (str): the x-axis type scale of your chart.
+* ``yscale`` (str): the y-axis type scale of your chart.
+* ``xgrid`` (bool): whether to draw an x-grid.
+* ``ygrid`` (bool): whether to draw an y-grid.
 * ``width`` (int): the width of your plot in pixels.
 * ``height`` (int): the height of you plot in pixels.
-* ``tools`` (bool): to enable or disable the tools in your plot.
-* ``filename`` (str or bool): the name of the file where your plot will be written.
-* ``server`` (str or bool): the name of your plot in the server.
-* ``notebook`` (bool):if you want to output (or not) your plot into the IPython notebook.
+* ``tools`` (str or bool): to enable or disable the tools in your chart.
+* ``palette`` (list): a list containing the colormap as hex values.
+* ``filename`` (str or bool): the name of the file where your chart will be written.
+* ``server`` (str or bool): the name of your chart in the server.
+* ``notebook`` (bool):if you want to output (or not) your chart into the IPython notebook.
 
-You can check the docstring of each method to get more information.
 
 .. _charts_interface_inputs:
 
 Interface inputs
 ----------------
 
-The ``bokeh.charts`` interface is ready to get your input as essentially any of the following:
+``bokeh.charts`` support any of the following:
 
 * ``list``
 * ``dict``
@@ -94,8 +106,8 @@ The ``bokeh.charts`` interface is ready to get your input as essentially any of 
 * numpy ``arrays``
 * pandas ``DataFrame objects``
 
-In general elements are supposed to be iterables representing each single data series values
-(i.e: list of lists, dict/ordered dict of lists, etc.. containing scalar values).
+In general inputs are supposed to be iterables representing each single data series values
+(i.e: list of lists, dict/ordered dict of lists, etc.. containing iterable of scalar values).
 The idea behind this canonical format is to easily represent groups of data and easily plot
 them through the interface.
 
@@ -103,7 +115,8 @@ them through the interface.
         mentioned ``bokeh.charts`` is still very experimental so the number of supported
         inputs is very likely to grow.
 
-Let see some examples using different kind of inputs:
+
+Here are a few examples showing charts using different kind of inputs:
 
 
 * Using a pandas ``groupby`` object (only supported by Scatter)::
