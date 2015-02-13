@@ -1,20 +1,16 @@
 from bokeh.plotting import figure, output_server, show
 from bokeh.models import ServerDataSource
 import bokeh.transforms.ar_downsample as ar
-
-"""
-In order to run this example, you have to execute
-./bokeh-server -D remotedata
-
-the remote data directory in the bokeh checkout has the sample data for this example
-
-In addition, you must install ArrayManagement from this branch (soon to be master)
-https://github.com/ContinuumIO/ArrayManagement
-"""
-
+from blaze.server.client import Client
+from blaze import Data
 output_server("Census")
 # 2010 US Census tracts
-source = ServerDataSource(expr={'op': 'Field', 'args': [':leaf', 'census']})
+
+c = Client('http://localhost:5006')
+d = Data(c)
+source = ServerDataSource()
+source.from_blaze(d.census, local=True)
+
 plot = figure()
 arplot = plot.square(
             'LON', 'LAT',
