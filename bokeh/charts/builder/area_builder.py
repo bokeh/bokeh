@@ -50,13 +50,14 @@ def Area(values, index=None, **kws):
             or a pandas DataFrame)
 
     In addition the the parameters specific to this chart,
-    :ref:`charts_generic_arguments` and :ref:`chart_builders_generic_arguments`
+    :ref:`charts_generic_arguments` and
     are also accepted as keyword parameters.
 
     .. bokeh-plot::
         :source-position: above
 
         from bokeh.charts import Area
+        from bokeh.plotting import output_file, show
 
         # (dict, OrderedDict, lists, arrays and DataFrames are valid inputs)
         xyvalues = dict(
@@ -66,11 +67,12 @@ def Area(values, index=None, **kws):
         )
 
         # create an area chart
+        output_file('area.html')
         area = Area(
             xyvalues, title="Area Chart", xlabel='time', legend=True,
-            ylabel='memory', filename="area.html", stacked=True,
+            ylabel='memory', stacked=True,
         )
-        area.show()
+        show(area)
     """
     return create_and_build(AreaBuilder, values, index=index, **kws)
 
