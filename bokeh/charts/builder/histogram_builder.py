@@ -52,9 +52,11 @@ def Histogram(values, bins, mu=None, sigma=None, density=True, **kws):
             range is 1. For more info check numpy.histogram
             function documentation. (default: True)
 
-
     In addition the the parameters specific to this chart,
     :ref:`charts_generic_arguments` are also accepted as keyword parameters.
+
+    Returns:
+        a new :class:`Chart <bokeh.charts.Chart>`
 
     Examples:
 
@@ -70,9 +72,6 @@ def Histogram(values, bins, mu=None, sigma=None, density=True, **kws):
         xyvalues = pd.DataFrame(dict(normal=[1, 2, 3, 1], lognormal=[5, 4, 4, 1]))
         hm = Histogram(xyvalues, bins=5, title='Histogram')
         show(hm)
-
-    Returns:
-        a new :class:`Chart <bokeh.charts.Chart>`
 
     """
     return create_and_build(

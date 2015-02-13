@@ -46,6 +46,9 @@ def BoxPlot(values, marker="circle", outliers=True, xscale="categorical", yscale
     In addition the the parameters specific to this chart,
     :ref:`charts_generic_arguments` are also accepted as keyword parameters.
 
+    Returns:
+        a new :class:`Chart <bokeh.charts.Chart>`
+
     Examples:
 
     .. bokeh-plot::
@@ -71,9 +74,6 @@ def BoxPlot(values, marker="circle", outliers=True, xscale="categorical", yscale
         boxplot = BoxPlot(medals, marker="circle", outliers=True, title="boxplot",
             xlabel="medal type", ylabel="medal count")
         show(boxplot)
-
-    Returns:
-        a new :class:`Chart <bokeh.charts.Chart>`
 
     """
     return create_and_build(

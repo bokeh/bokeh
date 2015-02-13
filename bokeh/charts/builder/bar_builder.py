@@ -53,6 +53,9 @@ def Bar(values, cat=None, stacked=False, xscale="categorical", yscale="linear",
     In addition the the parameters specific to this chart,
     :ref:`charts_generic_arguments` are also accepted as keyword parameters.
 
+    Returns:
+        a new :class:`Chart <bokeh.charts.Chart>`
+
     Examples:
 
         .. bokeh-plot::
@@ -73,8 +76,6 @@ def Bar(values, cat=None, stacked=False, xscale="categorical", yscale="linear",
                     xlabel="category", ylabel="language")
             show(bar)
 
-    Returns:
-        a new :class:`Chart <bokeh.charts.Chart>`
     """
     if continuous_range and not isinstance(continuous_range, Range1d):
         raise ValueError(

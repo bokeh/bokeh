@@ -52,6 +52,9 @@ def TimeSeries(values, index=None, xscale='datetime', **kws):
     In addition the the parameters specific to this chart,
     :ref:`charts_generic_arguments` are also accepted as keyword parameters.
 
+    Returns:
+        a new :class:`Chart <bokeh.charts.Chart>`
+
     Examples:
 
     .. bokeh-plot::
@@ -74,9 +77,6 @@ def TimeSeries(values, index=None, xscale='datetime', **kws):
         ts = TimeSeries(xyvalues, index='Date', title="TimeSeries", legend="top_left",
                 ylabel='Languages')
         show(ts)
-
-    Returns:
-        a new :class:`Chart <bokeh.charts.Chart>`
 
     """
     return create_and_build(

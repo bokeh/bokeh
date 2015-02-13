@@ -44,6 +44,9 @@ def Donut(values,  cat=None, width=800, height=800, xgrid=False, ygrid=False, **
     In addition the the parameters specific to this chart,
     :ref:`charts_generic_arguments` are also accepted as keyword parameters.
 
+    Returns:
+        a new :class:`Chart <bokeh.charts.Chart>`
+
     Examples:
 
     .. bokeh-plot::
@@ -57,9 +60,6 @@ def Donut(values,  cat=None, width=800, height=800, xgrid=False, ygrid=False, **
         xyvalues = [[2., 5., 3.], [4., 1., 4.], [6., 4., 3.]]
         donut = Donut(xyvalues, ['cpu1', 'cpu2', 'cpu3'])
         show(donut)
-
-    Returns:
-        a new :class:`Chart <bokeh.charts.Chart>`
 
     """
     return create_and_build(

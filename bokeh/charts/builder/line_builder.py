@@ -47,6 +47,9 @@ def Line(values, index=None, **kws):
     In addition the the parameters specific to this chart,
     :ref:`charts_generic_arguments` are also accepted as keyword parameters.
 
+    Returns:
+        a new :class:`Chart <bokeh.charts.Chart>`
+
     Examples:
 
     .. bokeh-plot::
@@ -61,9 +64,6 @@ def Line(values, index=None, **kws):
         xyvalues = np.array([[2, 3, 7, 5, 26], [12, 33, 47, 15, 126], [22, 43, 10, 25, 26]])
         line = Line(xyvalues, title="line", legend="top_left", ylabel='Languages')
         show(line)
-
-    Returns:
-        a new :class:`Chart <bokeh.charts.Chart>`
 
     """
     return create_and_build(LineBuilder, values, index=index, **kws)

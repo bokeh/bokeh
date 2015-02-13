@@ -44,6 +44,9 @@ def Horizon(values, index=None, num_folds=3, pos_color='#006400',
     In addition the the parameters specific to this chart,
     :ref:`charts_generic_arguments` are also accepted as keyword parameters.
 
+    Returns:
+        a new :class:`Chart <bokeh.charts.Chart>`
+
     Examples:
 
     .. bokeh-plot::
@@ -64,9 +67,6 @@ def Horizon(values, index=None, num_folds=3, pos_color='#006400',
         output_file('horizon.html')
         hz = Horizon(xyvalues, index='Date', title="horizon", ylabel='Stock Prices')
         show(hz)
-
-    Returns:
-        a new :class:`Chart <bokeh.charts.Chart>`
 
     """
     tools = kws.get('tools', True)

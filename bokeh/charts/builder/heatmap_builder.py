@@ -39,6 +39,9 @@ def HeatMap(values, xscale="categorical", yscale="categorical",
     In addition the the parameters specific to this chart,
     :ref:`charts_generic_arguments` are also accepted as keyword parameters.
 
+    Returns:
+        a new :class:`Chart <bokeh.charts.Chart>`
+
     Examples:
 
     .. bokeh-plot::
@@ -56,9 +59,6 @@ def HeatMap(values, xscale="categorical", yscale="categorical",
         output_file('heatmap.html')
         hm = HeatMap(xyvalues, title='Fruits')
         show(hm)
-
-    Returns:
-        a new :class:`Chart <bokeh.charts.Chart>`
 
     """
     chart = create_and_build(

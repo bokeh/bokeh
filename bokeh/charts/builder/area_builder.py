@@ -53,6 +53,8 @@ def Area(values, index=None, **kws):
     In addition the the parameters specific to this chart,
         :ref:`charts_generic_arguments` are also accepted as keyword parameters.
 
+    Returns:
+        a new :class:`Chart <bokeh.charts.Chart>`
 
     Examples:
 
@@ -76,9 +78,6 @@ def Area(values, index=None, **kws):
                 ylabel='memory', stacked=True,
             )
             show(area)
-
-    Returns:
-        a new :class:`Chart <bokeh.charts.Chart>`
     """
     return create_and_build(AreaBuilder, values, index=index, **kws)
 

@@ -48,6 +48,9 @@ def Scatter(values, **kws):
     In addition the the parameters specific to this chart,
     :ref:`charts_generic_arguments` are also accepted as keyword parameters.
 
+    Returns:
+        a new :class:`Chart <bokeh.charts.Chart>`
+
     Examples:
 
     .. bokeh-plot::
@@ -65,9 +68,6 @@ def Scatter(values, **kws):
         output_file('scatter.html')
         scatter = Scatter(xyvalues, title="Scatter", legend="top_left", ylabel='Languages')
         show(scatter)
-
-    Returns:
-        a new :class:`Chart <bokeh.charts.Chart>`
 
     """
     return create_and_build(ScatterBuilder, values, **kws)
