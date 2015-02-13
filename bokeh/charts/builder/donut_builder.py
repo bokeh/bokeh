@@ -32,6 +32,36 @@ from ...properties import Any, Bool, Either, List
 
 
 def Donut(values,  cat=None, width=800, height=800, xgrid=False, ygrid=False, **kws):
+    """ Creates a Donut chart using  :class:`DonutBuilder <bokeh.charts.builder.donut_builder.DonutBuilder>`
+    to render the geometry from values and cat.
+
+    Args:
+        values (iterable): iterable 2d representing the data series
+            values matrix.
+        cat (list or bool, optional): list of string representing the categories.
+            Defaults to None.
+
+    In addition the the parameters specific to this chart,
+    :ref:`charts_generic_arguments` are also accepted as keyword parameters.
+
+    Returns:
+        a new :class:`Chart <bokeh.charts.Chart>`
+
+    Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.charts import Donut
+        from bokeh.plotting import output_file, show
+
+        output_file('donut.html')
+        # dict, OrderedDict, lists, arrays and DataFrames are valid inputs
+        xyvalues = [[2., 5., 3.], [4., 1., 4.], [6., 4., 3.]]
+        donut = Donut(xyvalues, ['cpu1', 'cpu2', 'cpu3'])
+        show(donut)
+
+    """
     return create_and_build(
         DonutBuilder, values, cat=cat, width=width, height=height,
         xgrid=xgrid, ygrid=ygrid, **kws
@@ -48,29 +78,18 @@ class DonutBuilder(Builder):
     And finally add the needed glyphs (Wedges and AnnularWedges) taking
     the references from the source.
 
-    Examples:
-
-        xyvalues = OrderedDict()
-        # TODO: Fix bug for donut breaking when inputs that are not float
-        xyvalues['python'] = [2., 5., 3.]
-        xyvalues['pypy'] = [4., 1., 4.]
-        xyvalues['jython'] = [6., 4., 3.]
-        cat = ['Devs', 'Dev Ops', 'Scientists']
-        donut = Donut(xyvalues, cat, title="Medals Donut",
-            xlabel='Cat', ylabel='Lang', filename="donut.html")
-        donut.show()
     """
 
     cat = Either(Bool, List(Any), help="""
     List of string representing the categories. (Defaults to None.)
     """)
 
-    def get_data(self):
+    def _process_data(self):
         """Take the chart data from self._values.
 
         It calculates the chart properties accordingly (start/end angles).
         Then build a dict containing references to all the calculated
-        points to be used by the Wedge glyph inside the ``draw`` method.
+        points to be used by the Wedge glyph inside the ``_yield_renderers`` method.
 
         """
         dd = dict(zip(self._values.keys(), self._values.values()))
@@ -91,7 +110,7 @@ class DonutBuilder(Builder):
         self.set_and_get("", "end", end_angles)
         self.set_and_get("", "start", start_angles)
 
-    def get_source(self):
+    def _set_sources(self):
         """Push the Donut data into the ColumnDataSource and calculate
          the proper ranges.
 
@@ -176,7 +195,7 @@ class DonutBuilder(Builder):
             )
             yield GlyphRenderer(data_source=text_source, glyph=glyph)
 
-    def draw(self):
+    def _yield_renderers(self):
         """Use the AnnularWedge and Wedge glyphs to display the wedges.
 
         Takes reference points from data loaded at the ColumnDataSurce.

@@ -87,13 +87,17 @@ no_olympics_glyph = Text(x=7.5, y=1942, text=["No Olympics in 1940 or 1944"],
     text_font_size="9pt", text_font_style="italic", text_color="silver")
 no_olympics = plot.add_glyph(no_olympics_glyph)
 
-tooltips = [
-    ("Name",          "@Name"),
-    ("Country",       "@Abbrev"),
-    ("Year",          "@Year"),
-    ("Time",          "@Time{0.00} s"),
-    ("Meters behind", "@{MetersBack}{0.00} m"),
-]
+tooltips = """
+<div>
+    <span style="font-size: 15px;">@Name</span>&nbsp;
+    <span style="font-size: 10px; color: #666;">(@Abbrev)</span>
+</div>
+<div>
+    <span style="font-size: 17px; font-weight: bold;">@Time{0.00}</span>&nbsp;
+    <span style="font-size: 10px; color: #666;">@Year</span>
+</div>
+<div style="font-size: 11px; color: #666;">@{MetersBack}{0.00} meters behind</div>
+"""
 
 hover = HoverTool(tooltips=tooltips, renderers=[medal])
 plot.add_tools(hover)

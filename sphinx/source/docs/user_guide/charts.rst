@@ -241,6 +241,15 @@ Bar
 
   * ``True``: bars are draw as a stack to show the relationship of parts to a whole.
   * ``False``: bars are groupped on the same chart figure. Defaults to ``False``.
+* ``continuous_range`` (:ref:`Range <bokeh.models.ranges>`, optional): An explicit range for the continuous
+  axis of the chart (the y-dimension).
+
+In the case where no ``continuous_range`` object is passed, it is calculated
+based on the data provided in values, according to the following rules:
+
+* with all positive data: start = 0, end = 1.1 * max
+* with all negative data: start = 1.1 * min, end = 0
+* with mixed sign data:   start = 1.1 * min, end = 1.1 * max
 
 
 .. image:: /_images/charts_bar_stacked.png

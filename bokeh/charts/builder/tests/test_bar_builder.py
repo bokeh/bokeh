@@ -20,21 +20,24 @@ import numpy as np
 import pandas as pd
 
 from bokeh.charts import Bar
-
 from bokeh.charts.builder.tests._utils import create_chart
+from bokeh.models import Range1d, FactorRange
 
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
 
+
 class TestBar(unittest.TestCase):
     def test_supported_input(self):
         xyvalues = OrderedDict()
-        xyvalues['python']=[2, 5]
-        xyvalues['pypy']=[12, 40]
-        xyvalues['jython']=[22, 30]
+        xyvalues['python'] = [2, 5]
+        xyvalues['pypy'] = [12, 40]
+        xyvalues['jython'] = [22, 30]
 
-        for i, _xy in enumerate([xyvalues, dict(xyvalues), pd.DataFrame(xyvalues)]):
+        for i, _xy in enumerate([xyvalues,
+                                 dict(xyvalues),
+                                 pd.DataFrame(xyvalues)]):
             bar = create_chart(Bar, _xy)
             builder = bar._builders[0]
             np.testing.assert_array_equal(builder._data['pypy'], np.array(xyvalues['pypy']))
@@ -80,3 +83,49 @@ class TestBar(unittest.TestCase):
             np.testing.assert_array_equal(builder._data['width'], np.array([0.8, 0.8]))
             np.testing.assert_array_equal(builder._data['width_cat'], np.array([0.2, 0.2]))
 
+    def test_all_positive_input(self):
+        source = OrderedDict()
+        source['percent change 1'] = [1, 13]
+        source['percent change 2'] = [12, 40]
+        bar_chart = create_chart(Bar, source)
+        self.assertEqual(bar_chart._builders[0].y_range.start, 0)
+        self.assertEqual(bar_chart._builders[0].y_range.end, 40 * 1.1)
+
+    def test_all_negative_input(self):
+        source = OrderedDict()
+        source['percent change 1'] = [-1, -13]
+        source['percent change 2'] = [-12, -40]
+        bar_chart = create_chart(Bar, source)
+        # We want the start to be negative, so that data points downwards
+        self.assertEqual(bar_chart._builders[0].y_range.start, -40 * 1.1)
+        self.assertEqual(bar_chart._builders[0].y_range.end, 0)
+
+    def test_mixed_sign_input(self):
+        source = OrderedDict()
+        source['percent change 1'] = [-1, -13]
+        source['percent change 2'] = [12, 40]
+        bar_chart = create_chart(Bar, source)
+        self.assertEqual(bar_chart._builders[0].y_range.start, -13 * 1.1)
+        self.assertEqual(bar_chart._builders[0].y_range.end, 40 * 1.1)
+
+    def test_set_custom_continuous_range(self):
+        # Users can specify their own y_range for cases where the
+        # default guess is not what's desired.
+        source = OrderedDict()
+        source['percent change 1'] = [25, -13]
+        source['percent change 2'] = [-12, -40]
+        custom_y_range = Range1d(50, -50)
+        bar_chart = create_chart(Bar, source, continuous_range=custom_y_range)
+        self.assertEqual(bar_chart._builders[0].y_range, custom_y_range)
+
+    def test_invalid_continuous_range_raises_error(self):
+        source = OrderedDict({'p': [0, 1]})
+        bad_y_range = range(0, 50)  # Not a Range object
+        with self.assertRaises(ValueError):
+            create_chart(Bar, source, continuous_range=bad_y_range)
+
+    def test_non_range1d_continuous_range_raises_value_error(self):
+        source = OrderedDict({'p': [0, 1]})
+        non_1d_range = FactorRange(factors=['a', 'b'])
+        with self.assertRaises(ValueError):
+            create_chart(Bar, source, continuous_range=non_1d_range)

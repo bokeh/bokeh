@@ -40,6 +40,11 @@ class TestBokehJSONEncoder(unittest.TestCase):
         self.assertEqual(self.encoder.default(npfloat), 1.33)
         self.assertIsInstance(self.encoder.default(npfloat), float)
 
+    def test_numpybool_(self):
+        nptrue = np.bool_(True)
+        self.assertEqual(self.encoder.default(nptrue), True)
+        self.assertIsInstance(self.encoder.default(nptrue), bool)
+
     @skipIf(not is_pandas, "pandas does not work in PyPy.")
     def test_pd_timestamp(self):
         ts = pd.tslib.Timestamp('April 28, 1948')
@@ -73,7 +78,7 @@ class TestSerializeJson(unittest.TestCase):
         assert deserialized[1] == 'Infinity'
         assert deserialized[2] == '-Infinity'
         assert deserialized[3] == 0
-        
+
     @skipIf(not is_pandas, "pandas does not work in PyPy.")
     def test_nans_and_infs_pandas(self):
         arr = pd.Series(np.array([np.nan, np.inf, -np.inf, 0]))

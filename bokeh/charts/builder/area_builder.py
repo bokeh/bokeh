@@ -37,6 +37,48 @@ from ...properties import Any, Bool
 
 
 def Area(values, index=None, **kws):
+    """ Create an area chart using the :class:`AreaBuilder <bokeh.charts.builder.area_builder.AreaBuilder>`
+    to render the geometry from values.
+
+    Args:
+        values (iterable): iterable 2d representing the data series
+            values matrix.
+        index (str|1d iterable, optional): can be used to specify a common custom
+            index for all data series as an **1d iterable** of any sort that will be used as
+            series common index or a **string** that corresponds to the key of the
+            mapping to be used as index (and not as data series) if
+            area.values is a mapping (like a dict, an OrderedDict
+            or a pandas DataFrame)
+
+    In addition the the parameters specific to this chart,
+        :ref:`charts_generic_arguments` are also accepted as keyword parameters.
+
+    Returns:
+        a new :class:`Chart <bokeh.charts.Chart>`
+
+    Examples:
+
+        .. bokeh-plot::
+            :source-position: above
+
+            from bokeh.charts import Area
+            from bokeh.plotting import output_file, show
+
+            # (dict, OrderedDict, lists, arrays and DataFrames are valid inputs)
+            xyvalues = dict(
+                python=[2, 3, 7, 5, 26, 221, 44, 233, 254, 265, 266, 267, 120],
+                pypy=[12, 33, 47, 15, 126, 121, 144, 233, 254, 225, 226, 267, 110],
+                jython=[22, 43, 10, 25, 26, 101, 114, 203, 194, 215, 201, 227, 139],
+            )
+
+            # create an area chart
+            output_file('area.html')
+            area = Area(
+                xyvalues, title="Area Chart", xlabel='time', legend=True,
+                ylabel='memory', stacked=True,
+            )
+            show(area)
+    """
     return create_and_build(AreaBuilder, values, index=index, **kws)
 
 
@@ -50,23 +92,6 @@ class AreaBuilder(Builder):
     And finally add the needed glyphs (patch) taking the references
     from the source.
 
-    Examples:
-        from collections import OrderedDict
-        from bokeh.charts import Area
-
-        # create some example data
-        xyvalues = OrderedDict(
-            python=[2, 3, 7, 5, 26, 221, 44, 233, 254, 265, 266, 267, 120],
-            pypy=[12, 33, 47, 15, 126, 121, 144, 233, 254, 225, 226, 267, 110],
-            jython=[22, 43, 10, 25, 26, 101, 114, 203, 194, 215, 201, 227, 139],
-        )
-
-        # create an area chart
-        area = Area(
-            xyvalues, title="Area Chart", xlabel='time',
-            ylabel='memory', filename="area.html", stacked=True,
-        )
-        area.show()
     """
 
     stacked = Bool(False, help="""
@@ -90,10 +115,10 @@ class AreaBuilder(Builder):
 
     """)
 
-    def get_data(self):
+    def _process_data(self):
         """Calculate the chart properties accordingly from area.values.
         Then build a dict containing references to all the points to be used by
-        the patch glyph inside the ``draw`` method.
+        the patch glyph inside the ``_yield_renderers`` method.
 
         """
         xs = self._values_index
@@ -126,7 +151,7 @@ class AreaBuilder(Builder):
             self.set_and_get("y_", grp, values)
             self._groups.append(grp)
 
-    def get_source(self):
+    def _set_sources(self):
         """
         Push the Line data into the ColumnDataSource and calculate the proper ranges.
         """
@@ -140,9 +165,9 @@ class AreaBuilder(Builder):
             end=endy + 0.1 * (endy - starty)
         )
 
-    def draw(self):
+    def _yield_renderers(self):
         """Use the patch glyphs to fill the area connecting the xy points
-         in the series taken from the data added with area.get_data.
+         in the series taken from the data added with area._process_data.
 
         Takes reference points from the data loaded at the ColumnDataSource.
         """

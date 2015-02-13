@@ -138,15 +138,5 @@ class TestPlotting(unittest.TestCase):
         for i, _type in enumerate(expected):
             self.assertIsInstance(fig.tools[i], _type)
 
-        # need to change the expected tools because categorical scales
-        # automatically removes pan and zoom tools
-        factors = ["a", "b", "c", "d", "e", "f", "g", "h"]
-        fig = plt.figure(tools=TOOLS, y_range=factors)
-        expected = [ResizeTool, ResetTool, LassoSelectTool]
-        self.assertEqual(len(fig.tools), len(expected))
-        for i, _type in enumerate(expected):
-            self.assertIsInstance(fig.tools[i], _type)
-
-
 if __name__ == "__main__":
     unittest.main()

@@ -368,6 +368,7 @@ class Document(object):
         all_models = self.context.references()
         to_keep = set([x._id for x in all_models])
         to_delete = set(self._models.keys()) - to_keep
+        to_delete_objs = []
         for k in to_delete:
-            del self._models[k]
-        return to_delete
+            to_delete_objs.append(self._models.pop(k))
+        return to_delete_objs

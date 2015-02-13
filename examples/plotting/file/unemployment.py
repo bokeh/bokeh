@@ -38,7 +38,7 @@ source = ColumnDataSource(
 
 output_file('unemployment.html')
 
-TOOLS = "resize,hover,save"
+TOOLS = "resize,hover,save,pan,box_zoom,wheel_zoom"
 
 p = figure(title="US Unemployment (1948 - 2013)",
     x_range=years, y_range=list(reversed(months)),

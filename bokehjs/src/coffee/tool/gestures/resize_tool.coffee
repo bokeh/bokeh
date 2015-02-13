@@ -6,22 +6,38 @@ define [
 ], (_, Collection, GestureTool) ->
 
   class ResizeToolView extends GestureTool.View
-    className: "bk-resize-popup pull-right"
+    className: "bk-resize-popup"
 
     initialize: (options) ->
       super(options)
       wrapper = @plot_view.$el.find('div.bk-canvas-wrapper')
       @$el.appendTo(wrapper)
       @$el.hide()
+      @active = false
       return null
 
     activate: () ->
-      @$el.show()
+      @active = true
+      @render()
       return null
 
     deactivate: () ->
-      @$el.hide()
+      @active = false
+      @render()
       return null
+
+    render: (ctx) ->
+      if @active
+        canvas = @plot_view.canvas
+        frame = @plot_view.frame
+        left = canvas.vx_to_sx(frame.get('h_range').get('end')-40)
+        top = canvas.vy_to_sy(frame.get('v_range').get('start')+40)
+        @$el.attr('style',
+          "position:absolute; top:#{top}px; left:#{left}px;"
+        )
+        @$el.show()
+      else
+        @$el.hide()
 
     _pan_start: (e) ->
       canvas = @plot_view.canvas
@@ -35,15 +51,9 @@ define [
 
     _update: (dx, dy) ->
       @plot_view.pause()
-
-      # TODO (bev) proper non-private API
       canvas = @plot_view.canvas
-      canvas._set_dims([@cw+dx, @ch+dy])
-
-      @plot_view.request_render()
-
+      canvas._set_dims([@cw+dx, @ch+dy]) # TODO (bev) proper non-private API
       @plot_view.unpause()
-
       return null
 
   class ResizeTool extends GestureTool.Model
@@ -56,6 +66,13 @@ define [
 
   class ResizeTools extends Collection
     model: ResizeTool
+
+    defaults: () ->
+      return _.extend({}, super(), {
+        level: 'overlay'
+        data: {}
+      })
+
 
   return {
     "Model": ResizeTool
