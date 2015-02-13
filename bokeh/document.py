@@ -192,6 +192,8 @@ class Document(object):
         for m in all_models:
             props = m.finalize(self._models)
             m.update(**props)
+
+        for m in all_models:
             m.setup_events()
 
         if events == 'all':

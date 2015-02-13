@@ -2,7 +2,7 @@ from __future__ import absolute_import
 
 from ..plot_object import PlotObject
 from ..properties import HasProps
-from ..properties import Any, Int, String, Instance, List, Dict, Either
+from ..properties import Any, Int, String, Instance, List, Dict, Either, Bool
 
 class DataSource(PlotObject):
     """ A base class for data source types. ``DataSource`` is
@@ -218,6 +218,31 @@ class BlazeDataSource(RemoteSource):
     namespace = Dict(String, Any(), help="""
     namespace in json form for evaluating blaze expression graph
     """)
+    local = Bool(help="""
+    Whether this data source is hosted by the bokeh server or not.
+    """)
+
+    def from_blaze(self, remote_blaze_obj, local=True):
+        from blaze.server import to_tree
+        # only one Client object, can hold many datasets
+        assert len(remote_blaze_obj._leaves()) == 1
+        leaf = remote_blaze_obj._leaves()[0]
+        blaze_client = leaf.data
+        json_expr = to_tree(remote_blaze_obj, {leaf : ':leaf'})
+        self.data_url = blaze_client.url + "/compute.json"
+        self.local = local
+        self.expr = json_expr
+
+    def to_blaze(self):
+        from blaze.server.client import Client
+        from blaze.server import from_tree
+        from blaze import Data, Symbol
+        # hacky - blaze urls have `compute.json` in it, but we need to strip it off
+        # to feed it into the blaze client lib
+        c = Client(self.data_url.rsplit('compute.json', 1)[0])
+        d = Data(c)
+        return from_tree(self.expr, {':leaf' : d})
+
 
 class ServerDataSource(BlazeDataSource):
     """ A data source that referes to data located on a Bokeh server.

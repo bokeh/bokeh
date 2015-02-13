@@ -3,12 +3,15 @@
 
 import numpy as np
 from bokeh.plotting import *
-from bokeh.models import ServerDataSource, BlazeDataSource
+from bokeh.models import BlazeDataSource
 from bokeh.transforms import line_downsample
-
+from blaze.server.client import Client
+from blaze import Data
 output_server("blaze_source")
-source = BlazeDataSource(data_url="http://localhost:5006/compute.json",
-                         expr={'op': 'Field', 'args': [':leaf', 'gauss']})
+c = Client('http://localhost:5006')
+d = Data(c)
+source = BlazeDataSource()
+source.from_blaze(d.gauss)
 p = figure()
 p.circle('oneA', 'oneB',
        color='#A6CEE3',

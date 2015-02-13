@@ -64,8 +64,8 @@ def prune(document, temporary_docid=None, delete=False):
         storage_id = document.docid
     to_delete = document.prune()
     if delete:
-        for objid in to_delete:
-            bokeh_app.backbone_storage.del_obj(storage_id, objid)
+        for obj in to_delete:
+            bokeh_app.backbone_storage.del_obj(storage_id, obj)
 
 class PersistentBackboneStorage(object):
     """Base class for `RedisBackboneStorage`, `InMemoryBackboneStorage`, etc. """

@@ -144,6 +144,7 @@ define [
   'widget/dialog'
   'widget/icon'
   'widget/button'
+  'widget/simpleapp'
   'widget/toggle'
   'widget/dropdown'
   'widget/checkbox_group'
@@ -340,6 +341,7 @@ define [
     RadioGroup:               'widget/radio_group'
     CheckboxButtonGroup:      'widget/checkbox_button_group'
     RadioButtonGroup:         'widget/radio_button_group'
+    SimpleApp:                'widget/simpleapp'
 
     AutoEncode:               'transforms/autoencode'
     BinarySegment:            'transforms/binarysegment'
