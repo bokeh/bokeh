@@ -53,12 +53,13 @@ def Line(values, index=None, **kws):
 
         import numpy as np
         from bokeh.charts import Line
+        from bokeh.plotting import output_file, show
 
         # (dict, OrderedDict, lists, arrays and DataFrames are valid inputs)
+        output_file('line.html')
         xyvalues = np.array([[2, 3, 7, 5, 26], [12, 33, 47, 15, 126], [22, 43, 10, 25, 26]])
-        line = Line(xyvalues, title="line", legend="top_left", ylabel='Languages',
-                  filename="line.html")
-        line.show()
+        line = Line(xyvalues, title="line", legend="top_left", ylabel='Languages')
+        show(line)
 
     """
     return create_and_build(LineBuilder, values, index=index, **kws)

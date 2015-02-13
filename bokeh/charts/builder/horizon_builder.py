@@ -51,6 +51,7 @@ def Horizon(values, index=None, num_folds=3, pos_color='#006400',
         import datetime
         from collections import OrderedDict
         from bokeh.charts import Horizon
+        from bokeh.plotting import output_file, show
 
         now = datetime.datetime.now()
         dts = [now+datetime.timedelta(seconds=i) for i in range(5)]
@@ -59,9 +60,9 @@ def Horizon(values, index=None, num_folds=3, pos_color='#006400',
         y_pypy = xyvalues['pypy'] = [12, 33, 47, 15, 126]
         y_jython = xyvalues['jython'] = [22, 43, 10, 25, 26]
 
-        hz = Horizon(xyvalues, index='Date', title="horizon", legend="top_left",
-                        ylabel='Stock Prices', filename="stocks_ts.html")
-        hz.show()
+        output_file('horizon.html')
+        hz = Horizon(xyvalues, index='Date', title="horizon", ylabel='Stock Prices')
+        show(hz)
 
     """
     tools = kws.get('tools', True)

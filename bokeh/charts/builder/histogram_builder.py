@@ -62,11 +62,13 @@ def Histogram(values, bins, mu=None, sigma=None, density=True, **kws):
 
         import pandas as pd
         from bokeh.charts import Histogram
+        from bokeh.plotting import output_file, show
 
         # (dict, OrderedDict, lists, arrays and DataFrames are valid inputs)
+        output_file('histogram.html')
         xyvalues = pd.DataFrame(dict(normal=[1, 2, 3, 1], lognormal=[5, 4, 4, 1]))
-        hm = Histogram(xyvalues, bins=5, title='Histogram', filename="histogram.html")
-        hm.show()
+        hm = Histogram(xyvalues, bins=5, title='Histogram')
+        show(hm)
 
     """
     return create_and_build(

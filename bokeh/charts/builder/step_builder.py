@@ -53,12 +53,13 @@ def Step(values, index=None, **kws):
 
         from collections import OrderedDict
         from bokeh.charts import Step
+        from bokeh.plotting import output_file, show
 
         # (dict, OrderedDict, lists, arrays and DataFrames are valid inputs)
+        output_file('step.html')
         xyvalues = [[2, 3, 7, 5, 26], [12, 33, 47, 15, 126], [22, 43, 10, 25, 26]]
-        step = Step(xyvalues, title="Steps", legend="top_left", ylabel='Languages',
-                  filename="step.html")
-        step.show()
+        step = Step(xyvalues, title="Steps", legend="top_left", ylabel='Languages')
+        show(step)
 
     """
     return create_and_build(StepBuilder, values, index=index, **kws)

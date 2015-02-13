@@ -59,6 +59,7 @@ def Bar(values, cat=None, stacked=False, xscale="categorical", yscale="linear",
 
         from collections import OrderedDict
         from bokeh.charts import Bar
+        from bokeh.plotting import output_file, show
 
         # (dict, OrderedDict, lists, arrays and DataFrames are valid inputs)
         xyvalues = OrderedDict()
@@ -66,9 +67,10 @@ def Bar(values, cat=None, stacked=False, xscale="categorical", yscale="linear",
         xyvalues['pypy']=[12, 40]
         xyvalues['jython']=[22, 30]
         cat = ['1st', '2nd']
+        output_file("stacked_bar.html")
         bar = Bar(xyvalues, cat, title="Stacked bars",
-                filename="stacked_bar.html", xlabel="category", ylabel="language")
-        bar.show()
+                xlabel="category", ylabel="language")
+        show(bar)
     """
     if continuous_range and not isinstance(continuous_range, Range1d):
         raise ValueError(

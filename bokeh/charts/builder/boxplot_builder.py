@@ -52,6 +52,7 @@ def BoxPlot(values, marker="circle", outliers=True, xscale="categorical", yscale
 
         from bokeh.charts import BoxPlot
         import numpy as np
+        from bokeh.plotting import output_file, show
 
         # (dict, OrderedDict, lists, arrays and DataFrames of arrays are valid inputs)
         medals = dict([
@@ -65,9 +66,10 @@ def BoxPlot(values, marker="circle", outliers=True, xscale="categorical", yscale
                               3., 1., 0., 5., 4., 2., 0., 0., 0., 1., 1., 0., 0.,
                               0.]))
                 ])
+        output_file('boxplot.html')
         boxplot = BoxPlot(medals, marker="circle", outliers=True, title="boxplot",
-            xlabel="medal type", ylabel="medal count", filename='boxplot.html')
-        boxplot.show()
+            xlabel="medal type", ylabel="medal count")
+        show(boxplot)
 
     """
     return create_and_build(

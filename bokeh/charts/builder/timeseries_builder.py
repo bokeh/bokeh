@@ -58,6 +58,7 @@ def TimeSeries(values, index=None, xscale='datetime', **kws):
         from collections import OrderedDict
         import datetime
         from bokeh.charts import TimeSeries
+        from bokeh.plotting import output_file, show
 
         # (dict, OrderedDict, lists, arrays and DataFrames are valid inputs)
         now = datetime.datetime.now()
@@ -67,9 +68,10 @@ def TimeSeries(values, index=None, xscale='datetime', **kws):
         y_python = xyvalues['python'] = [2, 3, 7, 5, 26]
         y_pypy = xyvalues['pypy'] = [12, 33, 47, 15, 126]
         y_jython = xyvalues['jython'] = [22, 43, 10, 25, 26]
+        output_file('timeseries.html')
         ts = TimeSeries(xyvalues, index='Date', title="TimeSeries", legend="top_left",
-                ylabel='Languages', filename="timeseries.html")
-        ts.show()
+                ylabel='Languages')
+        show(ts)
     """
     return create_and_build(
         TimeSeriesBuilder, values, index=index, xscale=xscale, **kws
