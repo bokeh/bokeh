@@ -730,12 +730,10 @@ Examples:
         from bokeh.plotting import figure, output_file, show
 
         plot = figure(width=300, height=300)
-        plot.ray([1, 2, 3], [1, 2, 3], 45, -0.7, color="#FB8072",
+        plot.ray(x=[1, 2, 3], y=[1, 2, 3], length=45, angle=-0.7, color="#FB8072",
                  line_width=2)
 
         show(plot)
-
-45, -0.7, color="#FB8072", line_width=2
 """
 )
 
@@ -762,6 +760,19 @@ Notes:
     setting `dilate` to True will cause pixel distances (e.g., for `width` and `height`) to
     be rounded up, always.
 
+
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.rect(x=[1, 2, 3], y=[1, 2, 3], width=10, height=20, color="#CAB2D6",
+            width_units="screen", height_units="screen")
+
+        show(plot)
 """
 )
 
@@ -780,6 +791,21 @@ are also accepted as keyword parameters.
 
 Returns:
     plot
+
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.segment(x0=[1, 2, 3], y0=[1, 2, 3], x1=[1, 2, 3],
+                    y1=[1.2, 2.5, 3.7], color="#F4A582",
+                    line_width=3)
+
+        show(plot)
+
 """,
     xfields=["x0", "x1"], yfields=["y0", "y1"])
 
@@ -798,6 +824,18 @@ Args:
 
 Returns:
     plot
+
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.square(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,30], color="#74ADD1")
+
+        show(plot)
 """
 )
 
@@ -815,6 +853,19 @@ In addition the the parameters specific to this glyph, :ref:`userguide_objects_l
 
 Returns:
     plot
+
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.square_cross(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,25],
+                         color="#7FC97F",fill_color=None, line_width=2)
+
+        show(plot)
 """
 )
 
@@ -832,6 +883,19 @@ Args:
 
 Returns:
     plot
+
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.square_x(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,25],
+                     color="#FDAE6B",fill_color=None, line_width=2)
+
+        show(plot)
 """
 )
 
@@ -852,6 +916,7 @@ are also accepted as keyword parameters.
 
 Returns:
     plot
+
 """
 )
 
@@ -870,6 +935,19 @@ Args:
 
 Returns:
     plot
+
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.triangle(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,25],
+                     color="#99D594", line_width=2)
+
+        show(plot)
 """
 )
 
@@ -890,6 +968,19 @@ In addition the the parameters specific to this glyph, :ref:`userguide_objects_l
 
 Returns:
     plot
+
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.wedge(x=[1, 2, 3], y=[1, 2, 3], radius=15, start_angle=0.6,
+                     end_angle=4.1, radius_units="screen", color="#2b8cbe")
+
+        show(plot)
 """
 )
 
@@ -908,5 +999,17 @@ Args:
 
 Returns:
     plot
+
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.x(x=[1, 2, 3], y=[1, 2, 3], size=[10, 20, 25], color="#fa9fb5")
+
+        show(plot)
 """
 )
