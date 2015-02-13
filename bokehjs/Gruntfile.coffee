@@ -207,5 +207,6 @@ module.exports = (grunt) ->
   grunt.registerTask("build",     ["coffee", "less", "buildcopy", "eco"])
   grunt.registerTask("deploy",    ["build",  "requirejs", "cssmin"])
   grunt.registerTask("test",      ["build", "connect", "qunit"])
+  grunt.registerTask("fast_test", ["copy:test", "coffee:test", "connect", "qunit"])
   grunt.registerTask("serve",     ["connect:server:keepalive"])
   grunt.registerTask("release",   ["deploy", "copy:release"])

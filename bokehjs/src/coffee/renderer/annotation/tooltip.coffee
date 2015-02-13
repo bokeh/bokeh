@@ -29,6 +29,8 @@ define [
       @$el.empty()
       @$el.hide()
 
+      @$el.toggleClass("bk-tooltip-custom", @mget("custom"))
+
       if _.isEmpty(@mget('data'))
         return
 

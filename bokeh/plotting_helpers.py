@@ -319,8 +319,7 @@ def _tool_from_string(name):
 
 
 def _process_tools_arg(plot, tools):
-    """ Adds tools to the plot object skipping those specified in
-    tools_to_remove.
+    """ Adds tools to the plot object
 
     Args:
         plot (Plot): instance of a plot object
@@ -334,12 +333,6 @@ def _process_tools_arg(plot, tools):
     tool_objs = []
     temp_tool_str = ""
     repeated_tools = []
-    removed_tools = []
-    tools_to_remove = []
-    # Remove pan/zoom tools in case of categorical axes
-    if isinstance(plot.x_range, FactorRange) or \
-            isinstance(plot.y_range, FactorRange):
-        tools_to_remove = ['pan', 'zoom']
 
     if isinstance(tools, (list, tuple)):
         for tool in tools:
@@ -356,10 +349,6 @@ def _process_tools_arg(plot, tools):
         if tool == "":
             continue
 
-        if any(x in tool for x in tools_to_remove):
-            removed_tools.append(tool)
-            continue
-
         tool_obj = _tool_from_string(tool)
         tool_objs.append(tool_obj)
 
@@ -370,10 +359,6 @@ def _process_tools_arg(plot, tools):
 
     if repeated_tools:
         warnings.warn("%s are being repeated" % ",".join(repeated_tools))
-
-    if removed_tools:
-        warnings.warn("categorical plots do not support pan and zoom operations.\n"
-                      "Removing tool(s): %s" % ', '.join(removed_tools))
 
     return tool_objs
 
@@ -459,12 +444,7 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
                 raise ValueError("tool should be a string or an instance of Tool class")
         tools = temp_tool_str
 
-    # Remove pan/zoom tools in case of categorical axes
-    remove_pan_zoom = (isinstance(plot.x_range, FactorRange) or
-                       isinstance(plot.y_range, FactorRange))
-
     repeated_tools = []
-    removed_tools = []
 
     for tool in re.split(r"\s*,\s*", tools.strip()):
         # re.split will return empty strings; ignore them.
@@ -473,10 +453,6 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
 
         tool_obj = _tool_from_string(tool)
         tool_obj.plot = plot
-
-        if remove_pan_zoom and ("pan" in tool or "zoom" in tool):
-            removed_tools.append(tool)
-            continue
 
         tool_objs.append(tool_obj)
 
@@ -488,10 +464,6 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
 
     if repeated_tools:
         warnings.warn("%s are being repeated" % ",".join(repeated_tools))
-
-    if removed_tools:
-        warnings.warn("categorical plots do not support pan and zoom operations.\n"
-                      "Removing tool(s): %s" %', '.join(removed_tools))
 
     return plot
 

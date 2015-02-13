@@ -133,7 +133,7 @@ define (require, exports, module) ->
   # widgets
   Bokeh.HBox           = require("widget/hbox")
   Bokeh.VBox           = require("widget/vbox")
-  Bokeh.TextInput      = require("widget/textinput")
+  Bokeh.TextInput      = require("widget/text_input")
   Bokeh.CrossFilter    = require("widget/crossfilter")
 
   exports.Bokeh = Bokeh

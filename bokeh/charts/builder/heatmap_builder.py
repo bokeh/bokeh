@@ -29,6 +29,38 @@ from ...models.glyphs import Rect
 
 def HeatMap(values, xscale="categorical", yscale="categorical",
             xgrid=False, ygrid=False, **kw):
+    """ Create a HeatMap chart using :class:`HeatMapBuilder <bokeh.charts.builder.heatmap_builder.HeatMapBuilder>`
+    to render the geometry from values.
+
+    Args:
+        values (iterable): iterable 2d representing the data series
+            values matrix.
+
+    In addition the the parameters specific to this chart,
+    :ref:`charts_generic_arguments` are also accepted as keyword parameters.
+
+    Returns:
+        a new :class:`Chart <bokeh.charts.Chart>`
+
+    Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from collections import OrderedDict
+        from bokeh.charts import HeatMap
+        from bokeh.plotting import output_file, show
+
+        # (dict, OrderedDict, lists, arrays and DataFrames are valid inputs)
+        xyvalues = OrderedDict()
+        xyvalues['apples'] = [4,5,8]
+        xyvalues['bananas'] = [1,2,4]
+        xyvalues['pears'] = [6,5,4]
+        output_file('heatmap.html')
+        hm = HeatMap(xyvalues, title='Fruits')
+        show(hm)
+
+    """
     chart = create_and_build(
         HeatMapBuilder, values, xscale=xscale, yscale=yscale,
         xgrid=xgrid, ygrid=ygrid, **kw
@@ -46,24 +78,14 @@ class HeatMapBuilder(Builder):
     And finally add the needed glyphs (rects) taking the references
     from the source.
 
-    Examples:
-    from collections import OrderedDict
-    from bokeh.charts import HeatMap
-
-    xyvalues = OrderedDict()
-    xyvalues['apples'] = [4,5,8]
-    xyvalues['bananas'] = [1,2,4]
-    xyvalues['pears'] = [6,5,4]
-    hm = HeatMap(xyvalues, title="categorical heatmap", filename="cat_heatmap.html")
-    hm.show()
     """
 
-    def get_data(self):
+    def _process_data(self):
         """Take the CategoricalHeatMap data from the input **value.
 
         It calculates the chart properties accordingly. Then build a dict
         containing references to all the calculated points to be used by
-        the rect glyph inside the ``draw`` method.
+        the rect glyph inside the ``_yield_renderers`` method.
 
         """
         self._catsx = list(self._values.columns)
@@ -95,7 +117,7 @@ class HeatMapBuilder(Builder):
         self._data = dict(catx=catx, caty=caty, color=color, rate=rate,
                          width=width, height=height)
 
-    def get_source(self):
+    def _set_sources(self):
         """Push the CategoricalHeatMap data into the ColumnDataSource
         and calculate the proper ranges.
         """
@@ -103,7 +125,7 @@ class HeatMapBuilder(Builder):
         self.x_range = FactorRange(factors=self._catsx)
         self.y_range = FactorRange(factors=self._catsy)
 
-    def draw(self):
+    def _yield_renderers(self):
         """Use the rect glyphs to display the categorical heatmap.
 
         Takes reference points from data loaded at the ColumnDataSurce.
@@ -118,7 +140,7 @@ class HeatMapBuilder(Builder):
         # TODO: Legend??
         yield renderer
 
-    def prepare_values(self):
+    def _adapt_values(self):
         """Prepare the input data.
 
         Converts data input (self._values) to a DataAdapter

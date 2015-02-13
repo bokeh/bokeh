@@ -22,6 +22,53 @@ from ...properties import Any, Color, Int
 def Horizon(values, index=None, num_folds=3, pos_color='#006400',
             neg_color='#6495ed', xscale='datetime', xgrid=False, ygrid=False,
             **kws):
+    """ Create a Horizon chart using :class:`HorizonBuilder <bokeh.charts.builder.horizon_builder.HorizonBuilder>`
+    render the geometry from values, index and num_folds.
+
+    Args:
+        values (iterable): iterable 2d representing the data series
+            values matrix.
+        index (str|1d iterable, optional): can be used to specify a common custom
+            index for all data series as an **1d iterable** of any sort that will be used as
+            series common index or a **string** that corresponds to the key of the
+            mapping to be used as index (and not as data series) if
+            area.values is a mapping (like a dict, an OrderedDict
+            or a pandas DataFrame)
+        num_folds (int, optional): The number of folds stacked on top
+            of each other. (default: 3)
+        pos_color (color, optional): The color of the positive folds.
+            (default: "#006400")
+        ned_color (color, optional): The color of the negative folds.
+            (default: "#6495ed")
+
+    In addition the the parameters specific to this chart,
+    :ref:`charts_generic_arguments` are also accepted as keyword parameters.
+
+    Returns:
+        a new :class:`Chart <bokeh.charts.Chart>`
+
+    Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        import datetime
+        from collections import OrderedDict
+        from bokeh.charts import Horizon
+        from bokeh.plotting import output_file, show
+
+        now = datetime.datetime.now()
+        dts = [now+datetime.timedelta(seconds=i) for i in range(5)]
+        xyvalues = OrderedDict({'Date': dts})
+        y_python = xyvalues['python'] = [2, 3, 7, 5, 26]
+        y_pypy = xyvalues['pypy'] = [12, 33, 47, 15, 126]
+        y_jython = xyvalues['jython'] = [22, 43, 10, 25, 26]
+
+        output_file('horizon.html')
+        hz = Horizon(xyvalues, index='Date', title="horizon", ylabel='Stock Prices')
+        show(hz)
+
+    """
     tools = kws.get('tools', True)
 
     if tools == True:
@@ -57,22 +104,6 @@ class HorizonBuilder(Builder):
     We additionally make calculations for the ranges.
     And finally add the needed lines taking the references from the source.
 
-    Examples:
-        import datetime
-        from collections import OrderedDict
-        from bokeh.charts import Horizon
-
-        now = datetime.datetime.now()
-        delta = datetime.timedelta(minutes=1)
-        xyvalues = OrderedDict({'Date': dts})
-        y_python = xyvalues['python'] = [2, 3, 7, 5, 26]
-        y_pypy = xyvalues['pypy'] = [12, 33, 47, 15, 126]
-        y_jython = xyvalues['jython'] = [22, 43, 10, 25, 26]
-
-        hz = Horizon(xyvalues, index='Date', title="horizon", legend="top_left",
-                        ylabel='Stock Prices', filename="stocks_ts.html")
-        hz.show()
-
     """
 
     index = Any(help="""
@@ -89,7 +120,7 @@ class HorizonBuilder(Builder):
     """)
 
     neg_color = Color("#6495ed", help="""
-    The color of the positive folds. (default: "#6495ed")
+    The color of the negative folds. (default: "#6495ed")
     """)
 
     num_folds = Int(3, help="""
@@ -185,12 +216,12 @@ class HorizonBuilder(Builder):
             l.append(l[-1] if padded_value is None else padded_value)
         return l
 
-    def get_data(self):
+    def _process_data(self):
         """Use x/y data from the horizon values.
 
         It calculates the chart properties accordingly. Then build a dict
         containing references to all the points to be used by
-        the multiple area glyphes inside the ``draw`` method.
+        the multiple area glyphes inside the ``_yield_renderers`` method.
 
         """
         for col in self._values.keys():
@@ -249,15 +280,15 @@ class HorizonBuilder(Builder):
         self.set_and_get(
             'y_', 'all', [self._data[f_name] for f_name in self._fold_names])
 
-    def get_source(self):
+    def _set_sources(self):
         """Push the Horizon data into the ColumnDataSource and
         calculate the proper ranges.
         """
         self._source = ColumnDataSource(self._data)
-        self.x_range = DataRange1d(sources=[self._source.columns(self._attr[0])])
+        self.x_range = DataRange1d(rangepadding=0, sources=[self._source.columns(self._attr[0])])
         self.y_range = Range1d(start=0, end=self._max_y)
 
-    def draw(self):
+    def _yield_renderers(self):
         """Use the patch glyphs to connect the xy points in the time series.
         It requires the positive and negative layers
         Takes reference points from the data loaded at the ColumnDataSource.

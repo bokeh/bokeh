@@ -31,6 +31,41 @@ from ...properties import Any
 
 
 def Step(values, index=None, **kws):
+    """ Create a step chart using :class:`StepBuilder <bokeh.charts.builder.step_builder.StepBuilder>`
+    render the geometry from values and index.
+
+    Args:
+        values (iterable): iterable 2d representing the data series
+            values matrix.
+        index (str|1d iterable, optional): can be used to specify a common custom
+            index for all data series as an **1d iterable** of any sort that will be used as
+            series common index or a **string** that corresponds to the key of the
+            mapping to be used as index (and not as data series) if
+            area.values is a mapping (like a dict, an OrderedDict
+            or a pandas DataFrame)
+
+    In addition the the parameters specific to this chart,
+    :ref:`charts_generic_arguments` are also accepted as keyword parameters.
+
+    Returns:
+        a new :class:`Chart <bokeh.charts.Chart>`
+
+    Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from collections import OrderedDict
+        from bokeh.charts import Step
+        from bokeh.plotting import output_file, show
+
+        # (dict, OrderedDict, lists, arrays and DataFrames are valid inputs)
+        output_file('step.html')
+        xyvalues = [[2, 3, 7, 5, 26], [12, 33, 47, 15, 126], [22, 43, 10, 25, 26]]
+        step = Step(xyvalues, title="Steps", legend="top_left", ylabel='Languages')
+        show(step)
+
+    """
     return create_and_build(StepBuilder, values, index=index, **kws)
 
 
@@ -59,10 +94,10 @@ class StepBuilder(Builder):
 
     """)
 
-    def get_data(self):
+    def _process_data(self):
         """It calculates the chart properties accordingly from Step.values.
         Then build a dict containing references to all the points to be
-        used by the segment glyph inside the ``draw`` method.
+        used by the segment glyph inside the ``_yield_renderers`` method.
         """
         self._data = dict()
         self._groups = []
@@ -86,7 +121,7 @@ class StepBuilder(Builder):
             ys[1::2] = orig_ys[:-1]
             self._data['y_%s' % col] = ys
 
-    def get_source(self):
+    def _set_sources(self):
         """ Push the Step data into the ColumnDataSource and calculate
         the proper ranges.
         """
@@ -96,7 +131,7 @@ class StepBuilder(Builder):
         y_sources = [sc.columns("y_%s" % col) for col in self._groups]
         self.y_range = DataRange1d(sources=y_sources)
 
-    def draw(self):
+    def _yield_renderers(self):
         """Use the line glyphs to connect the xy points in the Step.
 
         Takes reference points from the data loaded at the ColumnDataSource.

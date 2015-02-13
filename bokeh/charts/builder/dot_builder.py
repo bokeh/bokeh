@@ -30,6 +30,40 @@ from ...properties import Any, Bool, Either, List
 
 def Dot(values, cat=None, stem=True, xscale="categorical", yscale="linear",
         xgrid=False, ygrid=True, **kws):
+    """ Create a dot chart using :class:`DotBuilder <bokeh.charts.builder.dot_builder.DotBuilder>`
+    to render the geometry from values and cat.
+
+    Args:
+        values (iterable): iterable 2d representing the data series
+            values matrix.
+        cat (list or bool, optional): list of string representing the categories.
+            Defaults to None.
+
+    In addition the the parameters specific to this chart,
+    :ref:`charts_generic_arguments` are also accepted as keyword parameters.
+
+    Returns:
+        a new :class:`Chart <bokeh.charts.Chart>`
+
+    Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from collections import OrderedDict
+        from bokeh.charts import Dot
+        from bokeh.plotting import output_file, show
+
+        # dict, OrderedDict, lists, arrays and DataFrames are valid inputs
+        xyvalues = OrderedDict()
+        xyvalues['python']=[2, 5]
+        xyvalues['pypy']=[12, 40]
+        xyvalues['jython']=[22, 30]
+        output_file('dot.html')
+        dot = Dot(xyvalues, ['cpu1', 'cpu2'], title='dots')
+        show(dot)
+
+    """
     return create_and_build(
         DotBuilder, values, cat=cat, stem=stem, xscale=xscale, yscale=yscale,
         xgrid=xgrid, ygrid=ygrid, **kws
@@ -59,12 +93,12 @@ class DotBuilder(Builder):
     Whether to draw a stem from each do to the axis.
     """)
 
-    def get_data(self):
+    def _process_data(self):
         """Take the Dot data from the input **value.
 
         It calculates the chart properties accordingly. Then build a dict
         containing references to all the calculated points to be used by
-        the rect glyph inside the ``draw`` method.
+        the rect glyph inside the ``_yield_renderers`` method.
 
         """
         if not self.cat:
@@ -89,7 +123,7 @@ class DotBuilder(Builder):
             # segment top y value
             self.set_and_get("seg_top_", val, values)
 
-    def get_source(self):
+    def _set_sources(self):
         """Push the Dot data into the ColumnDataSource and calculate
         the proper ranges.
         """
@@ -99,7 +133,7 @@ class DotBuilder(Builder):
         end = 1.1 * max(max(self._data[i]) for i in cat)
         self.y_range = Range1d(start=0, end=end)
 
-    def draw(self):
+    def _yield_renderers(self):
         """Use the rect glyphs to display the bars.
 
         Takes reference points from data loaded at the source and

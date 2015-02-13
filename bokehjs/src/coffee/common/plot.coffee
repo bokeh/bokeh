@@ -176,6 +176,12 @@ define [
     render: (force_canvas=false) ->
       logger.trace("Plot.render(force_canvas=#{force_canvas})")
 
+      width = @mget("plot_width")
+      height = @mget("plot_height")
+
+      if @canvas.get("canvas_width") != width or @canvas.get("canvas_height") != height
+        @canvas._set_dims([width, height], trigger=false)
+
       super()
       @canvas_view.render(force_canvas)
 
