@@ -11,10 +11,11 @@ High Level Charts
     in upcoming releases. Although we always try to be consistent, we cannot guarantee
     backwards compatibility for now. Please take this into consideration when using it.
 
-The main idea behind the ``bokeh.charts`` interface is to help the users to easily get their plot
-using a very high level API.
 
-Currently the ``bokeh.charts`` interface supports the following chart types:
+``bokeh.charts`` provides a very high level API to create rich charts commonly used without
+having to access lower level components.
+
+The current ``bokeh.charts`` interface implementation supports the following chart types:
 
 * ``Area`` (overlapped and stacked)
 * ``Bar`` (grouped and stacked)
@@ -23,17 +24,18 @@ Currently the ``bokeh.charts`` interface supports the following chart types:
 * ``Dot``
 * ``HeatMap``
 * ``Histogram``
+* ``Horizon``
 * ``Line``
 * ``Scatter``
 * ``Step``
 * ``Timeseries``
 
 
-To use them, you only have to import the ``Bokeh`` chart of interest from ``bokeh.charts``::
+To use them, you only have to import the chart factory of interest from ``bokeh.charts``::
 
     from bokeh.charts import Histogram
 
-initialize your plot with some specific arguments (for chart customization)::
+initialize your plot with the chart specific arguments to customize the chart::
 
     mu, sigma = 0, 0.5
     normal = np.random.normal(mu, sigma, 1000)
@@ -578,3 +580,16 @@ and to the IPython notebook::
 * ``notebook``, bool type, if you want to output (or not) to the notebook.
 
 .. note:: You can output to any or all of these 3 possibilities because, right now, they are not mutually exclusive.
+
+
+
+.. _charts_builders:
+
+Chart Builders
+--------------
+
+Since 0.8 release `Charts` creation is streamlined by specific
+objects called Builders. Builders are convenience classes that create
+all computation, validation and low-level geometries needed to render a High Level
+Chart. This provides clear pattern to easily extend the `Charts` interface
+with new charts. For more info about this refer to the
