@@ -34,8 +34,8 @@ from ...properties import Bool, Float, Int
 
 
 def Histogram(values, bins, mu=None, sigma=None, density=True, **kws):
-    """ Create a histogram chart using the `HistogramBuilder` to
-    render the geometry from `values`, `bins`, `sigma` and `density`.
+    """ Create a histogram chart using :class:`HistogramBuilder <bokeh.charts.builder.histogram_builder.HistogramBuilder>`
+    to render the geometry from values, bins, sigma and density.
 
     Args:
         values (iterable): iterable 2d representing the data series
@@ -56,6 +56,8 @@ def Histogram(values, bins, mu=None, sigma=None, density=True, **kws):
     In addition the the parameters specific to this chart,
     :ref:`charts_generic_arguments` are also accepted as keyword parameters.
 
+    Examples:
+
     .. bokeh-plot::
         :source-position: above
 
@@ -68,6 +70,9 @@ def Histogram(values, bins, mu=None, sigma=None, density=True, **kws):
         xyvalues = pd.DataFrame(dict(normal=[1, 2, 3, 1], lognormal=[5, 4, 4, 1]))
         hm = Histogram(xyvalues, bins=5, title='Histogram')
         show(hm)
+
+    Returns:
+        a new :class:`Chart <bokeh.charts.Chart>`
 
     """
     return create_and_build(

@@ -32,8 +32,8 @@ from ...properties import Any, Bool, Either, List
 
 
 def Donut(values,  cat=None, width=800, height=800, xgrid=False, ygrid=False, **kws):
-    """ Creates a Donut chart using the `DonutBuilder` to render the geometry
-    from `values` and `cat`.
+    """ Creates a Donut chart using  :class:`DonutBuilder <bokeh.charts.builder.donut_builder.DonutBuilder>`
+    to render the geometry from values and cat.
 
     Args:
         values (iterable): iterable 2d representing the data series
@@ -43,6 +43,8 @@ def Donut(values,  cat=None, width=800, height=800, xgrid=False, ygrid=False, **
 
     In addition the the parameters specific to this chart,
     :ref:`charts_generic_arguments` are also accepted as keyword parameters.
+
+    Examples:
 
     .. bokeh-plot::
         :source-position: above
@@ -55,6 +57,9 @@ def Donut(values,  cat=None, width=800, height=800, xgrid=False, ygrid=False, **
         xyvalues = [[2., 5., 3.], [4., 1., 4.], [6., 4., 3.]]
         donut = Donut(xyvalues, ['cpu1', 'cpu2', 'cpu3'])
         show(donut)
+
+    Returns:
+        a new :class:`Chart <bokeh.charts.Chart>`
 
     """
     return create_and_build(

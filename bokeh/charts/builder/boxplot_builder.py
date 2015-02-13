@@ -33,8 +33,8 @@ from ...properties import Bool, String
 
 def BoxPlot(values, marker="circle", outliers=True, xscale="categorical", yscale="linear",
         xgrid=False, ygrid=True, **kw):
-    """ Create a BoxPlot chart using the `BoxPlotBuilder` to render the
-    geometry from `values`, the `marker` and `outliers` arguments.
+    """ Create a BoxPlot chart using :class:`BoxPlotBuilder <bokeh.charts.builder.boxplot_builder.BoxPlotBuilder>`
+    to render the geometry from values, marker and outliers arguments.
 
     Args:
         values (iterable): iterable 2d representing the data series
@@ -45,6 +45,8 @@ def BoxPlot(values, marker="circle", outliers=True, xscale="categorical", yscale
 
     In addition the the parameters specific to this chart,
     :ref:`charts_generic_arguments` are also accepted as keyword parameters.
+
+    Examples:
 
     .. bokeh-plot::
         :source-position: above
@@ -69,6 +71,9 @@ def BoxPlot(values, marker="circle", outliers=True, xscale="categorical", yscale
         boxplot = BoxPlot(medals, marker="circle", outliers=True, title="boxplot",
             xlabel="medal type", ylabel="medal count")
         show(boxplot)
+
+    Returns:
+        a new :class:`Chart <bokeh.charts.Chart>`
 
     """
     return create_and_build(

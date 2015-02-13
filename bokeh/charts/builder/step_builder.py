@@ -31,8 +31,8 @@ from ...properties import Any
 
 
 def Step(values, index=None, **kws):
-    """ Create a step chart using the StepBuilder to
-    render the geometry from `values` and `index`.
+    """ Create a step chart using :class:`StepBuilder <bokeh.charts.builder.step_builder.StepBuilder>`
+    render the geometry from values and index.
 
     Args:
         values (iterable): iterable 2d representing the data series
@@ -47,6 +47,8 @@ def Step(values, index=None, **kws):
     In addition the the parameters specific to this chart,
     :ref:`charts_generic_arguments` are also accepted as keyword parameters.
 
+    Examples:
+
     .. bokeh-plot::
         :source-position: above
 
@@ -59,6 +61,9 @@ def Step(values, index=None, **kws):
         xyvalues = [[2, 3, 7, 5, 26], [12, 33, 47, 15, 126], [22, 43, 10, 25, 26]]
         step = Step(xyvalues, title="Steps", legend="top_left", ylabel='Languages')
         show(step)
+
+    Returns:
+        a new :class:`Chart <bokeh.charts.Chart>`
 
     """
     return create_and_build(StepBuilder, values, index=index, **kws)

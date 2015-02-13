@@ -29,8 +29,8 @@ from ...models.glyphs import Rect
 
 def HeatMap(values, xscale="categorical", yscale="categorical",
             xgrid=False, ygrid=False, **kw):
-    """ Create a HeatMap chart using the `HeatMapBuilder` to
-    render the geometry from `values`.
+    """ Create a HeatMap chart using :class:`HeatMapBuilder <bokeh.charts.builder.heatmap_builder.HeatMapBuilder>`
+    to render the geometry from values.
 
     Args:
         values (iterable): iterable 2d representing the data series
@@ -38,6 +38,8 @@ def HeatMap(values, xscale="categorical", yscale="categorical",
 
     In addition the the parameters specific to this chart,
     :ref:`charts_generic_arguments` are also accepted as keyword parameters.
+
+    Examples:
 
     .. bokeh-plot::
         :source-position: above
@@ -54,6 +56,9 @@ def HeatMap(values, xscale="categorical", yscale="categorical",
         output_file('heatmap.html')
         hm = HeatMap(xyvalues, title='Fruits')
         show(hm)
+
+    Returns:
+        a new :class:`Chart <bokeh.charts.Chart>`
 
     """
     chart = create_and_build(

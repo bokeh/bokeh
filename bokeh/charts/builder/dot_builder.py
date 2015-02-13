@@ -30,8 +30,8 @@ from ...properties import Any, Bool, Either, List
 
 def Dot(values, cat=None, stem=True, xscale="categorical", yscale="linear",
         xgrid=False, ygrid=True, **kws):
-    """ Create a dot chart using the `DotBuilder` to
-    render the geometry from `values` and `cat`.
+    """ Create a dot chart using :class:`DotBuilder <bokeh.charts.builder.dot_builder.DotBuilder>`
+    to render the geometry from `values` and `cat`.
 
     Args:
         values (iterable): iterable 2d representing the data series
@@ -41,6 +41,8 @@ def Dot(values, cat=None, stem=True, xscale="categorical", yscale="linear",
 
     In addition the the parameters specific to this chart,
     :ref:`charts_generic_arguments` are also accepted as keyword parameters.
+
+    Examples:
 
     .. bokeh-plot::
         :source-position: above
@@ -57,6 +59,9 @@ def Dot(values, cat=None, stem=True, xscale="categorical", yscale="linear",
         output_file('dot.html')
         dot = Dot(xyvalues, ['cpu1', 'cpu2'], title='dots')
         show(dot)
+
+    Returns:
+        a new :class:`Chart <bokeh.charts.Chart>`
 
     """
     return create_and_build(

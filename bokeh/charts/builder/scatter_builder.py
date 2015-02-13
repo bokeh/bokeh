@@ -38,8 +38,8 @@ from ...properties import String
 
 
 def Scatter(values, **kws):
-    """ Create a scatter chart using the ScatterBuilder to
-    render the geometry from `values`.
+    """ Create a scatter chart using :class:`ScatterBuilder <bokeh.charts.builder.scatter_builder.ScatterBuilder>`
+    to render the geometry from values.
 
     Args:
         values (iterable): iterable 2d representing the data series
@@ -47,6 +47,8 @@ def Scatter(values, **kws):
 
     In addition the the parameters specific to this chart,
     :ref:`charts_generic_arguments` are also accepted as keyword parameters.
+
+    Examples:
 
     .. bokeh-plot::
         :source-position: above
@@ -63,6 +65,9 @@ def Scatter(values, **kws):
         output_file('scatter.html')
         scatter = Scatter(xyvalues, title="Scatter", legend="top_left", ylabel='Languages')
         show(scatter)
+
+    Returns:
+        a new :class:`Chart <bokeh.charts.Chart>`
 
     """
     return create_and_build(ScatterBuilder, values, **kws)

@@ -37,7 +37,8 @@ from ...properties import Any, Bool
 
 
 def Area(values, index=None, **kws):
-    """ Create an area chart using the AreaBuilder to render the geometry from `values`.
+    """ Create an area chart using the :class:`AreaBuilder <bokeh.charts.builder.area_builder.AreaBuilder>`
+    to render the geometry from values.
 
     Args:
         values (iterable): iterable 2d representing the data series
@@ -52,26 +53,32 @@ def Area(values, index=None, **kws):
     In addition the the parameters specific to this chart,
         :ref:`charts_generic_arguments` are also accepted as keyword parameters.
 
-    .. bokeh-plot::
-        :source-position: above
 
-        from bokeh.charts import Area
-        from bokeh.plotting import output_file, show
+    Examples:
 
-        # (dict, OrderedDict, lists, arrays and DataFrames are valid inputs)
-        xyvalues = dict(
-            python=[2, 3, 7, 5, 26, 221, 44, 233, 254, 265, 266, 267, 120],
-            pypy=[12, 33, 47, 15, 126, 121, 144, 233, 254, 225, 226, 267, 110],
-            jython=[22, 43, 10, 25, 26, 101, 114, 203, 194, 215, 201, 227, 139],
-        )
+        .. bokeh-plot::
+            :source-position: above
 
-        # create an area chart
-        output_file('area.html')
-        area = Area(
-            xyvalues, title="Area Chart", xlabel='time', legend=True,
-            ylabel='memory', stacked=True,
-        )
-        show(area)
+            from bokeh.charts import Area
+            from bokeh.plotting import output_file, show
+
+            # (dict, OrderedDict, lists, arrays and DataFrames are valid inputs)
+            xyvalues = dict(
+                python=[2, 3, 7, 5, 26, 221, 44, 233, 254, 265, 266, 267, 120],
+                pypy=[12, 33, 47, 15, 126, 121, 144, 233, 254, 225, 226, 267, 110],
+                jython=[22, 43, 10, 25, 26, 101, 114, 203, 194, 215, 201, 227, 139],
+            )
+
+            # create an area chart
+            output_file('area.html')
+            area = Area(
+                xyvalues, title="Area Chart", xlabel='time', legend=True,
+                ylabel='memory', stacked=True,
+            )
+            show(area)
+
+    Returns:
+        a new :class:`Chart <bokeh.charts.Chart>`
     """
     return create_and_build(AreaBuilder, values, index=index, **kws)
 

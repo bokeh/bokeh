@@ -22,8 +22,8 @@ from ...properties import Any, Color, Int
 def Horizon(values, index=None, num_folds=3, pos_color='#006400',
             neg_color='#6495ed', xscale='datetime', xgrid=False, ygrid=False,
             **kws):
-    """ Create a Horizon chart using the `HorizonBuilder` to
-    render the geometry from `values`, `index` and `num_folds`.
+    """ Create a Horizon chart using :class:`HorizonBuilder <bokeh.charts.builder.horizon_builder.HorizonBuilder>`
+    render the geometry from values, index and num_folds.
 
     Args:
         values (iterable): iterable 2d representing the data series
@@ -44,6 +44,8 @@ def Horizon(values, index=None, num_folds=3, pos_color='#006400',
     In addition the the parameters specific to this chart,
     :ref:`charts_generic_arguments` are also accepted as keyword parameters.
 
+    Examples:
+
     .. bokeh-plot::
         :source-position: above
 
@@ -62,6 +64,9 @@ def Horizon(values, index=None, num_folds=3, pos_color='#006400',
         output_file('horizon.html')
         hz = Horizon(xyvalues, index='Date', title="horizon", ylabel='Stock Prices')
         show(hz)
+
+    Returns:
+        a new :class:`Chart <bokeh.charts.Chart>`
 
     """
     tools = kws.get('tools', True)

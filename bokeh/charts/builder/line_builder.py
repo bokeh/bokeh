@@ -31,8 +31,8 @@ from ...properties import Any
 
 
 def Line(values, index=None, **kws):
-    """ Create a line chart using the LineBuilder to
-    render the geometry from `values` and `index`.
+    """ Create a line chart using :class:`LineBuilder <bokeh.charts.builder.line_builder.LineBuilder>` to
+    render the geometry from values and index.
 
     Args:
         values (iterable): iterable 2d representing the data series
@@ -47,6 +47,8 @@ def Line(values, index=None, **kws):
     In addition the the parameters specific to this chart,
     :ref:`charts_generic_arguments` are also accepted as keyword parameters.
 
+    Examples:
+
     .. bokeh-plot::
         :source-position: above
 
@@ -59,6 +61,9 @@ def Line(values, index=None, **kws):
         xyvalues = np.array([[2, 3, 7, 5, 26], [12, 33, 47, 15, 126], [22, 43, 10, 25, 26]])
         line = Line(xyvalues, title="line", legend="top_left", ylabel='Languages')
         show(line)
+
+    Returns:
+        a new :class:`Chart <bokeh.charts.Chart>`
 
     """
     return create_and_build(LineBuilder, values, index=index, **kws)

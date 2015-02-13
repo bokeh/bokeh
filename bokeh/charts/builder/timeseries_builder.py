@@ -35,8 +35,9 @@ from ...properties import Any
 
 
 def TimeSeries(values, index=None, xscale='datetime', **kws):
-    """ Create a timeseries chart using the `TimeSeriesBuilder`
-    to render the lines from `values` and `index`.
+    """ Create a timeseries chart using
+    :class:`TimeSeriesBuilder <bokeh.charts.builder.timeseries_builder.TimeSeriesBuilder>`
+    to render the lines from values and index.
 
     Args:
         values (iterable): iterable 2d representing the data series
@@ -50,6 +51,8 @@ def TimeSeries(values, index=None, xscale='datetime', **kws):
 
     In addition the the parameters specific to this chart,
     :ref:`charts_generic_arguments` are also accepted as keyword parameters.
+
+    Examples:
 
     .. bokeh-plot::
         :source-position: above
@@ -71,6 +74,10 @@ def TimeSeries(values, index=None, xscale='datetime', **kws):
         ts = TimeSeries(xyvalues, index='Date', title="TimeSeries", legend="top_left",
                 ylabel='Languages')
         show(ts)
+
+    Returns:
+        a new :class:`Chart <bokeh.charts.Chart>`
+
     """
     return create_and_build(
         TimeSeriesBuilder, values, index=index, xscale=xscale, **kws
