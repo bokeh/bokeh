@@ -32,6 +32,36 @@ from ...properties import Any, Bool, Either, List
 
 
 def Donut(values,  cat=None, width=800, height=800, xgrid=False, ygrid=False, **kws):
+    """ Creates a Donut chart using  :class:`DonutBuilder <bokeh.charts.builder.donut_builder.DonutBuilder>`
+    to render the geometry from values and cat.
+
+    Args:
+        values (iterable): iterable 2d representing the data series
+            values matrix.
+        cat (list or bool, optional): list of string representing the categories.
+            Defaults to None.
+
+    In addition the the parameters specific to this chart,
+    :ref:`charts_generic_arguments` are also accepted as keyword parameters.
+
+    Returns:
+        a new :class:`Chart <bokeh.charts.Chart>`
+
+    Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.charts import Donut
+        from bokeh.plotting import output_file, show
+
+        output_file('donut.html')
+        # dict, OrderedDict, lists, arrays and DataFrames are valid inputs
+        xyvalues = [[2., 5., 3.], [4., 1., 4.], [6., 4., 3.]]
+        donut = Donut(xyvalues, ['cpu1', 'cpu2', 'cpu3'])
+        show(donut)
+
+    """
     return create_and_build(
         DonutBuilder, values, cat=cat, width=width, height=height,
         xgrid=xgrid, ygrid=ygrid, **kws
@@ -48,17 +78,6 @@ class DonutBuilder(Builder):
     And finally add the needed glyphs (Wedges and AnnularWedges) taking
     the references from the source.
 
-    Examples:
-
-        xyvalues = OrderedDict()
-        # TODO: Fix bug for donut breaking when inputs that are not float
-        xyvalues['python'] = [2., 5., 3.]
-        xyvalues['pypy'] = [4., 1., 4.]
-        xyvalues['jython'] = [6., 4., 3.]
-        cat = ['Devs', 'Dev Ops', 'Scientists']
-        donut = Donut(xyvalues, cat, title="Medals Donut",
-            xlabel='Cat', ylabel='Lang', filename="donut.html")
-        donut.show()
     """
 
     cat = Either(Bool, List(Any), help="""

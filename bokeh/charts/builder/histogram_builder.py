@@ -34,6 +34,46 @@ from ...properties import Bool, Float, Int
 
 
 def Histogram(values, bins, mu=None, sigma=None, density=True, **kws):
+    """ Create a histogram chart using :class:`HistogramBuilder <bokeh.charts.builder.histogram_builder.HistogramBuilder>`
+    to render the geometry from values, bins, sigma and density.
+
+    Args:
+        values (iterable): iterable 2d representing the data series
+            values matrix.
+        bins (int): number of bins to use in the Histogram building.
+        mu (float, optional): theoretical mean value for the normal
+            distribution. (default: None)
+        sigma (float, optional): theoretical sigma value for the
+            normal distribution. (default: None)
+        density (bool, optional):  If False, the result will contain
+            the number of samples in each bin.  If True, the result
+            is the value of the probability *density* function at
+            the bin, normalized such that the *integral* over the
+            range is 1. For more info check numpy.histogram
+            function documentation. (default: True)
+
+    In addition the the parameters specific to this chart,
+    :ref:`charts_generic_arguments` are also accepted as keyword parameters.
+
+    Returns:
+        a new :class:`Chart <bokeh.charts.Chart>`
+
+    Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        import pandas as pd
+        from bokeh.charts import Histogram
+        from bokeh.plotting import output_file, show
+
+        # (dict, OrderedDict, lists, arrays and DataFrames are valid inputs)
+        output_file('histogram.html')
+        xyvalues = pd.DataFrame(dict(normal=[1, 2, 3, 1], lognormal=[5, 4, 4, 1]))
+        hm = Histogram(xyvalues, bins=5, title='Histogram')
+        show(hm)
+
+    """
     return create_and_build(
         HistogramBuilder, values, bins=bins, mu=mu, sigma=sigma, density=density,
         **kws
@@ -50,17 +90,6 @@ class HistogramBuilder(Builder):
     And finally add the needed glyphs (quads and lines) taking the
     references from the source.
 
-    Examples:
-        from collections import OrderedDict
-        from bokeh.charts import Histogram
-
-        mu, sigma = 0, 0.5
-        normal = [1, 2, 3, 1]
-        lognormal = [5, 4, 4, 1]
-        distributions = OrderedDict(normal=normal, lognormal=lognormal)
-        hist = Histogram(distributions, bins=5, notebook=True,
-            title='Histogram', ylabel="frequency", legend=True)
-        hist.show()
     """
 
     bins = Int(10, help="""

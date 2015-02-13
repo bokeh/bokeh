@@ -35,6 +35,50 @@ from ...properties import Any
 
 
 def TimeSeries(values, index=None, xscale='datetime', **kws):
+    """ Create a timeseries chart using
+    :class:`TimeSeriesBuilder <bokeh.charts.builder.timeseries_builder.TimeSeriesBuilder>`
+    to render the lines from values and index.
+
+    Args:
+        values (iterable): iterable 2d representing the data series
+            values matrix.
+        index (str|1d iterable, optional): can be used to specify a common custom
+            index for all data series as an **1d iterable** of any sort that will be used as
+            series common index or a **string** that corresponds to the key of the
+            mapping to be used as index (and not as data series) if
+            area.values is a mapping (like a dict, an OrderedDict
+            or a pandas DataFrame)
+
+    In addition the the parameters specific to this chart,
+    :ref:`charts_generic_arguments` are also accepted as keyword parameters.
+
+    Returns:
+        a new :class:`Chart <bokeh.charts.Chart>`
+
+    Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from collections import OrderedDict
+        import datetime
+        from bokeh.charts import TimeSeries
+        from bokeh.plotting import output_file, show
+
+        # (dict, OrderedDict, lists, arrays and DataFrames are valid inputs)
+        now = datetime.datetime.now()
+        delta = datetime.timedelta(minutes=1)
+        dts = [now + delta*i for i in range(5)]
+        xyvalues = OrderedDict({'Date': dts})
+        y_python = xyvalues['python'] = [2, 3, 7, 5, 26]
+        y_pypy = xyvalues['pypy'] = [12, 33, 47, 15, 126]
+        y_jython = xyvalues['jython'] = [22, 43, 10, 25, 26]
+        output_file('timeseries.html')
+        ts = TimeSeries(xyvalues, index='Date', title="TimeSeries", legend="top_left",
+                ylabel='Languages')
+        show(ts)
+
+    """
     return create_and_build(
         TimeSeriesBuilder, values, index=index, xscale=xscale, **kws
     )
@@ -48,24 +92,6 @@ class TimeSeriesBuilder(Builder):
     calculations and push the references into a source object.
     We additionally make calculations for the ranges.
     And finally add the needed lines taking the references from the source.
-
-    Examples:
-        import datetime
-        from collections import OrderedDict
-        from bokeh.charts import TimeSeries
-
-        now = datetime.datetime.now()
-        delta = datetime.timedelta(minutes=1)
-        dts = [now + delta*i for i in range(5)]
-        dtss = ['%s'%dt for dt in dts]
-        xyvalues = OrderedDict({'Date': dts})
-        y_python = xyvalues['python'] = [2, 3, 7, 5, 26]
-        y_pypy = xyvalues['pypy'] = [12, 33, 47, 15, 126]
-        y_jython = xyvalues['jython'] = [22, 43, 10, 25, 26]
-
-        ts = TimeSeries(xyvalues, index='Date', title="timeseries",
-                        ylabel='Stock Prices', filename="stocks_ts.html")
-        ts.show()
 
     """
 
