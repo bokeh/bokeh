@@ -2,7 +2,7 @@
 .. _bokeh_dot_charts:
 
 ``bokeh.charts`` Interface
-############################
+##########################
 
 .. contents::
     :local:
