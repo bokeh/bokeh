@@ -329,7 +329,8 @@ def figure(**kwargs):
 
     fig = Figure(**kwargs)
     curdoc()._current_plot = fig
-    curdoc().add(fig)
+    if curdoc().autoadd:
+        curdoc().add(fig)
     return fig
 
 def output_server(docname, session=None, url="default", name=None, clear=True):

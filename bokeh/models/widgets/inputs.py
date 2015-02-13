@@ -54,7 +54,15 @@ class TextInput(InputWidget):
     """ Single-line input widget. """
 
     value = String(help="""
-    Initial or entered value.
+    Initial or entered text value.
+    """)
+
+class AutocompleteInput(TextInput):
+    """ Single-line input widget with auto-completion. """
+
+    completions = List(String, help="""
+    A list of completion strings. This will be used to guide the
+    user when he types-in a value.
     """)
 
 class Select(InputWidget):

@@ -42,6 +42,8 @@ def object_page(prefix):
             bokehuser = bokeh_app.current_user()
             try:
                 doc = _makedoc(bokeh_app.servermodel_storage, bokehuser, docname)
+                doc.published = True
+                doc.save(bokeh_app.servermodel_storage)
             except DataIntegrityException as e:
                 return abort(409, e.message)
             docid = doc.docid
@@ -66,7 +68,7 @@ def object_page(prefix):
                                    hide_navbar=True,
                                    extra_generated_classes=extra_generated_classes,
                                    splitjs=server_settings.splitjs,
-                                   username=bokehuser.username,
+                                   public='true',
                                    loglevel=resources.log_level)
         wrapper.__name__ = func.__name__
         return wrapper

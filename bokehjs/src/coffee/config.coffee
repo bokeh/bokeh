@@ -18,6 +18,7 @@ require.config
     jsnlog:            "vendor/jsnlog.js-2.7.5/jsnlog"
     hammer:            "vendor/hammer.js-2.0.4/hammer"
     numeral:           "vendor/numeral.js-1.5.3/numeral"
+    handlebars:        "vendor/handlebars-2.0.0/handlebars"
   shim:
     kiwi:
       exports: 'kiwi'
