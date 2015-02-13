@@ -548,10 +548,8 @@ Examples:
 
        from bokeh.plotting import figure, output_file, show
 
-       output_file("lines.html")
-
        p = figure(title="line", plot_width=300, plot_height=300)
-       p.line([1, 2, 3, 4, 5], [6, 7, 2, 4, 5])
+       p.line(x=[1, 2, 3, 4, 5], y=[6, 7, 2, 4, 5])
 
        show(p)
 """
@@ -574,6 +572,18 @@ are also accepted as keyword parameters.
 Returns:
     plot
 
+Examples:
+
+    .. bokeh-plot::
+       :source-position: above
+
+       from bokeh.plotting import figure, output_file, show
+
+       p = figure(plot_width=300, plot_height=300)
+       p.multi_line(xs=[[1, 2, 3], [2, 3, 4]], ys=[[6, 7, 2], [4, 5, 7]],
+                    color=['red','green'])
+
+       show(p)
 """,
     xfields=["xs"], yfields=["ys"],
 )
@@ -608,8 +618,6 @@ Examples:
                  width_units="screen", height_units="screen")
 
         show(plot)
-
-
 """
 )
 
@@ -627,6 +635,18 @@ are also accepted as keyword parameters.
 
 Returns:
     plot
+
+Examples:
+
+    .. bokeh-plot::
+       :source-position: above
+
+       from bokeh.plotting import figure, output_file, show
+
+       p = figure(plot_width=300, plot_height=300)
+       p.patch(x=[1, 2, 3, 2], y=[6, 7, 2, 2], color="#99d8c9")
+
+       show(p)
 """
 )
 
@@ -647,6 +667,18 @@ are also accepted as keyword parameters.
 Returns:
     plot
 
+Examples:
+
+    .. bokeh-plot::
+       :source-position: above
+
+       from bokeh.plotting import figure, output_file, show
+
+       p = figure(plot_width=300, plot_height=300)
+       p.patches(xs=[[1,2,3],[4,5,6,5]], ys=[[1,2,1],[4,5,5,4]],
+                color=["#43a2ca", "#a8ddb5"])
+
+       show(p)
 """,
     xfields=["xs"], yfields=["ys"],
 )
