@@ -106,31 +106,6 @@ class BarBuilder(Builder):
      * with all negative data: start = 1.1 * min, end = 0
      * with mixed sign data:   start = 1.1 * min, end = 1.1 * max
 
-    Examples:
-
-        from collections import OrderedDict
-
-        xyvalues = OrderedDict()
-        xyvalues['python']=[2, 5]
-        xyvalues['pypy']=[12, 40]
-        xyvalues['jython']=[22, 30]
-
-        # For a stacked bar chart
-        stacked_bar = Bar(
-            xyvalues, ['1st', '2nd'], stacked=True, filename="stacked_bar.html"
-        )
-        stacked_bar.show()
-
-        # For a grouped bar chart with a custom y_range
-
-        from bokeh.models import Range1d
-
-        custom_range = Range1d(start=2, end=40)
-        grouped_bar = Bar(
-            xyvalues, ['1st', '2nd'],
-            continuous_range=custom_range, filename="grouped.html"
-        )
-        grouped_bar.show()
     """
 
     cat = Either(Bool, List(Any), help="""

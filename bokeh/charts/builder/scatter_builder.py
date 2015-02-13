@@ -76,18 +76,6 @@ class ScatterBuilder(Builder):
     We additionally make calculations for the ranges. And finally add
     the needed glyphs (markers) taking the references from the source.
 
-    Example:
-        from collections import OrderedDict
-
-        from bokeh.charts import Scatter
-        xyvalues = OrderedDict()
-        xyvalues['python'] = [(1, 2), (3, 3), (4, 7), (5, 5), (8, 26)]
-        xyvalues['pypy'] = [(1, 12), (2, 23), (4, 47), (5, 15), (8, 46)]
-        xyvalues['jython'] = [(1, 22), (2, 43), (4, 10), (6, 25), (8, 26)]
-
-        scatter = Scatter(xyvalues, title="Languages Scatter",
-            filename="scatter.html")
-        scatter.show()
     """
 
     # TODO: (bev) should be an enumeration

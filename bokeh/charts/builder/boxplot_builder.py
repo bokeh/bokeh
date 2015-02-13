@@ -86,26 +86,6 @@ class BoxPlotBuilder(Builder):
     And finally add the needed glyphs (rects, lines and markers)
     taking the references from the source.
 
-    Examples:
-
-        from collections import OrderedDict
-        import numpy as np
-        from bokeh.charts import BoxPlot
-        from bokeh.sampledata.olympics2014 import data
-
-        data = {d['abbr']: d['medals'] for d in data['data'] if d['medals']['total'] > 0}
-        countries = sorted(data.keys(), key=lambda x: data[x]['total'], reverse=True)
-
-        gold = np.array([data[abbr]['gold'] for abbr in countries], dtype=np.float)
-        silver = np.array([data[abbr]['silver'] for abbr in countries], dtype=np.float)
-        bronze = np.array([data[abbr]['bronze'] for abbr in countries], dtype=np.float)
-
-        medals = OrderedDict(bronze=bronze, silver=silver, gold=gold)
-
-        boxplot = BoxPlot(medals, marker="circle", outliers=True,
-                          title="boxplot, dict_input", xlabel="medal type", ylabel="medal count",
-                          width=800, height=600, notebook=True)
-        boxplot.show()
     """
 
     # TODO: (bev) should be an enumeration

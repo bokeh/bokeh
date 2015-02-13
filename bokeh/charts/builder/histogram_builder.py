@@ -86,17 +86,6 @@ class HistogramBuilder(Builder):
     And finally add the needed glyphs (quads and lines) taking the
     references from the source.
 
-    Examples:
-        from collections import OrderedDict
-        from bokeh.charts import Histogram
-
-        mu, sigma = 0, 0.5
-        normal = [1, 2, 3, 1]
-        lognormal = [5, 4, 4, 1]
-        distributions = OrderedDict(normal=normal, lognormal=lognormal)
-        hist = Histogram(distributions, bins=5, notebook=True,
-            title='Histogram', ylabel="frequency", legend=True)
-        hist.show()
     """
 
     bins = Int(10, help="""

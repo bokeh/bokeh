@@ -73,16 +73,6 @@ class HeatMapBuilder(Builder):
     And finally add the needed glyphs (rects) taking the references
     from the source.
 
-    Examples:
-    from collections import OrderedDict
-    from bokeh.charts import HeatMap
-
-    xyvalues = OrderedDict()
-    xyvalues['apples'] = [4,5,8]
-    xyvalues['bananas'] = [1,2,4]
-    xyvalues['pears'] = [6,5,4]
-    hm = HeatMap(xyvalues, title="categorical heatmap", filename="cat_heatmap.html")
-    hm.show()
     """
 
     def _process_data(self):

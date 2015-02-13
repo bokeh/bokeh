@@ -73,17 +73,6 @@ class DonutBuilder(Builder):
     And finally add the needed glyphs (Wedges and AnnularWedges) taking
     the references from the source.
 
-    Examples:
-
-        xyvalues = OrderedDict()
-        # TODO: Fix bug for donut breaking when inputs that are not float
-        xyvalues['python'] = [2., 5., 3.]
-        xyvalues['pypy'] = [4., 1., 4.]
-        xyvalues['jython'] = [6., 4., 3.]
-        cat = ['Devs', 'Dev Ops', 'Scientists']
-        donut = Donut(xyvalues, cat, title="Medals Donut",
-            xlabel='Cat', ylabel='Lang', filename="donut.html")
-        donut.show()
     """
 
     cat = Either(Bool, List(Any), help="""

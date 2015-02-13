@@ -99,22 +99,6 @@ class HorizonBuilder(Builder):
     We additionally make calculations for the ranges.
     And finally add the needed lines taking the references from the source.
 
-    Examples:
-        import datetime
-        from collections import OrderedDict
-        from bokeh.charts import Horizon
-
-        now = datetime.datetime.now()
-        delta = datetime.timedelta(minutes=1)
-        xyvalues = OrderedDict({'Date': dts})
-        y_python = xyvalues['python'] = [2, 3, 7, 5, 26]
-        y_pypy = xyvalues['pypy'] = [12, 33, 47, 15, 126]
-        y_jython = xyvalues['jython'] = [22, 43, 10, 25, 26]
-
-        hz = Horizon(xyvalues, index='Date', title="horizon", legend="top_left",
-                        ylabel='Stock Prices', filename="stocks_ts.html")
-        hz.show()
-
     """
 
     index = Any(help="""
