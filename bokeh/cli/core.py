@@ -65,7 +65,8 @@ if is_click:
         )
         cli.run()
 else:
-    print("The CLI tool requires click to be installed")
+    def cli():
+        print("The CLI tool requires click to be installed")
 
 class CLI(object):
     """This is the Bokeh Command Line Interface class and it is in
