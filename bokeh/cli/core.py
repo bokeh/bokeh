@@ -5,7 +5,11 @@ from six.moves.urllib import request as urllib2
 from six.moves import cStringIO as StringIO
 from six import string_types
 import pandas as pd
-import click
+
+try:
+    import click
+except ImportError:
+    raise RuntimeError("The CLI tool requires click to be installed")
 
 from . import help_messages as hm
 from .utils import (get_chart_params, get_charts_mapping,
