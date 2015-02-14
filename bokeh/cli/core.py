@@ -8,8 +8,9 @@ import pandas as pd
 
 try:
     import click
+    is_click = True
 except ImportError:
-    raise RuntimeError("The CLI tool requires click to be installed")
+    is_click = False
 
 from . import help_messages as hm
 from .utils import (get_chart_params, get_charts_mapping,
@@ -56,6 +57,9 @@ def cli(input_source, output, title, chart_type, series, palette, index,
 
     >> python bokeh-cli.py --help
     """
+    if not is_click:
+        raise RuntimeError("The CLI tool requires click to be installed")
+
     cli = CLI(
         input_source, output, title, chart_type, series, palette, index, buffer,
         sync_with_source, update_ranges, show_legend, window_size, map_,
