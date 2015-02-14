@@ -86,7 +86,7 @@ def Horizon(values, index=None, num_folds=3, pos_color='#006400',
     )
 
     # Hide numerical axis
-    chart.left[0].hide = True
+    chart.left[0].visible = False
 
     # Add the series names to the y axis
     chart.extra_y_ranges = {"series": FactorRange(factors=chart._builders[0]._series)}
