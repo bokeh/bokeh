@@ -35,7 +35,7 @@ requirements:
     # - abstract-rendering   [py2k]
 
     # CLI
-    - click
+    # - click
 
 test:
   requires:
