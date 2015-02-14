@@ -22,51 +22,50 @@ from bokeh.models.widgets import Button, VBox
 # Define a mapping to connect chart types supported arguments and chart classes
 CHARTS_MAP = get_charts_mapping()
 
-@click.command()
-@click.option('--input', 'input_source', default=None,help=hm.HELP_INPUT)
-@click.option('--output', default='file://cli_output.html', help=hm.HELP_OUTPUT)
-@click.option('--title', default='Bokeh CLI')
-@click.option('--chart_type', default='Line')
-@click.option('--index', default='', help=hm.HELP_INDEX)
-@click.option('--series', default='', help=hm.HELP_SERIES)
-@click.option('--palette')
-@click.option('--buffer', default='f', help=hm.HELP_BUFFER)
-@click.option('--sync_with_source', default=False)
-@click.option('--update_ranges', 'update_ranges', flag_value=True,
-              default=False)
-@click.option('--legend', 'show_legend', flag_value=True,
-              default=False)
-@click.option('--window_size', default='0', help=hm.HELP_WIN_SIZE)
-@click.option('--map', 'map_', default=None)
-@click.option('--map_zoom', 'map_zoom', default=12)
-@click.option('--map_layer', 'map_layer', default="hybrid")
-@click.option('--smart_filters', 'smart_filters', flag_value=True,
-              default=False)
-def cli(input_source, output, title, chart_type, series, palette, index,
-        buffer, sync_with_source, update_ranges, show_legend, window_size,
-        map_, smart_filters, map_zoom, map_layer):
-    """Bokeh Command Line Tool is a minimal client to access high level plotting
-    functionality provided by bokeh.charts API.
+if is_click:
+    @click.command()
+    @click.option('--input', 'input_source', default=None,help=hm.HELP_INPUT)
+    @click.option('--output', default='file://cli_output.html', help=hm.HELP_OUTPUT)
+    @click.option('--title', default='Bokeh CLI')
+    @click.option('--chart_type', default='Line')
+    @click.option('--index', default='', help=hm.HELP_INDEX)
+    @click.option('--series', default='', help=hm.HELP_SERIES)
+    @click.option('--palette')
+    @click.option('--buffer', default='f', help=hm.HELP_BUFFER)
+    @click.option('--sync_with_source', default=False)
+    @click.option('--update_ranges', 'update_ranges', flag_value=True,
+                  default=False)
+    @click.option('--legend', 'show_legend', flag_value=True,
+                  default=False)
+    @click.option('--window_size', default='0', help=hm.HELP_WIN_SIZE)
+    @click.option('--map', 'map_', default=None)
+    @click.option('--map_zoom', 'map_zoom', default=12)
+    @click.option('--map_layer', 'map_layer', default="hybrid")
+    @click.option('--smart_filters', 'smart_filters', flag_value=True,
+                  default=False)
+    def cli(input_source, output, title, chart_type, series, palette, index,
+            buffer, sync_with_source, update_ranges, show_legend, window_size,
+            map_, smart_filters, map_zoom, map_layer):
+        """Bokeh Command Line Tool is a minimal client to access high level plotting
+        functionality provided by bokeh.charts API.
 
-    Examples:
+        Examples:
 
-    >> python bokeh-cli.py --title "My Nice Plot" --series "High,Low,Close"
-    --chart_type "Line" --palette Reds --input sample_data/stocks_data.csv
+        >> python bokeh-cli.py --title "My Nice Plot" --series "High,Low,Close"
+        --chart_type "Line" --palette Reds --input sample_data/stocks_data.csv
 
-    >> cat sample_data/stocks_data.csv | python bokeh-cli.py --buffer t
+        >> cat sample_data/stocks_data.csv | python bokeh-cli.py --buffer t
 
-    >> python bokeh-cli.py --help
-    """
-    if not is_click:
-        raise RuntimeError("The CLI tool requires click to be installed")
-
-    cli = CLI(
-        input_source, output, title, chart_type, series, palette, index, buffer,
-        sync_with_source, update_ranges, show_legend, window_size, map_,
-        smart_filters, map_zoom, map_layer
-    )
-    cli.run()
-
+        >> python bokeh-cli.py --help
+        """
+        cli = CLI(
+            input_source, output, title, chart_type, series, palette, index, buffer,
+            sync_with_source, update_ranges, show_legend, window_size, map_,
+            smart_filters, map_zoom, map_layer
+        )
+        cli.run()
+else:
+    print("The CLI tool requires click to be installed")
 
 class CLI(object):
     """This is the Bokeh Command Line Interface class and it is in
