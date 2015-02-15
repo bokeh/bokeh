@@ -41,7 +41,6 @@ define (require, exports, module) ->
   Bokeh.HasProperties     = require("common/has_properties")
   Bokeh.LayoutBox         = require("common/layout_box")
   Bokeh.Plot              = require("common/plot")
-  Bokeh.Plotting          = require("common/plotting")
   Bokeh.SelectionManager  = require("common/selection_manager")
   Bokeh.Selector          = require("common/selector")
   Bokeh.ToolEvents        = require("common/tool_events")
