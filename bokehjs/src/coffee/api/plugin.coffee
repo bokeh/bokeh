@@ -20,7 +20,7 @@ define [
       logger.error("Unknown API type '#{type}'. Recognized API types: #{Object.keys(_api)}")
       return this
 
-    plot = new _api[type](args)
+    plot = _api[type](args)
 
     show(this, plot)
 
