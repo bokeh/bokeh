@@ -2,7 +2,7 @@
 import logging
 logger = logging.getLogger(__name__)
 
-from functools import reduce
+from functools import reduce, wraps
 import math
 import platform
 import sys
@@ -161,3 +161,34 @@ def resolve_json(fragment, models):
             logging.error("model not found for %s", fragment)
             return None
     return json_apply(fragment, check_func, func)
+
+class cached_property(object):
+    """ A property that is only computed once per instance and then replaces
+        itself with an ordinary attribute. Deleting the attribute resets the
+        property.
+
+        Source: https://github.com/bottlepy/bottle/commit/fa7733e075da0d790d809aa3d2f53071897e6f76
+        """
+
+    def __init__(self, func):
+        self.__doc__ = getattr(func, '__doc__')
+        self.func = func
+
+    def __get__(self, obj, cls):
+        if obj is None:
+            return self
+        value = obj.__dict__[self.func.__name__] = self.func(obj)
+        return value
+
+def callonce(func):
+    called = True
+    @wraps(func)
+    def wrapper():
+        if not wrapper.called:
+            reuslt = func()
+            wrapper.called = True
+            return
+        else:
+            return
+    wrapper.called = False
+    return wrapper

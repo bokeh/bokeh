@@ -1,5 +1,9 @@
 import copy
+from functools import wraps
 
+from six import string_types
+
+from .utils import callonce, cached_property
 from .models.widgets.layouts import HBox, VBox, VBoxForm
 from .plot_object import PlotObject
 from .properties import String, Instance, Dict, Any, Either
@@ -20,12 +24,16 @@ class SimpleAppWrapper(object):
         self.widgets = list(args)
         self.func = func
         create_registry[func.__name__] = func
+        update_registry[func.__name__] = []
 
     def __call__(self, *args, **kwargs):
         return self.func(*args, **kwargs)
 
-    def update(self, func):
-        update_registry[self.name] = func
+    def update(self, selectors):
+        def wrapper(func):
+            update_registry[self.name].append((selectors, func))
+            return func
+        return wrapper
 
     def run(self, show=True):
         app = SimpleApp.create(self.name, self.widgets)
@@ -49,7 +57,6 @@ class SimpleApp(HBox):
     name = String()
     widgets = Instance(VBoxForm)
     output = Instance(PlotObject)
-    state = Dict(String(), Either(Instance(PlotObject), Any))
 
     @classmethod
     def create(cls, name, widgets):
@@ -57,15 +64,66 @@ class SimpleApp(HBox):
         obj.set_output()
         return obj
 
+    @cached_property
+    def widget_dict(self):
+        result = {}
+        for widget in self.widgets.children:
+            result[widget.name] = widget
+        return result
+
+    def callback(self, func, include_app=True):
+        @wraps(func)
+        def once():
+            args = self.args()
+            if include_app:
+                args['app'] = self
+            result = func(**args)
+            curdoc()._add_all()
+            return result
+        once = callonce(once)
+
+        @wraps(once)
+        def signature_change(obj, attrname, old, new):
+            return once()
+        return signature_change
+
     def setup_events(self):
         ## hack - what we want to do is execute the update callback once
         ## and only if some properties in the graph have changed
         ## so we set should_update to be True in setup_events, and
         ## set it to be false as soon as the callback is done
-        self._should_update = True
-        for obj in self.references():
-            for name in obj.class_properties():
-                obj.on_change(name, self, 'default_callback')
+        for k in self.__dict__.keys():
+            if k.startswith('_func'):
+                self.__dict__.pop(k)
+        counter = 0
+        if not self.name in update_registry:
+            name = '_func%d'  % counter
+            setattr(self, name, self.callback(func, include_app=False))
+            for obj in self.references():
+                for attr in obj.class_properties():
+                    obj.on_change(attr, self, name)
+            return
+
+        for selectors, func in update_registry[self.name]:
+            #hack because we lookup callbacks by func name
+            name = '_func%d'  % counter
+            counter += 1
+            setattr(self, name, self.callback(func, include_app=True))
+            for selector in selectors:
+                if isinstance(selector, string_types):
+                    self.widget_dict[selector].on_change('value', self, name)
+                    continue
+                elif isinstance(selector, tuple):
+                    selector, attrs = selector
+                else:
+                    attrs = None
+                for obj in self.select(selector):
+                    if attrs:
+                        toiter = attrs
+                    else:
+                        toiter = obj.class_properties()
+                    for attr in toiter:
+                        obj.on_change(attr, self, name)
 
     def args(self):
         args = {}
@@ -75,27 +133,4 @@ class SimpleApp(HBox):
 
     def set_output(self):
         result = create_registry[self.name](**self.args())
-        if isinstance(result, tuple):
-            output, state = result
-            self.state = state
-            self.output = output
-        else:
-            self.state = {}
-            self.output = result
-
-    def execute_update(self):
-        state = copy.copy(self.state)
-        args = self.args()
-        state['app'] = self
-        update_registry[self.name](args, state)
-
-    def default_callback(self, obj, attrname, old, new):
-        print('calling callback')
-        if not self._should_update:
-            return
-        self._should_update = False
-        if self.name not in update_registry:
-            self.set_output()
-        else:
-            self.execute_update()
-        curdoc()._add_all()
+        self.output = result

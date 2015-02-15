@@ -58,16 +58,11 @@ stock1.route("/bokeh/stocks/")
 
 @simpleapp(select1, select2)
 def stock2(ticker1, ticker2, source=None):
-    pretext = PreText(text="", width=500)
+    pretext = PreText(text="", width=500, tags=['text'])
     df = get_data(ticker1, ticker2)
-
     if source is None:
         source = ColumnDataSource(data=df)
-    if source.selected:
-        selected_df = df.iloc[source.selected, :]
-    else:
-        selected_df = df
-
+        source.tags = ['main_source']
     p = figure(
         title="%s vs %s" % (ticker1, ticker2),
         plot_width=400, plot_height=400,
@@ -79,36 +74,38 @@ def stock2(ticker1, ticker2, source=None):
              nonselection_alpha=0.02,
              source=source
     )
-    stats = selected_df.describe()
+    stats = df.describe()
     pretext.text = str(stats)
-    row1 = HBox(children=[p, pretext])
+    row1 = HBox(children=[p, pretext], tags=['row1'])
+    hist1 = hist_plot(df, ticker1)
+    hist2 = hist_plot(df, ticker2)
+    row2 = HBox(children=[hist1, hist2], tags=['row2'])
+    line1 = line_plot(ticker1, source)
+    line1.tags = ['row3']
+    line2 = line_plot(ticker2, source, line1.x_range)
+    line2.tags = ['row4']
+    output =  VBox(children=[row1, row2, line1, line2])
+    return output
+
+@stock2.update(['ticker1', 'ticker2'])
+def stock2_update_input(ticker1, ticker2, app):
+    app.output = stock2(ticker1, ticker2)
+
+@stock2.update([({'tags' : 'main_source'}, ['selected'])])
+def stock2_update_selection(ticker1, ticker2, app):
+    import pdb;pdb.set_trace()
+    source = app.select_one({'tags' : 'main_source'})
+    df = get_data(ticker1, ticker2)
+    if source.selected:
+        selected_df = df.iloc[source.selected, :]
+    else:
+        selected_df = df
+
     hist1 = hist_plot(df, ticker1, selected_df=selected_df)
     hist2 = hist_plot(df, ticker2, selected_df=selected_df)
-    row2 = HBox(children=[hist1, hist2])
-    line1 = line_plot(ticker1, source)
-    line2 = line_plot(ticker2, source, line1.x_range)
-    output =  VBox(children=[row1, row2, line1, line2])
-    return output, {
-        'source' : source,
-        'ticker1' : ticker1,
-        'ticker2' : ticker2,
-    }
-
-@stock2.update
-def stock2_update(args, state):
-    source = state['source']
-    app = state['app']
-    ticker1 = args['ticker1']
-    ticker2 = args['ticker2']
-    old_ticker1 = state['ticker1']
-    old_ticker2 = state['ticker2']
-    if ticker1 == old_ticker1 and ticker2 == old_ticker2:
-        result = stock2(ticker1, ticker2, source=source)
-    else:
-        result = stock2(ticker1, ticker2)
-    output, state = result
-    app.output = output
-    app.state = state
+    row2 = app.select_one({'tags' : 'row2'})
+    row2.children = [hist1, hist2]
+    app.select_one({'tags' : 'text'}).text = str(selected_df.describe())
 
 stock2.route("/bokeh/stocks2/")
 

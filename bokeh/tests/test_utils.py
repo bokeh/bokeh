@@ -102,5 +102,25 @@ class TestResolveJson(unittest.TestCase):
         self.assertTrue(mock_logging.error.called)
         self.assertTrue('badtype' in repr(mock_logging.error.call_args))
 
+from bokeh.simpleapp import callonce
+
+def test_call_once():
+    callonce = utils.callonce
+    def helper():
+        helper.counter += 1
+    helper.counter = 0
+    helper()
+    assert helper.counter == 1
+    decorated = callonce(helper)
+    decorated()
+    assert helper.counter == 2
+    decorated()
+    assert helper.counter == 2
+    decorated = callonce(helper)
+    decorated()
+    assert helper.counter == 3
+    decorated()
+    assert helper.counter == 3
+
 if __name__ == "__main__":
     unittest.main()
