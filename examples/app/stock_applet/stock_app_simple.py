@@ -93,7 +93,6 @@ def stock2_update_input(ticker1, ticker2, app):
 
 @stock2.update([({'tags' : 'main_source'}, ['selected'])])
 def stock2_update_selection(ticker1, ticker2, app):
-    import pdb;pdb.set_trace()
     source = app.select_one({'tags' : 'main_source'})
     df = get_data(ticker1, ticker2)
     if source.selected:
