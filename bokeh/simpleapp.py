@@ -71,13 +71,15 @@ class SimpleApp(HBox):
             result[widget.name] = widget
         return result
 
-    def callback(self, func, include_app=True):
+    def callback(self, func, include_app=True, set_output=False):
         @wraps(func)
         def once():
             args = self.args()
             if include_app:
                 args['app'] = self
             result = func(**args)
+            if set_output:
+                self.output = result
             curdoc()._add_all()
             return result
         once = callonce(once)
@@ -96,9 +98,10 @@ class SimpleApp(HBox):
             if k.startswith('_func'):
                 self.__dict__.pop(k)
         counter = 0
-        if not self.name in update_registry:
+        if not update_registry.get(self.name):
             name = '_func%d'  % counter
-            setattr(self, name, self.callback(func, include_app=False))
+            func = create_registry[self.name]
+            setattr(self, name, self.callback(func, include_app=False, set_output=True))
             for obj in self.references():
                 for attr in obj.class_properties():
                     obj.on_change(attr, self, name)

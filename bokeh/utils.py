@@ -185,9 +185,9 @@ def callonce(func):
     @wraps(func)
     def wrapper():
         if not wrapper.called:
-            reuslt = func()
             wrapper.called = True
-            return
+            result = func()
+            return result
         else:
             return
     wrapper.called = False
