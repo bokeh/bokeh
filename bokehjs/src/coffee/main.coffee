@@ -135,6 +135,9 @@ define (require, exports, module) ->
   Bokeh.TextInput      = require("widget/text_input")
   Bokeh.CrossFilter    = require("widget/crossfilter")
 
+  # Add the jquery plugin
+  require("api/plugin")
+
   exports.Bokeh = Bokeh
 
   return Bokeh
