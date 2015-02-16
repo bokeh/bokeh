@@ -3,9 +3,10 @@ define [
   "common/base"
   "common/logging"
   "range/factor_range"
+  "range/range1d"
   "source/column_data_source"
   "./helpers"
-], (base, Logging, FactorRange, ColumnDataSource) ->
+], (base, Logging, FactorRange, Range1d, ColumnDataSource) ->
 
   Collections = base.Collections
   logger = Logging.logger
@@ -24,7 +25,7 @@ define [
       return num_minor_ticks
 
     if num_minor_ticks == 'auto'
-      if axis_type? == "log"
+      if axis_type? == "Log"
         return 10
       return 5
 
@@ -35,29 +36,22 @@ define [
     if not axis_type?
       return null
 
-    else if axis_type == "linear"
-      return Collections("LinearAxis")
-
-    else if axis_type == "log"
-      return Collections("LogAxis")
-
-    else if axis_type == "datetime"
-      return Collections("DatetimeAxis")
-
-    else if axis_type == "auto"
+    if axis_type == "auto"
       if range instanceof FactorRange.Model
         return Collections("CategoricalAxis")
 
-      else if range instanceof Range1d
-        try
-          new Date(range.get('start'))
-          return Collections("DatetimeAxis")
-        catch
-          "pass"
+      else if range instanceof Range1d.Model
+        # try
+        #   new Date(range.get('start'))
+        #   return Collections("DatetimeAxis")
+        # catch
+        #   "pass"
 
-      return Collections("LinearAxis")
+        return Collections("LinearAxis")
 
-    else
+    try
+      return Collections(axis_type + "Axis")
+    catch
       logger.error("unrecognized axis_type: #{axis_type}")
       return null
 
@@ -146,8 +140,37 @@ define [
 
     return renderers
 
-  _process_guides = (guides) ->
+  _process_guides = (guides, plot) ->
     guide_objs = []
+
+    for guide in guides
+
+      location = guide.location
+      if location == "below" or location == "above"
+        dim = 0
+        range = plot.get('x_range')
+      else if location == "left" or location == "right"
+        dim = 1
+        range = plot.get('y_range')
+      else
+        logger.error("unrecognized axis location: #{location}")
+        continue
+
+      axis_type = _get_axis_type(guide.type, range)
+
+      axis_args = _.omit(guide, 'type', 'grid')
+      axis_args['plot'] = plot
+      axis = axis_type.create(axis_args)
+
+      guide_objs.push(axis)
+
+      if guide.grid?
+        grid = Collections("Grid").create(
+          dimension: dim
+          plot: plot
+          ticker: axis.get('ticker')
+        )
+        guide_objs.push(grid)
 
     return guide_objs
 
@@ -174,7 +197,15 @@ define [
     plot.add_renderers(glyphs)
 
   add_guides = (plot, guides) ->
-    guides = _process_guides(guides)
+    guides = _process_guides(guides, plot)
+
+    for guide in guides
+      location = guide.get('location')
+      if location?
+        loc = plot.get(location)
+        loc.push(guide)
+        plot.set(location, loc)
+
     plot.add_renderers(guides)
 
   add_annotations = (plot, annotations) ->
@@ -195,7 +226,7 @@ define [
     options ?= {}
     sources ?= {}
     glyphs ?= []
-    guides ?= {}
+    guides ?= []
     annotations ?= {}
     tools ?= []
 
