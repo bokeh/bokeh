@@ -259,6 +259,6 @@ class StockApp(VBox):
 # then just remove this block of code.
 @bokeh_app.route("/bokeh/stocks/")
 @object_page("stocks")
-def make_object():
+def make_stocks():
     app = StockApp.create()
     return app
