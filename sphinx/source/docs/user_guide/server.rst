@@ -101,8 +101,63 @@ Streaming Data
 
 Large Data
 ----------
+This feature is currenlty in beta.  Bokeh supports large datasets via the blaze, combined with a few abstract rendering and smart downsampling routines.  Bokeh currently pulls in the blaze server as a flask blueprint - so if you have the necessary libraries installed, your bokeh server is also a blaze server.
 
+Blaze Server
+------------
 
+To use the smart downsampling facilities of bokeh, you must install the multi-user blaze server, https://github.com/ContinuumIO/multiuserblazeserver.::
+
+    $ conda install -c bokeh multiuserblazeserver
+
+or::
+
+    $ pip install -c bokeh multiuserblazeserver
+
+The blaze server is a bit mis-named at the moment, it supports a pluggable authentication model however currently only the single user authentication backend is implemented.  There are 2 categories of data defined in the blaze server - data owned by the server itself, and data owned by individual users.  Data owned by the server is read only.  Data owned by individual users can be modified by the user that owns it, but is readable by everyone.
+
+To configure server owned data, you pass it a configuration file (a python file) which defines a data parameter - this should be a dictionary of anything blaze can understand(pandas dataframes, hdf5 files, numpy arrays, etc..).  User defined data is configured by users in a 2 stage process.  First, uploading files into the servers data directory, and then configuring that resources.  These examples are written against the single user authentication backend, which is why the username is "defaultuser"::
+
+    from mbs.client import upload, configure
+    upload('http://localhost:5006/', 'mydata.hdf5')
+    configure('hdfstore://defaultuser/mydata.hdf5')
+
+or::
+
+    from mbs.client import upload, configure
+    upload('http://localhost:5006/', 'data.csv')
+    configure('defaultuser/data.csv', sep="/t")
+
+Once datasets are loaded into blaze, they can be accessed via the blaze client::
+
+    from blaze.server.client import Client
+    from blaze import Data
+    c = Client('http://localhost:5006/')
+    d = Data(c)
+    table = d['hdfstore://defaultuser/mydata.hdf5']
+
+Bokeh Integration
+-----------------
+
+Bokeh imports the blaze server as a flask blueprint ( so it is part of the bokeh server), and adds one more route, a render route which is used by bokehjs for server side data transforms, like `Abstract Rendering <ar.html>`_. or a variety of downsampling routines.
+
+To use a blaze data source in a Bokeh plot execute the following::
+
+    ## Assume you have a blaze array bound to a variable table
+    source = ServerDataSource()
+    source.from_blaze(table, local=True)
+
+The local parameter tells bokeh that the blaze server running inside the bokeh serer contains the data in question.  In the future, it will be possible to specify other blaze servers, however this is currently not implemented.
+
+Support for this is currently limited to plots generated through the `plotting.py` API.  There are further glyph restrictions for abstract rendering enumerated `here <ar.html>`_.
+In terms of downsampling, we have the capability of performing max-min decimation for horizontal line plots, as well as naive downsampling of images/heatmaps.
+
+Please see the following examples:
+
+-  `plotting/server/blaze_source.py <https://github.com/bokeh/bokeh/blob/master/examples/plotting/server/blaze_source.py>`_
+-  `plotting/server/abstractrender.py <https://github.com/bokeh/bokeh/blob/master/examples/plotting/server/abstractrender.py>`_
+-  `plotting/server/line_downsample.py <https://github.com/bokeh/bokeh/blob/master/examples/plotting/server/line_downsample.py>`_
+-  `plotting/server/image_downsample.py <https://github.com/bokeh/bokeh/blob/master/examples/plotting/server/image_downsample.py>`_
 
 .. _userguide_server_widgets:
 
