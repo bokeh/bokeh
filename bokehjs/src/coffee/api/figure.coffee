@@ -38,11 +38,11 @@ define [
         return Collections("CategoricalAxis")
 
       else if range instanceof Range1d.Model
-        # try
-        #   new Date(range.get('start'))
-        #   return Collections("DatetimeAxis")
-        # catch
-        #   "pass"
+        try
+          new Date.parse(range.get('start'))
+          return Collections("DatetimeAxis")
+        catch
+          "pass"
 
         return Collections("LinearAxis")
 
