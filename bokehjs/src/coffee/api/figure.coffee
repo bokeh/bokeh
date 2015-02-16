@@ -161,7 +161,7 @@ define [
 
       guide_objs.push(axis)
 
-      if guide.grid?
+      if guide.grid == true
         grid = Collections("Grid").create(
           dimension: dim
           plot: plot
