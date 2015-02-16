@@ -9,9 +9,24 @@ Gallery
    :glob:
 
    gallery/*
+   server_gallery/*
+
+Server Examples
+===============
+
+The examples below all show off
+
+* :doc:`server_gallery/sliders_server`.
+* :doc:`server_gallery/crossfilter_server`.
+* :doc:`server_gallery/stocks_server`.
+* :doc:`server_gallery/line_animate`.
+* :doc:`server_gallery/aw_animate`.
 
 
-All of these examples are located in the
+Static Examples
+===============
+
+All of the examples below are located in the
 `examples <https://github.com/bokeh/bokeh/tree/master/examples>`_
 subdirectory of your Bokeh checkout.
 
