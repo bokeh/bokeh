@@ -655,4 +655,5 @@ Since 0.8 release `Charts` creation is streamlined by specific
 objects called Builders. Builders are convenience classes that create
 all computation, validation and low-level geometries needed to render a High Level
 Chart. This provides clear pattern to easily extend the `Charts` interface
-with new charts. For more info about this refer to the
+with new charts. For more info about this refer to  :ref:`bokeh_dot_charts_builders`
+reference.
