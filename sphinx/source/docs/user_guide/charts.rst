@@ -127,8 +127,8 @@ Here are a few examples showing charts using different kind of inputs:
     df = flowers[["petal_length", "petal_width", "species"]]
     g = df.groupby("species")
 
-    scatter = Scatter(g, filename="iris_scatter.html").title("iris dataset").legend("top_left")
-    scatter.width(600).height(400).show()
+    scatter = Scatter(g, filename="iris_scatter.html", title="iris dataset GroupBy")
+    scatter.show()
 
 * Using ``OrderedDict`` (or dict-like objects)::
 
@@ -140,8 +140,8 @@ Here are a few examples showing charts using different kind of inputs:
         y = getattr(g.get_group(i), 'petal_width')
         xyvalues[i] = list(zip(x, y))
 
-    scatter = Scatter(xyvalues, filename="iris_scatter.html").title("iris dataset").legend("top_left")
-    scatter.width(600).height(400).show()
+    scatter = Scatter(xyvalues, filename="iris_scatter.html", title="iris dataset, OrderedDic")
+    scatter.show()
 
 
 * Using a ``hierarchical`` pandas ``dataframe``::
@@ -150,8 +150,8 @@ Here are a few examples showing charts using different kind of inputs:
 
     dfvalues = pd.DataFrame(xyvalues)
 
-    scatter = Scatter(dfvalues, filename="iris_scatter.html").title("iris dataset").legend("top_left")
-    scatter.width(600).height(400).show()
+    scatter = Scatter(dfvalues, filename="iris_scatter.html", title="iris dataset, DataFrame")
+    scatter.show()
 
 
 
@@ -159,8 +159,8 @@ Here are a few examples showing charts using different kind of inputs:
 
     lxyvalues = xyvalues.values()
 
-    scatter = Scatter(lxyvalues, filename="iris_scatter.html").title("iris dataset").legend("top_left")
-    scatter.width(600).height(400).show()
+    scatter = Scatter(lxyvalues, filename="iris_scatter.html", title="iris dataset, List")
+    scatter.show()
 
 * Using a numpy ``array``::
 
@@ -168,8 +168,8 @@ Here are a few examples showing charts using different kind of inputs:
 
     nxyvalues = np.array(xyvalues.values())
 
-    scatter = Scatter(nxyvalues, filename="iris_scatter.html").title("iris dataset").legend("top_left")
-    scatter.width(600).height(400).show()
+    scatter = Scatter(nxyvalues, filename="iris_scatter.html", title="iris dataset, Array")
+    scatter.show()
 
 
 As you can see, in the first three cases, we inferred the ``x`` and ``y``
@@ -186,37 +186,37 @@ will create a new figure without the inferred labels like the following:
     :align: center
 
 
-In general ``Charts`` have standard inputs, like we have showed earlier but as we'll see
-in the next paragraph, some charts types still need specific inputs  to work effectively
-due to their own specific nature.
-
 Specific arguments
 ------------------
 
 For some chart types we support specific arguments which only make sense in that
-specific chart context. For instance, if you use a Timeseries chart, the x-value (index) for each group has
-to be datetime values. Or, if you want to use the Categorical HeatMap, columns names and the specified
-index have to be string type values.
+specific chart context. For instance, if you use a Timeseries chart, the x-value
+(index) for each group has to be datetime values. Or, if you want to use the
+Categorical HeatMap, columns names and the specified index have to be string
+type values.
 
-Going ahead with a few more examples: as you have seen before, in the Histogram chart you need to set
-up the ``bins`` and, additionally, you can pass a ``mu`` and ``sigma`` to get the ``pdf`` and the ``cdf``
-line plots of theoretical normal distributions for these parameters.
+Going ahead with a few more examples: as you have seen before, in the Histogram
+chart you need to setup the ``bins`` and, additionally, you can pass a ``mu``
+and ``sigma`` to get the ``pdf`` and the ``cdf`` line plots of theoretical
+normal distributions for these parameters.
 
-In the Bar charts case, if you pass several groups, they will be shown ``grouped`` by default:
+In the Bar charts case, if you pass several groups, they will be shown ``grouped``
+by default:
 
 .. image:: /_images/charts_bar_grouped.png
     :align: center
 
-But if you specify the argument ``stacked`` as True, it will be shown as stacked bars as follows:
+But if you specify the argument ``stacked`` as True, it will be shown as stacked
+bars as follows:
 
 .. image:: /_images/charts_bar_stacked.png
     :align: center
 
 |
 
-So, besides the shared arguments specified in :ref:`charts_generic_arguments` and the general
-:ref:`charts_interface_inputs` we have listed in the previous paragraph, each class support the
-following custom arguments:
+So, besides the shared arguments specified in :ref:`charts_generic_arguments` and
+the general :ref:`charts_interface_inputs` we have listed in the previous paragraph,
+each class support the following custom arguments:
 
 
 Area
