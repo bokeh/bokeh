@@ -4,7 +4,7 @@ from bokeh.plotting import figure, show, output_file
 from bokeh.models.sources import AjaxDataSource
 from bokeh.models.ranges import Range1d
 
-output_file("ajax_source.html", title="ajax_source.py example")
+output_file("ajax_source_realtime.html", title="ajax_source_realtime.py example")
 source = AjaxDataSource(data_url='http://localhost:5050/data',
                         polling_interval=1000, max_size=125)
 p = figure()
