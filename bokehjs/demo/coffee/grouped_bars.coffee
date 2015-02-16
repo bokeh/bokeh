@@ -15,7 +15,8 @@ data = {
 }
 
 a = {
-  type: 'quad',
+  type: 'Quad'
+  source: 'data'
   left: 'al'
   right: 'ar'
   top: 'at'
@@ -25,7 +26,8 @@ a = {
 }
 
 b = {
-  type: 'quad',
+  type: 'Quad'
+  source: 'data'
   left: 'bl'
   right: 'br'
   top: 'bt'
@@ -35,7 +37,8 @@ b = {
 }
 
 c = {
-  type: 'quad',
+  type: 'Quad'
+  source: 'data'
   left: 'cl'
   right: 'cr'
   top: 'ct'
@@ -45,20 +48,33 @@ c = {
 }
 
 
-options = {
-  title: "Grouped Bars Demo"
-  dims: [600, 600]
-  xrange: [0, 8]
-  yrange: [0, 8]
-  xaxes: "below"
-  yaxes: "left"
-  xgrid: false
-  tools: 'hover'
-  legend: false
+xaxis = {
+  type: "auto"
+  location: "below"
+  grid: false
 }
 
-plot = Bokeh.Plotting.make_plot([a,b,c], data, options)
-Bokeh.Plotting.show(plot)
+yaxis = {
+  type: "auto"
+  location: "left"
+  grid: true
+}
+
+options = {
+  title: "Grouped Bars Demo"
+  plot_width: 600
+  plot_height: 600
+  x_range: [0, 18]
+  y_range: [0, 8]
+}
+
+$("#target").bokeh("figure", {
+  options: options
+  sources: { data: data }
+  glyphs: [a, b, c]
+  guides: [xaxis, yaxis]
+  tools: ["Pan", "WheelZoom" ,"Resize" ,"PreviewSave"]
+})
 
 
 

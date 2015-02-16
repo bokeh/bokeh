@@ -24,7 +24,8 @@ data2 = {
 }
 
 quiver = {
-  type: 'segment'
+  type: 'Segment'
+  source: 'data1'
   x0: 'x0'
   y0: 'y0'
   x1: 'x1'
@@ -35,7 +36,8 @@ quiver = {
 }
 
 streamline = {
-  type: 'multi_line'
+  type: 'MultiLine'
+  source: 'data2'
   xs: 'xs'
   ys: 'ys'
   line_color: 'color'
@@ -45,15 +47,30 @@ streamline = {
 
 options = {
   title: "Vector Demo"
-  dims: [600, 600]
-  xrange: [-2.1, 2.1]
-  yrange: [-2.1, 2.1]
-  xaxes: "below"
-  yaxes: "left"
-  tools: true
-  legend: false
+  plot_width: 600
+  plot_height: 600
+  x_range: [-2.1, 2.1]
+  y_range: [-2.1, 2.1]
 }
 
-plot = Bokeh.Plotting.make_plot([quiver, streamline], [data1, data2], options)
-Bokeh.Plotting.show(plot)
+xaxis = {
+  type: "auto"
+  location: "below"
+  grid: true
+}
+
+yaxis = {
+  type: "auto"
+  location: "left"
+  grid: true
+}
+
+$("#target").bokeh("figure", {
+  options: options
+  sources: { data1: data1, data2: data2 }
+  glyphs: [quiver, streamline]
+  guides: [xaxis, yaxis]
+  tools: ["Pan", "WheelZoom" ,"Resize" ,"PreviewSave"]
+})
+
 
