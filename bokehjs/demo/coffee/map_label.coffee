@@ -77,7 +77,7 @@ yaxis = {
 }
 
 options = {
-  title: "Map with Overlay Demo"
+  title: "Map with Label Demo"
   plot_width: 1200
   plot_height: 600
   x_range: [-130, -60]
