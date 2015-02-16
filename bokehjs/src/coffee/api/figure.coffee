@@ -11,9 +11,6 @@ define [
   Collections = base.Collections
   logger = Logging.logger
 
-  if not Array.prototype.every
-    Array.prototype.every = (f) -> (x for x in @ when f(x)).length == @length
-
   _get_num_minor_ticks = (axis_type, num_minor_ticks) ->
     if not num_minor_ticks?
         return 0
@@ -64,10 +61,10 @@ define [
     #   return range
 
     if _.isArray(range)
-      if range.every(_.isString)
+      if _.every(range, _.isString)
         return Collections("FactorRange").create(factors: range)
 
-      if range.length == 2 and range.every(_.isNumber)
+      if range.length == 2 and _.every(range, _.isNumber)
         return Collections("Range1d").create({start: range[0], end: range[1]})
 
     logger.error("Unrecognized range input: #{range.toJSON}")
