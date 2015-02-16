@@ -8,9 +8,13 @@ define [
 
   show = (target, plot) ->
 
-    logging.debug("Scheduling render for plot #{plot} on target #{target}")
+    logger.debug("Scheduling render for plot #{plot} on target #{target}")
 
     myrender = () ->
       view = new plot.default_view(model: plot)
       target.append(view.$el)
     _.defer(myrender)
+
+  return {
+    show: show
+  }

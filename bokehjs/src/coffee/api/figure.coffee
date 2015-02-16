@@ -2,11 +2,10 @@
 define [
   "common/base"
   "common/logging"
-  "common/plot"
   "range/factor_range"
   "source/column_data_source"
   "./helpers"
-], (base, Logging, Plot, FactorRange, ColumnDataSource) ->
+], (base, Logging, FactorRange, ColumnDataSource) ->
 
   Collections = base.Collections
   logger = Logging.logger
@@ -37,26 +36,26 @@ define [
       return null
 
     else if axis_type == "linear"
-      return Collections.LinearAxis
+      return Collections("LinearAxis")
 
     else if axis_type == "log"
-      return Collections.LogAxis
+      return Collections("LogAxis")
 
     else if axis_type == "datetime"
-      return Collections.DatetimeAxis
+      return Collections("DatetimeAxis")
 
     else if axis_type == "auto"
       if range instanceof FactorRange.Model
-        return Collections.CategoricalAxis
+        return Collections("CategoricalAxis")
 
       else if range instanceof Range1d
         try
           new Date(range.get('start'))
-          return Collections.DatetimeAxis
+          return Collections("DatetimeAxis")
         catch
           "pass"
 
-      return Collections.LinearAxis
+      return Collections("LinearAxis")
 
     else
       logger.error("unrecognized axis_type: #{axis_type}")
@@ -64,7 +63,7 @@ define [
 
   _get_range = (range) ->
     if not range?
-      return Collections.DataRange1d.Create()
+      return Collections("DataRange1d").create()
 
     # TODO: (bev) accept existing ranges
     # if range instanceof Range.Model
@@ -72,10 +71,10 @@ define [
 
     if _.isArray(range)
       if range.every(_.isString)
-        return Collections.FactorRange.Create(factors: range)
+        return Collections("FactorRange").create(factors: range)
 
       if range.length == 2 and range.every(_.isNumber)
-        return Collections.Range1d({start: range[0], end: range[1]})
+        return Collections("Range1d").create({start: range[0], end: range[1]})
 
     logger.error("Unrecognized range input: #{range.toJSON}")
     return null
@@ -87,7 +86,12 @@ define [
     if _.isString(glyph_source)
       return sources[glyph_source]
 
-    return Collections.ColumnDataSource.create({data: glyph_source})
+    return Collections("ColumnDataSource").create({data: glyph_source})
+
+  _process_annotations = (annotations) ->
+    annotation_objs = []
+
+    return annotation_objs
 
   _process_tools = (tools) ->
     tool_objs = []
@@ -98,7 +102,7 @@ define [
       else
         tool_type = tool.type
       try
-        tool_obj = Collections[tool_type].Create(tool)
+        tool_obj = Collections(tool_type).create(tool)
         tool_objs.push(tool_obj)
       catch
         logger.error("unrecognized tool: #{tool.toJSON()}")
@@ -112,10 +116,10 @@ define [
 
       glyph_type = glyph.type
 
-      source = _get_source(sources, glyph.source)
+      source = _get_sources(sources, glyph.source)
 
       glyph_args = _.omit(glyph, 'source', 'selection', 'inspection', 'nonselection')
-      glyph_obj = Collections[glyph_type].Create(args)
+      glyph_obj = Collections(glyph_type).create(glyph_args)
 
       renderer_args = {
         data_source: source
@@ -128,13 +132,13 @@ define [
           # TODO: (bev) accept glyph mod functions
           if glyph[x].type?
             x_args = _.omit(glyph[x], 'type')
-            x_obj = Collections[glyph[x].type].Create(x_args)
+            x_obj = Collections(glyph[x].type).create(x_args)
           else
             x_obj = _.clone(glyph_obj)
             x_obj.set(glyph[x])
           renderer_args[x] = x_obj
 
-      renderer = GlyphRenderer.Collection.create(renderer_args)
+      renderer = Collections("GlyphRenderer").create(renderer_args)
 
       renderers.push(renderer)
 
@@ -148,10 +152,10 @@ define [
   make_plot = (options) ->
 
     # handle shared ranges
-    options.x_range = _get_range(options.x_range?)
-    options.y_range = _get_range(options.y_range?)
+    options.x_range = _get_range(options.x_range)
+    options.y_range = _get_range(options.y_range)
 
-    plot = Plot.Collection.create(options)
+    plot = Collections('Plot').create(options)
 
     return plot
 
@@ -194,7 +198,7 @@ define [
 
     add_glyphs(plot, sources, glyphs)
     add_guides(plot, guides)
-    add annotations(plot, annotations)
+    add_annotations(plot, annotations)
     add_tools(plot, tools)
 
     return plot
