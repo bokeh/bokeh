@@ -111,7 +111,8 @@ require([
   }
 
   scatter = {
-    type: 'circle'
+    type: 'Circle'
+    source: 'data'
     x: 'x'
     y: 'y'
     size: 10
@@ -120,16 +121,33 @@ require([
     line_color: null
   }
 
-  options = {
-    title: "Scatter Demo"
-    dims: [600, 600]
-    xaxes: "datetime"
-    yaxes: "left"
-    tools: true
-    legend: false
+  xaxis = {
+    type: "Datetime"
+    location: "below"
+    grid: true
   }
 
-  plot = Bokeh.Plotting.make_plot(scatter, data, options)
+  yaxis = {
+    type: "auto"
+    location: "left"
+    grid: true
+  }
 
-  Bokeh.Plotting.show(plot))
+  options = {
+    title: "Date Demo"
+    plot_width: 600
+    plot_height: 600
+    # TODO: (bev) fix this
+    x_range: [1346630700000, 1346664540000]
+    y_range: [0, 10]
+  }
 
+  $("#target").bokeh("figure", {
+    options: options
+    sources: { data: data }
+    glyphs: [scatter]
+    guides: [xaxis, yaxis]
+    tools: ["Pan", "WheelZoom" ,"Resize" ,"PreviewSave"]
+  })
+
+)
