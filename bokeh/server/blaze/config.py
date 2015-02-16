@@ -1,9 +1,13 @@
 from os.path import dirname, abspath, join
+import logging
+import warnings
+
 
 import numpy as np
 import pandas as pd
 
 from blaze import resource
+log = logging.getLogger(__name__)
 
 qty=10000
 gauss = {'oneA': np.random.randn(qty),
@@ -28,18 +32,46 @@ bivariate = {'A1': np.hstack([np.random.randn(qty/2), np.random.randn(qty/2)+1])
 bivariate = pd.DataFrame(bivariate)
 import bokeh.server.tests
 path = join(dirname(bokeh.server.tests.__file__), 'data', 'AAPL.hdf5')
-aapl = resource("hdfstore://%s::__data__" % path)
+
+try:
+    aapl = resource("hdfstore://%s::__data__" % path)
+except Exception as e:
+    aapl = None
+    log.error(e.message)
+    warnings.warn(
+        "error loading hdfstore - perhaps your version of blaze or into is too old"
+    )
 
 path = join(dirname(bokeh.server.tests.__file__), 'data', 'array.hdf5')
-arr = resource(path + "::" + "array")
+try:
+    arr = resource(path + "::" + "array")
+except Exception as e:
+    arr = None
+    log.error(e.message)
+    warnings.warn(
+        "error loading hdf5 - perhaps your version of blaze or into is too old"
+    )
 
 path = join(dirname(bokeh.server.tests.__file__), 'data', 'CensusTracts.hdf5')
-census = resource("hdfstore://%s::__data__" % path)
+
+try:
+    census = resource("hdfstore://%s::__data__" % path)
+except Exception as e:
+    census = None
+    log.error(e.message)
+    warnings.warn(
+        "error loading hdfstore - perhaps your version of blaze or into is too old"
+    )
+
+
 
 data = dict(uniform=uniform,
             gauss=gauss,
             bivariate=bivariate,
-            aapl=aapl,
-            array=arr,
-            census=census
 )
+if aapl:
+    data['aapl'] = aapl
+if census:
+    data['census'] = census
+if arr:
+    data['array'] = arr
