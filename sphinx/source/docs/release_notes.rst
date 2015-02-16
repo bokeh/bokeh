@@ -11,6 +11,7 @@ Release Notes
 .. toctree::
     :maxdepth: 1
 
+    releases/0.8.0.rst
     releases/0.7.1.rst
     releases/0.7.0.rst
     releases/0.6.1.rst
@@ -34,20 +35,7 @@ Roadmap
 0.8.0 Goals (February 2015)
 ---------------------------
 
-* R language binding
-* server/widget/AR examples in gallery
-* more charts
-* CLI interface
-
-  - streaming stocks plot
-  - simple CLI examples
-
-* Blaze integration
-
-  - volume slicer
-  - line downsampling
-  - abstract rendering
-  - crossfilter
+* TODO: needs update
 
 
 Long-term TODO List
