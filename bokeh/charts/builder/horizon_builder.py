@@ -38,7 +38,7 @@ def Horizon(values, index=None, num_folds=3, pos_color='#006400',
             of each other. (default: 3)
         pos_color (color, optional): The color of the positive folds.
             (default: "#006400")
-        ned_color (color, optional): The color of the negative folds.
+        neg_color (color, optional): The color of the negative folds.
             (default: "#6495ed")
 
     In addition the the parameters specific to this chart,

@@ -5,7 +5,7 @@ import numpy as np
 
 from bokeh.sampledata.olympics2014 import data
 from bokeh.charts import BoxPlot
-
+from bokeh.plotting import output_file, show
 # create a DataFrame with the sampe data
 df = pd.io.json.json_normalize(data['data'])
 
@@ -27,9 +27,9 @@ medals = OrderedDict(bronze=bronze, silver=silver, gold=gold)
 #medals = list(medals.values())
 #medals = tuple(medals.values())
 #medals = np.array(list(medals.values()))
-
+output_file("boxplot.html")
 boxplot = BoxPlot(
     medals, marker='circle', outliers=True, title="boxplot test",
     xlabel="medal type", ylabel="medal count", width=800, height=600,
-    filename="boxplot.html") #, legend=True)
-boxplot.show()
+    filename="boxplot.html")
+show(boxplot) # or boxplot.show()

@@ -2,6 +2,7 @@ from collections import OrderedDict
 import pandas as pd
 import numpy as np
 from bokeh.charts import Dot
+from bokeh.plotting import show, output_file
 
 # create some example data
 xyvalues = OrderedDict(
@@ -14,7 +15,7 @@ xyvalues = OrderedDict(
 #xyvalues = pd.DataFrame(xyvalues)
 #xyvalues = list(xyvalues.values())
 #xyvalues = np.array(list(xyvalues.values()))
-
+output_file("dots.html")
 dots = Dot(xyvalues, cat=['lists','loops','dicts', 'gen exp', 'exceptions'],
          title="Dots Example", ylabel='Performance', filename="dots.html", legend=True)
-dots.legend("top_left").show()
+show(dots)  # or dots.show()

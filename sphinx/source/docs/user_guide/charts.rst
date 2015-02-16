@@ -228,30 +228,22 @@ Area
   * As a 1d iterable of any sort that will be used as series common index
   * As a string that corresponds to the ``key`` of the mapping to be used as index (and not as data series) if ``area.values`` is a mapping (like a ``dict``, an ``OrderedDict`` or a pandas ``DataFrame``)
 
-* ``facet`` (bool, optional): generate multiple areas on multiple separate plots for each series if ``True``. Defaults to ``False``
 * ``stacked`` (bool, optional):
 
   * ``True``: areas are draw as a stack to show the relationship of parts to a whole
   * ``False``: areas are layered on the same chart figure. Defaults to ``False``.
 
 
-.. image:: /_images/charts_area_stacked.png
-    :align: left
-    :width: 400px
-    :height: 400px
+Example:
 
-.. image:: /_images/charts_area_layered.png
-    :align: right
-    :width: 400px
-    :height: 400px
-
+.. bokeh-plot:: ../examples/charts/area.py
+    :source-position: above
 
 Bar
 ~~~
 
 * ``values`` (see :ref:`charts_interface_inputs`): data series to be plotted. Container values must be 1d iterable of scalars.
 * ``cat`` (list, optional): list of string representing the categories. Defaults to None.
-* ``facet`` (bool, optional): generate multiple areas on multiple separate plots for each series if ``True``. Defaults to ``False``.
 * ``stacked`` (bool, optional):
 
   * ``True``: bars are draw as a stack to show the relationship of parts to a whole.
@@ -266,16 +258,10 @@ based on the data provided in values, according to the following rules:
 * with all negative data: start = 1.1 * min, end = 0
 * with mixed sign data:   start = 1.1 * min, end = 1.1 * max
 
+Example:
 
-.. image:: /_images/charts_bar_stacked.png
-    :align: left
-    :width: 400px
-    :height: 400px
-
-.. image:: /_images/charts_bar_grouped.png
-    :align: right
-    :width: 400px
-    :height: 400px
+.. bokeh-plot:: ../examples/charts/stacked_bar.py
+    :source-position: above
 
 
 BoxPlot
@@ -285,23 +271,22 @@ BoxPlot
 * ``marker`` (int or string, optional): the marker type to use if outliers=True (e.g., `circle`). Defaults to `circle`.
 * ``outliers`` (bool, optional): whether or not to plot outliers. Defaults to ``True``.
 
-.. image:: /_images/charts_boxplot.png
-    :align: center
-    :width: 600px
-    :height: 400px
+Example:
 
+.. bokeh-plot:: ../examples/charts/boxplot.py
+    :source-position: above
 
 
 Donut
 ~~~~~
 
 * ``values`` (see :ref:`charts_interface_inputs`): data series to be plotted. Container values must be 1d iterable of scalars.
-* ``palette`` (list, optional): a list containing the colormap as hex values.
 
-.. image:: /_images/charts_donut.png
-    :align: center
-    :width: 400px
-    :height: 400px
+
+Example:
+
+.. bokeh-plot:: ../examples/charts/donut.py
+    :source-position: above
 
 
 Dot
@@ -309,12 +294,11 @@ Dot
 
 * ``values`` (see :ref:`charts_interface_inputs`): data series to be plotted. Container values must be 1d iterable of scalars.
 * ``cat`` (list, optional): list of string representing the categories. Defaults to None.
-* ``facet`` (bool, optional): generate multiple dots on multiple separate plots for each series if ``True``. Defaults to ``False``.
 
-.. image:: /_images/charts_dots.png
-    :align: center
-    :width: 600px
-    :height: 400px
+Example:
+
+.. bokeh-plot:: ../examples/charts/dots.py
+    :source-position: above
 
 
 HeatMap
@@ -323,10 +307,11 @@ HeatMap
 * ``values`` (see :ref:`charts_interface_inputs`): data series to be plotted. Container values must be 1d iterable of scalars.
 * ``cat`` (list, optional): list of string representing the categories. Defaults to None.
 
-.. image:: /_images/charts_heatmap.png
-    :align: center
-    :width: 600px
-    :height: 400px
+
+Example:
+
+.. bokeh-plot:: ../examples/charts/cat_heatmap.py
+    :source-position: above
 
 
 Histogram
@@ -336,17 +321,31 @@ Histogram
 * ``bins`` (int): number of bins to use when building the Histogram.
 * ``mu`` (float, optional): theoretical mean value for the normal distribution. Defaults to ``None``.
 * ``sigma`` (float, optional): theoretical sigma value for the normal distribution. Defaults to ``None``.
-* ``facet`` (bool, optional): generate multiple histograms on multiple separate plots for each series if ``True``. Defaults to ``False``
 
-.. image:: /_images/charts_histograms.png
-    :align: left
-    :width: 400px
-    :height: 400px
 
-.. image:: /_images/charts_histogram_cdf.png
-    :align: right
-    :width: 400px
-    :height: 400px
+Example:
+
+.. bokeh-plot:: ../examples/charts/histograms.py
+    :source-position: above
+
+Horizon
+~~~~~~~
+
+* ``values`` (see :ref:`charts_interface_inputs`): data series to be plotted. Container values must be 1d iterable of scalars.
+* ``index`` (str | 1d iterable of any sort, optional): can be used to specify a common custom index for all data series as follows:
+
+  * As a 1d iterable of any sort that will be used as series common index
+  * As a string that corresponds to the ``key`` of the mapping to be used as index (and not as data series) if ``area.values`` is a mapping (like a ``dict``, an ``OrderedDict`` or a pandas ``DataFrame``)
+
+* ``num_folds`` (int, optional): number of folds stacked on top of each other. (default: 3)
+* ``pos_color`` (color, optional): The color of the positive folds. Defaults to ``#006400``.
+* ``neg_color`` (color, optional): The color of the negative folds. Defaults to ``#6495ed``.
+
+
+Example:
+
+.. bokeh-plot:: ../examples/charts/horizon.py
+    :source-position: above
 
 
 Line
@@ -358,24 +357,23 @@ Line
   * As a 1d iterable of any sort that will be used as series common index
   * As a string that corresponds to the ``key`` of the mapping to be used as index (and not as data series) if ``area.values`` is a mapping (like a ``dict``, an ``OrderedDict`` or a pandas ``DataFrame``)
 
-* ``facet`` (bool, optional): generate multiple lines on multiple separate plots for each series if ``True``. Defaults to ``False``
 
-.. image:: /_images/charts_lines.png
-    :align: center
-    :width: 600px
-    :height: 400px
+Example:
+
+.. bokeh-plot:: ../examples/charts/lines.py
+    :source-position: above
 
 
 Scatter
 ~~~~~~~
 
 * ``values`` (see :ref:`charts_interface_inputs`): data series to be plotted. Container values must be 1d iterable of x, y pairs, like i.e.: ``[(1, 2), (2, 7), ..., (20122, 91)]``
-* ``facet`` (bool, optional): generate multiple scatters on multiple separate plots for each series if ``True``. Defaults to ``False``
 
-.. image:: /_images/charts_scatter_w_labels.png
-    :align: center
-    :width: 600px
-    :height: 400px
+
+Example:
+
+.. bokeh-plot:: ../examples/charts/iris_scatter.py
+    :source-position: above
 
 
 Step
@@ -387,12 +385,11 @@ Step
   * As a 1d iterable of any sort that will be used as series common index
   * As a string that corresponds to the ``key`` of the mapping to be used as index (and not as data series) if ``area.values`` is a mapping (like a ``dict``, an ``OrderedDict`` or a pandas ``DataFrame``)
 
-* ``facet`` (bool, optional): generate multiple stepped lines on multiple separate plots for each series if ``True``. Defaults to ``False``
 
-.. image:: /_images/charts_steps.png
-    :align: center
-    :width: 600px
-    :height: 400px
+Example:
+
+.. bokeh-plot:: ../examples/charts/steps.py
+    :source-position: above
 
 
 TimeSeries
@@ -404,14 +401,11 @@ TimeSeries
   * As a 1d iterable of any sort that will be used as series common index
   * As a string that corresponds to the ``key`` of the mapping to be used as index (and not as data series) if ``area.values`` is a mapping (like a ``dict``, an ``OrderedDict`` or a pandas ``DataFrame``)
 
-* ``facet`` (bool, optional): generate multiple timeseries on multiple separate plots for each series if ``True``. Defaults to ``False``
 
-.. image:: /_images/charts_timeseries.png
-    :align: center
-    :width: 600px
-    :height: 400px
+Example:
 
-|
+.. bokeh-plot:: ../examples/charts/stocks_timeseries.py
+    :source-position: above
 
 Here you can find a summary table that makes it easier to group and visualize those differences:
 
@@ -424,13 +418,14 @@ Here you can find a summary table that makes it easier to group and visualize th
         <col width="9%">
         <col width="8%">
         <col width="8%">
-        <col width="10%">
-        <col width="8%">
-        <col width="8%">
         <col width="9%">
         <col width="8%">
         <col width="8%">
-        <col width="9%">
+        <col width="8%">
+        <col width="8%">
+        <col width="7%">
+        <col width="7%">
+        <col width="8%">
         </colgroup>
         <thead valign="bottom">
         <tr class="row-odd"><th class="head">Argument</th>
@@ -441,6 +436,7 @@ Here you can find a summary table that makes it easier to group and visualize th
         <th class="head">Donut</th>
         <th class="head">Dot</th>
         <th class="head">Histogram</th>
+        <th class="head">Horizon</th>
         <th class="head">Line</th>
         <th class="head">Scatter</th>
         <th class="head">Step</th>
@@ -449,6 +445,7 @@ Here you can find a summary table that makes it easier to group and visualize th
         </thead>
         <tbody valign="top">
         <tr class="row-even"><td>values</td>
+        <td bgcolor="#D4F5CE">Yes</td>
         <td bgcolor="#D4F5CE">Yes</td>
         <td bgcolor="#D4F5CE">Yes</td>
         <td bgcolor="#D4F5CE">Yes</td>
@@ -470,6 +467,7 @@ Here you can find a summary table that makes it easier to group and visualize th
         <td bgcolor="#F5CECE">No</td>
         <td bgcolor="#F5CECE">No</td>
         <td bgcolor="#D4F5CE">Yes</td>
+        <td bgcolor="#D4F5CE">Yes</td>
         <td bgcolor="#F5CECE">No</td>
         <td bgcolor="#D4F5CE">Yes</td>
         <td bgcolor="#D4F5CE">Yes</td>
@@ -486,23 +484,12 @@ Here you can find a summary table that makes it easier to group and visualize th
         <td bgcolor="#F5CECE">No</td>
         <td bgcolor="#F5CECE">No</td>
         <td bgcolor="#F5CECE">No</td>
-        </tr>
-        <tr class="row-odd"><td>facet</td>
-        <td bgcolor="#D4F5CE">Yes</td>
-        <td bgcolor="#D4F5CE">Yes</td>
         <td bgcolor="#F5CECE">No</td>
-        <td bgcolor="#F5CECE">No</td>
-        <td bgcolor="#F5CECE">No</td>
-        <td bgcolor="#D4F5CE">Yes</td>
-        <td bgcolor="#D4F5CE">Yes</td>
-        <td bgcolor="#D4F5CE">Yes</td>
-        <td bgcolor="#D4F5CE">Yes</td>
-        <td bgcolor="#D4F5CE">Yes</td>
-        <td bgcolor="#D4F5CE">Yes</td>
         </tr>
         <tr class="row-even"><td>stacked</td>
         <td bgcolor="#D4F5CE">Yes</td>
         <td bgcolor="#D4F5CE">Yes</td>
+        <td bgcolor="#F5CECE">No</td>
         <td bgcolor="#F5CECE">No</td>
         <td bgcolor="#F5CECE">No</td>
         <td bgcolor="#F5CECE">No</td>
@@ -525,6 +512,7 @@ Here you can find a summary table that makes it easier to group and visualize th
         <td bgcolor="#F5CECE">No</td>
         <td bgcolor="#F5CECE">No</td>
         <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
         </tr>
         <tr class="row-even"><td>bins</td>
         <td bgcolor="#F5CECE">No</td>
@@ -538,8 +526,38 @@ Here you can find a summary table that makes it easier to group and visualize th
         <td bgcolor="#F5CECE">No</td>
         <td bgcolor="#F5CECE">No</td>
         <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
         </tr>
         <tr class="row-odd"><td>mu</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#D4F5CE">Yes</td>
+
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        </tr>
+        <tr class="row-even"><td>sigma</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#D4F5CE">Yes</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        </tr>
+        <tr class="row-even"><td>num_folds</td>
+        <td bgcolor="#F5CECE">No</td>
         <td bgcolor="#F5CECE">No</td>
         <td bgcolor="#F5CECE">No</td>
         <td bgcolor="#F5CECE">No</td>
@@ -552,7 +570,22 @@ Here you can find a summary table that makes it easier to group and visualize th
         <td bgcolor="#F5CECE">No</td>
         <td bgcolor="#F5CECE">No</td>
         </tr>
-        <tr class="row-even"><td>sigma</td>
+        <tr class="row-even"><td>pos_color</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#D4F5CE">Yes</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        <td bgcolor="#F5CECE">No</td>
+        </tr>
+        <tr class="row-even"><td>ned_color</td>
+        <td bgcolor="#F5CECE">No</td>
         <td bgcolor="#F5CECE">No</td>
         <td bgcolor="#F5CECE">No</td>
         <td bgcolor="#F5CECE">No</td>
@@ -574,23 +607,40 @@ Interface outputs
 -----------------
 
 As with the low and middle level ``Bokeh`` plotting APIs, in ``bokeh.charts``,
-we also support the chart output to a file::
+we also support the chart output to::
 
-    hist = Histogram(distributions, bins=50, filename="my_plot")
+* a file.
 
-* ``filename``, string type, the name of your chart.
+    hist = Histogram(distributions, bins=50, filename="hist.html")
+    hist.show()
 
-to the ``bokeh-server``::
+    # or use
+    from bokeh.plotting import output_file, show
+    output_file('hist.html')
+    show(hist)
+
+
+* to ``bokeh-server``::
 
     hist = Histogram(distributions, bins=50, server=True)
+    hist.show()
 
-* ``server``, string type, the name of your chart in the server.
+    # or use
+    from bokeh.plotting import output_server, show
+    output_server('hist')
+    show(hist)
 
-and to the IPython notebook::
+
+
+* to IPython notebook::
 
     hist = Histogram(distributions, bins=50, notebook=True)
+    hist.show()
 
-* ``notebook``, bool type, if you want to output (or not) to the notebook.
+    # or use
+    from bokeh.plotting import output_notebook, show
+    output_notebook()
+    show(hist)
 
 .. note:: You can output to any or all of these 3 possibilities because, right now, they are not mutually exclusive.
 
