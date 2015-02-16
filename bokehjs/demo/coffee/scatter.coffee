@@ -1,6 +1,8 @@
 
 require(['main'], (Bokeh) ->
 
+  Bokeh.set_log_level("debug")
+
   r = new Bokeh.Random(123456789)
 
   x = (r.randf()*100 for i in _.range(4000))
@@ -33,7 +35,8 @@ require(['main'], (Bokeh) ->
 
   $("#target").bokeh("figure", {
     options: options
-    glyphs: [ scatter ]
+    glyphs: [scatter]
+    tools: ["Pan", "WheelZoom"]
   })
 
  )

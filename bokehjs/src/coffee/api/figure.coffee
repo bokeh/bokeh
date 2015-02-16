@@ -98,14 +98,16 @@ define [
 
     for tool in tools
       if _.isString(tool)
-        tool_type = tool
+        tool_type = tool + "Tool"
+        tool_args = {}
       else
-        tool_type = tool.type
+        tool_type = tool.type + "Tool"
+        tool_args = _.omit(tool, "type")
       try
-        tool_obj = Collections(tool_type).create(tool)
+        tool_obj = Collections(tool_type).create(tool_args)
         tool_objs.push(tool_obj)
       catch
-        logger.error("unrecognized tool: #{tool.toJSON()}")
+        logger.error("unrecognized tool: #{tool}")
 
     return tool_objs
 
@@ -179,10 +181,14 @@ define [
     plot.add_renderers(annotations)
 
   add_tools = (plot, tools) ->
-    tools = _process_tools(tools)
+    tools = _process_tools(tools, plot)
     for tool in tools
       tool.set('plot', plot)
-    plot.set('tools', tools)
+    plot.set_obj('tools', tools)
+
+    # TODO: (bev) these should happen automatically
+    plot.get('tool_manager').set_obj('tools', tools)
+    plot.get('tool_manager')._init_tools()
 
   figure = ({options, sources, glyphs, guides, annotations, tools}) ->
     options ?= {}
