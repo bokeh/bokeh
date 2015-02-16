@@ -16,7 +16,7 @@ require(['main'], (Bokeh) ->
 
   scatter = {
     type: 'Circle'
-    source: data
+    source: "mydata"
     x: 'x'
     y: 'y'
     radius: 'radius'
@@ -35,6 +35,9 @@ require(['main'], (Bokeh) ->
 
   $("#target").bokeh("figure", {
     options: options
+    sources: {
+      mydata: data
+    }
     glyphs: [scatter]
     tools: ["Pan", "WheelZoom"]
   })

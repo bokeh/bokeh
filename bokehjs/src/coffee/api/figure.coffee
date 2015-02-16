@@ -164,7 +164,8 @@ define [
   make_sources = (data) ->
     source_objs = {}
 
-    # TODO: (bev)
+    for key, value of data
+      source_objs[key] = Collections("ColumnDataSource").create({data: value})
 
     return source_objs
 
