@@ -38,6 +38,38 @@ from ...properties import String
 
 
 def Scatter(values, **kws):
+    """ Create a scatter chart using :class:`ScatterBuilder <bokeh.charts.builder.scatter_builder.ScatterBuilder>`
+    to render the geometry from values.
+
+    Args:
+        values (iterable): iterable 2d representing the data series
+            values matrix.
+
+    In addition the the parameters specific to this chart,
+    :ref:`charts_generic_arguments` are also accepted as keyword parameters.
+
+    Returns:
+        a new :class:`Chart <bokeh.charts.Chart>`
+
+    Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from collections import OrderedDict
+        from bokeh.charts import Scatter
+        from bokeh.plotting import output_file, show
+
+        # (dict, OrderedDict, lists, arrays and DataFrames of (x, y) tuples are valid inputs)
+        xyvalues = OrderedDict()
+        xyvalues['python'] = [(1, 2), (3, 3), (4, 7), (5, 5), (8, 26)]
+        xyvalues['pypy'] = [(1, 12), (2, 23), (4, 47), (5, 15), (8, 46)]
+        xyvalues['jython'] = [(1, 22), (2, 43), (4, 10), (6, 25), (8, 26)]
+        output_file('scatter.html')
+        scatter = Scatter(xyvalues, title="Scatter", legend="top_left", ylabel='Languages')
+        show(scatter)
+
+    """
     return create_and_build(ScatterBuilder, values, **kws)
 
 class ScatterBuilder(Builder):
@@ -49,18 +81,6 @@ class ScatterBuilder(Builder):
     We additionally make calculations for the ranges. And finally add
     the needed glyphs (markers) taking the references from the source.
 
-    Example:
-        from collections import OrderedDict
-
-        from bokeh.charts import Scatter
-        xyvalues = OrderedDict()
-        xyvalues['python'] = [(1, 2), (3, 3), (4, 7), (5, 5), (8, 26)]
-        xyvalues['pypy'] = [(1, 12), (2, 23), (4, 47), (5, 15), (8, 46)]
-        xyvalues['jython'] = [(1, 22), (2, 43), (4, 10), (6, 25), (8, 26)]
-
-        scatter = Scatter(xyvalues, title="Languages Scatter",
-            filename="scatter.html")
-        scatter.show()
     """
 
     # TODO: (bev) should be an enumeration

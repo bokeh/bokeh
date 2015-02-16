@@ -5,6 +5,8 @@ import numpy as np
 from bokeh.plotting import *
 from bokeh.models import ServerDataSource
 from bokeh.transforms import image_downsample
+from blaze.server.client import Client
+from blaze import Data
 
 N = 1000
 
@@ -15,7 +17,11 @@ d = np.sin(xx)*np.cos(yy)
 
 output_server("remote_image")
 
-source = image_downsample.source(expr={'op': 'Field', 'args': [':leaf', 'array']})
+c = Client('http://localhost:5006')
+d = Data(c)
+source = image_downsample.source()
+source.from_blaze(d.array, local=True)
+
 plot = figure(x_range=[0,10],
               y_range=[0,10],
 )
@@ -30,4 +36,4 @@ plot.image(
     tools="pan,wheel_zoom,box_zoom,reset,previewsave"
 )
 
-show()
+show(plot)

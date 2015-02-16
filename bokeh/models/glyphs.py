@@ -30,7 +30,7 @@ class AnnularWedge(Glyph):
     .. bokeh-plot:: ../tests/glyphs/AnnularWedge.py
         :source-position: none
 
-    *source:* ``tests/glyphs/AnnularWedge.py``
+    *source:* `tests/glyphs/AnnularWedge.py <https://github.com/bokeh/bokeh/tree/master/tests/glyphs/AnnularWedge.py>`_
 
     """
 
@@ -83,7 +83,7 @@ class Annulus(Glyph):
     .. bokeh-plot:: ../tests/glyphs/Annulus.py
         :source-position: none
 
-    *source:* ``tests/glyphs/Annulus.py``
+    *source:* `tests/glyphs/Annulus.py <https://github.com/bokeh/bokeh/tree/master/tests/glyphs/Annulus.py>`_
 
     """
 
@@ -122,7 +122,7 @@ class Arc(Glyph):
     .. bokeh-plot:: ../tests/glyphs/Arc.py
         :source-position: none
 
-    *source:* ``tests/glyphs/Arc.py``
+    *source:* `tests/glyphs/Arc.py <https://github.com/bokeh/bokeh/tree/master/tests/glyphs/Arc.py>`_
 
     """
 
@@ -167,7 +167,7 @@ class Bezier(Glyph):
     .. bokeh-plot:: ../tests/glyphs/Bezier.py
         :source-position: none
 
-    *source:* ``tests/glyphs/Bezier.py``
+    *source:* `tests/glyphs/Bezier.py <https://github.com/bokeh/bokeh/tree/master/tests/glyphs/Bezier.py>`_
 
     """
 
@@ -222,7 +222,7 @@ class Gear(Glyph):
     .. bokeh-plot:: ../tests/glyphs/Gear.py
         :source-position: none
 
-    *source:* ``tests/glyphs/Gear.py``
+    *source:* `tests/glyphs/Gear.py <https://github.com/bokeh/bokeh/tree/master/tests/glyphs/Gear.py>`_
 
     """
 
@@ -417,7 +417,7 @@ class ImageURL(Glyph):
     .. bokeh-plot:: ../tests/glyphs/ImageURL.py
         :source-position: none
 
-    *source:* ``tests/glyphs/ImageURL.py``
+    *source:* `tests/glyphs/ImageURL.py <https://github.com/bokeh/bokeh/tree/master/tests/glyphs/ImageURL.py>`_
 
     """
 
@@ -495,7 +495,7 @@ class Line(Glyph):
     .. bokeh-plot:: ../tests/glyphs/Line.py
         :source-position: none
 
-    *source:* ``tests/glyphs/Line.py``
+    *source:* `tests/glyphs/Line.py <https://github.com/bokeh/bokeh/tree/master/tests/glyphs/Line.py>`_
 
     """
 
@@ -525,7 +525,7 @@ class MultiLine(Glyph):
     .. bokeh-plot:: ../tests/glyphs/MultiLine.py
         :source-position: none
 
-    *source:* ``tests/glyphs/MultiLine.py``
+    *source:* `tests/glyphs/MultiLine.py <https://github.com/bokeh/bokeh/tree/master/tests/glyphs/MultiLine.py>`_
 
     """
     xs = DataSpec("xs", help="""
@@ -553,7 +553,7 @@ class Oval(Glyph):
     .. bokeh-plot:: ../tests/glyphs/Oval.py
         :source-position: none
 
-    *source:* ``tests/glyphs/Oval.py``
+    *source:* `tests/glyphs/Oval.py <https://github.com/bokeh/bokeh/tree/master/tests/glyphs/Oval.py>`_
 
     """
 
@@ -598,7 +598,7 @@ class Patch(Glyph):
     .. bokeh-plot:: ../tests/glyphs/Patch.py
         :source-position: none
 
-    *source:* ``tests/glyphs/Patch.py``
+    *source:* `tests/glyphs/Patch.py <https://github.com/bokeh/bokeh/tree/master/tests/glyphs/Patch.py>`_
 
     """
 
@@ -644,7 +644,7 @@ class Patches(Glyph):
     .. bokeh-plot:: ../tests/glyphs/Patches.py
         :source-position: none
 
-    *source:* ``tests/glyphs/Patches.py``
+    *source:* `tests/glyphs/Patches.py <https://github.com/bokeh/bokeh/tree/master/tests/glyphs/Patches.py>`_
 
     """
 
@@ -685,7 +685,7 @@ class Quad(Glyph):
     .. bokeh-plot:: ../tests/glyphs/Quad.py
         :source-position: none
 
-    *source:* ``tests/glyphs/Quad.py``
+    *source:* `tests/glyphs/Quad.py <https://github.com/bokeh/bokeh/tree/master/tests/glyphs/Quad.py>`_
 
     """
 
@@ -722,7 +722,7 @@ class Quadratic(Glyph):
     .. bokeh-plot:: ../tests/glyphs/Quadratic.py
         :source-position: none
 
-    *source:* ``tests/glyphs/Quadratic.py``
+    *source:* `tests/glyphs/Quadratic.py <https://github.com/bokeh/bokeh/tree/master/tests/glyphs/Quadratic.py>`_
 
     """
 
@@ -763,7 +763,7 @@ class Ray(Glyph):
     .. bokeh-plot:: ../tests/glyphs/Ray.py
         :source-position: none
 
-    *source:* ``tests/glyphs/Ray.py``
+    *source:* `tests/glyphs/Ray.py <https://github.com/bokeh/bokeh/tree/master/tests/glyphs/Ray.py>`_
 
     """
 
@@ -776,7 +776,7 @@ class Ray(Glyph):
     """)
 
     angle = DataSpec("angle", help="""
-    The angles in randian to extend the rays, as measured from the
+    The angles in radians to extend the rays, as measured from the
     horizontal.
     """)
 
@@ -799,7 +799,7 @@ class Rect(Glyph):
     .. bokeh-plot:: ../tests/glyphs/Rect.py
         :source-position: none
 
-    *source:* ``tests/glyphs/Rect.py``
+    *source:* `tests/glyphs/Rect.py <https://github.com/bokeh/bokeh/tree/master/tests/glyphs/Rect.py>`_
 
     """
 
@@ -850,7 +850,7 @@ class Segment(Glyph):
     .. bokeh-plot:: ../tests/glyphs/Segment.py
         :source-position: none
 
-    *source:* ``tests/glyphs/Segment.py``
+    *source:* `tests/glyphs/Segment.py <https://github.com/bokeh/bokeh/tree/master/tests/glyphs/Segment.py>`_
 
     """
 
@@ -883,7 +883,7 @@ class Text(Glyph):
     .. bokeh-plot:: ../tests/glyphs/Text.py
         :source-position: none
 
-    *source:* ``tests/glyphs/Text.py``
+    *source:* `tests/glyphs/Text.py <https://github.com/bokeh/bokeh/tree/master/tests/glyphs/Text.py>`_
 
     """
 
@@ -930,7 +930,7 @@ class Wedge(Glyph):
     .. bokeh-plot:: ../tests/glyphs/Wedge.py
         :source-position: none
 
-    *source:* ``tests/glyphs/Wedge.py``
+    *source:* `tests/glyphs/Wedge.py <https://github.com/bokeh/bokeh/tree/master/tests/glyphs/Wedge.py>`_
 
     """
 

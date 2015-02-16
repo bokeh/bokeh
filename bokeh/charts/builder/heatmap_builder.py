@@ -29,6 +29,38 @@ from ...models.glyphs import Rect
 
 def HeatMap(values, xscale="categorical", yscale="categorical",
             xgrid=False, ygrid=False, **kw):
+    """ Create a HeatMap chart using :class:`HeatMapBuilder <bokeh.charts.builder.heatmap_builder.HeatMapBuilder>`
+    to render the geometry from values.
+
+    Args:
+        values (iterable): iterable 2d representing the data series
+            values matrix.
+
+    In addition the the parameters specific to this chart,
+    :ref:`charts_generic_arguments` are also accepted as keyword parameters.
+
+    Returns:
+        a new :class:`Chart <bokeh.charts.Chart>`
+
+    Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from collections import OrderedDict
+        from bokeh.charts import HeatMap
+        from bokeh.plotting import output_file, show
+
+        # (dict, OrderedDict, lists, arrays and DataFrames are valid inputs)
+        xyvalues = OrderedDict()
+        xyvalues['apples'] = [4,5,8]
+        xyvalues['bananas'] = [1,2,4]
+        xyvalues['pears'] = [6,5,4]
+        output_file('heatmap.html')
+        hm = HeatMap(xyvalues, title='Fruits')
+        show(hm)
+
+    """
     chart = create_and_build(
         HeatMapBuilder, values, xscale=xscale, yscale=yscale,
         xgrid=xgrid, ygrid=ygrid, **kw
@@ -46,16 +78,6 @@ class HeatMapBuilder(Builder):
     And finally add the needed glyphs (rects) taking the references
     from the source.
 
-    Examples:
-    from collections import OrderedDict
-    from bokeh.charts import HeatMap
-
-    xyvalues = OrderedDict()
-    xyvalues['apples'] = [4,5,8]
-    xyvalues['bananas'] = [1,2,4]
-    xyvalues['pears'] = [6,5,4]
-    hm = HeatMap(xyvalues, title="categorical heatmap", filename="cat_heatmap.html")
-    hm.show()
     """
 
     def _process_data(self):

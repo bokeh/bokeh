@@ -37,7 +37,46 @@ from ...properties import Any, Bool, Either, List
 
 def Bar(values, cat=None, stacked=False, xscale="categorical", yscale="linear",
         xgrid=False, ygrid=True, continuous_range=None, **kw):
+    """ Create a Bar chart using :class:`BarBuilder <bokeh.charts.builder.bar_builder.BarBuilder>`
+    render the geometry from values, cat and stacked.
 
+    Args:
+        values (iterable): iterable 2d representing the data series
+            values matrix.
+        cat (list or bool, optional): list of string representing the categories.
+            (Defaults to None)
+        stacked (bool, optional): to see the bars stacked or grouped.
+            (Defaults to False, so grouping is assumed)
+        continuous_range(Range1d, optional): Custom continuous_range to be
+            used. (Defaults to None)
+
+    In addition the the parameters specific to this chart,
+    :ref:`charts_generic_arguments` are also accepted as keyword parameters.
+
+    Returns:
+        a new :class:`Chart <bokeh.charts.Chart>`
+
+    Examples:
+
+        .. bokeh-plot::
+            :source-position: above
+
+            from collections import OrderedDict
+            from bokeh.charts import Bar
+            from bokeh.plotting import output_file, show
+
+            # (dict, OrderedDict, lists, arrays and DataFrames are valid inputs)
+            xyvalues = OrderedDict()
+            xyvalues['python']=[-2, 5]
+            xyvalues['pypy']=[12, 40]
+            xyvalues['jython']=[22, 30]
+            cat = ['1st', '2nd']
+            output_file("stacked_bar.html")
+            bar = Bar(xyvalues, cat, title="Stacked bars",
+                    xlabel="category", ylabel="language")
+            show(bar)
+
+    """
     if continuous_range and not isinstance(continuous_range, Range1d):
         raise ValueError(
             "continuous_range must be an instance of bokeh.models.ranges.Range1d"
@@ -73,31 +112,6 @@ class BarBuilder(Builder):
      * with all negative data: start = 1.1 * min, end = 0
      * with mixed sign data:   start = 1.1 * min, end = 1.1 * max
 
-    Examples:
-
-        from collections import OrderedDict
-
-        xyvalues = OrderedDict()
-        xyvalues['python']=[2, 5]
-        xyvalues['pypy']=[12, 40]
-        xyvalues['jython']=[22, 30]
-
-        # For a stacked bar chart
-        stacked_bar = Bar(
-            xyvalues, ['1st', '2nd'], stacked=True, filename="stacked_bar.html"
-        )
-        stacked_bar.show()
-
-        # For a grouped bar chart with a custom y_range
-
-        from bokeh.models import Range1d
-
-        custom_range = Range1d(start=2, end=40)
-        grouped_bar = Bar(
-            xyvalues, ['1st', '2nd'],
-            continuous_range=custom_range, filename="grouped.html"
-        )
-        grouped_bar.show()
     """
 
     cat = Either(Bool, List(Any), help="""

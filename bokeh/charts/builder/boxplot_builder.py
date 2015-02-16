@@ -33,6 +33,49 @@ from ...properties import Bool, String
 
 def BoxPlot(values, marker="circle", outliers=True, xscale="categorical", yscale="linear",
         xgrid=False, ygrid=True, **kw):
+    """ Create a BoxPlot chart using :class:`BoxPlotBuilder <bokeh.charts.builder.boxplot_builder.BoxPlotBuilder>`
+    to render the geometry from values, marker and outliers arguments.
+
+    Args:
+        values (iterable): iterable 2d representing the data series
+            values matrix.
+        marker (int or string, optional): if outliers=True, the marker type to use
+            e.g., `circle`.
+        outliers (bool, optional): Whether or not to plot outliers.
+
+    In addition the the parameters specific to this chart,
+    :ref:`charts_generic_arguments` are also accepted as keyword parameters.
+
+    Returns:
+        a new :class:`Chart <bokeh.charts.Chart>`
+
+    Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.charts import BoxPlot
+        import numpy as np
+        from bokeh.plotting import output_file, show
+
+        # (dict, OrderedDict, lists, arrays and DataFrames of arrays are valid inputs)
+        medals = dict([
+                    ('bronze', np.array([7.0, 10.0, 8.0, 7.0, 4.0, 4.0, 1.0, 5.0, 2.0, 1.0,
+                                4.0, 2.0, 1.0, 2.0, 4.0, 1.0, 0.0, 1.0, 1.0, 2.0,
+                                0.0, 1.0, 0.0, 0.0, 1.0, 1.0])),
+                    ('silver', np.array([8., 4., 6., 4., 8., 3., 3., 2., 5., 6.,
+                                1., 4., 2., 3., 2., 0., 0., 1., 2., 1.,
+                                3.,  0.,  0.,  1.,  0.,  0.])),
+                    ('gold', np.array([6., 6., 6., 8., 4., 8., 6., 3., 2., 2.,  2.,  1.,
+                              3., 1., 0., 5., 4., 2., 0., 0., 0., 1., 1., 0., 0.,
+                              0.]))
+                ])
+        output_file('boxplot.html')
+        boxplot = BoxPlot(medals, marker="circle", outliers=True, title="boxplot",
+            xlabel="medal type", ylabel="medal count")
+        show(boxplot)
+
+    """
     return create_and_build(
         BoxPlotBuilder, values, marker=marker, outliers=outliers,
         xscale=xscale, yscale=yscale, xgrid=xgrid, ygrid=ygrid, **kw
@@ -48,26 +91,6 @@ class BoxPlotBuilder(Builder):
     And finally add the needed glyphs (rects, lines and markers)
     taking the references from the source.
 
-    Examples:
-
-        from collections import OrderedDict
-        import numpy as np
-        from bokeh.charts import BoxPlot
-        from bokeh.sampledata.olympics2014 import data
-
-        data = {d['abbr']: d['medals'] for d in data['data'] if d['medals']['total'] > 0}
-        countries = sorted(data.keys(), key=lambda x: data[x]['total'], reverse=True)
-
-        gold = np.array([data[abbr]['gold'] for abbr in countries], dtype=np.float)
-        silver = np.array([data[abbr]['silver'] for abbr in countries], dtype=np.float)
-        bronze = np.array([data[abbr]['bronze'] for abbr in countries], dtype=np.float)
-
-        medals = OrderedDict(bronze=bronze, silver=silver, gold=gold)
-
-        boxplot = BoxPlot(medals, marker="circle", outliers=True,
-                          title="boxplot, dict_input", xlabel="medal type", ylabel="medal count",
-                          width=800, height=600, notebook=True)
-        boxplot.show()
     """
 
     # TODO: (bev) should be an enumeration
@@ -157,8 +180,8 @@ class BoxPlotBuilder(Builder):
             outliers = np.where(
                 (self._values[level] > upper) | (self._values[level] < lower)
             )[0]
-            out = self._values[level][outliers]
-            for o in out:
+            for out in outliers:
+                o = self._values[level][out]
                 out_x.append(level)
                 out_y.append(o)
                 out_color.append(self.palette[i])

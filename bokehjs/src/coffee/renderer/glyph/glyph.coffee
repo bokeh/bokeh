@@ -25,7 +25,9 @@ define [
       if 'text' in @_properties
         @props.text = new properties.Text(@)
 
-    render: (ctx, indicies) -> @_render(ctx, indicies)
+    render: (ctx, indicies) ->
+      if @mget("visible")
+        @_render(ctx, indicies)
 
     _map_data: () -> null
 
@@ -195,6 +197,11 @@ define [
       line_dash: []
       line_dash_offset: 0
     }
+
+    defaults: ->
+      return _.extend {
+        visible: true
+      }
 
   class Glyphs extends Collection
 
