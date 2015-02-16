@@ -138,6 +138,20 @@ are also accepted as keyword parameters.
 
 Returns:
     plot
+
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.annulus(x=[1, 2, 3], y=[1, 2, 3], inner_radius=0.2,
+                    outer_radius=0.5, color="#7FC97F"
+                    )
+
+        show(plot)
 """
 )
 
@@ -177,6 +191,19 @@ are also accepted as keyword parameters.
 
 Returns:
     plot
+
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.asterisk(x=[1,2,3], y=[1,2,3], size=20, color="#F0027F")
+
+        show(plot)
+
 """
 )
 
@@ -222,6 +249,19 @@ Returns:
 
 Notes:
     Only one of `size` or `radius` should be provided. Note that `radius` defaults to data units.
+
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.circle(x=[1, 2, 3], y=[1, 2, 3], radius=0.1, size=20)
+
+        show(plot)
+
 """
 )
 
@@ -240,6 +280,19 @@ are also accepted as keyword parameters.
 
 Returns:
     plot
+
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.circle_cross(x=[1,2,3], y=[4,5,6], fill_alpha=0, line_width=2,
+                         color="#FB8072", size=20)
+
+        show(plot)
 """
 )
 
@@ -258,6 +311,19 @@ are also accepted as keyword parameters.
 
 Returns:
     plot
+
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.circle_x(x=[1, 2, 3], y=[1, 2, 3], radius=0.1, size=20,
+                     fill_alpha=0, color="#DD1C77")
+
+        show(plot)
 """
 )
 
@@ -276,6 +342,19 @@ are also accepted as keyword parameters.
 
 Returns:
     plot
+
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.cross(x=[1, 2, 3], y=[1, 2, 3], size=20,
+                    color="#E6550D", line_width=2)
+
+        show(plot)
 """
 )
 
@@ -294,6 +373,19 @@ are also accepted as keyword parameters.
 
 Returns:
     plot
+
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.diamond(x=[1, 2, 3], y=[1, 2, 3], size=20,
+                    color="#1C9099", line_width=2)
+
+        show(plot)
 """
 )
 
@@ -312,6 +404,21 @@ are also accepted as keyword parameters.
 
 Returns:
     plot
+
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.diamond_cross(x=[1, 2, 3], y=[1, 2, 3], size=20,
+                            color="#386CB0",fill_color=None, line_width=2)
+
+        show(plot)
+
+
 """
 )
 
@@ -392,6 +499,20 @@ are also accepted as keyword parameters.
 
 Returns:
     plot
+
+
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.inverted_triangle(x=[1, 2, 3], y=[1, 2, 3], size=20,
+                              color="#DE2D26")
+
+        show(plot)
 """
 )
 
@@ -421,10 +542,8 @@ Examples:
 
        from bokeh.plotting import figure, output_file, show
 
-       output_file("lines.html")
-
        p = figure(title="line", plot_width=300, plot_height=300)
-       p.line([1, 2, 3, 4, 5], [6, 7, 2, 4, 5])
+       p.line(x=[1, 2, 3, 4, 5], y=[6, 7, 2, 4, 5])
 
        show(p)
 """
@@ -447,6 +566,18 @@ are also accepted as keyword parameters.
 Returns:
     plot
 
+Examples:
+
+    .. bokeh-plot::
+       :source-position: above
+
+       from bokeh.plotting import figure, output_file, show
+
+       p = figure(plot_width=300, plot_height=300)
+       p.multi_line(xs=[[1, 2, 3], [2, 3, 4]], ys=[[6, 7, 2], [4, 5, 7]],
+                    color=['red','green'])
+
+       show(p)
 """,
     xfields=["xs"], yfields=["ys"],
 )
@@ -468,6 +599,19 @@ are also accepted as keyword parameters.
 
 Returns:
     plot
+
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.oval(x=[1, 2, 3], y=[1, 2, 3], width=15, height=25, angle=-0.7, color="#1D91C0",
+                 width_units="screen", height_units="screen")
+
+        show(plot)
 """
 )
 
@@ -485,6 +629,18 @@ are also accepted as keyword parameters.
 
 Returns:
     plot
+
+Examples:
+
+    .. bokeh-plot::
+       :source-position: above
+
+       from bokeh.plotting import figure, output_file, show
+
+       p = figure(plot_width=300, plot_height=300)
+       p.patch(x=[1, 2, 3, 2], y=[6, 7, 2, 2], color="#99d8c9")
+
+       show(p)
 """
 )
 
@@ -505,6 +661,18 @@ are also accepted as keyword parameters.
 Returns:
     plot
 
+Examples:
+
+    .. bokeh-plot::
+       :source-position: above
+
+       from bokeh.plotting import figure, output_file, show
+
+       p = figure(plot_width=300, plot_height=300)
+       p.patches(xs=[[1,2,3],[4,5,6,5]], ys=[[1,2,1],[4,5,5,4]],
+                color=["#43a2ca", "#a8ddb5"])
+
+       show(p)
 """,
     xfields=["xs"], yfields=["ys"],
 )
@@ -525,6 +693,19 @@ are also accepted as keyword parameters.
 
 Returns:
     plot
+
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.quad(top=[2, 3, 4], bottom=[1, 2, 3], left=[1, 2, 3],
+            right=[1.2, 2.5, 3.7], color="#B3DE69")
+
+        show(plot)
 """,
     xfields=["left", "right"], yfields=["top", "bottom"])
 
@@ -566,6 +747,19 @@ are also accepted as keyword parameters.
 
 Returns:
     plot
+
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.ray(x=[1, 2, 3], y=[1, 2, 3], length=45, angle=-0.7, color="#FB8072",
+                 line_width=2)
+
+        show(plot)
 """
 )
 
@@ -592,6 +786,19 @@ Notes:
     setting `dilate` to True will cause pixel distances (e.g., for `width` and `height`) to
     be rounded up, always.
 
+
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.rect(x=[1, 2, 3], y=[1, 2, 3], width=10, height=20, color="#CAB2D6",
+            width_units="screen", height_units="screen")
+
+        show(plot)
 """
 )
 
@@ -610,6 +817,21 @@ are also accepted as keyword parameters.
 
 Returns:
     plot
+
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.segment(x0=[1, 2, 3], y0=[1, 2, 3], x1=[1, 2, 3],
+                    y1=[1.2, 2.5, 3.7], color="#F4A582",
+                    line_width=3)
+
+        show(plot)
+
 """,
     xfields=["x0", "x1"], yfields=["y0", "y1"])
 
@@ -628,6 +850,18 @@ Args:
 
 Returns:
     plot
+
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.square(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,30], color="#74ADD1")
+
+        show(plot)
 """
 )
 
@@ -645,6 +879,19 @@ In addition the the parameters specific to this glyph, :ref:`userguide_objects_l
 
 Returns:
     plot
+
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.square_cross(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,25],
+                         color="#7FC97F",fill_color=None, line_width=2)
+
+        show(plot)
 """
 )
 
@@ -662,6 +909,19 @@ Args:
 
 Returns:
     plot
+
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.square_x(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,25],
+                     color="#FDAE6B",fill_color=None, line_width=2)
+
+        show(plot)
 """
 )
 
@@ -682,6 +942,7 @@ are also accepted as keyword parameters.
 
 Returns:
     plot
+
 """
 )
 
@@ -700,6 +961,19 @@ Args:
 
 Returns:
     plot
+
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.triangle(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,25],
+                     color="#99D594", line_width=2)
+
+        show(plot)
 """
 )
 
@@ -720,6 +994,19 @@ In addition the the parameters specific to this glyph, :ref:`userguide_objects_l
 
 Returns:
     plot
+
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.wedge(x=[1, 2, 3], y=[1, 2, 3], radius=15, start_angle=0.6,
+                     end_angle=4.1, radius_units="screen", color="#2b8cbe")
+
+        show(plot)
 """
 )
 
@@ -738,5 +1025,17 @@ Args:
 
 Returns:
     plot
+
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.x(x=[1, 2, 3], y=[1, 2, 3], size=[10, 20, 25], color="#fa9fb5")
+
+        show(plot)
 """
 )

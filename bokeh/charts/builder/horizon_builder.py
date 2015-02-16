@@ -22,6 +22,53 @@ from ...properties import Any, Color, Int
 def Horizon(values, index=None, num_folds=3, pos_color='#006400',
             neg_color='#6495ed', xscale='datetime', xgrid=False, ygrid=False,
             **kws):
+    """ Create a Horizon chart using :class:`HorizonBuilder <bokeh.charts.builder.horizon_builder.HorizonBuilder>`
+    render the geometry from values, index and num_folds.
+
+    Args:
+        values (iterable): iterable 2d representing the data series
+            values matrix.
+        index (str|1d iterable, optional): can be used to specify a common custom
+            index for all data series as an **1d iterable** of any sort that will be used as
+            series common index or a **string** that corresponds to the key of the
+            mapping to be used as index (and not as data series) if
+            area.values is a mapping (like a dict, an OrderedDict
+            or a pandas DataFrame)
+        num_folds (int, optional): The number of folds stacked on top
+            of each other. (default: 3)
+        pos_color (color, optional): The color of the positive folds.
+            (default: "#006400")
+        ned_color (color, optional): The color of the negative folds.
+            (default: "#6495ed")
+
+    In addition the the parameters specific to this chart,
+    :ref:`charts_generic_arguments` are also accepted as keyword parameters.
+
+    Returns:
+        a new :class:`Chart <bokeh.charts.Chart>`
+
+    Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        import datetime
+        from collections import OrderedDict
+        from bokeh.charts import Horizon
+        from bokeh.plotting import output_file, show
+
+        now = datetime.datetime.now()
+        dts = [now+datetime.timedelta(seconds=i) for i in range(5)]
+        xyvalues = OrderedDict({'Date': dts})
+        y_python = xyvalues['python'] = [2, 3, 7, 5, 26]
+        y_pypy = xyvalues['pypy'] = [12, 33, 47, 15, 126]
+        y_jython = xyvalues['jython'] = [22, 43, 10, 25, 26]
+
+        output_file('horizon.html')
+        hz = Horizon(xyvalues, index='Date', title="horizon", ylabel='Stock Prices')
+        show(hz)
+
+    """
     tools = kws.get('tools', True)
 
     if tools == True:
@@ -39,7 +86,7 @@ def Horizon(values, index=None, num_folds=3, pos_color='#006400',
     )
 
     # Hide numerical axis
-    chart.left[0].hide = True
+    chart.left[0].visible = False
 
     # Add the series names to the y axis
     chart.extra_y_ranges = {"series": FactorRange(factors=chart._builders[0]._series)}
@@ -57,22 +104,6 @@ class HorizonBuilder(Builder):
     We additionally make calculations for the ranges.
     And finally add the needed lines taking the references from the source.
 
-    Examples:
-        import datetime
-        from collections import OrderedDict
-        from bokeh.charts import Horizon
-
-        now = datetime.datetime.now()
-        delta = datetime.timedelta(minutes=1)
-        xyvalues = OrderedDict({'Date': dts})
-        y_python = xyvalues['python'] = [2, 3, 7, 5, 26]
-        y_pypy = xyvalues['pypy'] = [12, 33, 47, 15, 126]
-        y_jython = xyvalues['jython'] = [22, 43, 10, 25, 26]
-
-        hz = Horizon(xyvalues, index='Date', title="horizon", legend="top_left",
-                        ylabel='Stock Prices', filename="stocks_ts.html")
-        hz.show()
-
     """
 
     index = Any(help="""
@@ -89,7 +120,7 @@ class HorizonBuilder(Builder):
     """)
 
     neg_color = Color("#6495ed", help="""
-    The color of the positive folds. (default: "#6495ed")
+    The color of the negative folds. (default: "#6495ed")
     """)
 
     num_folds = Int(3, help="""

@@ -412,7 +412,7 @@ REQUIRES = [
         'pyzmq>=14.3.1',
         'tornado>=4.0.1',
         # cli
-        'click>=3.3',
+        #'click>=3.3',
         # tests
         #'nose>=1.3.0',
         #'mock>=1.0.1',
