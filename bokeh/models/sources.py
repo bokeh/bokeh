@@ -2,7 +2,7 @@ from __future__ import absolute_import
 
 from ..plot_object import PlotObject
 from ..properties import HasProps
-from ..properties import Any, Int, String, Instance, List, Dict, Either
+from ..properties import Any, Int, String, Bool, Instance, List, Dict, Either
 
 class DataSource(PlotObject):
     """ A base class for data source types. ``DataSource`` is
@@ -209,6 +209,14 @@ class RemoteSource(DataSource):
 
 class AjaxDataSource(RemoteSource):
     method = String('POST', help="http method - GET or POST")
+
+    overwrite = Bool(True, help="""
+    Overwrite or Update plot values from data source object
+    """)
+    max_size = Int(help="""
+    Maximum size that a plot could expand when data is retreive during
+    polling updates. Larger than that size, the data will shift to the right
+    """)
 
 class BlazeDataSource(RemoteSource):
     #blaze parts
