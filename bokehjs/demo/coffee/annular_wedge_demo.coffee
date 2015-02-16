@@ -1,23 +1,19 @@
 require(['main'], (Bokeh) ->
-  N= 630
-  N= 10
+
+  N = 20
   r = new Bokeh.Random(123456789)
 
-
-  xs = ( (x/50) for x in _.range(N) )
-  ys = (Math.sin(x) for x in xs)
-  color = ("rgb(#{ Math.floor(155+100*val) }, #{ Math.floor(100+50*val) }, #{ Math.floor(150-50*val) })" for val in ys)
   xs = (r.randf()*2 for i in _.range(N))
   ys = (r.randf()*2 for i in _.range(N))
 
   data = {
     x: xs
     y: ys
-    color: color
   }
 
-  rects = {
-    type: 'annular_wedge',
+  glyph = {
+    type: 'AnnularWedge'
+    source: 'data'
     x: 'x'
     y: 'y'
     size:          .2
@@ -25,21 +21,37 @@ require(['main'], (Bokeh) ->
     outer_radius:  .20
     start_angle:   .5
     end_angle:   1.25
-    line_alpha: 1
-    fill_color: '#0F0FF0'
-    #line_color: 'color'
-    do_fill:true
+    fill_color: 'white'
+    line_color: 'green'
+    line_width: 7
   }
 
   options = {
     title: "Annular Wedge Demo"
-    dims: [800, 500]
-    xaxes: "below"
-    yaxes: "left"
-    tools: "pan,zoom,resize,preview,select"
-    legend: false
+    plot_width: 800
+    plot_height: 500
+    x_range: [0, 2]
+    y_range: [0, 2]
   }
 
-  plot = Bokeh.Plotting.make_plot(rects, data, options)
-  Bokeh.Plotting.show(plot)
-  )
+  xaxis = {
+    type: "auto"
+    location: "below"
+    grid: true
+  }
+
+  yaxis = {
+    type: "auto"
+    location: "left"
+    grid: true
+  }
+
+  $("#target").bokeh("figure", {
+    options: options
+    sources: { data: data }
+    glyphs: [glyph]
+    guides: [xaxis, yaxis]
+    tools: ["Pan", "WheelZoom"]
+  })
+
+ )
