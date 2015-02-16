@@ -65,7 +65,7 @@ def Horizon(values, index=None, num_folds=3, pos_color='#006400',
         y_jython = xyvalues['jython'] = [22, 43, 10, 25, 26, 25, 26, 45, 26, 30]
 
         output_file('horizon.html')
-        hz = Horizon(xyvalues, index='Date', title="horizon", ylabel='Stock Prices')
+        hz = Horizon(xyvalues, index='Date', title="Horizon Example", ylabel='Sample Data', xlabel='')
         show(hz)
 
     """
