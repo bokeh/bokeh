@@ -4,6 +4,7 @@ from collections import OrderedDict
 
 from bokeh.sampledata.olympics2014 import data
 from bokeh.charts import Donut
+from bokeh.plotting import show, output_file
 
 # we throw the data into a pandas df
 df = pd.io.json.json_normalize(data['data'])
@@ -27,8 +28,6 @@ medals['gold'] = gold
 # medals = list(medals.values())
 # medals = np.array(list(medals.values()))
 # medals = pd.DataFrame(medals)
-
+output_file("donut.html")
 donut = Donut(medals, countries, filename="donut.html")
-# donut.title("Medals Donut").xlabel("countries").ylabel("medals")
-# donut.legend(True).width(800).height(800)
-donut.show()
+show(donut) # or donut.show()
