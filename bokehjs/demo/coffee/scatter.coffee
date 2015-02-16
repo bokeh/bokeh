@@ -14,14 +14,6 @@ require(['main'], (Bokeh) ->
     color: ("rgb(#{ Math.floor(50+2*val[0]) }, #{ Math.floor(30+2*val[1]) }, 150)" for val in _.zip(x, y))
   }
 
-  options = {
-    title: "Scatter Demo"
-    plot_width: 600
-    plot_height: 600
-    x_range: [0, 100]
-    y_range: [0, 100]
-  }
-
   scatter = {
     type: 'Circle'
     source: "mydata"
@@ -32,6 +24,16 @@ require(['main'], (Bokeh) ->
     fill_alpha: 0.6
     line_color: null
   }
+
+  options = {
+    title: "Scatter Demo"
+    plot_width: 600
+    plot_height: 600
+    x_range: [0, 100]
+    y_range: [0, 100]
+  }
+
+
 
   xaxis = {
     type: "auto"
