@@ -65,7 +65,7 @@ copyright = u'2013, Continuum Analytics'
 #
 # Let's try to automatically get the version
 from bokeh._version import get_versions
-from bokeh.settings import released_docs
+from bokeh import settings
 
 try:
     from bokeh.__conda_version__ import conda_version
