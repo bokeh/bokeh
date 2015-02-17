@@ -1,4 +1,4 @@
-0.7.1 (Jan 2014)
+0.7.1 (Jan 2015)
 ================
 
 This release was focused on stability, bug fixes, improved documentation and better examples.

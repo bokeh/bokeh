@@ -11,6 +11,7 @@ Release Notes
 .. toctree::
     :maxdepth: 1
 
+    releases/0.8.0.rst
     releases/0.7.1.rst
     releases/0.7.0.rst
     releases/0.6.1.rst
@@ -31,23 +32,15 @@ Release Notes
 Roadmap
 =======
 
-0.8.0 Goals (February 2015)
----------------------------
+0.9.0 Goals (Spring 2015)
+-------------------------
 
-* R language binding
-* server/widget/AR examples in gallery
-* more charts
-* CLI interface
-
-  - streaming stocks plot
-  - simple CLI examples
-
-* Blaze integration
-
-  - volume slicer
-  - line downsampling
-  - abstract rendering
-  - crossfilter
+* JS plugins for allow sophisticated interactions in static plots
+* Headless output of static SVG, PNG, etc
+* Better support for maps and projections
+* Bokeh command line tool
+* CSS styling and React integration
+* Updated tutorial, case-studies, and better User Guide organization
 
 
 Long-term TODO List
