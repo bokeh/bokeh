@@ -1,8 +1,14 @@
 
-| back to :ref:`gallery` |
+| back to :ref:`gallery`
 
 Sliders Example
 ===============
+
+This example shows how simple UI controls can be incorporated into
+a Bokeh dashboard, and the updates to these controls can drive
+updates to the visualization.
+
+*Source:* https://github.com/bokeh/bokeh/tree/master/examples/app/sliders_applet
 
 .. raw:: html
 

@@ -1,8 +1,13 @@
 
-| back to :ref:`gallery` |
+| back to :ref:`gallery`
 
 Animated Line Example
 =====================
+
+This example shows how updating data on the Bokeh server triggers
+the rendered Bokeh plot to update automatically.
+
+*Source:* https://github.com/bokeh/bokeh/blob/master/examples/plotting/server/line_animate.py
 
 .. raw:: html
 

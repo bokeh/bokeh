@@ -1,8 +1,16 @@
 
-| back to :ref:`gallery` |
+| back to :ref:`gallery`
 
 Stocks Example
 ==============
+
+This example shows a dashboard that allows users to compare different
+pairs of stocks. Users will se a correlation plot as as well as a data
+summary. For each stock there is also a histogram and time series.
+Selections are linked across plots and histograms are recomputed to
+show only the distribution of the selected points.
+
+*Source:* https://github.com/bokeh/bokeh/tree/master/examples/app/stock_applet
 
 .. raw:: html
 

@@ -1,8 +1,13 @@
 
-| back to :ref:`gallery` |
+| back to :ref:`gallery`
 
 Animated Glyph Example
 ======================
+
+Another example showing streaming data causing updates to the
+rendered plot.
+
+*Source:* https://github.com/bokeh/bokeh/blob/master/examples/plotting/server/animated.py
 
 .. raw:: html
 
