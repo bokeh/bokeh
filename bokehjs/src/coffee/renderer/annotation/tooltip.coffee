@@ -16,7 +16,7 @@ define [
       super(options)
       # TODO (bev) really probably need multiple divs
       @$el.appendTo(@plot_view.$el.find('div.bk-canvas-overlays'))
-      @$el.css({'z-index': 1010});
+      @$el.css({'z-index': 1010})
       @$el.hide()
 
     bind_bokeh_events: () ->
@@ -54,17 +54,17 @@ define [
       @$el.removeClass('bk-right')
       @$el.removeClass('bk-left')
 
-      if side == "right"
-        @$el.addClass("bk-left")
-        top  = sy - @$el.height()/2
-        left = sx + 18
-      else if side == "left"
-        @$el.addClass("bk-right")
-        top  = sy - @$el.height()/2
-        left = sx - @$el.width() - 23
-      else
-        logger.warn("invalid tooltip side: '#{side}'")
-        return
+      x_offset = 10 + 5
+
+      switch side
+        when "right"
+          @$el.addClass("bk-left")
+          left = sx + x_offset
+        when "left"
+          @$el.addClass("bk-right")
+          left = sx - @$el.outerWidth() - x_offset
+
+      top = sy - @$el.outerHeight()/2
 
       # TODO (bev) this is not currently bulletproof. If there are
       # two hits, not colocated and one is off the screen, that can
