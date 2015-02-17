@@ -43,6 +43,7 @@ The Bokeh core team comprises:
 * Karan Dodia
 * Christine Doig
 * Mateusz Paprocki
+* Fabio Pliger
 * Hugo Shi
 * Bryan Van de Ven
 * Peter Wang

@@ -32,10 +32,15 @@ Release Notes
 Roadmap
 =======
 
-0.8.0 Goals (February 2015)
----------------------------
+0.9.0 Goals (Spring 2015)
+-------------------------
 
-* TODO: needs update
+* JS plugins for allow sophisticated interactions in static plots
+* Headless output of static SVG, PNG, etc
+* Better support for maps and projections
+* Bokeh command line tool
+* CSS styling and React integration
+* Updated tutorial, case-studies, and better User Guide organization
 
 
 Long-term TODO List
