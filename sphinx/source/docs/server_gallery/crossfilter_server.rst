@@ -23,7 +23,7 @@ roughly equal groups.
     <iframe
         src="http://104.236.246.80:5006/bokeh/crossfilter/#"
         frameborder="0"
-        style="overflow:hidden;height:1000;width:100%"
+        style="overflow:hidden;height:1000;width:120%;margin-left:-10%"
         height="1200"
         width="1200"
     ></iframe>

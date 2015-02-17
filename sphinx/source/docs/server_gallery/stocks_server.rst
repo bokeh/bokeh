@@ -17,7 +17,7 @@ show only the distribution of the selected points.
     <iframe
         src="http://104.236.246.80:5006/bokeh/stocks#"
         frameborder="0"
-        style="overflow:hidden;height:1000;width:100%"
-        height="1000"
+        style="overflow:hidden;height:1200;width:110%;margin-left:-5%"
+        height="1200"
         width="100%"
     ></iframe>
