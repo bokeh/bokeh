@@ -239,7 +239,6 @@ class Figure(Plot):
 
         markertype = kwargs.get("marker", "circle")
 
-        # TODO: How to handle this? Just call curplot()?
         if not len(_color_fields.intersection(set(kwargs.keys()))):
             kwargs['color'] = get_default_color()
         if not len(_alpha_fields.intersection(set(kwargs.keys()))):
@@ -471,21 +470,20 @@ def show(obj, browser=None, new="tab", url=None):
         controller.open("file://" + os.path.abspath(filename), new=new_param)
 
 
-def save(filename=None, resources=None, obj=None, title=None):
+def save(obj, filename=None, resources=None, title=None):
     """ Updates the file with the data for the current document.
 
     If a filename is supplied, or output_file(...) has been called, this will
     save the plot to the given filename.
 
     Args:
-        filename (str, optional) : filename to save document under (default: None)
+        obj (Document or Widget/Plot object)
+        filename (str, optional) : filename to save document under
             if `filename` is None, the current output_file(...) filename is used if present
         resources (Resources, optional) : BokehJS resource config to use
             if `resources` is None, the current default resource config is used, failing that resources.INLINE is used
 
-        obj (Document or Widget/Plot object, optional)
-            if provided, then this is the object to save instead of curdoc()
-            and its curplot()
+
         title (str, optional) : title of the bokeh plot (default: None)
         	if 'title' is None, the current default title config is used, failing that 'Bokeh Plot' is used
 
@@ -516,12 +514,7 @@ def save(filename=None, resources=None, obj=None, title=None):
         warnings.warn("save() called but no title was supplied and output_file(...) was never called, using default title 'Bokeh Plot'")
         title = "Bokeh Plot"
 
-    if obj is None:
-        if not curplot():
-            warnings.warn("No current plot to save. Use renderer functions (circle, rect, etc.) to create a current plot (see http://bokeh.pydata.org/index.html)")
-            return
-        doc = curdoc()
-    elif isinstance(obj, Widget):
+    if isinstance(obj, Widget):
         doc = Document()
         doc.add(obj)
     elif isinstance(obj, Document):
