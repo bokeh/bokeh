@@ -466,7 +466,7 @@ def show(obj, browser=None, new="tab", url=None):
             controller.open(session.object_link(curdoc().context))
 
     elif filename:
-        save(filename, obj=obj)
+        save(obj, filename=filename)
         controller.open("file://" + os.path.abspath(filename), new=new_param)
 
 
@@ -588,11 +588,11 @@ def _deduplicate_plots(plot, subplots):
     doc.add(plot)
     doc._current_plot = plot # TODO (bev) don't use private attrs
 
-def _push_or_save():
+def _push_or_save(obj):
     if cursession() and curdoc().autostore:
         push()
     if _default_file and _default_file['autosave']:
-        save()
+        save(obj)
 
 def gridplot(plot_arrangement, **kwargs):
     """ Generate a plot that arranges several subplots into a grid.
@@ -609,7 +609,7 @@ def gridplot(plot_arrangement, **kwargs):
     grid = GridPlot(children=plot_arrangement, **kwargs)
     subplots = itertools.chain.from_iterable(plot_arrangement)
     _deduplicate_plots(grid, subplots)
-    _push_or_save()
+    _push_or_save(grid)
     return grid
 
 def load_object(obj):
