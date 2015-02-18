@@ -13,14 +13,14 @@ def hbox(*children, **kwargs):
     """ Generate a plot that arranges several subplots horizontally. """
     layout = HBox(children=list(children), **kwargs)
     _deduplicate_plots(layout, children)
-    _push_or_save()
+    _push_or_save(layout)
     return layout
 
 def vbox(*children, **kwargs):
     """ Generate a plot that arranges several subplots vertically. """
     layout = VBox(children=list(children), **kwargs)
     _deduplicate_plots(layout, children)
-    _push_or_save()
+    _push_or_save(layout)
     return layout
 
 N = 5000
