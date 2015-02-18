@@ -37,7 +37,7 @@ try:
     aapl = resource("hdfstore://%s::__data__" % path)
 except Exception as e:
     aapl = None
-    log.error(e.message)
+    log.error(e)
     warnings.warn(
         "error loading hdfstore - perhaps your version of blaze or into is too old"
     )
@@ -47,7 +47,7 @@ try:
     arr = resource(path + "::" + "array")
 except Exception as e:
     arr = None
-    log.error(e.message)
+    log.error(e)
     warnings.warn(
         "error loading hdf5 - perhaps your version of blaze or into is too old"
     )
@@ -58,7 +58,7 @@ try:
     census = resource("hdfstore://%s::__data__" % path)
 except Exception as e:
     census = None
-    log.error(e.message)
+    log.error(e)
     warnings.warn(
         "error loading hdfstore - perhaps your version of blaze or into is too old"
     )
