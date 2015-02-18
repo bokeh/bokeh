@@ -74,7 +74,8 @@ data2 = {
 }
 
 area = {
-  type: 'patches',
+  type: 'Patches',
+  source: "data1"
   xs: 'xs'
   ys: 'ys'
   line_color: 'white'
@@ -83,7 +84,8 @@ area = {
 }
 
 wedge = {
-  type: 'wedge'
+  type: 'Wedge'
+  source: "data2"
   x: 'wx'
   y: 'wy'
   radius: 'rs'
@@ -94,20 +96,31 @@ wedge = {
   fill_color: 'wcolor'
 }
 
-options = {
-  title: "Map with Overlay Demo"
-  dims: [1200, 600]
-  xrange: [-130, -60]
-  yrange: [25, 50]
-  xaxes: "below"
-  yaxes: "left"
-  xgrid: false
-  ygrid: false
-  tools: "pan,wheel_zoom,resize,preview"
-  legend: false
+xaxis = {
+  type: "auto"
+  location: "below"
+  grid: false
 }
 
-plot = Bokeh.Plotting.make_plot([area, wedge], [data1, data2], options)
-plot.set('border_fill', '#fafafa')
-Bokeh.Plotting.show(plot)
+yaxis = {
+  type: "auto"
+  location: "left"
+  grid: false
+}
 
+options = {
+  title: "Map with Overlay Demo"
+  plot_width: 1200
+  plot_height: 600
+  x_range: [-130, -60]
+  y_range: [25, 50]
+  border_fill: '#fafafa'
+}
+
+$("#target").bokeh("figure", {
+  options: options
+  sources: { data1: data1, data2: data2 }
+  glyphs: [area, wedge]
+  guides: [xaxis, yaxis]
+  tools: ["Pan", "WheelZoom" ,"Resize" ,"PreviewSave"]
+})

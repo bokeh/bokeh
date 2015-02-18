@@ -1,0 +1,27 @@
+0.8.0 (Feb 2015)
+================
+
+This release includes many major new features:
+
+* New and updated language bindings: R, JavaScript, Julia, Scala, and Lua now available
+* Better bokeh-server experience:
+
+  - live gallery for server apps and examples!
+  - new "publish" mode Bokeh plots and apps
+  - docs and advice for real-world deployments
+
+* Simpler and more easily extensible charts architecture, with new Horizon chart
+* Dramatic build and documentation improvements:
+
+  - 100% complete reference guide
+  - full docs and BokehJS version deployed for every "dev" build and RC
+  - sphinx extensions for easy inline plots
+
+* Shaded grid bands, configurable hover tool, and pan/zoom for categorical plots
+* Improved and more robust crossfilter
+* AjaxDataSource for clients to stream data without a Bokeh server
+
+In addition, many bugfixes and small features, both old and new --- over 100
+issues --- were closed for this release! Additionally several new contributors
+helped out in a big way. Special thanks to Sarah Bird, Mathieu Drapeau,
+Samantha Hughes, and Nick Roth.
