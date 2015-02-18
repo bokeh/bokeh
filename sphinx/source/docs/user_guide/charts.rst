@@ -607,9 +607,9 @@ Interface outputs
 -----------------
 
 As with the low and middle level ``Bokeh`` plotting APIs, in ``bokeh.charts``,
-we also support the chart output to::
+we also support the chart output to:
 
-* a file.
+* a file::
 
     hist = Histogram(distributions, bins=50, filename="hist.html")
     hist.show()
