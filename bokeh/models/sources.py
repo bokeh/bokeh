@@ -217,6 +217,10 @@ class AjaxDataSource(RemoteSource):
     Maximum size that a plot could expand when data is retreive during
     polling updates. Larger than that size, the data will shift to the right
     """)
+    if_modified = Bool(False, help="""
+    Polling requests to the server will provide a If-Modified-Since header
+    in order to return only new data to the plot
+    """)
 
 class BlazeDataSource(RemoteSource):
     #blaze parts

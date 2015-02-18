@@ -18,12 +18,12 @@ define [
       @pv = plot_view
       @get_data(true)
       if @get('polling_interval')
-        @interval = setInterval( @get_data, @get('polling_interval'), @get('overwrite'), @get('max_size'))
+        @interval = setInterval( @get_data, @get('polling_interval'), @get('overwrite'), @get('max_size'), @get('if_modified'))
 
-    get_data : (overwrite, max_size=0) =>
+    get_data : (overwrite, max_size=0, if_modified=false) =>
       $.ajax(
         dataType: 'json'
-        ifModified: true
+        ifModified: if_modified
         url : @get('data_url')
         xhrField :
           withCredentials : true
@@ -34,8 +34,8 @@ define [
           @set('data', data)
         else
           original_data = @get('data')
-          data.x = original_data.x.concat(data.x)[-max_size..]
-          data.y = original_data.y.concat(data.y)[-max_size..]
+          for column in @columns()
+            data[column] = original_data[column].concat(data[column])[-max_size..]
           @set('data', data)
         console.log(data)
         return null

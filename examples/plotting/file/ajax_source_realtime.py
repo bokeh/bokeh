@@ -5,7 +5,7 @@ from bokeh.models.sources import AjaxDataSource
 from bokeh.models.ranges import Range1d
 
 output_file("ajax_source_realtime.html", title="ajax_source_realtime.py example")
-source = AjaxDataSource(data_url='http://localhost:5050/data',
+source = AjaxDataSource(data_url='http://localhost:5050/data', if_modified=True,
                         polling_interval=1000, max_size=125)
 p = figure()
 p.line('x', 'y', source=source)
@@ -27,7 +27,7 @@ def gen_entry():
         entries.append(last_entry)
         print("Entry generated: %s" % str(last_entry))
         x += 1
-        if x > entries.maxlen:
+        if x > entries.maxlen and x % 10 == 0:
         	time.sleep(2)
 
 t = Thread(target=gen_entry)
