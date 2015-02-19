@@ -16,8 +16,7 @@ import scipy.special
 
 from bokeh.embed import autoload_server
 from bokeh.models import GlyphRenderer
-from bokeh.plotting import (annular_wedge, cursession, figure, hold, legend,
-                            line, output_server, push, quad, xgrid, ygrid)
+from bokeh.plotting import cursession, figure, output_server, push
 
 from flask import Flask, render_template
 app = Flask(__name__)
