@@ -96,12 +96,11 @@ define [
       y = @renderer.ymapper.map_from_target(vy)
 
       # handle categorical cases
-      xcat = (typeof(x) == "string")
-      ycat = (typeof(y) == "string")
+      xcat = _.isString(x)
+      ycat = _.isString(y)
 
       if xcat or ycat
         candidates = (i for i in [0...@x.length])
-
       else
         # the dilation by a factor of two is a quick and easy way to make
         # sure we cover cases with rotated

@@ -1,13 +1,13 @@
-
 define [
+  "underscore",
   "common/collection",
   "./linear_mapper",
-], (Collection, LinearMapper) ->
+], (_, Collection, LinearMapper) ->
 
   class CategoricalMapper extends LinearMapper.Model
 
     map_to_target: (x) ->
-      if typeof(x) == 'number'
+      if _.isNumber(x)
         return super(x)
       factors = @get('source_range').get('factors')
       if x.indexOf(':') >= 0
@@ -17,7 +17,7 @@ define [
       return super(factors.indexOf(x) + 1)
 
     v_map_to_target: (xs) ->
-      if typeof(xs[0]) == 'number'
+      if _.isNumber(xs[0])
         return super(xs)
       factors = @get('source_range').get('factors')
       results = Array(xs.length)

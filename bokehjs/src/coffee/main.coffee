@@ -25,7 +25,7 @@ define (require, exports, module) ->
   # likely a previous version of jQuery.
   _oldJQ = window.$
   window.jQuery.noConflict()
-  if typeof($) == "undefined"
+  if Bokeh._.isUndefined($)
     # if there was no previous definition of $, put our definition into window.$.
     window.$ = _oldJQ
 

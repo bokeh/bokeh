@@ -1,17 +1,15 @@
-
 define [
+  "underscore",
   "common/collection",
   "ticking/adaptive_ticker",
-], (Collection, AdaptiveTicker) ->
+], (_, Collection, AdaptiveTicker) ->
 
   range = (start, stop, step) ->
-    if typeof stop is "undefined"
-
-    # one param defined
+    if _.isUndefined(stop) # one param defined
       stop = start
       start = 0
-    step = 1  if typeof step is "undefined"
-    return []  if (step > 0 and start >= stop) or (step < 0 and start <= stop)
+    step = 1 if _.isUndefined(step)
+    return [] if (step > 0 and start >= stop) or (step < 0 and start <= stop)
     result = []
     i = start
 
