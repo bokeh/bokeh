@@ -1,4 +1,3 @@
-
 define [
   "common/base"
   "common/logging"
@@ -13,7 +12,7 @@ define [
 
   _get_num_minor_ticks = (axis_type, num_minor_ticks) ->
     if not num_minor_ticks?
-        return 0
+      return 0
 
     if _.isNumber(num_minor_ticks)
       if num_minor_ticks <= 1
@@ -41,14 +40,14 @@ define [
         try
           new Date.parse(range.get('start'))
           return Collections("DatetimeAxis")
-        catch
+        catch e
           "pass"
 
         return Collections("LinearAxis")
 
     try
       return Collections(axis_type + "Axis")
-    catch
+    catch e
       logger.error("unrecognized axis_type: #{axis_type}")
       return null
 
@@ -97,7 +96,7 @@ define [
       try
         tool_obj = Collections(tool_type).create(tool_args)
         tool_objs.push(tool_obj)
-      catch
+      catch e
         logger.error("unrecognized tool: #{tool}")
 
     return tool_objs
@@ -237,4 +236,3 @@ define [
     add_tools(plot, tools)
 
     return plot
-
