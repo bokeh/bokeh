@@ -39,7 +39,7 @@ except Exception as e:
     aapl = None
     log.error(e)
     warnings.warn(
-        "error loading hdfstore - perhaps your version of blaze or into is too old"
+        "Error loading hdfstore for AAPL. Your version of Blaze is too old, or incompatible"
     )
 
 path = join(dirname(bokeh.server.tests.__file__), 'data', 'array.hdf5')
@@ -49,7 +49,7 @@ except Exception as e:
     arr = None
     log.error(e)
     warnings.warn(
-        "error loading hdf5 - perhaps your version of blaze or into is too old"
+        "Error loading hdfstore for array. Your version of Blaze is too old, or incompatible"
     )
 
 path = join(dirname(bokeh.server.tests.__file__), 'data', 'CensusTracts.hdf5')
@@ -60,7 +60,7 @@ except Exception as e:
     census = None
     log.error(e)
     warnings.warn(
-        "error loading hdfstore - perhaps your version of blaze or into is too old"
+        "Error loading hdfstore for CensusTracts. Your version of Blaze is too old, or incompatible"
     )
 
 
