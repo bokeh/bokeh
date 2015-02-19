@@ -1,3 +1,4 @@
+.ipynb_checkpoints/*
 *.html
 *.png
 *.json

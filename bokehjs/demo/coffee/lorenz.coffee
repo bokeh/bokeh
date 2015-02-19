@@ -24,7 +24,8 @@ data = {
 }
 
 base = {
-  type: 'multi_line'
+  type: 'MultiLine'
+  source: "data"
   line_color: 'color'
   line_width: 2
   line_alpha: 0.9
@@ -46,18 +47,46 @@ lorenz100 = _.extend({
 }, base)
 
 options = {
-  dims: [600, 600]
-  xrange: [-30, 30]
-  yrange: [0, 50]
-  tools: "pan,wheel_zoom,resize,preview"
-  legend: false
+  plot_width: 600
+  plot_height: 600
+  x_range: [-30, 30]
+  y_range: [0, 50]
 }
 
-plot = Bokeh.Plotting.make_plot(lorenz10, data, _.extend({title: 'Lorenz (10s)'}, options))
-Bokeh.Plotting.show(plot)
+xaxis = {
+  type: "auto"
+  location: "below"
+  grid: true
+}
 
-plot = Bokeh.Plotting.make_plot(lorenz50, data, _.extend({title: 'Lorenz (50s)'}, options))
-Bokeh.Plotting.show(plot)
+yaxis = {
+  type: "auto"
+  location: "left"
+  grid: true
+}
 
-plot = Bokeh.Plotting.make_plot(lorenz100, data, _.extend({title: 'Lorenz (100s)'}, options))
-Bokeh.Plotting.show(plot)
+
+$("#target").bokeh("figure", {
+  options: _.extend({title: 'Lorenz (10s)'}, options)
+  sources: { data: data }
+  glyphs: [lorenz10]
+  guides: [xaxis, yaxis]
+  tools: ["Pan", "WheelZoom" ,"Resize" ,"PreviewSave"]
+})
+
+$("#target").bokeh("figure", {
+  options: _.extend({title: 'Lorenz (50s)'}, options)
+  sources: { data: data }
+  glyphs: [lorenz50]
+  guides: [xaxis, yaxis]
+  tools: ["Pan", "WheelZoom" ,"Resize" ,"PreviewSave"]
+})
+
+$("#target").bokeh("figure", {
+  options: _.extend({title: 'Lorenz (100s)'}, options)
+  sources: { data: data }
+  glyphs: [lorenz100]
+  guides: [xaxis, yaxis]
+  tools: ["Pan", "WheelZoom" ,"Resize" ,"PreviewSave"]
+})
+

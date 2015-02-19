@@ -3,9 +3,16 @@ from bokeh.plotting import figure, output_server, show
 from bokeh.models import ServerDataSource
 
 import bokeh.transforms.ar_downsample as ar
+from blaze.server.client import Client
+from blaze import Data
 
 output_server("abstractrender")
-source = ServerDataSource(expr={'op': 'Field', 'args': [':leaf', 'gauss']})
+
+c = Client('http://localhost:5006')
+d = Data(c)
+source = ServerDataSource()
+source.from_blaze(d.gauss, local=True)
+
 plot = figure()
 plot.square('oneA', 'oneB', color='#FF00FF', source=source)
 
@@ -34,7 +41,9 @@ ar.contours(plot, palette=colors, title="ISO Contours")
 
 
 # # Multiple categories
-source = ServerDataSource(expr={'op': 'Field', 'args': [':leaf', 'gauss']})
+source = ServerDataSource()
+source.from_blaze(d.gauss, local=True)
+
 plot = figure()
 plot.square('oneA', 'oneB', color='cats', source=source)
 arplot = ar.hdalpha(plot, spread=5, title="Multiple categories")

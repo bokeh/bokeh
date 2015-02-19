@@ -18,7 +18,7 @@ class Axis(GuideRenderer):
 
     """
 
-    hide = Bool(False, help="""
+    visible = Bool(True, help="""
     Ability to hide the entire axis from the plot.
     """)
 

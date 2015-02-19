@@ -2,7 +2,7 @@ define (require, exports, module) ->
 
   Bokeh = {}
   Bokeh.require = require
-  Bokeh.version = '0.7.1'
+  Bokeh.version = '0.8.0'
 
   Bokeh.index = require("common/base").index
 
@@ -42,7 +42,6 @@ define (require, exports, module) ->
   Bokeh.HasProperties     = require("common/has_properties")
   Bokeh.LayoutBox         = require("common/layout_box")
   Bokeh.Plot              = require("common/plot")
-  Bokeh.Plotting          = require("common/plotting")
   Bokeh.SelectionManager  = require("common/selection_manager")
   Bokeh.Selector          = require("common/selector")
   Bokeh.ToolEvents        = require("common/tool_events")
@@ -136,6 +135,9 @@ define (require, exports, module) ->
   Bokeh.VBox           = require("widget/vbox")
   Bokeh.TextInput      = require("widget/text_input")
   Bokeh.CrossFilter    = require("widget/crossfilter")
+
+  # Add the jquery plugin
+  require("api/plugin")
 
   exports.Bokeh = Bokeh
 

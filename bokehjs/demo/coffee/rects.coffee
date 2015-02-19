@@ -1,8 +1,8 @@
 require(['main'], (Bokeh) ->
+
   N= 630
   N= 50
   r = new Bokeh.Random(123456789)
-
 
   xs = ( (x/50) for x in _.range(N) )
   ys = (Math.sin(x) for x in xs)
@@ -17,27 +17,42 @@ require(['main'], (Bokeh) ->
   }
 
   rects = {
-    type: 'rect',
+    type: 'Rect'
+    source: "data"
     x: 'x'
     y: 'y'
     width:  0.05
     height: 0.05
-    #angle: 0.1
-    #fill_color: 'color'
-    fill_color: '#0F0FF0'
-    #line_color: 'color'
-    do_fill:true
+    angle: 0.1
+    line_color: 'color'
+    line_width: 3
+    fill_color: 'white'
+  }
+
+  xaxis = {
+    type: "auto"
+    location: "below"
+    grid: false
+  }
+
+  yaxis = {
+    type: "auto"
+    location: "left"
+    grid: true
   }
 
   options = {
-    title: "Scatter Demo"
-    dims: [800, 500]
-    xaxes: "below"
-    yaxes: "left"
-    tools: "pan,wheel_zoom,resize,preview,select"
-    legend: false
+    title: "Rects Demo"
+    plot_width: 800
+    plot_height: 500
   }
 
-  plot = Bokeh.Plotting.make_plot(rects, data, options)
-  Bokeh.Plotting.show(plot)
-  )
+  $("#target").bokeh("figure", {
+    options: options
+    sources: { data: data }
+    glyphs: [rects]
+    guides: [xaxis, yaxis]
+    tools: ["Pan", "WheelZoom" ,"Resize" ,"PreviewSave"]
+  })
+
+)

@@ -162,6 +162,6 @@ class SlidersApp(HBox):
 # Flask application), then just remove this block of code.
 @bokeh_app.route("/bokeh/sliders/")
 @object_page("sin")
-def make_object():
+def make_sliders():
     app = SlidersApp.create()
     return app
