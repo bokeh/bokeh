@@ -54,15 +54,15 @@ define [
       @$el.removeClass('bk-right')
       @$el.removeClass('bk-left')
 
-      x_offset = 10 + 5
+      arrow_width = 10
 
       switch side
         when "right"
           @$el.addClass("bk-left")
-          left = sx + x_offset
+          left = sx + (@$el.outerWidth() - @$el.innerWidth()) + arrow_width
         when "left"
           @$el.addClass("bk-right")
-          left = sx - @$el.outerWidth() - x_offset
+          left = sx - @$el.outerWidth() - arrow_width
 
       top = sy - @$el.outerHeight()/2
 
