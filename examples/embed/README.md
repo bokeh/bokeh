@@ -2,13 +2,18 @@ To try these example you first have to start the bokeh-server, ie.,
 
     bokeh-server --backend=memory
 
-and then run the examples:
+Some examples (e.g. publishing) need the server to run in multi-user mode:
+    
+    bokeh-server -m --backend=memory
+
+Then run the examples:
 
     python widget.py
 
 or
 
     python animated.py
+
 
 To view them, start a web server in this directory, for instance, the server
 built into python:
