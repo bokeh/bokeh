@@ -172,18 +172,10 @@ Here are a few examples showing charts using different kind of inputs:
     scatter.show()
 
 
-As you can see, in the first three cases, we inferred the ``x`` and ``y``
-labels from the received object, so don't need to specify them by yourself. This is
-done whenever possible. The following image shows the result:
-
-.. image:: /_images/charts_scatter_w_labels.png
-    :align: center
-
-When that's not possible (like the last two examples using a ``list`` and a numpy ``array``) ``Charts``
-will create a new figure without the inferred labels like the following:
-
-.. image:: /_images/charts_scatter_no_labels.png
-    :align: center
+All the previous examples render the chart in :ref:`charts_generic_arguments_scatter` with
+the difference that numpy ``array`` and ``list`` inputs will render different legends then
+mappings like ``dict``, ``OrderedDict``, pandas ``DataFrame`` or ``GroupBy`` objects
+(if legend=True).
 
 
 Specific arguments
@@ -363,6 +355,8 @@ Example:
 .. bokeh-plot:: ../examples/charts/lines.py
     :source-position: above
 
+
+.. _charts_generic_arguments_scatter:
 
 Scatter
 ~~~~~~~
