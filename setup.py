@@ -317,7 +317,7 @@ if "sdist" in sys.argv:
 # check for package install, set jsinstall to False to skip prompt
 jsinstall = True
 if not exists(join(ROOT, 'MANIFEST.in')):
-    if sys.argv[1:]:
+    if "--build_js" in sys.argv or "--install_js" in sys.argv:
         print("BokehJS source code is not shipped in sdist packages; "
               "building/installing from the bokehjs source directory is disabled. "
               "To build or develop BokehJS yourself, you must clone the full "
