@@ -173,9 +173,9 @@ Here are a few examples showing charts using different kind of inputs:
 
 
 All the previous examples render the chart in :ref:`charts_generic_arguments_scatter` with
-the difference that numpy ``array`` and ``list`` inputs will render different legends then
+the difference that numpy ``array`` and ``list`` inputs will render different legends from
 mappings like ``dict``, ``OrderedDict``, pandas ``DataFrame`` or ``GroupBy`` objects
-(if legend=True).
+(if ``legend`` is True).
 
 
 Specific arguments
