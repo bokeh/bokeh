@@ -287,7 +287,7 @@ class Image(Glyph):
         if 'palette' in kwargs and 'color_mapper' in kwargs:
             raise ValueError("only one of 'palette' and 'color_mapper' may be specified")
 
-        palette = kwargs.pop('palette', None)
+        palette = kwargs.pop('palette', 'Greys9')
         if palette is not None:
             mapper = LinearColorMapper(palette)
 
