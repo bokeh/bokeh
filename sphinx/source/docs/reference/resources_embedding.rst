@@ -6,6 +6,14 @@ Resources and Embedding
     :local:
     :depth: 2
 
+.. _bokeh.state:
+
+``bokeh.state``
+---------------
+
+.. automodule:: bokeh.state
+  :members:
+
 .. _bokeh_dot_resources:
 
 ``bokeh.resources``

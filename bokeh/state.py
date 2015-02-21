@@ -1,3 +1,28 @@
+""" Encapsulate implicit state for Bokeh plotting APIs.
+
+Generating output for Bokeh plots requires coordinating several things:
+
+:class:`Documents <bokeh.document>`
+    Group together Bokeh models that may be shared between plots (e.g.,
+    range or data source objects) into one common namespace.
+
+:class:`Resources <bokeh.resources>`
+    Control how JavaScript and CSS for the client library BokehJS are
+    included and used in the generated output.
+
+:class:`Sessions <bokeh.session>`
+    Create and manage persistent connections to a Bokeh server.
+
+It is certainly possible to handle the configuration of these objects
+manually, and several examples of this can be found in ``examples/glyphs``.
+When developing sophisticated applications, it may be necessary or
+desirable to work at this level. However, for general use this would
+quickly become burdensome. The ``bokeh.state`` module provides a ``State``
+class that encapsulates these objects and ensures their proper configuration.
+It also provides a "global" or "default" ``State`` object, as well as
+convenience functions for manipulating this default state.
+
+"""
 
 import logging
 logger = logging.getLogger(__name__)
@@ -13,6 +38,16 @@ from .session import DEFAULT_SERVER_URL, Session
 from .utils import decode_utf8, publish_display_data
 
 class State(object):
+    """ Manage state related to controlling Bokeh output.
+
+    Properties:
+        document :
+        file :
+        notebook :
+        session :
+
+
+    """
 
     def __init__(self):
         self.reset()
@@ -32,21 +67,6 @@ class State(object):
     @property
     def session(self):
         return self._session
-
-    def load_object(self, obj):
-        """ Update a local object from state on the server
-
-        Args:
-            obj : (PlotObject)
-
-        Returns
-            None
-
-        """
-        if self._session is None:
-            raise RuntimeError()
-
-        self._session.load_object(obj, self._document)
 
     def reset(self):
         ''' Deactivate all currently active output modes.
@@ -84,7 +104,7 @@ class State(object):
         .. warning::
             This output file will be overwritten on every save, e.g., each time
             show() or save() is invoked, or any time a Bokeh plotting API
-            causes a save if ``autosave`` is True.
+            causes a save, if ``autosave`` is True.
 
         """
         self._file = {
@@ -95,7 +115,7 @@ class State(object):
         }
 
         if os.path.isfile(filename):
-            print("Session output file '%s' already exists, will be overwritten." % filename)
+            logger.info("Session output file '%s' already exists, will be overwritten." % filename)
 
     def output_notebook(self, url=None, docname=None, session=None, name=None):
         self._notebook = True
@@ -152,14 +172,49 @@ class State(object):
 
 _state = State()
 
+
 def output_file(filename, title="Bokeh Plot", autosave=False, mode="inline", root_dir=None):
-    _state.output_file(filename=filename, title=title, autosave=autosave, mode=mode, root_dir=root_dir)
+    '''
+
+    Args:
+
+    Returns:
+        None
+
+    '''
+    _state.output_file(
+        filename,
+        title=title,
+        autosave=autosave,
+        mode=mode,
+        root_dir=root_dir
+    )
 
 def output_notebook(url=None, docname=None, session=None, name=None):
-    _state.output_notebook(url=url, docname=document, session=session, name=name)
+    '''
+
+    Args:
+
+    Returns:
+        None
+
+    '''
+    _state.output_notebook(
+        url=url, docname=docname, session=session, name=name
+    )
 
 def output_server(docname, session=None, url="default", name=None, clear=True):
-    _state.output_server(docname, session=session, url=url, name=name, clear=clear)
+    '''
+
+    Args:
+
+    Returns:
+        None
+
+    '''
+    _state.output_server(
+        docname, session=session, url=url, name=name, clear=clear
+    )
 
 
 def curdoc():
@@ -224,16 +279,16 @@ def show(obj, browser=None, new="tab", url=None, state=None):
 
     controller = browserlib.get_browser_controller(browser=browser)
 
-    if state.notebook and state.session:
-        push(session=state.session)
-        snippet = autoload_server(obj, state.session)
-        publish_display_data({'text/html': snippet})
-
-    elif state.notebook:
-        publish_display_data({'text/html': notebook_div(obj)})
+    if state.notebook:
+        if state.session:
+            push(state=state)
+            snippet = autoload_server(obj, state.session)
+            publish_display_data({'text/html': snippet})
+        else:
+            publish_display_data({'text/html': notebook_div(obj)})
 
     elif state.session:
-        push()
+        push(state=state)
         if url:
             controller.open(url, new=new_param)
         else:
@@ -243,7 +298,6 @@ def show(obj, browser=None, new="tab", url=None, state=None):
         filename = state.file['filename']
         save(obj, filename)
         controller.open("file://" + os.path.abspath(filename), new=new_param)
-
 
 def save(obj, filename=None, resources=None, title=None, state=None):
     """ Save an HTML file with the data for the current document.
@@ -310,7 +364,7 @@ def push(session=None, document=None, state=None):
     """ Update the server with the data for the current document.
 
     Args:
-        session (Session, optional) : filename to save document under (default: None)
+        session (Session, optional) :
             if None, the current output_server(...) session is used if present
         document (Document, optional) : Bokeh Document to push
             if None, the current default document is pushed
@@ -329,11 +383,19 @@ def push(session=None, document=None, state=None):
         document = state.document
 
     if session:
-        return session.store_document(state.document)
+        return session.store_document(document)
     else:
         warnings.warn("push() called but no session was supplied and output_server(...) was never called, nothing pushed")
 
 def reset_output(state=None):
+    '''
+
+    Args:
+
+    Returns:
+        None
+
+    '''
     if state is None:
         state = _state
     state.reset()
