@@ -6,17 +6,6 @@ from bokeh.models import (Grid, LinearAxis, PanTool, BoxZoomTool, LassoSelectToo
 
 class TestPlotting(unittest.TestCase):
 
-    def test_reset_output(self):
-        plt._default_document = 10
-        plt._default_session = 10
-        plt._default_file = 10
-        plt._default_notebook = 10
-        plt.reset_output()
-        self.assertTrue(isinstance(plt._default_document, plt.Document))
-        self.assertEqual(plt._default_session, None)
-        self.assertEqual(plt._default_file, None)
-        self.assertEqual(plt._default_notebook, None)
-
     def test_figure(self):
         p = plt.figure()
         q = plt.figure()
@@ -123,11 +112,6 @@ class TestPlotting(unittest.TestCase):
         p = plt.figure()
         p .circle([1,2,3], [1,2,3])
         self.assertEqual(len(p.grid), 2)
-
-    def test_default_resources_minified(self):
-        plt.output_file("foo.html")
-        self.assertEqual(plt._default_file['resources'].minified, True)
-        plt.reset_output()
 
     def test_tools(self):
         TOOLS = "resize,pan,box_zoom,reset,lasso_select"

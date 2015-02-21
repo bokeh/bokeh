@@ -16,7 +16,9 @@ from .plotting_helpers import (
 from .document import Document
 from .models import ColumnDataSource, HBox, VBox
 from .session import Session
-from .state import curdoc, cursession, output_file, output_notebook, output_server, push, save, show, _deduplicate_plots, _push_or_save
+from .state import (
+    curdoc, cursession, output_file, output_notebook, output_server, push,
+    reset_output, save, show, _deduplicate_plots, _push_or_save)
 
 DEFAULT_TOOLS = "pan,wheel_zoom,box_zoom,save,resize,reset"
 

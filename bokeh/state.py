@@ -333,6 +333,11 @@ def push(session=None, document=None, state=None):
     else:
         warnings.warn("push() called but no session was supplied and output_server(...) was never called, nothing pushed")
 
+def reset_output(state=None):
+    if state is None:
+        state = _state
+    state.reset()
+
 def _deduplicate_plots(plot, subplots, state=None):
     if state is None:
         state = _state
