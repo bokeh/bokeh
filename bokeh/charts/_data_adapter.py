@@ -32,7 +32,10 @@ try:
 
 except ImportError:
     pd = None
-
+try:
+    import blaze
+except ImportError:
+    blaze=None
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
@@ -133,6 +136,9 @@ class DataAdapter(object):
             if all(DataAdapter.is_number(x) for x in values):
                 return [values]
 
+            return values
+
+        elif blaze and isinstance(values, blaze.interactive.InteractiveSymbol):
             return values
 
         # TODO: Improve this error message..
