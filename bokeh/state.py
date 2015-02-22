@@ -249,27 +249,33 @@ def cursession():
     '''
     return _state.session
 
-
-
 def show(obj, browser=None, new="tab", url=None, state=None):
     """ Immediately display a plot object.
 
     In an IPython/Jupyter notebook, the output is displayed in an output cell.
-    Otherwise, a browser window or tab is autoraised to display the plot object.
+    Otherwise, a browser window or tab is autoraised to display the plot
+    object.
+
+    .. note::
+        If a both a server session and notebook output have been configured on
+        the default output state (or an explicitly provided ``State`` object)
+        then the notebook output will be generated to load the plot from that
+        server session.
 
     Args:
         obj (Widget/Plot object): a plot object to display
 
         browser (str, optional) : browser to show with (default: None)
-            For systems that support it, the **browser** argument allows specifying
-            which browser to display in, e.g. "safari", "firefox", "opera",
-            "windows-default" (see the webbrowser module documentation in the
-            standard lib for more details).
+            For systems that support it, the **browser** argument allows
+            specifying which browser to display in, e.g. "safari", "firefox",
+            "opera", "windows-default" (see the ``webbrowser`` module
+            documentation in the standard lib for more details).
 
         new (str, optional) : new file output mode (default: "tab")
             For file-based output, opens or raises the browser window
             showing the current output file.  If **new** is 'tab', then
             opens a new tab. If **new** is 'window', then opens a new window.
+
     """
     if state is None:
         state = _state
@@ -302,19 +308,18 @@ def show(obj, browser=None, new="tab", url=None, state=None):
 def save(obj, filename=None, resources=None, title=None, state=None):
     """ Save an HTML file with the data for the current document.
 
-    If a filename is supplied, or output_file(...) has been called, this will
-    save the plot to the given filename.
+    Will fall back to the default output state (or an explicitly provided
+    ``State`` object) for ``filename``, ``resources``, or ``title`` if they
+    are not provided.
 
     Args:
         obj (Document or Widget/Plot object)
+
         filename (str, optional) : filename to save document under
-            if `filename` is None, the current output_file(...) filename is used if present
+
         resources (Resources, optional) : BokehJS resource config to use
-            if `resources` is None, the current default resource config is used, failing that resources.INLINE is used
 
-
-        title (str, optional) : title of the bokeh plot (default: None)
-            if 'title' is None, the current default title config is used, failing that 'Bokeh Plot' is used
+        title (str, optional) : title of the bokeh plot
 
     Returns:
         None
@@ -363,11 +368,14 @@ def save(obj, filename=None, resources=None, title=None, state=None):
 def push(session=None, document=None, state=None):
     """ Update the server with the data for the current document.
 
+    Will fall back to the default output state (or an explicitly provided
+    ``State`` object) for ``session`` or ``document`` if they are not
+    provided.
+
     Args:
         session (Session, optional) :
-            if None, the current output_server(...) session is used if present
+
         document (Document, optional) : Bokeh Document to push
-            if None, the current default document is pushed
 
     Returns:
         None
@@ -398,6 +406,7 @@ def reset_output(state=None):
     '''
     if state is None:
         state = _state
+
     state.reset()
 
 def _deduplicate_plots(plot, subplots, state=None):

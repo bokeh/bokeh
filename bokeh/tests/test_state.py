@@ -35,7 +35,6 @@ class TestState(unittest.TestCase):
     @patch('os.path.isfile')
     def test_output_file_file_exists(self, mock_isfile, mock_logger):
         mock_isfile.return_value = True
-        mock_logger.info = Mock()
         s = state.State()
         s.output_file("foo.html")
         self.assertEqual(s.file['filename'], "foo.html")
@@ -109,7 +108,6 @@ class testCurdoc(unittest.TestCase):
     @patch('flask.request')
     def test_with_request(self, mock_request, mock_logger):
         mock_request.bokeh_server_document = "FOO"
-        mock_logger.debug = Mock()
         self.assertEqual(state.curdoc(), "FOO")
         self.assertTrue(state.logger.debug.called)
         self.assertEqual(
@@ -117,13 +115,17 @@ class testCurdoc(unittest.TestCase):
             ("curdoc() returning Document from flask request context",)
         )
 
-
 class testCursession(unittest.TestCase):
 
     def test(self):
         self.assertEqual(state.cursession(), state._state.session)
 
 class DefaultStateTester(unittest.TestCase):
+
+    def _check_func_called(self, func, args, kwargs):
+        self.assertTrue(func.called)
+        self.assertEqual(func.call_args[0], args)
+        self.assertEqual(func.call_args[1], kwargs)
 
     def setUp(self):
         self._orig_state = state._state
@@ -134,48 +136,96 @@ class DefaultStateTester(unittest.TestCase):
 
 class testOutputFile(DefaultStateTester):
 
-    def test(self):
+    def test_noarg(self):
+        default_kwargs = dict(title="Bokeh Plot", autosave=False, mode="inline", root_dir=None)
         state.output_file("foo.html")
-        self.assertTrue(state._state.output_file.called)
-        self.assertEqual(state._state.output_file.call_args[0], ("foo.html",))
+        self._check_func_called(state._state.output_file, ("foo.html",), default_kwargs)
+
+    def test_args(self):
+        kwargs = dict(title="title", autosave=True, mode="cdn", root_dir="foo")
+        state.output_file("foo.html", **kwargs)
+        self._check_func_called(state._state.output_file, ("foo.html",), kwargs)
 
 class TestOutputNotebook(DefaultStateTester):
 
     def test_noarg(self):
         default_kwargs = dict(url=None, docname=None, session=None, name=None)
         state.output_notebook()
-        self.assertTrue(state._state.output_notebook.called)
-        self.assertEqual(state._state.output_notebook.call_args[0], ())
-        self.assertEqual(state._state.output_notebook.call_args[1], default_kwargs)
+        self._check_func_called(state._state.output_notebook, (), default_kwargs)
 
     def test_args(self):
         kwargs = dict(url="url", docname="docname", session="session", name="name")
         state.output_notebook(**kwargs)
-        self.assertTrue(state._state.output_notebook.called)
-        self.assertEqual(state._state.output_notebook.call_args[0], ())
-        self.assertEqual(state._state.output_notebook.call_args[1], kwargs)
+        self._check_func_called(state._state.output_notebook, (), kwargs)
 
 class TestOutputServer(DefaultStateTester):
 
     def test_noarg(self):
         default_kwargs = dict(session=None, url="default", name=None, clear=True)
         state.output_server("docname")
-        self.assertTrue(state._state.output_server.called)
-        self.assertEqual(state._state.output_server.call_args[0], ("docname",))
-        self.assertEqual(state._state.output_server.call_args[1], default_kwargs)
+        self._check_func_called(state._state.output_server, ("docname",), default_kwargs)
 
     def test_args(self):
         kwargs = dict(session="session", url="url", name="name", clear="clear")
         state.output_server("docname", **kwargs)
-        self.assertTrue(state._state.output_server.called)
-        self.assertEqual(state._state.output_server.call_args[0], ("docname", ))
-        self.assertEqual(state._state.output_server.call_args[1], kwargs)
+        self._check_func_called(state._state.output_server, ("docname",), kwargs)
 
 class TestSave(DefaultStateTester):
     pass
 
 class TestPush(DefaultStateTester):
-    pass
+
+    def _check_doc_store(self, sess, doc):
+        self._check_func_called(sess.store_document, (doc,), {})
+
+    @patch('warnings.warn')
+    def test_missing_session(self, mock_warn):
+        s = Mock()
+        s.session = None
+        state.push(state=s)
+        self.assertTrue(mock_warn.called)
+        self.assertEqual(mock_warn.call_args[0], ('push() called but no session was supplied and output_server(...) was never called, nothing pushed',))
+        self.assertEqual(mock_warn.call_args[1], {})
+
+    def test_noargs_explicit_state(self):
+        s = Mock()
+        state.push(state=s)
+        self._check_doc_store(s.session, s.document)
+
+    def test_noargs_default_state(self):
+        state.push()
+        self._check_doc_store(state._state.session, state._state.document)
+
+    def test_session_arg_explicit_state(self):
+        s = Mock()
+        sess = Mock()
+        state.push(session=sess, state=s)
+        self._check_doc_store(sess, s.document)
+
+    def test_session_arg_default_state(self):
+        sess = Mock()
+        state.push(session=sess)
+        self._check_doc_store(sess, state._state.document)
+
+    def test_document_arg_explicit_state(self):
+        s = Mock()
+        state.push(document="foo", state=s)
+        self._check_doc_store(s.session, "foo")
+
+    def test_document_arg_default_state(self):
+        state.push(document="foo")
+        self._check_doc_store(state._state.session, "foo")
+
+    def test_session_document_args_explicit_state(self):
+        s = Mock()
+        sess = Mock()
+        state.push(document="foo", session=sess, state=s)
+        self._check_doc_store(sess, "foo")
+
+    def test_session_document_args_default_state(self):
+        sess = Mock()
+        state.push(document="foo", session=sess)
+        self._check_doc_store(sess, "foo")
 
 class TestShow(DefaultStateTester):
     pass
