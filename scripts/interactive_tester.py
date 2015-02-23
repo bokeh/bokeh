@@ -6,7 +6,7 @@ from six.moves import input
 import sys
 import textwrap
 import time
-
+import json
 
 # TODO:
 #       catch and log exceptions in examples files that fail to open
@@ -35,6 +35,7 @@ DEFAULT_TEST_FILES = [
     '../../examples/charts/boxplot.py',
 ]
 
+RES_FILE = os.path.abspath("INTERACTIVE_TESTER_SESSION.json")
 
 def get_parser():
     """Create the parser that will be used to add arguments to the script.
@@ -79,6 +80,16 @@ def depend_check(dependency):
 
     return found
 
+def save_session(session):
+    with open(RES_FILE, 'w') as res_file:
+        json.dump(session, res_file)
+
+def get_session():
+    try:
+        with open(RES_FILE, 'r') as res_file:
+            return json.load(res_file)
+    except IOError:
+        return {}
 
 def main(testing_ground=None):
     """
@@ -111,21 +122,40 @@ def main(testing_ground=None):
 
     Log = []
 
+    last_session = get_session()
+
     for index, fileName in enumerate(TestFiles):
         if testing_ground:
             fileName = "%s/%s" % (testing_ground, fileName)
         try:
-            command = get_cmd(fileName)
-            opener(fileName, command)
 
-            if results.nolog:
-                # Don't display 'next file' message after opening final file in a dir
-                if index != len(TestFiles)-1:
-                    input("\nPress enter to open next file ")
+            if not fileName in last_session:
+                last_session[fileName] = "TESTING..."
+                save_session(last_session)
+
+                command = get_cmd(fileName)
+                opener(fileName, command)
+
+                if results.nolog:
+                    # Don't display 'next file' message after opening final file in a dir
+                    if index != len(TestFiles)-1:
+                        input("\nPress enter to open next file ")
+                else:
+                    ErrorReport = test_status()
+                    if ErrorReport:
+                        Log.append("\n\n%s: \n %s" % (fileName, ErrorReport))
+
+                    last_session[fileName] = ErrorReport
+                    save_session(last_session)
             else:
-                ErrorReport = test_status()
-                if ErrorReport:
-                    Log.append("\n\n%s: \n %s" % (fileName, ErrorReport))
+                prev_res = last_session[fileName]
+                if prev_res == "TESTING...":
+                    print("RESULT OF %s LAST RUN NOT REGISTERED!!" % fileName)
+                    ErrorReport = test_status()
+                    last_session[fileName] = ErrorReport
+                    save_session(last_session)
+                else:
+                    print("%s detected in last session: SKIPPING" % fileName)
 
         except (KeyboardInterrupt, EOFError):
             break
