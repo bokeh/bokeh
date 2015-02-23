@@ -21,7 +21,7 @@ y2 = np.ma.masked_array(y2, y2<-0.9)
 output_file("line_missing_data.html", title="line_missing_data.py example")
 
 p = figure(title="lines with some missing/inf values")
-p.line(x,y1, color="#2222aa", line_with=2)
-p.line(x,y2, color="#22aa22", line_with=2)
+p.line(x,y1, color="#2222aa", line_width=2)
+p.line(x,y2, color="#22aa22", line_width=2)
 
 show(p)
