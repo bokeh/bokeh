@@ -296,7 +296,7 @@ def markers():
     Returns:
         None
     """
-    print(list(sorted(_marker_types.keys())))
+    print("Available markers: \n - " + "\n - ".join(_marker_types))
 
 _color_fields = set(["color", "fill_color", "line_color"])
 _alpha_fields = set(["alpha", "fill_alpha", "line_alpha"])
