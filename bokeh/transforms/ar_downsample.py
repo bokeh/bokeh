@@ -680,11 +680,12 @@ def downsample_image(xcol, ycol, glyphs, transform, plot_state, auto_bounds):
                       plot_size, vt)
 
     image = shader.reformat(image)
+
     result = {'data' : {'image': [image],
-                        'x': [plot_state['data_x'].start],
-                        'y': [plot_state['data_y'].start],
-                        'dw': [data_x_span],
-                        'dh': [data_y_span]}}
+                        'x': [xcol.min()],
+                        'y': [ycol.min()],
+                        'dw': [xcol.max() - xcol.min()],
+                        'dh': [ycol.max() - ycol.min()]}}
     result['x_range'] = {'start': plot_state['data_x'].start,
                          'end': plot_state['data_x'].end}
     result['y_range'] = {'start': plot_state['data_y'].start,
