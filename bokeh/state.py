@@ -249,18 +249,17 @@ def cursession():
     '''
     return _state.session
 
-def show(obj, browser=None, new="tab", url=None, state=None):
+def show(obj, browser=None, new="tab", state=None):
     """ Immediately display a plot object.
 
-    In an IPython/Jupyter notebook, the output is displayed in an output cell.
-    Otherwise, a browser window or tab is autoraised to display the plot
-    object.
+    In an IPython/Jupyter notebook, the output is displayed in an output
+    cell. Otherwise, a browser window or tab is autoraised to display the
+    plot object.
 
-    .. note::
-        If a both a server session and notebook output have been configured on
-        the default output state (or an explicitly provided ``State`` object)
-        then the notebook output will be generated to load the plot from that
-        server session.
+    If a both a server session and notebook output have been configured on
+    the default output state (or an explicitly provided ``State`` object)
+    then the notebook output will be generated to load the plot from that
+    server session.
 
     Args:
         obj (Widget/Plot object): a plot object to display
@@ -276,34 +275,46 @@ def show(obj, browser=None, new="tab", url=None, state=None):
             showing the current output file.  If **new** is 'tab', then
             opens a new tab. If **new** is 'window', then opens a new window.
 
+    .. note::
+        The ``browser`` and ``new`` parameters are ignored when showing in
+        an IPython/Jupyter notebook.
+
     """
     if state is None:
         state = _state
 
-    # Map our string argument to the webbrowser.open argument
-    new_param = {'tab': 2, 'window': 1}[new]
+    _show_with_state(obj, state, browser, new)
+
+_new_param = {'tab': 2, 'window': 1}
+
+def _show_with_state(obj, state, browser, new):
 
     controller = browserlib.get_browser_controller(browser=browser)
 
     if state.notebook:
-        if state.session:
-            push(state=state)
-            snippet = autoload_server(obj, state.session)
-            publish_display_data({'text/html': snippet})
-        else:
-            publish_display_data({'text/html': notebook_div(obj)})
+        _show_notebook_with_state(obj, state)
 
     elif state.session:
-        push(state=state)
-        if url:
-            controller.open(url, new=new_param)
-        else:
-            controller.open(state.session.object_link(state.document.context))
+        _show_server_with_state(obj, state, new, controller)
 
     if state.file:
-        filename = state.file['filename']
-        save(obj, filename)
-        controller.open("file://" + os.path.abspath(filename), new=new_param)
+        _show_file_with_state(obj, state, new, controller)
+
+def _show_file_with_state(obj, state, new, controller):
+    save(obj, state=state)
+    controller.open("file://" + os.path.abspath(state.file['filename']), new=_new_param[new])
+
+def _show_notebook_with_state(obj, state):
+    if state.session:
+        push(state=state)
+        snippet = autoload_server(obj, state.session)
+        publish_display_data({'text/html': snippet})
+    else:
+        publish_display_data({'text/html': notebook_div(obj)})
+
+def _show_server_with_state(obj, state, new, controller):
+    push(state=state)
+    controller.open(state.session.object_link(state.document.context), new=_new_param[new])
 
 def save(obj, filename=None, resources=None, title=None, state=None):
     """ Save an HTML file with the data for the current document.
@@ -328,6 +339,12 @@ def save(obj, filename=None, resources=None, title=None, state=None):
     if state is None:
         state = _state
 
+    filename, resources, title = _get_save_args(state, filename, resources, title)
+
+    _save_helper(obj, filename, resources, title)
+
+def _get_save_args(state, filename, resources, title):
+
     if filename is None and state.file:
         filename = state.file['filename']
 
@@ -349,6 +366,10 @@ def save(obj, filename=None, resources=None, title=None, state=None):
     if not title:
         warnings.warn("save() called but no title was supplied and output_file(...) was never called, using default title 'Bokeh Plot'")
         title = "Bokeh Plot"
+
+    return filename, resources, title
+
+def _save_helper(obj, filename, resources, title):
 
     # TODO: (bev) Widget seems awkward as a base class to check here
     if isinstance(obj, Widget):
@@ -390,10 +411,11 @@ def push(session=None, document=None, state=None):
     if not document:
         document = state.document
 
-    if session:
-        return session.store_document(document)
-    else:
+    if not session:
         warnings.warn("push() called but no session was supplied and output_server(...) was never called, nothing pushed")
+        return
+
+    return session.store_document(document)
 
 def reset_output(state=None):
     '''

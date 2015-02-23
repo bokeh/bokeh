@@ -3,10 +3,10 @@ from mock import patch, Mock
 import unittest
 
 from bokeh.document import Document
+from bokeh.plotting import figure
 from bokeh.resources import Resources
 
 import bokeh.state as state
-
 
 class TestState(unittest.TestCase):
 
@@ -57,7 +57,7 @@ class TestState(unittest.TestCase):
     @patch('bokeh.state.time.ctime')
     @patch('bokeh.state.State.output_server')
     def test_output_notebook_args(self, mock_output_server, mock_ctime):
-        kwargs = dict(url="url", session="session", name="name")
+        kwargs = dict(session="session", name="name", url="url")
         s = state.State()
         s.output_notebook(docname="docname", **kwargs)
         self.assertTrue(state._state.output_server.called)
@@ -228,7 +228,142 @@ class TestPush(DefaultStateTester):
         self._check_doc_store(sess, "foo")
 
 class TestShow(DefaultStateTester):
-    pass
+
+    @patch('bokeh.state._show_with_state')
+    def test_default_state_default_args(self, mock__show_with_state):
+        default_kwargs = dict(browser=None, new="tab")
+        state.show("obj", **default_kwargs)
+        self._check_func_called(mock__show_with_state, ("obj", state._state, None, "tab"), {})
+
+    @patch('bokeh.state._show_with_state')
+    def test_default_state_explicit_args(self, mock__show_with_state):
+        default_kwargs = dict(browser="browser", new="new")
+        state.show("obj", **default_kwargs)
+        self._check_func_called(mock__show_with_state, ("obj", state._state, "browser", "new"), {})
+
+    @patch('bokeh.state._show_with_state')
+    def test_explicit_state_default_args(self, mock__show_with_state):
+        s = Mock()
+        default_kwargs = dict(browser=None, new="tab")
+        state.show("obj", state=s, **default_kwargs)
+        self._check_func_called(mock__show_with_state, ("obj", s, None, "tab"), {})
+
+    @patch('bokeh.state._show_with_state')
+    def test_explicit_state_explicit_args(self, mock__show_with_state):
+        s = Mock()
+        default_kwargs = dict(browser="browser", new="new")
+        state.show("obj", state=s, **default_kwargs)
+        self._check_func_called(mock__show_with_state, ("obj", s, "browser", "new"), {})
+
+class Test_ShowWithState(DefaultStateTester):
+
+    @patch('bokeh.state._show_notebook_with_state')
+    @patch('bokeh.state._show_server_with_state')
+    @patch('bokeh.state._show_file_with_state')
+    @patch('bokeh.browserlib.get_browser_controller')
+    def test_notebook(self, mock_get_browser_controller,
+            mock__show_file_with_state, mock__show_server_with_state,
+            mock__show_notebook_with_state):
+        mock_get_browser_controller.return_value = "controller"
+        s = state.State()
+        s.output_notebook()
+        state._show_with_state("obj", s, "browser", "new")
+        self._check_func_called(mock__show_notebook_with_state, ("obj", s), {})
+        self.assertFalse(mock__show_server_with_state.called)
+        self.assertFalse(mock__show_file_with_state.called)
+
+        s.output_file("foo.html")
+        state._show_with_state("obj", s, "browser", "new")
+        self._check_func_called(mock__show_notebook_with_state, ("obj", s), {})
+        self.assertFalse(mock__show_server_with_state.called)
+        self._check_func_called(mock__show_file_with_state, ("obj", s, "new", "controller"), {})
+
+        s._session = Mock
+        state._show_with_state("obj", s, "browser", "new")
+        self._check_func_called(mock__show_notebook_with_state, ("obj", s), {})
+        self.assertFalse(mock__show_server_with_state.called)
+        self._check_func_called(mock__show_file_with_state, ("obj", s, "new", "controller"), {})
+
+    @patch('bokeh.state._show_notebook_with_state')
+    @patch('bokeh.state._show_server_with_state')
+    @patch('bokeh.state._show_file_with_state')
+    @patch('bokeh.browserlib.get_browser_controller')
+    def test_no_notebook(self, mock_get_browser_controller,
+            mock__show_file_with_state, mock__show_server_with_state,
+            mock__show_notebook_with_state):
+        mock_get_browser_controller.return_value = "controller"
+        s = state.State()
+
+        s.output_file("foo.html")
+        state._show_with_state("obj", s, "browser", "new")
+        self.assertFalse(mock__show_notebook_with_state.called)
+        self.assertFalse(mock__show_server_with_state.called)
+        self._check_func_called(mock__show_file_with_state, ("obj", s, "new", "controller"), {})
+
+        s._session = Mock
+        state._show_with_state("obj", s, "browser", "new")
+        self.assertFalse(mock__show_notebook_with_state.called)
+        self._check_func_called(mock__show_server_with_state, ("obj", s, "new", "controller"), {})
+        self._check_func_called(mock__show_file_with_state, ("obj", s, "new", "controller"), {})
+
+class Test_ShowFileWithState(DefaultStateTester):
+
+    @patch('os.path.abspath')
+    @patch('bokeh.state.save')
+    def test(self, mock_save, mock_abspath):
+        s = state.State()
+        s.output_file("foo.html")
+        controller = Mock()
+        mock_abspath.return_value = "abspath"
+
+        state._show_file_with_state("obj", s, "window", controller)
+        self._check_func_called(mock_save, ("obj",), {"state": s})
+        self._check_func_called(controller.open, ("file://abspath",), {"new": 1})
+
+        state._show_file_with_state("obj", s, "tab", controller)
+        self._check_func_called(mock_save, ("obj",), {"state": s})
+        self._check_func_called(controller.open, ("file://abspath",), {"new": 2})
+
+class Test_ShowNotebookWithState(DefaultStateTester):
+
+    @patch('bokeh.state.publish_display_data')
+    @patch('bokeh.state.autoload_server')
+    @patch('bokeh.state.push')
+    def test_with_server(self, mock_push, mock_autoload_server, mock_publish_display_data):
+        s = state.State()
+        s._session = Mock()
+        mock_autoload_server.return_value = "snippet"
+
+        state._show_notebook_with_state("obj", s)
+        self._check_func_called(mock_push, (), {"state": s})
+        self._check_func_called(mock_publish_display_data, ({"text/html":"snippet"},), {})
+
+    @patch('bokeh.state.publish_display_data')
+    @patch('bokeh.state.notebook_div')
+    def test_no_server(self, mock_notebook_div, mock_publish_display_data):
+        s = state.State()
+        s._session = None
+        mock_notebook_div.return_value = "notebook_div"
+
+        state._show_notebook_with_state("obj", s)
+        self._check_func_called(mock_publish_display_data, ({"text/html": "notebook_div"},), {})
+
+class Test_ShowServerWithState(DefaultStateTester):
+
+    @patch('bokeh.state.push')
+    def test(self, mock_push):
+        s = state.State()
+        s._session = Mock()
+        s._session.object_link.return_value = "link"
+        controller = Mock()
+
+        state._show_server_with_state("obj", s, "window", controller)
+        self._check_func_called(mock_push, (), {"state": s})
+        self._check_func_called(controller.open, ("link",), {"new": 1})
+
+        state._show_server_with_state("obj", s, "tab", controller)
+        self._check_func_called(mock_push, (), {"state": s})
+        self._check_func_called(controller.open, ("link",), {"new": 2})
 
 class TestResetOutput(DefaultStateTester):
 
