@@ -1,0 +1,10 @@
+0.8.1 (Feb 2015)
+================
+
+This quick release was focused on stability, bug fixes and improved documentation.
+
+* Fixed HoverTool
+* Fixed Abstract rendering implementationa and docs
+* Fixed chart gallery and docs
+* Removed leftovers from the old plotting API implementation
+* Some other minor docs fixes

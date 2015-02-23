@@ -1,3 +1,35 @@
+2015-02-23    0.8.1:
+--------------------
+  * Fixed HoverTool
+  * Fixed Abstract rendering implementationa and docs
+  * Fixed chart gallery and docs
+  * Removed leftovers from the old plotting API implementation
+  * Some other minor docs fixes
+  * bugfixes:
+    - #1801 Bokeh server crashing when reloading flask app
+    - #1909 Make tooltips properly centered on data points
+    - #1910 [docs] [examples] Fix charts gallery
+    - #1914 Remove spurious curplot
+    - #1918 Nameerror: name 'jsbuild' is not defined
+    - #1920 [regression] Examples/plotting/file/hover.py broken after 0.8 release
+    - #1921 [docs] [regression] Tutorial gallery is broken
+    - #1922 [examples] App_reveal fails importing old plotting stuff
+    - #1925 [docs] Docs error in chart section
+    - #1933 [docs] Bokeh glyph quick reference 404 (docs)
+    - #1940 Spectrogram needs updating to use figure()
+    - #1943 `publishing` example from the `embed` directory fails
+    - #1945 [docs] More broken doc links
+    - #1946 [docs] Fix charts on userguide showing old functionality
+    - #1963 Feature/fix ar zoom
+  * features:
+    - #899 [docs] Hosted server examples in the gallery
+    - #1929 [starter] Image glyph method should have a default palette
+  * tasks:
+    - #1731 [docs] Add a section about bokeh-scala/bokeh.jl/... to main documentation
+    - #1905 Better error messages for blaze version mismatch
+    - #1908 Release 0.8.0
+    - #1962 Hot fixes for examples
+
 2015-02-16    0.8.0:
 --------------------
   * New and updated language bindings: R, JavaScript, Julia, Scala, and Lua now available
