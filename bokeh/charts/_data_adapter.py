@@ -162,6 +162,11 @@ class DataAdapter(object):
             # assuming that only non-dict like objects can raise this error
             # it's probably because we have an iterable instead of a mapper
             # in this case let's use indices as groups keys
+            if blaze and isinstance(self._values, blaze.interactive.InteractiveSymbol):
+                keys = self._values.fields
+                if len(keys) == len(self._values):
+                    return keys
+
             self.convert_index_to_int = True
             indexes = range(len(self._values))
             return list(map(str, indexes))
@@ -200,7 +205,10 @@ class DataAdapter(object):
             return list(values.T)
 
     def items(self):
-        return [(key, self[key]) for key in self]
+        if blaze and isinstance(self._values, blaze.interactive.InteractiveSymbol):
+            return[(k, v) for k, v in zip(self.keys(), self._values.data) ]
+        else:
+            return [(key, self[key]) for key in self]
 
     def iterkeys(self):
         return iter(self)
@@ -227,11 +235,15 @@ class DataAdapter(object):
             return self._index
 
         except AttributeError:
-            index = getattr(self._values, "index", None)
+            if blaze and isinstance(self._values, blaze.interactive.InteractiveSymbol):
+                return range(0, len(self._values.data[0]))
 
-            if not callable(index) and index is not None:
-                # guess it's a pandas dataframe..
-                return index
+            else:
+                index = getattr(self._values, "index", None)
+
+                if not callable(index) and index is not None:
+                    # guess it's a pandas dataframe..
+                    return index
 
         # no, it's not. So it's probably a list so let's get the
         # values and check
