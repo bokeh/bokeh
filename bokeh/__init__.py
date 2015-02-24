@@ -12,7 +12,8 @@ from .settings import settings
 if settings.py_logging():
     level = settings.py_log_level()
     logging.basicConfig(level=level)
-    log = logging.getLogger(__name__)
+
+log = logging.getLogger(__name__)
 
 try:
     from .__conda_version__ import conda_version
