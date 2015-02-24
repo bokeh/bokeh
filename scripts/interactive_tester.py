@@ -57,6 +57,10 @@ def get_parser():
                         - mpl
                         - pandas
                         - seaborn
+
+                    It also allows to specify a example custom folder path, like:
+                     -l /path/to/my/examples
+
                     """), formatter_class=argparse.RawTextHelpFormatter)
 
     parser.add_argument('--no-log', action='store_true', dest='nolog', default=False,
@@ -64,7 +68,7 @@ def get_parser():
     parser.add_argument('-l', '--location', action='store', default=False,
                         help="example directory in which you wish to test")
     parser.add_argument('--reuse_session', action='store_true', default=False,
-                        help="don't save a log of any errors discovered")
+                        help="do not clean last session log and start from where you left")
 
     return parser
 
@@ -281,5 +285,5 @@ if __name__ == '__main__':
         print("cleaning previous session file...",)
         clean_session()
         print("OK")
-        
+
     main(test_dir)
