@@ -1,3 +1,4 @@
+from __future__ import print_function
 import argparse
 import importlib
 import os
@@ -62,9 +63,8 @@ def get_parser():
                         help="don't save a log of any errors discovered")
     parser.add_argument('-l', '--location', action='store', default=False,
                         help="example directory in which you wish to test")
-    parser.add_argument('--reuse-session', action='store_true', default=False,
+    parser.add_argument('--reuse_session', action='store_true', default=False,
                         help="don't save a log of any errors discovered")
-
 
     return parser
 
@@ -83,16 +83,34 @@ def depend_check(dependency):
 
     return found
 
+
 def save_session(session):
+    """
+    Save the session object to the SESSION_FILE
+
+    Args:
+        session(dict): dict with all the example files and results of each run
+    """
     with open(SESSION_FILE, 'w') as res_file:
         json.dump(session, res_file)
 
+
 def get_session():
+    """
+    Return last stored session
+    """
     try:
         with open(SESSION_FILE, 'r') as res_file:
             return json.load(res_file)
     except IOError:
         return {}
+
+
+def clean_session():
+    """
+    Removes previous session file
+    """
+    os.remove(SESSION_FILE)
 
 def main(testing_ground=None):
     """
@@ -259,4 +277,9 @@ if __name__ == '__main__':
         print("Server examples require bokeh-server. Make sure you've typed 'bokeh-server' in another terminal tab.")
         time.sleep(5)
 
+    if not results.reuse_session:
+        print("cleaning previous session file...",)
+        clean_session()
+        print("OK")
+        
     main(test_dir)
