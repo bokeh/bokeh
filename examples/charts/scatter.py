@@ -3,8 +3,7 @@ from collections import OrderedDict
 
 import pandas as pd
 
-from bokeh.charts import Scatter
-from bokeh.plotting import output_file, show, VBox
+from bokeh.charts import Scatter, output_file, show, VBox
 from bokeh.sampledata.iris import flowers
 
 setosa = flowers[(flowers.species == "setosa")][["petal_length", "petal_width"]]
@@ -21,8 +20,6 @@ groupped_df = flowers[["petal_length", "petal_width", "species"]].groupby("speci
 scatter2 = Scatter(groupped_df, title="iris dataset, dict_input", xlabel="petal_length",
                   ylabel="petal_width", legend='top_left')
 
-
-
 pdict = OrderedDict()
 for i in groupped_df.groups.keys():
     labels = groupped_df.get_group(i).columns
@@ -33,12 +30,13 @@ for i in groupped_df.groups.keys():
     pdict[i] = list(zip(x, y))
 
 df = pd.DataFrame(pdict)
-scatter3 = Scatter(df, title="iris dataset, dict_input", xlabel="petal_length",
-                  ylabel="petal_width", legend='top_left')
+scatter3 = Scatter(
+    df, title="iris dataset, dict_input",
+    xlabel="petal_length", ylabel="petal_width", legend='top_left')
 
-
-scatter4 = Scatter(list(xyvalues.values()), title="iris dataset, dict_input", xlabel="petal_length",
-                  ylabel="petal_width", legend='top_left')
+scatter4 = Scatter(
+    list(xyvalues.values()), title="iris dataset, dict_input",
+    xlabel="petal_length", ylabel="petal_width", legend='top_left')
 
 output_file("scatter.html")
 
