@@ -2,7 +2,7 @@ from __future__ import absolute_import
 
 from ..plot_object import PlotObject
 from ..properties import HasProps
-from ..properties import Any, Int, String, Instance, List, Dict, Either, Bool
+from ..properties import Any, Int, String, Instance, List, Dict, Either, Bool, Enum
 
 class DataSource(PlotObject):
     """ A base class for data source types. ``DataSource`` is
@@ -210,16 +210,18 @@ class RemoteSource(DataSource):
 class AjaxDataSource(RemoteSource):
     method = String('POST', help="http method - GET or POST")
 
-    overwrite = Bool(True, help="""
-    Overwrite or Update plot values from data source object
+    mode = Enum("replace", "append", help="""
+    Whether to append new data to existing data (up to ``max_size``),
+    or to replace existing data entirely.
     """)
     max_size = Int(help="""
-    Maximum size that a plot could expand when data is retreive during
-    polling updates. Larger than that size, the data will shift to the right
+    Maximum size of the data array being kept after each pull requests.
+    Larger than that size, the data will be right shifted.
     """)
     if_modified = Bool(False, help="""
-    Polling requests to the server will provide a If-Modified-Since header
-    in order to return only new data to the plot
+    Whether to include an ``If-Modified-Since`` header in AJAX requests
+    to the server. This might allow only new data to be retrieved if
+    properly handled by the server.
     """)
 
 class BlazeDataSource(RemoteSource):

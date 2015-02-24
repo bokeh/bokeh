@@ -5,8 +5,8 @@ from bokeh.models.sources import AjaxDataSource
 from bokeh.models.ranges import Range1d
 
 output_file("ajax_source_realtime.html", title="ajax_source_realtime.py example")
-source = AjaxDataSource(data_url='http://localhost:5050/data', if_modified=True,
-                        polling_interval=1000, max_size=125)
+source = AjaxDataSource(data_url='http://localhost:5050/data', mode="append",
+                        if_modified=True, polling_interval=1000, max_size=125)
 p = figure()
 p.line('x', 'y', source=source)
 show(p)
