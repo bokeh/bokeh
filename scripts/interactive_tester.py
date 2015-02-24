@@ -35,7 +35,7 @@ DEFAULT_TEST_FILES = [
     '../../examples/charts/boxplot.py',
 ]
 
-RES_FILE = os.path.abspath("INTERACTIVE_TESTER_SESSION.json")
+SESSION_FILE = os.path.abspath("INTERACTIVE_TESTER_SESSION.json")
 
 def get_parser():
     """Create the parser that will be used to add arguments to the script.
@@ -62,6 +62,9 @@ def get_parser():
                         help="don't save a log of any errors discovered")
     parser.add_argument('-l', '--location', action='store', default=False,
                         help="example directory in which you wish to test")
+    parser.add_argument('--reuse-session', action='store_true', default=False,
+                        help="don't save a log of any errors discovered")
+
 
     return parser
 
@@ -81,12 +84,12 @@ def depend_check(dependency):
     return found
 
 def save_session(session):
-    with open(RES_FILE, 'w') as res_file:
+    with open(SESSION_FILE, 'w') as res_file:
         json.dump(session, res_file)
 
 def get_session():
     try:
-        with open(RES_FILE, 'r') as res_file:
+        with open(SESSION_FILE, 'r') as res_file:
             return json.load(res_file)
     except IOError:
         return {}
@@ -239,6 +242,12 @@ if __name__ == '__main__':
                     sys.exit(1)
 
             test_dir = DIRECTORIES[target]
+
+        elif os.path.exists(results.location):
+            # in case target is not one of the recognized keys and is a
+            # valid path we can run the examples in that folder
+            test_dir = results.location
+            print("Running examples in custom location:", test_dir)
         else:
             print("Test location '%s' not recognized.\nPlease type 'python interactive_tester.py -h' for a list of valid test directories."
                  % results.location)
