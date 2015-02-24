@@ -125,7 +125,6 @@ def getsitepackages():
                                      "python" + sys.version[:3],
                                      "site-packages"),
                         os.path.join(prefix, "lib", "site-python"),
-                        #os.path.join(prefix, "python" + sys.version[:3], "lib-dynload")
                         ]
             lib64_dir = os.path.join(prefix, "lib64", "python" + sys.version[:3], "site-packages")
             if (os.path.exists(lib64_dir) and
