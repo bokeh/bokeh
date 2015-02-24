@@ -44,9 +44,6 @@ There are several environment variables that can be useful for developers:
 * ``BOKEH_PRETTY`` --- Whether to emit "pretty printed" JSON
     Accepted values are ``yes``/``no``, ``true``/``false`` or ``0``/``1``.
 
-* ``BOKEH_PY_LOGGING`` --- Whether to enable logging by default
-    Accepted values are ``yes``/``no``, ``true``/``false`` or ``0``/``1``.
-
 * ``BOKEH_PY_LOG_LEVEL`` --- The Python logging level to set
     As in the JS side, valid values are, in order of increasing severity:
 
@@ -55,8 +52,9 @@ There are several environment variables that can be useful for developers:
   - ``warn``
   - ``error``
   - ``fatal``
+  - ``none``
 
-    The default logging level is ``info``.
+    The default logging level is ``none``.
 
 * ``BOKEH_RESOURCES`` --- What kind of BokehJS resources to configure
     For example:  ``inline``, ``cdn``, ``server``. See the
