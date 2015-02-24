@@ -10,15 +10,10 @@ from .settings import settings
 
 # configure logger level
 if settings.py_logging():
-    print("YES!")
-    sys.exit(1)
     level = settings.py_log_level()
     logging.basicConfig(level=level)
     # set up the logger
     log = logging.getLogger(__name__)
-else:
-    print("NO!")
-    sys.exit(1)
 
 try:
     from .__conda_version__ import conda_version
