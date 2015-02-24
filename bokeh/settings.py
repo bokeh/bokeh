@@ -61,6 +61,9 @@ class Settings(object):
     def log_level(self, default=None):
         return self._get_str("LOG_LEVEL", default, "debug")
 
+    def py_logging(self, default=False):
+        return self._get_bool("PY_LOGGING")
+        
     def py_log_level(self, default='info'):
         level = self._get_str("PY_LOG_LEVEL", default, "debug")
         LEVELS = {'debug': logging.DEBUG,

@@ -1,6 +1,7 @@
 from __future__ import absolute_import, print_function
 
 import logging
+import sys
 import warnings
 from . import utils
 from . import sampledata
@@ -8,10 +9,16 @@ from ._version import get_versions
 from .settings import settings
 
 # configure logger level
-level = settings.py_log_level()
-logging.basicConfig(level=level)
-# set up the logger
-log = logging.getLogger(__name__)
+if settings.py_logging():
+    print("YES!")
+    sys.exit(1)
+    level = settings.py_log_level()
+    logging.basicConfig(level=level)
+    # set up the logger
+    log = logging.getLogger(__name__)
+else:
+    print("NO!")
+    sys.exit(1)
 
 try:
     from .__conda_version__ import conda_version
