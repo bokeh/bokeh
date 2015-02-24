@@ -33,7 +33,14 @@ def _glyph_function(glyphclass, dsnames, argnames, docstring, xfields=["x"], yfi
         # plot.update(**kwargs)
 
         name = kwargs.pop('name', None)
-
+        
+        # We extract renderer properties here, so they are not confused for glyph props
+        # TODO (bev) hacky, fix up when glyphspecs are simplified/removed
+        renderer_props = {}
+        for key in ['x_range_name', 'y_range_name']:
+            if key in kwargs:
+                renderer_props[key] = kwargs.pop(key)
+        
         select_tool = _get_select_tool(plot)
 
         # Process the glyph dataspec parameters
@@ -52,14 +59,19 @@ def _glyph_function(glyphclass, dsnames, argnames, docstring, xfields=["x"], yfi
 
         _update_plot_data_ranges(plot, datasource, x_data_fields, y_data_fields)
         kwargs.update(glyph_params)
-
-        glyph_props = glyphclass.properties() | set(argnames)
-        glyph_kwargs = dict((key, value) for (key, value) in iteritems(kwargs) if key in glyph_props)
-        glyph = glyphclass(**glyph_kwargs)
-
+    
         nonselection_glyph_params = _materialize_colors_and_alpha(kwargs, prefix='nonselection_', default_alpha=0.1)
+        
+        #glyph_props = glyphclass.properties() | set(argnames)
+        #glyph_kwargs = dict((key, value) for (key, value) in iteritems(kwargs) if key in glyph_props)
+        #glyph = glyphclass(**glyph_kwargs)
+        # We pass all remaining (non-popped) kwargs. The HasProps class will check validity
+        for name in ['color', 'alpha']:  # These are valid names, but pseudo-properties
+            kwargs.pop(name, None)
+        
+        glyph = glyphclass(**kwargs)
         nonselection_glyph = glyph.clone()
-
+        
         # TODO: (bev) This is a bit hacky.
         if hasattr(nonselection_glyph, 'fill_color'):
             nonselection_glyph.fill_color = nonselection_glyph_params['fill_color']
@@ -74,13 +86,10 @@ def _glyph_function(glyphclass, dsnames, argnames, docstring, xfields=["x"], yfi
             glyph=glyph,
             nonselection_glyph=nonselection_glyph,
             name=name)
-
-        # TODO (bev) hacky, fix up when glyphspecs are simplified/removed
-        if 'x_range_name' in kwargs:
-            glyph_renderer.x_range_name = kwargs['x_range_name']
-        if 'y_range_name' in kwargs:
-            glyph_renderer.y_range_name = kwargs['y_range_name']
-
+        
+        for key, val in renderer_props.items():
+            setattr(glyph_renderer, key, val)
+        
         if legend_name:
             legend = _get_legend(plot)
             if not legend:

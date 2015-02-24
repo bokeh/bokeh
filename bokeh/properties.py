@@ -591,6 +591,9 @@ class HasProps(object):
         self._changed_vars = set()
 
         for name, value in properties.items():
+            if not hasattr(self, name):
+                raise ValueError('Class %r does not have property %r' % 
+                                 (self.__class__.__name__, name))
             setattr(self, name, value)
 
     def __setattr__(self, name, value):
