@@ -77,8 +77,6 @@ define [
       x = xmapper.map_from_target(vx)
       y = ymapper.map_from_target(vy)
 
-      vars = {x: x, y: y, vx: vx, vy: vy, sx: sx, sy: sy}
-
       for i in indices
         if @mget('snap_to_data') and renderer.glyph.sx? and renderer.glyph.sy?
           rx = canvas.sx_to_vx(renderer.glyph.sx[i])
@@ -86,6 +84,7 @@ define [
         else
           [rx, ry] = [vx, vy]
 
+        vars = {index: i, x: x, y: y, vx: vx, vy: vy, sx: sx, sy: sy}
         tooltip.add(rx, ry, @_render_tooltips(ds, i, vars))
 
       return null
