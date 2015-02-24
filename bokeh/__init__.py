@@ -9,8 +9,8 @@ from ._version import get_versions
 from .settings import settings
 
 # configure logger level
-if settings.py_logging():
-    level = settings.py_log_level()
+level = settings.py_log_level()
+if level is not None:
     logging.basicConfig(level=level)
 
 log = logging.getLogger(__name__)
