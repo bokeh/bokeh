@@ -12,7 +12,6 @@ from .settings import settings
 if settings.py_logging():
     level = settings.py_log_level()
     logging.basicConfig(level=level)
-    # set up the logger
     log = logging.getLogger(__name__)
 
 try:
