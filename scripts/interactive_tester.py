@@ -67,7 +67,7 @@ def get_parser():
                         help="don't save a log of any errors discovered")
     parser.add_argument('-l', '--location', action='store', default=False,
                         help="example directory in which you wish to test")
-    parser.add_argument('--reuse_session', action='store_true', default=False,
+    parser.add_argument('--reuse-session', action='store_true', dest='reuseSession',default=False,
                         help="do not clean last session log and start from where you left")
 
     return parser
@@ -147,16 +147,16 @@ def main(testing_ground=None):
 
     Log = []
 
-    last_session = get_session()
+    lastSession = get_session()
 
     for index, fileName in enumerate(TestFiles):
         if testing_ground:
             fileName = "%s/%s" % (testing_ground, fileName)
         try:
 
-            if not fileName in last_session:
-                last_session[fileName] = "TESTING..."
-                save_session(last_session)
+            if not fileName in lastSession:
+                lastSession[fileName] = "TESTING..."
+                save_session(lastSession)
 
                 command = get_cmd(fileName)
                 opener(fileName, command)
@@ -170,15 +170,15 @@ def main(testing_ground=None):
                     if ErrorReport:
                         Log.append("\n\n%s: \n %s" % (fileName, ErrorReport))
 
-                    last_session[fileName] = ErrorReport
-                    save_session(last_session)
+                    lastSession[fileName] = ErrorReport
+                    save_session(lastSession)
             else:
-                prev_res = last_session[fileName]
-                if prev_res == "TESTING...":
+                prevRes = lastSession[fileName]
+                if prevRes == "TESTING...":
                     print("RESULT OF %s LAST RUN NOT REGISTERED!!" % fileName)
                     ErrorReport = test_status()
-                    last_session[fileName] = ErrorReport
-                    save_session(last_session)
+                    lastSession[fileName] = ErrorReport
+                    save_session(lastSession)
                 else:
                     print("%s detected in last session: SKIPPING" % fileName)
 
@@ -281,7 +281,7 @@ if __name__ == '__main__':
         print("Server examples require bokeh-server. Make sure you've typed 'bokeh-server' in another terminal tab.")
         time.sleep(5)
 
-    if not results.reuse_session:
+    if not results.reuseSession:
         print("cleaning previous session file...",)
         clean_session()
         print("OK")
