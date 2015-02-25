@@ -208,7 +208,7 @@ class RemoteSource(DataSource):
     """)
 
 class AjaxDataSource(RemoteSource):
-    method = String('POST', help="http method - GET or POST")
+    method = Enum('POST', 'GET', help="http method - GET or POST")
 
     mode = Enum("replace", "append", help="""
     Whether to append new data to existing data (up to ``max_size``),
@@ -220,8 +220,8 @@ class AjaxDataSource(RemoteSource):
     """)
     if_modified = Bool(False, help="""
     Whether to include an ``If-Modified-Since`` header in AJAX requests
-    to the server. This might allow only new data to be retrieved if
-    properly handled by the server.
+    to the server. If this header is supported by the server, then only
+    new data since the last request will be returned.
     """)
 
 class BlazeDataSource(RemoteSource):

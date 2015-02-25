@@ -38,11 +38,11 @@ define [
             data[column] = original_data[column].concat(data[column])[-max_size..]
           @set('data', data)
         else
-          console.error("unsupported mode: " + mode)
-        console.log(data)
+          logger.error("unsupported mode: " + mode)
+        logger.info(data)
         return null
       ).error(() =>
-        console.log(arguments)
+        logger.error(arguments)
       )
       return null
 

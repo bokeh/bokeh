@@ -28,7 +28,7 @@ def gen_entry():
         print("Entry generated: %s" % str(last_entry))
         x += 1
         if x > entries.maxlen and x % 10 == 0:
-        	time.sleep(2)
+            time.sleep(2)
 
 t = Thread(target=gen_entry)
 t.daemon = True
@@ -45,18 +45,18 @@ app = Flask(__name__)
 def hello_world():
     global entries
     try:
-    	modified_since = float(request.headers.get('If-Modified-Since'))
-    except:
-    	modified_since = 0
+        modified_since = float(request.headers.get('If-Modified-Since'))
+    except TypeError:
+        modified_since = 0
 
     new_entries = [e for e in entries if e.creation > modified_since]
     js = json.dumps({'x':[e.x for e in new_entries], 'y':[e.y for e in new_entries]})
     resp = Response(js, status=200, mimetype='application/json')
 
     if new_entries:
-    	resp.headers['Last-Modified'] = new_entries[-1].creation
+        resp.headers['Last-Modified'] = new_entries[-1].creation
     elif modified_since:
-    	resp.headers['Last-Modified'] = modified_since
+        resp.headers['Last-Modified'] = modified_since
 
     return resp
 
