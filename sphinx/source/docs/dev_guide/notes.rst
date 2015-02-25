@@ -52,8 +52,9 @@ There are several environment variables that can be useful for developers:
   - ``warn``
   - ``error``
   - ``fatal``
+  - ``none``
 
-    The default logging level is ``info``.
+    The default logging level is ``none``.
 
 * ``BOKEH_RESOURCES`` --- What kind of BokehJS resources to configure
     For example:  ``inline``, ``cdn``, ``server``. See the

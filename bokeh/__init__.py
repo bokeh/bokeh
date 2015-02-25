@@ -9,8 +9,9 @@ from .settings import settings
 
 # configure logger level
 level = settings.py_log_level()
-logging.basicConfig(level=level)
-# set up the logger
+if level is not None:
+    logging.basicConfig(level=level)
+
 log = logging.getLogger(__name__)
 
 try:
