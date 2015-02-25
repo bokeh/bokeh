@@ -16,11 +16,11 @@ define [
 
     setup : (plot_view, glyph) =>
       @pv = plot_view
-      @get_data()
+      @get_data(@get('mode'))
       if @get('polling_interval')
         @interval = setInterval( @get_data, @get('polling_interval'), @get('mode'), @get('max_size'), @get('if_modified'))
 
-    get_data : (mode="replace", max_size=0, if_modified=false) =>
+    get_data : (mode, max_size=0, if_modified=false) =>
       $.ajax(
         dataType: 'json'
         ifModified: if_modified
@@ -45,6 +45,11 @@ define [
         logger.error(arguments)
       )
       return null
+
+    defaults: =>
+      return _.extend {}, super(), {
+        mode: 'replace'
+      }
 
   class AjaxDataSources extends Backbone.Collection
     model: AjaxDataSource
