@@ -48,7 +48,11 @@ def get_parser():
                     The --location option allows you to select a specific examples subdirectory to test all files in,
                     ignoring __init__.py
 
-                    Location arguments you can choose:
+                    Location arguments can be any valid path to a folder with the examples, like:
+
+                     -l /path/to/my/examplesyou can choose:
+
+                    or any of the pre-built keywords that point to the related examples:
                         - file
                         - notebook
                         - server
@@ -57,10 +61,6 @@ def get_parser():
                         - mpl
                         - pandas
                         - seaborn
-
-                    It also allows to specify a example custom folder path, like:
-                     -l /path/to/my/examples
-
                     """), formatter_class=argparse.RawTextHelpFormatter)
 
     parser.add_argument('--no-log', action='store_true', dest='nolog', default=False,
