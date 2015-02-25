@@ -67,8 +67,10 @@ def get_parser():
                         help="don't save a log of any errors discovered")
     parser.add_argument('-l', '--location', action='store', default=False,
                         help="example directory in which you wish to test")
-    parser.add_argument('--reuse-session', action='store_true', dest='reuseSession',default=False,
+    parser.add_argument('--reuse-session', action='store_true', dest='reuseSession', default=False,
                         help="do not clean last session log and start from where you left")
+    parser.add_argument('--notebook-options', action='store', dest='notebookOptions', default="",
+                        help="options to be forwarded to ipython notebook to customize it's behaviour")
 
     return parser
 
@@ -117,7 +119,7 @@ def clean_session():
     if os.path.exists(SESSION_FILE):
         os.remove(SESSION_FILE)
 
-def main(testing_ground=None):
+def main(testing_ground=None, notebook_options=""):
     """
     Collect and run .py or .ipynb examples from a set list or given examples directory, ignoring __init__.py
     User input is collected to determine a properly or improperly displayed page
@@ -159,7 +161,7 @@ def main(testing_ground=None):
                 lastSession[fileName] = "TESTING..."
                 save_session(lastSession)
 
-                command = get_cmd(fileName)
+                command = get_cmd(fileName, notebook_options)
                 opener(fileName, command)
 
                 if results.nolog:
@@ -195,7 +197,7 @@ def main(testing_ground=None):
         logger(Log, log_name)
 
 
-def get_cmd(some_file):
+def get_cmd(some_file, notebook_options=""):
     """Determines how to open a file depending
     on whether it is a .py or a .ipynb file
     """
@@ -203,7 +205,7 @@ def get_cmd(some_file):
     if some_file.endswith('.py'):
         command = "python"
     elif some_file.endswith('.ipynb'):
-        command = "ipython notebook"
+        command = "ipython notebook %s" % notebook_options
 
     return command
 
@@ -287,4 +289,4 @@ if __name__ == '__main__':
         clean_session()
         print("OK")
 
-    main(test_dir)
+    main(test_dir, notebook_options=results.notebookOptions)
