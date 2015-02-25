@@ -114,7 +114,8 @@ def clean_session():
     """
     Removes previous session file
     """
-    os.remove(SESSION_FILE)
+    if os.path.exists(SESSION_FILE):
+        os.remove(SESSION_FILE)
 
 def main(testing_ground=None):
     """
