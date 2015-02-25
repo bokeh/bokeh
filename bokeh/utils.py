@@ -161,3 +161,17 @@ def resolve_json(fragment, models):
             logging.error("model not found for %s", fragment)
             return None
     return json_apply(fragment, check_func, func)
+
+
+def pop_items(d, *args, **kwargs):
+    """ Pop items from an existing dict and return as a new dict.
+    Key names to pop can be given as strings, or as keyword
+    arguments to give them a default value.
+    """
+    new_d = {}
+    for key in args:
+        if key in d:
+            new_d[key] = d.pop(key)
+    for key, default in kwargs.items():
+        new_d[key] = d.pop(key, default)
+    return new_d
