@@ -177,7 +177,7 @@ def look_for_element(driver, element, method='css_selector'):
         else:
             raise ValueError("Unsupported method: %s" % (method))
     except TimeoutException:
-        assert 0, "Can't find %s %s (handler: %s)!" % (element_name, element_type, element)
+        assert 0, "Can't find %s !" % (element)
 
     return ret
 
