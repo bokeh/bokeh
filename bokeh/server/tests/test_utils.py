@@ -3,6 +3,7 @@ import tempfile
 import threading
 import time
 import unittest
+import mock
 
 #import redis
 import requests
@@ -104,7 +105,8 @@ class FlaskClientTestCase(BaseBokehServerTestCase):
             setattr(server_settings, k, v)
         server_settings.model_backend = {'type' : 'memory'}
         configure.configure_flask()
-        configure.register_blueprint()
+        with mock.patch('bokeh.utils.logging'):
+            configure.register_blueprint()
         #ugh..need better way to initialize this
         app.secret_key = server_settings.secret_key
         app.debug = True
