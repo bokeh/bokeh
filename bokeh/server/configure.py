@@ -2,6 +2,7 @@ import logging
 from os.path import dirname
 import imp
 import sys
+import warnings
 
 from six.moves.queue import Queue
 from tornado import ioloop
@@ -14,12 +15,15 @@ from . import websocket
 ##bokeh_app is badly named - it's really a blueprint
 from .app import bokeh_app, app
 from .models import user
+from .models import convenience as mconv
+from .models import docs
 from .zmqpub import Publisher
 from .zmqsub import Subscriber
 from .forwarder import Forwarder
+from .blaze import get_blueprint as get_mbs_blueprint
 
 from .server_backends import (
-    FunctionBackend, HDF5DataBackend, InMemoryServerModelStorage,
+    InMemoryServerModelStorage,
     MultiUserAuthentication, RedisServerModelStorage, ShelveServerModelStorage,
     SingleUserAuthentication,
 )
@@ -34,6 +38,8 @@ def configure_flask(config_argparse=None, config_file=None, config_dict=None):
         server_settings.from_args(config_argparse)
     if config_dict:
         server_settings.from_dict(config_dict)
+    if config_file:
+        server_settings.from_file(config_file)
     for handler in logging.getLogger().handlers:
         handler.addFilter(StaticFilter())
     # must import views before running apps
@@ -60,11 +66,6 @@ def configure_flask(config_argparse=None, config_file=None, config_dict=None):
         authentication = SingleUserAuthentication()
     else:
         authentication = MultiUserAuthentication()
-
-    if server_settings.data_directory:
-        data_manager = HDF5DataBackend(server_settings.data_directory)
-    else:
-        data_manager = FunctionBackend()
     bokeh_app.url_prefix = server_settings.url_prefix
     bokeh_app.publisher = Publisher(server_settings.ctx, server_settings.pub_zmqaddr, Queue())
 
@@ -82,11 +83,20 @@ def configure_flask(config_argparse=None, config_file=None, config_dict=None):
         bbstorage,
         servermodel_storage,
         authentication,
-        data_manager
     )
-
+registered = False
 def register_blueprint():
+    global registered
+    if registered:
+        warnings.warn(
+            "register_blueprint has already been called, why is it being called again"
+        )
+        return
+    blaze_blueprint = get_mbs_blueprint(config_file=server_settings.blaze_config)
     app.register_blueprint(bokeh_app, url_prefix=server_settings.url_prefix)
+    if blaze_blueprint:
+        app.register_blueprint(blaze_blueprint, url_prefix=server_settings.url_prefix)
+    registered = True
 
 class SimpleBokehTornadoApp(Application):
     def __init__(self, flask_app, **settings):
@@ -99,7 +109,18 @@ class SimpleBokehTornadoApp(Application):
         ]
         super(SimpleBokehTornadoApp, self).__init__(handlers, **settings)
         self.wsmanager = websocket.WebSocketManager()
-        self.subscriber = Subscriber(server_settings.ctx, [server_settings.sub_zmqaddr], self.wsmanager)
+        def auth(auth, docid):
+            #HACKY
+            if docid.startswith("temporary-"):
+                return True
+            doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
+            status = mconv.can_read_doc_api(doc, auth)
+            return status
+        self.wsmanager.register_auth('bokehplot', auth)
+
+        self.subscriber = Subscriber(server_settings.ctx,
+                                     [server_settings.sub_zmqaddr],
+                                     self.wsmanager)
         if server_settings.run_forwarder:
             self.forwarder = Forwarder(server_settings.ctx, server_settings.pub_zmqaddr, server_settings.sub_zmqaddr)
         else:

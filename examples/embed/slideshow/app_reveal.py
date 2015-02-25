@@ -16,8 +16,7 @@ import scipy.special
 
 from bokeh.embed import autoload_server
 from bokeh.models import GlyphRenderer
-from bokeh.plotting import (annular_wedge, curplot, cursession, figure, hold,
-                            legend, line, output_server, push, quad, xgrid, ygrid)
+from bokeh.plotting import cursession, figure, output_server, push
 
 from flask import Flask, render_template
 app = Flask(__name__)
@@ -205,7 +204,7 @@ class Population(object):
         self.update_pyramid()
 
     def create_layout(self):
-        from bokeh.widgets import Select, HBox, VBox
+        from bokeh.models.widgets import Select, HBox, VBox
 
         years = list(map(str, sorted(self.df.Year.unique())))
         locations = sorted(self.df.Location.unique())

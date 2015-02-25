@@ -1,11 +1,10 @@
-
 define [
   "underscore"
-  "sprintf"
   "common/collection"
   "renderer/annotation/tooltip"
   "./inspect_tool"
-], (_, sprintf, Collection, Tooltip, InspectTool) ->
+  "util/util"
+], (_, Collection, Tooltip, InspectTool, Util) ->
 
   _color_to_hex = (color) ->
     if (color.substr(0, 1) == '#')
@@ -18,16 +17,6 @@ define [
 
     rgb = blue | (green << 8) | (red << 16)
     return digits[1] + '#' + rgb.toString(16)
-
-  _format_number = (number) ->
-    # will get strings for categorical types, just pass back
-    if typeof(number) == "string"
-      return number
-    if Math.floor(number) == number
-      return sprintf("%d", number)
-    if Math.abs(number) > 0.1 and Math.abs(number) < 1000
-      return sprintf("%0.3f", number)
-    return sprintf("%0.3e", number)
 
   class HoverToolView extends InspectTool.View
 
@@ -65,7 +54,6 @@ define [
       return
 
     _update: (indices, tool, renderer, ds, {geometry}) ->
-
       tooltip = @mget('ttmodels')[renderer.model.id] ? null
       if not tooltip?
         return
@@ -89,17 +77,27 @@ define [
       x = xmapper.map_from_target(vx)
       y = ymapper.map_from_target(vy)
 
-      for i in  indices
-
-        if @mget('snap_to_data')
+      for i in indices
+        if @mget('snap_to_data') and renderer.glyph.sx? and renderer.glyph.sy?
           rx = canvas.sx_to_vx(renderer.glyph.sx[i])
           ry = canvas.sy_to_vy(renderer.glyph.sy[i])
         else
           [rx, ry] = [vx, vy]
 
+        vars = {index: i, x: x, y: y, vx: vx, vy: vy, sx: sx, sy: sy}
+        tooltip.add(rx, ry, @_render_tooltips(ds, i, vars))
+
+      return null
+
+    _render_tooltips: (ds, i, vars) ->
+      tooltips = @mget("tooltips")
+
+      if _.isString(tooltips)
+        return $('<div>').html(Util.replace_placeholders(tooltips, ds, i, vars))
+      else
         table = $('<table></table>')
 
-        for [label, value] in @mget("tooltips")
+        for [label, value] in tooltips
           row = $("<tr></tr>")
           row.append($("<td class='bk-tooltip-row-label'>#{ label }: </td>"))
           td = $("<td class='bk-tooltip-row-value'></td>")
@@ -126,36 +124,14 @@ define [
               span = $("<span class='bk-tooltip-color-block'> </span>")
               span.css({ backgroundColor: color})
             td.append(span)
-
           else
-            value = value.replace("$index", "#{ i }")
-            value = value.replace("$x", "#{ _format_number(x) }")
-            value = value.replace("$y", "#{ _format_number(y) }")
-            value = value.replace("$vx", "#{ vx }")
-            value = value.replace("$vy", "#{ vy }")
-            value = value.replace("$sx", "#{ sx }")
-            value = value.replace("$sy", "#{ sy }")
-            while value.indexOf("@") >= 0
-              [match, unused, column_name] = value.match(/(@)(\w*)/)
-              column = ds.get_column(column_name)
-              if not column?
-                value = value.replace(column_name, "#{ column_name } unknown")
-                break
-              column = ds.get_column(column_name)
-              dsvalue = column[i]
-              if typeof(dsvalue) == "number"
-                value = value.replace(match, "#{ _format_number(dsvalue) }")
-              else
-                value = value.replace(match, "#{ dsvalue }")
-            span = $("<span>#{ value }</span>")
-            td.append(span)
+            value = Util.replace_placeholders(value, ds, i, vars)
+            td.append($('<span>').text(value))
 
           row.append(td)
           table.append(row)
 
-        tooltip.add(rx, ry, table)
-
-      return null
+        return table
 
   class HoverTool extends InspectTool.Model
     default_view: HoverToolView
@@ -169,6 +145,7 @@ define [
       renderers = @get('plot').get('renderers')
       for r in @get('renderers')
         tooltip = new Tooltip.Model()
+        tooltip.set("custom", _.isString(@get("tooltips")))
         ttmodels[r.id] = tooltip
         renderers.push(tooltip)
       @set('ttmodels', ttmodels)
@@ -179,8 +156,8 @@ define [
       return _.extend({}, super(), {
         snap_to_data: true
         tooltips: [
-          ["index", "$index"]
-          ["data (x, y)", "($x, $y)"]
+          ["index",         "$index"]
+          ["data (x, y)",   "($x, $y)"]
           ["canvas (x, y)", "($sx, $sy)"]
         ]
       })
@@ -189,7 +166,7 @@ define [
     model: HoverTool
 
   return {
-    "Model": HoverTool,
-    "Collection": new HoverTools(),
-    "View": HoverToolView,
+    Model: HoverTool
+    Collection: new HoverTools()
+    View: HoverToolView
   }

@@ -34,6 +34,9 @@ requirements:
     - gevent-websocket     [py2k]
     # - abstract-rendering   [py2k]
 
+    # CLI
+    # - click
+
 test:
   requires:
     # docs

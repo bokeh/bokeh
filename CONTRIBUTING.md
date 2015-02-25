@@ -39,7 +39,7 @@ and let everybody know that you intend to work on it.
 
 1. Make sure that there is a corresponding issue for your change first. If there isn't yet, 
    create one.
-2. Create a fork of the Bokeh repositoru on GitHub (this is only done before *first*) contribution).
+2. Create a fork of the Bokeh repository on GitHub (this is only done before *first*) contribution).
 3. Create a branch off the `master` branch with a meaningful name. Preferably include issue number
    and a few keywords, so that we will have a rough idea what the branch refers to, without looking 
    up the issue. As an example: `786_property_names`.

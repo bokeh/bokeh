@@ -1,4 +1,6 @@
+{% if pagename == "index" %}
 <a href="https://github.com/bokeh/bokeh"><img style="position: absolute; top: 45px; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"></a>
+{% endif %}
 <div id="navbar" class="{{ theme_navbar_class }} navbar-default {% if theme_navbar_fixed_top == 'true' -%} navbar-fixed-top{%- endif -%}">
 
     <div class="container">
@@ -12,7 +14,7 @@
           <span class="icon-bar"></span>
         </button>
 
-        <a class="logo"> <img height="32" width="32" src="/_static/bokeh-transparent.png" /></a>
+        <a class="logo"> <img height="32" width="32" src="{{pathto("_static/bokeh-transparent.png", 1)}}" /></a>
         <a class="navbar-brand" href="{{ pathto(master_doc) }}">{% if theme_navbar_title -%}{{ theme_navbar_title|e }}{%- else -%}{{ project|e }}{%- endif -%}</a>
         <span class="navbar-text navbar-version pull-left"><b>{{ version|e }}</b></span>
       </div>

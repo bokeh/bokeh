@@ -4,7 +4,7 @@ import pandas as pd
 
 from bokeh.sampledata.iris import flowers
 from bokeh.charts import Scatter
-
+from bokeh.plotting import output_file, show
 # we fill a df with the data of interest and create a groupby pandas object
 df = flowers[["petal_length", "petal_width", "species"]]
 xyvalues = g = df.groupby("species")
@@ -26,7 +26,9 @@ for i in g.groups.keys():
 #xyvalues = xyvalues.values()
 #xyvalues = np.array(xyvalues.values())
 
-scatter = Scatter(xyvalues, filename="iris_scatter.html",
-                  ylabel='petal_width',  facet=False)
-scatter.title("iris dataset").legend("top_left")
-scatter.width(600).height(400).show()
+output_file("iris_scatter.html")
+TOOLS="resize,crosshair,pan,wheel_zoom,box_zoom,reset,previewsave"
+scatter = Scatter(
+    xyvalues, filename="iris_scatter.html", tools=TOOLS, ylabel='petal_width'
+)
+show(scatter) # or scatter.show()

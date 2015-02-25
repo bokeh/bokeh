@@ -13,7 +13,7 @@ At a Glance
 .. warning::
     The plotting api was recently changed as of version 0.7. Some old functions (for
     instance, ``hold``) are now deprecated but still function. They will be completely
-    removed in the next release. Usng  ``python -Wd`` when running Bokeh code will enable
+    removed in the next release. Using  ``python -Wd`` when running Bokeh code will enable
     printing of deprecation warnings.
 
 To access the ``plotting.py`` interface:
@@ -113,12 +113,10 @@ Composition
 ~~~~~~~~~~~
 
 Bokeh plots are composed of "glyphs", which are semi-primitive visual markers.
-Each glyph has specified parameters for placement and styling.
-You can refer to the
-`Bokeh Glyph Quick Reference <http://bokeh.pydata.org/docs/glyphs_ref.html>`_
-to see all the glyphs that are currently supported, and to the
-`Glyph Functions <http://bokeh.pydata.org/docs/reference.html#glyphs-functions>`_
-section to see how they are configured for the ``plotting.py`` interface.
+Each glyph has specified parameters for placement and styling. You can refer
+to :ref:`bokeh.models.glyphs` and :ref:`bokeh.models.markers` to see all the
+glyphs that are currently supported, and to :ref:`bokeh_plotting_plots`
+to see how they are configured for the ``plotting.py`` interface.
 
 .. note::
     Parameters are *not* completely uniform across glyphs. for example, a ``rect``

@@ -54,7 +54,7 @@ Args:
     bokeh_version (str) : the current version of Bokeh
     js_info (str) : information about the location, version, etc. of BokehJS code
     css_info (str) : information about the location, version, etc. of BokehJS css
-    warnings list[str] : list of warnings to display to user
+    warnings (list[str]) : list of warnings to display to user
 
 Attributes:
     NOTEBOOK_DIV: This template is for rendering a Bokeh plot into the IPython Notebook.
@@ -78,7 +78,7 @@ Args:
     docid (str) : document ID for the document on the server to load
     docapikey (str) : API key for the document
 
-Attributes
+Attributes:
     AUTOLOAD_STATIC: This template is for creating ``<script>`` tags that run AUTOLOAD scripts for plots that have their data embedded in the AUTOLOAD script
 
 Args:
@@ -142,12 +142,11 @@ AUTOLOAD_SERVER = jinja2.Template(
     open(join(_templates_path, "autoload_server.html")).read()
 )
 
+AUTOLOAD_SERVER_PUBLIC = jinja2.Template(
+    open(join(_templates_path, "autoload_server.html")).read()
+)
+
 
 AUTOLOAD_STATIC= jinja2.Template(
     open(join(_templates_path, "autoload_static.html")).read()
 )
-
-
-
-
-

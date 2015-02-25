@@ -41,7 +41,10 @@ gram_color = {
     "negative" : "#e69584",
 }
 
-df = pd.read_csv(StringIO(antibiotics), skiprows=1, skipinitialspace=True)
+df = pd.read_csv(StringIO(antibiotics),
+                 skiprows=1,
+                 skipinitialspace=True,
+                 engine='python')
 
 width = 800
 height = 800
@@ -67,7 +70,7 @@ output_server("burtin")
 p = figure(plot_width=width, plot_height=height, title="",
     x_axis_type=None, y_axis_type=None,
     x_range=[-420, 420], y_range=[-420, 420],
-    min_border=0, outline_line_color=None,
+    min_border=0, outline_line_color="black",
     background_fill="#f0e1d2", border_fill="#f0e1d2")
 
 p.line(x+1, y+1, alpha=0)
@@ -95,8 +98,7 @@ labels = np.power(10.0, np.arange(-3, 4))
 radii = a * np.sqrt(np.log(labels * 1E4)) + b
 p.circle(x, y, radius=radii, fill_color=None, line_color="white")
 p.text(x[:-1], radii[:-1], [str(r) for r in labels[:-1]],
-    angle=0, text_font_size="8pt",
-    text_align="center", text_baseline="middle")
+    text_font_size="8pt", text_align="center", text_baseline="middle")
 
 # radial axes
 p.annular_wedge(x, y, inner_radius-10, outer_radius+10,
@@ -113,12 +115,12 @@ p.text(xr, yr, df.bacteria, angle=label_angle,
 # OK, these hand drawn legends are pretty clunky, will be improved in future release
 p.circle([-40, -40], [-370, -390], color=list(gram_color.values()), radius=5)
 p.text([-30, -30], [-370, -390], text=["Gram-" + gr for gr in gram_color.keys()],
-    angle=0, text_font_size="7pt", text_align="left", text_baseline="middle")
+    text_font_size="7pt", text_align="left", text_baseline="middle")
 
 p.rect([-40, -40, -40], [18, 0, -18], width=30, height=13,
     color=list(drug_color.values()))
 p.text([-15, -15, -15], [18, 0, -18], text=list(drug_color.keys()),
-    angle=0, text_font_size="9pt", text_align="left", text_baseline="middle")
+    text_font_size="9pt", text_align="left", text_baseline="middle")
 
 p.xgrid.grid_line_color = None
 p.ygrid.grid_line_color = None

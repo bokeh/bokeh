@@ -91,8 +91,6 @@ class Document(object):
     def ref(self):
         return self._context.ref
 
-    # "current plot" related functions
-
     def clear(self):
         """ Remove all plots from this `Document`
 
@@ -104,41 +102,6 @@ class Document(object):
         context = self.context
         self._models = {}
         self._add(context)
-
-    def hold(self, value=True):
-        """ Set the hold value for this Document.
-
-        Args:
-            value (bool, optional) : whether hold should be turned on or off (default: True)
-
-        Returns:
-            None
-
-        """
-        self._hold = value
-
-    def figure(self, **kwargs):
-        """ Create a new figure for the next rendering.
-
-        Returns:
-            None
-
-        """
-        self._current_plot = _new_xy_plot(**kwargs)
-        return self._current_plot
-
-    def curplot(self):
-        """ Return the current plot of this Document.
-
-        The "current plot" is the plot that is acted on by all the
-        rendering methods, e.g.``doc.circle(...)`` will render a
-        circle on the current plot.
-
-        Returns:
-            plot : the current plot_kwargs
-
-        """
-        return self._current_plot;
 
     # functions for adding objects to documents
 
@@ -168,6 +131,7 @@ class Document(object):
         # ensure that the entire graph is added before dump
         for obj in self.context.references():
             self._add(obj)
+        self.prune()
 
     # functions for turning json objects into json models
 
@@ -395,3 +359,14 @@ class Document(object):
         self.load(plot_context_json, *other_objects)
         # set the new Plot Context
         self.context = self._models[plot_context_json['id']]
+
+    def prune(self):
+        """Remove all models that are not in the plot context
+        """
+        all_models = self.context.references()
+        to_keep = set([x._id for x in all_models])
+        to_delete = set(self._models.keys()) - to_keep
+        to_delete_objs = []
+        for k in to_delete:
+            to_delete_objs.append(self._models.pop(k))
+        return to_delete_objs

@@ -1,3 +1,5 @@
+sudo: false
+
 language: python
 
 python:
@@ -11,6 +13,10 @@ env:
         - BOKEH_DEFAULT_TIMEOUT=30
         - secure: "nLrUq2h59KN3k3hnid+Ub4RHDcVkZyrVmuMLoM6NbwKA0bwpDltaoSg5cj2dzdXKBwvv+3VP38oXLhEGLhVi7kDmyX3ICcza6Usy8zgK3s1NBgl6hFjqaJ7RjCu9OP1I42ThMTLfCQMRrYul7s74sGdZa+HfMCZcl+3Co5IzraI="
         - secure: "oI7Up9HuHSBw8k9LBNC6pLEUJONj+5NeEGFpSLSVXvqPPmyXJZ4qRE/dZ/HxZp6xyBze5GLYmdXXAdhrZyNjmU1ZA0rbBLDWLXuAW8eJm5xAXZ0NRFlHMXMkwvbG9hPTOTFtxKNS4lG/Fo5AXwE4MgT5uzQS4I7HuuNkcZOoInY="
+        - secure: "JVTuwjbD9ovKdZ+Hgg8byaIkoS6TtE4cav0TOitzTgGAqlWgNT3VRBAA/+nVre7AhP12y8y9yFRUZ2wPEpvoO0JFej2twHRwg+G+b4LHKHZ83nY6ZEa/mcQZNC0V4zMdLRjyFSh7WVEgFVNnFH67zzvy+99Rl9E8ueu70VhXMYM="
+        - secure: "VdG5CWQ2cPxO0D7pySPbDW5Vie2obfRKcTycC3HUrrTvyW1EnlrlNGwxp9x6kT2TGplHNlaaUqsQJx5nwfPmou81zcvtuwb32PtIfi6fMj8uD4LYU4HsZ466OmN11dpgvMxa2IhNNummozDROJbonfzPrMDHnvy3Af0+2YjfYY8="
+        - secure: "v9VkMz6cjFBZhlf6iiXSr0o2Eo/HKMMOseAxE6H+sr1vbPg19edGU+7+aAQrn09lE4oKU5JwZSzQ2KalJgrNTGrRrGyEtWGAcuS6oP17zg9LsutLGptNwyHBnCvB5aUPW7JSNs+kor7CmvZ8sVnUh810YSREjt2ZsjEG3ysZjVc="
+        - secure: "OI9ErePcqSewA8ZheZq5YtNyeLA8UM1UGskcMEAmPMf9AisYasJaPoY8NeqLGDyMcg7TcXbFQBZv7jPEngZ3RZMsDajfC3p63WOBDS7PfurKTVWTXZ28Z6vzwa3riFIca3D0eVP6bt8KZrYMo7HvWQG3vzmTSxRjx4e2wHxciKo="
 
 matrix:
     include:
@@ -27,15 +33,42 @@ matrix:
         - python: 3.3
         - python: 3.4
 
+branches:
+  only:
+    - master
+    - /^\d.\d.\d-dev-.+$/
+    - /^\d.\d.\d-rc-.+$/
+
 before_install:
     - export PATH="$HOME/miniconda/bin:$PATH"
+    - echo $TRAVIS_BUILD_ID > __travis_build_id__.txt
 
 install:
     - scripts/travis_install
 
 script:
-    - nosetests --with-coverage --cover-package=bokeh
+    # TODO: remove the condition when conda build --quiet is available
+    # Examples testing + building generates enough output to kill the build so
+    # we avoid testing for now.
+    - if [[ -z "$TRAVIS_TAG" ]]; then nosetests --with-coverage --cover-package=bokeh; fi
     - ( cd sphinx; make all )
+
+after_success:
+    |
+    if [[ ! -z "$TRAVIS_TAG" && $BOKEH_DEFAULT_NO_DEV == true ]]; then
+        echo "Building the packages and uploading to binstar. Also uploading JS and CSS to the CDN and uploading the devel docs."
+        conda install binstar fabric --yes
+        binstar login --hostname=$TRAVIS_BUILD_ID --username=$BINUSER --password=$BINKEY
+        openssl aes-256-cbc -K $encrypted_d63f580d5c2a_key -iv $encrypted_d63f580d5c2a_iv -in secrets.tar.enc -out secrets.tar -d
+        tar xvf secrets.tar
+        chmod 600 bokeh_key
+        cp known_hosts ~/.ssh/known_hosts
+        eval `ssh-agent -s`
+        ssh-add bokeh_key
+        bash build_and_upload.sh -u $RSUSER -k $RSAPIKEY
+    else
+        echo "Not building because there is no tag (or BOKEH_DEFAULT_NO_DEV is false)."
+    fi
 
 notifications:
     flowdock:

@@ -19,9 +19,12 @@ try:
 except ImportError:
     is_dateutil = False
 
+from .settings import settings
+
 log = logging.getLogger(__name__)
 
-millifactor = 10 ** 6.
+millifactor = 10**6.0
+
 class BokehJSONEncoder(json.JSONEncoder):
     def transform_series(self, obj):
         """transform series
@@ -53,6 +56,8 @@ class BokehJSONEncoder(json.JSONEncoder):
     def transform_numerical_array(self, obj):
         """handles nans/inf conversion
         """
+        if isinstance(obj, np.ma.MaskedArray):
+            obj = obj.filled(np.nan)  # Set masked values to nan
         if not np.isnan(obj).any() and not np.isinf(obj).any():
             return obj.tolist()
         else:
@@ -72,6 +77,8 @@ class BokehJSONEncoder(json.JSONEncoder):
             return float(obj)
         elif np.issubdtype(type(obj), np.int):
             return int(obj)
+        elif np.issubdtype(type(obj), np.bool_):
+            return bool(obj)
         # Datetime, Date
         elif isinstance(obj, (dt.datetime, dt.date)):
             return calendar.timegm(obj.timetuple()) * 1000.
@@ -108,15 +115,15 @@ class BokehJSONEncoder(json.JSONEncoder):
             return self.transform_python_types(obj)
 
 def serialize_json(obj, encoder=BokehJSONEncoder, **kwargs):
-    rslt =  json.dumps(obj, cls=encoder, **kwargs)
-    return rslt
+    if settings.pretty(False):
+        kwargs["indent"] = 4
+    return json.dumps(obj, cls=encoder, **kwargs)
 
 deserialize_json = json.loads
 
 serialize_web = serialize_json
 
 deserialize_web = deserialize_json
-
 
 def status_obj(status):
     return {'msgtype': 'status',

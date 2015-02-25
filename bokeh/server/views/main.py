@@ -16,14 +16,15 @@ from bokeh.exceptions import DataIntegrityException
 from bokeh.resources import Resources
 from bokeh.templates import AUTOLOAD
 
-from .bbauth import check_read_authentication
+from .bbauth import handle_auth_error
 from ..app import bokeh_app
 from ..crossdomain import crossdomain
 from ..models import convenience as mconv
 from ..models import docs
 from ..models import user
-from ..serverbb import prune
+from ..serverbb import prune, BokehServerTransaction, get_temporary_docid
 from ..views import make_json
+from ..views.decorators import login_required
 from ..settings import settings as server_settings
 
 def request_resources():
@@ -88,16 +89,22 @@ def _makedoc(redisconn, u, title):
         u = user.User.load(redisconn, u)
     clientdoc = bokeh_app.backbone_storage.get_document(docid)
     prune(clientdoc)
-    u.add_doc(docid, title)
+    if u is not None:
+        rw_users = [u.username]
+        u.add_doc(docid, title)
+        u.save(redisconn)
+    else:
+        #anonyomus user case
+        rw_users = []
     doc = docs.new_doc(bokeh_app, docid,
                        title, clientdoc,
-                       rw_users=[u.username])
-    u.save(redisconn)
+                       rw_users=rw_users)
     bokeh_app.backbone_storage.store_document(clientdoc)
     return doc
 
 @bokeh_app.route('/bokeh/doc', methods=['POST'])
 @bokeh_app.route('/bokeh/doc/', methods=['POST'])
+@login_required
 def makedoc():
     if request.json:
         title = request.json['title']
@@ -115,6 +122,7 @@ def makedoc():
 
 @bokeh_app.route('/bokeh/doc/<docid>', methods=['delete'])
 @bokeh_app.route('/bokeh/doc/<docid>/', methods=['delete'])
+@login_required
 def deletedoc(docid):
     bokehuser = bokeh_app.current_user()
     try:
@@ -128,43 +136,45 @@ def deletedoc(docid):
     return make_json(jsonstring)
 
 @bokeh_app.route('/bokeh/getdocapikey/<docid>')
+@handle_auth_error
 def get_doc_api_key(docid):
     doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
-    if mconv.can_write_from_request(doc, request, bokeh_app):
-        return jsonify({'apikey' : doc.apikey})
-    elif mconv.can_write_from_request(doc, request, bokeh_app):
-        return jsonify({'readonlyapikey' : doc.readonlyapikey})
+    bokehuser = bokeh_app.current_user()
+    t = BokehServerTransaction(bokehuser, doc, 'auto')
+    if t.mode == 'rw':
+        return jsonify({'apikey' : t.server_docobj.apikey})
     else:
-        return abort(401)
+        return jsonify({'readonlyapikey' : t.server_docobj.readonlyapikey})
 
 
 @bokeh_app.route('/bokeh/userinfo/', methods=['GET', 'OPTIONS'])
-@crossdomain(origin="*", headers=['BOKEH-API-KEY', 'Continuum-Clientid'])
+@crossdomain(origin="*", headers=None)
+@login_required
 def get_user():
     bokehuser = bokeh_app.current_user()
-    if not bokehuser:
-        abort(403)
     content = protocol.serialize_web(bokehuser.to_public_json())
     return make_json(content)
 
 @bokeh_app.route('/bokeh/doc/<docid>/', methods=['GET', 'OPTIONS'])
 @bokeh_app.route('/bokeh/bokehinfo/<docid>/', methods=['GET', 'OPTIONS'])
-@crossdomain(origin="*", headers=['BOKEH-API-KEY', 'Continuum-Clientid'])
-@check_read_authentication
+@crossdomain(origin="*", headers=None)
+@handle_auth_error
 def get_bokeh_info(docid):
-    return _get_bokeh_info(docid)
-
-def _get_bokeh_info(docid):
     doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
-    clientdoc = bokeh_app.backbone_storage.get_document(docid)
-    prune(clientdoc)
+    bokehuser = bokeh_app.current_user()
+    temporary_docid = get_temporary_docid(request, docid)
+    t = BokehServerTransaction(bokehuser, doc, 'r',
+                               temporary_docid=temporary_docid
+    )
+    t.load()
+    clientdoc = t.clientdoc
     all_models = clientdoc._models.values()
     log.info("num models: %s", len(all_models))
     all_models = clientdoc.dump(*all_models)
     returnval = {'plot_context_ref' : doc.plot_context_ref,
                  'docid' : docid,
                  'all_models' : all_models,
-                 'apikey' : doc.apikey}
+                 'apikey' : t.apikey}
     returnval = protocol.serialize_json(returnval)
     #i don't think we need to set the header here...
     result = make_json(returnval,
@@ -172,7 +182,8 @@ def _get_bokeh_info(docid):
     return result
 
 @bokeh_app.route('/bokeh/doc/<title>/show', methods=['GET', 'OPTIONS'])
-@crossdomain(origin="*", headers=['BOKEH-API-KEY', 'Continuum-Clientid'])
+@crossdomain(origin="*", headers=None)
+@login_required
 def show_doc_by_title(title):
     bokehuser = bokeh_app.current_user()
     docs = [ doc for doc in bokehuser.docs if doc['title'] == title ]
@@ -181,7 +192,8 @@ def show_doc_by_title(title):
     return render('show.html', title=title, docid=docid, splitjs=server_settings.splitjs)
 
 @bokeh_app.route('/bokeh/doc/', methods=['GET', 'OPTIONS'])
-@crossdomain(origin="*", headers=['BOKEH-API-KEY', 'Continuum-Clientid'])
+@crossdomain(origin="*", headers=None)
+@login_required
 def doc_by_title():
     if request.json:
         title = request.json['title']
@@ -227,18 +239,24 @@ def autoload_js(elementid):
                     {'Content-Type':'application/javascript'})
 
 @bokeh_app.route('/bokeh/objinfo/<docid>/<objid>', methods=['GET', 'OPTIONS'])
-@crossdomain(origin="*", headers=['BOKEH-API-KEY', 'Continuum-Clientid'])
-@check_read_authentication
+@crossdomain(origin="*", headers=None)
+@handle_auth_error
 def get_bokeh_info_one_object(docid, objid):
     doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
-    clientdoc = bokeh_app.backbone_storage.get_document(docid)
+    bokehuser = bokeh_app.current_user()
+    temporary_docid = get_temporary_docid(request, docid)
+    t = BokehServerTransaction(
+        bokehuser, doc, 'r', temporary_docid=temporary_docid
+    )
+    t.load()
+    clientdoc = t.clientdoc
     obj = clientdoc._models[objid]
     objs = obj.references()
     all_models = clientdoc.dump(*objs)
     returnval = {'plot_context_ref' : doc.plot_context_ref,
                  'docid' : docid,
                  'all_models' : all_models,
-                 'apikey' : doc.apikey,
+                 'apikey' : t.apikey,
                  'type' : obj.__view_model__
     }
     returnval = protocol.serialize_json(returnval)
@@ -249,20 +267,26 @@ def get_bokeh_info_one_object(docid, objid):
 @bokeh_app.route('/bokeh/doc/<docid>/<objid>', methods=['GET'])
 def show_obj(docid, objid):
     bokehuser = bokeh_app.current_user()
-    if not bokehuser:
+    doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
+    if not bokehuser and not doc.published:
         return redirect(url_for(".login_get", next=request.url))
     resources = request_resources()
+    public = request.values.get('public', 'false').lower() == 'true'
+    if public:
+        public = 'true'
+    else:
+        public = 'false'
     return render("oneobj.html",
                   elementid=str(uuid.uuid4()),
                   docid=docid,
                   objid=objid,
+                  public=public,
                   hide_navbar=True,
                   splitjs=server_settings.splitjs,
-                  username=bokehuser.username,
                   loglevel=resources.log_level)
 
-@bokeh_app.route('/bokeh/wsurl/', methods=['GET'])
-@crossdomain(origin="*", headers=['BOKEH-API-KEY', 'Continuum-Clientid'])
+@bokeh_app.route('/bokeh/wsurl/', methods=['GET', 'OPTIONS'])
+@crossdomain(origin="*", headers=None)
 def wsurl():
     if server_settings.ws_conn_string:
         return server_settings.ws_conn_string

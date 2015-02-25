@@ -109,7 +109,7 @@
 	},
 
 	_setTypeOption: function(value){
-		if ((value === "text" || value === "number") && this.options.type !== value){
+		if ((value === "text" || value === "number") && this.options.type !== value){
 			this._destroyInput();
 			this.options.type = value;
 			this._createInput();

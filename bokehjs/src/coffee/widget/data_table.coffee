@@ -17,10 +17,14 @@ define [
       @data = @source.get('data')
       @fields = _.keys(@data)
 
+      if not _.contains(@fields, "index")
+        @data["index"] = [0...@getLength()]
+        @fields.push("index")
+
     getLength: () -> @source.get_length()
 
     getItem: (index) ->
-      item = {}
+      item = {index: index}
       for field in @fields
         item[field] = @data[field][index]
       return item
@@ -123,7 +127,7 @@ define [
         checkboxSelector = new CheckboxSelectColumn(cssClass: "bk-cell-select")
         columns.unshift(checkboxSelector.getColumnDefinition())
 
-      if @mget("row_headers")
+      if @mget("row_headers") and @mget("source").get_column("index")?
         columns.unshift(@newIndexColumn())
 
       width = @mget("width")

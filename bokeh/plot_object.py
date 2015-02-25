@@ -48,6 +48,7 @@ class Viewable(MetaHasProps):
     def _preload_models(cls):
         from . import models
         from .crossfilter import models
+        from .charts import Chart
 
     @classmethod
     def get_class(cls, view_model_name):
@@ -222,9 +223,18 @@ class PlotObject(HasProps):
     # Many of the calls one would expect in a rich client map instead to
     # batched updates on the M-VM-V approach.
     #---------------------------------------------------------------------
-    def vm_props(self):
-        """ Returns the ViewModel-related properties of this object. """
-        props = self.changed_properties_with_values()
+    def vm_props(self, changed_only=True):
+        """ Returns the ViewModel-related properties of this object.
+
+        Args:
+            changed_only (bool, optional) : whether to return only properties
+                that have had their values changed at some point (default: True)
+
+        """
+        if changed_only:
+            props = self.changed_properties_with_values()
+        else:
+            props = self.properties_with_values()
         props.pop("session", None)
 
         # XXX: For dataspecs, getattr() returns a meaningless value
@@ -236,19 +246,28 @@ class PlotObject(HasProps):
 
         return props
 
-    def vm_serialize(self):
+    def vm_serialize(self, changed_only=True):
         """ Returns a dictionary of the attributes of this object, in
         a layout corresponding to what BokehJS expects at unmarshalling time.
+
+        Args:
+            changed_only (bool, optional) : whether to include only attributes
+                that have had their values changed at some point (default: True)
+
         """
-        attrs = self.vm_props()
+        attrs = self.vm_props(changed_only)
         attrs['id'] = self._id
         return attrs
 
-    def dump(self, docid=None):
+    def dump(self, docid=None, changed_only=True):
         """convert all references to json
+
+        Args:
+            changed_only (bool, optional) : whether to dump only attributes
+                that have had their values changed at some point (default: True)
         """
         models = self.references()
-        return dump(models, docid=docid)
+        return dump(models, docid=docid, changed_only=changed_only)
 
     def update(self, **kwargs):
         for k,v in kwargs.items():

@@ -42,7 +42,8 @@ data = {
 }
 
 area = {
-  type: 'patches',
+  type: 'Patches'
+  source: 'data'
   xs: 'xs'
   ys: 'ys'
   line_color: 'white'
@@ -51,7 +52,8 @@ area = {
 }
 
 text = {
-  type: 'text',
+  type: 'Text'
+  source: 'data'
   x: 'ax'
   y: 'ay'
   angle: 0
@@ -62,23 +64,34 @@ text = {
   text_font_size: '8pt'
 }
 
-options = {
-  title: "Map with Labels Demo"
-  dims: [1200, 600]
-  xrange: [-130, -60]
-  yrange: [25, 50]
-  xaxes: "below"
-  yaxes: "left"
-  xgrid: false
-  ygrid: false
-  tools: "pan,wheel_zoom,resize,preview"
-  legend: false
+xaxis = {
+  type: "auto"
+  location: "below"
+  grid: false
 }
 
-plot = Bokeh.Plotting.make_plot([area, text], data, options)
-plot.set('border_fill', '#fafafa')
-Bokeh.Plotting.show(plot)
+yaxis = {
+  type: "auto"
+  location: "left"
+  grid: false
+}
 
+options = {
+  title: "Map with Label Demo"
+  plot_width: 1200
+  plot_height: 600
+  x_range: [-130, -60]
+  y_range: [25, 50]
+  border_fill: '#fafafa'
+}
+
+$("#target").bokeh("figure", {
+  options: options
+  sources: { data: data }
+  glyphs: [area, text]
+  guides: [xaxis, yaxis]
+  tools: ["Pan", "WheelZoom" ,"Resize" ,"PreviewSave"]
+})
 
 
 

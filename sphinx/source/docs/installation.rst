@@ -1,9 +1,8 @@
 
 .. _installation:
 
-************
 Installation
-************
+############
 
 .. contents::
     :local:
@@ -30,12 +29,20 @@ dependency on several compiled libraries.
 Ideally, you should have the following libraries installed:
 
 * NumPy
+* Pandas
 * Flask
 * Redis
+* Redis-py
+* Six
 * Requests
-* gevent
-* gevent-websocket
-* Pandas
+* Tornado >= 4.0
+* Werkzeug
+* Greenlet
+* Gevent
+* Gevent-websocket
+* PyZMQ
+* PyYaml
+* DateUtil
 
 .. _install_packages:
 
@@ -85,7 +92,7 @@ Installing from Source
 
 Installing Bokeh from source requires rebuilding the BokehJS library
 from its CoffeeScript sources. Some additional toolchain support is required.
-Please consult the :ref:`developer_install` section of the :ref:`devguide` for
+Please consult the :ref:`devguide_building` section of the :ref:`devguide` for
 more detailed instructions.
 
 .. _install_devbuild:

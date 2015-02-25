@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 
+from .actions import *
 from .axes import *
-from .canvas import *
 from .formatters import *
 from .glyphs import *
 from .grids import *

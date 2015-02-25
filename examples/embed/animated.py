@@ -2,7 +2,7 @@
 
 from __future__ import print_function
 
-from bokeh.plotting import annular_wedge, cursession, figure, output_server, show, push
+from bokeh.plotting import cursession, figure, output_server, show, push
 from bokeh.models import GlyphRenderer
 import bokeh.embed as embed
 

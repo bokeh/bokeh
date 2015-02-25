@@ -1,11 +1,27 @@
-
+import logging
 from functools import wraps
 
-from flask import abort, request
+from flask import abort, request, jsonify
 
 from ..app import bokeh_app
 from ..models import docs
 from ..models import convenience
+from ...exceptions import AuthenticationException
+
+logger = logging.getLogger(__name__)
+
+def handle_auth_error(func):
+    """Decorator wraps a function and watches for AuthenticationException
+    If one is thrown, log and abort 401 instead
+    """
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except AuthenticationException as e:
+            logger.exception(e)
+            return abort(401)
+    return wrapper
 
 def check_read_authentication(func):
     @wraps(func)
@@ -80,3 +96,13 @@ def logout():
 
     '''
     return bokeh_app.authentication.logout()
+
+@bokeh_app.route('/bokeh/<docid>/publish', methods=['POST'])
+def publish(docid):
+    bokehuser = bokeh_app.current_user()
+    doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
+    if not bokeh_app.authentication.can_write_doc(docid):
+        return abort(401)
+    doc.published = True
+    doc.save(bokeh_app.servermodel_storage)
+    return jsonify(status='success')

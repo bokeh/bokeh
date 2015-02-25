@@ -1,0 +1,7 @@
+0.3.0 (Nov 2013)
+================
+
+* refactor bokehjs to use grunt for coffee build
+* merge bokeh and bokehjs repositories
+* various bug fixes
+* additional and improved examples and docs

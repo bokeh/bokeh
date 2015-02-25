@@ -14,14 +14,12 @@ Bokeh includes support for formatting datetime information as well as picking ni
 ticks on datetime axes. Here we will plot some stock data taken from the `Yahoo Finance API <https://code.google.com/p/yahoo-finance-managed/wiki/csvHistQuotesDownload>`_.
 
 * exercise location: **exercises/stocks.py**
+* :doc:`solutions/gallery/stocks`
 
 .. literalinclude:: exercises/stocks.py
    :language: python
    :linenos:
-   :emphasize-lines: 29,30,38,40,50,51,53,55
-
-See the :doc:`solutions/gallery/stocks`.
-
+   :emphasize-lines: 32,33,41,43,53,54,56,58
 
 .. _histogram:
 
@@ -37,13 +35,12 @@ use the ``quad`` renderer. It is intended for axis-aligned rectangles, and accep
 coordinates for left, right, top, and bottom.
 
 * exercise location: **exercises/histogram.py**
+* :doc:`solutions/gallery/histogram`
 
 .. literalinclude:: exercises/histogram.py
    :language: python
    :linenos:
    :emphasize-lines: 19,52,54,55,56,57,58
-
-See the :doc:`solutions/gallery/histogram`.
 
 .. _boxplot:
 
@@ -51,13 +48,12 @@ Boxplots
 --------
 
 * exercise location: **exercises/boxplot.py**
+* :doc:`solutions/gallery/boxplot`
 
 .. literalinclude:: exercises/boxplot.py
    :language: python
    :linenos:
    :emphasize-lines: 38,53,59,67,69,70,71
-
-See the :doc:`solutions/gallery/boxplot`.
 
 .. _cat_heatmap:
 
@@ -68,13 +64,12 @@ The Wall-Street Journal published an excellent heatmap chart `U.S. Unemployment:
 using Bokeh. This data may be obtained from `The Bureau of Labor Statistics <http://data.bls.gov/timeseries/LNU04000000>`_.
 
 * exercise location: **exercises/unemployment.py**
+* :doc:`solutions/gallery/unemployment`
 
 .. literalinclude:: exercises/unemployment.py
    :language: python
    :linenos:
    :emphasize-lines: 33,43,50,51,52,53,54,55,57,58,59,60,61,63
-
-See the :doc:`solutions/gallery/unemployment`.
 
 .. _bar_chart:
 
@@ -86,12 +81,12 @@ bar charts of medals won by country. The data for this exercise was obtained usi
 `Sochi API Explorer from Kimono Labs <http://www.kimonolabs.com/sochi/explorer>`_.
 
 * exercise location: **exercises/olympics.py**
+* :doc:`solutions/gallery/olympics`
 
 .. literalinclude:: exercises/olympics.py
    :language: python
    :linenos:
    :emphasize-lines: 17,30,32,33,34,35,36,48,49,50,52,53,54,55,56
 
-See the :doc:`solutions/gallery/olympics`.
 
 

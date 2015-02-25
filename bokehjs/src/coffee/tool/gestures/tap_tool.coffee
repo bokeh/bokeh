@@ -1,4 +1,3 @@
-
 define [
   "underscore",
   "common/collection",
@@ -12,22 +11,24 @@ define [
       vx = canvas.sx_to_vx(e.bokeh.sx)
       vy = canvas.sy_to_vy(e.bokeh.sy)
       append = e.srcEvent.shiftKey ? false
-      @_select(vx, vy, append)
+      @_select(vx, vy, true, append)
 
-    _select: (vx, vy, append) ->
+    _select: (vx, vy, final, append) ->
       geometry = {
         type: 'point'
         vx: vx
         vy: vy
       }
 
+      action = @mget("action")
+
       for r in @mget('renderers')
         ds = r.get('data_source')
         sm = ds.get('selection_manager')
-        sm.select(@, @plot_view.renderers[r.id], geometry, true, append)
+        sm.select(@, @plot_view.renderers[r.id], geometry, final, append)
+        if action? then action.execute(ds)
 
-      @_save_geometry(geometry, true, append)
-
+      @_save_geometry(geometry, final, append)
       return null
 
   class TapTool extends SelectTool.Model
@@ -42,7 +43,7 @@ define [
     model: TapTool
 
   return {
-    "Model": TapTool,
-    "Collection": new TapTools(),
-    "View": TapToolView,
+    Model: TapTool,
+    Collection: new TapTools(),
+    View: TapToolView,
   }

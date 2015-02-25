@@ -1,0 +1,38 @@
+0.7.0 (Dec 2014)
+================
+
+This release focused on new features and capability, particularly around
+user interface and experience:
+
+* IPython widgets and animations without a Bokeh server
+* Touch UI working for tools on mobile devices
+* Vastly improved linked data table
+* More new (and improving) bokeh.charts (high level charting interface)
+* Color mappers on the python side
+* Improved toolbar
+* Many new tools: lasso, poly, and point selection, crosshair inspector
+
+An accompanying blog announement with more details can be seen at:
+
+http://continuum.io/blog/bokeh-0.7
+
+Deprecations
+------------
+
+Additionally, note that the "implicit" plotting interface of plotting.py
+has been deprecated, and will be removed in Bokeh 0.8. In a nutshell,
+code such as::
+
+    figure()
+    hold()
+    line()
+    circle()
+    show()
+
+Should be replaced with the more explicit code::
+
+    p = figure()
+    p.line()
+    p.circle()
+    show(p)
+

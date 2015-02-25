@@ -100,9 +100,7 @@ class TestPlotObject(unittest.TestCase):
         self.assertEqual({'type': 'PlotObject', 'id': 'test_id'}, testObject.ref)
 
     def test_load_json(self):
-        from bokeh.plot_object import PlotObject
-
-        cls = PlotObject.get_class("Plot")
+        cls = self.pObjectClass.get_class("Plot")
         obj = cls.load_json({'id': 'test_id', 'min_border': 100})
         self.assertEqual(obj._id, 'test_id')
         self.assertEqual(obj.title, '')
@@ -114,26 +112,25 @@ class TestPlotObject(unittest.TestCase):
         self.assertEqual(obj.min_border, 100)
 
     def test_references_by_ref_by_value(self):
-        from bokeh.models import PlotObject
         from bokeh.properties import HasProps, Instance, Int
 
-        class T(PlotObject):
+        class T(self.pObjectClass):
             t = Int(0)
 
-        class Y(PlotObject):
+        class Y(self.pObjectClass):
             t1 = Instance(T)
 
         class Z1(HasProps):
             t2 = Instance(T)
 
-        class Z2(PlotObject):
+        class Z2(self.pObjectClass):
             t2 = Instance(T)
 
-        class X1(PlotObject):
+        class X1(self.pObjectClass):
             y = Instance(Y)
             z1 = Instance(Z1)
 
-        class X2(PlotObject):
+        class X2(self.pObjectClass):
             y = Instance(Y)
             z2 = Instance(Z2)
 
@@ -148,7 +145,6 @@ class TestPlotObject(unittest.TestCase):
         self.assertEqual(x2.references(), {t1, y, t2, z2, x2})
 
     def test_references_in_containers(self):
-        from bokeh.models import PlotObject
         from bokeh.properties import Int, String, Instance, List, Tuple, Dict
 
         # XXX: can't use Y, because of:
@@ -156,10 +152,10 @@ class TestPlotObject(unittest.TestCase):
         # Warning: Duplicate __view_model__ declaration of 'Y' for class Y.
         #          Previous definition: <class 'bokeh.tests.test_objects.Y'>
 
-        class U(PlotObject):
+        class U(self.pObjectClass):
             a = Int
 
-        class V(PlotObject):
+        class V(self.pObjectClass):
             u1 = Instance(U)
             u2 = List(Instance(U))
             u3 = Tuple(Int, Instance(U))
