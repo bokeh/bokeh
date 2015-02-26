@@ -36,7 +36,7 @@ from six.moves import urllib
 
 BOKEH_GH = "https://github.com/bokeh/bokeh"
 
-def bokeh_commit(name, rawtext, text, lineno, inliner, options={}, content=[]):
+def bokeh_commit(name, rawtext, text, lineno, inliner, options=None, content=[]):
     """Link to a Bokeh Github issue.
 
     Returns 2 part tuple containing list of nodes to insert into the
@@ -48,7 +48,7 @@ def bokeh_commit(name, rawtext, text, lineno, inliner, options={}, content=[]):
     node = make_gh_link_node(app, rawtext, 'commit', 'commit', 'commit', text, options)
     return [node], []
 
-def bokeh_issue(name, rawtext, text, lineno, inliner, options={}, content=[]):
+def bokeh_issue(name, rawtext, text, lineno, inliner, options=None, content=[]):
     """Link to a Bokeh Github issue.
 
     Returns 2 part tuple containing list of nodes to insert into the
@@ -70,7 +70,7 @@ def bokeh_issue(name, rawtext, text, lineno, inliner, options={}, content=[]):
     node = make_gh_link_node(app, rawtext, 'issue', 'issue', 'issues', str(issue_num), options)
     return [node], []
 
-def bokeh_milestone(name, rawtext, text, lineno, inliner, options={}, content=[]):
+def bokeh_milestone(name, rawtext, text, lineno, inliner, options=None, content=[]):
     """Link to a Bokeh Github issue.
 
     Returns 2 part tuple containing list of nodes to insert into the
@@ -82,7 +82,7 @@ def bokeh_milestone(name, rawtext, text, lineno, inliner, options={}, content=[]
     node = make_gh_link_node(app, rawtext, 'milestone', 'milestone', 'milestones', text, options)
     return [node], []
 
-def bokeh_pull(name, rawtext, text, lineno, inliner, options={}, content=[]):
+def bokeh_pull(name, rawtext, text, lineno, inliner, options=None, content=[]):
     """Link to a Bokeh Github issue.
 
     Returns 2 part tuple containing list of nodes to insert into the
@@ -104,7 +104,7 @@ def bokeh_pull(name, rawtext, text, lineno, inliner, options={}, content=[]):
     node = make_gh_link_node(app, rawtext, 'pull', 'pull request', 'pull', str(issue_num), options)
     return [node], []
 
-def make_gh_link_node(app, rawtext, role, kind, api_type, id, options={}):
+def make_gh_link_node(app, rawtext, role, kind, api_type, id, options=None):
     """ Return a link to a Bokeh Github resource.
 
     Args:
@@ -118,6 +118,7 @@ def make_gh_link_node(app, rawtext, role, kind, api_type, id, options={}):
 
     """
     url = "%s/%s/%s" % (BOKEH_GH, api_type, id)
+    options = options or {}
     try:
         request = urllib.request.Request(url)
         request.get_method = lambda : 'HEAD'
