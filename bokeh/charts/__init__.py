@@ -15,7 +15,7 @@ from .builder.horizon_builder import Horizon
 from ._chart import Chart
 from ._data_adapter import DataAdapter
 
-from ..models import ColumnDataSource, HBox, VBox
-from ..state import (
+from ..models import ColumnDataSource
+from ..io import (
     curdoc, cursession, output_file, output_notebook, output_server, push,
-    reset_output, save, show)
+    reset_output, save, show, gridplot, vplot, hplot)

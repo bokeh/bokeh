@@ -16,9 +16,9 @@ from .plotting_helpers import (
 from .document import Document
 from .models import ColumnDataSource, HBox, VBox
 from .session import Session
-from .state import (
+from .io import (
     curdoc, cursession, output_file, output_notebook, output_server, push,
-    reset_output, save, show, _deduplicate_plots, _push_or_save)
+    reset_output, save, show, gridplot, hplot, vplot)
 
 DEFAULT_TOOLS = "pan,wheel_zoom,box_zoom,save,resize,reset"
 
@@ -302,21 +302,5 @@ _color_fields = set(["color", "fill_color", "line_color"])
 _alpha_fields = set(["alpha", "fill_alpha", "line_alpha"])
 
 
-def gridplot(plot_arrangement, **kwargs):
-    """ Generate a plot that arranges several subplots into a grid.
 
-    Args:
-        plot_arrangement (nested list of Plots) : plots to arrange in a grid
-        **kwargs: additional attributes to pass in to GridPlot() constructor
-
-    .. note:: `plot_arrangement` can be nested, e.g [[p1, p2], [p3, p4]]
-
-    Returns:
-        grid_plot: a new :class:`GridPlot <bokeh.models.plots.GridPlot>`
-    """
-    grid = GridPlot(children=plot_arrangement, **kwargs)
-    subplots = itertools.chain.from_iterable(plot_arrangement)
-    _deduplicate_plots(grid, subplots)
-    _push_or_save(grid)
-    return grid
 
