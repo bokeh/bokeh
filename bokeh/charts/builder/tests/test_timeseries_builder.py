@@ -38,7 +38,7 @@ class TestTimeSeries(unittest.TestCase):
         y_python = xyvalues['python'] = [2, 3, 7, 5, 26]
         y_pypy = xyvalues['pypy'] = [12, 33, 47, 15, 126]
         y_jython = xyvalues['jython'] = [22, 43, 10, 25, 26]
-        
+
         xyvaluesdf = pd.DataFrame(xyvalues)
         groups = ['python', 'pypy', 'jython']
         for i, _xy in enumerate([xyvalues, xyvaluesdf]):
