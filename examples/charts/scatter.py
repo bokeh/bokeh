@@ -40,4 +40,4 @@ scatter4 = Scatter(
 
 output_file("scatter.html")
 
-show(vplot([scatter1, scatter2, scatter3, scatter4]))
+show(vplot(scatter1, scatter2, scatter3, scatter4))
