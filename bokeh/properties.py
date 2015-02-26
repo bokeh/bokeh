@@ -837,7 +837,8 @@ class List(Seq):
 
     """
 
-    def __init__(self, item_type, default=[], help=None):
+    def __init__(self, item_type, default=None, help=None):
+        default = default or []
         super(List, self).__init__(item_type, default=default, help=help)
 
     def _is_seq(self, value):
@@ -863,7 +864,8 @@ class Dict(ContainerProperty):
 
     """
 
-    def __init__(self, keys_type, values_type, default={}, help=None):
+    def __init__(self, keys_type, values_type, default=None, help=None):
+        default = default or {}
         self.keys_type = self._validate_type_param(keys_type)
         self.values_type = self._validate_type_param(values_type)
         super(Dict, self).__init__(default=default, help=help)
@@ -1161,7 +1163,8 @@ class DashPattern(Either):
         "dashdot": [6,4,2,4],
     }
 
-    def __init__(self, default=[], help=None):
+    def __init__(self, default=None, help=None):
+        default = default or []
         types = Enum(enums.DashPattern), Regex(r"^(\d+(\s+\d+)*)?$"), Seq(Int)
         super(DashPattern, self).__init__(*types, default=default, help=help)
 
@@ -1268,7 +1271,8 @@ class RelativeDelta(Dict):
 
     """
 
-    def __init__(self, default={}, help=None):
+    def __init__(self, default=None, help=None):
+        default = default or {}
         keys = Enum("years", "months", "days", "hours", "minutes", "seconds", "microseconds")
         values = Int
         super(RelativeDelta, self).__init__(keys, values, default=default, help=help)

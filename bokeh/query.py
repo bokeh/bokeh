@@ -43,7 +43,7 @@ class LEQ(object): pass
 class NEQ(object): pass
 
 
-def match(obj, selector, context={}):
+def match(obj, selector, context=None):
     ''' Test whether a particular object matches a given
     selector.
 
@@ -80,6 +80,7 @@ def match(obj, selector, context={}):
         1
 
     '''
+    context = context or {}
     for key, val in selector.items():
 
         # test attributes
@@ -135,7 +136,7 @@ def match(obj, selector, context={}):
     return True
 
 
-def find(objs, selector, context={}):
+def find(objs, selector, context=None):
     ''' Query an object and all of its contained references
     and yield objects that match the given selector.
 
@@ -150,6 +151,7 @@ def find(objs, selector, context={}):
     Examples:
 
     '''
+    context = context or {}
     return (obj for obj in objs if match(obj, selector, context))
 
 

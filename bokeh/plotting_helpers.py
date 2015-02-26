@@ -470,7 +470,7 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
 
 
 def _handle_1d_data_args(args, datasource=None, create_autoindex=True,
-        suggested_names=[]):
+        suggested_names=None):
     """ Returns a datasource and a list of names corresponding (roughly)
     to the input data.  If only a single array was given, and an index
     array was created, then the index's name is returned first.
@@ -478,6 +478,7 @@ def _handle_1d_data_args(args, datasource=None, create_autoindex=True,
     arrays = []
     if datasource is None:
         datasource = ColumnDataSource()
+    suggested_names = suggested_names or []
     # First process all the arguments to homogenize shape.  After this
     # process, "arrays" should contain a uniform list of string/ndarray/iterable
     # corresponding to the inputs.
