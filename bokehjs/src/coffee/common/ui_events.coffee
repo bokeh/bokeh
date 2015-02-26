@@ -1,10 +1,11 @@
 
 define [
+  "jquery"
   "backbone"
   "hammer"
   "jquery_mousewheel"
   "common/logging"
-], (Backbone, Hammer, mousewheel, Logging) ->
+], ($, Backbone, Hammer, mousewheel, Logging) ->
 
   logger = Logging.logger
 

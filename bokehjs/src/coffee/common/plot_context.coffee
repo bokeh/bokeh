@@ -1,11 +1,12 @@
 
 define [
+  "jquery",
   "underscore",
   "./collection",
   "./build_views",
   "./has_parent"
   "./continuum_view",
-], (_, Collection, build_views, HasParent, ContinuumView) ->
+], ($, _, Collection, build_views, HasParent, ContinuumView) ->
 
   class PlotContextView extends ContinuumView
     initialize: (options) ->
