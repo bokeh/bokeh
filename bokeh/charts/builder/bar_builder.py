@@ -150,13 +150,9 @@ class BarBuilder(Builder):
         self._groups.extend(self._values.keys())
 
         for i, (val, values) in enumerate(self._values.items()):
-            # values = self._values[]
-
             self.set_and_get("", val, list(values))
             mid = np.array(values) / 2
-
             self.set_and_get("mid", val, mid)
-            # import pdb; pdb.set_trace()
             self.set_and_get("stacked", val, zero + mid)
             # Grouped
             grouped = [c + ":" + str(step[i + 1]) for c in self.cat]

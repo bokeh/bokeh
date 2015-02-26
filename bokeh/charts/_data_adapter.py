@@ -287,36 +287,26 @@ class DataAdapter(object):
             xs: iterable that represents the data index
             values: iterable containing the values to be plotted
         """
+        values = DataAdapter(values, force_alias=False)
         if hasattr(values, 'keys') or \
                 (blaze and isinstance(values, blaze.interactive.InteractiveSymbol)):
             if index is not None:
-                values = DataAdapter(values, force_alias=False)
                 if isinstance(index, string_types):
                     xs = values[index]
-
                 else:
                     xs = index
-
             else:
                 try:
-                    values = DataAdapter(values, force_alias=False)
                     xs = values.index
-
                 except AttributeError:
-                    values = DataAdapter(values, force_alias=False)
                     xs = values.index
-
         else:
             if index is None:
-                values = DataAdapter(values, force_alias=False)
                 xs = values.index
-
             elif isinstance(index, string_types):
                 msg = "String indexes are only supported for DataFrame and dict inputs"
                 raise TypeError(msg)
-
             else:
                 xs = index
-                values = DataAdapter(values, force_alias=False)
 
         return xs, values

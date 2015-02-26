@@ -107,7 +107,6 @@ class LineBuilder(Builder):
 
             # save every new group we find
             self._groups.append(col)
-            # values = [self._values[col][x] for x in xs]
             self.set_and_get("y_", col, values)
 
     def _set_sources(self):

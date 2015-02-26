@@ -133,7 +133,6 @@ class AreaBuilder(Builder):
                 continue
 
             # get single series values
-            # col_values = self._values[grp]
             _values = [col_values[x] for indx, x in enumerate(xs)]
 
             # to draw area we need 2 coordinates. The lower values will always
