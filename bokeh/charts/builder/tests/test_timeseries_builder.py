@@ -38,16 +38,16 @@ class TestTimeSeries(unittest.TestCase):
         y_python = xyvalues['python'] = [2, 3, 7, 5, 26]
         y_pypy = xyvalues['pypy'] = [12, 33, 47, 15, 126]
         y_jython = xyvalues['jython'] = [22, 43, 10, 25, 26]
-        exp_dts = list(dts)
+        
         xyvaluesdf = pd.DataFrame(xyvalues)
         groups = ['python', 'pypy', 'jython']
         for i, _xy in enumerate([xyvalues, xyvaluesdf]):
             ts = create_chart(TimeSeries, _xy, index='Date')
             builder = ts._builders[0]
             self.assertEqual(builder._groups, groups)
-            assert_array_equal(builder._data['x_python'], exp_dts)
-            assert_array_equal(builder._data['x_pypy'], exp_dts)
-            assert_array_equal(builder._data['x_jython'], exp_dts)
+            assert_array_equal(builder._data['x_python'], dts)
+            assert_array_equal(builder._data['x_pypy'], dts)
+            assert_array_equal(builder._data['x_jython'], dts)
             assert_array_equal(builder._data['y_python'], y_python)
             assert_array_equal(builder._data['y_pypy'], y_pypy)
             assert_array_equal(builder._data['y_jython'], y_jython)
