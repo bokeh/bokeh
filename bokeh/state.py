@@ -1,3 +1,10 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2015, Continuum Analytics, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 """ Encapsulate implicit state for Bokeh plotting APIs.
 
 Generating output for Bokeh plots requires coordinating several things:
@@ -24,11 +31,19 @@ convenience functions for manipulating this default state.
 
 """
 
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Stdlib imports
 import logging
 logger = logging.getLogger(__name__)
 
 import io, os, time, warnings
 
+# Third-party imports
+
+# Our own imports
 from . import browserlib
 from .document import Document
 from .embed import notebook_div, file_html, autoload_server
@@ -36,6 +51,20 @@ from .models import Widget
 from .resources import Resources
 from .session import DEFAULT_SERVER_URL, Session
 from .utils import decode_utf8, publish_display_data
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+_new_param = {'tab': 2, 'window': 1}
+
+#-----------------------------------------------------------------------------
+# Local utilities
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Classes and functions
+#-----------------------------------------------------------------------------
 
 class State(object):
     """ Manage state related to controlling Bokeh output.
@@ -185,7 +214,7 @@ _state = State()
 
 def output_file(filename, title="Bokeh Plot", autosave=False, mode="inline", root_dir=None):
     ''' Configure the default output state to generate output saved
-    to a file.
+    to a file when :func:`show` is called.
 
     Args:
         filename (str) :
@@ -243,7 +272,7 @@ def output_notebook(url=None, docname=None, session=None, name=None):
 
 def output_server(docname, session=None, url="default", name=None, clear=True):
     ''' Configure the default output state to generate output that gets
-    pushed to a bokeh-server.
+    pushed to a bokeh-server when :func:`show` or :func:`push` is called.
 
     Args:
         docname (str) : Name of document to push on Bokeh server
@@ -336,8 +365,6 @@ def show(obj, browser=None, new="tab"):
     """
     _show_with_state(obj, _state, browser, new)
 
-_new_param = {'tab': 2, 'window': 1}
-
 def _show_with_state(obj, state, browser, new):
 
     controller = browserlib.get_browser_controller(browser=browser)
@@ -402,16 +429,15 @@ def _get_save_args(state, filename, resources, title):
     if title is None and state.file:
         title = state.file['title']
 
-    if not filename:
-        warnings.warn("save() called but no filename was supplied and output_file(...) was never called, nothing saved")
-        return
+    if filename is None:
+        raise RuntimeError("save() called but no filename was supplied and output_file(...) was never called, nothing saved")
 
-    if not resources:
+    if resources is None:
         warnings.warn("save() called but no resources was supplied and output_file(...) was never called, defaulting to resources.INLINE")
         from .resources import INLINE
         resources = INLINE
 
-    if not title:
+    if title is None:
         warnings.warn("save() called but no title was supplied and output_file(...) was never called, using default title 'Bokeh Plot'")
         title = "Bokeh Plot"
 
@@ -471,20 +497,14 @@ def reset_output(state=None):
     '''
     _state.reset()
 
-def _deduplicate_plots(plot, subplots, state=None):
-    if state is None:
-        state = _state
-
-    doc = state.document
+def _deduplicate_plots(plot, subplots):
+    doc = _state.document
     doc.context.children = list(set(doc.context.children) - set(subplots))
     doc.add(plot)
     doc._current_plot = plot # TODO (bev) don't use private attrs
 
-def _push_or_save(obj, state=None):
-    if state is None:
-        state = _state
-
-    if state.session and state.document.autostore:
-        push(state=state)
-    if state.file and state.file['autosave']:
-        save(obj, state=state)
+def _push_or_save(obj):
+    if _state.session and _state.document.autostore:
+        push()
+    if _state.file and _state.file['autosave']:
+        save(obj)
