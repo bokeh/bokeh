@@ -30,7 +30,9 @@ define [
 
     _set_data: () ->
       @max_size = _.max(@size)
-      @index = rbush()
+
+    _reindex: () ->
+      index = rbush()
       pts = []
       for i in [0...@xs.length]
         xs = (x for x in @xs[i] when not _.isNaN(x))
@@ -42,7 +44,8 @@ define [
           _.max(xs), _.max(ys),
           {'i': i}
         ])
-      @index.load(pts)
+      index.load(pts)
+      return index
 
     _map_data: () ->
       @sxs = []
@@ -63,7 +66,7 @@ define [
       yr = @renderer.plot_view.y_range
       [y0, y1] = [yr.get('start'), yr.get('end')]
 
-      return (x[4].i for x in @index.search([x0, y0, x1, y1]))
+      return (x[4].i for x in @index().search([x0, y0, x1, y1]))
 
     _render: (ctx, indices) ->
       for i in indices
@@ -115,7 +118,7 @@ define [
       x = @renderer.xmapper.map_from_target(vx)
       y = @renderer.ymapper.map_from_target(vy)
 
-      candidates = (x[4].i for x in @index.search([x, y, x, y]))
+      candidates = (x[4].i for x in @index().search([x, y, x, y]))
 
       hits = []
       for i in [0...candidates.length]

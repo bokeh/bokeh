@@ -1,10 +1,9 @@
 define [
   "underscore",
-  "rbush",
   "common/mathutils",
   "renderer/properties",
   "./glyph",
-], (_, rbush, mathutils, Properties, Glyph) ->
+], (_, mathutils, Properties, Glyph) ->
 
   class WedgeView extends Glyph.View
 
@@ -13,12 +12,9 @@ define [
 
     _set_data: () ->
       @max_radius = _.max(@radius)
-      @index = rbush()
-      pts = []
-      for i in [0...@x.length]
-        if not isNaN(@x[i] + @y[i])
-          pts.push([@x[i], @y[i], @x[i], @y[i], {'i': i}])
-      @index.load(pts)
+
+    _reindex: () ->
+      return @_generic_xy_reindex()
 
     _map_data: () ->
       [@sx, @sy] = @renderer.map_to_screen(@x, @glyph.x.units, @y, @glyph.y.units)
@@ -63,7 +59,7 @@ define [
         y0 = y - @max_radius
         y1 = y + @max_radius
 
-      candidates = (pt[4].i for pt in @index.search([x0, y0, x1, y1]))
+      candidates = (pt[4].i for pt in @index().search([x0, y0, x1, y1]))
 
       candidates2 = []
       if @radius_units == "screen"

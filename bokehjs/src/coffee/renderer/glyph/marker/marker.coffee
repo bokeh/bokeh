@@ -1,8 +1,7 @@
 define [
   "underscore",
-  "rbush",
   "../glyph",
-], (_, rbush, Glyph) ->
+], (_, Glyph) ->
 
 
   point_in_poly = (x, y, px, py) ->
@@ -43,12 +42,9 @@ define [
 
     _set_data: () ->
       @max_size = _.max(@size)
-      @index = rbush()
-      pts = []
-      for i in [0...@x.length]
-        if not isNaN(@x[i] + @y[i])
-          pts.push([@x[i], @y[i], @x[i], @y[i], {'i': i}])
-      @index.load(pts)
+
+    _reindex: () ->
+      return @_generic_xy_reindex()
 
     _map_data: () ->
       [@sx, @sy] = @renderer.map_to_screen(@x, @glyph.x.units, @y, @glyph.y.units)
@@ -66,7 +62,7 @@ define [
       vy1 = vr.get('end') + @max_size
       [y0, y1] = @renderer.ymapper.v_map_from_target([vy0, vy1])
 
-      return (x[4].i for x in @index.search([x0, y0, x1, y1]))
+      return (x[4].i for x in @index().search([x0, y0, x1, y1]))
 
     _hit_point: (geometry) ->
       [vx, vy] = [geometry.vx, geometry.vy]
@@ -81,7 +77,7 @@ define [
       vy1 = vy + @max_size
       [y0, y1] = @renderer.ymapper.v_map_from_target([vy0, vy1])
 
-      candidates = (x[4].i for x in @index.search([x0, y0, x1, y1]))
+      candidates = (x[4].i for x in @index().search([x0, y0, x1, y1]))
 
       hits = []
       for i in candidates
@@ -99,7 +95,7 @@ define [
       [x0, x1] = @renderer.xmapper.v_map_from_target([geometry.vx0, geometry.vx1])
       [y0, y1] = @renderer.ymapper.v_map_from_target([geometry.vy0, geometry.vy1])
 
-      return (x[4].i for x in @index.search([x0, y0, x1, y1]))
+      return (x[4].i for x in @index().search([x0, y0, x1, y1]))
 
     _hit_poly: (geometry) ->
       [vx, vy] = [geometry.vx, geometry.vy]

@@ -1,9 +1,8 @@
 define [
   "underscore",
-  "rbush",
   "renderer/properties",
   "./glyph",
-], (_, rbush, Properties, Glyph) ->
+], (_, Properties, Glyph) ->
 
   point_in_poly = (x, y, px, py) ->
     inside = false
@@ -40,12 +39,9 @@ define [
         @max_radius = _.max(@size)/2
       else
         @max_radius = _.max(@radius)
-      @index = rbush()
-      pts = []
-      for i in [0...@x.length]
-        if not isNaN(@x[i] + @y[i])
-          pts.push([@x[i], @y[i], @x[i], @y[i], {'i': i}])
-      @index.load(pts)
+
+    _reindex: () ->
+      return @_generic_xy_reindex()
 
     _map_data: () ->
       [@sx, @sy] = @renderer.map_to_screen(@x, @glyph.x.units, @y, @glyph.y.units)
@@ -85,7 +81,7 @@ define [
         y0 -= @max_radius
         y1 += @max_radius
 
-      return (x[4].i for x in @index.search([x0, y0, x1, y1]))
+      return (x[4].i for x in @index().search([x0, y0, x1, y1]))
 
     _render: (ctx, indices, sx=@sx, sy=@sy, radius=@radius) ->
       for i in indices
@@ -124,7 +120,7 @@ define [
         y0 = y - @max_radius
         y1 = y + @max_radius
 
-      candidates = (pt[4].i for pt in @index.search([x0, y0, x1, y1]))
+      candidates = (pt[4].i for pt in @index().search([x0, y0, x1, y1]))
 
       hits = []
       if @radius_units == "screen"
@@ -155,7 +151,7 @@ define [
       [x0, x1] = @renderer.xmapper.v_map_from_target([geometry.vx0, geometry.vx1])
       [y0, y1] = @renderer.ymapper.v_map_from_target([geometry.vy0, geometry.vy1])
 
-      return (x[4].i for x in @index.search([x0, y0, x1, y1]))
+      return (x[4].i for x in @index().search([x0, y0, x1, y1]))
 
     _hit_poly: (geometry) ->
       [vx, vy] = [_.clone(geometry.vx), _.clone(geometry.vy)]

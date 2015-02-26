@@ -1,11 +1,12 @@
 define [
   "underscore",
+  "rbush",
   "common/logging",
   "common/has_parent",
   "common/collection"
   "common/continuum_view",
   "renderer/properties"
-], (_, Logging, HasParent, Collection, ContinuumView, properties) ->
+], (_, rbush, Logging, HasParent, Collection, ContinuumView, properties) ->
 
   logger = Logging.logger
 
@@ -63,11 +64,21 @@ define [
 
       @_set_data()
 
+      @_need_reindex = true
+
       # just use the length of the last added field
       [0...@[field].length]
 
     # any additional customization can happen here
     _set_data: () -> null
+
+    index: () ->
+      if @_need_reindex
+        @_index = @_reindex()
+        @_need_reindex = false
+      return @_index
+
+    _reindex: () -> null
 
     distance_vector: (pt, span_prop_name, position, dilate=false) ->
       """ returns an array """
@@ -180,6 +191,15 @@ define [
         ctx.rect(sx0, sy0, sx1-sx0, sy1-sy0)
         @props.line.set_vectorize(ctx, reference_point)
         ctx.stroke()
+
+    _generic_xy_reindex: () ->
+      index = rbush()
+      pts = []
+      for i in [0...@x.length]
+        if not isNaN(@x[i] + @y[i])
+          pts.push([@x[i], @y[i], @x[i], @y[i], {'i': i}])
+      index.load(pts)
+      return index
 
   class Glyph extends HasParent
 
