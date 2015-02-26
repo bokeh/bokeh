@@ -36,7 +36,7 @@ from six.moves import urllib
 
 BOKEH_GH = "https://github.com/bokeh/bokeh"
 
-def bokeh_commit(name, rawtext, text, lineno, inliner, options=None, content=[]):
+def bokeh_commit(name, rawtext, text, lineno, inliner, options=None, content=None):
     """Link to a Bokeh Github issue.
 
     Returns 2 part tuple containing list of nodes to insert into the
@@ -48,7 +48,7 @@ def bokeh_commit(name, rawtext, text, lineno, inliner, options=None, content=[])
     node = make_gh_link_node(app, rawtext, 'commit', 'commit', 'commit', text, options)
     return [node], []
 
-def bokeh_issue(name, rawtext, text, lineno, inliner, options=None, content=[]):
+def bokeh_issue(name, rawtext, text, lineno, inliner, options=None, content=None):
     """Link to a Bokeh Github issue.
 
     Returns 2 part tuple containing list of nodes to insert into the
@@ -70,7 +70,7 @@ def bokeh_issue(name, rawtext, text, lineno, inliner, options=None, content=[]):
     node = make_gh_link_node(app, rawtext, 'issue', 'issue', 'issues', str(issue_num), options)
     return [node], []
 
-def bokeh_milestone(name, rawtext, text, lineno, inliner, options=None, content=[]):
+def bokeh_milestone(name, rawtext, text, lineno, inliner, options=None, content=None):
     """Link to a Bokeh Github issue.
 
     Returns 2 part tuple containing list of nodes to insert into the
@@ -82,7 +82,7 @@ def bokeh_milestone(name, rawtext, text, lineno, inliner, options=None, content=
     node = make_gh_link_node(app, rawtext, 'milestone', 'milestone', 'milestones', text, options)
     return [node], []
 
-def bokeh_pull(name, rawtext, text, lineno, inliner, options=None, content=[]):
+def bokeh_pull(name, rawtext, text, lineno, inliner, options=None, content=None):
     """Link to a Bokeh Github issue.
 
     Returns 2 part tuple containing list of nodes to insert into the
