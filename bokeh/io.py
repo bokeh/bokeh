@@ -18,7 +18,7 @@ from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__name__)
 
-import io, os, warnings
+import io, itertools, os, warnings
 
 # Third-party imports
 
