@@ -1,7 +1,7 @@
 
 import pandas as pd
 
-from bokeh.charts import HeatMap, output_file, show, VBox
+from bokeh.charts import HeatMap, output_file, show, vplot
 from bokeh.palettes import Blues9 as palette
 from bokeh.sampledata.unemployment1948 import data
 
@@ -36,4 +36,4 @@ hm3 = HeatMap(
 
 output_file("heatmap.html")
 
-show(VBox(hm1, hm2, hm3))
+show(vplot(hm1, hm2, hm3))

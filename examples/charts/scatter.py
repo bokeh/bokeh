@@ -3,7 +3,7 @@ from collections import OrderedDict
 
 import pandas as pd
 
-from bokeh.charts import Scatter, output_file, show, VBox
+from bokeh.charts import Scatter, output_file, show, vplot
 from bokeh.sampledata.iris import flowers
 
 setosa = flowers[(flowers.species == "setosa")][["petal_length", "petal_width"]]
@@ -40,4 +40,4 @@ scatter4 = Scatter(
 
 output_file("scatter.html")
 
-show(VBox([scatter1, scatter2, scatter3, scatter4]))
+show(vplot([scatter1, scatter2, scatter3, scatter4]))

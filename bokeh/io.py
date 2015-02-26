@@ -12,6 +12,7 @@
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
+from __future__ import absolute_import
 
 # Stdlib imports
 import logging
@@ -27,6 +28,7 @@ from .document import Document
 from .embed import notebook_div, file_html, autoload_server
 from .models import Widget
 from .models.widgets.layouts import HBox, VBox
+from bokeh.models.plots import GridPlot
 from .state import State
 from .utils import decode_utf8, publish_display_data
 

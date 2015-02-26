@@ -3,7 +3,7 @@ from collections import OrderedDict
 import numpy as np
 import pandas as pd
 
-from bokeh.charts import Bar, output_file, show, VBox, HBox
+from bokeh.charts import Bar, output_file, show, vplot, hplot
 from bokeh.models import Range1d
 from bokeh.sampledata.olympics2014 import data as original_data
 
@@ -66,8 +66,8 @@ np_mixed_grouped = Bar(
 # collect and display
 output_file("bar.html")
 
-show(VBox(
-    HBox(dict_stacked, df_grouped),
-    HBox(np_stacked, np_negative_grouped),
-    HBox(np_mixed_grouped, np_custom),
+show(vplot(
+    hplot(dict_stacked, df_grouped),
+    hplot(np_stacked, np_negative_grouped),
+    hplot(np_mixed_grouped, np_custom),
 ))
