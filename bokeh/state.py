@@ -394,7 +394,7 @@ def _show_server_with_state(obj, state, new, controller):
     push(state=state)
     controller.open(state.session.object_link(state.document.context), new=_new_param[new])
 
-def save(obj, filename=None, resources=None, title=None):
+def save(obj, filename=None, resources=None, title=None, state=None):
     """ Save an HTML file with the data for the current document.
 
     Will fall back to the default output state (or an explicitly provided
@@ -414,7 +414,10 @@ def save(obj, filename=None, resources=None, title=None):
         None
 
     """
-    filename, resources, title = _get_save_args(_state, filename, resources, title)
+    if state is None:
+        state = _state
+
+    filename, resources, title = _get_save_args(state, filename, resources, title)
 
     _save_helper(obj, filename, resources, title)
 
@@ -460,7 +463,7 @@ def _save_helper(obj, filename, resources, title):
     with io.open(filename, "w", encoding="utf-8") as f:
         f.write(decode_utf8(html))
 
-def push(session=None, document=None):
+def push(session=None, document=None, state=None):
     """ Update the server with the data for the current document.
 
     Will fall back to the default output state (or an explicitly provided
@@ -476,11 +479,14 @@ def push(session=None, document=None):
         None
 
     """
+    if state is None:
+        state = _state
+
     if not session:
-        session = _state.session
+        session = state.session
 
     if not document:
-        document = _state.document
+        document = state.document
 
     if not session:
         warnings.warn("push() called but no session was supplied and output_server(...) was never called, nothing pushed")
