@@ -12,7 +12,7 @@ from .bbauth import (
 )
 from ..app import bokeh_app
 from ..crossdomain import crossdomain
-from ..serverbb import prune, get_temporary_docid, BokehServerTransaction
+from ..serverbb import get_temporary_docid, BokehServerTransaction
 from ..views import make_json
 from ..models import docs
 
@@ -24,7 +24,7 @@ def init_bokeh(clientdoc):
 @bokeh_app.route("/bokeh/bb/<docid>/gc", methods=['POST'])
 @handle_auth_error
 def gc(docid):
-    client = request.headers.get('client', 'python')
+    # client = request.headers.get('client', 'python')  # todo: not used?
     doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
     bokehuser = bokeh_app.current_user()
     temporary_docid = get_temporary_docid(request, docid)
@@ -100,6 +100,7 @@ def create(docid, typename):
     :status 401: when user is not authorized
 
     '''
+    clientdoc = clientdoc  # noqa - fool pyflakes - is this magically injecter or something?
     doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
     bokehuser = bokeh_app.current_user()
     temporary_docid = get_temporary_docid(request, docid)
@@ -161,6 +162,7 @@ def bulkget_with_typename(docid):
     :status 401: when user is not authorized
 
     '''
+    typename = typename  # noqa - is this a bug or magic?
     return _bulkget(docid, typename)
 
 @crossdomain(origin="*", methods=['PATCH', 'GET', 'PUT'], headers=None)
@@ -287,6 +289,8 @@ def update(docid, typename, id):
 @handle_auth_error
 def delete(docid, typename, id):
     #I don't think this works right now
+    obj = obj  # noqa - fool pyflakes - bug or magic?
+    clientdoc = clientdoc  # noqa
     doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
     bokehuser = bokeh_app.current_user()
     temporary_docid = get_temporary_docid(request, docid)

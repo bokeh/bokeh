@@ -3,11 +3,10 @@ from __future__ import absolute_import
 import logging
 from functools import wraps
 
-from flask import abort, request, jsonify
+from flask import abort, jsonify
 
 from ..app import bokeh_app
 from ..models import docs
-from ..models import convenience
 from ...exceptions import AuthenticationException
 
 logger = logging.getLogger(__name__)
@@ -101,7 +100,7 @@ def logout():
 
 @bokeh_app.route('/bokeh/<docid>/publish', methods=['POST'])
 def publish(docid):
-    bokehuser = bokeh_app.current_user()
+    #bokehuser = bokeh_app.current_user()
     doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
     if not bokeh_app.authentication.can_write_doc(docid):
         return abort(401)

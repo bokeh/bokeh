@@ -1,6 +1,5 @@
 from __future__ import absolute_import
 
-import unittest
 from contextlib import contextmanager
 
 from werkzeug.exceptions import Unauthorized

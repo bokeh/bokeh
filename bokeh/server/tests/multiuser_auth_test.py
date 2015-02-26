@@ -2,8 +2,6 @@ from __future__ import absolute_import
 
 import tempfile
 
-import requests
-
 from bokeh.session import Session
 
 from . import test_utils
@@ -23,7 +21,7 @@ class TestMultiUserAuth(test_utils.FlaskClientTestCase):
         sess.register('testuser1', 'testpassword1')
         self.assertRaises(RuntimeError, sess.register, 'testuser1', 'testpassword1')
 
-    def test_login(self):
+    def test_login1(self):
         username = "testuser2"
         password = "fluffy"
         user.new_user(bokeh_app.servermodel_storage, username, password)
@@ -62,7 +60,7 @@ class TestMultiUserAuth(test_utils.FlaskClientTestCase):
     def test_login_configuration(self):
         pass
 
-    def test_login(self):
+    def test_login2(self):
         #create a server config, register a user
         config1 = tempfile.mkdtemp()
         server = TestSession(name="foo",

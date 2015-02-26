@@ -20,7 +20,6 @@ from bokeh.templates import AUTOLOAD
 from .bbauth import handle_auth_error
 from ..app import bokeh_app
 from ..crossdomain import crossdomain
-from ..models import convenience as mconv
 from ..models import docs
 from ..models import user
 from ..serverbb import prune, BokehServerTransaction, get_temporary_docid
