@@ -173,6 +173,65 @@ class TestOutputServer(DefaultStateTester):
 class TestSave(DefaultStateTester):
     pass
 
+class Test_GetSaveArgs(DefaultStateTester):
+
+    def test_explicit_filename(self):
+        filename, resources, title = state._get_save_args(state._state, "filename", "resources", "title")
+        self.assertEqual(filename, "filename")
+
+    def test_default_filename(self):
+        state._state.file = {}
+        state._state.file['filename'] = "filename"
+        filename, resources, title = state._get_save_args(state._state, None, "resources", "title")
+        self.assertEqual(filename, "filename")
+
+    def test_missing_filename(self):
+        state._state.file = None
+        with self.assertRaises(RuntimeError):
+            state.save("obj", None, "resources", "title")
+
+    def test_explicit_resources(self):
+        filename, resources, title = state._get_save_args(state._state, "filename", "resources", "title")
+        self.assertEqual(resources, "resources")
+
+    def test_default_resources(self):
+        state._state.file = {}
+        state._state.file['resources'] = "resources"
+        filename, resources, title = state._get_save_args(state._state, "filename", None, "title")
+        self.assertEqual(resources, "resources")
+
+    @patch('warnings.warn')
+    def test_missing_resources(self, mock_warn):
+        from bokeh.resources import INLINE
+        state._state.file = None
+        filename, resources, title = state._get_save_args(state._state, "filename", None, "title")
+        self.assertEqual(resources, INLINE)
+        self.assertTrue(mock_warn.called)
+        self.assertEqual(mock_warn.call_args[0], ('save() called but no resources was supplied and output_file(...) was never called, defaulting to resources.INLINE',))
+        self.assertEqual(mock_warn.call_args[1], {})
+
+    def test_explicit_title(self):
+        filename, resources, title = state._get_save_args(state._state, "filename", "resources", "title")
+        self.assertEqual(title, "title")
+
+    def test_default_title(self):
+        state._state.file = {}
+        state._state.file['title'] = "title"
+        filename, resources, title = state._get_save_args(state._state, "filename", "resources", None)
+        self.assertEqual(title, "title")
+
+    @patch('warnings.warn')
+    def test_missing_title(self, mock_warn):
+        state._state.file = None
+        filename, resources, title = state._get_save_args(state._state, "filename", "resources", None)
+        self.assertEqual(title, "Bokeh Plot")
+        self.assertTrue(mock_warn.called)
+        self.assertEqual(mock_warn.call_args[0], ("save() called but no title was supplied and output_file(...) was never called, using default title 'Bokeh Plot'",))
+        self.assertEqual(mock_warn.call_args[1], {})
+
+class Test_SaveHelper(DefaultStateTester):
+    pass
+
 class TestPush(DefaultStateTester):
 
     def _check_doc_store(self, sess, doc):
