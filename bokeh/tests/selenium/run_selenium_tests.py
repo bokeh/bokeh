@@ -22,7 +22,7 @@ from bokeh.tests.selenium.config import TestMetadata, TestSettings
 # VARIABLES #
 #############
 
-metadata = TestMetadata(cwd=os.getcwd())
+metadata = TestMetadata(cwd=os.path.abspath(os.path.dirname(os.path.realpath(__file__))))
 
 SCRIPT_NAME = sys.argv[0]
 
