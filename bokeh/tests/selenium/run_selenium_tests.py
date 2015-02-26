@@ -37,6 +37,9 @@ DEF_HEADLESS_MODE_DISPLAY = metadata.headless_mode_display
 DEF_SELENIUM_HUB_ADDRESS = metadata.selenium_hub_address
 DEF_DATA_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
 DEF_DOWNLOAD_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'down')
+DEF_DOCUMENTS_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'examples')
+DEF_REMOTE_BOKEH_SERVER_ADDRESS = metadata.remote_bokeh_server_address
+DEF_REMOTE_BOKEH_SERVER_PORT = metadata.remote_bokeh_server_port
 
 DEF_DISCOVER_VERBOSE = 1
 DEF_TESTS_BASE_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'tests')
@@ -83,10 +86,14 @@ def InteractiveParser(parser):
     return parser
 
 def NonInteractiveParser(parser):
+    parser.add_argument('-A', dest='remote_bokeh_server_address', type=str, action='store', default=DEF_REMOTE_BOKEH_SERVER_ADDRESS,
+        help="IP address of bokeh server to use for testing. The default address is: %s" % (DEF_REMOTE_BOKEH_SERVER_ADDRESS))
     parser.add_argument('-B', dest='browser_engine_bin',
         help="Browser binary (must be found in PATH).")
     parser.add_argument('-D', dest='data_dir', default=DEF_DATA_DIR,
         help="Directory to store any of additional test data. Default value: %s" % (DEF_DATA_DIR))
+    parser.add_argument('-P', dest='remote_bokeh_server_port', type=str, action='store', default=DEF_REMOTE_BOKEH_SERVER_PORT,
+        help="Port number of bokeh server to use for testing. The default port is: %s" % (DEF_REMOTE_BOKEH_SERVER_PORT))
     parser.add_argument('-V', dest='verbosity', type=int, default=DEF_TEST_VERBOSITY,
         help="Change verbosity of test launcher. Default value: %i" % (DEF_TEST_VERBOSITY))
     parser.add_argument('-a', dest='selenium_hub_address', metavar='HUB_ADDRESS', type=str, action='store', default=DEF_SELENIUM_HUB_ADDRESS,
@@ -95,6 +102,8 @@ def NonInteractiveParser(parser):
         choices=metadata.browser_engines, help="Browser engine to use in testing. Choices: %s. Default value: %s" % (metadata.browser_engines, DEF_BROWSER_ENGINE))
     parser.add_argument('-d', dest='discover_dir', metavar='SEARCH_DIR', type=str, action='store', default=DEF_TESTS_BASE_DIR,
         help="Directory where 'discover' module will perform search for tests. The default directory to search (with it's subdirs) is: %s" % (DEF_TESTS_BASE_DIR))
+    parser.add_argument('-e', dest='documents_dir', type=str, action='store', default=DEF_DOCUMENTS_DIR,
+        help="Directory where documents are stored. The default directory is: %s" % (DEF_DOCUMENTS_DIR))
     parser.add_argument('-m', dest='env_mode', default=DEF_ENVIRONMENT_MODE,
         choices=metadata.env_modes, help="Setup environment mode for tests. Default value: %s" % (DEF_ENVIRONMENT_MODE))
     parser.add_argument('-s', dest='selenium_server_jar_path', default=DEF_SELENIUM_SERVER_JAR_PATH,
@@ -128,7 +137,9 @@ settings = TestSettings(metadata=metadata, env_mode=myargs.env_mode,
     browser_engine=myargs.browser_engine, browser_engines_bin=dict({myargs.browser_engine:myargs.browser_engine_bin}),
     selenium_server_jar_path=myargs.selenium_server_jar_path, data_dir=myargs.data_dir, down_dir=myargs.down_dir,
     headless_mode=myargs.headless_mode, headless_mode_display=myargs.headless_mode_display, selenium_hub_address=myargs.selenium_hub_address,
-    browser_caps=TestBrowserCaps(metadata=metadata, platform=myargs.browser_cap_platform, version=myargs.browser_cap_version))
+    browser_caps=TestBrowserCaps(metadata=metadata, platform=myargs.browser_cap_platform, version=myargs.browser_cap_version,
+    remote_bokeh_server_address=myargs.remote_bokeh_server_address, remote_bokeh_server_port=myargs.remote_bokeh_server_port,
+    documents_dir=myargs.documents_dir))
 
 #############
 # FUNCTIONS #

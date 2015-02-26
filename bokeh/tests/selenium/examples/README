@@ -1,0 +1,7 @@
+
+This directory contains examples which can be easily loaded to bokeh-server.
+To perform such action just use the 'load_document' function and feed it with
+file name - that's the only required argument (omit '.py' extension).
+
+All examples should have 'output_server("test_document")' line inside them.
+Additionally do not insert 'show()' command at the end.

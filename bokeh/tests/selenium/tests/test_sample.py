@@ -18,13 +18,13 @@ class TestSample(BasicSeleniumTestFixture):
 
     #@unittest.skip("Just a simple test - only for internal testing purposes.")
     def test_sample(self):
-        """Simple test case."""
+        """Check if we are able to load basic document to boker server."""
+
+        doc_name = 'simple_line'
+
+        self.load_document(doc_name)
 
         # TODO:
-        # - Right now only to show that selenium is working ok.
-        # - After proper bokeh initialization the below test should be changed.
-        self.driver.get('http://google.com')
-        self.assertEqual(self.driver.title, 'Google')
+        # - Put here valid test.
 
-if __name__ == '__main__':
-    unittest.main()
+        self.unload_document(doc_name)

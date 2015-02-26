@@ -9,6 +9,7 @@ from .utils import TestBrowserCaps, check_for_proper_arg, get_latest_selenium_se
 
 
 DEF_CWD = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
+
 DEF_BROWSER_ENGINE = 'phantomjs'
 DEF_ENVIRONMENT_MODE = 'standalone'
 DEF_DATA_DIR = '../selenium/data'
@@ -16,6 +17,9 @@ DEF_DOWNLOAD_DIR = '../selenium/down'
 DEF_HEADLESS_MODE = False
 DEF_HEADLESS_MODE_DISPLAY = ':25'
 DEF_SELENIUM_HUB_ADDRESS = 'http://178.62.188.78:4444/wd/hub'
+DEF_DOCUMENTS_DIR = 'examples'
+DEF_REMOTE_BOKEH_SERVER_ADDRESS = 'http://localhost'
+DEF_REMOTE_BOKEH_SERVER_PORT = 5006
 
 
 class TestMetadata(object):
@@ -66,6 +70,12 @@ class TestMetadata(object):
 
         self.headless_mode = DEF_HEADLESS_MODE
         self.headless_mode_display = DEF_HEADLESS_MODE_DISPLAY
+
+        self.remote_bokeh_server_address = DEF_REMOTE_BOKEH_SERVER_ADDRESS
+        self.remote_bokeh_server_port =  DEF_REMOTE_BOKEH_SERVER_PORT
+
+        self.documents_dir = os.path.abspath(os.path.join(self.cwd, DEF_DOCUMENTS_DIR))
+        self.document_name = 'test_document'
 
     def get_browser_bin(self, browser):
         return self.standalone_browsers_bin[browser]
@@ -179,10 +189,30 @@ class TestSettings(object):
         if not self.selenium_hub_address:
             self.selenium_hub_address = self.metadata.selenium_hub_address
 
-    def get_server_address(self):
-        return self.get_server_url()
+        self.remote_bokeh_server_address = kwargs.get('remote_bokeh_server_address', None)
+
+        if not self.remote_bokeh_server_address:
+            self.remote_bokeh_server_address = self.metadata.remote_bokeh_server_address
+
+        self.remote_bokeh_server_port = kwargs.get('remote_bokeh_server_port', None)
+
+        if not self.remote_bokeh_server_port:
+            self.remote_bokeh_server_port = self.metadata.remote_bokeh_server_port
+
+        self.remote_bokeh_server_port = str(self.remote_bokeh_server_port)
+
+        self.documents_dir = kwargs.get('documents_dir', None)
+
+        if not self.documents_dir:
+            self.documents_dir = self.metadata.documents_dir
+
+        self.document_name = self.metadata.document_name
 
     def get_browser_bin(self, browser=None):
         browser = browser or self.browser_engine
 
         return self.standalone_browsers_bin[browser]
+
+    def get_remote_bokeh_server_url(self):
+
+        return self.remote_bokeh_server_address+':'+self.remote_bokeh_server_port+'/'
