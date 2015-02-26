@@ -87,6 +87,10 @@ class State(object):
         """ Output to a static HTML file.
 
         Args:
+            filename (str) :
+
+            title (str, optional) :
+
             autosave (bool, optional) : whether to automatically save (default: False)
                 If True, then Bokeh plotting APIs may opt to automatically
                 save the file more frequently (e.g., after any plotting
@@ -96,6 +100,8 @@ class State(object):
             mode (str, optional) : how to inlcude BokehJS (default: "inline")
                 One of: 'inline', 'cdn', 'relative(-dev)' or 'absolute(-dev)'.
                 See :class:`bokeh.resources.Resources` for more details.
+
+            root_dir (str, optional) :
 
         .. note::
             Generally, this should be called at the beginning of an interactive
@@ -131,12 +137,16 @@ class State(object):
         Args:
             docname (str) : Name of document to push on Bokeh server
                 Any existing documents with the same name will be overwritten.
+
             session (Session, optional) : An explicit session to use (default: None)
                 If None, a new default session is created.
+
             url (str, optional) : URL of the Bokeh server (default: "default")
                 If "default", then ``session.DEFAULT_SERVER_URL`` is used.
+
             name (str, optional) : A name for the session
                 If None, the server URL is used as the name
+
             clear (bool, optional) : Whether to clear the document (default: True)
                 If True, an existing server document will be cleared of any
                 existing objects.
@@ -174,9 +184,25 @@ _state = State()
 
 
 def output_file(filename, title="Bokeh Plot", autosave=False, mode="inline", root_dir=None):
-    '''
+    ''' Configure the default output state to generate output saved
+    to a file.
 
     Args:
+        filename (str) :
+
+        title (str, optional) :
+
+        autosave (bool, optional) : whether to automatically save (default: False)
+            If True, then Bokeh plotting APIs may opt to automatically
+            save the file more frequently (e.g., after any plotting
+            command). If False, then the file is only saved upon calling
+            show().
+
+        mode (str, optional) : how to inlcude BokehJS (default: "inline")
+            One of: 'inline', 'cdn', 'relative(-dev)' or 'absolute(-dev)'.
+            See :class:`bokeh.resources.Resources` for more details.
+
+        root_dir (str, optional) :
 
     Returns:
         None
@@ -191,9 +217,21 @@ def output_file(filename, title="Bokeh Plot", autosave=False, mode="inline", roo
     )
 
 def output_notebook(url=None, docname=None, session=None, name=None):
-    '''
+    ''' Configure the default output state to generate output in
+    Jupyter/IPython notebook cells when :func:`show` is called.
 
     Args:
+        url (str, optional) : URL of the Bokeh server (default: "default")
+            If "default", then ``session.DEFAULT_SERVER_URL`` is used.
+
+        docname (str) : Name of document to push on Bokeh server
+            Any existing documents with the same name will be overwritten.
+
+        session (Session, optional) : An explicit session to use (default: None)
+            If None, a new default session is created.
+
+        name (str, optional) : A name for the session
+            If None, the server URL is used as the name
 
     Returns:
         None
@@ -204,9 +242,25 @@ def output_notebook(url=None, docname=None, session=None, name=None):
     )
 
 def output_server(docname, session=None, url="default", name=None, clear=True):
-    '''
+    ''' Configure the default output state to generate output that gets
+    pushed to a bokeh-server.
 
     Args:
+        docname (str) : Name of document to push on Bokeh server
+            Any existing documents with the same name will be overwritten.
+
+        session (Session, optional) : An explicit session to use (default: None)
+            If None, a new default session is created.
+
+        url (str, optional) : URL of the Bokeh server (default: "default")
+            If "default", then ``session.DEFAULT_SERVER_URL`` is used.
+
+        name (str, optional) : A name for the session
+            If None, the server URL is used as the name
+
+        clear (bool, optional) : Whether to clear the document (default: True)
+            If True, an existing server document will be cleared of any
+            existing objects.
 
     Returns:
         None
@@ -249,7 +303,7 @@ def cursession():
     '''
     return _state.session
 
-def show(obj, browser=None, new="tab", state=None):
+def show(obj, browser=None, new="tab"):
     """ Immediately display a plot object.
 
     In an IPython/Jupyter notebook, the output is displayed in an output
@@ -280,10 +334,7 @@ def show(obj, browser=None, new="tab", state=None):
         an IPython/Jupyter notebook.
 
     """
-    if state is None:
-        state = _state
-
-    _show_with_state(obj, state, browser, new)
+    _show_with_state(obj, _state, browser, new)
 
 _new_param = {'tab': 2, 'window': 1}
 
@@ -316,7 +367,7 @@ def _show_server_with_state(obj, state, new, controller):
     push(state=state)
     controller.open(state.session.object_link(state.document.context), new=_new_param[new])
 
-def save(obj, filename=None, resources=None, title=None, state=None):
+def save(obj, filename=None, resources=None, title=None):
     """ Save an HTML file with the data for the current document.
 
     Will fall back to the default output state (or an explicitly provided
@@ -336,10 +387,7 @@ def save(obj, filename=None, resources=None, title=None, state=None):
         None
 
     """
-    if state is None:
-        state = _state
-
-    filename, resources, title = _get_save_args(state, filename, resources, title)
+    filename, resources, title = _get_save_args(_state, filename, resources, title)
 
     _save_helper(obj, filename, resources, title)
 
@@ -386,7 +434,7 @@ def _save_helper(obj, filename, resources, title):
     with io.open(filename, "w", encoding="utf-8") as f:
         f.write(decode_utf8(html))
 
-def push(session=None, document=None, state=None):
+def push(session=None, document=None):
     """ Update the server with the data for the current document.
 
     Will fall back to the default output state (or an explicitly provided
@@ -402,14 +450,11 @@ def push(session=None, document=None, state=None):
         None
 
     """
-    if state is None:
-        state = _state
-
     if not session:
-        session = state.session
+        session = _state.session
 
     if not document:
-        document = state.document
+        document = _state.document
 
     if not session:
         warnings.warn("push() called but no session was supplied and output_server(...) was never called, nothing pushed")
@@ -418,18 +463,13 @@ def push(session=None, document=None, state=None):
     return session.store_document(document)
 
 def reset_output(state=None):
-    '''
-
-    Args:
+    ''' Clear the default state of all output modes.
 
     Returns:
         None
 
     '''
-    if state is None:
-        state = _state
-
-    state.reset()
+    _state.reset()
 
 def _deduplicate_plots(plot, subplots, state=None):
     if state is None:

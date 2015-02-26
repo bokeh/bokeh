@@ -180,49 +180,26 @@ class TestPush(DefaultStateTester):
 
     @patch('warnings.warn')
     def test_missing_session(self, mock_warn):
-        s = Mock()
-        s.session = None
-        state.push(state=s)
+        state._state.session = None
+        state.push()
         self.assertTrue(mock_warn.called)
         self.assertEqual(mock_warn.call_args[0], ('push() called but no session was supplied and output_server(...) was never called, nothing pushed',))
         self.assertEqual(mock_warn.call_args[1], {})
 
-    def test_noargs_explicit_state(self):
-        s = Mock()
-        state.push(state=s)
-        self._check_doc_store(s.session, s.document)
-
-    def test_noargs_default_state(self):
+    def test_noargs(self):
         state.push()
         self._check_doc_store(state._state.session, state._state.document)
 
-    def test_session_arg_explicit_state(self):
-        s = Mock()
-        sess = Mock()
-        state.push(session=sess, state=s)
-        self._check_doc_store(sess, s.document)
-
-    def test_session_arg_default_state(self):
+    def test_session_arg(self):
         sess = Mock()
         state.push(session=sess)
         self._check_doc_store(sess, state._state.document)
 
-    def test_document_arg_explicit_state(self):
-        s = Mock()
-        state.push(document="foo", state=s)
-        self._check_doc_store(s.session, "foo")
-
-    def test_document_arg_default_state(self):
+    def test_document_arg(self):
         state.push(document="foo")
         self._check_doc_store(state._state.session, "foo")
 
-    def test_session_document_args_explicit_state(self):
-        s = Mock()
-        sess = Mock()
-        state.push(document="foo", session=sess, state=s)
-        self._check_doc_store(sess, "foo")
-
-    def test_session_document_args_default_state(self):
+    def test_session_document_args(self):
         sess = Mock()
         state.push(document="foo", session=sess)
         self._check_doc_store(sess, "foo")
@@ -230,30 +207,16 @@ class TestPush(DefaultStateTester):
 class TestShow(DefaultStateTester):
 
     @patch('bokeh.state._show_with_state')
-    def test_default_state_default_args(self, mock__show_with_state):
+    def test_default_args(self, mock__show_with_state):
         default_kwargs = dict(browser=None, new="tab")
         state.show("obj", **default_kwargs)
         self._check_func_called(mock__show_with_state, ("obj", state._state, None, "tab"), {})
 
     @patch('bokeh.state._show_with_state')
-    def test_default_state_explicit_args(self, mock__show_with_state):
+    def test_explicit_args(self, mock__show_with_state):
         default_kwargs = dict(browser="browser", new="new")
         state.show("obj", **default_kwargs)
         self._check_func_called(mock__show_with_state, ("obj", state._state, "browser", "new"), {})
-
-    @patch('bokeh.state._show_with_state')
-    def test_explicit_state_default_args(self, mock__show_with_state):
-        s = Mock()
-        default_kwargs = dict(browser=None, new="tab")
-        state.show("obj", state=s, **default_kwargs)
-        self._check_func_called(mock__show_with_state, ("obj", s, None, "tab"), {})
-
-    @patch('bokeh.state._show_with_state')
-    def test_explicit_state_explicit_args(self, mock__show_with_state):
-        s = Mock()
-        default_kwargs = dict(browser="browser", new="new")
-        state.show("obj", state=s, **default_kwargs)
-        self._check_func_called(mock__show_with_state, ("obj", s, "browser", "new"), {})
 
 class Test_ShowWithState(DefaultStateTester):
 
@@ -367,12 +330,7 @@ class Test_ShowServerWithState(DefaultStateTester):
 
 class TestResetOutput(DefaultStateTester):
 
-    def test_arg(self):
-        s = Mock()
-        state.reset_output(s)
-        self.assertTrue(s.reset.called)
-
-    def test_noarg(self):
+    def test(self):
         state.reset_output()
         self.assertTrue(state._state.reset.called)
 
