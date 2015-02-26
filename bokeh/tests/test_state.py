@@ -65,15 +65,15 @@ class TestState(unittest.TestCase):
         kwargs = dict(session="session", name="name", url="url")
         s = state.State()
         s.output_notebook(docname="docname", **kwargs)
-        self.assertTrue(state._state.output_server.called)
-        self.assertEqual(state._state.output_server.call_args[0], ("docname",))
-        self.assertEqual(state._state.output_server.call_args[1], kwargs)
+        self.assertTrue(s.output_server.called)
+        self.assertEqual(s.output_server.call_args[0], ("docname",))
+        self.assertEqual(s.output_server.call_args[1], kwargs)
 
         mock_ctime.return_value = "NOW"
         s.output_notebook(**kwargs)
-        self.assertTrue(state._state.output_server.called)
-        self.assertEqual(state._state.output_server.call_args[0], ("IPython Session at NOW",))
-        self.assertEqual(state._state.output_server.call_args[1], kwargs)
+        self.assertTrue(s.output_server.called)
+        self.assertEqual(s.output_server.call_args[0], ("IPython Session at NOW",))
+        self.assertEqual(s.output_server.call_args[1], kwargs)
 
     @patch('bokeh.state.Session.load_document')
     @patch('bokeh.state.Session.use_doc')
