@@ -63,7 +63,14 @@ class DataAdapter(object):
                 columns = list(keys())
 
             elif keys is None:
-                columns = list(map(str, range(len(data))))
+                if blaze and isinstance(self._values, blaze.interactive.InteractiveSymbol):
+                    keys = self._values.fields
+                    if len(keys) == len(self._values.data):
+                        columns = keys
+                    else:
+                        columns = list(map(str, range(len(self._values.data))))
+                else:
+                    columns = list(map(str, range(len(data))))
 
             else:
                 columns = list(keys)
@@ -164,7 +171,7 @@ class DataAdapter(object):
             # in this case let's use indices as groups keys
             if blaze and isinstance(self._values, blaze.interactive.InteractiveSymbol):
                 keys = self._values.fields
-                if len(keys) == len(self._values):
+                if len(keys) == len(self._values.data):
                     return keys
 
             self.convert_index_to_int = True
@@ -206,7 +213,7 @@ class DataAdapter(object):
 
     def items(self):
         if blaze and isinstance(self._values, blaze.interactive.InteractiveSymbol):
-            return[(k, v) for k, v in zip(self.keys(), self._values.data) ]
+            return[(k, list(self._values[k])) for k, v in zip(self.keys(), self._values.data) ]
         else:
             return [(key, self[key]) for key in self]
 
@@ -236,7 +243,7 @@ class DataAdapter(object):
 
         except AttributeError:
             if blaze and isinstance(self._values, blaze.interactive.InteractiveSymbol):
-                return range(0, len(self._values.data[0]))
+                return range(0, len(self._values[self.keys()[0]]))
 
             else:
                 index = getattr(self._values, "index", None)
@@ -280,8 +287,10 @@ class DataAdapter(object):
             xs: iterable that represents the data index
             values: iterable containing the values to be plotted
         """
-        if hasattr(values, 'keys'):
+        if hasattr(values, 'keys') or \
+                (blaze and isinstance(values, blaze.interactive.InteractiveSymbol)):
             if index is not None:
+                values = DataAdapter(values, force_alias=False)
                 if isinstance(index, string_types):
                     xs = values[index]
 
@@ -290,6 +299,7 @@ class DataAdapter(object):
 
             else:
                 try:
+                    values = DataAdapter(values, force_alias=False)
                     xs = values.index
 
                 except AttributeError:

@@ -120,8 +120,9 @@ class TimeSeriesBuilder(Builder):
 
         # list to save all the attributes we are going to create
         self._attr = []
-        xs = self._values_index
-        for col in self._values.keys():
+        # necessary to make all formats and encoder happy with array, blaze, ...
+        xs = list([x for x in self._values_index])
+        for col, values in self._values.items():
             if isinstance(self.index, string_types) \
                 and col == self.index:
                 continue
@@ -129,7 +130,7 @@ class TimeSeriesBuilder(Builder):
             # save every the groups available in the incomming input
             self._groups.append(col)
             self.set_and_get("x_", col, xs)
-            self.set_and_get("y_", col, self._values[col])
+            self.set_and_get("y_", col, values)
 
     def _set_sources(self):
         """Push the TimeSeries data into the ColumnDataSource and
