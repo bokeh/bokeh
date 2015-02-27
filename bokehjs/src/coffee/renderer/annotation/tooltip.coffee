@@ -6,7 +6,7 @@ define [
   "common/plot_widget"
   "common/collection"
   "common/logging"
-], ($_, HasParent, PlotWidget, Collection, Logging) ->
+], ($, _, HasParent, PlotWidget, Collection, Logging) ->
 
   logger = Logging.logger
 
