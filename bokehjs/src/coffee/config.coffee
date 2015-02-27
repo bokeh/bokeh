@@ -1,4 +1,13 @@
 require.config
+  map:
+    # '*' means all modules will get 'jquery-private'
+    # for their 'jquery' dependency.
+    '*': { 'jquery': 'jquery-private' }
+
+    # 'jquery-private' wants the real jQuery module
+    # though. If this line was not here, there would
+    # be an unresolvable cyclic dependency.
+    'jquery-private': { 'jquery': 'jquery' }
   paths:
     jquery:            "vendor/jquery-1.11.1/jquery"
     jquery_ui:         "vendor/jquery-ui-1.11.2/js"

@@ -1,5 +1,5 @@
 
-define [], () ->
+define ["jquery"], ($) ->
 
   cache = {}
 

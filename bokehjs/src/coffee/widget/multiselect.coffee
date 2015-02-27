@@ -1,10 +1,11 @@
 define [
+  "jquery"
+  "underscore"
   "common/has_parent",
   "common/continuum_view",
   "common/collection"
-  "underscore"
   "./multiselecttemplate"
-], (HasParent, ContinuumView, Collection, _, multiselecttemplate) ->
+], ($, _, HasParent, ContinuumView, Collection, multiselecttemplate) ->
 
   class MultiSelectView extends ContinuumView
     events :

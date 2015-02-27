@@ -21,15 +21,6 @@ define (require, exports, module) ->
   Bokeh.$                 = require("jquery")
   Bokeh.Backbone          = require("backbone")
 
-  # Make sure that we don't clobber any existing definition of $ (most
-  # likely a previous version of jQuery.
-  _oldJQ = window.$
-  if not Bokeh._.isUndefined(window.jQuery)
-    window.jQuery.noConflict()
-  if Bokeh._.isUndefined($)
-    # if there was no previous definition of $, put our definition into window.$.
-    window.$ = _oldJQ
-
   # common
   Bokeh.Collections       = require("common/base").Collections
   Bokeh.Config            = require("common/base").Config
