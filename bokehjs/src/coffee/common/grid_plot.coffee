@@ -1,5 +1,6 @@
 
 define [
+  "jquery"
   "underscore"
   "backbone"
   "./build_views"
@@ -10,7 +11,7 @@ define [
   "./tool_manager"
   "./plot_template"
   "renderer/properties"
-], (_, Backbone, build_views, ContinuumView, Collection, HasProperties, Logging, ToolManager, plot_template, Properties) ->
+], ($, _, Backbone, build_views, ContinuumView, Collection, HasProperties, Logging, ToolManager, plot_template, Properties) ->
 
   logger = Logging.logger
 

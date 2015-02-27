@@ -1,10 +1,11 @@
 define [
+  "jquery"
   "underscore"
   "backbone"
   "require"
   "./base"
   "./logging"
-], (_, Backbone, require, base, Logging) ->
+], ($, _, Backbone, require, base, Logging) ->
 
   logger = Logging.logger
 

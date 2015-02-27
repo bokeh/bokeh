@@ -1,10 +1,11 @@
 define [
-  "backbone",
+  "jquery",
   "underscore",
+  "backbone",
   "common/base",
   "common/load_models"
   "common/logging"
-], (Backbone, _, base, load_models, Logging) ->
+], ($, _, Backbone, base, load_models, Logging) ->
 
   Config = base.Config
   logger = Logging.logger
