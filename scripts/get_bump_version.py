@@ -15,18 +15,9 @@ def get_version_from_git():
 
     version = proc.stdout.read().decode('utf-8').strip()
 
-    try:
-        vers, mod = version.split("-")[:2]
-        if not mod.startswith(('rc', 'dev')):
-            mod = ""
-    except ValueError:
-        vers, mod = version, ""
+    vers = version.split("-")[0]
 
-    return vers, mod
+    return vers
 
-vers, mod = get_version_from_git()
-if mod == "":
-    print(vers)
-else:
-    print(vers + '.' + mod)
-
+vers = get_version_from_git()
+print(vers)
