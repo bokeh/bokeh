@@ -24,7 +24,8 @@ class AuthTestCase(test_utils.FlaskClientTestCase):
         def helper2():
             raise AuthenticationException('bad!')
         assert helper1() == 'foo'
-        self.assertRaises(Unauthorized, helper2)
+        with mock.patch('bokeh.utils.logging'):
+            self.assertRaises(Unauthorized, helper2)
 
     def test_write_auth_checks_rw_users_field(self):
         user = User('test1', 'sdfsdf', 'sdfsdf')

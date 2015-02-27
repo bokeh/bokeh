@@ -88,7 +88,7 @@ registered = False
 def register_blueprint():
     global registered
     if registered:
-        warnings.warn(
+        logging.warn(
             "register_blueprint has already been called, why is it being called again"
         )
         return
