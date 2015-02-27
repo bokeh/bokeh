@@ -1,4 +1,5 @@
 # The plot server must be running
+# The server must run with --multi-user for this example to work
 # Go to http://localhost:5006/bokeh to view this plot
 
 import time

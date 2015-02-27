@@ -1,4 +1,3 @@
-
 define [
   "underscore",
   "common/collection",
@@ -15,7 +14,7 @@ define [
         for colname in source['columns']
           columns.push(sourceobj.get_column(colname))
       columns = _.flatten(columns)
-      columns = _.filter(columns, (x) -> typeof(x) != "string")
+      columns = _.reject(columns, (x) -> _.isString(x))
       columns = _.reject(columns, (x) -> isNaN(x))
       [min, max] = [_.min(columns), _.max(columns)]
       if max != min
