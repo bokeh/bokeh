@@ -1,6 +1,6 @@
 !function (definition) {
-  if (typeof module == "object" && module.exports) module.exports = definition();
-  else if (typeof define == "function") define(definition);
+  if (typeof define == "function") define(definition);
+  else if (typeof module == "object" && module.exports) module.exports = definition();
   else this.tz = definition();
 } (function () {
 /*
@@ -109,7 +109,7 @@
   }
 
   function convert (vargs) {
-    if (!vargs.length) return "0.0.23";
+    if (!vargs.length) return "0.0.38";
 
     var request = Object.create(this)
       , adjustments = []
