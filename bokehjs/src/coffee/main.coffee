@@ -18,7 +18,7 @@ define (require, exports, module) ->
 
   # binding the libs that bokeh uses so others can reference them
   Bokeh._                 = require("underscore")
-  Bokeh.$                 = require("jquery")
+  Bokeh.$                 = require("jquery-private")
   Bokeh.Backbone          = require("backbone")
 
   # common
