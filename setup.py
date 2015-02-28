@@ -125,7 +125,7 @@ def getsitepackages():
                                      "python" + sys.version[:3],
                                      "site-packages"),
                         os.path.join(prefix, "lib", "site-python"),
-                        os.path.join(prefix, "python" + sys.version[:3], "lib-dynload")]
+                        ]
             lib64_dir = os.path.join(prefix, "lib64", "python" + sys.version[:3], "site-packages")
             if (os.path.exists(lib64_dir) and
                 os.path.realpath(lib64_dir) not in [os.path.realpath(p) for p in sitedirs]):
@@ -140,17 +140,16 @@ def getsitepackages():
             except AttributeError:
                 pass
             # Debian-specific dist-packages directories:
-            if sys.version[0] == '2':
-                sitedirs.append(os.path.join(prefix, "lib",
-                                             "python" + sys.version[:3],
-                                             "dist-packages"))
-            else:
-                sitedirs.append(os.path.join(prefix, "lib",
-                                             "python" + sys.version[0],
-                                             "dist-packages"))
             sitedirs.append(os.path.join(prefix, "local/lib",
                                          "python" + sys.version[:3],
                                          "dist-packages"))
+            sitedirs.append(os.path.join(prefix, "lib",
+                                         "python" + sys.version[:3],
+                                         "dist-packages"))
+            if sys.version_info[0] >= 3:
+                sitedirs.append(os.path.join(prefix, "lib",
+                                             "python" + sys.version[0],
+                                             "dist-packages"))
             sitedirs.append(os.path.join(prefix, "lib", "dist-python"))
         else:
             sitedirs = [prefix, os.path.join(prefix, "lib", "site-packages")]
@@ -169,6 +168,8 @@ def getsitepackages():
                                      'site-packages'))
         for sitedir in sitedirs:
             sitepackages.append(os.path.abspath(sitedir))
+    
+    sitepackages = [p for p in sitepackages if os.path.isdir(p)]
     return sitepackages
 
 def check_remove_bokeh_install(site_packages):
@@ -317,9 +318,7 @@ if "sdist" in sys.argv:
 # check for package install, set jsinstall to False to skip prompt
 jsinstall = True
 if not exists(join(ROOT, 'MANIFEST.in')):
-    options = ('install', 'develop', 'sdist', 'egg_info', 'build', 'clean', '--help')
-    installing = any(arg in sys.argv for arg in options)
-    if installing:
+    if "--build_js" in sys.argv or "--install_js" in sys.argv:
         print("BokehJS source code is not shipped in sdist packages; "
               "building/installing from the bokehjs source directory is disabled. "
               "To build or develop BokehJS yourself, you must clone the full "
@@ -328,8 +327,8 @@ if not exists(join(ROOT, 'MANIFEST.in')):
             sys.argv.remove('--build_js')
         if "--install_js"  in sys.argv:
             sys.argv.remove('--install_js')
-        jsbuild = False
-        jsinstall = False
+    jsbuild = False
+    jsinstall = False
 else:
     jsbuild = parse_jsargs()
 
@@ -412,7 +411,7 @@ REQUIRES = [
         'pyzmq>=14.3.1',
         'tornado>=4.0.1',
         # cli
-        'click>=3.3',
+        #'click>=3.3',
         # tests
         #'nose>=1.3.0',
         #'mock>=1.0.1',

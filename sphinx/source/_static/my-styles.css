@@ -8,6 +8,7 @@ a.logo {float:left; margin:9px 5px 0 0}
 }
 dl.class > dt { background-color: #d6e1c7; }
 dl.class > dt:target { background-color: #fcebb6; }
+dl.method > dt { background-color: #fee6ce; }
+dl.method > dt:target { background-color: #fcebb6; }
 dl.function > dt { background-color: #d6e1c7; }
 dl.function > dt:target { background-color: #fcebb6; }
-

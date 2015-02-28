@@ -11,7 +11,8 @@ data = {
 }
 
 base = {
-  type: 'quad'
+  type: 'Quad'
+  source: "data"
   left: 'left'
   right: 'right'
   line_color: null
@@ -47,18 +48,31 @@ e = _.extend({
   fill_color: '#B2DF8A'
 }, base)
 
-options = {
-  title: "Stacked Bars Demo"
-  dims: [600, 600]
-  xrange: [0, 11]
-  yrange: [0, 100]
-  xaxes: "below"
-  yaxes: "left"
-  xgrid: false
-  tools: false
-  legend: "bars"
+xaxis = {
+  type: "auto"
+  location: "below"
+  grid: false
 }
 
-plot = Bokeh.Plotting.make_plot([a,b,c,d,e], data, options)
-Bokeh.Plotting.show(plot)
+yaxis = {
+  type: "auto"
+  location: "left"
+  grid: true
+}
+
+options = {
+  title: "Stacked Bars Demo"
+  plot_width: 600
+  plot_height: 600
+  x_range: [0, 11]
+  y_range: [0, 100]
+}
+
+$("#target").bokeh("figure", {
+  options: options
+  sources: { data: data }
+  glyphs: [a, b, c, d, e]
+  guides: [xaxis, yaxis]
+  tools: ["Pan", "WheelZoom" ,"Resize" ,"PreviewSave"]
+})
 

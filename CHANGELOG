@@ -1,3 +1,180 @@
+2015-02-23    0.8.1:
+--------------------
+  * Fixed HoverTool
+  * Fixed Abstract rendering implementationa and docs
+  * Fixed chart gallery and docs
+  * Removed leftovers from the old plotting API implementation
+  * Some other minor docs fixes
+  * bugfixes:
+    - #1801 Bokeh server crashing when reloading flask app
+    - #1909 Make tooltips properly centered on data points
+    - #1910 [docs] [examples] Fix charts gallery
+    - #1914 Remove spurious curplot
+    - #1918 Nameerror: name 'jsbuild' is not defined
+    - #1920 [regression] Examples/plotting/file/hover.py broken after 0.8 release
+    - #1921 [docs] [regression] Tutorial gallery is broken
+    - #1922 [examples] App_reveal fails importing old plotting stuff
+    - #1925 [docs] Docs error in chart section
+    - #1933 [docs] Bokeh glyph quick reference 404 (docs)
+    - #1940 Spectrogram needs updating to use figure()
+    - #1943 `publishing` example from the `embed` directory fails
+    - #1945 [docs] More broken doc links
+    - #1946 [docs] Fix charts on userguide showing old functionality
+    - #1963 Feature/fix ar zoom
+  * features:
+    - #899 [docs] Hosted server examples in the gallery
+    - #1929 [starter] Image glyph method should have a default palette
+  * tasks:
+    - #1731 [docs] Add a section about bokeh-scala/bokeh.jl/... to main documentation
+    - #1905 Better error messages for blaze version mismatch
+    - #1908 Release 0.8.0
+    - #1962 Hot fixes for examples
+
+2015-02-16    0.8.0:
+--------------------
+  * New and updated language bindings: R, JavaScript, Julia, Scala, and Lua now available
+  * Better bokeh-server experience:
+   - live gallery for server apps and examples!
+   - new "publish" mode Bokeh plots and apps
+   - docs and advice for real-world deployments
+  * Simpler and more easily extensible charts architecture, with new Horizon chart
+  * Dramatic build and documentation improvements:
+   - 100% complete reference guide
+   - full docs and BokehJS version deployed for every "dev" build and RC
+   - sphinx extensions for easy inline plots
+  * Shaded grid bands, configurable hover tool, and pan/zoom for categorical plots
+  * Improved and more robust crossfilter
+  * AjaxDataSource for clients to stream data without a Bokeh server
+  * bugfixes:
+    - #165 May need to dilate canvas 1px
+    - #766 Resize handle offset when there are axis labels
+    - #833 Screen units for x,y
+    - #1221 Call to `show()` not displaying figure in ipython notebook
+    - #1286 Decouple show method in charts
+    - #1296 Map_from_screen broken
+    - #1305 [docs] `cd sphinx; make html` fails 
+    - #1522 Tools "help button" issues
+    - #1578 Donut charts example not drawing annular lines
+    - #1584 Investigate serialization of alpha values
+    - #1702 [build] Running bokeh-server in development environment under windows
+    - #1705 [docs] Reset doesn't reset box select
+    - #1709 [examples] Selection_update stack trace when doing pan/zoom/select ops
+    - #1717 [docs] Documentation: wrong title font property name in user guide
+    - #1721 [docs] Documentation: user guide describes unsupported axis locations
+    - #1723 [bokehjs] Setting plot_{width,height} doesn't work
+    - #1738 [docs] [starter] Reference guide formatting issues
+    - #1749 [bokehjs] Datatable requires columndatasource to have an `index` field
+    - #1753 Make sure sys is available for sys.exit() call on failure
+    - #1761 Importing bokeh breaks standard python if ipython also installed
+    - #1775 Using bokeh keyword in host url affect config.prefix value
+    - #1787 [docs] Autoload script examples out of date
+    - #1798 Use_prefix for include not functioning completely correctly 
+    - #1809 Seems to be some curplot leftover in the codebase
+    - #1821 Bokeh ipython magic imports plotting.hold, but plotting.hold is dead
+    - #1824 [regression] Bokeh_pretty doesn't have an effect
+    - #1835 Enable runs of travisci in branches tagged with xxx.dev[rc].xxxxxxxx form
+    - #1837 Fix any caracther in the ruby regex to support the tag containing sha
+    - #1838 Hotfix for files encryption
+    - #1839 [docs] Fix parameter name: host -> root_url
+    - #1840 Fix broken werkzeug import in bokeh-server
+    - #1864 Fix charts not working with server
+    - #1876 Boxplot chart does not work with iterables of lists
+    - #1896 [docs] Fix up docstring table rendering in sphinx
+    - #1897 [docs] Make source location in glyphs docstrings be actual links
+    - #1902 Feature/server gallery
+    - #1904 [examples] Change [x,y]_label to [x,y]label in charts examples
+  * features:
+    - #380 Add some examples of mplsupport inside ipython notebooks
+    - #586 [tests] Add sphinx tutorials to travis
+    - #626 [starter] Make radius dimension configurable for circles
+    - #749 Adding support for a constrained box zoom
+    - #822 [docs] Update docs with architecture diagram
+    - #842 [bokehjs] Add axis label formatters (sprintf-style, etc.)
+    - #889 Bokeh.plotting.patches line_dash argument only takes a list
+    - #987 [starter] Pan and zoom in categorical plots
+    - #1091 [bokehjs] Text autocomplete widget
+    - #1217 Make bokeh-server gunicorn friendly
+    - #1257 Embedding using matplotlib compatibility layer
+    - #1281 Scatter doesn't have box zoom
+    - #1375 Load bokehjs in a notebook during `import bokeh`
+    - #1464 Charts palette should be configurable
+    - #1478 [bokehjs] Hoverplot.tooltips should allow html and/or markdown and/or 
+    - #1515 Restore bokehjs interface
+    - #1546 We need to support bokeh[version].[min].js[css] in the cdn to support devel builds
+    - #1574  charts should be subclasses of plot
+    - #1635 Implement blaze/remote data source to support streaming data in plots
+    - #1682 Ajax/json data source
+    - #1703 Extending/fixing crossfilter
+    - #1730 Being able to hide the axis
+    - #1733 Adding horizon high-level chart (clean version)
+    - #1734 Bound needs to accept datetime obects
+    - #1746 [docs] Add simple inline examples to all or most plotting.py glyph functions
+    - #1768 Enable tabbed faceting on crossfilter
+    - #1779 Try to only build on master
+    - #1780 Negative bar charts
+    - #1786 [starter] Vbox/hbox should accept single list as well
+    - #1788 Build on travis ideas
+    - #1792 Allow grids to shade alternating bands
+    - #1795 [bokehjs] Tap+open url
+    - #1799 Copy on write
+    - #1802 [examples] Add glyphs/linked_tap_server example
+    - #1815 Step chart should use line, not segment
+    - #1816 [docs] Add bokeh-plot examples to chart docstrings
+    - #1823 Add support for bokeh_dev=true python something.py
+    - #1858 Feature/multiuser applet support
+    - #1862 Hotfix to support local docs with a correct bokehjs
+    - #1887 Feature/blaze interface
+  * tasks:
+    - #906 [docs] Axis and grid needs an update in the user guide
+    - #946 [docs] Columndatasource documentation update
+    - #1060 [docs] Document that some ar example need scipy + pil to work
+    - #1148 [build] Dev build sdists do no carry correct version info
+    - #1170 [docs] Need documentation for bokeh server
+    - #1503 [bokehjs] Remove unused datafactorrange
+    - #1518 [build] Build/release automation improvements. 
+    - #1540 Some improvements on the devel build
+    - #1568 Programmatically upload bokeh js/css to the container
+    - #1571 Remove deprecated plotting api
+    - #1593 Scatter plot demo with linked density histograms
+    - #1656 Plotting.gridplot setting id from name
+    - #1687 Release 0.7.1
+    - #1688 [docs] Documentation build improvements 
+    - #1690 [docs] Sphinx autoprops dependency for bokeh models
+    - #1692 [docs] Better reported version for deployed dev docs
+    - #1694 [docs] Sphinx plot extension directive
+    - #1695 Pin scipy
+    - #1696 Selection/histogram minor issues
+    - #1697 Load_notebook doesn't work with ipython master
+    - #1712 [examples] Charts examples should split file/server/notebook
+    - #1728 [docs] Timeseries tutorial formatting improvements
+    - #1739 Create test matrix script
+    - #1743 [docs] Add to doc best use of push_notebook for interact style things, not streaming
+    - #1745 Catch ioerror in load_notebook and add logging to the python side
+    - #1747 [docs] Document all model attributes
+    - #1750 Temporary fix until conda get fixed with python3
+    - #1755 Wip fix for conda build
+    - #1758 Check apps are in sync with the new api
+    - #1765 Task/remove bokeh js
+    - #1766 [examples] [tests] Move/rename examples.html
+    - #1770 Remove debugging lines
+    - #1771 Add doc build to the devel build script
+    - #1777 Feature/deploy
+    - #1794 [docs] [labels] Add "starter" tag 
+    - #1813 [docs] Document new charts design
+    - #1817 Split chart builders into a sub-package
+    - #1818 [tests] Improve/re-org charts tests
+    - #1819 Use properties for private models and builders in bokeh.charts
+    - #1834 [build] Pin conda-build to get travisci running again
+    - #1843 Rename range property to interval
+    - #1846 [docs] Add proper docs for properties.py
+    - #1860 [docs] Split up dev guide into multiple files
+    - #1867 [docs] Clearer docs, new section about installing npm and nodejs
+    - #1870 Rename get_data, get_source, prepare_values, draw builders methods
+    - #1884 Remove click for dependencies
+    - #1885 Axis.hide should have been called axis.visible
+    - #1889 Delete click from the conda recipe
+    - #1899 [docs] Change docstring example with better data
+
 2015-01-12    0.7.1:
 --------------------
   * Several bokeh.charts bug fixes and enhancements, such as configurable tools

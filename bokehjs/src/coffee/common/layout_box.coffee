@@ -1,4 +1,3 @@
-
 define [
   "underscore",
   "./collection",
@@ -83,9 +82,9 @@ define [
 
     _set_var: (value, prop_name) ->
       v = @['_' + prop_name]
-      if typeof value == 'number'
+      if _.isNumber(value)
         @solver.suggest_value(v, value);
-      else if typeof value == 'string'
+      else if _.isString(value)
           # handle namespaced later
       else
         c = new Constraint(new Expr(v, [-1, value]), EQ)

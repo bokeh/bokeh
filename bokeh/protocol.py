@@ -56,6 +56,8 @@ class BokehJSONEncoder(json.JSONEncoder):
     def transform_numerical_array(self, obj):
         """handles nans/inf conversion
         """
+        if isinstance(obj, np.ma.MaskedArray):
+            obj = obj.filled(np.nan)  # Set masked values to nan
         if not np.isnan(obj).any() and not np.isinf(obj).any():
             return obj.tolist()
         else:

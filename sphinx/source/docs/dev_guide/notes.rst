@@ -19,6 +19,9 @@ There are several environment variables that can be useful for developers:
 
 * ``BOKEH_LOCAL_DOCS_CDN`` --- What version of BokehJS to use when building  sphinx docs locally.
 
+* ``BOKEH_RELEASED_DOCS`` --- Whether to use the x.x.x version for re-deployment of the docs.
+    Accepted values are ``yes``/``no``, ``true``/``false`` or ``0``/``1``.
+
 * ``BOKEH_LOG_LEVEL`` --- The BokehJS console logging level to use
     Valid values are, in order of increasing severity:
 
@@ -49,8 +52,9 @@ There are several environment variables that can be useful for developers:
   - ``warn``
   - ``error``
   - ``fatal``
+  - ``none``
 
-    The default logging level is ``info``.
+    The default logging level is ``none``.
 
 * ``BOKEH_RESOURCES`` --- What kind of BokehJS resources to configure
     For example:  ``inline``, ``cdn``, ``server``. See the

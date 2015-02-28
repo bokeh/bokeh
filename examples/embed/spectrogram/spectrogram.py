@@ -10,7 +10,7 @@ from scipy.integrate import simps
 
 from bokeh.embed import components
 from bokeh.models import ColumnDataSource
-from bokeh.plotting import image_rgba, line, annular_wedge, grid
+from bokeh.plotting import figure
 from bokeh.resources import Resources
 from bokeh.templates import RESOURCES
 from bokeh.utils import encode_utf8
@@ -132,38 +132,46 @@ def make_spectrogram():
     )
 
     spec_source = ColumnDataSource(data=dict(image=[], x=[]))
-    spec = image_rgba(
+    spec = figure(
+        title=None, plot_width=800, plot_height=300,
+        x_range=[0, NGRAMS], y_range=[0, MAX_FREQ], **plot_kw)
+    spec.image_rgba(
         x='x', y=0, image='image', dw=TILE_WIDTH, dh=MAX_FREQ,
-        cols=TILE_WIDTH, rows=SPECTROGRAM_LENGTH, title=None,
-        source=spec_source, plot_width=800, plot_height=300,
-        x_range=[0, NGRAMS], y_range=[0, MAX_FREQ],
-        dilate=True, name="spectrogram", **plot_kw)
+        cols=TILE_WIDTH, rows=SPECTROGRAM_LENGTH,
+        source=spec_source, dilate=True, name="spectrogram")
+    spec.grid.grid_line_color = None
 
     spectrum_source = ColumnDataSource(data=dict(x=[], y=[]))
-    spectrum = line(
-        x="x", y="y", line_color="darkblue", title="Power Spectrum",
-        source=spectrum_source, plot_width=800, plot_height=250,
-        x_range=[0, MAX_FREQ], y_range=[10**(-4), 10**3], y_axis_type="log",
-        name="spectrum", **plot_kw)
+    spectrum = figure(
+        title="Power Spectrum", plot_width=800, plot_height=250,
+        y_range=[10**(-4), 10**3], x_range=[0, MAX_FREQ],
+        y_axis_type="log", **plot_kw)
+    spectrum.line(
+        x="x", y="y", line_color="darkblue",
+        source=spectrum_source, name="spectrum")
+    spectrum.xgrid.grid_line_dash=[2, 2]
 
     signal_source = ColumnDataSource(data=dict(x=[], y=[]))
-    signal = line(
-        x="x", y="y", line_color="darkblue", title="Signal",
-        source=signal_source, plot_width=800, plot_height=250,
-        x_range=[0, TIMESLICE*1.01], y_range=[-0.1, 0.1],
-        name="signal", **plot_kw)
+    signal = figure(
+        title="Signal", plot_width=800, plot_height=250,
+        x_range=[0, TIMESLICE*1.01], y_range=[-0.1, 0.1], **plot_kw)
+    signal.line(
+        x="x", y="y", line_color="darkblue",
+        source=signal_source,  name="signal")
+    signal.xgrid.grid_line_dash=[2, 2]
 
     radial_source = ColumnDataSource(data=dict(
         inner_radius=[], outer_radius=[], start_angle=[], end_angle=[], fill_alpha=[],
     ))
-    eq = annular_wedge(
+    eq = figure(
+        title=None, plot_width=500, plot_height=520,
+        x_range=[-20, 20], y_range=[-20, 20], **plot_kw)
+    eq.annular_wedge(
         x=0, y=0, fill_color="#688AB9", fill_alpha="fill_alpha", line_color=None,
         inner_radius="inner_radius", outer_radius="outer_radius",
-        start_angle="start_angle", end_angle="end_angle", title=None,
-        source=radial_source, plot_width=500, plot_height=520,
-        x_range=[-20, 20], y_range=[-20, 20],
-        name="eq", **plot_kw)
-    grid().grid_line_color=None
+        start_angle="start_angle", end_angle="end_angle",
+        source=radial_source, name="eq")
+    eq.grid.grid_line_color=None
 
     lines = VBox(
         children=[spectrum, signal]

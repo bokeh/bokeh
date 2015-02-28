@@ -49,6 +49,8 @@ def get_parser():
                         help='Previous version of bokeh', required=True)
     parser.add_argument('-v', '--version', action='store', default=False,
                         help='Version of bokeh to test', required=True)
+    parser.add_argument('-c', '--channel', action='store', default=False,
+                        help='binstar channel', required=False)
     parser.add_argument('--keep', action='store_true', default=False,
                         help="Don't delete conda envs created by this script")
     parser.add_argument('--dry-run', action='store_true', default=False,
@@ -70,16 +72,17 @@ def cleaner(env_path):
 def conda_creator(env_name, pkgs):
     """Create a conda environment of a given name containing a given string of pkgs.
     """
-
-    call_wrapper("conda create --yes -n %s %s" % (env_name, pkgs), shell=True)
+    call_wrapper("conda create --yes -n %s %s %s" % (env_name, pkgs, OPTIONS["channel"]), shell=True)
 
 
 def bokeh_installer(env_name, install_string):
     """Activate an environment and run its install string to either install or update bokeh using
     conda or pip.
     """
-
-    command_string = 'source activate %s; %s' % (env_name, install_string)
+    if os.name == 'nt':
+        command_string = 'activate %s & %s' % (env_name, install_string)
+    else:
+        command_string = 'source activate %s; %s' % (env_name, install_string)
 
     result = call_wrapper(command_string, shell=True)
 
@@ -89,8 +92,10 @@ def bokeh_installer(env_name, install_string):
 def version_check(env_name, expected_ver):
     """Check a given environment's version of bokeh.
     """
-
-    command_string = 'source activate %s; python -c "import sys, bokeh; sys.exit(0 if bokeh.__version__ == %r else 1)"' % (env_name, expected_ver)
+    if os.name == 'nt':
+        command_string = 'activate %s & python -c "import sys, bokeh; sys.exit(0 if bokeh.__version__ == %r else 1)"' % (env_name, expected_ver)
+    else:
+        command_string = 'source activate %s; python -c "import sys, bokeh; sys.exit(0 if bokeh.__version__ == %r else 1)"' % (env_name, expected_ver)
 
     result = call_wrapper(command_string, shell=True)
 
@@ -105,7 +110,11 @@ def run_tests(env_name):
     test_failure = ''
     file_name  = "tmpfile.txt"
     tmpfile = open(file_name, "w+")
-    command_string = 'source activate %s; python -c "import nose, os, sys, bokeh; bokeh.test(exit=True)"' % env_name
+
+    if os.name == 'nt':
+        command_string = 'activate %s & python -c "import nose, os, sys, bokeh; bokeh.test(exit=True)"' % env_name
+    else:
+        command_string = 'source activate %s; python -c "import nose, os, sys, bokeh; bokeh.test(exit=True)"' % env_name
 
     result = call_wrapper(command_string, shell=True, stderr=tmpfile)
 
@@ -150,6 +159,10 @@ if __name__ == '__main__':
     parser = get_parser()
     ops = parser.parse_args()
     OPTIONS["dry-run"] = ops.dry_run
+    if ops.channel:
+        OPTIONS["channel"] = "-c %s" % ops.channel
+    else:
+        OPTIONS["channel"] = ""
     preversion = ops.previous
     current_version = ops.version
 

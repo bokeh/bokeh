@@ -52,19 +52,23 @@ class Settings(object):
     def local_docs_cdn(self, default=None):
         return self._get_str("LOCAL_DOCS_CDN", default)
 
+    def released_docs(self, default=None):
+        return self._get_bool("RELEASED_DOCS", default, False)
+
     def minified(self, default=None):
         return self._get_bool("MINIFIED", default, False)
 
     def log_level(self, default=None):
         return self._get_str("LOG_LEVEL", default, "debug")
 
-    def py_log_level(self, default='info'):
+    def py_log_level(self, default='none'):
         level = self._get_str("PY_LOG_LEVEL", default, "debug")
         LEVELS = {'debug': logging.DEBUG,
                   'info' : logging.INFO,
                   'warn' : logging.WARNING,
                   'error': logging.ERROR,
-                  'fatal': logging.CRITICAL}
+                  'fatal': logging.CRITICAL,
+                  'none' : None}
         return LEVELS[level]
 
     def pretty(self, default=None):

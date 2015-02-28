@@ -65,6 +65,8 @@ copyright = u'2013, Continuum Analytics'
 #
 # Let's try to automatically get the version
 from bokeh._version import get_versions
+from bokeh import settings
+
 try:
     from bokeh.__conda_version__ import conda_version
     __version__ = conda_version.replace("'","")
@@ -72,6 +74,11 @@ try:
 except ImportError:
     __version__ = get_versions()['version']
     del get_versions
+
+# if you need to redeploy the released docs, you only need the x.x.x version
+if settings.released_docs():
+    __version__ = __version__.split('-')[0]
+
 # The short X.Y version.
 version = __version__
 # The full version, including alpha/beta/rc tags.
