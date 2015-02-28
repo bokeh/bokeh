@@ -9,7 +9,7 @@
   skip: ["image.py", "image_rgba.py", "ajax_source.py"]
 - path: "plotting/server"
   type: server
-  skip: ["image.py", "image_rgba.py", "remote_image.py", "serversource.py", "server_source_upload.py", "embedding_example.py", "abstractrender.py", "census.py"]
+  skip: ["image.py", "image_rgba.py", "image_downsample.py", "line_downsample.py", "server_source_upload.py", "embedding_example.py", "abstractrender.py", "census.py"]
 - path: "plotting/notebook"
   type: notebook
   skip_travis: ['bollinger.ipynb', 'boxplot.ipynb', 'brewer.ipynb', 'burtin.ipynb', 'candlestick.ipynb', 'color_scatterplot.ipynb',
