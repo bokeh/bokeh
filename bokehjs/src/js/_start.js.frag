@@ -1,5 +1,7 @@
 (function (root, factory) {
   root.Bokeh = factory();
-}(this, function () {
-  //almond, and your modules will be inlined here
 
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = root.Bokeh;
+  }
+}(this, function () {

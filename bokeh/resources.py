@@ -37,15 +37,15 @@ def _get_cdn_urls(version=None, minified=True):
         else:
             version = __version__.split('-')[0]
 
-    # check the 'dev' fingerprint
-    dev = version.split('.')[-2]
     # check if we want minified js and css
     _min = ".min" if minified else ""
 
     base_url = _cdn_base_url()
     dev_container = 'bokeh/dev'
     rel_container = 'bokeh/release'
-    container = dev_container if dev.startswith(('dev', 'rc')) else rel_container
+
+    # check the 'dev' fingerprint
+    container = dev_container if version.endswith(('dev', 'rc')) else rel_container
 
     result = {
         'js_files'  : ['%s/%s/bokeh-%s%s.js' % (base_url, container, version, _min)],

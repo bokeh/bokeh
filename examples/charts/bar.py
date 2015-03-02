@@ -3,9 +3,8 @@ from collections import OrderedDict
 import numpy as np
 import pandas as pd
 
-from bokeh.charts import Bar
+from bokeh.charts import Bar, output_file, show, vplot, hplot
 from bokeh.models import Range1d
-from bokeh.plotting import output_file, show, VBox, HBox
 from bokeh.sampledata.olympics2014 import data as original_data
 
 width = 700
@@ -20,8 +19,7 @@ gold = np.array([data[abbr]['gold'] for abbr in countries], dtype=np.float)
 silver = np.array([data[abbr]['silver'] for abbr in countries], dtype=np.float)
 bronze = np.array([data[abbr]['bronze'] for abbr in countries], dtype=np.float)
 
-# Dict input
-
+# dict input
 medals = OrderedDict(bronze=bronze, silver=silver, gold=gold)
 
 dict_stacked = Bar(
@@ -30,8 +28,7 @@ dict_stacked = Bar(
     stacked=True
 )
 
-# Data frame input
-
+# data frame input
 df = pd.DataFrame(medals, index=countries)
 
 df_grouped = Bar(
@@ -39,8 +36,7 @@ df_grouped = Bar(
     xlabel="countries", ylabel="medals", width=width, height=height
 )
 
-# Numpy Array input with different data to affect the ranges
-
+# Numpy array input with different data to affect the ranges
 random = np.random.rand(3, 8)
 mixed = random - np.random.rand(3, 8)
 categories = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
@@ -67,11 +63,11 @@ np_mixed_grouped = Bar(
     ylabel="Random Number", width=width, height=height
 )
 
-# Collect and display
+# collect and display
 output_file("bar.html")
 
-show(VBox(
-    HBox(dict_stacked, df_grouped),
-    HBox(np_stacked, np_negative_grouped),
-    HBox(np_mixed_grouped, np_custom),
+show(vplot(
+    hplot(dict_stacked, df_grouped),
+    hplot(np_stacked, np_negative_grouped),
+    hplot(np_mixed_grouped, np_custom),
 ))

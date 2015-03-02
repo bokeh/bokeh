@@ -1,11 +1,12 @@
 
 define [
+  "jquery"
   "underscore"
   "common/has_parent"
   "common/plot_widget"
   "common/collection"
   "common/logging"
-], (_, HasParent, PlotWidget, Collection, Logging) ->
+], ($, _, HasParent, PlotWidget, Collection, Logging) ->
 
   logger = Logging.logger
 
