@@ -1,4 +1,4 @@
-
+import inspect
 import logging
 logger = logging.getLogger(__name__)
 
@@ -180,15 +180,22 @@ class cached_property(object):
         value = obj.__dict__[self.func.__name__] = self.func(obj)
         return value
 
-def callonce(func):
-    called = True
-    @wraps(func)
-    def wrapper():
-        if not wrapper.called:
-            wrapper.called = True
-            result = func()
-            return result
-        else:
-            return
-    wrapper.called = False
-    return wrapper
+# def callonce(func):
+#     called = True
+#     @wraps(func)
+#     def wrapper():
+#         if not wrapper.called:
+#             wrapper.called = True
+#             result = func()
+#             return result
+#         else:
+#             return
+#     wrapper.called = False
+#     return wrapper
+
+def arg_filter(func, input_dict):
+    arg_names, vararg_name, keyword_name, defaults = inspect.getargspec(func)
+    result = {}
+    for k in arg_names:
+        result[k] = input_dict.get(k)
+    return result

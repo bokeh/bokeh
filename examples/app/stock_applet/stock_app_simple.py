@@ -57,12 +57,11 @@ def stock1(ticker1, ticker2):
 stock1.route("/bokeh/stocks/")
 
 @simpleapp(select1, select2)
-def stock2(ticker1, ticker2, source=None):
+def stock2(ticker1, ticker2):
     pretext = PreText(text="", width=500, tags=['text'])
     df = get_data(ticker1, ticker2)
-    if source is None:
-        source = ColumnDataSource(data=df)
-        source.tags = ['main_source']
+    source = ColumnDataSource(data=df)
+    source.tags = ['main_source']
     p = figure(
         title="%s vs %s" % (ticker1, ticker2),
         plot_width=400, plot_height=400,
@@ -99,7 +98,6 @@ def stock2_update_selection(ticker1, ticker2, app):
         selected_df = df.iloc[source.selected, :]
     else:
         selected_df = df
-
     hist1 = hist_plot(df, ticker1, selected_df=selected_df)
     hist2 = hist_plot(df, ticker2, selected_df=selected_df)
     row2 = app.select_one({'tags' : 'row2'})

@@ -1,9 +1,11 @@
 import copy
 from functools import wraps
+import logging
+logger = logging.getLogger(__name__)
 
 from six import string_types
 
-from .utils import callonce, cached_property
+from .utils import cached_property, arg_filter
 from .models.widgets.layouts import HBox, VBox, VBoxForm
 from .plot_object import PlotObject
 from .properties import String, Instance, Dict, Any, Either
@@ -11,6 +13,7 @@ from .plotting import curdoc, cursession, push, show as pshow
 
 create_registry = {}
 update_registry = {}
+layout = {}
 
 def simpleapp(*args):
     def decorator(func):
@@ -28,6 +31,10 @@ class SimpleAppWrapper(object):
 
     def __call__(self, *args, **kwargs):
         return self.func(*args, **kwargs)
+
+    def layout(self, func):
+
+
 
     def update(self, selectors):
         def wrapper(func):
@@ -71,23 +78,28 @@ class SimpleApp(HBox):
             result[widget.name] = widget
         return result
 
-    def callback(self, func, include_app=True, set_output=False):
+    def set_debounce(self):
+        self._debounce_called = {}
+
+    def clear_debounce(self):
+        delattr(self, "_debounce_called")
+
+    def callback(self, func, set_output=False):
         @wraps(func)
-        def once():
-            args = self.args()
-            if include_app:
-                args['app'] = self
+        def signature_change_call_once(obj, attrname, old, new):
+            debounce_called = getattr(self, "_debounce_called", None)
+            if debounce_called is not None and func.__name__ in debounce_called:
+                return
+            args = self.args_for_func(func)
+            logger.debug("calling %s", func.__name__)
             result = func(**args)
             if set_output:
                 self.output = result
             curdoc()._add_all()
+            if debounce_called is not None:
+                debounce_called[func.__name__] = True
             return result
-        once = callonce(once)
-
-        @wraps(once)
-        def signature_change(obj, attrname, old, new):
-            return once()
-        return signature_change
+        return signature_change_call_once
 
     def setup_events(self):
         ## hack - what we want to do is execute the update callback once
@@ -101,8 +113,10 @@ class SimpleApp(HBox):
         if not update_registry.get(self.name):
             name = '_func%d'  % counter
             func = create_registry[self.name]
-            setattr(self, name, self.callback(func, include_app=False, set_output=True))
+            setattr(self, name, self.callback(func, set_output=True))
             for obj in self.references():
+                if obj == self:
+                    continue
                 for attr in obj.class_properties():
                     obj.on_change(attr, self, name)
             return
@@ -111,7 +125,7 @@ class SimpleApp(HBox):
             #hack because we lookup callbacks by func name
             name = '_func%d'  % counter
             counter += 1
-            setattr(self, name, self.callback(func, include_app=True))
+            setattr(self, name, self.callback(func))
             for selector in selectors:
                 if isinstance(selector, string_types):
                     self.widget_dict[selector].on_change('value', self, name)
@@ -121,19 +135,26 @@ class SimpleApp(HBox):
                 else:
                     attrs = None
                 for obj in self.select(selector):
+                    if obj == self:
+                        continue
                     if attrs:
                         toiter = attrs
                     else:
                         toiter = obj.class_properties()
                     for attr in toiter:
                         obj.on_change(attr, self, name)
+        self.set_debounce()
 
-    def args(self):
+    def args_for_func(self, func):
         args = {}
         for widget in self.widgets.children:
             args[widget.name] = widget.value
+        args['app'] = self
+        args = arg_filter(func, args)
         return args
 
     def set_output(self):
-        result = create_registry[self.name](**self.args())
+        func = create_registry[self.name]
+        args = self.args_for_func(func)
+        result = func(**args)
         self.output = result
