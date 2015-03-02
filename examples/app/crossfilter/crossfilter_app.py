@@ -7,8 +7,8 @@ from bokeh.sampledata.autompg import autompg
 
 @bokeh_app.route("/bokeh/crossfilter/")
 @object_page("crossfilter")
-def make_object():
+def make_crossfilter():
     autompg['cyl'] = autompg['cyl'].astype(str)
-    autompg['origin'] = autompg['cyl'].astype(str)
+    autompg['origin'] = autompg['origin'].astype(str)
     app = CrossFilter.create(df=autompg)
     return app

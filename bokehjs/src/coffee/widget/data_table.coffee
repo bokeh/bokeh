@@ -17,6 +17,10 @@ define [
       @data = @source.get('data')
       @fields = _.keys(@data)
 
+      if not _.contains(@fields, "index")
+        @data["index"] = [0...@getLength()]
+        @fields.push("index")
+
     getLength: () -> @source.get_length()
 
     getItem: (index) ->

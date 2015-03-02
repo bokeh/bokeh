@@ -2,7 +2,7 @@ from collections import OrderedDict
 
 from bokeh.sampledata.unemployment1948 import data
 from bokeh.charts import HeatMap
-
+from bokeh.plotting import output_file, show
 # pandas magic
 df = data[data.columns[:-2]]
 df2 = df.set_index(df[df.columns[0]].astype(str))
@@ -23,6 +23,6 @@ data = OrderedDict(sorted((k, to_odict(v)) for k, v in datadict.items()))
 #data = df3
 #data = df3.values.T
 #data = list(df3.values.T)
-
-hm = HeatMap(data, title="categorical heatmap", filename="cat_heatmap.html")
-hm.width(1000).height(400).show()
+output_file("cat_heatmap.html")
+hm = HeatMap(data, title="categorical heatmap", width=800,filename="cat_heatmap.html")
+show(hm) # or hm.show()

@@ -415,6 +415,15 @@ def versions_from_vcs(tag_prefix, versionfile_source, verbose=False):
     full = stdout.strip()
     if tag.endswith("-dirty"):
         full += "-dirty"
+
+    # accomodate to our devel build process
+    try:
+        from bokeh.__conda_version__ import conda_version
+        tag = conda_version.replace("'","")
+        del conda_version
+    except ImportError:
+        pass
+
     return {"version": tag, "full": full}
 
 

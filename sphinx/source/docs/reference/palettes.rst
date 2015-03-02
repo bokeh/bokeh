@@ -1,7 +1,6 @@
 .. _bokeh_dot_palettes:
 
-Palettes
-========
+Standard Palettes
+#################
 
-.. raw:: html
-	:file: palette_detail.html
+.. bokeh-palette:: unused.for.now

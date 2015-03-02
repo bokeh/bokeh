@@ -1,0 +1,17 @@
+- path: "glyphs"
+- path: "compat/mpl"
+- path: "compat/ggplot"
+- path: "compat/seaborn"
+- path: "compat/pandas"
+- path: "charts"
+- path: "plotting/file"
+  type: file
+  skip: ["image.py", "image_rgba.py", "ajax_source.py"]
+- path: "plotting/server"
+  type: server
+  skip: ["image.py", "image_rgba.py", "remote_image.py", "serversource.py", "server_source_upload.py", "embedding_example.py", "abstractrender.py", "census.py"]
+- path: "plotting/notebook"
+  type: notebook
+  skip_travis: ['bollinger.ipynb', 'boxplot.ipynb', 'brewer.ipynb', 'burtin.ipynb', 'candlestick.ipynb', 'color_scatterplot.ipynb',
+                'correlation.ipynb', 'glucose.ipynb', 'glyphs.ipynb', 'line_server.ipynb', 'linked_brushing.ipynb', 'lorenz.ipynb',
+                'random_walk.ipynb', 'rect.ipynb', 'scatter.ipynb', 'stocks.ipynb', 'texas.ipynb', 'vector.ipynb']

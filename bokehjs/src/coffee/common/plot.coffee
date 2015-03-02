@@ -110,9 +110,6 @@ define [
     map_to_screen: (x, x_units, y, y_units, x_name='default', y_name='default') ->
       @frame.map_to_screen(x, x_units, y, y_units, @canvas, x_name, y_name)
 
-    map_from_screen: (sx, sy, units) ->
-      @frame.map_from_screen(sx, sy, units, @canvas, name)
-
     update_range: (range_info) ->
       if not range_info?
         range_info = @initial_range_info
@@ -179,6 +176,12 @@ define [
     render: (force_canvas=false) ->
       logger.trace("Plot.render(force_canvas=#{force_canvas})")
 
+      width = @mget("plot_width")
+      height = @mget("plot_height")
+
+      if @canvas.get("canvas_width") != width or @canvas.get("canvas_height") != height
+        @canvas._set_dims([width, height], trigger=false)
+
       super()
       @canvas_view.render(force_canvas)
 
@@ -201,8 +204,9 @@ define [
         if th != @model.title_panel.get('height')
           @model.title_panel.set('height', th)
 
-      @model.get('frame').set('width', canvas.get('width'))
-      @model.get('frame').set('height', canvas.get('height'))
+      # Note: -1 to effectively dilate the canvas by 1px
+      @model.get('frame').set('width', canvas.get('width')-1)
+      @model.get('frame').set('height', canvas.get('height')-1)
 
       @canvas.solver.update_variables(false)
 

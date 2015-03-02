@@ -330,6 +330,25 @@ class TestDashPattern(unittest.TestCase):
         with self.assertRaises(ValueError):
             f.pat = [2, "a"]
 
+    def test_list(self):
+        class Foo(HasProps):
+            pat = DashPattern
+        f = Foo()
+
+        f.pat = ()
+        self.assertEqual(f.pat, ())
+        f.pat = (2,)
+        self.assertEqual(f.pat, (2,))
+        f.pat = (2, 4)
+        self.assertEqual(f.pat, (2, 4))
+        f.pat = (2, 4, 6)
+        self.assertEqual(f.pat, (2, 4, 6))
+
+        with self.assertRaises(ValueError):
+            f.pat = (2, 4.2)
+        with self.assertRaises(ValueError):
+            f.pat = (2, "a")
+
     def test_invalid(self):
         class Foo(HasProps):
             pat = DashPattern
@@ -343,7 +362,7 @@ class TestDashPattern(unittest.TestCase):
             f.pat = {}
 
 from bokeh.properties import (Bool, Int, Float, Complex, String,
-    Regex, List, Dict, Tuple, Array, Instance, Any, Range, Either,
+    Regex, List, Dict, Tuple, Array, Instance, Any, Interval, Either,
     Enum, Color, Align, DashPattern, Size, Percent, Angle)
 
 class Foo(HasProps):
@@ -571,14 +590,14 @@ class TestProperties(unittest.TestCase):
         self.assertFalse(prop.is_valid(Bar()))
         self.assertFalse(prop.is_valid(Baz()))
 
-    def test_Range(self):
+    def test_Interval(self):
         with self.assertRaises(TypeError):
-            prop = Range()
+            prop = Interval()
 
         with self.assertRaises(ValueError):
-            prop = Range(Int, 0.0, 1.0)
+            prop = Interval(Int, 0.0, 1.0)
 
-        prop = Range(Int, 0, 255)
+        prop = Interval(Int, 0, 255)
 
         self.assertTrue(prop.is_valid(None))
         # TODO: self.assertFalse(prop.is_valid(False))
@@ -598,7 +617,7 @@ class TestProperties(unittest.TestCase):
         self.assertFalse(prop.is_valid(-1))
         self.assertFalse(prop.is_valid(256))
 
-        prop = Range(Float, 0.0, 1.0)
+        prop = Interval(Float, 0.0, 1.0)
 
         self.assertTrue(prop.is_valid(None))
         # TODO: self.assertFalse(prop.is_valid(False))
@@ -622,7 +641,7 @@ class TestProperties(unittest.TestCase):
         with self.assertRaises(TypeError):
             prop = Either()
 
-        prop = Either(Range(Int, 0, 100), Regex("^x*$"), List(Int))
+        prop = Either(Interval(Int, 0, 100), Regex("^x*$"), List(Int))
 
         self.assertTrue(prop.is_valid(None))
         # TODO: self.assertFalse(prop.is_valid(False))
@@ -764,7 +783,7 @@ class TestProperties(unittest.TestCase):
         self.assertFalse(prop.is_valid(1.0))
         self.assertFalse(prop.is_valid(1.0+1.0j))
         self.assertTrue(prop.is_valid(""))
-        self.assertFalse(prop.is_valid(()))
+        self.assertTrue(prop.is_valid(()))
         self.assertTrue(prop.is_valid([]))
         self.assertFalse(prop.is_valid({}))
         self.assertFalse(prop.is_valid(Foo()))

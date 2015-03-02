@@ -2,7 +2,7 @@ define (require, exports, module) ->
 
   Bokeh = {}
   Bokeh.require = require
-  Bokeh.version = '0.7.1'
+  Bokeh.version = '0.8.1'
 
   Bokeh.index = require("common/base").index
 
@@ -25,7 +25,7 @@ define (require, exports, module) ->
   # likely a previous version of jQuery.
   _oldJQ = window.$
   window.jQuery.noConflict()
-  if typeof($) == "undefined"
+  if Bokeh._.isUndefined($)
     # if there was no previous definition of $, put our definition into window.$.
     window.$ = _oldJQ
 
@@ -41,7 +41,6 @@ define (require, exports, module) ->
   Bokeh.HasProperties     = require("common/has_properties")
   Bokeh.LayoutBox         = require("common/layout_box")
   Bokeh.Plot              = require("common/plot")
-  Bokeh.Plotting          = require("common/plotting")
   Bokeh.SelectionManager  = require("common/selection_manager")
   Bokeh.Selector          = require("common/selector")
   Bokeh.ToolEvents        = require("common/tool_events")
@@ -133,8 +132,11 @@ define (require, exports, module) ->
   # widgets
   Bokeh.HBox           = require("widget/hbox")
   Bokeh.VBox           = require("widget/vbox")
-  Bokeh.TextInput      = require("widget/textinput")
+  Bokeh.TextInput      = require("widget/text_input")
   Bokeh.CrossFilter    = require("widget/crossfilter")
+
+  # Add the jquery plugin
+  require("api/plugin")
 
   exports.Bokeh = Bokeh
 

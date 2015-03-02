@@ -2,7 +2,6 @@
 ================
 
 * Preliminary work on Matplotlib support: convert MPL figures to Bokeh plots
-* Free public beta of Bokeh plot hosting at http://bokehplots.com
 * Tool improvements:
 
   - "always on" pan tool and wheel zoom tool

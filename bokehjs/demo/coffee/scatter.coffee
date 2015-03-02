@@ -1,7 +1,7 @@
 
 require(['main'], (Bokeh) ->
 
-
+  Bokeh.set_log_level("debug")
 
   r = new Bokeh.Random(123456789)
 
@@ -15,11 +15,11 @@ require(['main'], (Bokeh) ->
   }
 
   scatter = {
-    type: 'circle'
+    type: 'Circle'
+    source: "mydata"
     x: 'x'
     y: 'y'
     radius: 'radius'
-    radius_units: 'data'
     fill_color: 'color'
     fill_alpha: 0.6
     line_color: null
@@ -27,20 +27,32 @@ require(['main'], (Bokeh) ->
 
   options = {
     title: "Scatter Demo"
-    nonselected:  {
-      fill_color: 'black'
-      line_alpha: 0.1
-      fill_alpha: 0.05
-    }
-    dims: [600, 600]
-    xrange: [0, 100]
-    yrange: [0, 100]
-    xaxes: "below"
-    yaxes: "left"
-    tools: true
-    legend: false
+    plot_width: 600
+    plot_height: 600
+    x_range: [0, 100]
+    y_range: [0, 100]
   }
 
-  plot = Bokeh.Plotting.make_plot(scatter, data, options)
-  Bokeh.Plotting.show(plot)
-  )
+
+
+  xaxis = {
+    type: "auto"
+    location: "below"
+    grid: true
+  }
+
+  yaxis = {
+    type: "auto"
+    location: "left"
+    grid: true
+  }
+
+  $("#target").bokeh("figure", {
+    options: options
+    sources: { mydata: data }
+    glyphs: [scatter]
+    guides: [xaxis, yaxis]
+    tools: ["Pan", "WheelZoom"]
+  })
+
+ )

@@ -16,14 +16,7 @@ from tornado import ioloop
 from .settings import settings as server_settings
 from ..settings import settings as bokeh_settings
 from .flask_gzip import Gzip
-from .server_backends import (
-    FunctionBackend, HDF5DataBackend, InMemoryServerModelStorage,
-    MultiUserAuthentication, RedisServerModelStorage, ShelveServerModelStorage,
-    SingleUserAuthentication,
-)
-from .serverbb import (
-    InMemoryBackboneStorage, RedisBackboneStorage, ShelveBackboneStorage
-)
+
 from bokeh import plotting # imports custom objects for plugin
 from bokeh import models, protocol # import objects so that we can resolve them
 from bokeh.utils import scale_delta
@@ -57,6 +50,11 @@ def start_redis():
     bokeh_app.redis_proc = mproc
 
 server = None
+def make_tornado(config_file=None):
+    configure_flask(config_file=config_file)
+    register_blueprint()
+    tornado_app = make_tornado_app(flask_app=app)
+    return tornado_app
 
 def start_simple_server(args=None):
     global server

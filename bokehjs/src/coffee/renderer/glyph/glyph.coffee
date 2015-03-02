@@ -25,7 +25,9 @@ define [
       if 'text' in @_properties
         @props.text = new properties.Text(@)
 
-    render: (ctx, indicies) -> @_render(ctx, indicies)
+    render: (ctx, indicies) ->
+      if @mget("visible")
+        @_render(ctx, indicies)
 
     _map_data: () -> null
 
@@ -87,7 +89,7 @@ define [
         ptc = local_select(pt)
         if pt_units == 'screen'
           ptc = mapper.v_map_from_target(ptc)
-        if typeof(ptc[0]) == 'string'
+        if _.isString(ptc[0])
           ptc = mapper.v_map_to_target(ptc)
         pt0 = (ptc[i] - halfspan[i] for i in [0...ptc.length])
         pt1 = (ptc[i] + halfspan[i] for i in [0...ptc.length])
@@ -197,6 +199,11 @@ define [
       line_dash: []
       line_dash_offset: 0
     }
+
+    defaults: ->
+      return _.extend {
+        visible: true
+      }
 
   class Glyphs extends Collection
 

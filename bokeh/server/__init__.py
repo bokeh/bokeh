@@ -39,9 +39,10 @@ def build_parser():
 
     # advanced configuration
     advanced = parser.add_argument_group('Advanced Options')
-    advanced.add_argument("-D", "--data-directory",
-                          help="location for server data sources",
-                          type=str
+    advanced.add_argument("-D", "--blaze-config",
+                          help="blaze_config_File",
+                          type=str,
+                          default=None
                           )
     advanced.add_argument("-m", "--multi-user",
                           help="start in multi-user configuration (default: False)",
@@ -84,12 +85,6 @@ def build_parser():
                             help="connection string for websocket (unnecessary if auto-starting)",
                             default=None
                             )
-    websockets.add_argument("--ws-port",
-                            help="port for websocket worker to listen on",
-                           default=5007,
-                            type=int
-                            )
-
     # dev, debugging, etc.
     class DevAction(argparse.Action):
         def __call__(self, parser, namespace, values, option_string=None):
@@ -139,7 +134,10 @@ def run():
     args = parser.parse_args(sys.argv[1:])
 
     level = logging.DEBUG if args.debug else logging.INFO
+    # TODO: this does nothing - because bokeh/__init__.py is already imported
+    # and basicConfig was already called
     logging.basicConfig(level=level, format="%(asctime)s:%(levelname)s:%(name)s:%(message)s")
+
 
     backend_options = args.backend
     if backend_options == 'redis':
@@ -167,14 +165,12 @@ def run():
     backend        : %s
     python options : %s
     js options     : %s
-    data-directory : %s
     """ % (
         sys.version.split()[0], __version__,
         args.ip, args.port,
         backend_options,
         py_options,
         js_options,
-        None if not args.data_directory else args.data_directory,
     ))
 
     settings.debugjs = args.debugjs

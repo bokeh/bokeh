@@ -17,7 +17,7 @@ define [
       @props.line.set(ctx, @props)
 
       for i in indices
-        if isNaN(@sx[i] + @sy[i]) and drawing
+        if !isFinite(@sx[i] + @sy[i]) and drawing
           ctx.stroke()
           ctx.beginPath()
           drawing = false

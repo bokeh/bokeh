@@ -3,7 +3,7 @@ In our python interface to the backbone system, we separate the local collection
 which stores models, from the http client which interacts with a remote store
 In applications, we would use a class that combines both
 """
-
+import warnings
 import logging
 logger = logging.getLogger(__name__)
 
@@ -14,9 +14,9 @@ import shelve
 from bokeh import protocol
 from bokeh.document import Document
 from bokeh.utils import decode_utf8, dump, encode_utf8
-
+from ..exceptions import AuthenticationException
 from .models import docs
-
+from .app import bokeh_app
 class StoreAdapter(object):
     """API modeled after Redis that other stores have to adapt to. """
 
@@ -57,12 +57,15 @@ def parse_modelkey(key):
     _, typename, docid, modelid = decode_utf8(key).split(":")
     return typename, docid, modelid
 
-def prune(document, delete=False):
-    all_models = docs.prune_and_get_valid_models(document, delete=delete)
-    to_keep = set([x._id for x in all_models])
-    to_delete = set(document._models.keys()) - to_keep
-    for k in to_delete:
-        del document._models[k]
+def prune(document, temporary_docid=None, delete=False):
+    if temporary_docid is not None:
+        storage_id = temporary_docid
+    else:
+        storage_id = document.docid
+    to_delete = document.prune()
+    if delete:
+        for obj in to_delete:
+            bokeh_app.backbone_storage.del_obj(storage_id, obj)
 
 class PersistentBackboneStorage(object):
     """Base class for `RedisBackboneStorage`, `InMemoryBackboneStorage`, etc. """
@@ -101,14 +104,23 @@ class PersistentBackboneStorage(object):
             mod._dirty = False
         return models
 
-    def store_document(self, doc, dirty_only=True):
+    def store_document(self, doc, temporary_docid=None, dirty_only=True):
         """store all dirty models
         """
+        # This is not so nice - we need to use doc with the original docid
+        # when we create json objs, however use the temporary_docid
+        # when we actually store the values
+        # TODO: refactor this API in the future for better separation
+        if temporary_docid is not None:
+            storage_id = temporary_docid
+        else:
+            storage_id = doc.docid
+        logger.debug("storing objects to %s", storage_id)
         models = doc._models.values()
         if dirty_only:
             models = [x for x in models if hasattr(x, '_dirty') and x._dirty]
         json_objs = doc.dump(*models)
-        self.push(doc.docid, *json_objs)
+        self.push(storage_id, *json_objs)
         for mod in models:
             mod._dirty = False
         return models
@@ -189,9 +201,9 @@ class InMemoryBackboneStorage(PersistentBackboneStorage):
     """storage used by the webserver to work with
     a user's documents.  uses in memory data store directly.
     """
-
-    _inmem_data = {}
-    _inmem_sets = defaultdict(set)
+    def __init__(self):
+        self._inmem_data = {}
+        self._inmem_sets = defaultdict(set)
 
     def mget(self, doc_keys):
         return [self._inmem_data.get(key, None) for key in doc_keys]
@@ -270,3 +282,108 @@ class ShelveBackboneStorage(PersistentBackboneStorage):
     def delete(self, key):
         with self.shelve_data() as _shelve_data:
             del _shelve_data[key]
+
+def get_temporary_docid(request, docid):
+    key = 'temporary-%s' % docid
+    return request.headers.get(key, None)
+
+
+class BokehServerTransaction(object):
+    #hugo - is this the right name?
+    """Context Manager for a req/rep response cycle of the bokeh server
+    responsible for
+    -  determining whether the current user can read from a document
+    -  determining whether the current user can write to a bokeh document
+    (or temporary document for copy on write)
+    -  stitching together documents to form a copy on write view
+    -  saving changes to the document
+
+    at the start of the context manager, self.clientdoc is populated
+    with an instance of bokeh.document.Document with all the data
+    loaded in (including from the copy on write context if specified)
+    at the end of the context manager, changed models are written
+    to the appropriate storage location.  and changed models are
+    written to self.changed
+
+    currently deletes aren't really working properly with cow - but we
+    don't really make use of model deletions yet
+    """
+    def __init__(self, server_userobj, server_docobj, mode,
+                 temporary_docid=None):
+        """
+        bokeh_app : bokeh_app blueprint
+        server_userobj : instance of bokeh.server.models.user.User - current user
+          for a request
+        server_docobj : instance of bokeh.server.models.docs.Doc
+        mode : 'r', or 'rw', or 'auto' - auto means rw if possible, else r
+        temporary_docid : temporary docid for copy on write
+        """
+        logger.debug(
+            "created transaction with %s, %s",
+            server_docobj.docid, temporary_docid
+        )
+        self.server_userobj = server_userobj
+        self.server_docobj = server_docobj
+        self.temporary_docid = temporary_docid
+        can_write = bokeh_app.authentication.can_write_doc(
+            self.server_docobj,
+            userobj=self.server_userobj,
+            temporary_docid=self.temporary_docid)
+        if can_write:
+            can_read = True
+        else:
+            can_read = bokeh_app.authentication.can_read_doc(
+                self.server_docobj,
+                userobj=self.server_userobj)
+        docid = self.server_docobj.docid
+        if mode not in {'auto', 'rw', 'r'}:
+            raise Authentication('Unknown Mode')
+        if mode == 'auto':
+            if not can_write and not can_read:
+                raise AuthenticationException("could not read from %s" % docid)
+            if can_write:
+                mode = 'rw'
+            else:
+                mode = 'r'
+        else:
+            if mode == 'rw':
+                if not can_write:
+                    raise AuthenticationException("could not write to %s" % docid)
+            elif mode == 'r':
+                if not can_read:
+                    raise AuthenticationException("could not read from %s" % docid)
+        self.mode = mode
+        if self.mode == 'rw':
+            self.apikey = self.server_docobj.apikey
+        else:
+            self.apikey = self.server_docobj.readonlyapikey
+    @property
+    def write_docid(self):
+        if self.temporary_docid:
+            return self.temporary_docid
+        else:
+            return self.server_docobj.docid
+
+    def load(self, gc=False):
+        from .views.backbone import init_bokeh
+        clientdoc = bokeh_app.backbone_storage.get_document(self.server_docobj.docid)
+        if self.temporary_docid:
+            temporary_json = bokeh_app.backbone_storage.pull(self.temporary_docid)
+            #no events - because we're loading from datastore, so nothing is new
+            clientdoc.load(*temporary_json, events='none', dirty=False)
+        if gc and self.mode != 'rw':
+            raise AuthenticationException("cannot run garbage collection in read only mode")
+        elif gc and self.mode == 'rw':
+            prune(clientdoc, delete=True)
+        else:
+            prune(clientdoc)
+        init_bokeh(clientdoc)
+        self.clientdoc = clientdoc
+
+    def save(self):
+        if self.mode != 'rw':
+            raise AuthenticationException("cannot save in read only mode")
+        self.changed = bokeh_app.backbone_storage.store_document(
+            self.clientdoc,
+            temporary_docid=self.temporary_docid
+        )

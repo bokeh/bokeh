@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 
 from bokeh.charts import Histogram
+from bokeh.plotting import show, output_file
 
 # we build some distributions and load them into a dict
 mu, sigma = 0, 0.5
@@ -24,6 +25,6 @@ for k, v in distributions.items():
 #df = np.array(list(distributions.values()))
 #df = list(distributions.values())[0]
 
-hist = Histogram(df, bins=50, filename="histograms.html")
-hist.title("Histograms").ylabel("frequency").xlabel('distributions').legend(True)
-hist.width(400).height(350).show()
+output_file("histograms.html")
+hist = Histogram(df, bins=50, filename="histograms.html", legend=True)
+show(hist) # or hist.show()

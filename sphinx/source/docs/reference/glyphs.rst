@@ -1,4 +1,5 @@
 
+.. _bokeh_glyph_quickref:
 
 Bokeh Glyph Quick Reference
 ===========================

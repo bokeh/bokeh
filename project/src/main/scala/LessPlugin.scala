@@ -13,7 +13,21 @@ object LessPlugin extends sbt.Plugin {
         type S = LessSource
         type G = LessGraph
 
-        val parents: List[LessSource] = Nil
+        protected val importRegex = """^\s*@import\s*(?:\(([a-z]+)\))?\s*"([^"]+)";.*$""".r
+
+        protected def parseImport(line: String): Option[String] = {
+            line match {
+                case importRegex(_, path) if path.endsWith(".less") && !path.contains("@{") => Some(path)
+                case _                                                                      => None
+            }
+        }
+
+        lazy val parents: List[LessSource] = {
+            for {
+                line <- IO.readLines(src).toList
+                path <- parseImport(line)
+            } yield graph.getSource(path, this)
+        }
 
         def isTemplated: Boolean =
             src.getPath.contains(".template")

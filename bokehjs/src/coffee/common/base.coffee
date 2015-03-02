@@ -3,6 +3,8 @@ define [
   "underscore",
   "require",
 
+  "action/open_url",
+
   "common/custom",
   "common/canvas",
   "common/cartesian_frame",
@@ -22,7 +24,6 @@ define [
   "mapper/grid_mapper",
   "mapper/linear_color_mapper",
 
-  "range/data_factor_range",
   "range/data_range1d",
   "range/factor_range",
   "range/range1d",
@@ -77,24 +78,29 @@ define [
   "renderer/overlay/box_selection",
   "renderer/overlay/poly_selection",
 
+  "source/ajax_data_source",
+  "source/blaze_data_source",
   "source/column_data_source",
   "source/server_data_source",
 
   "ticking/abstract_ticker",
   "ticking/adaptive_ticker",
-  "ticking/basic_tick_formatter",
   "ticking/basic_ticker",
-  "ticking/log_ticker",
-  "ticking/log_tick_formatter",
-  "ticking/categorical_tick_formatter",
   "ticking/categorical_ticker",
   "ticking/composite_ticker",
-  "ticking/datetime_tick_formatter",
   "ticking/datetime_ticker",
   "ticking/days_ticker",
+  "ticking/log_ticker",
   "ticking/months_ticker",
   "ticking/single_interval_ticker",
   "ticking/years_ticker",
+
+  "ticking/basic_tick_formatter",
+  "ticking/categorical_tick_formatter",
+  "ticking/datetime_tick_formatter",
+  "ticking/log_tick_formatter",
+  "ticking/numeral_tick_formatter"
+  "ticking/printf_tick_formatter"
 
   "tool/button_tool",
 
@@ -123,7 +129,8 @@ define [
   'widget/paragraph'
   'widget/hbox'
   'widget/vbox'
-  'widget/textinput'
+  'widget/text_input'
+  'widget/autocomplete_input'
   'widget/vboxform'
   'widget/pretext'
   'widget/selectbox'
@@ -171,12 +178,13 @@ define [
   Config = {}
   url = window.location.href
   if url.indexOf('/bokeh') > 0
-    Config.prefix = url.slice(0, url.indexOf('/bokeh')) + "/" #keep trailing slash
+    Config.prefix = url.slice(0, url.lastIndexOf('/bokeh')) + "/" #keep trailing slash
   else
     Config.prefix = '/'
   console.log('Bokeh: setting prefix to', Config.prefix)
 
   locations =
+    OpenURL:                  'action/open_url'
 
     Plot:                     'common/plot'
     GMapPlot:                 'common/gmap_plot'
@@ -193,7 +201,6 @@ define [
 
     LinearColorMapper:        'mapper/linear_color_mapper'
 
-    DataFactorRange:          'range/data_factor_range'
     DataRange1d:              'range/data_range1d'
     FactorRange:              'range/factor_range'
     Range1d:                  'range/range1d'
@@ -250,22 +257,27 @@ define [
 
     ColumnDataSource:         'source/column_data_source'
     ServerDataSource:         'source/server_data_source'
+    BlazeDataSource:          'source/blaze_data_source'
+    AjaxDataSource:           'source/ajax_data_source'
 
     AbstractTicker:           'ticking/abstract_ticker'
     AdaptiveTicker:           'ticking/adaptive_ticker'
     BasicTicker:              'ticking/basic_ticker'
-    BasicTickFormatter:       'ticking/basic_tick_formatter'
-    LogTicker:                'ticking/log_ticker'
-    LogTickFormatter:         'ticking/log_tick_formatter'
     CategoricalTicker:        'ticking/categorical_ticker'
-    CategoricalTickFormatter: 'ticking/categorical_tick_formatter'
     CompositeTicker:          'ticking/composite_ticker'
     DatetimeTicker:           'ticking/datetime_ticker'
-    DatetimeTickFormatter:    'ticking/datetime_tick_formatter'
     DaysTicker:               'ticking/days_ticker'
+    LogTicker:                'ticking/log_ticker'
     MonthsTicker:             'ticking/months_ticker'
     SingleIntervalTicker:     'ticking/single_interval_ticker'
     YearsTicker:              'ticking/years_ticker'
+
+    BasicTickFormatter:       'ticking/basic_tick_formatter'
+    LogTickFormatter:         'ticking/log_tick_formatter'
+    CategoricalTickFormatter: 'ticking/categorical_tick_formatter'
+    DatetimeTickFormatter:    'ticking/datetime_tick_formatter'
+    NumeralTickFormatter:     'ticking/numeral_tick_formatter'
+    PrintfTickFormatter:      'ticking/printf_tick_formatter'
 
     ButtonTool:               'tool/button_tool'
     ActionTool:               'tool/actions/action_tool'
@@ -308,7 +320,8 @@ define [
     HBox:                     'widget/hbox'
     VBox:                     'widget/vbox'
     VBoxForm:                 'widget/vboxform'
-    TextInput:                'widget/textinput'
+    TextInput:                'widget/text_input'
+    AutocompleteInput:        'widget/autocomplete_input'
     PreText:                  'widget/pretext'
     Select:                   'widget/selectbox'
     Slider:                   'widget/slider'

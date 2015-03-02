@@ -1,10 +1,16 @@
+import warnings
+
 import numpy as np
 from ..models import ServerDataSource
 
 
-def source(domain='x', method='minmax', **kwargs):
+def source(direction='x', method='minmax', auto_bounds=True, **kwargs):
+    if direction != 'x':
+        warnings.warn("other directions besides x not implemented yet")
+        raise NotImplementedError
     kwargs['transform'] = {'resample': 'line1d',
-                           'domain': domain,
+                           'direction': direction,
+                           'auto_bounds' : auto_bounds,
                            'method': method}
     return ServerDataSource(**kwargs)
 
@@ -25,7 +31,6 @@ def downsample(data,
     domain_resolution : # of samples
     method : 'maxmin' encodes the max/min point.
              'mid' encode the midpoint of each bin-range
-
     output:
     list of (domain,data) pairs, where they are each 1d vectors
     """
@@ -78,16 +83,9 @@ def downsample(data,
     indexes = np.argsort(downsampled_data[domain_column])
     downsampled_data = downsampled_data[indexes]
 
-    columns = dict([(k, downsampled_data[k])
+    columns = dict([(k, downsampled_data[k]) \
                     for k in downsampled_data.dtype.names])
-    if range_limit == "auto":
-        range_limit = [columns[primary_data_column].min(),
-                       columns[primary_data_column].max()]
-
     result = {
         'data': columns,
-        'domain_limit': domain_limit,
-        'range_limit': range_limit
     }
-
     return result

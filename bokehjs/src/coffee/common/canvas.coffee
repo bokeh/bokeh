@@ -135,7 +135,8 @@ define [
       return x
 
     vy_to_sy: (y) ->
-      return @get('height') - y
+      # Note: +1 to account for 1px canvas dilation
+      return @get('height') - (y + 1)
 
     # vectorized versions of vx_to_sx/vy_to_sy, these are mutating, in-place operations
     v_vx_to_sx: (xx) ->
@@ -145,8 +146,9 @@ define [
 
     v_vy_to_sy: (yy) ->
       canvas_height = @get('height')
+      # Note: +1 to account for 1px canvas dilation
       for y, idx in yy
-        yy[idx] = canvas_height - y
+        yy[idx] = canvas_height - (y + 1)
       return yy
 
     # transform underlying screen coordinates to view coordinates
@@ -154,7 +156,8 @@ define [
       return x
 
     sy_to_vy: (y) ->
-      return @get('height') - y
+      # Note: +1 to account for 1px canvas dilation
+      return @get('height') - (y + 1)
 
     # vectorized versions of sx_to_vx/sy_to_vy, these are mutating, in-place operations
     v_sx_to_vx: (xx) ->
@@ -164,8 +167,9 @@ define [
 
     v_sy_to_vy: (yy) ->
       canvas_height = @get('height')
+      # Note: +1 to account for 1px canvas dilation
       for y, idx in yy
-        yy[idx] = canvas_height - y
+        yy[idx] = canvas_height - (y + 1)
       return yy
 
     _set_width: (width, update=true) ->
@@ -186,10 +190,10 @@ define [
         @solver.update_variables()
       @new_bounds = true
 
-    _set_dims: (dims) ->
+    _set_dims: (dims, trigger=true) ->
       @_set_width(dims[0], false)
       @_set_height(dims[1], false)
-      @solver.update_variables()
+      @solver.update_variables(trigger)
 
     defaults: ->
       return _.extend {}, super(), {

@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 
+from .actions import *
 from .axes import *
 from .formatters import *
 from .glyphs import *

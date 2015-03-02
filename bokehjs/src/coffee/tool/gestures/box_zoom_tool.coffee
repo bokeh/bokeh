@@ -49,12 +49,12 @@ define [
     _update: (vxlim, vylim) ->
       xrs = {}
       for name, mapper of @plot_view.frame.get('x_mappers')
-        [start, end] = mapper.v_map_from_target(vxlim)
+        [start, end] = mapper.v_map_from_target(vxlim, true)
         xrs[name] = {start: start, end: end}
 
       yrs = {}
       for name, mapper of @plot_view.frame.get('y_mappers')
-        [start, end] = mapper.v_map_from_target(vylim)
+        [start, end] = mapper.v_map_from_target(vylim, true)
         yrs[name] = {start: start, end: end}
 
       zoom_info = {

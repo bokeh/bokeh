@@ -1,15 +1,6 @@
 from __future__ import print_function
-import unittest
-import subprocess
-import time
-import sys
-import requests
-from requests.exceptions import ConnectionError
 
-from .test_utils import skipIfPy3
-import bokeh.transforms.ar_downsample as ar_downsample
-from bokeh.models import Range1d, ServerDataSource, GlyphRenderer
-from bokeh.plotting import figure, output_server, curdoc
+import unittest
 import types
 
 import abstract_rendering.numeric as numeric
@@ -20,6 +11,15 @@ import abstract_rendering.glyphset as glyphset
 import abstract_rendering.core as ar
 import abstract_rendering.numpyglyphs as npg
 import abstract_rendering.infos as infos
+
+from ..server.tests import test_utils
+from ..server.app import bokeh_app, app
+from ..session import TestSession
+from ..plotting import (reset_output, output_server, push, curdoc, figure)
+from ..transforms import ar_downsample as ar_downsample
+from ..models.sources import ServerDataSource
+from ..models.renderers import GlyphRenderer
+from ..models.ranges import Range1d
 
 def sort_init_first(_, a, b):
     if "_init_" in a:
@@ -34,7 +34,6 @@ def sort_init_first(_, a, b):
         return 0
 
 unittest.TestLoader.sortTestMethodsUsing = sort_init_first
-
 
 class _SourceShim(object):
     defVal = 'value'
@@ -52,61 +51,18 @@ class _FailsProxyReify(object):
         raise NotImplementedError
 
 
-def start_bokeh_server(bokeh_port=5006):
-    cmd = ["python", "-c", "import bokeh.server; bokeh.server.run()"]
-    argv = ["--bokeh-port=%s" % bokeh_port, "--backend=memory"]
-
-    try:
-        proc = subprocess.Popen(cmd + argv)
-    except OSError:
-        print("Failed to run: %s" % " ".join(cmd + argv))
-        sys.exit(1)
-    else:
-        def wait_until(func, timeout=5.0, interval=0.01):
-            start = time.time()
-
-            while True:
-                if func():
-                    return True
-                if time.time() - start > timeout:
-                    return False
-                time.sleep(interval)
-
-        def wait_for_bokeh_server():
-            def helper():
-                try:
-                    return requests.get('http://localhost:%s/bokeh/ping' % bokeh_port)
-                except ConnectionError:
-                    return False
-
-            return wait_until(helper)
-
-        if not wait_for_bokeh_server():
-            print("Timeout when running: %s" % " ".join(cmd + argv))
-            sys.exit(1)
-
-        return proc
 
 
-class Test_AR(unittest.TestCase):
-    bokeh_server = None
-
-    @classmethod
-    def setUpClass(cls):
-        cls.bokeh_server = start_bokeh_server()
-
-    @classmethod
-    def tearDownClass(cls):
-        if cls.bokeh_server:
-            cls.bokeh_server.kill()
-
-    # --------------- Processs functions -------------
-    @unittest.skip("Unreliable bokeh server-start")
+class Test_AR(test_utils.FlaskClientTestCase):
+    #TODO - separate server from non-server tests
     def test_replot_remove(self):
-        self.assertIsNotNone(self.bokeh_server, "Server failed to start, cannot tests")
         ar_downsample._loadAR()
-        output_server("Census")
-        source = ServerDataSource(data_url="fn://bivariate", owner_username="defaultuser")
+        reset_output()
+        sess = TestSession(client=app.test_client())
+        output_server('Census', session=sess)
+        source = ServerDataSource(
+            expr={'op': 'Field', 'args': [':leaf', 'bivariate']}
+        )
         plot = figure()
         plot.square('A', 'B', source=source)
         ar_downsample.replot(plot, remove_original=False)
@@ -120,18 +76,19 @@ class Test_AR(unittest.TestCase):
         except:
             self.assertTrue(False, "Error reploting plot not in curdoc")
 
-    @unittest.skip("Unreliable bokeh server-start")
     def test_replot_property_transfer(self):
-        self.assertIsNotNone(self.bokeh_server, "Server failed to start, cannot tests")
         ar_downsample._loadAR()
-        output_server("Census")
-        source = ServerDataSource(data_url="fn://bivariate", owner_username="defaultuser")
+        sess = TestSession(client=app.test_client())
+        output_server('Census', session=sess)
+        source = ServerDataSource(
+            expr={'op': 'Field', 'args': [':leaf', 'bivariate']}
+        )
 
         plot_width = 612
         plot_height = 408
         plot_title = "Test title"
 
-        plot = figure(lot_width=plot_width, plot_height=plot_height, title=plot_title)
+        plot = figure(plot_width=plot_width, plot_height=plot_height, title=plot_title)
         plot.square('A', 'B', source=source)
         ar_plot = ar_downsample.replot(plot)
 
@@ -155,7 +112,11 @@ class Test_AR(unittest.TestCase):
 
     def test_replot_result_type(self):
         ar_downsample._loadAR()
-        source = ServerDataSource(data_url="fn://bivariate", owner_username="defaultuser")
+        sess = TestSession(client=app.test_client())
+        output_server('Census', session=sess)
+        source = ServerDataSource(
+            expr={'op': 'Field', 'args': [':leaf', 'bivariate']}
+        )
         plot = figure()
         plot.square('A', 'B', source=source)
 
@@ -177,7 +138,12 @@ class Test_AR(unittest.TestCase):
 
     def test_source(self):
         ar_downsample._loadAR()
-        source = ServerDataSource(data_url="fn://bivariate", owner_username="defaultuser")
+        sess = TestSession(client=app.test_client())
+        output_server('Census', session=sess)
+        source = ServerDataSource(
+            expr={'op': 'Field', 'args': [':leaf', 'bivariate']}
+        )
+
         plot = figure()
         plot.square('A', 'B', source=source)
 
@@ -193,18 +159,17 @@ class Test_AR(unittest.TestCase):
         self.assertEquals(trans['agg'], agg)
         self.assertEquals(trans['info'], info)
         self.assertEquals(trans['shader'], shader)
-        self.assertEquals(trans['glyphspec'], self._glyphspec(plot))
+        self.assertEquals(trans['glyphspec'],
+                          plot.select({'type' : GlyphRenderer})[0].glyph)
         self.assertEquals(trans['points'], False)
-
-    def test_downsample(self):
-        pass
-
-    # -------------- Utility Tests ----------
     def test_init_AR(self):
+        # simulate un-loading AR.. this test fails if ar is imported elsewhere before
+        # this test is run
+        if 'general' in ar_downsample.__dict__:
+            ar_downsample.__dict__.pop('general')
         self.assertRaises(NameError, ar_downsample.Id().reify)
         ar_downsample._loadAR()
         self.assertIsNotNone(ar_downsample.Id().reify())
-
     def test_span(self):
         self.assertEquals(0, ar_downsample._span(Range1d(start=0, end=0)))
         self.assertEquals(2, ar_downsample._span(Range1d(start=0, end=2)))
@@ -214,7 +179,6 @@ class Test_AR(unittest.TestCase):
         self.assertEquals(3, ar_downsample._span(Range1d(start=None, end=3)))
         self.assertEquals(3, ar_downsample._span(Range1d(start=3, end=None)))
         self.assertEquals(0, ar_downsample._span(Range1d(start=None, end=None)))
-
     def test_datacolumn(self):
         self.assertEquals('state', ar_downsample._datacolumn({'type': {'field': 'state'}}))
         self.assertEquals('state', ar_downsample._datacolumn({'fill_color': {'field': 'state'}}))
@@ -227,7 +191,6 @@ class Test_AR(unittest.TestCase):
         self.assertEquals('state2', ar_downsample._datacolumn({'line_alpha': {'field': 'state1'}, 'line_color': {'field': 'state2'}}))
         self.assertEquals('state1', ar_downsample._datacolumn({'line_alpha': {'field': 'state1'}, 'other': {'field': 'state2'}}))
 
-    # ------------ Glyphset creation tests --------------
     def test_shaper_create(self):
         ar_downsample._loadAR()
 
@@ -235,7 +198,6 @@ class Test_AR(unittest.TestCase):
         self.assertIsInstance(ar_downsample._shaper(glyphspec, False), glyphset.ToRect)
         self.assertIsInstance(ar_downsample._shaper(glyphspec, True), glyphset.ToPoint)
         self.assertIsInstance(ar_downsample._shaper(glyphspec, True), glyphset.ToPoint)
-
     def test_shaper_fail(self):
         ar_downsample._loadAR()
         with self.assertRaises(ValueError):
@@ -250,7 +212,6 @@ class Test_AR(unittest.TestCase):
         transform = {'points': False}
         glyphs = ar_downsample.make_glyphset([1], [1], [1], glyphspec, transform)
         self.assertIsInstance(glyphs, glyphset.Glyphset, "Generic glyphset")
-
     # -------------- Mapping tests ----------
     def test_Image(self):
         source = _SourceShim(ar_downsample.Interpolate)
@@ -267,7 +228,6 @@ class Test_AR(unittest.TestCase):
         expected['B'] = source.defVal
         expected['C'] = source.defVal
         self.assertEquals(sorted(expected.keys()), sorted(result.keys()))
-
     def test_ImageRGB(self):
         source = _SourceShim(ar_downsample.InterpolateColor)
         result = ar_downsample.mapping(source)
@@ -283,7 +243,6 @@ class Test_AR(unittest.TestCase):
         expected['B'] = source.defVal
         expected['C'] = source.defVal
         self.assertEquals(sorted(expected.keys()), sorted(result.keys()))
-
     def test_PolyLine(self):
         source = _SourceShim(ar_downsample.Contour)
         result = ar_downsample.mapping(source)
@@ -298,7 +257,6 @@ class Test_AR(unittest.TestCase):
         expected['B'] = source.defVal
         expected['C'] = source.defVal
         self.assertEquals(sorted(expected.keys()), sorted(result.keys()))
-
     # -------------------- Proxy object tests --------------
     def _reify_tester(self, proxy, reifyBase, kwargs):
         ar_downsample._loadAR()
@@ -359,15 +317,20 @@ class Test_AR(unittest.TestCase):
 
         for (shader, target, kwargs) in shaders:
             self._shader_tester(shader, target, kwargs)
-
     # -------------------- Recipies ------------
     def _find_source(self, plot):
         return [r for r in plot.renderers if (isinstance(r, GlyphRenderer)
-                    and hasattr(r, "server_data_source")
-                    and r.server_data_source is not None)][0].server_data_source
+                    and hasattr(r, "data_source")
+                    and r.data_source is not None)][0].data_source
 
     def test_contour_recipe(self):
-        source = ServerDataSource(data_url="fn://bivariate", owner_username="defaultuser")
+        ar_downsample._loadAR()
+        reset_output()
+        sess = TestSession(client=app.test_client())
+        output_server('Census', session=sess)
+        source = ServerDataSource(
+            expr={'op': 'Field', 'args': [':leaf', 'bivariate']}
+        )
         plot = figure(plot_width=600,
                       plot_height=400,
                       title="Test Title")
@@ -386,7 +349,13 @@ class Test_AR(unittest.TestCase):
         self.assertEquals(transform['shader'].out, "multi_line")
 
     def test_heatmap_recipe(self):
-        source = ServerDataSource(data_url="fn://bivariate", owner_username="defaultuser")
+        ar_downsample._loadAR()
+        reset_output()
+        sess = TestSession(client=app.test_client())
+        output_server('Census', session=sess)
+        source = ServerDataSource(
+            expr={'op': 'Field', 'args': [':leaf', 'bivariate']}
+        )
         plot = figure(plot_width=600,
                       plot_height=400,
                       title="Test Title")
