@@ -33,7 +33,7 @@ define [
       if drawing
         ctx.stroke()
 
-    _hit_line: (geometry) ->
+    _hit_point: (geometry) ->
       [vx, vy] = [geometry.vx, geometry.vy]
       sx = @renderer.plot_view.canvas.vx_to_sx(vx)
 
@@ -42,6 +42,27 @@ define [
 
       for i in [0...@sx.length]
         ival = Math.abs sx-@sx[i]
+
+        if nearest_val>ival
+          nearest_ind = i
+          nearest_val = ival
+
+      return [nearest_ind]
+
+    _hit_span: (geometry) ->
+      [vx, vy] = [geometry.vx, geometry.vy]
+
+      if geometry.direction == 'v'
+        val = @renderer.plot_view.canvas.vy_to_sy(vy)
+        glyph_values = @sy
+      else
+        val = @renderer.plot_view.canvas.vx_to_sx(vx)
+        glyph_values = @sx
+
+      nearest_ind = 0
+      nearest_val = Math.abs val-glyph_values[0]
+      for i in [0...glyph_values.length]
+        ival = Math.abs val-glyph_values[i]
 
         if nearest_val>ival
           nearest_ind = i

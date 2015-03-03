@@ -413,3 +413,8 @@ class HoverTool(Tool):
         the ``Rect`` and ``Quad`` glyphs are supported.
 
     """)
+
+    mode = Enum("point", "hline", "vline", help="""
+    Whether to consider hover pointer as point (x/y values), or a
+    span on h or v directions.
+    """)

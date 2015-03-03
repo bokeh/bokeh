@@ -112,13 +112,19 @@ define [
 
       if geometry.type == "point"
         if @_hit_point?
+          console.log "I HAVE POINT!"
           result = @_hit_point(geometry)
         else if not @_point_hit_warned?
           type = @model.type
           logger.warn("'point' selection not available on #{type} renderer")
           @_point_hit_warned = true
-        else if @_hit_line?
-          result = @_hit_line(geometry)
+      else if geometry.type == "span"
+        if @_hit_span?
+          result = @_hit_span(geometry)
+        else if not @_point_hit_warned?
+          type = @model.type
+          logger.warn("'span' selection not available on #{type} renderer")
+          @_point_hit_warned = true
       else if geometry.type == "rect"
         if @_hit_rect?
           result = @_hit_rect(geometry)

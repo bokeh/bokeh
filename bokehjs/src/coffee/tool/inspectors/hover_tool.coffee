@@ -43,11 +43,24 @@ define [
         tt.clear()
 
     _inspect: (vx, vy, e) ->
-      geometry = {
-        type: 'point'
-        vx: vx
-        vy: vy
-      }
+      if @mget('mode') == 'point'
+        geometry = {
+          type: 'point'
+          vx: vx
+          vy: vy
+        }
+      else
+        if @mget('mode') == 'vline'
+          direction = 'v'
+        else
+          direction = 'h'
+
+        geometry = {
+          direction: direction
+          type: 'span'
+          vx: vx
+          vy: vy
+        }
       for r in @mget('renderers')
         sm = r.get('data_source').get('selection_manager')
         sm.inspect(@, @plot_view.renderers[r.id], geometry, {"geometry": geometry})
@@ -92,7 +105,12 @@ define [
         else
           [rx, ry] = [vx, vy]
 
-        vars = {index: i, x: x, y: y, vx: vx, vy: vy, sx: sx, sy: sy, geomx: geom_x, geomy: geom_y, ry: ry}
+#        glyph.props.line.line_color.value
+#        window.glyph = renderer.glyph
+#        window.tooltips = @mget("tooltips")
+#        window.ds = ds
+        color = renderer.glyph.props.line.line_color.value
+        vars = {index: i, x: x, y: y, vx: vx, vy: vy, sx: sx, sy: sy, geomx: geom_x, geomy: geom_y, ry: ry, color: color}
         tooltip.add(rx, ry, @_render_tooltips(ds, i, vars))
 
       return null
@@ -100,16 +118,19 @@ define [
     _render_tooltips: (ds, i, vars) ->
       tooltips = @mget("tooltips")
       window.ds = ds
-#      console.log seds.get_column("color")
+
       if _.isString(tooltips)
         return $('<div>').html(Util.replace_placeholders(tooltips, ds, i, vars))
       else
+#        div = $('<div>')
         table = $('<table></table>')
+        table.css({ backgroundColor: vars.color})
 
         for [label, value] in tooltips
           row = $("<tr></tr>")
           row.append($("<td class='bk-tooltip-row-label'>#{ label }: </td>"))
           td = $("<td class='bk-tooltip-row-value'></td>")
+
 
           if value.indexOf("$color") >= 0
             [match, opts, colname] = value.match(/\$color(\[.*\])?:(\w*)/)
@@ -121,6 +142,7 @@ define [
             hex = opts?.indexOf("hex") >= 0
             swatch = opts?.indexOf("swatch") >= 0
             color = column[i]
+
             if not color?
               span = $("<span>(null)</span>")
               td.append(span)
@@ -133,13 +155,14 @@ define [
               span = $("<span class='bk-tooltip-color-block'> </span>")
               span.css({ backgroundColor: color})
             td.append(span)
+
           else
             value = Util.replace_placeholders(value, ds, i, vars)
             td.append($('<span>').text(value))
 
           row.append(td)
           table.append(row)
-
+#        div.append(table)
         return table
 
   class HoverTool extends InspectTool.Model
@@ -169,6 +192,7 @@ define [
           ["data (x, y)",   "($x, $y)"]
           ["canvas (x, y)", "($sx, $sy)"]
         ]
+        mode: 'point'
       })
 
   class HoverTools extends Collection
