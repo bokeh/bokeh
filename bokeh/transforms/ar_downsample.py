@@ -680,11 +680,16 @@ def downsample_image(xcol, ycol, glyphs, transform, plot_state, auto_bounds):
                       plot_size, vt)
 
     image = shader.reformat(image)
+    """AR renders the WHOLE dataset - then it's up to the client
+    to only render the proper subset.  The client should also not
+    re-request on operations hat do not require re-renders (i.e. pans)
+    however I broke that in the blaze refactor - TODO :  is to fix that
+    """
     result = {'data' : {'image': [image],
-                        'x': [plot_state['data_x'].start],
-                        'y': [plot_state['data_y'].start],
-                        'dw': [data_x_span],
-                        'dh': [data_y_span]}}
+                        'x': [xcol.min()],
+                        'y': [ycol.min()],
+                        'dw': [xcol.max() - xcol.min()],
+                        'dh': [ycol.max() - ycol.min()]}}
     result['x_range'] = {'start': plot_state['data_x'].start,
                          'end': plot_state['data_x'].end}
     result['y_range'] = {'start': plot_state['data_y'].start,

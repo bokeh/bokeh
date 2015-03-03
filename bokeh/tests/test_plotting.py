@@ -1,23 +1,13 @@
 import unittest
 
+from bokeh.models import (
+    LinearAxis, PanTool, BoxZoomTool, LassoSelectTool, ResetTool, ResizeTool)
+
 import bokeh.plotting as plt
-from bokeh.models import (Grid, LinearAxis, PanTool, BoxZoomTool, LassoSelectTool,
-                      PanTool, PreviewSaveTool, ResetTool, ResizeTool)
 
-class TestPlotting(unittest.TestCase):
+class TestFigure(unittest.TestCase):
 
-    def test_reset_output(self):
-        plt._default_document = 10
-        plt._default_session = 10
-        plt._default_file = 10
-        plt._default_notebook = 10
-        plt.reset_output()
-        self.assertTrue(isinstance(plt._default_document, plt.Document))
-        self.assertEqual(plt._default_session, None)
-        self.assertEqual(plt._default_file, None)
-        self.assertEqual(plt._default_notebook, None)
-
-    def test_figure(self):
+    def test_basic(self):
         p = plt.figure()
         q = plt.figure()
         q.circle([1,2,3], [1,2,3])
@@ -124,10 +114,8 @@ class TestPlotting(unittest.TestCase):
         p .circle([1,2,3], [1,2,3])
         self.assertEqual(len(p.grid), 2)
 
-    def test_default_resources_minified(self):
-        plt.output_file("foo.html")
-        self.assertEqual(plt._default_file['resources'].minified, True)
-        plt.reset_output()
+    def test_legend(self):
+        pass
 
     def test_tools(self):
         TOOLS = "resize,pan,box_zoom,reset,lasso_select"
@@ -137,6 +125,11 @@ class TestPlotting(unittest.TestCase):
         self.assertEqual(len(fig.tools), len(expected))
         for i, _type in enumerate(expected):
             self.assertIsInstance(fig.tools[i], _type)
+
+class TestMarkers(unittest.TestCase):
+
+    def test(self):
+        pass
 
 if __name__ == "__main__":
     unittest.main()

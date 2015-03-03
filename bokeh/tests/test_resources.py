@@ -4,6 +4,7 @@ from os.path import join
 
 import bokeh
 import bokeh.resources as resources
+from bokeh.resources import _get_cdn_urls
 
 WRAPPER = """Bokeh.$(function() {
     foo
@@ -48,6 +49,12 @@ class TestResources(unittest.TestCase):
         self.assertEqual(r.js_raw[-1], DEFAULT_JOG_JS_RAW)
         self.assertEqual(len(r.css_raw), 1)
         self.assertEqual(r.messages, [])
+
+    def test_get_cdn_urls(self):
+        dev_version = "0.0.1dev"
+        result = _get_cdn_urls(dev_version)
+        url = result['js_files'][0]
+        self.assertIn('bokeh/dev', url)
 
     def test_cdn(self):
         resources.__version__ = "1.0"

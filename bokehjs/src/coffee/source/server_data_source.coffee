@@ -1,15 +1,15 @@
 
 define [
-  "backbone"
+  "jquery"
   "underscore"
+  "backbone"
   "./remote_data_source"
   "common/collection"
   "common/has_properties"
   "common/logging"
   "range/range1d"
   "range/data_range1d"
-], (Backbone, _, RemoteDataSource, Collection,
-  HasProperties, Logging, Range1d, DataRange1d) ->
+], ($, _, Backbone, RemoteDataSource, Collection, HasProperties, Logging, Range1d, DataRange1d) ->
 
   logger = Logging.logger
 

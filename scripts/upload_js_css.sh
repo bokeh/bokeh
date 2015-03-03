@@ -1,3 +1,5 @@
+#!/bin/bash
+
 #a simple help
 if [ "$1" == "-h" ]; then
     usage="$(basename "$0") [-h] [--tag] -- program to upload bokeh js and css to Rackspace

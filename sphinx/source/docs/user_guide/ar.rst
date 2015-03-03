@@ -37,12 +37,7 @@ a ServerDataSource.
 
 .. note::
     Because abstract rendering relies on server-side processing, it will only
-    work with bokeh server.  Furthermore, it requires server-side data sources,
-    so the server must be started with the ``-D`` option followed by the
-    directory holding the data, e.g. ``bokeh-server -D remotedata`` will start
-    the server and point at the example data directory. Example snippets assume
-    that bokeh has been properly imported and configured and that abstract
-    rendering is imported as ``import bokeh.transforms.ar_downsample as ar``.
+    work with bokeh server.
 
 .. note::
     Because abstract rendering uses some functions from the `scipy.misc`

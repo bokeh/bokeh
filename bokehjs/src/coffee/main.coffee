@@ -2,7 +2,7 @@ define (require, exports, module) ->
 
   Bokeh = {}
   Bokeh.require = require
-  Bokeh.version = '0.8.0'
+  Bokeh.version = '0.8.1'
 
   Bokeh.index = require("common/base").index
 
@@ -18,16 +18,8 @@ define (require, exports, module) ->
 
   # binding the libs that bokeh uses so others can reference them
   Bokeh._                 = require("underscore")
-  Bokeh.$                 = require("jquery")
+  Bokeh.$                 = require("jquery-private")
   Bokeh.Backbone          = require("backbone")
-
-  # Make sure that we don't clobber any existing definition of $ (most
-  # likely a previous version of jQuery.
-  _oldJQ = window.$
-  window.jQuery.noConflict()
-  if typeof($) == "undefined"
-    # if there was no previous definition of $, put our definition into window.$.
-    window.$ = _oldJQ
 
   # common
   Bokeh.Collections       = require("common/base").Collections

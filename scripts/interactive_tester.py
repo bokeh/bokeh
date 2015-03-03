@@ -1,3 +1,4 @@
+from __future__ import print_function
 import argparse
 import importlib
 import os
@@ -6,7 +7,7 @@ from six.moves import input
 import sys
 import textwrap
 import time
-
+import json
 
 # TODO:
 #       catch and log exceptions in examples files that fail to open
@@ -35,6 +36,7 @@ DEFAULT_TEST_FILES = [
     '../../examples/charts/boxplot.py',
 ]
 
+SESSION_FILE = os.path.abspath("INTERACTIVE_TESTER_SESSION.json")
 
 def get_parser():
     """Create the parser that will be used to add arguments to the script.
@@ -46,7 +48,11 @@ def get_parser():
                     The --location option allows you to select a specific examples subdirectory to test all files in,
                     ignoring __init__.py
 
-                    Location arguments you can choose:
+                    Location arguments can be any valid path to a folder with the examples, like:
+
+                     -l /path/to/my/examplesyou can choose:
+
+                    or any of the pre-built keywords that point to the related examples:
                         - file
                         - notebook
                         - server
@@ -61,6 +67,10 @@ def get_parser():
                         help="don't save a log of any errors discovered")
     parser.add_argument('-l', '--location', action='store', default=False,
                         help="example directory in which you wish to test")
+    parser.add_argument('--reuse-session', action='store_true', dest='reuseSession', default=False,
+                        help="do not clean last session log and start from where you left")
+    parser.add_argument('--notebook-options', action='store', dest='notebookOptions', default="",
+                        help="options to be forwarded to ipython notebook to customize it's behaviour")
 
     return parser
 
@@ -80,7 +90,36 @@ def depend_check(dependency):
     return found
 
 
-def main(testing_ground=None):
+def save_session(session):
+    """
+    Save the session object to the SESSION_FILE
+
+    Args:
+        session(dict): dict with all the example files and results of each run
+    """
+    with open(SESSION_FILE, 'w') as res_file:
+        json.dump(session, res_file)
+
+
+def get_session():
+    """
+    Return last stored session
+    """
+    try:
+        with open(SESSION_FILE, 'r') as res_file:
+            return json.load(res_file)
+    except IOError:
+        return {}
+
+
+def clean_session():
+    """
+    Removes previous session file
+    """
+    if os.path.exists(SESSION_FILE):
+        os.remove(SESSION_FILE)
+
+def main(testing_ground=None, notebook_options=""):
     """
     Collect and run .py or .ipynb examples from a set list or given examples directory, ignoring __init__.py
     User input is collected to determine a properly or improperly displayed page
@@ -111,21 +150,40 @@ def main(testing_ground=None):
 
     Log = []
 
+    lastSession = get_session()
+
     for index, fileName in enumerate(TestFiles):
         if testing_ground:
             fileName = "%s/%s" % (testing_ground, fileName)
         try:
-            command = get_cmd(fileName)
-            opener(fileName, command)
 
-            if results.nolog:
-                # Don't display 'next file' message after opening final file in a dir
-                if index != len(TestFiles)-1:
-                    input("\nPress enter to open next file ")
+            if not fileName in lastSession:
+                lastSession[fileName] = "TESTING..."
+                save_session(lastSession)
+
+                command = get_cmd(fileName, notebook_options)
+                opener(fileName, command)
+
+                if results.nolog:
+                    # Don't display 'next file' message after opening final file in a dir
+                    if index != len(TestFiles)-1:
+                        input("\nPress enter to open next file ")
+                else:
+                    ErrorReport = test_status()
+                    if ErrorReport:
+                        Log.append("\n\n%s: \n %s" % (fileName, ErrorReport))
+
+                    lastSession[fileName] = ErrorReport
+                    save_session(lastSession)
             else:
-                ErrorReport = test_status()
-                if ErrorReport:
-                    Log.append("\n\n%s: \n %s" % (fileName, ErrorReport))
+                prevRes = lastSession[fileName]
+                if prevRes == "TESTING...":
+                    print("RESULT OF %s LAST RUN NOT REGISTERED!!" % fileName)
+                    ErrorReport = test_status()
+                    lastSession[fileName] = ErrorReport
+                    save_session(lastSession)
+                else:
+                    print("%s detected in last session: SKIPPING" % fileName)
 
         except (KeyboardInterrupt, EOFError):
             break
@@ -139,7 +197,7 @@ def main(testing_ground=None):
         logger(Log, log_name)
 
 
-def get_cmd(some_file):
+def get_cmd(some_file, notebook_options=""):
     """Determines how to open a file depending
     on whether it is a .py or a .ipynb file
     """
@@ -147,7 +205,7 @@ def get_cmd(some_file):
     if some_file.endswith('.py'):
         command = "python"
     elif some_file.endswith('.ipynb'):
-        command = "ipython notebook"
+        command = "ipython notebook %s" % notebook_options
 
     return command
 
@@ -209,6 +267,12 @@ if __name__ == '__main__':
                     sys.exit(1)
 
             test_dir = DIRECTORIES[target]
+
+        elif os.path.exists(results.location):
+            # in case target is not one of the recognized keys and is a
+            # valid path we can run the examples in that folder
+            test_dir = results.location
+            print("Running examples in custom location:", test_dir)
         else:
             print("Test location '%s' not recognized.\nPlease type 'python interactive_tester.py -h' for a list of valid test directories."
                  % results.location)
@@ -220,4 +284,9 @@ if __name__ == '__main__':
         print("Server examples require bokeh-server. Make sure you've typed 'bokeh-server' in another terminal tab.")
         time.sleep(5)
 
-    main(test_dir)
+    if not results.reuseSession:
+        print("cleaning previous session file...",)
+        clean_session()
+        print("OK")
+
+    main(test_dir, notebook_options=results.notebookOptions)
