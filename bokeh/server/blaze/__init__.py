@@ -1,6 +1,8 @@
 ## multi user blaze server code.  This module contains extra routes for the blaze
 ## data backend
 
+from __future__ import absolute_import
+
 import warnings
 import logging
 

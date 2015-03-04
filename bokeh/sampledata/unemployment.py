@@ -4,6 +4,8 @@ dictionary 'data' which is indexed by the two-tuple containing (state_id, county
 unemployment rate (2009) as the associated value.
 
 '''
+from __future__ import absolute_import
+
 import csv
 from os.path import join
 from . import _data_dir

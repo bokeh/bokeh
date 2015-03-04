@@ -5,6 +5,8 @@ use Bokeh-specific directives (e.g., ``bokeh-prop`` and ``bokeh-model``)
 when appropriate.
 
 """
+from __future__ import absolute_import
+
 from six import class_types
 from sphinx.ext.autodoc import AttributeDocumenter, ClassDocumenter
 

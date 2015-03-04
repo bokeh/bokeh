@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 
 from bokeh import document
 from bokeh import protocol

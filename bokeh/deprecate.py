@@ -53,6 +53,7 @@ __all__ = [
     'deprecatedModuleAttribute',
     ]
 
+from __future__ import absolute_import
 
 import types, sys, inspect
 from warnings import warn, warn_explicit

@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 
 from bokeh.tests.test_utils import skipIfPyPy
 
@@ -27,5 +28,3 @@ class TestUser(test_utils.BokehServerTestCase):
         model = user.auth_user(self.client, 'test@test.com', 'mypassword')
         self.assertRaises(models.UnauthorizedException, user.auth_user,
                           self.client, 'test@test.com', 'wrongpassword')
-
-
