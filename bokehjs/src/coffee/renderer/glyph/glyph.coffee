@@ -112,7 +112,6 @@ define [
 
       if geometry.type == "point"
         if @_hit_point?
-          console.log "I HAVE POINT!"
           result = @_hit_point(geometry)
         else if not @_point_hit_warned?
           type = @model.type

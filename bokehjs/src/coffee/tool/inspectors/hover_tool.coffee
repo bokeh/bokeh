@@ -91,24 +91,16 @@ define [
       geom_x = xmapper.map_from_target(vx)
       geom_y = ymapper.map_from_target(vy)
 
-#<<<<<<< HEAD
       for i in  indices
         # get x, y values from the rendered glyph
         x = renderer.glyph.x[i]
         y = renderer.glyph.y[i]
-#=======
-#      for i in indices
-#>>>>>>> master
         if @mget('snap_to_data') and renderer.glyph.sx? and renderer.glyph.sy?
           rx = canvas.sx_to_vx(renderer.glyph.sx[i])
           ry = canvas.sy_to_vy(renderer.glyph.sy[i])
         else
           [rx, ry] = [vx, vy]
 
-#        glyph.props.line.line_color.value
-#        window.glyph = renderer.glyph
-#        window.tooltips = @mget("tooltips")
-#        window.ds = ds
         color = renderer.glyph.props.line.line_color.value
         vars = {index: i, x: x, y: y, vx: vx, vy: vy, sx: sx, sy: sy, geomx: geom_x, geomy: geom_y, ry: ry, color: color}
         tooltip.add(rx, ry, @_render_tooltips(ds, i, vars))
@@ -122,7 +114,6 @@ define [
       if _.isString(tooltips)
         return $('<div>').html(Util.replace_placeholders(tooltips, ds, i, vars))
       else
-#        div = $('<div>')
         table = $('<table></table>')
         table.css({ backgroundColor: vars.color})
 
@@ -162,7 +153,6 @@ define [
 
           row.append(td)
           table.append(row)
-#        div.append(table)
         return table
 
   class HoverTool extends InspectTool.Model
