@@ -4,7 +4,6 @@ import logging
 from os.path import dirname
 import imp
 import sys
-import warnings
 
 from six.moves.queue import Queue
 from tornado.web import Application, FallbackHandler
