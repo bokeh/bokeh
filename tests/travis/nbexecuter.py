@@ -18,17 +18,16 @@ except ImportError:
     from Queue import Empty
 
 from IPython.kernel import KernelManager
-from IPython.nbformat.current import read, NotebookNode
+from IPython.nbformat import read, NO_CONVERT, NotebookNode
 from IPython.nbconvert.exporters import HTMLExporter
 
 from bokeh.utils import encode_utf8
-
 
 def run_cell(kc, cell):
     iopub = kc.iopub_channel
     shell = kc.shell_channel
 
-    kc.execute(cell.input)
+    kc.execute(cell.source)
     shell.get_msg(timeout=20)
 
     outs = []
@@ -73,7 +72,6 @@ def run_cell(kc, cell):
         outs.append(out)
     return outs
 
-
 def test_notebook(nb):
     km = KernelManager()
     km.start_kernel(extra_arguments=[], stderr=open(os.devnull, 'w'))
@@ -89,42 +87,39 @@ def test_notebook(nb):
 
     errors = 0
     cells = 0
-    for ws in nb.worksheets:
-        for cell in ws.cells:
-            if cell.cell_type != 'code':
-                continue
-            cells += 1
-            try:
-                outs = run_cell(kc, cell)
-            except Exception as e:
-                print("failed to run cell:", repr(e))
-                print(cell.input)
-                errors += 1
-                continue
-            cell.outputs = outs
+    for cell in nb.cells:
+        if cell.cell_type != 'code':
+            continue
+        cells += 1
+        try:
+            outs = run_cell(kc, cell)
+        except Exception as e:
+            print("failed to run cell: %r" % e)
+            print(cell.source)
+            errors += 1
+            continue
+        cell.outputs = outs
 
     if errors:
         print("    %3i cells failed to complete" % errors)
     if cells:
-        print("%i code cells from notebook %s" % (cells, nb.metadata.name))
+        print("%i code cells from notebook %s" % (cells, nb.metadata.kernelspec.name))
 
     kc.stop_channels()
     km.shutdown_kernel()
     del km
 
-
 def main(ipynb):
     print("running %s" % ipynb)
     with io.open(ipynb, encoding='utf8') as f:
-        nb = read(f, 'json')
+        nb = read(f, NO_CONVERT)
     test_notebook(nb)
     base, ext = os.path.splitext(ipynb)
-
-    outfile = base + ".html"
 
     exportHtml = HTMLExporter()
     (body, resources) = exportHtml.from_notebook_node(nb)
 
+    outfile = ipynb + ".html"
     open(outfile, 'w').write(encode_utf8(body))
     print("wrote %s" % outfile)
 
