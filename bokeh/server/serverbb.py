@@ -387,3 +387,4 @@ class BokehServerTransaction(object):
             self.clientdoc,
             temporary_docid=self.temporary_docid
         )
+        logger.debug("stored %s models", len(self.changed))

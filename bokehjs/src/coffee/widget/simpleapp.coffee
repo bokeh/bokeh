@@ -1,16 +1,23 @@
 define [
-  "./hbox"
-  "backbone"
-], (hbox, Backbone) ->
-  class SimpleAppView extends hbox.View
+  "common/has_parent",
+  "common/continuum_view",
+  "common/collection"
+], (HasParent, ContinuumView, Collection) ->
+  class SimpleAppView extends ContinuumView
+    initialize : (options) ->
+      super(options)
+      @render()
 
-  class SimpleApp extends hbox.Model
-    initialize : (attrs, options) ->
-      @register_property('children', @children, true)
-      @add_dependencies('children', this, ['widgets', 'output'])
-    children : () =>
-      return [@get('widgets'), @get('output')]
-  class SimpleApps extends Backbone.Collection
+    render : () ->
+      @$el.html('')
+      layout = @mget('layout')
+      @layout_view = new layout.default_view(model : layout)
+      @$el.append(@layout_view.$el)
+
+  class SimpleApp extends HasParent
+    type : SimpleApp
+    default_view : SimpleAppView
+  class SimpleApps extends Collection
     model : SimpleApp
 
   simpleapps = new SimpleApps()

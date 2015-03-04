@@ -14,8 +14,9 @@ define [
       @views = {}
       @render()
       @listenTo(@model, 'change', @render)
+
     render: () ->
-      children = @mget('children')
+      children = @model.children()
       build_views(@views, children)
       for own key, val of @views
         val.$el.detach()
@@ -34,6 +35,9 @@ define [
       return _.extend {}, super(), {
         children: []
       }
+
+    children : () ->
+      return @get('children')
 
   class HBoxes extends Collection
     model : HBox

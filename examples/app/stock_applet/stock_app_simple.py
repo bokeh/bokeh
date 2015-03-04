@@ -27,35 +27,6 @@ from bokeh.simpleapp import simpleapp
 
 select1 = Select(name='ticker1', value='AAPL', options=['AAPL', 'GOOG', 'INTC', 'BRCM', 'YHOO'])
 select2 = Select(name='ticker2', value='GOOG', options=['AAPL', 'GOOG', 'INTC', 'BRCM', 'YHOO'])
-
-@simpleapp(select1, select2)
-def stock1(ticker1, ticker2):
-    pretext = PreText(text="", width=500)
-    data = get_data(ticker1, ticker2)
-    source = ColumnDataSource(data=data)
-    p = figure(
-        title="%s vs %s" % (ticker1, ticker2),
-        plot_width=400, plot_height=400,
-        tools="pan,wheel_zoom,box_select,reset",
-        title_text_font_size="10pt",
-    )
-    p.circle(ticker1 + "_returns", ticker2 + "_returns",
-             size=2,
-             nonselection_alpha=0.02,
-             source=source
-    )
-    stats = data.describe()
-    pretext.text = str(stats)
-    row1 = HBox(children=[p, pretext])
-    hist1 = hist_plot(data, ticker1)
-    hist2 = hist_plot(data, ticker1)
-    row2 = HBox(children=[hist1, hist2])
-    line1 = line_plot(ticker1, source)
-    line2 = line_plot(ticker1, source, line1.x_range)
-    return VBox(children=[row1, row2, line1, line2])
-
-stock1.route("/bokeh/stocks/")
-
 @simpleapp(select1, select2)
 def stock2(ticker1, ticker2):
     pretext = PreText(text="", width=500, tags=['text'])
@@ -84,11 +55,11 @@ def stock2(ticker1, ticker2):
     line2 = line_plot(ticker2, source, line1.x_range)
     line2.tags = ['row4']
     output =  VBox(children=[row1, row2, line1, line2])
-    return output
+    return dict(output=output)
 
 @stock2.update(['ticker1', 'ticker2'])
 def stock2_update_input(ticker1, ticker2, app):
-    app.output = stock2(ticker1, ticker2)
+    return stock2(ticker1, ticker2)
 
 @stock2.update([({'tags' : 'main_source'}, ['selected'])])
 def stock2_update_selection(ticker1, ticker2, app):

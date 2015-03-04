@@ -151,7 +151,8 @@ define [
   'widget/radio_group'
   'widget/checkbox_button_group'
   'widget/radio_button_group'
-
+  'widget/layouts/appvbox'
+  'widget/layouts/apphbox'
   'transforms/autoencode'
   'transforms/binarysegment'
   'transforms/const'
@@ -342,6 +343,9 @@ define [
     CheckboxButtonGroup:      'widget/checkbox_button_group'
     RadioButtonGroup:         'widget/radio_button_group'
     SimpleApp:                'widget/simpleapp'
+
+    AppHBox:                  'widget/layouts/apphbox'
+    AppVBox:                  'widget/layouts/appvbox'
 
     AutoEncode:               'transforms/autoencode'
     BinarySegment:            'transforms/binarysegment'
