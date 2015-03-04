@@ -7,7 +7,7 @@
 // Updated: 2012-05-21
 // REQUIRES: jquery 1.7.x
 
-;(function( $ ){
+define(["jquery"], function($) {
 
 // add the jquery instance method
 $.fn.drag = function( str, arg, opts ){
@@ -399,4 +399,4 @@ $event.fixHooks.touchcancel = {
 // share the same special event configuration with related events...
 $special.draginit = $special.dragstart = $special.dragend = drag;
 
-})( jQuery );
+});

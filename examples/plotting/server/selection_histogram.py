@@ -3,25 +3,10 @@
 
 import numpy as np
 
-from bokeh.models import BoxSelectTool, HBox, LassoSelectTool, Paragraph, VBox
+from bokeh.models import BoxSelectTool, LassoSelectTool, Paragraph
 from bokeh.plotting import (
-    curdoc, cursession, figure, output_server, show, _deduplicate_plots, _push_or_save
+    curdoc, cursession, figure, output_server, show, hplot, vplot
 )
-
-# TODO (bev): remove these when plotting.py is fixed up to work better
-def hbox(*children, **kwargs):
-    """ Generate a plot that arranges several subplots horizontally. """
-    layout = HBox(children=list(children), **kwargs)
-    _deduplicate_plots(layout, children)
-    _push_or_save(layout)
-    return layout
-
-def vbox(*children, **kwargs):
-    """ Generate a plot that arranges several subplots vertically. """
-    layout = VBox(children=list(children), **kwargs)
-    _deduplicate_plots(layout, children)
-    _push_or_save(layout)
-    return layout
 
 N = 5000
 
@@ -101,7 +86,7 @@ def on_selection_change(obj, attr, old, new):
 
 scatter_ds.on_change('selected', on_selection_change)
 
-layout = vbox(hbox(p, pv), hbox(ph, Paragraph()))
+layout = vplot(hplot(p, pv), hplot(ph, Paragraph()))
 show(layout)
 
 cursession().poll_document(curdoc(), 0.05)

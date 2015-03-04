@@ -1,5 +1,3 @@
-
-
 define [
   "./continuum_view",
 ], (ContinuumView) ->

@@ -1,9 +1,10 @@
 from collections import OrderedDict
-import pandas as pd
-from bokeh.charts import TimeSeries
-from bokeh.plotting import show, output_file
 
-# Here is some code to read in some stock data from the Yahoo Finance API
+import pandas as pd
+
+from bokeh.charts import TimeSeries, show, output_file
+
+# read in some stock data from the Yahoo Finance API
 AAPL = pd.read_csv(
     "http://ichart.yahoo.com/table.csv?s=AAPL&a=0&b=1&c=2000&d=0&e=1&f=2010",
     parse_dates=['Date'])
@@ -28,13 +29,17 @@ xyvalues = OrderedDict(
 #lxyvalues = np.array(xyvalues.values())
 
 TOOLS="resize,pan,wheel_zoom,box_zoom,reset,previewsave"
+
 output_file("stocks_timeseries.html")
-ts = TimeSeries(xyvalues, index='Date', title="timeseries, pd_input", tools=TOOLS,
-                ylabel='Stock Prices', filename="stocks_timeseries.html")
+
+ts = TimeSeries(
+    xyvalues, index='Date', legend=True,
+    title="timeseries, pd_input", tools=TOOLS, ylabel='Stock Prices')
 
 # usage with iterable index
-#ts = TimeSeries(lxyvalues, index=lindex, title="timeseries, pd_input",
-#                ylabel='Stock Prices', filename="stocks_timeseries.html")
+#ts = TimeSeries(
+#    lxyvalues, index=lindex,
+#    title="timeseries, pd_input", ylabel='Stock Prices')
 
-show(ts) # or ts.show()
+show(ts)
 
