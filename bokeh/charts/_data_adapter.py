@@ -189,6 +189,9 @@ class DataAdapter(object):
             yield k
 
     def __getitem__(self, key):
+        if blaze and isinstance(self._values, blaze.interactive.InteractiveSymbol):
+            return getattr(self._values, key)
+
         val = self._values[self.index_converter(key)]
 
         # if we have "index aliases" we need to remap the values...
@@ -198,18 +201,37 @@ class DataAdapter(object):
         return val
 
     def values(self):
-        values = getattr(self._values, "values", None)
+        if blaze and isinstance(self._values, blaze.interactive.InteractiveSymbol):
+            return self.normalize_values(self._values.data)
+        else:
+            return self.normalize_values(self._values)
+        # values = getattr(self._values, "values", None)
+        #
+        # if callable(values):
+        #     return list(values())
+        #
+        # elif values is None:
+        #     return self._values
+        #
+        # else:
+        #     # assuming it's a dataframe, in that case it returns transposed
+        #     # values compared to it's dict equivalent..
+        #     return list(values.T)
 
-        if callable(values):
-            return list(values())
+    @staticmethod
+    def normalize_values(values):
+        _values = getattr(values, "values", None)
 
-        elif values is None:
-            return self._values
+        if callable(_values):
+            return list(_values())
+
+        elif _values is None:
+            return values
 
         else:
             # assuming it's a dataframe, in that case it returns transposed
             # values compared to it's dict equivalent..
-            return list(values.T)
+            return list(_values.T)
 
     def items(self):
         if blaze and isinstance(self._values, blaze.interactive.InteractiveSymbol):

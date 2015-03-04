@@ -71,3 +71,23 @@ class TestDataAdapter(unittest.TestCase):
         self.assertEqual(da.keys(), ['first', 'second', 'third'])
         self.assertEqual(da.index, ['a', 'b', 'c'])
 
+    def test_blaze_data_with_fields(self):
+        import blaze
+        values = blaze.Data(self._values, fields=self._values.keys())
+        da = DataAdapter(values)
+
+        self.assertEqual(da.values(), list(self._values.values()))
+        self.assertEqual(da.columns, ['first', 'second', 'third'])
+        self.assertEqual(da.keys(), ['first', 'second', 'third'])
+        self.assertEqual(da.index, ['a', 'b', 'c'])
+
+    def test_blaze_data_no_fields(self):
+        import blaze
+        values = blaze.Data(self._values, fields=self._values.keys())
+        da = DataAdapter(values)
+
+        self.assertEqual(da.values(), list(self._values.values()))
+        self.assertEqual(da.columns, ['first', 'second', 'third'])
+        self.assertEqual(da.keys(), ['first', 'second', 'third'])
+        self.assertEqual(da.index, ['a', 'b', 'c'])
+
