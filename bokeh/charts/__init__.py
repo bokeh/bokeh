@@ -1,26 +1,28 @@
 from __future__ import absolute_import
 
-from .builder.area_builder import Area  # noqa
-from .builder.donut_builder import Donut  # noqa
-from .builder.dot_builder import Dot  # noqa
-from .builder.line_builder import Line  # noqa
-from .builder.step_builder import Step  # noqa
-from .builder.histogram_builder import Histogram  # noqa
-from .builder.bar_builder import Bar  # noqa
-from .builder.scatter_builder import Scatter  # noqa
-from .builder.boxplot_builder import BoxPlot  # noqa
-from .builder.timeseries_builder import TimeSeries  # noqa
-from .builder.heatmap_builder import HeatMap  # noqa
-from .builder.horizon_builder import Horizon  # noqa
+from .builder.area_builder import Area; Area
+from .builder.donut_builder import Donut; Donut
+from .builder.dot_builder import Dot; Dot
+from .builder.line_builder import Line; Line
+from .builder.step_builder import Step; Step
+from .builder.histogram_builder import Histogram; Histogram
+from .builder.bar_builder import Bar; Bar
+from .builder.scatter_builder import Scatter; Scatter
+from .builder.boxplot_builder import BoxPlot; BoxPlot
+from .builder.timeseries_builder import TimeSeries; TimeSeries
+from .builder.heatmap_builder import HeatMap; HeatMap
+from .builder.horizon_builder import Horizon; Horizon
 
-from ._chart import Chart
-from ._data_adapter import DataAdapter
+from ._chart import Chart; Chart
+from ._data_adapter import DataAdapter; DataAdapter
 
 from ..deprecate import deprecated
-from ..models import ColumnDataSource
+from ..models import ColumnDataSource; ColumnDataSource
 from ..io import (
     curdoc, cursession, output_file, output_notebook, output_server, push,
     reset_output, save, show, gridplot, vplot, hplot)
+(curdoc, cursession, output_file, output_notebook, output_server, push,
+ reset_output, save, show, gridplot, vplot, hplot)
 
 @deprecated("Bokeh 0.8.2", "bokeh.charts.vplot function")
 def VBox(*args, **kwargs):

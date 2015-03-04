@@ -100,7 +100,6 @@ def create(docid, typename):
     :status 401: when user is not authorized
 
     '''
-    clientdoc = clientdoc  # noqa - fool pyflakes - is this magically injecter or something?
     doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
     bokehuser = bokeh_app.current_user()
     temporary_docid = get_temporary_docid(request, docid)
@@ -111,9 +110,9 @@ def create(docid, typename):
     modeldata = protocol.deserialize_json(request.data.decode('utf-8'))
     modeldata = [{'type' : typename,
                   'attributes' : modeldata}]
-    clientdoc.load(*modeldata, dirty=True)
+    t.clientdoc.load(*modeldata, dirty=True)
     t.save()
-    ws_update(clientdoc, t.write_docid, modeldata)
+    ws_update(t.clientdoc, t.write_docid, modeldata)
     return protocol.serialize_json(modeldata[0]['attributes'])
 
 @handle_auth_error
@@ -150,7 +149,7 @@ def bulkget_without_typename(docid):
     return _bulkget(docid)
 
 @bokeh_app.route("/bokeh/bb/<docid>/<typename>/", methods=['GET'])
-def bulkget_with_typename(docid):
+def bulkget_with_typename(docid, typename):
     ''' Retrieve all objects of a specified typename for a
     given :class:`Document <bokeh.document.Document>`.
 
@@ -162,7 +161,6 @@ def bulkget_with_typename(docid):
     :status 401: when user is not authorized
 
     '''
-    typename = typename  # noqa - is this a bug or magic?
     return _bulkget(docid, typename)
 
 @crossdomain(origin="*", methods=['PATCH', 'GET', 'PUT'], headers=None)
@@ -289,15 +287,15 @@ def update(docid, typename, id):
 @handle_auth_error
 def delete(docid, typename, id):
     #I don't think this works right now
-    obj = obj  # noqa - fool pyflakes - bug or magic?
-    clientdoc = clientdoc  # noqa
+    obj = 'No this does not work, because obj is not defined, should it be an arg?'
     doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
     bokehuser = bokeh_app.current_user()
     temporary_docid = get_temporary_docid(request, docid)
     t = BokehServerTransaction(
         bokehuser, doc, 'rw', temporary_docid=temporary_docid
     )
-    model = t.clientdoc._models[id]
+    clientdoc = t.clientdoc
+    model = clientdoc._models[id]
     bokeh_app.backbone_storage.del_obj(t.write_docid, obj)
     t.save()
     ws_delete(clientdoc, t.write_docid, [model])

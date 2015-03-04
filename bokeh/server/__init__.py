@@ -5,10 +5,10 @@ import logging
 
 import werkzeug.serving
 
-from bokeh import __version__  # noqa
-from bokeh.server.utils.reload import robust_reloader  # noqa
-from bokeh.server.app import bokeh_app  # noqa
-from bokeh.settings import settings  # noqa
+from bokeh import __version__; __version__
+from bokeh.server.utils.reload import robust_reloader; robust_reloader
+from bokeh.server.app import bokeh_app; bokeh_app
+from bokeh.settings import settings; settings
 
 DEFAULT_BACKEND = os.environ.get('BOKEH_SERVER_DEFAULT_BACKEND', 'memory')
 if DEFAULT_BACKEND not in ['redis', 'shelve', 'memory']:
