@@ -21,7 +21,7 @@ class TestExamples(TestCase):
 
     @skipIf(not is_IPython, "IPython is required to run this test")
     def test_nbexecuter(self):
-        import nbexecuter
+        from . import nbexecuter
         example_dir = join(dirname(__file__), pardir, pardir, 'examples')
         example_nbconverted = join(example_dir, "glyphs", "glyph.ipynb")
         nbexecuter.main(example_nbconverted)
