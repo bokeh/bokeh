@@ -5,6 +5,7 @@ from collections import OrderedDict
 
 from .models import glyphs, markers
 from .mixins import FillProps, LineProps
+from .utils import pop_items
 
 def _glyph_function(glyphclass, dsnames, argnames, docstring, xfields=["x"], yfields=["y"]):
 
@@ -22,20 +23,14 @@ def _glyph_function(glyphclass, dsnames, argnames, docstring, xfields=["x"], yfi
             datasource = ColumnDataSource()
         else:
             datasource = source
-
-        legend_name = kwargs.pop("legend", None)
-
+        
         if not isinstance(plot, Plot):
             raise ValueError("expected plot object for first argument")
-
+        
         # TODO (bev) this seems like it should be here but invalid kwargs
         # currently get through (see also below)
         # plot.update(**kwargs)
-
-        name = kwargs.pop('name', None)
-
-        select_tool = _get_select_tool(plot)
-
+        
         # Process the glyph dataspec parameters
         glyph_params = _match_data_params(dsnames, glyphclass,
                                           datasource,
@@ -52,35 +47,34 @@ def _glyph_function(glyphclass, dsnames, argnames, docstring, xfields=["x"], yfi
 
         _update_plot_data_ranges(plot, datasource, x_data_fields, y_data_fields)
         kwargs.update(glyph_params)
-
-        glyph_props = glyphclass.properties() | set(argnames)
-        glyph_kwargs = dict((key, value) for (key, value) in iteritems(kwargs) if key in glyph_props)
-        glyph = glyphclass(**glyph_kwargs)
-
+    
         nonselection_glyph_params = _materialize_colors_and_alpha(kwargs, prefix='nonselection_', default_alpha=0.1)
-        nonselection_glyph = glyph.clone()
+        
+        # Pop some arguments that we already used or need later
+        legend_name = kwargs.pop("legend", None)
+        pop_items(kwargs, 'color', 'alpha')
+        renderer_kwargs = pop_items(kwargs, 'x_range_name', 'y_range_name', name=None)
 
+        # Create the glyph class with the remaining kwargs
+        glyph = glyphclass(**kwargs)
+        
+        # Make a clone for the nonselection glyph
+        nonselection_glyph = glyph.clone()
         # TODO: (bev) This is a bit hacky.
         if hasattr(nonselection_glyph, 'fill_color'):
             nonselection_glyph.fill_color = nonselection_glyph_params['fill_color']
             nonselection_glyph.fill_alpha = nonselection_glyph_params['fill_alpha']
-
         if hasattr(nonselection_glyph, 'line_color'):
             nonselection_glyph.line_color = nonselection_glyph_params['line_color']
             nonselection_glyph.line_alpha = nonselection_glyph_params['line_alpha']
-
+        
+        # Instantiate renderer with kwargs that we extracted above
         glyph_renderer = GlyphRenderer(
             data_source=datasource,
             glyph=glyph,
             nonselection_glyph=nonselection_glyph,
-            name=name)
-
-        # TODO (bev) hacky, fix up when glyphspecs are simplified/removed
-        if 'x_range_name' in kwargs:
-            glyph_renderer.x_range_name = kwargs['x_range_name']
-        if 'y_range_name' in kwargs:
-            glyph_renderer.y_range_name = kwargs['y_range_name']
-
+            **renderer_kwargs)
+        
         if legend_name:
             legend = _get_legend(plot)
             if not legend:
@@ -89,6 +83,7 @@ def _glyph_function(glyphclass, dsnames, argnames, docstring, xfields=["x"], yfi
             legends.setdefault(legend_name, []).append(glyph_renderer)
             legend.legends = list(legends.items())
 
+        select_tool = _get_select_tool(plot)
         if select_tool :
             select_tool.renderers.append(glyph_renderer)
             select_tool._dirty = True
