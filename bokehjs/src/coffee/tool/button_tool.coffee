@@ -43,6 +43,7 @@ define [
         active: false
         tool_name: @tool_name
         icon: @icon
+        selenium_handler: @selenium_handler
       })
 
   return {

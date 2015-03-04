@@ -1,4 +1,5 @@
 <button type="button" class="bk-toolbar-button hover">
+  <span class='<%= @selenium_handler %>'></span>
   <img class='bk-btn-icon' src=<%= @icon %> />
   <span class='tip'><%= @tooltip %></span>
 </button>
