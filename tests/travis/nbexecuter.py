@@ -24,9 +24,13 @@ from IPython.nbconvert.exporters import HTMLExporter
 from bokeh.utils import encode_utf8
 
 
-def run_cell(shell, iopub, cell):
-    shell.execute(cell.input)
+def run_cell(kc, cell):
+    iopub = kc.iopub_channel
+    shell = kc.shell_channel
+
+    kc.execute(cell.input)
     shell.get_msg(timeout=20)
+
     outs = []
 
     while True:
@@ -49,18 +53,20 @@ def run_cell(shell, iopub, cell):
         if msg_type == 'stream':
             out.stream = content['name']
             out.text = content['data']
-        elif msg_type in ('display_data', 'pyout'):
+        elif msg_type in ('display_data', 'execute_result'):
             for mime, data in iteritems(content['data']):
                 attr = mime.split('/')[-1].lower()
                 # this gets most right, but fix svg+html, plain
                 attr = attr.replace('+xml', '').replace('plain', 'text')
                 setattr(out, attr, data)
-            if msg_type == 'pyout':
+            if msg_type == 'execute_result':
                 out.prompt_number = content['execution_count']
-        elif msg_type == 'pyerr':
+        elif msg_type == 'error':
             out.ename = content['ename']
             out.evalue = content['evalue']
             out.traceback = content['traceback']
+        elif msg_type == 'execute_input':
+            pass
         else:
             print("unhandled iopub msg:", msg_type)
 
@@ -73,9 +79,7 @@ def test_notebook(nb):
     km.start_kernel(extra_arguments=[], stderr=open(os.devnull, 'w'))
     kc = km.client()
     kc.start_channels()
-    iopub = kc.iopub_channel
-    shell = kc.shell_channel
-    shell.kernel_info()
+    kc.kernel_info()
 
     while True:
         try:
@@ -91,7 +95,7 @@ def test_notebook(nb):
                 continue
             cells += 1
             try:
-                outs = run_cell(shell, iopub, cell)
+                outs = run_cell(kc, cell)
             except Exception as e:
                 print("failed to run cell:", repr(e))
                 print(cell.input)
