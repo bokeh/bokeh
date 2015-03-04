@@ -570,7 +570,7 @@ Be sure to follow us on Twitter `@bokehplots <Twitter_>`_, as well as on
 .. |save| replace:: :func:`save <bokeh.io.save>`
 .. |show| replace:: :func:`show <bokeh.io.show>`
 
-.. |ColumnDataSource| replace:: :class:`Line <bokeh.models.sources.ColumnDataSource>`
+.. |ColumnDataSource| replace:: :class:`ColumnDataSource <bokeh.models.sources.ColumnDataSource>`
 .. |DatetimeAxis| replace:: :class:`DatetimeAxis <bokeh.models.axes.DatetimeAxis>`
 
 .. |Line| replace:: :class:`Line <bokeh.models.glyphs.Line>`
