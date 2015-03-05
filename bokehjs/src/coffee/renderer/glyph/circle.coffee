@@ -151,6 +151,31 @@ define [
         .value()
       return hits
 
+    _hit_span: (geometry) ->
+      [vx, vy] = [geometry.vx, geometry.vy]
+      yr = @renderer.yrange()
+
+      if @radius_units == "screen"
+        vx0 = vx - @max_radius
+        vx1 = vx + @max_radius
+        [x0, x1] = @renderer.xmapper.v_map_from_target([vx0, vx1])
+
+        vy0 = vy - @max_radius
+        vy1 = vy + @max_radius
+        [y0, y1] = @renderer.ymapper.v_map_from_target([vy0, vy1])
+
+      else
+
+        x = @renderer.xmapper.map_from_target(vx)
+        y = @renderer.ymapper.map_from_target(vy)
+        x0 = x - @max_radius
+        x1 = x + @max_radius
+
+        y0 = y - @max_radius
+        y1 = y + @max_radius
+
+      return (xx[4].i for xx in @index.search([x0, yr.attributes.start, x1, yr.attributes.end]))
+
     _hit_rect: (geometry) ->
       [x0, x1] = @renderer.xmapper.v_map_from_target([geometry.vx0, geometry.vx1])
       [y0, y1] = @renderer.ymapper.v_map_from_target([geometry.vy0, geometry.vy1])
