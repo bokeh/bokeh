@@ -18,6 +18,8 @@ the generation of several outputs (file, server, notebook).
 # Imports
 #-----------------------------------------------------------------------------
 
+from __future__ import absolute_import
+
 import numpy as np
 
 from ._chart_options import ChartOptions

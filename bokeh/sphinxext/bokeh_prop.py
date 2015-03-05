@@ -29,7 +29,7 @@ the above usage yields the output:
     .. bokeh-prop:: bokeh.sphinxext.sample.Bar.thing
 
 """
-from __future__ import print_function
+from __future__ import absolute_import, print_function
 
 import importlib
 
@@ -123,4 +123,3 @@ class BokehPropDirective(Directive):
 
 def setup(app):
     app.add_directive_to_domain('py', 'bokeh-prop', BokehPropDirective)
-

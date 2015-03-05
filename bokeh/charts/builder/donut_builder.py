@@ -16,7 +16,7 @@ It also add a new chained stacked method.
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-from __future__ import division
+from __future__ import absolute_import, division
 from math import pi
 import pandas as pd
 

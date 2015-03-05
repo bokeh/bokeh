@@ -1,5 +1,7 @@
 """Definitions of common enumerations to be used together with ``Enum`` property. """
 
+from __future__ import absolute_import
+
 from six import string_types
 
 from . import colors, icons, palettes

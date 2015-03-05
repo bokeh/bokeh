@@ -3,6 +3,8 @@ In our python interface to the backbone system, we separate the local collection
 which stores models, from the http client which interacts with a remote store
 In applications, we would use a class that combines both
 """
+from __future__ import absolute_import
+
 import warnings
 import logging
 logger = logging.getLogger(__name__)

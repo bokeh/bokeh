@@ -27,6 +27,8 @@ in :bokeh-pull:`1698`,which closed :bokeh-issue:`1694` as part of
 :bokeh-milestone:`0.8`.
 
 """
+from __future__ import absolute_import
+
 from docutils import nodes, utils
 from docutils.parsers.rst.roles import set_classes
 

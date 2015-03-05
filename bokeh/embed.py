@@ -11,6 +11,8 @@ these different cases.
 
 '''
 
+from __future__ import absolute_import
+
 import uuid
 
 from .protocol import serialize_json

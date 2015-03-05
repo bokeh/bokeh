@@ -1,4 +1,4 @@
-from __future__ import print_function
+from __future__ import absolute_import, print_function
 
 import logging
 logger = logging.getLogger(__name__)
@@ -6,6 +6,7 @@ logger = logging.getLogger(__name__)
 import itertools
 
 from . import _glyph_functions as gf
+from .deprecate import deprecated
 from .models import Axis, Grid, GridPlot, Legend, LogAxis, Plot
 from .plotting_helpers import (
     get_default_color, get_default_alpha, _handle_1d_data_args, _list_attr_splat,
@@ -300,7 +301,3 @@ def markers():
 
 _color_fields = set(["color", "fill_color", "line_color"])
 _alpha_fields = set(["alpha", "fill_alpha", "line_alpha"])
-
-
-
-

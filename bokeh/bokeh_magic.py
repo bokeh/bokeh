@@ -1,8 +1,8 @@
-# This is the bokeh_magic loader and installer, if you want to see the 
+# This is the bokeh_magic loader and installer, if you want to see the
 # bokeh_magic source code check the following url:
 # https://github.com/bokeh/bokeh/blob/master/extensions/bokeh_magic.py
 
-from __future__ import print_function
+from __future__ import absolute_import, print_function
 from IPython import get_ipython
 
 
