@@ -250,7 +250,7 @@ class Chart(Plot):
         elif self._options.filename is False and \
                         self._options.server is False and \
                         self._options.notebook is False:
-            print("You have a provide a filename (filename='foo.html' or"
+            print("You must provide a filename (filename='foo.html' or"
                   " .filename('foo.html')) to save your plot.")
 
         if self._options.server:
