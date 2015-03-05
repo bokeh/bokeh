@@ -1,5 +1,5 @@
 
-.. _bokeh_dot_plotting:
+.. _bokeh.plotting:
 
 ``bokeh.plotting`` Interface
 ############################
