@@ -235,7 +235,7 @@ class DataAdapter(object):
 
     def items(self):
         if blaze and isinstance(self._values, blaze.interactive.InteractiveSymbol):
-            return[(k, list(self._values[k])) for k, v in zip(self.keys(), self._values.data) ]
+            return[(k, list(v)) for k, v in zip(self.keys(), self._values.data) ]
         else:
             return [(key, self[key]) for key in self]
 
