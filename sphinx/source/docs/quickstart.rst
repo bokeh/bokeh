@@ -58,7 +58,7 @@ If you are using Windows, please see :ref:`install_windows` in the
 Getting Started
 ===============
 
-Bokeh is a large lbrary that exposes many capabiliteis, so this section is
+Bokeh is a large lbrary that exposes many capabilities, so this section is
 only a quick tour of some common Bokeh use-cases and workflows. For more
 detailed information please consult the full :ref:`userguide`.
 
@@ -334,7 +334,6 @@ things to look out for in this example:
 
     import numpy as np
     from bokeh.plotting import *
-    from bokeh.models import ColumnDataSource
 
     # prepare some date
     N = 100
