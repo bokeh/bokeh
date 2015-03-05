@@ -1,20 +1,20 @@
 define [
-  "../vbox",
+  "../vboxform",
   "common/has_parent",
   "common/continuum_view",
   "common/build_views"
   "common/collection",
   "underscore"
-], (vbox, HasParent, ContinuumView, build_views, Collection, _) ->
-  class AppVBoxView extends vbox.View
+], (vboxform, HasParent, ContinuumView, build_views, Collection, _) ->
+  class AppVBoxFormView extends vboxform.View
     initialize : (options) ->
       super(options)
       app = @mget('app')
       @listenTo(app, 'change:objects', @render)
 
-  class AppVBox extends HasParent
-    type : "AppVBox"
-    default_view : AppVBoxView
+  class AppVBoxForm extends HasParent
+    type : "AppVBoxForm"
+    default_view : AppVBoxFormView
     children : () ->
       app = @get('app')
       raw_children = @get('children')
@@ -27,11 +27,11 @@ define [
       )
       return children
 
-  class AppVBoxes extends Collection
-    model : AppVBox
-  appvboxes = new AppVBoxes()
+  class AppVBoxForms extends Collection
+    model : AppVBoxForm
+  appvboxforms = new AppVBoxForms()
   return {
-    "Model" : AppVBox
-    "Collection" : appvboxes
-    "View" : AppVBoxView
+    "Model" : AppVBoxForm
+    "Collection" : appvboxforms
+    "View" : AppVBoxFormView
   }

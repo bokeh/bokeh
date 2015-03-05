@@ -106,6 +106,16 @@ class SimpleApp(Widget):
     def clear_debounce(self):
         delattr(self, "_debounce_called")
 
+    def process_user_result(self, result):
+        if isinstance(result, Widget):
+            result = {'output' : result}
+        if isinstance(result, dict):
+            # hack - so we can detect a change
+            # kind of ok because it's a shallow copy
+            dummy = copy.copy(self.objects)
+            dummy.update(result)
+            self.objects = dummy
+
     def callback(self, func):
         from ...plotting import curdoc
         @wraps(func)
@@ -116,14 +126,7 @@ class SimpleApp(Widget):
             args = self.args_for_func(func)
             logger.debug("calling %s", func.__name__)
             result = func(**args)
-            if isinstance(result, Widget):
-                result = {'output' : result}
-            if isinstance(result, dict):
-                # hack - so we can detect a change
-                # kind of ok because it's a shallow copy
-                dummy = copy.copy(self.objects)
-                dummy.update(result)
-                self.objects = dummy
+            self.process_user_result(result)
             curdoc()._add_all()
             if debounce_called is not None:
                 debounce_called[func.__name__] = True
@@ -143,13 +146,12 @@ class SimpleApp(Widget):
             name = '_func%d'  % counter
             func = self.create_registry[self.name]
             setattr(self, name, self.callback(func))
-            for obj in self.references():
-                if obj == self:
-                    continue
-                for attr in obj.class_properties():
-                    obj.on_change(attr, self, name)
+            for widget_name in self.widget_list:
+                obj = self.objects.get(widget_name)
+                if obj:
+                    for attr in obj.class_properties():
+                        obj.on_change(attr, self, name)
             return
-
         for selectors, func in self.update_registry[self.name]:
             #hack because we lookup callbacks by func name
             name = '_func%d'  % counter
@@ -186,10 +188,10 @@ class SimpleApp(Widget):
         func = self.create_registry[self.name]
         args = self.args_for_func(func)
         result = func(**args)
-        self.objects.update(result)
+        self.process_user_result(result)
         func = self.layout_registry.get(self.name)
         if func:
-            self.layout = func(self.args_for_func(func))
+            self.layout = func(**self.args_for_func(func))
         else:
             self.layout = self.default_layout()
 
@@ -216,6 +218,17 @@ class AppVBox(VBox, AppLayout):
 
 
 class AppHBox(HBox, AppLayout):
+    """VBox, except children can be other plot objects, as well as
+    strings (which are then evaluated in an app namespace for
+    de-referencing
+    """
+    children = List(Either(Instance(Widget), String), help="""
+    The list of children, which can be other widgets (including layouts)
+    and plots - or strings. If strings, there must be a corresponding app
+    which contains the widget/plot matching that string
+    """)
+
+class AppVBoxForm(VBox, AppLayout):
     """VBox, except children can be other plot objects, as well as
     strings (which are then evaluated in an app namespace for
     de-referencing

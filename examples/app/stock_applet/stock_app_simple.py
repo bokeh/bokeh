@@ -19,7 +19,8 @@ from bokeh.plotting import figure, curdoc
 from bokeh.properties import String, Instance
 from bokeh.server.app import bokeh_app
 from bokeh.server.utils.plugins import object_page
-from bokeh.models.widgets import HBox, VBox, VBoxForm, PreText, Select
+from bokeh.models.widgets import (HBox, VBox, VBoxForm, PreText,
+                                  Select, AppHBox, AppVBox, AppVBoxForm)
 
 
 
@@ -27,9 +28,10 @@ from bokeh.simpleapp import simpleapp
 
 select1 = Select(name='ticker1', value='AAPL', options=['AAPL', 'GOOG', 'INTC', 'BRCM', 'YHOO'])
 select2 = Select(name='ticker2', value='GOOG', options=['AAPL', 'GOOG', 'INTC', 'BRCM', 'YHOO'])
+
 @simpleapp(select1, select2)
-def stock2(ticker1, ticker2):
-    pretext = PreText(text="", width=500, tags=['text'])
+def stock(ticker1, ticker2):
+    pretext = PreText(text="", width=500)
     df = get_data(ticker1, ticker2)
     source = ColumnDataSource(data=df)
     source.tags = ['main_source']
@@ -46,16 +48,55 @@ def stock2(ticker1, ticker2):
     )
     stats = df.describe()
     pretext.text = str(stats)
-    row1 = HBox(children=[p, pretext], tags=['row1'])
+    row1 = HBox(children=[p, pretext])
     hist1 = hist_plot(df, ticker1)
     hist2 = hist_plot(df, ticker2)
-    row2 = HBox(children=[hist1, hist2], tags=['row2'])
+    row2 = HBox(children=[hist1, hist2])
     line1 = line_plot(ticker1, source)
-    line1.tags = ['row3']
     line2 = line_plot(ticker2, source, line1.x_range)
-    line2.tags = ['row4']
     output =  VBox(children=[row1, row2, line1, line2])
-    return dict(output=output)
+    return output
+
+stock.route("/bokeh/stocks/")
+
+@simpleapp(select1, select2)
+def stock2(ticker1, ticker2):
+    pretext = PreText(text="", width=500)
+    df = get_data(ticker1, ticker2)
+    source = ColumnDataSource(data=df)
+    source.tags = ['main_source']
+    p = figure(
+        title="%s vs %s" % (ticker1, ticker2),
+        plot_width=400, plot_height=400,
+        tools="pan,wheel_zoom,box_select,reset",
+        title_text_font_size="10pt",
+    )
+    p.circle(ticker1 + "_returns", ticker2 + "_returns",
+             size=2,
+             nonselection_alpha=0.02,
+             source=source
+    )
+    stats = df.describe()
+    pretext.text = str(stats)
+    hist1 = hist_plot(df, ticker1)
+    hist2 = hist_plot(df, ticker2)
+    line1 = line_plot(ticker1, source)
+    line2 = line_plot(ticker2, source, line1.x_range)
+    return dict(scatterplot=p,
+                statstext=pretext,
+                hist1=hist1,
+                hist2=hist2,
+                line1=line1,
+                line2=line2)
+
+@stock2.layout
+def stock2_layout(app):
+    widgets = AppVBoxForm(app=app, children=['ticker1', 'ticker2'])
+    row1 = AppHBox(app=app, children=['scatterplot', 'statstext'])
+    row2 = AppHBox(app=app, children=['hist1', 'hist2'])
+    all_plots = AppVBox(app=app, children=[row1, row2, 'line1', 'line2'])
+    app = AppHBox(app=app, children=[widgets, all_plots])
+    return app
 
 @stock2.update(['ticker1', 'ticker2'])
 def stock2_update_input(ticker1, ticker2, app):
@@ -71,9 +112,9 @@ def stock2_update_selection(ticker1, ticker2, app):
         selected_df = df
     hist1 = hist_plot(df, ticker1, selected_df=selected_df)
     hist2 = hist_plot(df, ticker2, selected_df=selected_df)
-    row2 = app.select_one({'tags' : 'row2'})
-    row2.children = [hist1, hist2]
-    app.select_one({'tags' : 'text'}).text = str(selected_df.describe())
+    app.objects['hist1'] = hist1
+    app.objects['hist2'] = hist2
+    app.objects['statstext'].text = str(selected_df.describe())
 
 stock2.route("/bokeh/stocks2/")
 
