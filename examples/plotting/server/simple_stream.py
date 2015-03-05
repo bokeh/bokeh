@@ -5,6 +5,8 @@
 #   $ bokeh-server --backend=memory
 # Go to http://localhost:5006/bokeh to view this plot
 
+import time
+
 import numpy as np
 
 from bokeh.plotting import *
