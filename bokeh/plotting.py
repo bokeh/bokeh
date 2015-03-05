@@ -15,7 +15,7 @@ from .plotting_helpers import (
 
 # extra imports -- just things to add to 'from plotting import *'
 from .document import Document
-from .models import ColumnDataSource
+from .models import ColumnDataSource, HBox, VBox
 from .session import Session
 from .io import (
     curdoc, cursession, output_file, output_notebook, output_server, push,
