@@ -36,8 +36,6 @@ def _make_range(r):
 @mbsbp.route("/render/<docid>/<datasourceid>/<glyphid>", methods=['GET', 'POST'])
 def render(docid, datasourceid, glyphid):
     #load bokeh document
-    #bokehuser = bokeh_app.authentication.current_user()
-    #request_username = bokehuser.username
     clientdoc = bokeh_app.backbone_storage.get_document(docid)
     prune(clientdoc)
     #
@@ -134,7 +132,6 @@ def line1d_downsample(raw_data, data_source, glyph, plot_state,
     else:
         raise NotImplementedError
     screen_d_span = _span(domain_screen_r)
-    #data_d_span = _span(domain_r)  # todo: use this?
     data_r_span = _span(range_r)
     domain_limit = [domain_r.start, domain_r.end]
     if domain_col.dtype.kind == "M":
@@ -155,9 +152,7 @@ def line1d_downsample(raw_data, data_source, glyph, plot_state,
 
 def heatmap_downsample(raw_data, data_source, glyph, plot_state,
                        render_state, auto_bounds):
-    #x_r = plot_state['data_x']
-    #y_r = plot_state['data_y']
-
+    
     screen_x_r = plot_state['screen_x']
     screen_y_r = plot_state['screen_x']
     x_resolution = float(_span(screen_x_r))
@@ -165,9 +160,7 @@ def heatmap_downsample(raw_data, data_source, glyph, plot_state,
 
     global_x_range = data_source.transform['global_x_range']
     global_y_range = data_source.transform['global_y_range']
-    #global_offset_x = data_source.transform.get('global_offset_x', 0)
-    #global_offset_y = data_source.transform.get('global_offset_y', 0)
-
+    
     image_x_axis = np.linspace(global_x_range[0],
                                global_x_range[1],
                                raw_data.shape[1])
