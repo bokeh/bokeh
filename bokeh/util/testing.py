@@ -59,8 +59,7 @@ def runtests(verbosity=1, xunitfile=None, exit=False):
     argv.extend(['--logging-level=WARN'])
 
     # Add all 'tests' subdirectories to the options
-    rootdir = os.path.join("..", os.path.dirname(__file__))
-    rootdir = os.path.dirname(__file__)
+    rootdir = os.path.join(os.path.dirname(__file__), "..")
     for root, dirs, files in os.walk(rootdir):
         if 'tests' in dirs:
             testsdir = os.path.join(root, 'tests')
