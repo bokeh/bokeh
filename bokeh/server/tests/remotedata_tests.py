@@ -8,7 +8,6 @@ from ..app import bokeh_app, app
 from ..models import user
 
 from . import test_utils
-from ..tests.test_utils import skipIfPy3
 from ...plotting import (reset_output, output_server, push, curdoc, figure)
 from ...session import TestSession
 from ...models.sources import ServerDataSource

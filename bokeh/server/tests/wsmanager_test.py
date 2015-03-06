@@ -3,7 +3,6 @@ from __future__ import absolute_import
 from bokeh import document
 from bokeh import protocol
 from bokeh import session
-from bokeh.tests.test_utils import skipIfPyPy
 
 from . import test_utils
 from ..app import bokeh_app

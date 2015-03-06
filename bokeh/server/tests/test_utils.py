@@ -7,13 +7,9 @@ import time
 import unittest
 import mock
 
-#import redis
 import requests
 from requests.exceptions import ConnectionError
 from tornado import ioloop
-#import zmq
-
-from bokeh.tests.test_utils import skipIfPy3
 
 from ..models import user
 from .. import start, configure
@@ -74,9 +70,8 @@ class BaseBokehServerTestCase(unittest.TestCase):
     options = {}
 
 class MemoryBokehServerTestCase(BaseBokehServerTestCase):
-    @skipIfPy3("gevent does not work in py3.")
     def setUp(self):
-        #clear tornado ioloop instance
+        # clear tornado ioloop instance
         server_settings.reset()
         server_settings.model_backend = {'type' : 'memory'}
         for k,v in self.options.items():
@@ -86,7 +81,7 @@ class MemoryBokehServerTestCase(BaseBokehServerTestCase):
         self.serverthread = threading.Thread(target=start.start_simple_server)
         self.serverthread.start()
         wait_flask()
-        #not great - but no good way to wait for zmq to come up
+        # not great - but no good way to wait for zmq to come up
         time.sleep(0.1)
         make_default_user(bokeh_app)
 
