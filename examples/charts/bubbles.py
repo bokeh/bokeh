@@ -25,8 +25,8 @@ bubbles2 = Bubble(groupped_df,
 
 xyvalues = OrderedDict()
 xyvalues['python'] = [(1, 2), (3, 3), (4, 7), (5, 5), (8, 26)]
-xyvalues['pypy'] = [(1, 12), (3, 23), (4, 47), (5, 15), (8, 46)]
-xyvalues['jython'] = [(1, 22), (3, 43), (4, 10), (6, 25), (8, 16)]
+xyvalues['pypy'] = [(1, 12), (2, 23), (4, 47), (5, 15), (8, 46)]
+xyvalues['jython'] = [(1, 22), (2, 43), (4, 10), (6, 25), (8, 26)]
 
 bubbles3 = Bubble(
     xyvalues, sizes=[[3,4,3,6,7], [5,3,2,1,5], [4,2,5,8,8]],
