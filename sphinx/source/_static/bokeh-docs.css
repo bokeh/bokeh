@@ -20,7 +20,7 @@ code > .pre {
     clear: both;
 }
 
-/* I'd like to do something like this but 
+/* I'd like to do something like this but
  * it affects too much of the rest of the docs */
 /*
 .section > h2 > a > code > .pre {
@@ -49,7 +49,11 @@ code > .pre {
     font-size: 1.3em;
     text-align: right;
     float: right;
-    color: #EB2366;
+    color: #F5634A;
+}
+
+dt:target, .highlighted {
+    background-color: #EEEEDD;
 }
 
 .class > dd {
@@ -108,13 +112,11 @@ code > .pre {
     padding-left: 10px;
     border-radius: 10px;
     margin-bottom: 20px;
-    width: 60%;
+    width: 80%;
 }
 
 .admonition.note {
-   /* border-color: #35A9DE;*/
     border-left: 2px #35A9DE solid;
-   /* border-bottom: 2px #35A9DE solid;*/
 }
 
 .admonition.warning {
