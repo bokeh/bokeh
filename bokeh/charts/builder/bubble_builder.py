@@ -27,7 +27,7 @@ except:
 from ..utils import chunk, cycle_colors, make_scatter
 from .._builder import create_and_build
 from ...models import ColumnDataSource, Range1d
-from ...properties import Any, Float
+from ...properties import Any, Float, Either, Seq, String
 from .scatter_builder import ScatterBuilder
 
 #-----------------------------------------------------------------------------
@@ -90,8 +90,9 @@ class BubbleBuilder(ScatterBuilder):
     the needed glyphs (markers) taking the references from the source.
 
     # """
-    sizes = Any("circle", help="""
-    An index to be used for all data series.
+    sizes = Either(
+        Seq(Either(String, Seq(Any))), Seq(Any), String, help="""
+        An index to be used for all data series.
     """)
     max_bubble_size = Float(40., help="""
     Maximum size of a bubble marker.
