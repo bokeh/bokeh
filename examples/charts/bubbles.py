@@ -41,9 +41,10 @@ xyvalues['pypy'] = [(1, 12), (3, 23), (4, 47), (5, 15), (8, 46)]
 xyvalues['jython'] = [(1, 22), (3, 43), (4, 10), (6, 25), (8, 16)]
 
 scatter3 = Bubble(xyvalues, sizes=[[3,4,3,6,7], [5,3,2,1,5], [4,2,5,8,8]],
-        title="Scatter", legend="top_left", ylabel='Languages', marker='square')
+        title="Scatter", legend="top_left", ylabel='Languages', marker='square',
+        max_bubble_size=100.)
 #
 output_file("scatter.html")
 #
-show(scatter3)
-# show(VBox([scatter1, scatter2, scatter3]))
+# show(scatter3)
+show(VBox([scatter1, scatter2, scatter3]))

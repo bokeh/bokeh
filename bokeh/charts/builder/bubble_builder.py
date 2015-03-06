@@ -30,7 +30,7 @@ from ..utils import chunk, cycle_colors, make_scatter
 from .._builder import create_and_build, Builder
 from .._data_adapter import DataAdapter
 from ...models import ColumnDataSource, Range1d
-from ...properties import String, Any
+from ...properties import String, Any, Float
 from .scatter_builder import ScatterBuilder
 
 #-----------------------------------------------------------------------------
@@ -76,7 +76,7 @@ def Bubble(values, sizes, **kws):
         xyvalues['jython'] = [(1, 22), (2, 43), (4, 10), (6, 25), (8, 26)]
         output_file('scatter.html')
         scatter = Bubble(xyvalues, sizes=[[1,4,3,6,7], [5,5,2,1,5], [4,2,5,8,8]]
-        title="Scatter", legend="top_left", ylabel='Languages')
+        title="Bubbles", legend="top_left", ylabel='Languages')
         show(scatter)
 
     """
@@ -96,6 +96,13 @@ class BubbleBuilder(ScatterBuilder):
     # """
     sizes = Any("circle", help="""
     An index to be used for all data series.
+    """)
+    max_bubble_size = Float(40., help="""
+    Maximum size of a bubble marker.
+
+    .. note::
+        This corresponds directly to the size argument marker used
+
     """)
 
     @property
@@ -139,7 +146,7 @@ class BubbleBuilder(ScatterBuilder):
                 ds = size
 
             min_size, max_size = min(ds), max(ds)
-            f = np.vectorize(lambda x: x/float(max_size) * 40.)
+            f = np.vectorize(lambda x: x/float(max_size) * self.max_bubble_size)
             self._data["_%s_sizes" % name] = f(ds)
 
         self._source = ColumnDataSource(self._data)
