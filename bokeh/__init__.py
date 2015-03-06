@@ -26,4 +26,4 @@ from . import sampledata; sampledata
 from .settings import settings; settings
 from .util.testing import print_versions; print_versions
 from .util.testing import report_issue; report_issue
-from .util.testing import _test as test; test
+from .util.testing import runtests as test; test

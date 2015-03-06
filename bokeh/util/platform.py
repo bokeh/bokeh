@@ -1,9 +1,9 @@
-"""
+""" Functions for testing what kind of Python or Python environment is in use.
 
 """
 
 def is_py3():
-    """ Test whether we are running Python 3
+    """ Test whether we are running Python 3.
 
     Returns
         True if we are running Python 3, otherwise False
@@ -13,7 +13,7 @@ def is_py3():
     return sys.version_info[0] == 3
 
 def is_pypy():
-    """ Test whether we are running PyPy
+    """ Test whether we are running PyPy.
 
     Returns
         True if we are inside PyPy, otherwise False
@@ -23,7 +23,7 @@ def is_pypy():
     return platform.python_implementation() == "PyPy"
 
 def is_notebook():
-    """ Test whether we are inside an IPython notebook
+    """ Test whether we are inside an IPython notebook.
 
     Returns
         True if we are inside a notebook, otherwise False

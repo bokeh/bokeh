@@ -1,4 +1,5 @@
-"""
+""" Functions for helping with serialization and deserialization of
+Bokeh objects.
 
 """
 from __future__ import absolute_import
@@ -9,6 +10,15 @@ log = logging.getLogger(__name__)
 _simple_id = 1000
 
 def make_id():
+    """ Return a new unique ID for a Bokeh object.
+
+    Normally this function will return UUIDs to use for identifying Bokeh
+    objects. This is especally important for Bokeh objects stored on a
+    Bokeh server. However, it is convenient to have more human-readable
+    IDs during development, so this behavior can be overridden by
+    setting the environment variable ``BOKEH_SIMPLE_IDS=yes``.
+
+    """
     global _simple_id
 
     import uuid
@@ -22,17 +32,38 @@ def make_id():
     return str(new_id)
 
 def urljoin(*args):
+    """ Construct an absolute URL from several URL components.
+
+    Args:
+        *args (str) : URL components to join
+
+    Returns:
+        str : joined URL
+
+    """
     from six.moves.urllib.parse import urljoin as sys_urljoin
     from functools import reduce
     return reduce(sys_urljoin, args)
 
 def get_json(response):
-    """unifying retrieving json from an http response, for requests <1.0, >1.0, and
-    flask test client
+    """ Unify retrieving JSON responses from different sources.
+
+    Works correctly for HTTP responses from requests <=1.0, >1.0, and
+    the Flask test client.
+
+    Args:
+        response (Flask or requests response) : a response to process
+
+    Returns:
+        JSON
+
     """
     import json
-    import flask
-    if isinstance(response, flask.Response):
+    try:
+        import flask
+    except ImportError:
+        flask = None
+    if flask and isinstance(response, flask.Response):
         # flask testing
         return json.loads(response.data.decode('utf-8'))
     else:
@@ -42,39 +73,17 @@ def get_json(response):
         else:
             return response.json
 
-
-def convert_references(json_obj):
-
-    import iteritems
-    from .plot_object import PlotObject
-    from .properties import HasProps
-
-    def convert(obj):
-        if isinstance(obj, PlotObject):
-            return obj.ref
-        elif isinstance(obj, HasProps):
-            return obj.to_dict()
-        else:
-            return obj
-
-    def helper(json_obj):
-        if isinstance(json_obj, list):
-            for idx, x in enumerate(json_obj):
-                json_obj[idx] = convert(x)
-        if isinstance(json_obj, dict):
-            for k, x in iteritems(json_obj):
-                json_obj[k] = convert(x)
-
-    json_apply(json_obj, helper)
-
-    return json_obj
-
 def dump(objs, docid, changed_only=True):
-    """ Dump a sequence of objects into JSON
+    """ Serialize a sequence of Bokeh objects into JSON
 
         Args:
+            objs (seq[obj]) : a sequence of Bokeh object to dump
+            docid (str) : an ID for a Bokeh Document to dump relative to
             changed_only (bool, optional) : whether to dump only attributes
                 that have had their values changed at some point (default: True)
+
+        Returns:
+            list[json]
     """
     json_objs = []
     for obj in objs:
@@ -85,14 +94,37 @@ def dump(objs, docid, changed_only=True):
     return json_objs
 
 def is_ref(frag):
+    """ Test whether a given Bokeh object graph fragment is a reference.
+
+    A Bokeh "reference" is a ``dict`` with ``"type"`` and ``"id"`` keys.
+
+    Args:
+        frag (dict) : a fragment of a Bokeh object graph
+
+    Returns:
+        True, if the fragment is a reference, otherwise False
+
+    """
     return isinstance(frag, dict) and \
            frag.get('type') and \
            frag.get('id')
 
 def json_apply(fragment, check_func, func):
-    """recursively searches through a nested dict/lists
-    if check_func(fragment) is True, then we return
-    func(fragment)
+    """ Apply a function to JSON fragments that match the given predicate
+    and return the collected results.
+
+    Recursively traverses a nested collection of ``dict`` and ``list``,
+    applying ``check_func`` to each fragment. If True, then collect
+    ``func(fragment)`` in the final output
+
+    Args:
+        fragment (JSON-like) : the fragment to apply ``func`` to recursively
+        check_func (callable) : the predicate to test fragments with
+        func (callable) : the conversion function to apply
+
+    Returns:
+        converted fragments
+
     """
     if check_func(fragment):
         return func(fragment)
@@ -108,13 +140,3 @@ def json_apply(fragment, check_func, func):
         return output
     else:
         return fragment
-
-def resolve_json(fragment, models):
-    check_func = is_ref
-    def func(fragment):
-        if fragment['id'] in models:
-            return models[fragment['id']]
-        else:
-            log.error("model not found for %s", fragment)
-            return None
-    return json_apply(fragment, check_func, func)

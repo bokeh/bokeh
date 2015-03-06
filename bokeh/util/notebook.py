@@ -1,14 +1,12 @@
-"""
+""" Functions useful for loading Bokeh code and data in IPython notebooks.
 
 """
 from __future__ import absolute_import
 
 _notebook_loaded = None
 
-
-
 def load_notebook(resources=None, verbose=False, hide_banner=False):
-    ''' Prepare the IPython notebook for displaying Bokeh plots.
+    """ Prepare the IPython notebook for displaying Bokeh plots.
 
     Args:
         resources (Resource, optional) :
@@ -27,7 +25,7 @@ def load_notebook(resources=None, verbose=False, hide_banner=False):
     Returns:
         None
 
-    '''
+    """
     global _notebook_loaded
 
     from .. import __version__
@@ -72,13 +70,16 @@ def load_notebook(resources=None, verbose=False, hide_banner=False):
 
 
 def publish_display_data(data, source='bokeh'):
-    """Compatibility wrapper for IPython publish_display_data which removes the
-    `source` (first) argument in later versions.
+    """ Compatibility wrapper for IPython ``publish_display_data``
 
-    Parameters
-    ----------
-    source : str
-    data : dict
+    Later versions of IPython remove the ``source`` (first) argument. This
+    function insulates Bokeh library code from this change.
+
+    Args:
+        source (str, optional) : the source arg for IPython (default: "bokeh")
+        data (dict) : the data dict to pass to ``publish_display_data``
+            Typically has the form ``{'text/html': html}``
+
     """
     import IPython.core.displaypub as displaypub
     try:

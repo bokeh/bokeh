@@ -1,4 +1,4 @@
-"""
+""" Functions to help with testing Bokeh and reporting issues.
 
 """
 from __future__ import absolute_import
@@ -23,7 +23,7 @@ def print_versions():
     """
     print(_print_versions())
 
-def _test(verbosity=1, xunitfile=None, exit=False):
+def runtests(verbosity=1, xunitfile=None, exit=False):
     """ Run the full Bokeh test suite, and output the results of the tests
     to sys.stdout.
 
@@ -32,7 +32,7 @@ def _test(verbosity=1, xunitfile=None, exit=False):
 
     Args:
         verbosity (int, optional) :
-            Acceptatable values are 0 (less verbose) to 2 (most verbose)
+            Acceptable values are 0 (less verbose) to 2 (most verbose)
 
         xunitfile (str, optional) :
             Write xunit-style XML test results to a given filename. This
@@ -43,7 +43,7 @@ def _test(verbosity=1, xunitfile=None, exit=False):
             error code after the tests are finished. (default: False)
 
     Returns:
-        int : nose return code
+        int : Nose return code
 
     """
 
@@ -75,7 +75,7 @@ def _test(verbosity=1, xunitfile=None, exit=False):
     return nose.main(argv=argv, exit=exit)
 
 
-def report_issue(number=None , owner="bokeh", repo="bokeh",
+def report_issue(number=None, owner="bokeh", repo="bokeh",
                  versions=True, browser=True):
     """ Open or add to a Github issue programmatically.
 
@@ -103,7 +103,7 @@ def report_issue(number=None , owner="bokeh", repo="bokeh",
             Whether to open a browser automatically. If True, open a browser
             to the GitHub issue page (default: True)
 
-    Notes:
+    .. note::
         Setting the environment variables GHUSER (Github username) and
         GHPASS (Github password) will supply those values automatically
         and streamline the dialog. Additionally, this function can report

@@ -7,7 +7,7 @@ import logging
 from mock import patch
 
 from bokeh.util.platform import is_py3, is_pypy
-from bokeh.util.serialization import get_json, json_apply, make_id, resolve_json, urljoin
+from bokeh.util.serialization import get_json, json_apply, make_id, urljoin
 
 
 def skipIfPy3(message):
@@ -76,19 +76,6 @@ class TestJsonapply(unittest.TestCase):
         result = json_apply({'1': 'goal', 1.5: {'2': 'goal', '3': 'junk'}}, check_func, func)
         self.assertEqual(result, {'1': 'goaled', 1.5: {'2': 'goaled', '3': 'junk'}})
 
-
-class TestResolveJson(unittest.TestCase):
-
-    @patch('bokeh.util.serialization.log')
-    def test_resolve_json(self, mock_log):
-
-        models = {'foo': 'success', 'otherfoo': 'othersuccess'}
-        fragment = [{'id': 'foo', 'type': 'atype'}, {'id': 'foo', 'type': 'atype'}, {'id': 'otherfoo', 'type': 'othertype'}]
-        self.assertEqual(resolve_json(fragment, models), ['success', 'success', 'othersuccess'])
-        fragment.append({'id': 'notfoo', 'type': 'badtype'})
-        self.assertEqual(resolve_json(fragment, models), ['success', 'success', 'othersuccess', None])
-        self.assertTrue(mock_log.error.called)
-        self.assertTrue('badtype' in repr(mock_log.error.call_args))
 
 if __name__ == "__main__":
     unittest.main()

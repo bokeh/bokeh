@@ -1,4 +1,20 @@
-"""
+""" Provide a version for the Bokeh library.
+
+This module uses `versioneer`_ to manage version strings. During development,
+`versioneer`_ will compute a version string from the current git revision.
+For packaged releases based off tags, the version string is hard coded in the
+files packaged for distribution.
+
+Attributes:
+    __version__: the version string for this installed Bokeh library
+
+.. note::
+    It is also possible to override the normal version computation by creating
+    a special ``__conda_version__.py`` file at the top level of the library,
+    that defines a ``conda_version`` attribure. This facility is not normally
+    of interest to anyone except package maintainers.
+
+.. _versioneer: https://github.com/warner/python-versioneer
 
 """
 from __future__ import absolute_import
