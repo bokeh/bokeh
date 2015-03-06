@@ -14,6 +14,7 @@ from tornado import ioloop
 #import zmq
 
 from bokeh.tests.test_utils import skipIfPy3
+
 from ..models import user
 from .. import start, configure
 from ..app import bokeh_app, app
@@ -107,7 +108,7 @@ class FlaskClientTestCase(BaseBokehServerTestCase):
             setattr(server_settings, k, v)
         server_settings.model_backend = {'type' : 'memory'}
         configure.configure_flask()
-        with mock.patch('bokeh.utils.logging'):
+        with mock.patch('bokeh.server.configure.logging'):
             configure.register_blueprint()
         #ugh..need better way to initialize this
         app.secret_key = server_settings.secret_key

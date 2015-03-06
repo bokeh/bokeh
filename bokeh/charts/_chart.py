@@ -32,7 +32,8 @@ from ..plotting import DEFAULT_TOOLS
 from ..plotting_helpers import _process_tools_arg
 from ..resources import INLINE
 from ..session import Session
-from ..utils import publish_display_data, make_id
+from ..util.notebook import publish_display_data
+from ..util.serialization import make_id
 
 #-----------------------------------------------------------------------------
 # Classes and functions

@@ -30,7 +30,8 @@ from .models import Widget
 from .models.widgets.layouts import HBox, VBox
 from bokeh.models.plots import GridPlot
 from .state import State
-from .utils import decode_utf8, publish_display_data
+from .util.notebook import publish_display_data
+from .util.string import decode_utf8
 
 #-----------------------------------------------------------------------------
 # Globals and constants

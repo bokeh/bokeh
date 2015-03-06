@@ -27,7 +27,7 @@ from ..models.glyphs import (
     InvertedTriangle, Square, SquareCross, SquareX, Triangle, X)
 from ..resources import INLINE
 from ..session import Session
-from ..utils import publish_display_data
+from ..util.notebook import publish_display_data
 
 #-----------------------------------------------------------------------------
 # Classes and functions

@@ -9,7 +9,7 @@ from six import add_metaclass, iteritems
 
 from .properties import Any, HasProps, List, MetaHasProps, Instance, String
 from .query import find
-from .utils import dump, is_ref, json_apply, make_id, resolve_json
+from .util.serialization import dump, is_ref, json_apply, make_id, resolve_json
 
 class Viewable(MetaHasProps):
     """ Any plot object (Data Model) which has its own View Model in the

@@ -15,7 +15,9 @@ import shelve
 
 from bokeh import protocol
 from bokeh.document import Document
-from bokeh.utils import decode_utf8, dump, encode_utf8
+from bokeh.util.serialization import dump
+from bokeh.util.string import decode_utf8, encode_utf8
+
 from ..exceptions import AuthenticationException
 from .models import docs
 from .app import bokeh_app
