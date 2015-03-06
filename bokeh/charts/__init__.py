@@ -11,6 +11,7 @@ from .builder.boxplot_builder import BoxPlot
 from .builder.timeseries_builder import TimeSeries
 from .builder.heatmap_builder import HeatMap
 from .builder.horizon_builder import Horizon
+from .builder.bubble_builder import Bubble
 
 from ._chart import Chart
 from ._data_adapter import DataAdapter
