@@ -13,7 +13,7 @@ For full documentation, please visit: http://bokeh.pydata.org
 from __future__ import absolute_import, print_function
 
 # configure Bokeh version
-from bokeh.util.version import __version__; __version__
+from .util.version import __version__; __version__
 
 # configure Bokeh logger
 from .util import logconfig
