@@ -154,7 +154,6 @@ class BubbleBuilder(ScatterBuilder):
 
         # for i, duplet in enumerate(duplets, start=1):
         for i, gr in enumerate(self._groups):
-            # import pdb; pdb.set_trace()
             renderer = make_scatter(
                 self._source, "x_%s" % gr, "y_%s" % gr, self.marker,
                 colors[i], fill_alpha=0.4, line_alpha=0.4, size="_%s_sizes" % gr
