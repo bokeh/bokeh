@@ -1,7 +1,7 @@
 """This is the Bokeh charts interface. It gives you a high level API
 to build complex plot is a simple way.
 
-This is the Scatter class which lets you build your Scatter charts
+This is the Bubble class which lets you build your Bubble charts
 just passing the arguments to the Chart class and calling the proper
 functions.
 """
@@ -24,13 +24,10 @@ try:
 except:
     pd = None
 
-from collections import OrderedDict
-
 from ..utils import chunk, cycle_colors, make_scatter
-from .._builder import create_and_build, Builder
-from .._data_adapter import DataAdapter
+from .._builder import create_and_build
 from ...models import ColumnDataSource, Range1d
-from ...properties import String, Any, Float
+from ...properties import Any, Float
 from .scatter_builder import ScatterBuilder
 
 #-----------------------------------------------------------------------------
@@ -39,7 +36,7 @@ from .scatter_builder import ScatterBuilder
 
 
 def Bubble(values, sizes, **kws):
-    """ Create a Bubble chart using :class:`ScatterBuilder <bokeh.charts.builder.bubble_builder.BubbleBuilder>`
+    """ Create a Bubble chart using :class:`BubbleBuilder <bokeh.charts.builder.bubble_builder.BubbleBuilder>`
     to render the geometry from values.
 
     Args:
@@ -74,19 +71,17 @@ def Bubble(values, sizes, **kws):
         xyvalues['python'] = [(1, 2), (3, 3), (4, 7), (5, 5), (8, 26)]
         xyvalues['pypy'] = [(1, 12), (2, 23), (4, 47), (5, 15), (8, 46)]
         xyvalues['jython'] = [(1, 22), (2, 43), (4, 10), (6, 25), (8, 26)]
-        output_file('scatter.html')
-        scatter = Bubble(xyvalues, sizes=[[1,4,3,6,7], [5,5,2,1,5], [4,2,5,8,8]]
+        output_file('bubbles.html')
+        bubbles = Bubble(xyvalues, sizes=[[1,4,3,6,7], [5,5,2,1,5], [4,2,5,8,8]]
         title="Bubbles", legend="top_left", ylabel='Languages')
-        show(scatter)
+        show(bubbles)
 
     """
-    return create_and_build(BubbleBuilder, values,
-                            # xvalues=xvalues, yvalues=yvalues,
-                            sizes=sizes, **kws)
+    return create_and_build(BubbleBuilder, values, sizes=sizes, **kws)
 
 class BubbleBuilder(ScatterBuilder):
     """This is the Bubble class and it is in charge of plotting
-    Scatter charts in an easy and intuitive way.
+    Bubble charts in an easy and intuitive way.
 
     Essentially, we provide a way to ingest the data, make the proper
     calculations and push the references into a source object.
