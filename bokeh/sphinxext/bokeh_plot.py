@@ -96,7 +96,7 @@ from .. import charts, io, plotting
 from ..document import Document
 from ..embed import autoload_static
 from ..resources import CDN
-from ..utils import decode_utf8
+from ..util.string import decode_utf8
 
 
 SOURCE_TEMPLATE = jinja2.Template(u"""
