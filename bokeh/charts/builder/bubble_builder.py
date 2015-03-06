@@ -79,6 +79,7 @@ def Bubble(values, sizes, **kws):
     """
     return create_and_build(BubbleBuilder, values, sizes=sizes, **kws)
 
+
 class BubbleBuilder(ScatterBuilder):
     """This is the Bubble class and it is in charge of plotting
     Bubble charts in an easy and intuitive way.
@@ -99,20 +100,6 @@ class BubbleBuilder(ScatterBuilder):
         This corresponds directly to the size argument marker used
 
     """)
-
-    @property
-    def parse_data(self):
-        """Parse data received from self._values and create correct x, y
-        series values checking if input is a pandas DataFrameGroupBy
-        object or one of the stardard supported types (that can be
-        converted to a DataAdapter)
-        """
-        if pd is not None and \
-                isinstance(self._values, pd.core.groupby.DataFrameGroupBy):
-            return self._parse_groupped_data
-        else:
-            return self._parse_data
-
 
     def _set_sources(self):
         """Push the bubble data into the ColumnDataSource and
