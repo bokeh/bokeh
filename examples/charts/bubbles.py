@@ -33,5 +33,5 @@ bubbles3 = Bubble(
     title="Scatter", legend="top_left", ylabel='Languages',
     marker='square', max_bubble_size=100.)
 
-output_file("scatter.html")
+output_file("bubbles.html")
 show(VBox([bubbles1, bubbles2, bubbles3]))
