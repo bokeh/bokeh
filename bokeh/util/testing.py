@@ -8,6 +8,7 @@ def skipIfPy3(message):
 
     """
     from unittest import skipIf
+    from .platform import is_py3
     return skipIf(is_py3(), message)
 
 
@@ -16,6 +17,7 @@ def skipIfPyPy(message):
 
     """
     from unittest import skipIf
+    from .platform import is_pypy
     return skipIf(is_pypy(), message)
 
 def _print_versions():

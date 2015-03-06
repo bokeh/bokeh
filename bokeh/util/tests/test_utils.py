@@ -2,11 +2,7 @@ from __future__ import absolute_import
 
 import unittest
 
-from mock import patch
-
-from bokeh.util.platform import is_py3, is_pypy
 from bokeh.util.serialization import get_json, json_apply, make_id, urljoin
-
 
 class DummyRequestCallable():
     def json(self):
