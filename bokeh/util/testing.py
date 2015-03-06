@@ -3,6 +3,21 @@
 """
 from __future__ import absolute_import
 
+def skipIfPy3(message):
+    """ unittest decoractor to skip a test for Python 3
+
+    """
+    from unittest import skipIf
+    return skipIf(is_py3(), message)
+
+
+def skipIfPyPy(message):
+    """ unittest decoractor to skip a test for PyPy
+
+    """
+    from unittest import skipIf
+    return skipIf(is_pypy(), message)
+
 def _print_versions():
     import platform as pt
     from .. import __version__
