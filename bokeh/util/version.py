@@ -11,7 +11,7 @@ Attributes:
 .. note::
     It is also possible to override the normal version computation by creating
     a special ``__conda_version__.py`` file at the top level of the library,
-    that defines a ``conda_version`` attribure. This facility is not normally
+    that defines a ``conda_version`` attribute. This facility is not normally
     of interest to anyone except package maintainers.
 
 .. _versioneer: https://github.com/warner/python-versioneer
