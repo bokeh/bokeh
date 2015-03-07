@@ -27,10 +27,10 @@ from . import browserlib
 from .document import Document
 from .embed import notebook_div, file_html, autoload_server
 from .models import Widget
+from .models.plots import GridPlot
 from .models.widgets.layouts import HBox, VBox
-from bokeh.models.plots import GridPlot
 from .state import State
-from .util.notebook import publish_display_data
+from .util.notebook import load_notebook, publish_display_data
 from .util.string import decode_utf8
 
 #-----------------------------------------------------------------------------
@@ -93,7 +93,8 @@ def output_file(filename, title="Bokeh Plot", autosave=False, mode="inline", roo
         root_dir=root_dir
     )
 
-def output_notebook(url=None, docname=None, session=None, name=None):
+def output_notebook(url=None, docname=None, session=None, name=None,
+                    resources=None, verbose=False, hide_banner=False):
     ''' Configure the default output state to generate output in
     Jupyter/IPython notebook cells when :func:`show` is called.
 
@@ -110,6 +111,15 @@ def output_notebook(url=None, docname=None, session=None, name=None):
         name (str, optional) : A name for the session (default: None)
             If None, the server URL is used as the name
 
+        resources (Resource, optional) :
+            How and where to load BokehJS from (default: INLINE)
+
+        verbose (bool, optional) :
+            whether to display detailed BokehJS banner (default: False)
+
+        hide_banner (bool, optional):
+            whether to hide the Bokeh banner (default: False)
+
     Returns:
         None
 
@@ -118,6 +128,7 @@ def output_notebook(url=None, docname=None, session=None, name=None):
         session or the top of a script.
 
     '''
+    load_notebook(resources, verbose, hide_banner)
     _state.output_notebook(
         url=url, docname=docname, session=session, name=name
     )
