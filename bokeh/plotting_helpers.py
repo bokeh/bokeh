@@ -18,7 +18,7 @@ from .models import (
     WheelZoomTool)
 
 from .properties import ColorSpec, Datetime
-from .utils import nice_join
+from .util.string import nice_join
 import warnings
 
 def get_default_color(plot=None):
