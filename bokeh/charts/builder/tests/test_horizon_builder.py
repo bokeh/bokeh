@@ -12,6 +12,7 @@
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
+from __future__ import absolute_import
 
 from collections import OrderedDict
 import datetime
@@ -66,4 +67,3 @@ class TestHorizon(unittest.TestCase):
             assert_array_equal(builder._data['y_fold1_pypy'], [63, 63, 63, 63, 85.5, 126, 126, 63])
             assert_array_equal(builder._data['y_fold2_pypy'], [63, 63, 63, 63, 63, 126, 126, 63])
             assert_array_equal(builder._data['y_fold3_pypy'], [63, 63, 63, 63, 63, 126, 126, 63])
-

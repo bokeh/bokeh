@@ -12,6 +12,7 @@
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
+from __future__ import absolute_import
 
 from collections import OrderedDict
 import unittest
@@ -59,4 +60,3 @@ class TestStep(unittest.TestCase):
             assert_array_equal(builder._data['y_0'], y_python)
             assert_array_equal(builder._data['y_1'], y_pypy)
             assert_array_equal(builder._data['y_2'], y_jython)
-

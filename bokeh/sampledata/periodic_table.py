@@ -27,6 +27,8 @@ which is a pandas dataframe with the following fields
 element types: actinoid, alkali metal, alkaline earth metal, halogen, lanthanoid, metal, metalloid, noble gas, nonmetal, transition metalloid
 
 '''
+from __future__ import absolute_import
+
 from os.path import dirname, join
 
 try:

@@ -15,6 +15,8 @@ passing the arguments to the Chart class and calling the proper functions.
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
+from __future__ import absolute_import
+
 import numpy as np
 try:
     import pandas as pd

@@ -12,6 +12,7 @@
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
+from __future__ import absolute_import
 
 from collections import OrderedDict
 import unittest
@@ -66,4 +67,3 @@ class TestScatter(unittest.TestCase):
             assert_array_equal(builder._data['x_0'], x_python)
             assert_array_equal(builder._data['x_1'], x_pypy)
             assert_array_equal(builder._data['x_2'], x_jython)
-

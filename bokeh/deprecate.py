@@ -43,6 +43,7 @@ See also L{Version}.
     to use when one is not provided by the user.
 """
 
+from __future__ import absolute_import
 
 __all__ = [
     'deprecated_module',
@@ -52,7 +53,6 @@ __all__ = [
     'setWarningMethod',
     'deprecatedModuleAttribute',
     ]
-
 
 import types, sys, inspect
 from warnings import warn, warn_explicit

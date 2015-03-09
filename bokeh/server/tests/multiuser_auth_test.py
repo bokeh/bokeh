@@ -1,9 +1,10 @@
+from __future__ import absolute_import
+
 import tempfile
 
 import requests
 
 from bokeh.session import Session
-from bokeh.tests.test_utils import skipIfPyPy
 
 from . import test_utils
 from ..app import bokeh_app, app

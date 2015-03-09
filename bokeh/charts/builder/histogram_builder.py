@@ -15,6 +15,8 @@ the arguments to the Chart class and calling the proper functions.
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
+from __future__ import absolute_import
+
 try:
     import scipy.special
     _is_scipy = True

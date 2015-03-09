@@ -17,6 +17,8 @@ It also add a new chained stacked method.
 # Imports
 #-----------------------------------------------------------------------------
 
+from __future__ import absolute_import
+
 import numpy as np
 import pandas as pd
 

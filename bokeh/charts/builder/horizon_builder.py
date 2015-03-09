@@ -4,7 +4,7 @@ complex plot is a simple way.
 This is the Horizon class which lets you build your Horizon charts just
 passing the arguments to the Chart class and calling the proper functions.
 """
-from __future__ import division
+from __future__ import absolute_import, division
 
 import math
 

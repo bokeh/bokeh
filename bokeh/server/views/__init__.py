@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 
 from flask import current_app
 
@@ -11,5 +12,3 @@ def make_json(jsonstring, status_code=200, headers={}):
         headers=headers,
         mimetype='application/json'
     )
-
-

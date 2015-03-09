@@ -19,7 +19,7 @@ from .flask_gzip import Gzip
 
 from bokeh import plotting # imports custom objects for plugin
 from bokeh import models, protocol # import objects so that we can resolve them
-from bokeh.utils import scale_delta
+
 # this just shuts up pyflakes
 models, plotting, protocol
 from . import services

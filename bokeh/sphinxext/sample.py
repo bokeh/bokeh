@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 
 from bokeh.plot_object import PlotObject
 from bokeh.properties import Auto, Either, Enum, Float, Int, List, Tuple

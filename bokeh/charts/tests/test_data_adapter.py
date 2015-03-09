@@ -13,6 +13,8 @@
 # Imports
 #-----------------------------------------------------------------------------
 
+from __future__ import absolute_import
+
 from collections import OrderedDict
 import unittest
 
@@ -95,4 +97,3 @@ class TestDataAdapter(unittest.TestCase):
         self.assertEqual(da.columns, ['first', 'second', 'third'])
         self.assertEqual(da.keys(), ['first', 'second', 'third'])
         self.assertEqual(da.index, [0, 1, 2])
-

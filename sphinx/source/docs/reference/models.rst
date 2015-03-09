@@ -1,4 +1,6 @@
 
+.. _bokeh.models:
+
 Model Objects
 #############
 
