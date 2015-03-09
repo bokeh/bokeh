@@ -15,11 +15,26 @@ from .plotting_helpers import (
 
 # extra imports -- just things to add to 'from plotting import *'
 from .document import Document
-from .models import ColumnDataSource, HBox, VBox
+from .models import ColumnDataSource
 from .session import Session
 from .io import (
     curdoc, cursession, output_file, output_notebook, output_server, push,
     reset_output, save, show, gridplot, hplot, vplot)
+
+@deprecated("Bokeh 0.8.2", "bokeh.plotting.vplot function")
+def VBox(*args, **kwargs):
+    ''' Generate a layout that arranges several subplots vertically.
+    '''
+
+    return vplot(*args, **kwargs)
+
+@deprecated("Bokeh 0.8.2", "bokeh.plotting.hplot function")
+def HBox(*args, **kwargs):
+    ''' Generate a layout that arranges several subplots horizontally.
+    '''
+
+    return hplot(*args, **kwargs)
+
 
 DEFAULT_TOOLS = "pan,wheel_zoom,box_zoom,save,resize,reset"
 

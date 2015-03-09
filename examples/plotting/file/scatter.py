@@ -23,4 +23,4 @@ p3.scatter(x,y, marker="square", color="green")
 p4 = figure(tools=TOOLS)
 p4.scatter(x,y, marker="square", color="blue")
 
-show(VBox(p1, p2, p3, p4))
+show(vplot(p1, p2, p3, p4))

@@ -122,4 +122,4 @@ p5.yaxis.axis_label = 'Pr(x)'
 
 
 
-show(VBox(p1,p2,p3,p4,p5))
+show(vplot(p1,p2,p3,p4,p5))

@@ -21,3 +21,17 @@ from ..models import ColumnDataSource
 from ..io import (
     curdoc, cursession, output_file, output_notebook, output_server, push,
     reset_output, save, show, gridplot, vplot, hplot)
+
+@deprecated("Bokeh 0.8.2", "bokeh.charts.vplot function")
+def VBox(*args, **kwargs):
+    ''' Generate a layout that arranges several subplots vertically.
+    '''
+
+    return vplot(*args, **kwargs)
+
+@deprecated("Bokeh 0.8.2", "bokeh.charts.hplot function")
+def HBox(*args, **kwargs):
+    ''' Generate a layout that arranges several subplots horizontally.
+    '''
+
+    return hplot(*args, **kwargs)

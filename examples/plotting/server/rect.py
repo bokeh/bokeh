@@ -28,4 +28,4 @@ a = -np.pi/6
 p3 = figure(title="angle")
 p3.rect(x, y, 0.1, 0.1, alpha=0.5, color="navy", angle=a)
 
-show(VBox(p1, p2, p3))
+show(vplot(p1, p2, p3))
