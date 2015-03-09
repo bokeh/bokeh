@@ -31,4 +31,4 @@ c.circle(acme, choam, color='#A6CEE3', legend='close')
 c.title = "ACME / CHOAM Correlations"
 c.grid.grid_line_alpha=0.3
 
-show(VBox(r, c))  # open a browser
+show(vplot(r, c))  # open a browser
