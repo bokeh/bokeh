@@ -62,17 +62,8 @@ class DataAdapter(object):
             keys = getattr(self._values, 'keys', None)
             if callable(keys):
                 columns = list(keys())
-
             elif keys is None:
-                if blaze and isinstance(self._values, blaze.Expr):
-                    keys = self._values.fields
-                    if len(keys) == len(self._values.data):
-                        columns = keys
-                    else:
-                        columns = list(map(str, range(len(self._values.data))))
-                else:
-                    columns = list(map(str, range(len(data))))
-
+                columns = list(map(str, range(len(data))))
             else:
                 columns = list(keys)
 
@@ -280,11 +271,6 @@ class DataAdapter(object):
             xs: iterable that represents the data index
             values: iterable containing the values to be plotted
         """
-        # This is not optimal but the safest choice to support blaze expressions
-        # without running into implementation issues..
-        # if hasattr(values, '__array__'):
-        #     values = blaze.into(pd.DataFrame, values)
-
         _values = DataAdapter(values, force_alias=False)
         if hasattr(values, 'keys'):
             if index is not None:
