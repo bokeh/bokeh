@@ -14,8 +14,6 @@ Plot Objects
 The ``bokeh`` module itself contains a few useful functions for testing
 and reporting issues:
 
-.. autofunction:: bokeh.print_versions
-.. autofunction:: bokeh.report_issue
 .. autofunction:: bokeh.test
 
 .. _bokeh.document:

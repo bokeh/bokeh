@@ -64,16 +64,8 @@ copyright = u'2013, Continuum Analytics'
 # built documents.
 #
 # Let's try to automatically get the version
-from bokeh._version import get_versions
-from bokeh import settings
-
-try:
-    from bokeh.__conda_version__ import conda_version
-    __version__ = conda_version.replace("'","")
-    del conda_version
-except ImportError:
-    __version__ = get_versions()['version']
-    del get_versions
+from bokeh import __version__
+from bokeh.settings import settings
 
 # if you need to redeploy the released docs, you only need the x.x.x version
 if settings.released_docs():
