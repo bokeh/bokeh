@@ -49,6 +49,7 @@ class DataAdapter(object):
     Supported inputs are dict, list, tuple, np.ndarray and pd.DataFrame.
     """
     def __init__(self, data, index=None, columns=None, force_alias=True):
+        self.__values = data
         self._values = self.validate_values(data)
 
         self.convert_index_to_int = False
@@ -63,7 +64,7 @@ class DataAdapter(object):
                 columns = list(keys())
 
             elif keys is None:
-                if blaze and isinstance(self._values, blaze.interactive.InteractiveSymbol):
+                if blaze and isinstance(self._values, blaze.Expr):
                     keys = self._values.fields
                     if len(keys) == len(self._values.data):
                         columns = keys
@@ -126,7 +127,6 @@ class DataAdapter(object):
         if np and isinstance(values, np.ndarray):
             if len(values.shape) == 1:
                 return np.array([values])
-
             else:
                 return values
 
@@ -145,8 +145,12 @@ class DataAdapter(object):
 
             return values
 
-        elif blaze and isinstance(values, blaze.interactive.InteractiveSymbol):
-            return values
+        elif hasattr(values, '__array__'):
+            resp = blaze.into(pd.DataFrame, values)
+            if hasattr(values, 'fields'):
+                resp.rename(columns={o:n for o, n in zip(
+                    resp.columns, values.fields)}, inplace=True)
+            return resp
 
         # TODO: Improve this error message..
         raise TypeError("Input type not supported! %s" % values)
@@ -166,14 +170,6 @@ class DataAdapter(object):
             return list(keys())
 
         elif keys is None:
-            # assuming that only non-dict like objects can raise this error
-            # it's probably because we have an iterable instead of a mapper
-            # in this case let's use indices as groups keys
-            if blaze and isinstance(self._values, blaze.interactive.InteractiveSymbol):
-                keys = self._values.fields
-                if len(keys) == len(self._values.data):
-                    return keys
-
             self.convert_index_to_int = True
             indexes = range(len(self._values))
             return list(map(str, indexes))
@@ -189,9 +185,6 @@ class DataAdapter(object):
             yield k
 
     def __getitem__(self, key):
-        if blaze and isinstance(self._values, blaze.interactive.InteractiveSymbol):
-            return getattr(self._values, key)
-
         val = self._values[self.index_converter(key)]
 
         # if we have "index aliases" we need to remap the values...
@@ -201,22 +194,7 @@ class DataAdapter(object):
         return val
 
     def values(self):
-        if blaze and isinstance(self._values, blaze.interactive.InteractiveSymbol):
-            return self.normalize_values(self._values.data)
-        else:
-            return self.normalize_values(self._values)
-        # values = getattr(self._values, "values", None)
-        #
-        # if callable(values):
-        #     return list(values())
-        #
-        # elif values is None:
-        #     return self._values
-        #
-        # else:
-        #     # assuming it's a dataframe, in that case it returns transposed
-        #     # values compared to it's dict equivalent..
-        #     return list(values.T)
+        return self.normalize_values(self._values)
 
     @staticmethod
     def normalize_values(values):
@@ -234,10 +212,7 @@ class DataAdapter(object):
             return list(_values.T)
 
     def items(self):
-        if blaze and isinstance(self._values, blaze.interactive.InteractiveSymbol):
-            return[(k, list(v)) for k, v in zip(self.keys(), self._values.data) ]
-        else:
-            return [(key, self[key]) for key in self]
+        return [(key, self[key]) for key in self]
 
     def iterkeys(self):
         return iter(self)
@@ -264,15 +239,11 @@ class DataAdapter(object):
             return self._index
 
         except AttributeError:
-            if blaze and isinstance(self._values, blaze.interactive.InteractiveSymbol):
-                return range(0, len(self._values[self.keys()[0]]))
+            index = getattr(self._values, "index", None)
 
-            else:
-                index = getattr(self._values, "index", None)
-
-                if not callable(index) and index is not None:
-                    # guess it's a pandas dataframe..
-                    return index
+            if not callable(index) and index is not None:
+                # guess it's a pandas dataframe..
+                return index
 
         # no, it's not. So it's probably a list so let's get the
         # values and check
@@ -309,26 +280,29 @@ class DataAdapter(object):
             xs: iterable that represents the data index
             values: iterable containing the values to be plotted
         """
-        values = DataAdapter(values, force_alias=False)
-        if hasattr(values, 'keys') or \
-                (blaze and isinstance(values, blaze.interactive.InteractiveSymbol)):
+        # This is not optimal but the safest choice to support blaze expressions
+        # without running into implementation issues..
+        # if hasattr(values, '__array__'):
+        #     values = blaze.into(pd.DataFrame, values)
+
+        _values = DataAdapter(values, force_alias=False)
+        if hasattr(values, 'keys'):
             if index is not None:
                 if isinstance(index, string_types):
-                    xs = values[index]
+                    xs = _values[index]
                 else:
                     xs = index
             else:
                 try:
-                    xs = values.index
+                    xs = _values.index
                 except AttributeError:
                     xs = values.index
         else:
             if index is None:
-                xs = values.index
+                xs = _values.index
             elif isinstance(index, string_types):
-                msg = "String indexes are only supported for DataFrame and dict inputs"
-                raise TypeError(msg)
+                xs = _values[index]
             else:
                 xs = index
 
-        return xs, values
+        return xs, _values

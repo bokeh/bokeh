@@ -73,21 +73,26 @@ class TestDataAdapter(unittest.TestCase):
 
     def test_blaze_data_with_fields(self):
         import blaze
-        values = blaze.Data(self._values, fields=self._values.keys())
+        valuesdf = pd.DataFrame(self._values)
+        values = blaze.Data(valuesdf, fields=["AAA", "BBB", "CCC"])
         da = DataAdapter(values)
 
-        self.assertEqual(da.values(), list(self._values.values()))
-        self.assertEqual(da.columns, ['first', 'second', 'third'])
-        self.assertEqual(da.keys(), ['first', 'second', 'third'])
-        self.assertEqual(da.index, ['a', 'b', 'c'])
+        assert_array_equal(da.values(), list(self._values.values()))
+        assert_array_equal(da.columns, ["AAA", "BBB", "CCC"])
+        assert_array_equal(da.keys(), ["AAA", "BBB", "CCC"])
+        assert_array_equal(da.index, [0, 1, 2])
+
+        xs, _values = DataAdapter.get_index_and_data(values, None)
+        assert_array_equal([0,1,2], xs)
 
     def test_blaze_data_no_fields(self):
         import blaze
-        values = blaze.Data(self._values, fields=self._values.keys())
+        valuesdf = pd.DataFrame(self._values)
+        values = blaze.Data(valuesdf)
         da = DataAdapter(values)
 
-        self.assertEqual(da.values(), list(self._values.values()))
+        assert_array_equal(da.values(), list(self._values.values()))
         self.assertEqual(da.columns, ['first', 'second', 'third'])
         self.assertEqual(da.keys(), ['first', 'second', 'third'])
-        self.assertEqual(da.index, ['a', 'b', 'c'])
+        self.assertEqual(da.index, [0, 1, 2])
 

@@ -148,7 +148,7 @@ class AreaBuilder(Builder):
 
             # save values and new group
             self.set_and_get("y_", grp, values)
-            self._groups.append(grp)
+            self._groups.append(u"%s" % grp)
 
     def _set_sources(self):
         """

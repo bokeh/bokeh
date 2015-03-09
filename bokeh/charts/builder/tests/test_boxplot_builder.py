@@ -42,7 +42,7 @@ class TestBoxPlot(unittest.TestCase):
         ])
         groups = ['bronze', 'silver', 'gold']
         xyvaluesdf = pd.DataFrame(xyvalues)
-        xyvaluesbl = blaze.Data(xyvalues, fields=groups)
+        xyvaluesbl = blaze.Data(xyvaluesdf)
         exptected_datarect = {
             'colors': ['#f22c40', '#5ab738', '#407ee7', '#df5320', '#00ad9c', '#c33ff3'],
             'groups': ['bronze', 'silver', 'gold'],
