@@ -14,12 +14,11 @@ Plot Objects
 The ``bokeh`` module itself contains a few useful functions for testing
 and reporting issues:
 
-.. autofunction:: bokeh.load_notebook
 .. autofunction:: bokeh.print_versions
 .. autofunction:: bokeh.report_issue
 .. autofunction:: bokeh.test
 
-.. _bokeh_dot_document:
+.. _bokeh.document:
 
 ``bokeh.document``
 ------------------
@@ -27,10 +26,7 @@ and reporting issues:
 .. automodule:: bokeh.document
     :members:
 
-.. automodule:: bokeh.models
-    :members:
-
-.. _bokeh_dot_session:
+.. _bokeh.session:
 
 ``bokeh.session``
 -----------------

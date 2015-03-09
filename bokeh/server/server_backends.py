@@ -1,4 +1,4 @@
-from __future__ import print_function
+from __future__ import absolute_import, print_function
 
 import logging
 logger = logging.getLogger(__name__)
@@ -17,10 +17,10 @@ import numpy as np
 from werkzeug.utils import secure_filename
 
 from bokeh.exceptions import DataIntegrityException
-from bokeh.utils import encode_utf8, decode_utf8
 from bokeh.transforms import line_downsample
 from bokeh.transforms import image_downsample
 from bokeh.transforms import ar_downsample
+from bokeh.util.string import encode_utf8, decode_utf8
 
 from .app import bokeh_app
 from .models import user, docs, convenience

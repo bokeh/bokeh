@@ -12,6 +12,8 @@ a dictionary with the structure:
     AAPL['adj_close']  # list of float
 
 '''
+from __future__ import absolute_import
+
 import csv
 from os.path import exists, isfile, join
 import sys

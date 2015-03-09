@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 
 from .builder.area_builder import Area
 from .builder.donut_builder import Donut
@@ -15,6 +16,7 @@ from .builder.horizon_builder import Horizon
 from ._chart import Chart
 from ._data_adapter import DataAdapter
 
+from ..deprecate import deprecated
 from ..models import ColumnDataSource
 from ..io import (
     curdoc, cursession, output_file, output_notebook, output_server, push,

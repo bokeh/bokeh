@@ -185,7 +185,7 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 
-.. _AR GitHub: http://github.com/JosephCottam/AbstractRendering>
+.. _AR GitHub: http://github.com/JosephCottam/AbstractRendering
 .. _Blaze: http://blaze.pydata.org
 .. _Bokeh contributors: https://github.com/bokeh/bokeh/graphs/contributors
 .. _Bokeh GitHub: https://github.com/bokeh/bokeh

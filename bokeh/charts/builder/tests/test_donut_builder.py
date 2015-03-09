@@ -12,6 +12,7 @@
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
+from __future__ import absolute_import
 
 from collections import OrderedDict
 import unittest
@@ -72,4 +73,3 @@ class TestDonut(unittest.TestCase):
 
                 # TODO: Test for external ring source values is missing as it needs
                 #       some refactoring to expose those values calculation
-

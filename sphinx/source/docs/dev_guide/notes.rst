@@ -73,17 +73,6 @@ There are several environment variables that can be useful for developers:
 * ``BOKEH_VERSION`` --- What version of BokehJS to use with ``cdn`` resources
     See the :class:`~bokeh.resources.Resources` class reference for full details.
 
-The next four environment variable are related to the IPython/Jupyter notebook:
-
-* ``BOKEH_NOTEBOOK_RESOURCES`` --- How and where to load BokehJS from
-
-* ``BOKEH_NOTEBOOK_VERBOSE`` --- Whether to report detailed settings, defaults to False
-
-* ``BOKEH_NOTEBOOK_HIDE_BANNER`` --- Whether to hide the Bokeh banner, defaults to False
-
-* ``BOKEH_NOTEBOOK_SKIP_LOAD`` --- Whether to skip ``load_notebook`` at Bokeh initialization
-
-
 CSS class names
 ---------------
 

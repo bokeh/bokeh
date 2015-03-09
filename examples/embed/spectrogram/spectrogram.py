@@ -13,7 +13,7 @@ from bokeh.models import ColumnDataSource
 from bokeh.plotting import figure
 from bokeh.resources import Resources
 from bokeh.templates import RESOURCES
-from bokeh.utils import encode_utf8
+from bokeh.util.string import encode_utf8
 from bokeh.models.widgets import HBox, Paragraph, Slider, VBox
 
 app = flask.Flask(__name__)
