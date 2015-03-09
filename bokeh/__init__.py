@@ -10,7 +10,7 @@ and data applications.
 For full documentation, please visit: http://bokeh.pydata.org
 
 """
-from __future__ import absolute_import, print_function
+from __future__ import absolute_import
 
 # configure Bokeh version
 from .util.version import __version__; __version__
@@ -23,7 +23,4 @@ del logconfig
 # module as transitive imports
 
 from . import sampledata; sampledata
-from .settings import settings; settings
-from .util.testing import print_versions; print_versions
-from .util.testing import report_issue; report_issue
 from .util.testing import runtests as test; test

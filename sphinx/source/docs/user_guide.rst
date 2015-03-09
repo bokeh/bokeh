@@ -20,5 +20,4 @@ the kinds of low-level object attributes that can be set to really customize a p
    user_guide/widgets.rst
    user_guide/ar.rst
    user_guide/examples.rst
-   user_guide/issues.rst
 
