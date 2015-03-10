@@ -139,11 +139,8 @@ class DataAdapter(object):
             return values
 
         elif hasattr(values, '__array__'):
-            resp = blaze.into(pd.DataFrame, values)
-            if hasattr(values, 'fields'):
-                resp.rename(columns={o:n for o, n in zip(
-                    resp.columns, values.fields)}, inplace=True)
-            return resp
+            values = pd.DataFrame(np.asarray(values))
+            return values
 
         # TODO: Improve this error message..
         raise TypeError("Input type not supported! %s" % values)
