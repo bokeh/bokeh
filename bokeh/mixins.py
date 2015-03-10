@@ -1,6 +1,8 @@
 """ Classes that can be mixed-in to Bokeh model classes to add sets of
 related properties in bulk. """
 
+from __future__ import absolute_import
+
 from .properties import (
     HasProps, ColorSpec, DataSpec, Enum, DashPattern, Int, String)
 from .enums import LineJoin, LineCap, FontStyle, TextAlign, TextBaseline

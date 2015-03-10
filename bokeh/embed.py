@@ -11,6 +11,8 @@ these different cases.
 
 '''
 
+from __future__ import absolute_import
+
 import uuid
 
 from .protocol import serialize_json
@@ -19,7 +21,7 @@ from .templates import (
     AUTOLOAD, AUTOLOAD_SERVER, AUTOLOAD_STATIC, FILE,
     NOTEBOOK_DIV, PLOT_DIV, PLOT_JS, PLOT_SCRIPT, RESOURCES
 )
-from .utils import encode_utf8
+from .util.string import encode_utf8
 
 def components(plot_object, resources):
     ''' Return HTML components to embed a Bokeh plot.

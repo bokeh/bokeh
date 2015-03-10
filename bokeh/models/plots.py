@@ -10,7 +10,8 @@ from ..mixins import LineProps, TextProps
 from ..plot_object import PlotObject
 from ..properties import Bool, Int, String, Color, Enum, Auto, Instance, Either, List, Dict, Include
 from ..query import find
-from ..utils import nice_join
+from ..util.string import nice_join
+
 
 from .glyphs import Glyph
 from .ranges import Range, Range1d

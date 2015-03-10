@@ -6,6 +6,7 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
+from __future__ import absolute_import
 from mock import patch, Mock
 import unittest
 

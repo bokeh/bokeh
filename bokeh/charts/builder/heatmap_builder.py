@@ -15,7 +15,7 @@ the arguments to the Chart class and calling the proper functions.
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-from __future__ import print_function, division
+from __future__ import absolute_import, print_function, division
 
 from .._builder import Builder, create_and_build
 from .._data_adapter import DataAdapter

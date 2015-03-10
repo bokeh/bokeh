@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 try:
     import pandas as pd
 except ImportError as e:

@@ -1,7 +1,7 @@
 import os
 from six.moves import urllib
 import zipfile
-from bokeh.utils import encode_utf8
+from bokeh.util.string import encode_utf8
 
 
 def extract_hosted_zip(data_url, save_dir, exclude_term=None):

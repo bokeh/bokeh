@@ -8,6 +8,8 @@ associated value:
     data[(1,1)]['lons']
 
 '''
+from __future__ import absolute_import
+
 import csv
 import xml.etree.cElementTree as et
 from os.path import join

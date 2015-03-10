@@ -21,7 +21,7 @@ from IPython.kernel import KernelManager
 from IPython.nbformat import read, NO_CONVERT, NotebookNode
 from IPython.nbconvert.exporters import HTMLExporter
 
-from bokeh.utils import encode_utf8
+from bokeh.util.string import encode_utf8
 
 def run_cell(kc, cell):
     iopub = kc.iopub_channel

@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 import flask
 from os import walk
 from os.path import join

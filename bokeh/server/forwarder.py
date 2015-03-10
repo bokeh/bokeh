@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 import zmq
 from zmq.devices import ThreadDevice as ZMQThreadDevice
 
