@@ -3,10 +3,12 @@
 """
 from __future__ import absolute_import
 
+from six import string_types
+
 from ..plot_object import PlotObject
 from ..properties import Bool, Int, String, Color, Enum, Auto, Instance, Either, List, Dict, Include
 from ..mixins import LineProps, TextProps
-from .. enums import Location
+from ..enums import Location
 
 from ..utils import nice_join
 from ..query import find
@@ -55,7 +57,7 @@ class Plot(Widget):
             kwargs["tool_events"] = ToolEvents()
         super(Plot, self).__init__(**kwargs)
 
-    def select(self, selector):
+    def select(self, arg):
         ''' Query this object and all of its references for objects that
         match the given selector.
 
@@ -65,7 +67,32 @@ class Plot(Widget):
         Returns:
             seq[PlotObject]
 
+        Examples:
+            # These two are equivalent
+            p.select({"type": HoverTool})
+            p.select(HoverTool)
+
+            # These two are equivalent
+            p.circle(..., name="mycircle")
+
+            p.select({"name": "mycircle"})
+            p.select("mycircle")
+
+
+            p.select({"name": "foo", "type": HoverTool})
+            p.select(name="foo", type=HoverTool)
         '''
+
+        if isinstance(arg, dict):
+            selector = arg
+        elif isinstance(arg, string_types):
+            selector = dict(name=arg)
+        elif issubclass(arg, PlotObject):
+            selector = {"type" : arg}
+        else:
+            raise RuntimeError("Selector must be a dictionary, string or plot object.")
+
+        # Want to pass selector that is a dictionary
         return _list_attr_splat(find(self.references(), selector, {'plot': self}))
 
     def row(self, row, gridplot):
