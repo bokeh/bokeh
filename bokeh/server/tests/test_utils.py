@@ -8,7 +8,6 @@ import mock
 
 import requests
 from requests.exceptions import ConnectionError
-#import zmq
 
 from ..models import user
 from .. import start, configure
@@ -23,28 +22,6 @@ def wait_flask():
             return False
     return wait_until(helper)
 
-
-# def wait_redis_gone(port):
-#     def helper():
-#         client = redis.Redis(port=port)
-#         try:
-#             client.ping()
-#             return False
-#         except redis.ConnectionError:
-#             return True
-#     return wait_until(helper)
-
-
-# def wait_redis_start(port):
-#     def helper():
-#         client = redis.Redis(port=port)
-#         try:
-#             return client.ping()
-#         except redis.ConnectionError:
-#             pass
-#     return wait_until(helper)
-
-
 def wait_until(func, timeout=1.0, interval=0.01):
     st = time.time()
     while True:
@@ -53,16 +30,6 @@ def wait_until(func, timeout=1.0, interval=0.01):
         if (time.time() - st) > timeout:
             return False
         time.sleep(interval)
-
-
-# def recv_timeout(socket, timeout):
-#     poll = zmq.Poller()
-#     poll.register(socket, zmq.POLLIN)
-#     socks = dict(poll.poll(timeout=timeout))
-#     if socks.get(socket, None) == zmq.POLLIN:
-#         return socket.recv_multipart()
-#     else:
-#         return None
 
 class BaseBokehServerTestCase(unittest.TestCase):
 
