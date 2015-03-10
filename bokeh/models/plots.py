@@ -5,20 +5,20 @@ from __future__ import absolute_import
 
 from six import string_types
 
+from ..enums import Location
+from ..mixins import LineProps, TextProps
 from ..plot_object import PlotObject
 from ..properties import Bool, Int, String, Color, Enum, Auto, Instance, Either, List, Dict, Include
-from ..mixins import LineProps, TextProps
-from ..enums import Location
-
-from ..utils import nice_join
 from ..query import find
+from ..utils import nice_join
 
-from .widget import Widget
-from .sources import DataSource, ColumnDataSource
+from .glyphs import Glyph
 from .ranges import Range, Range1d
 from .renderers import Renderer, GlyphRenderer
+from .sources import DataSource, ColumnDataSource
 from .tools import Tool, ToolEvents
-from .glyphs import Glyph
+from .widget import Widget
+
 
 # TODO (bev) dupe, move to utils
 class _list_attr_splat(list):
