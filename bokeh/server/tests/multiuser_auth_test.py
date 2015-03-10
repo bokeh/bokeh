@@ -2,8 +2,6 @@ from __future__ import absolute_import
 
 import tempfile
 
-from bokeh.session import Session
-
 from . import test_utils
 from ..app import bokeh_app, app
 from ..models import user

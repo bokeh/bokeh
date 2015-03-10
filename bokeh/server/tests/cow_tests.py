@@ -1,7 +1,6 @@
 from __future__ import absolute_import
 
 from werkzeug.exceptions import Unauthorized
-import mock
 
 from . import test_utils
 from ..views.bbauth import handle_auth_error

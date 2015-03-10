@@ -1,7 +1,7 @@
 
 from __future__ import absolute_import
 
-from os.path import dirname, abspath, join
+from os.path import dirname, join
 import logging
 import warnings
 
