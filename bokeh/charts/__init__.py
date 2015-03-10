@@ -21,6 +21,8 @@ from ..models import ColumnDataSource; ColumnDataSource
 from ..io import (
     curdoc, cursession, output_file, output_notebook, output_server, push,
     reset_output, save, show, gridplot, vplot, hplot)
+
+# Silence pyflakes
 (curdoc, cursession, output_file, output_notebook, output_server, push,
  reset_output, save, show, gridplot, vplot, hplot)
 
