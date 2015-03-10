@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 def get_blueprint(config_file=None):
     retval = None
     try:
-        from . import views
+        from . import views; views
         import mbs.app
         retval = mbs.app.mbsbp
         mbs.app.setup_app(config_file=config_file)

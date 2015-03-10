@@ -1,8 +1,6 @@
 from __future__ import absolute_import
 
 from werkzeug.exceptions import Unauthorized
-import mock
-from flask import request
 
 from . import test_utils
 from ..views.bbauth import handle_auth_error
@@ -57,7 +55,6 @@ class AuthTestCase(test_utils.FlaskClientTestCase):
             BokehServerTransaction(user2, doc, 'r')
 
     def test_permissions_with_temporary_docid(self):
-        user2 = User('test2', 'sdfsdf', 'sdfsdf')
         user = User('test1', 'sdfsdf', 'sdfsdf')
         doc = Doc('docid', 'title', [], ['test2'], None,
                   None, None, False)
@@ -101,6 +98,7 @@ class TransactionManagerTestCase(test_utils.FlaskClientTestCase):
         with app.test_request_context("/"):
             doc = BokehServerTransaction(None, self.server_docobj, 'rw',
                                          temporary_docid='temp')
+            assert doc
 
     def test_base_object_exists_in_cow_context(self):
         with app.test_request_context("/"):

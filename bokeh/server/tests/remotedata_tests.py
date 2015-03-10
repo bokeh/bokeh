@@ -4,8 +4,7 @@ import json
 
 import numpy as np
 
-from ..app import bokeh_app, app
-from ..models import user
+from ..app import app
 
 from . import test_utils
 from ...plotting import (reset_output, output_server, push, curdoc, figure)
@@ -14,7 +13,6 @@ from ...models.sources import ServerDataSource
 from ...models.ranges import Range1d
 from ...models.renderers import GlyphRenderer
 from ...transforms import ar_downsample as ar
-from ...transforms import line_downsample
 
 class TestAr(test_utils.FlaskClientTestCase):
     def test_ar(self):
@@ -46,10 +44,7 @@ class TestAr(test_utils.FlaskClientTestCase):
         glyph = arplot.select({'type' : GlyphRenderer})[0].glyph
         #extract the original data source because it was replaced?!
         source = arplot.select({'type' : ServerDataSource})[0]
-
-        #what is render state?
-        render_state = None
-
+        
         #our docs don't have screen ranges, because we make those on the fly in javascript
         #so we make fake ones!
         screen_x_range = Range1d(start=0, end=200)

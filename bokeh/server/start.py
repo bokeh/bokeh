@@ -1,21 +1,13 @@
 from __future__ import absolute_import, print_function
 import logging
 log = logging.getLogger(__name__)
-import atexit
 import os
-import re
 import sys
-import uuid
-import time
 
-from flask import Flask
-from six.moves.queue import Queue
 from tornado.httpserver import HTTPServer
 from tornado import ioloop
 
 from .settings import settings as server_settings
-from ..settings import settings as bokeh_settings
-from .flask_gzip import Gzip
 
 from bokeh import plotting # imports custom objects for plugin
 from bokeh import models, protocol # import objects so that we can resolve them
@@ -24,8 +16,7 @@ from bokeh import models, protocol # import objects so that we can resolve them
 models, plotting, protocol
 from . import services
 from .app import bokeh_app, app
-from .configure import (configure_flask, make_tornado_app,
-                        register_blueprint, SimpleBokehTornadoApp)
+from .configure import configure_flask, make_tornado_app, register_blueprint
 
 def doc_prepare():
     server_settings.model_backend = {'type' : 'memory'}
