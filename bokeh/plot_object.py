@@ -3,14 +3,13 @@ from __future__ import absolute_import, print_function
 import logging
 logger = logging.getLogger(__file__)
 
-from functools import wraps
-
 from six import add_metaclass, iteritems
 
 from .properties import Any, HasProps, List, MetaHasProps, Instance, String
 from .query import find
-from .utils import dump, is_ref, json_apply, make_id, resolve_json
 from .exceptions import DataIntegrityException
+from .util.serialization import dump, make_id
+
 class Viewable(MetaHasProps):
     """ Any plot object (Data Model) which has its own View Model in the
     persistence layer.
@@ -46,9 +45,9 @@ class Viewable(MetaHasProps):
 
     @classmethod
     def _preload_models(cls):
-        from . import models
-        from .crossfilter import models
-        from .charts import Chart
+        from . import models; models
+        from .crossfilter import models as crossfilter_models; crossfilter_models
+        from .charts import Chart; Chart
 
     @classmethod
     def get_class(cls, view_model_name):
@@ -136,7 +135,7 @@ class PlotObject(HasProps):
         '''
         result = list(self.select(selector))
         if len(result) > 1:
-            raise DataIntegrityError("found more than one object matching %s" % selector)
+            raise DataIntegrityException("found more than one object matching %s" % selector)
         if len(result) == 0:
             return None
         return result[0]

@@ -50,5 +50,5 @@ p3.title = "Glucose In-Range Rolling Sum"
 p3.xaxis.axis_label = 'Date'
 p3.yaxis.axis_label = 'Proportion In-Range'
 
-show(VBox(p1,p2,p3))
+show(vplot(p1,p2,p3))
 

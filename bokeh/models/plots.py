@@ -8,8 +8,8 @@ from ..properties import Bool, Int, String, Color, Enum, Auto, Instance, Either,
 from ..mixins import LineProps, TextProps
 from .. enums import Location
 
-from ..utils import nice_join
 from ..query import find
+from ..util.string import nice_join
 
 from .widget import Widget
 from .sources import DataSource, ColumnDataSource

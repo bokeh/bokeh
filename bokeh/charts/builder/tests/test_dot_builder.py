@@ -12,6 +12,7 @@
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
+from __future__ import absolute_import
 
 from collections import OrderedDict
 import unittest
@@ -91,4 +92,3 @@ class TestDot(unittest.TestCase):
             assert_array_equal(builder._data['z_1'], zero)
             assert_array_equal(builder._data['z_2'], zero)
             assert_array_equal(builder._data['zero'], zero)
-

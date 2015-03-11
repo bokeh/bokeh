@@ -31,7 +31,7 @@ the above usage yields the output:
     .. bokeh-model:: bokeh.sphinxext.sample.Foo
 
 """
-from __future__ import print_function
+from __future__ import absolute_import, print_function
 
 import importlib
 import json
@@ -111,4 +111,3 @@ class BokehModelDirective(Directive):
 
 def setup(app):
     app.add_directive_to_domain('py', 'bokeh-model', BokehModelDirective)
-

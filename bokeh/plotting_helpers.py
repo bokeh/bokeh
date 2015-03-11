@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 
 from collections import Iterable, Sequence
 import itertools
@@ -17,7 +18,7 @@ from .models import (
     WheelZoomTool)
 
 from .properties import ColorSpec, Datetime
-from .utils import nice_join
+from .util.string import nice_join
 import warnings
 
 def get_default_color(plot=None):

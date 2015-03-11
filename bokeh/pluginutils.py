@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 from bokeh.plotting import output_server, curdoc, push, reset_output
 from bokeh.session import Session
 import bokeh.embed as embed

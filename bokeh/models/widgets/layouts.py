@@ -9,7 +9,7 @@ import copy
 
 from ...properties import Int, Instance, List, String, Dict, Either
 from ..widget import Widget
-from ...utils import cached_property, arg_filter
+from ...util.functions import cached_property, arg_filter
 
 logger= logging.getLogger(__name__)
 

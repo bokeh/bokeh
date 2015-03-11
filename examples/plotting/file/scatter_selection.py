@@ -31,4 +31,4 @@ p4 = figure(title="custom highlight", tools=TOOLS)
 p4.square(x,y, color="blue", size=6,
     nonselection_fill_color="#FFFF00", nonselection_fill_alpha=1)
 
-show(VBox(p1,p2,p3,p4))  # open a browser
+show(vplot(p1,p2,p3,p4))  # open a browser
