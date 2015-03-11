@@ -102,13 +102,12 @@ class LineBuilder(Builder):
         self._attr = []
         xs = self._values_index
         self.set_and_get("x", "", np.array(xs))
-        for col in self._values.keys():
+        for col, values in self._values.items():
             if isinstance(self.index, string_types) and col == self.index:
                 continue
 
             # save every new group we find
             self._groups.append(col)
-            values = [self._values[col][x] for x in xs]
             self.set_and_get("y_", col, values)
 
     def _set_sources(self):

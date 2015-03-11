@@ -126,14 +126,13 @@ class AreaBuilder(Builder):
         x2 = np.hstack((xs[::-1], xs))
         self.set_and_get("x", "", x2)
 
-        for grp in self._values.keys():
+        for grp, col_values in self._values.items():
             # TODO: This condition may be removed or changed depending on
             # the validation of self.index
             if isinstance(self.index, string_types) and grp == self.index:
                 continue
 
             # get single series values
-            col_values = self._values[grp]
             _values = [col_values[x] for indx, x in enumerate(xs)]
 
             # to draw area we need 2 coordinates. The lower values will always
@@ -149,7 +148,7 @@ class AreaBuilder(Builder):
 
             # save values and new group
             self.set_and_get("y_", grp, values)
-            self._groups.append(grp)
+            self._groups.append(u"%s" % grp)
 
     def _set_sources(self):
         """

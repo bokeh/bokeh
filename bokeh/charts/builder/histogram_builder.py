@@ -129,11 +129,11 @@ class HistogramBuilder(Builder):
         self._groups.extend(self._values.keys())
 
         # fill the data dictionary with the proper values
-        for i, val in enumerate(self._values.keys()):
-            self.set_and_get("", val, self._values[val])
+        for i, (val, values) in enumerate(self._values.items()):
+            self.set_and_get("", val, values)
             #build the histogram using the set bins number
             hist, edges = np.histogram(
-                np.array(self._data[val]), density=self.density, bins=self.bins
+                np.array(values), density=self.density, bins=self.bins
             )
             self.set_and_get("hist", val, hist)
             self.set_and_get("edges", val, edges)

@@ -34,7 +34,10 @@ try:
 
 except ImportError:
     pd = None
-
+try:
+    import blaze
+except ImportError:
+    blaze=None
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
@@ -48,6 +51,7 @@ class DataAdapter(object):
     Supported inputs are dict, list, tuple, np.ndarray and pd.DataFrame.
     """
     def __init__(self, data, index=None, columns=None, force_alias=True):
+        self.__values = data
         self._values = self.validate_values(data)
 
         self.convert_index_to_int = False
@@ -60,10 +64,8 @@ class DataAdapter(object):
             keys = getattr(self._values, 'keys', None)
             if callable(keys):
                 columns = list(keys())
-
             elif keys is None:
                 columns = list(map(str, range(len(data))))
-
             else:
                 columns = list(keys)
 
@@ -118,7 +120,6 @@ class DataAdapter(object):
         if np and isinstance(values, np.ndarray):
             if len(values.shape) == 1:
                 return np.array([values])
-
             else:
                 return values
 
@@ -135,6 +136,10 @@ class DataAdapter(object):
             if all(DataAdapter.is_number(x) for x in values):
                 return [values]
 
+            return values
+
+        elif hasattr(values, '__array__'):
+            values = pd.DataFrame(np.asarray(values))
             return values
 
         # TODO: Improve this error message..
@@ -155,9 +160,6 @@ class DataAdapter(object):
             return list(keys())
 
         elif keys is None:
-            # assuming that only non-dict like objects can raise this error
-            # it's probably because we have an iterable instead of a mapper
-            # in this case let's use indices as groups keys
             self.convert_index_to_int = True
             indexes = range(len(self._values))
             return list(map(str, indexes))
@@ -182,18 +184,22 @@ class DataAdapter(object):
         return val
 
     def values(self):
-        values = getattr(self._values, "values", None)
+        return self.normalize_values(self._values)
 
-        if callable(values):
-            return list(values())
+    @staticmethod
+    def normalize_values(values):
+        _values = getattr(values, "values", None)
 
-        elif values is None:
-            return self._values
+        if callable(_values):
+            return list(_values())
+
+        elif _values is None:
+            return values
 
         else:
             # assuming it's a dataframe, in that case it returns transposed
             # values compared to it's dict equivalent..
-            return list(values.T)
+            return list(_values.T)
 
     def items(self):
         return [(key, self[key]) for key in self]
@@ -264,33 +270,24 @@ class DataAdapter(object):
             xs: iterable that represents the data index
             values: iterable containing the values to be plotted
         """
+        _values = DataAdapter(values, force_alias=False)
         if hasattr(values, 'keys'):
             if index is not None:
                 if isinstance(index, string_types):
-                    xs = values[index]
-
+                    xs = _values[index]
                 else:
                     xs = index
-
             else:
                 try:
-                    xs = values.index
-
+                    xs = _values.index
                 except AttributeError:
-                    values = DataAdapter(values, force_alias=False)
                     xs = values.index
-
         else:
             if index is None:
-                values = DataAdapter(values, force_alias=False)
-                xs = values.index
-
+                xs = _values.index
             elif isinstance(index, string_types):
-                msg = "String indexes are only supported for DataFrame and dict inputs"
-                raise TypeError(msg)
-
+                xs = _values[index]
             else:
                 xs = index
-                values = DataAdapter(values, force_alias=False)
 
-        return xs, values
+        return xs, _values

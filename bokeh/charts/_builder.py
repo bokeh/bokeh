@@ -195,8 +195,8 @@ class Builder(HasProps):
             val (string): name of the new attribute
             content (obj): content of the new attribute
         """
-        data[prefix + val] = content
-        attr.append(prefix + val)
+        data["%s%s" % (prefix, val)] = content
+        attr.append("%s%s" % (prefix, val))
 
     def set_and_get(self, prefix, val, content):
         """Set a new attr and then get it to fill the self._data dict.
