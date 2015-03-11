@@ -44,12 +44,12 @@ class ChartOptions(HasProps):
     Whether to draw an y-grid.
     """)
 
-    xlabel = String("x-axis", help="""
-    A label for the (default) x-axis.
+    xlabel = String("", help="""
+    A label for the x-axis. (default: "")
     """)
 
-    ylabel = String("y-axis", help="""
-    A label for the (default) y-axis.
+    ylabel = String("", help="""
+    A label for the y-axis. (default: "")
     """)
 
     xscale = Either(Auto, Enum(Scale), help="""
