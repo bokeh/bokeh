@@ -17,8 +17,8 @@ q1 = groups.quantile(q=0.25)
 q2 = groups.quantile(q=0.5)
 q3 = groups.quantile(q=0.75)
 iqr = q3 - q1
-upper = q2 + 1.5*iqr
-lower = q2 - 1.5*iqr
+upper = q3 + 1.5*iqr
+lower = q1 - 1.5*iqr
 def outliers(group):
    cat = group.name
    return group[(group.score > upper.loc[cat][0]) | (group.score < lower.loc[cat][0])]['score']
