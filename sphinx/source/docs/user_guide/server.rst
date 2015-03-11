@@ -112,7 +112,7 @@ To use the smart downsampling facilities of bokeh, you must install the multi-us
 
 or::
 
-    $ pip install -c bokeh multiuserblazeserver
+    $ pip install multiuserblazeserver
 
 The blaze server is a bit mis-named at the moment, it supports a pluggable authentication model however currently only the single user authentication backend is implemented.  There are 2 categories of data defined in the blaze server - data owned by the server itself, and data owned by individual users.  Data owned by the server is read only.  Data owned by individual users can be modified by the user that owns it, but is readable by everyone.
 
