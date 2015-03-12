@@ -20,6 +20,8 @@ DEF_SELENIUM_HUB_ADDRESS = 'http://178.62.188.78:4444/wd/hub'
 DEF_DOCUMENTS_DIR = 'examples'
 DEF_REMOTE_BOKEH_SERVER_ADDRESS = 'http://localhost'
 DEF_REMOTE_BOKEH_SERVER_PORT = 5006
+DEF_WINDOW_WIDTH = 1024
+DEF_WINDOW_HEIGHT = 768
 
 
 class TestMetadata(object):
@@ -76,6 +78,9 @@ class TestMetadata(object):
 
         self.documents_dir = os.path.abspath(os.path.join(self.cwd, DEF_DOCUMENTS_DIR))
         self.document_name = 'test_document'
+
+        self.window_width = DEF_WINDOW_WIDTH
+        self.window_height = DEF_WINDOW_HEIGHT
 
     def get_browser_bin(self, browser):
         return self.standalone_browsers_bin[browser]
@@ -207,6 +212,9 @@ class TestSettings(object):
             self.documents_dir = self.metadata.documents_dir
 
         self.document_name = self.metadata.document_name
+
+        self.window_width = self.metadata.window_width
+        self.window_height = self.metadata.window_height
 
     def get_browser_bin(self, browser=None):
         browser = browser or self.browser_engine

@@ -79,6 +79,7 @@ class RawSeleniumTestFixture(TestCase):
             print("Unsupported mode of testing environment: %s" % (self.test_settings.env_mode))
             sys.exit(1)
 
+        self.driver.set_window_size(self.test_settings.window_width, self.test_settings.window_height)
         self.driver.start_client()
 
         self.addCleanup(stop_bokeh_server, self.bokeh_server_instance)
