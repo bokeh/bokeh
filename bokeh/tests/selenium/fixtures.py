@@ -145,7 +145,6 @@ class BasicSeleniumTestFixture(RawSeleniumTestFixture):
         delete_button = self.driver.find_element_by_css_selector("a.bokehdoclabel span.bokehdelete.glyphicon.glyphicon-trash")
         delete_button.click()
 
-
     def unload_all_documents(self):
         delete_buttons = self.driver.find_elements_by_css_selector("a.bokehdoclabel span.bokehdelete.glyphicon.glyphicon-trash")
 
