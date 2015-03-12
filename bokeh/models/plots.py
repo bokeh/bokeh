@@ -58,7 +58,7 @@ class Plot(Widget):
             kwargs["tool_events"] = ToolEvents()
         super(Plot, self).__init__(**kwargs)
 
-    def select(self, arg):
+    def select(self, *args, **kwargs):
         ''' Query this object and all of its references for objects that
         match the given selector.
 
@@ -84,14 +84,28 @@ class Plot(Widget):
             p.select(name="foo", type=HoverTool)
         '''
 
-        if isinstance(arg, dict):
-            selector = arg
-        elif isinstance(arg, string_types):
-            selector = dict(name=arg)
-        elif issubclass(arg, PlotObject):
-            selector = {"type" : arg}
+        if len(args) > 1:
+            raise TypeError("select accepts at most ONE positional argument.")
+
+        if len(args) > 0 and len(kwargs) > 0:
+            raise TypeError("select accepts EITHER a positional argument, OR keyword arguments (not both).")
+
+        if len(args) == 0 and len(kwargs) == 0:
+            raise TypeError("select requires EITHER a positional argument, OR keyword arguments.")
+
+        if args:
+            arg = args[0]
+            if isinstance(arg, dict):
+                selector = arg
+            elif isinstance(arg, string_types):
+                selector = dict(name=arg)
+            elif issubclass(arg, PlotObject):
+                selector = {"type" : arg}
+            else:
+                raise RuntimeError("Selector must be a dictionary, string or plot object.")
+
         else:
-            raise RuntimeError("Selector must be a dictionary, string or plot object.")
+            selector = kwargs
 
         # Want to pass selector that is a dictionary
         return _list_attr_splat(find(self.references(), selector, {'plot': self}))
