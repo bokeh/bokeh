@@ -12,14 +12,17 @@ Attributes:
 
 from __future__ import absolute_import
 
-from os.path import abspath, join, normpath, realpath, relpath, split, splitext
-import sys
 import logging
 logger = logging.getLogger(__name__)
+
+from os.path import abspath, join, normpath, realpath, relpath, split, splitext
+import re, sys
 
 import six
 
 from . import __version__, settings
+
+_DEV_PAT = re.compile(r"^\d\.\d\.\d(dev|rc)")
 
 def _server_static_dir():
     return join(abspath(split(__file__)[0]), "server", "static")
@@ -47,7 +50,10 @@ def _get_cdn_urls(version=None, minified=True):
     rel_container = 'bokeh/release'
 
     # check the 'dev' fingerprint
-    container = dev_container if version.endswith(('dev', 'rc')) else rel_container
+    container = dev_container if _DEV_PAT.match(version) else rel_container
+
+    if version.endswith(('dev', 'rc')):
+        logger.warn("Getting CDN URL for local dev version will not produce usable URL")
 
     result = {
         'js_files'  : ['%s/%s/bokeh-%s%s.js' % (base_url, container, version, _min)],
