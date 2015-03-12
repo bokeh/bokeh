@@ -22,7 +22,7 @@ import six
 
 from . import __version__, settings
 
-_DEV_PAT = re.compile(r"^\d\.\d\.\d(dev|rc)")
+_DEV_PAT = re.compile(r"^(\d)+\.(\d)+\.(\d)+(dev|rc)")
 
 def _server_static_dir():
     return join(abspath(split(__file__)[0]), "server", "static")
