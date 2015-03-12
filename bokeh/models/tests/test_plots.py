@@ -35,6 +35,35 @@ class TestPlotSelect(unittest.TestCase):
         found = self._plot.select(HoverTool)
         self.assertEqual(len(found), 0)
 
+    def test_kwargs(self):
+        found = self._plot.select(name='foo', type=PanTool)
+        self.assertEqual(len(found), 1)
+
+    def test_too_many_args(self):
+        with self.assertRaises(TypeError) as cm:
+             self._plot.select('foo', 'bar')
+        self.assertEqual(
+            'select accepts at most ONE positional argument.',
+            str(cm.exception)
+        )
+
+    def test_no_input(self):
+        with self.assertRaises(TypeError) as cm:
+             self._plot.select()
+        self.assertEqual(
+            'select requires EITHER a positional argument, OR keyword arguments.',
+            str(cm.exception)
+        )
+
+    def test_arg_and_kwarg(self):
+        with self.assertRaises(TypeError) as cm:
+             self._plot.select('foo', type=PanTool)
+        self.assertEqual(
+            'select accepts EITHER a positional argument, OR keyword arguments (not both).',
+            str(cm.exception)
+        )
+
+
 
 
 if __name__ == '__main__':
