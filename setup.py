@@ -168,7 +168,7 @@ def getsitepackages():
                                      'site-packages'))
         for sitedir in sitedirs:
             sitepackages.append(os.path.abspath(sitedir))
-    
+
     sitepackages = [p for p in sitepackages if os.path.isdir(p)]
     return sitepackages
 
@@ -474,8 +474,9 @@ setup(
         'bokeh.tests',
         'bokeh.tests.selenium',
         'bokeh.tests.selenium.tests',
-        'bokeh.transforms'
-
+        'bokeh.transforms',
+        'bokeh.util',
+        'bokeh.util.tests',
     ],
     package_data={'bokeh': package_data},
     author='Continuum Analytics',

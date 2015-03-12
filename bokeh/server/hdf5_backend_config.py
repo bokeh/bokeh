@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 
 from arraymanagement.nodes.csvnodes import PandasCSVNode
 from arraymanagement.nodes.hdfnodes import PandasHDFNode, PyTables

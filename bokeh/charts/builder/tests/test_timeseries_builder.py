@@ -12,6 +12,7 @@
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
+from __future__ import absolute_import
 
 from collections import OrderedDict
 import datetime
@@ -45,9 +46,9 @@ class TestTimeSeries(unittest.TestCase):
             ts = create_chart(TimeSeries, _xy, index='Date')
             builder = ts._builders[0]
             self.assertEqual(builder._groups, groups)
-            assert_array_equal(builder._data['x_python'], _xy['Date'])
-            assert_array_equal(builder._data['x_pypy'], _xy['Date'])
-            assert_array_equal(builder._data['x_jython'], _xy['Date'])
+            assert_array_equal(builder._data['x_python'], dts)
+            assert_array_equal(builder._data['x_pypy'], dts)
+            assert_array_equal(builder._data['x_jython'], dts)
             assert_array_equal(builder._data['y_python'], y_python)
             assert_array_equal(builder._data['y_pypy'], y_pypy)
             assert_array_equal(builder._data['y_jython'], y_jython)
@@ -63,4 +64,3 @@ class TestTimeSeries(unittest.TestCase):
             assert_array_equal(builder._data['y_0'], y_python)
             assert_array_equal(builder._data['y_1'], y_pypy)
             assert_array_equal(builder._data['y_2'], y_jython)
-

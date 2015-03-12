@@ -57,7 +57,7 @@ from six import integer_types, string_types, add_metaclass, iteritems
 import numpy as np
 
 from . import enums, colors
-from .utils import nice_join
+from .util.string import nice_join
 
 bokeh_integer_types = (np.int8, np.int16, np.int32, np.int64) + integer_types
 

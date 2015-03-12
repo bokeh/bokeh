@@ -15,6 +15,8 @@ passing the arguments to the Chart class and calling the proper functions.
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
+from __future__ import absolute_import
+
 import numpy as np
 try:
     import pandas as pd
@@ -111,8 +113,7 @@ class DotBuilder(Builder):
         self._groups.extend(self._values.keys())
         step = np.linspace(0, 1.0, len(self._values.keys()) + 1, endpoint=False)
 
-        for i, val in enumerate(self._values.keys()):
-            values = self._values[val]
+        for i, (val, values) in enumerate(self._values.items()):
             # original y value
             self.set_and_get("", val, values)
             # x value

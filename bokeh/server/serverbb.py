@@ -3,7 +3,9 @@ In our python interface to the backbone system, we separate the local collection
 which stores models, from the http client which interacts with a remote store
 In applications, we would use a class that combines both
 """
-import warnings
+
+from __future__ import absolute_import
+
 import logging
 logger = logging.getLogger(__name__)
 
@@ -13,9 +15,10 @@ import shelve
 
 from bokeh import protocol
 from bokeh.document import Document
-from bokeh.utils import decode_utf8, dump, encode_utf8
+from bokeh.util.serialization import dump
+from bokeh.util.string import decode_utf8, encode_utf8
+
 from ..exceptions import AuthenticationException
-from .models import docs
 from .app import bokeh_app
 class StoreAdapter(object):
     """API modeled after Redis that other stores have to adapt to. """
@@ -337,7 +340,7 @@ class BokehServerTransaction(object):
                 userobj=self.server_userobj)
         docid = self.server_docobj.docid
         if mode not in {'auto', 'rw', 'r'}:
-            raise Authentication('Unknown Mode')
+            raise AuthenticationException('Unknown Mode')
         if mode == 'auto':
             if not can_write and not can_read:
                 raise AuthenticationException("could not read from %s" % docid)

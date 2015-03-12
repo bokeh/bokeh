@@ -17,6 +17,8 @@ It also add a new chained stacked method.
 # Imports
 #-----------------------------------------------------------------------------
 
+from __future__ import absolute_import
+
 import numpy as np
 import pandas as pd
 
@@ -154,10 +156,10 @@ class BoxPlotBuilder(Builder):
         lower_height_boxes = []
         out_x, out_y, out_color = ([], [], [])
 
-        for i, level in enumerate(self._groups):
+        for i, (level, values) in enumerate(self._values.items()):
             # Compute quantiles, center points, heights, IQR, etc.
             # quantiles
-            q = np.percentile(self._values[level], [25, 50, 75])
+            q = np.percentile(values, [25, 50, 75])
             q0_points.append(q[0])
             q2_points.append(q[2])
 
@@ -178,10 +180,10 @@ class BoxPlotBuilder(Builder):
 
             # Store indices of outliers as list
             outliers = np.where(
-                (self._values[level] > upper) | (self._values[level] < lower)
+                (values > upper) | (values < lower)
             )[0]
             for out in outliers:
-                o = self._values[level][out]
+                o = values[out]
                 out_x.append(level)
                 out_y.append(o)
                 out_color.append(self.palette[i])

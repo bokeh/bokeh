@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 
 from datetime import timedelta
 from flask import make_response, request, current_app

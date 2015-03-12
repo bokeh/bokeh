@@ -1,5 +1,5 @@
 
-.. _bokeh_dot_charts:
+.. _bokeh.charts:
 
 ``bokeh.charts`` Interface
 ##########################

@@ -109,9 +109,3 @@ class BokehGalleryDirective(Directive):
 
 def setup(app):
     app.add_directive('bokeh-gallery', BokehGalleryDirective)
-
-
-
-
-
-

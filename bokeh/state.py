@@ -34,6 +34,8 @@ class that encapsulates these objects and ensures their proper configuration.
 #-----------------------------------------------------------------------------
 
 # Stdlib imports
+from __future__ import absolute_import
+
 import logging
 logger = logging.getLogger(__name__)
 
@@ -222,4 +224,3 @@ class State(object):
 
         if clear:
             self._document.clear()
-

@@ -92,11 +92,11 @@ from sphinx.locale import _
 from sphinx.util.compat import Directive
 
 from .utils import out_of_date
-from .. import plotting
+from .. import charts, io, plotting
 from ..document import Document
 from ..embed import autoload_static
 from ..resources import CDN
-from ..utils import decode_utf8
+from ..util.string import decode_utf8
 
 
 SOURCE_TEMPLATE = jinja2.Template(u"""
@@ -232,6 +232,10 @@ def _show(obj=None):
         plotting._obj = obj
 
 webbrowser.open = _noop
+charts.save = _noop
+charts.show = _show
+io.save = _noop
+io.show = _show
 plotting.save = _noop
 plotting.show = _show
 

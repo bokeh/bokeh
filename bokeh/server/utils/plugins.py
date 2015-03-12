@@ -6,6 +6,8 @@ would run this type of code using the --script option
 
 """
 
+from __future__ import absolute_import
+
 import uuid
 
 from flask import abort, render_template
