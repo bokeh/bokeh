@@ -22,8 +22,7 @@ Resources and Embedding
 .. automodule:: bokeh.io
   :members:
 
-
-.. _bokeh_dot_resources:
+.. _bokeh.resources:
 
 ``bokeh.resources``
 -------------------
@@ -31,8 +30,7 @@ Resources and Embedding
 .. automodule:: bokeh.resources
   :members:
 
-
-.. _bokeh_dot_embed:
+.. _bokeh.embed:
 
 ``bokeh.embed``
 ---------------
@@ -40,7 +38,7 @@ Resources and Embedding
 .. automodule:: bokeh.embed
   :members:
 
-.. _bokeh_dot_templates:
+.. _bokeh.templates:
 
 ``bokeh.templates``
 -------------------
