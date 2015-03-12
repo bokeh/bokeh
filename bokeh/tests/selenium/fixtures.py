@@ -10,7 +10,7 @@ from requests.exceptions import ConnectionError
 from unittest import TestCase
 from urllib2 import urlopen, URLError
 
-from .utils import initialize_standalone_testing_env, initialize_distributive_testing_env
+from .utils import initialize_standalone_testing_env, initialize_distributive_testing_env, look_for_element
 from .run_selenium_tests import settings as test_settings
 
 
@@ -141,6 +141,8 @@ class BasicSeleniumTestFixture(RawSeleniumTestFixture):
         self.assertRegexpMatches(doc.text, self.test_settings.document_name)
 
         doc.click()
+
+        plot = look_for_element(self.driver, "div.panel-collapse.collapse.in")
 
     def unload_document(self, document_name):
         delete_button = self.driver.find_element_by_css_selector("a.bokehdoclabel span.bokehdelete.glyphicon.glyphicon-trash")
