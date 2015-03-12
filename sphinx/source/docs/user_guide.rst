@@ -12,6 +12,7 @@ the kinds of low-level object attributes that can be set to really customize a p
 .. toctree::
    :maxdepth: 2
 
+   user_guide/concepts.rst
    user_guide/objects.rst
    user_guide/plotting.rst
    user_guide/charts.rst

@@ -1,0 +1,198 @@
+.. _userguide_concepts:
+
+Concepts and Interfaces
+=======================
+
+.. contents::
+    :local:
+    :depth: 2
+
+.. _userguide_interfaces:
+
+This section provides an overview of the different interfaces that are
+available to Bokeh users, as well as some context about the most important
+concepts central to the library. If you'd like to jump right into plotting,
+go to :ref:`userguide_plotting` or :ref:`userguide_charts`.
+
+Interfaces
+----------
+
+Bokeh is a Python interactive visualization library that targets modern web
+browsers for presentation providing elegant, concise construction of novel
+graphics with high-performance interactivity over very large or streaming
+datasets in quick and easy way.
+
+Offering both powerful and flexible features to enable very advanced
+customizations in one hand and simplicity on the other Bokeh exposes different
+interface levels to the users:
+
+|bokeh.models|
+~~~~~~~~~~~~~~
+
+Bokeh is actually composed of two library components.
+
+The first component is a JavaScript library BokehJS that runs in the browser.
+This library is responsible for all the actual rendering and user interaction.
+Its input is a collection of declarative JSON objects that comprise a
+"scenegraph". The objects in this scenegraph describe everything that BokehJS
+should handle: what plots and widgets are present and in what arrangement,
+what tools and renderers and axes the plots will have, etc. These JSON objects
+are converted into Backbone_ Models in the browser, and they are rendered by
+corresponding Backbone_ Views.
+
+The second component is a library in Python (or |other languages|) that can
+generate the JSON described above. In the Python Bokeh library, this is
+accomplished at the lowest level by exposing a set of "model" classes in
+that exactly mirror the set of Backbone_ Models that are created in the
+browser. These python model classes know how to validate their content and
+attributes, and also how to serialize themselves correctly to JSON. All of
+of these low level models live in the |bokeh.models| interface. Most of the
+models are very simple, usually consisting of a few property attributes
+and no methods. Model attributes can either be configured when the model is
+created, or later by setting attribute values on the model object. Here are
+some examples for a |Rect| glyph object:
+::
+
+    # properties can be configured when a model object is initialized
+    glyph = Rect(x="x", y="y2", w=10, h=20, line_color=None)
+
+    # or by assigning values to attributes on the model later
+    glyph.fill_alpha = 0.5
+    glyph.fill_color = "navy"
+
+These methods of configuration work in general for all Bokeh models.
+
+Using the |bokeh.models| interface provides complete control over how Bokeh
+plots and widgets are put together and configured. However, it provides no
+help with assembling the models in meaningful or correct ways. It is entirely
+up to developers to build the scenegraph "by hand". For this reason, most
+users will probably want to use one of the higher level interfaces described
+below unless they have specialized requirements that necessitate finer
+control. For more information about the details of all Bokeh models, consult
+the :ref:`refguide`.
+
+|bokeh.plotting|
+~~~~~~~~~~~~~~~~
+
+Bokeh provides a "mid-level" general purpose |bokeh.plotting| interface, which
+is similar in specificity to Matplotlib_ or Matlab_ style plotting interfaces.
+It is centered around having users relate the visual glyphs they would like
+to have displayed to their data, and otherwise taking care of putting together
+plots with sensible default axes, grids, and tools.
+
+The main class in the |bokeh.plotting| interface is the |Figure| class. This
+is a subclass of the basic |Plot| model, that includes methods for easily
+different kinds of glyphs to a plot. Additionally it composes default axes,
+grids, and tools in the proper way to that in many cases they need not be
+worried about at all. Typically, users will want to create |Figure| objects
+by using the |figure| function.
+
+A prototypical example of the |bokeh.plotting| usage is show below together
+with the resulting plot:
+
+.. bokeh-plot::
+    :source-position: above
+
+    from bokeh.plotting import figure, output_file, show
+
+    # create a Figure object
+    p = figure(width=300, height=300, tools="pan,reset,save")
+
+    # add a Circle renderer to this figure
+    p.circle([1, 2.5, 3, 2], [2, 3, 1, 1.5], radius=0.3, alpha=0.5)
+
+    # specify how to output the plot(s)
+    output_file("foo.html")
+
+    # display the figure
+    show(p)
+
+The main observation is that the typical usage involved creating plots objects
+with the |figure| function, then using the glyph methods like |Figure.circle|
+to add renderers for our data. We do not have to worry about configuring any
+axes or grids (although we can configure them if we need to), and specifying
+tools is done simply with the names of tools to add. Finally we use some output
+functions to display our plot.
+
+.. note::
+    The output functions |output_file| and |show|, etc. are actually
+    defined in the |bokeh.io| module, but are also importable from
+    |bokeh.plotting| as a convenience.
+
+There are many other possibilities: saving our plot instead of showing it,
+styling or removing the axes or grids, adding additional renderers, and
+laying out multiple plots together. The :ref:`userguide_plotting` section of
+this :ref:`userguide` will walk through many more examples and common use
+cases of using the |bokeh.plotting| interface.
+
+
+|bokeh.charts|
+~~~~~~~~~~~~~~
+
+Bokeh also provides a very high-level |bokeh.charts| interface for quickly
+creating statistical charts. As with |bokeh.plotting| the main purpose of
+the interface is to help simplify the creation of Bokeh object graphs by
+encapsulating common patterns. The |bokeh.charts| interface presents
+functions for common, schematic statistical charts, and these functions
+may also perform some of the necessary statistical processing for the user
+as well. Additionally, the chart functions can take care of automatically
+coloring and faceting based on group structure.
+
+The interface includes chart types such as: |Bar|, |BoxPlot|, |Histogram|,
+|Timeseries|, and many others. One simple example using |Scatter| is shown
+below:
+
+.. bokeh-plot::
+    :source-position: above
+
+    from bokeh.charts import Scatter, output_file, show
+
+    # prepare some data, a Pandas GroupBy object in this case
+    from bokeh.sampledata.iris import flowers
+    grouped = flowers[["petal_length", "petal_width", "species"]].groupby("species")
+
+    # create a scatter chart
+    p = Scatter(grouped, title="iris data", width=400, height=400,
+                xlabel="petal length", ylabel="petal width", legend='top_left')
+
+    # specify how to output the plot(s)
+    output_file("foo.html")
+
+    # display the figure
+    show(p)
+
+Important to note is that the same output functions are used across different
+interfaces. As with |bokeh.plotting|, the output functions |output_file| and
+|show|, etc. that are defined in |bokeh.io|, are also importable from
+|bokeh.charts| as a convenience.
+
+.. _Backbone: http://backbonejs.org
+.. _Matlab: http://www.mathworks.com/products/matlab/
+.. _Matplotlib: http://matplotlib.org
+
+.. |bokeh.charts|   replace:: :ref:`bokeh.charts <bokeh.charts>`
+.. |bokeh.models|   replace:: :ref:`bokeh.models <bokeh.models>`
+.. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`
+.. |bokeh.io|       replace:: :ref:`bokeh.io <bokeh.io>`
+
+.. |other languages| replace:: :ref:`other languages <quickstart_other_languages>`
+
+.. |Plot| replace:: :class:`~bokeh.models.plots.Plot`
+.. |Rect| replace:: :class:`~bokeh.models.glyphs.Rect`
+
+.. |output_file|     replace:: :func:`~bokeh.io.output_file`
+.. |output_notebook| replace:: :func:`~bokeh.io.output_notebook`
+.. |output_server|   replace:: :func:`~bokeh.io.output_server`
+.. |save|            replace:: :func:`~bokeh.io.save`
+.. |show|            replace:: :func:`~bokeh.io.show`
+
+.. |figure|          replace:: :func:`~bokeh.plotting.figure`
+.. |Figure|          replace:: :class:`~bokeh.plotting.Figure`
+.. |Figure.circle|   replace:: :func:`Figure.circle <bokeh.plotting.Figure.circle>`
+
+.. |Bar|        replace:: :func:`~bokeh.plotting.Bar`
+.. |BoxPlot|    replace:: :func:`~bokeh.plotting.BoxPlot`
+.. |Histogram|  replace:: :func:`~bokeh.plotting.Histogram`
+.. |Scatter|    replace:: :func:`~bokeh.plotting.Scatter`
+.. |TimeSeries| replace:: :func:`~bokeh.plotting.TimeSeries`
+
