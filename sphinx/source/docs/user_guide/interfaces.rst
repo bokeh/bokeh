@@ -23,8 +23,8 @@ Offering both powerful and flexible features to enable very advanced
 customizations on one hand and simplicity on the other, Bokeh exposes
 different interface levels to the users:
 
-*bokeh.models* interface
-------------------------
+*bokeh.models*
+--------------
 
 Bokeh is actually composed of two library components.
 
@@ -71,8 +71,8 @@ described below unless they have specialized requirements that necessitate
 finer control. For more information about the details of all Bokeh models,
 consult the :ref:`refguide`.
 
-*bokeh.plotting* interface
---------------------------
+*bokeh.plotting*
+----------------
 
 Bokeh provides a "mid-level" general purpose |bokeh.plotting| interface, which
 is similar in specificity to Matplotlib_ or Matlab_ style plotting interfaces.
@@ -128,8 +128,8 @@ this :ref:`userguide` will walk through many more examples and common use
 cases of using the |bokeh.plotting| interface.
 
 
-*bokeh.charts* interface
-------------------------
+*bokeh.charts*
+--------------
 
 Bokeh also provides a very high-level |bokeh.charts| interface for quickly
 creating statistical charts. As with |bokeh.plotting|, the main purpose of

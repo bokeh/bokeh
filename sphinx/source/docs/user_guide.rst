@@ -8,12 +8,14 @@ use-cases, and components of Bokeh. Please also the :ref:`gallery` for many
 live examples with code, and the :ref:`tutorial` for a directed walk-through
 with worked examples and exercises.
 
-First, here is a small glossary of some of the most important concepts in
-Bokeh. Below is a `Table of Contents`_ for the guides.
+Here is a small glossary of some of the most important concepts in Bokeh,
+followed by the extended table of contents for the user guide.
+
+----
 
 BokehJS
-   The client (browser) library that actually renders the visuals and
-   handles the UI interactions for Bokeh plots and widgets.
+   The JavaScript client library that actually renders the visuals and
+   handles the UI interactions for Bokeh plots and widgets in the browser.
 
 charts
    Schematic statistical plots such as bar charts, horizon plots, time
@@ -53,8 +55,7 @@ widgets
    computations, or cause Bokeh plots to update. See :ref:`userguide_widgets`
    for examples and information.
 
-Table of Contents
-=================
+----
 
 .. toctree::
    :maxdepth: 2
