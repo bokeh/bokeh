@@ -10,6 +10,7 @@ from __future__ import absolute_import
 import unittest
 
 from bokeh.plotting import figure
+from bokeh.models import GlyphRenderer
 from bokeh.models.tools import HoverTool, PanTool
 
 import bokeh.models.plots as plots
@@ -36,8 +37,11 @@ class TestPlotSelect(unittest.TestCase):
         self.assertEqual(len(found), 0)
 
     def test_kwargs(self):
-        found = self._plot.select(name='foo', type=PanTool)
+        found = self._plot.select(name='foo', type=GlyphRenderer)
         self.assertEqual(len(found), 1)
+
+        found = self._plot.select(name='foo', type=PanTool)
+        self.assertEqual(len(found), 0)
 
     def test_too_many_args(self):
         with self.assertRaises(TypeError) as cm:
