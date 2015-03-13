@@ -1,7 +1,7 @@
 .. _userguide_plotting:
 
-Basic Plotting
-==============
+Basic Plotting with Glyphs
+==========================
 
 .. contents::
     :local:
