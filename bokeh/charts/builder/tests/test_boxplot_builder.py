@@ -56,15 +56,15 @@ class TestBoxPlot(unittest.TestCase):
             'width': [0.8, 0.8, 0.8]
         }
         expected_scatter = {
-            'colors': ['#f22c40', '#f22c40', '#f22c40', '#f22c40', '#5ab738', '#5ab738'],
-            'out_x': ['bronze', 'bronze', 'bronze', 'bronze', 'silver', 'silver'],
-            'out_y': [7.0, 10.0, 8.0, 7.0, 8.0, 8.0]
+            'colors': ['#f22c40'],
+            'out_x': ['bronze'],
+            'out_y': [10.0]
         }
         expected_seg = {
-            'lower': [-3.0, -2.5, -4.75],
+            'lower': [-3.5, -3.5, -6.5],
              'q0': [1.0, 1.0, 0.25],
              'q2': [4.0, 4.0, 4.75],
-             'upper': [6.0, 6.5, 8.75]
+             'upper': [8.5, 8.5, 11.5]
         }
 
         for i, _xy in enumerate([xyvalues, xyvaluesdf, xyvaluesbl]):
@@ -95,7 +95,7 @@ class TestBoxPlot(unittest.TestCase):
         ]
 
         groups = exptected_datarect['groups'] = ['0', '1', '2']
-        expected_scatter['out_x'] = ['0', '0', '0', '0', '1', '1']
+        expected_scatter['out_x'] = ['0']
         for i, _xy in enumerate([lvalues, np.array(lvalues)]):
             bp = create_chart(BoxPlot, _xy, marker='circle', outliers=True)
             builder = bp._builders[0]
