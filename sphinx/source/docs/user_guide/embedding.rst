@@ -1,7 +1,7 @@
-.. _user_guide_embedding:
+.. _userguide_embedding:
 
-Embedding
-=========
+Embedding Bokeh Plots
+=====================
 
 .. contents::
     :local:

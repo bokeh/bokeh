@@ -128,7 +128,7 @@ class State(object):
                 If True, then Bokeh plotting APIs may opt to automatically
                 save the file more frequently (e.g., after any plotting
                 command). If False, then the file is only saved upon calling
-                :func:`show` or :func:`show`.
+                :func:`show` or :func:`save`.
 
             mode (str, optional) : how to include BokehJS (default: ``'inline'``)
                 One of: ``'inline'``, ``'cdn'``, ``'relative(-dev)'`` or

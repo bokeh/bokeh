@@ -61,8 +61,7 @@ def Area(values, index=None, **kws):
         .. bokeh-plot::
             :source-position: above
 
-            from bokeh.charts import Area
-            from bokeh.plotting import output_file, show
+            from bokeh.charts import Area, output_file, show
 
             # (dict, OrderedDict, lists, arrays and DataFrames are valid inputs)
             xyvalues = dict(
@@ -71,12 +70,12 @@ def Area(values, index=None, **kws):
                 jython=[22, 43, 10, 25, 26, 101, 114, 203, 194, 215, 201, 227, 139],
             )
 
-            # create an area chart
-            output_file('area.html')
             area = Area(
                 xyvalues, title="Area Chart", xlabel='time', legend=True,
                 ylabel='memory', stacked=True,
             )
+
+            output_file('area.html')
             show(area)
     """
     return create_and_build(AreaBuilder, values, index=index, **kws)

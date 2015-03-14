@@ -92,7 +92,7 @@ from sphinx.locale import _
 from sphinx.util.compat import Directive
 
 from .utils import out_of_date
-from .. import charts, io, plotting
+from .. import io
 from ..document import Document
 from ..embed import autoload_static
 from ..resources import CDN
@@ -224,23 +224,28 @@ class BokehPlotDirective(Directive):
         return node.children
 
 # patch open and show and save to be no-ops
-def _noop(*args, **kwargs):
+def _open(*args, **kwargs):
+    pass
+
+def _save(*args, **kwargs):
     pass
 
 def _show(obj=None):
     if obj:
-        plotting._obj = obj
+        io._obj = obj
 
-webbrowser.open = _noop
-charts.save = _noop
-charts.show = _show
-io.save = _noop
+# This is so Bokeh can correctly document itself
+_save.__doc__ = io.save.__doc__
+_save.__module__ = io.save.__module__
+_show.__doc__ = io.show.__doc__
+_show.__module__ = io.show.__module__
+
+webbrowser.open = _open
+io.save = _save
 io.show = _show
-plotting.save = _noop
-plotting.show = _show
 
 def _render_plot(source, symbol):
-    plotting._default_document = Document()
+    io._state._document = Document()
     namespace = {}
     # need to remove any encoding comment before compiling unicode
     pat = re.compile(r"^# -\*- coding: (.*) -\*-$", re.M)
@@ -249,12 +254,9 @@ def _render_plot(source, symbol):
     eval(code, namespace)
     # TODO (bev) remove this crap
     if symbol is not None:
-        if 'bokeh.charts' in source:
-            obj = namespace[symbol].chart.plot
-        else:
-            obj = namespace[symbol]
+        obj = namespace[symbol]
     else:
-        obj = plotting._obj
+        obj = io._obj
     return obj
 
 def html_visit_bokeh_plot(self, node):
