@@ -27,10 +27,8 @@ def make_plot(source, xname, yname, line_color, xdr=None, ydr=None):
     """ Returns a tuple (plot, [obj1...objN]); the former can be added
     to a GridPlot, and the latter is added to the plotcontext.
     """
-    if xdr is None:
-        xdr = DataRange1d(sources=[source.columns(xname)])
-    if ydr is None:
-        ydr = DataRange1d(sources=[source.columns(yname)])
+    if xdr is None: xdr = DataRange1d()
+    if ydr is None: ydr = DataRange1d()
 
     plot = Plot(x_range=xdr, y_range=ydr, min_border=50)
 

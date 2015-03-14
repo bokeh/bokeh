@@ -32,8 +32,8 @@ text_source = ColumnDataSource(
     data=dict(xcenter=[125], ycenter=[135])
 )
 
-xdr = DataRange1d(sources=[source.columns("petal_length", "petal_width", "sepal_length", "sepal_width")])
-ydr = DataRange1d(sources=[source.columns("petal_length", "petal_width", "sepal_length", "sepal_width")])
+xdr = DataRange1d()
+ydr = DataRange1d()
 
 def make_plot(xname, yname, xax=False, yax=False, text=None):
     plot = Plot(

@@ -52,8 +52,8 @@ text_source = ColumnDataSource(dict(
     texts = ["CST (UTC+1)", "CEST (UTC+2)", "CST (UTC+1)"],
 ))
 
-xdr = DataRange1d(sources=[source.columns("dates")])
-ydr = DataRange1d(sources=[source.columns("sunrises", "sunsets")])
+xdr = DataRange1d()
+ydr = DataRange1d()
 
 title = "Daylight Hours - Warsaw, Poland"
 plot = Plot(

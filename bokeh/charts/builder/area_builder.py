@@ -154,7 +154,7 @@ class AreaBuilder(Builder):
         Push the Line data into the ColumnDataSource and calculate the proper ranges.
         """
         self._source = ColumnDataSource(self._data)
-        self.x_range = DataRange1d(sources=[self._source.columns("x")])
+        self.x_range = DataRange1d()
         y_names = self._attr[1:]
         endy = max(max(self._data[i]) for i in y_names)
         starty = min(min(self._data[i]) for i in y_names)

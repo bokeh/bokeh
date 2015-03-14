@@ -128,10 +128,10 @@ class StepBuilder(Builder):
         the proper ranges.
         """
         sc = self._source = ColumnDataSource(self._data)
-        self.x_range = DataRange1d(sources=[sc.columns("x")])
+        self.x_range = DataRange1d()
 
         y_sources = [sc.columns("y_%s" % col) for col in self._groups]
-        self.y_range = DataRange1d(sources=y_sources)
+        self.y_range = DataRange1d()
 
     def _yield_renderers(self):
         """Use the line glyphs to connect the xy points in the Step.

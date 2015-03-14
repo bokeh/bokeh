@@ -197,6 +197,17 @@ define [
         if v.model.update_layout?
           v.model.update_layout(v, @canvas.solver)
 
+      # Update any DataRange1ds here
+      bounds = {}
+      for k, v of @renderers
+        bds = v.glyph?.bounds?()
+        if bds?
+          bounds[k] = bds
+      for xr in _.values(@mget('extra_x_ranges')).concat(@mget('x_range'))
+        xr.update?(bounds, 0)
+      for yr in _.values(@mget('extra_y_ranges')).concat(@mget('y_range'))
+        yr.update?(bounds, 1)
+
       title = @mget('title')
       if title
         @title_props.set(@canvas_view.ctx, {})
@@ -275,6 +286,17 @@ define [
 
     initialize: (attrs, options) ->
       super(attrs, options)
+
+      for xr in _.values(@get('extra_x_ranges')).concat(@get('x_range'))
+        plots = xr.get('plots')
+        if _.isArray(plots)
+          plots = plots.concat(@)
+          xr.set('plots', plots)
+      for yr in _.values(@get('extra_y_ranges')).concat(@get('y_range'))
+        plots = yr.get('plots')
+        if _.isArray(plots)
+          plots = plots.concat(@)
+          yr.set('plots', plots)
 
       canvas = new Canvas.Model({
         map: @use_map ? false

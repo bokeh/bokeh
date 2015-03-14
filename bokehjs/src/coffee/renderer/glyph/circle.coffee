@@ -189,6 +189,13 @@ define [
 
       @_render(ctx, indices, sx, sy, radius)
 
+    bounds: () ->
+      bb = @index.data.bbox
+      return [
+        [bb[0], bb[2]],
+        [bb[1], bb[3]]
+      ]
+
   class Circle extends Glyph.Model
     default_view: CircleView
     type: 'Circle'

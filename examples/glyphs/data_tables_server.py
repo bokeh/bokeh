@@ -61,8 +61,8 @@ class DataTables(object):
         ]
         data_table = DataTable(source=self.source, columns=columns, editable=True)
 
-        xdr = DataRange1d(sources=[self.source.columns("index")])
-        ydr = DataRange1d(sources=[self.source.columns("cty"), self.source.columns("hwy")])
+        xdr = DataRange1d()
+        ydr = DataRange1d()
         plot = Plot(title=None, x_range=xdr, y_range=ydr, plot_width=800, plot_height=300)
         xaxis = LinearAxis(plot=plot)
         plot.below.append(xaxis)

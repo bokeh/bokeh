@@ -25,8 +25,8 @@ source = ColumnDataSource(
     data=dict(x=x, y=y, times=times)
 )
 
-xdr = DataRange1d(sources=[source.columns("times")])
-ydr = DataRange1d(sources=[source.columns("y")])
+xdr = DataRange1d()
+ydr = DataRange1d()
 
 plot = Plot(x_range=xdr, y_range=ydr, min_border=80)
 
