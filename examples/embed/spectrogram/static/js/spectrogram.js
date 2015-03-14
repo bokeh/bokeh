@@ -45,7 +45,7 @@
       this.freq_slider.on("change:value", this.update_freq);
       this.gain_slider = find(this.layout, "gain");
       this.gain_slider.on("change:value", this.update_gain);
-      config = $.ajax('http://localhost:5000/params', {
+      config = Bokeh.$.ajax('http://localhost:5000/params', {
         type: 'GET',
         dataType: 'json',
         cache: false
@@ -83,7 +83,7 @@
           return;
         }
         in_flight = true;
-        return $.ajax('/data', {
+        return Bokeh.$.ajax('/data', {
           type: 'GET',
           dataType: 'json',
           cache: false
