@@ -9,8 +9,8 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 
 from os import listdir
-from os.path import dirname, join, splitext
-
+from os.path import dirname, join, splitext, exists, abspath
+from six.moves import urllib
 import numpy as np
 import pandas as pd
 
@@ -26,7 +26,7 @@ from bokeh.models.widgets import (HBox, VBox, VBoxForm, PreText, Select,
 from bokeh.charts import Bar
 
 # build up list of airports data in the daily folder
-data_dir = join(dirname(__file__), "data")
+data_dir = join(abspath(dirname(__file__)), "data")
 try:
     tickers = listdir(data_dir)
 except OSError as e:
@@ -38,8 +38,39 @@ airport_keys = ['id', 'name', 'city', 'country', 'iata', 'icao', 'lat',
                 'lng', 'alt', 'dst', 'tz', 'tz_db']
 route_keys = ['airline', 'id', 'source_ap', 'source_ap_id',
               'dest_ap', 'dest_ap_id', 'codeshare', 'stops', 'equip']
-# airline_keys = ['id', 'name', 'alias', 'iata', 'icao', 'callsign',
-#                 'country', 'active']
+airline_keys = ['id', 'name', 'alias', 'iata', 'icao', 'callsign',
+                'country', 'active']
+
+def check_or_download_data():#data_url, save_dir, exclude_term=None):
+    """Downloads, then extracts a zip file."""
+    heads = [airport_keys, route_keys, airline_keys]
+    filenames = ['airports.dat', 'routes.dat', 'airlines.dat']
+    urlbase = "https://sourceforge.net/p/openflights/code/HEAD/tree/openflights/data/%s?format=raw"
+    for keys, datafile in zip(heads, filenames):
+        localfile = join(data_dir, datafile)
+        if not exists(localfile):
+            url = urlbase % datafile
+            print "Oooops, seems like you don't have the data file %s" % datafile
+            r = raw_input("Can I download it from %s for you? [y|n]" % url)
+            if r.lower() in ("", "y"):
+                # get the file
+                try:
+                    print('Downloading %r to %r' % (url, localfile))
+                    urllib.request.urlretrieve(url=url, filename=localfile)
+                    with open(localfile, 'r') as lfile:
+                        data = lfile.read()
+                    fline = "%s\n" % (','.join(keys))
+                    with open(localfile, 'w') as lfile:
+                        lfile.write(fline + data)
+
+                    print('Download successfully completed')
+                except IOError as e:
+                    print("Could not successfully retrieve %r" % data_url)
+                    raise e
+
+    print("files check done, ready!")
+
+check_or_download_data()
 
 airports = pd.read_csv(join(data_dir, 'airports.dat'))
 routes = pd.read_csv(join(data_dir, 'routes.dat'))
