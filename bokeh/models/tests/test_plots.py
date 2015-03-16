@@ -7,6 +7,8 @@
 #-----------------------------------------------------------------------------
 
 from __future__ import absolute_import
+
+from mock import patch
 import unittest
 
 from bokeh.plotting import figure
@@ -21,27 +23,24 @@ class TestPlotSelect(unittest.TestCase):
         self._plot = figure(tools='pan')
         self._plot.circle([1,2,3], [3,2,1], name='foo')
 
-    def test_string_arg(self):
-        found = self._plot.select('foo')
-        self.assertEqual(len(found), 1)
+    @patch('bokeh.models.plots.find')
+    def test_string_arg(self, mock_find):
+        self._plot.select('foo')
+        self.assertTrue(mock_find.called)
+        self.assertEqual(mock_find.call_args[0][1], dict(name='foo'))
 
-        found = self._plot.select('bar')
-        self.assertEqual(len(found), 0)
+    @patch('bokeh.models.plots.find')
+    def test_type_arg(self, mock_find):
+        self._plot.select(PanTool)
+        self.assertTrue(mock_find.called)
+        self.assertEqual(mock_find.call_args[0][1], dict(type=PanTool))
 
-
-    def test_type_arg(self):
-        found = self._plot.select(PanTool)
-        self.assertEqual(len(found), 1)
-
-        found = self._plot.select(HoverTool)
-        self.assertEqual(len(found), 0)
-
-    def test_kwargs(self):
-        found = self._plot.select(name='foo', type=GlyphRenderer)
-        self.assertEqual(len(found), 1)
-
-        found = self._plot.select(name='foo', type=PanTool)
-        self.assertEqual(len(found), 0)
+    @patch('bokeh.models.plots.find')
+    def test_kwargs(self, mock_find):
+        kw = dict(name='foo', type=GlyphRenderer)
+        self._plot.select(**kw)
+        self.assertTrue(mock_find.called)
+        self.assertEqual(mock_find.call_args[0][1], kw)
 
     def test_too_many_args(self):
         with self.assertRaises(TypeError) as cm:
