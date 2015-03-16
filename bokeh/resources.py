@@ -19,7 +19,8 @@ logger = logging.getLogger(__name__)
 
 import six
 
-from . import __version__, settings
+from . import __version__
+from .settings import settings
 
 def _server_static_dir():
     return join(abspath(split(__file__)[0]), "server", "static")

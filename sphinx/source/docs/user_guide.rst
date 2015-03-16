@@ -69,5 +69,4 @@ widgets
    user_guide/widgets.rst
    user_guide/ar.rst
    user_guide/examples.rst
-   user_guide/issues.rst
 
