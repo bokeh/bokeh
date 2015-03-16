@@ -12,6 +12,9 @@ Attributes:
 
 from __future__ import absolute_import
 
+from os.path import (abspath, join, normpath, realpath, relpath, split, 
+                     splitext, isdir)
+import sys
 import logging
 logger = logging.getLogger(__name__)
 
@@ -28,8 +31,16 @@ _DEV_PAT = re.compile(r"^(\d)+\.(\d)+\.(\d)+(dev|rc)")
 def _server_static_dir():
     return join(abspath(split(__file__)[0]), "server", "static")
 
-def _static_path(path):
-    path = normpath(join(_server_static_dir(), path))
+def _bokehjs_build_dir():
+    return join(abspath(split(split(__file__)[0])[0]), 'bokehjs', 'build')
+
+def _static_path(path, dev=False):
+    # Prefer sources from bokehjs if dev
+    dir = _bokehjs_build_dir()
+    if (not dev) or (not isdir(dir)):
+        dir = _server_static_dir()
+    # Normalize
+    path = normpath(join(dir, path))
     if sys.platform == 'cygwin': path = realpath(path)
     return path
 
@@ -89,10 +100,10 @@ def _inline(paths):
         strings.append(begin + '\n' + middle + '\n' + end)
     return strings
 
-def _file_paths(files, minified):
+def _file_paths(files, minified, dev=False):
     if minified:
         files = [ root + ".min" + ext for (root, ext) in map(splitext, files) ]
-    return [ _static_path(file) for file in files ]
+    return [ _static_path(file, dev) for file in files ]
 
 
 class Resources(object):
@@ -184,7 +195,7 @@ class Resources(object):
 
         js_paths = self._js_paths(dev=self.dev, minified=self.minified)
         css_paths = self._css_paths(dev=self.dev, minified=self.minified)
-        base_url = _static_path("js")
+        base_url = _static_path("js", dev=self.dev)
 
         self._js_raw = []
         self._css_raw = []
@@ -256,11 +267,11 @@ class Resources(object):
 
     def _js_paths(self, minified=True, dev=False):
         files = self._default_js_files_dev if self.dev else self._default_js_files
-        return _file_paths(files, False if dev else minified)
+        return _file_paths(files, False if dev else minified, dev)
 
     def _css_paths(self, minified=True, dev=False):
         files = self._default_css_files_dev if self.dev else self._default_css_files
-        return _file_paths(files, False if dev else minified)
+        return _file_paths(files, False if dev else minified, dev)
 
     @property
     def js_wrapper(self):
