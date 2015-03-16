@@ -62,26 +62,47 @@ class Plot(Widget):
         ''' Query this object and all of its references for objects that
         match the given selector.
 
+        There are a few different ways to call the ``select`` method.
+        The most general is to supply a JSON-like query dictionary as the
+        single argument or as keyword arguments:
+
         Args:
-            selector (JSON-like) :
+            selector (JSON-like) : some sample text
+
+        Keyword Arguments:
+            kwargs : query dict key/values as keyword arguments
+
+        For convenience, queries on just names can be made by supplying
+        the ``name`` string as the single parameter:
+
+        Args:
+            name (str) : the name to query on
+
+        Also queries on just type can be made simply by supplying the
+        ``PlotObject`` subclass as the single parameter:
+
+        Args:
+            type (PlotObject) : the type to query on
 
         Returns:
             seq[PlotObject]
 
         Examples:
-            # These two are equivalent
-            p.select({"type": HoverTool})
-            p.select(HoverTool)
 
-            # These two are equivalent
-            p.circle(..., name="mycircle")
+            .. code-block:: python
 
-            p.select({"name": "mycircle"})
-            p.select("mycircle")
+                # These two are equivalent
+                p.select({"type": HoverTool})
+                p.select(HoverTool)
 
+                # These two are also equivalent
+                p.select({"name": "mycircle"})
+                p.select("mycircle")
 
-            p.select({"name": "foo", "type": HoverTool})
-            p.select(name="foo", type=HoverTool)
+                # Keyword arguments can be supplied in place of selector dict
+                p.select({"name": "foo", "type": HoverTool})
+                p.select(name="foo", type=HoverTool)
+
         '''
 
         if len(args) > 1:
@@ -192,6 +213,7 @@ class Plot(Widget):
         Args:
             source (DataSource) : a data source for the glyphs to all use
             glyph (Glyph) : the glyph to add to the Plot
+
 
         Keyword Arguments:
             Any additional keyword arguments are passed on as-is to the
