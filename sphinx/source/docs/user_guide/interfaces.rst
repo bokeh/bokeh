@@ -19,7 +19,7 @@ browsers for presentation providing elegant, concise construction of novel
 graphics with high-performance interactivity over very large or streaming
 datasets in a quick and easy way.
 
-Offering both powerful and flexible features to enable very advanced
+To offer both powerful and flexible features, enabling advanced
 customizations on one hand and simplicity on the other, Bokeh exposes
 different interface levels to the users:
 
@@ -29,12 +29,12 @@ different interface levels to the users:
 Bokeh is actually composed of two library components.
 
 The first component is a JavaScript library, BokehJS, that runs in the
-browser. This library is responsible for all of the actual rendering and
+browser. This library is responsible for all of the rendering and
 user interaction. Its input is a collection of declarative JSON objects that
 comprise a "scenegraph". The objects in this scenegraph describe everything
 that BokehJS should handle: what plots and widgets are present and in what
 arrangement, what tools and renderers and axes the plots will have, etc. These
-JSON objects are converted into Backbone_ Models in the browser, and they are
+JSON objects are converted into Backbone_ Models in the browser, and are
 rendered by corresponding Backbone_ Views.
 
 The second component is a library in Python (or |other languages|) that can
@@ -42,7 +42,7 @@ generate the JSON described above. In the Python Bokeh library, this is
 accomplished at the lowest level by exposing a set of "model" classes
 that exactly mirror the set of Backbone_ Models that are created in the
 browser. These python model classes know how to validate their content and
-attributes, and also how to serialize themselves correctly to JSON. All of
+attributes, and also how to serialize themselves to JSON. All of
 these low level models live in the |bokeh.models| interface. Most of the
 models are very simple, usually consisting of a few property attributes
 and no methods. Model attributes can either be configured when the model is
@@ -67,7 +67,7 @@ plots and Bokeh widgets are put together and configured. However, it provides
 no help with assembling the models in meaningful or correct ways. It is
 entirely up to developers to build the scenegraph "by hand". For this reason,
 most users will probably want to use one of the higher level interfaces
-described below unless they have specialized requirements that necessitate
+described below, unless they have specialized requirements that necessitate
 finer control. For more information about the details of all Bokeh models,
 consult the :ref:`refguide`.
 
@@ -78,8 +78,8 @@ Bokeh provides a "mid-level" general purpose |bokeh.plotting| interface, which
 is similar in specificity to Matplotlib_ or Matlab_ style plotting interfaces.
 It is centered around having users relate the visual glyphs they would like
 to have displayed to their data, and otherwise taking care of putting together
-plots with sensible default axes, grids, and tools. All of the hard work to
-assemble the appropriate Bokeh Models in the correct way to form a scenegraph
+plots with sensible default axes, grids, and tools. All the hard work to
+assemble the appropriate Bokeh Models to form a scenegraph
 that BokehJS can render is handled automatically.
 
 The main class in the |bokeh.plotting| interface is the |Figure| class. This
@@ -117,9 +117,9 @@ tools is done simply with the names of tools to add. Finally we use some output
 functions to display our plot.
 
 .. note::
-    The output functions |output_file| and |show|, etc. are actually
+    The output functions |output_file| and |show|, etc. are 
     defined in the |bokeh.io| module, but are also importable from
-    |bokeh.plotting| as a convenience.
+    |bokeh.plotting| for convenience.
 
 There are many other possibilities: saving our plot instead of showing it,
 styling or removing the axes or grids, adding additional renderers, and
