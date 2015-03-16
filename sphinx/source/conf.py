@@ -59,15 +59,14 @@ master_doc = 'index'
 project = u'Bokeh'
 copyright = u'2013, Continuum Analytics'
 
-# The version info for the project you're documenting, acts as replacement for
-# |version| and |release|, also used in various other places throughout the
-# built documents.
-#
-# Let's try to automatically get the version
+# Get the standard computed Bokeh version string to use for |version|
+# and |release|
 from bokeh import __version__
-from bokeh.settings import settings
 
-# if you need to redeploy the released docs, you only need the x.x.x version
+# Check for version override (e.g. when re-deploying a previously released
+# docs, or when pushing test docs that do not have a corresponding BokehJS
+# available on CDN)
+from bokeh.settings import settings
 if settings.released_docs():
     __version__ = __version__.split('-')[0]
 
