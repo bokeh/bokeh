@@ -26,7 +26,7 @@ different interface levels to the users:
 *bokeh.models*
 --------------
 
-Bokeh is composed of two library components.
+Bokeh is actually composed of two library components.
 
 The first component is a JavaScript library, BokehJS, that runs in the
 browser. This library is responsible for all of the rendering and
@@ -78,7 +78,7 @@ Bokeh provides a "mid-level" general purpose |bokeh.plotting| interface, which
 is similar in specificity to Matplotlib_ or Matlab_ style plotting interfaces.
 It is centered around having users relate the visual glyphs they would like
 to have displayed to their data, and otherwise taking care of putting together
-plots with sensible default axes, grids, and tools. All the work to
+plots with sensible default axes, grids, and tools. All the hard work to
 assemble the appropriate Bokeh Models to form a scenegraph
 that BokehJS can render is handled automatically.
 
