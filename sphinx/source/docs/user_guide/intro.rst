@@ -1,30 +1,89 @@
-.. _userguide_interfaces:
+.. _userguide_introduction:
 
-Interfaces
-==========
+Introduction
+============
 
 .. contents::
     :local:
     :depth: 2
 
+.. _userguide_glossary:
+
+Glossary
+--------
+
+In order to make the best use of this User Guide, it is important to have
+context for some high level concepts and terms. Here is a small glossary of
+some of the most important concepts in Bokeh.
+
+----
+
+BokehJS
+   The JavaScript client library that actually renders the visuals and
+   handles the UI interactions for Bokeh plots and widgets in the browser.
+   Typically, users will not have to think about this aspect of Bokeh
+   much *("We write the JavaScript, so you don't have to!")* but it is
+   good to have basic knowledge of this dichotomy. For full details, see
+   the :ref:`devguide_bokehjs` chapter of the :ref:`devguide`.
+
+charts
+   Schematic statistical plots such as bar charts, horizon plots, time
+   series, etc. that may include faceting, grouping, or stacking based on
+   the structure of the data. Bokeh provides a high level ``bokeh.charts``
+   interface to quickly construct these kinds of plots. See
+   :ref:`userguide_charts` for examples and usage.
+
+embedding
+   Various methods of including Bokeh plots and widgets into web apps and
+   pages, or the IPython notebook. See :ref:`userguide_embedding` for more
+   details.
+
+glyphs
+   The basic visual building blocks of Bokeh plots, e.g. lines, rectangles,
+   squares, wedges, patches, etc. The ``bokeh.plotting`` interface provides
+   a convenient way to create plots centered around glyphs. See
+   :ref:`userguide_plotting` for more information.
+
+models
+   The lowest-level objects that comprise Bokeh "scenegraphs". These live
+   in the ``bokeh.models`` interface. *Most users will not use this level
+   of interface to assemble plots directly.* However, ultimately all Bokeh
+   plots consist of collections of models, so it is important to understand
+   them enough to configure their attributes and properties. See
+   :ref:`userguide_objects` for more information.
+
+server
+   The ``bokeh-server`` is an optional component that can be used for sharing
+   and publishing Bokeh plots and apps, for handling streaming of large data
+   sets, or for enabling sophisticated user interactions based off of widgets
+   and selections. See :ref:`userguide_server` for more explanation.
+
+widgets
+   User interface elements outside of a Bokeh plot such as sliders, drop down
+   menues, buttons, etc. Events and updates from widgets can inform additional
+   computations, or cause Bokeh plots to update. See :ref:`userguide_widgets`
+   for examples and information.
+
+----
+
 .. _userguide_interfaces:
 
-This section provides an overview of the different interfaces that are
-available to Bokeh users, as well as some context about the most important
-concepts central to the library. If you'd like to jump right into plotting,
-go to :ref:`userguide_plotting` or :ref:`userguide_charts`.
+Interfaces
+----------
 
-Bokeh is a Python interactive visualization library that targets modern web
-browsers for presentation providing elegant, concise construction of novel
-graphics with high-performance interactivity over very large or streaming
-datasets in a quick and easy way.
-
-To offer both powerful and flexible features, enabling advanced
-customizations on one hand and simplicity on the other, Bokeh exposes
-different interface levels to the users:
+Bokeh is intended to be useful to data-scientists and domain experts, working
+at a very high level, as well as to application developers and software
+engineers, who may want more control or access to more sophisticated
+features. Because of this, Bokeh takes a layered approach and offers
+programming interfaces appropriate to different levels, as well as some
+compatibility interfaces to make use of existing code from other
+libraries. This section provides an overview of the different interfaces
+that are available to Bokeh users, as well as more context about the most
+important concepts central to the library. If you'd like to jump right
+into plotting, go to :ref:`userguide_plotting` or :ref:`userguide_charts`.
 
 *bokeh.models*
---------------
+~~~~~~~~~~~~~~
 
 Bokeh is actually composed of two library components.
 
@@ -43,11 +102,11 @@ accomplished at the lowest level by exposing a set of "model" classes
 that exactly mirror the set of Backbone_ Models that are created in the
 browser. These python model classes know how to validate their content and
 attributes, and also how to serialize themselves to JSON. All of
-these low level models live in the |bokeh.models| interface. Most of the
-models are very simple, usually consisting of a few property attributes
-and no methods. Model attributes can either be configured when the model is
-created, or later by setting attribute values on the model object. Here are
-some examples for a |Rect| glyph object:
+these low level models live in the **low-level** |bokeh.models| interface.
+Most of the models are very simple, usually consisting of a few property
+attributes and no methods. Model attributes can either be configured when
+the model is created, or later by setting attribute values on the model
+object. Here are some examples for a |Rect| glyph object:
 ::
 
     # properties can be configured when a model object is initialized
@@ -72,9 +131,9 @@ finer control. For more information about the details of all Bokeh models,
 consult the :ref:`refguide`.
 
 *bokeh.plotting*
-----------------
+~~~~~~~~~~~~~~~~
 
-Bokeh provides a "mid-level" general purpose |bokeh.plotting| interface, which
+Bokeh provides a **mid-level** general purpose |bokeh.plotting| interface, which
 is similar in specificity to Matplotlib_ or Matlab_ style plotting interfaces.
 It is centered around having users relate the visual glyphs they would like
 to have displayed to their data, and otherwise taking care of putting together
@@ -117,7 +176,7 @@ tools is done simply with the names of tools to add. Finally we use some output
 functions to display our plot.
 
 .. note::
-    The output functions |output_file| and |show|, etc. are 
+    The output functions |output_file| and |show|, etc. are
     defined in the |bokeh.io| module, but are also importable from
     |bokeh.plotting| for convenience.
 
@@ -129,9 +188,9 @@ cases of using the |bokeh.plotting| interface.
 
 
 *bokeh.charts*
---------------
+~~~~~~~~~~~~~~
 
-Bokeh also provides a very high-level |bokeh.charts| interface for quickly
+Bokeh also provides a very **high-level** |bokeh.charts| interface for quickly
 creating statistical charts. As with |bokeh.plotting|, the main purpose of
 the interface is to help simplify the creation of Bokeh object graphs by
 encapsulating patterns of assembling Bokeh models. The |bokeh.charts|
@@ -169,7 +228,7 @@ interfaces. As with |bokeh.plotting|, the output functions |output_file| and
 |bokeh.charts| as a convenience.
 
 other interfaces
-----------------
+~~~~~~~~~~~~~~~~
 
 Bokeh provides some level of Matplotlib_ compatibility, by using the
 third-party mplexporter_ library. Although it does not provide 100% coverage
