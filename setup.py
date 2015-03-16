@@ -450,6 +450,7 @@ setup(
     packages=[
         'bokeh',
         'bokeh.models',
+        'bokeh.models.tests',
         'bokeh.models.widgets',
         'bokeh.charts',
         'bokeh.charts.builder',
