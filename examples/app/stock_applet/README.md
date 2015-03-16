@@ -38,7 +38,7 @@ clicking on it, or by executing this command from the command line:
 This should leave a "quantquote_daily_sp500_83986" subdirectory in this directory.
 Move the 'daily' directory by executing this command from the command line:
 
-    mv 'quantquote_daily_sp500_83986/daily .'
+    mv quantquote_daily_sp500_83986/daily .
 
 Now you can safely remove the empty "quantquote_daily_sp500_83986" directory.
 
