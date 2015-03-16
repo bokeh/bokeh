@@ -1,3 +1,4 @@
+.. _tutorial:
 
 Bokeh Tutorial
 ==============

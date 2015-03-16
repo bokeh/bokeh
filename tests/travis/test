@@ -457,13 +457,6 @@ def test_example(example, flags):
 
     return False
 
-def test_nbexecuter():
-    if use_notebook and need_notebook:
-        import nbexecuter
-        example_nbconverted = join(example_dir, "glyphs", "glyph.ipynb")
-        nbexecuter.main(example_nbconverted)
-        write("glyph.ipynb nbconverted")
-
 def start_bokeh_server():
     cmd = ["python", "-c", "import bokeh.server; bokeh.server.run()"]
     argv = ["--bokeh-port=%s" % args.bokeh_port, "--backend=memory"]
@@ -638,8 +631,6 @@ try:
             run_examples += 1
 
         write()
-
-    test_nbexecuter()
 
     if args.upload:
         write("%s Uploading data to S3 to %s/%s ..." % (green(">>>"), s3_bucket, __version__))

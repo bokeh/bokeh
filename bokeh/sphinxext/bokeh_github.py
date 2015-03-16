@@ -27,6 +27,8 @@ in :bokeh-pull:`1698`,which closed :bokeh-issue:`1694` as part of
 :bokeh-milestone:`0.8`.
 
 """
+from __future__ import absolute_import
+
 from docutils import nodes, utils
 from docutils.parsers.rst.roles import set_classes
 
@@ -116,11 +118,11 @@ def make_gh_link_node(app, rawtext, role, kind, api_type, id, options={}):
 
     """
     url = "%s/%s/%s" % (BOKEH_GH, api_type, id)
-    request = urllib.request.Request(url)
-    request.get_method = lambda : 'HEAD'
     try:
+        request = urllib.request.Request(url)
+        request.get_method = lambda : 'HEAD'
         response = urllib.request.urlopen(request, timeout=5)
-    except urllib.error.HTTPError:
+    except (urllib.error.HTTPError, urllib.error.URLError):
         app.warn("URL '%s' for :bokeh-%s: role could not be loaded" % (url, role))
     else:
         if response.getcode() >= 400:

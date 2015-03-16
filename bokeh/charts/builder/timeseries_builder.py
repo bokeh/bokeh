@@ -15,6 +15,7 @@ passing the arguments to the Chart class and calling the proper functions.
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
+from __future__ import absolute_import
 
 from six import string_types
 
@@ -62,20 +63,22 @@ def TimeSeries(values, index=None, xscale='datetime', **kws):
 
         from collections import OrderedDict
         import datetime
-        from bokeh.charts import TimeSeries
-        from bokeh.plotting import output_file, show
+        from bokeh.charts import TimeSeries, output_file, show
 
         # (dict, OrderedDict, lists, arrays and DataFrames are valid inputs)
         now = datetime.datetime.now()
         delta = datetime.timedelta(minutes=1)
         dts = [now + delta*i for i in range(5)]
+
         xyvalues = OrderedDict({'Date': dts})
         y_python = xyvalues['python'] = [2, 3, 7, 5, 26]
         y_pypy = xyvalues['pypy'] = [12, 33, 47, 15, 126]
         y_jython = xyvalues['jython'] = [22, 43, 10, 25, 26]
-        output_file('timeseries.html')
+
         ts = TimeSeries(xyvalues, index='Date', title="TimeSeries", legend="top_left",
                 ylabel='Languages')
+
+        output_file('timeseries.html')
         show(ts)
 
     """
@@ -120,8 +123,9 @@ class TimeSeriesBuilder(Builder):
 
         # list to save all the attributes we are going to create
         self._attr = []
-        xs = self._values_index
-        for col in self._values.keys():
+        # necessary to make all formats and encoder happy with array, blaze, ...
+        xs = list([x for x in self._values_index])
+        for col, values in self._values.items():
             if isinstance(self.index, string_types) \
                 and col == self.index:
                 continue
@@ -129,7 +133,7 @@ class TimeSeriesBuilder(Builder):
             # save every the groups available in the incomming input
             self._groups.append(col)
             self.set_and_get("x_", col, xs)
-            self.set_and_get("y_", col, self._values[col])
+            self.set_and_get("y_", col, values)
 
     def _set_sources(self):
         """Push the TimeSeries data into the ColumnDataSource and

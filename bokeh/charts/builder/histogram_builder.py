@@ -15,6 +15,8 @@ the arguments to the Chart class and calling the proper functions.
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
+from __future__ import absolute_import
+
 try:
     import scipy.special
     _is_scipy = True
@@ -64,13 +66,14 @@ def Histogram(values, bins, mu=None, sigma=None, density=True, **kws):
         :source-position: above
 
         import pandas as pd
-        from bokeh.charts import Histogram
-        from bokeh.plotting import output_file, show
+        from bokeh.charts import Histogram, output_file, show
 
         # (dict, OrderedDict, lists, arrays and DataFrames are valid inputs)
-        output_file('histogram.html')
         xyvalues = pd.DataFrame(dict(normal=[1, 2, 3, 1], lognormal=[5, 4, 4, 1]))
+
         hm = Histogram(xyvalues, bins=5, title='Histogram')
+
+        output_file('histogram.html')
         show(hm)
 
     """
@@ -127,11 +130,11 @@ class HistogramBuilder(Builder):
         self._groups.extend(self._values.keys())
 
         # fill the data dictionary with the proper values
-        for i, val in enumerate(self._values.keys()):
-            self.set_and_get("", val, self._values[val])
+        for i, (val, values) in enumerate(self._values.items()):
+            self.set_and_get("", val, values)
             #build the histogram using the set bins number
             hist, edges = np.histogram(
-                np.array(self._data[val]), density=self.density, bins=self.bins
+                np.array(values), density=self.density, bins=self.bins
             )
             self.set_and_get("hist", val, hist)
             self.set_and_get("edges", val, edges)

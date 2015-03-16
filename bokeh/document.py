@@ -15,7 +15,7 @@ from .exceptions import DataIntegrityException
 from .models import PlotContext
 from .plot_object import PlotObject
 from .plotting_helpers import _new_xy_plot
-from .utils import dump
+from .util.serialization import dump
 
 class Document(object):
     """ The Document class is a container to hold Bokeh objects that

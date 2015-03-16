@@ -16,6 +16,8 @@ types on top of it.
 # Imports
 #-----------------------------------------------------------------------------
 
+from __future__ import absolute_import
+
 from ._chart import Chart
 from ._data_adapter import DataAdapter
 from ..models.ranges import Range
@@ -193,8 +195,8 @@ class Builder(HasProps):
             val (string): name of the new attribute
             content (obj): content of the new attribute
         """
-        data[prefix + val] = content
-        attr.append(prefix + val)
+        data["%s%s" % (prefix, val)] = content
+        attr.append("%s%s" % (prefix, val))
 
     def set_and_get(self, prefix, val, content):
         """Set a new attr and then get it to fill the self._data dict.
@@ -207,5 +209,3 @@ class Builder(HasProps):
             content (obj): content of the new attribute
         """
         self._set_and_get(self._data, prefix, self._attr, val, content)
-
-

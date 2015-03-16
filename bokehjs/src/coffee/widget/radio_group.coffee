@@ -1,10 +1,11 @@
 define [
+  "jquery"
   "underscore"
   "common/collection"
   "common/continuum_view"
   "common/has_parent"
   "common/logging"
-], (_, Collection, ContinuumView, HasParent, Logging) ->
+], ($, _, Collection, ContinuumView, HasParent, Logging) ->
 
   logger = Logging.logger
 

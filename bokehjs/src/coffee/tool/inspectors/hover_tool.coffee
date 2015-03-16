@@ -1,10 +1,11 @@
 define [
+  "jquery"
   "underscore"
   "common/collection"
   "renderer/annotation/tooltip"
   "./inspect_tool"
   "util/util"
-], (_, Collection, Tooltip, InspectTool, Util) ->
+], ($, _, Collection, Tooltip, InspectTool, Util) ->
 
   _color_to_hex = (color) ->
     if (color.substr(0, 1) == '#')

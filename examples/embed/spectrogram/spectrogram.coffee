@@ -26,7 +26,7 @@ class SpectrogramApp
     @gain_slider = find(@layout, "gain")
     @gain_slider.on("change:value", @update_gain)
 
-    config = $.ajax('http://localhost:5000/params', {
+    config = Bokeh.$.ajax('http://localhost:5000/params', {
       type: 'GET'
       dataType: 'json'
       cache: false
@@ -56,7 +56,7 @@ class SpectrogramApp
       if in_flight
         return
       in_flight = true
-      $.ajax('/data',
+      Bokeh.$.ajax('/data',
         type: 'GET'
         dataType: 'json'
         cache: false

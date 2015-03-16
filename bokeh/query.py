@@ -28,6 +28,8 @@ Examples::
 
 '''
 
+from __future__ import absolute_import
+
 from six import string_types
 
 class OR(object): pass
@@ -164,4 +166,3 @@ _operators = {
    LEQ: lambda x, y: x <= y,
    NEQ: lambda x, y: x != y,
 }
-

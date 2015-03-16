@@ -15,6 +15,8 @@ passing the arguments to the Chart class and calling the proper functions.
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
+from __future__ import absolute_import
+
 import numpy as np
 try:
     import pandas as pd
@@ -51,16 +53,17 @@ def Dot(values, cat=None, stem=True, xscale="categorical", yscale="linear",
         :source-position: above
 
         from collections import OrderedDict
-        from bokeh.charts import Dot
-        from bokeh.plotting import output_file, show
+        from bokeh.charts import Dot, output_file, show
 
         # dict, OrderedDict, lists, arrays and DataFrames are valid inputs
         xyvalues = OrderedDict()
         xyvalues['python']=[2, 5]
         xyvalues['pypy']=[12, 40]
         xyvalues['jython']=[22, 30]
-        output_file('dot.html')
+
         dot = Dot(xyvalues, ['cpu1', 'cpu2'], title='dots')
+
+        output_file('dot.html')
         show(dot)
 
     """
@@ -111,8 +114,7 @@ class DotBuilder(Builder):
         self._groups.extend(self._values.keys())
         step = np.linspace(0, 1.0, len(self._values.keys()) + 1, endpoint=False)
 
-        for i, val in enumerate(self._values.keys()):
-            values = self._values[val]
+        for i, (val, values) in enumerate(self._values.items()):
             # original y value
             self.set_and_get("", val, values)
             # x value

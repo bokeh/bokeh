@@ -1,13 +1,13 @@
 define [
+  "jquery"
   "underscore"
   "backbone"
   "common/logging"
   "./remote_data_source"
-], (_, Backbone, Logging, RemoteDataSource) ->
+], ($, _, Backbone, Logging, RemoteDataSource) ->
 
   logger = Logging.logger
 
-  #maybe generalize to ajax data source later?
   class BlazeDataSource extends RemoteDataSource.RemoteDataSource
     type: 'BlazeDataSource'
     destroy : () =>

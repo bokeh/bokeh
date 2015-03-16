@@ -15,7 +15,7 @@ the arguments to the Chart class and calling the proper functions.
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-from __future__ import print_function
+from __future__ import absolute_import, print_function
 
 from six import string_types
 
@@ -61,8 +61,7 @@ def Area(values, index=None, **kws):
         .. bokeh-plot::
             :source-position: above
 
-            from bokeh.charts import Area
-            from bokeh.plotting import output_file, show
+            from bokeh.charts import Area, output_file, show
 
             # (dict, OrderedDict, lists, arrays and DataFrames are valid inputs)
             xyvalues = dict(
@@ -71,12 +70,12 @@ def Area(values, index=None, **kws):
                 jython=[22, 43, 10, 25, 26, 101, 114, 203, 194, 215, 201, 227, 139],
             )
 
-            # create an area chart
-            output_file('area.html')
             area = Area(
                 xyvalues, title="Area Chart", xlabel='time', legend=True,
                 ylabel='memory', stacked=True,
             )
+
+            output_file('area.html')
             show(area)
     """
     return create_and_build(AreaBuilder, values, index=index, **kws)
@@ -126,14 +125,13 @@ class AreaBuilder(Builder):
         x2 = np.hstack((xs[::-1], xs))
         self.set_and_get("x", "", x2)
 
-        for grp in self._values.keys():
+        for grp, col_values in self._values.items():
             # TODO: This condition may be removed or changed depending on
             # the validation of self.index
             if isinstance(self.index, string_types) and grp == self.index:
                 continue
 
             # get single series values
-            col_values = self._values[grp]
             _values = [col_values[x] for indx, x in enumerate(xs)]
 
             # to draw area we need 2 coordinates. The lower values will always
@@ -149,7 +147,7 @@ class AreaBuilder(Builder):
 
             # save values and new group
             self.set_and_get("y_", grp, values)
-            self._groups.append(grp)
+            self._groups.append(u"%s" % grp)
 
     def _set_sources(self):
         """

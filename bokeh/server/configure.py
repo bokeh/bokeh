@@ -1,20 +1,18 @@
+from __future__ import absolute_import
+
 import logging
 from os.path import dirname
 import imp
 import sys
-import warnings
 
 from six.moves.queue import Queue
-from tornado import ioloop
 from tornado.web import Application, FallbackHandler
 from tornado.wsgi import WSGIContainer
 
 from .settings import settings as server_settings
-from ..settings import settings as bokeh_settings
 from . import websocket
 ##bokeh_app is badly named - it's really a blueprint
 from .app import bokeh_app, app
-from .models import user
 from .models import convenience as mconv
 from .models import docs
 from .zmqpub import Publisher
@@ -88,7 +86,7 @@ registered = False
 def register_blueprint():
     global registered
     if registered:
-        warnings.warn(
+        logging.warn(
             "register_blueprint has already been called, why is it being called again"
         )
         return

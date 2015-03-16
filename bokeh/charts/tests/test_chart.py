@@ -13,6 +13,8 @@
 # Imports
 #-----------------------------------------------------------------------------
 
+from __future__ import absolute_import
+
 import unittest
 from mock import patch
 
@@ -180,4 +182,3 @@ class TestChart(unittest.TestCase):
 
         self.compare_tools(chart.tools, expected_tools)
         mock_warn.assert_any_call(msg_repeat)
-

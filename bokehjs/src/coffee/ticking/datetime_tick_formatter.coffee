@@ -5,17 +5,17 @@ define [
   "timezone"
   "common/has_properties"
   "common/logging"
-], (_, Collection, sprintf, tz, HasProperties, Logging) ->
+], (_, Collection, SPrintf, tz, HasProperties, Logging) ->
 
   logger = Logging.logger
 
   _us = (t) ->
-    return sprintf("%3dus", Math.floor((t % 1) * 1000))
+    return SPrintf.sprintf("%3dus", Math.floor((t % 1) * 1000))
 
   _ms_dot_us = (t) ->
     ms = Math.floor(((t / 1000) % 1) * 1000)
     us = Math.floor((t % 1) * 1000)
-    return sprintf("%3d.%3dms", ms, us)
+    return SPrintf.sprintf("%3d.%3dms", ms, us)
 
   _two_digit_year = (t) ->
     # Round to the nearest Jan 1, roughly.
@@ -23,7 +23,7 @@ define [
     year = dt.getFullYear()
     if dt.getMonth() >= 7
         year += 1
-    return sprintf("'%02d", (year % 100))
+    return SPrintf.sprintf("'%02d", (year % 100))
 
   _four_digit_year = (t) ->
     # Round to the nearest Jan 1, roughly.
@@ -31,7 +31,7 @@ define [
     year = dt.getFullYear()
     if dt.getMonth() >= 7
         year += 1
-    return sprintf("%d", year)
+    return SPrintf.sprintf("%d", year)
 
   _array = (t) ->
     return tz(t, "%Y %m %d %H %M %S").split(/\s+/).map( (e) -> return parseInt(e, 10) );

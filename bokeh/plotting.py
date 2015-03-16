@@ -1,43 +1,40 @@
-from __future__ import print_function
+from __future__ import absolute_import, print_function
 
 import logging
 logger = logging.getLogger(__name__)
 
-import io
 import itertools
-import os
-import re
-import time
-import warnings
 
-from six import string_types
-
-from . import browserlib
 from . import _glyph_functions as gf
-from .document import Document
-from .embed import notebook_div, file_html, autoload_server
-from .models import (
-    Axis, FactorRange, Grid, GridPlot, HBox, Legend, LogAxis, Plot, Tool, VBox, Widget
-)
+from .deprecate import deprecated
+from .models import Axis, Grid, GridPlot, Legend, LogAxis, Plot
 from .plotting_helpers import (
     get_default_color, get_default_alpha, _handle_1d_data_args, _list_attr_splat,
-    _get_range, _get_axis_class, _get_num_minor_ticks, _tool_from_string,
-    _process_tools_arg
+    _get_range, _get_axis_class, _get_num_minor_ticks, _process_tools_arg
 )
-from .resources import Resources
-from .session import DEFAULT_SERVER_URL, Session
-from .utils import decode_utf8, publish_display_data
 
 # extra imports -- just things to add to 'from plotting import *'
-from bokeh.models import ColumnDataSource
+from .document import Document
+from .models import ColumnDataSource
+from .session import Session
+from .io import (
+    curdoc, cursession, output_file, output_notebook, output_server, push,
+    reset_output, save, show, gridplot, hplot, vplot)
 
-_default_document = Document()
+@deprecated("Bokeh 0.8.2", "bokeh.plotting.vplot function")
+def VBox(*args, **kwargs):
+    ''' Generate a layout that arranges several subplots vertically.
+    '''
 
-_default_session = None
+    return vplot(*args, **kwargs)
 
-_default_file = None
+@deprecated("Bokeh 0.8.2", "bokeh.plotting.hplot function")
+def HBox(*args, **kwargs):
+    ''' Generate a layout that arranges several subplots horizontally.
+    '''
 
-_default_notebook = None
+    return hplot(*args, **kwargs)
+
 
 DEFAULT_TOOLS = "pan,wheel_zoom,box_zoom,save,resize,reset"
 
@@ -260,51 +257,6 @@ class Figure(Plot):
 
         return getattr(self, markertype)(*args, **kwargs)
 
-def curdoc():
-    ''' Return the current document.
-
-    Returns:
-        doc : the current default document object.
-    '''
-    try:
-        """This is used when we need to call the plotting API from within
-        the server, within a request context.  (Applets do this for example)
-        in this case you still want the API to work but you don't want
-        to use the global module level document
-        """
-        from flask import request
-        doc = request.bokeh_server_document
-        logger.debug("returning config from flask request")
-        return doc
-    except (ImportError, RuntimeError, AttributeError):
-        return _default_document
-
-def cursession():
-    ''' Return the current session, if there is one.
-
-    Returns:
-        session : the current default session object (or None)
-    '''
-    return _default_session
-
-def reset_output():
-    ''' Deactivate all currently active output modes.
-
-    Subsequent calls to show() will not render until a new output mode is
-    activated.
-
-    Returns:
-        None
-
-    '''
-    global _default_document
-    global _default_session
-    global _default_file
-    global _default_notebook
-    _default_document = Document()
-    _default_session = None
-    _default_file = None
-    _default_notebook = None
 
 def figure(**kwargs):
     ''' Activate a new figure for plotting.
@@ -332,223 +284,6 @@ def figure(**kwargs):
         curdoc().add(fig)
     return fig
 
-def output_server(docname, session=None, url="default", name=None, clear=True):
-    """ Cause plotting commands to automatically persist plots to a Bokeh server.
-
-    Can use explicitly provided Session for persistence, or the default
-    session.
-
-    Args:
-        docname (str) : name of document to push on Bokeh server
-            An existing documents with the same name will be overwritten.
-        session (Session, optional) : An explicit session to use (default: None)
-            If session is None, use the default session
-        url (str, optianal) : URL of the Bokeh server  (default: "default")
-            if url is "default" use session.DEFAULT_SERVER_URL
-        name (str, optional) :
-            if name is None, use the server URL as the name
-        clear (bool, optional) :
-            should an existing server document be cleared of any existing
-            plots. (default: True)
-
-    Additional keyword arguments like **username**, **userapikey**,
-    and **base_url** can also be supplied.
-
-    Returns:
-        None
-
-    .. note:: Generally, this should be called at the beginning of an
-              interactive session or the top of a script.
-
-    .. note:: By default, calling this function will replaces any existing
-              default Server session.
-
-    """
-    global _default_session
-    if url == "default":
-        url = DEFAULT_SERVER_URL
-    if name is None:
-        name = url
-    if not session:
-        if not _default_session:
-            _default_session = Session(name=name, root_url=url)
-        session = _default_session
-    else:
-        _default_session = session
-    session.use_doc(docname)
-    session.load_document(curdoc())
-    if clear:
-        curdoc().clear()
-
-def output_notebook(url=None, docname=None, session=None, name=None):
-    if session or url or name:
-        if docname is None:
-            docname = "IPython Session at %s" % time.ctime()
-        output_server(docname, url=url, session=session, name=name)
-    global _default_notebook
-    _default_notebook = True
-
-def output_file(filename, title="Bokeh Plot", autosave=False, mode="inline", root_dir=None):
-    """ Outputs to a static HTML file.
-
-    .. note:: This file will be overwritten each time show() or save() is invoked.
-
-    Args:
-        autosave (bool, optional) : whether to automatically save (default: False)
-            If **autosave** is True, then every time plot() or one of the other
-            visual functions is called, this causes the file to be saved. If it
-            is False, then the file is only saved upon calling show().
-
-        mode (str, optional) : how to inlude BokehJS (default: "inline")
-            **mode** can be 'inline', 'cdn', 'relative(-dev)' or 'absolute(-dev)'.
-            In the 'relative(-dev)' case, **root_dir** can be specified to indicate the
-            base directory from which the path to the various static files should be
-            computed.
-
-    .. note:: Generally, this should be called at the beginning of an
-              interactive session or the top of a script.
-
-    """
-    global _default_file
-    _default_file = {
-        'filename'  : filename,
-        'resources' : Resources(mode=mode, root_dir=root_dir),
-        'autosave'  : autosave,
-        'title'     : title,
-    }
-
-    if os.path.isfile(filename):
-        print("Session output file '%s' already exists, will be overwritten." % filename)
-
-
-def show(obj, browser=None, new="tab", url=None):
-    """ Immediately display a plot object.
-
-    In an IPython/Jupyter notebook, the output is displayed in an output cell.
-    Otherwise, a browser window or tab is autoraised to display the plot object.
-
-    Args:
-        obj (Widget/Plot object): a plot object to display
-
-        browser (str, optional) : browser to show with (default: None)
-            For systems that support it, the **browser** argument allows specifying
-            which browser to display in, e.g. "safari", "firefox", "opera",
-            "windows-default" (see the webbrowser module documentation in the
-            standard lib for more details).
-
-        new (str, optional) : new file output mode (default: "tab")
-            For file-based output, opens or raises the browser window
-            showing the current output file.  If **new** is 'tab', then
-            opens a new tab. If **new** is 'window', then opens a new window.
-    """
-    filename = _default_file['filename'] if _default_file else None
-    session = cursession()
-    notebook = _default_notebook
-
-    # Map our string argument to the webbrowser.open argument
-    new_param = {'tab': 2, 'window': 1}[new]
-
-    controller = browserlib.get_browser_controller(browser=browser)
-
-    if notebook and session:
-        push(session=session)
-        snippet = autoload_server(obj, cursession())
-        publish_display_data({'text/html': snippet})
-
-    elif notebook:
-        publish_display_data({'text/html': notebook_div(obj)})
-
-    elif session:
-        push()
-        if url:
-            controller.open(url, new=new_param)
-        else:
-            controller.open(session.object_link(curdoc().context))
-
-    elif filename:
-        save(obj, filename=filename)
-        controller.open("file://" + os.path.abspath(filename), new=new_param)
-
-
-def save(obj, filename=None, resources=None, title=None):
-    """ Updates the file with the data for the current document.
-
-    If a filename is supplied, or output_file(...) has been called, this will
-    save the plot to the given filename.
-
-    Args:
-        obj (Document or Widget/Plot object)
-        filename (str, optional) : filename to save document under
-            if `filename` is None, the current output_file(...) filename is used if present
-        resources (Resources, optional) : BokehJS resource config to use
-            if `resources` is None, the current default resource config is used, failing that resources.INLINE is used
-
-
-        title (str, optional) : title of the bokeh plot (default: None)
-        	if 'title' is None, the current default title config is used, failing that 'Bokeh Plot' is used
-
-    Returns:
-        None
-
-    """
-    if filename is None and _default_file:
-        filename = _default_file['filename']
-
-    if resources is None and _default_file:
-        resources = _default_file['resources']
-
-    if title is None and _default_file:
-        title = _default_file['title']
-
-    if not filename:
-        warnings.warn("save() called but no filename was supplied and output_file(...) was never called, nothing saved")
-        return
-
-    if not resources:
-        warnings.warn("save() called but no resources was supplied and output_file(...) was never called, defaulting to resources.INLINE")
-        from .resources import INLINE
-        resources = INLINE
-
-
-    if not title:
-        warnings.warn("save() called but no title was supplied and output_file(...) was never called, using default title 'Bokeh Plot'")
-        title = "Bokeh Plot"
-
-    if isinstance(obj, Widget):
-        doc = Document()
-        doc.add(obj)
-    elif isinstance(obj, Document):
-        doc = obj
-    else:
-        raise RuntimeError("Unable to save object of type '%s'" % type(obj))
-
-    html = file_html(doc, resources, title)
-    with io.open(filename, "w", encoding="utf-8") as f:
-        f.write(decode_utf8(html))
-
-def push(session=None, document=None):
-    """ Updates the server with the data for the current document.
-
-    Args:
-        session (Sesion, optional) : filename to save document under (default: None)
-            if `sessiokn` is None, the current output_server(...) session is used if present
-        document (Document, optional) : BokehJS document to push
-            if `document` is None, the current default document is pushed
-
-    Returns:
-        None
-
-    """
-    if not session:
-        session = cursession()
-
-    if not document:
-        document = curdoc()
-
-    if session:
-        return session.store_document(curdoc())
-    else:
-        warnings.warn("push() called but no session was supplied and output_server(...) was never called, nothing pushed")
 
 _marker_types = [
     "asterisk",
@@ -577,42 +312,7 @@ def markers():
     Returns:
         None
     """
-    print(list(sorted(_marker_types.keys())))
+    print("Available markers: \n - " + "\n - ".join(_marker_types))
 
 _color_fields = set(["color", "fill_color", "line_color"])
 _alpha_fields = set(["alpha", "fill_alpha", "line_alpha"])
-
-def _deduplicate_plots(plot, subplots):
-    doc = curdoc()
-    doc.context.children = list(set(doc.context.children) - set(subplots))
-    doc.add(plot)
-    doc._current_plot = plot # TODO (bev) don't use private attrs
-
-def _push_or_save(obj):
-    if cursession() and curdoc().autostore:
-        push()
-    if _default_file and _default_file['autosave']:
-        save(obj)
-
-def gridplot(plot_arrangement, **kwargs):
-    """ Generate a plot that arranges several subplots into a grid.
-
-    Args:
-        plot_arrangement (nested list of Plots) : plots to arrange in a grid
-        **kwargs: additional attributes to pass in to GridPlot() constructor
-
-    .. note:: `plot_arrangement` can be nested, e.g [[p1, p2], [p3, p4]]
-
-    Returns:
-        grid_plot: a new :class:`GridPlot <bokeh.models.plots.GridPlot>`
-    """
-    grid = GridPlot(children=plot_arrangement, **kwargs)
-    subplots = itertools.chain.from_iterable(plot_arrangement)
-    _deduplicate_plots(grid, subplots)
-    _push_or_save(grid)
-    return grid
-
-def load_object(obj):
-    """updates object from the server
-    """
-    cursession().load_object(obj, curdoc())

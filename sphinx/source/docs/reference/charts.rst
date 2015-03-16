@@ -1,5 +1,5 @@
 
-.. _bokeh_dot_charts:
+.. _bokeh.charts:
 
 ``bokeh.charts`` Interface
 ##########################
@@ -11,18 +11,20 @@
 Chart Functions
 ===============
 
-.. autofunction:: bokeh.charts.Area
-.. autofunction:: bokeh.charts.Bar
-.. autofunction:: bokeh.charts.BoxPlot
-.. autofunction:: bokeh.charts.Donut
-.. autofunction:: bokeh.charts.Dot
-.. autofunction:: bokeh.charts.HeatMap
-.. autofunction:: bokeh.charts.Histogram
-.. autofunction:: bokeh.charts.Horizon
-.. autofunction:: bokeh.charts.Line
-.. autofunction:: bokeh.charts.Scatter
-.. autofunction:: bokeh.charts.Step
-.. autofunction:: bokeh.charts.TimeSeries
+.. automodule:: bokeh.charts
+
+    .. autofunction:: Area
+    .. autofunction:: Bar
+    .. autofunction:: BoxPlot
+    .. autofunction:: Donut
+    .. autofunction:: Dot
+    .. autofunction:: HeatMap
+    .. autofunction:: Histogram
+    .. autofunction:: Horizon
+    .. autofunction:: Line
+    .. autofunction:: Scatter
+    .. autofunction:: Step
+    .. autofunction:: TimeSeries
 
 Helper Classes
 ==============

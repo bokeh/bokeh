@@ -12,7 +12,7 @@ useful for charts ecosystem.
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-from __future__ import division, print_function
+from __future__ import absolute_import, division, print_function
 
 from collections import OrderedDict
 import itertools
@@ -27,7 +27,7 @@ from ..models.glyphs import (
     InvertedTriangle, Square, SquareCross, SquareX, Triangle, X)
 from ..resources import INLINE
 from ..session import Session
-from ..utils import publish_display_data
+from ..util.notebook import publish_display_data
 
 #-----------------------------------------------------------------------------
 # Classes and functions

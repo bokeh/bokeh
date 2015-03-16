@@ -2,7 +2,7 @@ define [
   "underscore"
   "sprintf"
   "numeral"
-], (_, sprintf, Numeral) ->
+], (_, SPrintf, Numeral) ->
 
   _format_number = (number) ->
     if _.isNumber(number)
@@ -14,7 +14,7 @@ define [
         else
           "%0.3e"
 
-      return sprintf(format, number)
+      return SPrintf.sprintf(format, number)
     else
       return "#{number}" # get strings for categorical types
 

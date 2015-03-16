@@ -43,11 +43,12 @@ except ImportError as e:
 # project
 #--------
 from . import browserlib
+from . import protocol
 from .embed import autoload_server
 from .exceptions import DataIntegrityException
 from .models import ServerDataSource
-from . import protocol
-from . import utils
+from .util.notebook import publish_display_data
+from .util.serialization import dump, get_json, urljoin
 
 DEFAULT_SERVER_URL = "http://localhost:5006/"
 
@@ -206,7 +207,7 @@ class Session(object):
         })
         if result.status_code != 200:
             raise RuntimeError("Unknown Error")
-        result = utils.get_json(result)
+        result = get_json(result)
         if result['status']:
             self.username = username
             self.userapikey = result['userapikey']
@@ -236,7 +237,7 @@ class Session(object):
         })
         if result.status_code != 200:
             raise RuntimeError("Unknown Error")
-        result = utils.get_json(result)
+        result = get_json(result)
         if result['status']:
             self.username = username
             self.userapikey = result['userapikey']
@@ -288,7 +289,7 @@ class Session(object):
         raise NotImplementedError
 
     def publish(self):
-        url = utils.urljoin(self.root_url, "/bokeh/%s/publish" % self.docid)
+        url = urljoin(self.root_url, "/bokeh/%s/publish" % self.docid)
         self.post_json(url)
 
     def execute(self, method, url, headers=None, **kwargs):
@@ -332,7 +333,7 @@ class Session(object):
             headers = {}
         headers['content-type'] = 'application/json'
         resp = self.execute(method, url, headers=headers, **kwargs)
-        return utils.get_json(resp)
+        return get_json(resp)
 
     def get_json(self, url, headers=None, **kwargs):
         """ Return the result of an HTTP 'get'.
@@ -489,14 +490,14 @@ class Session(object):
 
         """
         if typename is None and objid is None:
-            url = utils.urljoin(self.base_url, self.docid +"/")
+            url = urljoin(self.base_url, self.docid +"/")
             attrs = self.get_json(url)
 
         elif typename is None or objid is None:
             raise ValueError("typename and objid must both be None, or neither.")
 
         else:
-            url = utils.urljoin(
+            url = urljoin(
                 self.base_url,
                 self.docid + "/" + typename + "/" + objid + "/"
             )
@@ -521,11 +522,11 @@ class Session(object):
 
         """
         data = protocol.serialize_json(jsonobjs)
-        url = utils.urljoin(self.base_url, self.docid + "/", "bulkupsert")
+        url = urljoin(self.base_url, self.docid + "/", "bulkupsert")
         self.post_json(url, data=data)
 
     def gc(self):
-        url = utils.urljoin(self.base_url, self.docid + "/", "gc")
+        url = urljoin(self.base_url, self.docid + "/", "gc")
         self.post_json(url)
 
     # convenience functions to use a session and store/fetch from server
@@ -611,7 +612,7 @@ class Session(object):
         if kwargs.pop('dirty_only', True):
             models = list(models)
 
-        json_objs = utils.dump(models, self.docid)
+        json_objs = dump(models, self.docid)
         self.push(*json_objs)
 
         for model in models:
@@ -630,7 +631,7 @@ class Session(object):
 
         """
         link = "bokeh/doc/%s/%s" % (self.docid, obj._id)
-        return utils.urljoin(self.root_url, link)
+        return urljoin(self.root_url, link)
 
     def show(self, obj):
         """ Display an object as HTML in IPython using its display protocol.
@@ -643,7 +644,7 @@ class Session(object):
 
         """
         data = {'text/html': autoload_server(obj, self)}
-        utils.publish_display_data(data)
+        publish_display_data(data)
 
     def poll_document(self, document, interval=0.5):
         """ Periodically ask the server for updates to the `document`. """

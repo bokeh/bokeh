@@ -12,6 +12,7 @@
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
+from __future__ import absolute_import
 
 from collections import OrderedDict
 import unittest
@@ -96,4 +97,3 @@ class TestHistogram(unittest.TestCase):
             self.assertEqual(calls[1][1]['bins'], bins)
             self.assertEqual(calls[0][1]['density'], dens)
             self.assertEqual(calls[1][1]['density'], dens)
-

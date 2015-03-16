@@ -16,7 +16,7 @@ It also add a new chained stacked method.
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-from __future__ import print_function, division
+from __future__ import absolute_import, print_function, division
 
 try:
     import numpy as np
@@ -62,18 +62,20 @@ def Bar(values, cat=None, stacked=False, xscale="categorical", yscale="linear",
             :source-position: above
 
             from collections import OrderedDict
-            from bokeh.charts import Bar
-            from bokeh.plotting import output_file, show
+            from bokeh.charts import Bar, output_file, show
 
             # (dict, OrderedDict, lists, arrays and DataFrames are valid inputs)
             xyvalues = OrderedDict()
             xyvalues['python']=[-2, 5]
             xyvalues['pypy']=[12, 40]
             xyvalues['jython']=[22, 30]
+
             cat = ['1st', '2nd']
-            output_file("stacked_bar.html")
+
             bar = Bar(xyvalues, cat, title="Stacked bars",
                     xlabel="category", ylabel="language")
+
+            output_file("stacked_bar.html")
             show(bar)
 
     """
@@ -149,16 +151,16 @@ class BarBuilder(Builder):
         step = np.linspace(0, 1.0, len(self._values.keys()) + 1, endpoint=False)
         self._groups.extend(self._values.keys())
 
-        for i, val in enumerate(self._values.keys()):
-            self.set_and_get("", val, self._values[val])
-            mid = np.array(self._values[val]) / 2
+        for i, (val, values) in enumerate(self._values.items()):
+            self.set_and_get("", val, list(values))
+            mid = np.array(values) / 2
             self.set_and_get("mid", val, mid)
             self.set_and_get("stacked", val, zero + mid)
             # Grouped
             grouped = [c + ":" + str(step[i + 1]) for c in self.cat]
             self.set_and_get("cat", val, grouped)
             # Stacked
-            zero += self._values[val]
+            zero += values
 
     def _set_sources(self):
         """Push the Bar data into the ColumnDataSource and calculate

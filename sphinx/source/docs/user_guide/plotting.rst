@@ -1,7 +1,7 @@
 .. _userguide_plotting:
 
-Basic Plotting
-==============
+Basic Plotting with Glyphs
+==========================
 
 .. contents::
     :local:
@@ -115,7 +115,7 @@ Composition
 Bokeh plots are composed of "glyphs", which are semi-primitive visual markers.
 Each glyph has specified parameters for placement and styling. You can refer
 to :ref:`bokeh.models.glyphs` and :ref:`bokeh.models.markers` to see all the
-glyphs that are currently supported, and to :ref:`bokeh_plotting_plots`
+glyphs that are currently supported, and to :ref:`bokeh.plotting`
 to see how they are configured for the ``plotting.py`` interface.
 
 .. note::

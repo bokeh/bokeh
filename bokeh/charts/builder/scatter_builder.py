@@ -16,6 +16,7 @@ functions.
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
+from __future__ import absolute_import
 
 import numpy as np
 
@@ -57,16 +58,17 @@ def Scatter(values, **kws):
         :source-position: above
 
         from collections import OrderedDict
-        from bokeh.charts import Scatter
-        from bokeh.plotting import output_file, show
+        from bokeh.charts import Scatter, output_file, show
 
         # (dict, OrderedDict, lists, arrays and DataFrames of (x, y) tuples are valid inputs)
         xyvalues = OrderedDict()
         xyvalues['python'] = [(1, 2), (3, 3), (4, 7), (5, 5), (8, 26)]
         xyvalues['pypy'] = [(1, 12), (2, 23), (4, 47), (5, 15), (8, 46)]
         xyvalues['jython'] = [(1, 22), (2, 43), (4, 10), (6, 25), (8, 26)]
-        output_file('scatter.html')
+
         scatter = Scatter(xyvalues, title="Scatter", legend="top_left", ylabel='Languages')
+
+        output_file('scatter.html')
         show(scatter)
 
     """

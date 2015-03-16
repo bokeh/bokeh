@@ -1,7 +1,7 @@
 .. _userguide_objects:
 
-Bokeh Objects
-=============
+Configuring and Styling Bokeh Objects
+=====================================
 
 .. contents::
     :local:

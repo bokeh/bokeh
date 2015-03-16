@@ -16,7 +16,7 @@ It also add a new chained stacked method.
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-from __future__ import division
+from __future__ import absolute_import, division
 from math import pi
 import pandas as pd
 
@@ -52,13 +52,14 @@ def Donut(values,  cat=None, width=800, height=800, xgrid=False, ygrid=False, **
     .. bokeh-plot::
         :source-position: above
 
-        from bokeh.charts import Donut
-        from bokeh.plotting import output_file, show
+        from bokeh.charts import Donut, output_file, show
 
-        output_file('donut.html')
         # dict, OrderedDict, lists, arrays and DataFrames are valid inputs
         xyvalues = [[2., 5., 3.], [4., 1., 4.], [6., 4., 3.]]
+
         donut = Donut(xyvalues, ['cpu1', 'cpu2', 'cpu3'])
+
+        output_file('donut.html')
         show(donut)
 
     """

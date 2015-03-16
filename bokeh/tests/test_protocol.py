@@ -1,9 +1,11 @@
+from __future__ import absolute_import
+
 import unittest
 from unittest import skipIf
 
 import numpy as np
 
-from .test_utils import skipIfPyPy
+from ..util.testing import skipIfPyPy
 
 try:
     import pandas as pd

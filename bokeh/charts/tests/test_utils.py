@@ -13,6 +13,8 @@
 # Imports
 #-----------------------------------------------------------------------------
 
+from __future__ import absolute_import
+
 import unittest
 
 from bokeh.models import ColumnDataSource, GlyphRenderer
@@ -41,4 +43,3 @@ class TestBuilder(unittest.TestCase):
         self.assertEqual(scatter.y, [1])
         self.assertIsInstance(scatter, Circle)
         self.assertEqual(scatter.line_color, "black")
-
