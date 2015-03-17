@@ -161,7 +161,7 @@ define [
 
           row.append(td)
           table.append(row)
-          
+
         return table
 
   class HoverTool extends InspectTool.Model
