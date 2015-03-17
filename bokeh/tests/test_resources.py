@@ -169,6 +169,3 @@ class TestResources(unittest.TestCase):
         for mode in ("server-dev", "relative-dev", "absolute-dev"):
             r = resources.Resources(mode)
             self.assertEqual(r.js_wrapper("foo"), WRAPPER_DEV)
-
-t = TestResources()
-t.test_server_dev()
