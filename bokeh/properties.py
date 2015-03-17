@@ -837,8 +837,10 @@ class List(Seq):
 
     """
 
-    def __init__(self, item_type, default=None, help=None):
-        default = default or []
+    def __init__(self, item_type, default=[], help=None):
+        # todo: refactor to not use mutable objects as default values.
+        # Left in place for now because we want to allow None to express
+        # opional values. Also in Dict.
         super(List, self).__init__(item_type, default=default, help=help)
 
     def _is_seq(self, value):
@@ -864,8 +866,7 @@ class Dict(ContainerProperty):
 
     """
 
-    def __init__(self, keys_type, values_type, default=None, help=None):
-        default = default or {}
+    def __init__(self, keys_type, values_type, default={}, help=None):
         self.keys_type = self._validate_type_param(keys_type)
         self.values_type = self._validate_type_param(values_type)
         super(Dict, self).__init__(default=default, help=help)
