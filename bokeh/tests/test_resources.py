@@ -97,7 +97,7 @@ class TestResources(unittest.TestCase):
 
         self.assertEqual(len(r.js_raw), 1)
         self.assertTrue(r.js_raw[0].startswith('require.config({ baseUrl:'))
-        self.assertTrue(r.js_raw[0].endswith(join('static', 'js') + '" });'))
+        self.assertTrue(r.js_raw[0].endswith(join('bokehjs', 'build', 'js') + '" });'))
         self.assertEqual(r.css_raw, [])
         self.assertEqual(r.messages, [])
 
@@ -105,7 +105,7 @@ class TestResources(unittest.TestCase):
 
         self.assertEqual(len(r.js_raw), 1)
         self.assertTrue(r.js_raw[0].startswith('require.config({ baseUrl:'))
-        self.assertTrue(r.js_raw[0].endswith(join('static', 'js') + '" });'))
+        self.assertTrue(r.js_raw[0].endswith(join('bokehjs', 'build', 'js') + '" });'))
         self.assertEqual(r.css_raw, [])
         self.assertEqual(r.messages, [])
 
@@ -125,7 +125,7 @@ class TestResources(unittest.TestCase):
 
         self.assertEqual(len(r.js_raw), 1)
         self.assertTrue(r.js_raw[0].startswith('require.config({ baseUrl:'))
-        self.assertTrue(r.js_raw[0].endswith(join('static', 'js') + '" });'))
+        self.assertTrue(r.js_raw[0].endswith(join('bokehjs', 'build', 'js') + '" });'))
         self.assertEqual(r.css_raw, [])
         self.assertEqual(r.messages, [])
 
@@ -145,7 +145,7 @@ class TestResources(unittest.TestCase):
 
         self.assertEqual(len(r.js_raw), 1)
         self.assertTrue(r.js_raw[0].startswith('require.config({ baseUrl:'))
-        self.assertTrue(r.js_raw[0].endswith(join('static', 'js') + '" });'))
+        self.assertTrue(r.js_raw[0].endswith(join('bokehjs', 'build', 'js') + '" });'))
         self.assertEqual(r.css_raw, [])
         self.assertEqual(r.messages, [])
 
@@ -169,3 +169,6 @@ class TestResources(unittest.TestCase):
         for mode in ("server-dev", "relative-dev", "absolute-dev"):
             r = resources.Resources(mode)
             self.assertEqual(r.js_wrapper("foo"), WRAPPER_DEV)
+
+t = TestResources()
+t.test_server_dev()

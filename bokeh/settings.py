@@ -2,12 +2,13 @@ from __future__ import absolute_import
 
 import logging
 import os
-from os.path import join, dirname, abspath, exists
+import sys
+from os.path import join, dirname, abspath, realpath, normpath, exists
 
 class Settings(object):
-    _prefix = "BOKEH_"
     debugjs = False
-
+    _prefix = "BOKEH_"
+    
     @property
     def _environ(self):
         return os.environ
@@ -83,8 +84,11 @@ class Settings(object):
     Server settings go here:
     """
     def serverdir(self):
-        return join(dirname(abspath(__file__)), 'server')
-
+        path = join(dirname(abspath(__file__)), 'server')
+        path = normpath(path)
+        if sys.platform == 'cygwin': path = realpath(path)
+        return path
+    
     def bokehjssrcdir(self):
         if self.debugjs:
             basedir = dirname(dirname(self.serverdir()))
@@ -95,8 +99,9 @@ class Settings(object):
 
         return None
 
-    def bokehjsdir(self):
-        if self.debugjs:
+    def bokehjsdir(self, debugjs=None):
+        debugjs = self.debugjs if debugjs is None else debugjs
+        if debugjs:
             basedir = dirname(dirname(self.serverdir()))
             bokehjsdir = join(basedir, 'bokehjs', 'build')
 
