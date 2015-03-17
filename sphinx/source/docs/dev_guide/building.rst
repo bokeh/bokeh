@@ -221,7 +221,9 @@ Incremental Compilation
 The processes described about result in building and using a full `bokeh.js`
 library. This could be considered "production" mode. It is also possible to
 run Bokeh code in a mode that utilizes ``require.js`` to serve up individual
-JavaScript modules separately. If this is done, then changes to BokehJS can be incrementally compiled, and the development iteration cycle shortened
+JavaScript modules separately. If this is done, then changes to BokehJS
+can be incrementally compiled (e.g. by running ``grunt watch`` in the
+``bokehjs`` directory), and the development iteration cycle shortened
 considerably.
 
 For static examples, you can use the ``BOKEH_RESOURCES`` environement variable
