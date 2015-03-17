@@ -138,6 +138,8 @@ class SimpleApp(Widget):
         ## and only if some properties in the graph have changed
         ## so we set should_update to be True in setup_events, and
         ## set it to be false as soon as the callback is done
+        if not self.name:
+            return
         for k in self.__dict__.keys():
             if k.startswith('_func'):
                 self.__dict__.pop(k)
