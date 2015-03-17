@@ -88,29 +88,37 @@ define [
 
       xmapper = frame.get('x_mappers')[renderer.mget('x_range_name')]
       ymapper = frame.get('y_mappers')[renderer.mget('y_range_name')]
-      # get x, y values from the rendered glyph
-      geom_x = xmapper.map_from_target(vx)
-      geom_y = ymapper.map_from_target(vy)
+      x = xmapper.map_from_target(vx)
+      y = ymapper.map_from_target(vy)
 
       for i in  indices
         # get x, y values from the rendered glyph
-        x = renderer.glyph.x[i]
-        y = renderer.glyph.y[i]
-        if @mget('snap_to_data') and renderer.glyph.sx? and renderer.glyph.sy?
-          rx = canvas.sx_to_vx(renderer.glyph.sx[i])
-          ry = canvas.sy_to_vy(renderer.glyph.sy[i])
-        else
+        if i.hit == true
+          x = indices[0].x
+          y = indices[0].y
+          [vx, vy] = [x, y]
           [rx, ry] = [vx, vy]
 
+          rx = renderer.xmapper.v_map_to_target([x])[0]
+          ry = renderer.ymapper.v_map_to_target([y])[0]
+
+          ind = i.index
+        else
+          if @mget('snap_to_data') and renderer.glyph.sx? and renderer.glyph.sy?
+            rx = canvas.sx_to_vx(renderer.glyph.sx[i])
+            ry = canvas.sy_to_vy(renderer.glyph.sy[i])
+          else
+            [rx, ry] = [vx, vy]
+          ind = i
+
         color = renderer.glyph.props.line.line_color.value
-        vars = {index: i, x: x, y: y, vx: vx, vy: vy, sx: sx, sy: sy, geomx: geom_x, geomy: geom_y, ry: ry, color: color}
+        vars = {index: ind, x: x, y: y, vx: vx, vy: vy, sx: sx, sy: sy, color: color}
         tooltip.add(rx, ry, @_render_tooltips(ds, i, vars))
 
       return null
 
     _render_tooltips: (ds, i, vars) ->
       tooltips = @mget("tooltips")
-      window.ds = ds
 
       if _.isString(tooltips)
         return $('<div>').html(Util.replace_placeholders(tooltips, ds, i, vars))
@@ -147,13 +155,13 @@ define [
               span = $("<span class='bk-tooltip-color-block'> </span>")
               span.css({ backgroundColor: color})
             td.append(span)
-
           else
             value = Util.replace_placeholders(value, ds, i, vars)
             td.append($('<span>').text(value))
 
           row.append(td)
           table.append(row)
+          
         return table
 
   class HoverTool extends InspectTool.Model
