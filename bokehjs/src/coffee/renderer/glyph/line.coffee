@@ -67,12 +67,14 @@ define [
 
         [y0, y1] = @renderer.ymapper.v_map_from_target([vy, vy])
 
+      results = []
       for i in [0...@x.length]
         res = @check_intersect(x0, y0, x1, y1, @x[i], @y[i], @x[i+1], @y[i+1])
 
         if res.hit == true
           res.index = i
-          return [res]
+          results.push(res)
+      return results
 
     check_intersect: (l0_x0, l0_y0, l0_x1, l0_y1, l1_x0, l1_y0, l1_x1, l1_y1)->
       ### Check if 2 segments (l0 and l1) intersect. Returns a structure with
