@@ -13,9 +13,8 @@ import unittest
 
 from bokeh.plotting import figure
 from bokeh.models import GlyphRenderer
-from bokeh.models.tools import HoverTool, PanTool
+from bokeh.models.tools import PanTool
 
-import bokeh.models.plots as plots
 
 class TestPlotSelect(unittest.TestCase):
 
