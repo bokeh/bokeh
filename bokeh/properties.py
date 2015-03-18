@@ -1164,8 +1164,7 @@ class DashPattern(Either):
         "dashdot": [6,4,2,4],
     }
 
-    def __init__(self, default=None, help=None):
-        default = default or []
+    def __init__(self, default=[], help=None):
         types = Enum(enums.DashPattern), Regex(r"^(\d+(\s+\d+)*)?$"), Seq(Int)
         super(DashPattern, self).__init__(*types, default=default, help=help)
 
@@ -1272,8 +1271,7 @@ class RelativeDelta(Dict):
 
     """
 
-    def __init__(self, default=None, help=None):
-        default = default or {}
+    def __init__(self, default={}, help=None):
         keys = Enum("years", "months", "days", "hours", "minutes", "seconds", "microseconds")
         values = Int
         super(RelativeDelta, self).__init__(keys, values, default=default, help=help)
