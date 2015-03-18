@@ -76,7 +76,7 @@ __all__ = ["AbstractButton", "AbstractGroup", "AbstractIcon", "Action",
 
 if False:
     ##
-    def get_classes_here(modname):
+    def get_class_names_in_module(modname):
         # Get module
         m = __import__(modname)
         for part in  modname.split('.')[1:]:
@@ -92,12 +92,5 @@ if False:
                     classnames.append(name)
         classnames.sort()
         return classnames
-    #print(', '.join(get_classes_here('bokeh.models.widgets')))
-    print('", "'.join(get_classes_here('bokeh.models')))
-
-    
-
-# show_classes_in('widgets/tables')
-
-
-# todo: write small snippet that compiles a list of all names imported here, that we can put here to fool pyflakes
+    #print(', '.join(get_class_names_in_module('bokeh.models.widgets')))
+    print('", "'.join(get_class_names_in_module('bokeh.models')))
