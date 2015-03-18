@@ -44,24 +44,19 @@ define [
         tt.clear()
 
     _inspect: (vx, vy, e) ->
+      geometry = {
+          vx: vx
+          vy: vy
+        }
       if @mget('mode') == 'point'
-        geometry = {
-          type: 'point'
-          vx: vx
-          vy: vy
-        }
+        geometry['type'] = 'point'
       else
+        geometry['type'] = 'span'
         if @mget('mode') == 'vline'
-          direction = 'v'
+          geometry.direction = 'v'
         else
-          direction = 'h'
+          geometry.direction = 'h'
 
-        geometry = {
-          direction: direction
-          type: 'span'
-          vx: vx
-          vy: vy
-        }
       for r in @mget('renderers')
         sm = r.get('data_source').get('selection_manager')
         sm.inspect(@, @plot_view.renderers[r.id], geometry, {"geometry": geometry})
@@ -74,7 +69,7 @@ define [
 
       tooltip.clear()
 
-      if indices.length == 0
+      if indices['0d'] == false
         return
 
       vx = geometry.vx
@@ -91,28 +86,28 @@ define [
       x = xmapper.map_from_target(vx)
       y = ymapper.map_from_target(vy)
 
-      for i in  indices
+      for i in indices['1d']
         # get x, y values from the rendered glyph
-        if i.hit == true
-          x = indices[0].x
-          y = indices[0].y
+        if @mget('hit_value_mode') == "hit_interpolate"
+          hit_point = renderer.glyph.check_interpolation_hit(i, geometry)
+          x = hit_point.x
+          y = hit_point.y
           [vx, vy] = [x, y]
-          [rx, ry] = [vx, vy]
 
           rx = renderer.xmapper.v_map_to_target([x])[0]
           ry = renderer.ymapper.v_map_to_target([y])[0]
-
-          ind = i.index
         else
           if @mget('snap_to_data') and renderer.glyph.sx? and renderer.glyph.sy?
             rx = canvas.sx_to_vx(renderer.glyph.sx[i])
             ry = canvas.sy_to_vy(renderer.glyph.sy[i])
+            x = renderer.glyph.x[i]
+            y = renderer.glyph.y[i]
           else
             [rx, ry] = [vx, vy]
-          ind = i
 
+        # TODO: Color is temp, to be removed before merging!
         color = renderer.glyph.props.line.line_color.value
-        vars = {index: ind, x: x, y: y, vx: vx, vy: vy, sx: sx, sy: sy, color: color}
+        vars = {index: i, x: x, y: y, vx: vx, vy: vy, sx: sx, sy: sy, color: color, rx: rx, ry: ry}
         tooltip.add(rx, ry, @_render_tooltips(ds, i, vars))
 
       return null
@@ -186,6 +181,7 @@ define [
     defaults: () ->
       return _.extend({}, super(), {
         snap_to_data: true
+        hit_value_mode: 'snap_to_data' # 'glyph_center', 'hit_interpolate', 'mouse_point',
         tooltips: [
           ["index",         "$index"]
           ["data (x, y)",   "($x, $y)"]

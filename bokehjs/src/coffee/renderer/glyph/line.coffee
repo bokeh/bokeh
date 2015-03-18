@@ -34,47 +34,100 @@ define [
         ctx.stroke()
 
     _hit_point: (geometry) ->
+      ### Check if the point geometry hits this line glyph and return an object
+      that describes the hit result:
+
+        Args:
+          * geometry (object): object with the following keys
+            * vx (float): view x coordinate of the point
+            * vy (float): view y coordinate of the point
+            * type (str): type of geometry (in this case it's a point)
+
+        Output:
+          Object with the following keys:
+            * 0d (bool): whether the point hits the glyph or not
+            * 1d (array(int)): array with the indices hit by the point
+
+      ###
       [vx, vy] = [geometry.vx, geometry.vy]
-      sx = @renderer.plot_view.canvas.vx_to_sx(vx)
+      x = @renderer.xmapper.map_from_target(vx)
+      y = @renderer.ymapper.map_from_target(vy)
+      [x0, x1] = [x-1, x+1]
+      [y0, y1] = [y-1, y+1]
 
-      nearest_ind = 0
-      nearest_val = Math.abs sx-@sx[0]
+      result = {
+        '0d': false,
+        '1d': []
+      }
 
-      for i in [0...@sx.length]
-        ival = Math.abs sx-@sx[i]
+      for i in [0...@x.length-1]
+        console.log x0, y0, x1, y1, @x[i], @y[i], @x[i+1], @y[i+1]
+        res = @check_intersect(x0, y0, x1, y1, @x[i], @y[i], @x[i+1], @y[i+1])
 
-        if nearest_val>ival
-          nearest_ind = i
-          nearest_val = ival
+        if res.hit == true
+          result['0d'] = true
+          result['1d'].push(i)
 
-      return [nearest_ind]
+      return result
 
     _hit_span: (geometry) ->
       [vx, vy] = [geometry.vx, geometry.vy]
 
-      if geometry.direction == 'v'
-        yr = @renderer.yrange()
-        y0 = yr.attributes.start
-        y1 = yr.attributes.end
-        [x0, x1] = @renderer.xmapper.v_map_from_target([vx, vx])
+      result = {
+        '0d': false,
+        '1d': []
+      }
+
+      if geometry.direction == 'h'
+        y = @renderer.ymapper.map_from_target(vy)
+        for i in [0...@y.length-1]
+          if @y[i]<=y<=@y[i+1]
+
+            result['0d'] = true
+            result['1d'].push(i)
       else
-        # TODO: Why is this returning the wrong bounds?
-#        xr = @renderer.xrange()
-#        xx0 = xr.attributes.start
-#        xx1 = xr.attributes.end
-        x0 = @x[0]
-        x1 = @x[@x.length-1]
+        x = @renderer.xmapper.map_from_target(vx)
+        for i in [0...@x.length-1]
+          if @x[i]<=x<=@x[i+1]
+            result['0d'] = true
+            if Math.abs @x[i]-x <= Math.abs @x[i+1]-x
+              result['1d'].push(i)
+            else
+              result['1d'].push(i+1)
 
-        [y0, y1] = @renderer.ymapper.v_map_from_target([vy, vy])
+      return result
 
-      results = []
-      for i in [0...@x.length]
-        res = @check_intersect(x0, y0, x1, y1, @x[i], @y[i], @x[i+1], @y[i+1])
+    check_interpolation_hit: (i, geometry)->
+      [vx, vy] = [geometry.vx, geometry.vy]
+      [x2, y2, x3, y3] = [@x[i], @y[i], @x[i+1], @y[i+1]]
+      x = @renderer.xmapper.map_from_target(vx)
+      y = @renderer.ymapper.map_from_target(vy)
 
-        if res.hit == true
-          res.index = i
-          results.push(res)
-      return results
+      if geometry.type == 'point'
+        [x0, x1] = [x-1, x+1]
+        [y0, y1] = [y-1, y+1]
+      else
+        if geometry.direction == 'h'
+          xr = @renderer.xrange()
+          vx0 = xr.get('start')
+          vx1 = xr.get('end')
+          [vy0, vy1] = [vy, vy]
+
+          if @y[i]>vy
+            [x3, y3] = [@x[i-1], @y[i-1]]
+        else
+          yr = @renderer.yrange()
+          vy0 = yr.get('start')
+          vy1 = yr.get('end')
+          [vx0, vx1] = [vx, vx]
+
+          if @x[i]>vx
+            [x3, y3] = [@x[i-1], @y[i-1]]
+
+        [x0, x1] = @renderer.xmapper.v_map_from_target([vx0, vx1])
+        [y0, y1] = @renderer.ymapper.v_map_from_target([vy0, vy1])
+
+      return @check_intersect(x0, y0, x1, y1, x2, y2, x3, y3)
 
     check_intersect: (l0_x0, l0_y0, l0_x1, l0_y1, l1_x0, l1_y0, l1_x1, l1_y1)->
       ### Check if 2 segments (l0 and l1) intersect. Returns a structure with

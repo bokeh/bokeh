@@ -418,3 +418,8 @@ class HoverTool(Tool):
     Whether to consider hover pointer as point (x/y values), or a
     span on h or v directions.
     """)
+
+    hit_value_mode = Enum("snap_to_data", "glyph_center", "hit_interpolate",
+                          "mouse_point", help="""
+
+    """)
