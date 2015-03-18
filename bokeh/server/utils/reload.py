@@ -18,7 +18,7 @@ def broadcast_reload():
     if hasattr(bokeh_app, 'wsmanager'):
         bokeh_app.wsmanager.send('debug:debug', 'reload')
 
-def _wait_for_edit(extra_files=[], interval=1):
+def _wait_for_edit(extra_files=None, interval=1):
     """Waits until one of the files we're using have changed
     """
     from itertools import chain

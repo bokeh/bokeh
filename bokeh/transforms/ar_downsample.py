@@ -406,7 +406,7 @@ class Contour(Shader):
 def replot(plot,
            agg=Count(), info=Const(val=1), shader=Id(),
            remove_original=True,
-           plot_opts={}, **kwargs):
+           plot_opts=None, **kwargs):
     """
     Treat the passed plot as an base plot for abstract rendering, generate the
     proper Bokeh plot based on the passed parameters.
@@ -451,6 +451,7 @@ def replot(plot,
     fig_opts['title'] = kwargs.pop('title', plot.title)
 
     src = source(plot, agg, info, shader, **source_opts)
+    plot_opts = plot_opts or {}
     plot_opts.update(mapping(src))
 
     new_plot = figure(**fig_opts)

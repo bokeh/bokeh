@@ -469,8 +469,7 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
     return plot
 
 
-def _handle_1d_data_args(args, datasource=None, create_autoindex=True,
-        suggested_names=[]):
+def _handle_1d_data_args(args, datasource=None, create_autoindex=True):
     """ Returns a datasource and a list of names corresponding (roughly)
     to the input data.  If only a single array was given, and an index
     array was created, then the index's name is returned first.
@@ -510,9 +509,7 @@ def _handle_1d_data_args(args, datasource=None, create_autoindex=True,
         if isinstance(ary, string_types):
             name = ary
         else:
-            if i < len(suggested_names):
-                name = suggested_names[i]
-            elif i == 0 and create_autoindex:
+            if i == 0 and create_autoindex:
                 name = datasource.add(ary, name="_autoindex")
             else:
                 name = datasource.add(ary)
