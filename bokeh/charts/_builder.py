@@ -21,7 +21,7 @@ from __future__ import absolute_import
 from ._chart import Chart
 from ._data_adapter import DataAdapter
 from ..models.ranges import Range
-from ..properties import Color, HasProps, Instance, Seq
+from ..properties import Color, HasProps, Instance, Seq, String
 
 DEFAULT_PALETTE = ["#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33ff3"]
 
@@ -76,6 +76,8 @@ class Builder(HasProps):
 
     x_range = Instance(Range)
     y_range = Instance(Range)
+    y_names = Seq(String)
+    x_names = Seq(String)
 
     palette = Seq(Color, default=DEFAULT_PALETTE)
 
@@ -126,13 +128,12 @@ class Builder(HasProps):
         Converts data input (self._values) to a DataAdapter and creates
         instance index if needed
         """
-        if hasattr(self, 'index'):
-            self._values_index, self._values = DataAdapter.get_index_and_data(
-                self._values, self.index
+        self._values_index, self._values = DataAdapter.get_index_and_data(
+            self._values, self.x_names
             )
-        else:
-            if not isinstance(self._values, DataAdapter):
-                self._values = DataAdapter(self._values, force_alias=False)
+
+        if not self.x_names:
+            self.x_names = ["x"]
 
     def _process_data(self):
         """Get the input data.
