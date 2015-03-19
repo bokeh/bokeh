@@ -1,5 +1,7 @@
 from __future__ import absolute_import
 
+# This file is excluded from flake8 checking in setup.cfg
+
 from .buttons import AbstractButton, Button, Toggle, Dropdown
 from .dialogs import Dialog
 from .groups import (AbstractGroup, ButtonGroup, Group, CheckboxGroup,
@@ -15,15 +17,3 @@ from .tables import (CellFormatter, CellEditor, StringFormatter, NumberFormatter
                      SelectEditor, PercentEditor, CheckboxEditor, IntEditor,
                      NumberEditor, TimeEditor, DateEditor, TableColumn,
                      TableWidget, DataTable)
-
-# Define __all__ to make pyflakes happy
-__all__ = ["AbstractButton", "AbstractGroup", "AbstractIcon", "AutocompleteInput",
-"BaseBox", "BooleanFormatter", "Button", "ButtonGroup", "CellEditor",
-"CellFormatter", "CheckboxButtonGroup", "CheckboxEditor", "CheckboxGroup",
-"DataTable", "DateEditor", "DateFormatter", "DatePicker", "DateRangeSlider",
-"Dialog", "Dropdown", "Group", "HBox", "Icon", "InputWidget", "IntEditor",
-"Layout", "MultiSelect", "NumberEditor", "NumberFormatter", "Panel", "Paragraph",
-"PercentEditor", "PreText", "RadioButtonGroup", "RadioGroup", "Select",
-"SelectEditor", "Slider", "StringEditor", "StringFormatter", "TableColumn",
-"TableWidget", "Tabs", "TextEditor", "TextInput", "TimeEditor", "Toggle", "VBox",
-"VBoxForm"]

@@ -43,7 +43,7 @@ class TestPlotSelect(unittest.TestCase):
 
     def test_too_many_args(self):
         with self.assertRaises(TypeError) as cm:
-             self._plot.select('foo', 'bar')
+            self._plot.select('foo', 'bar')
         self.assertEqual(
             'select accepts at most ONE positional argument.',
             str(cm.exception)
@@ -51,7 +51,7 @@ class TestPlotSelect(unittest.TestCase):
 
     def test_no_input(self):
         with self.assertRaises(TypeError) as cm:
-             self._plot.select()
+            self._plot.select()
         self.assertEqual(
             'select requires EITHER a positional argument, OR keyword arguments.',
             str(cm.exception)
@@ -59,7 +59,7 @@ class TestPlotSelect(unittest.TestCase):
 
     def test_arg_and_kwarg(self):
         with self.assertRaises(TypeError) as cm:
-             self._plot.select('foo', type=PanTool)
+            self._plot.select('foo', type=PanTool)
         self.assertEqual(
             'select accepts EITHER a positional argument, OR keyword arguments (not both).',
             str(cm.exception)
