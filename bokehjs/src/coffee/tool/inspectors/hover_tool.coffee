@@ -69,7 +69,7 @@ define [
 
       tooltip.clear()
 
-      if indices['0d'] == false
+      if indices['0d'].flag == false
         return
 
       vx = geometry.vx
@@ -86,7 +86,7 @@ define [
       x = xmapper.map_from_target(vx)
       y = ymapper.map_from_target(vy)
 
-      for i in indices['1d']
+      for i in indices['0d'].indices
         # get x, y values from the rendered glyph
         if @mget('hit_value_mode') == "hit_interpolate"
           hit_point = renderer.glyph.check_interpolation_hit(i, geometry)
@@ -182,6 +182,11 @@ define [
       return _.extend({}, super(), {
         snap_to_data: true
         hit_value_mode: 'snap_to_data' # 'glyph_center', 'hit_interpolate', 'mouse_point',
+
+        point_policy: "snap_to_data" #, "follow_mouse", "none"
+        line_policy: "prev" # "next", "nearest", "interp", "none"
+        conflict_policy: "line" #, "point", "both"
+
         tooltips: [
           ["index",         "$index"]
           ["data (x, y)",   "($x, $y)"]

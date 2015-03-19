@@ -423,3 +423,7 @@ class HoverTool(Tool):
                           "mouse_point", help="""
 
     """)
+
+    point_policy = Enum("snap_to_data", "follow_mouse", "none")
+    line_policy = Enum("prev", "next", "nearest", "interp", "none")
+    conflict_policy = Enum("line", "point", "both")
