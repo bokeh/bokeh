@@ -15,13 +15,13 @@ xyvalues = xyvalues[['Biology', 'Business', 'Computer Science']]
 
 TOOLS='box_zoom,hover,crosshair,resize,reset'
 output_file("lines.html", title="line.py example")
-vline = Line(xyvalues, title="Lines V. Hover Interp", ylabel='measures', width=500, height=300,
+vline = Line(xyvalues, title="Lines V. Hover Tap", ylabel='measures', width=500, height=300,
              tools=TOOLS)
 # steps = Step(xyvalues, title="Lines V. Hover", ylabel='measures', width=500, height=300,
 #              tools=TOOLS, chart=vline)
 # bar = Bar(xyvalues, title="Lines V. Hover", ylabel='measures', width=500, height=300,
 #              tools=TOOLS)
-hline = Line(xyvalues, title="Lines H. Hover Tap", ylabel='measures', width=500, height=300,
+hline = Line(xyvalues, title="Lines H. Hover Interp", ylabel='measures', width=500, height=300,
              tools=TOOLS)
 svalues = {}
 # svalues['Business'] = [(i, v) for i, v in zip(index, xyvalues['Business'])]
