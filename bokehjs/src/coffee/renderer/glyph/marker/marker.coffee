@@ -1,7 +1,7 @@
 define [
-  "underscore",
-  "rbush",
-  "../glyph",
+  "underscore"
+  "rbush"
+  "../glyph"
 ], (_, rbush, Glyph) ->
 
 
@@ -43,12 +43,7 @@ define [
 
     _set_data: () ->
       @max_size = _.max(@size)
-      @index = rbush()
-      pts = []
-      for i in [0...@x.length]
-        if not isNaN(@x[i] + @y[i])
-          pts.push([@x[i], @y[i], @x[i], @y[i], {'i': i}])
-      @index.load(pts)
+      @_xy_index()
 
     _map_data: () ->
       [@sx, @sy] = @renderer.map_to_screen(@x, @glyph.x.units, @y, @glyph.y.units)

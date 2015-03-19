@@ -1,7 +1,7 @@
 define [
-  "underscore",
-  "renderer/properties",
-  "./glyph",
+  "underscore"
+  "renderer/properties"
+  "./glyph"
 ], (_, Properties, Glyph) ->
 
   class ImageRGBAView extends Glyph.View

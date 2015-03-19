@@ -1,7 +1,7 @@
 define [
-  "underscore",
-  "renderer/properties",
-  "./glyph",
+  "underscore"
+  "renderer/properties"
+  "./glyph"
 ], (_, Properties, Glyph) ->
 
   class BezierView extends Glyph.View

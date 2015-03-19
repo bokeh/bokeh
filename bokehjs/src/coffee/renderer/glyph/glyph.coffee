@@ -1,11 +1,13 @@
 define [
-  "underscore",
-  "common/logging",
-  "common/has_parent",
+  "underscore"
+  "rbush"
+  "common/bbox"
+  "common/logging"
+  "common/has_parent"
   "common/collection"
-  "common/continuum_view",
+  "common/continuum_view"
   "renderer/properties"
-], (_, Logging, HasParent, Collection, ContinuumView, properties) ->
+], (_, rbush, bbox, Logging, HasParent, Collection, ContinuumView, properties) ->
 
   logger = Logging.logger
 
@@ -68,6 +70,26 @@ define [
 
     # any additional customization can happen here
     _set_data: () -> null
+
+    bounds: () ->
+      if not @index?
+        return bbox.empty()
+      bb = @index.data.bbox
+      return @_bounds([
+        [bb[0], bb[2]],
+        [bb[1], bb[3]]
+      ])
+
+    # any additional customization can happen here
+    _bounds: (bds) -> bds
+
+    _xy_index: () ->
+      @index = rbush()
+      pts = []
+      for i in [0...@x.length]
+        if not isNaN(@x[i] + @y[i])
+          pts.push([@x[i], @y[i], @x[i], @y[i], {'i': i}])
+      @index.load(pts)
 
     distance_vector: (pt, span_prop_name, position, dilate=false) ->
       """ returns an array """

@@ -1,13 +1,17 @@
 define [
-  "underscore",
-  "renderer/properties",
-  "./glyph",
+  "underscore"
+  "renderer/properties"
+  "./glyph"
 ], (_, Properties, Glyph) ->
 
   class ArcView extends Glyph.View
 
     _fields: ['x', 'y', 'radius', 'start_angle', 'end_angle', 'direction:string']
     _properties: ['line']
+
+    _set_data: () ->
+      @max_radius = _.max(@radius)
+      @_xy_index()
 
     _map_data: () ->
       [@sx, @sy] = @renderer.map_to_screen(@x, @glyph.x.units, @y, @glyph.y.units)

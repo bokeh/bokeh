@@ -1,8 +1,8 @@
 define [
-  "underscore",
-  "renderer/properties",
-  "mapper/linear_color_mapper",
-  "./glyph",
+  "underscore"
+  "renderer/properties"
+  "mapper/linear_color_mapper"
+  "./glyph"
 ], (_, Properties, LinearColorMapper, Glyph) ->
 
 

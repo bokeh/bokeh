@@ -1,13 +1,16 @@
 define [
-  "underscore",
-  "renderer/properties",
-  "./glyph",
+  "underscore"
+  "renderer/properties"
+  "./glyph"
 ], (_, Properties, Glyph) ->
 
   class RayView extends Glyph.View
 
     _fields: ['x', 'y', 'angle', 'length']
     _properties: ['line']
+
+    _set_data: () ->
+      @_xy_index()
 
     _map_data: () ->
       [@sx, @sy] = @renderer.map_to_screen(@x, @glyph.x.units, @y, @glyph.y.units)

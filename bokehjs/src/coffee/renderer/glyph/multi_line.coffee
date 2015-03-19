@@ -1,13 +1,29 @@
 define [
-  "underscore",
-  "renderer/properties",
-  "./glyph",
-], (_, Properties, Glyph) ->
+  "underscore"
+  "rbush"
+  "renderer/properties"
+  "./glyph"
+], (_, rbush, Properties, Glyph) ->
 
   class MultiLineView extends Glyph.View
 
     _fields: ['xs', 'ys']
     _properties: ['line']
+
+    _set_data: () ->
+      @index = rbush()
+      pts = []
+      for i in [0...@xs.length]
+        xs = (x for x in @xs[i] when not _.isNaN(x))
+        ys = (y for y in @ys[i] when not _.isNaN(y))
+        if xs.length == 0
+          continue
+        pts.push([
+          _.min(xs), _.min(ys),
+          _.max(xs), _.max(ys),
+          {'i': i}
+        ])
+      @index.load(pts)
 
     _render: (ctx, indices) ->
       for i in indices
