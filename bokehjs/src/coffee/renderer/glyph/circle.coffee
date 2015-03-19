@@ -156,8 +156,8 @@ define [
 
       if geometry.direction == 'v'
         yr = @renderer.yrange()
-        y0 = yr.attributes.start
-        y1 = yr.attributes.end
+        y0 = yr.get('start')
+        y1 = yr.get('end')
         if @radius_units == "screen"
           vx0 = vx - @max_radius
           vx1 = vx + @max_radius
