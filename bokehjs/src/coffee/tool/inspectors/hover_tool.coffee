@@ -90,12 +90,12 @@ define [
         # get x, y values from the rendered glyph
         if @mget('hit_value_mode') == "hit_interpolate"
           hit_point = renderer.glyph.check_interpolation_hit(i, geometry)
-          x = hit_point.x
-          y = hit_point.y
-          [vx, vy] = [x, y]
+#          x = hit_point.x
+#          y = hit_point.y
+#          [vx, vy] = [x, y]
 
-          rx = renderer.xmapper.v_map_to_target([x])[0]
-          ry = renderer.ymapper.v_map_to_target([y])[0]
+          rx = renderer.xmapper.v_map_to_target([hit_point.x])[0]
+          ry = renderer.ymapper.v_map_to_target([hit_point.y])[0]
         else
           if @mget('snap_to_data') and renderer.glyph.sx? and renderer.glyph.sy?
             rx = canvas.sx_to_vx(renderer.glyph.sx[i])

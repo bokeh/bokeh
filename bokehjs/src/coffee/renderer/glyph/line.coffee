@@ -103,34 +103,19 @@ define [
     check_interpolation_hit: (i, geometry)->
       [vx, vy] = [geometry.vx, geometry.vy]
       [x2, y2, x3, y3] = [@x[i], @y[i], @x[i+1], @y[i+1]]
-      x = @renderer.xmapper.map_from_target(vx)
-      y = @renderer.ymapper.map_from_target(vy)
 
       if geometry.type == 'point'
-        [x0, x1] = [x-1, x+1]
-        [y0, y1] = [y-1, y+1]
+        x = @renderer.xmapper.map_from_target(vx)
+        y = @renderer.ymapper.map_from_target(vy)
+        [x0, x1] = [x, x]
+        [y0, y1] = [y2, y3]
       else
         if geometry.direction == 'h'
-#          xr = @renderer.xrange()
-#          vx0 = xr.get('start')
-#          vx1 = xr.get('end')
-          [vy0, vy1] = [vy, vy]
-          [y0, y1] = @renderer.ymapper.v_map_from_target([vy0, vy1])
-#          if @y[i]>vy
-#            [x3, y3] = [@x[i-1], @y[i-1]]
+          [y0, y1] = @renderer.ymapper.v_map_from_target([vy, vy])
           [x0, x1] = [x2, x3]
         else
-#          yr = @renderer.yrange()
-#          vy0 = yr.get('start')
-#          vy1 = yr.get('end')
-          [vx0, vx1] = [vx, vx]
-          [x0, x1] = @renderer.xmapper.v_map_from_target([vx0, vx1])
-#          if @x[i]>vx
-#            [x3, y3] = [@x[i-1], @y[i-1]]
+          [x0, x1] = @renderer.xmapper.v_map_from_target([vx, vx])
           [y0, y1] = [y2, y3]
-
-#        [x0, x1] = @renderer.xmapper.v_map_from_target([vx0, vx1])
-#        [y0, y1] = @renderer.ymapper.v_map_from_target([vy0, vy1])
 
       return check_2_segments_intersect(x0, y0, x1, y1, x2, y2, x3, y3)
 
