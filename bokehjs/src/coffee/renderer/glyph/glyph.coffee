@@ -87,8 +87,15 @@ define [
       @index = rbush()
       pts = []
       for i in [0...@x.length]
-        if not isNaN(@x[i] + @y[i])
-          pts.push([@x[i], @y[i], @x[i], @y[i], {'i': i}])
+        # TODO: The intent here is to deal let categorical ranges
+        # not interfere with auto-ranging, but this is pretty wonky
+        x = @x[i]
+        if isNaN(x) and _.isString(x)
+          x = 0
+        y = @y[i]
+        if isNaN(y) and _.isString(x)
+          y = 0
+        pts.push([x, y, x, y, {'i': i}])
       @index.load(pts)
 
     distance_vector: (pt, span_prop_name, position, dilate=false) ->
