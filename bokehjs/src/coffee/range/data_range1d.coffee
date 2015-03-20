@@ -61,7 +61,8 @@ define [
 
       result = new bbox.empty()
       for r in @get('renderers')
-        result = bbox.extend(result, bounds[r.id])
+        if bounds[r.id]?
+          result = bbox.extend(result, bounds[r.id])
 
       [min, max] = result[dimension]
 
