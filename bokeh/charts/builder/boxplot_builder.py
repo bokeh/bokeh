@@ -129,7 +129,6 @@ class BoxPlotBuilder(Builder):
         self._data["groups"] = self._groups
         # add group and witdh to the self._data_rect dict
         self._data["width"] = [0.8] * len(self._groups)
-
         # all the list we are going to use to save calculated values
         self._data["q0"] = q0_points = []
         self._data["q2"] = q2_points = []
@@ -141,7 +140,6 @@ class BoxPlotBuilder(Builder):
         self._data["upper_height_boxes"] = upper_height_boxes = []
         self._data["lower_center_boxes"] = lower_center_boxes = []
         self._data["lower_height_boxes"] = lower_height_boxes = []
-        # out_x, out_y, out_color = ([], [], [])
         self._data["out_x"] = out_x = []
         self._data["out_y"] = out_y = []
         self._data["out_color"] = out_color = []
@@ -182,12 +180,10 @@ class BoxPlotBuilder(Builder):
                     out_color.append(self.palette[i])
 
 
-    def _set_sources(self):
-        "Push the BoxPlot data into the ColumnDataSource and calculate the proper ranges."
-        self.source = ColumnDataSource(self._data)
+    def _set_ranges(self):
+        " Calculate the proper ranges."
         self.x_range = FactorRange(factors=self._groups)
-        names = ["lower", "upper", "out_y"]
-        y_sources = [self.source.columns("%s" % col) for col in names]
+        y_sources = map(self.source.columns, ["lower", "upper", "out_y"])
         self.y_range = DataRange1d(sources=y_sources)
 
     def _yield_renderers(self):
