@@ -203,9 +203,9 @@ define [
         bds = v.glyph?.bounds?()
         if bds?
           bounds[k] = bds
-      for xr in _.values(@mget('extra_x_ranges')).concat(@mget('x_range'))
+      for xr in _.values(frame.get('x_ranges'))
         xr.update?(bounds, 0)
-      for yr in _.values(@mget('extra_y_ranges')).concat(@mget('y_range'))
+      for yr in _.values(frame.get('y_ranges'))
         yr.update?(bounds, 1)
 
       title = @mget('title')
@@ -288,11 +288,13 @@ define [
       super(attrs, options)
 
       for xr in _.values(@get('extra_x_ranges')).concat(@get('x_range'))
+        xr = @resolve_ref(xr)
         plots = xr.get('plots')
         if _.isArray(plots)
           plots = plots.concat(@)
           xr.set('plots', plots)
       for yr in _.values(@get('extra_y_ranges')).concat(@get('y_range'))
+        yr = @resolve_ref(yr)
         plots = yr.get('plots')
         if _.isArray(plots)
           plots = plots.concat(@)
