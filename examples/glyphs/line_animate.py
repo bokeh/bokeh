@@ -22,7 +22,7 @@ x = linspace(-2*pi, 2*pi, 1000)
 y = sin(x)
 z = cos(x)
 
-source = ColumnDataSource(data=dict(x=x, y=y, z=z)
+source = ColumnDataSource(data=dict(x=x, y=y, z=z))
 
 plot = Plot(x_range=(-2*pi, 2*pi), y_range=DataRange1d(), min_border=50)
 
