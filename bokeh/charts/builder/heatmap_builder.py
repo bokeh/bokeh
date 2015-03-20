@@ -94,10 +94,10 @@ class HeatMapBuilder(Builder):
 
         # Set up the data for plotting. We will need to have values for every
         # pair of year/month names. Map the rate to a color.
-        catx = []
-        caty = []
-        color = []
-        rate = []
+        self._data['catx'] = catx = []
+        self._data['caty'] = caty = []
+        self._data['color'] = color = []
+        self._data['rate'] = rate = []
         for y in self._catsy:
             for m in self._catsx:
                 catx.append(m)
@@ -112,17 +112,13 @@ class HeatMapBuilder(Builder):
                 c = int(round(factor*(self._values[m][y] - min(rate)) / den))
                 color.append(self.palette[c])
 
-        width = [0.95] * len(catx)
-        height = [0.95] * len(catx)
+        self._data['width'] = [0.95] * len(catx)
+        self._data['height'] = [0.95] * len(catx)
 
-        self._data = dict(catx=catx, caty=caty, color=color, rate=rate,
-                         width=width, height=height)
-
-    def _set_sources(self):
+    def _set_ranges(self):
         """Push the CategoricalHeatMap data into the ColumnDataSource
         and calculate the proper ranges.
         """
-        self._source = ColumnDataSource(self._data)
         self.x_range = FactorRange(factors=self._catsx)
         self.y_range = FactorRange(factors=self._catsy)
 
@@ -132,10 +128,8 @@ class HeatMapBuilder(Builder):
         Takes reference points from data loaded at the ColumnDataSurce.
         """
         glyph = Rect(
-            x="catx", y="caty",
-            width="width", height="height",
-            fill_color="color", fill_alpha=0.7,
-            line_color="white"
+            x="catx", y="caty", width="width", height="height",
+            fill_color="color", fill_alpha=0.7, line_color="white"
         )
         renderer = GlyphRenderer(data_source=self._source, glyph=glyph)
         # TODO: Legend??
