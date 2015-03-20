@@ -26,9 +26,9 @@ except ImportError:
 
 from ..utils import chunk, cycle_colors
 from .._builder import Builder, create_and_build
-from ...models import ColumnDataSource, DataRange1d, GlyphRenderer, Range1d
+from ...models import ColumnDataSource, DataRange1d, GlyphRenderer, Range1d, DataRange1d
 from ...models.glyphs import Line
-from ...properties import Any
+from warnings import warn
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -43,12 +43,6 @@ def TimeSeries(values, index=None, xscale='datetime', **kws):
     Args:
         values (iterable): iterable 2d representing the data series
             values matrix.
-        index (str|1d iterable, optional): can be used to specify a common custom
-            index for all data series as an **1d iterable** of any sort that will be used as
-            series common index or a **string** that corresponds to the key of the
-            mapping to be used as index (and not as data series) if
-            area.values is a mapping (like a dict, an OrderedDict
-            or a pandas DataFrame)
 
     In addition the the parameters specific to this chart,
     :ref:`charts_generic_arguments` are also accepted as keyword parameters.
@@ -82,8 +76,13 @@ def TimeSeries(values, index=None, xscale='datetime', **kws):
         show(ts)
 
     """
+    if index is not None:
+        msg = "bokeh.charts.TimeSeries index argument is deprecated since Bokeh 0.8.2. Use x_names instead!"
+        warn(msg, DeprecationWarning, stacklevel=2)
+        kws['x_names'] = [index]
+
     return create_and_build(
-        TimeSeriesBuilder, values, index=index, xscale=xscale, **kws
+        TimeSeriesBuilder, values, xscale=xscale, **kws
     )
 
 
@@ -98,19 +97,6 @@ class TimeSeriesBuilder(Builder):
 
     """
 
-    index = Any(help="""
-    An index to be used for all data series as follows:
-
-    - A 1d iterable of any sort that will be used as
-        series common index
-
-    - As a string that corresponds to the key of the
-        mapping to be used as index (and not as data
-        series) if area.values is a mapping (like a dict,
-        an OrderedDict or a pandas DataFrame)
-
-    """)
-
     def _process_data(self):
         """Take the x/y data from the timeseries values.
 
@@ -119,46 +105,28 @@ class TimeSeriesBuilder(Builder):
         the line glyph inside the ``_yield_renderers`` method.
 
         """
-        self._data = dict()
-
-        # list to save all the attributes we are going to create
-        self._attr = []
         # necessary to make all formats and encoder happy with array, blaze, ...
-        xs = list([x for x in self._values_index])
         for col, values in self._values.items():
-            if isinstance(self.index, string_types) \
-                and col == self.index:
-                continue
+            # add the original series to _data so it can be found in source
+            # and can also be used for tooltips..
+            if not col in self._data:
+                self._data[col] = values
 
-            # save every the groups available in the incomming input
-            self._groups.append(col)
-            self.set_and_get("x_", col, xs)
-            self.set_and_get("y_", col, values)
-
-    def _set_sources(self):
-        """Push the TimeSeries data into the ColumnDataSource and
-        calculate the proper ranges.
-        """
-        self._source = ColumnDataSource(self._data)
-        self.x_range = DataRange1d(sources=[self._source.columns(self._attr[0])])
-        y_names = self._attr[1::2]
-        endy = max(max(self._data[i]) for i in y_names)
-        starty = min(min(self._data[i]) for i in y_names)
-        self.y_range = Range1d(
-            start=starty - 0.1 * (endy - starty),
-            end=endy + 0.1 * (endy - starty)
-        )
+    def _set_ranges(self):
+        """ Calculate the proper ranges """
+        self.x_range = DataRange1d(sources=[self._source.columns(self.x_names[0])])
+        y_sources = [self.source.columns("%s" % col) for col in self.y_names]
+        self.y_range = DataRange1d(sources=y_sources)
 
     def _yield_renderers(self):
         """Use the line glyphs to connect the xy points in the time series.
 
         Takes reference points from the data loaded at the ColumnDataSource.
         """
-        self._duplet = list(chunk(self._attr, 2))
-        colors = cycle_colors(self._duplet, self.palette)
+        colors = cycle_colors(self.y_names, self.palette)
 
-        for i, (x, y) in enumerate(self._duplet, start=1):
-            glyph = Line(x=x, y=y, line_color=colors[i - 1])
+        for color, name in zip(colors, self.y_names):
+            glyph = Line(x=self.x_names[0], y=name, line_color=color)
             renderer = GlyphRenderer(data_source=self._source, glyph=glyph)
-            self._legends.append((self._groups[i-1], [renderer]))
+            self._legends.append((name, [renderer]))
             yield renderer
