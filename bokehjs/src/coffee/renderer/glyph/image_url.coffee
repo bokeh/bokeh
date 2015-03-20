@@ -13,6 +13,7 @@ define [
       @image = (null for img in @url)
       @need_load = (true for img in @url)
       @loaded = (false for img in @url)
+      @_xy_index()
 
     _map_data: () ->
       [@sx, @sy] = @renderer.map_to_screen(@x, @glyph.x.units, @y, @glyph.y.units)

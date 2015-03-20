@@ -54,6 +54,14 @@ define [
         ctx.putImageData(image_data, 0, 0);
         @image_data[i] = canvas
 
+        @max_dw = 0
+        if @glyph.dw.units != "screen"
+          @max_dw = _.max(@dw)
+        @max_dh = 0
+        if @glyph.dh.units != "screen"
+          @max_dh = _.max(@dh)
+        @_xy_index()
+
     _map_data: () ->
       [@sx, @sy] = @renderer.map_to_screen(@x, @glyph.x.units, @y, @glyph.y.units)
       @sw = @distance_vector('x', 'dw', 'edge', @mget('dilate'))
@@ -79,6 +87,13 @@ define [
         ctx.translate(0, -y_offset)
 
       ctx.setImageSmoothingEnabled(old_smoothing)
+
+    bounds: () ->
+      bb = @index.data.bbox
+      return [
+        [bb[0], bb[2]+@max_dw],
+        [bb[1], bb[3]+@max_dh]
+      ]
 
   class ImageRGBA extends Glyph.Model
     default_view: ImageRGBAView
