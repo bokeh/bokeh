@@ -38,9 +38,14 @@ bp = BoxPlot(
     title="BoxPlot", width=400, height=500,
     ylabel='Petals', notebook=True,
 )
+donut = BoxPlot(
+    bbvalues, y_names = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width'],
+    title="BoxPlot", width=400, height=500,
+    ylabel='Petals', notebook=True,
+)
 show(
     vplot(
-        bp,
+        hplot(bp,donut),
         hplot(line, line2),
         hplot(step, area),
     )

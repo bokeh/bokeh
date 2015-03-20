@@ -104,12 +104,9 @@ class DonutBuilder(Builder):
         self._total_units = total = aggregated.sum()
         radians = lambda x: 2*pi*(x/total)
         angles = aggregated.map(radians).cumsum()
-        end_angles = angles.tolist()
-        start_angles = [0] + end_angles[:-1]
-        colors = cycle_colors(self.cat, self.palette)
-        self.set_and_get("", "colors", colors)
-        self.set_and_get("", "end", end_angles)
-        self.set_and_get("", "start", start_angles)
+        self._data['end'] = end_angles =  angles.tolist()
+        self._data['start'] = [0] + end_angles[:-1]
+        self._data['colors'] = cycle_colors(self.cat, self.palette)
 
     def _set_sources(self):
         """Push the Donut data into the ColumnDataSource and calculate
