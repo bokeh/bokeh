@@ -21,6 +21,7 @@ from __future__ import absolute_import
 from ._chart import Chart
 from ._data_adapter import DataAdapter
 from ..models.ranges import Range
+from ..models import ColumnDataSource
 from ..properties import Color, HasProps, Instance, Seq, String
 
 DEFAULT_PALETTE = ["#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33ff3"]
@@ -80,6 +81,7 @@ class Builder(HasProps):
     x_names = Seq(String)
 
     palette = Seq(Color, default=DEFAULT_PALETTE)
+    source = Instance(ColumnDataSource)
 
     def __init__(self, values=None, **kws):
         """Common arguments to be used by all the inherited classes.
@@ -151,6 +153,18 @@ class Builder(HasProps):
         It has to be implemented by any of the inherited class
         representing each different chart type.
         """
+        if not self.source:
+            self.source = ColumnDataSource(self._data)
+        else:
+            self._data = self.source.data
+
+    def _set_ranges(self):
+        """Push data into the ColumnDataSource and build the
+        proper ranges.
+
+        It has to be implemented by any of the inherited class
+        representing each different chart type.
+        """
         pass
 
     def _yield_renderers(self):
@@ -165,6 +179,7 @@ class Builder(HasProps):
         self._adapt_values()
         self._process_data()
         self._set_sources()
+        self._set_ranges()
         renderers = self._yield_renderers()
 
         chart.add_renderers(self, renderers)

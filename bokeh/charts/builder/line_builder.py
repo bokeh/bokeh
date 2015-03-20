@@ -82,8 +82,6 @@ class LineBuilder(Builder):
         Then build a dict containing references to all the points to be
         used by the line glyph inside the ``_yield_renderers`` method.
         """
-        self._data = dict()
-
         # list to save all the attributes we are going to create
         for col, values in self._values.items():
             self._data[col] = values
@@ -92,22 +90,12 @@ class LineBuilder(Builder):
             if xname not in self._data:
                 self._data[xname] = np.array(self._values_index)
 
-    def _set_sources(self):
+    def _set_ranges(self):
+        """ Calculate the proper ranges.
         """
-        Push the Line data into the ColumnDataSource and calculate the
-        proper ranges.
-        """
-        self._source = ColumnDataSource(self._data)
-        self.x_range = DataRange1d(
-            sources=[self._source.columns(*self.x_names)]
-        )
-        data = self._source.data
-        endy = max(max(data[i]) for i in self.y_names)
-        starty = min(min(data[i]) for i in self.y_names)
-        self.y_range = Range1d(
-            start=starty - 0.1 * (endy - starty),
-            end=endy + 0.1 * (endy - starty)
-        )
+        self.x_range = DataRange1d(sources=[self.source.columns(*self.x_names)])
+        y_sources = [self.source.columns("%s" % col) for col in self.y_names]
+        self.y_range = DataRange1d(sources=y_sources)
 
     def _yield_renderers(self):
         """Use the line glyphs to connect the xy points in the Line.

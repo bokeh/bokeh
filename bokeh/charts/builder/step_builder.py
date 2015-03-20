@@ -87,8 +87,6 @@ class StepBuilder(Builder):
         Then build a dict containing references to all the points to be
         used by the segment glyph inside the ``_yield_renderers`` method.
         """
-        self._data = dict()
-
         # step needs a "custom" x to draw the stepped lines so we need
         # a new series from the original data to "build" the steps
         orig_xs = self._values_index
@@ -112,14 +110,11 @@ class StepBuilder(Builder):
             if not col in self._data:
                 self._data[col] = orig_ys
 
-    def _set_sources(self):
-        """ Push the Step data into the ColumnDataSource and calculate
-        the proper ranges.
+    def _set_ranges(self):
+        """ Calculate the proper ranges.
         """
-        sc = self._source = ColumnDataSource(self._data)
-        self.x_range = DataRange1d(sources=[sc.columns("step_x")])
-
-        y_sources = [sc.columns("step_%s" % col) for col in self.y_names]
+        self.x_range = DataRange1d(sources=[self.source.columns("step_x")])
+        y_sources = [self.source.columns("step_%s" % col) for col in self.y_names]
         self.y_range = DataRange1d(sources=y_sources)
 
     def _yield_renderers(self):
