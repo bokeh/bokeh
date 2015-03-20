@@ -8,7 +8,7 @@ from bokeh.browserlib import view
 from bokeh.document import Document
 from bokeh.models.glyphs import Line
 from bokeh.models import (
-    Plot, DataRange1d, LinearAxis,
+    Plot, DataRange1d, LinearAxis, Range1d,
     ColumnDataSource, PanTool, WheelZoomTool
 )
 from bokeh.session import Session
@@ -18,13 +18,13 @@ session = Session()
 session.use_doc('line_animate')
 session.load_document(document)
 
-x = linspace(-2*pi, 2*pi, 1000)
+x = linspace(-6*pi, 6*pi, 1000)
 y = sin(x)
 z = cos(x)
 
 source = ColumnDataSource(data=dict(x=x, y=y, z=z))
 
-plot = Plot(x_range=(-2*pi, 2*pi), y_range=DataRange1d(), min_border=50)
+plot = Plot(x_range=Range1d(-2*pi, 2*pi), y_range=DataRange1d(), min_border=50)
 
 line_glyph = Line(x="x", y="y", line_color="blue")
 plot.add_glyph(source, line_glyph)
