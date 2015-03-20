@@ -87,14 +87,24 @@ define [
       @index = rbush()
       pts = []
       for i in [0...@x.length]
-        # TODO: The intent here is to deal let categorical ranges
-        # not interfere with auto-ranging, but this is pretty wonky
+        # TODO: The intent here is to let categorical ranges not
+        # interfere with auto-ranging, but this is pretty wonky
         x = @x[i]
-        if isNaN(x) and _.isString(x)
-          x = 0
+        if isNaN(x)
+          if _.isString(x)
+            x = 0
+          else
+            continue
+        else if not isFinite(x)
+          continue
         y = @y[i]
-        if isNaN(y) and _.isString(x)
-          y = 0
+        if isNaN(y)
+          if _.isString(y)
+            y = 0
+          else
+            continue
+        else if not isFinite(y)
+          continue
         pts.push([x, y, x, y, {'i': i}])
       @index.load(pts)
 

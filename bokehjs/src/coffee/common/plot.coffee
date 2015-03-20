@@ -101,6 +101,15 @@ define [
           el: @$(toolbar_selector)
         })
 
+      @update_dataranges()
+
+      @unpause()
+
+      logger.debug("PlotView initialized")
+
+      return this
+
+    update_dataranges: () ->
       # Update any DataRange1ds here
       frame = @model.get('frame')
       bounds = {}
@@ -112,12 +121,6 @@ define [
         xr.update?(bounds, 0, @)
       for yr in _.values(frame.get('y_ranges'))
         yr.update?(bounds, 1, @)
-
-      @unpause()
-
-      logger.debug("PlotView initialized")
-
-      return this
 
     map_to_screen: (x, x_units, y, y_units, x_name='default', y_name='default') ->
       @frame.map_to_screen(x, x_units, y, y_units, @canvas, x_name, y_name)
