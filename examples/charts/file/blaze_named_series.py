@@ -19,24 +19,24 @@ df['myx'] = range(100, 100+bbvalues.nrows)
 line2 = Line(
     df, y_names = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width'],
     # x_names = ['myx'],
-    index = ['myx'], width=300, height=300,
+    index = ['myx'], width=400, height=300,
     title="Line Chart",
     ylabel='Petals', notebook=True, legend="top_left"
 )
 step = Step(
     bbvalues, y_names = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width'],
-    title="Step Chart", width=300, height=300,
+    title="Step Chart", width=400, height=300,
     ylabel='Petals', notebook=True, legend="top_left"
 )
 area = Area(
     bbvalues, y_names = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width'],
-    title="Step Chart", width=300, height=300, #stacked=True,
+    title="Step Chart", width=400, height=300, #stacked=True,
     ylabel='Petals', notebook=True, legend="top_left"
 )
 bp = BoxPlot(
     bbvalues, y_names = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width'],
-    title="Step Chart", width=800, height=500, #stacked=True,
-    ylabel='Petals', notebook=True, legend="top_left"
+    title="BoxPlot", width=400, height=500,
+    ylabel='Petals', notebook=True,
 )
 show(
     vplot(

@@ -137,6 +137,9 @@ class Builder(HasProps):
         if not self.x_names:
             self.x_names = ["x"]
 
+        if not self.y_names:
+            self.y_names = self._values.keys()
+
     def _process_data(self):
         """Get the input data.
 
