@@ -43,12 +43,6 @@ def Area(values, index=None, **kws):
     Args:
         values (iterable): iterable 2d representing the data series
             values matrix.
-        index (str|1d iterable, optional): can be used to specify a common custom
-            index for all data series as an **1d iterable** of any sort that will be used as
-            series common index or a **string** that corresponds to the key of the
-            mapping to be used as index (and not as data series) if
-            area.values is a mapping (like a dict, an OrderedDict
-            or a pandas DataFrame)
 
     In addition the the parameters specific to this chart,
         :ref:`charts_generic_arguments` are also accepted as keyword parameters.
@@ -78,7 +72,7 @@ def Area(values, index=None, **kws):
             output_file('area.html')
             show(area)
     """
-    return create_and_build(AreaBuilder, values, index=index, **kws)
+    return create_and_build(AreaBuilder, values, **kws)
 
 
 class AreaBuilder(Builder):
@@ -101,19 +95,6 @@ class AreaBuilder(Builder):
 
     """)
 
-    index = Any(help="""
-    An index to be used for all data series as follows:
-
-    - A 1d iterable of any sort that will be used as
-        series common index
-
-    - As a string that corresponds to the key of the
-        mapping to be used as index (and not as data
-        series) if area.values is a mapping (like a dict,
-        an OrderedDict or a pandas DataFrame)
-
-    """)
-
     def _process_data(self):
         """Calculate the chart properties accordingly from area.values.
         Then build a dict containing references to all the points to be used by
@@ -123,45 +104,35 @@ class AreaBuilder(Builder):
         xs = self._values_index
         last = np.zeros(len(xs))
         x2 = np.hstack((xs[::-1], xs))
-        self.set_and_get("x", "", x2)
+        self._data['area_x'] = x2
 
-        for grp, col_values in self._values.items():
-            # TODO: This condition may be removed or changed depending on
-            # the validation of self.index
-            if isinstance(self.index, string_types) and grp == self.index:
-                continue
+        for col, col_values in self._values.items():
+            if col in self.y_names:
+                # to draw area we need 2 coordinates. The lower values will always
+                # be:
+                # - 0 in case of non stacked area
+                # - the previous series top value in case of stacked charts
+                next = last + col_values
+                values = np.hstack((last[::-1], next))
 
-            # get single series values
-            _values = [col_values[x] for indx, x in enumerate(xs)]
+                # only update when stacked, otherwise we always want to start from 0
+                if self.stacked:
+                    last = next
 
-            # to draw area we need 2 coordinates. The lower values will always
-            # be:
-            # - 0 in case of non stacked area
-            # - the previous series top value in case of stacked charts
-            next = last + _values
-            values = np.hstack((last[::-1], next))
+                self._data['area_%s' % col] = values
 
-            # only update when stacked, otherwise we always want to start from 0
-            if self.stacked:
-                last = next
+            # add the original series to _data so it can be found in source
+            # and can also be used for tooltips..
+            if not col in self._data:
+                self._data[col] = col_values
 
-            # save values and new group
-            self.set_and_get("y_", grp, values)
-            self._groups.append(u"%s" % grp)
-
-    def _set_sources(self):
+    def _set_ranges(self):
         """
         Push the Line data into the ColumnDataSource and calculate the proper ranges.
         """
-        self._source = ColumnDataSource(self._data)
-        self.x_range = DataRange1d(sources=[self._source.columns("x")])
-        y_names = self._attr[1:]
-        endy = max(max(self._data[i]) for i in y_names)
-        starty = min(min(self._data[i]) for i in y_names)
-        self.y_range =  Range1d(
-            start=starty - 0.1 * (endy - starty),
-            end=endy + 0.1 * (endy - starty)
-        )
+        self.x_range = DataRange1d(sources=[self._source.columns("area_x")])
+        y_sources = [self.source.columns("area_%s" % col) for col in self.y_names]
+        self.y_range = DataRange1d(sources=y_sources)
 
     def _yield_renderers(self):
         """Use the patch glyphs to fill the area connecting the xy points
@@ -169,13 +140,11 @@ class AreaBuilder(Builder):
 
         Takes reference points from the data loaded at the ColumnDataSource.
         """
-        colors = cycle_colors(self._attr, self.palette)
-        # parse all series. We exclude the first attr as it's the x values
-        # added for the index
-        for i, series_name in enumerate(self._attr[1:]):
-
+        colors = cycle_colors(self.y_names, self.palette)
+        for color, name in zip(colors, self.y_names):
+            # draw the step horizontal segment
             glyph = Patch(
-                x='x', y=series_name, fill_color=colors[i], fill_alpha=0.9)
-            renderer = GlyphRenderer(data_source=self._source, glyph=glyph)
-            self._legends.append((self._groups[i], [renderer]))
+                x='area_x', y="area_%s" % name, fill_color=color, fill_alpha=0.9)
+            renderer = GlyphRenderer(data_source=self.source, glyph=glyph)
+            self._legends.append((name, [renderer]))
             yield renderer
