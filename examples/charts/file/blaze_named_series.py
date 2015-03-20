@@ -45,7 +45,7 @@ donut = BoxPlot(
 )
 show(
     vplot(
-        hplot(bp,donut),
+        hplot(bp, donut),
         hplot(line, line2),
         hplot(step, area),
     )
