@@ -42,7 +42,10 @@ def make_plot(xname, yname, xax=False, yax=False, text=None):
         plot_width=250, plot_height=250)
 
     circle = Circle(x=xname, y=yname, fill_color="color", fill_alpha=0.2, size=4, line_color="color")
-    plot.add_glyph(source, circle)
+    r = plot.add_glyph(source, circle)
+
+    xdr.renderers.append(r)
+    ydr.renderers.append(r)
 
     xticker = BasicTicker()
     if xax:

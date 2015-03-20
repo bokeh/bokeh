@@ -44,7 +44,9 @@ define [
 
       super(attrs, options)
 
-    update: (bounds, dimension) ->
+      @plot_bounds = {}
+
+    update: (bounds, dimension, plot_view) ->
       # TODO (bev)
       # check that renderers actually configured with this range
       renderers = @get('renderers')
@@ -64,7 +66,13 @@ define [
         if bounds[r.id]?
           result = bbox.extend(result, bounds[r.id])
 
-      [min, max] = result[dimension]
+      @plot_bounds[plot_view.model.id] = result
+
+      overall = new bbox.empty()
+      for k, v of @plot_bounds
+        overall = bbox.extend(overall, v)
+
+      [min, max] = overall[dimension]
 
       if max != min
         span = (max-min)*(1+@get('range_padding'))

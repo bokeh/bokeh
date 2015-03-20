@@ -109,9 +109,9 @@ define [
         if bds?
           bounds[k] = bds
       for xr in _.values(frame.get('x_ranges'))
-        xr.update?(bounds, 0)
+        xr.update?(bounds, 0, @)
       for yr in _.values(frame.get('y_ranges'))
-        yr.update?(bounds, 1)
+        yr.update?(bounds, 1, @)
 
       @unpause()
 
