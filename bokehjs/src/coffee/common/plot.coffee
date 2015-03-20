@@ -101,6 +101,18 @@ define [
           el: @$(toolbar_selector)
         })
 
+      # Update any DataRange1ds here
+      frame = @model.get('frame')
+      bounds = {}
+      for k, v of @renderers
+        bds = v.glyph?.bounds?()
+        if bds?
+          bounds[k] = bds
+      for xr in _.values(frame.get('x_ranges'))
+        xr.update?(bounds, 0)
+      for yr in _.values(frame.get('y_ranges'))
+        yr.update?(bounds, 1)
+
       @unpause()
 
       logger.debug("PlotView initialized")
@@ -196,17 +208,6 @@ define [
       for k, v of @renderers
         if v.model.update_layout?
           v.model.update_layout(v, @canvas.solver)
-
-      # Update any DataRange1ds here
-      bounds = {}
-      for k, v of @renderers
-        bds = v.glyph?.bounds?()
-        if bds?
-          bounds[k] = bds
-      for xr in _.values(frame.get('x_ranges'))
-        xr.update?(bounds, 0)
-      for yr in _.values(frame.get('y_ranges'))
-        yr.update?(bounds, 1)
 
       title = @mget('title')
       if title
