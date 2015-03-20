@@ -128,9 +128,9 @@ class BoxPlotBuilder(Builder):
         self._data_legend = dict()
 
         if isinstance(self._values, pd.DataFrame):
-            self._groups = self._values.columns
+            self._groups = [x for x in self._values.columns if x in self.y_names]
         else:
-            self._groups = list(self._values.keys())
+            self._groups = [x for x in list(self._values.keys()) if x in self.y_names]
 
         # add group to the self._data_segment dict
         self._data_segment["groups"] = self._groups
@@ -160,34 +160,36 @@ class BoxPlotBuilder(Builder):
         for i, (level, values) in enumerate(self._values.items()):
             # Compute quantiles, center points, heights, IQR, etc.
             # quantiles
-            q = np.percentile(values, [25, 50, 75])
-            q0_points.append(q[0])
-            q2_points.append(q[2])
 
-            # IQR related stuff...
-            iqr_centers.append((q[2] + q[0]) / 2)
-            iqr = q[2] - q[0]
-            iqr_lengths.append(iqr)
-            lower = q[0] - 1.5 * iqr
-            upper = q[2] + 1.5 * iqr
-            lower_points.append(lower)
-            upper_points.append(upper)
+            if level in self.y_names:
+                q = np.percentile(values, [25, 50, 75])
+                q0_points.append(q[0])
+                q2_points.append(q[2])
 
-            # rect center points and heights
-            upper_center_boxes.append((q[2] + q[1]) / 2)
-            upper_height_boxes.append(q[2] - q[1])
-            lower_center_boxes.append((q[1] + q[0]) / 2)
-            lower_height_boxes.append(q[1] - q[0])
+                # IQR related stuff...
+                iqr_centers.append((q[2] + q[0]) / 2)
+                iqr = q[2] - q[0]
+                iqr_lengths.append(iqr)
+                lower = q[0] - 1.5 * iqr
+                upper = q[2] + 1.5 * iqr
+                lower_points.append(lower)
+                upper_points.append(upper)
 
-            # Store indices of outliers as list
-            outliers = np.where(
-                (values > upper) | (values < lower)
-            )[0]
-            for out in outliers:
-                o = values[out]
-                out_x.append(level)
-                out_y.append(o)
-                out_color.append(self.palette[i])
+                # rect center points and heights
+                upper_center_boxes.append((q[2] + q[1]) / 2)
+                upper_height_boxes.append(q[2] - q[1])
+                lower_center_boxes.append((q[1] + q[0]) / 2)
+                lower_height_boxes.append(q[1] - q[0])
+
+                # Store indices of outliers as list
+                outliers = np.where(
+                    (values > upper) | (values < lower)
+                )[0]
+                for out in outliers:
+                    o = values[out]
+                    out_x.append(level)
+                    out_y.append(o)
+                    out_color.append(self.palette[i])
 
         # Store
         self.set_and_get(self._data_scatter, self._attr_scatter, "out_x", out_x)

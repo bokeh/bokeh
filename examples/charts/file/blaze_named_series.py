@@ -33,8 +33,14 @@ area = Area(
     title="Step Chart", width=300, height=300, #stacked=True,
     ylabel='Petals', notebook=True, legend="top_left"
 )
+bp = BoxPlot(
+    bbvalues, y_names = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width'],
+    title="Step Chart", width=800, height=500, #stacked=True,
+    ylabel='Petals', notebook=True, legend="top_left"
+)
 show(
     vplot(
+        bp,
         hplot(line, line2),
         hplot(step, area),
     )
