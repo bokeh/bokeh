@@ -44,6 +44,13 @@ hist = Histogram(
     title="BoxPlot", width=400, height=500,
     ylabel='Petals'
 )
+hist = Histogram(
+    bbvalues, bins=10,
+    y_names = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width'],
+    title="BoxPlot", width=400, height=500,
+    ylabel='Petals'
+)
+
 show(
     vplot(
         hplot(bp, hist),

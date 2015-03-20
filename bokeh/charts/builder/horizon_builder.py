@@ -14,6 +14,7 @@ from .._builder import Builder, create_and_build
 from ...models import ColumnDataSource, Range1d, DataRange1d, FactorRange, GlyphRenderer, CategoricalAxis
 from ...models.glyphs import Patches
 from ...properties import Any, Color, Int
+from warnings import warn
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -70,6 +71,12 @@ def Horizon(values, index=None, num_folds=3, pos_color='#006400',
         show(hz)
 
     """
+
+    if index is not None:
+        msg = "bokeh.charts.Line index argument is deprecated since Bokeh 0.8.2. Use x_names instead!"
+        warn(msg, DeprecationWarning, stacklevel=2)
+        kws['x_names'] = index
+
     tools = kws.get('tools', True)
 
     if tools == True:
@@ -82,7 +89,7 @@ def Horizon(values, index=None, num_folds=3, pos_color='#006400',
     kws['tools'] = tools
 
     chart = create_and_build(
-        HorizonBuilder, values, index=index, num_folds=num_folds, pos_color=pos_color,
+        HorizonBuilder, values, num_folds=num_folds, pos_color=pos_color,
         neg_color=neg_color, xscale=xscale, xgrid=xgrid, ygrid=ygrid, **kws
     )
 
@@ -107,18 +114,18 @@ class HorizonBuilder(Builder):
 
     """
 
-    index = Any(help="""
-    An index to be used for all data series as follows:
-
-    - A 1d iterable of any sort that will be used as
-        series common index
-
-    - As a string that corresponds to the key of the
-        mapping to be used as index (and not as data
-        series) if area.values is a mapping (like a dict,
-        an OrderedDict or a pandas DataFrame)
-
-    """)
+    # index = Any(help="""
+    # An index to be used for all data series as follows:
+    #
+    # - A 1d iterable of any sort that will be used as
+    #     series common index
+    #
+    # - As a string that corresponds to the key of the
+    #     mapping to be used as index (and not as data
+    #     series) if area.values is a mapping (like a dict,
+    #     an OrderedDict or a pandas DataFrame)
+    #
+    # """)
 
     neg_color = Color("#6495ed", help="""
     The color of the negative folds. (default: "#6495ed")
@@ -225,15 +232,15 @@ class HorizonBuilder(Builder):
         the multiple area glyphes inside the ``_yield_renderers`` method.
 
         """
-        for col in self._values.keys():
-            if isinstance(self.index, string_types) and col == self.index:
-                continue
+        for col, values in self._values.items():
+            # if isinstance(self.index, string_types) and col == self.index:
+            #     continue
+            if col in self.y_names:
+                self._series.append(col)
+                self._max_y = max(max(values), self._max_y)
 
-            self._series.append(col)
-            self._max_y = max(max(self._values[col]), self._max_y)
-
-            v_index = [x for x in self._values_index]
-            self.set_and_get("x_", col, self.pad_list(v_index))
+                v_index = [x for x in self._values_index]
+                self.set_and_get("x_", col, self.pad_list(v_index))
 
         self._fold_height = self._max_y / self.num_folds
         self._graph_ratio = self.num_folds / len(self._series)
@@ -242,7 +249,6 @@ class HorizonBuilder(Builder):
         fill_color = []
 
         for serie_no, serie in enumerate(self._series):
-
             self.set_and_get('y_', serie, self._values[serie])
             y_origin = serie_no * self._max_y / len(self._series)
 
@@ -281,11 +287,11 @@ class HorizonBuilder(Builder):
         self.set_and_get(
             'y_', 'all', [self._data[f_name] for f_name in self._fold_names])
 
-    def _set_sources(self):
+    def _set_ranges(self):
         """Push the Horizon data into the ColumnDataSource and
         calculate the proper ranges.
         """
-        self._source = ColumnDataSource(self._data)
+        # self._source = ColumnDataSource(self._data)
         self.x_range = DataRange1d(rangepadding=0, sources=[self._source.columns(self._attr[0])])
         self.y_range = Range1d(start=0, end=self._max_y)
 
