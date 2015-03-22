@@ -12,7 +12,7 @@ define [
       @_xy_index()
 
     _map_data: () ->
-      [@sx, @sy] = @renderer.map_to_screen(@x, @glyph.x.units, @y, @glyph.y.units)
+      [@sx, @sy] = @renderer.map_to_screen(@x, @y)
 
       @sx_offset = @distance_vector('x', 'x_offset', 'edge')
       @sy_offset = @distance_vector('y', 'y_offset', 'edge')

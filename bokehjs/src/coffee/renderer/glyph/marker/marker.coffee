@@ -46,7 +46,7 @@ define [
       @_xy_index()
 
     _map_data: () ->
-      [@sx, @sy] = @renderer.map_to_screen(@x, @glyph.x.units, @y, @glyph.y.units)
+      [@sx, @sy] = @renderer.map_to_screen(@x, @y)
 
     _mask_data: () ->
       # dilate the inner screen region by max_size and map back to data space for use in

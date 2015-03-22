@@ -19,8 +19,8 @@ define [
       @index.load(pts)
 
     _map_data: () ->
-      [@sx0, @sy0] = @renderer.map_to_screen(@x0, @glyph.x0.units, @y0, @glyph.y0.units)
-      [@sx1, @sy1] = @renderer.map_to_screen(@x1, @glyph.x1.units, @y1, @glyph.y1.units)
+      [@sx0, @sy0] = @renderer.map_to_screen(@x0, @y0)
+      [@sx1, @sy1] = @renderer.map_to_screen(@x1, @y1)
 
     _render: (ctx, indices) ->
       if @props.line.do_stroke

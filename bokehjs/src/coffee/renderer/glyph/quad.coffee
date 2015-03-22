@@ -19,8 +19,8 @@ define [
       @index.load(pts)
 
     _map_data: () ->
-      [@sx0, @sy0] = @renderer.map_to_screen(@left,  @glyph.left.units,  @top,    @glyph.top.units)
-      [@sx1, @sy1] = @renderer.map_to_screen(@right, @glyph.right.units, @bottom, @glyph.bottom.units)
+      [@sx0, @sy0] = @renderer.map_to_screen(@left, @top)
+      [@sx1, @sy1] = @renderer.map_to_screen(@right, @bottom)
 
     _render: (ctx, indices, sx0=@sx0, sx1=@sx1, sy0=@sy0, sy1=@sy1) ->
       for i in indices

@@ -186,7 +186,7 @@ define [
       if not @rule_props.do_stroke
         return
       [x, y] = coords = @mget('rule_coords')
-      [sx, sy] = @plot_view.map_to_screen(x, "data", y, "data", @x_range_name, @y_range_name)
+      [sx, sy] = @plot_view.map_to_screen(x, y, @x_range_name, @y_range_name)
       [nx, ny] = @mget('normals')
       [xoff, yoff]  = @mget('offsets')
 
@@ -202,7 +202,7 @@ define [
         return
       coords = @mget('tick_coords')
       [x, y] = coords.major
-      [sx, sy] = @plot_view.map_to_screen(x, "data", y, "data", @x_range_name, @y_range_name)
+      [sx, sy] = @plot_view.map_to_screen(x, y, @x_range_name, @y_range_name)
       [nx, ny] = @mget('normals')
       [xoff, yoff]  = @mget('offsets')
 
@@ -220,7 +220,7 @@ define [
         return
       coords = @mget('tick_coords')
       [x, y] = coords.minor
-      [sx, sy] = @plot_view.map_to_screen(x, "data", y, "data", @x_range_name, @y_range_name)
+      [sx, sy] = @plot_view.map_to_screen(x, y, @x_range_name, @y_range_name)
       [nx, ny] = @mget('normals')
       [xoff, yoff]  = @mget('offsets')
 
@@ -236,7 +236,7 @@ define [
     _draw_major_labels: (ctx) ->
       coords = @mget('tick_coords')
       [x, y] = coords.major
-      [sx, sy] = @plot_view.map_to_screen(x, "data", y, "data", @x_range_name, @y_range_name)
+      [sx, sy] = @plot_view.map_to_screen(x, y, @x_range_name, @y_range_name)
       [nx, ny] = @mget('normals')
       [xoff, yoff]  = @mget('offsets')
       dim = @mget('dimension')
@@ -271,7 +271,7 @@ define [
         return
 
       [x, y] = @mget('rule_coords')
-      [sx, sy] = @plot_view.map_to_screen(x, "data", y, "data", @x_range_name, @y_range_name)
+      [sx, sy] = @plot_view.map_to_screen(x, y, @x_range_name, @y_range_name)
       [nx, ny] = @mget('normals')
       [xoff, yoff]  = @mget('offsets')
       side = @mget('location')

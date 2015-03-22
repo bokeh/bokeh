@@ -12,7 +12,7 @@ define [
     _properties: ['line', 'fill']
 
     _map_data: () ->
-      [@sx, @sy] = @renderer.map_to_screen(@x, @glyph.x.units, @y, @glyph.y.units)
+      [@sx, @sy] = @renderer.map_to_screen(@x, @y)
       @smodule = @distance_vector('x', 'module', 'edge')
 
     _render: (ctx, indices) ->

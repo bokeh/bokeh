@@ -25,8 +25,8 @@ define [
 
     _properties: ['line', 'fill']
 
-    # we need a custom initializer because circles may either take glyph-style radius (defaults
-    # to data units) or a marker-style size (defaults to screen units)
+    # we need a custom initializer because circles may either take glyph-style radius
+    # (data units) or a marker-style size (screen units)
     initialize: (options) ->
       if @mget("radius")?
         @_fields = ['x', 'y', 'radius', 'radius_dimension']
@@ -42,10 +42,9 @@ define [
       @_xy_index()
 
     _map_data: () ->
-      [@sx, @sy] = @renderer.map_to_screen(@x, @glyph.x.units, @y, @glyph.y.units)
+      [@sx, @sy] = @renderer.map_to_screen(@x, @y)
       if @size
         @radius = (s/2 for s in @distance_vector('x', 'size', 'edge'))
-        @radius_units = @glyph.size.units
       else
         rd = @mget('radius_dimension')
         if rd != 'x' and rd != 'y'
@@ -57,7 +56,7 @@ define [
       hr = @renderer.plot_view.frame.get('h_range')
       vr = @renderer.plot_view.frame.get('v_range')
 
-      if @radius_units == "screen"
+      if @size
         sx0 = hr.get('start') - @max_radius
         sx1 = hr.get('end') - @max_radius
         [x0, x1] = @renderer.xmapper.v_map_from_target([sx0, sx1])
@@ -102,7 +101,7 @@ define [
       x = @renderer.xmapper.map_from_target(vx)
       y = @renderer.ymapper.map_from_target(vy)
 
-      if @radius_units == "screen"
+      if @size
         vx0 = vx - @max_radius
         vx1 = vx + @max_radius
         [x0, x1] = @renderer.xmapper.v_map_from_target([vx0, vx1])
@@ -121,7 +120,7 @@ define [
       candidates = (pt[4].i for pt in @index.search([x0, y0, x1, y1]))
 
       hits = []
-      if @radius_units == "screen"
+      if @size
         sx = @renderer.plot_view.canvas.vx_to_sx(vx)
         sy = @renderer.plot_view.canvas.vy_to_sy(vy)
         for i in candidates
@@ -194,8 +193,6 @@ define [
 
     defaults: ->
       return _.extend {}, super(), {
-        size_units: 'screen'
-        radius_units: 'data'
         radius_dimension: 'x'
       }
 

@@ -29,7 +29,7 @@ define [
       for i in indices
         x = @xs[i]
         y = @ys[i]
-        [sx, sy] = @renderer.map_to_screen(@xs[i], @glyph.xs.units, @ys[i], @glyph.ys.units)
+        [sx, sy] = @renderer.map_to_screen(@xs[i], @ys[i])
 
         @props.line.set_vectorize(ctx, i)
         for j in [0...sx.length]

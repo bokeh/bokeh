@@ -16,7 +16,7 @@ define [
       @_xy_index()
 
     _map_data: () ->
-      [@sx, @sy] = @renderer.map_to_screen(@x, @glyph.x.units, @y, @glyph.y.units)
+      [@sx, @sy] = @renderer.map_to_screen(@x, @y)
       @sw = @distance_vector('x', 'w', 'edge', @mget('dilate'))
       @sh = @distance_vector('y', 'h', 'edge', @mget('dilate'))
 

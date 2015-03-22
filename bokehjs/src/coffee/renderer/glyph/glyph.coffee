@@ -110,9 +110,6 @@ define [
 
     distance_vector: (pt, span_prop_name, position, dilate=false) ->
       """ returns an array """
-      pt_units = @glyph[pt].units
-      span_units = @glyph[span_prop_name].units
-
       if      pt == 'x' then mapper = @renderer.xmapper
       else if pt == 'y' then mapper = @renderer.ymapper
 
@@ -120,22 +117,16 @@ define [
       local_select = (prop_name) =>
         return @glyph.source_v_select(prop_name, source)
       span = local_select(span_prop_name)
-      if span_units == 'screen'
-        return span
 
       if position == 'center'
         halfspan = (d / 2 for d in span)
         ptc = local_select(pt)
-        if pt_units == 'screen'
-          ptc = mapper.v_map_from_target(ptc)
         if _.isString(ptc[0])
           ptc = mapper.v_map_to_target(ptc)
         pt0 = (ptc[i] - halfspan[i] for i in [0...ptc.length])
         pt1 = (ptc[i] + halfspan[i] for i in [0...ptc.length])
       else
         pt0 = local_select(pt)
-        if pt_units == 'screen'
-          pt0 = mapper.v_map_from_target(pt0)
         pt1 = (pt0[i] + span[i] for i in [0...pt0.length])
 
       spt0 = mapper.v_map_to_target(pt0)

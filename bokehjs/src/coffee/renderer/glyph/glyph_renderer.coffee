@@ -129,8 +129,8 @@ define [
     yrange: () ->
       return @plot_view.y_range
 
-    map_to_screen: (x, x_units, y, y_units) ->
-      @plot_view.map_to_screen(x, x_units, y, y_units, @mget("x_range_name"), @mget("y_range_name"))
+    map_to_screen: (x, y) ->
+      @plot_view.map_to_screen(x, y, @mget("x_range_name"), @mget("y_range_name"))
 
     draw_legend: (ctx, x0, x1, y0, y1) ->
       @glyph.draw_legend(ctx, x0, x1, y0, y1)
