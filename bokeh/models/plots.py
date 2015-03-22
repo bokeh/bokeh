@@ -177,7 +177,7 @@ class Plot(Widget):
 
         if hasattr(obj, 'plot'):
             if obj.plot is not None:
-                 raise ValueError("object to be added already has 'plot' attribute set")
+                raise ValueError("object to be added already has 'plot' attribute set")
             obj.plot = self
 
         self.renderers.append(obj)
@@ -200,7 +200,7 @@ class Plot(Widget):
 
         for tool in tools:
             if tool.plot is not None:
-                 raise ValueError("tool %s to be added already has 'plot' attribute set" % tool)
+                raise ValueError("tool %s to be added already has 'plot' attribute set" % tool)
             tool.plot = self
             self.tools.append(tool)
 

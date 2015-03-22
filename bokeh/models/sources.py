@@ -250,7 +250,7 @@ class BlazeDataSource(RemoteSource):
     def to_blaze(self):
         from blaze.server.client import Client
         from blaze.server import from_tree
-        from blaze import Data, Symbol
+        from blaze import Data
         # hacky - blaze urls have `compute.json` in it, but we need to strip it off
         # to feed it into the blaze client lib
         c = Client(self.data_url.rsplit('compute.json', 1)[0])
