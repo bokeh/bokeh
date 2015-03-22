@@ -208,9 +208,18 @@ define [
       frame = @model.get('frame')
       canvas = @model.get('canvas')
 
+
       for k, v of @renderers
         if v.model.update_layout?
           v.model.update_layout(v, @canvas.solver)
+
+      need_dr_update = false
+      for k, v of @renderers
+        if v.have_new_data
+          need_dr_update = true
+          break
+      if need_dr_update
+        @update_dataranges()
 
       title = @mget('title')
       if title
@@ -231,6 +240,9 @@ define [
 
       if not @initial_range_info?
         @set_initial_range()
+
+      if not @initial_range_info?
+        return
 
       frame_box = [
         @canvas.vx_to_sx(@frame.get('left')),
