@@ -22,7 +22,7 @@ from bokeh.server.utils.plugins import object_page
 from bokeh.models.widgets import (HBox, VBox, VBoxForm, PreText, Select,
                                   DataTable, TableColumn, StringFormatter,
                                   NumberFormatter, StringEditor, IntEditor,
-                                  NumberEditor, SelectEditor)
+                                  NumberEditor, SelectEditor, Tabs, Panel)
 from bokeh.charts import Bar
 
 # build up list of airports data in the daily folder
@@ -163,7 +163,7 @@ class AirportApp(VBox):
             TableColumn(field="lat",         title="Lat.",         editor=NumberEditor()),
             TableColumn(field="lng",          title="Lng.",    editor=NumberEditor()),
         ]
-        self.data_table = DataTable(source=self.air_source, columns=columns, editable=True)
+        self.data_table = DataTable(source=self.air_source, columns=columns, editable=True, width=1200)
 
     def make_inputs(self):
 
@@ -240,10 +240,18 @@ class AirportApp(VBox):
         self.hist2 = self.hist_plot_grouped_by('source_ap')
 
     def set_children(self):
-        self.children = [self.mainrow,  self.histrow, self.data_table]
+
+        panels = [
+            Panel(title="Histograms", child=HBox(children=[self.hist1, self.hist2])),
+            Panel(title="Table", child=self.data_table)
+        ]
+
+        self.children = [self.mainrow,  self.histrow]
         self.mainrow.children = [self.from_plot, self.to_plot, self.statsbox]
         self.input_box.children = [self.ticker1_select, self.ticker2_select]
-        self.histrow.children = [self.hist1, self.hist2]
+        self.histrow.children = [Tabs(tabs=panels, active=1),
+                                 # self.hist1, self.hist2
+        ]
         self.statsbox.children = [self.pretext]
 
     def input_change(self, obj, attrname, old, new):
