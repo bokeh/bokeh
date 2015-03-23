@@ -1,8 +1,7 @@
 define [
   "underscore"
-  "rbush"
   "./glyph"
-], (_, rbush, Glyph) ->
+], (_, Glyph) ->
 
   class PatchView extends Glyph.View
 

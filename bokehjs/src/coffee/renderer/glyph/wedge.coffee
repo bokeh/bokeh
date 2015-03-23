@@ -1,9 +1,8 @@
 define [
   "underscore"
-  "rbush"
   "common/mathutils"
   "./glyph"
-], (_, rbush, mathutils, Glyph) ->
+], (_, mathutils, Glyph) ->
 
   class WedgeView extends Glyph.View
 
