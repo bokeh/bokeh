@@ -56,7 +56,7 @@ class TestBoxPlot(unittest.TestCase):
             'width': [0.8, 0.8, 0.8]
         }
         expected_scatter = {
-            'colors': ['#f22c40'],
+            'out_colors': ['#f22c40'],
             'out_x': ['bronze'],
             'out_y': [10.0]
         }
@@ -70,15 +70,15 @@ class TestBoxPlot(unittest.TestCase):
         for i, _xy in enumerate([xyvalues, xyvaluesdf, xyvaluesbl]):
             bp = create_chart(BoxPlot, _xy, marker='circle', outliers=True)
             builder = bp._builders[0]
-            self.assertEqual(sorted(builder._groups), sorted(groups))
+            self.assertEqual(sorted(builder.y_names), sorted(groups))
             for key, expected_v in exptected_datarect.items():
-                self.assertEqual(builder._data_rect[key], expected_v)
+                self.assertEqual(builder._data[key], expected_v)
 
             for key, expected_v in expected_scatter.items():
-                self.assertEqual(builder._data_scatter[key], expected_v)
+                self.assertEqual(builder._data[key], expected_v)
 
             for key, expected_v in expected_seg.items():
-                self.assertEqual(builder._data_segment[key], expected_v)
+                self.assertEqual(builder._data[key], expected_v)
 
             self.assertEqual(len(builder._legends), 3)
 
@@ -99,14 +99,14 @@ class TestBoxPlot(unittest.TestCase):
         for i, _xy in enumerate([lvalues, np.array(lvalues)]):
             bp = create_chart(BoxPlot, _xy, marker='circle', outliers=True)
             builder = bp._builders[0]
-            self.assertEqual(sorted(builder._groups), sorted(groups))
+            self.assertEqual(sorted(builder.y_names), sorted(groups))
             for key, expected_v in exptected_datarect.items():
-                self.assertEqual(builder._data_rect[key], expected_v)
+                self.assertEqual(builder._data[key], expected_v)
 
             for key, expected_v in expected_scatter.items():
-                self.assertEqual(builder._data_scatter[key], expected_v)
+                self.assertEqual(builder._data[key], expected_v)
 
             for key, expected_v in expected_seg.items():
-                self.assertEqual(builder._data_segment[key], expected_v)
+                self.assertEqual(builder._data[key], expected_v)
 
             self.assertEqual(len(builder._legends), 3)

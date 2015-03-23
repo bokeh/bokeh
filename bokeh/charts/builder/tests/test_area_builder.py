@@ -46,41 +46,44 @@ class TestAreaBuilder(unittest.TestCase):
         y_pypy = np.hstack((zeros, np.array(xyvalues['pypy'])))
         y_python = np.hstack((zeros, np.array(xyvalues['python'])))
 
-        data_keys = ['x', 'y_jython', 'y_pypy', 'y_python']
+        data_keys = ['area_jython', 'area_pypy', 'area_python', 'area_x',
+                     'jython', 'pypy', 'python']
         for _xy in [xyvalues, dict(xyvalues), pd.DataFrame(xyvalues)]:
             area = create_chart(Area, _xy)
             builder = area._builders[0]
-            self.assertEqual(sorted(builder._groups), sorted(list(xyvalues.keys())))
+            self.assertEqual(sorted(builder.y_names), sorted(list(xyvalues.keys())))
             self.assertListEqual(sorted(builder._data.keys()), data_keys)
-            assert_array_equal(builder._data['x'], x)
-            assert_array_equal(builder._data['y_jython'], y_jython)
-            assert_array_equal(builder._data['y_pypy'], y_pypy)
-            assert_array_equal(builder._data['y_python'], y_python)
+            assert_array_equal(builder._data['area_x'], x)
+            assert_array_equal(builder._data['area_jython'], y_jython)
+            assert_array_equal(builder._data['area_pypy'], y_pypy)
+            assert_array_equal(builder._data['area_python'], y_python)
 
             self.assertIsInstance(area.x_range, DataRange1d)
-            self.assertEqual(area.x_range.sources[0].source, builder._source.columns('x').source)
-            self.assertIsInstance(area.y_range, Range1d)
-            assert_array_almost_equal(area.y_range.start, -12.6, decimal=4)
-            assert_array_almost_equal(area.y_range.end, 138.6, decimal=4)
+            self.assertEqual(area.x_range.sources[0].source, builder._source.columns('area_x').source)
+            self.assertIsInstance(area.y_range, DataRange1d)
+            # assert_array_almost_equal(area.y_range.start, -12.6, decimal=4)
+            # assert_array_almost_equal(area.y_range.end, 138.6, decimal=4)
             self.assertEqual(builder._source._data, builder._data)
 
-        data_keys = ['x', 'y_0', 'y_1', 'y_2']
+        data_keys = ['0', '1', '2', 'area_0', 'area_1', 'area_2', 'area_x']
         lvalues = [[2, 3, 7, 5, 26], [12, 33, 47, 15, 126], [22, 43, 10, 25, 26]]
         y_0, y_1, y_2 = y_python, y_pypy, y_jython
         for _xy in [lvalues, np.array(lvalues)]:
             area = create_chart(Area, _xy)
             builder = area._builders[0]
 
-            self.assertEqual(builder._groups, ['0', '1', '2'])
+            self.assertEqual(builder.y_names, ['0', '1', '2'])
             self.assertListEqual(sorted(builder._data.keys()), data_keys)
-            assert_array_equal(builder._data['x'], x)
-            assert_array_equal(builder._data['y_0'], y_0)
-            assert_array_equal(builder._data['y_1'], y_1)
-            assert_array_equal(builder._data['y_2'], y_2)
+            assert_array_equal(builder._data['area_x'], x)
+            assert_array_equal(builder._data['area_0'], y_0)
+            assert_array_equal(builder._data['area_1'], y_1)
+            assert_array_equal(builder._data['area_2'], y_2)
 
             self.assertIsInstance(area.x_range, DataRange1d)
-            self.assertEqual(area.x_range.sources[0].source, builder._source.columns('x').source)
-            self.assertIsInstance(area.y_range, Range1d)
-            assert_array_almost_equal(area.y_range.start, -12.6, decimal=4)
-            assert_array_almost_equal(area.y_range.end, 138.6, decimal=4)
+            self.assertEqual(area.x_range.sources[0].source, builder._source.columns('area_x').source)
+            self.assertIsInstance(area.y_range, DataRange1d)
+            y_names = ['area_0', 'area_1', 'area_2']
+            self.assertEqual(area.y_range.sources[0].source, builder._source.columns(*y_names).source)
+            # assert_array_almost_equal(area.y_range.start, -12.6, decimal=4)
+            # assert_array_almost_equal(area.y_range.end, 138.6, decimal=4)
             self.assertEqual(builder._source._data, builder._data)

@@ -45,18 +45,20 @@ class TestStep(unittest.TestCase):
         for i, _xy in enumerate([xyvalues, xyvaluesdf]):
             hm = create_chart(Step, _xy)
             builder = hm._builders[0]
-            self.assertEqual(sorted(builder._groups), sorted(list(xyvalues.keys())))
-            assert_array_equal(builder._data['x'], x)
+            self.assertEqual(sorted(builder.y_names), sorted(list(xyvalues.keys())))
+            assert_array_equal(builder._data['step_x'], x)
 
-            assert_array_equal(builder._data['y_python'], y_python)
-            assert_array_equal(builder._data['y_jython'], y_jython)
-            assert_array_equal(builder._data['y_pypy'], y_pypy)
+            assert_array_equal(builder._data['step_python'], y_python)
+            assert_array_equal(builder._data['step_jython'], y_jython)
+            assert_array_equal(builder._data['step_pypy'], y_pypy)
 
         lvalues = [[2, 3, 7, 5, 26], [12, 33, 47, 15, 126], [22, 43, 10, 25, 26]]
         for _xy in [lvalues, np.array(lvalues)]:
             hm = create_chart(Step, _xy)
             builder = hm._builders[0]
-            self.assertEqual(builder._groups, ['0', '1', '2'])
-            assert_array_equal(builder._data['y_0'], y_python)
-            assert_array_equal(builder._data['y_1'], y_pypy)
-            assert_array_equal(builder._data['y_2'], y_jython)
+            self.assertEqual(builder.y_names, ['0', '1', '2'])
+            assert_array_equal(builder._data['step_0'], y_python)
+            assert_array_equal(builder._data['step_1'], y_pypy)
+            assert_array_equal(builder._data['step_2'], y_jython)
+            assert_array_equal(builder._data['step_x'], x)
+

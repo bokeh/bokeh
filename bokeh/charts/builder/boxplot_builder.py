@@ -142,7 +142,7 @@ class BoxPlotBuilder(Builder):
         self._data["lower_height_boxes"] = lower_height_boxes = []
         self._data["out_x"] = out_x = []
         self._data["out_y"] = out_y = []
-        self._data["out_color"] = out_color = []
+        self._data["out_colors"] = out_colors = []
         self._data["colors"] = self.palette
 
         for i, (level, values) in enumerate(self._values.items()):
@@ -177,7 +177,7 @@ class BoxPlotBuilder(Builder):
                     o = values[out]
                     out_x.append(level)
                     out_y.append(o)
-                    out_color.append(self.palette[i])
+                    out_colors.append(self.palette[i])
 
 
     def _set_ranges(self):
@@ -217,7 +217,7 @@ class BoxPlotBuilder(Builder):
         # Draw the outliers if needed
         if self.outliers:
             yield make_scatter(
-                self.source, 'out_x', 'out_y', self.marker, 'out_color'
+                self.source, 'out_x', 'out_y', self.marker, 'out_colors'
             )
 
         # We need to build the legend here using dummy glyphs

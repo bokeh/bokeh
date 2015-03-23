@@ -56,7 +56,7 @@ class TestHistogram(unittest.TestCase):
         for i, _xy in enumerate([xyvalues, xyvaluesdf]):
             hm = create_chart(Histogram, _xy, bins=5)
             builder = hm._builders[0]
-            self.assertEqual(sorted(builder._groups), sorted(list(xyvalues.keys())))
+            self.assertEqual(sorted(builder.y_names), sorted(list(xyvalues.keys())))
             for key, expected_v in exptected.items():
                 assert_array_almost_equal(builder._data[key], expected_v, decimal=2)
 
@@ -64,7 +64,7 @@ class TestHistogram(unittest.TestCase):
         for i, _xy in enumerate([lvalues, np.array(lvalues)]):
             hm = create_chart(Histogram, _xy, bins=5)
             builder = hm._builders[0]
-            self.assertEqual(builder._groups, ['0', '1'])
+            self.assertEqual(builder.y_names, ['0', '1'])
             for key, expected_v in exptected.items():
                 # replace the keys because we have 0, 1 instead of normal and lognormal
                 key = key.replace('lognormal', '1').replace('normal', '0')
