@@ -1,13 +1,11 @@
 define [
   "underscore"
-  "renderer/properties"
   "./glyph"
-], (_, Properties, Glyph) ->
+], (_, Glyph) ->
 
   class ImageURLView extends Glyph.View
 
     _fields: ['url:string', 'x', 'y', 'w', 'h', 'angle']
-    _properties: []
 
     _set_data: () ->
       @image = (null for img in @url)
@@ -81,6 +79,7 @@ define [
   class ImageURL extends Glyph.Model
     default_view: ImageURLView
     type: 'ImageURL'
+    props: []
 
     defaults: ->
       return _.extend {}, super(), {

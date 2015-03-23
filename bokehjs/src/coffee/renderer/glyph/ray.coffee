@@ -1,13 +1,11 @@
 define [
   "underscore"
-  "renderer/properties"
   "./glyph"
-], (_, Properties, Glyph) ->
+], (_, Glyph) ->
 
   class RayView extends Glyph.View
 
     _fields: ['x', 'y', 'angle', 'length']
-    _properties: ['line']
 
     _set_data: () ->
       @_xy_index()
@@ -47,9 +45,7 @@ define [
   class Ray extends Glyph.Model
     default_view: RayView
     type: 'Ray'
-
-    display_defaults: ->
-      return _.extend {}, super(), @line_defaults
+    props: ['line']
 
   class Rays extends Glyph.Collection
     model: Ray

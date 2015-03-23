@@ -20,11 +20,11 @@ define [
       @glyph = new properties.Glyph(@, @_fields)
       @props = {}
 
-      if 'line' in @_properties
+      if 'line' in @model.props
         @props.line = new properties.Line(@)
-      if 'fill' in @_properties
+      if 'fill' in @model.props
         @props.fill = new properties.Fill(@)
-      if 'text' in @_properties
+      if 'text' in @model.props
         @props.text = new properties.Text(@)
 
     render: (ctx, indicies) ->
@@ -213,6 +213,10 @@ define [
 
   class Glyph extends HasParent
 
+    # Most glyphs have line and fill props. Override this in subclasses
+    # that need to define a different set of properties
+    props: ['line', 'fill']
+
     fill_defaults: {
       fill_color: 'gray'
       fill_alpha: 1.0
@@ -228,10 +232,33 @@ define [
       line_dash_offset: 0
     }
 
+    text_defaults: {
+      text_font: "helvetica"
+      text_font_size: "12pt"
+      text_font_style: "normal"
+      text_color: "#444444"
+      text_alpha: 1.0
+      text_align: "left"
+      text_baseline: "bottom"
+    }
+
     defaults: ->
       return _.extend {
         visible: true
       }
+
+    display_defaults: ->
+      result = {}
+      for prop in @props
+        switch prop
+          when 'line' then defaults = @line_defaults
+          when 'fill' then defaults = @fill_defaults
+          when 'text' then defaults = @text_defaults
+          else
+            logger.warn("unknown glyph property type '#{prop}'")
+            continue
+        result = _.extend result, super(), defaults
+      return result
 
   class Glyphs extends Collection
 

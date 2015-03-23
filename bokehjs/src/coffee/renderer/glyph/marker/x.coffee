@@ -5,8 +5,6 @@ define [
 
   class XView extends Marker.View
 
-    _properties: ['line']
-
     _render: (ctx, indices, sx=@sx, sy=@sy, size=@size) ->
       for i in indices
         if isNaN(sx[i] + sy[i] + size[i])
@@ -26,9 +24,7 @@ define [
   class X extends Marker.Model
     default_view: XView
     type: 'X'
-
-    display_defaults: ->
-      return _.extend {}, super(), @line_defaults
+    props: ['line']
 
   class Xs extends Marker.Collection
     model: X

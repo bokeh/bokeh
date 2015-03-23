@@ -1,14 +1,11 @@
 define [
   "underscore"
-  "renderer/properties"
   "mapper/linear_color_mapper"
   "./glyph"
-], (_, Properties, LinearColorMapper, Glyph) ->
+], (_, LinearColorMapper, Glyph) ->
 
 
   class ImageView extends Glyph.View
-
-    _properties: []
 
     initialize: (options) ->
       # the point of this is to support both efficient ArrayBuffers as well as dumb
@@ -99,6 +96,7 @@ define [
   class Image extends Glyph.Model
     default_view: ImageView
     type: 'Image'
+    props: []
 
     display_defaults: ->
       return _.extend {}, super(), {

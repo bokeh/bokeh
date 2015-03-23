@@ -1,12 +1,9 @@
 define [
   "underscore"
-  "renderer/properties"
   "./glyph"
-], (_, Properties, Glyph) ->
+], (_, Glyph) ->
 
   class ImageRGBAView extends Glyph.View
-
-    _properties: []
 
     initialize: (options) ->
       # the point of this is to support both efficient ArrayBuffers as well as dumb
@@ -98,6 +95,7 @@ define [
   class ImageRGBA extends Glyph.Model
     default_view: ImageRGBAView
     type: 'ImageRGBA'
+    props: []
 
     display_defaults: ->
       return _.extend {}, super(), {

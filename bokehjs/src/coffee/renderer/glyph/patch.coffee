@@ -1,14 +1,12 @@
 define [
   "underscore"
   "rbush"
-  "renderer/properties"
   "./glyph"
-], (_, rbush, Properties, Glyph) ->
+], (_, rbush, Glyph) ->
 
   class PatchView extends Glyph.View
 
     _fields: ['x', 'y']
-    _properties: ['line', 'fill']
 
     _set_data: () ->
       @_xy_index()
@@ -61,9 +59,6 @@ define [
   class Patch extends Glyph.Model
     default_view: PatchView
     type: 'Patch'
-
-    display_defaults: ->
-      return _.extend {}, super(), @line_defaults, @fill_defaults
 
   class Patches extends Glyph.Collection
     model: Patch

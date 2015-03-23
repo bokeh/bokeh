@@ -1,13 +1,11 @@
 define [
   "underscore"
-  "renderer/properties"
   "./glyph"
-], (_, Properties, Glyph) ->
+], (_, Glyph) ->
 
   class OvalView extends Glyph.View
 
     _fields: ['x', 'y', 'width', 'height', 'angle']
-    _properties: ['line', 'fill']
 
     _set_data: () ->
       @max_w2 = 0
@@ -82,7 +80,7 @@ define [
     type: 'Oval'
 
     display_defaults: ->
-      return _.extend {}, super(), @line_defaults, @fill_defaults, {
+      return _.extend {}, super(), {
         angle: 0.0
       }
 

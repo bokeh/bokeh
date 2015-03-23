@@ -5,8 +5,6 @@ define [
 
   class AsteriskView extends Marker.View
 
-    _properties: ['line']
-
     _render: (ctx, indices, sx=@sx, sy=@sy, size=@size) ->
       for i in indices
         if isNaN(sx[i] + sy[i] + size[i])
@@ -32,9 +30,7 @@ define [
   class Asterisk extends Marker.Model
     default_view: AsteriskView
     type: 'Asterisk'
-
-    display_defaults: ->
-      return _.extend {}, super(), @line_defaults
+    props: ['line']
 
   class Asterisks extends Marker.Collection
     model: Asterisk

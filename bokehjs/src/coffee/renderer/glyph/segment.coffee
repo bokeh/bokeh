@@ -1,14 +1,12 @@
 define [
   "underscore"
   "rbush"
-  "renderer/properties"
   "./glyph"
-], (_, rbush, Properties, Glyph) ->
+], (_, rbush, Glyph) ->
 
   class SegmentView extends Glyph.View
 
     _fields: ['x0', 'y0', 'x1', 'y1']
-    _properties: ['line']
 
     _set_data: () ->
       @index = rbush()
@@ -41,9 +39,7 @@ define [
   class Segment extends Glyph.Model
     default_view: SegmentView
     type: 'Segment'
-
-    display_defaults: ->
-      return _.extend {}, super(), @line_defaults
+    props: ['line']
 
   class Segments extends Glyph.Collection
     model: Segment

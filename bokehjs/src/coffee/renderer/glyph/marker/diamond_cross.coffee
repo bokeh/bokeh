@@ -5,8 +5,6 @@ define [
 
   class DiamondCrossView extends Marker.View
 
-    _properties: ['line', 'fill']
-
     _render: (ctx, indices, sx=@sx, sy=@sy, size=@size) ->
       for i in indices
         if isNaN(sx[i] + sy[i] + size[i])
@@ -35,9 +33,6 @@ define [
   class DiamondCross extends Marker.Model
     default_view: DiamondCrossView
     type: 'DiamondCross'
-
-    display_defaults: ->
-      return _.extend {}, super(), @line_defaults, @fill_defaults
 
   class DiamondCrosses extends Marker.Collection
     model: DiamondCross

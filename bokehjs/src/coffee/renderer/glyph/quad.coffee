@@ -1,14 +1,12 @@
 define [
   "underscore"
   "rbush"
-  "renderer/properties"
   "./glyph"
-], (_, rbush, Properties, Glyph) ->
+], (_, rbush, Glyph) ->
 
   class QuadView extends Glyph.View
 
     _fields: ['right', 'left', 'bottom', 'top']
-    _properties: ['line', 'fill']
 
     _set_data: () ->
       @index = rbush()
@@ -54,9 +52,6 @@ define [
   class Quad extends Glyph.Model
     default_view: QuadView
     type: 'Quad'
-
-    display_defaults: ->
-      return _.extend {}, super(), @line_defaults, @fill_defaults
 
   class Quads extends Glyph.Collection
     model: Quad

@@ -5,8 +5,6 @@ define [
 
   class InvertedTriangleView extends Marker.View
 
-    _properties: ['line', 'fill']
-
     _render: (ctx, indices, sx=@sx, sy=@sy, size=@size) ->
       for i in indices
         if isNaN(sx[i] + sy[i] + size[i])
@@ -33,9 +31,6 @@ define [
   class InvertedTriangle extends Marker.Model
     default_view: InvertedTriangleView
     type: 'InvertedTriangle'
-
-    display_defaults: ->
-      return _.extend {}, super(), @line_defaults, @fill_defaults
 
   class InvertedTriangles extends Marker.Collection
     model: InvertedTriangle

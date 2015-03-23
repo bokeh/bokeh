@@ -1,13 +1,11 @@
 define [
   "underscore"
-  "renderer/properties"
   "./glyph"
-], (_, Properties, Glyph) ->
+], (_, Glyph) ->
 
   class AnnulusView extends Glyph.View
 
     _fields: ['x', 'y', 'inner_radius', 'outer_radius']
-    _properties: ['line', 'fill']
 
     _set_data: () ->
       @max_radius = _.max(@outer_radius)
@@ -39,35 +37,23 @@ define [
     _hit_point: (geometry) ->
       [vx, vy] = [geometry.vx, geometry.vy]
       x = @renderer.xmapper.map_from_target(vx)
-      y = @renderer.ymapper.map_from_target(vy)
-
       x0 = x - @max_radius
       x1 = x + @max_radius
 
+      y = @renderer.ymapper.map_from_target(vy)
       y0 = y - @max_radius
       y1 = y + @max_radius
 
-      candidates = (pt[4].i for pt in @index.search([x0, y0, x1, y1]))
-
-      candidates2 = []
-      for i in candidates
-        r2 = Math.pow(@outer_radius[i], 2)
+      hits = []
+      for i in (pt[4].i for pt in @index.search([x0, y0, x1, y1]))
+        or2 = Math.pow(@outer_radius[i], 2)
+        ir2 = Math.pow(@inner_radius[i], 2)
         sx0 = @renderer.xmapper.map_to_target(x)
         sx1 = @renderer.xmapper.map_to_target(@x[i])
         sy0 = @renderer.ymapper.map_to_target(y)
         sy1 = @renderer.ymapper.map_to_target(@y[i])
         dist = Math.pow(sx0-sx1, 2) + Math.pow(sy0-sy1, 2)
-        if dist <= r2
-          candidates2.push([i, dist])
-
-      hits = []
-      for [i, dist] in candidates2
-        r2 = Math.pow(@inner_radius[i], 2)
-        sx0 = @renderer.xmapper.map_to_target(x)
-        sx1 = @renderer.xmapper.map_to_target(@x[i])
-        sy0 = @renderer.ymapper.map_to_target(y)
-        sy1 = @renderer.ymapper.map_to_target(@y[i])
-        if dist >= r2
+        if dist <= or2 and dist >= ir2
           hits.push([i, dist])
 
       hits = _.chain(hits)
@@ -96,9 +82,6 @@ define [
   class Annulus extends Glyph.Model
     default_view: AnnulusView
     type: 'Annulus'
-
-    display_defaults: ->
-      return _.extend {}, super(), @line_defaults, @fill_defaults
 
   class Annuluses extends Glyph.Collection
     model: Annulus

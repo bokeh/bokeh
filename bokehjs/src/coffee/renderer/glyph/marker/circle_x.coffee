@@ -5,8 +5,6 @@ define [
 
   class CircleXView extends Marker.View
 
-    _properties: ['line', 'fill']
-
     _render: (ctx, indices, sx=@sx, sy=@sy, size=@size) ->
       for i in indices
         if isNaN(sx[i] + sy[i] + size[i])
@@ -31,9 +29,6 @@ define [
   class CircleX extends Marker.Model
     default_view: CircleXView
     type: 'CircleX'
-
-    display_defaults: ->
-      return _.extend {}, super(), @line_defaults, @fill_defaults
 
   class CircleXs extends Marker.Collection
     model: CircleX

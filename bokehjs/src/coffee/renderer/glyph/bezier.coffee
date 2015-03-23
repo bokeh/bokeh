@@ -1,9 +1,8 @@
 define [
   "underscore"
   "rbush"
-  "renderer/properties"
   "./glyph"
-], (_, rbush, Properties, Glyph) ->
+], (_, rbush, Glyph) ->
 
   # algorithm adapted from http://stackoverflow.com/a/14429749/3406693
   _cbb = (x0, y0, x1, y1, x2, y2, x3, y3) ->
@@ -67,7 +66,6 @@ define [
   class BezierView extends Glyph.View
 
     _fields : ['x0', 'y0', 'x1', 'y1', 'cx0', 'cy0', 'cx1', 'cy1']
-    _properties: ['line']
 
     _set_data: () ->
       @index = rbush()
@@ -108,9 +106,7 @@ define [
   class Bezier extends Glyph.Model
     default_view: BezierView
     type: 'Bezier'
-
-    display_defaults: ->
-      return _.extend {}, super(), @line_defaults
+    props: ['line']
 
   class Beziers extends Glyph.Collection
     model: Bezier

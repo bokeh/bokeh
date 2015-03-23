@@ -1,8 +1,7 @@
 define [
   "underscore"
-  "renderer/properties"
   "./glyph"
-], (_, Properties, Glyph) ->
+], (_, Glyph) ->
 
   point_in_poly = (x, y, px, py) ->
     inside = false
@@ -23,8 +22,6 @@ define [
 
   class CircleView extends Glyph.View
 
-    _properties: ['line', 'fill']
-
     # we need a custom initializer because circles may either take glyph-style radius
     # (data units) or a marker-style size (screen units)
     initialize: (options) ->
@@ -44,7 +41,7 @@ define [
     _map_data: () ->
       [@sx, @sy] = @renderer.map_to_screen(@x, @y)
       if @size
-        @radius = (s/2 for s in @distance_vector('x', 'size', 'edge'))
+        @radius = (s/2 for s in @size)
       else
         rd = @mget('radius_dimension')
         if rd != 'x' and rd != 'y'
@@ -187,7 +184,7 @@ define [
     type: 'Circle'
 
     display_defaults: ->
-      return _.extend {}, super(), @line_defaults, @fill_defaults, {
+      return _.extend {}, super(), {
         size: 4 # XXX: Circle should be a marker, then this wouldn't be necessary.
       }
 

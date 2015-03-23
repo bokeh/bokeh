@@ -1,14 +1,12 @@
 define [
   "underscore"
   "rbush"
-  "renderer/properties"
   "./glyph"
-], (_, rbush, Properties, Glyph) ->
+], (_, rbush, Glyph) ->
 
   class LineView extends Glyph.View
 
     _fields: ['x', 'y']
-    _properties: ['line']
 
     _set_data: () ->
       @_xy_index()
@@ -18,7 +16,7 @@ define [
 
     _render: (ctx, indices) ->
       drawing = false
-      @props.line.set(ctx, @props)
+      @props.line.set(ctx, @props.line)
 
       for i in indices
         if !isFinite(@sx[i] + @sy[i]) and drawing
@@ -43,9 +41,7 @@ define [
   class Line extends Glyph.Model
     default_view: LineView
     type: 'Line'
-
-    display_defaults: ->
-      return _.extend {}, super(), @line_defaults
+    props: ['line']
 
   class Lines extends Glyph.Collection
     model: Line

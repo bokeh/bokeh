@@ -5,8 +5,6 @@ define [
 
   class SquareView extends Marker.View
 
-    _properties: ['line', 'fill']
-
     _render: (ctx, indices, sx=@sx, sy=@sy, size=@size) ->
       for i in indices
         if isNaN(sx[i] + sy[i] + size[i])
@@ -30,9 +28,6 @@ define [
   class Square extends Marker.Model
     default_view: SquareView
     type: 'Square'
-
-    display_defaults: ->
-      return _.extend {}, super(), @line_defaults, @fill_defaults
 
   class Squares extends Marker.Collection
     model: Square

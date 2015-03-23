@@ -1,14 +1,12 @@
 define [
   "underscore"
   "rbush"
-  "renderer/properties"
   "./glyph"
-], (_, rbush, Properties, Glyph) ->
+], (_, rbush, Glyph) ->
 
   class RectView extends Glyph.View
 
     _fields: ['x', 'y', 'width', 'height', 'angle']
-    _properties: ['line', 'fill']
 
     _map_data: () ->
       [sxi, syi] = @renderer.map_to_screen(@x, @y)
@@ -172,7 +170,7 @@ define [
     type: 'Rect'
 
     display_defaults: ->
-      return _.extend {}, super(), @line_defaults, @fill_defaults, {
+      return _.extend {}, super(), {
         angle: 0.0
         dilate: false
       }

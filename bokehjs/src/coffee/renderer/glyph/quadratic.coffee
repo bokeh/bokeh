@@ -1,9 +1,8 @@
 define [
   "underscore"
   "rbush"
-  "renderer/properties"
   "./glyph"
-], (_, rbush, Properties, Glyph) ->
+], (_, rbush, Glyph) ->
 
 # Formula from: http://pomax.nihongoresources.com/pages/bezier/
 #
@@ -26,7 +25,6 @@ define [
   class QuadraticView extends Glyph.View
 
     _fields: ['x0', 'y0', 'x1', 'y1', 'cx', 'cy']
-    _properties: ['line']
 
     _set_data: () ->
       @index = rbush()
@@ -66,9 +64,7 @@ define [
   class Quadratic extends Glyph.Model
     default_view: QuadraticView
     type: 'Quadratic'
-
-    display_defaults: ->
-      return _.extend {}, super(), @line_defaults
+    props: ['line']
 
   class Quadratics extends Glyph.Collection
     model: Quadratic

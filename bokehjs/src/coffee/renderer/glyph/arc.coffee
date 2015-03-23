@@ -1,13 +1,11 @@
 define [
   "underscore"
-  "renderer/properties"
   "./glyph"
-], (_, Properties, Glyph) ->
+], (_, Glyph) ->
 
   class ArcView extends Glyph.View
 
     _fields: ['x', 'y', 'radius', 'start_angle', 'end_angle', 'direction:string']
-    _properties: ['line']
 
     _set_data: () ->
       @max_radius = _.max(@radius)
@@ -46,9 +44,10 @@ define [
   class Arc extends Glyph.Model
     default_view: ArcView
     type: 'Arc'
+    props: ['line']
 
     display_defaults: ->
-      return _.extend {}, super(), @line_defaults, {
+      return _.extend {}, super(), {
         direction: 'anticlock'
       }
 

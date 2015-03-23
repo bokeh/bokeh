@@ -5,8 +5,6 @@ define [
 
   class SquareXView extends Marker.View
 
-    _properties: ['line', 'fill']
-
     _render: (ctx, indices, sx=@sx, sy=@sy, size=@size) ->
       for i in indices
         if isNaN(sx[i] + sy[i] + size[i])
@@ -36,9 +34,6 @@ define [
   class SquareX extends Marker.Model
     default_view: SquareXView
     type: 'SquareX'
-
-    display_defaults: ->
-      return _.extend {}, super(), @line_defaults, @fill_defaults
 
   class SquareXs extends Marker.Collection
     model: SquareX

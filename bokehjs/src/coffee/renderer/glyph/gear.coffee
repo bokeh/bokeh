@@ -1,15 +1,13 @@
 define [
   "underscore"
   "gear_utils"
-  "renderer/properties"
   "util/bezier"
   "./glyph"
-], (_, GearUtils, Properties, Bezier, Glyph) ->
+], (_, GearUtils, Bezier, Glyph) ->
 
   class GearView extends Glyph.View
 
     _fields: ['x', 'y', 'angle', 'module', 'teeth', 'pressure_angle', 'shaft_size', 'internal:boolean']
-    _properties: ['line', 'fill']
 
     _map_data: () ->
       [@sx, @sy] = @renderer.map_to_screen(@x, @y)
@@ -133,9 +131,6 @@ define [
         shaft_size: 0.3
         internal: false
       }
-
-    display_defaults: ->
-      return _.extend {}, super(), @line_defaults, @fill_defaults
 
   class Gears extends Glyph.Collection
     model: Gear

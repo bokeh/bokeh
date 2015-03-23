@@ -1,14 +1,12 @@
 define [
   "underscore"
   "rbush"
-  "renderer/properties"
   "./glyph"
-], (_, rbush, Properties, Glyph) ->
+], (_, rbush, Glyph) ->
 
   class MultiLineView extends Glyph.View
 
     _fields: ['xs', 'ys']
-    _properties: ['line']
 
     _set_data: () ->
       @index = rbush()
@@ -51,9 +49,7 @@ define [
   class MultiLine extends Glyph.Model
     default_view: MultiLineView
     type: 'MultiLine'
-
-    display_defaults: ->
-      return _.extend {}, super(), @line_defaults
+    props: ['line']
 
   class MultiLines extends Glyph.Collection
     model: MultiLine

@@ -6,7 +6,6 @@ define [
   class TextView extends Glyph.View
 
     _fields: ['x', 'y', 'angle', 'text:string', 'x_offset', 'y_offset']
-    _properties: ['text']
 
     _set_data: () ->
       @_xy_index()
@@ -49,23 +48,13 @@ define [
   class Text extends Glyph.Model
     default_view: TextView
     type: 'Text'
+    props: ['text']
 
     defaults: ->
       return _.extend {}, super(), {
         angle: 0
         x_offset: {value: 0, units: "screen"}
         y_offset: {value: 0, units: "screen"}
-      }
-
-    display_defaults: ->
-      return _.extend {}, super(), {
-        text_font: "helvetica"
-        text_font_size: "12pt"
-        text_font_style: "normal"
-        text_color: "#444444"
-        text_alpha: 1.0
-        text_align: "left"
-        text_baseline: "bottom"
       }
 
   class Texts extends Glyph.Collection

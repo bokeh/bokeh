@@ -5,8 +5,6 @@ define [
 
   class CrossView extends Marker.View
 
-    _properties: ['line']
-
     _render: (ctx, indices, sx=@sx, sy=@sy, size=@size) ->
       for i in indices
         if isNaN(sx[i] + sy[i] + size[i])
@@ -26,9 +24,7 @@ define [
   class Cross extends Marker.Model
     default_view: CrossView
     type: 'Cross'
-
-    display_defaults: ->
-      return _.extend {}, super(), @line_defaults
+    props: ['line']
 
   class Crosses extends Marker.Collection
     model: Cross

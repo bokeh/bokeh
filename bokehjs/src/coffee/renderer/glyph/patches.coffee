@@ -1,9 +1,8 @@
 define [
   "underscore"
   "rbush"
-  "renderer/properties"
   "./glyph"
-], (_, rbush, Properties, Glyph) ->
+], (_, rbush, Glyph) ->
 
   point_in_poly = (x, y, px, py) ->
     inside = false
@@ -25,7 +24,6 @@ define [
   class PatchesView extends Glyph.View
 
     _fields: ['xs', 'ys']
-    _properties: ['line', 'fill']
 
     _set_data: () ->
       @max_size = _.max(@size)
@@ -125,9 +123,6 @@ define [
   class Patches extends Glyph.Model
     default_view: PatchesView
     type: 'Patches'
-
-    display_defaults: ->
-      return _.extend {}, super(), @line_defaults, @fill_defaults
 
   class Patcheses extends Glyph.Collection
     model: Patches

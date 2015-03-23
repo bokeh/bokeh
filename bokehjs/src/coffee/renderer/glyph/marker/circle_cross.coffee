@@ -5,8 +5,6 @@ define [
 
   class CircleCrossView extends Marker.View
 
-    _properties: ['line', 'fill']
-
     _render: (ctx, indices, sx=@sx, sy=@sy, size=@size) ->
       for i in indices
         if isNaN(sx[i] + sy[i] + size[i])
@@ -31,9 +29,6 @@ define [
   class CircleCross extends Marker.Model
     default_view: CircleCrossView
     type: 'CircleCross'
-
-    display_defaults: ->
-      return _.extend {}, super(), @line_defaults, @fill_defaults
 
   class CircleCrosses extends Marker.Collection
     model: CircleCross
