@@ -30,8 +30,8 @@ from collections import OrderedDict
 from ..utils import chunk, cycle_colors, make_scatter
 from .._builder import create_and_build, Builder
 from .._data_adapter import DataAdapter
-from ...models import ColumnDataSource, Range1d
-from ...properties import String
+from ...models import ColumnDataSource, Range1d, DataRange1d
+from ...properties import String, Bool
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -90,22 +90,8 @@ class ScatterBuilder(Builder):
     The marker type to use (default: ``circle``).
     """)
 
-    def _process_data(self):
-        """Take the scatter.values data to calculate the chart properties
-        accordingly. Then build a dict containing references to all the
-        calculated points to be used by the marker glyph inside the
-        ``_yield_renderers`` method.
-        """
-        self._data = dict()
-        # list to save all the attributes we are going to create
-        self._attr = []
-        # list to save all the groups available in the incoming input
-        self._groups.extend(self._values.keys())
-        # Grouping
-        self.parse_data()
 
-    @property
-    def parse_data(self):
+    def _process_data(self):
         """Parse data received from self._values and create correct x, y
         series values checking if input is a pandas DataFrameGroupBy
         object or one of the stardard supported types (that can be
@@ -113,25 +99,51 @@ class ScatterBuilder(Builder):
         """
         if pd is not None and \
                 isinstance(self._values, pd.core.groupby.DataFrameGroupBy):
-            return self._parse_groupped_data
+            return self._parse_groupped_data()
         else:
-            return self._parse_data
+            if self.couples:
+                return self._parse_coupled_data()
+            else:
+                return self._parse_data()
+
+    @property
+    def couples(self):
+        for i, val in enumerate(self._values.keys()):
+            xy = self._values[val]
+            for value in self._values.index:
+                try:
+                    if len(xy[value]) == 2:
+                        return True
+                except TypeError:
+                    return False
+            return False
 
     def _parse_groupped_data(self):
         """Parse data in self._values in case it's a pandas
         DataFrameGroupBy and create the data 'x_...' and 'y_...' values
         for all data series
         """
+        self.x_names = []
         for i, val in enumerate(self._values.keys()):
             xy = self._values[val]
-            self._set_and_get("x_", val, xy[:, 0])
-            self._set_and_get("y_", val, xy[:, 1])
+            self._data["x_%s" % val] = xy[:, 0]
+            self._data["%s" % val] = xy[:, 1]
+            self.x_names.append("x_%s" % val)
 
     def _parse_data(self):
+        for col, values in self._values.items():
+            self._data[col] = values
+
+        if not self.x_names:
+            self.x_names = ['x'] * len(self.y_names)
+            self._data['x'] = self._values.index
+
+    def _parse_coupled_data(self):
         """Parse data in self._values in case it's an iterable (not a pandas
         DataFrameGroupBy) and create the data 'x_...' and 'y_...' values
         for all data series
         """
+        self.x_names = []
         for i, val in enumerate(self._values.keys()):
             x_, y_ = [], []
             xy = self._values[val]
@@ -139,41 +151,27 @@ class ScatterBuilder(Builder):
                 x_.append(xy[value][0])
                 y_.append(xy[value][1])
 
-            self.set_and_get("x_", val, x_)
-            self.set_and_get("y_", val, y_)
+            self._data["x_%s" % val] = x_
+            self._data["%s" % val] = y_
+            self.x_names.append("x_%s" % val)
 
-    def _set_sources(self):
+    def _set_ranges(self):
         """Push the Scatter data into the ColumnDataSource and
         calculate the proper ranges."""
-        self._source = ColumnDataSource(self._data)
-
-        x_names, y_names = self._attr[::2], self._attr[1::2]
-        endx = max(max(self._data[i]) for i in x_names)
-        startx = min(min(self._data[i]) for i in x_names)
-        self.x_range = Range1d(
-            start=startx - 0.1 * (endx - startx),
-            end=endx + 0.1 * (endx - startx)
-        )
-        endy = max(max(self._data[i]) for i in y_names)
-        starty = min(min(self._data[i]) for i in y_names)
-        self.y_range = Range1d(
-            start=starty - 0.1 * (endy - starty),
-            end=endy + 0.1 * (endy - starty)
-        )
+        self.x_range = DataRange1d(sources=[self.source.columns(*self.x_names)])
+        y_sources = [self.source.columns(col) for col in self.y_names]
+        self.y_range = DataRange1d(sources=y_sources)
 
     def _yield_renderers(self):
         """Use the marker glyphs to display the points.
 
         Takes reference points from data loaded at the ColumnDataSource.
         """
-        duplets = list(chunk(self._attr, 2))
-        colors = cycle_colors(duplets, self.palette)
+        colors = cycle_colors(self.y_names, self.palette)
 
-        for i, duplet in enumerate(duplets, start=1):
-            renderer = make_scatter(
-                self._source, duplet[0], duplet[1], self.marker, colors[i - 1]
-            )
-            self._legends.append((self._groups[i-1], [renderer]))
+        for color, xname, yname in zip(colors, self.x_names, self.y_names):
+            renderer = make_scatter(self._source, xname, yname, self.marker, color)
+            self._legends.append((yname, [renderer]))
             yield renderer
 
     def _adapt_values(self):
@@ -182,12 +180,12 @@ class ScatterBuilder(Builder):
         Customize show preliminary actions by handling DataFrameGroupBy
         values in order to create the series values and labels."""
         # check if pandas is installed
+        new_values = []
         if pd:
             # if it is we try to take advantage of it's data structures
             # asumming we get an groupby object
             if isinstance(self._values, pd.core.groupby.DataFrameGroupBy):
                 pdict = OrderedDict()
-
                 for i in self._values.groups.keys():
                     self._labels = self._values.get_group(i).columns
                     xname = self._values.get_group(i).columns[0]
@@ -196,12 +194,15 @@ class ScatterBuilder(Builder):
                     y = getattr(self._values.get_group(i), yname)
                     pdict[i] = np.array([x.values, y.values]).T
 
-                self._values = DataAdapter(pdict)
-                self._labels = self._values.keys()
-            else:
-                self._values = DataAdapter(self._values)
-                self._labels = self._values.keys()
+                self._values = new_values = DataAdapter(pdict)
 
-        else:
-            self._values = DataAdapter(self._values)
-            self._labels = self._values.keys()
+        if not new_values:
+            self._values_index, self._values = DataAdapter.get_index_and_data(
+                    self._values, self.x_names
+                )
+
+        if self.x_names is None:
+            self.x_names = []
+
+        if not self.y_names:
+            self.y_names = [k for k in self._values.keys() if k not in self.x_names]

@@ -9,6 +9,20 @@ bbvalues = Data(join(dirname(iris.__file__), 'iris.csv'))
 # columns = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width']
 # # result = bbvalues[columns]
 output_file("blaze_input.html")
+
+
+scatter1 = Scatter(
+    bbvalues, y_names = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width'],
+    title="Scatter Chart", width=300, height=300,
+    ylabel='Petals', legend="top_left"
+)
+scatter2 = Scatter(
+    bbvalues, y_names = ['sepal_length', 'petal_length'],
+    x_names = ['sepal_width', 'petal_width'],
+    title="Scatter Length X Width", width=300, height=300,
+    ylabel='Petals', legend="top_left"
+)
+
 line = Line(
     bbvalues, y_names = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width'],
     title="Line Chart", width=300, height=300,
@@ -53,6 +67,7 @@ hist = Histogram(
 
 show(
     vplot(
+        hplot(scatter1, scatter2),
         hplot(bp, hist),
         hplot(line, line2),
         hplot(step, area),
