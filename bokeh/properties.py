@@ -1015,7 +1015,7 @@ class DataSpec(Either):
         # Must be dict, return as-is
         return val
 
-    def __repr__(self):
+    def __str__(self):
         val = getattr(self, self._name, self.default)
         return "%s(%r)" % (self.__class__.__name__, val)
 
