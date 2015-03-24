@@ -58,9 +58,11 @@ class RawSeleniumTestFixture(TestCase):
         self.bokeh_server_url = self.test_settings.get_remote_bokeh_server_url()
         self.bokeh_server_instance = start_bokeh_server(self.test_settings.remote_bokeh_server_port)
 
+        self.addCleanup(stop_bokeh_server, self.bokeh_server_instance)
+
         if not self.check_if_server_is_up_and_running():
             print("Bokeh server is NOT running!")
-            sys.exit(1)
+            return False
 
         if self.test_settings.headless_mode:
             if 'DISPLAY' in os.environ:
@@ -77,12 +79,11 @@ class RawSeleniumTestFixture(TestCase):
                 self.test_settings.browser_caps, self.test_settings.selenium_hub_address)
         else:
             print("Unsupported mode of testing environment: %s" % (self.test_settings.env_mode))
-            sys.exit(1)
+            return False
 
         self.driver.set_window_size(self.test_settings.window_width, self.test_settings.window_height)
         self.driver.start_client()
 
-        self.addCleanup(stop_bokeh_server, self.bokeh_server_instance)
         self.addCleanup(self.driver.quit)
 
     def check_if_server_is_up_and_running(self):
