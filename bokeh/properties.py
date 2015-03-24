@@ -196,296 +196,6 @@ class Property(object):
     def __or__(self, other):
         return Either(self, other)
 
-class DataSpec(Property):
-    """ Because the BokehJS glyphs support a fixed value or a named
-    field for most data fields, we capture that in this descriptor.
-    Fields can have a fixed value, or be a name that is looked up
-    on the datasource (usually as a column or record array field).
-    Numerical data can also have units of screen or data space.
-
-    We mirror the JS convention in this Python descriptor.  For details,
-    see renderers/properties.coffee in BokehJS, and specifically the
-    select() function.
-
-    There are multiple ways to set a DataSpec, illustrated below with comments
-    and example code.
-
-    Setting DataSpecs
-
-
-    Simple example::
-
-        class Foo(HasProps):
-            x = DataSpec("x", units="data")
-
-        f = Foo()
-        f.x = "fieldname"  # Use the datasource field named "fieldname"
-        f.x = 12           # A fixed value of 12
-
-    Can provide a dict with the fields explicitly named::
-
-        f.width = {"name": "foo"}
-        f.size = {"name": "foo", "units": "screen"}
-
-    Reading DataSpecs
-
-
-    In the cases when the dataspec is set to just a field name or a
-    fixed value, then those are returned.  If the no values have
-    been set, then the value of to_dict() is returned.
-
-    In all cases, to determine the full dict that will be used to
-    represent this dataspec, use the to_dict() method.
-
-    Implementation
-
-
-    The DataSpec instance is stored in the class dict, and acts as a
-    descriptor.  Thus, it is shared between all instances of the class.
-    Instance-specific data is stored in the instance dict, in a private
-    variable named _[attrname].  This stores the actual value that the
-    user last set (and does not exist if the user has not yet set the
-    value).
-
-    """
-
-    def __init__(self, field=None, units="data", min_value=None, default=_NotSet, help=None):
-        """
-        Parameters
-        ==========
-        **field** is the string name of a data column to look up.
-        **units** is either "data" or "screen"
-        """
-        # Don't use .name because the HasProps metaclass uses that to
-        # store the attribute name on this descriptor.
-        if field is None or isinstance(field, string_types):
-            self.field = field
-        else:
-            raise ValueError("'field' must be a string or None, got %r" % field)
-
-        self.units = units
-        self._default = default
-        self.min_value = min_value
-        self.__doc__ = help
-
-    @classmethod
-    def autocreate(cls, name=None):
-        # In this case, use the name the user assigned this DataSpec to
-        # as the default field name.
-        d = cls(field=name)
-        return d
-
-    def _get(self, obj):
-        """ Try to implement a "natural" interface: if the user just set
-        simple values or field names, the getter just returns those.
-        However, if the user has also overridden the "units" or "default"
-        settings, then a dictionary is returned.
-        """
-        if hasattr(obj, self._name):
-            setval = getattr(obj, self._name)
-            if isinstance(setval, string_types):
-                # A string representing the field
-                return setval
-            elif not isinstance(setval, dict):
-                # Typically a number presenting the fixed value
-                return setval
-            else:
-                return self.to_dict(obj)
-        else:
-            # If the user hasn't set anything
-            if self.field is not None:
-                return self.field
-            if self.default != _NotSet:
-                return self.default
-            # XXX: implicit `return None` or unreachable?
-
-    def to_dict(self, obj):
-        # Build the complete dict
-        setval = getattr(obj, self._name, None)
-        if isinstance(setval, string_types):
-            d = {"field": setval, "units": self.units}
-        elif isinstance(setval, dict):
-            d = {"units": self.units}
-            d.update(setval)
-        elif setval is not None:
-            # a fixed value of some sort; no need to store the default value
-            d = {"value": setval, "units": self.units}
-        else:
-            # If the user never set a value
-            if self.field is not None:
-                d = {"field": self.field, "units": self.units}
-            elif self.default != _NotSet:
-                d = {"value": self.default, "units": self.units}
-            else:
-                d = {}
-
-        if "value" in d and self.min_value is not None:
-            if d["value"] < self.min_value:
-                raise ValueError("value must be greater than %s" % str(self.min_value))
-        return d
-
-    def __repr__(self):
-        return "DataSpec(field=%r, units=%r)" % (self.field, self.units)
-
-
-class ColorSpec(DataSpec):
-    """ Subclass of DataSpec for specifying colors.
-
-    Although this serves the same role as a DataSpec, its usage is somewhat
-    different because:
-
-    * Specifying a fixed value is much more common
-    * Strings can be both field identifiers or refer to one of the SVG
-      Named Colors (or be a hex value starting with "#")
-    * There are no units
-
-    For colors, because we support named colors and hex values prefaced
-    with a "#", when we are handed a string value, there is a little
-    interpretation: if the value is one of the 147 SVG named colors or
-    it starts with a "#", then it is interpreted as a value.  Otherwise,
-    it is treated as a field name.
-
-    If a 3-tuple is provided, then it is treated as an RGB (0..255).
-    If a 4-tuple is provided, then it is treated as an RGBa (0..255), with
-    alpha as a float between 0 and 1.  (This follows the HTML5 Canvas API.)
-
-    Unlike DataSpec, ColorSpecs do not have a "units" property.
-
-    When reading out a ColorSpec, it returns a tuple, hex value, or
-    field name
-
-    There are two common use cases for ColorSpec: setting a constant value,
-    and indicating a field name to look for on the datasource:
-
-    >>> class Bar(HasProps):
-    ...     col = ColorSpec(default="green")
-    ...     col2 = ColorSpec("colorfield")
-
-    >>> b = Bar()
-    >>> b.col = "red"  # sets a fixed value of red
-    >>> b.col
-    "red"
-    >>> b.col = "myfield"  # Use the datasource field named "myfield"
-    >>> b.col
-    "myfield"
-
-    For more examples, see tests/test_glyphs.py
-    """
-
-    NAMEDCOLORS = set(colors.__colors__)
-
-    def __init__(self, field_or_value=None, field=None, value=None, default=_NotSet, help=None):
-        # The fancy footwork below is so we auto-interpret the first positional
-        # parameter as either a field or a fixed value.  If either "field" or
-        # "value" are then supplied as keyword arguments, then those will
-        # override the inferred value from the positional argument.
-
-        self.field = field
-        self._default = default
-        self.value = value
-        self.__doc__ = help
-
-        if field_or_value is not None:
-            if self.isconst(field_or_value):
-                self.value = field_or_value
-            else:
-                self.field = field_or_value
-
-        if not (self.field is None or isinstance(self.field, string_types)):
-            raise ValueError("'field' must be a string or None, got %r" % self.field)
-
-        # We need to distinguish if the user ever explicitly sets the attribute; if
-        # they explicitly set it to None, we should pass on None in the dict.
-        self._isset = False
-
-    @classmethod
-    def isconst(cls, arg):
-        """ Returns True if the argument is a literal color.  Check for a
-        well-formed hexadecimal color value.
-        """
-        return isinstance(arg, string_types) and \
-               ((len(arg) == 7 and arg[0] == "#") or arg in cls.NAMEDCOLORS)
-
-    def _formattuple(self, colortuple):
-        if isinstance(colortuple, tuple):
-            if len(colortuple) == 3:
-                return "rgb%r" % (colortuple,)
-            else:
-                return "rgba%r" % (colortuple,)
-        else:
-            return colortuple
-
-    def _get(self, obj):
-        # One key difference in ColorSpec.__get__ from the base class is
-        # that we do not call self.to_dict() in any circumstance, because
-        # this could lead to formatting color tuples as "rgb(R,G,B)" instead
-        # of keeping them as tuples.
-        if hasattr(obj, self._name):
-            setval = getattr(obj, self._name)
-            if self.isconst(setval) or isinstance(setval, tuple):
-                # Fixed color value
-                return setval
-            elif isinstance(setval, string_types):
-                return setval
-            elif setval is None:
-                return None
-            else:
-                # setval should be a dict at this point
-                assert(isinstance(setval, dict))
-                return setval
-        else:
-            if self.value is not None:
-                return self.value
-            if self.default != _NotSet:
-                return self.default
-            else:
-                return self.field
-
-    def __set__(self, obj, arg):
-        self._isset = True
-        if isinstance(arg, tuple):
-            if len(arg) in (3, 4):
-                # RGB or RGBa
-                pass
-            else:
-                raise RuntimeError("Invalid tuple being assigned to ColorSpec; must be length 2, 3, or 4.")
-        elif isinstance(arg, colors.Color):
-            arg = arg.to_css()
-        super(ColorSpec, self).__set__(obj, arg)
-
-    def to_dict(self, obj):
-        setval = getattr(obj, self._name, None)
-        if self.default != _NotSet and not self._isset:
-            setval = self.default
-        if setval is not None:
-            if self.isconst(setval):
-                # Hexadecimal or named color
-                return {"value": setval}
-            elif isinstance(setval, tuple):
-                # RGB or RGBa
-                # TODO: Should we validate that alpha is between 0..1?
-                return {"value": self._formattuple(setval)}
-            elif isinstance(setval, string_types):
-                return {"field": setval}
-            elif isinstance(setval, dict):
-                # this is considerably simpler than the DataSpec case because
-                # there are no units involved, and we've handled all of the
-                # value cases above.
-                return setval.copy()
-        else:
-            if self._isset:
-                if self.value is None:
-                    return {"value": None}
-                else:
-                    return {"value": getattr(obj, self._name, self.value)}
-            else:
-                if self.value:
-                    return {"value": self.value}
-                return {"field": self.field}
-
-    def __repr__(self):
-        return "ColorSpec(field=%r)" % self.field
-
 class Include(object):
     """ Include other properties from mixin Models, with a given prefix. """
 
@@ -1278,3 +988,77 @@ class RelativeDelta(Dict):
 
     def __str__(self):
         return self.__class__.__name__
+
+class DataSpec(Either):
+    def __init__(self, typ, default, help=None):
+        super(DataSpec, self).__init__(String, Dict(String, Either(String, typ)), typ, default=default, help=help)
+        self._type = self._validate_type_param(typ)
+
+    def to_dict(self, obj):
+        val = getattr(obj, self._name, self.default)
+
+        # Check for None value
+        if val is None:
+            return dict(value=None)
+
+        # Check for spec type value
+        try:
+            self._type.validate(val)
+            return dict(value=val)
+        except ValueError:
+            pass
+
+        # Check for data source field name
+        if isinstance(val, string_types):
+            return dict(field=val)
+
+        # Must be dict, return as-is
+        return val
+
+    def __repr__(self):
+        val = getattr(self, self._name, self.default)
+        return "%s(%r)" % (self.__class__.__name__, val)
+
+class NumberSpec(DataSpec):
+    def __init__(self, default, help=None):
+        super(NumberSpec, self).__init__(Float, default=default, help=help)
+
+class ColorSpec(DataSpec):
+    def __init__(self, default, help=None):
+        super(ColorSpec, self).__init__(Color, default=default, help=help)
+
+    @classmethod
+    def isconst(cls, arg):
+        """ Returns True if the argument is a literal color.  Check for a
+        well-formed hexadecimal color value.
+        """
+        return isinstance(arg, string_types) and \
+               ((len(arg) == 7 and arg[0] == "#") or arg in enums.NamedColor._values)
+
+    @classmethod
+    def format_tuple(cls, colortuple):
+        if len(colortuple) == 3:
+            return "rgb%r" % (colortuple,)
+        else:
+            return "rgba%r" % (colortuple,)
+
+    def to_dict(self, obj):
+        val = getattr(obj, self._name, self.default)
+
+        if val is None:
+            return dict(value=None)
+
+        # Check for hexadecimal or named color
+        if self.isconst(val):
+            return dict(value=val)
+
+        # Check for RGB or RGBa tuple
+        if isinstance(val, tuple):
+            return dict(value=self.format_tuple(val))
+
+        # Check for data source field name
+        if isinstance(val, string_types):
+            return dict(field=val)
+
+        # Must be dict, return as-is
+        return val
