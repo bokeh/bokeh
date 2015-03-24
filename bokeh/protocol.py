@@ -95,6 +95,7 @@ class BokehJSONEncoder(json.JSONEncoder):
         elif is_dateutil and isinstance(obj, relativedelta):
             return dict(years=obj.years, months=obj.months, days=obj.days, hours=obj.hours,
                 minutes=obj.minutes, seconds=obj.seconds, microseconds=obj.microseconds)
+        # Decimal
         elif isinstance(obj, decimal.Decimal):
             return float(obj)
         else:
