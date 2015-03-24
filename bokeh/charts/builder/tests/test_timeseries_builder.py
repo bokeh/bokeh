@@ -43,7 +43,7 @@ class TestTimeSeries(unittest.TestCase):
         xyvaluesdf = pd.DataFrame(xyvalues)
         groups = ['python', 'pypy', 'jython']
         for i, _xy in enumerate([xyvalues, xyvaluesdf]):
-            ts = create_chart(TimeSeries, _xy, index='Date')
+            ts = create_chart(TimeSeries, _xy, x_names=['Date'])
             builder = ts._builders[0]
             self.assertEqual(builder.y_names, groups)
             if _xy is xyvaluesdf:
