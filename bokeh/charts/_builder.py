@@ -38,8 +38,11 @@ def create_and_build(builder_class, values, **kws):
     builder = builder_class(values, **builder_kws)
 
     # create a chart to return, since there isn't one already
-    chart_kws = { k:v for k,v in kws.items() if k not in builder_props}
-    chart = Chart(**chart_kws)
+    if 'chart' in kws:
+        chart = kws['chart']
+    else:
+        chart_kws = { k:v for k,v in kws.items() if k not in builder_props}
+        chart = Chart(**chart_kws)
     chart.add_builder(builder)
 
     return chart

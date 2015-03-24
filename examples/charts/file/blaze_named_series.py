@@ -30,6 +30,19 @@ line = Line(
 )
 df = pd.DataFrame(np.asarray(bbvalues))
 df['myx'] = range(100, 100+bbvalues.nrows)
+
+mix = Line(
+    df, y_names = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width'],
+    index = ['myx'], width=1000, height=500,
+    title="Mixed Chart",
+    ylabel='Petals', legend="top_left"
+)
+Scatter(
+    df, y_names=['sepal_length', 'sepal_width', 'petal_length', 'petal_width'],
+    x_names=['myx'],
+    chart=mix
+)
+
 line2 = Line(
     df, y_names = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width'],
     # x_names = ['myx'],
@@ -67,6 +80,7 @@ hist = Histogram(
 
 show(
     vplot(
+        mix,
         hplot(scatter1, scatter2),
         hplot(bp, hist),
         hplot(line, line2),
