@@ -257,6 +257,7 @@ class CrossFilter(PlotObject):
             column_descriptors[x['name']] = x
         return column_descriptors
 
+    @property
     def continuous_columns(self):
         """Returns list of column descriptors for the non-Discrete columns.
 
@@ -266,6 +267,7 @@ class CrossFilter(PlotObject):
         """
         return [x for x in self.columns if x['type'] != 'DiscreteColumn']
 
+    @property
     def discrete_columns(self):
         """Returns list of column descriptors for the Discrete columns.
 
@@ -282,7 +284,14 @@ class CrossFilter(PlotObject):
           dict: x, y, and plot_type keys and values for initial setup
 
         """
-        x, y = [x['name'] for x in self.continuous_columns()[:2]]
+        cont_columns = self.continuous_columns
+
+        # prefer continuous columns to initialize with, otherwise use what we have
+        if len(cont_columns) > 1:
+            x, y = [x['name'] for x in self.continuous_columns[:2]]
+        else:
+            x, y = [x['name'] for x in self.columns[:2]]
+
         return {'x': x, 'y': y, 'plot_type': 'scatter'}
 
     def set_plot(self):
