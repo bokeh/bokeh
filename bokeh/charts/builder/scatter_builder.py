@@ -135,8 +135,11 @@ class ScatterBuilder(Builder):
             self._data[col] = values
 
         if not self.x_names:
-            self.x_names = ['x'] * len(self.y_names)
+            self.x_names = ['x']
             self._data['x'] = self._values.index
+
+        if len(self.x_names) == 1 and self.y_names > 1:
+             self.x_names *= len(self.y_names)
 
     def _parse_coupled_data(self):
         """Parse data in self._values in case it's an iterable (not a pandas
