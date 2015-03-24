@@ -68,20 +68,19 @@ def make_histogram_source(series):
     return ColumnDataSource(data={'counts': counts, 'centers': centers})
 
 
-def make_continuous_bar_source(df, x_field, y_field, agg):
+def make_continuous_bar_source(df, x_field, y_field='None', agg='count'):
     """Makes discrete, then creates representation of the bars to be plotted.
 
     Args:
       df (DataFrame): contains the data to be converted to a discrete form
       x_field (str): the column in df that maps to the x dim of the plot
-      y_field (str):  the column in df that maps to the y dim of the plot
-      agg (str): the type of aggregation to be used
+      y_field (str, optional):  the column in df that maps to the y dim of the plot
+      agg (str, optional): the type of aggregation to be used
 
     Returns:
       ColumnDataSource: aggregated, discrete form of x,y values
 
     """
-
     # Generate dataframe required to use the categorical bar source function
     labels, edges = pd.cut(x=df[x_field], bins=20, retbins=True, labels=False)
     centers = pd.rolling_mean(edges, 2)[1:]
@@ -93,26 +92,33 @@ def make_continuous_bar_source(df, x_field, y_field, agg):
     return make_categorical_bar_source(df, x_field, y_field, agg)
 
 
-def make_categorical_bar_source(df, x_field, y_field, agg):
+def make_categorical_bar_source(df, x_field, y_field='None', agg='count'):
     """Creates representation of the bars to be plotted.
 
     Args:
       df (DataFrame): contains the data to be converted to a discrete form
       x_field (str): the column in df that maps to the x dim of the plot
-      y_field (str):  the column in df that maps to the y dim of the plot
-      agg (str): the type of aggregation to be used
+      y_field (str, optional):  the column in df that maps to the y dim of the plot
+      agg (str, optional): the type of aggregation to be used
 
     Returns:
       ColumnDataSource: aggregated, discrete form of x,y values
 
     """
+    # If y is None, group and reduce on same column
+    if y_field == 'None':
+        y_field = x_field
 
     # Get the y values after grouping by the x values
     group = df.groupby(x_field)[y_field]
     aggregate = getattr(group, agg)
 
     # Convert back to a DataFrame on the aggregated data
-    result = aggregate().reset_index()
+    if x_field == y_field:
+        series = aggregate()
+        result = pd.DataFrame(data={x_field: series.index, agg: series.values})
+    else:
+        result = aggregate().reset_index()
 
     return ColumnDataSource(data=result)
 

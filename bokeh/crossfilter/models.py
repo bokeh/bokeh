@@ -7,7 +7,7 @@ import pandas as pd
 import numpy as np
 
 from ..plotting import curdoc
-from ..models import ColumnDataSource, GridPlot, Panel, Tabs, Range
+from ..models import ColumnDataSource, GridPlot, Panel, Tabs, Range, Dialog
 from ..models.widgets import Select, MultiSelect, InputWidget
 
 # crossfilter plotting utilities
@@ -204,6 +204,7 @@ class CrossFilter(PlotObject):
         """Creates and configures each selector (drop-down menu)."""
 
         col_names = [x['name'] for x in self.columns]
+        col_names.append('None')
 
         self.plot_selector = Select.create(
             title="PlotType",
@@ -227,7 +228,7 @@ class CrossFilter(PlotObject):
         self.agg_selector = Select.create(
             name='agg',
             value=self.agg,
-            options=['sum', 'mean', 'last'],
+            options=['sum', 'mean', 'count', 'last'],
         )
 
     def update_plot_choices(self, input_dict):
