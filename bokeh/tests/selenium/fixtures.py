@@ -10,6 +10,8 @@ from requests.exceptions import ConnectionError
 from unittest import TestCase
 from urllib2 import urlopen, URLError
 
+from selenium import webdriver
+
 from .utils import initialize_standalone_testing_env, initialize_distributive_testing_env, look_for_element
 from .run_selenium_tests import settings as test_settings
 
@@ -83,6 +85,9 @@ class RawSeleniumTestFixture(TestCase):
 
         self.driver.set_window_size(self.test_settings.window_width, self.test_settings.window_height)
         self.driver.start_client()
+
+        self.actions = webdriver.common.action_chains.ActionChains(self.driver)
+        self.touch = webdriver.common.touch_actions.TouchActions(self.driver)
 
         self.addCleanup(self.driver.quit)
 
