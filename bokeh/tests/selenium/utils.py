@@ -6,7 +6,7 @@ import re
 import sys
 import glob
 
-from subprocess import check_output
+from subprocess import check_output, Popen, PIPE
 
 from selenium import selenium, webdriver
 from selenium.webdriver.common.by import By
@@ -220,6 +220,24 @@ def compare_two_lists_for_expected_equal_text_values(expected_values, www_elemen
     for expected_value in expected_values:
         if not expected_value in values:
             assert 0, "No expected '%s' has been found!" % (expected_value)
+
+
+def check_if_images_are_the_same(ref_file, gen_file):
+    diff_file = os.path.splitext(ref_file)[0] + "-diff.png"
+
+    cmd = [ 'perceptualdiff', '-output', diff_file, gen_file, ref_file ]
+
+    try:
+        proc = Popen(cmd, stdout=PIPE, stderr=PIPE)
+        code = proc.wait()
+    except OSError:
+        print("Failed to run: {0}".format(cmd))
+        sys.exit(1)
+
+    if code != 0:
+        return False
+    else:
+        return True
 
 
 class TestBrowserCaps(object):

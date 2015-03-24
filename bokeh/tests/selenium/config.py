@@ -82,6 +82,8 @@ class TestMetadata(object):
         self.window_width = DEF_WINDOW_WIDTH
         self.window_height = DEF_WINDOW_HEIGHT
 
+        self.screenshot_dir = self.data_dir+'/screenshots'
+
     def get_browser_bin(self, browser):
         return self.standalone_browsers_bin[browser]
 
@@ -178,6 +180,18 @@ class TestSettings(object):
             rmtree(self.down_dir)
 
         os.makedirs(self.down_dir)
+
+        self.screenshot_dir = kwargs.get('screenshot_dir', None)
+
+        if not self.screenshot_dir:
+            self.screenshot_dir = self.metadata.screenshot_dir
+
+        if not os.path.exists(self.screenshot_dir):
+            os.makedirs(self.screenshot_dir)
+
+        if not os.path.isdir(self.screenshot_dir):
+            print("The data dir '%s' is not a directory!" % (self.screenshot_dir))
+            sys.exit(1)
 
         self.headless_mode = kwargs.get('headless_mode', None)
 

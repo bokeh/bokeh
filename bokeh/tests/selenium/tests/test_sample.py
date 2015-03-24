@@ -8,7 +8,7 @@ import unittest
 from selenium.common.exceptions import NoSuchElementException
 
 from bokeh.tests.selenium.fixtures import BasicSeleniumTestFixture
-from bokeh.tests.selenium.utils import look_for_element
+from bokeh.tests.selenium.utils import look_for_element, check_if_images_are_the_same
 
 
 class TestSample(BasicSeleniumTestFixture):
