@@ -27,6 +27,7 @@ except ImportError:
 from ..utils import chunk, cycle_colors
 from .._builder import Builder, create_and_build
 from ...models import ColumnDataSource, DataRange1d, GlyphRenderer, Range1d, DataRange1d
+from ...properties import Any, Bool
 from ...models.glyphs import Line
 from warnings import warn
 
@@ -76,13 +77,9 @@ def TimeSeries(values, index=None, xscale='datetime', **kws):
         show(ts)
 
     """
-    if index is not None:
-        msg = "bokeh.charts.TimeSeries index argument is deprecated since Bokeh 0.8.2. Use x_names instead!"
-        warn(msg, DeprecationWarning, stacklevel=2)
-        kws['x_names'] = [index]
 
     return create_and_build(
-        TimeSeriesBuilder, values, xscale=xscale, **kws
+        TimeSeriesBuilder, values, index=index, xscale=xscale, **kws
     )
 
 
@@ -111,6 +108,9 @@ class TimeSeriesBuilder(Builder):
             # and can also be used for tooltips..
             if not col in self._data:
                 self._data[col] = values
+
+        if self.x_names == ['x'] and 'x' not in self._data:
+            self._data['x'] = self._values_index
 
     def _set_ranges(self):
         """ Calculate the proper ranges """

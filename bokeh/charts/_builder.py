@@ -22,7 +22,7 @@ from ._chart import Chart
 from ._data_adapter import DataAdapter
 from ..models.ranges import Range
 from ..models import ColumnDataSource
-from ..properties import Color, HasProps, Instance, Seq, String
+from ..properties import Color, HasProps, Instance, Seq, String, Any
 
 DEFAULT_PALETTE = ["#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33ff3"]
 
@@ -83,6 +83,20 @@ class Builder(HasProps):
     palette = Seq(Color, default=DEFAULT_PALETTE)
     source = Instance(ColumnDataSource)
 
+
+    index = Any(help="""
+    An index to be used for all data series as follows:
+
+    - A 1d iterable of any sort that will be used as
+       series common index
+
+    - As a string that corresponds to the key of the
+       mapping to be used as index (and not as data
+       series) if area.values is a mapping (like a dict,
+       an OrderedDict or a pandas DataFrame)
+
+   """)
+
     def __init__(self, values=None, **kws):
         """Common arguments to be used by all the inherited classes.
 
@@ -130,12 +144,17 @@ class Builder(HasProps):
         Converts data input (self._values) to a DataAdapter and creates
         instance index if needed
         """
-        self._values_index, self._values = DataAdapter.get_index_and_data(
-            self._values, self.x_names
-            )
-
-        if not self.x_names:
+        if self.index:
+            self._values_index, self._values = DataAdapter.get_index_and_data(
+                self._values, self.index
+                )
             self.x_names = ["x"]
+        else:
+            self._values_index, self._values = DataAdapter.get_index_and_data(
+                self._values, self.x_names
+            )
+            if not self.x_names:
+                self.x_names = ["x"]
 
         if not self.y_names:
             self.y_names = [k for k in self._values.keys() if k not in self.x_names]
