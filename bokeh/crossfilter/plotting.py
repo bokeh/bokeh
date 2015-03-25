@@ -114,7 +114,7 @@ def make_categorical_bar_source(df, x_field, y_field='None', agg='count'):
     aggregate = getattr(group, agg)
 
     # Convert back to a DataFrame on the aggregated data
-    if x_field == y_field:
+    if y_field == 'None':
         series = aggregate()
         result = pd.DataFrame(data={x_field: series.index, agg: series.values})
     else:
