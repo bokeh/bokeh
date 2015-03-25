@@ -1,0 +1,12 @@
+0.8.2 (Mar 2015)
+================
+
+This quick release was focused on some refactoring, bug fixes and improved documentation.
+
+* Colect implicit interfaces into a single bokeh.io module
+* Fixed notebook css issues
+* Update notebooks to be compatible with IPython 3.0
+* Easy bokeh applet generation using the simpleapp module
+* Develop installation enhancements
+* A new User guide intro and some other docs styling enhancements
+* Some other minor examples bugfixes
