@@ -28,6 +28,7 @@ define [
   class Square extends Marker.Model
     default_view: SquareView
     type: 'Square'
+    angles: ['angle']
 
   class Squares extends Marker.Collection
     model: Square

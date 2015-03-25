@@ -6,8 +6,6 @@ define [
 
   class MultiLineView extends Glyph.View
 
-    _fields: ['xs', 'ys']
-
     _set_data: () ->
       @index = rbush()
       pts = []
@@ -50,6 +48,7 @@ define [
     default_view: MultiLineView
     type: 'MultiLine'
     props: ['line']
+    coords: [ ['xs', 'ys'] ]
 
   class MultiLines extends Glyph.Collection
     model: MultiLine

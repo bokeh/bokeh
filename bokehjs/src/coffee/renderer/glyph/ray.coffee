@@ -5,8 +5,6 @@ define [
 
   class RayView extends Glyph.View
 
-    _fields: ['x', 'y', 'angle', 'length']
-
     _set_data: () ->
       @_xy_index()
 
@@ -46,6 +44,8 @@ define [
     default_view: RayView
     type: 'Ray'
     props: ['line']
+    distances: ['length']
+    angles: ['angle']
 
   class Rays extends Glyph.Collection
     model: Ray

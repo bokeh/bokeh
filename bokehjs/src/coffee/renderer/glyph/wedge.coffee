@@ -6,8 +6,6 @@ define [
 
   class WedgeView extends Glyph.View
 
-    _fields: ['x', 'y', 'radius', 'start_angle', 'end_angle', 'direction:string']
-
     _set_data: () ->
       @max_radius = _.max(@radius)
       @_xy_index()
@@ -87,6 +85,9 @@ define [
   class Wedge extends Glyph.Model
     default_view: WedgeView
     type: 'Wedge'
+    distances: ['radius']
+    angles: ['start_angle', 'end_angle']
+    fields: ['direction:string']
 
     display_defaults: ->
       return _.extend {}, super(), {

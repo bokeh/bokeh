@@ -5,8 +5,6 @@ define [
 
   class OvalView extends Glyph.View
 
-    _fields: ['x', 'y', 'width', 'height', 'angle']
-
     _set_data: () ->
       @max_w2 = 0
       if @glyph.width.units != "screen"
@@ -78,6 +76,8 @@ define [
   class Oval extends Glyph.Model
     default_view: OvalView
     type: 'Oval'
+    distances: ['width', 'height']
+    angles: ['angle']
 
     display_defaults: ->
       return _.extend {}, super(), {

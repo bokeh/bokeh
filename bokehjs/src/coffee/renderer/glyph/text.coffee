@@ -5,8 +5,6 @@ define [
 
   class TextView extends Glyph.View
 
-    _fields: ['x', 'y', 'angle', 'text:string', 'x_offset', 'y_offset']
-
     _set_data: () ->
       @_xy_index()
 
@@ -49,6 +47,9 @@ define [
     default_view: TextView
     type: 'Text'
     props: ['text']
+    distances: ['x_offset', 'y_offset']
+    angles: ['angle']
+    fields: ['text:string']
 
     defaults: ->
       return _.extend {}, super(), {

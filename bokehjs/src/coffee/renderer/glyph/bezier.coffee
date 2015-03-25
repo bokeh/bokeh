@@ -65,8 +65,6 @@ define [
 
   class BezierView extends Glyph.View
 
-    _fields : ['x0', 'y0', 'x1', 'y1', 'cx0', 'cy0', 'cx1', 'cy1']
-
     _set_data: () ->
       @index = rbush()
       pts = []
@@ -107,6 +105,7 @@ define [
     default_view: BezierView
     type: 'Bezier'
     props: ['line']
+    coords: [ ['x0', 'y0'], ['x1', 'y1'], ['cx0', 'cy0'], ['cx1', 'cy1'] ]
 
   class Beziers extends Glyph.Collection
     model: Bezier

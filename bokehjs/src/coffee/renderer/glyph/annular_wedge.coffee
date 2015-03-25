@@ -6,8 +6,6 @@ define [
 
   class AnnularWedgeView extends Glyph.View
 
-    _fields: ['x', 'y', 'inner_radius', 'outer_radius', 'start_angle', 'end_angle', 'direction:string'],
-
     _set_data: () ->
       @max_radius = _.max(@outer_radius)
       @_xy_index()
@@ -104,6 +102,9 @@ define [
   class AnnularWedge extends Glyph.Model
     default_view: AnnularWedgeView
     type: 'AnnularWedge'
+    distances: ['inner_radius', 'outer_radius']
+    angles: ['start_angle', 'end_angle']
+    fields: ['direction:string']
 
     display_defaults: ->
       return _.extend {}, super(), {

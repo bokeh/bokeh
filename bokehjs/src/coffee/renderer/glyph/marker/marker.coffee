@@ -94,6 +94,7 @@ define [
       return hits
 
   class Marker extends Glyph.Model
+    distances: ['size']
 
     display_defaults: ->
       return _.extend {}, super(), {

@@ -22,15 +22,6 @@ define [
 
   class CircleView extends Glyph.View
 
-    # we need a custom initializer because circles may either take glyph-style radius
-    # (data units) or a marker-style size (screen units)
-    initialize: (options) ->
-      if @mget("radius")?
-        @_fields = ['x', 'y', 'radius', 'radius_dimension']
-      else
-        @_fields = ['x', 'y', 'size']
-      super(options)
-
     _set_data: () ->
       if @size
         @max_radius = _.max(@size)/2
@@ -182,6 +173,8 @@ define [
   class Circle extends Glyph.Model
     default_view: CircleView
     type: 'Circle'
+    distances: ['radius', 'size']
+    fields: ['radius_dimension:string']
 
     display_defaults: ->
       return _.extend {}, super(), {

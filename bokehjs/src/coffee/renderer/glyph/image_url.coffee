@@ -5,8 +5,6 @@ define [
 
   class ImageURLView extends Glyph.View
 
-    _fields: ['url:string', 'x', 'y', 'w', 'h', 'angle']
-
     _set_data: () ->
       @image = (null for img in @url)
       @need_load = (true for img in @url)
@@ -80,6 +78,9 @@ define [
     default_view: ImageURLView
     type: 'ImageURL'
     props: []
+    distances: ['w', 'h']
+    angles: ['angle']
+    fields: ['url:string']
 
     defaults: ->
       return _.extend {}, super(), {

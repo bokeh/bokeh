@@ -7,17 +7,6 @@ define [
 
   class ImageView extends Glyph.View
 
-    initialize: (options) ->
-      # the point of this is to support both efficient ArrayBuffers as well as dumb
-      # arrays of arrays that the python interface currently uses. If the model
-      # contains "rows" then it is assumed to be an ArrayBuffer with explicitly
-      # provided number of rows/cols, otherwise treat as a "list of lists".
-      if @mget("rows")?
-        @_fields = ['image:array', 'rows', 'cols', 'x', 'y', 'dw', 'dh', 'palette:string']
-      else
-        @_fields = ['image:array', 'x', 'y', 'dw', 'dh', 'palette:string']
-      super(options)
-
     _set_data: () ->
       if not @image_data? or @image_data.length != @image.length
         @image_data = new Array(@image.length)
@@ -97,6 +86,8 @@ define [
     default_view: ImageView
     type: 'Image'
     props: []
+    distances: ['dw', 'dh']
+    fields: ['image:array', 'rows', 'cols', 'palette:string']
 
     display_defaults: ->
       return _.extend {}, super(), {

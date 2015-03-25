@@ -5,8 +5,6 @@ define [
 
   class RectView extends Glyph.View
 
-    _fields: ['x', 'y', 'width', 'height', 'angle']
-
     _map_data: () ->
       [sxi, syi] = @renderer.map_to_screen(@x, @y)
 
@@ -167,6 +165,8 @@ define [
   class Rect extends Glyph.Model
     default_view: RectView
     type: 'Rect'
+    distances: ['width', 'height']
+    angles: ['angle']
 
     display_defaults: ->
       return _.extend {}, super(), {

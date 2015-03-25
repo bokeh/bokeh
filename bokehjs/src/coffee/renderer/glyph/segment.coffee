@@ -6,8 +6,6 @@ define [
 
   class SegmentView extends Glyph.View
 
-    _fields: ['x0', 'y0', 'x1', 'y1']
-
     _set_data: () ->
       @index = rbush()
       pts = []
@@ -40,6 +38,7 @@ define [
     default_view: SegmentView
     type: 'Segment'
     props: ['line']
+    coords: [ ['x0', 'y0'], ['x1', 'y1'] ]
 
   class Segments extends Glyph.Collection
     model: Segment

@@ -7,8 +7,6 @@ define [
 
   class PatchesView extends Glyph.View
 
-    _fields: ['xs', 'ys']
-
     _set_data: () ->
       @max_size = _.max(@size)
       @index = rbush()
@@ -107,6 +105,7 @@ define [
   class Patches extends Glyph.Model
     default_view: PatchesView
     type: 'Patches'
+    coords: [ ['xs', 'ys'] ]
 
   class Patcheses extends Glyph.Collection
     model: Patches

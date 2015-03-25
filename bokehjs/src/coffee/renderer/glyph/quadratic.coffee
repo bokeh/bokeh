@@ -24,8 +24,6 @@ define [
 
   class QuadraticView extends Glyph.View
 
-    _fields: ['x0', 'y0', 'x1', 'y1', 'cx', 'cy']
-
     _set_data: () ->
       @index = rbush()
       pts = []
@@ -65,6 +63,7 @@ define [
     default_view: QuadraticView
     type: 'Quadratic'
     props: ['line']
+    coords: [ ['x0', 'y0'], ['x1', 'y1'], ['cx', 'cy'] ]
 
   class Quadratics extends Glyph.Collection
     model: Quadratic

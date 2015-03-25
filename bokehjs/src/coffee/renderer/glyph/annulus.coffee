@@ -5,8 +5,6 @@ define [
 
   class AnnulusView extends Glyph.View
 
-    _fields: ['x', 'y', 'inner_radius', 'outer_radius']
-
     _set_data: () ->
       @max_radius = _.max(@outer_radius)
       @_xy_index()
@@ -82,6 +80,7 @@ define [
   class Annulus extends Glyph.Model
     default_view: AnnulusView
     type: 'Annulus'
+    distances: ['inner_radius', 'outer_radius']
 
   class Annuluses extends Glyph.Collection
     model: Annulus

@@ -17,7 +17,8 @@ define [
       super(options)
       @renderer = options.renderer
 
-      @glyph = new properties.Glyph(@, @_fields)
+      fields = _.flatten(@model.coords).concat(@model.distances, @model.angles, @model.fields)
+      @glyph = new properties.Glyph(@, fields)
       @props = {}
 
       if 'line' in @model.props
@@ -42,11 +43,10 @@ define [
         @props.text.set_prop_cache(source)
 
     set_data: (source) ->
-      for field in @_fields
-        # REMOVE {
+      fields = _.flatten(@model.coords).concat(@model.distances, @model.angles, @model.fields)
+      for field in fields
         if field.indexOf(":") > -1
           [field, junk] = field.split(":")
-        # }
 
         @[field] = @glyph.source_v_select(field, source)
 
@@ -216,6 +216,19 @@ define [
     # Most glyphs have line and fill props. Override this in subclasses
     # that need to define a different set of properties
     props: ['line', 'fill']
+
+    # Many glyphs have simple x and y coordinates. Override this in
+    # subclasses that use other coordinates
+    coords: [ ['x', 'y'] ]
+
+    # Any distance values (which have screen/data units) go here
+    distances: []
+
+    # Any angle values (which have deg/rad units) go here
+    angles: []
+
+    # Any other data values go here
+    fields: []
 
     fill_defaults: {
       fill_color: 'gray'

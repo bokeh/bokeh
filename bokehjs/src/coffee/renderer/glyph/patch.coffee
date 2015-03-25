@@ -5,8 +5,6 @@ define [
 
   class PatchView extends Glyph.View
 
-    _fields: ['x', 'y']
-
     _set_data: () ->
       @_xy_index()
 

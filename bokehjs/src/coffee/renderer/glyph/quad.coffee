@@ -6,8 +6,6 @@ define [
 
   class QuadView extends Glyph.View
 
-    _fields: ['right', 'left', 'bottom', 'top']
-
     _set_data: () ->
       @index = rbush()
       pts = []
@@ -52,6 +50,7 @@ define [
   class Quad extends Glyph.Model
     default_view: QuadView
     type: 'Quad'
+    coords: [ ['right', 'bottom'], ['left', 'top'] ]
 
   class Quads extends Glyph.Collection
     model: Quad
