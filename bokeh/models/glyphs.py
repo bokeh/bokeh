@@ -8,7 +8,7 @@ from __future__ import absolute_import
 from ..plot_object import PlotObject
 from ..mixins import FillProps, LineProps, TextProps
 from ..enums import Direction, Anchor
-from ..properties import Bool, Enum, Include, Instance, NumberSpec
+from ..properties import Bool, Enum, Include, Instance, NumberSpec, StringSpec
 
 from .mappers import LinearColorMapper
 
@@ -895,7 +895,7 @@ class Text(Glyph):
     The y-coordinates to locate the text anchors.
     """)
 
-    text = NumberSpec("text", help="""
+    text = StringSpec("text", help="""
     The text values to render.
     """)
 

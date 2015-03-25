@@ -1023,6 +1023,15 @@ class NumberSpec(DataSpec):
     def __init__(self, default, help=None):
         super(NumberSpec, self).__init__(Float, default=default, help=help)
 
+class StringSpec(DataSpec):
+    def __init__(self, default, help=None):
+        super(StringSpec, self).__init__(List(String), default=default, help=help)
+
+    def __set__(self, obj, value):
+        if isinstance(value, list) and len(value) != 1:
+            raise TypeError("StringSpec convenience list values must have length 1")
+        super(StringSpec, self).__set__(obj, value)
+
 class ColorSpec(DataSpec):
     def __init__(self, default, help=None):
         super(ColorSpec, self).__init__(Color, default=default, help=help)
