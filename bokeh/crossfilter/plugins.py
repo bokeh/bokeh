@@ -237,17 +237,10 @@ class CrossBarPlugin(CrossFilterPlugin):
             self._title = 'Select discrete or continuous column for x.'
             self.valid_plot = False
 
-        if not self.valid_selections(self.col_meta, self.x, self.y, self.agg):
-            self._title = 'Unsupported aggregation for the current selections.'
-            self.valid_plot = False
-
-        if self.y == 'None' and self.agg not in self.y_agg_types:
-            self._title = 'Select continuous y column to aggregate by %s.' % (self.agg.title())
-            self.valid_plot = False
-
-        if self.x == self.y:
-            self._title = 'Bar does not support x and y of same column'
-            self.valid_plot = False
+        self.valid_plot, title = self.valid_selections(self.col_meta, self.x,
+                                                             self.y, self.agg)
+        if title is not None:
+            self._title = title
 
         if self.df.empty:
             if not self.facet:
@@ -265,39 +258,23 @@ class CrossBarPlugin(CrossFilterPlugin):
         x_type = CrossBarPlugin.get_col_type(metadata, x)
         y_type = CrossBarPlugin.get_col_type(metadata, y)
 
-        if y_type == 'DiscreteColumn' and agg_type not in CrossBarPlugin.y_agg_types:
-            return False
-        elif x == y:
-            return False
-        elif y != 'None' and agg_type == 'percent':
-            return False
+        if x == y:
+            return False, 'X and Y must be different columns.'
+        elif y != 'None' and agg_type in CrossBarPlugin.y_agg_types:
+            return False, 'Y must be "None" for this aggregation type.'
+        elif y == 'None' and agg_type not in CrossBarPlugin.y_agg_types:
+            return False, 'Select continuous y column to aggregate by %s.' % \
+                   (agg_type.title())
         else:
-            return True
+            return True, None
 
     @property
     def title(self):
         if self.y == 'None':
-            agg_type = CrossBarPlugin.get_agg_type(self.cf)
-            return "%s (%s)" % (agg_type.title(), self.x.title())
+            return "%s (%s)" % (self.agg.title(), self.x.title())
         else:
             return "%s (%s) by %s" % (self.agg.title(), self.y.title(),
                                      self.x.title())
-
-    @staticmethod
-    def get_agg_type(cf):
-
-        # make sure we use count aggregation if y is 'None'
-        if cf.y == 'None':
-            if cf.agg not in CrossBarPlugin.y_agg_types:
-                cf.agg_selector.value = 'count'
-                return 'count'
-            else:
-                return cf.agg
-        elif cf.agg in CrossBarPlugin.y_agg_types and cf.y != 'None':
-            cf.y_selector.value = 'None'
-            return cf.agg
-        else:
-            return cf.agg
 
     @staticmethod
     def make_xy_ranges(cf, bar_width=0.7):
@@ -314,14 +291,15 @@ class CrossBarPlugin(CrossFilterPlugin):
         df = cf.filtered_df
         col_meta = cf.column_descriptor_dict()
 
-        agg_type = CrossBarPlugin.get_agg_type(cf)
         if cf.y == 'None':
-            agg_col = agg_type
+            agg_col = cf.agg
         else:
             agg_col = cf.y
 
         # only return ranges if we have valid selections
-        if CrossBarPlugin.valid_selections(col_meta, cf.x, cf.y, cf.agg):
+        is_valid, _ = CrossBarPlugin.valid_selections(col_meta, cf.x, cf.y,
+                                                      cf.agg)
+        if is_valid:
 
             # create x range
             if col_meta[cf.x]['type'] != 'DiscreteColumn':
@@ -333,7 +311,10 @@ class CrossBarPlugin(CrossFilterPlugin):
                 x_range = FactorRange(factors=source.data[cf.x])
 
             # create y range
-            top = np.max(source.data[agg_col]) * 1.05
+            if cf.agg == 'percent':
+                top = 100
+            else:
+                top = np.max(source.data[agg_col]) * 1.05
             y_range = Range1d(start=0, end=top)
             return x_range, y_range
         else:
