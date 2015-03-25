@@ -2,7 +2,7 @@ define (require, exports, module) ->
 
   Bokeh = {}
   Bokeh.require = require
-  Bokeh.version = '0.8.1'
+  Bokeh.version = '0.8.2'
 
   Bokeh.index = require("common/base").index
 
