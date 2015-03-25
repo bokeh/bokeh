@@ -107,16 +107,26 @@ def make_categorical_bar_source(df, x_field, y_field='None', agg='count'):
     """
     # If y is None, group and reduce on same column
     if y_field == 'None':
-        y_field = x_field
+        agg_col = x_field
+    else:
+        agg_col = y_field
 
-    # Get the y values after grouping by the x values
-    group = df.groupby(x_field)[y_field]
-    aggregate = getattr(group, agg)
+    if agg == 'percent':
+        count = len(df.index)
+        series = df.groupby(x_field)[agg_col].apply(lambda x: 100*(len(
+            x.index)/float(count)))
+    else:
+        # Get the y values after grouping by the x values
+        group = df.groupby(x_field)[agg_col]
+        aggregate = getattr(group, agg)
 
     # Convert back to a DataFrame on the aggregated data
     if y_field == 'None':
-        series = aggregate()
-        result = pd.DataFrame(data={x_field: series.index, agg: series.values})
+        if agg == 'count':
+            series = aggregate()
+
+        result = pd.DataFrame(
+            data={x_field: series.index, agg: series.values})
     else:
         result = aggregate().reset_index()
 

@@ -228,7 +228,7 @@ class CrossFilter(PlotObject):
         self.agg_selector = Select.create(
             name='agg',
             value=self.agg,
-            options=['sum', 'mean', 'count', 'last'],
+            options=['sum', 'mean', 'last', 'count', 'percent'],
         )
 
     def update_plot_choices(self, input_dict):
