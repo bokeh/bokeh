@@ -17,9 +17,8 @@ from __future__ import absolute_import
 
 import unittest
 
-from bokeh.models import ColumnDataSource, GlyphRenderer
+from bokeh.models import ColumnDataSource
 from bokeh.models.glyphs import Circle
-
 from bokeh.charts.utils import chunk, make_scatter
 
 #-----------------------------------------------------------------------------
@@ -36,9 +35,6 @@ class TestBuilder(unittest.TestCase):
     def test_make_scatter(self):
         source = ColumnDataSource({"a": [2, 4, 5]})
         scatter = make_scatter(source, 'a', 'b', "circle", "black")
-        # scatter = renderer.glyph
-        # self.assertIsInstance(renderer, GlyphRenderer)
-        # self.assertEqual(renderer.data_source, source)
         self.assertEqual(scatter.x, 'a')
         self.assertEqual(scatter.y, 'b')
         self.assertIsInstance(scatter, Circle)
