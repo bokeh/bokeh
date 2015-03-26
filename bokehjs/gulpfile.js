@@ -26,3 +26,8 @@ gulp.task('eco', function(){
     .pipe(template({author: "Continuum Analytics"}))
     .pipe(gulp.dest('./build'));
 });
+
+
+gulp.task("default", ["scripts"], function() {
+  gulp.watch("./src/coffee/**/*.coffee", ["scripts"]);
+})
