@@ -10,25 +10,28 @@ bbvalues = Data(join(dirname(iris.__file__), 'iris.csv'))
 # # result = bbvalues[columns]
 output_file("blaze_input.html")
 
+df = pd.DataFrame(np.asarray(bbvalues))
+df['myx'] = range(100, 100+bbvalues.nrows)
+datasource = ColumnDataSource(data=df)
 
 scatter1 = Scatter(
-    bbvalues, y_names = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width'],
+    datasource, y_names = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width'],
     title="Scatter Chart", width=300, height=300,
-    ylabel='Petals', legend="top_left"
+    ylabel='Petals', legend="top_left",
+    tools="pan,wheel_zoom,box_zoom,reset,save,box_select,lasso_select"
 )
 scatter2 = Scatter(
-    bbvalues, y_names = ['sepal_length', 'petal_length'],
+    datasource, y_names = ['sepal_length', 'petal_length'],
     x_names = ['sepal_width', 'petal_width'],
     title="Scatter Length X Width", width=300, height=300,
-    ylabel='Petals', legend="top_left"
+    ylabel='Petals', legend="top_left",
+    tools="pan,wheel_zoom,box_zoom,reset,save,box_select,lasso_select"
 )
 line = Line(
     bbvalues, y_names = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width'],
     title="Line Chart", width=300, height=300,
     ylabel='Petals', legend="top_left"
 )
-df = pd.DataFrame(np.asarray(bbvalues))
-df['myx'] = range(100, 100+bbvalues.nrows)
 
 mix = Line(
     df, y_names = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width'],
@@ -41,7 +44,7 @@ Scatter(
     x_names=['myx'],
     chart=mix
 )
-datasource = ColumnDataSource(data=df)
+
 line2 = Line(
     datasource, y_names = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width'],
     x_names = ['myx'],
