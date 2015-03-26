@@ -35,11 +35,11 @@ class TestBuilder(unittest.TestCase):
 
     def test_make_scatter(self):
         source = ColumnDataSource({"a": [2, 4, 5]})
-        renderer = make_scatter(source, [0], [1], "circle", "black")
-        scatter = renderer.glyph
-        self.assertIsInstance(renderer, GlyphRenderer)
-        self.assertEqual(renderer.data_source, source)
-        self.assertEqual(scatter.x, [0])
-        self.assertEqual(scatter.y, [1])
+        scatter = make_scatter(source, 'a', 'b', "circle", "black")
+        # scatter = renderer.glyph
+        # self.assertIsInstance(renderer, GlyphRenderer)
+        # self.assertEqual(renderer.data_source, source)
+        self.assertEqual(scatter.x, 'a')
+        self.assertEqual(scatter.y, 'b')
         self.assertIsInstance(scatter, Circle)
         self.assertEqual(scatter.line_color, "black")
