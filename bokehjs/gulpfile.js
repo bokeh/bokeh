@@ -1,6 +1,6 @@
 var gulp = require("gulp");
-var coffeeify = require("gulp-coffeeify");
-var template = require('gulp-eco-template');
+var browserify = require("browserify");
+var source = require("vinyl-source-stream");
 
 
 var alias = function(name) {
@@ -8,25 +8,17 @@ var alias = function(name) {
 };
 
 gulp.task("scripts", function() {
-  gulp.src("src/coffee/main.coffee")
-    .pipe(coffeeify({
-      // TOOD: Remove these as they are ported to true CommonJS style
-      aliases: [
-        alias("common"),
-        alias("mapper"),
-        alias("palettes"),
-        alias("range"),
-        alias("renderer"),
-        alias("server"),
-        alias("source"),
-        alias("ticking"),
-        alias("tool"),
-        alias("transforms"),
-        alias("util"),
-        alias("widget")
-      ]
-    }))
-    .pipe(gulp.dest("./build/js"));
+  var opts = {
+    entries: ["./src/coffee/main.coffee"],
+    extensions: [".coffee", ".eco"]
+  }
+
+  browserify(opts)
+    .transform("browserify-eco")
+    .transform("coffeeify")
+    .bundle()
+    .pipe(source("bokeh.js"))
+    .pipe(gulp.dest("./build/js/"))
 });
 
 gulp.task('eco', function(){
