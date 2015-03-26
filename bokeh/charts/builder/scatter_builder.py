@@ -166,6 +166,11 @@ class ScatterBuilder(Builder):
 
         Customize show preliminary actions by handling DataFrameGroupBy
         values in order to create the series values and labels."""
+        if isinstance(self._values, ColumnDataSource):
+            self.source = self._values
+            self._values = self.source.data
+            self._data = self.source.data
+            
         # check if pandas is installed
         new_values = []
         if pd:
