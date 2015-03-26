@@ -1,5 +1,5 @@
-_ require = "underscore"
-HasProperties = "./has_properties"
+_ = require "underscore"
+HasProperties = require "./has_properties"
 
 # hasparent
 # display_options can be passed down to children

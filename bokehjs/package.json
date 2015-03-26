@@ -76,7 +76,8 @@
     "jquery_ui/spinner": "./src/vendor/jquery-ui-1.11.2/js/spinner.js",
     "gear_utils": "./src/vendor/gear-utils/gear-utils.js",
     "hammer": "./src/vendor/hammer.js-2.0.4/hammer.js",
-    "numeral": "./src/vendor/numeral.js-1.5.3/numeral.js"
+    "numeral": "./src/vendor/numeral.js-1.5.3/numeral.js",
+    "kiwi": "./src/vendor/kiwi/kiwi.js"
   },
   "browserify-shim": {},
   "dependencies": {
