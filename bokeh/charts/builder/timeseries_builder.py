@@ -24,12 +24,8 @@ try:
 except ImportError:
     pd = None
 
-from ..utils import chunk, cycle_colors
 from .._builder import Builder, create_and_build
-from ...models import ColumnDataSource, DataRange1d, GlyphRenderer, Range1d, DataRange1d
-from ...properties import Any, Bool
 from ...models.glyphs import Line
-from warnings import warn
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -104,29 +100,12 @@ class TimeSeriesBuilder(Builder):
         """
         # necessary to make all formats and encoder happy with array, blaze, ...
         for col, values in self._values.items():
-            # add the original series to _data so it can be found in source
-            # and can also be used for tooltips..
-            if not col in self._data:
+            if col not in self._data:
                 self._data[col] = values
 
-        if self.x_names == ['x'] and 'x' not in self._data:
-            self._data['x'] = self._values_index
+        for xname in self.x_names:
+            if xname not in self._data:
+                self._data[xname] = self._values_index
 
-    def _set_ranges(self):
-        """ Calculate the proper ranges """
-        self.x_range = DataRange1d(sources=[self._source.columns(self.x_names[0])])
-        y_sources = [self.source.columns("%s" % col) for col in self.y_names]
-        self.y_range = DataRange1d(sources=y_sources)
-
-    def _yield_renderers(self):
-        """Use the line glyphs to connect the xy points in the time series.
-
-        Takes reference points from the data loaded at the ColumnDataSource.
-        """
-        colors = cycle_colors(self.y_names, self.palette)
-
-        for color, name in zip(colors, self.y_names):
-            glyph = Line(x=self.x_names[0], y=name, line_color=color)
-            renderer = GlyphRenderer(data_source=self._source, glyph=glyph)
-            self._legends.append((name, [renderer]))
-            yield renderer
+    def _create_glyph(self, xname, yname, color):
+        return Line(x=xname, y=yname, line_color=color)

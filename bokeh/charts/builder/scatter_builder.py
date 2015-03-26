@@ -158,24 +158,8 @@ class ScatterBuilder(Builder):
             self._data["%s" % val] = y_
             self.x_names.append("x_%s" % val)
 
-    def _set_ranges(self):
-        """Push the Scatter data into the ColumnDataSource and
-        calculate the proper ranges."""
-        self.x_range = DataRange1d(sources=[self.source.columns(*self.x_names)])
-        y_sources = [self.source.columns(col) for col in self.y_names]
-        self.y_range = DataRange1d(sources=y_sources)
-
-    def _yield_renderers(self):
-        """Use the marker glyphs to display the points.
-
-        Takes reference points from data loaded at the ColumnDataSource.
-        """
-        colors = cycle_colors(self.y_names, self.palette)
-
-        for color, xname, yname in zip(colors, self.x_names, self.y_names):
-            renderer = make_scatter(self._source, xname, yname, self.marker, color)
-            self._legends.append((yname, [renderer]))
-            yield renderer
+    def _create_glyph(self, xname, yname, color):
+        return make_scatter(self._source, xname, yname, self.marker, color)
 
     def _adapt_values(self):
         """Prepare context before main show method is invoked.

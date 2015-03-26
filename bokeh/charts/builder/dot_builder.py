@@ -133,11 +133,7 @@ class DotBuilder(Builder):
         renders circle glyphs (and segments) on the related
         coordinates.
         """
-        # self._tuples = list(chunk(self._attr, 4))
-        colors = cycle_colors(self.y_names, self.palette)
-
-        # for i, quartet in enumerate(self._tuples):
-        for color, name in zip(colors, self.y_names):
+        for color, name in zip(self.colors, self.y_names):
             # draw segment first so when scatter will be place on top of it
             # and it won't show segment chunk on top of the circle
             cat = "dot_cat_%s" % name
@@ -146,9 +142,8 @@ class DotBuilder(Builder):
                                 line_color="black", line_width=2)
                 yield GlyphRenderer(data_source=self._source, glyph=glyph)
 
-            renderer = make_scatter(
-                self._source, cat, name, 'circle',
-                color, line_color='black', size=15, fill_alpha=1.,
-            )
+            glyph = make_scatter( self._source, cat, name, 'circle',
+                color, line_color='black', size=15, fill_alpha=1.)
+            renderer = GlyphRenderer(data_source=self._source, glyph=glyph)
             self._legends.append((name, [renderer]))
             yield renderer

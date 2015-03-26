@@ -216,9 +216,10 @@ class BoxPlotBuilder(Builder):
 
         # Draw the outliers if needed
         if self.outliers:
-            yield make_scatter(
+            glyph = make_scatter(
                 self.source, 'out_x', 'out_y', self.marker, 'out_colors'
             )
+            yield GlyphRenderer(data_source=self.source, glyph=glyph)
 
         # We need to build the legend here using dummy glyphs
         for i, level in enumerate(self._groups):

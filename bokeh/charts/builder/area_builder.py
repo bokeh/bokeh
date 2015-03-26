@@ -86,6 +86,7 @@ class AreaBuilder(Builder):
     from the source.
 
     """
+    source_prefix = "area_"
 
     stacked = Bool(False, help="""
     Whether to stack the areas. (Defaults to False)
@@ -104,7 +105,9 @@ class AreaBuilder(Builder):
         xs = self._values_index
         last = np.zeros(len(xs))
         x2 = np.hstack((xs[::-1], xs))
-        self._data['area_x'] = x2
+
+        for x in self.x_names:
+            self._data['area_%s' % x] = x2
 
         for col, col_values in self._values.items():
             if col in self.y_names:
@@ -126,25 +129,7 @@ class AreaBuilder(Builder):
             if not col in self._data:
                 self._data[col] = col_values
 
-    def _set_ranges(self):
-        """
-        Push the Line data into the ColumnDataSource and calculate the proper ranges.
-        """
-        self.x_range = DataRange1d(sources=[self._source.columns("area_x")])
-        y_sources = [self.source.columns("area_%s" % col) for col in self.y_names]
-        self.y_range = DataRange1d(sources=y_sources)
-
-    def _yield_renderers(self):
-        """Use the patch glyphs to fill the area connecting the xy points
-         in the series taken from the data added with area._process_data.
-
-        Takes reference points from the data loaded at the ColumnDataSource.
-        """
-        colors = cycle_colors(self.y_names, self.palette)
-        for color, name in zip(colors, self.y_names):
-            # draw the step horizontal segment
-            glyph = Patch(
-                x='area_x', y="area_%s" % name, fill_color=color, fill_alpha=0.9)
-            renderer = GlyphRenderer(data_source=self.source, glyph=glyph)
-            self._legends.append((name, [renderer]))
-            yield renderer
+    def _create_glyph(self, xname, yname, color):
+        glyph = Patch(
+            x='area_x', y="area_%s" % yname, fill_color=color, fill_alpha=0.9)
+        return glyph

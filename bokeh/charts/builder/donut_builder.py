@@ -111,12 +111,11 @@ class DonutBuilder(Builder):
         self.set_and_get("", "end", end_angles)
         self.set_and_get("", "start", start_angles)
 
-    def _set_sources(self):
+    def _set_ranges(self):
         """Push the Donut data into the ColumnDataSource and calculate
          the proper ranges.
 
         """
-        self._source = ColumnDataSource(self._data)
         self.x_range = Range1d(start=-2, end=2)
         self.y_range = Range1d(start=-2, end=2)
 
@@ -199,7 +198,7 @@ class DonutBuilder(Builder):
     def _yield_renderers(self):
         """Use the AnnularWedge and Wedge glyphs to display the wedges.
 
-        Takes reference points from data loaded at the ColumnDataSurce.
+        Takes reference points from data loaded at the ColumnDataSource.
         """
         # build the central round area of the donut
         renderers = []

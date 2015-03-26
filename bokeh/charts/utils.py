@@ -105,8 +105,8 @@ def make_scatter(source, x, y, markertype, color, line_color=None,
         x=x, y=y, size=size, fill_color=color, fill_alpha=fill_alpha,
         line_color=line_color, line_alpha=line_alpha
     )
-
-    return GlyphRenderer(data_source=source, glyph=glyph)
+    return glyph
+    # return GlyphRenderer(data_source=source, glyph=glyph)
 
 def chunk(l, n):
     """Yield successive n-sized chunks from l.

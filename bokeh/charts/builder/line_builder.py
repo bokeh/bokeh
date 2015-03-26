@@ -84,31 +84,12 @@ class LineBuilder(Builder):
         """
         # list to save all the attributes we are going to create
         for col, values in self._values.items():
-            self._data[col] = values
+            if col not in self._data:
+                self._data[col] = values
 
         for xname in self.x_names:
             if xname not in self._data:
                 self._data[xname] = np.array(self._values_index)
 
-    def _set_ranges(self):
-        """ Calculate the proper ranges.
-        """
-        self.x_range = DataRange1d(sources=[self.source.columns(*self.x_names)])
-        y_sources = [self.source.columns("%s" % col) for col in self.y_names]
-        self.y_range = DataRange1d(sources=y_sources)
-
-    def _yield_renderers(self):
-        """Use the line glyphs to connect the xy points in the Line.
-        Takes reference points from the data loaded at the ColumnDataSource.
-        """
-        colors = cycle_colors(self.y_names, self.palette)
-        if len(self.x_names) == len(self.y_names):
-            xnames = self.x_names
-        else:
-            xnames = len(self.y_names) * self.x_names
-
-        for color, xname, yname in zip(colors, xnames, self.y_names):
-            glyph = LineGlyph(x=xname, y=yname, line_color=color)
-            renderer = GlyphRenderer(data_source=self._source, glyph=glyph)
-            self._legends.append((yname, [renderer]))
-            yield renderer
+    def _create_glyph(self, xname, yname, color):
+        return LineGlyph(x=xname, y=yname, line_color=color)

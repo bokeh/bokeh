@@ -162,11 +162,11 @@ class BarBuilder(Builder):
             # Stacked
             zero += values
 
-    def _set_sources(self):
+    def _set_ranges(self):
         """Push the Bar data into the ColumnDataSource and calculate
         the proper ranges.
         """
-        self._source = ColumnDataSource(self._data)
+        # self._source = ColumnDataSource(self._data)
         self.x_range = FactorRange(factors=self._source.data["cat"])
 
         if not self.y_range:
@@ -183,7 +183,6 @@ class BarBuilder(Builder):
                 start = 0
             else:
                 start = 1.1 * data.min()  # Will always be negative
-
             # Set the end value
             if all_negative:
                 end = 0
@@ -192,30 +191,15 @@ class BarBuilder(Builder):
 
             self.y_range = Range1d(start=start, end=end)
 
-    def _yield_renderers(self):
-        """Use the rect glyphs to display the bars.
-
-        Takes reference points from data loaded at the ColumnDataSource.
-        """
-        quartets = list(chunk(self._attr, 4))
-        colors = cycle_colors(quartets, self.palette)
-
-        # quartet elements are: [data, mid, stacked, cat]
-        for i, quartet in enumerate(quartets):
-            if self.stacked:
-                glyph = Rect(
-                    x="cat", y=quartet[2],
-                    width="width", height=quartet[0],
-                    fill_color=colors[i], fill_alpha=0.7,
+    def _create_glyph(self, xname, yname, color):
+        if self.stacked:
+            return Rect(
+                        x="cat", y="stacked%s" % yname, width="width", height=yname,
+                        fill_color=color, fill_alpha=0.7, line_color="white"
+                    )
+        else:
+            return Rect(
+                    x="cat%s" % yname, y="mid%s" % yname, width="width_cat",
+                    height=yname, fill_color=color, fill_alpha=0.7,
                     line_color="white"
                 )
-            else:  # Grouped
-                glyph = Rect(
-                    x=quartet[3], y=quartet[1],
-                    width="width_cat", height=quartet[0],
-                    fill_color=colors[i], fill_alpha=0.7,
-                    line_color="white"
-                )
-            renderer = GlyphRenderer(data_source=self._source, glyph=glyph)
-            self._legends.append((self._groups[i], [renderer]))
-            yield renderer

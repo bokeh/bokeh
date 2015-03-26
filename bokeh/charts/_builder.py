@@ -21,8 +21,9 @@ from __future__ import absolute_import
 from ._chart import Chart
 from ._data_adapter import DataAdapter
 from ..models.ranges import Range
-from ..models import ColumnDataSource
+from ..models import ColumnDataSource, DataRange1d, GlyphRenderer
 from ..properties import Color, HasProps, Instance, Seq, String, Any
+from .utils import cycle_colors
 
 DEFAULT_PALETTE = ["#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33ff3"]
 
@@ -86,7 +87,6 @@ class Builder(HasProps):
     palette = Seq(Color, default=DEFAULT_PALETTE)
     source = Instance(ColumnDataSource)
 
-
     index = Any(help="""
     An index to be used for all data series as follows:
 
@@ -99,6 +99,8 @@ class Builder(HasProps):
        an OrderedDict or a pandas DataFrame)
 
    """)
+
+    source_prefix = ""
 
     def __init__(self, values=None, **kws):
         """Common arguments to be used by all the inherited classes.
@@ -190,14 +192,29 @@ class Builder(HasProps):
         It has to be implemented by any of the inherited class
         representing each different chart type.
         """
-        pass
+        pref = self.source_prefix + "%s"
+        x_sources = [self.source.columns(pref % col) for col in self.x_names]
+        self.x_range = DataRange1d(sources=x_sources)
+
+        y_sources = [self.source.columns(pref % col) for col in self.y_names]
+        self.y_range = DataRange1d(sources=y_sources)
 
     def _yield_renderers(self):
-        """ Generator that yields the glyphs to be draw on the plot
-
-        It has to be implemented by any of the inherited class
-        representing each different chart type.
+        """Use the line glyphs to connect the xy points in the Line.
+        Takes reference points from the data loaded at the ColumnDataSource.
         """
+        if len(self.x_names) == len(self.y_names):
+            xnames = self.x_names
+        else:
+            xnames = len(self.y_names) * self.x_names
+
+        for color, xname, yname in zip(self.colors, xnames, self.y_names):
+            glyph = self._create_glyph(xname, yname, color)
+            renderer = GlyphRenderer(data_source=self._source, glyph=glyph)
+            self._legends.append((yname, [renderer]))
+            yield renderer
+
+    def _create_glyph(self, xname, yname, color):
         pass
 
     def create(self, chart=None):
@@ -224,6 +241,10 @@ class Builder(HasProps):
     #***************************
     # Some helper methods
     #***************************
+
+    @property
+    def colors(self):
+        return cycle_colors(self.y_names, self.palette)
 
     def _set_and_get(self, data, prefix, attr, val, content):
         """Set a new attr and then get it to fill the self._data dict.

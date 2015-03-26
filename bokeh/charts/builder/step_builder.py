@@ -62,6 +62,7 @@ def Step(values, index=None, **kws):
         show(step)
 
     """
+
     if index is not None:
         msg = "bokeh.charts.Line index argument is deprecated since Bokeh 0.8.2. Use x_names instead!"
         warn(msg, DeprecationWarning, stacklevel=2)
@@ -81,6 +82,7 @@ class StepBuilder(Builder):
     source.
 
     """
+    source_prefix = "step_"
 
     def _process_data(self):
         """It calculates the chart properties accordingly from Step.values.
@@ -93,7 +95,9 @@ class StepBuilder(Builder):
         xs = np.empty(2*len(orig_xs)-1, dtype=np.int)
         xs[::2] = orig_xs[:]
         xs[1::2] = orig_xs[1:]
-        self._data['step_x'] = xs
+
+        for x in self.x_names:
+            self._data['step_%s' % x] = xs
 
         for col, values in self._values.items():
             # like we did with the x values, we need to do the same with
@@ -110,22 +114,7 @@ class StepBuilder(Builder):
             if not col in self._data:
                 self._data[col] = orig_ys
 
-    def _set_ranges(self):
-        """ Calculate the proper ranges.
-        """
-        self.x_range = DataRange1d(sources=[self.source.columns("step_x")])
-        y_sources = [self.source.columns("step_%s" % col) for col in self.y_names]
-        self.y_range = DataRange1d(sources=y_sources)
-
-    def _yield_renderers(self):
-        """Use the line glyphs to connect the xy points in the Step.
-
-        Takes reference points from the data loaded at the ColumnDataSource.
-        """
-        colors = cycle_colors(self.y_names, self.palette)
-        for color, name in zip(colors, self.y_names):
-            # draw the step horizontal segment
-            glyph = Line(x="step_x", y="step_%s" % name, line_color=color, line_width=1)
-            renderer = GlyphRenderer(data_source=self._source, glyph=glyph)
-            self._legends.append((name, [renderer]))
-            yield renderer
+    def _create_glyph(self, xname, yname, color):
+        return Line(
+            x="step_%s" % xname, y="step_%s" % yname, line_color=color, line_width=1
+        )
