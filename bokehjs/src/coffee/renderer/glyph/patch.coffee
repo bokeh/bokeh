@@ -1,64 +1,61 @@
-define [
-  "underscore"
-  "./glyph"
-], (_, Glyph) ->
+_ = require "underscore"
+Glyph = require "./glyph"
 
-  class PatchView extends Glyph.View
+class PatchView extends Glyph.View
 
-    _index_data: () ->
-      @_xy_index()
+  _index_data: () ->
+    @_xy_index()
 
-    _render: (ctx, indices) ->
-      if @visuals.fill.do_fill
-        @visuals.fill.set_value(ctx)
+  _render: (ctx, indices) ->
+    if @visuals.fill.do_fill
+      @visuals.fill.set_value(ctx)
 
-        for i in indices
-          if i == 0
-            ctx.beginPath()
-            ctx.moveTo(@sx[i], @sy[i])
-            continue
-          else if isNaN(@sx[i] + @sy[i])
-            ctx.closePath()
-            ctx.fill()
-            ctx.beginPath()
-            continue
-          else
-            ctx.lineTo(@sx[i], @sy[i])
+      for i in indices
+        if i == 0
+          ctx.beginPath()
+          ctx.moveTo(@sx[i], @sy[i])
+          continue
+        else if isNaN(@sx[i] + @sy[i])
+          ctx.closePath()
+          ctx.fill()
+          ctx.beginPath()
+          continue
+        else
+          ctx.lineTo(@sx[i], @sy[i])
 
-        ctx.closePath()
-        ctx.fill()
+      ctx.closePath()
+      ctx.fill()
 
-      if @visuals.line.do_stroke
-        @visuals.line.set_value(ctx)
+    if @visuals.line.do_stroke
+      @visuals.line.set_value(ctx)
 
-        for i in indices
-          if i == 0
-            ctx.beginPath()
-            ctx.moveTo(@sx[i], @sy[i])
-            continue
-          else if isNaN(@sx[i] + @sy[i])
-            ctx.closePath()
-            ctx.stroke()
-            ctx.beginPath()
-            continue
-          else
-            ctx.lineTo(@sx[i], @sy[i])
+      for i in indices
+        if i == 0
+          ctx.beginPath()
+          ctx.moveTo(@sx[i], @sy[i])
+          continue
+        else if isNaN(@sx[i] + @sy[i])
+          ctx.closePath()
+          ctx.stroke()
+          ctx.beginPath()
+          continue
+        else
+          ctx.lineTo(@sx[i], @sy[i])
 
-        ctx.closePath()
-        ctx.stroke()
+      ctx.closePath()
+      ctx.stroke()
 
-    draw_legend: (ctx, x0, x1, y0, y1) ->
-      @_generic_area_legend(ctx, x0, x1, y0, y1)
+  draw_legend: (ctx, x0, x1, y0, y1) ->
+    @_generic_area_legend(ctx, x0, x1, y0, y1)
 
-  class Patch extends Glyph.Model
-    default_view: PatchView
-    type: 'Patch'
+class Patch extends Glyph.Model
+  default_view: PatchView
+  type: 'Patch'
 
-  class Patches extends Glyph.Collection
-    model: Patch
+class Patches extends Glyph.Collection
+  model: Patch
 
-  return {
-    Model: Patch
-    View: PatchView
-    Collection: new Patches()
-  }
+module.exports =
+  Model: Patch
+  View: PatchView
+  Collection: new Patches()

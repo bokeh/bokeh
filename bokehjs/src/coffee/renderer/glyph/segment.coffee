@@ -1,47 +1,44 @@
-define [
-  "underscore"
-  "rbush"
-  "./glyph"
-], (_, rbush, Glyph) ->
+_ = require "underscore"
+rbush = require "rbush"
+Glyph = require "./glyph"
 
-  class SegmentView extends Glyph.View
+class SegmentView extends Glyph.View
 
-    _index_data: () ->
-      index = rbush()
-      pts = []
-      for i in [0...@x0.length]
-        if not isNaN(@x0[i] + @x1[i] + @y0[i] + @y1[i])
-          pts.push([@x0[i], @y0[i], @x1[i], @y1[i], {'i': i}])
-      index.load(pts)
-      return index
+  _index_data: () ->
+    index = rbush()
+    pts = []
+    for i in [0...@x0.length]
+      if not isNaN(@x0[i] + @x1[i] + @y0[i] + @y1[i])
+        pts.push([@x0[i], @y0[i], @x1[i], @y1[i], {'i': i}])
+    index.load(pts)
+    return index
 
-    _render: (ctx, indices) ->
-      if @visuals.line.do_stroke
-        for i in indices
-          if isNaN(@sx0[i] + @sy0[i] + @sx1[i] + @sy1[i])
-            continue
+  _render: (ctx, indices) ->
+    if @visuals.line.do_stroke
+      for i in indices
+        if isNaN(@sx0[i] + @sy0[i] + @sx1[i] + @sy1[i])
+          continue
 
-          ctx.beginPath()
-          ctx.moveTo(@sx0[i], @sy0[i])
-          ctx.lineTo(@sx1[i], @sy1[i])
+        ctx.beginPath()
+        ctx.moveTo(@sx0[i], @sy0[i])
+        ctx.lineTo(@sx1[i], @sy1[i])
 
-          @visuals.line.set_vectorize(ctx, i)
-          ctx.stroke()
+        @visuals.line.set_vectorize(ctx, i)
+        ctx.stroke()
 
-    draw_legend: (ctx, x0, x1, y0, y1) ->
-      @_generic_line_legend(ctx, x0, x1, y0, y1)
+  draw_legend: (ctx, x0, x1, y0, y1) ->
+    @_generic_line_legend(ctx, x0, x1, y0, y1)
 
-  class Segment extends Glyph.Model
-    default_view: SegmentView
-    type: 'Segment'
-    visuals: ['line']
-    coords: [ ['x0', 'y0'], ['x1', 'y1'] ]
+class Segment extends Glyph.Model
+  default_view: SegmentView
+  type: 'Segment'
+  visuals: ['line']
+  coords: [ ['x0', 'y0'], ['x1', 'y1'] ]
 
-  class Segments extends Glyph.Collection
-    model: Segment
+class Segments extends Glyph.Collection
+  model: Segment
 
-  return {
-    Model: Segment
-    View: SegmentView
-    Collection: new Segments()
-  }
+module.exports =
+  Model: Segment
+  View: SegmentView
+  Collection: new Segments()
