@@ -1,21 +1,19 @@
-define [
-  "./continuum_view",
-], (ContinuumView) ->
+ContinuumView = require "./continuum_view"
 
-  class PlotWidget extends ContinuumView
-    # Everything that lives inside a plot container should
-    # inherit from this class.  All plot widgets are
-    # passed in the plot model and view
-    # we also include the request_render function, which
-    # calls a throttled version of the plot canvas rendering function
+class PlotWidget extends ContinuumView
+  # Everything that lives inside a plot container should
+  # inherit from this class.  All plot widgets are
+  # passed in the plot model and view
+  # we also include the request_render function, which
+  # calls a throttled version of the plot canvas rendering function
 
-    tagName: 'div'
+  tagName: 'div'
 
-    initialize: (options) ->
-      @plot_model = options.plot_model
-      @plot_view = options.plot_view
+  initialize: (options) ->
+    @plot_model = options.plot_model
+    @plot_view = options.plot_view
 
-    bind_bokeh_events: () ->
+  bind_bokeh_events: () ->
 
-    request_render: () ->
-      @plot_view.request_render()
+  request_render: () ->
+    @plot_view.request_render()
