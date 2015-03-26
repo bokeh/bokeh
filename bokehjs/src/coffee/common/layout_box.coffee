@@ -1,15 +1,10 @@
 _ = require "underscore"
 Collection = require "./collection"
-{Var, Expr, Constraint, EQ, LE, GE} = "kiwi"
+kiwi = require "kiwi"
 HasProperties = require "./has_properties"
 Range1d = require "../range/range1d"
 
-Var = kiwi.Variable
-Expr = kiwi.Expression
-Constraint = kiwi.Constraint
-EQ = kiwi.Operator.Eq
-LE = kiwi.Operator.Le
-GE = kiwi.Operator.Ge
+{Var, Expr, Constraint, EQ, LE, GE} = kiwi
 
 class LayoutBox extends HasProperties
   type: 'LayoutBox'
