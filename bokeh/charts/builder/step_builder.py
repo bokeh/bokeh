@@ -91,14 +91,6 @@ class StepBuilder(Builder):
         """
         # step needs a "custom" x to draw the stepped lines so we need
         # a new series from the original data to "build" the steps
-        orig_xs = self._values_index
-        xs = np.empty(2*len(orig_xs)-1, dtype=np.int)
-        xs[::2] = orig_xs[:]
-        xs[1::2] = orig_xs[1:]
-
-        for x in self.x_names:
-            self._data['step_%s' % x] = xs
-
         for col, values in self._values.items():
             # like we did with the x values, we need to do the same with
             # the series selected with the "y_names" attribute.
@@ -113,6 +105,17 @@ class StepBuilder(Builder):
             # and can also be used for tooltips..
             if not col in self._data:
                 self._data[col] = values
+
+        for x in self.x_names:
+            try:
+                orig_xs = self._values[x]
+            except (KeyError, IndexError):
+                orig_xs = self._values.index
+
+            xs = np.empty(2*len(orig_xs)-1, dtype=np.int)
+            xs[::2] = orig_xs[:]
+            xs[1::2] = orig_xs[1:]
+            self._data['step_%s' % x] = xs
 
     def _create_glyph(self, xname, yname, color):
         return Line(

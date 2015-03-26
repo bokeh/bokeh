@@ -53,8 +53,9 @@ line2 = Line(
 
 step = Step(
     datasource, y_names = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width'],
+    x_names = ['myx'],
     title="Step Chart", width=400, height=300,
-    ylabel='Petals', legend="top_left"
+    ylabel='Petals', legend="top_left", x_range=line2.x_range, y_range=line2.y_range,
 )
 
 area = Area(

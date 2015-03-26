@@ -160,6 +160,7 @@ class Builder(HasProps):
                 )
             self.x_names = ["x"]
         else:
+            # TODO: This should be modified to support multiple x_names
             self._values_index, self._values = DataAdapter.get_index_and_data(
                 self._values, self.x_names
             )
@@ -196,11 +197,13 @@ class Builder(HasProps):
         representing each different chart type.
         """
         pref = self.source_prefix + "%s"
-        x_sources = [self.source.columns(pref % col) for col in self.x_names]
-        self.x_range = DataRange1d(sources=x_sources)
+        if not self.x_range:
+            x_sources = [self.source.columns(pref % col) for col in self.x_names]
+            self.x_range = DataRange1d(sources=x_sources)
 
-        y_sources = [self.source.columns(pref % col) for col in self.y_names]
-        self.y_range = DataRange1d(sources=y_sources)
+        if not self.y_range:
+            y_sources = [self.source.columns(pref % col) for col in self.y_names]
+            self.y_range = DataRange1d(sources=y_sources)
 
     def _yield_renderers(self):
         """Use the line glyphs to connect the xy points in the Line.
