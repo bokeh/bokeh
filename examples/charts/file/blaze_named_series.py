@@ -22,7 +22,6 @@ scatter2 = Scatter(
     title="Scatter Length X Width", width=300, height=300,
     ylabel='Petals', legend="top_left"
 )
-
 line = Line(
     bbvalues, y_names = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width'],
     title="Line Chart", width=300, height=300,
@@ -42,19 +41,22 @@ Scatter(
     x_names=['myx'],
     chart=mix
 )
-
+datasource = ColumnDataSource(data=df)
 line2 = Line(
-    df, y_names = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width'],
-    # x_names = ['myx'],
-    index = ['myx'], width=400, height=300,
+    datasource, y_names = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width'],
+    x_names = ['myx'],
+    # index = ['myx'],
+    width=400, height=300,
     title="Line Chart",
     ylabel='Petals', legend="top_left"
 )
+
 step = Step(
-    bbvalues, y_names = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width'],
+    datasource, y_names = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width'],
     title="Step Chart", width=400, height=300,
     ylabel='Petals', legend="top_left"
 )
+
 area = Area(
     bbvalues, y_names = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width'],
     title="Step Chart", width=400, height=300, #stacked=True,

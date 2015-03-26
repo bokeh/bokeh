@@ -112,7 +112,7 @@ class StepBuilder(Builder):
             # add the original series to _data so it can be found in source
             # and can also be used for tooltips..
             if not col in self._data:
-                self._data[col] = orig_ys
+                self._data[col] = values
 
     def _create_glyph(self, xname, yname, color):
         return Line(

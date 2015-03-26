@@ -149,6 +149,11 @@ class Builder(HasProps):
         Converts data input (self._values) to a DataAdapter and creates
         instance index if needed
         """
+        if isinstance(self._values, ColumnDataSource):
+            self.source = self._values
+            self._values = self.source.data
+            self._data = self.source.data
+
         if self.index:
             self._values_index, self._values = DataAdapter.get_index_and_data(
                 self._values, self.index
@@ -182,8 +187,6 @@ class Builder(HasProps):
         """
         if not self.source:
             self.source = ColumnDataSource(self._data)
-        else:
-            self._data = self.source.data
 
     def _set_ranges(self):
         """Push data into the ColumnDataSource and build the
