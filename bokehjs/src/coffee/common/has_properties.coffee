@@ -1,6 +1,6 @@
 $ = require "jquery"
 _ = require "underscore"
-Backend = require "backbone"
+Backbone = require "backbone"
 base = require "./base"
 {logger} = require "./logging"
 
