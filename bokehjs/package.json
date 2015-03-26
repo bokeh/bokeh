@@ -7,8 +7,13 @@
   "repository": {
     "type": "git",
     "url": "git://github.com/bokeh/bokeh.git"
-    },
+  },
   "devDependencies": {
+    "backbone": "^1.1.0",
+    "browserify": "^6.2.0",
+    "browserify-eco": "^0.2.4",
+    "browserify-shim": "^3.8.0",
+    "coffeeify": "^0.7.0",
     "requirejs": "^2.1.11",
     "grunt": "^0.4.4",
     "grunt-cli": "^0.1.13",
@@ -25,6 +30,49 @@
     "grunt-eco": "^0.1.1",
     "grunt-groc": "^0.4.5",
     "grunt-lesslint": "^1.1.12",
-    "phantomjs": "^1.9.7"
+    "phantomjs": "^1.9.7",
+    "gulp": "^3.8.10",
+    "gulp-coffeeify": "^0.1.2",
+    "gulp-eco-template": "^0.1.0",
+    "gulp-util": "^3.0.1",
+    "underscore": "^1.5.2",
+    "vinyl-source-stream": "^1.0.0"
+  },
+  "browserify": {
+    "extensions": [
+      "coffee",
+      "js",
+      "eco"
+    ],
+    "transform": [
+      "browserify-shim",
+      "browserify-eco"
+    ]
+  },
+  "browser": {
+    "bootstrap/button": "./src/vendor/bootstrap-3.1.1/js/button.js",
+    "bootstrap/dropdown": "./src/vendor/bootstrap-3.1.1/js/dropdown.js",
+    "bootstrap/modal": "./src/vendor/bootstrap-3.1.1/js/modal.js",
+    "bootstrap/tab": "./src/vendor/bootstrap-3.1.1/js/tab.js",
+    "slickgrid/slick.grid": "./src/vendor/slick-grid-2.1.0/slick.grid.js",
+    "jqrangeslider/jQDateRangeSlider": "./src/vendor/jqrangeslider-5.7.0/jQDateRangeSlider.js",
+    "jquery_mousewheel": "./src/vendor/jquery-mousewheel/jquery.mousewheel.min.js",
+    "jquery.event.drag": "./src/vendor/jquery-event/jquery.event.drag-2.2.js",
+    "jquery.event.drop": "./src/vendor/jquery-event/jquery.event.drop-2.2.js",
+    "gear_utils": "./src/vendor/gear-utils/gear-utils.js"
+  },
+  "browserify-shim": {},
+  "dependencies": {
+    "hammerjs": "^2.0.4",
+    "jquery": "^2.1.1",
+    "jquery-handsontable": "https://github.com/handsontable/jquery-handsontable/tarball/v0.10.5",
+    "jquery-ui": "^1.10.5",
+    "jsnlog": "^2.7.6",
+    "kiwi": "^0.2.2",
+    "mathutils": "0.0.1",
+    "rbush": "^1.3.4",
+    "slickgrid": "^2.1.0-1",
+    "sprintf": "^0.1.4",
+    "timezone": "0.0.38"
   }
 }
