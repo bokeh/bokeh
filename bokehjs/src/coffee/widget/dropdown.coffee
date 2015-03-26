@@ -1,89 +1,83 @@
-define [
-  "jquery"
-  "underscore"
-  "common/collection"
-  "common/continuum_view"
-  "common/has_parent"
-  "common/logging"
-], ($, _, Collection, ContinuumView, HasParent, Logging) ->
+_ = require "underscore"
+$ = require "jquery"
+Collection = require "../common/collection"
+ContinuumView = require "../common/continuum_view"
+HasParent = require "../common/has_parent"
 
-  logger = Logging.logger
+class DropdownView extends ContinuumView
+  tagName: "div"
 
-  class DropdownView extends ContinuumView
-    tagName: "div"
+  initialize: (options) ->
+    super(options)
+    @render()
+    @listenTo(@model, 'change', @render)
 
-    change_input: (action) ->
-      @mset('action', action)
-      @model.save()
+  render: () ->
+    @$el.empty()
 
-    initialize: (options) ->
-      super(options)
-      @render()
-      @listenTo(@model, 'change', @render)
+    split = @mget("default_action")?
 
-    render: () ->
-      @$el.empty()
+    $button = $('<button></button>')
+    $button.addClass("bk-bs-btn")
+    $button.addClass("bk-bs-btn-" + @mget("type"))
+    $button.text(@mget("label"))
 
-      split = @mget("default_action")?
+    $caret = $('<span class="bk-bs-caret"></span>')
+    if not split
+      $button.addClass("bk-bs-dropdown-toggle")
+      $button.attr("data-bk-bs-toggle", "dropdown")
+      $button.append(document.createTextNode(" "))
+      $button.append($caret)
+      $toggle = $('')
+    else
+      $button.click(() => @change_input(@mget("default_action")))
+      $toggle = $('<button></button>')
+      $toggle.addClass("bk-bs-btn")
+      $toggle.addClass("bk-bs-btn-" + @mget("type"))
+      $toggle.addClass("bk-bs-dropdown-toggle")
+      $toggle.attr("data-bk-bs-toggle", "dropdown")
+      $toggle.append($caret)
 
-      $button = $('<button></button>')
-      $button.addClass("bk-bs-btn")
-      $button.addClass("bk-bs-btn-" + @mget("type"))
-      $button.text(@mget("label"))
+    $menu = $('<ul class="bk-bs-dropdown-menu"></ul>')
+    $divider = $('<li class="bk-bs-divider"></li>')
 
-      $caret = $('<span class="bk-bs-caret"></span>')
-      if not split
-        $button.addClass("bk-bs-dropdown-toggle")
-        $button.attr("data-bk-bs-toggle", "dropdown")
-        $button.append(document.createTextNode(" "))
-        $button.append($caret)
-        $toggle = $('')
+    for item in @mget("menu")
+      $item = if item?
+        [label, action] = item
+        $a = $('<a></a>').text(label)
+        $a.click(() => @change_input(action))
+        $('<li></li>').append($a)
       else
-        $button.click(() => @change_input(@mget("default_action")))
-        $toggle = $('<button></button>')
-        $toggle.addClass("bk-bs-btn")
-        $toggle.addClass("bk-bs-btn-" + @mget("type"))
-        $toggle.addClass("bk-bs-dropdown-toggle")
-        $toggle.attr("data-bk-bs-toggle", "dropdown")
-        $toggle.append($caret)
+        $divider
+      $menu.append($item)
 
-      $menu = $('<ul class="bk-bs-dropdown-menu"></ul>')
-      $divider = $('<li class="bk-bs-divider"></li>')
+    @$el.addClass("bk-bs-btn-group")
+    @$el.append([$button, $toggle, $menu])
+    return @
 
-      for item in @mget("menu")
-        $item = if item?
-          [label, action] = item
-          $a = $('<a></a>').text(label)
-          $a.click(() => @change_input(action))
-          $('<li></li>').append($a)
-        else
-          $divider
-        $menu.append($item)
+  change_input: (action) ->
+    @mset('action', action)
+    @model.save()
 
-      @$el.addClass("bk-bs-btn-group")
-      @$el.append([$button, $toggle, $menu])
-      return @
+class Dropdown extends HasParent
+  type: "Dropdown"
+  default_view: DropdownView
 
-  class Dropdown extends HasParent
-    type: "Dropdown"
-    default_view: DropdownView
+  defaults: () ->
+    return _.extend {}, super(), {
+      action: null
+      default_action: null
+      label: "Dropdown"
+      icon: null
+      type: "default"
+      menu: []
+      disabled: false
+    }
 
-    defaults: ->
-      return _.extend {}, super(), {
-        action: null
-        default_action: null
-        label: "Dropdown"
-        icon: null
-        type: "default"
-        menu: []
-        disabled: false
-      }
+class Dropdowns extends Collection
+  model: Dropdown
 
-  class Dropdowns extends Collection
-    model: Dropdown
-
-  return {
-    Model: Dropdown
-    Collection: new Dropdowns()
-    View: DropdownView
-  }
+module.exports =
+  Model: Dropdown
+  View: DropdownView
+  Collection: new Dropdowns()
