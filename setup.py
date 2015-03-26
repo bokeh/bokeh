@@ -200,14 +200,23 @@ def remove_bokeh_pth(path_file):
         return True
     return False
 
-BUILD_FAIL_MSG = """ Failed.
+BUILD_EXEC_FAIL_MSG = """ Failed.
 
-%s
+ERROR: subprocess.Popen(%r) failed to execute:
+
+    %s
 
 Have you run `npm install` from the bokehjs subdirectory?
 For more information, see the Dev Guide:
 
     http://bokeh.pydata.org/en/latest/docs/dev_guide.html
+"""
+
+BUILD_FAIL_MSG = """ Failed.
+
+ERROR: 'grunt deploy' returned error message:
+
+%s
 """
 
 def build_js():
@@ -223,7 +232,7 @@ def build_js():
     try:
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
     except OSError as e:
-        print(BUILD_FAIL_MSG % "ERROR: subprocess.Popen(%r) failed:\n  - reason: %s" % (cmd, e))
+        print(BUILD_EXEC_FAIL_MSG % (cmd, e))
         sys.exit(1)
     finally:
         os.chdir('..')
