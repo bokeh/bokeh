@@ -1,47 +1,44 @@
-define [
-  "underscore"
-  "./glyph"
-], (_, Glyph) ->
+_ = require "underscore"
+Glyph = require "./glyph"
 
-  class LineView extends Glyph.View
+class LineView extends Glyph.View
 
-    _index_data: () ->
-      @_xy_index()
+  _index_data: () ->
+    @_xy_index()
 
-    _render: (ctx, indices) ->
-      drawing = false
-      @visuals.line.set_value(ctx)
+  _render: (ctx, indices) ->
+    drawing = false
+    @visuals.line.set_value(ctx)
 
-      for i in indices
-        if !isFinite(@sx[i] + @sy[i]) and drawing
-          ctx.stroke()
-          ctx.beginPath()
-          drawing = false
-          continue
-
-        if drawing
-          ctx.lineTo(@sx[i], @sy[i])
-        else
-          ctx.beginPath()
-          ctx.moveTo(@sx[i], @sy[i])
-          drawing = true
+    for i in indices
+      if !isFinite(@sx[i] + @sy[i]) and drawing
+        ctx.stroke()
+        ctx.beginPath()
+        drawing = false
+        continue
 
       if drawing
-        ctx.stroke()
+        ctx.lineTo(@sx[i], @sy[i])
+      else
+        ctx.beginPath()
+        ctx.moveTo(@sx[i], @sy[i])
+        drawing = true
 
-    draw_legend: (ctx, x0, x1, y0, y1) ->
-      @_generic_line_legend(ctx, x0, x1, y0, y1)
+    if drawing
+      ctx.stroke()
 
-  class Line extends Glyph.Model
-    default_view: LineView
-    type: 'Line'
-    visuals: ['line']
+  draw_legend: (ctx, x0, x1, y0, y1) ->
+    @_generic_line_legend(ctx, x0, x1, y0, y1)
 
-  class Lines extends Glyph.Collection
-    model: Line
+class Line extends Glyph.Model
+  default_view: LineView
+  type: 'Line'
+  visuals: ['line']
 
-  return {
-    Model: Line
-    View: LineView
-    Collection: new Lines()
-  }
+class Lines extends Glyph.Collection
+  model: Line
+
+module.exports =
+  Model: Line
+  View: LineView
+  Collection: new Lines()
