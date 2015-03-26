@@ -1,8 +1,8 @@
 define [
-  "underscore",
-  "rbush",
-  "renderer/properties",
-  "./glyph",
+  "underscore"
+  "rbush"
+  "renderer/properties"
+  "./glyph"
 ], (_, rbush, Properties, Glyph) ->
 
   class RectView extends Glyph.View
@@ -30,12 +30,13 @@ define [
       @max_height = _.max(@height)
 
     _set_data: () ->
-      @index = rbush()
-      pts = []
-      for i in [0...@x.length]
-        if not isNaN(@x[i] + @y[i])
-          pts.push([@x[i], @y[i], @x[i], @y[i], {'i': i}])
-      @index.load(pts)
+      @max_w2 = 0
+      if @glyph.width.units != "screen"
+        @max_w2 = _.max(@width)/2
+      @max_h2 = 0
+      if @glyph.height.units != "screen"
+        @max_h2 = _.max(@height)/2
+      @_xy_index()
 
     _render: (ctx, indices, sx=@sx, sy=@sy, sw=@sw, sh=@sh) ->
       if @props.fill.do_fill
@@ -158,6 +159,13 @@ define [
 
     draw_legend: (ctx, x0, x1, y0, y1) ->
       @_generic_area_legend(ctx, x0, x1, y0, y1)
+
+    bounds: () ->
+      bb = @index.data.bbox
+      return [
+        [bb[0]-@max_w2, bb[2]+@max_w2],
+        [bb[1]-@max_h2, bb[3]+@max_h2]
+      ]
 
   class Rect extends Glyph.Model
     default_view: RectView

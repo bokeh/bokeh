@@ -51,8 +51,8 @@ def update_data():
 
 source = ColumnDataSource(data=dict(x=[], fy=[], ty=[]))
 
-xdr = DataRange1d(sources=[source.columns("x")])
-ydr = DataRange1d(sources=[source.columns("fy")])
+xdr = DataRange1d()
+ydr = DataRange1d()
 
 plot = Plot(x_range=xdr, y_range=ydr, plot_width=800, plot_height=400)
 

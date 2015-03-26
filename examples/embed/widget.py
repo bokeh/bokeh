@@ -30,9 +30,8 @@ class Population(object):
         )
         from bokeh.models.glyphs import Quad
 
-        xdr = DataRange1d(sources=[self.source_pyramid.columns("male"),
-                          self.source_pyramid.columns("female")])
-        ydr = DataRange1d(sources=[self.source_pyramid.columns("groups")])
+        xdr = DataRange1d()
+        ydr = DataRange1d()
 
         self.plot = Plot(title=None, x_range=xdr, y_range=ydr,
                          plot_width=600, plot_height=600)

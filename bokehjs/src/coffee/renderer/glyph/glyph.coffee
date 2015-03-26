@@ -1,11 +1,13 @@
 define [
-  "underscore",
-  "common/logging",
-  "common/has_parent",
+  "underscore"
+  "rbush"
+  "common/bbox"
+  "common/logging"
+  "common/has_parent"
   "common/collection"
-  "common/continuum_view",
+  "common/continuum_view"
   "renderer/properties"
-], (_, Logging, HasParent, Collection, ContinuumView, properties) ->
+], (_, rbush, bbox, Logging, HasParent, Collection, ContinuumView, properties) ->
 
   logger = Logging.logger
 
@@ -68,6 +70,43 @@ define [
 
     # any additional customization can happen here
     _set_data: () -> null
+
+    bounds: () ->
+      if not @index?
+        return bbox.empty()
+      bb = @index.data.bbox
+      return @_bounds([
+        [bb[0], bb[2]],
+        [bb[1], bb[3]]
+      ])
+
+    # any additional customization can happen here
+    _bounds: (bds) -> bds
+
+    _xy_index: () ->
+      @index = rbush()
+      pts = []
+      for i in [0...@x.length]
+        # TODO: The intent here is to let categorical ranges not
+        # interfere with auto-ranging, but this is pretty wonky
+        x = @x[i]
+        if isNaN(x)
+          if _.isString(x)
+            x = 0
+          else
+            continue
+        else if not isFinite(x)
+          continue
+        y = @y[i]
+        if isNaN(y)
+          if _.isString(y)
+            y = 0
+          else
+            continue
+        else if not isFinite(y)
+          continue
+        pts.push([x, y, x, y, {'i': i}])
+      @index.load(pts)
 
     distance_vector: (pt, span_prop_name, position, dilate=false) ->
       """ returns an array """

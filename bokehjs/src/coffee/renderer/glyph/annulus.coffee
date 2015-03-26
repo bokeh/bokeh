@@ -1,9 +1,8 @@
 define [
-  "underscore",
-  "rbush",
-  "renderer/properties",
-  "./glyph",
-], (_, rbush, Properties, Glyph) ->
+  "underscore"
+  "renderer/properties"
+  "./glyph"
+], (_, Properties, Glyph) ->
 
   class AnnulusView extends Glyph.View
 
@@ -12,12 +11,7 @@ define [
 
     _set_data: () ->
       @max_radius = _.max(@outer_radius)
-      @index = rbush()
-      pts = []
-      for i in [0...@x.length]
-        if not isNaN(@x[i] + @y[i])
-          pts.push([@x[i], @y[i], @x[i], @y[i], {'i': i}])
-      @index.load(pts)
+      @_xy_index()
 
     _map_data: () ->
       [@sx, @sy] = @renderer.map_to_screen(@x, @glyph.x.units, @y, @glyph.y.units)

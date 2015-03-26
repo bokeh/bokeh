@@ -22,8 +22,8 @@ r = (cos(x)+1) * 6 + 6
 
 source = ColumnDataSource(data=dict(x=x, y=y, r=r))
 
-xdr = DataRange1d(sources=[source.columns("x")])
-ydr = DataRange1d(sources=[source.columns("y")])
+xdr = DataRange1d()
+ydr = DataRange1d()
 
 plot = Plot(x_range=xdr, y_range=ydr, min_border=80)
 

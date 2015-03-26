@@ -1,14 +1,22 @@
 define [
-  "underscore",
-  "rbush",
-  "renderer/properties",
-  "./glyph",
+  "underscore"
+  "rbush"
+  "renderer/properties"
+  "./glyph"
 ], (_, rbush, Properties, Glyph) ->
 
   class QuadView extends Glyph.View
 
     _fields: ['right', 'left', 'bottom', 'top']
     _properties: ['line', 'fill']
+
+    _set_data: () ->
+      @index = rbush()
+      pts = []
+      for i in [0...@left.length]
+        if not isNaN(@left[i] + @right[i] + @top[i] + @bottom[i])
+          pts.push([@left[i], @bottom[i], @right[i], @top[i], {'i': i}])
+      @index.load(pts)
 
     _map_data: () ->
       [@sx0, @sy0] = @renderer.map_to_screen(@left,  @glyph.left.units,  @top,    @glyph.top.units)

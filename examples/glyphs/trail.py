@@ -94,8 +94,8 @@ def trail_map(data):
     line = Line(x="x", y="y", line_color="blue", line_width=2)
     plot.add_glyph(line_source, line)
 
-    plot.x_range = DataRange1d(sources=[line_source.columns("x")])
-    plot.y_range = DataRange1d(sources=[line_source.columns("y")])
+    plot.x_range = DataRange1d()
+    plot.y_range = DataRange1d()
 
     return plot
 
@@ -134,8 +134,8 @@ def altitude_profile(data):
     line = Line(x='x', y='y', line_color="black", line_width=1)
     plot.add_glyph(line_source, line)
 
-    plot.x_range = DataRange1d(sources=[line_source.columns("x")])
-    plot.y_range = DataRange1d(sources=[line_source.columns("y")])
+    plot.x_range = DataRange1d()
+    plot.y_range = DataRange1d()
 
     return plot
 

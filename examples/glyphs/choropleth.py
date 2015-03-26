@@ -45,8 +45,8 @@ county_source = ColumnDataSource(
     )
 )
 
-xdr = DataRange1d(sources=[state_source.columns("state_xs")])
-ydr = DataRange1d(sources=[state_source.columns("state_ys")])
+xdr = DataRange1d()
+ydr = DataRange1d()
 
 plot = Plot(x_range=xdr, y_range=ydr, min_border=0, border_fill="white",
             title="2009 Unemployment Data", plot_width=1300, plot_height=800, toolbar_location="left")

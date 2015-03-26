@@ -40,7 +40,7 @@ define [
           @set('data', data)
         else
           logger.error("unsupported mode: " + mode)
-        logger.info(data)
+        logger.debug(data)
         return null
       ).error(() =>
         logger.error(arguments)

@@ -1,13 +1,17 @@
 define [
-  "underscore",
-  "renderer/properties",
-  "./glyph",
-], (_, Properties, Glyph) ->
+  "underscore"
+  "rbush"
+  "renderer/properties"
+  "./glyph"
+], (_, rbush, Properties, Glyph) ->
 
   class PatchView extends Glyph.View
 
     _fields: ['x', 'y']
     _properties: ['line', 'fill']
+
+    _set_data: () ->
+      @_xy_index()
 
     _map_data: () ->
       [@sx, @sy] = @renderer.map_to_screen(@x, @glyph.x.units, @y, @glyph.y.units)
