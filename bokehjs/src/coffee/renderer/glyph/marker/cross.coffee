@@ -17,8 +17,8 @@ define [
         ctx.moveTo(sx[i]-r, sy[i])
         ctx.lineTo(sx[i]+r, sy[i])
 
-        if @props.line.do_stroke
-          @props.line.set_vectorize(ctx, i)
+        if @visuals.line.do_stroke
+          @visuals.line.set_vectorize(ctx, i)
           ctx.stroke()
 
   class Cross extends Marker.Model

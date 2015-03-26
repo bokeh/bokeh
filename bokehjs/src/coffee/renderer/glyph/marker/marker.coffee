@@ -6,8 +6,6 @@ define [
 
   class MarkerView extends Glyph.View
 
-    _fields: ['x', 'y', 'size']
-
     draw_legend: (ctx, x0, x1, y0, y1) ->
       reference_point = @get_reference_point() ? 0
 
@@ -23,12 +21,8 @@ define [
 
       @_render(ctx, indices, sx, sy, size)
 
-    _set_data: () ->
-      @max_size = _.max(@size)
+    _index_data: () ->
       @_xy_index()
-
-    _map_data: () ->
-      [@sx, @sy] = @renderer.map_to_screen(@x, @y)
 
     _mask_data: () ->
       # dilate the inner screen region by max_size and map back to data space for use in

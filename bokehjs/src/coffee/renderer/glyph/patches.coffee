@@ -7,9 +7,8 @@ define [
 
   class PatchesView extends Glyph.View
 
-    _set_data: () ->
-      @max_size = _.max(@size)
-      @index = rbush()
+    _index_data: () ->
+      index = rbush()
       pts = []
       for i in [0...@xs.length]
         xs = (x for x in @xs[i] when not _.isNaN(x))
@@ -21,15 +20,8 @@ define [
           _.max(xs), _.max(ys),
           {'i': i}
         ])
-      @index.load(pts)
-
-    _map_data: () ->
-      @sxs = []
-      @sys = []
-      for i in [0...@xs.length]
-        [sx, sy] = @renderer.map_to_screen(@xs[i], @ys[i])
-        @sxs.push(sx)
-        @sys.push(sy)
+      index.load(pts)
+      return index
 
     _mask_data: () ->
       xr = @renderer.plot_view.x_range
@@ -42,10 +34,10 @@ define [
 
     _render: (ctx, indices) ->
       for i in indices
-        [sx, sy] = [@sxs[i], @sys[i]]
+        [sx, sy] = @renderer.map_to_screen(@xs[i], @ys[i])
 
-        if @props.fill.do_fill
-          @props.fill.set_vectorize(ctx, i)
+        if @visuals.fill.do_fill
+          @visuals.fill.set_vectorize(ctx, i)
 
           for j in [0...sx.length]
             if j == 0
@@ -63,8 +55,8 @@ define [
           ctx.closePath()
           ctx.fill()
 
-        if @props.line.do_stroke
-          @props.line.set_vectorize(ctx, i)
+        if @visuals.line.do_stroke
+          @visuals.line.set_vectorize(ctx, i)
 
           for j in [0...sx.length]
             if j == 0

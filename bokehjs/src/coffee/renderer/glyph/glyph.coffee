@@ -6,7 +6,7 @@ define [
   "common/has_parent"
   "common/collection"
   "common/continuum_view"
-  "renderer/properties"
+  "common/properties"
 ], (_, rbush, bbox, Logging, HasParent, Collection, ContinuumView, properties) ->
 
   logger = Logging.logger
@@ -15,61 +15,57 @@ define [
 
     initialize: (options) ->
       super(options)
+
       @renderer = options.renderer
 
-      fields = _.flatten(@model.coords).concat(@model.distances, @model.angles, @model.fields)
-      @glyph = new properties.Glyph(@, fields)
-      @props = {}
+      for name, func of properties.factories
+        @[name] = {}
+        @[name] = _.extend(@[name], func(@model))
 
-      if 'line' in @model.props
-        @props.line = new properties.Line(@)
-      if 'fill' in @model.props
-        @props.fill = new properties.Fill(@)
-      if 'text' in @model.props
-        @props.text = new properties.Text(@)
+      return @
 
     render: (ctx, indicies) ->
       if @mget("visible")
         @_render(ctx, indicies)
 
-    _map_data: () -> null
+    map_data: () ->
+      # map all the coordinate fields
+      for [xname, yname] in @model.coords
+        sxname = "s#{xname}"
+        syname = "s#{yname}"
+        [ @[sxname], @[syname] ] = @renderer.map_to_screen(@[xname], @[yname])
 
-    update_data: (source) ->
-      if @props.fill? and @props.fill.do_fill
-        @props.fill.set_prop_cache(source)
-      if @props.line? and @props.line.do_stroke
-        @props.line.set_prop_cache(source)
-      if @props.text?
-        @props.text.set_prop_cache(source)
+      @_map_data()
 
     set_data: (source) ->
-      fields = _.flatten(@model.coords).concat(@model.distances, @model.angles, @model.fields)
-      for field in fields
-        if field.indexOf(":") > -1
-          [field, junk] = field.split(":")
+      # set all the coordinate fields
+      for name, prop of @coords
+        @[name] = prop.array(source)
 
-        @[field] = @glyph.source_v_select(field, source)
+      # set any angles (will be in radian units at this point)
+      for name, prop of @angles
+        @[name] = prop.array(source)
 
-        # special cases
-        if field == "direction"
-          values = new Uint8Array(@direction.length)
-          for i in [0...@direction.length]
-            dir = @direction[i]
-            if      dir == 'clock'     then values[i] = false
-            else if dir == 'anticlock' then values[i] = true
-            else values = NaN
-          @direction = values
+      # set any distances as well as their max
+      for name, prop of @distances
+        @[name] = prop.array(source)
+        @["max_#{name}"] = Math.max.apply(null, @[name])
 
-        if field.indexOf("angle") > -1
-          @[field] = (-x for x in @[field])
+      # set any misc fields
+      for name, prop of @fields
+        @[name] = prop.array(source)
+
+      # finally, warm the visual properties cache
+      for name, prop of @visuals
+        prop.warm_cache(source)
 
       @_set_data()
 
-      # just use the length of the last added field
-      [0...@[field].length]
+      @index = @_index_data()
 
-    # any additional customization can happen here
-    _set_data: () -> null
+      length = source.get_length()
+      length = 1 if not length?
+      [0...length]
 
     bounds: () ->
       if not @index?
@@ -81,10 +77,12 @@ define [
       ])
 
     # any additional customization can happen here
+    _set_data: () -> null
+    _map_data: () -> null
     _bounds: (bds) -> bds
 
     _xy_index: () ->
-      @index = rbush()
+      index = rbush()
       pts = []
       for i in [0...@x.length]
         # TODO: The intent here is to let categorical ranges not
@@ -106,28 +104,20 @@ define [
         else if not isFinite(y)
           continue
         pts.push([x, y, x, y, {'i': i}])
-      @index.load(pts)
+      index.load(pts)
+      return index
 
-    distance_vector: (pt, span_prop_name, position, dilate=false) ->
-      """ returns an array """
-      if      pt == 'x' then mapper = @renderer.xmapper
-      else if pt == 'y' then mapper = @renderer.ymapper
+    sdist: (mapper, pts, spans, pts_location="edge", dilate=false) ->
+      if _.isString(pts[0])
+          pts = mapper.v_map_to_target(pts)
 
-      source = @renderer.mget('data_source')
-      local_select = (prop_name) =>
-        return @glyph.source_v_select(prop_name, source)
-      span = local_select(span_prop_name)
-
-      if position == 'center'
-        halfspan = (d / 2 for d in span)
-        ptc = local_select(pt)
-        if _.isString(ptc[0])
-          ptc = mapper.v_map_to_target(ptc)
-        pt0 = (ptc[i] - halfspan[i] for i in [0...ptc.length])
-        pt1 = (ptc[i] + halfspan[i] for i in [0...ptc.length])
+      if pts_location == 'center'
+        halfspan = (d / 2 for d in spans)
+        pt0 = (pts[i] - halfspan[i] for i in [0...pts.length])
+        pt1 = (pts[i] + halfspan[i] for i in [0...pts.length])
       else
-        pt0 = local_select(pt)
-        pt1 = (pt0[i] + span[i] for i in [0...pt0.length])
+        pt0 = pts
+        pt1 = (pt0[i] + spans[i] for i in [0...pt0.length])
 
       spt0 = mapper.v_map_to_target(pt0)
       spt1 = mapper.v_map_to_target(pt1)
@@ -140,29 +130,12 @@ define [
     hit_test: (geometry) ->
       result = null
 
-      if geometry.type == "point"
-        if @_hit_point?
-          result = @_hit_point(geometry)
-        else if not @_point_hit_warned?
-          type = @model.type
-          logger.warn("'point' selection not available on #{type} renderer")
-          @_point_hit_warned = true
-      else if geometry.type == "rect"
-        if @_hit_rect?
-          result = @_hit_rect(geometry)
-        else if not @_rect_hit_warned?
-          type = @model.type
-          logger.warn("'rect' selection not available on #{type} renderer")
-          @_rect_hit_warned = true
-      else if geometry.type == "poly"
-        if @_hit_poly?
-          result = @_hit_poly(geometry)
-        else if not @_poly_hit_warned?
-          type = @model.type
-          logger.warn("'poly' selection not available on #{type} renderer")
-          @_poly_hit_warned = true
-      else
-        logger.error("unrecognized selection geometry type '#{ geometry.type }'")
+      func = "_hit_#{geometry.type}"
+      if @[func]?
+        result = @[func](geometry)
+      else if not @warned[geometry.type]?
+        logger.error("'#{geometry.type}' selection not available for #{@model.type}")
+        @warned[geometry.type] = true
 
       return result
 
@@ -181,8 +154,8 @@ define [
       ctx.beginPath()
       ctx.moveTo(x0, (y0 + y1) /2)
       ctx.lineTo(x1, (y0 + y1) /2)
-      if @props.line.do_stroke
-        @props.line.set_vectorize(ctx, reference_point)
+      if @visuals.line.do_stroke
+        @visuals.line.set_vectorize(ctx, reference_point)
         ctx.stroke()
       ctx.restore()
 
@@ -201,21 +174,21 @@ define [
       sy0 = y0 + dh
       sy1 = y1 - dh
 
-      if @props.fill.do_fill
-        @props.fill.set_vectorize(ctx, reference_point)
+      if @visuals.fill.do_fill
+        @visuals.fill.set_vectorize(ctx, reference_point)
         ctx.fillRect(sx0, sy0, sx1-sx0, sy1-sy0)
 
-      if @props.line.do_stroke
+      if @visuals.line.do_stroke
         ctx.beginPath()
         ctx.rect(sx0, sy0, sx1-sx0, sy1-sy0)
-        @props.line.set_vectorize(ctx, reference_point)
+        @visuals.line.set_vectorize(ctx, reference_point)
         ctx.stroke()
 
   class Glyph extends HasParent
 
     # Most glyphs have line and fill props. Override this in subclasses
-    # that need to define a different set of properties
-    props: ['line', 'fill']
+    # that need to define a different set of visual properties
+    visuals: ['line', 'fill']
 
     # Many glyphs have simple x and y coordinates. Override this in
     # subclasses that use other coordinates
@@ -262,13 +235,13 @@ define [
 
     display_defaults: ->
       result = {}
-      for prop in @props
+      for prop in @visuals
         switch prop
           when 'line' then defaults = @line_defaults
           when 'fill' then defaults = @fill_defaults
           when 'text' then defaults = @text_defaults
           else
-            logger.warn("unknown glyph property type '#{prop}'")
+            logger.warn("unknown visual property type '#{prop}'")
             continue
         result = _.extend result, super(), defaults
       return result

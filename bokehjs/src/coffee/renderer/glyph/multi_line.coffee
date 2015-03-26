@@ -6,8 +6,8 @@ define [
 
   class MultiLineView extends Glyph.View
 
-    _set_data: () ->
-      @index = rbush()
+    _index_data: () ->
+      index = rbush()
       pts = []
       for i in [0...@xs.length]
         xs = (x for x in @xs[i] when not _.isNaN(x))
@@ -19,15 +19,14 @@ define [
           _.max(xs), _.max(ys),
           {'i': i}
         ])
-      @index.load(pts)
+      index.load(pts)
+      return index
 
     _render: (ctx, indices) ->
       for i in indices
-        x = @xs[i]
-        y = @ys[i]
         [sx, sy] = @renderer.map_to_screen(@xs[i], @ys[i])
 
-        @props.line.set_vectorize(ctx, i)
+        @visuals.line.set_vectorize(ctx, i)
         for j in [0...sx.length]
           if j == 0
             ctx.beginPath()
@@ -47,7 +46,7 @@ define [
   class MultiLine extends Glyph.Model
     default_view: MultiLineView
     type: 'MultiLine'
-    props: ['line']
+    visuals: ['line']
     coords: [ ['xs', 'ys'] ]
 
   class MultiLines extends Glyph.Collection

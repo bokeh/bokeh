@@ -55,12 +55,12 @@ define [
           ctx.moveTo(shaft_radius, 0)
           ctx.arc(0, 0, shaft_radius, 0, 2*Math.PI, true)
 
-        if @props.fill.do_fill
-          @props.fill.set_vectorize(ctx, i)
+        if @visuals.fill.do_fill
+          @visuals.fill.set_vectorize(ctx, i)
           ctx.fill()
 
-        if @props.line.do_stroke
-          @props.line.set_vectorize(ctx, i)
+        if @visuals.line.do_stroke
+          @visuals.line.set_vectorize(ctx, i)
           ctx.stroke()
 
         ctx.restore()

@@ -69,24 +69,19 @@ define [
         @request_render()
 
     render: () ->
-      @glyph._map_data()
+      @glyph.map_data()
 
-      @selection_glyph._map_data()
-      @nonselection_glyph._map_data()
+      @selection_glyph.map_data()
+      @nonselection_glyph.map_data()
 
-      # XXX: this ignores (non)selection glyphs
-      if @_mask_data? and not (@plot_view.x_range instanceof FactorRange.Model) \
-                      and not (@plot_view.y_range instanceof FactorRange.Model)
-        indices = @_mask_data()
-      else
-        indices = @all_indices
+      indices = @all_indices
 
       ctx = @plot_view.canvas_view.ctx
       ctx.save()
 
       do_render = (ctx, indices, glyph) =>
         if @have_new_data
-          glyph.update_data(@mget('data_source'))
+          glyph.set_data(@mget('data_source'))
         glyph.render(ctx, indices)
 
       selection = @mget('data_source').get('selected')

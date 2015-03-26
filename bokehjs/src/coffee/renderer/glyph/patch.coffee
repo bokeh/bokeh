@@ -5,15 +5,12 @@ define [
 
   class PatchView extends Glyph.View
 
-    _set_data: () ->
+    _index_data: () ->
       @_xy_index()
 
-    _map_data: () ->
-      [@sx, @sy] = @renderer.map_to_screen(@x, @y)
-
     _render: (ctx, indices) ->
-      if @props.fill.do_fill
-        @props.fill.set(ctx, @props)
+      if @visuals.fill.do_fill
+        @visuals.fill.set_value(ctx)
 
         for i in indices
           if i == 0
@@ -31,8 +28,8 @@ define [
         ctx.closePath()
         ctx.fill()
 
-      if @props.line.do_stroke
-        @props.line.set(ctx, @props)
+      if @visuals.line.do_stroke
+        @visuals.line.set_value(ctx)
 
         for i in indices
           if i == 0

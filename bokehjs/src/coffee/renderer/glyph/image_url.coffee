@@ -77,7 +77,7 @@ define [
   class ImageURL extends Glyph.Model
     default_view: ImageURLView
     type: 'ImageURL'
-    props: []
+    visuals: []
     distances: ['w', 'h']
     angles: ['angle']
     fields: ['url:string']

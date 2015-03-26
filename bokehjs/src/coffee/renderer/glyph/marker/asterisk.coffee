@@ -23,8 +23,8 @@ define [
         ctx.moveTo(sx[i]-r2, sy[i]-r2)
         ctx.lineTo(sx[i]+r2, sy[i]+r2)
 
-        if @props.line.do_stroke
-          @props.line.set_vectorize(ctx, i)
+        if @visuals.line.do_stroke
+          @visuals.line.set_vectorize(ctx, i)
           ctx.stroke()
 
   class Asterisk extends Marker.Model

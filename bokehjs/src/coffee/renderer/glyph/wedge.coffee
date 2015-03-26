@@ -6,30 +6,28 @@ define [
 
   class WedgeView extends Glyph.View
 
-    _set_data: () ->
-      @max_radius = _.max(@radius)
+    _index_data: () ->
       @_xy_index()
 
     _map_data: () ->
-      [@sx, @sy] = @renderer.map_to_screen(@x, @y)
-      @radius = @distance_vector('x', 'radius', 'edge')
+      @sradius = @sdist(@renderer.xmapper, @x, @radius)
 
-    _render: (ctx, indices, sx=@sx, sy=@sy, radius=@radius) ->
+    _render: (ctx, indices, sx=@sx, sy=@sy, sradius=@sradius) ->
       for i in indices
-        if isNaN(sx[i] + sy[i] + radius[i] + @start_angle[i] + @end_angle[i] + @direction[i])
+        if isNaN(sx[i] + sy[i] + sradius[i] + @start_angle[i] + @end_angle[i] + @direction[i])
           continue
 
         ctx.beginPath()
-        ctx.arc(sx[i], sy[i], radius[i], @start_angle[i], @end_angle[i], @direction[i])
+        ctx.arc(sx[i], sy[i], sradius[i], @start_angle[i], @end_angle[i], @direction[i])
         ctx.lineTo(sx[i], sy[i])
         ctx.closePath()
 
-        if @props.fill.do_fill
-          @props.fill.set_vectorize(ctx, i)
+        if @visuals.fill.do_fill
+          @visuals.fill.set_vectorize(ctx, i)
           ctx.fill()
 
-        if @props.line.do_stroke
-          @props.line.set_vectorize(ctx, i)
+        if @visuals.line.do_stroke
+          @visuals.line.set_vectorize(ctx, i)
           ctx.stroke()
 
     _hit_point: (geometry) ->
@@ -77,17 +75,17 @@ define [
       sy = { }
       sy[reference_point] = (y0+y1)/2
 
-      radius = { }
-      radius[reference_point] = Math.min(Math.abs(x1-x0), Math.abs(y1-y0)) * 0.4
+      sradius = { }
+      sradius[reference_point] = Math.min(Math.abs(x1-x0), Math.abs(y1-y0)) * 0.4
 
-      @_render(ctx, indices, sx, sy, radius)
+      @_render(ctx, indices, sx, sy, sradius)
 
   class Wedge extends Glyph.Model
     default_view: WedgeView
     type: 'Wedge'
     distances: ['radius']
     angles: ['start_angle', 'end_angle']
-    fields: ['direction:string']
+    fields: ['direction:direction']
 
     display_defaults: ->
       return _.extend {}, super(), {

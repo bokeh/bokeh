@@ -7,17 +7,18 @@ define [
 
     _set_data: () ->
       @max_w2 = 0
-      if @glyph.width.units != "screen"
-        @max_w2 = _.max(@width)/2
+      if @distances.width.units == "data"
+        @max_w2 = @max_width/2
       @max_h2 = 0
-      if @glyph.height.units != "screen"
-        @max_h2 = _.max(@height)/2
+      if @distances.height.units == "data"
+        @max_h2 = @max_height/2
+
+    _index_data: () ->
       @_xy_index()
 
     _map_data: () ->
-      [@sx, @sy] = @renderer.map_to_screen(@x, @y)
-      @sw = @distance_vector('x', 'width', 'center')
-      @sh = @distance_vector('y', 'height', 'center')
+      @sw = @sdist(@renderer.xmapper, @x, @width, 'center')
+      @sh = @sdist(@renderer.ymapper, @y, @height, 'center')
 
     _render: (ctx, indices, sx=@sx, sy=@sy, sw=@sw, sh=@sh) ->
       for i in indices
@@ -33,12 +34,12 @@ define [
         ctx.bezierCurveTo(-sw[i]/2,  sh[i]/2, -sw[i]/2, -sh[i]/2, 0, -sh[i]/2);
         ctx.closePath()
 
-        if @props.fill.do_fill
-          @props.fill.set_vectorize(ctx, i)
+        if @visuals.fill.do_fill
+          @visuals.fill.set_vectorize(ctx, i)
           ctx.fill()
 
-        if @props.line.do_stroke
-          @props.line.set_vectorize(ctx, i)
+        if @visuals.line.do_stroke
+          @visuals.line.set_vectorize(ctx, i)
           ctx.stroke()
 
         ctx.rotate(-@angle[i])
@@ -66,11 +67,10 @@ define [
 
       @_render(ctx, indices, sx, sy, sw, sh)
 
-    bounds: () ->
-      bb = @index.data.bbox
+    _bounds: (bds) ->
       return [
-        [bb[0]-@max_w2, bb[2]+@max_w2],
-        [bb[1]-@max_h2, bb[3]+@max_h2]
+        [bds[0][0]-@max_w2, bds[0][1]+@max_w2],
+        [bds[1][1]-@max_h2, bds[1][1]+@max_h2]
       ]
 
   class Oval extends Glyph.Model

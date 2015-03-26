@@ -5,25 +5,19 @@ define [
 
   class TextView extends Glyph.View
 
-    _set_data: () ->
+    _index_data: () ->
       @_xy_index()
-
-    _map_data: () ->
-      [@sx, @sy] = @renderer.map_to_screen(@x, @y)
-
-      @sx_offset = @distance_vector('x', 'x_offset', 'edge')
-      @sy_offset = @distance_vector('y', 'y_offset', 'edge')
 
     _render: (ctx, indices) ->
       for i in indices
-        if isNaN(@sx[i] + @sy[i] + @sx_offset[i] + @sy_offset[i] + @angle[i]) or not @text[i]?
+        if isNaN(@sx[i] + @sy[i] + @x_offset[i] + @y_offset[i] + @angle[i]) or not @text[i]?
           continue
 
         ctx.save()
-        ctx.translate(@sx[i] + @sx_offset[i], @sy[i] + @sy_offset[i])
+        ctx.translate(@sx[i] + @x_offset[i], @sy[i] + @y_offset[i])
         ctx.rotate(@angle[i])
 
-        @props.text.set_vectorize(ctx, i)
+        @visuals.text.set_vectorize(ctx, i)
         ctx.fillText(@text[i], 0, 0)
         ctx.restore()
 
@@ -34,7 +28,7 @@ define [
         glyph_settings = reference_point
       else
         glyph_settings = @props
-      text_props = @props.text
+      text_props = @visuals.text
       text_props.set(ctx, glyph_settings)
       # override some features so we fit inside the legend
       ctx.font = text_props.font(12)
@@ -46,7 +40,7 @@ define [
   class Text extends Glyph.Model
     default_view: TextView
     type: 'Text'
-    props: ['text']
+    visuals: ['text']
     distances: ['x_offset', 'y_offset']
     angles: ['angle']
     fields: ['text:string']
@@ -54,8 +48,8 @@ define [
     defaults: ->
       return _.extend {}, super(), {
         angle: 0
-        x_offset: {value: 0, units: "screen"}
-        y_offset: {value: 0, units: "screen"}
+        x_offset: 0
+        y_offset: 0
       }
 
   class Texts extends Glyph.Collection

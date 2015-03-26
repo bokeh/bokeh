@@ -17,8 +17,8 @@ define [
         ctx.moveTo(sx[i]-r, sy[i]-r)
         ctx.lineTo(sx[i]+r, sy[i]+r)
 
-        if @props.line.do_stroke
-          @props.line.set_vectorize(ctx, i)
+        if @visuals.line.do_stroke
+          @visuals.line.set_vectorize(ctx, i)
           ctx.stroke()
 
   class X extends Marker.Model

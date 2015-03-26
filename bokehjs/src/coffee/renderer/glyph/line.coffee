@@ -5,15 +5,12 @@ define [
 
   class LineView extends Glyph.View
 
-    _set_data: () ->
+    _index_data: () ->
       @_xy_index()
-
-    _map_data: () ->
-      [@sx, @sy] = @renderer.map_to_screen(@x, @y)
 
     _render: (ctx, indices) ->
       drawing = false
-      @props.line.set(ctx, @props.line)
+      @visuals.line.set_value(ctx)
 
       for i in indices
         if !isFinite(@sx[i] + @sy[i]) and drawing
@@ -38,7 +35,7 @@ define [
   class Line extends Glyph.Model
     default_view: LineView
     type: 'Line'
-    props: ['line']
+    visuals: ['line']
 
   class Lines extends Glyph.Collection
     model: Line

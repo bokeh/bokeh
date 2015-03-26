@@ -1028,8 +1028,10 @@ class StringSpec(DataSpec):
         super(StringSpec, self).__init__(List(String), default=default, help=help)
 
     def __set__(self, obj, value):
-        if isinstance(value, list) and len(value) != 1:
-            raise TypeError("StringSpec convenience list values must have length 1")
+        if isinstance(value, list):
+            if len(value) != 1:
+                raise TypeError("StringSpec convenience list values must have length 1")
+            value = dict(value=value[0])
         super(StringSpec, self).__set__(obj, value)
 
 class ColorSpec(DataSpec):

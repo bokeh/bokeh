@@ -5,23 +5,24 @@ define [
 
   class RayView extends Glyph.View
 
-    _set_data: () ->
+    _index_data: () ->
       @_xy_index()
 
     _map_data: () ->
-      [@sx, @sy] = @renderer.map_to_screen(@x, @y)
-      @length = @distance_vector('x', 'length', 'edge')
-
-      width = @renderer.plot_view.frame.get('width')
-      height = @renderer.plot_view.frame.get('height')
-      inf_len = 2 * (width + height)
-      for i in [0...@length.length]
-        if @length[i] == 0 then @length[i] = inf_len
+      @slength = @sdist(@renderer.xmapper, @x, @length)
 
     _render: (ctx, indices) ->
-      if @props.line.do_stroke
+      if @visuals.line.do_stroke
+
+        width = @renderer.plot_view.frame.get('width')
+        height = @renderer.plot_view.frame.get('height')
+        inf_len = 2 * (width + height)
+        for i in [0...@slength.length]
+          if @slength[i] == 0
+            @slength[i] = inf_len
+
         for i in indices
-          if isNaN(@sx[i] + @sy[i] + @angle[i] + @length[i])
+          if isNaN(@sx[i] + @sy[i] + @angle[i] + @slength[i])
             continue
 
           ctx.translate(@sx[i], @sy[i])
@@ -29,9 +30,9 @@ define [
 
           ctx.beginPath()
           ctx.moveTo(0, 0)
-          ctx.lineTo(@length[i], 0)
+          ctx.lineTo(@slength[i], 0)
 
-          @props.line.set_vectorize(ctx, i)
+          @visuals.line.set_vectorize(ctx, i)
           ctx.stroke()
 
           ctx.rotate(-@angle[i])
@@ -43,7 +44,7 @@ define [
   class Ray extends Glyph.Model
     default_view: RayView
     type: 'Ray'
-    props: ['line']
+    visuals: ['line']
     distances: ['length']
     angles: ['angle']
 

@@ -85,7 +85,7 @@ define [
   class Image extends Glyph.Model
     default_view: ImageView
     type: 'Image'
-    props: []
+    visuals: []
     distances: ['dw', 'dh']
     fields: ['image:array', 'rows', 'cols', 'palette:string']
 

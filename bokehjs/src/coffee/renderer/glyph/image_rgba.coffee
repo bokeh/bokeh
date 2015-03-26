@@ -84,7 +84,7 @@ define [
   class ImageRGBA extends Glyph.Model
     default_view: ImageRGBAView
     type: 'ImageRGBA'
-    props: []
+    visuals: []
     distances: ['dw', 'dh']
     fields: ['image:array', 'rows', 'cols']
 

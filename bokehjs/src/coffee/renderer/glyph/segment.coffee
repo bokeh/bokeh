@@ -6,20 +6,17 @@ define [
 
   class SegmentView extends Glyph.View
 
-    _set_data: () ->
-      @index = rbush()
+    _index_data: () ->
+      index = rbush()
       pts = []
       for i in [0...@x0.length]
         if not isNaN(@x0[i] + @x1[i] + @y0[i] + @y1[i])
           pts.push([@x0[i], @y0[i], @x1[i], @y1[i], {'i': i}])
-      @index.load(pts)
-
-    _map_data: () ->
-      [@sx0, @sy0] = @renderer.map_to_screen(@x0, @y0)
-      [@sx1, @sy1] = @renderer.map_to_screen(@x1, @y1)
+      index.load(pts)
+      return index
 
     _render: (ctx, indices) ->
-      if @props.line.do_stroke
+      if @visuals.line.do_stroke
         for i in indices
           if isNaN(@sx0[i] + @sy0[i] + @sx1[i] + @sy1[i])
             continue
@@ -28,7 +25,7 @@ define [
           ctx.moveTo(@sx0[i], @sy0[i])
           ctx.lineTo(@sx1[i], @sy1[i])
 
-          @props.line.set_vectorize(ctx, i)
+          @visuals.line.set_vectorize(ctx, i)
           ctx.stroke()
 
     draw_legend: (ctx, x0, x1, y0, y1) ->
@@ -37,7 +34,7 @@ define [
   class Segment extends Glyph.Model
     default_view: SegmentView
     type: 'Segment'
-    props: ['line']
+    visuals: ['line']
     coords: [ ['x0', 'y0'], ['x1', 'y1'] ]
 
   class Segments extends Glyph.Collection
