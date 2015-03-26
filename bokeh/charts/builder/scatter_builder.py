@@ -170,12 +170,12 @@ class ScatterBuilder(Builder):
             self.source = self._values
             self._values = self.source.data
             self._data = self.source.data
-            
+
         # check if pandas is installed
         new_values = []
         if pd:
             # if it is we try to take advantage of it's data structures
-            # asumming we get an groupby object
+            # assumming we get an groupby object
             if isinstance(self._values, pd.core.groupby.DataFrameGroupBy):
                 pdict = OrderedDict()
                 for i in self._values.groups.keys():
