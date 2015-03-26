@@ -1,23 +1,9 @@
 define [
   "underscore"
-  "renderer/properties"
   "./glyph"
-], (_, Properties, Glyph) ->
+], (_, Glyph) ->
 
   class ImageRGBAView extends Glyph.View
-
-    _properties: []
-
-    initialize: (options) ->
-      # the point of this is to support both efficient ArrayBuffers as well as dumb
-      # arrays of arrays that the python interface currently uses. If the model
-      # contains "rows" then it is assumed to be an ArrayBuffer with explicitly
-      # provided number of rows/cols, otherwise treat as a "list of lists".
-      if @mget("rows")?
-        @_fields = ['image:array', 'rows', 'cols', 'x', 'y', 'dw', 'dh']
-      else
-        @_fields = ['image:array', 'x', 'y', 'dw', 'dh']
-      super(options)
 
     _set_data: () ->
       if not @image_data? or @image_data.length != @image.length
@@ -63,7 +49,7 @@ define [
         @_xy_index()
 
     _map_data: () ->
-      [@sx, @sy] = @renderer.map_to_screen(@x, @glyph.x.units, @y, @glyph.y.units)
+      [@sx, @sy] = @renderer.map_to_screen(@x, @y)
       @sw = @distance_vector('x', 'dw', 'edge', @mget('dilate'))
       @sh = @distance_vector('y', 'dh', 'edge', @mget('dilate'))
 
@@ -98,6 +84,9 @@ define [
   class ImageRGBA extends Glyph.Model
     default_view: ImageRGBAView
     type: 'ImageRGBA'
+    visuals: []
+    distances: ['dw', 'dh']
+    fields: ['image:array', 'rows', 'cols']
 
     display_defaults: ->
       return _.extend {}, super(), {

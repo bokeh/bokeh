@@ -48,32 +48,11 @@ define [
 
       @listenTo(@solver, 'layout_update', @_update_mappers)
 
-    map_to_screen: (x, x_units, y, y_units, canvas, x_name='default', y_name='default') ->
-      if x_units == 'screen'
-        if _.isArray(x)
-          vx = x[..]
-        else
-          vx = new Float64Array(x.length)
-          vx.set(x)
-        hoff = @get('h_range').get('start')
-        for i in [0...vx.length]
-          vx[i] += hoff
-      else
-        vx = @get('x_mappers')[x_name].v_map_to_target(x)
-
-      if y_units == 'screen'
-        if _.isArray(y)
-          vy = y[..]
-        else
-          vy = new Float64Array(y.length)
-          vy.set(y)
-        voff = @get('v_range').get('start')
-        for i in [0...vy.length]
-          vy[i] += voff
-      else
-        vy = @get('y_mappers')[y_name].v_map_to_target(y)
-
+    map_to_screen: (x, y, canvas, x_name='default', y_name='default') ->
+      vx = @get('x_mappers')[x_name].v_map_to_target(x)
       sx = canvas.v_vx_to_sx(vx)
+
+      vy = @get('y_mappers')[y_name].v_map_to_target(y)
       sy = canvas.v_vy_to_sy(vy)
 
       return [sx, sy]

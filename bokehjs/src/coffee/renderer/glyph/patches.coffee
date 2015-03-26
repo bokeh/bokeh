@@ -1,35 +1,14 @@
 define [
   "underscore"
   "rbush"
-  "renderer/properties"
   "./glyph"
-], (_, rbush, Properties, Glyph) ->
-
-  point_in_poly = (x, y, px, py) ->
-    inside = false
-
-    x1 = px[px.length-1]
-    y1 = py[py.length-1]
-
-    for i in [0...px.length]
-        x2 = px[i]
-        y2 = py[i]
-        if ( y1 < y ) != ( y2 < y )
-            if x1 + ( y - y1 ) / ( y2 - y1 ) * ( x2 - x1 ) < x
-                inside = not inside
-        x1 = x2
-        y1 = y2
-
-    return inside
+  "common/hittest"
+], (_, rbush, Glyph, hittest) ->
 
   class PatchesView extends Glyph.View
 
-    _fields: ['xs', 'ys']
-    _properties: ['line', 'fill']
-
-    _set_data: () ->
-      @max_size = _.max(@size)
-      @index = rbush()
+    _index_data: () ->
+      index = rbush()
       pts = []
       for i in [0...@xs.length]
         xs = (x for x in @xs[i] when not _.isNaN(x))
@@ -41,21 +20,10 @@ define [
           _.max(xs), _.max(ys),
           {'i': i}
         ])
-      @index.load(pts)
-
-    _map_data: () ->
-      @sxs = []
-      @sys = []
-      for i in [0...@xs.length]
-        [sx, sy] = @renderer.map_to_screen(@xs[i], @glyph.xs.units, @ys[i], @glyph.ys.units)
-        @sxs.push(sx)
-        @sys.push(sy)
+      index.load(pts)
+      return index
 
     _mask_data: () ->
-      # if user uses screen units, punt on trying to mask data
-      if @glyph.xs.units == "screen" or @glyph.ys.units == "screen"
-        return @all_indices
-
       xr = @renderer.plot_view.x_range
       [x0, x1] = [xr.get('start'), xr.get('end')]
 
@@ -66,10 +34,10 @@ define [
 
     _render: (ctx, indices) ->
       for i in indices
-        [sx, sy] = [@sxs[i], @sys[i]]
+        [sx, sy] = @renderer.map_to_screen(@xs[i], @ys[i])
 
-        if @props.fill.do_fill
-          @props.fill.set_vectorize(ctx, i)
+        if @visuals.fill.do_fill
+          @visuals.fill.set_vectorize(ctx, i)
 
           for j in [0...sx.length]
             if j == 0
@@ -87,8 +55,8 @@ define [
           ctx.closePath()
           ctx.fill()
 
-        if @props.line.do_stroke
-          @props.line.set_vectorize(ctx, i)
+        if @visuals.line.do_stroke
+          @visuals.line.set_vectorize(ctx, i)
 
           for j in [0...sx.length]
             if j == 0
@@ -119,7 +87,7 @@ define [
       hits = []
       for i in [0...candidates.length]
         idx = candidates[i]
-        if point_in_poly(sx, sy, @sxs[idx], @sys[idx])
+        if hittest.point_in_poly(sx, sy, @sxs[idx], @sys[idx])
           hits.push(idx)
       return hits
 
@@ -129,9 +97,7 @@ define [
   class Patches extends Glyph.Model
     default_view: PatchesView
     type: 'Patches'
-
-    display_defaults: ->
-      return _.extend {}, super(), @line_defaults, @fill_defaults
+    coords: [ ['xs', 'ys'] ]
 
   class Patcheses extends Glyph.Collection
     model: Patches

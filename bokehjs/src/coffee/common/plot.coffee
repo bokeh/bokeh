@@ -122,8 +122,8 @@ define [
       for yr in _.values(frame.get('y_ranges'))
         yr.update?(bounds, 1, @)
 
-    map_to_screen: (x, x_units, y, y_units, x_name='default', y_name='default') ->
-      @frame.map_to_screen(x, x_units, y, y_units, @canvas, x_name, y_name)
+    map_to_screen: (x, y, x_name='default', y_name='default') ->
+      @frame.map_to_screen(x, y, @canvas, x_name, y_name)
 
     update_range: (range_info) ->
       if not range_info?

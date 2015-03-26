@@ -61,7 +61,7 @@ def check_fill(glyph):
 
 def check_line(glyph):
     assert glyph.line_color == Color.black
-    assert glyph.line_width == "line_width"
+    assert glyph.line_width == 1
     assert glyph.line_alpha == 1.0
     assert glyph.line_join == LineJoin.miter
     assert glyph.line_cap == LineCap.butt
@@ -86,8 +86,8 @@ def test_AnnularWedge():
     glyph = AnnularWedge()
     assert glyph.x == "x"
     assert glyph.y == "y"
-    assert glyph.inner_radius == None
-    assert glyph.outer_radius == None
+    assert glyph.inner_radius == "inner_radius"
+    assert glyph.outer_radius == "outer_radius"
     assert glyph.start_angle == "start_angle"
     assert glyph.end_angle == "end_angle"
     assert glyph.direction == "clock"
@@ -99,8 +99,8 @@ def test_Annulus():
     glyph = Annulus()
     assert glyph.x == "x"
     assert glyph.y == "y"
-    assert glyph.inner_radius == None
-    assert glyph.outer_radius == None
+    assert glyph.inner_radius == "inner_radius"
+    assert glyph.outer_radius == "outer_radius"
     yield check_fill, glyph
     yield check_line, glyph
     yield check_props, glyph, ["x", "y", "inner_radius", "outer_radius"], FILL, LINE
@@ -109,7 +109,7 @@ def test_Arc():
     glyph = Arc()
     assert glyph.x == "x"
     assert glyph.y == "y"
-    assert glyph.radius == None
+    assert glyph.radius == "radius"
     assert glyph.start_angle == "start_angle"
     assert glyph.end_angle == "end_angle"
     assert glyph.direction == "clock"
@@ -244,7 +244,7 @@ def test_Ray():
     assert glyph.x == "x"
     assert glyph.y == "y"
     assert glyph.angle == "angle"
-    assert glyph.length == None
+    assert glyph.length == "length"
     yield check_line, glyph
     yield check_props, glyph, ["x", "y", "angle", "length"], LINE
 
@@ -282,7 +282,7 @@ def test_Wedge():
     glyph = Wedge()
     assert glyph.x == "x"
     assert glyph.y == "y"
-    assert glyph.radius == None
+    assert glyph.radius == "radius"
     assert glyph.start_angle == "start_angle"
     assert glyph.end_angle == "end_angle"
     assert glyph.direction == "clock"

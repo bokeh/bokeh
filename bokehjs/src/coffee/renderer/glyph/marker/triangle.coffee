@@ -5,8 +5,6 @@ define [
 
   class TriangleView extends Marker.View
 
-    _properties: ['line', 'fill']
-
     _render: (ctx, indices, sx=@sx, sy=@sy, size=@size) ->
       for i in indices
         if isNaN(sx[i] + sy[i] + size[i])
@@ -22,20 +20,17 @@ define [
         ctx.lineTo(sx[i],   sy[i]+a-h)
         ctx.closePath()
 
-        if @props.fill.do_fill
-          @props.fill.set_vectorize(ctx, i)
+        if @visuals.fill.do_fill
+          @visuals.fill.set_vectorize(ctx, i)
           ctx.fill()
 
-        if @props.line.do_stroke
-          @props.line.set_vectorize(ctx, i)
+        if @visuals.line.do_stroke
+          @visuals.line.set_vectorize(ctx, i)
           ctx.stroke()
 
   class Triangle extends Marker.Model
     default_view: TriangleView
     type: 'Triangle'
-
-    display_defaults: ->
-      return _.extend {}, super(), @line_defaults, @fill_defaults
 
   class Triangles extends Marker.Collection
     model: Triangle

@@ -1,30 +1,10 @@
 define [
   "underscore"
-  "rbush"
   "../glyph"
-], (_, rbush, Glyph) ->
-
-
-  point_in_poly = (x, y, px, py) ->
-    inside = false
-
-    x1 = px[px.length-1]
-    y1 = py[py.length-1]
-
-    for i in [0...px.length]
-        x2 = px[i]
-        y2 = py[i]
-        if ( y1 < y ) != ( y2 < y )
-            if x1 + ( y - y1 ) / ( y2 - y1 ) * ( x2 - x1 ) < x
-                inside = not inside
-        x1 = x2
-        y1 = y2
-
-    return inside
+  "common/hittest"
+], (_, Glyph, hittest) ->
 
   class MarkerView extends Glyph.View
-
-    _fields: ['x', 'y', 'size']
 
     draw_legend: (ctx, x0, x1, y0, y1) ->
       reference_point = @get_reference_point() ? 0
@@ -41,12 +21,8 @@ define [
 
       @_render(ctx, indices, sx, sy, size)
 
-    _set_data: () ->
-      @max_size = _.max(@size)
+    _index_data: () ->
       @_xy_index()
-
-    _map_data: () ->
-      [@sx, @sy] = @renderer.map_to_screen(@x, @glyph.x.units, @y, @glyph.y.units)
 
     _mask_data: () ->
       # dilate the inner screen region by max_size and map back to data space for use in
@@ -107,11 +83,12 @@ define [
       hits = []
       for i in [0...candidates.length]
         idx = candidates[i]
-        if point_in_poly(@sx[i], @sy[i], sx, sy)
+        if hittest.point_in_poly(@sx[i], @sy[i], sx, sy)
           hits.push(idx)
       return hits
 
   class Marker extends Glyph.Model
+    distances: ['size']
 
     display_defaults: ->
       return _.extend {}, super(), {

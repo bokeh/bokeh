@@ -1,117 +1,72 @@
 define [
   "underscore"
   "common/mathutils"
-  "renderer/properties"
   "./glyph"
-], (_, mathutils, Properties, Glyph) ->
+], (_, mathutils, Glyph) ->
 
   class AnnularWedgeView extends Glyph.View
 
-    _fields: ['x', 'y', 'inner_radius', 'outer_radius', 'start_angle', 'end_angle', 'direction:string'],
-    _properties: ['line', 'fill']
-
-    _set_data: () ->
-      @max_radius = _.max(@outer_radius)
+    _index_data: () ->
       @_xy_index()
 
     _map_data: () ->
-      [@sx, @sy] = @renderer.map_to_screen(@x, @glyph.x.units, @y, @glyph.y.units)
-      @inner_radius = @distance_vector('x', 'inner_radius', 'edge')
-      @outer_radius = @distance_vector('x', 'outer_radius', 'edge')
+      @sinner_radius = @sdist(@renderer.xmapper, @x, @inner_radius)
+      @souter_radius = @sdist(@renderer.xmapper, @x, @outer_radius)
       @angle = new Float32Array(@start_angle.length)
       for i in [0...@start_angle.length]
         @angle[i] = @end_angle[i] - @start_angle[i]
 
-    _render: (ctx, indices, sx=@sx, sy=@sy, inner_radius=@inner_radius, outer_radius=@outer_radius) ->
+    _render: (ctx, indices, sx=@sx, sy=@sy, sinner_radius=@sinner_radius, souter_radius=@souter_radius) ->
       for i in indices
-        if isNaN(sx[i] + sy[i] + inner_radius[i] + outer_radius[i] + @start_angle[i] + @angle[i])
+        if isNaN(sx[i] + sy[i] + sinner_radius[i] + souter_radius[i] + @start_angle[i] + @angle[i] + @direction[i])
           continue
 
         ctx.translate(sx[i], sy[i])
         ctx.rotate(@start_angle[i])
 
-        ctx.moveTo(outer_radius[i], 0)
+        ctx.moveTo(souter_radius[i], 0)
         ctx.beginPath()
-        ctx.arc(0, 0, outer_radius[i], 0, @angle[i], @direction[i])
+        ctx.arc(0, 0, souter_radius[i], 0, @angle[i], @direction[i])
         ctx.rotate(@angle[i])
-        ctx.lineTo(inner_radius[i], 0)
-        ctx.arc(0, 0, inner_radius[i], 0, -@angle[i], not @direction[i])
+        ctx.lineTo(sinner_radius[i], 0)
+        ctx.arc(0, 0, sinner_radius[i], 0, -@angle[i], not @direction[i])
         ctx.closePath()
 
         ctx.rotate(-@angle[i]-@start_angle[i])
         ctx.translate(-sx[i], -sy[i])
 
-        if @props.fill.do_fill
-          @props.fill.set_vectorize(ctx, i)
+        if @visuals.fill.do_fill
+          @visuals.fill.set_vectorize(ctx, i)
           ctx.fill()
 
-        if @props.line.do_stroke
-          @props.line.set_vectorize(ctx, i)
+        if @visuals.line.do_stroke
+          @visuals.line.set_vectorize(ctx, i)
           ctx.stroke()
 
     _hit_point: (geometry) ->
       [vx, vy] = [geometry.vx, geometry.vy]
       x = @renderer.xmapper.map_from_target(vx)
+      x0 = x - @max_outer_radius
+      x1 = x + @max_outer_radius
+
       y = @renderer.ymapper.map_from_target(vy)
+      y0 = y - @max_outer_radius
+      y1 = y + @max_outer_radius
 
-      if @outer_radius_units == "screen"
-        vx0 = vx - @max_radius
-        vx1 = vx + @max_radius
-        [x0, x1] = @renderer.xmapper.v_map_from_target([vx0, vx1])
-
-        vy0 = vy - @max_radius
-        vy1 = vy + @max_radius
-        [y0, y1] = @renderer.ymapper.v_map_from_target([vy0, vy1])
-
-      else
-        x0 = x - @max_radius
-        x1 = x + @max_radius
-
-        y0 = y - @max_radius
-        y1 = y + @max_radius
-
-      candidates = (pt[4].i for pt in @index.search([x0, y0, x1, y1]))
-
-      candidates2 = []
-      if @outer_radius_units == "screen"
-        sx = @renderer.plot_view.canvas.vx_to_sx(vx)
-        sy = @renderer.plot_view.canvas.vy_to_sy(vy)
-        for i in candidates
-          r2 = Math.pow(@outer_radius[i], 2)
-          dist = Math.pow(@sx[i]-sx, 2) + Math.pow(@sy[i]-sy, 2)
-          if dist <= r2
-            candidates2.push([i, dist])
-      else
-        for i in candidates
-          r2 = Math.pow(@outer_radius[i], 2)
-          sx0 = @renderer.xmapper.map_to_target(x)
-          sx1 = @renderer.xmapper.map_to_target(@x[i])
-          sy0 = @renderer.ymapper.map_to_target(y)
-          sy1 = @renderer.ymapper.map_to_target(@y[i])
-          dist = Math.pow(sx0-sx1, 2) + Math.pow(sy0-sy1, 2)
-          if dist <= r2
-            candidates2.push([i, dist])
-
-      candidates3 = []
-      if @inner_radius_units == "screen"
-        sx = @renderer.plot_view.canvas.vx_to_sx(vx)
-        sy = @renderer.plot_view.canvas.vy_to_sy(vy)
-        for [i, dist] in candidates2
-          r2 = Math.pow(@inner_radius[i], 2)
-          if dist >= r2
-            candidates3.push([i, dist])
-      else
-        for [i, dist] in candidates2
-          r2 = Math.pow(@inner_radius[i], 2)
-          sx0 = @renderer.xmapper.map_to_target(x)
-          sx1 = @renderer.xmapper.map_to_target(@x[i])
-          sy0 = @renderer.ymapper.map_to_target(y)
-          sy1 = @renderer.ymapper.map_to_target(@y[i])
-          if dist >= r2
-            candidates3.push([i, dist])
+      candidates = []
+      for i in (pt[4].i for pt in @index.search([x0, y0, x1, y1]))
+        or2 = Math.pow(@souter_radius[i], 2)
+        ir2 = Math.pow(@sinner_radius[i], 2)
+        sx0 = @renderer.xmapper.map_to_target(x)
+        sx1 = @renderer.xmapper.map_to_target(@x[i])
+        sy0 = @renderer.ymapper.map_to_target(y)
+        sy1 = @renderer.ymapper.map_to_target(@y[i])
+        dist = Math.pow(sx0-sx1, 2) + Math.pow(sy0-sy1, 2)
+        if dist <= or2 and dist >= ir2
+          candidates.push([i, dist])
 
       hits = []
-      for [i, dist] in candidates3
+      for [i, dist] in candidates
         sx = @renderer.plot_view.canvas.vx_to_sx(vx)
         sy = @renderer.plot_view.canvas.vy_to_sy(vy)
         # NOTE: minus the angle because JS uses non-mathy convention for angles
@@ -135,19 +90,22 @@ define [
       sy[reference_point] = (y0+y1)/2
 
       r = Math.min(Math.abs(x1-x0), Math.abs(y1-y0)) * 0.5
-      inner_radius = { }
-      inner_radius[reference_point] = r*0.25
-      outer_radius = { }
-      outer_radius[reference_point] = r*0.8
+      sinner_radius = { }
+      sinner_radius[reference_point] = r*0.25
+      souter_radius = { }
+      souter_radius[reference_point] = r*0.8
 
-      @_render(ctx, indices, sx, sy, inner_radius, outer_radius)
+      @_render(ctx, indices, sx, sy, sinner_radius, souter_radius)
 
   class AnnularWedge extends Glyph.Model
     default_view: AnnularWedgeView
     type: 'AnnularWedge'
+    distances: ['inner_radius', 'outer_radius']
+    angles: ['start_angle', 'end_angle']
+    fields: ['direction:direction']
 
     display_defaults: ->
-      return _.extend {}, super(), @line_defaults, @fill_defaults, {
+      return _.extend {}, super(), {
         direction: 'anticlock'
       }
 

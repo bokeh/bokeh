@@ -1,72 +1,29 @@
 define [
   "underscore"
-  "renderer/properties"
   "./glyph"
-], (_, Properties, Glyph) ->
-
-  point_in_poly = (x, y, px, py) ->
-    inside = false
-
-    x1 = px[px.length-1]
-    y1 = py[py.length-1]
-
-    for i in [0...px.length]
-        x2 = px[i]
-        y2 = py[i]
-        if ( y1 < y ) != ( y2 < y )
-            if x1 + ( y - y1 ) / ( y2 - y1 ) * ( x2 - x1 ) < x
-                inside = not inside
-        x1 = x2
-        y1 = y2
-
-    return inside
+  "common/hittest"
+], (_, Glyph, hittest) ->
 
   class CircleView extends Glyph.View
 
-    _properties: ['line', 'fill']
-
-    # we need a custom initializer because circles may either take glyph-style radius (defaults
-    # to data units) or a marker-style size (defaults to screen units)
-    initialize: (options) ->
-      if @mget("radius")?
-        @_fields = ['x', 'y', 'radius', 'radius_dimension']
-      else
-        @_fields = ['x', 'y', 'size']
-      super(options)
-
-    _set_data: () ->
-      if @size
-        @max_radius = _.max(@size)/2
-      else
-        @max_radius = _.max(@radius)
-      @_xy_index()
+    _index_data: () ->
+      return @_xy_index()
 
     _map_data: () ->
-      [@sx, @sy] = @renderer.map_to_screen(@x, @glyph.x.units, @y, @glyph.y.units)
-      if @size
-        @radius = (s/2 for s in @distance_vector('x', 'size', 'edge'))
-        @radius_units = @glyph.size.units
+      # NOTE: Order is important here: size is always present (at least
+      # a default), but radius is only present if a user specifies it
+      if @radius?
+        rd = @fields.radius_dimension.fixed_value
+        @sradius = @sdist(@renderer["#{rd}mapper"], @[rd], @radius)
       else
-        rd = @mget('radius_dimension')
-        if rd != 'x' and rd != 'y'
-          # TODO: (bev) logging here
-          rd = 'x'
-        @radius = @distance_vector(rd, 'radius', 'edge')
+        @sradius = (s/2 for s in @size)
 
     _mask_data: () ->
       hr = @renderer.plot_view.frame.get('h_range')
       vr = @renderer.plot_view.frame.get('v_range')
 
-      if @radius_units == "screen"
-        sx0 = hr.get('start') - @max_radius
-        sx1 = hr.get('end') - @max_radius
-        [x0, x1] = @renderer.xmapper.v_map_from_target([sx0, sx1])
-
-        sy0 = vr.get('start') - @max_radius
-        sy1 = vr.get('end') - @max_radius
-        [y0, y1] = @renderer.ymapper.v_map_from_target([sy0, sy1])
-
-      else
+      # check for radius first
+      if @radius?
         sx0 = hr.get('start')
         sx1 = hr.get('end')
         [x0, x1] = @renderer.xmapper.v_map_from_target([sx0, sx1])
@@ -79,22 +36,32 @@ define [
         y0 -= @max_radius
         y1 += @max_radius
 
+      else
+        sx0 = hr.get('start') - @max_size
+        sx1 = hr.get('end') - @max_size
+        [x0, x1] = @renderer.xmapper.v_map_from_target([sx0, sx1])
+
+        sy0 = vr.get('start') - @max_size
+        sy1 = vr.get('end') - @max_size
+        [y0, y1] = @renderer.ymapper.v_map_from_target([sy0, sy1])
+
+
       return (x[4].i for x in @index.search([x0, y0, x1, y1]))
 
-    _render: (ctx, indices, sx=@sx, sy=@sy, radius=@radius) ->
+    _render: (ctx, indices, sx=@sx, sy=@sy, sradius=@sradius) ->
       for i in indices
-        if isNaN(sx[i] + sy[i] + radius[i])
+        if isNaN(sx[i] + sy[i] + sradius[i])
             continue
 
         ctx.beginPath()
-        ctx.arc(sx[i], sy[i], radius[i], 0, 2*Math.PI, false)
+        ctx.arc(sx[i], sy[i], sradius[i], 0, 2*Math.PI, false)
 
-        if @props.fill.do_fill
-          @props.fill.set_vectorize(ctx,i)
+        if @visuals.fill.do_fill
+          @visuals.fill.set_vectorize(ctx, i)
           ctx.fill()
 
-        if @props.line.do_stroke
-          @props.line.set_vectorize(ctx, i)
+        if @visuals.line.do_stroke
+          @visuals.line.set_vectorize(ctx, i)
           ctx.stroke()
 
     _hit_point: (geometry) ->
@@ -102,36 +69,37 @@ define [
       x = @renderer.xmapper.map_from_target(vx)
       y = @renderer.ymapper.map_from_target(vy)
 
-      if @radius_units == "screen"
-        vx0 = vx - @max_radius
-        vx1 = vx + @max_radius
-        [x0, x1] = @renderer.xmapper.v_map_from_target([vx0, vx1])
-
-        vy0 = vy - @max_radius
-        vy1 = vy + @max_radius
-        [y0, y1] = @renderer.ymapper.v_map_from_target([vy0, vy1])
-
-      else
+      # check radius first
+      if @radius?
         x0 = x - @max_radius
         x1 = x + @max_radius
 
         y0 = y - @max_radius
         y1 = y + @max_radius
 
+      else
+        vx0 = vx - @max_size
+        vx1 = vx + @max_size
+        [x0, x1] = @renderer.xmapper.v_map_from_target([vx0, vx1])
+
+        vy0 = vy - @max_size
+        vy1 = vy + @max_size
+        [y0, y1] = @renderer.ymapper.v_map_from_target([vy0, vy1])
+
       candidates = (pt[4].i for pt in @index.search([x0, y0, x1, y1]))
 
       hits = []
-      if @radius_units == "screen"
+      if @size
         sx = @renderer.plot_view.canvas.vx_to_sx(vx)
         sy = @renderer.plot_view.canvas.vy_to_sy(vy)
         for i in candidates
-          r2 = Math.pow(@radius[i], 2)
+          r2 = Math.pow(@sradius[i], 2)
           dist = Math.pow(@sx[i]-sx, 2) + Math.pow(@sy[i]-sy, 2)
           if dist <= r2
             hits.push([i, dist])
       else
         for i in candidates
-          r2 = Math.pow(@radius[i], 2)
+          r2 = Math.pow(@sradius[i], 2)
           sx0 = @renderer.xmapper.map_to_target(x)
           sx1 = @renderer.xmapper.map_to_target(@x[i])
           sy0 = @renderer.ymapper.map_to_target(y)
@@ -162,7 +130,7 @@ define [
       hits = []
       for i in [0...candidates.length]
         idx = candidates[i]
-        if point_in_poly(@sx[i], @sy[i], sx, sy)
+        if hittest.point_in_poly(@sx[i], @sy[i], sx, sy)
           hits.push(idx)
       return hits
 
@@ -178,24 +146,24 @@ define [
       sx[reference_point] = (x0+x1)/2
       sy = { }
       sy[reference_point] = (y0+y1)/2
-      radius = { }
-      radius[reference_point] = Math.min(Math.abs(x1-x0), Math.abs(y1-y0))*0.2
+      sradius = { }
+      sradius[reference_point] = Math.min(Math.abs(x1-x0), Math.abs(y1-y0))*0.2
 
-      @_render(ctx, indices, sx, sy, radius)
+      @_render(ctx, indices, sx, sy, sradius)
 
   class Circle extends Glyph.Model
     default_view: CircleView
     type: 'Circle'
+    distances: ['?radius', '?size']
+    fields: ['radius_dimension:string']
 
     display_defaults: ->
-      return _.extend {}, super(), @line_defaults, @fill_defaults, {
+      return _.extend {}, super(), {
         size: 4 # XXX: Circle should be a marker, then this wouldn't be necessary.
       }
 
     defaults: ->
       return _.extend {}, super(), {
-        size_units: 'screen'
-        radius_units: 'data'
         radius_dimension: 'x'
       }
 

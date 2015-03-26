@@ -91,25 +91,8 @@ def _match_data_params(argnames, glyphclass, datasource,
         val = attributes[var]
 
         if var.endswith("_units") and var[:-6] in dataspecs:
-            dspec = var[:-6]
-            if dspec not in glyph_params:
-                raise RuntimeError("Cannot set units on undefined field '%s'" % dspec)
-            curval = glyph_params[dspec]
-            if not isinstance(curval, dict):
-                # TODO: This assumes that string values are fields; this is invalid
-                # for ColorSpecs, but all this logic is to handle dataspec units, and
-                # ColorSpecs do not have units.  However, if there are other kinds of
-                # DataSpecs that do have string constants, then we will need to fix
-                # this up to have smarter detection of field names.
-                if isinstance(curval, string_types):
-                    glyph_params[dspec] = {"field": curval, "units": val}
-                else:
-                    glyph_params[dspec] = {"value": curval, "units": val}
-            else:
-                glyph_params[dspec]["units"] = val
-            continue
-
-        if isinstance(val, dict) or isinstance(val, Number):
+            glyph_val = val
+        elif isinstance(val, dict) or isinstance(val, Number):
             glyph_val = val
         elif isinstance(dataspecs.get(var, None), ColorSpec) and (ColorSpec.isconst(val) or val is None):
             # This check for color constants needs to happen relatively early on because
@@ -125,18 +108,15 @@ def _match_data_params(argnames, glyphclass, datasource,
                 if val not in datasource.column_names:
                     datasource.column_names.append(val)
                     datasource.data[val] = []
-                units = getattr(dataspecs[var], 'units', 'data')
-                glyph_val = {'field' : val, 'units' : units}
+                glyph_val = {'field' : val}
         elif isinstance(val, np.ndarray):
             if val.ndim != 1:
                 raise RuntimeError("Columns need to be 1D (%s is not)" % var)
             datasource.add(val, name=var)
-            units = getattr(dataspecs[var], 'units', 'data')
-            glyph_val = {'field' : var, 'units' : units}
+            glyph_val = {'field' : var}
         elif isinstance(val, Iterable):
             datasource.add(val, name=var)
-            units = getattr(dataspecs[var], 'units', 'data')
-            glyph_val = {'field' : var, 'units' : units}
+            glyph_val = {'field' : var}
         else:
             raise RuntimeError("Unexpected column type: %s" % type(val))
         glyph_params[var] = glyph_val

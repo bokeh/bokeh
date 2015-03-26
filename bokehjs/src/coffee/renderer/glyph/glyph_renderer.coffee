@@ -69,24 +69,19 @@ define [
         @request_render()
 
     render: () ->
-      @glyph._map_data()
+      @glyph.map_data()
 
-      @selection_glyph._map_data()
-      @nonselection_glyph._map_data()
+      @selection_glyph.map_data()
+      @nonselection_glyph.map_data()
 
-      # XXX: this ignores (non)selection glyphs
-      if @_mask_data? and not (@plot_view.x_range instanceof FactorRange.Model) \
-                      and not (@plot_view.y_range instanceof FactorRange.Model)
-        indices = @_mask_data()
-      else
-        indices = @all_indices
+      indices = @all_indices
 
       ctx = @plot_view.canvas_view.ctx
       ctx.save()
 
       do_render = (ctx, indices, glyph) =>
         if @have_new_data
-          glyph.update_data(@mget('data_source'))
+          glyph.set_data(@mget('data_source'))
         glyph.render(ctx, indices)
 
       selection = @mget('data_source').get('selected')
@@ -123,14 +118,8 @@ define [
       @have_new_data = false
       ctx.restore()
 
-    xrange: () ->
-      return @plot_view.x_range
-
-    yrange: () ->
-      return @plot_view.y_range
-
-    map_to_screen: (x, x_units, y, y_units) ->
-      @plot_view.map_to_screen(x, x_units, y, y_units, @mget("x_range_name"), @mget("y_range_name"))
+    map_to_screen: (x, y) ->
+      @plot_view.map_to_screen(x, y, @mget("x_range_name"), @mget("y_range_name"))
 
     draw_legend: (ctx, x0, x1, y0, y1) ->
       @glyph.draw_legend(ctx, x0, x1, y0, y1)

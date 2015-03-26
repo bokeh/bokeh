@@ -1,40 +1,33 @@
 define [
   "underscore"
   "rbush"
-  "renderer/properties"
   "./glyph"
-], (_, rbush, Properties, Glyph) ->
+], (_, rbush, Glyph) ->
 
   class QuadView extends Glyph.View
 
-    _fields: ['right', 'left', 'bottom', 'top']
-    _properties: ['line', 'fill']
-
-    _set_data: () ->
-      @index = rbush()
+    _index_data: () ->
+      index = rbush()
       pts = []
       for i in [0...@left.length]
         if not isNaN(@left[i] + @right[i] + @top[i] + @bottom[i])
           pts.push([@left[i], @bottom[i], @right[i], @top[i], {'i': i}])
-      @index.load(pts)
+      index.load(pts)
+      return index
 
-    _map_data: () ->
-      [@sx0, @sy0] = @renderer.map_to_screen(@left,  @glyph.left.units,  @top,    @glyph.top.units)
-      [@sx1, @sy1] = @renderer.map_to_screen(@right, @glyph.right.units, @bottom, @glyph.bottom.units)
-
-    _render: (ctx, indices, sx0=@sx0, sx1=@sx1, sy0=@sy0, sy1=@sy1) ->
+    _render: (ctx, indices, sleft=@sleft, sright=@sright, stop=@stop, sbottom=@sbottom) ->
       for i in indices
-        if isNaN(sx0[i] + sy0[i] + sx1[i] + sy1[i])
+        if isNaN(sleft[i] + stop[i] + sright[i] + sbottom[i])
           continue
 
-        if @props.fill.do_fill
-          @props.fill.set_vectorize(ctx, i)
-          ctx.fillRect(sx0[i], sy0[i], sx1[i]-sx0[i], sy1[i]-sy0[i])
+        if @visuals.fill.do_fill
+          @visuals.fill.set_vectorize(ctx, i)
+          ctx.fillRect(sleft[i], stop[i], sright[i]-sleft[i], sbottom[i]-stop[i])
 
-        if @props.line.do_stroke
+        if @visuals.line.do_stroke
           ctx.beginPath()
-          ctx.rect(sx0[i], sy0[i], sx1[i]-sx0[i], sy1[i]-sy0[i])
-          @props.line.set_vectorize(ctx, i)
+          ctx.rect(sleft[i], stop[i], sright[i]-sleft[i], sbottom[i]-stop[i])
+          @visuals.line.set_vectorize(ctx, i)
           ctx.stroke()
 
     _hit_point: (geometry) ->
@@ -43,8 +36,8 @@ define [
       sy = @renderer.plot_view.canvas.vy_to_sy(vy)
 
       hits = []
-      for i in [0...@sx0.length]
-        if sx >= @sx0[i] and sx <= @sx1[i] and sy >= @sy0[i] and sy < @sy1[i]
+      for i in [0...@sleft.length]
+        if sx >= @sleft[i] and sx <= @sright[i] and sy >= @stop[i] and sy < @sbottom[i]
           hits.push(i)
       return hits
 
@@ -54,9 +47,7 @@ define [
   class Quad extends Glyph.Model
     default_view: QuadView
     type: 'Quad'
-
-    display_defaults: ->
-      return _.extend {}, super(), @line_defaults, @fill_defaults
+    coords: [ ['right', 'bottom'], ['left', 'top'] ]
 
   class Quads extends Glyph.Collection
     model: Quad

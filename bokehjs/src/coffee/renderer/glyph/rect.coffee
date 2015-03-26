@@ -1,20 +1,26 @@
 define [
   "underscore"
-  "rbush"
-  "renderer/properties"
   "./glyph"
-], (_, rbush, Properties, Glyph) ->
+], (_, Glyph) ->
 
   class RectView extends Glyph.View
 
-    _fields: ['x', 'y', 'width', 'height', 'angle']
-    _properties: ['line', 'fill']
+   _set_data: () ->
+      @max_w2 = 0
+      if @distances.width.units == "data"
+        @max_w2 = @max_width/2
+      @max_h2 = 0
+      if @distances.height.units == "data"
+        @max_h2 = @max_height/2
+
+    _index_data: () ->
+      @_xy_index()
 
     _map_data: () ->
-      [sxi, syi] = @renderer.map_to_screen(@x, @glyph.x.units, @y, @glyph.y.units)
+      [sxi, syi] = @renderer.map_to_screen(@x, @y)
 
-      @sw = @distance_vector('x', 'width', 'center', @mget('dilate'))
-      @sh = @distance_vector('y', 'height', 'center', @mget('dilate'))
+      @sw = @sdist(@renderer.xmapper, @x, @width, 'center', @mget('dilate'))
+      @sh = @sdist(@renderer.ymapper, @y, @height, 'center', @mget('dilate'))
       @sx = new Array(sxi.length)
       @sy = new Array(sxi.length)
       for i in [0...sxi.length]
@@ -26,26 +32,15 @@ define [
           @sy[i] = Math.round(syi[i])
         else
           @sy[i] = syi[i]
-      @max_width = _.max(@width)
-      @max_height = _.max(@height)
-
-    _set_data: () ->
-      @max_w2 = 0
-      if @glyph.width.units != "screen"
-        @max_w2 = _.max(@width)/2
-      @max_h2 = 0
-      if @glyph.height.units != "screen"
-        @max_h2 = _.max(@height)/2
-      @_xy_index()
 
     _render: (ctx, indices, sx=@sx, sy=@sy, sw=@sw, sh=@sh) ->
-      if @props.fill.do_fill
+      if @visuals.fill.do_fill
         for i in indices
           if isNaN(sx[i] + sy[i] + sw[i] + sh[i] + @angle[i])
             continue
 
           #no need to test the return value, we call fillRect for every glyph anyway
-          @props.fill.set_vectorize(ctx, i)
+          @visuals.fill.set_vectorize(ctx, i)
 
           if @angle[i]
             ctx.translate(sx[i], sy[i])
@@ -56,7 +51,7 @@ define [
           else
             ctx.fillRect(sx[i]-sw[i]/2, sy[i]-sh[i]/2, sw[i], sh[i])
 
-      if @props.line.do_stroke
+      if @visuals.line.do_stroke
         ctx.beginPath()
 
         for i in indices
@@ -79,7 +74,7 @@ define [
           else
             ctx.rect(sx[i]-sw[i]/2, sy[i]-sh[i]/2, sw[i], sh[i])
 
-          @props.line.set_vectorize(ctx, i)
+          @visuals.line.set_vectorize(ctx, i)
           ctx.stroke()
           ctx.beginPath()
 
@@ -160,19 +155,20 @@ define [
     draw_legend: (ctx, x0, x1, y0, y1) ->
       @_generic_area_legend(ctx, x0, x1, y0, y1)
 
-    bounds: () ->
-      bb = @index.data.bbox
+    _bounds: (bds) ->
       return [
-        [bb[0]-@max_w2, bb[2]+@max_w2],
-        [bb[1]-@max_h2, bb[3]+@max_h2]
+        [bds[0][0]-@max_w2, bds[0][1]+@max_w2],
+        [bds[1][1]-@max_h2, bds[1][1]+@max_h2]
       ]
 
   class Rect extends Glyph.Model
     default_view: RectView
     type: 'Rect'
+    distances: ['width', 'height']
+    angles: ['angle']
 
     display_defaults: ->
-      return _.extend {}, super(), @line_defaults, @fill_defaults, {
+      return _.extend {}, super(), {
         angle: 0.0
         dilate: false
       }

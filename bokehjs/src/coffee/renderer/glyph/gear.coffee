@@ -1,18 +1,14 @@
 define [
   "underscore"
   "gear_utils"
-  "renderer/properties"
   "util/bezier"
   "./glyph"
-], (_, GearUtils, Properties, Bezier, Glyph) ->
+], (_, GearUtils, Bezier, Glyph) ->
 
   class GearView extends Glyph.View
 
-    _fields: ['x', 'y', 'angle', 'module', 'teeth', 'pressure_angle', 'shaft_size', 'internal:boolean']
-    _properties: ['line', 'fill']
-
     _map_data: () ->
-      [@sx, @sy] = @renderer.map_to_screen(@x, @glyph.x.units, @y, @glyph.y.units)
+      [@sx, @sy] = @renderer.map_to_screen(@x, @y)
       @smodule = @distance_vector('x', 'module', 'edge')
 
     _render: (ctx, indices) ->
@@ -59,12 +55,12 @@ define [
           ctx.moveTo(shaft_radius, 0)
           ctx.arc(0, 0, shaft_radius, 0, 2*Math.PI, true)
 
-        if @props.fill.do_fill
-          @props.fill.set_vectorize(ctx, i)
+        if @visuals.fill.do_fill
+          @visuals.fill.set_vectorize(ctx, i)
           ctx.fill()
 
-        if @props.line.do_stroke
-          @props.line.set_vectorize(ctx, i)
+        if @visuals.line.do_stroke
+          @visuals.line.set_vectorize(ctx, i)
           ctx.stroke()
 
         ctx.restore()
@@ -121,21 +117,16 @@ define [
   class Gear extends Glyph.Model
     default_view: GearView
     type: 'Gear'
+    distances: ['module']
+    angles: ['pressure_angle']
+    fields: ['angle', 'internal:boolean', 'shaft_size', 'teeth']
 
     defaults: ->
       return _.extend {}, super(), {
-        x: undefined
-        y: undefined
         angle: 0
-        module: undefined
-        teeth: undefined
         pressure_angle: 20   # TODO: units: deg
         shaft_size: 0.3
-        internal: false
       }
-
-    display_defaults: ->
-      return _.extend {}, super(), @line_defaults, @fill_defaults
 
   class Gears extends Glyph.Collection
     model: Gear

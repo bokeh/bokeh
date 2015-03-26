@@ -1,13 +1,9 @@
 define [
   "underscore"
-  "renderer/properties"
   "./glyph"
-], (_, Properties, Glyph) ->
+], (_, Glyph) ->
 
   class ImageURLView extends Glyph.View
-
-    _fields: ['url:string', 'x', 'y', 'w', 'h', 'angle']
-    _properties: []
 
     _set_data: () ->
       @image = (null for img in @url)
@@ -16,7 +12,7 @@ define [
       @_xy_index()
 
     _map_data: () ->
-      [@sx, @sy] = @renderer.map_to_screen(@x, @glyph.x.units, @y, @glyph.y.units)
+      [@sx, @sy] = @renderer.map_to_screen(@x, @y)
       @sw = @distance_vector('x', 'w', 'edge', @mget('dilate'))
       @sh = @distance_vector('y', 'h', 'edge', @mget('dilate'))
 
@@ -81,6 +77,10 @@ define [
   class ImageURL extends Glyph.Model
     default_view: ImageURLView
     type: 'ImageURL'
+    visuals: []
+    distances: ['w', 'h']
+    angles: ['angle']
+    fields: ['url:string']
 
     defaults: ->
       return _.extend {}, super(), {

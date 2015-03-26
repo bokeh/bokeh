@@ -1,25 +1,11 @@
 define [
   "underscore"
-  "renderer/properties"
   "mapper/linear_color_mapper"
   "./glyph"
-], (_, Properties, LinearColorMapper, Glyph) ->
+], (_, LinearColorMapper, Glyph) ->
 
 
   class ImageView extends Glyph.View
-
-    _properties: []
-
-    initialize: (options) ->
-      # the point of this is to support both efficient ArrayBuffers as well as dumb
-      # arrays of arrays that the python interface currently uses. If the model
-      # contains "rows" then it is assumed to be an ArrayBuffer with explicitly
-      # provided number of rows/cols, otherwise treat as a "list of lists".
-      if @mget("rows")?
-        @_fields = ['image:array', 'rows', 'cols', 'x', 'y', 'dw', 'dh', 'palette:string']
-      else
-        @_fields = ['image:array', 'x', 'y', 'dw', 'dh', 'palette:string']
-      super(options)
 
     _set_data: () ->
       if not @image_data? or @image_data.length != @image.length
@@ -63,7 +49,7 @@ define [
         @_xy_index()
 
     _map_data: () ->
-      [@sx, @sy] = @renderer.map_to_screen(@x, @glyph.x.units, @y, @glyph.y.units)
+      [@sx, @sy] = @renderer.map_to_screen(@x, @y)
       @sw = @distance_vector('x', 'dw', 'edge', @mget('dilate'))
       @sh = @distance_vector('y', 'dh', 'edge', @mget('dilate'))
 
@@ -99,6 +85,9 @@ define [
   class Image extends Glyph.Model
     default_view: ImageView
     type: 'Image'
+    visuals: []
+    distances: ['dw', 'dh']
+    fields: ['image:array', 'rows', 'cols', 'palette:string']
 
     display_defaults: ->
       return _.extend {}, super(), {

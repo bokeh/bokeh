@@ -16,23 +16,19 @@ output_file("glyphs.html", title="glyphs.py example")
 vbox = VBox()
 
 p = figure(title="annular_wedge")
-p.annular_wedge(x, y, 10, 20, 0.6, 4.1, color="#8888ee",
-    inner_radius_units="screen", outer_radius_units="screen")
+p.annular_wedge(x, y, 10, 20, 0.6, 4.1, color="#8888ee")
 vbox.children.append(p)
 
 p = figure(title="annular_wedge")
-p.annulus(x, y, 10, 20, color="#7FC97F",
-    inner_radius_units="screen", outer_radius_units = "screen")
+p.annulus(x, y, 10, 20, color="#7FC97F")
 vbox.children.append(p)
 
 p = figure(title="arc")
-p.arc(x, y, 20, 0.6, 4.1,
-    radius_units="screen", color="#BEAED4", line_width=3)
+p.arc(x, y, 20, 0.6, 4.1, color="#BEAED4", line_width=3)
 vbox.children.append(p)
 
 p = figure(title="bezier")
-p.bezier(x, y, x+0.2, y, x+0.1, y+0.1, x-0.1, y-0.1,
-    color="#D95F02", line_width=2)
+p.bezier(x, y, x+0.2, y, x+0.1, y+0.1, x-0.1, y-0.1, color="#D95F02", line_width=2)
 vbox.children.append(p)
 
 p = figure(title="circle")
@@ -74,8 +70,7 @@ p.ray(x, y, 45, -0.7, color="#FB8072", line_width=2)
 vbox.children.append(p)
 
 p = figure(title="rect")
-p.rect(x, y, 10, 20, color="#CAB2D6",
-    width_units="screen", height_units="screen")
+p.rect(x, y, 10, 20, color="#CAB2D6", width_units="screen", height_units="screen")
 vbox.children.append(p)
 
 p = figure(title="segment")
