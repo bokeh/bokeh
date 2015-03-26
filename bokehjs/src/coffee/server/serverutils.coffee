@@ -7,8 +7,6 @@ load_models = require "../common/load_models"
 {logger} = require "../common/logging"
 HasProperties = require "../common/has_properties"
 
-logger = Logging.logger
-
 #not proud of this refactor... but we can make it better later
 Deferreds = {}
 Promises = {}

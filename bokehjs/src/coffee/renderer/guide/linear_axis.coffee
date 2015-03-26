@@ -1,8 +1,8 @@
 _ = require "underscore"
 Collection = require "../../common/collection"
-BasicTicker = req "../../ticking/basic_ticker"
+BasicTicker = require "../../ticking/basic_ticker"
 BasicTickFormatter = require "../../ticking/basic_tick_formatter"
-Axis = "./axis"
+Axis = require "./axis"
 
 class LinearAxisView extends Axis.View
 

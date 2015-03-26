@@ -17,3 +17,5 @@ class PlotWidget extends ContinuumView
 
   request_render: () ->
     @plot_view.request_render()
+
+  module.exports = PlotWidget

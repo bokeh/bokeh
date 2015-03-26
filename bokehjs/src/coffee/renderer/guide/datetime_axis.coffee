@@ -1,7 +1,7 @@
 Collection = require "../../common/collection"
 DatetimeTicker = require "../../ticking/datetime_ticker"
-DatetimeTickFormatter = require "../../ticking/datetime_tick_formatter",
-Axis = require "./axis",
+DatetimeTickFormatter = require "../../ticking/datetime_tick_formatter"
+Axis = require "./axis"
 
 class DatetimeAxisView extends Axis.View
 

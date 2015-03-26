@@ -4,11 +4,10 @@ base = require "../common/base"
 HasProperties = require "../common/has_properties"
 load_models = require "../common/load_models"
 {logger} = require "../common/logging"
-serverutils.coffee = require "./serverutils"
+serverutils = require "./serverutils"
 usercontext = require "./usercontext/usercontext"
 
 {index} = base
-logger = Logging.logger
 
 reload = () ->
   Config = require("../common/base").Config

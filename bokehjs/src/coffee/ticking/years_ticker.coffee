@@ -39,6 +39,6 @@ class YearsTicker extends SingleIntervalTicker.Model
 class YearsTickers extends Collection
   model: YearsTicker
 
-modules.export =
+module.exports =
   Model: YearsTicker
   Collection: new YearsTickers()
