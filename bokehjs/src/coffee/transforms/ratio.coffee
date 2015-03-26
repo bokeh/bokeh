@@ -1,15 +1,12 @@
-define [
-  "common/collection",
-  "./transform",
-], (Collection, Transform) ->
+Collection = require "../common/collection"
+Transform = require "./transform"
 
-  class Ratio extends Transform
-    type: "Ratio"
+class Ratio extends Transform
+  type: "Ratio"
 
-  class Ratios extends Collection
-    model: Ratio
+class Ratios extends Collection
+  model: Ratio
 
-  return {
-    Model: Ratio
-    Collection: new Ratios()
-  }
+module.exports =
+  Model: Ratio
+  Collection: new Ratios()

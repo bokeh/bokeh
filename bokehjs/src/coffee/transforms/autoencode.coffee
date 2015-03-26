@@ -1,15 +1,12 @@
-define [
-  "common/collection",
-  "./transform",
-], (Collection, Transform) ->
+Collection = require "../common/collection"
+Transform = require "./transform"
 
-  class AutoEncode extends Transform
-    type: "AutoEncode"
+class AutoEncode extends Transform
+  type: "AutoEncode"
 
-  class AutoEncodes extends Collection
-    model: AutoEncode
+class AutoEncodes extends Collection
+  model: AutoEncode
 
-  return {
-    Model: AutoEncode
-    Collection: new AutoEncodes()
-  }
+module.exports =
+  Model: AutoEncode
+  Collection: new AutoEncodes()

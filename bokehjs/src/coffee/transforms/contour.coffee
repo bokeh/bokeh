@@ -1,15 +1,12 @@
-define [
-  "common/collection",
-  "./transform",
-], (Collection, Transform) ->
+Collection = require "../common/collection"
+Transform = require "./transform"
 
-  class Contour extends Transform
-    type: "Contour"
+class Contour extends Transform
+  type: "Contour"
 
-  class Contours extends Collection
-    model: Contour
+class Contours extends Collection
+  model: Contour
 
-  return {
-    Model: Contour
-    Collection: new Contours()
-  }
+module.exports =
+  Model: Contour
+  Collection: new Contours()
