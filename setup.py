@@ -219,6 +219,12 @@ ERROR: 'grunt deploy' returned error message:
 %s
 """
 
+BUILD_SIZE_FAIL_MSG = """
+ERROR: could not determine sizes:
+
+    %s
+"""
+
 def build_js():
     print("Building BokehJS... ", end="")
     sys.stdout.flush()
@@ -256,8 +262,7 @@ def build_js():
         print("  - bokeh.min.js  : %0.1f KB" % bkjs_min_size)
         print("  - bokeh.min.css : %0.1f KB" % bkcss_min_size)
     except Exception as e:
-        print()
-        print("WARNING: could not determine sizes")
+        print(BUILD_SIZE_FAIL_MSG % e)
 
 def install_js():
     target_jsdir = join(SERVER, 'static', 'js')
