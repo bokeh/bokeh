@@ -2,7 +2,7 @@ _ = require "underscore"
 Collection = require "./collection"
 {Var, Expr, Constraint, EQ, LE, GE} = "kiwi"
 HasProperties = require "./has_properties"
-Range1d = require "range/range1d"
+Range1d = require "../range/range1d"
 
 Var = kiwi.Variable
 Expr = kiwi.Expression

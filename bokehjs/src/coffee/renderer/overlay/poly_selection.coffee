@@ -1,8 +1,8 @@
 _ = require "underscore"
-Collection = require "common/collection"
-HasParent = require "common/has_parent"
-PlotWidget = require "common/plot_widget"
-properties = require "renderer/properties"
+Collection = require "../../common/collection"
+HasParent = require "../../common/has_parent"
+PlotWidget = require "../../common/plot_widget"
+properties = require "../properties"
 
 class PolySelectionView extends PlotWidget
 

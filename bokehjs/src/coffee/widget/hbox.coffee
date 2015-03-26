@@ -1,7 +1,7 @@
-build_views = require "common/build_views"
-Collection = require "common/collection"
-ContinuumView = require "common/continuum_view"
-HasParent = require "common/has_parent"
+build_views = require "../common/build_views"
+Collection = require "../common/collection"
+ContinuumView = require "../common/continuum_view"
+HasParent = require "../common/has_parent"
 
 class HBoxView extends ContinuumView
   tag: "div"

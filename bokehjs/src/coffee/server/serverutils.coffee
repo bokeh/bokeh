@@ -5,7 +5,7 @@ base = require "../common/base"
 {WebSocketWrapper, submodels}= require "../common/socket"
 load_models = require "../common/load_models"
 {logger} = require "../common/logging"
-HasProperties = require "common/has_properties"
+HasProperties = require "../common/has_properties"
 
 logger = Logging.logger
 
@@ -34,7 +34,7 @@ utility =
     HasProperties.prototype.sync = Backbone.sync
     resp = utility.make_websocket()
     resp = resp.then(() ->
-      Config = require("common/base").Config
+      Config = require("../common/base").Config
       url = "#{Config.prefix}bokeh/objinfo/#{docid}/#{objid}"
       logger.debug("load one object chain: #{url}")
       resp = $.get(url)
@@ -55,7 +55,7 @@ utility =
     return response
 
   load_doc_by_title: (title) ->
-    Config = require("common/base").Config
+    Config = require("../common/base").Config
 
     response = $.get(Config.prefix + "bokeh/doc", {title : title})
       .done((data) ->
@@ -77,7 +77,7 @@ utility =
   load_doc: (docid) ->
     resp = utility.make_websocket()
     resp = resp.then(() ->
-      Config = require("common/base").Config
+      Config = require("../common/base").Config
       return $.get(Config.prefix + "bokeh/bokehinfo/#{docid}/", {})
     )
     resp.done((data) ->
@@ -92,11 +92,11 @@ utility =
     if exports.wswrapper?
       return exports._wswrapper_deferred
     else
-      Config = require("common/base").Config
+      Config = require("../common/base").Config
       exports._wswrapper_deferred = $.get(Config.prefix + "bokeh/wsurl/")
       resp = exports._wswrapper_deferred
       resp.done((data) ->
-        Config = require("common/base").Config
+        Config = require("../common/base").Config
         configure_server(data, null)
         wswrapper = new WebSocketWrapper(Config.ws_conn_string)
         exports.wswrapper = wswrapper
@@ -105,7 +105,7 @@ utility =
 
 
   render_plots: (plot_context_ref, viewclass=null, viewoptions={}) ->
-    Collections = require("common/base").Collections
+    Collections = require("../common/base").Collections
     plotcontext = Collections(plot_context_ref.type).get(plot_context_ref.id)
     if not viewclass
       viewclass = plotcontext.default_view
@@ -139,7 +139,7 @@ configure_server = (ws_conn_string, prefix) ->
   ## if you only want to set ws_conn_string, pass null for prefix
   ## if you only want to set prefix, pass null for ws_conn_string
 
-  Config = require("common/base").Config
+  Config = require("../common/base").Config
   if ws_conn_string
     Config.ws_conn_string = ws_conn_string
     logger.debug("setting ws_conn_string to: #{Config.ws_conn_string}")

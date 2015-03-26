@@ -1,8 +1,8 @@
 _ = require "underscore"
- Collection = require "../common/collection"
+Collection = require "../common/collection"
 HasProperties = require "../common/has_properties"
 {logger} = require "../common/logging"
-BasicTickFormatter = require "ticking/basic_tick_formatter"
+BasicTickFormatter = require "./basic_tick_formatter"
 
 class LogTickFormatter extends HasProperties
   type: 'LogTickFormatter'

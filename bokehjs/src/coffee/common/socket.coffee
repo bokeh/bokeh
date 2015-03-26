@@ -3,7 +3,7 @@ _ = require "underscore"
 Backbone = require "backbone"
 {Config} = require "./base"
 load_models = require "./load_models"
-{logger} = require "common/logging"
+{logger} = require "./logging"
 
 class WebSocketWrapper
   _.extend(@prototype, Backbone.Events)

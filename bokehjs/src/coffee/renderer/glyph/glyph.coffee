@@ -1,11 +1,11 @@
 _ = require "underscore"
 rbush = require "rbush"
-bbox = require "common/bbox"
-{logger} = require "common/logging"
-HasParent = require "common/has_parent"
-Collection = require "common/collection"
-ContinuumView = require "common/continuum_view"
-properties = require "common/properties"
+bbox = require "../common/bbox"
+{logger} = require "../common/logging"
+HasParent = require "../common/has_parent"
+Collection = require "../common/collection"
+ContinuumView = require "../common/continuum_view"
+properties = require "../common/properties"
 
 class GlyphView extends ContinuumView
 

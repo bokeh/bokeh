@@ -1,6 +1,6 @@
 _ = require "underscore"
-Collection = require "common/collection"
-HasProperties = require "common/has_properties"
+Collection = require "../common/collection"
+HasProperties = require "../common/has_properties"
 
 class BasicTickFormatter extends HasProperties
   type: 'BasicTickFormatter'
@@ -25,13 +25,15 @@ class BasicTickFormatter extends HasProperties
 
     zero_eps = 0
     if ticks.length >= 2
-      zero_eps = Math.abs(ticks[1] - ticks[0]) / 10000;
+      zero_eps = Math.abs(ticks[1] - ticks[0]) / 10000
 
-    need_sci = false;
+    need_sci = false
     if @get('use_scientific')
       for tick in ticks
         tick_abs = Math.abs(tick)
-        if tick_abs > zero_eps and (tick_abs >= @get('scientific_limit_high') or tick_abs <= @get('scientific_limit_low'))
+        if (tick_abs > zero_eps and
+            (tick_abs >= @get('scientific_limit_high') or
+            tick_abs <= @get('scientific_limit_low')))
           need_sci = true
           break
 
@@ -44,7 +46,8 @@ class BasicTickFormatter extends HasProperties
           labels[i] = ticks[i].toExponential(precision or undefined)
       else
         for i in [0...ticks.length]
-          labels[i] = ticks[i].toFixed(precision or undefined).replace(/(\.[0-9]*?)0+$/, "$1").replace(/\.$/, "")
+          labels[i] = ticks[i].toFixed(precision or undefined).replace(
+            /(\.[0-9]*?)0+$/, "$1").replace(/\.$/, "")
       return labels
 
     else if precision == 'auto'
@@ -62,7 +65,8 @@ class BasicTickFormatter extends HasProperties
             break
         else
           for i in [0...ticks.length]
-            labels[i] = ticks[i].toFixed(x).replace(/(\.[0-9]*?)0+$/, "$1").replace(/\.$/, "")
+            labels[i] = ticks[i].toFixed(x).replace(
+              /(\.[0-9]*?)0+$/, "$1").replace(/\.$/, "")
             if i > 0
               if labels[i] == labels[i-1]
                 is_ok = false

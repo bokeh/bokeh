@@ -1,5 +1,5 @@
-Collection = require "common/collection"
-HasProperties = require "common/has_properties"
+Collection = require "../common/collection"
+HasProperties = require "../common/has_properties"
 
 class FactorRange extends HasProperties
   type: 'FactorRange'

@@ -2,10 +2,10 @@ _ = require "underscore"
 Collection = require "./collection"
 LayoutBox = require "./layout_box"
 {logging} = require "./logging"
-LinearMapper = require "mapper/linear_mapper"
-LogMapper = require "mapper/log_mapper"
-CategoricalMapper = require "mapper/categorical_mapper"
-GridMapper = require "mapper/grid_mapper"
+LinearMapper = require "../mapper/linear_mapper"
+LogMapper = require "../mapper/log_mapper"
+CategoricalMapper = require "../mapper/categorical_mapper"
+GridMapper = require "../mapper/grid_mapper"
 
 class CartesianFrame extends LayoutBox.Model
   type: 'CartesianFrame'

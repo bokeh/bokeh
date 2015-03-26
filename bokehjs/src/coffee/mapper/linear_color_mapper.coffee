@@ -1,6 +1,6 @@
 _ = require "underscore"
-Collection = require "common/collection"
-HasProperties = require "common/has_properties"
+Collection = require "../common/collection"
+HasProperties = require "../common/has_properties"
 
 class LinearColorMapper extends HasProperties
 

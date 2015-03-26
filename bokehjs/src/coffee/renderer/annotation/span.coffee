@@ -1,8 +1,8 @@
 _ = require "underscore"
-HasParent = require "common/has_parent"
-PlotWidget = require "common/plot_widget"
-Collection = require "common/collection"
-{logger} = require "common/logging"
+HasParent = require "../../common/has_parent"
+PlotWidget = require "../../common/plot_widget"
+Collection = require "../../common/collection"
+{logger} = require "../../common/logging"
 
 class SpanView extends PlotWidget
 

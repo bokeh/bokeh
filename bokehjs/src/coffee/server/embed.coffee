@@ -1,9 +1,9 @@
 $ = require "jquery"
 _ = require "underscore"
-base = require "../../common/base"
-HasProperties = require "../../common/has_properties"
-load_models = require "../../common/load_models"
-{logger} = require "../../common/logging"
+base = require "../common/base"
+HasProperties = require "../common/has_properties"
+load_models = require "../common/load_models"
+{logger} = require "../common/logging"
 serverutils.coffee = require "./serverutils"
 usercontext = require "./usercontext/usercontext"
 
@@ -11,7 +11,7 @@ usercontext = require "./usercontext/usercontext"
 logger = Logging.logger
 
 reload = () ->
-  Config = require("common/base").Config
+  Config = require("../common/base").Config
   ping_url = "#{Config.prefix}bokeh/ping"
   $.get(ping_url).success(() ->
     logger.info('reloading')

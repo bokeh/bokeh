@@ -1,6 +1,6 @@
 _ = require "underscore"
 Glyph = require "./glyph"
-hittest = require "common/hittest"
+hittest = require "../common/hittest"
 
 class CircleView extends Glyph.View
 

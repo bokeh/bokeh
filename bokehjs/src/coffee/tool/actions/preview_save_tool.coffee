@@ -2,7 +2,7 @@ _ = require "underscore"
 $ = require "jquery"
 $1 = require "bootstrap/modal"
 Collection = require "../../common/collection"
-ActionTool = require "../action_tool"
+ActionTool = require "./action_tool"
 preview_save_tool_template = require "./preview_save_tool_template"
 
 class PreviewSaveToolView extends ActionTool.View

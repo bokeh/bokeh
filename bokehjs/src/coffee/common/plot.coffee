@@ -14,7 +14,7 @@ plot_utils = require "./plot_utils"
 Solver = require "./solver"
 ToolManager = require "./tool_manager"
 plot_template = require "./plot_template"
-properties = require "renderer/properties"
+properties = require "../renderer/properties"
 
 {Expr, Constraint, EQ, LE, GE} = kiwi
 

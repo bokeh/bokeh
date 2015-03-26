@@ -1,8 +1,8 @@
 _ = require "underscore"
-HasParent = require "../common/has_parent"
-PlotWidget = require "../common/plot_widget"
-Collection = require "../common/collection"
-textutils = require "../common/textutils"
+HasParent = require "../../common/has_parent"
+PlotWidget = require "../../common/plot_widget"
+Collection = require "../../common/collection"
+textutils = require "../../common/textutils"
 properties = require "../properties"
 
 # Legends:

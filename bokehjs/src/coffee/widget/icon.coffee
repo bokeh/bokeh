@@ -1,7 +1,7 @@
 _ = require "underscore"
-Collection = require "common/collection"
-ContinuumView = require "common/continuum_view"
-HasParent = require "common/has_parent"
+Collection = require "../common/collection"
+ContinuumView = require "../common/continuum_view"
+HasParent = require "../common/has_parent"
 
 class IconView extends ContinuumView
   tagName: "i"
@@ -24,7 +24,7 @@ class IconView extends ContinuumView
     if flip? then @$el.addClass("bk-fa-flip-" + flip)
 
     if @mget("spin")
-        @$el.addClass("bk-fa-spin")
+      @$el.addClass("bk-fa-spin")
 
     return @
 

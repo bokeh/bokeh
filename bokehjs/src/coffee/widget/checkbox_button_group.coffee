@@ -1,9 +1,9 @@
 _ = require "underscore"
 $ = require "jquery"
 $1 = require "bootstrap/button"
-Collection = require "common/collection"
-ContinuumView = require "common/continuum_view"
-HasParent = require "common/has_parent"
+Collection = require "../common/collection"
+ContinuumView = require "../common/continuum_view"
+HasParent = require "../common/has_parent"
 
 class CheckboxButtonGroupView extends ContinuumView
   tagName: "div"
