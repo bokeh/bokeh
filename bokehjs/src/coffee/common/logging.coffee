@@ -1,4 +1,4 @@
-JL = require "jsnlog"
+{JL} = require "jsnlog"
 
 logger = JL("Bokeh")
 logger.setOptions({

@@ -130,5 +130,5 @@ require("./api/plugin")
 
 # Here for backwards capability?
 Bokeh.Bokeh = Bokeh
-
+window.Bokeh = Bokeh
 module.exports = Bokeh
