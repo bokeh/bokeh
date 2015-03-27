@@ -1,30 +1,30 @@
-define [
-  "jquery_ui/autocomplete"
-  "common/collection"
-  "./text_input"
-], ($1, Collection, TextInput) ->
+_ = require "underscore"
+$1 = require "jquery-ui/autocomplete"
+Collection = require "../common/collection"
+TextInput = require "./text_input"
 
-  class AutocompleteInputView extends TextInput.View
-    render: () ->
-      super()
-      $input = @$el.find("input")
-      $input.autocomplete(source: @mget("completions"))
-      $input.autocomplete("widget").addClass("bk-autocomplete-input")
+class AutocompleteInputView extends TextInput.View
 
-  class AutocompleteInput extends TextInput.Model
-    type: "AutocompleteInput"
-    default_view: AutocompleteInputView
+  render: () ->
+    super()
+    $input = @$el.find("input")
+    $input.autocomplete(source: @mget("completions"))
+    $input.autocomplete("widget").addClass("bk-autocomplete-input")
+    return @
 
-    defaults: ->
-      return _.extend {}, super(), {
-        completions: []
-      }
+class AutocompleteInput extends TextInput.Model
+  type: "AutocompleteInput"
+  default_view: AutocompleteInputView
 
-  class AutocompleteInputs extends Collection
-    model: AutocompleteInput
+  defaults: () ->
+    return _.extend {}, super(), {
+      completions: []
+    }
 
-  return {
-    View: AutocompleteInputView
-    Model: AutocompleteInput
-    Collection: new AutocompleteInputs()
-  }
+class AutocompleteInputs extends Collection
+  model: AutocompleteInput
+
+module.exports =
+  View: AutocompleteInputView
+  Model: AutocompleteInput
+  Collection: new AutocompleteInputs()

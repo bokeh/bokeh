@@ -1,30 +1,26 @@
+_ = require "underscore"
+Collection = require "../../common/collection"
+LogTicker = require "../../ticking/log_ticker"
+LogTickFormatter = require "../../ticking/log_tick_formatter"
+Axis = require "./axis"
 
-define [
-  "underscore",
-  "common/collection",
-  "./axis"
-  "ticking/log_ticker",
-  "ticking/log_tick_formatter",
-], (_, Collection, Axis, LogTicker, LogTickFormatter) ->
+class LogAxisView extends Axis.View
 
-  class LogAxisView extends Axis.View
+class LogAxis extends Axis.Model
+  default_view: LogAxisView
+  type: 'LogAxis'
 
-  class LogAxis extends Axis.Model
-    default_view: LogAxisView
-    type: 'LogAxis'
+  initialize: (attrs, objects) ->
+    super(attrs, objects)
+    if not @get('ticker')?
+      @set_obj('ticker', LogTicker.Collection.create())
+    if not @get('formatter')?
+      @set_obj('formatter', LogTickFormatter.Collection.create())
 
-    initialize: (attrs, objects) ->
-      super(attrs, objects)
-      if not @get('ticker')?
-        @set_obj('ticker', LogTicker.Collection.create())
-      if not @get('formatter')?
-        @set_obj('formatter', LogTickFormatter.Collection.create())
+class LogAxes extends Collection
+  model: LogAxis
 
-  class LogAxes extends Collection
-     model: LogAxis
-
-  return {
-    "Model": LogAxis,
-    "Collection": new LogAxes(),
-    "View": LogAxisView
-  }
+module.exports =
+  Model: LogAxis
+  Collection: new LogAxes()
+  View: LogAxisView

@@ -8,7 +8,6 @@
   define, window, process, Packages,
   java, location, Components, FileUtils */
 
-define(['module'], function (module) {
     'use strict';
 
     var text, fs, Cc, Ci, xpcIsWindows,
@@ -382,5 +381,4 @@ define(['module'], function (module) {
             }
         };
     }
-    return text;
-});
+    module.exports = text;

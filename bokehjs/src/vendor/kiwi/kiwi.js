@@ -2332,3 +2332,5 @@ var kiwi;
 /// <reference path="solver.ts"/>
 /// <reference path="strength.ts"/>
 /// <reference path="variable.ts"/>
+
+module.exports = kiwi

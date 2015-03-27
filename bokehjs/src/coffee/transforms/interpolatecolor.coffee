@@ -1,15 +1,12 @@
-define [
-  "common/collection",
-  "./transform",
-], (Collection, Transform) ->
+Collection = require "../common/collection"
+Transform = require "./transform"
 
-  class InterpolateColor extends Transform
-    type: "InterpolateColor"
+class InterpolateColor extends Transform
+  type: "InterpolateColor"
 
-  class InterpolateColors extends Collection
-    model: InterpolateColor
+class InterpolateColors extends Collection
+  model: InterpolateColor
 
-  return {
-    Model: InterpolateColor
-    Collection: new InterpolateColors()
-  }
+module.exports =
+  Model: InterpolateColor
+  Collection: new InterpolateColors()

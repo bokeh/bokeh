@@ -1,214 +1,206 @@
-define [
-  "./collection",
-  "kiwi",
-  "./canvas_template"
-  "./continuum_view",
-  "./layout_box"
-  "./logging"
-  "./solver",
-], (Collection, kiwi, canvas_template, ContinuumView, LayoutBox, Logging, Solver) ->
+_ = require "underscore"
+Collection = require "./collection"
+{Expression, Constraint, Operator} = require "kiwi"
+canvas_template = require "./canvas_template"
+ContinuumView = require "./continuum_view"
+LayoutBox = require "./layout_box"
+{logger} = require "./logging"
+Solver = require "./solver"
 
-  Expr = kiwi.Expression
-  Constraint = kiwi.Constraint
-  EQ = kiwi.Operator.Eq
+class CanvasView extends ContinuumView
+  className: "bk-canvas-wrapper"
+  template: canvas_template
 
-  logger = Logging.logger
+  initialize: (options) ->
+    super(options)
 
-  class CanvasView extends ContinuumView
-    className: "bk-canvas-wrapper"
-    template: canvas_template
+    template_data = {
+      map: @mget('map')
+    }
+    html = @template(template_data)
+    @$el.html(html)
 
-    initialize: (options) ->
-      super(options)
+    # for compat, to be removed
+    @canvas_wrapper = @$el
 
-      template_data = {
-        map: @mget('map')
-      }
-      html = @template(template_data)
-      @$el.html(html)
+    @canvas = @$('canvas.bk-canvas')
+    @canvas_events = @$('div.bk-canvas-events')
+    @canvas_overlay = @$('div.bk-canvas-overlays')
+    @map_div = @$('div.bk-canvas-map') ? null
 
-      # for compat, to be removed
-      @canvas_wrapper = @$el
+    logger.debug("CanvasView initialized")
 
-      @canvas = @$('canvas.bk-canvas')
-      @canvas_events = @$('div.bk-canvas-events')
-      @canvas_overlay = @$('div.bk-canvas-overlays')
-      @map_div = @$('div.bk-canvas-map') ? null
+  render: (force=false) ->
+    # normally we only want to render the canvas when the canvas itself
+    # should be configured with new bounds.
+    if not @model.new_bounds and not force
+      return
+    @ctx = @canvas[0].getContext('2d')
 
-      logger.debug("CanvasView initialized")
+    if @mget('use_hidpi')
+      devicePixelRatio = window.devicePixelRatio || 1
+      backingStoreRatio = @ctx.webkitBackingStorePixelRatio ||
+                          @ctx.mozBackingStorePixelRatio ||
+                          @ctx.msBackingStorePixelRatio ||
+                          @ctx.oBackingStorePixelRatio ||
+                          @ctx.backingStorePixelRatio || 1
+      ratio = devicePixelRatio / backingStoreRatio
+    else
+      ratio = 1
 
-    render: (force=false) ->
-      # normally we only want to render the canvas when the canvas itself
-      # should be configured with new bounds.
-      if not @model.new_bounds and not force
-        return
-      @ctx = @canvas[0].getContext('2d')
+    width = @mget('width')
+    height = @mget('height')
 
-      if @mget('use_hidpi')
-        devicePixelRatio = window.devicePixelRatio || 1
-        backingStoreRatio = @ctx.webkitBackingStorePixelRatio ||
-                            @ctx.mozBackingStorePixelRatio ||
-                            @ctx.msBackingStorePixelRatio ||
-                            @ctx.oBackingStorePixelRatio ||
-                            @ctx.backingStorePixelRatio || 1
-        ratio = devicePixelRatio / backingStoreRatio
-      else
-        ratio = 1
+    @$el.attr('style', "z-index: 50; width:#{width}px; height:#{height}px")
+    @canvas.attr('style', "width:#{width}px;height:#{height}px")
+    @canvas.attr('width', width*ratio).attr('height', height*ratio)
+    @$el.attr("width", width).attr('height', height)
 
-      width = @mget('width')
-      height = @mget('height')
+    @canvas_events.attr('style', "z-index:100; position:absolute; top:0; left:0; width:#{width}px; height:#{height}px;")
+    @canvas_overlay.attr('style', "z-index:75; position:absolute; top:0; left:0; width:#{width}px; height:#{height}px;")
 
-      @$el.attr('style', "z-index: 50; width:#{width}px; height:#{height}px")
-      @canvas.attr('style', "width:#{width}px;height:#{height}px")
-      @canvas.attr('width', width*ratio).attr('height', height*ratio)
-      @$el.attr("width", width).attr('height', height)
+    @ctx.scale(ratio, ratio)
+    @ctx.translate(0.5, 0.5)
 
-      @canvas_events.attr('style', "z-index:100; position:absolute; top:0; left:0; width:#{width}px; height:#{height}px;")
-      @canvas_overlay.attr('style', "z-index:75; position:absolute; top:0; left:0; width:#{width}px; height:#{height}px;")
+    # work around canvas incompatibilities
+    @_fixup_line_dash(@ctx)
+    @_fixup_line_dash_offset(@ctx)
+    @_fixup_image_smoothing(@ctx)
+    @_fixup_measure_text(@ctx)
 
-      @ctx.scale(ratio, ratio)
-      @ctx.translate(0.5, 0.5)
+    @model.new_bounds = false
 
-      # work around canvas incompatibilities
-      @_fixup_line_dash(@ctx)
-      @_fixup_line_dash_offset(@ctx)
-      @_fixup_image_smoothing(@ctx)
-      @_fixup_measure_text(@ctx)
+  _fixup_line_dash: (ctx) ->
+    if (!ctx.setLineDash)
+      ctx.setLineDash = (dash) ->
+        ctx.mozDash = dash
+        ctx.webkitLineDash = dash
+    if (!ctx.getLineDash)
+      ctx.getLineDash = () ->
+        return ctx.mozDash
 
-      @model.new_bounds = false
+  _fixup_line_dash_offset: (ctx) ->
+    ctx.setLineDashOffset = (dash_offset) ->
+      ctx.lineDashOffset = dash_offset
+      ctx.mozDashOffset = dash_offset
+      ctx.webkitLineDashOffset = dash_offset
+    ctx.getLineDashOffset = () ->
+      return ctx.mozDashOffset
 
-    _fixup_line_dash: (ctx) ->
-      if (!ctx.setLineDash)
-        ctx.setLineDash = (dash) ->
-          ctx.mozDash = dash
-          ctx.webkitLineDash = dash
-      if (!ctx.getLineDash)
-        ctx.getLineDash = () ->
-          return ctx.mozDash
+  _fixup_image_smoothing: (ctx) ->
+    ctx.setImageSmoothingEnabled = (value) ->
+      ctx.imageSmoothingEnabled = value;
+      ctx.mozImageSmoothingEnabled = value;
+      ctx.oImageSmoothingEnabled = value;
+      ctx.webkitImageSmoothingEnabled = value;
+    ctx.getImageSmoothingEnabled = () ->
+      return ctx.imageSmoothingEnabled ? true
 
-    _fixup_line_dash_offset: (ctx) ->
-      ctx.setLineDashOffset = (dash_offset) ->
-        ctx.lineDashOffset = dash_offset
-        ctx.mozDashOffset = dash_offset
-        ctx.webkitLineDashOffset = dash_offset
-      ctx.getLineDashOffset = () ->
-        return ctx.mozDashOffset
+  _fixup_measure_text: (ctx) ->
+    if ctx.measureText and not ctx.html5MeasureText?
+      ctx.html5MeasureText = ctx.measureText
 
-    _fixup_image_smoothing: (ctx) ->
-      ctx.setImageSmoothingEnabled = (value) ->
-        ctx.imageSmoothingEnabled = value;
-        ctx.mozImageSmoothingEnabled = value;
-        ctx.oImageSmoothingEnabled = value;
-        ctx.webkitImageSmoothingEnabled = value;
-      ctx.getImageSmoothingEnabled = () ->
-        return ctx.imageSmoothingEnabled ? true
+      ctx.measureText = (text) ->
+        textMetrics = ctx.html5MeasureText(text)
+        # fake it til you make it
+        textMetrics.ascent = ctx.html5MeasureText("m").width * 1.6
+        return textMetrics
 
-    _fixup_measure_text: (ctx) ->
-      if ctx.measureText and not ctx.html5MeasureText?
-        ctx.html5MeasureText = ctx.measureText
+class Canvas extends LayoutBox.Model
+  type: 'Canvas'
+  default_view: CanvasView
 
-        ctx.measureText = (text) ->
-          textMetrics = ctx.html5MeasureText(text)
-          # fake it til you make it
-          textMetrics.ascent = ctx.html5MeasureText("m").width * 1.6
-          return textMetrics
+  initialize: (attr, options) ->
+    solver = new Solver()
+    @set('solver', solver)
+    super(attr, options)
 
-  class Canvas extends LayoutBox.Model
-    type: 'Canvas'
-    default_view: CanvasView
+    @new_bounds = true
 
-    initialize: (attr, options) ->
-      solver = new Solver()
-      @set('solver', solver)
-      super(attr, options)
+    solver.add_constraint(new Constraint(new Expression(@_left), Operator.Eq))
+    solver.add_constraint(new Constraint(new Expression(@_bottom), Operator.Eq))
+    @_set_dims([@get('canvas_width'), @get('canvas_height')])
 
-      @new_bounds = true
+    logger.debug("Canvas initialized")
 
-      solver.add_constraint(new Constraint(new Expr(@_left), EQ))
-      solver.add_constraint(new Constraint(new Expr(@_bottom), EQ))
-      @_set_dims([@get('canvas_width'), @get('canvas_height')])
+  # transform view coordinates to underlying screen coordinates
+  vx_to_sx: (x) ->
+    return x
 
-      logger.debug("Canvas initialized")
+  vy_to_sy: (y) ->
+    # Note: +1 to account for 1px canvas dilation
+    return @get('height') - (y + 1)
 
-    # transform view coordinates to underlying screen coordinates
-    vx_to_sx: (x) ->
-      return x
+  # vectorized versions of vx_to_sx/vy_to_sy, these are mutating, in-place operations
+  v_vx_to_sx: (xx) ->
+    for x, idx in xx
+      xx[idx] = x
+    return xx
 
-    vy_to_sy: (y) ->
-      # Note: +1 to account for 1px canvas dilation
-      return @get('height') - (y + 1)
+  v_vy_to_sy: (yy) ->
+    canvas_height = @get('height')
+    # Note: +1 to account for 1px canvas dilation
+    for y, idx in yy
+      yy[idx] = canvas_height - (y + 1)
+    return yy
 
-    # vectorized versions of vx_to_sx/vy_to_sy, these are mutating, in-place operations
-    v_vx_to_sx: (xx) ->
-      for x, idx in xx
-        xx[idx] = x
-      return xx
+  # transform underlying screen coordinates to view coordinates
+  sx_to_vx: (x) ->
+    return x
 
-    v_vy_to_sy: (yy) ->
-      canvas_height = @get('height')
-      # Note: +1 to account for 1px canvas dilation
-      for y, idx in yy
-        yy[idx] = canvas_height - (y + 1)
-      return yy
+  sy_to_vy: (y) ->
+    # Note: +1 to account for 1px canvas dilation
+    return @get('height') - (y + 1)
 
-    # transform underlying screen coordinates to view coordinates
-    sx_to_vx: (x) ->
-      return x
+  # vectorized versions of sx_to_vx/sy_to_vy, these are mutating, in-place operations
+  v_sx_to_vx: (xx) ->
+    for x, idx in xx
+      xx[idx] = x
+    return xx
 
-    sy_to_vy: (y) ->
-      # Note: +1 to account for 1px canvas dilation
-      return @get('height') - (y + 1)
+  v_sy_to_vy: (yy) ->
+    canvas_height = @get('height')
+    # Note: +1 to account for 1px canvas dilation
+    for y, idx in yy
+      yy[idx] = canvas_height - (y + 1)
+    return yy
 
-    # vectorized versions of sx_to_vx/sy_to_vy, these are mutating, in-place operations
-    v_sx_to_vx: (xx) ->
-      for x, idx in xx
-        xx[idx] = x
-      return xx
+  _set_width: (width, update=true) ->
+    if @_width_constraint?
+      @solver.remove_constraint(@_width_constraint)
+    @_width_constraint = new Constraint(new Expression(@_width, -width), Operator.Eq)
+    @solver.add_constraint(@_width_constraint)
+    if update
+      @solver.update_variables()
+    @new_bounds = true
 
-    v_sy_to_vy: (yy) ->
-      canvas_height = @get('height')
-      # Note: +1 to account for 1px canvas dilation
-      for y, idx in yy
-        yy[idx] = canvas_height - (y + 1)
-      return yy
+  _set_height: (height, update=true) ->
+    if @_height_constraint?
+      @solver.remove_constraint(@_height_constraint)
+    @_height_constraint = new Constraint(new Expression(@_height, -height), Operator.Eq)
+    @solver.add_constraint(@_height_constraint)
+    if update
+      @solver.update_variables()
+    @new_bounds = true
 
-    _set_width: (width, update=true) ->
-      if @_width_constraint?
-        @solver.remove_constraint(@_width_constraint)
-      @_width_constraint = new Constraint(new Expr(@_width, -width), EQ)
-      @solver.add_constraint(@_width_constraint)
-      if update
-        @solver.update_variables()
-      @new_bounds = true
+  _set_dims: (dims, trigger=true) ->
+    @_set_width(dims[0], false)
+    @_set_height(dims[1], false)
+    @solver.update_variables(trigger)
 
-    _set_height: (height, update=true) ->
-      if @_height_constraint?
-        @solver.remove_constraint(@_height_constraint)
-      @_height_constraint = new Constraint(new Expr(@_height, -height), EQ)
-      @solver.add_constraint(@_height_constraint)
-      if update
-        @solver.update_variables()
-      @new_bounds = true
+  defaults: ->
+    return _.extend {}, super(), {
+      width: 300
+      height: 300
+      map: false
+      mousedown_callbacks: []
+      mousemove_callbacks: []
+      use_hidpi: true
+    }
 
-    _set_dims: (dims, trigger=true) ->
-      @_set_width(dims[0], false)
-      @_set_height(dims[1], false)
-      @solver.update_variables(trigger)
+class Canvases extends Collection
+  model: Canvas
 
-    defaults: ->
-      return _.extend {}, super(), {
-        width: 300
-        height: 300
-        map: false
-        mousedown_callbacks: []
-        mousemove_callbacks: []
-        use_hidpi: true
-      }
-
-  class Canvases extends Collection
-    model: Canvas
-
-  return {
-    "Model": Canvas,
-    "Collection": new Canvases(),
-  }
+module.exports =
+  Model: Canvas
+  Collection: new Canvases()

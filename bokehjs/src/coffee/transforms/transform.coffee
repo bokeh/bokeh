@@ -1,5 +1,5 @@
-define [
-  "common/has_properties",
-], (HasProperties) ->
+HasProperties = require "../common/has_properties"
 
-  class Transform extends HasProperties
+class Transform extends HasProperties
+
+module.exports = Transform

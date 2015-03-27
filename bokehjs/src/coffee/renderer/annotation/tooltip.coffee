@@ -1,103 +1,97 @@
+$ = require "jquery"
+_ = require "underscore"
+HasParent = require "../../common/has_parent"
+PlotWidget = require "../../common/plot_widget"
+Collection = require "../../common/collection"
+{logger} = require "../../common/logging"
 
-define [
-  "jquery"
-  "underscore"
-  "common/has_parent"
-  "common/plot_widget"
-  "common/collection"
-  "common/logging"
-], ($, _, HasParent, PlotWidget, Collection, Logging) ->
+class TooltipView extends PlotWidget
+  className: "bk-tooltip"
 
-  logger = Logging.logger
+  initialize: (options) ->
+    super(options)
+    # TODO (bev) really probably need multiple divs
+    @$el.appendTo(@plot_view.$el.find('div.bk-canvas-overlays'))
+    @$el.css({'z-index': 1010})
+    @$el.hide()
 
-  class TooltipView extends PlotWidget
-    className: "bk-tooltip"
+  bind_bokeh_events: () ->
+    @listenTo(@model, 'change:data', @_draw_tips)
 
-    initialize: (options) ->
-      super(options)
-      # TODO (bev) really probably need multiple divs
-      @$el.appendTo(@plot_view.$el.find('div.bk-canvas-overlays'))
-      @$el.css({'z-index': 1010})
-      @$el.hide()
+  render: () ->
+    @_draw_tips()
 
-    bind_bokeh_events: () ->
-      @listenTo(@model, 'change:data', @_draw_tips)
+  _draw_tips: () ->
+    @$el.empty()
+    @$el.hide()
 
-    render: () ->
-      @_draw_tips()
+    @$el.toggleClass("bk-tooltip-custom", @mget("custom"))
 
-    _draw_tips: () ->
-      @$el.empty()
-      @$el.hide()
+    if _.isEmpty(@mget('data'))
+      return
 
-      @$el.toggleClass("bk-tooltip-custom", @mget("custom"))
+    for val in @mget('data')
+      [vx, vy, content] = val
+      if @mget('inner_only') and not @plot_view.frame.contains(vx, vy)
+          continue
+      tip = $('<div />').appendTo(@$el)
+      tip.append(content)
+    sx = @plot_view.mget('canvas').vx_to_sx(vx)
+    sy = @plot_view.mget('canvas').vy_to_sy(vy)
 
-      if _.isEmpty(@mget('data'))
-        return
+    side = @mget('side')
+    if side == 'auto'
+      ow = @plot_view.frame.get('width')
+      if vx - @plot_view.frame.get('left') < ow/2
+        side = 'right'
+      else
+        side = 'left'
 
-      for val in @mget('data')
-        [vx, vy, content] = val
-        if @mget('inner_only') and not @plot_view.frame.contains(vx, vy)
-            continue
-        tip = $('<div />').appendTo(@$el)
-        tip.append(content)
-      sx = @plot_view.mget('canvas').vx_to_sx(vx)
-      sy = @plot_view.mget('canvas').vy_to_sy(vy)
+    @$el.removeClass('bk-right')
+    @$el.removeClass('bk-left')
 
-      side = @mget('side')
-      if side == 'auto'
-        ow = @plot_view.frame.get('width')
-        if vx - @plot_view.frame.get('left') < ow/2
-          side = 'right'
-        else
-          side = 'left'
+    arrow_width = 10
 
-      @$el.removeClass('bk-right')
-      @$el.removeClass('bk-left')
+    switch side
+      when "right"
+        @$el.addClass("bk-left")
+        left = sx + (@$el.outerWidth() - @$el.innerWidth()) + arrow_width
+      when "left"
+        @$el.addClass("bk-right")
+        left = sx - @$el.outerWidth() - arrow_width
 
-      arrow_width = 10
+    top = sy - @$el.outerHeight()/2
 
-      switch side
-        when "right"
-          @$el.addClass("bk-left")
-          left = sx + (@$el.outerWidth() - @$el.innerWidth()) + arrow_width
-        when "left"
-          @$el.addClass("bk-right")
-          left = sx - @$el.outerWidth() - arrow_width
+    # TODO (bev) this is not currently bulletproof. If there are
+    # two hits, not colocated and one is off the screen, that can
+    # be problematic
+    if @$el.children().length > 0
+      @$el.css({top: top, left: left})
+      @$el.show()
 
-      top = sy - @$el.outerHeight()/2
+class Tooltip extends HasParent
+  default_view: TooltipView
+  type: 'Tooltip'
 
-      # TODO (bev) this is not currently bulletproof. If there are
-      # two hits, not colocated and one is off the screen, that can
-      # be problematic
-      if @$el.children().length > 0
-        @$el.css({top: top, left: left})
-        @$el.show()
+  clear: () ->
+    @set('data', [])
 
-  class Tooltip extends HasParent
-    default_view: TooltipView
-    type: 'Tooltip'
+  add: (vx, vy, content) ->
+    data = @get('data')
+    data.push([vx, vy, content])
+    @set('data', data)
 
-    clear: () ->
-      @set('data', [])
+  defaults: ->
+    return _.extend {}, super(), {
+      level: 'overlay'
+      side: "auto"
+      inner_only: true
+    }
 
-    add: (vx, vy, content) ->
-      data = @get('data')
-      data.push([vx, vy, content])
-      @set('data', data)
+class Tooltips extends Collection
+  model: Tooltip
 
-    defaults: ->
-      return _.extend {}, super(), {
-        level: 'overlay'
-        side: "auto"
-        inner_only: true
-      }
-
-  class Tooltips extends Collection
-    model: Tooltip
-
-  return {
-    "Model": Tooltip,
-    "Collection": new Tooltips()
-    "View": TooltipView,
-  }
+module.exports =
+  Model: Tooltip
+  Collection: new Tooltips()
+  View: TooltipView

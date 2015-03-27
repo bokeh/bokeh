@@ -6,7 +6,7 @@
  * http://adamwdraper.github.com/Numeral-js/
  */
 
-define(["underscore"], function(_) {
+var _ = require("underscore");
 
     var languages = {};
     var defaultFormat = '0,0';
@@ -334,5 +334,4 @@ define(["underscore"], function(_) {
             _.isUndefined(roundingFunction) ? Math.round          : roundingFunction);
     }
 
-    return {"format": format};
-});
+    module.exports = {"format": format};
