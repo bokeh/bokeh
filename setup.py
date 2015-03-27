@@ -21,6 +21,7 @@ import shutil
 import site
 import subprocess
 import sys
+import time
 from os.path import abspath, dirname, exists, isdir, join, realpath, relpath
 
 if 'nightly' in sys.argv:
@@ -218,7 +219,7 @@ For more information, see the Dev Guide:
 
 BUILD_FAIL_MSG = """ Failed.
 
-ERROR: 'gulp minify' returned error message:
+ERROR: 'gulp build' returned error message:
 
 %s
 """
@@ -242,10 +243,11 @@ def build_js():
     os.chdir('bokehjs')
 
     if sys.platform != "win32":
-        cmd = [join('node_modules', '.bin', 'gulp'), 'minify']
+        cmd = [join('node_modules', '.bin', 'gulp'), 'build']
     else:
-        cmd = [join('node_modules', '.bin', 'gulp.cmd'), 'minify']
+        cmd = [join('node_modules', '.bin', 'gulp.cmd'), 'build']
 
+    t0 = time.time()
     try:
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
     except OSError as e:
@@ -260,9 +262,12 @@ def build_js():
         msg = proc.stdout.read()
         print(BUILD_FAIL_MSG % msg)
         sys.exit(1)
+    t1 = time.time()
 
     msg = "\n".join(["    " + x for x in msg.split("\n")])
     print(BUILD_SUCCESS_MSG % msg, end="")
+    print("Build time: %0.1f seconds" % (t1-t0))
+    print()
     print("Build artifact sizes:")
     try:
         blddir = join("bokehjs", "build")
