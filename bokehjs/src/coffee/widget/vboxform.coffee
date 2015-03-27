@@ -1,3 +1,4 @@
+_ = require "underscore"
 build_views = require "../common/build_views"
 Collection =  require "../common/collection"
 ContinuumView  = require "../common/continuum_view"

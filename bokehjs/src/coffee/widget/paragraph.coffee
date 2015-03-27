@@ -1,3 +1,4 @@
+_ = require "underscore"
 Collection = require "../common/collection"
 ContinuumView = require "../common/continuum_view"
 HasParent = require "../common/has_parent"

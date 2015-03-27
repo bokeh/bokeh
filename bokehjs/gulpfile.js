@@ -29,5 +29,5 @@ gulp.task("minify", ["scripts"], function() {
 })
 
 gulp.task("default", ["minify"], function() {
-  gulp.watch("./src/coffee/**/*.coffee", ["scripts"]);
+  gulp.watch("./src/coffee/**/*.coffee", ["minify"]);
 })

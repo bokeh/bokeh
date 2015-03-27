@@ -1,3 +1,4 @@
+_ = require "underscore"
 $1 = require "jquery-ui/autocomplete"
 Collection = require "../common/collection"
 TextInput = require "./text_input"

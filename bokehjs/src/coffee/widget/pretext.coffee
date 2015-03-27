@@ -1,3 +1,4 @@
+_ = require "underscore"
 Collection = require "../common/collection"
 Paragraph = require "./paragraph"
 
