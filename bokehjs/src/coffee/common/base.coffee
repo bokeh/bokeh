@@ -199,28 +199,7 @@ Collections = (typename) ->
   if collection_overrides[typename]
     return collection_overrides[typename]
 
-  # if not locations[typename]
-  #   throw new Error("./base: Unknown Collection #{typename}")
-
-  # modulename = locations[typename]
-
-  # if _.isArray(modulename)
-  #   [modulename, submodulename] = modulename
-  # else
-  #   submodulename = null
-
-  # if not locations[modulename]?
-  #   mod = require modulename
-
-  #   if mod?
-  #     locations[modulename] = mod
-  #   else
-  #     throw new Error("improperly implemented collection: #{modulename}")
-
   mod = locations[typename]
-
-  # if submodulename?
-  #   mod = mod[submodulename]
 
   return mod.Collection
 
@@ -231,7 +210,7 @@ index = {}
 
 module.exports =
   collection_overrides: collection_overrides # for testing only
-  locations: locations # for testing only
+  locations: locations #
   index: index
   Collections: Collections
   Config: Config
