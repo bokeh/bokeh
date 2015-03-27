@@ -1,5 +1,5 @@
 _ = require "underscore"
-$ = require "jquery"]
+$ = require "jquery"
 
 waitForElement = (el, fn) ->
   handler = () =>

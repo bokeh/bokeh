@@ -1,4 +1,4 @@
-HasProperties = require "../common/has_properties",
+HasProperties = require "../common/has_properties"
 
 class Transform extends HasProperties
 

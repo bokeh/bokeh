@@ -78,5 +78,4 @@ load_models = (modelspecs) ->
 
   return null
 
-module.exports =
-  load_models: load_models
+module.exports = load_models

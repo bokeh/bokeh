@@ -123,7 +123,7 @@ Bokeh.CrosshairTool          = require("./tool/inspectors/crosshair_tool")
 Bokeh.HBox           = require("./widget/hbox")
 Bokeh.VBox           = require("./widget/vbox")
 Bokeh.TextInput      = require("./widget/text_input")
-Bokeh.CrossFilter    = require("./widget/crossfilter")
+#Bokeh.CrossFilter    = require("./widget/crossfilter")
 
 # Add the jquery plugin
 require("./api/plugin")

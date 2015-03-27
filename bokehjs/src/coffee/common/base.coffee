@@ -11,217 +11,216 @@ else
   Config.prefix = '/'
 console.log('Bokeh: setting prefix to', Config.prefix)
 
-locations =
+mod_cache =
   OpenURL:                  'action/open_url'
 
-  Plot:                     './plot'
-  GMapPlot:                 './gmap_plot'
-  GeoJSPlot:                './geojs_plot'
-  GridPlot:                 './grid_plot'
-  PlotContext:              './plot_context'
-  PlotList:                 './plot_context'
-  Canvas:                   './canvas'
-  LayoutBox:                './layout_box'
-  CartesianFrame:           './cartesian_frame'
-  SelectionManager:         './selection_manager'
-  Selector:                 './selector'
-  ToolEvents:               './tool_events'
+  Plot:                     require './plot'
+  GMapPlot:                 require './gmap_plot'
+  GeoJSPlot:                require './geojs_plot'
+  GridPlot:                 require './grid_plot'
+  PlotContext:              require './plot_context'
+  PlotList:                 require './plot_context'
+  Canvas:                   require './canvas'
+  LayoutBox:                require './layout_box'
+  CartesianFrame:           require './cartesian_frame'
+  SelectionManager:         require './selection_manager'
+  Selector:                 require './selector'
+  ToolEvents:               require './tool_events'
 
-  LinearColorMapper:        '../mapper/linear_color_mapper'
+  LinearColorMapper:        require '../mapper/linear_color_mapper'
 
-  DataRange1d:              '../range/data_range1d'
-  FactorRange:              '../range/factor_range'
-  Range1d:                  '../range/range1d'
+  DataRange1d:              require '../range/data_range1d'
+  FactorRange:              require '../range/factor_range'
+  Range1d:                  require '../range/range1d'
 
-  Legend:                   '../renderer/annotation/legend'
-  Span:                     '../renderer/annotation/span'
-  Tooltip:                  '../renderer/annotation/tooltip'
+  Legend:                   require '../renderer/annotation/legend'
+  Span:                     require '../renderer/annotation/span'
+  Tooltip:                  require '../renderer/annotation/tooltip'
 
-  GlyphRenderer:            '../renderer/glyph/glyph_renderer'
+  GlyphRenderer:            require '../renderer/glyph/glyph_renderer'
 
-  AnnularWedge:             '../renderer/glyph/annular_wedge'
-  Annulus:                  '../renderer/glyph/annulus'
-  Arc:                      '../renderer/glyph/arc'
-  Bezier:                   '../renderer/glyph/bezier'
-  Circle:                   '../renderer/glyph/circle'
-  Gear:                     '../renderer/glyph/gear'
-  Image:                    '../renderer/glyph/image'
-  ImageRGBA:                '../renderer/glyph/image_rgba'
-  ImageURL:                 '../renderer/glyph/image_url'
-  Line:                     '../renderer/glyph/line'
-  MultiLine:                '../renderer/glyph/multi_line'
-  Oval:                     '../renderer/glyph/oval'
-  Patch:                    '../renderer/glyph/patch'
-  Patches:                  '../renderer/glyph/patches'
-  Quad:                     '../renderer/glyph/quad'
-  Quadratic:                '../renderer/glyph/quadratic'
-  Ray:                      '../renderer/glyph/ray'
-  Rect:                     '../renderer/glyph/rect'
-  Segment:                  '../renderer/glyph/segment'
-  Text:                     '../renderer/glyph/text'
-  Wedge:                    '../renderer/glyph/wedge'
+  AnnularWedge:             require '../renderer/glyph/annular_wedge'
+  Annulus:                  require '../renderer/glyph/annulus'
+  Arc:                      require '../renderer/glyph/arc'
+  Bezier:                   require '../renderer/glyph/bezier'
+  Circle:                   require '../renderer/glyph/circle'
+  Gear:                     require '../renderer/glyph/gear'
+  Image:                    require '../renderer/glyph/image'
+  ImageRGBA:                require '../renderer/glyph/image_rgba'
+  ImageURL:                 require '../renderer/glyph/image_url'
+  Line:                     require '../renderer/glyph/line'
+  MultiLine:                require '../renderer/glyph/multi_line'
+  Oval:                     require '../renderer/glyph/oval'
+  Patch:                    require '../renderer/glyph/patch'
+  Patches:                  require '../renderer/glyph/patches'
+  Quad:                     require '../renderer/glyph/quad'
+  Quadratic:                require '../renderer/glyph/quadratic'
+  Ray:                      require '../renderer/glyph/ray'
+  Rect:                     require '../renderer/glyph/rect'
+  Segment:                  require '../renderer/glyph/segment'
+  Text:                     require '../renderer/glyph/text'
+  Wedge:                    require '../renderer/glyph/wedge'
 
-  Asterisk:                 '../renderer/glyph/marker/asterisk'
-  CircleCross:              '../renderer/glyph/marker/circle_cross'
-  CircleX:                  '../renderer/glyph/marker/circle_x'
-  Cross:                    '../renderer/glyph/marker/cross'
-  Diamond:                  '../renderer/glyph/marker/diamond'
-  DiamondCross:             '../renderer/glyph/marker/diamond_cross'
-  InvertedTriangle:         '../renderer/glyph/marker/inverted_triangle'
-  Square:                   '../renderer/glyph/marker/square'
-  SquareCross:              '../renderer/glyph/marker/square_cross'
-  SquareX:                  '../renderer/glyph/marker/square_x'
-  Triangle:                 '../renderer/glyph/marker/triangle'
-  X:                        '../renderer/glyph/marker/x'
+  Asterisk:                 require '../renderer/glyph/marker/asterisk'
+  CircleCross:              require '../renderer/glyph/marker/circle_cross'
+  CircleX:                  require '../renderer/glyph/marker/circle_x'
+  Cross:                    require '../renderer/glyph/marker/cross'
+  Diamond:                  require '../renderer/glyph/marker/diamond'
+  DiamondCross:             require '../renderer/glyph/marker/diamond_cross'
+  InvertedTriangle:         require '../renderer/glyph/marker/inverted_triangle'
+  Square:                   require '../renderer/glyph/marker/square'
+  SquareCross:              require '../renderer/glyph/marker/square_cross'
+  SquareX:                  require '../renderer/glyph/marker/square_x'
+  Triangle:                 require '../renderer/glyph/marker/triangle'
+  X:                        require '../renderer/glyph/marker/x'
 
-  LinearAxis:               '../renderer/guide/linear_axis'
-  LogAxis:                  '../renderer/guide/log_axis'
-  CategoricalAxis:          '../renderer/guide/categorical_axis'
-  DatetimeAxis:             '../renderer/guide/datetime_axis'
-  Grid:                     '../renderer/guide/grid'
+  LinearAxis:               require '../renderer/guide/linear_axis'
+  LogAxis:                  require '../renderer/guide/log_axis'
+  CategoricalAxis:          require '../renderer/guide/categorical_axis'
+  DatetimeAxis:             require '../renderer/guide/datetime_axis'
+  Grid:                     require '../renderer/guide/grid'
 
-  BoxSelection:             '../renderer/overlay/box_selection'
-  PolySelection:            '../renderer/overlay/poly_selection'
+  BoxSelection:             require '../renderer/overlay/box_selection'
+  PolySelection:            require '../renderer/overlay/poly_selection'
 
-  ColumnDataSource:         '../source/column_data_source'
-  ServerDataSource:         '../source/server_data_source'
-  BlazeDataSource:          '../source/blaze_data_source'
-  AjaxDataSource:           '../source/ajax_data_source'
+  ColumnDataSource:         require '../source/column_data_source'
+  ServerDataSource:         require '../source/server_data_source'
+  BlazeDataSource:          require '../source/blaze_data_source'
+  AjaxDataSource:           require '../source/ajax_data_source'
 
-  AbstractTicker:           '../ticking/abstract_ticker'
-  AdaptiveTicker:           '../ticking/adaptive_ticker'
-  BasicTicker:              '../ticking/basic_ticker'
-  CategoricalTicker:        '../ticking/categorical_ticker'
-  CompositeTicker:          '../ticking/composite_ticker'
-  DatetimeTicker:           '../ticking/datetime_ticker'
-  DaysTicker:               '../ticking/days_ticker'
-  LogTicker:                '../ticking/log_ticker'
-  MonthsTicker:             '../ticking/months_ticker'
-  SingleIntervalTicker:     '../ticking/single_interval_ticker'
-  YearsTicker:              '../ticking/years_ticker'
+  AbstractTicker:           require '../ticking/abstract_ticker'
+  AdaptiveTicker:           require '../ticking/adaptive_ticker'
+  BasicTicker:              require '../ticking/basic_ticker'
+  CategoricalTicker:        require '../ticking/categorical_ticker'
+  CompositeTicker:          require '../ticking/composite_ticker'
+  DatetimeTicker:           require '../ticking/datetime_ticker'
+  DaysTicker:               require '../ticking/days_ticker'
+  LogTicker:                require '../ticking/log_ticker'
+  MonthsTicker:             require '../ticking/months_ticker'
+  SingleIntervalTicker:     require '../ticking/single_interval_ticker'
+  YearsTicker:              require '../ticking/years_ticker'
 
-  BasicTickFormatter:       '../ticking/basic_tick_formatter'
-  LogTickFormatter:         '../ticking/log_tick_formatter'
-  CategoricalTickFormatter: '../ticking/categorical_tick_formatter'
-  DatetimeTickFormatter:    '../ticking/datetime_tick_formatter'
-  NumeralTickFormatter:     '../ticking/numeral_tick_formatter'
-  PrintfTickFormatter:      '../ticking/printf_tick_formatter'
+  BasicTickFormatter:       require '../ticking/basic_tick_formatter'
+  LogTickFormatter:         require '../ticking/log_tick_formatter'
+  CategoricalTickFormatter: require '../ticking/categorical_tick_formatter'
+  DatetimeTickFormatter:    require '../ticking/datetime_tick_formatter'
+  NumeralTickFormatter:     require '../ticking/numeral_tick_formatter'
+  PrintfTickFormatter:      require '../ticking/printf_tick_formatter'
 
-  ButtonTool:               '../tool/button_tool'
-  ActionTool:               '../tool/actions/action_tool'
-  PreviewSaveTool:          '../tool/actions/preview_save_tool'
-  ResetTool:                '../tool/actions/reset_tool'
+  ButtonTool:               require '../tool/button_tool'
+  ActionTool:               require '../tool/actions/action_tool'
+  PreviewSaveTool:          require '../tool/actions/preview_save_tool'
+  ResetTool:                require '../tool/actions/reset_tool'
 
-  BoxSelectTool:            '../tool/gestures/box_select_tool'
-  BoxZoomTool:              '../tool/gestures/box_zoom_tool'
-  GestureTool:              '../tool/gestures/gesture_tool'
-  LassoSelectTool:          '../tool/gestures/lasso_select_tool'
-  PanTool:                  '../tool/gestures/pan_tool'
-  PolySelectTool:           '../tool/gestures/poly_select_tool'
-  SelectTool:               '../tool/gestures/select_tool'
-  ResizeTool:               '../tool/gestures/resize_tool'
-  TapTool:                  '../tool/gestures/tap_tool'
-  WheelZoomTool:            '../tool/gestures/wheel_zoom_tool'
+  BoxSelectTool:            require '../tool/gestures/box_select_tool'
+  BoxZoomTool:              require '../tool/gestures/box_zoom_tool'
+  GestureTool:              require '../tool/gestures/gesture_tool'
+  LassoSelectTool:          require '../tool/gestures/lasso_select_tool'
+  PanTool:                  require '../tool/gestures/pan_tool'
+  PolySelectTool:           require '../tool/gestures/poly_select_tool'
+  SelectTool:               require '../tool/gestures/select_tool'
+  ResizeTool:               require '../tool/gestures/resize_tool'
+  TapTool:                  require '../tool/gestures/tap_tool'
+  WheelZoomTool:            require '../tool/gestures/wheel_zoom_tool'
 
-  CrosshairTool:            '../tool/inspectors/crosshair_tool'
-  HoverTool:                '../tool/inspectors/hover_tool'
-  InspectTool:              '../tool/inspectors/inspect_tool'
+  CrosshairTool:            require '../tool/inspectors/crosshair_tool'
+  HoverTool:                require '../tool/inspectors/hover_tool'
+  InspectTool:              require '../tool/inspectors/inspect_tool'
 
-  StringFormatter:          ['../widget/cell_formatters', 'String']
-  NumberFormatter:          ['../widget/cell_formatters', 'Number']
-  BooleanFormatter:         ['../widget/cell_formatters', 'Boolean']
-  DateFormatter:            ['../widget/cell_formatters', 'Date']
+  StringFormatter:          require('../widget/cell_formatters').String
+  NumberFormatter:          require('../widget/cell_formatters').Number
+  BooleanFormatter:         require('../widget/cell_formatters').Boolean
+  DateFormatter:            require('../widget/cell_formatters').Date
 
-  StringEditor:             ['../widget/cell_editors', 'String']
-  TextEditor:               ['../widget/cell_editors', 'Text']
-  SelectEditor:             ['../widget/cell_editors', 'Select']
-  PercentEditor:            ['../widget/cell_editors', 'Percent']
-  CheckboxEditor:           ['../widget/cell_editors', 'Checkbox']
-  IntEditor:                ['../widget/cell_editors', 'Int']
-  NumberEditor:             ['../widget/cell_editors', 'Number']
-  TimeEditor:               ['../widget/cell_editors', 'Time']
-  DateEditor:               ['../widget/cell_editors', 'Date']
+  StringEditor:             require('../widget/cell_editors').String
+  TextEditor:               require('../widget/cell_editors').Text
+  SelectEditor:             require('../widget/cell_editors').Select
+  PercentEditor:            require('../widget/cell_editors').Percent
+  CheckboxEditor:           require('../widget/cell_editors').Checkbox
+  IntEditor:                require('../widget/cell_editors').Int
+  NumberEditor:             require('../widget/cell_editors').Number
+  TimeEditor:               require('../widget/cell_editors').Time
+  DateEditor:               require('../widget/cell_editors').Date
 
-  TableColumn:              '../widget/table_column'
-  DataTable:                '../widget/data_table'
-  Paragraph:                '../widget/paragraph'
-  HBox:                     '../widget/hbox'
-  VBox:                     '../widget/vbox'
-  VBoxForm:                 '../widget/vboxform'
-  TextInput:                '../widget/text_input'
-  AutocompleteInput:        '../widget/autocomplete_input'
-  PreText:                  '../widget/pretext'
-  Select:                   '../widget/selectbox'
-  Slider:                   '../widget/slider'
-  CrossFilter:              '../widget/crossfilter'
-  MultiSelect:              '../widget/multiselect'
-  DateRangeSlider:          '../widget/date_range_slider'
-  DatePicker:               '../widget/date_picker'
-  Panel:                    '../widget/panel'
-  Tabs:                     '../widget/tabs'
-  Dialog:                   '../widget/dialog'
-  Icon:                     '../widget/icon'
-  Button:                   '../widget/button'
-  Toggle:                   '../widget/toggle'
-  Dropdown:                 '../widget/dropdown'
-  CheckboxGroup:            '../widget/checkbox_group'
-  RadioGroup:               '../widget/radio_group'
-  CheckboxButtonGroup:      '../widget/checkbox_button_group'
-  RadioButtonGroup:         '../widget/radio_button_group'
-  SimpleApp:                '../widget/simpleapp'
+  TableColumn:              require '../widget/table_column'
+  DataTable:                require '../widget/data_table'
+  Paragraph:                require '../widget/paragraph'
+  HBox:                     require '../widget/hbox'
+  VBox:                     require '../widget/vbox'
+  VBoxForm:                 require '../widget/vboxform'
+  TextInput:                require '../widget/text_input'
+  AutocompleteInput:        require '../widget/autocomplete_input'
+  PreText:                  require '../widget/pretext'
+  Select:                   require '../widget/selectbox'
+  Slider:                   require '../widget/slider'
+  CrossFilter:              require '../widget/crossfilter'
+  MultiSelect:              require '../widget/multiselect'
+  DateRangeSlider:          require '../widget/date_range_slider'
+  DatePicker:               require '../widget/date_picker'
+  Panel:                    require '../widget/panel'
+  Tabs:                     require '../widget/tabs'
+  Dialog:                   require '../widget/dialog'
+  Icon:                     require '../widget/icon'
+  Button:                   require '../widget/button'
+  Toggle:                   require '../widget/toggle'
+  Dropdown:                 require '../widget/dropdown'
+  CheckboxGroup:            require '../widget/checkbox_group'
+  RadioGroup:               require '../widget/radio_group'
+  CheckboxButtonGroup:      require '../widget/checkbox_button_group'
+  RadioButtonGroup:         require '../widget/radio_button_group'
+  SimpleApp:                require '../widget/simpleapp'
 
-  AppHBox:                  '../widget/layouts/apphbox'
-  AppVBox:                  '../widget/layouts/appvbox'
-  AppVBoxForm:              '../widget/layouts/appvboxform'
+  AppHBox:                  require '../widget/layouts/apphbox'
+  AppVBox:                  require '../widget/layouts/appvbox'
+  AppVBoxForm:              require '../widget/layouts/appvboxform'
 
-  AutoEncode:               '../transforms/autoencode'
-  BinarySegment:            '../transforms/binarysegment'
-  Const:                    '../transforms/const'
-  Contour:                  '../transforms/contour'
-  Count:                    '../transforms/count'
-  CountCategories:          '../transforms/countcategories'
-  Cuberoot:                 '../transforms/cuberoot'
-  HDAlpha:                  '../transforms/hdalpha'
-  Encode:                   '../transforms/encode'
-  Id:                       '../transforms/id'
-  Interpolate:              '../transforms/interpolate'
-  InterpolateColor:         '../transforms/interpolatecolor'
-  Log:                      '../transforms/log'
-  NonZero:                  '../transforms/nonzero'
-  Ratio:                    '../transforms/ratio'
-  Seq:                      '../transforms/seq'
-  Spread:                   '../transforms/spread'
-  ToCounts:                 '../transforms/tocounts'
+  AutoEncode:               require '../transforms/autoencode'
+  BinarySegment:            require '../transforms/binarysegment'
+  Const:                    require '../transforms/const'
+  Contour:                  require '../transforms/contour'
+  Count:                    require '../transforms/count'
+  CountCategories:          require '../transforms/countcategories'
+  Cuberoot:                 require '../transforms/cuberoot'
+  HDAlpha:                  require '../transforms/hdalpha'
+  Encode:                   require '../transforms/encode'
+  Id:                       require '../transforms/id'
+  Interpolate:              require '../transforms/interpolate'
+  InterpolateColor:         require '../transforms/interpolatecolor'
+  Log:                      require '../transforms/log'
+  NonZero:                  require '../transforms/nonzero'
+  Ratio:                    require '../transforms/ratio'
+  Seq:                      require '../transforms/seq'
+  Spread:                   require '../transforms/spread'
+  ToCounts:                 require '../transforms/tocounts'
 
-mod_cache = {}
 collection_overrides = {}
 
 Collections = (typename) ->
   if collection_overrides[typename]
     return collection_overrides[typename]
 
-  if not locations[typename]
-    throw new Error("./base: Unknown Collection #{typename}")
+  # if not locations[typename]
+  #   throw new Error("./base: Unknown Collection #{typename}")
 
-  modulename = locations[typename]
+  # modulename = locations[typename]
 
-  if _.isArray(modulename)
-    [modulename, submodulename] = modulename
-  else
-    submodulename = null
+  # if _.isArray(modulename)
+  #   [modulename, submodulename] = modulename
+  # else
+  #   submodulename = null
 
-  if not mod_cache[modulename]?
-    mod = reqire "./#{modulename}"
+  # if not mod_cache[modulename]?
+  #   mod = require modulename
 
-    if mod?
-      mod_cache[modulename] = mod
-    else
-      throw new Error("improperly implemented collection: #{modulename}")
+  #   if mod?
+  #     mod_cache[modulename] = mod
+  #   else
+  #     throw new Error("improperly implemented collection: #{modulename}")
 
-  mod = mod_cache[modulename]
+  mod = mod_cache[typename]
 
-  if submodulename?
-    mod = mod[submodulename]
+  # if submodulename?
+  #   mod = mod[submodulename]
 
   return mod.Collection
 

@@ -1,5 +1,5 @@
 _ = require "underscore"
-Marker = "./marker"
+Marker = require "./marker"
 
 class AsteriskView extends Marker.View
 

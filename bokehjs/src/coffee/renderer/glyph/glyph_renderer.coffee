@@ -1,10 +1,10 @@
 _ = require "underscore"
-{logger} = require "../common/logging"
-HasParent = require "../common/has_parent"
-Collection = require "../common/collection"
-PlotWidget = require "../common/plot_widget"
-FactorRange = require "../range/factor_range"
-RemoteDataSource = require "../source/remote_data_source"
+{logger} = require "../../common/logging"
+HasParent = require "../../common/has_parent"
+Collection = require "../../common/collection"
+PlotWidget = require "../../common/plot_widget"
+FactorRange = require "../../range/factor_range"
+RemoteDataSource = require "../../source/remote_data_source"
 
 class GlyphRendererView extends PlotWidget
 

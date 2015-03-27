@@ -1,5 +1,5 @@
 Collection = require "../../common/collection"
-ActionTool = require "./action_tool",
+ActionTool = require "./action_tool"
 
 class ResetToolView extends ActionTool.View
 
