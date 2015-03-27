@@ -8,5 +8,5 @@ waitForElement = (el, fn) ->
       fn()
   interval = setInterval(handler, 50)
 
-modules.exports =
+module.exports =
   waitForElement: waitForElement
