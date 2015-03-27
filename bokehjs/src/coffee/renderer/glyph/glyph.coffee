@@ -29,7 +29,14 @@ class GlyphView extends ContinuumView
     for [xname, yname] in @model.coords
       sxname = "s#{xname}"
       syname = "s#{yname}"
-      [ @[sxname], @[syname] ] = @renderer.map_to_screen(@[xname], @[yname])
+      if _.isArray(@[xname]?[0])
+        [ @[sxname], @[syname] ] = [ [], [] ]
+        for i in [0...@[xname].length]
+          [sx, sy] = @renderer.map_to_screen(@[xname][i], @[yname][i])
+          @[sxname].push(sx)
+          @[syname].push(sy)
+      else
+        [ @[sxname], @[syname] ] = @renderer.map_to_screen(@[xname], @[yname])
 
     @_map_data()
 
