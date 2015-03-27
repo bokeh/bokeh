@@ -79,7 +79,7 @@
     "jsnlog": "^2.7.5",
     "mathutils": "0.0.1",
     "numeral": "^1.5.3",
-    "rbush": "^1.3.4",
+    "rbush": "^1.3.5",
     "slickgrid": "^2.1.0-1",
     "sprintf": "^0.1.4",
     "timezone": "0.0.38"
