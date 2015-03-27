@@ -11,7 +11,7 @@ var $ = require("jquery");
 require("jquery-ui/core");
 require("jquery-ui/widget");
 require("jquery-ui/mouse");
-require("jquery_mousewheel");
+require("jquery-mousewheel");
 "use strict";
 
 module.exports = $.widget("ui.rangeSlider", {
