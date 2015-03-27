@@ -13,7 +13,7 @@ gulp.task("scripts", function() {
     extensions: [".coffee", ".eco"]
   }
 
-  browserify(opts)
+  return browserify(opts)
     .transform("browserify-eco")
     .transform("coffeeify")
     .bundle()
