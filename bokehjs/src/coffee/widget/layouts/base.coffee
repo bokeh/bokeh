@@ -14,7 +14,7 @@ module.exports = (type, box) ->
 
   class AppBox extends HasParent
     type: type
-    default_view: AppHBoxView
+    default_view: AppBoxView
 
     children: () ->
       app = @get('app')
