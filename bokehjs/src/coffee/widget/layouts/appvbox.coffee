@@ -3,7 +3,7 @@ build_views = require "../../common/build_views"
 Collection = require "../../common/collection"
 ContinuumView = require "../../common/continuum_view"
 HasParent = require "../../common/has_parent"
-vbox = require "../vbox",
+vbox = require "../vbox"
 
 class AppVBoxView extends vbox.View
 

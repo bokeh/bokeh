@@ -32,6 +32,6 @@ class AppVBoxForms extends Collection
   model: AppVBoxForm
 
 module.exports =
-  "Model": AppVBoxForm
-  "Collection": new AppVBoxForms()
-  "View": AppVBoxFormView
+  Model: AppVBoxForm
+  Collection: new AppVBoxForms()
+  View: AppVBoxFormView

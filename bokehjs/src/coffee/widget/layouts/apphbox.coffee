@@ -5,7 +5,6 @@ ContinuumView = require "../../common/continuum_view"
 HasParent = require "../../common/has_parent"
 hbox = require "../hbox"
 
-##TODO
 class AppHBoxView extends hbox.View
 
   initialize: (options) ->
