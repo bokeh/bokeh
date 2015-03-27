@@ -63,7 +63,8 @@ class NumberFormatter extends StringFormatter
       when "round", "nearest"   then Math.round
       when "floor", "rounddown" then Math.floor
       when "ceil",  "roundup"   then Math.ceil
-    value = Numeral.format(value, format, language, rounding)
+    Numeral.language(language)
+    value = Numeral(value).format(format, rounding)
     return super(row, cell, value, columnDef, dataContext)
 
 class NumberFormatters extends CellFormatterCollection
