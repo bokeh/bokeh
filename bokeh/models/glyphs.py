@@ -8,7 +8,7 @@ from __future__ import absolute_import
 from ..plot_object import PlotObject
 from ..mixins import FillProps, LineProps, TextProps
 from ..enums import Direction, Anchor
-from ..properties import Bool, Enum, Include, Instance, NumberSpec, StringSpec
+from ..properties import AngleSpec, Bool, DataDistanceSpec, DistanceSpec, Enum, Include, Instance, NumberSpec, ScreenDistanceSpec, StringSpec
 
 from .mappers import LinearColorMapper
 
@@ -42,22 +42,20 @@ class AnnularWedge(Glyph):
     The y-coordinates of the center of the annular wedges.
     """)
 
-    # TODO: (bev) should default to "inner_radius" field?
-    inner_radius = NumberSpec("inner_radius", help="""
+    inner_radius = DistanceSpec("inner_radius", help="""
     The inner radii of the annular wedges.
     """)
 
-    # TODO: (bev) should default to "outer_radius" field?
-    outer_radius = NumberSpec("outer_radius", help="""
+    outer_radius = DistanceSpec("outer_radius", help="""
     The outer radii of the annular wedges.
     """)
 
-    start_angle = NumberSpec("start_angle", help="""
+    start_angle = AngleSpec("start_angle", help="""
     The angles to start the annular wedges, in radians, as measured from
     the horizontal.
     """)
 
-    end_angle = NumberSpec("end_angle", help="""
+    end_angle = AngleSpec("end_angle", help="""
     The angles to end the annular wedges, in radians, as measured from
     the horizontal.
     """)
@@ -95,13 +93,11 @@ class Annulus(Glyph):
     The y-coordinates of the center of the annuli.
     """)
 
-    # TODO: (bev) should default to "inner_radius" field?
-    inner_radius = NumberSpec("inner_radius", help="""
+    inner_radius = DistanceSpec("inner_radius", help="""
     The inner radii of the annuli.
     """)
 
-    # TODO: (bev) should default to "outer_radius" field?
-    outer_radius = NumberSpec("outer_radius", help="""
+    outer_radius = DistanceSpec("outer_radius", help="""
     The outer radii of the annuli.
     """)
 
@@ -134,16 +130,15 @@ class Arc(Glyph):
     The y-coordinates of the center of the arcs.
     """)
 
-    # TODO: (bev) should default to "radius" field?
-    radius = NumberSpec("radius", help="""
+    radius = DistanceSpec("radius", help="""
     Radius of the arc.
     """)
 
-    start_angle = NumberSpec("start_angle", help="""
+    start_angle = AngleSpec("start_angle", help="""
     The angles to start the arcs, in radians, as measured from the horizontal.
     """)
 
-    end_angle = NumberSpec("end_angle", help="""
+    end_angle = AngleSpec("end_angle", help="""
     The angles to end the arcs, in radians, as measured from the horizontal.
     """)
 
@@ -238,7 +233,7 @@ class Gear(Glyph):
     The angle the gears are rotated from horizontal. [rad]
     """)
 
-    module = NumberSpec("module", help="""
+    module = AngleSpec("module", help="""
     A scaling factor, given by::
 
         m = p / pi
@@ -315,7 +310,7 @@ class Image(Glyph):
     The y-coordinates to locate the image anchors.
     """)
 
-    dw = NumberSpec("dw", help="""
+    dw = DistanceSpec("dw", help="""
     The widths of the plot regions that the images will occupy.
 
     .. note::
@@ -324,7 +319,7 @@ class Image(Glyph):
 
     """)
 
-    dh = NumberSpec("dh", help="""
+    dh = DistanceSpec("dh", help="""
     The height of the plot region that the image will occupy.
 
     .. note::
@@ -379,7 +374,7 @@ class ImageRGBA(Glyph):
     The numbers of columns in the images
     """)
 
-    dw = NumberSpec("dw", help="""
+    dw = DistanceSpec("dw", help="""
     The widths of the plot regions that the images will occupy.
 
     .. note::
@@ -388,7 +383,7 @@ class ImageRGBA(Glyph):
 
     """)
 
-    dh = NumberSpec("dh", help="""
+    dh = DistanceSpec("dh", help="""
     The height of the plot region that the image will occupy.
 
     .. note::
@@ -452,7 +447,7 @@ class ImageURL(Glyph):
     """)
 
     # TODO: (bev) rename to "dh" for consistency
-    h = NumberSpec("h", help="""
+    h = DistanceSpec("h", help="""
     The height of the plot region that the image will occupy.
 
     .. note::
@@ -464,7 +459,7 @@ class ImageURL(Glyph):
 
     """)
 
-    angle = NumberSpec(default=0, help="""
+    angle = DistanceSpec(default=0, help="""
     The angles to rotate the images, in radians as measured from the
     horizontal.
     """)
@@ -565,15 +560,15 @@ class Oval(Glyph):
     The y-coordinates of the centers of the ovals.
     """)
 
-    width = NumberSpec("width", help="""
+    width = DistanceSpec("width", help="""
     The overall widths of each oval.
     """)
 
-    height = NumberSpec("height", help="""
+    height = DistanceSpec("height", help="""
     The overall height of each oval.
     """)
 
-    angle = NumberSpec("angle", help="""
+    angle = AngleSpec("angle", help="""
     The angle the ovals are rotated from horizontal. [rad]
     """)
 
@@ -775,13 +770,12 @@ class Ray(Glyph):
     The y-coordinates to start the rays.
     """)
 
-    angle = NumberSpec("angle", help="""
+    angle = AngleSpec("angle", help="""
     The angles in radians to extend the rays, as measured from the
     horizontal.
     """)
 
-    # TODO: (bev) should default to "length" field?
-    length = NumberSpec("length", help="""
+    length = DistanceSpec("length", help="""
     The length to extend the ray. Note that this ``length`` defaults
     to screen units.
     """)
@@ -811,15 +805,15 @@ class Rect(Glyph):
     The y-coordinates of the centers of the rectangles.
     """)
 
-    width = NumberSpec("width", help="""
+    width = DistanceSpec("width", help="""
     The overall widths of the rectangles.
     """)
 
-    height = NumberSpec("height", help="""
+    height = DistanceSpec("height", help="""
     The overall heights of the rectangles.
     """)
 
-    angle = NumberSpec("angle", help="""
+    angle = AngleSpec("angle", help="""
     The angles to rotate the rectangles, in radians, as measured from
     the horizontal.
     """)
@@ -899,7 +893,7 @@ class Text(Glyph):
     The text values to render.
     """)
 
-    angle = NumberSpec(default=0, help="""
+    angle = AngleSpec(default=0, help="""
     The angles to rotate the text, in radians,, as measured from the horizontal.
     """)
 
@@ -942,16 +936,15 @@ class Wedge(Glyph):
     The y-coordinates of the points of the wedges.
     """)
 
-    # TODO: (bev) should default to "radius" field?
-    radius = NumberSpec("radius", help="""
+    radius = DistanceSpec("radius", help="""
     Radii of the wedges.
     """)
 
-    start_angle = NumberSpec("start_angle", help="""
+    start_angle = AngleSpec("start_angle", help="""
     The angles to start the wedges, in radians, as measured from the horizontal.
     """)
 
-    end_angle = NumberSpec("end_angle", help="""
+    end_angle = AngleSpec("end_angle", help="""
     The angles to end the wedges, in radians as measured from the horizontal.
     """)
 

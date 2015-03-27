@@ -16,15 +16,17 @@ output_file("glyphs.html", title="glyphs.py example")
 vbox = VBox()
 
 p = figure(title="annular_wedge")
-p.annular_wedge(x, y, 10, 20, 0.6, 4.1, color="#8888ee")
+p.annular_wedge(x, y, 10, 20, 0.6, 4.1, color="#8888ee",
+                inner_radius_units="screen", outer_radius_units="screen")
 vbox.children.append(p)
 
 p = figure(title="annular_wedge")
-p.annulus(x, y, 10, 20, color="#7FC97F")
+p.annulus(x, y, 10, 20, color="#7FC97F",
+          inner_radius_units="screen", outer_radius_units = "screen")
 vbox.children.append(p)
 
 p = figure(title="arc")
-p.arc(x, y, 20, 0.6, 4.1, color="#BEAED4", line_width=3)
+p.arc(x, y, 20, 0.6, 4.1, radius_units="screen", color="#BEAED4", line_width=3)
 vbox.children.append(p)
 
 p = figure(title="bezier")
@@ -46,7 +48,7 @@ vbox.children.append(p)
 
 p = figure(title="oval")
 p.oval(x, y, 15, 25, angle=-0.7, color="#1D91C0",
-    width_units="screen", height_units="screen")
+       width_units="screen", height_units="screen")
 vbox.children.append(p)
 
 p = figure(title="patch")

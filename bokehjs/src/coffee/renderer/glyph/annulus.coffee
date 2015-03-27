@@ -7,9 +7,14 @@ class AnnulusView extends Glyph.View
     @_xy_index()
 
   _map_data: () ->
-    @sinner_radius = @sdist(@renderer.xmapper, @x, @inner_radius)
-    @souter_radius = @sdist(@renderer.xmapper, @x, @outer_radius)
-
+    if @distances.inner_radius.units == "data"
+      @sinner_radius = @sdist(@renderer.xmapper, @x, @inner_radius)
+    else
+      @sinner_radius = @inner_radius
+    if @distances.outer_radius.units == "data"
+      @souter_radius = @sdist(@renderer.xmapper, @x, @outer_radius)
+    else
+      @souter_radius = @outer_radius
   _render: (ctx, indices, sx=@sx, sy=@sy, sinner_radius=@sinner_radius,
             souter_radius=@souter_radius) ->
     for i in indices

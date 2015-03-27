@@ -8,8 +8,14 @@ class AnnularWedgeView extends Glyph.View
     @_xy_index()
 
   _map_data: () ->
-    @sinner_radius = @sdist(@renderer.xmapper, @x, @inner_radius)
-    @souter_radius = @sdist(@renderer.xmapper, @x, @outer_radius)
+    if @distances.inner_radius.units == "data"
+      @sinner_radius = @sdist(@renderer.xmapper, @x, @inner_radius)
+    else
+      @sinner_radius = @inner_radius
+    if @distances.outer_radius.units == "data"
+      @souter_radius = @sdist(@renderer.xmapper, @x, @outer_radius)
+    else
+      @souter_radius = @outer_radius
     @angle = new Float32Array(@start_angle.length)
     for i in [0...@start_angle.length]
       @angle[i] = @end_angle[i] - @start_angle[i]

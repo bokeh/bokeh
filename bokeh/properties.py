@@ -255,6 +255,7 @@ class MetaHasProps(type):
             del class_dict[tmp]
 
         dataspecs = {}
+        units_to_add = {}
         for name, prop in class_dict.items():
             if isinstance(prop, Property):
                 prop.name = name
@@ -265,6 +266,8 @@ class MetaHasProps(type):
                 names.add(name)
                 if isinstance(prop, DataSpec):
                     dataspecs[name] = prop
+                    if hasattr(prop, '_units_type'):
+                        units_to_add[name+"_units"] = prop._units_type
 
             elif isinstance(prop, type) and issubclass(prop, Property):
                 # Support the user adding a property without using parens,
@@ -278,6 +281,11 @@ class MetaHasProps(type):
                 # Process dataspecs
                 if issubclass(prop, DataSpec):
                     dataspecs[name] = newprop
+
+        for name, prop in units_to_add.items():
+            prop.name = name
+            names.add(name)
+            class_dict[name] = prop
 
         class_dict["__properties__"] = names
         class_dict["__properties_with_refs__"] = names_with_refs
@@ -1033,6 +1041,66 @@ class StringSpec(DataSpec):
                 raise TypeError("StringSpec convenience list values must have length 1")
             value = dict(value=value[0])
         super(StringSpec, self).__set__(obj, value)
+
+class UnitsSpec(NumberSpec):
+    def __init__(self, default, units_type, units_default, help=None):
+        super(UnitsSpec, self).__init__(default=default, help=help)
+        self._units_type = self._validate_type_param(units_type)
+        self._units_type.validate(units_default)
+        self._units_type._default = units_default
+
+    def to_dict(self, obj):
+        d = super(UnitsSpec, self).to_dict(obj)
+        d["units"] = getattr(obj, self.name+"_units")
+        return d
+
+    def __str__(self):
+        val = getattr(self, self._name, self.default)
+        return "%s(%r, default_units=%r)" % (self.__class__.__name__, val, self._units_type._default)
+
+class AngleSpec(UnitsSpec):
+    def __init__(self, default, units_default="rad", help=None):
+        super(AngleSpec, self).__init__(default=default, units_type=Enum(enums.AngleUnits), units_default=units_default, help=help)
+
+class DistanceSpec(UnitsSpec):
+    def __init__(self, default, units_default="data", help=None):
+        super(DistanceSpec, self).__init__(default=default, units_type=Enum(enums.SpatialUnits), units_default=units_default, help=help)
+
+    def __set__(self, obj, value):
+        try:
+            if value < 0:
+                raise ValueError("Distances must be non-negative")
+        except TypeError:
+            pass
+        super(DistanceSpec, self).__set__(obj, value)
+
+class ScreenDistanceSpec(NumberSpec):
+    def to_dict(self, obj):
+        d = super(ScreenDistanceSpec, self).to_dict(obj)
+        d["units"] = "screen"
+        return d
+
+    def __set__(self, obj, value):
+        try:
+            if value < 0:
+                raise ValueError("Distances must be non-negative")
+        except TypeError:
+            pass
+        super(ScreenDistanceSpec, self).__set__(obj, value)
+
+class DataDistanceSpec(NumberSpec):
+    def to_dict(self, obj):
+        d = super(ScreenDistanceSpec, self).to_dict(obj)
+        d["units"] = "data"
+        return d
+
+    def __set__(self, obj, value):
+        try:
+            if value < 0:
+                raise ValueError("Distances must be non-negative")
+        except TypeError:
+            pass
+        super(DataDistanceSpec, self).__set__(obj, value)
 
 class ColorSpec(DataSpec):
     def __init__(self, default, help=None):

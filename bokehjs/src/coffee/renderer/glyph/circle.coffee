@@ -11,8 +11,11 @@ class CircleView extends Glyph.View
     # NOTE: Order is important here: size is always present (at least
     # a default), but radius is only present if a user specifies it
     if @radius?
-      rd = @fields.radius_dimension.fixed_value
-      @sradius = @sdist(@renderer["#{rd}mapper"], @[rd], @radius)
+      if @distances.radius.units == "data"
+        rd = @fields.radius_dimension.fixed_value
+        @sradius = @sdist(@renderer["#{rd}mapper"], @[rd], @radius)
+      else
+        @sradius = @radius
     else
       @sradius = (s/2 for s in @size)
 

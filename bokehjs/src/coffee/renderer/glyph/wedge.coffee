@@ -8,7 +8,10 @@ class WedgeView extends Glyph.View
     @_xy_index()
 
   _map_data: () ->
-    @sradius = @sdist(@renderer.xmapper, @x, @radius)
+    if @distances.radius.units == "data"
+      @sradius = @sdist(@renderer.xmapper, @x, @radius)
+    else
+      @sradius = @radius
 
   _render: (ctx, indices, sx=@sx, sy=@sy, sradius=@sradius) ->
     for i in indices

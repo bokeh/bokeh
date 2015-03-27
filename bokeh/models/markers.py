@@ -7,7 +7,7 @@ from __future__ import absolute_import
 from .glyphs import Glyph
 from ..enums import enumeration
 from ..mixins import FillProps, LineProps
-from ..properties import Enum, Include, NumberSpec
+from ..properties import DistanceSpec, Enum, Include, NumberSpec, ScreenDistanceSpec
 
 class Marker(Glyph):
     """ Base class for glyphs that are simple markers with line and
@@ -30,7 +30,7 @@ class Marker(Glyph):
     The y-axis coordinates for the center of the markers.
     """)
 
-    size = NumberSpec(default=4, help="""
+    size = ScreenDistanceSpec(default=4, help="""
     The size (diameter) values for the markers. Interpreted as
     "screen space" units by default.
     """)
@@ -69,7 +69,7 @@ class Circle(Marker):
 
     """
 
-    radius = NumberSpec(default=None, help="""
+    radius = DistanceSpec("radius", help="""
     The radius values for circle markers. Interpreted in
     "data space" units by default.
 

@@ -7,18 +7,20 @@ class ArcView extends Glyph.View
     @_xy_index()
 
   _map_data: () ->
-    @sradius = @sdist(@renderer.xmapper, @x, @radius)
+    if @distances.radius.units == "data"
+      rd = @fields.radius_dimension.fixed_value
+      @sradius = @sdist(@renderer["#{rd}mapper"], @[rd], @radius)
+    else
+      @sradius = @radius
 
   _render: (ctx, indices, sx=@sx, sy=@sy, sradius=@sradius) ->
     if @visuals.line.do_stroke
       for i in indices
-        if isNaN(sx[i] + sy[i] + sradius[i] + @start_angle[i] + @end_angle[i] +
-                 @direction[i])
+        if isNaN(sx[i] + sy[i] + sradius[i] + @start_angle[i] + @end_angle[i] + @direction[i])
           continue
 
         ctx.beginPath()
-        ctx.arc(sx[i], sy[i], sradius[i], @start_angle[i], @end_angle[i],
-                @direction[i])
+        ctx.arc(sx[i], sy[i], sradius[i], @start_angle[i], @end_angle[i], @direction[i])
 
         @visuals.line.set_vectorize(ctx, i)
         ctx.stroke()

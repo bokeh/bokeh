@@ -15,21 +15,14 @@ class RectView extends Glyph.View
     @_xy_index()
 
   _map_data: () ->
-    [sxi, syi] = @renderer.map_to_screen(@x, @y)
-
-    @sw = @sdist(@renderer.xmapper, @x, @width, 'center', @mget('dilate'))
-    @sh = @sdist(@renderer.ymapper, @y, @height, 'center', @mget('dilate'))
-    @sx = new Array(sxi.length)
-    @sy = new Array(sxi.length)
-    for i in [0...sxi.length]
-      if Math.abs(sxi[i]-@sw[i]) < 2
-        @sx[i] = Math.round(sxi[i])
-      else
-        @sx[i] = sxi[i]
-      if Math.abs(syi[i]-@sh[i]) < 2
-        @sy[i] = Math.round(syi[i])
-      else
-        @sy[i] = syi[i]
+    if @distances.width.units == "data"
+      @sw = @sdist(@renderer.xmapper, @x, @width, 'center', @mget('dilate'))
+    else
+      @sw = @width
+    if @distances.height.units == "data"
+      @sh = @sdist(@renderer.ymapper, @y, @height, 'center', @mget('dilate'))
+    else
+      @sh = @height
 
   _render: (ctx, indices, sx=@sx, sy=@sy, sw=@sw, sh=@sh) ->
     if @visuals.fill.do_fill
@@ -98,7 +91,7 @@ class RectView extends Glyph.View
     else
       # the dilation by a factor of two is a quick and easy way to make
       # sure we cover cases with rotated
-      if @width_units == "screen" or xcat
+      if @distances.width.units == "screen" or xcat
         max_width = @max_width
         if xcat
           max_width = @renderer.xmapper.map_to_target(max_width)
@@ -109,7 +102,7 @@ class RectView extends Glyph.View
         x0 = x - 2*@max_width
         x1 = x + 2*@max_width
 
-      if @height_units == "screen" or ycat
+      if @distances.height.units == "screen" or ycat
         max_height = @max_height
         if ycat
           max_height = @renderer.ymapper.map_to_target(max_height)
@@ -158,7 +151,7 @@ class RectView extends Glyph.View
   _bounds: (bds) ->
     return [
       [bds[0][0]-@max_w2, bds[0][1]+@max_w2],
-      [bds[1][1]-@max_h2, bds[1][1]+@max_h2]
+      [bds[1][0]-@max_h2, bds[1][1]+@max_h2]
     ]
 
 class Rect extends Glyph.Model

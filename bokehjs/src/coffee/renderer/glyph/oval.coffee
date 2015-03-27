@@ -15,8 +15,14 @@ class OvalView extends Glyph.View
     @_xy_index()
 
   _map_data: () ->
-    @sw = @sdist(@renderer.xmapper, @x, @width, 'center')
-    @sh = @sdist(@renderer.ymapper, @y, @height, 'center')
+    if @distances.width.units == "data"
+      @sw = @sdist(@renderer.xmapper, @x, @width, 'center')
+    else
+      @sw = @width
+    if @distances.height.units == "data"
+      @sh = @sdist(@renderer.ymapper, @y, @height, 'center')
+    else
+      @sh = @height
 
   _render: (ctx, indices, sx=@sx, sy=@sy, sw=@sw, sh=@sh) ->
     for i in indices
@@ -68,7 +74,7 @@ class OvalView extends Glyph.View
   _bounds: (bds) ->
     return [
       [bds[0][0]-@max_w2, bds[0][1]+@max_w2],
-      [bds[1][1]-@max_h2, bds[1][1]+@max_h2]
+      [bds[1][0]-@max_h2, bds[1][1]+@max_h2]
     ]
 
 class Oval extends Glyph.Model
