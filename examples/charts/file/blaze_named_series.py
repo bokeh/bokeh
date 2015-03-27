@@ -3,7 +3,7 @@ from blaze import Data
 import pandas as pd
 import numpy as np
 from bokeh.sampledata import iris
-from bokeh.charts import * #Line, show, output_file, vplot, hplot, Step, Area
+from bokeh.charts import *
 from bokeh.models.widgets import Panel, Tabs
 
 bbvalues = Data(join(dirname(iris.__file__), 'iris.csv'))

@@ -62,12 +62,6 @@ def Step(values, index=None, **kws):
         show(step)
 
     """
-
-    if index is not None:
-        msg = "bokeh.charts.Line index argument is deprecated since Bokeh 0.8.2. Use x_names instead!"
-        warn(msg, DeprecationWarning, stacklevel=2)
-        kws['x_names'] = index
-
     return create_and_build(StepBuilder, values, **kws)
 
 

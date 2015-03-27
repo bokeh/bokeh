@@ -27,11 +27,11 @@ except:
 
 from collections import OrderedDict
 
-from ..utils import chunk, cycle_colors, make_scatter
+from ..utils import make_scatter, _marker_types
 from .._builder import create_and_build, Builder
 from .._data_adapter import DataAdapter
 from ...models import ColumnDataSource, Range1d, DataRange1d
-from ...properties import String, Bool
+from ...properties import String, Enum
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -85,11 +85,9 @@ class ScatterBuilder(Builder):
 
     """
 
-    # TODO: (bev) should be an enumeration
-    marker = String("circle", help="""
+    marker = Enum(*_marker_types.keys(), help="""
     The marker type to use (default: ``circle``).
     """)
-
 
     def _process_data(self):
         """Parse data received from self._values and create correct x, y
