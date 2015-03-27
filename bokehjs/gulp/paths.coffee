@@ -1,9 +1,11 @@
-JS_BUILD = "./build/js/"
+BUILD_DIR = "./build/"
+JS_BUILD = "#{BUILD_DIR}js/"
 
 module.exports =
   buildDir:
+    all: BUILD_DIR
     js: JS_BUILD
-    css: "./build/css/"
+    css: "#{BUILD_DIR}css/"
   coffee:
     destination:
       full: "bokeh.js"
