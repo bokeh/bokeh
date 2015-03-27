@@ -1,7 +1,7 @@
 $ = require "jquery"
 Backbone = require "backbone"
 Hammer = require "hammer"
-mousewheel = require "jquery-mousewheel"
+mousewheel = require("jquery-mousewheel")($)
 {logger} = require "./logging"
 
 class UIEvents extends Backbone.Model
