@@ -52,7 +52,7 @@ BOKEHJSBUILD = join(BOKEHJSROOT, 'build')
 CSS = join(BOKEHJSBUILD, 'css')
 JS  = join(BOKEHJSBUILD, 'js')
 
-SERVER = 'bokeh/server'
+SERVER = join(ROOT, 'bokeh/server')
 
 if sys.version_info[0] < 3:
     input = raw_input
@@ -380,9 +380,9 @@ sampledata_suffixes = ('.csv', '.conf', '.gz', '.json', '.png', '.ics')
 
 package_path(join(SERVER, 'static'))
 package_path(join(SERVER, 'templates'))
-package_path(join('bokeh', '_templates'))
-package_path(join('bokeh', 'sampledata'), sampledata_suffixes)
-package_path(join('bokeh', 'server', 'redis.conf'))
+package_path(join(ROOT, 'bokeh', '_templates'))
+package_path(join(ROOT, 'bokeh', 'sampledata'), sampledata_suffixes)
+package_path(join(ROOT, 'bokeh', 'server', 'redis.conf'))
 package_path(join(SERVER, 'tests', 'config'))
 package_path(join(SERVER, 'tests', 'data'))
 scripts = ['bokeh-server', 'websocket_worker.py']
