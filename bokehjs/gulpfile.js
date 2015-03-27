@@ -1,4 +1,5 @@
 var gulp = require("gulp");
+var uglify = require("gulp-uglifyjs");
 var browserify = require("browserify");
 var source = require("vinyl-source-stream");
 
@@ -21,6 +22,12 @@ gulp.task("scripts", function() {
     .pipe(gulp.dest("./build/js/"))
 });
 
-gulp.task("default", ["scripts"], function() {
+gulp.task("minify", ["scripts"], function() {
+  return gulp.src("./build/js/bokeh.js")
+    .pipe(uglify("bokeh.min.js"))
+    .pipe(gulp.dest("./build/js/"))
+})
+
+gulp.task("default", ["minify"], function() {
   gulp.watch("./src/coffee/**/*.coffee", ["scripts"]);
 })
