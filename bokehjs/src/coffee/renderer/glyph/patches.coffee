@@ -32,7 +32,7 @@ class PatchesView extends Glyph.View
 
   _render: (ctx, indices) ->
     for i in indices
-      [sx, sy] = @renderer.map_to_screen(@xs[i], @ys[i])
+      [sx, sy] = [@sxs[i], @sys[i]]
 
       if @visuals.fill.do_fill
         @visuals.fill.set_vectorize(ctx, i)
