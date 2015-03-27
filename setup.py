@@ -214,7 +214,7 @@ For more information, see the Dev Guide:
 
 BUILD_FAIL_MSG = """ Failed.
 
-ERROR: 'grunt deploy' returned error message:
+ERROR: 'gulp minify' returned error message:
 
 %s
 """
@@ -225,15 +225,22 @@ ERROR: could not determine sizes:
     %s
 """
 
+BUILD_SUCCESS_MSG =""" Success!
+
+Build output:
+
+%s
+"""
+
 def build_js():
     print("Building BokehJS... ", end="")
     sys.stdout.flush()
     os.chdir('bokehjs')
 
     if sys.platform != "win32":
-        cmd = [join('node_modules', '.bin', 'grunt'), 'deploy']
+        cmd = [join('node_modules', '.bin', 'gulp'), 'minify']
     else:
-        cmd = [join('node_modules', '.bin', 'grunt.cmd'), 'deploy']
+        cmd = [join('node_modules', '.bin', 'gulp.cmd'), 'minify']
 
     try:
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
@@ -243,13 +250,15 @@ def build_js():
     finally:
         os.chdir('..')
 
+    msg = proc.stdout.read().decode('ascii', errors='ignore')
+
     if proc.wait() != 0:
         msg = proc.stdout.read()
-        print(BUILD_FAIL_MSG % msg.decode('ascii'))
+        print(BUILD_FAIL_MSG % msg)
         sys.exit(1)
 
-    print("Success!")
-    print()
+    msg = "\n".join(["    " + x for x in msg.split("\n")])
+    print(BUILD_SUCCESS_MSG % msg, end="")
     print("Build artifact sizes:")
     try:
         blddir = join("bokehjs", "build")
