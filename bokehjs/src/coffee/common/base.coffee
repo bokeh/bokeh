@@ -11,7 +11,7 @@ else
   Config.prefix = '/'
 console.log('Bokeh: setting prefix to', Config.prefix)
 
-mod_cache =
+locations =
   OpenURL:                  'action/open_url'
 
   Plot:                     require './plot'
@@ -127,71 +127,71 @@ mod_cache =
   HoverTool:                require '../tool/inspectors/hover_tool'
   InspectTool:              require '../tool/inspectors/inspect_tool'
 
-  StringFormatter:          require('../widget/cell_formatters').String
-  NumberFormatter:          require('../widget/cell_formatters').Number
-  BooleanFormatter:         require('../widget/cell_formatters').Boolean
-  DateFormatter:            require('../widget/cell_formatters').Date
+  # StringFormatter:          require('../widget/cell_formatters').String
+  # NumberFormatter:          require('../widget/cell_formatters').Number
+  # BooleanFormatter:         require('../widget/cell_formatters').Boolean
+  # DateFormatter:            require('../widget/cell_formatters').Date
 
-  StringEditor:             require('../widget/cell_editors').String
-  TextEditor:               require('../widget/cell_editors').Text
-  SelectEditor:             require('../widget/cell_editors').Select
-  PercentEditor:            require('../widget/cell_editors').Percent
-  CheckboxEditor:           require('../widget/cell_editors').Checkbox
-  IntEditor:                require('../widget/cell_editors').Int
-  NumberEditor:             require('../widget/cell_editors').Number
-  TimeEditor:               require('../widget/cell_editors').Time
-  DateEditor:               require('../widget/cell_editors').Date
+  # StringEditor:             require('../widget/cell_editors').String
+  # TextEditor:               require('../widget/cell_editors').Text
+  # SelectEditor:             require('../widget/cell_editors').Select
+  # PercentEditor:            require('../widget/cell_editors').Percent
+  # CheckboxEditor:           require('../widget/cell_editors').Checkbox
+  # IntEditor:                require('../widget/cell_editors').Int
+  # NumberEditor:             require('../widget/cell_editors').Number
+  # TimeEditor:               require('../widget/cell_editors').Time
+  # DateEditor:               require('../widget/cell_editors').Date
 
-  TableColumn:              require '../widget/table_column'
-  DataTable:                require '../widget/data_table'
-  Paragraph:                require '../widget/paragraph'
-  HBox:                     require '../widget/hbox'
-  VBox:                     require '../widget/vbox'
-  VBoxForm:                 require '../widget/vboxform'
-  TextInput:                require '../widget/text_input'
-  AutocompleteInput:        require '../widget/autocomplete_input'
-  PreText:                  require '../widget/pretext'
-  Select:                   require '../widget/selectbox'
-  Slider:                   require '../widget/slider'
-  CrossFilter:              require '../widget/crossfilter'
-  MultiSelect:              require '../widget/multiselect'
-  DateRangeSlider:          require '../widget/date_range_slider'
-  DatePicker:               require '../widget/date_picker'
-  Panel:                    require '../widget/panel'
-  Tabs:                     require '../widget/tabs'
-  Dialog:                   require '../widget/dialog'
-  Icon:                     require '../widget/icon'
-  Button:                   require '../widget/button'
-  Toggle:                   require '../widget/toggle'
-  Dropdown:                 require '../widget/dropdown'
-  CheckboxGroup:            require '../widget/checkbox_group'
-  RadioGroup:               require '../widget/radio_group'
-  CheckboxButtonGroup:      require '../widget/checkbox_button_group'
-  RadioButtonGroup:         require '../widget/radio_button_group'
-  SimpleApp:                require '../widget/simpleapp'
+  # TableColumn:              require '../widget/table_column'
+  # DataTable:                require '../widget/data_table'
+  # Paragraph:                require '../widget/paragraph'
+  # HBox:                     require '../widget/hbox'
+  # VBox:                     require '../widget/vbox'
+  # VBoxForm:                 require '../widget/vboxform'
+  # TextInput:                require '../widget/text_input'
+  # AutocompleteInput:        require '../widget/autocomplete_input'
+  # PreText:                  require '../widget/pretext'
+  # Select:                   require '../widget/selectbox'
+  # Slider:                   require '../widget/slider'
+  # CrossFilter:              require '../widget/crossfilter'
+  # MultiSelect:              require '../widget/multiselect'
+  # DateRangeSlider:          require '../widget/date_range_slider'
+  # DatePicker:               require '../widget/date_picker'
+  # Panel:                    require '../widget/panel'
+  # Tabs:                     require '../widget/tabs'
+  # Dialog:                   require '../widget/dialog'
+  # Icon:                     require '../widget/icon'
+  # Button:                   require '../widget/button'
+  # Toggle:                   require '../widget/toggle'
+  # Dropdown:                 require '../widget/dropdown'
+  # CheckboxGroup:            require '../widget/checkbox_group'
+  # RadioGroup:               require '../widget/radio_group'
+  # CheckboxButtonGroup:      require '../widget/checkbox_button_group'
+  # RadioButtonGroup:         require '../widget/radio_button_group'
+  # SimpleApp:                require '../widget/simpleapp'
 
-  AppHBox:                  require '../widget/layouts/apphbox'
-  AppVBox:                  require '../widget/layouts/appvbox'
-  AppVBoxForm:              require '../widget/layouts/appvboxform'
+  # AppHBox:                  require '../widget/layouts/apphbox'
+  # AppVBox:                  require '../widget/layouts/appvbox'
+  # AppVBoxForm:              require '../widget/layouts/appvboxform'
 
-  AutoEncode:               require '../transforms/autoencode'
-  BinarySegment:            require '../transforms/binarysegment'
-  Const:                    require '../transforms/const'
-  Contour:                  require '../transforms/contour'
-  Count:                    require '../transforms/count'
-  CountCategories:          require '../transforms/countcategories'
-  Cuberoot:                 require '../transforms/cuberoot'
-  HDAlpha:                  require '../transforms/hdalpha'
-  Encode:                   require '../transforms/encode'
-  Id:                       require '../transforms/id'
-  Interpolate:              require '../transforms/interpolate'
-  InterpolateColor:         require '../transforms/interpolatecolor'
-  Log:                      require '../transforms/log'
-  NonZero:                  require '../transforms/nonzero'
-  Ratio:                    require '../transforms/ratio'
-  Seq:                      require '../transforms/seq'
-  Spread:                   require '../transforms/spread'
-  ToCounts:                 require '../transforms/tocounts'
+  # AutoEncode:               require '../transforms/autoencode'
+  # BinarySegment:            require '../transforms/binarysegment'
+  # Const:                    require '../transforms/const'
+  # Contour:                  require '../transforms/contour'
+  # Count:                    require '../transforms/count'
+  # CountCategories:          require '../transforms/countcategories'
+  # Cuberoot:                 require '../transforms/cuberoot'
+  # HDAlpha:                  require '../transforms/hdalpha'
+  # Encode:                   require '../transforms/encode'
+  # Id:                       require '../transforms/id'
+  # Interpolate:              require '../transforms/interpolate'
+  # InterpolateColor:         require '../transforms/interpolatecolor'
+  # Log:                      require '../transforms/log'
+  # NonZero:                  require '../transforms/nonzero'
+  # Ratio:                    require '../transforms/ratio'
+  # Seq:                      require '../transforms/seq'
+  # Spread:                   require '../transforms/spread'
+  # ToCounts:                 require '../transforms/tocounts'
 
 collection_overrides = {}
 
@@ -209,15 +209,15 @@ Collections = (typename) ->
   # else
   #   submodulename = null
 
-  # if not mod_cache[modulename]?
+  # if not locations[modulename]?
   #   mod = require modulename
 
   #   if mod?
-  #     mod_cache[modulename] = mod
+  #     locations[modulename] = mod
   #   else
   #     throw new Error("improperly implemented collection: #{modulename}")
 
-  mod = mod_cache[typename]
+  mod = locations[typename]
 
   # if submodulename?
   #   mod = mod[submodulename]
@@ -231,8 +231,7 @@ index = {}
 
 module.exports =
   collection_overrides: collection_overrides # for testing only
-  mod_cache: mod_cache # for testing only
-  locations: locations
+  locations: locations # for testing only
   index: index
   Collections: Collections
   Config: Config

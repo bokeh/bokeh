@@ -1,3 +1,4 @@
+_ = require "underscore"
 Backbone = require "backbone"
 {logger} = require "../../common/logging"
 Tool = require "../tool"

@@ -100,8 +100,7 @@ class BoxSelectTool extends SelectTool.Model
 class BoxSelectTools extends Collection
   model: BoxSelectTool
 
-return {
-  "Model": BoxSelectTool,
-  "Collection": new BoxSelectTools(),
-  "View": BoxSelectToolView,
-}
+module.exports =
+  Model: BoxSelectTool
+  View: BoxSelectToolView
+  Collection: new BoxSelectTools()

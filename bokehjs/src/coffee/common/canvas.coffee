@@ -1,9 +1,10 @@
+_ = require "underscore"
 Collection = require "./collection"
-{Expr, Constraint, EQ} = require "kiwi"
+{Expression, Constraint, Operator} = require "kiwi"
 canvas_template = require "./canvas_template"
 ContinuumView = require "./continuum_view"
 LayoutBox = require "./layout_box"
-{logging} = require "./logging"
+{logger} = require "./logging"
 Solver = require "./solver"
 
 class CanvasView extends ContinuumView
@@ -116,8 +117,8 @@ class Canvas extends LayoutBox.Model
 
     @new_bounds = true
 
-    solver.add_constraint(new Constraint(new Expr(@_left), EQ))
-    solver.add_constraint(new Constraint(new Expr(@_bottom), EQ))
+    solver.add_constraint(new Constraint(new Expression(@_left), Operator.Eq))
+    solver.add_constraint(new Constraint(new Expression(@_bottom), Operator.Eq))
     @_set_dims([@get('canvas_width'), @get('canvas_height')])
 
     logger.debug("Canvas initialized")
@@ -167,7 +168,7 @@ class Canvas extends LayoutBox.Model
   _set_width: (width, update=true) ->
     if @_width_constraint?
       @solver.remove_constraint(@_width_constraint)
-    @_width_constraint = new Constraint(new Expr(@_width, -width), EQ)
+    @_width_constraint = new Constraint(new Expression(@_width, -width), Operator.Eq)
     @solver.add_constraint(@_width_constraint)
     if update
       @solver.update_variables()
@@ -176,7 +177,7 @@ class Canvas extends LayoutBox.Model
   _set_height: (height, update=true) ->
     if @_height_constraint?
       @solver.remove_constraint(@_height_constraint)
-    @_height_constraint = new Constraint(new Expr(@_height, -height), EQ)
+    @_height_constraint = new Constraint(new Expression(@_height, -height), Operator.Eq)
     @solver.add_constraint(@_height_constraint)
     if update
       @solver.update_variables()

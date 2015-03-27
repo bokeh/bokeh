@@ -53,10 +53,7 @@
       "js",
       "eco"
     ],
-    "transform": [
-      "browserify-shim",
-      "browserify-eco"
-    ]
+    "transform": []
   },
   "browser": {
     "bootstrap/button": "./src/vendor/bootstrap-3.1.1/js/button.js",
@@ -79,7 +76,6 @@
   "dependencies": {
     "hammerjs": "^2.0.4",
     "jquery": "^2.1.1",
-    "jquery-handsontable": "https://github.com/handsontable/jquery-handsontable/tarball/v0.10.5",
     "jquery-ui": "^1.10.5",
     "jsnlog": "^2.7.6",
     "kiwi": "^0.2.2",

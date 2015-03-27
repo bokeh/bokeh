@@ -16,8 +16,9 @@ if not window.Float64Array
 
 # binding the libs that bokeh uses so others can reference them
 Bokeh._                 = require("underscore")
-Bokeh.$                 = require("./jquery-private")
+Bokeh.$                 = require("jquery")
 Bokeh.Backbone          = require("backbone")
+Bokeh.Backbone.$        = Bokeh.$
 
 # common
 Bokeh.Collections       = require("./common/base").Collections

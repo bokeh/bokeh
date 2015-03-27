@@ -26,4 +26,4 @@ class Solver
 
 _.extend(Solver.prototype,  Backbone.Events)
 
-return Solver
+module.exports = Solver

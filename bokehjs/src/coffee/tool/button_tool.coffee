@@ -1,3 +1,4 @@
+_ = require "underscore"
 Backbone = require "backbone"
 Tool = require "./tool"
 button_tool_template = require "./button_tool_template"

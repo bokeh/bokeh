@@ -21,13 +21,6 @@ gulp.task("scripts", function() {
     .pipe(gulp.dest("./build/js/"))
 });
 
-gulp.task('eco', function(){
-  gulp.src('./src/templates/**/*.eco')
-    .pipe(template({author: "Continuum Analytics"}))
-    .pipe(gulp.dest('./build'));
-});
-
-
 gulp.task("default", ["scripts"], function() {
   gulp.watch("./src/coffee/**/*.coffee", ["scripts"]);
 })

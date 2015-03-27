@@ -4,7 +4,8 @@ kiwi = require "kiwi"
 HasProperties = require "./has_properties"
 Range1d = require "../range/range1d"
 
-{Var, Expr, Constraint, EQ, LE, GE} = kiwi
+{Variable, Expression, Constraint, Operator } = kiwi
+{Eq, Le, Ge} = Operator
 
 class LayoutBox extends HasProperties
   type: 'LayoutBox'
@@ -17,24 +18,24 @@ class LayoutBox extends HasProperties
 
     for v in ['top', 'left', 'width', 'height']
       name = '_'+v
-      @[name] = new Var(v)
+      @[name] = new Variable(v)
       @register_property(v, @_get_var, false)
       @register_setter(v, @_set_var)
       @solver.add_edit_variable(@[name], kiwi.Strength.strong)
 
     for v in ['right', 'bottom']
       name = '_'+v
-      @[name] = new Var(v)
+      @[name] = new Variable(v)
       @register_property(v, @_get_var, false)
 
-    @solver.add_constraint(new Constraint(new Expr(@_top), GE))
-    @solver.add_constraint(new Constraint(new Expr(@_bottom), GE))
-    @solver.add_constraint(new Constraint(new Expr(@_left), GE))
-    @solver.add_constraint(new Constraint(new Expr(@_right), GE))
-    @solver.add_constraint(new Constraint(new Expr(@_width), GE))
-    @solver.add_constraint(new Constraint(new Expr(@_height), GE))
-    @solver.add_constraint(new Constraint(new Expr(@_left, @_width, [-1, @_right]), EQ))
-    @solver.add_constraint(new Constraint(new Expr(@_bottom, @_height, [-1, @_top]), EQ))
+    @solver.add_constraint(new Constraint(new Expression(@_top), Ge))
+    @solver.add_constraint(new Constraint(new Expression(@_bottom), Ge))
+    @solver.add_constraint(new Constraint(new Expression(@_left), Ge))
+    @solver.add_constraint(new Constraint(new Expression(@_right), Ge))
+    @solver.add_constraint(new Constraint(new Expression(@_width), Ge))
+    @solver.add_constraint(new Constraint(new Expression(@_height), Ge))
+    @solver.add_constraint(new Constraint(new Expression(@_left, @_width, [-1, @_right]), Eq))
+    @solver.add_constraint(new Constraint(new Expression(@_bottom, @_height, [-1, @_top]), Eq))
 
     @_h_range = new Range1d.Model({
       start: @get('left'),
@@ -80,7 +81,7 @@ class LayoutBox extends HasProperties
     else if _.isString(value)
         # handle namespaced later
     else
-      c = new Constraint(new Expr(v, [-1, value]), EQ)
+      c = new Constraint(new Expression(v, [-1, value]), Eq)
       if not @var_constraints[prop_name]?
         @var_constraints[prop_name] = []
       @var_constraints[prop_name].push(c)
@@ -92,7 +93,7 @@ class LayoutBox extends HasProperties
   _set_aspect: (aspect) ->
     if @_aspect_constraint?
       @solver.remove_constraint(@aspect_constraint)
-      c = new Constraint(new Expr([aspect, @_height], [-1, @_width]), EQ)
+      c = new Constraint(new Expression([aspect, @_height], [-1, @_width]), Eq)
       @_aspect_constraint = c
       @solver.add_constraint(c)
 

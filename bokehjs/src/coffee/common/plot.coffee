@@ -16,7 +16,8 @@ ToolManager = require "./tool_manager"
 plot_template = require "./plot_template"
 properties = require "../renderer/properties"
 
-{Expr, Constraint, EQ, LE, GE} = kiwi
+{Expression, Constraint, Operator} = kiwi
+{Eq, Le, Ge} = Operator
 
 class PlotView extends ContinuumView
   className: "bk-plot"
@@ -370,14 +371,14 @@ class Plot extends HasParent
       c0 = '_'+cnames[0]
       c1 = '_'+cnames[1]
       solver.add_constraint(
-        new Constraint(new Expr(box['_'+dim], -min_size), GE),
+        new Constraint(new Expression(box['_'+dim], -min_size), Ge),
         kiwi.Strength.strong)
       solver.add_constraint(
-        new Constraint(new Expr(frame[c0], [-1, box[c1]]),
-        EQ))
+        new Constraint(new Expression(frame[c0], [-1, box[c1]]),
+        Eq))
       solver.add_constraint(
-        new Constraint(new Expr(box[c0], [-1, canvas[c0]]),
-        EQ))
+        new Constraint(new Expression(box[c0], [-1, canvas[c0]]),
+        Eq))
       last = frame
       elts = @get(side)
       for r in elts
@@ -386,21 +387,21 @@ class Plot extends HasParent
         if r.initialize_layout?
           r.initialize_layout(solver)
         solver.add_constraint(
-          new Constraint(new Expr(last[c0], [-1, r[c1]]), EQ),
+          new Constraint(new Expression(last[c0], [-1, r[c1]]), Eq),
           kiwi.Strength.strong)
         last = r
       padding = new LayoutBox.Model({solver: solver})
       solver.add_constraint(
-        new Constraint(new Expr(last[c0], [-1, padding[c1]]), EQ),
+        new Constraint(new Expression(last[c0], [-1, padding[c1]]), Eq),
         kiwi.Strength.strong)
       solver.add_constraint(
-        new Constraint(new Expr(padding[c0], [-1, canvas[c0]]), EQ),
+        new Constraint(new Expression(padding[c0], [-1, canvas[c0]]), Eq),
         kiwi.Strength.strong)
 
-    do_side(solver, min_border_top, 'above', ['top', 'bottom'], 'height', LE)
-    do_side(solver, min_border_bottom, 'below', ['bottom', 'top'], 'height', GE)
-    do_side(solver, min_border_left, 'left', ['left', 'right'], 'width', GE)
-    do_side(solver, min_border_right, 'right', ['right', 'left'], 'width', LE)
+    do_side(solver, min_border_top, 'above', ['top', 'bottom'], 'height', Le)
+    do_side(solver, min_border_bottom, 'below', ['bottom', 'top'], 'height', Ge)
+    do_side(solver, min_border_left, 'left', ['left', 'right'], 'width', Ge)
+    do_side(solver, min_border_right, 'right', ['right', 'left'], 'width', Le)
 
   add_renderers: (new_renderers) ->
     renderers = @get('renderers')

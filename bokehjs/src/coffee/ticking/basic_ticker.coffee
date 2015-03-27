@@ -1,3 +1,4 @@
+_ = require "underscore"
 Collection = require "../common/collection"
 AdaptiveTicker = require "./adaptive_ticker"
 

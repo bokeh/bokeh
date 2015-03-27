@@ -1,3 +1,4 @@
+_ = require "underscore"
 HasProperties = require "../common/has_properties"
 {logger} = require "../common/logging"
 PlotWidget = require "../common/plot_widget"

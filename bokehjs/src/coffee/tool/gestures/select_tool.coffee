@@ -1,3 +1,4 @@
+_ = require "underscore"
 {logger} = require "../../common/logging"
 GestureTool = require "./gesture_tool"
 

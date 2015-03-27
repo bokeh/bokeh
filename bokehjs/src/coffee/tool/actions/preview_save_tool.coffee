@@ -31,8 +31,7 @@ class PreviewSaveTool extends ActionTool.Model
 class PreviewSaveTools extends Collection
   model: PreviewSaveTool
 
-return {
+module.exports =
   Model: PreviewSaveTool
   View: PreviewSaveToolView
   Collection: new PreviewSaveTools()
-}
