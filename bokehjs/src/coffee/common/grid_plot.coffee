@@ -83,7 +83,7 @@ class GridToolManager extends ToolManager.Model
     for typ, tools of actions
       if tools.length != @get('num_plots')
         continue
-      proxy = new oolProxy({tools: tools})
+      proxy = new ToolProxy({tools: tools})
       tmp = @get('actions')
       tmp.push(proxy)
       @set('actions', tmp)
