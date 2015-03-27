@@ -24,6 +24,10 @@ gulp.task("scripts", function() {
     .pipe(gulp.dest("./build/js/"))
 });
 
+gulp.task("scripts-watch", ["scripts"], function() {
+  gulp.watch(["./src/coffee/**/**", "./src/vendor/**/**"], ["scripts"]);
+});
+
 gulp.task("minify", ["scripts"], function() {
   return gulp.src("./build/js/bokeh.js")
     .pipe(uglify("bokeh.min.js"))

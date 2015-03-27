@@ -1,6 +1,6 @@
 $ = require "jquery"
 Backbone = require "backbone"
-Hammer = require "hammer"
+Hammer = require "hammerjs"
 mousewheel = require("jquery-mousewheel")($)
 {logger} = require "./logging"
 
