@@ -43,7 +43,6 @@ class CircleView extends Glyph.View
       sy1 = vr.get('end') - @max_size
       [y0, y1] = @renderer.ymapper.v_map_from_target([sy0, sy1])
 
-
     return (x[4].i for x in @index.search([x0, y0, x1, y1]))
 
   _render: (ctx, indices, sx=@sx, sy=@sy, sradius=@sradius) ->

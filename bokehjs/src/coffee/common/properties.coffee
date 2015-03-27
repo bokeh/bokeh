@@ -218,32 +218,32 @@ class Line extends ContextProperties
     ctx.setLineDashOffset(@dash_offset.value())
 
   set_vectorize: (ctx, i) ->
+    @cache_select("color", i)
     if ctx.strokeStyle != @cache.fill
-      @cache_select("color", i)
       ctx.strokeStyle = @cache.color
 
+    @cache_select("alpha", i)
     if ctx.globalAlpha != @cache.alpha
-      @cache_select("alpha", i)
       ctx.globalAlpha = @cache.alpha
 
+    @cache_select("width", i)
     if ctx.lineWidth != @cache.width
-      @cache_select("width", i)
       ctx.lineWidth = @cache.width
 
+    @cache_select("join", i)
     if ctx.lineJoin != @cache.join
-      @cache_select("join", i)
       ctx.lineJoin = @cache.join
 
+    @cache_select("cap", i)
     if ctx.lineCap != @cache.cap
-      @cache_select("cap", i)
       ctx.lineCap = @cache.cap
 
+    @cache_select("dash", i)
     if ctx.getLineDash() != @cache.dash
-      @cache_select("dash", i)
       ctx.setLineDash(@cache.dash)
 
+    @cache_select("dash_offset", i)
     if ctx.getLineDashOffset() != @cache.dash_offset
-      @cache_select("dash_offset", i)
       ctx.setLineDash(@cache.dash_offset)
 
 
@@ -271,12 +271,12 @@ class Fill extends ContextProperties
     ctx.globalAlpha = @alpha.value()
 
   set_vectorize: (ctx, i) ->
+    @cache_select("color", i)
     if ctx.fillStyle != @cache.fill
-      @cache_select("color", i)
       ctx.fillStyle = @cache.color
 
+    @cache_select("alpha", i)
     if ctx.globalAlpha != @cache.alpha
-      @cache_select("alpha", i)
       ctx.globalAlpha = @cache.alpha
 
 class Text extends ContextProperties
@@ -343,24 +343,24 @@ class Text extends ContextProperties
     ctx.textBaseline = @baseline.value()
 
   set_vectorize: (ctx, i) ->
+    @cache_select("font", i)
     if ctx.font != @cache.font
-      @cache_select("font", i)
       ctx.font = @cache.font
 
+    @cache_select("color", i)
     if ctx.fillStyle != @cache.color
-      @cache_select("color", i)
       ctx.fillStyle = @cache.color
 
+    @cache_select("alpha", i)
     if ctx.globalAlpha != @cache.alpha
-      @cache_select("alpha", i)
       ctx.globalAlpha = @cache.alpha
 
+    @cache_select("align", i)
     if ctx.textAlign != @cache.align
-      @cache_select("align", i)
       ctx.textAlign = @cache.align
 
+    @cache_select("baseline", i)
     if ctx.textBaseline != @cache.baseline
-      @cache_select("baseline", i)
       ctx.textBaseline = @cache.baseline
 
 #

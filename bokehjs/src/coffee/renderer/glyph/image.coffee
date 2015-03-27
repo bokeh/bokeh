@@ -4,6 +4,9 @@ LinearColorMapper = require "../../mapper/linear_color_mapper"
 
 class ImageView extends Glyph.View
 
+  _index_data: () ->
+    @_xy_index()
+
   _set_data: () ->
     if not @image_data? or @image_data.length != @image.length
       @image_data = new Array(@image.length)
@@ -38,17 +41,16 @@ class ImageView extends Glyph.View
       @image_data[i] = canvas
 
       @max_dw = 0
-      if @glyph.dw.units != "screen"
+      if @dw.units == "data"
         @max_dw = _.max(@dw)
       @max_dh = 0
-      if @glyph.dh.units != "screen"
+      if @dh.units == "data"
         @max_dh = _.max(@dh)
       @_xy_index()
 
   _map_data: () ->
-    [@sx, @sy] = @renderer.map_to_screen(@x, @y)
-    @sw = @distance_vector('x', 'dw', 'edge', @mget('dilate'))
-    @sh = @distance_vector('y', 'dh', 'edge', @mget('dilate'))
+    @sw = @sdist(@renderer.xmapper, @x, @dw, 'edge', @mget('dilate'))
+    @sh = @sdist(@renderer.ymapper, @y, @dh, 'edge', @mget('dilate'))
 
   _render: (ctx, indices) ->
     old_smoothing = ctx.getImageSmoothingEnabled()
@@ -84,7 +86,7 @@ class Image extends Glyph.Model
   type: 'Image'
   visuals: []
   distances: ['dw', 'dh']
-  fields: ['image:array', 'rows', 'cols', 'palette:string']
+  fields: ['image:array', '?rows', '?cols', 'palette:string']
 
   display_defaults: ->
     return _.extend {}, super(), {

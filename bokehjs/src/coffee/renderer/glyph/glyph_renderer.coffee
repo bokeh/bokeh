@@ -70,7 +70,10 @@ class GlyphRendererView extends PlotWidget
     @selection_glyph.map_data()
     @nonselection_glyph.map_data()
 
-    indices = @all_indices
+    if @glyph._mask_data?
+      indices = @glyph._mask_data()
+    else
+      indices = @all_indices
 
     ctx = @plot_view.canvas_view.ctx
     ctx.save()

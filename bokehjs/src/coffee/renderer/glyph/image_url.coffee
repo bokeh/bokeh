@@ -3,6 +3,9 @@ Glyph = require "./glyph"
 
 class ImageURLView extends Glyph.View
 
+  _index_data: () ->
+    @_xy_index()
+
   _set_data: () ->
     @image = (null for img in @url)
     @need_load = (true for img in @url)
@@ -10,9 +13,8 @@ class ImageURLView extends Glyph.View
     @_xy_index()
 
   _map_data: () ->
-    [@sx, @sy] = @renderer.map_to_screen(@x, @y)
-    @sw = @distance_vector('x', 'w', 'edge', @mget('dilate'))
-    @sh = @distance_vector('y', 'h', 'edge', @mget('dilate'))
+    @sw = @sdist(@renderer.xmapper, @x, @w, 'edge', @mget('dilate'))
+    @sh = @sdist(@renderer.ymapper, @y, @h, 'edge', @mget('dilate'))
 
   _render: (ctx, indices) ->
     for i in indices
