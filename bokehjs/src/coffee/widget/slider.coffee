@@ -1,5 +1,5 @@
 _ = require "underscore"
-$1 = require "jquery_ui/slider"
+$1 = require "jquery-ui/slider"
 Collection = require "../common/collection"
 ContinuumView = require "../common/continuum_view"
 HasParent = require "../common/has_parent"

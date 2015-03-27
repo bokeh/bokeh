@@ -8,9 +8,9 @@
  */
 
 var $ = require("jquery");
-require("jquery_ui/core");
-require("jquery_ui/widget");
-require("jquery_ui/mouse");
+require("jquery-ui/core");
+require("jquery-ui/widget");
+require("jquery-ui/mouse");
 require("jquery_mousewheel");
 "use strict";
 

@@ -1,6 +1,6 @@
 _ = require "underscore"
 $ = require "jquery"
-$1 = require "jquery_ui/datepicker"
+$1 = require "jquery-ui/datepicker"
 Collection = require "../common/collection"
 ContinuumView = require "../common/continuum_view"
 HasProperties = require "../common/has_properties"

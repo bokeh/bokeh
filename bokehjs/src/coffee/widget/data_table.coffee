@@ -1,6 +1,6 @@
 _ = require "underscore"
 $ = require "jquery"
-$1 = require "jquery_ui/sortable"
+$1 = require "jquery-ui/sortable"
 SlickGrid = require "slick_grid/slick.grid"
 RowSelectionModel = require "slick_grid/plugins/slick.rowselectionmodel"
 CheckboxSelectColumn = require "slick_grid/plugins/slick.checkboxselectcolumn"
