@@ -16,6 +16,14 @@ module.exports =
       "./src/coffee/**/**",
     ]
 
+  css:
+    sources: [
+      "./build/css/bokeh.css"
+    ]
+    watchSources: [
+      "./build/css/bokeh.css",
+    ]
+
   less:
     sources: [
       "./src/less/bokeh.less",
