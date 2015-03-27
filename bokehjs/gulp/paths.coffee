@@ -1,7 +1,9 @@
 JS_BUILD = "./build/js/"
+
 module.exports =
   buildDir:
     js: JS_BUILD
+    css: "./build/css/"
   coffee:
     destination:
       full: "bokeh.js"
@@ -12,4 +14,12 @@ module.exports =
     ]
     watchSources: [
       "./src/coffee/**/**",
+    ]
+
+  less:
+    sources: [
+      "./src/less/bokeh.less",
+    ]
+    watchSources: [
+      "./src/less/**/**",
     ]
