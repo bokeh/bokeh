@@ -17,6 +17,6 @@ describe "categorical mapper", ->
     )
 
   it "should map factors evenly", ->
-    expect(mapper.map_to_target('foo')).to equal 30
-    expect(mapper.map_to_target('bar')).to equal 50
-    expect(mapper.map_to_target('baz')).to equal 70
+    expect(mapper.map_to_target('foo')).to.equal 30
+    expect(mapper.map_to_target('bar')).to.equal 50
+    expect(mapper.map_to_target('baz')).to.equal 70
