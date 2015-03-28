@@ -56,6 +56,7 @@ class RadioButtonGroup extends HasParent
 class RadioButtonGroups extends Collection
   model: RadioButtonGroup
 
+module.exports =
   Model: RadioButtonGroup
   View: RadioButtonGroupView
   Collection: new RadioButtonGroups()
