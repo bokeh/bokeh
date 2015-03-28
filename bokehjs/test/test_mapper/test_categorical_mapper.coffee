@@ -9,10 +9,13 @@ describe "categorical mapper", ->
   start = 20
   end = 80
 
-  testMapping = (key, expected) ->
-    mapper = Collections("CategoricalMapper").create
+  generateMapper = ->
+    Collections("CategoricalMapper").create
       source_range: Collections("FactorRange").create factors: factors
       target_range: Collections("Range1d").create start: start, end: end
+
+  testMapping = (key, expected) ->
+    mapper = generateMapper()
     expect(mapper.map_to_target key).to.equal expected
 
   it "should map first category to bottom third", ->
