@@ -10,9 +10,10 @@ describe "has_parent module", ->
     base.locations['TestParent'] = fixtures
   after ->
     base.locations['TestParent'] = undefined
+  beforeEach ->
+    fixtures.Collection.reset()
 
   it "should have parent settings that propagate", ->
-    fixtures.Collection.reset()
     parent = Collections('TestParent').create
       id: 'parent'
       testprop: 'aassddff'
@@ -20,16 +21,15 @@ describe "has_parent module", ->
       id: 'first'
       parent: parent.ref()
 
-    expect(parent.get "testprop").to.equal("aassddff")
-    expect(parent.get "testprop").to.equal(child.get "testprop")
+    expect(parent.get "testprop").to.equal "aassddff"
+    expect(parent.get "testprop").to.equal child.get("testprop")
 
   it "should propagate display_defaults if not overridden", ->
-    fixtures.Collection.reset()
     parent = Collections("TestParent").create
       id: "parent"
     child = Collections("TestParent").create
       id: "child"
       parent: parent.ref()
 
-    expect(parent.get "testprop").to.equal("defaulttestprop")
-    expect(parent.get "testprop").to.equal(child.get "testprop")
+    expect(parent.get "testprop").to.equal "defaulttestprop"
+    expect(parent.get "testprop").to.equal child.get("testprop")
