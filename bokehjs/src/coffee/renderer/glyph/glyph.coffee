@@ -156,6 +156,13 @@ define [
           type = @model.type
           logger.warn("'point' selection not available on #{type} renderer")
           @_point_hit_warned = true
+      else if geometry.type == "span"
+        if @_hit_span?
+          result = @_hit_span(geometry)
+        else if not @_span_hit_warned?
+          type = @model.type
+          logger.warn("'span' selection not available on #{type} renderer")
+          @_span_hit_warned = true
       else if geometry.type == "rect"
         if @_hit_rect?
           result = @_hit_rect(geometry)

@@ -45,10 +45,18 @@ define [
 
     _inspect: (vx, vy, e) ->
       geometry = {
-        type: 'point'
-        vx: vx
-        vy: vy
-      }
+          vx: vx
+          vy: vy
+        }
+      if @mget('mode') == 'point'
+        geometry['type'] = 'point'
+      else
+        geometry['type'] = 'span'
+        if @mget('mode') == 'vline'
+          geometry.direction = 'v'
+        else
+          geometry.direction = 'h'
+
       for r in @mget('renderers')
         sm = r.get('data_source').get('selection_manager')
         sm.inspect(@, @plot_view.renderers[r.id], geometry, {"geometry": geometry})
@@ -61,7 +69,7 @@ define [
 
       tooltip.clear()
 
-      if indices.length == 0
+      if indices['0d'].flag == false
         return
 
       vx = geometry.vx
@@ -78,14 +86,28 @@ define [
       x = xmapper.map_from_target(vx)
       y = ymapper.map_from_target(vy)
 
-      for i in indices
-        if @mget('snap_to_data') and renderer.glyph.sx? and renderer.glyph.sy?
-          rx = canvas.sx_to_vx(renderer.glyph.sx[i])
-          ry = canvas.sy_to_vy(renderer.glyph.sy[i])
-        else
-          [rx, ry] = [vx, vy]
+      for i in indices['0d'].indices
+        # get x, y values from the rendered glyph
+        if @mget('hit_value_mode') == "hit_interpolate"
+          hit_point = renderer.glyph.check_interpolation_hit(i, geometry)
+#          x = hit_point.x
+#          y = hit_point.y
+#          [vx, vy] = [x, y]
 
-        vars = {index: i, x: x, y: y, vx: vx, vy: vy, sx: sx, sy: sy}
+          rx = renderer.xmapper.v_map_to_target([hit_point.x])[0]
+          ry = renderer.ymapper.v_map_to_target([hit_point.y])[0]
+        else
+          if @mget('snap_to_data') and renderer.glyph.sx? and renderer.glyph.sy?
+            rx = canvas.sx_to_vx(renderer.glyph.sx[i])
+            ry = canvas.sy_to_vy(renderer.glyph.sy[i])
+            x = renderer.glyph.x[i]
+            y = renderer.glyph.y[i]
+          else
+            [rx, ry] = [vx, vy]
+
+        # TODO: Color is temp, to be removed before merging!
+        color = renderer.glyph.props.line.line_color.value
+        vars = {index: i, x: x, y: y, vx: vx, vy: vy, sx: sx, sy: sy, color: color, rx: rx, ry: ry}
         tooltip.add(rx, ry, @_render_tooltips(ds, i, vars))
 
       return null
@@ -97,11 +119,13 @@ define [
         return $('<div>').html(Util.replace_placeholders(tooltips, ds, i, vars))
       else
         table = $('<table></table>')
+        table.css({ backgroundColor: vars.color})
 
         for [label, value] in tooltips
           row = $("<tr></tr>")
           row.append($("<td class='bk-tooltip-row-label'>#{ label }: </td>"))
           td = $("<td class='bk-tooltip-row-value'></td>")
+
 
           if value.indexOf("$color") >= 0
             [match, opts, colname] = value.match(/\$color(\[.*\])?:(\w*)/)
@@ -113,6 +137,7 @@ define [
             hex = opts?.indexOf("hex") >= 0
             swatch = opts?.indexOf("swatch") >= 0
             color = column[i]
+
             if not color?
               span = $("<span>(null)</span>")
               td.append(span)
@@ -156,11 +181,18 @@ define [
     defaults: () ->
       return _.extend({}, super(), {
         snap_to_data: true
+        hit_value_mode: 'snap_to_data' # 'glyph_center', 'hit_interpolate', 'mouse_point',
+
+        point_policy: "snap_to_data" #, "follow_mouse", "none"
+        line_policy: "prev" # "next", "nearest", "interp", "none"
+        conflict_policy: "line" #, "point", "both"
+
         tooltips: [
           ["index",         "$index"]
           ["data (x, y)",   "($x, $y)"]
           ["canvas (x, y)", "($sx, $sy)"]
         ]
+        mode: 'point'
       })
 
   class HoverTools extends Collection
