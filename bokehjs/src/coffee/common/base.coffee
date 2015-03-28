@@ -1,4 +1,5 @@
 _ = require "underscore"
+window = {location: {href: "local"}} unless window?
 
 # add some useful functions to underscore
 require("./custom").monkey_patch()

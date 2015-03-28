@@ -1,6 +1,6 @@
 _ = require "underscore"
 Backbone = require "backbone"
-kiwi = require "kiwi"
+kiwi = if global._bokehTest? then global._bokehTest.kiwi else require "kiwi"
 build_views = require "./build_views"
 Canvas = require "./canvas"
 CartesianFrame = require "./cartesian_frame"

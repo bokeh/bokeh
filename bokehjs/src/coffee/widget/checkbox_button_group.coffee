@@ -1,6 +1,9 @@
 _ = require "underscore"
 $ = require "jquery"
-$1 = require "bootstrap/button"
+if global._bokehTest?
+  $1 = undefined  # TODO Make work
+else
+  $1 = require "bootstrap/button"
 Collection = require "../common/collection"
 ContinuumView = require "../common/continuum_view"
 HasParent = require "../common/has_parent"

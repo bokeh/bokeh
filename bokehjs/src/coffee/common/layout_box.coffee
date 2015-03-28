@@ -1,6 +1,6 @@
 _ = require "underscore"
 Collection = require "./collection"
-kiwi = require "kiwi"
+kiwi = if global._bokehTest? then global._bokehTest.kiwi else require "kiwi"
 HasProperties = require "./has_properties"
 Range1d = require "../range/range1d"
 

@@ -2,6 +2,9 @@ _ = require "underscore"
 Collection = require "../../common/collection"
 GestureTool = require "./gesture_tool"
 
+# Here for testing purposes
+document = {} unless document?
+
 class WheelZoomToolView extends GestureTool.View
 
   _pinch: (e) ->

@@ -33,3 +33,9 @@ module.exports =
     watchSources: [
       "./src/less/**/**",
     ]
+
+  test:
+    watchSources: [
+      "./test/**/**",
+      "./src/coffee/**/**",
+    ]

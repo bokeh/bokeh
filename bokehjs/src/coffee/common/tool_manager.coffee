@@ -1,6 +1,10 @@
 _ = require "underscore"
 $ = require "jquery"
-$$1 = require "bootstrap/dropdown"
+if global._bokehTest?
+  # TODO Make work
+  $$1 = undefined
+else
+  $$1 = require "bootstrap/dropdown"
 Backbone = require "backbone"
 ActionTool = require "../tool/actions/action_tool"
 GestureTool = require "../tool/gestures/gesture_tool"

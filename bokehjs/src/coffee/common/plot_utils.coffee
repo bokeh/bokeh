@@ -3,9 +3,9 @@ LEVELS = ['image', 'underlay', 'glyph', 'overlay', 'annotation', 'tool']
 _delay_animation = (f) ->
   return f()
 
-delay_animation = window.requestAnimationFrame ||
-        window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame ||
-        window.msRequestAnimationFrame || _delay_animation
+delay_animation = window?.requestAnimationFrame ||
+        window?.mozRequestAnimationFrame || window?.webkitRequestAnimationFrame ||
+        window?.msRequestAnimationFrame || _delay_animation
 
 # Returns a function, that, when invoked, will only be triggered at
 # most once during a given window of time.  If the browser supports

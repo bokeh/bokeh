@@ -1,6 +1,7 @@
 _ = require "underscore"
 Collection = require "./collection"
-{Expression, Constraint, Operator} = require "kiwi"
+kiwi = if global._bokehTest? then global._bokehTest.kiwi else require "kiwi"
+{Expression, Constraint, Operator} = kiwi
 canvas_template = require "./canvas_template"
 ContinuumView = require "./continuum_view"
 LayoutBox = require "./layout_box"

@@ -1,5 +1,8 @@
 _ = require "underscore"
-$1 = require "jquery-ui/autocomplete"
+if global._bokehTest?
+  $1 = undefined  # TODO Make work
+else
+  $1 = require "jquery-ui/autocomplete"
 Collection = require "../common/collection"
 TextInput = require "./text_input"
 

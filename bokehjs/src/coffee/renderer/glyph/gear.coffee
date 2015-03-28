@@ -1,6 +1,9 @@
 _ = require "underscore"
 Glyph = require "./glyph"
-GearUtils = require "gear_utils"
+if global._bokehTest?
+  GearUtils = undefined  # TODO Make work
+else
+  GearUtils = require "gear_utils"
 Bezier = require "../../util/bezier"
 
 class GearView extends Glyph.View

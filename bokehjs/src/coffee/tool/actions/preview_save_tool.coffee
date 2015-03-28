@@ -1,6 +1,9 @@
 _ = require "underscore"
 $ = require "jquery"
-$1 = require "bootstrap/modal"
+if global._bokehTest?
+  $1 = undefined  # TODO Make work
+else
+  $1 = require "bootstrap/modal"
 Collection = require "../../common/collection"
 ActionTool = require "./action_tool"
 preview_save_tool_template = require "./preview_save_tool_template"
