@@ -1,3 +1,4 @@
+_ = require "underscore"
 {expect} = require "chai"
 utils = require "../utils"
 
@@ -26,3 +27,8 @@ describe "categorical mapper", ->
 
   it "should map third category to upper third", ->
     testMapping "baz", 70
+
+  it "should map vector to even array", ->
+    # TODO Determine if v_map_to_target should actually return an array
+    vectors = _.values generateMapper().v_map_to_target factors
+    expect(vectors).to.deep.equal [30, 50, 70]
