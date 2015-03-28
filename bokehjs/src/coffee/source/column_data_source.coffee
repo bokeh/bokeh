@@ -25,25 +25,11 @@ class ColumnDataSource extends HasProperties
       # if lengths.length == 1
       #     return lengths[0]
       # else
-      #     throw new Error("data source has columns of inconsitent lengths")
+      #     throw new Error("data source has columns of inconsistent lengths")
 
   columns: () ->
     # return the column names in this data source
     return _.keys(@get('data'))
-
-  datapoints: () ->
-    # return the data in this data source as a "array of records"
-    data = @get('data')
-    fields = _.keys(data)
-    if fields.length == 0
-      return []
-    points = []
-    for i in [0...data[fields[0]].length]
-      point = {}
-      for field in fields
-        point[field] = data[field][i]
-      points.push(point)
-    return points
 
   defaults: =>
     return _.extend {}, super(), {
