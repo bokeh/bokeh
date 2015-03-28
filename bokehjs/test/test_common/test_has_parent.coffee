@@ -1,6 +1,6 @@
 {expect} = require "chai"
 utils = require "../utils"
-fixtures = require "./test_parent"
+fixtures = require "./fixtures/parent"
 
 base = utils.require "common/base"
 {Collections} = base

@@ -1,5 +1,5 @@
 _ = require "underscore"
-utils = require "../utils"
+utils = require "../../utils"
 Collection = utils.require "common/collection"
 HasParent = utils.require "common/has_parent"
 
