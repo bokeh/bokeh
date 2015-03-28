@@ -4,6 +4,7 @@ utils = require "../utils"
 {Collections} = utils.require "common/base"
 
 describe "categorical mapper", ->
+  # FIXME Would be nice to randomize the numbers
   factors = ["foo", "bar", "baz"]
   start = 20
   end = 80
