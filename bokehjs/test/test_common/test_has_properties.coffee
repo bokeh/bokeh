@@ -4,7 +4,6 @@ fixtures = require "./fixtures/object"
 
 base = utils.require "common/base"
 {Collections} = base
-ContinuumView = utils.require "common/continuum_view"
 HasProperties = utils.require "common/has_properties"
 
 describe "has_properties module", ->
