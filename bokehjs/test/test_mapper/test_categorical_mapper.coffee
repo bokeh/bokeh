@@ -5,7 +5,7 @@ utils = require "../utils"
 
 describe "categorical mapper", ->
   mapper = null
-  beforeEach ->
+  before ->
     mapper = Collections('CategoricalMapper').create(
       source_range: Collections('FactorRange').create
         factors: ['foo', 'bar', 'baz']
@@ -13,7 +13,11 @@ describe "categorical mapper", ->
         start: 20, 'end': 80
     )
 
-  it "should map factors evenly", ->
-    expect(mapper.map_to_target('foo')).to.equal 30
-    expect(mapper.map_to_target('bar')).to.equal 50
-    expect(mapper.map_to_target('baz')).to.equal 70
+  it "should map first category to bottom third", ->
+    expect(mapper.map_to_target "foo").to.equal 30
+
+  it "should map second category to middle", ->
+    expect(mapper.map_to_target "bar").to.equal 50
+
+  it "should map third category to upper third", ->
+    expect(mapper.map_to_target "baz").to.equal 70
