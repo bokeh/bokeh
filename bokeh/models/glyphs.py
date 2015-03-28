@@ -434,7 +434,7 @@ class ImageURL(Glyph):
     """)
 
     # TODO: (bev) rename to "dw" for consistency
-    w = NumberSpec("w", help="""
+    w = DistanceSpec("w", help="""
     The widths of the plot regions that the images will occupy.
 
     .. note::
@@ -459,7 +459,7 @@ class ImageURL(Glyph):
 
     """)
 
-    angle = DistanceSpec(default=0, help="""
+    angle = AngleSpec(default=0, help="""
     The angles to rotate the images, in radians as measured from the
     horizontal.
     """)
