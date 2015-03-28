@@ -1,6 +1,5 @@
 _ = require "underscore"
 $ = require "jquery"
-base = require "./base"
 load_models = require "./load_models"
 
 bulk_save = (models) ->
