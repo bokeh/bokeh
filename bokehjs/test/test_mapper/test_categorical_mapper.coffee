@@ -29,7 +29,7 @@ describe "categorical mapper", ->
 
   describe "vector mapping", ->
     vectors = generateMapper().v_map_to_target factors
-    it "should map to a Float64Array", ->
+    it "should be an instance of Float64Array", ->
       expect(vectors).to.be.an.instanceof Float64Array
 
     it "should be evenly distributed", ->
