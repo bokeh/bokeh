@@ -1,7 +1,6 @@
 $ = require "jquery"
 _ = require "underscore"
 Backbone = require "backbone"
-base = require "./base"
 {logger} = require "./logging"
 
 _is_ref = (arg) ->
