@@ -1,19 +1,16 @@
 {expect} = require "chai"
 utils = require "../utils"
 
-base = utils.require "common/base"
-{Collections} = base
-
-console.log base.locations['CategoricalMapper']
-console.log base.Collections('CategoricalMapper')
-console.log base.collection_overrides
+{Collections} = utils.require "common/base"
 
 describe "categorical mapper", ->
   mapper = null
   beforeEach ->
     mapper = Collections('CategoricalMapper').create(
-      source_range: Collections('FactorRange').create({factors: ['foo', 'bar', 'baz']})
-      target_range: Collections('Range1d').create({start: 20, 'end': 80})
+      source_range: Collections('FactorRange').create
+        factors: ['foo', 'bar', 'baz']
+      target_range: Collections('Range1d').create
+        start: 20, 'end': 80
     )
 
   it "should map factors evenly", ->
