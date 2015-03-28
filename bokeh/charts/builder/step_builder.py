@@ -18,20 +18,15 @@ passing the arguments to the Chart class and calling the proper functions.
 from __future__ import absolute_import
 
 import numpy as np
-from six import string_types
-
-from ..utils import cycle_colors
 from .._builder import create_and_build, Builder
-from ...models import ColumnDataSource, DataRange1d, GlyphRenderer
 from ...models.glyphs import Line
-from warnings import warn
 
 #-----------------------------------------------------------------------------
 # Classes and functions
 #-----------------------------------------------------------------------------
 
 
-def Step(values, index=None, **kws):
+def Step(values, **kws):
     """ Create a step chart using :class:`StepBuilder <bokeh.charts.builder.step_builder.StepBuilder>`
     render the geometry from values and index.
 
@@ -103,7 +98,7 @@ class StepBuilder(Builder):
         for x in self.x_names:
             try:
                 orig_xs = self._values[x]
-            except (KeyError, IndexError):
+            except (KeyError, IndexError, ValueError):
                 orig_xs = self._values.index
 
             xs = np.empty(2*len(orig_xs)-1, dtype=np.int)

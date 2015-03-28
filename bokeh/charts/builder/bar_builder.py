@@ -20,13 +20,11 @@ from __future__ import absolute_import, print_function, division
 
 try:
     import numpy as np
-
 except ImportError:
     raise RuntimeError("bokeh.charts Bar chart requires NumPy.")
 
-from ..utils import chunk, cycle_colors
 from .._builder import Builder, create_and_build
-from ...models import ColumnDataSource, FactorRange, GlyphRenderer, Range1d
+from ...models import FactorRange, Range1d
 from ...models.glyphs import Rect
 from ...properties import Any, Bool, Either, List
 
@@ -83,7 +81,6 @@ def Bar(values, cat=None, stacked=False, xscale="categorical", yscale="linear",
         raise ValueError(
             "continuous_range must be an instance of bokeh.models.ranges.Range1d"
         )
-
     # The continuous_range is the y_range (until we implement HBar charts)
     y_range = continuous_range
 
@@ -149,31 +146,29 @@ class BarBuilder(Builder):
         )
         # list to save all the groups available in the incomming input grouping
         step = np.linspace(0, 1.0, len(self._values.keys()) + 1, endpoint=False)
-        self._groups.extend(self._values.keys())
 
         for i, (val, values) in enumerate(self._values.items()):
-            self.set_and_get("", val, list(values))
+            self._data[val] = list(values)
             mid = np.array(values) / 2
-            self.set_and_get("mid", val, mid)
-            self.set_and_get("stacked", val, zero + mid)
+            self._data["mid%s" % val] = mid
             # Grouped
-            grouped = [c + ":" + str(step[i + 1]) for c in self.cat]
-            self.set_and_get("cat", val, grouped)
+            self._data["cat%s" % val] = [c + ":" + str(step[i + 1]) for c in self.cat]
             # Stacked
+            self._data["stacked%s" % val] = zero + mid
             zero += values
 
     def _set_ranges(self):
         """Push the Bar data into the ColumnDataSource and calculate
         the proper ranges.
         """
-        # self._source = ColumnDataSource(self._data)
-        self.x_range = FactorRange(factors=self._source.data["cat"])
+        if not self.x_range:
+            self.x_range = FactorRange(factors=self._source.data["cat"])
 
         if not self.y_range:
             if self.stacked:
                 data = np.array(self._data['zero'])
             else:
-                cats = [i for i in self._attr if not i.startswith(("mid", "stacked", "cat"))]
+                cats = [i for i in self.y_names if not i.startswith(("mid", "stacked", "cat"))]
                 data = np.array([self._data[cat] for cat in cats])
 
             all_positive = True if np.all(data > 0) else False
@@ -194,12 +189,11 @@ class BarBuilder(Builder):
     def _create_glyph(self, xname, yname, color):
         if self.stacked:
             return Rect(
-                        x="cat", y="stacked%s" % yname, width="width", height=yname,
-                        fill_color=color, fill_alpha=0.7, line_color="white"
-                    )
+                x="cat", y="stacked%s" % yname, width="width", height=yname,
+                fill_color=color, fill_alpha=0.7, line_color="white"
+            )
         else:
             return Rect(
-                    x="cat%s" % yname, y="mid%s" % yname, width="width_cat",
-                    height=yname, fill_color=color, fill_alpha=0.7,
-                    line_color="white"
-                )
+                x="cat%s" % yname, y="mid%s" % yname, width="width_cat",
+                height=yname, fill_color=color, fill_alpha=0.7, line_color="white"
+            )

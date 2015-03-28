@@ -131,10 +131,6 @@ class HistogramBuilder(Builder):
 
         # fill the data dictionary with the proper values
         for i, (col, values) in enumerate(self._values.items()):
-            # self.set_and_get("", val, values)
-
-            # add the original series to _data so it can be found in source
-            # and can also be used for tooltips..
             if not col in self._data:
                 self._data[col] = values
 
@@ -143,30 +139,26 @@ class HistogramBuilder(Builder):
                 hist, edges = np.histogram(
                     np.array(values), density=self.density, bins=self.bins
                 )
-                self.set_and_get("hist", col, hist)
-                self.set_and_get("edges", col, edges)
-                self.set_and_get("left", col, edges[:-1])
-                self.set_and_get("right", col, edges[1:])
-                self.set_and_get("bottom", col, np.zeros(len(hist)))
+                self._data['hist%s' % col] = hist
+                self._data["edges%s" % col] = edges
+                self._data["left%s" % col] = edges[:-1]
+                self._data["right%s" % col] = edges[1:]
+                self._data["bottom%s" % col] = np.zeros(len(hist))
 
                 self._mu_and_sigma = False
                 if self.mu is not None and self.sigma is not None:
                     if _is_scipy:
                         self._mu_and_sigma = True
-                        self.set_and_get("x", col, np.linspace(-2, 2, len(self._data[col])))
+                        x_val = self._data["x" + col] = np.linspace(-2, 2, len(self._data[col]))
                         den = 2 * self.sigma ** 2
-                        x_val = self._data["x" + col]
                         x_val_mu = x_val - self.mu
                         sigsqr2pi = self.sigma * np.sqrt(2 * np.pi)
                         pdf = 1 / (sigsqr2pi) * np.exp(-x_val_mu ** 2 / den)
-                        self.set_and_get("pdf", col, pdf)
-                        self._groups.append("pdf")
+                        self._data['pdf%s' % col] = pdf
                         cdf = (1 + scipy.special.erf(x_val_mu / np.sqrt(den))) / 2
-                        self.set_and_get("cdf", col, cdf)
-                        self._groups.append("cdf")
+                        self._data['cdf%s' % col] = cdf
                     else:
                         print("You need scipy to get the theoretical probability distributions.")
-
 
     def _set_ranges(self):
         """Push the Histogram data into the ColumnDataSource and calculate
@@ -201,9 +193,7 @@ class HistogramBuilder(Builder):
         ColumnDataSurce.
         """
         if not self._mu_and_sigma:
-            sextets = list(chunk(self._attr, 6))
-            colors = cycle_colors(sextets, self.palette)
-
+            colors = cycle_colors(self.y_names, self.palette)
             for color, name in zip(colors, self.y_names):
                 glyph = Quad(
                     top='hist%s' % name, bottom='bottom%s' % name,
@@ -216,9 +206,7 @@ class HistogramBuilder(Builder):
                 yield renderer
 
         else:
-            nonets = list(chunk(self._attr, 9))
-            colors = cycle_colors(nonets, self.palette)
-
+            colors = cycle_colors(self.y_names, self.palette)
             for color, name in zip(colors, self.y_names):
                 glyph = Quad(
                     top='hist%s' % name, bottom='bottom%s' % name,

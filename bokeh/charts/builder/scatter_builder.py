@@ -30,8 +30,8 @@ from collections import OrderedDict
 from ..utils import make_scatter, _marker_types
 from .._builder import create_and_build, Builder
 from .._data_adapter import DataAdapter
-from ...models import ColumnDataSource, Range1d, DataRange1d
-from ...properties import String, Enum
+from ...models import ColumnDataSource
+from ...properties import Enum
 
 #-----------------------------------------------------------------------------
 # Classes and functions

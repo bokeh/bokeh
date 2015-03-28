@@ -95,7 +95,8 @@ class DonutBuilder(Builder):
         """
         dd = dict(zip(self._values.keys(), self._values.values()))
         self._df = df = pd.DataFrame(dd)
-        self._groups = df.index = self.cat
+        # self._groups = df.index = self.cat
+        df.index = self.cat
         df.columns = self._values.keys()
 
         # Get the sum per category
@@ -107,9 +108,9 @@ class DonutBuilder(Builder):
         end_angles = angles.tolist()
         start_angles = [0] + end_angles[:-1]
         colors = cycle_colors(self.cat, self.palette)
-        self.set_and_get("", "colors", colors)
-        self.set_and_get("", "end", end_angles)
-        self.set_and_get("", "start", start_angles)
+        self._data['colors'] = colors
+        self._data['end'] = end_angles
+        self._data['start'] = start_angles
 
     def _set_ranges(self):
         """Push the Donut data into the ColumnDataSource and calculate

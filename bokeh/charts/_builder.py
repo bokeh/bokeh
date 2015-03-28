@@ -251,29 +251,3 @@ class Builder(HasProps):
     @property
     def colors(self):
         return cycle_colors(self.y_names, self.palette)
-
-    def _set_and_get(self, data, prefix, attr, val, content):
-        """Set a new attr and then get it to fill the self._data dict.
-
-        Keep track of the attributes created.
-
-        Args:
-            data (dict): where to store the new attribute content
-            attr (list): where to store the new attribute names
-            val (string): name of the new attribute
-            content (obj): content of the new attribute
-        """
-        data["%s%s" % (prefix, val)] = content
-        attr.append("%s%s" % (prefix, val))
-
-    def set_and_get(self, prefix, val, content):
-        """Set a new attr and then get it to fill the self._data dict.
-
-        Keep track of the attributes created.
-
-        Args:
-            prefix (str): prefix of the new attribute
-            val (string): name of the new attribute
-            content (obj): content of the new attribute
-        """
-        self._set_and_get(self._data, prefix, self._attr, val, content)

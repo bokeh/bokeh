@@ -42,7 +42,7 @@ class TestHorizon(unittest.TestCase):
         xyvaluesdf = pd.DataFrame(xyvalues)
         groups = ['python', 'pypy']
         for i, _xy in enumerate([xyvalues, xyvaluesdf]):
-            ts = create_chart(Horizon, _xy, index='Date')
+            ts = create_chart(Horizon, _xy, x_names=['Date'])
             builder = ts._builders[0]
 
             padded_date = [x for x in _xy['Date']]

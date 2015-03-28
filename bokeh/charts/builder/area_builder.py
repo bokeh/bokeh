@@ -25,11 +25,9 @@ try:
 except ImportError:
     raise RuntimeError("bokeh.charts Area chart requires NumPy.")
 
-from ..utils import cycle_colors
 from .._builder import Builder, create_and_build
-from ...models import ColumnDataSource, DataRange1d, GlyphRenderer, Range1d
 from ...models.glyphs import Patch
-from ...properties import Any, Bool
+from ...properties import Bool
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -72,7 +70,7 @@ def Area(values, index=None, **kws):
             output_file('area.html')
             show(area)
     """
-    return create_and_build(AreaBuilder, values, **kws)
+    return create_and_build(AreaBuilder, values, index=None, **kws)
 
 
 class AreaBuilder(Builder):
@@ -111,8 +109,8 @@ class AreaBuilder(Builder):
 
         for col, col_values in self._values.items():
             if col in self.y_names:
-                # to draw area we need 2 coordinates. The lower values will always
-                # be:
+                # to draw area we need 2 coordinates. The lower values
+                # will always be:
                 # - 0 in case of non stacked area
                 # - the previous series top value in case of stacked charts
                 next = last + col_values
