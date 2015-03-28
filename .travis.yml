@@ -20,13 +20,11 @@ env:
 matrix:
     include:
         - python: 2.7
-          env: BOKEH_DEFAULT_NO_DEV=false BOKEH_DEFAULT_DIFF=FETCH_HEAD
-        - python: 2.7
-          env: BOKEH_DEFAULT_NO_DEV=true
+          env: BOKEH_DEFAULT_NO_DEV=true BOKEH_DEFAULT_DIFF=FETCH_HEAD
         - python: 3.3
-          env: BOKEH_DEFAULT_NO_DEV=false
+          env: BOKEH_DEFAULT_NO_DEV=true
         - python: 3.4
-          env: BOKEH_DEFAULT_NO_DEV=false
+          env: BOKEH_DEFAULT_NO_DEV=true
     exclude:
         - python: 2.7
         - python: 3.3
