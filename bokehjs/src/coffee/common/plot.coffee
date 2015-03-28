@@ -1,6 +1,11 @@
 _ = require "underscore"
 Backbone = require "backbone"
-kiwi = if global._bokehTest? then global._bokehTest.kiwi else require "kiwi"
+if global._bokehTest?
+  kiwi = {}  # TODO Make work
+else
+  kiwi = require "kiwi"
+  {Expression, Constraint, Operator} = kiwi
+  {Eq, Le, Ge} = Operator
 build_views = require "./build_views"
 Canvas = require "./canvas"
 CartesianFrame = require "./cartesian_frame"
@@ -16,8 +21,6 @@ ToolManager = require "./tool_manager"
 plot_template = require "./plot_template"
 properties = require "../renderer/properties"
 
-{Expression, Constraint, Operator} = kiwi
-{Eq, Le, Ge} = Operator
 
 class PlotView extends ContinuumView
   className: "bk-plot"

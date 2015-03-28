@@ -1,11 +1,14 @@
 _ = require "underscore"
 Collection = require "./collection"
-kiwi = if global._bokehTest? then global._bokehTest.kiwi else require "kiwi"
+if global._bokehTest?
+  kiwi = {}  # TODO Make work
+else
+  kiwi = require "kiwi"
+  {Variable, Expression, Constraint, Operator } = kiwi
+  {Eq, Le, Ge} = Operator
 HasProperties = require "./has_properties"
 Range1d = require "../range/range1d"
 
-{Variable, Expression, Constraint, Operator } = kiwi
-{Eq, Le, Ge} = Operator
 
 class LayoutBox extends HasProperties
   type: 'LayoutBox'
