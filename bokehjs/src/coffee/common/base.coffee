@@ -13,8 +13,6 @@ else
 console.log('Bokeh: setting prefix to', Config.prefix)
 
 locations =
-  OpenURL:                  'action/open_url'
-
   Plot:                     require './plot'
   GMapPlot:                 require './gmap_plot'
   GeoJSPlot:                require './geojs_plot'
@@ -28,7 +26,11 @@ locations =
   Selector:                 require './selector'
   ToolEvents:               require './tool_events'
 
+  OpenURL:                  require '../action/open_url'
+
+  CategoricalMapper:        require '../mapper/categorical_mapper'
   LinearColorMapper:        require '../mapper/linear_color_mapper'
+  LinearMapper:             require '../mapper/linear_mapper'
 
   DataRange1d:              require '../range/data_range1d'
   FactorRange:              require '../range/factor_range'
