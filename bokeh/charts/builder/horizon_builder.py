@@ -11,10 +11,9 @@ import math
 from six import string_types
 
 from .._builder import Builder, create_and_build
-from ...models import ColumnDataSource, Range1d, DataRange1d, FactorRange, GlyphRenderer, CategoricalAxis
+from ...models import Range1d, DataRange1d, FactorRange, GlyphRenderer, CategoricalAxis
 from ...models.glyphs import Patches
-from ...properties import Any, Color, Int
-from warnings import warn
+from ...properties import Color, Int
 
 #-----------------------------------------------------------------------------
 # Classes and functions

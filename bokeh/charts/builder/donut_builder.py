@@ -19,7 +19,6 @@ It also add a new chained stacked method.
 from __future__ import absolute_import, division
 from math import pi
 import pandas as pd
-
 from ..utils import cycle_colors, polar_to_cartesian
 from .._builder import Builder, create_and_build
 from ...models import ColumnDataSource, GlyphRenderer, Range1d
@@ -95,7 +94,6 @@ class DonutBuilder(Builder):
         """
         dd = dict(zip(self._values.keys(), self._values.values()))
         self._df = df = pd.DataFrame(dd)
-        # self._groups = df.index = self.cat
         df.index = self.cat
         df.columns = self._values.keys()
 

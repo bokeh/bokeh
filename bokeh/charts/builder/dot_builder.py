@@ -20,13 +20,11 @@ from __future__ import absolute_import
 import numpy as np
 try:
     import pandas as pd
-
 except ImportError:
     pd = None
-
-from ..utils import chunk, cycle_colors, make_scatter
+from ..utils import make_scatter
 from .._builder import Builder, create_and_build
-from ...models import ColumnDataSource, FactorRange, GlyphRenderer, Range1d, DataRange1d
+from ...models import FactorRange, GlyphRenderer, Range1d
 from ...models.glyphs import Segment
 from ...properties import Any, Bool, Either, List
 

@@ -17,8 +17,6 @@ the arguments to the Chart class and calling the proper functions.
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import, print_function
 
-from six import string_types
-
 try:
     import numpy as np
 

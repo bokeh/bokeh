@@ -24,7 +24,7 @@ import pandas as pd
 
 from ..utils import make_scatter
 from .._builder import Builder, create_and_build
-from ...models import ColumnDataSource, FactorRange, GlyphRenderer, Range1d, DataRange1d
+from ...models import FactorRange, GlyphRenderer, DataRange1d
 from ...models.glyphs import Rect, Segment
 from ...properties import Bool, String
 

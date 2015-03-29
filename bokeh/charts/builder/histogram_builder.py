@@ -24,9 +24,9 @@ except ImportError as e:
     _is_scipy = False
 import numpy as np
 
-from ..utils import chunk, cycle_colors
+from ..utils import cycle_colors
 from .._builder import Builder, create_and_build
-from ...models import ColumnDataSource, GlyphRenderer, Range1d
+from ...models import GlyphRenderer, Range1d
 from ...models.glyphs import Line, Quad
 from ...properties import Bool, Float, Int
 
