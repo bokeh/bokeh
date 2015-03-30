@@ -1,9 +1,8 @@
 define [
-  "underscore",
-  "rbush",
-  "renderer/properties",
-  "./glyph",
-], (_, rbush, Properties, Glyph) ->
+  "underscore"
+  "renderer/properties"
+  "./glyph"
+], (_, Properties, Glyph) ->
 
   point_in_poly = (x, y, px, py) ->
     inside = false
@@ -40,12 +39,7 @@ define [
         @max_radius = _.max(@size)/2
       else
         @max_radius = _.max(@radius)
-      @index = rbush()
-      pts = []
-      for i in [0...@x.length]
-        if not isNaN(@x[i] + @y[i])
-          pts.push([@x[i], @y[i], @x[i], @y[i], {'i': i}])
-      @index.load(pts)
+      @_xy_index()
 
     _map_data: () ->
       [@sx, @sy] = @renderer.map_to_screen(@x, @glyph.x.units, @y, @glyph.y.units)

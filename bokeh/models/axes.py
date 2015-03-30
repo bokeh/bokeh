@@ -10,7 +10,8 @@ from ..enums import Location
 
 from .renderers import GuideRenderer
 from .tickers import Ticker, BasicTicker, LogTicker, CategoricalTicker, DatetimeTicker
-from .formatters import TickFormatter, BasicTickFormatter, LogTickFormatter, CategoricalTickFormatter, DatetimeTickFormatter
+from .formatters import (TickFormatter, BasicTickFormatter, LogTickFormatter, 
+                         CategoricalTickFormatter, DatetimeTickFormatter)
 
 class Axis(GuideRenderer):
     """ A base class that defines common properties for all axis types.

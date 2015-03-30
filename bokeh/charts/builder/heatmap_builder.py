@@ -48,16 +48,17 @@ def HeatMap(values, xscale="categorical", yscale="categorical",
         :source-position: above
 
         from collections import OrderedDict
-        from bokeh.charts import HeatMap
-        from bokeh.plotting import output_file, show
+        from bokeh.charts import HeatMap, output_file, show
 
         # (dict, OrderedDict, lists, arrays and DataFrames are valid inputs)
         xyvalues = OrderedDict()
         xyvalues['apples'] = [4,5,8]
         xyvalues['bananas'] = [1,2,4]
         xyvalues['pears'] = [6,5,4]
-        output_file('heatmap.html')
+
         hm = HeatMap(xyvalues, title='Fruits')
+
+        output_file('heatmap.html')
         show(hm)
 
     """

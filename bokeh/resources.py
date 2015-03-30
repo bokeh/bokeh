@@ -12,22 +12,19 @@ Attributes:
 
 from __future__ import absolute_import
 
-from os.path import abspath, join, normpath, realpath, relpath, split, splitext
-import sys
 import logging
 logger = logging.getLogger(__name__)
+from os.path import join, relpath, splitext
+import re
 
 import six
 
-from . import __version__, settings
+from . import __version__
+from .settings import settings
+from .util.paths import bokehjsdir
 
-def _server_static_dir():
-    return join(abspath(split(__file__)[0]), "server", "static")
+_DEV_PAT = re.compile(r"^(\d)+\.(\d)+\.(\d)+(dev|rc)")
 
-def _static_path(path):
-    path = normpath(join(_server_static_dir(), path))
-    if sys.platform == 'cygwin': path = realpath(path)
-    return path
 
 def _cdn_base_url():
     return "http://cdn.pydata.org"
@@ -47,7 +44,10 @@ def _get_cdn_urls(version=None, minified=True):
     rel_container = 'bokeh/release'
 
     # check the 'dev' fingerprint
-    container = dev_container if version.endswith(('dev', 'rc')) else rel_container
+    container = dev_container if _DEV_PAT.match(version) else rel_container
+
+    if version.endswith(('dev', 'rc')):
+        logger.warn("Getting CDN URL for local dev version will not produce usable URL")
 
     result = {
         'js_files'  : ['%s/%s/bokeh-%s%s.js' % (base_url, container, version, _min)],
@@ -81,11 +81,6 @@ def _inline(paths):
         end = "/* END %s */" % path
         strings.append(begin + '\n' + middle + '\n' + end)
     return strings
-
-def _file_paths(files, minified):
-    if minified:
-        files = [ root + ".min" + ext for (root, ext) in map(splitext, files) ]
-    return [ _static_path(file) for file in files ]
 
 
 class Resources(object):
@@ -177,7 +172,7 @@ class Resources(object):
 
         js_paths = self._js_paths(dev=self.dev, minified=self.minified)
         css_paths = self._css_paths(dev=self.dev, minified=self.minified)
-        base_url = _static_path("js")
+        base_url = join(bokehjsdir(self.dev), "js")
 
         self._js_raw = []
         self._css_raw = []
@@ -246,14 +241,19 @@ class Resources(object):
             return self._root_url
         else:
             return self._default_root_url
+    
+    def _file_paths(self, files, minified):
+        if minified:
+            files = [ root + ".min" + ext for (root, ext) in map(splitext, files) ]
+        return [ join(bokehjsdir(self.dev), file) for file in files ]
 
     def _js_paths(self, minified=True, dev=False):
         files = self._default_js_files_dev if self.dev else self._default_js_files
-        return _file_paths(files, False if dev else minified)
+        return self._file_paths(files, False if dev else minified)
 
     def _css_paths(self, minified=True, dev=False):
         files = self._default_css_files_dev if self.dev else self._default_css_files
-        return _file_paths(files, False if dev else minified)
+        return self._file_paths(files, False if dev else minified)
 
     @property
     def js_wrapper(self):

@@ -101,11 +101,26 @@ define [
           el: @$(toolbar_selector)
         })
 
+      @update_dataranges()
+
       @unpause()
 
       logger.debug("PlotView initialized")
 
       return this
+
+    update_dataranges: () ->
+      # Update any DataRange1ds here
+      frame = @model.get('frame')
+      bounds = {}
+      for k, v of @renderers
+        bds = v.glyph?.bounds?()
+        if bds?
+          bounds[k] = bds
+      for xr in _.values(frame.get('x_ranges'))
+        xr.update?(bounds, 0, @)
+      for yr in _.values(frame.get('y_ranges'))
+        yr.update?(bounds, 1, @)
 
     map_to_screen: (x, x_units, y, y_units, x_name='default', y_name='default') ->
       @frame.map_to_screen(x, x_units, y, y_units, @canvas, x_name, y_name)
@@ -193,9 +208,18 @@ define [
       frame = @model.get('frame')
       canvas = @model.get('canvas')
 
+
       for k, v of @renderers
         if v.model.update_layout?
           v.model.update_layout(v, @canvas.solver)
+
+      need_dr_update = false
+      for k, v of @renderers
+        if v.have_new_data
+          need_dr_update = true
+          break
+      if need_dr_update
+        @update_dataranges()
 
       title = @mget('title')
       if title
@@ -216,6 +240,9 @@ define [
 
       if not @initial_range_info?
         @set_initial_range()
+
+      if not @initial_range_info?
+        return
 
       frame_box = [
         @canvas.vx_to_sx(@frame.get('left')),
@@ -275,6 +302,19 @@ define [
 
     initialize: (attrs, options) ->
       super(attrs, options)
+
+      for xr in _.values(@get('extra_x_ranges')).concat(@get('x_range'))
+        xr = @resolve_ref(xr)
+        plots = xr.get('plots')
+        if _.isArray(plots)
+          plots = plots.concat(@)
+          xr.set('plots', plots)
+      for yr in _.values(@get('extra_y_ranges')).concat(@get('y_range'))
+        yr = @resolve_ref(yr)
+        plots = yr.get('plots')
+        if _.isArray(plots)
+          plots = plots.concat(@)
+          yr.set('plots', plots)
 
       canvas = new Canvas.Model({
         map: @use_map ? false

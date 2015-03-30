@@ -42,7 +42,7 @@ from __future__ import absolute_import
 
 from docutils import nodes
 from docutils.parsers.rst.directives import unchanged
-from os.path import basename, dirname
+from os.path import basename
 
 import jinja2
 
@@ -84,7 +84,6 @@ class CollapsibleCodeBlock(CodeBlock):
         env = self.state.document.settings.env
 
         rst_source = self.state_machine.node.document['source']
-        rst_dir = dirname(rst_source)
         rst_filename = basename(rst_source)
 
         target_id = "%s.ccb-%d" % (rst_filename, env.new_serialno('bokeh-plot'))

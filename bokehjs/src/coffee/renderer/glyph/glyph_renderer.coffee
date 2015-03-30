@@ -30,7 +30,7 @@ define [
         nonselection_glyph.set(@model.nonselection_defaults, {silent: true})
       @nonselection_glyph = @build_glyph(nonselection_glyph)
 
-      @need_set_data = true
+      @set_data(false)
 
       @xmapper = @plot_view.frame.get('x_mappers')[@mget("x_range_name")]
       @ymapper = @plot_view.frame.get('y_mappers')[@mget("y_range_name")]
@@ -69,10 +69,6 @@ define [
         @request_render()
 
     render: () ->
-      if @need_set_data
-        @set_data(false)
-        @need_set_data = false
-
       @glyph._map_data()
 
       @selection_glyph._map_data()

@@ -62,18 +62,20 @@ def Bar(values, cat=None, stacked=False, xscale="categorical", yscale="linear",
             :source-position: above
 
             from collections import OrderedDict
-            from bokeh.charts import Bar
-            from bokeh.plotting import output_file, show
+            from bokeh.charts import Bar, output_file, show
 
             # (dict, OrderedDict, lists, arrays and DataFrames are valid inputs)
             xyvalues = OrderedDict()
             xyvalues['python']=[-2, 5]
             xyvalues['pypy']=[12, 40]
             xyvalues['jython']=[22, 30]
+
             cat = ['1st', '2nd']
-            output_file("stacked_bar.html")
+
             bar = Bar(xyvalues, cat, title="Stacked bars",
                     xlabel="category", ylabel="language")
+
+            output_file("stacked_bar.html")
             show(bar)
 
     """

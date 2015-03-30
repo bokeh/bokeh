@@ -1,13 +1,22 @@
 define [
-  "underscore",
-  "renderer/properties",
-  "./glyph",
-], (_, Properties, Glyph) ->
+  "underscore"
+  "rbush"
+  "renderer/properties"
+  "./glyph"
+], (_, rbush, Properties, Glyph) ->
 
   class SegmentView extends Glyph.View
 
     _fields: ['x0', 'y0', 'x1', 'y1']
     _properties: ['line']
+
+    _set_data: () ->
+      @index = rbush()
+      pts = []
+      for i in [0...@x0.length]
+        if not isNaN(@x0[i] + @x1[i] + @y0[i] + @y1[i])
+          pts.push([@x0[i], @y0[i], @x1[i], @y1[i], {'i': i}])
+      @index.load(pts)
 
     _map_data: () ->
       [@sx0, @sy0] = @renderer.map_to_screen(@x0, @glyph.x0.units, @y0, @glyph.y0.units)

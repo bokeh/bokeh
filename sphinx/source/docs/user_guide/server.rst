@@ -1,7 +1,7 @@
 .. _userguide_server:
 
-Bokeh Server
-============
+Using the Bokeh Server
+======================
 
 .. contents::
     :local:

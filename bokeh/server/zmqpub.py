@@ -32,10 +32,11 @@ class Publisher(object):
         finally:
             socket.close()
         log.debug('zmqpub exiting')
-    def send(self, topic, msg, exclude=[]):
+    def send(self, topic, msg, exclude=None):
+        exclude = list(exclude or [])
         msg = json.dumps({'topic' : topic,
                           'msg' : msg,
-                          'exclude' : list(exclude)})
+                          'exclude' : exclude})
         self.queue.put(msg)
 
     def start(self):

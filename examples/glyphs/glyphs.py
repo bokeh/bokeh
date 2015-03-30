@@ -32,8 +32,8 @@ source = ColumnDataSource(dict(
     ym01 = y - 0.1,
 ))
 
-xdr = DataRange1d(sources=[source.columns("x")])
-ydr = DataRange1d(sources=[source.columns("y")])
+xdr = DataRange1d()
+ydr = DataRange1d()
 
 def screen(value):
     return dict(value=value, units="screen")

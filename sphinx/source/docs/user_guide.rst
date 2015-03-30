@@ -3,22 +3,23 @@
 User Guide
 ##########
 
-The User Guide is being continuously updated, but please also consult the numerous
-`examples <https://github.com/bokeh/bokeh/tree/master/examples>`_
-to see the kinds of parameters that can be passed in to plotting functions in ``bokeh.plotting``, and look
-at the `glyph examples <https://github.com/bokeh/bokeh/tree/master/examples/glyphs>`_ to see
-the kinds of low-level object attributes that can be set to really customize a plot.
+This user guide presents information about the most common interfaces, tasks,
+use-cases, and components of Bokeh. Please also see the :ref:`gallery` for
+many live examples with code, and the :ref:`tutorial` for a directed
+walk-through with worked examples and exercises.
 
 .. toctree::
    :maxdepth: 2
 
-   user_guide/objects.rst
+   user_guide/intro.rst
    user_guide/plotting.rst
    user_guide/charts.rst
+   user_guide/objects.rst
    user_guide/server.rst
    user_guide/embedding.rst
    user_guide/widgets.rst
    user_guide/ar.rst
    user_guide/examples.rst
-   user_guide/issues.rst
+
+
 

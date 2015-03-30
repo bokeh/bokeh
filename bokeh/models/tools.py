@@ -27,7 +27,6 @@ from ..properties import Any, Bool, String, Enum, Instance, Either, List, Dict, 
 from ..enums import Dimension
 
 from .renderers import Renderer
-from .ranges import Range
 from .actions import Action
 
 class ToolEvents(PlotObject):

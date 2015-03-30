@@ -30,8 +30,8 @@ def make_data():
 source = ColumnDataSource(make_data())
 
 def make_plot():
-    xdr = DataRange1d(sources=[source.columns("dates")])
-    ydr = DataRange1d(sources=[source.columns("downloads")])
+    xdr = DataRange1d()
+    ydr = DataRange1d()
 
     plot = Plot(title="Product downloads", x_range=xdr, y_range=ydr, plot_width=400, plot_height=400)
 

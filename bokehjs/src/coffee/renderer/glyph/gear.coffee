@@ -1,9 +1,9 @@
 define [
-  "underscore",
-  "gear_utils",
-  "renderer/properties",
-  "util/bezier",
-  "./glyph",
+  "underscore"
+  "gear_utils"
+  "renderer/properties"
+  "util/bezier"
+  "./glyph"
 ], (_, GearUtils, Properties, Bezier, Glyph) ->
 
   class GearView extends Glyph.View

@@ -200,8 +200,34 @@ def remove_bokeh_pth(path_file):
         return True
     return False
 
+BUILD_EXEC_FAIL_MSG = """ Failed.
+
+ERROR: subprocess.Popen(%r) failed to execute:
+
+    %s
+
+Have you run `npm install` from the bokehjs subdirectory?
+For more information, see the Dev Guide:
+
+    http://bokeh.pydata.org/en/latest/docs/dev_guide.html
+"""
+
+BUILD_FAIL_MSG = """ Failed.
+
+ERROR: 'grunt deploy' returned error message:
+
+%s
+"""
+
+BUILD_SIZE_FAIL_MSG = """
+ERROR: could not determine sizes:
+
+    %s
+"""
+
 def build_js():
-    print("Building BokehJS...")
+    print("Building BokehJS... ", end="")
+    sys.stdout.flush()
     os.chdir('bokehjs')
 
     if sys.platform != "win32":
@@ -210,21 +236,33 @@ def build_js():
         cmd = [join('node_modules', '.bin', 'grunt.cmd'), 'deploy']
 
     try:
-        proc = subprocess.Popen(cmd)
-    except OSError:
-        print("""
-Failed to build BokehJS.
-
-Have you run `npm install` from the bokehjs subdirectory?
-  Dev Guide: http://bokeh.pydata.org/docs/dev_guide.html#bokehjs.
-""")
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+    except OSError as e:
+        print(BUILD_EXEC_FAIL_MSG % (cmd, e))
         sys.exit(1)
     finally:
         os.chdir('..')
 
     if proc.wait() != 0:
-        print("ERROR: could not build BokehJS")
+        msg = proc.stdout.read()
+        print(BUILD_FAIL_MSG % msg.decode('ascii'))
         sys.exit(1)
+
+    print("Success!")
+    print()
+    print("Build artifact sizes:")
+    try:
+        blddir = join("bokehjs", "build")
+        bkjs_size = os.stat(join(blddir, "js", "bokeh.js")).st_size / 2**10
+        bkjs_min_size = os.stat(join(blddir, "js", "bokeh.min.js")).st_size / 2**10
+        bkcss_size = os.stat(join(blddir, "css", "bokeh.css")).st_size / 2**10
+        bkcss_min_size = os.stat(join(blddir, "css", "bokeh.min.css")).st_size / 2**10
+        print("  - bokeh.js      : %0.1f kB" % bkjs_size)
+        print("  - bokeh.css     : %0.1f KB" % bkcss_size)
+        print("  - bokeh.min.js  : %0.1f KB" % bkjs_min_size)
+        print("  - bokeh.min.css : %0.1f KB" % bkcss_min_size)
+    except Exception as e:
+        print(BUILD_SIZE_FAIL_MSG % e)
 
 def install_js():
     target_jsdir = join(SERVER, 'static', 'js')
@@ -450,6 +488,7 @@ setup(
     packages=[
         'bokeh',
         'bokeh.models',
+        'bokeh.models.tests',
         'bokeh.models.widgets',
         'bokeh.charts',
         'bokeh.charts.builder',

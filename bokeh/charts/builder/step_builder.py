@@ -57,13 +57,14 @@ def Step(values, index=None, **kws):
         :source-position: above
 
         from collections import OrderedDict
-        from bokeh.charts import Step
-        from bokeh.plotting import output_file, show
+        from bokeh.charts import Step, output_file, show
 
         # (dict, OrderedDict, lists, arrays and DataFrames are valid inputs)
-        output_file('step.html')
         xyvalues = [[2, 3, 7, 5, 26], [12, 33, 47, 15, 126], [22, 43, 10, 25, 26]]
+
         step = Step(xyvalues, title="Steps", legend="top_left", ylabel='Languages')
+
+        output_file('step.html')
         show(step)
 
     """
@@ -127,10 +128,10 @@ class StepBuilder(Builder):
         the proper ranges.
         """
         sc = self._source = ColumnDataSource(self._data)
-        self.x_range = DataRange1d(sources=[sc.columns("x")])
+        self.x_range = DataRange1d()
 
         y_sources = [sc.columns("y_%s" % col) for col in self._groups]
-        self.y_range = DataRange1d(sources=y_sources)
+        self.y_range = DataRange1d()
 
     def _yield_renderers(self):
         """Use the line glyphs to connect the xy points in the Step.

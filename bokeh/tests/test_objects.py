@@ -18,8 +18,8 @@ def large_plot(n):
 
     for i in xrange(n):
         source = ColumnDataSource(data=dict(x=[0, i + 1], y=[0, i + 1]))
-        xdr = DataRange1d(sources=[source.columns("x")])
-        ydr = DataRange1d(sources=[source.columns("y")])
+        xdr = DataRange1d()
+        ydr = DataRange1d()
         plot = Plot(x_range=xdr, y_range=ydr)
         xaxis = LinearAxis(plot=plot)
         yaxis = LinearAxis(plot=plot)

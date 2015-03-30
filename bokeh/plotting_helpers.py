@@ -142,37 +142,6 @@ def _match_data_params(argnames, glyphclass, datasource,
         glyph_params[var] = glyph_val
     return glyph_params
 
-def _update_plot_data_ranges(plot, datasource, xcols, ycols):
-    """
-    Parameters
-    ----------
-    plot : plot
-    datasource : datasource
-    xcols : names of columns that are in the X axis
-    ycols : names of columns that are in the Y axis
-    """
-    if isinstance(plot.x_range, DataRange1d):
-        x_column_ref = [x for x in plot.x_range.sources if x.source == datasource]
-        if len(x_column_ref) > 0:
-            x_column_ref = x_column_ref[0]
-            for cname in xcols:
-                if cname not in x_column_ref.columns:
-                    x_column_ref.columns.append(cname)
-        else:
-            plot.x_range.sources.append(datasource.columns(*xcols))
-        plot.x_range._dirty = True
-
-    if isinstance(plot.y_range, DataRange1d):
-        y_column_ref = [y for y in plot.y_range.sources if y.source == datasource]
-        if len(y_column_ref) > 0:
-            y_column_ref = y_column_ref[0]
-            for cname in ycols:
-                if cname not in y_column_ref.columns:
-                    y_column_ref.columns.append(cname)
-        else:
-            plot.y_range.sources.append(datasource.columns(*ycols))
-        plot.y_range._dirty = True
-
 def _materialize_colors_and_alpha(kwargs, prefix="", default_alpha=1.0):
     """
     Given a kwargs dict, a prefix, and a default value, looks for different
@@ -469,8 +438,7 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
     return plot
 
 
-def _handle_1d_data_args(args, datasource=None, create_autoindex=True,
-        suggested_names=[]):
+def _handle_1d_data_args(args, datasource=None, create_autoindex=True):
     """ Returns a datasource and a list of names corresponding (roughly)
     to the input data.  If only a single array was given, and an index
     array was created, then the index's name is returned first.
@@ -510,9 +478,7 @@ def _handle_1d_data_args(args, datasource=None, create_autoindex=True,
         if isinstance(ary, string_types):
             name = ary
         else:
-            if i < len(suggested_names):
-                name = suggested_names[i]
-            elif i == 0 and create_autoindex:
+            if i == 0 and create_autoindex:
                 name = datasource.add(ary, name="_autoindex")
             else:
                 name = datasource.add(ary)
