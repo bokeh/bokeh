@@ -1,7 +1,6 @@
 """
 utilities for working with functions
 """
-import inspect
 
 class cached_property(object):
     """ A property that is only computed once per instance and then replaces

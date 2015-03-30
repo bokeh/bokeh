@@ -44,7 +44,7 @@ route_keys = ['airline', 'id', 'source_ap', 'source_ap_id',
 airline_keys = ['id', 'name', 'alias', 'iata', 'icao', 'callsign',
                 'country', 'active']
 
-def check_or_download_data():#data_url, save_dir, exclude_term=None):
+def check_or_download_data():
     """Downloads, then extracts a zip file."""
     heads = [airport_keys, route_keys, airline_keys]
     filenames = ['airports.dat', 'routes.dat', 'airlines.dat']
@@ -291,7 +291,7 @@ class AirportApp(VBox):
         else:
             stats = self.dfair.info(buf=output)# "select an airport!"
             stats = output.getvalue()
-        # stats = self.selected_df.describe()
+
         self.pretext.text = str(stats)
 
     def airselection_change(self, obj, attrname, old, new):
@@ -316,8 +316,6 @@ class AirportApp(VBox):
     def select_destinations_from_routes(self, active_routes):
         dests_id = [int(x) for x in active_routes.dest_ap_id if x!='\\N']
         dests = airports[airports['id'].isin(dests_id)]
-
-
         self.dest_source.selected = list(dests.index)
 
 
