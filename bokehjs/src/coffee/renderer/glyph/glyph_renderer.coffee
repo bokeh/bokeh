@@ -26,10 +26,10 @@ class GlyphRendererView extends PlotWidget
       nonselection_glyph.set(@model.nonselection_defaults, {silent: true})
     @nonselection_glyph = @build_glyph(nonselection_glyph)
 
-    @set_data(false)
-
     @xmapper = @plot_view.frame.get('x_mappers')[@mget("x_range_name")]
     @ymapper = @plot_view.frame.get('y_mappers')[@mget("y_range_name")]
+
+    @set_data(false)
 
     if @mget('data_source') instanceof RemoteDataSource.RemoteDataSource
       @mget('data_source').setup(@plot_view, @glyph)

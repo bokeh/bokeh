@@ -27,24 +27,24 @@ class CircleView extends Glyph.View
     if @radius?
       sx0 = hr.get('start')
       sx1 = hr.get('end')
-      [x0, x1] = @renderer.xmapper.v_map_from_target([sx0, sx1])
+      [x0, x1] = @renderer.xmapper.v_map_from_target([sx0, sx1], true)
       x0 -= @max_radius
       x1 += @max_radius
 
       sy0 = vr.get('start')
       sy1 = vr.get('end')
-      [y0, y1] = @renderer.ymapper.v_map_from_target([sy0, sy1])
+      [y0, y1] = @renderer.ymapper.v_map_from_target([sy0, sy1], true)
       y0 -= @max_radius
       y1 += @max_radius
 
     else
       sx0 = hr.get('start') - @max_size
       sx1 = hr.get('end') - @max_size
-      [x0, x1] = @renderer.xmapper.v_map_from_target([sx0, sx1])
+      [x0, x1] = @renderer.xmapper.v_map_from_target([sx0, sx1], true)
 
       sy0 = vr.get('start') - @max_size
       sy1 = vr.get('end') - @max_size
-      [y0, y1] = @renderer.ymapper.v_map_from_target([sy0, sy1])
+      [y0, y1] = @renderer.ymapper.v_map_from_target([sy0, sy1], true)
 
     return (x[4].i for x in @index.search([x0, y0, x1, y1]))
 

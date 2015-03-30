@@ -6,6 +6,8 @@ HasParent = require "../../common/has_parent"
 Collection = require "../../common/collection"
 ContinuumView = require "../../common/continuum_view"
 properties = require "../../common/properties"
+CategoricalMapper = require "../../mapper/categorical_mapper"
+
 
 class GlyphView extends ContinuumView
 
@@ -87,26 +89,26 @@ class GlyphView extends ContinuumView
   _xy_index: () ->
     index = rbush()
     pts = []
-    for i in [0...@x.length]
-      # TODO: The intent here is to let categorical ranges not
-      # interfere with auto-ranging, but this is pretty wonky
-      x = @x[i]
-      if isNaN(x)
-        if _.isString(x)
-          x = 0
-        else
-          continue
-      else if not isFinite(x)
+
+    # if the range is categorical, map to synthetic coordinates first
+    if @renderer.xmapper instanceof CategoricalMapper.Model
+      xx = @renderer.xmapper.v_map_to_target(@x, true)
+    else
+      xx = @x
+    if @renderer.ymapper instanceof CategoricalMapper.Model
+      yy = @renderer.ymapper.v_map_to_target(@y, true)
+    else
+      yy = @y
+
+    for i in [0...xx.length]
+      x = xx[i]
+      if isNaN(x) or not isFinite(x)
         continue
-      y = @y[i]
-      if isNaN(y)
-        if _.isString(y)
-          y = 0
-        else
-          continue
-      else if not isFinite(y)
+      y = yy[i]
+      if isNaN(y) or not isFinite(y)
         continue
       pts.push([x, y, x, y, {'i': i}])
+
     index.load(pts)
     return index
 
