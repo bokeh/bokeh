@@ -19,6 +19,12 @@ Promises.doc_promises = {}
 copy_on_write_mapping = {}
 
 # these get set out later
+exports.wswrapper = null
+exports.plotcontext = null
+exports.plotcontextview = null
+exports.Promises = Promises
+copy_on_write_mapping = {}
+
 utility =
   load_one_object_chain: (docid, objid, is_public) ->
     if is_public
@@ -146,10 +152,7 @@ configure_server = (ws_conn_string, prefix) ->
     logger.debug("setting prefix to #{Config.prefix}")
   return null
 
-module.exports =
-  wswrapper: null
-  plotcontext: null
-  plotcontextview: null
-  Promises: Promises
-  utility: utility
-  configure_server: configure_server
+exports.utility = utility
+exports.configure_server = configure_server
+
+module.exports = exports
