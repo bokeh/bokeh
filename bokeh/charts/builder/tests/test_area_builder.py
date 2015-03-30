@@ -59,11 +59,7 @@ class TestAreaBuilder(unittest.TestCase):
             assert_array_equal(builder._data['area_python'], y_python)
 
             self.assertIsInstance(area.x_range, DataRange1d)
-            
-            self.assertEqual(area.x_range.sources[0].source, builder._source.columns('area_x').source)
             self.assertIsInstance(area.y_range, DataRange1d)
-            # assert_array_almost_equal(area.y_range.start, -12.6, decimal=4)
-            # assert_array_almost_equal(area.y_range.end, 138.6, decimal=4)
             self.assertEqual(builder._source._data, builder._data)
 
         data_keys = ['0', '1', '2', 'area_0', 'area_1', 'area_2', 'area_x']
@@ -81,16 +77,5 @@ class TestAreaBuilder(unittest.TestCase):
             assert_array_equal(builder._data['area_2'], y_2)
 
             self.assertIsInstance(area.x_range, DataRange1d)
-<<<<<<< HEAD
-            self.assertEqual(area.x_range.sources[0].source, builder._source.columns('area_x').source)
             self.assertIsInstance(area.y_range, DataRange1d)
-            y_names = ['area_0', 'area_1', 'area_2']
-            self.assertEqual(area.y_range.sources[0].source, builder._source.columns(*y_names).source)
-            # assert_array_almost_equal(area.y_range.start, -12.6, decimal=4)
-            # assert_array_almost_equal(area.y_range.end, 138.6, decimal=4)
-=======
-            self.assertIsInstance(area.y_range, Range1d)
-            assert_array_almost_equal(area.y_range.start, -12.6, decimal=4)
-            assert_array_almost_equal(area.y_range.end, 138.6, decimal=4)
->>>>>>> master
             self.assertEqual(builder._source._data, builder._data)

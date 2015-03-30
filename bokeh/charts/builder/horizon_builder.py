@@ -270,8 +270,7 @@ class HorizonBuilder(Builder):
         """Push the Horizon data into the ColumnDataSource and
         calculate the proper ranges.
         """
-        xnames = [self._source.columns("x_all")]
-        self.x_range = DataRange1d(rangepadding=0, sources=xnames)
+        self.x_range = DataRange1d(range_padding=0)
         self.y_range = Range1d(start=0, end=self._max_y)
 
     def _yield_renderers(self):

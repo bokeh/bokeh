@@ -183,8 +183,7 @@ class BoxPlotBuilder(Builder):
     def _set_ranges(self):
         " Calculate the proper ranges."
         self.x_range = FactorRange(factors=self._groups)
-        y_sources = map(self.source.columns, ["lower", "upper", "out_y"])
-        self.y_range = DataRange1d()#sources=y_sources)
+        self.y_range = DataRange1d(range_padding=1)
 
     def _yield_renderers(self):
         """Use the several glyphs to display the Boxplot.
