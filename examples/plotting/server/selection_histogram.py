@@ -8,11 +8,24 @@ from bokeh.plotting import (
     curdoc, cursession, figure, output_server, show, hplot, vplot
 )
 
-N = 5000
+# create three normal population samples with different parameters
+N1 = 2000
+N2 = 5000
+N3 = 1000
 
-x = np.random.normal(size=N) * 100
-y = np.random.normal(size=N) * 100
-all_inds = np.arange(len(x))
+x1 = np.random.normal(loc=5.0, size=N1) * 100
+y1 = np.random.normal(loc=10.0, size=N1) * 10
+
+x2 = np.random.normal(loc=5.0, size=N2) * 50
+y2 = np.random.normal(loc=5.0, size=N2) * 10
+
+x3 = np.random.normal(loc=55.0, size=N3) * 10
+y3 = np.random.normal(loc=4.0, size=N3) * 10
+
+x = np.concatenate((x1, x2, x3))
+y = np.concatenate((y1, y2, y3))
+
+all_inds = np.arange(len(x1) + len(x2) + len(x3))
 
 output_server("selection_histogram")
 
