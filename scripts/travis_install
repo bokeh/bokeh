@@ -25,6 +25,7 @@ DEPS_TRAVIS="python=$TRAVIS_PYTHON_VERSION conda-build jinja2"
 conda install --yes $DEPS_TRAVIS
 
 conda config --add channels bokeh
+conda config --add channels javascript   # TODO: move packages to bokeh?
 conda config --add channels mutirri   # TODO: remove when packages are moved to bokeh
 
 CONDA_PY="${TRAVIS_PYTHON_VERSION/./}" conda build conda.recipe

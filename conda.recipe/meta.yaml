@@ -10,7 +10,7 @@ requirements:
     - python
     - distribute
     - setuptools
-    - nodejs
+    - iojs
 
   run:
     # bokeh
