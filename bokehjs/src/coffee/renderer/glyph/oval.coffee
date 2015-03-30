@@ -1,13 +1,22 @@
 define [
-  "underscore",
-  "renderer/properties",
-  "./glyph",
+  "underscore"
+  "renderer/properties"
+  "./glyph"
 ], (_, Properties, Glyph) ->
 
   class OvalView extends Glyph.View
 
     _fields: ['x', 'y', 'width', 'height', 'angle']
     _properties: ['line', 'fill']
+
+    _set_data: () ->
+      @max_w2 = 0
+      if @glyph.width.units != "screen"
+        @max_w2 = _.max(@width)/2
+      @max_h2 = 0
+      if @glyph.height.units != "screen"
+        @max_h2 = _.max(@height)/2
+      @_xy_index()
 
     _map_data: () ->
       [@sx, @sy] = @renderer.map_to_screen(@x, @glyph.x.units, @y, @glyph.y.units)
@@ -60,6 +69,13 @@ define [
         sh[reference_point] = d
 
       @_render(ctx, indices, sx, sy, sw, sh)
+
+    bounds: () ->
+      bb = @index.data.bbox
+      return [
+        [bb[0]-@max_w2, bb[2]+@max_w2],
+        [bb[1]-@max_h2, bb[3]+@max_h2]
+      ]
 
   class Oval extends Glyph.Model
     default_view: OvalView

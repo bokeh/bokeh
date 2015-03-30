@@ -1,10 +1,9 @@
 define [
-  "underscore",
-  "rbush",
-  "renderer/properties",
-  "./glyph",
+  "underscore"
+  "rbush"
+  "renderer/properties"
+  "./glyph"
 ], (_, rbush, Properties, Glyph) ->
-
 
   point_in_poly = (x, y, px, py) ->
     inside = false

@@ -168,8 +168,6 @@ class BokehRenderer(Renderer):
         line = Line()
         line.x = self.source.add(x)
         line.y = self.source.add(y)
-        self.xdr.sources.append(self.source.columns(line.x))
-        self.ydr.sources.append(self.source.columns(line.y))
 
         line.line_color = style['color']
         line.line_width = style['linewidth']
@@ -208,8 +206,6 @@ class BokehRenderer(Renderer):
             marker = Circle()
         marker.x = self.source.add(x)
         marker.y = self.source.add(y)
-        self.xdr.sources.append(self.source.columns(marker.x))
-        self.ydr.sources.append(self.source.columns(marker.y))
 
         marker.line_color = style['edgecolor']
         marker.fill_color = style['facecolor']
@@ -329,8 +325,6 @@ class BokehRenderer(Renderer):
         multiline = MultiLine()
         multiline.xs = self.source.add(xs)
         multiline.ys = self.source.add(ys)
-        self.xdr.sources.append(self.source.columns(multiline.xs))
-        self.ydr.sources.append(self.source.columns(multiline.ys))
 
         self.multiline_props(multiline, col)
 
@@ -347,8 +341,6 @@ class BokehRenderer(Renderer):
         patches = Patches()
         patches.xs = self.source.add(xs)
         patches.ys = self.source.add(ys)
-        self.xdr.sources.append(self.source.columns(patches.xs))
-        self.ydr.sources.append(self.source.columns(patches.ys))
 
         self.patches_props(patches, col)
 

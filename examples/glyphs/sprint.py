@@ -60,7 +60,7 @@ source = ColumnDataSource(sprint)
 title = "Usain Bolt vs. 116 years of Olympic sprinters"
 
 xdr = Range1d(start=sprint.MetersBack.max()+2, end=0)                  # XXX: +2 is poor-man's padding (otherwise misses last tick)
-ydr = DataRange1d(sources=[source.columns("Year")], rangepadding=0.05) # XXX: should be 2 years (both sides)
+ydr = DataRange1d(range_padding=0.05) # XXX: should be 2 years (both sides)
 
 plot = Plot(title=title, x_range=xdr, y_range=ydr, plot_width=1000, plot_height=600, toolbar_location=None, outline_line_color=None)
 

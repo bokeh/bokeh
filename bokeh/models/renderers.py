@@ -9,7 +9,7 @@ from ..properties import Int, String, Enum, Instance, List, Dict, Tuple, Include
 from ..mixins import LineProps, TextProps
 from ..enums import Units, Orientation
 
-from .sources import DataSource, ServerDataSource
+from .sources import DataSource
 from .glyphs import Glyph
 
 class Renderer(PlotObject):

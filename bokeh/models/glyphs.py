@@ -7,8 +7,8 @@ from __future__ import absolute_import
 
 from ..plot_object import PlotObject
 from ..mixins import FillProps, LineProps, TextProps
-from ..enums import Units, AngleUnits, Direction, Anchor
-from ..properties import Align, Bool, DataSpec, Enum, HasProps, Include, Instance, Size
+from ..enums import Direction, Anchor
+from ..properties import Bool, DataSpec, Enum, Include, Instance
 
 from .mappers import LinearColorMapper
 
@@ -968,4 +968,10 @@ class Wedge(Glyph):
     """)
 
 # XXX: allow `from bokeh.models.glyphs import *`
-from .markers import *
+from .markers import (Marker, Asterisk, Circle, CircleCross, CircleX, Cross,
+                      Diamond, DiamondCross, InvertedTriangle, Square,
+                      SquareCross, SquareX, Triangle, X)
+
+# Fool pyflakes
+(Marker, Asterisk, Circle, CircleCross, CircleX, Cross, Diamond, DiamondCross,
+InvertedTriangle, Square, SquareCross, SquareX, Triangle, X)

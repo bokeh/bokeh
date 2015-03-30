@@ -20,8 +20,8 @@ source = ColumnDataSource(dict(
     )
 )
 
-xdr = DataRange1d(sources=[source.columns("x")])
-ydr = DataRange1d(sources=[source.columns("y")])
+xdr = DataRange1d()
+ydr = DataRange1d()
 
 plot = Plot(
     title=None, x_range=xdr, y_range=ydr, plot_width=300, plot_height=300,

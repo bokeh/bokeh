@@ -13,9 +13,8 @@ import unittest
 
 from bokeh.plotting import figure
 from bokeh.models import GlyphRenderer
-from bokeh.models.tools import HoverTool, PanTool
+from bokeh.models.tools import PanTool
 
-import bokeh.models.plots as plots
 
 class TestPlotSelect(unittest.TestCase):
 
@@ -44,7 +43,7 @@ class TestPlotSelect(unittest.TestCase):
 
     def test_too_many_args(self):
         with self.assertRaises(TypeError) as cm:
-             self._plot.select('foo', 'bar')
+            self._plot.select('foo', 'bar')
         self.assertEqual(
             'select accepts at most ONE positional argument.',
             str(cm.exception)
@@ -52,7 +51,7 @@ class TestPlotSelect(unittest.TestCase):
 
     def test_no_input(self):
         with self.assertRaises(TypeError) as cm:
-             self._plot.select()
+            self._plot.select()
         self.assertEqual(
             'select requires EITHER a positional argument, OR keyword arguments.',
             str(cm.exception)
@@ -60,7 +59,7 @@ class TestPlotSelect(unittest.TestCase):
 
     def test_arg_and_kwarg(self):
         with self.assertRaises(TypeError) as cm:
-             self._plot.select('foo', type=PanTool)
+            self._plot.select('foo', type=PanTool)
         self.assertEqual(
             'select accepts EITHER a positional argument, OR keyword arguments (not both).',
             str(cm.exception)

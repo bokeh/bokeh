@@ -1,12 +1,15 @@
 define [
-  "underscore",
-  "./glyph",
+  "underscore"
+  "./glyph"
 ], (_, Glyph) ->
 
   class TextView extends Glyph.View
 
     _fields: ['x', 'y', 'angle', 'text:string', 'x_offset', 'y_offset']
     _properties: ['text']
+
+    _set_data: () ->
+      @_xy_index()
 
     _map_data: () ->
       [@sx, @sy] = @renderer.map_to_screen(@x, @glyph.x.units, @y, @glyph.y.units)

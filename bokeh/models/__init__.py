@@ -1,5 +1,7 @@
 from __future__ import absolute_import
 
+# This file is excluded from flake8 checking in setup.cfg
+
 from .actions import *
 from .axes import *
 from .formatters import *

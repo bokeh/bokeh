@@ -1,3 +1,3 @@
 from __future__ import absolute_import
 
-from .core import cli
+from .core import cli; cli

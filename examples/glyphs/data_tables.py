@@ -29,8 +29,8 @@ columns = [
 ]
 data_table = DataTable(source=source, columns=columns, editable=True)
 
-xdr = DataRange1d(sources=[source.columns("index")])
-ydr = DataRange1d(sources=[source.columns("cty"), source.columns("hwy")])
+xdr = DataRange1d()
+ydr = DataRange1d()
 plot = Plot(title=None, x_range=xdr, y_range=ydr, plot_width=1000, plot_height=300)
 xaxis = LinearAxis(plot=plot)
 plot.below.append(xaxis)

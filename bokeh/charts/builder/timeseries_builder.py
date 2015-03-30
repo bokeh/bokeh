@@ -98,6 +98,7 @@ class TimeSeriesBuilder(Builder):
         """
         # necessary to make all formats and encoder happy with array, blaze, ...
         for col, values in self._values.items():
+
             if col not in self._data:
                 self._data[col] = values
 

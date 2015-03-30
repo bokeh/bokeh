@@ -1,6 +1,6 @@
 define [
-  "underscore",
-  "./marker",
+  "underscore"
+  "./marker"
 ], (_, Marker) ->
 
   class CrossView extends Marker.View

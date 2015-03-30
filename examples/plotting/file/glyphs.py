@@ -66,7 +66,7 @@ p.quad(x, x-0.1, y, y-0.1, color="#B3DE69")
 vbox.children.append(p)
 
 p = figure(title="quadratic")
-p.quadratic(x, y, x+0.2, y, x+0.1, y+0.1, color="#4DAF4A", line_width=3)
+p.quadratic(x, y, x+0.2, y, x+0.3, y+1.4, color="#4DAF4A", line_width=3)
 vbox.children.append(p)
 
 p = figure(title="ray")

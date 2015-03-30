@@ -1,6 +1,6 @@
 define [
-  "underscore",
-  "./marker",
+  "underscore"
+  "./marker"
 ], (_, Marker) ->
 
   class SquareView extends Marker.View
