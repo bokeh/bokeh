@@ -1,6 +1,8 @@
 browserify = require "browserify"
+change = require "gulp-change"
 gulp = require "gulp"
-source = require "vinyl-source-stream"
+rename = require "gulp-rename"
+transform = require "vinyl-transform"
 uglify = require "gulp-uglifyjs"
 
 paths = require "../paths"
@@ -8,14 +10,19 @@ utils = require "../utils"
 
 gulp.task "scripts", ->
   opts =
-    entries: paths.coffee.sources,
     extensions: [".coffee", ".eco"]
 
-  browserify opts
-    .transform "browserify-eco"
-    .transform "coffeeify"
-    .bundle()
-    .pipe source paths.coffee.destination.full
+  browserified = transform (filename) ->
+    browserify filename, opts
+      .transform "browserify-eco"
+      .transform "coffeeify"
+      .bundle()
+
+  gulp.src paths.coffee.sources
+    .pipe browserified
+    .pipe change (content) ->
+      "(function() { var define = undefined; #{content} })()"
+    .pipe rename "bokeh.js"
     .pipe gulp.dest paths.buildDir.js
 
 minifyTask = ->

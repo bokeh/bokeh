@@ -27,6 +27,7 @@
     "del": "^1.1.1",
     "eco": "^1.1.0-rc-3",
     "gulp": "^3.8.10",
+    "gulp-change": "^1.0.0",
     "gulp-coffeeify": "^0.1.2",
     "gulp-eco-template": "^0.1.0",
     "gulp-less": "^3.0.2",
@@ -40,8 +41,10 @@
     "jsdom": "^4.0.5",
     "phantomjs": "^1.9.7",
     "sandboxed-module": "^2.0.0",
+    "through": "^2.3.6",
     "underscore": "^1.5.2",
-    "vinyl-source-stream": "^1.0.0"
+    "vinyl-source-stream": "^1.0.0",
+    "vinyl-transform": "^1.0.0"
   },
   "browserify": {
     "extensions": [
