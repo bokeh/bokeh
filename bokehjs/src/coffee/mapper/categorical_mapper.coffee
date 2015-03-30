@@ -38,22 +38,22 @@ class CategoricalMapper extends LinearMapper.Model
       return super(results)
 
   map_from_target: (xprime, skip_cat=false) ->
-    xprime = super(xprime) - 0.5
+    xprime = super(xprime)
     if skip_cat
       return xprime
     factors = @get('source_range').get('factors')
-    return factors[Math.floor(xprime)]
+    return factors[Math.floor(xprime-0.5)]
 
   v_map_from_target: (xprimes, skip_cat=false) ->
     x = super(xprimes)
     for i in [0...x.length]
-      x[i] = x[i] - 0.5
+      x[i] = x[i]
     if skip_cat
       return x
     result = Array(x)
     factors = @get('source_range').get('factors')
     for i in [0...xprimes.length]
-      result[i] = factors[Math.floor(x[i])]
+      result[i] = factors[Math.floor(x[i]-0.5)]
     return result
 
 class CategoricalMappers extends Collection
