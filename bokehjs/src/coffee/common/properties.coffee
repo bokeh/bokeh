@@ -297,10 +297,10 @@ class Text extends ContextProperties
     @alpha = new Numeric({obj: obj, attr: "#{prefix}text_alpha"})
     @align = new Enum
       obj: obj
-      attr: "#{prefix}line_align", values: "left right center"
+      attr: "#{prefix}text_align", values: "left right center"
     @baseline = new Enum
       obj: obj
-      attr: "#{prefix}line_baseline"
+      attr: "#{prefix}text_baseline"
       values: "top middle bottom alphabetic hanging"
 
   warm_cache: (source) ->
