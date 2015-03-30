@@ -22,11 +22,18 @@ describe "categorical mapper module", ->
     test_mapping = (key, expected) ->
       expect(mapper.map_to_target key).to.equal expected
 
+    test_synthetic_mapping = (key, expected) ->
+      expect(mapper.map_to_target key, true).to.equal expected
+
     it "should map factors evenly", ->
       test_mapping "foo", 30
       test_mapping "bar", 50
       test_mapping "baz", 70
 
+    it "should expose synthetic range values", ->
+      test_synthetic_mapping "foo", 1
+      test_synthetic_mapping "bar", 2
+      test_synthetic_mapping "baz", 3
 
   describe "vector mapping", ->
     values = generate_mapper().v_map_to_target factors
@@ -37,6 +44,9 @@ describe "categorical mapper module", ->
     it "should be evenly distributed", ->
       expect(values).to.deep.equal new Float64Array [30, 50, 70]
 
+    it "should expose synthetic range values", ->
+      synthetic = generate_mapper().v_map_to_target factors, true
+      expect(synthetic).to.deep.equal [1, 2, 3]
 
   describe "inverse mapping", ->
     mapper = generate_mapper()

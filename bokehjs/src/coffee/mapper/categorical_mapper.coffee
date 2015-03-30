@@ -4,17 +4,22 @@ LinearMapper = require "./linear_mapper"
 
 class CategoricalMapper extends LinearMapper.Model
 
-  map_to_target: (x) ->
+  map_to_target: (x, return_synthetic=false) ->
     if _.isNumber(x)
       return super(x)
     factors = @get('source_range').get('factors')
     if x.indexOf(':') >= 0
       [factor, percent] = x.split(':')
       percent = parseFloat(percent)
-      return super(factors.indexOf(factor) + 0.5 + percent)
-    return super(factors.indexOf(x) + 1)
+      result = factors.indexOf(factor) + 0.5 + percent
+    else
+      result = factors.indexOf(x) + 1
+    if return_synthetic
+      return result
+    else
+      return super(result)
 
-  v_map_to_target: (xs) ->
+  v_map_to_target: (xs, return_synthetic=false) ->
     if _.isNumber(xs[0])
       return super(xs)
     factors = @get('source_range').get('factors')
@@ -27,7 +32,10 @@ class CategoricalMapper extends LinearMapper.Model
         results[i] = factors.indexOf(factor) + 0.5 + percent
       else
         results[i] = factors.indexOf(x) + 1
-    return super(results)
+    if return_synthetic
+      return results
+    else
+      return super(results)
 
   map_from_target: (xprime, skip_cat=false) ->
     xprime = super(xprime) - 0.5
