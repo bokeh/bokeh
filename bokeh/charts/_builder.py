@@ -196,14 +196,8 @@ class Builder(HasProps):
         It has to be implemented by any of the inherited class
         representing each different chart type.
         """
-        pref = self.source_prefix + "%s"
-        if not self.x_range:
-            x_sources = [self.source.columns(pref % col) for col in self.x_names]
-            self.x_range = DataRange1d(sources=x_sources)
-
-        if not self.y_range:
-            y_sources = [self.source.columns(pref % col) for col in self.y_names]
-            self.y_range = DataRange1d(sources=y_sources)
+        self.x_range = DataRange1d()
+        self.y_range = DataRange1d()
 
     def _yield_renderers(self):
         """Use the line glyphs to connect the xy points in the Line.

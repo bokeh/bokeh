@@ -28,7 +28,8 @@ scatter1 = Scatter(datasource, y_names=ys, title="Scatter Chart", **pkws)
 scatter2 = Scatter(datasource, y_names=ys_sh, x_names=xs_sh,
                    title="Scatter Length X Width", **pkws)
 line = Line(bbvalues, y_names=ys, title="Line Chart", **pkws)
-mix = Line(df, y_names=ys,index = ['myx'], width=1000, height=500,
+
+mix = Line(df, y_names=ys, x_names = ['myx'], width=1000, height=500,
            title="Mixed Chart", ylabel='Petals', legend="top_left")
 Scatter(df, y_names=ys, x_names=['myx'], chart=mix)
 
