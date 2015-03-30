@@ -1,0 +1,23 @@
+name: bokeh
+channels:
+  - javascript  # For Gulp
+dependencies:
+  # Basic dependencies for examples
+  - bower
+  - dateutil
+  - gulp
+  - ipython
+  - jinja2
+  - numpy
+  - pandas
+  - python
+  - pyyaml
+  - requests
+  - six
+  - sympy
+
+  # bokeh-server dpeendencies
+  - flask
+  - pyzmq
+  - tornado
+  - werkzeug
