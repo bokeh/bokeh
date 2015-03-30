@@ -7,7 +7,7 @@ window.{{ modulename }} = {};
     type : "{{classname}}",
     default_view : {{ classname }}View
   });
-  {{ classname }}s = Backbone.Collection.extend({
+  {{ classname }}s = Bokeh.Backbone.Collection.extend({
     model : {{ classname }}
   });
   Bokeh.Collections.register("{{ classname }}", new {{classname}}s ());
