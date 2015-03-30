@@ -15,14 +15,26 @@
 from __future__ import print_function
 
 # Stdlib imports
-import os
-import platform
-import shutil
-import site
-import subprocess
-import sys
-import time
+import os, platform, re, shutil, site, subprocess, sys, time
 from os.path import abspath, dirname, exists, isdir, join, realpath, relpath
+
+try:
+    import colorama
+    def bright(text): return "%s%s%s" % (colorama.Style.BRIGHT, text, colorama.Style.RESET_ALL)
+    def dim(text): return "%s%s%s" % (colorama.Style.DIM, text, colorama.Style.RESET_ALL)
+    def white(text): return "%s%s%s" % (colorama.Fore.WHITE, text, colorama.Style.RESET_ALL)
+    def blue(text): return "%s%s%s" % (colorama.Fore.BLUE, text, colorama.Style.RESET_ALL)
+    def red(text): return "%s%s%s" % (colorama.Fore.RED, text, colorama.Style.RESET_ALL)
+    def green(text): return "%s%s%s" % (colorama.Fore.GREEN, text, colorama.Style.RESET_ALL)
+    def yellow(text): return "%s%s%s" % (colorama.Fore.YELLOW, text, colorama.Style.RESET_ALL)
+except ImportError:
+    def bright(text): return text
+    def dim(text): return text
+    def white(text) : return text
+    def blue(text) : return text
+    def red(text) : return text
+    def green(text) : return text
+    def yellow(text) : return text
 
 if 'nightly' in sys.argv:
     from setuptools import setup
@@ -205,7 +217,7 @@ def remove_bokeh_pth(path_file):
         return True
     return False
 
-BUILD_EXEC_FAIL_MSG = """ Failed.
+BUILD_EXEC_FAIL_MSG = bright(red("Failed.")) + """
 
 ERROR: subprocess.Popen(%r) failed to execute:
 
@@ -217,7 +229,7 @@ For more information, see the Dev Guide:
     http://bokeh.pydata.org/en/latest/docs/dev_guide.html
 """
 
-BUILD_FAIL_MSG = """ Failed.
+BUILD_FAIL_MSG = bright(red("Failed.")) + """
 
 ERROR: 'gulp build' returned error message:
 
@@ -230,12 +242,11 @@ ERROR: could not determine sizes:
     %s
 """
 
-BUILD_SUCCESS_MSG =""" Success!
+BUILD_SUCCESS_MSG = bright(green("Success!")) + """
 
 Build output:
 
-%s
-"""
+%s"""
 
 def build_js():
     print("Building BokehJS... ", end="")
@@ -256,17 +267,24 @@ def build_js():
     finally:
         os.chdir('..')
 
-    msg = proc.stdout.read().decode('ascii', errors='ignore')
-
-    if proc.wait() != 0:
+    result = proc.wait()
+    if result != 0:
         msg = proc.stdout.read()
-        print(BUILD_FAIL_MSG % msg)
+        print(BUILD_FAIL_MSG % indented_msg)
         sys.exit(1)
     t1 = time.time()
 
+    indented_msg = ""
+    col = green if result == 0 else red
+    msg = proc.stdout.read().decode('ascii', errors='ignore')
+    pat = re.compile(r"(\[.*\]) (.*)", re.DOTALL)
+    for line in msg.strip().split("\n"):
+        stamp, txt = pat.match(line).groups()
+        indented_msg += "   " + dim(blue(stamp)) + " " + dim(txt) + "\n"
+
     msg = "\n".join(["    " + x for x in msg.split("\n")])
-    print(BUILD_SUCCESS_MSG % msg, end="")
-    print("Build time: %0.1f seconds" % (t1-t0))
+    print(BUILD_SUCCESS_MSG % indented_msg)
+    print("Build time: %s" % bright(yellow("%0.1f seconds" % (t1-t0))))
     print()
     print("Build artifact sizes:")
     try:
@@ -275,10 +293,10 @@ def build_js():
         bkjs_min_size = os.stat(join(blddir, "js", "bokeh.min.js")).st_size / 2**10
         bkcss_size = os.stat(join(blddir, "css", "bokeh.css")).st_size / 2**10
         bkcss_min_size = os.stat(join(blddir, "css", "bokeh.min.css")).st_size / 2**10
-        print("  - bokeh.js      : %0.1f kB" % bkjs_size)
-        print("  - bokeh.css     : %0.1f KB" % bkcss_size)
-        print("  - bokeh.min.js  : %0.1f KB" % bkjs_min_size)
-        print("  - bokeh.min.css : %0.1f KB" % bkcss_min_size)
+        print("  - bokeh.js      : %6.1f KB" % bkjs_size)
+        print("  - bokeh.css     : %6.1f KB" % bkcss_size)
+        print("  - bokeh.min.js  : %6.1f KB" % bkjs_min_size)
+        print("  - bokeh.min.css : %6.1f KB" % bkcss_min_size)
     except Exception as e:
         print(BUILD_SIZE_FAIL_MSG % e)
 
@@ -429,9 +447,9 @@ if 'develop' in sys.argv:
     print("Installing Bokeh for development:")
     print("  - writing path '%s' to %s" % (path, path_file))
     if jsinstall:
-        print("  - using %s built BokehJS from bokehjs/build\n" % ("NEWLY" if jsbuild else "PREVIOUSLY"))
+        print("  - using %s built BokehJS from bokehjs/build\n" % (bright(yellow("NEWLY")) if jsbuild else bright(yellow("PREVIOUSLY"))))
     else:
-        print("  - using PACKAGED BokehJS, located in 'bokeh.server.static'\n")
+        print("  - using %s BokehJS, located in 'bokeh.server.static'\n" % yellow("PACKAGED"))
     sys.exit()
 
 elif 'clean' in sys.argv:
@@ -443,9 +461,9 @@ elif 'install' in sys.argv:
     if pth_removed:
         print("  - removed path file at %s" % path_file)
     if jsinstall:
-        print("  - using %s built BokehJS from bokehjs/build\n" % ("NEWLY" if jsbuild else "PREVIOUSLY"))
+        print("  - using %s built BokehJS from bokehjs/build\n" % (beight(yellow("NEWLY")) if jsbuild else bright(yellow("PREVIOUSLY"))))
     else:
-        print("  - using PACKAGED BokehJS, located in 'bokeh.server.static'\n")
+        print("  - using %s BokehJS, located in 'bokeh.server.static'\n" % bright(yellow("PACKAGED")))
 
 elif '--help' in sys.argv:
     if jsinstall:
