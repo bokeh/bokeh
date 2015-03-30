@@ -410,7 +410,7 @@ fields = (model, attr="fields") ->
 
     switch type
       when "array" then result[field] = new Array({obj: model, attr: field})
-      when "bool" then result[field] = new Boolean({obj: model, attr: field})
+      when "bool" then result[field] = new Bool({obj: model, attr: field})
       when "color" then result[field] = new Color({obj: model, attr: field})
       when "direction"
         result[field] = new Direction({obj: model, attr: field})

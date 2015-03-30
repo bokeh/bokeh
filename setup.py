@@ -232,7 +232,6 @@ For more information, see the Dev Guide:
 BUILD_FAIL_MSG = bright(red("Failed.")) + """
 
 ERROR: 'gulp build' returned error message:
-
 %s
 """
 
@@ -260,7 +259,7 @@ def build_js():
 
     t0 = time.time()
     try:
-        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     except OSError as e:
         print(BUILD_EXEC_FAIL_MSG % (cmd, e))
         sys.exit(1)
@@ -268,20 +267,21 @@ def build_js():
         os.chdir('..')
 
     result = proc.wait()
-    if result != 0:
-        msg = proc.stdout.read()
-        print(BUILD_FAIL_MSG % indented_msg)
-        sys.exit(1)
     t1 = time.time()
 
+    if result != 0:
+        indented_msg = ""
+        msg = proc.stderr.read().decode('ascii', errors='ignore')
+        msg = "\n".join(["    " + x for x in msg.split("\n")])
+        print(BUILD_FAIL_MSG % red(msg))
+        sys.exit(1)
+
     indented_msg = ""
-    col = green if result == 0 else red
     msg = proc.stdout.read().decode('ascii', errors='ignore')
     pat = re.compile(r"(\[.*\]) (.*)", re.DOTALL)
     for line in msg.strip().split("\n"):
         stamp, txt = pat.match(line).groups()
-        indented_msg += "   " + dim(blue(stamp)) + " " + dim(txt) + "\n"
-
+        indented_msg += "   " + dim(green(stamp)) + " " + dim(txt) + "\n"
     msg = "\n".join(["    " + x for x in msg.split("\n")])
     print(BUILD_SUCCESS_MSG % indented_msg)
     print("Build time: %s" % bright(yellow("%0.1f seconds" % (t1-t0))))
@@ -461,7 +461,7 @@ elif 'install' in sys.argv:
     if pth_removed:
         print("  - removed path file at %s" % path_file)
     if jsinstall:
-        print("  - using %s built BokehJS from bokehjs/build\n" % (beight(yellow("NEWLY")) if jsbuild else bright(yellow("PREVIOUSLY"))))
+        print("  - using %s built BokehJS from bokehjs/build\n" % (bright(yellow("NEWLY")) if jsbuild else bright(yellow("PREVIOUSLY"))))
     else:
         print("  - using %s BokehJS, located in 'bokeh.server.static'\n" % bright(yellow("PACKAGED")))
 

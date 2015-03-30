@@ -8,9 +8,11 @@ Bezier = require "../../util/bezier"
 
 class GearView extends Glyph.View
 
+  _index_data: () ->
+    return @_xy_index()
+
   _map_data: () ->
-    [@sx, @sy] = @renderer.map_to_screen(@x, @y)
-    @smodule = @distance_vector('x', 'module', 'edge')
+    @smodule = @sdist(@renderer.xmapper, @x, @module, 'edge')
 
   _render: (ctx, indices) ->
     for i in indices
@@ -123,13 +125,14 @@ class Gear extends Glyph.Model
   type: 'Gear'
   distances: ['module']
   angles: ['pressure_angle']
-  fields: ['angle', 'internal:boolean', 'shaft_size', 'teeth']
+  fields: ['angle', 'internal:bool', 'shaft_size', 'teeth']
 
   defaults: ->
     return _.extend {}, super(), {
       angle: 0
       pressure_angle: 20   # TODO: units: deg
       shaft_size: 0.3
+      internal: false
     }
 
 class Gears extends Glyph.Collection
