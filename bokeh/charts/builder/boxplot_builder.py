@@ -126,24 +126,24 @@ class BoxPlotBuilder(Builder):
             self._groups = [x for x in list(self._values.keys()) if x in self.y_names]
 
         # add group to the self._data_segment dict
-        self._data["groups"] = self._groups
+        self._data[self.prefix+"groups"] = self._groups
         # add group and witdh to the self._data_rect dict
-        self._data["width"] = [0.8] * len(self._groups)
+        self._data[self.prefix+"width"] = [0.8] * len(self._groups)
         # all the list we are going to use to save calculated values
-        self._data["q0"] = q0_points = []
-        self._data["q2"] = q2_points = []
-        self._data["iqr_centers"] = iqr_centers = []
-        self._data["iqr_lengths"] = iqr_lengths = []
-        self._data["lower"] = lower_points = []
-        self._data["upper"] = upper_points = []
-        self._data["upper_center_boxes"] = upper_center_boxes = []
-        self._data["upper_height_boxes"] = upper_height_boxes = []
-        self._data["lower_center_boxes"] = lower_center_boxes = []
-        self._data["lower_height_boxes"] = lower_height_boxes = []
-        self._data["out_x"] = out_x = []
-        self._data["out_y"] = out_y = []
-        self._data["out_colors"] = out_colors = []
-        self._data["colors"] = self.palette
+        self._data[self.prefix+"q0"] = q0_points = []
+        self._data[self.prefix+"q2"] = q2_points = []
+        self._data[self.prefix+"iqr_centers"] = iqr_centers = []
+        self._data[self.prefix+"iqr_lengths"] = iqr_lengths = []
+        self._data[self.prefix+"lower"] = lower_points = []
+        self._data[self.prefix+"upper"] = upper_points = []
+        self._data[self.prefix+"upper_center_boxes"] = upper_center_boxes = []
+        self._data[self.prefix+"upper_height_boxes"] = upper_height_boxes = []
+        self._data[self.prefix+"lower_center_boxes"] = lower_center_boxes = []
+        self._data[self.prefix+"lower_height_boxes"] = lower_height_boxes = []
+        self._data[self.prefix+"out_x"] = out_x = []
+        self._data[self.prefix+"out_y"] = out_y = []
+        self._data[self.prefix+"out_colors"] = out_colors = []
+        self._data[self.prefix+"colors"] = self.palette
 
         for i, (level, values) in enumerate(self._values.items()):
             # Compute quantiles, center points, heights, IQR, etc.
@@ -195,8 +195,9 @@ class BoxPlotBuilder(Builder):
         # Draw the lower and upper segments
         for (y0, y1) in [('lower', 'q0'), ('q2', 'upper')]:
             glyph = Segment(
-                x0="groups", y0=y0, x1="groups", y1=y1, line_color="black",
-                line_width=2
+                x0=self.prefix+"groups", y0=self.prefix+y0,
+                x1=self.prefix+"groups", y1=self.prefix+y1,
+                line_color="black", line_width=2
             )
             yield GlyphRenderer(data_source=self.source, glyph=glyph)
 
@@ -207,8 +208,10 @@ class BoxPlotBuilder(Builder):
             ('lower_center_boxes', 'lower_height_boxes', 'colors', 1)
         ]
         for (y0, y1, color, lw) in rects_bound:
+            color = self.prefix + color if color else color
             glyph = Rect(
-                x="groups", y=y0, width="width", height=y1,
+                x=self.prefix+"groups", y=self.prefix+y0,
+                width=self.prefix+"width", height=self.prefix+y1,
                 line_color="black", line_width=lw, fill_color=color,
             )
             yield GlyphRenderer(data_source=self.source, glyph=glyph)
@@ -216,7 +219,8 @@ class BoxPlotBuilder(Builder):
         # Draw the outliers if needed
         if self.outliers:
             glyph = make_scatter(
-                self.source, 'out_x', 'out_y', self.marker, 'out_colors'
+                self.source, self.prefix+'out_x', self.prefix+'out_y',
+                self.marker, self.prefix+'out_colors'
             )
             yield GlyphRenderer(data_source=self.source, glyph=glyph)
 
@@ -224,7 +228,7 @@ class BoxPlotBuilder(Builder):
         for i, level in enumerate(self._groups):
             # TODO: (bev) what is this None business?
             glyph = Rect(
-                x="groups", y=None,
+                x=self.prefix+"groups", y=None,
                 width=None, height=None,
                 line_color="black", fill_color=self.palette[i])
             renderer = GlyphRenderer(data_source=self.source, glyph=glyph)

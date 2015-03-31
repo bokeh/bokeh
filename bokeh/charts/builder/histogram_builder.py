@@ -139,41 +139,47 @@ class HistogramBuilder(Builder):
                 hist, edges = np.histogram(
                     np.array(values), density=self.density, bins=self.bins
                 )
-                self._data['hist%s' % col] = hist
-                self._data["edges%s" % col] = edges
-                self._data["left%s" % col] = edges[:-1]
-                self._data["right%s" % col] = edges[1:]
-                self._data["bottom%s" % col] = np.zeros(len(hist))
+                self._data['%shist%s' % (self.prefix, col)] = hist
+                self._data["%sedges%s" % (self.prefix, col)] = edges
+                self._data["%sleft%s" % (self.prefix, col)] = edges[:-1]
+                self._data["%sright%s" % (self.prefix, col)] = edges[1:]
+                self._data["%sbottom%s" % (self.prefix, col)] = np.zeros(len(hist))
 
                 self._mu_and_sigma = False
                 if self.mu is not None and self.sigma is not None:
                     if _is_scipy:
                         self._mu_and_sigma = True
-                        x_val = self._data["x" + col] = np.linspace(-2, 2, len(self._data[col]))
+                        x_val = self._data[self.prefix + "x" + col] = \
+                            np.linspace(-2, 2, len(self._data[col]))
                         den = 2 * self.sigma ** 2
                         x_val_mu = x_val - self.mu
                         sigsqr2pi = self.sigma * np.sqrt(2 * np.pi)
                         pdf = 1 / (sigsqr2pi) * np.exp(-x_val_mu ** 2 / den)
-                        self._data['pdf%s' % col] = pdf
+                        self._data['%spdf%s' % (self.prefix, col)] = pdf
                         cdf = (1 + scipy.special.erf(x_val_mu / np.sqrt(den))) / 2
-                        self._data['cdf%s' % col] = cdf
+                        self._data['%scdf%s' % (self.prefix, col)] = cdf
                     else:
                         print("You need scipy to get the theoretical probability distributions.")
 
     def _set_ranges(self):
         """Push the Histogram data into the ColumnDataSource and calculate
         the proper ranges."""
-
         x_names, y_names = ([], [])
         if not self._mu_and_sigma:
             for name in self.y_names:
-                x_names.extend(["left%s" % name, "right%s" % name])
-                y_names.extend(["hist%s" % name, "bottom%s" % name])
+                x_names.extend(["%sleft%s" % (self.prefix, name),
+                                "%sright%s" % (self.prefix, name)])
+                y_names.extend(["%shist%s" % (self.prefix, name),
+                                "%sbottom%s" % (self.prefix, name)])
         else:
             for name in self.y_names:
-                x_names.extend(["x%s" % name, "left%s" % name, "right%s" % name])
-                y_names.extend(["hist%s" % name, "bottom%s" % name,
-                                "cdf%s" % name, "pdf%s" % name])
+                x_names.extend(["%sx%s" % (self.prefix, name),
+                                "%sleft%s" % (self.prefix, name),
+                                "%sright%s" % (self.prefix, name)])
+                y_names.extend(["%shist%s" % (self.prefix, name),
+                                "%sbottom%s" % (self.prefix, name),
+                                "%scdf%s" % (self.prefix, name),
+                                "%spdf%s" % (self.prefix, name)])
 
         endx = max(max(self._data[name]) for name in x_names)
         startx = min(min(self._data[name]) for name in x_names)
@@ -192,34 +198,25 @@ class HistogramBuilder(Builder):
         bars, taking as reference points the data loaded at the
         ColumnDataSurce.
         """
-        if not self._mu_and_sigma:
-            colors = cycle_colors(self.y_names, self.palette)
-            for color, name in zip(colors, self.y_names):
-                glyph = Quad(
-                    top='hist%s' % name, bottom='bottom%s' % name,
-                    left='left%s' % name, right='right%s' % name,
-                    fill_color=color, fill_alpha=0.7,
-                    line_color="white", line_alpha=1.0
-                )
-                renderer = GlyphRenderer(data_source=self._source, glyph=glyph)
-                self._legends.append((name, [renderer]))
-                yield renderer
+        colors = cycle_colors(self.y_names, self.palette)
+        for color, name in zip(colors, self.y_names):
+            glyph = Quad(
+                top='%shist%s' % (self.prefix, name),
+                bottom='%sbottom%s' % (self.prefix, name),
+                left='%sleft%s' % (self.prefix, name),
+                right='%sright%s' % (self.prefix, name),
+                fill_color=color, fill_alpha=0.7,
+                line_color="white", line_alpha=1.0
+            )
+            renderer = GlyphRenderer(data_source=self._source, glyph=glyph)
+            self._legends.append((name, [renderer]))
+            yield renderer
 
-        else:
-            colors = cycle_colors(self.y_names, self.palette)
-            for color, name in zip(colors, self.y_names):
-                glyph = Quad(
-                    top='hist%s' % name, bottom='bottom%s' % name,
-                    left='left%s' % name, right='right%s' % name,
-                    fill_color=color, fill_alpha=0.7,
-                    line_color="white", line_alpha=1.0
-                )
-                renderer = GlyphRenderer(data_source=self._source, glyph=glyph)
-                self._legends.append((name, [renderer]))
-                yield renderer
-
-                glyph = Line(x='x%s' % name, y='pdf%s' % name, line_color="black")
+        if self._mu_and_sigma:
+                glyph = Line(x='%sx%s' % (self.prefix, name),
+                             y='%spdf%s' % (self.prefix, name), line_color="black")
                 yield GlyphRenderer(data_source=self._source, glyph=glyph)
 
-                glyph = Line(x='x%s' % name, y='cdf%s' % name, line_color="blue")
+                glyph = Line(x='%sx%s' % (self.prefix, name),
+                             y='%scdf%s' % (self.prefix, name), line_color="blue")
                 yield GlyphRenderer(data_source=self._source, glyph=glyph)

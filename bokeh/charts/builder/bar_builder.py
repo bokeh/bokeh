@@ -134,27 +134,28 @@ class BarBuilder(Builder):
         """
         if not self.cat:
             self.cat = [str(x) for x in self._values.index]
+        self._data[self.prefix + 'cat'] = self.cat
 
-        width = [0.8] * len(self.cat)
+        self._data[self.prefix + 'width'] = [0.8] * len(self.cat)
         # width should decrease proportionally to the value length.
         # 1./len(value) doesn't work well as the width needs to decrease a
         # little bit faster
-        width_cat = [min(0.2, (1. / len(self._values)) ** 1.1)] * len(self.cat)
-        zero = np.zeros(len(self.cat))
-        self._data = dict(
-            cat=self.cat, width=width, width_cat=width_cat, zero=zero
-        )
+        self._data[self.prefix + 'width_cat'] = \
+            [min(0.2, (1. / len(self._values)) ** 1.1)] * len(self.cat)
+        self._data[self.prefix + 'zero'] = zero = np.zeros(len(self.cat))
+
         # list to save all the groups available in the incomming input grouping
         step = np.linspace(0, 1.0, len(self._values.keys()) + 1, endpoint=False)
 
         for i, (val, values) in enumerate(self._values.items()):
-            self._data[val] = list(values)
+            if not val in self._data:
+                self._data[val] = list(values)
             mid = np.array(values) / 2
-            self._data["mid%s" % val] = mid
+            self._data["%smid%s" % (self.prefix, val)] = mid
             # Grouped
-            self._data["cat%s" % val] = [c + ":" + str(step[i + 1]) for c in self.cat]
+            self._data["%scat%s" % (self.prefix, val)] = [c + ":" + str(step[i + 1]) for c in self.cat]
             # Stacked
-            self._data["stacked%s" % val] = zero + mid
+            self._data["%sstacked%s" % (self.prefix, val)] = zero + mid
             zero += values
 
     def _set_ranges(self):
@@ -162,38 +163,33 @@ class BarBuilder(Builder):
         the proper ranges.
         """
         if not self.x_range:
-            self.x_range = FactorRange(factors=self._source.data["cat"])
+            self.x_range = FactorRange(factors=self._source.data[self.prefix + "cat"])
 
         if not self.y_range:
             if self.stacked:
-                data = np.array(self._data['zero'])
+                data = np.array(self._data[self.prefix + 'zero'])
             else:
-                cats = [i for i in self.y_names if not i.startswith(("mid", "stacked", "cat"))]
-                data = np.array([self._data[cat] for cat in cats])
+                # cats = [i for i in self.y_names if not i.startswith(("mid", "stacked", "cat"))]
+                data = np.array([self._data[cat] for cat in self.y_names])
 
             all_positive = True if np.all(data > 0) else False
             all_negative = True if np.all(data < 0) else False
-            # Set the start value
-            if all_positive:
-                start = 0
-            else:
-                start = 1.1 * data.min()  # Will always be negative
-            # Set the end value
-            if all_negative:
-                end = 0
-            else:
-                end = 1.1 * data.max()
+
+            start = 0 if all_positive else 1.1 * data.min()  # Will always be negative
+            end = 0 if all_negative else 1.1 * data.max()
 
             self.y_range = Range1d(start=start, end=end)
 
     def _create_glyph(self, xname, yname, color):
         if self.stacked:
             return Rect(
-                x="cat", y="stacked%s" % yname, width="width", height=yname,
+                x=self.prefix + "cat", y="%sstacked%s" % (self.prefix, yname),
+                width=self.prefix + "width", height=yname,
                 fill_color=color, fill_alpha=0.7, line_color="white"
             )
         else:
             return Rect(
-                x="cat%s" % yname, y="mid%s" % yname, width="width_cat",
-                height=yname, fill_color=color, fill_alpha=0.7, line_color="white"
+                x="%scat%s" % (self.prefix, yname), y="%smid%s" % (self.prefix, yname),
+                width=self.prefix + "width_cat", height=yname, fill_color=color,
+                fill_alpha=0.7, line_color="white"
             )

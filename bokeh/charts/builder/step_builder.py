@@ -71,7 +71,6 @@ class StepBuilder(Builder):
     source.
 
     """
-    source_prefix = "step_"
 
     def _process_data(self):
         """It calculates the chart properties accordingly from Step.values.
@@ -88,7 +87,7 @@ class StepBuilder(Builder):
                 ys = np.empty(2*len(orig_ys)-1)
                 ys[::2] = orig_ys[:]
                 ys[1::2] = orig_ys[:-1]
-                self._data['step_%s' % col] = ys
+                self._data[self.prefix + col] = ys
 
             # add the original series to _data so it can be found in source
             # and can also be used for tooltips..
@@ -104,9 +103,9 @@ class StepBuilder(Builder):
             xs = np.empty(2*len(orig_xs)-1, dtype=np.int)
             xs[::2] = orig_xs[:]
             xs[1::2] = orig_xs[1:]
-            self._data['step_%s' % x] = xs
+            self._data[self.prefix + x] = xs
 
     def _create_glyph(self, xname, yname, color):
         return Line(
-            x="step_%s" % xname, y="step_%s" % yname, line_color=color, line_width=1
+            x=self.prefix + xname, y=self.prefix + yname, line_color=color, line_width=1
         )

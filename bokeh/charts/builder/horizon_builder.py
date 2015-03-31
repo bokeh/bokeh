@@ -211,23 +211,26 @@ class HorizonBuilder(Builder):
         the multiple area glyphes inside the ``_yield_renderers`` method.
 
         """
+        _data = {}
         for col, values in self._values.items():
-            if col in self.x_names and not col in self._data:
+            if not col in self._data:
                 self._data[col] = values
+
+            if col in self.x_names:
                 continue
 
             if col in self.y_names:
                 self._series.append(col)
                 self._max_y = max(max(values), self._max_y)
                 v_index = list(self._values[self.x_names[0]])
-                self._data["x_%s" % col] = self.pad_list(v_index)
+                _data["x_%s" % col] = self.pad_list(v_index)
 
         self._fold_height = self._max_y / self.num_folds
         self._graph_ratio = self.num_folds / len(self._series)
 
         fill_alpha, fill_color = [], []
         for serie_no, serie in enumerate(self._series):
-            self._data["y_%s" % serie] = self._values[serie]
+            _data["y_%s" % serie] = self._values[serie]
             y_origin = serie_no * self._max_y / len(self._series)
 
             for fold_itr in range(1, self.num_folds + 1):
@@ -240,7 +243,7 @@ class HorizonBuilder(Builder):
                 # Y coordinates above 0
                 pos_points = self.pad_list(pos_points, y_origin)
                 fold_name = "y_fold%s_%s" % (fold_itr, serie)
-                self._data[fold_name] = pos_points
+                _data[fold_name] = pos_points
                 self._fold_names.append(fold_name)
                 fill_color.append(self.pos_color)
                 fill_alpha.append(alpha)
@@ -249,7 +252,7 @@ class HorizonBuilder(Builder):
                 neg_points = self.pad_list(
                     neg_points, self._fold_height * self._graph_ratio + y_origin)
                 ned_fold_name = "y_fold-%s_%s" % (fold_itr, serie)
-                self._data[ned_fold_name] = neg_points
+                _data[ned_fold_name] = neg_points
                 self._fold_names.append(ned_fold_name)
                 fill_color.append(self.neg_color)
                 fill_alpha.append(alpha)
@@ -259,12 +262,12 @@ class HorizonBuilder(Builder):
                     self._groups.append(str(self._fold_height * fold_itr))
                     self._groups.append(str(self._fold_height * -fold_itr))
 
-        self._data['fill_alpha'] = fill_alpha
-        self._data['fill_color'] = fill_color
-        self._data['x_all'] = [
-            self._data['x_%s' % serie] for serie in self._series for y in range(self.num_folds * 2)
+        self._data[self.prefix + 'fill_alpha'] = fill_alpha
+        self._data[self.prefix + 'fill_color'] = fill_color
+        self._data[self.prefix + 'x_all'] = [
+            _data['x_%s' % serie] for serie in self._series for y in range(self.num_folds * 2)
         ]
-        self._data['y_all'] = [self._data[f_name] for f_name in self._fold_names]
+        self._data[self.prefix + 'y_all'] = [_data[f_name] for f_name in self._fold_names]
 
     def _set_ranges(self):
         """Push the Horizon data into the ColumnDataSource and
@@ -279,7 +282,8 @@ class HorizonBuilder(Builder):
         Takes reference points from the data loaded at the ColumnDataSource.
         """
         patches = Patches(
-            fill_color='fill_color', fill_alpha='fill_alpha', xs='x_all', ys='y_all')
+            fill_color=self.prefix + 'fill_color', fill_alpha=self.prefix + 'fill_alpha',
+            xs=self.prefix + 'x_all', ys=self.prefix + 'y_all')
         renderer = GlyphRenderer(data_source=self._source, glyph=patches)
         # self._legends.append((self._groups[i-1], [renderer]))
         yield renderer

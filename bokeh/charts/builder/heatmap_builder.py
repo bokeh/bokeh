@@ -66,7 +66,8 @@ def HeatMap(values, xscale="categorical", yscale="categorical",
         HeatMapBuilder, values, xscale=xscale, yscale=yscale,
         xgrid=xgrid, ygrid=ygrid, **kw
     )
-    chart.add_tools(HoverTool(tooltips=[("value", "@rate")]))
+    field = "@" + chart._builders[-1].prefix + "rate"
+    chart.add_tools(HoverTool(tooltips=[("value", field)]))
     return chart
 
 class HeatMapBuilder(Builder):
@@ -94,10 +95,10 @@ class HeatMapBuilder(Builder):
 
         # Set up the data for plotting. We will need to have values for every
         # pair of year/month names. Map the rate to a color.
-        self._data['catx'] = catx = []
-        self._data['caty'] = caty = []
-        self._data['color'] = color = []
-        self._data['rate'] = rate = []
+        self._data[self.prefix + 'catx'] = catx = []
+        self._data[self.prefix + 'caty'] = caty = []
+        self._data[self.prefix + 'color'] = color = []
+        self._data[self.prefix + 'rate'] = rate = []
         for y in self._catsy:
             for m in self._catsx:
                 catx.append(m)
@@ -112,8 +113,8 @@ class HeatMapBuilder(Builder):
                 c = int(round(factor*(self._values[m][y] - min(rate)) / den))
                 color.append(self.palette[c])
 
-        self._data['width'] = [0.95] * len(catx)
-        self._data['height'] = [0.95] * len(catx)
+        self._data[self.prefix + 'width'] = [0.95] * len(catx)
+        self._data[self.prefix + 'height'] = [0.95] * len(catx)
 
     def _set_ranges(self):
         """Push the CategoricalHeatMap data into the ColumnDataSource
@@ -128,8 +129,9 @@ class HeatMapBuilder(Builder):
         Takes reference points from data loaded at the ColumnDataSurce.
         """
         glyph = Rect(
-            x="catx", y="caty", width="width", height="height",
-            fill_color="color", fill_alpha=0.7, line_color="white"
+            x=self.prefix + "catx", y=self.prefix + "caty",
+            width=self.prefix + "width", height=self.prefix + "height",
+            fill_color=self.prefix + "color", fill_alpha=0.7, line_color="white"
         )
         renderer = GlyphRenderer(data_source=self._source, glyph=glyph)
         # TODO: Legend??

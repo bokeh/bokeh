@@ -50,11 +50,13 @@ class TestDot(unittest.TestCase):
         for i, _xy in enumerate([xyvalues, xyvaluesdf]):
             hm = create_chart(Dot, _xy, cat=cat)
             builder = hm._builders[0]
+            pre = builder.prefix
+            self.assertEqual(pre, 'dot_%s_' % (hm._id.lower().replace("-", "_")))
             self.assertEqual(sorted(builder.y_names), sorted(list(xyvalues.keys())))
-            assert_array_equal(builder._data['dot_cat'], cat)
-            assert_array_equal(builder._data['dot_cat_jython'], catjython)
-            assert_array_equal(builder._data['dot_cat_python'], catpython)
-            assert_array_equal(builder._data['dot_cat_pypy'], catpypy)
+            assert_array_equal(builder._data[pre + 'cat'], cat)
+            assert_array_equal(builder._data[pre + 'cat_jython'], catjython)
+            assert_array_equal(builder._data[pre + 'cat_python'], catpython)
+            assert_array_equal(builder._data[pre + 'cat_pypy'], catpypy)
 
             assert_array_equal(builder._data['python'], python)
             assert_array_equal(builder._data['jython'], jython)
@@ -67,19 +69,21 @@ class TestDot(unittest.TestCase):
             # assert_array_equal(builder._data['dot_zero'], zero)
             # assert_array_equal(builder._data['z_pypy'], zero)
             # assert_array_equal(builder._data['z_jython'], zero)
-            assert_array_equal(builder._data['dot_zero'], zero)
+            assert_array_equal(builder._data[pre + 'zero'], zero)
 
 
         lvalues = [[2, 5], [12, 40], [22, 30]]
         for _xy in [lvalues, np.array(lvalues)]:
             hm = create_chart(Dot, _xy, cat=cat)
             builder = hm._builders[0]
+            pre = builder.prefix
+            self.assertEqual(pre, 'dot_%s_' % (hm._id.lower().replace("-", "_")))
 
             self.assertEqual(builder.y_names, ['0', '1', '2'])
-            assert_array_equal(builder._data['dot_cat'], cat)
-            assert_array_equal(builder._data['dot_cat_0'], catpython)
-            assert_array_equal(builder._data['dot_cat_1'], catpypy)
-            assert_array_equal(builder._data['dot_cat_2'], catjython)
+            assert_array_equal(builder._data[pre + 'cat'], cat)
+            assert_array_equal(builder._data[pre + 'cat_0'], catpython)
+            assert_array_equal(builder._data[pre + 'cat_1'], catpypy)
+            assert_array_equal(builder._data[pre + 'cat_2'], catjython)
             assert_array_equal(builder._data['0'], python)
             assert_array_equal(builder._data['1'], pypy)
             assert_array_equal(builder._data['2'], jython)
@@ -91,4 +95,4 @@ class TestDot(unittest.TestCase):
             # assert_array_equal(builder._data['z_0'], zero)
             # assert_array_equal(builder._data['z_1'], zero)
             # assert_array_equal(builder._data['z_2'], zero)
-            assert_array_equal(builder._data['dot_zero'], zero)
+            assert_array_equal(builder._data[pre + 'zero'], zero)

@@ -51,12 +51,16 @@ class TestAreaBuilder(unittest.TestCase):
         for _xy in [xyvalues, dict(xyvalues), pd.DataFrame(xyvalues)]:
             area = create_chart(Area, _xy)
             builder = area._builders[0]
+            pre = builder.prefix
+            self.assertEqual(pre, 'area_%s_' % (area._id.lower().replace("-", "_")))
+            data_keys = [pre + 'jython', pre + 'pypy', pre + 'python', pre + 'x',
+                        'jython', 'pypy', 'python']
             self.assertEqual(sorted(builder.y_names), sorted(list(xyvalues.keys())))
             self.assertListEqual(sorted(builder._data.keys()), data_keys)
-            assert_array_equal(builder._data['area_x'], x)
-            assert_array_equal(builder._data['area_jython'], y_jython)
-            assert_array_equal(builder._data['area_pypy'], y_pypy)
-            assert_array_equal(builder._data['area_python'], y_python)
+            assert_array_equal(builder._data[pre + 'x'], x)
+            assert_array_equal(builder._data[pre + 'jython'], y_jython)
+            assert_array_equal(builder._data[pre + 'pypy'], y_pypy)
+            assert_array_equal(builder._data[pre + 'python'], y_python)
 
             self.assertIsInstance(area.x_range, DataRange1d)
             self.assertIsInstance(area.y_range, DataRange1d)
@@ -68,13 +72,16 @@ class TestAreaBuilder(unittest.TestCase):
         for _xy in [lvalues, np.array(lvalues)]:
             area = create_chart(Area, _xy)
             builder = area._builders[0]
+            pre = builder.prefix
+            self.assertEqual(pre, 'area_%s_' % (area._id.lower().replace("-", "_")))
+            data_keys = ['0', '1', '2', pre + '0', pre + '1', pre + '2', pre + 'x']
 
             self.assertEqual(builder.y_names, ['0', '1', '2'])
             self.assertListEqual(sorted(builder._data.keys()), data_keys)
-            assert_array_equal(builder._data['area_x'], x)
-            assert_array_equal(builder._data['area_0'], y_0)
-            assert_array_equal(builder._data['area_1'], y_1)
-            assert_array_equal(builder._data['area_2'], y_2)
+            assert_array_equal(builder._data[pre + 'x'], x)
+            assert_array_equal(builder._data[pre + '0'], y_0)
+            assert_array_equal(builder._data[pre + '1'], y_1)
+            assert_array_equal(builder._data[pre + '2'], y_2)
 
             self.assertIsInstance(area.x_range, DataRange1d)
             self.assertIsInstance(area.y_range, DataRange1d)

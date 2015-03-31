@@ -82,7 +82,6 @@ class AreaBuilder(Builder):
     from the source.
 
     """
-    source_prefix = "area_"
 
     stacked = Bool(False, help="""
     Whether to stack the areas. (Defaults to False)
@@ -103,7 +102,7 @@ class AreaBuilder(Builder):
         x2 = np.hstack((xs[::-1], xs))
 
         for x in self.x_names:
-            self._data['area_%s' % x] = x2
+            self._data[self.prefix + x] = x2
 
         for col, col_values in self._values.items():
             if col in self.y_names:
@@ -118,7 +117,7 @@ class AreaBuilder(Builder):
                 if self.stacked:
                     last = next
 
-                self._data['area_%s' % col] = values
+                self._data[self.prefix + col] = values
 
             # add the original series to _data so it can be found in source
             # and can also be used for tooltips..
@@ -127,5 +126,6 @@ class AreaBuilder(Builder):
 
     def _create_glyph(self, xname, yname, color):
         glyph = Patch(
-            x='area_x', y="area_%s" % yname, fill_color=color, fill_alpha=0.9)
+            x=self.prefix + xname, y=self.prefix + yname, fill_color=color, fill_alpha=0.9
+        )
         return glyph

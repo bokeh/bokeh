@@ -51,8 +51,6 @@ class TestTimeSeries(unittest.TestCase):
             else:
                 assert_array_equal(builder._data['Date'], dts)
 
-            # assert_array_equal(builder._data['x'], dts)
-            # assert_array_equal(builder._data['x'], dts)
             assert_array_equal(builder._data['python'], y_python)
             assert_array_equal(builder._data['pypy'], y_pypy)
             assert_array_equal(builder._data['jython'], y_jython)
@@ -63,8 +61,7 @@ class TestTimeSeries(unittest.TestCase):
             builder = hm._builders[0]
             self.assertEqual(builder.y_names, ['0', '1', '2'])
             assert_array_equal(builder._data['x'], dts)
-            # assert_array_equal(builder._data['x'], dts)
-            # assert_array_equal(builder._data['x'], dts)
+            
             assert_array_equal(builder._data['0'], y_python)
             assert_array_equal(builder._data['1'], y_pypy)
             assert_array_equal(builder._data['2'], y_jython)

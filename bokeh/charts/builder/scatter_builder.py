@@ -123,17 +123,18 @@ class ScatterBuilder(Builder):
         self.x_names = []
         for i, val in enumerate(self._values.keys()):
             xy = self._values[val]
-            self._data["x_%s" % val] = xy[:, 0]
-            self._data["%s" % val] = xy[:, 1]
-            self.x_names.append("x_%s" % val)
+            self._data["%sx_%s" % (self.prefix, val)] = xy[:, 0]
+            if not val in self._data:
+                self._data[val] = xy[:, 1]
+            self.x_names.append("%sx_%s" % (self.prefix, val))
 
     def _parse_data(self):
         for col, values in self._values.items():
             self._data[col] = values
 
         if not self.x_names:
-            self.x_names = ['x']
-            self._data['x'] = self._values.index
+            self.x_names = [self.prefix + 'x']
+            self._data[self.prefix + 'x'] = self._values.index
 
         if len(self.x_names) == 1 and self.y_names > 1:
              self.x_names *= len(self.y_names)
@@ -151,9 +152,9 @@ class ScatterBuilder(Builder):
                 x_.append(xy[value][0])
                 y_.append(xy[value][1])
 
-            self._data["x_%s" % val] = x_
-            self._data["%s" % val] = y_
-            self.x_names.append("x_%s" % val)
+            self._data["%sx_%s" % (self.prefix, val)] = x_
+            self._data[val] = y_
+            self.x_names.append("%sx_%s" % (self.prefix, val))
 
     def _create_glyph(self, xname, yname, color):
         return make_scatter(self._source, xname, yname, self.marker, color)

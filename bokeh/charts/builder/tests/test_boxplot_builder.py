@@ -70,15 +70,17 @@ class TestBoxPlot(unittest.TestCase):
         for i, _xy in enumerate([xyvalues, xyvaluesdf, xyvaluesbl]):
             bp = create_chart(BoxPlot, _xy, marker='circle', outliers=True)
             builder = bp._builders[0]
+            pre = builder.prefix
+            self.assertEqual(pre, 'boxplot_%s_' % (bp._id.lower().replace("-", "_")))
             self.assertEqual(sorted(builder.y_names), sorted(groups))
             for key, expected_v in exptected_datarect.items():
-                self.assertEqual(builder._data[key], expected_v)
+                self.assertEqual(builder._data[pre + key], expected_v)
 
             for key, expected_v in expected_scatter.items():
-                self.assertEqual(builder._data[key], expected_v)
+                self.assertEqual(builder._data[pre + key], expected_v)
 
             for key, expected_v in expected_seg.items():
-                self.assertEqual(builder._data[key], expected_v)
+                self.assertEqual(builder._data[pre + key], expected_v)
 
             self.assertEqual(len(builder._legends), 3)
 
@@ -99,14 +101,16 @@ class TestBoxPlot(unittest.TestCase):
         for i, _xy in enumerate([lvalues, np.array(lvalues)]):
             bp = create_chart(BoxPlot, _xy, marker='circle', outliers=True)
             builder = bp._builders[0]
+            pre = builder.prefix
+            self.assertEqual(pre, 'boxplot_%s_' % (bp._id.lower().replace("-", "_")))
             self.assertEqual(sorted(builder.y_names), sorted(groups))
             for key, expected_v in exptected_datarect.items():
-                self.assertEqual(builder._data[key], expected_v)
+                self.assertEqual(builder._data[pre + key], expected_v)
 
             for key, expected_v in expected_scatter.items():
-                self.assertEqual(builder._data[key], expected_v)
+                self.assertEqual(builder._data[pre + key], expected_v)
 
             for key, expected_v in expected_seg.items():
-                self.assertEqual(builder._data[key], expected_v)
+                self.assertEqual(builder._data[pre + key], expected_v)
 
             self.assertEqual(len(builder._legends), 3)

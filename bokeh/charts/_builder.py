@@ -142,6 +142,7 @@ class Builder(HasProps):
         self._data = {}
         self._groups = []
         self._attr = []
+        self._id = ""
 
     def _adapt_values(self):
         """Prepare the input data.
@@ -196,8 +197,10 @@ class Builder(HasProps):
         It has to be implemented by any of the inherited class
         representing each different chart type.
         """
-        self.x_range = DataRange1d()
-        self.y_range = DataRange1d()
+        if not self.x_range:
+            self.x_range = DataRange1d()
+        if not self.y_range:
+            self.y_range = DataRange1d()
 
     def _yield_renderers(self):
         """Use the line glyphs to connect the xy points in the Line.
@@ -218,6 +221,7 @@ class Builder(HasProps):
         pass
 
     def create(self, chart=None):
+        self._id = chart._id.replace('-', '_')
         self._adapt_values()
         self._process_data()
         self._set_sources()
@@ -241,6 +245,12 @@ class Builder(HasProps):
     #***************************
     # Some helper methods
     #***************************
+    @property
+    def prefix(self):
+        pre = getattr(self, "_prefix", self.source_prefix)
+        if not pre:
+            pre = str(self.__class__.__name__).lower().replace("builder", "")
+        return "%s_%s_" % (pre, self._id)
 
     @property
     def colors(self):

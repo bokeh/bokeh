@@ -104,7 +104,12 @@ class DotBuilder(Builder):
         """
         if not self.cat:
             self.cat = [str(x) for x in self._values.index]
-        self._data.update(dict(dot_cat=self.cat, dot_zero=np.zeros(len(self.cat))))
+        self._data[self.prefix + 'cat'] = self.cat
+        self._data[self.prefix + 'zero'] = np.zeros(len(self.cat))
+        # self._data.update(
+        #     self.prefix +
+        #     dict(dot_cat=self.cat, dot_zero=np.zeros(len(self.cat)))
+        # )
 
         # Grouping
         step = np.linspace(0, 1.0, len(self._values.keys()) + 1, endpoint=False)
@@ -112,7 +117,7 @@ class DotBuilder(Builder):
             if col in self.y_names:
                 # x value
                 cats = [c + ":" + str(step[i + 1]) for c in self.cat]
-                self._data["dot_cat_%s" % col] = cats
+                self._data["%scat_%s" % (self.prefix, col)] = cats
 
             if not col in self._data:
                 self._data[col] = values
@@ -120,8 +125,8 @@ class DotBuilder(Builder):
     def _set_ranges(self):
         """ Calculate the proper ranges.
         """
-        self.x_range = FactorRange(factors=self._source.data["dot_cat"])
-        end = 1.1 * max(max(self._data[i]) for i in self.y_names)
+        self.x_range = FactorRange(factors=self._source.data[self.prefix + "cat"])
+        end = 1.1 * max(max(self._data[name]) for name in self.y_names)
         self.y_range = Range1d(start=0, end=end)
 
     def _yield_renderers(self):
@@ -134,9 +139,9 @@ class DotBuilder(Builder):
         for color, name in zip(self.colors, self.y_names):
             # draw segment first so when scatter will be place on top of it
             # and it won't show segment chunk on top of the circle
-            cat = "dot_cat_%s" % name
+            cat = "%scat_%s" % (self.prefix, name)
             if self.stem:
-                glyph = Segment(x0=cat, y0="dot_zero", x1=cat, y1=name,
+                glyph = Segment(x0=cat, y0=self.prefix + "zero", x1=cat, y1=name,
                                 line_color="black", line_width=2)
                 yield GlyphRenderer(data_source=self._source, glyph=glyph)
 
