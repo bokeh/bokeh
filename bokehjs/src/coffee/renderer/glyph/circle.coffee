@@ -16,6 +16,7 @@ class CircleView extends Glyph.View
         @sradius = @sdist(@renderer["#{rd}mapper"], @[rd], @radius)
       else
         @sradius = @radius
+        @max_size = 2 * @max_radius
     else
       @sradius = (s/2 for s in @size)
 
@@ -24,7 +25,7 @@ class CircleView extends Glyph.View
     vr = @renderer.plot_view.frame.get('v_range')
 
     # check for radius first
-    if @radius?
+    if @radius? and @distances.radius.units == "data"
       sx0 = hr.get('start')
       sx1 = hr.get('end')
       [x0, x1] = @renderer.xmapper.v_map_from_target([sx0, sx1], true)
@@ -45,6 +46,10 @@ class CircleView extends Glyph.View
       sy0 = vr.get('start') - @max_size
       sy1 = vr.get('end') + @max_size
       [y0, y1] = @renderer.ymapper.v_map_from_target([sy0, sy1], true)
+
+    # rbush expects x0, y0 to be min, x1, y1 max
+    if x0 > x1 then [x0, x1] = [x1, x0]
+    if y0 > y1 then [y0, y1] = [y1, y0]
 
     return (x[4].i for x in @index.search([x0, y0, x1, y1]))
 
