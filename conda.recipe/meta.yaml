@@ -10,7 +10,7 @@ requirements:
     - python
     - distribute
     - setuptools
-    - iojs
+    - gulp  # in javascript channel
 
   run:
     # bokeh
