@@ -1,5 +1,6 @@
 $ = require "jquery"
 _ = require "underscore"
+Backbone = require "Backbone"
 base = require "../common/base"
 HasProperties = require "../common/has_properties"
 load_models = require "../common/load_models"
