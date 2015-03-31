@@ -14,7 +14,7 @@ df['myx'] = range(100, 100+bbvalues.nrows)
 datasource = ColumnDataSource(data=df)
 
 pkws = dict(
-    width=400, height=400,
+    width=500, height=400,
     tools="pan,wheel_zoom,box_zoom,reset,save,box_select,lasso_select",
     legend="top_left",
     ylabel='Petals'
