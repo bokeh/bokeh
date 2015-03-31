@@ -97,11 +97,14 @@ class AreaBuilder(Builder):
         the patch glyph inside the ``_yield_renderers`` method.
 
         """
-        xs = self._values_index
-        last = np.zeros(len(xs))
-        x2 = np.hstack((xs[::-1], xs))
-
+        last = np.zeros(len(self._values.index))
         for x in self.x_names:
+            try:
+                xs = self._values[x]
+            except (KeyError, IndexError, ValueError):
+                xs = self._values_index
+
+            x2 = np.hstack((xs[::-1], xs))
             self._data[self.prefix + x] = x2
 
         for col, col_values in self._values.items():
