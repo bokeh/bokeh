@@ -203,8 +203,8 @@ class Builder(HasProps):
             self.y_range = DataRange1d()
 
     def _yield_renderers(self):
-        """Use the line glyphs to connect the xy points in the Line.
-        Takes reference points from the data loaded at the ColumnDataSource.
+        """ Yield the specific renderers of the charts being built by
+        Builder
         """
         if len(self.x_names) == len(self.y_names):
             xnames = self.x_names
@@ -218,9 +218,30 @@ class Builder(HasProps):
             yield renderer
 
     def _create_glyph(self, xname, yname, color):
+        """ Create and return a glyph related to the xname and yname
+        linked to the builder source with the specified color
+
+        Args:
+            xname (str): name of the serie used for the glyph x coordinate.
+            yname (str): name of the serie used for the glyph x coordinate.
+            yname (str): color of the glyph
+
+        Output:
+            glyph to be rendered
+        """
         pass
 
     def create(self, chart=None):
+        """ Create the ranges, renderers and legends to be drawn on the
+        chart
+
+        Args:
+            chart (Chart): chart where the Builder will create all related
+                renderers, ranges and legends
+
+        Output:
+            chart
+        """
         self._id = chart._id.replace('-', '_')
         self._adapt_values()
         self._process_data()

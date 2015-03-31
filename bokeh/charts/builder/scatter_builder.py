@@ -173,7 +173,7 @@ class ScatterBuilder(Builder):
         new_values = []
         if pd:
             # if it is we try to take advantage of it's data structures
-            # assumming we get an groupby object
+            # assuming we get an groupby object
             if isinstance(self._values, pd.core.groupby.DataFrameGroupBy):
                 pdict = OrderedDict()
                 for i in self._values.groups.keys():

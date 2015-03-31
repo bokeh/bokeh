@@ -126,9 +126,6 @@ class HistogramBuilder(Builder):
         containing references to all the calculated points to be used by
         the quad and line glyphs inside the ``_yield_renderers`` method.
         """
-        # list to save all the groups available in the incomming input
-        # self._groups.extend(self._values.keys())
-
         # fill the data dictionary with the proper values
         for i, (col, values) in enumerate(self._values.items()):
             if not col in self._data:

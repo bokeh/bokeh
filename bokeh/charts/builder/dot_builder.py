@@ -106,10 +106,6 @@ class DotBuilder(Builder):
             self.cat = [str(x) for x in self._values.index]
         self._data[self.prefix + 'cat'] = self.cat
         self._data[self.prefix + 'zero'] = np.zeros(len(self.cat))
-        # self._data.update(
-        #     self.prefix +
-        #     dict(dot_cat=self.cat, dot_zero=np.zeros(len(self.cat)))
-        # )
 
         # Grouping
         step = np.linspace(0, 1.0, len(self._values.keys()) + 1, endpoint=False)
