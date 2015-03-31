@@ -516,7 +516,7 @@ class Axis extends HasParent
 
     labels = @get('formatter').format(coords[dim])
 
-    view.major_label_props.set(ctx, view)
+    view.major_label_props.set_value(ctx)
 
     if _.isString(orient)
       hscale = 1
@@ -556,7 +556,7 @@ class Axis extends HasParent
     orient = 'parallel'
     ctx = view.plot_view.canvas_view.ctx
 
-    view.axis_label_props.set(ctx, view)
+    view.axis_label_props.set_value(ctx)
 
     angle = Math.abs(_angle_lookup[side][orient])
     c = Math.cos(angle)
@@ -564,7 +564,7 @@ class Axis extends HasParent
 
     if @get('axis_label')
       extent += @get('axis_label_standoff')
-      view.axis_label_props.set(ctx, view)
+      view.axis_label_props.set_value(ctx)
       w = ctx.measureText(@get('axis_label')).width * 1.1
       h = ctx.measureText(@get('axis_label')).ascent * 0.9
       if side == "above" or side == "below"
