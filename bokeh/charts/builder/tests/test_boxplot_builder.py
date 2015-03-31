@@ -49,10 +49,6 @@ class TestBoxPlot(unittest.TestCase):
             'groups': ['bronze', 'silver', 'gold'],
             'iqr_centers': [2.5, 2.5, 2.5],
             'iqr_lengths': [3.0, 3.0, 4.5],
-            'lower_center_boxes': [1.25, 1.5, 1.125],
-            'lower_height_boxes': [0.5, 1.0, 1.75],
-            'upper_center_boxes': [2.75, 3.0, 3.375],
-            'upper_height_boxes': [2.5, 2.0, 2.75],
             'width': [0.8, 0.8, 0.8]
         }
         expected_scatter = {
@@ -65,6 +61,15 @@ class TestBoxPlot(unittest.TestCase):
              'q0': [1.0, 1.0, 0.25],
              'q2': [4.0, 4.0, 4.75],
              'upper': [8.5, 8.5, 11.5]
+        }
+
+        expect_rects = {
+            'rect_center_bronze': [2.75, 1.25],
+            'rect_height_bronze': [2.5, 0.5],
+            'rect_center_silver': [3., 1.5],
+            'rect_height_silver': [2.0, 1.],
+            'rect_center_gold': [3.375, 1.125],
+            'rect_height_gold': [2.75, 1.75],
         }
 
         for i, _xy in enumerate([xyvalues, xyvaluesdf, xyvaluesbl]):
@@ -80,6 +85,9 @@ class TestBoxPlot(unittest.TestCase):
                 self.assertEqual(builder._data[pre + key], expected_v)
 
             for key, expected_v in expected_seg.items():
+                self.assertEqual(builder._data[pre + key], expected_v)
+
+            for key, expected_v in expect_rects.items():
                 self.assertEqual(builder._data[pre + key], expected_v)
 
             self.assertEqual(len(builder._legends), 3)

@@ -136,10 +136,6 @@ class BoxPlotBuilder(Builder):
         self._data[self.prefix+"iqr_lengths"] = iqr_lengths = []
         self._data[self.prefix+"lower"] = lower_points = []
         self._data[self.prefix+"upper"] = upper_points = []
-        self._data[self.prefix+"upper_center_boxes"] = upper_center_boxes = []
-        self._data[self.prefix+"upper_height_boxes"] = upper_height_boxes = []
-        self._data[self.prefix+"lower_center_boxes"] = lower_center_boxes = []
-        self._data[self.prefix+"lower_height_boxes"] = lower_height_boxes = []
         self._data[self.prefix+"out_x"] = out_x = []
         self._data[self.prefix+"out_y"] = out_y = []
         self._data[self.prefix+"out_colors"] = out_colors = []
@@ -164,10 +160,11 @@ class BoxPlotBuilder(Builder):
                 upper_points.append(upper)
 
                 # rect center points and heights
-                upper_center_boxes.append((q[2] + q[1]) / 2)
-                upper_height_boxes.append(q[2] - q[1])
-                lower_center_boxes.append((q[1] + q[0]) / 2)
-                lower_height_boxes.append(q[1] - q[0])
+                self._data[self.prefix+"rect_center_"+level] = [
+                    (q[2] + q[1]) / 2, (q[1] + q[0]) / 2]
+                self._data[self.prefix+"rect_height_"+level] =[
+                    q[2] - q[1], q[1] - q[0]]
+                self._data[self.prefix+"cat_"+level] = [level, level]
 
                 # Store indices of outliers as list
                 outliers = np.where(
@@ -202,19 +199,24 @@ class BoxPlotBuilder(Builder):
             yield GlyphRenderer(data_source=self.source, glyph=glyph)
 
         # Draw the boxes
-        rects_bound = [
-            ('iqr_centers', 'iqr_lengths', None, 2),
-            ('upper_center_boxes', 'upper_height_boxes', 'colors', 1),
-            ('lower_center_boxes', 'lower_height_boxes', 'colors', 1)
-        ]
-        for (y0, y1, color, lw) in rects_bound:
-            color = self.prefix + color if color else color
+        glyph = Rect(
+            x=self.prefix+"groups", y=self.prefix+'iqr_centers',
+            width=self.prefix+"width", height=self.prefix+'iqr_lengths',
+            line_color="black", line_width=2, fill_color=None,
+        )
+        yield GlyphRenderer(data_source=self.source, glyph=glyph)
+
+        for color, y_name in zip(self.palette, self.y_names):
             glyph = Rect(
-                x=self.prefix+"groups", y=self.prefix+y0,
-                width=self.prefix+"width", height=self.prefix+y1,
-                line_color="black", line_width=lw, fill_color=color,
+                x=self.prefix+"cat_"+y_name, y=self.prefix+"rect_center_"+y_name,
+                width=self.prefix+"width", height=self.prefix+"rect_height_"+y_name,
+                line_color="black", line_width=1, fill_color=color,
             )
-            yield GlyphRenderer(data_source=self.source, glyph=glyph)
+            renderer = GlyphRenderer(data_source=self.source, glyph=glyph)
+
+            # need to manually select the proper glyphs to be rendered as legends
+            self._legends.append((y_name, [renderer]))
+            yield renderer
 
         # Draw the outliers if needed
         if self.outliers:
@@ -223,15 +225,3 @@ class BoxPlotBuilder(Builder):
                 self.marker, self.prefix+'out_colors'
             )
             yield GlyphRenderer(data_source=self.source, glyph=glyph)
-
-        # We need to build the legend here using dummy glyphs
-        for i, level in enumerate(self._groups):
-            # TODO: (bev) what is this None business?
-            glyph = Rect(
-                x=self.prefix+"groups", y=None,
-                width=None, height=None,
-                line_color="black", fill_color=self.palette[i])
-            renderer = GlyphRenderer(data_source=self.source, glyph=glyph)
-
-            # need to manually select the proper glyphs to be rendered as legends
-            self._legends.append((self._groups[i], [renderer]))
