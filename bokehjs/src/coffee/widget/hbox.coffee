@@ -4,6 +4,15 @@ Collection = require "../common/collection"
 ContinuumView = require "../common/continuum_view"
 HasParent = require "../common/has_parent"
 
+jQueryUIPrefixer = (el) ->
+  return unless el.className?
+  classList = el.className.split " "
+  prefixedClassList = _.map classList, (a) ->
+    a = a.trim()
+    return if a.indexOf("ui-") is 0 then "bk-#{a}" else a
+  return prefixedClassList.join " "
+
+
 class HBoxView extends ContinuumView
   tag: "div"
   attributes:
@@ -26,7 +35,11 @@ class HBoxView extends ContinuumView
     height = @mget("height")
     if height? then @$el.css(height: height + "px")
     for child in children
-      @$el.append(@views[child.id].$el)
+      childView = @views[child.id].$el
+      childView.find("*[class*='ui-']").each (idx, el) ->
+        el.className = jQueryUIPrefixer(el)
+      @$el.append(childView)
+
     return @
 
 class HBox extends HasParent
