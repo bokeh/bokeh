@@ -19,8 +19,7 @@ class Property extends HasProperties
       else if @spec.field?
         @field = @spec.field
       else
-        throw new Error("spec for property '#{attr}' needs one of 'value' or
-                         'field'")
+        throw new Error("spec for property '#{attr}' needs one of 'value' or 'field'")
     else
       # otherwise if there is no spec use a default
       @fixed_value = attr_value
@@ -29,7 +28,7 @@ class Property extends HasProperties
       throw new Error("field value for property '#{attr}' is not a string")
 
     if @fixed_value?
-      @validate(@fixed_value, attr)
+      @validate(@fixed_value)
 
   value: () ->
     result = if @fixed_value? then @fixed_value else NaN
@@ -42,13 +41,13 @@ class Property extends HasProperties
     else
       length = source.get_length()
       length = 1 if not length?
-      value = if @fixed_value? then @fixed_value else NaN
+      value = @value()
       result = (value for i in [0...length])
     return @transform(result)
 
   transform: (values) -> values
 
-  validate: (value, attr) -> true
+  validate: (value) -> true
 
 #
 # Numeric Properties
@@ -56,15 +55,16 @@ class Property extends HasProperties
 
 class Numeric extends Property
 
-  validate: (value, attr) ->
+  validate: (value) ->
     if not _.isNumber(value)
-      throw new Error("numeric property '#{attr}' given invalid value:
-                       #{value}")
+      throw new Error("numeric property '#{attr}' given invalid value: #{value}")
+    return true
 
   transform: (values) ->
     result = new Float64Array(values.length)
     for i in [0...values.length]
       result[i] = values[i]
+    return result
 
 class Angle extends Numeric
 
@@ -73,7 +73,9 @@ class Angle extends Numeric
     obj = @get('obj')
     attr = @get('attr')
     spec = obj.get(attr)
-    @units = @spec?.units ? obj.get("#{attr}_units") ? "rad"
+    @units = spec?.units ? obj.get("#{attr}_units") ? "rad"
+    if @units != "deg" and @units != "rad"
+      throw new Error("Angle units must be one of 'deg' or 'rad', given invalid value: #{@units}")
 
   transform: (values) ->
     if @units == "deg"
@@ -88,6 +90,9 @@ class Distance extends Numeric
     obj = @get('obj')
     attr = @get('attr')
     @units = @spec?.units ? obj.get("#{attr}_units") ? "data"
+    if @units != "data" and @units != "screen"
+      throw new Error("Distance units must be one of 'data' or 'screen', given invalid value: #{@units}")
+
 
 #
 # Basic Properties
@@ -95,29 +100,38 @@ class Distance extends Numeric
 
 class Array extends Property
 
-  validate: (value, attr) ->
+  validate: (value) ->
     if not _.isArray(value)
       throw new Error("array property '#{attr}' given invalid value: #{value}")
+    return true
 
 class Bool extends Property
 
-  validate: (value, attr) ->
+  validate: (value) ->
     if not _.isBoolean(value)
-      throw new Error("boolean property '#{attr}' given invalid value:
-                       #{value}")
+      throw new Error("boolean property '#{attr}' given invalid value: #{value}")
+    return true
 
 class Coord extends Property
 
-  validate: (value, attr) ->
+  validate: (value) ->
     if not _.isNumber(value) and not _.isString(value)
-      throw new Error("coordinate property '#{attr}' given invalid value:
-                       #{value}")
+      throw new Error("coordinate property '#{attr}' given invalid value: #{value}")
+    return true
 
 class Color extends Property
 
-  validate: (value, attr) ->
+  validate: (value) ->
     if not svg_colors[value]? and value.substring(0, 1) != "#"
       throw new Error("color property '#{attr}' given invalid value: #{value}")
+    return true
+
+class String extends Property
+
+  validate: (value) ->
+    if not _.isString(value)
+      throw new Error("string property '#{attr}' given invalid value: #{value}")
+    return true
 
 class Enum extends Property
 
@@ -125,10 +139,11 @@ class Enum extends Property
     @levels = attrs.values.split(" ")
     super(attrs, options)
 
-  validate: (value, attr) ->
+  validate: (value) ->
     if value not in @levels
       throw new Error("enum property '#{attr}' given invalid value: #{value},
                        valid values are: #{@levels}")
+    return true
 
 class Direction extends Enum
 
@@ -142,14 +157,8 @@ class Direction extends Enum
       switch values[i]
         when 'clock'     then result[i] = false
         when 'anticlock' then result[i] = true
-        else result[i] = false
     return result
 
-class String extends Property
-
-  validate: (value, attr) ->
-    if not _.isString(value)
-      throw new Error("string property '#{attr}' given invalid value: #{value}")
 
 #
 # Drawing Context Properties
@@ -445,6 +454,7 @@ module.exports =
   Distance: Distance
   Enum: Enum
   Numeric: Numeric
+  Property: Property
   String: String
 
   Line: Line
