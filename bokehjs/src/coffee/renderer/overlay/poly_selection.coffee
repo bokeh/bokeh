@@ -2,16 +2,14 @@ _ = require "underscore"
 Collection = require "../../common/collection"
 HasParent = require "../../common/has_parent"
 PlotWidget = require "../../common/plot_widget"
-properties = require "../properties"
+properties = require "../../common/properties"
 
 class PolySelectionView extends PlotWidget
 
   initialize: (options) ->
     super(options)
-    @props = {
-      line: new properties.Line(@)
-      fill: new properties.Fill(@)
-    }
+    @line = new properties.Line({obj: @model, prefix: ""})
+    @fill = new properties.Fill({obj: @model, prefix: ""})
 
   bind_bokeh_events: () ->
     @listenTo(@model, 'change:data', @plot_view.request_render)
@@ -34,11 +32,11 @@ class PolySelectionView extends PlotWidget
         ctx.lineTo(sx, sy)
     if @mget('auto_close')
       ctx.closePath()
-    if @props.line.do_stroke
-      @props.line.set(ctx)
+    if @line.do_stroke
+      @line.set_value(ctx)
       ctx.stroke()
-    if @props.fill.do_fill and @mget('auto_close')
-      @props.fill.set(ctx)
+    if @fill.do_fill and @mget('auto_close')
+      @fill.set_value(ctx)
       ctx.fill()
 
 class PolySelection extends HasParent

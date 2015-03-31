@@ -25,7 +25,7 @@ class Property extends HasProperties
       # otherwise if there is no spec use a default
       @fixed_value = attr_value
 
-    if this.filed? and not _.isString(@field)
+    if @field? and not _.isString(@field)
       throw new Error("field value for property '#{attr}' is not a string")
 
     if @fixed_value?
@@ -336,7 +336,7 @@ class Text extends ContextProperties
     return result
 
   set_value: (ctx) ->
-    ctx.font         = @font()
+    ctx.font         = @font_value()
     ctx.fillStyle    = @color.value()
     ctx.globalAlpha  = @alpha.value()
     ctx.textAlign    = @align.value()

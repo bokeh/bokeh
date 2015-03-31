@@ -32,6 +32,7 @@ Bokeh.HasParent         = require("./common/has_parent")
 Bokeh.HasProperties     = require("./common/has_properties")
 Bokeh.LayoutBox         = require("./common/layout_box")
 Bokeh.Plot              = require("./common/plot")
+Bokeh.Properties        = require("./common/properties")
 Bokeh.SelectionManager  = require("./common/selection_manager")
 Bokeh.Selector          = require("./common/selector")
 Bokeh.ToolEvents        = require("./common/tool_events")
@@ -73,9 +74,6 @@ Bokeh.LogAxis         = require("./renderer/guide/log_axis")
 # overlays
 Bokeh.BoxSelection  = require("./renderer/overlay/box_selection")
 Bokeh.PolySelection = require("./renderer/overlay/poly_selection")
-
-# properties
-Bokeh.Properties = require("./renderer/properties")
 
 # server tools
 Bokeh.embed       = require("./server/embed")

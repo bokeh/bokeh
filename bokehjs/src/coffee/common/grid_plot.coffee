@@ -1,7 +1,6 @@
 $ = require "jquery"
 _ = require "underscore"
 Backbone = require "backbone"
-Properties = require "../renderer/properties"
 build_views = require "./build_views"
 ContinuumView = require "./continuum_view"
 Collection = require "./collection"

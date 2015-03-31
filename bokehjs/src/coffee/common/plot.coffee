@@ -19,7 +19,7 @@ plot_utils = require "./plot_utils"
 Solver = require "./solver"
 ToolManager = require "./tool_manager"
 plot_template = require "./plot_template"
-properties = require "../renderer/properties"
+properties = require "./properties"
 
 
 class PlotView extends ContinuumView
@@ -65,8 +65,8 @@ class PlotView extends ContinuumView
 
     @throttled_render = plot_utils.throttle_animation(@render, 15)
 
-    @outline_props = new properties.Line(@, 'outline_')
-    @title_props = new properties.Text(@, 'title_')
+    @outline_props = new properties.Line({obj: @model, prefix: 'outline_'})
+    @title_props = new properties.Text({obj: @model, prefix: 'title_'})
 
     @renderers = {}
     @tools = {}
@@ -222,7 +222,7 @@ class PlotView extends ContinuumView
 
     title = @mget('title')
     if title
-      @title_props.set(@canvas_view.ctx, {})
+      @title_props.set_value(@canvas_view.ctx)
       th = ctx.measureText(@mget('title')).ascent + @model.get('title_standoff')
       if th != @model.title_panel.get('height')
         @model.title_panel.set('height', th)
@@ -254,7 +254,7 @@ class PlotView extends ContinuumView
     @_paint_empty(ctx, frame_box)
 
     if @outline_props.do_stroke
-      @outline_props.set(ctx, {})
+      @outline_props.set_value(ctx)
       ctx.strokeRect.apply(ctx, frame_box)
 
     @_render_levels(ctx, ['image', 'underlay', 'glyph'], frame_box)
@@ -264,7 +264,7 @@ class PlotView extends ContinuumView
       sx = @canvas.vx_to_sx(@canvas.get('width')/2)
       sy = @canvas.vy_to_sy(
         @model.title_panel.get('bottom') + @model.get('title_standoff'))
-      @title_props.set(ctx, {})
+      @title_props.set_value(ctx)
       ctx.fillText(title, sx, sy)
 
   _render_levels: (ctx, levels, clip_region) ->
