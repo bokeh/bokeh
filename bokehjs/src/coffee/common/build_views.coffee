@@ -38,5 +38,16 @@ build_views = (view_storage, view_models, options, view_types=[]) ->
 
   return created_views
 
+jQueryUIPrefixer = (el) ->
+  return unless el.className?
+  classList = el.className.split " "
+  prefixedClassList = _.map classList, (a) ->
+    a = a.trim()
+    return if a.indexOf("ui-") is 0 then "bk-#{a}" else a
+  return prefixedClassList.join " "
+
+# FIXME Hack to expose jQueryUIPrefixer
+build_views.jQueryUIPrefixer = jQueryUIPrefixer
+
 module.exports =
   build_views = build_views
