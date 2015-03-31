@@ -49,5 +49,6 @@ jQueryUIPrefixer = (el) ->
 # FIXME Hack to expose jQueryUIPrefixer
 build_views.jQueryUIPrefixer = jQueryUIPrefixer
 
+# FIXME This export is the same as module.exports = build_views
 module.exports =
   build_views = build_views
