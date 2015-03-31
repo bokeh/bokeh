@@ -37,6 +37,25 @@ from ..util.notebook import publish_display_data
 _default_cycle_palette = [
     "#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33ff3"
 ]
+
+_marker_types = OrderedDict(
+        [
+            ("circle", Circle),
+            ("square", Square),
+            ("triangle", Triangle),
+            ("diamond", Diamond),
+            ("inverted_triangle", InvertedTriangle),
+            ("asterisk", Asterisk),
+            ("cross", Cross),
+            ("x", X),
+            ("circle_cross", CircleCross),
+            ("circle_x", CircleX),
+            ("square_x", SquareX),
+            ("square_cross", SquareCross),
+            ("diamond_cross", DiamondCross),
+        ]
+    )
+
 def cycle_colors(chunk, palette=_default_cycle_palette):
     """ Build a color list just cycling through a given palette.
 
@@ -77,24 +96,6 @@ def make_scatter(source, x, y, markertype, color, line_color=None,
     if line_color is None:
         line_color = color
 
-    _marker_types = OrderedDict(
-        [
-            ("circle", Circle),
-            ("square", Square),
-            ("triangle", Triangle),
-            ("diamond", Diamond),
-            ("inverted_triangle", InvertedTriangle),
-            ("asterisk", Asterisk),
-            ("cross", Cross),
-            ("x", X),
-            ("circle_cross", CircleCross),
-            ("circle_x", CircleX),
-            ("square_x", SquareX),
-            ("square_cross", SquareCross),
-            ("diamond_cross", DiamondCross),
-        ]
-    )
-
     g = itertools.cycle(_marker_types.keys())
     if isinstance(markertype, int):
         for i in range(markertype):
@@ -105,8 +106,8 @@ def make_scatter(source, x, y, markertype, color, line_color=None,
         x=x, y=y, size=size, fill_color=color, fill_alpha=fill_alpha,
         line_color=line_color, line_alpha=line_alpha
     )
-
-    return GlyphRenderer(data_source=source, glyph=glyph)
+    return glyph
+    # return GlyphRenderer(data_source=source, glyph=glyph)
 
 def chunk(l, n):
     """Yield successive n-sized chunks from l.

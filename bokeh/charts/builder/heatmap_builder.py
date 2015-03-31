@@ -19,7 +19,7 @@ from __future__ import absolute_import, print_function, division
 
 from .._builder import Builder, create_and_build
 from .._data_adapter import DataAdapter
-from ...models import ColumnDataSource, FactorRange, GlyphRenderer, HoverTool
+from ...models import FactorRange, GlyphRenderer, HoverTool
 from ...models.glyphs import Rect
 
 #-----------------------------------------------------------------------------
@@ -66,7 +66,8 @@ def HeatMap(values, xscale="categorical", yscale="categorical",
         HeatMapBuilder, values, xscale=xscale, yscale=yscale,
         xgrid=xgrid, ygrid=ygrid, **kw
     )
-    chart.add_tools(HoverTool(tooltips=[("value", "@rate")]))
+    field = "@" + chart._builders[-1].prefix + "rate"
+    chart.add_tools(HoverTool(tooltips=[("value", field)]))
     return chart
 
 class HeatMapBuilder(Builder):
@@ -94,10 +95,10 @@ class HeatMapBuilder(Builder):
 
         # Set up the data for plotting. We will need to have values for every
         # pair of year/month names. Map the rate to a color.
-        catx = []
-        caty = []
-        color = []
-        rate = []
+        self._data[self.prefix + 'catx'] = catx = []
+        self._data[self.prefix + 'caty'] = caty = []
+        self._data[self.prefix + 'color'] = color = []
+        self._data[self.prefix + 'rate'] = rate = []
         for y in self._catsy:
             for m in self._catsx:
                 catx.append(m)
@@ -112,17 +113,13 @@ class HeatMapBuilder(Builder):
                 c = int(round(factor*(self._values[m][y] - min(rate)) / den))
                 color.append(self.palette[c])
 
-        width = [0.95] * len(catx)
-        height = [0.95] * len(catx)
+        self._data[self.prefix + 'width'] = [0.95] * len(catx)
+        self._data[self.prefix + 'height'] = [0.95] * len(catx)
 
-        self._data = dict(catx=catx, caty=caty, color=color, rate=rate,
-                         width=width, height=height)
-
-    def _set_sources(self):
+    def _set_ranges(self):
         """Push the CategoricalHeatMap data into the ColumnDataSource
         and calculate the proper ranges.
         """
-        self._source = ColumnDataSource(self._data)
         self.x_range = FactorRange(factors=self._catsx)
         self.y_range = FactorRange(factors=self._catsy)
 
@@ -132,10 +129,9 @@ class HeatMapBuilder(Builder):
         Takes reference points from data loaded at the ColumnDataSurce.
         """
         glyph = Rect(
-            x="catx", y="caty",
-            width="width", height="height",
-            fill_color="color", fill_alpha=0.7,
-            line_color="white"
+            x=self.prefix + "catx", y=self.prefix + "caty",
+            width=self.prefix + "width", height=self.prefix + "height",
+            fill_color=self.prefix + "color", fill_alpha=0.7, line_color="white"
         )
         renderer = GlyphRenderer(data_source=self._source, glyph=glyph)
         # TODO: Legend??

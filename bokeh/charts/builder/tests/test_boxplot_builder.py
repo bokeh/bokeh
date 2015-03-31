@@ -49,14 +49,10 @@ class TestBoxPlot(unittest.TestCase):
             'groups': ['bronze', 'silver', 'gold'],
             'iqr_centers': [2.5, 2.5, 2.5],
             'iqr_lengths': [3.0, 3.0, 4.5],
-            'lower_center_boxes': [1.25, 1.5, 1.125],
-            'lower_height_boxes': [0.5, 1.0, 1.75],
-            'upper_center_boxes': [2.75, 3.0, 3.375],
-            'upper_height_boxes': [2.5, 2.0, 2.75],
             'width': [0.8, 0.8, 0.8]
         }
         expected_scatter = {
-            'colors': ['#f22c40'],
+            'out_colors': ['#f22c40'],
             'out_x': ['bronze'],
             'out_y': [10.0]
         }
@@ -67,18 +63,32 @@ class TestBoxPlot(unittest.TestCase):
              'upper': [8.5, 8.5, 11.5]
         }
 
+        expect_rects = {
+            'rect_center_bronze': [2.75, 1.25],
+            'rect_height_bronze': [2.5, 0.5],
+            'rect_center_silver': [3., 1.5],
+            'rect_height_silver': [2.0, 1.],
+            'rect_center_gold': [3.375, 1.125],
+            'rect_height_gold': [2.75, 1.75],
+        }
+
         for i, _xy in enumerate([xyvalues, xyvaluesdf, xyvaluesbl]):
             bp = create_chart(BoxPlot, _xy, marker='circle', outliers=True)
             builder = bp._builders[0]
-            self.assertEqual(sorted(builder._groups), sorted(groups))
+            pre = builder.prefix
+            self.assertEqual(pre, 'boxplot_%s_' % (bp._id.lower().replace("-", "_")))
+            self.assertEqual(sorted(builder.y_names), sorted(groups))
             for key, expected_v in exptected_datarect.items():
-                self.assertEqual(builder._data_rect[key], expected_v)
+                self.assertEqual(builder._data[pre + key], expected_v)
 
             for key, expected_v in expected_scatter.items():
-                self.assertEqual(builder._data_scatter[key], expected_v)
+                self.assertEqual(builder._data[pre + key], expected_v)
 
             for key, expected_v in expected_seg.items():
-                self.assertEqual(builder._data_segment[key], expected_v)
+                self.assertEqual(builder._data[pre + key], expected_v)
+
+            for key, expected_v in expect_rects.items():
+                self.assertEqual(builder._data[pre + key], expected_v)
 
             self.assertEqual(len(builder._legends), 3)
 
@@ -99,14 +109,16 @@ class TestBoxPlot(unittest.TestCase):
         for i, _xy in enumerate([lvalues, np.array(lvalues)]):
             bp = create_chart(BoxPlot, _xy, marker='circle', outliers=True)
             builder = bp._builders[0]
-            self.assertEqual(sorted(builder._groups), sorted(groups))
+            pre = builder.prefix
+            self.assertEqual(pre, 'boxplot_%s_' % (bp._id.lower().replace("-", "_")))
+            self.assertEqual(sorted(builder.y_names), sorted(groups))
             for key, expected_v in exptected_datarect.items():
-                self.assertEqual(builder._data_rect[key], expected_v)
+                self.assertEqual(builder._data[pre + key], expected_v)
 
             for key, expected_v in expected_scatter.items():
-                self.assertEqual(builder._data_scatter[key], expected_v)
+                self.assertEqual(builder._data[pre + key], expected_v)
 
             for key, expected_v in expected_seg.items():
-                self.assertEqual(builder._data_segment[key], expected_v)
+                self.assertEqual(builder._data[pre + key], expected_v)
 
             self.assertEqual(len(builder._legends), 3)

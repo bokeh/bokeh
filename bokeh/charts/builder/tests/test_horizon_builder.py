@@ -42,8 +42,10 @@ class TestHorizon(unittest.TestCase):
         xyvaluesdf = pd.DataFrame(xyvalues)
         groups = ['python', 'pypy']
         for i, _xy in enumerate([xyvalues, xyvaluesdf]):
-            ts = create_chart(Horizon, _xy, index='Date')
+            ts = create_chart(Horizon, _xy, x_names=['Date'])
             builder = ts._builders[0]
+            pre = builder.prefix
+            self.assertEqual(pre, 'horizon_%s_' % (ts._id.lower().replace("-", "_")))
 
             padded_date = [x for x in _xy['Date']]
             padded_date.insert(0, padded_date[0])
@@ -53,17 +55,23 @@ class TestHorizon(unittest.TestCase):
             self.assertEqual(builder._series, groups)
             self.assertEqual(builder._fold_height, 126.0 / 3)
             self.assertEqual(builder._groups, ['42.0', '-42.0', '84.0', '-84.0', '126.0', '-126.0'])
-            assert_array_equal(builder._data['x_python'], padded_date)
-            assert_array_equal(builder._data['x_pypy'], padded_date)
-            assert_array_equal(builder._data['y_fold-3_python'], [63, 9, 9 ,63, 63, 63, 63, 63])
-            assert_array_equal(builder._data['y_fold-2_python'], [63, 0, 0, 63, 63, 63, 63, 63])
-            assert_array_equal(builder._data['y_fold-1_python'], [63, 0, 0, 18, 63, 63, 63, 63])
-            assert_array_equal(builder._data['y_fold1_python'], [0, 0, 0, 0, 63, 63, 63, 0])
-            assert_array_equal(builder._data['y_fold2_python'], [0, 0, 0, 0, 12, 63, 63, 0])
-            assert_array_equal(builder._data['y_fold3_python'], [0, 0, 0, 0, 0, 24, 28.5, 0])
-            assert_array_equal(builder._data['y_fold-3_pypy'], [126, 126, 126, 126, 126, 126, 126, 126])
-            assert_array_equal(builder._data['y_fold-2_pypy'], [126, 76.5, 76.5, 126, 126, 126, 126, 126])
-            assert_array_equal(builder._data['y_fold-1_pypy'], [126, 63, 63, 76.5, 126, 126, 126, 126])
-            assert_array_equal(builder._data['y_fold1_pypy'], [63, 63, 63, 63, 85.5, 126, 126, 63])
-            assert_array_equal(builder._data['y_fold2_pypy'], [63, 63, 63, 63, 63, 126, 126, 63])
-            assert_array_equal(builder._data['y_fold3_pypy'], [63, 63, 63, 63, 63, 126, 126, 63])
+            self.assertEqual(len(builder._data[pre + 'x_all']), 12)
+            for x in builder._data[pre + 'x_all']:
+                assert_array_equal(x, padded_date)
+
+            expected_res = [
+                [0., 0., 0., 0., 63., 63., 63., 0.],
+                [63., 0., 0., 18., 63., 63., 63., 63.],
+                [0., 0., 0., 0., 12., 63., 63., 0.],
+                [63., 0., 0., 63., 63., 63., 63., 63.],
+                [0., 0., 0., 0., 0., 24., 28.5, 0.],
+                [63., 9., 9., 63., 63., 63., 63., 63.],
+                [63., 63., 63., 63., 85.5, 126., 126., 63.],
+                [126., 63., 63., 76.5, 126., 126., 126., 126.],
+                [63., 63., 63., 63., 63., 126., 126., 63.],
+                [126., 76.5, 76.5, 126., 126., 126., 126., 126.],
+                [63., 63., 63., 63., 63., 126., 126., 63.],
+                [126., 126., 126., 126., 126., 126., 126., 126.]
+            ]
+            for expected, res in zip(expected_res, builder._data[pre+'y_all']):
+                assert_array_equal(expected, res)

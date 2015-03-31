@@ -51,12 +51,13 @@ class TestHeatMap(unittest.TestCase):
         for i, _xy in enumerate([xyvalues, xyvaluesdf]):
             hm = create_chart(HeatMap, _xy, palette=colors)
             builder = hm._builders[0]
-            # TODO: Fix bug
-            #self.assertEqual(sorted(hm.groups), sorted(list(xyvalues.keys())))
-            assert_array_equal(builder._data['height'], heights)
-            assert_array_equal(builder._data['width'], widths)
-            assert_array_equal(builder._data['catx'], catx)
-            assert_array_equal(builder._data['rate'], rates)
+            pre = builder.prefix
+            self.assertEqual(pre, 'heatmap_%s_' % (hm._id.lower().replace("-", "_")))
+
+            assert_array_equal(builder._data[pre + 'height'], heights)
+            assert_array_equal(builder._data[pre + 'width'], widths)
+            assert_array_equal(builder._data[pre + 'catx'], catx)
+            assert_array_equal(builder._data[pre + 'rate'], rates)
             assert_array_equal(builder._source._data, builder._data)
             assert_array_equal(hm.x_range.factors, builder._catsx)
             assert_array_equal(hm.y_range.factors, builder._catsy)
@@ -67,10 +68,10 @@ class TestHeatMap(unittest.TestCase):
             #assert_array_equal(builder._data['color'], colors)
 
             if i == 0: # if DataFrame
-                assert_array_equal(builder._data['caty'], caty)
+                assert_array_equal(builder._data[pre + 'caty'], caty)
             else:
                 _caty = ['2009']*3 + ['2010']*3 + ['2011']*3
-                assert_array_equal(builder._data['caty'], _caty)
+                assert_array_equal(builder._data[pre + 'caty'], _caty)
 
 
         catx = ['0', '1', '2', '0', '1', '2', '0', '1', '2']
@@ -78,19 +79,19 @@ class TestHeatMap(unittest.TestCase):
         for _xy in [lvalues, np.array(lvalues)]:
             hm = create_chart(HeatMap, _xy, palette=colors)
             builder = hm._builders[0]
+            pre = builder.prefix
+            self.assertEqual(pre, 'heatmap_%s_' % (hm._id.lower().replace("-", "_")))
 
-            # TODO: FIX bug
-            #self.assertEqual(sorted(hm.groups), sorted(list(xyvalues.keys())))
-            assert_array_equal(builder._data['height'], heights)
-            assert_array_equal(builder._data['width'], widths)
-            assert_array_equal(builder._data['catx'], catx)
-            assert_array_equal(builder._data['rate'], rates)
+            assert_array_equal(builder._data[pre + 'height'], heights)
+            assert_array_equal(builder._data[pre + 'width'], widths)
+            assert_array_equal(builder._data[pre + 'catx'], catx)
+            assert_array_equal(builder._data[pre + 'rate'], rates)
             assert_array_equal(builder._source._data, builder._data)
             assert_array_equal(hm.x_range.factors, builder._catsx)
             assert_array_equal(hm.y_range.factors, builder._catsy)
             self.assertIsInstance(hm.x_range, FactorRange)
             self.assertIsInstance(hm.y_range, FactorRange)
-            assert_array_equal(builder._data['caty'], caty)
+            assert_array_equal(builder._data[pre + 'caty'], caty)
 
             # TODO: (bev) not sure what correct behaviour is
             # assert_array_equal(builder._data['color'], colors)

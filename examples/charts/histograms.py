@@ -27,6 +27,6 @@ for k, v in distributions.items():
 
 output_file("histograms.html")
 
-hist = Histogram(df, bins=50, legend=True)
+hist = Histogram(df, bins=50, mu=mu, sigma=sigma, legend=True)
 
 show(hist)

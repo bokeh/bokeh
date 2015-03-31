@@ -52,10 +52,12 @@ class TestDonut(unittest.TestCase):
             for i, _xy in enumerate([xyvalues]):
                 _chart = create_chart(Donut, _xy, cat=cat)
                 builder = _chart._builders[0]
-                self.assertEqual(builder._groups, cat)
-                assert_array_equal(builder._data['start'], start)
-                assert_array_equal(builder._data['end'], end)
-                assert_array_equal(builder._data['colors'], colors)
+                pre = builder.prefix
+                self.assertEqual(pre, 'donut_%s_' % (_chart._id.lower().replace("-", "_")))
+                self.assertEqual(builder.cat, cat)
+                assert_array_equal(builder._data[pre + 'start'], start)
+                assert_array_equal(builder._data[pre + 'end'], end)
+                assert_array_equal(builder._data[pre + 'colors'], colors)
 
                 # TODO: Test for external ring source values is missing as it needs
                 #       some refactoring to expose those values calculation
@@ -66,10 +68,12 @@ class TestDonut(unittest.TestCase):
             for i, _xy in enumerate([lvalues, np.array(lvalues)]):
                 _chart = create_chart(Donut, _xy, cat=cat)
                 builder = _chart._builders[0]
-                self.assertEqual(builder._groups, cat)
-                assert_array_equal(builder._data['start'], start)
-                assert_array_equal(builder._data['end'], end)
-                assert_array_equal(builder._data['colors'], colors)
+                pre = builder.prefix
+                self.assertEqual(pre, 'donut_%s_' % (_chart._id.lower().replace("-", "_")))
+                self.assertEqual(builder.cat, cat)
+                assert_array_equal(builder._data[pre + 'start'], start)
+                assert_array_equal(builder._data[pre + 'end'], end)
+                assert_array_equal(builder._data[pre + 'colors'], colors)
 
                 # TODO: Test for external ring source values is missing as it needs
                 #       some refactoring to expose those values calculation

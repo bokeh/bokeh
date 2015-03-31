@@ -20,13 +20,11 @@ from __future__ import absolute_import, print_function, division
 
 try:
     import numpy as np
-
 except ImportError:
     raise RuntimeError("bokeh.charts Bar chart requires NumPy.")
 
-from ..utils import chunk, cycle_colors
 from .._builder import Builder, create_and_build
-from ...models import ColumnDataSource, FactorRange, GlyphRenderer, Range1d
+from ...models import FactorRange, Range1d
 from ...models.glyphs import Rect
 from ...properties import Any, Bool, Either, List
 
@@ -83,7 +81,6 @@ def Bar(values, cat=None, stacked=False, xscale="categorical", yscale="linear",
         raise ValueError(
             "continuous_range must be an instance of bokeh.models.ranges.Range1d"
         )
-
     # The continuous_range is the y_range (until we implement HBar charts)
     y_range = continuous_range
 
@@ -137,85 +134,62 @@ class BarBuilder(Builder):
         """
         if not self.cat:
             self.cat = [str(x) for x in self._values.index]
+        self._data[self.prefix + 'cat'] = self.cat
 
-        width = [0.8] * len(self.cat)
+        self._data[self.prefix + 'width'] = [0.8] * len(self.cat)
         # width should decrease proportionally to the value length.
         # 1./len(value) doesn't work well as the width needs to decrease a
         # little bit faster
-        width_cat = [min(0.2, (1. / len(self._values)) ** 1.1)] * len(self.cat)
-        zero = np.zeros(len(self.cat))
-        self._data = dict(
-            cat=self.cat, width=width, width_cat=width_cat, zero=zero
-        )
+        self._data[self.prefix + 'width_cat'] = \
+            [min(0.2, (1. / len(self._values)) ** 1.1)] * len(self.cat)
+        self._data[self.prefix + 'zero'] = zero = np.zeros(len(self.cat))
+
         # list to save all the groups available in the incomming input grouping
         step = np.linspace(0, 1.0, len(self._values.keys()) + 1, endpoint=False)
-        self._groups.extend(self._values.keys())
 
         for i, (val, values) in enumerate(self._values.items()):
-            self.set_and_get("", val, list(values))
+            if not val in self._data:
+                self._data[val] = list(values)
             mid = np.array(values) / 2
-            self.set_and_get("mid", val, mid)
-            self.set_and_get("stacked", val, zero + mid)
+            self._data["%smid%s" % (self.prefix, val)] = mid
             # Grouped
-            grouped = [c + ":" + str(step[i + 1]) for c in self.cat]
-            self.set_and_get("cat", val, grouped)
+            self._data["%scat%s" % (self.prefix, val)] = [c + ":" + str(step[i + 1]) for c in self.cat]
             # Stacked
+            self._data["%sstacked%s" % (self.prefix, val)] = zero + mid
             zero += values
 
-    def _set_sources(self):
+    def _set_ranges(self):
         """Push the Bar data into the ColumnDataSource and calculate
         the proper ranges.
         """
-        self._source = ColumnDataSource(self._data)
-        self.x_range = FactorRange(factors=self._source.data["cat"])
+        if not self.x_range:
+            self.x_range = FactorRange(factors=self._source.data[self.prefix + "cat"])
 
         if not self.y_range:
             if self.stacked:
-                data = np.array(self._data['zero'])
+                data = np.array(self._data[self.prefix + 'zero'])
             else:
-                cats = [i for i in self._attr if not i.startswith(("mid", "stacked", "cat"))]
-                data = np.array([self._data[cat] for cat in cats])
+                # cats = [i for i in self.y_names if not i.startswith(("mid", "stacked", "cat"))]
+                data = np.array([self._data[cat] for cat in self.y_names])
 
             all_positive = True if np.all(data > 0) else False
             all_negative = True if np.all(data < 0) else False
-            # Set the start value
-            if all_positive:
-                start = 0
-            else:
-                start = 1.1 * data.min()  # Will always be negative
 
-            # Set the end value
-            if all_negative:
-                end = 0
-            else:
-                end = 1.1 * data.max()
+            start = 0 if all_positive else 1.1 * data.min()  # Will always be negative
+            end = 0 if all_negative else 1.1 * data.max()
 
             self.y_range = Range1d(start=start, end=end)
 
-    def _yield_renderers(self):
-        """Use the rect glyphs to display the bars.
-
-        Takes reference points from data loaded at the ColumnDataSource.
-        """
-        quartets = list(chunk(self._attr, 4))
-        colors = cycle_colors(quartets, self.palette)
-
-        # quartet elements are: [data, mid, stacked, cat]
-        for i, quartet in enumerate(quartets):
-            if self.stacked:
-                glyph = Rect(
-                    x="cat", y=quartet[2],
-                    width="width", height=quartet[0],
-                    fill_color=colors[i], fill_alpha=0.7,
-                    line_color="white"
-                )
-            else:  # Grouped
-                glyph = Rect(
-                    x=quartet[3], y=quartet[1],
-                    width="width_cat", height=quartet[0],
-                    fill_color=colors[i], fill_alpha=0.7,
-                    line_color="white"
-                )
-            renderer = GlyphRenderer(data_source=self._source, glyph=glyph)
-            self._legends.append((self._groups[i], [renderer]))
-            yield renderer
+    def _create_glyph(self, xname, yname, color):
+        if self.stacked:
+            return Rect(
+                x=self.prefix + "cat", y="%sstacked%s" % (self.prefix, yname),
+                width=self.prefix + "width", height=yname,
+                fill_color=color, fill_alpha=0.7, line_color="white"
+            )
+        else:
+            return Rect(
+                x="%scat%s" % (self.prefix, yname), y="%smid%s" % (self.prefix, yname),
+                width=self.prefix + "width_cat", height=yname, fill_color=color,
+                fill_alpha=0.7, line_color="white"
+            )

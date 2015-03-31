@@ -24,7 +24,7 @@ import pandas as pd
 
 from ..utils import make_scatter
 from .._builder import Builder, create_and_build
-from ...models import ColumnDataSource, FactorRange, GlyphRenderer, Range1d
+from ...models import FactorRange, GlyphRenderer, DataRange1d
 from ...models.glyphs import Rect, Segment
 from ...properties import Bool, String
 
@@ -119,114 +119,68 @@ class BoxPlotBuilder(Builder):
             outliers (bool, optional): Whether to plot outliers.
             values (dict or pd obj): the values to be plotted as bars.
         """
-        self._data_segment = dict()
-        self._attr_segment = []
-        self._data_rect = dict()
-        self._attr_rect = []
-        self._data_scatter = dict()
-        self._attr_scatter = []
-        self._data_legend = dict()
 
         if isinstance(self._values, pd.DataFrame):
-            self._groups = self._values.columns
+            self._groups = [x for x in self._values.columns if x in self.y_names]
         else:
-            self._groups = list(self._values.keys())
+            self._groups = [x for x in list(self._values.keys()) if x in self.y_names]
 
         # add group to the self._data_segment dict
-        self._data_segment["groups"] = self._groups
-
+        self._data[self.prefix+"groups"] = self._groups
         # add group and witdh to the self._data_rect dict
-        self._data_rect["groups"] = self._groups
-        self._data_rect["width"] = [0.8] * len(self._groups)
-
-        # self._data_scatter does not need references to groups now,
-        # they will be added later.
-        # add group to the self._data_legend dict
-        self._data_legend["groups"] = self._groups
-
+        self._data[self.prefix+"width"] = [0.8] * len(self._groups)
         # all the list we are going to use to save calculated values
-        q0_points = []
-        q2_points = []
-        iqr_centers = []
-        iqr_lengths = []
-        lower_points = []
-        upper_points = []
-        upper_center_boxes = []
-        upper_height_boxes = []
-        lower_center_boxes = []
-        lower_height_boxes = []
-        out_x, out_y, out_color = ([], [], [])
+        self._data[self.prefix+"q0"] = q0_points = []
+        self._data[self.prefix+"q2"] = q2_points = []
+        self._data[self.prefix+"iqr_centers"] = iqr_centers = []
+        self._data[self.prefix+"iqr_lengths"] = iqr_lengths = []
+        self._data[self.prefix+"lower"] = lower_points = []
+        self._data[self.prefix+"upper"] = upper_points = []
+        self._data[self.prefix+"out_x"] = out_x = []
+        self._data[self.prefix+"out_y"] = out_y = []
+        self._data[self.prefix+"out_colors"] = out_colors = []
+        self._data[self.prefix+"colors"] = self.palette
 
         for i, (level, values) in enumerate(self._values.items()):
             # Compute quantiles, center points, heights, IQR, etc.
             # quantiles
-            q = np.percentile(values, [25, 50, 75])
-            q0_points.append(q[0])
-            q2_points.append(q[2])
 
-            # IQR related stuff...
-            iqr_centers.append((q[2] + q[0]) / 2)
-            iqr = q[2] - q[0]
-            iqr_lengths.append(iqr)
-            lower = q[0] - 1.5 * iqr
-            upper = q[2] + 1.5 * iqr
-            lower_points.append(lower)
-            upper_points.append(upper)
+            if level in self.y_names:
+                q = np.percentile(values, [25, 50, 75])
+                q0_points.append(q[0])
+                q2_points.append(q[2])
 
-            # rect center points and heights
-            upper_center_boxes.append((q[2] + q[1]) / 2)
-            upper_height_boxes.append(q[2] - q[1])
-            lower_center_boxes.append((q[1] + q[0]) / 2)
-            lower_height_boxes.append(q[1] - q[0])
+                # IQR related stuff...
+                iqr_centers.append((q[2] + q[0]) / 2)
+                iqr = q[2] - q[0]
+                iqr_lengths.append(iqr)
+                lower = q[0] - 1.5 * iqr
+                upper = q[2] + 1.5 * iqr
+                lower_points.append(lower)
+                upper_points.append(upper)
 
-            # Store indices of outliers as list
-            outliers = np.where(
-                (values > upper) | (values < lower)
-            )[0]
-            for out in outliers:
-                o = values[out]
-                out_x.append(level)
-                out_y.append(o)
-                out_color.append(self.palette[i])
+                # rect center points and heights
+                self._data[self.prefix+"rect_center_"+level] = [
+                    (q[2] + q[1]) / 2, (q[1] + q[0]) / 2]
+                self._data[self.prefix+"rect_height_"+level] =[
+                    q[2] - q[1], q[1] - q[0]]
+                self._data[self.prefix+"cat_"+level] = [level, level]
 
-        # Store
-        self.set_and_get(self._data_scatter, self._attr_scatter, "out_x", out_x)
-        self.set_and_get(self._data_scatter, self._attr_scatter, "out_y", out_y)
-        self.set_and_get(self._data_scatter, self._attr_scatter, "colors", out_color)
+                # Store indices of outliers as list
+                outliers = np.where(
+                    (values > upper) | (values < lower)
+                )[0]
+                for out in outliers:
+                    o = values[out]
+                    out_x.append(level)
+                    out_y.append(o)
+                    out_colors.append(self.palette[i])
 
-        self.set_and_get(self._data_segment, self._attr_segment, "q0", q0_points)
-        self.set_and_get(self._data_segment, self._attr_segment, "lower", lower_points)
-        self.set_and_get(self._data_segment, self._attr_segment, "q2", q2_points)
-        self.set_and_get(self._data_segment, self._attr_segment, "upper", upper_points)
 
-        self.set_and_get(self._data_rect, self._attr_rect, "iqr_centers", iqr_centers)
-        self.set_and_get(self._data_rect, self._attr_rect, "iqr_lengths", iqr_lengths)
-        self.set_and_get(self._data_rect, self._attr_rect, "upper_center_boxes", upper_center_boxes)
-        self.set_and_get(self._data_rect, self._attr_rect, "upper_height_boxes", upper_height_boxes)
-        self.set_and_get(self._data_rect, self._attr_rect, "lower_center_boxes", lower_center_boxes)
-        self.set_and_get(self._data_rect, self._attr_rect, "lower_height_boxes", lower_height_boxes)
-        self.set_and_get(self._data_rect, self._attr_rect, "colors", self.palette)
-
-    def _set_sources(self):
-        "Push the BoxPlot data into the ColumnDataSource and calculate the proper ranges."
-        self._source_segment = ColumnDataSource(self._data_segment)
-        self._source_scatter = ColumnDataSource(self._data_scatter)
-        self._source_rect = ColumnDataSource(self._data_rect)
-        self._source_legend = ColumnDataSource(self._data_legend)
-        self.x_range = FactorRange(factors=self._source_segment.data["groups"])
-
-        start_y = min(self._data_segment[self._attr_segment[1]])
-        end_y = max(self._data_segment[self._attr_segment[3]])
-
-        ## Expand min/max to encompass outliers
-        if self.outliers:
-            start_out_y = min(self._data_scatter[self._attr_scatter[1]])
-            end_out_y = max(self._data_scatter[self._attr_scatter[1]])
-            # it could be no outliers in some sides...
-            start_y = min(start_y, start_out_y)
-            end_y = max(end_y, end_out_y)
-        self.y_range = Range1d(start=start_y - 0.1 * (end_y - start_y),
-                           end=end_y + 0.1 * (end_y - start_y))
+    def _set_ranges(self):
+        " Calculate the proper ranges."
+        self.x_range = FactorRange(factors=self._groups)
+        self.y_range = DataRange1d(range_padding=1)
 
     def _yield_renderers(self):
         """Use the several glyphs to display the Boxplot.
@@ -235,67 +189,39 @@ class BoxPlotBuilder(Builder):
         display the iqr and rects to display the boxes, taking as reference
         points the data loaded at the ColumnDataSurce.
         """
-        ats = self._attr_segment
+        # Draw the lower and upper segments
+        for (y0, y1) in [('lower', 'q0'), ('q2', 'upper')]:
+            glyph = Segment(
+                x0=self.prefix+"groups", y0=self.prefix+y0,
+                x1=self.prefix+"groups", y1=self.prefix+y1,
+                line_color="black", line_width=2
+            )
+            yield GlyphRenderer(data_source=self.source, glyph=glyph)
 
-        glyph = Segment(
-            x0="groups", y0=ats[1], x1="groups", y1=ats[0],
-            line_color="black", line_width=2
-        )
-        yield GlyphRenderer(data_source=self._source_segment, glyph=glyph)
-
-        glyph = Segment(
-            x0="groups", y0=ats[2], x1="groups", y1=ats[3],
-            line_color="black", line_width=2
-        )
-        yield GlyphRenderer(data_source=self._source_segment, glyph=glyph)
-
-        atr = self._attr_rect
-
+        # Draw the boxes
         glyph = Rect(
-            x="groups", y=atr[0], width="width", height=atr[1],
+            x=self.prefix+"groups", y=self.prefix+'iqr_centers',
+            width=self.prefix+"width", height=self.prefix+'iqr_lengths',
             line_color="black", line_width=2, fill_color=None,
         )
-        yield GlyphRenderer(data_source=self._source_rect, glyph=glyph)
+        yield GlyphRenderer(data_source=self.source, glyph=glyph)
 
-        glyph = Rect(
-            x="groups", y=atr[2], width="width", height=atr[3],
-            line_color="black", fill_color=atr[6],
-        )
-        yield GlyphRenderer(data_source=self._source_rect, glyph=glyph)
-
-        glyph = Rect(
-            x="groups", y=atr[4], width="width", height=atr[5],
-            line_color="black", fill_color=atr[6],
-        )
-        yield GlyphRenderer(data_source=self._source_rect, glyph=glyph)
-
-        if self.outliers:
-            yield make_scatter(self._source_scatter, self._attr_scatter[0],
-                              self._attr_scatter[1], self.marker,
-                              self._attr_scatter[2])
-
-        # We need to build the legend here using dummy glyphs
-        for i, level in enumerate(self._groups):
-            # TODO: (bev) what is this None business?
+        for color, y_name in zip(self.palette, self.y_names):
             glyph = Rect(
-                x="groups", y=None,
-                width=None, height=None,
-                line_color="black", fill_color=self.palette[i])
-            renderer = GlyphRenderer(data_source=self._source_legend, glyph=glyph)
+                x=self.prefix+"cat_"+y_name, y=self.prefix+"rect_center_"+y_name,
+                width=self.prefix+"width", height=self.prefix+"rect_height_"+y_name,
+                line_color="black", line_width=1, fill_color=color,
+            )
+            renderer = GlyphRenderer(data_source=self.source, glyph=glyph)
 
             # need to manually select the proper glyphs to be rendered as legends
-            self._legends.append((self._groups[i], [renderer]))
+            self._legends.append((y_name, [renderer]))
+            yield renderer
 
-    # Some helper methods
-    def set_and_get(self, data, attr, val, content):
-        """Set a new attr and then get it to fill the self._data dict.
-
-        Keep track of the attributes created.
-
-        Args:
-            data (dict): where to store the new attribute content
-            attr (list): where to store the new attribute names
-            val (string): name of the new attribute
-            content (obj): content of the new attribute
-        """
-        self._set_and_get(data, "", attr, val, content)
+        # Draw the outliers if needed
+        if self.outliers:
+            glyph = make_scatter(
+                self.source, self.prefix+'out_x', self.prefix+'out_y',
+                self.marker, self.prefix+'out_colors'
+            )
+            yield GlyphRenderer(data_source=self.source, glyph=glyph)

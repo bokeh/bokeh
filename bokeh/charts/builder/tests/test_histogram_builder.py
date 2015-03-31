@@ -56,18 +56,28 @@ class TestHistogram(unittest.TestCase):
         for i, _xy in enumerate([xyvalues, xyvaluesdf]):
             hm = create_chart(Histogram, _xy, bins=5)
             builder = hm._builders[0]
-            self.assertEqual(sorted(builder._groups), sorted(list(xyvalues.keys())))
+            pre = builder.prefix
+            self.assertEqual(pre, 'histogram_%s_' % (hm._id.lower().replace("-", "_")))
+            self.assertEqual(sorted(builder.y_names), sorted(list(xyvalues.keys())))
             for key, expected_v in exptected.items():
+                if key not in ['normal', 'lognormal']:
+                    key = pre+key
                 assert_array_almost_equal(builder._data[key], expected_v, decimal=2)
 
         lvalues = [[1, 2, 3, 1], [5, 4, 4, 1]]
         for i, _xy in enumerate([lvalues, np.array(lvalues)]):
             hm = create_chart(Histogram, _xy, bins=5)
             builder = hm._builders[0]
-            self.assertEqual(builder._groups, ['0', '1'])
+            pre = builder.prefix
+            self.assertEqual(pre, 'histogram_%s_' % (hm._id.lower().replace("-", "_")))
+
+            self.assertEqual(builder.y_names, ['0', '1'])
             for key, expected_v in exptected.items():
                 # replace the keys because we have 0, 1 instead of normal and lognormal
                 key = key.replace('lognormal', '1').replace('normal', '0')
+                if key not in ['0', '1']:
+                    key = pre+key
+
                 assert_array_almost_equal(builder._data[key], expected_v, decimal=2)
 
     @patch('bokeh.charts.builder.histogram_builder.np.histogram', return_value=([1, 3, 4], [2.4, 4]))
@@ -84,6 +94,9 @@ class TestHistogram(unittest.TestCase):
             kws = dict(bins=bins, mu=mu, sigma=sigma, density=dens)
             hm = create_chart(Histogram, xyvalues, compute_values=False, **kws)
             builder = hm._builders[0]
+            pre = builder.prefix
+            self.assertEqual(pre, 'histogram_%s_' % (hm._id.lower().replace("-", "_")))
+
             # ensure all class attributes have been correctly set
             for key, value in kws.items():
                 self.assertEqual(getattr(builder, key), value)

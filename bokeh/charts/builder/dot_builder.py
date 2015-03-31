@@ -20,13 +20,11 @@ from __future__ import absolute_import
 import numpy as np
 try:
     import pandas as pd
-
 except ImportError:
     pd = None
-
-from ..utils import chunk, cycle_colors, make_scatter
+from ..utils import make_scatter
 from .._builder import Builder, create_and_build
-from ...models import ColumnDataSource, FactorRange, GlyphRenderer, Range1d
+from ...models import FactorRange, GlyphRenderer, Range1d
 from ...models.glyphs import Segment
 from ...properties import Any, Bool, Either, List
 
@@ -106,33 +104,25 @@ class DotBuilder(Builder):
         """
         if not self.cat:
             self.cat = [str(x) for x in self._values.index]
+        self._data[self.prefix + 'cat'] = self.cat
+        self._data[self.prefix + 'zero'] = np.zeros(len(self.cat))
 
-        self._data = dict(cat=self.cat, zero=np.zeros(len(self.cat)))
-        # list to save all the attributes we are going to create
-        # list to save all the groups available in the incoming input
         # Grouping
-        self._groups.extend(self._values.keys())
         step = np.linspace(0, 1.0, len(self._values.keys()) + 1, endpoint=False)
+        for i, (col, values) in enumerate(self._values.items()):
+            if col in self.y_names:
+                # x value
+                cats = [c + ":" + str(step[i + 1]) for c in self.cat]
+                self._data["%scat_%s" % (self.prefix, col)] = cats
 
-        for i, (val, values) in enumerate(self._values.items()):
-            # original y value
-            self.set_and_get("", val, values)
-            # x value
-            cats = [c + ":" + str(step[i + 1]) for c in self.cat]
-            self.set_and_get("cat", val, cats)
-            # zeros
-            self.set_and_get("z_", val, np.zeros(len(values)))
-            # segment top y value
-            self.set_and_get("seg_top_", val, values)
+            if not col in self._data:
+                self._data[col] = values
 
-    def _set_sources(self):
-        """Push the Dot data into the ColumnDataSource and calculate
-        the proper ranges.
+    def _set_ranges(self):
+        """ Calculate the proper ranges.
         """
-        self._source = ColumnDataSource(self._data)
-        self.x_range = FactorRange(factors=self._source.data["cat"])
-        cat = [i for i in self._attr if not i.startswith(("cat",))]
-        end = 1.1 * max(max(self._data[i]) for i in cat)
+        self.x_range = FactorRange(factors=self._source.data[self.prefix + "cat"])
+        end = 1.1 * max(max(self._data[name]) for name in self.y_names)
         self.y_range = Range1d(start=0, end=end)
 
     def _yield_renderers(self):
@@ -142,23 +132,17 @@ class DotBuilder(Builder):
         renders circle glyphs (and segments) on the related
         coordinates.
         """
-        self._tuples = list(chunk(self._attr, 4))
-        colors = cycle_colors(self._tuples, self.palette)
-
-        # quartet elements are: [data, cat, zeros, segment_top]
-        for i, quartet in enumerate(self._tuples):
+        for color, name in zip(self.colors, self.y_names):
             # draw segment first so when scatter will be place on top of it
             # and it won't show segment chunk on top of the circle
+            cat = "%scat_%s" % (self.prefix, name)
             if self.stem:
-                glyph = Segment(
-                    x0=quartet[1], y0=quartet[2], x1=quartet[1], y1=quartet[3],
-                    line_color="black", line_width=2
-                )
+                glyph = Segment(x0=cat, y0=self.prefix + "zero", x1=cat, y1=name,
+                                line_color="black", line_width=2)
                 yield GlyphRenderer(data_source=self._source, glyph=glyph)
 
-            renderer = make_scatter(
-                self._source, quartet[1], quartet[0], 'circle',
-                colors[i - 1], line_color='black', size=15, fill_alpha=1.,
-            )
-            self._legends.append((self._groups[i], [renderer]))
+            glyph = make_scatter( self._source, cat, name, 'circle',
+                color, line_color='black', size=15, fill_alpha=1.)
+            renderer = GlyphRenderer(data_source=self._source, glyph=glyph)
+            self._legends.append((name, [renderer]))
             yield renderer

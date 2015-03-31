@@ -11,9 +11,9 @@ import math
 from six import string_types
 
 from .._builder import Builder, create_and_build
-from ...models import ColumnDataSource, Range1d, DataRange1d, FactorRange, GlyphRenderer, CategoricalAxis
+from ...models import Range1d, DataRange1d, FactorRange, GlyphRenderer, CategoricalAxis
 from ...models.glyphs import Patches
-from ...properties import Any, Color, Int
+from ...properties import Color, Int
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -82,7 +82,7 @@ def Horizon(values, index=None, num_folds=3, pos_color='#006400',
     kws['tools'] = tools
 
     chart = create_and_build(
-        HorizonBuilder, values, index=index, num_folds=num_folds, pos_color=pos_color,
+        HorizonBuilder, values, num_folds=num_folds, pos_color=pos_color,
         neg_color=neg_color, xscale=xscale, xgrid=xgrid, ygrid=ygrid, **kws
     )
 
@@ -106,19 +106,6 @@ class HorizonBuilder(Builder):
     And finally add the needed lines taking the references from the source.
 
     """
-
-    index = Any(help="""
-    An index to be used for all data series as follows:
-
-    - A 1d iterable of any sort that will be used as
-        series common index
-
-    - As a string that corresponds to the key of the
-        mapping to be used as index (and not as data
-        series) if area.values is a mapping (like a dict,
-        an OrderedDict or a pandas DataFrame)
-
-    """)
 
     neg_color = Color("#6495ed", help="""
     The color of the negative folds. (default: "#6495ed")
@@ -184,7 +171,6 @@ class HorizonBuilder(Builder):
         self._fold_height = {}
         self._max_y = 0
 
-
     def fold_coordinates(self, y, fold_no, fold_height, y_origin=0, graph_ratio=1):
         """ Function that calculate the coordinates for a value given a fold
         """
@@ -225,47 +211,49 @@ class HorizonBuilder(Builder):
         the multiple area glyphes inside the ``_yield_renderers`` method.
 
         """
-        for col in self._values.keys():
-            if isinstance(self.index, string_types) and col == self.index:
+        _data = {}
+        for col, values in self._values.items():
+            if not col in self._data:
+                self._data[col] = values
+
+            if col in self.x_names:
                 continue
 
-            self._series.append(col)
-            self._max_y = max(max(self._values[col]), self._max_y)
-
-            v_index = [x for x in self._values_index]
-            self.set_and_get("x_", col, self.pad_list(v_index))
+            if col in self.y_names:
+                self._series.append(col)
+                self._max_y = max(max(values), self._max_y)
+                v_index = list(self._values[self.x_names[0]])
+                _data["x_%s" % col] = self.pad_list(v_index)
 
         self._fold_height = self._max_y / self.num_folds
         self._graph_ratio = self.num_folds / len(self._series)
 
-        fill_alpha = []
-        fill_color = []
-
+        fill_alpha, fill_color = [], []
         for serie_no, serie in enumerate(self._series):
-
-            self.set_and_get('y_', serie, self._values[serie])
+            _data["y_%s" % serie] = self._values[serie]
             y_origin = serie_no * self._max_y / len(self._series)
 
             for fold_itr in range(1, self.num_folds + 1):
-
                 layers_datapoints = [self.fold_coordinates(
-                    x, fold_itr, self._fold_height, y_origin, self._graph_ratio) for x in self._values[serie]]
+                    x, fold_itr, self._fold_height, y_origin, self._graph_ratio)
+                                     for x in self._values[serie]]
                 pos_points, neg_points = map(list, zip(*(layers_datapoints)))
-
                 alpha = 1.0 * (abs(fold_itr)) / self.num_folds
 
                 # Y coordinates above 0
                 pos_points = self.pad_list(pos_points, y_origin)
-                self.set_and_get("y_fold%s_" % fold_itr, serie, pos_points)
-                self._fold_names.append("y_fold%s_%s" % (fold_itr, serie))
+                fold_name = "y_fold%s_%s" % (fold_itr, serie)
+                _data[fold_name] = pos_points
+                self._fold_names.append(fold_name)
                 fill_color.append(self.pos_color)
                 fill_alpha.append(alpha)
 
                 # Y coordinates below 0
                 neg_points = self.pad_list(
                     neg_points, self._fold_height * self._graph_ratio + y_origin)
-                self.set_and_get("y_fold-%s_" % fold_itr, serie, neg_points)
-                self._fold_names.append("y_fold-%s_%s" % (fold_itr, serie))
+                ned_fold_name = "y_fold-%s_%s" % (fold_itr, serie)
+                _data[ned_fold_name] = neg_points
+                self._fold_names.append(ned_fold_name)
                 fill_color.append(self.neg_color)
                 fill_alpha.append(alpha)
 
@@ -274,18 +262,17 @@ class HorizonBuilder(Builder):
                     self._groups.append(str(self._fold_height * fold_itr))
                     self._groups.append(str(self._fold_height * -fold_itr))
 
-        self.set_and_get('fill_', 'alpha', fill_alpha)
-        self.set_and_get('fill_', 'color', fill_color)
-        self.set_and_get('x_', 'all', [self._data[
-                         'x_%s' % serie] for serie in self._series for y in range(self.num_folds * 2)])
-        self.set_and_get(
-            'y_', 'all', [self._data[f_name] for f_name in self._fold_names])
+        self._data[self.prefix + 'fill_alpha'] = fill_alpha
+        self._data[self.prefix + 'fill_color'] = fill_color
+        self._data[self.prefix + 'x_all'] = [
+            _data['x_%s' % serie] for serie in self._series for y in range(self.num_folds * 2)
+        ]
+        self._data[self.prefix + 'y_all'] = [_data[f_name] for f_name in self._fold_names]
 
-    def _set_sources(self):
+    def _set_ranges(self):
         """Push the Horizon data into the ColumnDataSource and
         calculate the proper ranges.
         """
-        self._source = ColumnDataSource(self._data)
         self.x_range = DataRange1d(range_padding=0)
         self.y_range = Range1d(start=0, end=self._max_y)
 
@@ -295,7 +282,8 @@ class HorizonBuilder(Builder):
         Takes reference points from the data loaded at the ColumnDataSource.
         """
         patches = Patches(
-            fill_color='fill_color', fill_alpha='fill_alpha', xs='x_all', ys='y_all')
+            fill_color=self.prefix + 'fill_color', fill_alpha=self.prefix + 'fill_alpha',
+            xs=self.prefix + 'x_all', ys=self.prefix + 'y_all')
         renderer = GlyphRenderer(data_source=self._source, glyph=patches)
         # self._legends.append((self._groups[i-1], [renderer]))
         yield renderer

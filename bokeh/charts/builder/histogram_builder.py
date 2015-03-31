@@ -24,9 +24,9 @@ except ImportError as e:
     _is_scipy = False
 import numpy as np
 
-from ..utils import chunk, cycle_colors
+from ..utils import cycle_colors
 from .._builder import Builder, create_and_build
-from ...models import ColumnDataSource, GlyphRenderer, Range1d
+from ...models import GlyphRenderer, Range1d
 from ...models.glyphs import Line, Quad
 from ...properties import Bool, Float, Int
 
@@ -126,54 +126,64 @@ class HistogramBuilder(Builder):
         containing references to all the calculated points to be used by
         the quad and line glyphs inside the ``_yield_renderers`` method.
         """
-        # list to save all the groups available in the incomming input
-        self._groups.extend(self._values.keys())
-
         # fill the data dictionary with the proper values
-        for i, (val, values) in enumerate(self._values.items()):
-            self.set_and_get("", val, values)
-            #build the histogram using the set bins number
-            hist, edges = np.histogram(
-                np.array(values), density=self.density, bins=self.bins
-            )
-            self.set_and_get("hist", val, hist)
-            self.set_and_get("edges", val, edges)
-            self.set_and_get("left", val, edges[:-1])
-            self.set_and_get("right", val, edges[1:])
-            self.set_and_get("bottom", val, np.zeros(len(hist)))
+        for i, (col, values) in enumerate(self._values.items()):
+            if not col in self._data:
+                self._data[col] = values
 
-            self._mu_and_sigma = False
-            if self.mu is not None and self.sigma is not None:
-                if _is_scipy:
-                    self._mu_and_sigma = True
-                    self.set_and_get("x", val, np.linspace(-2, 2, len(self._data[val])))
-                    den = 2 * self.sigma ** 2
-                    x_val = self._data["x" + val]
-                    x_val_mu = x_val - self.mu
-                    sigsqr2pi = self.sigma * np.sqrt(2 * np.pi)
-                    pdf = 1 / (sigsqr2pi) * np.exp(-x_val_mu ** 2 / den)
-                    self.set_and_get("pdf", val, pdf)
-                    self._groups.append("pdf")
-                    cdf = (1 + scipy.special.erf(x_val_mu / np.sqrt(den))) / 2
-                    self.set_and_get("cdf", val, cdf)
-                    self._groups.append("cdf")
-                else:
-                    print("You need scipy to get the theoretical probability distributions.")
+            if col in self.y_names:
+                #build the histogram using the set bins number
+                hist, edges = np.histogram(
+                    np.array(values), density=self.density, bins=self.bins
+                )
+                self._data['%shist%s' % (self.prefix, col)] = hist
+                self._data["%sedges%s" % (self.prefix, col)] = edges
+                self._data["%sleft%s" % (self.prefix, col)] = edges[:-1]
+                self._data["%sright%s" % (self.prefix, col)] = edges[1:]
+                self._data["%sbottom%s" % (self.prefix, col)] = np.zeros(len(hist))
 
-    def _set_sources(self):
+                self._mu_and_sigma = False
+                if self.mu is not None and self.sigma is not None:
+                    if _is_scipy:
+                        self._mu_and_sigma = True
+                        x_val = self._data[self.prefix + "x" + col] = \
+                            np.linspace(-2, 2, len(self._data[col]))
+                        den = 2 * self.sigma ** 2
+                        x_val_mu = x_val - self.mu
+                        sigsqr2pi = self.sigma * np.sqrt(2 * np.pi)
+                        pdf = 1 / (sigsqr2pi) * np.exp(-x_val_mu ** 2 / den)
+                        self._data['%spdf%s' % (self.prefix, col)] = pdf
+                        cdf = (1 + scipy.special.erf(x_val_mu / np.sqrt(den))) / 2
+                        self._data['%scdf%s' % (self.prefix, col)] = cdf
+                    else:
+                        print("You need scipy to get the theoretical probability distributions.")
+
+    def _set_ranges(self):
         """Push the Histogram data into the ColumnDataSource and calculate
         the proper ranges."""
-        self._source = ColumnDataSource(data=self._data)
-
+        x_names, y_names = ([], [])
         if not self._mu_and_sigma:
-            x_names, y_names = self._attr[2::6], self._attr[1::6]
+            for name in self.y_names:
+                x_names.extend(["%sleft%s" % (self.prefix, name),
+                                "%sright%s" % (self.prefix, name)])
+                y_names.extend(["%shist%s" % (self.prefix, name),
+                                "%sbottom%s" % (self.prefix, name)])
         else:
-            x_names, y_names = self._attr[2::9], self._attr[1::9]
+            for name in self.y_names:
+                x_names.extend(["%sx%s" % (self.prefix, name),
+                                "%sleft%s" % (self.prefix, name),
+                                "%sright%s" % (self.prefix, name)])
+                y_names.extend(["%shist%s" % (self.prefix, name),
+                                "%sbottom%s" % (self.prefix, name),
+                                "%scdf%s" % (self.prefix, name),
+                                "%spdf%s" % (self.prefix, name)])
 
-        endx = max(max(self._data[i]) for i in x_names)
-        startx = min(min(self._data[i]) for i in x_names)
-        self.x_range = Range1d(start=startx - 0.1 * (endx - startx),
-                           end=endx + 0.1 * (endx - startx))
+        endx = max(max(self._data[name]) for name in x_names)
+        startx = min(min(self._data[name]) for name in x_names)
+        self.x_range = Range1d(
+            start=startx - 0.1 * (endx - startx),
+            end=endx + 0.1 * (endx - startx)
+        )
 
         endy = max(max(self._data[i]) for i in y_names)
         self.y_range = Range1d(start=0, end=1.1 * endy)
@@ -185,42 +195,25 @@ class HistogramBuilder(Builder):
         bars, taking as reference points the data loaded at the
         ColumnDataSurce.
         """
-        if not self._mu_and_sigma:
-            sextets = list(chunk(self._attr, 6))
-            colors = cycle_colors(sextets, self.palette)
+        colors = cycle_colors(self.y_names, self.palette)
+        for color, name in zip(colors, self.y_names):
+            glyph = Quad(
+                top='%shist%s' % (self.prefix, name),
+                bottom='%sbottom%s' % (self.prefix, name),
+                left='%sleft%s' % (self.prefix, name),
+                right='%sright%s' % (self.prefix, name),
+                fill_color=color, fill_alpha=0.7,
+                line_color="white", line_alpha=1.0
+            )
+            renderer = GlyphRenderer(data_source=self._source, glyph=glyph)
+            self._legends.append((name, [renderer]))
+            yield renderer
 
-            # TODO (bev) this is a perfect use for a namedtuple
-            # sextet: values, his, edges, left, right, bottom
-            for i, sextet in enumerate(sextets):
-
-                glyph = Quad(
-                    top=sextet[1], bottom=sextet[5], left=sextet[3], right=sextet[4],
-                    fill_color=colors[i], fill_alpha=0.7,
-                    line_color="white", line_alpha=1.0
-                )
-                renderer = GlyphRenderer(data_source=self._source, glyph=glyph)
-                self._legends.append((self._groups[i], [renderer]))
-                yield renderer
-
-        else:
-            nonets = list(chunk(self._attr, 9))
-            colors = cycle_colors(nonets, self.palette)
-
-            # TODO (bev) this is a perfect use for a namedtuple
-            # nonet: values, his, edges, left, right, bottom, x, pdf, cdf
-            for i, nonet in enumerate(nonets):
-
-                glyph = Quad(
-                    top=nonet[1], bottom=nonet[5], left=nonet[3], right=nonet[4],
-                    fill_color=colors[i], fill_alpha=0.7,
-                    line_color="white", line_alpha=1.0
-                )
-                renderer = GlyphRenderer(data_source=self._source, glyph=glyph)
-                self._legends.append((self._groups[i], [renderer]))
-                yield renderer
-
-                glyph = Line(x=nonet[6], y=nonet[7], line_color="black")
+        if self._mu_and_sigma:
+                glyph = Line(x='%sx%s' % (self.prefix, name),
+                             y='%spdf%s' % (self.prefix, name), line_color="black")
                 yield GlyphRenderer(data_source=self._source, glyph=glyph)
 
-                glyph = Line(x=nonet[6], y=nonet[8], line_color="blue")
+                glyph = Line(x='%sx%s' % (self.prefix, name),
+                             y='%scdf%s' % (self.prefix, name), line_color="blue")
                 yield GlyphRenderer(data_source=self._source, glyph=glyph)

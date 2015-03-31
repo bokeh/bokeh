@@ -21,7 +21,9 @@ from __future__ import absolute_import
 from ._chart import Chart
 from ._data_adapter import DataAdapter
 from ..models.ranges import Range
-from ..properties import Color, HasProps, Instance, Seq
+from ..models import ColumnDataSource, DataRange1d, GlyphRenderer
+from ..properties import Color, HasProps, Instance, Seq, String, Any
+from .utils import cycle_colors
 
 DEFAULT_PALETTE = ["#f22c40", "#5ab738", "#407ee7", "#df5320", "#00ad9c", "#c33ff3"]
 
@@ -37,8 +39,11 @@ def create_and_build(builder_class, values, **kws):
     builder = builder_class(values, **builder_kws)
 
     # create a chart to return, since there isn't one already
-    chart_kws = { k:v for k,v in kws.items() if k not in builder_props}
-    chart = Chart(**chart_kws)
+    if 'chart' in kws:
+        chart = kws['chart']
+    else:
+        chart_kws = { k:v for k,v in kws.items() if k not in builder_props}
+        chart = Chart(**chart_kws)
     chart.add_builder(builder)
 
     return chart
@@ -76,8 +81,26 @@ class Builder(HasProps):
 
     x_range = Instance(Range)
     y_range = Instance(Range)
+    y_names = Seq(String)
+    x_names = Seq(String)
 
     palette = Seq(Color, default=DEFAULT_PALETTE)
+    source = Instance(ColumnDataSource)
+
+    index = Any(help="""
+    An index to be used for all data series as follows:
+
+    - A 1d iterable of any sort that will be used as
+       series common index
+
+    - As a string that corresponds to the key of the
+       mapping to be used as index (and not as data
+       series) if area.values is a mapping (like a dict,
+       an OrderedDict or a pandas DataFrame)
+
+   """)
+
+    source_prefix = ""
 
     def __init__(self, values=None, **kws):
         """Common arguments to be used by all the inherited classes.
@@ -119,6 +142,7 @@ class Builder(HasProps):
         self._data = {}
         self._groups = []
         self._attr = []
+        self._id = ""
 
     def _adapt_values(self):
         """Prepare the input data.
@@ -126,13 +150,26 @@ class Builder(HasProps):
         Converts data input (self._values) to a DataAdapter and creates
         instance index if needed
         """
-        if hasattr(self, 'index'):
+        if isinstance(self._values, ColumnDataSource):
+            self.source = self._values
+            self._values = self.source.data
+            self._data = self.source.data
+
+        if self.index:
             self._values_index, self._values = DataAdapter.get_index_and_data(
                 self._values, self.index
-            )
+                )
+            self.x_names = ["x"]
         else:
-            if not isinstance(self._values, DataAdapter):
-                self._values = DataAdapter(self._values, force_alias=False)
+            # TODO: This should be modified to support multiple x_names
+            self._values_index, self._values = DataAdapter.get_index_and_data(
+                self._values, self.x_names
+            )
+            if not self.x_names:
+                self.x_names = ["x"]
+
+        if not self.y_names:
+            self.y_names = [k for k in self._values.keys() if k not in self.x_names]
 
     def _process_data(self):
         """Get the input data.
@@ -150,20 +187,66 @@ class Builder(HasProps):
         It has to be implemented by any of the inherited class
         representing each different chart type.
         """
-        pass
+        if not self.source:
+            self.source = ColumnDataSource(self._data)
 
-    def _yield_renderers(self):
-        """ Generator that yields the glyphs to be draw on the plot
+    def _set_ranges(self):
+        """Push data into the ColumnDataSource and build the
+        proper ranges.
 
         It has to be implemented by any of the inherited class
         representing each different chart type.
         """
+        if not self.x_range:
+            self.x_range = DataRange1d()
+        if not self.y_range:
+            self.y_range = DataRange1d()
+
+    def _yield_renderers(self):
+        """ Yield the specific renderers of the charts being built by
+        Builder
+        """
+        if len(self.x_names) == len(self.y_names):
+            xnames = self.x_names
+        else:
+            xnames = len(self.y_names) * self.x_names
+
+        for color, xname, yname in zip(self.colors, xnames, self.y_names):
+            glyph = self._create_glyph(xname, yname, color)
+            renderer = GlyphRenderer(data_source=self._source, glyph=glyph)
+            self._legends.append((yname, [renderer]))
+            yield renderer
+
+    def _create_glyph(self, xname, yname, color):
+        """ Create and return a glyph related to the xname and yname
+        linked to the builder source with the specified color
+
+        Args:
+            xname (str): name of the serie used for the glyph x coordinate.
+            yname (str): name of the serie used for the glyph x coordinate.
+            yname (str): color of the glyph
+
+        Output:
+            glyph to be rendered
+        """
         pass
 
     def create(self, chart=None):
+        """ Create the ranges, renderers and legends to be drawn on the
+        chart
+
+        Args:
+            chart (Chart): chart where the Builder will create all related
+                renderers, ranges and legends
+
+        Output:
+            chart
+        """
+        self._id = chart._id.replace('-', '_')
         self._adapt_values()
         self._process_data()
         self._set_sources()
+        self._set_ranges()
         renderers = self._yield_renderers()
 
         chart.add_renderers(self, renderers)
@@ -183,29 +266,13 @@ class Builder(HasProps):
     #***************************
     # Some helper methods
     #***************************
+    @property
+    def prefix(self):
+        pre = getattr(self, "_prefix", self.source_prefix)
+        if not pre:
+            pre = str(self.__class__.__name__).lower().replace("builder", "")
+        return "%s_%s_" % (pre, self._id)
 
-    def _set_and_get(self, data, prefix, attr, val, content):
-        """Set a new attr and then get it to fill the self._data dict.
-
-        Keep track of the attributes created.
-
-        Args:
-            data (dict): where to store the new attribute content
-            attr (list): where to store the new attribute names
-            val (string): name of the new attribute
-            content (obj): content of the new attribute
-        """
-        data["%s%s" % (prefix, val)] = content
-        attr.append("%s%s" % (prefix, val))
-
-    def set_and_get(self, prefix, val, content):
-        """Set a new attr and then get it to fill the self._data dict.
-
-        Keep track of the attributes created.
-
-        Args:
-            prefix (str): prefix of the new attribute
-            val (string): name of the new attribute
-            content (obj): content of the new attribute
-        """
-        self._set_and_get(self._data, prefix, self._attr, val, content)
+    @property
+    def colors(self):
+        return cycle_colors(self.y_names, self.palette)

@@ -19,7 +19,6 @@ It also add a new chained stacked method.
 from __future__ import absolute_import, division
 from math import pi
 import pandas as pd
-
 from ..utils import cycle_colors, polar_to_cartesian
 from .._builder import Builder, create_and_build
 from ...models import ColumnDataSource, GlyphRenderer, Range1d
@@ -95,7 +94,7 @@ class DonutBuilder(Builder):
         """
         dd = dict(zip(self._values.keys(), self._values.values()))
         self._df = df = pd.DataFrame(dd)
-        self._groups = df.index = self.cat
+        df.index = self.cat
         df.columns = self._values.keys()
 
         # Get the sum per category
@@ -107,16 +106,15 @@ class DonutBuilder(Builder):
         end_angles = angles.tolist()
         start_angles = [0] + end_angles[:-1]
         colors = cycle_colors(self.cat, self.palette)
-        self.set_and_get("", "colors", colors)
-        self.set_and_get("", "end", end_angles)
-        self.set_and_get("", "start", start_angles)
+        self._data[self.prefix + 'colors'] = colors
+        self._data[self.prefix + 'end'] = end_angles
+        self._data[self.prefix + 'start'] = start_angles
 
-    def _set_sources(self):
+    def _set_ranges(self):
         """Push the Donut data into the ColumnDataSource and calculate
          the proper ranges.
 
         """
-        self._source = ColumnDataSource(self._data)
         self.x_range = Range1d(start=-2, end=2)
         self.y_range = Range1d(start=-2, end=2)
 
@@ -126,8 +124,9 @@ class DonutBuilder(Builder):
 
         """
         glyph = Wedge(
-            x=0, y=0, radius=1, start_angle="start", end_angle="end",
-            line_color="white", line_width=2, fill_color="colors"
+            x=0, y=0, radius=1, start_angle=self.prefix + "start",
+            end_angle=self.prefix + "end", line_color="white",
+            line_width=2, fill_color=self.prefix + "colors"
         )
         yield GlyphRenderer(data_source=self._source, glyph=glyph)
 
@@ -136,7 +135,9 @@ class DonutBuilder(Builder):
         donut wedge
         """
         text = ["%s" % cat for cat in self.cat]
-        x, y = polar_to_cartesian(0.7, self._data["start"], self._data["end"])
+        x, y = polar_to_cartesian(
+            0.7, self._data[self.prefix + "start"], self._data[self.prefix + "end"]
+        )
         text_source = ColumnDataSource(dict(text=text, x=x, y=y))
         glyph = Text(
                 x="x", y="y", text="text",
@@ -153,7 +154,8 @@ class DonutBuilder(Builder):
 
         first = True
         for i, (cat, start_angle, end_angle) in enumerate(zip(
-                self.cat, self._data['start'], self._data['end'])):
+                self.cat, self._data[self.prefix + 'start'],
+                self._data[self.prefix + 'end'])):
             details = self._df.ix[i]
             radians = lambda x: 2*pi*(x/self._total_units)
 
@@ -199,7 +201,7 @@ class DonutBuilder(Builder):
     def _yield_renderers(self):
         """Use the AnnularWedge and Wedge glyphs to display the wedges.
 
-        Takes reference points from data loaded at the ColumnDataSurce.
+        Takes reference points from data loaded at the ColumnDataSource.
         """
         # build the central round area of the donut
         renderers = []

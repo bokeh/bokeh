@@ -33,7 +33,7 @@ TOOLS="resize,pan,wheel_zoom,box_zoom,reset,previewsave"
 output_file("stocks_timeseries.html")
 
 ts = TimeSeries(
-    xyvalues, index='Date', legend=True,
+    xyvalues, x_names=['Date'], legend=True,
     title="timeseries, pd_input", tools=TOOLS, ylabel='Stock Prices')
 
 # usage with iterable index
