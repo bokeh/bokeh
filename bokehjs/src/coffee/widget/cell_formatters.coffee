@@ -1,6 +1,6 @@
 _ = require "underscore"
 $ = require "jquery"
-Numeral = require "numeral"
+Numeral = require "../../vendor/numeral.js-1.5.3/numeral.js"
 Collection = require "../common/collection"
 HasProperties = require "../common/has_properties"
 
