@@ -36,7 +36,7 @@ class SliderView extends ContinuumView
   slide: (event, ui) =>
     value = ui.value
     logger.debug("slide value = #{value}")
-    @$( "##{ @mget('id') }" ).val( ui.value );
+    @$( "##{ @mget('id') }" ).val( ui.value )
     @mset('value', value)
     @model.save()
 
