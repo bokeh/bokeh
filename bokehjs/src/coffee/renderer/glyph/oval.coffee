@@ -88,10 +88,6 @@ class Oval extends Glyph.Model
       angle: 0.0
     }
 
-class Ovals extends Glyph.Collection
-  model: Oval
-
 module.exports =
   Model: Oval
   View: OvalView
-  Collection: new Ovals()

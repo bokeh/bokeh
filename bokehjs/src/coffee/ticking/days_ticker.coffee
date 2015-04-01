@@ -1,5 +1,4 @@
 _ = require "underscore"
-Collection = require "../common/collection"
 SingleIntervalTicker = require "./single_interval_ticker"
 util = require "./util"
 
@@ -83,9 +82,5 @@ class DaysTicker extends SingleIntervalTicker.Model
       toString_properties: ['days']
     }
 
-class DaysTickers extends Collection
-  model: DaysTicker
-
 module.exports =
   Model: DaysTicker
-  Collection: new DaysTickers()

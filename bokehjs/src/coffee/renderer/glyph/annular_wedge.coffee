@@ -116,10 +116,6 @@ class AnnularWedge extends Glyph.Model
       direction: 'anticlock'
     }
 
-class AnnularWedges extends Glyph.Collection
-  model: AnnularWedge
-
 module.exports =
   Model: AnnularWedge
   View: AnnularWedgeView
-  Collection: new AnnularWedges()

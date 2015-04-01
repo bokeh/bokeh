@@ -1,5 +1,4 @@
 _ = require "underscore"
-Collection = require "../common/collection"
 HasProperties = require "../common/has_properties"
 
 class FactorRange extends HasProperties
@@ -25,9 +24,5 @@ class FactorRange extends HasProperties
       factors: []
     }
 
-class FactorRanges extends Collection
-  model: FactorRange
-
 module.exports =
   Model: FactorRange
-  Collection: new FactorRanges()

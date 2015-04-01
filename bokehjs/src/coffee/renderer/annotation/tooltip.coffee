@@ -2,7 +2,6 @@ $ = require "jquery"
 _ = require "underscore"
 HasParent = require "../../common/has_parent"
 PlotWidget = require "../../common/plot_widget"
-Collection = require "../../common/collection"
 {logger} = require "../../common/logging"
 
 class TooltipView extends PlotWidget
@@ -88,10 +87,6 @@ class Tooltip extends HasParent
       inner_only: true
     }
 
-class Tooltips extends Collection
-  model: Tooltip
-
 module.exports =
   Model: Tooltip
-  Collection: new Tooltips()
   View: TooltipView

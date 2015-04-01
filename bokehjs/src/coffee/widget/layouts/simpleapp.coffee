@@ -1,4 +1,3 @@
-Backbone = require "backbone"
 hbox = require "../hbox"
 
 class SimpleAppLayoutView extends hbox.View
@@ -12,10 +11,6 @@ class SimpleAppLayout extends hbox.Model
   children: () =>
     return [@get('widgets'), @get('output')]
 
-class SimpleAppLayouts extends Backbone.Collection
-  model: SimpleAppLayout
-
 module.exports =
   Model: SimpleAppLayout
-  Collection: new SimpleAppLayouts()
   View: SimpleAppLayoutView

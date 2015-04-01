@@ -84,10 +84,6 @@ class Annulus extends Glyph.Model
   type: 'Annulus'
   distances: ['inner_radius', 'outer_radius']
 
-class Annuluses extends Glyph.Collection
-  model: Annulus
-
 module.exports =
   Model: Annulus
   View: AnnulusView
-  Collection: new Annuluses()

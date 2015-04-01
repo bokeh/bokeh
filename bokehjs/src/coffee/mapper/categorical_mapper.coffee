@@ -1,5 +1,4 @@
 _ = require "underscore"
-Collection = require "../common/collection"
 LinearMapper = require "./linear_mapper"
 
 class CategoricalMapper extends LinearMapper.Model
@@ -56,9 +55,5 @@ class CategoricalMapper extends LinearMapper.Model
       result[i] = factors[Math.floor(x[i]-0.5)]
     return result
 
-class CategoricalMappers extends Collection
-  model: CategoricalMapper
-
 module.exports =
   Model: CategoricalMapper
-  Collection: new CategoricalMappers()

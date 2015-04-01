@@ -1,5 +1,4 @@
 _ = require "underscore"
-Collection = require "../common/collection"
 AbstractTicker = require "./abstract_ticker"
 {argmin} = require "./util"
 
@@ -68,9 +67,5 @@ class CompositeTicker extends AbstractTicker.Model
     ticks = best_ticker.get_ticks_no_defaults(data_low, data_high, desired_n_ticks)
     return ticks
 
-class CompositeTickers extends Collection
-  model: CompositeTicker
-
 module.exports =
   Model: CompositeTicker
-  Collection: new CompositeTickers()

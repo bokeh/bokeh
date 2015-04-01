@@ -51,10 +51,6 @@ class Arc extends Glyph.Model
       direction: 'anticlock'
     }
 
-class Arcs extends Glyph.Collection
-  model: Arc
-
 module.exports =
   Model: Arc
   View: ArcView
-  Collection: new Arcs()

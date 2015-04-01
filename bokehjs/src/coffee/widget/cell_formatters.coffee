@@ -1,7 +1,6 @@
 _ = require "underscore"
 $ = require "jquery"
 Numeral = require "../../vendor/numeral.js-1.5.3/numeral.js"
-Collection = require "../common/collection"
 HasProperties = require "../common/has_properties"
 
 class CellFormatter extends HasProperties
@@ -15,8 +14,6 @@ class CellFormatter extends HasProperties
 
   defaults: () ->
     return _.extend {}, super(), @formatterDefaults
-
-class CellFormatterCollection extends Collection
 
 class StringFormatter extends CellFormatter
   type: 'StringFormatter'
@@ -43,9 +40,6 @@ class StringFormatter extends CellFormatter
 
     return text
 
-class StringFormatters extends CellFormatterCollection
-  model: StringFormatter
-
 class NumberFormatter extends StringFormatter
   type: 'NumberFormatter'
   formatterDefaults:
@@ -66,9 +60,6 @@ class NumberFormatter extends StringFormatter
     value = Numeral.format(value, format, language, rounding)
     return super(row, cell, value, columnDef, dataContext)
 
-class NumberFormatters extends CellFormatterCollection
-  model: NumberFormatter
-
 class BooleanFormatter extends CellFormatter
   type: 'BooleanFormatter'
   formatterDefaults:
@@ -76,9 +67,6 @@ class BooleanFormatter extends CellFormatter
 
   format: (row, cell, value, columnDef, dataContext) ->
     if !!value then $('<i>').addClass(@get("icon")).html() else ""
-
-class BooleanFormatters extends CellFormatterCollection
-  model: BooleanFormatter
 
 class DateFormatter extends CellFormatter
   type: 'DateFormatter'
@@ -105,22 +93,15 @@ class DateFormatter extends CellFormatter
     date = $.datepicker.formatDate(@getFormat(), new Date(value))
     return super(row, cell, date, columnDef, dataContext)
 
-class DateFormatters extends CellFormatterCollection
-  model: DateFormatter
-
 module.exports =
   String:
     Model: StringFormatter
-    Collection: new StringFormatters()
 
   Number:
     Model: NumberFormatter
-    Collection: new NumberFormatters()
 
   Boolean:
     Model: BooleanFormatter
-    Collection: new BooleanFormatters()
 
   Date:
     Model: DateFormatter
-    Collection: new DateFormatters()

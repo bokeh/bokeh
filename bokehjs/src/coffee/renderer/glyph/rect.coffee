@@ -166,10 +166,6 @@ class Rect extends Glyph.Model
       dilate: false
     }
 
-class Rects extends Glyph.Collection
-  model: Rect
-
 module.exports =
   Model: Rect
   View: RectView
-  Collection: new Rects()

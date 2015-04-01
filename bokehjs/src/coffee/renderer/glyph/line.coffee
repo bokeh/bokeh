@@ -35,10 +35,6 @@ class Line extends Glyph.Model
   type: 'Line'
   visuals: ['line']
 
-class Lines extends Glyph.Collection
-  model: Line
-
 module.exports =
   Model: Line
   View: LineView
-  Collection: new Lines()

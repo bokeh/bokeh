@@ -28,10 +28,6 @@ class Diamond extends Marker.Model
   default_view: DiamondView
   type: 'Diamond'
 
-class Diamonds extends Marker.Collection
-  model: Diamond
-
 module.exports =
   Model: Diamond
   View: DiamondView
-  Collection: new Diamonds()

@@ -1,5 +1,4 @@
 _ = require "underscore"
-Collection = require "../common/collection"
 HasProperties = require "../common/has_properties"
 
 class LinearColorMapper extends HasProperties
@@ -79,9 +78,5 @@ class LinearColorMapper extends HasProperties
     new_palette[new_palette.length-1] = palette[palette.length-1]
     return new_palette
 
-class LinearColorMappers extends Collection
-  model: LinearColorMapper
-
 module.exports =
-  "Model": LinearColorMapper,
-  "Collection": new LinearColorMappers()
+  Model: LinearColorMapper,

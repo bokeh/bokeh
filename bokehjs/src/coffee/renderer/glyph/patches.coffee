@@ -97,10 +97,6 @@ class Patches extends Glyph.Model
   type: 'Patches'
   coords: [ ['xs', 'ys'] ]
 
-class Patcheses extends Glyph.Collection
-  model: Patches
-
 module.exports =
   Model: Patches
   View: PatchesView
-  Collection: new Patcheses()

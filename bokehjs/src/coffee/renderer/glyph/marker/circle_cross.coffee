@@ -28,10 +28,6 @@ class CircleCross extends Marker.Model
   default_view: CircleCrossView
   type: 'CircleCross'
 
-class CircleCrosses extends Marker.Collection
-  model: CircleCross
-
 module.exports =
   Model: CircleCross
   View: CircleCrossView
-  Collection: new CircleCrosses()

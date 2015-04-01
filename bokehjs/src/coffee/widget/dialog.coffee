@@ -4,7 +4,6 @@ if global._bokehTest?
   $1 = undefined  # TODO Make work
 else
   $1 = require "bootstrap/modal"
-Collection = require "../common/collection"
 ContinuumView = require "../common/continuum_view"
 HasProperties = require "../common/has_properties"
 dialog_template = require "./dialog_template"
@@ -47,10 +46,6 @@ class Dialog extends HasProperties
       buttons: []
     }
 
-class Dialogs extends Collection
-  model: Dialog
-
 module.exports =
   Model: Dialog
   View: DialogView
-  Collection: new Dialogs()

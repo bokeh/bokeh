@@ -4,7 +4,6 @@ if global._bokehTest?
   $1 = undefined  # TODO Make work
 else
   $1 = require "jqrangeslider/jQDateRangeSlider"
-Collection = require "../common/collection"
 ContinuumView = require "../common/continuum_view"
 HasProperties = require "../common/has_properties"
 
@@ -64,10 +63,6 @@ class DateRangeSlider extends HasProperties
       ###
     }
 
-class DateRangeSliders extends Collection
-  model: DateRangeSlider
-
 module.exports =
   Model: DateRangeSlider
   View: DateRangeSliderView
-  Collection: new DateRangeSliders()

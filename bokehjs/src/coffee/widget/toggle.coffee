@@ -1,5 +1,4 @@
 _  = require "underscore"
-Collection =  require "../common/collection"
 ContinuumView  = require "../common/continuum_view"
 HasParent = require "../common/has_parent"
 
@@ -54,10 +53,6 @@ class Toggle extends HasParent
       disabled: false
     }
 
-class Toggles extends Collection
-  model: Toggle
-
 module.exports =
   Model: Toggle
   View: ToggleView
-  Collection: new Toggles()

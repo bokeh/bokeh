@@ -1,5 +1,4 @@
 _ = require "underscore"
-Collection = require "../common/collection"
 HasProperties = require "../common/has_properties"
 
 # A hacky analogue to repr() in Python.
@@ -116,9 +115,5 @@ class AbstractTicker extends HasProperties
       num_minor_ticks: 5
     }
 
-class AbstractTickers extends Collection
-  model: AbstractTicker
-
 module.exports =
   Model: AbstractTicker
-  Collection: new AbstractTickers()

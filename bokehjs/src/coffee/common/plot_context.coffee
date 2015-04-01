@@ -1,6 +1,5 @@
 $ = require "jquery"
 _ = require "underscore"
-Collection = require "./collection"
 build_views = require "./build_views"
 HasParent = require "./has_parent"
 ContinuumView = require "./continuum_view"
@@ -73,10 +72,6 @@ class PlotContext extends HasParent
       children: []
     }
 
-class PlotContexts extends Collection
-  model: PlotContext
-
 module.exports =
   Model: PlotContext
-  Collection: new PlotContexts()
   View: PlotContextView

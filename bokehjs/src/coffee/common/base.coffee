@@ -1,4 +1,5 @@
 _ = require "underscore"
+Collection = require "./collection"
 window = {location: {href: "local"}} unless window?
 
 # add some useful functions to underscore
@@ -198,11 +199,20 @@ locations =
 
 collection_overrides = {}
 
+
+_make_collection = (model) ->
+  class C extends Collection
+    model: model
+  return new C()
+
 Collections = (typename) ->
   if collection_overrides[typename]
     return collection_overrides[typename]
 
   mod = locations[typename]
+
+  if not mod.Collection?
+    mod.Collection = _make_collection(mod.Model)
 
   return mod.Collection
 

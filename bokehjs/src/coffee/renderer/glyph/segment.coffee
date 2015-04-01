@@ -35,10 +35,6 @@ class Segment extends Glyph.Model
   visuals: ['line']
   coords: [ ['x0', 'y0'], ['x1', 'y1'] ]
 
-class Segments extends Glyph.Collection
-  model: Segment
-
 module.exports =
   Model: Segment
   View: SegmentView
-  Collection: new Segments()

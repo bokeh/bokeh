@@ -94,10 +94,6 @@ class ImageRGBA extends Glyph.Model
       dilate: false
     }
 
-class ImageRGBAs extends Glyph.Collection
-  model: ImageRGBA
-
 module.exports =
   Model: ImageRGBA
   View: ImageRGBAView
-  Collection: new ImageRGBAs()

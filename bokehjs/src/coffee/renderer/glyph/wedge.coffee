@@ -93,10 +93,6 @@ class Wedge extends Glyph.Model
       direction: 'anticlock'
     }
 
-class Wedges extends Glyph.Collection
-  model: Wedge
-
 module.exports =
   Model: Wedge
   View: WedgeView
-  Collection: new Wedges()

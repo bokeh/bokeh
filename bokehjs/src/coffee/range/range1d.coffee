@@ -1,5 +1,4 @@
 _ = require "underscore"
-Collection = require "../common/collection"
 HasProperties = require "../common/has_properties"
 
 class Range1d extends HasProperties
@@ -22,9 +21,5 @@ class Range1d extends HasProperties
       end: 1
     }
 
-class Range1ds extends Collection
-  model: Range1d
-
 module.exports =
   Model: Range1d
-  Collection: new Range1ds()

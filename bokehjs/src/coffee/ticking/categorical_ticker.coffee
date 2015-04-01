@@ -1,4 +1,3 @@
-Collection = require "../common/collection"
 HasProperties = require "../common/has_properties"
 
 class CategoricalTicker extends HasProperties
@@ -15,10 +14,6 @@ class CategoricalTicker extends HasProperties
       "minor": []
     }
 
-class CategoricalTickers extends Collection
-  model: CategoricalTicker
-
 module.exports =
   Model: CategoricalTicker
-  Collection: new CategoricalTickers()
 

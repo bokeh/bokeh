@@ -1,5 +1,4 @@
 _ = require "underscore"
-Collection = require "../../common/collection"
 GestureTool = require "./gesture_tool"
 
 class PanToolView extends GestureTool.View
@@ -108,10 +107,6 @@ class PanTool extends GestureTool.Model
       dimensions: ["width", "height"]
     })
 
-class PanTools extends Collection
-  model: PanTool
-
 module.exports =
   Model: PanTool
   View: PanToolView
-  Collection: new PanTools()

@@ -52,10 +52,6 @@ class Patch extends Glyph.Model
   default_view: PatchView
   type: 'Patch'
 
-class Patches extends Glyph.Collection
-  model: Patch
-
 module.exports =
   Model: Patch
   View: PatchView
-  Collection: new Patches()

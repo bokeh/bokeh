@@ -1,5 +1,4 @@
 _ = require "underscore"
-Collection = require "../common/collection"
 ContinuumView = require "../common/continuum_view"
 HasParent = require "../common/has_parent"
 {logger} = require "../common/logging"
@@ -39,10 +38,6 @@ class Select extends HasParent
       options: []
     }
 
-class Selects extends Collection
-  model: Select
-
 module.exports =
   Model: Select
   View: SelectView
-  Collection: new Selects()

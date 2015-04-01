@@ -1,7 +1,6 @@
 _ = require "underscore"
 {logger} = require "../../common/logging"
 HasParent = require "../../common/has_parent"
-Collection = require "../../common/collection"
 PlotWidget = require "../../common/plot_widget"
 FactorRange = require "../../range/factor_range"
 RemoteDataSource = require "../../source/remote_data_source"
@@ -145,10 +144,6 @@ class GlyphRenderer extends HasParent
       level: 'glyph'
     }
 
-class GlyphRenderers extends Collection
-  model: GlyphRenderer
-
 module.exports =
   Model: GlyphRenderer
   View: GlyphRendererView
-  Collection: new GlyphRenderers()

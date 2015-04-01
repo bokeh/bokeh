@@ -30,10 +30,6 @@ class Asterisk extends Marker.Model
   type: 'Asterisk'
   props: ['line']
 
-class Asterisks extends Marker.Collection
-  model: Asterisk
-
 module.exports =
   Model: Asterisk
   View: AsteriskView
-  Collection: new Asterisks()

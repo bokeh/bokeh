@@ -3,7 +3,6 @@ rbush = require "rbush"
 bbox = require "../../common/bbox"
 {logger} = require "../../common/logging"
 HasParent = require "../../common/has_parent"
-Collection = require "../../common/collection"
 ContinuumView = require "../../common/continuum_view"
 properties = require "../../common/properties"
 CategoricalMapper = require "../../mapper/categorical_mapper"
@@ -252,9 +251,6 @@ class Glyph extends HasParent
       result = _.extend result, super(), defaults
     return result
 
-class Glyphs extends Collection
-
 module.exports =
   Model: Glyph
   View: GlyphView
-  Collection: Glyphs

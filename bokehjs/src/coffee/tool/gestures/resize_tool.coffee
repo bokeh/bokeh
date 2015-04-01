@@ -1,5 +1,4 @@
 _ = require "underscore"
-Collection = require "../../common/collection"
 GestureTool = require "./gesture_tool"
 
 class ResizeToolView extends GestureTool.View
@@ -62,9 +61,6 @@ class ResizeTool extends GestureTool.Model
   event_type: "pan"
   default_order: 40
 
-class ResizeTools extends Collection
-  model: ResizeTool
-
   defaults: () ->
     return _.extend({}, super(), {
       level: 'overlay'
@@ -73,5 +69,4 @@ class ResizeTools extends Collection
 
 module.exports =
   Model: ResizeTool
-  Collection: new ResizeTools()
   View: ResizeToolView
