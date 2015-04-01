@@ -71,11 +71,11 @@ class CircleView extends Glyph.View
 
   _hit_point: (geometry) ->
     [vx, vy] = [geometry.vx, geometry.vy]
-    x = @renderer.xmapper.map_from_target(vx)
-    y = @renderer.ymapper.map_from_target(vy)
+    x = @renderer.xmapper.map_from_target(vx, true)
+    y = @renderer.ymapper.map_from_target(vy, true)
 
     # check radius first
-    if @radius?
+    if @radius? and @distances.radius.units == "data"
       x0 = x - @max_radius
       x1 = x + @max_radius
 
@@ -105,10 +105,10 @@ class CircleView extends Glyph.View
     else
       for i in candidates
         r2 = Math.pow(@sradius[i], 2)
-        sx0 = @renderer.xmapper.map_to_target(x)
-        sx1 = @renderer.xmapper.map_to_target(@x[i])
-        sy0 = @renderer.ymapper.map_to_target(y)
-        sy1 = @renderer.ymapper.map_to_target(@y[i])
+        sx0 = @renderer.xmapper.map_to_target(x, true)
+        sx1 = @renderer.xmapper.map_to_target(@x[i], true)
+        sy0 = @renderer.ymapper.map_to_target(y, true)
+        sy1 = @renderer.ymapper.map_to_target(@y[i], true)
         dist = Math.pow(sx0-sx1, 2) + Math.pow(sy0-sy1, 2)
         if dist <= r2
           hits.push([i, dist])
