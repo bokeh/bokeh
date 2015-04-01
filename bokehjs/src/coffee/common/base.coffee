@@ -166,24 +166,7 @@ locations =
   AppVBox:                  require '../widget/layouts/appvbox'
   AppVBoxForm:              require '../widget/layouts/appvboxform'
 
-  AutoEncode:               require '../transforms/autoencode'
-  BinarySegment:            require '../transforms/binarysegment'
-  Const:                    require '../transforms/const'
-  Contour:                  require '../transforms/contour'
-  Count:                    require '../transforms/count'
-  CountCategories:          require '../transforms/countcategories'
-  Cuberoot:                 require '../transforms/cuberoot'
-  HDAlpha:                  require '../transforms/hdalpha'
-  Encode:                   require '../transforms/encode'
-  Id:                       require '../transforms/id'
-  Interpolate:              require '../transforms/interpolate'
-  InterpolateColor:         require '../transforms/interpolatecolor'
-  Log:                      require '../transforms/log'
-  NonZero:                  require '../transforms/nonzero'
-  Ratio:                    require '../transforms/ratio'
-  Seq:                      require '../transforms/seq'
-  Spread:                   require '../transforms/spread'
-  ToCounts:                 require '../transforms/tocounts'
+  ar_transforms:            [require '../ar/transforms']
 
 collection_overrides = {}
 
