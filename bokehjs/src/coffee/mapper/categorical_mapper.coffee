@@ -6,7 +6,10 @@ class CategoricalMapper extends LinearMapper.Model
 
   map_to_target: (x, return_synthetic=false) ->
     if _.isNumber(x)
-      return super(x)
+      if return_synthetic
+        return x
+      else
+        return super(x)
     factors = @get('source_range').get('factors')
     if x.indexOf(':') >= 0
       [factor, percent] = x.split(':')
@@ -21,7 +24,10 @@ class CategoricalMapper extends LinearMapper.Model
 
   v_map_to_target: (xs, return_synthetic=false) ->
     if _.isNumber(xs[0])
-      return super(xs)
+      if return_synthetic
+        return xs
+      else
+        return super(xs)
     factors = @get('source_range').get('factors')
     results = Array(xs.length)
     for i in [0...xs.length]

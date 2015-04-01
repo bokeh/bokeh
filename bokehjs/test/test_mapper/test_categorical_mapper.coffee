@@ -35,6 +35,11 @@ describe "categorical mapper module", ->
       test_synthetic_mapping "bar", 2
       test_synthetic_mapping "baz", 3
 
+    it "should map synthetic values to synthetic values", ->
+      test_synthetic_mapping 1, 1
+      test_synthetic_mapping 2, 2
+      test_synthetic_mapping 3, 3
+
   describe "vector mapping", ->
     values = generate_mapper().v_map_to_target factors
 
@@ -46,6 +51,10 @@ describe "categorical mapper module", ->
 
     it "should expose synthetic range values", ->
       synthetic = generate_mapper().v_map_to_target factors, true
+      expect(synthetic).to.deep.equal [1, 2, 3]
+
+    it "should map synthetic values to synthetic values", ->
+      synthetic = generate_mapper().v_map_to_target [1,2,3], true
       expect(synthetic).to.deep.equal [1, 2, 3]
 
   describe "inverse mapping", ->
