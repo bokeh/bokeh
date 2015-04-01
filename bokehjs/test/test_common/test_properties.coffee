@@ -10,9 +10,9 @@ svg_colors = utils.require "common/svg_colors"
 describe "properties module", ->
   before ->
     fixtures.Collection.reset()
-    base.locations['TestObject'] = fixtures
+    base.collection_overrides['TestObject'] = fixtures.Collection
   after ->
-    base.locations['TestObject'] = undefined
+    base.collection_overrides['TestObject'] = undefined
 
   generate_obj = (attrs) ->
     Collections('TestObject').create(attrs)
