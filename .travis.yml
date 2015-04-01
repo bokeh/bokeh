@@ -7,10 +7,6 @@ python:
     - 3.3
     - 3.4
 
-language: node_js
-node_js:
-    - "iojs"
-
 env:
     global:
         - MINICONDA_VERSION="3.5.5"
