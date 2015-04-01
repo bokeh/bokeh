@@ -1,44 +1,38 @@
+Collection = require "../../common/collection"
+{logger} = require "../../common/logging"
+FactorRange = require "../../range/factor_range"
+CategoricalTicker = require "../../ticking/categorical_ticker"
+CategoricalTickFormatter = require "../../ticking/categorical_tick_formatter"
+Axis = require "./axis"
 
-define [
-  "common/collection"
-  "./axis"
-  "common/logging"
-  "range/factor_range"
-  "ticking/categorical_ticker"
-  "ticking/categorical_tick_formatter"
-], (Collection, Axis, Logging, FactorRange, CategoricalTicker, CategoricalTickFormatter) ->
+class CategoricalAxisView extends Axis.View
 
-  logger = Logging.logger
+class CategoricalAxis extends Axis.Model
+  default_view: CategoricalAxisView
+  type: 'CategoricalAxis'
 
-  class CategoricalAxisView extends Axis.View
+  initialize: (attrs, objects) ->
+    super(attrs, objects)
+    if not @get('ticker')?
+      @set_obj('ticker', CategoricalTicker.Collection.create())
+    if not @get('formatter')?
+      @set_obj('formatter', CategoricalTickFormatter.Collection.create())
 
-  class CategoricalAxis extends Axis.Model
-    default_view: CategoricalAxisView
-    type: 'CategoricalAxis'
+  _computed_bounds: () ->
+    [range, cross_range] = @get('ranges')
 
-    initialize: (attrs, objects) ->
-      super(attrs, objects)
-      if not @get('ticker')?
-        @set_obj('ticker', CategoricalTicker.Collection.create())
-      if not @get('formatter')?
-        @set_obj('formatter', CategoricalTickFormatter.Collection.create())
+    user_bounds = @get('bounds') ? 'auto'
+    range_bounds = [range.get('min'), range.get('max')]
 
-    _computed_bounds: () ->
-      [range, cross_range] = @get('ranges')
+    if user_bounds != 'auto'
+      logger.warn("Categorical Axes only support user_bounds='auto', ignoring")
 
-      user_bounds = @get('bounds') ? 'auto'
-      range_bounds = [range.get('min'), range.get('max')]
+    return range_bounds
 
-      if user_bounds != 'auto'
-        logger.warn("Categorical Axes only support user_bounds='auto', ignoring")
+class CategoricalAxes extends Collection
+  model: CategoricalAxis
 
-      return range_bounds
-
-  class CategoricalAxes extends Collection
-    model: CategoricalAxis
-
-  return {
-      "Model": CategoricalAxis,
-      "Collection": new CategoricalAxes(),
-      "View": CategoricalAxisView
-    }
+module.exports =
+  Model: CategoricalAxis
+  Collection: new CategoricalAxes()
+  View: CategoricalAxisView

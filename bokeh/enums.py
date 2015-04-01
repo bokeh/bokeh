@@ -33,6 +33,7 @@ TextAlign = enumeration("left", "right", "center")
 TextBaseline = enumeration("top", "middle", "bottom", "alphabetic", "hanging")
 Direction = enumeration("clock", "anticlock")
 Units = enumeration("screen", "data")
+SpatialUnits = Units
 AngleUnits = enumeration("deg", "rad")
 DatetimeUnits = enumeration("microseconds", "milliseconds", "seconds", "minsec", "minutes", "hourmin", "hours", "days", "months", "years")
 Dimension = enumeration("width", "height", "x", "y")

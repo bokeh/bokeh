@@ -1,15 +1,12 @@
-define [
-  "common/collection",
-  "./transform",
-], (Collection, Transform) ->
+Collection = require "../common/collection"
+Transform = require "./transform"
 
-  class Encode extends Transform
-    type: "Encode"
+class Encode extends Transform
+  type: "Encode"
 
-  class Encodes extends Collection
-    model: Encode
+class Encodes extends Collection
+  model: Encode
 
-  return {
-    Model: Encode
-    Collection: new Encodes()
-  }
+module.exports =
+  Model: Encode
+  Collection: new Encodes()

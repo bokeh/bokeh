@@ -8,7 +8,7 @@ from __future__ import absolute_import
 from ..plot_object import PlotObject
 from ..mixins import FillProps, LineProps, TextProps
 from ..enums import Direction, Anchor
-from ..properties import Bool, DataSpec, Enum, Include, Instance
+from ..properties import AngleSpec, Bool, DataDistanceSpec, DistanceSpec, Enum, Include, Instance, NumberSpec, ScreenDistanceSpec, StringSpec
 
 from .mappers import LinearColorMapper
 
@@ -34,30 +34,28 @@ class AnnularWedge(Glyph):
 
     """
 
-    x = DataSpec("x", help="""
+    x = NumberSpec("x", help="""
     The x-coordinates of the center of the annular wedges.
     """)
 
-    y = DataSpec("y", help="""
+    y = NumberSpec("y", help="""
     The y-coordinates of the center of the annular wedges.
     """)
 
-    # TODO: (bev) should default to "inner_radius" field?
-    inner_radius = DataSpec(min_value=0, help="""
+    inner_radius = DistanceSpec("inner_radius", help="""
     The inner radii of the annular wedges.
     """)
 
-    # TODO: (bev) should default to "outer_radius" field?
-    outer_radius = DataSpec(min_value=0, help="""
+    outer_radius = DistanceSpec("outer_radius", help="""
     The outer radii of the annular wedges.
     """)
 
-    start_angle = DataSpec("start_angle", help="""
+    start_angle = AngleSpec("start_angle", help="""
     The angles to start the annular wedges, in radians, as measured from
     the horizontal.
     """)
 
-    end_angle = DataSpec("end_angle", help="""
+    end_angle = AngleSpec("end_angle", help="""
     The angles to end the annular wedges, in radians, as measured from
     the horizontal.
     """)
@@ -87,21 +85,19 @@ class Annulus(Glyph):
 
     """
 
-    x = DataSpec("x", help="""
+    x = NumberSpec("x", help="""
     The x-coordinates of the center of the annuli.
     """)
 
-    y = DataSpec("y", help="""
+    y = NumberSpec("y", help="""
     The y-coordinates of the center of the annuli.
     """)
 
-    # TODO: (bev) should default to "inner_radius" field?
-    inner_radius = DataSpec(min_value=0, help="""
+    inner_radius = DistanceSpec("inner_radius", help="""
     The inner radii of the annuli.
     """)
 
-    # TODO: (bev) should default to "outer_radius" field?
-    outer_radius = DataSpec(min_value=0, help="""
+    outer_radius = DistanceSpec("outer_radius", help="""
     The outer radii of the annuli.
     """)
 
@@ -126,24 +122,23 @@ class Arc(Glyph):
 
     """
 
-    x = DataSpec("x", help="""
+    x = NumberSpec("x", help="""
     The x-coordinates of the center of the arcs.
     """)
 
-    y = DataSpec("y", help="""
+    y = NumberSpec("y", help="""
     The y-coordinates of the center of the arcs.
     """)
 
-    # TODO: (bev) should default to "radius" field?
-    radius = DataSpec(min_value=0, help="""
+    radius = DistanceSpec("radius", help="""
     Radius of the arc.
     """)
 
-    start_angle = DataSpec("start_angle", help="""
+    start_angle = AngleSpec("start_angle", help="""
     The angles to start the arcs, in radians, as measured from the horizontal.
     """)
 
-    end_angle = DataSpec("end_angle", help="""
+    end_angle = AngleSpec("end_angle", help="""
     The angles to end the arcs, in radians, as measured from the horizontal.
     """)
 
@@ -171,35 +166,35 @@ class Bezier(Glyph):
 
     """
 
-    x0 = DataSpec("x0", help="""
+    x0 = NumberSpec("x0", help="""
     The x-coordinates of the starting points.
     """)
 
-    y0 = DataSpec("y0", help="""
+    y0 = NumberSpec("y0", help="""
     The y-coordinates of the starting points.
     """)
 
-    x1 = DataSpec("x1", help="""
+    x1 = NumberSpec("x1", help="""
     The x-coordinates of the ending points.
     """)
 
-    y1 = DataSpec("y1", help="""
+    y1 = NumberSpec("y1", help="""
     The y-coordinates of the ending points.
     """)
 
-    cx0 = DataSpec("cx0", help="""
+    cx0 = NumberSpec("cx0", help="""
     The x-coordinates of first control points.
     """)
 
-    cy0 = DataSpec("cy0", help="""
+    cy0 = NumberSpec("cy0", help="""
     The y-coordinates of first control points.
     """)
 
-    cx1 = DataSpec("cx1", help="""
+    cx1 = NumberSpec("cx1", help="""
     The x-coordinates of second control points.
     """)
 
-    cy1 = DataSpec("cy1", help="""
+    cy1 = NumberSpec("cy1", help="""
     The y-coordinates of second control points.
     """)
 
@@ -226,19 +221,19 @@ class Gear(Glyph):
 
     """
 
-    x = DataSpec("x", help="""
+    x = NumberSpec("x", help="""
     The x-coordinates of the center of the gears.
     """)
 
-    y = DataSpec("y", help="""
+    y = NumberSpec("y", help="""
     The y-coordinates of the center of the gears.
     """)
 
-    angle = DataSpec(default=0, help="""
+    angle = NumberSpec(default=0, help="""
     The angle the gears are rotated from horizontal. [rad]
     """)
 
-    module = DataSpec("module", help="""
+    module = AngleSpec("module", help="""
     A scaling factor, given by::
 
         m = p / pi
@@ -248,24 +243,24 @@ class Gear(Glyph):
     the same gear, measured along the pitch circle. [float]
     """)
 
-    teeth = DataSpec("teeth", help="""
+    teeth = NumberSpec("teeth", help="""
     How many teeth the gears have. [int]
     """)
 
-    pressure_angle = DataSpec(default=20, help= """
+    pressure_angle = NumberSpec(default=20, help= """
     The complement of the angle between the direction that the teeth
     exert force on each other, and the line joining the centers of the
     two gears. [deg]
     """)
 
     # TODO: (bev) evidently missing a test for default value
-    shaft_size = DataSpec(default=0.3, help="""
+    shaft_size = NumberSpec(default=0.3, help="""
     The central gear shaft size as a percentage of the overall gear
     size. [float]
     """)
 
     # TODO: (bev) evidently missing a test for default value
-    internal = DataSpec(default=False, help="""
+    internal = NumberSpec(default=False, help="""
     Whether the gear teeth are internal. [bool]
     """)
 
@@ -303,19 +298,19 @@ class Image(Glyph):
 
         super(Image, self).__init__(**kwargs)
 
-    image = DataSpec("image", help="""
+    image = NumberSpec("image", help="""
     The arrays of scalar data for the images to be colormapped.
     """)
 
-    x = DataSpec("x", help="""
+    x = NumberSpec("x", help="""
     The x-coordinates to locate the image anchors.
     """)
 
-    y = DataSpec("y", help="""
+    y = NumberSpec("y", help="""
     The y-coordinates to locate the image anchors.
     """)
 
-    dw = DataSpec("dw", help="""
+    dw = DistanceSpec("dw", help="""
     The widths of the plot regions that the images will occupy.
 
     .. note::
@@ -324,7 +319,7 @@ class Image(Glyph):
 
     """)
 
-    dh = DataSpec("dh", help="""
+    dh = DistanceSpec("dh", help="""
     The height of the plot region that the image will occupy.
 
     .. note::
@@ -359,27 +354,27 @@ class ImageRGBA(Glyph):
 
     """
 
-    image = DataSpec("image", help="""
+    image = NumberSpec("image", help="""
     The arrays of RGBA data for the images.
     """)
 
-    x = DataSpec("x", help="""
+    x = NumberSpec("x", help="""
     The x-coordinates to locate the image anchors.
     """)
 
-    y = DataSpec("y", help="""
+    y = NumberSpec("y", help="""
     The y-coordinates to locate the image anchors.
     """)
 
-    rows = DataSpec("rows", help="""
+    rows = NumberSpec("rows", help="""
     The numbers of rows in the images
     """)
 
-    cols = DataSpec("cols", help="""
+    cols = NumberSpec("cols", help="""
     The numbers of columns in the images
     """)
 
-    dw = DataSpec("dw", help="""
+    dw = DistanceSpec("dw", help="""
     The widths of the plot regions that the images will occupy.
 
     .. note::
@@ -388,7 +383,7 @@ class ImageRGBA(Glyph):
 
     """)
 
-    dh = DataSpec("dh", help="""
+    dh = DistanceSpec("dh", help="""
     The height of the plot region that the image will occupy.
 
     .. note::
@@ -421,7 +416,7 @@ class ImageURL(Glyph):
 
     """
 
-    url = DataSpec("url", help="""
+    url = NumberSpec("url", help="""
     The URLs to retrieve images from.
 
     .. note::
@@ -430,16 +425,16 @@ class ImageURL(Glyph):
 
     """)
 
-    x = DataSpec("x", help="""
+    x = NumberSpec("x", help="""
     The x-coordinates to locate the image anchors.
     """)
 
-    y = DataSpec("y", help="""
+    y = NumberSpec("y", help="""
     The y-coordinates to locate the image anchors.
     """)
 
     # TODO: (bev) rename to "dw" for consistency
-    w = DataSpec("w", help="""
+    w = DistanceSpec("w", help="""
     The widths of the plot regions that the images will occupy.
 
     .. note::
@@ -452,7 +447,7 @@ class ImageURL(Glyph):
     """)
 
     # TODO: (bev) rename to "dh" for consistency
-    h = DataSpec("h", help="""
+    h = DistanceSpec("h", help="""
     The height of the plot region that the image will occupy.
 
     .. note::
@@ -464,7 +459,7 @@ class ImageURL(Glyph):
 
     """)
 
-    angle = DataSpec(default=0, help="""
+    angle = AngleSpec(default=0, help="""
     The angles to rotate the images, in radians as measured from the
     horizontal.
     """)
@@ -499,11 +494,11 @@ class Line(Glyph):
 
     """
 
-    x = DataSpec("x", help="""
+    x = NumberSpec("x", help="""
     The x-coordinates for the points of the line.
     """)
 
-    y = DataSpec("y", help="""
+    y = NumberSpec("y", help="""
     The y-coordinates for the points of the line.
     """)
 
@@ -528,11 +523,11 @@ class MultiLine(Glyph):
     *source:* `tests/glyphs/MultiLine.py <https://github.com/bokeh/bokeh/tree/master/tests/glyphs/MultiLine.py>`_
 
     """
-    xs = DataSpec("xs", help="""
+    xs = NumberSpec("xs", help="""
     The x-coordinates for all the lines, given as a "list of lists".
     """)
 
-    ys = DataSpec("ys", help="""
+    ys = NumberSpec("ys", help="""
     The x-coordinates for all the lines, given as a "list of lists".
     """)
 
@@ -557,23 +552,23 @@ class Oval(Glyph):
 
     """
 
-    x = DataSpec("x", help="""
+    x = NumberSpec("x", help="""
     The x-coordinates of the centers of the ovals.
     """)
 
-    y = DataSpec("y", help="""
+    y = NumberSpec("y", help="""
     The y-coordinates of the centers of the ovals.
     """)
 
-    width = DataSpec("width", help="""
+    width = DistanceSpec("width", help="""
     The overall widths of each oval.
     """)
 
-    height = DataSpec("height", help="""
+    height = DistanceSpec("height", help="""
     The overall height of each oval.
     """)
 
-    angle = DataSpec("angle", help="""
+    angle = AngleSpec("angle", help="""
     The angle the ovals are rotated from horizontal. [rad]
     """)
 
@@ -602,7 +597,7 @@ class Patch(Glyph):
 
     """
 
-    x = DataSpec("x", help="""
+    x = NumberSpec("x", help="""
     The x-coordinates for the points of the patch.
 
     .. note::
@@ -612,7 +607,7 @@ class Patch(Glyph):
 
     """)
 
-    y = DataSpec("y", help="""
+    y = NumberSpec("y", help="""
     The y-coordinates for the points of the patch.
 
     .. note::
@@ -648,7 +643,7 @@ class Patches(Glyph):
 
     """
 
-    xs = DataSpec("xs", help="""
+    xs = NumberSpec("xs", help="""
     The x-coordinates for all the patches, given as a "list of lists".
 
     .. note::
@@ -658,7 +653,7 @@ class Patches(Glyph):
 
     """)
 
-    ys = DataSpec("ys", help="""
+    ys = NumberSpec("ys", help="""
     The y-coordinates for all the patches, given as a "list of lists".
 
     .. note::
@@ -689,19 +684,19 @@ class Quad(Glyph):
 
     """
 
-    left = DataSpec("left", help="""
+    left = NumberSpec("left", help="""
     The x-coordinates of the left edges.
     """)
 
-    right = DataSpec("right", help="""
+    right = NumberSpec("right", help="""
     The x-coordinates of the right edges.
     """)
 
-    bottom = DataSpec("bottom", help="""
+    bottom = NumberSpec("bottom", help="""
     The y-coordinates of the bottom edges.
     """)
 
-    top = DataSpec("top", help="""
+    top = NumberSpec("top", help="""
     The y-coordinates of the top edges.
     """)
 
@@ -726,27 +721,27 @@ class Quadratic(Glyph):
 
     """
 
-    x0 = DataSpec("x0", help="""
+    x0 = NumberSpec("x0", help="""
     The x-coordinates of the starting points.
     """)
 
-    y0 = DataSpec("y0", help="""
+    y0 = NumberSpec("y0", help="""
     The y-coordinates of the starting points.
     """)
 
-    x1 = DataSpec("x1", help="""
+    x1 = NumberSpec("x1", help="""
     The x-coordinates of the ending points.
     """)
 
-    y1 = DataSpec("y1", help="""
+    y1 = NumberSpec("y1", help="""
     The y-coordinates of the ending points.
     """)
 
-    cx = DataSpec("cx", help="""
+    cx = NumberSpec("cx", help="""
     The x-coordinates of the control points.
     """)
 
-    cy = DataSpec("cy", help="""
+    cy = NumberSpec("cy", help="""
     The y-coordinates of the control points.
     """)
 
@@ -767,21 +762,20 @@ class Ray(Glyph):
 
     """
 
-    x = DataSpec("x", help="""
+    x = NumberSpec("x", help="""
     The x-coordinates to start the rays.
     """)
 
-    y = DataSpec("y", help="""
+    y = NumberSpec("y", help="""
     The y-coordinates to start the rays.
     """)
 
-    angle = DataSpec("angle", help="""
+    angle = AngleSpec("angle", help="""
     The angles in radians to extend the rays, as measured from the
     horizontal.
     """)
 
-    # TODO: (bev) should default to "length" field?
-    length = DataSpec(units="screen", help="""
+    length = DistanceSpec("length", help="""
     The length to extend the ray. Note that this ``length`` defaults
     to screen units.
     """)
@@ -803,23 +797,23 @@ class Rect(Glyph):
 
     """
 
-    x = DataSpec("x", help="""
+    x = NumberSpec("x", help="""
     The x-coordinates of the centers of the rectangles.
     """)
 
-    y = DataSpec("y", help="""
+    y = NumberSpec("y", help="""
     The y-coordinates of the centers of the rectangles.
     """)
 
-    width = DataSpec("width", help="""
+    width = DistanceSpec("width", help="""
     The overall widths of the rectangles.
     """)
 
-    height = DataSpec("height", help="""
+    height = DistanceSpec("height", help="""
     The overall heights of the rectangles.
     """)
 
-    angle = DataSpec("angle", help="""
+    angle = AngleSpec("angle", help="""
     The angles to rotate the rectangles, in radians, as measured from
     the horizontal.
     """)
@@ -854,19 +848,19 @@ class Segment(Glyph):
 
     """
 
-    x0 = DataSpec("x0", help="""
+    x0 = NumberSpec("x0", help="""
     The x-coordinates of the starting points.
     """)
 
-    y0 = DataSpec("y0", help="""
+    y0 = NumberSpec("y0", help="""
     The y-coordinates of the starting points.
     """)
 
-    x1 = DataSpec("x1", help="""
+    x1 = NumberSpec("x1", help="""
     The x-coordinates of the ending points.
     """)
 
-    y1 = DataSpec("y1", help="""
+    y1 = NumberSpec("y1", help="""
     The y-coordinates of the ending points.
     """)
 
@@ -887,30 +881,30 @@ class Text(Glyph):
 
     """
 
-    x = DataSpec("x", help="""
+    x = NumberSpec("x", help="""
     The x-coordinates to locate the text anchors.
     """)
 
-    y = DataSpec("y", help="""
+    y = NumberSpec("y", help="""
     The y-coordinates to locate the text anchors.
     """)
 
-    text = DataSpec("text", help="""
+    text = StringSpec("text", help="""
     The text values to render.
     """)
 
-    angle = DataSpec(default=0, help="""
+    angle = AngleSpec(default=0, help="""
     The angles to rotate the text, in radians,, as measured from the horizontal.
     """)
 
-    x_offset = DataSpec("x_offset", units="screen", default=0, help="""
+    x_offset = NumberSpec(default=0, help="""
     Offset values to apply to the x-coordinates.
 
     This is useful, for instance, if it is desired to "float" text a fixed
     distance in screen units from a given data position.
     """)
 
-    y_offset = DataSpec("y_offset", units="screen", default=0, help="""
+    y_offset = NumberSpec(default=0, help="""
     Offset values to apply to the y-coordinates.
 
     This is useful, for instance, if it is desired to "float" text a fixed
@@ -934,24 +928,23 @@ class Wedge(Glyph):
 
     """
 
-    x = DataSpec("x", help="""
+    x = NumberSpec("x", help="""
     The x-coordinates of the points of the wedges.
     """)
 
-    y = DataSpec("y", help="""
+    y = NumberSpec("y", help="""
     The y-coordinates of the points of the wedges.
     """)
 
-    # TODO: (bev) should default to "radius" field?
-    radius = DataSpec(min_value=0, help="""
+    radius = DistanceSpec("radius", help="""
     Radii of the wedges.
     """)
 
-    start_angle = DataSpec("start_angle", help="""
+    start_angle = AngleSpec("start_angle", help="""
     The angles to start the wedges, in radians, as measured from the horizontal.
     """)
 
-    end_angle = DataSpec("end_angle", help="""
+    end_angle = AngleSpec("end_angle", help="""
     The angles to end the wedges, in radians as measured from the horizontal.
     """)
 

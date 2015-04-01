@@ -10,7 +10,7 @@ requirements:
     - python
     - distribute
     - setuptools
-    - nodejs
+    - gulp  # in javascript channel
 
   run:
     # bokeh
@@ -60,6 +60,7 @@ test:
     - websocket-client
     - ipython
     - ipython-notebook
+    - gulp
 
     # examples
     - scipy

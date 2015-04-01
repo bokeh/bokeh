@@ -1,75 +1,61 @@
-define [
-  "underscore"
-  "rbush"
-  "renderer/properties"
-  "./glyph"
-], (_, rbush, Properties, Glyph) ->
+_ = require "underscore"
+Glyph = require "./glyph"
 
-  class PatchView extends Glyph.View
+class PatchView extends Glyph.View
 
-    _fields: ['x', 'y']
-    _properties: ['line', 'fill']
+  _index_data: () ->
+    @_xy_index()
 
-    _set_data: () ->
-      @_xy_index()
+  _render: (ctx, indices) ->
+    if @visuals.fill.do_fill
+      @visuals.fill.set_value(ctx)
 
-    _map_data: () ->
-      [@sx, @sy] = @renderer.map_to_screen(@x, @glyph.x.units, @y, @glyph.y.units)
+      for i in indices
+        if i == 0
+          ctx.beginPath()
+          ctx.moveTo(@sx[i], @sy[i])
+          continue
+        else if isNaN(@sx[i] + @sy[i])
+          ctx.closePath()
+          ctx.fill()
+          ctx.beginPath()
+          continue
+        else
+          ctx.lineTo(@sx[i], @sy[i])
 
-    _render: (ctx, indices) ->
-      if @props.fill.do_fill
-        @props.fill.set(ctx, @props)
+      ctx.closePath()
+      ctx.fill()
 
-        for i in indices
-          if i == 0
-            ctx.beginPath()
-            ctx.moveTo(@sx[i], @sy[i])
-            continue
-          else if isNaN(@sx[i] + @sy[i])
-            ctx.closePath()
-            ctx.fill()
-            ctx.beginPath()
-            continue
-          else
-            ctx.lineTo(@sx[i], @sy[i])
+    if @visuals.line.do_stroke
+      @visuals.line.set_value(ctx)
 
-        ctx.closePath()
-        ctx.fill()
+      for i in indices
+        if i == 0
+          ctx.beginPath()
+          ctx.moveTo(@sx[i], @sy[i])
+          continue
+        else if isNaN(@sx[i] + @sy[i])
+          ctx.closePath()
+          ctx.stroke()
+          ctx.beginPath()
+          continue
+        else
+          ctx.lineTo(@sx[i], @sy[i])
 
-      if @props.line.do_stroke
-        @props.line.set(ctx, @props)
+      ctx.closePath()
+      ctx.stroke()
 
-        for i in indices
-          if i == 0
-            ctx.beginPath()
-            ctx.moveTo(@sx[i], @sy[i])
-            continue
-          else if isNaN(@sx[i] + @sy[i])
-            ctx.closePath()
-            ctx.stroke()
-            ctx.beginPath()
-            continue
-          else
-            ctx.lineTo(@sx[i], @sy[i])
+  draw_legend: (ctx, x0, x1, y0, y1) ->
+    @_generic_area_legend(ctx, x0, x1, y0, y1)
 
-        ctx.closePath()
-        ctx.stroke()
+class Patch extends Glyph.Model
+  default_view: PatchView
+  type: 'Patch'
 
-    draw_legend: (ctx, x0, x1, y0, y1) ->
-      @_generic_area_legend(ctx, x0, x1, y0, y1)
+class Patches extends Glyph.Collection
+  model: Patch
 
-  class Patch extends Glyph.Model
-    default_view: PatchView
-    type: 'Patch'
-
-    display_defaults: ->
-      return _.extend {}, super(), @line_defaults, @fill_defaults
-
-  class Patches extends Glyph.Collection
-    model: Patch
-
-  return {
-    Model: Patch
-    View: PatchView
-    Collection: new Patches()
-  }
+module.exports =
+  Model: Patch
+  View: PatchView
+  Collection: new Patches()

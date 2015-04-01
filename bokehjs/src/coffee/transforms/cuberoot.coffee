@@ -1,15 +1,12 @@
-define [
-  "common/collection",
-  "./transform",
-], (Collection, Transform) ->
+Collection = require "../common/collection"
+Transform = require "./transform"
 
-  class Cuberoot extends Transform
-    type: "Cuberoot"
+class Cuberoot extends Transform
+  type: "Cuberoot"
 
-  class Cuberoots extends Collection
-    model: Cuberoot
+class Cuberoots extends Collection
+  model: Cuberoot
 
-  return {
-    Model: Cuberoot
-    Collection: new Cuberoots()
-  }
+module.exports =
+  Model: Cuberoot
+  Collection: new Cuberoots()

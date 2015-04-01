@@ -1,6 +1,5 @@
-define [
-  "underscore"
-  "backbone"
-], (_, Backbone) ->
+Backbone = require "backbone"
 
-  class Collection extends Backbone.Collection
+class Collection extends Backbone.Collection
+
+module.exports = Collection

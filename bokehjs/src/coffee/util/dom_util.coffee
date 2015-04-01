@@ -1,12 +1,12 @@
-define ["underscore", "jquery"], (_, $) ->
+_ = require "underscore"
+$ = require "jquery"
 
-  waitForElement = (el, fn) ->
-    handler = () =>
-      if $.contains(document.documentElement, el)
-        clearInterval(interval)
-        fn()
-    interval = setInterval(handler, 50)
+waitForElement = (el, fn) ->
+  handler = () =>
+    if $.contains(document.documentElement, el)
+      clearInterval(interval)
+      fn()
+  interval = setInterval(handler, 50)
 
-  return {
-    waitForElement: waitForElement
-  }
+module.exports =
+  waitForElement: waitForElement

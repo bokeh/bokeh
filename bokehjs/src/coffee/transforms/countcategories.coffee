@@ -1,15 +1,12 @@
-define [
-  "common/collection",
-  "./transform",
-], (Collection, Transform) ->
+Collection = require "../common/collection"
+Transform = require "./transform"
 
-  class CountCategories extends Transform
-    type: "CountCategories"
+class CountCategories extends Transform
+  type: "CountCategories"
 
-  class CountCategoriess extends Collection
-    model: CountCategories
+class CountCategoriess extends Collection
+  model: CountCategories
 
-  return {
-    Model: CountCategories
-    Collection: new CountCategoriess()
-  }
+module.exports =
+  Model: CountCategories
+  Collection: new CountCategoriess()

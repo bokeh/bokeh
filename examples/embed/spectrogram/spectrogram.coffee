@@ -1,3 +1,4 @@
+_ = Bokeh._
 
 # something like this will make it into Bokeh proper
 find = (obj, name) ->

@@ -1,115 +1,103 @@
-define [
-  "underscore"
-  "renderer/properties"
-  "./glyph"
-], (_, Properties, Glyph) ->
+_ = require "underscore"
+Glyph = require "./glyph"
 
-  class ImageRGBAView extends Glyph.View
+class ImageRGBAView extends Glyph.View
 
-    _properties: []
+  _index_data: () ->
+    @_xy_index()
 
-    initialize: (options) ->
-      # the point of this is to support both efficient ArrayBuffers as well as dumb
-      # arrays of arrays that the python interface currently uses. If the model
-      # contains "rows" then it is assumed to be an ArrayBuffer with explicitly
-      # provided number of rows/cols, otherwise treat as a "list of lists".
-      if @mget("rows")?
-        @_fields = ['image:array', 'rows', 'cols', 'x', 'y', 'dw', 'dh']
+  _set_data: () ->
+    if not @image_data? or @image_data.length != @image.length
+      @image_data = new Array(@image.length)
+
+    if not @width? or @width.length != @image.length
+      @width = new Array(@image.length)
+
+    if not @height? or @height.length != @image.length
+      @height = new Array(@image.length)
+
+    for i in [0...@image.length]
+      if @rows?
+        @height[i] = @rows[i]
+        @width[i] = @cols[i]
       else
-        @_fields = ['image:array', 'x', 'y', 'dw', 'dh']
-      super(options)
+        @height[i] = @image[i].length
+        @width[i] = @image[i][0].length
+      canvas = document.createElement('canvas')
+      canvas.width = @width[i]
+      canvas.height = @height[i]
+      ctx = canvas.getContext('2d')
+      image_data = ctx.getImageData(0, 0, @width[i], @height[i])
+      if @rows?
+        image_data.data.set(new Uint8ClampedArray(@image[i]))
+      else
+        flat = _.flatten(@image[i])
+        buf = new ArrayBuffer(flat.length * 4)
+        color = new Uint32Array(buf)
+        for j in [0...flat.length]
+          color[j] = flat[j]
+        buf8 = new Uint8ClampedArray(buf)
+        image_data.data.set(buf8)
+      ctx.putImageData(image_data, 0, 0)
+      @image_data[i] = canvas
 
-    _set_data: () ->
-      if not @image_data? or @image_data.length != @image.length
-        @image_data = new Array(@image.length)
+      @max_dw = 0
+      if @dw.units == "data"
+        @max_dw = _.max(@dw)
+      @max_dh = 0
+      if @dh.units == "data"
+        @max_dh = _.max(@dh)
+      @_xy_index()
 
-      if not @width? or @width.length != @image.length
-        @width = new Array(@image.length)
+  _map_data: () ->
+    @sw = @sdist(@renderer.xmapper, @x, @dw, 'edge', @mget('dilate'))
+    @sh = @sdist(@renderer.ymapper, @y, @dh, 'edge', @mget('dilate'))
 
-      if not @height? or @height.length != @image.length
-        @height = new Array(@image.length)
+  _render: (ctx, indices) ->
+    old_smoothing = ctx.getImageSmoothingEnabled()
+    ctx.setImageSmoothingEnabled(false)
 
-      for i in [0...@image.length]
-        if @rows?
-          @height[i] = @rows[i]
-          @width[i] = @cols[i]
-        else
-          @height[i] = @image[i].length
-          @width[i] = @image[i][0].length
-        canvas = document.createElement('canvas');
-        canvas.width = @width[i];
-        canvas.height = @height[i];
-        ctx = canvas.getContext('2d');
-        image_data = ctx.getImageData(0, 0, @width[i], @height[i]);
-        if @rows?
-          image_data.data.set(new Uint8ClampedArray(@image[i]))
-        else
-          flat = _.flatten(@image[i])
-          buf = new ArrayBuffer(flat.length * 4);
-          color = new Uint32Array(buf);
-          for j in [0...flat.length]
-            color[j] = flat[j]
-          buf8 = new Uint8ClampedArray(buf);
-          image_data.data.set(buf8)
-        ctx.putImageData(image_data, 0, 0);
-        @image_data[i] = canvas
+    for i in indices
 
-        @max_dw = 0
-        if @glyph.dw.units != "screen"
-          @max_dw = _.max(@dw)
-        @max_dh = 0
-        if @glyph.dh.units != "screen"
-          @max_dh = _.max(@dh)
-        @_xy_index()
+      if isNaN(@sx[i] + @sy[i] + @sw[i] + @sh[i])
+        continue
 
-    _map_data: () ->
-      [@sx, @sy] = @renderer.map_to_screen(@x, @glyph.x.units, @y, @glyph.y.units)
-      @sw = @distance_vector('x', 'dw', 'edge', @mget('dilate'))
-      @sh = @distance_vector('y', 'dh', 'edge', @mget('dilate'))
+      y_offset = @sy[i]
 
-    _render: (ctx, indices) ->
-      old_smoothing = ctx.getImageSmoothingEnabled()
-      ctx.setImageSmoothingEnabled(false)
+      ctx.translate(0, y_offset)
+      ctx.scale(1, -1)
+      ctx.translate(0, -y_offset)
+      ctx.drawImage(@image_data[i], @sx[i]|0, @sy[i]|0, @sw[i], @sh[i])
+      ctx.translate(0, y_offset)
+      ctx.scale(1, -1)
+      ctx.translate(0, -y_offset)
 
-      for i in indices
+    ctx.setImageSmoothingEnabled(old_smoothing)
 
-        if isNaN(@sx[i] + @sy[i] + @sw[i] + @sh[i])
-          continue
+  bounds: () ->
+    bb = @index.data.bbox
+    return [
+      [bb[0], bb[2]+@max_dw],
+      [bb[1], bb[3]+@max_dh]
+    ]
 
-        y_offset = @sy[i]
+class ImageRGBA extends Glyph.Model
+  default_view: ImageRGBAView
+  type: 'ImageRGBA'
+  visuals: []
+  distances: ['dw', 'dh']
+  fields: ['image:array', '?rows', '?cols']
 
-        ctx.translate(0, y_offset)
-        ctx.scale(1, -1)
-        ctx.translate(0, -y_offset)
-        ctx.drawImage(@image_data[i], @sx[i]|0, @sy[i]|0, @sw[i], @sh[i])
-        ctx.translate(0, y_offset)
-        ctx.scale(1, -1)
-        ctx.translate(0, -y_offset)
+  display_defaults: ->
+    return _.extend {}, super(), {
+      level: 'underlay'
+      dilate: false
+    }
 
-      ctx.setImageSmoothingEnabled(old_smoothing)
+class ImageRGBAs extends Glyph.Collection
+  model: ImageRGBA
 
-    bounds: () ->
-      bb = @index.data.bbox
-      return [
-        [bb[0], bb[2]+@max_dw],
-        [bb[1], bb[3]+@max_dh]
-      ]
-
-  class ImageRGBA extends Glyph.Model
-    default_view: ImageRGBAView
-    type: 'ImageRGBA'
-
-    display_defaults: ->
-      return _.extend {}, super(), {
-        level: 'underlay'
-        dilate: false
-      }
-
-  class ImageRGBAs extends Glyph.Collection
-    model: ImageRGBA
-
-  return {
-    Model: ImageRGBA
-    View: ImageRGBAView
-    Collection: new ImageRGBAs()
-  }
+module.exports =
+  Model: ImageRGBA
+  View: ImageRGBAView
+  Collection: new ImageRGBAs()
