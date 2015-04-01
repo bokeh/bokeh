@@ -131,20 +131,8 @@ locations =
   HoverTool:                require '../tool/inspectors/hover_tool'
   InspectTool:              require '../tool/inspectors/inspect_tool'
 
-  StringFormatter:          require('../widget/cell_formatters').String
-  NumberFormatter:          require('../widget/cell_formatters').Number
-  BooleanFormatter:         require('../widget/cell_formatters').Boolean
-  DateFormatter:            require('../widget/cell_formatters').Date
-
-  StringEditor:             require('../widget/cell_editors').String
-  TextEditor:               require('../widget/cell_editors').Text
-  SelectEditor:             require('../widget/cell_editors').Select
-  PercentEditor:            require('../widget/cell_editors').Percent
-  CheckboxEditor:           require('../widget/cell_editors').Checkbox
-  IntEditor:                require('../widget/cell_editors').Int
-  NumberEditor:             require('../widget/cell_editors').Number
-  TimeEditor:               require('../widget/cell_editors').Time
-  DateEditor:               require('../widget/cell_editors').Date
+  editors:                  [require('../widget/cell_editors'), "Editor"]
+  formatters:               [require('../widget/cell_formatters'), "Formatter"]
 
   TableColumn:              require '../widget/table_column'
   DataTable:                require '../widget/data_table'
@@ -200,19 +188,37 @@ locations =
 collection_overrides = {}
 
 
-_make_collection = (model) ->
+make_collection = (model) ->
   class C extends Collection
     model: model
   return new C()
 
+make_cache = (locations) ->
+  result = {}
+  for name, spec of locations
+    if _.isArray(spec)
+      subspec = spec[0]
+      suffix = spec[1] ? ""
+      for subname, mod of subspec
+        modname = subname + suffix
+        result[modname] = mod
+    else
+      result[name] = spec
+  return result
+
+_mod_cache = null
+
 Collections = (typename) ->
+  if not _mod_cache?
+    _mod_cache = make_cache(locations)
+
   if collection_overrides[typename]
     return collection_overrides[typename]
 
-  mod = locations[typename]
+  mod = _mod_cache[typename]
 
   if not mod.Collection?
-    mod.Collection = _make_collection(mod.Model)
+    mod.Collection = make_collection(mod.Model)
 
   return mod.Collection
 
