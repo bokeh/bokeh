@@ -33,11 +33,11 @@ class WedgeView extends Glyph.View
 
   _hit_point: (geometry) ->
     [vx, vy] = [geometry.vx, geometry.vy]
-    x = @renderer.xmapper.map_from_target(vx)
+    x = @renderer.xmapper.map_from_target(vx, true)
     x0 = x - @max_radius
     x1 = x + @max_radius
 
-    y = @renderer.ymapper.map_from_target(vy)
+    y = @renderer.ymapper.map_from_target(vy, true)
     y0 = y - @max_radius
     y1 = y + @max_radius
 

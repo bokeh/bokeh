@@ -85,11 +85,11 @@ class CircleView extends Glyph.View
     else
       vx0 = vx - @max_size
       vx1 = vx + @max_size
-      [x0, x1] = @renderer.xmapper.v_map_from_target([vx0, vx1])
+      [x0, x1] = @renderer.xmapper.v_map_from_target([vx0, vx1], true)
 
       vy0 = vy - @max_size
       vy1 = vy + @max_size
-      [y0, y1] = @renderer.ymapper.v_map_from_target([vy0, vy1])
+      [y0, y1] = @renderer.ymapper.v_map_from_target([vy0, vy1], true)
 
     candidates = (pt[4].i for pt in @index.search([x0, y0, x1, y1]))
 
@@ -119,8 +119,8 @@ class CircleView extends Glyph.View
     return hits
 
   _hit_rect: (geometry) ->
-    [x0, x1] = @renderer.xmapper.v_map_from_target([geometry.vx0, geometry.vx1])
-    [y0, y1] = @renderer.ymapper.v_map_from_target([geometry.vy0, geometry.vy1])
+    [x0, x1] = @renderer.xmapper.v_map_from_target([geometry.vx0, geometry.vx1], true)
+    [y0, y1] = @renderer.ymapper.v_map_from_target([geometry.vy0, geometry.vy1], true)
 
     return (x[4].i for x in @index.search([x0, y0, x1, y1]))
 

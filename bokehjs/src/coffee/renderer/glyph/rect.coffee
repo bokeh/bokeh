@@ -72,15 +72,15 @@ class RectView extends Glyph.View
       ctx.stroke()
 
   _hit_rect: (geometry) ->
-    [x0, x1] = @renderer.xmapper.v_map_from_target([geometry.vx0, geometry.vx1])
-    [y0, y1] = @renderer.ymapper.v_map_from_target([geometry.vy0, geometry.vy1])
+    [x0, x1] = @renderer.xmapper.v_map_from_target([geometry.vx0, geometry.vx1], true)
+    [y0, y1] = @renderer.ymapper.v_map_from_target([geometry.vy0, geometry.vy1], true)
 
     return (x[4].i for x in @index.search([x0, y0, x1, y1]))
 
   _hit_point: (geometry) ->
     [vx, vy] = [geometry.vx, geometry.vy]
-    x = @renderer.xmapper.map_from_target(vx)
-    y = @renderer.ymapper.map_from_target(vy)
+    x = @renderer.xmapper.map_from_target(vx, true)
+    y = @renderer.ymapper.map_from_target(vy, true)
 
     # handle categorical cases
     xcat = _.isString(x)
@@ -97,7 +97,7 @@ class RectView extends Glyph.View
           max_width = @renderer.xmapper.map_to_target(max_width)
         vx0 = vx - 2*max_width
         vx1 = vx + 2*max_width
-        [x0, x1] = @renderer.xmapper.v_map_from_target([vx0, vx1])
+        [x0, x1] = @renderer.xmapper.v_map_from_target([vx0, vx1], true)
       else
         x0 = x - 2*@max_width
         x1 = x + 2*@max_width
@@ -108,7 +108,7 @@ class RectView extends Glyph.View
           max_height = @renderer.ymapper.map_to_target(max_height)
         vy0 = vy - 2*max_height
         vy1 = vy + 2*max_height
-        [y0, y1] = @renderer.ymapper.v_map_from_target([vy0, vy1])
+        [y0, y1] = @renderer.ymapper.v_map_from_target([vy0, vy1], true)
       else
         y0 = y - 2*@max_height
         y1 = y + 2*@max_height
