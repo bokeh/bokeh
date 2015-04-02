@@ -2,7 +2,8 @@
 enable embedding Bokeh plots in various ways.
 
 Attributes:
-    RESOURCES: This template is for loading BokehJS code and css according to the configuration in a Resources object.
+    RESOURCES: This template is for loading BokehJS code and css
+        according to the configuration in a Resources object.
 
 Args:
     css_files (list[str]) : a list of URIs for CSS files to include
@@ -11,14 +12,16 @@ Args:
     js_raw (list[str]) : a list of raw JS snippets to put between `<style>` tags
 
 Attributes:
-    PLOT_DIV: This template is for creating a basic plot div (to be used in conjunction with PLOT_JS).
+    PLOT_DIV: This template is for creating a basic plot div (to be
+        used in conjunction with PLOT_JS).
 
 Args:
     elementid (str) : a unique identifier for the div
         a PLOT_JS template should be configured with the same elementid
 
 Attributes:
-    PLOT_JS: This template is for creating the JavaScript code snippet that can render a plot into a corresponding PLOT_DIV.
+    PLOT_JS: This template is for creating the JavaScript code snippet
+        that can render a plot into a corresponding PLOT_DIV.
 
 Args:
     modelid (str) : The Bokeh model id for the object to render
@@ -28,7 +31,8 @@ Args:
     elementid (str) : the id of the div to render the plot into
 
 Attributes:
-    PLOT_SCRIPT: This template is for creating a full ``<script>`` tag for raw JS code. Useful with the PLOT_JS template.
+    PLOT_SCRIPT: This template is for creating a full ``<script>`` tag
+        for raw JS code. Useful with the PLOT_JS template.
 
 Args:
     plot_js (str) : raw JavaScript code to include
@@ -42,10 +46,12 @@ Args:
     plot_script (str) : typically the output of PLOT_SCRIPT
     plot_div (str) : typically the output of PLOT_DIV
 
-    Users can customize the file output by providing their own template with these parameters.
+    Users can customize the file output by providing their own template
+    with these parameters.
 
 Attributes:
-    NOTEBOOK_LOAD: This template is for loading BokehJS code and CSS into the IPython Notebook according to a resources configuration.
+    NOTEBOOK_LOAD: This template is for loading BokehJS code and CSS
+        into the IPython Notebook according to a resources configuration.
 
 Args:
     plot_resources (str) : typically the output of RESOURCES
@@ -57,20 +63,23 @@ Args:
     warnings (list[str]) : list of warnings to display to user
 
 Attributes:
-    NOTEBOOK_DIV: This template is for rendering a Bokeh plot into the IPython Notebook.
+    NOTEBOOK_DIV: This template is for rendering a Bokeh plot into the
+        IPython Notebook.
 
 Args:
     plot_script (str) : typically the output of PLOT_SCRIPT
     plot_div (str) : typically the output of PLOT_DIV
 
 Attributes:
-    AUTOLOAD: This template is for creating a sidecar JS file that will
-        automatically and asynchronously load BokehJS (if necessary) and
-        then replaces the ``script`` tag that loads it (with appropriate
-        attributes) with a rendered plot.
+    AUTOLOAD: This template is for creating an "autoload" JS script.
+        The script automatically and asynchronously loads BokehJS (if
+        necessary) and then replaces any suitably constructed
+        ``<script>`` tag that loads it with the rendered plot.
 
 Attributes:
-    AUTOLOAD_SERVER: This template is for creating ``<script>`` tags that run AUTOLOAD scripts for plots that connect to a Bokeh Server for their data
+    AUTOLOAD_SERVER: This template is for creating ``<script>`` tags
+        that run AUTOLOAD scripts for plots that connect to a Bokeh Server
+        for their data
 
 Args:
     src_path (str) : path to AUTOLOAD script
@@ -82,7 +91,9 @@ Args:
     docapikey (str) : API key for the document
 
 Attributes:
-    AUTOLOAD_STATIC: This template is for creating ``<script>`` tags that run AUTOLOAD scripts for plots that have their data embedded in the AUTOLOAD script
+    AUTOLOAD_STATIC: This template is for creating ``<script>`` tags
+        that run AUTOLOAD scripts for plots that have their data embedded
+        in the AUTOLOAD script
 
 Args:
     src_path (str) : path to AUTOLOAD script
