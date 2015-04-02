@@ -2,112 +2,30 @@ HasProperties = require "../common/has_properties"
 
 class Transform extends HasProperties
 
-class AutoEncode extends Transform
-  type: "AutoEncode"
-
-class BinarySegment extends Transform
-  type: "BinarySegment"
-
-class Const extends Transform
-  type: "Const"
-
-class Contour extends Transform
-  type: "Contour"
-
-class Count extends Transform
-  type: "Count"
-
-class CountCategories extends Transform
-  type: "CountCategories"
-
-class Cuberoot extends Transform
-  type: "Cuberoot"
-
-class Encode extends Transform
-  type: "Encode"
-
-class HDAlpha extends Transform
-  type: "HDAlpha"
-
-class Id extends Transform
-  type: "Id"
-
-class Interpolate extends Transform
-  type: "Interpolate"
-
-class InterpolateColor extends Transform
-  type: "InterpolateColor"
-
-class Log extends Transform
-  type: "Log"
-
-class NonZero extends Transform
-  type: "NonZero"
-
-class Ratio extends Transform
-  type: "Ratio"
-
-class Seq extends Transform
-  type: "Seq"
-
-class Spread extends Transform
-  type: "Spread"
-
-class ToCounts extends Transform
-  type: "ToCounts"
+_make_transform = (name) ->
+  # Create a holder object since we need something to take the dynamic assign
+  holder = {}
+  holder.Model = class extends Transform
+    type: name
+  return holder
 
 module.exports =
 
-  AutoEncode:
-    Model: AutoEncode
-
-  BinarySegment:
-    Model: BinarySegment
-
-  Const:
-    Model: Const
-
-  Contour:
-    Model: Contour
-
-  Count:
-    Model: Count
-
-  CountCategories:
-    Model: CountCategories
-
-  Cuberoot:
-    Model: Cuberoot
-
-  Encode:
-    Model: Encode
-
-  HDAlpha:
-    Model: HDAlpha
-
-  Id:
-    Model: Id
-
-  Interpolate:
-    Model: Interpolate
-
-  InterpolateColor:
-    Model: InterpolateColor
-
-  Log:
-    Model: Log
-
-  NonZero:
-    Model: NonZero
-
-  Ratio:
-    Model: Ratio
-
-  Seq:
-    Model: Seq
-
-  Spread:
-    Model: Spread
-
-  ToCounts:
-    Model: ToCounts
+  AutoEncode: _make_transform "AutoEncode"
+  BinarySegment: _make_transform "BinarySegment"
+  Const: _make_transform "Const"
+  Contour: _make_transform "Contour"
+  Count: _make_transform "Count"
+  CountCategories: _make_transform "CountCategories"
+  Cuberoot: _make_transform "Cuberoot"
+  Encode: _make_transform "Encode"
+  HDAlpha: _make_transform "HDAlpha"
+  Id: _make_transform "Id"
+  Interpolate: _make_transform "Interpolate"
+  InterpolateColor: _make_transform "InterpolateColor"
+  Log: _make_transform "Log"
+  NonZero: _make_transform "NonZero"
+  Ratio: _make_transform "Ratio"
+  Seq: _make_transform "Seq"
+  Spread: _make_transform "Spread"
+  ToCounts: _make_transform "ToCounts"
