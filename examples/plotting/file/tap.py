@@ -1,5 +1,6 @@
 from __future__ import division
 
+import itertool
 import numpy as np
 from six.moves import zip
 

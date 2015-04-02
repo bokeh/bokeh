@@ -49,7 +49,7 @@ from bokeh.enums import (
     Anchor, Location, Orientation,
     DashPattern,
     ButtonType, MapType,
-    NamedColor as Color, NamedIcon)
+    Color, NamedIcon)
 
 FILL = ["fill_color", "fill_alpha"]
 LINE = ["line_color", "line_width", "line_alpha", "line_join", "line_cap", "line_dash", "line_dash_offset"]
