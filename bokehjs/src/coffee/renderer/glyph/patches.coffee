@@ -77,8 +77,8 @@ class PatchesView extends Glyph.View
     sx = @renderer.plot_view.canvas.vx_to_sx(vx)
     sy = @renderer.plot_view.canvas.vy_to_sy(vy)
 
-    x = @renderer.xmapper.map_from_target(vx)
-    y = @renderer.ymapper.map_from_target(vy)
+    x = @renderer.xmapper.map_from_target(vx, true)
+    y = @renderer.ymapper.map_from_target(vy, true)
 
     candidates = (x[4].i for x in @index.search([x, y, x, y]))
 

@@ -72,62 +72,38 @@ class RectView extends Glyph.View
       ctx.stroke()
 
   _hit_rect: (geometry) ->
-    [x0, x1] = @renderer.xmapper.v_map_from_target([geometry.vx0, geometry.vx1])
-    [y0, y1] = @renderer.ymapper.v_map_from_target([geometry.vy0, geometry.vy1])
+    [x0, x1] = @renderer.xmapper.v_map_from_target([geometry.vx0, geometry.vx1], true)
+    [y0, y1] = @renderer.ymapper.v_map_from_target([geometry.vy0, geometry.vy1], true)
 
     return (x[4].i for x in @index.search([x0, y0, x1, y1]))
 
   _hit_point: (geometry) ->
     [vx, vy] = [geometry.vx, geometry.vy]
-    x = @renderer.xmapper.map_from_target(vx)
-    y = @renderer.ymapper.map_from_target(vy)
+    x = @renderer.xmapper.map_from_target(vx, true)
+    y = @renderer.ymapper.map_from_target(vy, true)
 
-    # handle categorical cases
-    xcat = _.isString(x)
-    ycat = _.isString(y)
-
-    if xcat or ycat
-      candidates = (i for i in [0...@x.length])
+    # the dilation by a factor of two is a quick and easy way to make
+    # sure we cover cases with rotated
+    if @distances.width.units == "screen"
+      vx0 = vx - 2*@max_width
+      vx1 = vx + 2*@max_width
+      [x0, x1] = @renderer.xmapper.v_map_from_target([vx0, vx1], true)
     else
-      # the dilation by a factor of two is a quick and easy way to make
-      # sure we cover cases with rotated
-      if @distances.width.units == "screen" or xcat
-        max_width = @max_width
-        if xcat
-          max_width = @renderer.xmapper.map_to_target(max_width)
-        vx0 = vx - 2*max_width
-        vx1 = vx + 2*max_width
-        [x0, x1] = @renderer.xmapper.v_map_from_target([vx0, vx1])
-      else
-        x0 = x - 2*@max_width
-        x1 = x + 2*@max_width
+      x0 = x - 2*@max_width
+      x1 = x + 2*@max_width
 
-      if @distances.height.units == "screen" or ycat
-        max_height = @max_height
-        if ycat
-          max_height = @renderer.ymapper.map_to_target(max_height)
-        vy0 = vy - 2*max_height
-        vy1 = vy + 2*max_height
-        [y0, y1] = @renderer.ymapper.v_map_from_target([vy0, vy1])
-      else
-        y0 = y - 2*@max_height
-        y1 = y + 2*@max_height
-
-      candidates = (pt[4].i for pt in @index.search([x0, y0, x1, y1]))
+    if @distances.height.units == "screen"
+      vy0 = vy - 2*@max_height
+      vy1 = vy + 2*@max_height
+      [y0, y1] = @renderer.ymapper.v_map_from_target([vy0, vy1], true)
+    else
+      y0 = y - 2*@max_height
+      y1 = y + 2*@max_height
 
     hits = []
-    for i in candidates
-      if @width_units == "screen" or xcat
-        sx = @renderer.plot_view.canvas.vx_to_sx(vx)
-      else
-        sx = @renderer.plot_view.canvas.vx_to_sx(
-          @renderer.xmapper.map_to_target(x))
-
-      if @height_units == "screen" or ycat
-        sy = @renderer.plot_view.canvas.vy_to_sy(vy)
-      else
-        sy = @renderer.plot_view.canvas.vy_to_sy(
-          @renderer.ymapper.map_to_target(y))
+    for i in (pt[4].i for pt in @index.search([x0, y0, x1, y1]))
+      sx = @renderer.plot_view.canvas.vx_to_sx(vx)
+      sy = @renderer.plot_view.canvas.vy_to_sy(vy)
 
       if @angle[i]
         d = Math.sqrt(Math.pow((sx - @sx[i]), 2) + Math.pow((sy - @sy[i]),2))

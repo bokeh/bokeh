@@ -19,6 +19,8 @@ class GlyphView extends ContinuumView
       @[name] = {}
       @[name] = _.extend(@[name], func(@model))
 
+    @warned = {}
+
     return @
 
   render: (ctx, indicies) ->
@@ -138,8 +140,7 @@ class GlyphView extends ContinuumView
     if @[func]?
       result = @[func](geometry)
     else if not @warned[geometry.type]?
-      logger.error("'#{geometry.type}' selection not available factories
-                    #{@model.type}")
+      logger.error("'#{geometry.type}' selection not available for #{@model.type}")
       @warned[geometry.type] = true
 
     return result
