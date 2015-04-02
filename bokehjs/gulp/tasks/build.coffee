@@ -4,4 +4,4 @@ gulp = require "gulp"
 runSequence = require "run-sequence"
 
 gulp.task "build", ->
-  runSequence("scripts:build", "styles:build", "scripts:minify", "styles:minify")
+  runSequence("scripts", "styles")

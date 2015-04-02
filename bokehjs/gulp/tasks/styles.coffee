@@ -22,8 +22,4 @@ gulp.task "styles:minify", ->
     .pipe gulp.dest paths.buildDir.css
 
 gulp.task "styles", ->
-  runSequence("styles:build", "styles:minify", "install")
-
-gulp.task "styles:watch", ->
-  gulp.watch "#{paths.css.watchSources}", ->
-    runSequence("styles:build", "install")
+  runSequence("styles:build", "styles:minify")

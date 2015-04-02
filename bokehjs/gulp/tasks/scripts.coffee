@@ -34,8 +34,4 @@ gulp.task "scripts:minify", ->
     .pipe gulp.dest paths.buildDir.js
 
 gulp.task "scripts", ->
-  runSequence("scripts:build", "scripts:minify", "install")
-
-gulp.task "scripts:watch", ->
-  gulp.watch "#{paths.coffee.watchSources}", ->
-    runSequence("scripts:build", "install")
+  runSequence("scripts:build", "scripts:minify")
