@@ -8,8 +8,7 @@ subTasks = ["develop:install-js"]
 gulp.task "develop", subTasks, ->
 
 gulp.task "develop:watch", ["develop"], ->
-  gulp.watch "#{paths.buildDir.js}/*.js", ["develop:install-js"]
-  gulp.watch "#{paths.buildDir.css}/*css", ["develop:install-js"]
+  gulp.watch "#{paths.coffee.watchSources}", ["develop:install-js"]
 
 outputLine = (line) ->
   prefix = gutil.colors.cyan "setup.py:"

@@ -44,7 +44,8 @@
     "through": "^2.3.6",
     "underscore": "^1.5.2",
     "vinyl-source-stream": "^1.0.0",
-    "vinyl-transform": "^1.0.0"
+    "vinyl-transform": "^1.0.0",
+    "run-sequence": "^1.0.0"
   },
   "browserify": {
     "extensions": [

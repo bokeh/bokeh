@@ -4,11 +4,12 @@ gulp = require "gulp"
 rename = require "gulp-rename"
 transform = require "vinyl-transform"
 uglify = require "gulp-uglifyjs"
+runSequence = require "run-sequence"
 
 paths = require "../paths"
 utils = require "../utils"
 
-gulp.task "scripts", ->
+gulp.task "scripts:build", ->
   opts =
     extensions: [".coffee", ".eco"]
 
@@ -18,22 +19,25 @@ gulp.task "scripts", ->
       .transform "coffeeify"
       .bundle()
 
-  gulp.src paths.coffee.sources
+  return gulp.src paths.coffee.sources
     .pipe browserified
     .pipe change (content) ->
       "(function() { var define = undefined; #{content} })()"
     .pipe rename "bokeh.js"
     .pipe gulp.dest paths.buildDir.js
 
-minifyTask = ->
-  gulp.src paths.coffee.destination.fullWithPath
+gulp.task "scripts:minify", ->
+  return gulp.src paths.coffee.destination.fullWithPath
     .pipe uglify paths.coffee.destination.minified
     .pipe gulp.dest paths.buildDir.js
 
-gulp.task "scripts:minify", ["scripts"], minifyTask
-gulp.task "scripts:minify-only", minifyTask
+gulp.task "scripts:install", ->
+  return gulp.src "#{paths.buildDir.js}*.js"
+    .pipe gulp.dest paths.serverDir.js
 
-utils.buildWatchTask "scripts", paths.coffee.watchSources
-utils.buildWatchTask "scripts:minify",
-                     paths.coffee.destination.fullWithPath,
-                     ["scripts:minify-only"]
+gulp.task "scripts", ->
+  runSequence("scripts:build", "scripts:minify", "scripts:install")
+
+gulp.task "scripts:watch", ->
+  gulp.watch "#{paths.coffee.watchSources}", ->
+    runSequence("scripts:build", "scripts:install")

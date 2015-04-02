@@ -1,3 +1,3 @@
 gulp = require "gulp"
 
-gulp.task "build", ["scripts:minify", "styles:minify"], ->
+gulp.task "build", ["scripts:build", "scripts:minify", "styles:minify"], ->
