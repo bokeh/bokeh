@@ -1,6 +1,5 @@
 _ = require "underscore"
 $ = require "jquery"
-Collection = require "../common/collection"
 ContinuumView = require "../common/continuum_view"
 HasProperties = require "../common/has_properties"
 
@@ -25,10 +24,6 @@ class Panel extends HasProperties
       closable: false
     }
 
-class Panels extends Collection
-  model: Panel
-
 module.exports =
   Model: Panel
   View: PanelView
-  Collection: new Panels()

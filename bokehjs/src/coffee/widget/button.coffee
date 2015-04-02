@@ -1,6 +1,5 @@
 _ = require "underscore"
 build_views = require "../common/build_views"
-Collection = require "../common/collection"
 ContinuumView = require "../common/continuum_view"
 HasParent = require "../common/has_parent"
 
@@ -52,10 +51,6 @@ class Button extends HasParent
       disabled: false
     }
 
-class Buttons extends Collection
-  model: Button
-
 module.exports =
   Model: Button
   View: ButtonView
-  Collection: new Buttons()

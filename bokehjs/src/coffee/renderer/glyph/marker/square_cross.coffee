@@ -32,10 +32,6 @@ class SquareCross extends Marker.Model
   default_view: SquareCrossView
   type: 'SquareCross'
 
-class SquareCrosses extends Marker.Collection
-  model: SquareCross
-
 module.exports =
   Model: SquareCross
   View: SquareCrossView
-  Collection: new SquareCrosses()

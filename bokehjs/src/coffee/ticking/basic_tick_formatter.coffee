@@ -1,5 +1,4 @@
 _ = require "underscore"
-Collection = require "../common/collection"
 HasProperties = require "../common/has_properties"
 
 class BasicTickFormatter extends HasProperties
@@ -88,9 +87,5 @@ class BasicTickFormatter extends HasProperties
       power_limit_low: -3
     }
 
-class BasicTickFormatters extends Collection
-  model: BasicTickFormatter
-
 module.exports =
   Model: BasicTickFormatter
-  Collection: new BasicTickFormatters()

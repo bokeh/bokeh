@@ -1,5 +1,4 @@
 _ = require "underscore"
-Collection = require "../../common/collection"
 HasParent = require "../../common/has_parent"
 PlotWidget = require "../../common/plot_widget"
 properties = require "../../common/properties"
@@ -150,10 +149,6 @@ class Legend extends HasParent
       datapoint: null
     }
 
-class Legends extends Collection
-  model: Legend
-
 module.exports =
   Model: Legend
-  Collection: new Legends()
   View: LegendView

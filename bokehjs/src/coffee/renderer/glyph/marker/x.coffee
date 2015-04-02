@@ -24,10 +24,6 @@ class X extends Marker.Model
   type: 'X'
   props: ['line']
 
-class Xs extends Marker.Collection
-  model: X
-
 module.exports =
   Model: X
   View: XView
-  Collection: new Xs()

@@ -1,6 +1,5 @@
 _ = require "underscore"
 $ = require "jquery"
-Collection = require "../../common/collection"
 Tooltip = require "../../renderer/annotation/tooltip"
 Util = require "../../util/util"
 InspectTool = require "./inspect_tool"
@@ -161,10 +160,6 @@ class HoverTool extends InspectTool.Model
       ]
     })
 
-class HoverTools extends Collection
-  model: HoverTool
-
 module.exports =
   Model: HoverTool
   View: HoverToolView
-  Collection: new HoverTools()

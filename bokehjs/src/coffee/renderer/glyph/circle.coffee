@@ -172,10 +172,6 @@ class Circle extends Glyph.Model
       radius_dimension: 'x'
     }
 
-class Circles extends Glyph.Collection
-  model: Circle
-
 module.exports =
   Model: Circle
   View: CircleView
-  Collection: new Circles()

@@ -94,10 +94,6 @@ class Image extends Glyph.Model
       dilate: false
     }
 
-class Images extends Glyph.Collection
-  model: Image
-
 module.exports =
   Model: Image
   View: ImageView
-  Collection: new Images()

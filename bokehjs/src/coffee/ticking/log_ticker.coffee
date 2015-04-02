@@ -1,5 +1,4 @@
 _ = require "underscore"
-Collection = require "../common/collection"
 AdaptiveTicker = require "./adaptive_ticker"
 
 range = (start, stop, step) ->
@@ -87,9 +86,5 @@ class LogTicker extends AdaptiveTicker.Model
       mantissas: [1, 5]
     }
 
-class LogTickers extends Collection
-  model: LogTicker
-
 module.exports =
   Model: LogTicker
-  Collection: new LogTickers()

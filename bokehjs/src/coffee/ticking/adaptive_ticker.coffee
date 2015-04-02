@@ -1,5 +1,4 @@
 _ = require "underscore"
-Collection = require "../common/collection"
 AbstractTicker = require "./abstract_ticker"
 {argmin} = require "./util"
 
@@ -64,9 +63,5 @@ class AdaptiveTicker extends AbstractTicker.Model
       max_interval: Infinity,
     }
 
-class AdaptiveTickers extends Collection
-  model: AdaptiveTicker
-
 module.exports =
   Model: AdaptiveTicker
-  Collection: new AdaptiveTickers()

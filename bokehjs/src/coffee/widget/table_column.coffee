@@ -1,5 +1,4 @@
 _ = require "underscore"
-Collection = require "../common/collection"
 HasProperties = require "../common/has_properties"
 
 class TableColumn extends HasProperties
@@ -29,9 +28,5 @@ class TableColumn extends HasProperties
       defaultSortAsc: @get("default_sort") == "ascending"
     }
 
-class TableColumns extends Collection
-  model: TableColumn
-
 module.exports =
   Model: TableColumn
-  Collection: new TableColumns()

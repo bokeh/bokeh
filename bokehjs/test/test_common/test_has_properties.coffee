@@ -9,9 +9,9 @@ HasProperties = utils.require "common/has_properties"
 describe "has_properties module", ->
   before ->
     fixtures.Collection.reset()
-    base.locations['TestObject'] = fixtures
+    base.collection_overrides['TestObject'] = fixtures.Collection
   after ->
-    base.locations['TestObject'] = undefined
+    base.collection_overrides['TestObject'] = undefined
 
   it "should support computed properties", ->
     model = Collections('TestObject').create({'a': 1, 'b': 1})

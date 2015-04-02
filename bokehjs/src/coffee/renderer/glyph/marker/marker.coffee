@@ -92,9 +92,6 @@ class Marker extends Glyph.Model
       size: 4
     }
 
-class Markers extends Glyph.Collection
-
 module.exports =
   Model: Marker
   View: MarkerView
-  Collection: Markers

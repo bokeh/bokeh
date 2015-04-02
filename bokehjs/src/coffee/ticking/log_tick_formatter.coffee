@@ -1,5 +1,4 @@
 _ = require "underscore"
-Collection = require "../common/collection"
 HasProperties = require "../common/has_properties"
 {logger} = require "../common/logging"
 BasicTickFormatter = require "./basic_tick_formatter"
@@ -35,9 +34,5 @@ class LogTickFormatter extends HasProperties
 
     return labels
 
-class LogTickFormatters extends Collection
-  model: LogTickFormatter
-
 module.exports =
   Model: LogTickFormatter
-  Collection: new LogTickFormatters()

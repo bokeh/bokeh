@@ -30,10 +30,6 @@ class Triangle extends Marker.Model
   default_view: TriangleView
   type: 'Triangle'
 
-class Triangles extends Marker.Collection
-  model: Triangle
-
 module.exports =
   Model: Triangle
   View: TriangleView
-  Collection: new Triangles()

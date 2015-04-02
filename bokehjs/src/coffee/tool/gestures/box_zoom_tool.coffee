@@ -1,5 +1,4 @@
 _ = require "underscore"
-Collection = require "../../common/collection"
 BoxSelection = require "../../renderer/overlay/box_selection"
 GestureTool = require "./gesture_tool"
 
@@ -89,10 +88,6 @@ class BoxZoomTool extends GestureTool.Model
       dimensions: ["width", "height"]
     })
 
-class BoxZoomTools extends Collection
-  model: BoxZoomTool
-
 module.exports =
   Model: BoxZoomTool
   View: BoxZoomToolView
-  Collection: new BoxZoomTools()

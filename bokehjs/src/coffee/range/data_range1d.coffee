@@ -1,6 +1,5 @@
 _ = require "underscore"
 bbox = require "../common/bbox"
-Collection = require "../common/collection"
 {logger} = require "../common/logging"
 Range1d = require "./range1d"
 
@@ -94,9 +93,5 @@ class DataRange1d extends Range1d.Model
       flipped: false
     }
 
-class DataRange1ds extends Collection
-  model: DataRange1d
-
 module.exports =
   Model: DataRange1d
-  Collection: new DataRange1ds()

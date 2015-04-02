@@ -1,5 +1,4 @@
 _ = require "underscore"
-Collection = require "../common/collection"
 ContinuumView = require "../common/continuum_view"
 HasParent = require "../common/has_parent"
 
@@ -28,10 +27,6 @@ class Paragraph extends HasParent
       text: ''
     }
 
-class Paragraphs extends Collection
-  model: Paragraph
-
 module.exports =
   Model: Paragraph
   View: ParagraphView
-  Collection: new Paragraphs()

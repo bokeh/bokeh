@@ -134,10 +134,6 @@ class Gear extends Glyph.Model
       internal: false
     }
 
-class Gears extends Glyph.Collection
-  model: Gear
-
 module.exports =
   Model: Gear
   View: GearView
-  Collection: new Gears()

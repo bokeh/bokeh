@@ -46,10 +46,6 @@ class Ray extends Glyph.Model
   distances: ['length']
   angles: ['angle']
 
-class Rays extends Glyph.Collection
-  model: Ray
-
 module.exports =
   Model: Ray
   View: RayView
-  Collection: new Rays()
