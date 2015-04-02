@@ -3,6 +3,7 @@
 
 from __future__ import division
 
+import itertools
 import numpy as np
 from six.moves import zip
 from collections import OrderedDict
