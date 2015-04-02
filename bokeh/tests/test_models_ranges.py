@@ -12,7 +12,9 @@ class TestRange1d(unittest.TestCase):
         self.assertRaises(ValueError, self.range1d, 1, 2, start=1, end=2)
         self.assertRaises(ValueError, self.range1d, 1, 2, 3)
         range1d = self.range1d(1, 2)
+        assert range1d
         range1d = self.range1d(start=1, end=2)
+        assert range1d
 
 class TestFactorRange(unittest.TestCase):
 
@@ -24,7 +26,9 @@ class TestFactorRange(unittest.TestCase):
         self.assertRaises(ValueError, self.factorRange, [1, 2, 3], factors=[1, 2, 3])
         self.assertRaises(ValueError, self.factorRange, [1, 2, 3, 4])
         factorRange = self.factorRange(1, 2)
+        assert factorRange
         factorRange = self.factorRange(factors=[1, 2, 3, 4, 5])
+        assert factorRange
 
 
 

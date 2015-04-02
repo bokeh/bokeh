@@ -3,8 +3,10 @@ import unittest
 import numpy as np
 
 from bokeh.properties import (
-    HasProps, Int, Array, String, Enum, Float, NumberSpec, ColorSpec, NumberSpec, DashPattern
-)
+    HasProps, NumberSpec, ColorSpec, Bool, Int, Float, Complex, String,
+    Regex, List, Dict, Tuple, Array, Instance, Any, Interval, Either,
+    Enum, Color, Align, DashPattern, Size, Percent, Angle)
+
 
 class Basictest(unittest.TestCase):
 
@@ -315,25 +317,6 @@ class TestDashPattern(unittest.TestCase):
             pat = DashPattern
         f = Foo()
 
-        f.pat = []
-        self.assertEqual(f.pat, [])
-        f.pat = [2]
-        self.assertEqual(f.pat, [2])
-        f.pat = [2, 4]
-        self.assertEqual(f.pat, [2, 4])
-        f.pat = [2, 4, 6]
-        self.assertEqual(f.pat, [2, 4, 6])
-
-        with self.assertRaises(ValueError):
-            f.pat = [2, 4.2]
-        with self.assertRaises(ValueError):
-            f.pat = [2, "a"]
-
-    def test_list(self):
-        class Foo(HasProps):
-            pat = DashPattern
-        f = Foo()
-
         f.pat = ()
         self.assertEqual(f.pat, ())
         f.pat = (2,)
@@ -360,9 +343,6 @@ class TestDashPattern(unittest.TestCase):
         with self.assertRaises(ValueError):
             f.pat = {}
 
-from bokeh.properties import (Bool, Int, Float, Complex, String,
-    Regex, List, Dict, Tuple, Array, Instance, Any, Interval, Either,
-    Enum, Color, Align, DashPattern, Size, Percent, Angle)
 
 class Foo(HasProps):
     pass
@@ -769,6 +749,7 @@ class TestProperties(unittest.TestCase):
 
     def test_Align(self):
         prop = Align() # TODO
+        assert prop
 
     def test_DashPattern(self):
         prop = DashPattern()

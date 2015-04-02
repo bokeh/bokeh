@@ -10,11 +10,9 @@ logger = logging.getLogger(__file__)
 
 import uuid
 
-from . import _glyph_functions as gf
 from .exceptions import DataIntegrityException
 from .models import PlotContext
 from .plot_object import PlotObject
-from .plotting_helpers import _new_xy_plot
 from .util.serialization import dump
 
 class Document(object):

@@ -35,9 +35,11 @@ Direction = enumeration("clock", "anticlock")
 Units = enumeration("screen", "data")
 SpatialUnits = Units
 AngleUnits = enumeration("deg", "rad")
-DatetimeUnits = enumeration("microseconds", "milliseconds", "seconds", "minsec", "minutes", "hourmin", "hours", "days", "months", "years")
+DatetimeUnits = enumeration("microseconds", "milliseconds", "seconds", "minsec", 
+                            "minutes", "hourmin", "hours", "days", "months", "years")
 Dimension = enumeration("width", "height", "x", "y")
-Anchor = enumeration("top_left", "top_center", "top_right", "right_center", "bottom_right", "bottom_center", "bottom_left", "left_center", "center")
+Anchor = enumeration("top_left", "top_center", "top_right", "right_center", 
+                     "bottom_right", "bottom_center", "bottom_left", "left_center", "center")
 Location = enumeration("above", "below", "left", "right")
 Orientation = enumeration("top_right", "top_left", "bottom_left", "bottom_right")
 DashPattern = enumeration("solid", "dashed", "dotted", "dotdash", "dashdot")
@@ -46,6 +48,10 @@ NamedColor = enumeration(*colors.__colors__)
 NamedIcon = enumeration(*icons.__icons__)
 Palette = enumeration(*palettes.__palettes__)
 MapType = enumeration("satellite", "roadmap", "terrain", "hybrid")
-DateFormat = enumeration("ATOM", "W3C", "RFC-3339", "ISO-8601", "COOKIE", "RFC-822", "RFC-850", "RFC-1036", "RFC-1123", "RFC-2822", "RSS", "TICKS", "TIMESTAMP")
+DateFormat = enumeration("ATOM", "W3C", "RFC-3339", "ISO-8601", "COOKIE", "RFC-822", 
+                         "RFC-850", "RFC-1036", "RFC-1123", "RFC-2822", "RSS", "TICKS", "TIMESTAMP")
 RoundingFunction = enumeration("round", "nearest", "floor", "rounddown", "ceil", "roundup")
-NumeralLanguage = enumeration("be-nl", "chs", "cs", "da-dk", "de-ch", "de", "en", "en-gb", "es-ES", "es", "et", "fi", "fr-CA", "fr-ch", "fr", "hu", "it", "ja", "nl-nl", "pl", "pt-br", "pt-pt", "ru", "ru-UA", "sk", "th", "tr", "uk-UA")
+NumeralLanguage = enumeration("be-nl", "chs", "cs", "da-dk", "de-ch", "de", "en", 
+                              "en-gb", "es-ES", "es", "et", "fi", "fr-CA", "fr-ch", 
+                              "fr", "hu", "it", "ja", "nl-nl", "pl", "pt-br", 
+                              "pt-pt", "ru", "ru-UA", "sk", "th", "tr", "uk-UA")

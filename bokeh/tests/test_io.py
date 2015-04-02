@@ -125,7 +125,8 @@ class Test_GetSaveArgs(DefaultStateTester):
         filename, resources, title = io._get_save_args(io._state, "filename", None, "title")
         self.assertEqual(resources, INLINE)
         self.assertTrue(mock_warn.called)
-        self.assertEqual(mock_warn.call_args[0], ('save() called but no resources was supplied and output_file(...) was never called, defaulting to resources.INLINE',))
+        self.assertEqual(mock_warn.call_args[0], ("save() called but no resources was supplied and output_file(...) "
+                                                  "was never called, defaulting to resources.INLINE",))
         self.assertEqual(mock_warn.call_args[1], {})
 
     def test_explicit_title(self):
@@ -144,7 +145,8 @@ class Test_GetSaveArgs(DefaultStateTester):
         filename, resources, title = io._get_save_args(io._state, "filename", "resources", None)
         self.assertEqual(title, "Bokeh Plot")
         self.assertTrue(mock_warn.called)
-        self.assertEqual(mock_warn.call_args[0], ("save() called but no title was supplied and output_file(...) was never called, using default title 'Bokeh Plot'",))
+        self.assertEqual(mock_warn.call_args[0], ("save() called but no title was supplied and output_file(...) " 
+                                                  "was never called, using default title 'Bokeh Plot'",))
         self.assertEqual(mock_warn.call_args[1], {})
 
 class Test_SaveHelper(DefaultStateTester):
@@ -160,7 +162,8 @@ class TestPush(DefaultStateTester):
         io._state.session = None
         io.push()
         self.assertTrue(mock_warn.called)
-        self.assertEqual(mock_warn.call_args[0], ('push() called but no session was supplied and output_server(...) was never called, nothing pushed',))
+        self.assertEqual(mock_warn.call_args[0], ("push() called but no session was supplied and output_server(...) "
+                                                  "was never called, nothing pushed",))
         self.assertEqual(mock_warn.call_args[1], {})
 
     def test_noargs(self):

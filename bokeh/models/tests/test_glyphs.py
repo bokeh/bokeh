@@ -39,6 +39,18 @@ from bokeh.enums import (
     ButtonType, MapType,
     NamedColor as Color, NamedIcon)
 
+# fool flake8
+(   LineJoin, LineDash, LineCap,
+    FontStyle,
+    TextAlign, TextBaseline,
+    Direction,
+    Units, AngleUnits, DatetimeUnits,
+    Dimension,
+    Anchor, Location, Orientation,
+    DashPattern,
+    ButtonType, MapType,
+    NamedColor as Color, NamedIcon)
+
 FILL = ["fill_color", "fill_alpha"]
 LINE = ["line_color", "line_width", "line_alpha", "line_join", "line_cap", "line_dash", "line_dash_offset"]
 TEXT = ["text_font", "text_font_size", "text_font_style", "text_color", "text_alpha", "text_align", "text_baseline"]

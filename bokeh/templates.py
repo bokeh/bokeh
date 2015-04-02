@@ -64,7 +64,10 @@ Args:
     plot_div (str) : typically the output of PLOT_DIV
 
 Attributes:
-    AUTOLOAD: This template is for creating a sidecar JS file that will automatically and asynchronously load BokehJS (if necessary) and then replaces the ``script`` tag that loads it (with appropriate attributes) with a rendered plot.
+    AUTOLOAD: This template is for creating a sidecar JS file that will
+        automatically and asynchronously load BokehJS (if necessary) and
+        then replaces the ``script`` tag that loads it (with appropriate
+        attributes) with a rendered plot.
 
 Attributes:
     AUTOLOAD_SERVER: This template is for creating ``<script>`` tags that run AUTOLOAD scripts for plots that connect to a Bokeh Server for their data

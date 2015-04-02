@@ -200,7 +200,6 @@ class SimpleApp(Widget):
     def default_layout(self):
         widgets = [self.objects[x] for x in self.widget_list]
         widgets = VBoxForm(children=widgets)
-        output = self.objects['output']
         layout = AppHBox(children=[widgets, "output"], app=self)
         return layout
 

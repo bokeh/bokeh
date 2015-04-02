@@ -17,10 +17,7 @@ from __future__ import absolute_import
 
 import unittest
 
-from bokeh.models import ColumnDataSource, GlyphRenderer
-from bokeh.models.glyphs import Circle
-
-from bokeh.charts.utils import chunk, make_scatter
+from bokeh.charts.utils import chunk
 
 #-----------------------------------------------------------------------------
 # Classes and functions
